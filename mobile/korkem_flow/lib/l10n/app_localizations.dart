@@ -237,6 +237,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Status: {status}'**
   String semanticStatus(String status);
+
+  /// No description provided for @navDeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Deals'**
+  String get navDeals;
+
+  /// No description provided for @navTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get navTasks;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @tasksOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get tasksOverdue;
+
+  /// No description provided for @tasksToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get tasksToday;
+
+  /// No description provided for @tasksUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get tasksUpcoming;
+
+  /// No description provided for @tasksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No open tasks'**
+  String get tasksEmpty;
+
+  /// No description provided for @tasksEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned work will appear here.'**
+  String get tasksEmptyBody;
+
+  /// No description provided for @taskComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get taskComplete;
+
+  /// No description provided for @taskCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task completed'**
+  String get taskCompleted;
+
+  /// No description provided for @taskProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Production'**
+  String get taskProduction;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get profileAppearance;
+
+  /// No description provided for @profileLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get profileLanguage;
+
+  /// No description provided for @profileAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get profileAbout;
+
+  /// No description provided for @profileVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get profileVersion;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @actionUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get actionUndo;
 }
 
 class _AppLocalizationsDelegate

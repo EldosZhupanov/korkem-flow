@@ -1,8 +1,6 @@
 {
   "@@locale": "ru",
-
   "appTitle": "KORKEM Flow",
-
   "actionRetry": "Повторить",
   "actionCancel": "Отмена",
   "actionSave": "Сохранить",
@@ -12,23 +10,37 @@
   "actionFilter": "Фильтр",
   "actionSearch": "Поиск",
   "actionSelectAll": "Все",
-
   "errorGeneric": "Что-то пошло не так.",
   "errorOffline": "Нет связи с сервером.",
   "errorNoAccess": "У вас нет доступа к этому разделу.",
   "errorNotFound": "Не найдено.",
-
   "offlineBanner": "Нет сети. Показаны сохранённые данные.",
   "staleData": "Обновлено {time}",
-
   "emptyTitle": "Здесь пока пусто",
   "emptyGeneric": "Новые записи появятся здесь автоматически.",
-
   "loading": "Загрузка",
   "loadingMore": "Загружаем ещё",
-
   "searchHint": "Поиск",
   "searchNoResults": "Ничего не найдено по запросу «{query}»",
-
-  "semanticStatus": "Статус: {status}"
+  "semanticStatus": "Статус: {status}",
+  "navDeals": "Сделки",
+  "navTasks": "Задачи",
+  "navProfile": "Профиль",
+  "tasksOverdue": "Просрочено",
+  "tasksToday": "Сегодня",
+  "tasksUpcoming": "Предстоящие",
+  "tasksEmpty": "Нет открытых задач",
+  "tasksEmptyBody": "Назначенная работа появится здесь.",
+  "taskComplete": "Завершить",
+  "taskCompleted": "Задача завершена",
+  "taskProduction": "Производство",
+  "profileTitle": "Профиль",
+  "profileAppearance": "Оформление",
+  "profileLanguage": "Язык",
+  "profileAbout": "О приложении",
+  "profileVersion": "Версия",
+  "themeSystem": "Системная",
+  "themeLight": "Светлая",
+  "themeDark": "Тёмная",
+  "actionUndo": "Отменить"
 }

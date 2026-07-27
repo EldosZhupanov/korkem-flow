@@ -1,11 +1,9 @@
 {
   "@@locale": "en",
-
   "appTitle": "KORKEM Flow",
   "@appTitle": {
     "description": "Application name, shown in the task switcher"
   },
-
   "actionRetry": "Try again",
   "@actionRetry": {
     "description": "Retries the failed request on an error state"
@@ -18,7 +16,6 @@
   "actionFilter": "Filter",
   "actionSearch": "Search",
   "actionSelectAll": "All",
-
   "errorGeneric": "Something went wrong.",
   "@errorGeneric": {
     "description": "Fallback when the backend gives no human-readable message"
@@ -26,7 +23,6 @@
   "errorOffline": "No connection to the server.",
   "errorNoAccess": "You don't have access to this.",
   "errorNotFound": "Not found.",
-
   "offlineBanner": "You're offline. Showing saved data.",
   "@offlineBanner": {
     "description": "Persistent banner while the device has no connectivity"
@@ -41,13 +37,10 @@
       }
     }
   },
-
   "emptyTitle": "Nothing here yet",
   "emptyGeneric": "New items will appear here as they are created.",
-
   "loading": "Loading",
   "loadingMore": "Loading more",
-
   "searchHint": "Search",
   "searchNoResults": "No matches for \"{query}\"",
   "@searchNoResults": {
@@ -57,7 +50,6 @@
       }
     }
   },
-
   "semanticStatus": "Status: {status}",
   "@semanticStatus": {
     "description": "Screen-reader label for a status chip",
@@ -66,5 +58,25 @@
         "type": "String"
       }
     }
-  }
+  },
+  "navDeals": "Deals",
+  "navTasks": "Tasks",
+  "navProfile": "Profile",
+  "tasksOverdue": "Overdue",
+  "tasksToday": "Today",
+  "tasksUpcoming": "Upcoming",
+  "tasksEmpty": "No open tasks",
+  "tasksEmptyBody": "Assigned work will appear here.",
+  "taskComplete": "Complete",
+  "taskCompleted": "Task completed",
+  "taskProduction": "Production",
+  "profileTitle": "Profile",
+  "profileAppearance": "Appearance",
+  "profileLanguage": "Language",
+  "profileAbout": "About",
+  "profileVersion": "Version",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "actionUndo": "Undo"
 }

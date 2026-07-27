@@ -1,8 +1,6 @@
 {
   "@@locale": "kk",
-
   "appTitle": "KORKEM Flow",
-
   "actionRetry": "Қайталау",
   "actionCancel": "Болдырмау",
   "actionSave": "Сақтау",
@@ -12,23 +10,37 @@
   "actionFilter": "Сүзгі",
   "actionSearch": "Іздеу",
   "actionSelectAll": "Барлығы",
-
   "errorGeneric": "Бір нәрсе дұрыс болмады.",
   "errorOffline": "Сервермен байланыс жоқ.",
   "errorNoAccess": "Бұл бөлімге қолжетімділік жоқ.",
   "errorNotFound": "Табылмады.",
-
   "offlineBanner": "Желі жоқ. Сақталған деректер көрсетілген.",
   "staleData": "Жаңартылды {time}",
-
   "emptyTitle": "Мұнда әзірге бос",
   "emptyGeneric": "Жаңа жазбалар осы жерде пайда болады.",
-
   "loading": "Жүктелуде",
   "loadingMore": "Тағы жүктелуде",
-
   "searchHint": "Іздеу",
   "searchNoResults": "«{query}» бойынша ештеңе табылмады",
-
-  "semanticStatus": "Күйі: {status}"
+  "semanticStatus": "Күйі: {status}",
+  "navDeals": "Мәмілелер",
+  "navTasks": "Тапсырмалар",
+  "navProfile": "Профиль",
+  "tasksOverdue": "Мерзімі өткен",
+  "tasksToday": "Бүгін",
+  "tasksUpcoming": "Алдағы",
+  "tasksEmpty": "Ашық тапсырма жоқ",
+  "tasksEmptyBody": "Тағайындалған жұмыс осында көрінеді.",
+  "taskComplete": "Аяқтау",
+  "taskCompleted": "Тапсырма аяқталды",
+  "taskProduction": "Өндіріс",
+  "profileTitle": "Профиль",
+  "profileAppearance": "Безендіру",
+  "profileLanguage": "Тіл",
+  "profileAbout": "Қосымша туралы",
+  "profileVersion": "Нұсқа",
+  "themeSystem": "Жүйелік",
+  "themeLight": "Жарық",
+  "themeDark": "Қараңғы",
+  "actionUndo": "Болдырмау"
 }

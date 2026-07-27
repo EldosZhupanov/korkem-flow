@@ -82,4 +82,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String semanticStatus(String status) {
     return 'Status: $status';
   }
+
+  @override
+  String get navDeals => 'Deals';
+
+  @override
+  String get navTasks => 'Tasks';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get tasksOverdue => 'Overdue';
+
+  @override
+  String get tasksToday => 'Today';
+
+  @override
+  String get tasksUpcoming => 'Upcoming';
+
+  @override
+  String get tasksEmpty => 'No open tasks';
+
+  @override
+  String get tasksEmptyBody => 'Assigned work will appear here.';
+
+  @override
+  String get taskComplete => 'Complete';
+
+  @override
+  String get taskCompleted => 'Task completed';
+
+  @override
+  String get taskProduction => 'Production';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileAppearance => 'Appearance';
+
+  @override
+  String get profileLanguage => 'Language';
+
+  @override
+  String get profileAbout => 'About';
+
+  @override
+  String get profileVersion => 'Version';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get actionUndo => 'Undo';
 }

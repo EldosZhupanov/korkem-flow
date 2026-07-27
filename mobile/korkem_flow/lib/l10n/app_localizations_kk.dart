@@ -82,4 +82,64 @@ class AppLocalizationsKk extends AppLocalizations {
   String semanticStatus(String status) {
     return 'Күйі: $status';
   }
+
+  @override
+  String get navDeals => 'Мәмілелер';
+
+  @override
+  String get navTasks => 'Тапсырмалар';
+
+  @override
+  String get navProfile => 'Профиль';
+
+  @override
+  String get tasksOverdue => 'Мерзімі өткен';
+
+  @override
+  String get tasksToday => 'Бүгін';
+
+  @override
+  String get tasksUpcoming => 'Алдағы';
+
+  @override
+  String get tasksEmpty => 'Ашық тапсырма жоқ';
+
+  @override
+  String get tasksEmptyBody => 'Тағайындалған жұмыс осында көрінеді.';
+
+  @override
+  String get taskComplete => 'Аяқтау';
+
+  @override
+  String get taskCompleted => 'Тапсырма аяқталды';
+
+  @override
+  String get taskProduction => 'Өндіріс';
+
+  @override
+  String get profileTitle => 'Профиль';
+
+  @override
+  String get profileAppearance => 'Безендіру';
+
+  @override
+  String get profileLanguage => 'Тіл';
+
+  @override
+  String get profileAbout => 'Қосымша туралы';
+
+  @override
+  String get profileVersion => 'Нұсқа';
+
+  @override
+  String get themeSystem => 'Жүйелік';
+
+  @override
+  String get themeLight => 'Жарық';
+
+  @override
+  String get themeDark => 'Қараңғы';
+
+  @override
+  String get actionUndo => 'Болдырмау';
 }

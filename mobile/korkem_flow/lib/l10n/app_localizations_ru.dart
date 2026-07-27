@@ -82,4 +82,64 @@ class AppLocalizationsRu extends AppLocalizations {
   String semanticStatus(String status) {
     return 'Статус: $status';
   }
+
+  @override
+  String get navDeals => 'Сделки';
+
+  @override
+  String get navTasks => 'Задачи';
+
+  @override
+  String get navProfile => 'Профиль';
+
+  @override
+  String get tasksOverdue => 'Просрочено';
+
+  @override
+  String get tasksToday => 'Сегодня';
+
+  @override
+  String get tasksUpcoming => 'Предстоящие';
+
+  @override
+  String get tasksEmpty => 'Нет открытых задач';
+
+  @override
+  String get tasksEmptyBody => 'Назначенная работа появится здесь.';
+
+  @override
+  String get taskComplete => 'Завершить';
+
+  @override
+  String get taskCompleted => 'Задача завершена';
+
+  @override
+  String get taskProduction => 'Производство';
+
+  @override
+  String get profileTitle => 'Профиль';
+
+  @override
+  String get profileAppearance => 'Оформление';
+
+  @override
+  String get profileLanguage => 'Язык';
+
+  @override
+  String get profileAbout => 'О приложении';
+
+  @override
+  String get profileVersion => 'Версия';
+
+  @override
+  String get themeSystem => 'Системная';
+
+  @override
+  String get themeLight => 'Светлая';
+
+  @override
+  String get themeDark => 'Тёмная';
+
+  @override
+  String get actionUndo => 'Отменить';
 }
