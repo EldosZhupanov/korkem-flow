@@ -1,6 +1,6 @@
 # Sprint 1 — First Vertical Slice
 
-Status: **in progress**. Architecture frozen per `.ai/architecture/*` (phases 01-07 complete; 08-25 intentionally not pursued further unless implementation reveals a blocking flaw, per the current instruction). This is an execution/roadmap document, not a new architecture document.
+Status: **complete** (Sprint 1 slice delivered; 83 integration tests green, live smoke test passing). Architecture frozen per `.ai/architecture/*` (phases 01-07 complete; 08-25 intentionally not pursued further unless implementation reveals a blocking flaw, per the current instruction). This is an execution/roadmap document, not a new architecture document.
 
 ## Slice
 
@@ -43,7 +43,7 @@ Customer sends a WhatsApp message → AI classifies intent → Create/find Custo
 - 33/33 tests passing; one real bug found via **live HTTP testing** (not unit tests): whitelisted-method responses were JSON-wrapped instead of Meta's required raw plain-text, fixed by returning a genuine `werkzeug.Response`. Verified live end-to-end (real HMAC signature, real HTTP round-trip, confirmed DB writes) — see `sprint_1_phase_d_checklist.md`.
 - **Not verified**: live send/receive against the real WhatsApp network — no real Meta Business API credentials exist in this environment.
 
-### Phase E — AI Orchestrator (minimal, this slice only)
+### Phase E — AI Orchestrator (minimal, this slice only) — ✅ DONE
 - E1. Orchestrator service scaffold (LLM call for intent classification) — 3-4h
 - E2. Intent classification: "new order inquiry" vs. other — 2-3h
 - E3. Sales Agent skill: find-or-create Customer (CRM Organization) — 3h
@@ -51,25 +51,70 @@ Customer sends a WhatsApp message → AI classifies intent → Create/find Custo
 - E5. Sales Agent skill: draft + send Quote — 3h
 - E6. Sales Agent: propose Quote-approval as a Pending Action — 3h
 
-### Phase F — Human approval (minimal)
+### Phase F — Human approval (minimal) — ✅ DONE
 - F1. Desk-based approve/reject view for Pending Action — 3-4h
 - F2. On approval: execute the real Command, advance the Deal — 2h
 
-### Phase G — Production Order creation
+### Phase G — Production Order creation — ✅ DONE
 - G1. On approval: create `Work Order` with `originating_deal` set — 3h
 - G2. Create a `Task` on the Work Order, assign to a worker — 2h
 
-### Phase H — Worker completes task
+### Phase H — Worker completes task — ✅ DONE
 - H1. Minimal worker-facing completion action (Desk-based) — 2h
 - H2. On completion: fire the notification-trigger event — 1h
 
-### Phase I — Notify customer
+### Phase I — Notify customer — ✅ DONE
 - I1. Notification Service: send WhatsApp on Task completion — 3h
 - I2. End-to-end test: simulate inbound WhatsApp → verify full chain → outbound confirmation — 2-3h
 
-### Phase J — Tests & wrap-up
+### Phase J — Tests & wrap-up — ✅ DONE
 - J1. Automated tests per doctype/orchestrator logic — 3-4h
 - J2. Manual end-to-end smoke test — 2h
 - J3. Commit review, progress update — 1h
 
 Work proceeds task by task, in this order — no skipping ahead. After each task: run tests, fix issues, commit, update this document's status.
+
+
+---
+
+## Sprint 1 outcome
+
+The slice runs end to end. Verified live on `korkem.localhost`, not only in tests:
+`CRM-DEAL-2026-00001` → `MFG-WO-2026-00001` (submitted) → task 46 completed → outbound
+notification enqueued and executed by a real RQ worker.
+
+**Test coverage:** 83 integration tests (13 `korkem_manufacturing`, 70 `korkem_ai`), all green,
+including a full end-to-end test that stubs only the two genuine third-party network calls.
+
+### Decisions taken during implementation
+
+- **Two approval gates, not one.** Approving a quote does not start manufacturing; it raises a
+  second Pending Action. Committing materials and shop-floor time is a materially bigger decision
+  than recording a quote (ADR-0015).
+- **Real company provisioning was required.** The site held only `_Test*` ERPNext fixtures from
+  test runs and had never had a real company. `korkem_manufacturing.setup.provision()` creates the
+  real KORKEM company, items and a submitted BOM — building the flow on test fixtures would have
+  violated the no-fake-business-logic rule.
+- **The two apps stay decoupled.** Both hook `CRM Task.on_update` independently:
+  `korkem_manufacturing` owns shop-floor progress, `korkem_ai` owns the customer channel. Neither
+  imports the other.
+- **Completion events fire from the hook, not the API method**, so a worker changing status in the
+  Desk UI and a caller invoking `complete_task()` produce identical effects, exactly once.
+
+### Known limitations (deliberate, not defects)
+
+- **Stock is not posted.** Completing a task does not create the Stock Entry that consumes raw
+  materials and receives finished goods; that needs real material stock and is its own slice. The
+  Work Order's ERPNext status is therefore left to ERPNext rather than being set by hand.
+- **WhatsApp delivery is unverified.** The outbound job is enqueued and executed by a real worker,
+  but the final Meta API call fails because this site has no WhatsApp credentials. Everything up to
+  that call is proven.
+- **The Anthropic provider path is unit-tested, not live-verified** — no credentials available; the
+  Ollama provider was verified against a real local model.
+
+### Carried forward to Sprint 2
+
+- Installation & After-Sales still has no owning entity (raised three times during architecture).
+- No cancellation commands exist for any lifecycle stage.
+- `domain_model.md` typo: `CloseBonlPayrollPeriod` → `ClosePayrollPeriod`.
+- ERPNext HR module presence still unverified.
