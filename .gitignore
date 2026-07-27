@@ -4,6 +4,13 @@
 /crm/
 /relaticle/
 
+# Custom Frappe apps — authored by this project (not vendored/external), but each is its own
+# git repo because Frappe's `bench` tooling requires that to mount/link an app into a bench
+# (a bare non-git directory isn't supported by `bench get-app`, even locally). Tracked in their
+# own repos, same mechanism as the vendored projects above, not because they're external.
+/backend/korkem_manufacturing/
+/backend/korkem_ai/
+
 # Environment / secrets
 .env
 .env.*

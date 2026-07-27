@@ -1,0 +1,55 @@
+name: korkem-bench
+
+services:
+  mariadb:
+    image: mariadb:11.8
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis-cache:
+    image: redis:7-alpine
+
+  redis-queue:
+    image: redis:7-alpine
+
+  bench:
+    build: .
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+      redis-queue:
+        condition: service_started
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SITE_NAME: ${SITE_NAME}
+      FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+      FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+    volumes:
+      - bench-data:/home/frappe
+      - ../../frappe:/workspace/vendor/frappe
+      - ../../erpnext:/workspace/vendor/erpnext
+      - ../../crm:/workspace/vendor/crm
+      - ../../backend/korkem_manufacturing:/workspace/custom/korkem_manufacturing
+      - ../../backend/korkem_ai:/workspace/custom/korkem_ai
+      - ./scripts:/workspace/scripts:ro
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+
+volumes:
+  mariadb-data:
+  bench-data:
