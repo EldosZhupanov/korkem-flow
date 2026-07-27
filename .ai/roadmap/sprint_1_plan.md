@@ -26,12 +26,14 @@ Customer sends a WhatsApp message → AI classifies intent → Create/find Custo
 - B2. `bench new-app korkem_ai` (skeleton) — ✅ done
 - B3. Install both custom apps on the site — ✅ done, after one crash-and-restart (adding a bench-level app while `bench start` was already running broke the scheduler process until the container restarted — see `.ai/roadmap/sprint_1_phase_b_checklist.md`; harmless, but worth restarting the bench after any future `bench new-app`/`get-app`)
 
-### Phase C — Data layer for this slice
-- C1. `korkem_ai`: Agent Conversation doctype — 2h
-- C2. `korkem_ai`: Agent Conversation Message doctype — 2h
-- C3. `korkem_ai`: Pending Action doctype (`action_class`, `action_data`, `display_data`, `status`, `entity_type`, `expires_at`) — 3h
-- C4. `korkem_manufacturing`: hook extending CRM Task's valid `reference_doctype` targets to include `Work Order` (ADR-0023's mechanism) — 1h
-- C5. `korkem_manufacturing`: Custom Field `originating_deal` (Link → CRM Deal) on `Work Order` (per `domain_model.md` §3.4) — 1h
+### Phase C — Data layer for this slice — ✅ DONE
+- Prerequisite fix (found during this phase): `korkem_manufacturing`/`korkem_ai` moved from the ephemeral `bench-data` volume to bind-mounted, version-controlled directories under `backend/` (each its own git repo, required by bench tooling) — see `sprint_1_phase_c_checklist.md`.
+- C1. `korkem_ai`: Agent Conversation doctype — ✅ done
+- C2. `korkem_ai`: Agent Conversation Message doctype — ✅ done
+- C3. `korkem_ai`: Pending Action doctype (`action_class`, `action_data`, `display_data`, `status`, `entity_type`, `expires_at`) — ✅ done, with real approve/reject/expire logic (not just schema)
+- C4. `korkem_manufacturing`: hook extending CRM Task's valid `reference_doctype` targets — **turned out to need no code**: `crm_task.json`'s `reference_doctype` is already an unrestricted Link; ADR-0023's assumption was checked and found incorrect, flagged for correction on its next revision
+- C5. `korkem_manufacturing`: Custom Field `originating_deal` (Link → CRM Deal) on `Work Order` (per `domain_model.md` §3.4) — ✅ done, via a `post_model_sync` patch
+- All 12 tests passing (`bench --site korkem.localhost run-tests --app korkem_ai`); two real bugs found and fixed along the way (a CRM test-fixture gap, and a JSON-fieldtype read bug) — see `sprint_1_phase_c_checklist.md`
 
 ### Phase D — Integrations (WhatsApp)
 - D1. Inbound WhatsApp webhook receiver — 3-4h
