@@ -358,6 +358,19 @@ Commands, all run from `mobile/korkem_flow/`:
 - `flutter test` — unit + widget suite
 - `flutter test test/path/to/file.dart --plain-name "<name>"` — a single test
 
+**Design system lives in `lib/core/design/`** — `tokens/` (colors, typography, dimensions, motion,
+icons) and `widgets/` (the shared component library). **No literal colour, spacing, radius or
+duration may appear in a widget file**; that rule is what keeps the system intact. Status colours
+are delivered through the `StatusColors` theme extension (`context.statusColors`), not by importing
+tokens and branching on brightness.
+
+Inter is **bundled** at `assets/fonts/` and verified to cover Kazakh — see `THIRD_PARTY_LICENSES.md`
+before swapping it. Icons come from `material_symbols_icons` through the semantic `AppIcons`
+vocabulary; do not add a second icon set.
+
+Localisation is `gen-l10n` with `ru`/`kk`/`en` in `lib/l10n/`; generated files land in `lib/l10n/`
+and are committed.
+
 **No code generation.** `freezed`/`json_serializable`/`riverpod_generator` are deliberately absent:
 `riverpod_generator` 4.0.6 has an unresolvable constraint (`analyzer ^13` vs `riverpod_analyzer_utils`
 on `^12`), and the DTO layer is small enough that explicit `fromJson` is clearer than a build step.

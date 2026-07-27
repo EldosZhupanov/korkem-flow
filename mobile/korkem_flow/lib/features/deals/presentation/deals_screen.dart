@@ -2,11 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:korkem_flow/core/theme/tokens.dart';
-import 'package:korkem_flow/core/widgets/app_state_views.dart';
-import 'package:korkem_flow/core/widgets/status_chip.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/app_filter_sheet.dart';
+import 'package:korkem_flow/core/design/widgets/app_search_field.dart';
+import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
+import 'package:korkem_flow/l10n/app_localizations.dart';
 
 class DealsScreen extends ConsumerStatefulWidget {
   const DealsScreen({super.key});
@@ -32,8 +37,8 @@ class _DealsScreenState extends ConsumerState<DealsScreen> {
     super.dispose();
   }
 
-  /// Prefetches one viewport ahead so the next page is usually already there
-  /// by the time the user reaches the bottom.
+  /// Prefetches roughly one viewport ahead, so the next page is usually already
+  /// present by the time the user reaches the bottom.
   void _onScroll() {
     final position = _scrollController.position;
     if (position.pixels >= position.maxScrollExtent - 400) {
@@ -41,24 +46,58 @@ class _DealsScreenState extends ConsumerState<DealsScreen> {
     }
   }
 
+  Future<void> _openFilter() async {
+    final l10n = AppLocalizations.of(context);
+    final choice = await showFilterSheet<DealStatus>(
+      context: context,
+      title: l10n.actionFilter,
+      current: ref.read(dealFilterProvider).status,
+      options: [
+        for (final status in DealStatus.values)
+          FilterOption(value: status, label: status.wireValue),
+      ],
+    );
+
+    if (!mounted || choice == null) return;
+    ref.read(dealFilterProvider.notifier).setStatus(choice.value);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(dealsControllerProvider);
     final filter = ref.watch(dealFilterProvider);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Deals'),
+        title: Text(l10n.appTitle),
         actions: [
           IconButton(
             icon: Badge(
               isLabelVisible: filter.status != null,
-              child: const Icon(Icons.filter_list),
+              child: const Icon(AppIcons.filter),
             ),
-            tooltip: 'Filter by stage',
-            onPressed: _openFilterSheet,
+            tooltip: l10n.actionFilter,
+            onPressed: _openFilter,
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(64),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.md,
+            ),
+            child: AppSearchField(
+              initialValue: filter.search,
+              onChanged: (value) => ref
+                  .read(dealFilterProvider.notifier)
+                  .setSearch(value.isEmpty ? null : value),
+            ),
+          ),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(dealsControllerProvider.notifier).refresh(),
@@ -69,13 +108,14 @@ class _DealsScreenState extends ConsumerState<DealsScreen> {
             onRetry: () => ref.read(dealsControllerProvider.notifier).refresh(),
           ),
           AsyncData(:final value) when value.deals.isEmpty => EmptyView(
-            title: 'No deals',
-            message: filter.status == null
-                ? 'New deals will appear here as they are created.'
-                : 'No deals in this stage right now.',
-            icon: Icons.handshake_outlined,
-            actionLabel: filter.status == null ? null : 'Clear filter',
-            onAction: filter.status == null
+            icon: AppIcons.deal,
+            message: filter.search != null
+                ? l10n.searchNoResults(filter.search!)
+                : null,
+            actionLabel: filter.status == null && filter.search == null
+                ? null
+                : l10n.actionClearFilter,
+            onAction: filter.status == null && filter.search == null
                 ? null
                 : () => ref.read(dealFilterProvider.notifier).clear(),
           ),
@@ -87,27 +127,6 @@ class _DealsScreenState extends ConsumerState<DealsScreen> {
       ),
     );
   }
-
-  Future<void> _openFilterSheet() async {
-    final choice = await showModalBottomSheet<_FilterChoice>(
-      context: context,
-      builder: (context) => _StatusFilterSheet(
-        current: ref.read(dealFilterProvider).status,
-      ),
-    );
-
-    if (!mounted || choice == null) return;
-    ref.read(dealFilterProvider.notifier).setStatus(choice.status);
-  }
-}
-
-/// Wraps the sheet result so "dismissed" (null) is distinguishable from
-/// "chose All stages" (a choice carrying a null status). Using a status value
-/// as a sentinel would make that real status unselectable.
-@immutable
-class _FilterChoice {
-  const _FilterChoice(this.status);
-  final DealStatus? status;
 }
 
 class _DealList extends StatelessWidget {
@@ -136,6 +155,7 @@ class _DealList extends StatelessWidget {
   }
 }
 
+/// A deal rendered with the shared [EntityCard] shape.
 class DealCard extends StatelessWidget {
   const DealCard({required this.deal, this.onTap, super.key});
 
@@ -144,63 +164,16 @@ class DealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      deal.organization,
-                      style: theme.textTheme.titleMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  StatusChip(
-                    label: deal.status.wireValue,
-                    intent: intentFor(deal.status),
-                  ),
-                ],
-              ),
-              if (deal.nextStep != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  deal.nextStep!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              if (deal.mobileNo != null) ...[
-                const SizedBox(height: AppSpacing.sm),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.phone_outlined,
-                      size: 14,
-                      color: theme.colorScheme.outline,
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Text(deal.mobileNo!, style: theme.textTheme.labelSmall),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
+    return EntityCard(
+      title: deal.organization,
+      subtitle: deal.nextStep,
+      statusLabel: deal.status.wireValue,
+      statusIntent: intentFor(deal.status),
+      onTap: onTap,
+      metadata: [
+        if (deal.mobileNo != null)
+          EntityMeta(icon: AppIcons.call, label: deal.mobileNo!),
+      ],
     );
   }
 
@@ -213,41 +186,4 @@ class DealCard extends StatelessWidget {
     DealStatus.demo ||
     DealStatus.proposal => StatusIntent.info,
   };
-}
-
-class _StatusFilterSheet extends StatelessWidget {
-  const _StatusFilterSheet({this.current});
-
-  final DealStatus? current;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Text(
-              'Filter by stage',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
-          ListTile(
-            title: const Text('All stages'),
-            selected: current == null,
-            onTap: () => Navigator.of(context).pop(const _FilterChoice(null)),
-          ),
-          for (final status in DealStatus.values)
-            ListTile(
-              title: Text(status.wireValue),
-              selected: current == status,
-              trailing: current == status ? const Icon(Icons.check) : null,
-              onTap: () => Navigator.of(context).pop(_FilterChoice(status)),
-            ),
-          const SizedBox(height: AppSpacing.lg),
-        ],
-      ),
-    );
-  }
 }

@@ -1,0 +1,34 @@
+{
+  "@@locale": "ru",
+
+  "appTitle": "KORKEM Flow",
+
+  "actionRetry": "Повторить",
+  "actionCancel": "Отмена",
+  "actionSave": "Сохранить",
+  "actionDone": "Готово",
+  "actionClose": "Закрыть",
+  "actionClearFilter": "Сбросить фильтр",
+  "actionFilter": "Фильтр",
+  "actionSearch": "Поиск",
+  "actionSelectAll": "Все",
+
+  "errorGeneric": "Что-то пошло не так.",
+  "errorOffline": "Нет связи с сервером.",
+  "errorNoAccess": "У вас нет доступа к этому разделу.",
+  "errorNotFound": "Не найдено.",
+
+  "offlineBanner": "Нет сети. Показаны сохранённые данные.",
+  "staleData": "Обновлено {time}",
+
+  "emptyTitle": "Здесь пока пусто",
+  "emptyGeneric": "Новые записи появятся здесь автоматически.",
+
+  "loading": "Загрузка",
+  "loadingMore": "Загружаем ещё",
+
+  "searchHint": "Поиск",
+  "searchNoResults": "Ничего не найдено по запросу «{query}»",
+
+  "semanticStatus": "Статус: {status}"
+}

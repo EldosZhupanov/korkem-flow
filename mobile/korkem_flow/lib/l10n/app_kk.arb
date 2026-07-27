@@ -1,0 +1,34 @@
+{
+  "@@locale": "kk",
+
+  "appTitle": "KORKEM Flow",
+
+  "actionRetry": "Қайталау",
+  "actionCancel": "Болдырмау",
+  "actionSave": "Сақтау",
+  "actionDone": "Дайын",
+  "actionClose": "Жабу",
+  "actionClearFilter": "Сүзгіні тазалау",
+  "actionFilter": "Сүзгі",
+  "actionSearch": "Іздеу",
+  "actionSelectAll": "Барлығы",
+
+  "errorGeneric": "Бір нәрсе дұрыс болмады.",
+  "errorOffline": "Сервермен байланыс жоқ.",
+  "errorNoAccess": "Бұл бөлімге қолжетімділік жоқ.",
+  "errorNotFound": "Табылмады.",
+
+  "offlineBanner": "Желі жоқ. Сақталған деректер көрсетілген.",
+  "staleData": "Жаңартылды {time}",
+
+  "emptyTitle": "Мұнда әзірге бос",
+  "emptyGeneric": "Жаңа жазбалар осы жерде пайда болады.",
+
+  "loading": "Жүктелуде",
+  "loadingMore": "Тағы жүктелуде",
+
+  "searchHint": "Іздеу",
+  "searchNoResults": "«{query}» бойынша ештеңе табылмады",
+
+  "semanticStatus": "Күйі: {status}"
+}

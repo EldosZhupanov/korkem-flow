@@ -13,6 +13,8 @@ dependencies:
   flex_color_scheme: ^8.4.0
   flutter:
     sdk: flutter
+  # Declarative animation chains where implicit animation is not enough
+  flutter_animate: ^4.5.2
   flutter_localizations:
     sdk: flutter
   # State + DI in one tool (docs/mobile_architecture.md §2)
@@ -21,6 +23,8 @@ dependencies:
   flutter_secure_storage: ^10.3.1
   go_router: ^17.3.0
   intl: ^0.20.2
+  # Material 3's native icon set; variable fill axis drives selected state
+  material_symbols_icons: ^4.2960.0
   meta: ^1.16.0
 
 dev_dependencies:
@@ -31,3 +35,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/images/
+    - assets/lottie/
+
+  fonts:
+    # Bundled, not fetched at runtime: google_fonts would make first paint
+    # depend on a third-party host. Verified to cover Kazakh — see
+    # THIRD_PARTY_LICENSES.md.
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Variable.ttf

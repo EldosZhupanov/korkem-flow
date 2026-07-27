@@ -77,8 +77,18 @@ Mapped to the real lifecycle (`PROJECT.md`), so a worker reads state at a glance
 
 ## 3. Typography
 
-`Inter` via `google_fonts`, **bundled at build time** (never fetched at runtime — see architecture
-§16). Inter is chosen for numeric legibility: quantities, order codes and dates dominate this UI.
+**Inter, bundled** (`assets/fonts/Inter-Variable.ttf`, OFL-1.1) — never fetched at runtime.
+
+Chosen on measured evidence, not taste. The `cmap` table of the bundled file was parsed: 2 849
+codepoints, covering all 18 Kazakh letters (Әә Ғғ Ққ Ңң Өө Ұұ Үү Һһ Іі), full Russian including Ёё,
+Latin, digits and **₸** (U+20B8).
+
+Two candidates fail this outright and must never be used here: **Manrope** is missing 10 of those
+Kazakh letters, **Onest** is missing 14 — both would render tofu for Kazakh users. **SF Pro** is
+licensed for Apple platforms only and **Google Sans** is proprietary; neither can ship in an
+Android build.
+
+Inter also carries true tabular figures, which is why quantity and currency columns stay aligned.
 
 | Token | Size / Line | Weight | Use |
 |---|---|---|---|
@@ -144,8 +154,14 @@ Never stack more than two elevation levels in one view. Cards **do not** get dro
 
 ## 7. Icons
 
-Material Symbols Rounded — rounded matches the 12dp radius language. Weight 400, optical size 24.
-Filled = active/selected, outlined = inactive. Sizes: 20 (inline), 24 (default), 32 (empty states),
+**Material Symbols Rounded**, via `material_symbols_icons` (Apache-2.0) — the only icon set in the
+app. Chosen over Lucide (MIT) and Phosphor (MIT) because it is Material 3's native set, is actively
+maintained (Phosphor's Flutter package has had no release since May 2024), and its variable `fill`
+axis gives selected/unselected from one family so the transition can animate. Rounded matches the
+12dp radius language.
+
+Icons are referenced through the semantic vocabulary in `lib/core/design/tokens/icons.dart`
+(`AppIcons.deal`, `AppIcons.workOrder`), never by glyph name — so changing one is a single edit. Sizes: 20 (inline), 24 (default), 32 (empty states),
 48 (illustrations). Every icon-only control carries a `Semantics` label.
 
 ## 8. Components

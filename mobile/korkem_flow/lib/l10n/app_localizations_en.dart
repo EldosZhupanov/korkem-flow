@@ -1,0 +1,85 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'KORKEM Flow';
+
+  @override
+  String get actionRetry => 'Try again';
+
+  @override
+  String get actionCancel => 'Cancel';
+
+  @override
+  String get actionSave => 'Save';
+
+  @override
+  String get actionDone => 'Done';
+
+  @override
+  String get actionClose => 'Close';
+
+  @override
+  String get actionClearFilter => 'Clear filter';
+
+  @override
+  String get actionFilter => 'Filter';
+
+  @override
+  String get actionSearch => 'Search';
+
+  @override
+  String get actionSelectAll => 'All';
+
+  @override
+  String get errorGeneric => 'Something went wrong.';
+
+  @override
+  String get errorOffline => 'No connection to the server.';
+
+  @override
+  String get errorNoAccess => 'You don\'t have access to this.';
+
+  @override
+  String get errorNotFound => 'Not found.';
+
+  @override
+  String get offlineBanner => 'You\'re offline. Showing saved data.';
+
+  @override
+  String staleData(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String get emptyTitle => 'Nothing here yet';
+
+  @override
+  String get emptyGeneric => 'New items will appear here as they are created.';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String get loadingMore => 'Loading more';
+
+  @override
+  String get searchHint => 'Search';
+
+  @override
+  String searchNoResults(String query) {
+    return 'No matches for \"$query\"';
+  }
+
+  @override
+  String semanticStatus(String status) {
+    return 'Status: $status';
+  }
+}

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:korkem_flow/core/theme/app_theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/features/deals/presentation/deals_screen.dart';
+import 'package:korkem_flow/l10n/app_localizations.dart';
 
 class KorkemFlowApp extends StatelessWidget {
   const KorkemFlowApp({super.key});
@@ -8,12 +10,19 @@ class KorkemFlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'KORKEM Flow',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      // ThemeMode.system is the default; a manual override belongs in
-      // Settings once that screen exists.
+      // ThemeMode.system is the default; a manual override belongs in Settings
+      // once that screen exists.
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {
         // Clamp text scaling so layouts survive accessibility settings without
         // clipping, while still honouring the user's preference.

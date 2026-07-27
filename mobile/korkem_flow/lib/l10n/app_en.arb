@@ -1,0 +1,70 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "KORKEM Flow",
+  "@appTitle": {
+    "description": "Application name, shown in the task switcher"
+  },
+
+  "actionRetry": "Try again",
+  "@actionRetry": {
+    "description": "Retries the failed request on an error state"
+  },
+  "actionCancel": "Cancel",
+  "actionSave": "Save",
+  "actionDone": "Done",
+  "actionClose": "Close",
+  "actionClearFilter": "Clear filter",
+  "actionFilter": "Filter",
+  "actionSearch": "Search",
+  "actionSelectAll": "All",
+
+  "errorGeneric": "Something went wrong.",
+  "@errorGeneric": {
+    "description": "Fallback when the backend gives no human-readable message"
+  },
+  "errorOffline": "No connection to the server.",
+  "errorNoAccess": "You don't have access to this.",
+  "errorNotFound": "Not found.",
+
+  "offlineBanner": "You're offline. Showing saved data.",
+  "@offlineBanner": {
+    "description": "Persistent banner while the device has no connectivity"
+  },
+  "staleData": "Updated {time}",
+  "@staleData": {
+    "description": "Freshness indicator on cached content",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "5 min ago"
+      }
+    }
+  },
+
+  "emptyTitle": "Nothing here yet",
+  "emptyGeneric": "New items will appear here as they are created.",
+
+  "loading": "Loading",
+  "loadingMore": "Loading more",
+
+  "searchHint": "Search",
+  "searchNoResults": "No matches for \"{query}\"",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+
+  "semanticStatus": "Status: {status}",
+  "@semanticStatus": {
+    "description": "Screen-reader label for a status chip",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  }
+}
