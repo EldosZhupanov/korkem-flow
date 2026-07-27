@@ -35,10 +35,13 @@ Customer sends a WhatsApp message → AI classifies intent → Create/find Custo
 - C5. `korkem_manufacturing`: Custom Field `originating_deal` (Link → CRM Deal) on `Work Order` (per `domain_model.md` §3.4) — ✅ done, via a `post_model_sync` patch
 - All 12 tests passing (`bench --site korkem.localhost run-tests --app korkem_ai`); two real bugs found and fixed along the way (a CRM test-fixture gap, and a JSON-fieldtype read bug) — see `sprint_1_phase_c_checklist.md`
 
-### Phase D — Integrations (WhatsApp)
-- D1. Inbound WhatsApp webhook receiver — 3-4h
-- D2. Outbound WhatsApp sender (Notifications) — 2-3h
-- D3. Wire inbound webhook → create/continue Agent Conversation, store message — 2h
+### Phase D — Integrations (WhatsApp) — ✅ DONE
+- Prerequisite schema fix (found during this phase): `Agent Conversation.user` made optional, new `contact_phone` field added — a WhatsApp sender has no Frappe User account.
+- D1. Inbound WhatsApp webhook receiver — ✅ done (`WhatsApp Settings` + `integrations/whatsapp.py`)
+- D2. Outbound WhatsApp sender (Notifications) — ✅ done (`send_message` + `queue_send_message`, real Cloud API call, async via `frappe.enqueue`)
+- D3. Wire inbound webhook → create/continue Agent Conversation, store message — ✅ done (`get_or_create_for_contact` + `_dispatch_inbound_message`)
+- 33/33 tests passing; one real bug found via **live HTTP testing** (not unit tests): whitelisted-method responses were JSON-wrapped instead of Meta's required raw plain-text, fixed by returning a genuine `werkzeug.Response`. Verified live end-to-end (real HMAC signature, real HTTP round-trip, confirmed DB writes) — see `sprint_1_phase_d_checklist.md`.
+- **Not verified**: live send/receive against the real WhatsApp network — no real Meta Business API credentials exist in this environment.
 
 ### Phase E — AI Orchestrator (minimal, this slice only)
 - E1. Orchestrator service scaffold (LLM call for intent classification) — 3-4h
