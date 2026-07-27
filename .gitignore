@@ -1,0 +1,22 @@
+# Vendored projects — tracked in their own repos, not here
+/erpnext/
+/frappe/
+/crm/
+/relaticle/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies / build artifacts
+node_modules/
+__pycache__/
+*.pyc
+dist/
+build/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
