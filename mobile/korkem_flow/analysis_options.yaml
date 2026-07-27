@@ -1,0 +1,19 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    # Dead code is how "no placeholders" quietly erodes. Fail the build on it.
+    unused_import: error
+    unused_local_variable: error
+    dead_code: error
+
+linter:
+  rules:
+    # This is an application, not a published package. VGV's own app templates
+    # disable this: doc comments on every public widget member add noise without
+    # adding information. Architectural rationale lives in docs/ instead.
+    public_member_api_docs: false

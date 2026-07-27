@@ -1,0 +1,33 @@
+name: korkem_flow
+description: "KORKEM Flow — mobile client for the KORKEM furniture manufacturing OS."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  connectivity_plus: ^7.3.1
+  # HTTP — chosen for its interceptor pipeline (auth refresh, retry)
+  dio: ^5.11.0
+  flex_color_scheme: ^8.4.0
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  # State + DI in one tool (docs/mobile_architecture.md §2)
+  flutter_riverpod: ^3.4.1
+  # Keychain / EncryptedSharedPreferences
+  flutter_secure_storage: ^10.3.1
+  go_router: ^17.3.0
+  intl: ^0.20.2
+  meta: ^1.16.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  very_good_analysis: ^10.3.0
+
+flutter:
+  uses-material-design: true

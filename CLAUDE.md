@@ -303,6 +303,7 @@ relaticle/    Standalone Laravel app — an alternative CRM (PHP/Livewire/Filame
 frontend/     (scaffold, empty) custom user-facing UI
 backend/      (scaffold, empty) custom backend gluing the systems above together
 infra/        Docker Compose bench setup — see infra/frappe_bench/ below
+mobile/       Flutter mobile app (korkem_flow) — see below
 telegram/     (scaffold, empty) Telegram bot integration
 agents/       (scaffold, empty) AI agent implementations/orchestration
 prompts/      (scaffold, empty) shared prompt templates used by agents/
@@ -345,6 +346,30 @@ A Docker Compose bench now runs `erpnext` + `crm` on top of the vendored `frappe
 - `frappe` is exposed to the bench via a **real local git clone** from the vendored `frappe/` directory (zero network — `bench init --frappe-path`). `crm` is exposed via **`bench get-app --soft-link`** (a filesystem symlink, zero git operations). `erpnext` is also a **real local clone**, not a symlink — its `banking/` sub-frontend resolves paths via `import.meta.url`, which Node/Vite resolve to a symlink's real target rather than its bench-tree location, breaking `common_site_config.json` path resolution under `--soft-link`; a real clone avoids this without touching vendored source.
 - `bench build` (part of bootstrap) writes compiled assets into `erpnext/public/dist`, `crm/crm/public/frontend`, etc. — already gitignored paths in each vendored repo. Occasionally a build step also touches a tracked file incidentally (observed once: `crm/frontend/auto-imports.d.ts` and `crm/yarn.lock`, both benign build-tool regenerations) — check `git -C <repo> status` after any bench rebuild and revert anything unexpected; the vendored repos must stay pristine.
 - Full setup details, every command tried, and the specific failures/fixes encountered getting here: `.ai/roadmap/sprint_1_phase_a_checklist.md`.
+
+## The Flutter mobile app (`mobile/korkem_flow/`)
+
+Flutter 3.44.8 / Dart 3.12.2, installed at `~/development/flutter` (PATH set in `~/.bashrc`).
+Commands, all run from `mobile/korkem_flow/`:
+
+- `flutter pub get` — resolve dependencies
+- `flutter analyze` — static analysis; must report **No issues found** (very_good_analysis, strict-casts/inference/raw-types)
+- `dart format --set-exit-if-changed lib test` — formatting gate
+- `flutter test` — unit + widget suite
+- `flutter test test/path/to/file.dart --plain-name "<name>"` — a single test
+
+**No code generation.** `freezed`/`json_serializable`/`riverpod_generator` are deliberately absent:
+`riverpod_generator` 4.0.6 has an unresolvable constraint (`analyzer ^13` vs `riverpod_analyzer_utils`
+on `^12`), and the DTO layer is small enough that explicit `fromJson` is clearer than a build step.
+There is no `build_runner` stage — do not add one without re-checking those constraints.
+
+**Building the app requires system packages that are not installed**: `ninja-build`, `libgtk-3-dev`
+(Linux desktop) or the Android SDK. `flutter analyze` and `flutter test` work without them.
+
+Two behaviours worth knowing before changing code here:
+- Riverpod 3 **auto-retries** a failed provider with backoff, so a failing provider sits in
+  `AsyncLoading(retrying)` and never settles into `AsyncError`. Tests pass `retry: (_, _) => null`.
+- Riverpod 3 removed `AsyncValue.valueOrNull`; the nullable getter is `AsyncValue.value`.
 
 ## Conventions for new custom code
 
