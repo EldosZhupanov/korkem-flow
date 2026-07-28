@@ -376,8 +376,43 @@ and are committed.
 on `^12`), and the DTO layer is small enough that explicit `fromJson` is clearer than a build step.
 There is no `build_runner` stage — do not add one without re-checking those constraints.
 
-**Building the app requires system packages that are not installed**: `ninja-build`, `libgtk-3-dev`
-(Linux desktop) or the Android SDK. `flutter analyze` and `flutter test` work without them.
+**Android and Linux desktop both build.** Android SDK 36 and the Linux toolchain are installed;
+`flutter doctor` is green except for Chrome (web is not a target).
+
+```sh
+flutter build apk --release --split-per-abi   # side-loading
+flutter build appbundle --release             # Google Play — see docs/play_release.md
+```
+
+Release builds are minified. `android/app/proguard-rules.pro` keeps the Flutter engine and the
+secure-storage keystore bridge (both reached by reflection) and silences Play Core, which
+Flutter's deferred-components support references but this app does not bundle — without those
+rules the R8 pass fails outright. Signing reads the gitignored `android/key.properties`; an
+app-bundle build without one fails deliberately rather than producing a debug-signed artefact
+that Play would reject at upload.
+
+The launcher icon is generated, not hand-drawn — `AppLogo` rendered to PNG by a tagged test:
+
+```sh
+flutter test test/tools/generate_app_icon_test.dart --update-goldens --tags tools
+dart run flutter_launcher_icons && dart run flutter_native_splash:create
+```
+
+The `tools` tag is skipped by default; a plain `flutter test --update-goldens` would otherwise
+rewrite the launcher assets.
+
+**The emulator needs one thing this machine lacks: KVM group membership.** `/dev/kvm` is
+`root:kvm` and the user is not in `kvm`, so the emulator falls back to software emulation and
+never finishes booting. Missing userspace libraries were solved without root by extracting
+them under `~/.local/emulator-libs` — the emulator must be launched with them on the path:
+
+```sh
+E=~/Android/Sdk/emulator; L=~/.local/emulator-libs/usr/lib/x86_64-linux-gnu
+LD_LIBRARY_PATH="$E/lib64:$E/lib64/qt/lib:$L:$L/pulseaudio" \
+  $E/emulator -avd korkem_test -no-audio -gpu swiftshader_indirect
+```
+
+Acceleration itself still requires `sudo usermod -aG kvm $USER` and a re-login.
 
 Two behaviours worth knowing before changing code here:
 - Riverpod 3 **auto-retries** a failed provider with backoff, so a failing provider sits in
