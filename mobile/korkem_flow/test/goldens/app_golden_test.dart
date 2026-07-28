@@ -14,6 +14,7 @@ import 'package:korkem_flow/features/dashboard/application/dashboard_controller.
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
+import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/tasks/application/tasks_controller.dart';
 import 'package:korkem_flow/features/tasks/domain/task.dart';
 
@@ -54,6 +55,18 @@ void main() {
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('deals_$suffix.png'),
+        );
+      });
+
+      testWidgets('deal detail', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+        await _openTab(tester, 'Продажи');
+        await tester.tap(find.text('Астана Мебель Групп'));
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('deal_detail_$suffix.png'),
         );
       });
 
@@ -147,6 +160,9 @@ Future<void> _pumpApp(
         ).overrideWith((ref) => Future<StatusCatalog>.value(_dealStatuses)),
         dashboardControllerProvider.overrideWith(_StubDashboard.new),
         dealsControllerProvider.overrideWith(_StubDeals.new),
+        dealDetailProvider(
+          _deals.first.id,
+        ).overrideWith((ref) => Future<Deal>.value(_dealDetail)),
         tasksControllerProvider.overrideWith(_StubTasks.new),
       ],
       child: const KorkemFlowApp(),
@@ -236,6 +252,25 @@ final _summary = DashboardSummary(
       due: DateTime(2026, 7, 27, 16),
     ),
   ],
+);
+
+/// The same deal as the first list row, with the fields only `fetchOne` loads.
+final _dealDetail = Deal(
+  id: 'CRM-DEAL-2026-00041',
+  organization: 'Астана Мебель Групп',
+  status: 'Negotiation',
+  nextStep: 'Согласовать смету по фасадам МДФ',
+  mobileNo: '+7 701 000 11 22',
+  email: 'zakup@astanamebel.kz',
+  dealValue: 4850000,
+  currency: 'KZT',
+  expectedClosureDate: DateTime(2026, 8, 14),
+  probability: 65,
+  dealOwner: 'aidos@korkem.kz',
+  source: 'WhatsApp',
+  territory: 'Астана',
+  leadId: 'CRM-LEAD-2026-00112',
+  modified: _now,
 );
 
 final _deals = <Deal>[

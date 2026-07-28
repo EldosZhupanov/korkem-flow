@@ -305,4 +305,76 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get customerTerritory => 'Регион';
+
+  @override
+  String get detailPipeline => 'Воронка';
+
+  @override
+  String get detailContact => 'Контакт';
+
+  @override
+  String get detailCommercial => 'Коммерция';
+
+  @override
+  String get detailOwnership => 'Ответственность';
+
+  @override
+  String get detailCompany => 'Компания';
+
+  @override
+  String get fieldStage => 'Стадия';
+
+  @override
+  String get fieldValue => 'Сумма';
+
+  @override
+  String get fieldProbability => 'Вероятность';
+
+  @override
+  String get fieldExpectedClose => 'Ожидаемое закрытие';
+
+  @override
+  String get fieldNextStep => 'Следующий шаг';
+
+  @override
+  String get fieldOwner => 'Ответственный';
+
+  @override
+  String get fieldSource => 'Источник';
+
+  @override
+  String get fieldTerritory => 'Регион';
+
+  @override
+  String get fieldIndustry => 'Отрасль';
+
+  @override
+  String get fieldWebsite => 'Сайт';
+
+  @override
+  String get fieldEmployees => 'Сотрудников';
+
+  @override
+  String get fieldRevenue => 'Годовой оборот';
+
+  @override
+  String get fieldJobTitle => 'Должность';
+
+  @override
+  String get fieldOriginLead => 'Из лида';
+
+  @override
+  String get fieldUpdated => 'Обновлено';
+
+  @override
+  String get actionCall => 'Позвонить';
+
+  @override
+  String get actionEmail => 'Письмо';
+
+  @override
+  String get actionWhatsApp => 'WhatsApp';
+
+  @override
+  String get detailNotFound => 'Эта запись больше не существует.';
 }

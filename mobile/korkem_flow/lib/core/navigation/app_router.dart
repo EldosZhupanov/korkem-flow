@@ -5,7 +5,10 @@ import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/navigation/adaptive_shell.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
+import 'package:korkem_flow/features/customers/presentation/customer_detail_screen.dart';
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
+import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
@@ -17,6 +20,12 @@ abstract final class Routes {
   static const login = '/login';
   static const dashboard = '/dashboard';
   static const sales = '/sales';
+
+  /// Detail routes are children of the sales branch, so opening one keeps the
+  /// bottom bar and the back stack of the tab it was opened from.
+  static String deal(String id) => '$sales/deal/$id';
+  static String lead(String id) => '$sales/lead/$id';
+  static String customer(String id) => '$sales/customer/$id';
   static const tasks = '/tasks';
   static const profile = '/profile';
   static const settings = '/settings';
@@ -79,6 +88,23 @@ GoRouter createRouter(Ref ref) {
               GoRoute(
                 path: Routes.sales,
                 builder: (context, state) => const SalesScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'deal/:id',
+                    builder: (context, state) =>
+                        DealDetailScreen(id: state.pathParameters['id']!),
+                  ),
+                  GoRoute(
+                    path: 'lead/:id',
+                    builder: (context, state) =>
+                        LeadDetailScreen(id: state.pathParameters['id']!),
+                  ),
+                  GoRoute(
+                    path: 'customer/:id',
+                    builder: (context, state) =>
+                        CustomerDetailScreen(id: state.pathParameters['id']!),
+                  ),
+                ],
               ),
             ],
           ),

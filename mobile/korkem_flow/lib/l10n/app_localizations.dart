@@ -675,6 +675,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Territory'**
   String get customerTerritory;
+
+  /// No description provided for @detailPipeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Pipeline'**
+  String get detailPipeline;
+
+  /// No description provided for @detailContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get detailContact;
+
+  /// No description provided for @detailCommercial.
+  ///
+  /// In en, this message translates to:
+  /// **'Commercial'**
+  String get detailCommercial;
+
+  /// No description provided for @detailOwnership.
+  ///
+  /// In en, this message translates to:
+  /// **'Ownership'**
+  String get detailOwnership;
+
+  /// No description provided for @detailCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Company'**
+  String get detailCompany;
+
+  /// No description provided for @fieldStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage'**
+  String get fieldStage;
+
+  /// No description provided for @fieldValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get fieldValue;
+
+  /// No description provided for @fieldProbability.
+  ///
+  /// In en, this message translates to:
+  /// **'Probability'**
+  String get fieldProbability;
+
+  /// No description provided for @fieldExpectedClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected close'**
+  String get fieldExpectedClose;
+
+  /// No description provided for @fieldNextStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Next step'**
+  String get fieldNextStep;
+
+  /// No description provided for @fieldOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get fieldOwner;
+
+  /// No description provided for @fieldSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get fieldSource;
+
+  /// No description provided for @fieldTerritory.
+  ///
+  /// In en, this message translates to:
+  /// **'Territory'**
+  String get fieldTerritory;
+
+  /// No description provided for @fieldIndustry.
+  ///
+  /// In en, this message translates to:
+  /// **'Industry'**
+  String get fieldIndustry;
+
+  /// No description provided for @fieldWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get fieldWebsite;
+
+  /// No description provided for @fieldEmployees.
+  ///
+  /// In en, this message translates to:
+  /// **'Employees'**
+  String get fieldEmployees;
+
+  /// No description provided for @fieldRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual revenue'**
+  String get fieldRevenue;
+
+  /// No description provided for @fieldJobTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Job title'**
+  String get fieldJobTitle;
+
+  /// No description provided for @fieldOriginLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted from lead'**
+  String get fieldOriginLead;
+
+  /// No description provided for @fieldUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get fieldUpdated;
+
+  /// No description provided for @actionCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get actionCall;
+
+  /// No description provided for @actionEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get actionEmail;
+
+  /// No description provided for @actionWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get actionWhatsApp;
+
+  /// No description provided for @detailNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This record no longer exists.'**
+  String get detailNotFound;
 }
 
 class _AppLocalizationsDelegate

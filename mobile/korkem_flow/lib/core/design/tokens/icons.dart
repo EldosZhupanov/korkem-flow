@@ -43,6 +43,8 @@ abstract final class AppIcons {
   static const IconData more = Symbols.more_vert_rounded;
   static const IconData check = Symbols.check_rounded;
   static const IconData call = Symbols.call_rounded;
+  static const IconData email = Symbols.mail_rounded;
+  static const IconData whatsApp = Symbols.chat_rounded;
   static const IconData schedule = Symbols.schedule_rounded;
   static const IconData visible = Symbols.visibility_rounded;
   static const IconData hidden = Symbols.visibility_off_rounded;

@@ -13,6 +13,15 @@ class Deal {
     this.nextStep,
     this.mobileNo,
     this.modified,
+    this.email,
+    this.dealValue,
+    this.currency,
+    this.expectedClosureDate,
+    this.probability,
+    this.dealOwner,
+    this.source,
+    this.territory,
+    this.leadId,
   });
 
   final String id;
@@ -38,6 +47,23 @@ class Deal {
   final String? mobileNo;
 
   final DateTime? modified;
+
+  // --- Detail-only ---
+  //
+  // Populated by `fetchOne`, null on a list row. The list query asks for a
+  // deliberately small set of fields; requesting these for every row of every
+  // page would multiply the payload for data no card shows.
+  final String? email;
+  final double? dealValue;
+  final String? currency;
+  final DateTime? expectedClosureDate;
+  final double? probability;
+  final String? dealOwner;
+  final String? source;
+  final String? territory;
+
+  /// The `CRM Lead` this deal was converted from, if any.
+  final String? leadId;
 
   @override
   bool operator ==(Object other) => other is Deal && other.id == id;

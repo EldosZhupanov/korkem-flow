@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/crm/crm_status.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -8,6 +9,7 @@ import 'package:korkem_flow/core/design/widgets/app_filter_sheet.dart';
 import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/leads/application/leads_controller.dart';
 import 'package:korkem_flow/features/leads/domain/lead.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -51,7 +53,10 @@ class LeadsScreen extends ConsumerWidget {
         state: ref.watch(leadsControllerProvider),
         onRefresh: controller.refresh,
         onLoadMore: controller.loadMore,
-        itemBuilder: (context, lead) => LeadCard(lead: lead),
+        itemBuilder: (context, lead) => LeadCard(
+          lead: lead,
+          onTap: () => context.push(Routes.lead(lead.id)),
+        ),
         emptyView: (context) => EmptyView(
           icon: AppIcons.lead,
           title: l10n.leadsEmpty,

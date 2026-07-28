@@ -85,6 +85,11 @@ class LeadRepository {
         _ => false,
       },
       modified: DateTime.tryParse('${json['modified']}'),
+      jobTitle: _text(json['job_title']),
+      industry: _text(json['industry']),
+      territory: _text(json['territory']),
+      leadOwner: _text(json['lead_owner']),
+      website: _text(json['website']),
     );
   }
 

@@ -33,6 +33,15 @@ abstract final class DealDto {
       nextStep: _asString(json['next_step']),
       mobileNo: _asString(json['mobile_no']),
       modified: _asDate(json['modified']),
+      email: _asString(json['email']),
+      dealValue: _asNumber(json['deal_value']),
+      currency: _asString(json['currency']),
+      expectedClosureDate: _asDate(json['expected_closure_date']),
+      probability: _asNumber(json['probability']),
+      dealOwner: _asString(json['deal_owner']),
+      source: _asString(json['source']),
+      territory: _asString(json['territory']),
+      leadId: _asString(json['lead']),
     );
   }
 
@@ -42,6 +51,14 @@ abstract final class DealDto {
     final text = '$value'.trim();
     return text.isEmpty ? null : text;
   }
+
+  /// Frappe sends Currency and Percent as numbers, but as strings through some
+  /// code paths — and `0` is a meaningful value that must survive.
+  static double? _asNumber(Object? value) => switch (value) {
+    final num number => number.toDouble(),
+    final String text => double.tryParse(text),
+    _ => null,
+  };
 
   static DateTime? _asDate(Object? value) {
     final text = _asString(value);

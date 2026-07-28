@@ -304,4 +304,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerTerritory => 'Territory';
+
+  @override
+  String get detailPipeline => 'Pipeline';
+
+  @override
+  String get detailContact => 'Contact';
+
+  @override
+  String get detailCommercial => 'Commercial';
+
+  @override
+  String get detailOwnership => 'Ownership';
+
+  @override
+  String get detailCompany => 'Company';
+
+  @override
+  String get fieldStage => 'Stage';
+
+  @override
+  String get fieldValue => 'Value';
+
+  @override
+  String get fieldProbability => 'Probability';
+
+  @override
+  String get fieldExpectedClose => 'Expected close';
+
+  @override
+  String get fieldNextStep => 'Next step';
+
+  @override
+  String get fieldOwner => 'Owner';
+
+  @override
+  String get fieldSource => 'Source';
+
+  @override
+  String get fieldTerritory => 'Territory';
+
+  @override
+  String get fieldIndustry => 'Industry';
+
+  @override
+  String get fieldWebsite => 'Website';
+
+  @override
+  String get fieldEmployees => 'Employees';
+
+  @override
+  String get fieldRevenue => 'Annual revenue';
+
+  @override
+  String get fieldJobTitle => 'Job title';
+
+  @override
+  String get fieldOriginLead => 'Converted from lead';
+
+  @override
+  String get fieldUpdated => 'Updated';
+
+  @override
+  String get actionCall => 'Call';
+
+  @override
+  String get actionEmail => 'Email';
+
+  @override
+  String get actionWhatsApp => 'WhatsApp';
+
+  @override
+  String get detailNotFound => 'This record no longer exists.';
 }

@@ -26,6 +26,7 @@ dependencies:
   # Material 3's native icon set; variable fill axis drives selected state
   material_symbols_icons: ^4.2960.0
   meta: ^1.16.0
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

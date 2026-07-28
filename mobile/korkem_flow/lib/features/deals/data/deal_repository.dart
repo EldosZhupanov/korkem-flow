@@ -39,6 +39,20 @@ class DealRepository {
     return rows.map(DealDto.fromJson).toList(growable: false);
   }
 
+  /// Every deal belonging to one organisation, most recent first.
+  Future<List<Deal>> fetchForOrganization(String organization) async {
+    final rows = await _client.getList(
+      doctype,
+      FrappeQuery(
+        fields: DealDto.listFields,
+        filters: [FrappeFilter.equals('organization', organization)],
+        orderBy: 'modified desc',
+      ),
+    );
+
+    return rows.map(DealDto.fromJson).toList(growable: false);
+  }
+
   Future<Deal> fetchOne(String id) async {
     final json = await _client.getDoc(doctype, id);
     return DealDto.fromJson(json);

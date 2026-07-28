@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/customers/application/customers_controller.dart';
 import 'package:korkem_flow/features/customers/domain/customer.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -25,7 +27,10 @@ class CustomersScreen extends ConsumerWidget {
         state: ref.watch(customersControllerProvider),
         onRefresh: controller.refresh,
         onLoadMore: controller.loadMore,
-        itemBuilder: (context, customer) => CustomerCard(customer: customer),
+        itemBuilder: (context, customer) => CustomerCard(
+          customer: customer,
+          onTap: () => context.push(Routes.customer(customer.id)),
+        ),
         emptyView: (context) => EmptyView(
           icon: AppIcons.customer,
           title: l10n.customersEmpty,

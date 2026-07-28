@@ -304,4 +304,76 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get customerTerritory => 'Аймақ';
+
+  @override
+  String get detailPipeline => 'Воронка';
+
+  @override
+  String get detailContact => 'Байланыс';
+
+  @override
+  String get detailCommercial => 'Коммерция';
+
+  @override
+  String get detailOwnership => 'Жауапкершілік';
+
+  @override
+  String get detailCompany => 'Компания';
+
+  @override
+  String get fieldStage => 'Кезең';
+
+  @override
+  String get fieldValue => 'Сомасы';
+
+  @override
+  String get fieldProbability => 'Ықтималдық';
+
+  @override
+  String get fieldExpectedClose => 'Күтілетін жабылу';
+
+  @override
+  String get fieldNextStep => 'Келесі қадам';
+
+  @override
+  String get fieldOwner => 'Жауапты';
+
+  @override
+  String get fieldSource => 'Дереккөз';
+
+  @override
+  String get fieldTerritory => 'Аймақ';
+
+  @override
+  String get fieldIndustry => 'Сала';
+
+  @override
+  String get fieldWebsite => 'Сайт';
+
+  @override
+  String get fieldEmployees => 'Қызметкерлер';
+
+  @override
+  String get fieldRevenue => 'Жылдық айналым';
+
+  @override
+  String get fieldJobTitle => 'Лауазымы';
+
+  @override
+  String get fieldOriginLead => 'Лидтен';
+
+  @override
+  String get fieldUpdated => 'Жаңартылды';
+
+  @override
+  String get actionCall => 'Қоңырау шалу';
+
+  @override
+  String get actionEmail => 'Хат';
+
+  @override
+  String get actionWhatsApp => 'WhatsApp';
+
+  @override
+  String get detailNotFound => 'Бұл жазба енді жоқ.';
 }

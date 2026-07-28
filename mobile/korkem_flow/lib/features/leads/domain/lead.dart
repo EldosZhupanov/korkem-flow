@@ -13,6 +13,11 @@ class Lead {
     this.source,
     this.converted = false,
     this.modified,
+    this.jobTitle,
+    this.industry,
+    this.territory,
+    this.leadOwner,
+    this.website,
   });
 
   final String id;
@@ -35,6 +40,13 @@ class Lead {
   final String? source;
   final bool converted;
   final DateTime? modified;
+
+  // --- Detail-only: populated by `fetchOne`, null on a list row. ---
+  final String? jobTitle;
+  final String? industry;
+  final String? territory;
+  final String? leadOwner;
+  final String? website;
 
   /// What to put on the card when the contact has no name yet.
   String get displayName {
