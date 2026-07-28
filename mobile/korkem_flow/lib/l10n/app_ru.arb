@@ -82,5 +82,18 @@
   "metricPendingActions": "Ждут решения",
   "metricWorkOrders": "В производстве",
   "attentionPendingAction": "Нужно решение",
-  "attentionOverdueTask": "Просроченная задача"
+  "attentionOverdueTask": "Просроченная задача",
+  "navSales": "Продажи",
+  "navLeads": "Лиды",
+  "navCustomers": "Клиенты",
+  "dealsEmptyAssigned": "На вас пока ничего не назначено",
+  "dealsEmptyAssignedBody": "Вы видите только свои сделки и те, где вы назначены. Попросите руководителя назначить вам сделку.",
+  "leadsEmpty": "Лидов нет",
+  "leadsEmptyBody": "Новые обращения появятся здесь по мере поступления.",
+  "leadConverted": "Сконвертирован",
+  "customersEmpty": "Клиентов нет",
+  "customersEmptyBody": "Организации появятся здесь, как только по ним заведут сделку.",
+  "customerEmployees": "Сотрудников",
+  "customerIndustry": "Отрасль",
+  "customerTerritory": "Регион"
 }

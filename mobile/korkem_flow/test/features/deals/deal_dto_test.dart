@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/deals/data/deal_dto.dart';
-import 'package:korkem_flow/features/deals/domain/deal.dart';
 
 void main() {
   group('DealDto.fromJson', () {
@@ -17,7 +16,7 @@ void main() {
 
       expect(deal.id, 'CRM-DEAL-2026-00001');
       expect(deal.organization, 'Chi Systems');
-      expect(deal.status, DealStatus.proposal);
+      expect(deal.status, 'Proposal/Quotation');
       expect(deal.nextStep, 'kitchen facades (qty 8)');
       expect(deal.mobileNo, '77010001122');
       expect(deal.modified?.year, 2026);
@@ -43,23 +42,26 @@ void main() {
       );
     });
 
-    test('falls back to qualification for an unrecognised status', () {
+    test('preserves a stage this build has never heard of', () {
       final deal = DealDto.fromJson({
         'name': 'X',
         'organization': 'Acme',
-        'status': 'Some Future Status',
+        'status': 'Замер',
       });
 
-      // Must degrade gracefully: a new status configured server-side should
-      // not crash the list.
-      expect(deal.status, DealStatus.qualification);
+      // Regression guard. An earlier version parsed status into an enum and
+      // fell back to Qualification on no match — so the day an administrator
+      // added a stage, every deal in it would have displayed as "Qualification"
+      // and any status write would have moved it there for real. Stage names
+      // are data now, and data is carried, not guessed at.
+      expect(deal.status, 'Замер');
     });
 
     test('survives a null organization', () {
       final deal = DealDto.fromJson({'name': 'X', 'status': 'Won'});
 
       expect(deal.organization, '—');
-      expect(deal.status, DealStatus.won);
+      expect(deal.status, 'Won');
     });
 
     test('stringifies a non-string name', () {
@@ -78,41 +80,6 @@ void main() {
       });
 
       expect(deal.modified, isNull);
-    });
-  });
-
-  group('DealStatus', () {
-    test('every seeded backend status maps to an enum value', () {
-      // Verified live against /api/resource/CRM Deal Status.
-      const seeded = [
-        'Qualification',
-        'Demo/Making',
-        'Proposal/Quotation',
-        'Negotiation',
-        'Ready to Close',
-        'Won',
-        'Lost',
-      ];
-
-      for (final value in seeded) {
-        expect(
-          DealStatus.fromWire(value),
-          isNotNull,
-          reason: '"$value" exists on the backend but has no enum mapping',
-        );
-      }
-    });
-
-    test('wireValue round-trips', () {
-      for (final status in DealStatus.values) {
-        expect(DealStatus.fromWire(status.wireValue), status);
-      }
-    });
-
-    test('isClosed is true only for Won and Lost', () {
-      expect(DealStatus.won.isClosed, isTrue);
-      expect(DealStatus.lost.isClosed, isTrue);
-      expect(DealStatus.negotiation.isClosed, isFalse);
     });
   });
 }

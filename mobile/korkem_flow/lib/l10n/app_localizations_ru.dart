@@ -263,4 +263,46 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get attentionOverdueTask => 'Просроченная задача';
+
+  @override
+  String get navSales => 'Продажи';
+
+  @override
+  String get navLeads => 'Лиды';
+
+  @override
+  String get navCustomers => 'Клиенты';
+
+  @override
+  String get dealsEmptyAssigned => 'На вас пока ничего не назначено';
+
+  @override
+  String get dealsEmptyAssignedBody =>
+      'Вы видите только свои сделки и те, где вы назначены. Попросите руководителя назначить вам сделку.';
+
+  @override
+  String get leadsEmpty => 'Лидов нет';
+
+  @override
+  String get leadsEmptyBody =>
+      'Новые обращения появятся здесь по мере поступления.';
+
+  @override
+  String get leadConverted => 'Сконвертирован';
+
+  @override
+  String get customersEmpty => 'Клиентов нет';
+
+  @override
+  String get customersEmptyBody =>
+      'Организации появятся здесь, как только по ним заведут сделку.';
+
+  @override
+  String get customerEmployees => 'Сотрудников';
+
+  @override
+  String get customerIndustry => 'Отрасль';
+
+  @override
+  String get customerTerritory => 'Регион';
 }

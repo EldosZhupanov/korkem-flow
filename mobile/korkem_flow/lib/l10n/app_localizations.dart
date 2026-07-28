@@ -597,6 +597,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Overdue task'**
   String get attentionOverdueTask;
+
+  /// No description provided for @navSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get navSales;
+
+  /// No description provided for @navLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Leads'**
+  String get navLeads;
+
+  /// No description provided for @navCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get navCustomers;
+
+  /// No description provided for @dealsEmptyAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing assigned to you yet'**
+  String get dealsEmptyAssigned;
+
+  /// No description provided for @dealsEmptyAssignedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You only see deals you own or are assigned to. Ask a manager to assign you one.'**
+  String get dealsEmptyAssignedBody;
+
+  /// No description provided for @leadsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No leads'**
+  String get leadsEmpty;
+
+  /// No description provided for @leadsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'New enquiries appear here as they arrive.'**
+  String get leadsEmptyBody;
+
+  /// No description provided for @leadConverted.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted'**
+  String get leadConverted;
+
+  /// No description provided for @customersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers'**
+  String get customersEmpty;
+
+  /// No description provided for @customersEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizations appear here once a deal is created for them.'**
+  String get customersEmptyBody;
+
+  /// No description provided for @customerEmployees.
+  ///
+  /// In en, this message translates to:
+  /// **'Employees'**
+  String get customerEmployees;
+
+  /// No description provided for @customerIndustry.
+  ///
+  /// In en, this message translates to:
+  /// **'Industry'**
+  String get customerIndustry;
+
+  /// No description provided for @customerTerritory.
+  ///
+  /// In en, this message translates to:
+  /// **'Territory'**
+  String get customerTerritory;
 }
 
 class _AppLocalizationsDelegate

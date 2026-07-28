@@ -18,7 +18,7 @@ class DealRepository {
   Future<List<Deal>> fetchPage({
     required int pageSize,
     int offset = 0,
-    DealStatus? status,
+    String? status,
     String? search,
   }) async {
     final rows = await _client.getList(
@@ -26,7 +26,7 @@ class DealRepository {
       FrappeQuery(
         fields: DealDto.listFields,
         filters: [
-          if (status != null) FrappeFilter.equals('status', status.wireValue),
+          if (status != null) FrappeFilter.equals('status', status),
           if (search != null && search.trim().isNotEmpty)
             FrappeFilter.like('organization', '%${search.trim()}%'),
         ],
@@ -49,7 +49,7 @@ class DealRepository {
   /// Only `status` is sent. Frappe merges a partial payload on `PUT`, and
   /// sending the whole document would risk clobbering fields the app never
   /// loaded — including `mobile_no`, which the backend derives.
-  Future<void> updateStatus(String id, DealStatus status) async {
+  Future<void> updateStatus(String id, String status) async {
     await _client.callMethod(
       'frappe.client.set_value',
       post: true,
@@ -57,7 +57,7 @@ class DealRepository {
         'doctype': doctype,
         'name': id,
         'fieldname': 'status',
-        'value': status.wireValue,
+        'value': status,
       },
     );
   }

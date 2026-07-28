@@ -29,9 +29,7 @@ abstract final class DealDto {
       // is autoincrement (int). Stringifying here is deliberate and safe.
       id: '$id',
       organization: _asString(json['organization']) ?? '—',
-      status:
-          DealStatus.fromWire(_asString(json['status'])) ??
-          DealStatus.qualification,
+      status: _asString(json['status']) ?? '',
       nextStep: _asString(json['next_step']),
       mobileNo: _asString(json['mobile_no']),
       modified: _asDate(json['modified']),

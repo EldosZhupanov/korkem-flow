@@ -17,7 +17,16 @@ class Deal {
 
   final String id;
   final String organization;
-  final DealStatus status;
+
+  /// The stored stage value, kept as text rather than parsed into an enum.
+  ///
+  /// `CRM Deal.status` is a **Link** to `CRM Deal Status`, whose rows are
+  /// editable — and `PROJECT.md`'s Production Order lifecycle names stages
+  /// (Measurement, Design, Approval) this site has not configured yet. An enum
+  /// would turn the day someone adds one into a silent data-loss bug. Meaning
+  /// is resolved through `StatusCatalog`, which reads the same records.
+  final String status;
+
   final String? nextStep;
 
   /// Read-only in this model on purpose.
@@ -35,34 +44,4 @@ class Deal {
 
   @override
   int get hashCode => id.hashCode;
-}
-
-/// Deal pipeline stage.
-///
-/// These are the seeded `CRM Deal Status` values. There is no `Workflow`
-/// record on this backend (verified: 0 workflows), so transitions are not
-/// server-enforced — the status field accepts any configured option.
-enum DealStatus {
-  qualification('Qualification'),
-  demo('Demo/Making'),
-  proposal('Proposal/Quotation'),
-  negotiation('Negotiation'),
-  ready('Ready to Close'),
-  won('Won'),
-  lost('Lost');
-
-  const DealStatus(this.wireValue);
-
-  /// The exact string the backend stores. Never send the enum name.
-  final String wireValue;
-
-  static DealStatus? fromWire(String? value) {
-    if (value == null) return null;
-    for (final status in DealStatus.values) {
-      if (status.wireValue == value) return status;
-    }
-    return null;
-  }
-
-  bool get isClosed => this == DealStatus.won || this == DealStatus.lost;
 }

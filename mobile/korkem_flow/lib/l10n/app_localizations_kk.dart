@@ -263,4 +263,45 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get attentionOverdueTask => 'Мерзімі өткен тапсырма';
+
+  @override
+  String get navSales => 'Сатылым';
+
+  @override
+  String get navLeads => 'Лидтер';
+
+  @override
+  String get navCustomers => 'Клиенттер';
+
+  @override
+  String get dealsEmptyAssigned => 'Сізге әзірше ештеңе тағайындалмаған';
+
+  @override
+  String get dealsEmptyAssignedBody =>
+      'Сіз тек өз мәмілелеріңізді және тағайындалған мәмілелерді көресіз. Басшыдан мәміле тағайындауды сұраңыз.';
+
+  @override
+  String get leadsEmpty => 'Лидтер жоқ';
+
+  @override
+  String get leadsEmptyBody => 'Жаңа өтініштер осында пайда болады.';
+
+  @override
+  String get leadConverted => 'Түрлендірілген';
+
+  @override
+  String get customersEmpty => 'Клиенттер жоқ';
+
+  @override
+  String get customersEmptyBody =>
+      'Ұйымдар бойынша мәміле жасалғаннан кейін осында көрінеді.';
+
+  @override
+  String get customerEmployees => 'Қызметкерлер';
+
+  @override
+  String get customerIndustry => 'Сала';
+
+  @override
+  String get customerTerritory => 'Аймақ';
 }

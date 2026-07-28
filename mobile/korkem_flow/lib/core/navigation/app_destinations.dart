@@ -35,7 +35,7 @@ const appDestinations = <AppDestination>[
     labelOf: _dashboardLabel,
   ),
   AppDestination(
-    path: '/deals',
+    path: '/sales',
     icon: AppIcons.deal,
     labelOf: _dealsLabel,
   ),
@@ -52,6 +52,6 @@ const appDestinations = <AppDestination>[
 ];
 
 String _dashboardLabel(AppLocalizations l10n) => l10n.navDashboard;
-String _dealsLabel(AppLocalizations l10n) => l10n.navDeals;
+String _dealsLabel(AppLocalizations l10n) => l10n.navSales;
 String _tasksLabel(AppLocalizations l10n) => l10n.navTasks;
 String _profileLabel(AppLocalizations l10n) => l10n.navProfile;

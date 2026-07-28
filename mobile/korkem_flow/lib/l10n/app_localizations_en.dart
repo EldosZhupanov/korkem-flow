@@ -263,4 +263,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attentionOverdueTask => 'Overdue task';
+
+  @override
+  String get navSales => 'Sales';
+
+  @override
+  String get navLeads => 'Leads';
+
+  @override
+  String get navCustomers => 'Customers';
+
+  @override
+  String get dealsEmptyAssigned => 'Nothing assigned to you yet';
+
+  @override
+  String get dealsEmptyAssignedBody =>
+      'You only see deals you own or are assigned to. Ask a manager to assign you one.';
+
+  @override
+  String get leadsEmpty => 'No leads';
+
+  @override
+  String get leadsEmptyBody => 'New enquiries appear here as they arrive.';
+
+  @override
+  String get leadConverted => 'Converted';
+
+  @override
+  String get customersEmpty => 'No customers';
+
+  @override
+  String get customersEmptyBody =>
+      'Organizations appear here once a deal is created for them.';
+
+  @override
+  String get customerEmployees => 'Employees';
+
+  @override
+  String get customerIndustry => 'Industry';
+
+  @override
+  String get customerTerritory => 'Territory';
 }

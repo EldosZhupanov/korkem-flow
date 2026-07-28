@@ -4,6 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/app.dart';
 import 'package:korkem_flow/core/auth/auth_credentials.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
+import 'package:korkem_flow/core/crm/crm_status.dart';
+import 'package:korkem_flow/core/crm/status_catalog_providers.dart';
+import 'package:korkem_flow/core/crm/status_catalog_repository.dart';
+import 'package:korkem_flow/core/pagination/paged_list_controller.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
@@ -45,7 +49,7 @@ void main() {
 
       testWidgets('deals', (tester) async {
         await _pumpApp(tester, brightness: brightness);
-        await _openTab(tester, 'Сделки');
+        await _openTab(tester, 'Продажи');
 
         await expectLater(
           find.byType(KorkemFlowApp),
@@ -138,6 +142,9 @@ Future<void> _pumpApp(
             ),
           ),
         ),
+        statusCatalogProvider(
+          StatusCatalogRepository.dealStatusDoctype,
+        ).overrideWith((ref) => Future<StatusCatalog>.value(_dealStatuses)),
         dashboardControllerProvider.overrideWith(_StubDashboard.new),
         dealsControllerProvider.overrideWith(_StubDeals.new),
         tasksControllerProvider.overrideWith(_StubTasks.new),
@@ -179,16 +186,27 @@ class _StubDashboard extends DashboardController {
 
 class _StubDeals extends DealsController {
   @override
-  Future<DealsPage> build() async => DealsPage(
-    deals: _deals,
-    hasMore: false,
-  );
+  Future<PagedList<Deal>> build() async =>
+      PagedList(items: _deals, hasMore: false);
 }
 
 class _StubTasks extends TasksController {
   @override
   Future<List<WorkTask>> build() async => _tasks;
 }
+
+/// The site's configured deal stages, as the catalogue endpoint returns them.
+const _dealStatuses = StatusCatalog([
+  CrmStatus(name: 'Qualification', type: CrmStatusType.open, position: 1),
+  CrmStatus(
+    name: 'Proposal/Quotation',
+    type: CrmStatusType.ongoing,
+    position: 3,
+  ),
+  CrmStatus(name: 'Negotiation', type: CrmStatusType.ongoing, position: 4),
+  CrmStatus(name: 'Won', type: CrmStatusType.won, position: 6),
+  CrmStatus(name: 'Lost', type: CrmStatusType.lost, position: 7),
+]);
 
 final _summary = DashboardSummary(
   user: 'aidos@korkem.kz',
@@ -224,7 +242,7 @@ final _deals = <Deal>[
   Deal(
     id: 'CRM-DEAL-2026-00041',
     organization: 'Астана Мебель Групп',
-    status: DealStatus.negotiation,
+    status: 'Negotiation',
     nextStep: 'Согласовать смету по фасадам МДФ',
     mobileNo: '+7 701 000 11 22',
     modified: _now,
@@ -232,7 +250,7 @@ final _deals = <Deal>[
   Deal(
     id: 'CRM-DEAL-2026-00040',
     organization: 'ЖК «Есиль Парк»',
-    status: DealStatus.proposal,
+    status: 'Proposal/Quotation',
     nextStep: 'Отправить коммерческое предложение',
     mobileNo: '+7 705 448 90 13',
     modified: _now,
@@ -240,7 +258,7 @@ final _deals = <Deal>[
   Deal(
     id: 'CRM-DEAL-2026-00038',
     organization: 'Қарағанды Интерьер',
-    status: DealStatus.won,
+    status: 'Won',
     nextStep: 'Передать в производство',
     mobileNo: '+7 747 213 55 08',
     modified: _now,
@@ -248,7 +266,7 @@ final _deals = <Deal>[
   Deal(
     id: 'CRM-DEAL-2026-00035',
     organization: 'Restaurant Aul',
-    status: DealStatus.qualification,
+    status: 'Qualification',
     nextStep: 'Замер 30 июля',
     mobileNo: '+7 702 909 74 61',
     modified: _now,
@@ -256,7 +274,7 @@ final _deals = <Deal>[
   Deal(
     id: 'CRM-DEAL-2026-00031',
     organization: 'Строй Комфорт KZ',
-    status: DealStatus.lost,
+    status: 'Lost',
     nextStep: 'Клиент выбрал другого поставщика',
     modified: _now,
   ),

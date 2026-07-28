@@ -121,5 +121,18 @@
   "metricPendingActions": "Awaiting approval",
   "metricWorkOrders": "In production",
   "attentionPendingAction": "Decision required",
-  "attentionOverdueTask": "Overdue task"
+  "attentionOverdueTask": "Overdue task",
+  "navSales": "Sales",
+  "navLeads": "Leads",
+  "navCustomers": "Customers",
+  "dealsEmptyAssigned": "Nothing assigned to you yet",
+  "dealsEmptyAssignedBody": "You only see deals you own or are assigned to. Ask a manager to assign you one.",
+  "leadsEmpty": "No leads",
+  "leadsEmptyBody": "New enquiries appear here as they arrive.",
+  "leadConverted": "Converted",
+  "customersEmpty": "No customers",
+  "customersEmptyBody": "Organizations appear here once a deal is created for them.",
+  "customerEmployees": "Employees",
+  "customerIndustry": "Industry",
+  "customerTerritory": "Territory"
 }

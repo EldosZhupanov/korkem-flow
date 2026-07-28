@@ -50,9 +50,22 @@ abstract final class AppTheme {
   static ThemeData _shared(ThemeData base, Brightness brightness) {
     final isDark = brightness == Brightness.dark;
 
+    final textTheme = AppTypography.textTheme(brightness);
+
     return base.copyWith(
-      textTheme: AppTypography.textTheme(brightness),
+      textTheme: textTheme,
+      // Overridden too, not just `textTheme`. Several Material widgets — the
+      // tab bar among them — resolve their label style from `primaryTextTheme`,
+      // which otherwise stays on Flutter's default family. That is how tab
+      // labels ended up rendered in a font the design system never chose.
+      primaryTextTheme: textTheme,
       extensions: [StatusColors.of(brightness)],
+
+      tabBarTheme: TabBarThemeData(
+        labelStyle: textTheme.titleSmall,
+        unselectedLabelStyle: textTheme.titleSmall,
+        dividerColor: Colors.transparent,
+      ),
 
       // Cards carry no shadow in dark mode — shadows are invisible against a
       // dark surface and only cost a raster pass. A hairline outline does the

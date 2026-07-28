@@ -82,5 +82,18 @@
   "metricPendingActions": "Шешім күтуде",
   "metricWorkOrders": "Өндірісте",
   "attentionPendingAction": "Шешім қажет",
-  "attentionOverdueTask": "Мерзімі өткен тапсырма"
+  "attentionOverdueTask": "Мерзімі өткен тапсырма",
+  "navSales": "Сатылым",
+  "navLeads": "Лидтер",
+  "navCustomers": "Клиенттер",
+  "dealsEmptyAssigned": "Сізге әзірше ештеңе тағайындалмаған",
+  "dealsEmptyAssignedBody": "Сіз тек өз мәмілелеріңізді және тағайындалған мәмілелерді көресіз. Басшыдан мәміле тағайындауды сұраңыз.",
+  "leadsEmpty": "Лидтер жоқ",
+  "leadsEmptyBody": "Жаңа өтініштер осында пайда болады.",
+  "leadConverted": "Түрлендірілген",
+  "customersEmpty": "Клиенттер жоқ",
+  "customersEmptyBody": "Ұйымдар бойынша мәміле жасалғаннан кейін осында көрінеді.",
+  "customerEmployees": "Қызметкерлер",
+  "customerIndustry": "Сала",
+  "customerTerritory": "Аймақ"
 }

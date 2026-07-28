@@ -1,175 +1,101 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:korkem_flow/core/design/theme/status_colors.dart';
-import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/crm/crm_status.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_filter_sheet.dart';
-import 'package:korkem_flow/core/design/widgets/app_search_field.dart';
+import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
+import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
-import 'package:korkem_flow/features/deals/presentation/deal_status_label.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-class DealsScreen extends ConsumerStatefulWidget {
+class DealsScreen extends ConsumerWidget {
   const DealsScreen({super.key});
 
-  @override
-  ConsumerState<DealsScreen> createState() => _DealsScreenState();
-}
-
-class _DealsScreenState extends ConsumerState<DealsScreen> {
-  final _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController
-      ..removeListener(_onScroll)
-      ..dispose();
-    super.dispose();
-  }
-
-  /// Prefetches roughly one viewport ahead, so the next page is usually already
-  /// present by the time the user reaches the bottom.
-  void _onScroll() {
-    final position = _scrollController.position;
-    if (position.pixels >= position.maxScrollExtent - 400) {
-      unawaited(ref.read(dealsControllerProvider.notifier).loadMore());
-    }
-  }
-
-  Future<void> _openFilter() async {
+  Future<void> _openFilter(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
-    final choice = await showFilterSheet<DealStatus>(
+    final catalog =
+        ref.read(dealStatusCatalogProvider).value ?? StatusCatalog.empty;
+
+    final choice = await showFilterSheet<String>(
       context: context,
       title: l10n.actionFilter,
       current: ref.read(dealFilterProvider).status,
       options: [
-        for (final status in DealStatus.values)
-          FilterOption(value: status, label: status.label(l10n)),
+        // Options come from the site's own configured stages, in the order the
+        // administrator arranged them — not from a list baked into this build.
+        for (final status in catalog.statuses)
+          FilterOption(value: status.name, label: status.name),
       ],
     );
 
-    if (!mounted || choice == null) return;
+    if (choice == null) return;
     ref.read(dealFilterProvider.notifier).setStatus(choice.value);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final state = ref.watch(dealsControllerProvider);
-    final filter = ref.watch(dealFilterProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final filter = ref.watch(dealFilterProvider);
+    final controller = ref.read(dealsControllerProvider.notifier);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.appTitle),
-        actions: [
-          IconButton(
-            icon: Badge(
-              isLabelVisible: filter.status != null,
-              child: const Icon(AppIcons.filter),
-            ),
-            tooltip: l10n.actionFilter,
-            onPressed: _openFilter,
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              0,
-              AppSpacing.lg,
-              AppSpacing.md,
-            ),
-            child: AppSearchField(
-              initialValue: filter.search,
-              onChanged: (value) => ref
-                  .read(dealFilterProvider.notifier)
-                  .setSearch(value.isEmpty ? null : value),
-            ),
-          ),
+    return CrmListSection(
+      searchValue: filter.search,
+      onSearch: (value) => ref
+          .read(dealFilterProvider.notifier)
+          .setSearch(value.isEmpty ? null : value),
+      isFiltered: filter.status != null,
+      onFilter: () => _openFilter(context, ref),
+      child: PagedListView<Deal>(
+        state: ref.watch(dealsControllerProvider),
+        onRefresh: controller.refresh,
+        onLoadMore: controller.loadMore,
+        itemBuilder: (context, deal) => DealCard(deal: deal),
+        emptyView: (context) => EmptyView(
+          icon: AppIcons.deal,
+          // Distinguishes "no deals exist" from "none are yours". Frappe CRM
+          // scopes CRM Deal to the owner and assignees, so a new user's list is
+          // legitimately empty — and a generic "nothing here" reads as a bug.
+          title: filter.status == null && filter.search == null
+              ? l10n.dealsEmptyAssigned
+              : null,
+          message: filter.search != null
+              ? l10n.searchNoResults(filter.search!)
+              : (filter.status == null ? l10n.dealsEmptyAssignedBody : null),
+          actionLabel: filter.status == null && filter.search == null
+              ? null
+              : l10n.actionClearFilter,
+          onAction: filter.status == null && filter.search == null
+              ? null
+              : ref.read(dealFilterProvider.notifier).clear,
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () => ref.read(dealsControllerProvider.notifier).refresh(),
-        child: switch (state) {
-          AsyncLoading() => const ListSkeleton(),
-          AsyncError(:final error) => ErrorView(
-            error: error,
-            onRetry: () => ref.read(dealsControllerProvider.notifier).refresh(),
-          ),
-          AsyncData(:final value) when value.deals.isEmpty => EmptyView(
-            icon: AppIcons.deal,
-            message: filter.search != null
-                ? l10n.searchNoResults(filter.search!)
-                : null,
-            actionLabel: filter.status == null && filter.search == null
-                ? null
-                : l10n.actionClearFilter,
-            onAction: filter.status == null && filter.search == null
-                ? null
-                : () => ref.read(dealFilterProvider.notifier).clear(),
-          ),
-          AsyncData(:final value) => _DealList(
-            page: value,
-            controller: _scrollController,
-          ),
-        },
-      ),
-    );
-  }
-}
-
-class _DealList extends StatelessWidget {
-  const _DealList({required this.page, required this.controller});
-
-  final DealsPage page;
-  final ScrollController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      controller: controller,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      itemCount: page.deals.length + (page.isLoadingMore ? 1 : 0),
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-      itemBuilder: (context, index) {
-        if (index >= page.deals.length) {
-          return const Padding(
-            padding: EdgeInsets.all(AppSpacing.lg),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-        return DealCard(deal: page.deals[index]);
-      },
     );
   }
 }
 
 /// A deal rendered with the shared [EntityCard] shape.
-class DealCard extends StatelessWidget {
+class DealCard extends ConsumerWidget {
   const DealCard({required this.deal, this.onTap, super.key});
 
   final Deal deal;
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final catalog =
+        ref.watch(dealStatusCatalogProvider).value ?? StatusCatalog.empty;
+    final status = catalog.resolve(deal.status);
+
     return EntityCard(
       title: deal.organization,
       subtitle: deal.nextStep,
-      statusLabel: deal.status.label(AppLocalizations.of(context)),
-      statusIntent: intentFor(deal.status),
+      // The stage name is shown exactly as configured. Translating it would
+      // detach the label from the value the backend stores and the Desk shows.
+      statusLabel: status.name.isEmpty ? null : status.name,
+      statusIntent: status.name.isEmpty ? null : status.intent,
       onTap: onTap,
       metadata: [
         if (deal.mobileNo != null)
@@ -177,14 +103,4 @@ class DealCard extends StatelessWidget {
       ],
     );
   }
-
-  /// Maps a pipeline stage onto a semantic intent.
-  static StatusIntent intentFor(DealStatus status) => switch (status) {
-    DealStatus.won => StatusIntent.success,
-    DealStatus.lost => StatusIntent.danger,
-    DealStatus.negotiation || DealStatus.ready => StatusIntent.warning,
-    DealStatus.qualification ||
-    DealStatus.demo ||
-    DealStatus.proposal => StatusIntent.info,
-  };
 }
