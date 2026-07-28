@@ -88,7 +88,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
                 _InfoRow(
                   icon: AppIcons.settings,
-                  label: 'Server',
+                  label: l10n.profileServer,
                   value: config.baseUrl,
                 ),
               ],

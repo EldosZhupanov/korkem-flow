@@ -42,5 +42,16 @@
   "themeSystem": "Системная",
   "themeLight": "Светлая",
   "themeDark": "Тёмная",
-  "actionUndo": "Отменить"
+  "actionUndo": "Отменить",
+  "profileServer": "Сервер",
+  "dealStatusQualification": "Квалификация",
+  "dealStatusDemo": "Демо / Проект",
+  "dealStatusProposal": "Предложение",
+  "dealStatusNegotiation": "Переговоры",
+  "dealStatusReady": "Готово к закрытию",
+  "dealStatusWon": "Выиграна",
+  "dealStatusLost": "Проиграна",
+  "taskPriorityHigh": "Высокий приоритет",
+  "taskPriorityMedium": "Средний приоритет",
+  "taskPriorityLow": "Низкий приоритет"
 }

@@ -11,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/app_search_field.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
+import 'package:korkem_flow/features/deals/presentation/deal_status_label.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 class DealsScreen extends ConsumerStatefulWidget {
@@ -54,7 +55,7 @@ class _DealsScreenState extends ConsumerState<DealsScreen> {
       current: ref.read(dealFilterProvider).status,
       options: [
         for (final status in DealStatus.values)
-          FilterOption(value: status, label: status.wireValue),
+          FilterOption(value: status, label: status.label(l10n)),
       ],
     );
 
@@ -167,7 +168,7 @@ class DealCard extends StatelessWidget {
     return EntityCard(
       title: deal.organization,
       subtitle: deal.nextStep,
-      statusLabel: deal.status.wireValue,
+      statusLabel: deal.status.label(AppLocalizations.of(context)),
       statusIntent: intentFor(deal.status),
       onTap: onTap,
       metadata: [

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
+import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/tasks/data/task_repository.dart';
 import 'package:korkem_flow/features/tasks/domain/task.dart';
 
@@ -47,7 +48,10 @@ class TasksController extends AsyncNotifier<List<WorkTask>> {
 ///
 /// Derived rather than stored, so it cannot drift out of sync with the list.
 final groupedTasksProvider = Provider<AsyncValue<TaskGroups>>((ref) {
-  return ref.watch(tasksControllerProvider).whenData(TaskGroups.from);
+  final now = ref.watch(clockProvider);
+  return ref
+      .watch(tasksControllerProvider)
+      .whenData((tasks) => TaskGroups.from(tasks, now()));
 });
 
 class TaskGroups {
@@ -57,8 +61,7 @@ class TaskGroups {
     required this.upcoming,
   });
 
-  factory TaskGroups.from(List<WorkTask> tasks) {
-    final now = DateTime.now();
+  factory TaskGroups.from(List<WorkTask> tasks, DateTime now) {
     final endOfToday = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
     final overdue = <WorkTask>[];

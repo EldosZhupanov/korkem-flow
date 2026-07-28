@@ -142,4 +142,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionUndo => 'Undo';
+
+  @override
+  String get profileServer => 'Server';
+
+  @override
+  String get dealStatusQualification => 'Qualification';
+
+  @override
+  String get dealStatusDemo => 'Demo / Making';
+
+  @override
+  String get dealStatusProposal => 'Proposal';
+
+  @override
+  String get dealStatusNegotiation => 'Negotiation';
+
+  @override
+  String get dealStatusReady => 'Ready to close';
+
+  @override
+  String get dealStatusWon => 'Won';
+
+  @override
+  String get dealStatusLost => 'Lost';
+
+  @override
+  String get taskPriorityHigh => 'High priority';
+
+  @override
+  String get taskPriorityMedium => 'Medium priority';
+
+  @override
+  String get taskPriorityLow => 'Low priority';
 }

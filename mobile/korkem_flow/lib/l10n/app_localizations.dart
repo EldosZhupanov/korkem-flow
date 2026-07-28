@@ -357,6 +357,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undo'**
   String get actionUndo;
+
+  /// No description provided for @profileServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get profileServer;
+
+  /// CRM Deal stage. Display only — the wire value 'Qualification' is what the backend stores.
+  ///
+  /// In en, this message translates to:
+  /// **'Qualification'**
+  String get dealStatusQualification;
+
+  /// No description provided for @dealStatusDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo / Making'**
+  String get dealStatusDemo;
+
+  /// No description provided for @dealStatusProposal.
+  ///
+  /// In en, this message translates to:
+  /// **'Proposal'**
+  String get dealStatusProposal;
+
+  /// No description provided for @dealStatusNegotiation.
+  ///
+  /// In en, this message translates to:
+  /// **'Negotiation'**
+  String get dealStatusNegotiation;
+
+  /// No description provided for @dealStatusReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to close'**
+  String get dealStatusReady;
+
+  /// No description provided for @dealStatusWon.
+  ///
+  /// In en, this message translates to:
+  /// **'Won'**
+  String get dealStatusWon;
+
+  /// No description provided for @dealStatusLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost'**
+  String get dealStatusLost;
+
+  /// No description provided for @taskPriorityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High priority'**
+  String get taskPriorityHigh;
+
+  /// No description provided for @taskPriorityMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium priority'**
+  String get taskPriorityMedium;
+
+  /// No description provided for @taskPriorityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low priority'**
+  String get taskPriorityLow;
 }
 
 class _AppLocalizationsDelegate

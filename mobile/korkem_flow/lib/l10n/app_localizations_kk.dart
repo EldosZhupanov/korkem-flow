@@ -142,4 +142,37 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get actionUndo => 'Болдырмау';
+
+  @override
+  String get profileServer => 'Сервер';
+
+  @override
+  String get dealStatusQualification => 'Іріктеу';
+
+  @override
+  String get dealStatusDemo => 'Демо / Жоба';
+
+  @override
+  String get dealStatusProposal => 'Ұсыныс';
+
+  @override
+  String get dealStatusNegotiation => 'Келіссөздер';
+
+  @override
+  String get dealStatusReady => 'Жабуға дайын';
+
+  @override
+  String get dealStatusWon => 'Жеңіске жетті';
+
+  @override
+  String get dealStatusLost => 'Жоғалтылды';
+
+  @override
+  String get taskPriorityHigh => 'Жоғары басымдық';
+
+  @override
+  String get taskPriorityMedium => 'Орташа басымдық';
+
+  @override
+  String get taskPriorityLow => 'Төмен басымдық';
 }

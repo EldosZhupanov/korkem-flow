@@ -142,4 +142,37 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get actionUndo => 'Отменить';
+
+  @override
+  String get profileServer => 'Сервер';
+
+  @override
+  String get dealStatusQualification => 'Квалификация';
+
+  @override
+  String get dealStatusDemo => 'Демо / Проект';
+
+  @override
+  String get dealStatusProposal => 'Предложение';
+
+  @override
+  String get dealStatusNegotiation => 'Переговоры';
+
+  @override
+  String get dealStatusReady => 'Готово к закрытию';
+
+  @override
+  String get dealStatusWon => 'Выиграна';
+
+  @override
+  String get dealStatusLost => 'Проиграна';
+
+  @override
+  String get taskPriorityHigh => 'Высокий приоритет';
+
+  @override
+  String get taskPriorityMedium => 'Средний приоритет';
+
+  @override
+  String get taskPriorityLow => 'Низкий приоритет';
 }

@@ -78,5 +78,19 @@
   "themeSystem": "System",
   "themeLight": "Light",
   "themeDark": "Dark",
-  "actionUndo": "Undo"
+  "actionUndo": "Undo",
+  "profileServer": "Server",
+  "dealStatusQualification": "Qualification",
+  "@dealStatusQualification": {
+    "description": "CRM Deal stage. Display only — the wire value 'Qualification' is what the backend stores."
+  },
+  "dealStatusDemo": "Demo / Making",
+  "dealStatusProposal": "Proposal",
+  "dealStatusNegotiation": "Negotiation",
+  "dealStatusReady": "Ready to close",
+  "dealStatusWon": "Won",
+  "dealStatusLost": "Lost",
+  "taskPriorityHigh": "High priority",
+  "taskPriorityMedium": "Medium priority",
+  "taskPriorityLow": "Low priority"
 }

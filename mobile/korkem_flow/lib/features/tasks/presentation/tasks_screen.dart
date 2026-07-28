@@ -169,14 +169,25 @@ class TaskCard extends ConsumerWidget {
       onDismissed: (_) => _complete(context, ref),
       child: EntityCard(
         title: task.title,
-        statusLabel: task.isOverdue ? l10n.tasksOverdue : null,
-        statusIntent: task.isOverdue ? StatusIntent.danger : null,
+        // Priority, not overdue-ness: the red section header above already says
+        // "overdue", and repeating it here bought nothing while costing the
+        // title half a line. Priority is shown nowhere else, and only the
+        // exceptional value earns a chip — a list where every row is badged
+        // is a list with no signal.
+        statusLabel: task.priority == TaskPriority.high
+            ? l10n.taskPriorityHigh
+            : null,
+        statusIntent: task.priority == TaskPriority.high
+            ? StatusIntent.warning
+            : null,
+        // Task titles are sentences, not names, and need the whole width.
+        statusPlacement: StatusPlacement.metadata,
         metadata: [
           if (task.isProduction)
             EntityMeta(icon: AppIcons.workOrder, label: l10n.taskProduction),
           if (due != null)
             EntityMeta(
-              icon: AppIcons.warning,
+              icon: AppIcons.schedule,
               label: DateFormat.MMMd(
                 Localizations.localeOf(context).languageCode,
               ).add_Hm().format(due),

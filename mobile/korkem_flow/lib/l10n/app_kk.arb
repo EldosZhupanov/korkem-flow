@@ -42,5 +42,16 @@
   "themeSystem": "Жүйелік",
   "themeLight": "Жарық",
   "themeDark": "Қараңғы",
-  "actionUndo": "Болдырмау"
+  "actionUndo": "Болдырмау",
+  "profileServer": "Сервер",
+  "dealStatusQualification": "Іріктеу",
+  "dealStatusDemo": "Демо / Жоба",
+  "dealStatusProposal": "Ұсыныс",
+  "dealStatusNegotiation": "Келіссөздер",
+  "dealStatusReady": "Жабуға дайын",
+  "dealStatusWon": "Жеңіске жетті",
+  "dealStatusLost": "Жоғалтылды",
+  "taskPriorityHigh": "Жоғары басымдық",
+  "taskPriorityMedium": "Орташа басымдық",
+  "taskPriorityLow": "Төмен басымдық"
 }

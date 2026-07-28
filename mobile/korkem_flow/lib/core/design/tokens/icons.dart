@@ -43,6 +43,7 @@ abstract final class AppIcons {
   static const IconData more = Symbols.more_vert_rounded;
   static const IconData check = Symbols.check_rounded;
   static const IconData call = Symbols.call_rounded;
+  static const IconData schedule = Symbols.schedule_rounded;
   static const IconData logout = Symbols.logout_rounded;
 
   // ── States ───────────────────────────────────────────────────────────────

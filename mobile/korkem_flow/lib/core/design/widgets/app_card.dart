@@ -30,6 +30,18 @@ class AppCard extends StatelessWidget {
   }
 }
 
+/// Where an entity's status chip sits on the card.
+enum StatusPlacement {
+  /// Top-right, opposite the title. Scannable down the edge of a list — right
+  /// for short titles like organisation names.
+  header,
+
+  /// Inline with the other facts. Right when the title needs the full width:
+  /// a chip in the header row steals that width from *every* line of the
+  /// title, not just the first, because both live inside one [Row].
+  metadata,
+}
+
 /// One entity, one card.
 ///
 /// Deal, Work Order, Task and Item all share this shape — the same widget with
@@ -40,6 +52,7 @@ class EntityCard extends StatelessWidget {
     this.subtitle,
     this.statusLabel,
     this.statusIntent,
+    this.statusPlacement = StatusPlacement.header,
     this.metadata = const [],
     this.leading,
     this.onTap,
@@ -50,6 +63,7 @@ class EntityCard extends StatelessWidget {
   final String? subtitle;
   final String? statusLabel;
   final StatusIntent? statusIntent;
+  final StatusPlacement statusPlacement;
 
   /// Small facts shown on the bottom row: date, quantity, assignee.
   final List<EntityMeta> metadata;
@@ -57,9 +71,15 @@ class EntityCard extends StatelessWidget {
   final Widget? leading;
   final VoidCallback? onTap;
 
+  Widget? _statusChip() {
+    if (statusLabel == null || statusIntent == null) return null;
+    return StatusChip(label: statusLabel!, intent: statusIntent!);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chip = _statusChip();
 
     return AppCard(
       onTap: onTap,
@@ -77,13 +97,17 @@ class EntityCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: theme.textTheme.titleMedium,
-                  maxLines: 1,
+                  // Two lines, not one: Russian and Kazakh entity names run far
+                  // longer than their English equivalents, and a single line
+                  // truncated "Кромление фаса…" tells a worker nothing.
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (statusLabel != null && statusIntent != null) ...[
+              if (chip != null &&
+                  statusPlacement == StatusPlacement.header) ...[
                 const SizedBox(width: AppSpacing.sm),
-                StatusChip(label: statusLabel!, intent: statusIntent!),
+                chip,
               ],
             ],
           ),
@@ -98,12 +122,17 @@ class EntityCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ],
-          if (metadata.isNotEmpty) ...[
+          if (metadata.isNotEmpty ||
+              (chip != null &&
+                  statusPlacement == StatusPlacement.metadata)) ...[
             const SizedBox(height: AppSpacing.md),
             Wrap(
               spacing: AppSpacing.lg,
               runSpacing: AppSpacing.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
+                if (chip != null && statusPlacement == StatusPlacement.metadata)
+                  chip,
                 for (final meta in metadata) _MetaChip(meta: meta),
               ],
             ),
