@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
+import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The home screen: six numbers and a short list of what to do first.
@@ -24,7 +25,23 @@ class DashboardScreen extends ConsumerWidget {
     final state = ref.watch(dashboardControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navDashboard)),
+      appBar: AppBar(
+        title: Text(l10n.navDashboard),
+        actions: [
+          IconButton(
+            icon: Badge.count(
+              // Hidden at zero rather than showing a "0" badge, which reads as
+              // a notification in itself.
+              count: ref.watch(unreadNotificationsProvider).value ?? 0,
+              isLabelVisible:
+                  (ref.watch(unreadNotificationsProvider).value ?? 0) > 0,
+              child: const Icon(AppIcons.notification),
+            ),
+            tooltip: l10n.navNotifications,
+            onPressed: () => context.push(Routes.notifications),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () =>
             ref.read(dashboardControllerProvider.notifier).refresh(),

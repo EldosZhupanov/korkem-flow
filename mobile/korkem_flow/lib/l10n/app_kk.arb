@@ -178,5 +178,15 @@
   "qOrdered": "Тапсырыс берілді",
   "qLost": "Жоғалтылды",
   "qCancelled": "Болдырылмады",
-  "qExpired": "Мерзімі өтті"
+  "qExpired": "Мерзімі өтті",
+  "navNotifications": "Хабарламалар",
+  "notificationsEmpty": "Барлығы қаралды",
+  "notificationsEmptyBody": "Тағайындаулар, аталымдар және ескертулер осында көрінеді.",
+  "notificationsMarkAllRead": "Барлығын белгілеу",
+  "notificationsUnread": "Оқылмаған",
+  "notifAssignment": "Тағайындау",
+  "notifMention": "Аталым",
+  "notifShare": "Ортақ қолжетімділік",
+  "notifAlert": "Ескерту",
+  "notifEnergyPoint": "Ұпайлар"
 }

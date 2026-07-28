@@ -556,4 +556,35 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get qExpired => 'Мерзімі өтті';
+
+  @override
+  String get navNotifications => 'Хабарламалар';
+
+  @override
+  String get notificationsEmpty => 'Барлығы қаралды';
+
+  @override
+  String get notificationsEmptyBody =>
+      'Тағайындаулар, аталымдар және ескертулер осында көрінеді.';
+
+  @override
+  String get notificationsMarkAllRead => 'Барлығын белгілеу';
+
+  @override
+  String get notificationsUnread => 'Оқылмаған';
+
+  @override
+  String get notifAssignment => 'Тағайындау';
+
+  @override
+  String get notifMention => 'Аталым';
+
+  @override
+  String get notifShare => 'Ортақ қолжетімділік';
+
+  @override
+  String get notifAlert => 'Ескерту';
+
+  @override
+  String get notifEnergyPoint => 'Ұпайлар';
 }

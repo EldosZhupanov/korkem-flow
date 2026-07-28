@@ -556,4 +556,35 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get qExpired => 'Истёк';
+
+  @override
+  String get navNotifications => 'Уведомления';
+
+  @override
+  String get notificationsEmpty => 'Всё просмотрено';
+
+  @override
+  String get notificationsEmptyBody =>
+      'Назначения, упоминания и оповещения появятся здесь.';
+
+  @override
+  String get notificationsMarkAllRead => 'Отметить все';
+
+  @override
+  String get notificationsUnread => 'Непрочитанные';
+
+  @override
+  String get notifAssignment => 'Назначение';
+
+  @override
+  String get notifMention => 'Упоминание';
+
+  @override
+  String get notifShare => 'Доступ';
+
+  @override
+  String get notifAlert => 'Оповещение';
+
+  @override
+  String get notifEnergyPoint => 'Баллы';
 }

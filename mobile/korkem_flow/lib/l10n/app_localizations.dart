@@ -1173,6 +1173,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expired'**
   String get qExpired;
+
+  /// No description provided for @navNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get navNotifications;
+
+  /// No description provided for @notificationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up'**
+  String get notificationsEmpty;
+
+  /// No description provided for @notificationsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignments, mentions and alerts appear here.'**
+  String get notificationsEmptyBody;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notificationsUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notificationsUnread;
+
+  /// No description provided for @notifAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get notifAssignment;
+
+  /// No description provided for @notifMention.
+  ///
+  /// In en, this message translates to:
+  /// **'Mention'**
+  String get notifMention;
+
+  /// No description provided for @notifShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared'**
+  String get notifShare;
+
+  /// No description provided for @notifAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get notifAlert;
+
+  /// No description provided for @notifEnergyPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy point'**
+  String get notifEnergyPoint;
 }
 
 class _AppLocalizationsDelegate

@@ -217,5 +217,15 @@
   "qOrdered": "Ordered",
   "qLost": "Lost",
   "qCancelled": "Cancelled",
-  "qExpired": "Expired"
+  "qExpired": "Expired",
+  "navNotifications": "Notifications",
+  "notificationsEmpty": "You're all caught up",
+  "notificationsEmptyBody": "Assignments, mentions and alerts appear here.",
+  "notificationsMarkAllRead": "Mark all read",
+  "notificationsUnread": "Unread",
+  "notifAssignment": "Assignment",
+  "notifMention": "Mention",
+  "notifShare": "Shared",
+  "notifAlert": "Alert",
+  "notifEnergyPoint": "Energy point"
 }

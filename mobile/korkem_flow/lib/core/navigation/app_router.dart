@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/customers/presentation/customer_detail_scre
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
+import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/operations_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
@@ -23,6 +24,7 @@ abstract final class Routes {
   static const dashboard = '/dashboard';
   static const approvals = '$dashboard/approvals';
   static const production = '$dashboard/production';
+  static const notifications = '$dashboard/notifications';
   static const sales = '/sales';
 
   /// Detail routes are children of the sales branch, so opening one keeps the
@@ -90,6 +92,10 @@ GoRouter createRouter(Ref ref) {
                   GoRoute(
                     path: 'approvals',
                     builder: (context, state) => const ApprovalsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'notifications',
+                    builder: (context, state) => const NotificationsScreen(),
                   ),
                   GoRoute(
                     path: 'production',

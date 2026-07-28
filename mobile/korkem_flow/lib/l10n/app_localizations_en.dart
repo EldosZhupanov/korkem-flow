@@ -556,4 +556,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qExpired => 'Expired';
+
+  @override
+  String get navNotifications => 'Notifications';
+
+  @override
+  String get notificationsEmpty => 'You\'re all caught up';
+
+  @override
+  String get notificationsEmptyBody =>
+      'Assignments, mentions and alerts appear here.';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all read';
+
+  @override
+  String get notificationsUnread => 'Unread';
+
+  @override
+  String get notifAssignment => 'Assignment';
+
+  @override
+  String get notifMention => 'Mention';
+
+  @override
+  String get notifShare => 'Shared';
+
+  @override
+  String get notifAlert => 'Alert';
+
+  @override
+  String get notifEnergyPoint => 'Energy point';
 }

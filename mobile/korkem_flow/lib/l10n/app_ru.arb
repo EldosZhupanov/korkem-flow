@@ -178,5 +178,15 @@
   "qOrdered": "Заказан",
   "qLost": "Проигран",
   "qCancelled": "Отменён",
-  "qExpired": "Истёк"
+  "qExpired": "Истёк",
+  "navNotifications": "Уведомления",
+  "notificationsEmpty": "Всё просмотрено",
+  "notificationsEmptyBody": "Назначения, упоминания и оповещения появятся здесь.",
+  "notificationsMarkAllRead": "Отметить все",
+  "notificationsUnread": "Непрочитанные",
+  "notifAssignment": "Назначение",
+  "notifMention": "Упоминание",
+  "notifShare": "Доступ",
+  "notifAlert": "Оповещение",
+  "notifEnergyPoint": "Баллы"
 }

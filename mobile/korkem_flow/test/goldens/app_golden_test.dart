@@ -17,6 +17,8 @@ import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
+import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
+import 'package:korkem_flow/features/notifications/domain/app_notification.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/quotes/application/quotes_controller.dart';
@@ -75,6 +77,17 @@ void main() {
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('production_$suffix.png'),
+        );
+      });
+
+      testWidgets('notifications', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+        await tester.tap(find.byTooltip('Уведомления'));
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('notifications_$suffix.png'),
         );
       });
 
@@ -221,6 +234,8 @@ Future<void> _pumpApp(
         approvalsControllerProvider.overrideWith(_StubApprovals.new),
         productionControllerProvider.overrideWith(_StubProduction.new),
         quotesControllerProvider.overrideWith(_StubQuotes.new),
+        notificationsControllerProvider.overrideWith(_StubNotifications.new),
+        unreadNotificationsProvider.overrideWith((ref) => Future.value(3)),
         warehouseControllerProvider.overrideWith(_StubWarehouse.new),
         for (final item in _items)
           stockBalancesProvider(item.id).overrideWith(
@@ -289,6 +304,12 @@ class _StubWarehouse extends WarehouseController {
   @override
   Future<PagedList<StockItem>> build() async =>
       const PagedList(items: _items, hasMore: false);
+}
+
+class _StubNotifications extends NotificationsController {
+  @override
+  Future<PagedList<AppNotification>> build() async =>
+      PagedList(items: _notifications, hasMore: false);
 }
 
 class _StubDeals extends DealsController {
@@ -411,6 +432,38 @@ final _workOrders = <WorkOrder>[
     itemName: 'Столешница массив дуб 3000×600',
     originatingDeal: 'CRM-DEAL-2026-00031',
     plannedEndDate: DateTime(2026, 7, 20, 12),
+  ),
+];
+
+final _notifications = <AppNotification>[
+  AppNotification(
+    id: 'n1',
+    type: NotificationType.assignment,
+    // Already stripped, as the repository does — the wire value is
+    // "<strong>Администратор</strong> assigned ... to you".
+    subject: 'Администратор назначил вам сделку «Астана Мебель Групп»',
+    isRead: false,
+    documentType: 'CRM Deal',
+    documentName: 'CRM-DEAL-2026-00041',
+    createdAt: DateTime(2026, 7, 28, 9, 12),
+  ),
+  AppNotification(
+    id: 'n2',
+    type: NotificationType.mention,
+    subject: 'Дана С. упомянула вас в задаче «Позвонить клиенту по замеру»',
+    isRead: false,
+    documentType: 'CRM Task',
+    documentName: '514',
+    createdAt: DateTime(2026, 7, 27, 16, 40),
+  ),
+  AppNotification(
+    id: 'n3',
+    type: NotificationType.alert,
+    subject: 'Счёт SAL-QTN-2026-00029 истёк без ответа клиента',
+    isRead: true,
+    documentType: 'Quotation',
+    documentName: 'SAL-QTN-2026-00029',
+    createdAt: DateTime(2026, 7, 21, 8, 5),
   ),
 ];
 

@@ -184,6 +184,28 @@ Also found on 2026-07-28: a fresh `Sales User` sees **zero** `CRM Deal` and **ze
 doctypes to the owner and assignees, so list screens are correctly empty for a user with nothing
 assigned. Do not mistake this for a broken query.
 
+### `Notification Log` is not scoped by Frappe — the client must scope it
+
+Found 2026-07-28. `Notification Log` grants `read` to the role **`All`**, and
+`frappe/hooks.py` registers **no** `get_permission_query_conditions` for it. An
+unfiltered `GET /api/resource/Notification Log` therefore returns *every user's*
+notifications — reproduced live, where an Administrator's unfiltered list came
+back full of `crm.user1@example.com`'s assignments.
+
+Any client reading this doctype **must** filter `for_user = <session user>`
+itself. The mobile repository does, and a test pins it.
+
+Two related facts:
+
+- `subject` is stored as an **HTML fragment**
+  (`<strong>Administrator</strong> assigned a new task ... to you`), not plain
+  text. Rendering it raw puts tag names on screen.
+- `frappe.desk.doctype.notification_log.notification_log.mark_as_read(docname)`
+  and `mark_all_as_read()` are whitelisted and scope their update to
+  `frappe.session.user` server-side. Use them rather than `frappe.client.set_value`
+  on the `read` field, which would let a caller mark somebody else's
+  notification read.
+
 ### Integration test account
 
 `mobile.test@korkem.local` was created on 2026-07-28 purely to verify the auth flow without touching
