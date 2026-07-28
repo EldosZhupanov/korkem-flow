@@ -220,4 +220,47 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get settingsConnection => 'Қосылым';
+
+  @override
+  String get navDashboard => 'Басты бет';
+
+  @override
+  String get dashboardGreeting => 'Бүгін';
+
+  @override
+  String get dashboardAttention => 'Назар аударыңыз';
+
+  @override
+  String get dashboardAllClear => 'Қазір сізден ештеңе талап етілмейді';
+
+  @override
+  String get dashboardAllClearBody =>
+      'Мұнда мерзімі өткен тапсырмалар мен сізді күтіп тұрған шешімдер көрінеді.';
+
+  @override
+  String get dashboardNoAccess => 'Сіздің рөліңізге қолжетімсіз';
+
+  @override
+  String get metricOpenDeals => 'Ашық мәмілелер';
+
+  @override
+  String get metricOpenLeads => 'Лидтер';
+
+  @override
+  String get metricMyOpenTasks => 'Менің тапсырмаларым';
+
+  @override
+  String get metricOverdueTasks => 'Мерзімі өткен';
+
+  @override
+  String get metricPendingActions => 'Шешім күтуде';
+
+  @override
+  String get metricWorkOrders => 'Өндірісте';
+
+  @override
+  String get attentionPendingAction => 'Шешім қажет';
+
+  @override
+  String get attentionOverdueTask => 'Мерзімі өткен тапсырма';
 }

@@ -68,5 +68,19 @@
   "settingsTitle": "Настройки",
   "settingsAccount": "Учётная запись",
   "settingsSignedInAs": "Вы вошли как",
-  "settingsConnection": "Подключение"
+  "settingsConnection": "Подключение",
+  "navDashboard": "Главная",
+  "dashboardGreeting": "Сегодня",
+  "dashboardAttention": "Требует внимания",
+  "dashboardAllClear": "Сейчас ничего не требует вашего участия",
+  "dashboardAllClearBody": "Здесь появятся просроченные задачи и решения, которые ждут вас.",
+  "dashboardNoAccess": "Недоступно для вашей роли",
+  "metricOpenDeals": "Открытые сделки",
+  "metricOpenLeads": "Лиды",
+  "metricMyOpenTasks": "Мои задачи",
+  "metricOverdueTasks": "Просрочено",
+  "metricPendingActions": "Ждут решения",
+  "metricWorkOrders": "В производстве",
+  "attentionPendingAction": "Нужно решение",
+  "attentionOverdueTask": "Просроченная задача"
 }

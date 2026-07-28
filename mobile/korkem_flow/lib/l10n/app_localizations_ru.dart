@@ -220,4 +220,47 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsConnection => 'Подключение';
+
+  @override
+  String get navDashboard => 'Главная';
+
+  @override
+  String get dashboardGreeting => 'Сегодня';
+
+  @override
+  String get dashboardAttention => 'Требует внимания';
+
+  @override
+  String get dashboardAllClear => 'Сейчас ничего не требует вашего участия';
+
+  @override
+  String get dashboardAllClearBody =>
+      'Здесь появятся просроченные задачи и решения, которые ждут вас.';
+
+  @override
+  String get dashboardNoAccess => 'Недоступно для вашей роли';
+
+  @override
+  String get metricOpenDeals => 'Открытые сделки';
+
+  @override
+  String get metricOpenLeads => 'Лиды';
+
+  @override
+  String get metricMyOpenTasks => 'Мои задачи';
+
+  @override
+  String get metricOverdueTasks => 'Просрочено';
+
+  @override
+  String get metricPendingActions => 'Ждут решения';
+
+  @override
+  String get metricWorkOrders => 'В производстве';
+
+  @override
+  String get attentionPendingAction => 'Нужно решение';
+
+  @override
+  String get attentionOverdueTask => 'Просроченная задача';
 }

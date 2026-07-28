@@ -107,5 +107,19 @@
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",
-  "settingsConnection": "Connection"
+  "settingsConnection": "Connection",
+  "navDashboard": "Home",
+  "dashboardGreeting": "Today",
+  "dashboardAttention": "Needs attention",
+  "dashboardAllClear": "Nothing needs you right now",
+  "dashboardAllClearBody": "Overdue work and decisions waiting on you appear here.",
+  "dashboardNoAccess": "Not available for your role",
+  "metricOpenDeals": "Open deals",
+  "metricOpenLeads": "Leads",
+  "metricMyOpenTasks": "My tasks",
+  "metricOverdueTasks": "Overdue",
+  "metricPendingActions": "Awaiting approval",
+  "metricWorkOrders": "In production",
+  "attentionPendingAction": "Decision required",
+  "attentionOverdueTask": "Overdue task"
 }

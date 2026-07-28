@@ -26,9 +26,14 @@ class AppDestination {
 
 /// The destinations available to the Sales-facing v1.
 ///
-/// Deliberately three, not the full fourteen screens: a bottom bar stops being
-/// scannable past five, and the remaining screens are reached from these.
+/// Deliberately few: a bottom bar stops being scannable past five, and every
+/// remaining screen is reached from one of these.
 const appDestinations = <AppDestination>[
+  AppDestination(
+    path: '/dashboard',
+    icon: AppIcons.dashboard,
+    labelOf: _dashboardLabel,
+  ),
   AppDestination(
     path: '/deals',
     icon: AppIcons.deal,
@@ -46,6 +51,7 @@ const appDestinations = <AppDestination>[
   ),
 ];
 
+String _dashboardLabel(AppLocalizations l10n) => l10n.navDashboard;
 String _dealsLabel(AppLocalizations l10n) => l10n.navDeals;
 String _tasksLabel(AppLocalizations l10n) => l10n.navTasks;
 String _profileLabel(AppLocalizations l10n) => l10n.navProfile;

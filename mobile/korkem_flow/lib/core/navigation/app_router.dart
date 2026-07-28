@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/navigation/adaptive_shell.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
+import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deals_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
@@ -14,6 +15,7 @@ import 'package:korkem_flow/features/tasks/presentation/tasks_screen.dart';
 abstract final class Routes {
   static const splash = '/';
   static const login = '/login';
+  static const dashboard = '/dashboard';
   static const deals = '/deals';
   static const tasks = '/tasks';
   static const profile = '/profile';
@@ -45,7 +47,7 @@ GoRouter createRouter(Ref ref) {
       final atEntry = location == Routes.splash || location == Routes.login;
 
       if (!signedIn) return atEntry ? Routes.login : Routes.login;
-      return atEntry ? Routes.deals : null;
+      return atEntry ? Routes.dashboard : null;
     },
     routes: [
       GoRoute(
@@ -64,6 +66,14 @@ GoRouter createRouter(Ref ref) {
         builder: (context, state, navigationShell) =>
             AdaptiveShell(navigationShell: navigationShell),
         branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.dashboard,
+                builder: (context, state) => const DashboardScreen(),
+              ),
+            ],
+          ),
           StatefulShellBranch(
             routes: [
               GoRoute(

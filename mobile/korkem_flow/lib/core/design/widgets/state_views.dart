@@ -53,6 +53,9 @@ class _ListSkeletonState extends State<ListSkeleton>
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.lg),
       itemCount: widget.rows,
+      // Sized to its rows and non-scrolling, so it can stand in for a section
+      // inside a larger scroll view as well as fill a screen on its own.
+      shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
       itemBuilder: (_, _) => AnimatedBuilder(

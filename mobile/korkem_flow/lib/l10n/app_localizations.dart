@@ -513,6 +513,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connection'**
   String get settingsConnection;
+
+  /// No description provided for @navDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navDashboard;
+
+  /// No description provided for @dashboardGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dashboardGreeting;
+
+  /// No description provided for @dashboardAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get dashboardAttention;
+
+  /// No description provided for @dashboardAllClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing needs you right now'**
+  String get dashboardAllClear;
+
+  /// No description provided for @dashboardAllClearBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue work and decisions waiting on you appear here.'**
+  String get dashboardAllClearBody;
+
+  /// No description provided for @dashboardNoAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available for your role'**
+  String get dashboardNoAccess;
+
+  /// No description provided for @metricOpenDeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Open deals'**
+  String get metricOpenDeals;
+
+  /// No description provided for @metricOpenLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Leads'**
+  String get metricOpenLeads;
+
+  /// No description provided for @metricMyOpenTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'My tasks'**
+  String get metricMyOpenTasks;
+
+  /// No description provided for @metricOverdueTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get metricOverdueTasks;
+
+  /// No description provided for @metricPendingActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting approval'**
+  String get metricPendingActions;
+
+  /// No description provided for @metricWorkOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'In production'**
+  String get metricWorkOrders;
+
+  /// No description provided for @attentionPendingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision required'**
+  String get attentionPendingAction;
+
+  /// No description provided for @attentionOverdueTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue task'**
+  String get attentionOverdueTask;
 }
 
 class _AppLocalizationsDelegate

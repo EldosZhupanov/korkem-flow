@@ -6,6 +6,8 @@ import 'package:korkem_flow/core/auth/auth_credentials.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/time/clock.dart';
+import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
+import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
 import 'package:korkem_flow/features/tasks/application/tasks_controller.dart';
@@ -32,8 +34,18 @@ void main() {
         );
       });
 
+      testWidgets('dashboard', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('dashboard_$suffix.png'),
+        );
+      });
+
       testWidgets('deals', (tester) async {
         await _pumpApp(tester, brightness: brightness);
+        await _openTab(tester, 'Сделки');
 
         await expectLater(
           find.byType(KorkemFlowApp),
@@ -126,6 +138,7 @@ Future<void> _pumpApp(
             ),
           ),
         ),
+        dashboardControllerProvider.overrideWith(_StubDashboard.new),
         dealsControllerProvider.overrideWith(_StubDeals.new),
         tasksControllerProvider.overrideWith(_StubTasks.new),
       ],
@@ -159,6 +172,11 @@ class _StubSettings extends SettingsController {
   AppSettings build() => _settings;
 }
 
+class _StubDashboard extends DashboardController {
+  @override
+  Future<DashboardSummary> build() async => _summary;
+}
+
 class _StubDeals extends DealsController {
   @override
   Future<DealsPage> build() async => DealsPage(
@@ -171,6 +189,36 @@ class _StubTasks extends TasksController {
   @override
   Future<List<WorkTask>> build() async => _tasks;
 }
+
+final _summary = DashboardSummary(
+  user: 'aidos@korkem.kz',
+  metrics: const {
+    DashboardSummary.openDeals: 24,
+    DashboardSummary.openLeads: 61,
+    DashboardSummary.myOpenTasks: 7,
+    DashboardSummary.overdueTasks: 2,
+    DashboardSummary.pendingActions: 3,
+    // Null, not zero: this role cannot read Work Order, and the tile must show
+    // a dash rather than assert a count it has no standing to know.
+    DashboardSummary.workOrdersInProgress: null,
+  },
+  attention: [
+    AttentionItem(
+      kind: AttentionKind.pendingAction,
+      name: 'PA-2026-0007',
+      title: 'Согласовать смету',
+      subtitle: 'CRM Deal CRM-DEAL-2026-00041',
+      due: DateTime(2026, 7, 28, 17),
+    ),
+    AttentionItem(
+      kind: AttentionKind.overdueTask,
+      name: '512',
+      title: 'Кромление фасадов — партия 12',
+      subtitle: 'MFG-WO-2026-00019',
+      due: DateTime(2026, 7, 27, 16),
+    ),
+  ],
+);
 
 final _deals = <Deal>[
   Deal(

@@ -220,4 +220,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsConnection => 'Connection';
+
+  @override
+  String get navDashboard => 'Home';
+
+  @override
+  String get dashboardGreeting => 'Today';
+
+  @override
+  String get dashboardAttention => 'Needs attention';
+
+  @override
+  String get dashboardAllClear => 'Nothing needs you right now';
+
+  @override
+  String get dashboardAllClearBody =>
+      'Overdue work and decisions waiting on you appear here.';
+
+  @override
+  String get dashboardNoAccess => 'Not available for your role';
+
+  @override
+  String get metricOpenDeals => 'Open deals';
+
+  @override
+  String get metricOpenLeads => 'Leads';
+
+  @override
+  String get metricMyOpenTasks => 'My tasks';
+
+  @override
+  String get metricOverdueTasks => 'Overdue';
+
+  @override
+  String get metricPendingActions => 'Awaiting approval';
+
+  @override
+  String get metricWorkOrders => 'In production';
+
+  @override
+  String get attentionPendingAction => 'Decision required';
+
+  @override
+  String get attentionOverdueTask => 'Overdue task';
 }

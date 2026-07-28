@@ -68,5 +68,19 @@
   "settingsTitle": "Параметрлер",
   "settingsAccount": "Есептік жазба",
   "settingsSignedInAs": "Сіз кірдіңіз",
-  "settingsConnection": "Қосылым"
+  "settingsConnection": "Қосылым",
+  "navDashboard": "Басты бет",
+  "dashboardGreeting": "Бүгін",
+  "dashboardAttention": "Назар аударыңыз",
+  "dashboardAllClear": "Қазір сізден ештеңе талап етілмейді",
+  "dashboardAllClearBody": "Мұнда мерзімі өткен тапсырмалар мен сізді күтіп тұрған шешімдер көрінеді.",
+  "dashboardNoAccess": "Сіздің рөліңізге қолжетімсіз",
+  "metricOpenDeals": "Ашық мәмілелер",
+  "metricOpenLeads": "Лидтер",
+  "metricMyOpenTasks": "Менің тапсырмаларым",
+  "metricOverdueTasks": "Мерзімі өткен",
+  "metricPendingActions": "Шешім күтуде",
+  "metricWorkOrders": "Өндірісте",
+  "attentionPendingAction": "Шешім қажет",
+  "attentionOverdueTask": "Мерзімі өткен тапсырма"
 }
