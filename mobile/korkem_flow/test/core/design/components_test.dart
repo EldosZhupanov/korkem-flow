@@ -8,7 +8,6 @@ import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_filter_sheet.dart';
 import 'package:korkem_flow/core/design/widgets/app_search_field.dart';
 import 'package:korkem_flow/core/design/widgets/kpi_tile.dart';
-import 'package:korkem_flow/core/design/widgets/offline_banner.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 
@@ -292,25 +291,6 @@ void main() {
       // No layout shift between skeleton and value.
       expect(loadedHeight, loadingHeight);
       expect(find.text('12'), findsOneWidget);
-    });
-  });
-
-  group('OfflineBanner', () {
-    testWidgets('occupies no space when online', (tester) async {
-      await tester.pumpWidget(harness(const OfflineBanner(visible: false)));
-      await tester.pumpAndSettle();
-
-      expect(tester.getSize(find.byType(OfflineBanner)).height, 0);
-    });
-
-    testWidgets('explains why data may be stale when offline', (tester) async {
-      await tester.pumpWidget(harness(const OfflineBanner(visible: true)));
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text("You're offline. Showing saved data."),
-        findsOneWidget,
-      );
     });
   });
 

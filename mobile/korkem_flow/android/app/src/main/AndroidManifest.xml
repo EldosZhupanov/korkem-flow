@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app is a client for a Frappe/ERPNext server; without this a
+         release build has no network at all. Flutter's template declares it
+         only in the debug and profile manifests, so a debug build works and
+         the release APK is dead on arrival. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="korkem_flow"
+        android:label="KORKEM Flow"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -40,6 +45,23 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+
+        <!-- Android 11 (API 30) hides other packages by default, so
+             url_launcher cannot resolve an intent it has not declared here.
+             Without these the Call, WhatsApp and Email actions on the deal,
+             lead and customer screens silently do nothing. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="tel"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:scheme="mailto"/>
         </intent>
     </queries>
 </manifest>

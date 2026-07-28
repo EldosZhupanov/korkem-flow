@@ -18,12 +18,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionCancel => 'Cancel';
 
   @override
-  String get actionSave => 'Save';
-
-  @override
-  String get actionDone => 'Done';
-
-  @override
   String get actionClose => 'Close';
 
   @override
@@ -31,9 +25,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionFilter => 'Filter';
-
-  @override
-  String get actionSearch => 'Search';
 
   @override
   String get actionSelectAll => 'All';
@@ -51,24 +42,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNotFound => 'Not found.';
 
   @override
-  String get offlineBanner => 'You\'re offline. Showing saved data.';
-
-  @override
-  String staleData(String time) {
-    return 'Updated $time';
-  }
-
-  @override
   String get emptyTitle => 'Nothing here yet';
 
   @override
   String get emptyGeneric => 'New items will appear here as they are created.';
-
-  @override
-  String get loading => 'Loading';
-
-  @override
-  String get loadingMore => 'Loading more';
 
   @override
   String get searchHint => 'Search';
@@ -126,9 +103,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileLanguage => 'Language';
 
   @override
-  String get profileAbout => 'About';
-
-  @override
   String get profileVersion => 'Version';
 
   @override
@@ -141,43 +115,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
-  String get actionUndo => 'Undo';
-
-  @override
   String get profileServer => 'Server';
 
   @override
-  String get dealStatusQualification => 'Qualification';
-
-  @override
-  String get dealStatusDemo => 'Demo / Making';
-
-  @override
-  String get dealStatusProposal => 'Proposal';
-
-  @override
-  String get dealStatusNegotiation => 'Negotiation';
-
-  @override
-  String get dealStatusReady => 'Ready to close';
-
-  @override
-  String get dealStatusWon => 'Won';
-
-  @override
-  String get dealStatusLost => 'Lost';
-
-  @override
   String get taskPriorityHigh => 'High priority';
-
-  @override
-  String get taskPriorityMedium => 'Medium priority';
-
-  @override
-  String get taskPriorityLow => 'Low priority';
-
-  @override
-  String get authTitle => 'Sign in';
 
   @override
   String get authSubtitle => 'Connect to your KORKEM workspace';
@@ -238,9 +179,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Overdue work and decisions waiting on you appear here.';
 
   @override
-  String get dashboardNoAccess => 'Not available for your role';
-
-  @override
   String get metricOpenDeals => 'Open deals';
 
   @override
@@ -297,19 +235,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Organizations appear here once a deal is created for them.';
 
   @override
-  String get customerEmployees => 'Employees';
-
-  @override
-  String get customerIndustry => 'Industry';
-
-  @override
-  String get customerTerritory => 'Territory';
-
-  @override
   String get detailPipeline => 'Pipeline';
-
-  @override
-  String get detailContact => 'Contact';
 
   @override
   String get detailCommercial => 'Commercial';
@@ -357,9 +283,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldRevenue => 'Annual revenue';
 
   @override
-  String get fieldJobTitle => 'Job title';
-
-  @override
   String get fieldOriginLead => 'Converted from lead';
 
   @override
@@ -373,9 +296,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionWhatsApp => 'WhatsApp';
-
-  @override
-  String get detailNotFound => 'This record no longer exists.';
 
   @override
   String get navApprovals => 'Approvals';
@@ -414,27 +334,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productionEmptyBody =>
       'Orders appear here once a deal moves into production.';
-
-  @override
-  String get fieldQuantity => 'Quantity';
-
-  @override
-  String get fieldProduced => 'Produced';
-
-  @override
-  String get fieldPlannedEnd => 'Planned finish';
-
-  @override
-  String get fieldItem => 'Item';
-
-  @override
-  String get fieldDeal => 'Deal';
-
-  @override
-  String get fieldWarehouse => 'Warehouse';
-
-  @override
-  String get fieldProgress => 'Progress';
 
   @override
   String get paPending => 'Pending';
@@ -504,34 +403,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldValidTill => 'Valid till';
 
   @override
-  String get fieldQuoteDate => 'Date';
-
-  @override
-  String get fieldCustomer => 'Customer';
-
-  @override
-  String get fieldInStock => 'In stock';
-
-  @override
   String get fieldReserved => 'Reserved';
-
-  @override
-  String get fieldProjected => 'Projected';
-
-  @override
-  String get fieldGroup => 'Group';
-
-  @override
-  String get fieldUnit => 'Unit';
 
   @override
   String get warehouseNoStock => 'Not stocked anywhere';
 
   @override
   String get quoteExpiredSoon => 'Expires soon';
-
-  @override
-  String get itemDisabled => 'Disabled';
 
   @override
   String get qDraft => 'Draft';
@@ -569,22 +447,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsMarkAllRead => 'Mark all read';
-
-  @override
-  String get notificationsUnread => 'Unread';
-
-  @override
-  String get notifAssignment => 'Assignment';
-
-  @override
-  String get notifMention => 'Mention';
-
-  @override
-  String get notifShare => 'Shared';
-
-  @override
-  String get notifAlert => 'Alert';
-
-  @override
-  String get notifEnergyPoint => 'Energy point';
 }

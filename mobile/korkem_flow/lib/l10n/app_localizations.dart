@@ -118,18 +118,6 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get actionCancel;
 
-  /// No description provided for @actionSave.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get actionSave;
-
-  /// No description provided for @actionDone.
-  ///
-  /// In en, this message translates to:
-  /// **'Done'**
-  String get actionDone;
-
   /// No description provided for @actionClose.
   ///
   /// In en, this message translates to:
@@ -147,12 +135,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filter'**
   String get actionFilter;
-
-  /// No description provided for @actionSearch.
-  ///
-  /// In en, this message translates to:
-  /// **'Search'**
-  String get actionSearch;
 
   /// No description provided for @actionSelectAll.
   ///
@@ -184,18 +166,6 @@ abstract class AppLocalizations {
   /// **'Not found.'**
   String get errorNotFound;
 
-  /// Persistent banner while the device has no connectivity
-  ///
-  /// In en, this message translates to:
-  /// **'You\'re offline. Showing saved data.'**
-  String get offlineBanner;
-
-  /// Freshness indicator on cached content
-  ///
-  /// In en, this message translates to:
-  /// **'Updated {time}'**
-  String staleData(String time);
-
   /// No description provided for @emptyTitle.
   ///
   /// In en, this message translates to:
@@ -207,18 +177,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New items will appear here as they are created.'**
   String get emptyGeneric;
-
-  /// No description provided for @loading.
-  ///
-  /// In en, this message translates to:
-  /// **'Loading'**
-  String get loading;
-
-  /// No description provided for @loadingMore.
-  ///
-  /// In en, this message translates to:
-  /// **'Loading more'**
-  String get loadingMore;
 
   /// No description provided for @searchHint.
   ///
@@ -322,12 +280,6 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get profileLanguage;
 
-  /// No description provided for @profileAbout.
-  ///
-  /// In en, this message translates to:
-  /// **'About'**
-  String get profileAbout;
-
   /// No description provided for @profileVersion.
   ///
   /// In en, this message translates to:
@@ -352,83 +304,17 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeDark;
 
-  /// No description provided for @actionUndo.
-  ///
-  /// In en, this message translates to:
-  /// **'Undo'**
-  String get actionUndo;
-
   /// No description provided for @profileServer.
   ///
   /// In en, this message translates to:
   /// **'Server'**
   String get profileServer;
 
-  /// CRM Deal stage. Display only — the wire value 'Qualification' is what the backend stores.
-  ///
-  /// In en, this message translates to:
-  /// **'Qualification'**
-  String get dealStatusQualification;
-
-  /// No description provided for @dealStatusDemo.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo / Making'**
-  String get dealStatusDemo;
-
-  /// No description provided for @dealStatusProposal.
-  ///
-  /// In en, this message translates to:
-  /// **'Proposal'**
-  String get dealStatusProposal;
-
-  /// No description provided for @dealStatusNegotiation.
-  ///
-  /// In en, this message translates to:
-  /// **'Negotiation'**
-  String get dealStatusNegotiation;
-
-  /// No description provided for @dealStatusReady.
-  ///
-  /// In en, this message translates to:
-  /// **'Ready to close'**
-  String get dealStatusReady;
-
-  /// No description provided for @dealStatusWon.
-  ///
-  /// In en, this message translates to:
-  /// **'Won'**
-  String get dealStatusWon;
-
-  /// No description provided for @dealStatusLost.
-  ///
-  /// In en, this message translates to:
-  /// **'Lost'**
-  String get dealStatusLost;
-
   /// No description provided for @taskPriorityHigh.
   ///
   /// In en, this message translates to:
   /// **'High priority'**
   String get taskPriorityHigh;
-
-  /// No description provided for @taskPriorityMedium.
-  ///
-  /// In en, this message translates to:
-  /// **'Medium priority'**
-  String get taskPriorityMedium;
-
-  /// No description provided for @taskPriorityLow.
-  ///
-  /// In en, this message translates to:
-  /// **'Low priority'**
-  String get taskPriorityLow;
-
-  /// No description provided for @authTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in'**
-  String get authTitle;
 
   /// No description provided for @authSubtitle.
   ///
@@ -544,12 +430,6 @@ abstract class AppLocalizations {
   /// **'Overdue work and decisions waiting on you appear here.'**
   String get dashboardAllClearBody;
 
-  /// No description provided for @dashboardNoAccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Not available for your role'**
-  String get dashboardNoAccess;
-
   /// No description provided for @metricOpenDeals.
   ///
   /// In en, this message translates to:
@@ -658,35 +538,11 @@ abstract class AppLocalizations {
   /// **'Organizations appear here once a deal is created for them.'**
   String get customersEmptyBody;
 
-  /// No description provided for @customerEmployees.
-  ///
-  /// In en, this message translates to:
-  /// **'Employees'**
-  String get customerEmployees;
-
-  /// No description provided for @customerIndustry.
-  ///
-  /// In en, this message translates to:
-  /// **'Industry'**
-  String get customerIndustry;
-
-  /// No description provided for @customerTerritory.
-  ///
-  /// In en, this message translates to:
-  /// **'Territory'**
-  String get customerTerritory;
-
   /// No description provided for @detailPipeline.
   ///
   /// In en, this message translates to:
   /// **'Pipeline'**
   String get detailPipeline;
-
-  /// No description provided for @detailContact.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact'**
-  String get detailContact;
 
   /// No description provided for @detailCommercial.
   ///
@@ -778,12 +634,6 @@ abstract class AppLocalizations {
   /// **'Annual revenue'**
   String get fieldRevenue;
 
-  /// No description provided for @fieldJobTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Job title'**
-  String get fieldJobTitle;
-
   /// No description provided for @fieldOriginLead.
   ///
   /// In en, this message translates to:
@@ -813,12 +663,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'WhatsApp'**
   String get actionWhatsApp;
-
-  /// No description provided for @detailNotFound.
-  ///
-  /// In en, this message translates to:
-  /// **'This record no longer exists.'**
-  String get detailNotFound;
 
   /// No description provided for @navApprovals.
   ///
@@ -891,48 +735,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Orders appear here once a deal moves into production.'**
   String get productionEmptyBody;
-
-  /// No description provided for @fieldQuantity.
-  ///
-  /// In en, this message translates to:
-  /// **'Quantity'**
-  String get fieldQuantity;
-
-  /// No description provided for @fieldProduced.
-  ///
-  /// In en, this message translates to:
-  /// **'Produced'**
-  String get fieldProduced;
-
-  /// No description provided for @fieldPlannedEnd.
-  ///
-  /// In en, this message translates to:
-  /// **'Planned finish'**
-  String get fieldPlannedEnd;
-
-  /// No description provided for @fieldItem.
-  ///
-  /// In en, this message translates to:
-  /// **'Item'**
-  String get fieldItem;
-
-  /// No description provided for @fieldDeal.
-  ///
-  /// In en, this message translates to:
-  /// **'Deal'**
-  String get fieldDeal;
-
-  /// No description provided for @fieldWarehouse.
-  ///
-  /// In en, this message translates to:
-  /// **'Warehouse'**
-  String get fieldWarehouse;
-
-  /// No description provided for @fieldProgress.
-  ///
-  /// In en, this message translates to:
-  /// **'Progress'**
-  String get fieldProgress;
 
   /// No description provided for @paPending.
   ///
@@ -1066,47 +868,11 @@ abstract class AppLocalizations {
   /// **'Valid till'**
   String get fieldValidTill;
 
-  /// No description provided for @fieldQuoteDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Date'**
-  String get fieldQuoteDate;
-
-  /// No description provided for @fieldCustomer.
-  ///
-  /// In en, this message translates to:
-  /// **'Customer'**
-  String get fieldCustomer;
-
-  /// No description provided for @fieldInStock.
-  ///
-  /// In en, this message translates to:
-  /// **'In stock'**
-  String get fieldInStock;
-
   /// No description provided for @fieldReserved.
   ///
   /// In en, this message translates to:
   /// **'Reserved'**
   String get fieldReserved;
-
-  /// No description provided for @fieldProjected.
-  ///
-  /// In en, this message translates to:
-  /// **'Projected'**
-  String get fieldProjected;
-
-  /// No description provided for @fieldGroup.
-  ///
-  /// In en, this message translates to:
-  /// **'Group'**
-  String get fieldGroup;
-
-  /// No description provided for @fieldUnit.
-  ///
-  /// In en, this message translates to:
-  /// **'Unit'**
-  String get fieldUnit;
 
   /// No description provided for @warehouseNoStock.
   ///
@@ -1119,12 +885,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expires soon'**
   String get quoteExpiredSoon;
-
-  /// No description provided for @itemDisabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Disabled'**
-  String get itemDisabled;
 
   /// No description provided for @qDraft.
   ///
@@ -1197,42 +957,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mark all read'**
   String get notificationsMarkAllRead;
-
-  /// No description provided for @notificationsUnread.
-  ///
-  /// In en, this message translates to:
-  /// **'Unread'**
-  String get notificationsUnread;
-
-  /// No description provided for @notifAssignment.
-  ///
-  /// In en, this message translates to:
-  /// **'Assignment'**
-  String get notifAssignment;
-
-  /// No description provided for @notifMention.
-  ///
-  /// In en, this message translates to:
-  /// **'Mention'**
-  String get notifMention;
-
-  /// No description provided for @notifShare.
-  ///
-  /// In en, this message translates to:
-  /// **'Shared'**
-  String get notifShare;
-
-  /// No description provided for @notifAlert.
-  ///
-  /// In en, this message translates to:
-  /// **'Alert'**
-  String get notifAlert;
-
-  /// No description provided for @notifEnergyPoint.
-  ///
-  /// In en, this message translates to:
-  /// **'Energy point'**
-  String get notifEnergyPoint;
 }
 
 class _AppLocalizationsDelegate

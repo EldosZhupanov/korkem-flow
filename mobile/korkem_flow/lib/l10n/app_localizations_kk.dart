@@ -18,12 +18,6 @@ class AppLocalizationsKk extends AppLocalizations {
   String get actionCancel => 'Болдырмау';
 
   @override
-  String get actionSave => 'Сақтау';
-
-  @override
-  String get actionDone => 'Дайын';
-
-  @override
   String get actionClose => 'Жабу';
 
   @override
@@ -31,9 +25,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get actionFilter => 'Сүзгі';
-
-  @override
-  String get actionSearch => 'Іздеу';
 
   @override
   String get actionSelectAll => 'Барлығы';
@@ -51,24 +42,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get errorNotFound => 'Табылмады.';
 
   @override
-  String get offlineBanner => 'Желі жоқ. Сақталған деректер көрсетілген.';
-
-  @override
-  String staleData(String time) {
-    return 'Жаңартылды $time';
-  }
-
-  @override
   String get emptyTitle => 'Мұнда әзірге бос';
 
   @override
   String get emptyGeneric => 'Жаңа жазбалар осы жерде пайда болады.';
-
-  @override
-  String get loading => 'Жүктелуде';
-
-  @override
-  String get loadingMore => 'Тағы жүктелуде';
 
   @override
   String get searchHint => 'Іздеу';
@@ -126,9 +103,6 @@ class AppLocalizationsKk extends AppLocalizations {
   String get profileLanguage => 'Тіл';
 
   @override
-  String get profileAbout => 'Қосымша туралы';
-
-  @override
   String get profileVersion => 'Нұсқа';
 
   @override
@@ -141,43 +115,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get themeDark => 'Қараңғы';
 
   @override
-  String get actionUndo => 'Болдырмау';
-
-  @override
   String get profileServer => 'Сервер';
 
   @override
-  String get dealStatusQualification => 'Іріктеу';
-
-  @override
-  String get dealStatusDemo => 'Демо / Жоба';
-
-  @override
-  String get dealStatusProposal => 'Ұсыныс';
-
-  @override
-  String get dealStatusNegotiation => 'Келіссөздер';
-
-  @override
-  String get dealStatusReady => 'Жабуға дайын';
-
-  @override
-  String get dealStatusWon => 'Жеңіске жетті';
-
-  @override
-  String get dealStatusLost => 'Жоғалтылды';
-
-  @override
   String get taskPriorityHigh => 'Жоғары басымдық';
-
-  @override
-  String get taskPriorityMedium => 'Орташа басымдық';
-
-  @override
-  String get taskPriorityLow => 'Төмен басымдық';
-
-  @override
-  String get authTitle => 'Кіру';
 
   @override
   String get authSubtitle => 'KORKEM жұмыс кеңістігіне қосылыңыз';
@@ -238,9 +179,6 @@ class AppLocalizationsKk extends AppLocalizations {
       'Мұнда мерзімі өткен тапсырмалар мен сізді күтіп тұрған шешімдер көрінеді.';
 
   @override
-  String get dashboardNoAccess => 'Сіздің рөліңізге қолжетімсіз';
-
-  @override
   String get metricOpenDeals => 'Ашық мәмілелер';
 
   @override
@@ -297,19 +235,7 @@ class AppLocalizationsKk extends AppLocalizations {
       'Ұйымдар бойынша мәміле жасалғаннан кейін осында көрінеді.';
 
   @override
-  String get customerEmployees => 'Қызметкерлер';
-
-  @override
-  String get customerIndustry => 'Сала';
-
-  @override
-  String get customerTerritory => 'Аймақ';
-
-  @override
   String get detailPipeline => 'Воронка';
-
-  @override
-  String get detailContact => 'Байланыс';
 
   @override
   String get detailCommercial => 'Коммерция';
@@ -357,9 +283,6 @@ class AppLocalizationsKk extends AppLocalizations {
   String get fieldRevenue => 'Жылдық айналым';
 
   @override
-  String get fieldJobTitle => 'Лауазымы';
-
-  @override
   String get fieldOriginLead => 'Лидтен';
 
   @override
@@ -373,9 +296,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get actionWhatsApp => 'WhatsApp';
-
-  @override
-  String get detailNotFound => 'Бұл жазба енді жоқ.';
 
   @override
   String get navApprovals => 'Келісімдер';
@@ -414,27 +334,6 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get productionEmptyBody =>
       'Мәміле өндіріске өткенде тапсырыстар осында көрінеді.';
-
-  @override
-  String get fieldQuantity => 'Саны';
-
-  @override
-  String get fieldProduced => 'Дайындалды';
-
-  @override
-  String get fieldPlannedEnd => 'Жоспарлы аяқталу';
-
-  @override
-  String get fieldItem => 'Бұйым';
-
-  @override
-  String get fieldDeal => 'Мәміле';
-
-  @override
-  String get fieldWarehouse => 'Қойма';
-
-  @override
-  String get fieldProgress => 'Дайындық';
 
   @override
   String get paPending => 'Күтуде';
@@ -504,34 +403,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get fieldValidTill => 'Жарамды';
 
   @override
-  String get fieldQuoteDate => 'Күні';
-
-  @override
-  String get fieldCustomer => 'Клиент';
-
-  @override
-  String get fieldInStock => 'Қоймада';
-
-  @override
   String get fieldReserved => 'Резерв';
-
-  @override
-  String get fieldProjected => 'Болжам';
-
-  @override
-  String get fieldGroup => 'Топ';
-
-  @override
-  String get fieldUnit => 'Өлшем';
 
   @override
   String get warehouseNoStock => 'Ешбір қоймада жоқ';
 
   @override
   String get quoteExpiredSoon => 'Мерзімі бітеді';
-
-  @override
-  String get itemDisabled => 'Өшірілген';
 
   @override
   String get qDraft => 'Жоба';
@@ -569,22 +447,4 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get notificationsMarkAllRead => 'Барлығын белгілеу';
-
-  @override
-  String get notificationsUnread => 'Оқылмаған';
-
-  @override
-  String get notifAssignment => 'Тағайындау';
-
-  @override
-  String get notifMention => 'Аталым';
-
-  @override
-  String get notifShare => 'Ортақ қолжетімділік';
-
-  @override
-  String get notifAlert => 'Ескерту';
-
-  @override
-  String get notifEnergyPoint => 'Ұпайлар';
 }

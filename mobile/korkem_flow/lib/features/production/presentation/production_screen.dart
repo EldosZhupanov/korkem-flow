@@ -10,9 +10,9 @@ import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
-import 'package:korkem_flow/features/approvals/presentation/status_labels.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/production/presentation/work_order_status_label.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 class ProductionScreen extends ConsumerWidget {

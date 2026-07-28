@@ -18,12 +18,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get actionCancel => 'Отмена';
 
   @override
-  String get actionSave => 'Сохранить';
-
-  @override
-  String get actionDone => 'Готово';
-
-  @override
   String get actionClose => 'Закрыть';
 
   @override
@@ -31,9 +25,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get actionFilter => 'Фильтр';
-
-  @override
-  String get actionSearch => 'Поиск';
 
   @override
   String get actionSelectAll => 'Все';
@@ -51,24 +42,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get errorNotFound => 'Не найдено.';
 
   @override
-  String get offlineBanner => 'Нет сети. Показаны сохранённые данные.';
-
-  @override
-  String staleData(String time) {
-    return 'Обновлено $time';
-  }
-
-  @override
   String get emptyTitle => 'Здесь пока пусто';
 
   @override
   String get emptyGeneric => 'Новые записи появятся здесь автоматически.';
-
-  @override
-  String get loading => 'Загрузка';
-
-  @override
-  String get loadingMore => 'Загружаем ещё';
 
   @override
   String get searchHint => 'Поиск';
@@ -126,9 +103,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileLanguage => 'Язык';
 
   @override
-  String get profileAbout => 'О приложении';
-
-  @override
   String get profileVersion => 'Версия';
 
   @override
@@ -141,43 +115,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get themeDark => 'Тёмная';
 
   @override
-  String get actionUndo => 'Отменить';
-
-  @override
   String get profileServer => 'Сервер';
 
   @override
-  String get dealStatusQualification => 'Квалификация';
-
-  @override
-  String get dealStatusDemo => 'Демо / Проект';
-
-  @override
-  String get dealStatusProposal => 'Предложение';
-
-  @override
-  String get dealStatusNegotiation => 'Переговоры';
-
-  @override
-  String get dealStatusReady => 'Готово к закрытию';
-
-  @override
-  String get dealStatusWon => 'Выиграна';
-
-  @override
-  String get dealStatusLost => 'Проиграна';
-
-  @override
   String get taskPriorityHigh => 'Высокий приоритет';
-
-  @override
-  String get taskPriorityMedium => 'Средний приоритет';
-
-  @override
-  String get taskPriorityLow => 'Низкий приоритет';
-
-  @override
-  String get authTitle => 'Вход';
 
   @override
   String get authSubtitle => 'Подключитесь к рабочему пространству KORKEM';
@@ -238,9 +179,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Здесь появятся просроченные задачи и решения, которые ждут вас.';
 
   @override
-  String get dashboardNoAccess => 'Недоступно для вашей роли';
-
-  @override
   String get metricOpenDeals => 'Открытые сделки';
 
   @override
@@ -298,19 +236,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Организации появятся здесь, как только по ним заведут сделку.';
 
   @override
-  String get customerEmployees => 'Сотрудников';
-
-  @override
-  String get customerIndustry => 'Отрасль';
-
-  @override
-  String get customerTerritory => 'Регион';
-
-  @override
   String get detailPipeline => 'Воронка';
-
-  @override
-  String get detailContact => 'Контакт';
 
   @override
   String get detailCommercial => 'Коммерция';
@@ -358,9 +284,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fieldRevenue => 'Годовой оборот';
 
   @override
-  String get fieldJobTitle => 'Должность';
-
-  @override
   String get fieldOriginLead => 'Из лида';
 
   @override
@@ -374,9 +297,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get actionWhatsApp => 'WhatsApp';
-
-  @override
-  String get detailNotFound => 'Эта запись больше не существует.';
 
   @override
   String get navApprovals => 'Согласования';
@@ -415,27 +335,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get productionEmptyBody =>
       'Заказы появятся, когда сделка уйдёт в производство.';
-
-  @override
-  String get fieldQuantity => 'Количество';
-
-  @override
-  String get fieldProduced => 'Изготовлено';
-
-  @override
-  String get fieldPlannedEnd => 'Плановое завершение';
-
-  @override
-  String get fieldItem => 'Изделие';
-
-  @override
-  String get fieldDeal => 'Сделка';
-
-  @override
-  String get fieldWarehouse => 'Склад';
-
-  @override
-  String get fieldProgress => 'Готовность';
 
   @override
   String get paPending => 'Ожидает';
@@ -504,34 +403,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fieldValidTill => 'Действителен до';
 
   @override
-  String get fieldQuoteDate => 'Дата';
-
-  @override
-  String get fieldCustomer => 'Клиент';
-
-  @override
-  String get fieldInStock => 'На складе';
-
-  @override
   String get fieldReserved => 'Резерв';
-
-  @override
-  String get fieldProjected => 'Прогноз';
-
-  @override
-  String get fieldGroup => 'Группа';
-
-  @override
-  String get fieldUnit => 'Ед. изм.';
 
   @override
   String get warehouseNoStock => 'Нет ни на одном складе';
 
   @override
   String get quoteExpiredSoon => 'Истекает';
-
-  @override
-  String get itemDisabled => 'Отключена';
 
   @override
   String get qDraft => 'Черновик';
@@ -569,22 +447,4 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notificationsMarkAllRead => 'Отметить все';
-
-  @override
-  String get notificationsUnread => 'Непрочитанные';
-
-  @override
-  String get notifAssignment => 'Назначение';
-
-  @override
-  String get notifMention => 'Упоминание';
-
-  @override
-  String get notifShare => 'Доступ';
-
-  @override
-  String get notifAlert => 'Оповещение';
-
-  @override
-  String get notifEnergyPoint => 'Баллы';
 }
