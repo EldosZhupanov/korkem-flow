@@ -27,6 +27,8 @@ dependencies:
   url_launcher: ^6.3.2
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.4
@@ -47,3 +49,35 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf
+
+# Launcher icon, generated from assets/icon/ — which is itself rendered from the
+# design tokens by test/tools/generate_app_icon_test.dart. Regenerate with:
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: assets/icon/app_icon.png
+  android: true
+  ios: false
+  remove_alpha_ios: true
+  # Adaptive icon: a solid brand-dark plate with the glyph floating in the
+  # mask-safe centre, so any launcher shape crops cleanly.
+  adaptive_icon_background: "#121212"
+  adaptive_icon_foreground: assets/icon/app_icon_foreground.png
+  # Monochrome layer for Android 13+ themed icons.
+  adaptive_icon_monochrome: assets/icon/app_icon_foreground.png
+
+# Launch screen. Matches the Splash route the app itself shows while it
+# restores a stored credential, so the handover is invisible.
+#   dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FCFDFB"
+  color_dark: "#121212"
+  image: assets/icon/app_icon_foreground.png
+  image_dark: assets/icon/app_icon_foreground.png
+  android_12:
+    color: "#FCFDFB"
+    color_dark: "#121212"
+    image: assets/icon/app_icon_foreground.png
+    image_dark: assets/icon/app_icon_foreground.png
+  android: true
+  ios: false
+  web: false

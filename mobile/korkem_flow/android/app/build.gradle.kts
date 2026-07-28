@@ -1,8 +1,23 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// Release signing credentials, kept out of the repository.
+//
+// `android/key.properties` is gitignored and holds the upload keystore's paths
+// and passwords. It is absent on a fresh clone and on CI, which is why every
+// use below is guarded rather than assumed.
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    }
+}
+val hasUploadKey = keystoreProperties.getProperty("storeFile") != null
 
 android {
     namespace = "kz.korkem.korkem_flow"
@@ -15,24 +30,62 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "kz.korkem.korkem_flow"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
+        // Google Play requires API 36 for new apps from 31 August 2026.
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasUploadKey) {
+            create("upload") {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Signed with the real upload key when one is configured. Without
+            // it the build still works — `flutter run --release` has to — but
+            // it falls back to the debug key, and the check below makes that
+            // loud rather than something discovered at upload time.
+            signingConfig = if (hasUploadKey) {
+                signingConfigs.getByName("upload")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
+
+// Fails an app-bundle build that would produce an unpublishable artefact.
+//
+// A debug-signed AAB is rejected by Play, but only after the upload — this
+// turns a slow round trip into an immediate, explanatory build failure.
+tasks.matching { it.name.startsWith("bundle") && it.name.contains("Release") }
+    .configureEach {
+        doFirst {
+            if (!hasUploadKey) {
+                throw GradleException(
+                    "No android/key.properties: this bundle would be signed with the " +
+                        "debug key and rejected by Google Play. See docs/play_release.md.",
+                )
+            }
+        }
+    }
 
 kotlin {
     compilerOptions {

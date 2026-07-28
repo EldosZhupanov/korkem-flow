@@ -1,0 +1,12 @@
+# Copy to android/key.properties and fill in. Never commit the real file.
+#
+# Generate the upload key first:
+#   keytool -genkey -v -keystore ~/korkem-upload.jks -keyalg RSA \
+#           -keysize 2048 -validity 10000 -alias upload
+#
+# With Play App Signing this is the *upload* key: Google holds the actual app
+# signing key, so losing this one is recoverable via Play Console support.
+storePassword=
+keyPassword=
+keyAlias=upload
+storeFile=/home/eldos/korkem-upload.jks

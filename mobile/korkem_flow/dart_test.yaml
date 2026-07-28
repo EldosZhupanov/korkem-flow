@@ -1,0 +1,6 @@
+# The icon generator borrows the golden mechanism to rasterise PNGs. It is not
+# a test and must not run in a normal pass — under `--update-goldens` it would
+# silently rewrite the launcher assets.
+tags:
+  tools:
+    skip: "run explicitly: flutter test --tags tools --update-goldens"
