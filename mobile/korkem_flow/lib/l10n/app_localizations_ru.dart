@@ -377,4 +377,105 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get detailNotFound => 'Эта запись больше не существует.';
+
+  @override
+  String get navApprovals => 'Согласования';
+
+  @override
+  String get navProduction => 'Производство';
+
+  @override
+  String get approvalsEmpty => 'Решений не требуется';
+
+  @override
+  String get approvalsEmptyBody =>
+      'Здесь появятся решения, которых ждёт агент.';
+
+  @override
+  String get approvalApprove => 'Согласовать';
+
+  @override
+  String get approvalReject => 'Отклонить';
+
+  @override
+  String get approvalApproved => 'Согласовано';
+
+  @override
+  String get approvalRejected => 'Отклонено';
+
+  @override
+  String get approvalExpires => 'Истекает';
+
+  @override
+  String get approvalExpired => 'Истекло';
+
+  @override
+  String get productionEmpty => 'Заказов нет';
+
+  @override
+  String get productionEmptyBody =>
+      'Заказы появятся, когда сделка уйдёт в производство.';
+
+  @override
+  String get fieldQuantity => 'Количество';
+
+  @override
+  String get fieldProduced => 'Изготовлено';
+
+  @override
+  String get fieldPlannedEnd => 'Плановое завершение';
+
+  @override
+  String get fieldItem => 'Изделие';
+
+  @override
+  String get fieldDeal => 'Сделка';
+
+  @override
+  String get fieldWarehouse => 'Склад';
+
+  @override
+  String get fieldProgress => 'Готовность';
+
+  @override
+  String get paPending => 'Ожидает';
+
+  @override
+  String get paApproved => 'Согласовано';
+
+  @override
+  String get paRejected => 'Отклонено';
+
+  @override
+  String get paExpired => 'Истекло';
+
+  @override
+  String get woDraft => 'Черновик';
+
+  @override
+  String get woSubmitted => 'Подтверждён';
+
+  @override
+  String get woNotStarted => 'Не начат';
+
+  @override
+  String get woInProcess => 'В работе';
+
+  @override
+  String get woStockReserved => 'Материалы зарезервированы';
+
+  @override
+  String get woStockPartial => 'Материалы частично';
+
+  @override
+  String get woCompleted => 'Завершён';
+
+  @override
+  String get woStopped => 'Остановлен';
+
+  @override
+  String get woClosed => 'Закрыт';
+
+  @override
+  String get woCancelled => 'Отменён';
 }

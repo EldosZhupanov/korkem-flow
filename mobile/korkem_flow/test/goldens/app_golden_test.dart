@@ -10,11 +10,15 @@ import 'package:korkem_flow/core/crm/status_catalog_repository.dart';
 import 'package:korkem_flow/core/pagination/paged_list_controller.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/time/clock.dart';
+import 'package:korkem_flow/features/approvals/application/approvals_controller.dart';
+import 'package:korkem_flow/features/approvals/domain/pending_action.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
+import 'package:korkem_flow/features/production/application/production_controller.dart';
+import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/tasks/application/tasks_controller.dart';
 import 'package:korkem_flow/features/tasks/domain/task.dart';
 
@@ -45,6 +49,28 @@ void main() {
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('dashboard_$suffix.png'),
+        );
+      });
+
+      testWidgets('approvals', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+        await tester.tap(find.text('Ждут решения'));
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('approvals_$suffix.png'),
+        );
+      });
+
+      testWidgets('production', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+        await tester.tap(find.text('В производстве'));
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('production_$suffix.png'),
         );
       });
 
@@ -159,6 +185,8 @@ Future<void> _pumpApp(
           StatusCatalogRepository.dealStatusDoctype,
         ).overrideWith((ref) => Future<StatusCatalog>.value(_dealStatuses)),
         dashboardControllerProvider.overrideWith(_StubDashboard.new),
+        approvalsControllerProvider.overrideWith(_StubApprovals.new),
+        productionControllerProvider.overrideWith(_StubProduction.new),
         dealsControllerProvider.overrideWith(_StubDeals.new),
         dealDetailProvider(
           _deals.first.id,
@@ -198,6 +226,18 @@ class _StubSettings extends SettingsController {
 class _StubDashboard extends DashboardController {
   @override
   Future<DashboardSummary> build() async => _summary;
+}
+
+class _StubApprovals extends ApprovalsController {
+  @override
+  Future<PagedList<PendingAction>> build() async =>
+      PagedList(items: _approvals, hasMore: false);
+}
+
+class _StubProduction extends ProductionController {
+  @override
+  Future<PagedList<WorkOrder>> build() async =>
+      PagedList(items: _workOrders, hasMore: false);
 }
 
 class _StubDeals extends DealsController {
@@ -272,6 +312,56 @@ final _dealDetail = Deal(
   leadId: 'CRM-LEAD-2026-00112',
   modified: _now,
 );
+
+final _approvals = <PendingAction>[
+  PendingAction(
+    id: 'PA-2026-0007',
+    status: PendingActionStatus.pending,
+    agentSkill: 'Согласовать смету по фасадам',
+    entityType: 'CRM Deal',
+    entityName: 'CRM-DEAL-2026-00041',
+    expiresAt: DateTime(2026, 7, 28, 17),
+  ),
+  PendingAction(
+    id: 'PA-2026-0006',
+    status: PendingActionStatus.pending,
+    agentSkill: 'Запустить производство',
+    entityType: 'CRM Deal',
+    entityName: 'CRM-DEAL-2026-00038',
+    // Already past the fixed clock, so the golden pins the expired branch:
+    // no buttons, because the backend would refuse them.
+    expiresAt: DateTime(2026, 7, 27, 9),
+  ),
+];
+
+final _workOrders = <WorkOrder>[
+  WorkOrder(
+    id: 'MFG-WO-2026-00019',
+    status: WorkOrderStatus.inProcess,
+    qty: 40,
+    producedQty: 18,
+    itemName: 'Фасад МДФ 716×396, белый глянец',
+    originatingDeal: 'CRM-DEAL-2026-00041',
+    plannedEndDate: DateTime(2026, 8, 2, 17),
+  ),
+  WorkOrder(
+    id: 'MFG-WO-2026-00021',
+    status: WorkOrderStatus.notStarted,
+    qty: 12,
+    itemName: 'Корпус кухонный нижний 600',
+    originatingDeal: 'CRM-DEAL-2026-00040',
+    plannedEndDate: DateTime(2026, 7, 26, 12),
+  ),
+  WorkOrder(
+    id: 'MFG-WO-2026-00014',
+    status: WorkOrderStatus.completed,
+    qty: 8,
+    producedQty: 8,
+    itemName: 'Столешница массив дуб 3000×600',
+    originatingDeal: 'CRM-DEAL-2026-00031',
+    plannedEndDate: DateTime(2026, 7, 20, 12),
+  ),
+];
 
 final _deals = <Deal>[
   Deal(

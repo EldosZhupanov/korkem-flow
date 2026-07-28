@@ -1,0 +1,104 @@
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:meta/meta.dart';
+
+/// An ERPNext `Work Order` — the manufacturing half of a Production Order.
+@immutable
+class WorkOrder {
+  const WorkOrder({
+    required this.id,
+    required this.status,
+    required this.qty,
+    this.producedQty = 0,
+    this.productionItem,
+    this.itemName,
+    this.originatingDeal,
+    this.plannedEndDate,
+    this.actualEndDate,
+    this.wipWarehouse,
+    this.fgWarehouse,
+    this.bomNo,
+  });
+
+  final String id;
+  final WorkOrderStatus status;
+
+  final double qty;
+  final double producedQty;
+
+  final String? productionItem;
+  final String? itemName;
+
+  /// The `CRM Deal` this order was raised for.
+  ///
+  /// A **custom field** added by this project (verified in `tabCustom Field`),
+  /// not part of stock ERPNext — it is the link that makes the Production Order
+  /// lifecycle traceable end to end, and the reason a salesperson can answer
+  /// "when does my kitchen ship".
+  final String? originatingDeal;
+
+  final DateTime? plannedEndDate;
+  final DateTime? actualEndDate;
+  final String? wipWarehouse;
+  final String? fgWarehouse;
+  final String? bomNo;
+
+  /// 0–1. Guarded against a zero quantity, which would otherwise be NaN and
+  /// render as a blank progress bar rather than an empty one.
+  double get progress {
+    if (qty <= 0) return 0;
+    return (producedQty / qty).clamp(0.0, 1.0);
+  }
+
+  bool get isLate {
+    final planned = plannedEndDate;
+    if (planned == null || status.isFinished) return false;
+    return DateTime.now().isAfter(planned);
+  }
+
+  @override
+  bool operator ==(Object other) => other is WorkOrder && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+/// The `Work Order.status` Select, verified against the doctype definition.
+///
+/// A fixed Select on a vendored doctype, unlike CRM's editable stage records —
+/// so an enum is right here, and an unrecognised value means the app is older
+/// than the ERPNext it is talking to.
+enum WorkOrderStatus {
+  draft('Draft', StatusIntent.neutral),
+  submitted('Submitted', StatusIntent.info),
+  notStarted('Not Started', StatusIntent.neutral),
+  inProcess('In Process', StatusIntent.info),
+  stockReserved('Stock Reserved', StatusIntent.info),
+  stockPartiallyReserved('Stock Partially Reserved', StatusIntent.warning),
+  completed('Completed', StatusIntent.success),
+  stopped('Stopped', StatusIntent.danger),
+  closed('Closed', StatusIntent.neutral),
+  cancelled('Cancelled', StatusIntent.neutral);
+
+  const WorkOrderStatus(this.wireValue, this.intent);
+
+  final String wireValue;
+  final StatusIntent intent;
+
+  static WorkOrderStatus fromWire(String? value) {
+    for (final status in WorkOrderStatus.values) {
+      if (status.wireValue == value) return status;
+    }
+    return WorkOrderStatus.draft;
+  }
+
+  bool get isFinished =>
+      this == completed || this == closed || this == cancelled;
+
+  /// What a factory is actually working on right now.
+  bool get isActive =>
+      this == inProcess ||
+      this == notStarted ||
+      this == submitted ||
+      this == stockReserved ||
+      this == stockPartiallyReserved;
+}

@@ -819,6 +819,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This record no longer exists.'**
   String get detailNotFound;
+
+  /// No description provided for @navApprovals.
+  ///
+  /// In en, this message translates to:
+  /// **'Approvals'**
+  String get navApprovals;
+
+  /// No description provided for @navProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Production'**
+  String get navProduction;
+
+  /// No description provided for @approvalsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing awaiting you'**
+  String get approvalsEmpty;
+
+  /// No description provided for @approvalsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Decisions an agent is waiting on will appear here.'**
+  String get approvalsEmptyBody;
+
+  /// No description provided for @approvalApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approvalApprove;
+
+  /// No description provided for @approvalReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get approvalReject;
+
+  /// No description provided for @approvalApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get approvalApproved;
+
+  /// No description provided for @approvalRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get approvalRejected;
+
+  /// No description provided for @approvalExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires'**
+  String get approvalExpires;
+
+  /// No description provided for @approvalExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get approvalExpired;
+
+  /// No description provided for @productionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No work orders'**
+  String get productionEmpty;
+
+  /// No description provided for @productionEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders appear here once a deal moves into production.'**
+  String get productionEmptyBody;
+
+  /// No description provided for @fieldQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get fieldQuantity;
+
+  /// No description provided for @fieldProduced.
+  ///
+  /// In en, this message translates to:
+  /// **'Produced'**
+  String get fieldProduced;
+
+  /// No description provided for @fieldPlannedEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned finish'**
+  String get fieldPlannedEnd;
+
+  /// No description provided for @fieldItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get fieldItem;
+
+  /// No description provided for @fieldDeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Deal'**
+  String get fieldDeal;
+
+  /// No description provided for @fieldWarehouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse'**
+  String get fieldWarehouse;
+
+  /// No description provided for @fieldProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get fieldProgress;
+
+  /// No description provided for @paPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get paPending;
+
+  /// No description provided for @paApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get paApproved;
+
+  /// No description provided for @paRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get paRejected;
+
+  /// No description provided for @paExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get paExpired;
+
+  /// No description provided for @woDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get woDraft;
+
+  /// No description provided for @woSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get woSubmitted;
+
+  /// No description provided for @woNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get woNotStarted;
+
+  /// No description provided for @woInProcess.
+  ///
+  /// In en, this message translates to:
+  /// **'In process'**
+  String get woInProcess;
+
+  /// No description provided for @woStockReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock reserved'**
+  String get woStockReserved;
+
+  /// No description provided for @woStockPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock partly reserved'**
+  String get woStockPartial;
+
+  /// No description provided for @woCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get woCompleted;
+
+  /// No description provided for @woStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get woStopped;
+
+  /// No description provided for @woClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get woClosed;
+
+  /// No description provided for @woCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get woCancelled;
 }
 
 class _AppLocalizationsDelegate

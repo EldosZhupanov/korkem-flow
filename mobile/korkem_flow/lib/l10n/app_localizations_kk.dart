@@ -376,4 +376,105 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get detailNotFound => 'Бұл жазба енді жоқ.';
+
+  @override
+  String get navApprovals => 'Келісімдер';
+
+  @override
+  String get navProduction => 'Өндіріс';
+
+  @override
+  String get approvalsEmpty => 'Шешім қажет емес';
+
+  @override
+  String get approvalsEmptyBody =>
+      'Мұнда агент күтіп тұрған шешімдер көрінеді.';
+
+  @override
+  String get approvalApprove => 'Келісу';
+
+  @override
+  String get approvalReject => 'Бас тарту';
+
+  @override
+  String get approvalApproved => 'Келісілді';
+
+  @override
+  String get approvalRejected => 'Бас тартылды';
+
+  @override
+  String get approvalExpires => 'Мерзімі';
+
+  @override
+  String get approvalExpired => 'Мерзімі өтті';
+
+  @override
+  String get productionEmpty => 'Тапсырыстар жоқ';
+
+  @override
+  String get productionEmptyBody =>
+      'Мәміле өндіріске өткенде тапсырыстар осында көрінеді.';
+
+  @override
+  String get fieldQuantity => 'Саны';
+
+  @override
+  String get fieldProduced => 'Дайындалды';
+
+  @override
+  String get fieldPlannedEnd => 'Жоспарлы аяқталу';
+
+  @override
+  String get fieldItem => 'Бұйым';
+
+  @override
+  String get fieldDeal => 'Мәміле';
+
+  @override
+  String get fieldWarehouse => 'Қойма';
+
+  @override
+  String get fieldProgress => 'Дайындық';
+
+  @override
+  String get paPending => 'Күтуде';
+
+  @override
+  String get paApproved => 'Келісілді';
+
+  @override
+  String get paRejected => 'Бас тартылды';
+
+  @override
+  String get paExpired => 'Мерзімі өтті';
+
+  @override
+  String get woDraft => 'Жоба';
+
+  @override
+  String get woSubmitted => 'Расталды';
+
+  @override
+  String get woNotStarted => 'Басталмаған';
+
+  @override
+  String get woInProcess => 'Жұмыста';
+
+  @override
+  String get woStockReserved => 'Материал брондалды';
+
+  @override
+  String get woStockPartial => 'Материал ішінара';
+
+  @override
+  String get woCompleted => 'Аяқталды';
+
+  @override
+  String get woStopped => 'Тоқтатылды';
+
+  @override
+  String get woClosed => 'Жабылды';
+
+  @override
+  String get woCancelled => 'Болдырылмады';
 }

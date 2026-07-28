@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/navigation/adaptive_shell.dart';
+import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
 import 'package:korkem_flow/features/customers/presentation/customer_detail_screen.dart';
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
+import 'package:korkem_flow/features/production/presentation/production_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
@@ -19,6 +21,8 @@ abstract final class Routes {
   static const splash = '/';
   static const login = '/login';
   static const dashboard = '/dashboard';
+  static const approvals = '$dashboard/approvals';
+  static const production = '$dashboard/production';
   static const sales = '/sales';
 
   /// Detail routes are children of the sales branch, so opening one keeps the
@@ -80,6 +84,18 @@ GoRouter createRouter(Ref ref) {
               GoRoute(
                 path: Routes.dashboard,
                 builder: (context, state) => const DashboardScreen(),
+                // Children, so the bottom bar and the tab's back stack survive
+                // — these are reached by tapping the metric they summarise.
+                routes: [
+                  GoRoute(
+                    path: 'approvals',
+                    builder: (context, state) => const ApprovalsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'production',
+                    builder: (context, state) => const ProductionScreen(),
+                  ),
+                ],
               ),
             ],
           ),

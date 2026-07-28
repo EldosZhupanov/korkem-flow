@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -8,6 +9,7 @@ import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/kpi_tile.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -110,11 +112,13 @@ class _MetricGrid extends StatelessWidget {
         l10n.metricPendingActions,
         AppIcons.approval,
         intent: StatusIntent.warning,
+        route: Routes.approvals,
       ),
       _Metric(
         DashboardSummary.workOrdersInProgress,
         l10n.metricWorkOrders,
         AppIcons.workOrder,
+        route: Routes.production,
       ),
     ];
 
@@ -139,6 +143,9 @@ class _MetricGrid extends StatelessWidget {
                 icon: metric.icon,
                 intent: metric.intent,
                 isLoading: isLoading,
+                onTap: metric.route == null
+                    ? null
+                    : () => context.push(metric.route!),
                 // A dash, never a zero: the backend returns null when the
                 // caller's role may not see the number, and stating "0" would
                 // assert something the user has no standing to know.
@@ -156,12 +163,16 @@ class _MetricGrid extends StatelessWidget {
 
 @immutable
 class _Metric {
-  const _Metric(this.key, this.label, this.icon, {this.intent});
+  const _Metric(this.key, this.label, this.icon, {this.intent, this.route});
 
   final String key;
   final String label;
   final IconData icon;
   final StatusIntent? intent;
+
+  /// Where the tile leads. A metric with no screen behind it is not
+  /// tappable — a tile that looks interactive and does nothing is worse.
+  final String? route;
 }
 
 class _AttentionCard extends StatelessWidget {

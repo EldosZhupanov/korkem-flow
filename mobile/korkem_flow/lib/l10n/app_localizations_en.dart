@@ -376,4 +376,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get detailNotFound => 'This record no longer exists.';
+
+  @override
+  String get navApprovals => 'Approvals';
+
+  @override
+  String get navProduction => 'Production';
+
+  @override
+  String get approvalsEmpty => 'Nothing awaiting you';
+
+  @override
+  String get approvalsEmptyBody =>
+      'Decisions an agent is waiting on will appear here.';
+
+  @override
+  String get approvalApprove => 'Approve';
+
+  @override
+  String get approvalReject => 'Reject';
+
+  @override
+  String get approvalApproved => 'Approved';
+
+  @override
+  String get approvalRejected => 'Rejected';
+
+  @override
+  String get approvalExpires => 'Expires';
+
+  @override
+  String get approvalExpired => 'Expired';
+
+  @override
+  String get productionEmpty => 'No work orders';
+
+  @override
+  String get productionEmptyBody =>
+      'Orders appear here once a deal moves into production.';
+
+  @override
+  String get fieldQuantity => 'Quantity';
+
+  @override
+  String get fieldProduced => 'Produced';
+
+  @override
+  String get fieldPlannedEnd => 'Planned finish';
+
+  @override
+  String get fieldItem => 'Item';
+
+  @override
+  String get fieldDeal => 'Deal';
+
+  @override
+  String get fieldWarehouse => 'Warehouse';
+
+  @override
+  String get fieldProgress => 'Progress';
+
+  @override
+  String get paPending => 'Pending';
+
+  @override
+  String get paApproved => 'Approved';
+
+  @override
+  String get paRejected => 'Rejected';
+
+  @override
+  String get paExpired => 'Expired';
+
+  @override
+  String get woDraft => 'Draft';
+
+  @override
+  String get woSubmitted => 'Submitted';
+
+  @override
+  String get woNotStarted => 'Not started';
+
+  @override
+  String get woInProcess => 'In process';
+
+  @override
+  String get woStockReserved => 'Stock reserved';
+
+  @override
+  String get woStockPartial => 'Stock partly reserved';
+
+  @override
+  String get woCompleted => 'Completed';
+
+  @override
+  String get woStopped => 'Stopped';
+
+  @override
+  String get woClosed => 'Closed';
+
+  @override
+  String get woCancelled => 'Cancelled';
 }
