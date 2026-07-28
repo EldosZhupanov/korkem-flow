@@ -92,5 +92,20 @@
   "dealStatusLost": "Lost",
   "taskPriorityHigh": "High priority",
   "taskPriorityMedium": "Medium priority",
-  "taskPriorityLow": "Low priority"
+  "taskPriorityLow": "Low priority",
+  "authTitle": "Sign in",
+  "authSubtitle": "Connect to your KORKEM workspace",
+  "authServer": "Server address",
+  "authServerHint": "korkem.example.kz",
+  "authEmail": "Email",
+  "authPassword": "Password",
+  "authSignIn": "Sign in",
+  "authSignOut": "Sign out",
+  "authSignOutConfirm": "Sign out of this device?",
+  "authFieldRequired": "Required",
+  "authInvalidServer": "That is not a valid address.",
+  "settingsTitle": "Settings",
+  "settingsAccount": "Account",
+  "settingsSignedInAs": "Signed in as",
+  "settingsConnection": "Connection"
 }

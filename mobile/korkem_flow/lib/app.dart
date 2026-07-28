@@ -9,7 +9,7 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The router is a provider so it survives rebuilds — recreating a GoRouter on
 /// every build discards the navigation stack.
-final routerProvider = Provider<GoRouter>((ref) => createRouter());
+final routerProvider = Provider<GoRouter>(createRouter);
 
 class KorkemFlowApp extends ConsumerWidget {
   const KorkemFlowApp({super.key});

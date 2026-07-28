@@ -175,4 +175,49 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get taskPriorityLow => 'Төмен басымдық';
+
+  @override
+  String get authTitle => 'Кіру';
+
+  @override
+  String get authSubtitle => 'KORKEM жұмыс кеңістігіне қосылыңыз';
+
+  @override
+  String get authServer => 'Сервер мекенжайы';
+
+  @override
+  String get authServerHint => 'korkem.example.kz';
+
+  @override
+  String get authEmail => 'Электрондық пошта';
+
+  @override
+  String get authPassword => 'Құпия сөз';
+
+  @override
+  String get authSignIn => 'Кіру';
+
+  @override
+  String get authSignOut => 'Шығу';
+
+  @override
+  String get authSignOutConfirm => 'Осы құрылғыдан шығу керек пе?';
+
+  @override
+  String get authFieldRequired => 'Міндетті өріс';
+
+  @override
+  String get authInvalidServer => 'Мекенжай жарамсыз.';
+
+  @override
+  String get settingsTitle => 'Параметрлер';
+
+  @override
+  String get settingsAccount => 'Есептік жазба';
+
+  @override
+  String get settingsSignedInAs => 'Сіз кірдіңіз';
+
+  @override
+  String get settingsConnection => 'Қосылым';
 }

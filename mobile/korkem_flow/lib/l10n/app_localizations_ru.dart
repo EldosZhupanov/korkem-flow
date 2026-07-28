@@ -175,4 +175,49 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get taskPriorityLow => 'Низкий приоритет';
+
+  @override
+  String get authTitle => 'Вход';
+
+  @override
+  String get authSubtitle => 'Подключитесь к рабочему пространству KORKEM';
+
+  @override
+  String get authServer => 'Адрес сервера';
+
+  @override
+  String get authServerHint => 'korkem.example.kz';
+
+  @override
+  String get authEmail => 'Электронная почта';
+
+  @override
+  String get authPassword => 'Пароль';
+
+  @override
+  String get authSignIn => 'Войти';
+
+  @override
+  String get authSignOut => 'Выйти';
+
+  @override
+  String get authSignOutConfirm => 'Выйти на этом устройстве?';
+
+  @override
+  String get authFieldRequired => 'Обязательное поле';
+
+  @override
+  String get authInvalidServer => 'Некорректный адрес.';
+
+  @override
+  String get settingsTitle => 'Настройки';
+
+  @override
+  String get settingsAccount => 'Учётная запись';
+
+  @override
+  String get settingsSignedInAs => 'Вы вошли как';
+
+  @override
+  String get settingsConnection => 'Подключение';
 }

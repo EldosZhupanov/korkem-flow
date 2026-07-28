@@ -175,4 +175,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskPriorityLow => 'Low priority';
+
+  @override
+  String get authTitle => 'Sign in';
+
+  @override
+  String get authSubtitle => 'Connect to your KORKEM workspace';
+
+  @override
+  String get authServer => 'Server address';
+
+  @override
+  String get authServerHint => 'korkem.example.kz';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authSignOut => 'Sign out';
+
+  @override
+  String get authSignOutConfirm => 'Sign out of this device?';
+
+  @override
+  String get authFieldRequired => 'Required';
+
+  @override
+  String get authInvalidServer => 'That is not a valid address.';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String get settingsSignedInAs => 'Signed in as';
+
+  @override
+  String get settingsConnection => 'Connection';
 }

@@ -53,5 +53,20 @@
   "dealStatusLost": "Жоғалтылды",
   "taskPriorityHigh": "Жоғары басымдық",
   "taskPriorityMedium": "Орташа басымдық",
-  "taskPriorityLow": "Төмен басымдық"
+  "taskPriorityLow": "Төмен басымдық",
+  "authTitle": "Кіру",
+  "authSubtitle": "KORKEM жұмыс кеңістігіне қосылыңыз",
+  "authServer": "Сервер мекенжайы",
+  "authServerHint": "korkem.example.kz",
+  "authEmail": "Электрондық пошта",
+  "authPassword": "Құпия сөз",
+  "authSignIn": "Кіру",
+  "authSignOut": "Шығу",
+  "authSignOutConfirm": "Осы құрылғыдан шығу керек пе?",
+  "authFieldRequired": "Міндетті өріс",
+  "authInvalidServer": "Мекенжай жарамсыз.",
+  "settingsTitle": "Параметрлер",
+  "settingsAccount": "Есептік жазба",
+  "settingsSignedInAs": "Сіз кірдіңіз",
+  "settingsConnection": "Қосылым"
 }

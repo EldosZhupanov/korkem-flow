@@ -423,6 +423,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Low priority'**
   String get taskPriorityLow;
+
+  /// No description provided for @authTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authTitle;
+
+  /// No description provided for @authSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to your KORKEM workspace'**
+  String get authSubtitle;
+
+  /// No description provided for @authServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server address'**
+  String get authServer;
+
+  /// No description provided for @authServerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'korkem.example.kz'**
+  String get authServerHint;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmail;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get authSignOut;
+
+  /// No description provided for @authSignOutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of this device?'**
+  String get authSignOutConfirm;
+
+  /// No description provided for @authFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get authFieldRequired;
+
+  /// No description provided for @authInvalidServer.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a valid address.'**
+  String get authInvalidServer;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
+
+  /// No description provided for @settingsSignedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as'**
+  String get settingsSignedInAs;
+
+  /// No description provided for @settingsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
+  String get settingsConnection;
 }
 
 class _AppLocalizationsDelegate

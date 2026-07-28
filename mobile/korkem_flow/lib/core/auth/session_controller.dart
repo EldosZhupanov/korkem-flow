@@ -1,0 +1,148 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/api/api_providers.dart';
+import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/auth/auth_credentials.dart';
+import 'package:korkem_flow/core/auth/auth_repository.dart';
+import 'package:korkem_flow/core/auth/credential_store.dart';
+import 'package:korkem_flow/core/config/app_config.dart';
+import 'package:meta/meta.dart';
+
+/// Who is signed in, and against which site.
+///
+/// Server and credential are one value rather than two providers because they
+/// are only ever meaningful together: a key minted against one bench is not a
+/// credential on another, and changing the server must invalidate the session.
+@immutable
+class Session {
+  const Session({required this.serverUrl, this.credentials});
+
+  final String serverUrl;
+
+  /// `null` means signed out.
+  final AuthCredentials? credentials;
+
+  String? get user => credentials?.user;
+
+  bool get isAuthenticated => credentials != null;
+}
+
+final authRepositoryProvider = Provider<AuthRepository>(
+  (ref) => AuthRepository(ref.watch(authDioProvider)),
+);
+
+final sessionProvider = AsyncNotifierProvider<SessionController, Session>(
+  SessionController.new,
+);
+
+class SessionController extends AsyncNotifier<Session> {
+  /// Restores a stored credential and confirms it still works.
+  ///
+  /// A session cookie can expire server-side with nothing to signal it locally,
+  /// so "we have a credential" is not the same as "we are signed in" — the only
+  /// honest check is a round trip.
+  @override
+  Future<Session> build() async {
+    final store = ref.watch(credentialStoreProvider);
+    final serverUrl =
+        await store.readServerUrl() ?? ref.watch(appConfigProvider).baseUrl;
+
+    final credentials = await store.read();
+    if (credentials == null) return Session(serverUrl: serverUrl);
+
+    try {
+      final user = await ref
+          .read(authRepositoryProvider)
+          .verify(baseUrl: serverUrl, credentials: credentials);
+
+      return Session(
+        serverUrl: serverUrl,
+        credentials: user == credentials.user
+            ? credentials
+            // The server is authoritative about identity.
+            : _rebind(credentials, user),
+      );
+    } on AuthFailure {
+      await store.clear();
+      return Session(serverUrl: serverUrl);
+    } on NetworkFailure {
+      // Offline launch: trust the stored credential rather than throwing the
+      // user back to a login screen they cannot complete without a network.
+      return Session(serverUrl: serverUrl, credentials: credentials);
+    }
+  }
+
+  Future<void> signIn({
+    required String serverUrl,
+    required String user,
+    required String password,
+  }) async {
+    final normalised = normaliseServerUrl(serverUrl);
+    state = const AsyncValue.loading();
+
+    try {
+      final credentials = await ref
+          .read(authRepositoryProvider)
+          .signIn(baseUrl: normalised, user: user, password: password);
+
+      final store = ref.read(credentialStoreProvider);
+      await store.writeServerUrl(normalised);
+      await store.write(credentials);
+
+      state = AsyncValue.data(
+        Session(serverUrl: normalised, credentials: credentials),
+      );
+    } on Exception {
+      // A failed sign-in must not park the app in an AsyncError it can never
+      // leave — the login form has to stay usable for the next attempt. The
+      // failure is rethrown for the screen to display, not swallowed.
+      state = AsyncValue.data(Session(serverUrl: normalised));
+      rethrow;
+    }
+  }
+
+  Future<void> signOut() async {
+    final current = state.value;
+    final credentials = current?.credentials;
+    final serverUrl = current?.serverUrl ?? ref.read(appConfigProvider).baseUrl;
+
+    try {
+      if (credentials != null) {
+        await ref
+            .read(authRepositoryProvider)
+            .signOut(baseUrl: serverUrl, credentials: credentials);
+      }
+    } finally {
+      // Whatever the server says — or fails to say — a user who taps "sign
+      // out" must end up signed out on this device.
+      await ref.read(credentialStoreProvider).clear();
+      state = AsyncValue.data(Session(serverUrl: serverUrl));
+    }
+  }
+
+  static AuthCredentials _rebind(AuthCredentials credentials, String user) =>
+      switch (credentials) {
+        ApiKeyCredentials(:final apiKey, :final apiSecret) => ApiKeyCredentials(
+          user: user,
+          apiKey: apiKey,
+          apiSecret: apiSecret,
+        ),
+        SessionCredentials(:final sid) => SessionCredentials(
+          user: user,
+          sid: sid,
+        ),
+      };
+}
+
+/// Trims a hand-typed server address into something [Uri] can resolve.
+///
+/// Users type `korkem.localhost:8000`; a missing scheme would otherwise be
+/// parsed as a relative path and every request would fail with nothing on
+/// screen to explain why.
+String normaliseServerUrl(String input) {
+  final trimmed = input.trim().replaceAll(RegExp(r'/+$'), '');
+  if (trimmed.isEmpty) return trimmed;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return 'https://$trimmed';
+}

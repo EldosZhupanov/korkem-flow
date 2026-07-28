@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/app.dart';
+import 'package:korkem_flow/core/auth/auth_credentials.dart';
+import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
@@ -19,6 +21,17 @@ void main() {
     final suffix = brightness.name;
 
     group('golden: $suffix', () {
+      testWidgets('login', (tester) async {
+        // Signed out, so the router's redirect lands here on its own — the
+        // golden proves the guard works, not just that the screen renders.
+        await _pumpApp(tester, brightness: brightness, signedIn: false);
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('login_$suffix.png'),
+        );
+      });
+
       testWidgets('deals', (tester) async {
         await _pumpApp(tester, brightness: brightness);
 
@@ -47,6 +60,18 @@ void main() {
           matchesGoldenFile('profile_$suffix.png'),
         );
       });
+
+      testWidgets('settings', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+        await _openTab(tester, 'Профиль');
+        await tester.tap(find.byTooltip('Настройки'));
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('settings_$suffix.png'),
+        );
+      });
     });
   }
 }
@@ -64,6 +89,7 @@ final _now = DateTime(2026, 7, 28, 11);
 Future<void> _pumpApp(
   WidgetTester tester, {
   required Brightness brightness,
+  bool signedIn = true,
 }) async {
   tester.view
     ..physicalSize = _logicalSize * _pixelRatio
@@ -74,6 +100,22 @@ Future<void> _pumpApp(
     ProviderScope(
       overrides: [
         clockProvider.overrideWithValue(() => _now),
+        // Stubbed at the session boundary, so no test ever reaches the platform
+        // keychain — on Linux that is libsecret over D-Bus, absent in a runner.
+        sessionProvider.overrideWith(
+          () => _StubSession(
+            signedIn
+                ? const Session(
+                    serverUrl: 'https://korkem.example.kz',
+                    credentials: ApiKeyCredentials(
+                      user: 'aidos@korkem.kz',
+                      apiKey: 'golden',
+                      apiSecret: 'golden',
+                    ),
+                  )
+                : const Session(serverUrl: 'https://korkem.example.kz'),
+          ),
+        ),
         settingsControllerProvider.overrideWith(
           () => _StubSettings(
             AppSettings(
@@ -97,6 +139,15 @@ Future<void> _pumpApp(
 Future<void> _openTab(WidgetTester tester, String label) async {
   await tester.tap(find.text(label));
   await tester.pumpAndSettle();
+}
+
+class _StubSession extends SessionController {
+  _StubSession(this._session);
+
+  final Session _session;
+
+  @override
+  Future<Session> build() async => _session;
 }
 
 class _StubSettings extends SettingsController {

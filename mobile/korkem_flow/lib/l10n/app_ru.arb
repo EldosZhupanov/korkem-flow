@@ -53,5 +53,20 @@
   "dealStatusLost": "Проиграна",
   "taskPriorityHigh": "Высокий приоритет",
   "taskPriorityMedium": "Средний приоритет",
-  "taskPriorityLow": "Низкий приоритет"
+  "taskPriorityLow": "Низкий приоритет",
+  "authTitle": "Вход",
+  "authSubtitle": "Подключитесь к рабочему пространству KORKEM",
+  "authServer": "Адрес сервера",
+  "authServerHint": "korkem.example.kz",
+  "authEmail": "Электронная почта",
+  "authPassword": "Пароль",
+  "authSignIn": "Войти",
+  "authSignOut": "Выйти",
+  "authSignOutConfirm": "Выйти на этом устройстве?",
+  "authFieldRequired": "Обязательное поле",
+  "authInvalidServer": "Некорректный адрес.",
+  "settingsTitle": "Настройки",
+  "settingsAccount": "Учётная запись",
+  "settingsSignedInAs": "Вы вошли как",
+  "settingsConnection": "Подключение"
 }
