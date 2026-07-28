@@ -41,33 +41,30 @@ class ProductionScreen extends ConsumerWidget {
     final filter = ref.watch(productionFilterProvider);
     final controller = ref.read(productionControllerProvider.notifier);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.navProduction)),
-      body: CrmListSection(
-        searchValue: filter.search,
-        onSearch: (value) => ref
-            .read(productionFilterProvider.notifier)
-            .setSearch(value.isEmpty ? null : value),
-        isFiltered: filter.status != null,
-        onFilter: () => _openFilter(context, ref),
-        child: PagedListView<WorkOrder>(
-          state: ref.watch(productionControllerProvider),
-          onRefresh: controller.refresh,
-          onLoadMore: controller.loadMore,
-          itemBuilder: (context, order) => WorkOrderCard(order: order),
-          emptyView: (context) => EmptyView(
-            icon: AppIcons.workOrder,
-            title: l10n.productionEmpty,
-            message: filter.search != null
-                ? l10n.searchNoResults(filter.search!)
-                : l10n.productionEmptyBody,
-            actionLabel: filter.status == null && filter.search == null
-                ? null
-                : l10n.actionClearFilter,
-            onAction: filter.status == null && filter.search == null
-                ? null
-                : ref.read(productionFilterProvider.notifier).clear,
-          ),
+    return CrmListSection(
+      searchValue: filter.search,
+      onSearch: (value) => ref
+          .read(productionFilterProvider.notifier)
+          .setSearch(value.isEmpty ? null : value),
+      isFiltered: filter.status != null,
+      onFilter: () => _openFilter(context, ref),
+      child: PagedListView<WorkOrder>(
+        state: ref.watch(productionControllerProvider),
+        onRefresh: controller.refresh,
+        onLoadMore: controller.loadMore,
+        itemBuilder: (context, order) => WorkOrderCard(order: order),
+        emptyView: (context) => EmptyView(
+          icon: AppIcons.workOrder,
+          title: l10n.productionEmpty,
+          message: filter.search != null
+              ? l10n.searchNoResults(filter.search!)
+              : l10n.productionEmptyBody,
+          actionLabel: filter.status == null && filter.search == null
+              ? null
+              : l10n.actionClearFilter,
+          onAction: filter.status == null && filter.search == null
+              ? null
+              : ref.read(productionFilterProvider.notifier).clear,
         ),
       ),
     );

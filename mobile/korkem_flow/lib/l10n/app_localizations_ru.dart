@@ -478,4 +478,82 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get woCancelled => 'Отменён';
+
+  @override
+  String get navQuotes => 'Счета';
+
+  @override
+  String get navWarehouse => 'Склад';
+
+  @override
+  String get navOperations => 'Операции';
+
+  @override
+  String get quotesEmpty => 'Счетов нет';
+
+  @override
+  String get quotesEmptyBody => 'Счета появятся, когда их выставят по сделке.';
+
+  @override
+  String get warehouseEmpty => 'Позиций нет';
+
+  @override
+  String get warehouseEmptyBody => 'Складские позиции появятся здесь.';
+
+  @override
+  String get fieldValidTill => 'Действителен до';
+
+  @override
+  String get fieldQuoteDate => 'Дата';
+
+  @override
+  String get fieldCustomer => 'Клиент';
+
+  @override
+  String get fieldInStock => 'На складе';
+
+  @override
+  String get fieldReserved => 'Резерв';
+
+  @override
+  String get fieldProjected => 'Прогноз';
+
+  @override
+  String get fieldGroup => 'Группа';
+
+  @override
+  String get fieldUnit => 'Ед. изм.';
+
+  @override
+  String get warehouseNoStock => 'Нет ни на одном складе';
+
+  @override
+  String get quoteExpiredSoon => 'Истекает';
+
+  @override
+  String get itemDisabled => 'Отключена';
+
+  @override
+  String get qDraft => 'Черновик';
+
+  @override
+  String get qOpen => 'Открыт';
+
+  @override
+  String get qReplied => 'Есть ответ';
+
+  @override
+  String get qPartiallyOrdered => 'Частично заказан';
+
+  @override
+  String get qOrdered => 'Заказан';
+
+  @override
+  String get qLost => 'Проигран';
+
+  @override
+  String get qCancelled => 'Отменён';
+
+  @override
+  String get qExpired => 'Истёк';
 }

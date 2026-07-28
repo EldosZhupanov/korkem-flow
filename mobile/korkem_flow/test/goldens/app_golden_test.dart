@@ -19,8 +19,12 @@ import 'package:korkem_flow/features/deals/domain/deal.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/quotes/application/quotes_controller.dart';
+import 'package:korkem_flow/features/quotes/domain/quote.dart';
 import 'package:korkem_flow/features/tasks/application/tasks_controller.dart';
 import 'package:korkem_flow/features/tasks/domain/task.dart';
+import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
+import 'package:korkem_flow/features/warehouse/domain/stock_item.dart';
 
 /// Renders the **real** app — `KorkemFlowApp`, its router, its shell — rather
 /// than isolated widgets, so the goldens show what a user would actually see,
@@ -71,6 +75,35 @@ void main() {
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('production_$suffix.png'),
+        );
+      });
+
+      testWidgets('warehouse', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+        await tester.tap(find.text('В производстве'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Склад'));
+        await tester.pumpAndSettle();
+        // Expanded, because the per-warehouse balance is the whole point of
+        // the screen and it does not load until a row is opened.
+        await tester.tap(find.text('Фасад МДФ 716×396, белый глянец'));
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('warehouse_$suffix.png'),
+        );
+      });
+
+      testWidgets('quotes', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+        await _openTab(tester, 'Продажи');
+        await tester.tap(find.text('Счета'));
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('quotes_$suffix.png'),
         );
       });
 
@@ -187,6 +220,12 @@ Future<void> _pumpApp(
         dashboardControllerProvider.overrideWith(_StubDashboard.new),
         approvalsControllerProvider.overrideWith(_StubApprovals.new),
         productionControllerProvider.overrideWith(_StubProduction.new),
+        quotesControllerProvider.overrideWith(_StubQuotes.new),
+        warehouseControllerProvider.overrideWith(_StubWarehouse.new),
+        for (final item in _items)
+          stockBalancesProvider(item.id).overrideWith(
+            (ref) => Future<List<StockBalance>>.value(_balances[item.id] ?? []),
+          ),
         dealsControllerProvider.overrideWith(_StubDeals.new),
         dealDetailProvider(
           _deals.first.id,
@@ -238,6 +277,18 @@ class _StubProduction extends ProductionController {
   @override
   Future<PagedList<WorkOrder>> build() async =>
       PagedList(items: _workOrders, hasMore: false);
+}
+
+class _StubQuotes extends QuotesController {
+  @override
+  Future<PagedList<Quote>> build() async =>
+      PagedList(items: _quotes, hasMore: false);
+}
+
+class _StubWarehouse extends WarehouseController {
+  @override
+  Future<PagedList<StockItem>> build() async =>
+      const PagedList(items: _items, hasMore: false);
 }
 
 class _StubDeals extends DealsController {
@@ -362,6 +413,84 @@ final _workOrders = <WorkOrder>[
     plannedEndDate: DateTime(2026, 7, 20, 12),
   ),
 ];
+
+final _quotes = <Quote>[
+  Quote(
+    id: 'SAL-QTN-2026-00034',
+    status: QuoteStatus.open,
+    docStatus: 1,
+    customerName: 'Астана Мебель Групп',
+    transactionDate: DateTime(2026, 7, 24),
+    // Inside the seven-day window against the fixed clock, so the golden pins
+    // the "expires soon" wording.
+    validTill: DateTime(2026, 8, 3),
+    grandTotal: 4850000,
+    currency: 'KZT',
+  ),
+  Quote(
+    id: 'SAL-QTN-2026-00031',
+    status: QuoteStatus.ordered,
+    docStatus: 1,
+    customerName: 'Қарағанды Интерьер',
+    transactionDate: DateTime(2026, 7, 12),
+    validTill: DateTime(2026, 8, 12),
+    grandTotal: 1290000,
+    currency: 'KZT',
+  ),
+  Quote(
+    id: 'SAL-QTN-2026-00029',
+    status: QuoteStatus.open,
+    docStatus: 1,
+    customerName: 'Строй Комфорт KZ',
+    transactionDate: DateTime(2026, 6, 30),
+    // Already lapsed: ERPNext rewrites `status` on a scheduled job, so this
+    // still reads Open on the wire and must render as expired anyway.
+    validTill: DateTime(2026, 7, 20),
+    grandTotal: 730000,
+    currency: 'KZT',
+  ),
+];
+
+const _items = <StockItem>[
+  StockItem(
+    id: 'MDF-716-396-WG',
+    name: 'Фасад МДФ 716×396, белый глянец',
+    itemGroup: 'Фасады',
+    stockUom: 'шт',
+  ),
+  StockItem(
+    id: 'LDSP-16-EGGER',
+    name: 'ЛДСП 16 мм Egger H1145',
+    itemGroup: 'Плитные материалы',
+    stockUom: 'лист',
+  ),
+  StockItem(
+    id: 'ASSEMBLY-SERVICE',
+    name: 'Монтаж на объекте',
+    itemGroup: 'Услуги',
+    stockUom: 'час',
+    isStockItem: false,
+  ),
+];
+
+const _balances = <String, List<StockBalance>>{
+  'MDF-716-396-WG': [
+    StockBalance(
+      warehouse: 'Готовая продукция — KRK',
+      actualQty: 124,
+      reservedQty: 40,
+      projectedQty: 84,
+    ),
+    StockBalance(warehouse: 'Цех — KRK', actualQty: 18, projectedQty: 18),
+  ],
+  'LDSP-16-EGGER': [
+    StockBalance(
+      warehouse: 'Сырьё — KRK',
+      actualQty: 6,
+      reservedQty: 6,
+    ),
+  ],
+};
 
 final _deals = <Deal>[
   Deal(

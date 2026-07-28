@@ -477,4 +477,83 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get woCancelled => 'Болдырылмады';
+
+  @override
+  String get navQuotes => 'Шоттар';
+
+  @override
+  String get navWarehouse => 'Қойма';
+
+  @override
+  String get navOperations => 'Операциялар';
+
+  @override
+  String get quotesEmpty => 'Шоттар жоқ';
+
+  @override
+  String get quotesEmptyBody =>
+      'Мәміле бойынша шот жасалғанда осында көрінеді.';
+
+  @override
+  String get warehouseEmpty => 'Позициялар жоқ';
+
+  @override
+  String get warehouseEmptyBody => 'Қойма позициялары осында көрінеді.';
+
+  @override
+  String get fieldValidTill => 'Жарамды';
+
+  @override
+  String get fieldQuoteDate => 'Күні';
+
+  @override
+  String get fieldCustomer => 'Клиент';
+
+  @override
+  String get fieldInStock => 'Қоймада';
+
+  @override
+  String get fieldReserved => 'Резерв';
+
+  @override
+  String get fieldProjected => 'Болжам';
+
+  @override
+  String get fieldGroup => 'Топ';
+
+  @override
+  String get fieldUnit => 'Өлшем';
+
+  @override
+  String get warehouseNoStock => 'Ешбір қоймада жоқ';
+
+  @override
+  String get quoteExpiredSoon => 'Мерзімі бітеді';
+
+  @override
+  String get itemDisabled => 'Өшірілген';
+
+  @override
+  String get qDraft => 'Жоба';
+
+  @override
+  String get qOpen => 'Ашық';
+
+  @override
+  String get qReplied => 'Жауап бар';
+
+  @override
+  String get qPartiallyOrdered => 'Ішінара тапсырыс';
+
+  @override
+  String get qOrdered => 'Тапсырыс берілді';
+
+  @override
+  String get qLost => 'Жоғалтылды';
+
+  @override
+  String get qCancelled => 'Болдырылмады';
+
+  @override
+  String get qExpired => 'Мерзімі өтті';
 }

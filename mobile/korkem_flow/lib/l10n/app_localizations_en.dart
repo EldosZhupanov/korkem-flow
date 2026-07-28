@@ -477,4 +477,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get woCancelled => 'Cancelled';
+
+  @override
+  String get navQuotes => 'Quotes';
+
+  @override
+  String get navWarehouse => 'Warehouse';
+
+  @override
+  String get navOperations => 'Operations';
+
+  @override
+  String get quotesEmpty => 'No quotes';
+
+  @override
+  String get quotesEmptyBody =>
+      'Quotes appear here once one is raised for a deal.';
+
+  @override
+  String get warehouseEmpty => 'No items';
+
+  @override
+  String get warehouseEmptyBody => 'Stock items appear here.';
+
+  @override
+  String get fieldValidTill => 'Valid till';
+
+  @override
+  String get fieldQuoteDate => 'Date';
+
+  @override
+  String get fieldCustomer => 'Customer';
+
+  @override
+  String get fieldInStock => 'In stock';
+
+  @override
+  String get fieldReserved => 'Reserved';
+
+  @override
+  String get fieldProjected => 'Projected';
+
+  @override
+  String get fieldGroup => 'Group';
+
+  @override
+  String get fieldUnit => 'Unit';
+
+  @override
+  String get warehouseNoStock => 'Not stocked anywhere';
+
+  @override
+  String get quoteExpiredSoon => 'Expires soon';
+
+  @override
+  String get itemDisabled => 'Disabled';
+
+  @override
+  String get qDraft => 'Draft';
+
+  @override
+  String get qOpen => 'Open';
+
+  @override
+  String get qReplied => 'Replied';
+
+  @override
+  String get qPartiallyOrdered => 'Partly ordered';
+
+  @override
+  String get qOrdered => 'Ordered';
+
+  @override
+  String get qLost => 'Lost';
+
+  @override
+  String get qCancelled => 'Cancelled';
+
+  @override
+  String get qExpired => 'Expired';
 }

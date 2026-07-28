@@ -10,7 +10,7 @@ import 'package:korkem_flow/features/customers/presentation/customer_detail_scre
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
-import 'package:korkem_flow/features/production/presentation/production_screen.dart';
+import 'package:korkem_flow/features/operations/presentation/operations_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
@@ -93,7 +93,7 @@ GoRouter createRouter(Ref ref) {
                   ),
                   GoRoute(
                     path: 'production',
-                    builder: (context, state) => const ProductionScreen(),
+                    builder: (context, state) => const OperationsScreen(),
                   ),
                 ],
               ),

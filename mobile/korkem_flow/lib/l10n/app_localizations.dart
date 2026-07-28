@@ -1017,6 +1017,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancelled'**
   String get woCancelled;
+
+  /// No description provided for @navQuotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Quotes'**
+  String get navQuotes;
+
+  /// No description provided for @navWarehouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse'**
+  String get navWarehouse;
+
+  /// No description provided for @navOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations'**
+  String get navOperations;
+
+  /// No description provided for @quotesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No quotes'**
+  String get quotesEmpty;
+
+  /// No description provided for @quotesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Quotes appear here once one is raised for a deal.'**
+  String get quotesEmptyBody;
+
+  /// No description provided for @warehouseEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No items'**
+  String get warehouseEmpty;
+
+  /// No description provided for @warehouseEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock items appear here.'**
+  String get warehouseEmptyBody;
+
+  /// No description provided for @fieldValidTill.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid till'**
+  String get fieldValidTill;
+
+  /// No description provided for @fieldQuoteDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get fieldQuoteDate;
+
+  /// No description provided for @fieldCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get fieldCustomer;
+
+  /// No description provided for @fieldInStock.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock'**
+  String get fieldInStock;
+
+  /// No description provided for @fieldReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get fieldReserved;
+
+  /// No description provided for @fieldProjected.
+  ///
+  /// In en, this message translates to:
+  /// **'Projected'**
+  String get fieldProjected;
+
+  /// No description provided for @fieldGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get fieldGroup;
+
+  /// No description provided for @fieldUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get fieldUnit;
+
+  /// No description provided for @warehouseNoStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Not stocked anywhere'**
+  String get warehouseNoStock;
+
+  /// No description provided for @quoteExpiredSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires soon'**
+  String get quoteExpiredSoon;
+
+  /// No description provided for @itemDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get itemDisabled;
+
+  /// No description provided for @qDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get qDraft;
+
+  /// No description provided for @qOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get qOpen;
+
+  /// No description provided for @qReplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Replied'**
+  String get qReplied;
+
+  /// No description provided for @qPartiallyOrdered.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly ordered'**
+  String get qPartiallyOrdered;
+
+  /// No description provided for @qOrdered.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered'**
+  String get qOrdered;
+
+  /// No description provided for @qLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost'**
+  String get qLost;
+
+  /// No description provided for @qCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get qCancelled;
+
+  /// No description provided for @qExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get qExpired;
 }
 
 class _AppLocalizationsDelegate
