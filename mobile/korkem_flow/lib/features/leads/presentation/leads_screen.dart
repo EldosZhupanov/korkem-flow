@@ -55,6 +55,7 @@ class LeadsScreen extends ConsumerWidget {
         onLoadMore: controller.loadMore,
         itemBuilder: (context, lead) => LeadCard(
           lead: lead,
+          heroTag: Routes.heroTag(Routes.lead(lead.id)),
           onTap: () => context.push(Routes.lead(lead.id)),
         ),
         emptyView: (context) => ListEmptyView(
@@ -81,10 +82,14 @@ class LeadsScreen extends ConsumerWidget {
 }
 
 class LeadCard extends ConsumerWidget {
-  const LeadCard({required this.lead, this.onTap, super.key});
+  const LeadCard({required this.lead, this.onTap, this.heroTag, super.key});
 
   final Lead lead;
   final VoidCallback? onTap;
+
+  /// Opt-in. A hero tag has to be unique across everything mounted at once, so
+  /// only the list that owns the record claims one.
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -94,6 +99,7 @@ class LeadCard extends ConsumerWidget {
     final status = catalog.resolve(lead.status);
 
     return EntityCard(
+      heroTag: heroTag,
       title: lead.displayName,
       // Only when it adds something: for a lead captured with just a company
       // name, displayName already *is* the organisation.

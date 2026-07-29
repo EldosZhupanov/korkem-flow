@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/contact/contact_actions.dart';
+import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/detail_view.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/customers/application/customers_controller.dart';
 import 'package:korkem_flow/features/customers/domain/customer.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
@@ -56,7 +58,11 @@ class CustomerDetailScreen extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DetailHeader(title: customer.name, subtitle: customer.industry),
+            DetailHeader(
+              heroTag: Routes.heroTag(Routes.customer(id)),
+              title: customer.name,
+              subtitle: customer.industry,
+            ),
 
             DetailActions(
               children: [
@@ -120,7 +126,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 children: [
                   for (final deal in value)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
                       child: DealCard(deal: deal),
                     ),
                 ],

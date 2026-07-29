@@ -33,6 +33,16 @@ abstract final class Routes {
   static String deal(String id) => '$sales/deal/$id';
   static String lead(String id) => '$sales/lead/$id';
   static String customer(String id) => '$sales/customer/$id';
+
+  /// The shared-element tag linking a list row to the screen it opens.
+  ///
+  /// The route path itself, because a hero tag has to be unique among
+  /// everything mounted at once and a route already is: two rows that would
+  /// collide would also be the same record. Deriving it here rather than
+  /// formatting a string at each call site is what keeps the two ends of a
+  /// flight spelled identically — a mismatch does not fail, it just silently
+  /// stops animating.
+  static String heroTag(String route) => 'title:$route';
   static const tasks = '/tasks';
   static const profile = '/profile';
   static const settings = '/settings';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/design/motion/hero_title.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -61,6 +62,7 @@ class DetailHeader extends StatelessWidget {
     this.subtitle,
     this.statusLabel,
     this.statusIntent,
+    this.heroTag,
     super.key,
   });
 
@@ -69,6 +71,11 @@ class DetailHeader extends StatelessWidget {
   final String? statusLabel;
   final StatusIntent? statusIntent;
 
+  /// Matches the tag on the row this screen was opened from, when it was
+  /// opened from one. Null is correct and harmless: a hero with no counterpart
+  /// simply does not fly.
+  final String? heroTag;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -76,7 +83,14 @@ class DetailHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: theme.textTheme.headlineMedium),
+        if (heroTag case final tag?)
+          HeroTitle(
+            tag: tag,
+            text: title,
+            style: theme.textTheme.headlineMedium,
+          )
+        else
+          Text(title, style: theme.textTheme.headlineMedium),
         if (subtitle != null) ...[
           const SizedBox(height: AppSpacing.xs),
           Text(

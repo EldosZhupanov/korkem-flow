@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/design/motion/app_pressable.dart';
+import 'package:korkem_flow/core/design/motion/hero_title.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
@@ -60,6 +61,7 @@ class EntityCard extends StatelessWidget {
     this.metadata = const [],
     this.leading,
     this.onTap,
+    this.heroTag,
     super.key,
   });
 
@@ -74,6 +76,11 @@ class EntityCard extends StatelessWidget {
 
   final Widget? leading;
   final VoidCallback? onTap;
+
+  /// Set only where the card opens a detail screen that carries the same tag.
+  /// A tag must be unique among everything mounted at once, so this is left
+  /// null on any list whose rows the user reaches another way.
+  final String? heroTag;
 
   Widget? _statusChip() {
     if (statusLabel == null || statusIntent == null) return null;
@@ -98,14 +105,10 @@ class EntityCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.md),
               ],
               Expanded(
-                child: Text(
-                  title,
+                child: _Title(
+                  text: title,
                   style: theme.textTheme.titleMedium,
-                  // Two lines, not one: Russian and Kazakh entity names run far
-                  // longer than their English equivalents, and a single line
-                  // truncated "Кромление фаса…" tells a worker nothing.
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  heroTag: heroTag,
                 ),
               ),
               if (chip != null &&
@@ -144,6 +147,38 @@ class EntityCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// The entity's name, flying to its detail screen when there is one to fly to.
+///
+/// Two lines, not one: Russian and Kazakh entity names run far longer than
+/// their English equivalents, and a single line truncated to "Кромление фаса…"
+/// tells a worker nothing.
+class _Title extends StatelessWidget {
+  const _Title({
+    required this.text,
+    required this.style,
+    required this.heroTag,
+  });
+
+  final String text;
+  final TextStyle? style;
+  final String? heroTag;
+
+  @override
+  Widget build(BuildContext context) {
+    final tag = heroTag;
+    if (tag == null) {
+      return Text(
+        text,
+        style: style,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return HeroTitle(tag: tag, text: text, style: style, maxLines: 2);
   }
 }
 

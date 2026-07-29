@@ -56,6 +56,7 @@ class DealsScreen extends ConsumerWidget {
         onLoadMore: controller.loadMore,
         itemBuilder: (context, deal) => DealCard(
           deal: deal,
+          heroTag: Routes.heroTag(Routes.deal(deal.id)),
           onTap: () => context.push(Routes.deal(deal.id)),
         ),
         emptyView: (context) => ListEmptyView(
@@ -85,10 +86,19 @@ class DealsScreen extends ConsumerWidget {
 
 /// A deal rendered with the shared [EntityCard] shape.
 class DealCard extends ConsumerWidget {
-  const DealCard({required this.deal, this.onTap, super.key});
+  const DealCard({required this.deal, this.onTap, this.heroTag, super.key});
 
   final Deal deal;
   final VoidCallback? onTap;
+
+  /// Opt-in, and deliberately not derived from `deal.id` inside the card.
+  ///
+  /// A hero tag must be unique across everything mounted at once, and this
+  /// card appears in two places: the Deals list, and the deals section of a
+  /// Customer. Baking the tag in meant that opening a customer flew the deal's
+  /// title out of the list underneath it — a real animation of a transition
+  /// nobody made. Only the list that owns the record claims the tag.
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -97,6 +107,7 @@ class DealCard extends ConsumerWidget {
     final status = catalog.resolve(deal.status);
 
     return EntityCard(
+      heroTag: heroTag,
       title: deal.organization,
       subtitle: deal.nextStep,
       // The stage name is shown exactly as configured. Translating it would

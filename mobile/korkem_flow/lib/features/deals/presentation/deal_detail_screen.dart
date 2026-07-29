@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_filter_sheet.dart';
 import 'package:korkem_flow/core/design/widgets/detail_view.dart';
 import 'package:korkem_flow/core/design/widgets/error_feedback.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -82,6 +83,7 @@ class DealDetailScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DetailHeader(
+              heroTag: Routes.heroTag(Routes.deal(id)),
               title: deal.organization,
               subtitle: deal.id,
               statusLabel: status.name.isEmpty ? null : status.name,

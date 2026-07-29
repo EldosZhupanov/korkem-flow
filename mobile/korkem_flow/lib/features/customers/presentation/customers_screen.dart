@@ -29,6 +29,10 @@ class CustomersScreen extends ConsumerWidget {
         onLoadMore: controller.loadMore,
         itemBuilder: (context, customer) => CustomerCard(
           customer: customer,
+          // Tagged from the same route the tap opens. `customer.name` is the
+          // display name and `customer.id` is the docname; tagging one end
+          // with each does not fail, it just silently never flies.
+          heroTag: Routes.heroTag(Routes.customer(customer.id)),
           onTap: () => context.push(Routes.customer(customer.id)),
         ),
         emptyView: (context) => ListEmptyView(
@@ -48,14 +52,24 @@ class CustomersScreen extends ConsumerWidget {
 }
 
 class CustomerCard extends StatelessWidget {
-  const CustomerCard({required this.customer, this.onTap, super.key});
+  const CustomerCard({
+    required this.customer,
+    this.onTap,
+    this.heroTag,
+    super.key,
+  });
 
   final Customer customer;
   final VoidCallback? onTap;
 
+  /// Opt-in. A hero tag has to be unique across everything mounted at once, so
+  /// only the list that owns the record claims one.
+  final String? heroTag;
+
   @override
   Widget build(BuildContext context) {
     return EntityCard(
+      heroTag: heroTag,
       title: customer.name,
       subtitle: customer.industry,
       onTap: onTap,
