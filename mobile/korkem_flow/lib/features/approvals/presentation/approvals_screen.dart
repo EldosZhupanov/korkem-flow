@@ -30,10 +30,12 @@ class ApprovalsScreen extends ConsumerWidget {
         onRefresh: controller.refresh,
         onLoadMore: controller.loadMore,
         itemBuilder: (context, action) => ApprovalCard(action: action),
-        emptyView: (context) => EmptyView(
+        emptyView: (context) => ListEmptyView(
           icon: AppIcons.success,
+          tone: StateTone.success,
           title: l10n.approvalsEmpty,
           message: l10n.approvalsEmptyBody,
+          onRefresh: controller.refresh,
         ),
       ),
     );

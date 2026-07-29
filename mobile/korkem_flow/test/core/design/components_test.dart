@@ -65,6 +65,7 @@ void main() {
           const ErrorView(error: ValidationFailure('Quantity is required')),
         ),
       );
+      await tester.pumpAndSettle();
 
       // The business-rule text must reach the user, not raw JSON.
       expect(find.text('Quantity is required'), findsOneWidget);
@@ -74,6 +75,7 @@ void main() {
       await tester.pumpWidget(
         harness(const ErrorView(error: NetworkFailure('offline'))),
       );
+      await tester.pumpAndSettle();
       expect(find.byType(FilledButton), findsNothing);
 
       var retried = false;
@@ -85,6 +87,7 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Try again'));
       expect(retried, isTrue);
     });
@@ -93,6 +96,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(harness(const ErrorView(error: 'raw string')));
+      await tester.pumpAndSettle();
 
       expect(find.text('Something went wrong.'), findsOneWidget);
     });
@@ -101,6 +105,7 @@ void main() {
   group('EmptyView', () {
     testWidgets('never renders a bare "no data"', (tester) async {
       await tester.pumpWidget(harness(const EmptyView()));
+      await tester.pumpAndSettle();
 
       expect(find.text('Nothing here yet'), findsOneWidget);
       expect(

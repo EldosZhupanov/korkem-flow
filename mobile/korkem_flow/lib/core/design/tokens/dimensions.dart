@@ -67,6 +67,24 @@ abstract final class AppPlaceholder {
   static const double metricWidth = 72;
 }
 
+/// The composed glyph that heads an empty, error or success state.
+///
+/// Sized generously: this is the only decorative element in the app, and it
+/// only ever appears on a screen that has nothing else to show.
+abstract final class AppIllustration {
+  /// The tinted plate the glyph sits on.
+  static const double plate = 112;
+
+  /// The soft halo behind the plate. Larger by roughly a third — enough to
+  /// read as light falling on the plate rather than as a second ring.
+  static const double halo = 148;
+
+  /// For an empty state embedded in a section of a populated screen, where the
+  /// full-size mark would push its own headline below the fold.
+  static const double plateDense = 64;
+  static const double haloDense = 84;
+}
+
 /// Distances measured along a scroll axis rather than across the layout.
 abstract final class AppScrollExtent {
   /// How far from the bottom the next page starts loading — roughly one

@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/design/motion/entrance.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
+import 'package:korkem_flow/core/design/widgets/state_illustration.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Shimmering skeleton that mirrors the real row layout.
@@ -76,9 +79,13 @@ class _ListSkeletonState extends State<ListSkeleton>
   }
 }
 
-/// Empty state: one icon, one sentence, at most one action.
+/// Empty state: an illustration, a headline, a sentence, and a way forward.
 ///
 /// Never a bare "No data" — that tells the user nothing about what to do next.
+///
+/// The secondary action is optional and should stay that way. A screen with
+/// genuinely two things to do offers two; inventing a second button so the
+/// layout looks balanced gives the user a decision they did not have.
 class EmptyView extends StatelessWidget {
   const EmptyView({
     this.title,
@@ -86,6 +93,9 @@ class EmptyView extends StatelessWidget {
     this.icon = AppIcons.empty,
     this.onAction,
     this.actionLabel,
+    this.onSecondaryAction,
+    this.secondaryActionLabel,
+    this.tone = StateTone.neutral,
     super.key,
   });
 
@@ -94,6 +104,9 @@ class EmptyView extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onAction;
   final String? actionLabel;
+  final VoidCallback? onSecondaryAction;
+  final String? secondaryActionLabel;
+  final StateTone tone;
 
   @override
   Widget build(BuildContext context) {
@@ -102,11 +115,119 @@ class EmptyView extends StatelessWidget {
 
     return _CenteredMessage(
       icon: icon,
-      iconColor: theme.colorScheme.outline,
+      iconColor: switch (tone) {
+        StateTone.neutral => theme.colorScheme.outline,
+        StateTone.success => context.statusColors.resolve(
+          StatusIntent.success,
+        ),
+      },
       title: title ?? l10n.emptyTitle,
       message: message ?? l10n.emptyGeneric,
       actionLabel: actionLabel,
       onAction: onAction,
+      secondaryActionLabel: secondaryActionLabel,
+      onSecondaryAction: onSecondaryAction,
+    );
+  }
+}
+
+/// The empty state of a paginated list, which every list screen in the app
+/// reaches the same way and should therefore leave the same way.
+///
+/// The two cases are genuinely different and get different offers:
+///
+/// * **Filtered to nothing** — the user did this, and undoing it is the
+///   obvious next step, so "clear filter" leads. Refresh is offered second,
+///   because the records they want may simply not exist yet.
+/// * **Genuinely empty** — nothing to undo, so refresh leads.
+///
+/// Refresh is worth a button even though every one of these lists already
+/// pulls to refresh. Pull-to-refresh is invisible: it is discoverable only to
+/// someone who already suspects it is there, and an empty screen is the exact
+/// moment a user is most likely to think the app is broken rather than idle.
+class ListEmptyView extends StatelessWidget {
+  const ListEmptyView({
+    required this.icon,
+    required this.onRefresh,
+    this.title,
+    this.message,
+    this.onClearFilter,
+    this.tone = StateTone.neutral,
+    super.key,
+  });
+
+  final IconData icon;
+  final String? title;
+  final String? message;
+  final Future<void> Function() onRefresh;
+
+  /// Null when no filter or search is narrowing the list.
+  final VoidCallback? onClearFilter;
+
+  final StateTone tone;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isFiltered = onClearFilter != null;
+
+    return EmptyView(
+      icon: icon,
+      tone: tone,
+      title: title,
+      message: message,
+      actionLabel: isFiltered ? l10n.actionClearFilter : l10n.actionRefresh,
+      onAction: isFiltered ? onClearFilter : () => unawaited(onRefresh()),
+      secondaryActionLabel: isFiltered ? l10n.actionRefresh : null,
+      onSecondaryAction: isFiltered ? () => unawaited(onRefresh()) : null,
+    );
+  }
+}
+
+/// Whether reaching this empty state is a neutral fact or an accomplishment.
+///
+/// An approvals queue with nothing in it means the user has dealt with
+/// everything; a search with no matches means nothing at all. Colouring both
+/// the same throws away the difference, and the first one is worth a small
+/// reward.
+enum StateTone { neutral, success }
+
+/// Confirms that something finished, on a screen that would otherwise look
+/// simply empty.
+///
+/// Distinct from [EmptyView] because "there is nothing here" and "you have
+/// dealt with everything" are different facts, and a worker clearing an
+/// approvals queue has earned the second one.
+class SuccessView extends StatelessWidget {
+  const SuccessView({
+    required this.title,
+    this.message,
+    this.icon = AppIcons.success,
+    this.onAction,
+    this.actionLabel,
+    this.dense = false,
+    super.key,
+  });
+
+  final String title;
+  final String? message;
+  final IconData icon;
+  final VoidCallback? onAction;
+  final String? actionLabel;
+
+  /// Set when this shares a screen with content rather than owning it.
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    return _CenteredMessage(
+      icon: icon,
+      iconColor: context.statusColors.resolve(StatusIntent.success),
+      title: title,
+      message: message,
+      actionLabel: actionLabel,
+      onAction: onAction,
+      dense: dense,
     );
   }
 }
@@ -156,6 +277,9 @@ class _CenteredMessage extends StatelessWidget {
     this.message,
     this.actionLabel,
     this.onAction,
+    this.secondaryActionLabel,
+    this.onSecondaryAction,
+    this.dense = false,
   });
 
   final IconData icon;
@@ -164,39 +288,71 @@ class _CenteredMessage extends StatelessWidget {
   final String? message;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final String? secondaryActionLabel;
+  final VoidCallback? onSecondaryAction;
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasPrimary = onAction != null && actionLabel != null;
+    final hasSecondary =
+        onSecondaryAction != null && secondaryActionLabel != null;
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.xxxl),
+        padding: EdgeInsets.all(dense ? AppSpacing.lg : AppSpacing.xxxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: AppIconSize.illustration, color: iconColor),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium,
+            StateIllustration(icon: icon, color: iconColor, dense: dense),
+            SizedBox(height: dense ? AppSpacing.md : AppSpacing.xl),
+            // The headline steps up from `titleMedium`: on a screen with no
+            // content, this line *is* the content.
+            Entrance(
+              index: 1,
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: dense
+                    ? theme.textTheme.titleMedium
+                    : theme.textTheme.titleLarge,
+              ),
             ),
             if (message != null && message != title) ...[
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                message!,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+              Entrance(
+                index: 2,
+                child: Text(
+                  message!,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
-            if (onAction != null && actionLabel != null) ...[
+            if (hasPrimary || hasSecondary) ...[
               const SizedBox(height: AppSpacing.xl),
-              FilledButton.tonal(
-                onPressed: onAction,
-                child: Text(actionLabel!),
+              Entrance(
+                index: 3,
+                child: Wrap(
+                  spacing: AppSpacing.md,
+                  runSpacing: AppSpacing.sm,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    if (hasPrimary)
+                      FilledButton.tonal(
+                        onPressed: onAction,
+                        child: Text(actionLabel!),
+                      ),
+                    if (hasSecondary)
+                      TextButton(
+                        onPressed: onSecondaryAction,
+                        child: Text(secondaryActionLabel!),
+                      ),
+                  ],
+                ),
               ),
             ],
           ],

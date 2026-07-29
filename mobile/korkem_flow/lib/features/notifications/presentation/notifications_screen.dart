@@ -40,10 +40,12 @@ class NotificationsScreen extends ConsumerWidget {
         onLoadMore: controller.loadMore,
         itemBuilder: (context, notification) =>
             NotificationCard(notification: notification),
-        emptyView: (context) => EmptyView(
+        emptyView: (context) => ListEmptyView(
           icon: AppIcons.success,
+          tone: StateTone.success,
           title: l10n.notificationsEmpty,
           message: l10n.notificationsEmptyBody,
+          onRefresh: controller.refresh,
         ),
       ),
     );

@@ -1,6 +1,8 @@
 {
   "@@locale": "kk",
   "appTitle": "KORKEM Flow",
+  "filterNoResults": "Бұл сүзгі бойынша ештеңе жоқ.",
+  "actionRefresh": "Жаңарту",
   "actionRetry": "Қайталау",
   "actionCancel": "Болдырмау",
   "actionClose": "Жабу",

@@ -12,6 +12,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get appTitle => 'KORKEM Flow';
 
   @override
+  String get filterNoResults => 'Бұл сүзгі бойынша ештеңе жоқ.';
+
+  @override
+  String get actionRefresh => 'Жаңарту';
+
+  @override
   String get actionRetry => 'Қайталау';
 
   @override

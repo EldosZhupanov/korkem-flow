@@ -53,16 +53,21 @@ class ProductionScreen extends ConsumerWidget {
         onRefresh: controller.refresh,
         onLoadMore: controller.loadMore,
         itemBuilder: (context, order) => WorkOrderCard(order: order),
-        emptyView: (context) => EmptyView(
+        emptyView: (context) => ListEmptyView(
           icon: AppIcons.workOrder,
           title: l10n.productionEmpty,
-          message: filter.search != null
-              ? l10n.searchNoResults(filter.search!)
-              : l10n.productionEmptyBody,
-          actionLabel: filter.status == null && filter.search == null
-              ? null
-              : l10n.actionClearFilter,
-          onAction: filter.status == null && filter.search == null
+          // A status filter and a search fail differently, and saying "new
+          // ones will appear here" to someone who just filtered to a status
+          // with no records blames the data for the user's own choice.
+          message: switch (filter) {
+            _ when filter.search != null => l10n.searchNoResults(
+              filter.search!,
+            ),
+            _ when filter.status != null => l10n.filterNoResults,
+            _ => l10n.productionEmptyBody,
+          },
+          onRefresh: controller.refresh,
+          onClearFilter: filter.status == null && filter.search == null
               ? null
               : ref.read(productionFilterProvider.notifier).clear,
         ),

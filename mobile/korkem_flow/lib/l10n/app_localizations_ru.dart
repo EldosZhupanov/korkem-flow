@@ -12,6 +12,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get appTitle => 'KORKEM Flow';
 
   @override
+  String get filterNoResults => 'По этому фильтру ничего нет.';
+
+  @override
+  String get actionRefresh => 'Обновить';
+
+  @override
   String get actionRetry => 'Повторить';
 
   @override

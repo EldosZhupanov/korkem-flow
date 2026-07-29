@@ -4,6 +4,14 @@
   "@appTitle": {
     "description": "Application name, shown in the task switcher"
   },
+  "filterNoResults": "Nothing matches this filter.",
+  "@filterNoResults": {
+    "description": "Body of an empty list that a status filter, rather than a search, narrowed to nothing"
+  },
+  "actionRefresh": "Refresh",
+  "@actionRefresh": {
+    "description": "Re-fetches a list from the server, offered on an empty list where pull-to-refresh is not discoverable"
+  },
   "actionRetry": "Try again",
   "@actionRetry": {
     "description": "Retries the failed request on an error state"

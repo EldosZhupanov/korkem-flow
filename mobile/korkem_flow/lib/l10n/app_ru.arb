@@ -1,6 +1,8 @@
 {
   "@@locale": "ru",
   "appTitle": "KORKEM Flow",
+  "filterNoResults": "По этому фильтру ничего нет.",
+  "actionRefresh": "Обновить",
   "actionRetry": "Повторить",
   "actionCancel": "Отмена",
   "actionClose": "Закрыть",

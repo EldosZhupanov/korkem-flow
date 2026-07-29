@@ -57,16 +57,21 @@ class LeadsScreen extends ConsumerWidget {
           lead: lead,
           onTap: () => context.push(Routes.lead(lead.id)),
         ),
-        emptyView: (context) => EmptyView(
+        emptyView: (context) => ListEmptyView(
           icon: AppIcons.lead,
           title: l10n.leadsEmpty,
-          message: filter.search != null
-              ? l10n.searchNoResults(filter.search!)
-              : l10n.leadsEmptyBody,
-          actionLabel: filter.status == null && filter.search == null
-              ? null
-              : l10n.actionClearFilter,
-          onAction: filter.status == null && filter.search == null
+          // A status filter and a search fail differently, and saying "new
+          // ones will appear here" to someone who just filtered to a status
+          // with no records blames the data for the user's own choice.
+          message: switch (filter) {
+            _ when filter.search != null => l10n.searchNoResults(
+              filter.search!,
+            ),
+            _ when filter.status != null => l10n.filterNoResults,
+            _ => l10n.leadsEmptyBody,
+          },
+          onRefresh: controller.refresh,
+          onClearFilter: filter.status == null && filter.search == null
               ? null
               : ref.read(leadFilterProvider.notifier).clear,
         ),

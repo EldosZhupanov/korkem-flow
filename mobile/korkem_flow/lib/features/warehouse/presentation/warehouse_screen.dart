@@ -29,12 +29,16 @@ class WarehouseScreen extends ConsumerWidget {
         onRefresh: controller.refresh,
         onLoadMore: controller.loadMore,
         itemBuilder: (context, item) => StockItemCard(item: item),
-        emptyView: (context) => EmptyView(
+        emptyView: (context) => ListEmptyView(
           icon: AppIcons.item,
           title: l10n.warehouseEmpty,
           message: search != null
               ? l10n.searchNoResults(search)
               : l10n.warehouseEmptyBody,
+          onRefresh: controller.refresh,
+          onClearFilter: search == null
+              ? null
+              : () => ref.read(itemSearchProvider.notifier).set(null),
         ),
       ),
     );

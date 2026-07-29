@@ -84,8 +84,11 @@ class _Body extends StatelessWidget {
         if (isLoading)
           const ListSkeleton(rows: 2)
         else if (summary == null || summary!.attention.isEmpty)
-          EmptyView(
-            icon: AppIcons.success,
+          SuccessView(
+            // Dense: this sits under a populated metric grid, not on a screen
+            // of its own, and the full-size mark pushes its own headline past
+            // the bottom of the viewport.
+            dense: true,
             title: l10n.dashboardAllClear,
             message: l10n.dashboardAllClearBody,
           )

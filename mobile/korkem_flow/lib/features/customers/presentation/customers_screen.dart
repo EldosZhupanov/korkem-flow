@@ -31,12 +31,16 @@ class CustomersScreen extends ConsumerWidget {
           customer: customer,
           onTap: () => context.push(Routes.customer(customer.id)),
         ),
-        emptyView: (context) => EmptyView(
+        emptyView: (context) => ListEmptyView(
           icon: AppIcons.customer,
           title: l10n.customersEmpty,
           message: search != null
               ? l10n.searchNoResults(search)
               : l10n.customersEmptyBody,
+          onRefresh: controller.refresh,
+          onClearFilter: search == null
+              ? null
+              : () => ref.read(customerSearchProvider.notifier).set(null),
         ),
       ),
     );

@@ -106,6 +106,18 @@ abstract class AppLocalizations {
   /// **'KORKEM Flow'**
   String get appTitle;
 
+  /// Body of an empty list that a status filter, rather than a search, narrowed to nothing
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches this filter.'**
+  String get filterNoResults;
+
+  /// Re-fetches a list from the server, offered on an empty list where pull-to-refresh is not discoverable
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get actionRefresh;
+
   /// Retries the failed request on an error state
   ///
   /// In en, this message translates to:

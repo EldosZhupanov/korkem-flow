@@ -52,16 +52,21 @@ class QuotesScreen extends ConsumerWidget {
         onRefresh: controller.refresh,
         onLoadMore: controller.loadMore,
         itemBuilder: (context, quote) => QuoteCard(quote: quote),
-        emptyView: (context) => EmptyView(
+        emptyView: (context) => ListEmptyView(
           icon: AppIcons.quote,
           title: l10n.quotesEmpty,
-          message: filter.search != null
-              ? l10n.searchNoResults(filter.search!)
-              : l10n.quotesEmptyBody,
-          actionLabel: filter.status == null && filter.search == null
-              ? null
-              : l10n.actionClearFilter,
-          onAction: filter.status == null && filter.search == null
+          // A status filter and a search fail differently, and saying "new
+          // ones will appear here" to someone who just filtered to a status
+          // with no records blames the data for the user's own choice.
+          message: switch (filter) {
+            _ when filter.search != null => l10n.searchNoResults(
+              filter.search!,
+            ),
+            _ when filter.status != null => l10n.filterNoResults,
+            _ => l10n.quotesEmptyBody,
+          },
+          onRefresh: controller.refresh,
+          onClearFilter: filter.status == null && filter.search == null
               ? null
               : ref.read(quoteFilterProvider.notifier).clear,
         ),

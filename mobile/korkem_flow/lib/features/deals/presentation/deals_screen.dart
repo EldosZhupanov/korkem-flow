@@ -58,7 +58,7 @@ class DealsScreen extends ConsumerWidget {
           deal: deal,
           onTap: () => context.push(Routes.deal(deal.id)),
         ),
-        emptyView: (context) => EmptyView(
+        emptyView: (context) => ListEmptyView(
           icon: AppIcons.deal,
           // Distinguishes "no deals exist" from "none are yours". Frappe CRM
           // scopes CRM Deal to the owner and assignees, so a new user's list is
@@ -66,13 +66,15 @@ class DealsScreen extends ConsumerWidget {
           title: filter.status == null && filter.search == null
               ? l10n.dealsEmptyAssigned
               : null,
-          message: filter.search != null
-              ? l10n.searchNoResults(filter.search!)
-              : (filter.status == null ? l10n.dealsEmptyAssignedBody : null),
-          actionLabel: filter.status == null && filter.search == null
-              ? null
-              : l10n.actionClearFilter,
-          onAction: filter.status == null && filter.search == null
+          message: switch (filter) {
+            _ when filter.search != null => l10n.searchNoResults(
+              filter.search!,
+            ),
+            _ when filter.status != null => l10n.filterNoResults,
+            _ => l10n.dealsEmptyAssignedBody,
+          },
+          onRefresh: controller.refresh,
+          onClearFilter: filter.status == null && filter.search == null
               ? null
               : ref.read(dealFilterProvider.notifier).clear,
         ),
