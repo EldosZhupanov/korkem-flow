@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/kpi_tile.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_destinations.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
@@ -202,12 +205,36 @@ class _AttentionCard extends StatelessWidget {
 
   final AttentionItem item;
 
+  /// Where the row leads.
+  ///
+  /// The screen that lists this kind of work, not the record itself: neither a
+  /// pending action nor a task has a detail screen in this app, and inventing
+  /// a route to nowhere is worse than landing one level out. The queue is
+  /// where the work gets done anyway.
+  void _open(BuildContext context) {
+    switch (item.kind) {
+      case AttentionKind.pendingAction:
+        // A push, because Approvals lives under this tab and back should
+        // return here. The future completes when that screen is popped, and
+        // nothing here needs its result.
+        unawaited(context.push<void>(Routes.approvals));
+      case AttentionKind.overdueTask:
+        // A branch switch, not a push: Tasks is its own tab with its own
+        // stack and scroll position, and pushing a second copy of it inside
+        // Dashboard would strand the user in a duplicate.
+        StatefulNavigationShell.of(
+          context,
+        ).goBranch(branchIndexOf(Routes.tasks));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final due = item.due;
 
     return EntityCard(
+      onTap: () => _open(context),
       title: item.title,
       subtitle: item.subtitle,
       statusLabel: switch (item.kind) {

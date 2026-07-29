@@ -51,6 +51,22 @@ const appDestinations = <AppDestination>[
   ),
 ];
 
+/// The shell branch index serving [path].
+///
+/// `StatefulNavigationShell.goBranch` addresses branches by position, and the
+/// only place that position exists is the router's `branches` list. That list
+/// and this one are parallel by construction — the shell builds its bar from
+/// here and its stacks from there, in the same order — so deriving the index
+/// keeps a reorder from quietly sending a tap to the wrong tab, which is the
+/// failure mode of writing the number out by hand.
+int branchIndexOf(String path) {
+  final index = appDestinations.indexWhere(
+    (destination) => destination.path == path,
+  );
+  assert(index >= 0, 'No shell branch serves $path');
+  return index;
+}
+
 String _dashboardLabel(AppLocalizations l10n) => l10n.navDashboard;
 String _dealsLabel(AppLocalizations l10n) => l10n.navSales;
 String _tasksLabel(AppLocalizations l10n) => l10n.navTasks;
