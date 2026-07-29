@@ -2,6 +2,7 @@
   "@@locale": "ru",
   "appTitle": "KORKEM Flow",
   "filterNoResults": "По этому фильтру ничего нет.",
+  "actionClearHistory": "Очистить историю",
   "actionClearSearch": "Очистить поиск",
   "actionRefresh": "Обновить",
   "actionRetry": "Повторить",

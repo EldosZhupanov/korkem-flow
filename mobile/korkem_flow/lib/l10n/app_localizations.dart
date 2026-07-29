@@ -112,6 +112,12 @@ abstract class AppLocalizations {
   /// **'Nothing matches this filter.'**
   String get filterNoResults;
 
+  /// Empties the list of recent search queries offered under the search field
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get actionClearHistory;
+
   /// Tooltip and screen-reader label for the button that empties the search field
   ///
   /// In en, this message translates to:

@@ -8,6 +8,7 @@ import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/search/recent_searches.dart';
 import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
 import 'package:korkem_flow/features/warehouse/domain/stock_item.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -22,6 +23,7 @@ class WarehouseScreen extends ConsumerWidget {
     final controller = ref.read(warehouseControllerProvider.notifier);
 
     return CrmListSection(
+      searchScope: SearchScope.warehouse,
       searchValue: search,
       onSearch: ref.read(itemSearchProvider.notifier).set,
       child: PagedListView<StockItem>(

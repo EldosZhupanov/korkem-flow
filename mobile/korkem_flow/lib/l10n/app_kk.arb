@@ -2,6 +2,7 @@
   "@@locale": "kk",
   "appTitle": "KORKEM Flow",
   "filterNoResults": "Бұл сүзгі бойынша ештеңе жоқ.",
+  "actionClearHistory": "Тарихты тазалау",
   "actionClearSearch": "Іздеуді тазалау",
   "actionRefresh": "Жаңарту",
   "actionRetry": "Қайталау",

@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterNoResults => 'Nothing matches this filter.';
 
   @override
+  String get actionClearHistory => 'Clear history';
+
+  @override
   String get actionClearSearch => 'Clear search';
 
   @override

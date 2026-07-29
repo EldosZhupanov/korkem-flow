@@ -8,6 +8,10 @@
   "@filterNoResults": {
     "description": "Body of an empty list that a status filter, rather than a search, narrowed to nothing"
   },
+  "actionClearHistory": "Clear history",
+  "@actionClearHistory": {
+    "description": "Empties the list of recent search queries offered under the search field"
+  },
   "actionClearSearch": "Clear search",
   "@actionClearSearch": {
     "description": "Tooltip and screen-reader label for the button that empties the search field"

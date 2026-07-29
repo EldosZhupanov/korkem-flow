@@ -14,12 +14,17 @@ class CrmListSection extends StatelessWidget {
     required this.onSearch,
     required this.child,
     this.searchValue,
+    this.searchScope,
     this.onFilter,
     this.isFiltered = false,
     super.key,
   });
 
   final String? searchValue;
+
+  /// Which list's recent queries to offer, from `SearchScope`.
+  final String? searchScope;
+
   final ValueChanged<String> onSearch;
   final VoidCallback? onFilter;
   final bool isFiltered;
@@ -39,10 +44,15 @@ class CrmListSection extends StatelessWidget {
             AppSpacing.md,
           ),
           child: Row(
+            // The field grows downward when it offers recent queries, so the
+            // filter button stays pinned to the field's own row rather than
+            // drifting to the centre of a taller column.
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: AppSearchField(
                   initialValue: searchValue,
+                  recentScope: searchScope,
                   onChanged: onSearch,
                 ),
               ),

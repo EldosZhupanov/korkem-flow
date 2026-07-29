@@ -15,6 +15,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filterNoResults => 'По этому фильтру ничего нет.';
 
   @override
+  String get actionClearHistory => 'Очистить историю';
+
+  @override
   String get actionClearSearch => 'Очистить поиск';
 
   @override

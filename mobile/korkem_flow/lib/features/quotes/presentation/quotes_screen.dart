@@ -8,6 +8,7 @@ import 'package:korkem_flow/core/design/widgets/app_filter_sheet.dart';
 import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/search/recent_searches.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/quotes/application/quotes_controller.dart';
 import 'package:korkem_flow/features/quotes/domain/quote.dart';
@@ -41,6 +42,7 @@ class QuotesScreen extends ConsumerWidget {
     final controller = ref.read(quotesControllerProvider.notifier);
 
     return CrmListSection(
+      searchScope: SearchScope.quotes,
       searchValue: filter.search,
       onSearch: (value) => ref
           .read(quoteFilterProvider.notifier)

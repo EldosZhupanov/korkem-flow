@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/core/search/recent_searches.dart';
 import 'package:korkem_flow/features/customers/application/customers_controller.dart';
 import 'package:korkem_flow/features/customers/domain/customer.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -21,6 +22,7 @@ class CustomersScreen extends ConsumerWidget {
     final controller = ref.read(customersControllerProvider.notifier);
 
     return CrmListSection(
+      searchScope: SearchScope.customers,
       searchValue: search,
       onSearch: ref.read(customerSearchProvider.notifier).set,
       child: PagedListView<Customer>(

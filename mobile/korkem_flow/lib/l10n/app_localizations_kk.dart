@@ -15,6 +15,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filterNoResults => 'Бұл сүзгі бойынша ештеңе жоқ.';
 
   @override
+  String get actionClearHistory => 'Тарихты тазалау';
+
+  @override
   String get actionClearSearch => 'Іздеуді тазалау';
 
   @override
