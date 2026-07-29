@@ -4,4 +4,12 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Lets a profile build talk to the development Frappe bench over plain
+         HTTP, so frame timings can be measured against real data instead of an
+         empty login screen. The config itself lives in src/debug/res and is
+         shared with this build type from android/app/build.gradle.kts; it is
+         scoped to loopback hosts, and it is deliberately absent from the
+         release manifest. -->
+    <application android:networkSecurityConfig="@xml/network_security_config"/>
 </manifest>

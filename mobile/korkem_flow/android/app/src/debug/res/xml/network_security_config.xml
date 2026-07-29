@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Debug builds only. Referenced from src/debug/AndroidManifest.xml, so it is
-  merged into the debug APK and never into a release one.
+  Debug and profile builds only — never release.
+
+  It lives here, under src/debug, because that is the build type that needs it
+  most; the profile build type pulls this same directory in via a `sourceSets`
+  entry in android/app/build.gradle.kts rather than keeping a second copy that
+  would eventually drift. Both manifests reference it by name; the release
+  manifest does not, so it is not merged into a shipped APK.
 
   targetSdk 36 means cleartext HTTP is blocked by default, and the development
   Frappe bench serves plain HTTP on port 8000. Without this a debug build cannot

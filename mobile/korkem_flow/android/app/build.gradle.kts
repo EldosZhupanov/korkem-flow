@@ -38,6 +38,25 @@ android {
         versionName = flutter.versionName
     }
 
+    // A profile build gets the same loopback-only cleartext exception a debug
+    // build has. It is a measurement tool, never a shipped artefact, and
+    // without this the only thing measurable against the development bench is
+    // the login screen failing to reach it — which is precisely the screen
+    // whose frame timings do not matter.
+    //
+    // The resource is *shared* with src/debug rather than copied. Two files
+    // that must stay identical eventually will not, and the one that drifts
+    // would be the one nobody reads.
+    //
+    // Release is untouched and keeps cleartext blocked: docs/privacy_policy.md
+    // tells users Android blocks unencrypted HTTP, and that has to stay true
+    // of what ships.
+    sourceSets {
+        getByName("profile") {
+            res.srcDir("src/debug/res")
+        }
+    }
+
     signingConfigs {
         if (hasUploadKey) {
             create("upload") {

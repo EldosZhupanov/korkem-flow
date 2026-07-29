@@ -42,8 +42,8 @@ that fix.
 | 14 | Login again | **PASS** | Straight back to the dashboard. A *different* user gets that user's data — see fix 1. |
 | 15 | All API calls | **PASS** | 28 requests over this pass, **all HTTP 200, zero 4xx/5xx**. Endpoints: `korkem_ai...dashboard.get_summary`, `frappe.client.get_count`, `frappe.auth.get_logged_user`, `ping`, and `/api/resource/` for CRM Lead, CRM Deal, CRM Organization, CRM Task, Item, Work Order, and the two status doctypes. |
 | 16 | Memory leaks | **PASS** | PSS 138 → 141 MB across three full navigation laps, plateauing rather than climbing; `Activities: 1` throughout, so no leaked activity. 119 MB PSS at the end of this pass. |
-| 17 | Rebuild performance | **PASS** | Profile build: worst case 75 skipped frames, and none during steady-state scrolling. Debug numbers are not quoted — see the caveat below. |
-| 18 | Startup time | **PASS** | 3.0 s cold start, profile build. |
+| 17 | Rebuild performance | **PASS** | Profile build. **Zero** Choreographer stalls across three full passes of every animated path, with startup excluded from the measurement window — see "What the frame numbers do and do not say". Every app stall in the whole session was attributable to cold start. |
+| 18 | Startup time | **PASS, unresolved between builds** | 3.8 / 4.1 / 5.8 s cold start, profile. Previously recorded at 3.0 s. The spread across three consecutive identical launches is wider than the difference, so this machine cannot say whether anything regressed — see below. |
 | 19 | Crashes in `adb logcat` | **PASS** | 0 `FATAL EXCEPTION`, 0 ANRs attributed to `kz.korkem.*`, across 42,963 lines in the first pass and 11,363 in this one. |
 | 20 | Flutter errors | **PASS** | 0 `E/flutter`, 0 `FlutterError`, 0 unhandled exceptions in both passes. |
 | 21 | Backend logs | **PASS** | No traceback, no permission error, no 500 raised by anything the app did. |
@@ -146,7 +146,7 @@ defect, and none needs a code change to clear.
 |---|---|---|---|
 | Correctness | 25 | 24 | Five real defects found and fixed, each pinned by a regression test. Zero crashes, zero Flutter errors, zero non-2xx responses across the sweep. Held back only because the sweep is emulator-only. |
 | Stability under stress | 15 | 14 | Process death, reinstall, offline, slow network, expired session, rotation and 1.6× font all handled without loss. |
-| Performance | 15 | 13 | 3.0 s cold start and a 75-frame worst case in profile are good but not measured on real hardware, where they matter. |
+| Performance | 15 | 13 | No animation stalls the main thread past Android's jank threshold, across three full passes. Held back because that threshold is coarse — it cannot demonstrate 60 fps — and because cold start is unresolved on a host this loaded. Neither is measured on real hardware, where both matter. |
 | UX completeness | 15 | 14 | Empty states are filter-aware, errors are actionable, settings persist, three languages including Kazakh. |
 | Test coverage | 10 | 8 | 157 tests including goldens, but the platform surfaces — intents, persistence, navigation — are covered by device evidence rather than by automated tests. |
 | Observability | 10 | 2 | **The weak spot.** No crash reporting, no analytics, no remote logging. A crash in a salesperson's hand leaves no trace. |
@@ -155,18 +155,62 @@ defect, and none needs a code change to clear.
 Raise observability and release engineering and this is a 90+. Neither depends
 on the application code.
 
-## A caveat on the performance numbers
+## What the frame numbers do and do not say
 
 Debug-build measurements are meaningless and are not quoted above. For the same
 navigation sequence on the same device:
 
 | | Debug | Profile |
 |---|---|---|
-| Cold start | 7.2 s | **3.0 s** |
-| Worst skipped-frame burst | 990 | **75** |
+| Cold start | 7.2 s | 3.0 s |
+| Worst skipped-frame burst | 990 | 75 |
 
-Only the profile figures appear in the table. Anyone re-running this audit
-should measure in profile, or the app will look far worse than it is.
+Anyone re-running this audit should measure in profile, or the app will look far
+worse than it is.
+
+### The instrument
+
+There is no frame-rate meter available here. `dumpsys gfxinfo` reports 0 frames
+for a Flutter app, and DevTools is not reachable from a scripted run. What is
+available is Android's Choreographer, which logs a line only when the main
+thread misses **more than 30 consecutive frames** — roughly half a second.
+
+That makes it a *jank detector*, not a frame-rate meter. Zero lines is real
+evidence that nothing stalls visibly; it is **not** evidence of a steady 60 fps,
+and this document should not be read as claiming one. Proving 60 fps needs
+DevTools frame timings on real hardware, which remains untested.
+
+Reading it also requires attributing each line to a process. In the run below,
+five of the eight stalls belonged to `nexuslauncher` and `systemui` — the
+emulator's own UI under memory pressure — and attributing those to the app would
+have invented a regression that did not exist.
+
+### The measurement, after the motion work
+
+Three passes over every animated path — tab switches, list entrance stagger,
+pagination, the shared-element push and its pop — with `logcat -c` issued *after*
+startup settled, so the window contains animation and nothing else:
+
+| | Result |
+|---|---|
+| Choreographer stalls attributed to `kz.korkem.korkem_flow` | **0** |
+| `E/flutter`, `FlutterError`, `FATAL` | **0** |
+
+Every app stall observed anywhere in the session — 101, 74 and 66 frames — landed
+within four seconds of a process start, on three separate cold launches. None
+occurred during animation.
+
+### Why startup is left unresolved
+
+Cold start measured 3.8 s, 4.1 s and 5.8 s across three consecutive identical
+launches, against 3.0 s recorded before this work. The honest reading is that
+the machine cannot resolve the question: the spread *within one build* is 53%,
+which is larger than the 3.0 → 4.4 difference being investigated, and the host
+had 986 MB free with four bench containers and an emulator resident.
+
+A controlled A/B was considered and rejected for the same reason — it would have
+been noise-dominated, and would have produced a confident number that meant
+nothing. Settling it needs a device with headroom, or twenty runs per build.
 
 ## Reproducing this audit
 
@@ -188,6 +232,18 @@ LD_LIBRARY_PATH="$E/lib64:$E/lib64/qt/lib:$L:$L/pulseaudio" \
 flutter build apk --debug --dart-define=KORKEM_BASE_URL=http://10.0.2.2:8000
 adb install -r build/app/outputs/flutter-apk/app-debug.apk
 ```
+
+Build **before** starting the bench, not after: Gradle wants about a gigabyte,
+and with four containers already up it competes with them for a machine that
+has nothing spare.
+
+For a performance run, swap `--debug` for `--profile`. That works against the
+bench because the profile build type shares the debug build's loopback-only
+cleartext exception — a `sourceSets` entry in `android/app/build.gradle.kts`
+rather than a second copy of the config. Without it, `targetSdk 36` blocks the
+plain-HTTP bench and the only screen a profile build can reach is the login
+form failing to connect, which is precisely the screen whose frame timings do
+not matter. Release is untouched and still blocks cleartext.
 
 `uiautomator dump` returns nothing useful for Flutter screens — the app renders
 to its own surface and exposes a semantics tree only when an accessibility
