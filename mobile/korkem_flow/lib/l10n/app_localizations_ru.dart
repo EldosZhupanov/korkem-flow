@@ -109,6 +109,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get themeSystem => 'Системная';
 
   @override
+  String get languageSystem => 'Язык устройства';
+
+  @override
   String get themeLight => 'Светлая';
 
   @override

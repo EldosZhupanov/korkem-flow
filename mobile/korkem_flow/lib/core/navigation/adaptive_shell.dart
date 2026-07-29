@@ -32,6 +32,14 @@ class AdaptiveShell extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final isWide = MediaQuery.sizeOf(context).width >= AppBreakpoints.compact;
 
+    return _shell(context, l10n: l10n, isWide: isWide);
+  }
+
+  Widget _shell(
+    BuildContext context, {
+    required AppLocalizations l10n,
+    required bool isWide,
+  }) {
     if (isWide) {
       return Scaffold(
         body: Row(

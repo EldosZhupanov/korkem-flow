@@ -42,6 +42,13 @@ abstract class PagedListController<T> extends AsyncNotifier<PagedList<T>> {
 
   /// Fetch one page. Implementations `ref.watch` their own filter state here,
   /// which is what makes a filter change reset pagination for free.
+  ///
+  /// They must `ref.watch` their **repository** too, not `ref.read` it. The
+  /// repository depends on the authenticated client, so watching is what makes
+  /// a list drop its contents when the session changes. Reading it left every
+  /// screen showing the previous user's rows after a sign-out and sign-in.
+  /// `ref.read` remains correct inside actions — those are one-shot commands,
+  /// not dependencies.
   @protected
   Future<List<T>> fetchPage({required int offset, required int pageSize});
 

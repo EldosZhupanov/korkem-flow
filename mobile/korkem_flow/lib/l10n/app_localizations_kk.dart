@@ -109,6 +109,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get themeSystem => 'Жүйелік';
 
   @override
+  String get languageSystem => 'Құрылғы тілі';
+
+  @override
   String get themeLight => 'Жарық';
 
   @override

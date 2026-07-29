@@ -56,6 +56,7 @@
   "profileLanguage": "Language",
   "profileVersion": "Version",
   "themeSystem": "System",
+  "languageSystem": "Device language",
   "themeLight": "Light",
   "themeDark": "Dark",
   "profileServer": "Server",

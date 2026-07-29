@@ -38,7 +38,7 @@ class NotificationsController extends PagedListController<AppNotification> {
     if (user == null) return const [];
 
     return ref
-        .read(notificationRepositoryProvider)
+        .watch(notificationRepositoryProvider)
         .fetchPage(forUser: user, pageSize: pageSize, offset: offset);
   }
 

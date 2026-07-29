@@ -109,6 +109,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeSystem => 'System';
 
   @override
+  String get languageSystem => 'Device language';
+
+  @override
   String get themeLight => 'Light';
 
   @override

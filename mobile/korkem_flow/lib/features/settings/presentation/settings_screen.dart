@@ -58,17 +58,24 @@ class SettingsScreen extends ConsumerWidget {
           SectionLabel(l10n.profileLanguage),
           AppCard(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-            child: RadioGroup<Locale>(
+            // Nullable, and the null entry is listed first — mirroring the
+            // theme group above. Without it the default state (follow the
+            // device) matched no option, so the group opened with nothing
+            // selected and there was no way back to it once a language had
+            // been picked.
+            child: RadioGroup<Locale?>(
               groupValue: settings.locale,
-              onChanged: (value) => value == null
-                  ? null
-                  : ref
-                        .read(settingsControllerProvider.notifier)
-                        .setLocale(value),
+              onChanged: (value) => ref
+                  .read(settingsControllerProvider.notifier)
+                  .setLocale(value),
               child: Column(
                 children: [
+                  RadioListTile<Locale?>(
+                    value: null,
+                    title: Text(l10n.languageSystem),
+                  ),
                   for (final locale in AppLocalizations.supportedLocales)
-                    RadioListTile<Locale>(
+                    RadioListTile<Locale?>(
                       value: locale,
                       title: Text(languageEndonym(locale.languageCode)),
                     ),

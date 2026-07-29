@@ -41,7 +41,7 @@ class ApprovalsController extends PagedListController<PendingAction> {
     final status = ref.watch(approvalFilterProvider);
 
     return ref
-        .read(pendingActionRepositoryProvider)
+        .watch(pendingActionRepositoryProvider)
         .fetchPage(pageSize: pageSize, offset: offset, status: status);
   }
 

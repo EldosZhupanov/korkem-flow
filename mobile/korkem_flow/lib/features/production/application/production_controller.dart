@@ -58,7 +58,7 @@ class ProductionController extends PagedListController<WorkOrder> {
     final filter = ref.watch(productionFilterProvider);
 
     return ref
-        .read(workOrderRepositoryProvider)
+        .watch(workOrderRepositoryProvider)
         .fetchPage(
           pageSize: pageSize,
           offset: offset,

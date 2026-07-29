@@ -55,7 +55,7 @@ class QuotesController extends PagedListController<Quote> {
     final filter = ref.watch(quoteFilterProvider);
 
     return ref
-        .read(quoteRepositoryProvider)
+        .watch(quoteRepositoryProvider)
         .fetchPage(
           pageSize: pageSize,
           offset: offset,

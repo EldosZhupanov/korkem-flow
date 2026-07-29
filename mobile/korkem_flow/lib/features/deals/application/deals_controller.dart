@@ -70,7 +70,7 @@ class DealsController extends PagedListController<Deal> {
     final filter = ref.watch(dealFilterProvider);
 
     return ref
-        .read(dealRepositoryProvider)
+        .watch(dealRepositoryProvider)
         .fetchPage(
           pageSize: pageSize,
           offset: offset,

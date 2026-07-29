@@ -35,7 +35,7 @@ class CustomersController extends PagedListController<Customer> {
     final search = ref.watch(customerSearchProvider);
 
     return ref
-        .read(customerRepositoryProvider)
+        .watch(customerRepositoryProvider)
         .fetchPage(pageSize: pageSize, offset: offset, search: search);
   }
 }

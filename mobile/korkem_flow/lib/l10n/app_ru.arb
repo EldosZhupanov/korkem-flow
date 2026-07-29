@@ -32,6 +32,7 @@
   "profileLanguage": "Язык",
   "profileVersion": "Версия",
   "themeSystem": "Системная",
+  "languageSystem": "Язык устройства",
   "themeLight": "Светлая",
   "themeDark": "Тёмная",
   "profileServer": "Сервер",

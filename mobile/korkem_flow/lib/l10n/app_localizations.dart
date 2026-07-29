@@ -292,6 +292,12 @@ abstract class AppLocalizations {
   /// **'System'**
   String get themeSystem;
 
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Device language'**
+  String get languageSystem;
+
   /// No description provided for @themeLight.
   ///
   /// In en, this message translates to:

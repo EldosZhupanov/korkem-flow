@@ -34,7 +34,7 @@ class WarehouseController extends PagedListController<StockItem> {
     final search = ref.watch(itemSearchProvider);
 
     return ref
-        .read(stockRepositoryProvider)
+        .watch(stockRepositoryProvider)
         .fetchItems(pageSize: pageSize, offset: offset, search: search);
   }
 }

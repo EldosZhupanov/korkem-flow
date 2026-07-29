@@ -68,7 +68,7 @@ class LeadsController extends PagedListController<Lead> {
     final filter = ref.watch(leadFilterProvider);
 
     return ref
-        .read(leadRepositoryProvider)
+        .watch(leadRepositoryProvider)
         .fetchPage(
           pageSize: pageSize,
           offset: offset,

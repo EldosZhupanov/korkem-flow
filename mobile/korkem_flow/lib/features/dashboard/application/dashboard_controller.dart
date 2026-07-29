@@ -13,9 +13,16 @@ final dashboardControllerProvider =
     );
 
 class DashboardController extends AsyncNotifier<DashboardSummary> {
+  /// Watched, not read.
+  ///
+  /// The repository is rebuilt whenever the session changes, because it depends
+  /// on the authenticated client. Reading it here took a one-time snapshot, so
+  /// signing out and back in as somebody else left the *previous* user's counts
+  /// on screen — stale, and showing figures the new viewer may not be entitled
+  /// to. Watching ties this controller's lifetime to the session.
   @override
   Future<DashboardSummary> build() =>
-      ref.read(dashboardRepositoryProvider).fetch();
+      ref.watch(dashboardRepositoryProvider).fetch();
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();

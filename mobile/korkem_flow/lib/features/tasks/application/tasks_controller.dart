@@ -18,7 +18,7 @@ class TasksController extends AsyncNotifier<List<WorkTask>> {
 
   @override
   Future<List<WorkTask>> build() =>
-      ref.read(taskRepositoryProvider).fetchPage(pageSize: _pageSize);
+      ref.watch(taskRepositoryProvider).fetchPage(pageSize: _pageSize);
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();

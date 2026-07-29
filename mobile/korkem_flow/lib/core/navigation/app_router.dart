@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/navigation/adaptive_shell.dart';
+import 'package:korkem_flow/core/navigation/tab_back_handler.dart';
 import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
@@ -89,7 +90,8 @@ GoRouter createRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.dashboard,
-                builder: (context, state) => const DashboardScreen(),
+                builder: (context, state) =>
+                    const TabBackHandler(child: DashboardScreen()),
                 // Children, so the bottom bar and the tab's back stack survive
                 // — these are reached by tapping the metric they summarise.
                 routes: [
@@ -113,7 +115,8 @@ GoRouter createRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.sales,
-                builder: (context, state) => const SalesScreen(),
+                builder: (context, state) =>
+                    const TabBackHandler(child: SalesScreen()),
                 routes: [
                   GoRoute(
                     path: 'deal/:id',
@@ -138,7 +141,8 @@ GoRouter createRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.tasks,
-                builder: (context, state) => const TasksScreen(),
+                builder: (context, state) =>
+                    const TabBackHandler(child: TasksScreen()),
               ),
             ],
           ),
@@ -146,7 +150,8 @@ GoRouter createRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.profile,
-                builder: (context, state) => const ProfileScreen(),
+                builder: (context, state) =>
+                    const TabBackHandler(child: ProfileScreen()),
               ),
             ],
           ),
