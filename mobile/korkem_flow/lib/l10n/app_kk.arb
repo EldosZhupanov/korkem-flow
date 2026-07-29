@@ -29,6 +29,8 @@
   "tasksEmptyBody": "Тағайындалған жұмыс осында көрінеді.",
   "taskComplete": "Аяқтау",
   "taskCompleted": "Тапсырма аяқталды",
+  "taskCompleteFailed": "Тапсырманы аяқтау мүмкін болмады. {reason}",
+  "actionUndo": "Болдырмау",
   "taskProduction": "Өндіріс",
   "profileTitle": "Профиль",
   "profileAppearance": "Безендіру",

@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/error_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
@@ -73,8 +74,11 @@ class _ApprovalCardState extends ConsumerState<ApprovalCard> {
       );
     } on Exception catch (error) {
       // The backend re-validates status, expiry and the target's existence, so
-      // a refusal here is a real answer and must be shown, not swallowed.
-      messenger.showSnackBar(SnackBar(content: Text('$error')));
+      // a refusal here is a real answer and must be shown, not swallowed — in
+      // the backend's own words when it gave any.
+      messenger.showSnackBar(
+        SnackBar(content: Text(errorMessageOf(error, l10n))),
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }

@@ -5,8 +5,10 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/tokens/typography.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/error_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/tasks/application/tasks_controller.dart';
 import 'package:korkem_flow/features/tasks/domain/task.dart';
@@ -21,20 +23,39 @@ class TasksScreen extends ConsumerWidget {
     final grouped = ref.watch(groupedTasksProvider);
     final l10n = AppLocalizations.of(context);
 
+    final controller = ref.read(tasksControllerProvider.notifier);
+
+    // A deferred completion fails long after the swipe that started it, with
+    // no `await` left to throw into. This is where it surfaces.
+    ref.listen(taskFailureProvider, (_, failure) {
+      if (failure == null) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.taskCompleteFailed(errorMessageOf(failure, l10n))),
+        ),
+      );
+      ref.read(taskFailureProvider.notifier).clear();
+    });
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navTasks)),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(tasksControllerProvider.notifier).refresh(),
+        onRefresh: controller.refresh,
         child: switch (grouped) {
           AsyncLoading() => const ListSkeleton(),
           AsyncError(:final error) => ErrorView(
             error: error,
-            onRetry: () => ref.read(tasksControllerProvider.notifier).refresh(),
+            onRetry: controller.refresh,
           ),
-          AsyncData(:final value) when value.isEmpty => EmptyView(
+          // Offers refresh like every other list in the app. Pull-to-refresh
+          // works here too and always has, but it is invisible, and an empty
+          // screen is exactly when a user decides the app is broken.
+          AsyncData(:final value) when value.isEmpty => ListEmptyView(
             icon: AppIcons.task,
+            tone: StateTone.success,
             title: l10n.tasksEmpty,
             message: l10n.tasksEmptyBody,
+            onRefresh: controller.refresh,
           ),
           AsyncData(:final value) => _TaskGroupList(groups: value),
         },
@@ -131,47 +152,87 @@ class _Section extends StatelessWidget {
 
 /// A single task, completable in one swipe or one tap.
 ///
-/// Completion is irreversible from the app's side, so it is confirmed by an
-/// undoable snackbar rather than a blocking dialog — reversible feedback beats
-/// a modal for an action performed dozens of times a shift.
-class TaskCard extends ConsumerWidget {
+/// Confirmed by a snackbar offering **Undo** rather than by a blocking dialog.
+/// A worker completes dozens of these a shift and a modal in front of every
+/// one is a tax; a way back afterwards costs nothing until it is needed.
+///
+/// The undo is real, not cosmetic: the request is held for its whole window
+/// (see `TasksController.completeLater`), so undoing cancels something that
+/// was never sent. `CRM Task` has no reopen call, and offering an undo that
+/// could not actually undo would be worse than offering none.
+class TaskCard extends ConsumerStatefulWidget {
   const TaskCard({required this.task, super.key});
 
   final WorkTask task;
 
-  Future<void> _complete(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
+  @override
+  ConsumerState<TaskCard> createState() => _TaskCardState();
+}
 
-    try {
-      await ref.read(tasksControllerProvider.notifier).complete(task);
-      messenger.showSnackBar(SnackBar(content: Text(l10n.taskCompleted)));
-    } on Exception catch (error) {
-      messenger.showSnackBar(SnackBar(content: Text('$error')));
-    }
+class _TaskCardState extends ConsumerState<TaskCard> {
+  /// How far through the swipe the finger is, 0 to 1.
+  double _progress = 0;
+
+  void _complete() {
+    final l10n = AppLocalizations.of(context);
+    final controller = ref.read(tasksControllerProvider.notifier);
+    final task = widget.task;
+
+    controller.completeLater(task);
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.taskCompleted),
+          // Exactly the undo window: a button that outlives the window it
+          // controls is a button that silently stops working while still on
+          // screen.
+          duration: AppDebounce.undo,
+          action: SnackBarAction(
+            label: l10n.actionUndo,
+            onPressed: () => controller.undoComplete(task),
+          ),
+        ),
+      );
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
+    final task = widget.task;
     final due = task.dueDate;
+    final success = context.statusColors.success;
 
     return Dismissible(
       key: ValueKey(task.id),
       direction: DismissDirection.startToEnd,
-      background: Container(
-        alignment: AlignmentDirectional.centerStart,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+      // The background grows into the gesture rather than appearing whole at
+      // the first pixel of movement. A full-strength panel under a 2dp drag
+      // reads as a mis-tap having already done something.
+      onUpdate: (details) {
+        if (details.progress != _progress) {
+          setState(() => _progress = details.progress);
+        }
+      },
+      background: DecoratedBox(
         decoration: BoxDecoration(
-          color: context.statusColors.success.withValues(
-            alpha: AppTint.surface,
-          ),
+          color: success.withValues(alpha: AppTint.surface * _progress),
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
-        child: Icon(AppIcons.check, color: context.statusColors.success),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+            child: Icon(
+              AppIcons.check,
+              color: success.withValues(alpha: _progress.clamp(0, 1)),
+            ),
+          ),
+        ),
       ),
-      onDismissed: (_) => _complete(context, ref),
+      onDismissed: (_) => _complete(),
       child: EntityCard(
         title: task.title,
         // Priority, not overdue-ness: the red section header above already says
@@ -205,7 +266,7 @@ class TaskCard extends ConsumerWidget {
           iconSize: AppIconSize.normal,
           color: theme.colorScheme.outline,
           tooltip: l10n.taskComplete,
-          onPressed: () => _complete(context, ref),
+          onPressed: _complete,
         ),
       ),
     );

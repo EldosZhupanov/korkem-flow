@@ -100,6 +100,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get taskCompleted => 'Задача завершена';
 
   @override
+  String taskCompleteFailed(String reason) {
+    return 'Не удалось завершить задачу. $reason';
+  }
+
+  @override
+  String get actionUndo => 'Отменить';
+
+  @override
   String get taskProduction => 'Производство';
 
   @override

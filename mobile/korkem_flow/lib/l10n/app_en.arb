@@ -62,6 +62,19 @@
   "tasksEmptyBody": "Assigned work will appear here.",
   "taskComplete": "Complete",
   "taskCompleted": "Task completed",
+  "taskCompleteFailed": "Couldn't complete the task. {reason}",
+  "@taskCompleteFailed": {
+    "description": "Shown when the server refuses a completion after the undo window has closed; reason is the server's own explanation",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "actionUndo": "Undo",
+  "@actionUndo": {
+    "description": "Takes back a task completion during the few seconds before it is sent"
+  },
   "taskProduction": "Production",
   "profileTitle": "Profile",
   "profileAppearance": "Appearance",

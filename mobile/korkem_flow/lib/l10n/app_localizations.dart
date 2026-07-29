@@ -274,6 +274,18 @@ abstract class AppLocalizations {
   /// **'Task completed'**
   String get taskCompleted;
 
+  /// Shown when the server refuses a completion after the undo window has closed; reason is the server's own explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t complete the task. {reason}'**
+  String taskCompleteFailed(String reason);
+
+  /// Takes back a task completion during the few seconds before it is sent
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get actionUndo;
+
   /// No description provided for @taskProduction.
   ///
   /// In en, this message translates to:

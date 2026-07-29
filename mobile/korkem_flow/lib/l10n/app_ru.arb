@@ -29,6 +29,8 @@
   "tasksEmptyBody": "Назначенная работа появится здесь.",
   "taskComplete": "Завершить",
   "taskCompleted": "Задача завершена",
+  "taskCompleteFailed": "Не удалось завершить задачу. {reason}",
+  "actionUndo": "Отменить",
   "taskProduction": "Производство",
   "profileTitle": "Профиль",
   "profileAppearance": "Оформление",

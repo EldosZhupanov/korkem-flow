@@ -100,6 +100,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskCompleted => 'Task completed';
 
   @override
+  String taskCompleteFailed(String reason) {
+    return 'Couldn\'t complete the task. $reason';
+  }
+
+  @override
+  String get actionUndo => 'Undo';
+
+  @override
   String get taskProduction => 'Production';
 
   @override

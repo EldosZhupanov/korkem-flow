@@ -100,6 +100,14 @@ class AppLocalizationsKk extends AppLocalizations {
   String get taskCompleted => 'Тапсырма аяқталды';
 
   @override
+  String taskCompleteFailed(String reason) {
+    return 'Тапсырманы аяқтау мүмкін болмады. $reason';
+  }
+
+  @override
+  String get actionUndo => 'Болдырмау';
+
+  @override
   String get taskProduction => 'Өндіріс';
 
   @override

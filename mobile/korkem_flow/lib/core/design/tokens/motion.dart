@@ -46,11 +46,14 @@ abstract final class AppDebounce {
   /// speed, so a pause reads as "finished the word".
   static const search = Duration(milliseconds: 300);
 
-  /// The window in which a completed row can be taken back.
+  /// The window in which a completed row can be taken back, and the exact
+  /// lifetime of the snackbar that offers the undo.
   ///
-  /// Matches Material's long snackbar, which is the control that offers the
-  /// undo — a window that outlives its own affordance is a window nobody can
-  /// use.
+  /// The two must be the same value or the feature is broken in one direction
+  /// or the other: a window outliving its affordance is one nobody can use,
+  /// and an affordance outliving its window is a button that silently stops
+  /// working while still on screen. Longer than Material's 4s default because
+  /// a swipe is easy to make by accident and this is the only way back.
   static const undo = Duration(seconds: 6);
 }
 
