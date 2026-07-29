@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
+import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Sign-in against a Frappe site.
@@ -144,6 +146,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         labelText: l10n.authPassword,
                         prefixIcon: const Icon(AppIcons.noAccess),
                         suffixIcon: IconButton(
+                          // Labelled, in both states. Unlabelled, a screen
+                          // reader announces this as "button" and the one
+                          // control on the form that changes what is on screen
+                          // becomes the one control nobody can identify.
+                          tooltip: _obscured
+                              ? l10n.authShowPassword
+                              : l10n.authHidePassword,
                           icon: Icon(
                             _obscured ? AppIcons.visible : AppIcons.hidden,
                           ),
@@ -154,10 +163,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       validator: (value) => _required(value, l10n),
                     ),
 
-                    if (_failure != null) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      _FailureBanner(message: _failure!),
-                    ],
+                    // Animated in, and the height animates with it. A banner
+                    // that appears instantly shunts the sign-in button down
+                    // under a finger already on its way to press it.
+                    AnimatedSize(
+                      duration: motionOf(context, AppDuration.quick),
+                      curve: AppCurves.standard,
+                      alignment: Alignment.topCenter,
+                      child: _failure == null
+                          ? const SizedBox(width: double.infinity)
+                          : Padding(
+                              padding: const EdgeInsets.only(
+                                top: AppSpacing.lg,
+                              ),
+                              child: Entrance(
+                                // Keyed on the message: a second, different
+                                // failure re-runs the entrance instead of
+                                // silently swapping text, so the user sees
+                                // that something new happened.
+                                key: ValueKey(_failure),
+                                child: _FailureBanner(message: _failure!),
+                              ),
+                            ),
+                    ),
 
                     const SizedBox(height: AppSpacing.xxl),
                     FilledButton(

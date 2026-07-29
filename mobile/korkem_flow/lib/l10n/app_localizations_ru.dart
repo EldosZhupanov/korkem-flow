@@ -15,6 +15,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filterNoResults => 'По этому фильтру ничего нет.';
 
   @override
+  String get actionClearSearch => 'Очистить поиск';
+
+  @override
   String get actionRefresh => 'Обновить';
 
   @override
@@ -143,6 +146,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get authPassword => 'Пароль';
+
+  @override
+  String get authShowPassword => 'Показать пароль';
+
+  @override
+  String get authHidePassword => 'Скрыть пароль';
 
   @override
   String get authSignIn => 'Войти';

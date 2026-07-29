@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterNoResults => 'Nothing matches this filter.';
 
   @override
+  String get actionClearSearch => 'Clear search';
+
+  @override
   String get actionRefresh => 'Refresh';
 
   @override
@@ -143,6 +146,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authPassword => 'Password';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
 
   @override
   String get authSignIn => 'Sign in';

@@ -112,6 +112,12 @@ abstract class AppLocalizations {
   /// **'Nothing matches this filter.'**
   String get filterNoResults;
 
+  /// Tooltip and screen-reader label for the button that empties the search field
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get actionClearSearch;
+
   /// Re-fetches a list from the server, offered on an empty list where pull-to-refresh is not discoverable
   ///
   /// In en, this message translates to:
@@ -363,6 +369,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password'**
   String get authPassword;
+
+  /// Screen-reader label and tooltip for the reveal toggle while the password is hidden
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authShowPassword;
+
+  /// Screen-reader label and tooltip for the reveal toggle while the password is visible
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get authHidePassword;
 
   /// No description provided for @authSignIn.
   ///

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Debounced search input.
@@ -65,13 +66,24 @@ class _AppSearchFieldState extends State<AppSearchField> {
       decoration: InputDecoration(
         hintText: widget.hintText ?? l10n.searchHint,
         prefixIcon: const Icon(AppIcons.search, size: AppIconSize.small),
-        suffixIcon: _controller.text.isEmpty
-            ? null
-            : IconButton(
-                icon: const Icon(AppIcons.close, size: AppIconSize.small),
-                onPressed: _clear,
-                tooltip: l10n.actionClose,
-              ),
+        // Cross-faded rather than inserted. Swapping `null` for a button
+        // changes the field's content width, so the caret and every character
+        // in the field jumped sideways the instant the first key was pressed.
+        suffixIcon: AnimatedSwitcher(
+          duration: motionOf(context, AppDuration.quick),
+          switchInCurve: AppCurves.enter,
+          switchOutCurve: AppCurves.exit,
+          transitionBuilder: (child, animation) =>
+              FadeTransition(opacity: animation, child: child),
+          child: _controller.text.isEmpty
+              // Occupies the same box when idle, so the width never changes.
+              ? const SizedBox.square(dimension: AppTouchTarget.min)
+              : IconButton(
+                  icon: const Icon(AppIcons.close, size: AppIconSize.small),
+                  onPressed: _clear,
+                  tooltip: l10n.actionClearSearch,
+                ),
+        ),
       ),
     );
   }

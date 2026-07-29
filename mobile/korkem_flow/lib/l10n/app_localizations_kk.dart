@@ -15,6 +15,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filterNoResults => 'Бұл сүзгі бойынша ештеңе жоқ.';
 
   @override
+  String get actionClearSearch => 'Іздеуді тазалау';
+
+  @override
   String get actionRefresh => 'Жаңарту';
 
   @override
@@ -143,6 +146,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get authPassword => 'Құпия сөз';
+
+  @override
+  String get authShowPassword => 'Құпия сөзді көрсету';
+
+  @override
+  String get authHidePassword => 'Құпия сөзді жасыру';
 
   @override
   String get authSignIn => 'Кіру';
