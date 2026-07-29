@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
@@ -32,7 +33,7 @@ class _ListSkeletonState extends State<ListSkeleton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1200),
+    duration: AppDuration.shimmer,
   );
 
   @override
@@ -70,7 +71,11 @@ class _ListSkeletonState extends State<ListSkeleton>
         builder: (context, _) => Container(
           height: widget.rowHeight,
           decoration: BoxDecoration(
-            color: base.withValues(alpha: 0.4 + (_controller.value * 0.3)),
+            color: base.withValues(
+              alpha:
+                  AppTint.shimmerRest +
+                  (_controller.value * AppTint.shimmerTravel),
+            ),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
         ),

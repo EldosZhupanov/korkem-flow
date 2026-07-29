@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/tokens/typography.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/tasks/application/tasks_controller.dart';
@@ -101,9 +103,10 @@ class _Section extends StatelessWidget {
             children: [
               Text(
                 label.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: context.statusColors.resolve(intent),
-                  letterSpacing: 0.8,
+                style: AppTypography.overline(
+                  (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
+                    color: context.statusColors.resolve(intent),
+                  ),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -161,7 +164,9 @@ class TaskCard extends ConsumerWidget {
         alignment: AlignmentDirectional.centerStart,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
         decoration: BoxDecoration(
-          color: context.statusColors.success.withValues(alpha: 0.18),
+          color: context.statusColors.success.withValues(
+            alpha: AppTint.surface,
+          ),
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: Icon(AppIcons.check, color: context.statusColors.success),

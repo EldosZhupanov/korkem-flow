@@ -159,7 +159,7 @@ abstract final class AppTheme {
       ),
 
       navigationBarTheme: NavigationBarThemeData(
-        height: 72,
+        height: AppNavigation.barHeight,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -167,8 +167,8 @@ abstract final class AppTheme {
       ),
 
       dividerTheme: DividerThemeData(
-        space: 1,
-        thickness: 1,
+        space: AppStroke.hairline,
+        thickness: AppStroke.hairline,
         color: isDark ? AppColors.outlineDark : AppColors.outlineLight,
       ),
 

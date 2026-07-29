@@ -23,6 +23,35 @@ abstract final class AppDuration {
   /// Longer than [standard] because a page transition moves the whole screen:
   /// the same speed that reads as crisp on a chip reads as a flicker here.
   static const page = Duration(milliseconds: 350);
+
+  /// One sweep of a loading placeholder. Slow on purpose — a shimmer is
+  /// ambient, and anything quicker asks to be watched.
+  static const shimmer = Duration(milliseconds: 1200);
+
+  /// Long enough that a user has decided something is wrong.
+  ///
+  /// The threshold for admitting to a delay: below it, an explanation arrives
+  /// before anyone wondered, and the app looks slower than it is.
+  static const deliberate = Duration(milliseconds: 600);
+}
+
+/// How long the app waits on a person before acting.
+///
+/// Separate from [AppDuration] on purpose: these are not animations and must
+/// not be shortened by reduced-motion. Never pass one through [motionOf].
+abstract final class AppDebounce {
+  /// Typing in a search field. Each keystroke would otherwise be a backend
+  /// round trip — the fastest way to make a list feel slow and get rate
+  /// limited. Roughly the gap between two characters at conversational typing
+  /// speed, so a pause reads as "finished the word".
+  static const search = Duration(milliseconds: 300);
+
+  /// The window in which a completed row can be taken back.
+  ///
+  /// Matches Material's long snackbar, which is the control that offers the
+  /// undo — a window that outlives its own affordance is a window nobody can
+  /// use.
+  static const undo = Duration(seconds: 6);
 }
 
 abstract final class AppCurves {

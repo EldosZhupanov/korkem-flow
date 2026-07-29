@@ -16,7 +16,7 @@ class AppSearchField extends StatefulWidget {
     required this.onChanged,
     this.hintText,
     this.initialValue,
-    this.debounce = const Duration(milliseconds: 300),
+    this.debounce = AppDebounce.search,
     super.key,
   });
 

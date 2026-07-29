@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/typography.dart';
 
 /// A quiet heading above a group of cards.
 ///
@@ -18,9 +19,10 @@ class SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Text(
         text.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.outline,
-          letterSpacing: 0.8,
+        style: AppTypography.overline(
+          (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
+            color: theme.colorScheme.outline,
+          ),
         ),
       ),
     );

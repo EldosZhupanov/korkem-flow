@@ -57,7 +57,7 @@ class AdaptiveShell extends StatelessWidget {
                   ),
               ],
             ),
-            const VerticalDivider(width: 1),
+            const VerticalDivider(width: AppStroke.hairline),
             Expanded(child: navigationShell),
           ],
         ),

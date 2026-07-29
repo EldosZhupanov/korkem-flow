@@ -147,14 +147,19 @@ class NotificationCard extends ConsumerWidget {
           ),
           if (!notification.isRead)
             Padding(
-              padding: const EdgeInsets.only(left: AppSpacing.sm, top: 6),
-              child: Container(
-                width: 8,
-                height: 8,
+              padding: const EdgeInsets.only(
+                left: AppSpacing.sm,
+                // Centres the dot on the first line of the subject rather than
+                // on the block of text, which on a two-line subject would sit
+                // it halfway down the row.
+                top: AppIndicator.dotBaselineOffset,
+              ),
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
+                child: const SizedBox.square(dimension: AppIndicator.dot),
               ),
             ),
         ],

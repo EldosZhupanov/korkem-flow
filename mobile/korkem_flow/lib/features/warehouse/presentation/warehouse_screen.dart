@@ -123,7 +123,7 @@ class _StockItemCardState extends ConsumerState<StockItemCard> {
 
           if (_expanded) ...[
             const SizedBox(height: AppSpacing.lg),
-            const Divider(height: 1),
+            const Divider(height: AppStroke.hairline),
             const SizedBox(height: AppSpacing.md),
             _Balances(itemCode: item.id, uom: item.stockUom, l10n: l10n),
           ],

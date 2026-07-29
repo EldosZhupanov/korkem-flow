@@ -85,6 +85,33 @@ abstract final class AppIllustration {
   static const double haloDense = 84;
 }
 
+/// Lines drawn rather than spaces left.
+abstract final class AppStroke {
+  /// A divider, a rail separator, a rule under a wordmark. One logical pixel:
+  /// thicker reads as a border, and a border is a stronger statement than any
+  /// of those places wants to make.
+  static const double hairline = 1;
+}
+
+/// Marks that carry state rather than content.
+abstract final class AppIndicator {
+  /// The unread dot on a notification row. Small enough to read as a mark
+  /// beside the text rather than as a bullet in front of it.
+  static const double dot = 8;
+
+  /// How far the dot sits below the top of its row, to centre it on the first
+  /// line of a title set in `bodyMedium`.
+  static const double dotBaselineOffset = 6;
+}
+
+/// The app's own chrome.
+abstract final class AppNavigation {
+  /// Bottom bar height. Tighter than Material's 80dp default, which spends a
+  /// visible band of a phone screen on nothing, and still clear of the 48dp
+  /// touch floor with room for an always-visible label.
+  static const double barHeight = 72;
+}
+
 /// Distances measured along a scroll axis rather than across the layout.
 abstract final class AppScrollExtent {
   /// How far from the bottom the next page starts loading — roughly one

@@ -20,6 +20,18 @@ abstract final class AppTypography {
   static TextStyle tabular(TextStyle style) =>
       style.copyWith(fontFeatures: _tabular);
 
+  /// Extra tracking for an upper-case heading.
+  ///
+  /// Upper-case text set at its lower-case tracking looks cramped, because the
+  /// letterforms are all cap-height and the spacing was tuned for x-height. The
+  /// value belongs here and not at the call sites: it had already been typed by
+  /// hand in two separate widgets, which is one edit away from two different
+  /// section headings.
+  static TextStyle overline(TextStyle style) =>
+      style.copyWith(letterSpacing: _overlineTracking);
+
+  static const _overlineTracking = 0.8;
+
   static TextTheme textTheme(Brightness brightness) {
     final color = brightness == Brightness.dark
         ? const Color(0xFFE6E6E6) // not pure white: reduces halation on dark

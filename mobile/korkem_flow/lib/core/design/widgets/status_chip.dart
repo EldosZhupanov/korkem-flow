@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -36,7 +37,7 @@ class StatusChip extends StatelessWidget {
           vertical: AppSpacing.xxs,
         ),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
+          color: color.withValues(alpha: AppTint.surface),
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         child: Row(

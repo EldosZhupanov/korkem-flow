@@ -19,9 +19,6 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
-  /// How long the app may take before it owes the user an explanation.
-  static const _explainAfter = Duration(milliseconds: 600);
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -63,7 +60,8 @@ class SplashScreen extends StatelessWidget {
               height: AppSpacing.xs,
               width: AppIconSize.illustration,
               child: const _SlowStartIndicator().animate().fadeIn(
-                delay: _explainAfter,
+                // Held back until the app owes the user an explanation.
+                delay: AppDuration.deliberate,
                 duration: duration,
               ),
             ),

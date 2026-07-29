@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
 
@@ -61,7 +62,7 @@ class StateIllustration extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    accent.withValues(alpha: 0.07),
+                    accent.withValues(alpha: AppTint.glow),
                     accent.withValues(alpha: 0),
                   ],
                 ),
@@ -75,8 +76,8 @@ class StateIllustration extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    accent.withValues(alpha: 0.12),
-                    accent.withValues(alpha: 0.04),
+                    accent.withValues(alpha: AppTint.surface),
+                    accent.withValues(alpha: AppTint.surfaceFaint),
                   ],
                 ),
               ),

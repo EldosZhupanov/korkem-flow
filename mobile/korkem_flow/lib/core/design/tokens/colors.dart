@@ -66,3 +66,32 @@ abstract final class AppColors {
   static const tertiaryContainerLight = Color(0xFFE3E5E1);
   static const tertiaryContainerDark = Color(0xFF2A2E29);
 }
+
+/// Opacities for tinting a surface with the colour of the thing it describes.
+///
+/// A status chip, a swipe background and the plate behind an empty-state glyph
+/// are all the same move — take an accent, lay it under content at low opacity
+/// — and they must be the same strength or the interface reads as if the
+/// stronger one means more. Four different values had already appeared for
+/// this; these three replace them.
+///
+/// Values are tuned for the brand green, which is near-fluorescent and blooms
+/// on a dark surface at opacities that look restrained on a light one. Raising
+/// them is a design-system change, not a local one.
+abstract final class AppTint {
+  /// A filled surface: chip, badge, swipe background.
+  static const double surface = 0.12;
+
+  /// The far end of a gradient across such a surface — enough to give it a
+  /// direction, not enough to read as a second shape.
+  static const double surfaceFaint = 0.04;
+
+  /// Light falling behind a shape rather than a shape of its own.
+  static const double glow = 0.07;
+
+  /// A shimmering placeholder rests at [shimmerRest] and travels
+  /// [shimmerTravel] above it. Deliberately narrow: a placeholder that pulses
+  /// hard competes with the content it is standing in for.
+  static const double shimmerRest = 0.4;
+  static const double shimmerTravel = 0.3;
+}
