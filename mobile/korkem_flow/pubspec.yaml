@@ -44,9 +44,11 @@ flutter:
   uses-material-design: true
   generate: true
 
-  assets:
-    - assets/images/
-    - assets/lottie/
+  # No `assets:` block, and that is a decision rather than an omission. The
+  # only decorative element in the app — the mark on an empty, error or
+  # success state — is drawn from theme colours by `StateIllustration`, not
+  # shipped as artwork. See `docs/design_system.md` §8 for why. Declaring
+  # empty `images/` and `lottie/` directories advertised the opposite.
 
   fonts:
     # Bundled, not fetched at runtime: google_fonts would make first paint

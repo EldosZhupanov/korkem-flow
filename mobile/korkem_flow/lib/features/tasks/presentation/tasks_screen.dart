@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/design/motion/swipe_action.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
-import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
@@ -208,29 +208,15 @@ class _TaskCardState extends ConsumerState<TaskCard> {
     return Dismissible(
       key: ValueKey(task.id),
       direction: DismissDirection.startToEnd,
-      // The background grows into the gesture rather than appearing whole at
-      // the first pixel of movement. A full-strength panel under a 2dp drag
-      // reads as a mis-tap having already done something.
       onUpdate: (details) {
         if (details.progress != _progress) {
           setState(() => _progress = details.progress);
         }
       },
-      background: DecoratedBox(
-        decoration: BoxDecoration(
-          color: success.withValues(alpha: AppTint.surface * _progress),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-        ),
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-            child: Icon(
-              AppIcons.check,
-              color: success.withValues(alpha: _progress.clamp(0, 1)),
-            ),
-          ),
-        ),
+      background: SwipeActionBackground(
+        icon: AppIcons.check,
+        color: success,
+        progress: _progress,
       ),
       onDismissed: (_) => _complete(),
       child: EntityCard(

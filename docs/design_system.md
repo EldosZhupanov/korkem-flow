@@ -150,7 +150,12 @@ surfaces and only add cost.
 | 3 | tint + y4 blur8 @8% | `surfaceContainerHigh` | FAB, menus |
 | 4 | tint + y8 blur16 @10% | `surfaceContainerHighest` | dialogs, sheets |
 
-Never stack more than two elevation levels in one view. Cards **do not** get drop shadows in dark mode.
+Never stack more than two elevation levels in one view.
+
+Cards land at **elevation 0** in both themes, not the level 1 the table would suggest. Dark mode
+separates them with a `1dp` outline instead of a shadow — a shadow is invisible against a dark
+surface and only costs a raster pass — and light mode gets its separation from the container tone,
+which at this density reads more cleanly than a shadow under every row of a long list.
 
 ## 7. Icons
 
@@ -213,10 +218,18 @@ affordance (drag alone is undiscoverable).
 
 ### Snackbars
 
-Transient, non-critical feedback. Bottom, above the nav bar, 4s (10s with an action). One at a time;
-a new one replaces the old. **Never** for errors requiring action — those are inline or a dialog.
-Every destructive action that can be undone shows an `Undo` action; this is preferable to a
-confirmation dialog for reversible operations.
+Transient, non-critical feedback. Bottom, above the nav bar. One at a time; a new one replaces the
+old. **Never** for errors requiring action — those are inline or a dialog.
+
+Every destructive action that can be undone shows an `Undo`, in preference to a confirmation dialog:
+a worker performs these dozens of times a shift and a modal in front of each is a tax, while a way
+back afterwards costs nothing until it is needed.
+
+An undo snackbar lasts exactly `AppDebounce.undo`, because that is also how long the request is
+held. The two are one value on purpose — a button outliving the window it controls silently stops
+working while still on screen. Where the backend offers no reversal (`CRM Task` has no reopen call),
+deferring the write is what makes the undo real rather than a compensating write that cannot be
+made.
 
 ### Navigation
 
@@ -237,20 +250,73 @@ confirmation dialog for reversible operations.
 
 ### Status chip
 
-Height 24, radius `sm`, `labelSmall`, container = semantic colour at 12% opacity, text = the AA-safe
-semantic colour. Icon + text always — never a bare colour swatch.
+Height 24, radius `sm`, `labelSmall`, container = semantic colour at `AppTint.surface`, text = the
+AA-safe semantic colour. Icon + text always — never a bare colour swatch.
+
+`AppTint` is the shared scale for laying an accent under content, and a chip, a swipe background and
+an empty-state plate must all use it. They had drifted to four different opacities, which made the
+strongest one look like it meant more.
+
+### State illustration
+
+Empty, error and success states are headed by a mark drawn from theme colours — a glyph on a lit
+plate, three layers, in `StateIllustration`. **No illustration is shipped as an asset**, and there is
+no `assets/images/` or `assets/lottie/`.
+
+That is a trade, not an oversight. unDraw, Storyset and the rest are free and good, but each arrives
+with its own palette, its own line weight and its own idea of a human figure, none of which are
+KORKEM's. On a tool a factory opens forty times a day, art that does not match the product stops
+reading as friendly within a week and starts reading as clip art. A composition built from tokens
+inherits the theme instead: correct in light and dark, at any accent, with no asset, no licence and
+nothing to download. The same reasoning rules out Lottie and Rive — nothing here needs a narrative
+animation, and a runtime plus a binary would be weight without a job.
+
+A `dense` variant exists for an empty state that shares a screen with content; at full size the mark
+pushes its own headline below the fold.
+
+### Empty states
+
+Never a bare "No data". Illustration, headline, one sentence, and a way forward. A list filtered to
+nothing and a list that is genuinely empty are different facts and get different offers: the first
+leads with "clear filter", the second with "refresh". Refresh earns a button even though every list
+also pulls to refresh — pull-to-refresh is discoverable only to someone who already suspects it is
+there, and an empty screen is exactly when a user decides the app is broken.
 
 ## 9. Motion
 
-| Token | Duration | Curve | Use |
-|---|---|---|---|
-| `instant` | 100ms | `easeOut` | state flip, ripple |
-| `quick` | 200ms | `easeOutCubic` | chips, tooltips |
-| `standard` | 300ms | `easeInOutCubic` | sheets, dialogs, page transitions |
-| `slow` | 500ms | `easeInOutCubic` | hero, celebratory |
+| Token | Duration | Use |
+|---|---|---|
+| `instant` | 100ms | press feedback, state flip, ripple |
+| `quick` | 200ms | chips, tooltips, a field's own controls |
+| `standard` | 300ms | sheets, dialogs, row entrance |
+| `page` | 350ms | route push and pop |
+| `slow` | 500ms | the splash mark, an empty state arriving |
+| `shimmer` | 1200ms | one sweep of a loading placeholder |
+| `deliberate` | 600ms | how long the app may take before it owes an explanation |
+| `stagger` | 20ms/row | capped at 6 rows |
 
-Page transitions are platform-native: Cupertino slide on iOS, fade-through on Android. Lists stagger
-entry by 20ms per row, capped at 6 rows — beyond that it reads as lag rather than polish.
+Curves: `standard` (`easeInOutCubic`), `enter` (`easeOutCubic`), `exit` (`easeInCubic`), and
+`emphasised` (`easeOutBack`) for anything that changes size or position under a finger — a slight
+overshoot is what separates "the software responded" from "the thing I touched moved". Kept small; a
+visible bounce on an ERP list is a toy, not a tool.
+
+`AppDebounce` is deliberately **not** part of this table. A search debounce and an undo window are
+waits on a person, not animations, and must never be shortened by reduced-motion.
+
+Page transitions are **one fade-through on every platform**, chosen rather than inherited. Material's
+default varies by host OS, so the same push looked different on a phone and on the Linux desktop
+build while the shell was identical. Fade-through is right for a tabbed app where a push is a change
+of subject.
+
+Where a push is *not* a change of subject — opening a record from the list that names it — the title
+flies across as a shared element (`HeroTitle`), growing from `titleMedium` to `headlineMedium`. Only
+the title: a card morphing wholesale into a page animates a container the detail screen does not
+have. Tags come from the route (`Routes.heroTag`) so both ends cannot be spelled differently, and
+only the list that owns a record claims one — a card reused elsewhere must not, or it flies on
+transitions nobody made.
+
+Lists stagger entry by `stagger` per row, capped at 6 — beyond that it reads as lag rather than
+polish.
 
 **All motion respects `MediaQuery.disableAnimations`**; when set, durations collapse to zero. An
 animation that cannot be disabled is an accessibility defect, not a feature.
@@ -278,7 +344,20 @@ Non-negotiable, and cheaper to build in than retrofit:
 
 ## 12. Implementation
 
-The system lives in `core/theme/` as tokens (`AppSpacing`, `AppRadius`, `AppDuration`, `AppColors`)
-plus `ThemeData` builders. **No literal colour, radius, duration or spacing value may appear in a
-widget file** — the lint config enforces this, and it is what keeps the system from eroding under
-delivery pressure.
+The system lives in `lib/core/design/`: `tokens/` (`AppSpacing`, `AppRadius`, `AppColors`, `AppTint`,
+`AppDuration`, `AppDebounce`, `AppStroke`, `AppIndicator`, `AppTypography`, …), `theme/` (the
+`ThemeData` builders and the `StatusColors` extension), `motion/` and `widgets/`.
+
+**No literal colour, radius, duration or spacing value may appear in a widget file.** This is what
+keeps the system from eroding under delivery pressure — and for a long time it was enforced by
+nothing at all. The claim that "the lint config enforces this" was never true: no lint rule can see
+the difference between a design opacity and any other double, and the rule had already drifted to
+four opacities for one idea, two hand-typed copies of one heading tracking, and three inline
+durations.
+
+`test/core/design/token_discipline_test.dart` enforces it now. It reads every widget file and fails
+on an inline `Duration(...)` or `alpha: 0.x`, naming the file and line. Its scope is widget files
+rather than all of `lib/`, and that is deliberate: `lib/core/api/` holds HTTP timeouts and a retry
+backoff which are real durations, correctly named where they are, and none of them motion. Moving
+those into the token files to satisfy a test would teach the next person that the token files are
+where unrelated numbers go to become legal.

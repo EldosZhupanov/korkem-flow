@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/design/motion/swipe_action.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
@@ -52,19 +53,27 @@ class NotificationsScreen extends ConsumerWidget {
   }
 }
 
-class NotificationCard extends ConsumerWidget {
+class NotificationCard extends ConsumerStatefulWidget {
   const NotificationCard({required this.notification, super.key});
 
   final AppNotification notification;
+
+  @override
+  ConsumerState<NotificationCard> createState() => _NotificationCardState();
+}
+
+class _NotificationCardState extends ConsumerState<NotificationCard> {
+  /// How far through the swipe the finger is, 0 to 1.
+  double _progress = 0;
 
   /// Opens the record the notification is about, when the app has a screen for
   /// its doctype. Frappe notifies about far more doctypes than this app shows,
   /// so an unmapped one stays unopenable rather than routing somewhere wrong.
   String? _destination() {
-    final name = notification.documentName;
+    final name = widget.notification.documentName;
     if (name == null) return null;
 
-    return switch (notification.documentType) {
+    return switch (widget.notification.documentType) {
       'CRM Deal' => Routes.deal(name),
       'CRM Lead' => Routes.lead(name),
       'CRM Organization' => Routes.customer(name),
@@ -72,23 +81,37 @@ class NotificationCard extends ConsumerWidget {
     };
   }
 
+  Future<void> _markRead() => ref
+      .read(notificationsControllerProvider.notifier)
+      .markRead(widget.notification);
+
+  Future<void> _open() async {
+    // Captured before the await: opening the record must not depend on this
+    // element still being mounted after the round trip.
+    final router = GoRouter.of(context);
+    final destination = _destination();
+
+    try {
+      await _markRead();
+    } on Exception {
+      // Marking read is the lesser half of this tap. Letting a failed write
+      // abort the navigation meant a notification could not be opened at all
+      // whenever the network was poor — which is exactly when someone is most
+      // likely to be chasing it. The dot stays; the record still opens.
+    }
+
+    if (destination != null) unawaited(router.push<void>(destination));
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
-    final destination = _destination();
+    final notification = widget.notification;
     final created = notification.createdAt;
 
-    return AppCard(
-      onTap: () async {
-        final router = GoRouter.of(context);
-        await ref
-            .read(notificationsControllerProvider.notifier)
-            .markRead(notification);
-        // Router captured before the await: opening the record must not depend
-        // on this element still being mounted after the round trip.
-        if (destination != null) unawaited(router.push<void>(destination));
-      },
+    final card = AppCard(
+      onTap: _open,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -164,6 +187,40 @@ class NotificationCard extends ConsumerWidget {
             ),
         ],
       ),
+    );
+
+    // Nothing to do to a notification that is already read, so the gesture is
+    // switched off rather than left to run and achieve nothing.
+    if (notification.isRead) return card;
+
+    return Dismissible(
+      key: ValueKey(notification.id),
+      direction: DismissDirection.startToEnd,
+      onUpdate: (details) {
+        if (details.progress != _progress) {
+          setState(() => _progress = details.progress);
+        }
+      },
+      // Always false: the row is not going anywhere. Marking read changes only
+      // its own emphasis, and dropping it out of the list would hide a record
+      // the user may well still want to open — the swipe is a way to clear the
+      // badge, not to discard the notice.
+      confirmDismiss: (_) async {
+        try {
+          await _markRead();
+        } on Exception {
+          // The controller already rolls the row back to unread; a snackbar
+          // for a failed badge update would cost more attention than the
+          // badge is worth.
+        }
+        return false;
+      },
+      background: SwipeActionBackground(
+        icon: AppIcons.check,
+        color: Theme.of(context).colorScheme.primary,
+        progress: _progress,
+      ),
+      child: card,
     );
   }
 }
