@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/pagination/paged_list_controller.dart';
 
@@ -36,6 +38,18 @@ class PagedListView<T> extends StatefulWidget {
   State<PagedListView<T>> createState() => _PagedListViewState<T>();
 }
 
+/// What the next page looks like while it is on its way.
+///
+/// A shimmering row rather than a spinner: it occupies the space the arriving
+/// row will occupy, so nothing shifts when the data lands, and it says *more of
+/// this* instead of *something is happening*.
+class _AppendFooter extends StatelessWidget {
+  const _AppendFooter();
+
+  @override
+  Widget build(BuildContext context) => const ListSkeleton(rows: 1);
+}
+
 class _PagedListViewState<T> extends State<PagedListView<T>> {
   final _controller = ScrollController();
 
@@ -57,7 +71,8 @@ class _PagedListViewState<T> extends State<PagedListView<T>> {
   /// there by the time the user reaches the bottom.
   void _onScroll() {
     final position = _controller.position;
-    if (position.pixels >= position.maxScrollExtent - 400) {
+    if (position.pixels >=
+        position.maxScrollExtent - AppScrollExtent.prefetch) {
       unawaited(widget.onLoadMore());
     }
   }
@@ -90,12 +105,15 @@ class _PagedListViewState<T> extends State<PagedListView<T>> {
           separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
           itemBuilder: (context, index) {
             if (index >= value.items.length) {
-              return const Padding(
-                padding: EdgeInsets.all(AppSpacing.lg),
-                child: Center(child: CircularProgressIndicator()),
-              );
+              return const _AppendFooter();
             }
-            return widget.itemBuilder(context, value.items[index]);
+            // Staggered only for the first screenful. Rows appended by
+            // pagination are already on screen by the time they build, so
+            // animating them would fade in content the user is looking at.
+            final row = widget.itemBuilder(context, value.items[index]);
+            return index < AppDuration.staggerMaxRows
+                ? Entrance(index: index, child: row)
+                : row;
           },
         ),
       },

@@ -60,8 +60,8 @@ class KpiTile extends StatelessWidget {
             // Placeholder matches the final text height so the tile does not
             // resize when the real number lands.
             Container(
-              height: 44,
-              width: 72,
+              height: AppPlaceholder.metricHeight,
+              width: AppPlaceholder.metricWidth,
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(AppRadius.xs),

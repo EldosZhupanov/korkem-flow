@@ -144,7 +144,9 @@ class _MetricGrid extends StatelessWidget {
         // Two tiles on a phone, more as width allows. Driven by measured width
         // rather than a device class, so a foldable and a split-screen tablet
         // both get a sane count.
-        final columns = (constraints.maxWidth / 180).floor().clamp(2, 4);
+        final columns = (constraints.maxWidth / AppBreakpoints.minTileWidth)
+            .floor()
+            .clamp(2, 4);
 
         return GridView.count(
           crossAxisCount: columns,

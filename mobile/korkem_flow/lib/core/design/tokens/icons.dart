@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Semantic icon vocabulary.
@@ -68,6 +69,12 @@ abstract final class AppIcons {
 
 /// An icon that expresses selection through the variable `fill` axis rather
 /// than by swapping to a different glyph, so the transition can animate.
+///
+/// And it does animate. The single-glyph design existed from the start; what
+/// was missing was anything driving the axis, so selecting a tab hard-cut
+/// between two icons and threw away the only reason to pick a variable font in
+/// the first place. Interpolating `fill` makes the destination appear to fill
+/// up rather than be replaced.
 class AppIcon extends StatelessWidget {
   const AppIcon(
     this.icon, {
@@ -86,12 +93,19 @@ class AppIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      icon,
-      size: size,
-      color: color,
-      fill: filled ? AppIcons.fillActive : AppIcons.fillInactive,
-      semanticLabel: semanticLabel,
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(
+        end: filled ? AppIcons.fillActive : AppIcons.fillInactive,
+      ),
+      duration: motionOf(context, AppDuration.quick),
+      curve: AppCurves.standard,
+      builder: (context, fill, _) => Icon(
+        icon,
+        size: size,
+        color: color,
+        fill: fill,
+        semanticLabel: semanticLabel,
+      ),
     );
   }
 }

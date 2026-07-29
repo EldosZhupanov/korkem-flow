@@ -50,4 +50,26 @@ abstract final class AppIconSize {
 abstract final class AppBreakpoints {
   static const double compact = 600;
   static const double medium = 1024;
+
+  /// Narrowest a KPI tile may get before the grid drops a column.
+  static const double minTileWidth = 180;
+}
+
+/// Heights that exist because a layout has to reserve space before it knows
+/// what will fill it. Each one is a promise that the placeholder and the real
+/// thing are the same size — get it wrong and content jumps on arrival.
+abstract final class AppPlaceholder {
+  /// A skeleton row, matching a populated entity card.
+  static const double rowHeight = 88;
+
+  /// The KPI number, matching `displaySmall` at its line height.
+  static const double metricHeight = 44;
+  static const double metricWidth = 72;
+}
+
+/// Distances measured along a scroll axis rather than across the layout.
+abstract final class AppScrollExtent {
+  /// How far from the bottom the next page starts loading — roughly one
+  /// viewport, so the page is usually there before the user arrives.
+  static const double prefetch = 400;
 }

@@ -54,6 +54,18 @@ abstract final class AppTheme {
 
     return base.copyWith(
       textTheme: textTheme,
+      // One transition on every platform, chosen rather than inherited.
+      // Material's default varies by host OS, so the same push looked
+      // different on the phone and on the Linux desktop build — the shell is
+      // identical, so the motion should be too. Fade-through matches a tabbed
+      // app where a push is a change of subject, not a step deeper into a
+      // hierarchy.
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          for (final platform in TargetPlatform.values)
+            platform: const FadeForwardsPageTransitionsBuilder(),
+        },
+      ),
       // Overridden too, not just `textTheme`. Several Material widgets — the
       // tab bar among them — resolve their label style from `primaryTextTheme`,
       // which otherwise stays on Flutter's default family. That is how tab

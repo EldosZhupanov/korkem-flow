@@ -12,7 +12,11 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// Mirroring the layout is the whole point: a centred spinner causes a visible
 /// jump when content arrives, which reads as jank even when it is fast.
 class ListSkeleton extends StatefulWidget {
-  const ListSkeleton({this.rows = 5, this.rowHeight = 88, super.key});
+  const ListSkeleton({
+    this.rows = 5,
+    this.rowHeight = AppPlaceholder.rowHeight,
+    super.key,
+  });
 
   final int rows;
   final double rowHeight;

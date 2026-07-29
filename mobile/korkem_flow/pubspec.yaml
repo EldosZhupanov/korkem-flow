@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   # Declarative animation chains where implicit animation is not enough
+  flutter_animate: ^4.5.2
   flutter_localizations:
     sdk: flutter
   # State + DI in one tool (docs/mobile_architecture.md §2)
