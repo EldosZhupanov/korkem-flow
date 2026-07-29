@@ -71,13 +71,26 @@ class SessionController extends AsyncNotifier<Session> {
     }
   }
 
+  /// Exchanges credentials for a session. Progress is *not* published as
+  /// [AsyncValue.loading].
+  ///
+  /// It used to be, and that single line made every sign-in failure invisible:
+  /// the router treats a loading session as "still restoring at startup" and
+  /// redirects to the splash, which disposed the login screen mid-request. The
+  /// screen that later caught the error was already unmounted, so its
+  /// `setState` was a no-op, and the router then built a *fresh* login screen
+  /// with no error and empty fields. A wrong password looked identical to a
+  /// network timeout: a spinner, then the form again, silently.
+  ///
+  /// Sign-in progress belongs to the screen — `LoginScreen` already tracks it —
+  /// so the session now changes only on success, or on failure to re-seat the
+  /// server the user typed.
   Future<void> signIn({
     required String serverUrl,
     required String user,
     required String password,
   }) async {
     final normalised = normaliseServerUrl(serverUrl);
-    state = const AsyncValue.loading();
 
     try {
       final credentials = await ref
@@ -95,6 +108,9 @@ class SessionController extends AsyncNotifier<Session> {
       // A failed sign-in must not park the app in an AsyncError it can never
       // leave — the login form has to stay usable for the next attempt. The
       // failure is rethrown for the screen to display, not swallowed.
+      //
+      // Only the server moves: the state stays `data`, so the router leaves the
+      // login screen mounted and the banner it sets survives to be read.
       state = AsyncValue.data(Session(serverUrl: normalised));
       rethrow;
     }

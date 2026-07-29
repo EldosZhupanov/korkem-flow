@@ -2,6 +2,15 @@
     <!-- The INTERNET permission is required for development. Specifically,
          the Flutter tool needs it to communicate with the running application
          to allow setting breakpoints, to provide hot reload, etc.
+
+         (The main manifest declares it too, because a release build needs it to
+         reach the ERPNext server at all.)
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Lets debug builds talk to the development Frappe bench over plain HTTP.
+         See res/xml/network_security_config.xml for exactly what is permitted,
+         and why this attribute deliberately does not exist in the release
+         manifest. -->
+    <application android:networkSecurityConfig="@xml/network_security_config"/>
 </manifest>

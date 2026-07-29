@@ -401,23 +401,59 @@ dart run flutter_launcher_icons && dart run flutter_native_splash:create
 The `tools` tag is skipped by default; a plain `flutter test --update-goldens` would otherwise
 rewrite the launcher assets.
 
-**The emulator needs one thing this machine lacks: KVM group membership.** `/dev/kvm` is
-`root:kvm` and the user is not in `kvm`, so the emulator falls back to software emulation and
-never finishes booting. Missing userspace libraries were solved without root by extracting
-them under `~/.local/emulator-libs` — the emulator must be launched with them on the path:
+### Running against the local bench
+
+The app **runs on Android** and signs in end-to-end against the Docker bench. Two things are
+needed, and neither is the app's fault when missing.
+
+`korkem.localhost` — the compiled-in default — is meaningless inside an emulator, where it
+resolves to the *guest's* own loopback. The host is `10.0.2.2`. The server is a runtime field,
+so this is a launch flag, not a source change:
+
+```sh
+flutter run -d emulator-5554 --dart-define=KORKEM_BASE_URL=http://10.0.2.2:8000
+```
+
+Cleartext HTTP is blocked by default at `targetSdk 36`, and the bench serves plain HTTP.
+`android/app/src/debug/` carries a manifest and `network_security_config.xml` that permit
+cleartext **to the loopback hosts only**, merged into debug builds and never into a release
+one — `docs/privacy_policy.md` promises users that Android blocks unencrypted HTTP, and that
+has to stay true of what ships.
+
+### The emulator
+
+KVM group membership is required (`sudo usermod -aG kvm $USER`, then re-login); without it the
+emulator falls back to software emulation and never finishes booting. Missing userspace
+libraries were resolved without root by extracting them under `~/.local/emulator-libs`, so
+they must be on the path:
 
 ```sh
 E=~/Android/Sdk/emulator; L=~/.local/emulator-libs/usr/lib/x86_64-linux-gnu
 LD_LIBRARY_PATH="$E/lib64:$E/lib64/qt/lib:$L:$L/pulseaudio" \
-  $E/emulator -avd korkem_test -no-audio -gpu swiftshader_indirect
+  $E/emulator -avd korkem_test -no-audio -no-boot-anim -memory 1536 -gpu swiftshader_indirect
 ```
 
-Acceleration itself still requires `sudo usermod -aG kvm $USER` and a re-login.
+**The bench and the emulator together do not fit in this machine's 7.4 GB.** Booting the
+emulator at its default RAM killed all four bench containers (exit 255, simultaneously) — and
+the app then reports "No connection to the server", which reads like an app bug and is not
+one. Hence `-memory 1536`, and: stop the Gradle daemon (`android/gradlew --stop`, ~1 GB),
+start the bench *first* and wait for `/api/method/ping`, then boot the emulator. To skip
+Gradle entirely on a re-run, install the built APK directly:
+
+```sh
+adb install -r build/app/outputs/flutter-apk/app-debug.apk
+adb shell am start -n kz.korkem.korkem_flow/.MainActivity
+```
 
 Two behaviours worth knowing before changing code here:
 - Riverpod 3 **auto-retries** a failed provider with backoff, so a failing provider sits in
   `AsyncLoading(retrying)` and never settles into `AsyncError`. Tests pass `retry: (_, _) => null`.
 - Riverpod 3 removed `AsyncValue.valueOrNull`; the nullable getter is `AsyncValue.value`.
+- **`signIn` must never publish `AsyncValue.loading()`.** The router redirects a loading
+  session to the splash, which disposes whatever screen is mounted; a login screen torn down
+  mid-request loses the error it was about to show, so every failure — wrong password, dead
+  network — appeared as a spinner and then an empty form. Sign-in progress is screen state.
+  Pinned by a regression test that asserts on the *emitted* state sequence.
 
 ## Conventions for new custom code
 

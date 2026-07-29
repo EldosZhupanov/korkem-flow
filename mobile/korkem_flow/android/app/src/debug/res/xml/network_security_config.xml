@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only. Referenced from src/debug/AndroidManifest.xml, so it is
+  merged into the debug APK and never into a release one.
+
+  targetSdk 36 means cleartext HTTP is blocked by default, and the development
+  Frappe bench serves plain HTTP on port 8000. Without this a debug build cannot
+  reach the bench at all: the socket is refused by the platform before a request
+  is ever made, which surfaces as a generic connection failure with nothing to
+  suggest the cause.
+
+  Scoped to the loopback hosts rather than a blanket usesCleartextTraffic flag.
+  A release build must keep cleartext blocked — docs/privacy_policy.md tells
+  users that Android blocks unencrypted HTTP, and that has to stay true.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- The host machine, as seen from inside an Android emulator. The
+             emulator's own 127.0.0.1 is the guest, not the developer's box. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- Reached over `adb reverse tcp:8000 tcp:8000`, which is how a
+             physical test device talks to the same bench. -->
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="true">korkem.localhost</domain>
+    </domain-config>
+</network-security-config>

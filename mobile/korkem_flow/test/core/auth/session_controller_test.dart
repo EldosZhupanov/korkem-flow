@@ -196,6 +196,49 @@ void main() {
       expect(state.hasError, isFalse);
       expect(state.value?.isAuthenticated, isFalse);
     });
+
+    test('never publishes a loading state while signing in', () async {
+      // Regression: signIn used to set AsyncValue.loading(). The router reads a
+      // loading session as "restoring at startup" and redirects to the splash,
+      // disposing the login screen mid-request — so the error it caught was set
+      // on an unmounted State and vanished. Every failure, from a wrong
+      // password to a dead network, showed a spinner and then an empty form.
+      //
+      // Asserted on the emitted sequence, not the final state: the offending
+      // transition was transient and a post-hoc read cannot see it.
+      final store = _FakeStore();
+      when(
+        () => repository.signIn(
+          baseUrl: any(named: 'baseUrl'),
+          user: any(named: 'user'),
+          password: any(named: 'password'),
+        ),
+      ).thenThrow(const NetworkFailure('No connection to the server.'));
+
+      final container = containerWith(store);
+      await container.read(sessionProvider.future);
+
+      final emitted = <AsyncValue<Session>>[];
+      container.listen(
+        sessionProvider,
+        (_, next) => emitted.add(next),
+        fireImmediately: true,
+      );
+
+      await expectLater(
+        container
+            .read(sessionProvider.notifier)
+            .signIn(
+              serverUrl: 'https://korkem.example.kz',
+              user: 'aidos@korkem.kz',
+              password: 'secret',
+            ),
+        throwsA(isA<NetworkFailure>()),
+      );
+
+      expect(emitted, isNotEmpty);
+      expect(emitted.any((state) => state.isLoading), isFalse);
+    });
   });
 
   test('signOut clears storage even when the server call fails', () async {

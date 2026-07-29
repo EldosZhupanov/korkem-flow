@@ -54,6 +54,10 @@ GoRouter createRouter(Ref ref) {
 
       // Still restoring the stored credential: hold on the splash rather than
       // flashing the login screen at a user who is in fact signed in.
+      //
+      // This is why `signIn` must never publish a loading state: redirecting
+      // here tears down whichever screen is mounted, and a login screen torn
+      // down mid-request loses the error it was about to show.
       if (session.isLoading) {
         return location == Routes.splash ? null : Routes.splash;
       }
