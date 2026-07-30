@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -7,6 +9,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -105,6 +108,27 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+
+          // Not localised, and deliberately so: this is a developer tool that
+          // never reaches a release build, and translating it into three
+          // languages would imply otherwise to the next person reading the ARB.
+          if (kDebugMode) ...[
+            const SizedBox(height: AppSpacing.xl),
+            const SectionLabel('Debug'),
+            AppCard(
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                minTileHeight: AppTouchTarget.min,
+                leading: const Icon(AppIcons.item),
+                title: const Text('Design system'),
+                trailing: const Icon(
+                  AppIcons.forward,
+                  size: AppIconSize.small,
+                ),
+                onTap: () => context.push(Routes.gallery),
+              ),
+            ),
+          ],
         ],
       ),
     );

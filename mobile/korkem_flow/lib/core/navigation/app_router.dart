@@ -1,7 +1,8 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
+import 'package:korkem_flow/core/design/gallery/design_gallery.dart';
 import 'package:korkem_flow/core/navigation/adaptive_shell.dart';
 import 'package:korkem_flow/core/navigation/tab_back_handler.dart';
 import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dart';
@@ -46,6 +47,10 @@ abstract final class Routes {
   static const tasks = '/tasks';
   static const profile = '/profile';
   static const settings = '/settings';
+
+  /// The component catalogue. Registered only in debug builds — see
+  /// [createRouter] — so this path 404s in a release one.
+  static const gallery = '/gallery';
 }
 
 /// The app's router.
@@ -92,6 +97,13 @@ GoRouter createRouter(Ref ref) {
         path: Routes.settings,
         builder: (context, state) => const SettingsScreen(),
       ),
+      // Debug only. `kDebugMode` is a compile-time constant, so the release
+      // build drops both this route and everything DesignGallery pulls in.
+      if (kDebugMode)
+        GoRoute(
+          path: Routes.gallery,
+          builder: (context, state) => const DesignGallery(),
+        ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AdaptiveShell(navigationShell: navigationShell),

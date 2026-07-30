@@ -162,6 +162,10 @@ void main() {
         );
       });
 
+      // The only golden in this file that does *not* show what a user sees.
+      // Tests run in debug, so Settings ends with a "Debug → Design system"
+      // row that `kDebugMode` strips from a release build. It is in the image
+      // on purpose; a reviewer should not read it as shipping.
       testWidgets('settings', (tester) async {
         await _pumpApp(tester, brightness: brightness);
         await _openTab(tester, 'Профиль');
