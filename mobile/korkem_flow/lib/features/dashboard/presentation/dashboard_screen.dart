@@ -8,6 +8,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/kpi_tile.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -27,24 +28,22 @@ class DashboardScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(dashboardControllerProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.navDashboard),
-        actions: [
-          IconButton(
-            icon: Badge.count(
-              // Hidden at zero rather than showing a "0" badge, which reads as
-              // a notification in itself.
-              count: ref.watch(unreadNotificationsProvider).value ?? 0,
-              isLabelVisible:
-                  (ref.watch(unreadNotificationsProvider).value ?? 0) > 0,
-              child: const Icon(AppIcons.notification),
-            ),
-            tooltip: l10n.navNotifications,
-            onPressed: () => context.push(Routes.notifications),
+    return AppScreen(
+      title: l10n.navDashboard,
+      actions: [
+        IconButton(
+          icon: Badge.count(
+            // Hidden at zero rather than showing a "0" badge, which reads as
+            // a notification in itself.
+            count: ref.watch(unreadNotificationsProvider).value ?? 0,
+            isLabelVisible:
+                (ref.watch(unreadNotificationsProvider).value ?? 0) > 0,
+            child: const Icon(AppIcons.notification),
           ),
-        ],
-      ),
+          tooltip: l10n.navNotifications,
+          onPressed: () => context.push(Routes.notifications),
+        ),
+      ],
       body: RefreshIndicator(
         onRefresh: () =>
             ref.read(dashboardControllerProvider.notifier).refresh(),

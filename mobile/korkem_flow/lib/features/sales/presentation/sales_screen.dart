@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/features/customers/presentation/customers_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deals_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/leads_screen.dart';
@@ -18,33 +19,14 @@ class SalesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.navSales),
-          bottom: TabBar(
-            // Scrollable: four Russian labels do not fit a phone width evenly,
-            // and squeezing them truncates every one of them.
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            tabs: [
-              Tab(text: l10n.navDeals),
-              Tab(text: l10n.navLeads),
-              Tab(text: l10n.navCustomers),
-              Tab(text: l10n.navQuotes),
-            ],
-          ),
-        ),
-        body: const TabBarView(
-          children: [
-            DealsScreen(),
-            LeadsScreen(),
-            CustomersScreen(),
-            QuotesScreen(),
-          ],
-        ),
-      ),
+    return AppScreen.tabbed(
+      title: l10n.navSales,
+      tabs: [
+        AppTab(label: l10n.navDeals, view: const DealsScreen()),
+        AppTab(label: l10n.navLeads, view: const LeadsScreen()),
+        AppTab(label: l10n.navCustomers, view: const CustomersScreen()),
+        AppTab(label: l10n.navQuotes, view: const QuotesScreen()),
+      ],
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/typography.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/tasks/application/tasks_controller.dart';
 import 'package:korkem_flow/features/tasks/domain/task.dart';
@@ -36,8 +37,8 @@ class TasksScreen extends ConsumerWidget {
       ref.read(taskFailureProvider.notifier).clear();
     });
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.navTasks)),
+    return AppScreen(
+      title: l10n.navTasks,
       body: RefreshIndicator(
         onRefresh: controller.refresh,
         child: switch (grouped) {

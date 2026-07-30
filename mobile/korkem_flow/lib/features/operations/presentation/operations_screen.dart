@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/features/production/presentation/production_screen.dart';
 import 'package:korkem_flow/features/warehouse/presentation/warehouse_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -14,22 +15,12 @@ class OperationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.navOperations),
-          bottom: TabBar(
-            tabs: [
-              Tab(text: l10n.navProduction),
-              Tab(text: l10n.navWarehouse),
-            ],
-          ),
-        ),
-        body: const TabBarView(
-          children: [ProductionScreen(), WarehouseScreen()],
-        ),
-      ),
+    return AppScreen.tabbed(
+      title: l10n.navOperations,
+      tabs: [
+        AppTab(label: l10n.navProduction, view: const ProductionScreen()),
+        AppTab(label: l10n.navWarehouse, view: const WarehouseScreen()),
+      ],
     );
   }
 }

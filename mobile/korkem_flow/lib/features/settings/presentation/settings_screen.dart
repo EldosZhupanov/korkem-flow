@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/config/app_config.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -23,8 +24,8 @@ class SettingsScreen extends ConsumerWidget {
     final config = ref.watch(appConfigProvider);
     final session = ref.watch(sessionProvider).value;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsTitle)),
+    return AppScreen(
+      title: l10n.settingsTitle,
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [

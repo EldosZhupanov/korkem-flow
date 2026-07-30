@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
@@ -24,8 +25,8 @@ class ApprovalsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final controller = ref.read(approvalsControllerProvider.notifier);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.navApprovals)),
+    return AppScreen(
+      title: l10n.navApprovals,
       body: PagedListView<PendingAction>(
         state: ref.watch(approvalsControllerProvider),
         onRefresh: controller.refresh,

@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
+import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -44,17 +45,15 @@ class ProfileScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final session = ref.watch(sessionProvider).value;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.profileTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(AppIcons.settings),
-            tooltip: l10n.settingsTitle,
-            onPressed: () => context.push(Routes.settings),
-          ),
-        ],
-      ),
+    return AppScreen(
+      title: l10n.profileTitle,
+      actions: [
+        IconButton(
+          icon: const Icon(AppIcons.settings),
+          tooltip: l10n.settingsTitle,
+          onPressed: () => context.push(Routes.settings),
+        ),
+      ],
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [

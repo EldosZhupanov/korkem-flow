@@ -8,6 +8,7 @@ import 'package:korkem_flow/core/design/motion/swipe_action.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
@@ -24,17 +25,15 @@ class NotificationsScreen extends ConsumerWidget {
     final controller = ref.read(notificationsControllerProvider.notifier);
     final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.navNotifications),
-        actions: [
-          if (unread > 0)
-            TextButton(
-              onPressed: controller.markAllRead,
-              child: Text(l10n.notificationsMarkAllRead),
-            ),
-        ],
-      ),
+    return AppScreen(
+      title: l10n.navNotifications,
+      actions: [
+        if (unread > 0)
+          TextButton(
+            onPressed: controller.markAllRead,
+            child: Text(l10n.notificationsMarkAllRead),
+          ),
+      ],
       body: PagedListView<AppNotification>(
         state: ref.watch(notificationsControllerProvider),
         onRefresh: controller.refresh,
