@@ -206,15 +206,28 @@ mis-taps.
 
 ### Dialogs
 
-Only for **destructive or blocking** decisions. Title ≤ 5 words, body ≤ 2 lines, two actions maximum,
-confirm on the right. Everything else is a bottom sheet.
+Only for **destructive or blocking** decisions — everything reversible gets a snackbar with an undo,
+and everything merely optional gets a bottom sheet. A dialog blocks, steals focus and must be
+dismissed before anything else can happen; that is worth it only when proceeding destroys something.
+
+`showConfirmDialog` fixes the shape so the rules are structural rather than advisory: title ≤ 5
+words, body ≤ 2 lines, two actions maximum, cancel left of confirm, and a destructive confirm
+coloured `error` so it does not look like a routine one.
+
+It returns a plain `bool`. `showDialog` hands back `null` on a barrier dismissal, and a nullable
+answer to "shall I destroy this?" invites `result ?? true` and `result != false` — two ways to read
+*tapped outside the dialog* as consent.
 
 ### Bottom sheets
 
 The default surface for anything richer than a confirmation — filters, pickers, detail previews,
 forms. Drag handle always present. Radius `lg` top corners only. `DraggableScrollableSheet` for
-content that may exceed half the screen. Sheets are dismissible by drag **and** a visible close
-affordance (drag alone is undiscoverable).
+content that may exceed half the screen.
+
+Sheets are dismissible by drag **and** by a visible close affordance. A drag handle is an affordance
+only for someone who already knows sheets drag, and the back gesture is the same bet; someone who
+opened a sheet by accident needs something to aim at. The filter sheet shipped without one for
+months, which is the argument for a component rather than a rule.
 
 ### Snackbars
 
@@ -236,9 +249,29 @@ made.
 - **`NavigationBar`** (M3) — 3–5 destinations, per role (see `mobile_app_structure.md`).
 - **No drawer.** A drawer hides navigation behind a gesture and is poor one-handed. Overflow goes to a
   Profile/More tab.
-- **Tabs** only for peer views of one entity (e.g. Work Order: Overview / Materials / Tasks).
-- **App bar**: `large` on top-level (collapses on scroll), `small` on detail. Title left, max two
-  actions plus overflow.
+- **Tabs** only for peer views of one subject — Deals and Leads are both the pipeline — never for
+  unrelated destinations, which belong in the navigation bar. Always **scrollable and
+  start-aligned**, including where two tabs would fit centred: deciding per screen is how one tab bar
+  ends up centred and another does not, which is exactly what happened before `AppScreen`.
+- **App bar**: `small` everywhere, title left, max two actions plus overflow.
+
+  This contradicts what this document said for a long time — `large` on top-level, collapsing on
+  scroll — and the app never had one. Keeping the small bar is the decision: a large title spends
+  around 52dp of permanent vertical space, and every screen here exists to show as many rows as
+  possible to someone holding a phone on a factory floor. That trade is right for an app opened
+  twice a week and wrong for one opened forty times a shift.
+
+### Screen shells
+
+Two, and between them they cover everything with chrome:
+
+| Shell | For | Owns |
+|---|---|---|
+| `AppScreen` | lists, hubs, settings | bar, title, actions, optional tabs |
+| `DetailScaffold` | one record | the same bar, plus loading / error / empty |
+
+A bare `Scaffold` is correct only for a screen with no bar at all — Splash and Login. Everywhere
+else, going direct is how nine screens each ended up with their own idea of the chrome.
 
 ### FAB rules
 
@@ -354,6 +387,19 @@ nothing at all. The claim that "the lint config enforces this" was never true: n
 the difference between a design opacity and any other double, and the rule had already drifted to
 four opacities for one idea, two hand-typed copies of one heading tracking, and three inline
 durations.
+
+### Looking at it
+
+`DesignGallery` — Settings → Debug → Design system, in a debug build — shows every component on one
+screen in three tabs, and six goldens cover it in both themes. It is the cheapest coverage in the
+suite: a change to a shared token fails there with everything it affects visible in the same diff,
+rather than surfacing in whichever feature screen happened to be goldened and looking like a bug in
+that feature.
+
+It is also the answer to how the drift below happened. Four opacities for one idea and two tab bars
+behaving differently are obvious side by side and invisible one file at a time.
+
+### Keeping it
 
 `test/core/design/token_discipline_test.dart` enforces it now. It reads every widget file and fails
 on an inline `Duration(...)` or `alpha: 0.x`, naming the file and line. Its scope is widget files
