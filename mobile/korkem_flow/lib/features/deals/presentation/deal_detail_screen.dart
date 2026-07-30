@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/core/crm/crm_status.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_filter_sheet.dart';
 import 'package:korkem_flow/core/design/widgets/detail_view.dart';
-import 'package:korkem_flow/core/design/widgets/error_feedback.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
@@ -56,9 +56,7 @@ class DealDetailScreen extends ConsumerWidget {
         ..invalidate(dealDetailProvider(deal.id))
         ..invalidate(dealsControllerProvider);
     } on Exception catch (error) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(errorMessageOf(error, l10n))),
-      );
+      messenger.showFailure(error, l10n);
     }
   }
 

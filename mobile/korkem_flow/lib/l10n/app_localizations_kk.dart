@@ -174,6 +174,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get authSignOutConfirm => 'Осы құрылғыдан шығу керек пе?';
 
   @override
+  String get authSignOutBody =>
+      'Қайта кіру үшін сервер мекенжайы мен құпия сөз қажет болады.';
+
+  @override
   String get authFieldRequired => 'Міндетті өріс';
 
   @override

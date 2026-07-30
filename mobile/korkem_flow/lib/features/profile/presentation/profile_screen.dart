@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -21,24 +22,18 @@ class ProfileScreen extends ConsumerWidget {
   Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        content: Text(l10n.authSignOutConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.actionCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.authSignOut),
-          ),
-        ],
-      ),
+      title: l10n.authSignOutConfirm,
+      message: l10n.authSignOutBody,
+      confirmLabel: l10n.authSignOut,
+      // Signing out clears the stored credential: getting back in needs the
+      // server address and a password, which on a shop floor is not a thing
+      // the person holding the phone necessarily has.
+      isDestructive: true,
     );
 
-    if (confirmed ?? false) {
+    if (confirmed) {
       await ref.read(sessionProvider.notifier).signOut();
     }
   }

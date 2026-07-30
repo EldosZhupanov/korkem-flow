@@ -5,10 +5,9 @@ import 'package:korkem_flow/core/design/motion/swipe_action.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
-import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/tokens/typography.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
-import 'package:korkem_flow/core/design/widgets/error_feedback.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/tasks/application/tasks_controller.dart';
 import 'package:korkem_flow/features/tasks/domain/task.dart';
@@ -29,10 +28,10 @@ class TasksScreen extends ConsumerWidget {
     // no `await` left to throw into. This is where it surfaces.
     ref.listen(taskFailureProvider, (_, failure) {
       if (failure == null) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.taskCompleteFailed(errorMessageOf(failure, l10n))),
-        ),
+      ScaffoldMessenger.of(
+        context,
+      ).showFailureMessage(
+        l10n.taskCompleteFailed(errorMessageOf(failure, l10n)),
       );
       ref.read(taskFailureProvider.notifier).clear();
     });
@@ -180,21 +179,11 @@ class _TaskCardState extends ConsumerState<TaskCard> {
 
     controller.completeLater(task);
 
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(l10n.taskCompleted),
-          // Exactly the undo window: a button that outlives the window it
-          // controls is a button that silently stops working while still on
-          // screen.
-          duration: AppDebounce.undo,
-          action: SnackBarAction(
-            label: l10n.actionUndo,
-            onPressed: () => controller.undoComplete(task),
-          ),
-        ),
-      );
+    ScaffoldMessenger.of(context).showUndoable(
+      message: l10n.taskCompleted,
+      undoLabel: l10n.actionUndo,
+      onUndo: () => controller.undoComplete(task),
+    );
   }
 
   @override

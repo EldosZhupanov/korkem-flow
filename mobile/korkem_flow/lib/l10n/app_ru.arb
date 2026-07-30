@@ -53,6 +53,7 @@
   "authSignIn": "Войти",
   "authSignOut": "Выйти",
   "authSignOutConfirm": "Выйти на этом устройстве?",
+  "authSignOutBody": "Чтобы войти снова, понадобятся адрес сервера и пароль.",
   "authFieldRequired": "Обязательное поле",
   "authInvalidServer": "Некорректный адрес.",
   "settingsTitle": "Настройки",

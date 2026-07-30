@@ -5,9 +5,9 @@ import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/core/crm/crm_status.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_filter_sheet.dart';
 import 'package:korkem_flow/core/design/widgets/detail_view.dart';
-import 'package:korkem_flow/core/design/widgets/error_feedback.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/leads/application/leads_controller.dart';
 import 'package:korkem_flow/features/leads/domain/lead.dart';
@@ -55,9 +55,7 @@ class LeadDetailScreen extends ConsumerWidget {
         ..invalidate(leadDetailProvider(lead.id))
         ..invalidate(leadsControllerProvider);
     } on Exception catch (error) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(errorMessageOf(error, l10n))),
-      );
+      messenger.showFailure(error, l10n);
     }
   }
 

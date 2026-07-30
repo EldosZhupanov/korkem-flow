@@ -174,6 +174,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authSignOutConfirm => 'Выйти на этом устройстве?';
 
   @override
+  String get authSignOutBody =>
+      'Чтобы войти снова, понадобятся адрес сервера и пароль.';
+
+  @override
   String get authFieldRequired => 'Обязательное поле';
 
   @override

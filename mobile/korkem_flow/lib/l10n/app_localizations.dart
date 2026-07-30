@@ -418,6 +418,12 @@ abstract class AppLocalizations {
   /// **'Sign out of this device?'**
   String get authSignOutConfirm;
 
+  /// Body of the sign-out confirmation, naming what it costs to undo
+  ///
+  /// In en, this message translates to:
+  /// **'You will need the server address and your password to sign back in.'**
+  String get authSignOutBody;
+
   /// No description provided for @authFieldRequired.
   ///
   /// In en, this message translates to:

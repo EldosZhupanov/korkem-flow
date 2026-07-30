@@ -174,6 +174,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authSignOutConfirm => 'Sign out of this device?';
 
   @override
+  String get authSignOutBody =>
+      'You will need the server address and your password to sign back in.';
+
+  @override
   String get authFieldRequired => 'Required';
 
   @override

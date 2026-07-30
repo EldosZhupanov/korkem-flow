@@ -74,13 +74,24 @@ class _FilterSheet<T> extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 AppSpacing.sm,
-                AppSpacing.lg,
+                AppSpacing.sm,
                 AppSpacing.md,
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(title, style: theme.textTheme.titleLarge),
+                  ),
+                  // A visible way out, not only a drag. `docs/design_system.md`
+                  // §8 has required this of every sheet from the start and
+                  // this one never had it: the drag handle is the affordance
+                  // only for someone who already knows sheets drag, and the
+                  // Android back gesture is the same bet. Someone who opened
+                  // this by accident had nothing to aim at.
+                  IconButton(
+                    icon: const Icon(AppIcons.close),
+                    tooltip: l10n.actionClose,
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),

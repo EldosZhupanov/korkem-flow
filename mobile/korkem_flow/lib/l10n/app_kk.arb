@@ -53,6 +53,7 @@
   "authSignIn": "Кіру",
   "authSignOut": "Шығу",
   "authSignOutConfirm": "Осы құрылғыдан шығу керек пе?",
+  "authSignOutBody": "Қайта кіру үшін сервер мекенжайы мен құпия сөз қажет болады.",
   "authFieldRequired": "Міндетті өріс",
   "authInvalidServer": "Мекенжай жарамсыз.",
   "settingsTitle": "Параметрлер",

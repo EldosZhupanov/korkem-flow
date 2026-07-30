@@ -106,6 +106,10 @@
   "authSignIn": "Sign in",
   "authSignOut": "Sign out",
   "authSignOutConfirm": "Sign out of this device?",
+  "authSignOutBody": "You will need the server address and your password to sign back in.",
+  "@authSignOutBody": {
+    "description": "Body of the sign-out confirmation, naming what it costs to undo"
+  },
   "authFieldRequired": "Required",
   "authInvalidServer": "That is not a valid address.",
   "settingsTitle": "Settings",
