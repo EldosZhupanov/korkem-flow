@@ -16,6 +16,8 @@ import 'package:korkem_flow/core/navigation/app_destinations.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
+import 'package:korkem_flow/features/dashboard/presentation/attention_hero.dart';
+import 'package:korkem_flow/features/dashboard/presentation/workload_bar.dart';
 import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -71,114 +73,183 @@ class _Body extends StatelessWidget {
   final DashboardSummary? summary;
   final bool isLoading;
 
+  int? _metric(String key) => summary?[key];
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final attention = summary?.attention ?? const <AttentionItem>[];
+    final overdue = _metric(DashboardSummary.overdueTasks);
+    final pending = _metric(DashboardSummary.pendingActions);
+    final needsYou = (overdue ?? 0) + (pending ?? 0) > 0;
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
-        SectionLabel(l10n.dashboardGreeting),
-        _MetricGrid(summary: summary, isLoading: isLoading),
-        const SizedBox(height: AppSpacing.xxl),
-
-        SectionLabel(l10n.dashboardAttention),
+        // What needs you comes first. The screen used to open with six equal
+        // tiles and put the actionable list below them, so the two facts that
+        // actually stop work — an overdue task, a decision an agent is blocked
+        // on — were the same size as a lead count nobody acts on before lunch,
+        // and sat further down the page than it.
         if (isLoading)
-          const ListSkeleton(rows: 2)
-        else if (summary == null || summary!.attention.isEmpty)
+          const ListSkeleton(rows: 1)
+        else if (needsYou)
+          AttentionHero(
+            overdue: overdue,
+            pending: pending,
+            onOpen: () => _openQueue(context, pending: pending),
+          )
+        else
           SuccessView(
-            // Dense: this sits under a populated metric grid, not on a screen
-            // of its own, and the full-size mark pushes its own headline past
-            // the bottom of the viewport.
+            // Dense: this shares the screen with the metrics below rather than
+            // owning it, and at full size the mark pushes its own headline
+            // past the bottom of the viewport.
             dense: true,
             title: l10n.dashboardAllClear,
             message: l10n.dashboardAllClearBody,
-          )
-        else
-          for (final item in summary!.attention)
+          ),
+
+        if (!isLoading && attention.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          for (final item in attention)
             Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.md),
               child: _AttentionCard(item: item),
             ),
+        ],
+
+        const SizedBox(height: AppSpacing.xl),
+
+        // Grouped rather than gridded. Six metrics in one undifferentiated
+        // block make the reader do the sorting; three named pairs answer three
+        // separate questions — how am I doing, how is the pipeline, what is on
+        // the floor.
+        _MetricGroup(
+          label: l10n.dashboardMyWork,
+          isLoading: isLoading,
+          summary: summary,
+          metrics: [
+            _Metric(
+              DashboardSummary.myOpenTasks,
+              l10n.metricMyOpenTasks,
+              AppIcons.task,
+            ),
+            _Metric(
+              DashboardSummary.overdueTasks,
+              l10n.metricOverdueTasks,
+              AppIcons.schedule,
+              intent: StatusIntent.danger,
+            ),
+          ],
+          footer: WorkloadBar(
+            total: _metric(DashboardSummary.myOpenTasks),
+            overdue: overdue,
+          ),
+        ),
+
+        _MetricGroup(
+          label: l10n.navSales,
+          isLoading: isLoading,
+          summary: summary,
+          metrics: [
+            _Metric(
+              DashboardSummary.openDeals,
+              l10n.metricOpenDeals,
+              AppIcons.deal,
+            ),
+            _Metric(
+              DashboardSummary.openLeads,
+              l10n.metricOpenLeads,
+              AppIcons.lead,
+            ),
+          ],
+        ),
+
+        _MetricGroup(
+          label: l10n.navProduction,
+          isLoading: isLoading,
+          summary: summary,
+          metrics: [
+            _Metric(
+              DashboardSummary.workOrdersInProgress,
+              l10n.metricWorkOrders,
+              AppIcons.workOrder,
+              route: Routes.production,
+            ),
+            _Metric(
+              DashboardSummary.pendingActions,
+              l10n.metricPendingActions,
+              AppIcons.approval,
+              intent: StatusIntent.warning,
+              route: Routes.approvals,
+            ),
+          ],
+        ),
       ],
     );
   }
+
+  /// Opens whichever queue the headline is mostly about. Someone tapping "5
+  /// need you" wants the five, and approvals is the half with a decision
+  /// waiting rather than a deadline already missed.
+  void _openQueue(BuildContext context, {required int? pending}) {
+    if ((pending ?? 0) > 0) {
+      unawaited(context.push<void>(Routes.approvals));
+    } else {
+      StatefulNavigationShell.of(context).goBranch(branchIndexOf(Routes.tasks));
+    }
+  }
 }
 
-class _MetricGrid extends StatelessWidget {
-  const _MetricGrid({required this.summary, required this.isLoading});
+/// One named pair of metrics, with an optional line of context beneath.
+class _MetricGroup extends StatelessWidget {
+  const _MetricGroup({
+    required this.label,
+    required this.metrics,
+    required this.summary,
+    required this.isLoading,
+    this.footer,
+  });
 
+  final String label;
+  final List<_Metric> metrics;
   final DashboardSummary? summary;
   final bool isLoading;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    final metrics = <_Metric>[
-      _Metric(DashboardSummary.openDeals, l10n.metricOpenDeals, AppIcons.deal),
-      _Metric(DashboardSummary.openLeads, l10n.metricOpenLeads, AppIcons.lead),
-      _Metric(
-        DashboardSummary.myOpenTasks,
-        l10n.metricMyOpenTasks,
-        AppIcons.task,
-      ),
-      _Metric(
-        DashboardSummary.overdueTasks,
-        l10n.metricOverdueTasks,
-        AppIcons.schedule,
-        intent: StatusIntent.danger,
-      ),
-      _Metric(
-        DashboardSummary.pendingActions,
-        l10n.metricPendingActions,
-        AppIcons.approval,
-        intent: StatusIntent.warning,
-        route: Routes.approvals,
-      ),
-      _Metric(
-        DashboardSummary.workOrdersInProgress,
-        l10n.metricWorkOrders,
-        AppIcons.workOrder,
-        route: Routes.production,
-      ),
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Two tiles on a phone, more as width allows. Driven by measured width
-        // rather than a device class, so a foldable and a split-screen tablet
-        // both get a sane count.
-        final columns = (constraints.maxWidth / AppBreakpoints.minTileWidth)
-            .floor()
-            .clamp(2, 4);
-
-        return GridView(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: columns,
-            crossAxisSpacing: AppSpacing.md,
-            mainAxisSpacing: AppSpacing.md,
-            // Height from the tile, not from an aspect ratio. A ratio ties
-            // height to width, so the tile could not grow when its text did.
-            mainAxisExtent: KpiTile.heightFor(context),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionLabel(label),
+          SizedBox(
+            height: KpiTile.heightFor(context),
+            child: Row(
+              children: [
+                for (final (index, metric) in metrics.indexed) ...[
+                  if (index > 0) const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: KpiTile(
+                      label: metric.label,
+                      icon: metric.icon,
+                      intent: metric.intent,
+                      isLoading: isLoading,
+                      value: summary?[metric.key],
+                      onTap: metric.route == null
+                          ? null
+                          : () => unawaited(context.push<void>(metric.route!)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            for (final metric in metrics)
-              KpiTile(
-                label: metric.label,
-                icon: metric.icon,
-                intent: metric.intent,
-                isLoading: isLoading,
-                onTap: metric.route == null
-                    ? null
-                    : () => context.push(metric.route!),
-                value: summary?[metric.key],
-              ),
-          ],
-        );
-      },
+          if (footer != null && !isLoading) footer!,
+        ],
+      ),
     );
   }
 }

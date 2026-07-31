@@ -472,6 +472,18 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get dashboardGreeting;
 
+  /// No description provided for @dashboardMyWork.
+  ///
+  /// In en, this message translates to:
+  /// **'My work'**
+  String get dashboardMyWork;
+
+  /// Under the task tiles: how much of a person's own workload is late
+  ///
+  /// In en, this message translates to:
+  /// **'{overdue} of {total} are overdue'**
+  String dashboardWorkload(int overdue, int total);
+
   /// No description provided for @dashboardAttention.
   ///
   /// In en, this message translates to:

@@ -202,6 +202,14 @@ class AppLocalizationsKk extends AppLocalizations {
   String get dashboardGreeting => 'Бүгін';
 
   @override
+  String get dashboardMyWork => 'Менің жұмысым';
+
+  @override
+  String dashboardWorkload(int overdue, int total) {
+    return '$total ішінен $overdue мерзімі өткен';
+  }
+
+  @override
   String get dashboardAttention => 'Назар аударыңыз';
 
   @override

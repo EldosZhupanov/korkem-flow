@@ -202,6 +202,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardGreeting => 'Today';
 
   @override
+  String get dashboardMyWork => 'My work';
+
+  @override
+  String dashboardWorkload(int overdue, int total) {
+    return '$overdue of $total are overdue';
+  }
+
+  @override
   String get dashboardAttention => 'Needs attention';
 
   @override

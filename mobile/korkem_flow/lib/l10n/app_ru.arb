@@ -62,6 +62,8 @@
   "settingsConnection": "Подключение",
   "navDashboard": "Главная",
   "dashboardGreeting": "Сегодня",
+  "dashboardMyWork": "Моя работа",
+  "dashboardWorkload": "{overdue} из {total} просрочены",
   "dashboardAttention": "Требует внимания",
   "dashboardAllClear": "Сейчас ничего не требует вашего участия",
   "dashboardAllClearBody": "Здесь появятся просроченные задачи и решения, которые ждут вас.",

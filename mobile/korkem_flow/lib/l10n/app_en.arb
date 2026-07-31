@@ -118,6 +118,12 @@
   "settingsConnection": "Connection",
   "navDashboard": "Home",
   "dashboardGreeting": "Today",
+  "dashboardMyWork": "My work",
+  "dashboardWorkload": "{overdue} of {total} are overdue",
+  "@dashboardWorkload": {
+    "description": "Under the task tiles: how much of a person's own workload is late",
+    "placeholders": { "overdue": { "type": "int" }, "total": { "type": "int" } }
+  },
   "dashboardAttention": "Needs attention",
   "dashboardAllClear": "Nothing needs you right now",
   "dashboardAllClearBody": "Overdue work and decisions waiting on you appear here.",

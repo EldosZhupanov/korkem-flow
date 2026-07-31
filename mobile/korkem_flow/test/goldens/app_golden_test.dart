@@ -76,8 +76,7 @@ void main() {
 
       testWidgets('production', (tester) async {
         await _pumpApp(tester, brightness: brightness);
-        await tester.tap(find.text('В производстве'));
-        await tester.pumpAndSettle();
+        await _tapMetric(tester, 'В производстве');
 
         await precacheBrandAssets(tester);
         await expectLater(
@@ -100,8 +99,7 @@ void main() {
 
       testWidgets('warehouse', (tester) async {
         await _pumpApp(tester, brightness: brightness);
-        await tester.tap(find.text('В производстве'));
-        await tester.pumpAndSettle();
+        await _tapMetric(tester, 'В производстве');
         await tester.tap(find.text('Склад'));
         await tester.pumpAndSettle();
         // Expanded, because the per-warehouse balance is the whole point of
@@ -269,6 +267,24 @@ Future<void> _pumpApp(
     ),
   );
 
+  await tester.pumpAndSettle();
+}
+
+/// Taps a dashboard metric tile, scrolling to it first.
+///
+/// The dashboard groups its metrics under three headings now instead of
+/// showing one six-up grid, so Production sits below the fold — and a ListView
+/// does not build what it is not showing, which reads as "the widget does not
+/// exist" rather than "you have not scrolled to it".
+Future<void> _tapMetric(WidgetTester tester, String label) async {
+  final tile = find.text(label);
+  await tester.scrollUntilVisible(
+    tile,
+    200,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(tile);
   await tester.pumpAndSettle();
 }
 

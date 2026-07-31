@@ -62,6 +62,8 @@
   "settingsConnection": "Қосылым",
   "navDashboard": "Басты бет",
   "dashboardGreeting": "Бүгін",
+  "dashboardMyWork": "Менің жұмысым",
+  "dashboardWorkload": "{total} ішінен {overdue} мерзімі өткен",
   "dashboardAttention": "Назар аударыңыз",
   "dashboardAllClear": "Қазір сізден ештеңе талап етілмейді",
   "dashboardAllClearBody": "Мұнда мерзімі өткен тапсырмалар мен сізді күтіп тұрған шешімдер көрінеді.",
