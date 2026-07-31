@@ -232,7 +232,7 @@ class _MetaChip extends StatelessWidget {
       children: [
         Icon(
           meta.icon,
-          size: AppIconSize.inline - 2,
+          size: AppIconSize.dense,
           color: theme.colorScheme.outline,
         ),
         const SizedBox(width: AppSpacing.xs),

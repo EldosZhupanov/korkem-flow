@@ -46,7 +46,7 @@ class StatusChip extends StatelessWidget {
             if (!compact) ...[
               Icon(
                 StatusColors.iconFor(intent),
-                size: AppIconSize.inline - 2,
+                size: AppIconSize.dense,
                 color: color,
               ),
               const SizedBox(width: AppSpacing.xs),

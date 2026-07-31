@@ -128,7 +128,7 @@ class _ApprovalCardState extends ConsumerState<ApprovalCard> {
               children: [
                 Icon(
                   AppIcons.schedule,
-                  size: AppIconSize.inline - 2,
+                  size: AppIconSize.dense,
                   color: expired
                       ? context.statusColors.danger
                       : theme.colorScheme.outline,

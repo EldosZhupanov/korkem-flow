@@ -223,7 +223,7 @@ class _Meta extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: AppIconSize.inline - 2,
+          size: AppIconSize.dense,
           color: theme.colorScheme.outline,
         ),
         const SizedBox(width: AppSpacing.xs),

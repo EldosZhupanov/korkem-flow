@@ -192,7 +192,7 @@ class _Meta extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: AppIconSize.inline - 2, color: color),
+        Icon(icon, size: AppIconSize.dense, color: color),
         const SizedBox(width: AppSpacing.xs),
         Text(
           label,

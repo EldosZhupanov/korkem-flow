@@ -39,6 +39,11 @@ abstract final class AppTouchTarget {
 }
 
 abstract final class AppIconSize {
+  /// Beside `labelSmall` on a metadata row, where 16 crowds the text it is
+  /// annotating. Previously written as `inline - 2` at five separate call
+  /// sites — arithmetic on a token is a token nobody agreed to.
+  static const double dense = 14;
+
   static const double inline = 16;
   static const double small = 20;
   static const double normal = 24;
@@ -53,6 +58,15 @@ abstract final class AppBreakpoints {
 
   /// Narrowest a KPI tile may get before the grid drops a column.
   static const double minTileWidth = 180;
+
+  /// The widest a column of content may get before it stops being readable.
+  ///
+  /// Not a stylistic cap. At 1024dp a deal card ran the full width, which put
+  /// its status chip some 600dp from the title it describes — far enough that
+  /// the two cannot be taken in together, so a glanceable list stopped being
+  /// glanceable. A phone is unaffected; this only ever binds on a tablet, a
+  /// foldable or a desktop window.
+  static const double readable = 720;
 }
 
 /// Heights that exist because a layout has to reserve space before it knows

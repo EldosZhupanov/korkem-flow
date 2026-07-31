@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 
 /// The chrome every non-detail screen wears: a bar, a title, and a body.
 ///
@@ -52,7 +53,7 @@ class AppScreen extends StatelessWidget {
     if (tabs.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(title), actions: actions),
-        body: body,
+        body: ReadableWidth(child: body ?? const SizedBox.shrink()),
       );
     }
 
@@ -73,7 +74,11 @@ class AppScreen extends StatelessWidget {
             tabs: [for (final tab in tabs) Tab(text: tab.label)],
           ),
         ),
-        body: TabBarView(children: [for (final tab in tabs) tab.view]),
+        body: TabBarView(
+          children: [
+            for (final tab in tabs) ReadableWidth(child: tab.view),
+          ],
+        ),
       ),
     );
   }

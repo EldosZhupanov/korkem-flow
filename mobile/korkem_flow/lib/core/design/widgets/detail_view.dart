@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
@@ -36,19 +37,21 @@ class DetailScaffold<T> extends StatelessWidget {
         title: title == null ? null : Text(title!),
         actions: actions,
       ),
-      body: RefreshIndicator(
-        onRefresh: onRefresh,
-        child: switch (state) {
-          AsyncLoading() => const ListSkeleton(rows: 4),
-          AsyncError(:final error) => ErrorView(
-            error: error,
-            onRetry: onRefresh,
-          ),
-          AsyncData(:final value) => ListView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [builder(context, value)],
-          ),
-        },
+      body: ReadableWidth(
+        child: RefreshIndicator(
+          onRefresh: onRefresh,
+          child: switch (state) {
+            AsyncLoading() => const ListSkeleton(rows: 4),
+            AsyncError(:final error) => ErrorView(
+              error: error,
+              onRetry: onRefresh,
+            ),
+            AsyncData(:final value) => ListView(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              children: [builder(context, value)],
+            ),
+          },
+        ),
       ),
     );
   }
