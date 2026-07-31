@@ -76,48 +76,59 @@ class KpiTile extends StatelessWidget {
         ? theme.colorScheme.primary
         : context.statusColors.resolve(intent!);
 
-    return AppCard(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: AppIconSize.small, color: accent),
-                const SizedBox(width: AppSpacing.sm),
-              ],
-              Expanded(
-                child: Text(
-                  label,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+    // Merged, so the label and the figure are announced as one thing.
+    //
+    // Left apart, a screen-reader user swiping the dashboard hears "Открытые
+    // сделки", then "266", then "Лиды", then "424" — four stops where there
+    // are two facts, and every number meaningful only because of what was read
+    // before it. The loading placeholder is excluded outright: a shimmering
+    // box has nothing to say.
+    return MergeSemantics(
+      child: AppCard(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: AppIconSize.small, color: accent),
+                  const SizedBox(width: AppSpacing.sm),
+                ],
+                Expanded(
+                  child: Text(
+                    label,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          if (isLoading)
-            // Placeholder matches the final text height so the tile does not
-            // resize when the real number lands.
-            Container(
-              height: AppPlaceholder.metricHeight,
-              width: AppPlaceholder.metricWidth,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(AppRadius.xs),
-              ),
-            )
-          else
-            AnimatedCounter(
-              value: value,
-              placeholder: _withheld,
-              style: theme.textTheme.displaySmall?.copyWith(color: accent),
+              ],
             ),
-        ],
+            const SizedBox(height: AppSpacing.sm),
+            if (isLoading)
+              // Placeholder matches the final text height so the tile does not
+              // resize when the real number lands.
+              ExcludeSemantics(
+                child: Container(
+                  height: AppPlaceholder.metricHeight,
+                  width: AppPlaceholder.metricWidth,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(AppRadius.xs),
+                  ),
+                ),
+              )
+            else
+              AnimatedCounter(
+                value: value,
+                placeholder: _withheld,
+                style: theme.textTheme.displaySmall?.copyWith(color: accent),
+              ),
+          ],
+        ),
       ),
     );
   }
