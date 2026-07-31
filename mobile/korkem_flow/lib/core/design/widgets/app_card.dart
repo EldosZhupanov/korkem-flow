@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/design/motion/app_pressable.dart';
 import 'package:korkem_flow/core/design/motion/hero_title.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 
 /// The base surface for every entity in the app.
@@ -24,13 +26,38 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Padding(padding: padding, child: child);
+    // Shadows are a light-mode device. Against a forest field they are
+    // invisible and cost a raster pass to prove it, so dark mode separates
+    // cards with the hairline outline the card theme already carries.
+    final lifts = Theme.of(context).brightness == Brightness.light;
 
     return AppPressable(
       onTap: onTap,
+      builder: lifts ? _lift : null,
       child: Card(
         clipBehavior: Clip.antiAlias,
         child: onTap == null ? content : InkWell(onTap: onTap, child: content),
       ),
+    );
+  }
+
+  /// The card sinks toward the page under a finger rather than rising off it.
+  ///
+  /// Pressing something pushes it away; a card that grows a deeper shadow when
+  /// touched is moving the wrong way, however pretty the frame looks paused.
+  static Widget _lift(
+    BuildContext context, {
+    required bool pressed,
+    required Widget child,
+  }) {
+    return AnimatedContainer(
+      duration: motionOf(context, AppDuration.instant),
+      curve: AppCurves.standard,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: pressed ? AppElevation.pressed : AppElevation.resting,
+      ),
+      child: child,
     );
   }
 }

@@ -15,10 +15,16 @@ class AppPressable extends StatefulWidget {
     required this.child,
     this.onTap,
     this.scale = AppMotionScale.pressedScale,
+    this.builder,
     super.key,
   });
 
   final Widget child;
+
+  /// Wraps [child] with anything else that should respond to touch — a shadow
+  /// that shallows as the card sinks, most often. Left null where scale alone
+  /// is the whole response.
+  final PressDecoration? builder;
 
   /// When null the widget is inert and no press feedback is shown — a control
   /// that reacts to touch but does nothing is worse than one that ignores it.
@@ -40,7 +46,14 @@ class _AppPressableState extends State<AppPressable> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.onTap == null) return widget.child;
+    final decorate = widget.builder;
+
+    // An inert card still needs its resting depth — it is an object on a page
+    // whether or not it can be tapped. Only the *response* is withheld.
+    if (widget.onTap == null) {
+      return decorate?.call(context, pressed: false, child: widget.child) ??
+          widget.child;
+    }
 
     return GestureDetector(
       // Translucent, so the gesture is seen without stealing it: the child's
@@ -55,8 +68,18 @@ class _AppPressableState extends State<AppPressable> {
         // rides the same duration because an asymmetric spring reads as lag.
         duration: motionOf(context, AppDuration.instant),
         curve: AppCurves.standard,
-        child: widget.child,
+        child:
+            decorate?.call(context, pressed: _pressed, child: widget.child) ??
+            widget.child,
       ),
     );
   }
 }
+
+/// Decorates a child according to whether it is currently under a finger.
+typedef PressDecoration =
+    Widget Function(
+      BuildContext context, {
+      required bool pressed,
+      required Widget child,
+    });

@@ -98,6 +98,49 @@ abstract final class AppColors {
   static const tertiaryContainerDark = Color(0xFF33392F);
 }
 
+/// Depth, as two shadows rather than one.
+///
+/// A single blurred drop reads as a sticker. Two — a tight contact shadow that
+/// anchors an edge, and a wide ambient one that lifts the whole shape — is what
+/// the eye accepts as an object on a surface, and it is the difference between
+/// a card that looks pasted on and one that looks placed.
+///
+/// **Light mode only, and not for decoration.** A card sits 1.10:1 above the
+/// cream page — the same near-invisibility that forced a real border onto the
+/// input fields. The shadow is what makes a card legible *as a card*. Dark mode
+/// gets none: a shadow is invisible against a forest field and costs a raster
+/// pass to prove it, so the hairline outline does that job there instead.
+///
+/// Both shadows are forest, never black. Black on warm cream goes muddy; the
+/// brand's own dark tinted down stays in the family.
+abstract final class AppElevation {
+  /// A card, a tile, a sheet at rest.
+  static const List<BoxShadow> resting = [
+    BoxShadow(color: Color(0x0F2B382A), blurRadius: 2, offset: Offset(0, 1)),
+    BoxShadow(color: Color(0x0D2B382A), blurRadius: 12, offset: Offset(0, 4)),
+  ];
+
+  /// Under a finger. Shallower, not deeper — pressing something pushes it
+  /// toward the page, and a card that grows a bigger shadow when touched is
+  /// moving the wrong way.
+  static const List<BoxShadow> pressed = [
+    BoxShadow(color: Color(0x0D2B382A), blurRadius: 1, offset: Offset(0, 1)),
+    BoxShadow(color: Color(0x082B382A), blurRadius: 4, offset: Offset(0, 1)),
+  ];
+
+  /// Anything that floats over content and must be read as detached: a menu, a
+  /// bottom sheet, a dialog.
+  static const List<BoxShadow> overlay = [
+    BoxShadow(color: Color(0x142B382A), blurRadius: 4, offset: Offset(0, 2)),
+    BoxShadow(color: Color(0x142B382A), blurRadius: 28, offset: Offset(0, 12)),
+  ];
+
+  /// Every shadow above is this colour with an alpha channel — which `const`
+  /// cannot express any other way, so `app_elevation_test.dart` proves it
+  /// rather than this comment claiming it.
+  static const Color source = AppColors.forest;
+}
+
 /// Opacities for tinting a surface with the colour of the thing it describes.
 ///
 /// A status chip, a swipe background and the plate behind an empty-state glyph
