@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/design/motion/animated_counter.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
@@ -33,6 +35,39 @@ class KpiTile extends StatelessWidget {
   final StatusIntent? intent;
   final VoidCallback? onTap;
   final bool isLoading;
+
+  /// The height this tile needs, at the caller's current text scale.
+  ///
+  /// A grid has to know its row height before it lays a tile out, so the tile
+  /// has to be able to say. The alternative — a fixed `childAspectRatio`, which
+  /// is what this replaced — ties height to *width*, so a tile cannot grow when
+  /// the text inside it does: at the 1.6x scale the app documents as supported,
+  /// the content overflowed the tile by 11 pixels.
+  ///
+  /// Only the text scales. Padding and the gap are physical spacing and stay
+  /// put, which is why they are added outside the scaler rather than inside it.
+  ///
+  /// The label row is the *taller* of its icon and its text, not the text
+  /// alone. The icon is a fixed 20dp and the label's line box is 16, so at
+  /// normal scale the icon is what sets the row — getting that wrong left the
+  /// tile exactly 4px short, which is what the goldens caught.
+  static double heightFor(BuildContext context) {
+    final theme = Theme.of(context).textTheme;
+    final scaler = MediaQuery.textScalerOf(context);
+
+    double lineOf(TextStyle? style) =>
+        scaler.scale((style?.fontSize ?? 0) * (style?.height ?? 1));
+
+    final labelRow = math.max(
+      AppIconSize.small,
+      lineOf(theme.labelMedium),
+    );
+
+    return AppSpacing.lg * 2 +
+        labelRow +
+        AppSpacing.sm +
+        lineOf(theme.displaySmall);
+  }
 
   @override
   Widget build(BuildContext context) {

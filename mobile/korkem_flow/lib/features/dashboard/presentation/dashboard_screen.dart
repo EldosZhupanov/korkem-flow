@@ -153,11 +153,15 @@ class _MetricGrid extends StatelessWidget {
             .floor()
             .clamp(2, 4);
 
-        return GridView.count(
-          crossAxisCount: columns,
-          crossAxisSpacing: AppSpacing.md,
-          mainAxisSpacing: AppSpacing.md,
-          childAspectRatio: 1.5,
+        return GridView(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: AppSpacing.md,
+            mainAxisSpacing: AppSpacing.md,
+            // Height from the tile, not from an aspect ratio. A ratio ties
+            // height to width, so the tile could not grow when its text did.
+            mainAxisExtent: KpiTile.heightFor(context),
+          ),
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: [
