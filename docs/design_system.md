@@ -30,6 +30,11 @@ not approximated:
 
 They measure **8.84:1** against each other — AAA for body text in either direction.
 
+Everything under `assets/brand/` is cut from that file by
+`mobile/korkem_flow/tool/extract_brand_assets.py`, which is committed so the assets are reproducible
+rather than a one-off nobody can repeat. Re-run it after any change to the artwork, then regenerate
+the launcher icon, the splash and the goldens.
+
 That is a *surface* relationship rather than an accent, and the whole theme falls out of it: **dark
 mode is the logo; light mode is the logo inverted.** Forest is the ink on cream paper, cream is the
 ink on a forest field, and neither theme has to invent a colour the brand does not own.
