@@ -5,6 +5,8 @@ import 'package:korkem_flow/core/design/gallery/design_gallery.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
+import '../support/brand_assets.dart';
+
 /// One golden per tab per theme, over the whole component catalogue.
 ///
 /// This is the cheapest coverage in the suite. A change to a shared token —
@@ -53,6 +55,7 @@ void main() {
             await tester.pumpAndSettle();
           }
 
+          await precacheBrandAssets(tester);
           await expectLater(
             find.byType(DesignGallery),
             matchesGoldenFile('gallery_${tab}_$suffix.png'),

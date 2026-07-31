@@ -159,6 +159,17 @@ abstract final class AppTint {
   /// Light falling behind a shape rather than a shape of its own.
   static const double glow = 0.07;
 
+  /// The brand ornament laid in as texture behind an empty-state glyph.
+  ///
+  /// Two values, and not because dark mode was eyeballed. Light ink on a dark
+  /// ground is perceptually weaker than dark ink on a light ground at the same
+  /// alpha — the forest field swallows it — so the ornament at [surface]
+  /// strength read clearly on cream and had all but vanished on forest. Held
+  /// well below the glyph either way: at full strength the weave is busy
+  /// enough to make the icon hard to read, which defeats having an icon.
+  static const double ornament = 0.12;
+  static const double ornamentOnDark = 0.24;
+
   /// A shimmering placeholder rests at [shimmerRest] and travels
   /// [shimmerTravel] above it. Deliberately narrow: a placeholder that pulses
   /// hard competes with the content it is standing in for.

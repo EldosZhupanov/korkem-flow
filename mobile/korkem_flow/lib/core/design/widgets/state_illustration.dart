@@ -4,21 +4,24 @@ import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
 
-/// The single decorative element in the app: a glyph on a lit plate.
+/// The mark that heads an empty, error or success state.
 ///
-/// Drawn from theme colours rather than shipped as artwork, and that is a
-/// deliberate trade. Stock illustration sets — unDraw, Storyset — are free and
-/// good, but every one of them arrives with its own palette, its own line
-/// weight and its own idea of a human figure, none of which are KORKEM's. On a
-/// tool a factory sees forty times a day, art that does not match the product
-/// stops reading as friendly within a week and starts reading as clip art. This
-/// composition inherits the theme, so it is correct in light and dark, at any
-/// accent, forever, and costs no asset, no licence and no download.
+/// The ground is the woven ornament from KORKEM's own Ö, laid in faintly, with
+/// the state's icon centred inside it. That is not a stylistic flourish — it is
+/// the one piece of artwork the company actually owns, and it is already in the
+/// repository as an alpha mask cut from `logo/file-001.png`, so no illustration
+/// had to be drawn, licensed or downloaded to get here.
 ///
-/// Three layers, which is what separates this from a big icon: a soft halo that
-/// reads as light rather than as a ring, a plate with a gradient running across
-/// it, and the glyph. The gradient is what gives the plate a direction — flat
-/// fill at this size looks like a mistake.
+/// It replaces a generic tinted disc. The disc was fine and could have belonged
+/// to any product; a Kazakh lattice could not. Stock sets — unDraw, Storyset —
+/// were considered again after the real brand turned up and are a worse fit
+/// than before, not better: flat pastel figures next to a serif heritage
+/// identity read as borrowed, and no amount of recolouring fixes the drawing
+/// style underneath.
+///
+/// Three layers, and the order matters. A soft halo that reads as light rather
+/// than as a ring; the ornament, quiet enough to be texture; and the glyph,
+/// solid, because it is the thing carrying the meaning.
 class StateIllustration extends StatelessWidget {
   const StateIllustration({
     required this.icon,
@@ -42,6 +45,7 @@ class StateIllustration extends StatelessWidget {
     final theme = Theme.of(context);
     final accent = color ?? theme.colorScheme.outline;
     final duration = motionOf(context, AppDuration.slow);
+    final isDark = theme.brightness == Brightness.dark;
 
     final halo = dense ? AppIllustration.haloDense : AppIllustration.halo;
     final plate = dense ? AppIllustration.plateDense : AppIllustration.plate;
@@ -53,10 +57,8 @@ class StateIllustration extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Halo. Very low alpha — at anything stronger it stops lighting the
-            // plate and becomes a second shape competing with it. The brand
-            // green is near-fluorescent, so on a dark surface it blooms at
-            // values that look restrained on a light one.
+            // Very low alpha — at anything stronger it stops lighting the
+            // ornament and becomes a second shape competing with it.
             DecoratedBox(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -69,23 +71,25 @@ class StateIllustration extends StatelessWidget {
               ),
               child: SizedBox.square(dimension: halo),
             ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    accent.withValues(alpha: AppTint.surface),
-                    accent.withValues(alpha: AppTint.surfaceFaint),
-                  ],
-                ),
+            // Tinted from `onSurface`, not from the glyph's accent.
+            //
+            // The ornament carries the brand; the glyph carries the meaning,
+            // and they are not the same job. Tying the weave to the accent
+            // also made it disappear: on the dark theme `outline` sits almost
+            // on top of the forest surface, so a success-toned or neutral
+            // state showed no ornament at all however high the alpha went.
+            // `onSurface` is the one colour guaranteed to have contrast
+            // against whatever it is drawn on.
+            Image.asset(
+              'assets/brand/korkem_ring.png',
+              width: plate,
+              height: plate,
+              color: theme.colorScheme.onSurface.withValues(
+                alpha: isDark ? AppTint.ornamentOnDark : AppTint.ornament,
               ),
-              child: SizedBox.square(
-                dimension: plate,
-                child: Icon(icon, size: glyph, color: accent),
-              ),
+              excludeFromSemantics: true,
             ),
+            Icon(icon, size: glyph, color: accent),
           ],
         ),
       ),

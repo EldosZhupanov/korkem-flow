@@ -28,6 +28,8 @@ import 'package:korkem_flow/features/tasks/domain/task.dart';
 import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
 import 'package:korkem_flow/features/warehouse/domain/stock_item.dart';
 
+import '../support/brand_assets.dart';
+
 /// Renders the **real** app — `KorkemFlowApp`, its router, its shell — rather
 /// than isolated widgets, so the goldens show what a user would actually see,
 /// bottom navigation and all.
@@ -43,6 +45,7 @@ void main() {
         // golden proves the guard works, not just that the screen renders.
         await _pumpApp(tester, brightness: brightness, signedIn: false);
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('login_$suffix.png'),
@@ -52,6 +55,7 @@ void main() {
       testWidgets('dashboard', (tester) async {
         await _pumpApp(tester, brightness: brightness);
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('dashboard_$suffix.png'),
@@ -63,6 +67,7 @@ void main() {
         await tester.tap(find.text('Ждут решения'));
         await tester.pumpAndSettle();
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('approvals_$suffix.png'),
@@ -74,6 +79,7 @@ void main() {
         await tester.tap(find.text('В производстве'));
         await tester.pumpAndSettle();
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('production_$suffix.png'),
@@ -85,6 +91,7 @@ void main() {
         await tester.tap(find.byTooltip('Уведомления'));
         await tester.pumpAndSettle();
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('notifications_$suffix.png'),
@@ -102,6 +109,7 @@ void main() {
         await tester.tap(find.text('Фасад МДФ 716×396, белый глянец'));
         await tester.pumpAndSettle();
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('warehouse_$suffix.png'),
@@ -114,6 +122,7 @@ void main() {
         await tester.tap(find.text('Счета'));
         await tester.pumpAndSettle();
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('quotes_$suffix.png'),
@@ -124,6 +133,7 @@ void main() {
         await _pumpApp(tester, brightness: brightness);
         await _openTab(tester, 'Продажи');
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('deals_$suffix.png'),
@@ -136,6 +146,7 @@ void main() {
         await tester.tap(find.text('Астана Мебель Групп'));
         await tester.pumpAndSettle();
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('deal_detail_$suffix.png'),
@@ -146,6 +157,7 @@ void main() {
         await _pumpApp(tester, brightness: brightness);
         await _openTab(tester, 'Задачи');
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('tasks_$suffix.png'),
@@ -156,6 +168,7 @@ void main() {
         await _pumpApp(tester, brightness: brightness);
         await _openTab(tester, 'Профиль');
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('profile_$suffix.png'),
@@ -172,6 +185,7 @@ void main() {
         await tester.tap(find.byTooltip('Настройки'));
         await tester.pumpAndSettle();
 
+        await precacheBrandAssets(tester);
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('settings_$suffix.png'),

@@ -297,20 +297,6 @@ class _States extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Page(
       children: [
-        const SectionLabel('Busy'),
-        const _Panel(
-          child: Row(
-            children: [
-              FilledButton(onPressed: null, child: AppBusyIndicator()),
-              SizedBox(width: AppSpacing.md),
-              AppBusyIndicator(),
-            ],
-          ),
-        ),
-
-        const SectionLabel('Loading'),
-        const ListSkeleton(rows: 2),
-
         const SectionLabel('Illustration'),
         _Panel(
           child: Row(
@@ -325,6 +311,20 @@ class _States extends StatelessWidget {
             ],
           ),
         ),
+
+        const SectionLabel('Busy'),
+        const _Panel(
+          child: Row(
+            children: [
+              FilledButton(onPressed: null, child: AppBusyIndicator()),
+              SizedBox(width: AppSpacing.md),
+              AppBusyIndicator(),
+            ],
+          ),
+        ),
+
+        const SectionLabel('Loading'),
+        const ListSkeleton(rows: 2),
 
         const SectionLabel('Empty — filtered to nothing'),
         _Panel(
