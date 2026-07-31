@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/widgets/app_logo.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -30,9 +31,33 @@ void main() {
 
     expect(_indicatorOpacity(tester), 0, reason: 'still invisible at 200ms');
 
-    // The mark, meanwhile, is already there — the screen is not blank while it
-    // waits.
-    expect(find.byType(AppLogo), findsOneWidget);
+    // The brand, meanwhile, is already there — the screen is not blank while
+    // it waits. Both layers: the ornament, and the wordmark under it.
+    expect(find.byType(AppLogo), findsNWidgets(2));
+  });
+
+  testWidgets('the splash is the brand field, whatever the system theme is', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        // Light theme, deliberately: the splash must not follow it.
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const SplashScreen(),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // A logo drawn on its own ground is the point of having one. Letting this
+    // screen turn cream in light mode would put a cream mark on cream.
+    expect(
+      tester
+          .widgetList<ColoredBox>(find.byType(ColoredBox))
+          .map((box) => box.color),
+      contains(AppColors.forest),
+    );
   });
 
   testWidgets('a slow restore eventually explains itself', (tester) async {

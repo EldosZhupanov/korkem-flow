@@ -44,11 +44,13 @@ flutter:
   uses-material-design: true
   generate: true
 
-  # No `assets:` block, and that is a decision rather than an omission. The
-  # only decorative element in the app — the mark on an empty, error or
-  # success state — is drawn from theme colours by `StateIllustration`, not
-  # shipped as artwork. See `docs/design_system.md` §8 for why. Declaring
-  # empty `images/` and `lottie/` directories advertised the opposite.
+  # Only the brand. Illustration is still drawn from theme colours rather than
+  # shipped (see `docs/design_system.md` §8) — but a logo cannot be, and this
+  # one especially: a woven Kazakh ornament inside a serif O is not something
+  # tokens arrive at. Both files are alpha masks, tinted at runtime, so one
+  # asset is correct on cream and on forest.
+  assets:
+    - assets/brand/
 
   fonts:
     # Bundled, not fetched at runtime: google_fonts would make first paint
@@ -58,34 +60,36 @@ flutter:
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf
 
-# Launcher icon, generated from assets/icon/ — which is itself rendered from the
-# design tokens by test/tools/generate_app_icon_test.dart. Regenerate with:
+# Launcher icon, cut from the official logo in `logo/`. Regenerate with:
 #   dart run flutter_launcher_icons
 flutter_launcher_icons:
-  image_path: assets/icon/app_icon.png
+  image_path: assets/brand/icon_play.png
   android: true
   ios: false
   remove_alpha_ios: true
-  # Adaptive icon: a solid brand-dark plate with the glyph floating in the
-  # mask-safe centre, so any launcher shape crops cleanly.
-  adaptive_icon_background: "#121212"
-  adaptive_icon_foreground: assets/icon/app_icon_foreground.png
-  # Monochrome layer for Android 13+ themed icons.
-  adaptive_icon_monochrome: assets/icon/app_icon_foreground.png
+  # The brand field, so the icon is the logo rather than a logo on a plate.
+  adaptive_icon_background: "#2B382A"
+  # The ring and its lattice, without the umlaut ornaments: at 48dp those
+  # become specks while the ring still reads. Verified by rendering both at
+  # 192, 96 and 48px before choosing.
+  adaptive_icon_foreground: assets/brand/icon_foreground.png
+  # Themed icons, Android 13+. A separate white-on-transparent master, because
+  # the launcher recolours this layer and a cream one would tint twice.
+  adaptive_icon_monochrome: assets/brand/icon_monochrome.png
 
-# Launch screen. Matches the Splash route the app itself shows while it
-# restores a stored credential, so the handover is invisible.
+# Launch screen. The brand field in both themes; the Splash route the app draws
+# itself does the same, so the handover from the system splash is invisible.
 #   dart run flutter_native_splash:create
 flutter_native_splash:
-  color: "#FCFDFB"
-  color_dark: "#121212"
-  image: assets/icon/app_icon_foreground.png
-  image_dark: assets/icon/app_icon_foreground.png
+  color: "#2B382A"
+  color_dark: "#2B382A"
+  image: assets/brand/icon_monochrome.png
+  image_dark: assets/brand/icon_monochrome.png
   android_12:
-    color: "#FCFDFB"
-    color_dark: "#121212"
-    image: assets/icon/app_icon_foreground.png
-    image_dark: assets/icon/app_icon_foreground.png
+    color: "#2B382A"
+    color_dark: "#2B382A"
+    image: assets/brand/icon_monochrome.png
+    image_dark: assets/brand/icon_monochrome.png
   android: true
   ios: false
   web: false

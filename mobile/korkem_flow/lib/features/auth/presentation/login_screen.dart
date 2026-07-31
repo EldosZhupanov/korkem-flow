@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
+import 'package:korkem_flow/core/design/widgets/app_logo.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Sign-in against a Frappe site.
@@ -93,12 +94,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      l10n.appTitle,
-                      style: theme.textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
+                    // The logo, not the app's name set in Inter. This is the
+                    // first screen anyone sees and the one place the brand has
+                    // room to be itself; a serif wordmark rendered as a string
+                    // in the UI font was a stand-in for artwork nobody had.
+                    const Center(
+                      child: AppLogo(
+                        layout: LogoLayout.lockup,
+                        size: _lockupWidth,
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.xl),
                     Text(
                       l10n.authSubtitle,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -220,6 +226,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return (uri == null || uri.host.isEmpty) ? l10n.authInvalidServer : null;
   }
 }
+
+/// Sized to the form rather than to the screen, so the lockup sits inside the
+/// same column the fields do instead of spanning a tablet edge to edge.
+const double _lockupWidth = 240;
 
 class _FailureBanner extends StatelessWidget {
   const _FailureBanner({required this.message});

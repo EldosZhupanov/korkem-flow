@@ -5,16 +5,22 @@ import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/typography.dart';
 
-/// Light and dark themes.
+/// Light and dark themes, both derived from the logo.
 ///
-/// The brand green is applied as a *tuned* accent rather than the raw seed:
-/// Material 3's tonal generation from a near-fluorescent seed produces muddy
-/// containers. See `docs/design_system.md` §2.
+/// The brand is two colours in a *surface* relationship — a forest field and a
+/// cream mark — which is why the two themes are the same artwork either way up.
+/// Light is forest ink on cream paper; dark is the logo itself. Neither invents
+/// a colour the brand does not own. See `docs/design_system.md` §2.
+///
+/// Surfaces are pinned rather than blended. FlexColorScheme's surface modes
+/// tint every surface toward the primary, and with a primary this dark that
+/// muddied the cream into a grey-green; the palette already has exact values
+/// measured against WCAG, and there is nothing for a blend to improve.
 abstract final class AppTheme {
   static ThemeData light() => _shared(
     FlexThemeData.light(
       colors: const FlexSchemeColor(
-        primary: AppColors.brandOnLight,
+        primary: AppColors.forest,
         primaryContainer: AppColors.brandContainerLight,
         secondary: AppColors.infoLight,
         secondaryContainer: AppColors.secondaryContainerLight,
@@ -23,8 +29,9 @@ abstract final class AppTheme {
         appBarColor: AppColors.surfaceLight,
         error: AppColors.dangerLight,
       ),
-      surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-      blendLevel: 4,
+      surface: AppColors.surfaceLight,
+      scaffoldBackground: AppColors.surfaceLight,
+      onSurface: AppColors.onSurfaceLight,
     ),
     Brightness.light,
   );
@@ -32,7 +39,7 @@ abstract final class AppTheme {
   static ThemeData dark() => _shared(
     FlexThemeData.dark(
       colors: const FlexSchemeColor(
-        primary: AppColors.brand,
+        primary: AppColors.cream,
         primaryContainer: AppColors.brandContainerDark,
         secondary: AppColors.infoDark,
         secondaryContainer: AppColors.secondaryContainerDark,
@@ -41,10 +48,20 @@ abstract final class AppTheme {
         appBarColor: AppColors.surfaceDark,
         error: AppColors.dangerDark,
       ),
-      surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-      blendLevel: 8,
+      surface: AppColors.surfaceDark,
+      scaffoldBackground: AppColors.surfaceDark,
+      onSurface: AppColors.onSurfaceDark,
     ),
     Brightness.dark,
+  );
+
+  static OutlineInputBorder _fieldBorder(bool isDark) => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(AppRadius.sm),
+    borderSide: BorderSide(
+      color: isDark
+          ? AppColors.outlineStrongDark
+          : AppColors.outlineStrongLight,
+    ),
   );
 
   static ThemeData _shared(ThemeData base, Brightness brightness) {
@@ -120,15 +137,27 @@ abstract final class AppTheme {
         ),
       ),
 
+      // A field is now bounded by a line, not only by a fill.
+      //
+      // The fill sits about 1.1:1 above the page — a difference many people
+      // cannot see at all, and one that disappears entirely under glare on a
+      // workshop floor. The border carries the job instead, at a measured 3:1,
+      // which is what WCAG 1.4.11 asks of anything that identifies a component.
+      // It also happens to be what makes the form look considered rather than
+      // like text floating on a slightly different grey.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        border: OutlineInputBorder(
+        fillColor: isDark
+            ? AppColors.surfaceContainerDark
+            : AppColors.surfaceContainerLight,
+        border: _fieldBorder(isDark),
+        enabledBorder: _fieldBorder(isDark),
+        focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(
+            color: base.colorScheme.primary,
+            width: AppStroke.focus,
+          ),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
@@ -158,12 +187,37 @@ abstract final class AppTheme {
         ),
       ),
 
+      // The bar is the page, not a separate slab. Material's default gives it
+      // its own elevated surface, which under this palette came out near-black
+      // against a forest page — a black band across the bottom of the brand.
+      // The selected indicator was worse: it defaults to `secondaryContainer`,
+      // which is the blue anchor, so the one persistently-visible piece of
+      // chrome in the app was the only thing on screen that was not KORKEM.
       navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: isDark
+            ? AppColors.surfaceDark
+            : AppColors.surfaceLight,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: isDark
+            ? AppColors.brandContainerDark
+            : AppColors.brandContainerLight,
+        elevation: 0,
         height: AppNavigation.barHeight,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
+      ),
+
+      // The rail is the same decision on a wider screen.
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: isDark
+            ? AppColors.surfaceDark
+            : AppColors.surfaceLight,
+        indicatorColor: isDark
+            ? AppColors.brandContainerDark
+            : AppColors.brandContainerLight,
+        elevation: 0,
       ),
 
       dividerTheme: DividerThemeData(

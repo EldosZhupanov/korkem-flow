@@ -91,6 +91,10 @@ abstract final class AppStroke {
   /// thicker reads as a border, and a border is a stronger statement than any
   /// of those places wants to make.
   static const double hairline = 1;
+
+  /// A focused field's border. Doubled, because focus has to be visible to
+  /// someone navigating by keyboard who cannot see a caret blink.
+  static const double focus = 2;
 }
 
 /// Marks that carry state rather than content.
@@ -102,6 +106,18 @@ abstract final class AppIndicator {
   /// How far the dot sits below the top of its row, to centre it on the first
   /// line of a title set in `bodyMedium`.
   static const double dotBaselineOffset = 6;
+}
+
+/// How large the brand mark is drawn.
+abstract final class AppLogoSize {
+  /// In a list or beside a title.
+  static const double compact = 32;
+
+  /// The default: a header, a card.
+  static const double standard = 96;
+
+  /// The splash, where the mark is the only thing on screen.
+  static const double hero = 132;
 }
 
 /// The app's own chrome.

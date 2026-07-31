@@ -1,70 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:korkem_flow/core/design/tokens/colors.dart';
-import 'package:korkem_flow/core/design/tokens/typography.dart';
+import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 
-/// The KORKEM mark: a bold К on the brand green.
+/// The KORKEM mark, as the company actually draws it.
 ///
-/// A letterform rather than an invented pictogram. An abstract mark has to be
-/// taught before it means anything, and at 48dp on a launcher grid a legible
-/// initial beats a shape nobody recognises. Cyrillic К, because that is how the
-/// company writes its own name.
+/// This used to be a bold Cyrillic К set in Inter — an invented mark, made
+/// before anyone had seen the real one. The brand is a woven Kazakh ornament
+/// inside the Ö of a serif wordmark, and no amount of tuning a letterform was
+/// going to arrive at it.
 ///
-/// Drawn from tokens, never from literals, so it stays in step with the theme —
-/// and it doubles as the source image for the launcher icon
-/// (`test/tools/generate_app_icon_test.dart`).
+/// Both layers are shipped as alpha masks and tinted at runtime, so one asset
+/// is correct on a cream page and on a forest field. The alpha was recovered by
+/// projecting each source pixel onto the field→ink axis, which keeps the
+/// anti-aliasing of the original curves instead of hard-thresholding them into
+/// a jagged edge.
+enum LogoLayout {
+  /// The ornamented Ö alone. Legible small, because the wordmark is not: at
+  /// launcher size "KORKEM" is a grey smear while the ring and its lattice
+  /// still read.
+  mark,
+
+  /// The full framed lockup — rules, wordmark, SINCE 2021. For places with the
+  /// width to give it, where the company should be named rather than hinted at.
+  lockup,
+}
+
 class AppLogo extends StatelessWidget {
   const AppLogo({
-    this.size = 96,
-    this.transparent = false,
-    this.glyphScale = 0.58,
-    this.fullBleed = false,
+    this.layout = LogoLayout.mark,
+    this.size = AppLogoSize.standard,
+    this.color,
     super.key,
   });
 
+  final LogoLayout layout;
+
+  /// The mark's height, or the lockup's width — whichever is the constraining
+  /// dimension for that layout.
   final double size;
 
-  /// Omits the background plate. Used for the Android adaptive-icon
-  /// foreground layer, where the background is a separate solid layer.
-  final bool transparent;
+  /// Defaults to the theme's primary, which is forest on a light surface and
+  /// cream on a dark one: the logo, and the logo inverted.
+  final Color? color;
 
-  /// Glyph height as a fraction of [size].
-  final double glyphScale;
-
-  /// Square corners, for the exported launcher asset.
-  final bool fullBleed;
+  /// The artwork's own proportions, so nothing is ever stretched.
+  static const double _markAspect = 452 / 591;
+  static const double _lockupAspect = 3245 / 965;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: transparent ? null : AppColors.surfaceDark,
-          // Rounded only where it is drawn *in* the app. The exported launcher
-          // asset stays full-bleed: Android masks adaptive icons and Play
-          // rounds the store icon itself, so baking corners in would show as a
-          // dark ring inside the mask.
-          borderRadius: (transparent || fullBleed)
-              ? null
-              : BorderRadius.circular(size * 0.22),
-        ),
-        child: Center(
-          child: Text(
-            'К',
-            textDirection: TextDirection.ltr,
-            style: TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              // Tight tracking and heavy weight: at launcher size the counters
-              // close up before the stems do, so weight reads before shape.
-              fontWeight: FontWeight.w800,
-              fontSize: size * glyphScale,
-              height: 1,
-              letterSpacing: -size * 0.02,
-              color: AppColors.brand,
-            ),
-          ),
-        ),
+    final tint = color ?? Theme.of(context).colorScheme.primary;
+
+    final (asset, width, height, label) = switch (layout) {
+      LogoLayout.mark => (
+        'assets/brand/korkem_mark.png',
+        size * _markAspect,
+        size,
+        'KORKEM',
       ),
+      LogoLayout.lockup => (
+        'assets/brand/korkem_lockup.png',
+        size,
+        size / _lockupAspect,
+        'KORKEM — since 2021',
+      ),
+    };
+
+    return Image.asset(
+      asset,
+      width: width,
+      height: height,
+      // Tints the mask rather than drawing over it, so the transparent ground
+      // stays transparent and the mark inherits whatever surface it lands on.
+      color: tint,
+      semanticLabel: label,
     );
   }
 }
