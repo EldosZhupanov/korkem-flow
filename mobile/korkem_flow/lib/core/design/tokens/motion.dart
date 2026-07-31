@@ -28,6 +28,11 @@ abstract final class AppDuration {
   /// ambient, and anything quicker asks to be watched.
   static const shimmer = Duration(milliseconds: 1200);
 
+  /// One breath of a busy indicator. Slow enough to read as waiting rather
+  /// than as urgency — a control that pulses fast tells the user something is
+  /// wrong when nothing is.
+  static const pulse = Duration(milliseconds: 1400);
+
   /// A figure rolling up to its value.
   ///
   /// Longer than [standard]: the eye has to read digits changing, not just

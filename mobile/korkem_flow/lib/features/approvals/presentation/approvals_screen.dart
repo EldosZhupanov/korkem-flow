@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -164,10 +165,7 @@ class _ApprovalCardState extends ConsumerState<ApprovalCard> {
                   child: FilledButton(
                     onPressed: _busy ? null : () => _resolve(approved: true),
                     child: _busy
-                        ? const SizedBox.square(
-                            dimension: AppIconSize.normal,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                        ? const AppBusyIndicator()
                         : Text(l10n.approvalApprove),
                   ),
                 ),

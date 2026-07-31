@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
 import 'package:korkem_flow/core/design/motion/app_pressable.dart';
 import 'package:korkem_flow/core/design/motion/swipe_action.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
@@ -296,6 +297,17 @@ class _States extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Page(
       children: [
+        const SectionLabel('Busy'),
+        const _Panel(
+          child: Row(
+            children: [
+              FilledButton(onPressed: null, child: AppBusyIndicator()),
+              SizedBox(width: AppSpacing.md),
+              AppBusyIndicator(),
+            ],
+          ),
+        ),
+
         const SectionLabel('Loading'),
         const ListSkeleton(rows: 2),
 

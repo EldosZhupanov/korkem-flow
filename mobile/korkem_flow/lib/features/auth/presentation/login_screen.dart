@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
+import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
 import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -196,13 +197,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: AppSpacing.xxl),
                     FilledButton(
                       onPressed: _busy ? null : _submit,
+                      // Sized to the text it replaces so the button does not
+                      // resize the moment it is pressed.
                       child: _busy
-                          // Sized to the text it replaces so the button does
-                          // not resize the moment it is pressed.
-                          ? const SizedBox.square(
-                              dimension: AppIconSize.normal,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
+                          ? const AppBusyIndicator()
                           : Text(l10n.authSignIn),
                     ),
                   ],
