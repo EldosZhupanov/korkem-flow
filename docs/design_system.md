@@ -18,50 +18,65 @@
 
 ## 2. Colour
 
-### The brand constraint — measured
+### The brand, as sampled
 
-KORKEM's brand accent is neon green `#39FF14`. Measured against WCAG:
+`logo/file-001.png` is the source of truth, and it is two colours. Both are read from the artwork,
+not approximated:
 
-| Usage | Ratio | Verdict |
+| Role | Value | Share of the artwork |
 |---|---|---|
-| `#39FF14` as **text on white** | **1.36:1** | ❌ Fails badly (needs 4.5:1) |
-| **White text on** `#39FF14` | **1.36:1** | ❌ Unusable as a filled button with white label |
-| **Black text on** `#39FF14` | **15.49:1** | ✅ Excellent |
-| `#39FF14` on dark `#121212` | **13.82:1** | ✅ Excellent |
+| Field | `#2B382A` — deep forest | 97% |
+| Ink | `#DEDAD0` — warm cream | the mark |
 
-**Rules this dictates — not stylistic preference, but accessibility:**
+They measure **8.84:1** against each other — AAA for body text in either direction.
 
-- In **dark theme**, `#39FF14` is the hero accent. This is where the brand belongs.
-- In **light theme**, `#39FF14` may be used **only as a fill carrying black text/icons**. It must
-  never be a text or icon colour on white.
-- For green text/icons in light theme use `#177A08` (**5.49:1** ✅). Note `#1F8A0A` measures 4.47:1 —
-  it *looks* fine and fails by a hair. Do not use it.
+That is a *surface* relationship rather than an accent, and the whole theme falls out of it: **dark
+mode is the logo; light mode is the logo inverted.** Forest is the ink on cream paper, cream is the
+ink on a forest field, and neither theme has to invent a colour the brand does not own.
 
-### Seed and scheme
+> An earlier version of this page described the brand as neon `#39FF14` and spent a table on the
+> ways it could not be used. That colour was never KORKEM's — it predated anyone seeing the logo.
 
-`FlexColorScheme` generates both schemes from seeds; the brand green is applied as a **tuned accent**,
-not the raw seed, because M3 tonal generation from a near-fluorescent seed produces muddy containers.
+### Scheme
 
 | Role | Light | Dark |
 |---|---|---|
-| `primary` | `#177A08` | `#39FF14` |
-| `onPrimary` | `#FFFFFF` | `#0A0A0A` |
-| `primaryContainer` | `#C8F5BE` | `#1F4D14` |
-| `surface` | `#FCFDFB` | `#121212` |
-| `surfaceContainer` | `#F1F4EF` | `#1E1E1E` |
-| `outlineVariant` | `#C7CCC3` | `#3A3F38` |
+| `primary` | `#2B382A` forest | `#DEDAD0` cream |
+| `onPrimary` | `#DEDAD0` | `#2B382A` |
+| `surface` | `#F7F5EE` | `#1B241A` |
+| `surfaceContainer` | `#EDEAE0` | `#2B382A` (the brand green *is* the card) |
+| `onSurface` | `#1E2A1E` (13.70:1) | `#E6E3D9` (12.45:1) |
+
+Surfaces are pinned, not blended. FlexColorScheme's surface modes tint every surface toward the
+primary, and with a primary this dark that turns the cream grey-green.
+
+### Outlines — two roles, two rules
+
+| Token | Light | Dark | Duty |
+|---|---|---|---|
+| `outline` | `#DAD7CA` | `#3D4A3B` | divides surfaces; carries no meaning, so no ratio applies |
+| `outlineStrong` | `#7F8479` (3.51:1) | `#7D8277` (3.13:1) | bounds an interactive component |
+
+The split is not pedantry. A filled input sits **1.10:1** above the page — invisible to a good many
+people and gone entirely under glare — so the *line* is what says "you can type here", and WCAG
+1.4.11 asks 3:1 of anything that identifies a component. Cards have the same problem and solve it
+with depth instead (§6).
 
 ### Semantic colours
 
-Status must survive greyscale. Each pairs with an icon and a label.
+Status must survive greyscale. Each pairs with an icon and a label, and each is measured against the
+**container** it is read on, which is the harder of the two surfaces.
 
 | Meaning | Light | Dark | Icon |
 |---|---|---|---|
-| Success / Completed | `#177A08` | `#5BFF3F` | `check_circle` |
-| Warning / Pending | `#8A5A00` | `#FFC14D` | `schedule` |
-| Danger / Overdue | `#B3261E` | `#FF897D` | `error` |
-| Info / Draft | `#1F5F8B` | `#7FC4F5` | `info` |
-| Neutral / Archived | `#5C5F5A` | `#A8ADA4` | `inventory_2` |
+| Success / Completed | `#1B6B10` (5.53:1) | `#7FD36B` (6.72:1) | `check_circle` |
+| Warning / Pending | `#8A5A00` (4.92:1) | `#FFC14D` (7.63:1) | `schedule` |
+| Danger / Overdue | `#B3261E` (5.43:1) | `#FF897D` (5.36:1) | `error` |
+| Info / Draft | `#1F5F8B` (5.69:1) | `#7FC4F5` (6.53:1) | `info` |
+| Neutral / Archived | `#5C5F5A` (5.39:1) | `#A8ADA4` (5.39:1) | `inventory_2` |
+
+Success is deliberately brighter and more saturated than the primary. On a green-branded interface a
+success green that resembles the brand reads as chrome rather than as a state.
 
 ### Production-status palette
 
@@ -93,7 +108,7 @@ Inter also carries true tabular figures, which is why quantity and currency colu
 | Token | Size / Line | Weight | Use |
 |---|---|---|---|
 | `displaySmall` | 36 / 44 | 600 | Dashboard hero metric |
-| `headlineMedium` | 28 / 36 | 600 | Screen titles (large app bar) |
+| `headlineMedium` | 28 / 36 | 600 | Detail screen titles |
 | `titleLarge` | 22 / 28 | 600 | Section headers |
 | `titleMedium` | 16 / 24 | 600 | List item title |
 | `bodyLarge` | 16 / 24 | 400 | Primary body |
@@ -137,25 +152,29 @@ Screen margin is `lg` (16) on compact, `xl` (24) on medium+. Vertical rhythm bet
 
 `md` (12) is the default. Consistent radius is a large part of why Linear and Stripe feel calm.
 
-## 6. Elevation and shadows
+## 6. Elevation and depth
 
-Material 3 prefers **tonal** elevation. Dark theme uses tone only — shadows are invisible on dark
-surfaces and only add cost.
+Two shadows per level, never one. A single blurred drop reads as a sticker; a tight contact shadow
+that anchors the edge plus a wide ambient one that lifts the shape is what the eye accepts as an
+object on a surface.
 
-| Level | Light | Dark | Use |
+| Token | Contact | Ambient | Use |
 |---|---|---|---|
-| 0 | none | `surface` | page background |
-| 1 | tint + y1 blur2 @4% | `surfaceContainerLow` | cards at rest |
-| 2 | tint + y2 blur4 @6% | `surfaceContainer` | app bar on scroll |
-| 3 | tint + y4 blur8 @8% | `surfaceContainerHigh` | FAB, menus |
-| 4 | tint + y8 blur16 @10% | `surfaceContainerHighest` | dialogs, sheets |
+| `AppElevation.resting` | y1 blur2 @6% | y4 blur12 @5% | a card, a tile, at rest |
+| `AppElevation.pressed` | y1 blur1 @5% | y1 blur4 @3% | under a finger |
+| `AppElevation.overlay` | y2 blur4 @8% | y12 blur28 @8% | dialogs, sheets, menus |
 
-Never stack more than two elevation levels in one view.
+**Light mode only, and not for decoration.** A card sits 1.10:1 above the cream page — the same
+near-invisibility that forced a real border onto the input fields (§2). The shadow is what makes a
+card legible *as a card*. Dark mode gets none: against a forest field a shadow is invisible and
+costs a raster pass to prove it, so the `1dp` outline does that job there.
 
-Cards land at **elevation 0** in both themes, not the level 1 the table would suggest. Dark mode
-separates them with a `1dp` outline instead of a shadow — a shadow is invisible against a dark
-surface and only costs a raster pass — and light mode gets its separation from the container tone,
-which at this density reads more cleanly than a shadow under every row of a long list.
+Shadows are the brand dark, never black — black on warm cream goes muddy. They are the one place in
+the system written as raw hex, because `const` cannot build a colour from `AppColors.forest` plus an
+alpha; `app_elevation_test.dart` asserts each one is the brand colour rather than this page claiming
+it.
+
+Never stack more than two levels in one view.
 
 ## 7. Icons
 
@@ -292,17 +311,23 @@ strongest one look like it meant more.
 
 ### State illustration
 
-Empty, error and success states are headed by a mark drawn from theme colours — a glyph on a lit
-plate, three layers, in `StateIllustration`. **No illustration is shipped as an asset**, and there is
-no `assets/images/` or `assets/lottie/`.
+Empty, error and success states are headed by three layers in `StateIllustration`: a soft halo that
+reads as light rather than as a ring, **the woven ornament from KORKEM's own Ö** laid in as texture,
+and the state's glyph on top, solid, because it is the thing carrying the meaning.
 
-That is a trade, not an oversight. unDraw, Storyset and the rest are free and good, but each arrives
-with its own palette, its own line weight and its own idea of a human figure, none of which are
-KORKEM's. On a tool a factory opens forty times a day, art that does not match the product stops
-reading as friendly within a week and starts reading as clip art. A composition built from tokens
-inherits the theme instead: correct in light and dark, at any accent, with no asset, no licence and
-nothing to download. The same reasoning rules out Lottie and Rive — nothing here needs a narrative
-animation, and a runtime plus a binary would be weight without a job.
+The ornament is the one piece of artwork the company owns, already in the repository as an alpha mask
+cut from `logo/file-001.png`. Nothing had to be drawn, licensed or downloaded.
+
+It is tinted from `onSurface`, not from the glyph's accent — the ornament carries the brand and the
+glyph carries the meaning, which are different jobs — and it takes a different alpha per theme,
+because light ink on a dark ground is perceptually weaker than dark ink on a light ground at the same
+value.
+
+Stock sets were considered twice. unDraw, Storyset and the rest are free and good, and they are a
+worse fit here than before the real brand turned up, not better: flat pastel figures beside a serif
+heritage identity read as borrowed, and recolouring does not touch the drawing style underneath. The
+same reasoning rules out Lottie and Rive — nothing here needs a narrative animation, and a runtime
+plus a binary would be weight without a job.
 
 A `dense` variant exists for an empty state that shares a screen with content; at full size the mark
 pushes its own headline below the fold.
@@ -323,9 +348,11 @@ there, and an empty screen is exactly when a user decides the app is broken.
 | `quick` | 200ms | chips, tooltips, a field's own controls |
 | `standard` | 300ms | sheets, dialogs, row entrance |
 | `page` | 350ms | route push and pop |
+| `count` | 420ms | a figure rolling to its value |
 | `slow` | 500ms | the splash mark, an empty state arriving |
-| `shimmer` | 1200ms | one sweep of a loading placeholder |
 | `deliberate` | 600ms | how long the app may take before it owes an explanation |
+| `shimmer` | 1200ms | one sweep of a loading placeholder |
+| `pulse` | 1400ms | one breath of a busy indicator |
 | `stagger` | 20ms/row | capped at 6 rows |
 
 Curves: `standard` (`easeInOutCubic`), `enter` (`easeOutCubic`), `exit` (`easeInCubic`), and
@@ -353,6 +380,28 @@ polish.
 
 **All motion respects `MediaQuery.disableAnimations`**; when set, durations collapse to zero. An
 animation that cannot be disabled is an accessibility defect, not a feature.
+
+### Interaction
+
+Every response answers the same question — *what did my finger just do?* — and the answers must
+agree with physics or they read as decoration.
+
+| Interaction | Response |
+|---|---|
+| Press a card or tile | Scale to 0.97 **and** the shadow shallows: the object sinks toward the page |
+| Press a small control | Scale to 0.92 — the same ratio is imperceptible at that size |
+| Focus a field | Border doubles to `AppStroke.focus` in the primary colour |
+| Swipe a row | The action panel grows with the drag, from nothing, never appearing whole |
+| Row arrives | Fade and rise `AppMotionScale.enterOffsetY`, staggered, first six rows only |
+| Open a record | The title flies (§9), everything else fades through |
+| Waiting, in place | Skeleton that mirrors the real layout |
+| Waiting, in a control | `AppBusyIndicator` — three dots, staggered, dimming to 30% and never to zero |
+
+A card that grows a *deeper* shadow when pressed is moving the wrong way. It looks fine in a paused
+frame and wrong in the hand, which is why the rule is written down rather than left to taste.
+
+**No spinning circles.** A rotation says "something is turning over there"; a control that pulses
+says "this is working". `CircularProgressIndicator` appears nowhere in `lib/`.
 
 ## 10. Light and dark mode
 
