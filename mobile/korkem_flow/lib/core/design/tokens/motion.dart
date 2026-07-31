@@ -28,6 +28,13 @@ abstract final class AppDuration {
   /// ambient, and anything quicker asks to be watched.
   static const shimmer = Duration(milliseconds: 1200);
 
+  /// A figure rolling up to its value.
+  ///
+  /// Longer than [standard]: the eye has to read digits changing, not just
+  /// notice that something moved. Short of half a second, though — a dashboard
+  /// that makes you wait to learn a number is a dashboard that is showing off.
+  static const count = Duration(milliseconds: 420);
+
   /// Long enough that a user has decided something is wrong.
   ///
   /// The threshold for admitting to a delay: below it, an explanation arrives

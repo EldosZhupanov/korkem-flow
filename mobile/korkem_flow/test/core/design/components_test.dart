@@ -277,7 +277,7 @@ void main() {
         harness(
           const SizedBox(
             width: 200,
-            child: KpiTile(label: 'Open orders', value: '12', isLoading: true),
+            child: KpiTile(label: 'Open orders', value: 12, isLoading: true),
           ),
         ),
       );
@@ -287,13 +287,23 @@ void main() {
         harness(
           const SizedBox(
             width: 200,
-            child: KpiTile(label: 'Open orders', value: '12'),
+            child: KpiTile(label: 'Open orders', value: 12),
           ),
         ),
       );
+      // Measured mid-count, not after it. The figure rolls up from zero, so
+      // the digit count changes while it runs — 0, then 7, then 12 — and a
+      // tile sized to its content would resize twice on the way. Tabular
+      // figures are what stop that, and this is the assertion that notices if
+      // the numeric style ever loses them.
+      await tester.pump(const Duration(milliseconds: 16));
+      final countingHeight = tester.getSize(find.byType(KpiTile)).height;
+
+      await tester.pumpAndSettle();
       final loadedHeight = tester.getSize(find.byType(KpiTile)).height;
 
-      // No layout shift between skeleton and value.
+      // No layout shift between skeleton, count and settled value.
+      expect(countingHeight, loadingHeight);
       expect(loadedHeight, loadingHeight);
       expect(find.text('12'), findsOneWidget);
     });

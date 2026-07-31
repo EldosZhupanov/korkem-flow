@@ -170,13 +170,7 @@ class _MetricGrid extends StatelessWidget {
                 onTap: metric.route == null
                     ? null
                     : () => context.push(metric.route!),
-                // A dash, never a zero: the backend returns null when the
-                // caller's role may not see the number, and stating "0" would
-                // assert something the user has no standing to know.
-                value: switch (summary?[metric.key]) {
-                  final int value => '$value',
-                  _ => '—',
-                },
+                value: summary?[metric.key],
               ),
           ],
         );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:korkem_flow/core/design/motion/animated_counter.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
@@ -6,7 +7,12 @@ import 'package:korkem_flow/core/design/widgets/app_card.dart';
 /// A single dashboard metric.
 ///
 /// The value uses `displaySmall`, which carries tabular figures — so a row of
-/// tiles keeps its numbers optically aligned instead of drifting.
+/// tiles keeps its numbers optically aligned instead of drifting, and so the
+/// digits do not jostle while the counter rolls.
+///
+/// Takes the number rather than a formatted string. Formatting here is what
+/// lets the tile animate at all, and it puts the "a withheld number is a dash,
+/// never a zero" rule in one place instead of at every call site.
 class KpiTile extends StatelessWidget {
   const KpiTile({
     required this.label,
@@ -19,7 +25,10 @@ class KpiTile extends StatelessWidget {
   });
 
   final String label;
-  final String value;
+
+  /// Null where the signed-in role may not see this figure. Rendered as a
+  /// dash, and never counted to.
+  final int? value;
   final IconData? icon;
   final StatusIntent? intent;
   final VoidCallback? onTap;
@@ -68,13 +77,17 @@ class KpiTile extends StatelessWidget {
               ),
             )
           else
-            Text(
-              value,
+            AnimatedCounter(
+              value: value,
+              placeholder: _withheld,
               style: theme.textTheme.displaySmall?.copyWith(color: accent),
-              maxLines: 1,
             ),
         ],
       ),
     );
   }
 }
+
+/// Shown where the backend returned no number. An em dash: it reads as "not
+/// applicable" rather than as a value, which a zero would.
+const String _withheld = '—';

@@ -237,7 +237,7 @@ class _Components extends StatelessWidget {
             const Expanded(
               child: KpiTile(
                 label: 'Открытые сделки',
-                value: '266',
+                value: 266,
                 icon: AppIcons.deal,
               ),
             ),
@@ -245,7 +245,7 @@ class _Components extends StatelessWidget {
             Expanded(
               child: KpiTile(
                 label: 'Просрочено',
-                value: '3',
+                value: 3,
                 icon: AppIcons.schedule,
                 intent: StatusIntent.danger,
                 onTap: () {},
@@ -257,7 +257,7 @@ class _Components extends StatelessWidget {
         const Row(
           children: [
             Expanded(
-              child: KpiTile(label: 'Loading', value: '—', isLoading: true),
+              child: KpiTile(label: 'Loading', value: null, isLoading: true),
             ),
           ],
         ),
