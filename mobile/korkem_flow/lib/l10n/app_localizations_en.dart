@@ -488,4 +488,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsMarkAllRead => 'Mark all read';
+
+  @override
+  String get navAssistant => 'Assistant';
+
+  @override
+  String get navMenu => 'Menu';
+
+  @override
+  String get chatNew => 'New chat';
+
+  @override
+  String get chatRecent => 'Recent';
+
+  @override
+  String get chatGreeting => 'How can I help?';
+
+  @override
+  String get chatPlaceholder => 'Message KORKEM AI…';
+
+  @override
+  String get chatSend => 'Send';
+
+  @override
+  String get chatDictate => 'Dictate';
+
+  @override
+  String get chatDictateStop => 'Stop dictating';
+
+  @override
+  String get chatLocalMode => 'Local mode · KORKEM data';
+
+  @override
+  String get chatThinking => 'Thinking';
+
+  @override
+  String get chatEmptyThreads => 'No conversations yet';
+
+  @override
+  String get chatOpen => 'Open';
+
+  @override
+  String get chatNotConnected =>
+      'I\'m not connected to a language model yet, so I can\'t answer that. I can show you data from KORKEM:';
+
+  @override
+  String get chatSuggestDeals => 'Show my deals';
+
+  @override
+  String get chatSuggestAttention => 'What needs attention?';
+
+  @override
+  String get chatSuggestOverdue => 'What is overdue?';
+
+  @override
+  String get chatSuggestProduction => 'What\'s in production?';
+
+  @override
+  String get chatCardOpenDeals => 'Open deals';
+
+  @override
+  String get chatCardAttention => 'Needs attention';
+
+  @override
+  String get chatCardTasks => 'My tasks';
+
+  @override
+  String get chatCardProduction => 'In production';
 }

@@ -24,11 +24,22 @@ class AppDestination {
   final String Function(AppLocalizations l10n) labelOf;
 }
 
-/// The destinations available to the Sales-facing v1.
+/// The router's branches, in order.
 ///
-/// Deliberately few: a bottom bar stops being scannable past five, and every
-/// remaining screen is reached from one of these.
+/// This is **not** the sidebar — see `sidebar_entries.dart`. A branch is a
+/// place that keeps its own navigation stack and scroll position across
+/// switches, which costs an `IndexedStack` child kept alive for the life of
+/// the app. Screens visited occasionally (Production, Settings) are reached by
+/// path instead and pay nothing.
+///
+/// `branch_index_test.dart` asserts this list stays exactly parallel to the
+/// router's branches; nothing in the type system does.
 const appDestinations = <AppDestination>[
+  AppDestination(
+    path: '/chat',
+    icon: AppIcons.conversation,
+    labelOf: _assistantLabel,
+  ),
   AppDestination(
     path: '/dashboard',
     icon: AppIcons.dashboard,
@@ -67,6 +78,7 @@ int branchIndexOf(String path) {
   return index;
 }
 
+String _assistantLabel(AppLocalizations l10n) => l10n.navAssistant;
 String _dashboardLabel(AppLocalizations l10n) => l10n.navDashboard;
 String _dealsLabel(AppLocalizations l10n) => l10n.navSales;
 String _tasksLabel(AppLocalizations l10n) => l10n.navTasks;

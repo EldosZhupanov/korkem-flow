@@ -122,7 +122,14 @@
   "dashboardWorkload": "{overdue} of {total} are overdue",
   "@dashboardWorkload": {
     "description": "Under the task tiles: how much of a person's own workload is late",
-    "placeholders": { "overdue": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "overdue": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "dashboardAttention": "Needs attention",
   "dashboardAllClear": "Nothing needs you right now",
@@ -214,5 +221,60 @@
   "navNotifications": "Notifications",
   "notificationsEmpty": "You're all caught up",
   "notificationsEmptyBody": "Assignments, mentions and alerts appear here.",
-  "notificationsMarkAllRead": "Mark all read"
+  "notificationsMarkAllRead": "Mark all read",
+  "navAssistant": "Assistant",
+  "@navAssistant": {
+    "description": "Sidebar row for the AI assistant, and the title of the chat screen"
+  },
+  "navMenu": "Menu",
+  "@navMenu": {
+    "description": "Screen-reader label for the button that opens the sidebar"
+  },
+  "chatNew": "New chat",
+  "@chatNew": {
+    "description": "Starts a fresh conversation"
+  },
+  "chatRecent": "Recent",
+  "@chatRecent": {
+    "description": "Heading above past conversations in the sidebar"
+  },
+  "chatGreeting": "How can I help?",
+  "@chatGreeting": {
+    "description": "Headline on an empty conversation"
+  },
+  "chatPlaceholder": "Message KORKEM AI…",
+  "@chatPlaceholder": {
+    "description": "Hint text in the message field"
+  },
+  "chatSend": "Send",
+  "chatDictate": "Dictate",
+  "@chatDictate": {
+    "description": "Starts voice input"
+  },
+  "chatDictateStop": "Stop dictating",
+  "chatLocalMode": "Local mode · KORKEM data",
+  "@chatLocalMode": {
+    "description": "Status line under the assistant name. It says plainly that no language model is connected, so nobody mistakes a canned reply for a real one"
+  },
+  "chatThinking": "Thinking",
+  "@chatThinking": {
+    "description": "Announced while the assistant prepares a reply"
+  },
+  "chatEmptyThreads": "No conversations yet",
+  "chatOpen": "Open",
+  "@chatOpen": {
+    "description": "Button on a data card inside a reply, leading to the matching screen"
+  },
+  "chatNotConnected": "I'm not connected to a language model yet, so I can't answer that. I can show you data from KORKEM:",
+  "@chatNotConnected": {
+    "description": "The honest fallback for anything the assistant does not recognise. It must never invent an answer"
+  },
+  "chatSuggestDeals": "Show my deals",
+  "chatSuggestAttention": "What needs attention?",
+  "chatSuggestOverdue": "What is overdue?",
+  "chatSuggestProduction": "What's in production?",
+  "chatCardOpenDeals": "Open deals",
+  "chatCardAttention": "Needs attention",
+  "chatCardTasks": "My tasks",
+  "chatCardProduction": "In production"
 }

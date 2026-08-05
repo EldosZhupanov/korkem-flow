@@ -139,7 +139,17 @@ abstract final class AppNavigation {
   /// Bottom bar height. Tighter than Material's 80dp default, which spends a
   /// visible band of a phone screen on nothing, and still clear of the 48dp
   /// touch floor with room for an always-visible label.
+  ///
+  /// No longer used for the app's own navigation, which is a panel now — kept
+  /// because the theme still sizes any `NavigationBar` a future screen builds.
   static const double barHeight = 72;
+
+  /// The navigation panel when it is permanent, on a wide screen.
+  ///
+  /// 280 + [AppBreakpoints.readable] = 1000, which is what puts the permanent
+  /// breakpoint at `medium`: below that the panel would be taking width the
+  /// reading column needs.
+  static const double sidebarWidth = 280;
 }
 
 /// Distances measured along a scroll axis rather than across the layout.

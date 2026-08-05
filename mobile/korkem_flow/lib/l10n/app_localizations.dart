@@ -1029,6 +1029,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mark all read'**
   String get notificationsMarkAllRead;
+
+  /// Sidebar row for the AI assistant, and the title of the chat screen
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant'**
+  String get navAssistant;
+
+  /// Screen-reader label for the button that opens the sidebar
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get navMenu;
+
+  /// Starts a fresh conversation
+  ///
+  /// In en, this message translates to:
+  /// **'New chat'**
+  String get chatNew;
+
+  /// Heading above past conversations in the sidebar
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get chatRecent;
+
+  /// Headline on an empty conversation
+  ///
+  /// In en, this message translates to:
+  /// **'How can I help?'**
+  String get chatGreeting;
+
+  /// Hint text in the message field
+  ///
+  /// In en, this message translates to:
+  /// **'Message KORKEM AI…'**
+  String get chatPlaceholder;
+
+  /// No description provided for @chatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get chatSend;
+
+  /// Starts voice input
+  ///
+  /// In en, this message translates to:
+  /// **'Dictate'**
+  String get chatDictate;
+
+  /// No description provided for @chatDictateStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop dictating'**
+  String get chatDictateStop;
+
+  /// Status line under the assistant name. It says plainly that no language model is connected, so nobody mistakes a canned reply for a real one
+  ///
+  /// In en, this message translates to:
+  /// **'Local mode · KORKEM data'**
+  String get chatLocalMode;
+
+  /// Announced while the assistant prepares a reply
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking'**
+  String get chatThinking;
+
+  /// No description provided for @chatEmptyThreads.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get chatEmptyThreads;
+
+  /// Button on a data card inside a reply, leading to the matching screen
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get chatOpen;
+
+  /// The honest fallback for anything the assistant does not recognise. It must never invent an answer
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m not connected to a language model yet, so I can\'t answer that. I can show you data from KORKEM:'**
+  String get chatNotConnected;
+
+  /// No description provided for @chatSuggestDeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Show my deals'**
+  String get chatSuggestDeals;
+
+  /// No description provided for @chatSuggestAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'What needs attention?'**
+  String get chatSuggestAttention;
+
+  /// No description provided for @chatSuggestOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'What is overdue?'**
+  String get chatSuggestOverdue;
+
+  /// No description provided for @chatSuggestProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s in production?'**
+  String get chatSuggestProduction;
+
+  /// No description provided for @chatCardOpenDeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Open deals'**
+  String get chatCardOpenDeals;
+
+  /// No description provided for @chatCardAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get chatCardAttention;
+
+  /// No description provided for @chatCardTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'My tasks'**
+  String get chatCardTasks;
+
+  /// No description provided for @chatCardProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'In production'**
+  String get chatCardProduction;
 }
 
 class _AppLocalizationsDelegate

@@ -12,6 +12,8 @@ import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/approvals/application/approvals_controller.dart';
 import 'package:korkem_flow/features/approvals/domain/pending_action.dart';
+import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
+import 'package:korkem_flow/features/assistant/domain/chat_thread.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
@@ -52,8 +54,32 @@ void main() {
         );
       });
 
+      // The app's home now, and the first thing anyone sees after signing in.
+      testWidgets('assistant', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+
+        await precacheBrandAssets(tester);
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('assistant_$suffix.png'),
+        );
+      });
+
+      testWidgets('sidebar', (tester) async {
+        await _pumpApp(tester, brightness: brightness);
+        await tester.tap(find.byTooltip(_menuTooltip));
+        await tester.pumpAndSettle();
+
+        await precacheBrandAssets(tester);
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('sidebar_$suffix.png'),
+        );
+      });
+
       testWidgets('dashboard', (tester) async {
         await _pumpApp(tester, brightness: brightness);
+        await _openTab(tester, 'Главная');
 
         await precacheBrandAssets(tester);
         await expectLater(
@@ -64,7 +90,11 @@ void main() {
 
       testWidgets('approvals', (tester) async {
         await _pumpApp(tester, brightness: brightness);
-        await tester.tap(find.text('Ждут решения'));
+        await _openTab(tester, 'Главная');
+        // Through the headline card: it is the first thing on the dashboard
+        // now, and it opens the queue its total is mostly about. That is the
+        // route a user actually takes.
+        await tester.tap(find.text('ТРЕБУЕТ ВНИМАНИЯ'));
         await tester.pumpAndSettle();
 
         await precacheBrandAssets(tester);
@@ -76,6 +106,7 @@ void main() {
 
       testWidgets('production', (tester) async {
         await _pumpApp(tester, brightness: brightness);
+        await _openTab(tester, 'Главная');
         await _tapMetric(tester, 'В производстве');
 
         await precacheBrandAssets(tester);
@@ -87,6 +118,7 @@ void main() {
 
       testWidgets('notifications', (tester) async {
         await _pumpApp(tester, brightness: brightness);
+        await _openTab(tester, 'Главная');
         await tester.tap(find.byTooltip('Уведомления'));
         await tester.pumpAndSettle();
 
@@ -99,6 +131,7 @@ void main() {
 
       testWidgets('warehouse', (tester) async {
         await _pumpApp(tester, brightness: brightness);
+        await _openTab(tester, 'Главная');
         await _tapMetric(tester, 'В производстве');
         await tester.tap(find.text('Склад'));
         await tester.pumpAndSettle();
@@ -217,6 +250,10 @@ Future<void> _pumpApp(
     ProviderScope(
       overrides: [
         clockProvider.overrideWithValue(() => _now),
+        // The sidebar reads chat history through this, so it is no longer only
+        // the settings screen that needs it. An empty store, so "Recent" is
+        // absent — which is the honest state for a fresh install.
+        threadsControllerProvider.overrideWith(_StubThreads.new),
         // Stubbed at the session boundary, so no test ever reaches the platform
         // keychain — on Linux that is libsecret over D-Bus, absent in a runner.
         sessionProvider.overrideWith(
@@ -288,9 +325,24 @@ Future<void> _tapMetric(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+/// Navigates the way a user now does: open the panel, choose a section.
+///
+/// This used to tap a bottom-bar label. The bar is gone — the app's navigation
+/// is a drawer — so a test that still tapped one would be asserting against a
+/// product that no longer exists.
 Future<void> _openTab(WidgetTester tester, String label) async {
-  await tester.tap(find.text(label));
+  await tester.tap(find.byTooltip(_menuTooltip));
   await tester.pumpAndSettle();
+  await tester.tap(find.text(label).last);
+  await tester.pumpAndSettle();
+}
+
+/// The Russian label of the menu button, which every golden runs under.
+const _menuTooltip = 'Меню';
+
+class _StubThreads extends ThreadsController {
+  @override
+  List<ChatThread> build() => const [];
 }
 
 class _StubSession extends SessionController {

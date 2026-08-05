@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/design/gallery/design_gallery.dart';
 import 'package:korkem_flow/core/navigation/adaptive_shell.dart';
 import 'package:korkem_flow/core/navigation/tab_back_handler.dart';
 import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dart';
+import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
 import 'package:korkem_flow/features/customers/presentation/customer_detail_screen.dart';
@@ -23,6 +24,10 @@ import 'package:korkem_flow/features/tasks/presentation/tasks_screen.dart';
 abstract final class Routes {
   static const splash = '/';
   static const login = '/login';
+
+  /// The assistant, and where signing in lands.
+  static const chat = '/chat';
+
   static const dashboard = '/dashboard';
   static const approvals = '$dashboard/approvals';
   static const production = '$dashboard/production';
@@ -82,7 +87,7 @@ GoRouter createRouter(Ref ref) {
       final atEntry = location == Routes.splash || location == Routes.login;
 
       if (!signedIn) return atEntry ? Routes.login : Routes.login;
-      return atEntry ? Routes.dashboard : null;
+      return atEntry ? Routes.chat : null;
     },
     routes: [
       GoRoute(
@@ -108,6 +113,18 @@ GoRouter createRouter(Ref ref) {
         builder: (context, state, navigationShell) =>
             AdaptiveShell(navigationShell: navigationShell),
         branches: [
+          // The assistant is branch 0: it is the home, and `TabBackHandler`'s
+          // "back returns to the first branch" now means "back returns to the
+          // assistant", which is the behaviour an AI-first app wants anyway.
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.chat,
+                builder: (context, state) =>
+                    const TabBackHandler(child: ChatScreen()),
+              ),
+            ],
+          ),
           StatefulShellBranch(
             routes: [
               GoRoute(

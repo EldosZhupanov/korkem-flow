@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
+import 'package:korkem_flow/core/navigation/app_shell_scope.dart';
+import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The chrome every non-detail screen wears: a bar, a title, and a body.
 ///
@@ -27,6 +30,7 @@ class AppScreen extends StatelessWidget {
   const AppScreen({
     required this.title,
     required this.body,
+    this.subtitle,
     this.actions = const [],
     super.key,
   }) : tabs = const [];
@@ -41,18 +45,50 @@ class AppScreen extends StatelessWidget {
     required this.tabs,
     this.actions = const [],
     super.key,
-  }) : body = null;
+  }) : body = null,
+       subtitle = null;
 
   final String title;
+
+  /// A quiet second line under the title, for a screen that has to say what
+  /// state it is in — the assistant declaring that it is running locally, with
+  /// no language model behind it.
+  final String? subtitle;
+
   final Widget? body;
   final List<Widget> actions;
   final List<AppTab> tabs;
+
+  /// The title block, with the subtitle folded in when there is one.
+  Widget _title(BuildContext context) {
+    final line = subtitle;
+    if (line == null) return Text(title);
+
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title),
+        Text(
+          line,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     if (tabs.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(title), actions: actions),
+        appBar: AppBar(
+          leading: _SidebarButton.maybe(context),
+          title: _title(context),
+          actions: actions,
+        ),
         body: ReadableWidth(child: body ?? const SizedBox.shrink()),
       );
     }
@@ -61,7 +97,8 @@ class AppScreen extends StatelessWidget {
       length: tabs.length,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(title),
+          leading: _SidebarButton.maybe(context),
+          title: _title(context),
           actions: actions,
           bottom: TabBar(
             // Scrollable and start-aligned always, not only where someone
@@ -91,4 +128,30 @@ class AppTab {
 
   final String label;
   final Widget view;
+}
+
+/// Opens the navigation panel, on the screens that should offer to.
+///
+/// Returns null — leaving `AppBar` to its default — in the two cases where a
+/// menu button would be wrong: on a pushed screen, where the back arrow is what
+/// the user needs, and on a wide layout, where the panel is already visible and
+/// there is nothing to open.
+class _SidebarButton extends StatelessWidget {
+  const _SidebarButton();
+
+  static Widget? maybe(BuildContext context) {
+    final scope = AppShellScope.maybeOf(context);
+    if (scope == null) return null;
+    if (ModalRoute.of(context)?.canPop ?? false) return null;
+    return const _SidebarButton();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(AppIcons.menu),
+      tooltip: AppLocalizations.of(context).navMenu,
+      onPressed: () => AppShellScope.maybeOf(context)?.open(),
+    );
+  }
 }

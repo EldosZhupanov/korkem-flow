@@ -488,4 +488,71 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notificationsMarkAllRead => 'Отметить все';
+
+  @override
+  String get navAssistant => 'Ассистент';
+
+  @override
+  String get navMenu => 'Меню';
+
+  @override
+  String get chatNew => 'Новый чат';
+
+  @override
+  String get chatRecent => 'Недавние';
+
+  @override
+  String get chatGreeting => 'Чем могу помочь?';
+
+  @override
+  String get chatPlaceholder => 'Сообщение KORKEM AI…';
+
+  @override
+  String get chatSend => 'Отправить';
+
+  @override
+  String get chatDictate => 'Продиктовать';
+
+  @override
+  String get chatDictateStop => 'Остановить диктовку';
+
+  @override
+  String get chatLocalMode => 'Локальный режим · данные KORKEM';
+
+  @override
+  String get chatThinking => 'Думаю';
+
+  @override
+  String get chatEmptyThreads => 'Разговоров пока нет';
+
+  @override
+  String get chatOpen => 'Открыть';
+
+  @override
+  String get chatNotConnected =>
+      'Я пока не подключён к языковой модели и не могу на это ответить. Могу показать данные KORKEM:';
+
+  @override
+  String get chatSuggestDeals => 'Покажи мои сделки';
+
+  @override
+  String get chatSuggestAttention => 'Что требует внимания?';
+
+  @override
+  String get chatSuggestOverdue => 'Что просрочено?';
+
+  @override
+  String get chatSuggestProduction => 'Что сейчас в производстве?';
+
+  @override
+  String get chatCardOpenDeals => 'Открытые сделки';
+
+  @override
+  String get chatCardAttention => 'Требует внимания';
+
+  @override
+  String get chatCardTasks => 'Мои задачи';
+
+  @override
+  String get chatCardProduction => 'В производстве';
 }

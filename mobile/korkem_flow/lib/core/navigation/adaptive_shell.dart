@@ -1,85 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
-import 'package:korkem_flow/core/design/tokens/icons.dart';
-import 'package:korkem_flow/core/navigation/app_destinations.dart';
-import 'package:korkem_flow/l10n/app_localizations.dart';
+import 'package:korkem_flow/core/navigation/app_shell_scope.dart';
+import 'package:korkem_flow/core/navigation/app_sidebar.dart';
 
-/// Top-level chrome: a bottom bar on phones, a rail on wider screens.
+/// Top-level chrome: a drawer on a phone, a permanent panel on a wide screen.
 ///
-/// The switch is driven by available width, never by `Platform.isX` — a
-/// folded foldable and a tablet in split view are both "narrow" regardless of
-/// the platform they run on.
+/// The switch is driven by available width, never by `Platform.isX` — a folded
+/// foldable and a tablet in split view are both "narrow" regardless of the
+/// platform they run on.
 ///
 /// Each branch keeps its own navigation stack and scroll position, which is why
 /// this wraps a [StatefulNavigationShell] rather than swapping child widgets.
-class AdaptiveShell extends StatelessWidget {
+class AdaptiveShell extends StatefulWidget {
   const AdaptiveShell({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
-  void _onDestinationSelected(int index) {
-    // initialLocation: tapping the active tab pops it back to its root, which
-    // is the behaviour every user already expects from iOS and Android.
-    navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex,
-    );
-  }
+  @override
+  State<AdaptiveShell> createState() => _AdaptiveShellState();
+}
+
+class _AdaptiveShellState extends State<AdaptiveShell> {
+  /// Held so a screen deeper in the tree can open the drawer. Every branch root
+  /// builds its own `Scaffold`, so `Scaffold.of` inside one finds that inner
+  /// scaffold — which has no drawer — rather than this one.
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final isWide = MediaQuery.sizeOf(context).width >= AppBreakpoints.compact;
+    // 280 (panel) + 720 (`AppBreakpoints.readable`) = 1000, so `medium` is the
+    // first width at which a permanent panel does not squeeze the content
+    // column. Below it the panel is a drawer instead of stealing that width.
+    final isWide = MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
 
-    return _shell(context, l10n: l10n, isWide: isWide);
-  }
-
-  Widget _shell(
-    BuildContext context, {
-    required AppLocalizations l10n,
-    required bool isWide,
-  }) {
     if (isWide) {
       return Scaffold(
         body: Row(
           children: [
-            NavigationRail(
-              selectedIndex: navigationShell.currentIndex,
-              onDestinationSelected: _onDestinationSelected,
-              labelType: NavigationRailLabelType.all,
-              destinations: [
-                for (final destination in appDestinations)
-                  NavigationRailDestination(
-                    icon: AppIcon(destination.icon),
-                    selectedIcon: AppIcon(destination.icon, filled: true),
-                    label: Text(destination.labelOf(l10n)),
-                  ),
-              ],
+            SizedBox(
+              width: AppNavigation.sidebarWidth,
+              child: AppSidebar(
+                shell: widget.navigationShell,
+                // Nothing to close: the panel is always there.
+                onNavigate: () {},
+              ),
             ),
             const VerticalDivider(width: AppStroke.hairline),
-            Expanded(child: navigationShell),
+            Expanded(child: widget.navigationShell),
           ],
         ),
       );
     }
 
-    return Scaffold(
-      body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _onDestinationSelected,
-        destinations: [
-          for (final destination in appDestinations)
-            NavigationDestination(
-              // Selection is expressed through the variable `fill` axis of one
-              // icon family rather than by swapping glyphs, so it can animate.
-              icon: AppIcon(destination.icon),
-              selectedIcon: AppIcon(destination.icon, filled: true),
-              label: destination.labelOf(l10n),
-            ),
-        ],
+    return AppShellScope(
+      scaffoldKey: _scaffoldKey,
+      child: Scaffold(
+        key: _scaffoldKey,
+        // Flutter's own drawer, not a hand-rolled overlay: edge-swipe to open,
+        // scrim, focus trapping and back-to-dismiss all come with it, and each
+        // is easy to reimplement slightly wrong.
+        drawer: Drawer(
+          width: MediaQuery.sizeOf(context).width * _drawerWidthFraction,
+          child: AppSidebar(
+            shell: widget.navigationShell,
+            onNavigate: () => _scaffoldKey.currentState?.closeDrawer(),
+          ),
+        ),
+        body: widget.navigationShell,
       ),
     );
   }
 }
+
+/// How much of a phone screen the panel takes. Short of full width on purpose:
+/// the sliver of dimmed content still showing is what says "this is a layer
+/// over your work" rather than "you have navigated somewhere new".
+const double _drawerWidthFraction = 0.86;

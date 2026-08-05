@@ -209,6 +209,19 @@ abstract final class AppTheme {
         ),
       ),
 
+      // The navigation panel is the page it sits beside, not a slab of its own.
+      // Material's default gives a Drawer its own elevated surface, which under
+      // this palette came out near-black against a forest app — a black column
+      // where the brand should be.
+      drawerTheme: DrawerThemeData(
+        backgroundColor: isDark
+            ? AppColors.surfaceDark
+            : AppColors.surfaceLight,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: const RoundedRectangleBorder(),
+      ),
+
       // The rail is the same decision on a wider screen.
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: isDark

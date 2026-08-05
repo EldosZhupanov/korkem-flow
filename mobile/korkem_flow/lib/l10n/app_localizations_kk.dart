@@ -488,4 +488,71 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get notificationsMarkAllRead => 'Барлығын белгілеу';
+
+  @override
+  String get navAssistant => 'Көмекші';
+
+  @override
+  String get navMenu => 'Мәзір';
+
+  @override
+  String get chatNew => 'Жаңа чат';
+
+  @override
+  String get chatRecent => 'Соңғылары';
+
+  @override
+  String get chatGreeting => 'Немен көмектесе аламын?';
+
+  @override
+  String get chatPlaceholder => 'KORKEM AI хабарламасы…';
+
+  @override
+  String get chatSend => 'Жіберу';
+
+  @override
+  String get chatDictate => 'Дауыспен енгізу';
+
+  @override
+  String get chatDictateStop => 'Дауысты тоқтату';
+
+  @override
+  String get chatLocalMode => 'Жергілікті режим · KORKEM деректері';
+
+  @override
+  String get chatThinking => 'Ойланудамын';
+
+  @override
+  String get chatEmptyThreads => 'Әзірге әңгіме жоқ';
+
+  @override
+  String get chatOpen => 'Ашу';
+
+  @override
+  String get chatNotConnected =>
+      'Мен әзірге тілдік модельге қосылмағанмын, оған жауап бере алмаймын. KORKEM деректерін көрсете аламын:';
+
+  @override
+  String get chatSuggestDeals => 'Мәмілелерімді көрсет';
+
+  @override
+  String get chatSuggestAttention => 'Не назар аударуды қажет етеді?';
+
+  @override
+  String get chatSuggestOverdue => 'Не мерзімі өтті?';
+
+  @override
+  String get chatSuggestProduction => 'Қазір өндірісте не бар?';
+
+  @override
+  String get chatCardOpenDeals => 'Ашық мәмілелер';
+
+  @override
+  String get chatCardAttention => 'Назар аударуды қажет етеді';
+
+  @override
+  String get chatCardTasks => 'Менің тапсырмаларым';
+
+  @override
+  String get chatCardProduction => 'Өндірісте';
 }
