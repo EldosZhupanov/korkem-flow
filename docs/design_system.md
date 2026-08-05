@@ -270,20 +270,63 @@ made.
 
 ### Navigation
 
-- **`NavigationBar`** (M3) — 3–5 destinations, per role (see `mobile_app_structure.md`).
-- **No drawer.** A drawer hides navigation behind a gesture and is poor one-handed. Overflow goes to a
-  Profile/More tab.
-- **Tabs** only for peer views of one subject — Deals and Leads are both the pipeline — never for
-  unrelated destinations, which belong in the navigation bar. Always **scrollable and
-  start-aligned**, including where two tabs would fit centred: deciding per screen is how one tab bar
-  ends up centred and another does not, which is exactly what happened before `AppScreen`.
-- **App bar**: `small` everywhere, title left, max two actions plus overflow.
+The app's navigation is a **panel**: a drawer on a phone, a permanent 280dp
+column at `AppBreakpoints.medium` and up.
 
-  This contradicts what this document said for a long time — `large` on top-level, collapsing on
-  scroll — and the app never had one. Keeping the small bar is the decision: a large title spends
-  around 52dp of permanent vertical space, and every screen here exists to show as many rows as
-  possible to someone holding a phone on a factory floor. That trade is right for an app opened
-  twice a week and wrong for one opened forty times a shift.
+> This page previously said, in bold: **"No drawer.** A drawer hides navigation
+> behind a gesture and is poor one-handed. Overflow goes to a Profile/More tab."
+> That was right for an app whose four destinations *were* the product. It is
+> wrong for one whose product is a conversation and whose sections are tools it
+> reaches — a permanent bar would spend a fifth of a phone screen advertising
+> places people visit occasionally, and the assistant needs that space.
+
+The breakpoint is derived, not chosen: 280 (panel) + 720 (`readable`) = 1000, so
+`medium` is the first width at which a permanent panel does not squeeze the
+reading column.
+
+Two lists, deliberately kept apart:
+
+| List | What it is | Cost |
+|---|---|---|
+| `appDestinations` | the router's **branches** — places that keep their own stack and scroll position | one `IndexedStack` child alive for the life of the app |
+| `sidebarEntries` | what the panel shows, a superset | nothing; non-branch rows navigate by path |
+
+Production is a dashboard child and Settings sits outside the shell; both are
+reached with `context.go`, which sets the owning branch *and* its stack in one
+move. Conflating the lists would either force those to become branches or force
+the branch list to grow rows the router has no route for.
+
+- **Tabs** only for peer views of one subject — Deals and Leads are both the
+  pipeline — never for unrelated destinations, which belong in the panel. Always
+  **scrollable and start-aligned**, including where two tabs would fit centred:
+  deciding per screen is how one tab bar ends up centred and another does not.
+- **App bar**: `small` everywhere, title left, max two actions plus overflow.
+  A branch root gets a menu button; a pushed screen keeps its back arrow, and a
+  wide layout gets neither because the panel is already visible.
+
+  The small bar contradicts what this page said for a long time — `large` on
+  top-level, collapsing on scroll — and the app never had one. Keeping it is the
+  decision: a large title spends around 52dp of permanent vertical space, and
+  every screen here exists to show as many rows as possible to someone holding a
+  phone on a factory floor.
+
+### The assistant
+
+`KORKEM AI` is the home screen, and the one rule that governs it is that it
+never claims more than it has. Until a language model is connected:
+
+- It matches a few keywords and attaches a **data card**. It writes no prose and
+  no figures — every number on a card comes from the provider that already feeds
+  the dashboard, so a conversation reopened next week shows next week's data.
+- Anything it does not recognise gets a plain statement that no model is
+  connected, followed by what it *can* show.
+- The header carries `chatLocalMode` at all times.
+
+A demo assistant that improvises is not a demo, it is a claim; and the first
+time somebody acts on an invented number out of an ERP, the damage is real.
+
+`AssistantRepository` is the seam a real model plugs into — one method, and the
+chat screen does not change when it is implemented.
 
 ### Screen shells
 

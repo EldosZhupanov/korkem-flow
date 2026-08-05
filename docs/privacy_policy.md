@@ -69,9 +69,24 @@ blocks unencrypted HTTP by default.
 
 ## Permissions
 
-The app requests one Android permission:
+The app requests two Android permissions:
 
 - **`INTERNET`** — to reach your employer's server.
+- **`RECORD_AUDIO`** — only to dictate a message to the assistant, and only
+  while you hold the microphone button. It is requested the first time you use
+  it, and declining leaves the button hidden rather than broken.
+
+### What happens to what you dictate
+
+Dictation uses **Android's own speech recognition**, not ours. We do not record,
+store or transmit audio, and there is no server of ours involved — but Android
+may send the audio to Google to transcribe it, exactly as it does for voice
+typing in any other app. That is between your device and Google, and it is
+governed by Google's privacy policy and by your device's own settings for
+speech recognition.
+
+If you would rather nothing left the device, type instead: the assistant does
+not treat dictated and typed messages differently.
 
 It also declares that it may open your phone, email and WhatsApp apps when you
 tap a customer's phone number or email address. Those actions hand the number
@@ -107,12 +122,19 @@ Play's form must match the policy above. The truthful answers:
 | Can users request data deletion? | **Yes** — via the contact address |
 | **Personal info → Email address** | Collected, **not** shared. Purpose: *App functionality, Account management*. Required. |
 | **Personal info → User IDs** | Collected, **not** shared. Purpose: *App functionality*. Required. |
+| **Audio → Voice or sound recordings** | **Not collected.** Dictation is handled by Android's recogniser; the app receives text, never audio, and stores neither. |
 | Location, Financial info, Health, Messages, Photos, Contacts, Calendar, App activity, Device IDs | **Not collected** |
 | Third-party advertising / analytics | **None** |
 
 A password submitted only to authenticate and never stored is not declared as
 collected data under Play's definitions; the email and user id are, because the
 app retains an identifier tied to them on the device.
+
+The audio row is worth stating explicitly rather than leaving to the catch-all:
+the app declares `RECORD_AUDIO`, and a reviewer who sees that permission with no
+matching disclosure has to guess. The honest disclosure is that the permission
+exists, the recording does not reach us, and Android's own recogniser is what
+the user is really trusting.
 
 **If Sentry crash reporting is added later**, this table changes: crash reports
 count as *App activity → Diagnostics*, shared with a third-party processor. Both
