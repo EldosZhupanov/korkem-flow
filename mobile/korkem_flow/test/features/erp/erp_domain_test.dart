@@ -115,9 +115,22 @@ void main() {
     });
 
     test('a finished order is never late, whatever the plan said', () {
-      expect(order(status: 'Completed').isLate, isFalse);
-      expect(order(status: 'Closed').isLate, isFalse);
-      expect(order(status: 'Cancelled').isLate, isFalse);
+      // Long past the plan, so only the status can be what spares it.
+      final wellPast = DateTime(2030);
+
+      expect(order(status: 'Completed').isLateAt(wellPast), isFalse);
+      expect(order(status: 'Closed').isLateAt(wellPast), isFalse);
+      expect(order(status: 'Cancelled').isLateAt(wellPast), isFalse);
+    });
+
+    test('lateness is judged against the time it is given', () {
+      // The point of taking the time as an argument. This getter used to read
+      // the system clock, which made a golden that had passed for days start
+      // failing on its own the morning the fixture's due date arrived.
+      final open = order();
+
+      expect(open.isLateAt(DateTime(2020)), isFalse);
+      expect(open.isLateAt(DateTime(2030)), isTrue);
     });
 
     test('classifies which statuses mean the factory is working', () {

@@ -49,10 +49,18 @@ class WorkOrder {
     return (producedQty / qty).clamp(0.0, 1.0);
   }
 
-  bool get isLate {
+  /// Whether this order has missed its planned end, as of [now].
+  ///
+  /// Takes the time rather than reading the system clock. Every other screen
+  /// that reasons about lateness — quotes, approvals, the task grouping — asks
+  /// `clockProvider` for it, and this was the one place that did not. The cost
+  /// was invisible until a golden that had passed for days began to fail on its
+  /// own: the fixture's due date arrived, and a test whose whole job is to be
+  /// deterministic started reporting on the wall clock instead.
+  bool isLateAt(DateTime now) {
     final planned = plannedEndDate;
     if (planned == null || status.isFinished) return false;
-    return DateTime.now().isAfter(planned);
+    return now.isAfter(planned);
   }
 
   @override

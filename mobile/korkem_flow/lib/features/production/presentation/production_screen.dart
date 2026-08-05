@@ -10,6 +10,7 @@ import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
+import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_status_label.dart';
@@ -77,19 +78,20 @@ class ProductionScreen extends ConsumerWidget {
 }
 
 /// A work order, led by the one number that matters: how much is made.
-class WorkOrderCard extends StatelessWidget {
+class WorkOrderCard extends ConsumerWidget {
   const WorkOrderCard({required this.order, this.onTap, super.key});
 
   final WorkOrder order;
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final quantity = NumberFormat.decimalPattern(locale);
     final planned = order.plannedEndDate;
+    final isLate = order.isLateAt(ref.watch(clockProvider)());
 
     return AppCard(
       onTap: onTap,
@@ -128,7 +130,7 @@ class WorkOrderCard extends StatelessWidget {
                     value: order.progress,
                     minHeight: 6,
                     backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                    color: order.isLate
+                    color: isLate
                         ? context.statusColors.danger
                         : context.statusColors.success,
                   ),
@@ -152,7 +154,7 @@ class WorkOrderCard extends StatelessWidget {
                 _Meta(
                   icon: AppIcons.schedule,
                   label: DateFormat.MMMd(locale).format(planned),
-                  intent: order.isLate ? StatusIntent.danger : null,
+                  intent: isLate ? StatusIntent.danger : null,
                 ),
               if (order.originatingDeal != null)
                 _Meta(icon: AppIcons.deal, label: order.originatingDeal!),
@@ -160,7 +162,7 @@ class WorkOrderCard extends StatelessWidget {
             ],
           ),
 
-          if (order.isLate) ...[
+          if (isLate) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
               l10n.tasksOverdue,
