@@ -147,9 +147,42 @@ Recorded honestly. Nothing below is implemented yet.
 | A2 | `AI Settings.provider` is a two-value Select (`Anthropic`, `Ollama`) | OpenAI, OpenRouter, Gemini and generic OpenAI-compatible need to be reachable. A Select is the wrong shape for "add your own endpoint". |
 | A3 | No whitelisted chat endpoint | The mobile app cannot start a conversation turn at all today. |
 | A4 | No tool registry | There is nothing to give a model, and nothing to validate a call against. |
-| A5 | No streaming transport | ADR-0009 forbids blocking a request handler on an LLM call, so the answer is not "hold the HTTP response open". Frappe ships `frappe.publish_realtime` over socket.io, which is the transport that fits: enqueue the turn, stream deltas to the user's own realtime room. **Unverified:** whether the bench's socket.io is reachable from the Android emulator. Must be tested before being relied on. |
+| A5 | No streaming transport | ADR-0009 forbids blocking a request handler on an LLM call, so the answer is not "hold the HTTP response open". Frappe ships `frappe.publish_realtime` over socket.io: enqueue the turn, stream deltas to the user's own realtime room. **Now verified — see §3.1.** |
 | A6 | `Agent Conversation` is shaped for WhatsApp customer threads | ADR-0012 separates AI memory from ERP data. Whether to reuse this doctype for workspace chats or add one is an open design question, not a decision to make casually. |
 | A7 | Flutter `ChatThread` is local-only (`shared_preferences`) | Fine for now; a server-side conversation store is a later phase, and the brief does not ask for cross-device sync. |
+
+### 3.1 The streaming transport, measured
+
+Streaming was the one gap that could have invalidated the design, so it was
+tested rather than reasoned about. Three findings, in the order they were made:
+
+1. **The emulator can reach socket.io.** `10.0.2.2:9000` returns a valid
+   Engine.IO handshake (`{"sid":…,"upgrades":["websocket"]}`), while `:8000`
+   returns 404 for the same path — so the probe is genuinely hitting the
+   socket.io process and not the web server.
+
+2. **A first inference was wrong, and it is worth recording why.**
+   `common_site_config.json` sets `redis_socketio: redis://127.0.0.1:13000`,
+   and nothing listens there — connection refused. That looked like a broken
+   realtime pipeline. It is not: `frappe.realtime.emit_via_redis` publishes
+   through `get_redis_connection_without_auth()` and the node subscriber calls
+   `get_redis_subscriber()`, whose default `kind` is **`redis_queue`**. Both
+   ends use `redis://redis-queue:6379`, which is healthy. The `redis_socketio`
+   entry is vestigial on this bench.
+
+3. **A probe that cannot fail proves nothing.** Calling `publish_realtime` and
+   observing no exception was not evidence: `emit_via_redis` wraps its publish
+   in `with suppress(redis.exceptions.ConnectionError)`, so it returns quietly
+   whether or not Redis is reachable. The conclusive test was to subscribe to
+   the `events` channel and watch the payload arrive — which it did.
+
+**Conclusion: the transport is viable.** Enqueue the turn (ADR-0009), publish
+deltas to the user's room, and let the client read them over socket.io at the
+configured base URL's host. No infrastructure change is required.
+
+Still open, and not yet tested: authenticating the socket.io connection from
+the app, which uses the Frappe session cookie rather than the API key pair the
+REST client holds.
 
 ---
 
