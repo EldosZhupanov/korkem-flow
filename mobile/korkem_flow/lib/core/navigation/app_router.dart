@@ -53,6 +53,11 @@ abstract final class Routes {
   static const profile = '/profile';
   static const settings = '/settings';
 
+  /// Sales, opened on its Customers tab. A URL rather than a branch of its own:
+  /// Customers *is* a view of the pipeline, and giving it a second branch would
+  /// mean two live copies of the same screen in the shell's `IndexedStack`.
+  static const clients = '$sales?${SalesTab.queryParameter}=customers';
+
   /// The component catalogue. Registered only in debug builds — see
   /// [createRouter] — so this path 404s in a release one.
   static const gallery = '/gallery';
@@ -154,8 +159,19 @@ GoRouter createRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.sales,
-                builder: (context, state) =>
-                    const TabBackHandler(child: SalesScreen()),
+                builder: (context, state) {
+                  // Keyed by the requested tab so that asking for Clients while
+                  // already on Sales rebuilds the screen — and therefore its
+                  // `DefaultTabController` — instead of quietly reusing one
+                  // that is already parked on Deals.
+                  final tab = SalesTab.fromName(
+                    state.uri.queryParameters[SalesTab.queryParameter],
+                  );
+                  return TabBackHandler(
+                    key: ValueKey(tab),
+                    child: SalesScreen(tab: tab),
+                  );
+                },
                 routes: [
                   GoRoute(
                     path: 'deal/:id',

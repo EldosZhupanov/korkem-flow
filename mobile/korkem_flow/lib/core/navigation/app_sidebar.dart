@@ -13,6 +13,7 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/navigation/sidebar_entries.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
+import 'package:korkem_flow/features/assistant/domain/chat_thread.dart';
 import 'package:korkem_flow/features/assistant/domain/thread_groups.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -137,6 +138,8 @@ class AppSidebar extends ConsumerWidget {
                           _toBranch(context, Routes.chat);
                           onNavigate();
                         },
+                        onRename: () => _rename(context, ref, thread),
+                        onDelete: () => _delete(context, ref, thread),
                       ),
                   ],
                 ],
@@ -175,6 +178,49 @@ class AppSidebar extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _rename(
+    BuildContext context,
+    WidgetRef ref,
+    ChatThread thread,
+  ) async {
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => _RenameDialog(initial: thread.title),
+    );
+    if (name == null) return;
+    ref.read(threadsControllerProvider.notifier).rename(thread.id, name);
+  }
+
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    ChatThread thread,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    // Confirmed, because this is the one control in the panel that destroys
+    // something, and it sits a few points from the row that merely opens it.
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.chatDeleteTitle),
+        content: Text(l10n.chatDeleteBody(thread.title)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.chatDelete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed ?? false) {
+      ref.read(threadsControllerProvider.notifier).delete(thread.id);
+    }
   }
 
   String _bandLabel(ThreadBand band, AppLocalizations l10n) => switch (band) {
@@ -284,6 +330,8 @@ class _ThreadTile extends StatelessWidget {
     required this.title,
     required this.selected,
     required this.onTap,
+    required this.onRename,
+    required this.onDelete,
   });
 
   final String title;
@@ -293,6 +341,8 @@ class _ThreadTile extends StatelessWidget {
   final bool selected;
 
   final VoidCallback onTap;
+  final VoidCallback onRename;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -311,18 +361,144 @@ class _ThreadTile extends StatelessWidget {
             horizontal: AppSpacing.md,
             vertical: AppSpacing.md,
           ),
-          child: Text(
-            title,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: selected
-                  ? theme.colorScheme.onSurface
-                  : theme.colorScheme.onSurfaceVariant,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: selected
+                        ? theme.colorScheme.onSurface
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              // A menu rather than a swipe or a long press: both of those are
+              // invisible, and a conversation someone cannot find how to
+              // delete is a conversation they cannot delete.
+              _ThreadMenu(
+                title: title,
+                onRename: onRename,
+                onDelete: onDelete,
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Rename and delete, behind one discreet button per row.
+///
+/// `PopupMenuButton` rather than a `Dismissible` or a long press: a swipe is
+/// undiscoverable and a long press is worse on a panel people are scanning, and
+/// a conversation nobody can work out how to delete is a conversation they
+/// cannot delete.
+class _ThreadMenu extends StatelessWidget {
+  const _ThreadMenu({
+    required this.title,
+    required this.onRename,
+    required this.onDelete,
+  });
+
+  final String title;
+  final VoidCallback onRename;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    return PopupMenuButton<VoidCallback>(
+      onSelected: (action) => action(),
+      tooltip: title,
+      icon: Icon(
+        AppIcons.more,
+        size: AppIconSize.small,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: onRename,
+          child: Row(
+            children: [
+              const Icon(AppIcons.edit, size: AppIconSize.small),
+              const SizedBox(width: AppSpacing.md),
+              Text(l10n.chatRename),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: onDelete,
+          child: Row(
+            children: [
+              Icon(
+                AppIcons.delete,
+                size: AppIconSize.small,
+                color: theme.colorScheme.error,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Text(
+                l10n.chatDelete,
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Asks for a new name, pre-filled with the current one and fully selected, so
+/// typing replaces it and the common case is one gesture.
+class _RenameDialog extends StatefulWidget {
+  const _RenameDialog({required this.initial});
+
+  final String initial;
+
+  @override
+  State<_RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<_RenameDialog> {
+  late final _controller = TextEditingController(text: widget.initial)
+    ..selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: widget.initial.length,
+    );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => Navigator.of(context).pop(_controller.text);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return AlertDialog(
+      title: Text(l10n.chatRenameTitle),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.actionCancel),
+        ),
+        FilledButton(onPressed: _submit, child: Text(l10n.chatRename)),
+      ],
     );
   }
 }

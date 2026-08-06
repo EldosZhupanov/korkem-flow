@@ -13,7 +13,9 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// together anyway: a lead becomes a deal, a deal gets a quote, and the quote
 /// belongs to a customer.
 class SalesScreen extends StatelessWidget {
-  const SalesScreen({super.key});
+  const SalesScreen({this.tab = SalesTab.deals, super.key});
+
+  final SalesTab tab;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,7 @@ class SalesScreen extends StatelessWidget {
 
     return AppScreen.tabbed(
       title: l10n.navSales,
+      initialTab: tab.index,
       tabs: [
         AppTab(label: l10n.navDeals, view: const DealsScreen()),
         AppTab(label: l10n.navLeads, view: const LeadsScreen()),
@@ -29,4 +32,24 @@ class SalesScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+/// The views of the pipeline, in the order they are shown.
+///
+/// Named rather than numbered because the sidebar links to one of them by
+/// name in a URL — `/sales?tab=customers` survives a reorder of the tabs,
+/// where `?tab=2` would quietly start opening a different screen.
+enum SalesTab {
+  deals,
+  leads,
+  customers,
+  quotes;
+
+  static const queryParameter = 'tab';
+
+  /// Resolves a URL's `tab` value. Anything unrecognised — a stale link, a
+  /// typo, a hand-edited URL — opens the pipeline rather than failing.
+  static SalesTab fromName(String? name) =>
+      SalesTab.values.where((tab) => tab.name == name).firstOrNull ??
+      SalesTab.deals;
 }

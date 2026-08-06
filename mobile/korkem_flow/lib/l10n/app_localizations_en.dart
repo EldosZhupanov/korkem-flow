@@ -573,4 +573,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatWorkspace => 'AI Workspace';
+
+  @override
+  String get chatRename => 'Rename';
+
+  @override
+  String get chatDelete => 'Delete';
+
+  @override
+  String get chatDeleteTitle => 'Delete conversation?';
+
+  @override
+  String chatDeleteBody(String title) {
+    return '“$title” will be removed from this device. This cannot be undone.';
+  }
+
+  @override
+  String get chatRenameTitle => 'Conversation name';
+
+  @override
+  String get navClients => 'Clients';
 }

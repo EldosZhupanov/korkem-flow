@@ -573,4 +573,24 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get chatWorkspace => 'AI Workspace';
+
+  @override
+  String get chatRename => 'Атын өзгерту';
+
+  @override
+  String get chatDelete => 'Жою';
+
+  @override
+  String get chatDeleteTitle => 'Әңгімені жою керек пе?';
+
+  @override
+  String chatDeleteBody(String title) {
+    return '«$title» осы құрылғыдан жойылады. Қайтару мүмкін емес.';
+  }
+
+  @override
+  String get chatRenameTitle => 'Әңгіме атауы';
+
+  @override
+  String get navClients => 'Клиенттер';
 }

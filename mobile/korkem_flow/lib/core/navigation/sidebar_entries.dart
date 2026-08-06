@@ -103,6 +103,11 @@ const sidebarSectionEntries = <SidebarEntry>[
     labelOf: _home,
   ),
   SidebarBranch(path: Routes.sales, icon: AppIcons.deal, labelOf: _sales),
+  SidebarLink(
+    path: Routes.clients,
+    icon: AppIcons.customer,
+    labelOf: _clients,
+  ),
   SidebarBranch(path: Routes.tasks, icon: AppIcons.task, labelOf: _tasks),
   SidebarLink(
     path: Routes.production,
@@ -137,5 +142,6 @@ String _home(AppLocalizations l10n) => l10n.navDashboard;
 String _sales(AppLocalizations l10n) => l10n.navSales;
 String _tasks(AppLocalizations l10n) => l10n.navTasks;
 String _production(AppLocalizations l10n) => l10n.navOperations;
+String _clients(AppLocalizations l10n) => l10n.navClients;
 String _profile(AppLocalizations l10n) => l10n.navProfile;
 String _settings(AppLocalizations l10n) => l10n.settingsTitle;

@@ -282,5 +282,18 @@
   "chatYesterday": "Yesterday",
   "chatEarlier": "Earlier",
   "chatScrollToEnd": "Jump to latest",
-  "chatWorkspace": "AI Workspace"
+  "chatWorkspace": "AI Workspace",
+  "chatRename": "Rename",
+  "chatDelete": "Delete",
+  "chatDeleteTitle": "Delete conversation?",
+  "chatDeleteBody": "“{title}” will be removed from this device. This cannot be undone.",
+  "chatRenameTitle": "Conversation name",
+  "navClients": "Clients",
+  "@chatDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }

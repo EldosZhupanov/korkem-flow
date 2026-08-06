@@ -182,5 +182,11 @@
   "chatYesterday": "Вчера",
   "chatEarlier": "Ранее",
   "chatScrollToEnd": "К последнему сообщению",
-  "chatWorkspace": "AI Workspace"
+  "chatWorkspace": "AI Workspace",
+  "chatRename": "Переименовать",
+  "chatDelete": "Удалить",
+  "chatDeleteTitle": "Удалить разговор?",
+  "chatDeleteBody": "Разговор «{title}» будет удалён с этого устройства. Отменить нельзя.",
+  "chatRenameTitle": "Название разговора",
+  "navClients": "Клиенты"
 }

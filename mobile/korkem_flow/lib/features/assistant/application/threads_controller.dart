@@ -63,6 +63,50 @@ class ThreadsController extends Notifier<List<ChatThread>> {
       ref.read(activeThreadProvider.notifier).replace(thread);
     }
   }
+
+  /// Gives a conversation a name of the user's choosing.
+  ///
+  /// An empty name clears it rather than storing a blank, so the row goes back
+  /// to following the opening question instead of rendering as an empty line.
+  void rename(String id, String name) {
+    final trimmed = name.trim();
+    _replaceWhere(
+      id,
+      (thread) => ChatThread(
+        id: thread.id,
+        messages: thread.messages,
+        updatedAt: thread.updatedAt,
+        name: trimmed.isEmpty ? null : trimmed,
+      ),
+    );
+  }
+
+  /// Forgets a conversation. If it is the one on screen, the screen is cleared
+  /// too — leaving a deleted conversation open is how a user deletes something
+  /// and then watches it come back on the next save.
+  void delete(String id) {
+    final next = state.where((thread) => thread.id != id).toList();
+    if (next.length == state.length) return;
+
+    state = next;
+    if (ref.read(activeThreadProvider)?.id == id) {
+      ref.read(activeThreadProvider.notifier).clear();
+    }
+    unawaited(ref.read(threadStoreProvider).write(next));
+  }
+
+  void _replaceWhere(String id, ChatThread Function(ChatThread) update) {
+    final index = state.indexWhere((thread) => thread.id == id);
+    if (index < 0) return;
+
+    final updated = update(state[index]);
+    final next = [...state]..[index] = updated;
+    state = next;
+    if (ref.read(activeThreadProvider)?.id == id) {
+      ref.read(activeThreadProvider.notifier).replace(updated);
+    }
+    unawaited(ref.read(threadStoreProvider).write(next));
+  }
 }
 
 class ActiveThread extends Notifier<ChatThread?> {

@@ -33,7 +33,8 @@ class AppScreen extends StatelessWidget {
     this.subtitle,
     this.actions = const [],
     super.key,
-  }) : tabs = const [];
+  }) : tabs = const [],
+       initialTab = 0;
 
   /// Peer views of one subject, under a single title.
   ///
@@ -44,6 +45,7 @@ class AppScreen extends StatelessWidget {
     required this.title,
     required this.tabs,
     this.actions = const [],
+    this.initialTab = 0,
     super.key,
   }) : body = null,
        subtitle = null;
@@ -58,6 +60,12 @@ class AppScreen extends StatelessWidget {
   final Widget? body;
   final List<Widget> actions;
   final List<AppTab> tabs;
+
+  /// Which tab opens first. Only meaningful for [AppScreen.tabbed], and only
+  /// honoured when the screen is *built*: sending someone to a different tab of
+  /// a screen they are already on means giving that screen a new key, not
+  /// changing this value under a live `TabController`.
+  final int initialTab;
 
   /// The title block, with the subtitle folded in when there is one.
   Widget _title(BuildContext context) {
@@ -95,6 +103,7 @@ class AppScreen extends StatelessWidget {
 
     return DefaultTabController(
       length: tabs.length,
+      initialIndex: initialTab.clamp(0, tabs.length - 1),
       child: Scaffold(
         appBar: AppBar(
           leading: _SidebarButton.maybe(context),

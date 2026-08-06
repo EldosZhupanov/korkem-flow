@@ -334,7 +334,16 @@ Future<void> _tapMetric(WidgetTester tester, String label) async {
 Future<void> _openTab(WidgetTester tester, String label) async {
   await tester.tap(find.byTooltip(_menuTooltip));
   await tester.pumpAndSettle();
-  await tester.tap(find.text(label).last);
+
+  // Scrolled into view first, not tapped where it is assumed to be. With
+  // conversation history in the panel the lower rows genuinely fall below a
+  // phone's fold, and a blind tap there hits whatever happens to be at those
+  // coordinates — which is how a golden ends up passing while photographing
+  // the wrong screen.
+  final row = find.text(label).last;
+  await tester.ensureVisible(row);
+  await tester.pumpAndSettle();
+  await tester.tap(row);
   await tester.pumpAndSettle();
 }
 

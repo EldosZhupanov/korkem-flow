@@ -1197,6 +1197,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI Workspace'**
   String get chatWorkspace;
+
+  /// No description provided for @chatRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get chatRename;
+
+  /// No description provided for @chatDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get chatDelete;
+
+  /// No description provided for @chatDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete conversation?'**
+  String get chatDeleteTitle;
+
+  /// No description provided for @chatDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“{title}” will be removed from this device. This cannot be undone.'**
+  String chatDeleteBody(String title);
+
+  /// No description provided for @chatRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation name'**
+  String get chatRenameTitle;
+
+  /// No description provided for @navClients.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients'**
+  String get navClients;
 }
 
 class _AppLocalizationsDelegate

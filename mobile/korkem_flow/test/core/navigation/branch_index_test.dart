@@ -54,11 +54,17 @@ void main() {
         case SidebarBranch(:final path):
           expect(branchPaths, contains(path));
         case SidebarLink(:final path):
-          // Inside the shell: `go` reaches it and it has a parent to pop to.
+          // Inside the shell, so `go` reaches it. Two shapes qualify: a child
+          // of a branch (Production under the dashboard), or a branch itself
+          // with a query that selects a view of it (Clients = Sales on its
+          // Customers tab). Parsed rather than string-matched, because
+          // `/sales?tab=customers` starts with no branch path plus a slash.
+          final location = Uri.parse(path);
           expect(
-            branchPaths.any((branch) => path.startsWith('$branch/')),
+            branchPaths.contains(location.path) ||
+                branchPaths.any((b) => location.path.startsWith('$b/')),
             isTrue,
-            reason: '$path is not under a branch, so `go` would strand it',
+            reason: '$path is not in the shell, so `go` would strand it',
           );
         case SidebarPage(:final path):
           // Outside the shell, and pushed — which is the only reason it has a
