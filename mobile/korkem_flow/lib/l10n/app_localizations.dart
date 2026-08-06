@@ -1063,7 +1063,7 @@ abstract class AppLocalizations {
   /// Hint text in the message field
   ///
   /// In en, this message translates to:
-  /// **'Message KORKEM AI…'**
+  /// **'Ask KORKEM anything…'**
   String get chatPlaceholder;
 
   /// No description provided for @chatSend.
@@ -1161,6 +1161,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In production'**
   String get chatCardProduction;
+
+  /// No description provided for @chatHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get chatHistory;
+
+  /// No description provided for @chatToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get chatToday;
+
+  /// No description provided for @chatYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get chatYesterday;
+
+  /// No description provided for @chatEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get chatEarlier;
+
+  /// No description provided for @chatScrollToEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to latest'**
+  String get chatScrollToEnd;
+
+  /// No description provided for @chatWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Workspace'**
+  String get chatWorkspace;
 }
 
 class _AppLocalizationsDelegate

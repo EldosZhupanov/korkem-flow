@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
@@ -28,9 +29,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _scroll = ScrollController();
   late final SpeechDictation _dictation = SpeechDictation();
 
+  /// Whether the newest turn is off screen above the fold.
+  ///
+  /// A long answer pushes the end of the conversation out of view, and reading
+  /// back up through it is exactly when someone loses the thread — so the way
+  /// back down is offered rather than left as a long scroll.
+  bool _canScrollToEnd = false;
+
   @override
   void initState() {
     super.initState();
+    _scroll.addListener(_onScroll);
     // Asked once, and the button only appears if the answer is yes. A device
     // with no recogniser, or a user who declines the microphone, is never
     // offered a control that cannot work.
@@ -43,9 +52,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   void dispose() {
-    _scroll.dispose();
+    _scroll
+      ..removeListener(_onScroll)
+      ..dispose();
     unawaited(_dictation.dispose());
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scroll.hasClients) return;
+    final position = _scroll.position;
+    // A threshold rather than an exact comparison: a couple of points of
+    // overscroll bounce should not flash a button in and out.
+    final away =
+        position.maxScrollExtent - position.pixels > _scrollToEndThreshold;
+    if (away != _canScrollToEnd) setState(() => _canScrollToEnd = away);
   }
 
   Future<void> _send(String text) async {
@@ -85,9 +106,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: messages.isEmpty
-                ? ChatEmptyView(onSuggestion: _send)
-                : ListView.builder(
+            child: Stack(
+              children: [
+                if (messages.isEmpty)
+                  ChatEmptyView(onSuggestion: _send)
+                else
+                  ListView.builder(
                     controller: _scroll,
                     padding: const EdgeInsets.fromLTRB(
                       AppSpacing.lg,
@@ -100,6 +124,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ? const ChatTypingIndicator()
                         : ChatMessageView(message: messages[index]),
                   ),
+                PositionedDirectional(
+                  end: AppSpacing.lg,
+                  bottom: AppSpacing.md,
+                  child: _ScrollToEndButton(
+                    visible: _canScrollToEnd,
+                    onPressed: _scrollToEnd,
+                  ),
+                ),
+              ],
+            ),
           ),
           ChatComposer(
             onSend: _send,
@@ -111,3 +145,46 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 }
+
+/// The way back to the newest turn.
+///
+/// Absent, not disabled, when the conversation is already at the end — there is
+/// nothing to return to, and a permanently visible control over the transcript
+/// would be one more thing between the reader and the words.
+class _ScrollToEndButton extends StatelessWidget {
+  const _ScrollToEndButton({required this.visible, required this.onPressed});
+
+  final bool visible;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return AnimatedSwitcher(
+      duration: motionOf(context, AppDuration.quick),
+      switchInCurve: AppCurves.enter,
+      switchOutCurve: AppCurves.exit,
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: !visible
+          ? const SizedBox.shrink()
+          : Semantics(
+              button: true,
+              label: l10n.chatScrollToEnd,
+              child: FloatingActionButton.small(
+                heroTag: null,
+                tooltip: l10n.chatScrollToEnd,
+                onPressed: onPressed,
+                child: const Icon(AppIcons.down),
+              ),
+            ),
+    );
+  }
+}
+
+/// How far from the end counts as "away from it".
+///
+/// Roughly one turn: below this the newest message is still on screen and the
+/// button would be offering to do nothing.
+const double _scrollToEndThreshold = 240;

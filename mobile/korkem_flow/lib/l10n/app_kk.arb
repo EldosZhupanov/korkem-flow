@@ -160,7 +160,7 @@
   "chatNew": "Жаңа чат",
   "chatRecent": "Соңғылары",
   "chatGreeting": "Немен көмектесе аламын?",
-  "chatPlaceholder": "KORKEM AI хабарламасы…",
+  "chatPlaceholder": "KORKEM-нен кез келген нәрсені сұраңыз…",
   "chatSend": "Жіберу",
   "chatDictate": "Дауыспен енгізу",
   "chatDictateStop": "Дауысты тоқтату",
@@ -176,5 +176,11 @@
   "chatCardOpenDeals": "Ашық мәмілелер",
   "chatCardAttention": "Назар аударуды қажет етеді",
   "chatCardTasks": "Менің тапсырмаларым",
-  "chatCardProduction": "Өндірісте"
+  "chatCardProduction": "Өндірісте",
+  "chatHistory": "Тарих",
+  "chatToday": "Бүгін",
+  "chatYesterday": "Кеше",
+  "chatEarlier": "Бұрынырақ",
+  "chatScrollToEnd": "Соңғы хабарламаға",
+  "chatWorkspace": "AI Workspace"
 }

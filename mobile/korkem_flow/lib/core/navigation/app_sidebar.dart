@@ -11,7 +11,9 @@ import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_destinations.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/navigation/sidebar_entries.dart';
+import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
+import 'package:korkem_flow/features/assistant/domain/thread_groups.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The app's navigation, as a panel rather than a bar.
@@ -49,7 +51,11 @@ class AppSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final threads = ref.watch(threadsControllerProvider);
+    final groups = groupThreads(
+      ref.watch(threadsControllerProvider),
+      ref.watch(clockProvider)(),
+    );
+    final activeId = ref.watch(activeThreadProvider)?.id;
 
     return SafeArea(
       child: Column(
@@ -72,7 +78,7 @@ class AppSidebar extends ConsumerWidget {
                     children: [
                       Text('KORKEM', style: theme.textTheme.titleMedium),
                       Text(
-                        l10n.navAssistant,
+                        l10n.chatWorkspace,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -88,31 +94,63 @@ class AppSidebar extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
               children: [
-                for (final entry in sidebarEntries)
+                for (final entry in sidebarWorkspaceEntries)
                   _EntryTile(
                     entry: entry,
                     selected: _isSelected(entry),
                     onTap: () => _go(context, ref, entry),
                   ),
 
-                if (threads.isNotEmpty) ...[
+                // History sits directly under the assistant, above the ERP
+                // sections rather than below them. What someone asked this
+                // morning is more likely to be what they want than the
+                // Warehouse screen is.
+                if (groups.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.lg),
                   Padding(
                     padding: const EdgeInsets.only(left: AppSpacing.md),
-                    child: SectionLabel(l10n.chatRecent),
+                    child: SectionLabel(l10n.chatHistory),
                   ),
-                  for (final thread in threads)
-                    _ThreadTile(
-                      title: thread.title,
-                      onTap: () {
-                        ref
-                            .read(threadsControllerProvider.notifier)
-                            .open(thread.id);
-                        _toBranch(context, Routes.chat);
-                        onNavigate();
-                      },
+                  for (final group in groups) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.sm,
+                        AppSpacing.md,
+                        AppSpacing.xxs,
+                      ),
+                      child: Text(
+                        _bandLabel(group.band, l10n),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     ),
+                    for (final thread in group.threads)
+                      _ThreadTile(
+                        title: thread.title,
+                        selected: thread.id == activeId,
+                        onTap: () {
+                          ref
+                              .read(threadsControllerProvider.notifier)
+                              .open(thread.id);
+                          _toBranch(context, Routes.chat);
+                          onNavigate();
+                        },
+                      ),
+                  ],
                 ],
+
+                const SizedBox(height: AppSpacing.lg),
+                const Divider(height: AppStroke.hairline),
+                const SizedBox(height: AppSpacing.sm),
+
+                for (final entry in sidebarSectionEntries)
+                  _EntryTile(
+                    entry: entry,
+                    selected: _isSelected(entry),
+                    onTap: () => _go(context, ref, entry),
+                  ),
               ],
             ),
           ),
@@ -138,6 +176,12 @@ class AppSidebar extends ConsumerWidget {
       ),
     );
   }
+
+  String _bandLabel(ThreadBand band, AppLocalizations l10n) => switch (band) {
+    ThreadBand.today => l10n.chatToday,
+    ThreadBand.yesterday => l10n.chatYesterday,
+    ThreadBand.earlier => l10n.chatEarlier,
+  };
 
   bool _isSelected(SidebarEntry entry) =>
       entry is SidebarBranch && branchIndexOf(entry.path) == shell.currentIndex;
@@ -236,9 +280,18 @@ class _EntryTile extends StatelessWidget {
 }
 
 class _ThreadTile extends StatelessWidget {
-  const _ThreadTile({required this.title, required this.onTap});
+  const _ThreadTile({
+    required this.title,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String title;
+
+  /// The conversation currently open. Marked, because with history this close
+  /// to the top it is otherwise impossible to tell which row you are reading.
+  final bool selected;
+
   final VoidCallback onTap;
 
   @override
@@ -246,7 +299,9 @@ class _ThreadTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Material(
-      color: Colors.transparent,
+      color: selected
+          ? theme.colorScheme.primary.withValues(alpha: AppTint.surfaceFaint)
+          : Colors.transparent,
       borderRadius: BorderRadius.circular(AppRadius.sm),
       child: InkWell(
         onTap: onTap,
@@ -259,7 +314,9 @@ class _ThreadTile extends StatelessWidget {
           child: Text(
             title,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+              color: selected
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

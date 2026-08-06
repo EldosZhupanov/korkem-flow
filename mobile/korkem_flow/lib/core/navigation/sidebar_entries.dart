@@ -75,18 +75,28 @@ class SidebarAction extends SidebarEntry {
   const SidebarAction({required super.icon, required super.labelOf});
 }
 
-/// The sidebar, top to bottom.
+/// The workspace itself: the assistant, and starting a new conversation with
+/// it. Above everything else, and above the conversation history that belongs
+/// to it.
 ///
-/// Order is meaning: the assistant first because it is the product, the ERP
-/// sections under it as the tools it reaches, and the account at the bottom
-/// where every application has taught people to look for it.
-const sidebarEntries = <SidebarEntry>[
-  SidebarAction(icon: AppIcons.add, labelOf: _newChat),
+/// The order across these three lists is the argument the whole screen makes.
+/// The assistant and its history come first and the ERP sections sit below a
+/// rule, because this is an assistant that can reach a factory's systems. Put
+/// the sections first — as this sidebar did until now, with history buried
+/// under them — and the same rows say the opposite: a CRM that happens to have
+/// a chat window.
+const sidebarWorkspaceEntries = <SidebarEntry>[
   SidebarBranch(
     path: Routes.chat,
     icon: AppIcons.conversation,
     labelOf: _assistant,
   ),
+  SidebarAction(icon: AppIcons.add, labelOf: _newChat),
+];
+
+/// The systems the assistant reaches, and which a person can also open
+/// directly. Below the history, under a rule.
+const sidebarSectionEntries = <SidebarEntry>[
   SidebarBranch(
     path: Routes.dashboard,
     icon: AppIcons.dashboard,
@@ -99,20 +109,26 @@ const sidebarEntries = <SidebarEntry>[
     icon: AppIcons.workOrder,
     labelOf: _production,
   ),
-];
-
-/// Shown apart from the sections above, after the recent conversations.
-const sidebarFooterEntries = <SidebarEntry>[
   SidebarBranch(
     path: Routes.profile,
     icon: AppIcons.profile,
     labelOf: _profile,
   ),
+];
+
+/// Pinned to the bottom, where every application has taught people to look.
+const sidebarFooterEntries = <SidebarEntry>[
   SidebarPage(
     path: Routes.settings,
     icon: AppIcons.settings,
     labelOf: _settings,
   ),
+];
+
+/// Every row, for the tests that check each one against the router.
+const sidebarEntries = <SidebarEntry>[
+  ...sidebarWorkspaceEntries,
+  ...sidebarSectionEntries,
 ];
 
 String _newChat(AppLocalizations l10n) => l10n.chatNew;

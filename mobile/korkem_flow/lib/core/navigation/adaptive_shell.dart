@@ -31,10 +31,17 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
 
   @override
   Widget build(BuildContext context) {
-    // 280 (panel) + 720 (`AppBreakpoints.readable`) = 1000, so `medium` is the
-    // first width at which a permanent panel does not squeeze the content
-    // column. Below it the panel is a drawer instead of stealing that width.
-    final isWide = MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
+    // Both dimensions, and the height is not a formality.
+    //
+    // A tablet at 768 has room for a permanent panel and a conversation column
+    // beside it. A phone in landscape is about 870 × 390 — wider than that
+    // tablet — and giving it a permanent panel would leave a conversation two
+    // hundred points tall behind a keyboard. Width alone cannot tell the two
+    // apart; a window shorter than `compact` is a phone on its side.
+    final size = MediaQuery.sizeOf(context);
+    final isWide =
+        size.width >= AppBreakpoints.sidebar &&
+        size.height >= AppBreakpoints.compact;
 
     if (isWide) {
       return Scaffold(

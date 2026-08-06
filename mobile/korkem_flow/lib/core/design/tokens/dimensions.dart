@@ -56,6 +56,18 @@ abstract final class AppBreakpoints {
   static const double compact = 600;
   static const double medium = 1024;
 
+  /// Narrowest window that keeps the navigation panel on screen permanently.
+  ///
+  /// A tablet held in portrait — 768 is the classic one — leaves 488 for the
+  /// conversation beside a 280 panel, which is wider than any phone this app
+  /// runs on, so the column is not squeezed by having the panel there. Above
+  /// [readable] + [AppNavigation.sidebarWidth] the column stops growing and the
+  /// extra width becomes margin; that is a comfort, not the threshold.
+  ///
+  /// Width is necessary but not sufficient — see `AdaptiveShell`, which also
+  /// requires the window to be taller than [compact].
+  static const double sidebar = 768;
+
   /// Narrowest a KPI tile may get before the grid drops a column.
   static const double minTileWidth = 180;
 

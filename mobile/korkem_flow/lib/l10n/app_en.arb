@@ -242,7 +242,7 @@
   "@chatGreeting": {
     "description": "Headline on an empty conversation"
   },
-  "chatPlaceholder": "Message KORKEM AI…",
+  "chatPlaceholder": "Ask KORKEM anything…",
   "@chatPlaceholder": {
     "description": "Hint text in the message field"
   },
@@ -276,5 +276,11 @@
   "chatCardOpenDeals": "Open deals",
   "chatCardAttention": "Needs attention",
   "chatCardTasks": "My tasks",
-  "chatCardProduction": "In production"
+  "chatCardProduction": "In production",
+  "chatHistory": "History",
+  "chatToday": "Today",
+  "chatYesterday": "Yesterday",
+  "chatEarlier": "Earlier",
+  "chatScrollToEnd": "Jump to latest",
+  "chatWorkspace": "AI Workspace"
 }

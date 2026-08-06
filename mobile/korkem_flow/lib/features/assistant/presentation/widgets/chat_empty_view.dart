@@ -43,7 +43,11 @@ class ChatEmptyView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Entrance(child: AppLogo()),
+              Entrance(
+                child: _BrandMark(
+                  wide: constraints.maxWidth >= AppBreakpoints.compact,
+                ),
+              ),
               const SizedBox(height: AppSpacing.xl),
               Entrance(
                 index: 1,
@@ -100,6 +104,55 @@ class _Suggestion extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The mark, given a little air on a screen with room for it.
+///
+/// The depth is one layer and nothing else — no blur filter, no gradient stack,
+/// no animation that keeps running. On a phone it is omitted: at that size it
+/// crowds the mark rather than lifting it, and compositing an extra layer on
+/// every frame of the screen people open forty times a shift is the cheap way
+/// to make an app feel slow.
+///
+/// It is a radial gradient and not a `BoxShadow`, which was the first attempt
+/// and was visibly wrong on a device: the mark's artwork is taller than it is
+/// wide (452 × 591), so a circular shadow behind that box does not cover it and
+/// left a bright rectangle around the logo. A gradient that ends at full
+/// transparency has no edge to notice, whatever shape the child is.
+///
+/// [AppTint.glow] is the palette's own name for this — "light falling behind a
+/// shape rather than a shape of its own".
+class _BrandMark extends StatelessWidget {
+  const _BrandMark({required this.wide});
+
+  final bool wide;
+
+  /// How far the light reaches past the mark. Generous, because a halo that
+  /// stops close to the artwork reads as a plate behind it.
+  static const double _haloSize = AppLogoSize.standard * 2.4;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!wide) return const AppLogo();
+
+    final theme = Theme.of(context);
+
+    return SizedBox.square(
+      dimension: _haloSize,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              theme.colorScheme.primary.withValues(alpha: AppTint.glow),
+              theme.colorScheme.primary.withValues(alpha: 0),
+            ],
+          ),
+        ),
+        child: const Center(child: AppLogo()),
       ),
     );
   }

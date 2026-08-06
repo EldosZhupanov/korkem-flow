@@ -160,7 +160,7 @@
   "chatNew": "Новый чат",
   "chatRecent": "Недавние",
   "chatGreeting": "Чем могу помочь?",
-  "chatPlaceholder": "Сообщение KORKEM AI…",
+  "chatPlaceholder": "Спросите KORKEM о чём угодно…",
   "chatSend": "Отправить",
   "chatDictate": "Продиктовать",
   "chatDictateStop": "Остановить диктовку",
@@ -176,5 +176,11 @@
   "chatCardOpenDeals": "Открытые сделки",
   "chatCardAttention": "Требует внимания",
   "chatCardTasks": "Мои задачи",
-  "chatCardProduction": "В производстве"
+  "chatCardProduction": "В производстве",
+  "chatHistory": "История",
+  "chatToday": "Сегодня",
+  "chatYesterday": "Вчера",
+  "chatEarlier": "Ранее",
+  "chatScrollToEnd": "К последнему сообщению",
+  "chatWorkspace": "AI Workspace"
 }

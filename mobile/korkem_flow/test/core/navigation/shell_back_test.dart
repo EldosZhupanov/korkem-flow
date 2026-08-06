@@ -111,6 +111,34 @@ void main() {
     expect(spy.exits, isEmpty);
   });
 
+  // The permanent sidebar is chosen on width *and* height. Width alone is what
+  // a responsive layout is usually written against, and it is wrong here: a
+  // phone on its side is wider than a tablet held upright.
+  for (final (name, size, permanent) in [
+    ('phone portrait', const Size(390, 844), false),
+    ('large phone portrait', const Size(430, 932), false),
+    // ~870 x 390: wider than the tablet below, and emphatically not a tablet.
+    ('phone landscape', const Size(870, 390), false),
+    ('tablet portrait', const Size(768, 1024), true),
+    ('tablet landscape', const Size(1024, 768), true),
+    ('desktop', const Size(1280, 900), true),
+  ]) {
+    testWidgets('$name ${permanent ? 'keeps' : 'hides'} the sidebar', (
+      tester,
+    ) async {
+      await _pumpShell(tester, size: size);
+
+      // The section rows are in the panel either way; what differs is whether
+      // they are on screen without opening anything.
+      expect(find.text('Задачи'), permanent ? findsOneWidget : findsNothing);
+      expect(
+        find.byTooltip('Меню'),
+        permanent ? findsNothing : findsOneWidget,
+        reason: 'a menu button is for a panel that is not already visible',
+      );
+    });
+  }
+
   testWidgets('the wide layout has a permanent sidebar and no menu button', (
     tester,
   ) async {

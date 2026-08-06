@@ -13,6 +13,7 @@ import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/approvals/application/approvals_controller.dart';
 import 'package:korkem_flow/features/approvals/domain/pending_action.dart';
 import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
+import 'package:korkem_flow/features/assistant/domain/chat_message.dart';
 import 'package:korkem_flow/features/assistant/domain/chat_thread.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
@@ -342,8 +343,30 @@ const _menuTooltip = 'Меню';
 
 class _StubThreads extends ThreadsController {
   @override
-  List<ChatThread> build() => const [];
+  List<ChatThread> build() => _threads;
 }
+
+/// Three conversations, one per band, dated against the frozen [_now] so the
+/// Today / Yesterday / Earlier headings are what the golden actually proves.
+/// Empty history would render the sidebar with no history section at all — the
+/// state this list exists to stop being the only one ever seen.
+final List<ChatThread> _threads = [
+  _thread('t1', 'Что просрочено?', _now.subtract(const Duration(hours: 2))),
+  _thread('t2', 'Покажи мои сделки', _now.subtract(const Duration(days: 1))),
+  _thread(
+    't3',
+    'Что сейчас в производстве?',
+    _now.subtract(const Duration(days: 9)),
+  ),
+];
+
+ChatThread _thread(String id, String ask, DateTime at) => ChatThread(
+  id: id,
+  updatedAt: at,
+  messages: [
+    ChatMessage(id: '$id-m1', role: ChatRole.user, body: ask, sentAt: at),
+  ],
+);
 
 class _StubSession extends SessionController {
   _StubSession(this._session);

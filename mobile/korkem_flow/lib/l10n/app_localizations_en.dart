@@ -505,7 +505,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatGreeting => 'How can I help?';
 
   @override
-  String get chatPlaceholder => 'Message KORKEM AI…';
+  String get chatPlaceholder => 'Ask KORKEM anything…';
 
   @override
   String get chatSend => 'Send';
@@ -555,4 +555,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatCardProduction => 'In production';
+
+  @override
+  String get chatHistory => 'History';
+
+  @override
+  String get chatToday => 'Today';
+
+  @override
+  String get chatYesterday => 'Yesterday';
+
+  @override
+  String get chatEarlier => 'Earlier';
+
+  @override
+  String get chatScrollToEnd => 'Jump to latest';
+
+  @override
+  String get chatWorkspace => 'AI Workspace';
 }
