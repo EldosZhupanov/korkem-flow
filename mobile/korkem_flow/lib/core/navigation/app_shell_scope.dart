@@ -13,11 +13,17 @@ import 'package:flutter/material.dart';
 class AppShellScope extends InheritedWidget {
   const AppShellScope({
     required this.scaffoldKey,
+    required this.isOpen,
     required super.child,
     super.key,
   });
 
   final GlobalKey<ScaffoldState> scaffoldKey;
+
+  /// Whether the sidebar is showing. Published here, rather than kept private
+  /// to the shell, because the widget that has to act on it — `TabBackHandler`
+  /// — lives *below* the shell in the tree and has no other way to know.
+  final bool isOpen;
 
   /// Null when there is no drawer to open: on a wide layout, or in a test that
   /// pumps a screen on its own.
@@ -26,7 +32,9 @@ class AppShellScope extends InheritedWidget {
 
   void open() => scaffoldKey.currentState?.openDrawer();
 
+  void close() => scaffoldKey.currentState?.closeDrawer();
+
   @override
   bool updateShouldNotify(AppShellScope oldWidget) =>
-      scaffoldKey != oldWidget.scaffoldKey;
+      scaffoldKey != oldWidget.scaffoldKey || isOpen != oldWidget.isOpen;
 }

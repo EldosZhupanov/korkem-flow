@@ -28,35 +28,46 @@ class ChatEmptyView extends StatelessWidget {
       l10n.chatSuggestProduction,
     ];
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: AppSpacing.xxxl),
-          const Entrance(child: AppLogo()),
-          const SizedBox(height: AppSpacing.xl),
-          Entrance(
-            index: 1,
-            child: Text(
-              l10n.chatGreeting,
-              style: theme.textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
+    // Centred when it fits, scrollable when it does not — which needs the
+    // viewport height, because a `Column` inside a scroll view is laid out
+    // against unbounded height and `MainAxisAlignment.center` there is a no-op.
+    // Without this the greeting and the suggestions sat below the fold in
+    // landscape and the screen opened on a lone logo, looking broken.
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: constraints.maxHeight - AppSpacing.xl * 2,
           ),
-          const SizedBox(height: AppSpacing.xxl),
-          for (final (index, suggestion) in suggestions.indexed)
-            Entrance(
-              index: index + 2,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: _Suggestion(
-                  label: suggestion,
-                  onTap: () => onSuggestion(suggestion),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Entrance(child: AppLogo()),
+              const SizedBox(height: AppSpacing.xl),
+              Entrance(
+                index: 1,
+                child: Text(
+                  l10n.chatGreeting,
+                  style: theme.textTheme.titleLarge,
+                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
-        ],
+              const SizedBox(height: AppSpacing.xxl),
+              for (final (index, suggestion) in suggestions.indexed)
+                Entrance(
+                  index: index + 2,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: _Suggestion(
+                      label: suggestion,
+                      onTap: () => onSuggestion(suggestion),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -152,6 +154,11 @@ class AppSidebar extends ConsumerWidget {
         // branch's stack in one move, so Production needs no branch of its own
         // and no second navigation to get to.
         context.go(path);
+      case SidebarPage(:final path):
+        // `push` rather than `go`, because this route is outside the shell —
+        // see `SidebarPage` for what `go` does to it. The future it returns
+        // completes with the screen's result, which Settings does not have.
+        unawaited(context.push(path));
     }
     onNavigate();
   }

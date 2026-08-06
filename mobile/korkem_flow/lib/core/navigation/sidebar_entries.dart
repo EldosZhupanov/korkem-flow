@@ -37,11 +37,30 @@ class SidebarBranch extends SidebarEntry {
   final String path;
 }
 
-/// A route that is not a branch root: a child of one, or a screen outside the
-/// shell. `context.go` sets the branch *and* its stack in a single move, so
-/// this needs no special handling and no extra branch.
+/// A route *inside* the shell that is not a branch root — a child of a branch,
+/// like Production under the dashboard. `context.go` sets the owning branch and
+/// that branch's stack in a single move, so this needs no branch of its own,
+/// and the screen arrives with a working back arrow because it has a parent to
+/// pop to.
 class SidebarLink extends SidebarEntry {
   const SidebarLink({
+    required this.path,
+    required super.icon,
+    required super.labelOf,
+  });
+
+  final String path;
+}
+
+/// A route *outside* the shell — Settings is the only one.
+///
+/// This is pushed, not `go`-ne to, and the distinction is not academic:
+/// `context.go` to a top-level route replaces the whole stack, so the screen
+/// arrives with no shell around it (hence no menu button) and nothing beneath
+/// it (hence no back arrow), and the next system back leaves the app. Settings
+/// became exactly that dead end before this existed.
+class SidebarPage extends SidebarEntry {
+  const SidebarPage({
     required this.path,
     required super.icon,
     required super.labelOf,
@@ -89,7 +108,7 @@ const sidebarFooterEntries = <SidebarEntry>[
     icon: AppIcons.profile,
     labelOf: _profile,
   ),
-  SidebarLink(
+  SidebarPage(
     path: Routes.settings,
     icon: AppIcons.settings,
     labelOf: _settings,

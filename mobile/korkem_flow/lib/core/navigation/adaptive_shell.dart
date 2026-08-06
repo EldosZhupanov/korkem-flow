@@ -27,6 +27,8 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
   /// scaffold — which has no drawer — rather than this one.
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _drawerOpen = false;
+
   @override
   Widget build(BuildContext context) {
     // 280 (panel) + 720 (`AppBreakpoints.readable`) = 1000, so `medium` is the
@@ -55,11 +57,19 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
 
     return AppShellScope(
       scaffoldKey: _scaffoldKey,
+      isOpen: _drawerOpen,
       child: Scaffold(
         key: _scaffoldKey,
-        // Flutter's own drawer, not a hand-rolled overlay: edge-swipe to open,
-        // scrim, focus trapping and back-to-dismiss all come with it, and each
-        // is easy to reimplement slightly wrong.
+        // Flutter's own drawer, not a hand-rolled overlay: the scrim, the focus
+        // trap and the open/close animation all come with it, and each is easy
+        // to reimplement slightly wrong.
+        //
+        // Back-to-dismiss does *not* come with it, despite the local history
+        // entry `DrawerController` registers. That entry lands on the shell's
+        // route in the root navigator, and go_router's `popRoute` hands the
+        // gesture to the innermost branch navigator instead — so the root route
+        // is never asked. `TabBackHandler`, which sits on a branch route, is
+        // what actually closes the panel; [isOpen] is how it finds out.
         drawer: Drawer(
           width: MediaQuery.sizeOf(context).width * _drawerWidthFraction,
           child: AppSidebar(
@@ -67,6 +77,7 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
             onNavigate: () => _scaffoldKey.currentState?.closeDrawer(),
           ),
         ),
+        onDrawerChanged: (isOpen) => setState(() => _drawerOpen = isOpen),
         body: widget.navigationShell,
       ),
     );
