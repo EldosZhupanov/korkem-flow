@@ -159,6 +159,122 @@ void main() {
     expect((await events).single, isA<AssistantFailed>());
   });
 
+  test('the reason on an error event decides what the screen says', () async {
+    // Every one of these sends the user somewhere different: an administrator,
+    // a retry in a minute, or nowhere. Collapsing them into one "something went
+    // wrong" is what this mapping exists to prevent.
+    const expected = {
+      'AI_NOT_CONFIGURED': AssistantFailure.notConfigured,
+      'PROVIDER_UNAVAILABLE': AssistantFailure.providerUnavailable,
+      'AUTH_ERROR': AssistantFailure.refused,
+      'RATE_LIMITED': AssistantFailure.rateLimited,
+      'TOOL_ERROR': AssistantFailure.toolError,
+      'UNKNOWN': AssistantFailure.unknown,
+      // A code from a newer server an older client has never heard of.
+      'SOMETHING_NEW': AssistantFailure.unknown,
+    };
+
+    for (final MapEntry(key: code, value: reason) in expected.entries) {
+      final channel = _FakeChannel();
+      final assistant = RemoteAssistant(
+        client: _client(turnId: 't1'),
+        channel: channel,
+      );
+
+      final events = assistant.send(prompt: 'hi', history: const []).toList();
+      await channel.ready;
+      channel.emit({'turn_id': 't1', 'type': 'error', 'reason': code});
+
+      expect(
+        ((await events).single as AssistantFailed).reason,
+        reason,
+        reason: 'code $code',
+      );
+    }
+  });
+
+  test('an unconfigured gateway is refused before the queue', () async {
+    // The failure that matters most, because it is the state of every fresh
+    // install. It used to arrive seconds later on the socket as a generic
+    // error; the gateway now checks its configuration before enqueuing, so it
+    // comes back on the HTTP response with a code.
+    final assistant = RemoteAssistant(
+      client: _failingClient(
+        FrappeException.fromDio(
+          DioException(
+            requestOptions: RequestOptions(),
+            response: Response<Map<String, dynamic>>(
+              requestOptions: RequestOptions(),
+              statusCode: 417,
+              // The shape a live bench actually returns — verified by curl
+              // against the running site, not invented for this test.
+              data: const {
+                'ai_error_code': 'AI_NOT_CONFIGURED',
+                'exc_type': 'AINotConfigured',
+              },
+            ),
+          ),
+        ),
+      ),
+      channel: _FakeChannel(),
+    );
+
+    final events = await assistant
+        .send(prompt: 'hi', history: const [])
+        .toList();
+
+    expect(
+      (events.single as AssistantFailed).reason,
+      AssistantFailure.notConfigured,
+    );
+  });
+
+  test('a validation error with no code is not read as unconfigured', () async {
+    // The old mapping assumed every 417 meant "no provider". Any other
+    // rejected request would then have told the user to call an administrator
+    // about a setting that was perfectly fine.
+    final assistant = RemoteAssistant(
+      client: _failingClient(const ValidationFailure('Message is empty')),
+      channel: _FakeChannel(),
+    );
+
+    final events = await assistant
+        .send(prompt: 'hi', history: const [])
+        .toList();
+
+    expect(
+      (events.single as AssistantFailed).reason,
+      AssistantFailure.unknown,
+    );
+  });
+
+  test('a confirmation carries the turn it belongs to', () async {
+    // Without it the screen cannot resume the turn the user just approved.
+    final channel = _FakeChannel();
+    final assistant = RemoteAssistant(
+      client: _client(turnId: 't7'),
+      channel: channel,
+    );
+
+    final events = assistant.send(prompt: 'do it', history: const []).toList();
+    await channel.ready;
+    channel.emit({
+      'turn_id': 't7',
+      'type': 'needs_confirmation',
+      'calls': [
+        {
+          'id': 'PA-xyz',
+          'tool': 'tasks.create',
+          'arguments': <String, Object>{},
+        },
+      ],
+    });
+
+    final pause = (await events).whereType<AssistantNeedsConfirmation>().single;
+    expect(pause.turnId, 't7');
+    expect(pause.calls.single.id, 'PA-xyz');
+  });
+
   test('a refused request is reported as a reason, not a raw error', () async {
     // Which reason decides what the screen advises — "ask an administrator" is
     // right for an unconfigured gateway and wrong for a dropped connection.

@@ -111,6 +111,51 @@ class _AssistantTurn extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
           ContextCard(kind: kind),
         ],
+        // Said on the turn itself, not only in the screen's subtitle. A card
+        // full of real KORKEM figures is indistinguishable from an answer a
+        // model wrote, and letting it pass for one is a claim the app cannot
+        // support.
+        //
+        // Only where there is something to mistake for an answer. A failure
+        // and an "I don't understand" are already unambiguous about the fact
+        // that no model spoke, and badging them would be noise on the two
+        // turns that least need it.
+        if (message.fromFallback &&
+            message.failure == null &&
+            !message.unrecognised &&
+            (message.body.isNotEmpty || message.card != null)) ...[
+          const SizedBox(height: AppSpacing.sm),
+          const _FallbackBadge(),
+        ],
+      ],
+    );
+  }
+}
+
+/// Marks a reply that no language model produced.
+class _FallbackBadge extends StatelessWidget {
+  const _FallbackBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          AppIcons.info,
+          size: AppIconSize.dense,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Text(
+          l10n.chatFallbackBadge,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }
@@ -137,6 +182,36 @@ class _Failure extends StatelessWidget {
     final (text, icon, tint) = switch (reason) {
       AssistantFailure.notConfigured => (
         l10n.chatErrorNotConfigured,
+        AppIcons.info,
+        theme.colorScheme.onSurfaceVariant,
+      ),
+      AssistantFailure.providerUnavailable => (
+        l10n.chatErrorProviderUnavailable,
+        AppIcons.offline,
+        theme.colorScheme.onSurfaceVariant,
+      ),
+      AssistantFailure.rateLimited => (
+        l10n.chatErrorRateLimited,
+        AppIcons.schedule,
+        theme.colorScheme.onSurfaceVariant,
+      ),
+      AssistantFailure.toolError => (
+        l10n.chatErrorToolError,
+        AppIcons.danger,
+        theme.colorScheme.error,
+      ),
+      AssistantFailure.timedOut => (
+        l10n.chatErrorTimedOut,
+        AppIcons.schedule,
+        theme.colorScheme.onSurfaceVariant,
+      ),
+      AssistantFailure.modelNotFound => (
+        l10n.chatErrorModelNotFound,
+        AppIcons.info,
+        theme.colorScheme.onSurfaceVariant,
+      ),
+      AssistantFailure.contextTooLarge => (
+        l10n.chatErrorContextTooLarge,
         AppIcons.info,
         theme.colorScheme.onSurfaceVariant,
       ),

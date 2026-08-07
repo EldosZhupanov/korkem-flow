@@ -628,4 +628,98 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chatToolProfile => 'Проверяю ваш профиль…';
+
+  @override
+  String get chatErrorProviderUnavailable =>
+      'Сервис ИИ не отвечает. Попробуйте чуть позже.';
+
+  @override
+  String get chatErrorRateLimited =>
+      'Сервис ИИ перегружен. Подождите немного и повторите.';
+
+  @override
+  String get chatErrorToolError =>
+      'Не удалось выполнить это действие в KORKEM.';
+
+  @override
+  String get chatConfirmTitle => 'Подтвердите действие';
+
+  @override
+  String get chatConfirmBody =>
+      'Помощник хочет внести изменение. Пока ничего не произошло.';
+
+  @override
+  String get chatConfirmApprove => 'Подтвердить';
+
+  @override
+  String get chatConfirmReject => 'Отменить';
+
+  @override
+  String get chatConfirmRejected => 'Отменено. Ничего не изменилось.';
+
+  @override
+  String get chatFallbackBadge => 'Без ИИ — прямые данные';
+
+  @override
+  String get chatErrorTimedOut =>
+      'Сервис ИИ отвечал слишком долго. Попробуйте ещё раз.';
+
+  @override
+  String get chatErrorModelNotFound =>
+      'Выбранная модель недоступна. Выберите другую в настройках ИИ.';
+
+  @override
+  String get chatErrorContextTooLarge =>
+      'Этот диалог слишком длинный. Начните новый.';
+
+  @override
+  String get aiSettingsTitle => 'Провайдеры ИИ';
+
+  @override
+  String get aiSettingsSubtitle =>
+      'Выберите, какой ИИ отвечает, и подключите его.';
+
+  @override
+  String get aiSettingsDefault => 'По умолчанию';
+
+  @override
+  String get aiSettingsMakeDefault => 'Сделать основным';
+
+  @override
+  String get aiSettingsNotConfigured => 'Не настроен';
+
+  @override
+  String get aiSettingsConnected => 'Подключено';
+
+  @override
+  String get aiSettingsTestFailed => 'Не удалось подключиться';
+
+  @override
+  String get aiSettingsTest => 'Проверить подключение';
+
+  @override
+  String get aiSettingsSave => 'Сохранить';
+
+  @override
+  String get aiSettingsApiKey => 'API-ключ';
+
+  @override
+  String get aiSettingsApiKeyStored =>
+      'Ключ сохранён. Оставьте пустым, чтобы не менять.';
+
+  @override
+  String get aiSettingsModel => 'Модель';
+
+  @override
+  String get aiSettingsBaseUrl => 'Базовый URL';
+
+  @override
+  String get aiSettingsKeyNeverLeaves =>
+      'Ключи хранятся на сервере KORKEM и никогда не передаются на это устройство.';
+
+  @override
+  String get aiSettingsCapabilities => 'Возможности';
+
+  @override
+  String get aiSettingsLocalNoKey => 'Работает локально — ключ не нужен.';
 }

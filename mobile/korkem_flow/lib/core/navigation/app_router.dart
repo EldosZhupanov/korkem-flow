@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/gallery/design_gallery.dart';
 import 'package:korkem_flow/core/navigation/adaptive_shell.dart';
 import 'package:korkem_flow/core/navigation/tab_back_handler.dart';
+import 'package:korkem_flow/features/ai_settings/presentation/ai_settings_screen.dart';
 import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dart';
 import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
@@ -52,6 +53,7 @@ abstract final class Routes {
   static const tasks = '/tasks';
   static const profile = '/profile';
   static const settings = '/settings';
+  static const aiSettings = '/settings/ai';
 
   /// Sales, opened on its Customers tab. A URL rather than a branch of its own:
   /// Customers *is* a view of the pipeline, and giving it a second branch would
@@ -102,6 +104,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.aiSettings,
+        builder: (context, state) => const AiSettingsScreen(),
       ),
       GoRoute(
         path: Routes.settings,

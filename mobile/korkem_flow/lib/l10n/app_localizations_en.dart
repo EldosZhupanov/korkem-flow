@@ -628,4 +628,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatToolProfile => 'Checking your profile…';
+
+  @override
+  String get chatErrorProviderUnavailable =>
+      'The AI service is not responding. Try again shortly.';
+
+  @override
+  String get chatErrorRateLimited =>
+      'The AI service is busy. Wait a moment and try again.';
+
+  @override
+  String get chatErrorToolError => 'Could not complete that action in KORKEM.';
+
+  @override
+  String get chatConfirmTitle => 'Confirm this action';
+
+  @override
+  String get chatConfirmBody =>
+      'The assistant wants to make a change. Nothing has happened yet.';
+
+  @override
+  String get chatConfirmApprove => 'Approve';
+
+  @override
+  String get chatConfirmReject => 'Cancel';
+
+  @override
+  String get chatConfirmRejected => 'Cancelled. Nothing was changed.';
+
+  @override
+  String get chatFallbackBadge => 'Not AI — direct data';
+
+  @override
+  String get chatErrorTimedOut => 'The AI service took too long. Try again.';
+
+  @override
+  String get chatErrorModelNotFound =>
+      'The selected AI model is unavailable. Choose another in AI Settings.';
+
+  @override
+  String get chatErrorContextTooLarge =>
+      'This conversation is too long. Start a new chat.';
+
+  @override
+  String get aiSettingsTitle => 'AI providers';
+
+  @override
+  String get aiSettingsSubtitle => 'Choose which AI answers, and connect it.';
+
+  @override
+  String get aiSettingsDefault => 'Default';
+
+  @override
+  String get aiSettingsMakeDefault => 'Use by default';
+
+  @override
+  String get aiSettingsNotConfigured => 'Not set up';
+
+  @override
+  String get aiSettingsConnected => 'Connected';
+
+  @override
+  String get aiSettingsTestFailed => 'Connection failed';
+
+  @override
+  String get aiSettingsTest => 'Test connection';
+
+  @override
+  String get aiSettingsSave => 'Save';
+
+  @override
+  String get aiSettingsApiKey => 'API key';
+
+  @override
+  String get aiSettingsApiKeyStored =>
+      'A key is stored. Leave blank to keep it.';
+
+  @override
+  String get aiSettingsModel => 'Model';
+
+  @override
+  String get aiSettingsBaseUrl => 'Base URL';
+
+  @override
+  String get aiSettingsKeyNeverLeaves =>
+      'Keys are stored on the KORKEM server and never sent to this device.';
+
+  @override
+  String get aiSettingsCapabilities => 'Capabilities';
+
+  @override
+  String get aiSettingsLocalNoKey => 'Runs locally — no key needed.';
 }

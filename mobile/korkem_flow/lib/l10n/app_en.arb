@@ -306,5 +306,117 @@
   "chatToolCustomers": "Searching customers…",
   "chatToolTasks": "Searching tasks…",
   "chatToolProduction": "Checking production…",
-  "chatToolProfile": "Checking your profile…"
+  "chatToolProfile": "Checking your profile…",
+  "chatErrorProviderUnavailable": "The AI service is not responding. Try again shortly.",
+  "@chatErrorProviderUnavailable": {
+    "description": "Shown when a provider is configured but unreachable."
+  },
+  "chatErrorRateLimited": "The AI service is busy. Wait a moment and try again.",
+  "@chatErrorRateLimited": {
+    "description": "Shown when the provider rate limits or the quota is exhausted."
+  },
+  "chatErrorToolError": "Could not complete that action in KORKEM.",
+  "@chatErrorToolError": {
+    "description": "Shown when a registered tool failed."
+  },
+  "chatConfirmTitle": "Confirm this action",
+  "@chatConfirmTitle": {
+    "description": "Heading of the confirmation sheet."
+  },
+  "chatConfirmBody": "The assistant wants to make a change. Nothing has happened yet.",
+  "@chatConfirmBody": {
+    "description": "Explains that the write has not run."
+  },
+  "chatConfirmApprove": "Approve",
+  "@chatConfirmApprove": {
+    "description": "Runs the proposed action."
+  },
+  "chatConfirmReject": "Cancel",
+  "@chatConfirmReject": {
+    "description": "Declines the proposed action."
+  },
+  "chatConfirmRejected": "Cancelled. Nothing was changed.",
+  "@chatConfirmRejected": {
+    "description": "Shown after declining."
+  },
+  "chatFallbackBadge": "Not AI — direct data",
+  "@chatFallbackBadge": {
+    "description": "Badge on a reply produced without a model."
+  },
+  "chatErrorTimedOut": "The AI service took too long. Try again.",
+  "@chatErrorTimedOut": {
+    "description": "Provider timeout."
+  },
+  "chatErrorModelNotFound": "The selected AI model is unavailable. Choose another in AI Settings.",
+  "@chatErrorModelNotFound": {
+    "description": "Model missing or not permitted."
+  },
+  "chatErrorContextTooLarge": "This conversation is too long. Start a new chat.",
+  "@chatErrorContextTooLarge": {
+    "description": "Context window exceeded."
+  },
+  "aiSettingsTitle": "AI providers",
+  "@aiSettingsTitle": {
+    "description": "Title of the AI settings screen."
+  },
+  "aiSettingsSubtitle": "Choose which AI answers, and connect it.",
+  "@aiSettingsSubtitle": {
+    "description": "Subtitle."
+  },
+  "aiSettingsDefault": "Default",
+  "@aiSettingsDefault": {
+    "description": "Badge on the provider used when none is named."
+  },
+  "aiSettingsMakeDefault": "Use by default",
+  "@aiSettingsMakeDefault": {
+    "description": "Action making a provider the default."
+  },
+  "aiSettingsNotConfigured": "Not set up",
+  "@aiSettingsNotConfigured": {
+    "description": "Status for a provider with no configuration."
+  },
+  "aiSettingsConnected": "Connected",
+  "@aiSettingsConnected": {
+    "description": "Status after a successful connection test."
+  },
+  "aiSettingsTestFailed": "Connection failed",
+  "@aiSettingsTestFailed": {
+    "description": "Status after a failed test."
+  },
+  "aiSettingsTest": "Test connection",
+  "@aiSettingsTest": {
+    "description": "Runs one real call to the provider."
+  },
+  "aiSettingsSave": "Save",
+  "@aiSettingsSave": {
+    "description": "Saves provider configuration."
+  },
+  "aiSettingsApiKey": "API key",
+  "@aiSettingsApiKey": {
+    "description": "Label for the credential field."
+  },
+  "aiSettingsApiKeyStored": "A key is stored. Leave blank to keep it.",
+  "@aiSettingsApiKeyStored": {
+    "description": "Hint when a key already exists."
+  },
+  "aiSettingsModel": "Model",
+  "@aiSettingsModel": {
+    "description": "Label for the model field."
+  },
+  "aiSettingsBaseUrl": "Base URL",
+  "@aiSettingsBaseUrl": {
+    "description": "Label for the endpoint override."
+  },
+  "aiSettingsKeyNeverLeaves": "Keys are stored on the KORKEM server and never sent to this device.",
+  "@aiSettingsKeyNeverLeaves": {
+    "description": "Security note."
+  },
+  "aiSettingsCapabilities": "Capabilities",
+  "@aiSettingsCapabilities": {
+    "description": "Heading for the capability list."
+  },
+  "aiSettingsLocalNoKey": "Runs locally — no key needed.",
+  "@aiSettingsLocalNoKey": {
+    "description": "Shown for Ollama."
+  }
 }

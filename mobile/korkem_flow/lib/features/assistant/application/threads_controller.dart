@@ -84,6 +84,15 @@ final assistantRepositoryProvider = Provider<AssistantRepository>((ref) {
   );
 });
 
+/// Whether a language model is answering, or the on-device matcher is.
+///
+/// The user is told which. A keyword matcher that returns a data card looks
+/// exactly like a working assistant, and letting that stand is a claim the app
+/// cannot support — so the difference is surfaced rather than smoothed over.
+final assistantIsRemoteProvider = Provider<bool>(
+  (ref) => ref.watch(assistantRepositoryProvider) is RemoteAssistant,
+);
+
 /// Past conversations, newest first.
 final threadsControllerProvider =
     NotifierProvider<ThreadsController, List<ChatThread>>(
@@ -108,6 +117,29 @@ final assistantBusyProvider = NotifierProvider<AssistantBusy, bool>(
 final assistantActivityProvider = NotifierProvider<AssistantActivity, String?>(
   AssistantActivity.new,
 );
+
+/// The action the assistant is waiting on a human for, if any.
+///
+/// Held apart from the transcript because it is not a message — it is a
+/// question with two buttons, and it stops being either once answered. Kept in
+/// state rather than shown as a modal so that leaving the screen does not
+/// silently discard a decision the server is still holding open.
+final pendingConfirmationProvider =
+    NotifierProvider<PendingConfirmation, AssistantNeedsConfirmation?>(
+      PendingConfirmation.new,
+    );
+
+class PendingConfirmation extends Notifier<AssistantNeedsConfirmation?> {
+  @override
+  AssistantNeedsConfirmation? build() => null;
+
+  /// A method, not a setter: `ask(request)` reads as the event it is, where
+  /// `request = x` would read as state the caller owns.
+  // ignore: use_setters_to_change_properties
+  void ask(AssistantNeedsConfirmation request) => state = request;
+
+  void clear() => state = null;
+}
 
 class AssistantActivity extends Notifier<String?> {
   @override
@@ -293,6 +325,10 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
   AssistantFailure? failure;
   var placed = false;
 
+  // Settled before the turn rather than after, so a reply is labelled by the
+  // assistant that actually produced it even if the channel opens midway.
+  final fromFallback = !ref.read(assistantIsRemoteProvider);
+
   /// Puts the reply on screen the first time there is anything to show, and
   /// rewrites it in place after that — so a streamed answer grows rather than
   /// arriving as a series of separate messages.
@@ -308,6 +344,7 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
       // used to be.
       unrecognised: buffer.isEmpty && card == null && failure == null,
       failure: failure,
+      fromFallback: fromFallback,
     );
     if (placed) {
       active.replaceMessage(message);
@@ -346,10 +383,17 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
           // Live only: the screen words it, and it is not kept in a transcript
           // someone reopens next week.
           ref.read(assistantActivityProvider.notifier).running(tool);
-        // Confirmation needs a dialog and there are no write tools yet, so
-        // there is nothing that can currently produce this.
         case AssistantNeedsConfirmation():
-          break;
+          // The turn stopped before changing anything and is waiting on a
+          // person. Putting it in state — rather than dropping it, which is
+          // what used to happen — is what turns a terminal event into a
+          // question the user can actually answer.
+          ref.read(pendingConfirmationProvider.notifier).ask(event);
+          if (event.text case final said? when said.isNotEmpty) {
+            buffer
+              ..clear()
+              ..write(said);
+          }
       }
     }
 
@@ -362,4 +406,111 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
       ref.read(threadsControllerProvider.notifier).save(thread);
     }
   }
+}
+
+/// Approves what the assistant asked for, and lets the turn finish.
+///
+/// The ids sent back are the server's own — it issued them when it wrote the
+/// proposal down — so the action that runs is exactly the one described on
+/// screen, no matter what the model would say if it were asked again.
+Future<void> approvePendingAction(WidgetRef ref) async {
+  final request = ref.read(pendingConfirmationProvider);
+  if (request == null) return;
+
+  ref.read(pendingConfirmationProvider.notifier).clear();
+  ref.read(assistantBusyProvider.notifier).start();
+
+  final now = ref.read(clockProvider);
+  final active = ref.read(activeThreadProvider.notifier);
+  final history = ref.read(activeThreadProvider)?.messages ?? const [];
+  final replyId = '${now().microsecondsSinceEpoch}-confirmed';
+  final buffer = StringBuffer();
+  AssistantFailure? failure;
+  var placed = false;
+
+  void publish() {
+    final message = ChatMessage(
+      id: replyId,
+      role: ChatRole.assistant,
+      body: buffer.toString(),
+      sentAt: now(),
+      unrecognised: buffer.isEmpty && failure == null,
+      failure: failure,
+    );
+    if (placed) {
+      active.replaceMessage(message);
+    } else {
+      active.append(message);
+      placed = true;
+    }
+  }
+
+  try {
+    final events = ref
+        .read(assistantRepositoryProvider)
+        .confirm(
+          turnId: request.turnId,
+          callIds: [for (final call in request.calls) call.id],
+          prompt: _lastUserMessage(history),
+          history: history,
+        );
+
+    await for (final event in events) {
+      switch (event) {
+        case AssistantDelta(:final text):
+          buffer.write(text);
+          publish();
+        case AssistantDone(text: final finalText):
+          if (finalText != null && finalText.isNotEmpty) {
+            buffer
+              ..clear()
+              ..write(finalText);
+          }
+        case AssistantFailed(:final reason):
+          failure = reason;
+        case AssistantToolActivity(:final tool):
+          ref.read(assistantActivityProvider.notifier).running(tool);
+        case AssistantNeedsConfirmation():
+          // A second proposal, from the same turn continuing. Ask again.
+          ref.read(pendingConfirmationProvider.notifier).ask(event);
+      }
+    }
+
+    publish();
+  } finally {
+    ref.read(assistantBusyProvider.notifier).finish();
+    ref.read(assistantActivityProvider.notifier).idle();
+    final thread = ref.read(activeThreadProvider);
+    if (thread != null) {
+      ref.read(threadsControllerProvider.notifier).save(thread);
+    }
+  }
+}
+
+/// Declines what the assistant asked for. Nothing runs.
+///
+/// The server is told rather than merely forgotten, so the refusal is recorded
+/// against the proposal — "a human said no" and "nobody ever answered" are
+/// different facts, and only one of them means the assistant behaved correctly.
+Future<void> rejectPendingAction(WidgetRef ref) async {
+  final request = ref.read(pendingConfirmationProvider);
+  if (request == null) return;
+
+  ref.read(pendingConfirmationProvider.notifier).clear();
+
+  try {
+    await ref
+        .read(assistantRepositoryProvider)
+        .reject(callIds: [for (final call in request.calls) call.id]);
+  } on Object {
+    // The proposal expires on its own within the day, and nothing ran. Failing
+    // to record the refusal is not worth an error in the user's face.
+  }
+}
+
+String _lastUserMessage(List<ChatMessage> history) {
+  for (final message in history.reversed) {
+    if (message.role == ChatRole.user) return message.body;
+  }
+  return '';
 }

@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/assistant/application/threads_controller.da
 import 'package:korkem_flow/features/assistant/presentation/widgets/chat_composer.dart';
 import 'package:korkem_flow/features/assistant/presentation/widgets/chat_empty_view.dart';
 import 'package:korkem_flow/features/assistant/presentation/widgets/chat_message_view.dart';
+import 'package:korkem_flow/features/assistant/presentation/widgets/confirmation_card.dart';
 import 'package:korkem_flow/features/assistant/presentation/widgets/speech_dictation.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -97,13 +98,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final thread = ref.watch(activeThreadProvider);
     final busy = ref.watch(assistantBusyProvider);
     final activity = ref.watch(assistantActivityProvider);
+    final pending = ref.watch(pendingConfirmationProvider);
+    final isRemote = ref.watch(assistantIsRemoteProvider);
     final messages = thread?.messages ?? const [];
 
     return AppScreen(
       title: assistantName,
-      // Says plainly that there is no language model behind this. A demo that
-      // does not admit to being one is not a demo.
-      subtitle: l10n.chatLocalMode,
+      // Says plainly when there is no language model behind this. It used to
+      // say so unconditionally, which became its own kind of untrue once the
+      // gateway worked — so it now reflects which assistant is actually
+      // answering rather than asserting one of them.
+      subtitle: isRemote ? null : l10n.chatLocalMode,
       body: Column(
         children: [
           Expanded(
@@ -120,10 +125,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       AppSpacing.lg,
                       0,
                     ),
-                    itemCount: messages.length + (busy ? 1 : 0),
-                    itemBuilder: (context, index) => index >= messages.length
-                        ? ChatTypingIndicator(activity: activity)
-                        : ChatMessageView(message: messages[index]),
+                    itemCount:
+                        messages.length +
+                        (busy ? 1 : 0) +
+                        (pending != null ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index < messages.length) {
+                        return ChatMessageView(message: messages[index]);
+                      }
+                      if (pending != null && index == messages.length) {
+                        return ConfirmationCard(request: pending);
+                      }
+                      return ChatTypingIndicator(activity: activity);
+                    },
                   ),
                 PositionedDirectional(
                   end: AppSpacing.lg,

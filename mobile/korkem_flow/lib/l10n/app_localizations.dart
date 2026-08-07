@@ -1299,6 +1299,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Checking your profile…'**
   String get chatToolProfile;
+
+  /// Shown when a provider is configured but unreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI service is not responding. Try again shortly.'**
+  String get chatErrorProviderUnavailable;
+
+  /// Shown when the provider rate limits or the quota is exhausted.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI service is busy. Wait a moment and try again.'**
+  String get chatErrorRateLimited;
+
+  /// Shown when a registered tool failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not complete that action in KORKEM.'**
+  String get chatErrorToolError;
+
+  /// Heading of the confirmation sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm this action'**
+  String get chatConfirmTitle;
+
+  /// Explains that the write has not run.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant wants to make a change. Nothing has happened yet.'**
+  String get chatConfirmBody;
+
+  /// Runs the proposed action.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get chatConfirmApprove;
+
+  /// Declines the proposed action.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get chatConfirmReject;
+
+  /// Shown after declining.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. Nothing was changed.'**
+  String get chatConfirmRejected;
+
+  /// Badge on a reply produced without a model.
+  ///
+  /// In en, this message translates to:
+  /// **'Not AI — direct data'**
+  String get chatFallbackBadge;
+
+  /// Provider timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI service took too long. Try again.'**
+  String get chatErrorTimedOut;
+
+  /// Model missing or not permitted.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected AI model is unavailable. Choose another in AI Settings.'**
+  String get chatErrorModelNotFound;
+
+  /// Context window exceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'This conversation is too long. Start a new chat.'**
+  String get chatErrorContextTooLarge;
+
+  /// Title of the AI settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'AI providers'**
+  String get aiSettingsTitle;
+
+  /// Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which AI answers, and connect it.'**
+  String get aiSettingsSubtitle;
+
+  /// Badge on the provider used when none is named.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get aiSettingsDefault;
+
+  /// Action making a provider the default.
+  ///
+  /// In en, this message translates to:
+  /// **'Use by default'**
+  String get aiSettingsMakeDefault;
+
+  /// Status for a provider with no configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get aiSettingsNotConfigured;
+
+  /// Status after a successful connection test.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get aiSettingsConnected;
+
+  /// Status after a failed test.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed'**
+  String get aiSettingsTestFailed;
+
+  /// Runs one real call to the provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get aiSettingsTest;
+
+  /// Saves provider configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get aiSettingsSave;
+
+  /// Label for the credential field.
+  ///
+  /// In en, this message translates to:
+  /// **'API key'**
+  String get aiSettingsApiKey;
+
+  /// Hint when a key already exists.
+  ///
+  /// In en, this message translates to:
+  /// **'A key is stored. Leave blank to keep it.'**
+  String get aiSettingsApiKeyStored;
+
+  /// Label for the model field.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get aiSettingsModel;
+
+  /// Label for the endpoint override.
+  ///
+  /// In en, this message translates to:
+  /// **'Base URL'**
+  String get aiSettingsBaseUrl;
+
+  /// Security note.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys are stored on the KORKEM server and never sent to this device.'**
+  String get aiSettingsKeyNeverLeaves;
+
+  /// Heading for the capability list.
+  ///
+  /// In en, this message translates to:
+  /// **'Capabilities'**
+  String get aiSettingsCapabilities;
+
+  /// Shown for Ollama.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs locally — no key needed.'**
+  String get aiSettingsLocalNoKey;
 }
 
 class _AppLocalizationsDelegate

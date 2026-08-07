@@ -89,6 +89,18 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.xl),
 
+          SectionLabel(l10n.aiSettingsTitle),
+          Card(
+            child: ListTile(
+              leading: const Icon(AppIcons.settings),
+              // The section above already names this; repeating it in the row
+              // says the same thing twice and reads as a mistake.
+              title: Text(l10n.aiSettingsSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.aiSettings),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.settingsConnection),
           AppCard(
             child: Column(

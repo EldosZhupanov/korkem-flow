@@ -58,4 +58,10 @@ abstract class AssistantRepository {
     required String prompt,
     required List<ChatMessage> history,
   }) => const Stream.empty();
+
+  /// Declines tool calls. Nothing runs; the refusal is recorded server-side.
+  ///
+  /// Separate from simply ignoring the request: "a human was asked and said
+  /// no" is what an audit needs to distinguish from "nobody ever answered".
+  Future<void> reject({required List<String> callIds}) async {}
 }

@@ -44,12 +44,20 @@ final class AssistantToolActivity extends AssistantEvent {
 /// Confirming sends the call ids back; doing nothing leaves the data untouched.
 @immutable
 final class AssistantNeedsConfirmation extends AssistantEvent {
-  const AssistantNeedsConfirmation({required this.text, required this.calls});
+  const AssistantNeedsConfirmation({
+    required this.text,
+    required this.calls,
+    this.turnId = '',
+  });
 
   /// What the assistant said while asking.
   final String? text;
 
   final List<PendingToolCall> calls;
+
+  /// The turn to resume once a human answers. Carried on the event because
+  /// the screen showing the prompt is not the code that knows the turn id.
+  final String turnId;
 }
 
 @immutable
@@ -105,9 +113,32 @@ final class AssistantFailed extends AssistantEvent {
 /// An enum rather than a message, because the data layer has no `BuildContext`
 /// and a server-authored English sentence in a Russian interface is worse than
 /// no explanation at all.
+///
+/// The cases mirror `korkem_ai/errors.py`. They are distinct because the *user*
+/// does something different about each: an administrator fixes a missing key,
+/// nobody fixes a rate limit but it passes, and a refusal is neither.
 enum AssistantFailure {
   /// No provider is configured on the server yet.
   notConfigured,
+
+  /// A provider is configured but could not be reached, or answered with an
+  /// error that is not about credentials or quota.
+  providerUnavailable,
+
+  /// The provider is throttling us. Distinct from unavailable: waiting helps.
+  rateLimited,
+
+  /// A tool failed in a way the turn could not absorb.
+  toolError,
+
+  /// The provider answered the connection but never finished.
+  timedOut,
+
+  /// The configured model does not exist, or this key may not use it.
+  modelNotFound,
+
+  /// The conversation no longer fits the model's context window.
+  contextTooLarge,
 
   /// The device could not reach KORKEM.
   offline,
@@ -116,5 +147,26 @@ enum AssistantFailure {
   refused,
 
   /// Anything else.
-  unknown,
+  unknown;
+
+  /// The code the gateway sends, mapped onto what the UI can say.
+  ///
+  /// One table, matching the one in `errors.py`. An unrecognised code — an
+  /// older client meeting a newer server — degrades to [unknown] rather than
+  /// throwing: a failure to name a failure should not itself be a crash.
+  static AssistantFailure fromCode(String? code) => switch (code) {
+    'AI_NOT_CONFIGURED' => notConfigured,
+    'PROVIDER_UNAVAILABLE' => providerUnavailable,
+    'AUTH_ERROR' => refused,
+    'RATE_LIMITED' => rateLimited,
+    'TOOL_ERROR' => toolError,
+    'AI_TIMEOUT' => timedOut,
+    'AI_MODEL_NOT_FOUND' => modelNotFound,
+    'AI_CONTEXT_TOO_LARGE' => contextTooLarge,
+    // Offering tools to a model that cannot use them is a configuration
+    // mistake with the same remedy as a missing model: choose another one.
+    'AI_TOOL_NOT_SUPPORTED' => modelNotFound,
+    'AI_INVALID_TOOL_ARGUMENTS' => toolError,
+    _ => unknown,
+  };
 }

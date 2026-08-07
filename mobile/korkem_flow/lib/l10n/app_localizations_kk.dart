@@ -628,4 +628,98 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get chatToolProfile => 'Профиліңізді тексеріп жатырмын…';
+
+  @override
+  String get chatErrorProviderUnavailable =>
+      'ЖИ қызметі жауап бермей тұр. Сәлден соң қайталаңыз.';
+
+  @override
+  String get chatErrorRateLimited =>
+      'ЖИ қызметі бос емес. Сәл күтіп, қайталаңыз.';
+
+  @override
+  String get chatErrorToolError =>
+      'KORKEM-де бұл әрекетті орындау мүмкін болмады.';
+
+  @override
+  String get chatConfirmTitle => 'Әрекетті растаңыз';
+
+  @override
+  String get chatConfirmBody =>
+      'Көмекші өзгеріс енгізгісі келеді. Әзірге ештеңе болған жоқ.';
+
+  @override
+  String get chatConfirmApprove => 'Растау';
+
+  @override
+  String get chatConfirmReject => 'Болдырмау';
+
+  @override
+  String get chatConfirmRejected => 'Болдырылмады. Ештеңе өзгерген жоқ.';
+
+  @override
+  String get chatFallbackBadge => 'ЖИ емес — тікелей дерек';
+
+  @override
+  String get chatErrorTimedOut =>
+      'ЖИ қызметі тым ұзақ жауап берді. Қайталап көріңіз.';
+
+  @override
+  String get chatErrorModelNotFound =>
+      'Таңдалған модель қолжетімсіз. ЖИ параметрлерінен басқасын таңдаңыз.';
+
+  @override
+  String get chatErrorContextTooLarge =>
+      'Бұл диалог тым ұзын. Жаңасын бастаңыз.';
+
+  @override
+  String get aiSettingsTitle => 'ЖИ провайдерлері';
+
+  @override
+  String get aiSettingsSubtitle => 'Қай ЖИ жауап беретінін таңдап, қосыңыз.';
+
+  @override
+  String get aiSettingsDefault => 'Әдепкі';
+
+  @override
+  String get aiSettingsMakeDefault => 'Негізгі ету';
+
+  @override
+  String get aiSettingsNotConfigured => 'Бапталмаған';
+
+  @override
+  String get aiSettingsConnected => 'Қосылды';
+
+  @override
+  String get aiSettingsTestFailed => 'Қосылу сәтсіз';
+
+  @override
+  String get aiSettingsTest => 'Қосылымды тексеру';
+
+  @override
+  String get aiSettingsSave => 'Сақтау';
+
+  @override
+  String get aiSettingsApiKey => 'API кілті';
+
+  @override
+  String get aiSettingsApiKeyStored =>
+      'Кілт сақталған. Өзгертпеу үшін бос қалдырыңыз.';
+
+  @override
+  String get aiSettingsModel => 'Модель';
+
+  @override
+  String get aiSettingsBaseUrl => 'Негізгі URL';
+
+  @override
+  String get aiSettingsKeyNeverLeaves =>
+      'Кілттер KORKEM серверінде сақталады және бұл құрылғыға жіберілмейді.';
+
+  @override
+  String get aiSettingsCapabilities => 'Мүмкіндіктер';
+
+  @override
+  String get aiSettingsLocalNoKey =>
+      'Жергілікті жұмыс істейді — кілт қажет емес.';
 }

@@ -27,6 +27,7 @@ class RemoteAssistant extends AssistantRepository {
 
   static const _sendMethod = 'korkem_ai.korkem_ai.chat.send';
   static const _confirmMethod = 'korkem_ai.korkem_ai.chat.confirm';
+  static const _rejectMethod = 'korkem_ai.korkem_ai.chat.reject';
 
   /// How long to wait for the *first* sign of life before giving up.
   ///
@@ -79,6 +80,15 @@ class RemoteAssistant extends AssistantRepository {
       },
     ),
   );
+
+  @override
+  Future<void> reject({required List<String> callIds}) async {
+    await client.callMethod(
+      _rejectMethod,
+      post: true,
+      params: {'call_ids': callIds},
+    );
+  }
 
   /// Subscribes *before* asking.
   ///
@@ -181,6 +191,10 @@ class RemoteAssistant extends AssistantRepository {
       case 'needs_confirmation':
         return AssistantNeedsConfirmation(
           text: payload['text'] as String?,
+          // Server-issued ids. Never the model's own — those change on every
+          // response from Anthropic and OpenAI, so an approval keyed to one
+          // would match nothing when the turn resumed.
+          turnId: payload['turn_id'] as String? ?? '',
           calls: [
             for (final raw in (payload['calls'] as List? ?? const []))
               PendingToolCall.fromJson(Map<String, dynamic>.from(raw as Map)),
@@ -191,10 +205,13 @@ class RemoteAssistant extends AssistantRepository {
         return AssistantDone(text: payload['text'] as String?);
 
       case 'error':
-        // The server already reduced this to a sentence, but the *reason* is
-        // what the UI needs so it can offer the right next step, and only the
-        // UI can word it in the user's language.
-        return const AssistantFailed(AssistantFailure.unknown);
+        // The server sends a code, not just a sentence. The sentence it also
+        // sends is English and is deliberately ignored: only the UI can word
+        // this in the user's language, and only the code says which of the
+        // several quite different problems this is.
+        return AssistantFailed(
+          AssistantFailure.fromCode(payload['reason'] as String?),
+        );
 
       // 'started', and anything a newer server adds. Ignored rather than
       // treated as an error: an older client meeting a newer server should
@@ -204,14 +221,22 @@ class RemoteAssistant extends AssistantRepository {
     }
   }
 
-  static AssistantFailure _failureOf(FrappeException error) => switch (error) {
-    NetworkFailure() => AssistantFailure.offline,
-    AuthFailure() => AssistantFailure.refused,
-    // The gateway throws this when AI Settings has no provider configured,
-    // which is the state a fresh install is in and deserves its own advice.
-    ValidationFailure() => AssistantFailure.notConfigured,
-    _ => AssistantFailure.unknown,
-  };
+  /// The failure behind a refused `chat.send`.
+  ///
+  /// The gateway checks its configuration *before* queuing, so the commonest
+  /// problem on a fresh install — no provider yet — arrives here as a code on
+  /// the response rather than as a generic error minutes later on the socket.
+  /// The code is preferred whenever there is one; the transport-level shapes
+  /// below only cover failures that never reached the endpoint at all.
+  static AssistantFailure _failureOf(FrappeException error) {
+    if (error.code != null) return AssistantFailure.fromCode(error.code);
+
+    return switch (error) {
+      NetworkFailure() => AssistantFailure.offline,
+      AuthFailure() || PermissionFailure() => AssistantFailure.refused,
+      _ => AssistantFailure.unknown,
+    };
+  }
 
   /// Only prose, and only recent turns.
   ///

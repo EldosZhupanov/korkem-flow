@@ -12,6 +12,7 @@ class ChatMessage {
     this.card,
     this.unrecognised = false,
     this.failure,
+    this.fromFallback = false,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
@@ -24,6 +25,7 @@ class ChatMessage {
     failure: AssistantFailure.values
         .where((f) => f.name == json['failure'])
         .firstOrNull,
+    fromFallback: json['fromFallback'] as bool? ?? false,
   );
 
   final String id;
@@ -57,6 +59,14 @@ class ChatMessage {
   /// as a message that failed to load.
   final bool unrecognised;
 
+  /// This reply came from the on-device keyword matcher, not a language model.
+  ///
+  /// Recorded on the message and shown on it, because the alternative — letting
+  /// a card appear that looks exactly like an AI answer — is a claim the app
+  /// cannot support. Persisted so a conversation reopened after a model *is*
+  /// connected still says which of its turns were never answered by one.
+  final bool fromFallback;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'role': role.wireValue,
@@ -65,6 +75,7 @@ class ChatMessage {
     if (card != null) 'card': card!.wireValue,
     if (unrecognised) 'unrecognised': true,
     if (failure != null) 'failure': failure!.name,
+    if (fromFallback) 'fromFallback': true,
   };
 }
 
