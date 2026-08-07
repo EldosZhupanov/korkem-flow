@@ -188,5 +188,16 @@
   "chatDeleteTitle": "Әңгімені жою керек пе?",
   "chatDeleteBody": "«{title}» осы құрылғыдан жойылады. Қайтару мүмкін емес.",
   "chatRenameTitle": "Әңгіме атауы",
-  "navClients": "Клиенттер"
+  "navClients": "Клиенттер",
+  "chatErrorNotConfigured": "ЖИ серверде әлі бапталмаған. KORKEM әкімшісіне хабарласыңыз.",
+  "chatErrorOffline": "KORKEM-ге қосыла алмадым. Байланысты тексеріңіз.",
+  "chatErrorRefused": "Бұл сұрауға рұқсатыңыз жеткіліксіз.",
+  "chatErrorUnknown": "Жауап бере алмадым. Қайталап көріңіз.",
+  "chatWorking": "Жұмыс істеп жатырмын…",
+  "chatToolDeals": "Мәмілелерді іздеп жатырмын…",
+  "chatToolLeads": "Лидтерді іздеп жатырмын…",
+  "chatToolCustomers": "Клиенттерді іздеп жатырмын…",
+  "chatToolTasks": "Тапсырмаларды іздеп жатырмын…",
+  "chatToolProduction": "Өндірісті қарап жатырмын…",
+  "chatToolProfile": "Профиліңізді тексеріп жатырмын…"
 }

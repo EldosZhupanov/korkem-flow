@@ -295,5 +295,16 @@
         "type": "String"
       }
     }
-  }
+  },
+  "chatErrorNotConfigured": "AI is not set up on the server yet. Ask your KORKEM administrator.",
+  "chatErrorOffline": "Could not reach KORKEM. Check your connection.",
+  "chatErrorRefused": "You do not have permission for that.",
+  "chatErrorUnknown": "Could not answer just now. Try again.",
+  "chatWorking": "Working…",
+  "chatToolDeals": "Searching deals…",
+  "chatToolLeads": "Searching leads…",
+  "chatToolCustomers": "Searching customers…",
+  "chatToolTasks": "Searching tasks…",
+  "chatToolProduction": "Checking production…",
+  "chatToolProfile": "Checking your profile…"
 }

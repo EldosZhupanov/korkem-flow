@@ -188,5 +188,16 @@
   "chatDeleteTitle": "Удалить разговор?",
   "chatDeleteBody": "Разговор «{title}» будет удалён с этого устройства. Отменить нельзя.",
   "chatRenameTitle": "Название разговора",
-  "navClients": "Клиенты"
+  "navClients": "Клиенты",
+  "chatErrorNotConfigured": "ИИ ещё не настроен на сервере. Обратитесь к администратору KORKEM.",
+  "chatErrorOffline": "Не удалось связаться с KORKEM. Проверьте подключение.",
+  "chatErrorRefused": "Недостаточно прав для этого запроса.",
+  "chatErrorUnknown": "Не удалось ответить. Попробуйте ещё раз.",
+  "chatWorking": "Работаю…",
+  "chatToolDeals": "Ищу сделки…",
+  "chatToolLeads": "Ищу лиды…",
+  "chatToolCustomers": "Ищу клиентов…",
+  "chatToolTasks": "Ищу задачи…",
+  "chatToolProduction": "Смотрю производство…",
+  "chatToolProfile": "Проверяю ваш профиль…"
 }

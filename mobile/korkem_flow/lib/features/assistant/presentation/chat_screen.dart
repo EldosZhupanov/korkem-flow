@@ -96,6 +96,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final l10n = AppLocalizations.of(context);
     final thread = ref.watch(activeThreadProvider);
     final busy = ref.watch(assistantBusyProvider);
+    final activity = ref.watch(assistantActivityProvider);
     final messages = thread?.messages ?? const [];
 
     return AppScreen(
@@ -121,7 +122,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                     itemCount: messages.length + (busy ? 1 : 0),
                     itemBuilder: (context, index) => index >= messages.length
-                        ? const ChatTypingIndicator()
+                        ? ChatTypingIndicator(activity: activity)
                         : ChatMessageView(message: messages[index]),
                   ),
                 PositionedDirectional(

@@ -593,4 +593,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navClients => 'Clients';
+
+  @override
+  String get chatErrorNotConfigured =>
+      'AI is not set up on the server yet. Ask your KORKEM administrator.';
+
+  @override
+  String get chatErrorOffline =>
+      'Could not reach KORKEM. Check your connection.';
+
+  @override
+  String get chatErrorRefused => 'You do not have permission for that.';
+
+  @override
+  String get chatErrorUnknown => 'Could not answer just now. Try again.';
+
+  @override
+  String get chatWorking => 'Working…';
+
+  @override
+  String get chatToolDeals => 'Searching deals…';
+
+  @override
+  String get chatToolLeads => 'Searching leads…';
+
+  @override
+  String get chatToolCustomers => 'Searching customers…';
+
+  @override
+  String get chatToolTasks => 'Searching tasks…';
+
+  @override
+  String get chatToolProduction => 'Checking production…';
+
+  @override
+  String get chatToolProfile => 'Checking your profile…';
 }

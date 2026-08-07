@@ -3,6 +3,8 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
 import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/features/assistant/domain/assistant_event.dart';
 import 'package:korkem_flow/features/assistant/domain/chat_message.dart';
 import 'package:korkem_flow/features/assistant/presentation/widgets/context_card.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -88,9 +90,13 @@ class _AssistantTurn extends StatelessWidget {
       children: [
         const AssistantLabel(),
         const SizedBox(height: AppSpacing.sm),
-        // The admission is worded here rather than in the data layer, so it is
-        // translated like everything else the user reads.
-        if (message.unrecognised)
+        // Every one of these is worded here rather than in the data layer, so
+        // it is translated like everything else the user reads. A turn that
+        // failed used to render as nothing at all — an empty bubble is the one
+        // outcome a person cannot act on.
+        if (message.failure case final reason?)
+          _Failure(reason: reason)
+        else if (message.unrecognised)
           MarkdownBody(
             data: _cannotAnswer(l10n),
             styleSheet: assistantMarkdownStyle(context),
@@ -105,6 +111,65 @@ class _AssistantTurn extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
           ContextCard(kind: kind),
         ],
+      ],
+    );
+  }
+}
+
+/// Why a turn produced no answer.
+///
+/// Distinct from the assistant simply not understanding: that is a limit of
+/// what it knows, this is something wrong with the setup, and telling the two
+/// apart is what decides whether the user rephrases or calls an administrator.
+class _Failure extends StatelessWidget {
+  const _Failure({required this.reason});
+
+  final AssistantFailure reason;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    // Each reason gets the icon the design system already has for that state,
+    // rather than one generic warning: "no connection" and "not allowed" are
+    // different problems and the glyph is the fastest way to say which.
+    final (text, icon, tint) = switch (reason) {
+      AssistantFailure.notConfigured => (
+        l10n.chatErrorNotConfigured,
+        AppIcons.info,
+        theme.colorScheme.onSurfaceVariant,
+      ),
+      AssistantFailure.offline => (
+        l10n.chatErrorOffline,
+        AppIcons.offline,
+        theme.colorScheme.onSurfaceVariant,
+      ),
+      AssistantFailure.refused => (
+        l10n.chatErrorRefused,
+        AppIcons.noAccess,
+        theme.colorScheme.onSurfaceVariant,
+      ),
+      AssistantFailure.unknown => (
+        l10n.chatErrorUnknown,
+        AppIcons.danger,
+        theme.colorScheme.error,
+      ),
+    };
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: AppIconSize.small, color: tint),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            text,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -143,27 +208,67 @@ class AssistantLabel extends StatelessWidget {
 /// The same three dots every busy control in the app uses, so "working" looks
 /// like one thing everywhere rather than a bespoke animation for the chat.
 class ChatTypingIndicator extends StatelessWidget {
-  const ChatTypingIndicator({super.key});
+  const ChatTypingIndicator({this.activity, super.key});
+
+  /// The tool being run right now, e.g. `crm.search_deals`. Null between tool
+  /// calls, when all that can honestly be said is that it is thinking.
+  final String? activity;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final label = activity == null ? null : _activityLabel(activity!, l10n);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       child: Semantics(
-        label: AppLocalizations.of(context).chatThinking,
+        label: label ?? l10n.chatThinking,
         liveRegion: true,
-        child: const Column(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AssistantLabel(),
-            SizedBox(height: AppSpacing.md),
-            AppBusyIndicator(),
+            const AssistantLabel(),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                const AppBusyIndicator(),
+                // Naming the step matters more than the animation does. Four
+                // seconds of silent dots and then a figure asks to be trusted
+                // without showing any work; "Searching deals…" says where the
+                // number is about to come from.
+                if (label != null) ...[
+                  const SizedBox(width: AppSpacing.md),
+                  Text(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 }
+
+/// A registered tool name, said in the user's language.
+///
+/// Falls back to a generic phrase rather than showing `crm.search_deals` — an
+/// identifier on screen is a debug console, and a tool added on the server
+/// should not need a client release to avoid looking broken.
+String _activityLabel(String tool, AppLocalizations l10n) => switch (tool) {
+  'crm.search_deals' || 'crm.get_deal' => l10n.chatToolDeals,
+  'crm.search_leads' => l10n.chatToolLeads,
+  'crm.search_organizations' => l10n.chatToolCustomers,
+  'tasks.list' => l10n.chatToolTasks,
+  'production.list_work_orders' => l10n.chatToolProduction,
+  'profile.current_user' => l10n.chatToolProfile,
+  _ => l10n.chatWorking,
+};
 
 /// Markdown mapped onto the app's own type scale.
 ///

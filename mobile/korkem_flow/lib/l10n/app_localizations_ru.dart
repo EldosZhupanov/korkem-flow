@@ -593,4 +593,39 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get navClients => 'Клиенты';
+
+  @override
+  String get chatErrorNotConfigured =>
+      'ИИ ещё не настроен на сервере. Обратитесь к администратору KORKEM.';
+
+  @override
+  String get chatErrorOffline =>
+      'Не удалось связаться с KORKEM. Проверьте подключение.';
+
+  @override
+  String get chatErrorRefused => 'Недостаточно прав для этого запроса.';
+
+  @override
+  String get chatErrorUnknown => 'Не удалось ответить. Попробуйте ещё раз.';
+
+  @override
+  String get chatWorking => 'Работаю…';
+
+  @override
+  String get chatToolDeals => 'Ищу сделки…';
+
+  @override
+  String get chatToolLeads => 'Ищу лиды…';
+
+  @override
+  String get chatToolCustomers => 'Ищу клиентов…';
+
+  @override
+  String get chatToolTasks => 'Ищу задачи…';
+
+  @override
+  String get chatToolProduction => 'Смотрю производство…';
+
+  @override
+  String get chatToolProfile => 'Проверяю ваш профиль…';
 }

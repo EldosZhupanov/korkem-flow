@@ -1,3 +1,4 @@
+import 'package:korkem_flow/features/assistant/domain/assistant_event.dart';
 import 'package:meta/meta.dart';
 
 /// What a message in a conversation is.
@@ -10,6 +11,7 @@ class ChatMessage {
     required this.sentAt,
     this.card,
     this.unrecognised = false,
+    this.failure,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
@@ -19,6 +21,9 @@ class ChatMessage {
     sentAt: DateTime.parse(json['sentAt'] as String),
     card: ContextCardKind.fromWire(json['card'] as String?),
     unrecognised: json['unrecognised'] as bool? ?? false,
+    failure: AssistantFailure.values
+        .where((f) => f.name == json['failure'])
+        .firstOrNull,
   );
 
   final String id;
@@ -38,6 +43,13 @@ class ChatMessage {
   /// shows tomorrow's figures rather than a snapshot pretending to be current.
   final ContextCardKind? card;
 
+  /// Why this turn failed, when it did.
+  ///
+  /// Stored as a reason rather than a sentence so the screen can word it in
+  /// the user's language, and so a conversation reopened after the server was
+  /// fixed still shows what went wrong at the time.
+  final AssistantFailure? failure;
+
   /// The assistant could not answer, and said so.
   ///
   /// Stored rather than derived from an empty body, so reopening an old
@@ -52,6 +64,7 @@ class ChatMessage {
     'sentAt': sentAt.toIso8601String(),
     if (card != null) 'card': card!.wireValue,
     if (unrecognised) 'unrecognised': true,
+    if (failure != null) 'failure': failure!.name,
   };
 }
 

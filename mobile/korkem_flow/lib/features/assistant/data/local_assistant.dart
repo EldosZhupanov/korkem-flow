@@ -1,4 +1,5 @@
 import 'package:korkem_flow/features/assistant/data/assistant_repository.dart';
+import 'package:korkem_flow/features/assistant/domain/assistant_event.dart';
 import 'package:korkem_flow/features/assistant/domain/chat_message.dart';
 
 /// The assistant, until a language model is connected to it.
@@ -60,16 +61,22 @@ class LocalAssistant extends AssistantRepository {
   };
 
   @override
-  Future<AssistantReply> reply({
+  Stream<AssistantEvent> send({
     required String prompt,
     required List<ChatMessage> history,
-  }) async {
+  }) async* {
     final text = prompt.toLowerCase();
 
     for (final MapEntry(key: kind, value: keywords) in _intents.entries) {
-      if (keywords.any(text.contains)) return AssistantReply(card: kind);
+      if (keywords.any(text.contains)) {
+        yield AssistantDone(card: kind);
+        return;
+      }
     }
 
-    return const AssistantReply();
+    // No text and no card: the view is what puts words to "I did not
+    // understand", because that sentence has to be translated and this layer
+    // has no `BuildContext`.
+    yield const AssistantDone();
   }
 }

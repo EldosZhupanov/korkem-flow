@@ -31,6 +31,10 @@ dependencies:
   material_symbols_icons: ^4.2960.0
   meta: ^1.16.0
   shared_preferences: ^2.5.5
+  # The assistant's replies arrive on Frappe's socket.io channel rather than
+  # on the HTTP response: an LLM call is queued server-side (ADR-0009), so
+  # there is no response to hold open. Frappe's socket.io is v4.
+  socket_io_client: ^3.1.2
   # Dictation into the message field, using the device's own recogniser (BSD-3).
   # No cloud key and no server of ours — but Android routes this through a
   # platform service, which docs/privacy_policy.md has to say.

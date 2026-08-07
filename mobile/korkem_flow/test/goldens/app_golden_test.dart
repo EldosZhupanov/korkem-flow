@@ -13,6 +13,8 @@ import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/approvals/application/approvals_controller.dart';
 import 'package:korkem_flow/features/approvals/domain/pending_action.dart';
 import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
+import 'package:korkem_flow/features/assistant/data/assistant_repository.dart';
+import 'package:korkem_flow/features/assistant/domain/assistant_event.dart';
 import 'package:korkem_flow/features/assistant/domain/chat_message.dart';
 import 'package:korkem_flow/features/assistant/domain/chat_thread.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
@@ -63,6 +65,26 @@ void main() {
         await expectLater(
           find.byType(KorkemFlowApp),
           matchesGoldenFile('assistant_$suffix.png'),
+        );
+      });
+
+      testWidgets('assistant failure', (tester) async {
+        // A turn that failed used to render as an empty bubble — the one
+        // outcome a person cannot act on. Pinned in both themes so it cannot
+        // quietly become nothing again.
+        await _pumpApp(
+          tester,
+          brightness: brightness,
+          assistant: _failing(AssistantFailure.notConfigured),
+        );
+
+        await tester.tap(find.text('Покажи мои сделки'));
+        await tester.pumpAndSettle();
+
+        await precacheBrandAssets(tester);
+        await expectLater(
+          find.byType(KorkemFlowApp),
+          matchesGoldenFile('assistant_failure_$suffix.png'),
         );
       });
 
@@ -237,10 +259,27 @@ const _pixelRatio = 2.0;
 /// fail once a day, every day.
 final _now = DateTime(2026, 7, 28, 11);
 
+/// An assistant that only ever fails, for the failure golden.
+AssistantRepository _failing(AssistantFailure reason) =>
+    _FailingAssistant(reason);
+
+class _FailingAssistant extends AssistantRepository {
+  const _FailingAssistant(this.reason);
+
+  final AssistantFailure reason;
+
+  @override
+  Stream<AssistantEvent> send({
+    required String prompt,
+    required List<ChatMessage> history,
+  }) => Stream.value(AssistantFailed(reason));
+}
+
 Future<void> _pumpApp(
   WidgetTester tester, {
   required Brightness brightness,
   bool signedIn = true,
+  AssistantRepository? assistant,
 }) async {
   tester.view
     ..physicalSize = _logicalSize * _pixelRatio
@@ -255,6 +294,12 @@ Future<void> _pumpApp(
         // the settings screen that needs it. An empty store, so "Recent" is
         // absent — which is the honest state for a fresh install.
         threadsControllerProvider.overrideWith(_StubThreads.new),
+        // No gateway in a golden. Left live, `sendMessage` would await a real
+        // `chat.info` call, which a test binding answers with 400 and the API
+        // layer then retries with backoff — so `pumpAndSettle` never settles.
+        assistantInfoProvider.overrideWith((ref) async => null),
+        if (assistant != null)
+          assistantRepositoryProvider.overrideWithValue(assistant),
         // Stubbed at the session boundary, so no test ever reaches the platform
         // keychain — on Linux that is libsecret over D-Bus, absent in a runner.
         sessionProvider.overrideWith(
@@ -353,6 +398,11 @@ const _menuTooltip = 'Меню';
 class _StubThreads extends ThreadsController {
   @override
   List<ChatThread> build() => _threads;
+
+  /// Filing a conversation would reach `shared_preferences`, which no golden
+  /// stubs — and persistence is not what these images are about.
+  @override
+  void save(ChatThread thread) {}
 }
 
 /// Three conversations, one per band, dated against the frozen [_now] so the

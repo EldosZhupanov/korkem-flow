@@ -1233,6 +1233,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clients'**
   String get navClients;
+
+  /// No description provided for @chatErrorNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'AI is not set up on the server yet. Ask your KORKEM administrator.'**
+  String get chatErrorNotConfigured;
+
+  /// No description provided for @chatErrorOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach KORKEM. Check your connection.'**
+  String get chatErrorOffline;
+
+  /// No description provided for @chatErrorRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission for that.'**
+  String get chatErrorRefused;
+
+  /// No description provided for @chatErrorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not answer just now. Try again.'**
+  String get chatErrorUnknown;
+
+  /// No description provided for @chatWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Working…'**
+  String get chatWorking;
+
+  /// No description provided for @chatToolDeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching deals…'**
+  String get chatToolDeals;
+
+  /// No description provided for @chatToolLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching leads…'**
+  String get chatToolLeads;
+
+  /// No description provided for @chatToolCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching customers…'**
+  String get chatToolCustomers;
+
+  /// No description provided for @chatToolTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching tasks…'**
+  String get chatToolTasks;
+
+  /// No description provided for @chatToolProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking production…'**
+  String get chatToolProduction;
+
+  /// No description provided for @chatToolProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your profile…'**
+  String get chatToolProfile;
 }
 
 class _AppLocalizationsDelegate

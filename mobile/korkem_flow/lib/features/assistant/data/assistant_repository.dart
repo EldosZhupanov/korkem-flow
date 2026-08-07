@@ -1,3 +1,4 @@
+import 'package:korkem_flow/features/assistant/domain/assistant_event.dart';
 import 'package:korkem_flow/features/assistant/domain/chat_message.dart';
 import 'package:meta/meta.dart';
 
@@ -24,22 +25,37 @@ class AssistantReply {
 
 /// The seam a real language model plugs into.
 ///
-/// One method, deliberately: everything the UI needs from an assistant is "here
-/// is what the user said, give me a reply". A network implementation satisfies
-/// this without the chat screen changing, which is the point of writing it down
-/// now rather than after there is something to connect.
+/// A **stream**, not a future, and that changed when the server side landed: a
+/// turn is queued (ADR-0009) and its text, tool activity and final answer come
+/// back separately over a realtime channel. A future could only represent the
+/// last of those, which would throw away the two that make the assistant feel
+/// like it is working rather than hung.
 ///
-/// A class rather than a typedef'd function, despite the single method: a real
-/// implementation will hold a client, a base URL and a cancellation token, and
-/// none of that fits in a closure without becoming a closure over hidden state.
-// ignore: one_member_abstracts
+/// A class rather than a typedef'd function: a real implementation holds a
+/// client, a socket and a subscription, and none of that fits in a closure
+/// without becoming a closure over hidden state.
 abstract class AssistantRepository {
   const AssistantRepository();
 
-  /// [history] is the conversation so far, oldest first — unused by the local
-  /// implementation and present because any real model needs it.
-  Future<AssistantReply> reply({
+  /// Answers [prompt]. [history] is the conversation so far, oldest first.
+  ///
+  /// The stream closes when the turn ends, whether it ended in an answer, a
+  /// request for confirmation, or a failure. Cancelling the subscription
+  /// abandons the turn from the client's side; the server has already been
+  /// paid for and finishes regardless.
+  Stream<AssistantEvent> send({
     required String prompt,
     required List<ChatMessage> history,
   });
+
+  /// Approves tool calls the assistant paused on, and resumes the turn.
+  ///
+  /// Unsupported by an assistant with no write tools, which is why it has a
+  /// default: overriding it is opting in to being able to change data.
+  Stream<AssistantEvent> confirm({
+    required String turnId,
+    required List<String> callIds,
+    required String prompt,
+    required List<ChatMessage> history,
+  }) => const Stream.empty();
 }

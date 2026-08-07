@@ -593,4 +593,39 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get navClients => 'Клиенттер';
+
+  @override
+  String get chatErrorNotConfigured =>
+      'ЖИ серверде әлі бапталмаған. KORKEM әкімшісіне хабарласыңыз.';
+
+  @override
+  String get chatErrorOffline =>
+      'KORKEM-ге қосыла алмадым. Байланысты тексеріңіз.';
+
+  @override
+  String get chatErrorRefused => 'Бұл сұрауға рұқсатыңыз жеткіліксіз.';
+
+  @override
+  String get chatErrorUnknown => 'Жауап бере алмадым. Қайталап көріңіз.';
+
+  @override
+  String get chatWorking => 'Жұмыс істеп жатырмын…';
+
+  @override
+  String get chatToolDeals => 'Мәмілелерді іздеп жатырмын…';
+
+  @override
+  String get chatToolLeads => 'Лидтерді іздеп жатырмын…';
+
+  @override
+  String get chatToolCustomers => 'Клиенттерді іздеп жатырмын…';
+
+  @override
+  String get chatToolTasks => 'Тапсырмаларды іздеп жатырмын…';
+
+  @override
+  String get chatToolProduction => 'Өндірісті қарап жатырмын…';
+
+  @override
+  String get chatToolProfile => 'Профиліңізді тексеріп жатырмын…';
 }
