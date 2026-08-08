@@ -116,13 +116,43 @@ class _Call extends StatelessWidget {
           ),
         ),
         for (final entry in call.arguments.entries)
-          Text(
-            '${entry.key}: ${entry.value}',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
+          ..._describe(entry.key, entry.value, theme),
       ],
     );
   }
+
+  /// One argument, as lines a person can read.
+  ///
+  /// A list of objects — the several materials in one purchase request — used
+  /// to print as `items: [{item_code: ДСП 16мм, qty: 4}, …]`, which is a debug
+  /// console, not a question anybody can answer. Handled by shape rather than
+  /// by tool name, so the card stays generic: it describes whatever the server
+  /// proposes without needing to know what that is.
+  Iterable<Widget> _describe(String key, Object? value, ThemeData theme) {
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+
+    if (value is List && value.isNotEmpty) {
+      return [
+        Text('$key:', style: muted),
+        for (final entry in value)
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.md),
+            child: Text(
+              entry is Map ? _row(entry) : '$entry',
+              style: muted,
+            ),
+          ),
+      ];
+    }
+
+    return [Text('$key: $value', style: muted)];
+  }
+
+  /// `ДСП 16мм — 4 Лист · Stores - KRK`, from whatever keys are present.
+  String _row(Map<Object?, Object?> entry) => entry.values
+      .where((value) => value != null && '$value'.isNotEmpty)
+      .map((value) => '$value')
+      .join(' · ');
 }

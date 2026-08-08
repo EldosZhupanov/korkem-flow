@@ -627,6 +627,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatToolProduction => 'Смотрю производство…';
 
   @override
+  String get chatToolOrders => 'Смотрю заказы…';
+
+  @override
+  String get chatToolShortage => 'Считаю дефицит материалов…';
+
+  @override
+  String get chatToolStock => 'Проверяю остатки…';
+
+  @override
+  String get chatToolProcurement => 'Готовлю заявку на закупку…';
+
+  @override
   String get chatToolProfile => 'Проверяю ваш профиль…';
 
   @override

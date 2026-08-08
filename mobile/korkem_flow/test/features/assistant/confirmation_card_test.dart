@@ -33,6 +33,25 @@ void main() {
     ],
   );
 
+  /// A factory-wide purchase: several materials, one approval.
+  const consolidated = AssistantNeedsConfirmation(
+    text: 'Покупаем недостающее.',
+    turnId: 't2',
+    calls: [
+      PendingToolCall(
+        id: 'PA-xyz',
+        tool: 'inventory.create_material_request',
+        arguments: {
+          'purpose': 'Purchase',
+          'items': [
+            {'item_code': 'ДСП 16мм', 'qty': 4, 'warehouse': 'Stores - KRK'},
+            {'item_code': 'ЛДСП 18мм', 'qty': 35, 'warehouse': 'Stores - KRK'},
+          ],
+        },
+      ),
+    ],
+  );
+
   Future<void> pump(
     WidgetTester tester, {
     Brightness brightness = Brightness.light,
@@ -105,5 +124,46 @@ void main() {
       find.bySemanticsLabel('Подтвердите действие'),
     );
     expect(semantics, isNotNull);
+  });
+
+  group('a purchase covering several materials', () {
+    Future<void> pumpConsolidated(WidgetTester tester) => tester.pumpWidget(
+      ProviderScope(
+        child: harness(const ConfirmationCard(request: consolidated)),
+      ),
+    );
+
+    testWidgets('every material is named, not summarised as a list', (
+      tester,
+    ) async {
+      // Approving "items: [{item_code: ДСП 16мм, qty: 4}, …]" is not consent
+      // to a purchase; it is consent to a debug console. Each line has to be
+      // legible on its own.
+      await pumpConsolidated(tester);
+
+      expect(find.textContaining('ДСП 16мм'), findsOneWidget);
+      expect(find.textContaining('ЛДСП 18мм'), findsOneWidget);
+    });
+
+    testWidgets('quantities and destination are visible per material', (
+      tester,
+    ) async {
+      await pumpConsolidated(tester);
+
+      expect(find.textContaining('4 · Stores - KRK'), findsOneWidget);
+      expect(find.textContaining('35 · Stores - KRK'), findsOneWidget);
+    });
+
+    testWidgets('no raw list punctuation reaches the screen', (tester) async {
+      await pumpConsolidated(tester);
+
+      final rendered = tester
+          .widgetList<Text>(find.byType(Text))
+          .map((text) => text.data ?? '')
+          .join(' ');
+
+      expect(rendered, isNot(contains('[{')));
+      expect(rendered, isNot(contains('item_code:')));
+    });
   });
 }

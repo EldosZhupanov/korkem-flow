@@ -306,6 +306,10 @@
   "chatToolCustomers": "Searching customers…",
   "chatToolTasks": "Searching tasks…",
   "chatToolProduction": "Checking production…",
+  "chatToolOrders": "Checking orders…",
+  "chatToolShortage": "Working out the shortage…",
+  "chatToolStock": "Checking stock…",
+  "chatToolProcurement": "Preparing the purchase request…",
   "chatToolProfile": "Checking your profile…",
   "chatErrorProviderUnavailable": "The AI service is not responding. Try again shortly.",
   "@chatErrorProviderUnavailable": {

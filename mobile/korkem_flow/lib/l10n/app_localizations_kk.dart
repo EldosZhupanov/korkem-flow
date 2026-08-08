@@ -627,6 +627,18 @@ class AppLocalizationsKk extends AppLocalizations {
   String get chatToolProduction => 'Өндірісті қарап жатырмын…';
 
   @override
+  String get chatToolOrders => 'Тапсырыстарды қараймын…';
+
+  @override
+  String get chatToolShortage => 'Материал тапшылығын есептеймін…';
+
+  @override
+  String get chatToolStock => 'Қалдықтарды тексеремін…';
+
+  @override
+  String get chatToolProcurement => 'Сатып алу өтінімін дайындаймын…';
+
+  @override
   String get chatToolProfile => 'Профиліңізді тексеріп жатырмын…';
 
   @override

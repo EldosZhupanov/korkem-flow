@@ -627,6 +627,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatToolProduction => 'Checking production…';
 
   @override
+  String get chatToolOrders => 'Checking orders…';
+
+  @override
+  String get chatToolShortage => 'Working out the shortage…';
+
+  @override
+  String get chatToolStock => 'Checking stock…';
+
+  @override
+  String get chatToolProcurement => 'Preparing the purchase request…';
+
+  @override
   String get chatToolProfile => 'Checking your profile…';
 
   @override

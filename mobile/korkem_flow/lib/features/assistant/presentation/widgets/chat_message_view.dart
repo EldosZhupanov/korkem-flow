@@ -340,7 +340,18 @@ String _activityLabel(String tool, AppLocalizations l10n) => switch (tool) {
   'crm.search_leads' => l10n.chatToolLeads,
   'crm.search_organizations' => l10n.chatToolCustomers,
   'tasks.list' => l10n.chatToolTasks,
-  'production.list_work_orders' => l10n.chatToolProduction,
+  // `production.list_work_orders` is no longer registered — kept because
+  // transcripts recorded before it was retired still name it.
+  'production.list_work_orders' ||
+  'manufacturing.search_work_orders' ||
+  'manufacturing.production_control' ||
+  'manufacturing.production_readiness' ||
+  'manufacturing.get_bom_materials' => l10n.chatToolProduction,
+  'sales.search_sales_orders' || 'sales.get_sales_order' => l10n.chatToolOrders,
+  'inventory.factory_shortage' ||
+  'inventory.material_shortage' => l10n.chatToolShortage,
+  'inventory.get_stock' => l10n.chatToolStock,
+  'inventory.create_material_request' => l10n.chatToolProcurement,
   'profile.current_user' => l10n.chatToolProfile,
   _ => l10n.chatWorking,
 };

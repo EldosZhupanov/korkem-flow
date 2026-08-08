@@ -1294,6 +1294,30 @@ abstract class AppLocalizations {
   /// **'Checking production…'**
   String get chatToolProduction;
 
+  /// No description provided for @chatToolOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking orders…'**
+  String get chatToolOrders;
+
+  /// No description provided for @chatToolShortage.
+  ///
+  /// In en, this message translates to:
+  /// **'Working out the shortage…'**
+  String get chatToolShortage;
+
+  /// No description provided for @chatToolStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking stock…'**
+  String get chatToolStock;
+
+  /// No description provided for @chatToolProcurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing the purchase request…'**
+  String get chatToolProcurement;
+
   /// No description provided for @chatToolProfile.
   ///
   /// In en, this message translates to:
