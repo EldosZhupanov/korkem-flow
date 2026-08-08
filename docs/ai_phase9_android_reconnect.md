@@ -119,22 +119,33 @@ session, cookies and headers all survived; no re-login was needed.
 A real turn after the outage: real Gemini, real `crm.*` tools, streamed answer,
 exactly one `AssistantDone`.
 
-## 12. CRM write after reconnect — **`NOT VERIFIED`**
+## 12. CRM write after reconnect — `LIVE VERIFIED`
 
-Stated plainly because the test that was supposed to prove it does not.
+This took two attempts, and the first one is worth recording because it looked
+green while proving nothing.
 
-`one write request still creates exactly one record` passes, and proves one
-request → one confirmation → one terminator → one row. It is **not** a reconnect
-test: each test builds a fresh container, so the channel is created lazily on
-the first turn — which happens *after* the outage window. The run log confirms
-it: no `socket.disconnect` during that test, and `socket.connected` landing 40
-seconds past the harness restoring the port.
+**First attempt — wrong.** Each test builds a fresh container, so the channel is
+created lazily on the first turn. Waiting out the outage window *before* the
+first turn meant the socket simply connected once the block was lifted and had
+never dropped: no `socket.disconnect` in the log at all, and `socket.connected`
+landing 40 seconds past the restore. The test passed and demonstrated only that
+a write works.
 
-A warm-up turn before the window would fix it. That is the first item in Phase
-10.
+**Fixed** by a warm-up turn before the window, so a socket exists to break, plus
+an explicit guard asserting the channel really saw `disconnected`. Measured:
 
-Phase 8's write path itself remains `LIVE VERIFIED` on a device — this gap is
-only about writing *after a reconnect*.
+```
+18:06:21  socket.connected                           ← warm-up
+          RECONNECT_PROBE window open
+18:07:06  socket.disconnect reason=transport close
+18:07:27  socket.connect_error timeout
+18:07:36  socket.connected
+write-path statuses=[disconnected, reconnecting, connected]
+```
+
+The write then ran on that reconnected channel: exactly one confirmation
+request, exactly one terminator, and the database held exactly one row —
+asserted as zero before the confirm and one after, then cleaned up.
 
 ## 13. Duplicate listener — `LIVE VERIFIED`
 
@@ -145,16 +156,23 @@ Deliberately *not* asserted: uniqueness of tool names. A model legitimately
 calls the same tool repeatedly (four consecutive `crm.search_deals` is normal),
 and an early version of this test failed on that correct behaviour.
 
-## 14. Duplicate write — `TEST VERIFIED`
+## 14. Duplicate write — `LIVE VERIFIED`
 
-One request produced exactly one `CRM Task`, verified by querying the database
-before and after. Not on a reconnected channel — see §12.
+One request produced exactly one `CRM Task` **on a reconnected channel**,
+verified by querying the database before the confirmation (zero) and after
+(one). A duplicated subscription would have delivered the confirmation twice.
 
-## 15. Android lifecycle — **`NOT VERIFIED`**
+## 15. Android lifecycle — `TEST VERIFIED` on device, with a stated limit
 
-Not tested. Backgrounding the app suspends the integration-test driver, so this
-needs either a driver-based approach or manual inspection. There is still no
-`WidgetsBindingObserver` in the app. No claim is made either way.
+A third test drives `inactive → paused → inactive → resumed` through the
+binding on the real emulator, then asks the assistant again: the turn succeeds
+with exactly one terminator. So the app survives the lifecycle signals Android
+delivers, and does not need a `WidgetsBindingObserver` to do so.
+
+**What this does not cover:** whether a real home-button press produces those
+signals as expected. Genuinely backgrounding the app suspends the
+integration-test driver with it, so the test cannot observe its own return.
+That remains `NOT VERIFIED` and needs manual inspection.
 
 ## 16–17. Failure and recovery behaviour
 
@@ -173,7 +191,7 @@ listening turn, but that has not been exercised with a real turn in flight.
 | `korkem_ai` | **264** |
 | `korkem_manufacturing` | **13** |
 | Flutter unit/widget | **308** |
-| Integration | **6** (3 Phase 7, 1 Phase 8, 2 here) |
+| Integration | **7** (3 Phase 7, 1 Phase 8, 3 here) |
 
 `flutter analyze` clean · `dart format` clean (187 files).
 
@@ -200,8 +218,8 @@ production change is in `assistant_channel.dart`.
 
 ## 22. NOT VERIFIED
 
-- CRM **write after reconnect** (§12) — the headline gap.
-- App background → foreground (§15).
+- A **real** home-button background/foreground cycle (§15) — the simulated
+  lifecycle transition is verified; the platform's delivery of it is not.
 - Stream interrupted **mid-turn** (§17).
 - `ChannelStatus.failed` reached end-to-end.
 - Server-side Socket.IO isolation — `NOT ISOLATABLE` under honcho.
@@ -219,10 +237,11 @@ production change is in `assistant_channel.dart`.
 
 ## 24. Recommendation for Phase 10
 
-1. Add the warm-up turn and close §12 — smallest change, largest gap.
-2. Surface `ChannelStatus` in the UI ("reconnecting…"), now that it exists.
-3. Exercise a mid-turn disconnect.
-4. Decide on `pingTimeout` deliberately, with the 45s measurement in hand.
+1. Surface `ChannelStatus` in the UI ("reconnecting…"). The app can now see a
+   disconnect and still says nothing about it.
+2. Exercise a mid-turn disconnect — the one recovery case still unmeasured.
+3. Decide on `pingTimeout` deliberately, with the ~45s measurement in hand.
+4. Manual pass for a real home-button cycle.
 
 ## Evidence table
 
@@ -237,10 +256,10 @@ production change is in `assistant_channel.dart`.
 | Gemini response | `LIVE VERIFIED` | one `AssistantDone` |
 | CRM read | `LIVE VERIFIED` | `crm.*` tool activity after reconnect |
 | Streaming | `LIVE VERIFIED` | deltas then `done`, in order |
-| Write after reconnect | **`NOT VERIFIED`** | no `socket.disconnect` in that test (§12) |
+| Write after reconnect | `LIVE VERIFIED` | `write-path statuses=[disconnected, reconnecting, connected]`, one row |
 | Duplicate listener | `LIVE VERIFIED` | exactly one `AssistantDone` |
-| Duplicate CRM write | `TEST VERIFIED` | one row before/after; not post-reconnect |
-| Background → foreground | **`NOT VERIFIED`** | not tested (§15) |
+| Duplicate CRM write | `LIVE VERIFIED` | zero rows before confirm, one after |
+| Background → foreground | `TEST VERIFIED` | lifecycle cycle on device; real press `NOT VERIFIED` |
 
 ## Reproducing
 

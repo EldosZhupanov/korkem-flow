@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -175,6 +176,30 @@ void main() {
       final marker = 'Reconnect ${DateTime.now().millisecondsSinceEpoch}';
       final client = container.read(frappeClientProvider);
 
+      // A warm-up turn, so a socket exists *before* the outage.
+      //
+      // Without this the test proved nothing about reconnection: the channel
+      // is built lazily on the first turn, so waiting out the window first
+      // meant the socket simply connected once the block was lifted and had
+      // never dropped. Measured exactly that — no `socket.disconnect` in the
+      // run at all, and `socket.connected` landing 40s past the restore.
+      final warmUp = await container
+          .read(assistantRepositoryProvider)
+          .send(prompt: 'Скажи "готов".', history: const [])
+          .toList();
+      expect(
+        warmUp.whereType<AssistantFailed>(),
+        isEmpty,
+        reason: 'the warm-up failed, so there was no socket to break',
+      );
+
+      final seen = <ChannelStatus>[];
+      final watching = container
+          .read(assistantChannelProvider)!
+          .status
+          .listen(seen.add);
+      addTearDown(watching.cancel);
+
       Future<int> tasks() async => (await client.getList(
         'CRM Task',
         FrappeQuery(
@@ -182,11 +207,20 @@ void main() {
         ),
       )).length;
 
-      // Break and restore the socket first, so the write happens on a
-      // *reconnected* channel rather than on the original one.
+      // Now break and restore it, so the write below runs on a channel that
+      // has genuinely been through a disconnect.
       // ignore: avoid_print
       print('RECONNECT_PROBE window open');
       await Future<void>.delayed(settleBy);
+
+      // The guard that makes this a reconnect test rather than a write test.
+      // ignore: avoid_print
+      print('RECONNECT_PROBE write-path statuses=$seen');
+      expect(
+        seen,
+        contains(ChannelStatus.disconnected),
+        reason: 'the socket never dropped, so this proves nothing: $seen',
+      );
 
       final proposal = await container
           .read(assistantRepositoryProvider)
@@ -235,6 +269,47 @@ void main() {
       );
     },
     timeout: const Timeout(Duration(minutes: 10)),
+  );
+
+  testWidgets(
+    'the assistant still works after a background/foreground cycle',
+    (
+      tester,
+    ) async {
+      // A *simulated* lifecycle cycle, and labelled as one.
+      //
+      // Genuinely backgrounding the app suspends the integration-test driver
+      // with it, so the test cannot observe its own return. What this does
+      // exercise is the app's response to the lifecycle signals Android
+      // delivers, which is the part the app owns. Whether the platform sends
+      // them as expected on a real home-button press is not covered here, and
+      // the report says so rather than implying otherwise.
+      await signedIn();
+
+      final before = await ask('Скажи "до".');
+      expect(before.whereType<AssistantFailed>(), isEmpty);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump(const Duration(seconds: 2));
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump(const Duration(seconds: 2));
+
+      final after = await ask('Скажи "после".');
+      expect(
+        after.whereType<AssistantFailed>(),
+        isEmpty,
+        reason: 'the assistant did not survive a lifecycle cycle',
+      );
+      expect(
+        after.whereType<AssistantDone>(),
+        hasLength(1),
+        reason: 'duplicate terminator after resume',
+      );
+    },
+    timeout: const Timeout(Duration(minutes: 6)),
   );
 }
 
