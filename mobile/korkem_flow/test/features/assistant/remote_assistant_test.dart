@@ -444,6 +444,11 @@ class _FakeChannel implements AssistantChannel {
   @override
   Future<Stream<Map<String, dynamic>>> events() async => _controller.stream;
 
+  /// These tests exercise event decoding, not the transport, so the channel's
+  /// own connection state never changes.
+  @override
+  Stream<ChannelStatus> get status => const Stream.empty();
+
   @override
   Future<void> dispose() async => _controller.close();
 }

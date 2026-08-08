@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:korkem_flow/core/auth/auth_credentials.dart';
-import 'package:meta/meta.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 /// Where the assistant's answer arrives from.
@@ -13,7 +13,28 @@ abstract class AssistantChannel {
   /// Events published to this user's realtime room, decoded.
   Future<Stream<Map<String, dynamic>>> events();
 
+  /// Whether the channel currently has a live connection.
+  ///
+  /// Separate from [events] because a turn failing and the *channel* being down
+  /// are different facts, and until now the app could not tell them apart: a
+  /// socket that dropped looked exactly like a model that had not answered yet.
+  Stream<ChannelStatus> get status;
+
   Future<void> dispose();
+}
+
+/// Where the realtime channel stands.
+enum ChannelStatus {
+  connected,
+  disconnected,
+
+  /// Trying to come back. Distinct from [disconnected] so a UI can say
+  /// "reconnecting" rather than "offline", which are different promises.
+  reconnecting,
+
+  /// Gave up. Terminal until something asks again — see
+  /// `FrappeSocketChannel.reconnectAttempts`.
+  failed,
 }
 
 /// Frappe's socket.io channel.
@@ -55,8 +76,30 @@ class FrappeSocketChannel implements AssistantChannel {
   final AuthCredentials credentials;
   final String event;
 
+  /// How many times to try before reporting [ChannelStatus.failed].
+  ///
+  /// Bounded rather than infinite: a client retrying for ever against a server
+  /// that is not coming back looks identical, to the user, to one that is still
+  /// working. A terminal state is something they can act on.
+  static const reconnectAttempts = 8;
+
   io.Socket? _socket;
   StreamController<Map<String, dynamic>>? _controller;
+  final _status = StreamController<ChannelStatus>.broadcast();
+
+  @override
+  Stream<ChannelStatus> get status => _status.stream;
+
+  /// Records a transport event without ever recording what it carried.
+  ///
+  /// Connection lifecycle only — no payload, no headers, no credential. The
+  /// reason strings socket.io produces ("transport close", "ping timeout") are
+  /// exactly what is needed to tell a dropped network from a rejected auth,
+  /// and none of them contain anything private.
+  void _note(String event, [Object? detail]) {
+    final at = DateTime.now().toIso8601String().substring(11, 19);
+    debugPrint('[$at] socket.$event${detail == null ? '' : ' $detail'}');
+  }
 
   /// The socket endpoint, derived from the configured server.
   ///
@@ -88,6 +131,7 @@ class FrappeSocketChannel implements AssistantChannel {
           'Origin': origin,
         })
         .disableAutoConnect()
+        .setReconnectionAttempts(reconnectAttempts)
         .build();
 
     final socket = io.io(endpoint.toString(), options)
@@ -96,10 +140,41 @@ class FrappeSocketChannel implements AssistantChannel {
           controller.add(Map<String, dynamic>.from(data));
         }
       })
-      // Wrapped rather than passed directly: socket.io hands back a dynamic
-      // payload, and `addError` will not accept one.
-      ..onConnectError(controller._failWith)
-      ..onError(controller._failWith)
+      ..onConnect((_) {
+        _note('connected');
+        _status.add(ChannelStatus.connected);
+      })
+      // A drop is *not* an error. It used to be indistinguishable from one
+      // because nothing listened for it at all: the socket went quiet, the
+      // turn timed out, and the user was told "offline" forever after. The
+      // client reconnects on its own, so this reports rather than fails.
+      ..onDisconnect((reason) {
+        _note('disconnect', 'reason=$reason');
+        _status.add(ChannelStatus.disconnected);
+      })
+      ..on('reconnect_attempt', (attempt) {
+        _note('reconnect_attempt', 'attempt=$attempt');
+        _status.add(ChannelStatus.reconnecting);
+      })
+      ..on('reconnect', (attempt) {
+        _note('reconnect', 'attempt=$attempt');
+        _status.add(ChannelStatus.connected);
+      })
+      ..on('reconnect_failed', (_) {
+        _note('reconnect_failed');
+        _status.add(ChannelStatus.failed);
+      })
+      // Only these two fail the stream. A *connect* error while the socket is
+      // retrying is normal and must not kill a subscriber; it is reported on
+      // `status` instead.
+      ..onConnectError((error) {
+        _note('connect_error', _summarise(error));
+        _status.add(ChannelStatus.reconnecting);
+      })
+      ..onError((error) {
+        _note('error', _summarise(error));
+        controller._failWith(error);
+      })
       ..connect();
 
     _socket = socket;
@@ -112,6 +187,17 @@ class FrappeSocketChannel implements AssistantChannel {
     _socket = null;
     await _controller?.close();
     _controller = null;
+    await _status.close();
+  }
+
+  /// A transport error reduced to something safe to print.
+  ///
+  /// socket.io hands back an untyped payload that can include the server's
+  /// response. Only the message is kept, and it is truncated — a connection
+  /// diagnostic is worth logging; a response body is not.
+  static String _summarise(Object? error) {
+    final text = error is Map ? '${error['message'] ?? error}' : '$error';
+    return text.length > 120 ? '${text.substring(0, 120)}…' : text;
   }
 }
 
