@@ -323,7 +323,7 @@ Nothing.
 |---|---|---|
 | `korkem_ai` | `3d6ab81` | production control tool, permission fixes, real-user tests |
 | `korkem_manufacturing` | `4cbe1e6` | three-order dataset and the two demo users |
-| root | `5ab447b` | Android planner E2E and this report |
+| root | the commit carrying this file | Android planner E2E and this report |
 
 ---
 
