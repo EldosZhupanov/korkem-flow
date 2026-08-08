@@ -345,6 +345,15 @@ A Docker Compose bench now runs `erpnext` + `crm` on top of the vendored `frappe
 - Site: `korkem.localhost`, reachable at `http://korkem.localhost:8000` once the stack is up (`.localhost` resolves to loopback automatically, no `/etc/hosts` edit needed). Admin login: `Administrator` / the password set in `infra/frappe_bench/.env` (gitignored; copy from `.env.example`).
 - `frappe` is exposed to the bench via a **real local git clone** from the vendored `frappe/` directory (zero network — `bench init --frappe-path`). `crm` is exposed via **`bench get-app --soft-link`** (a filesystem symlink, zero git operations). `erpnext` is also a **real local clone**, not a symlink — its `banking/` sub-frontend resolves paths via `import.meta.url`, which Node/Vite resolve to a symlink's real target rather than its bench-tree location, breaking `common_site_config.json` path resolution under `--soft-link`; a real clone avoids this without touching vendored source.
 - `bench build` (part of bootstrap) writes compiled assets into `erpnext/public/dist`, `crm/crm/public/frontend`, etc. — already gitignored paths in each vendored repo. Occasionally a build step also touches a tracked file incidentally (observed once: `crm/frontend/auto-imports.d.ts` and `crm/yarn.lock`, both benign build-tool regenerations) — check `git -C <repo> status` after any bench rebuild and revert anything unexpected; the vendored repos must stay pristine.
+- **`webserver_host` must be set** (`bench set-config -g webserver_host 127.0.0.1`, done in
+  `bootstrap.sh`). Without it, Frappe's socket.io process derives the URL it calls the web
+  server back on from the **client's own `Origin` header**
+  (`frappe/realtime/utils.js:get_url`). A browser on the host sends `korkem.localhost`, which
+  the container can resolve, so everything looks fine — but an Android emulator sends
+  `10.0.2.2`, which means nothing inside the container, and every socket connection is refused
+  as `Unauthorized: TypeError: fetch failed`. HTTP keeps working throughout, so the symptom is
+  "the app signs in and then the assistant never answers". The client cannot work around it:
+  the same middleware requires the `Origin` hostname to match the `Host` it dialled.
 - Full setup details, every command tried, and the specific failures/fixes encountered getting here: `.ai/roadmap/sprint_1_phase_a_checklist.md`.
 
 ## The Flutter mobile app (`mobile/korkem_flow/`)

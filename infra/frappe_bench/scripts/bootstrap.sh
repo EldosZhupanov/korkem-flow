@@ -34,6 +34,20 @@ bench set-config -g developer_mode 1
 bench set-config -g redis_cache "$FRAPPE_REDIS_CACHE"
 bench set-config -g redis_queue "$FRAPPE_REDIS_QUEUE"
 
+# Where the socket.io process should call the web server back.
+#
+# Without this, `frappe/realtime/utils.js:get_url` derives that URL from the
+# *client's own* Origin header. A browser on the host sends `korkem.localhost`,
+# which the container can resolve, so it works and the setting looks unnecessary.
+# An Android emulator sends `10.0.2.2` — the host as seen from the guest, and
+# meaningless inside this container — so the loopback fetch fails and every
+# socket connection is rejected as `Unauthorized: TypeError: fetch failed`.
+#
+# The app cannot avoid it: the same middleware requires the Origin hostname to
+# match the Host it dialled. Diagnosed on a real emulator, where HTTP worked and
+# only the socket did not.
+bench set-config -g webserver_host 127.0.0.1
+
 if [ ! -d "sites/$SITE_NAME" ]; then
   bench new-site "$SITE_NAME" \
     --db-host mariadb --db-port 3306 \

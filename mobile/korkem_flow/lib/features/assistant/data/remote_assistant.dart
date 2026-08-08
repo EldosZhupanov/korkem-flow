@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/features/assistant/data/assistant_channel.dart';
@@ -138,7 +140,17 @@ class RemoteAssistant extends AssistantRepository {
           if (payload['turn_id'] != expectedTurn) return;
           handle(payload);
         },
-        onError: (_) {
+        onError: (Object error) {
+          // Logged, not swallowed. The user still sees only "offline" — a
+          // transport error is not something they can act on — but this used
+          // to be `onError: (_)`, which discarded the one string that says
+          // *why*. Diagnosing the emulator failure needed a temporary patch to
+          // this exact line, which is a bad way to learn something the app
+          // already knew.
+          //
+          // Transport-level only: this carries a connection error, never a
+          // payload, so there is nothing here to leak.
+          debugPrint('Assistant channel failed: $error');
           controller.add(const AssistantFailed(AssistantFailure.offline));
           unawaited(controller.close());
         },
