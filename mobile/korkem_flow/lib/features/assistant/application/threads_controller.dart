@@ -230,6 +230,13 @@ class ActiveThread extends Notifier<ChatThread?> {
   @override
   ChatThread? build() => null;
 
+  /// The conversation as it stands.
+  ///
+  /// Exists so a turn already in flight can file its result without reaching
+  /// back through a `WidgetRef` that may no longer be mounted — see
+  /// `approvePendingAction`.
+  ChatThread? get current => state;
+
   void clear() => state = null;
 
   /// Puts a filed conversation back on screen.
@@ -288,21 +295,27 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
   final prompt = text.trim();
   if (prompt.isEmpty) return;
 
+  // Hoisted for the same reason as in `approvePendingAction`: a turn outlives
+  // the frame it started in, and the router disposes screens when the session
+  // changes. Reading providers through a `WidgetRef` after an await is a
+  // use-after-unmount waiting for the right timing.
   final now = ref.read(clockProvider);
-
-  ref
-      .read(activeThreadProvider.notifier)
-      .append(
-        ChatMessage(
-          id: now().microsecondsSinceEpoch.toString(),
-          role: ChatRole.user,
-          body: prompt,
-          sentAt: now(),
-        ),
-      );
-
   final active = ref.read(activeThreadProvider.notifier);
-  ref.read(assistantBusyProvider.notifier).start();
+  final busy = ref.read(assistantBusyProvider.notifier);
+  final activity = ref.read(assistantActivityProvider.notifier);
+  final threads = ref.read(threadsControllerProvider.notifier);
+  final pending = ref.read(pendingConfirmationProvider.notifier);
+
+  active.append(
+    ChatMessage(
+      id: now().microsecondsSinceEpoch.toString(),
+      role: ChatRole.user,
+      body: prompt,
+      sentAt: now(),
+    ),
+  );
+
+  busy.start();
 
   // Settle which assistant is answering *before* asking it.
   //
@@ -328,6 +341,7 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
   // Settled before the turn rather than after, so a reply is labelled by the
   // assistant that actually produced it even if the channel opens midway.
   final fromFallback = !ref.read(assistantIsRemoteProvider);
+  final assistant = ref.read(assistantRepositoryProvider);
 
   /// Puts the reply on screen the first time there is anything to show, and
   /// rewrites it in place after that — so a streamed answer grows rather than
@@ -355,12 +369,10 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
   }
 
   try {
-    final events = ref
-        .read(assistantRepositoryProvider)
-        .send(
-          prompt: prompt,
-          history: ref.read(activeThreadProvider)?.messages ?? const [],
-        );
+    final events = assistant.send(
+      prompt: prompt,
+      history: active.current?.messages ?? const [],
+    );
 
     await for (final event in events) {
       switch (event) {
@@ -382,13 +394,13 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
         case AssistantToolActivity(:final tool):
           // Live only: the screen words it, and it is not kept in a transcript
           // someone reopens next week.
-          ref.read(assistantActivityProvider.notifier).running(tool);
+          activity.running(tool);
         case AssistantNeedsConfirmation():
           // The turn stopped before changing anything and is waiting on a
           // person. Putting it in state — rather than dropping it, which is
           // what used to happen — is what turns a terminal event into a
           // question the user can actually answer.
-          ref.read(pendingConfirmationProvider.notifier).ask(event);
+          pending.ask(event);
           if (event.text case final said? when said.isNotEmpty) {
             buffer
               ..clear()
@@ -399,12 +411,10 @@ Future<void> sendMessage(WidgetRef ref, String text) async {
 
     publish();
   } finally {
-    ref.read(assistantBusyProvider.notifier).finish();
-    ref.read(assistantActivityProvider.notifier).idle();
-    final thread = ref.read(activeThreadProvider);
-    if (thread != null) {
-      ref.read(threadsControllerProvider.notifier).save(thread);
-    }
+    busy.finish();
+    activity.idle();
+    final thread = active.current;
+    if (thread != null) threads.save(thread);
   }
 }
 
@@ -417,12 +427,27 @@ Future<void> approvePendingAction(WidgetRef ref) async {
   final request = ref.read(pendingConfirmationProvider);
   if (request == null) return;
 
-  ref.read(pendingConfirmationProvider.notifier).clear();
-  ref.read(assistantBusyProvider.notifier).start();
-
+  // Every handle this turn needs, taken *before* anything is awaited.
+  //
+  // Clearing the pending confirmation unmounts `ConfirmationCard` — the very
+  // widget whose `ref` this is — so a `ref.read` after that point is a
+  // use-after-unmount. It throws only once there is a real await between the
+  // two, which is why a scripted test never saw it and the first run on a
+  // device did: "Using ref when a widget is about to or has been unmounted".
+  //
+  // Notifiers belong to the container rather than to the widget, so holding
+  // them is safe for as long as the turn runs.
+  final pending = ref.read(pendingConfirmationProvider.notifier);
+  final busy = ref.read(assistantBusyProvider.notifier);
+  final activity = ref.read(assistantActivityProvider.notifier);
+  final threads = ref.read(threadsControllerProvider.notifier);
+  final assistant = ref.read(assistantRepositoryProvider);
   final now = ref.read(clockProvider);
   final active = ref.read(activeThreadProvider.notifier);
-  final history = ref.read(activeThreadProvider)?.messages ?? const [];
+  final history = active.current?.messages ?? const [];
+
+  pending.clear();
+  busy.start();
   final replyId = '${now().microsecondsSinceEpoch}-confirmed';
   final buffer = StringBuffer();
   AssistantFailure? failure;
@@ -446,14 +471,12 @@ Future<void> approvePendingAction(WidgetRef ref) async {
   }
 
   try {
-    final events = ref
-        .read(assistantRepositoryProvider)
-        .confirm(
-          turnId: request.turnId,
-          callIds: [for (final call in request.calls) call.id],
-          prompt: _lastUserMessage(history),
-          history: history,
-        );
+    final events = assistant.confirm(
+      turnId: request.turnId,
+      callIds: [for (final call in request.calls) call.id],
+      prompt: _lastUserMessage(history),
+      history: history,
+    );
 
     await for (final event in events) {
       switch (event) {
@@ -469,21 +492,19 @@ Future<void> approvePendingAction(WidgetRef ref) async {
         case AssistantFailed(:final reason):
           failure = reason;
         case AssistantToolActivity(:final tool):
-          ref.read(assistantActivityProvider.notifier).running(tool);
+          activity.running(tool);
         case AssistantNeedsConfirmation():
           // A second proposal, from the same turn continuing. Ask again.
-          ref.read(pendingConfirmationProvider.notifier).ask(event);
+          pending.ask(event);
       }
     }
 
     publish();
   } finally {
-    ref.read(assistantBusyProvider.notifier).finish();
-    ref.read(assistantActivityProvider.notifier).idle();
-    final thread = ref.read(activeThreadProvider);
-    if (thread != null) {
-      ref.read(threadsControllerProvider.notifier).save(thread);
-    }
+    busy.finish();
+    activity.idle();
+    final thread = active.current;
+    if (thread != null) threads.save(thread);
   }
 }
 
@@ -496,12 +517,14 @@ Future<void> rejectPendingAction(WidgetRef ref) async {
   final request = ref.read(pendingConfirmationProvider);
   if (request == null) return;
 
+  // Read before `clear()`, which unmounts the card this `ref` belongs to.
+  final assistant = ref.read(assistantRepositoryProvider);
   ref.read(pendingConfirmationProvider.notifier).clear();
 
   try {
-    await ref
-        .read(assistantRepositoryProvider)
-        .reject(callIds: [for (final call in request.calls) call.id]);
+    await assistant.reject(
+      callIds: [for (final call in request.calls) call.id],
+    );
   } on Object {
     // The proposal expires on its own within the day, and nothing ran. Failing
     // to record the refusal is not worth an error in the user's face.
