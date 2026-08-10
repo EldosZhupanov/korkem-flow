@@ -186,6 +186,8 @@ requests or orders.
 8. **Several work orders on one order are never chosen silently.**
 9. **Test-only stock entries no longer accumulate.**
 10. **Kitchen Facade is not a KORKEM production job** — `[]`.
+11. **A part-built job can be fed and finished** — and the material moved is the
+    outstanding part, never the whole job.
 
 Partial manufacture is covered as ERPNext actually allows it: **0 → 2 → 5**
 across two entries, plus a cancellation taking the field back down with the
@@ -207,14 +209,57 @@ precondition read from ERPNext: produced 6, Manufacture entries sum to 6, shelf 
 The first two answers were `db_set` fiction before this phase; the third would
 have read 29.2 without the formula fix.
 
-**Defect found on device:** the test read `Stock Entry Detail` directly and
-Frappe refused — *"Insufficient Permission for Stock Entry Detail"* — because a
-child table cannot be listed however the user's rights on the parent stand. The
-test now reads through the parent document. **No permission was widened.**
+`continue_production_e2e_test.dart`, same emulator and user:
+**`01:18 +1: All tests passed!`**
+
+```
+precondition: 20 ordered, 5 built, 5 units' worth transferred, In Process
+Сколько произведено по заказу Караганда Мебель?          → 5
+Подай материал на оставшиеся изделия…  → card → Confirm → transferred 5 → 20
+                                                          produced still 5
+Производство закончено, выпусти…       → card → Confirm → produced 20, Completed
+Отгрузи заказ Караганда Мебель.        → card → Confirm → per_delivered 100
+```
+
+The Караганда order needs no purchasing, so this isolates the newly unblocked
+step. The purchasing leg was measured on the bench (above) and has its own
+device tests from Phases 14–15.
+
+**Two defects found on device:**
+
+1. The test read `Stock Entry Detail` directly and Frappe refused —
+   *"Insufficient Permission for Stock Entry Detail"* — because a child table
+   cannot be listed however the user's rights on the parent stand. The test now
+   reads through the parent document. **No permission was widened.**
+2. **`remove()` could not tear down a factory the assistant had worked in.** It
+   deleted stock entries by matching the seed's own remark, and the tools'
+   entries carry no such remark — so they survived, the work order became
+   undeletable, `remove()` failed halfway, and the next `seed()` built on a
+   half-torn-down factory. It produced a work order claiming 15 of 20 that
+   nobody had ordered. `remove()` now deletes every entry posted against a demo
+   work order whoever posted it, and the delivery notes too. Verified: teardown
+   leaves 0 stock entries, 0 work orders, 0 sales orders, 0 delivery notes, and
+   the re-seed lands exactly on 6 and 5.
 
 ## Independent ERPNext verification
 
 Read from the database afterwards, not from the transcript:
+
+After the Караганда run:
+
+```
+MFG-WO-2026-00006  qty 20  produced 20.0  transferred 20.0  Completed  ledger 20.0  OK
+  MAT-STE-…-00009  Material Transfer for Manufacture   Administrator   (seed)
+  MAT-STE-…-00010  Manufacture                         Administrator   (seed)
+  MAT-STE-…-00011  Material Transfer for Manufacture   korkem.planner  (phone)
+  MAT-STE-…-00012  Manufacture                         korkem.planner  (phone)
+Stock Ledger, Тумба Караганда:  +5 → 5   +15 → 20   −20 → 0
+SAL-ORD-2026-00002  per_delivered 100.0
+audit  start_production · complete_production · create_delivery — all Approved,
+       all korkem.planner@example.com
+```
+
+After the Мебель Астана run:
 
 ```
 MFG-WO-2026-00005  qty 10  produced 6.0  ledger 6.0  In Process   OK
@@ -243,60 +288,81 @@ there, delivery took it away.
 - **The Kitchen Facade item and BOM**, used by `test_end_to_end.py`.
 - **Permissions.** The device defect was fixed in the test.
 - **`required_qty`'s meaning** in the tool output.
-- **`start_production`** — see below.
+- **`already_started`** when a running job genuinely has all its material
+  across. Only the case that used to be wrong changed.
 
-## Blocker: a partly-built job cannot be finished
+## The gap this opened, and how it was closed (Option A)
 
-Retiring the fiction made a real gap reachable, and I have not closed it because
-it changes Phase 16 behaviour you approved.
-
-`MFG-WO-2026-00005` is In Process with 6 of 10 built and **nothing left in WIP**
-— the first run consumed it. Measured on the bench with the missing board
-bought:
+Retiring the fiction made a real gap reachable. `MFG-WO-2026-00005` was In
+Process with 6 of 10 built and **nothing left in WIP** — the first batch had
+been consumed. Measured on the bench with the missing board bought:
 
 ```
 start_production     → already_started, "Production is already running"
 complete_production  → ERPNext: "16.8 units of ДСП 16мм needed in Work In Progress"
 ```
 
-`start_production` only transfers material for jobs in `Not Started`/`Draft`, so
-there is no way through the assistant to move the next batch into WIP. This was
-invisible before Phase 22 because no job was ever genuinely part-produced.
+`start_production` only transferred material for jobs in `Not Started`/`Draft`,
+so a part-built order could not be finished through the assistant at all. This
+was invisible before Phase 22 because no job had ever genuinely been
+part-produced.
 
-Options, and what I would do:
+**Option A, approved:** `start_production` now also feeds a running job whose
+material is not all across. How much is ERPNext's own arithmetic — no new
+counter was invented:
 
-- **A — let `start_production` top up a running job** when WIP is short of the
-  outstanding quantity. Smallest change, reuses the same mapper and the same
-  confirmation, no new tool. Changes a verified Phase 16 return value
-  (`already_started` becomes a transfer in this case). **Recommended.**
-- **B — a separate `manufacturing.transfer_materials` tool.** Cleanest naming,
-  but a 35th tool for a job the existing one nearly does, and two tools that
-  could disagree about readiness.
-- **C — leave it.** The demo cannot finish the Мебель Астана order.
+```
+awaiting_material = Work Order.qty − Work Order.material_transferred_for_manufacturing
+```
+
+which is deliberately **not** the same as what is left to build: a job can have
+material in WIP for units nobody has assembled yet. When it is zero the answer
+is `already_started` exactly as before, so the previously verified behaviour
+survives wherever it was the right one. The response carries `topped_up: true`
+and `transferred_for_qty` so the answer can say "материал для оставшихся 4
+подан" rather than "производство запущено", which would be false — it started
+some time ago.
+
+No new tool, the same mapper, the same confirmation flow, no permission change.
+
+Measured end to end on the bench for the Мебель Астана order, after buying the
+four sheets:
+
+```
+top-up        → transferred_for_qty 4, moved ДСП 16.8 · Кромка 72 · Петля 16 → WIP
+manufacture   → released 4, produced 10, status Completed
+deliver       → per_delivered 100
+replay        → nothing_to_start · already_complete
+```
 
 ## Tests and gates
 
-**484** `korkem_ai` (+13), **13** `korkem_manufacturing`, **311** Flutter, **15**
-integration. `flutter analyze` clean, `dart format` clean (199 files), secret
+**490** `korkem_ai` (+19), **13** `korkem_manufacturing`, **311** Flutter, **16**
+integration. `flutter analyze` clean, `dart format` clean (200 files), secret
 scan clean, `git diff --check` clean, four vendored repositories pristine.
 
-The thirteen: `produced_qty` tracks the ledger through 0 → 2 → 5; five units are
+The nineteen: `produced_qty` tracks the ledger through 0 → 2 → 5; five units are
 two entries not one; cancelling takes the field back with the stock; no KORKEM
 job claims unexplained production; consumed material is not asked for again; the
 shortage survives real production; a material still held stays off the list; the
 two shortage tools agree; two open jobs refuse and list themselves; refusing
 writes nothing; naming the job resolves it; one open job is not ambiguous; a job
-belonging to another order is refused.
+belonging to another order is refused; the seeded job is genuinely part-built;
+its outstanding material is moved; only the outstanding part, not the whole job;
+a transfer is not production; a second top-up finds nothing left; and the rest
+of the order can then be built.
 
 ## NOT VERIFIED
 
-- **Gemini tool routing per question** — the four device prompts each answered
-  correctly, which exercises routing implicitly, but no per-question tool trace
-  was recorded. Unchanged since Phase 20.
-- **The buy → receive → build → ship path for the remaining 4 cabinets**, end to
-  end on the device. Blocked by the gap above; procurement and receiving are
-  covered separately and still pass.
+- **Gemini tool routing per question** — the seven device prompts across two
+  runs each answered correctly, which exercises routing implicitly, but no
+  per-question tool trace was recorded. Unchanged since Phase 20.
+- **The buy → receive leg on the device for the Мебель Астана remainder.**
+  Measured on the bench end to end; procurement and receiving have their own
+  device tests from Phases 14–15 and still pass.
 - **Manufacture with a scrap or process-loss item**, and quality inspection.
+- **Two work orders on one sales order** outside a test that raises ERPNext's
+  overproduction allowance to create the situation.
 - **Row-level User Permissions**, unchanged since Phase 12.
 
 ## Remaining limitations
