@@ -74,7 +74,7 @@ worse than none. `handle` now refuses outright when the two differ.
 
 ## Tests
 
-**637** `korkem_ai` (+23), **13** `korkem_manufacturing`, **311** Flutter.
+**649** `korkem_ai` (+35), **13** `korkem_manufacturing`, **311** Flutter.
 
 The twenty-three cover the brief's list: a proposal changes nothing; the person
 is asked in words they can answer; the tool's internal name is not shown; a bare
@@ -132,12 +132,33 @@ confirmation moved nothing — asserted on timestamps, not on a status string.
 - The tool and arguments are read from the row, never re-proposed.
 - Confirmation is answered without the model.
 
+## Native buttons
+
+Both adapters now render the proposal as buttons, and both turn a press back
+into the same text protocol before it leaves the adapter:
+
+| | outbound | a press comes back as |
+|---|---|---|
+| Telegram | `reply_markup.inline_keyboard`, `callback_data` = `confirm:<id>` | `CONFIRM <id>` |
+| WhatsApp | `interactive.button`, `reply.id` = `confirm:<id>` | `CONFIRM <id>` |
+
+So a button and a typed reply travel exactly the same path and cannot drift
+apart — the confirmation layer never learns what a button is. The action's name
+travels in the payload, which is what makes a press unambiguous even when the
+person has several proposals open, the case a bare "да" has to refuse.
+
+Both providers' limits are respected and pinned by tests: Telegram's 64-byte
+`callback_data` and Meta's 20-character button title. A press is keyed on
+Telegram's callback id so a re-delivered press is recognised as the same one,
+and `answerCallbackQuery` clears the spinner best-effort — failing to clear it
+must never lose a confirmation already accepted.
+
+Only one proposal per message gets buttons. Two sets on one message would be a
+pair of yes/no pairs with nothing saying which is which; the text protocol
+already covers that case by naming each action.
+
 ## Limitations
 
-- Telegram inline buttons and WhatsApp interactive buttons are **not**
-  implemented; both channels use the text protocol (`подтверждаю` / `отмена` /
-  `CONFIRM <id>`). Rendering native buttons belongs in the adapters and is the
-  obvious next increment.
 - Not verified against a real provider.
 - A customer still reaches no tools, so nothing they say can produce a
   `Pending Action` in the first place.
