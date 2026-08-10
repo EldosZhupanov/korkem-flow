@@ -93,7 +93,7 @@ outcome. Registry stays at **36**.
 
 ## Tests
 
-**545** `korkem_ai` (+27), **13** `korkem_manufacturing`, **311** Flutter, **19**
+**549** `korkem_ai` (+31), **13** `korkem_manufacturing`, **311** Flutter, **19**
 integration. `analyze` clean, `format` clean (203 files), secret scan clean,
 `git diff --check` clean, four vendored repositories pristine.
 
@@ -106,55 +106,75 @@ stage ends at five and none at six; the recovered piece reaches finished goods
 with `produced_qty` equal to the Manufacture ledger; a written-off piece never
 does; a piece still at the bench is not released; company isolation.
 
-## Android E2E — NOT PASSING
+## The sixth defect: a closed schema the model kept tripping over
 
-`parallel_rework_e2e_test.dart` gets through the interesting part and then
-stalls:
+`«Списать эту деталь в брак»` hung on the device, twice, while the identical
+call from the console worked. The cause was not the rework logic:
+
+> **`complete_rework` did not accept an `operation` argument.** Every other
+> shop-floor tool does — `complete_operation`, `start_operation`,
+> `record_inspection` — so the model naturally sent one here too, the closed
+> schema rejected the call with *"arguments.operation is not a known
+> argument"*, and the rejection reached the user as no answer at all.
+
+Found by replaying every argument shape the model could plausibly produce
+against the live bench: all four `result` wordings and both order references
+worked, and adding `operation` was the one that failed.
+
+The fix is not a widened schema for its own sake. Which stage's rework is a real
+question once more than one is holding a piece, and `_hold_cards` already took
+the argument. The tool is now consistent with its siblings.
+
+## Android E2E
+
+`parallel_rework_e2e_test.dart`, `emulator-5554`, `korkem.planner@example.com`
+(non-admin): **`02:55 +1: All tests passed!`**
 
 ```
-Запусти производство…                          → card → Confirm  ✓
-Раскрой: сделали 5, одна в браке…               → card → Confirm  ✓
+Запусти производство по заказу Павлодар Уют.        → card → Confirm
+Раскрой: сделали 5, одна в браке — на исправление.  → card → Confirm
    card A 4 submitted · card B 1 draft · operation completed_qty 4
-Кромление закончено.                            → card → Confirm  ✓
+Кромление закончено.                                → card → Confirm
    Кромление completed 4 · process_loss 0
-Исправление не удалось.                         → card → Confirm  ✓
+Исправление не удалось.                             → card → Confirm
    corrective card submitted · piece still held
-Списать эту деталь в брак.                      → confirmed, then no answer
+Списать эту деталь в брак.                          → card → Confirm
+ЧПУ … Сборка, ОТК принял, ОТК закончен, выпусти.    → card → Confirm ×7
 ```
-
-The confirmation card appears and names `manufacturing.complete_rework`, the tap
-resolves the pending action, and then the turn produces no reply and the holding
-card is still there after six minutes. Run twice with the same result.
-
-**The product is not what fails.** Executing that exact call against that exact
-bench state returns `scrapped` and removes the holding card, and the backend
-suite covers the same path end to end. The device failure is at the model or
-turn-completion layer and has not been diagnosed.
 
 ## Independent ERPNext verification
 
-From the device run, read from the database rather than the transcript:
+From the device run, read from the database rather than the transcript. Every
+document is owned by the non-admin planner:
 
 ```
-Job Card  Раскрой   for_quantity 4.0  submitted     ← the good pieces
-Job Card  Раскрой   for_quantity 1.0  draft         ← the held piece
-Job Card  Исправление брака  1.0  submitted         ← the failed attempt
-Job Card  Кромление for_quantity 4.0  submitted
-Work Order Operation  Раскрой 4.0/0.0 · Кромление 4.0/0.0
+Work Order   qty 5.0 · produced_qty 4.0 · process_loss_qty 1.0 · Completed
+             Manufacture ledger 4.0 — matches produced_qty
+
+Job Cards    Раскрой            4.0  completed 4.0  loss 0.0  submitted
+             Кромление          4.0  completed 4.0  loss 0.0  submitted
+             ЧПУ … ОТК          5.0  completed 4.0  loss 1.0  submitted
+             Исправление брака  1.0  completed 1.0            submitted, corrective
+
+Operations   Раскрой   4.0 / 0.0   Кромление 4.0 / 0.0
+             ЧПУ, Сверление, Покраска, Сборка, ОТК   4.0 / 1.0   Completed
+
+Stock Entry  MAT-STE-…-00011  Material Transfer for Manufacture  fg 5.0
+             MAT-STE-…-00012  Manufacture  fg_completed_qty 5.0  process_loss 1.0
+Stock Ledger Тумба Караганда   +5 → 5 (seed) · +4 → 9
+audit        complete_operation ×5 · record_inspection · complete_production
+             all Approved, all korkem.planner@example.com
 ```
 
-And on the bench, the write-off through to release:
-
-```
-ops after write-off:  ЧПУ 4.0/1.0 · Сверление 4.0/1.0 · Покраска 4.0/1.0 · Сборка 4.0/1.0
-release: released_qty 5.0 · produced_qty 4.0 · scrap_qty 1.0
-```
-
-Five started, one written off, **four produced**.
+Five started, one written off, **four produced and four on the shelf**. The
+holding card is gone; the corrective card that recorded the failed attempt
+remains.
 
 ## Remaining limitations
 
-- **The Android run is unverified past the write-off**, above.
+- **An argument the schema rejects reaches the user as silence.** The turn
+  produced no reply and no visible error — which is how a one-word schema gap
+  cost two device runs to find. Worth a look on its own; not this phase's.
 - A recovered piece must be walked through the later stages by naming them; the
   assistant does not offer to do it unprompted.
 - `corrective_operation_cost` still stays 0 — ERPNext only rolls it into the
