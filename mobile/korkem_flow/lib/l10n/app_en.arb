@@ -518,5 +518,41 @@
   "channelsIdentitiesEmpty": "Nobody has written to the bots yet.",
   "@channelsIdentitiesEmpty": {
     "description": "Empty state."
+  },
+  "channelsStateConnected": "Connected",
+  "@channelsStateConnected": {
+    "description": "A real call to the provider succeeded."
+  },
+  "channelsStateInvalid": "Credentials rejected",
+  "@channelsStateInvalid": {
+    "description": "The provider answered and said no."
+  },
+  "channelsStateWebhookError": "Webhook problem",
+  "@channelsStateWebhookError": {
+    "description": "The provider cannot deliver to our webhook."
+  },
+  "channelsStateUnavailable": "Provider unreachable",
+  "@channelsStateUnavailable": {
+    "description": "Nobody answered at all."
+  },
+  "channelsConfigureWebhook": "Configure webhook",
+  "@channelsConfigureWebhook": {
+    "description": "Registers the webhook with the provider."
+  },
+  "channelsRemoveWebhook": "Remove webhook",
+  "@channelsRemoveWebhook": {
+    "description": "Stops the provider delivering here."
+  },
+  "channelsWebhookManual": "Paste this URL into the provider's dashboard.",
+  "@channelsWebhookManual": {
+    "description": "WhatsApp's webhook is configured on Meta's side."
+  },
+  "channelsLastChecked": "Last checked",
+  "@channelsLastChecked": {
+    "description": "When the last real call was made."
+  },
+  "channelsPending": "Waiting at the provider",
+  "@channelsPending": {
+    "description": "Updates queued at the provider."
   }
 }

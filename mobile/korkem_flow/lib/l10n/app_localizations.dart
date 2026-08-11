@@ -1635,6 +1635,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nobody has written to the bots yet.'**
   String get channelsIdentitiesEmpty;
+
+  /// A real call to the provider succeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get channelsStateConnected;
+
+  /// The provider answered and said no.
+  ///
+  /// In en, this message translates to:
+  /// **'Credentials rejected'**
+  String get channelsStateInvalid;
+
+  /// The provider cannot deliver to our webhook.
+  ///
+  /// In en, this message translates to:
+  /// **'Webhook problem'**
+  String get channelsStateWebhookError;
+
+  /// Nobody answered at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider unreachable'**
+  String get channelsStateUnavailable;
+
+  /// Registers the webhook with the provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure webhook'**
+  String get channelsConfigureWebhook;
+
+  /// Stops the provider delivering here.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove webhook'**
+  String get channelsRemoveWebhook;
+
+  /// WhatsApp's webhook is configured on Meta's side.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste this URL into the provider\'s dashboard.'**
+  String get channelsWebhookManual;
+
+  /// When the last real call was made.
+  ///
+  /// In en, this message translates to:
+  /// **'Last checked'**
+  String get channelsLastChecked;
+
+  /// Updates queued at the provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting at the provider'**
+  String get channelsPending;
 }
 
 class _AppLocalizationsDelegate

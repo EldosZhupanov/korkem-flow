@@ -327,5 +327,41 @@
   "channelsIdentitiesEmpty": "Боту ещё никто не писал.",
   "@channelsIdentitiesEmpty": {
     "description": "Empty state."
+  },
+  "channelsStateConnected": "Связь есть",
+  "@channelsStateConnected": {
+    "description": "A real call to the provider succeeded."
+  },
+  "channelsStateInvalid": "Учётные данные отклонены",
+  "@channelsStateInvalid": {
+    "description": "The provider answered and said no."
+  },
+  "channelsStateWebhookError": "Проблема с вебхуком",
+  "@channelsStateWebhookError": {
+    "description": "The provider cannot deliver to our webhook."
+  },
+  "channelsStateUnavailable": "Провайдер недоступен",
+  "@channelsStateUnavailable": {
+    "description": "Nobody answered at all."
+  },
+  "channelsConfigureWebhook": "Настроить вебхук",
+  "@channelsConfigureWebhook": {
+    "description": "Registers the webhook with the provider."
+  },
+  "channelsRemoveWebhook": "Убрать вебхук",
+  "@channelsRemoveWebhook": {
+    "description": "Stops the provider delivering here."
+  },
+  "channelsWebhookManual": "Вставьте этот адрес в панель провайдера.",
+  "@channelsWebhookManual": {
+    "description": "WhatsApp's webhook is configured on Meta's side."
+  },
+  "channelsLastChecked": "Последняя проверка",
+  "@channelsLastChecked": {
+    "description": "When the last real call was made."
+  },
+  "channelsPending": "Ожидает у провайдера",
+  "@channelsPending": {
+    "description": "Updates queued at the provider."
   }
 }

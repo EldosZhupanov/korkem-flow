@@ -32,6 +32,7 @@ class ChannelSettingsRepository {
   Future<void> saveTelegram({
     String? botToken,
     String? webhookSecret,
+    String? webhookUrl,
     bool? enabled,
   }) => _client.callMethod(
     '$_base.save_telegram',
@@ -40,9 +41,37 @@ class ChannelSettingsRepository {
       if (botToken != null && botToken.isNotEmpty) 'bot_token': botToken,
       if (webhookSecret != null && webhookSecret.isNotEmpty)
         'webhook_secret': webhookSecret,
+      if (webhookUrl != null && webhookUrl.isNotEmpty)
+        'webhook_url': webhookUrl,
       if (enabled != null) 'enabled': enabled ? 1 : 0,
     },
   );
+
+  /// Registers the webhook with Telegram and reads back what it has since
+  /// found there — the second half matters, because `setWebhook` succeeding
+  /// only means the URL was accepted, not that anything arrives.
+  Future<ChannelTestResult> configureTelegramWebhook({String? url}) async {
+    final response = await _client.callMethod(
+      '$_base.configure_telegram_webhook',
+      post: true,
+      params: {if (url != null && url.isNotEmpty) 'url': url},
+    );
+    return ChannelTestResult.fromJson(
+      Map<String, dynamic>.from(response['message'] as Map? ?? const {}),
+    );
+  }
+
+  /// Stops Telegram delivering here. What is already queued at Telegram is
+  /// left alone — those are messages people sent.
+  Future<ChannelTestResult> removeTelegramWebhook() async {
+    final response = await _client.callMethod(
+      '$_base.remove_telegram_webhook',
+      post: true,
+    );
+    return ChannelTestResult.fromJson(
+      Map<String, dynamic>.from(response['message'] as Map? ?? const {}),
+    );
+  }
 
   Future<void> saveWhatsapp({
     String? accessToken,

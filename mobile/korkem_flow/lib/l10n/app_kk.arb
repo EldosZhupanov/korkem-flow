@@ -327,5 +327,41 @@
   "channelsIdentitiesEmpty": "Ботқа әлі ешкім жазған жоқ.",
   "@channelsIdentitiesEmpty": {
     "description": "Empty state."
+  },
+  "channelsStateConnected": "Байланыс бар",
+  "@channelsStateConnected": {
+    "description": "A real call to the provider succeeded."
+  },
+  "channelsStateInvalid": "Тіркелгі деректері қабылданбады",
+  "@channelsStateInvalid": {
+    "description": "The provider answered and said no."
+  },
+  "channelsStateWebhookError": "Вебхук мәселесі",
+  "@channelsStateWebhookError": {
+    "description": "The provider cannot deliver to our webhook."
+  },
+  "channelsStateUnavailable": "Провайдер қолжетімсіз",
+  "@channelsStateUnavailable": {
+    "description": "Nobody answered at all."
+  },
+  "channelsConfigureWebhook": "Вебхукты баптау",
+  "@channelsConfigureWebhook": {
+    "description": "Registers the webhook with the provider."
+  },
+  "channelsRemoveWebhook": "Вебхукты алып тастау",
+  "@channelsRemoveWebhook": {
+    "description": "Stops the provider delivering here."
+  },
+  "channelsWebhookManual": "Бұл мекенжайды провайдер панеліне қойыңыз.",
+  "@channelsWebhookManual": {
+    "description": "WhatsApp's webhook is configured on Meta's side."
+  },
+  "channelsLastChecked": "Соңғы тексеру",
+  "@channelsLastChecked": {
+    "description": "When the last real call was made."
+  },
+  "channelsPending": "Провайдерде күтуде",
+  "@channelsPending": {
+    "description": "Updates queued at the provider."
   }
 }

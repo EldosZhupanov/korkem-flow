@@ -808,4 +808,32 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get channelsIdentitiesEmpty => 'Боту ещё никто не писал.';
+
+  @override
+  String get channelsStateConnected => 'Связь есть';
+
+  @override
+  String get channelsStateInvalid => 'Учётные данные отклонены';
+
+  @override
+  String get channelsStateWebhookError => 'Проблема с вебхуком';
+
+  @override
+  String get channelsStateUnavailable => 'Провайдер недоступен';
+
+  @override
+  String get channelsConfigureWebhook => 'Настроить вебхук';
+
+  @override
+  String get channelsRemoveWebhook => 'Убрать вебхук';
+
+  @override
+  String get channelsWebhookManual =>
+      'Вставьте этот адрес в панель провайдера.';
+
+  @override
+  String get channelsLastChecked => 'Последняя проверка';
+
+  @override
+  String get channelsPending => 'Ожидает у провайдера';
 }

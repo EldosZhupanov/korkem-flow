@@ -805,4 +805,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get channelsIdentitiesEmpty => 'Nobody has written to the bots yet.';
+
+  @override
+  String get channelsStateConnected => 'Connected';
+
+  @override
+  String get channelsStateInvalid => 'Credentials rejected';
+
+  @override
+  String get channelsStateWebhookError => 'Webhook problem';
+
+  @override
+  String get channelsStateUnavailable => 'Provider unreachable';
+
+  @override
+  String get channelsConfigureWebhook => 'Configure webhook';
+
+  @override
+  String get channelsRemoveWebhook => 'Remove webhook';
+
+  @override
+  String get channelsWebhookManual =>
+      'Paste this URL into the provider\'s dashboard.';
+
+  @override
+  String get channelsLastChecked => 'Last checked';
+
+  @override
+  String get channelsPending => 'Waiting at the provider';
 }

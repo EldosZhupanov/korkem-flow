@@ -19,12 +19,16 @@ void main() {
     String state = ChannelConfig.ready,
     bool token = true,
     bool secret = true,
+    String? hint,
+    String? lastError,
   }) => ChannelConfig(
     channel: 'Telegram',
     enabled: enabled,
     state: state,
     configured: {'bot_token': token, 'webhook_secret': secret},
     webhookUrl: 'https://korkem.example/api/method/…telegram.webhook',
+    hints: {'bot_token': ?hint},
+    lastError: lastError,
   );
 
   ChannelConfig whatsapp({String state = ChannelConfig.notConfigured}) =>
@@ -37,6 +41,9 @@ void main() {
           'phone_number_id': false,
           'webhook_verify_token': false,
         },
+        // The server always sends one; Meta's is pasted by hand into their
+        // dashboard rather than registered through an API.
+        webhookUrl: 'https://korkem.example/api/method/…whatsapp.webhook',
       );
 
   Future<void> pump(
@@ -128,7 +135,85 @@ void main() {
   ) async {
     await pump(tester);
 
-    expect(find.textContaining('telegram.webhook'), findsOneWidget);
+    // Twice over now: the address itself, and the editable field an operator
+    // types a different one into.
+    expect(find.textContaining('telegram.webhook'), findsWidgets);
+  });
+
+  testWidgets('a stored credential is hinted at, never filled in', (
+    tester,
+  ) async {
+    await pump(tester, tg: telegram(hint: '••••••••wxyz'));
+
+    final field = tester
+        .widgetList<TextField>(find.byType(TextField))
+        .firstWhere((candidate) => candidate.obscureText);
+
+    expect(field.decoration!.hintText, '••••••••wxyz');
+    expect(
+      field.controller!.text,
+      isEmpty,
+      reason: 'a mask posted back would overwrite a working token',
+    );
+  });
+
+  testWidgets('a real successful call is the only thing that reads Connected', (
+    tester,
+  ) async {
+    await pump(tester, tg: telegram(state: ChannelConfig.connected));
+
+    expect(find.text('Connected'), findsOneWidget);
+  });
+
+  testWidgets('a rejected credential is not confused with an unreachable one', (
+    tester,
+  ) async {
+    await pump(tester, tg: telegram(state: ChannelConfig.invalidCredentials));
+
+    expect(find.text('Credentials rejected'), findsOneWidget);
+    expect(find.text('Provider unreachable'), findsNothing);
+  });
+
+  testWidgets('a webhook problem says so rather than blaming the token', (
+    tester,
+  ) async {
+    await pump(tester, tg: telegram(state: ChannelConfig.webhookError));
+
+    expect(find.text('Webhook problem'), findsOneWidget);
+  });
+
+  testWidgets('an unreachable provider is not a wrong password', (
+    tester,
+  ) async {
+    await pump(tester, tg: telegram(state: ChannelConfig.providerUnavailable));
+
+    expect(find.text('Provider unreachable'), findsOneWidget);
+  });
+
+  testWidgets("the provider's own last error is shown", (tester) async {
+    await pump(
+      tester,
+      tg: telegram(
+        state: ChannelConfig.webhookError,
+        lastError: 'SSL certificate verify failed',
+      ),
+    );
+
+    expect(find.text('SSL certificate verify failed'), findsOneWidget);
+  });
+
+  testWidgets('only Telegram offers to configure its own webhook', (
+    tester,
+  ) async {
+    // Meta's is configured in their dashboard; offering a button that cannot
+    // do anything is worse than the sentence that says where to paste the URL.
+    await pump(tester);
+
+    expect(find.text('Configure webhook'), findsOneWidget);
+    expect(
+      find.textContaining("Paste this URL into the provider's dashboard."),
+      findsOneWidget,
+    );
   });
 
   testWidgets('an unlinked sender is listed as somebody to decide about', (

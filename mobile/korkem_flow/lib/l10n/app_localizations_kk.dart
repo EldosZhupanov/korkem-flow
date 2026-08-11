@@ -808,4 +808,32 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get channelsIdentitiesEmpty => 'Ботқа әлі ешкім жазған жоқ.';
+
+  @override
+  String get channelsStateConnected => 'Байланыс бар';
+
+  @override
+  String get channelsStateInvalid => 'Тіркелгі деректері қабылданбады';
+
+  @override
+  String get channelsStateWebhookError => 'Вебхук мәселесі';
+
+  @override
+  String get channelsStateUnavailable => 'Провайдер қолжетімсіз';
+
+  @override
+  String get channelsConfigureWebhook => 'Вебхукты баптау';
+
+  @override
+  String get channelsRemoveWebhook => 'Вебхукты алып тастау';
+
+  @override
+  String get channelsWebhookManual =>
+      'Бұл мекенжайды провайдер панеліне қойыңыз.';
+
+  @override
+  String get channelsLastChecked => 'Соңғы тексеру';
+
+  @override
+  String get channelsPending => 'Провайдерде күтуде';
 }

@@ -21,7 +21,13 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// **"Ready" is not "connected".** A channel with every credential set shows
 /// Ready, which says only that nothing is missing. Connected appears after
 /// [ChannelSettingsRepository.test] has made one real call to the provider and
-/// it answered.
+/// it answered — and the four failures are told apart, because "wrong token"
+/// and "the provider cannot reach our webhook" are fixed in different places.
+///
+/// **A stored credential is described, never shown.** The server sends the tail
+/// of it (`••••••••ABCD`), which is enough to tell two accounts apart and
+/// useless to anybody reading over a shoulder. The field below it stays empty:
+/// leaving it blank keeps whatever is stored.
 class ChannelSettingsScreen extends ConsumerWidget {
   const ChannelSettingsScreen({super.key});
 
@@ -53,7 +59,16 @@ class ChannelSettingsScreen extends ConsumerWidget {
                       key: 'webhook_secret',
                       label: _FieldLabel.webhookSecret,
                     ),
+                    _Field(
+                      key: 'webhook_url',
+                      label: _FieldLabel.webhookUrl,
+                      secret: false,
+                    ),
                   ],
+                  // Telegram registers its own webhook through the API. Meta
+                  // does not: theirs is configured in their dashboard, so the
+                  // honest offer there is the URL to paste.
+                  canConfigureWebhook: true,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _ChannelTile(
@@ -115,6 +130,7 @@ class _SecurityNote extends StatelessWidget {
 enum _FieldLabel {
   botToken,
   webhookSecret,
+  webhookUrl,
   accessToken,
   phoneNumberId,
   verifyToken,
@@ -130,6 +146,7 @@ class _Field {
   String labelOf(AppLocalizations l10n) => switch (label) {
     _FieldLabel.botToken => l10n.channelsBotToken,
     _FieldLabel.webhookSecret => l10n.channelsWebhookSecret,
+    _FieldLabel.webhookUrl => l10n.channelsWebhookUrl,
     _FieldLabel.accessToken => l10n.channelsAccessToken,
     _FieldLabel.phoneNumberId => l10n.channelsPhoneNumberId,
     _FieldLabel.verifyToken => l10n.channelsVerifyToken,
@@ -137,10 +154,15 @@ class _Field {
 }
 
 class _ChannelTile extends ConsumerStatefulWidget {
-  const _ChannelTile({required this.config, required this.fields});
+  const _ChannelTile({
+    required this.config,
+    required this.fields,
+    this.canConfigureWebhook = false,
+  });
 
   final ChannelConfig config;
   final List<_Field> fields;
+  final bool canConfigureWebhook;
 
   @override
   ConsumerState<_ChannelTile> createState() => _ChannelTileState();
@@ -158,9 +180,11 @@ class _ChannelTileState extends ConsumerState<_ChannelTile> {
       _controllers[field.key] = TextEditingController(
         // Only a non-secret can be shown back, and only the one the server
         // actually returns.
-        text: field.key == 'phone_number_id'
-            ? widget.config.phoneNumberId ?? ''
-            : '',
+        text: switch (field.key) {
+          'phone_number_id' => widget.config.phoneNumberId ?? '',
+          'webhook_url' => widget.config.webhookUrl ?? '',
+          _ => '',
+        },
       );
     }
   }
@@ -195,6 +219,7 @@ class _ChannelTileState extends ConsumerState<_ChannelTile> {
       await repository.saveTelegram(
         botToken: _typed('bot_token'),
         webhookSecret: _typed('webhook_secret'),
+        webhookUrl: _typed('webhook_url'),
         enabled: enabled,
       );
     } else {
@@ -217,6 +242,23 @@ class _ChannelTileState extends ConsumerState<_ChannelTile> {
         .read(channelSettingsRepositoryProvider)
         .test(widget.config.channel);
     if (mounted) setState(() => _lastTest = result);
+    ref.invalidate(channelStatusProvider);
+  });
+
+  Future<void> _configureWebhook() => _run(() async {
+    final result = await ref
+        .read(channelSettingsRepositoryProvider)
+        .configureTelegramWebhook(url: _typed('webhook_url'));
+    if (mounted) setState(() => _lastTest = result);
+    ref.invalidate(channelStatusProvider);
+  });
+
+  Future<void> _removeWebhook() => _run(() async {
+    final result = await ref
+        .read(channelSettingsRepositoryProvider)
+        .removeTelegramWebhook();
+    if (mounted) setState(() => _lastTest = result);
+    ref.invalidate(channelStatusProvider);
   });
 
   @override
@@ -250,6 +292,10 @@ class _ChannelTileState extends ConsumerState<_ChannelTile> {
                 obscureText: field.secret,
                 decoration: InputDecoration(
                   labelText: field.labelOf(l10n),
+                  // The mask is a *hint*, never a value: pre-filling it and
+                  // posting the form back would overwrite a working credential
+                  // with punctuation.
+                  hintText: config.hints[field.key],
                   helperText: (config.configured[field.key] ?? false)
                       ? l10n.channelsStored
                       : null,
@@ -274,8 +320,32 @@ class _ChannelTileState extends ConsumerState<_ChannelTile> {
                 config.webhookUrl!,
                 style: theme.textTheme.bodySmall,
               ),
+              if (!widget.canConfigureWebhook)
+                Text(
+                  l10n.channelsWebhookManual,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               const SizedBox(height: AppSpacing.sm),
             ],
+            if (config.lastCheckedOn != null)
+              Text(
+                '${l10n.channelsLastChecked}: ${config.lastCheckedOn}',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            if (config.lastError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  config.lastError!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: context.statusColors.danger,
+                  ),
+                ),
+              ),
             if (_lastTest != null &&
                 !_lastTest!.ok &&
                 _lastTest!.detail != null)
@@ -288,15 +358,27 @@ class _ChannelTileState extends ConsumerState<_ChannelTile> {
                   ),
                 ),
               ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: AppSpacing.sm,
               children: [
+                if (widget.canConfigureWebhook) ...[
+                  TextButton(
+                    key: ValueKey('${config.channel}:removeWebhook'),
+                    onPressed: _busy ? null : _removeWebhook,
+                    child: Text(l10n.channelsRemoveWebhook),
+                  ),
+                  TextButton(
+                    key: ValueKey('${config.channel}:configureWebhook'),
+                    onPressed: _busy ? null : _configureWebhook,
+                    child: Text(l10n.channelsConfigureWebhook),
+                  ),
+                ],
                 TextButton(
                   key: ValueKey('${config.channel}:test'),
                   onPressed: _busy ? null : _test,
                   child: Text(l10n.channelsTest),
                 ),
-                const SizedBox(width: AppSpacing.sm),
                 FilledButton(
                   key: ValueKey('${config.channel}:save'),
                   onPressed: _busy ? null : _save,
@@ -324,16 +406,34 @@ class _StateChip extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.statusColors;
 
-    // A real answer from the provider outranks the configuration, in both
-    // directions — that is the only thing here that has actually been proved.
-    final (String label, Color color) = switch ((test?.ok, state)) {
-      (true, _) => (l10n.channelsTestOk, colors.success),
-      (false, _) => (l10n.channelsTestFailed, colors.danger),
-      (_, ChannelConfig.ready) => (
+    // The state the server computed already accounts for the last *real* call,
+    // so it is what is shown; a test just run in this session outranks it,
+    // because it is newer. Four failures are told apart rather than collapsed
+    // into "error": a wrong token and an unreachable webhook are fixed in
+    // different places by different people.
+    final effective = test == null
+        ? state
+        : (test!.ok ? ChannelConfig.connected : (test!.code ?? state));
+
+    final (String label, Color color) = switch (effective) {
+      ChannelConfig.connected => (l10n.channelsStateConnected, colors.success),
+      ChannelConfig.invalidCredentials => (
+        l10n.channelsStateInvalid,
+        colors.danger,
+      ),
+      ChannelConfig.webhookError => (
+        l10n.channelsStateWebhookError,
+        colors.danger,
+      ),
+      ChannelConfig.providerUnavailable => (
+        l10n.channelsStateUnavailable,
+        colors.warning,
+      ),
+      ChannelConfig.ready => (
         l10n.channelsStateReady,
         theme.colorScheme.onSurfaceVariant,
       ),
-      (_, ChannelConfig.disabled) => (
+      ChannelConfig.disabled => (
         l10n.channelsStateDisabled,
         theme.colorScheme.onSurfaceVariant,
       ),
