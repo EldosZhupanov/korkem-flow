@@ -1491,6 +1491,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Runs locally — no key needed.'**
   String get aiSettingsLocalNoKey;
+
+  /// Title of the channel settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat channels'**
+  String get channelsTitle;
+
+  /// Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the Telegram and WhatsApp bots and say who is on the other end.'**
+  String get channelsSubtitle;
+
+  /// Security note.
+  ///
+  /// In en, this message translates to:
+  /// **'Tokens are stored on the KORKEM server and never sent to this device.'**
+  String get channelsSecretsNote;
+
+  /// Some credential is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get channelsStateNotConfigured;
+
+  /// Configured but switched off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get channelsStateDisabled;
+
+  /// Configured and on; nothing asked of the provider yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get channelsStateReady;
+
+  /// Runs one real call to the provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get channelsTest;
+
+  /// Shown after a successful real call.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get channelsTestOk;
+
+  /// Shown after a failed real call.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed'**
+  String get channelsTestFailed;
+
+  /// Toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get channelsEnabled;
+
+  /// Saves channel configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get channelsSave;
+
+  /// Hint when a credential already exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Stored. Leave blank to keep it.'**
+  String get channelsStored;
+
+  /// Telegram credential.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot token'**
+  String get channelsBotToken;
+
+  /// Telegram webhook secret.
+  ///
+  /// In en, this message translates to:
+  /// **'Webhook secret'**
+  String get channelsWebhookSecret;
+
+  /// WhatsApp credential.
+  ///
+  /// In en, this message translates to:
+  /// **'Access token'**
+  String get channelsAccessToken;
+
+  /// WhatsApp phone number id.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number ID'**
+  String get channelsPhoneNumberId;
+
+  /// WhatsApp webhook verify token.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify token'**
+  String get channelsVerifyToken;
+
+  /// Where the provider should send updates.
+  ///
+  /// In en, this message translates to:
+  /// **'Webhook URL'**
+  String get channelsWebhookUrl;
+
+  /// Heading for the identity list.
+  ///
+  /// In en, this message translates to:
+  /// **'Who writes in'**
+  String get channelsIdentities;
+
+  /// Identity with no user.
+  ///
+  /// In en, this message translates to:
+  /// **'Not linked'**
+  String get channelsIdentityUnlinked;
+
+  /// Binds a sender to a user.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get channelsLink;
+
+  /// Takes the user away from a sender.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink'**
+  String get channelsUnlink;
+
+  /// Email of the user to bind.
+  ///
+  /// In en, this message translates to:
+  /// **'KORKEM user'**
+  String get channelsUser;
+
+  /// Empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has written to the bots yet.'**
+  String get channelsIdentitiesEmpty;
 }
 
 class _AppLocalizationsDelegate

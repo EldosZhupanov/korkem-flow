@@ -731,4 +731,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiSettingsLocalNoKey => 'Runs locally — no key needed.';
+
+  @override
+  String get channelsTitle => 'Chat channels';
+
+  @override
+  String get channelsSubtitle =>
+      'Connect the Telegram and WhatsApp bots and say who is on the other end.';
+
+  @override
+  String get channelsSecretsNote =>
+      'Tokens are stored on the KORKEM server and never sent to this device.';
+
+  @override
+  String get channelsStateNotConfigured => 'Not set up';
+
+  @override
+  String get channelsStateDisabled => 'Off';
+
+  @override
+  String get channelsStateReady => 'Ready';
+
+  @override
+  String get channelsTest => 'Test connection';
+
+  @override
+  String get channelsTestOk => 'Connected';
+
+  @override
+  String get channelsTestFailed => 'Connection failed';
+
+  @override
+  String get channelsEnabled => 'Enabled';
+
+  @override
+  String get channelsSave => 'Save';
+
+  @override
+  String get channelsStored => 'Stored. Leave blank to keep it.';
+
+  @override
+  String get channelsBotToken => 'Bot token';
+
+  @override
+  String get channelsWebhookSecret => 'Webhook secret';
+
+  @override
+  String get channelsAccessToken => 'Access token';
+
+  @override
+  String get channelsPhoneNumberId => 'Phone number ID';
+
+  @override
+  String get channelsVerifyToken => 'Verify token';
+
+  @override
+  String get channelsWebhookUrl => 'Webhook URL';
+
+  @override
+  String get channelsIdentities => 'Who writes in';
+
+  @override
+  String get channelsIdentityUnlinked => 'Not linked';
+
+  @override
+  String get channelsLink => 'Link';
+
+  @override
+  String get channelsUnlink => 'Unlink';
+
+  @override
+  String get channelsUser => 'KORKEM user';
+
+  @override
+  String get channelsIdentitiesEmpty => 'Nobody has written to the bots yet.';
 }

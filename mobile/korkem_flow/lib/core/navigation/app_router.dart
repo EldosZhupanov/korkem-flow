@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dar
 import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
+import 'package:korkem_flow/features/channel_settings/presentation/channel_settings_screen.dart';
 import 'package:korkem_flow/features/customers/presentation/customer_detail_screen.dart';
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
@@ -54,6 +55,7 @@ abstract final class Routes {
   static const profile = '/profile';
   static const settings = '/settings';
   static const aiSettings = '/settings/ai';
+  static const channelSettings = '/settings/channels';
 
   /// Sales, opened on its Customers tab. A URL rather than a branch of its own:
   /// Customers *is* a view of the pipeline, and giving it a second branch would
@@ -108,6 +110,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.aiSettings,
         builder: (context, state) => const AiSettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.channelSettings,
+        builder: (context, state) => const ChannelSettingsScreen(),
       ),
       GoRoute(
         path: Routes.settings,

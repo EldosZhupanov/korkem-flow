@@ -231,5 +231,101 @@
   "aiSettingsBaseUrl": "Негізгі URL",
   "aiSettingsKeyNeverLeaves": "Кілттер KORKEM серверінде сақталады және бұл құрылғыға жіберілмейді.",
   "aiSettingsCapabilities": "Мүмкіндіктер",
-  "aiSettingsLocalNoKey": "Жергілікті жұмыс істейді — кілт қажет емес."
+  "aiSettingsLocalNoKey": "Жергілікті жұмыс істейді — кілт қажет емес.",
+  "channelsTitle": "Чаттар",
+  "@channelsTitle": {
+    "description": "Title of the channel settings screen."
+  },
+  "channelsSubtitle": "Telegram және WhatsApp боттарын қосыңыз және екінші жақта кім екенін көрсетіңіз.",
+  "@channelsSubtitle": {
+    "description": "Subtitle."
+  },
+  "channelsSecretsNote": "Токендер KORKEM серверінде сақталады және бұл құрылғыға берілмейді.",
+  "@channelsSecretsNote": {
+    "description": "Security note."
+  },
+  "channelsStateNotConfigured": "Бапталмаған",
+  "@channelsStateNotConfigured": {
+    "description": "Some credential is missing."
+  },
+  "channelsStateDisabled": "Өшірулі",
+  "@channelsStateDisabled": {
+    "description": "Configured but switched off."
+  },
+  "channelsStateReady": "Дайын",
+  "@channelsStateReady": {
+    "description": "Configured and on; nothing asked of the provider yet."
+  },
+  "channelsTest": "Байланысты тексеру",
+  "@channelsTest": {
+    "description": "Runs one real call to the provider."
+  },
+  "channelsTestOk": "Байланыс бар",
+  "@channelsTestOk": {
+    "description": "Shown after a successful real call."
+  },
+  "channelsTestFailed": "Байланыс жоқ",
+  "@channelsTestFailed": {
+    "description": "Shown after a failed real call."
+  },
+  "channelsEnabled": "Қосулы",
+  "@channelsEnabled": {
+    "description": "Toggle."
+  },
+  "channelsSave": "Сақтау",
+  "@channelsSave": {
+    "description": "Saves channel configuration."
+  },
+  "channelsStored": "Сақталған. Өзгертпеу үшін бос қалдырыңыз.",
+  "@channelsStored": {
+    "description": "Hint when a credential already exists."
+  },
+  "channelsBotToken": "Бот токені",
+  "@channelsBotToken": {
+    "description": "Telegram credential."
+  },
+  "channelsWebhookSecret": "Вебхук құпиясы",
+  "@channelsWebhookSecret": {
+    "description": "Telegram webhook secret."
+  },
+  "channelsAccessToken": "Қатынау токені",
+  "@channelsAccessToken": {
+    "description": "WhatsApp credential."
+  },
+  "channelsPhoneNumberId": "Нөмір ID-і",
+  "@channelsPhoneNumberId": {
+    "description": "WhatsApp phone number id."
+  },
+  "channelsVerifyToken": "Тексеру токені",
+  "@channelsVerifyToken": {
+    "description": "WhatsApp webhook verify token."
+  },
+  "channelsWebhookUrl": "Вебхук URL-і",
+  "@channelsWebhookUrl": {
+    "description": "Where the provider should send updates."
+  },
+  "channelsIdentities": "Кім жазады",
+  "@channelsIdentities": {
+    "description": "Heading for the identity list."
+  },
+  "channelsIdentityUnlinked": "Байланыспаған",
+  "@channelsIdentityUnlinked": {
+    "description": "Identity with no user."
+  },
+  "channelsLink": "Байланыстыру",
+  "@channelsLink": {
+    "description": "Binds a sender to a user."
+  },
+  "channelsUnlink": "Ажырату",
+  "@channelsUnlink": {
+    "description": "Takes the user away from a sender."
+  },
+  "channelsUser": "KORKEM пайдаланушысы",
+  "@channelsUser": {
+    "description": "Email of the user to bind."
+  },
+  "channelsIdentitiesEmpty": "Ботқа әлі ешкім жазған жоқ.",
+  "@channelsIdentitiesEmpty": {
+    "description": "Empty state."
+  }
 }

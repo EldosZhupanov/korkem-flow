@@ -101,6 +101,18 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
+
+          SectionLabel(l10n.channelsTitle),
+          Card(
+            child: ListTile(
+              key: const ValueKey('channelSettings'),
+              leading: const Icon(AppIcons.whatsApp),
+              title: Text(l10n.channelsSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.channelSettings),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.settingsConnection),
           AppCard(
             child: Column(

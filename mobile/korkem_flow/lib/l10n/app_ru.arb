@@ -231,5 +231,101 @@
   "aiSettingsBaseUrl": "Базовый URL",
   "aiSettingsKeyNeverLeaves": "Ключи хранятся на сервере KORKEM и никогда не передаются на это устройство.",
   "aiSettingsCapabilities": "Возможности",
-  "aiSettingsLocalNoKey": "Работает локально — ключ не нужен."
+  "aiSettingsLocalNoKey": "Работает локально — ключ не нужен.",
+  "channelsTitle": "Каналы",
+  "@channelsTitle": {
+    "description": "Title of the channel settings screen."
+  },
+  "channelsSubtitle": "Подключите ботов Telegram и WhatsApp и укажите, кто на другой стороне.",
+  "@channelsSubtitle": {
+    "description": "Subtitle."
+  },
+  "channelsSecretsNote": "Токены хранятся на сервере KORKEM и никогда не передаются на это устройство.",
+  "@channelsSecretsNote": {
+    "description": "Security note."
+  },
+  "channelsStateNotConfigured": "Не настроен",
+  "@channelsStateNotConfigured": {
+    "description": "Some credential is missing."
+  },
+  "channelsStateDisabled": "Выключен",
+  "@channelsStateDisabled": {
+    "description": "Configured but switched off."
+  },
+  "channelsStateReady": "Готов",
+  "@channelsStateReady": {
+    "description": "Configured and on; nothing asked of the provider yet."
+  },
+  "channelsTest": "Проверить связь",
+  "@channelsTest": {
+    "description": "Runs one real call to the provider."
+  },
+  "channelsTestOk": "Связь есть",
+  "@channelsTestOk": {
+    "description": "Shown after a successful real call."
+  },
+  "channelsTestFailed": "Связи нет",
+  "@channelsTestFailed": {
+    "description": "Shown after a failed real call."
+  },
+  "channelsEnabled": "Включён",
+  "@channelsEnabled": {
+    "description": "Toggle."
+  },
+  "channelsSave": "Сохранить",
+  "@channelsSave": {
+    "description": "Saves channel configuration."
+  },
+  "channelsStored": "Сохранено. Оставьте пустым, чтобы не менять.",
+  "@channelsStored": {
+    "description": "Hint when a credential already exists."
+  },
+  "channelsBotToken": "Токен бота",
+  "@channelsBotToken": {
+    "description": "Telegram credential."
+  },
+  "channelsWebhookSecret": "Секрет вебхука",
+  "@channelsWebhookSecret": {
+    "description": "Telegram webhook secret."
+  },
+  "channelsAccessToken": "Токен доступа",
+  "@channelsAccessToken": {
+    "description": "WhatsApp credential."
+  },
+  "channelsPhoneNumberId": "ID номера",
+  "@channelsPhoneNumberId": {
+    "description": "WhatsApp phone number id."
+  },
+  "channelsVerifyToken": "Токен проверки",
+  "@channelsVerifyToken": {
+    "description": "WhatsApp webhook verify token."
+  },
+  "channelsWebhookUrl": "URL вебхука",
+  "@channelsWebhookUrl": {
+    "description": "Where the provider should send updates."
+  },
+  "channelsIdentities": "Кто пишет",
+  "@channelsIdentities": {
+    "description": "Heading for the identity list."
+  },
+  "channelsIdentityUnlinked": "Не связан",
+  "@channelsIdentityUnlinked": {
+    "description": "Identity with no user."
+  },
+  "channelsLink": "Связать",
+  "@channelsLink": {
+    "description": "Binds a sender to a user."
+  },
+  "channelsUnlink": "Отвязать",
+  "@channelsUnlink": {
+    "description": "Takes the user away from a sender."
+  },
+  "channelsUser": "Пользователь KORKEM",
+  "@channelsUser": {
+    "description": "Email of the user to bind."
+  },
+  "channelsIdentitiesEmpty": "Боту ещё никто не писал.",
+  "@channelsIdentitiesEmpty": {
+    "description": "Empty state."
+  }
 }

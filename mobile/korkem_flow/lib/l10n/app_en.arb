@@ -422,5 +422,101 @@
   "aiSettingsLocalNoKey": "Runs locally — no key needed.",
   "@aiSettingsLocalNoKey": {
     "description": "Shown for Ollama."
+  },
+  "channelsTitle": "Chat channels",
+  "@channelsTitle": {
+    "description": "Title of the channel settings screen."
+  },
+  "channelsSubtitle": "Connect the Telegram and WhatsApp bots and say who is on the other end.",
+  "@channelsSubtitle": {
+    "description": "Subtitle."
+  },
+  "channelsSecretsNote": "Tokens are stored on the KORKEM server and never sent to this device.",
+  "@channelsSecretsNote": {
+    "description": "Security note."
+  },
+  "channelsStateNotConfigured": "Not set up",
+  "@channelsStateNotConfigured": {
+    "description": "Some credential is missing."
+  },
+  "channelsStateDisabled": "Off",
+  "@channelsStateDisabled": {
+    "description": "Configured but switched off."
+  },
+  "channelsStateReady": "Ready",
+  "@channelsStateReady": {
+    "description": "Configured and on; nothing asked of the provider yet."
+  },
+  "channelsTest": "Test connection",
+  "@channelsTest": {
+    "description": "Runs one real call to the provider."
+  },
+  "channelsTestOk": "Connected",
+  "@channelsTestOk": {
+    "description": "Shown after a successful real call."
+  },
+  "channelsTestFailed": "Connection failed",
+  "@channelsTestFailed": {
+    "description": "Shown after a failed real call."
+  },
+  "channelsEnabled": "Enabled",
+  "@channelsEnabled": {
+    "description": "Toggle."
+  },
+  "channelsSave": "Save",
+  "@channelsSave": {
+    "description": "Saves channel configuration."
+  },
+  "channelsStored": "Stored. Leave blank to keep it.",
+  "@channelsStored": {
+    "description": "Hint when a credential already exists."
+  },
+  "channelsBotToken": "Bot token",
+  "@channelsBotToken": {
+    "description": "Telegram credential."
+  },
+  "channelsWebhookSecret": "Webhook secret",
+  "@channelsWebhookSecret": {
+    "description": "Telegram webhook secret."
+  },
+  "channelsAccessToken": "Access token",
+  "@channelsAccessToken": {
+    "description": "WhatsApp credential."
+  },
+  "channelsPhoneNumberId": "Phone number ID",
+  "@channelsPhoneNumberId": {
+    "description": "WhatsApp phone number id."
+  },
+  "channelsVerifyToken": "Verify token",
+  "@channelsVerifyToken": {
+    "description": "WhatsApp webhook verify token."
+  },
+  "channelsWebhookUrl": "Webhook URL",
+  "@channelsWebhookUrl": {
+    "description": "Where the provider should send updates."
+  },
+  "channelsIdentities": "Who writes in",
+  "@channelsIdentities": {
+    "description": "Heading for the identity list."
+  },
+  "channelsIdentityUnlinked": "Not linked",
+  "@channelsIdentityUnlinked": {
+    "description": "Identity with no user."
+  },
+  "channelsLink": "Link",
+  "@channelsLink": {
+    "description": "Binds a sender to a user."
+  },
+  "channelsUnlink": "Unlink",
+  "@channelsUnlink": {
+    "description": "Takes the user away from a sender."
+  },
+  "channelsUser": "KORKEM user",
+  "@channelsUser": {
+    "description": "Email of the user to bind."
+  },
+  "channelsIdentitiesEmpty": "Nobody has written to the bots yet.",
+  "@channelsIdentitiesEmpty": {
+    "description": "Empty state."
   }
 }

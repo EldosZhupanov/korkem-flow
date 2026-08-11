@@ -734,4 +734,78 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get aiSettingsLocalNoKey =>
       'Жергілікті жұмыс істейді — кілт қажет емес.';
+
+  @override
+  String get channelsTitle => 'Чаттар';
+
+  @override
+  String get channelsSubtitle =>
+      'Telegram және WhatsApp боттарын қосыңыз және екінші жақта кім екенін көрсетіңіз.';
+
+  @override
+  String get channelsSecretsNote =>
+      'Токендер KORKEM серверінде сақталады және бұл құрылғыға берілмейді.';
+
+  @override
+  String get channelsStateNotConfigured => 'Бапталмаған';
+
+  @override
+  String get channelsStateDisabled => 'Өшірулі';
+
+  @override
+  String get channelsStateReady => 'Дайын';
+
+  @override
+  String get channelsTest => 'Байланысты тексеру';
+
+  @override
+  String get channelsTestOk => 'Байланыс бар';
+
+  @override
+  String get channelsTestFailed => 'Байланыс жоқ';
+
+  @override
+  String get channelsEnabled => 'Қосулы';
+
+  @override
+  String get channelsSave => 'Сақтау';
+
+  @override
+  String get channelsStored => 'Сақталған. Өзгертпеу үшін бос қалдырыңыз.';
+
+  @override
+  String get channelsBotToken => 'Бот токені';
+
+  @override
+  String get channelsWebhookSecret => 'Вебхук құпиясы';
+
+  @override
+  String get channelsAccessToken => 'Қатынау токені';
+
+  @override
+  String get channelsPhoneNumberId => 'Нөмір ID-і';
+
+  @override
+  String get channelsVerifyToken => 'Тексеру токені';
+
+  @override
+  String get channelsWebhookUrl => 'Вебхук URL-і';
+
+  @override
+  String get channelsIdentities => 'Кім жазады';
+
+  @override
+  String get channelsIdentityUnlinked => 'Байланыспаған';
+
+  @override
+  String get channelsLink => 'Байланыстыру';
+
+  @override
+  String get channelsUnlink => 'Ажырату';
+
+  @override
+  String get channelsUser => 'KORKEM пайдаланушысы';
+
+  @override
+  String get channelsIdentitiesEmpty => 'Ботқа әлі ешкім жазған жоқ.';
 }

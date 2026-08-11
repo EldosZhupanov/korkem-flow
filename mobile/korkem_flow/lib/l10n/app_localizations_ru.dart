@@ -734,4 +734,78 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aiSettingsLocalNoKey => 'Работает локально — ключ не нужен.';
+
+  @override
+  String get channelsTitle => 'Каналы';
+
+  @override
+  String get channelsSubtitle =>
+      'Подключите ботов Telegram и WhatsApp и укажите, кто на другой стороне.';
+
+  @override
+  String get channelsSecretsNote =>
+      'Токены хранятся на сервере KORKEM и никогда не передаются на это устройство.';
+
+  @override
+  String get channelsStateNotConfigured => 'Не настроен';
+
+  @override
+  String get channelsStateDisabled => 'Выключен';
+
+  @override
+  String get channelsStateReady => 'Готов';
+
+  @override
+  String get channelsTest => 'Проверить связь';
+
+  @override
+  String get channelsTestOk => 'Связь есть';
+
+  @override
+  String get channelsTestFailed => 'Связи нет';
+
+  @override
+  String get channelsEnabled => 'Включён';
+
+  @override
+  String get channelsSave => 'Сохранить';
+
+  @override
+  String get channelsStored => 'Сохранено. Оставьте пустым, чтобы не менять.';
+
+  @override
+  String get channelsBotToken => 'Токен бота';
+
+  @override
+  String get channelsWebhookSecret => 'Секрет вебхука';
+
+  @override
+  String get channelsAccessToken => 'Токен доступа';
+
+  @override
+  String get channelsPhoneNumberId => 'ID номера';
+
+  @override
+  String get channelsVerifyToken => 'Токен проверки';
+
+  @override
+  String get channelsWebhookUrl => 'URL вебхука';
+
+  @override
+  String get channelsIdentities => 'Кто пишет';
+
+  @override
+  String get channelsIdentityUnlinked => 'Не связан';
+
+  @override
+  String get channelsLink => 'Связать';
+
+  @override
+  String get channelsUnlink => 'Отвязать';
+
+  @override
+  String get channelsUser => 'Пользователь KORKEM';
+
+  @override
+  String get channelsIdentitiesEmpty => 'Боту ещё никто не писал.';
 }
