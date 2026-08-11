@@ -5,6 +5,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:korkem_flow/app.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/api/frappe_query.dart';
 import 'package:korkem_flow/core/auth/auth_credentials.dart';
 import 'package:korkem_flow/core/auth/credential_store.dart';
@@ -353,6 +354,18 @@ void main() {
       );
       expect(instructions.first['status'], 'Acknowledged');
       expect(instructions.first['acknowledged_at'], isNotNull);
+
+      // Phase 31: a delivery record is an administrator's audit surface, and
+      // an employee is not one. That the acceptance produced exactly one
+      // notification is checked in ERPNext afterwards, as an administrator —
+      // a read performed by this employee could not prove it either way.
+      await expectLater(
+        () => client().getList(
+          'Notification Delivery',
+          const FrappeQuery(),
+        ),
+        throwsA(isA<PermissionFailure>()),
+      );
 
       // And the work itself still reaches ERPNext through the tools that
       // already existed — the point of the phase is that nothing about
