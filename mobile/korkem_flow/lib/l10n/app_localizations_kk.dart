@@ -480,7 +480,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get navNotifications => 'Хабарламалар';
 
   @override
-  String get notificationsEmpty => 'Барлығы қаралды';
+  String get notificationsEmpty => 'Әзірге ештеңе жіберілмеді.';
 
   @override
   String get notificationsEmptyBody =>
@@ -836,4 +836,59 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get channelsPending => 'Провайдерде күтуде';
+
+  @override
+  String get notificationsTitle => 'Хабарламалар';
+
+  @override
+  String get notificationsSubtitle =>
+      'Жүйе адамдарға не хабарлады және не жеткізілмеді.';
+
+  @override
+  String get notificationsRetry => 'Қайталау';
+
+  @override
+  String get notificationsRetryAll => 'Барлығын қайталау';
+
+  @override
+  String get notificationsCancel => 'Болдырмау';
+
+  @override
+  String get notificationsAttempts => 'Әрекеттер';
+
+  @override
+  String get notificationsNextAttempt => 'Келесі әрекет';
+
+  @override
+  String get notificationsFilterAll => 'Барлығы';
+
+  @override
+  String get instructionsTitle => 'Тапсырмалар';
+
+  @override
+  String get instructionsSubtitle => 'Кімнен сұралды және не жауап берді.';
+
+  @override
+  String get instructionsEmpty => 'Әзірге тапсырма жоқ.';
+
+  @override
+  String get instructionsAnsweredIn => 'Жауап берді';
+
+  @override
+  String get channelsSendTest => 'Тест хабарлама жіберу';
+
+  @override
+  String get channelsDisconnect => 'Ажырату';
+
+  @override
+  String get channelsLastInbound => 'Соңғы кіріс';
+
+  @override
+  String get channelsLastOutbound => 'Соңғы шығыс';
+
+  @override
+  String get channelsFailedDeliveries => 'Жеткізілмеді';
+
+  @override
+  String get channelsPendingRetries => 'Қайталауды күтуде';
 }

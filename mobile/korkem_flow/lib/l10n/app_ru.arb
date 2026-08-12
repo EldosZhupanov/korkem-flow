@@ -152,7 +152,7 @@
   "qCancelled": "Отменён",
   "qExpired": "Истёк",
   "navNotifications": "Уведомления",
-  "notificationsEmpty": "Всё просмотрено",
+  "notificationsEmpty": "Пока ничего не отправлялось.",
   "notificationsEmptyBody": "Назначения, упоминания и оповещения появятся здесь.",
   "notificationsMarkAllRead": "Отметить все",
   "navAssistant": "Ассистент",
@@ -363,5 +363,80 @@
   "channelsPending": "Ожидает у провайдера",
   "@channelsPending": {
     "description": "Updates queued at the provider."
+  },
+  "notificationsTitle": "Уведомления",
+  "@notificationsTitle": {
+    "description": "Title of the notification centre."
+  },
+  "notificationsSubtitle": "Что система сообщила людям и что доставить не удалось.",
+  "@notificationsSubtitle": {
+    "description": "Subtitle."
+  },
+  "@notificationsEmpty": {
+    "description": "Empty state."
+  },
+  "notificationsRetry": "Повторить",
+  "@notificationsRetry": {
+    "description": "Try one delivery again."
+  },
+  "notificationsRetryAll": "Повторить все",
+  "@notificationsRetryAll": {
+    "description": "Try every eligible delivery again."
+  },
+  "notificationsCancel": "Отменить",
+  "@notificationsCancel": {
+    "description": "Stop trying to deliver."
+  },
+  "notificationsAttempts": "Попыток",
+  "@notificationsAttempts": {
+    "description": "How many times it has been tried."
+  },
+  "notificationsNextAttempt": "Следующая попытка",
+  "@notificationsNextAttempt": {
+    "description": "When the retry is due."
+  },
+  "notificationsFilterAll": "Все",
+  "@notificationsFilterAll": {
+    "description": "Filter."
+  },
+  "instructionsTitle": "Поручения",
+  "@instructionsTitle": {
+    "description": "Title of the dispatch board."
+  },
+  "instructionsSubtitle": "Кого попросили и что он ответил.",
+  "@instructionsSubtitle": {
+    "description": "Subtitle."
+  },
+  "instructionsEmpty": "Поручений пока нет.",
+  "@instructionsEmpty": {
+    "description": "Empty state."
+  },
+  "instructionsAnsweredIn": "Ответ через",
+  "@instructionsAnsweredIn": {
+    "description": "How long the employee took."
+  },
+  "channelsSendTest": "Отправить тестовое",
+  "@channelsSendTest": {
+    "description": "Sends one real message to a linked identity."
+  },
+  "channelsDisconnect": "Отключить",
+  "@channelsDisconnect": {
+    "description": "Switches the channel off and removes the webhook."
+  },
+  "channelsLastInbound": "Последнее входящее",
+  "@channelsLastInbound": {
+    "description": "When the channel last carried a message in."
+  },
+  "channelsLastOutbound": "Последнее исходящее",
+  "@channelsLastOutbound": {
+    "description": "When the channel last carried a message out."
+  },
+  "channelsFailedDeliveries": "Не доставлено",
+  "@channelsFailedDeliveries": {
+    "description": "How many messages could not be delivered."
+  },
+  "channelsPendingRetries": "Ждут повтора",
+  "@channelsPendingRetries": {
+    "description": "How many are scheduled for another attempt."
   }
 }

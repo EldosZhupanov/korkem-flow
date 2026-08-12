@@ -152,7 +152,7 @@
   "qCancelled": "Болдырылмады",
   "qExpired": "Мерзімі өтті",
   "navNotifications": "Хабарламалар",
-  "notificationsEmpty": "Барлығы қаралды",
+  "notificationsEmpty": "Әзірге ештеңе жіберілмеді.",
   "notificationsEmptyBody": "Тағайындаулар, аталымдар және ескертулер осында көрінеді.",
   "notificationsMarkAllRead": "Барлығын белгілеу",
   "navAssistant": "Көмекші",
@@ -363,5 +363,80 @@
   "channelsPending": "Провайдерде күтуде",
   "@channelsPending": {
     "description": "Updates queued at the provider."
+  },
+  "notificationsTitle": "Хабарламалар",
+  "@notificationsTitle": {
+    "description": "Title of the notification centre."
+  },
+  "notificationsSubtitle": "Жүйе адамдарға не хабарлады және не жеткізілмеді.",
+  "@notificationsSubtitle": {
+    "description": "Subtitle."
+  },
+  "@notificationsEmpty": {
+    "description": "Empty state."
+  },
+  "notificationsRetry": "Қайталау",
+  "@notificationsRetry": {
+    "description": "Try one delivery again."
+  },
+  "notificationsRetryAll": "Барлығын қайталау",
+  "@notificationsRetryAll": {
+    "description": "Try every eligible delivery again."
+  },
+  "notificationsCancel": "Болдырмау",
+  "@notificationsCancel": {
+    "description": "Stop trying to deliver."
+  },
+  "notificationsAttempts": "Әрекеттер",
+  "@notificationsAttempts": {
+    "description": "How many times it has been tried."
+  },
+  "notificationsNextAttempt": "Келесі әрекет",
+  "@notificationsNextAttempt": {
+    "description": "When the retry is due."
+  },
+  "notificationsFilterAll": "Барлығы",
+  "@notificationsFilterAll": {
+    "description": "Filter."
+  },
+  "instructionsTitle": "Тапсырмалар",
+  "@instructionsTitle": {
+    "description": "Title of the dispatch board."
+  },
+  "instructionsSubtitle": "Кімнен сұралды және не жауап берді.",
+  "@instructionsSubtitle": {
+    "description": "Subtitle."
+  },
+  "instructionsEmpty": "Әзірге тапсырма жоқ.",
+  "@instructionsEmpty": {
+    "description": "Empty state."
+  },
+  "instructionsAnsweredIn": "Жауап берді",
+  "@instructionsAnsweredIn": {
+    "description": "How long the employee took."
+  },
+  "channelsSendTest": "Тест хабарлама жіберу",
+  "@channelsSendTest": {
+    "description": "Sends one real message to a linked identity."
+  },
+  "channelsDisconnect": "Ажырату",
+  "@channelsDisconnect": {
+    "description": "Switches the channel off and removes the webhook."
+  },
+  "channelsLastInbound": "Соңғы кіріс",
+  "@channelsLastInbound": {
+    "description": "When the channel last carried a message in."
+  },
+  "channelsLastOutbound": "Соңғы шығыс",
+  "@channelsLastOutbound": {
+    "description": "When the channel last carried a message out."
+  },
+  "channelsFailedDeliveries": "Жеткізілмеді",
+  "@channelsFailedDeliveries": {
+    "description": "How many messages could not be delivered."
+  },
+  "channelsPendingRetries": "Қайталауды күтуде",
+  "@channelsPendingRetries": {
+    "description": "How many are scheduled for another attempt."
   }
 }

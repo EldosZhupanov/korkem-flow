@@ -219,7 +219,7 @@
   "qCancelled": "Cancelled",
   "qExpired": "Expired",
   "navNotifications": "Notifications",
-  "notificationsEmpty": "You're all caught up",
+  "notificationsEmpty": "Nothing has been sent yet.",
   "notificationsEmptyBody": "Assignments, mentions and alerts appear here.",
   "notificationsMarkAllRead": "Mark all read",
   "navAssistant": "Assistant",
@@ -554,5 +554,80 @@
   "channelsPending": "Waiting at the provider",
   "@channelsPending": {
     "description": "Updates queued at the provider."
+  },
+  "notificationsTitle": "Notifications",
+  "@notificationsTitle": {
+    "description": "Title of the notification centre."
+  },
+  "notificationsSubtitle": "What the system told people, and what could not be delivered.",
+  "@notificationsSubtitle": {
+    "description": "Subtitle."
+  },
+  "@notificationsEmpty": {
+    "description": "Empty state."
+  },
+  "notificationsRetry": "Retry",
+  "@notificationsRetry": {
+    "description": "Try one delivery again."
+  },
+  "notificationsRetryAll": "Retry all",
+  "@notificationsRetryAll": {
+    "description": "Try every eligible delivery again."
+  },
+  "notificationsCancel": "Cancel",
+  "@notificationsCancel": {
+    "description": "Stop trying to deliver."
+  },
+  "notificationsAttempts": "Attempts",
+  "@notificationsAttempts": {
+    "description": "How many times it has been tried."
+  },
+  "notificationsNextAttempt": "Next attempt",
+  "@notificationsNextAttempt": {
+    "description": "When the retry is due."
+  },
+  "notificationsFilterAll": "All",
+  "@notificationsFilterAll": {
+    "description": "Filter."
+  },
+  "instructionsTitle": "Work instructions",
+  "@instructionsTitle": {
+    "description": "Title of the dispatch board."
+  },
+  "instructionsSubtitle": "Who was asked, and what they answered.",
+  "@instructionsSubtitle": {
+    "description": "Subtitle."
+  },
+  "instructionsEmpty": "Nobody has been given work yet.",
+  "@instructionsEmpty": {
+    "description": "Empty state."
+  },
+  "instructionsAnsweredIn": "Answered in",
+  "@instructionsAnsweredIn": {
+    "description": "How long the employee took."
+  },
+  "channelsSendTest": "Send test message",
+  "@channelsSendTest": {
+    "description": "Sends one real message to a linked identity."
+  },
+  "channelsDisconnect": "Disconnect",
+  "@channelsDisconnect": {
+    "description": "Switches the channel off and removes the webhook."
+  },
+  "channelsLastInbound": "Last received",
+  "@channelsLastInbound": {
+    "description": "When the channel last carried a message in."
+  },
+  "channelsLastOutbound": "Last sent",
+  "@channelsLastOutbound": {
+    "description": "When the channel last carried a message out."
+  },
+  "channelsFailedDeliveries": "Failed deliveries",
+  "@channelsFailedDeliveries": {
+    "description": "How many messages could not be delivered."
+  },
+  "channelsPendingRetries": "Waiting to retry",
+  "@channelsPendingRetries": {
+    "description": "How many are scheduled for another attempt."
   }
 }

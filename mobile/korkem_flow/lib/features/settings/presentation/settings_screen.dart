@@ -112,6 +112,26 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(Routes.channelSettings),
             ),
           ),
+          Card(
+            child: ListTile(
+              key: const ValueKey('notificationCentre'),
+              leading: const Icon(AppIcons.notification),
+              title: Text(l10n.notificationsTitle),
+              subtitle: Text(l10n.notificationsSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.deliveryCentre),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              key: const ValueKey('workInstructions'),
+              leading: const Icon(AppIcons.task),
+              title: Text(l10n.instructionsTitle),
+              subtitle: Text(l10n.instructionsSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.workInstructions),
+            ),
+          ),
           const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.settingsConnection),
           AppCard(

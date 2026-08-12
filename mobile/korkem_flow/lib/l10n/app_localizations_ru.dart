@@ -480,7 +480,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navNotifications => 'Уведомления';
 
   @override
-  String get notificationsEmpty => 'Всё просмотрено';
+  String get notificationsEmpty => 'Пока ничего не отправлялось.';
 
   @override
   String get notificationsEmptyBody =>
@@ -836,4 +836,59 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get channelsPending => 'Ожидает у провайдера';
+
+  @override
+  String get notificationsTitle => 'Уведомления';
+
+  @override
+  String get notificationsSubtitle =>
+      'Что система сообщила людям и что доставить не удалось.';
+
+  @override
+  String get notificationsRetry => 'Повторить';
+
+  @override
+  String get notificationsRetryAll => 'Повторить все';
+
+  @override
+  String get notificationsCancel => 'Отменить';
+
+  @override
+  String get notificationsAttempts => 'Попыток';
+
+  @override
+  String get notificationsNextAttempt => 'Следующая попытка';
+
+  @override
+  String get notificationsFilterAll => 'Все';
+
+  @override
+  String get instructionsTitle => 'Поручения';
+
+  @override
+  String get instructionsSubtitle => 'Кого попросили и что он ответил.';
+
+  @override
+  String get instructionsEmpty => 'Поручений пока нет.';
+
+  @override
+  String get instructionsAnsweredIn => 'Ответ через';
+
+  @override
+  String get channelsSendTest => 'Отправить тестовое';
+
+  @override
+  String get channelsDisconnect => 'Отключить';
+
+  @override
+  String get channelsLastInbound => 'Последнее входящее';
+
+  @override
+  String get channelsLastOutbound => 'Последнее исходящее';
+
+  @override
+  String get channelsFailedDeliveries => 'Не доставлено';
+
+  @override
+  String get channelsPendingRetries => 'Ждут повтора';
 }

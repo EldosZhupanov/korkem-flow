@@ -1012,10 +1012,10 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get navNotifications;
 
-  /// No description provided for @notificationsEmpty.
+  /// Empty state.
   ///
   /// In en, this message translates to:
-  /// **'You\'re all caught up'**
+  /// **'Nothing has been sent yet.'**
   String get notificationsEmpty;
 
   /// No description provided for @notificationsEmptyBody.
@@ -1689,6 +1689,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting at the provider'**
   String get channelsPending;
+
+  /// Title of the notification centre.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What the system told people, and what could not be delivered.'**
+  String get notificationsSubtitle;
+
+  /// Try one delivery again.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get notificationsRetry;
+
+  /// Try every eligible delivery again.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry all'**
+  String get notificationsRetryAll;
+
+  /// Stop trying to deliver.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get notificationsCancel;
+
+  /// How many times it has been tried.
+  ///
+  /// In en, this message translates to:
+  /// **'Attempts'**
+  String get notificationsAttempts;
+
+  /// When the retry is due.
+  ///
+  /// In en, this message translates to:
+  /// **'Next attempt'**
+  String get notificationsNextAttempt;
+
+  /// Filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notificationsFilterAll;
+
+  /// Title of the dispatch board.
+  ///
+  /// In en, this message translates to:
+  /// **'Work instructions'**
+  String get instructionsTitle;
+
+  /// Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who was asked, and what they answered.'**
+  String get instructionsSubtitle;
+
+  /// Empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has been given work yet.'**
+  String get instructionsEmpty;
+
+  /// How long the employee took.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered in'**
+  String get instructionsAnsweredIn;
+
+  /// Sends one real message to a linked identity.
+  ///
+  /// In en, this message translates to:
+  /// **'Send test message'**
+  String get channelsSendTest;
+
+  /// Switches the channel off and removes the webhook.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get channelsDisconnect;
+
+  /// When the channel last carried a message in.
+  ///
+  /// In en, this message translates to:
+  /// **'Last received'**
+  String get channelsLastInbound;
+
+  /// When the channel last carried a message out.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sent'**
+  String get channelsLastOutbound;
+
+  /// How many messages could not be delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed deliveries'**
+  String get channelsFailedDeliveries;
+
+  /// How many are scheduled for another attempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to retry'**
+  String get channelsPendingRetries;
 }
 
 class _AppLocalizationsDelegate

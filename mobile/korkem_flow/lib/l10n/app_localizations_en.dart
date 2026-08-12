@@ -480,7 +480,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navNotifications => 'Notifications';
 
   @override
-  String get notificationsEmpty => 'You\'re all caught up';
+  String get notificationsEmpty => 'Nothing has been sent yet.';
 
   @override
   String get notificationsEmptyBody =>
@@ -833,4 +833,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get channelsPending => 'Waiting at the provider';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsSubtitle =>
+      'What the system told people, and what could not be delivered.';
+
+  @override
+  String get notificationsRetry => 'Retry';
+
+  @override
+  String get notificationsRetryAll => 'Retry all';
+
+  @override
+  String get notificationsCancel => 'Cancel';
+
+  @override
+  String get notificationsAttempts => 'Attempts';
+
+  @override
+  String get notificationsNextAttempt => 'Next attempt';
+
+  @override
+  String get notificationsFilterAll => 'All';
+
+  @override
+  String get instructionsTitle => 'Work instructions';
+
+  @override
+  String get instructionsSubtitle => 'Who was asked, and what they answered.';
+
+  @override
+  String get instructionsEmpty => 'Nobody has been given work yet.';
+
+  @override
+  String get instructionsAnsweredIn => 'Answered in';
+
+  @override
+  String get channelsSendTest => 'Send test message';
+
+  @override
+  String get channelsDisconnect => 'Disconnect';
+
+  @override
+  String get channelsLastInbound => 'Last received';
+
+  @override
+  String get channelsLastOutbound => 'Last sent';
+
+  @override
+  String get channelsFailedDeliveries => 'Failed deliveries';
+
+  @override
+  String get channelsPendingRetries => 'Waiting to retry';
 }

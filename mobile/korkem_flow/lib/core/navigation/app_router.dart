@@ -16,7 +16,9 @@ import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dar
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
+import 'package:korkem_flow/features/operations/presentation/delivery_centre_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/operations_screen.dart';
+import 'package:korkem_flow/features/operations/presentation/work_instructions_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
@@ -56,6 +58,8 @@ abstract final class Routes {
   static const settings = '/settings';
   static const aiSettings = '/settings/ai';
   static const channelSettings = '/settings/channels';
+  static const deliveryCentre = '/settings/deliveries';
+  static const workInstructions = '/settings/instructions';
 
   /// Sales, opened on its Customers tab. A URL rather than a branch of its own:
   /// Customers *is* a view of the pipeline, and giving it a second branch would
@@ -114,6 +118,14 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.channelSettings,
         builder: (context, state) => const ChannelSettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.deliveryCentre,
+        builder: (context, state) => const DeliveryCentreScreen(),
+      ),
+      GoRoute(
+        path: Routes.workInstructions,
+        builder: (context, state) => const WorkInstructionsScreen(),
       ),
       GoRoute(
         path: Routes.settings,
