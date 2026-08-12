@@ -888,4 +888,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get channelsPendingRetries => 'Waiting to retry';
+
+  @override
+  String get channelsStateForbidden => 'Blocked by the provider';
+
+  @override
+  String get channelsStateRateLimited => 'Rate limited';
 }

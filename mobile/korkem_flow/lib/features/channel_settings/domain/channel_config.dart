@@ -66,6 +66,14 @@ class ChannelConfig {
   /// down. Nothing about the configuration is known to be wrong.
   static const providerUnavailable = 'provider_unavailable';
 
+  /// The provider answered and refused: the bot is blocked, or has no rights on
+  /// that chat. Not a credential problem and not an outage — a different person
+  /// has to fix it, which is why it is its own state.
+  static const forbidden = 'forbidden';
+
+  /// The provider is throttling us. The one refusal that waiting does fix.
+  static const rateLimited = 'rate_limited';
+
   final String channel;
   final bool enabled;
   final String state;

@@ -1797,6 +1797,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting to retry'**
   String get channelsPendingRetries;
+
+  /// The bot is blocked or has no rights.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked by the provider'**
+  String get channelsStateForbidden;
+
+  /// The provider is throttling us.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate limited'**
+  String get channelsStateRateLimited;
 }
 
 class _AppLocalizationsDelegate

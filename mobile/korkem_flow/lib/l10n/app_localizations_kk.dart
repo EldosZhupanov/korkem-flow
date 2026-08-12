@@ -891,4 +891,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get channelsPendingRetries => 'Қайталауды күтуде';
+
+  @override
+  String get channelsStateForbidden => 'Провайдер бұғаттады';
+
+  @override
+  String get channelsStateRateLimited => 'Жиілік шектеуі';
 }

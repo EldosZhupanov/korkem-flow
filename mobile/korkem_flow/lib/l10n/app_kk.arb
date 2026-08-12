@@ -438,5 +438,13 @@
   "channelsPendingRetries": "Қайталауды күтуде",
   "@channelsPendingRetries": {
     "description": "How many are scheduled for another attempt."
+  },
+  "channelsStateForbidden": "Провайдер бұғаттады",
+  "@channelsStateForbidden": {
+    "description": "The bot is blocked or has no rights."
+  },
+  "channelsStateRateLimited": "Жиілік шектеуі",
+  "@channelsStateRateLimited": {
+    "description": "The provider is throttling us."
   }
 }

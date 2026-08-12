@@ -190,6 +190,27 @@ void main() {
     expect(find.text('Provider unreachable'), findsOneWidget);
   });
 
+  testWidgets('a blocked bot does not read as ready', (tester) async {
+    // The defect this guards: `forbidden` was not in the list of verdicts the
+    // server surfaced, so a channel every message to which was being refused
+    // displayed Ready.
+    await pump(tester, tg: telegram(state: ChannelConfig.forbidden));
+
+    expect(find.text('Blocked by the provider'), findsOneWidget);
+    expect(find.text('Ready'), findsNothing);
+  });
+
+  testWidgets(
+    'being rate limited is its own state, and a warning not an error',
+    (
+      tester,
+    ) async {
+      await pump(tester, tg: telegram(state: ChannelConfig.rateLimited));
+
+      expect(find.text('Rate limited'), findsOneWidget);
+    },
+  );
+
   testWidgets("the provider's own last error is shown", (tester) async {
     await pump(
       tester,

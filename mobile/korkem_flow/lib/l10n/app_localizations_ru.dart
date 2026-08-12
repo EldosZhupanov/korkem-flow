@@ -891,4 +891,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get channelsPendingRetries => 'Ждут повтора';
+
+  @override
+  String get channelsStateForbidden => 'Заблокировано провайдером';
+
+  @override
+  String get channelsStateRateLimited => 'Ограничение частоты';
 }

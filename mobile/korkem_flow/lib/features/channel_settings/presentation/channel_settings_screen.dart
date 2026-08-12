@@ -429,6 +429,11 @@ class _StateChip extends StatelessWidget {
         l10n.channelsStateUnavailable,
         colors.warning,
       ),
+      ChannelConfig.forbidden => (l10n.channelsStateForbidden, colors.danger),
+      ChannelConfig.rateLimited => (
+        l10n.channelsStateRateLimited,
+        colors.warning,
+      ),
       ChannelConfig.ready => (
         l10n.channelsStateReady,
         theme.colorScheme.onSurfaceVariant,

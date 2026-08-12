@@ -1,0 +1,46 @@
+# Public HTTPS front door for the channel webhooks.
+#
+# Telegram will not call an HTTP URL and will not call a private host, so a real
+# bot needs exactly one thing this bench does not have: a name on the internet
+# with a certificate. This overlay adds it, and nothing else — the application,
+# the database and the queue are unchanged.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.public.yml up -d
+#
+# It is a separate file rather than a flag in the main one because a bench that
+# is *not* published should not be one edit away from being published.
+#
+# Caddy is here for one reason: it obtains and renews the certificate itself
+# from Let's Encrypt, so the only operator input is a hostname that resolves to
+# this machine. That is the whole difference between "we could go live" and a
+# morning spent on certbot.
+services:
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - bench
+    environment:
+      # The public hostname. A record pointing at this machine must exist
+      # before the container starts, or the certificate cannot be issued.
+      KORKEM_PUBLIC_HOST: ${KORKEM_PUBLIC_HOST}
+      # Where Let's Encrypt sends expiry warnings.
+      KORKEM_ACME_EMAIL: ${KORKEM_ACME_EMAIL}
+    volumes:
+      - ./proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+
+  bench:
+    # The application port stops being published once something else is in
+    # front of it. Everything reaches Frappe through the proxy, which is what
+    # makes "is this request really from Telegram" a question with one answer.
+    ports: !override
+      - "127.0.0.1:8000:8000"
+
+volumes:
+  caddy-data:
+  caddy-config:
