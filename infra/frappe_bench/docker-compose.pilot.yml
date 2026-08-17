@@ -1,0 +1,54 @@
+# Pilot: the same stack, run as if somebody's business depended on it.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.pilot.yml up -d
+#
+# and, once a domain exists, with the public front door as well:
+#
+#   docker compose -f docker-compose.yml \
+#                  -f docker-compose.pilot.yml \
+#                  -f docker-compose.public.yml up -d
+#
+# It is a separate file for the same reason the public one is: a development
+# bench should not be one environment variable away from calling itself a pilot,
+# and a pilot should not quietly turn back into a development bench because
+# somebody ran the short command.
+#
+# What actually changes:
+#
+# * **`KORKEM_ENV=pilot`** — `bootstrap.sh` then turns developer mode off, does
+#   not set `allow_tests`, and writes `korkem_env` into the site config. From
+#   there `korkem_ai.environment` answers `pilot`, and every destructive demo
+#   fixture refuses to run.
+# * **A production process model.** `bench start` runs Frappe on Werkzeug's
+#   development server and a `watch` process that rebuilds assets on every file
+#   change. Neither belongs in front of real users. `Procfile.pilot` runs
+#   gunicorn, the socket.io server, the scheduler and a queue worker — the same
+#   four processes Frappe's own supervisor configuration runs.
+# * **`restart: always`** — a pilot comes back after the machine reboots.
+# * **The socket.io port is not published to the host at all.** Realtime reaches
+#   the browser or the app through the public proxy, over the same TLS name as
+#   everything else.
+services:
+  mariadb:
+    restart: always
+
+  redis-cache:
+    restart: always
+
+  redis-queue:
+    restart: always
+
+  bench:
+    restart: always
+    environment:
+      KORKEM_ENV: pilot
+      # Gunicorn processes. Two is a sensible floor for a single-factory pilot;
+      # the usual rule of thumb is (2 × cores) + 1 and it is set here rather
+      # than guessed at runtime, because a machine that also runs MariaDB
+      # should not be sized as though it did not.
+      KORKEM_GUNICORN_WORKERS: ${KORKEM_GUNICORN_WORKERS:-2}
+    ports: !override
+      # Loopback only, and only the web port: the deployment script and an
+      # operator's `curl` reach `/health` here. Everything a user touches comes
+      # through the proxy.
+      - "127.0.0.1:8000:8000"

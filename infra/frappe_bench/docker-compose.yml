@@ -1,8 +1,33 @@
+# The KORKEM bench: MariaDB, two Redis instances, and Frappe.
+#
+#   docker compose up -d
+#
+# This file is the **development** bench and stays one: `KORKEM_ENV` defaults to
+# `development`, which is what tells `bootstrap.sh` to leave developer mode and
+# `allow_tests` on. A pilot adds `docker-compose.pilot.yml`, which changes that
+# and nothing else structural; a public front door adds `docker-compose.public.yml`.
+#
+# Three things here are deployment decisions rather than convenience:
+#
+# * **Nothing is published beyond the loopback interface.** The database and both
+#   Redis instances have no `ports:` at all — they are reachable only over the
+#   compose network, by name. The application's own ports are bound to
+#   `127.0.0.1`, so a bench started on a machine with a public address does not
+#   thereby become a public site. (The Android emulator's `10.0.2.2` reaches the
+#   host's loopback, so this costs the emulator nothing.)
+# * **State lives in named volumes** and survives `down`/`up` and `--force-recreate`.
+#   `docker compose down -v` is the one command that destroys it, and it is the
+#   one command the deployment script will never run.
+# * **The queue is persistent.** `redis-queue` holds enqueued background jobs —
+#   outbound messages, retries, scheduled work. An in-memory queue loses them on
+#   restart, silently, which is exactly the class of failure the delivery centre
+#   exists to make visible.
 name: korkem-bench
 
 services:
   mariadb:
     image: mariadb:11.8
+    restart: unless-stopped
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -19,23 +44,48 @@ services:
 
   redis-cache:
     image: redis:7-alpine
+    restart: unless-stopped
+    # No volume, deliberately: this one holds sessions and cached documents, all
+    # of which are derivable again. Persisting it would buy nothing and would
+    # make a restart slower.
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   redis-queue:
     image: redis:7-alpine
+    restart: unless-stopped
+    # Append-only, because what is in here is work that has been accepted and
+    # not yet done. Losing it loses messages nobody will be told were lost.
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-queue-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   bench:
     build: .
+    restart: unless-stopped
     depends_on:
       mariadb:
         condition: service_healthy
       redis-cache:
-        condition: service_started
+        condition: service_healthy
       redis-queue:
-        condition: service_started
+        condition: service_healthy
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       SITE_NAME: ${SITE_NAME}
+      # development | pilot | production. Read by `bootstrap.sh`, written into
+      # the site config as `korkem_env`, and from there it is what
+      # `korkem_ai.environment` answers and what the demo fixtures refuse on.
+      KORKEM_ENV: ${KORKEM_ENV:-development}
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
     volumes:
@@ -46,10 +96,28 @@ services:
       - ../../backend/korkem_manufacturing:/workspace/custom/korkem_manufacturing
       - ../../backend/korkem_ai:/workspace/custom/korkem_ai
       - ./scripts:/workspace/scripts:ro
+      - ./procfiles:/workspace/procfiles:ro
     ports:
-      - "8000:8000"
-      - "9000:9000"
+      # Loopback only. Publishing the application is the public overlay's job,
+      # and it is a decision somebody makes on purpose.
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:9000:9000"
+    healthcheck:
+      # The app's own liveness route, so what Docker believes and what an
+      # operator's `curl` reports are the same answer from the same code.
+      #
+      # The `Host` header is explicit because Frappe resolves a request to a
+      # site by it. Relying on the bench's default site works until the day
+      # there are two, and then the health check silently starts asking the
+      # wrong one.
+      test: ["CMD-SHELL", "curl -fsS -H \"Host: $$SITE_NAME\" http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      # First boot builds assets and installs four apps; that is not a failure.
+      start_period: 900s
 
 volumes:
   mariadb-data:
+  redis-queue-data:
   bench-data:

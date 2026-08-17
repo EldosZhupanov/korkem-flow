@@ -1,0 +1,56 @@
+# Proxy profile: **the whole application**. Opt in with KORKEM_PROXY_PROFILE=app.
+#
+# Use this one when real people have to sign in from outside the building — the
+# mobile app, and the desk the factory owner administers ERPNext from. It is the
+# ordinary Frappe deployment shape (TLS terminator in front, application behind)
+# and the security model behind it is Frappe's own: sessions, roles, User
+# Permissions. Nothing here is a second permission system.
+#
+# **What this publishes, stated plainly.** Everything the site serves: the API,
+# the desk at `/app`, the login page, files, and the realtime socket. That is a
+# deliberate decision and not a side effect, which is why it is a separate file
+# from `webhooks.Caddyfile` rather than a flag in it. If the desk should not be
+# reachable from the whole internet, add a `remote_ip` matcher to the `/app`
+# handler below — Caddy's own directive, no application change.
+{$KORKEM_PUBLIC_HOST} {
+	tls {$KORKEM_ACME_EMAIL}
+
+	encode zstd gzip
+
+	header {
+		# The app promises users (docs/privacy_policy.md) that traffic is
+		# encrypted; HSTS is what stops the first request of the day being the
+		# exception.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Large enough for the attachments a factory sends (drawings, photos of a
+	# finished cabinet), small enough that an anonymous caller cannot make the
+	# application read arbitrary amounts into memory.
+	request_body {
+		max_size 25MB
+	}
+
+	# Realtime. Frappe runs socket.io as its own process on 9000, and Caddy
+	# upgrades websocket connections without being told to.
+	@socketio path /socket.io /socket.io/*
+	handle @socketio {
+		reverse_proxy bench:9000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	handle {
+		reverse_proxy bench:8000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+}

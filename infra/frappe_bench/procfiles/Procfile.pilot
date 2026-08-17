@@ -1,0 +1,23 @@
+# The four processes a Frappe site actually needs in front of real users.
+#
+# Copied into the bench directory by `scripts/start.sh` and run with
+# `bench start --no-dev --procfile Procfile.pilot`, so bench still owns process
+# supervision and signal handling — only what it starts is different.
+#
+# Compared with the generated development Procfile:
+#
+#   web    gunicorn instead of `bench serve`. `bench serve` is Werkzeug's
+#          development server, which its own authors document as unsuitable for
+#          production. The flags live in `scripts/web.sh`, where there is room
+#          to say why each is there.
+#   watch  gone. It rebuilds assets on every file change; in a pilot the assets
+#          are built once, by `bootstrap.sh`, and nothing edits them afterwards.
+#   others unchanged — the socket.io server, the scheduler, and one queue worker
+#          covering the short, default and long queues.
+web: /workspace/scripts/web.sh
+
+socketio: bench socketio
+
+schedule: bench schedule
+
+worker: bench worker

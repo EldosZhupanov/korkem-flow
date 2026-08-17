@@ -1,11 +1,12 @@
-# Public HTTPS front door for the channel webhooks.
-#
-# Telegram will not call an HTTP URL and will not call a private host, so a real
-# bot needs exactly one thing this bench does not have: a name on the internet
-# with a certificate. This overlay adds it, and nothing else — the application,
-# the database and the queue are unchanged.
+# Public HTTPS front door.
 #
 #   docker compose -f docker-compose.yml -f docker-compose.public.yml up -d
+#
+# and for a pilot, with the production process model as well:
+#
+#   docker compose -f docker-compose.yml \
+#                  -f docker-compose.pilot.yml \
+#                  -f docker-compose.public.yml up -d
 #
 # It is a separate file rather than a flag in the main one because a bench that
 # is *not* published should not be one edit away from being published.
@@ -14,6 +15,16 @@
 # from Let's Encrypt, so the only operator input is a hostname that resolves to
 # this machine. That is the whole difference between "we could go live" and a
 # morning spent on certbot.
+#
+# **Two profiles**, chosen with `KORKEM_PROXY_PROFILE`:
+#
+#   webhooks  (default) — only the two provider webhook paths are proxied and
+#             everything else answers 404. This is the right profile for a bot
+#             that must be reachable when nothing else should be.
+#   app       — the whole application, for real users signing in from outside.
+#
+# The default is the narrower one on purpose: publishing the desk is a decision,
+# and a decision should have to be typed.
 services:
   proxy:
     image: caddy:2-alpine
@@ -27,7 +38,9 @@ services:
       # Where Let's Encrypt sends expiry warnings.
       KORKEM_ACME_EMAIL: ${KORKEM_ACME_EMAIL}
     volumes:
-      - ./proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./proxy/${KORKEM_PROXY_PROFILE:-webhooks}.Caddyfile:/etc/caddy/Caddyfile:ro
+      # The issued certificate and its account key. Losing this volume means
+      # re-issuing on the next start, which Let's Encrypt rate-limits.
       - caddy-data:/data
       - caddy-config:/config
     ports:

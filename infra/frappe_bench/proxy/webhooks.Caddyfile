@@ -1,0 +1,53 @@
+# Proxy profile: **webhooks only**. The default.
+#
+# TLS is terminated here and nowhere else. `{$KORKEM_PUBLIC_HOST}` is the name a
+# certificate is issued for; Caddy obtains and renews it automatically, which is
+# the only reason this file is short rather than a certbot cron job.
+#
+# Use this profile when the domain exists so that Telegram and WhatsApp can
+# reach the bot, and nothing else should be on the internet yet. Switch to
+# `app.Caddyfile` (KORKEM_PROXY_PROFILE=app) when real users need to sign in.
+{$KORKEM_PUBLIC_HOST} {
+	tls {$KORKEM_ACME_EMAIL}
+
+	# Nothing about this deployment that a scanner does not already know.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Both providers' updates are small; the application caps them again at a
+	# megabyte and answers 200 rather than letting a provider retry. This is the
+	# cheaper of the two refusals — it happens before any Python runs.
+	request_body {
+		max_size 2MB
+	}
+
+	# The webhooks, and only the webhooks.
+	#
+	# A public front door for a bot is not a reason to publish the desk, the API
+	# or the file manager: everything else stays on the loopback port the app and
+	# the emulator already use. Adding a path here is a decision somebody makes
+	# on purpose.
+	@webhooks path /api/method/korkem_ai.korkem_ai.integrations.telegram.webhook /api/method/korkem_ai.korkem_ai.integrations.whatsapp.webhook
+	handle @webhooks {
+		reverse_proxy bench:8000 {
+			# Frappe builds absolute URLs — including the webhook address the
+			# settings screen shows an operator to paste into BotFather — from
+			# what it believes its own host to be. Caddy forwards these by
+			# default; they are written out because the address on screen being
+			# wrong is a silent failure, not a loud one.
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	# Everything else is refused rather than proxied. A 404 tells a scanner
+	# nothing about what is behind this name.
+	handle {
+		respond 404
+	}
+}

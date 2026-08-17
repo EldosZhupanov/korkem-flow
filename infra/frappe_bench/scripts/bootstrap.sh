@@ -2,6 +2,18 @@
 set -euo pipefail
 cd /home/frappe
 
+# development | pilot | production.
+#
+# Everything below that differs between a laptop and somebody's business is
+# decided from this one variable, and the site is *told* which it is
+# (`korkem_env`) so that code can refuse to do destructive things on the wrong
+# one. Unset means development, because unset is what a developer's shell has.
+KORKEM_ENV="${KORKEM_ENV:-development}"
+case "$KORKEM_ENV" in
+  development|pilot|production) ;;
+  *) echo "KORKEM_ENV must be development, pilot or production (got '$KORKEM_ENV')" >&2; exit 1 ;;
+esac
+
 if [ ! -d frappe-bench/apps/frappe ]; then
   bench init frappe-bench \
     --frappe-path /workspace/vendor/frappe \
@@ -30,7 +42,15 @@ cd frappe-bench
 bench setup requirements --dev
 bench setup requirements --node
 
-bench set-config -g developer_mode 1
+# Developer mode rebuilds and re-exports doctype JSON on save, exposes the
+# developer tooling in the desk, and is what `seed_users` has always keyed its
+# refusal on. It is a development setting and is set as one.
+if [ "$KORKEM_ENV" = "development" ]; then
+  bench set-config -g developer_mode 1
+else
+  bench set-config -g developer_mode 0
+fi
+
 bench set-config -g redis_cache "$FRAPPE_REDIS_CACHE"
 bench set-config -g redis_queue "$FRAPPE_REDIS_QUEUE"
 
@@ -63,4 +83,31 @@ if [ ! -d "sites/$SITE_NAME" ]; then
   bench build
 fi
 
-bench --site "$SITE_NAME" set-config allow_tests true
+# The default site for `bench` commands that are not given `--site`.
+#
+# Worth knowing what this does *not* do: Frappe 17 resolves an **HTTP** request
+# to a site by its `Host` header and by nothing else — `default_site` is read
+# only by the bench CLI (`utils/bench_helper.py`). Under `bench serve` that is
+# invisible, because it is told the site on the command line; under gunicorn it
+# is not, and `curl http://localhost:8000/health` inside the container answers
+# **"localhost does not exist"**. The container health check and the deployment
+# script therefore send an explicit `Host`, and a pilot's `SITE_NAME` must be
+# the real public hostname.
+bench use "$SITE_NAME"
+
+# What environment this site is, written where the application can read it.
+# Re-applied on every start, so moving a site between environments is a compose
+# variable and not a forgotten command.
+bench --site "$SITE_NAME" set-config korkem_env "$KORKEM_ENV"
+
+if [ "$KORKEM_ENV" = "development" ]; then
+  bench --site "$SITE_NAME" set-config allow_tests true
+else
+  # `allow_tests` lets `bench run-tests` run against this site, and the test
+  # suites truncate and re-seed tables. Off, explicitly, rather than merely
+  # unset — an old development site being promoted keeps its old settings.
+  bench --site "$SITE_NAME" set-config allow_tests false
+  # Retries, expiries and the five-minute delivery cron all run here. A pilot
+  # with a paused scheduler looks healthy and never sends anything.
+  bench --site "$SITE_NAME" enable-scheduler
+fi

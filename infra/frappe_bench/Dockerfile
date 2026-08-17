@@ -26,5 +26,15 @@ RUN useradd -ms /bin/bash -u 1000 frappe
 USER frappe
 WORKDIR /home/frappe
 
-COPY --chown=frappe:frappe scripts/entrypoint.sh /home/frappe/entrypoint.sh
-ENTRYPOINT ["/home/frappe/entrypoint.sh"]
+# The entrypoint is *mounted*, not baked.
+#
+# It used to be copied in at build time, which meant that editing it and then
+# running `docker compose up -d` silently kept running the old one — the image
+# was stale and nothing said so. That cost a debugging session: bootstrap had
+# correctly configured a pilot and the container had then started the
+# development server, because only half the startup path had been updated.
+#
+# `entrypoint.sh`, `bootstrap.sh`, `start.sh` and `web.sh` are now all read from
+# the same read-only mount, so they are always the same generation. A missing
+# mount fails loudly at start instead of quietly running something else.
+ENTRYPOINT ["/workspace/scripts/entrypoint.sh"]
