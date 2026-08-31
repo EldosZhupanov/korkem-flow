@@ -57,7 +57,7 @@ jobs:
       # The framework, at the commits vendor.lock names. Not submodules
       # (a deliberate decision), not committed (3.8 GB we did not write).
       - name: Restore upstream at pinned commits
-        run: ./scripts/fetch_vendor.sh frappe erpnext crm
+        run: ./scripts/fetch_vendor.sh frappe erpnext crm relaticle
 
       - name: Confirm the checkout matches the lock
         run: ./scripts/fetch_vendor.sh --check
