@@ -476,6 +476,46 @@ def complete_operation(
 	scrap_qty: float | None = None,
 	rework_qty: float | None = None,
 ):
+	"""Atomically book a stage, including the cards a rework split creates.
+
+	Finishing a stage is several writes: the card is resized, submitted through
+	ERPNext, and only then do the hold card and the rework card get created for
+	whatever went back to the bench. If one of those last two fails, the
+	submitted card keeps its reduced quantity and the damaged pieces exist
+	nowhere — they are neither finished, nor scrapped, nor waiting for repair.
+
+	An outer HTTP transaction does not save us. The AI registry catches
+	`Exception` and returns the failure **as data** rather than re-raising it
+	(`korkem_ai/tools/registry.py`), so through that adapter the request
+	completes and the half-write commits. The service therefore owns its own
+	boundary, the same way `start_production` does, and for the same reason.
+	"""
+	savepoint = "korkem_complete_operation_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(savepoint)
+	try:
+		result = _complete_operation(
+			operation=operation,
+			sales_order=sales_order,
+			work_order=work_order,
+			qty=qty,
+			scrap_qty=scrap_qty,
+			rework_qty=rework_qty,
+		)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		raise
+	frappe.db.release_savepoint(savepoint)
+	return result
+
+
+def _complete_operation(
+	operation: str | None = None,
+	sales_order: str | None = None,
+	work_order: str | None = None,
+	qty: float | None = None,
+	scrap_qty: float | None = None,
+	rework_qty: float | None = None,
+):
 	"""Finish an operation — «раскрой закончен», «сделали 4, 1 в брак».
 
 	Submitting the Job Card is what updates the Work Order Operation's completed

@@ -23,6 +23,7 @@ from korkem_manufacturing import setup
 from korkem_manufacturing.api import production as api
 from korkem_manufacturing.services import production as service
 from korkem_manufacturing.services import shop_floor
+from unittest.mock import patch
 
 
 class _ApiTestCase(IntegrationTestCase):
@@ -264,3 +265,67 @@ class TestBookingWorkAgainstAStage(_ApiTestCase):
 		spec = registry.get("manufacturing.complete_operation")
 		self.assertIsNotNone(spec)
 		self.assertIs(spec.handler, api.complete_operation)
+
+
+class TestFinishingAStageIsAllOrNothing(_ApiTestCase):
+	"""The boundary a self-review found missing.
+
+	Finishing a stage is several writes: the card is resized, submitted through
+	ERPNext, and only then do the hold card and the rework card get created for
+	pieces going back to the bench. Before this, a failure in that last step
+	left a submitted card with a reduced quantity and the damaged pieces
+	existing nowhere — neither finished, nor scrapped, nor waiting for repair.
+
+	An outer HTTP transaction does not cover it: the AI registry catches
+	`Exception` and returns the failure **as data** rather than re-raising, so
+	through that adapter the request completes and the half-write commits.
+	"""
+
+	def test_a_write_made_before_the_failure_does_not_survive_it(self):
+		"""The boundary itself, exercised rather than described.
+
+		The real sequence needs a seeded factory to reach; what has to hold is
+		simpler than that and is what actually broke — a write that happened
+		inside the call must not outlive an exception raised after it.
+		"""
+		marker = "korkem-atomicity-probe"
+
+		def half_write(**_):
+			frappe.get_doc({"doctype": "ToDo", "description": marker}).insert()
+			raise RuntimeError("the bench caught fire after the card was submitted")
+
+		with patch.object(shop_floor, "_complete_operation", side_effect=half_write):
+			with self.assertRaises(RuntimeError):
+				shop_floor.complete_operation(work_order="MFG-WO-ANY")
+
+		self.assertFalse(
+			frappe.db.exists("ToDo", {"description": marker}),
+			"the savepoint must undo everything the failed call wrote",
+		)
+
+	def test_a_successful_call_keeps_what_it_wrote(self):
+		"""The other half: the savepoint must release, not roll back."""
+		marker = "korkem-atomicity-kept"
+
+		def good_write(**_):
+			frappe.get_doc({"doctype": "ToDo", "description": marker}).insert()
+			return {"status": "completed"}
+
+		with patch.object(shop_floor, "_complete_operation", side_effect=good_write):
+			result = shop_floor.complete_operation(work_order="MFG-WO-ANY")
+
+		self.assertEqual(result["status"], "completed")
+		self.assertTrue(frappe.db.exists("ToDo", {"description": marker}))
+
+	def test_the_service_owns_a_savepoint_rather_than_trusting_the_caller(self):
+		"""Asserted on the source, because the reason is the AI adapter.
+
+		`registry.execute` turns an exception into `{"ok": False, ...}`. Any
+		boundary that lives above the service is therefore not a boundary at
+		all for the path that matters most.
+		"""
+		import inspect
+
+		source = inspect.getsource(shop_floor.complete_operation)
+		self.assertIn("savepoint", source)
+		self.assertIn("rollback", source)
