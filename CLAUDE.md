@@ -300,23 +300,22 @@ frappe/       Frappe Framework — the Python/JS framework erpnext and crm run o
 crm/          Frappe app — Frappe CRM (Vue 3 frontend + Python backend)
 relaticle/    Standalone Laravel app — an alternative CRM (PHP/Livewire/Filament)
 
-frontend/     (scaffold, empty) custom user-facing UI
-backend/      (scaffold, empty) custom backend gluing the systems above together
+backend/      custom Frappe apps — korkem_manufacturing (domain) + korkem_ai (AI, channels)
+mobile/       Flutter client (korkem_flow) — Android + Linux today; Windows in Horizon 2
 infra/        Docker Compose bench setup — see infra/frappe_bench/ below
-mobile/       Flutter mobile app (korkem_flow) — see below
-telegram/     (scaffold, empty) Telegram bot integration
-agents/       (scaffold, empty) AI agent implementations/orchestration
-prompts/      (scaffold, empty) shared prompt templates used by agents/
-docs/         (scaffold, empty) project documentation
+scripts/      deploy_pilot.sh
+docs/         architecture/ · operations/ · product/ · archive/ — index in docs/README.md
 ```
 
-`erpnext/`, `frappe/`, `crm/`, and `relaticle/` are **vendored upstream projects**, cloned in full with their own `.git` history — they are reference implementations and integration targets, not necessarily the final product. `frontend/`, `backend/`, `telegram/`, `agents/`, `prompts/`, and `docs/` currently contain only placeholder READMEs; there is no build/lint/test tooling for them yet because no code has landed. Set that up (and update this file) as soon as real code is added to each.
+`erpnext/`, `frappe/`, `crm/`, and `relaticle/` are **vendored upstream projects**, cloned in full with their own `.git` history — they are reference implementations and integration targets, not necessarily the final product.
+
+The empty scaffolds `frontend/`, `telegram/`, `agents/` and `prompts/` were **removed on 2026-08-31**: they held only placeholder READMEs while the real code landed in `backend/korkem_ai/` (channels, agents, orchestrator), and four dead directories reliably misled agents about where things live. Do not recreate them — a new front end is a Flutter target or a Frappe app, and a new channel goes in `korkem_ai/integrations/`.
 
 ## Git structure — important
 
 The `furniture_ai` root is its own git repository. Its `.gitignore` excludes `erpnext/`, `frappe/`, `crm/`, and `relaticle/` entirely — those four directories are **independent git repositories** with their own history, remotes, and branches. Do not `git add`/commit inside them from the root repo; `cd` into the specific vendored directory and use its own git repo for any changes there. The root repo only tracks the custom directories listed above plus the root `README.md`/`.gitignore`/`CLAUDE.md`.
 
-**`backend/korkem_manufacturing/` and `backend/korkem_ai/` are also excluded** and are also their own independent git repos — but for a different reason than the four above: they are custom Frappe apps **authored by this project** (not external/vendored), yet `bench`'s tooling (`get-app`, `--soft-link`) only works against a real git repository, even for a purely local path — a bare non-git directory triggers an unhandled bug in bench's `App` class (confirmed empirically; see `.ai/roadmap/sprint_1_phase_c_checklist.md`). So each gets its own tiny git repo, same mechanism as the vendored projects, purely to satisfy that tooling requirement — `cd` into each and use its own git repo for changes, same rule as above.
+**`backend/korkem_manufacturing/` and `backend/korkem_ai/` are also excluded** and are also their own independent git repos — but for a different reason than the four above: they are custom Frappe apps **authored by this project** (not external/vendored), yet `bench`'s tooling (`get-app`, `--soft-link`) only works against a real git repository, even for a purely local path — a bare non-git directory triggers an unhandled bug in bench's `App` class (confirmed empirically; see `docs/archive/sprint1/sprint_1_phase_c_checklist.md`). So each gets its own tiny git repo, same mechanism as the vendored projects, purely to satisfy that tooling requirement — `cd` into each and use its own git repo for changes, same rule as above.
 
 ## Working inside a vendored project
 
