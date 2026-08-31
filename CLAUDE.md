@@ -2,9 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **Read [`PROJECT.md`](./PROJECT.md) first.** It is the product constitution — mission, vision, the Production Order lifecycle, AI agents, modules, and non-goals. Every architectural and product decision below must stay consistent with it; if a request conflicts with `PROJECT.md`, flag the conflict before proceeding.
+> ## Start here, in this order
 >
-> **Then read [`.ai/constitution/master_execution_prompt.md`](./.ai/constitution/master_execution_prompt.md)** — the active execution mode (currently BUILD MODE) and its non-negotiable process: reuse before rebuilding, restate-goal/identify-reuse/assess-risk/plan before any implementation, small reversible milestones, stop after each milestone for approval. See `.ai/` for the full working-document set: `research/` (architecture + deep-scan findings per vendored repo), `architecture/` (design decisions, starting with the unified domain model), `agents/`, `prompts/`, `reviews/`, `roadmap/`.
+> | file | question it answers |
+> |---|---|
+> | [`NOW.md`](./NOW.md) | what is being worked on right now, what is broken, what not to touch |
+> | [`ROADMAP.md`](./ROADMAP.md) | which horizon this task belongs to |
+> | [`PLAN.md`](./PLAN.md) | the target architecture and the ten invariants a change must not break |
+> | [`PROJECT.md`](./PROJECT.md) | what the product is and is not |
+>
+> These four plus this file are the source of truth. If a document in `docs/`
+> contradicts them, they win. If the code contradicts all five, **the code wins**
+> — say so, and fix the document in the same change.
+>
+> **Then load the skill for the task** from `.claude/skills/` — `korkem-architecture`
+> before designing, `korkem-domain-service` before adding a business action,
+> `korkem-flutter` before touching Dart, `korkem-bench` before running anything,
+> `korkem-docs` before writing markdown. `.claude/skills/README.md` lists all 23 (plus 2 Orca symlinks),
+> including what was rejected and why.
+>
+> `docs/archive/` is **history, not truth.** Do not build from it. It is kept for
+> the reasoning behind decisions, and every file in it carries a banner saying so.
 
 # Furniture AI Operating System
 
@@ -341,7 +359,7 @@ Each vendored project has its own conventions, build system, and (where present)
 A Docker Compose bench now runs `erpnext` + `crm` on top of the vendored `frappe`, without ever modifying any of the three vendored trees:
 
 - `docker compose -f infra/frappe_bench/docker-compose.yml up -d` — starts MariaDB, two Redis instances (cache/queue), and the `bench` container (auto-bootstraps on first run via `scripts/entrypoint.sh` → `scripts/bootstrap.sh` → `scripts/start.sh`).
-- **Three compose files, and they compose.** `docker-compose.yml` is the development bench. `docker-compose.pilot.yml` adds the production process model (gunicorn via `scripts/web.sh` and `procfiles/Procfile.pilot`, no asset watcher, `restart: always`) and `KORKEM_ENV=pilot`. `docker-compose.public.yml` adds Caddy with auto-TLS, choosing `proxy/webhooks.Caddyfile` (default) or `proxy/app.Caddyfile` via `KORKEM_PROXY_PROFILE`. Deployment is documented in `docs/pilot/`, and `scripts/deploy_pilot.sh` runs it with the checks.
+- **Three compose files, and they compose.** `docker-compose.yml` is the development bench. `docker-compose.pilot.yml` adds the production process model (gunicorn via `scripts/web.sh` and `procfiles/Procfile.pilot`, no asset watcher, `restart: always`) and `KORKEM_ENV=pilot`. `docker-compose.public.yml` adds Caddy with auto-TLS, choosing `proxy/webhooks.Caddyfile` (default) or `proxy/app.Caddyfile` via `KORKEM_PROXY_PROFILE`. Deployment is documented in `docs/operations/`, and `scripts/deploy_pilot.sh` runs it with the checks.
 - **`KORKEM_ENV` (`development` | `pilot` | `production`) decides everything environmental** — developer mode, `allow_tests`, the scheduler, which Procfile — and is written into the site config as `korkem_env`. `korkem_ai.korkem_ai.environment` is the one place that reads it; every destructive fixture in `seed_demo` calls `require_non_production` first, and an unlabelled non-developer site is treated as production. Do not add a second way to ask what environment a site is.
 - **The startup scripts are mounted, not baked into the image.** Editing `entrypoint.sh` used to need an image rebuild and silently did not get one, so bootstrap would configure a pilot and the container would then start the development server.
 - **`/health` and `/health/ready`** are served by `korkem_ai.korkem_ai.health.HealthPage` through Frappe's `page_renderer` hook — no proxy needed. Frappe 17 resolves an HTTP request to a site **by its `Host` header only** (`default_site` is CLI-only), so the container healthcheck and `deploy_pilot.sh` send `Host: $SITE_NAME`; without it a healthy bench answers "localhost does not exist".
@@ -358,7 +376,7 @@ A Docker Compose bench now runs `erpnext` + `crm` on top of the vendored `frappe
   as `Unauthorized: TypeError: fetch failed`. HTTP keeps working throughout, so the symptom is
   "the app signs in and then the assistant never answers". The client cannot work around it:
   the same middleware requires the `Origin` hostname to match the `Host` it dialled.
-- Full setup details, every command tried, and the specific failures/fixes encountered getting here: `.ai/roadmap/sprint_1_phase_a_checklist.md`.
+- Full setup details, every command tried, and the specific failures/fixes encountered getting here: `docs/archive/sprint1/sprint_1_phase_a_checklist.md`.
 
 ## The Flutter mobile app (`mobile/korkem_flow/`)
 
@@ -394,7 +412,7 @@ There is no `build_runner` stage — do not add one without re-checking those co
 
 ```sh
 flutter build apk --release --split-per-abi   # side-loading
-flutter build appbundle --release             # Google Play — see docs/play_release.md
+flutter build appbundle --release             # Google Play — see docs/operations/play_release.md
 ```
 
 Release builds are minified. `android/app/proguard-rules.pro` keeps the Flutter engine and the
@@ -430,7 +448,7 @@ flutter run -d emulator-5554 --dart-define=KORKEM_BASE_URL=http://10.0.2.2:8000
 Cleartext HTTP is blocked by default at `targetSdk 36`, and the bench serves plain HTTP.
 `android/app/src/debug/` carries a manifest and `network_security_config.xml` that permit
 cleartext **to the loopback hosts only**, merged into debug builds and never into a release
-one — `docs/privacy_policy.md` promises users that Android blocks unencrypted HTTP, and that
+one — `docs/operations/privacy_policy.md` promises users that Android blocks unencrypted HTTP, and that
 has to stay true of what ships.
 
 ### The emulator
@@ -446,11 +464,24 @@ LD_LIBRARY_PATH="$E/lib64:$E/lib64/qt/lib:$L:$L/pulseaudio" \
   $E/emulator -avd korkem_test -no-audio -no-boot-anim -memory 1536 -gpu swiftshader_indirect
 ```
 
-**The bench and the emulator together do not fit in this machine's 7.4 GB.** Booting the
-emulator at its default RAM killed all four bench containers (exit 255, simultaneously) — and
-the app then reports "No connection to the server", which reads like an app bug and is not
-one. Hence `-memory 1536`, and: stop the Gradle daemon (`android/gradlew --stop`, ~1 GB),
-start the bench *first* and wait for `/api/method/ping`, then boot the emulator. To skip
+**The bench and the emulator compete for the WSL VM's budget, not the laptop's.** The
+machine is an ASUS TUF Gaming A16 FA607NUQ — Ryzen 7 170 (8 cores / 16 threads), **16 GB**
+DDR5-5600 (a single stick, so single-channel), RTX 4050 Laptop 4 GB plus the Radeon iGPU,
+two 512 GB NVMe drives. The 7.4 GB that earlier notes called "this machine's RAM" was only
+what `%USERPROFILE%\.wslconfig` granted the VM. **The host also runs Adobe Premiere Pro,
+Photoshop, and After Effects**, so that budget is contested: with nothing Adobe open the host
+already sits at ~2.4 GB free. WSL and Adobe cannot both be greedy on 16 GB, so the config is
+profile-switched by `~/.local/bin/wsl-profile` (2026-08-18): `adobe` = 4 GB / 4 CPUs (the
+default, leaves Windows ~11 GB), `dev` = 10 GB / 8 CPUs for bench + emulator work. Both carry
+`swap=12GB` on `D:` (OOM protection, not a RAM substitute), `autoMemoryReclaim=gradual`
+(without it WSL never hands a peak allocation back to Windows), and `sparseVhd=true`. Switching
+profiles needs `wsl.exe --shutdown` to take effect. Do not run the bench and Premiere at the
+same time — no setting makes that fit. Always read the budget with `free -h` **inside WSL** —
+Windows Task Manager shows the host, which is a different number. Booting the emulator at its default RAM killed all four bench containers
+(exit 255, simultaneously) — and the app then reports "No connection to the server", which
+reads like an app bug and is not one. Hence `-memory 1536`, and: stop the Gradle daemon
+(`android/gradlew --stop`, ~1 GB), start the bench *first* and wait for `/api/method/ping`,
+then boot the emulator. To skip
 Gradle entirely on a re-run, install the built APK directly:
 
 ```sh
@@ -470,4 +501,6 @@ Two behaviours worth knowing before changing code here:
 
 ## Conventions for new custom code
 
-There are no established build/lint/test commands for `frontend/`, `backend/`, `telegram/`, `agents/`, `prompts/`, or `docs/` yet — when adding the first real code to one of these directories, set up its tooling and document the commands here rather than leaving future instances to guess.
+Both custom apps are standard Frappe apps and are tested through the bench (see `korkem-bench`). There is **no CI yet** — that is the first item in `ROADMAP.md` Horizon 0, and until it exists a change is only as verified as the commands you actually ran and pasted.
+
+**Where new code goes** is decided by `PLAN.md` and enforced by the `korkem-architecture` skill: business rules in `korkem_manufacturing`, a whitelisted endpoint over them, an AI tool as a thin wrapper, and the UI calling the endpoint. A pull request that adds a `ToolSpec` and no domain service is going the wrong way.
