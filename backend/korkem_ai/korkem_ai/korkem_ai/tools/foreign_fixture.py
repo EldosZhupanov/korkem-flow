@@ -267,3 +267,35 @@ def remove() -> None:
 	):
 		if frappe.db.exists(doctype, name):
 			frappe.delete_doc(doctype, name, force=True, ignore_permissions=True)
+
+
+class UsesForeignCompany:
+	"""Mix into any test class that calls `ensure()`, and it cleans up after itself.
+
+	Not optional, and not a tidiness measure. `ensure()` inserts a `Company`,
+	and ERPNext's `Company` commits during insert — it writes a chart of
+	accounts and default warehouses through its own transaction. So a test's
+	rollback does **not** take the fixture with it: the second company, its
+	items, its order and its job survive the test that built them and stay on
+	the bench.
+
+	That was measured, not reasoned about. After a full app run the site held
+	`KORKEM Elsewhere`, `SAL-ORD-…-00004` and `MFG-WO-…-00003`, because the one
+	consumer wired to `remove()` happened to run first alphabetically and the
+	three that ran later rebuilt it and left it there.
+
+	Which is the same defect this whole fixture exists to remove — a bench
+	quietly accumulating state that no test in the next run created. Cleaning
+	up in nine `tearDownClass` methods would work and would rot the first time
+	somebody added a tenth consumer, so it lives here instead.
+
+	Mix it in **first**, so its `tearDownClass` runs before the base class
+	closes the test transaction.
+	"""
+
+	@classmethod
+	def tearDownClass(cls):
+		frappe.set_user("Administrator")
+		remove()
+		frappe.db.commit()
+		super().tearDownClass()

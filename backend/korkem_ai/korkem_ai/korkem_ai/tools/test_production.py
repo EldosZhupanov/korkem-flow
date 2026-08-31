@@ -566,7 +566,7 @@ class TestSayingItTwiceChangesNothing(_ShopFloorTestCase):
 		self.assertEqual(self.cards()[FIRST]["total_completed_qty"], 5.0)
 
 
-class TestTheStageIsGuarded(_ShopFloorTestCase):
+class TestTheStageIsGuarded(foreign_fixture.UsesForeignCompany, _ShopFloorTestCase):
 	def test_both_writes_need_confirmation(self):
 		for name in (START_OP, FINISH_OP):
 			with self.subTest(tool=name):
@@ -1085,7 +1085,7 @@ class TestNeverMoreThanWasPlanned(_ManufactureTestCase):
 		self.assertIn("greater than zero", result["error"]["message"])
 
 
-class TestReleasingIsGuarded(_ManufactureTestCase):
+class TestReleasingIsGuarded(foreign_fixture.UsesForeignCompany, _ManufactureTestCase):
 	def test_it_is_a_write_needing_confirmation(self):
 		spec = registry.get(RELEASE)
 
@@ -1427,7 +1427,7 @@ class TestScrapIsNotGoodOutput(_ScrapTestCase):
 		self.assertEqual(result["data"]["good_qty"], 5.0)
 
 
-class TestQualityInspection(_ScrapTestCase):
+class TestQualityInspection(foreign_fixture.UsesForeignCompany, _ScrapTestCase):
 	def test_an_uninspected_stage_reports_that_none_is_needed(self):
 		result = self.as_user(
 			PLANNER, INSPECT, {"work_order": self.work_order, "operation": FIRST_OP, "result": "принято"}
@@ -1710,7 +1710,7 @@ REWORK = "manufacturing.complete_rework"
 CORRECTIVE_OP = "Исправление брака"
 
 
-class TestReworkReturnsAPieceToGoodOutput(_ScrapTestCase):
+class TestReworkReturnsAPieceToGoodOutput(foreign_fixture.UsesForeignCompany, _ScrapTestCase):
 	"""A spoiled piece that can be saved must not simply vanish.
 
 	The unit is held as `pending_qty` on its own card rather than booked as
@@ -1963,7 +1963,7 @@ class TestReworkReachesTheLedger(_ScrapTestCase):
 SECOND_OP = "Кромление"
 
 
-class TestGoodPiecesDoNotWaitForARework(_ScrapTestCase):
+class TestGoodPiecesDoNotWaitForARework(foreign_fixture.UsesForeignCompany, _ScrapTestCase):
 	"""Phase 25. One damaged panel must not stop the other four.
 
 	Holding a piece by leaving its card open stopped the line, and the reason is
@@ -2377,7 +2377,7 @@ class TestStoppingAJob(_StopTestCase):
 			self.assertGreaterEqual(row["physical_shortage_qty"], 0)
 
 
-class TestStoppingIsGuarded(_StopTestCase):
+class TestStoppingIsGuarded(foreign_fixture.UsesForeignCompany, _StopTestCase):
 	def test_it_is_a_write_needing_confirmation_and_takes_no_company(self):
 		spec = registry.get(STOP)
 

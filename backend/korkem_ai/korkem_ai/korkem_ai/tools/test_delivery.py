@@ -299,7 +299,7 @@ class TestTheOrderMustBeShippable(_DeliveryTestCase):
 		frappe.db.commit()
 
 
-class TestScopeAndPermissions(_DeliveryTestCase):
+class TestScopeAndPermissions(foreign_fixture.UsesForeignCompany, _DeliveryTestCase):
 	def test_neither_tool_takes_a_company(self):
 		for name in (STATUS, SHIP):
 			with self.subTest(tool=name):

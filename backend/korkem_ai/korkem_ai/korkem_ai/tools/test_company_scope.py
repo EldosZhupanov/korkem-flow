@@ -55,7 +55,7 @@ class TestTheCompanyIsTheServersAnswer(IntegrationTestCase):
 				self.assertNotIn("company", spec.input_schema.get("properties", {}))
 
 
-class TestAnotherCompanysWorkIsInvisible(IntegrationTestCase):
+class TestAnotherCompanysWorkIsInvisible(foreign_fixture.UsesForeignCompany, IntegrationTestCase):
 	"""Creates a real submitted order for another company and looks for it."""
 
 	@classmethod
@@ -65,19 +65,6 @@ class TestAnotherCompanysWorkIsInvisible(IntegrationTestCase):
 		seed_demo.seed_users()
 		cls.intruder = cls._foreign_order()
 		frappe.db.commit()
-
-	@classmethod
-	def tearDownClass(cls):
-		"""Remove the whole fixture, not just the order.
-
-		`setUpClass` commits, so none of this is rolled back with a test. An
-		earlier version deleted the Sales Order and left the company, its items
-		and its BOM on the bench — which is how a later module ends up running
-		against data no test in it created."""
-		frappe.set_user("Administrator")
-		foreign_fixture.remove()
-		frappe.db.commit()
-		super().tearDownClass()
 
 	@classmethod
 	def _foreign_order(cls):

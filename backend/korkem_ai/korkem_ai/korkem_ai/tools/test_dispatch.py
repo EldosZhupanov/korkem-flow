@@ -94,7 +94,7 @@ class _DispatchTestCase(IntegrationTestCase):
 		return self.as_manager("dispatch.assign_work", payload)
 
 
-class TestGivingSomebodyWork(_DispatchTestCase):
+class TestGivingSomebodyWork(foreign_fixture.UsesForeignCompany, _DispatchTestCase):
 	def test_it_records_who_was_told_what(self):
 		result = self.assign(sales_order=self.order(), due_date=add_days(nowdate(), 3))
 
@@ -221,7 +221,7 @@ class TestGivingSomebodyWork(_DispatchTestCase):
 
 
 
-class TestWhoMayDispatch(_DispatchTestCase):
+class TestWhoMayDispatch(foreign_fixture.UsesForeignCompany, _DispatchTestCase):
 	def test_a_shop_floor_user_may_not(self):
 		"""ERPNext's own permission, not a second opinion in the policy file:
 		`Work Instruction` grants create to Manufacturing Manager."""
