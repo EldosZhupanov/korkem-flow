@@ -51,11 +51,14 @@ The `korkem_ai` suite is ~1 000 tests and takes **around 26 minutes**. Pipe it
 to a file inside the container: the statistics scroll away otherwise, and the
 log survives the shell that started it.
 
-Known-good baseline as of 2026-08-31: `korkem_manufacturing` 13/13;
-`korkem_ai` 992 tests, 983 pass, 9 skip, **3 errors** — all three are the same
-fixture defect (`Duplicate entry 'Standard Buying'` raised in `setUpClass` of
-`test_agent_conversation`, `test_agent_conversation_message`,
-`test_pending_action`). Fixing that is the first item in `ROADMAP.md`.
+Known-good baseline, measured 2026-08-31 on a clean volume:
+`korkem_manufacturing` **13/13 OK** in 12.3 s; `korkem_ai` **1037 tests, 1028
+pass, 0 failures, 0 errors, 9 skipped** in 21 min 24 s. Both exit 0.
+
+Nine skips are expected — provider-credential cases that cannot run without
+real secrets. A run reporting **more** skips than that is the failure mode to
+watch for: without `before_tests` seeding the demo factory, roughly 130
+production tests call `skipTest` and vanish while the run still says OK.
 
 ## Failures that look like bugs and are not
 
