@@ -55,6 +55,8 @@ from __future__ import annotations
 
 import frappe
 
+from korkem_manufacturing.services.identity import CUSTOMER, role_of
+
 
 def current_company() -> str:
 	"""The company this session works in, decided by the server."""
@@ -176,22 +178,7 @@ def customer_scope() -> str | None:
 	them: a customer whose scope silently became "no filter" would be shown the
 	factory.
 	"""
-	# KNOWN INVERSION, and the last one in this module.
-	#
-	# The domain must not depend on `korkem_ai` (ADR-0003, ADR-0007). This
-	# import is lazy, so nothing here depends on the AI app at import time —
-	# only a customer-scoped read reaches it at all. It survives the move
-	# because `policy.role_of()` does two different jobs in one function:
-	# classifying a *session* (a domain question) and deciding which *tools* to
-	# offer a model (an AI question). Splitting it is its own change with its
-	# own tests, and doing it inside a migration of `start_production` would
-	# mean two behaviour changes in one reviewable step.
-	#
-	# `start_production` does not reach this path. Raised for the architectural
-	# review before the next four actions, which do.
-	from korkem_ai.korkem_ai.tools import policy
-
-	if policy.role_of() != policy.CUSTOMER:
+	if role_of() != CUSTOMER:
 		return None
 	return current_customer()
 

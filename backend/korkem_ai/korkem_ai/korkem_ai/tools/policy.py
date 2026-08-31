@@ -46,31 +46,17 @@ customer-visible read is a decision somebody makes on purpose.
 
 from __future__ import annotations
 
-import frappe
-
-ADMIN = "admin"
-EMPLOYEE = "employee"
-CUSTOMER = "customer"
-
-#: Roles that make somebody an administrator of this assistant. `System Manager`
-#: can already read and write the whole site through the desk; withholding tools
-#: from them would be theatre.
-ADMIN_ROLES = frozenset({"System Manager", "Korkem Admin"})
-
-#: Roles that put somebody on the shop floor or in the office. Every one is a
-#: stock ERPNext role that the seed already grants.
-EMPLOYEE_ROLES = frozenset(
-	{
-		"Manufacturing User",
-		"Manufacturing Manager",
-		"Stock User",
-		"Stock Manager",
-		"Purchase User",
-		"Purchase Manager",
-		"Sales User",
-		"Sales Manager",
-		"Quality Manager",
-	}
+from korkem_manufacturing.services.identity import (
+	ADMIN,
+	ADMIN_ROLES as ADMIN_ROLES,
+	CHANNEL_ROLE_FLAG as CHANNEL_ROLE_FLAG,
+	CUSTOMER,
+	EMPLOYEE,
+	EMPLOYEE_ROLES as EMPLOYEE_ROLES,
+	_from_roles as _from_roles,
+	_narrowed as _narrowed,
+	effective_role as effective_role,
+	role_of as role_of,
 )
 
 #: What an employee may reach — every namespace the registry currently has.
@@ -144,61 +130,6 @@ CUSTOMER_ALLOWED_WRITES = frozenset({"sales.create_sales_order"})
 def allows_customer_write(tool_name: str) -> bool:
 	"""Whether a customer may propose this write at all."""
 	return tool_name in CUSTOMER_ALLOWED_WRITES
-
-#: Set by the channel gateway for the length of one turn, from the
-#: `Channel Identity` row — never from the message. A turn that runs on a
-#: channel an administrator has pinned to `customer` is a customer's turn, and
-#: `role_of` has to say so or the narrowing would be a label on a report rather
-#: than a boundary.
-CHANNEL_ROLE_FLAG = "korkem_channel_role"
-
-
-def _from_roles(user: str) -> str:
-	"""This person's mode, from the roles on their User document."""
-	if user in ("Administrator", "Guest"):
-		return ADMIN if user == "Administrator" else CUSTOMER
-
-	roles = set(frappe.get_roles(user))
-	if roles & ADMIN_ROLES:
-		return ADMIN
-	if roles & EMPLOYEE_ROLES:
-		return EMPLOYEE
-	return CUSTOMER
-
-
-def _narrowed(actual: str, channel_role: str | None) -> str:
-	"""Apply a channel's pin, which may narrow and may never widen.
-
-	The ordering is deliberate: of the two ways to get this wrong, only
-	promotion is dangerous — a field an administrator might fill in carelessly
-	must not be able to hand out `System Manager`.
-	"""
-	if not channel_role:
-		return actual
-	rank = {CUSTOMER: 0, EMPLOYEE: 1, ADMIN: 2}
-	if rank.get(channel_role, 0) < rank.get(actual, 0):
-		return channel_role
-	return actual
-
-
-def role_of(user: str | None = None) -> str:
-	"""This person's mode. Never from anything they wrote.
-
-	Honours a channel pin set for this turn when it is asking about the session
-	user — the pin is about *this* conversation, so it says nothing about
-	somebody else's role.
-	"""
-	user = user or frappe.session.user
-	actual = _from_roles(user)
-	if user != frappe.session.user:
-		return actual
-	return _narrowed(actual, frappe.flags.get(CHANNEL_ROLE_FLAG))
-
-
-def effective_role(user: str | None = None, channel_role: str | None = None) -> str:
-	"""The role in force, after a channel identity has had its say."""
-	return _narrowed(_from_roles(user or frappe.session.user), channel_role)
-
 
 def allows(role: str, tool_name: str) -> bool:
 	"""Whether this role may reach this tool at all."""
