@@ -4,6 +4,24 @@
 import frappe
 from frappe.tests import IntegrationTestCase
 
+#: `Agent Conversation.user` and `Pending Action.resolved_by` are Links to
+#: `User`, but no test here uses a generated user — they all pass
+#: "Administrator", which exists on every Frappe site by construction.
+#:
+#: Left undeclared, the dependency walk goes User -> Email Account -> Company,
+#: and loading Company's *test* module imports `erpnext/tests/utils.py`, which
+#: runs `BootStrapTestData()` at import time. Its price-list guard matches on
+#: five fields including `currency="INR"` while `Price List` autonames from
+#: `price_list_name` alone — so on this Kazakh site, where Standard Buying is
+#: in KZT, the guard finds nothing and the insert collides on the primary key.
+#: Every suite reaching Company then died in setUpClass, on a clean volume,
+#: before its first assertion.
+#:
+#: This states a fact about these tests rather than suppressing that error.
+#: See `korkem_ai/korkem_ai/test_fixture_isolation.py`, which fails if a new
+#: Link field reopens the path.
+IGNORE_TEST_RECORD_DEPENDENCIES = ["User"]
+
 
 class TestAgentConversation(IntegrationTestCase):
 	def tearDown(self) -> None:
