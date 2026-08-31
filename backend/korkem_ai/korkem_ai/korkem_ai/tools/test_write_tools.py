@@ -55,12 +55,41 @@ class _Proposer:
 class _WriteToolTestCase(IntegrationTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
+		self.previous_settings = {
+			field: frappe.db.get_single_value("AI Settings", field)
+			for field in ("enabled", "provider", "model")
+		}
+		# Direct confirmation validates the persisted configuration before the
+		# scripted provider is patched in. Anthropic needs no stored test secret.
+		frappe.db.set_single_value(
+			"AI Settings", {"enabled": 1, "provider": "Anthropic", "model": "test-model"}
+		)
+		self.created_referral = not frappe.db.exists("CRM Lead Source", "Referral")
+		if self.created_referral:
+			frappe.get_doc(
+				{"doctype": "CRM Lead Source", "source_name": "Referral"}
+			).insert(ignore_permissions=True)
+		self.created_new_lead = not frappe.db.exists("CRM Lead Status", "New Lead")
+		if self.created_new_lead:
+			frappe.get_doc(
+				{"doctype": "CRM Lead Status", "lead_status": "New Lead"}
+			).insert(ignore_permissions=True)
 		self._clean()
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		frappe.db.rollback()
 		self._clean()
+		frappe.db.set_single_value("AI Settings", self.previous_settings)
+		if self.created_referral and frappe.db.exists("CRM Lead Source", "Referral"):
+			frappe.delete_doc(
+				"CRM Lead Source", "Referral", force=True, ignore_permissions=True
+			)
+		if self.created_new_lead and frappe.db.exists("CRM Lead Status", "New Lead"):
+			frappe.delete_doc(
+				"CRM Lead Status", "New Lead", force=True, ignore_permissions=True
+			)
+		frappe.db.commit()
 
 	def _clean(self):
 		frappe.db.delete("CRM Lead", {"first_name": ("like", f"{MARK}%")})
@@ -116,7 +145,7 @@ class TestNothingHappensUntilAHumanAgrees(_WriteToolTestCase):
 
 		self.assertEqual(action.tool, TOOL)
 		self.assertEqual(action.status, "Pending")
-		self.assertEqual(action.provider, "Google Gemini")
+		self.assertEqual(action.provider, "Anthropic")
 		self.assertEqual(action.model, "scripted-1")
 		self.assertEqual(frappe.parse_json(action.action_data)["first_name"], MARK)
 

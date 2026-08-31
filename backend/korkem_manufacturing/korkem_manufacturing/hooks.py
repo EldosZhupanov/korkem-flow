@@ -101,7 +101,7 @@ use_json_request_body = True
 # ------------
 
 # before_install = "korkem_manufacturing.install.before_install"
-# after_install = "korkem_manufacturing.install.after_install"
+after_install = "korkem_manufacturing.install.after_install"
 
 # Uninstallation
 # ------------
@@ -187,7 +187,7 @@ doc_events = {
 # Testing
 # -------
 
-# before_tests = "korkem_manufacturing.install.before_tests"
+before_tests = "korkem_manufacturing.install.before_tests"
 
 # Extend DocType Class
 # ------------------------------
@@ -277,4 +277,3 @@ require_type_annotated_api_methods = True
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

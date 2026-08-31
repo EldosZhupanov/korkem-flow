@@ -4,10 +4,9 @@
 
 Most of this file is about absence. A stage with no document must say so, a
 stage the caller cannot see must say something different, and neither may be
-filled in from a name that looks similar. On this bench that last one is not
-hypothetical: there are 2094 CRM deals and none belongs to a customer this
-factory produces for, so any name-similarity join would manufacture a
-relationship out of nothing.
+filled in from a name that looks similar. The CRM test fixture contains
+unrelated deals, so any name-similarity join would manufacture a relationship
+out of nothing.
 """
 
 import frappe
@@ -125,7 +124,7 @@ class TestAbsenceIsReportedNotInvented(_TimelineTestCase):
 
 		self.assertEqual(story["crm"]["status"], "none")
 		self.assertIsNone(story["crm"]["linked_by"])
-		self.assertGreater(frappe.db.count("CRM Deal"), 100, "the fixture no longer has deals")
+		self.assertGreater(frappe.db.count("CRM Deal"), 0, "the fixture has no unrelated deal")
 
 	def test_no_access_is_a_different_answer_to_no_document(self):
 		"""The distinction this tool exists to make. A planner holds no CRM
