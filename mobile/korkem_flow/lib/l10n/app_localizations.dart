@@ -1947,6 +1947,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On Hold'**
   String get soOnHold;
+
+  /// Title for Today operational screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayTitle;
+
+  /// Subtitle for Today operational screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop floor operational overview'**
+  String get todaySubtitle;
+
+  /// Label for active sales orders metric.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Orders'**
+  String get todayActiveOrders;
+
+  /// Overdue sales orders count badge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} overdue} other{{count} overdue}}'**
+  String todayLateOrders(int count);
+
+  /// Text when no orders are overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'All on track'**
+  String get todayOrdersAllOnTrack;
+
+  /// Label for in production metric.
+  ///
+  /// In en, this message translates to:
+  /// **'In Production'**
+  String get todayInProduction;
+
+  /// Work orders count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} job} other{{count} jobs}}'**
+  String todayWorkOrdersCount(int count);
+
+  /// Text when all production jobs are on track.
+  ///
+  /// In en, this message translates to:
+  /// **'No delays'**
+  String get todayProductionAllOnTrack;
+
+  /// Label for pending approvals metric.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Approvals'**
+  String get todayApprovals;
+
+  /// Count of pending approvals.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} decision} other{{count} decisions}}'**
+  String todayApprovalsCount(int count);
+
+  /// Text when no approvals are pending.
+  ///
+  /// In en, this message translates to:
+  /// **'All approved'**
+  String get todayApprovalsNone;
+
+  /// Label for stock shortage metric.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Shortage'**
+  String get todayStockDeficit;
+
+  /// Count of stock items with projected quantity below zero.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} item in deficit} other{{count} items in deficit}}'**
+  String todayDeficitCount(int count);
+
+  /// Text when no stock items are in deficit.
+  ///
+  /// In en, this message translates to:
+  /// **'No shortages'**
+  String get todayDeficitNone;
+
+  /// Title for section requiring operator attention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Attention'**
+  String get todayAttentionTitle;
+
+  /// Title when all operational metrics are healthy.
+  ///
+  /// In en, this message translates to:
+  /// **'All Clear'**
+  String get todayAllClearTitle;
+
+  /// Subtitle when all operational metrics are healthy.
+  ///
+  /// In en, this message translates to:
+  /// **'No critical delays or material shortages on the shop floor.'**
+  String get todayAllClearSubtitle;
+
+  /// Header for quick navigation section.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Navigation'**
+  String get todayQuickNav;
+
+  /// Error text for an individual tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load'**
+  String get todayTileError;
 }
 
 class _AppLocalizationsDelegate

@@ -24,6 +24,7 @@ import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
 import 'package:korkem_flow/features/tasks/presentation/tasks_screen.dart';
+import 'package:korkem_flow/features/today/presentation/today_screen.dart';
 
 /// Route paths, referenced by name rather than typed as literals at call sites.
 abstract final class Routes {
@@ -62,6 +63,7 @@ abstract final class Routes {
   static const deliveryCentre = '/settings/deliveries';
   static const workInstructions = '/settings/instructions';
   static const orders = '/orders';
+  static const today = '/today';
 
   /// Sales, opened on its Customers tab. A URL rather than a branch of its own:
   /// Customers *is* a view of the pipeline, and giving it a second branch would
@@ -132,6 +134,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.orders,
         builder: (context, state) => const OrdersScreen(),
+      ),
+      GoRoute(
+        path: Routes.today,
+        builder: (context, state) => const TodayScreen(),
       ),
       GoRoute(
         path: Routes.settings,

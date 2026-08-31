@@ -983,4 +983,102 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get soOnHold => 'На удержании';
+
+  @override
+  String get todayTitle => 'Сегодня';
+
+  @override
+  String get todaySubtitle => 'Оперативная сводка цеха';
+
+  @override
+  String get todayActiveOrders => 'Активные заказы';
+
+  @override
+  String todayLateOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count просрочено',
+      many: '$count просрочено',
+      few: '$count просрочено',
+      one: '$count просрочен',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayOrdersAllOnTrack => 'Все в графике';
+
+  @override
+  String get todayInProduction => 'В производстве';
+
+  @override
+  String todayWorkOrdersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count заданий',
+      many: '$count заданий',
+      few: '$count задания',
+      one: '$count задание',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayProductionAllOnTrack => 'Без задержек';
+
+  @override
+  String get todayApprovals => 'Ожидают подтверждения';
+
+  @override
+  String todayApprovalsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count решений',
+      many: '$count решений',
+      few: '$count решения',
+      one: '$count решение',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayApprovalsNone => 'Все согласованы';
+
+  @override
+  String get todayStockDeficit => 'Дефицит склада';
+
+  @override
+  String todayDeficitCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count позиций ниже нуля',
+      many: '$count позиций ниже нуля',
+      few: '$count позиции ниже нуля',
+      one: '$count позиция ниже нуля',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayDeficitNone => 'Дефицита нет';
+
+  @override
+  String get todayAttentionTitle => 'Требует внимания';
+
+  @override
+  String get todayAllClearTitle => 'Всё в порядке';
+
+  @override
+  String get todayAllClearSubtitle =>
+      'Критических задержек и дефицита на производстве нет';
+
+  @override
+  String get todayQuickNav => 'Быстрый переход';
+
+  @override
+  String get todayTileError => 'Не удалось загрузить';
 }

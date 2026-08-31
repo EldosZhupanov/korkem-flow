@@ -980,4 +980,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soOnHold => 'On Hold';
+
+  @override
+  String get todayTitle => 'Today';
+
+  @override
+  String get todaySubtitle => 'Shop floor operational overview';
+
+  @override
+  String get todayActiveOrders => 'Active Orders';
+
+  @override
+  String todayLateOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count overdue',
+      one: '$count overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayOrdersAllOnTrack => 'All on track';
+
+  @override
+  String get todayInProduction => 'In Production';
+
+  @override
+  String todayWorkOrdersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jobs',
+      one: '$count job',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayProductionAllOnTrack => 'No delays';
+
+  @override
+  String get todayApprovals => 'Pending Approvals';
+
+  @override
+  String todayApprovalsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count decisions',
+      one: '$count decision',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayApprovalsNone => 'All approved';
+
+  @override
+  String get todayStockDeficit => 'Stock Shortage';
+
+  @override
+  String todayDeficitCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items in deficit',
+      one: '$count item in deficit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayDeficitNone => 'No shortages';
+
+  @override
+  String get todayAttentionTitle => 'Needs Attention';
+
+  @override
+  String get todayAllClearTitle => 'All Clear';
+
+  @override
+  String get todayAllClearSubtitle =>
+      'No critical delays or material shortages on the shop floor.';
+
+  @override
+  String get todayQuickNav => 'Quick Navigation';
+
+  @override
+  String get todayTileError => 'Failed to load';
 }

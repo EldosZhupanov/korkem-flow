@@ -983,5 +983,71 @@ class AppLocalizationsKk extends AppLocalizations {
   String get soClosed => 'Жабылды';
 
   @override
-  String get soOnHold => 'Тоқтатылды';
+  String get soOnHold => 'Кідіртілген';
+
+  @override
+  String get todayTitle => 'Бүгін';
+
+  @override
+  String get todaySubtitle => 'Цехтың жедел жиынтығы';
+
+  @override
+  String get todayActiveOrders => 'Белсенді тапсырыстар';
+
+  @override
+  String todayLateOrders(int count) {
+    return '$count мерзімі өткен';
+  }
+
+  @override
+  String get todayOrdersAllOnTrack => 'Барлығы кестеде';
+
+  @override
+  String get todayInProduction => 'Өндірісте';
+
+  @override
+  String todayWorkOrdersCount(int count) {
+    return '$count тапсырма';
+  }
+
+  @override
+  String get todayProductionAllOnTrack => 'Кідіріссіз';
+
+  @override
+  String get todayApprovals => 'Растауды күтуде';
+
+  @override
+  String todayApprovalsCount(int count) {
+    return '$count шешім';
+  }
+
+  @override
+  String get todayApprovalsNone => 'Барлығы келісілді';
+
+  @override
+  String get todayStockDeficit => 'Қойма тапшылығы';
+
+  @override
+  String todayDeficitCount(int count) {
+    return '$count позиция нөлден төмен';
+  }
+
+  @override
+  String get todayDeficitNone => 'Тапшылық жоқ';
+
+  @override
+  String get todayAttentionTitle => 'Назар аударуды қажет етеді';
+
+  @override
+  String get todayAllClearTitle => 'Барлығы дұрыс';
+
+  @override
+  String get todayAllClearSubtitle =>
+      'Өндірісте сыни кідірістер мен тапшылық жоқ';
+
+  @override
+  String get todayQuickNav => 'Жылдам өту';
+
+  @override
+  String get todayTileError => 'Жүктеу мүмкін болмады';
 }

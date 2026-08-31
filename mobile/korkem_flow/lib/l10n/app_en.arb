@@ -769,5 +769,101 @@
   "soOnHold": "On Hold",
   "@soOnHold": {
     "description": "Sales Order status: On Hold."
+  },
+  "todayTitle": "Today",
+  "@todayTitle": {
+    "description": "Title for Today operational screen."
+  },
+  "todaySubtitle": "Shop floor operational overview",
+  "@todaySubtitle": {
+    "description": "Subtitle for Today operational screen."
+  },
+  "todayActiveOrders": "Active Orders",
+  "@todayActiveOrders": {
+    "description": "Label for active sales orders metric."
+  },
+  "todayLateOrders": "{count, plural, one{{count} overdue} other{{count} overdue}}",
+  "@todayLateOrders": {
+    "description": "Overdue sales orders count badge.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayOrdersAllOnTrack": "All on track",
+  "@todayOrdersAllOnTrack": {
+    "description": "Text when no orders are overdue."
+  },
+  "todayInProduction": "In Production",
+  "@todayInProduction": {
+    "description": "Label for in production metric."
+  },
+  "todayWorkOrdersCount": "{count, plural, one{{count} job} other{{count} jobs}}",
+  "@todayWorkOrdersCount": {
+    "description": "Work orders count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayProductionAllOnTrack": "No delays",
+  "@todayProductionAllOnTrack": {
+    "description": "Text when all production jobs are on track."
+  },
+  "todayApprovals": "Pending Approvals",
+  "@todayApprovals": {
+    "description": "Label for pending approvals metric."
+  },
+  "todayApprovalsCount": "{count, plural, one{{count} decision} other{{count} decisions}}",
+  "@todayApprovalsCount": {
+    "description": "Count of pending approvals.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayApprovalsNone": "All approved",
+  "@todayApprovalsNone": {
+    "description": "Text when no approvals are pending."
+  },
+  "todayStockDeficit": "Stock Shortage",
+  "@todayStockDeficit": {
+    "description": "Label for stock shortage metric."
+  },
+  "todayDeficitCount": "{count, plural, one{{count} item in deficit} other{{count} items in deficit}}",
+  "@todayDeficitCount": {
+    "description": "Count of stock items with projected quantity below zero.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayDeficitNone": "No shortages",
+  "@todayDeficitNone": {
+    "description": "Text when no stock items are in deficit."
+  },
+  "todayAttentionTitle": "Needs Attention",
+  "@todayAttentionTitle": {
+    "description": "Title for section requiring operator attention."
+  },
+  "todayAllClearTitle": "All Clear",
+  "@todayAllClearTitle": {
+    "description": "Title when all operational metrics are healthy."
+  },
+  "todayAllClearSubtitle": "No critical delays or material shortages on the shop floor.",
+  "@todayAllClearSubtitle": {
+    "description": "Subtitle when all operational metrics are healthy."
+  },
+  "todayQuickNav": "Quick Navigation",
+  "@todayQuickNav": {
+    "description": "Header for quick navigation section."
+  },
+  "todayTileError": "Failed to load",
+  "@todayTileError": {
+    "description": "Error text for an individual tile."
   }
 }
