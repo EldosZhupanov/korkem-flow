@@ -78,11 +78,13 @@ does not yet prove recovery of a non-empty attachment.
 
 1. The bench image did not contain the system executable `file`. This Frappe
    version calls it unconditionally before restore, so `bench restore` failed
-   with `file: command not found`. Until it is baked into the image, install it
-   in a fresh bench container before restore:
+   with `file: command not found` — the disaster plan not working on the one
+   machine that ever needs it. **Fixed in `infra/frappe_bench/Dockerfile`**;
+   verified by rebuilding the image and checking `/usr/bin/file` (5.44) is
+   present. A bench built before that commit still needs:
 
    ```sh
-   docker exec -u root korkem-clean-bench-1 \
+   docker exec -u root <bench-container> \
      sh -lc 'apt-get update && apt-get install -y --no-install-recommends file'
    ```
 

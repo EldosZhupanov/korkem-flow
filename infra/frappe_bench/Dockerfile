@@ -4,9 +4,15 @@ FROM python:3.14-slim-bookworm
 
 ARG WKHTMLTOPDF_VERSION=0.12.6.1-3
 
+# `file` is not decoration. Frappe runs it unconditionally before a restore to
+# identify the dump, so a bench container without it fails `bench restore` with
+# `file: command not found` — the disaster plan not working on the one machine
+# that ever needs it. Found by the 2026-08-31 restore rehearsal, on a container
+# built from this very Dockerfile.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       curl git wget gpg gcc build-essential pkg-config \
       mariadb-client libmariadb-dev \
+      file \
       redis-tools \
       libffi-dev libssl-dev libbz2-dev \
       libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libpangocairo-1.0-0 \
