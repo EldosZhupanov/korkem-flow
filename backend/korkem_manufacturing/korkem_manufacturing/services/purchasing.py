@@ -30,6 +30,27 @@ from korkem_manufacturing.services.scope import ensure_company
 def receive_purchase_order(purchase_order: str, items: list | None = None):
 	"""Book a delivery in against its purchase order.
 
+	Owns a savepoint because the write is not one document. A Purchase Receipt is inserted and then submitted; a failure between the two commits a draft that nothing has received against.
+
+	An outer HTTP transaction is not the boundary: `korkem_ai/tools/registry.py`
+	catches `Exception` and returns it **as data** rather than re-raising, so
+	through the AI adapter a failed submit leaves the draft committed and the
+	next call makes another one.
+	"""
+	savepoint = "korkem_receive_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(savepoint)
+	try:
+		result = _receive_purchase_order(purchase_order, items)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		raise
+	frappe.db.release_savepoint(savepoint)
+	return result
+
+
+def _receive_purchase_order(purchase_order: str, items: list | None = None):
+	"""Book a delivery in against its purchase order.
+
 	Through ERPNext's own Purchase Receipt, which is what actually moves the
 	stock ledger. Writing `Bin.actual_qty` would leave the ledger disagreeing
 	with the shelf and every valuation built on it wrong — and it would be a
@@ -199,6 +220,33 @@ def _supplier_for(item_codes: list[str], company: str) -> tuple[str | None, list
 
 
 def create_purchase_order(
+	material_request: str,
+	supplier: str | None = None,
+	schedule_date: str | None = None,
+):
+	"""Turn a material request into an order with a supplier.
+
+	Owns a savepoint because the write is not one document: a Purchase Order is
+	inserted and then submitted, and a committed draft leaves `ordered_qty` at
+	zero on the request — so the next call creates a second one for the same
+	material.
+
+	An outer HTTP transaction is not the boundary: `korkem_ai/tools/registry.py`
+	catches `Exception` and returns it **as data** rather than re-raising, so
+	through the AI adapter the draft survives.
+	"""
+	savepoint = "korkem_order_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(savepoint)
+	try:
+		result = _create_purchase_order(material_request, supplier, schedule_date)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		raise
+	frappe.db.release_savepoint(savepoint)
+	return result
+
+
+def _create_purchase_order(
 	material_request: str,
 	supplier: str | None = None,
 	schedule_date: str | None = None,

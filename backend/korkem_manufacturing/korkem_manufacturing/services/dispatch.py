@@ -73,6 +73,27 @@ def _lines_for(sales_order: str) -> list[dict]:
 
 
 def create_delivery(sales_order: str, items: list | None = None):
+	"""Ship what is on the shelf against a sales order.
+
+	Owns a savepoint because the write is not one document: a Delivery Note is
+	inserted and then submitted, and a committed draft is stock promised to a
+	customer that never left the building.
+
+	An outer HTTP transaction is not the boundary: `korkem_ai/tools/registry.py`
+	catches `Exception` and returns it **as data** rather than re-raising.
+	"""
+	savepoint = "korkem_ship_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(savepoint)
+	try:
+		result = _create_delivery(sales_order, items)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		raise
+	frappe.db.release_savepoint(savepoint)
+	return result
+
+
+def _create_delivery(sales_order: str, items: list | None = None):
 	"""Ship what is owed and on the shelf, through ERPNext's own mapper.
 
 	Everything is re-read here. A shipment is stock leaving the building, and
