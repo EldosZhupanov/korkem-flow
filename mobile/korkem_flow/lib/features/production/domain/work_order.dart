@@ -12,6 +12,7 @@ class WorkOrder {
     this.productionItem,
     this.itemName,
     this.originatingDeal,
+    this.salesOrder,
     this.plannedEndDate,
     this.actualEndDate,
     this.wipWarehouse,
@@ -28,13 +29,9 @@ class WorkOrder {
   final String? productionItem;
   final String? itemName;
 
-  /// The `CRM Deal` this order was raised for.
-  ///
-  /// A **custom field** added by this project (verified in `tabCustom Field`),
-  /// not part of stock ERPNext — it is the link that makes the Production Order
-  /// lifecycle traceable end to end, and the reason a salesperson can answer
-  /// "when does my kitchen ship".
+  /// The `CRM Deal` or `Sales Order` this order was raised for.
   final String? originatingDeal;
+  final String? salesOrder;
 
   final DateTime? plannedEndDate;
   final DateTime? actualEndDate;

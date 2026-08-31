@@ -446,5 +446,28 @@
   "channelsStateRateLimited": "Ограничение частоты",
   "@channelsStateRateLimited": {
     "description": "The provider is throttling us."
-  }
+  },
+  "ordersTitle": "Заказы",
+  "ordersEmpty": "Заказов пока нет",
+  "ordersEmptyBody": "Новые заказы клиентов появятся здесь.",
+  "ordersActionStartProduction": "Запустить производство",
+  "ordersStartingProduction": "Запуск производства...",
+  "ordersStartSuccess": "Производство запущено по {id}",
+  "ordersTopUpSuccess": "Материал передан по {id}",
+  "ordersAlreadyStarted": "Производство по {id} уже запущено",
+  "ordersNothingToStart": "По заказу {id} нечего запускать",
+  "ordersBlockedTitle": "Недостаточно материалов",
+  "ordersBlockedBody": "Для запуска производства не хватает материалов на складе:",
+  "ordersBlockedSummary": "Нельзя запустить {id}: не хватает материалов на складе",
+  "ordersDeliveredProgress": "Отгружено {percent}%",
+  "ordersDeliveryDate": "Доставка: {date}",
+  "ordersTransactionDate": "От {date}",
+  "soDraft": "Черновик",
+  "soToDeliverAndBill": "К отгрузке и оплате",
+  "soToBill": "К оплате",
+  "soToDeliver": "К отгрузке",
+  "soCompleted": "Завершён",
+  "soCancelled": "Отменён",
+  "soClosed": "Закрыт",
+  "soOnHold": "На удержании"
 }

@@ -637,5 +637,137 @@
   "channelsStateRateLimited": "Rate limited",
   "@channelsStateRateLimited": {
     "description": "The provider is throttling us."
+  },
+  "ordersTitle": "Sales Orders",
+  "@ordersTitle": {
+    "description": "Title of the sales orders screen."
+  },
+  "ordersEmpty": "No sales orders yet",
+  "@ordersEmpty": {
+    "description": "Empty state title."
+  },
+  "ordersEmptyBody": "New customer orders will appear here.",
+  "@ordersEmptyBody": {
+    "description": "Empty state body."
+  },
+  "ordersActionStartProduction": "Start production",
+  "@ordersActionStartProduction": {
+    "description": "Button to launch manufacturing for a sales order."
+  },
+  "ordersStartingProduction": "Starting production...",
+  "@ordersStartingProduction": {
+    "description": "Feedback when starting production is in progress."
+  },
+  "ordersStartSuccess": "Production started for {id}",
+  "@ordersStartSuccess": {
+    "description": "Feedback when production was successfully launched.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersTopUpSuccess": "Material transferred for {id}",
+  "@ordersTopUpSuccess": {
+    "description": "Feedback when materials were topped up for existing job.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersAlreadyStarted": "Production for {id} is already started",
+  "@ordersAlreadyStarted": {
+    "description": "Feedback when order is already in production.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersNothingToStart": "Nothing to start for {id}",
+  "@ordersNothingToStart": {
+    "description": "Feedback when there is nothing to start.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersBlockedTitle": "Insufficient materials",
+  "@ordersBlockedTitle": {
+    "description": "Title of dialog when materials are missing."
+  },
+  "ordersBlockedBody": "Not enough materials in stock to start production:",
+  "@ordersBlockedBody": {
+    "description": "Body of dialog when materials are missing."
+  },
+  "ordersBlockedSummary": "Cannot start {id}: missing materials on the shelf",
+  "@ordersBlockedSummary": {
+    "description": "Summary feedback when production start is blocked.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDeliveredProgress": "{percent}% delivered",
+  "@ordersDeliveredProgress": {
+    "description": "Percentage delivered.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDeliveryDate": "Delivery: {date}",
+  "@ordersDeliveryDate": {
+    "description": "Delivery date annotation.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersTransactionDate": "Date: {date}",
+  "@ordersTransactionDate": {
+    "description": "Order creation date annotation.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "soDraft": "Draft",
+  "@soDraft": {
+    "description": "Sales Order status: Draft."
+  },
+  "soToDeliverAndBill": "To Deliver & Bill",
+  "@soToDeliverAndBill": {
+    "description": "Sales Order status: To Deliver and Bill."
+  },
+  "soToBill": "To Bill",
+  "@soToBill": {
+    "description": "Sales Order status: To Bill."
+  },
+  "soToDeliver": "To Deliver",
+  "@soToDeliver": {
+    "description": "Sales Order status: To Deliver."
+  },
+  "soCompleted": "Completed",
+  "@soCompleted": {
+    "description": "Sales Order status: Completed."
+  },
+  "soCancelled": "Cancelled",
+  "@soCancelled": {
+    "description": "Sales Order status: Cancelled."
+  },
+  "soClosed": "Closed",
+  "@soClosed": {
+    "description": "Sales Order status: Closed."
+  },
+  "soOnHold": "On Hold",
+  "@soOnHold": {
+    "description": "Sales Order status: On Hold."
   }
 }

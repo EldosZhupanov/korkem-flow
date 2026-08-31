@@ -897,4 +897,91 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get channelsStateRateLimited => 'Жиілік шектеуі';
+
+  @override
+  String get ordersTitle => 'Тапсырыстар';
+
+  @override
+  String get ordersEmpty => 'Әзірге тапсырыстар жоқ';
+
+  @override
+  String get ordersEmptyBody =>
+      'Жаңа тұтынушы тапсырыстары осында пайда болады.';
+
+  @override
+  String get ordersActionStartProduction => 'Өндірісті бастау';
+
+  @override
+  String get ordersStartingProduction => 'Өндіріс іске қосылуда...';
+
+  @override
+  String ordersStartSuccess(String id) {
+    return '$id бойынша өндіріс басталды';
+  }
+
+  @override
+  String ordersTopUpSuccess(String id) {
+    return '$id бойынша материал берілді';
+  }
+
+  @override
+  String ordersAlreadyStarted(String id) {
+    return '$id бойынша өндіріс әлдеқашан басталған';
+  }
+
+  @override
+  String ordersNothingToStart(String id) {
+    return '$id тапсырысы бойынша іске қосатын ештеңе жоқ';
+  }
+
+  @override
+  String get ordersBlockedTitle => 'Материалдар жеткіліксіз';
+
+  @override
+  String get ordersBlockedBody =>
+      'Өндірісті бастау үшін қоймада материалдар жетіспейді:';
+
+  @override
+  String ordersBlockedSummary(String id) {
+    return '$id іске қосылмады: қоймада материалдар жеткіліксіз';
+  }
+
+  @override
+  String ordersDeliveredProgress(String percent) {
+    return '$percent% жөнелтілді';
+  }
+
+  @override
+  String ordersDeliveryDate(String date) {
+    return 'Жеткізу: $date';
+  }
+
+  @override
+  String ordersTransactionDate(String date) {
+    return 'Күні: $date';
+  }
+
+  @override
+  String get soDraft => 'Жоба';
+
+  @override
+  String get soToDeliverAndBill => 'Жөнелту және төлем күтілуде';
+
+  @override
+  String get soToBill => 'Төлем күтілуде';
+
+  @override
+  String get soToDeliver => 'Жөнелту күтілуде';
+
+  @override
+  String get soCompleted => 'Аяқталды';
+
+  @override
+  String get soCancelled => 'Бас тартылды';
+
+  @override
+  String get soClosed => 'Жабылды';
+
+  @override
+  String get soOnHold => 'Тоқтатылды';
 }

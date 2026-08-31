@@ -1809,6 +1809,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rate limited'**
   String get channelsStateRateLimited;
+
+  /// Title of the sales orders screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales Orders'**
+  String get ordersTitle;
+
+  /// Empty state title.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales orders yet'**
+  String get ordersEmpty;
+
+  /// Empty state body.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer orders will appear here.'**
+  String get ordersEmptyBody;
+
+  /// Button to launch manufacturing for a sales order.
+  ///
+  /// In en, this message translates to:
+  /// **'Start production'**
+  String get ordersActionStartProduction;
+
+  /// Feedback when starting production is in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting production...'**
+  String get ordersStartingProduction;
+
+  /// Feedback when production was successfully launched.
+  ///
+  /// In en, this message translates to:
+  /// **'Production started for {id}'**
+  String ordersStartSuccess(String id);
+
+  /// Feedback when materials were topped up for existing job.
+  ///
+  /// In en, this message translates to:
+  /// **'Material transferred for {id}'**
+  String ordersTopUpSuccess(String id);
+
+  /// Feedback when order is already in production.
+  ///
+  /// In en, this message translates to:
+  /// **'Production for {id} is already started'**
+  String ordersAlreadyStarted(String id);
+
+  /// Feedback when there is nothing to start.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to start for {id}'**
+  String ordersNothingToStart(String id);
+
+  /// Title of dialog when materials are missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient materials'**
+  String get ordersBlockedTitle;
+
+  /// Body of dialog when materials are missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough materials in stock to start production:'**
+  String get ordersBlockedBody;
+
+  /// Summary feedback when production start is blocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot start {id}: missing materials on the shelf'**
+  String ordersBlockedSummary(String id);
+
+  /// Percentage delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% delivered'**
+  String ordersDeliveredProgress(String percent);
+
+  /// Delivery date annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery: {date}'**
+  String ordersDeliveryDate(String date);
+
+  /// Order creation date annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Date: {date}'**
+  String ordersTransactionDate(String date);
+
+  /// Sales Order status: Draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get soDraft;
+
+  /// Sales Order status: To Deliver and Bill.
+  ///
+  /// In en, this message translates to:
+  /// **'To Deliver & Bill'**
+  String get soToDeliverAndBill;
+
+  /// Sales Order status: To Bill.
+  ///
+  /// In en, this message translates to:
+  /// **'To Bill'**
+  String get soToBill;
+
+  /// Sales Order status: To Deliver.
+  ///
+  /// In en, this message translates to:
+  /// **'To Deliver'**
+  String get soToDeliver;
+
+  /// Sales Order status: Completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get soCompleted;
+
+  /// Sales Order status: Cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get soCancelled;
+
+  /// Sales Order status: Closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get soClosed;
+
+  /// Sales Order status: On Hold.
+  ///
+  /// In en, this message translates to:
+  /// **'On Hold'**
+  String get soOnHold;
 }
 
 class _AppLocalizationsDelegate

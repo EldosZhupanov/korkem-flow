@@ -1,4 +1,11 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+
+final productionCommandRepositoryProvider =
+    Provider<ProductionCommandRepository>(
+      (ref) => ProductionCommandRepository(ref.watch(frappeClientProvider)),
+    );
 
 /// Starting production, without a language model in the path.
 ///

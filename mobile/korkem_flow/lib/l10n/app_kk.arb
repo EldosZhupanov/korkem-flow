@@ -446,5 +446,28 @@
   "channelsStateRateLimited": "Жиілік шектеуі",
   "@channelsStateRateLimited": {
     "description": "The provider is throttling us."
-  }
+  },
+  "ordersTitle": "Тапсырыстар",
+  "ordersEmpty": "Әзірге тапсырыстар жоқ",
+  "ordersEmptyBody": "Жаңа тұтынушы тапсырыстары осында пайда болады.",
+  "ordersActionStartProduction": "Өндірісті бастау",
+  "ordersStartingProduction": "Өндіріс іске қосылуда...",
+  "ordersStartSuccess": "{id} бойынша өндіріс басталды",
+  "ordersTopUpSuccess": "{id} бойынша материал берілді",
+  "ordersAlreadyStarted": "{id} бойынша өндіріс әлдеқашан басталған",
+  "ordersNothingToStart": "{id} тапсырысы бойынша іске қосатын ештеңе жоқ",
+  "ordersBlockedTitle": "Материалдар жеткіліксіз",
+  "ordersBlockedBody": "Өндірісті бастау үшін қоймада материалдар жетіспейді:",
+  "ordersBlockedSummary": "{id} іске қосылмады: қоймада материалдар жеткіліксіз",
+  "ordersDeliveredProgress": "{percent}% жөнелтілді",
+  "ordersDeliveryDate": "Жеткізу: {date}",
+  "ordersTransactionDate": "Күні: {date}",
+  "soDraft": "Жоба",
+  "soToDeliverAndBill": "Жөнелту және төлем күтілуде",
+  "soToBill": "Төлем күтілуде",
+  "soToDeliver": "Жөнелту күтілуде",
+  "soCompleted": "Аяқталды",
+  "soCancelled": "Бас тартылды",
+  "soClosed": "Жабылды",
+  "soOnHold": "Тоқтатылды"
 }

@@ -897,4 +897,90 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get channelsStateRateLimited => 'Ограничение частоты';
+
+  @override
+  String get ordersTitle => 'Заказы';
+
+  @override
+  String get ordersEmpty => 'Заказов пока нет';
+
+  @override
+  String get ordersEmptyBody => 'Новые заказы клиентов появятся здесь.';
+
+  @override
+  String get ordersActionStartProduction => 'Запустить производство';
+
+  @override
+  String get ordersStartingProduction => 'Запуск производства...';
+
+  @override
+  String ordersStartSuccess(String id) {
+    return 'Производство запущено по $id';
+  }
+
+  @override
+  String ordersTopUpSuccess(String id) {
+    return 'Материал передан по $id';
+  }
+
+  @override
+  String ordersAlreadyStarted(String id) {
+    return 'Производство по $id уже запущено';
+  }
+
+  @override
+  String ordersNothingToStart(String id) {
+    return 'По заказу $id нечего запускать';
+  }
+
+  @override
+  String get ordersBlockedTitle => 'Недостаточно материалов';
+
+  @override
+  String get ordersBlockedBody =>
+      'Для запуска производства не хватает материалов на складе:';
+
+  @override
+  String ordersBlockedSummary(String id) {
+    return 'Нельзя запустить $id: не хватает материалов на складе';
+  }
+
+  @override
+  String ordersDeliveredProgress(String percent) {
+    return 'Отгружено $percent%';
+  }
+
+  @override
+  String ordersDeliveryDate(String date) {
+    return 'Доставка: $date';
+  }
+
+  @override
+  String ordersTransactionDate(String date) {
+    return 'От $date';
+  }
+
+  @override
+  String get soDraft => 'Черновик';
+
+  @override
+  String get soToDeliverAndBill => 'К отгрузке и оплате';
+
+  @override
+  String get soToBill => 'К оплате';
+
+  @override
+  String get soToDeliver => 'К отгрузке';
+
+  @override
+  String get soCompleted => 'Завершён';
+
+  @override
+  String get soCancelled => 'Отменён';
+
+  @override
+  String get soClosed => 'Закрыт';
+
+  @override
+  String get soOnHold => 'На удержании';
 }

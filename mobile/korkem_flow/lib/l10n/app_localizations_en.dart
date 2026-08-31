@@ -894,4 +894,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get channelsStateRateLimited => 'Rate limited';
+
+  @override
+  String get ordersTitle => 'Sales Orders';
+
+  @override
+  String get ordersEmpty => 'No sales orders yet';
+
+  @override
+  String get ordersEmptyBody => 'New customer orders will appear here.';
+
+  @override
+  String get ordersActionStartProduction => 'Start production';
+
+  @override
+  String get ordersStartingProduction => 'Starting production...';
+
+  @override
+  String ordersStartSuccess(String id) {
+    return 'Production started for $id';
+  }
+
+  @override
+  String ordersTopUpSuccess(String id) {
+    return 'Material transferred for $id';
+  }
+
+  @override
+  String ordersAlreadyStarted(String id) {
+    return 'Production for $id is already started';
+  }
+
+  @override
+  String ordersNothingToStart(String id) {
+    return 'Nothing to start for $id';
+  }
+
+  @override
+  String get ordersBlockedTitle => 'Insufficient materials';
+
+  @override
+  String get ordersBlockedBody =>
+      'Not enough materials in stock to start production:';
+
+  @override
+  String ordersBlockedSummary(String id) {
+    return 'Cannot start $id: missing materials on the shelf';
+  }
+
+  @override
+  String ordersDeliveredProgress(String percent) {
+    return '$percent% delivered';
+  }
+
+  @override
+  String ordersDeliveryDate(String date) {
+    return 'Delivery: $date';
+  }
+
+  @override
+  String ordersTransactionDate(String date) {
+    return 'Date: $date';
+  }
+
+  @override
+  String get soDraft => 'Draft';
+
+  @override
+  String get soToDeliverAndBill => 'To Deliver & Bill';
+
+  @override
+  String get soToBill => 'To Bill';
+
+  @override
+  String get soToDeliver => 'To Deliver';
+
+  @override
+  String get soCompleted => 'Completed';
+
+  @override
+  String get soCancelled => 'Cancelled';
+
+  @override
+  String get soClosed => 'Closed';
+
+  @override
+  String get soOnHold => 'On Hold';
 }
