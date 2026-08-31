@@ -2,11 +2,15 @@
 # See license.txt
 """One company's answers must never contain another company's documents.
 
-This bench carries twenty-three companies, twenty-two of them ERPNext's own
-fixtures, and the assistant's answers used to be clean by accident: the other
-companies' orders happened to be drafts, so a `docstatus = 1` filter hid them.
-Submitting one would have started reporting another company's late orders to a
-KORKEM planner, with nothing in the code to stop it.
+The assistant's answers were once clean by accident: the only other companies
+on the bench were ERPNext's own fixtures, their orders were drafts, and a
+`docstatus = 1` filter hid them. Submitting one would have started reporting
+another company's late orders to a KORKEM planner, with nothing in the code to
+stop it.
+
+The fixture those tests leaned on is not present on a site built from an empty
+volume, and they answered by turning themselves off — see
+`foreign_fixture`, which builds the second company instead of hunting for one.
 
 Role permissions do not cover this. `Sales User` grants read on *Sales Order* —
 the doctype, not one company's rows. So these tests submit a real document for
@@ -15,15 +19,14 @@ another company and assert it never appears.
 
 import frappe
 from frappe.tests import IntegrationTestCase
-from frappe.utils import add_days, nowdate
 
 from korkem_manufacturing import seed_demo
 
 from korkem_ai.korkem_ai.tools import catalog, registry  # noqa: F401
+from korkem_ai.korkem_ai.tools import foreign_fixture
 from korkem_ai.korkem_ai.tools.scope import current_company
 
 PLANNER = "korkem.planner@example.com"
-OTHER_COMPANY = "_Test Company"
 
 
 class TestTheCompanyIsTheServersAnswer(IntegrationTestCase):
@@ -53,7 +56,7 @@ class TestTheCompanyIsTheServersAnswer(IntegrationTestCase):
 
 
 class TestAnotherCompanysWorkIsInvisible(IntegrationTestCase):
-	"""Creates a real submitted order for `_Test Company` and looks for it."""
+	"""Creates a real submitted order for another company and looks for it."""
 
 	@classmethod
 	def setUpClass(cls):
@@ -65,12 +68,14 @@ class TestAnotherCompanysWorkIsInvisible(IntegrationTestCase):
 
 	@classmethod
 	def tearDownClass(cls):
+		"""Remove the whole fixture, not just the order.
+
+		`setUpClass` commits, so none of this is rolled back with a test. An
+		earlier version deleted the Sales Order and left the company, its items
+		and its BOM on the bench — which is how a later module ends up running
+		against data no test in it created."""
 		frappe.set_user("Administrator")
-		if cls.intruder and frappe.db.exists("Sales Order", cls.intruder):
-			doc = frappe.get_doc("Sales Order", cls.intruder)
-			if doc.docstatus == 1:
-				doc.cancel()
-			frappe.delete_doc("Sales Order", cls.intruder, force=1, ignore_permissions=True)
+		foreign_fixture.remove()
 		frappe.db.commit()
 		super().tearDownClass()
 
@@ -81,45 +86,9 @@ class TestAnotherCompanysWorkIsInvisible(IntegrationTestCase):
 		Submitted on purpose: a draft would be filtered out by `docstatus` and
 		the test would pass without the scope doing any work at all.
 		"""
-		item = frappe.db.get_value(
-			"Item", {"is_stock_item": 1, "item_code": ["like", "_Test Item%"]}, "name"
-		)
-		customer = frappe.db.get_value("Customer", {"name": ["like", "_Test Customer%"]}, "name")
-		warehouse = frappe.db.get_value(
-			"Warehouse", {"company": OTHER_COMPANY, "is_group": 0}, "name"
-		)
-		if not (item and customer and warehouse):
-			return None
-
-		order = frappe.get_doc(
-			{
-				"doctype": "Sales Order",
-				"company": OTHER_COMPANY,
-				"customer": customer,
-				# Back-dated wholly: ERPNext refuses a delivery date before the
-				# order date, and an order that is late was placed a while ago.
-				"transaction_date": add_days(nowdate(), -12),
-				"delivery_date": add_days(nowdate(), -5),  # overdue, so it is loud
-				"currency": frappe.db.get_value("Company", OTHER_COMPANY, "default_currency"),
-				"conversion_rate": 1,
-				"items": [
-					{
-						"item_code": item,
-						"qty": 5,
-						"rate": 100,
-						"warehouse": warehouse,
-						"delivery_date": add_days(nowdate(), -5),
-					}
-				],
-			}
-		)
-		order.insert(ignore_permissions=True)
-		order.submit()
-		return order.name
+		return foreign_fixture.ensure()["sales_order"]
 
 	def setUp(self):
-		if not self.intruder:
-			self.skipTest("no usable _Test Company fixture on this bench")
 		frappe.set_user("Administrator")
 
 	def tearDown(self):
@@ -181,4 +150,4 @@ class TestAnotherCompanysWorkIsInvisible(IntegrationTestCase):
 		)
 
 		self.assertFalse(result["ok"])
-		self.assertEqual(frappe.db.count("Material Request", {"company": OTHER_COMPANY}), 0)
+		self.assertEqual(frappe.db.count("Material Request", {"company": foreign_fixture.COMPANY}), 0)

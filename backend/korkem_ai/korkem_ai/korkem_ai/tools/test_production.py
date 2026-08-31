@@ -17,6 +17,7 @@ from frappe.utils import flt
 from korkem_manufacturing import seed_demo
 
 from korkem_ai.korkem_ai.tools import catalog, registry  # noqa: F401
+from korkem_ai.korkem_ai.tools import foreign_fixture
 
 START = "manufacturing.start_production"
 CONTROL = "manufacturing.production_control"
@@ -602,9 +603,7 @@ class TestTheStageIsGuarded(_ShopFloorTestCase):
 		"""A work order that is not this company's must not be findable, let
 		alone advanceable."""
 		frappe.set_user("Administrator")
-		foreign = frappe.db.get_value("Work Order", {"company": ["!=", "KORKEM"]}, "name")
-		if not foreign:
-			self.skipTest("no other company's work order on this bench")
+		foreign = foreign_fixture.ensure()["work_order"]
 
 		result = self.as_user(PLANNER, FINISH_OP, {"work_order": foreign})
 
@@ -1102,9 +1101,7 @@ class TestReleasingIsGuarded(_ManufactureTestCase):
 
 	def test_another_companys_job_cannot_be_released(self):
 		frappe.set_user("Administrator")
-		foreign = frappe.db.get_value("Work Order", {"company": ["!=", "KORKEM"]}, "name")
-		if not foreign:
-			self.skipTest("no other company's work order on this bench")
+		foreign = foreign_fixture.ensure()["work_order"]
 
 		result = self.as_user(PLANNER, RELEASE, {"work_order": foreign})
 
@@ -1535,9 +1532,7 @@ class TestQualityInspection(_ScrapTestCase):
 
 	def test_another_companys_job_cannot_be_inspected(self):
 		frappe.set_user("Administrator")
-		foreign = frappe.db.get_value("Work Order", {"company": ["!=", "KORKEM"]}, "name")
-		if not foreign:
-			self.skipTest("no other company's work order on this bench")
+		foreign = foreign_fixture.ensure()["work_order"]
 
 		result = self.as_user(PLANNER, INSPECT, {"work_order": foreign, "result": "принято"})
 
@@ -1896,9 +1891,7 @@ class TestReworkReturnsAPieceToGoodOutput(_ScrapTestCase):
 
 	def test_another_companys_job_cannot_be_reworked(self):
 		frappe.set_user("Administrator")
-		foreign = frappe.db.get_value("Work Order", {"company": ["!=", "KORKEM"]}, "name")
-		if not foreign:
-			self.skipTest("no other company's work order on this bench")
+		foreign = foreign_fixture.ensure()["work_order"]
 
 		result = self.as_user(PLANNER, REWORK, {"work_order": foreign, "result": "исправлено"})
 
@@ -2152,9 +2145,7 @@ class TestGoodPiecesDoNotWaitForARework(_ScrapTestCase):
 
 	def test_another_companys_job_is_still_refused(self):
 		frappe.set_user("Administrator")
-		foreign = frappe.db.get_value("Work Order", {"company": ["!=", "KORKEM"]}, "name")
-		if not foreign:
-			self.skipTest("no other company's work order on this bench")
+		foreign = foreign_fixture.ensure()["work_order"]
 
 		result = self.as_user(
 			PLANNER, FINISH_OP, {"work_order": foreign, "operation": FIRST_OP, "rework_qty": 1}
@@ -2410,9 +2401,7 @@ class TestStoppingIsGuarded(_StopTestCase):
 
 	def test_another_companys_job_cannot_be_stopped(self):
 		frappe.set_user("Administrator")
-		foreign = frappe.db.get_value("Work Order", {"company": ["!=", "KORKEM"]}, "name")
-		if not foreign:
-			self.skipTest("no other company's work order on this bench")
+		foreign = foreign_fixture.ensure()["work_order"]
 
 		result = self.as_user(PLANNER, STOP, {"work_order": foreign, "action": "останови"})
 

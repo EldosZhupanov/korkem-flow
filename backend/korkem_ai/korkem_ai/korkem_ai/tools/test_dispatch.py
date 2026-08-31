@@ -11,6 +11,8 @@ same row in the same state.
 from unittest.mock import patch
 
 import frappe
+
+from korkem_ai.korkem_ai.tools import foreign_fixture
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
 
@@ -60,7 +62,17 @@ class _DispatchTestCase(IntegrationTestCase):
 		frappe.db.commit()
 
 	def order(self):
-		return frappe.get_all("Sales Order", filters={"docstatus": 1}, pluck="name")[0]
+		"""A submitted order **of this company**.
+
+		The company filter is not decoration. Without it this returned the
+		first submitted order on the bench, whichever company it belonged to,
+		and the moment a second company existed sixteen tests in this file
+		started asserting against a document the dispatcher is supposed to
+		refuse. They did not fail honestly either — they errored on the refusal,
+		so the output pointed at the dispatcher instead of at the fixture."""
+		return frappe.get_all(
+			"Sales Order", filters={"docstatus": 1, "company": "KORKEM"}, pluck="name"
+		)[0]
 
 	def link_ivan(self, external_id="290001"):
 		from korkem_ai.korkem_ai.doctype.channel_identity import channel_identity as identities
@@ -161,13 +173,9 @@ class TestGivingSomebodyWork(_DispatchTestCase):
 
 	def test_an_order_from_another_company_is_not_found(self):
 		frappe.set_user("Administrator")
-		other = frappe.get_all(
-			"Sales Order", filters={"company": ["!=", "KORKEM"], "docstatus": 1}, pluck="name"
-		)
-		if not other:
-			self.skipTest("this bench has no other company's submitted order")
+		foreign = foreign_fixture.ensure()["sales_order"]
 
-		result = self.assign(sales_order=other[0])
+		result = self.assign(sales_order=foreign)
 
 		self.assertFalse(result["ok"])
 		self.assertEqual(frappe.db.count("Work Instruction"), 0)
@@ -212,6 +220,7 @@ class TestGivingSomebodyWork(_DispatchTestCase):
 		self.assertIn("Закончить раскрой", summary)
 
 
+
 class TestWhoMayDispatch(_DispatchTestCase):
 	def test_a_shop_floor_user_may_not(self):
 		"""ERPNext's own permission, not a second opinion in the policy file:
@@ -232,7 +241,7 @@ class TestWhoMayDispatch(_DispatchTestCase):
 		"""Company membership is a `User Permission` on Company — ERPNext's own
 		way of saying it, and the same one `scope.current_company` reads."""
 		email = "korkem.elsewhere@example.com"
-		other = frappe.get_all("Company", filters={"name": ["!=", "KORKEM"]}, pluck="name")[0]
+		other = foreign_fixture.ensure()["company"]
 		if not frappe.db.exists("User", email):
 			frappe.get_doc(
 				{

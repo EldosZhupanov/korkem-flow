@@ -14,6 +14,7 @@ from frappe.tests import IntegrationTestCase
 from korkem_manufacturing import seed_demo
 
 from korkem_ai.korkem_ai.tools import catalog, registry  # noqa: F401
+from korkem_ai.korkem_ai.tools import foreign_fixture
 
 STATUS = "sales.delivery_status"
 SHIP = "sales.create_delivery"
@@ -312,11 +313,7 @@ class TestScopeAndPermissions(_DeliveryTestCase):
 
 	def test_another_companys_order_cannot_be_read_or_shipped(self):
 		frappe.set_user("Administrator")
-		foreign = frappe.db.get_value(
-			"Sales Order", {"company": ["!=", "KORKEM"], "docstatus": 1}, "name"
-		)
-		if not foreign:
-			self.skipTest("no other company's order on this bench")
+		foreign = foreign_fixture.ensure()["sales_order"]
 
 		read = self.as_user(PLANNER, STATUS, {"sales_order": foreign})
 		write = self.as_user(PLANNER, SHIP, {"sales_order": foreign})
