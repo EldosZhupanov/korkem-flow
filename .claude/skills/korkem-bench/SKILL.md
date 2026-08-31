@@ -103,6 +103,38 @@ demo dataset between runs.
 `Notification Delivery` and `Channel Event` **globally**. Take any verification
 *before* running further tests.
 
+## The node on Windows
+
+The node runs in WSL2 on the client's own machine (`ADR-0024`), and three
+things there are counter-intuitive enough to have cost time already.
+
+**The bench binds loopback, and that is not enough for a node.** A `netsh`
+port proxy on the Windows side, configured perfectly, forwards to
+`<wsl-ip>:8000` — where nothing is listening, because compose publishes to
+`127.0.0.1` inside WSL. Bring the node up with
+`-f docker-compose.wsl-node.yml`, which is the only file that binds `0.0.0.0`,
+and keep that an explicit act.
+
+**WSL2's address changes on every reboot.** The proxy rule survives and points
+nowhere. Measured: from the machine itself `localhost:8000` answers 200, from
+the shop floor the connection does not open at all, and nothing listens on
+port 8000 in Windows. So it looks fine to whoever installs it and broken to
+everyone else. `infra/node/windows/Update-KorkemNodeAccess.ps1` rewrites the
+rule and must run at logon.
+
+**A `.ps1` with non-English text must be UTF-8 *with* BOM.** PowerShell 5.1 —
+the one shipped with Windows — reads a BOM-less file as Windows-1251. Russian
+comments become garbage, the garbage breaks quoting, and the parser reports
+errors pointing at innocent lines several screens away. Verified both ways:
+`Parser::ParseFile` gave errors=4 without the BOM and errors=0 with it.
+
+**Never call `wsl.exe` from a PowerShell launched inside WSL.** The nested call
+wedges the interop bridge outright —
+`WSL ERROR: UtilAcceptVsock:273: accept4 failed 110` — and every subsequent
+Windows call from that WSL session fails until it is recreated. Containers are
+unharmed; your ability to test is not. Parse and `-DryRun` from here, run the
+real path from Windows.
+
 ## Health
 
 `/health` and `/health/ready` are served by
