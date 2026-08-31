@@ -9,8 +9,10 @@
 
 ## Текущий горизонт
 
-**Г0 закрыт, кроме одного пункта.** Начат **Г1, действие 1 —
-`start_production`**, вертикальный срез не завершён (см. ниже).
+**Г0 закрыт, кроме одного пункта** (репетиция восстановления бэкапа).
+**Г1, действие 1 — `start_production` — перенесено и закоммичено.**
+Остановлено на архитектурном обзоре, как и планировалось: действия 2–5 не
+начаты.
 
 ## Состояние на последний замер
 
@@ -27,29 +29,45 @@
 
 Ветка `dev`. Оба приложения теперь **внутри** этого репозитория.
 
-## Что осталось от Г0
+## Что осталось незакрытым
 
-- [ ] **Репетиция восстановления из бэкапа.** Не делалась. Процедура описана в
-      `docs/operations/BACKUP_AND_RESTORE.md` и там же честно сказано, что её
-      ни разу не выполняли. Бэкап, который не разворачивали, — это вера.
+- [ ] **Репетиция восстановления из бэкапа.** Не делалась. Процедура есть в
+      `docs/operations/BACKUP_AND_RESTORE.md`, и там же сказано, что её ни разу
+      не выполняли. Бэкап, который не разворачивали, — это вера.
 - [ ] **Bootstrap на чистом volume после миграции в монорепо.** См. риски.
+- [ ] **Инверсия `scope.py` → `tools.policy`.** Отдельное изменение: `role_of()`
+      делает две работы в одной функции.
+- [ ] **Кнопки «Запустить производство» нет, и её некуда поставить.**
+      `start_production` принимает Sales Order; экран производства показывает
+      Work Orders, которые появляются уже после запуска. Ни один экран не
+      показывает Sales Order — `features/sales` это оболочка над CRM. Нужен
+      экран заказов, то есть отдельная работа, а не кнопка.
+
+## Что дало действие 1
+
+`start_production` теперь один доменный сервис с четырьмя лицами:
+
+```
+korkem_manufacturing/services/production.py   правило (перенос дословный)
+korkem_manufacturing/api/production.py        @frappe.whitelist + права + scope + аудит
+korkem_ai/tools/production.py                 ToolSpec.handler → та же функция API
+mobile/.../production_command_repository.dart POST на тот же эндпоинт
+```
+
+**«AI и кнопка вызывают одну функцию» — это тест, а не обещание:**
+`assertIs(spec.handler, api.start_production)`.
+
+Домен не импортирует `korkem_ai` — кроме одной задокументированной строки
+(`services/scope.py`, ленивый `tools.policy` внутри `customer_scope()`, куда
+`start_production` не заходит). Уведомления идут через `domain_events.emit()`:
+домен называет событие, `korkem_ai` подписывается в своём `hooks.py`.
 
 ## Следующий шаг, конкретно
 
-Достроить действие 1 Горизонта 1. Написано и лежит незакоммиченным:
+Ждёт вашего решения (см. «Открытые вопросы»). Технически следующий — bootstrap
+на чистом volume: без него воспроизводимость монорепо остаётся верой.
 
-```
-korkem_manufacturing/domain_events.py            домен объявляет событие, не зная подписчиков
-korkem_manufacturing/services/scope.py           company/customer scope
-korkem_manufacturing/services/warehouse.py       расчёт дефицита
-korkem_manufacturing/services/production.py      start_production
-korkem_manufacturing/api/production.py           @frappe.whitelist + права + аудит
-korkem_manufacturing/test_api_production.py      12 тестов слоя API
-```
-
-Не сделано: переключение `ToolSpec.handler` на API, подписка `korkem_ai` на
-`production.started` через `hooks.py`, Flutter-кнопка, приёмочный тест «работает
-при недоступном LLM».
+Действие 2 (`complete_operation`) идёт по той же дороге и не начато намеренно.
 
 ---
 
