@@ -131,15 +131,34 @@ $C exec -T bench bash -lc '
 ### Get it off the machine
 
 A backup that lives only on the machine it protects is not a backup of that
-machine:
+machine. On the WSL2 pilot, use the guarded off-VHDX script:
 
 ```sh
-docker compose cp bench:/home/frappe/frappe-bench/sites/<site>/private/backups ./backups
-rsync -av ./backups/ user@another-host:/srv/korkem-backups/
+cd infra/frappe_bench
+KORKEM_BACKUP_DIR=/mnt/d/korkem-backups \
+SITE_NAME=korkem.localhost \
+./scripts/backup_offsite.sh
 ```
 
-No off-machine destination is configured yet; the commands above require an
-operator-owned host or bucket.
+The script rejects WSL filesystem destinations such as `/home/...`, copies the
+database, both file archives and the site-config backup as one atomic set,
+compares destination SHA-256 hashes and sizes with the container originals,
+and retains seven complete sets by default. Override that count with
+`KORKEM_BACKUP_KEEP`; it never removes source artifacts from the bench volume.
+
+To re-check every retained copy against its still-present source artifact:
+
+```sh
+KORKEM_BACKUP_DIR=/mnt/d/korkem-backups \
+./scripts/backup_offsite.sh --verify-only
+```
+
+`KORKEM_BENCH_CONTAINER` is only needed when container discovery finds zero or
+more than one running Compose `bench` service. The destination is a Windows
+mount, but its Windows ACL is still an operator responsibility. The script
+requests restrictive Unix modes, verifies that the site-config backup has the
+same reported mode as the database artifact, and warns when the Windows mount
+does not honor those Unix mode bits.
 
 ### The encryption key
 
@@ -156,13 +175,13 @@ No host schedule is installed. A possible daily schedule is:
 
 ```cron
 15 2 * * * cd /path/to/furniture_ai/infra/frappe_bench && \
-  docker compose -f docker-compose.yml -f docker-compose.pilot.yml exec -T bench \
-  bash -lc 'cd /home/frappe/frappe-bench && bench --site <site> backup --with-files' \
-  && find /srv/korkem-backups -name '*.sql.gz' -mtime +14 -delete
+  KORKEM_BACKUP_DIR=/mnt/d/korkem-backups SITE_NAME=<site> \
+  ./scripts/backup_offsite.sh
 ```
 
 System Settings → **Backup Frequency** can schedule the database backup once
-the scheduler is enabled. It still does not copy anything off the machine.
+the scheduler is enabled. It still does not copy anything off the VHDX; do not
+use it as a substitute for this host-side copy.
 
 ## Restoring into a scratch site
 
