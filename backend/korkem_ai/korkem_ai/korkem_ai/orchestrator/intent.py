@@ -59,9 +59,9 @@ details they did not state -- use null when something was not mentioned.
 Messages may be in Russian, Kazakh, or English. Classify by meaning, not language."""
 
 
-def classify(message: str) -> dict:
+def classify(message: str, provider=None) -> dict:
 	"""Classify a customer message. Returns the validated intent dict."""
-	provider = llm.get_provider()
+	provider = provider or llm.get_provider()
 	result = provider.complete_json(
 		system=SYSTEM_PROMPT,
 		user_message=message,

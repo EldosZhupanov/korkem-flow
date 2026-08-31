@@ -13,8 +13,9 @@ separate services.
 
 import frappe
 
+from korkem_ai.korkem_ai import budget, usage
 from korkem_ai.korkem_ai.agents import sales_agent
-from korkem_ai.korkem_ai.orchestrator import intent as intent_module
+from korkem_ai.korkem_ai.orchestrator import intent as intent_module, llm
 
 # intent -> handler. Sprint 1 implements the sales path end to end; the other
 # intents are recognised (so they aren't misrouted into it) and answered with a
@@ -30,12 +31,61 @@ FALLBACK_REPLIES = {
 }
 
 
-def handle_message(conversation_name: str, message_text: str) -> dict:
+def handle_message(
+	conversation_name: str,
+	message_text: str,
+	request_id: str | None = None,
+	channel: str = "App",
+) -> dict:
 	"""Route one inbound customer message. Returns a summary of what was done."""
-	classified = intent_module.classify(message_text)
+	conversation = frappe.get_doc("Agent Conversation", conversation_name)
+	try:
+		budget.check("Guest")
+	except budget.BudgetExceeded as exc:
+		reply = str(exc)
+		conversation.add_message("Agent", reply)
+		return {"status": "refused", "handled": False, "reply": reply}
+
+	# Resolved here only so the spend can be attributed to a provider and a
+	# model. That is an accounting need, and accounting must never break the
+	# work it accounts for — the same rule `usage.record_turn` exists to hold.
+	#
+	# Raising here turned a configuration problem into an unexplained routing
+	# failure: `AINotConfigured` escaped the whole sales path even when the
+	# caller had supplied its own classifier and no provider was needed at all.
+	# With `None`, `classify` falls back to `llm.get_provider()` exactly as it
+	# did before, and says so in its own words if there is nothing to fall back
+	# to.
+	adapter = None
+	try:
+		adapter = llm.resolve(None, None)
+	except Exception:
+		pass
+
+	try:
+		classified = intent_module.classify(message_text, provider=adapter)
+	except Exception:
+		usage.record_failure(
+			adapter=adapter,
+			turn_id=request_id,
+			request_id=request_id,
+			conversation=conversation_name,
+			channel=channel,
+			user="Guest",
+		)
+		raise
+
+	usage.record_turn(
+		adapter,
+		adapter=adapter,
+		turn_id=request_id,
+		request_id=request_id,
+		conversation=conversation_name,
+		channel=channel,
+		user="Guest",
+	)
 	intent = classified["intent"]
 
-	conversation = frappe.get_doc("Agent Conversation", conversation_name)
 	conversation.add_message("System", f"Classified intent: {intent}")
 
 	handler = SKILL_ROUTES.get(intent)
@@ -52,7 +102,12 @@ def handle_message(conversation_name: str, message_text: str) -> dict:
 	return {"intent": intent, "handled": True, "pending_action": action.name}
 
 
-def handle_message_async(conversation_name: str, message_text: str):
+def handle_message_async(
+	conversation_name: str,
+	message_text: str,
+	request_id: str | None = None,
+	channel: str = "App",
+):
 	"""Queue routing as a background job.
 
 	Per ADR-0009 an LLM call is a third-party call with unbounded latency and must
@@ -64,4 +119,8 @@ def handle_message_async(conversation_name: str, message_text: str):
 		queue="long",
 		conversation_name=conversation_name,
 		message_text=message_text,
+		request_id=request_id,
+		channel=channel,
+		job_id=request_id,
+		deduplicate=bool(request_id),
 	)

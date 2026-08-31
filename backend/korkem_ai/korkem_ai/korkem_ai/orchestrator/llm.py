@@ -410,6 +410,13 @@ def _parse_json_content(text: str | None) -> dict:
 		frappe.throw("The model returned content that is not valid JSON", exc=LLMError)
 
 
+def _usage(input_tokens, output_tokens) -> AIUsage | None:
+	"""Keep reported zero distinct from a provider that reported nothing."""
+	if input_tokens is None and output_tokens is None:
+		return None
+	return AIUsage(input_tokens=input_tokens, output_tokens=output_tokens)
+
+
 class AnthropicProvider(HasCapabilities):
 	"""Claude via the official Anthropic SDK.
 
@@ -442,6 +449,7 @@ class AnthropicProvider(HasCapabilities):
 		return anthropic.Anthropic(**kwargs)
 
 	def complete_json(self, system: str, user_message: str, schema: dict) -> dict:
+		self.usage = None
 		response = self._client().messages.create(
 			model=self.model,
 			max_tokens=1024,
@@ -451,6 +459,11 @@ class AnthropicProvider(HasCapabilities):
 				"format": {"type": "json_schema", "schema": schema},
 			},
 			messages=[{"role": "user", "content": user_message}],
+		)
+		raw_usage = getattr(response, "usage", None)
+		self.usage = _usage(
+			getattr(raw_usage, "input_tokens", None),
+			getattr(raw_usage, "output_tokens", None),
 		)
 
 		if response.stop_reason == "refusal":
@@ -631,6 +644,7 @@ class OpenAICompatibleProvider(HasCapabilities):
 		self.base_url = base_url.rstrip("/")
 
 	def complete_json(self, system: str, user_message: str, schema: dict) -> dict:
+		self.usage = None
 		body = _post_json(
 			f"{self.base_url}/chat/completions",
 			headers={
@@ -649,6 +663,10 @@ class OpenAICompatibleProvider(HasCapabilities):
 				},
 				"temperature": 0,
 			},
+		)
+		raw_usage = body.get("usage") or {}
+		self.usage = _usage(
+			raw_usage.get("prompt_tokens"), raw_usage.get("completion_tokens")
 		)
 
 		choices = body.get("choices") or []
@@ -855,6 +873,7 @@ class GeminiProvider(HasCapabilities):
 		return schema
 
 	def complete_json(self, system: str, user_message: str, schema: dict) -> dict:
+		self.usage = None
 		body = _post_json(
 			f"{self.base_url}/models/{self.model}:generateContent",
 			headers={"x-goog-api-key": self.api_key, "Content-Type": "application/json"},
@@ -867,6 +886,10 @@ class GeminiProvider(HasCapabilities):
 					"temperature": 0,
 				},
 			},
+		)
+		raw_usage = body.get("usageMetadata") or {}
+		self.usage = _usage(
+			raw_usage.get("promptTokenCount"), raw_usage.get("candidatesTokenCount")
 		)
 
 		candidates = body.get("candidates") or []
@@ -1094,6 +1117,7 @@ class OllamaProvider(HasCapabilities):
 		self.base_url = (base_url or DEFAULT_BASE_URLS["Ollama"]).rstrip("/")
 
 	def complete_json(self, system: str, user_message: str, schema: dict) -> dict:
+		self.usage = None
 		body = _post_json(
 			f"{self.base_url}/api/chat",
 			headers={"Content-Type": "application/json"},
@@ -1108,6 +1132,7 @@ class OllamaProvider(HasCapabilities):
 				"options": {"temperature": 0},
 			},
 		)
+		self.usage = _usage(body.get("prompt_eval_count"), body.get("eval_count"))
 
 		return _parse_json_content(body.get("message", {}).get("content"))
 

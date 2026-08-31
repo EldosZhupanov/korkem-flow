@@ -29,10 +29,12 @@ class UsageTestCase(IntegrationTestCase):
 			fields=[
 				"name",
 				"user",
+				"company",
 				"status",
 				"provider",
 				"model",
 				"turn_id",
+				"request_id",
 				"channel",
 				"tokens_reported",
 				"input_tokens",
@@ -65,6 +67,17 @@ class TestATurnLeavesARecord(UsageTestCase):
 		self.assertEqual(row.output_tokens, 340)
 		self.assertEqual(row.total_tokens, 1540)
 		self.assertEqual(row.tokens_reported, 1)
+
+	def test_the_company_is_resolved_server_side(self):
+		with patch.object(usage, "_company", return_value="KORKEM"):
+			name = usage.record(
+				AIUsage(input_tokens=1, output_tokens=2),
+				provider="Anthropic",
+				model="m",
+				status="answered",
+			)
+
+		self.assertEqual(self._rows(name=name)[0].company, "KORKEM")
 
 	def test_a_turn_that_failed_is_still_a_turn(self):
 		"""It reached the provider, so it may still be billed."""
@@ -156,6 +169,48 @@ class TestAccountingCannotBreakTheWork(UsageTestCase):
 				usage.record(AIUsage(input_tokens=1), provider="X", model="Y", status="answered")
 
 		self.assertTrue(logged.called, "an accounting failure nobody can see is not acceptable")
+
+
+class TestOneProviderRequestIsCountedOnce(UsageTestCase):
+	def test_retrying_the_same_request_returns_the_original_row(self):
+		first = usage.record(
+			AIUsage(input_tokens=10, output_tokens=2),
+			provider="Anthropic",
+			model="m",
+			status="answered",
+			turn_id="turn-retried",
+			request_id="request-retried",
+		)
+		second = usage.record(
+			AIUsage(input_tokens=999, output_tokens=999),
+			provider="Anthropic",
+			model="m",
+			status="answered",
+			turn_id="turn-retried",
+			request_id="request-retried",
+		)
+
+		self.assertEqual(second, first)
+		rows = self._rows(request_id="request-retried")
+		self.assertEqual(len(rows), 1)
+		self.assertEqual(rows[0].total_tokens, 12)
+
+	def test_one_turn_may_contain_two_distinct_provider_requests(self):
+		for request_id in ("request-proposal", "request-summary"):
+			usage.record(
+				AIUsage(input_tokens=3, output_tokens=1),
+				provider="Anthropic",
+				model="m",
+				status="answered",
+				turn_id="one-conversation-turn",
+				request_id=request_id,
+			)
+
+		self.assertEqual(
+			len(self._rows(turn_id="one-conversation-turn")),
+			2,
+			"turn_id correlates a flow; request_id deduplicates one provider call",
+		)
 
 
 class TestCostIsHonestAboutBeingAnEstimate(UsageTestCase):

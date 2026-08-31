@@ -46,6 +46,11 @@ DOCTYPE = "AI Usage Log"
 CHANNELS = ("App", "Telegram", "WhatsApp", "Scheduled")
 
 
+def recorded(request_id: str | None) -> bool:
+	"""Whether this exact provider invocation already reached the ledger."""
+	return bool(request_id and frappe.db.exists(DOCTYPE, {"request_id": request_id}))
+
+
 def record(
 	usage: AIUsage | None,
 	*,
@@ -53,6 +58,7 @@ def record(
 	model: str | None,
 	status: str,
 	turn_id: str | None = None,
+	request_id: str | None = None,
 	conversation: str | None = None,
 	channel: str = "App",
 	user: str | None = None,
@@ -71,12 +77,19 @@ def record(
 			model=model,
 			status=status,
 			turn_id=turn_id,
+			request_id=request_id,
 			conversation=conversation,
 			channel=channel,
 			user=user or frappe.session.user,
 		)
 		frappe.db.release_savepoint(savepoint)
 		return name
+	except frappe.DuplicateEntryError:
+		# A concurrent retry may pass the read below before the first insert
+		# commits. The database's unique key is the final arbiter; the loser is
+		# the same accounted provider request, not an accounting failure.
+		frappe.db.rollback(save_point=savepoint)
+		return frappe.db.get_value(DOCTYPE, {"request_id": request_id}, "name")
 	except Exception:
 		# Roll back only our own insert. Anything the turn did before this
 		# point — a Sales Order, a Stock Entry — is on the far side of the
@@ -99,6 +112,7 @@ def record_turn(
 	provider: str | None = None,
 	model: str | None = None,
 	turn_id: str | None = None,
+	request_id: str | None = None,
 	conversation: str | None = None,
 	channel: str = "App",
 	user: str | None = None,
@@ -146,6 +160,48 @@ def record_turn(
 		model=model,
 		status=status,
 		turn_id=turn_id,
+		request_id=request_id,
+		conversation=conversation,
+		channel=channel,
+		user=user,
+	)
+
+
+def record_failure(
+	*,
+	adapter=None,
+	provider: str | None = None,
+	model: str | None = None,
+	turn_id: str | None = None,
+	request_id: str | None = None,
+	conversation: str | None = None,
+	channel: str = "App",
+	user: str | None = None,
+) -> str | None:
+	"""Record a provider call that raised, without losing resolved attribution.
+
+	The adapter may already exist when the provider fails. Reading its model or
+	the configured provider at the exception call site would happen outside
+	``record``'s guard and could replace the original failure with an accounting
+	one, so the uncertain reads stay here.
+	"""
+	try:
+		provider = provider or _default_provider()
+		model = model or getattr(adapter, "model", None)
+	except Exception:
+		frappe.log_error(
+			title="AI usage accounting could not describe the failed turn",
+			message=frappe.get_traceback(with_context=True),
+		)
+		return None
+
+	return record(
+		None,
+		provider=provider,
+		model=model,
+		status="failed",
+		turn_id=turn_id,
+		request_id=request_id,
 		conversation=conversation,
 		channel=channel,
 		user=user,
@@ -167,10 +223,16 @@ def _insert(
 	model: str | None,
 	status: str,
 	turn_id: str | None,
+	request_id: str | None,
 	conversation: str | None,
 	channel: str,
 	user: str,
 ) -> str:
+	if request_id:
+		existing = frappe.db.get_value(DOCTYPE, {"request_id": request_id}, "name")
+		if existing:
+			return existing
+
 	reported = usage is not None and usage.total_tokens is not None
 	cost, currency, basis = _price(provider, model, usage if reported else None)
 
@@ -184,6 +246,7 @@ def _insert(
 			"provider": provider,
 			"model": model,
 			"turn_id": turn_id,
+			"request_id": request_id,
 			"conversation": conversation,
 			"tokens_reported": 1 if reported else 0,
 			"input_tokens": (usage.input_tokens or 0) if reported else 0,

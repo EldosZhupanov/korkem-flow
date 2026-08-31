@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 from frappe.tests import IntegrationTestCase
 
-from korkem_ai.korkem_ai import budget, usage
+from korkem_ai.korkem_ai import budget, chat, usage
 from korkem_ai.korkem_ai.orchestrator.protocol import AIUsage
 
 
@@ -133,3 +133,27 @@ class TestTheGuardFailsOpenOnCacheTrouble(BudgetTestCase):
 		# escaped from the handler rather than from the thing being handled.
 		with patch.object(frappe.cache(), "incr", side_effect=RuntimeError("redis is gone")):
 			budget.check()  # must not raise
+
+
+class TestTheAppCannotBypassTheServerGuard(BudgetTestCase):
+	def test_a_refused_send_never_reaches_the_queue(self):
+		with (
+			patch.object(chat.llm, "ensure_configured"),
+			patch.object(budget, "check", side_effect=budget.BudgetExceeded("daily cap")),
+			patch.object(chat.frappe, "enqueue") as enqueue,
+		):
+			with self.assertRaises(budget.BudgetExceeded):
+				chat.send("try to bypass the client")
+
+		enqueue.assert_not_called()
+
+	def test_a_refused_confirmation_never_reaches_the_queue(self):
+		with (
+			patch.object(chat.llm, "ensure_configured"),
+			patch.object(budget, "check", side_effect=budget.BudgetExceeded("daily cap")),
+			patch.object(chat.frappe, "enqueue") as enqueue,
+		):
+			with self.assertRaises(budget.BudgetExceeded):
+				chat.confirm("turn", ["server-issued-call"], "yes")
+
+		enqueue.assert_not_called()

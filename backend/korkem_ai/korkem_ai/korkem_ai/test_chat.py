@@ -211,6 +211,23 @@ class TestConfigurationIsCheckedBeforeTheQueue(_ChatTestCase):
 		self.assertEqual(enqueue.call_args.kwargs["user"], frappe.session.user)
 
 	@patch("korkem_ai.korkem_ai.chat.frappe.enqueue")
+	def test_a_client_retry_has_one_queue_and_accounting_key(self, enqueue):
+		chat.send("what is overdue?", turn_id="client-turn-7")
+
+		queued = enqueue.call_args.kwargs
+		self.assertTrue(queued["request_id"])
+		self.assertEqual(queued["job_id"], queued["request_id"])
+		self.assertTrue(queued["deduplicate"])
+
+	@patch("korkem_ai.korkem_ai.chat.frappe.enqueue")
+	@patch("korkem_ai.korkem_ai.chat.usage.recorded", return_value=True)
+	def test_a_completed_client_retry_does_not_call_the_provider_again(self, _recorded, enqueue):
+		result = chat.send("same request", turn_id="already-accounted")
+
+		self.assertEqual(result["turn_id"], "already-accounted")
+		enqueue.assert_not_called()
+
+	@patch("korkem_ai.korkem_ai.chat.frappe.enqueue")
 	def test_an_empty_message_is_refused(self, enqueue):
 		for empty in ("", "   ", None):
 			with self.subTest(message=empty):
@@ -241,6 +258,7 @@ class TestFailuresArePublishedWithACode(_ChatTestCase):
 	def test_a_provider_that_cannot_be_reached_says_so(self):
 		class _Unreachable:
 			streams_natively = False
+			model = "model-that-failed"
 
 			def chat(self, *args, **kwargs):
 				raise errors.ProviderUnavailable("boom")
@@ -249,6 +267,21 @@ class TestFailuresArePublishedWithACode(_ChatTestCase):
 
 		self.assertEqual(published[-1]["type"], "error")
 		self.assertEqual(published[-1]["reason"], errors.AIErrorCode.PROVIDER_UNAVAILABLE.value)
+
+	def test_a_failed_billed_call_keeps_its_provider_and_model(self):
+		class _Unreachable:
+			streams_natively = False
+			model = "model-that-failed"
+
+			def chat(self, *args, **kwargs):
+				raise errors.ProviderUnavailable("boom")
+
+		with patch("korkem_ai.korkem_ai.chat.usage.record_failure") as recorded:
+			self.run_job(_Unreachable())
+
+		recorded.assert_called_once()
+		self.assertIsInstance(recorded.call_args.kwargs["adapter"], _Unreachable)
+		self.assertTrue(recorded.call_args.kwargs["request_id"])
 
 	def test_an_unclassified_failure_is_reported_as_unknown_not_guessed(self):
 		class _Exploding:

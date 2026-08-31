@@ -6,7 +6,9 @@ from unittest.mock import MagicMock, patch
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from korkem_ai.korkem_ai import budget, errors
 from korkem_ai.korkem_ai.orchestrator import intent, llm, router
+from korkem_ai.korkem_ai.orchestrator.protocol import AIUsage
 
 
 class _Settings:
@@ -65,6 +67,22 @@ class TestIntentNormalization(IntegrationTestCase):
 		self.assertIsNone(result["customer_name"])
 		self.assertIsNone(result["product_description"])
 		self.assertIsNone(result["quantity"])
+
+
+class TestAnthropicProvider(IntegrationTestCase):
+	@patch.object(llm.AnthropicProvider, "_client")
+	def test_structured_output_keeps_usage(self, client):
+		response = MagicMock()
+		response.stop_reason = "end_turn"
+		response.content = [MagicMock(type="text", text='{"intent": "other"}')]
+		response.usage = MagicMock(input_tokens=19, output_tokens=7)
+		client.return_value.messages.create.return_value = response
+		provider = llm.AnthropicProvider(model="claude-test")
+
+		result = provider.complete_json("sys", "hello", {"type": "object"})
+
+		self.assertEqual(result["intent"], "other")
+		self.assertEqual(provider.usage.total_tokens, 26)
 
 
 class TestProviderSelection(IntegrationTestCase):
@@ -183,7 +201,9 @@ class TestOllamaProvider(IntegrationTestCase):
 		mock_response = MagicMock()
 		mock_response.status_code = 200
 		mock_response.json.return_value = {
-			"message": {"content": '{"intent": "new_order_inquiry"}'}
+			"message": {"content": '{"intent": "new_order_inquiry"}'},
+			"prompt_eval_count": 11,
+			"eval_count": 4,
 		}
 		mock_post.return_value = mock_response
 
@@ -196,6 +216,7 @@ class TestOllamaProvider(IntegrationTestCase):
 		self.assertFalse(kwargs["json"]["stream"])
 		self.assertEqual(kwargs["json"]["messages"][0]["role"], "system")
 		self.assertEqual(result["intent"], "new_order_inquiry")
+		self.assertEqual(provider.usage.total_tokens, 15)
 
 	@patch("korkem_ai.korkem_ai.orchestrator.llm.requests.post")
 	def test_raises_on_empty_content(self, mock_post):
@@ -223,7 +244,10 @@ class TestOpenAICompatibleProvider(IntegrationTestCase):
 	@patch("korkem_ai.korkem_ai.orchestrator.llm.requests.post")
 	def test_constrains_output_to_the_schema(self, mock_post):
 		mock_post.return_value = self._response(
-			payload={"choices": [{"message": {"content": '{"intent": "other"}'}}]}
+			payload={
+				"choices": [{"message": {"content": '{"intent": "other"}'}}],
+				"usage": {"prompt_tokens": 13, "completion_tokens": 5},
+			}
 		)
 
 		provider = llm.OpenAICompatibleProvider(
@@ -238,6 +262,7 @@ class TestOpenAICompatibleProvider(IntegrationTestCase):
 		self.assertEqual(response_format["type"], "json_schema")
 		self.assertTrue(response_format["json_schema"]["strict"])
 		self.assertEqual(result["intent"], "other")
+		self.assertEqual(provider.usage.total_tokens, 18)
 
 	@patch("korkem_ai.korkem_ai.orchestrator.llm.requests.post")
 	def test_provider_error_is_reported_not_swallowed(self, mock_post):
@@ -286,7 +311,8 @@ class TestGeminiProvider(IntegrationTestCase):
 		mock_response = MagicMock()
 		mock_response.status_code = 200
 		mock_response.json.return_value = {
-			"candidates": [{"content": {"parts": [{"text": '{"ok": true}'}]}}]
+			"candidates": [{"content": {"parts": [{"text": '{"ok": true}'}]}}],
+			"usageMetadata": {"promptTokenCount": 17, "candidatesTokenCount": 6},
 		}
 		mock_post.return_value = mock_response
 
@@ -306,9 +332,21 @@ class TestGeminiProvider(IntegrationTestCase):
 			kwargs["json"]["generationConfig"]["responseMimeType"], "application/json"
 		)
 		self.assertTrue(result["ok"])
+		self.assertEqual(provider.usage.total_tokens, 23)
 
 
 class TestRouter(IntegrationTestCase):
+	def setUp(self):
+		class Adapter:
+			model = "router-test-model"
+			usage = None
+
+		patcher = patch(
+			"korkem_ai.korkem_ai.orchestrator.llm.resolve", return_value=Adapter()
+		)
+		patcher.start()
+		self.addCleanup(patcher.stop)
+
 	def tearDown(self):
 		frappe.db.rollback()
 
@@ -320,6 +358,79 @@ class TestRouter(IntegrationTestCase):
 				"channel": "WhatsApp",
 			}
 		).insert()
+
+	def test_an_unconfigured_provider_does_not_break_routing(self):
+		"""Resolving a provider is an accounting need, not a routing one.
+
+		The adapter is looked up so the spend can be attributed to a provider
+		and a model. When that lookup raised, `AINotConfigured` escaped the
+		whole sales path — even for a caller that had supplied its own
+		classifier and needed no provider at all. One end-to-end test caught it;
+		this one holds the boundary, because the failure is invisible in every
+		targeted suite that patches `resolve`.
+
+		`classify` still falls back to `llm.get_provider()` and still says so
+		in its own words when there is nothing to fall back to.
+		"""
+		conversation = self._conversation()
+
+		with patch(
+			"korkem_ai.korkem_ai.orchestrator.llm.resolve",
+			side_effect=errors.AINotConfigured("AI is not enabled in AI Settings"),
+		), patch(
+			"korkem_ai.korkem_ai.orchestrator.router.intent_module.classify",
+			return_value={"intent": "other", "confidence": 1.0},
+		):
+			result = router.handle_message(conversation.name, "Здравствуйте")
+
+		# The assertion is simply that it returned. `AINotConfigured` used to
+		# propagate out of this call and abandon the sales path entirely.
+		self.assertEqual(result["intent"], "other")
+		self.assertTrue(result["reply"], "the customer still got an answer")
+
+	@patch("korkem_ai.korkem_ai.orchestrator.intent.classify")
+	@patch(
+		"korkem_ai.korkem_ai.budget.check",
+		side_effect=budget.BudgetExceeded("guest budget exhausted"),
+	)
+	def test_an_unlinked_sender_is_refused_before_the_provider(self, _check, classify):
+		conversation = self._conversation()
+
+		result = router.handle_message(conversation.name, "Нужна кухня")
+
+		self.assertEqual(result["status"], "refused")
+		classify.assert_not_called()
+
+	@patch("korkem_ai.korkem_ai.orchestrator.intent.classify")
+	@patch("korkem_ai.korkem_ai.orchestrator.llm.resolve")
+	@patch("korkem_ai.korkem_ai.usage.record_turn")
+	def test_an_unlinked_provider_call_is_accounted(self, record_usage, resolve, classify):
+		class Adapter:
+			model = "guest-model"
+			usage = AIUsage(input_tokens=7, output_tokens=2)
+
+		resolve.return_value = Adapter()
+		classify.return_value = {
+			"intent": "other",
+			"customer_name": None,
+			"product_description": None,
+			"quantity": None,
+		}
+		conversation = self._conversation()
+
+		router.handle_message(
+			conversation.name,
+			"Здравствуйте",
+			request_id="WhatsApp:provider-message-1",
+			channel="WhatsApp",
+		)
+
+		record_usage.assert_called_once()
+		kwargs = record_usage.call_args.kwargs
+		self.assertEqual(kwargs["user"], "Guest")
+		self.assertEqual(kwargs["request_id"], "WhatsApp:provider-message-1")
+		self.assertEqual(kwargs["channel"], "WhatsApp")
+		self.assertEqual(record_usage.call_args.args[0].usage.total_tokens, 9)
 
 	@patch("korkem_ai.korkem_ai.orchestrator.intent.classify")
 	def test_order_inquiry_creates_pending_action(self, mock_classify):

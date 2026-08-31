@@ -190,7 +190,26 @@ def accept(message: InboundMessage) -> dict:
 		if frappe.db.get_single_value("AI Settings", "enabled"):
 			from korkem_ai.korkem_ai.orchestrator import router
 
-			router.handle_message_async(conversation.name, message.text)
+			router.handle_message_async(
+				conversation.name,
+				message.text,
+				# Only when the provider actually gave us an id. `request_id`
+				# is a unique key on `AI Usage Log`, so a synthesised one —
+				# "Telegram:None" for every message that lacks an id — would
+				# make the second such call collide with the first and be
+				# recorded as the same provider request. Two calls counted as
+				# one is a quieter failure than a crash and a worse one: the
+				# ledger exists to make spend visible.
+				#
+				# The linked path below already guards this way
+				# (`deduplicate=bool(message.message_id)`); this one did not,
+				# and two adjacent paths disagreeing about the same fact is how
+				# it would have been missed.
+				request_id=(
+					f"{message.channel}:{message.message_id}" if message.message_id else None
+				),
+				channel=message.channel,
+			)
 		audit.record(
 			audit.UNLINKED,
 			channel=message.channel,
@@ -214,6 +233,9 @@ def accept(message: InboundMessage) -> dict:
 		channel=message.channel,
 		chat_id=message.chat_id,
 		channel_role=identity.role or None,
+		message_id=message.message_id,
+		job_id=f"{message.channel}:{message.message_id}",
+		deduplicate=bool(message.message_id),
 	)
 	role = policy.effective_role(speaker, identity.role or None)
 	audit.record(
@@ -240,6 +262,7 @@ def run_turn_job(
 	channel: str,
 	chat_id: str,
 	channel_role: str | None = None,
+	message_id: str | None = None,
 ):
 	"""The assistant's own turn, run as the person who wrote in.
 
@@ -252,7 +275,7 @@ def run_turn_job(
 	# Everything it causes — the audit rows, the proposal, the notification that
 	# goes back out — carries it, so an incident can be followed from a provider
 	# message to an ERPNext document without joining on timestamps.
-	turn = frappe.generate_hash(length=12)
+	turn = f"{channel}:{message_id}" if message_id else frappe.generate_hash(length=12)
 	frappe.flags[TURN_FLAG] = turn
 
 	frappe.set_user(user)
@@ -273,6 +296,7 @@ def run_turn_job(
 			channel=channel,
 			chat_id=chat_id,
 			turn=turn,
+			request_id=turn,
 		)
 	finally:
 		frappe.flags.pop(policy.CHANNEL_ROLE_FLAG, None)
@@ -280,7 +304,14 @@ def run_turn_job(
 
 
 def _run_turn(
-	*, doc_name: str, user: str, text: str, channel: str, chat_id: str, turn: str | None = None
+	*,
+	doc_name: str,
+	user: str,
+	text: str,
+	channel: str,
+	chat_id: str,
+	turn: str | None = None,
+	request_id: str | None = None,
 ):
 	"""The turn itself, once the session and the role pin are in place."""
 	from korkem_ai.korkem_ai import budget, errors, usage
@@ -322,6 +353,7 @@ def _run_turn(
 		return {"conversation": conversation, "status": verdict["status"]}
 
 	awaiting = None
+	adapter = None
 	try:
 		# Refused before the provider is reached, so the refusal costs nothing.
 		# A channel turn spends the same budget as an app turn and is checked
@@ -340,6 +372,7 @@ def _run_turn(
 			result,
 			adapter=adapter,
 			turn_id=turn,
+			request_id=request_id,
 			conversation=conversation,
 			channel=channel if channel in usage.CHANNELS else "App",
 			user=user,
@@ -360,12 +393,10 @@ def _run_turn(
 		return {"conversation": conversation, "status": "refused"}
 	except Exception as exc:
 		frappe.log_error(title="Channel turn failed", message=_safe_traceback())
-		usage.record(
-			None,
-			provider=None,
-			model=None,
-			status="failed",
+		usage.record_failure(
+			adapter=adapter,
 			turn_id=turn,
+			request_id=request_id,
 			conversation=conversation,
 			channel=channel if channel in usage.CHANNELS else "App",
 			user=user,

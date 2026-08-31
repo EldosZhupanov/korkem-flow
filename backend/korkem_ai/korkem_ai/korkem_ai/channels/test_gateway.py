@@ -143,6 +143,43 @@ class TestAnUnknownSenderIsNotTrusted(_GatewayTestCase):
 		queued = [call.args[0] for call in enqueued.call_args_list]
 		self.assertIn("korkem_ai.korkem_ai.orchestrator.router.handle_message", queued)
 		self.assertNotIn("korkem_ai.korkem_ai.channels.gateway.run_turn_job", queued)
+		router_call = next(
+			call
+			for call in enqueued.call_args_list
+			if call.args[0] == "korkem_ai.korkem_ai.orchestrator.router.handle_message"
+		)
+		self.assertEqual(router_call.kwargs["request_id"], "Telegram:m-1")
+		self.assertEqual(router_call.kwargs["job_id"], "Telegram:m-1")
+		self.assertTrue(router_call.kwargs["deduplicate"])
+
+	def test_a_message_with_no_id_is_not_given_a_made_up_one(self):
+		"""`request_id` is a unique key on `AI Usage Log`.
+
+		Synthesising one from a missing id gives every such message the same
+		"Telegram:None", so the second provider call collides with the first and
+		is recorded as the same request. Two calls counted as one is quieter
+		than a crash and worse: the ledger exists to make spend visible, and a
+		budget cannot be exhausted by calls it never saw.
+
+		The linked path guards this already. This test exists because the
+		unlinked path did not, and two adjacent paths disagreeing about the same
+		fact is exactly how it stayed unnoticed.
+		"""
+		with patch("frappe.enqueue") as enqueued, patch(
+			"frappe.db.get_single_value", return_value=1
+		):
+			gateway.accept(_message(message_id=""))
+
+		router_call = next(
+			call
+			for call in enqueued.call_args_list
+			if call.args[0] == "korkem_ai.korkem_ai.orchestrator.router.handle_message"
+		)
+		self.assertIsNone(router_call.kwargs["request_id"])
+		self.assertFalse(
+			router_call.kwargs["deduplicate"],
+			"nothing to deduplicate on, and pretending otherwise collides",
+		)
 
 	def test_a_disabled_identity_speaks_for_nobody(self):
 		identity = self.link()
@@ -175,6 +212,9 @@ class TestALinkedSenderReachesTheAssistant(_GatewayTestCase):
 		self.assertEqual(result["status"], "queued")
 		self.assertEqual(result["user"], PLANNER)
 		self.assertEqual(enqueued.call_args.kwargs["user"], PLANNER)
+		self.assertEqual(enqueued.call_args.kwargs["message_id"], "m-1")
+		self.assertEqual(enqueued.call_args.kwargs["job_id"], "Telegram:m-1")
+		self.assertTrue(enqueued.call_args.kwargs["deduplicate"])
 		self.assertEqual(
 			enqueued.call_args.args[0], "korkem_ai.korkem_ai.channels.gateway.run_turn_job"
 		)

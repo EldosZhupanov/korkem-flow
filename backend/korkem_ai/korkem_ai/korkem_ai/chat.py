@@ -52,6 +52,7 @@ for rows the *server* wrote, owned by the caller and still pending.
 
 from __future__ import annotations
 
+import hashlib
 import json
 
 import frappe
@@ -94,6 +95,11 @@ def send(
 	if not message:
 		frappe.throw("Message is empty")
 
+	turn_id = turn_id or frappe.generate_hash(length=12)
+	request_id = _request_id(frappe.session.user, turn_id, "send")
+	if usage.recorded(request_id):
+		return {"turn_id": turn_id, "event": STREAM_EVENT}
+
 	# Before the queue, deliberately: see the module docstring. Raises a typed
 	# `AINotConfigured` that reaches the client as `AI_NOT_CONFIGURED`.
 	llm.ensure_configured(provider, model)
@@ -101,8 +107,6 @@ def send(
 	# Also before the queue, and for the same reason: a refusal must cost
 	# nothing and must reach the person in its own words.
 	budget.check()
-
-	turn_id = turn_id or frappe.generate_hash(length=12)
 
 	frappe.enqueue(
 		"korkem_ai.korkem_ai.chat.run_turn_job",
@@ -114,6 +118,9 @@ def send(
 		approved_calls=[],
 		provider=provider,
 		model=model,
+		request_id=request_id,
+		job_id=request_id,
+		deduplicate=True,
 	)
 
 	return {"turn_id": turn_id, "event": STREAM_EVENT}
@@ -136,6 +143,11 @@ def confirm(turn_id: str, call_ids: str | list, message: str, history: str | lis
 
 	for call_id in approved:
 		_owned_pending_action(call_id)
+	request_id = _request_id(
+		frappe.session.user,
+		turn_id,
+		"confirm:" + ",".join(sorted(approved)),
+	)
 
 	frappe.enqueue(
 		"korkem_ai.korkem_ai.chat.run_turn_job",
@@ -145,6 +157,9 @@ def confirm(turn_id: str, call_ids: str | list, message: str, history: str | lis
 		message=message,
 		history=_parse_history(history),
 		approved_calls=list(approved),
+		request_id=request_id,
+		job_id=request_id,
+		deduplicate=True,
 	)
 
 	return {"turn_id": turn_id, "event": STREAM_EVENT}
@@ -214,6 +229,7 @@ def run_turn_job(
 	approved_calls: list,
 	provider: str | None = None,
 	model: str | None = None,
+	request_id: str | None = None,
 ):
 	"""The background half. Runs as `user`, never as Administrator.
 
@@ -222,12 +238,18 @@ def run_turn_job(
 	model the whole database, and no amount of care in the tools would undo it.
 	"""
 	frappe.set_user(user)
+	request_id = request_id or _request_id(
+		user,
+		turn_id,
+		"confirm:" + ",".join(sorted(approved_calls)) if approved_calls else "send",
+	)
 
 	def publish(payload: dict):
 		frappe.publish_realtime(STREAM_EVENT, {"turn_id": turn_id, **payload}, user=user)
 
 	publish({"type": "started"})
 
+	adapter = None
 	try:
 		messages = _to_messages(history) + [AIMessage.user(message)]
 
@@ -249,12 +271,12 @@ def run_turn_job(
 		# A turn that died still reached the provider and may still be billed.
 		# Recorded with no counts rather than not recorded, so the turn appears
 		# in a budget as something that happened.
-		usage.record(
-			None,
+		usage.record_failure(
+			adapter=adapter,
 			provider=provider,
 			model=model,
-			status="failed",
 			turn_id=turn_id,
+			request_id=request_id,
 			channel="App",
 			user=user,
 		)
@@ -269,6 +291,7 @@ def run_turn_job(
 		provider=provider,
 		model=model,
 		turn_id=turn_id,
+		request_id=request_id,
 		channel="App",
 		user=user,
 	)
@@ -299,6 +322,12 @@ def run_turn_job(
 			},
 		}
 	)
+
+
+def _request_id(user: str, turn_id: str, phase: str) -> str:
+	"""Stable, non-secret idempotency key for one provider invocation."""
+	payload = json.dumps([user, turn_id, phase], ensure_ascii=False, separators=(",", ":"))
+	return hashlib.sha256(payload.encode()).hexdigest()
 
 
 def _carry_out(call_ids: list, publish) -> list[AIMessage]:
