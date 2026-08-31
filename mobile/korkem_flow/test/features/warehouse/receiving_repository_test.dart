@@ -177,4 +177,98 @@ void main() {
       );
     });
   });
+
+  group('ordering from a supplier', () {
+    test('it calls the published endpoint', () async {
+      respond({'status': 'ordered'});
+
+      await repository.order('MAT-MR-2026-00004');
+
+      final path =
+          verify(
+                () => client.callMethod(
+                  captureAny(),
+                  params: any(named: 'params'),
+                  post: true,
+                ),
+              ).captured.single
+              as String;
+
+      expect(path, 'korkem_manufacturing.api.purchasing.create_purchase_order');
+    });
+
+    test('no price can be sent, because there is nowhere to put one', () async {
+      // The property worth guarding above every other here. Rates come from
+      // the supplier's price list through ERPNext; a figure typed on a phone
+      // is not a defensible source for money somebody has to pay.
+      respond({'status': 'ordered'});
+
+      await repository.order('MAT-MR-1', supplier: 'WoodGroup');
+
+      final params = sentParams();
+      expect(params.keys.toSet(), {'material_request', 'supplier'});
+      for (final forbidden in ['rate', 'price', 'amount', 'total', 'qty']) {
+        expect(params.containsKey(forbidden), isFalse, reason: forbidden);
+      }
+    });
+
+    test('an unnamed supplier is not sent as null', () async {
+      respond({'status': 'ordered'});
+      await repository.order('MAT-MR-1');
+      expect(sentParams(), {'material_request': 'MAT-MR-1'});
+    });
+
+    test('the total is read from the server, never computed here', () async {
+      respond({
+        'status': 'ordered',
+        'purchase_order': 'PUR-ORD-2026-00003',
+        'supplier': 'WoodGroup',
+        'grand_total': 845000.0,
+      });
+
+      final result = await repository.order('MAT-MR-1');
+
+      expect(result.placed, isTrue);
+      expect(result.purchaseOrder, 'PUR-ORD-2026-00003');
+      expect(result.supplier, 'WoodGroup');
+      expect(result.grandTotal, 845000.0);
+    });
+
+    test('a total that arrives as a string is still a number', () async {
+      respond({
+        'status': 'ordered',
+        'purchase_order': 'PUR-ORD-1',
+        'grand_total': '845000.0',
+      });
+      expect((await repository.order('MAT-MR-1')).grandTotal, 845000.0);
+    });
+
+    test('nothing ordered is not the same as ordered', () async {
+      respond({'status': 'nothing_to_order', 'message': 'Всё уже заказано.'});
+
+      final result = await repository.order('MAT-MR-1');
+
+      expect(result.placed, isFalse);
+      expect(result.grandTotal, isNull, reason: 'no order, no figure');
+    });
+
+    test('a buyer can order with the provider down', () async {
+      respond({'status': 'ordered', 'purchase_order': 'PUR-ORD-1'});
+
+      await repository.order('MAT-MR-1');
+
+      final path =
+          verify(
+                () => client.callMethod(
+                  captureAny(),
+                  params: any(named: 'params'),
+                  post: any(named: 'post'),
+                ),
+              ).captured.single
+              as String;
+
+      expect(path.contains('chat'), isFalse);
+      expect(path.contains('korkem_ai'), isFalse);
+    });
+  });
 }

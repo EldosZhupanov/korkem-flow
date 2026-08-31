@@ -106,3 +106,83 @@ def _audit(purchase_order: str, result: dict) -> None:
 			title="Could not record who received a delivery",
 			message=frappe.get_traceback(with_context=True),
 		)
+
+
+#: Who may commit the company to a supplier. Narrower than receiving on
+#: purpose: booking in a pallet records what already arrived, while this
+#: creates a debt. `Stock User` is deliberately absent.
+MAY_ORDER = ("Purchase Manager", "Purchase User", "System Manager")
+
+
+@frappe.whitelist()
+def create_purchase_order(
+	material_request: str,
+	supplier: str | None = None,
+	schedule_date: str | None = None,
+) -> dict:
+	"""Turn a material request into an order with a supplier.
+
+	Prices, taxes and terms come from ERPNext's `get_party_details` and the
+	supplier's price list. Nothing here lets a caller name a price, which is
+	the one property of this endpoint worth guarding above all others: a
+	purchase order carries money somebody has to pay, and the defensible source
+	for that figure is the one the accounts already agree with.
+	"""
+	if not isinstance(material_request, str) or not material_request.strip():
+		frappe.throw("Which material request? A name is required.")
+	material_request = material_request.strip()
+
+	ensure_company("Material Request", material_request)
+
+	if not any(role in frappe.get_roles() for role in MAY_ORDER):
+		frappe.throw(
+			"You do not have purchasing rights, so you cannot commit the "
+			"company to a supplier. Ask a purchase manager.",
+			frappe.PermissionError,
+		)
+
+	result = service.create_purchase_order(
+		material_request,
+		supplier=_name(supplier),
+		schedule_date=_name(schedule_date),
+	)
+	_audit_order(material_request, result)
+	return result
+
+
+def _name(value: str | None) -> str | None:
+	if value is None:
+		return None
+	if not isinstance(value, str):
+		frappe.throw("Names and dates must be text.")
+	return value.strip() or None
+
+
+def _audit_order(material_request: str, result: dict) -> None:
+	"""Who ordered what, on the request it came from. Guarded like the rest."""
+	savepoint = "korkem_po_audit_" + frappe.generate_hash(length=8)
+	try:
+		frappe.db.savepoint(savepoint)
+		frappe.get_doc(
+			{
+				"doctype": "Comment",
+				"comment_type": "Info",
+				"reference_doctype": "Material Request",
+				"reference_name": material_request,
+				"content": (
+					f"KORKEM: {frappe.session.user} — заказ поставщику "
+					f"{result.get('supplier')}, {result.get('purchase_order')}, "
+					f"статус {result.get('status')}."
+				),
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.release_savepoint(savepoint)
+	except Exception:
+		try:
+			frappe.db.rollback(save_point=savepoint)
+		except Exception:
+			pass
+		frappe.log_error(
+			title="Could not record who ordered from a supplier",
+			message=frappe.get_traceback(with_context=True),
+		)

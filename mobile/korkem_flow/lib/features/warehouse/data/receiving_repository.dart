@@ -15,6 +15,9 @@ class ReceivingRepository {
   static const receivePath =
       'korkem_manufacturing.api.purchasing.receive_purchase_order';
 
+  static const orderPath =
+      'korkem_manufacturing.api.purchasing.create_purchase_order';
+
   final FrappeClient _client;
 
   /// Receives everything still outstanding, or only [items] for a partial one.
@@ -38,6 +41,65 @@ class ReceivingRepository {
     );
     return ReceiptResult.fromJson(response['message'] ?? response);
   }
+
+  /// Turns a material request into an order with a supplier.
+  ///
+  /// There is deliberately no price argument, and there must never be one.
+  /// Rates, taxes and terms come from the supplier's price list through
+  /// ERPNext's own party lookup — a purchase order carries money somebody has
+  /// to pay, and a figure typed on a phone is not a defensible source for it.
+  Future<PurchaseOrderResult> order(
+    String materialRequest, {
+    String? supplier,
+    String? scheduleDate,
+  }) async {
+    final response = await _client.callMethod(
+      orderPath,
+      post: true,
+      params: {
+        'material_request': materialRequest,
+        'supplier': ?supplier,
+        'schedule_date': ?scheduleDate,
+      },
+    );
+    return PurchaseOrderResult.fromJson(response['message'] ?? response);
+  }
+}
+
+/// The order the server created, read back rather than assumed.
+class PurchaseOrderResult {
+  const PurchaseOrderResult({
+    required this.status,
+    this.purchaseOrder,
+    this.supplier,
+    this.grandTotal,
+    this.message,
+  });
+
+  factory PurchaseOrderResult.fromJson(Object? raw) {
+    final json = raw is Map<String, dynamic> ? raw : const <String, dynamic>{};
+    return PurchaseOrderResult(
+      status: ReceiptResult._text(json['status']) ?? 'unknown',
+      purchaseOrder: ReceiptResult._text(json['purchase_order']),
+      supplier: ReceiptResult._text(json['supplier']),
+      grandTotal: switch (json['grand_total']) {
+        final num number => number.toDouble(),
+        final String text => double.tryParse(text),
+        _ => null,
+      },
+      message: ReceiptResult._text(json['message']),
+    );
+  }
+
+  final String status;
+  final String? purchaseOrder;
+  final String? supplier;
+
+  /// What the order came to, priced by ERPNext. Displayed, never recomputed.
+  final double? grandTotal;
+  final String? message;
+
+  bool get placed => purchaseOrder != null;
 }
 
 /// What the server booked. Every figure is ERPNext's.
