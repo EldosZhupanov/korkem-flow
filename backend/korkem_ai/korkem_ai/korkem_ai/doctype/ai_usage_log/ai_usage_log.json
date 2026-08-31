@@ -1,0 +1,176 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2026-08-31 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "company",
+  "channel",
+  "status",
+  "column_break_who",
+  "provider",
+  "model",
+  "turn_id",
+  "conversation",
+  "section_break_tokens",
+  "tokens_reported",
+  "input_tokens",
+  "output_tokens",
+  "total_tokens",
+  "section_break_cost",
+  "cost_basis",
+  "column_break_cost",
+  "estimated_cost",
+  "cost_currency"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "User",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Who spent it. Taken from the session, never from a caller."
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "in_standard_filter": 1,
+   "description": "Organisation scope, resolved server-side. Empty when the session has no company."
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "options": "App\nTelegram\nWhatsApp\nScheduled",
+   "label": "Channel",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "answered\nneeds_confirmation\nexhausted\nfailed",
+   "label": "Turn Status",
+   "in_list_view": 1,
+   "description": "How the turn ended. A turn that failed still cost tokens and is still recorded."
+  },
+  {
+   "fieldname": "column_break_who",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Data",
+   "label": "Provider",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "turn_id",
+   "fieldtype": "Data",
+   "label": "Turn",
+   "description": "Correlates with Channel Event, Pending Action and Notification Delivery."
+  },
+  {
+   "fieldname": "conversation",
+   "fieldtype": "Link",
+   "options": "Agent Conversation",
+   "label": "Conversation"
+  },
+  {
+   "fieldname": "section_break_tokens",
+   "fieldtype": "Section Break",
+   "label": "Tokens"
+  },
+  {
+   "fieldname": "tokens_reported",
+   "fieldtype": "Check",
+   "label": "Tokens Reported",
+   "default": "0",
+   "description": "Unset means the provider reported nothing. The three counts below are then zero because there is no number, not because the turn was free."
+  },
+  {
+   "fieldname": "input_tokens",
+   "fieldtype": "Int",
+   "label": "Input Tokens"
+  },
+  {
+   "fieldname": "output_tokens",
+   "fieldtype": "Int",
+   "label": "Output Tokens"
+  },
+  {
+   "fieldname": "total_tokens",
+   "fieldtype": "Int",
+   "label": "Total Tokens",
+   "in_list_view": 1,
+   "description": "Stored rather than summed on read, so a budget query is one indexed column."
+  },
+  {
+   "fieldname": "section_break_cost",
+   "fieldtype": "Section Break",
+   "label": "Cost"
+  },
+  {
+   "fieldname": "cost_basis",
+   "fieldtype": "Select",
+   "options": "not priced\nprovider rate",
+   "label": "Cost Basis",
+   "default": "not priced",
+   "description": "No provider returns a charge with a completion. 'provider rate' means this was multiplied out from the rates on AI Provider; 'not priced' means no rate was configured and the cost below is not a claim."
+  },
+  {
+   "fieldname": "column_break_cost",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "estimated_cost",
+   "fieldtype": "Float",
+   "label": "Estimated Cost",
+   "precision": "6",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost_currency",
+   "fieldtype": "Link",
+   "options": "Currency",
+   "label": "Cost Currency"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-31 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Ai",
+ "name": "AI Usage Log",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "delete": 1,
+   "share": 1,
+   "print": 1,
+   "role": "System Manager"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}
