@@ -24,6 +24,9 @@ class ProductionCommandRepository {
 
   final FrappeClient _client;
 
+  static const completeOperationPath =
+      'korkem_manufacturing.api.production.complete_operation';
+
   /// Plans the work if needed, then moves material into work-in-progress.
   ///
   /// Refusals are outcomes, not exceptions: `StartProductionResult.blocked`
@@ -47,6 +50,67 @@ class ProductionCommandRepository {
     );
     return StartProductionResult.fromJson(response['message'] ?? response);
   }
+
+  /// Books a finished stage: how many came out good, spoiled, or need fixing.
+  ///
+  /// The three quantities are kept apart all the way down because ERPNext keeps
+  /// them apart: good output excludes process loss, and folding scrap into
+  /// [qty] would let spoiled panels become finished goods. Omit [qty] and
+  /// everything still outstanding is taken.
+  Future<CompleteOperationResult> completeOperation({
+    String? operation,
+    String? salesOrder,
+    String? workOrder,
+    double? qty,
+    double? scrapQty,
+    double? reworkQty,
+  }) async {
+    final response = await _client.callMethod(
+      completeOperationPath,
+      post: true,
+      params: {
+        'operation': ?operation,
+        'sales_order': ?salesOrder,
+        'work_order': ?workOrder,
+        'qty': ?qty,
+        'scrap_qty': ?scrapQty,
+        'rework_qty': ?reworkQty,
+      },
+    );
+    return CompleteOperationResult.fromJson(response['message'] ?? response);
+  }
+}
+
+/// What booking a stage produced. Read from the server, never recomputed.
+class CompleteOperationResult {
+  const CompleteOperationResult({
+    required this.status,
+    this.jobCard,
+    this.operation,
+    this.workOrder,
+    this.message,
+  });
+
+  factory CompleteOperationResult.fromJson(Object? raw) {
+    final json = raw is Map<String, dynamic> ? raw : const <String, dynamic>{};
+    return CompleteOperationResult(
+      status: StartProductionResult._text(json['status']) ?? 'unknown',
+      jobCard: StartProductionResult._text(json['job_card']),
+      operation: StartProductionResult._text(json['operation']),
+      workOrder: StartProductionResult._text(json['work_order']),
+      message: StartProductionResult._text(json['message']),
+    );
+  }
+
+  final String status;
+  final String? jobCard;
+  final String? operation;
+  final String? workOrder;
+  final String? message;
+
+  /// Saying it twice must not book the hours twice — and the person who said
+  /// it needs to know which of the two happened.
+  bool get alreadyComplete => status == 'already_complete';
 }
 
 /// What the server answered. Every field comes from ERPNext; none is derived

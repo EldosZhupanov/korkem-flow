@@ -227,4 +227,108 @@ void main() {
       );
     });
   });
+
+  group('booking a finished stage', () {
+    test('it calls the published endpoint, not a doctype', () async {
+      respond({'status': 'ok'});
+
+      await repository.completeOperation(workOrder: 'MFG-WO-1', qty: 4);
+
+      final call = verify(
+        () => client.callMethod(
+          captureAny(),
+          params: captureAny(named: 'params'),
+          post: true,
+        ),
+      ).captured;
+
+      expect(
+        call[0],
+        'korkem_manufacturing.api.production.complete_operation',
+        reason: 'the same function the AI tool is registered against',
+      );
+      expect(call[1], {'work_order': 'MFG-WO-1', 'qty': 4.0});
+    });
+
+    test('the three quantities stay apart', () async {
+      // Good output excludes process loss in ERPNext. Folding scrap into qty
+      // would let spoiled panels become finished goods.
+      respond({'status': 'ok'});
+
+      await repository.completeOperation(
+        workOrder: 'MFG-WO-1',
+        qty: 4,
+        scrapQty: 1,
+        reworkQty: 2,
+      );
+
+      final params =
+          verify(
+                () => client.callMethod(
+                  any(),
+                  params: captureAny(named: 'params'),
+                  post: true,
+                ),
+              ).captured.single
+              as Map<String, dynamic>;
+
+      expect(params['qty'], 4.0);
+      expect(params['scrap_qty'], 1.0);
+      expect(params['rework_qty'], 2.0);
+    });
+
+    test('an omitted quantity is not sent as zero', () async {
+      // Zero means "none were good". Absent means "take everything
+      // outstanding". Sending one for the other books the wrong run.
+      respond({'status': 'ok'});
+
+      await repository.completeOperation(workOrder: 'MFG-WO-1');
+
+      final params =
+          verify(
+                () => client.callMethod(
+                  any(),
+                  params: captureAny(named: 'params'),
+                  post: true,
+                ),
+              ).captured.single
+              as Map<String, dynamic>;
+
+      expect(params.containsKey('qty'), isFalse);
+      expect(params.containsKey('scrap_qty'), isFalse);
+      expect(params, {'work_order': 'MFG-WO-1'});
+    });
+
+    test('saying it twice is reported as such, not as success', () async {
+      respond({
+        'status': 'already_complete',
+        'job_card': 'JOB-1',
+        'operation': 'Раскрой',
+        'message': 'Раскрой was already finished.',
+      });
+
+      final result = await repository.completeOperation(workOrder: 'MFG-WO-1');
+
+      expect(result.alreadyComplete, isTrue);
+      expect(result.operation, 'Раскрой');
+    });
+
+    test('it never sends a company', () async {
+      respond({'status': 'ok'});
+
+      await repository.completeOperation(workOrder: 'MFG-WO-1');
+
+      final params =
+          verify(
+                () => client.callMethod(
+                  any(),
+                  params: captureAny(named: 'params'),
+                  post: true,
+                ),
+              ).captured.single
+              as Map<String, dynamic>;
+
+      expect(params.containsKey('company'), isFalse);
+    });
+  });
 }
