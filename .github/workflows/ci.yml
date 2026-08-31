@@ -1,0 +1,85 @@
+# KORKEM Flow — CI
+#
+# STATUS: PREPARED, NOT REMOTELY VERIFIED. This repository has no remote yet
+# (`git remote -v` is empty), so nothing has ever triggered this file. What
+# changed on 2026-08-31 is that it is now *able* to work: the monorepo carries
+# both custom apps, and `vendor.lock` + `scripts/fetch_vendor.sh` restore the
+# four upstream projects at fixed commits. Before that, a checkout contained
+# neither the Python under test nor a way to obtain the framework.
+#
+# Both jobs call `scripts/ci.sh`, which is the same command a developer runs on
+# their own machine. That is deliberate: a pipeline whose steps exist only in
+# YAML can only be debugged by pushing.
+#
+# Do not describe this as green until a real run says so.
+
+name: CI
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+# A second push to dev supersedes the first: the backend suite is ~25 minutes
+# and there is no value in two of them racing.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter:
+    name: Flutter — analyze, format, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          # Pinned deliberately. The client is built against this toolchain and
+          # `very_good_analysis` moves with it; `channel: stable` would let an
+          # unrelated Flutter release redden this repository.
+          flutter-version: '3.44.8'
+
+      - name: Verify
+        run: ./scripts/ci.sh flutter
+
+  backend:
+    name: Backend — korkem_manufacturing, korkem_ai
+    runs-on: ubuntu-latest
+    # ~25 minutes for korkem_ai, plus a first-boot bootstrap that clones three
+    # apps and builds assets.
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      # The framework, at the commits vendor.lock names. Not submodules
+      # (a deliberate decision), not committed (3.8 GB we did not write).
+      - name: Restore upstream at pinned commits
+        run: ./scripts/fetch_vendor.sh frappe erpnext crm
+
+      - name: Confirm the checkout matches the lock
+        run: ./scripts/fetch_vendor.sh --check
+
+      # Generated, never stored. A committed test password becomes a real one
+      # the first time somebody copies this file to a server.
+      - name: Bench configuration
+        run: |
+          set -Eeuo pipefail
+          umask 077
+          {
+            echo "MYSQL_ROOT_PASSWORD=$(openssl rand -base64 24)"
+            echo "ADMIN_PASSWORD=$(openssl rand -base64 24)"
+            echo "SITE_NAME=korkem.localhost"
+            echo "KORKEM_ENV=development"
+          } > infra/frappe_bench/.env
+
+      - name: Verify
+        run: ./scripts/ci.sh backend
+
+      # The bench says why it would not start far more clearly than the test
+      # runner does, and only this job can read it.
+      - name: Bench logs on failure
+        if: failure()
+        run: docker compose -f infra/frappe_bench/docker-compose.yml logs --tail 200 bench
