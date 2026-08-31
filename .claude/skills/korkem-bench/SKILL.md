@@ -1,0 +1,116 @@
+---
+name: korkem-bench
+description: Running the KORKEM Frappe bench, its tests, and the pilot/public deployment overlays — plus the failures that look like bugs and are not. Load before starting the bench, running backend tests, seeding demo data, deploying a pilot, or debugging "the app cannot reach the server".
+---
+
+# The KORKEM bench
+
+Four containers: MariaDB, two Redis (cache and queue), and `bench`. Site is
+`korkem.localhost`, reachable at `http://korkem.localhost:8000` once up
+(`.localhost` resolves to loopback — no `/etc/hosts` edit).
+
+```sh
+docker compose -f infra/frappe_bench/docker-compose.yml up -d
+```
+
+First run auto-bootstraps: `scripts/entrypoint.sh` → `bootstrap.sh` →
+`start.sh`. Admin password comes from `infra/frappe_bench/.env` (gitignored,
+copy from `.env.example`).
+
+## Three compose files, and they compose
+
+| file | adds |
+|---|---|
+| `docker-compose.yml` | the development bench |
+| `docker-compose.pilot.yml` | gunicorn via `scripts/web.sh` + `procfiles/Procfile.pilot`, no asset watcher, `restart: always`, `KORKEM_ENV=pilot` |
+| `docker-compose.public.yml` | Caddy with auto-TLS, profile chosen by `KORKEM_PROXY_PROFILE` (`webhooks` default, or `app`) |
+
+`scripts/deploy_pilot.sh --check` then `scripts/deploy_pilot.sh` runs a
+deployment with its checks. Full procedure: `docs/operations/`.
+
+## `KORKEM_ENV` decides everything environmental
+
+`development` | `pilot` | `production` — developer mode, `allow_tests`, the
+scheduler, which Procfile — written into the site config as `korkem_env`.
+`korkem_ai.korkem_ai.environment` is the **one** place that reads it. Every
+destructive fixture in `seed_demo` calls `require_non_production` first, and an
+unlabelled non-developer site is treated as production.
+
+**Do not add a second way to ask what environment a site is.**
+
+## Tests
+
+```sh
+docker compose exec -T bench sh -lc \
+  'cd /home/frappe/frappe-bench && bench --site korkem.localhost run-tests --app korkem_manufacturing'
+docker compose exec -T bench bash -o pipefail -lc \
+  'cd /home/frappe/frappe-bench && bench --site korkem.localhost run-tests --app korkem_ai 2>&1 | tee /tmp/korkem-ai-test.log'
+```
+
+The `korkem_ai` suite is ~1 000 tests and takes **around 26 minutes**. Pipe it
+to a file inside the container: the statistics scroll away otherwise, and the
+log survives the shell that started it.
+
+Known-good baseline as of 2026-08-31: `korkem_manufacturing` 13/13;
+`korkem_ai` 992 tests, 983 pass, 9 skip, **3 errors** — all three are the same
+fixture defect (`Duplicate entry 'Standard Buying'` raised in `setUpClass` of
+`test_agent_conversation`, `test_agent_conversation_message`,
+`test_pending_action`). Fixing that is the first item in `ROADMAP.md`.
+
+## Failures that look like bugs and are not
+
+**"Site localhost does not exist" on a healthy bench.** Frappe 17 resolves an
+HTTP request to a site by its **`Host` header only** — `default_site` is
+CLI-only. The healthcheck and `deploy_pilot.sh` therefore send
+`Host: $SITE_NAME`. Do the same in any probe you write.
+
+**"The app signs in and then the assistant never answers."** `webserver_host`
+must be set (`bench set-config -g webserver_host 127.0.0.1`, done in
+`bootstrap.sh`). Without it, socket.io derives the URL it calls the web server
+back on from the client's own `Origin` header. A browser on the host sends
+`korkem.localhost`, which resolves; an Android emulator sends `10.0.2.2`,
+which means nothing inside the container, and every socket connection is
+refused as `Unauthorized: TypeError: fetch failed`. HTTP keeps working
+throughout, which is what makes it confusing.
+
+**A session cookie without `Secure` behind TLS.** A pilot serves through
+`korkem_ai.wsgi:application`, not `frappe.app:application`: it adds the
+static-file middleware (the proxy container cannot read the bench's disk) and
+`ProxyFix`, without which `request.scheme` is `http` behind TLS.
+
+**All four containers exit 255 at once.** Not the bench — memory. The emulator
+and the bench compete for the WSL VM's budget. Boot the emulator with
+`-memory 1536`, start the bench first, and stop the Gradle daemon.
+
+**Startup scripts appear not to change.** They are mounted, not baked into the
+image — but editing `entrypoint.sh` used to require an image rebuild and
+silently did not get one, so bootstrap would configure a pilot and the
+container would then start the development server. Restart the container after
+editing them.
+
+**A demo run has "broken" production.** Four device runs in a row exhaust the
+edge banding, and the fifth correctly refuses to start production. Restore the
+demo dataset between runs.
+
+**Test evidence disappears.** The launch-readiness module's teardown deletes
+`Notification Delivery` and `Channel Event` **globally**. Take any verification
+*before* running further tests.
+
+## Health
+
+`/health` and `/health/ready` are served by
+`korkem_ai.korkem_ai.health.HealthPage` through Frappe's `page_renderer` hook —
+no proxy needed, answers anonymously, 200 / 503.
+
+## The vendored trees must stay pristine
+
+`erpnext/`, `frappe/`, `crm/`, `relaticle/` are independent git repositories,
+excluded from the root repo. `bench build` occasionally touches a tracked file
+incidentally (observed: `crm/frontend/auto-imports.d.ts`, `crm/yarn.lock`).
+**Check `git -C <repo> status` after any bench rebuild and revert anything
+unexpected.**
+
+`backend/korkem_manufacturing/` and `backend/korkem_ai/` are also their own git
+repos — not because they are vendored, but because `bench get-app --soft-link`
+only works against a real git repository and a bare directory triggers an
+unhandled bug in bench's `App` class. Commit inside each, not from the root.
