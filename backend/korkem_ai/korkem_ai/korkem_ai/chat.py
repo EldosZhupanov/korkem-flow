@@ -56,7 +56,7 @@ import json
 
 import frappe
 
-from korkem_ai.korkem_ai import errors
+from korkem_ai.korkem_ai import budget, errors, usage
 from korkem_ai.korkem_ai.agent import loop, proposals
 from korkem_ai.korkem_ai.orchestrator import llm
 from korkem_ai.korkem_ai.orchestrator.protocol import AIMessage, AIToolCall, AIToolResult
@@ -98,6 +98,10 @@ def send(
 	# `AINotConfigured` that reaches the client as `AI_NOT_CONFIGURED`.
 	llm.ensure_configured(provider, model)
 
+	# Also before the queue, and for the same reason: a refusal must cost
+	# nothing and must reach the person in its own words.
+	budget.check()
+
 	turn_id = turn_id or frappe.generate_hash(length=12)
 
 	frappe.enqueue(
@@ -128,6 +132,7 @@ def confirm(turn_id: str, call_ids: str | list, message: str, history: str | lis
 		frappe.throw("Nothing was approved")
 
 	llm.ensure_configured()
+	budget.check()
 
 	for call_id in approved:
 		_owned_pending_action(call_id)
@@ -241,7 +246,32 @@ def run_turn_job(
 		# The user gets a code and a sentence, not a traceback: a traceback can
 		# quote table names, file paths and other people's data.
 		publish({"type": "error", "reason": str(code), "message": errors.message_for(code)})
+		# A turn that died still reached the provider and may still be billed.
+		# Recorded with no counts rather than not recorded, so the turn appears
+		# in a budget as something that happened.
+		usage.record(
+			None,
+			provider=provider,
+			model=model,
+			status="failed",
+			turn_id=turn_id,
+			channel="App",
+			user=user,
+		)
 		return
+
+	# One row per turn, at the single point where every outcome is known. It
+	# cannot raise and its failure cannot reach the work above it — see
+	# `usage.record`.
+	usage.record_turn(
+		result,
+		adapter=adapter,
+		provider=provider,
+		model=model,
+		turn_id=turn_id,
+		channel="App",
+		user=user,
+	)
 
 	if result.status == "needs_confirmation":
 		publish(

@@ -283,7 +283,7 @@ def _run_turn(
 	*, doc_name: str, user: str, text: str, channel: str, chat_id: str, turn: str | None = None
 ):
 	"""The turn itself, once the session and the role pin are in place."""
-	from korkem_ai.korkem_ai import errors
+	from korkem_ai.korkem_ai import budget, errors, usage
 	from korkem_ai.korkem_ai.agent import loop
 	from korkem_ai.korkem_ai.orchestrator import llm
 	from korkem_ai.korkem_ai.orchestrator.protocol import AIMessage
@@ -323,15 +323,53 @@ def _run_turn(
 
 	awaiting = None
 	try:
-		result = loop.run_turn([AIMessage.user(text)], provider=llm.resolve(None, None))
+		# Refused before the provider is reached, so the refusal costs nothing.
+		# A channel turn spends the same budget as an app turn and is checked
+		# the same way — a limit that only the app honoured would be no limit,
+		# because Telegram reaches the identical brain.
+		budget.check(user)
+
+		adapter = llm.resolve(None, None)
+		result = loop.run_turn([AIMessage.user(text)], provider=adapter)
+		# Same single point as the app path: every outcome is known here, and a
+		# channel turn costs exactly what an app turn costs. `record_turn`
+		# rather than `record` so that nothing about describing the turn is
+		# evaluated outside the guard — see its docstring for the fourteen
+		# tests that taught us the difference.
+		usage.record_turn(
+			result,
+			adapter=adapter,
+			turn_id=turn,
+			conversation=conversation,
+			channel=channel if channel in usage.CHANNELS else "App",
+			user=user,
+		)
 		answer = result.text
 		if result.status == "needs_confirmation":
 			# The proposal is already written down as a Pending Action by the
 			# loop. Tying it to this conversation is what lets a bare
 			# "подтверждаю" resolve to it later without guessing.
 			answer, awaiting = _await_confirmation(doc, result, answer)
+	except budget.BudgetExceeded as exc:
+		# Its own sentence, not a generic code: somebody who cannot work needs
+		# to know whether to wait or to ask for a bigger budget. Nothing is
+		# logged as an error, because this is the guard working.
+		answer = str(exc)
+		record(doc, "Agent", answer)
+		deliver(channel, chat_id, answer)
+		return {"conversation": conversation, "status": "refused"}
 	except Exception as exc:
 		frappe.log_error(title="Channel turn failed", message=_safe_traceback())
+		usage.record(
+			None,
+			provider=None,
+			model=None,
+			status="failed",
+			turn_id=turn,
+			conversation=conversation,
+			channel=channel if channel in usage.CHANNELS else "App",
+			user=user,
+		)
 		audit.record(
 			audit.FAILED,
 			channel=channel,
