@@ -48,6 +48,7 @@ from __future__ import annotations
 import frappe
 
 from korkem_manufacturing.services import production as service
+from korkem_manufacturing.services import shop_floor
 from korkem_manufacturing.services.scope import current_company, ensure_company
 
 #: Who may put material into work-in-progress. Checked in addition to — never
@@ -147,3 +148,123 @@ def _company_or_none() -> str | None:
 		return current_company()
 	except Exception:
 		return None
+
+
+#: Who may book work against a stage. Narrower than starting a job on purpose:
+#: an operator answers for their own bench and needs `write`, not `create` —
+#: they finish work somebody else planned.
+MAY_REPORT = ("Manufacturing Manager", "Manufacturing User", "System Manager")
+
+
+@frappe.whitelist()
+def complete_operation(
+	operation: str | None = None,
+	sales_order: str | None = None,
+	work_order: str | None = None,
+	qty: float | None = None,
+	scrap_qty: float | None = None,
+	rework_qty: float | None = None,
+) -> dict:
+	"""Record that a production stage is finished.
+
+	Quantities are read as numbers here rather than trusted as whatever the
+	caller sent: a string "4" from a form and a float 4.0 from a tool must mean
+	the same thing, and neither may become `None` silently.
+
+	`already_complete` is an outcome, not an error — saying it twice must not
+	book the hours or the quantity twice, and the caller needs to be told which
+	of the two happened.
+	"""
+	if not any([operation, sales_order, work_order]):
+		frappe.throw(
+			"Which stage finished? Name the operation, the sales order or the "
+			"work order."
+		)
+
+	# Company before anything else, and from the session. A caller that could
+	# reach another factory's job card could book output against it.
+	if work_order:
+		ensure_company("Work Order", work_order)
+	if sales_order:
+		ensure_company("Sales Order", sales_order)
+
+	if not any(role in frappe.get_roles() for role in MAY_REPORT):
+		frappe.throw(
+			"You do not have production rights, so you cannot book work "
+			"against a stage. Ask a manufacturing manager.",
+			frappe.PermissionError,
+		)
+
+	result = shop_floor.complete_operation(
+		operation=_clean(operation),
+		sales_order=_clean(sales_order),
+		work_order=_clean(work_order),
+		qty=_quantity(qty, "qty"),
+		scrap_qty=_quantity(scrap_qty, "scrap_qty"),
+		rework_qty=_quantity(rework_qty, "rework_qty"),
+	)
+	_audit_operation(result)
+	return result
+
+
+def _clean(value: str | None) -> str | None:
+	if value is None:
+		return None
+	if not isinstance(value, str):
+		frappe.throw("Names must be text.")
+	return value.strip() or None
+
+
+def _quantity(value, field: str) -> float | None:
+	"""A quantity, or None. Never a silent zero and never a negative.
+
+	A form sends "4", a tool sends 4.0, and a mistake sends "четыре". The first
+	two mean the same thing; the third must say so rather than becoming None
+	and booking the whole outstanding quantity by accident.
+	"""
+	if value is None or value == "":
+		return None
+	try:
+		number = float(value)
+	except (TypeError, ValueError):
+		frappe.throw(f"{field} must be a number, not {value!r}.")
+	if number < 0:
+		frappe.throw(f"{field} cannot be negative.")
+	return number
+
+
+def _audit_operation(result: dict) -> None:
+	"""Record who booked what, on the work order.
+
+	Guarded like every other audit here: the job card is already submitted by
+	this point, and failing to write a note must not undo it.
+	"""
+	work_order = result.get("work_order")
+	if not work_order:
+		return
+
+	savepoint = "korkem_op_audit_" + frappe.generate_hash(length=8)
+	try:
+		frappe.db.savepoint(savepoint)
+		frappe.get_doc(
+			{
+				"doctype": "Comment",
+				"comment_type": "Info",
+				"reference_doctype": "Work Order",
+				"reference_name": work_order,
+				"content": (
+					f"KORKEM: {frappe.session.user} — {result.get('operation')}, "
+					f"статус {result.get('status')}, карта {result.get('job_card')}."
+				),
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.release_savepoint(savepoint)
+	except Exception:
+		try:
+			frappe.db.rollback(save_point=savepoint)
+		except Exception:
+			pass
+		frappe.log_error(
+			title="Could not record who finished a stage",
+			message=frappe.get_traceback(with_context=True),
+		)

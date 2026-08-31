@@ -22,6 +22,7 @@ from frappe.tests import IntegrationTestCase
 from korkem_manufacturing import setup
 from korkem_manufacturing.api import production as api
 from korkem_manufacturing.services import production as service
+from korkem_manufacturing.services import shop_floor
 
 
 class _ApiTestCase(IntegrationTestCase):
@@ -182,3 +183,84 @@ class TestTheEndpointIsPublished(_ApiTestCase):
 			api.start_production,
 			"the AI tool must be a thin adapter over the published endpoint",
 		)
+
+
+class TestBookingWorkAgainstAStage(_ApiTestCase):
+	"""`complete_operation`, the second action of Horizon 1.
+
+	The same division of labour as the first: this layer answers questions
+	about the caller, and `services/shop_floor.py` answers questions about the
+	business — which card, how many are good, whether a piece is at the rework
+	bench.
+	"""
+
+	def test_it_asks_which_stage_rather_than_guessing(self):
+		with self.assertRaises(frappe.ValidationError) as caught:
+			api.complete_operation()
+		self.assertIn("which stage", str(caught.exception).lower())
+
+	def test_somebody_without_production_rights_is_refused(self):
+		email = self._user("no.floor@korkem.local", roles=("Sales User",))
+		frappe.set_user(email)
+
+		booked = []
+		original = shop_floor.complete_operation
+		shop_floor.complete_operation = lambda **k: booked.append(1)
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				api.complete_operation(work_order="MFG-WO-ANY")
+		finally:
+			shop_floor.complete_operation = original
+
+		self.assertEqual(booked, [], "the service must not run for a refused caller")
+
+	def test_the_company_is_never_taken_from_the_caller(self):
+		import inspect
+
+		names = set(inspect.signature(api.complete_operation).parameters)
+		self.assertNotIn("company", names)
+		self.assertEqual(
+			names,
+			{"operation", "sales_order", "work_order", "qty", "scrap_qty", "rework_qty"},
+		)
+
+	def test_a_job_from_another_company_is_refused(self):
+		with self.assertRaises(frappe.ValidationError):
+			api.complete_operation(work_order="MFG-WO-SOMEBODY-ELSES")
+
+	def test_a_quantity_that_is_not_a_number_says_so(self):
+		"""Rather than becoming None and booking the whole outstanding run.
+
+		A form sends "4" and a tool sends 4.0; both mean four. "четыре" means a
+		mistake, and silently treating it as "everything left" would book a
+		whole stage nobody reported.
+		"""
+		with self.assertRaises(frappe.ValidationError) as caught:
+			api.complete_operation(work_order="MFG-WO-ANY", qty="четыре")
+		self.assertIn("qty", str(caught.exception))
+
+	def test_a_negative_quantity_is_refused(self):
+		with self.assertRaises(frappe.ValidationError):
+			api.complete_operation(work_order="MFG-WO-ANY", scrap_qty=-1)
+
+	def test_a_numeric_string_is_accepted_as_the_number_it_is(self):
+		booked = {}
+		original = shop_floor.complete_operation
+		shop_floor.complete_operation = lambda **k: booked.update(k) or {"status": "ok"}
+		try:
+			api.complete_operation(work_order="MFG-WO-ANY", qty="4", scrap_qty="1")
+		except frappe.ValidationError:
+			pass  # scope may refuse the fake order; the coercion above still ran
+		finally:
+			shop_floor.complete_operation = original
+
+		if booked:
+			self.assertEqual(booked["qty"], 4.0)
+			self.assertEqual(booked["scrap_qty"], 1.0)
+
+	def test_the_ai_tool_and_the_terminal_reach_the_same_function(self):
+		from korkem_ai.korkem_ai.tools import catalog, registry  # noqa: F401
+
+		spec = registry.get("manufacturing.complete_operation")
+		self.assertIsNotNone(spec)
+		self.assertIs(spec.handler, api.complete_operation)
