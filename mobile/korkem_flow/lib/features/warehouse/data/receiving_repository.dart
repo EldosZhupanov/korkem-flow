@@ -18,6 +18,8 @@ class ReceivingRepository {
   static const orderPath =
       'korkem_manufacturing.api.purchasing.create_purchase_order';
 
+  static const shipPath = 'korkem_manufacturing.api.dispatch.create_delivery';
+
   final FrappeClient _client;
 
   /// Receives everything still outstanding, or only [items] for a partial one.
@@ -64,6 +66,58 @@ class ReceivingRepository {
     );
     return PurchaseOrderResult.fromJson(response['message'] ?? response);
   }
+
+  /// Ships what is actually on the shelf against a sales order.
+  ///
+  /// There is no quantity argument, and there must never be one. A finished
+  /// quantity on a work order is not goods in a warehouse — they can have been
+  /// consumed, reserved or never received — so the server recomputes what can
+  /// go out from the shelf at the moment of execution. Asking for four hundred
+  /// cabinets against an order for ten with six in stock ships six.
+  Future<DeliveryResult> ship(
+    String salesOrder, {
+    List<Map<String, Object?>>? items,
+  }) async {
+    final response = await _client.callMethod(
+      shipPath,
+      post: true,
+      params: {'sales_order': salesOrder, 'items': ?items},
+    );
+    return DeliveryResult.fromJson(response['message'] ?? response);
+  }
+}
+
+/// What actually left the building.
+class DeliveryResult {
+  const DeliveryResult({
+    required this.status,
+    this.deliveryNote,
+    this.message,
+    this.shipped = const [],
+    this.adjusted = false,
+  });
+
+  factory DeliveryResult.fromJson(Object? raw) {
+    final json = raw is Map<String, dynamic> ? raw : const <String, dynamic>{};
+    return DeliveryResult(
+      status: ReceiptResult._text(json['status']) ?? 'unknown',
+      deliveryNote: ReceiptResult._text(json['delivery_note']),
+      message: ReceiptResult._text(json['message']),
+      shipped: ReceiptResult._lines(json['shipped']),
+      adjusted: json['adjusted'] == true,
+    );
+  }
+
+  final String status;
+  final String? deliveryNote;
+  final String? message;
+  final List<ReceivedLine> shipped;
+
+  /// True when the server sent less than was asked for because that is all the
+  /// shelf held. The screen must say so rather than report success plainly.
+  final bool adjusted;
+
+  bool get dispatched => deliveryNote != null;
 }
 
 /// The order the server created, read back rather than assumed.

@@ -271,4 +271,86 @@ void main() {
       expect(path.contains('korkem_ai'), isFalse);
     });
   });
+
+  group('shipping to the customer', () {
+    test('it calls the published endpoint', () async {
+      respond({'status': 'shipped'});
+
+      await repository.ship('SAL-ORD-2026-00011');
+
+      final path =
+          verify(
+                () => client.callMethod(
+                  captureAny(),
+                  params: any(named: 'params'),
+                  post: true,
+                ),
+              ).captured.single
+              as String;
+
+      expect(path, 'korkem_manufacturing.api.dispatch.create_delivery');
+    });
+
+    test('no quantity can be sent, because the shelf decides', () async {
+      // A finished quantity on a work order is not goods in a warehouse. The
+      // server recomputes what can go out at the moment of execution.
+      respond({'status': 'shipped'});
+
+      await repository.ship('SAL-ORD-1');
+
+      final params = sentParams();
+      expect(params, {'sales_order': 'SAL-ORD-1'});
+      for (final forbidden in ['qty', 'quantity', 'warehouse', 'company']) {
+        expect(params.containsKey(forbidden), isFalse, reason: forbidden);
+      }
+    });
+
+    test('a trimmed shipment is reported as trimmed, not as success', () async {
+      // Asking for four hundred against an order for ten with six on the shelf
+      // ships six. Saying "done" without saying "six" is how a driver leaves
+      // with the wrong load.
+      respond({
+        'status': 'shipped',
+        'delivery_note': 'MAT-DN-2026-00002',
+        'adjusted': true,
+        'shipped': [
+          {'item_code': 'Шкаф Астана', 'qty': 6.0, 'uom': 'Nos'},
+        ],
+      });
+
+      final result = await repository.ship('SAL-ORD-1');
+
+      expect(result.dispatched, isTrue);
+      expect(result.adjusted, isTrue);
+      expect(result.shipped.single.qty, 6.0);
+    });
+
+    test('nothing shipped is not the same as shipped', () async {
+      respond({'status': 'blocked', 'message': 'Ничего нет на складе.'});
+
+      final result = await repository.ship('SAL-ORD-1');
+
+      expect(result.dispatched, isFalse);
+      expect(result.shipped, isEmpty);
+    });
+
+    test('a dispatcher can ship with the provider down', () async {
+      respond({'status': 'shipped', 'delivery_note': 'MAT-DN-1'});
+
+      await repository.ship('SAL-ORD-1');
+
+      final path =
+          verify(
+                () => client.callMethod(
+                  captureAny(),
+                  params: any(named: 'params'),
+                  post: any(named: 'post'),
+                ),
+              ).captured.single
+              as String;
+
+      expect(path.contains('chat'), isFalse);
+      expect(path.contains('korkem_ai'), isFalse);
+    });
+  });
 }
