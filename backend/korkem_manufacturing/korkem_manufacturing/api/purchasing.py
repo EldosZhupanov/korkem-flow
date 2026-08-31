@@ -22,10 +22,15 @@ from korkem_manufacturing.services.scope import ensure_company
 MAY_RECEIVE = (
 	"Stock Manager",
 	"Stock User",
-	"Purchase Manager",
 	"Purchase User",
 	"System Manager",
 )
+# `Purchase Manager` was here and has been removed rather than granted the
+# permission it lacked. ERPNext gives `submit` on Purchase Receipt to Stock
+# Manager, Stock User and Purchase User — not to Purchase Manager — and that
+# is the right line: receiving is the store's job. Letting the role past this
+# gate only to have the service refuse it deeper down produces a confusing
+# error for something that was never meant to be allowed.
 
 
 @frappe.whitelist()

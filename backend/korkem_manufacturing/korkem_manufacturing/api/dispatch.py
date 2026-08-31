@@ -23,9 +23,17 @@ MAY_SHIP = (
 	"Stock User",
 	"Delivery Manager",
 	"Delivery User",
-	"Sales Manager",
 	"System Manager",
 )
+# `Sales Manager` was here and has been removed. ERPNext grants `submit` on
+# Delivery Note to Sales User, Stock roles and Delivery roles — not to Sales
+# Manager. Selling an order and loading a lorry are different jobs, and the
+# permission model already says so.
+#
+# The Delivery roles stay: they hold `submit` on Delivery Note. What they
+# lacked was `read` on Sales Order, which the patch in
+# `korkem_manufacturing.patches.v0_0.grant_order_read` supplies — that one is a
+# genuine gap rather than a role reaching past its remit.
 
 
 @frappe.whitelist()
