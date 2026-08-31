@@ -14,7 +14,14 @@
   "section_break_connection",
   "base_url",
   "column_break_credentials",
-  "api_key"
+  "api_key",
+  "section_break_budget",
+  "daily_tokens_per_user",
+  "daily_cost_per_user",
+  "turns_per_minute_per_user",
+  "column_break_budget",
+  "daily_tokens_per_company",
+  "daily_cost_per_company"
  ],
  "fields": [
   {
@@ -26,7 +33,7 @@
   {
    "default": "Anthropic",
    "depends_on": "enabled",
-   "description": "Which LLM the gateway calls. OpenAI-compatible covers any endpoint speaking the OpenAI chat API — vLLM, LM Studio, a corporate gateway — and requires a Base URL.",
+   "description": "Which LLM the gateway calls. OpenAI-compatible covers any endpoint speaking the OpenAI chat API \u2014 vLLM, LM Studio, a corporate gateway \u2014 and requires a Base URL.",
    "fieldname": "provider",
    "fieldtype": "Select",
    "label": "Provider",
@@ -40,7 +47,7 @@
   {
    "default": "claude-opus-5",
    "depends_on": "enabled",
-   "description": "Model ID, as the provider names it — claude-opus-5, gpt-5, anthropic/claude-opus-5, gemini-2.5-pro, qwen2.5-coder:7b.",
+   "description": "Model ID, as the provider names it \u2014 claude-opus-5, gpt-5, anthropic/claude-opus-5, gemini-2.5-pro, qwen2.5-coder:7b.",
    "fieldname": "model",
    "fieldtype": "Data",
    "label": "Model",
@@ -77,6 +84,53 @@
    "fieldname": "api_key",
    "fieldtype": "Password",
    "label": "API Key"
+  },
+  {
+   "fieldname": "section_break_budget",
+   "fieldtype": "Section Break",
+   "label": "Budget and Rate Limits",
+   "description": "The server is the only place these are enforced. A limit kept in a client is a suggestion. Zero means no limit \u2014 which is the current default and is a deliberate choice, not an oversight."
+  },
+  {
+   "fieldname": "daily_tokens_per_user",
+   "fieldtype": "Int",
+   "label": "Daily Tokens per User",
+   "default": "0",
+   "description": "Tokens are the unit that always works: any provider that reports usage gives them. 0 = unlimited."
+  },
+  {
+   "fieldname": "daily_cost_per_user",
+   "fieldtype": "Float",
+   "label": "Daily Cost per User",
+   "precision": "2",
+   "default": "0",
+   "description": "Only bites once rates are configured on AI Provider; before that every turn is priced at zero and this can never trigger. 0 = unlimited."
+  },
+  {
+   "fieldname": "turns_per_minute_per_user",
+   "fieldtype": "Int",
+   "label": "Turns per Minute per User",
+   "default": "0",
+   "description": "A burst guard, not a budget. It stops a stuck client or a loop, which is a different failure from somebody working hard all day. 0 = unlimited."
+  },
+  {
+   "fieldname": "column_break_budget",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "daily_tokens_per_company",
+   "fieldtype": "Int",
+   "label": "Daily Tokens per Company",
+   "default": "0",
+   "description": "The whole factory's ceiling. 0 = unlimited."
+  },
+  {
+   "fieldname": "daily_cost_per_company",
+   "fieldtype": "Float",
+   "label": "Daily Cost per Company",
+   "precision": "2",
+   "default": "0",
+   "description": "0 = unlimited."
   }
  ],
  "index_web_pages_for_search": 0,
