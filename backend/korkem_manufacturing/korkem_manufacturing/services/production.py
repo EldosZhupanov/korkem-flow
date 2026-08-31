@@ -106,14 +106,17 @@ def work_order_stages(work_order: str) -> dict:
 		"next_operation": following["operation"] if following else None,
 	}
 
-
-def _live_work_orders(sales_order: str) -> list[dict]:
+def _live_work_orders(sales_order: str, item_code: str | None = None) -> list[dict]:
+	filters = scoped({"sales_order": sales_order, "docstatus": ["<", 2]})
+	if item_code:
+		filters["production_item"] = item_code
 	return frappe.get_list(
 		"Work Order",
-		filters=scoped({"sales_order": sales_order, "docstatus": ["<", 2]}),
+		filters=filters,
 		fields=[
 			"name",
 			"production_item",
+			"sales_order_item",
 			"qty",
 			"produced_qty",
 			"material_transferred_for_manufacturing",
@@ -125,14 +128,14 @@ def _live_work_orders(sales_order: str) -> list[dict]:
 	)
 
 
-def _live_job_name(sales_order: str) -> str | None:
+def _live_job_name(sales_order: str, item_code: str | None = None) -> str | None:
 	"""The one running job for this order, or nothing.
 
 	Used only to attach a notification to a job when there is exactly one — with
 	two, naming either would be the silent choice this codebase refuses
 	everywhere else, and the order-level message still reaches the customer.
 	"""
-	live = _live_work_orders(sales_order)
+	live = _live_work_orders(sales_order, item_code)
 	return live[0]["name"] if len(live) == 1 else None
 
 
@@ -153,6 +156,25 @@ def _planned_qty(orders: list[dict]) -> float:
 
 
 def start_production(sales_order: str, item_code: str | None = None):
+	"""Atomically plan the work and move its material into WIP.
+
+	The AI registry returns domain failures as data instead of re-raising them,
+	so an outer HTTP transaction is not a reliable rollback boundary. Own a
+	savepoint here: either the Work Order and transfer both survive, or neither
+	does, regardless of which adapter called the service.
+	"""
+	savepoint = "korkem_start_production_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(savepoint)
+	try:
+		result = _start_production(sales_order, item_code)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		raise
+	frappe.db.release_savepoint(savepoint)
+	return result
+
+
+def _start_production(sales_order: str, item_code: str | None = None):
 	"""Put an order into production: plan the work if needed, then move material.
 
 	Everything is re-read here rather than taken from the proposal. A start is
@@ -173,7 +195,14 @@ def start_production(sales_order: str, item_code: str | None = None):
 	lines = [row for row in order.items if not item_code or row.item_code == item_code]
 	if not lines:
 		frappe.throw(f"{sales_order} has no line for {item_code}.")
+	items = {row.item_code for row in lines}
+	if item_code is None and len(items) > 1:
+		frappe.throw(
+			f"{sales_order} contains several products. Name item_code so the factory "
+			"does not choose one silently."
+		)
 	line = lines[0]
+	target_qty = sum(flt(row.qty) for row in lines)
 
 	# Readiness, re-checked from the shelf rather than from the proposal — and
 	# from the same reading `production_control` reports, so the tool that says
@@ -185,7 +214,7 @@ def start_production(sales_order: str, item_code: str | None = None):
 		# the one place that has it, and the notification layer decides who hears.
 		domain_events.emit(
 			MATERIAL_SHORT,
-			work_order=_live_job_name(sales_order),
+			work_order=_live_job_name(sales_order, line.item_code),
 			blocking=blocking,
 			sales_order=sales_order,
 		)
@@ -203,8 +232,8 @@ def start_production(sales_order: str, item_code: str | None = None):
 			),
 		}
 
-	existing = _live_work_orders(sales_order)
-	outstanding = round(flt(line.qty) - _planned_qty(existing), 3)
+	existing = _live_work_orders(sales_order, line.item_code)
+	outstanding = round(target_qty - _planned_qty(existing), 3)
 
 	created = None
 	if outstanding > 0:
@@ -243,7 +272,7 @@ def start_production(sales_order: str, item_code: str | None = None):
 		job.insert()
 		job.submit()
 		created = job.name
-		existing = _live_work_orders(sales_order)
+		existing = _live_work_orders(sales_order, line.item_code)
 
 	startable = [row for row in existing if row["status"] in ("Not Started", "Draft")]
 	running = [row for row in existing if row["status"] == "In Process"]

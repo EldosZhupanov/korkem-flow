@@ -164,6 +164,103 @@ class TestStartingPlansTheWorkAndMovesTheMaterial(_ProductionTestCase):
 		self.assertEqual(job.sales_order, self.ready)
 		self.assertEqual(len(job.operations), 7, "the job has no stages")
 
+	def test_a_failed_transfer_rolls_back_the_work_order(self):
+		"""The registry reports failures as data, so the service owns rollback.
+
+		A request handler would roll the transaction back after an exception. The
+		AI registry deliberately catches one so the rest of a turn can continue;
+		without a savepoint here that left a submitted Work Order behind even
+		though no material reached work in progress.
+		"""
+		before = frappe.db.count("Work Order", {"sales_order": self.ready, "docstatus": 1})
+
+		with patch(
+			"erpnext.manufacturing.doctype.work_order.mapper.make_stock_entry",
+			side_effect=RuntimeError("stock mapper unavailable"),
+		):
+			result = self.start(self.ready)
+
+		self.assertFalse(result["ok"])
+		self.assertEqual(
+			frappe.db.count("Work Order", {"sales_order": self.ready, "docstatus": 1}),
+			before,
+			"a failed start must not leave a submitted job without its transfer",
+		)
+
+	def test_a_named_item_never_starts_another_items_existing_job(self):
+		"""A multi-item order may have an older startable job for another line."""
+		first_source = frappe.get_doc("Sales Order", self.ready)
+		second_source = frappe.get_doc("Sales Order", self.blocked).items[0]
+		first_item = first_source.items[0].item_code
+		second_item = second_source.item_code
+		if first_item == second_item:
+			self.skipTest("the seed does not contain two distinct manufactured items")
+
+		order = frappe.copy_doc(first_source)
+		order.items[0].qty = 1
+		order.append(
+			"items",
+			{
+				"item_code": second_item,
+				"qty": 2,
+				"rate": second_source.rate,
+				"delivery_date": second_source.delivery_date,
+				"warehouse": second_source.warehouse,
+			},
+		)
+		order.insert()
+		order.submit()
+
+		first_line = order.items[0]
+		job = frappe.new_doc("Work Order")
+		job.update(
+			{
+				"production_item": first_item,
+				"bom_no": frappe.db.get_value(
+					"BOM", {"item": first_item, "is_active": 1, "is_default": 1}, "name"
+				),
+				"company": order.company,
+				"qty": 1,
+				"sales_order": order.name,
+				"sales_order_item": first_line.name,
+				"wip_warehouse": "Work In Progress - KRK",
+				"fg_warehouse": first_line.warehouse,
+				"planned_start_date": frappe.utils.nowdate(),
+			}
+		)
+		job.set_work_order_operations()
+		job.insert()
+		job.submit()
+
+		mapped_items = []
+
+		def fail_after_selecting_job(work_order, *args, **kwargs):
+			mapped_items.append(frappe.db.get_value("Work Order", work_order, "production_item"))
+			raise RuntimeError("stop after selecting the job")
+
+		with (
+			patch(
+				"korkem_manufacturing.services.production.material_shortage",
+				return_value={"not_on_the_shelf": []},
+			),
+			patch(
+				"erpnext.manufacturing.doctype.work_order.mapper.make_stock_entry",
+				side_effect=fail_after_selecting_job,
+			),
+		):
+			result = self.as_user(
+				PLANNER,
+				START,
+				{"sales_order": order.name, "item_code": second_item},
+			)
+
+		self.assertFalse(result["ok"])
+		self.assertEqual(
+			mapped_items,
+			[second_item],
+			"the requested item must select only its own Work Order",
+		)
+
 	def test_the_material_actually_leaves_the_store(self):
 		panel = "ЛДСП 18мм"
 		before = self.on_hand(panel)
