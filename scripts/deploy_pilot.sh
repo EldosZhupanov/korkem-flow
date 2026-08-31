@@ -6,7 +6,7 @@
 #   scripts/deploy_pilot.sh             preflight, backup, migrate, start, verify
 #
 # It is deliberately dull. Everything it does is something an operator could do
-# by hand from docs/pilot/DEPLOYMENT.md; what it adds is that it does them in
+# by hand from docs/operations/DEPLOYMENT.md; what it adds is that it does them in
 # the right order and stops at the first thing that is not true.
 #
 # Three rules it keeps:
@@ -91,7 +91,7 @@ if [ -n "${KORKEM_PUBLIC_HOST:-}" ]; then
   ok "public front door included, profile '${KORKEM_PROXY_PROFILE:-webhooks}'"
 else
   warn "KORKEM_PUBLIC_HOST is empty — deploying without the public front door."
-  warn "The site will be reachable on 127.0.0.1:8000 only. See docs/pilot/PRE_DOMAIN_CHECKLIST.md."
+  warn "The site will be reachable on 127.0.0.1:8000 only. See docs/operations/PRE_DOMAIN_CHECKLIST.md."
 fi
 
 # --- 2. tooling -------------------------------------------------------------
@@ -199,4 +199,4 @@ fi
 say "Done"
 printf '    Site:        %s\n' "$SITE_NAME"
 printf '    Environment: %s\n' "$env_name"
-printf '    Next:        docs/pilot/PRE_DOMAIN_CHECKLIST.md\n\n'
+printf '    Next:        docs/operations/PRE_DOMAIN_CHECKLIST.md\n\n'

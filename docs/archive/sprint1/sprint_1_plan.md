@@ -1,0 +1,126 @@
+> **АРХИВ. Это не описание системы сегодня.**
+> Документ сохранён ради причин, стоящих за решениями. Актуальное состояние — в `NOW.md`, `ROADMAP.md`, `PLAN.md`.
+> Не строить по этому файлу.
+
+---
+
+# Sprint 1 — First Vertical Slice
+
+Status: **complete** (Sprint 1 slice delivered; 83 integration tests green, live smoke test passing). Architecture frozen per `.ai/architecture/*` (phases 01-07 complete; 08-25 intentionally not pursued further unless implementation reveals a blocking flaw, per the current instruction). This is an execution/roadmap document, not a new architecture document.
+
+## Slice
+
+Customer sends a WhatsApp message → AI classifies intent → Create/find Customer → Create CRM Deal → Create Quote → Manager approves Quote (via Pending Action) → Create Production Order (Work Order) → Assign Production Task → Worker completes Task → Notify Customer.
+
+## Scoping decisions made to keep this slice minimal but real (no placeholders)
+
+- **Task, not Work Assignment**: "Assign Production Task" uses the existing Collaboration `Task` (reused CRM Task doctype, extended to target `Work Order`), not `korkem_workforce`'s percentage-split Work Assignment. Upgradable later; not required to prove this flow end-to-end.
+- **No Facade Item / Decor / BOM detail**: the Production Order created in this slice is a bare `Work Order` (item, qty, customer link) — KORKEM-specific manufacturing detail (facade items, decor, milling) is out of scope for Sprint 1.
+- **Approval UI is Frappe Desk-native for now**: the Pending Action approve/reject step uses a plain Desk list view with action buttons, not the dark-UI frontend (Phase 18/19, not yet built). Real functionality, minimal UI investment.
+- **Inbound WhatsApp**: new, small addition to the Integrations context (symmetric to the already-designed outbound path) — see the architectural-gap note in conversation; not a new architecture phase.
+
+## Tasks (dependency order, 1-4h each)
+
+### Phase A — Environment (blocking everything below) — ✅ DONE
+- A1. Grant `eldos` docker group access — ✅ done
+- A2. Stand up Frappe bench via custom Docker Compose (`infra/frappe_bench/`, not `frappe_docker`'s quick-start — a custom setup bind-mounting our vendored `erpnext`/`frappe`/`crm`, per the approved plan) — ✅ done, after fixing several real issues along the way (corepack bug, a pre-existing yarn shim, wrong MariaDB healthcheck binary, a volume-mount-path gotcha, and erpnext's `banking` sub-frontend needing a real clone instead of a symlink — full detail in `.ai/roadmap/sprint_1_phase_a_checklist.md`)
+- A3. `bench get-app erpnext` (local clone), `bench get-app --soft-link crm`; site `korkem.localhost` created; both apps installed — ✅ done
+- A4. Sanity check: Desk loads (HTTP 200, login page), asset URLs all 200, vendored repos confirmed to have zero modified tracked files — ✅ done
+
+### Phase B — Custom app scaffolding — ✅ DONE
+- B1. `bench new-app korkem_manufacturing` (skeleton) — ✅ done
+- B2. `bench new-app korkem_ai` (skeleton) — ✅ done
+- B3. Install both custom apps on the site — ✅ done, after one crash-and-restart (adding a bench-level app while `bench start` was already running broke the scheduler process until the container restarted — see `.ai/roadmap/sprint_1_phase_b_checklist.md`; harmless, but worth restarting the bench after any future `bench new-app`/`get-app`)
+
+### Phase C — Data layer for this slice — ✅ DONE
+- Prerequisite fix (found during this phase): `korkem_manufacturing`/`korkem_ai` moved from the ephemeral `bench-data` volume to bind-mounted, version-controlled directories under `backend/` (each its own git repo, required by bench tooling) — see `sprint_1_phase_c_checklist.md`.
+- C1. `korkem_ai`: Agent Conversation doctype — ✅ done
+- C2. `korkem_ai`: Agent Conversation Message doctype — ✅ done
+- C3. `korkem_ai`: Pending Action doctype (`action_class`, `action_data`, `display_data`, `status`, `entity_type`, `expires_at`) — ✅ done, with real approve/reject/expire logic (not just schema)
+- C4. `korkem_manufacturing`: hook extending CRM Task's valid `reference_doctype` targets — **turned out to need no code**: `crm_task.json`'s `reference_doctype` is already an unrestricted Link; ADR-0023's assumption was checked and found incorrect, flagged for correction on its next revision
+- C5. `korkem_manufacturing`: Custom Field `originating_deal` (Link → CRM Deal) on `Work Order` (per `domain_model.md` §3.4) — ✅ done, via a `post_model_sync` patch
+- All 12 tests passing (`bench --site korkem.localhost run-tests --app korkem_ai`); two real bugs found and fixed along the way (a CRM test-fixture gap, and a JSON-fieldtype read bug) — see `sprint_1_phase_c_checklist.md`
+
+### Phase D — Integrations (WhatsApp) — ✅ DONE
+- Prerequisite schema fix (found during this phase): `Agent Conversation.user` made optional, new `contact_phone` field added — a WhatsApp sender has no Frappe User account.
+- D1. Inbound WhatsApp webhook receiver — ✅ done (`WhatsApp Settings` + `integrations/whatsapp.py`)
+- D2. Outbound WhatsApp sender (Notifications) — ✅ done (`send_message` + `queue_send_message`, real Cloud API call, async via `frappe.enqueue`)
+- D3. Wire inbound webhook → create/continue Agent Conversation, store message — ✅ done (`get_or_create_for_contact` + `_dispatch_inbound_message`)
+- 33/33 tests passing; one real bug found via **live HTTP testing** (not unit tests): whitelisted-method responses were JSON-wrapped instead of Meta's required raw plain-text, fixed by returning a genuine `werkzeug.Response`. Verified live end-to-end (real HMAC signature, real HTTP round-trip, confirmed DB writes) — see `sprint_1_phase_d_checklist.md`.
+- **Not verified**: live send/receive against the real WhatsApp network — no real Meta Business API credentials exist in this environment.
+
+### Phase E — AI Orchestrator (minimal, this slice only) — ✅ DONE
+- E1. Orchestrator service scaffold (LLM call for intent classification) — 3-4h
+- E2. Intent classification: "new order inquiry" vs. other — 2-3h
+- E3. Sales Agent skill: find-or-create Customer (CRM Organization) — 3h
+- E4. Sales Agent skill: create CRM Deal linked to Customer — 2h
+- E5. Sales Agent skill: draft + send Quote — 3h
+- E6. Sales Agent: propose Quote-approval as a Pending Action — 3h
+
+### Phase F — Human approval (minimal) — ✅ DONE
+- F1. Desk-based approve/reject view for Pending Action — 3-4h
+- F2. On approval: execute the real Command, advance the Deal — 2h
+
+### Phase G — Production Order creation — ✅ DONE
+- G1. On approval: create `Work Order` with `originating_deal` set — 3h
+- G2. Create a `Task` on the Work Order, assign to a worker — 2h
+
+### Phase H — Worker completes task — ✅ DONE
+- H1. Minimal worker-facing completion action (Desk-based) — 2h
+- H2. On completion: fire the notification-trigger event — 1h
+
+### Phase I — Notify customer — ✅ DONE
+- I1. Notification Service: send WhatsApp on Task completion — 3h
+- I2. End-to-end test: simulate inbound WhatsApp → verify full chain → outbound confirmation — 2-3h
+
+### Phase J — Tests & wrap-up — ✅ DONE
+- J1. Automated tests per doctype/orchestrator logic — 3-4h
+- J2. Manual end-to-end smoke test — 2h
+- J3. Commit review, progress update — 1h
+
+Work proceeds task by task, in this order — no skipping ahead. After each task: run tests, fix issues, commit, update this document's status.
+
+
+---
+
+## Sprint 1 outcome
+
+The slice runs end to end. Verified live on `korkem.localhost`, not only in tests:
+`CRM-DEAL-2026-00001` → `MFG-WO-2026-00001` (submitted) → task 46 completed → outbound
+notification enqueued and executed by a real RQ worker.
+
+**Test coverage:** 83 integration tests (13 `korkem_manufacturing`, 70 `korkem_ai`), all green,
+including a full end-to-end test that stubs only the two genuine third-party network calls.
+
+### Decisions taken during implementation
+
+- **Two approval gates, not one.** Approving a quote does not start manufacturing; it raises a
+  second Pending Action. Committing materials and shop-floor time is a materially bigger decision
+  than recording a quote (ADR-0015).
+- **Real company provisioning was required.** The site held only `_Test*` ERPNext fixtures from
+  test runs and had never had a real company. `korkem_manufacturing.setup.provision()` creates the
+  real KORKEM company, items and a submitted BOM — building the flow on test fixtures would have
+  violated the no-fake-business-logic rule.
+- **The two apps stay decoupled.** Both hook `CRM Task.on_update` independently:
+  `korkem_manufacturing` owns shop-floor progress, `korkem_ai` owns the customer channel. Neither
+  imports the other.
+- **Completion events fire from the hook, not the API method**, so a worker changing status in the
+  Desk UI and a caller invoking `complete_task()` produce identical effects, exactly once.
+
+### Known limitations (deliberate, not defects)
+
+- **Stock is not posted.** Completing a task does not create the Stock Entry that consumes raw
+  materials and receives finished goods; that needs real material stock and is its own slice. The
+  Work Order's ERPNext status is therefore left to ERPNext rather than being set by hand.
+- **WhatsApp delivery is unverified.** The outbound job is enqueued and executed by a real worker,
+  but the final Meta API call fails because this site has no WhatsApp credentials. Everything up to
+  that call is proven.
+- **The Anthropic provider path is unit-tested, not live-verified** — no credentials available; the
+  Ollama provider was verified against a real local model.
+
+### Carried forward to Sprint 2
+
+- Installation & After-Sales still has no owning entity (raised three times during architecture).
+- No cancellation commands exist for any lifecycle stage.
+- `domain_model.md` typo: `CloseBonlPayrollPeriod` → `ClosePayrollPeriod`.
+- ERPNext HR module presence still unverified.
