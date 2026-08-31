@@ -59,6 +59,16 @@ link_own_app() {
   [ -d "$src" ] || { echo "bootstrap: $src is missing -- run scripts/fetch_vendor.sh? no: this is our own code, so the checkout is incomplete" >&2; exit 1; }
 
   [ -e "apps/$name" ] || ln -s "$src" "apps/$name"
+
+  # `bench get-app` leaves no trailing newline on sites/apps.txt, so a bare
+  # `>>` glues the new name onto the previous one and the site then tries to
+  # import a module called `crmkorkem_manufacturing`. Found by the first clean
+  # bootstrap through this path, which is precisely what that run was for: the
+  # developer bench never showed it, because its apps.txt was written by
+  # `get-app` one app at a time.
+  if [ -s sites/apps.txt ] && [ -n "$(tail -c1 sites/apps.txt)" ]; then
+    echo >> sites/apps.txt
+  fi
   grep -qxF "$name" sites/apps.txt 2>/dev/null || echo "$name" >> sites/apps.txt
   ./env/bin/pip install --quiet --editable "$src" --no-deps
 }
