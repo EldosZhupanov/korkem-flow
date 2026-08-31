@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2026-08-11 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "channel",
+  "external_id",
+  "display_name",
+  "column_break_link",
+  "user",
+  "role",
+  "enabled",
+  "last_seen_on",
+  "priority"
+ ],
+ "fields": [
+  {
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Channel",
+   "options": "Telegram\nWhatsApp",
+   "reqd": 1
+  },
+  {
+   "description": "The channel's own identifier — a Telegram user id or a phone number in international format. Matched exactly; never by name.",
+   "fieldname": "external_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "External ID",
+   "reqd": 1,
+   "unique": 0
+  },
+  {
+   "description": "What the channel calls them. Shown to an administrator deciding who this is; never used to match.",
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Display Name"
+  },
+  {
+   "fieldname": "column_break_link",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The KORKEM user this channel identity speaks as. Every tool in the turn runs with exactly this person's permissions and company.",
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "last_seen_on",
+   "fieldtype": "Datetime",
+   "label": "Last Seen On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "role",
+   "fieldtype": "Select",
+   "label": "Role",
+   "options": "\nadmin\nemployee\ncustomer",
+   "in_list_view": 1,
+   "description": "Optional. Narrows what this identity may reach on this channel; it can never widen what the user's own roles already allow."
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Priority",
+   "default": "0",
+   "description": "Which way to reach this person first when they are on more than one channel. Lower is tried first; equal priorities fall back to Telegram, then WhatsApp, then whichever was heard from most recently."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-12 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Ai",
+ "name": "Channel Identity",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

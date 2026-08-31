@@ -1,0 +1,157 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-07-27 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "column_break_config",
+  "api_version",
+  "section_break_creds",
+  "phone_number_id",
+  "business_account_id",
+  "column_break_secrets",
+  "access_token",
+  "app_secret",
+  "webhook_verify_token",
+  "section_break_health",
+  "webhook_url",
+  "last_status",
+  "column_break_health",
+  "last_checked_on",
+  "last_error",
+  "display_name"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_config",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "v21.0",
+   "depends_on": "enabled",
+   "fieldname": "api_version",
+   "fieldtype": "Data",
+   "label": "Graph API Version"
+  },
+  {
+   "fieldname": "section_break_creds",
+   "fieldtype": "Section Break",
+   "label": "Credentials"
+  },
+  {
+   "depends_on": "enabled",
+   "fieldname": "phone_number_id",
+   "fieldtype": "Data",
+   "label": "Phone Number ID",
+   "mandatory_depends_on": "eval: doc.enabled"
+  },
+  {
+   "depends_on": "enabled",
+   "fieldname": "business_account_id",
+   "fieldtype": "Data",
+   "label": "Business Account ID"
+  },
+  {
+   "fieldname": "column_break_secrets",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "enabled",
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token",
+   "mandatory_depends_on": "eval: doc.enabled"
+  },
+  {
+   "depends_on": "enabled",
+   "description": "Meta App Secret, used to verify the HMAC signature of inbound webhook requests.",
+   "fieldname": "app_secret",
+   "fieldtype": "Password",
+   "label": "App Secret",
+   "mandatory_depends_on": "eval: doc.enabled"
+  },
+  {
+   "depends_on": "enabled",
+   "description": "Must match the Verify Token configured in the Meta App's webhook settings.",
+   "fieldname": "webhook_verify_token",
+   "fieldtype": "Password",
+   "label": "Webhook Verify Token",
+   "mandatory_depends_on": "eval: doc.enabled"
+  },
+  {
+   "fieldname": "section_break_health",
+   "fieldtype": "Section Break",
+   "label": "Connection"
+  },
+  {
+   "fieldname": "webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL",
+   "description": "Where the provider should send updates. Not a secret."
+  },
+  {
+   "fieldname": "last_status",
+   "fieldtype": "Data",
+   "label": "Last Status",
+   "read_only": 1,
+   "description": "What the last real call to the provider found. Never a guess from whether a token is present."
+  },
+  {
+   "fieldname": "column_break_health",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_checked_on",
+   "fieldtype": "Datetime",
+   "label": "Last Checked On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last Error",
+   "read_only": 1,
+   "description": "The provider's own words, with any credential removed."
+  },
+  {
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "label": "Display Name",
+   "read_only": 1,
+   "description": "What the provider called itself at the last successful check. Not a credential."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-12 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Ai",
+ "name": "WhatsApp Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

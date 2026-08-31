@@ -110,7 +110,22 @@ incidentally (observed: `crm/frontend/auto-imports.d.ts`, `crm/yarn.lock`).
 **Check `git -C <repo> status` after any bench rebuild and revert anything
 unexpected.**
 
-`backend/korkem_manufacturing/` and `backend/korkem_ai/` are also their own git
-repos — not because they are vendored, but because `bench get-app --soft-link`
-only works against a real git repository and a bare directory triggers an
-unhandled bug in bench's `App` class. Commit inside each, not from the root.
+`backend/korkem_manufacturing/` and `backend/korkem_ai/` **are part of this
+repository** as of 2026-08-31. They were separate git repos until then, because
+`bench get-app --soft-link` requires one — and that requirement kept the
+product's own source out of its own clone for a month.
+
+The requirement is real. In `bench/app.py`, `App.is_repo` defaults to `True`
+when the app is not yet installed, so `setup_details()` reaches
+`git.Repo(mount_path)` and raises `InvalidGitRepositoryError` on a plain
+directory; the `--no-git` branch above it is unreachable from `get-app`.
+
+`bootstrap.sh` therefore no longer calls `get-app` for our apps. It does the
+three things that call actually accomplished — symlink into `apps/`, append to
+`sites/apps.txt`, `pip install --editable --no-deps` — verified against a bench
+built the old way. `pip install -e` on a non-git directory was confirmed to
+work here: flit reads the version from `__init__.py`, not from git.
+
+**Not yet verified: a full bootstrap on a clean volume through this path.**
+Until it is, treat a fresh-volume bring-up as the riskiest operation in this
+repository.

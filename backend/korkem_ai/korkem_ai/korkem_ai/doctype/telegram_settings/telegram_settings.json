@@ -1,0 +1,109 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-08-11 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "column_break_creds",
+  "bot_token",
+  "webhook_secret",
+  "section_break_health",
+  "webhook_url",
+  "last_status",
+  "column_break_health",
+  "last_checked_on",
+  "last_error",
+  "bot_username"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_creds",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "From BotFather. Stored encrypted and never returned to a client.",
+   "fieldname": "bot_token",
+   "fieldtype": "Password",
+   "label": "Bot Token"
+  },
+  {
+   "description": "Sent back by Telegram in X-Telegram-Bot-Api-Secret-Token on every update, and compared here.",
+   "fieldname": "webhook_secret",
+   "fieldtype": "Password",
+   "label": "Webhook Secret"
+  },
+  {
+   "fieldname": "section_break_health",
+   "fieldtype": "Section Break",
+   "label": "Connection"
+  },
+  {
+   "fieldname": "webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL",
+   "description": "Where the provider should send updates. Not a secret."
+  },
+  {
+   "fieldname": "last_status",
+   "fieldtype": "Data",
+   "label": "Last Status",
+   "read_only": 1,
+   "description": "What the last real call to the provider found. Never a guess from whether a token is present."
+  },
+  {
+   "fieldname": "column_break_health",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_checked_on",
+   "fieldtype": "Datetime",
+   "label": "Last Checked On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last Error",
+   "read_only": 1,
+   "description": "The provider's own words, with any credential removed."
+  },
+  {
+   "fieldname": "bot_username",
+   "fieldtype": "Data",
+   "label": "Bot Username",
+   "read_only": 1,
+   "description": "What the provider called itself at the last successful check. Not a credential."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-12 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Ai",
+ "name": "Telegram Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

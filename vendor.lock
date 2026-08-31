@@ -1,0 +1,20 @@
+# KORKEM Flow — pinned upstream dependencies.
+#
+# The bench is built from four upstream projects we do not author and do not
+# commit: 3.8 GB of somebody else's history. They are restored by
+# scripts/fetch_vendor.sh at exactly these commits.
+#
+# Recorded 2026-08-31 from the working bench that produced the test results
+# in NOW.md. Before this file, all four sat on floating branches (develop,
+# main), so two clones a week apart built different products and neither
+# could be told from the other.
+#
+# To move one: change the commit here, rebuild the bench from a clean
+# volume, run both suites, and record the result. Never edit a checkout in
+# place — the vendored trees must stay pristine (CLAUDE.md).
+#
+# name  url  commit  branch-it-came-from
+frappe https://github.com/frappe/frappe.git 39dc51136a99e56be3290e9de6c0de41a5cd0b2e develop
+erpnext https://github.com/frappe/erpnext.git 273e9f2431bdb5abb5a848e7fecf6bb40ea87665 develop
+crm https://github.com/frappe/crm.git d4d96c25e76725d7d57766328ee7816284190053 develop
+relaticle https://github.com/relaticle/relaticle.git 51587c88c407f90856abad037a3a19a3a4f8e6da main

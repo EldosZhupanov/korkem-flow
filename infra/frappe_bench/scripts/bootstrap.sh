@@ -34,10 +34,37 @@ cd frappe-bench
 [ -d apps/erpnext ] || bench get-app --skip-assets /workspace/vendor/erpnext
 [ -d apps/crm ]     || bench get-app --soft-link --skip-assets /workspace/vendor/crm
 
-# Our own custom apps (source lives in backend/, tracked in the root repo -- not vendored,
-# not inside the bench-data volume, so it's version-controlled and survives a volume reset).
-[ -d apps/korkem_manufacturing ] || bench get-app --soft-link --skip-assets /workspace/custom/korkem_manufacturing
-[ -d apps/korkem_ai ]            || bench get-app --soft-link --skip-assets /workspace/custom/korkem_ai
+# Our own apps, linked without `bench get-app`.
+#
+# They used to be installed with `get-app --soft-link`, which requires each app
+# to be its own git repository -- and that requirement is the only reason they
+# were kept out of the root repository for a month, which in turn is why a
+# clone of this project could not build itself and why CI was impossible.
+#
+# The requirement is real, not folklore. In bench's `App.__init__`,
+# `is_repo` defaults to **True** when the app is not already installed
+# (`.../bench/app.py`: `is_git_repo(...) if os.path.exists(...) else True`), so
+# `setup_details()` takes the mounted-disk branch and calls `git.Repo(path)`,
+# which raises `InvalidGitRepositoryError` on a plain directory. The `--no-git`
+# branch above it is unreachable from `get-app`.
+#
+# So we do the three things `get-app --soft-link` actually accomplishes, and
+# nothing else: link it, name it, install it editable. Verified against a bench
+# built the old way -- the symlink, the `sites/apps.txt` entry and the editable
+# install were exactly its whole effect.
+link_own_app() {
+  name="$1"
+  src="/workspace/custom/$name"
+
+  [ -d "$src" ] || { echo "bootstrap: $src is missing -- run scripts/fetch_vendor.sh? no: this is our own code, so the checkout is incomplete" >&2; exit 1; }
+
+  [ -e "apps/$name" ] || ln -s "$src" "apps/$name"
+  grep -qxF "$name" sites/apps.txt 2>/dev/null || echo "$name" >> sites/apps.txt
+  ./env/bin/pip install --quiet --editable "$src" --no-deps
+}
+
+link_own_app korkem_manufacturing
+link_own_app korkem_ai
 
 bench setup requirements --dev
 bench setup requirements --node

@@ -1,0 +1,212 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2026-08-12 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "employee_user",
+  "status",
+  "column_break_target",
+  "sales_order",
+  "work_order",
+  "section_break_instruction",
+  "instruction",
+  "due_date",
+  "section_break_channel",
+  "channel",
+  "channel_identity",
+  "column_break_delivery",
+  "pending_action",
+  "section_break_history",
+  "sent_at",
+  "acknowledged_at",
+  "column_break_history",
+  "rejected_at",
+  "completed_at",
+  "cancelled_at",
+  "response"
+ ],
+ "fields": [
+  {
+   "description": "Set from the server's own scope when the instruction is created. An instruction never crosses a company.",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "description": "The person being asked to do the work. Resolved from their User record, never from a display name.",
+   "fieldname": "employee_user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nSent\nAcknowledged\nRejected\nClarification Requested\nIn Progress\nCompleted\nCancelled\nExpired",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_target",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "label": "Work Order",
+   "options": "Work Order"
+  },
+  {
+   "fieldname": "section_break_instruction",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "What the employee is asked to do, in the words they will read.",
+   "fieldname": "instruction",
+   "fieldtype": "Small Text",
+   "label": "Instruction",
+   "reqd": 1
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "fieldname": "section_break_channel",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "label": "Channel",
+   "options": "\nTelegram\nWhatsApp\nApp"
+  },
+  {
+   "fieldname": "channel_identity",
+   "fieldtype": "Link",
+   "label": "Channel Identity",
+   "options": "Channel Identity"
+  },
+  {
+   "fieldname": "column_break_delivery",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The proposal this instruction was created by, when it came from the assistant.",
+   "fieldname": "pending_action",
+   "fieldtype": "Link",
+   "label": "Pending Action",
+   "options": "Pending Action"
+  },
+  {
+   "fieldname": "section_break_history",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "sent_at",
+   "fieldtype": "Datetime",
+   "label": "Sent At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "acknowledged_at",
+   "fieldtype": "Datetime",
+   "label": "Acknowledged At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_history",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rejected_at",
+   "fieldtype": "Datetime",
+   "label": "Rejected At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "completed_at",
+   "fieldtype": "Datetime",
+   "label": "Completed At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancelled_at",
+   "fieldtype": "Datetime",
+   "label": "Cancelled At",
+   "read_only": 1
+  },
+  {
+   "description": "What the employee said when they accepted or refused.",
+   "fieldname": "response",
+   "fieldtype": "Small Text",
+   "label": "Response",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-12 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Ai",
+ "name": "Work Instruction",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,206 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2026-08-12 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "event",
+  "event_key",
+  "status",
+  "column_break_who",
+  "recipient_user",
+  "channel",
+  "channel_identity",
+  "company",
+  "section_break_what",
+  "body",
+  "confirm_for",
+  "column_break_refs",
+  "reference_doctype",
+  "reference_name",
+  "section_break_delivery",
+  "attempt_count",
+  "next_attempt_at",
+  "provider_message_id",
+  "column_break_delivery",
+  "sent_at",
+  "failed_at",
+  "error",
+  "turn_id"
+ ],
+ "fields": [
+  {
+   "description": "What happened, from the business vocabulary in notifications/events.py.",
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Event",
+   "reqd": 1
+  },
+  {
+   "description": "One business event, one recipient, one channel. Unique, and that uniqueness is the whole of the idempotency guarantee: a re-delivered webhook or a re-run job finds this row instead of writing a second one.",
+   "fieldname": "event_key",
+   "fieldtype": "Data",
+   "label": "Event Key",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending\nSending\nSent\nRetrying\nFailed\nDead Letter\nSuppressed\nCancelled",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_who",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Resolved server-side from the business document. Never from a message, a username or a display name.",
+   "fieldname": "recipient_user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Recipient",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Channel",
+   "options": "Telegram\nWhatsApp\nApp"
+  },
+  {
+   "fieldname": "channel_identity",
+   "fieldtype": "Link",
+   "label": "Channel Identity",
+   "options": "Channel Identity"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "section_break_what",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "What the person reads. Built by the notification layer from the document, never by a model.",
+   "fieldname": "body",
+   "fieldtype": "Small Text",
+   "label": "Body"
+  },
+  {
+   "description": "A Pending Action or Work Instruction this message offers buttons for.",
+   "fieldname": "confirm_for",
+   "fieldtype": "Data",
+   "label": "Confirm For"
+  },
+  {
+   "fieldname": "column_break_refs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference Doctype",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Name",
+   "options": "reference_doctype"
+  },
+  {
+   "fieldname": "section_break_delivery",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "attempt_count",
+   "fieldtype": "Int",
+   "label": "Attempts",
+   "read_only": 1
+  },
+  {
+   "description": "When a retry becomes due. Bounded and backed off; a permanent refusal sets no next attempt at all.",
+   "fieldname": "next_attempt_at",
+   "fieldtype": "Datetime",
+   "label": "Next Attempt At",
+   "read_only": 1
+  },
+  {
+   "description": "The provider's own id for the message we sent, when it gives one.",
+   "fieldname": "provider_message_id",
+   "fieldtype": "Data",
+   "label": "Provider Message ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_delivery",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sent_at",
+   "fieldtype": "Datetime",
+   "label": "Sent At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "failed_at",
+   "fieldtype": "Datetime",
+   "label": "Failed At",
+   "read_only": 1
+  },
+  {
+   "description": "The provider's own words, with any credential removed.",
+   "fieldname": "error",
+   "fieldtype": "Small Text",
+   "label": "Error",
+   "read_only": 1
+  },
+  {
+   "fieldname": "turn_id",
+   "fieldtype": "Data",
+   "label": "Turn ID",
+   "in_standard_filter": 1,
+   "description": "The one turn this belongs to. Joins a provider message to the proposal it produced, the tool that ran and the message that went back — the chain an incident is followed along."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-12 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Ai",
+ "name": "Notification Delivery",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}

@@ -1,0 +1,142 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2026-08-12 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "channel",
+  "event",
+  "status",
+  "column_break_who",
+  "user",
+  "company",
+  "provider_message_id",
+  "section_break_what",
+  "conversation",
+  "tool",
+  "column_break_what",
+  "pending_action",
+  "work_instruction",
+  "detail",
+  "turn_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Channel",
+   "options": "Telegram\nWhatsApp\nApp"
+  },
+  {
+   "description": "What happened, from a fixed vocabulary — received, identified, refused, answered, proposed, confirmed, executed, sent, failed.",
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Event",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Status"
+  },
+  {
+   "fieldname": "column_break_who",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "description": "The provider's own id for the message or press this event belongs to. The key idempotency is decided on — never the text.",
+   "fieldname": "provider_message_id",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Provider Message ID"
+  },
+  {
+   "fieldname": "section_break_what",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "conversation",
+   "fieldtype": "Link",
+   "label": "Conversation",
+   "options": "Agent Conversation"
+  },
+  {
+   "fieldname": "tool",
+   "fieldtype": "Data",
+   "label": "Tool"
+  },
+  {
+   "fieldname": "column_break_what",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pending_action",
+   "fieldtype": "Link",
+   "label": "Pending Action",
+   "options": "Pending Action"
+  },
+  {
+   "fieldname": "work_instruction",
+   "fieldtype": "Link",
+   "label": "Work Instruction",
+   "options": "Work Instruction"
+  },
+  {
+   "description": "One short sentence. Never a credential, never a message body — the transcript is the conversation's job.",
+   "fieldname": "detail",
+   "fieldtype": "Small Text",
+   "label": "Detail"
+  },
+  {
+   "fieldname": "turn_id",
+   "fieldtype": "Data",
+   "label": "Turn ID",
+   "in_standard_filter": 1,
+   "description": "The one turn this belongs to. Joins a provider message to the proposal it produced, the tool that ran and the message that went back — the chain an incident is followed along."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-12 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Ai",
+ "name": "Channel Event",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}

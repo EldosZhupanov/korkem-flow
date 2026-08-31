@@ -1,0 +1,210 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2026-07-27 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "conversation",
+  "agent_skill",
+  "tool",
+  "turn_id",
+  "column_break_target",
+  "entity_type",
+  "entity_name",
+  "section_break_action",
+  "action_class",
+  "action_data",
+  "display_data",
+  "section_break_status",
+  "status",
+  "expires_at",
+  "column_break_resolution",
+  "resolved_by",
+  "resolved_at",
+  "result_data",
+  "provider",
+  "model",
+  "executed_at",
+  "error",
+  "provider_meta"
+ ],
+ "fields": [
+  {
+   "fieldname": "conversation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Conversation",
+   "options": "Agent Conversation"
+  },
+  {
+   "fieldname": "agent_skill",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Agent Skill"
+  },
+  {
+   "fieldname": "column_break_target",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "entity_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Entity Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "entity_name",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Entity Name",
+   "options": "entity_type"
+  },
+  {
+   "fieldname": "section_break_action",
+   "fieldtype": "Section Break",
+   "label": "Proposed Action"
+  },
+  {
+   "description": "Dotted path to the Python function that will be invoked on approval, e.g. korkem_ai.actions.sales.record_quote_approval",
+   "fieldname": "action_class",
+   "fieldtype": "Data",
+   "label": "Action Class"
+  },
+  {
+   "description": "Keyword arguments passed to the action function on approval.",
+   "fieldname": "action_data",
+   "fieldtype": "JSON",
+   "label": "Action Data"
+  },
+  {
+   "description": "Human-readable summary of what will change, shown to the approver.",
+   "fieldname": "display_data",
+   "fieldtype": "JSON",
+   "label": "Display Data"
+  },
+  {
+   "fieldname": "section_break_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected\nExpired",
+   "reqd": 1
+  },
+  {
+   "fieldname": "expires_at",
+   "fieldtype": "Datetime",
+   "in_standard_filter": 1,
+   "label": "Expires At"
+  },
+  {
+   "fieldname": "column_break_resolution",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "resolved_by",
+   "fieldtype": "Link",
+   "label": "Resolved By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resolved_at",
+   "fieldtype": "Datetime",
+   "label": "Resolved At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "result_data",
+   "fieldtype": "JSON",
+   "label": "Result Data",
+   "read_only": 1
+  },
+  {
+   "description": "Registered tool name when this proposal is an AI tool call, e.g. crm.create_lead. Empty for the WhatsApp agent's own proposals.",
+   "fieldname": "tool",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tool"
+  },
+  {
+   "description": "The chat turn that proposed this action. Ties an approval back to the conversation it came from.",
+   "fieldname": "turn_id",
+   "fieldtype": "Data",
+   "label": "Turn ID"
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Data",
+   "label": "Provider",
+   "read_only": 1,
+   "description": "Which AI provider proposed this. Recorded for audit; never a credential."
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "read_only": 1,
+   "description": "Which model proposed this."
+  },
+  {
+   "fieldname": "executed_at",
+   "fieldtype": "Datetime",
+   "label": "Executed At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error",
+   "fieldtype": "Small Text",
+   "label": "Error",
+   "read_only": 1,
+   "description": "Why execution failed, when it did."
+  },
+  {
+   "description": "Opaque provider continuation data (e.g. Gemini's thoughtSignature). Never a credential.",
+   "fieldname": "provider_meta",
+   "fieldtype": "Small Text",
+   "label": "Provider Metadata",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-07-27 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Ai",
+ "name": "Pending Action",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

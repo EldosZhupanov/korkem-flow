@@ -331,9 +331,53 @@ The empty scaffolds `frontend/`, `telegram/`, `agents/` and `prompts/` were **re
 
 ## Git structure — important
 
-The `furniture_ai` root is its own git repository. Its `.gitignore` excludes `erpnext/`, `frappe/`, `crm/`, and `relaticle/` entirely — those four directories are **independent git repositories** with their own history, remotes, and branches. Do not `git add`/commit inside them from the root repo; `cd` into the specific vendored directory and use its own git repo for any changes there. The root repo only tracks the custom directories listed above plus the root `README.md`/`.gitignore`/`CLAUDE.md`.
+**KORKEM Flow is a monorepo.** One repository holds everything this project
+writes: both custom Frappe apps under `backend/`, the Flutter client, the bench
+definition, the documentation and the agent skills. A plain `git clone` is
+enough to run the backend suites, `flutter analyze`, `flutter test` and CI.
 
-**`backend/korkem_manufacturing/` and `backend/korkem_ai/` are also excluded** and are also their own independent git repos — but for a different reason than the four above: they are custom Frappe apps **authored by this project** (not external/vendored), yet `bench`'s tooling (`get-app`, `--soft-link`) only works against a real git repository, even for a purely local path — a bare non-git directory triggers an unhandled bug in bench's `App` class (confirmed empirically; see `docs/archive/sprint1/sprint_1_phase_c_checklist.md`). So each gets its own tiny git repo, same mechanism as the vendored projects, purely to satisfy that tooling requirement — `cd` into each and use its own git repo for changes, same rule as above.
+It was not always so. Until 2026-08-31, `backend/korkem_ai/` and
+`backend/korkem_manufacturing/` were **separate git repositories, ignored by the
+root** — so a clone contained the infrastructure and none of the Python it runs,
+and CI was impossible rather than merely absent. Their history (51 and 18
+commits, all branches) is preserved as verified bundles in
+`~/korkem-git-backup-2026-08-31/`, restorable with `git clone <name>.bundle`;
+their pre-migration HEADs are recorded in the migration commit.
+
+**Submodules were considered and rejected.** They would have kept the same
+defect in a more respectable costume: a clone that needs a second command
+before it contains the product.
+
+### Upstream is pinned, not committed
+
+`erpnext/`, `frappe/`, `crm/` and `relaticle/` remain **out** of this
+repository — 3.8 GB of history we did not write. They are pinned by commit in
+[`vendor.lock`](./vendor.lock) and restored by
+[`scripts/fetch_vendor.sh`](./scripts/fetch_vendor.sh):
+
+```sh
+scripts/fetch_vendor.sh          # restore all four at the pinned commits
+scripts/fetch_vendor.sh --check  # confirm a checkout matches the lock
+```
+
+Before that lock existed all four sat on floating branches (`develop`, `main`),
+so two clones a week apart built different products and neither could be told
+from the other. Moving one is a deliberate act: change the commit, rebuild from
+a clean volume, run both suites, record the result.
+
+Each is still an independent git repository on disk with its own remote. Do not
+`git add` inside them from the root, and **check `git -C <repo> status` after
+any bench rebuild** — `bench build` occasionally touches a tracked file
+incidentally (observed: `crm/frontend/auto-imports.d.ts`, `crm/yarn.lock`).
+The vendored trees must stay pristine.
+
+### One consequence for the bench
+
+`bootstrap.sh` reaches our apps with `bench get-app --soft-link`, which used to
+require each app to be its own git repository — that requirement is why they
+were split out in the first place. They no longer are, so **a bootstrap on a
+clean volume must be re-verified** before that path is trusted again; see
+`NOW.md` for the current state of that check.
 
 ## Working inside a vendored project
 
