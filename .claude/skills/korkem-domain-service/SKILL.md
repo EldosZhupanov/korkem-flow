@@ -126,6 +126,42 @@ The migration that Horizon 1 of `ROADMAP.md` is made of. Per action:
 Do one action per commit. `tools/production.py` alone is 2 096 lines; a single
 commit moving all of it cannot be reviewed and cannot be reverted cleanly.
 
+## After any line-range extraction, scan for undefined names
+
+Cutting a block out by line range moves the code and **not its imports**. The
+result still compiles — `python -m py_compile` only checks syntax — and fails
+at runtime, once, deep inside a call, where the tool layer wraps it as a
+generic "That could not be completed."
+
+Moving the shop floor cost 58 failures and 11 errors for exactly this: the
+hand-written import line said `flt, now_datetime`, and the block also used
+`add_to_date` and `get_datetime`. Ten seconds of scanning would have found it
+before a nine-minute suite did:
+
+```python
+import ast, builtins
+tree = ast.parse(open("services/<new>.py").read())
+defined = set(dir(builtins))
+for node in ast.walk(tree):
+    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        defined.add(node.name)
+        defined |= {a.arg for a in node.args.args + node.args.kwonlyargs}
+    elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+        defined.add(node.id)
+    elif isinstance(node, (ast.Import, ast.ImportFrom)):
+        for a in node.names:
+            defined.add(a.asname or a.name.split(".")[0])
+    elif isinstance(node, ast.comprehension) and isinstance(node.target, ast.Name):
+        defined.add(node.target.id)
+    elif isinstance(node, ast.ExceptHandler) and node.name:
+        defined.add(node.name)
+used = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)}
+print(sorted(used - defined))
+```
+
+Better still: copy the source module's import block verbatim and delete what is
+unused, rather than writing a new one from memory of what the code needs.
+
 ## Checklist before calling it done
 
 - [ ] domain function has no session, no HTTP, no model
