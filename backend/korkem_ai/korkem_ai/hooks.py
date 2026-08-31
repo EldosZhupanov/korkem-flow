@@ -188,6 +188,24 @@ scheduler_events = {
 	},
 }
 
+# Domain events
+# -------------
+#
+# `korkem_manufacturing` announces business events by name and does not know
+# who listens; this app subscribes. That direction is the whole point — a
+# domain that imported its own notification layer could not be reached by a
+# desktop client or a terminal without dragging the orchestrator along
+# (ADR-0003, ADR-0006, ADR-0007).
+#
+# Each subscriber runs inside its own savepoint on the domain's side, so an
+# undeliverable notification cannot roll back a stock movement that has
+# already happened.
+korkem_domain_events = {
+	"production.started": ["korkem_ai.korkem_ai.notifications.events.production_started"],
+	"production.material_short": ["korkem_ai.korkem_ai.notifications.events.material_short"],
+}
+
+
 # Testing
 # -------
 
