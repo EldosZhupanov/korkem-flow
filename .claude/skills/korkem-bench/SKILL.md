@@ -51,9 +51,13 @@ The `korkem_ai` suite is ~1 000 tests and takes **around 26 minutes**. Pipe it
 to a file inside the container: the statistics scroll away otherwise, and the
 log survives the shell that started it.
 
-Known-good baseline, measured 2026-08-31 on a clean volume:
-`korkem_manufacturing` **13/13 OK** in 12.3 s; `korkem_ai` **1037 tests, 1028
-pass, 0 failures, 0 errors, 9 skipped** in 21 min 24 s. Both exit 0.
+Known-good baseline, measured 2026-08-31 after Horizon 1:
+`korkem_manufacturing` **61 tests OK** in 20 s; `korkem_ai` **1052 tests, 1043
+pass, 0 failures, 0 errors, 9 skipped** in ~22 min. Both exit 0.
+
+**Never run two suites at once on this site.** Doing so produces
+`QueryDeadlockError (1020) on tabUser` and a failure count that changes between
+runs — which reads exactly like a flaky test and is not one.
 
 Nine skips are expected — provider-credential cases that cannot run without
 real secrets. A run reporting **more** skips than that is the failure mode to

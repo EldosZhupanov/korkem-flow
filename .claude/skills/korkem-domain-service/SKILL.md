@@ -8,7 +8,7 @@ description: How to add a new business action to KORKEM, or extract an existing 
 Every business action in KORKEM is **one domain service** with **four faces**:
 
 ```
-korkem_manufacturing/domain/<area>.py     ← the rule. one function. no HTTP, no model.
+korkem_manufacturing/services/<area>.py   ← the rule. one function. no HTTP, no model.
 korkem_manufacturing/api/<area>.py        ← @frappe.whitelist wrapper. permission + audit.
 korkem_ai/tools/<area>.py                 ← ToolSpec. schema + summarise + calls the service.
 mobile/korkem_flow/lib/features/…         ← screen calls the API endpoint. never a doctype.
@@ -25,7 +25,7 @@ Lives in `korkem_manufacturing`. Takes plain arguments, returns plain data,
 raises `frappe.ValidationError` with a sentence a person can act on.
 
 ```python
-def start_production(sales_order: str, qty: float | None = None) -> dict:
+def start_production(sales_order: str, item_code: str | None = None) -> dict:
 	"""Move material to WIP and put a work order In Process.
 
 	Readiness is physical, not procurement: a purchase order for the board
@@ -51,7 +51,7 @@ Rules for this layer:
 
 ```python
 @frappe.whitelist()
-def start_production(sales_order: str, qty: float | None = None) -> dict:
+def start_production(sales_order: str, item_code: str | None = None) -> dict:
 	company = scope.current_company()
 	scope.ensure_company("Sales Order", sales_order)
 	frappe.only_for(("Production Manager", "Manufacturing Manager"))
@@ -81,7 +81,7 @@ register(ToolSpec(
 	doctypes=("Sales Order", "Work Order", "Stock Entry"),
 	audit_category="production",
 	summarise=lambda **kw: f"Запустить производство по {kw['sales_order']}",
-	handler=api.start_production,    # ← the same function the button calls
+	handler=_api().start_production, # ← the same function the button calls
 ))
 ```
 
@@ -125,6 +125,35 @@ The migration that Horizon 1 of `ROADMAP.md` is made of. Per action:
 
 Do one action per commit. `tools/production.py` alone is 2 096 lines; a single
 commit moving all of it cannot be reviewed and cannot be reverted cleanly.
+
+
+## Any service that writes twice owns a savepoint
+
+`insert()` then `submit()` is the ordinary ERPNext shape, and it is two writes.
+So is submitting a document and then creating the ones that follow from it.
+
+The outer HTTP transaction does **not** cover them, and this is checkable
+rather than arguable: `korkem_ai/tools/registry.py:execute` catches `Exception`
+and returns it **as data** instead of re-raising. Through the AI adapter — the
+path most likely to be used — the request completes, Frappe commits, and the
+half-write survives.
+
+```python
+def start_production(sales_order, item_code=None):
+	savepoint = "korkem_start_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(savepoint)
+	try:
+		result = _start_production(sales_order, item_code)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		raise
+	frappe.db.release_savepoint(savepoint)
+	return result
+```
+
+This defect was found twice in this codebase, in different services, by two
+different reviewers. It is not bad luck: it is what the normal shape plus a
+swallowing adapter produces every time.
 
 ## After any line-range extraction, scan for undefined names
 

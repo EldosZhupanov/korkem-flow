@@ -5,7 +5,7 @@ description: KORKEM Flow's own Flutter conventions — design tokens, no code ge
 
 # KORKEM Flow — Flutter conventions
 
-`mobile/korkem_flow` is 22 680 lines across 145 files with 317 tests. It has a
+`mobile/korkem_flow` is ~23 500 lines across 147 files with 370 tests. It has a
 settled set of conventions, several of them chosen against the common default
 for a documented reason. Generic Flutter guidance will contradict them.
 

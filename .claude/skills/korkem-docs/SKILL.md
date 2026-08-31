@@ -32,6 +32,7 @@ say so, and fix the document in the same change.
 docs/
 ├── architecture/   ADRs, domain model, gateway and workspace design
 ├── operations/     deployment, backup/restore, release, privacy
+├── product/        the client's own specification, verbatim
 └── archive/        history. NOT current truth. Never build from it.
 ```
 

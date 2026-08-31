@@ -321,7 +321,7 @@ relaticle/    Standalone Laravel app — an alternative CRM (PHP/Livewire/Filame
 backend/      custom Frappe apps — korkem_manufacturing (domain) + korkem_ai (AI, channels)
 mobile/       Flutter client (korkem_flow) — Android + Linux today; Windows in Horizon 2
 infra/        Docker Compose bench setup — see infra/frappe_bench/ below
-scripts/      deploy_pilot.sh
+scripts/      ci.sh · deploy_pilot.sh · fetch_vendor.sh · watch_agents.sh
 docs/         architecture/ · operations/ · product/ · archive/ — index in docs/README.md
 ```
 
@@ -373,11 +373,14 @@ The vendored trees must stay pristine.
 
 ### One consequence for the bench
 
-`bootstrap.sh` reaches our apps with `bench get-app --soft-link`, which used to
-require each app to be its own git repository — that requirement is why they
-were split out in the first place. They no longer are, so **a bootstrap on a
-clean volume must be re-verified** before that path is trusted again; see
-`NOW.md` for the current state of that check.
+`bootstrap.sh` no longer calls `bench get-app` for our apps. That command
+requires each app to be its own git repository — the requirement that kept the
+product's source out of its own clone for a month. It now does the three things
+that call actually accomplished: `link_own_app()` symlinks into `apps/`, appends
+to `sites/apps.txt`, and runs `pip install --editable --no-deps`.
+
+**A bootstrap on a clean volume has still not been run through that path.** It
+is the riskiest operation in this repository; see `NOW.md`.
 
 ## Working inside a vendored project
 
