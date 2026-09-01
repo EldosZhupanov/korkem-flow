@@ -172,6 +172,90 @@ application-local DLL. Installer/MSIX и code signing — отдельное р�
 
 ---
 
+## Что выяснилось при первой настоящей попытке (2026-09-02)
+
+Восемь преград подряд, и ни одна не была видна заранее. Ниже — в том порядке,
+в каком они встретились, с настоящими сообщениями: **почти каждое врало о
+причине.**
+
+### 1. PATH обязан быть полным, и лучше задать его целиком
+
+Самая дорогая. Flutter сообщал по очереди:
+
+```
+Error: Unable to find git in your PATH.
+Error: PowerShell executable not found.
+Error: Unable to determine engine version...
+```
+
+**Ни одно не было правдой.** И git, и PowerShell стояли; `where git` находил
+их в том же окне, где Flutter «не находил». Причина: `flutter.bat` проверяет
+наличие через `WHERE /Q`, а `WHERE` перебирает записи `PATH` и **падает
+целиком**, наткнувшись на недоступную — печатая «Отказано в доступе» и
+возвращая ошибку. Дальше Flutter честно сообщает «не найдено», имея в виду
+совсем другое.
+
+Поэтому PATH задаётся **целиком, а не дописывается**:
+
+```powershell
+$env:PATH = "C:\Windows\System32;C:\Windows;C:\Windows\System32\Wbem;" +
+            "C:\Windows\System32\WindowsPowerShell\v1.0;" +
+            "C:\src\flutter\bin;C:\Program Files\Git\cmd;C:\src\jdk21\bin"
+```
+
+Проверить догадку на чужой машине: `where.exe powershell.exe`. Если она
+отвечает «Отказано в доступе» — дело в PATH, а не в том, о чём пишет Flutter.
+
+### 2. Нужен JDK — и не потому, что мы пишем на Java
+
+```
+CMake Error: Could NOT find JNI (missing: JVM)
+  flutter/ephemeral/.plugin_symlinks/jni/src/CMakeLists.txt:8 (project)
+```
+
+Цепочка, о которой невозможно догадаться:
+
+```
+flutter_secure_storage_windows ─┐
+google_fonts ───────────────────┴→ path_provider → path_provider_android
+                                   → jni_flutter → jni
+```
+
+Пакет `jni` объявляет себя плагином **и под Windows**, поэтому CMake требует
+JVM на этапе настройки. Нужен он при этом только Android'у.
+
+`JAVA_HOME` обязан быть выставлен, иначе генерация падает на `ZERO_CHECK`
+с невнятным `MSB8066`. И **в каталоге JDK не должно быть символа `+`** —
+Temurin распаковывается как `jdk-21.0.12.1+1`; переименуйте.
+
+### 3. Git должен считать каталог Flutter своим
+
+```
+Error: The Flutter directory is not a clone of the GitHub project.
+```
+
+Видно только если запустить копию `flutter.bat` с `@echo on` — иначе Flutter
+показывает предыдущее, ложное сообщение. Причина: SDK распакован из архива
+(или из WSL), и Windows-git считает каталог чужим.
+
+```powershell
+git config --global --add safe.directory C:/src/flutter
+```
+
+Тот же дефект четыре раза ронял бэкенд в CI, только там uid раннера против uid
+контейнера. **Одна природа, разные слова.**
+
+### 4. Мелочи, которые стоили времени
+
+* **`Expand-Archive` не справляется** с архивом на 1.8 ГБ — ни каталога, ни
+  ошибки. Используйте `tar.exe`, он встроен в Windows 10/11.
+* **Первичная настройка Flutter не терпит помех.** Запуск второй команды
+  поверх неё оставляет `bin/cache/dart-sdk` пустым, после чего Flutter качает
+  Dart SDK при каждом запуске и падает на сети. Дайте первому `flutter
+  --version` доработать до конца.
+* **Собирайте из `C:\...`, не из `\\wsl.localhost\...`** — `cmd.exe` не
+  принимает UNC как текущий каталог, и это ломает `WHERE` (см. п. 1).
+
 ## Ловушки
 
 **Не вызывайте `wsl.exe` из PowerShell, запущенного из WSL.** Это вешает interop
