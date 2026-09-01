@@ -48,6 +48,22 @@ class AppLocalizationsKk extends AppLocalizations {
   String get errorOffline => 'Сервермен байланыс жоқ.';
 
   @override
+  String get outboxQueued => 'Байланыс жоқ. Команда жіберу кезегінде тұр.';
+
+  @override
+  String outboxPending(int count) {
+    return '$count команда жіберуді күтіп тұр';
+  }
+
+  @override
+  String get outboxRetry => 'Қазір жіберу';
+
+  @override
+  String outboxRejected(String reason) {
+    return 'Кезектегі команда қабылданбады: $reason';
+  }
+
+  @override
   String get errorNoAccess => 'Бұл бөлімге қолжетімділік жоқ.';
 
   @override
@@ -1096,4 +1112,31 @@ class AppLocalizationsKk extends AppLocalizations {
   String workOrderProducedProgress(String produced, String qty) {
     return 'Өндірілгені: $produced / $qty';
   }
+
+  @override
+  String get stockBalancesSection => 'Қоймалар бойынша қалдықтар';
+
+  @override
+  String get stockSummarySection => 'Барлық қоймалар бойынша жиынтық';
+
+  @override
+  String get stockActualQty => 'Нақты қалдық';
+
+  @override
+  String get stockReservedQty => 'Резервте';
+
+  @override
+  String get stockProjectedQty => 'Болжам';
+
+  @override
+  String get stockDeficitAlert => 'Қоймада тапшылық';
+
+  @override
+  String get stockNoBalancesTitle => 'Қоймаларда жоқ';
+
+  @override
+  String get stockNoBalancesBody => 'Позиция компанияның ешбір қоймасында жоқ.';
+
+  @override
+  String get warehouseActionOpen => 'Ашу';
 }

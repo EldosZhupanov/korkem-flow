@@ -13,6 +13,10 @@
   "actionSelectAll": "Все",
   "errorGeneric": "Что-то пошло не так.",
   "errorOffline": "Нет связи с сервером.",
+  "outboxQueued": "Нет связи. Команда ждёт отправки.",
+  "outboxPending": "{count, plural, one{{count} команда ждёт отправки} few{{count} команды ждут отправки} many{{count} команд ждут отправки} other{{count} команды ждут отправки}}",
+  "outboxRetry": "Отправить сейчас",
+  "outboxRejected": "Команда из очереди отклонена: {reason}",
   "errorNoAccess": "У вас нет доступа к этому разделу.",
   "errorNotFound": "Не найдено.",
   "emptyTitle": "Здесь пока пусто",
@@ -499,5 +503,14 @@
   "workOrderBomNo": "Спецификация: {bom}",
   "workOrderWipWarehouse": "Склад незавершённого производства: {warehouse}",
   "workOrderFgWarehouse": "Склад готовой продукции: {warehouse}",
-  "workOrderProducedProgress": "Изготовлено: {produced} из {qty}"
+  "workOrderProducedProgress": "Изготовлено: {produced} из {qty}",
+  "stockBalancesSection": "Остатки по складам",
+  "stockSummarySection": "Итого по всем складам",
+  "stockActualQty": "Фактический остаток",
+  "stockReservedQty": "В резерве",
+  "stockProjectedQty": "Прогноз",
+  "stockDeficitAlert": "Дефицит на складе",
+  "stockNoBalancesTitle": "Нет на складах",
+  "stockNoBalancesBody": "Позиция не числится ни на одном складе компании.",
+  "warehouseActionOpen": "Открыть"
 }

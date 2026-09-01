@@ -27,6 +27,7 @@ import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
 import 'package:korkem_flow/features/tasks/presentation/tasks_screen.dart';
 import 'package:korkem_flow/features/today/presentation/today_screen.dart';
+import 'package:korkem_flow/features/warehouse/presentation/stock_detail_screen.dart';
 
 /// Route paths, referenced by name rather than typed as literals at call sites.
 abstract final class Routes {
@@ -71,6 +72,9 @@ abstract final class Routes {
 
   /// One work order. `:id` is the Frappe document name (`MFG-WO-…`).
   static String workOrder(String id) => '/production/$id';
+
+  /// One stock item. `:itemCode` is the item code (`ITEM-…` / `MAT-…`).
+  static String stockItem(String itemCode) => '/warehouse/$itemCode';
   static const today = '/today';
 
   /// Sales, opened on its Customers tab. A URL rather than a branch of its own:
@@ -154,6 +158,11 @@ GoRouter createRouter(Ref ref) {
         path: '/production/:id',
         builder: (context, state) =>
             WorkOrderDetailScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/warehouse/:itemCode',
+        builder: (context, state) =>
+            StockDetailScreen(itemCode: state.pathParameters['itemCode']!),
       ),
       GoRoute(
         path: Routes.today,

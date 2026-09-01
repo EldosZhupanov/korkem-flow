@@ -48,6 +48,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorOffline => 'No connection to the server.';
 
   @override
+  String get outboxQueued =>
+      'No connection. The command is waiting to be sent.';
+
+  @override
+  String outboxPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commands waiting to send',
+      one: '1 command waiting to send',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outboxRetry => 'Send now';
+
+  @override
+  String outboxRejected(String reason) {
+    return 'A queued command was refused: $reason';
+  }
+
+  @override
   String get errorNoAccess => 'You don\'t have access to this.';
 
   @override
@@ -1116,4 +1139,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String workOrderProducedProgress(String produced, String qty) {
     return 'Produced: $produced of $qty';
   }
+
+  @override
+  String get stockBalancesSection => 'Warehouse Balances';
+
+  @override
+  String get stockSummarySection => 'Total Across Warehouses';
+
+  @override
+  String get stockActualQty => 'Actual Stock';
+
+  @override
+  String get stockReservedQty => 'Reserved';
+
+  @override
+  String get stockProjectedQty => 'Projected';
+
+  @override
+  String get stockDeficitAlert => 'Stock Deficit';
+
+  @override
+  String get stockNoBalancesTitle => 'Not stocked anywhere';
+
+  @override
+  String get stockNoBalancesBody =>
+      'This item is not currently held in any company warehouse.';
+
+  @override
+  String get warehouseActionOpen => 'Open';
 }

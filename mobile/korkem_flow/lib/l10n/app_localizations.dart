@@ -178,6 +178,30 @@ abstract class AppLocalizations {
   /// **'No connection to the server.'**
   String get errorOffline;
 
+  /// Shown after a write is kept in the in-memory outbox because the server could not be reached
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. The command is waiting to be sent.'**
+  String get outboxQueued;
+
+  /// Persistent count of writes waiting in the device outbox
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 command waiting to send} other{{count} commands waiting to send}}'**
+  String outboxPending(int count);
+
+  /// No description provided for @outboxRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Send now'**
+  String get outboxRetry;
+
+  /// Terminal server refusal received while replaying a queued write
+  ///
+  /// In en, this message translates to:
+  /// **'A queued command was refused: {reason}'**
+  String outboxRejected(String reason);
+
   /// No description provided for @errorNoAccess.
   ///
   /// In en, this message translates to:
@@ -2127,6 +2151,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Produced: {produced} of {qty}'**
   String workOrderProducedProgress(String produced, String qty);
+
+  /// Section header for warehouse balances.
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse Balances'**
+  String get stockBalancesSection;
+
+  /// Section header for total stock summary across warehouses.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Across Warehouses'**
+  String get stockSummarySection;
+
+  /// Label for actual physical stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual Stock'**
+  String get stockActualQty;
+
+  /// Label for reserved stock quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get stockReservedQty;
+
+  /// Label for projected stock quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Projected'**
+  String get stockProjectedQty;
+
+  /// Warning badge when projected quantity is below zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Deficit'**
+  String get stockDeficitAlert;
+
+  /// Title when item has no warehouse balances.
+  ///
+  /// In en, this message translates to:
+  /// **'Not stocked anywhere'**
+  String get stockNoBalancesTitle;
+
+  /// Explanation when item has no warehouse balances.
+  ///
+  /// In en, this message translates to:
+  /// **'This item is not currently held in any company warehouse.'**
+  String get stockNoBalancesBody;
+
+  /// Button in expanded stock card to open item details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get warehouseActionOpen;
 }
 
 class _AppLocalizationsDelegate

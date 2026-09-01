@@ -34,6 +34,29 @@
     "description": "Fallback when the backend gives no human-readable message"
   },
   "errorOffline": "No connection to the server.",
+  "outboxQueued": "No connection. The command is waiting to be sent.",
+  "@outboxQueued": {
+    "description": "Shown after a write is kept in the in-memory outbox because the server could not be reached"
+  },
+  "outboxPending": "{count, plural, =1{1 command waiting to send} other{{count} commands waiting to send}}",
+  "@outboxPending": {
+    "description": "Persistent count of writes waiting in the device outbox",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outboxRetry": "Send now",
+  "outboxRejected": "A queued command was refused: {reason}",
+  "@outboxRejected": {
+    "description": "Terminal server refusal received while replaying a queued write",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "errorNoAccess": "You don't have access to this.",
   "errorNotFound": "Not found.",
   "emptyTitle": "Nothing here yet",
@@ -942,5 +965,41 @@
         "type": "String"
       }
     }
+  },
+  "stockBalancesSection": "Warehouse Balances",
+  "@stockBalancesSection": {
+    "description": "Section header for warehouse balances."
+  },
+  "stockSummarySection": "Total Across Warehouses",
+  "@stockSummarySection": {
+    "description": "Section header for total stock summary across warehouses."
+  },
+  "stockActualQty": "Actual Stock",
+  "@stockActualQty": {
+    "description": "Label for actual physical stock."
+  },
+  "stockReservedQty": "Reserved",
+  "@stockReservedQty": {
+    "description": "Label for reserved stock quantity."
+  },
+  "stockProjectedQty": "Projected",
+  "@stockProjectedQty": {
+    "description": "Label for projected stock quantity."
+  },
+  "stockDeficitAlert": "Stock Deficit",
+  "@stockDeficitAlert": {
+    "description": "Warning badge when projected quantity is below zero."
+  },
+  "stockNoBalancesTitle": "Not stocked anywhere",
+  "@stockNoBalancesTitle": {
+    "description": "Title when item has no warehouse balances."
+  },
+  "stockNoBalancesBody": "This item is not currently held in any company warehouse.",
+  "@stockNoBalancesBody": {
+    "description": "Explanation when item has no warehouse balances."
+  },
+  "warehouseActionOpen": "Open",
+  "@warehouseActionOpen": {
+    "description": "Button in expanded stock card to open item details screen."
   }
 }

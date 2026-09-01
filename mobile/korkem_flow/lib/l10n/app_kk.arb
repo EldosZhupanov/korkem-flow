@@ -13,6 +13,10 @@
   "actionSelectAll": "Барлығы",
   "errorGeneric": "Бір нәрсе дұрыс болмады.",
   "errorOffline": "Сервермен байланыс жоқ.",
+  "outboxQueued": "Байланыс жоқ. Команда жіберу кезегінде тұр.",
+  "outboxPending": "{count} команда жіберуді күтіп тұр",
+  "outboxRetry": "Қазір жіберу",
+  "outboxRejected": "Кезектегі команда қабылданбады: {reason}",
   "errorNoAccess": "Бұл бөлімге қолжетімділік жоқ.",
   "errorNotFound": "Табылмады.",
   "emptyTitle": "Мұнда әзірге бос",
@@ -499,5 +503,14 @@
   "workOrderBomNo": "Ерекшелік: {bom}",
   "workOrderWipWarehouse": "Аяқталмаған өндіріс қоймасы: {warehouse}",
   "workOrderFgWarehouse": "Дайын өнім қоймасы: {warehouse}",
-  "workOrderProducedProgress": "Өндірілгені: {produced} / {qty}"
+  "workOrderProducedProgress": "Өндірілгені: {produced} / {qty}",
+  "stockBalancesSection": "Қоймалар бойынша қалдықтар",
+  "stockSummarySection": "Барлық қоймалар бойынша жиынтық",
+  "stockActualQty": "Нақты қалдық",
+  "stockReservedQty": "Резервте",
+  "stockProjectedQty": "Болжам",
+  "stockDeficitAlert": "Қоймада тапшылық",
+  "stockNoBalancesTitle": "Қоймаларда жоқ",
+  "stockNoBalancesBody": "Позиция компанияның ешбір қоймасында жоқ.",
+  "warehouseActionOpen": "Ашу"
 }

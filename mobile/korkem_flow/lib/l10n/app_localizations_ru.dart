@@ -48,6 +48,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get errorOffline => 'Нет связи с сервером.';
 
   @override
+  String get outboxQueued => 'Нет связи. Команда ждёт отправки.';
+
+  @override
+  String outboxPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count команды ждут отправки',
+      many: '$count команд ждут отправки',
+      few: '$count команды ждут отправки',
+      one: '$count команда ждёт отправки',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outboxRetry => 'Отправить сейчас';
+
+  @override
+  String outboxRejected(String reason) {
+    return 'Команда из очереди отклонена: $reason';
+  }
+
+  @override
   String get errorNoAccess => 'У вас нет доступа к этому разделу.';
 
   @override
@@ -1127,4 +1151,32 @@ class AppLocalizationsRu extends AppLocalizations {
   String workOrderProducedProgress(String produced, String qty) {
     return 'Изготовлено: $produced из $qty';
   }
+
+  @override
+  String get stockBalancesSection => 'Остатки по складам';
+
+  @override
+  String get stockSummarySection => 'Итого по всем складам';
+
+  @override
+  String get stockActualQty => 'Фактический остаток';
+
+  @override
+  String get stockReservedQty => 'В резерве';
+
+  @override
+  String get stockProjectedQty => 'Прогноз';
+
+  @override
+  String get stockDeficitAlert => 'Дефицит на складе';
+
+  @override
+  String get stockNoBalancesTitle => 'Нет на складах';
+
+  @override
+  String get stockNoBalancesBody =>
+      'Позиция не числится ни на одном складе компании.';
+
+  @override
+  String get warehouseActionOpen => 'Открыть';
 }
