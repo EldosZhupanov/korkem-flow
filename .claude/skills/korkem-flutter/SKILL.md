@@ -115,6 +115,13 @@ dart format --set-exit-if-changed lib test
 flutter test
 ```
 
+**Read all four results, not the last one.** Chained into one command the
+suite's "All tests passed!" lands at the bottom and `analyze`'s verdict scrolls
+off the top; a backgrounded run shows you the tail. That is how a commit came
+to claim "analyze — No issues found" while the same output's first line said
+`1 issue found`, and CI caught what the commit message asserted. Run the four
+separately, or read the whole output — never the tail alone.
+
 `very_good_analysis` with strict-casts, strict-inference and strict-raw-types
 is on. A single test: `flutter test <file> --plain-name "<name>"`.
 
