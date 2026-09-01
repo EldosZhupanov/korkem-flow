@@ -1050,4 +1050,14 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get todayTileError => 'Жүктеу мүмкін болмады';
+
+  @override
+  String get orderProductionSection => 'Өндіріс';
+
+  @override
+  String get orderNoProductionTitle => 'Өндіріс әлі басталған жоқ';
+
+  @override
+  String get orderNoProductionBody =>
+      'Бұл тапсырыс бойынша бірде-бір тапсырма жоқ. Тапсырыс расталған соң өндірісті бастаңыз.';
 }

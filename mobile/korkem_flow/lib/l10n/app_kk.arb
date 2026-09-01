@@ -488,5 +488,8 @@
   "todayAllClearTitle": "Барлығы дұрыс",
   "todayAllClearSubtitle": "Өндірісте сыни кідірістер мен тапшылық жоқ",
   "todayQuickNav": "Жылдам өту",
-  "todayTileError": "Жүктеу мүмкін болмады"
+  "todayTileError": "Жүктеу мүмкін болмады",
+  "orderProductionSection": "Өндіріс",
+  "orderNoProductionTitle": "Өндіріс әлі басталған жоқ",
+  "orderNoProductionBody": "Бұл тапсырыс бойынша бірде-бір тапсырма жоқ. Тапсырыс расталған соң өндірісті бастаңыз."
 }

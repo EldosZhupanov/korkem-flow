@@ -488,5 +488,8 @@
   "todayAllClearTitle": "Всё в порядке",
   "todayAllClearSubtitle": "Критических задержек и дефицита на производстве нет",
   "todayQuickNav": "Быстрый переход",
-  "todayTileError": "Не удалось загрузить"
+  "todayTileError": "Не удалось загрузить",
+  "orderProductionSection": "Производство",
+  "orderNoProductionTitle": "Производство ещё не запущено",
+  "orderNoProductionBody": "По этому заказу нет ни одного задания. Запустите производство, когда заказ подтверждён."
 }

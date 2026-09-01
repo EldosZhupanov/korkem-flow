@@ -1081,4 +1081,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get todayTileError => 'Не удалось загрузить';
+
+  @override
+  String get orderProductionSection => 'Производство';
+
+  @override
+  String get orderNoProductionTitle => 'Производство ещё не запущено';
+
+  @override
+  String get orderNoProductionBody =>
+      'По этому заказу нет ни одного задания. Запустите производство, когда заказ подтверждён.';
 }

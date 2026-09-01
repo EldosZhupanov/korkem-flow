@@ -865,5 +865,17 @@
   "todayTileError": "Failed to load",
   "@todayTileError": {
     "description": "Error text for an individual tile."
+  },
+  "orderProductionSection": "Production",
+  "@orderProductionSection": {
+    "description": "Section heading for the production jobs of one order."
+  },
+  "orderNoProductionTitle": "Production has not started",
+  "@orderNoProductionTitle": {
+    "description": "Shown when an order has no work orders yet."
+  },
+  "orderNoProductionBody": "No jobs have been raised for this order. Start production once the order is confirmed.",
+  "@orderNoProductionBody": {
+    "description": "Explains that production has not been started for this order."
   }
 }

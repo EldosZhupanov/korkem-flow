@@ -2061,6 +2061,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to load'**
   String get todayTileError;
+
+  /// Section heading for the production jobs of one order.
+  ///
+  /// In en, this message translates to:
+  /// **'Production'**
+  String get orderProductionSection;
+
+  /// Shown when an order has no work orders yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Production has not started'**
+  String get orderNoProductionTitle;
+
+  /// Explains that production has not been started for this order.
+  ///
+  /// In en, this message translates to:
+  /// **'No jobs have been raised for this order. Start production once the order is confirmed.'**
+  String get orderNoProductionBody;
 }
 
 class _AppLocalizationsDelegate

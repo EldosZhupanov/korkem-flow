@@ -1070,4 +1070,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayTileError => 'Failed to load';
+
+  @override
+  String get orderProductionSection => 'Production';
+
+  @override
+  String get orderNoProductionTitle => 'Production has not started';
+
+  @override
+  String get orderNoProductionBody =>
+      'No jobs have been raised for this order. Start production once the order is confirmed.';
 }
