@@ -2079,6 +2079,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No jobs have been raised for this order. Start production once the order is confirmed.'**
   String get orderNoProductionBody;
+
+  /// Section header for linked sales order in work order details.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked Sales Order'**
+  String get workOrderLinkedSalesOrder;
+
+  /// Shown when work order has no linked sales order.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked sales order'**
+  String get workOrderNoLinkedSalesOrder;
+
+  /// Planned end date.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned finish: {date}'**
+  String workOrderPlannedEnd(String date);
+
+  /// Actual end date.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual finish: {date}'**
+  String workOrderActualEnd(String date);
+
+  /// Bill of Materials number.
+  ///
+  /// In en, this message translates to:
+  /// **'BOM: {bom}'**
+  String workOrderBomNo(String bom);
+
+  /// WIP warehouse name.
+  ///
+  /// In en, this message translates to:
+  /// **'WIP warehouse: {warehouse}'**
+  String workOrderWipWarehouse(String warehouse);
+
+  /// Finished goods warehouse name.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished goods warehouse: {warehouse}'**
+  String workOrderFgWarehouse(String warehouse);
+
+  /// Produced quantity against planned quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Produced: {produced} of {qty}'**
+  String workOrderProducedProgress(String produced, String qty);
 }
 
 class _AppLocalizationsDelegate

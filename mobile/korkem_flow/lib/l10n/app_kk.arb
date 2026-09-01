@@ -491,5 +491,13 @@
   "todayTileError": "Жүктеу мүмкін болмады",
   "orderProductionSection": "Өндіріс",
   "orderNoProductionTitle": "Өндіріс әлі басталған жоқ",
-  "orderNoProductionBody": "Бұл тапсырыс бойынша бірде-бір тапсырма жоқ. Тапсырыс расталған соң өндірісті бастаңыз."
+  "orderNoProductionBody": "Бұл тапсырыс бойынша бірде-бір тапсырма жоқ. Тапсырыс расталған соң өндірісті бастаңыз.",
+  "workOrderLinkedSalesOrder": "Байланысты тапсырыс",
+  "workOrderNoLinkedSalesOrder": "Тапсырыс байланыстырылмаған",
+  "workOrderPlannedEnd": "Жоспарланған аяқталуы: {date}",
+  "workOrderActualEnd": "Нақты аяқталуы: {date}",
+  "workOrderBomNo": "Ерекшелік: {bom}",
+  "workOrderWipWarehouse": "Аяқталмаған өндіріс қоймасы: {warehouse}",
+  "workOrderFgWarehouse": "Дайын өнім қоймасы: {warehouse}",
+  "workOrderProducedProgress": "Өндірілгені: {produced} / {qty}"
 }

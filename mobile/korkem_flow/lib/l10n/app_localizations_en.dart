@@ -1080,4 +1080,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get orderNoProductionBody =>
       'No jobs have been raised for this order. Start production once the order is confirmed.';
+
+  @override
+  String get workOrderLinkedSalesOrder => 'Linked Sales Order';
+
+  @override
+  String get workOrderNoLinkedSalesOrder => 'No linked sales order';
+
+  @override
+  String workOrderPlannedEnd(String date) {
+    return 'Planned finish: $date';
+  }
+
+  @override
+  String workOrderActualEnd(String date) {
+    return 'Actual finish: $date';
+  }
+
+  @override
+  String workOrderBomNo(String bom) {
+    return 'BOM: $bom';
+  }
+
+  @override
+  String workOrderWipWarehouse(String warehouse) {
+    return 'WIP warehouse: $warehouse';
+  }
+
+  @override
+  String workOrderFgWarehouse(String warehouse) {
+    return 'Finished goods warehouse: $warehouse';
+  }
+
+  @override
+  String workOrderProducedProgress(String produced, String qty) {
+    return 'Produced: $produced of $qty';
+  }
 }

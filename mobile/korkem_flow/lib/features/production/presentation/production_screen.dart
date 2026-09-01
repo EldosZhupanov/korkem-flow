@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -10,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/crm_list_section.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
@@ -94,7 +96,7 @@ class WorkOrderCard extends ConsumerWidget {
     final isLate = order.isLateAt(ref.watch(clockProvider)());
 
     return AppCard(
-      onTap: onTap,
+      onTap: onTap ?? () => context.push(Routes.workOrder(order.id)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

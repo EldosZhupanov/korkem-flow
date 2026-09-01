@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/operations/presentation/operations_screen.d
 import 'package:korkem_flow/features/operations/presentation/work_instructions_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
+import 'package:korkem_flow/features/production/presentation/work_order_detail_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
@@ -67,6 +68,9 @@ abstract final class Routes {
 
   /// One order. `:name` is the Frappe document name (`SAL-ORD-…`).
   static String order(String name) => '/orders/$name';
+
+  /// One work order. `:id` is the Frappe document name (`MFG-WO-…`).
+  static String workOrder(String id) => '/production/$id';
   static const today = '/today';
 
   /// Sales, opened on its Customers tab. A URL rather than a branch of its own:
@@ -145,6 +149,11 @@ GoRouter createRouter(Ref ref) {
                 OrderDetailScreen(name: state.pathParameters['name']!),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/production/:id',
+        builder: (context, state) =>
+            WorkOrderDetailScreen(id: state.pathParameters['id']!),
       ),
       GoRoute(
         path: Routes.today,

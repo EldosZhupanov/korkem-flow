@@ -877,5 +877,70 @@
   "orderNoProductionBody": "No jobs have been raised for this order. Start production once the order is confirmed.",
   "@orderNoProductionBody": {
     "description": "Explains that production has not been started for this order."
+  },
+  "workOrderLinkedSalesOrder": "Linked Sales Order",
+  "@workOrderLinkedSalesOrder": {
+    "description": "Section header for linked sales order in work order details."
+  },
+  "workOrderNoLinkedSalesOrder": "No linked sales order",
+  "@workOrderNoLinkedSalesOrder": {
+    "description": "Shown when work order has no linked sales order."
+  },
+  "workOrderPlannedEnd": "Planned finish: {date}",
+  "@workOrderPlannedEnd": {
+    "description": "Planned end date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "workOrderActualEnd": "Actual finish: {date}",
+  "@workOrderActualEnd": {
+    "description": "Actual end date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "workOrderBomNo": "BOM: {bom}",
+  "@workOrderBomNo": {
+    "description": "Bill of Materials number.",
+    "placeholders": {
+      "bom": {
+        "type": "String"
+      }
+    }
+  },
+  "workOrderWipWarehouse": "WIP warehouse: {warehouse}",
+  "@workOrderWipWarehouse": {
+    "description": "WIP warehouse name.",
+    "placeholders": {
+      "warehouse": {
+        "type": "String"
+      }
+    }
+  },
+  "workOrderFgWarehouse": "Finished goods warehouse: {warehouse}",
+  "@workOrderFgWarehouse": {
+    "description": "Finished goods warehouse name.",
+    "placeholders": {
+      "warehouse": {
+        "type": "String"
+      }
+    }
+  },
+  "workOrderProducedProgress": "Produced: {produced} of {qty}",
+  "@workOrderProducedProgress": {
+    "description": "Produced quantity against planned quantity.",
+    "placeholders": {
+      "produced": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
   }
 }

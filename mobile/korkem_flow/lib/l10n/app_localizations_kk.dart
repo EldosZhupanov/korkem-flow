@@ -1060,4 +1060,40 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get orderNoProductionBody =>
       'Бұл тапсырыс бойынша бірде-бір тапсырма жоқ. Тапсырыс расталған соң өндірісті бастаңыз.';
+
+  @override
+  String get workOrderLinkedSalesOrder => 'Байланысты тапсырыс';
+
+  @override
+  String get workOrderNoLinkedSalesOrder => 'Тапсырыс байланыстырылмаған';
+
+  @override
+  String workOrderPlannedEnd(String date) {
+    return 'Жоспарланған аяқталуы: $date';
+  }
+
+  @override
+  String workOrderActualEnd(String date) {
+    return 'Нақты аяқталуы: $date';
+  }
+
+  @override
+  String workOrderBomNo(String bom) {
+    return 'Ерекшелік: $bom';
+  }
+
+  @override
+  String workOrderWipWarehouse(String warehouse) {
+    return 'Аяқталмаған өндіріс қоймасы: $warehouse';
+  }
+
+  @override
+  String workOrderFgWarehouse(String warehouse) {
+    return 'Дайын өнім қоймасы: $warehouse';
+  }
+
+  @override
+  String workOrderProducedProgress(String produced, String qty) {
+    return 'Өндірілгені: $produced / $qty';
+  }
 }

@@ -1091,4 +1091,40 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get orderNoProductionBody =>
       'По этому заказу нет ни одного задания. Запустите производство, когда заказ подтверждён.';
+
+  @override
+  String get workOrderLinkedSalesOrder => 'Связанный заказ';
+
+  @override
+  String get workOrderNoLinkedSalesOrder => 'Заказ не привязан';
+
+  @override
+  String workOrderPlannedEnd(String date) {
+    return 'Плановое окончание: $date';
+  }
+
+  @override
+  String workOrderActualEnd(String date) {
+    return 'Фактическое окончание: $date';
+  }
+
+  @override
+  String workOrderBomNo(String bom) {
+    return 'Спецификация: $bom';
+  }
+
+  @override
+  String workOrderWipWarehouse(String warehouse) {
+    return 'Склад незавершённого производства: $warehouse';
+  }
+
+  @override
+  String workOrderFgWarehouse(String warehouse) {
+    return 'Склад готовой продукции: $warehouse';
+  }
+
+  @override
+  String workOrderProducedProgress(String produced, String qty) {
+    return 'Изготовлено: $produced из $qty';
+  }
 }
