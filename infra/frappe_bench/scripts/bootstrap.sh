@@ -43,8 +43,12 @@ if [ ! -d frappe-bench/apps/frappe ]; then
   #
   # Scoped to the four vendored paths rather than `*`: this marks somebody
   # else's code readable, and it should say exactly whose.
+  # Both forms. Git names the *git directory* in its complaint —
+  # `…/frappe/.git`, not `…/frappe` — and marking only the work tree leaves
+  # `bench init` failing with the same message it just told you how to fix.
   for vendored in frappe erpnext crm relaticle; do
     git config --global --add safe.directory "/workspace/vendor/$vendored"
+    git config --global --add safe.directory "/workspace/vendor/$vendored/.git"
   done
 
   bench init frappe-bench \
