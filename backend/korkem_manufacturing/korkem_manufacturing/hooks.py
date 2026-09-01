@@ -269,9 +269,10 @@ export_python_type_annotations = True
 # Require all whitelisted methods to have type annotations
 require_type_annotated_api_methods = True
 
-# default_log_clearing_doctypes = {
-# 	"Logging DocType Name": 30  # days to retain logs
-# }
+# A mobile retry may legitimately arrive days after the first request, but
+# keeping every response forever turns a safety ledger into unbounded data.
+# Frappe's daily Log Settings job calls the DocType's `clear_old_logs` method.
+default_log_clearing_doctypes = {"Idempotency Record": 30}
 
 # Translation
 # ------------

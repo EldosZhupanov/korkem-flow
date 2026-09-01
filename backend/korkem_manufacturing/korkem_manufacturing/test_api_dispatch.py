@@ -108,7 +108,7 @@ class TestScopeIsTheServersToDecide(_DispatchTestCase):
 		import inspect
 
 		names = set(inspect.signature(api.create_delivery).parameters)
-		self.assertEqual(names, {"sales_order", "items"})
+		self.assertEqual(names, {"sales_order", "items", "idempotency_key"})
 		for forbidden in ("qty", "quantity", "company", "warehouse"):
 			self.assertNotIn(forbidden, names)
 

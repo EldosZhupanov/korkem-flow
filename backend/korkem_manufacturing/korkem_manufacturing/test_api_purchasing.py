@@ -126,7 +126,7 @@ class TestScopeIsTheServersToDecide(_ReceivingTestCase):
 
 		self.assertEqual(
 			set(inspect.signature(api.receive_purchase_order).parameters),
-			{"purchase_order", "items"},
+			{"purchase_order", "items", "idempotency_key"},
 		)
 
 	def test_an_order_from_another_company_is_refused(self):
@@ -207,7 +207,10 @@ class TestOrderingFromASupplier(_ReceivingTestCase):
 		import inspect
 
 		names = set(inspect.signature(api.create_purchase_order).parameters)
-		self.assertEqual(names, {"material_request", "supplier", "schedule_date"})
+		self.assertEqual(
+			names,
+			{"material_request", "supplier", "schedule_date", "idempotency_key"},
+		)
 		for forbidden in ("rate", "price", "amount", "total", "qty", "company"):
 			self.assertNotIn(forbidden, names)
 

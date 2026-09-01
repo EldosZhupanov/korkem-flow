@@ -139,7 +139,7 @@ class TestCompanyScopeIsDecidedByTheServer(_ApiTestCase):
 		names = set(inspect.signature(api.start_production).parameters)
 		self.assertNotIn("company", names)
 		self.assertNotIn("organization", names)
-		self.assertEqual(names, {"sales_order", "item_code"})
+		self.assertEqual(names, {"sales_order", "item_code", "idempotency_key"})
 
 	def test_scope_is_enforced_before_the_role_check(self):
 		"""An order from another company is refused as not found.
@@ -222,7 +222,15 @@ class TestBookingWorkAgainstAStage(_ApiTestCase):
 		self.assertNotIn("company", names)
 		self.assertEqual(
 			names,
-			{"operation", "sales_order", "work_order", "qty", "scrap_qty", "rework_qty"},
+			{
+				"operation",
+				"sales_order",
+				"work_order",
+				"qty",
+				"scrap_qty",
+				"rework_qty",
+				"idempotency_key",
+			},
 		)
 
 	def test_a_job_from_another_company_is_refused(self):

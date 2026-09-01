@@ -49,6 +49,7 @@ import frappe
 
 from korkem_manufacturing.services import production as service
 from korkem_manufacturing.services import shop_floor
+from korkem_manufacturing.services.idempotency import execute as execute_idempotently
 from korkem_manufacturing.services.scope import current_company, ensure_company
 
 #: Who may put material into work-in-progress. Checked in addition to — never
@@ -59,7 +60,11 @@ MAY_START = ("Manufacturing Manager", "Manufacturing User", "System Manager")
 
 
 @frappe.whitelist()
-def start_production(sales_order: str, item_code: str | None = None) -> dict:
+def start_production(
+	sales_order: str,
+	item_code: str | None = None,
+	idempotency_key: str | None = None,
+) -> dict:
 	"""Plan the work if needed, then move material into work-in-progress.
 
 	Returns the service's own answer unchanged, including its refusals:
@@ -85,9 +90,17 @@ def start_production(sales_order: str, item_code: str | None = None) -> dict:
 			frappe.PermissionError,
 		)
 
-	result = service.start_production(sales_order, item_code)
-	_audit(sales_order, item_code, result)
-	return result
+	def perform() -> dict:
+		result = service.start_production(sales_order, item_code)
+		_audit(sales_order, item_code, result)
+		return result
+
+	return execute_idempotently(
+		"manufacturing.start_production",
+		idempotency_key,
+		{"sales_order": sales_order, "item_code": item_code},
+		perform,
+	)
 
 
 def _audit(sales_order: str, item_code: str | None, result: dict) -> None:
@@ -164,6 +177,7 @@ def complete_operation(
 	qty: float | None = None,
 	scrap_qty: float | None = None,
 	rework_qty: float | None = None,
+	idempotency_key: str | None = None,
 ) -> dict:
 	"""Record that a production stage is finished.
 
@@ -195,16 +209,26 @@ def complete_operation(
 			frappe.PermissionError,
 		)
 
-	result = shop_floor.complete_operation(
-		operation=_clean(operation),
-		sales_order=_clean(sales_order),
-		work_order=_clean(work_order),
-		qty=_quantity(qty, "qty"),
-		scrap_qty=_quantity(scrap_qty, "scrap_qty"),
-		rework_qty=_quantity(rework_qty, "rework_qty"),
+	arguments = {
+		"operation": _clean(operation),
+		"sales_order": _clean(sales_order),
+		"work_order": _clean(work_order),
+		"qty": _quantity(qty, "qty"),
+		"scrap_qty": _quantity(scrap_qty, "scrap_qty"),
+		"rework_qty": _quantity(rework_qty, "rework_qty"),
+	}
+
+	def perform() -> dict:
+		result = shop_floor.complete_operation(**arguments)
+		_audit_operation(result)
+		return result
+
+	return execute_idempotently(
+		"manufacturing.complete_operation",
+		idempotency_key,
+		arguments,
+		perform,
 	)
-	_audit_operation(result)
-	return result
 
 
 def _clean(value: str | None) -> str | None:

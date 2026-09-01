@@ -13,6 +13,7 @@ from __future__ import annotations
 import frappe
 
 from korkem_manufacturing.services import dispatch as service
+from korkem_manufacturing.services.idempotency import execute as execute_idempotently
 from korkem_manufacturing.services.scope import ensure_company
 
 #: Who may ship. `Stock` roles because a delivery is a stock movement, and
@@ -37,7 +38,11 @@ MAY_SHIP = (
 
 
 @frappe.whitelist()
-def create_delivery(sales_order: str, items: list | str | None = None) -> dict:
+def create_delivery(
+	sales_order: str,
+	items: list | str | None = None,
+	idempotency_key: str | None = None,
+) -> dict:
 	"""Ship what is on the shelf against a sales order.
 
 	Only physically available stock is shipped. A finished quantity on a work
@@ -57,9 +62,19 @@ def create_delivery(sales_order: str, items: list | str | None = None) -> dict:
 			frappe.PermissionError,
 		)
 
-	result = service.create_delivery(sales_order, _items(items))
-	_audit(sales_order, result)
-	return result
+	parsed_items = _items(items)
+
+	def perform() -> dict:
+		result = service.create_delivery(sales_order, parsed_items)
+		_audit(sales_order, result)
+		return result
+
+	return execute_idempotently(
+		"sales.create_delivery",
+		idempotency_key,
+		{"sales_order": sales_order, "items": parsed_items},
+		perform,
+	)
 
 
 def _items(value) -> list | None:

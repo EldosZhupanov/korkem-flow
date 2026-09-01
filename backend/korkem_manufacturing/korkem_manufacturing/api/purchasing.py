@@ -13,6 +13,7 @@ from __future__ import annotations
 import frappe
 
 from korkem_manufacturing.services import purchasing as service
+from korkem_manufacturing.services.idempotency import execute as execute_idempotently
 from korkem_manufacturing.services.scope import ensure_company
 
 #: Who may book stock in. Deliberately not the production roles: receiving is
@@ -34,7 +35,11 @@ MAY_RECEIVE = (
 
 
 @frappe.whitelist()
-def receive_purchase_order(purchase_order: str, items: list | str | None = None) -> dict:
+def receive_purchase_order(
+	purchase_order: str,
+	items: list | str | None = None,
+	idempotency_key: str | None = None,
+) -> dict:
 	"""Book a delivery in against its purchase order.
 
 	`items` narrows a partial delivery. It arrives as a list from a tool and as
@@ -56,9 +61,19 @@ def receive_purchase_order(purchase_order: str, items: list | str | None = None)
 			frappe.PermissionError,
 		)
 
-	result = service.receive_purchase_order(purchase_order, _items(items))
-	_audit(purchase_order, result)
-	return result
+	parsed_items = _items(items)
+
+	def perform() -> dict:
+		result = service.receive_purchase_order(purchase_order, parsed_items)
+		_audit(purchase_order, result)
+		return result
+
+	return execute_idempotently(
+		"inventory.receive_purchase_order",
+		idempotency_key,
+		{"purchase_order": purchase_order, "items": parsed_items},
+		perform,
+	)
 
 
 def _items(value) -> list | None:
@@ -124,6 +139,7 @@ def create_purchase_order(
 	material_request: str,
 	supplier: str | None = None,
 	schedule_date: str | None = None,
+	idempotency_key: str | None = None,
 ) -> dict:
 	"""Turn a material request into an order with a supplier.
 
@@ -146,13 +162,27 @@ def create_purchase_order(
 			frappe.PermissionError,
 		)
 
-	result = service.create_purchase_order(
-		material_request,
-		supplier=_name(supplier),
-		schedule_date=_name(schedule_date),
+	arguments = {
+		"material_request": material_request,
+		"supplier": _name(supplier),
+		"schedule_date": _name(schedule_date),
+	}
+
+	def perform() -> dict:
+		result = service.create_purchase_order(
+			material_request,
+			supplier=arguments["supplier"],
+			schedule_date=arguments["schedule_date"],
+		)
+		_audit_order(material_request, result)
+		return result
+
+	return execute_idempotently(
+		"procurement.create_purchase_order",
+		idempotency_key,
+		arguments,
+		perform,
 	)
-	_audit_order(material_request, result)
-	return result
 
 
 def _name(value: str | None) -> str | None:
