@@ -72,6 +72,31 @@ new phase report. Write the report only when the reasoning is worth keeping —
 then put it straight into `docs/archive/` with its banner, and link it from the
 roadmap item it belongs to.
 
+## Committing somebody else's work
+
+An agent hands you a change spread over several trees — `backend/`, `infra/`,
+`docs/`. Stage it by asking git what changed, never by listing the paths you
+remember being discussed:
+
+```sh
+git status --short          # everything, including untracked
+git add <each path>         # named, never `git add .`
+git diff --cached --stat    # read it before committing
+```
+
+The failure mode is silent and only shows up in a clone. A migration guard was
+committed as three backend files; the shell script `bootstrap.sh` calls to run
+it was left untracked, because it lived in `infra/` and the conversation had
+been about Python. Everything worked locally — the file was on disk — and CI
+said:
+
+```
+bootstrap.sh: line 175: check_schema_compatibility.sh: No such file or directory
+```
+
+The guard existed for exactly one person. **After committing an agent's work,
+`git status --short` again and look at what is still untracked.**
+
 ## Language
 
 Russian and English both appear and that is fine. Use **one language per
