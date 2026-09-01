@@ -109,6 +109,11 @@ page_renderer = ["korkem_ai.korkem_ai.health.HealthPage"]
 # Installation
 # ------------
 
+# Record the monotonic KORKEM schema marker only after Frappe commits a
+# successful migration. The callback registration and rollback boundary live
+# in environment.py, beside the startup comparison that consumes the marker.
+after_migrate = "korkem_ai.korkem_ai.environment.record_schema_version_after_migrate"
+
 # before_install = "korkem_ai.install.before_install"
 # after_install = "korkem_ai.install.after_install"
 

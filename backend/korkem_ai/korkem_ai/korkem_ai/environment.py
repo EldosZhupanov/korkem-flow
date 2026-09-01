@@ -58,6 +58,141 @@ PRODUCTION_LIKE = (PILOT, PRODUCTION)
 #:     bench --site <site> set-config korkem_env pilot
 CONFIG_KEY = "korkem_env"
 
+#: Monotonic version of the KORKEM-owned database schema understood by this
+#: checkout. This is deliberately an explicit integer, not a hash or the last
+#: line of patches.txt:
+#:
+#: * a hash can say "different", but cannot say which side is newer;
+#: * patches may be consolidated or reordered after old installations have
+#:   already recorded them in Patch Log;
+#: * an explicit monotonic number keeps rollback ordering stable across those
+#:   maintenance operations.
+#:
+#: Increment this in the same change that adds an incompatible schema/patch.
+#: A successful migrate records it in site_config.json through the
+#: ``after_migrate`` hook below.
+SCHEMA_VERSION = 1
+SCHEMA_CONFIG_KEY = "korkem_schema_version"
+SCHEMA_DATABASE_KEY = "korkem_schema_version"
+
+
+class SchemaCompatibilityError(frappe.ValidationError):
+	"""The site's schema marker is unsafe for this checkout."""
+
+
+def _parse_schema_version(raw, source: str) -> int:
+	"""Parse one persisted marker without accepting ambiguous coercions."""
+	if raw is None or raw == "":
+		return 0
+	if isinstance(raw, bool):
+		raise SchemaCompatibilityError(
+			f"KORKEM START REFUSED: the schema marker in {source} must be a "
+			f"non-negative integer, got {raw!r}. Restore a valid marker before starting."
+		)
+	try:
+		version = int(raw)
+	except (TypeError, ValueError) as exc:
+		raise SchemaCompatibilityError(
+			f"KORKEM START REFUSED: the schema marker in {source} must be a "
+			f"non-negative integer, got {raw!r}. Restore a valid marker before starting."
+		) from exc
+	if version < 0 or str(raw).strip() != str(version):
+		raise SchemaCompatibilityError(
+			f"KORKEM START REFUSED: the schema marker in {source} must be a "
+			f"non-negative integer, got {raw!r}. Restore a valid marker before starting."
+		)
+	return version
+
+
+def site_config_schema_version() -> int:
+	"""Return the marker that follows the site directory and its backups."""
+	return _parse_schema_version(frappe.conf.get(SCHEMA_CONFIG_KEY), "site config")
+
+
+def database_schema_version() -> int:
+	"""Return the marker that follows a restored database dump."""
+	return _parse_schema_version(
+		frappe.db.get_default(SCHEMA_DATABASE_KEY),
+		"database defaults",
+	)
+
+
+def data_schema_version() -> int:
+	"""Return the newest schema marker carried by either part of the site.
+
+	Sites created before this guard have no marker. They are version zero: older
+	than current code and therefore eligible for a normal migration. Malformed
+	markers fail closed because guessing at production-data lineage is precisely
+	what this guard exists to prevent. The marker is deliberately duplicated:
+	the site-config copy survives a code rollback on the same volume, while the
+	database copy follows a SQL backup even when an operator restores only the
+	encryption key from the accompanying config backup.
+	"""
+	return max(site_config_schema_version(), database_schema_version())
+
+
+def schema_compatibility() -> dict:
+	"""Describe the ordering between site data and this checkout."""
+	data_version = data_schema_version()
+	if data_version > SCHEMA_VERSION:
+		state = "data_newer"
+	elif data_version < SCHEMA_VERSION:
+		state = "data_older"
+	else:
+		state = "equal"
+	return {"data": data_version, "code": SCHEMA_VERSION, "state": state}
+
+
+def assert_schema_compatible() -> None:
+	"""Refuse to run older code against data migrated by newer code.
+
+	The refusal is intentionally identical in development, pilot and production.
+	Developers routinely restore production snapshots and test rollbacks; letting
+	development silently cross this boundary would make the one environment used
+	to rehearse recovery less safe than the real deployment. There is no bypass
+	environment variable.
+	"""
+	compatibility = schema_compatibility()
+	data_version = compatibility["data"]
+	code_version = compatibility["code"]
+	site = getattr(frappe.local, "site", None) or "<site>"
+
+	if compatibility["state"] == "data_newer":
+		raise SchemaCompatibilityError(
+			f"KORKEM START REFUSED: site data schema version is {data_version}, "
+			f"but this code supports only version {code_version}. Deploy code that "
+			f"supports schema version {data_version} or newer, then run "
+			f"`bench --site {site} migrate`. Do not migrate these data with older code."
+		)
+
+	if compatibility["state"] == "data_older":
+		print(
+			f"KORKEM schema migration required: data={data_version}, code={code_version}. "
+			f"Startup may continue; run `bench --site {site} migrate`."
+		)
+		return
+
+	print(f"KORKEM schema compatible: data={data_version}, code={code_version}.")
+
+
+def _write_migrated_schema_version() -> None:
+	"""Persist the site-config marker after the migration transaction commits."""
+	from frappe.installer import update_site_config
+
+	update_site_config(SCHEMA_CONFIG_KEY, SCHEMA_VERSION)
+
+
+def record_schema_version_after_migrate() -> None:
+	"""Schedule the marker write from Frappe's ``after_migrate`` hook.
+
+	The database marker is written inside the migration transaction, so rollback
+	removes it. A direct site-config write there could survive even if a later
+	hook failed, so ``after_commit`` advances the file marker only after every
+	after-migrate hook and the database commit succeed.
+	"""
+	frappe.defaults.set_default(SCHEMA_DATABASE_KEY, SCHEMA_VERSION, "__default")
+	frappe.db.after_commit.add(_write_migrated_schema_version)
+
 
 def current() -> str:
 	"""The environment this site is running as.
