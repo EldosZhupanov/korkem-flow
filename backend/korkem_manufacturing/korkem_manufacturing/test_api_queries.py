@@ -280,3 +280,32 @@ class TestStockQuery(IntegrationTestCase):
 		self.assertEqual(result["total"], 2)
 		filters = get_count.call_args.kwargs["filters"]
 		self.assertEqual(filters["item_code"], ["in", ["CHAIR", "CHAIR-2"]])
+
+
+class TestDeliveryQuery(IntegrationTestCase):
+	def test_company_scope_and_submitted_delivery_are_required(self):
+		def lists(doctype, **kwargs):
+			if doctype == "Delivery Note Item" and kwargs.get("pluck") == "parent":
+				return ["DN-OURS", "DN-THEIRS", "DN-DRAFT"]
+			if doctype == "Delivery Note":
+				self.assertEqual(kwargs["filters"]["company"], "KORKEM")
+				self.assertEqual(kwargs["filters"]["docstatus"], 1)
+				return [{"name": "DN-OURS", "posting_date": "2026-09-01", "status": "To Bill", "grand_total": "100"}]
+			if doctype == "Delivery Note Item":
+				return [{"parent": "DN-OURS", "item_code": "CHAIR", "item_name": "Chair", "qty": "2", "uom": "Nos"}]
+			raise AssertionError(doctype)
+
+		with (
+			patch.object(api, "scoped", return_value={"company": "KORKEM", "docstatus": 1, "name": ["in", ["DN-OURS", "DN-THEIRS", "DN-DRAFT"]]}),
+			patch.object(api.frappe, "get_list", side_effect=lists),
+			patch.object(api, "_total", return_value=1),
+		):
+			result = api.deliveries("SO-1")
+
+		self.assertEqual(result["total"], 1)
+		self.assertEqual(result["deliveries"], [{"name": "DN-OURS", "posting_date": "2026-09-01", "status": "To Bill", "grand_total": 100.0, "items": [{"item_code": "CHAIR", "item_name": "Chair", "qty": 2.0, "uom": "Nos"}]}])
+
+	def test_order_without_deliveries_is_empty(self):
+		with patch.object(api.frappe, "get_list", return_value=[]):
+			result = api.deliveries("SO-EMPTY")
+		self.assertEqual(result, {"deliveries": [], "total": 0, "limit": 20, "offset": 0})

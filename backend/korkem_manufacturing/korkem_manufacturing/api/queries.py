@@ -38,6 +38,19 @@ BIN_FIELDS = (
 	"projected_qty",
 	"stock_uom",
 )
+DELIVERY_NOTE_FIELDS = (
+	"name",
+	"posting_date",
+	"status",
+	"grand_total",
+)
+DELIVERY_NOTE_ITEM_FIELDS = (
+	"parent",
+	"item_code",
+	"item_name",
+	"qty",
+	"uom",
+)
 MAX_LIMIT = 100
 
 
@@ -201,6 +214,54 @@ def stock(
 	}
 
 
+@frappe.whitelist()
+def deliveries(sales_order: str, limit: int = 20, offset: int = 0) -> dict:
+	"""Return submitted, permission-visible deliveries for one sales order."""
+	limit = min(_page_integer(limit, "limit"), MAX_LIMIT)
+	offset = _page_integer(offset, "offset")
+	sales_order = _text(sales_order, "sales_order")
+	if not sales_order:
+		frappe.throw("sales_order must be text.")
+
+	# ERPNext records the Sales Order link on Delivery Note Item, not reliably
+	# on the delivery header. This is one set query, not a per-delivery lookup.
+	delivery_names = frappe.get_list(
+		"Delivery Note Item",
+		filters={"against_sales_order": sales_order, "parenttype": "Delivery Note"},
+		pluck="parent",
+		limit_page_length=0,
+	)
+	if not delivery_names:
+		return {"deliveries": [], "total": 0, "limit": limit, "offset": offset}
+
+	filters = scoped({"docstatus": 1, "name": ["in", delivery_names]})
+	rows = frappe.get_list(
+		"Delivery Note",
+		filters=filters,
+		fields=list(DELIVERY_NOTE_FIELDS),
+		order_by="posting_date desc, name desc",
+		limit_start=offset,
+		limit_page_length=limit,
+	)
+	items = frappe.get_list(
+		"Delivery Note Item",
+		filters={"parent": ["in", [row["name"] for row in rows]], "parenttype": "Delivery Note"},
+		fields=list(DELIVERY_NOTE_ITEM_FIELDS),
+		order_by="parent asc, idx asc",
+		limit_page_length=0,
+	) if rows else []
+	items_by_delivery: dict[str, list[dict]] = {}
+	for item in items:
+		items_by_delivery.setdefault(item["parent"], []).append(_delivery_item(item))
+
+	return {
+		"deliveries": [_delivery(row, items_by_delivery.get(row["name"], [])) for row in rows],
+		"total": _total("Delivery Note", filters),
+		"limit": limit,
+		"offset": offset,
+	}
+
+
 def _total(doctype: str, filters: dict, or_filters: list | None = None) -> int:
 	"""How many rows the caller could page through, counted their way.
 
@@ -251,6 +312,25 @@ def _stock_item(row, item_names: dict[str, str | None]) -> dict:
 		"reserved_qty": flt(row.get("reserved_qty")),
 		"projected_qty": flt(row.get("projected_qty")),
 		"stock_uom": row.get("stock_uom") or None,
+	}
+
+
+def _delivery(row, items: list[dict]) -> dict:
+	return {
+		"name": row["name"],
+		"posting_date": _iso(row.get("posting_date")),
+		"status": row.get("status") or None,
+		"grand_total": flt(row.get("grand_total")),
+		"items": items,
+	}
+
+
+def _delivery_item(row) -> dict:
+	return {
+		"item_code": row.get("item_code") or None,
+		"item_name": row.get("item_name") or None,
+		"qty": flt(row.get("qty")),
+		"uom": row.get("uom") or None,
 	}
 
 
