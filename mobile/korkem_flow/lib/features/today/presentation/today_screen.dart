@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:korkem_flow/core/api/api_providers.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/design/motion/animated_counter.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -22,6 +26,10 @@ class TodayScreen extends ConsumerWidget {
       ..invalidate(todayProductionSummaryProvider)
       ..invalidate(todayApprovalsSummaryProvider)
       ..invalidate(todayStockSummaryProvider);
+    final outbox = ref.read(mutationOutboxProvider);
+    if (outbox.snapshot.pendingCount > 0) {
+      unawaited(outbox.retryPending(ref.read(frappeClientProvider)));
+    }
   }
 
   @override
@@ -31,12 +39,17 @@ class TodayScreen extends ConsumerWidget {
     final productionAsync = ref.watch(todayProductionSummaryProvider);
     final approvalsAsync = ref.watch(todayApprovalsSummaryProvider);
     final stockAsync = ref.watch(todayStockSummaryProvider);
+    final outbox = ref.watch(mutationOutboxProvider);
+    final outboxSnapshot =
+        ref.watch(mutationOutboxSnapshotProvider).value ?? outbox.snapshot;
+    final outboxCount = outboxSnapshot.pendingCount;
 
     final totalAlerts =
         (ordersAsync.value?.lateCount ?? 0) +
         (productionAsync.value?.lateCount ?? 0) +
         (approvalsAsync.value?.pendingCount ?? 0) +
-        (stockAsync.value?.deficitCount ?? 0);
+        (stockAsync.value?.deficitCount ?? 0) +
+        outboxCount;
 
     final isAllLoaded =
         ordersAsync.hasValue &&
@@ -59,7 +72,7 @@ class TodayScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
 
-            // ── 4 Operational KPI Tiles ──────────────────────────────────────
+            // ── 5 Operational KPI Tiles ──────────────────────────────────────
             _OrdersTile(state: ordersAsync),
             const SizedBox(height: AppSpacing.md),
             _ProductionTile(state: productionAsync),
@@ -67,6 +80,8 @@ class TodayScreen extends ConsumerWidget {
             _ApprovalsTile(state: approvalsAsync),
             const SizedBox(height: AppSpacing.md),
             _StockTile(state: stockAsync),
+            const SizedBox(height: AppSpacing.md),
+            _OutboxTile(snapshot: outboxSnapshot),
             const SizedBox(height: AppSpacing.xl),
 
             // ── Operational status / Attention section ────────────────────────
@@ -124,6 +139,16 @@ class TodayScreen extends ConsumerWidget {
                   onTap: () => context.push(Routes.deliveryCentre),
                 ),
               ],
+              if (outboxCount > 0) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _AttentionItemCard(
+                  icon: AppIcons.refresh,
+                  title: l10n.todayOutboxTitle,
+                  subtitle: l10n.outboxPending(outboxCount),
+                  intent: StatusIntent.warning,
+                  onTap: () => context.push(Routes.outbox),
+                ),
+              ],
             ],
 
             const SizedBox(height: AppSpacing.xl),
@@ -151,6 +176,12 @@ class TodayScreen extends ConsumerWidget {
               icon: AppIcons.warehouse,
               label: l10n.todayStockDeficit,
               onTap: () => context.push(Routes.deliveryCentre),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            _QuickNavRow(
+              icon: AppIcons.refresh,
+              label: l10n.todayOutboxTitle,
+              onTap: () => context.push(Routes.outbox),
             ),
           ],
         ),
@@ -320,6 +351,29 @@ class _StockTile extends StatelessWidget {
         isLoading: true,
       ),
     };
+  }
+}
+
+class _OutboxTile extends StatelessWidget {
+  const _OutboxTile({required this.snapshot});
+
+  final OutboxSnapshot snapshot;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final count = snapshot.pendingCount;
+
+    return _OperationalTile(
+      title: l10n.todayOutboxTitle,
+      value: count,
+      statusText: count > 0
+          ? l10n.outboxPending(count)
+          : l10n.todayOutboxAllSent,
+      icon: AppIcons.refresh,
+      intent: count > 0 ? StatusIntent.warning : StatusIntent.success,
+      onTap: () => context.push(Routes.outbox),
+    );
   }
 }
 

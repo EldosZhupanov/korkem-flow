@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:korkem_flow/core/api/api_providers.dart';
+import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/approvals/application/approvals_controller.dart';
 import 'package:korkem_flow/features/approvals/data/pending_action_repository.dart';
@@ -26,11 +29,15 @@ class _MockPendingActionRepository extends Mock
 
 class _MockStockRepository extends Mock implements StockRepository {}
 
+class _MockClient extends Mock implements FrappeClient {}
+
 void main() {
   late _MockSalesOrderRepository salesOrderRepo;
   late _MockWorkOrderRepository workOrderRepo;
   late _MockPendingActionRepository approvalsRepo;
   late _MockStockRepository stockRepo;
+  late _MockClient client;
+  late MutationOutbox outbox;
 
   final fixedClock = DateTime(2026, 8, 31, 12);
 
@@ -39,7 +46,12 @@ void main() {
     workOrderRepo = _MockWorkOrderRepository();
     approvalsRepo = _MockPendingActionRepository();
     stockRepo = _MockStockRepository();
+    client = _MockClient();
+    var counter = 0;
+    outbox = MutationOutbox(keyFactory: () => 'intent-${++counter}');
   });
+
+  tearDown(() => outbox.dispose());
 
   void mockDefaults({
     List<SalesOrder> orders = const [],
@@ -82,6 +94,8 @@ void main() {
           workOrderRepositoryProvider.overrideWithValue(workOrderRepo),
           pendingActionRepositoryProvider.overrideWithValue(approvalsRepo),
           stockRepositoryProvider.overrideWithValue(stockRepo),
+          mutationOutboxProvider.overrideWithValue(outbox),
+          frappeClientProvider.overrideWithValue(client),
           clockProvider.overrideWithValue(() => fixedClock),
         ],
         retry: (_, _) => null,
@@ -91,7 +105,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('renders all 4 operational tiles with numbers', (tester) async {
+  testWidgets('renders all 5 operational tiles with numbers', (tester) async {
     mockDefaults(
       orders: [
         SalesOrder(
@@ -125,8 +139,10 @@ void main() {
     expect(find.text('In Production'), findsOneWidget);
     expect(find.text('Pending Approvals'), findsOneWidget);
     expect(find.text('Stock Shortage'), findsOneWidget);
+    expect(find.text('Not Sent'), findsOneWidget);
+    expect(find.text('All sent'), findsOneWidget);
 
-    // All clear because 0 overdue, 0 pending, 0 deficit
+    // All clear because 0 overdue, 0 pending, 0 deficit, 0 outbox
     expect(find.text('All Clear', skipOffstage: false), findsOneWidget);
   });
 
@@ -189,4 +205,38 @@ void main() {
     expect(find.text('1 overdue', skipOffstage: false), findsWidgets);
     expect(find.text('1 item in deficit', skipOffstage: false), findsWidgets);
   });
+
+  testWidgets(
+    'shows attention section and tile with warning when outbox has '
+    'pending items',
+    (tester) async {
+      mockDefaults();
+
+      when(
+        () => client.callMethod(
+          any(),
+          params: any(named: 'params'),
+          post: true,
+        ),
+      ).thenThrow(const NetworkFailure('offline'));
+
+      try {
+        await outbox.execute(
+          client,
+          'example.mutate',
+          params: const {'id': '1'},
+        );
+      } on Object catch (_) {}
+
+      await pumpTodayScreen(tester);
+
+      expect(find.text('Not Sent'), findsWidgets);
+      expect(
+        find.text('1 command waiting to send', skipOffstage: false),
+        findsWidgets,
+      );
+      expect(find.text('NEEDS ATTENTION', skipOffstage: false), findsOneWidget);
+      expect(find.text('All Clear', skipOffstage: false), findsNothing);
+    },
+  );
 }
