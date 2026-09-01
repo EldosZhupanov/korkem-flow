@@ -387,7 +387,11 @@ def webhook(**kwargs):
 
 	if not verify_secret(
 		frappe.get_request_header("X-Telegram-Bot-Api-Secret-Token"),
-		settings.get_password("webhook_secret"),
+		# `raise_exception=False` is the whole point. `verify_secret` already
+		# treats a missing expectation as a failed check — but by default
+		# `get_password` throws first, so a site that is enabled and not yet
+		# configured answered Telegram with a 500. Telegram retries a 500.
+		settings.get_password("webhook_secret", raise_exception=False),
 	):
 		return Response("Invalid secret", status=401, mimetype="text/plain")
 

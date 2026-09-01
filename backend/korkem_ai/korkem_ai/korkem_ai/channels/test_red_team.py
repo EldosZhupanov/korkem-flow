@@ -213,6 +213,53 @@ class TestAForgedOrRepeatedWebhookAchievesNothing(_RedTeamTestCase):
 	def test_a_missing_whatsapp_app_secret_is_refused_not_crashed(self):
 		self.assertFalse(whatsapp.verify_webhook_signature(b"{}", "sha256=abc", None))
 
+	def test_an_enabled_but_unconfigured_telegram_webhook_answers_401_not_500(self):
+		"""The helpers above are not enough, and this is the test that says so.
+
+		`verify_secret` has always treated a missing expectation as a failed
+		check. It never got the chance: the caller read the secret with
+		`get_password`, which throws when nothing is stored, so a site that was
+		switched on and not yet configured answered Telegram with a 500.
+
+		A 500 is what a provider **retries** — so an unconfigured channel would
+		not merely refuse, it would refuse repeatedly and fill the error log.
+		Found on CI, whose site has no secret; a developer's bench has one from
+		earlier work and passed.
+		"""
+		response = self._webhook_without_secrets(telegram.webhook, "Telegram Settings")
+
+		self.assertEqual(response.status_code, 401)
+
+	def test_an_enabled_but_unconfigured_whatsapp_webhook_answers_401_not_500(self):
+		"""Same defect, one layer above a helper whose docstring warns about it."""
+		response = self._webhook_without_secrets(whatsapp.webhook, "WhatsApp Settings")
+
+		self.assertIn(response.status_code, (401, 403))
+
+	def _webhook_without_secrets(self, handler, doctype):
+		"""Enable the channel, store no secret at all, and call the endpoint."""
+		from werkzeug.test import EnvironBuilder
+		from werkzeug.wrappers import Request
+
+		settings = frappe.get_single(doctype)
+		settings.enabled = 1
+		settings.save(ignore_permissions=True)
+		self.addCleanup(self._disable, doctype)
+
+		# A real request object: the handler reads headers and the raw body.
+		builder = EnvironBuilder(method="POST", data=b"{}", content_type="application/json")
+		previous = getattr(frappe.local, "request", None)
+		frappe.local.request = Request(builder.get_environ())
+		self.addCleanup(setattr, frappe.local, "request", previous)
+
+		return handler()
+
+	def _disable(self, doctype):
+		frappe.set_user("Administrator")
+		settings = frappe.get_single(doctype)
+		settings.enabled = 0
+		settings.save(ignore_permissions=True)
+
 	def test_the_same_update_twice_runs_one_turn(self):
 		self.link(PLANNER, "320020")
 		message = gateway.InboundMessage(

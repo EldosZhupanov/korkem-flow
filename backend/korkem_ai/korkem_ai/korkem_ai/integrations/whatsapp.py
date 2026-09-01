@@ -304,7 +304,11 @@ def _handle_verification(settings):
 		mode=frappe.form_dict.get("hub.mode"),
 		token=frappe.form_dict.get("hub.verify_token"),
 		challenge=frappe.form_dict.get("hub.challenge"),
-		expected_token=settings.get_password("webhook_verify_token") if settings.enabled else "",
+		# Same reason as the signature check below: a site that is enabled and
+		# half-configured must answer 401, not 500.
+		expected_token=settings.get_password("webhook_verify_token", raise_exception=False)
+		if settings.enabled
+		else "",
 		enabled=bool(settings.enabled),
 	)
 	return _plain_text_response(body, status_code)
@@ -323,7 +327,12 @@ def _handle_inbound(settings):
 
 	signature = frappe.get_request_header("X-Hub-Signature-256")
 
-	if not verify_webhook_signature(raw_body, signature, settings.get_password("app_secret")):
+	# `verify_webhook_signature` documents that a missing app secret is a failed
+	# verification and not a crash — and it is right. It just never got the
+	# chance: `get_password` threw one line earlier, which is the same 500 the
+	# helper was written to prevent.
+	app_secret = settings.get_password("app_secret", raise_exception=False)
+	if not verify_webhook_signature(raw_body, signature, app_secret):
 		return _plain_text_response("Invalid signature", 401)
 
 	try:
