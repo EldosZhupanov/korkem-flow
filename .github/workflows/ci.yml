@@ -102,7 +102,7 @@ jobs:
       # marks the paths as safe directories, which stays as defence for hosts
       # where this step cannot run.
       - name: Give the bench user the vendored trees
-        run: sudo chown -R 1000:1000 frappe erpnext crm relaticle
+        run: sudo chown -R 1000:1000 frappe erpnext crm
 
       # Generated, never stored. A committed test password becomes a real one
       # the first time somebody copies this file to a server.
