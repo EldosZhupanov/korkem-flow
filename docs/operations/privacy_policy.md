@@ -40,6 +40,23 @@ The app does **not** collect location, contacts, photos, calendar, microphone,
 camera, advertising identifiers, or usage analytics. It contains no advertising
 and no third-party trackers.
 
+<!--
+MAINTAINER NOTE — not part of the published text, and it must be acted on
+before the cloud relay ships.
+
+The paragraph below promises "no other destination and no third party". That is
+true today, when the app dials the client's own server directly. It stops being
+true the moment `ADR-0026`'s relay exists: the app will then send its traffic to
+a KORKEM-operated relay that forwards it to the node.
+
+The relay cannot read the content — that is the whole design — but "cannot read
+it" and "does not receive it" are different statements, and a privacy policy
+must make the difference. The Play Console Data Safety answers below are binding
+declarations, so they have to be revised in the same change.
+
+Do not ship the relay before this section and the Data Safety table describe it.
+-->
+
 ## Where the data goes
 
 Only to the ERPNext server whose address you enter at sign-in — an installation
