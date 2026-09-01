@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
@@ -109,6 +110,9 @@ class _StartProductionButtonState extends ConsumerState<StartProductionButton> {
       } else {
         messenger.showDone(result.message ?? result.status);
       }
+    } on MutationQueued {
+      if (!mounted) return;
+      messenger.showFailureMessage(l10n.outboxQueued);
     } on Object catch (e) {
       if (!mounted) return;
       messenger.showFailure(e, l10n);

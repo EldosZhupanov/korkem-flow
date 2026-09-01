@@ -1,10 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 
 final productionCommandRepositoryProvider =
     Provider<ProductionCommandRepository>(
-      (ref) => ProductionCommandRepository(ref.watch(frappeClientProvider)),
+      (ref) => ProductionCommandRepository(
+        ref.watch(frappeClientProvider),
+        ref.watch(mutationOutboxProvider),
+      ),
     );
 
 /// Starting production, without a language model in the path.
@@ -24,12 +28,14 @@ final productionCommandRepositoryProvider =
 /// be a second opinion, and two opinions about whether there is board on the
 /// shelf is one too many (ADR-0007).
 class ProductionCommandRepository {
-  const ProductionCommandRepository(this._client);
+  ProductionCommandRepository(this._client, [MutationOutbox? outbox])
+    : _outbox = outbox ?? MutationOutbox();
 
   static const startPath =
       'korkem_manufacturing.api.production.start_production';
 
   final FrappeClient _client;
+  final MutationOutbox _outbox;
 
   static const completeOperationPath =
       'korkem_manufacturing.api.production.complete_operation';
@@ -44,12 +50,12 @@ class ProductionCommandRepository {
     String salesOrder, {
     String? itemCode,
   }) async {
-    final response = await _client.callMethod(
+    final response = await _outbox.execute(
+      _client,
       startPath,
       // POST, because this moves stock. `callMethod` defaults to GET, which is
       // right for a read and wrong for anything a browser or a proxy may
       // retry, prefetch or cache.
-      post: true,
       params: {
         'sales_order': salesOrder,
         'item_code': ?itemCode,
@@ -72,9 +78,9 @@ class ProductionCommandRepository {
     double? scrapQty,
     double? reworkQty,
   }) async {
-    final response = await _client.callMethod(
+    final response = await _outbox.execute(
+      _client,
       completeOperationPath,
-      post: true,
       params: {
         'operation': ?operation,
         'sales_order': ?salesOrder,

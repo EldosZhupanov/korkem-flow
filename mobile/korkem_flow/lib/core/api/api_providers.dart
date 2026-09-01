@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
 
@@ -24,6 +25,32 @@ final authDioProvider = Provider<Dio>((ref) {
     ),
   );
 });
+
+/// One volatile queue for the current authenticated server/user pair.
+final mutationOutboxProvider = Provider<MutationOutbox>((ref) {
+  final outbox = MutationOutbox();
+  ref
+    ..onDispose(outbox.dispose)
+    ..listen(sessionProvider, (previous, next) {
+      final before = previous?.value;
+      final after = next.value;
+      if (before == null) return;
+      if (after == null ||
+          before.serverUrl != after.serverUrl ||
+          before.user != after.user) {
+        outbox.clear();
+      }
+    });
+  return outbox;
+});
+
+final mutationOutboxSnapshotProvider = StreamProvider<OutboxSnapshot>(
+  (ref) async* {
+    final outbox = ref.watch(mutationOutboxProvider);
+    yield outbox.snapshot;
+    yield* outbox.snapshots;
+  },
+);
 
 /// The authenticated client every feature uses.
 ///
@@ -52,6 +79,13 @@ final dioProvider = Provider<Dio>((ref) {
 
   dio.interceptors.add(
     InterceptorsWrapper(
+      onResponse: (response, handler) {
+        handler.next(response);
+        final outbox = ref.read(mutationOutboxProvider);
+        if (outbox.snapshot.pendingCount > 0) {
+          unawaited(outbox.retryPending(FrappeClient(dio)));
+        }
+      },
       onError: (error, handler) {
         // 401 means the credential the app holds is no longer accepted. Drop it
         // once, here, rather than letting every screen invent its own recovery.

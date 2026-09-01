@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/warehouse/data/receiving_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -12,7 +13,10 @@ void main() {
 
   setUp(() {
     client = _MockClient();
-    repository = ReceivingRepository(client);
+    repository = ReceivingRepository(
+      client,
+      MutationOutbox(keyFactory: () => 'test-key'),
+    );
   });
 
   void respond(Map<String, dynamic> message) {
@@ -77,7 +81,10 @@ void main() {
       // different instruction, and the two must not be confused.
       respond({'status': 'received'});
       await repository.receive('PUR-ORD-1');
-      expect(sentParams(), {'purchase_order': 'PUR-ORD-1'});
+      expect(sentParams(), {
+        'purchase_order': 'PUR-ORD-1',
+        'idempotency_key': 'test-key',
+      });
     });
 
     test('a partial receipt sends only the lines it narrows to', () async {
@@ -206,7 +213,11 @@ void main() {
       await repository.order('MAT-MR-1', supplier: 'WoodGroup');
 
       final params = sentParams();
-      expect(params.keys.toSet(), {'material_request', 'supplier'});
+      expect(params.keys.toSet(), {
+        'material_request',
+        'supplier',
+        'idempotency_key',
+      });
       for (final forbidden in ['rate', 'price', 'amount', 'total', 'qty']) {
         expect(params.containsKey(forbidden), isFalse, reason: forbidden);
       }
@@ -215,7 +226,10 @@ void main() {
     test('an unnamed supplier is not sent as null', () async {
       respond({'status': 'ordered'});
       await repository.order('MAT-MR-1');
-      expect(sentParams(), {'material_request': 'MAT-MR-1'});
+      expect(sentParams(), {
+        'material_request': 'MAT-MR-1',
+        'idempotency_key': 'test-key',
+      });
     });
 
     test('the total is read from the server, never computed here', () async {
@@ -299,7 +313,10 @@ void main() {
       await repository.ship('SAL-ORD-1');
 
       final params = sentParams();
-      expect(params, {'sales_order': 'SAL-ORD-1'});
+      expect(params, {
+        'sales_order': 'SAL-ORD-1',
+        'idempotency_key': 'test-key',
+      });
       for (final forbidden in ['qty', 'quantity', 'warehouse', 'company']) {
         expect(params.containsKey(forbidden), isFalse, reason: forbidden);
       }

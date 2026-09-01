@@ -1,4 +1,14 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
+
+final receivingRepositoryProvider = Provider<ReceivingRepository>(
+  (ref) => ReceivingRepository(
+    ref.watch(frappeClientProvider),
+    ref.watch(mutationOutboxProvider),
+  ),
+);
 
 /// Booking a delivery in, without a language model in the path.
 ///
@@ -10,7 +20,8 @@ import 'package:korkem_flow/core/api/frappe_client.dart';
 /// Calls `korkem_manufacturing.api.purchasing.receive_purchase_order` — the
 /// same function the AI tool is registered against, asserted by a backend test.
 class ReceivingRepository {
-  const ReceivingRepository(this._client);
+  ReceivingRepository(this._client, [MutationOutbox? outbox])
+    : _outbox = outbox ?? MutationOutbox();
 
   static const receivePath =
       'korkem_manufacturing.api.purchasing.receive_purchase_order';
@@ -21,6 +32,7 @@ class ReceivingRepository {
   static const shipPath = 'korkem_manufacturing.api.dispatch.create_delivery';
 
   final FrappeClient _client;
+  final MutationOutbox _outbox;
 
   /// Receives everything still outstanding, or only [items] for a partial one.
   ///
@@ -32,10 +44,10 @@ class ReceivingRepository {
     String purchaseOrder, {
     List<Map<String, Object?>>? items,
   }) async {
-    final response = await _client.callMethod(
+    final response = await _outbox.execute(
+      _client,
       receivePath,
       // POST: this moves the stock ledger.
-      post: true,
       params: {
         'purchase_order': purchaseOrder,
         'items': ?items,
@@ -55,9 +67,9 @@ class ReceivingRepository {
     String? supplier,
     String? scheduleDate,
   }) async {
-    final response = await _client.callMethod(
+    final response = await _outbox.execute(
+      _client,
       orderPath,
-      post: true,
       params: {
         'material_request': materialRequest,
         'supplier': ?supplier,
@@ -78,9 +90,9 @@ class ReceivingRepository {
     String salesOrder, {
     List<Map<String, Object?>>? items,
   }) async {
-    final response = await _client.callMethod(
+    final response = await _outbox.execute(
+      _client,
       shipPath,
-      post: true,
       params: {'sales_order': salesOrder, 'items': ?items},
     );
     return DeliveryResult.fromJson(response['message'] ?? response);

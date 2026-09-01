@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -12,7 +13,10 @@ void main() {
 
   setUp(() {
     client = _MockClient();
-    repository = ProductionCommandRepository(client);
+    repository = ProductionCommandRepository(
+      client,
+      MutationOutbox(keyFactory: () => 'test-key'),
+    );
   });
 
   void respond(Map<String, dynamic> message) {
@@ -46,7 +50,10 @@ void main() {
           'korkem_manufacturing.api.production.start_production',
           reason: 'the same function the AI tool is registered against',
         );
-        expect(call[1], {'sales_order': 'SAL-ORD-2026-00011'});
+        expect(call[1], {
+          'sales_order': 'SAL-ORD-2026-00011',
+          'idempotency_key': 'test-key',
+        });
       },
     );
 
@@ -247,7 +254,11 @@ void main() {
         'korkem_manufacturing.api.production.complete_operation',
         reason: 'the same function the AI tool is registered against',
       );
-      expect(call[1], {'work_order': 'MFG-WO-1', 'qty': 4.0});
+      expect(call[1], {
+        'work_order': 'MFG-WO-1',
+        'qty': 4.0,
+        'idempotency_key': 'test-key',
+      });
     });
 
     test('the three quantities stay apart', () async {
@@ -296,7 +307,10 @@ void main() {
 
       expect(params.containsKey('qty'), isFalse);
       expect(params.containsKey('scrap_qty'), isFalse);
-      expect(params, {'work_order': 'MFG-WO-1'});
+      expect(params, {
+        'work_order': 'MFG-WO-1',
+        'idempotency_key': 'test-key',
+      });
     });
 
     test('saying it twice is reported as such, not as success', () async {

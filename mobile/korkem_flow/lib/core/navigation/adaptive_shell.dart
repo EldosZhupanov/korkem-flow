@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:korkem_flow/core/api/api_providers.dart';
+import 'package:korkem_flow/core/api/mutation_outbox_banner.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/navigation/app_shell_scope.dart';
 import 'package:korkem_flow/core/navigation/app_sidebar.dart';
@@ -12,22 +17,45 @@ import 'package:korkem_flow/core/navigation/app_sidebar.dart';
 ///
 /// Each branch keeps its own navigation stack and scroll position, which is why
 /// this wraps a [StatefulNavigationShell] rather than swapping child widgets.
-class AdaptiveShell extends StatefulWidget {
+class AdaptiveShell extends ConsumerStatefulWidget {
   const AdaptiveShell({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  State<AdaptiveShell> createState() => _AdaptiveShellState();
+  ConsumerState<AdaptiveShell> createState() => _AdaptiveShellState();
 }
 
-class _AdaptiveShellState extends State<AdaptiveShell> {
+class _AdaptiveShellState extends ConsumerState<AdaptiveShell>
+    with WidgetsBindingObserver {
   /// Held so a screen deeper in the tree can open the drawer. Every branch root
   /// builds its own `Scaffold`, so `Scaffold.of` inside one finds that inner
   /// scaffold — which has no drawer — rather than this one.
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _drawerOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    unawaited(
+      ref
+          .read(mutationOutboxProvider)
+          .retryPending(ref.read(frappeClientProvider)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +84,7 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
               ),
             ),
             const VerticalDivider(width: AppStroke.hairline),
-            Expanded(child: widget.navigationShell),
+            Expanded(child: _content()),
           ],
         ),
       );
@@ -85,10 +113,17 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
           ),
         ),
         onDrawerChanged: (isOpen) => setState(() => _drawerOpen = isOpen),
-        body: widget.navigationShell,
+        body: _content(),
       ),
     );
   }
+
+  Widget _content() => Column(
+    children: [
+      const MutationOutboxBanner(),
+      Expanded(child: widget.navigationShell),
+    ],
+  );
 }
 
 /// How much of a phone screen the panel takes. Short of full width on purpose:
