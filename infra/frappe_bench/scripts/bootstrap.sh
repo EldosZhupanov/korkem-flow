@@ -14,7 +14,39 @@ case "$KORKEM_ENV" in
   *) echo "KORKEM_ENV must be development, pilot or production (got '$KORKEM_ENV')" >&2; exit 1 ;;
 esac
 
+# A half-built bench is a deadlock, not a state to preserve. If `bench init`
+# dies partway it leaves `frappe-bench/` behind without `apps/frappe`; the test
+# below is then true again on the next start, and `bench init` refuses with
+# "Bench instance already exists". The container restarts, and repeats that
+# forever — CI waited twenty minutes on a loop that could never finish, and a
+# client's machine would do the same while saying nothing useful.
+#
+# Removing it is safe by construction and not a judgement call: a site cannot
+# exist without `apps/frappe`, so a bench directory missing it holds no data.
+if [ -d frappe-bench ] && [ ! -d frappe-bench/apps/frappe ]; then
+  echo "removing a partially initialised bench (no apps/frappe, so no site can exist)"
+  rm -rf frappe-bench
+fi
+
 if [ ! -d frappe-bench/apps/frappe ]; then
+  # Git refuses to touch a repository owned by another user, and every vendored
+  # tree is exactly that: the host checkout belongs to whoever cloned it, while
+  # this container runs as `frappe` (uid 1000). On a developer's machine both
+  # are uid 1000 and nothing happens; on a CI runner the checkout is uid 1001
+  # and `bench init --frappe-path` dies with
+  #
+  #     fatal: detected dubious ownership in repository at '/workspace/vendor/erpnext/.git'
+  #
+  # which the bench then reports as a failed `git clone`, pointing at the
+  # network rather than at the ownership. Found only by the first real remote
+  # run — it is not reproducible locally by construction.
+  #
+  # Scoped to the four vendored paths rather than `*`: this marks somebody
+  # else's code readable, and it should say exactly whose.
+  for vendored in frappe erpnext crm relaticle; do
+    git config --global --add safe.directory "/workspace/vendor/$vendored"
+  done
+
   bench init frappe-bench \
     --frappe-path /workspace/vendor/frappe \
     --frappe-branch develop \
@@ -131,6 +163,12 @@ fi
 # script therefore send an explicit `Host`, and a pilot's `SITE_NAME` must be
 # the real public hostname.
 bench use "$SITE_NAME"
+
+# Refuse before any web, worker or scheduler process can touch data migrated by
+# newer KORKEM code. An older/missing marker is deliberately allowed through:
+# that is the normal pre-migration state. The command has no bypass flag and a
+# mismatch propagates its non-zero exit through entrypoint.sh.
+/workspace/scripts/check_schema_compatibility.sh "$SITE_NAME"
 
 # What environment this site is, written where the application can read it.
 # Re-applied on every start, so moving a site between environments is a compose

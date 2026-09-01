@@ -41,15 +41,39 @@ run_backend() {
     say "bench is not running — starting it"
     docker compose -f "$COMPOSE_FILE" up -d
     say "waiting for the bench to answer"
+
+    # The site name comes from the compose environment, not from `exec` into the
+    # container. A first bootstrap is exactly when that container may be
+    # crash-looping, and `exec` into a restarting container fails — leaving
+    # `site` empty, so every probe below asked for `Host: ` and could never
+    # succeed. Twenty minutes of waiting, then tests against a dead bench.
     local site
-    site="$(docker compose -f "$COMPOSE_FILE" exec -T bench sh -lc 'echo "$SITE_NAME"' | tr -d '\r')"
+    site="$(docker compose -f "$COMPOSE_FILE" config --format json 2>/dev/null \
+            | grep -o '"SITE_NAME":[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"\\(.*\\)"$/\\1/')"
+    [ -n "$site" ] || site="$(grep -h '^SITE_NAME=' "$(dirname "$COMPOSE_FILE")/.env" 2>/dev/null | cut -d= -f2- | tr -d '\r')"
+    [ -n "$site" ] || fail "SITE_NAME is not set in the compose environment"
+
+    local ready=0
     for _ in $(seq 1 120); do
       if docker compose -f "$COMPOSE_FILE" exec -T bench \
            curl -fsS -H "Host: $site" http://127.0.0.1:8000/api/method/ping >/dev/null 2>&1; then
+        ready=1
         break
       fi
       sleep 10
     done
+
+    # A silent fall-through here is worse than no wait at all: the suites then
+    # run against a bench that never came up, and the failure they report is
+    # about a container, not about the code under test. Show what actually
+    # happened instead, because a CI failure without its cause costs one push
+    # per guess.
+    if [ "$ready" -ne 1 ]; then
+      say "the bench never answered — container state and logs follow"
+      docker compose -f "$COMPOSE_FILE" ps || true
+      docker compose -f "$COMPOSE_FILE" logs --tail 200 bench || true
+      fail "bench did not become ready within 20 minutes"
+    fi
   fi
 
   # `Host:` matters everywhere a bench is probed over HTTP: Frappe 17 resolves a
