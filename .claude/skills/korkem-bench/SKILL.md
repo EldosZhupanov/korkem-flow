@@ -169,6 +169,21 @@ failure that a clean run cannot reproduce.** `docker compose -p <project> down
 -v` then `up -d`; bootstrap takes about 25 minutes and is cheaper than a day of
 chasing a phantom.
 
+**Use `infra/frappe_bench/scripts/run_tests.sh`, which refuses instead of
+reminding.** The rule above was written down and then broken by its own author
+within the hour — a module was started on top of a running suite, and the nine
+`QueryDeadlockError`s that followed had to be diagnosed before they could be
+dismissed. A rule you have to remember is not a rule.
+
+```sh
+infra/frappe_bench/scripts/run_tests.sh korkem_ai                    # a whole app
+infra/frappe_bench/scripts/run_tests.sh --module korkem_ai.…tests    # one module
+```
+
+It reads `/proc` directly: the bench image is slim Debian and carries neither
+`ps` nor `pgrep`, so the obvious check finds nothing and lets the second suite
+through.
+
 ## Health
 
 `/health` and `/health/ready` are served by
