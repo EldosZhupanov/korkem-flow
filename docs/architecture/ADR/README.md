@@ -31,8 +31,11 @@ No implementation code was written or modified to produce this ADR set, per the 
 | [0021](./ADR-0021-crm-not-relaticle-source-of-truth-sales.md) | Why Frappe CRM (Not Relaticle) Is the Source of Truth for Sales & Relationship Data | Accepted — added during validation pass |
 | [0022](./ADR-0022-workforce-payroll-decoupled-from-erpnext-hr.md) | Why Workforce & Payroll Is a New Custom App, Decoupled from ERPNext HR | Accepted — added during validation pass |
 | [0023](./ADR-0023-task-note-frappe-native-polymorphic-pattern.md) | Why Task/Note Reuse Frappe's Native Polymorphic Pattern, Not Relaticle's | Accepted — added during validation pass |
+| [0024](./ADR-0024-node-runs-on-wsl2.md) | Узел работает на WSL2, на компьютере, который у клиента уже есть | Принято |
+| [0025](./ADR-0025-cloud-relays-never-stores.md) | Облако передаёт, но не хранит | Принято |
+| [0026](./ADR-0026-node-to-cloud-tunnel.md) | Исходящий туннель от узла к облаку | Предложено |
 
-23 ADRs total: the 15 required by the master prompt, plus 8 identified as necessary during authoring and validation (0016-0023).
+26 ADRs total: the 15 required by the master prompt, plus 8 identified as necessary during authoring and validation (0016-0023), and 3 product decisions added later (0024-0026).
 
 ## Collective Validation Pass
 
