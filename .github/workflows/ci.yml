@@ -62,6 +62,22 @@ jobs:
       - name: Confirm the checkout matches the lock
         run: ./scripts/fetch_vendor.sh --check
 
+      # The bench container runs as uid 1000; a runner's checkout is uid 1001.
+      # Two things break on that mismatch, and neither can happen on a
+      # developer's machine, where both are 1000:
+      #
+      #   * git refuses the vendored repositories as "dubious ownership", which
+      #     bench reports as a failed `git clone` — pointing at the network;
+      #   * `yarn install` for `crm`, which is exposed as a symlink, cannot
+      #     create `node_modules` inside the checkout:
+      #     `EACCES: permission denied, mkdir '/workspace/vendor/crm/node_modules'`.
+      #
+      # Aligning the ownership fixes both at the source. `bootstrap.sh` also
+      # marks the paths as safe directories, which stays as defence for hosts
+      # where this step cannot run.
+      - name: Give the bench user the vendored trees
+        run: sudo chown -R 1000:1000 frappe erpnext crm relaticle
+
       # Generated, never stored. A committed test password becomes a real one
       # the first time somebody copies this file to a server.
       - name: Bench configuration
