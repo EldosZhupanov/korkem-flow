@@ -135,6 +135,40 @@ Windows call from that WSL session fails until it is recreated. Containers are
 unharmed; your ability to test is not. Parse and `-DryRun` from here, run the
 real path from Windows.
 
+## One bench, one operation at a time
+
+The suite is stable and idempotent — measured 2026-09-01, twice in a row on a
+volume created empty:
+
+```
+run 1   1059 tests   OK (skipped=1)
+run 2   1059 tests   OK (skipped=1)
+after each: Job Card 14 · Work Order 2 · Stock Entry 5 · Sales Order 3
+```
+
+`before_tests` calls `seed_demo.seed()`, so that state is the seed, not
+leakage, and it is identical after both runs. A failure here is therefore a
+real failure — unless somebody else touched the bench.
+
+**And that is the trap.** Running anything else against the bench while a suite
+is in flight — a second `run-tests`, `bench migrate`, `bootstrap.sh`, even a
+console session that commits — corrupts the site, and the corruption surfaces
+later as a plausible-looking product bug. It cost most of a day: forty-two
+tests failed with
+
+```
+Row 1: From Time and To Time of PO-JOB00016 are overlapping with PO-JOB00004
+```
+
+which reads as a defect in production scheduling and was nothing of the kind.
+Three hypotheses were formed, implemented and disproved by measurement before
+the bench itself was rebuilt and the same code passed twice.
+
+So: **announce the bench before using it, and rebuild it before believing a
+failure that a clean run cannot reproduce.** `docker compose -p <project> down
+-v` then `up -d`; bootstrap takes about 25 minutes and is cheaper than a day of
+chasing a phantom.
+
 ## Health
 
 `/health` and `/health/ready` are served by

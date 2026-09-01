@@ -296,6 +296,21 @@ class UsesForeignCompany:
 	@classmethod
 	def tearDownClass(cls):
 		frappe.set_user("Administrator")
+
+		# Roll back *before* committing anything. `frappe.db.commit()` commits
+		# the whole pending transaction, not just the deletion below — so
+		# without this it made the class's own test data permanent, and
+		# `IntegrationTestCase`'s `addClassCleanup(_rollback_db)`, which runs
+		# after `tearDownClass`, then had nothing left to undo.
+		#
+		# The damage was not local. Three modules using this mixin sort before
+		# `test_production`, and the job cards they leaked collided with the
+		# ones it creates: ERPNext refuses overlapping operation times, so
+		# forty-two tests failed with `From Time and To Time of PO-JOB00016 are
+		# overlapping with PO-JOB00004` — pointing at production scheduling
+		# rather than at a teardown three modules away. Only a full-app run
+		# shows it; the module passes alone.
+		frappe.db.rollback()
 		remove()
 		frappe.db.commit()
 		super().tearDownClass()
