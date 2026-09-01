@@ -512,5 +512,19 @@
   "stockDeficitAlert": "Қоймада тапшылық",
   "stockNoBalancesTitle": "Қоймаларда жоқ",
   "stockNoBalancesBody": "Позиция компанияның ешбір қоймасында жоқ.",
-  "warehouseActionOpen": "Ашу"
+  "warehouseActionOpen": "Ашу",
+  "outboxTitle": "Командалар кезегі",
+  "outboxEmptyTitle": "Барлық командалар жіберілді",
+  "outboxEmptyBody": "Кезекте күтіп тұрған командалар жоқ. Байланыс үзілгенде жаңа әрекеттер осында сақталады.",
+  "outboxCommandStartProduction": "{order} бойынша өндірісті бастау",
+  "outboxCommandCompleteOperation": "Операция бойынша есеп: {operation}",
+  "outboxCommandReceiveReceipt": "{order} бойынша қабылдау",
+  "outboxCommandCreatePurchaseOrder": "{request} бойынша тапсырыс",
+  "outboxCommandCreateDelivery": "{order} бойынша жөнелту",
+  "outboxCommandGeneric": "Команда: {path}",
+  "outboxParamItem": "Позиция: {item}",
+  "outboxParamSupplier": "Жеткізуші: {supplier}",
+  "outboxParamWorkOrder": "Тапсырма: {workOrder}",
+  "outboxParamCompletedQty": "Дайын: {qty}",
+  "outboxParamScrapQty": "Ақау: {qty}"
 }

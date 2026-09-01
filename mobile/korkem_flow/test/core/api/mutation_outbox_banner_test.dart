@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
@@ -107,5 +108,53 @@ void main() {
 
     expect(find.text('A queued command was refused: No stock'), findsOneWidget);
     expect(outbox.snapshot.pendingCount, 0);
+  });
+
+  testWidgets('tapping banner navigates to /outbox', (tester) async {
+    await queueCommand();
+
+    var navigatedPath = '';
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const Scaffold(
+            body: MutationOutboxBanner(),
+          ),
+        ),
+        GoRoute(
+          path: '/outbox',
+          builder: (context, state) {
+            navigatedPath = state.uri.path;
+            return const Scaffold(body: Text('Outbox Screen'));
+          },
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mutationOutboxProvider.overrideWithValue(outbox),
+          frappeClientProvider.overrideWithValue(client),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Tap the banner body (the pending count text)
+    await tester.tap(find.text('1 command waiting to send'));
+    await tester.pumpAndSettle();
+
+    expect(navigatedPath, '/outbox');
+    expect(find.text('Outbox Screen'), findsOneWidget);
   });
 }

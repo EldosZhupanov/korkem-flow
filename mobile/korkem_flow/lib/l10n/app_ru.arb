@@ -512,5 +512,19 @@
   "stockDeficitAlert": "Дефицит на складе",
   "stockNoBalancesTitle": "Нет на складах",
   "stockNoBalancesBody": "Позиция не числится ни на одном складе компании.",
-  "warehouseActionOpen": "Открыть"
+  "warehouseActionOpen": "Открыть",
+  "outboxTitle": "Очередь команд",
+  "outboxEmptyTitle": "Все команды отправлены",
+  "outboxEmptyBody": "В очереди нет ожидающих команд. При потере связи новые действия сохранятся здесь.",
+  "outboxCommandStartProduction": "Запуск производства по {order}",
+  "outboxCommandCompleteOperation": "Отчёт по операции: {operation}",
+  "outboxCommandReceiveReceipt": "Приёмка по {order}",
+  "outboxCommandCreatePurchaseOrder": "Заказ поставщику по {request}",
+  "outboxCommandCreateDelivery": "Отгрузка по {order}",
+  "outboxCommandGeneric": "Команда: {path}",
+  "outboxParamItem": "Позиция: {item}",
+  "outboxParamSupplier": "Поставщик: {supplier}",
+  "outboxParamWorkOrder": "Задание: {workOrder}",
+  "outboxParamCompletedQty": "Готово: {qty}",
+  "outboxParamScrapQty": "Брак: {qty}"
 }

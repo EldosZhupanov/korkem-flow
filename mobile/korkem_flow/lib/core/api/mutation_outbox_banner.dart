@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Persistent, app-wide evidence that a write has not reached the server.
@@ -31,55 +33,64 @@ class MutationOutboxBanner extends ConsumerWidget {
       color: color.withValues(alpha: AppTint.surface),
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              Icon(
-                rejection == null ? AppIcons.offline : AppIcons.danger,
-                size: AppIconSize.small,
-                color: color,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (rejection != null)
-                      Text(
-                        l10n.outboxRejected(
-                          rejection.reason ?? l10n.errorGeneric,
+        child: InkWell(
+          onTap: () {
+            try {
+              unawaited(context.push(Routes.outbox));
+            } on Object {
+              // Ignore if not in a GoRouter context (e.g. isolated unit test)
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  rejection == null ? AppIcons.offline : AppIcons.danger,
+                  size: AppIconSize.small,
+                  color: color,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (rejection != null)
+                        Text(
+                          l10n.outboxRejected(
+                            rejection.reason ?? l10n.errorGeneric,
+                          ),
+                          style: theme.textTheme.bodyMedium,
                         ),
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    if (snapshot.pendingCount > 0)
-                      Text(
-                        l10n.outboxPending(snapshot.pendingCount),
-                        style: rejection == null
-                            ? theme.textTheme.bodyMedium
-                            : theme.textTheme.labelSmall,
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              if (snapshot.pendingCount > 0)
-                TextButton(
-                  onPressed: () => unawaited(
-                    outbox.retryPending(ref.read(frappeClientProvider)),
+                      if (snapshot.pendingCount > 0)
+                        Text(
+                          l10n.outboxPending(snapshot.pendingCount),
+                          style: rejection == null
+                              ? theme.textTheme.bodyMedium
+                              : theme.textTheme.labelSmall,
+                        ),
+                    ],
                   ),
-                  child: Text(l10n.outboxRetry),
                 ),
-              if (rejection != null)
-                IconButton(
-                  onPressed: outbox.clearRejection,
-                  tooltip: l10n.actionClose,
-                  icon: const Icon(AppIcons.close, size: AppIconSize.small),
-                ),
-            ],
+                const SizedBox(width: AppSpacing.sm),
+                if (snapshot.pendingCount > 0)
+                  TextButton(
+                    onPressed: () => unawaited(
+                      outbox.retryPending(ref.read(frappeClientProvider)),
+                    ),
+                    child: Text(l10n.outboxRetry),
+                  ),
+                if (rejection != null)
+                  IconButton(
+                    onPressed: outbox.clearRejection,
+                    tooltip: l10n.actionClose,
+                    icon: const Icon(AppIcons.close, size: AppIconSize.small),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

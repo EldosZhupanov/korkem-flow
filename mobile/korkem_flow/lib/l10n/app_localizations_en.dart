@@ -1167,4 +1167,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get warehouseActionOpen => 'Open';
+
+  @override
+  String get outboxTitle => 'Command Queue';
+
+  @override
+  String get outboxEmptyTitle => 'All commands sent';
+
+  @override
+  String get outboxEmptyBody =>
+      'No pending commands in the queue. When offline, new actions will wait here.';
+
+  @override
+  String outboxCommandStartProduction(String order) {
+    return 'Start production for $order';
+  }
+
+  @override
+  String outboxCommandCompleteOperation(String operation) {
+    return 'Operation: $operation';
+  }
+
+  @override
+  String outboxCommandReceiveReceipt(String order) {
+    return 'Receive for $order';
+  }
+
+  @override
+  String outboxCommandCreatePurchaseOrder(String request) {
+    return 'Purchase order for $request';
+  }
+
+  @override
+  String outboxCommandCreateDelivery(String order) {
+    return 'Delivery for $order';
+  }
+
+  @override
+  String outboxCommandGeneric(String path) {
+    return 'Command: $path';
+  }
+
+  @override
+  String outboxParamItem(String item) {
+    return 'Item: $item';
+  }
+
+  @override
+  String outboxParamSupplier(String supplier) {
+    return 'Supplier: $supplier';
+  }
+
+  @override
+  String outboxParamWorkOrder(String workOrder) {
+    return 'Work order: $workOrder';
+  }
+
+  @override
+  String outboxParamCompletedQty(String qty) {
+    return 'Completed: $qty';
+  }
+
+  @override
+  String outboxParamScrapQty(String qty) {
+    return 'Scrap: $qty';
+  }
 }

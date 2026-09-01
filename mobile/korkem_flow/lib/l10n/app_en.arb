@@ -1001,5 +1001,116 @@
   "warehouseActionOpen": "Open",
   "@warehouseActionOpen": {
     "description": "Button in expanded stock card to open item details screen."
+  },
+  "outboxTitle": "Command Queue",
+  "@outboxTitle": {
+    "description": "Title for the outbox screen."
+  },
+  "outboxEmptyTitle": "All commands sent",
+  "@outboxEmptyTitle": {
+    "description": "Title when outbox queue has no pending items."
+  },
+  "outboxEmptyBody": "No pending commands in the queue. When offline, new actions will wait here.",
+  "@outboxEmptyBody": {
+    "description": "Explanation when outbox queue has no pending items."
+  },
+  "outboxCommandStartProduction": "Start production for {order}",
+  "@outboxCommandStartProduction": {
+    "description": "Title for queued start production command.",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxCommandCompleteOperation": "Operation: {operation}",
+  "@outboxCommandCompleteOperation": {
+    "description": "Title for queued complete operation command.",
+    "placeholders": {
+      "operation": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxCommandReceiveReceipt": "Receive for {order}",
+  "@outboxCommandReceiveReceipt": {
+    "description": "Title for queued receive receipt command.",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxCommandCreatePurchaseOrder": "Purchase order for {request}",
+  "@outboxCommandCreatePurchaseOrder": {
+    "description": "Title for queued purchase order command.",
+    "placeholders": {
+      "request": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxCommandCreateDelivery": "Delivery for {order}",
+  "@outboxCommandCreateDelivery": {
+    "description": "Title for queued create delivery command.",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxCommandGeneric": "Command: {path}",
+  "@outboxCommandGeneric": {
+    "description": "Fallback title for generic queued command.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxParamItem": "Item: {item}",
+  "@outboxParamItem": {
+    "description": "Parameter label for item code in outbox.",
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxParamSupplier": "Supplier: {supplier}",
+  "@outboxParamSupplier": {
+    "description": "Parameter label for supplier in outbox.",
+    "placeholders": {
+      "supplier": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxParamWorkOrder": "Work order: {workOrder}",
+  "@outboxParamWorkOrder": {
+    "description": "Parameter label for work order in outbox.",
+    "placeholders": {
+      "workOrder": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxParamCompletedQty": "Completed: {qty}",
+  "@outboxParamCompletedQty": {
+    "description": "Parameter label for completed quantity in outbox.",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "outboxParamScrapQty": "Scrap: {qty}",
+  "@outboxParamScrapQty": {
+    "description": "Parameter label for scrap quantity in outbox.",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
   }
 }

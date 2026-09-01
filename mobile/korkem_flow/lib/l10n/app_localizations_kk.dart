@@ -1139,4 +1139,69 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get warehouseActionOpen => 'Ашу';
+
+  @override
+  String get outboxTitle => 'Командалар кезегі';
+
+  @override
+  String get outboxEmptyTitle => 'Барлық командалар жіберілді';
+
+  @override
+  String get outboxEmptyBody =>
+      'Кезекте күтіп тұрған командалар жоқ. Байланыс үзілгенде жаңа әрекеттер осында сақталады.';
+
+  @override
+  String outboxCommandStartProduction(String order) {
+    return '$order бойынша өндірісті бастау';
+  }
+
+  @override
+  String outboxCommandCompleteOperation(String operation) {
+    return 'Операция бойынша есеп: $operation';
+  }
+
+  @override
+  String outboxCommandReceiveReceipt(String order) {
+    return '$order бойынша қабылдау';
+  }
+
+  @override
+  String outboxCommandCreatePurchaseOrder(String request) {
+    return '$request бойынша тапсырыс';
+  }
+
+  @override
+  String outboxCommandCreateDelivery(String order) {
+    return '$order бойынша жөнелту';
+  }
+
+  @override
+  String outboxCommandGeneric(String path) {
+    return 'Команда: $path';
+  }
+
+  @override
+  String outboxParamItem(String item) {
+    return 'Позиция: $item';
+  }
+
+  @override
+  String outboxParamSupplier(String supplier) {
+    return 'Жеткізуші: $supplier';
+  }
+
+  @override
+  String outboxParamWorkOrder(String workOrder) {
+    return 'Тапсырма: $workOrder';
+  }
+
+  @override
+  String outboxParamCompletedQty(String qty) {
+    return 'Дайын: $qty';
+  }
+
+  @override
+  String outboxParamScrapQty(String qty) {
+    return 'Ақау: $qty';
+  }
 }

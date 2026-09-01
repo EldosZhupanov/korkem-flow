@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/operations/presentation/operations_screen.d
 import 'package:korkem_flow/features/operations/presentation/work_instructions_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
+import 'package:korkem_flow/features/outbox/presentation/outbox_screen.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_detail_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
@@ -76,6 +77,7 @@ abstract final class Routes {
   /// One stock item. `:itemCode` is the item code (`ITEM-…` / `MAT-…`).
   static String stockItem(String itemCode) => '/warehouse/$itemCode';
   static const today = '/today';
+  static const outbox = '/outbox';
 
   /// Sales, opened on its Customers tab. A URL rather than a branch of its own:
   /// Customers *is* a view of the pipeline, and giving it a second branch would
@@ -167,6 +169,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.today,
         builder: (context, state) => const TodayScreen(),
+      ),
+      GoRoute(
+        path: Routes.outbox,
+        builder: (context, state) => const OutboxScreen(),
       ),
       GoRoute(
         path: Routes.settings,

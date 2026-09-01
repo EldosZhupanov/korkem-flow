@@ -2205,6 +2205,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get warehouseActionOpen;
+
+  /// Title for the outbox screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Command Queue'**
+  String get outboxTitle;
+
+  /// Title when outbox queue has no pending items.
+  ///
+  /// In en, this message translates to:
+  /// **'All commands sent'**
+  String get outboxEmptyTitle;
+
+  /// Explanation when outbox queue has no pending items.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending commands in the queue. When offline, new actions will wait here.'**
+  String get outboxEmptyBody;
+
+  /// Title for queued start production command.
+  ///
+  /// In en, this message translates to:
+  /// **'Start production for {order}'**
+  String outboxCommandStartProduction(String order);
+
+  /// Title for queued complete operation command.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation: {operation}'**
+  String outboxCommandCompleteOperation(String operation);
+
+  /// Title for queued receive receipt command.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive for {order}'**
+  String outboxCommandReceiveReceipt(String order);
+
+  /// Title for queued purchase order command.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase order for {request}'**
+  String outboxCommandCreatePurchaseOrder(String request);
+
+  /// Title for queued create delivery command.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery for {order}'**
+  String outboxCommandCreateDelivery(String order);
+
+  /// Fallback title for generic queued command.
+  ///
+  /// In en, this message translates to:
+  /// **'Command: {path}'**
+  String outboxCommandGeneric(String path);
+
+  /// Parameter label for item code in outbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Item: {item}'**
+  String outboxParamItem(String item);
+
+  /// Parameter label for supplier in outbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier: {supplier}'**
+  String outboxParamSupplier(String supplier);
+
+  /// Parameter label for work order in outbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Work order: {workOrder}'**
+  String outboxParamWorkOrder(String workOrder);
+
+  /// Parameter label for completed quantity in outbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed: {qty}'**
+  String outboxParamCompletedQty(String qty);
+
+  /// Parameter label for scrap quantity in outbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Scrap: {qty}'**
+  String outboxParamScrapQty(String qty);
 }
 
 class _AppLocalizationsDelegate
