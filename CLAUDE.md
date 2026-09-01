@@ -379,8 +379,15 @@ product's source out of its own clone for a month. It now does the three things
 that call actually accomplished: `link_own_app()` symlinks into `apps/`, appends
 to `sites/apps.txt`, and runs `pip install --editable --no-deps`.
 
-**A bootstrap on a clean volume has still not been run through that path.** It
-is the riskiest operation in this repository; see `NOW.md`.
+**That path has now been run on a clean volume, more than once** — most
+recently 2026-09-01, and by CI on every push. It found two things that only a
+first bootstrap can find: `link_own_app()` appended to `sites/apps.txt` without
+a newline, gluing two app names into `crmkorkem_manufacturing`; and a partly
+built bench left `frappe-bench/` without `apps/frappe`, after which `bench init`
+refused forever and the container restarted in a loop. Both are fixed.
+
+It remains the riskiest operation here. Rebuild from an empty volume before
+believing any failure a clean run cannot reproduce — see `korkem-bench`.
 
 ## Working inside a vendored project
 
@@ -548,6 +555,20 @@ Two behaviours worth knowing before changing code here:
 
 ## Conventions for new custom code
 
-Both custom apps are standard Frappe apps and are tested through the bench (see `korkem-bench`). There is **no CI yet** — that is the first item in `ROADMAP.md` Horizon 0, and until it exists a change is only as verified as the commands you actually ran and pasted.
+Both custom apps are standard Frappe apps and are tested through the bench (see `korkem-bench`).
+
+**CI exists and runs on every push to `dev`** — `.github/workflows/ci.yml`,
+against `github.com/EldosZhupanov/korkem-flow` (private). The Flutter job is
+green; the backend job builds a bench from nothing, which took four fixes to
+get working and each was invisible locally: the runner's checkout is uid 1001
+against the container's uid 1000 (git "dubious ownership", then `yarn` unable
+to write `node_modules`), a crash-looping partial bench, and a runner that ran
+out of disk — reported by yarn, per package, as "the file appears to be
+corrupt".
+
+CI is not a substitute for running the commands. It is the thing that catches
+what your machine cannot, because your machine has state a client's will not:
+it found a Telegram webhook answering **500** instead of 401 when no secret is
+configured — and a 500 is what a provider retries.
 
 **Where new code goes** is decided by `PLAN.md` and enforced by the `korkem-architecture` skill: business rules in `korkem_manufacturing`, a whitelisted endpoint over them, an AI tool as a thin wrapper, and the UI calling the endpoint. A pull request that adds a `ToolSpec` and no domain service is going the wrong way.
