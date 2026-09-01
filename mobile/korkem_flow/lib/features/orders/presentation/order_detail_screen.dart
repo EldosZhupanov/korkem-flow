@@ -98,7 +98,6 @@ class _Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final money = NumberFormat.currency(
       locale: locale,
