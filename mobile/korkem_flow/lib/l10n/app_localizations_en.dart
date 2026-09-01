@@ -1176,7 +1176,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get outboxEmptyBody =>
-      'No pending commands in the queue. When offline, new actions will wait here.';
+      'There are no pending or refused commands. When offline, new actions will wait here.';
+
+  @override
+  String outboxPendingSection(int count) {
+    return 'Waiting to send ($count)';
+  }
+
+  @override
+  String outboxRejectedSection(int count) {
+    return 'Refused ($count)';
+  }
+
+  @override
+  String outboxRejectedPending(int count) {
+    return 'Commands needing attention: $count';
+  }
+
+  @override
+  String get outboxDismissRejected => 'Got it, remove';
+
+  @override
+  String get outboxDismissAll => 'Remove all';
 
   @override
   String outboxCommandStartProduction(String order) {
@@ -1232,4 +1253,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String outboxParamScrapQty(String qty) {
     return 'Scrap: $qty';
   }
+
+  @override
+  String get todayOutboxTitle => 'Not Sent';
+
+  @override
+  String get todayOutboxAllSent => 'All sent';
 }

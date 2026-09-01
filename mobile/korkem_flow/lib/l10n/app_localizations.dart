@@ -2221,8 +2221,38 @@ abstract class AppLocalizations {
   /// Explanation when outbox queue has no pending items.
   ///
   /// In en, this message translates to:
-  /// **'No pending commands in the queue. When offline, new actions will wait here.'**
+  /// **'There are no pending or refused commands. When offline, new actions will wait here.'**
   String get outboxEmptyBody;
+
+  /// Heading above pending outbox command cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to send ({count})'**
+  String outboxPendingSection(int count);
+
+  /// Heading above refused outbox command cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Refused ({count})'**
+  String outboxRejectedSection(int count);
+
+  /// Persistent banner count for refused commands awaiting acknowledgement.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands needing attention: {count}'**
+  String outboxRejectedPending(int count);
+
+  /// Acknowledges and removes one refused command card.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it, remove'**
+  String get outboxDismissRejected;
+
+  /// Acknowledges and removes every refused command card.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all'**
+  String get outboxDismissAll;
 
   /// Title for queued start production command.
   ///
@@ -2289,6 +2319,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scrap: {qty}'**
   String outboxParamScrapQty(String qty);
+
+  /// Title for the pending outbox commands tile on Today screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Sent'**
+  String get todayOutboxTitle;
+
+  /// Subtitle when all outbox commands have been sent on Today screen.
+  ///
+  /// In en, this message translates to:
+  /// **'All sent'**
+  String get todayOutboxAllSent;
 }
 
 class _AppLocalizationsDelegate

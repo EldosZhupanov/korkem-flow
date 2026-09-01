@@ -515,7 +515,12 @@
   "warehouseActionOpen": "Открыть",
   "outboxTitle": "Очередь команд",
   "outboxEmptyTitle": "Все команды отправлены",
-  "outboxEmptyBody": "В очереди нет ожидающих команд. При потере связи новые действия сохранятся здесь.",
+  "outboxEmptyBody": "Нет ожидающих или отклонённых команд. При потере связи новые действия сохранятся здесь.",
+  "outboxPendingSection": "Ждут отправки ({count})",
+  "outboxRejectedSection": "Отклонены ({count})",
+  "outboxRejectedPending": "Требуют внимания: {count}",
+  "outboxDismissRejected": "Понятно, убрать",
+  "outboxDismissAll": "Убрать все",
   "outboxCommandStartProduction": "Запуск производства по {order}",
   "outboxCommandCompleteOperation": "Отчёт по операции: {operation}",
   "outboxCommandReceiveReceipt": "Приёмка по {order}",
@@ -526,5 +531,7 @@
   "outboxParamSupplier": "Поставщик: {supplier}",
   "outboxParamWorkOrder": "Задание: {workOrder}",
   "outboxParamCompletedQty": "Готово: {qty}",
-  "outboxParamScrapQty": "Брак: {qty}"
+  "outboxParamScrapQty": "Брак: {qty}",
+  "todayOutboxTitle": "Не отправлено",
+  "todayOutboxAllSent": "Всё отправлено"
 }

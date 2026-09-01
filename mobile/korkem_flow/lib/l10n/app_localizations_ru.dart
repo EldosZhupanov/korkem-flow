@@ -1188,7 +1188,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get outboxEmptyBody =>
-      'В очереди нет ожидающих команд. При потере связи новые действия сохранятся здесь.';
+      'Нет ожидающих или отклонённых команд. При потере связи новые действия сохранятся здесь.';
+
+  @override
+  String outboxPendingSection(int count) {
+    return 'Ждут отправки ($count)';
+  }
+
+  @override
+  String outboxRejectedSection(int count) {
+    return 'Отклонены ($count)';
+  }
+
+  @override
+  String outboxRejectedPending(int count) {
+    return 'Требуют внимания: $count';
+  }
+
+  @override
+  String get outboxDismissRejected => 'Понятно, убрать';
+
+  @override
+  String get outboxDismissAll => 'Убрать все';
 
   @override
   String outboxCommandStartProduction(String order) {
@@ -1244,4 +1265,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String outboxParamScrapQty(String qty) {
     return 'Брак: $qty';
   }
+
+  @override
+  String get todayOutboxTitle => 'Не отправлено';
+
+  @override
+  String get todayOutboxAllSent => 'Всё отправлено';
 }

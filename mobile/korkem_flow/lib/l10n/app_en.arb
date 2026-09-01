@@ -1010,9 +1010,44 @@
   "@outboxEmptyTitle": {
     "description": "Title when outbox queue has no pending items."
   },
-  "outboxEmptyBody": "No pending commands in the queue. When offline, new actions will wait here.",
+  "outboxEmptyBody": "There are no pending or refused commands. When offline, new actions will wait here.",
   "@outboxEmptyBody": {
     "description": "Explanation when outbox queue has no pending items."
+  },
+  "outboxPendingSection": "Waiting to send ({count})",
+  "@outboxPendingSection": {
+    "description": "Heading above pending outbox command cards.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outboxRejectedSection": "Refused ({count})",
+  "@outboxRejectedSection": {
+    "description": "Heading above refused outbox command cards.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outboxRejectedPending": "Commands needing attention: {count}",
+  "@outboxRejectedPending": {
+    "description": "Persistent banner count for refused commands awaiting acknowledgement.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outboxDismissRejected": "Got it, remove",
+  "@outboxDismissRejected": {
+    "description": "Acknowledges and removes one refused command card."
+  },
+  "outboxDismissAll": "Remove all",
+  "@outboxDismissAll": {
+    "description": "Acknowledges and removes every refused command card."
   },
   "outboxCommandStartProduction": "Start production for {order}",
   "@outboxCommandStartProduction": {
@@ -1112,5 +1147,13 @@
         "type": "String"
       }
     }
+  },
+  "todayOutboxTitle": "Not Sent",
+  "@todayOutboxTitle": {
+    "description": "Title for the pending outbox commands tile on Today screen."
+  },
+  "todayOutboxAllSent": "All sent",
+  "@todayOutboxAllSent": {
+    "description": "Subtitle when all outbox commands have been sent on Today screen."
   }
 }

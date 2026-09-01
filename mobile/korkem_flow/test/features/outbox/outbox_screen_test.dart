@@ -98,7 +98,7 @@ void main() {
       () async {
         const receiveMutation = PendingMutation(
           key: 'k3',
-          path: OutboxEndpoints.receiveReceipt,
+          path: 'korkem_manufacturing.api.purchasing.receive_purchase_order',
           params: {'purchase_order': 'PUR-ORD-2026-00045'},
         );
 
@@ -238,7 +238,7 @@ void main() {
       expect(find.text('All commands sent'), findsOneWidget);
     });
 
-    testWidgets('shows rejection banner when rejection exists', (tester) async {
+    testWidgets('shows a refusal on its own command card', (tester) async {
       when(
         () => client.callMethod(
           any(),
@@ -277,15 +277,110 @@ void main() {
         find.text('A queued command was refused: Out of stock'),
         findsOneWidget,
       );
+      expect(
+        find.text('Start production for SAL-ORD-2026-00001'),
+        findsOneWidget,
+      );
+      expect(find.text('Refused (1)'), findsOneWidget);
+      expect(find.text('Got it, remove'), findsOneWidget);
 
-      // Dismiss rejection
-      await tester.tap(find.byIcon(AppIcons.close));
+      await tester.tap(find.text('Got it, remove'));
       await tester.pumpAndSettle();
 
       expect(
         find.text('A queued command was refused: Out of stock'),
         findsNothing,
       );
+      expect(find.byType(EmptyView), findsOneWidget);
+    });
+
+    testWidgets('separates commands waiting to send from refused ones', (
+      tester,
+    ) async {
+      when(
+        () => client.callMethod(
+          any(),
+          params: any(named: 'params'),
+          post: true,
+        ),
+      ).thenThrow(const NetworkFailure('offline'));
+      for (final order in ['SAL-ORD-1', 'SAL-ORD-2']) {
+        try {
+          await outbox.execute(
+            client,
+            OutboxEndpoints.startProduction,
+            params: {'sales_order': order},
+          );
+        } on Object catch (_) {}
+      }
+
+      reset(client);
+      var replayed = 0;
+      when(
+        () => client.callMethod(
+          any(),
+          params: any(named: 'params'),
+          post: true,
+        ),
+      ).thenAnswer((_) async {
+        replayed++;
+        if (replayed == 1) {
+          return {
+            'message': {'status': 'blocked', 'message': 'No stock'},
+          };
+        }
+        throw const NetworkFailure('offline again');
+      });
+      await outbox.retryPending(client);
+
+      await pumpScreen(tester);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Waiting to send (1)'), findsOneWidget);
+      expect(find.text('Refused (1)'), findsOneWidget);
+      expect(find.text('Start production for SAL-ORD-1'), findsOneWidget);
+      expect(find.text('Start production for SAL-ORD-2'), findsOneWidget);
+    });
+
+    testWidgets('removes all refused cards only after a visible action', (
+      tester,
+    ) async {
+      when(
+        () => client.callMethod(
+          any(),
+          params: any(named: 'params'),
+          post: true,
+        ),
+      ).thenThrow(const NetworkFailure('offline'));
+      for (final order in ['SAL-ORD-1', 'SAL-ORD-2']) {
+        try {
+          await outbox.execute(
+            client,
+            OutboxEndpoints.startProduction,
+            params: {'sales_order': order},
+          );
+        } on Object catch (_) {}
+      }
+
+      reset(client);
+      when(
+        () => client.callMethod(
+          any(),
+          params: any(named: 'params'),
+          post: true,
+        ),
+      ).thenThrow(const PermissionFailure('denied'));
+      await outbox.retryPending(client);
+      await pumpScreen(tester);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Refused (2)'), findsOneWidget);
+      expect(find.text('Remove all'), findsOneWidget);
+
+      await tester.tap(find.text('Remove all'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(EmptyView), findsOneWidget);
     });
   });
 }

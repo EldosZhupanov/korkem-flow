@@ -86,7 +86,9 @@ void main() {
     expect(outbox.snapshot.isEmpty, isTrue);
   });
 
-  testWidgets('server refusal is removed from queue and shown', (tester) async {
+  testWidgets('server refusal stays visible as an attention count', (
+    tester,
+  ) async {
     await queueCommand();
     reset(client);
     when(
@@ -106,8 +108,10 @@ void main() {
     await tester.tap(find.text('Send now'));
     await tester.pumpAndSettle();
 
-    expect(find.text('A queued command was refused: No stock'), findsOneWidget);
+    expect(find.text('Commands needing attention: 1'), findsOneWidget);
+    expect(find.textContaining('No stock'), findsNothing);
     expect(outbox.snapshot.pendingCount, 0);
+    expect(outbox.snapshot.rejected.single.reason, 'No stock');
   });
 
   testWidgets('tapping banner navigates to /outbox', (tester) async {

@@ -131,7 +131,7 @@ void main() {
     expect(outbox.snapshot.isEmpty, isTrue);
   });
 
-  test('a refusal after reconnect is removed and remains visible', () async {
+  test('a refusal keeps its original intent and remains visible', () async {
     var attempts = 0;
     when(
       () => client.callMethod(
@@ -145,11 +145,31 @@ void main() {
       throw const PermissionFailure('warehouse access denied');
     });
 
-    await expectLater(execute(), throwsA(isA<MutationQueued>()));
+    await expectLater(
+      execute(
+        params: {
+          'document': 'DOC-1',
+          'lines': [
+            {'item': 'PANEL', 'qty': 2},
+          ],
+        },
+      ),
+      throwsA(isA<MutationQueued>()),
+    );
     await outbox.retryPending(client);
 
     expect(outbox.snapshot.pendingCount, 0);
-    expect(outbox.snapshot.rejection?.reason, 'warehouse access denied');
+    expect(outbox.snapshot.rejectedCount, 1);
+    final rejected = outbox.snapshot.rejected.single;
+    expect(rejected.key, 'intent-1');
+    expect(rejected.path, 'example.mutate');
+    expect(rejected.params, {
+      'document': 'DOC-1',
+      'lines': [
+        {'item': 'PANEL', 'qty': 2},
+      ],
+    });
+    expect(rejected.reason, 'warehouse access denied');
   });
 
   test(
@@ -174,9 +194,68 @@ void main() {
       await outbox.retryPending(client);
 
       expect(outbox.snapshot.pendingCount, 0);
-      expect(outbox.snapshot.rejection?.reason, 'No stock');
+      expect(outbox.snapshot.rejected.single.reason, 'No stock');
     },
   );
+
+  test('a person can dismiss one refusal or all refusals', () async {
+    when(
+      () => client.callMethod(
+        any(),
+        params: any(named: 'params'),
+        post: true,
+      ),
+    ).thenThrow(const NetworkFailure('offline'));
+    await expectLater(execute(), throwsA(isA<MutationQueued>()));
+    await expectLater(execute(), throwsA(isA<MutationQueued>()));
+
+    reset(client);
+    when(
+      () => client.callMethod(
+        any(),
+        params: any(named: 'params'),
+        post: true,
+      ),
+    ).thenThrow(const ValidationFailure('invalid state'));
+    await outbox.retryPending(client);
+
+    expect(outbox.snapshot.rejectedCount, 2);
+    outbox.dismissRejected('intent-1');
+    expect(outbox.snapshot.rejected.map((item) => item.key), ['intent-2']);
+
+    outbox.clearRejected();
+    expect(outbox.snapshot.isEmpty, isTrue);
+  });
+
+  test('only the twenty most recent refusals remain in memory', () async {
+    when(
+      () => client.callMethod(
+        any(),
+        params: any(named: 'params'),
+        post: true,
+      ),
+    ).thenThrow(const NetworkFailure('offline'));
+    for (var index = 0; index <= MutationOutbox.maxRejected; index++) {
+      await expectLater(
+        execute(params: {'document': 'DOC-$index'}),
+        throwsA(isA<MutationQueued>()),
+      );
+    }
+
+    reset(client);
+    when(
+      () => client.callMethod(
+        any(),
+        params: any(named: 'params'),
+        post: true,
+      ),
+    ).thenThrow(const PermissionFailure('denied'));
+    await outbox.retryPending(client);
+
+    expect(outbox.snapshot.rejectedCount, MutationOutbox.maxRejected);
+    expect(outbox.snapshot.rejected.first.key, 'intent-2');
+    expect(outbox.snapshot.rejected.last.key, 'intent-21');
+  });
 
   test('clear drops commands belonging to the old session', () async {
     when(

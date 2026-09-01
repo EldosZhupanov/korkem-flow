@@ -11,7 +11,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-/// Persistent, app-wide evidence that a write has not reached the server.
+/// Persistent evidence that a write is waiting or needs the person's attention.
 class MutationOutboxBanner extends ConsumerWidget {
   const MutationOutboxBanner({super.key});
 
@@ -24,8 +24,8 @@ class MutationOutboxBanner extends ConsumerWidget {
 
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final rejection = snapshot.rejection;
-    final color = rejection == null
+    final hasRejected = snapshot.rejected.isNotEmpty;
+    final color = !hasRejected
         ? context.statusColors.warning
         : context.statusColors.danger;
 
@@ -49,7 +49,7 @@ class MutationOutboxBanner extends ConsumerWidget {
             child: Row(
               children: [
                 Icon(
-                  rejection == null ? AppIcons.offline : AppIcons.danger,
+                  !hasRejected ? AppIcons.offline : AppIcons.danger,
                   size: AppIconSize.small,
                   color: color,
                 ),
@@ -58,17 +58,15 @@ class MutationOutboxBanner extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (rejection != null)
+                      if (hasRejected)
                         Text(
-                          l10n.outboxRejected(
-                            rejection.reason ?? l10n.errorGeneric,
-                          ),
+                          l10n.outboxRejectedPending(snapshot.rejectedCount),
                           style: theme.textTheme.bodyMedium,
                         ),
                       if (snapshot.pendingCount > 0)
                         Text(
                           l10n.outboxPending(snapshot.pendingCount),
-                          style: rejection == null
+                          style: !hasRejected
                               ? theme.textTheme.bodyMedium
                               : theme.textTheme.labelSmall,
                         ),
@@ -83,12 +81,7 @@ class MutationOutboxBanner extends ConsumerWidget {
                     ),
                     child: Text(l10n.outboxRetry),
                   ),
-                if (rejection != null)
-                  IconButton(
-                    onPressed: outbox.clearRejection,
-                    tooltip: l10n.actionClose,
-                    icon: const Icon(AppIcons.close, size: AppIconSize.small),
-                  ),
+                const Icon(AppIcons.forward, size: AppIconSize.small),
               ],
             ),
           ),

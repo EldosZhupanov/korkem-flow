@@ -21,12 +21,17 @@ final class PendingMutation {
   final Map<String, dynamic> params;
 }
 
-/// A terminal answer received while replaying a queued command.
+/// A queued command and the terminal answer received while replaying it.
 @immutable
-final class OutboxRejection {
-  const OutboxRejection(this.reason);
+final class RejectedMutation {
+  const RejectedMutation({required this.command, required this.reason});
 
+  final PendingMutation command;
   final String? reason;
+
+  String get key => command.key;
+  String get path => command.path;
+  Map<String, dynamic> get params => command.params;
 }
 
 /// Everything the shell needs to make the outbox visible.
@@ -34,14 +39,15 @@ final class OutboxRejection {
 final class OutboxSnapshot {
   const OutboxSnapshot({
     this.pending = const [],
-    this.rejection,
+    this.rejected = const [],
   });
 
   final List<PendingMutation> pending;
-  final OutboxRejection? rejection;
+  final List<RejectedMutation> rejected;
 
   int get pendingCount => pending.length;
-  bool get isEmpty => pending.isEmpty && rejection == null;
+  int get rejectedCount => rejected.length;
+  bool get isEmpty => pending.isEmpty && rejected.isEmpty;
 }
 
 /// Signals that a write is safe in the outbox, but has no server answer yet.
@@ -63,15 +69,18 @@ class MutationOutbox {
 
   final IdempotencyKeyFactory _keyFactory;
   final List<PendingMutation> _pending = [];
+  final List<RejectedMutation> _rejected = [];
   final StreamController<OutboxSnapshot> _snapshots =
       StreamController<OutboxSnapshot>.broadcast(sync: true);
 
-  OutboxRejection? _rejection;
   bool _retrying = false;
+
+  /// Enough recent refusals for one app session without an unbounded log.
+  static const maxRejected = 20;
 
   OutboxSnapshot get snapshot => OutboxSnapshot(
     pending: List<PendingMutation>.unmodifiable(_pending),
-    rejection: _rejection,
+    rejected: List<RejectedMutation>.unmodifiable(_rejected),
   );
 
   Stream<OutboxSnapshot> get snapshots => _snapshots.stream;
@@ -106,20 +115,21 @@ class MutationOutbox {
           final response = await _send(client, command);
           _pending.remove(command);
           final refusal = _refusalFrom(response);
-          if (refusal != null) _rejection = refusal;
-          _emit();
+          if (refusal == null) {
+            _emit();
+          } else {
+            _reject(command, refusal.reason);
+          }
         } on NetworkFailure {
           // The link is still down. Preserve this command and everything after
           // it; a later resume, successful request or manual tap tries again.
           return;
         } on FrappeException catch (error) {
           _pending.remove(command);
-          _rejection = OutboxRejection(error.message);
-          _emit();
+          _reject(command, error.message);
         } on Object {
           _pending.remove(command);
-          _rejection = const OutboxRejection(null);
-          _emit();
+          _reject(command, null);
         }
       }
     } finally {
@@ -127,17 +137,24 @@ class MutationOutbox {
     }
   }
 
-  void clearRejection() {
-    if (_rejection == null) return;
-    _rejection = null;
+  void dismissRejected(String key) {
+    final before = _rejected.length;
+    _rejected.removeWhere((item) => item.key == key);
+    if (_rejected.length == before) return;
+    _emit();
+  }
+
+  void clearRejected() {
+    if (_rejected.isEmpty) return;
+    _rejected.clear();
     _emit();
   }
 
   /// A queued command belongs to one authenticated session only.
   void clear() {
-    if (_pending.isEmpty && _rejection == null) return;
+    if (_pending.isEmpty && _rejected.isEmpty) return;
     _pending.clear();
-    _rejection = null;
+    _rejected.clear();
     _emit();
   }
 
@@ -156,13 +173,19 @@ class MutationOutbox {
     if (!_snapshots.isClosed) _snapshots.add(snapshot);
   }
 
-  static OutboxRejection? _refusalFrom(Map<String, dynamic> response) {
+  void _reject(PendingMutation command, String? reason) {
+    _rejected.add(RejectedMutation(command: command, reason: reason));
+    if (_rejected.length > maxRejected) {
+      _rejected.removeRange(0, _rejected.length - maxRejected);
+    }
+    _emit();
+  }
+
+  static _Refusal? _refusalFrom(Map<String, dynamic> response) {
     final raw = response['message'] ?? response;
     if (raw is! Map || raw['status'] != 'blocked') return null;
     final message = raw['message'];
-    return OutboxRejection(
-      message is String && message.isNotEmpty ? message : null,
-    );
+    return _Refusal(message is String && message.isNotEmpty ? message : null);
   }
 
   static Map<String, dynamic> _freezeParams(Map<String, dynamic> params) =>
@@ -183,4 +206,10 @@ class MutationOutbox {
     final random = Random.secure().nextInt(0x7fffffff).toRadixString(36);
     return 'mobile-$time-$random';
   }
+}
+
+final class _Refusal {
+  const _Refusal(this.reason);
+
+  final String? reason;
 }

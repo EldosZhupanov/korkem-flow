@@ -1148,7 +1148,28 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get outboxEmptyBody =>
-      'Кезекте күтіп тұрған командалар жоқ. Байланыс үзілгенде жаңа әрекеттер осында сақталады.';
+      'Күтудегі немесе қабылданбаған командалар жоқ. Байланыс үзілгенде жаңа әрекеттер осында сақталады.';
+
+  @override
+  String outboxPendingSection(int count) {
+    return 'Жіберуді күтуде ($count)';
+  }
+
+  @override
+  String outboxRejectedSection(int count) {
+    return 'Қабылданбады ($count)';
+  }
+
+  @override
+  String outboxRejectedPending(int count) {
+    return 'Назар аударуды қажет етеді: $count';
+  }
+
+  @override
+  String get outboxDismissRejected => 'Түсінікті, алып тастау';
+
+  @override
+  String get outboxDismissAll => 'Барлығын алып тастау';
 
   @override
   String outboxCommandStartProduction(String order) {
@@ -1204,4 +1225,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String outboxParamScrapQty(String qty) {
     return 'Ақау: $qty';
   }
+
+  @override
+  String get todayOutboxTitle => 'Жіберілмеген';
+
+  @override
+  String get todayOutboxAllSent => 'Барлығы жіберілді';
 }

@@ -23,7 +23,7 @@ abstract final class OutboxEndpoints {
   static const completeOperation =
       'korkem_manufacturing.api.production.complete_operation';
   static const receiveReceipt =
-      'korkem_manufacturing.api.purchasing.receive_purchase_receipt';
+      'korkem_manufacturing.api.purchasing.receive_purchase_order';
   static const createPurchaseOrder =
       'korkem_manufacturing.api.purchasing.create_purchase_order';
   static const createDelivery =

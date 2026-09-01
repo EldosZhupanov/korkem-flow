@@ -515,7 +515,12 @@
   "warehouseActionOpen": "Ашу",
   "outboxTitle": "Командалар кезегі",
   "outboxEmptyTitle": "Барлық командалар жіберілді",
-  "outboxEmptyBody": "Кезекте күтіп тұрған командалар жоқ. Байланыс үзілгенде жаңа әрекеттер осында сақталады.",
+  "outboxEmptyBody": "Күтудегі немесе қабылданбаған командалар жоқ. Байланыс үзілгенде жаңа әрекеттер осында сақталады.",
+  "outboxPendingSection": "Жіберуді күтуде ({count})",
+  "outboxRejectedSection": "Қабылданбады ({count})",
+  "outboxRejectedPending": "Назар аударуды қажет етеді: {count}",
+  "outboxDismissRejected": "Түсінікті, алып тастау",
+  "outboxDismissAll": "Барлығын алып тастау",
   "outboxCommandStartProduction": "{order} бойынша өндірісті бастау",
   "outboxCommandCompleteOperation": "Операция бойынша есеп: {operation}",
   "outboxCommandReceiveReceipt": "{order} бойынша қабылдау",
@@ -526,5 +531,7 @@
   "outboxParamSupplier": "Жеткізуші: {supplier}",
   "outboxParamWorkOrder": "Тапсырма: {workOrder}",
   "outboxParamCompletedQty": "Дайын: {qty}",
-  "outboxParamScrapQty": "Ақау: {qty}"
+  "outboxParamScrapQty": "Ақау: {qty}",
+  "todayOutboxTitle": "Жіберілмеген",
+  "todayOutboxAllSent": "Барлығы жіберілді"
 }
