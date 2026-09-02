@@ -15,13 +15,37 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/production/presentation/work_order_detail_screen.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_status_label.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-class ProductionScreen extends ConsumerWidget {
-  const ProductionScreen({super.key});
+class ProductionScreen extends ConsumerStatefulWidget {
+  const ProductionScreen({this.selectedId, super.key});
 
-  Future<void> _openFilter(BuildContext context, WidgetRef ref) async {
+  final String? selectedId;
+
+  @override
+  ConsumerState<ProductionScreen> createState() => _ProductionScreenState();
+}
+
+class _ProductionScreenState extends ConsumerState<ProductionScreen> {
+  String? _selectedId;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedId = widget.selectedId;
+  }
+
+  @override
+  void didUpdateWidget(ProductionScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedId != null && widget.selectedId != _selectedId) {
+      _selectedId = widget.selectedId;
+    }
+  }
+
+  Future<void> _openFilter(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
 
     final choice = await showFilterSheet<WorkOrderStatus>(
@@ -39,23 +63,38 @@ class ProductionScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final filter = ref.watch(productionFilterProvider);
     final controller = ref.read(productionControllerProvider.notifier);
+    final ordersState = ref.watch(productionControllerProvider);
 
-    return CrmListSection(
+    final size = MediaQuery.sizeOf(context);
+    final isWide =
+        size.width >= AppBreakpoints.medium &&
+        size.height >= AppBreakpoints.compact;
+
+    final items = ordersState.value?.items;
+    if (isWide && _selectedId == null && items != null && items.isNotEmpty) {
+      _selectedId = items.first.id;
+    }
+
+    final list = CrmListSection(
       searchValue: filter.search,
       onSearch: (value) => ref
           .read(productionFilterProvider.notifier)
           .setSearch(value.isEmpty ? null : value),
       isFiltered: filter.status != null,
-      onFilter: () => _openFilter(context, ref),
+      onFilter: () => _openFilter(context),
       child: PagedListView<WorkOrder>(
-        state: ref.watch(productionControllerProvider),
+        state: ordersState,
         onRefresh: controller.refresh,
         onLoadMore: controller.loadMore,
-        itemBuilder: (context, order) => WorkOrderCard(order: order),
+        itemBuilder: (context, order) => WorkOrderCard(
+          order: order,
+          isSelected: isWide && _selectedId == order.id,
+          onTap: isWide ? () => setState(() => _selectedId = order.id) : null,
+        ),
         emptyView: (context) => ListEmptyView(
           icon: AppIcons.workOrder,
           title: l10n.productionEmpty,
@@ -76,14 +115,52 @@ class ProductionScreen extends ConsumerWidget {
         ),
       ),
     );
+
+    if (!isWide) {
+      return list;
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          width: AppBreakpoints.listPaneWidth,
+          child: list,
+        ),
+        const VerticalDivider(
+          width: AppStroke.hairline,
+          thickness: AppStroke.hairline,
+        ),
+        Expanded(
+          child: _selectedId != null
+              ? WorkOrderDetailView(
+                  key: ValueKey(_selectedId),
+                  id: _selectedId!,
+                )
+              : Center(
+                  child: EmptyView(
+                    icon: AppIcons.workOrder,
+                    title: l10n.productionSelectPromptTitle,
+                    message: l10n.productionSelectPromptBody,
+                  ),
+                ),
+        ),
+      ],
+    );
   }
 }
 
 /// A work order, led by the one number that matters: how much is made.
 class WorkOrderCard extends ConsumerWidget {
-  const WorkOrderCard({required this.order, this.onTap, super.key});
+  const WorkOrderCard({
+    required this.order,
+    this.isSelected = false,
+    this.onTap,
+    super.key,
+  });
 
   final WorkOrder order;
+  final bool isSelected;
   final VoidCallback? onTap;
 
   @override
@@ -96,6 +173,7 @@ class WorkOrderCard extends ConsumerWidget {
     final isLate = order.isLateAt(ref.watch(clockProvider)());
 
     return AppCard(
+      isSelected: isSelected,
       onTap: onTap ?? () => context.push(Routes.workOrder(order.id)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

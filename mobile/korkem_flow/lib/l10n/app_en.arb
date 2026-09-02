@@ -1321,5 +1321,21 @@
   "ordersSelectPromptBody": "Select an order from the list on the left to view details and production.",
   "@ordersSelectPromptBody": {
     "description": "Message in detail pane when no order is selected in wide layout."
+  },
+  "productionSelectPromptTitle": "Select a work order",
+  "@productionSelectPromptTitle": {
+    "description": "Title in detail pane when no work order is selected in wide layout."
+  },
+  "productionSelectPromptBody": "Select a work order from the list to view its details and operations.",
+  "@productionSelectPromptBody": {
+    "description": "Message in detail pane when no work order is selected in wide layout."
+  },
+  "warehouseSelectPromptTitle": "Select an item",
+  "@warehouseSelectPromptTitle": {
+    "description": "Title in detail pane when no stock item is selected in wide layout."
+  },
+  "warehouseSelectPromptBody": "Select an item from the list to view warehouse balances and details.",
+  "@warehouseSelectPromptBody": {
+    "description": "Message in detail pane when no stock item is selected in wide layout."
   }
 }

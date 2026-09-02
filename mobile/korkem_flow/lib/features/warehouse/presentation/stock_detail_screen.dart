@@ -27,15 +27,29 @@ class StockDetailScreen extends ConsumerWidget {
     return AppScreen(
       title: itemCode,
       subtitle: detailAsync.value?.itemName,
-      body: switch (detailAsync) {
-        AsyncData(:final value) => _Body(detail: value),
-        AsyncError(:final error) => ErrorView(
-          error: error,
-          onRetry: () => ref.invalidate(stockItemDetailProvider(itemCode)),
-        ),
-        _ => const Center(child: CircularProgressIndicator()),
-      },
+      body: StockDetailView(itemCode: itemCode),
     );
+  }
+}
+
+/// The body and state handling for one stock item detail view.
+class StockDetailView extends ConsumerWidget {
+  const StockDetailView({required this.itemCode, super.key});
+
+  final String itemCode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(stockItemDetailProvider(itemCode));
+
+    return switch (detailAsync) {
+      AsyncData(:final value) => _Body(detail: value),
+      AsyncError(:final error) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(stockItemDetailProvider(itemCode)),
+      ),
+      _ => const Center(child: CircularProgressIndicator()),
+    };
   }
 }
 

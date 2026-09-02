@@ -1342,4 +1342,18 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get ordersSelectPromptBody =>
       'Параметрлерін, күйін, өндіріс тапсырмаларын және жөнелтілімдерін көру үшін сол жақтағы тізімнен тапсырысты таңдаңыз.';
+
+  @override
+  String get productionSelectPromptTitle => 'Тапсырманы таңдаңыз';
+
+  @override
+  String get productionSelectPromptBody =>
+      'Параметрлері мен технологиялық операцияларын көру үшін тізімнен тапсырманы таңдаңыз.';
+
+  @override
+  String get warehouseSelectPromptTitle => 'Позицияны таңдаңыз';
+
+  @override
+  String get warehouseSelectPromptBody =>
+      'Қойма қалдықтары мен параметрлерді көру үшін тізімнен позицияны таңдаңыз.';
 }

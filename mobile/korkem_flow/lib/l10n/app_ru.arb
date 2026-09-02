@@ -562,5 +562,9 @@
   "searchSectionError": "Не удалось загрузить раздел: {section}",
   "searchNavTooltip": "Поиск",
   "ordersSelectPromptTitle": "Выберите заказ",
-  "ordersSelectPromptBody": "Выберите заказ из списка слева, чтобы посмотреть его параметры, статус, задания производства и отгрузки."
+  "ordersSelectPromptBody": "Выберите заказ из списка слева, чтобы посмотреть его параметры, статус, задания производства и отгрузки.",
+  "productionSelectPromptTitle": "Выберите задание",
+  "productionSelectPromptBody": "Выберите задание из списка, чтобы просмотреть его параметры и технологические операции.",
+  "warehouseSelectPromptTitle": "Выберите позицию",
+  "warehouseSelectPromptBody": "Выберите позицию из списка, чтобы просмотреть остатки по складам и параметры."
 }

@@ -17,6 +17,7 @@ class OperationsScreen extends StatelessWidget {
 
     return AppScreen.tabbed(
       title: l10n.navOperations,
+      fullWidth: true,
       tabs: [
         AppTab(label: l10n.navProduction, view: const ProductionScreen()),
         AppTab(label: l10n.navWarehouse, view: const WarehouseScreen()),

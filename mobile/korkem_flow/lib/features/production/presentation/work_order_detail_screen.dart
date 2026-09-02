@@ -32,15 +32,29 @@ class WorkOrderDetailScreen extends ConsumerWidget {
     return AppScreen(
       title: id,
       subtitle: orderAsync.value?.itemName ?? orderAsync.value?.productionItem,
-      body: switch (orderAsync) {
-        AsyncData(:final value) => _Body(order: value),
-        AsyncError(:final error) => ErrorView(
-          error: error,
-          onRetry: () => ref.invalidate(workOrderDetailProvider(id)),
-        ),
-        _ => const Center(child: CircularProgressIndicator()),
-      },
+      body: WorkOrderDetailView(id: id),
     );
+  }
+}
+
+/// The body and state handling for one work order detail view.
+class WorkOrderDetailView extends ConsumerWidget {
+  const WorkOrderDetailView({required this.id, super.key});
+
+  final String id;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final orderAsync = ref.watch(workOrderDetailProvider(id));
+
+    return switch (orderAsync) {
+      AsyncData(:final value) => _Body(order: value),
+      AsyncError(:final error) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(workOrderDetailProvider(id)),
+      ),
+      _ => const Center(child: CircularProgressIndicator()),
+    };
   }
 }
 

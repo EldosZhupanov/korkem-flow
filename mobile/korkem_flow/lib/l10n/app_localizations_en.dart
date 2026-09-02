@@ -1370,4 +1370,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ordersSelectPromptBody =>
       'Select an order from the list on the left to view details and production.';
+
+  @override
+  String get productionSelectPromptTitle => 'Select a work order';
+
+  @override
+  String get productionSelectPromptBody =>
+      'Select a work order from the list to view its details and operations.';
+
+  @override
+  String get warehouseSelectPromptTitle => 'Select an item';
+
+  @override
+  String get warehouseSelectPromptBody =>
+      'Select an item from the list to view warehouse balances and details.';
 }

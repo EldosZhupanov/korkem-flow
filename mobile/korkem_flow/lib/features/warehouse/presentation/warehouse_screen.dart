@@ -13,26 +13,71 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/search/recent_searches.dart';
 import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
 import 'package:korkem_flow/features/warehouse/domain/stock_item.dart';
+import 'package:korkem_flow/features/warehouse/presentation/stock_detail_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-class WarehouseScreen extends ConsumerWidget {
-  const WarehouseScreen({super.key});
+class WarehouseScreen extends ConsumerStatefulWidget {
+  const WarehouseScreen({this.selectedItemCode, super.key});
+
+  final String? selectedItemCode;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WarehouseScreen> createState() => _WarehouseScreenState();
+}
+
+class _WarehouseScreenState extends ConsumerState<WarehouseScreen> {
+  String? _selectedItemCode;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedItemCode = widget.selectedItemCode;
+  }
+
+  @override
+  void didUpdateWidget(WarehouseScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedItemCode != null &&
+        widget.selectedItemCode != _selectedItemCode) {
+      _selectedItemCode = widget.selectedItemCode;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final search = ref.watch(itemSearchProvider);
     final controller = ref.read(warehouseControllerProvider.notifier);
+    final warehouseState = ref.watch(warehouseControllerProvider);
 
-    return CrmListSection(
+    final size = MediaQuery.sizeOf(context);
+    final isWide =
+        size.width >= AppBreakpoints.medium &&
+        size.height >= AppBreakpoints.compact;
+
+    final items = warehouseState.value?.items;
+    if (isWide &&
+        _selectedItemCode == null &&
+        items != null &&
+        items.isNotEmpty) {
+      _selectedItemCode = items.first.id;
+    }
+
+    final list = CrmListSection(
       searchScope: SearchScope.warehouse,
       searchValue: search,
       onSearch: ref.read(itemSearchProvider.notifier).set,
       child: PagedListView<StockItem>(
-        state: ref.watch(warehouseControllerProvider),
+        state: warehouseState,
         onRefresh: controller.refresh,
         onLoadMore: controller.loadMore,
-        itemBuilder: (context, item) => StockItemCard(item: item),
+        itemBuilder: (context, item) => StockItemCard(
+          item: item,
+          isSelected: isWide && _selectedItemCode == item.id,
+          onTap: isWide
+              ? () => setState(() => _selectedItemCode = item.id)
+              : null,
+        ),
         emptyView: (context) => ListEmptyView(
           icon: AppIcons.item,
           title: l10n.warehouseEmpty,
@@ -46,6 +91,38 @@ class WarehouseScreen extends ConsumerWidget {
         ),
       ),
     );
+
+    if (!isWide) {
+      return list;
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          width: AppBreakpoints.listPaneWidth,
+          child: list,
+        ),
+        const VerticalDivider(
+          width: AppStroke.hairline,
+          thickness: AppStroke.hairline,
+        ),
+        Expanded(
+          child: _selectedItemCode != null
+              ? StockDetailView(
+                  key: ValueKey(_selectedItemCode),
+                  itemCode: _selectedItemCode!,
+                )
+              : Center(
+                  child: EmptyView(
+                    icon: AppIcons.item,
+                    title: l10n.warehouseSelectPromptTitle,
+                    message: l10n.warehouseSelectPromptBody,
+                  ),
+                ),
+        ),
+      ],
+    );
   }
 }
 
@@ -55,9 +132,16 @@ class WarehouseScreen extends ConsumerWidget {
 /// rather than eagerly: a fifty-row list would otherwise fire fifty extra
 /// queries to show numbers nobody asked for.
 class StockItemCard extends ConsumerStatefulWidget {
-  const StockItemCard({required this.item, super.key});
+  const StockItemCard({
+    required this.item,
+    this.isSelected = false,
+    this.onTap,
+    super.key,
+  });
 
   final StockItem item;
+  final bool isSelected;
+  final VoidCallback? onTap;
 
   @override
   ConsumerState<StockItemCard> createState() => _StockItemCardState();
@@ -71,13 +155,17 @@ class _StockItemCardState extends ConsumerState<StockItemCard> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final item = widget.item;
+    final isCustomTap = widget.onTap != null;
 
     return AppCard(
+      isSelected: widget.isSelected,
       // A non-stock item — a service, a fee — has no balance to show, so it is
       // not made to look expandable.
-      onTap: item.isStockItem
-          ? () => setState(() => _expanded = !_expanded)
-          : null,
+      onTap:
+          widget.onTap ??
+          (item.isStockItem
+              ? () => setState(() => _expanded = !_expanded)
+              : null),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -104,7 +192,7 @@ class _StockItemCardState extends ConsumerState<StockItemCard> {
                   ],
                 ),
               ),
-              if (item.isStockItem)
+              if (!isCustomTap && item.isStockItem)
                 Icon(
                   _expanded ? AppIcons.close : AppIcons.forward,
                   size: AppIconSize.small,
@@ -125,7 +213,7 @@ class _StockItemCardState extends ConsumerState<StockItemCard> {
             ],
           ),
 
-          if (_expanded) ...[
+          if (!isCustomTap && _expanded) ...[
             const SizedBox(height: AppSpacing.lg),
             const Divider(height: AppStroke.hairline),
             const SizedBox(height: AppSpacing.md),

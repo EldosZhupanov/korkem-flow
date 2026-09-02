@@ -2505,6 +2505,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select an order from the list on the left to view details and production.'**
   String get ordersSelectPromptBody;
+
+  /// Title in detail pane when no work order is selected in wide layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a work order'**
+  String get productionSelectPromptTitle;
+
+  /// Message in detail pane when no work order is selected in wide layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a work order from the list to view its details and operations.'**
+  String get productionSelectPromptBody;
+
+  /// Title in detail pane when no stock item is selected in wide layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an item'**
+  String get warehouseSelectPromptTitle;
+
+  /// Message in detail pane when no stock item is selected in wide layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an item from the list to view warehouse balances and details.'**
+  String get warehouseSelectPromptBody;
 }
 
 class _AppLocalizationsDelegate

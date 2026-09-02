@@ -1382,4 +1382,18 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get ordersSelectPromptBody =>
       'Выберите заказ из списка слева, чтобы посмотреть его параметры, статус, задания производства и отгрузки.';
+
+  @override
+  String get productionSelectPromptTitle => 'Выберите задание';
+
+  @override
+  String get productionSelectPromptBody =>
+      'Выберите задание из списка, чтобы просмотреть его параметры и технологические операции.';
+
+  @override
+  String get warehouseSelectPromptTitle => 'Выберите позицию';
+
+  @override
+  String get warehouseSelectPromptBody =>
+      'Выберите позицию из списка, чтобы просмотреть остатки по складам и параметры.';
 }
