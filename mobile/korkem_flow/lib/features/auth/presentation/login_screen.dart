@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
@@ -8,6 +9,8 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_logo.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/features/provisioning/data/provisioning_repository.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Sign-in against a Frappe site.
@@ -51,18 +54,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final l10n = AppLocalizations.of(context);
+    final serverError = _validateServer(_server.text, l10n);
+    if (serverError != null) {
+      _formKey.currentState?.validate();
+      return;
+    }
 
     setState(() {
       _busy = true;
       _failure = null;
     });
 
+    final serverUrl = _server.text.trim();
+
     try {
+      // Check if the node is unclaimed before attempting sign-in.
+      try {
+        final status = await ref
+            .read(provisioningRepositoryProvider)
+            .checkStatus(serverUrl);
+        if (!status.claimed) {
+          if (mounted) {
+            await context.push(Routes.claim, extra: serverUrl);
+          }
+          return;
+        }
+      } on Object {
+        // Fall back to direct sign in if status check fails.
+      }
+
+      if (!(_formKey.currentState?.validate() ?? false)) return;
+
       await ref
           .read(sessionProvider.notifier)
           .signIn(
-            serverUrl: _server.text,
+            serverUrl: serverUrl,
             user: _email.text.trim(),
             password: _password.text,
           );

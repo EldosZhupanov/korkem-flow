@@ -207,6 +207,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authInvalidServer => 'That is not a valid address.';
 
   @override
+  String get claimTitle => 'First run';
+
+  @override
+  String get claimSubtitle => 'Create your company and owner account';
+
+  @override
+  String get claimCode => 'Launch code';
+
+  @override
+  String get claimCodeHint => '16 characters from node log';
+
+  @override
+  String get claimCodeHelper =>
+      'The code is shown in the node terminal on first launch';
+
+  @override
+  String get claimCompany => 'Company name';
+
+  @override
+  String get claimOwnerName => 'Owner name';
+
+  @override
+  String get claimOwnerEmail => 'Owner email';
+
+  @override
+  String get claimOwnerPassword => 'Owner password';
+
+  @override
+  String get claimConfirmPassword => 'Confirm password';
+
+  @override
+  String get claimPasswordMismatch => 'Passwords do not match';
+
+  @override
+  String get claimLanguage => 'System language';
+
+  @override
+  String get claimSubmit => 'Create company';
+
+  @override
+  String get claimAlreadyClaimed =>
+      'This node is already claimed. Ask the owner for an invitation';
+
+  @override
+  String get claimCodeRefused =>
+      'Invalid code. It is shown in the node log at startup';
+
+  @override
+  String get claimNodeUnconfiguredBanner =>
+      'This node is waiting for setup. Create a company to become the owner.';
+
+  @override
+  String get claimSetupCompanyAction => 'Set up company';
+
+  @override
+  String get claimLangRu => 'Russian';
+
+  @override
+  String get claimLangKk => 'Kazakh';
+
+  @override
+  String get claimLangEn => 'English';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

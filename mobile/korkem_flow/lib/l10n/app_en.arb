@@ -135,6 +135,86 @@
   },
   "authFieldRequired": "Required",
   "authInvalidServer": "That is not a valid address.",
+  "claimTitle": "First run",
+  "@claimTitle": {
+    "description": "Title of the first-run claiming wizard"
+  },
+  "claimSubtitle": "Create your company and owner account",
+  "@claimSubtitle": {
+    "description": "Subtitle of the first-run claiming wizard"
+  },
+  "claimCode": "Launch code",
+  "@claimCode": {
+    "description": "Label for the 16-character node launch code"
+  },
+  "claimCodeHint": "16 characters from node log",
+  "@claimCodeHint": {
+    "description": "Hint for launch code input"
+  },
+  "claimCodeHelper": "The code is shown in the node terminal on first launch",
+  "@claimCodeHelper": {
+    "description": "Helper text explaining where to find the launch code"
+  },
+  "claimCompany": "Company name",
+  "@claimCompany": {
+    "description": "Label for company name field"
+  },
+  "claimOwnerName": "Owner name",
+  "@claimOwnerName": {
+    "description": "Label for owner name field"
+  },
+  "claimOwnerEmail": "Owner email",
+  "@claimOwnerEmail": {
+    "description": "Label for owner email field"
+  },
+  "claimOwnerPassword": "Owner password",
+  "@claimOwnerPassword": {
+    "description": "Label for owner password field"
+  },
+  "claimConfirmPassword": "Confirm password",
+  "@claimConfirmPassword": {
+    "description": "Label for password confirmation field"
+  },
+  "claimPasswordMismatch": "Passwords do not match",
+  "@claimPasswordMismatch": {
+    "description": "Error when password confirmation does not match"
+  },
+  "claimLanguage": "System language",
+  "@claimLanguage": {
+    "description": "Label for system language selection"
+  },
+  "claimSubmit": "Create company",
+  "@claimSubmit": {
+    "description": "Button to submit the claim and create company"
+  },
+  "claimAlreadyClaimed": "This node is already claimed. Ask the owner for an invitation",
+  "@claimAlreadyClaimed": {
+    "description": "Error message when node is already claimed"
+  },
+  "claimCodeRefused": "Invalid code. It is shown in the node log at startup",
+  "@claimCodeRefused": {
+    "description": "Error message when the launch code is invalid"
+  },
+  "claimNodeUnconfiguredBanner": "This node is waiting for setup. Create a company to become the owner.",
+  "@claimNodeUnconfiguredBanner": {
+    "description": "Banner shown on login screen when node is unclaimed"
+  },
+  "claimSetupCompanyAction": "Set up company",
+  "@claimSetupCompanyAction": {
+    "description": "Action button to launch company setup"
+  },
+  "claimLangRu": "Russian",
+  "@claimLangRu": {
+    "description": "Russian language choice"
+  },
+  "claimLangKk": "Kazakh",
+  "@claimLangKk": {
+    "description": "Kazakh language choice"
+  },
+  "claimLangEn": "English",
+  "@claimLangEn": {
+    "description": "English language choice"
+  },
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",

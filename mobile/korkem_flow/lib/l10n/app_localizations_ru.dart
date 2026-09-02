@@ -208,6 +208,70 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authInvalidServer => 'Некорректный адрес.';
 
   @override
+  String get claimTitle => 'Первый запуск';
+
+  @override
+  String get claimSubtitle => 'Создание компании и учётной записи владельца';
+
+  @override
+  String get claimCode => 'Код первого запуска';
+
+  @override
+  String get claimCodeHint => '16 символов из журнала узла';
+
+  @override
+  String get claimCodeHelper =>
+      'Код показан в терминале узла при первом запуске';
+
+  @override
+  String get claimCompany => 'Название компании';
+
+  @override
+  String get claimOwnerName => 'Имя владельца';
+
+  @override
+  String get claimOwnerEmail => 'Электронная почта владельца';
+
+  @override
+  String get claimOwnerPassword => 'Пароль владельца';
+
+  @override
+  String get claimConfirmPassword => 'Подтверждение пароля';
+
+  @override
+  String get claimPasswordMismatch => 'Пароли не совпадают';
+
+  @override
+  String get claimLanguage => 'Язык системы';
+
+  @override
+  String get claimSubmit => 'Создать компанию';
+
+  @override
+  String get claimAlreadyClaimed =>
+      'Этот узел уже занят. Попросите у владельца приглашение';
+
+  @override
+  String get claimCodeRefused =>
+      'Неверный код. Он показан в журнале узла при запуске';
+
+  @override
+  String get claimNodeUnconfiguredBanner =>
+      'Этот узел ожидает настройки. Вы можете создать компанию и стать её владельцем.';
+
+  @override
+  String get claimSetupCompanyAction => 'Настроить компанию';
+
+  @override
+  String get claimLangRu => 'Русский';
+
+  @override
+  String get claimLangKk => 'Қазақша';
+
+  @override
+  String get claimLangEn => 'English';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override

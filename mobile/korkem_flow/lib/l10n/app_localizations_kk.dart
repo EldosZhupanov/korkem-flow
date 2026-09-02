@@ -200,6 +200,70 @@ class AppLocalizationsKk extends AppLocalizations {
   String get authInvalidServer => 'Мекенжай жарамсыз.';
 
   @override
+  String get claimTitle => 'Алғашқы іске қосу';
+
+  @override
+  String get claimSubtitle => 'Компания мен иесінің есептік жазбасын құру';
+
+  @override
+  String get claimCode => 'Алғашқы іске қосу коды';
+
+  @override
+  String get claimCodeHint => 'Түйін журналындағы 16 таңба';
+
+  @override
+  String get claimCodeHelper =>
+      'Код түйінді алғаш қосқанда терминалда көрсетіледі';
+
+  @override
+  String get claimCompany => 'Компания атауы';
+
+  @override
+  String get claimOwnerName => 'Иесінің аты-жөні';
+
+  @override
+  String get claimOwnerEmail => 'Иесінің электрондық поштасы';
+
+  @override
+  String get claimOwnerPassword => 'Иесінің құпия сөзі';
+
+  @override
+  String get claimConfirmPassword => 'Құпия сөзді растау';
+
+  @override
+  String get claimPasswordMismatch => 'Құпия сөздер сәйкес келмейді';
+
+  @override
+  String get claimLanguage => 'Жүйе тілі';
+
+  @override
+  String get claimSubmit => 'Компанияны құру';
+
+  @override
+  String get claimAlreadyClaimed =>
+      'Бұл түйін бос емес. Иесінен шақыру сұраңыз';
+
+  @override
+  String get claimCodeRefused =>
+      'Қате код. Ол іске қосу кезінде түйін журналында көрсетілген';
+
+  @override
+  String get claimNodeUnconfiguredBanner =>
+      'Бұл түйін баптауды күтуде. Компания құрып, оның иесі болыңыз.';
+
+  @override
+  String get claimSetupCompanyAction => 'Компанияны баптау';
+
+  @override
+  String get claimLangRu => 'Русский';
+
+  @override
+  String get claimLangKk => 'Қазақша';
+
+  @override
+  String get claimLangEn => 'English';
+
+  @override
   String get settingsTitle => 'Параметрлер';
 
   @override

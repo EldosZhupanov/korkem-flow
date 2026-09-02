@@ -460,6 +460,126 @@ abstract class AppLocalizations {
   /// **'That is not a valid address.'**
   String get authInvalidServer;
 
+  /// Title of the first-run claiming wizard
+  ///
+  /// In en, this message translates to:
+  /// **'First run'**
+  String get claimTitle;
+
+  /// Subtitle of the first-run claiming wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Create your company and owner account'**
+  String get claimSubtitle;
+
+  /// Label for the 16-character node launch code
+  ///
+  /// In en, this message translates to:
+  /// **'Launch code'**
+  String get claimCode;
+
+  /// Hint for launch code input
+  ///
+  /// In en, this message translates to:
+  /// **'16 characters from node log'**
+  String get claimCodeHint;
+
+  /// Helper text explaining where to find the launch code
+  ///
+  /// In en, this message translates to:
+  /// **'The code is shown in the node terminal on first launch'**
+  String get claimCodeHelper;
+
+  /// Label for company name field
+  ///
+  /// In en, this message translates to:
+  /// **'Company name'**
+  String get claimCompany;
+
+  /// Label for owner name field
+  ///
+  /// In en, this message translates to:
+  /// **'Owner name'**
+  String get claimOwnerName;
+
+  /// Label for owner email field
+  ///
+  /// In en, this message translates to:
+  /// **'Owner email'**
+  String get claimOwnerEmail;
+
+  /// Label for owner password field
+  ///
+  /// In en, this message translates to:
+  /// **'Owner password'**
+  String get claimOwnerPassword;
+
+  /// Label for password confirmation field
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get claimConfirmPassword;
+
+  /// Error when password confirmation does not match
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get claimPasswordMismatch;
+
+  /// Label for system language selection
+  ///
+  /// In en, this message translates to:
+  /// **'System language'**
+  String get claimLanguage;
+
+  /// Button to submit the claim and create company
+  ///
+  /// In en, this message translates to:
+  /// **'Create company'**
+  String get claimSubmit;
+
+  /// Error message when node is already claimed
+  ///
+  /// In en, this message translates to:
+  /// **'This node is already claimed. Ask the owner for an invitation'**
+  String get claimAlreadyClaimed;
+
+  /// Error message when the launch code is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid code. It is shown in the node log at startup'**
+  String get claimCodeRefused;
+
+  /// Banner shown on login screen when node is unclaimed
+  ///
+  /// In en, this message translates to:
+  /// **'This node is waiting for setup. Create a company to become the owner.'**
+  String get claimNodeUnconfiguredBanner;
+
+  /// Action button to launch company setup
+  ///
+  /// In en, this message translates to:
+  /// **'Set up company'**
+  String get claimSetupCompanyAction;
+
+  /// Russian language choice
+  ///
+  /// In en, this message translates to:
+  /// **'Russian'**
+  String get claimLangRu;
+
+  /// Kazakh language choice
+  ///
+  /// In en, this message translates to:
+  /// **'Kazakh'**
+  String get claimLangKk;
+
+  /// English language choice
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get claimLangEn;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:

@@ -24,6 +24,7 @@ import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
 import 'package:korkem_flow/features/outbox/presentation/outbox_screen.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_detail_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
+import 'package:korkem_flow/features/provisioning/presentation/claim_screen.dart';
 import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/search/presentation/search_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
@@ -36,6 +37,7 @@ import 'package:korkem_flow/features/workstations/presentation/workstations_scre
 abstract final class Routes {
   static const splash = '/';
   static const login = '/login';
+  static const claim = '/claim';
 
   /// The assistant, and where signing in lands.
   static const chat = '/chat';
@@ -123,9 +125,15 @@ GoRouter createRouter(Ref ref) {
       }
 
       final signedIn = session.value?.isAuthenticated ?? false;
-      final atEntry = location == Routes.splash || location == Routes.login;
+      final atEntry =
+          location == Routes.splash ||
+          location == Routes.login ||
+          location == Routes.claim;
 
-      if (!signedIn) return atEntry ? Routes.login : Routes.login;
+      if (!signedIn) {
+        if (location == Routes.claim) return null;
+        return atEntry ? Routes.login : Routes.login;
+      }
       return atEntry ? Routes.chat : null;
     },
     routes: [
@@ -136,6 +144,15 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.claim,
+        builder: (context, state) => ClaimScreen(
+          serverUrl:
+              state.extra as String? ??
+              state.uri.queryParameters['server'] ??
+              '',
+        ),
       ),
       GoRoute(
         path: Routes.aiSettings,
