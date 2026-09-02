@@ -47,6 +47,7 @@ def ensure_company() -> str:
 	that Work Order requires.
 	"""
 	if frappe.db.exists("Company", COMPANY):
+		_name_the_shipping_warehouse()
 		return COMPANY
 
 	from erpnext.setup.setup_wizard.setup_wizard import setup_complete
@@ -73,7 +74,21 @@ def ensure_company() -> str:
 		)
 	)
 	ensure_desk_home_page()
+	_name_the_shipping_warehouse()
 	return COMPANY
+
+
+def _name_the_shipping_warehouse() -> None:
+	"""Тот же шаг, что делает первый запуск у клиента.
+
+	Мастер ERPNext создаёт склад готовой продукции, но не назначает его складом
+	компании по умолчанию, и первый же заказ на складскую позицию отказывается
+	сохраняться. У клиента это чинит `provisioning.claim`; на стенде и в CI
+	компанию создаёт эта функция, поэтому шаг нужен и здесь.
+	"""
+	from korkem_manufacturing.services.provisioning import name_the_shipping_warehouse
+
+	name_the_shipping_warehouse(COMPANY)
 
 
 def ensure_desk_home_page():

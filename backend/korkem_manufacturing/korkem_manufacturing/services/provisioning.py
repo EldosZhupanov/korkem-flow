@@ -151,7 +151,7 @@ def claim(
 		# rather than leaving the caller with a green answer and no company.
 		frappe.throw("ERPNext setup did not complete; the node is still unclaimed.")
 
-	_name_the_shipping_warehouse(company)
+	name_the_shipping_warehouse(company)
 	owner = _make_owner(owner_email, owner_name, company)
 
 	frappe.db.set_default(CLAIM_CODE_KEY, "")
@@ -281,7 +281,7 @@ def _audit(company: str, owner_email: str) -> None:
 		)
 
 
-def _name_the_shipping_warehouse(company: str) -> None:
+def name_the_shipping_warehouse(company: str) -> None:
 	"""Указать компании, откуда она отгружает.
 
 	Мастер ERPNext создаёт склад готовой продукции, но не делает его складом
@@ -289,8 +289,14 @@ def _name_the_shipping_warehouse(company: str) -> None:
 	заказ на складскую позицию отказывается сохраняться словами «нужен склад»,
 	и происходит это у клиента, а не у нас.
 
-	Если склада вдруг нет — молчим. Установка состоялась, а отсутствие склада
-	по умолчанию заказ и так назовёт сам, понятной фразой.
+	Вызывается из двух мест, и это не дублирование: компанию создаёт либо наш
+	первый запуск у клиента, либо `setup.ensure_company` на стенде разработчика
+	и в CI. Пропустить второй путь означало, что дефект живёт до тех пор, пока
+	его не найдёт CI — что и произошло.
+
+	Идемпотентна: если склад уже назван, ничего не делает. Если склада вдруг
+	нет — молчит. Установка состоялась, а отсутствие склада по умолчанию заказ
+	и так назовёт сам, понятной фразой.
 	"""
 	if frappe.db.get_value("Company", company, "default_fg_warehouse"):
 		return
