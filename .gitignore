@@ -68,3 +68,9 @@ build/
 # NOTE: no blanket rule ignores `/backend/*`. A future KORKEM app added there
 # must be tracked by default — the previous version of this file ignored both
 # of ours by name, and the result was a repository that could not build itself.
+
+# Личные материалы владельца: ключи провайдеров и снимки экрана.
+# Ключ в репозитории — это ключ, утёкший навсегда, даже если коммит потом удалить.
+scrinshoot and Api/
+*.key
+api-keys/
