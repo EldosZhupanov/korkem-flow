@@ -74,6 +74,20 @@ def _count(doctype: str, filters: list) -> int | None:
 
 	`frappe.client.get_count` is reused rather than reimplemented so this cannot
 	drift from what the list screens themselves report.
+
+	**This is only safe while `get_summary` takes no arguments.** That helper
+	writes into `frappe.form_dict` and then calls a desk view that reads the
+	whole form_dict back, so an endpoint's own query arguments ride along into
+	the database layer. It cost a shipped defect elsewhere in this repo:
+	`station_queue?workstation=Edge 1` reached the query builder as an
+	unexpected `workstation` keyword. Here form_dict carries nothing but `cmd`,
+	so there is nothing to carry.
+
+	If you ever give `get_summary` a parameter — a period, a company, anything —
+	this counting helper has to stop using `frappe.client.get_count` in the same
+	change. Count with a permission-aware
+	`frappe.get_list(..., pluck="name", limit_page_length=0)` instead, the way
+	`korkem_manufacturing.api.queries._total` now does.
 	"""
 	if not frappe.db.exists("DocType", doctype):
 		# An app the site does not have installed is not an error here; the
