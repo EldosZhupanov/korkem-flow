@@ -1174,6 +1174,126 @@ abstract class AppLocalizations {
   /// **'Create a new request by voice or text to process it through the pipeline.'**
   String get enquiryFlowEmptyCapturesDesc;
 
+  /// Section header for design and drawings on order screen
+  ///
+  /// In en, this message translates to:
+  /// **'Design & drawings'**
+  String get orderDesignSection;
+
+  /// Status badge when design is not assigned
+  ///
+  /// In en, this message translates to:
+  /// **'Not assigned'**
+  String get orderDesignStatusNotAssigned;
+
+  /// Status badge when design is assigned
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get orderDesignStatusAssigned;
+
+  /// Status badge when design is delivered and accepted
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get orderDesignStatusDelivered;
+
+  /// Status badge when design task deadline has passed
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get orderDesignStatusOverdue;
+
+  /// Empty state title when design is not assigned
+  ///
+  /// In en, this message translates to:
+  /// **'Design not assigned yet'**
+  String get orderDesignNoTaskTitle;
+
+  /// Empty state body for design
+  ///
+  /// In en, this message translates to:
+  /// **'Drawings and specifications are required before production starts.'**
+  String get orderDesignNoTaskBody;
+
+  /// Button label to assign design task
+  ///
+  /// In en, this message translates to:
+  /// **'Assign design'**
+  String get orderDesignAssignAction;
+
+  /// Label for assigned designer
+  ///
+  /// In en, this message translates to:
+  /// **'Designer'**
+  String get orderDesignDesignerLabel;
+
+  /// Label for drawing deadline
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing due date'**
+  String get orderDesignDueDateLabel;
+
+  /// Validation message when due date is missing
+  ///
+  /// In en, this message translates to:
+  /// **'Specify drawing due date'**
+  String get orderDesignDueDateRequired;
+
+  /// Header for attached drawings list
+  ///
+  /// In en, this message translates to:
+  /// **'Attached files'**
+  String get orderDesignFilesHeader;
+
+  /// Explanation when no drawing files are attached
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing expected. Design cannot be accepted without an attached file.'**
+  String get orderDesignNoFilesNotice;
+
+  /// Button label to attach drawing file
+  ///
+  /// In en, this message translates to:
+  /// **'Attach drawing'**
+  String get orderDesignAttachFileAction;
+
+  /// Title for attach drawing dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Attach drawing to order'**
+  String get orderDesignAttachDialogTitle;
+
+  /// Label for drawing file name input
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing file name'**
+  String get orderDesignFileNameLabel;
+
+  /// Hint for drawing file name input
+  ///
+  /// In en, this message translates to:
+  /// **'drawing_kitchen.dxf'**
+  String get orderDesignFileNameHint;
+
+  /// Button to confirm file attachment
+  ///
+  /// In en, this message translates to:
+  /// **'Attach file'**
+  String get orderDesignAttachButton;
+
+  /// Button to accept and complete design
+  ///
+  /// In en, this message translates to:
+  /// **'Accept design'**
+  String get orderDesignDeliverAction;
+
+  /// Banner when design is verified and completed
+  ///
+  /// In en, this message translates to:
+  /// **'Design accepted, drawings verified'**
+  String get orderDesignCompletedNotice;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:

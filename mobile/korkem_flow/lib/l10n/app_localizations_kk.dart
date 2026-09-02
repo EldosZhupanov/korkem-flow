@@ -584,6 +584,70 @@ class AppLocalizationsKk extends AppLocalizations {
       'Тізбек бойынша жүргізу үшін дауыспен немесе мәтінмен жаңа өтініш құрыңыз.';
 
   @override
+  String get orderDesignSection => 'Дизайн және сызбалар';
+
+  @override
+  String get orderDesignStatusNotAssigned => 'Тапсырылмаған';
+
+  @override
+  String get orderDesignStatusAssigned => 'Жұмыста';
+
+  @override
+  String get orderDesignStatusDelivered => 'Қабылданды';
+
+  @override
+  String get orderDesignStatusOverdue => 'Мерзімі өтті';
+
+  @override
+  String get orderDesignNoTaskTitle => 'Дизайн әлі тапсырылмаған';
+
+  @override
+  String get orderDesignNoTaskBody =>
+      'Сызба мен сипаттама цехқа тапсырысты жібермес бұрын қажет.';
+
+  @override
+  String get orderDesignAssignAction => 'Дизайнды тапсыру';
+
+  @override
+  String get orderDesignDesignerLabel => 'Дизайнер';
+
+  @override
+  String get orderDesignDueDateLabel => 'Сызбаны өткізу мерзімі';
+
+  @override
+  String get orderDesignDueDateRequired =>
+      'Сызбаны тапсыру мерзімін көрсетіңіз';
+
+  @override
+  String get orderDesignFilesHeader => 'Қоса берілген файлдар';
+
+  @override
+  String get orderDesignNoFilesNotice =>
+      'Сызба күтілуде. Қоса берілген файлсыз дизайн қабылданбайды.';
+
+  @override
+  String get orderDesignAttachFileAction => 'Сызбаны қосу';
+
+  @override
+  String get orderDesignAttachDialogTitle => 'Тапсырысқа сызбаны қосу';
+
+  @override
+  String get orderDesignFileNameLabel => 'Сызба файлының атауы';
+
+  @override
+  String get orderDesignFileNameHint => 'асүй_сызбасы.dxf';
+
+  @override
+  String get orderDesignAttachButton => 'Файлды қосу';
+
+  @override
+  String get orderDesignDeliverAction => 'Дизайнды қабылдау';
+
+  @override
+  String get orderDesignCompletedNotice =>
+      'Дизайн қабылданды, сызбалар тексерілді';
+
+  @override
   String get settingsTitle => 'Параметрлер';
 
   @override

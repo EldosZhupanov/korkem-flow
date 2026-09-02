@@ -595,6 +595,68 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create a new request by voice or text to process it through the pipeline.';
 
   @override
+  String get orderDesignSection => 'Design & drawings';
+
+  @override
+  String get orderDesignStatusNotAssigned => 'Not assigned';
+
+  @override
+  String get orderDesignStatusAssigned => 'In progress';
+
+  @override
+  String get orderDesignStatusDelivered => 'Accepted';
+
+  @override
+  String get orderDesignStatusOverdue => 'Overdue';
+
+  @override
+  String get orderDesignNoTaskTitle => 'Design not assigned yet';
+
+  @override
+  String get orderDesignNoTaskBody =>
+      'Drawings and specifications are required before production starts.';
+
+  @override
+  String get orderDesignAssignAction => 'Assign design';
+
+  @override
+  String get orderDesignDesignerLabel => 'Designer';
+
+  @override
+  String get orderDesignDueDateLabel => 'Drawing due date';
+
+  @override
+  String get orderDesignDueDateRequired => 'Specify drawing due date';
+
+  @override
+  String get orderDesignFilesHeader => 'Attached files';
+
+  @override
+  String get orderDesignNoFilesNotice =>
+      'Drawing expected. Design cannot be accepted without an attached file.';
+
+  @override
+  String get orderDesignAttachFileAction => 'Attach drawing';
+
+  @override
+  String get orderDesignAttachDialogTitle => 'Attach drawing to order';
+
+  @override
+  String get orderDesignFileNameLabel => 'Drawing file name';
+
+  @override
+  String get orderDesignFileNameHint => 'drawing_kitchen.dxf';
+
+  @override
+  String get orderDesignAttachButton => 'Attach file';
+
+  @override
+  String get orderDesignDeliverAction => 'Accept design';
+
+  @override
+  String get orderDesignCompletedNotice => 'Design accepted, drawings verified';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

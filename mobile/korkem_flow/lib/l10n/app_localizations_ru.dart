@@ -597,6 +597,68 @@ class AppLocalizationsRu extends AppLocalizations {
       'Создайте новое обращение голосом или текстом, чтобы провести его по цепочке.';
 
   @override
+  String get orderDesignSection => 'Дизайн и чертежи';
+
+  @override
+  String get orderDesignStatusNotAssigned => 'Не поручен';
+
+  @override
+  String get orderDesignStatusAssigned => 'В работе';
+
+  @override
+  String get orderDesignStatusDelivered => 'Принят';
+
+  @override
+  String get orderDesignStatusOverdue => 'Просрочен';
+
+  @override
+  String get orderDesignNoTaskTitle => 'Дизайн ещё не поручен';
+
+  @override
+  String get orderDesignNoTaskBody =>
+      'Чертёж и спецификация необходимы до запуска заказа в цех.';
+
+  @override
+  String get orderDesignAssignAction => 'Поручить дизайн';
+
+  @override
+  String get orderDesignDesignerLabel => 'Дизайнер';
+
+  @override
+  String get orderDesignDueDateLabel => 'Срок сдачи чертежа';
+
+  @override
+  String get orderDesignDueDateRequired => 'Укажите срок сдачи чертежа';
+
+  @override
+  String get orderDesignFilesHeader => 'Приложенные файлы';
+
+  @override
+  String get orderDesignNoFilesNotice =>
+      'Ожидается чертёж. Без приложенного файла дизайн не может быть принят.';
+
+  @override
+  String get orderDesignAttachFileAction => 'Приложить чертёж';
+
+  @override
+  String get orderDesignAttachDialogTitle => 'Прикрепить чертёж к заказу';
+
+  @override
+  String get orderDesignFileNameLabel => 'Имя файла чертежа';
+
+  @override
+  String get orderDesignFileNameHint => 'чертёж_кухня.dxf';
+
+  @override
+  String get orderDesignAttachButton => 'Прикрепить файл';
+
+  @override
+  String get orderDesignDeliverAction => 'Принять дизайн';
+
+  @override
+  String get orderDesignCompletedNotice => 'Дизайн принят, чертежи проверены';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override

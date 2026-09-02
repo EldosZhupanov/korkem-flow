@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/time/clock.dart';
+import 'package:korkem_flow/features/orders/data/order_design_repository.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
+import 'package:korkem_flow/features/orders/domain/order_design.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
+import 'package:korkem_flow/features/orders/presentation/start_production_button.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/data/work_order_repository.dart';
@@ -24,6 +26,9 @@ class _MockProductionCommandRepository extends Mock
 
 class _MockReceivingRepository extends Mock implements ReceivingRepository {}
 
+class _MockOrderDesignRepository extends Mock
+    implements OrderDesignRepository {}
+
 const _order = SalesOrder(
   name: 'SAL-ORD-00001',
   customer: 'Мебель Астана',
@@ -37,17 +42,20 @@ void main() {
   late _MockWorkOrderRepository workOrders;
   late _MockProductionCommandRepository commands;
   late _MockReceivingRepository receivingRepo;
+  late _MockOrderDesignRepository designRepo;
 
   setUp(() {
     orders = _MockSalesOrderRepository();
     workOrders = _MockWorkOrderRepository();
     commands = _MockProductionCommandRepository();
     receivingRepo = _MockReceivingRepository();
+    designRepo = _MockOrderDesignRepository();
   });
 
   void stubOrder({
     List<SalesOrder> found = const [_order],
     List<SalesOrderDelivery> deliveries = const [],
+    OrderDesign? design,
   }) {
     when(
       () => orders.fetchPage(
@@ -60,6 +68,15 @@ void main() {
     when(
       () => orders.fetchDeliveries(any()),
     ).thenAnswer((_) async => deliveries);
+    when(
+      () => designRepo.fetchDesign(any()),
+    ).thenAnswer(
+      (_) async =>
+          design ??
+          const OrderDesign(
+            salesOrder: 'SAL-ORD-00001',
+          ),
+    );
   }
 
   Future<void> pump(
@@ -75,6 +92,7 @@ void main() {
         retry: (_, _) => null,
         overrides: [
           salesOrderRepositoryProvider.overrideWithValue(orders),
+          orderDesignRepositoryProvider.overrideWithValue(designRepo),
           workOrderRepositoryProvider.overrideWithValue(workOrders),
           productionCommandRepositoryProvider.overrideWithValue(commands),
           receivingRepositoryProvider.overrideWithValue(receivingRepo),
@@ -114,7 +132,7 @@ void main() {
     await pump(tester);
 
     expect(find.text('Production has not started'), findsOneWidget);
-    expect(find.byType(FilledButton), findsOneWidget);
+    expect(find.byType(StartProductionButton), findsOneWidget);
   });
 
   testWidgets('a job belonging to another order is not shown here', (
@@ -172,9 +190,9 @@ void main() {
     await pump(tester);
 
     // The 800x600 test viewport puts the button below the fold.
-    await tester.ensureVisible(find.byType(FilledButton));
+    await tester.ensureVisible(find.byType(StartProductionButton));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(FilledButton));
+    await tester.tap(find.byType(StartProductionButton));
     // Not `pumpAndSettle`: the refusal also raises a snack bar, and waiting
     // for that to expire outlasts the settle timeout. The dialog is what this
     // test is about, and it is up after one frame plus its own animation.

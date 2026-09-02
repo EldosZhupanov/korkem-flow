@@ -640,6 +640,86 @@
   "@enquiryFlowEmptyCapturesDesc": {
     "description": "Empty state description for captures"
   },
+  "orderDesignSection": "Design & drawings",
+  "@orderDesignSection": {
+    "description": "Section header for design and drawings on order screen"
+  },
+  "orderDesignStatusNotAssigned": "Not assigned",
+  "@orderDesignStatusNotAssigned": {
+    "description": "Status badge when design is not assigned"
+  },
+  "orderDesignStatusAssigned": "In progress",
+  "@orderDesignStatusAssigned": {
+    "description": "Status badge when design is assigned"
+  },
+  "orderDesignStatusDelivered": "Accepted",
+  "@orderDesignStatusDelivered": {
+    "description": "Status badge when design is delivered and accepted"
+  },
+  "orderDesignStatusOverdue": "Overdue",
+  "@orderDesignStatusOverdue": {
+    "description": "Status badge when design task deadline has passed"
+  },
+  "orderDesignNoTaskTitle": "Design not assigned yet",
+  "@orderDesignNoTaskTitle": {
+    "description": "Empty state title when design is not assigned"
+  },
+  "orderDesignNoTaskBody": "Drawings and specifications are required before production starts.",
+  "@orderDesignNoTaskBody": {
+    "description": "Empty state body for design"
+  },
+  "orderDesignAssignAction": "Assign design",
+  "@orderDesignAssignAction": {
+    "description": "Button label to assign design task"
+  },
+  "orderDesignDesignerLabel": "Designer",
+  "@orderDesignDesignerLabel": {
+    "description": "Label for assigned designer"
+  },
+  "orderDesignDueDateLabel": "Drawing due date",
+  "@orderDesignDueDateLabel": {
+    "description": "Label for drawing deadline"
+  },
+  "orderDesignDueDateRequired": "Specify drawing due date",
+  "@orderDesignDueDateRequired": {
+    "description": "Validation message when due date is missing"
+  },
+  "orderDesignFilesHeader": "Attached files",
+  "@orderDesignFilesHeader": {
+    "description": "Header for attached drawings list"
+  },
+  "orderDesignNoFilesNotice": "Drawing expected. Design cannot be accepted without an attached file.",
+  "@orderDesignNoFilesNotice": {
+    "description": "Explanation when no drawing files are attached"
+  },
+  "orderDesignAttachFileAction": "Attach drawing",
+  "@orderDesignAttachFileAction": {
+    "description": "Button label to attach drawing file"
+  },
+  "orderDesignAttachDialogTitle": "Attach drawing to order",
+  "@orderDesignAttachDialogTitle": {
+    "description": "Title for attach drawing dialog"
+  },
+  "orderDesignFileNameLabel": "Drawing file name",
+  "@orderDesignFileNameLabel": {
+    "description": "Label for drawing file name input"
+  },
+  "orderDesignFileNameHint": "drawing_kitchen.dxf",
+  "@orderDesignFileNameHint": {
+    "description": "Hint for drawing file name input"
+  },
+  "orderDesignAttachButton": "Attach file",
+  "@orderDesignAttachButton": {
+    "description": "Button to confirm file attachment"
+  },
+  "orderDesignDeliverAction": "Accept design",
+  "@orderDesignDeliverAction": {
+    "description": "Button to accept and complete design"
+  },
+  "orderDesignCompletedNotice": "Design accepted, drawings verified",
+  "@orderDesignCompletedNotice": {
+    "description": "Banner when design is verified and completed"
+  },
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",
