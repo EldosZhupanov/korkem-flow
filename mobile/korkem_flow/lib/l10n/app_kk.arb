@@ -566,5 +566,13 @@
   "productionSelectPromptTitle": "Тапсырманы таңдаңыз",
   "productionSelectPromptBody": "Параметрлері мен технологиялық операцияларын көру үшін тізімнен тапсырманы таңдаңыз.",
   "warehouseSelectPromptTitle": "Позицияны таңдаңыз",
-  "warehouseSelectPromptBody": "Қойма қалдықтары мен параметрлерді көру үшін тізімнен позицияны таңдаңыз."
+  "warehouseSelectPromptBody": "Қойма қалдықтары мен параметрлерді көру үшін тізімнен позицияны таңдаңыз.",
+  "completeOperationAction": "Жабу",
+  "completeOperationTitle": "Операцияны аяқтау",
+  "completeOperationQtyLabel": "Дайын өнім",
+  "completeOperationScrapQtyLabel": "Ақау",
+  "completeOperationSuccess": "«{operation}» операциясы аяқталды",
+  "completeOperationAlreadyComplete": "Операция бұрын аяқталған",
+  "completeOperationInvalidQty": "Дұрыс теріс емес санды енгізіңіз",
+  "completeOperationBlockedTitle": "Операцияны аяқтау мүмкін емес"
 }

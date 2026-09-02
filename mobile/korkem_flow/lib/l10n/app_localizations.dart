@@ -2529,6 +2529,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select an item from the list to view warehouse balances and details.'**
   String get warehouseSelectPromptBody;
+
+  /// Action button label to complete an operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get completeOperationAction;
+
+  /// Dialog title when reporting operation completion.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Operation'**
+  String get completeOperationTitle;
+
+  /// Input field label for good/completed quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed quantity'**
+  String get completeOperationQtyLabel;
+
+  /// Input field label for scrapped quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Scrap quantity'**
+  String get completeOperationScrapQtyLabel;
+
+  /// Snackbar message when operation is successfully completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation {operation} completed'**
+  String completeOperationSuccess(String operation);
+
+  /// Message when the operation was already completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation is already completed'**
+  String get completeOperationAlreadyComplete;
+
+  /// Validation error message for invalid quantity input.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid non-negative number'**
+  String get completeOperationInvalidQty;
+
+  /// Title when server refuses operation completion.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot Complete Operation'**
+  String get completeOperationBlockedTitle;
 }
 
 class _AppLocalizationsDelegate

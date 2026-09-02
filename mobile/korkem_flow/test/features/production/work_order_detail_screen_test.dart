@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
+import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/data/work_order_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
@@ -13,6 +14,9 @@ import 'package:mocktail/mocktail.dart';
 import '../../support/widget_harness.dart';
 
 class _MockWorkOrderRepository extends Mock implements WorkOrderRepository {}
+
+class _MockProductionCommandRepository extends Mock
+    implements ProductionCommandRepository {}
 
 const _workOrder = WorkOrder(
   id: 'MFG-WO-00001',
@@ -29,9 +33,11 @@ const _workOrder = WorkOrder(
 
 void main() {
   late _MockWorkOrderRepository workOrders;
+  late _MockProductionCommandRepository commandRepo;
 
   setUp(() {
     workOrders = _MockWorkOrderRepository();
+    commandRepo = _MockProductionCommandRepository();
     when(
       () => workOrders.fetchOperations(any()),
     ).thenAnswer((_) async => const []);
@@ -62,6 +68,7 @@ void main() {
         retry: (_, _) => null,
         overrides: [
           workOrderRepositoryProvider.overrideWithValue(workOrders),
+          productionCommandRepositoryProvider.overrideWithValue(commandRepo),
           clockProvider.overrideWithValue(
             () => now ?? DateTime(2026, 9, 1, 12),
           ),

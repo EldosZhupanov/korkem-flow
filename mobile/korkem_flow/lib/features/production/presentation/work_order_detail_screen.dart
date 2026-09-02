@@ -15,6 +15,7 @@ import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/production/application/work_order_detail_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
+import 'package:korkem_flow/features/production/presentation/complete_operation_button.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_operation_status_label.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_status_label.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -261,7 +262,7 @@ class _Operations extends StatelessWidget {
   }
 }
 
-class _OperationCard extends StatelessWidget {
+class _OperationCard extends ConsumerWidget {
   const _OperationCard({
     required this.order,
     required this.operation,
@@ -271,7 +272,7 @@ class _OperationCard extends StatelessWidget {
   final WorkOrderOperation operation;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
@@ -355,6 +356,22 @@ class _OperationCard extends StatelessWidget {
                   operation.plannedMinutes.round(),
                 ),
               ),
+            if (operation.canComplete) ...[
+              const SizedBox(height: AppSpacing.md),
+              Align(
+                alignment: Alignment.centerRight,
+                child: CompleteOperationButton(
+                  workOrder: order.id,
+                  operation: operation,
+                  orderQty: order.qty,
+                  onCompleted: () async {
+                    ref
+                      ..invalidate(workOrderDetailProvider(order.id))
+                      ..invalidate(workOrderOperationsProvider(order.id));
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),

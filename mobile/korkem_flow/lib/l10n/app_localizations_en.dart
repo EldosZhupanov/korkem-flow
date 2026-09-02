@@ -1384,4 +1384,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get warehouseSelectPromptBody =>
       'Select an item from the list to view warehouse balances and details.';
+
+  @override
+  String get completeOperationAction => 'Complete';
+
+  @override
+  String get completeOperationTitle => 'Complete Operation';
+
+  @override
+  String get completeOperationQtyLabel => 'Completed quantity';
+
+  @override
+  String get completeOperationScrapQtyLabel => 'Scrap quantity';
+
+  @override
+  String completeOperationSuccess(String operation) {
+    return 'Operation $operation completed';
+  }
+
+  @override
+  String get completeOperationAlreadyComplete =>
+      'Operation is already completed';
+
+  @override
+  String get completeOperationInvalidQty => 'Enter a valid non-negative number';
+
+  @override
+  String get completeOperationBlockedTitle => 'Cannot Complete Operation';
 }

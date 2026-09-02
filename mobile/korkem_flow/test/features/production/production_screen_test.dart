@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
+import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/data/work_order_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
@@ -56,11 +57,16 @@ const _operations2 = [
   ),
 ];
 
+class _MockProductionCommandRepository extends Mock
+    implements ProductionCommandRepository {}
+
 void main() {
   late _MockWorkOrderRepository workOrders;
+  late _MockProductionCommandRepository commandRepo;
 
   setUp(() {
     workOrders = _MockWorkOrderRepository();
+    commandRepo = _MockProductionCommandRepository();
   });
 
   Future<void> pumpScreen(
@@ -97,6 +103,7 @@ void main() {
       ProviderScope(
         overrides: [
           workOrderRepositoryProvider.overrideWithValue(workOrders),
+          productionCommandRepositoryProvider.overrideWithValue(commandRepo),
           clockProvider.overrideWithValue(
             () => DateTime(2026, 9, 1, 12),
           ),

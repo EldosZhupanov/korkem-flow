@@ -40,6 +40,11 @@ class WorkOrderOperation {
   WorkOrderOperationStatus get statusEnum =>
       WorkOrderOperationStatus.fromWire(status);
 
+  bool get canComplete =>
+      statusEnum != WorkOrderOperationStatus.completed &&
+      statusEnum != WorkOrderOperationStatus.closed &&
+      statusEnum != WorkOrderOperationStatus.cancelled;
+
   @override
   bool operator ==(Object other) =>
       other is WorkOrderOperation && other.name == name;

@@ -566,5 +566,13 @@
   "productionSelectPromptTitle": "Выберите задание",
   "productionSelectPromptBody": "Выберите задание из списка, чтобы просмотреть его параметры и технологические операции.",
   "warehouseSelectPromptTitle": "Выберите позицию",
-  "warehouseSelectPromptBody": "Выберите позицию из списка, чтобы просмотреть остатки по складам и параметры."
+  "warehouseSelectPromptBody": "Выберите позицию из списка, чтобы просмотреть остатки по складам и параметры.",
+  "completeOperationAction": "Закрыть",
+  "completeOperationTitle": "Закрытие операции",
+  "completeOperationQtyLabel": "Готовая продукция",
+  "completeOperationScrapQtyLabel": "Брак",
+  "completeOperationSuccess": "Операция «{operation}» завершена",
+  "completeOperationAlreadyComplete": "Операция уже была закрыта ранее",
+  "completeOperationInvalidQty": "Введите корректное неотрицательное число",
+  "completeOperationBlockedTitle": "Не удалось закрыть операцию"
 }

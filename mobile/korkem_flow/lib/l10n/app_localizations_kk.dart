@@ -1356,4 +1356,30 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get warehouseSelectPromptBody =>
       'Қойма қалдықтары мен параметрлерді көру үшін тізімнен позицияны таңдаңыз.';
+
+  @override
+  String get completeOperationAction => 'Жабу';
+
+  @override
+  String get completeOperationTitle => 'Операцияны аяқтау';
+
+  @override
+  String get completeOperationQtyLabel => 'Дайын өнім';
+
+  @override
+  String get completeOperationScrapQtyLabel => 'Ақау';
+
+  @override
+  String completeOperationSuccess(String operation) {
+    return '«$operation» операциясы аяқталды';
+  }
+
+  @override
+  String get completeOperationAlreadyComplete => 'Операция бұрын аяқталған';
+
+  @override
+  String get completeOperationInvalidQty => 'Дұрыс теріс емес санды енгізіңіз';
+
+  @override
+  String get completeOperationBlockedTitle => 'Операцияны аяқтау мүмкін емес';
 }

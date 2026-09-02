@@ -1396,4 +1396,32 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get warehouseSelectPromptBody =>
       'Выберите позицию из списка, чтобы просмотреть остатки по складам и параметры.';
+
+  @override
+  String get completeOperationAction => 'Закрыть';
+
+  @override
+  String get completeOperationTitle => 'Закрытие операции';
+
+  @override
+  String get completeOperationQtyLabel => 'Готовая продукция';
+
+  @override
+  String get completeOperationScrapQtyLabel => 'Брак';
+
+  @override
+  String completeOperationSuccess(String operation) {
+    return 'Операция «$operation» завершена';
+  }
+
+  @override
+  String get completeOperationAlreadyComplete =>
+      'Операция уже была закрыта ранее';
+
+  @override
+  String get completeOperationInvalidQty =>
+      'Введите корректное неотрицательное число';
+
+  @override
+  String get completeOperationBlockedTitle => 'Не удалось закрыть операцию';
 }

@@ -1337,5 +1337,42 @@
   "warehouseSelectPromptBody": "Select an item from the list to view warehouse balances and details.",
   "@warehouseSelectPromptBody": {
     "description": "Message in detail pane when no stock item is selected in wide layout."
+  },
+  "completeOperationAction": "Complete",
+  "@completeOperationAction": {
+    "description": "Action button label to complete an operation."
+  },
+  "completeOperationTitle": "Complete Operation",
+  "@completeOperationTitle": {
+    "description": "Dialog title when reporting operation completion."
+  },
+  "completeOperationQtyLabel": "Completed quantity",
+  "@completeOperationQtyLabel": {
+    "description": "Input field label for good/completed quantity."
+  },
+  "completeOperationScrapQtyLabel": "Scrap quantity",
+  "@completeOperationScrapQtyLabel": {
+    "description": "Input field label for scrapped quantity."
+  },
+  "completeOperationSuccess": "Operation {operation} completed",
+  "@completeOperationSuccess": {
+    "description": "Snackbar message when operation is successfully completed.",
+    "placeholders": {
+      "operation": {
+        "type": "String"
+      }
+    }
+  },
+  "completeOperationAlreadyComplete": "Operation is already completed",
+  "@completeOperationAlreadyComplete": {
+    "description": "Message when the operation was already completed."
+  },
+  "completeOperationInvalidQty": "Enter a valid non-negative number",
+  "@completeOperationInvalidQty": {
+    "description": "Validation error message for invalid quantity input."
+  },
+  "completeOperationBlockedTitle": "Cannot Complete Operation",
+  "@completeOperationBlockedTitle": {
+    "description": "Title when server refuses operation completion."
   }
 }
