@@ -2331,6 +2331,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All sent'**
   String get todayOutboxAllSent;
+
+  /// Section header for shipments on order detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries'**
+  String get orderDeliveriesSection;
+
+  /// Title when no deliveries have been made for an order.
+  ///
+  /// In en, this message translates to:
+  /// **'No shipments yet'**
+  String get orderNoDeliveriesTitle;
+
+  /// Body when no deliveries have been made for an order.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries will appear here when goods are shipped.'**
+  String get orderNoDeliveriesBody;
+
+  /// Title for the universal search screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchTitle;
+
+  /// Placeholder for search text field.
+  ///
+  /// In en, this message translates to:
+  /// **'Order, customer, material...'**
+  String get searchPlaceholder;
+
+  /// Title when search query is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Search across everything'**
+  String get searchEmptyPromptTitle;
+
+  /// Description when search query is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an order number, customer name, work order, or item code.'**
+  String get searchEmptyPromptBody;
+
+  /// Title when search query yields no results.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get searchNoResultsTitle;
+
+  /// Body when search query yields no results.
+  ///
+  /// In en, this message translates to:
+  /// **'No results matching «{query}».'**
+  String searchNoResultsBody(String query);
+
+  /// Header for orders section in search results.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders ({count})'**
+  String searchSectionOrders(int count);
+
+  /// Header for work orders section in search results.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Orders ({count})'**
+  String searchSectionWorkOrders(int count);
+
+  /// Header for stock section in search results.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock ({count})'**
+  String searchSectionStock(int count);
+
+  /// Error message when a specific search section fails to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load {section}'**
+  String searchSectionError(String section);
+
+  /// Tooltip for search action in top bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchNavTooltip;
 }
 
 class _AppLocalizationsDelegate

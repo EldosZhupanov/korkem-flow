@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
+import 'package:korkem_flow/core/api/mutation_outbox_store.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
 
@@ -26,30 +28,34 @@ final authDioProvider = Provider<Dio>((ref) {
   );
 });
 
-/// One volatile queue for the current authenticated server/user pair.
+final mutationOutboxStoreProvider = Provider<MutationOutboxStore>(
+  (ref) => const SecureMutationOutboxStore(FlutterSecureStorage()),
+);
+
+/// One durable queue for the current authenticated server/user pair.
 final mutationOutboxProvider = Provider<MutationOutbox>((ref) {
-  final outbox = MutationOutbox();
+  final outbox = MutationOutbox(
+    store: ref.watch(mutationOutboxStoreProvider),
+    scope: _outboxScopeFor(ref.read(sessionProvider).value),
+  );
   ref
     ..onDispose(outbox.dispose)
     ..listen(sessionProvider, (previous, next) {
-      final before = previous?.value;
-      final after = next.value;
-      if (before == null) return;
-      if (after == null ||
-          before.serverUrl != after.serverUrl ||
-          before.user != after.user) {
-        outbox.clear();
-      }
+      final before = _outboxScopeFor(previous?.value);
+      final after = _outboxScopeFor(next.value);
+      if (before != after) unawaited(outbox.activate(after));
     });
   return outbox;
 });
 
+MutationOutboxScope? _outboxScopeFor(Session? session) {
+  final user = session?.user;
+  if (session == null || user == null) return null;
+  return MutationOutboxScope(serverUrl: session.serverUrl, user: user);
+}
+
 final mutationOutboxSnapshotProvider = StreamProvider<OutboxSnapshot>(
-  (ref) async* {
-    final outbox = ref.watch(mutationOutboxProvider);
-    yield outbox.snapshot;
-    yield* outbox.snapshots;
-  },
+  (ref) => ref.watch(mutationOutboxProvider).snapshots,
 );
 
 /// The authenticated client every feature uses.

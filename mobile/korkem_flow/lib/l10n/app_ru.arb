@@ -533,5 +533,19 @@
   "outboxParamCompletedQty": "Готово: {qty}",
   "outboxParamScrapQty": "Брак: {qty}",
   "todayOutboxTitle": "Не отправлено",
-  "todayOutboxAllSent": "Всё отправлено"
+  "todayOutboxAllSent": "Всё отправлено",
+  "orderDeliveriesSection": "Отгрузки",
+  "orderNoDeliveriesTitle": "Отгрузок ещё не было",
+  "orderNoDeliveriesBody": "Здесь появятся накладные, когда товары будут отгружены.",
+  "searchTitle": "Поиск",
+  "searchPlaceholder": "Заказ, клиент, материал...",
+  "searchEmptyPromptTitle": "Поиск по всей системе",
+  "searchEmptyPromptBody": "Введите номер заказа, имя клиента, задание или код материала.",
+  "searchNoResultsTitle": "Ничего не найдено",
+  "searchNoResultsBody": "По запросу «{query}» ничего не найдено.",
+  "searchSectionOrders": "Заказы ({count})",
+  "searchSectionWorkOrders": "Задания ({count})",
+  "searchSectionStock": "Склад ({count})",
+  "searchSectionError": "Не удалось загрузить раздел: {section}",
+  "searchNavTooltip": "Поиск"
 }

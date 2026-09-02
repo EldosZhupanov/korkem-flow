@@ -81,6 +81,17 @@ class MutationOutboxBanner extends ConsumerWidget {
                     ),
                     child: Text(l10n.outboxRetry),
                   ),
+                IconButton(
+                  icon: const Icon(AppIcons.search, size: AppIconSize.small),
+                  tooltip: l10n.searchNavTooltip,
+                  onPressed: () {
+                    try {
+                      unawaited(context.push(Routes.search));
+                    } on Object {
+                      // Ignored when not mounted under GoRouter.
+                    }
+                  },
+                ),
                 const Icon(AppIcons.forward, size: AppIconSize.small),
               ],
             ),

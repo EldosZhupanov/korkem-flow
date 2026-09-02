@@ -1259,4 +1259,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayOutboxAllSent => 'All sent';
+
+  @override
+  String get orderDeliveriesSection => 'Deliveries';
+
+  @override
+  String get orderNoDeliveriesTitle => 'No shipments yet';
+
+  @override
+  String get orderNoDeliveriesBody =>
+      'Deliveries will appear here when goods are shipped.';
+
+  @override
+  String get searchTitle => 'Search';
+
+  @override
+  String get searchPlaceholder => 'Order, customer, material...';
+
+  @override
+  String get searchEmptyPromptTitle => 'Search across everything';
+
+  @override
+  String get searchEmptyPromptBody =>
+      'Enter an order number, customer name, work order, or item code.';
+
+  @override
+  String get searchNoResultsTitle => 'Nothing found';
+
+  @override
+  String searchNoResultsBody(String query) {
+    return 'No results matching «$query».';
+  }
+
+  @override
+  String searchSectionOrders(int count) {
+    return 'Orders ($count)';
+  }
+
+  @override
+  String searchSectionWorkOrders(int count) {
+    return 'Work Orders ($count)';
+  }
+
+  @override
+  String searchSectionStock(int count) {
+    return 'Stock ($count)';
+  }
+
+  @override
+  String searchSectionError(String section) {
+    return 'Failed to load $section';
+  }
+
+  @override
+  String get searchNavTooltip => 'Search';
 }

@@ -1231,4 +1231,58 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get todayOutboxAllSent => 'Барлығы жіберілді';
+
+  @override
+  String get orderDeliveriesSection => 'Жөнелтілімдер';
+
+  @override
+  String get orderNoDeliveriesTitle => 'Әлі жөнелтілімдер болған жоқ';
+
+  @override
+  String get orderNoDeliveriesBody =>
+      'Тауарлар жөнелтілгенде мұнда жүкқұжаттар пайда болады.';
+
+  @override
+  String get searchTitle => 'Іздеу';
+
+  @override
+  String get searchPlaceholder => 'Тапсырыс, тұтынушы, материал...';
+
+  @override
+  String get searchEmptyPromptTitle => 'Барлық жүйе бойынша іздеу';
+
+  @override
+  String get searchEmptyPromptBody =>
+      'Тапсырыс нөмірін, тұтынушы атын, өндіріс тапсырмасын немесе материал кодын енгізіңіз.';
+
+  @override
+  String get searchNoResultsTitle => 'Ештеңе табылмады';
+
+  @override
+  String searchNoResultsBody(String query) {
+    return '«$query» сұранысы бойынша ештеңе табылмады.';
+  }
+
+  @override
+  String searchSectionOrders(int count) {
+    return 'Тапсырыстар ($count)';
+  }
+
+  @override
+  String searchSectionWorkOrders(int count) {
+    return 'Тапсырмалар ($count)';
+  }
+
+  @override
+  String searchSectionStock(int count) {
+    return 'Қойма ($count)';
+  }
+
+  @override
+  String searchSectionError(String section) {
+    return 'Бөлімді жүктеу сәтсіз аяқталды: $section';
+  }
+
+  @override
+  String get searchNavTooltip => 'Іздеу';
 }

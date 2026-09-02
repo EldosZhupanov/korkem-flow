@@ -533,5 +533,19 @@
   "outboxParamCompletedQty": "Дайын: {qty}",
   "outboxParamScrapQty": "Ақау: {qty}",
   "todayOutboxTitle": "Жіберілмеген",
-  "todayOutboxAllSent": "Барлығы жіберілді"
+  "todayOutboxAllSent": "Барлығы жіберілді",
+  "orderDeliveriesSection": "Жөнелтілімдер",
+  "orderNoDeliveriesTitle": "Әлі жөнелтілімдер болған жоқ",
+  "orderNoDeliveriesBody": "Тауарлар жөнелтілгенде мұнда жүкқұжаттар пайда болады.",
+  "searchTitle": "Іздеу",
+  "searchPlaceholder": "Тапсырыс, тұтынушы, материал...",
+  "searchEmptyPromptTitle": "Барлық жүйе бойынша іздеу",
+  "searchEmptyPromptBody": "Тапсырыс нөмірін, тұтынушы атын, өндіріс тапсырмасын немесе материал кодын енгізіңіз.",
+  "searchNoResultsTitle": "Ештеңе табылмады",
+  "searchNoResultsBody": "«{query}» сұранысы бойынша ештеңе табылмады.",
+  "searchSectionOrders": "Тапсырыстар ({count})",
+  "searchSectionWorkOrders": "Тапсырмалар ({count})",
+  "searchSectionStock": "Қойма ({count})",
+  "searchSectionError": "Бөлімді жүктеу сәтсіз аяқталды: {section}",
+  "searchNavTooltip": "Іздеу"
 }

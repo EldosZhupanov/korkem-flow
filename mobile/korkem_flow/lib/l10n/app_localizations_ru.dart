@@ -1271,4 +1271,58 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get todayOutboxAllSent => 'Всё отправлено';
+
+  @override
+  String get orderDeliveriesSection => 'Отгрузки';
+
+  @override
+  String get orderNoDeliveriesTitle => 'Отгрузок ещё не было';
+
+  @override
+  String get orderNoDeliveriesBody =>
+      'Здесь появятся накладные, когда товары будут отгружены.';
+
+  @override
+  String get searchTitle => 'Поиск';
+
+  @override
+  String get searchPlaceholder => 'Заказ, клиент, материал...';
+
+  @override
+  String get searchEmptyPromptTitle => 'Поиск по всей системе';
+
+  @override
+  String get searchEmptyPromptBody =>
+      'Введите номер заказа, имя клиента, задание или код материала.';
+
+  @override
+  String get searchNoResultsTitle => 'Ничего не найдено';
+
+  @override
+  String searchNoResultsBody(String query) {
+    return 'По запросу «$query» ничего не найдено.';
+  }
+
+  @override
+  String searchSectionOrders(int count) {
+    return 'Заказы ($count)';
+  }
+
+  @override
+  String searchSectionWorkOrders(int count) {
+    return 'Задания ($count)';
+  }
+
+  @override
+  String searchSectionStock(int count) {
+    return 'Склад ($count)';
+  }
+
+  @override
+  String searchSectionError(String section) {
+    return 'Не удалось загрузить раздел: $section';
+  }
+
+  @override
+  String get searchNavTooltip => 'Поиск';
 }

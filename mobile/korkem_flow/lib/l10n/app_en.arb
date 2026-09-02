@@ -1155,5 +1155,86 @@
   "todayOutboxAllSent": "All sent",
   "@todayOutboxAllSent": {
     "description": "Subtitle when all outbox commands have been sent on Today screen."
+  },
+  "orderDeliveriesSection": "Deliveries",
+  "@orderDeliveriesSection": {
+    "description": "Section header for shipments on order detail screen."
+  },
+  "orderNoDeliveriesTitle": "No shipments yet",
+  "@orderNoDeliveriesTitle": {
+    "description": "Title when no deliveries have been made for an order."
+  },
+  "orderNoDeliveriesBody": "Deliveries will appear here when goods are shipped.",
+  "@orderNoDeliveriesBody": {
+    "description": "Body when no deliveries have been made for an order."
+  },
+  "searchTitle": "Search",
+  "@searchTitle": {
+    "description": "Title for the universal search screen."
+  },
+  "searchPlaceholder": "Order, customer, material...",
+  "@searchPlaceholder": {
+    "description": "Placeholder for search text field."
+  },
+  "searchEmptyPromptTitle": "Search across everything",
+  "@searchEmptyPromptTitle": {
+    "description": "Title when search query is empty."
+  },
+  "searchEmptyPromptBody": "Enter an order number, customer name, work order, or item code.",
+  "@searchEmptyPromptBody": {
+    "description": "Description when search query is empty."
+  },
+  "searchNoResultsTitle": "Nothing found",
+  "@searchNoResultsTitle": {
+    "description": "Title when search query yields no results."
+  },
+  "searchNoResultsBody": "No results matching «{query}».",
+  "@searchNoResultsBody": {
+    "description": "Body when search query yields no results.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchSectionOrders": "Orders ({count})",
+  "@searchSectionOrders": {
+    "description": "Header for orders section in search results.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchSectionWorkOrders": "Work Orders ({count})",
+  "@searchSectionWorkOrders": {
+    "description": "Header for work orders section in search results.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchSectionStock": "Stock ({count})",
+  "@searchSectionStock": {
+    "description": "Header for stock section in search results.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchSectionError": "Failed to load {section}",
+  "@searchSectionError": {
+    "description": "Error message when a specific search section fails to load.",
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "searchNavTooltip": "Search",
+  "@searchNavTooltip": {
+    "description": "Tooltip for search action in top bar."
   }
 }
