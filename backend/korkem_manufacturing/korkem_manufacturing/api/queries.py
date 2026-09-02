@@ -61,6 +61,22 @@ DELIVERY_NOTE_ITEM_FIELDS = (
 	"qty",
 	"uom",
 )
+PURCHASE_ORDER_FIELDS = (
+	"name",
+	"supplier",
+	"transaction_date",
+	"schedule_date",
+	"status",
+	"per_received",
+	"grand_total",
+)
+MATERIAL_REQUEST_FIELDS = (
+	"name",
+	"transaction_date",
+	"schedule_date",
+	"status",
+	"per_ordered",
+)
 MAX_LIMIT = 100
 
 
@@ -425,3 +441,100 @@ def _text(value, field: str) -> str | None:
 	if not isinstance(value, str):
 		frappe.throw(f"{field} must be text.")
 	return value.strip() or None
+
+
+@frappe.whitelist()
+def receivable_purchase_orders(limit: int = 20, offset: int = 0) -> dict:
+	"""Purchase orders a warehouse worker could still receive against.
+
+	This exists so nobody has to type ``PUR-ORD-2026-00001`` from memory. A
+	document id typed by hand is a receipt booked against the wrong order as
+	soon as somebody transposes two digits, and the warehouse is the last place
+	that mistake gets noticed.
+
+	The filters mirror what ``services.purchasing.receive_purchase_order``
+	refuses, so the list cannot offer a row the action would then reject:
+	submitted, not Closed/Cancelled/On Hold, and not already fully received.
+	"""
+	limit = min(_page_integer(limit, "limit"), MAX_LIMIT)
+	offset = _page_integer(offset, "offset")
+
+	filters = scoped(
+		{
+			"docstatus": 1,
+			"status": ["not in", ["Closed", "Cancelled", "On Hold"]],
+			"per_received": ["<", 100],
+		}
+	)
+	rows = frappe.get_list(
+		"Purchase Order",
+		filters=filters,
+		fields=list(PURCHASE_ORDER_FIELDS),
+		order_by="schedule_date asc, name asc",
+		limit_start=offset,
+		limit_page_length=limit,
+	)
+	return {
+		"orders": [_purchase_order(row) for row in rows],
+		"total": _total("Purchase Order", filters),
+		"limit": limit,
+		"offset": offset,
+	}
+
+
+@frappe.whitelist()
+def orderable_material_requests(limit: int = 20, offset: int = 0) -> dict:
+	"""Material requests a purchase order could still be raised against.
+
+	Same reason as :func:`receivable_purchase_orders`, and the same rule: the
+	filters mirror the refusals in ``services.purchasing.create_purchase_order``
+	— submitted, of type Purchase, not Stopped/Cancelled, not fully ordered —
+	so the list never offers work the action will decline.
+	"""
+	limit = min(_page_integer(limit, "limit"), MAX_LIMIT)
+	offset = _page_integer(offset, "offset")
+
+	filters = scoped(
+		{
+			"docstatus": 1,
+			"material_request_type": "Purchase",
+			"status": ["not in", ["Stopped", "Cancelled"]],
+			"per_ordered": ["<", 100],
+		}
+	)
+	rows = frappe.get_list(
+		"Material Request",
+		filters=filters,
+		fields=list(MATERIAL_REQUEST_FIELDS),
+		order_by="schedule_date asc, name asc",
+		limit_start=offset,
+		limit_page_length=limit,
+	)
+	return {
+		"requests": [_material_request(row) for row in rows],
+		"total": _total("Material Request", filters),
+		"limit": limit,
+		"offset": offset,
+	}
+
+
+def _purchase_order(row) -> dict:
+	return {
+		"name": row["name"],
+		"supplier": row.get("supplier") or None,
+		"ordered_on": _iso(row.get("transaction_date")),
+		"expected_on": _iso(row.get("schedule_date")),
+		"status": row.get("status") or None,
+		"received_percent": flt(row.get("per_received")),
+		"total": flt(row.get("grand_total")),
+	}
+
+
+def _material_request(row) -> dict:
+	return {
+		"name": row["name"],
+		"requested_on": _iso(row.get("transaction_date")),
+		"needed_on": _iso(row.get("schedule_date")),
+		"status": row.get("status") or None,
+		"ordered_percent": flt(row.get("per_ordered")),
+	}

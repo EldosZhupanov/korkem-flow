@@ -414,3 +414,97 @@ class TestDeliveryQuery(IntegrationTestCase):
 		with patch.object(api.frappe, "get_list", return_value=[]):
 			result = api.deliveries("SO-EMPTY")
 		self.assertEqual(result, {"deliveries": [], "total": 0, "limit": 20, "offset": 0})
+
+
+class TestReceivableAndOrderableQueries(IntegrationTestCase):
+	"""These two lists exist so nobody types a document id from memory.
+
+	Both carry one rule beyond scope: their filters must mirror what the
+	corresponding action refuses.  A list that offers a closed purchase order
+	sends a warehouse worker to a button that will decline — which reads as the
+	app being broken, not as the order being closed.
+	"""
+
+	def test_company_is_not_a_caller_argument(self):
+		for query in (api.receivable_purchase_orders, api.orderable_material_requests):
+			with self.subTest(query=query.__name__):
+				self.assertEqual(
+					set(inspect.signature(query).parameters), {"limit", "offset"}
+				)
+
+	def test_receivable_orders_exclude_what_the_action_would_refuse(self):
+		seen = {}
+
+		def lists(doctype, **kwargs):
+			seen["doctype"] = doctype
+			seen["filters"] = kwargs["filters"]
+			return [
+				{
+					"name": "PUR-ORD-1",
+					"supplier": "Wood Co",
+					"transaction_date": "2026-09-01",
+					"schedule_date": "2026-09-10",
+					"status": "To Receive and Bill",
+					"per_received": "40",
+					"grand_total": "1000",
+				}
+			]
+
+		with (
+			patch.object(api, "scoped", side_effect=lambda f=None: dict(f or {}, company="KORKEM")),
+			patch.object(api.frappe, "get_list", side_effect=lists),
+			patch.object(api, "_total", return_value=1),
+		):
+			result = api.receivable_purchase_orders()
+
+		self.assertEqual(seen["doctype"], "Purchase Order")
+		self.assertEqual(seen["filters"]["company"], "KORKEM")
+		self.assertEqual(seen["filters"]["docstatus"], 1)
+		self.assertEqual(seen["filters"]["per_received"], ["<", 100])
+		self.assertEqual(
+			seen["filters"]["status"], ["not in", ["Closed", "Cancelled", "On Hold"]]
+		)
+		self.assertEqual(
+			result["orders"],
+			[
+				{
+					"name": "PUR-ORD-1",
+					"supplier": "Wood Co",
+					"ordered_on": "2026-09-01",
+					"expected_on": "2026-09-10",
+					"status": "To Receive and Bill",
+					"received_percent": 40.0,
+					"total": 1000.0,
+				}
+			],
+		)
+
+	def test_orderable_requests_are_purchases_only(self):
+		seen = {}
+
+		def lists(doctype, **kwargs):
+			seen["doctype"] = doctype
+			seen["filters"] = kwargs["filters"]
+			return []
+
+		with (
+			patch.object(api, "scoped", side_effect=lambda f=None: dict(f or {}, company="KORKEM")),
+			patch.object(api.frappe, "get_list", side_effect=lists),
+			patch.object(api, "_total", return_value=0),
+		):
+			result = api.orderable_material_requests()
+
+		self.assertEqual(seen["doctype"], "Material Request")
+		self.assertEqual(seen["filters"]["material_request_type"], "Purchase")
+		self.assertEqual(seen["filters"]["per_ordered"], ["<", 100])
+		self.assertEqual(seen["filters"]["status"], ["not in", ["Stopped", "Cancelled"]])
+		self.assertEqual(result, {"requests": [], "total": 0, "limit": 20, "offset": 0})
+
+	def test_limit_is_capped(self):
+		with (
+			patch.object(api, "scoped", return_value={"company": "KORKEM"}),
+			patch.object(api.frappe, "get_list", return_value=[]) as get_list,
+			patch.object(api, "_total", return_value=0),
+		):
+			api.receivable_purchase_orders(limit=10_000)
+		self.assertEqual(get_list.call_args.kwargs["limit_page_length"], api.MAX_LIMIT)
