@@ -14,6 +14,8 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/production/application/work_order_detail_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
+import 'package:korkem_flow/features/production/presentation/work_order_operation_status_label.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_status_label.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -51,15 +53,36 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final linkedOrder = order.salesOrder;
+    final operationsAsync = ref.watch(workOrderOperationsProvider(order.id));
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(workOrderDetailProvider(order.id));
+        ref
+          ..invalidate(workOrderDetailProvider(order.id))
+          ..invalidate(workOrderOperationsProvider(order.id));
       },
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           _Header(order: order),
+          const SizedBox(height: AppSpacing.xl),
+          SectionLabel(l10n.workOrderOperationsSection),
+          const SizedBox(height: AppSpacing.sm),
+          switch (operationsAsync) {
+            AsyncData(:final value) => _Operations(
+              order: order,
+              operations: value,
+            ),
+            AsyncError(:final error) => ErrorView(
+              error: error,
+              onRetry: () =>
+                  ref.invalidate(workOrderOperationsProvider(order.id)),
+            ),
+            _ => const Padding(
+              padding: EdgeInsets.all(AppSpacing.xl),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          },
           if (linkedOrder != null) ...[
             const SizedBox(height: AppSpacing.xl),
             SectionLabel(l10n.workOrderLinkedSalesOrder),
@@ -186,6 +209,140 @@ class _Header extends ConsumerWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _Operations extends StatelessWidget {
+  const _Operations({
+    required this.order,
+    required this.operations,
+  });
+
+  final WorkOrder order;
+  final List<WorkOrderOperation> operations;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    if (operations.isEmpty) {
+      return EmptyView(
+        icon: AppIcons.task,
+        title: l10n.workOrderNoOperationsTitle,
+        message: l10n.workOrderNoOperationsBody,
+      );
+    }
+
+    return Column(
+      children: [
+        for (final operation in operations)
+          _OperationCard(
+            order: order,
+            operation: operation,
+          ),
+      ],
+    );
+  }
+}
+
+class _OperationCard extends StatelessWidget {
+  const _OperationCard({
+    required this.order,
+    required this.operation,
+  });
+
+  final WorkOrder order;
+  final WorkOrderOperation operation;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final quantity = NumberFormat.decimalPattern(locale);
+    final workstation = operation.workstation;
+    final opName = operation.operation ?? operation.name;
+    final statusEnum = operation.statusEnum;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (operation.sequence != null) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xs,
+                      vertical: AppSpacing.xxs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                    ),
+                    child: Text(
+                      l10n.workOrderOperationSequence(operation.sequence!),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                ],
+                Expanded(
+                  child: Text(
+                    opName,
+                    style: theme.textTheme.titleSmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                StatusChip(
+                  label: statusEnum.label(l10n),
+                  intent: statusEnum.intent,
+                  compact: true,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            if (workstation != null && workstation.isNotEmpty)
+              _Field(
+                icon: AppIcons.workOrder,
+                label: l10n.workOrderOperationWorkstation(workstation),
+              ),
+            _Field(
+              icon: AppIcons.check,
+              label: l10n.workOrderOperationCompleted(
+                quantity.format(operation.completedQty),
+              ),
+              intent: operation.completedQty >= order.qty && order.qty > 0
+                  ? StatusIntent.success
+                  : null,
+            ),
+            if (operation.scrapQty > 0)
+              _Field(
+                icon: AppIcons.warning,
+                label: l10n.workOrderOperationScrap(
+                  quantity.format(operation.scrapQty),
+                ),
+                intent: StatusIntent.danger,
+              ),
+            if (operation.plannedMinutes > 0)
+              _Field(
+                icon: AppIcons.schedule,
+                label: l10n.workOrderOperationTime(
+                  operation.plannedMinutes.round(),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

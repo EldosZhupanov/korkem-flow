@@ -1153,6 +1153,56 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get workOrderOperationsSection => 'Операции';
+
+  @override
+  String get workOrderNoOperationsTitle => 'Нет операций';
+
+  @override
+  String get workOrderNoOperationsBody =>
+      'В этом производственном задании операции не заданы.';
+
+  @override
+  String workOrderOperationSequence(int sequence) {
+    return '№ $sequence';
+  }
+
+  @override
+  String workOrderOperationWorkstation(String workstation) {
+    return 'Рабочий центр: $workstation';
+  }
+
+  @override
+  String workOrderOperationCompleted(String qty) {
+    return 'Выполнено: $qty';
+  }
+
+  @override
+  String workOrderOperationScrap(String qty) {
+    return 'Брак: $qty';
+  }
+
+  @override
+  String workOrderOperationTime(int minutes) {
+    return 'План: $minutes мин';
+  }
+
+  @override
+  String get opPending => 'Ожидает';
+
+  @override
+  String get opInProgress => 'В работе';
+
+  @override
+  String get opCompleted => 'Выполнено';
+
+  @override
+  String get opClosed => 'Закрыто';
+
+  @override
+  String get opCancelled => 'Отменено';
+
+  @override
   String get stockBalancesSection => 'Остатки по складам';
 
   @override

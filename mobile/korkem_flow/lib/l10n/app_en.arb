@@ -966,6 +966,83 @@
       }
     }
   },
+  "workOrderOperationsSection": "Operations",
+  "@workOrderOperationsSection": {
+    "description": "Section header for work order operations in work order details."
+  },
+  "workOrderNoOperationsTitle": "No operations",
+  "@workOrderNoOperationsTitle": {
+    "description": "Empty state title when work order has no operations."
+  },
+  "workOrderNoOperationsBody": "This work order has no operations defined.",
+  "@workOrderNoOperationsBody": {
+    "description": "Empty state body when work order has no operations."
+  },
+  "workOrderOperationSequence": "Op #{sequence}",
+  "@workOrderOperationSequence": {
+    "description": "Operation sequence number badge or label.",
+    "placeholders": {
+      "sequence": {
+        "type": "int"
+      }
+    }
+  },
+  "workOrderOperationWorkstation": "Workstation: {workstation}",
+  "@workOrderOperationWorkstation": {
+    "description": "Workstation assigned to the operation.",
+    "placeholders": {
+      "workstation": {
+        "type": "String"
+      }
+    }
+  },
+  "workOrderOperationCompleted": "Completed: {qty}",
+  "@workOrderOperationCompleted": {
+    "description": "Completed quantity for the operation.",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "workOrderOperationScrap": "Scrap: {qty}",
+  "@workOrderOperationScrap": {
+    "description": "Scrap or process loss quantity for the operation.",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "workOrderOperationTime": "Planned: {minutes} min",
+  "@workOrderOperationTime": {
+    "description": "Planned duration for the operation in minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "opPending": "Pending",
+  "@opPending": {
+    "description": "Work order operation pending status."
+  },
+  "opInProgress": "In Progress",
+  "@opInProgress": {
+    "description": "Work order operation in progress status."
+  },
+  "opCompleted": "Completed",
+  "@opCompleted": {
+    "description": "Work order operation completed status."
+  },
+  "opClosed": "Closed",
+  "@opClosed": {
+    "description": "Work order operation closed status."
+  },
+  "opCancelled": "Cancelled",
+  "@opCancelled": {
+    "description": "Work order operation cancelled status."
+  },
   "stockBalancesSection": "Warehouse Balances",
   "@stockBalancesSection": {
     "description": "Section header for warehouse balances."

@@ -1114,6 +1114,56 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String get workOrderOperationsSection => 'Операциялар';
+
+  @override
+  String get workOrderNoOperationsTitle => 'Операциялар жоқ';
+
+  @override
+  String get workOrderNoOperationsBody =>
+      'Бұл өндірістік тапсырмада операциялар көрсетілмеген.';
+
+  @override
+  String workOrderOperationSequence(int sequence) {
+    return '№ $sequence';
+  }
+
+  @override
+  String workOrderOperationWorkstation(String workstation) {
+    return 'Жұмыс орны: $workstation';
+  }
+
+  @override
+  String workOrderOperationCompleted(String qty) {
+    return 'Орындалды: $qty';
+  }
+
+  @override
+  String workOrderOperationScrap(String qty) {
+    return 'Ақау: $qty';
+  }
+
+  @override
+  String workOrderOperationTime(int minutes) {
+    return 'Жоспар: $minutes мин';
+  }
+
+  @override
+  String get opPending => 'Күтілуде';
+
+  @override
+  String get opInProgress => 'Орындалуда';
+
+  @override
+  String get opCompleted => 'Аяқталды';
+
+  @override
+  String get opClosed => 'Жабылды';
+
+  @override
+  String get opCancelled => 'Бас тартылды';
+
+  @override
   String get stockBalancesSection => 'Қоймалар бойынша қалдықтар';
 
   @override

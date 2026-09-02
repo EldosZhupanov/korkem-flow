@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
 
 /// One work order, fetched through the same permission-aware endpoint the list
 /// uses.
@@ -11,6 +12,13 @@ import 'package:korkem_flow/features/production/domain/work_order.dart';
 final workOrderDetailProvider = FutureProvider.family<WorkOrder, String>(
   _fetchWorkOrder,
 );
+
+/// The operations that belong to one work order, in routing order.
+// ignore: specify_nonobvious_property_types
+final workOrderOperationsProvider =
+    FutureProvider.family<List<WorkOrderOperation>, String>(
+      _fetchOperations,
+    );
 
 /// There is no `get_one` on the server and there should not be: a second
 /// endpoint would be a second place for the company scope to be applied, and
@@ -29,3 +37,8 @@ Future<WorkOrder> _fetchWorkOrder(Ref ref, String id) async {
   }
   throw NotFoundFailure('Work Order $id not found');
 }
+
+/// Operations for one work order. Empty list is a valid state (an order
+/// may have no routing operations defined).
+Future<List<WorkOrderOperation>> _fetchOperations(Ref ref, String id) =>
+    ref.watch(workOrderRepositoryProvider).fetchOperations(id);

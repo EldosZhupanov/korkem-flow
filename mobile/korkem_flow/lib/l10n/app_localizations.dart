@@ -2152,6 +2152,84 @@ abstract class AppLocalizations {
   /// **'Produced: {produced} of {qty}'**
   String workOrderProducedProgress(String produced, String qty);
 
+  /// Section header for work order operations in work order details.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations'**
+  String get workOrderOperationsSection;
+
+  /// Empty state title when work order has no operations.
+  ///
+  /// In en, this message translates to:
+  /// **'No operations'**
+  String get workOrderNoOperationsTitle;
+
+  /// Empty state body when work order has no operations.
+  ///
+  /// In en, this message translates to:
+  /// **'This work order has no operations defined.'**
+  String get workOrderNoOperationsBody;
+
+  /// Operation sequence number badge or label.
+  ///
+  /// In en, this message translates to:
+  /// **'Op #{sequence}'**
+  String workOrderOperationSequence(int sequence);
+
+  /// Workstation assigned to the operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Workstation: {workstation}'**
+  String workOrderOperationWorkstation(String workstation);
+
+  /// Completed quantity for the operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed: {qty}'**
+  String workOrderOperationCompleted(String qty);
+
+  /// Scrap or process loss quantity for the operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Scrap: {qty}'**
+  String workOrderOperationScrap(String qty);
+
+  /// Planned duration for the operation in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned: {minutes} min'**
+  String workOrderOperationTime(int minutes);
+
+  /// Work order operation pending status.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get opPending;
+
+  /// Work order operation in progress status.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get opInProgress;
+
+  /// Work order operation completed status.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get opCompleted;
+
+  /// Work order operation closed status.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get opClosed;
+
+  /// Work order operation cancelled status.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get opCancelled;
+
   /// Section header for warehouse balances.
   ///
   /// In en, this message translates to:

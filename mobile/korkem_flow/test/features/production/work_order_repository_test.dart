@@ -172,4 +172,76 @@ void main() {
       );
     });
   });
+
+  group('fetching operations reaches the query endpoint', () {
+    test('it calls korkem_manufacturing.api.queries.operations', () async {
+      respond({'operations': <Map<String, dynamic>>[], 'total': 0});
+
+      await repository.fetchOperations('MFG-WO-00001');
+
+      final path =
+          verify(
+                () => client.callMethod(
+                  captureAny(),
+                  params: any(named: 'params'),
+                ),
+              ).captured.single
+              as String;
+
+      expect(path, 'korkem_manufacturing.api.queries.operations');
+    });
+
+    test('it sends work_order, limit and offset parameters', () async {
+      respond({'operations': <Map<String, dynamic>>[], 'total': 0});
+
+      await repository.fetchOperations(
+        'MFG-WO-00001',
+        limit: 25,
+        offset: 10,
+      );
+
+      final params = sentParams();
+      expect(params['work_order'], 'MFG-WO-00001');
+      expect(params['limit'], 25);
+      expect(params['offset'], 10);
+    });
+
+    test('operations response parsing parses operations correctly', () async {
+      respond({
+        'operations': [
+          {
+            'name': 'WO-OP-00001',
+            'operation': 'Распил ДСП',
+            'workstation': 'Форматно-раскроечный станок',
+            'status': 'Work in Progress',
+            'completed_qty': 10.0,
+            'scrap_qty': 1.0,
+            'planned_minutes': 60.0,
+            'sequence': 1,
+          },
+        ],
+        'total': 1,
+      });
+
+      final list = await repository.fetchOperations('MFG-WO-00001');
+      expect(list, hasLength(1));
+
+      final op = list.first;
+      expect(op.name, 'WO-OP-00001');
+      expect(op.operation, 'Распил ДСП');
+      expect(op.workstation, 'Форматно-раскроечный станок');
+      expect(op.status, 'Work in Progress');
+      expect(op.completedQty, 10.0);
+      expect(op.scrapQty, 1.0);
+      expect(op.plannedMinutes, 60.0);
+      expect(op.sequence, 1);
+    });
+
+    test('empty operations payload returns empty list', () async {
+      respond({'operations': <Map<String, dynamic>>[], 'total': 0});
+
+      final list = await repository.fetchOperations('MFG-WO-00001');
+      expect(list, isEmpty);
+    });
+  });
 }

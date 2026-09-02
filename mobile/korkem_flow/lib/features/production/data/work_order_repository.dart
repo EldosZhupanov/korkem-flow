@@ -1,6 +1,7 @@
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
 
 /// Reads `Work Order`.
 ///
@@ -57,6 +58,35 @@ class WorkOrderRepository {
   /// Every order raised for one deal / sales order.
   Future<List<WorkOrder>> fetchForDeal(String deal) async {
     return fetchPage(pageSize: 50, search: deal);
+  }
+
+  static const operationsQueryPath =
+      'korkem_manufacturing.api.queries.operations';
+
+  /// Every operation for a work order in routing sequence order.
+  Future<List<WorkOrderOperation>> fetchOperations(
+    String workOrder, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final response = await _client.callMethod(
+      operationsQueryPath,
+      params: {
+        'work_order': workOrder,
+        'limit': limit,
+        'offset': offset,
+      },
+    );
+
+    final raw = response['message'] ?? response;
+    final json = raw is Map<String, dynamic> ? raw : const <String, dynamic>{};
+    final list = json['operations'];
+    if (list is! List) return const [];
+
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(WorkOrderOperation.fromJson)
+        .toList(growable: false);
   }
 
   static WorkOrder fromJson(Map<String, dynamic> json) {

@@ -1141,6 +1141,56 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get workOrderOperationsSection => 'Operations';
+
+  @override
+  String get workOrderNoOperationsTitle => 'No operations';
+
+  @override
+  String get workOrderNoOperationsBody =>
+      'This work order has no operations defined.';
+
+  @override
+  String workOrderOperationSequence(int sequence) {
+    return 'Op #$sequence';
+  }
+
+  @override
+  String workOrderOperationWorkstation(String workstation) {
+    return 'Workstation: $workstation';
+  }
+
+  @override
+  String workOrderOperationCompleted(String qty) {
+    return 'Completed: $qty';
+  }
+
+  @override
+  String workOrderOperationScrap(String qty) {
+    return 'Scrap: $qty';
+  }
+
+  @override
+  String workOrderOperationTime(int minutes) {
+    return 'Planned: $minutes min';
+  }
+
+  @override
+  String get opPending => 'Pending';
+
+  @override
+  String get opInProgress => 'In Progress';
+
+  @override
+  String get opCompleted => 'Completed';
+
+  @override
+  String get opClosed => 'Closed';
+
+  @override
+  String get opCancelled => 'Cancelled';
+
+  @override
   String get stockBalancesSection => 'Warehouse Balances';
 
   @override
