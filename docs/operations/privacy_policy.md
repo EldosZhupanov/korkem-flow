@@ -13,7 +13,9 @@
 ---
 
 **Last updated:** [DATE]
-**Applies to:** KORKEM Flow for Android (`kz.korkem.korkem_flow`)
+**Applies to:** KORKEM Flow for Android (`kz.korkem.korkem_flow`) and for
+Windows desktop. Both are the same application against the same server; where
+the two differ, the text says so.
 **Operator:** [KORKEM legal entity, address]
 **Contact:** [privacy@korkem.kz]
 
@@ -66,14 +68,29 @@ and shares it with no third party.
 Business records shown in the app are stored on that server and governed by
 your employer's own retention and access policies, not by this app.
 
-## How credentials are stored
+## What the app keeps on your device
 
-After sign-in, the app keeps one credential on the device so you do not have to
-sign in on every launch. It is held in Android's `EncryptedSharedPreferences`,
-backed by the system keystore, and is readable only by this app.
+Two things, both encrypted by the operating system and readable only by this
+app.
+
+**One sign-in credential**, so you do not have to sign in on every launch. On
+Android it is held in `EncryptedSharedPreferences`, backed by the system
+keystore; on Windows, in the Windows Credential Manager.
 
 Your password is never written to storage. It is sent once, at sign-in, and
 discarded from memory afterwards.
+
+**Actions you have taken that have not reached the server yet.** The factory
+floor loses signal, so when you close an operation or start a job without a
+connection, that action is held on the device and sent when the network comes
+back. Until then it sits in the same encrypted storage as the credential. Each
+queued action carries only what the server needs to perform it — which job,
+which operation, how many — and it is deleted the moment the server confirms it,
+or when you dismiss a refused one.
+
+This queue exists so that work reported in a dead spot is not silently lost. It
+is not a copy of your business records: nothing that has already reached the
+server is kept on the device.
 
 Signing out deletes the stored credential from the device immediately —
 including when the device is offline and the server cannot be told.
@@ -152,6 +169,16 @@ the app declares `RECORD_AUDIO`, and a reviewer who sees that permission with no
 matching disclosure has to guess. The honest disclosure is that the permission
 exists, the recording does not reach us, and Android's own recogniser is what
 the user is really trusting.
+
+**The on-device queue of unsent actions does not change this table, and the
+reason is worth writing down** so nobody re-opens the question later. Play
+defines *collection* as transmitting data off the device. The queue holds an
+action on the device until the app sends it to the same server the action was
+always going to — the employer's own installation, already declared above. No
+new destination, no new recipient, so no new declaration. It is disclosed in
+the policy text anyway, because "encrypted on your phone until the network
+returns" is something a user is entitled to know without it being a Play
+category.
 
 **If Sentry crash reporting is added later**, this table changes: crash reports
 count as *App activity → Diagnostics*, shared with a third-party processor. Both
