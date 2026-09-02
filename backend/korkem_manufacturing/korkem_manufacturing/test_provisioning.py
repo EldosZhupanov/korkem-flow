@@ -2,10 +2,11 @@
 # See license.txt
 """Claiming a node — the one action that runs before anybody has an account.
 
-These tests run on a bench that is *already* claimed, which is the normal state
-of any bench a developer has. So the refusals are tested for real here, and the
-happy path is tested against a patched `is_claimed` — the full build of a
-company by ERPNext's wizard needs a genuinely fresh site and is verified there.
+These tests run on a bench that has a company, which makes it claimed — see
+`is_claimed` for why a company is enough and ERPNext's own flag is not. So the
+refusals are tested for real here, and the happy path against a patched
+`is_claimed`; the full build of a company by ERPNext's wizard needs a genuinely
+fresh site and was verified there (ADR-0027 records the measurements).
 """
 
 from __future__ import annotations
@@ -20,7 +21,21 @@ from korkem_manufacturing.services import provisioning
 
 
 class TestNodeIsAlreadyClaimed(IntegrationTestCase):
-	"""This bench has a company and an owner, so every door must be shut."""
+	"""Any bench with a company is claimed, and every door must be shut.
+
+	The first version of this class assumed a developer bench is claimed
+	because ERPNext's wizard has run. CI disagreed, and CI was right: our own
+	`bootstrap.sh` seeds a company without ever running that wizard, so the
+	flag is 0 on a bench that plainly belongs to somebody. The lesson is in
+	`is_claimed`, not here — a node with a company must never be claimable,
+	whatever ERPNext thinks of its own setup.
+	"""
+
+	def test_a_company_is_enough_to_count_as_claimed(self):
+		"""Even with ERPNext's own flag unset, as on a bootstrapped bench."""
+		self.assertTrue(frappe.db.count("Company"))
+		with patch.object(provisioning.frappe, "is_setup_complete", return_value=False):
+			self.assertTrue(provisioning.is_claimed())
 
 	def test_status_reports_claimed(self):
 		self.assertTrue(provisioning.is_claimed())

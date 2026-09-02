@@ -61,12 +61,24 @@ class ClaimCodeRefused(frappe.ValidationError):
 def is_claimed() -> bool:
 	"""Whether this node already belongs to somebody.
 
-	Asks ERPNext rather than keeping a flag of our own: `is_setup_complete` is
-	what the desk itself consults, so a node that looks claimed to us can never
-	look unclaimed to the administrator opening the panel — which is exactly
-	the disagreement that produced today's stray setup wizard.
+	Two questions, and either one is enough, because they fail in opposite
+	directions and a node must be safe when only one of them is true.
+
+	`is_setup_complete` is what the desk itself consults, so a node that looks
+	claimed to us can never look unclaimed to the administrator opening the
+	panel — that disagreement is what produced the stray setup wizard we found
+	on our own bench.
+
+	**But a company can exist without that flag**, and CI proved it: our
+	`bootstrap.sh` builds a site and seeds a company without ever running
+	ERPNext's wizard, so the flag stays 0 while KORKEM sits in the database.
+	Trusting the flag alone would have left every such node claimable — and a
+	claim on a node that already has a company means a *second* company, which
+	is the exact accident this whole file exists to prevent.
 	"""
-	return bool(frappe.is_setup_complete())
+	if frappe.is_setup_complete():
+		return True
+	return bool(frappe.db.count("Company"))
 
 
 def claim_code() -> str:
