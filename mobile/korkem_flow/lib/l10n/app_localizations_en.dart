@@ -361,6 +361,106 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminStatsRetry => 'Retry';
 
   @override
+  String get teamTitle => 'Team';
+
+  @override
+  String get teamSubtitle => 'Company employees and their assigned positions';
+
+  @override
+  String get teamInviteButton => 'Invite employee';
+
+  @override
+  String get teamInviteTitle => 'Invite employee';
+
+  @override
+  String get teamInviteSubtitle => 'Select position and enter email for access';
+
+  @override
+  String get teamEmailLabel => 'Email address';
+
+  @override
+  String get teamEmailHint => 'worker@company.kz';
+
+  @override
+  String get teamEmailError => 'Enter a valid email address';
+
+  @override
+  String get teamFirstNameLabel => 'Employee name';
+
+  @override
+  String get teamFirstNameHint => 'Aidos';
+
+  @override
+  String get teamPositionLabel => 'Position';
+
+  @override
+  String get teamPositionManager => 'Manager';
+
+  @override
+  String get teamPositionManagerDesc => 'Sales department, customers, deals';
+
+  @override
+  String get teamPositionWarehouse => 'Warehouse keeper';
+
+  @override
+  String get teamPositionWarehouseDesc => 'Warehouse, inventory, receiving';
+
+  @override
+  String get teamPositionAccountant => 'Accountant';
+
+  @override
+  String get teamPositionAccountantDesc =>
+      'Invoices, payments, financial reports';
+
+  @override
+  String get teamPositionShopFloor => 'Shop floor worker';
+
+  @override
+  String get teamPositionShopFloorDesc =>
+      'Machines, work instructions, progress reporting';
+
+  @override
+  String get teamPositionOwner => 'Owner';
+
+  @override
+  String get teamPositionOwnerDesc =>
+      'Full company management and administration';
+
+  @override
+  String get teamEmptyTitle => 'You are alone for now';
+
+  @override
+  String get teamEmptyMessage =>
+      'Invite shop floor, warehouse, or sales team members to assign tasks and manage production.';
+
+  @override
+  String get teamInviteSuccess => 'Invitation sent';
+
+  @override
+  String teamInviteSuccessDetail(String name, String position) {
+    return 'Employee $name added with position \'$position\'';
+  }
+
+  @override
+  String get teamForbiddenTitle => 'Owner only';
+
+  @override
+  String get teamForbiddenMessage =>
+      'Only the company owner can invite new employees and assign positions.';
+
+  @override
+  String get teamSendInvite => 'Send invitation';
+
+  @override
+  String get teamSectionMembers => 'Employees';
+
+  @override
+  String get settingsTeamTitle => 'Team and employees';
+
+  @override
+  String get settingsTeamSubtitle => 'Invite employees and assign positions';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

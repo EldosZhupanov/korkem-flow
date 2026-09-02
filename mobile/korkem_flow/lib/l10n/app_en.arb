@@ -336,6 +336,138 @@
   "@adminStatsRetry": {
     "description": "Button to retry loading stats"
   },
+  "teamTitle": "Team",
+  "@teamTitle": {
+    "description": "Title of the company team screen"
+  },
+  "teamSubtitle": "Company employees and their assigned positions",
+  "@teamSubtitle": {
+    "description": "Subtitle of the company team screen"
+  },
+  "teamInviteButton": "Invite employee",
+  "@teamInviteButton": {
+    "description": "Action button to open invitation form"
+  },
+  "teamInviteTitle": "Invite employee",
+  "@teamInviteTitle": {
+    "description": "Header of the employee invitation dialog or form"
+  },
+  "teamInviteSubtitle": "Select position and enter email for access",
+  "@teamInviteSubtitle": {
+    "description": "Instructions for inviting an employee"
+  },
+  "teamEmailLabel": "Email address",
+  "@teamEmailLabel": {
+    "description": "Field label for employee email"
+  },
+  "teamEmailHint": "worker@company.kz",
+  "@teamEmailHint": {
+    "description": "Hint text for email field"
+  },
+  "teamEmailError": "Enter a valid email address",
+  "@teamEmailError": {
+    "description": "Validation error for invalid email"
+  },
+  "teamFirstNameLabel": "Employee name",
+  "@teamFirstNameLabel": {
+    "description": "Field label for employee first name"
+  },
+  "teamFirstNameHint": "Aidos",
+  "@teamFirstNameHint": {
+    "description": "Hint text for first name field"
+  },
+  "teamPositionLabel": "Position",
+  "@teamPositionLabel": {
+    "description": "Field label for position selection"
+  },
+  "teamPositionManager": "Manager",
+  "@teamPositionManager": {
+    "description": "Position label for manager"
+  },
+  "teamPositionManagerDesc": "Sales department, customers, deals",
+  "@teamPositionManagerDesc": {
+    "description": "Description for manager position"
+  },
+  "teamPositionWarehouse": "Warehouse keeper",
+  "@teamPositionWarehouse": {
+    "description": "Position label for warehouse keeper"
+  },
+  "teamPositionWarehouseDesc": "Warehouse, inventory, receiving",
+  "@teamPositionWarehouseDesc": {
+    "description": "Description for warehouse position"
+  },
+  "teamPositionAccountant": "Accountant",
+  "@teamPositionAccountant": {
+    "description": "Position label for accountant"
+  },
+  "teamPositionAccountantDesc": "Invoices, payments, financial reports",
+  "@teamPositionAccountantDesc": {
+    "description": "Description for accountant position"
+  },
+  "teamPositionShopFloor": "Shop floor worker",
+  "@teamPositionShopFloor": {
+    "description": "Position label for shop floor worker"
+  },
+  "teamPositionShopFloorDesc": "Machines, work instructions, progress reporting",
+  "@teamPositionShopFloorDesc": {
+    "description": "Description for shop floor position"
+  },
+  "teamPositionOwner": "Owner",
+  "@teamPositionOwner": {
+    "description": "Position label for company owner"
+  },
+  "teamPositionOwnerDesc": "Full company management and administration",
+  "@teamPositionOwnerDesc": {
+    "description": "Description for company owner position"
+  },
+  "teamEmptyTitle": "You are alone for now",
+  "@teamEmptyTitle": {
+    "description": "Empty state title when no employees are invited yet"
+  },
+  "teamEmptyMessage": "Invite shop floor, warehouse, or sales team members to assign tasks and manage production.",
+  "@teamEmptyMessage": {
+    "description": "Empty state description for team"
+  },
+  "teamInviteSuccess": "Invitation sent",
+  "@teamInviteSuccess": {
+    "description": "Success message when invitation is sent"
+  },
+  "teamInviteSuccessDetail": "Employee {name} added with position '{position}'",
+  "@teamInviteSuccessDetail": {
+    "description": "Detailed success message",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "teamForbiddenTitle": "Owner only",
+  "@teamForbiddenTitle": {
+    "description": "Title when employee lacks permission to invite"
+  },
+  "teamForbiddenMessage": "Only the company owner can invite new employees and assign positions.",
+  "@teamForbiddenMessage": {
+    "description": "Message explaining why inviting is disabled for non-owners"
+  },
+  "teamSendInvite": "Send invitation",
+  "@teamSendInvite": {
+    "description": "Submit button for invitation form"
+  },
+  "teamSectionMembers": "Employees",
+  "@teamSectionMembers": {
+    "description": "Section header for team members list"
+  },
+  "settingsTeamTitle": "Team and employees",
+  "@settingsTeamTitle": {
+    "description": "Settings tile title for team management"
+  },
+  "settingsTeamSubtitle": "Invite employees and assign positions",
+  "@settingsTeamSubtitle": {
+    "description": "Settings tile subtitle for team management"
+  },
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",

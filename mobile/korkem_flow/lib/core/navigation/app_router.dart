@@ -30,6 +30,7 @@ import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/search/presentation/search_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
 import 'package:korkem_flow/features/tasks/presentation/tasks_screen.dart';
+import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/features/today/presentation/today_screen.dart';
 import 'package:korkem_flow/features/warehouse/presentation/stock_detail_screen.dart';
 import 'package:korkem_flow/features/workstations/presentation/workstations_screen.dart';
@@ -40,6 +41,7 @@ abstract final class Routes {
   static const login = '/login';
   static const claim = '/claim';
   static const adminStats = '/admin-stats';
+  static const team = '/team';
 
   /// The assistant, and where signing in lands.
   static const chat = '/chat';
@@ -212,6 +214,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.adminStats,
         builder: (context, state) => const AdminStatsScreen(),
+      ),
+      GoRoute(
+        path: Routes.team,
+        builder: (context, state) => const TeamScreen(),
       ),
       GoRoute(
         path: Routes.outbox,

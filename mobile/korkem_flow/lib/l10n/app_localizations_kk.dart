@@ -349,6 +349,108 @@ class AppLocalizationsKk extends AppLocalizations {
   String get adminStatsRetry => 'Қайталау';
 
   @override
+  String get teamTitle => 'Команда';
+
+  @override
+  String get teamSubtitle => 'Компания қызметкерлері және олардың лауазымдары';
+
+  @override
+  String get teamInviteButton => 'Қызметкерді шақыру';
+
+  @override
+  String get teamInviteTitle => 'Қызметкерді шақыру';
+
+  @override
+  String get teamInviteSubtitle =>
+      'Қолжетімділік үшін лауазымды таңдап, поштаны көрсетіңіз';
+
+  @override
+  String get teamEmailLabel => 'Электрондық пошта';
+
+  @override
+  String get teamEmailHint => 'worker@company.kz';
+
+  @override
+  String get teamEmailError => 'Дұрыс пошта мекенжайын енгізіңіз';
+
+  @override
+  String get teamFirstNameLabel => 'Қызметкердің аты';
+
+  @override
+  String get teamFirstNameHint => 'Айдос';
+
+  @override
+  String get teamPositionLabel => 'Лауазымы';
+
+  @override
+  String get teamPositionManager => 'Менеджер';
+
+  @override
+  String get teamPositionManagerDesc => 'Сату бөлімі, клиенттер, мәмілелер';
+
+  @override
+  String get teamPositionWarehouse => 'Қоймашы';
+
+  @override
+  String get teamPositionWarehouseDesc =>
+      'Қойма, қалдықтар, материалдарды қабылдау';
+
+  @override
+  String get teamPositionAccountant => 'Есепші';
+
+  @override
+  String get teamPositionAccountantDesc => 'Шоттар, төлемдер, қаржылық есептер';
+
+  @override
+  String get teamPositionShopFloor => 'Цех жұмысшысы';
+
+  @override
+  String get teamPositionShopFloorDesc =>
+      'Станоктар, ауысымдық тапсырмалар, жұмыс есептері';
+
+  @override
+  String get teamPositionOwner => 'Иесі';
+
+  @override
+  String get teamPositionOwnerDesc =>
+      'Кәсіпорынды басқаруға толық қолжетімділік';
+
+  @override
+  String get teamEmptyTitle => 'Әзірге сіз жалғызсыз';
+
+  @override
+  String get teamEmptyMessage =>
+      'Тапсырмаларды бөліп, өндірісті бақылау үшін цех, қойма немесе сату бөлімінің қызметкерлерін шақырыңыз.';
+
+  @override
+  String get teamInviteSuccess => 'Шақыру жіберілді';
+
+  @override
+  String teamInviteSuccessDetail(String name, String position) {
+    return '$name қызметкері «$position» лауазымымен қосылды';
+  }
+
+  @override
+  String get teamForbiddenTitle => 'Тек иесі үшін';
+
+  @override
+  String get teamForbiddenMessage =>
+      'Жаңа қызметкерлерді шақыру және лауазымдарды тағайындау тек компания иесіне ғана қолжетімді.';
+
+  @override
+  String get teamSendInvite => 'Шақыруды жіберу';
+
+  @override
+  String get teamSectionMembers => 'Қызметкерлер';
+
+  @override
+  String get settingsTeamTitle => 'Команда және қызметкерлер';
+
+  @override
+  String get settingsTeamSubtitle =>
+      'Қызметкерлерді шақыру және лауазымдарды таңдау';
+
+  @override
   String get settingsTitle => 'Параметрлер';
 
   @override

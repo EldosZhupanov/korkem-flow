@@ -363,6 +363,106 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminStatsRetry => 'Повторить попытку';
 
   @override
+  String get teamTitle => 'Команда';
+
+  @override
+  String get teamSubtitle => 'Сотрудники компании и их должности';
+
+  @override
+  String get teamInviteButton => 'Пригласить сотрудника';
+
+  @override
+  String get teamInviteTitle => 'Пригласить сотрудника';
+
+  @override
+  String get teamInviteSubtitle =>
+      'Выберите должность и укажите почту для доступа';
+
+  @override
+  String get teamEmailLabel => 'Электронная почта';
+
+  @override
+  String get teamEmailHint => 'worker@company.kz';
+
+  @override
+  String get teamEmailError => 'Введите корректный адрес почты';
+
+  @override
+  String get teamFirstNameLabel => 'Имя сотрудника';
+
+  @override
+  String get teamFirstNameHint => 'Айдос';
+
+  @override
+  String get teamPositionLabel => 'Должность';
+
+  @override
+  String get teamPositionManager => 'Менеджер';
+
+  @override
+  String get teamPositionManagerDesc => 'Отдел продаж, клиенты, сделки';
+
+  @override
+  String get teamPositionWarehouse => 'Кладовщик';
+
+  @override
+  String get teamPositionWarehouseDesc => 'Склад, остатки, приёмка материалов';
+
+  @override
+  String get teamPositionAccountant => 'Бухгалтер';
+
+  @override
+  String get teamPositionAccountantDesc => 'Счета, оплаты, финансовые отчёты';
+
+  @override
+  String get teamPositionShopFloor => 'Рабочий цеха';
+
+  @override
+  String get teamPositionShopFloorDesc =>
+      'Станки, сменные задания, отчёты о работе';
+
+  @override
+  String get teamPositionOwner => 'Владелец';
+
+  @override
+  String get teamPositionOwnerDesc => 'Полный доступ к управлению предприятием';
+
+  @override
+  String get teamEmptyTitle => 'Пока вы один';
+
+  @override
+  String get teamEmptyMessage =>
+      'Пригласите сотрудников цеха, склада или отдела продаж, чтобы распределять задачи и контролировать производство.';
+
+  @override
+  String get teamInviteSuccess => 'Приглашение отправлено';
+
+  @override
+  String teamInviteSuccessDetail(String name, String position) {
+    return 'Сотрудник $name добавлен с должностью «$position»';
+  }
+
+  @override
+  String get teamForbiddenTitle => 'Только для владельца';
+
+  @override
+  String get teamForbiddenMessage =>
+      'Приглашать новых сотрудников и назначать должности может только владелец компании.';
+
+  @override
+  String get teamSendInvite => 'Отправить приглашение';
+
+  @override
+  String get teamSectionMembers => 'Сотрудники';
+
+  @override
+  String get settingsTeamTitle => 'Команда и сотрудники';
+
+  @override
+  String get settingsTeamSubtitle =>
+      'Приглашение сотрудников и выбор должностей';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override

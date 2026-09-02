@@ -133,6 +133,19 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
+
+          SectionLabel(l10n.teamTitle),
+          Card(
+            child: ListTile(
+              key: const ValueKey('teamSettings'),
+              leading: const Icon(AppIcons.lead),
+              title: Text(l10n.settingsTeamTitle),
+              subtitle: Text(l10n.settingsTeamSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.team),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.settingsConnection),
           AppCard(
             child: Column(

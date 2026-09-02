@@ -730,6 +730,192 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get adminStatsRetry;
 
+  /// Title of the company team screen
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get teamTitle;
+
+  /// Subtitle of the company team screen
+  ///
+  /// In en, this message translates to:
+  /// **'Company employees and their assigned positions'**
+  String get teamSubtitle;
+
+  /// Action button to open invitation form
+  ///
+  /// In en, this message translates to:
+  /// **'Invite employee'**
+  String get teamInviteButton;
+
+  /// Header of the employee invitation dialog or form
+  ///
+  /// In en, this message translates to:
+  /// **'Invite employee'**
+  String get teamInviteTitle;
+
+  /// Instructions for inviting an employee
+  ///
+  /// In en, this message translates to:
+  /// **'Select position and enter email for access'**
+  String get teamInviteSubtitle;
+
+  /// Field label for employee email
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get teamEmailLabel;
+
+  /// Hint text for email field
+  ///
+  /// In en, this message translates to:
+  /// **'worker@company.kz'**
+  String get teamEmailHint;
+
+  /// Validation error for invalid email
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get teamEmailError;
+
+  /// Field label for employee first name
+  ///
+  /// In en, this message translates to:
+  /// **'Employee name'**
+  String get teamFirstNameLabel;
+
+  /// Hint text for first name field
+  ///
+  /// In en, this message translates to:
+  /// **'Aidos'**
+  String get teamFirstNameHint;
+
+  /// Field label for position selection
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get teamPositionLabel;
+
+  /// Position label for manager
+  ///
+  /// In en, this message translates to:
+  /// **'Manager'**
+  String get teamPositionManager;
+
+  /// Description for manager position
+  ///
+  /// In en, this message translates to:
+  /// **'Sales department, customers, deals'**
+  String get teamPositionManagerDesc;
+
+  /// Position label for warehouse keeper
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse keeper'**
+  String get teamPositionWarehouse;
+
+  /// Description for warehouse position
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse, inventory, receiving'**
+  String get teamPositionWarehouseDesc;
+
+  /// Position label for accountant
+  ///
+  /// In en, this message translates to:
+  /// **'Accountant'**
+  String get teamPositionAccountant;
+
+  /// Description for accountant position
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices, payments, financial reports'**
+  String get teamPositionAccountantDesc;
+
+  /// Position label for shop floor worker
+  ///
+  /// In en, this message translates to:
+  /// **'Shop floor worker'**
+  String get teamPositionShopFloor;
+
+  /// Description for shop floor position
+  ///
+  /// In en, this message translates to:
+  /// **'Machines, work instructions, progress reporting'**
+  String get teamPositionShopFloorDesc;
+
+  /// Position label for company owner
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get teamPositionOwner;
+
+  /// Description for company owner position
+  ///
+  /// In en, this message translates to:
+  /// **'Full company management and administration'**
+  String get teamPositionOwnerDesc;
+
+  /// Empty state title when no employees are invited yet
+  ///
+  /// In en, this message translates to:
+  /// **'You are alone for now'**
+  String get teamEmptyTitle;
+
+  /// Empty state description for team
+  ///
+  /// In en, this message translates to:
+  /// **'Invite shop floor, warehouse, or sales team members to assign tasks and manage production.'**
+  String get teamEmptyMessage;
+
+  /// Success message when invitation is sent
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent'**
+  String get teamInviteSuccess;
+
+  /// Detailed success message
+  ///
+  /// In en, this message translates to:
+  /// **'Employee {name} added with position \'{position}\''**
+  String teamInviteSuccessDetail(String name, String position);
+
+  /// Title when employee lacks permission to invite
+  ///
+  /// In en, this message translates to:
+  /// **'Owner only'**
+  String get teamForbiddenTitle;
+
+  /// Message explaining why inviting is disabled for non-owners
+  ///
+  /// In en, this message translates to:
+  /// **'Only the company owner can invite new employees and assign positions.'**
+  String get teamForbiddenMessage;
+
+  /// Submit button for invitation form
+  ///
+  /// In en, this message translates to:
+  /// **'Send invitation'**
+  String get teamSendInvite;
+
+  /// Section header for team members list
+  ///
+  /// In en, this message translates to:
+  /// **'Employees'**
+  String get teamSectionMembers;
+
+  /// Settings tile title for team management
+  ///
+  /// In en, this message translates to:
+  /// **'Team and employees'**
+  String get settingsTeamTitle;
+
+  /// Settings tile subtitle for team management
+  ///
+  /// In en, this message translates to:
+  /// **'Invite employees and assign positions'**
+  String get settingsTeamSubtitle;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:
