@@ -68,6 +68,50 @@ from the forwarded scheme, which is what `korkem_ai/wsgi.py` exists to restore.
 Encrypt.** Certificate issuance from a public CA needs a public name and open
 ports 80/443. Everything on either side of it is measured.
 
+## Re-verified 2026-09-02, against the bench as it stands today
+
+The table above was measured on 2026-08-17. Two weeks and a Windows desktop
+later, it was re-run rather than believed. Same method: Caddy on the bench's
+Docker network with **no host ports**, certificate from its own internal CA,
+driven from inside the bench container.
+
+| | 2026-08-17 | 2026-09-02 |
+|---|---|---|
+| `caddy validate`, both profiles | valid | **valid** |
+| `app`: `/health`, `/login`, `/api/method/ping` | 200 | **200, 200, 200** |
+| `app`: hashed static bundle | 200, 680 957 B | **200, 680 957 B** — byte-identical |
+| `app`: HSTS, nosniff, frame-options, referrer-policy | present | **all four present, no `Server` header** |
+| `webhooks`: `/health` `/login` `/app` `/api/method/ping` `/files/` `/assets/…` | 404 | **404, every one** |
+| `webhooks`: telegram webhook | 401 | **401** |
+| `webhooks`: whatsapp webhook | 403 | **403** |
+| `webhooks`: 3 MB body | connection closed | **closed, no response code at all** |
+
+**One row was not re-run, and it is the important one:** the `Secure` flag on
+the session cookie. It comes from `ProxyFix` in `korkem_ai/wsgi.py`, which only
+the *pilot* process model loads, and the pilot stack cannot start here — it is
+compose project `korkem-bench` while the development bench holds port 8000 as
+`korkem-clean`. The mechanism was verified in code (`wsgi.py` is still
+`ProxyFix(application_with_statics(), x_proto=1)`, and `scripts/web.sh` still
+launches `korkem_ai.wsgi:application`), but **the runtime check belongs to the
+first real deployment.** Do it there: sign in over HTTPS and read the
+`Set-Cookie` header. If `Secure` is missing, stop — the cookie is travelling in
+a form a network can steal.
+
+### Two things that changed since August
+
+* **A desktop client now exists.** `korkem_flow.exe` and the Android APK both
+  carry the server address as a *runtime field*, not a compiled-in constant, so
+  pointing them at the real host is typing, not rebuilding. Both need the `app`
+  profile: with `webhooks` they get 404 on every request and the login screen
+  reports the server as unreachable, which is true and unhelpful.
+* **On this development machine the running bench is compose project
+  `korkem-clean`, not `korkem-bench`.** `deploy_pilot.sh` targets the latter,
+  so running it here starts a *second* stack that fights for port 8000 and has
+  its own empty volumes. On a fresh server this is a non-issue. Here, stop the
+  development bench first.
+
+---
+
 ## Still to do — and what each one needs from you
 
 ### 1. The domain and DNS
