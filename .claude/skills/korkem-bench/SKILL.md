@@ -135,6 +135,77 @@ Windows call from that WSL session fails until it is recreated. Containers are
 unharmed; your ability to test is not. Parse and `-DryRun` from here, run the
 real path from Windows.
 
+## A clean site, without destroying the one you are using
+
+When a failure might be this bench's accumulated state rather than a defect, the
+old ritual was to rebuild from an empty volume — twenty minutes, and it takes the
+site somebody may be logged into. There is a cheaper answer: **a second site on
+the same bench.**
+
+```sh
+docker exec <bench> bash -lc "cd ~/frappe-bench && \
+  bench new-site scratch.localhost --force \
+    --db-root-password '<root>' --admin-password '<admin>' \
+    --install-app erpnext --install-app crm \
+    --install-app korkem_manufacturing --install-app korkem_ai"
+docker exec <bench> bash -lc "cd ~/frappe-bench && \
+  bench --site scratch.localhost set-config allow_tests true && \
+  bench --site scratch.localhost set-config korkem_env development"
+
+KORKEM_SITE=scratch.localhost scripts/run_tests.sh --module <dotted.path>
+```
+
+`run_tests.sh` reads `KORKEM_SITE`, so the guard against concurrent runs still
+applies.
+
+Three traps, all met on 2026-09-02:
+
+* **`--no-mariadb-socket` sends the root connection to 127.0.0.1**, where there
+  is no database. Leave it off.
+* **The root connection reads `db_host` from `sites/common_site_config.json`,
+  not from `--db-host`.** If the bench keeps `db_host` per site, the global file
+  has none and site creation fails with `Can't connect to server on '127.0.0.1'`.
+  Set it once: `bench set-config -g db_host mariadb`.
+* **A failed run leaves a half-made site** that blocks the next attempt. `--force`
+  is safe *here* and nowhere else — check the site name twice before typing it.
+
+Drop it when done: `bench drop-site scratch.localhost --force --no-backup`.
+
+### What this technique settled, and what it did not
+
+It disproved "accumulated state" as the explanation for a leak that reproduced
+here and not in CI: a site made from nothing leaked too, and leaked again under
+the full suite rather than the module alone. That turned a suspected artefact
+into a real defect, which was then fixed.
+
+It did **not** explain why CI disagreed. A clean site on this bench is not the
+same thing as CI's bench, and no amount of local scratch sites will close that
+gap. When the two still disagree after this, say so and stop guessing.
+
+## Verify a whitelisted endpoint over HTTP before believing a unit test
+
+A unit test for an API function calls a Python function. A client calls an HTTP
+endpoint, and the two are not the same thing — `frappe.form_dict` exists in one
+and not the other.
+
+```sh
+curl -s -c /tmp/ck -X POST -H 'Host: <site>' -H 'Content-Type: application/json' \
+  -d '{"usr":"Administrator","pwd":"<pw>"}' http://127.0.0.1:8000/api/method/login
+curl -s -b /tmp/ck -H 'Host: <site>' \
+  "http://127.0.0.1:8000/api/method/<dotted.path>?<arg>=<value>"
+```
+
+This found a defect that every mocked test passed over: `frappe.client.get_count`
+writes its arguments into `frappe.form_dict` and calls a desk view that reads the
+whole form_dict back — so an endpoint's own query arguments ride into the
+database layer and raise `TypeError: unexpected keyword argument`. Two shipped
+endpoints carried it, and both hid it by returning early on an empty result: the
+bug would have woken on the client's first real delivery.
+
+**Do not count with `frappe.client.get_count` inside a whitelisted function.**
+Count with a permission-aware `frappe.get_list(..., pluck="name",
+limit_page_length=0)`.
+
 ## One bench, one operation at a time
 
 The suite is stable and idempotent — measured 2026-09-01, twice in a row on a
