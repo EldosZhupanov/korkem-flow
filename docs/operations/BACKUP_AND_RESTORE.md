@@ -21,6 +21,52 @@ snapshot and removed again. The exact evidence is recorded below.
 **`docker compose down -v` destroys the business.** It appears nowhere in
 `deploy_pilot.sh` and should appear in no routine script.
 
+## Getting the backup off this disk
+
+`bench backup` writes into the site directory, which lives in the same Docker
+volume as the database it just copied — inside the same WSL virtual disk. That
+file is **a copy, not a backup**: one VHDX corruption takes the original and the
+copy together.
+
+```sh
+scripts/backup_offsite.sh /mnt/c/KorkemBackups
+```
+
+It takes the backup, copies every artifact out, and **checksums each one on both
+sides**. A digest mismatch fails the whole run loudly and keeps the bad set for
+inspection — and prunes nothing, because deleting an old good backup because a
+new bad one arrived is how people lose data. Retention (`KORKEM_BACKUP_KEEP`,
+default 7 sets) runs only after the new set is confirmed byte-identical.
+
+There is **no default destination**. The script refuses without one rather than
+guessing where your only copy should live.
+
+### Verified 2026-09-02, on this machine
+
+| | |
+|---|---|
+| destination | `C:\KorkemBackups`, outside the VHDX |
+| database | 1 883 274 bytes, digest matched |
+| files / private files / site config | 10 240 / 10 240 / 386 bytes, all matched |
+| visible from Windows | yes — `Get-ChildItem C:\KorkemBackups` lists all four plus `SHA256SUMS` |
+| refusal with no destination | exits 1 with an explanation |
+| retention | with `KORKEM_BACKUP_KEEP=3`, eight sets became three; the three newest survived |
+
+`SHA256SUMS` is written next to each set, so the copy can be checked again later
+without the bench being alive:
+
+```sh
+cd /mnt/c/KorkemBackups/<set> && sha256sum -c SHA256SUMS
+```
+
+**This still is not off-site.** `C:` is a different disk from the VHDX but the
+same laptop: it survives a corrupted virtual disk, not a stolen or burnt
+machine. A second destination — a NAS, an external drive, object storage — is
+the next step, and the script takes any path, so it is a second invocation
+rather than new code.
+
+---
+
 ## Proven restore rehearsal
 
 The rehearsal ran in project `korkem-clean`, container
