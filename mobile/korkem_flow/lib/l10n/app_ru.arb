@@ -171,6 +171,7 @@
   "chatLocalMode": "Локальный режим · данные KORKEM",
   "chatThinking": "Думаю",
   "chatEmptyThreads": "Разговоров пока нет",
+  "chatEmptyThreadsBody": "Здесь появятся ваши диалоги с ассистентом.",
   "chatOpen": "Открыть",
   "chatNotConnected": "Я пока не подключён к языковой модели и не могу на это ответить. Могу показать данные KORKEM:",
   "chatSuggestDeals": "Покажи мои сделки",

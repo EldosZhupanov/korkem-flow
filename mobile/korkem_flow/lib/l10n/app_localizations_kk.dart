@@ -542,6 +542,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get chatEmptyThreads => 'Әзірге әңгіме жоқ';
 
   @override
+  String get chatEmptyThreadsBody =>
+      'Мұнда ассистентпен сұхбаттарыңыз пайда болады.';
+
+  @override
   String get chatOpen => 'Ашу';
 
   @override

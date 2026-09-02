@@ -549,6 +549,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatEmptyThreads => 'No conversations yet';
 
   @override
+  String get chatEmptyThreadsBody =>
+      'Your conversations with the assistant will appear here.';
+
+  @override
   String get chatOpen => 'Open';
 
   @override

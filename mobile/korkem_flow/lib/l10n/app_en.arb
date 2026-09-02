@@ -284,6 +284,13 @@
     "description": "Announced while the assistant prepares a reply"
   },
   "chatEmptyThreads": "No conversations yet",
+  "@chatEmptyThreads": {
+    "description": "Title when there are no conversations."
+  },
+  "chatEmptyThreadsBody": "Your conversations with the assistant will appear here.",
+  "@chatEmptyThreadsBody": {
+    "description": "Body message when there are no conversations."
+  },
   "chatOpen": "Open",
   "@chatOpen": {
     "description": "Button on a data card inside a reply, leading to the matching screen"

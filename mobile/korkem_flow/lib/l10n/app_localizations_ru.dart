@@ -550,6 +550,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatEmptyThreads => 'Разговоров пока нет';
 
   @override
+  String get chatEmptyThreadsBody =>
+      'Здесь появятся ваши диалоги с ассистентом.';
+
+  @override
   String get chatOpen => 'Открыть';
 
   @override

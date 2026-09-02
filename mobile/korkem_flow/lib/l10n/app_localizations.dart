@@ -1120,11 +1120,17 @@ abstract class AppLocalizations {
   /// **'Thinking'**
   String get chatThinking;
 
-  /// No description provided for @chatEmptyThreads.
+  /// Title when there are no conversations.
   ///
   /// In en, this message translates to:
   /// **'No conversations yet'**
   String get chatEmptyThreads;
+
+  /// Body message when there are no conversations.
+  ///
+  /// In en, this message translates to:
+  /// **'Your conversations with the assistant will appear here.'**
+  String get chatEmptyThreadsBody;
 
   /// Button on a data card inside a reply, leading to the matching screen
   ///

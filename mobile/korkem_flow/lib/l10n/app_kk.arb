@@ -171,6 +171,7 @@
   "chatLocalMode": "Жергілікті режим · KORKEM деректері",
   "chatThinking": "Ойланудамын",
   "chatEmptyThreads": "Әзірге әңгіме жоқ",
+  "chatEmptyThreadsBody": "Мұнда ассистентпен сұхбаттарыңыз пайда болады.",
   "chatOpen": "Ашу",
   "chatNotConnected": "Мен әзірге тілдік модельге қосылмағанмын, оған жауап бере алмаймын. KORKEM деректерін көрсете аламын:",
   "chatSuggestDeals": "Мәмілелерімді көрсет",
