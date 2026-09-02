@@ -279,20 +279,20 @@ class TestRawResourceCompanyIsolation(foreign_fixture.UsesForeignCompany, Integr
 	def test_crm_task_does_not_cross_company(self):
 		self._assert_company_b_is_hidden("CRM Task")
 
-	# MARKED EXPECTED-FAILURE ON PURPOSE, 2026-09-02.
+	# NOT marked expected-failure, and the reason is a disagreement worth keeping.
 	#
-	# This leak is real and reproduced: a Sales Manager of one company reads
-	# another company's record through the raw resource API.  The fix is not a
-	# patch — these CRM doctypes carry no company field at all, so deciding what
-	# "company" means for a lead is a data-model decision belonging to the
-	# product owner, not something to invent inside a test fix.
+	# On the development bench this test reproduced a leak: a named GET returned
+	# another user's notification.  On a bench CI builds from nothing it does
+	# not — the run reported an *unexpected success*, which is CI doing exactly
+	# what it exists for.  The clean result governs, because that is what a
+	# client installs.
 	#
-	# The marker keeps CI honest rather than quiet.  A knowingly-red suite
-	# teaches people to ignore red; a deleted test teaches nothing.  Marked this
-	# way the test still runs, still documents the hole, and the day somebody
-	# closes it the run reports an *unexpected success* and fails — which forces
-	# whoever fixed it to come back here and delete this comment.
-	@unittest.expectedFailure
+	# The difference is not yet explained.  Ruled out by measurement, not by
+	# argument: there is no Custom DocPerm on Notification Log, no leftover test
+	# user, and no leftover Notification Log row on the development bench.
+	# So this stands as a regression guard, and the discrepancy stays an open
+	# question rather than a closed one.  If it fails on a clean bench, the leak
+	# is real and this comment is the place to start.
 	def test_notification_log_does_not_cross_company(self):
 		self._assert_company_b_is_hidden("Notification Log")
 
