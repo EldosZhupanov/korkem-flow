@@ -71,7 +71,7 @@ class OutboxScreen extends ConsumerWidget {
                     ),
                     action: snapshot.rejectedCount > 1
                         ? TextButton(
-                            onPressed: outbox.clearRejected,
+                            onPressed: () => unawaited(outbox.clearRejected()),
                             child: Text(l10n.outboxDismissAll),
                           )
                         : null,
@@ -81,8 +81,8 @@ class OutboxScreen extends ConsumerWidget {
                     if (i > 0) const SizedBox(height: AppSpacing.md),
                     _RejectedMutationCard(
                       rejection: snapshot.rejected[i],
-                      onDismiss: () => outbox.dismissRejected(
-                        snapshot.rejected[i].key,
+                      onDismiss: () => unawaited(
+                        outbox.dismissRejected(snapshot.rejected[i].key),
                       ),
                     ),
                   ],
