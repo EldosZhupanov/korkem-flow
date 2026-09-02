@@ -342,17 +342,22 @@ def _total(doctype: str, filters: dict, or_filters: list | None = None) -> int:
 	search is on, the count comes from the same list query with the page
 	removed, which is bounded by what actually matched.
 	"""
-	if or_filters:
-		return len(
-			frappe.get_list(
-				doctype,
-				filters=filters,
-				or_filters=or_filters,
-				pluck="name",
-				limit_page_length=0,
-			)
+	# Deliberately not `frappe.client.get_count`. That helper stuffs its
+	# arguments into `frappe.form_dict` and then calls a desk view that reads
+	# the *whole* form_dict back — so when it is called from inside a
+	# whitelisted endpoint, the endpoint's own HTTP arguments come along. A
+	# request to `station_queue?workstation=Edge 1` reached the database layer
+	# as an unexpected `workstation` keyword and raised TypeError. Nothing in a
+	# unit test with a mocked client can see this: it needs a real request.
+	return len(
+		frappe.get_list(
+			doctype,
+			filters=filters,
+			or_filters=or_filters or None,
+			pluck="name",
+			limit_page_length=0,
 		)
-	return frappe.client.get_count(doctype, filters=filters)
+	)
 
 
 def _work_order(row) -> dict:
@@ -537,4 +542,131 @@ def _material_request(row) -> dict:
 		"needed_on": _iso(row.get("schedule_date")),
 		"status": row.get("status") or None,
 		"ordered_percent": flt(row.get("per_ordered")),
+	}
+
+
+@frappe.whitelist()
+def workstations(limit: int = 50, offset: int = 0) -> dict:
+	"""Workstations that currently have unfinished work waiting.
+
+	Not every workstation ERPNext knows about — only the ones a person could
+	walk up to and find something to do. A shop-floor list of empty stations is
+	a list nobody reads.
+	"""
+	limit = min(_page_integer(limit, "limit"), MAX_LIMIT)
+	offset = _page_integer(offset, "offset")
+
+	parents = _open_work_order_names()
+	if not parents:
+		return {"workstations": [], "total": 0, "limit": limit, "offset": offset}
+
+	# Counted in Python rather than with a GROUP BY. Frappe 17 refuses a SQL
+	# function written as a string in `fields`, and its dict form does not
+	# survive the permission-aware path here. The set being counted is the open
+	# operations of visible work orders, which is bounded by the shop floor
+	# itself — not by the size of the database.
+	rows = frappe.get_list(
+		"Work Order Operation",
+		filters={
+			"parent": ["in", parents],
+			"parenttype": "Work Order",
+			"status": ["!=", "Completed"],
+			"workstation": ["is", "set"],
+		},
+		pluck="workstation",
+		limit_page_length=0,
+	)
+	waiting: dict[str, int] = {}
+	for station in rows:
+		waiting[station] = waiting.get(station, 0) + 1
+	names = [{"name": k, "waiting": v} for k, v in sorted(waiting.items())]
+	return {
+		"workstations": names[offset : offset + limit],
+		"total": len(names),
+		"limit": limit,
+		"offset": offset,
+	}
+
+
+@frappe.whitelist()
+def station_queue(workstation: str, limit: int = 20, offset: int = 0) -> dict:
+	"""Unfinished operations waiting at one workstation, soonest first.
+
+	The shop-floor question is "what do I do next", and it is asked at a
+	machine, not at a work order. So this crosses work orders and orders by when
+	the job is due rather than by which order it belongs to.
+
+	Scope rides on the parent, as it must: ``Work Order Operation`` is a child
+	table with no company of its own, so only operations belonging to a work
+	order visible in the session company are ever listed.
+	"""
+	limit = min(_page_integer(limit, "limit"), MAX_LIMIT)
+	offset = _page_integer(offset, "offset")
+	workstation = _text(workstation, "workstation")
+	if not workstation:
+		frappe.throw("workstation must be text.")
+
+	parents = _open_work_order_names()
+	if not parents:
+		return {"operations": [], "total": 0, "limit": limit, "offset": offset}
+
+	filters = {
+		"parent": ["in", parents],
+		"parenttype": "Work Order",
+		"workstation": workstation,
+		"status": ["!=", "Completed"],
+	}
+	rows = frappe.get_list(
+		"Work Order Operation",
+		filters=filters,
+		fields=[*WORK_ORDER_OPERATION_FIELDS, "parent"],
+		order_by="planned_start_time asc, sequence_id asc, idx asc",
+		limit_start=offset,
+		limit_page_length=limit,
+	)
+	orders = {
+		row["name"]: row
+		for row in frappe.get_list(
+			"Work Order",
+			filters={"name": ["in", [r["parent"] for r in rows]]},
+			fields=["name", "production_item", "item_name", "qty", "planned_end_date"],
+			limit_page_length=0,
+		)
+	} if rows else {}
+
+	return {
+		"operations": [_queued_operation(row, orders.get(row["parent"], {})) for row in rows],
+		"total": _total("Work Order Operation", filters),
+		"limit": limit,
+		"offset": offset,
+	}
+
+
+def _open_work_order_names() -> list[str]:
+	"""Work orders the session may see and that are not finished with.
+
+	One permission-aware query, reused by both shop-floor lists, so scope is
+	decided in exactly one place rather than repeated per caller.
+	"""
+	return frappe.get_list(
+		"Work Order",
+		filters=scoped({"docstatus": 1, "status": ["not in", ["Completed", "Stopped", "Closed"]]}),
+		pluck="name",
+		limit_page_length=0,
+	)
+
+
+def _queued_operation(row, order) -> dict:
+	return {
+		"name": row["name"],
+		"work_order": row["parent"],
+		"operation": row.get("operation") or None,
+		"status": row.get("status") or None,
+		"completed_qty": flt(row.get("completed_qty")),
+		"planned_minutes": flt(row.get("time_in_mins")),
+		"sequence": row.get("sequence_id"),
+		"item": order.get("production_item") or None,
+		"item_name": order.get("item_name") or None,
+		"order_qty": flt(order.get("qty")),
+		"due_on": _iso(order.get("planned_end_date")),
 	}

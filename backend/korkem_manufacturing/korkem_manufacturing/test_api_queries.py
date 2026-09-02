@@ -363,6 +363,15 @@ class TestStockQuery(IntegrationTestCase):
 		self.assertEqual(len(item_calls), 1, "Item names must be loaded in one query")
 
 	def test_total_uses_the_search_filter(self):
+		"""The count is narrowed by the search, and taken without form_dict.
+
+		This used to assert on ``frappe.client.get_count``. That helper reads
+		the whole ``frappe.form_dict`` back, so it dragged an endpoint's own
+		HTTP arguments into the query — see ``_total``. The assertion moved to
+		the counting call itself; what it proves is unchanged.
+		"""
+		counted = {}
+
 		def lists(doctype, **kwargs):
 			if doctype == "Warehouse":
 				return ["KORKEM-WH"]
@@ -371,6 +380,9 @@ class TestStockQuery(IntegrationTestCase):
 					{"name": "CHAIR", "item_name": "Oak Chair"},
 					{"name": "CHAIR-2", "item_name": "Small Chair"},
 				]
+			if doctype == "Bin" and kwargs.get("pluck") == "name":
+				counted["filters"] = kwargs["filters"]
+				return ["BIN-1", "BIN-2"]
 			if doctype == "Bin":
 				return []
 			raise AssertionError(doctype)
@@ -378,13 +390,11 @@ class TestStockQuery(IntegrationTestCase):
 		with (
 			patch.object(api, "scoped", return_value={"company": "KORKEM", "is_group": 0}),
 			patch.object(api.frappe, "get_list", side_effect=lists),
-			patch.object(api.frappe.client, "get_count", return_value=2) as get_count,
 		):
 			result = api.stock(search="chair")
 
 		self.assertEqual(result["total"], 2)
-		filters = get_count.call_args.kwargs["filters"]
-		self.assertEqual(filters["item_code"], ["in", ["CHAIR", "CHAIR-2"]])
+		self.assertEqual(counted["filters"]["item_code"], ["in", ["CHAIR", "CHAIR-2"]])
 
 
 class TestDeliveryQuery(IntegrationTestCase):
@@ -508,3 +518,141 @@ class TestReceivableAndOrderableQueries(IntegrationTestCase):
 		):
 			api.receivable_purchase_orders(limit=10_000)
 		self.assertEqual(get_list.call_args.kwargs["limit_page_length"], api.MAX_LIMIT)
+
+
+class TestShopFloorQueries(IntegrationTestCase):
+	"""The two lists a person at a machine reads.
+
+	Both share one rule: a child table has no company, so scope must ride on
+	the parent work order and nowhere else.  A test that only checked the
+	returned shape would pass with the scope removed, which is why these assert
+	on the filters the queries build.
+	"""
+
+	def test_company_is_not_a_caller_argument(self):
+		self.assertEqual(
+			set(inspect.signature(api.workstations).parameters), {"limit", "offset"}
+		)
+		self.assertEqual(
+			set(inspect.signature(api.station_queue).parameters),
+			{"workstation", "limit", "offset"},
+		)
+
+	def test_scope_rides_on_the_parent_work_order(self):
+		seen = []
+
+		def lists(doctype, **kwargs):
+			seen.append((doctype, kwargs))
+			if doctype == "Work Order" and kwargs.get("pluck") == "name":
+				return ["WO-OURS"]
+			if doctype == "Work Order Operation":
+				return [
+					{
+						"name": "row-1",
+						"parent": "WO-OURS",
+						"operation": "Кромление",
+						"workstation": "Edge 1",
+						"status": "Work in Progress",
+						"completed_qty": "1",
+						"process_loss_qty": "0",
+						"time_in_mins": "30",
+						"sequence_id": 2,
+					}
+				]
+			if doctype == "Work Order":
+				return [
+					{
+						"name": "WO-OURS",
+						"production_item": "DOOR",
+						"item_name": "Door",
+						"qty": "5",
+						"planned_end_date": "2026-09-09",
+					}
+				]
+			raise AssertionError(doctype)
+
+		with (
+			patch.object(api, "scoped", side_effect=lambda f=None: dict(f or {}, company="KORKEM")),
+			patch.object(api.frappe, "get_list", side_effect=lists),
+			patch.object(api, "_total", return_value=1),
+		):
+			result = api.station_queue("Edge 1")
+
+		parent_call = next(k for d, k in seen if d == "Work Order" and k.get("pluck") == "name")
+		self.assertEqual(parent_call["filters"]["company"], "KORKEM")
+		self.assertEqual(parent_call["filters"]["docstatus"], 1)
+
+		op_call = next(k for d, k in seen if d == "Work Order Operation")
+		self.assertEqual(op_call["filters"]["parent"], ["in", ["WO-OURS"]])
+		self.assertEqual(op_call["filters"]["workstation"], "Edge 1")
+		self.assertEqual(op_call["filters"]["status"], ["!=", "Completed"])
+
+		self.assertEqual(result["total"], 1)
+		self.assertEqual(
+			result["operations"],
+			[
+				{
+					"name": "row-1",
+					"work_order": "WO-OURS",
+					"operation": "Кромление",
+					"status": "Work in Progress",
+					"completed_qty": 1.0,
+					"planned_minutes": 30.0,
+					"sequence": 2,
+					"item": "DOOR",
+					"item_name": "Door",
+					"order_qty": 5.0,
+					"due_on": "2026-09-09",
+				}
+			],
+		)
+
+	def test_no_visible_work_order_means_an_empty_shop_floor(self):
+		with (
+			patch.object(api, "scoped", return_value={"company": "KORKEM"}),
+			patch.object(api.frappe, "get_list", return_value=[]),
+		):
+			self.assertEqual(
+				api.station_queue("Edge 1"),
+				{"operations": [], "total": 0, "limit": 20, "offset": 0},
+			)
+			self.assertEqual(
+				api.workstations(),
+				{"workstations": [], "total": 0, "limit": 50, "offset": 0},
+			)
+
+	def test_workstations_counts_only_unfinished_work(self):
+		def lists(doctype, **kwargs):
+			if doctype == "Work Order":
+				return ["WO-OURS"]
+			self.assertEqual(kwargs["filters"]["status"], ["!=", "Completed"])
+			self.assertEqual(kwargs["filters"]["workstation"], ["is", "set"])
+			self.assertEqual(kwargs["pluck"], "workstation")
+			return ["Edge 1", "Saw 2", "Edge 1", "Edge 1"]
+
+		with (
+			patch.object(api, "scoped", side_effect=lambda f=None: dict(f or {}, company="KORKEM")),
+			patch.object(api.frappe, "get_list", side_effect=lists),
+		):
+			result = api.workstations()
+
+		self.assertEqual(
+			result["workstations"],
+			[{"name": "Edge 1", "waiting": 3}, {"name": "Saw 2", "waiting": 1}],
+		)
+		self.assertEqual(result["total"], 2)
+
+	def test_total_never_reaches_for_the_request_arguments(self):
+		"""`frappe.client.get_count` would; that is why `_total` does not use it.
+
+		It writes its arguments into ``frappe.form_dict`` and then calls a desk
+		view that reads the whole form_dict back, so an endpoint's own HTTP
+		arguments ride along into the database layer.  Measured, not argued:
+		``station_queue?workstation=Edge 1`` came back as
+		``TypeError: execute() got an unexpected keyword argument 'workstation'``
+		against the running bench, while every mocked unit test passed.
+		"""
+		with patch.object(api.frappe, "get_list", return_value=["a", "b"]) as get_list:
+			self.assertEqual(api._total("Work Order", {"status": "Draft"}), 2)
+		self.assertEqual(get_list.call_args.kwargs["pluck"], "name")
+		self.assertEqual(get_list.call_args.kwargs["limit_page_length"], 0)
