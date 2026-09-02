@@ -295,6 +295,11 @@ def deliveries(sales_order: str, limit: int = 20, offset: int = 0) -> dict:
 	delivery_names = frappe.get_list(
 		"Delivery Note Item",
 		filters={"against_sales_order": sales_order, "parenttype": "Delivery Note"},
+		# `parent` is not decoration. Frappe permission-checks a child table
+		# through its parent doctype, and without this it has nothing to check
+		# against — so the query comes back **empty instead of refused**, which
+		# reads as "this order has no deliveries" for an order that has one.
+		parent_doctype="Delivery Note",
 		pluck="parent",
 		limit_page_length=0,
 	)
@@ -313,6 +318,7 @@ def deliveries(sales_order: str, limit: int = 20, offset: int = 0) -> dict:
 	items = frappe.get_list(
 		"Delivery Note Item",
 		filters={"parent": ["in", [row["name"] for row in rows]], "parenttype": "Delivery Note"},
+		parent_doctype="Delivery Note",
 		fields=list(DELIVERY_NOTE_ITEM_FIELDS),
 		order_by="parent asc, idx asc",
 		limit_page_length=0,
