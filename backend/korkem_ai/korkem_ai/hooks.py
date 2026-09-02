@@ -112,10 +112,13 @@ page_renderer = ["korkem_ai.korkem_ai.health.HealthPage"]
 # Record the monotonic KORKEM schema marker only after Frappe commits a
 # successful migration. The callback registration and rollback boundary live
 # in environment.py, beside the startup comparison that consumes the marker.
-after_migrate = "korkem_ai.korkem_ai.environment.record_schema_version_after_migrate"
+after_migrate = [
+	"korkem_ai.korkem_ai.permissions.apply",
+	"korkem_ai.korkem_ai.environment.record_schema_version_after_migrate",
+]
 
 # before_install = "korkem_ai.install.before_install"
-# after_install = "korkem_ai.install.after_install"
+after_install = "korkem_ai.korkem_ai.permissions.apply"
 
 # Uninstallation
 # ------------
@@ -155,13 +158,16 @@ after_migrate = "korkem_ai.korkem_ai.environment.record_schema_version_after_mig
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+permission_query_conditions = {
+	"Pending Action": (
+		"korkem_ai.korkem_ai.doctype.pending_action.pending_action."
+		"get_permission_query_conditions"
+	),
+}
+
+has_permission = {
+	"Pending Action": "korkem_ai.korkem_ai.doctype.pending_action.pending_action.has_permission",
+}
 
 # Document Events
 # ---------------

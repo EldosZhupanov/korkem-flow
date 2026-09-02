@@ -16,6 +16,12 @@ back into the app directory, which would edit vendored ERPNext source for what
 is purely this site's policy. (Learned the hard way -- an earlier attempt did
 exactly that and had to be reverted.)
 
+This runs from both ``after_install`` and ``after_migrate``. Frappe marks every
+patch as completed during a clean app install, so the historical entry in
+``patches.txt`` is an upgrade path only; it never granted these permissions on
+a new site. Running the same idempotent policy from lifecycle hooks covers both
+shapes and repairs permission drift on the next migration.
+
 One consequence worth knowing: once any Custom DocPerm exists for a doctype,
 Frappe ignores that doctype's standard DocPerms entirely. `add_permission`
 copies the existing rules across first, so nothing is lost today -- but a future

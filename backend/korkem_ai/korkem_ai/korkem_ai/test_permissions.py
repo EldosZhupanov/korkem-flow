@@ -4,6 +4,7 @@
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from korkem_ai import hooks
 from korkem_ai.korkem_ai import permissions
 
 
@@ -21,6 +22,13 @@ class TestPermissions(IntegrationTestCase):
 
 		self.assertEqual(self._perms("Pending Action", "Sales Manager").read, 1)
 		self.assertEqual(self._perms("Pending Action", "Sales Manager").write, 1)
+
+	def test_clean_install_and_migrate_both_apply_the_policy(self):
+		"""A patch is skipped on clean install, so it cannot own site policy."""
+		method = "korkem_ai.korkem_ai.permissions.apply"
+
+		self.assertEqual(hooks.after_install, method)
+		self.assertIn(method, hooks.after_migrate)
 
 	def test_work_order_stays_read_only_for_sales(self):
 		"""The one grant that must never widen.

@@ -22,7 +22,7 @@ import unittest
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from korkem_ai.korkem_ai import onboarding
+from korkem_ai.korkem_ai import onboarding, permissions
 from korkem_ai.korkem_ai.tools import foreign_fixture
 
 COMPANY_A = "KORKEM"
@@ -68,6 +68,11 @@ class TestRawResourceCompanyIsolation(foreign_fixture.UsesForeignCompany, Integr
 		)
 		frappe.set_user("Administrator")
 		frappe.db.commit()
+
+		# The production lifecycle hooks install this grant. Apply it after the
+		# fixture's last commit so the test exercises the deployed permission but
+		# UsesForeignCompany's opening rollback removes this test-local change.
+		permissions.apply()
 
 	@classmethod
 	def _make_records(cls, user: str, organization_name: str, company: str, label: str):
@@ -297,19 +302,25 @@ class TestRawResourceCompanyIsolation(foreign_fixture.UsesForeignCompany, Integr
 		self._assert_company_b_is_hidden("Notification Log")
 
 	def test_pending_action_does_not_cross_company(self):
-		"""The current site denies this doctype to a Sales Manager entirely.
+		"""Own actions are now the positive control, not a PermissionError.
 
-		That makes the raw resource unusable to the intended mobile role, but it
-		is not a cross-company disclosure.  Keep both REST shapes denied so a
-		future permission grant cannot silently turn the absence of row scope
-		into global visibility.
+		The old assertion accepted a completely broken approvals screen as safe:
+		Sales Manager could read neither company's row. The lifecycle now grants
+		the intended role, so safety means something stronger — A can list and
+		fetch A's action while B's stays absent from the list and denied by name.
+		The same owner boundary must cover write, because approve/reject are
+		document methods and the mobile screen would otherwise resolve a row it
+		cannot list.
 		"""
-		foreign = self.records_b["Pending Action"]
+		self._assert_company_b_is_hidden("Pending Action")
+
+		frappe.set_user("Administrator")
+		own = frappe.get_doc("Pending Action", self.records_a["Pending Action"])
+		foreign = frappe.get_doc("Pending Action", self.records_b["Pending Action"])
 		frappe.set_user(USER_A)
 		try:
+			own.check_permission("write")
 			with self.assertRaises(frappe.PermissionError):
-				self._visible_names("Pending Action", [foreign])
-			with self.assertRaises(frappe.PermissionError):
-				frappe.client.get("Pending Action", foreign)
+				foreign.check_permission("write")
 		finally:
 			frappe.set_user("Administrator")

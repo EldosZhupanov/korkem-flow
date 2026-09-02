@@ -8,6 +8,40 @@ from frappe.utils import now_datetime
 from korkem_ai.korkem_ai.tools import catalog, registry  # noqa: F401 - catalog registers tools
 
 
+def _may_read_every_action(user: str) -> bool:
+	"""System administration is global; mobile approval is not."""
+	return user == "Administrator" or "System Manager" in frappe.get_roles(user)
+
+
+def get_permission_query_conditions(user: str | None = None) -> str:
+	"""Show a manager only proposals recorded in that manager's session.
+
+	``Pending Action`` has no company field. Its stable identity boundary is the
+	standard document owner: every proposal recorder runs as the person who made
+	the request and inserts with ``ignore_permissions=True`` precisely so Frappe
+	still stamps that person as owner. Company membership alone cannot filter a
+	table that carries no company, whereas owner is present on every row.
+	"""
+	user = user or frappe.session.user
+	if _may_read_every_action(user):
+		return ""
+	return f"`tabPending Action`.`owner` = {frappe.db.escape(user)}"
+
+
+def has_permission(doc, ptype: str, user: str | None = None, debug: bool = False) -> bool:
+	"""Apply the same owner boundary to named GET and document methods.
+
+	Permission query conditions protect list queries only. Without this hook a
+	manager who learned another action's opaque name could fetch or resolve it
+	directly even though it was absent from the list. Controller permissions can
+	only narrow DocPerm, never grant it, so Sales Manager still needs the
+	read/write grant installed by :mod:`korkem_ai.korkem_ai.permissions`.
+	"""
+	del ptype, debug
+	user = user or frappe.session.user
+	return _may_read_every_action(user) or doc.owner == user
+
+
 class PendingAction(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
