@@ -461,6 +461,140 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTeamSubtitle => 'Invite employees and assign positions';
 
   @override
+  String get settingsEnquiryFlowTitle => 'Enquiry pipeline';
+
+  @override
+  String get settingsEnquiryFlowSubtitle =>
+      'Pipeline from request to production order';
+
+  @override
+  String get enquiryFlowTitle => 'Enquiry pipeline';
+
+  @override
+  String get enquiryFlowSubtitle =>
+      'Pipeline from customer request to production order';
+
+  @override
+  String get enquiryFlowStep1 => 'Enquiry';
+
+  @override
+  String get enquiryFlowStep2 => 'Measurement';
+
+  @override
+  String get enquiryFlowStep3 => 'Proposal';
+
+  @override
+  String get enquiryFlowStep4 => 'Order';
+
+  @override
+  String get enquiryFlowSelectCapture => 'Select a request to process';
+
+  @override
+  String get enquiryFlowSpokenText => 'Customer words';
+
+  @override
+  String get enquiryFlowCustomerName => 'Customer name';
+
+  @override
+  String get enquiryFlowAssignMeasurer => 'Assign measurer';
+
+  @override
+  String get enquiryFlowMeasureDate => 'Measurement date';
+
+  @override
+  String get enquiryFlowConvertAction => 'Create enquiry';
+
+  @override
+  String get enquiryFlowAmbiguousTitle => 'Multiple matching customers found';
+
+  @override
+  String get enquiryFlowAmbiguousSubtitle =>
+      'Choose an existing customer or create a new one:';
+
+  @override
+  String get enquiryFlowCreateNewCustomer => 'Create as new customer';
+
+  @override
+  String get enquiryFlowDimensions => 'Dimensions';
+
+  @override
+  String get enquiryFlowDimensionsHint => '3200x600, h=2100, left corner';
+
+  @override
+  String get enquiryFlowNotes => 'Notes and materials';
+
+  @override
+  String get enquiryFlowNotesHint => 'MDF white gloss, Blum hardware';
+
+  @override
+  String get enquiryFlowAddress => 'Address';
+
+  @override
+  String get enquiryFlowAddressHint => 'Abay ave 45, apt 12';
+
+  @override
+  String get enquiryFlowCity => 'City';
+
+  @override
+  String get enquiryFlowCityHint => 'Almaty';
+
+  @override
+  String get enquiryFlowRecordMeasurementAction => 'Record measurement';
+
+  @override
+  String get enquiryFlowItemCode => 'Item name';
+
+  @override
+  String get enquiryFlowItemCodeHint => 'Kitchen set';
+
+  @override
+  String get enquiryFlowItemDesc => 'Item description';
+
+  @override
+  String get enquiryFlowItemDescHint => 'MDF facades, stone countertop';
+
+  @override
+  String get enquiryFlowItemQty => 'Quantity';
+
+  @override
+  String get enquiryFlowItemRate => 'Unit price (₸)';
+
+  @override
+  String get enquiryFlowAddItem => '+ Add item';
+
+  @override
+  String get enquiryFlowValidDays => 'Validity period (days)';
+
+  @override
+  String get enquiryFlowDraftProposalAction => 'Draft proposal';
+
+  @override
+  String get enquiryFlowDeliveryDate => 'Delivery date';
+
+  @override
+  String get enquiryFlowDeliveryDateRequired =>
+      'Specify delivery date to create order';
+
+  @override
+  String get enquiryFlowPickDeliveryDate => 'Select date';
+
+  @override
+  String get enquiryFlowAcceptOrderAction => 'Accept and create order';
+
+  @override
+  String get enquiryFlowOrderCompleted => 'Order sent to production';
+
+  @override
+  String get enquiryFlowViewOrder => 'View order';
+
+  @override
+  String get enquiryFlowEmptyCaptures => 'No requests available';
+
+  @override
+  String get enquiryFlowEmptyCapturesDesc =>
+      'Create a new request by voice or text to process it through the pipeline.';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

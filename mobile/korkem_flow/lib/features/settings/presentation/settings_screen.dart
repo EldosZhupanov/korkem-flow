@@ -145,6 +145,16 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(Routes.team),
             ),
           ),
+          Card(
+            child: ListTile(
+              key: const ValueKey('enquiryFlowSettings'),
+              leading: const Icon(AppIcons.deal),
+              title: Text(l10n.settingsEnquiryFlowTitle),
+              subtitle: Text(l10n.settingsEnquiryFlowSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.enquiryFlow),
+            ),
+          ),
           const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.settingsConnection),
           AppCard(

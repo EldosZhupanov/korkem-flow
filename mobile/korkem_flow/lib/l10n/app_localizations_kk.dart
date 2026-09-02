@@ -451,6 +451,139 @@ class AppLocalizationsKk extends AppLocalizations {
       'Қызметкерлерді шақыру және лауазымдарды таңдау';
 
   @override
+  String get settingsEnquiryFlowTitle => 'Өтінімді жүргізу';
+
+  @override
+  String get settingsEnquiryFlowSubtitle =>
+      'Өтініштен цех тапсырысына дейінгі тізбек';
+
+  @override
+  String get enquiryFlowTitle => 'Өтінімді жүргізу';
+
+  @override
+  String get enquiryFlowSubtitle => 'Өтініштен цех тапсырысына дейінгі тізбек';
+
+  @override
+  String get enquiryFlowStep1 => 'Өтінім';
+
+  @override
+  String get enquiryFlowStep2 => 'Өлшеу';
+
+  @override
+  String get enquiryFlowStep3 => 'КП';
+
+  @override
+  String get enquiryFlowStep4 => 'Тапсырыс';
+
+  @override
+  String get enquiryFlowSelectCapture => 'Жүргізу үшін өтінішті таңдаңыз';
+
+  @override
+  String get enquiryFlowSpokenText => 'Клиент сөзі бойынша';
+
+  @override
+  String get enquiryFlowCustomerName => 'Клиенттің аты';
+
+  @override
+  String get enquiryFlowAssignMeasurer => 'Өлшеушіні тағайындау';
+
+  @override
+  String get enquiryFlowMeasureDate => 'Өлшеу күні';
+
+  @override
+  String get enquiryFlowConvertAction => 'Өтінімді құру';
+
+  @override
+  String get enquiryFlowAmbiguousTitle => 'Бірнеше ұқсас клиент табылды';
+
+  @override
+  String get enquiryFlowAmbiguousSubtitle =>
+      'Бар клиентті таңдаңыз немесе жаңасын құрыңыз:';
+
+  @override
+  String get enquiryFlowCreateNewCustomer => 'Жаңа клиент ретінде құру';
+
+  @override
+  String get enquiryFlowDimensions => 'Бөлме / бұйым өлшемдері';
+
+  @override
+  String get enquiryFlowDimensionsHint => '3200×600, h=2100, сол жақ бұрыш';
+
+  @override
+  String get enquiryFlowNotes => 'Ескертпелер мен материалдар';
+
+  @override
+  String get enquiryFlowNotesHint => 'МДФ ақ жылтыр, Blum фурнитурасы';
+
+  @override
+  String get enquiryFlowAddress => 'Жеткізу және өлшеу мекенжайы';
+
+  @override
+  String get enquiryFlowAddressHint => 'Абай к-сі 45, 12 пәт.';
+
+  @override
+  String get enquiryFlowCity => 'Қала';
+
+  @override
+  String get enquiryFlowCityHint => 'Алматы';
+
+  @override
+  String get enquiryFlowRecordMeasurementAction => 'Өлшеу нәтижесін жазу';
+
+  @override
+  String get enquiryFlowItemCode => 'Позиция атауы';
+
+  @override
+  String get enquiryFlowItemCodeHint => 'Ас үй жиһазы';
+
+  @override
+  String get enquiryFlowItemDesc => 'Позиция сипаттамасы';
+
+  @override
+  String get enquiryFlowItemDescHint => 'МДФ қасбеттері, тас үстел үсті';
+
+  @override
+  String get enquiryFlowItemQty => 'Саны';
+
+  @override
+  String get enquiryFlowItemRate => 'Бірлік бағасы (₸)';
+
+  @override
+  String get enquiryFlowAddItem => '+ Позиция қосу';
+
+  @override
+  String get enquiryFlowValidDays => 'Срок действия КП (күн)';
+
+  @override
+  String get enquiryFlowDraftProposalAction => 'Ұсыныс жобасын құру';
+
+  @override
+  String get enquiryFlowDeliveryDate => 'Дайын болу / жеткізу мерзімі';
+
+  @override
+  String get enquiryFlowDeliveryDateRequired =>
+      'Тапсырыс құру үшін тапсыру мерзімін көрсетіңіз';
+
+  @override
+  String get enquiryFlowPickDeliveryDate => 'Күнді таңдау';
+
+  @override
+  String get enquiryFlowAcceptOrderAction => 'Қабылдап, тапсырыс құру';
+
+  @override
+  String get enquiryFlowOrderCompleted => 'Тапсырыс өндіріске берілді';
+
+  @override
+  String get enquiryFlowViewOrder => 'Тапсырысқа өту';
+
+  @override
+  String get enquiryFlowEmptyCaptures => 'Қолжетімді өтініштер жоқ';
+
+  @override
+  String get enquiryFlowEmptyCapturesDesc =>
+      'Тізбек бойынша жүргізу үшін дауыспен немесе мәтінмен жаңа өтініш құрыңыз.';
+
+  @override
   String get settingsTitle => 'Параметрлер';
 
   @override

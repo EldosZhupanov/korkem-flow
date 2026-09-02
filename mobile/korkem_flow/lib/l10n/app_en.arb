@@ -468,6 +468,178 @@
   "@settingsTeamSubtitle": {
     "description": "Settings tile subtitle for team management"
   },
+  "settingsEnquiryFlowTitle": "Enquiry pipeline",
+  "@settingsEnquiryFlowTitle": {
+    "description": "Settings tile title for enquiry flow"
+  },
+  "settingsEnquiryFlowSubtitle": "Pipeline from request to production order",
+  "@settingsEnquiryFlowSubtitle": {
+    "description": "Settings tile subtitle for enquiry flow"
+  },
+  "enquiryFlowTitle": "Enquiry pipeline",
+  "@enquiryFlowTitle": {
+    "description": "Title of the enquiry pipeline screen"
+  },
+  "enquiryFlowSubtitle": "Pipeline from customer request to production order",
+  "@enquiryFlowSubtitle": {
+    "description": "Subtitle of the enquiry pipeline screen"
+  },
+  "enquiryFlowStep1": "Enquiry",
+  "@enquiryFlowStep1": {
+    "description": "First step title in pipeline"
+  },
+  "enquiryFlowStep2": "Measurement",
+  "@enquiryFlowStep2": {
+    "description": "Second step title in pipeline"
+  },
+  "enquiryFlowStep3": "Proposal",
+  "@enquiryFlowStep3": {
+    "description": "Third step title in pipeline"
+  },
+  "enquiryFlowStep4": "Order",
+  "@enquiryFlowStep4": {
+    "description": "Fourth step title in pipeline"
+  },
+  "enquiryFlowSelectCapture": "Select a request to process",
+  "@enquiryFlowSelectCapture": {
+    "description": "Prompt to select a capture"
+  },
+  "enquiryFlowSpokenText": "Customer words",
+  "@enquiryFlowSpokenText": {
+    "description": "Label for what the customer said"
+  },
+  "enquiryFlowCustomerName": "Customer name",
+  "@enquiryFlowCustomerName": {
+    "description": "Label for customer name field"
+  },
+  "enquiryFlowAssignMeasurer": "Assign measurer",
+  "@enquiryFlowAssignMeasurer": {
+    "description": "Dropdown label to assign measurer"
+  },
+  "enquiryFlowMeasureDate": "Measurement date",
+  "@enquiryFlowMeasureDate": {
+    "description": "Label for measurement date picker"
+  },
+  "enquiryFlowConvertAction": "Create enquiry",
+  "@enquiryFlowConvertAction": {
+    "description": "Button to convert capture to enquiry"
+  },
+  "enquiryFlowAmbiguousTitle": "Multiple matching customers found",
+  "@enquiryFlowAmbiguousTitle": {
+    "description": "Title when customer name is ambiguous"
+  },
+  "enquiryFlowAmbiguousSubtitle": "Choose an existing customer or create a new one:",
+  "@enquiryFlowAmbiguousSubtitle": {
+    "description": "Subtitle for ambiguous customer resolution"
+  },
+  "enquiryFlowCreateNewCustomer": "Create as new customer",
+  "@enquiryFlowCreateNewCustomer": {
+    "description": "Option to create as new customer"
+  },
+  "enquiryFlowDimensions": "Dimensions",
+  "@enquiryFlowDimensions": {
+    "description": "Field label for dimensions"
+  },
+  "enquiryFlowDimensionsHint": "3200x600, h=2100, left corner",
+  "@enquiryFlowDimensionsHint": {
+    "description": "Hint for dimensions"
+  },
+  "enquiryFlowNotes": "Notes and materials",
+  "@enquiryFlowNotes": {
+    "description": "Field label for notes"
+  },
+  "enquiryFlowNotesHint": "MDF white gloss, Blum hardware",
+  "@enquiryFlowNotesHint": {
+    "description": "Hint for notes"
+  },
+  "enquiryFlowAddress": "Address",
+  "@enquiryFlowAddress": {
+    "description": "Field label for address"
+  },
+  "enquiryFlowAddressHint": "Abay ave 45, apt 12",
+  "@enquiryFlowAddressHint": {
+    "description": "Hint for address"
+  },
+  "enquiryFlowCity": "City",
+  "@enquiryFlowCity": {
+    "description": "Field label for city"
+  },
+  "enquiryFlowCityHint": "Almaty",
+  "@enquiryFlowCityHint": {
+    "description": "Hint for city"
+  },
+  "enquiryFlowRecordMeasurementAction": "Record measurement",
+  "@enquiryFlowRecordMeasurementAction": {
+    "description": "Button to record measurement"
+  },
+  "enquiryFlowItemCode": "Item name",
+  "@enquiryFlowItemCode": {
+    "description": "Field label for proposal item name"
+  },
+  "enquiryFlowItemCodeHint": "Kitchen set",
+  "@enquiryFlowItemCodeHint": {
+    "description": "Hint for proposal item name"
+  },
+  "enquiryFlowItemDesc": "Item description",
+  "@enquiryFlowItemDesc": {
+    "description": "Field label for proposal item description"
+  },
+  "enquiryFlowItemDescHint": "MDF facades, stone countertop",
+  "@enquiryFlowItemDescHint": {
+    "description": "Hint for proposal item description"
+  },
+  "enquiryFlowItemQty": "Quantity",
+  "@enquiryFlowItemQty": {
+    "description": "Field label for item quantity"
+  },
+  "enquiryFlowItemRate": "Unit price (₸)",
+  "@enquiryFlowItemRate": {
+    "description": "Field label for item price"
+  },
+  "enquiryFlowAddItem": "+ Add item",
+  "@enquiryFlowAddItem": {
+    "description": "Button to add another item row"
+  },
+  "enquiryFlowValidDays": "Validity period (days)",
+  "@enquiryFlowValidDays": {
+    "description": "Field label for quotation validity days"
+  },
+  "enquiryFlowDraftProposalAction": "Draft proposal",
+  "@enquiryFlowDraftProposalAction": {
+    "description": "Button to draft proposal"
+  },
+  "enquiryFlowDeliveryDate": "Delivery date",
+  "@enquiryFlowDeliveryDate": {
+    "description": "Field label for order delivery date"
+  },
+  "enquiryFlowDeliveryDateRequired": "Specify delivery date to create order",
+  "@enquiryFlowDeliveryDateRequired": {
+    "description": "Validation message when delivery date is missing"
+  },
+  "enquiryFlowPickDeliveryDate": "Select date",
+  "@enquiryFlowPickDeliveryDate": {
+    "description": "Button label to pick delivery date"
+  },
+  "enquiryFlowAcceptOrderAction": "Accept and create order",
+  "@enquiryFlowAcceptOrderAction": {
+    "description": "Button to accept quotation and create order"
+  },
+  "enquiryFlowOrderCompleted": "Order sent to production",
+  "@enquiryFlowOrderCompleted": {
+    "description": "Banner when order is successfully created"
+  },
+  "enquiryFlowViewOrder": "View order",
+  "@enquiryFlowViewOrder": {
+    "description": "Button to navigate to created order"
+  },
+  "enquiryFlowEmptyCaptures": "No requests available",
+  "@enquiryFlowEmptyCaptures": {
+    "description": "Empty state title when no captures exist"
+  },
+  "enquiryFlowEmptyCapturesDesc": "Create a new request by voice or text to process it through the pipeline.",
+  "@enquiryFlowEmptyCapturesDesc": {
+    "description": "Empty state description for captures"
+  },
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",

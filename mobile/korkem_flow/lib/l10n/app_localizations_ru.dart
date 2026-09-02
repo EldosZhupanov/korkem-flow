@@ -463,6 +463,140 @@ class AppLocalizationsRu extends AppLocalizations {
       'Приглашение сотрудников и выбор должностей';
 
   @override
+  String get settingsEnquiryFlowTitle => 'Проводка заявки';
+
+  @override
+  String get settingsEnquiryFlowSubtitle =>
+      'Цепочка от первого обращения до заказа в цех';
+
+  @override
+  String get enquiryFlowTitle => 'Проводка заявки';
+
+  @override
+  String get enquiryFlowSubtitle =>
+      'Цепочка от первого обращения до заказа в цех';
+
+  @override
+  String get enquiryFlowStep1 => 'Заявка';
+
+  @override
+  String get enquiryFlowStep2 => 'Замер';
+
+  @override
+  String get enquiryFlowStep3 => 'КП';
+
+  @override
+  String get enquiryFlowStep4 => 'Заказ';
+
+  @override
+  String get enquiryFlowSelectCapture => 'Выберите обращение для проводки';
+
+  @override
+  String get enquiryFlowSpokenText => 'Со слов клиента';
+
+  @override
+  String get enquiryFlowCustomerName => 'Имя клиента';
+
+  @override
+  String get enquiryFlowAssignMeasurer => 'Назначить замерщика';
+
+  @override
+  String get enquiryFlowMeasureDate => 'Дата замера';
+
+  @override
+  String get enquiryFlowConvertAction => 'Создать заявку';
+
+  @override
+  String get enquiryFlowAmbiguousTitle => 'Найдено несколько похожих клиентов';
+
+  @override
+  String get enquiryFlowAmbiguousSubtitle =>
+      'Выберите существующего клиента или создайте нового:';
+
+  @override
+  String get enquiryFlowCreateNewCustomer => 'Создать как нового клиента';
+
+  @override
+  String get enquiryFlowDimensions => 'Размеры помещения / изделия';
+
+  @override
+  String get enquiryFlowDimensionsHint => '3200×600, h=2100, угол слева';
+
+  @override
+  String get enquiryFlowNotes => 'Примечания и материалы';
+
+  @override
+  String get enquiryFlowNotesHint => 'МДФ белый глянец, фурнитура Blum';
+
+  @override
+  String get enquiryFlowAddress => 'Адрес доставки и замера';
+
+  @override
+  String get enquiryFlowAddressHint => 'ул. Абая 45, кв. 12';
+
+  @override
+  String get enquiryFlowCity => 'Город';
+
+  @override
+  String get enquiryFlowCityHint => 'Алматы';
+
+  @override
+  String get enquiryFlowRecordMeasurementAction => 'Записать результат замера';
+
+  @override
+  String get enquiryFlowItemCode => 'Наименование позиции';
+
+  @override
+  String get enquiryFlowItemCodeHint => 'Кухонный гарнитур';
+
+  @override
+  String get enquiryFlowItemDesc => 'Описание позиции';
+
+  @override
+  String get enquiryFlowItemDescHint => 'Фасады МДФ, столешница камень';
+
+  @override
+  String get enquiryFlowItemQty => 'Количество';
+
+  @override
+  String get enquiryFlowItemRate => 'Цена за единицу (₸)';
+
+  @override
+  String get enquiryFlowAddItem => '+ Добавить позицию';
+
+  @override
+  String get enquiryFlowValidDays => 'Срок действия КП (дней)';
+
+  @override
+  String get enquiryFlowDraftProposalAction => 'Создать черновик КП';
+
+  @override
+  String get enquiryFlowDeliveryDate => 'Срок готовности / доставки';
+
+  @override
+  String get enquiryFlowDeliveryDateRequired =>
+      'Укажите срок сдачи для создания заказа';
+
+  @override
+  String get enquiryFlowPickDeliveryDate => 'Выбрать дату';
+
+  @override
+  String get enquiryFlowAcceptOrderAction => 'Принять и создать заказ';
+
+  @override
+  String get enquiryFlowOrderCompleted => 'Заказ передан в производство';
+
+  @override
+  String get enquiryFlowViewOrder => 'Перейти к заказу';
+
+  @override
+  String get enquiryFlowEmptyCaptures => 'Нет доступных обращений';
+
+  @override
+  String get enquiryFlowEmptyCapturesDesc =>
+      'Создайте новое обращение голосом или текстом, чтобы провести его по цепочке.';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override

@@ -916,6 +916,264 @@ abstract class AppLocalizations {
   /// **'Invite employees and assign positions'**
   String get settingsTeamSubtitle;
 
+  /// Settings tile title for enquiry flow
+  ///
+  /// In en, this message translates to:
+  /// **'Enquiry pipeline'**
+  String get settingsEnquiryFlowTitle;
+
+  /// Settings tile subtitle for enquiry flow
+  ///
+  /// In en, this message translates to:
+  /// **'Pipeline from request to production order'**
+  String get settingsEnquiryFlowSubtitle;
+
+  /// Title of the enquiry pipeline screen
+  ///
+  /// In en, this message translates to:
+  /// **'Enquiry pipeline'**
+  String get enquiryFlowTitle;
+
+  /// Subtitle of the enquiry pipeline screen
+  ///
+  /// In en, this message translates to:
+  /// **'Pipeline from customer request to production order'**
+  String get enquiryFlowSubtitle;
+
+  /// First step title in pipeline
+  ///
+  /// In en, this message translates to:
+  /// **'Enquiry'**
+  String get enquiryFlowStep1;
+
+  /// Second step title in pipeline
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement'**
+  String get enquiryFlowStep2;
+
+  /// Third step title in pipeline
+  ///
+  /// In en, this message translates to:
+  /// **'Proposal'**
+  String get enquiryFlowStep3;
+
+  /// Fourth step title in pipeline
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get enquiryFlowStep4;
+
+  /// Prompt to select a capture
+  ///
+  /// In en, this message translates to:
+  /// **'Select a request to process'**
+  String get enquiryFlowSelectCapture;
+
+  /// Label for what the customer said
+  ///
+  /// In en, this message translates to:
+  /// **'Customer words'**
+  String get enquiryFlowSpokenText;
+
+  /// Label for customer name field
+  ///
+  /// In en, this message translates to:
+  /// **'Customer name'**
+  String get enquiryFlowCustomerName;
+
+  /// Dropdown label to assign measurer
+  ///
+  /// In en, this message translates to:
+  /// **'Assign measurer'**
+  String get enquiryFlowAssignMeasurer;
+
+  /// Label for measurement date picker
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement date'**
+  String get enquiryFlowMeasureDate;
+
+  /// Button to convert capture to enquiry
+  ///
+  /// In en, this message translates to:
+  /// **'Create enquiry'**
+  String get enquiryFlowConvertAction;
+
+  /// Title when customer name is ambiguous
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple matching customers found'**
+  String get enquiryFlowAmbiguousTitle;
+
+  /// Subtitle for ambiguous customer resolution
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an existing customer or create a new one:'**
+  String get enquiryFlowAmbiguousSubtitle;
+
+  /// Option to create as new customer
+  ///
+  /// In en, this message translates to:
+  /// **'Create as new customer'**
+  String get enquiryFlowCreateNewCustomer;
+
+  /// Field label for dimensions
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions'**
+  String get enquiryFlowDimensions;
+
+  /// Hint for dimensions
+  ///
+  /// In en, this message translates to:
+  /// **'3200x600, h=2100, left corner'**
+  String get enquiryFlowDimensionsHint;
+
+  /// Field label for notes
+  ///
+  /// In en, this message translates to:
+  /// **'Notes and materials'**
+  String get enquiryFlowNotes;
+
+  /// Hint for notes
+  ///
+  /// In en, this message translates to:
+  /// **'MDF white gloss, Blum hardware'**
+  String get enquiryFlowNotesHint;
+
+  /// Field label for address
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get enquiryFlowAddress;
+
+  /// Hint for address
+  ///
+  /// In en, this message translates to:
+  /// **'Abay ave 45, apt 12'**
+  String get enquiryFlowAddressHint;
+
+  /// Field label for city
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get enquiryFlowCity;
+
+  /// Hint for city
+  ///
+  /// In en, this message translates to:
+  /// **'Almaty'**
+  String get enquiryFlowCityHint;
+
+  /// Button to record measurement
+  ///
+  /// In en, this message translates to:
+  /// **'Record measurement'**
+  String get enquiryFlowRecordMeasurementAction;
+
+  /// Field label for proposal item name
+  ///
+  /// In en, this message translates to:
+  /// **'Item name'**
+  String get enquiryFlowItemCode;
+
+  /// Hint for proposal item name
+  ///
+  /// In en, this message translates to:
+  /// **'Kitchen set'**
+  String get enquiryFlowItemCodeHint;
+
+  /// Field label for proposal item description
+  ///
+  /// In en, this message translates to:
+  /// **'Item description'**
+  String get enquiryFlowItemDesc;
+
+  /// Hint for proposal item description
+  ///
+  /// In en, this message translates to:
+  /// **'MDF facades, stone countertop'**
+  String get enquiryFlowItemDescHint;
+
+  /// Field label for item quantity
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get enquiryFlowItemQty;
+
+  /// Field label for item price
+  ///
+  /// In en, this message translates to:
+  /// **'Unit price (₸)'**
+  String get enquiryFlowItemRate;
+
+  /// Button to add another item row
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add item'**
+  String get enquiryFlowAddItem;
+
+  /// Field label for quotation validity days
+  ///
+  /// In en, this message translates to:
+  /// **'Validity period (days)'**
+  String get enquiryFlowValidDays;
+
+  /// Button to draft proposal
+  ///
+  /// In en, this message translates to:
+  /// **'Draft proposal'**
+  String get enquiryFlowDraftProposalAction;
+
+  /// Field label for order delivery date
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery date'**
+  String get enquiryFlowDeliveryDate;
+
+  /// Validation message when delivery date is missing
+  ///
+  /// In en, this message translates to:
+  /// **'Specify delivery date to create order'**
+  String get enquiryFlowDeliveryDateRequired;
+
+  /// Button label to pick delivery date
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get enquiryFlowPickDeliveryDate;
+
+  /// Button to accept quotation and create order
+  ///
+  /// In en, this message translates to:
+  /// **'Accept and create order'**
+  String get enquiryFlowAcceptOrderAction;
+
+  /// Banner when order is successfully created
+  ///
+  /// In en, this message translates to:
+  /// **'Order sent to production'**
+  String get enquiryFlowOrderCompleted;
+
+  /// Button to navigate to created order
+  ///
+  /// In en, this message translates to:
+  /// **'View order'**
+  String get enquiryFlowViewOrder;
+
+  /// Empty state title when no captures exist
+  ///
+  /// In en, this message translates to:
+  /// **'No requests available'**
+  String get enquiryFlowEmptyCaptures;
+
+  /// Empty state description for captures
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new request by voice or text to process it through the pipeline.'**
+  String get enquiryFlowEmptyCapturesDesc;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:
