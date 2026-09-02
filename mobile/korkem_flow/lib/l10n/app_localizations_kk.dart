@@ -1382,4 +1382,26 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get completeOperationBlockedTitle => 'Операцияны аяқтау мүмкін емес';
+
+  @override
+  String get ordersActionCreateDelivery => 'Жөнелту құру';
+
+  @override
+  String orderDeliverySuccess(String note) {
+    return '$note жөнелтілімі жасалды';
+  }
+
+  @override
+  String orderDeliveryAdjustedSuccess(String note) {
+    return 'Қоймадағы бар тауар бойынша ішінара жөнелту $note жасалды';
+  }
+
+  @override
+  String get orderAlreadyDelivered => 'Тапсырыс толық жөнелтілген';
+
+  @override
+  String get orderNothingShippable => 'Қоймада жөнелтуге дайын тауар жоқ';
+
+  @override
+  String get orderDeliveryBlockedTitle => 'Жөнелтуді жасау мүмкін емес';
 }

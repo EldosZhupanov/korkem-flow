@@ -1411,4 +1411,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get completeOperationBlockedTitle => 'Cannot Complete Operation';
+
+  @override
+  String get ordersActionCreateDelivery => 'Create delivery';
+
+  @override
+  String orderDeliverySuccess(String note) {
+    return 'Delivery note $note created';
+  }
+
+  @override
+  String orderDeliveryAdjustedSuccess(String note) {
+    return 'Partial delivery $note created for available stock';
+  }
+
+  @override
+  String get orderAlreadyDelivered => 'Order is already delivered';
+
+  @override
+  String get orderNothingShippable => 'Nothing is in stock to deliver';
+
+  @override
+  String get orderDeliveryBlockedTitle => 'Cannot Create Delivery';
 }

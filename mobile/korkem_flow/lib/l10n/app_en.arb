@@ -1374,5 +1374,39 @@
   "completeOperationBlockedTitle": "Cannot Complete Operation",
   "@completeOperationBlockedTitle": {
     "description": "Title when server refuses operation completion."
+  },
+  "ordersActionCreateDelivery": "Create delivery",
+  "@ordersActionCreateDelivery": {
+    "description": "Action button label to create delivery note for sales order."
+  },
+  "orderDeliverySuccess": "Delivery note {note} created",
+  "@orderDeliverySuccess": {
+    "description": "Success message when delivery note is created.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "orderDeliveryAdjustedSuccess": "Partial delivery {note} created for available stock",
+  "@orderDeliveryAdjustedSuccess": {
+    "description": "Message when delivery note is created for partial quantity due to warehouse availability.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "orderAlreadyDelivered": "Order is already delivered",
+  "@orderAlreadyDelivered": {
+    "description": "Message when order was already fully delivered."
+  },
+  "orderNothingShippable": "Nothing is in stock to deliver",
+  "@orderNothingShippable": {
+    "description": "Message when nothing is ready in warehouse for shipment."
+  },
+  "orderDeliveryBlockedTitle": "Cannot Create Delivery",
+  "@orderDeliveryBlockedTitle": {
+    "description": "Title when delivery creation is refused by server."
   }
 }

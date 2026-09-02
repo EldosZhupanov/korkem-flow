@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/production/application/production_controlle
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/data/work_order_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/warehouse/data/receiving_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../support/widget_harness.dart';
@@ -20,6 +21,8 @@ class _MockWorkOrderRepository extends Mock implements WorkOrderRepository {}
 
 class _MockProductionCommandRepository extends Mock
     implements ProductionCommandRepository {}
+
+class _MockReceivingRepository extends Mock implements ReceivingRepository {}
 
 const _order = SalesOrder(
   name: 'SAL-ORD-00001',
@@ -33,11 +36,13 @@ void main() {
   late _MockSalesOrderRepository orders;
   late _MockWorkOrderRepository workOrders;
   late _MockProductionCommandRepository commands;
+  late _MockReceivingRepository receivingRepo;
 
   setUp(() {
     orders = _MockSalesOrderRepository();
     workOrders = _MockWorkOrderRepository();
     commands = _MockProductionCommandRepository();
+    receivingRepo = _MockReceivingRepository();
   });
 
   void stubOrder({
@@ -72,6 +77,7 @@ void main() {
           salesOrderRepositoryProvider.overrideWithValue(orders),
           workOrderRepositoryProvider.overrideWithValue(workOrders),
           productionCommandRepositoryProvider.overrideWithValue(commands),
+          receivingRepositoryProvider.overrideWithValue(receivingRepo),
           clockProvider.overrideWithValue(() => DateTime(2026, 9, 1, 12)),
         ],
         child: harness(const OrderDetailScreen(name: 'SAL-ORD-00001')),

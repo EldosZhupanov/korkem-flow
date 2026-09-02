@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/production/application/production_controlle
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/data/work_order_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/warehouse/data/receiving_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../support/widget_harness.dart';
@@ -21,15 +22,19 @@ class _MockWorkOrderRepository extends Mock implements WorkOrderRepository {}
 class _MockProductionCommandRepository extends Mock
     implements ProductionCommandRepository {}
 
+class _MockReceivingRepository extends Mock implements ReceivingRepository {}
+
 void main() {
   late _MockSalesOrderRepository salesOrderRepo;
   late _MockWorkOrderRepository workOrderRepo;
   late _MockProductionCommandRepository productionCommandRepo;
+  late _MockReceivingRepository receivingRepo;
 
   setUp(() {
     salesOrderRepo = _MockSalesOrderRepository();
     workOrderRepo = _MockWorkOrderRepository();
     productionCommandRepo = _MockProductionCommandRepository();
+    receivingRepo = _MockReceivingRepository();
   });
 
   SalesOrder createOrder({
@@ -90,6 +95,7 @@ void main() {
           productionCommandRepositoryProvider.overrideWithValue(
             productionCommandRepo,
           ),
+          receivingRepositoryProvider.overrideWithValue(receivingRepo),
         ],
         child: harness(OrdersScreen(selectedName: selectedName)),
       ),

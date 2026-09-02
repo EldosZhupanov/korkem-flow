@@ -574,5 +574,11 @@
   "completeOperationSuccess": "«{operation}» операциясы аяқталды",
   "completeOperationAlreadyComplete": "Операция бұрын аяқталған",
   "completeOperationInvalidQty": "Дұрыс теріс емес санды енгізіңіз",
-  "completeOperationBlockedTitle": "Операцияны аяқтау мүмкін емес"
+  "completeOperationBlockedTitle": "Операцияны аяқтау мүмкін емес",
+  "ordersActionCreateDelivery": "Жөнелту құру",
+  "orderDeliverySuccess": "{note} жөнелтілімі жасалды",
+  "orderDeliveryAdjustedSuccess": "Қоймадағы бар тауар бойынша ішінара жөнелту {note} жасалды",
+  "orderAlreadyDelivered": "Тапсырыс толық жөнелтілген",
+  "orderNothingShippable": "Қоймада жөнелтуге дайын тауар жоқ",
+  "orderDeliveryBlockedTitle": "Жөнелтуді жасау мүмкін емес"
 }

@@ -2577,6 +2577,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cannot Complete Operation'**
   String get completeOperationBlockedTitle;
+
+  /// Action button label to create delivery note for sales order.
+  ///
+  /// In en, this message translates to:
+  /// **'Create delivery'**
+  String get ordersActionCreateDelivery;
+
+  /// Success message when delivery note is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery note {note} created'**
+  String orderDeliverySuccess(String note);
+
+  /// Message when delivery note is created for partial quantity due to warehouse availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial delivery {note} created for available stock'**
+  String orderDeliveryAdjustedSuccess(String note);
+
+  /// Message when order was already fully delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Order is already delivered'**
+  String get orderAlreadyDelivered;
+
+  /// Message when nothing is ready in warehouse for shipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is in stock to deliver'**
+  String get orderNothingShippable;
+
+  /// Title when delivery creation is refused by server.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot Create Delivery'**
+  String get orderDeliveryBlockedTitle;
 }
 
 class _AppLocalizationsDelegate

@@ -574,5 +574,11 @@
   "completeOperationSuccess": "Операция «{operation}» завершена",
   "completeOperationAlreadyComplete": "Операция уже была закрыта ранее",
   "completeOperationInvalidQty": "Введите корректное неотрицательное число",
-  "completeOperationBlockedTitle": "Не удалось закрыть операцию"
+  "completeOperationBlockedTitle": "Не удалось закрыть операцию",
+  "ordersActionCreateDelivery": "Создать отгрузку",
+  "orderDeliverySuccess": "Отгрузка {note} создана",
+  "orderDeliveryAdjustedSuccess": "Частичная отгрузка {note} создана по наличию на складе",
+  "orderAlreadyDelivered": "Заказ уже полностью отгружен",
+  "orderNothingShippable": "На складе нет готовых позиций для отгрузки",
+  "orderDeliveryBlockedTitle": "Не удалось создать отгрузку"
 }

@@ -1424,4 +1424,27 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get completeOperationBlockedTitle => 'Не удалось закрыть операцию';
+
+  @override
+  String get ordersActionCreateDelivery => 'Создать отгрузку';
+
+  @override
+  String orderDeliverySuccess(String note) {
+    return 'Отгрузка $note создана';
+  }
+
+  @override
+  String orderDeliveryAdjustedSuccess(String note) {
+    return 'Частичная отгрузка $note создана по наличию на складе';
+  }
+
+  @override
+  String get orderAlreadyDelivered => 'Заказ уже полностью отгружен';
+
+  @override
+  String get orderNothingShippable =>
+      'На складе нет готовых позиций для отгрузки';
+
+  @override
+  String get orderDeliveryBlockedTitle => 'Не удалось создать отгрузку';
 }

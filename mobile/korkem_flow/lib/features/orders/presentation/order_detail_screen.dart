@@ -15,6 +15,7 @@ import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/application/order_detail_controller.dart';
 import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
+import 'package:korkem_flow/features/orders/presentation/create_delivery_button.dart';
 import 'package:korkem_flow/features/orders/presentation/sales_order_status_label.dart';
 import 'package:korkem_flow/features/orders/presentation/start_production_button.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
@@ -114,7 +115,10 @@ class _Body extends ConsumerWidget {
           SectionLabel(l10n.orderDeliveriesSection),
           const SizedBox(height: AppSpacing.sm),
           switch (deliveries) {
-            AsyncData(:final value) => _Deliveries(deliveries: value),
+            AsyncData(:final value) => _Deliveries(
+              order: order,
+              deliveries: value,
+            ),
             AsyncError(:final error) => ErrorView(
               error: error,
               onRetry: () =>
@@ -319,20 +323,37 @@ class _Field extends StatelessWidget {
   }
 }
 
-class _Deliveries extends StatelessWidget {
-  const _Deliveries({required this.deliveries});
+class _Deliveries extends ConsumerWidget {
+  const _Deliveries({
+    required this.order,
+    required this.deliveries,
+  });
 
+  final SalesOrder order;
   final List<SalesOrderDelivery> deliveries;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
 
     if (deliveries.isEmpty) {
-      return EmptyView(
-        icon: AppIcons.warehouse,
-        title: l10n.orderNoDeliveriesTitle,
-        message: l10n.orderNoDeliveriesBody,
+      return Column(
+        children: [
+          EmptyView(
+            icon: AppIcons.warehouse,
+            title: l10n.orderNoDeliveriesTitle,
+            message: l10n.orderNoDeliveriesBody,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          CreateDeliveryButton(
+            salesOrder: order.name,
+            onDelivered: () async {
+              ref
+                ..invalidate(orderDeliveriesProvider(order.name))
+                ..invalidate(orderDetailProvider(order.name));
+            },
+          ),
+        ],
       );
     }
 
