@@ -284,20 +284,18 @@ class TestRawResourceCompanyIsolation(foreign_fixture.UsesForeignCompany, Integr
 	def test_crm_task_does_not_cross_company(self):
 		self._assert_company_b_is_hidden("CRM Task")
 
-	# NOT marked expected-failure, and the reason is a disagreement worth keeping.
+	# This one was a real leak, and it is now closed. Kept unmarked as the guard.
 	#
-	# On the development bench this test reproduced a leak: a named GET returned
-	# another user's notification.  On a bench CI builds from nothing it does
-	# not — the run reported an *unexpected success*, which is CI doing exactly
-	# what it exists for.  The clean result governs, because that is what a
-	# client installs.
+	# The history is worth two lines, because it was nearly filed as noise. The
+	# leak reproduced here and not in CI, so it was first written off as an
+	# artefact of this bench. It was not: it reproduced again on a site created
+	# from nothing, and again there under the whole suite rather than the module
+	# alone. Frappe registers a *list* condition for Notification Log and no
+	# document check, so the list hid another user's notification while a named
+	# GET handed it over — the worse shape, because it looks safe from outside.
 	#
-	# The difference is not yet explained.  Ruled out by measurement, not by
-	# argument: there is no Custom DocPerm on Notification Log, no leftover test
-	# user, and no leftover Notification Log row on the development bench.
-	# So this stands as a regression guard, and the discrepancy stays an open
-	# question rather than a closed one.  If it fails on a clean bench, the leak
-	# is real and this comment is the place to start.
+	# Closed by a `has_permission` hook in korkem_ai/permissions.py. If this
+	# test ever fails again, that hook is the first place to look.
 	def test_notification_log_does_not_cross_company(self):
 		self._assert_company_b_is_hidden("Notification Log")
 

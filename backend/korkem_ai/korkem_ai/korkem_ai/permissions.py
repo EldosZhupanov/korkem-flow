@@ -69,3 +69,26 @@ def apply():
 			update_permission_property(doctype, role, 0, ptype, value)
 
 	frappe.clear_cache()
+
+
+def notification_log_has_permission(doc, ptype: str, user: str | None = None, debug: bool = False) -> bool:
+	"""A notification belongs to the person it was addressed to.
+
+	Frappe already asserts this for lists — `frappe.hooks` registers
+	`get_permission_query_conditions` for Notification Log — but registers no
+	document-level check, and the `All` role has read. So the list hides
+	another user's notification while a named GET hands it over, which is the
+	worse of the two shapes: it looks safe from the outside.
+
+	This restores the statement the list already makes. Administration stays
+	global, because a system manager who cannot read a notification cannot
+	diagnose why it never arrived.
+
+	A controller check can only narrow what DocPerm already grants; it never
+	grants anything by itself.
+	"""
+	del ptype, debug
+	user = user or frappe.session.user
+	if user == "Administrator" or "System Manager" in frappe.get_roles(user):
+		return True
+	return bool(doc.get("for_user")) and doc.get("for_user") == user

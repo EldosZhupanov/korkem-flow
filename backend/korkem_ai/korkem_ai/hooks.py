@@ -167,6 +167,12 @@ permission_query_conditions = {
 
 has_permission = {
 	"Pending Action": "korkem_ai.korkem_ai.doctype.pending_action.pending_action.has_permission",
+	# Frappe 17 registers a *list* condition for Notification Log
+	# (`for_user = session.user`) and no document-level check, so a named GET
+	# returns somebody else's notification. Measured on a bench built from
+	# nothing, twice, once with the whole suite: the list hides it and the
+	# document hands it over. See korkem_ai/permissions.py for the boundary.
+	"Notification Log": "korkem_ai.korkem_ai.permissions.notification_log_has_permission",
 }
 
 # Document Events
