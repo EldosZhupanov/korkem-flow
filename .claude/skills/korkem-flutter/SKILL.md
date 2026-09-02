@@ -105,6 +105,53 @@ it **for loopback hosts only**, merged into debug builds and never a release
 one — `docs/privacy_policy.md` promises users that Android blocks unencrypted
 HTTP, and that must stay true of what ships.
 
+## The one suite that talks to a real server
+
+`integration_test/` holds 23 tests that drive the **production app against a
+running bench** — real HTTP, real socket.io, real login form. Everything in
+`test/` fakes the network, which is what makes it fast and also what makes it
+blind to `FrappeSocketChannel`, the layer that has caused every device-level
+failure in this project.
+
+They had **never been run** until 2026-09-02. Run them like this:
+
+```sh
+cd mobile/korkem_flow
+flutter test integration_test/<file>.dart -d linux \
+  --dart-define=KORKEM_BASE_URL=http://korkem.localhost:8000 \
+  --dart-define=KORKEM_E2E_USER=Administrator \
+  --dart-define=KORKEM_E2E_PASSWORD=<password>
+```
+
+`-d linux` because the Linux desktop target builds here and needs no emulator.
+
+### The variable names are not the same in every file
+
+Cost a whole run to learn. Most files read `KORKEM_E2E_USER` /
+`KORKEM_E2E_PASSWORD`, but not all:
+
+| file | reads |
+|---|---|
+| most (43 references) | `KORKEM_E2E_USER`, `KORKEM_E2E_PASSWORD` |
+| `channel_settings_e2e_test.dart` | `KORKEM_E2E_ADMIN`, `KORKEM_E2E_ADMIN_PASSWORD` |
+| `business_loop_e2e_test.dart` | also `KORKEM_E2E_MANAGER`, `KORKEM_E2E_EMPLOYEE` |
+
+A missing define is an **empty string**, not an error, so the app signs in with
+blank credentials and the test dies as `timed out waiting for sign-in to
+complete`. That reads like a broken login screen and is not one. `grep -o
+'KORKEM_E2E_[A-Z_]*' <file>` before blaming the app.
+
+### Most of them need a live model, and cannot pass without one
+
+`business_loop_e2e_test.dart` and its neighbours drive the assistant, so they
+need a configured AI provider on the bench. Without a key the transcript comes
+back as `ChatRole.assistant:` with nothing after it, and the test fails on a
+missing confirmation card. That is a missing configuration, not a defect —
+but it means **these tests are not a gate until a key exists.**
+
+`channel_settings_e2e_test.dart` needs no model. It was the first green
+end-to-end run in this project: 2 tests, real login form, real bench.
+
 ## The verify gate — run all four, paste the output
 
 ```sh
