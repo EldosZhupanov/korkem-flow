@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
+import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
@@ -20,6 +21,13 @@ final orderDetailProvider = FutureProvider.family<SalesOrder, String>(
 final orderWorkOrdersProvider = FutureProvider.family<List<WorkOrder>, String>(
   _fetchWorkOrders,
 );
+
+/// Every submitted delivery recorded against this order.
+// ignore: specify_nonobvious_property_types
+final orderDeliveriesProvider =
+    FutureProvider.family<List<SalesOrderDelivery>, String>(
+      _fetchDeliveries,
+    );
 
 /// There is no `get_one` on the server and there should not be: a second
 /// endpoint would be a second place for the company scope to be applied, and
@@ -52,3 +60,6 @@ Future<List<WorkOrder>> _fetchWorkOrders(Ref ref, String name) async {
       .where((order) => order.salesOrder == name)
       .toList(growable: false);
 }
+
+Future<List<SalesOrderDelivery>> _fetchDeliveries(Ref ref, String name) =>
+    ref.watch(salesOrderRepositoryProvider).fetchDeliveries(name);

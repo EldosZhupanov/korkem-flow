@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
+import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
@@ -39,7 +40,10 @@ void main() {
     commands = _MockProductionCommandRepository();
   });
 
-  void stubOrder({List<SalesOrder> found = const [_order]}) {
+  void stubOrder({
+    List<SalesOrder> found = const [_order],
+    List<SalesOrderDelivery> deliveries = const [],
+  }) {
     when(
       () => orders.fetchPage(
         pageSize: any(named: 'pageSize'),
@@ -48,6 +52,9 @@ void main() {
     ).thenAnswer(
       (_) async => SalesOrdersPage(orders: found, total: found.length),
     );
+    when(
+      () => orders.fetchDeliveries(any()),
+    ).thenAnswer((_) async => deliveries);
   }
 
   Future<void> pump(
@@ -171,5 +178,57 @@ void main() {
     // Not "Ошибка": the reason the server gave, and the shortage behind it.
     expect(find.text('Не хватает материала на складе'), findsOneWidget);
     expect(find.textContaining('ЛДСП-16-БЕЛ'), findsOneWidget);
+  });
+
+  testWidgets('shows empty view when no deliveries exist', (tester) async {
+    stubOrder();
+    await pump(tester);
+
+    expect(
+      find.text('DELIVERIES', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.text('No shipments yet', skipOffstage: false),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows deliveries cards when shipments exist', (tester) async {
+    stubOrder(
+      deliveries: const [
+        SalesOrderDelivery(
+          name: 'MAT-DN-2026-00001',
+          status: 'Submitted',
+          grandTotal: 150000,
+          items: [
+            SalesOrderDeliveryItem(
+              itemCode: 'MDF-716-396-WG',
+              itemName: 'Фасад МДФ Белый',
+              qty: 5,
+              uom: 'Шт',
+            ),
+          ],
+        ),
+      ],
+    );
+    await pump(tester);
+
+    expect(
+      find.text('DELIVERIES', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.text('MAT-DN-2026-00001', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Submitted', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Фасад МДФ Белый', skipOffstage: false),
+      findsOneWidget,
+    );
   });
 }

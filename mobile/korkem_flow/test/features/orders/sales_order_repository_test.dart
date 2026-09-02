@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
-import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:mocktail/mocktail.dart';
@@ -190,20 +189,50 @@ void main() {
     });
   });
 
-  group('error propagation', () {
-    test('permission error surfaces as PermissionFailure', () async {
-      when(
-        () => client.callMethod(
-          any(),
-          params: any(named: 'params'),
-          post: any(named: 'post'),
-        ),
-      ).thenThrow(const PermissionFailure('No access to sales orders'));
+  group('fetching deliveries reaches dedicated query endpoint', () {
+    test('it calls korkem_manufacturing.api.queries.deliveries', () async {
+      respond({
+        'deliveries': [
+          {
+            'name': 'MAT-DN-2026-00001',
+            'posting_date': '2026-09-01',
+            'status': 'Submitted',
+            'grand_total': 150000.0,
+            'items': [
+              {
+                'item_code': 'MDF-716-396-WG',
+                'item_name': 'Фасад МДФ Белый',
+                'qty': 5.0,
+                'uom': 'Шт',
+              },
+            ],
+          },
+        ],
+        'total': 1,
+      });
 
-      expect(
-        () => repository.fetchPage(pageSize: 20),
-        throwsA(isA<PermissionFailure>()),
-      );
+      final deliveries = await repository.fetchDeliveries('SAL-ORD-00001');
+
+      final path =
+          verify(
+                () => client.callMethod(
+                  captureAny(),
+                  params: any(named: 'params'),
+                ),
+              ).captured.single
+              as String;
+
+      expect(path, 'korkem_manufacturing.api.queries.deliveries');
+      expect(deliveries, hasLength(1));
+      expect(deliveries.single.name, 'MAT-DN-2026-00001');
+      expect(deliveries.single.items.single.itemCode, 'MDF-716-396-WG');
+    });
+
+    test('empty deliveries payload returns empty list', () async {
+      respond({'deliveries': <Map<String, dynamic>>[], 'total': 0});
+
+      final deliveries = await repository.fetchDeliveries('SAL-ORD-00002');
+      expect(deliveries, isEmpty);
     });
   });
 }

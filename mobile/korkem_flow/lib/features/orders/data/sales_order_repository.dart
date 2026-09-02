@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 
 final salesOrderRepositoryProvider = Provider<SalesOrderRepository>(
@@ -18,6 +19,7 @@ class SalesOrderRepository {
   const SalesOrderRepository(this._client);
 
   static const queryPath = 'korkem_manufacturing.api.queries.sales_orders';
+  static const deliveriesPath = 'korkem_manufacturing.api.queries.deliveries';
 
   final FrappeClient _client;
 
@@ -43,6 +45,34 @@ class SalesOrderRepository {
 
     final raw = response['message'] ?? response;
     return SalesOrdersPage.fromJson(raw);
+  }
+
+  /// Fetches submitted deliveries for one sales order.
+  Future<List<SalesOrderDelivery>> fetchDeliveries(
+    String salesOrder, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final response = await _client.callMethod(
+      deliveriesPath,
+      params: {
+        'sales_order': salesOrder,
+        'limit': limit,
+        'offset': offset,
+      },
+    );
+
+    final raw = response['message'] ?? response;
+    final json = raw is Map<String, dynamic> ? raw : const <String, dynamic>{};
+    final list = json['deliveries'];
+    if (list is! List) return const [];
+    return [
+      for (final item in list)
+        if (item is Map<String, dynamic>)
+          SalesOrderDelivery.fromJson(item)
+        else if (item is Map)
+          SalesOrderDelivery.fromJson(Map<String, dynamic>.from(item)),
+    ];
   }
 }
 

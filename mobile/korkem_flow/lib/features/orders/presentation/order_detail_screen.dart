@@ -13,6 +13,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/application/order_detail_controller.dart';
+import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/sales_order_status_label.dart';
 import 'package:korkem_flow/features/orders/presentation/start_production_button.dart';
@@ -60,12 +61,14 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final jobs = ref.watch(orderWorkOrdersProvider(order.name));
+    final deliveries = ref.watch(orderDeliveriesProvider(order.name));
 
     return RefreshIndicator(
       onRefresh: () async {
         ref
           ..invalidate(orderDetailProvider(order.name))
-          ..invalidate(orderWorkOrdersProvider(order.name));
+          ..invalidate(orderWorkOrdersProvider(order.name))
+          ..invalidate(orderDeliveriesProvider(order.name));
       },
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -80,6 +83,21 @@ class _Body extends ConsumerWidget {
               error: error,
               onRetry: () =>
                   ref.invalidate(orderWorkOrdersProvider(order.name)),
+            ),
+            _ => const Padding(
+              padding: EdgeInsets.all(AppSpacing.xl),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          },
+          const SizedBox(height: AppSpacing.xl),
+          SectionLabel(l10n.orderDeliveriesSection),
+          const SizedBox(height: AppSpacing.sm),
+          switch (deliveries) {
+            AsyncData(:final value) => _Deliveries(deliveries: value),
+            AsyncError(:final error) => ErrorView(
+              error: error,
+              onRetry: () =>
+                  ref.invalidate(orderDeliveriesProvider(order.name)),
             ),
             _ => const Padding(
               padding: EdgeInsets.all(AppSpacing.xl),
@@ -275,6 +293,109 @@ class _Field extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _Deliveries extends StatelessWidget {
+  const _Deliveries({required this.deliveries});
+
+  final List<SalesOrderDelivery> deliveries;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    if (deliveries.isEmpty) {
+      return EmptyView(
+        icon: AppIcons.warehouse,
+        title: l10n.orderNoDeliveriesTitle,
+        message: l10n.orderNoDeliveriesBody,
+      );
+    }
+
+    return Column(
+      children: [
+        for (final delivery in deliveries) _DeliveryCard(delivery: delivery),
+      ],
+    );
+  }
+}
+
+class _DeliveryCard extends StatelessWidget {
+  const _DeliveryCard({required this.delivery});
+
+  final SalesOrderDelivery delivery;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final date = DateFormat.yMMMd(locale);
+    final money = NumberFormat.currency(
+      locale: locale,
+      symbol: '₸',
+      decimalDigits: 0,
+    );
+    final quantity = NumberFormat.decimalPattern(locale);
+    final posting = delivery.postingDate;
+    final status = delivery.status;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    delivery.name,
+                    style: theme.textTheme.titleSmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (status != null && status.isNotEmpty)
+                  StatusChip(
+                    label: status,
+                    intent: StatusIntent.info,
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            if (posting != null)
+              _Field(
+                icon: AppIcons.schedule,
+                label: date.format(posting),
+              ),
+            if (delivery.grandTotal > 0)
+              _Field(
+                icon: AppIcons.quote,
+                label: money.format(delivery.grandTotal),
+              ),
+            if (delivery.items.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.xs),
+              for (final item in delivery.items)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: AppSpacing.md,
+                    bottom: AppSpacing.xxs,
+                  ),
+                  child: Text(
+                    '• ${item.itemName ?? item.itemCode ?? ''}: '
+                            '${quantity.format(item.qty)}'
+                            '${item.uom != null ? ' ${item.uom}' : ''}'
+                        .trim(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+            ],
+          ],
+        ),
       ),
     );
   }
