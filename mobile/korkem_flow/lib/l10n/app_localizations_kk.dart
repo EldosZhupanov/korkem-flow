@@ -264,6 +264,91 @@ class AppLocalizationsKk extends AppLocalizations {
   String get claimLangEn => 'English';
 
   @override
+  String get adminStatsTitle => 'Сандық әкімші';
+
+  @override
+  String get adminStatsSubtitle =>
+      'Құндылық дәлелі: адам жалдамай-ақ жұмыс нәтижесі';
+
+  @override
+  String get adminStatsPeriodWeek => 'Апта';
+
+  @override
+  String get adminStatsPeriodMonth => 'Ай';
+
+  @override
+  String get adminStatsPeriodQuarter => '3 ай';
+
+  @override
+  String get adminStatsStaleHeroLabel => 'НАЗАР АУДАРЫҢЫЗ: ЕСКІРДІ';
+
+  @override
+  String adminStatsStaleHeroText(int count) {
+    return '$count өтініш 24 сағаттан астам уақыт бойы жұмысқа берілмеді';
+  }
+
+  @override
+  String get adminStatsZeroStaleHeroLabel => 'ӨТЕ ЖАҚСЫ НӘТИЖЕ';
+
+  @override
+  String adminStatsZeroStaleHeroText(int days) {
+    return '$days күн ішінде бірде-бір өтініш жоғалмады';
+  }
+
+  @override
+  String get adminStatsZeroStaleHeroSub =>
+      'Барлық жазылған өтініштер адамға уақытында тапсырылды немесе жабылды';
+
+  @override
+  String get adminStatsEmptyTitle => 'Әзірге ештеңе жазылмаған';
+
+  @override
+  String get adminStatsEmptyMessage =>
+      'Таңдалған кезеңде өтініштер тіркелмеген. Мессенджерлер мен арналардан түскен жаңа хабарламалар осында пайда болады.';
+
+  @override
+  String get adminStatsCaught => 'Қабылданған өтініштер';
+
+  @override
+  String get adminStatsCaughtHelper => 'Жүйе тіркеген барлық өтініштер';
+
+  @override
+  String get adminStatsHandedOver => 'Адамға берілді';
+
+  @override
+  String get adminStatsHandedOverHelper => 'Қызметкерлерге тапсырмалар құрылды';
+
+  @override
+  String get adminStatsConverted => 'Тапсырысқа айналды';
+
+  @override
+  String get adminStatsConvertedHelper => 'Шартқа және төлемге жеткізілді';
+
+  @override
+  String get adminStatsDismissed => 'Бас тартылды';
+
+  @override
+  String get adminStatsDismissedHelper => 'Спам немесе клиент бас тартуы';
+
+  @override
+  String get adminStatsStaleMetric => 'Ескірді (тапсырмасыз)';
+
+  @override
+  String get adminStatsStaleMetricHelper =>
+      '24 сағаттан астам орындаушысыз тұр';
+
+  @override
+  String get adminStatsSummaryTitle => 'Жалдау шешімі үшін қорытынды';
+
+  @override
+  String adminStatsSummaryText(int caught, int converted, int stale) {
+    return 'Жүйе $caught өтінішті өңдеді. $converted тапсырыс әкелді, $stale назар аударуды талап етеді.';
+  }
+
+  @override
+  String get adminStatsRetry => 'Қайталау';
+
+  @override
   String get settingsTitle => 'Параметрлер';
 
   @override

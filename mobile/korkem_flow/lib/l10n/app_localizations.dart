@@ -580,6 +580,156 @@ abstract class AppLocalizations {
   /// **'English'**
   String get claimLangEn;
 
+  /// Title of the digital administrator stats screen
+  ///
+  /// In en, this message translates to:
+  /// **'Digital administrator'**
+  String get adminStatsTitle;
+
+  /// Subtitle describing the purpose of the stats
+  ///
+  /// In en, this message translates to:
+  /// **'Proof of value: results achieved without hiring an administrator'**
+  String get adminStatsSubtitle;
+
+  /// Period switcher week option
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get adminStatsPeriodWeek;
+
+  /// Period switcher month option
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get adminStatsPeriodMonth;
+
+  /// Period switcher quarter option
+  ///
+  /// In en, this message translates to:
+  /// **'3 months'**
+  String get adminStatsPeriodQuarter;
+
+  /// Warning label when there are stale unhandled captures
+  ///
+  /// In en, this message translates to:
+  /// **'NEEDS ATTENTION: STALE'**
+  String get adminStatsStaleHeroLabel;
+
+  /// Explanation of stale unhandled captures
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 capture has not been handed over for more than 24 hours} other{{count} captures have not been handed over for more than 24 hours}}'**
+  String adminStatsStaleHeroText(int count);
+
+  /// Label when zero captures went stale
+  ///
+  /// In en, this message translates to:
+  /// **'GREAT RESULT'**
+  String get adminStatsZeroStaleHeroLabel;
+
+  /// Affirmation that no captures went stale
+  ///
+  /// In en, this message translates to:
+  /// **'Zero captures lost over {days} days'**
+  String adminStatsZeroStaleHeroText(int days);
+
+  /// Subtext for zero stale captures
+  ///
+  /// In en, this message translates to:
+  /// **'All recorded captures were handed over on time or completed'**
+  String get adminStatsZeroStaleHeroSub;
+
+  /// Empty state title
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing captured yet'**
+  String get adminStatsEmptyTitle;
+
+  /// Empty state description
+  ///
+  /// In en, this message translates to:
+  /// **'No customer requests recorded for the selected period. New messages from channels and messengers will appear here.'**
+  String get adminStatsEmptyMessage;
+
+  /// Metric label for total caught requests
+  ///
+  /// In en, this message translates to:
+  /// **'Captured requests'**
+  String get adminStatsCaught;
+
+  /// Caption for caught requests
+  ///
+  /// In en, this message translates to:
+  /// **'Total recorded by system'**
+  String get adminStatsCaughtHelper;
+
+  /// Metric label for requests assigned as task
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over to person'**
+  String get adminStatsHandedOver;
+
+  /// Caption for handed over metric
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks created for team'**
+  String get adminStatsHandedOverHelper;
+
+  /// Metric label for requests converted to orders
+  ///
+  /// In en, this message translates to:
+  /// **'Converted to orders'**
+  String get adminStatsConverted;
+
+  /// Caption for converted metric
+  ///
+  /// In en, this message translates to:
+  /// **'Led to agreement and payment'**
+  String get adminStatsConvertedHelper;
+
+  /// Metric label for dismissed captures
+  ///
+  /// In en, this message translates to:
+  /// **'Dismissed'**
+  String get adminStatsDismissed;
+
+  /// Caption for dismissed metric
+  ///
+  /// In en, this message translates to:
+  /// **'Spam or customer decline'**
+  String get adminStatsDismissedHelper;
+
+  /// Metric label for stale captures
+  ///
+  /// In en, this message translates to:
+  /// **'Stale (no task)'**
+  String get adminStatsStaleMetric;
+
+  /// Caption for stale metric
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned for >24h'**
+  String get adminStatsStaleMetricHelper;
+
+  /// Section header for decision summary
+  ///
+  /// In en, this message translates to:
+  /// **'Hiring decision summary'**
+  String get adminStatsSummaryTitle;
+
+  /// Summary text explaining what the metrics mean
+  ///
+  /// In en, this message translates to:
+  /// **'The system processed {caught} requests. {converted} became orders, {stale} require attention.'**
+  String adminStatsSummaryText(int caught, int converted, int stale);
+
+  /// Button to retry loading stats
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get adminStatsRetry;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:

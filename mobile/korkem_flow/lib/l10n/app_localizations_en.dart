@@ -271,6 +271,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimLangEn => 'English';
 
   @override
+  String get adminStatsTitle => 'Digital administrator';
+
+  @override
+  String get adminStatsSubtitle =>
+      'Proof of value: results achieved without hiring an administrator';
+
+  @override
+  String get adminStatsPeriodWeek => 'Week';
+
+  @override
+  String get adminStatsPeriodMonth => 'Month';
+
+  @override
+  String get adminStatsPeriodQuarter => '3 months';
+
+  @override
+  String get adminStatsStaleHeroLabel => 'NEEDS ATTENTION: STALE';
+
+  @override
+  String adminStatsStaleHeroText(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures have not been handed over for more than 24 hours',
+      one: '1 capture has not been handed over for more than 24 hours',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminStatsZeroStaleHeroLabel => 'GREAT RESULT';
+
+  @override
+  String adminStatsZeroStaleHeroText(int days) {
+    return 'Zero captures lost over $days days';
+  }
+
+  @override
+  String get adminStatsZeroStaleHeroSub =>
+      'All recorded captures were handed over on time or completed';
+
+  @override
+  String get adminStatsEmptyTitle => 'Nothing captured yet';
+
+  @override
+  String get adminStatsEmptyMessage =>
+      'No customer requests recorded for the selected period. New messages from channels and messengers will appear here.';
+
+  @override
+  String get adminStatsCaught => 'Captured requests';
+
+  @override
+  String get adminStatsCaughtHelper => 'Total recorded by system';
+
+  @override
+  String get adminStatsHandedOver => 'Handed over to person';
+
+  @override
+  String get adminStatsHandedOverHelper => 'Tasks created for team';
+
+  @override
+  String get adminStatsConverted => 'Converted to orders';
+
+  @override
+  String get adminStatsConvertedHelper => 'Led to agreement and payment';
+
+  @override
+  String get adminStatsDismissed => 'Dismissed';
+
+  @override
+  String get adminStatsDismissedHelper => 'Spam or customer decline';
+
+  @override
+  String get adminStatsStaleMetric => 'Stale (no task)';
+
+  @override
+  String get adminStatsStaleMetricHelper => 'Unassigned for >24h';
+
+  @override
+  String get adminStatsSummaryTitle => 'Hiring decision summary';
+
+  @override
+  String adminStatsSummaryText(int caught, int converted, int stale) {
+    return 'The system processed $caught requests. $converted became orders, $stale require attention.';
+  }
+
+  @override
+  String get adminStatsRetry => 'Retry';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

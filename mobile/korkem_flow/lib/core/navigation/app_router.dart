@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/gallery/design_gallery.dart';
 import 'package:korkem_flow/core/navigation/adaptive_shell.dart';
 import 'package:korkem_flow/core/navigation/tab_back_handler.dart';
+import 'package:korkem_flow/features/admin_stats/presentation/admin_stats_screen.dart';
 import 'package:korkem_flow/features/ai_settings/presentation/ai_settings_screen.dart';
 import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dart';
 import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
@@ -38,6 +39,7 @@ abstract final class Routes {
   static const splash = '/';
   static const login = '/login';
   static const claim = '/claim';
+  static const adminStats = '/admin-stats';
 
   /// The assistant, and where signing in lands.
   static const chat = '/chat';
@@ -206,6 +208,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.today,
         builder: (context, state) => const TodayScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminStats,
+        builder: (context, state) => const AdminStatsScreen(),
       ),
       GoRoute(
         path: Routes.outbox,

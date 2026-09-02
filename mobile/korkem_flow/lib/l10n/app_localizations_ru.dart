@@ -272,6 +272,97 @@ class AppLocalizationsRu extends AppLocalizations {
   String get claimLangEn => 'English';
 
   @override
+  String get adminStatsTitle => 'Цифровой администратор';
+
+  @override
+  String get adminStatsSubtitle =>
+      'Доказательство ценности: результат работы без найма человека';
+
+  @override
+  String get adminStatsPeriodWeek => 'Неделя';
+
+  @override
+  String get adminStatsPeriodMonth => 'Месяц';
+
+  @override
+  String get adminStatsPeriodQuarter => '3 месяца';
+
+  @override
+  String get adminStatsStaleHeroLabel => 'ТРЕБУЕТ ВНИМАНИЯ: ПРОТУХЛО';
+
+  @override
+  String adminStatsStaleHeroText(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count обращений не переданы в работу более 24 часов',
+      few: '$count обращения не переданы в работу более 24 часов',
+      one: '1 обращение не передано в работу более 24 часов',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminStatsZeroStaleHeroLabel => 'ОТЛИЧНЫЙ РЕЗУЛЬТАТ';
+
+  @override
+  String adminStatsZeroStaleHeroText(int days) {
+    return 'За $days дней не потеряно ни одного обращения';
+  }
+
+  @override
+  String get adminStatsZeroStaleHeroSub =>
+      'Все зафиксированные обращения вовремя переданы человеку или закрыты';
+
+  @override
+  String get adminStatsEmptyTitle => 'Пока ничего не поймано';
+
+  @override
+  String get adminStatsEmptyMessage =>
+      'За выбранный период не зафиксировано обращений. Новые сообщения из каналов и мессенджеров появятся здесь.';
+
+  @override
+  String get adminStatsCaught => 'Поймано обращений';
+
+  @override
+  String get adminStatsCaughtHelper => 'Всего зафиксировано системой';
+
+  @override
+  String get adminStatsHandedOver => 'Передано человеку';
+
+  @override
+  String get adminStatsHandedOverHelper => 'Созданы задачи сотрудникам';
+
+  @override
+  String get adminStatsConverted => 'Стало заказами';
+
+  @override
+  String get adminStatsConvertedHelper => 'Доведено до договора и оплаты';
+
+  @override
+  String get adminStatsDismissed => 'Отброшено осознанно';
+
+  @override
+  String get adminStatsDismissedHelper => 'Спам или отказ клиента';
+
+  @override
+  String get adminStatsStaleMetric => 'Протухло (без задачи)';
+
+  @override
+  String get adminStatsStaleMetricHelper => 'Висят без исполнителя >24ч';
+
+  @override
+  String get adminStatsSummaryTitle => 'Итог для решения о найме';
+
+  @override
+  String adminStatsSummaryText(int caught, int converted, int stale) {
+    return 'Система обработала $caught обращений. $converted принесли заказы, $stale требуют внимания.';
+  }
+
+  @override
+  String get adminStatsRetry => 'Повторить попытку';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override

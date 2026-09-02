@@ -215,6 +215,127 @@
   "@claimLangEn": {
     "description": "English language choice"
   },
+  "adminStatsTitle": "Digital administrator",
+  "@adminStatsTitle": {
+    "description": "Title of the digital administrator stats screen"
+  },
+  "adminStatsSubtitle": "Proof of value: results achieved without hiring an administrator",
+  "@adminStatsSubtitle": {
+    "description": "Subtitle describing the purpose of the stats"
+  },
+  "adminStatsPeriodWeek": "Week",
+  "@adminStatsPeriodWeek": {
+    "description": "Period switcher week option"
+  },
+  "adminStatsPeriodMonth": "Month",
+  "@adminStatsPeriodMonth": {
+    "description": "Period switcher month option"
+  },
+  "adminStatsPeriodQuarter": "3 months",
+  "@adminStatsPeriodQuarter": {
+    "description": "Period switcher quarter option"
+  },
+  "adminStatsStaleHeroLabel": "NEEDS ATTENTION: STALE",
+  "@adminStatsStaleHeroLabel": {
+    "description": "Warning label when there are stale unhandled captures"
+  },
+  "adminStatsStaleHeroText": "{count, plural, =1{1 capture has not been handed over for more than 24 hours} other{{count} captures have not been handed over for more than 24 hours}}",
+  "@adminStatsStaleHeroText": {
+    "description": "Explanation of stale unhandled captures",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminStatsZeroStaleHeroLabel": "GREAT RESULT",
+  "@adminStatsZeroStaleHeroLabel": {
+    "description": "Label when zero captures went stale"
+  },
+  "adminStatsZeroStaleHeroText": "Zero captures lost over {days} days",
+  "@adminStatsZeroStaleHeroText": {
+    "description": "Affirmation that no captures went stale",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "adminStatsZeroStaleHeroSub": "All recorded captures were handed over on time or completed",
+  "@adminStatsZeroStaleHeroSub": {
+    "description": "Subtext for zero stale captures"
+  },
+  "adminStatsEmptyTitle": "Nothing captured yet",
+  "@adminStatsEmptyTitle": {
+    "description": "Empty state title"
+  },
+  "adminStatsEmptyMessage": "No customer requests recorded for the selected period. New messages from channels and messengers will appear here.",
+  "@adminStatsEmptyMessage": {
+    "description": "Empty state description"
+  },
+  "adminStatsCaught": "Captured requests",
+  "@adminStatsCaught": {
+    "description": "Metric label for total caught requests"
+  },
+  "adminStatsCaughtHelper": "Total recorded by system",
+  "@adminStatsCaughtHelper": {
+    "description": "Caption for caught requests"
+  },
+  "adminStatsHandedOver": "Handed over to person",
+  "@adminStatsHandedOver": {
+    "description": "Metric label for requests assigned as task"
+  },
+  "adminStatsHandedOverHelper": "Tasks created for team",
+  "@adminStatsHandedOverHelper": {
+    "description": "Caption for handed over metric"
+  },
+  "adminStatsConverted": "Converted to orders",
+  "@adminStatsConverted": {
+    "description": "Metric label for requests converted to orders"
+  },
+  "adminStatsConvertedHelper": "Led to agreement and payment",
+  "@adminStatsConvertedHelper": {
+    "description": "Caption for converted metric"
+  },
+  "adminStatsDismissed": "Dismissed",
+  "@adminStatsDismissed": {
+    "description": "Metric label for dismissed captures"
+  },
+  "adminStatsDismissedHelper": "Spam or customer decline",
+  "@adminStatsDismissedHelper": {
+    "description": "Caption for dismissed metric"
+  },
+  "adminStatsStaleMetric": "Stale (no task)",
+  "@adminStatsStaleMetric": {
+    "description": "Metric label for stale captures"
+  },
+  "adminStatsStaleMetricHelper": "Unassigned for >24h",
+  "@adminStatsStaleMetricHelper": {
+    "description": "Caption for stale metric"
+  },
+  "adminStatsSummaryTitle": "Hiring decision summary",
+  "@adminStatsSummaryTitle": {
+    "description": "Section header for decision summary"
+  },
+  "adminStatsSummaryText": "The system processed {caught} requests. {converted} became orders, {stale} require attention.",
+  "@adminStatsSummaryText": {
+    "description": "Summary text explaining what the metrics mean",
+    "placeholders": {
+      "caught": {
+        "type": "int"
+      },
+      "converted": {
+        "type": "int"
+      },
+      "stale": {
+        "type": "int"
+      }
+    }
+  },
+  "adminStatsRetry": "Retry",
+  "@adminStatsRetry": {
+    "description": "Button to retry loading stats"
+  },
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",
