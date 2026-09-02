@@ -30,6 +30,16 @@ WORK_ORDER_FIELDS = (
 	"sales_order",
 	"bom_no",
 )
+WORK_ORDER_OPERATION_FIELDS = (
+	"name",
+	"operation",
+	"workstation",
+	"status",
+	"completed_qty",
+	"process_loss_qty",
+	"time_in_mins",
+	"sequence_id",
+)
 BIN_FIELDS = (
 	"item_code",
 	"warehouse",
@@ -141,6 +151,47 @@ def work_orders(
 	return {
 		"orders": [_work_order(row) for row in rows],
 		"total": _total("Work Order", filters, or_filters),
+		"limit": limit,
+		"offset": offset,
+	}
+
+
+@frappe.whitelist()
+def operations(work_order: str, limit: int = 20, offset: int = 0) -> dict:
+	"""Return one visible work order's operations in routing order.
+
+	``Work Order Operation`` is a child table and has no company field of its
+	own. Scope therefore belongs on the permission-aware parent lookup; only a
+	parent visible in the session company may unlock its children.
+	"""
+	limit = min(_page_integer(limit, "limit"), MAX_LIMIT)
+	offset = _page_integer(offset, "offset")
+	work_order = _text(work_order, "work_order")
+	if not work_order:
+		frappe.throw("work_order must be text.")
+
+	visible = frappe.get_list(
+		"Work Order",
+		filters=scoped({"name": work_order}),
+		pluck="name",
+		limit_start=0,
+		limit_page_length=1,
+	)
+	if not visible:
+		return {"operations": [], "total": 0, "limit": limit, "offset": offset}
+
+	filters = {"parent": work_order, "parenttype": "Work Order"}
+	rows = frappe.get_list(
+		"Work Order Operation",
+		filters=filters,
+		fields=list(WORK_ORDER_OPERATION_FIELDS),
+		order_by="sequence_id asc, idx asc",
+		limit_start=offset,
+		limit_page_length=limit,
+	)
+	return {
+		"operations": [_operation(row) for row in rows],
+		"total": _total("Work Order Operation", filters),
 		"limit": limit,
 		"offset": offset,
 	}
@@ -300,6 +351,19 @@ def _work_order(row) -> dict:
 		"actual_end_date": _iso(row.get("actual_end_date")),
 		"sales_order": row.get("sales_order") or None,
 		"bom_no": row.get("bom_no") or None,
+	}
+
+
+def _operation(row) -> dict:
+	return {
+		"name": row["name"],
+		"operation": row.get("operation") or None,
+		"workstation": row.get("workstation") or None,
+		"status": row.get("status") or None,
+		"completed_qty": flt(row.get("completed_qty")),
+		"scrap_qty": flt(row.get("process_loss_qty")),
+		"planned_minutes": flt(row.get("time_in_mins")),
+		"sequence": row.get("sequence_id"),
 	}
 
 

@@ -10,7 +10,11 @@ from unittest.mock import patch
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from korkem_ai.korkem_ai.tools import foreign_fixture
+from korkem_manufacturing import seed_demo
 from korkem_manufacturing.api import queries as api
+
+PLANNER = "korkem.planner@example.com"
 
 
 class TestSalesOrderQuery(IntegrationTestCase):
@@ -174,6 +178,107 @@ class TestWorkOrderQuery(IntegrationTestCase):
 		count_call = get_list.call_args_list[-1]
 		self.assertEqual(count_call.kwargs["limit_page_length"], 0)
 		self.assertTrue(count_call.kwargs["or_filters"])
+
+
+class TestRealWorkOrderCompanyScope(foreign_fixture.UsesForeignCompany, IntegrationTestCase):
+	def test_employee_cannot_see_another_companys_work_order(self):
+		frappe.set_user("Administrator")
+		seed_demo.seed_users()
+		foreign = foreign_fixture.ensure()["work_order"]
+
+		frappe.set_user(PLANNER)
+		try:
+			result = api.work_orders(search=foreign, limit=100)
+		finally:
+			frappe.set_user("Administrator")
+
+		self.assertNotIn(foreign, [row["name"] for row in result["orders"]])
+
+
+class TestOperationQuery(IntegrationTestCase):
+	def test_company_is_not_a_caller_argument(self):
+		self.assertEqual(
+			set(inspect.signature(api.operations).parameters),
+			{"work_order", "limit", "offset"},
+		)
+
+	def test_foreign_work_order_does_not_unlock_its_operations(self):
+		with (
+			patch.object(
+				api,
+				"scoped",
+				return_value={"company": "KORKEM", "name": "WO-THEIRS"},
+			),
+			patch.object(api.frappe, "get_list", return_value=[]) as get_list,
+		):
+			result = api.operations("WO-THEIRS")
+
+		self.assertEqual(
+			result,
+			{"operations": [], "total": 0, "limit": 20, "offset": 0},
+		)
+		get_list.assert_called_once_with(
+			"Work Order",
+			filters={"company": "KORKEM", "name": "WO-THEIRS"},
+			pluck="name",
+			limit_start=0,
+			limit_page_length=1,
+		)
+
+	def test_visible_operations_are_permission_aware_and_paginated(self):
+		row = {
+			"name": "ROW-2",
+			"operation": "Edge banding",
+			"workstation": "Edge bander",
+			"status": "Pending",
+			"completed_qty": "3",
+			"process_loss_qty": "0.5",
+			"time_in_mins": "12",
+			"sequence_id": 2,
+		}
+
+		def lists(doctype, **kwargs):
+			if doctype == "Work Order":
+				return ["WO-OURS"]
+			if doctype == "Work Order Operation":
+				return [row]
+			raise AssertionError(doctype)
+
+		with (
+			patch.object(
+				api,
+				"scoped",
+				return_value={"company": "KORKEM", "name": "WO-OURS"},
+			),
+			patch.object(api.frappe, "get_list", side_effect=lists) as get_list,
+			patch.object(api, "_total", return_value=3),
+		):
+			result = api.operations("WO-OURS", limit=1, offset=1)
+
+		operation_call = get_list.call_args_list[1]
+		self.assertEqual(operation_call.args, ("Work Order Operation",))
+		self.assertEqual(operation_call.kwargs["limit_page_length"], 1)
+		self.assertEqual(operation_call.kwargs["limit_start"], 1)
+		self.assertEqual(
+			result,
+			{
+				"operations": [
+					{
+						"name": "ROW-2",
+						"operation": "Edge banding",
+						"workstation": "Edge bander",
+						"status": "Pending",
+						"completed_qty": 3.0,
+						"scrap_qty": 0.5,
+						"planned_minutes": 12.0,
+						"sequence": 2,
+					}
+				],
+				"total": 3,
+				"limit": 1,
+				"offset": 1,
+			},
+		)
 
 
 def _bin(item_code: str, warehouse: str) -> dict:
