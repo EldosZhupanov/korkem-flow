@@ -160,7 +160,12 @@ after_install = "korkem_manufacturing.install.after_install"
 doc_events = {
 	"CRM Task": {
 		"on_update": "korkem_manufacturing.shop_floor.on_task_update",
-	}
+	},
+	"User": {
+		"before_validate": (
+			"korkem_manufacturing.services.invitations.prevent_self_role_change"
+		),
+	},
 }
 
 # Scheduled Tasks
