@@ -94,6 +94,32 @@ def scoped(filters: dict | None = None) -> dict:
 	return {**(filters or {}), "company": current_company()}
 
 
+def ensure_user_in_company(user: str, company: str | None = None) -> None:
+	"""Refuse handing company data to an employee of another company.
+
+	Assignments arrive from API parameters, so a valid User link is not enough:
+	a caller could otherwise name an employee from another company and make the
+	Capture visible through that employee's task. Company membership is
+	ERPNext's own ``User Permission``, the same binding ``current_company`` reads.
+
+	Administrator remains the platform operator used by existing Desk and test
+	workflows; every real employee created by onboarding has an explicit binding.
+	"""
+	if user == "Administrator":
+		return
+	company = company or current_company()
+	allowed = frappe.get_all(
+		"User Permission",
+		filters={"user": user, "allow": "Company"},
+		pluck="for_value",
+	)
+	if company not in allowed:
+		frappe.throw(
+			"The assignee does not belong to this company.",
+			frappe.PermissionError,
+		)
+
+
 def belongs_to_company(doctype: str, name: str) -> bool:
 	"""Whether one named document is this session's to look at.
 

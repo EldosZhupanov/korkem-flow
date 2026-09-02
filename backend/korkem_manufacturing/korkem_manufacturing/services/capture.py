@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import frappe
 
-from korkem_manufacturing.services.scope import scoped
+from korkem_manufacturing.services.scope import ensure_user_in_company, scoped
 
 # ADR-0023: a task attaches to any doctype through Frappe's native polymorphic
 # reference pair, so a CRM Task can point at a Capture with no schema change.
@@ -66,13 +66,19 @@ def record(
 	text = (text or "").strip()
 	if not text:
 		frappe.throw("A capture with nothing said is not a capture.")
+	company = _company()
+	if assign_to:
+		# Validate before writing the Capture. A rejected cross-company hand-off
+		# must leave no half-created sentence behind for a caller that catches the
+		# exception without rolling back its wider transaction.
+		ensure_user_in_company(assign_to, company)
 
 	capture = frappe.get_doc(
 		{
 			"doctype": "Capture",
 			"spoken_text": text,
 			"spoken_at": spoken_at or frappe.utils.now_datetime(),
-			"company": _company(),
+			"company": company,
 			"source": source if source in ("Voice", "Text", "Channel") else "Text",
 			"status": "Understood" if understood else "Recorded",
 			**_understood_fields(understood),

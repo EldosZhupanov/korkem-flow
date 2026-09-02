@@ -20,6 +20,12 @@ names both look like what the owner said is exactly the moment to stop: the
 wrong customer means the wrong address, the wrong price list and eventually a
 kitchen delivered to somebody else. So this refuses and hands back the
 candidates rather than picking the first one.
+
+**Customer is a node-wide shared master in the current ERPNext model.** It has
+no company field, so candidate search intentionally has no company filter and
+may return a customer first created from another company's Capture. This is a
+recorded model decision, not accidental reliance on missing scope; changing it
+requires deciding how one real customer trading with two companies is stored.
 """
 
 from __future__ import annotations
@@ -27,7 +33,7 @@ from __future__ import annotations
 import frappe
 
 from korkem_manufacturing.services import capture as capture_service
-from korkem_manufacturing.services.scope import scoped
+from korkem_manufacturing.services.scope import ensure_user_in_company, scoped
 
 
 class AmbiguousCustomer(frappe.ValidationError):
@@ -52,6 +58,10 @@ def convert(
 
 	if doc.status == "Converted" and doc.enquiry:
 		return _already(doc)
+	if assign_measurer:
+		# Validate before creating Customer or Opportunity. A foreign assignee is
+		# a rejected command, not a partially converted capture awaiting rollback.
+		ensure_user_in_company(assign_measurer, doc.company)
 
 	party = _resolve_customer(customer, customer_name or doc.customer_hint)
 
@@ -90,7 +100,7 @@ def convert(
 
 
 def candidates(name_said: str) -> list[dict]:
-	"""Customers that could be the one named, for a human to choose between."""
+	"""Node-wide Customers that could be named, for a human to choose between."""
 	name_said = (name_said or "").strip()
 	if not name_said:
 		return []
