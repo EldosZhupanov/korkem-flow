@@ -1433,4 +1433,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderDeliveryBlockedTitle => 'Cannot Create Delivery';
+
+  @override
+  String get warehouseActionReceive => 'Receive delivery';
+
+  @override
+  String get receiveDeliveryDialogTitle => 'Receive Delivery';
+
+  @override
+  String get receivePurchaseOrderFieldLabel => 'Purchase Order #';
+
+  @override
+  String get receivePurchaseOrderFieldHint => 'e.g. PUR-ORD-2026-00001';
+
+  @override
+  String receiveSuccess(String receipt) {
+    return 'Purchase receipt $receipt booked';
+  }
+
+  @override
+  String get receiveNothingOutstanding =>
+      'All items on this purchase order are already received';
+
+  @override
+  String get receiveBlockedTitle => 'Cannot Receive Delivery';
+
+  @override
+  String get warehouseActionPurchaseOrder => 'Create purchase order';
+
+  @override
+  String get createPurchaseOrderDialogTitle => 'Create Purchase Order';
+
+  @override
+  String get materialRequestFieldLabel => 'Material Request #';
+
+  @override
+  String get materialRequestFieldHint => 'e.g. MAT-MR-2026-00001';
+
+  @override
+  String get supplierFieldLabel => 'Supplier (optional)';
+
+  @override
+  String purchaseOrderSuccess(String order) {
+    return 'Purchase order $order created';
+  }
+
+  @override
+  String get purchaseOrderBlockedTitle => 'Cannot Create Purchase Order';
+
+  @override
+  String get receiveNoOrdersTitle => 'No deliveries pending';
+
+  @override
+  String get receiveNoOrdersBody =>
+      'All purchase orders have already been received or none are open.';
+
+  @override
+  String get orderableNoRequestsTitle => 'No material requests';
+
+  @override
+  String get orderableNoRequestsBody =>
+      'All material purchase requests have already been ordered.';
+
+  @override
+  String materialRequestNeededDate(String date) {
+    return 'Needed by: $date';
+  }
+
+  @override
+  String purchaseOrderExpectedDate(String date) {
+    return 'Expected: $date';
+  }
 }

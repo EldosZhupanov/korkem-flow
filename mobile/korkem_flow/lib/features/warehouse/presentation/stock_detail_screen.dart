@@ -11,6 +11,8 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/features/warehouse/application/stock_detail_controller.dart';
 import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
+import 'package:korkem_flow/features/warehouse/presentation/create_purchase_order_button.dart';
+import 'package:korkem_flow/features/warehouse/presentation/receive_delivery_button.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// One stock item detail screen showing total summary and per-warehouse
@@ -70,6 +72,28 @@ class _Body extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           _Header(detail: detail),
+          const SizedBox(height: AppSpacing.md),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                ReceiveDeliveryButton(
+                  onReceived: () async {
+                    ref.invalidate(stockItemDetailProvider(detail.itemCode));
+                  },
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                CreatePurchaseOrderButton(
+                  initialMaterialRequest: detail.hasDeficit
+                      ? detail.itemCode
+                      : null,
+                  onOrdered: () async {
+                    ref.invalidate(stockItemDetailProvider(detail.itemCode));
+                  },
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.stockBalancesSection),
           const SizedBox(height: AppSpacing.sm),

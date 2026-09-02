@@ -10,6 +10,24 @@ final receivingRepositoryProvider = Provider<ReceivingRepository>(
   ),
 );
 
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final receivablePurchaseOrdersProvider =
+    FutureProvider.autoDispose<List<ReceivablePurchaseOrder>>(
+      (ref) => ref
+          .watch(receivingRepositoryProvider)
+          .fetchReceivablePurchaseOrders(),
+    );
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final orderableMaterialRequestsProvider =
+    FutureProvider.autoDispose<List<OrderableMaterialRequest>>(
+      (ref) => ref
+          .watch(receivingRepositoryProvider)
+          .fetchOrderableMaterialRequests(),
+    );
+
 /// Booking a delivery in, without a language model in the path.
 ///
 /// Kept in the warehouse feature rather than beside the production commands
@@ -30,6 +48,12 @@ class ReceivingRepository {
       'korkem_manufacturing.api.purchasing.create_purchase_order';
 
   static const shipPath = 'korkem_manufacturing.api.dispatch.create_delivery';
+
+  static const receivableOrdersPath =
+      'korkem_manufacturing.api.queries.receivable_purchase_orders';
+
+  static const orderableRequestsPath =
+      'korkem_manufacturing.api.queries.orderable_material_requests';
 
   final FrappeClient _client;
   final MutationOutbox _outbox;
@@ -96,6 +120,42 @@ class ReceivingRepository {
       params: {'sales_order': salesOrder, 'items': ?items},
     );
     return DeliveryResult.fromJson(response['message'] ?? response);
+  }
+
+  /// Fetches purchase orders that can currently be received.
+  Future<List<ReceivablePurchaseOrder>> fetchReceivablePurchaseOrders({
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final response = await _client.callMethod(
+      receivableOrdersPath,
+      params: {'limit': limit, 'offset': offset},
+    );
+    final raw = response['message'] ?? response;
+    final list = raw is Map<String, dynamic> ? raw['orders'] : null;
+    if (list is! List) return const [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(ReceivablePurchaseOrder.fromJson)
+        .toList(growable: false);
+  }
+
+  /// Fetches material requests that a purchase order can be created from.
+  Future<List<OrderableMaterialRequest>> fetchOrderableMaterialRequests({
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final response = await _client.callMethod(
+      orderableRequestsPath,
+      params: {'limit': limit, 'offset': offset},
+    );
+    final raw = response['message'] ?? response;
+    final list = raw is Map<String, dynamic> ? raw['requests'] : null;
+    if (list is! List) return const [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(OrderableMaterialRequest.fromJson)
+        .toList(growable: false);
   }
 }
 
@@ -226,4 +286,76 @@ class ReceivedLine {
   final String itemCode;
   final double qty;
   final String? uom;
+}
+
+/// A purchase order that can currently be received into the warehouse.
+class ReceivablePurchaseOrder {
+  const ReceivablePurchaseOrder({
+    required this.name,
+    this.supplier,
+    this.orderedOn,
+    this.expectedOn,
+    this.status,
+    this.receivedPercent = 0.0,
+    this.total = 0.0,
+  });
+
+  factory ReceivablePurchaseOrder.fromJson(Map<String, dynamic> json) {
+    return ReceivablePurchaseOrder(
+      name: json['name']?.toString() ?? '',
+      supplier: ReceiptResult._text(json['supplier']),
+      orderedOn: ReceiptResult._text(json['ordered_on']),
+      expectedOn: ReceiptResult._text(json['expected_on']),
+      status: ReceiptResult._text(json['status']),
+      receivedPercent: switch (json['received_percent']) {
+        final num n => n.toDouble(),
+        final String s => double.tryParse(s) ?? 0.0,
+        _ => 0.0,
+      },
+      total: switch (json['total']) {
+        final num n => n.toDouble(),
+        final String s => double.tryParse(s) ?? 0.0,
+        _ => 0.0,
+      },
+    );
+  }
+
+  final String name;
+  final String? supplier;
+  final String? orderedOn;
+  final String? expectedOn;
+  final String? status;
+  final double receivedPercent;
+  final double total;
+}
+
+/// A material request that can be turned into a purchase order with a supplier.
+class OrderableMaterialRequest {
+  const OrderableMaterialRequest({
+    required this.name,
+    this.requestedOn,
+    this.neededOn,
+    this.status,
+    this.orderedPercent = 0.0,
+  });
+
+  factory OrderableMaterialRequest.fromJson(Map<String, dynamic> json) {
+    return OrderableMaterialRequest(
+      name: json['name']?.toString() ?? '',
+      requestedOn: ReceiptResult._text(json['requested_on']),
+      neededOn: ReceiptResult._text(json['needed_on']),
+      status: ReceiptResult._text(json['status']),
+      orderedPercent: switch (json['ordered_percent']) {
+        final num n => n.toDouble(),
+        final String s => double.tryParse(s) ?? 0.0,
+        _ => 0.0,
+      },
+    );
+  }
+
+  final String name;
+  final String? requestedOn;
+  final String? neededOn;
+  final String? status;
+  final double orderedPercent;
 }

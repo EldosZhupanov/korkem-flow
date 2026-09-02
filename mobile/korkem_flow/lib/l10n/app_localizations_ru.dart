@@ -1447,4 +1447,75 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get orderDeliveryBlockedTitle => 'Не удалось создать отгрузку';
+
+  @override
+  String get warehouseActionReceive => 'Принять поставку';
+
+  @override
+  String get receiveDeliveryDialogTitle => 'Приёмка поставки';
+
+  @override
+  String get receivePurchaseOrderFieldLabel => 'Номер заказа поставщику';
+
+  @override
+  String get receivePurchaseOrderFieldHint => 'напр. PUR-ORD-2026-00001';
+
+  @override
+  String receiveSuccess(String receipt) {
+    return 'Поступление $receipt принято';
+  }
+
+  @override
+  String get receiveNothingOutstanding =>
+      'Все позиции по этому заказу поставщику уже приняты';
+
+  @override
+  String get receiveBlockedTitle => 'Не удалось принять поставку';
+
+  @override
+  String get warehouseActionPurchaseOrder => 'Создать закупку';
+
+  @override
+  String get createPurchaseOrderDialogTitle => 'Создание заказа поставщику';
+
+  @override
+  String get materialRequestFieldLabel => 'Номер заявки на материалы';
+
+  @override
+  String get materialRequestFieldHint => 'напр. MAT-MR-2026-00001';
+
+  @override
+  String get supplierFieldLabel => 'Поставщик (необязательно)';
+
+  @override
+  String purchaseOrderSuccess(String order) {
+    return 'Заказ поставщику $order создан';
+  }
+
+  @override
+  String get purchaseOrderBlockedTitle => 'Не удалось создать заказ поставщику';
+
+  @override
+  String get receiveNoOrdersTitle => 'Нет ожидаемых поставок';
+
+  @override
+  String get receiveNoOrdersBody =>
+      'Все заказы поставщикам уже приняты либо нет активных заказов.';
+
+  @override
+  String get orderableNoRequestsTitle => 'Нет заявок на материалы';
+
+  @override
+  String get orderableNoRequestsBody =>
+      'Все заявки на закупку материалов уже обработаны.';
+
+  @override
+  String materialRequestNeededDate(String date) {
+    return 'Потребность к: $date';
+  }
+
+  @override
+  String purchaseOrderExpectedDate(String date) {
+    return 'Ожидается: $date';
+  }
 }

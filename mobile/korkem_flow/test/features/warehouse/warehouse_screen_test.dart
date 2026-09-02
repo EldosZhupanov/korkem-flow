@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
+import 'package:korkem_flow/features/warehouse/data/receiving_repository.dart';
 import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
 import 'package:korkem_flow/features/warehouse/domain/stock_item.dart';
 import 'package:korkem_flow/features/warehouse/presentation/stock_detail_screen.dart';
@@ -16,6 +17,8 @@ import 'package:mocktail/mocktail.dart';
 import '../../support/widget_harness.dart';
 
 class _MockStockRepository extends Mock implements StockRepository {}
+
+class _MockReceivingRepository extends Mock implements ReceivingRepository {}
 
 const _item = StockItem(
   id: 'ITEM-WOOD-001',
@@ -64,9 +67,11 @@ const _positions = [
 
 void main() {
   late _MockStockRepository stockRepo;
+  late _MockReceivingRepository receivingRepo;
 
   setUp(() {
     stockRepo = _MockStockRepository();
+    receivingRepo = _MockReceivingRepository();
   });
 
   testWidgets(
@@ -113,6 +118,7 @@ void main() {
         ProviderScope(
           overrides: [
             stockRepositoryProvider.overrideWithValue(stockRepo),
+            receivingRepositoryProvider.overrideWithValue(receivingRepo),
           ],
           child: MaterialApp.router(
             routerConfig: router,
@@ -172,6 +178,7 @@ void main() {
       ProviderScope(
         overrides: [
           stockRepositoryProvider.overrideWithValue(stockRepo),
+          receivingRepositoryProvider.overrideWithValue(receivingRepo),
         ],
         child: harness(const WarehouseScreen()),
       ),
@@ -217,6 +224,7 @@ void main() {
         ProviderScope(
           overrides: [
             stockRepositoryProvider.overrideWithValue(stockRepo),
+            receivingRepositoryProvider.overrideWithValue(receivingRepo),
           ],
           child: harness(const WarehouseScreen()),
         ),

@@ -1408,5 +1408,105 @@
   "orderDeliveryBlockedTitle": "Cannot Create Delivery",
   "@orderDeliveryBlockedTitle": {
     "description": "Title when delivery creation is refused by server."
+  },
+  "warehouseActionReceive": "Receive delivery",
+  "@warehouseActionReceive": {
+    "description": "Action button label to receive a purchase order into the warehouse."
+  },
+  "receiveDeliveryDialogTitle": "Receive Delivery",
+  "@receiveDeliveryDialogTitle": {
+    "description": "Dialog title for receiving a purchase order."
+  },
+  "receivePurchaseOrderFieldLabel": "Purchase Order #",
+  "@receivePurchaseOrderFieldLabel": {
+    "description": "Label for purchase order input field."
+  },
+  "receivePurchaseOrderFieldHint": "e.g. PUR-ORD-2026-00001",
+  "@receivePurchaseOrderFieldHint": {
+    "description": "Hint for purchase order input field."
+  },
+  "receiveSuccess": "Purchase receipt {receipt} booked",
+  "@receiveSuccess": {
+    "description": "Success message when purchase receipt is submitted.",
+    "placeholders": {
+      "receipt": {
+        "type": "String"
+      }
+    }
+  },
+  "receiveNothingOutstanding": "All items on this purchase order are already received",
+  "@receiveNothingOutstanding": {
+    "description": "Message when purchase order has no remaining quantities to receive."
+  },
+  "receiveBlockedTitle": "Cannot Receive Delivery",
+  "@receiveBlockedTitle": {
+    "description": "Title when receiving is refused by server."
+  },
+  "warehouseActionPurchaseOrder": "Create purchase order",
+  "@warehouseActionPurchaseOrder": {
+    "description": "Action button label to create purchase order from material request."
+  },
+  "createPurchaseOrderDialogTitle": "Create Purchase Order",
+  "@createPurchaseOrderDialogTitle": {
+    "description": "Dialog title for creating purchase order."
+  },
+  "materialRequestFieldLabel": "Material Request #",
+  "@materialRequestFieldLabel": {
+    "description": "Label for material request input field."
+  },
+  "materialRequestFieldHint": "e.g. MAT-MR-2026-00001",
+  "@materialRequestFieldHint": {
+    "description": "Hint for material request input field."
+  },
+  "supplierFieldLabel": "Supplier (optional)",
+  "@supplierFieldLabel": {
+    "description": "Label for optional supplier input field."
+  },
+  "purchaseOrderSuccess": "Purchase order {order} created",
+  "@purchaseOrderSuccess": {
+    "description": "Success message when purchase order is created.",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseOrderBlockedTitle": "Cannot Create Purchase Order",
+  "@purchaseOrderBlockedTitle": {
+    "description": "Title when purchase order creation is refused by server."
+  },
+  "receiveNoOrdersTitle": "No deliveries pending",
+  "@receiveNoOrdersTitle": {
+    "description": "Title when no receivable purchase orders exist."
+  },
+  "receiveNoOrdersBody": "All purchase orders have already been received or none are open.",
+  "@receiveNoOrdersBody": {
+    "description": "Body message when no receivable purchase orders exist."
+  },
+  "orderableNoRequestsTitle": "No material requests",
+  "@orderableNoRequestsTitle": {
+    "description": "Title when no orderable material requests exist."
+  },
+  "orderableNoRequestsBody": "All material purchase requests have already been ordered.",
+  "@orderableNoRequestsBody": {
+    "description": "Body message when no orderable material requests exist."
+  },
+  "materialRequestNeededDate": "Needed by: {date}",
+  "@materialRequestNeededDate": {
+    "description": "Due date for material request.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseOrderExpectedDate": "Expected: {date}",
+  "@purchaseOrderExpectedDate": {
+    "description": "Expected delivery date for purchase order.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }

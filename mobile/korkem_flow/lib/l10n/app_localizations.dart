@@ -2613,6 +2613,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cannot Create Delivery'**
   String get orderDeliveryBlockedTitle;
+
+  /// Action button label to receive a purchase order into the warehouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive delivery'**
+  String get warehouseActionReceive;
+
+  /// Dialog title for receiving a purchase order.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive Delivery'**
+  String get receiveDeliveryDialogTitle;
+
+  /// Label for purchase order input field.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Order #'**
+  String get receivePurchaseOrderFieldLabel;
+
+  /// Hint for purchase order input field.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. PUR-ORD-2026-00001'**
+  String get receivePurchaseOrderFieldHint;
+
+  /// Success message when purchase receipt is submitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase receipt {receipt} booked'**
+  String receiveSuccess(String receipt);
+
+  /// Message when purchase order has no remaining quantities to receive.
+  ///
+  /// In en, this message translates to:
+  /// **'All items on this purchase order are already received'**
+  String get receiveNothingOutstanding;
+
+  /// Title when receiving is refused by server.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot Receive Delivery'**
+  String get receiveBlockedTitle;
+
+  /// Action button label to create purchase order from material request.
+  ///
+  /// In en, this message translates to:
+  /// **'Create purchase order'**
+  String get warehouseActionPurchaseOrder;
+
+  /// Dialog title for creating purchase order.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Purchase Order'**
+  String get createPurchaseOrderDialogTitle;
+
+  /// Label for material request input field.
+  ///
+  /// In en, this message translates to:
+  /// **'Material Request #'**
+  String get materialRequestFieldLabel;
+
+  /// Hint for material request input field.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. MAT-MR-2026-00001'**
+  String get materialRequestFieldHint;
+
+  /// Label for optional supplier input field.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier (optional)'**
+  String get supplierFieldLabel;
+
+  /// Success message when purchase order is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase order {order} created'**
+  String purchaseOrderSuccess(String order);
+
+  /// Title when purchase order creation is refused by server.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot Create Purchase Order'**
+  String get purchaseOrderBlockedTitle;
+
+  /// Title when no receivable purchase orders exist.
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries pending'**
+  String get receiveNoOrdersTitle;
+
+  /// Body message when no receivable purchase orders exist.
+  ///
+  /// In en, this message translates to:
+  /// **'All purchase orders have already been received or none are open.'**
+  String get receiveNoOrdersBody;
+
+  /// Title when no orderable material requests exist.
+  ///
+  /// In en, this message translates to:
+  /// **'No material requests'**
+  String get orderableNoRequestsTitle;
+
+  /// Body message when no orderable material requests exist.
+  ///
+  /// In en, this message translates to:
+  /// **'All material purchase requests have already been ordered.'**
+  String get orderableNoRequestsBody;
+
+  /// Due date for material request.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed by: {date}'**
+  String materialRequestNeededDate(String date);
+
+  /// Expected delivery date for purchase order.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected: {date}'**
+  String purchaseOrderExpectedDate(String date);
 }
 
 class _AppLocalizationsDelegate

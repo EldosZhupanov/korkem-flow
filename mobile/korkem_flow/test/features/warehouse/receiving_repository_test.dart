@@ -370,4 +370,62 @@ void main() {
       expect(path.contains('korkem_ai'), isFalse);
     });
   });
+
+  group('querying receivable purchase orders and material requests', () {
+    test(
+      'fetches receivable purchase orders through dedicated query endpoint',
+      () async {
+        respond({
+          'orders': [
+            {
+              'name': 'PUR-ORD-2026-00001',
+              'supplier': 'WoodGroup',
+              'ordered_on': '2026-09-01',
+              'expected_on': '2026-09-05',
+              'status': 'To Receive',
+              'received_percent': 25.0,
+              'total': 450000.0,
+            },
+          ],
+          'total': 1,
+        });
+
+        final orders = await repository.fetchReceivablePurchaseOrders();
+
+        expect(orders, hasLength(1));
+        expect(orders.first.name, 'PUR-ORD-2026-00001');
+        expect(orders.first.supplier, 'WoodGroup');
+        expect(orders.first.orderedOn, '2026-09-01');
+        expect(orders.first.expectedOn, '2026-09-05');
+        expect(orders.first.receivedPercent, 25.0);
+        expect(orders.first.total, 450000.0);
+      },
+    );
+
+    test(
+      'fetches orderable material requests through dedicated query endpoint',
+      () async {
+        respond({
+          'requests': [
+            {
+              'name': 'MAT-MR-2026-00001',
+              'requested_on': '2026-09-01',
+              'needed_on': '2026-09-10',
+              'status': 'Pending',
+              'ordered_percent': 0.0,
+            },
+          ],
+          'total': 1,
+        });
+
+        final requests = await repository.fetchOrderableMaterialRequests();
+
+        expect(requests, hasLength(1));
+        expect(requests.first.name, 'MAT-MR-2026-00001');
+        expect(requests.first.requestedOn, '2026-09-01');
+        expect(requests.first.neededOn, '2026-09-10');
+        expect(requests.first.orderedPercent, 0.0);
+      },
+    );
+  });
 }

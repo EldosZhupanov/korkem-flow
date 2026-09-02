@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
+import 'package:korkem_flow/features/warehouse/data/receiving_repository.dart';
 import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
 import 'package:korkem_flow/features/warehouse/presentation/stock_detail_screen.dart';
 import 'package:mocktail/mocktail.dart';
@@ -10,6 +11,8 @@ import 'package:mocktail/mocktail.dart';
 import '../../support/widget_harness.dart';
 
 class _MockStockRepository extends Mock implements StockRepository {}
+
+class _MockReceivingRepository extends Mock implements ReceivingRepository {}
 
 const _positions = [
   StockPosition(
@@ -34,9 +37,11 @@ const _positions = [
 
 void main() {
   late _MockStockRepository stockRepo;
+  late _MockReceivingRepository receivingRepo;
 
   setUp(() {
     stockRepo = _MockStockRepository();
+    receivingRepo = _MockReceivingRepository();
   });
 
   void stubStock({List<StockPosition> items = _positions}) {
@@ -59,6 +64,7 @@ void main() {
         retry: (_, _) => null,
         overrides: [
           stockRepositoryProvider.overrideWithValue(stockRepo),
+          receivingRepositoryProvider.overrideWithValue(receivingRepo),
         ],
         child: harness(StockDetailScreen(itemCode: itemCode)),
       ),

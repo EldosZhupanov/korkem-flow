@@ -1404,4 +1404,76 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get orderDeliveryBlockedTitle => 'Жөнелтуді жасау мүмкін емес';
+
+  @override
+  String get warehouseActionReceive => 'Жеткізілімді қабылдау';
+
+  @override
+  String get receiveDeliveryDialogTitle => 'Жеткізілімді қабылдау';
+
+  @override
+  String get receivePurchaseOrderFieldLabel => 'Жеткізушіге тапсырыс нөмірі';
+
+  @override
+  String get receivePurchaseOrderFieldHint => 'мыс. PUR-ORD-2026-00001';
+
+  @override
+  String receiveSuccess(String receipt) {
+    return '$receipt түсімі қабылданды';
+  }
+
+  @override
+  String get receiveNothingOutstanding =>
+      'Осы тапсырыс бойынша барлық тауарлар қабылданған';
+
+  @override
+  String get receiveBlockedTitle => 'Жеткізілімді қабылдау мүмкін емес';
+
+  @override
+  String get warehouseActionPurchaseOrder => 'Сатып алуды жасау';
+
+  @override
+  String get createPurchaseOrderDialogTitle => 'Жеткізушіге тапсырыс жасау';
+
+  @override
+  String get materialRequestFieldLabel => 'Материалдарға сұраныс нөмірі';
+
+  @override
+  String get materialRequestFieldHint => 'мыс. MAT-MR-2026-00001';
+
+  @override
+  String get supplierFieldLabel => 'Жеткізуші (міндетті емес)';
+
+  @override
+  String purchaseOrderSuccess(String order) {
+    return '$order жеткізушіге тапсырысы жасалды';
+  }
+
+  @override
+  String get purchaseOrderBlockedTitle =>
+      'Жеткізушіге тапсырыс жасау мүмкін емес';
+
+  @override
+  String get receiveNoOrdersTitle => 'Күтілетін жеткізілімдер жоқ';
+
+  @override
+  String get receiveNoOrdersBody =>
+      'Жеткізушілерге барлық тапсырыстар қабылданған немесе белсенді тапсырыстар жоқ.';
+
+  @override
+  String get orderableNoRequestsTitle => 'Материалдарға сұраныстар жоқ';
+
+  @override
+  String get orderableNoRequestsBody =>
+      'Материалдарды сатып алуға барлық сұраныстар өңделген.';
+
+  @override
+  String materialRequestNeededDate(String date) {
+    return 'Қажеттілік күні: $date';
+  }
+
+  @override
+  String purchaseOrderExpectedDate(String date) {
+    return 'Күтілетін күн: $date';
+  }
 }
