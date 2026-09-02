@@ -1518,4 +1518,55 @@ class AppLocalizationsRu extends AppLocalizations {
   String purchaseOrderExpectedDate(String date) {
     return 'Ожидается: $date';
   }
+
+  @override
+  String get workstationsTitle => 'Рабочие места';
+
+  @override
+  String get workstationsSubtitle => 'Очередь операций по станкам';
+
+  @override
+  String get workstationsEmptyTitle => 'Нет активных заданий';
+
+  @override
+  String get workstationsEmptyBody =>
+      'Все станки свободны, незавершённых операций нет.';
+
+  @override
+  String get stationQueueEmptyTitle => 'На этом месте всё сделано';
+
+  @override
+  String get stationQueueEmptyBody => 'Нет ожидающих операций на этом станке.';
+
+  @override
+  String workstationWaitingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count операций',
+      few: '$count операции',
+      one: '$count операция',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String workstationDueOn(String date) {
+    return 'Срок: $date';
+  }
+
+  @override
+  String workstationItemLabel(String item) {
+    return 'Изделие: $item';
+  }
+
+  @override
+  String workstationQtyLabel(String qty) {
+    return 'Количество: $qty';
+  }
+
+  @override
+  String workstationDuration(String minutes) {
+    return '$minutes мин';
+  }
 }

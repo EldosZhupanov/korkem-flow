@@ -30,6 +30,7 @@ import 'package:korkem_flow/features/settings/presentation/settings_screen.dart'
 import 'package:korkem_flow/features/tasks/presentation/tasks_screen.dart';
 import 'package:korkem_flow/features/today/presentation/today_screen.dart';
 import 'package:korkem_flow/features/warehouse/presentation/stock_detail_screen.dart';
+import 'package:korkem_flow/features/workstations/presentation/workstations_screen.dart';
 
 /// Route paths, referenced by name rather than typed as literals at call sites.
 abstract final class Routes {
@@ -77,6 +78,11 @@ abstract final class Routes {
 
   /// One stock item. `:itemCode` is the item code (`ITEM-…` / `MAT-…`).
   static String stockItem(String itemCode) => '/warehouse/$itemCode';
+  static const workstations = '/workstations';
+
+  /// One workstation's queue. `:workstation` is the workstation name.
+  static String workstation(String name) =>
+      '/workstations/${Uri.encodeComponent(name)}';
   static const today = '/today';
   static const outbox = '/outbox';
   static const search = '/search';
@@ -167,6 +173,18 @@ GoRouter createRouter(Ref ref) {
         path: '/warehouse/:itemCode',
         builder: (context, state) =>
             StockDetailScreen(itemCode: state.pathParameters['itemCode']!),
+      ),
+      GoRoute(
+        path: Routes.workstations,
+        builder: (context, state) => const WorkstationsScreen(),
+        routes: [
+          GoRoute(
+            path: ':workstation',
+            builder: (context, state) => WorkstationsScreen(
+              selectedWorkstation: state.pathParameters['workstation'],
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: Routes.today,

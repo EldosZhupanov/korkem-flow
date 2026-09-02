@@ -600,5 +600,16 @@
   "orderableNoRequestsTitle": "Материалдарға сұраныстар жоқ",
   "orderableNoRequestsBody": "Материалдарды сатып алуға барлық сұраныстар өңделген.",
   "materialRequestNeededDate": "Қажеттілік күні: {date}",
-  "purchaseOrderExpectedDate": "Күтілетін күн: {date}"
+  "purchaseOrderExpectedDate": "Күтілетін күн: {date}",
+  "workstationsTitle": "Жұмыс орындары",
+  "workstationsSubtitle": "Станоктар бойынша операциялар кезегі",
+  "workstationsEmptyTitle": "Белсенді тапсырмалар жоқ",
+  "workstationsEmptyBody": "Барлық станоктар бос, аяқталмаған операциялар жоқ.",
+  "stationQueueEmptyTitle": "Бұл орында барлығы жасалды",
+  "stationQueueEmptyBody": "Бұл станокта күтіп тұрған операциялар жоқ.",
+  "workstationWaitingCount": "{count, plural, one{{count} операция} other{{count} операция}}",
+  "workstationDueOn": "Мерзімі: {date}",
+  "workstationItemLabel": "Бұйым: {item}",
+  "workstationQtyLabel": "Саны: {qty}",
+  "workstationDuration": "{minutes} мин"
 }

@@ -600,5 +600,16 @@
   "orderableNoRequestsTitle": "Нет заявок на материалы",
   "orderableNoRequestsBody": "Все заявки на закупку материалов уже обработаны.",
   "materialRequestNeededDate": "Потребность к: {date}",
-  "purchaseOrderExpectedDate": "Ожидается: {date}"
+  "purchaseOrderExpectedDate": "Ожидается: {date}",
+  "workstationsTitle": "Рабочие места",
+  "workstationsSubtitle": "Очередь операций по станкам",
+  "workstationsEmptyTitle": "Нет активных заданий",
+  "workstationsEmptyBody": "Все станки свободны, незавершённых операций нет.",
+  "stationQueueEmptyTitle": "На этом месте всё сделано",
+  "stationQueueEmptyBody": "Нет ожидающих операций на этом станке.",
+  "workstationWaitingCount": "{count, plural, one{{count} операция} few{{count} операции} other{{count} операций}}",
+  "workstationDueOn": "Срок: {date}",
+  "workstationItemLabel": "Изделие: {item}",
+  "workstationQtyLabel": "Количество: {qty}",
+  "workstationDuration": "{minutes} мин"
 }

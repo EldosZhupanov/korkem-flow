@@ -1504,4 +1504,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String purchaseOrderExpectedDate(String date) {
     return 'Expected: $date';
   }
+
+  @override
+  String get workstationsTitle => 'Workstations';
+
+  @override
+  String get workstationsSubtitle => 'Operation queue by workstation';
+
+  @override
+  String get workstationsEmptyTitle => 'No active jobs';
+
+  @override
+  String get workstationsEmptyBody =>
+      'All workstations are idle, no unfinished operations.';
+
+  @override
+  String get stationQueueEmptyTitle => 'All done at this workstation';
+
+  @override
+  String get stationQueueEmptyBody =>
+      'No pending operations waiting at this station.';
+
+  @override
+  String workstationWaitingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count operations',
+      one: '$count operation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String workstationDueOn(String date) {
+    return 'Due: $date';
+  }
+
+  @override
+  String workstationItemLabel(String item) {
+    return 'Product: $item';
+  }
+
+  @override
+  String workstationQtyLabel(String qty) {
+    return 'Quantity: $qty';
+  }
+
+  @override
+  String workstationDuration(String minutes) {
+    return '$minutes min';
+  }
 }

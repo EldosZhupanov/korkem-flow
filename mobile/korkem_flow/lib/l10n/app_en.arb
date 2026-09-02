@@ -1508,5 +1508,74 @@
         "type": "String"
       }
     }
+  },
+  "workstationsTitle": "Workstations",
+  "@workstationsTitle": {
+    "description": "Title for the workstations screen."
+  },
+  "workstationsSubtitle": "Operation queue by workstation",
+  "@workstationsSubtitle": {
+    "description": "Subtitle for the workstations screen."
+  },
+  "workstationsEmptyTitle": "No active jobs",
+  "@workstationsEmptyTitle": {
+    "description": "Title when all workstations are idle."
+  },
+  "workstationsEmptyBody": "All workstations are idle, no unfinished operations.",
+  "@workstationsEmptyBody": {
+    "description": "Body message when all workstations are idle."
+  },
+  "stationQueueEmptyTitle": "All done at this workstation",
+  "@stationQueueEmptyTitle": {
+    "description": "Title when a selected workstation queue is empty."
+  },
+  "stationQueueEmptyBody": "No pending operations waiting at this station.",
+  "@stationQueueEmptyBody": {
+    "description": "Body message when a selected workstation queue is empty."
+  },
+  "workstationWaitingCount": "{count, plural, one{{count} operation} other{{count} operations}}",
+  "@workstationWaitingCount": {
+    "description": "Number of operations waiting at a workstation.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workstationDueOn": "Due: {date}",
+  "@workstationDueOn": {
+    "description": "Due date for a workstation operation.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "workstationItemLabel": "Product: {item}",
+  "@workstationItemLabel": {
+    "description": "Item/product name label.",
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "workstationQtyLabel": "Quantity: {qty}",
+  "@workstationQtyLabel": {
+    "description": "Quantity label for a workstation operation.",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "workstationDuration": "{minutes} min",
+  "@workstationDuration": {
+    "description": "Planned minutes for an operation.",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
   }
 }

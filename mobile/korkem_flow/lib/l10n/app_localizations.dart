@@ -2733,6 +2733,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expected: {date}'**
   String purchaseOrderExpectedDate(String date);
+
+  /// Title for the workstations screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Workstations'**
+  String get workstationsTitle;
+
+  /// Subtitle for the workstations screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation queue by workstation'**
+  String get workstationsSubtitle;
+
+  /// Title when all workstations are idle.
+  ///
+  /// In en, this message translates to:
+  /// **'No active jobs'**
+  String get workstationsEmptyTitle;
+
+  /// Body message when all workstations are idle.
+  ///
+  /// In en, this message translates to:
+  /// **'All workstations are idle, no unfinished operations.'**
+  String get workstationsEmptyBody;
+
+  /// Title when a selected workstation queue is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'All done at this workstation'**
+  String get stationQueueEmptyTitle;
+
+  /// Body message when a selected workstation queue is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending operations waiting at this station.'**
+  String get stationQueueEmptyBody;
+
+  /// Number of operations waiting at a workstation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} operation} other{{count} operations}}'**
+  String workstationWaitingCount(int count);
+
+  /// Due date for a workstation operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Due: {date}'**
+  String workstationDueOn(String date);
+
+  /// Item/product name label.
+  ///
+  /// In en, this message translates to:
+  /// **'Product: {item}'**
+  String workstationItemLabel(String item);
+
+  /// Quantity label for a workstation operation.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity: {qty}'**
+  String workstationQtyLabel(String qty);
+
+  /// Planned minutes for an operation.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String workstationDuration(String minutes);
 }
 
 class _AppLocalizationsDelegate

@@ -1476,4 +1476,55 @@ class AppLocalizationsKk extends AppLocalizations {
   String purchaseOrderExpectedDate(String date) {
     return 'Күтілетін күн: $date';
   }
+
+  @override
+  String get workstationsTitle => 'Жұмыс орындары';
+
+  @override
+  String get workstationsSubtitle => 'Станоктар бойынша операциялар кезегі';
+
+  @override
+  String get workstationsEmptyTitle => 'Белсенді тапсырмалар жоқ';
+
+  @override
+  String get workstationsEmptyBody =>
+      'Барлық станоктар бос, аяқталмаған операциялар жоқ.';
+
+  @override
+  String get stationQueueEmptyTitle => 'Бұл орында барлығы жасалды';
+
+  @override
+  String get stationQueueEmptyBody =>
+      'Бұл станокта күтіп тұрған операциялар жоқ.';
+
+  @override
+  String workstationWaitingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count операция',
+      one: '$count операция',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String workstationDueOn(String date) {
+    return 'Мерзімі: $date';
+  }
+
+  @override
+  String workstationItemLabel(String item) {
+    return 'Бұйым: $item';
+  }
+
+  @override
+  String workstationQtyLabel(String qty) {
+    return 'Саны: $qty';
+  }
+
+  @override
+  String workstationDuration(String minutes) {
+    return '$minutes мин';
+  }
 }
