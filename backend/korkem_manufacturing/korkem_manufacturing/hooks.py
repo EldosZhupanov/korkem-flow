@@ -171,23 +171,12 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"korkem_manufacturing.tasks.all"
-# 	],
-# 	"daily": [
-# 		"korkem_manufacturing.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"korkem_manufacturing.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"korkem_manufacturing.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"korkem_manufacturing.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	# A forgotten capture becomes stale after 24 hours. Hourly means the owner
+	# hears within at most one more hour; running every few minutes would add no
+	# useful urgency, while daily could repeat the original full-day loss.
+	"hourly": ["korkem_manufacturing.services.reminders.run"],
+}
 
 # Testing
 # -------

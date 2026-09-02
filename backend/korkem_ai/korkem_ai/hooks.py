@@ -220,6 +220,12 @@ scheduler_events = {
 korkem_domain_events = {
 	"production.started": ["korkem_ai.korkem_ai.notifications.events.production_started"],
 	"production.material_short": ["korkem_ai.korkem_ai.notifications.events.material_short"],
+	"reminder.capture_stale": [
+		"korkem_ai.korkem_ai.notifications.events.stale_capture"
+	],
+	"reminder.measurement_task": [
+		"korkem_ai.korkem_ai.notifications.events.measurement_task"
+	],
 }
 
 

@@ -28,6 +28,29 @@ from __future__ import annotations
 import frappe
 
 
+def owners_for_company(company: str) -> list[str]:
+	"""The factory owner accounts bound to this exact company.
+
+	ADR-0027 creates one owner as a System Manager and binds that User to the
+	company with ERPNext's User Permission.  Both facts are required here: a
+	role-only lookup would broadcast across companies, while a company-only
+	lookup would notify every employee.  ``Administrator`` is the platform
+	account, not the factory owner, and is never returned.
+	"""
+	bound = frappe.get_all(
+		"User Permission",
+		filters={"allow": "Company", "for_value": company},
+		pluck="user",
+	)
+	return sorted(
+		user
+		for user in set(bound)
+		if user not in ("Administrator", "Guest")
+		and frappe.db.get_value("User", user, "enabled")
+		and "System Manager" in frappe.get_roles(user)
+	)
+
+
 def staff_for_work_order(work_order: str) -> list[str]:
 	"""Who is watching this job: whoever started it.
 

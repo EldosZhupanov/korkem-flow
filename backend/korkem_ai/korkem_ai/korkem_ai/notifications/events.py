@@ -61,6 +61,68 @@ ORDER_PAUSED = "order.paused"
 ORDER_READY = "order.ready"
 ORDER_WAITING_MATERIAL = "order.waiting_material"
 
+# Digital-administrator reminders. The event key is intentionally stable for
+# the lifetime of its subject: the scheduler may run forever, but a person is
+# reminded about one forgotten item once.
+STALE_CAPTURE = "reminder.capture_stale"
+MEASUREMENT_TASK = "reminder.measurement_task"
+
+
+def stale_capture(capture: str, company: str) -> list[str]:
+	row = frappe.db.get_value(
+		"Capture", capture, ["name", "spoken_text", "company"], as_dict=True
+	)
+	if not row or row.company != company:
+		return []
+	return service.emit(
+		STALE_CAPTURE,
+		recipients=recipients.owners_for_company(company),
+		body=f"Без задачи больше суток: «{row.spoken_text}». Передайте это сотруднику.",
+		reference_doctype="Capture",
+		reference_name=row.name,
+		company=company,
+	)
+
+
+def measurement_task(
+	task: str | int,
+	capture: str,
+	company: str,
+	overdue: bool = False,
+	unassigned: bool = False,
+) -> list[str]:
+	row = frappe.db.get_value(
+		"CRM Task",
+		task,
+		["name", "title", "due_date", "assigned_to", "reference_doctype", "reference_docname"],
+		as_dict=True,
+	)
+	linked_company = frappe.db.get_value("Capture", capture, "company")
+	if (
+		not row
+		or row.reference_doctype != "Capture"
+		or row.reference_docname != capture
+		or linked_company != company
+	):
+		return []
+
+	reasons = []
+	if overdue:
+		reasons.append("срок прошёл")
+	if unassigned:
+		reasons.append("исполнитель не назначен")
+	if not reasons:
+		return []
+
+	return service.emit(
+		MEASUREMENT_TASK,
+		recipients=recipients.owners_for_company(company),
+		body=f"Задача замера «{row.title}»: {', '.join(reasons)}.",
+		reference_doctype="CRM Task",
+		reference_name=str(row.name),
+		company=company,
+	)
+
 
 def _job(work_order: str) -> dict:
 	return (
