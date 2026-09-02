@@ -1285,4 +1285,11 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get searchNavTooltip => 'Іздеу';
+
+  @override
+  String get ordersSelectPromptTitle => 'Тапсырысты таңдаңыз';
+
+  @override
+  String get ordersSelectPromptBody =>
+      'Параметрлерін, күйін, өндіріс тапсырмаларын және жөнелтілімдерін көру үшін сол жақтағы тізімнен тапсырысты таңдаңыз.';
 }

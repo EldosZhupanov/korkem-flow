@@ -16,14 +16,38 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/application/orders_controller.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
+import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/sales_order_status_label.dart';
 import 'package:korkem_flow/features/orders/presentation/start_production_button.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-class OrdersScreen extends ConsumerWidget {
-  const OrdersScreen({super.key});
+class OrdersScreen extends ConsumerStatefulWidget {
+  const OrdersScreen({this.selectedName, super.key});
 
-  Future<void> _openFilter(BuildContext context, WidgetRef ref) async {
+  final String? selectedName;
+
+  @override
+  ConsumerState<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends ConsumerState<OrdersScreen> {
+  String? _selectedName;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedName = widget.selectedName;
+  }
+
+  @override
+  void didUpdateWidget(OrdersScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedName != null && widget.selectedName != _selectedName) {
+      _selectedName = widget.selectedName;
+    }
+  }
+
+  Future<void> _openFilter(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
 
     final choice = await showFilterSheet<SalesOrderStatus>(
@@ -41,41 +65,94 @@ class OrdersScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final filter = ref.watch(ordersFilterProvider);
     final controller = ref.read(ordersControllerProvider.notifier);
+    final ordersState = ref.watch(ordersControllerProvider);
+
+    final size = MediaQuery.sizeOf(context);
+    final isWide =
+        size.width >= AppBreakpoints.medium &&
+        size.height >= AppBreakpoints.compact;
+
+    final items = ordersState.value?.items;
+    if (isWide && _selectedName == null && items != null && items.isNotEmpty) {
+      _selectedName = items.first.name;
+    }
+
+    final list = CrmListSection(
+      searchValue: filter.search,
+      onSearch: (value) => ref
+          .read(ordersFilterProvider.notifier)
+          .setSearch(value.isEmpty ? null : value),
+      isFiltered: filter.status != null,
+      onFilter: () => _openFilter(context),
+      child: PagedListView<SalesOrder>(
+        state: ordersState,
+        onRefresh: controller.refresh,
+        onLoadMore: controller.loadMore,
+        itemBuilder: (context, order) => SalesOrderCard(
+          order: order,
+          isSelected: isWide && _selectedName == order.name,
+          onTap: isWide
+              ? () => setState(() => _selectedName = order.name)
+              : null,
+        ),
+        emptyView: (context) => ListEmptyView(
+          icon: AppIcons.quote,
+          title: l10n.ordersEmpty,
+          message: switch (filter) {
+            _ when filter.search != null => l10n.searchNoResults(
+              filter.search!,
+            ),
+            _ when filter.status != null => l10n.filterNoResults,
+            _ => l10n.ordersEmptyBody,
+          },
+          onRefresh: controller.refresh,
+          onClearFilter: filter.status == null && filter.search == null
+              ? null
+              : ref.read(ordersFilterProvider.notifier).clear,
+        ),
+      ),
+    );
+
+    if (!isWide) {
+      return AppScreen(
+        title: l10n.ordersTitle,
+        body: list,
+      );
+    }
 
     return AppScreen(
       title: l10n.ordersTitle,
-      body: CrmListSection(
-        searchValue: filter.search,
-        onSearch: (value) => ref
-            .read(ordersFilterProvider.notifier)
-            .setSearch(value.isEmpty ? null : value),
-        isFiltered: filter.status != null,
-        onFilter: () => _openFilter(context, ref),
-        child: PagedListView<SalesOrder>(
-          state: ref.watch(ordersControllerProvider),
-          onRefresh: controller.refresh,
-          onLoadMore: controller.loadMore,
-          itemBuilder: (context, order) => SalesOrderCard(order: order),
-          emptyView: (context) => ListEmptyView(
-            icon: AppIcons.quote,
-            title: l10n.ordersEmpty,
-            message: switch (filter) {
-              _ when filter.search != null => l10n.searchNoResults(
-                filter.search!,
-              ),
-              _ when filter.status != null => l10n.filterNoResults,
-              _ => l10n.ordersEmptyBody,
-            },
-            onRefresh: controller.refresh,
-            onClearFilter: filter.status == null && filter.search == null
-                ? null
-                : ref.read(ordersFilterProvider.notifier).clear,
+      fullWidth: true,
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: AppBreakpoints.listPaneWidth,
+            child: list,
           ),
-        ),
+          const VerticalDivider(
+            width: AppStroke.hairline,
+            thickness: AppStroke.hairline,
+          ),
+          Expanded(
+            child: _selectedName != null
+                ? OrderDetailView(
+                    key: ValueKey(_selectedName),
+                    name: _selectedName!,
+                  )
+                : Center(
+                    child: EmptyView(
+                      icon: AppIcons.quote,
+                      title: l10n.ordersSelectPromptTitle,
+                      message: l10n.ordersSelectPromptBody,
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -83,9 +160,16 @@ class OrdersScreen extends ConsumerWidget {
 
 /// A card for an ERPNext Sales Order with production trigger button.
 class SalesOrderCard extends ConsumerWidget {
-  const SalesOrderCard({required this.order, super.key});
+  const SalesOrderCard({
+    required this.order,
+    this.isSelected = false,
+    this.onTap,
+    super.key,
+  });
 
   final SalesOrder order;
+  final bool isSelected;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -102,9 +186,10 @@ class SalesOrderCard extends ConsumerWidget {
     final delivery = order.deliveryDate;
 
     return AppCard(
-      // The whole card opens the order. A row you can see and cannot open is
-      // what this screen was before there was somewhere to go.
-      onTap: () => context.push(Routes.order(order.name)),
+      isSelected: isSelected,
+      // The whole card opens the order. In wide master-detail layout it selects
+      // the order in the right pane; on mobile it navigates to the route.
+      onTap: onTap ?? () => context.push(Routes.order(order.name)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -2415,6 +2415,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search'**
   String get searchNavTooltip;
+
+  /// Title in detail pane when no order is selected in wide layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an order'**
+  String get ordersSelectPromptTitle;
+
+  /// Message in detail pane when no order is selected in wide layout.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an order from the list on the left to view details and production.'**
+  String get ordersSelectPromptBody;
 }
 
 class _AppLocalizationsDelegate

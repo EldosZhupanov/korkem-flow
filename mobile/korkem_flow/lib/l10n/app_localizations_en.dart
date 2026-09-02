@@ -1313,4 +1313,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchNavTooltip => 'Search';
+
+  @override
+  String get ordersSelectPromptTitle => 'Select an order';
+
+  @override
+  String get ordersSelectPromptBody =>
+      'Select an order from the list on the left to view details and production.';
 }

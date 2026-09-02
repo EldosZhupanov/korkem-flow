@@ -21,6 +21,30 @@ import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_status_label.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
+/// The body and state handling for one order's detail view.
+class OrderDetailView extends ConsumerWidget {
+  const OrderDetailView({required this.name, super.key});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final order = ref.watch(orderDetailProvider(name));
+
+    return switch (order) {
+      AsyncData(:final value) => _Body(order: value),
+      AsyncError(:final error) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(orderDetailProvider(name)),
+      ),
+      // Riverpod 3 keeps a failed provider in `AsyncLoading(retrying)`, so a
+      // spinner here can outlive the request. That is the router's problem
+      // too — see `korkem-flutter` — and the reason tests disable retry.
+      _ => const Center(child: CircularProgressIndicator()),
+    };
+  }
+}
+
 /// One order, and the production raised for it.
 ///
 /// The order list could not answer "what is happening with this one" — it
@@ -43,9 +67,6 @@ class OrderDetailScreen extends ConsumerWidget {
           error: error,
           onRetry: () => ref.invalidate(orderDetailProvider(name)),
         ),
-        // Riverpod 3 keeps a failed provider in `AsyncLoading(retrying)`, so a
-        // spinner here can outlive the request. That is the router's problem
-        // too — see `korkem-flutter` — and the reason tests disable retry.
         _ => const Center(child: CircularProgressIndicator()),
       },
     );

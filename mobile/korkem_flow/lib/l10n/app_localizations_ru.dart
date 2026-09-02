@@ -1325,4 +1325,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get searchNavTooltip => 'Поиск';
+
+  @override
+  String get ordersSelectPromptTitle => 'Выберите заказ';
+
+  @override
+  String get ordersSelectPromptBody =>
+      'Выберите заказ из списка слева, чтобы посмотреть его параметры, статус, задания производства и отгрузки.';
 }

@@ -547,5 +547,7 @@
   "searchSectionWorkOrders": "Задания ({count})",
   "searchSectionStock": "Склад ({count})",
   "searchSectionError": "Не удалось загрузить раздел: {section}",
-  "searchNavTooltip": "Поиск"
+  "searchNavTooltip": "Поиск",
+  "ordersSelectPromptTitle": "Выберите заказ",
+  "ordersSelectPromptBody": "Выберите заказ из списка слева, чтобы посмотреть его параметры, статус, задания производства и отгрузки."
 }

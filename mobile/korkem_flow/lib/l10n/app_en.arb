@@ -1236,5 +1236,13 @@
   "searchNavTooltip": "Search",
   "@searchNavTooltip": {
     "description": "Tooltip for search action in top bar."
+  },
+  "ordersSelectPromptTitle": "Select an order",
+  "@ordersSelectPromptTitle": {
+    "description": "Title in detail pane when no order is selected in wide layout."
+  },
+  "ordersSelectPromptBody": "Select an order from the list on the left to view details and production.",
+  "@ordersSelectPromptBody": {
+    "description": "Message in detail pane when no order is selected in wide layout."
   }
 }

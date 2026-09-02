@@ -16,25 +16,38 @@ class AppCard extends StatelessWidget {
     required this.child,
     this.onTap,
     this.padding = const EdgeInsets.all(AppSpacing.lg),
+    this.isSelected = false,
     super.key,
   });
 
   final Widget child;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry padding;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final content = Padding(padding: padding, child: child);
     // Shadows are a light-mode device. Against a forest field they are
     // invisible and cost a raster pass to prove it, so dark mode separates
     // cards with the hairline outline the card theme already carries.
-    final lifts = Theme.of(context).brightness == Brightness.light;
+    final lifts = theme.brightness == Brightness.light;
 
     return AppPressable(
       onTap: onTap,
       builder: lifts ? _lift : null,
       child: Card(
+        color: isSelected ? theme.colorScheme.surfaceContainerHighest : null,
+        shape: isSelected
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                side: BorderSide(
+                  color: theme.colorScheme.primary,
+                  width: AppStroke.focus,
+                ),
+              )
+            : null,
         clipBehavior: Clip.antiAlias,
         child: onTap == null ? content : InkWell(onTap: onTap, child: content),
       ),
@@ -89,6 +102,7 @@ class EntityCard extends StatelessWidget {
     this.leading,
     this.onTap,
     this.heroTag,
+    this.isSelected = false,
     super.key,
   });
 
@@ -103,6 +117,7 @@ class EntityCard extends StatelessWidget {
 
   final Widget? leading;
   final VoidCallback? onTap;
+  final bool isSelected;
 
   /// Set only where the card opens a detail screen that carries the same tag.
   /// A tag must be unique among everything mounted at once, so this is left
@@ -121,6 +136,7 @@ class EntityCard extends StatelessWidget {
 
     return AppCard(
       onTap: onTap,
+      isSelected: isSelected,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

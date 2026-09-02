@@ -71,6 +71,15 @@ abstract final class AppBreakpoints {
   /// Narrowest a KPI tile may get before the grid drops a column.
   static const double minTileWidth = 180;
 
+  /// The list pane in a master-detail layout.
+  ///
+  /// Wide enough for an order number, a customer name and a status chip on one
+  /// line without truncation; narrow enough that at [medium] the detail beside
+  /// it still clears [readable]. Below that the layout is single-column
+  /// anyway, so this dimension only ever binds on a tablet or a desktop
+  /// window.
+  static const double listPaneWidth = 380;
+
   /// The widest a column of content may get before it stops being readable.
   ///
   /// Not a stylistic cap. At 1024dp a deal card ran the full width, which put

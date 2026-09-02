@@ -32,6 +32,7 @@ class AppScreen extends StatelessWidget {
     required this.body,
     this.subtitle,
     this.actions = const [],
+    this.fullWidth = false,
     super.key,
   }) : tabs = const [],
        initialTab = 0;
@@ -46,6 +47,7 @@ class AppScreen extends StatelessWidget {
     required this.tabs,
     this.actions = const [],
     this.initialTab = 0,
+    this.fullWidth = false,
     super.key,
   }) : body = null,
        subtitle = null;
@@ -60,6 +62,7 @@ class AppScreen extends StatelessWidget {
   final Widget? body;
   final List<Widget> actions;
   final List<AppTab> tabs;
+  final bool fullWidth;
 
   /// Which tab opens first. Only meaningful for [AppScreen.tabbed], and only
   /// honoured when the screen is *built*: sending someone to a different tab of
@@ -91,13 +94,14 @@ class AppScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (tabs.isEmpty) {
+      final content = body ?? const SizedBox.shrink();
       return Scaffold(
         appBar: AppBar(
           leading: _SidebarButton.maybe(context),
           title: _title(context),
           actions: actions,
         ),
-        body: ReadableWidth(child: body ?? const SizedBox.shrink()),
+        body: fullWidth ? content : ReadableWidth(child: content),
       );
     }
 
@@ -122,7 +126,8 @@ class AppScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            for (final tab in tabs) ReadableWidth(child: tab.view),
+            for (final tab in tabs)
+              fullWidth ? tab.view : ReadableWidth(child: tab.view),
           ],
         ),
       ),
