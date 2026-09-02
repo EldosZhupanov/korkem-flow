@@ -94,6 +94,12 @@ flutter_launcher_icons:
   # Themed icons, Android 13+. A separate white-on-transparent master, because
   # the launcher recolours this layer and a cream one would tint twice.
   adaptive_icon_monochrome: assets/brand/icon_monochrome.png
+  # Windows is deliberately NOT generated here. This tool emits a .ico with a
+  # single 256px frame, and Windows then downscales it for the taskbar and
+  # Alt-Tab, where the ring turns to mush at 16-24px. The committed
+  # windows/runner/resources/app_icon.ico carries seven real frames
+  # (16..256) — see docs/operations/WINDOWS_DESKTOP.md for the command that
+  # rebuilds it. Do not add a `windows:` key back: it would overwrite them.
 
 # Launch screen. The brand field in both themes; the Splash route the app draws
 # itself does the same, so the handover from the system splash is invisible.
