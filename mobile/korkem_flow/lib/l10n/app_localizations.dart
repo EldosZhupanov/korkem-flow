@@ -1156,6 +1156,192 @@ abstract class AppLocalizations {
   /// **'Failed to load company details'**
   String get companyDetailsLoadError;
 
+  /// Title for items and prices catalog screen
+  ///
+  /// In en, this message translates to:
+  /// **'Items and prices'**
+  String get itemsTitle;
+
+  /// Subtitle for items catalog screen
+  ///
+  /// In en, this message translates to:
+  /// **'Product catalog, units of measure, and prices'**
+  String get itemsSubtitle;
+
+  /// Search field hint in items catalog
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or code'**
+  String get itemsSearchHint;
+
+  /// Title for empty items catalog
+  ///
+  /// In en, this message translates to:
+  /// **'No items in catalog yet'**
+  String get itemsEmptyTitle;
+
+  /// Message for empty items catalog
+  ///
+  /// In en, this message translates to:
+  /// **'Add the first catalog item'**
+  String get itemsEmptyMessage;
+
+  /// Action button to add a new item
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get itemsAddItem;
+
+  /// Dialog title for creating a new item
+  ///
+  /// In en, this message translates to:
+  /// **'New item'**
+  String get itemsCreateTitle;
+
+  /// Label for item name field
+  ///
+  /// In en, this message translates to:
+  /// **'Item name'**
+  String get itemsNameLabel;
+
+  /// Hint for item name field
+  ///
+  /// In en, this message translates to:
+  /// **'Two-door wardrobe'**
+  String get itemsNameHint;
+
+  /// Validation error when item name is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Enter item name'**
+  String get itemsNameRequired;
+
+  /// Label for item code field
+  ///
+  /// In en, this message translates to:
+  /// **'Item code (optional)'**
+  String get itemsCodeLabel;
+
+  /// Hint for item code field
+  ///
+  /// In en, this message translates to:
+  /// **'CAB-01'**
+  String get itemsCodeHint;
+
+  /// Label for unit of measure dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'Unit of measure'**
+  String get itemsUnitLabel;
+
+  /// Hint for unit of measure dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'Select unit'**
+  String get itemsUnitHint;
+
+  /// Validation error when unit of measure is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Unit of measure is required'**
+  String get itemsUnitRequired;
+
+  /// Label for item description field
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get itemsDescriptionLabel;
+
+  /// Hint for item description field
+  ///
+  /// In en, this message translates to:
+  /// **'Materials, hardware, notes'**
+  String get itemsDescriptionHint;
+
+  /// Label for sale price field
+  ///
+  /// In en, this message translates to:
+  /// **'Sale price (optional)'**
+  String get itemsPriceLabel;
+
+  /// Hint for sale price field
+  ///
+  /// In en, this message translates to:
+  /// **'0 ₸'**
+  String get itemsPriceHint;
+
+  /// Label shown when item has no preset price
+  ///
+  /// In en, this message translates to:
+  /// **'Price on request'**
+  String get itemsPriceOnRequest;
+
+  /// Short label for price
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get itemsPriceLabelShort;
+
+  /// Dialog title for setting/changing item price
+  ///
+  /// In en, this message translates to:
+  /// **'Change price'**
+  String get itemsSetPriceTitle;
+
+  /// Action button in set price dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Set price'**
+  String get itemsSetPriceAction;
+
+  /// Validation error when price is required but empty
+  ///
+  /// In en, this message translates to:
+  /// **'Enter price'**
+  String get itemsPriceRequired;
+
+  /// Validation error for invalid price format
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid price amount'**
+  String get itemsPriceInvalid;
+
+  /// Success message when item price is updated
+  ///
+  /// In en, this message translates to:
+  /// **'Price updated'**
+  String get itemsPriceUpdated;
+
+  /// Success message when a new item is created
+  ///
+  /// In en, this message translates to:
+  /// **'Item added'**
+  String get itemsCreateSuccess;
+
+  /// Placeholder while loading units of measure
+  ///
+  /// In en, this message translates to:
+  /// **'Loading units...'**
+  String get itemsUnitsLoading;
+
+  /// Error message when units of measure fail to load
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load units of measure'**
+  String get itemsUnitsLoadError;
+
+  /// Action label to open items catalog from quotation
+  ///
+  /// In en, this message translates to:
+  /// **'Items catalog'**
+  String get itemsCatalogAction;
+
+  /// Navigation label for items and prices
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get navItems;
+
   /// Settings tile title for enquiry flow
   ///
   /// In en, this message translates to:

@@ -585,6 +585,99 @@ class AppLocalizationsEn extends AppLocalizations {
   String get companyDetailsLoadError => 'Failed to load company details';
 
   @override
+  String get itemsTitle => 'Items and prices';
+
+  @override
+  String get itemsSubtitle => 'Product catalog, units of measure, and prices';
+
+  @override
+  String get itemsSearchHint => 'Search by name or code';
+
+  @override
+  String get itemsEmptyTitle => 'No items in catalog yet';
+
+  @override
+  String get itemsEmptyMessage => 'Add the first catalog item';
+
+  @override
+  String get itemsAddItem => 'Add item';
+
+  @override
+  String get itemsCreateTitle => 'New item';
+
+  @override
+  String get itemsNameLabel => 'Item name';
+
+  @override
+  String get itemsNameHint => 'Two-door wardrobe';
+
+  @override
+  String get itemsNameRequired => 'Enter item name';
+
+  @override
+  String get itemsCodeLabel => 'Item code (optional)';
+
+  @override
+  String get itemsCodeHint => 'CAB-01';
+
+  @override
+  String get itemsUnitLabel => 'Unit of measure';
+
+  @override
+  String get itemsUnitHint => 'Select unit';
+
+  @override
+  String get itemsUnitRequired => 'Unit of measure is required';
+
+  @override
+  String get itemsDescriptionLabel => 'Description';
+
+  @override
+  String get itemsDescriptionHint => 'Materials, hardware, notes';
+
+  @override
+  String get itemsPriceLabel => 'Sale price (optional)';
+
+  @override
+  String get itemsPriceHint => '0 ₸';
+
+  @override
+  String get itemsPriceOnRequest => 'Price on request';
+
+  @override
+  String get itemsPriceLabelShort => 'Price';
+
+  @override
+  String get itemsSetPriceTitle => 'Change price';
+
+  @override
+  String get itemsSetPriceAction => 'Set price';
+
+  @override
+  String get itemsPriceRequired => 'Enter price';
+
+  @override
+  String get itemsPriceInvalid => 'Invalid price amount';
+
+  @override
+  String get itemsPriceUpdated => 'Price updated';
+
+  @override
+  String get itemsCreateSuccess => 'Item added';
+
+  @override
+  String get itemsUnitsLoading => 'Loading units...';
+
+  @override
+  String get itemsUnitsLoadError => 'Could not load units of measure';
+
+  @override
+  String get itemsCatalogAction => 'Items catalog';
+
+  @override
+  String get navItems => 'Items';
+
+  @override
   String get settingsEnquiryFlowTitle => 'Enquiry pipeline';
 
   @override

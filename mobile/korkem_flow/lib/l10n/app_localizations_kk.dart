@@ -578,6 +578,100 @@ class AppLocalizationsKk extends AppLocalizations {
       'Компания деректемелерін жүктеу мүмкін болмады';
 
   @override
+  String get itemsTitle => 'Номенклатура және бағалар';
+
+  @override
+  String get itemsSubtitle =>
+      'Бұйымдар каталогы, өлшем бірліктері және бағалар';
+
+  @override
+  String get itemsSearchHint => 'Атауы немесе коды бойынша іздеу';
+
+  @override
+  String get itemsEmptyTitle => 'Каталогта әзірше позициялар жоқ';
+
+  @override
+  String get itemsEmptyMessage => 'Алғашқы номенклатуралық позицияны қосыңыз';
+
+  @override
+  String get itemsAddItem => 'Позиция қосу';
+
+  @override
+  String get itemsCreateTitle => 'Жаңа позиция';
+
+  @override
+  String get itemsNameLabel => 'Позиция атауы';
+
+  @override
+  String get itemsNameHint => 'Екі есікті ашылмалы шкаф';
+
+  @override
+  String get itemsNameRequired => 'Позиция атауын енгізіңіз';
+
+  @override
+  String get itemsCodeLabel => 'Код / артикул (міндетті емес)';
+
+  @override
+  String get itemsCodeHint => 'CAB-01';
+
+  @override
+  String get itemsUnitLabel => 'Өлшем бірлігі';
+
+  @override
+  String get itemsUnitHint => 'Бірлікті таңдаңыз';
+
+  @override
+  String get itemsUnitRequired => 'Өлшем бірлігі міндетті';
+
+  @override
+  String get itemsDescriptionLabel => 'Сипаттамасы';
+
+  @override
+  String get itemsDescriptionHint => 'Материалдар, фурнитура, ерекшеліктер';
+
+  @override
+  String get itemsPriceLabel => 'Сату бағасы (міндетті емес)';
+
+  @override
+  String get itemsPriceHint => '0 ₸';
+
+  @override
+  String get itemsPriceOnRequest => 'Есептеу бойынша баға';
+
+  @override
+  String get itemsPriceLabelShort => 'Бағасы';
+
+  @override
+  String get itemsSetPriceTitle => 'Бағаны өзгерту';
+
+  @override
+  String get itemsSetPriceAction => 'Бағаны белгілеу';
+
+  @override
+  String get itemsPriceRequired => 'Бағаны көрсетіңіз';
+
+  @override
+  String get itemsPriceInvalid => 'Қате сома';
+
+  @override
+  String get itemsPriceUpdated => 'Баға жаңартылды';
+
+  @override
+  String get itemsCreateSuccess => 'Позиция қосылды';
+
+  @override
+  String get itemsUnitsLoading => 'Бірліктер жүктелуде...';
+
+  @override
+  String get itemsUnitsLoadError => 'Өлшем бірліктерін жүктеу мүмкін болмады';
+
+  @override
+  String get itemsCatalogAction => 'Позициялар каталогы';
+
+  @override
+  String get navItems => 'Номенклатура';
+
+  @override
   String get settingsEnquiryFlowTitle => 'Өтінімді жүргізу';
 
   @override

@@ -628,6 +628,130 @@
   "@companyDetailsLoadError": {
     "description": "Error message when company details cannot be loaded"
   },
+  "itemsTitle": "Items and prices",
+  "@itemsTitle": {
+    "description": "Title for items and prices catalog screen"
+  },
+  "itemsSubtitle": "Product catalog, units of measure, and prices",
+  "@itemsSubtitle": {
+    "description": "Subtitle for items catalog screen"
+  },
+  "itemsSearchHint": "Search by name or code",
+  "@itemsSearchHint": {
+    "description": "Search field hint in items catalog"
+  },
+  "itemsEmptyTitle": "No items in catalog yet",
+  "@itemsEmptyTitle": {
+    "description": "Title for empty items catalog"
+  },
+  "itemsEmptyMessage": "Add the first catalog item",
+  "@itemsEmptyMessage": {
+    "description": "Message for empty items catalog"
+  },
+  "itemsAddItem": "Add item",
+  "@itemsAddItem": {
+    "description": "Action button to add a new item"
+  },
+  "itemsCreateTitle": "New item",
+  "@itemsCreateTitle": {
+    "description": "Dialog title for creating a new item"
+  },
+  "itemsNameLabel": "Item name",
+  "@itemsNameLabel": {
+    "description": "Label for item name field"
+  },
+  "itemsNameHint": "Two-door wardrobe",
+  "@itemsNameHint": {
+    "description": "Hint for item name field"
+  },
+  "itemsNameRequired": "Enter item name",
+  "@itemsNameRequired": {
+    "description": "Validation error when item name is empty"
+  },
+  "itemsCodeLabel": "Item code (optional)",
+  "@itemsCodeLabel": {
+    "description": "Label for item code field"
+  },
+  "itemsCodeHint": "CAB-01",
+  "@itemsCodeHint": {
+    "description": "Hint for item code field"
+  },
+  "itemsUnitLabel": "Unit of measure",
+  "@itemsUnitLabel": {
+    "description": "Label for unit of measure dropdown"
+  },
+  "itemsUnitHint": "Select unit",
+  "@itemsUnitHint": {
+    "description": "Hint for unit of measure dropdown"
+  },
+  "itemsUnitRequired": "Unit of measure is required",
+  "@itemsUnitRequired": {
+    "description": "Validation error when unit of measure is empty"
+  },
+  "itemsDescriptionLabel": "Description",
+  "@itemsDescriptionLabel": {
+    "description": "Label for item description field"
+  },
+  "itemsDescriptionHint": "Materials, hardware, notes",
+  "@itemsDescriptionHint": {
+    "description": "Hint for item description field"
+  },
+  "itemsPriceLabel": "Sale price (optional)",
+  "@itemsPriceLabel": {
+    "description": "Label for sale price field"
+  },
+  "itemsPriceHint": "0 ₸",
+  "@itemsPriceHint": {
+    "description": "Hint for sale price field"
+  },
+  "itemsPriceOnRequest": "Price on request",
+  "@itemsPriceOnRequest": {
+    "description": "Label shown when item has no preset price"
+  },
+  "itemsPriceLabelShort": "Price",
+  "@itemsPriceLabelShort": {
+    "description": "Short label for price"
+  },
+  "itemsSetPriceTitle": "Change price",
+  "@itemsSetPriceTitle": {
+    "description": "Dialog title for setting/changing item price"
+  },
+  "itemsSetPriceAction": "Set price",
+  "@itemsSetPriceAction": {
+    "description": "Action button in set price dialog"
+  },
+  "itemsPriceRequired": "Enter price",
+  "@itemsPriceRequired": {
+    "description": "Validation error when price is required but empty"
+  },
+  "itemsPriceInvalid": "Invalid price amount",
+  "@itemsPriceInvalid": {
+    "description": "Validation error for invalid price format"
+  },
+  "itemsPriceUpdated": "Price updated",
+  "@itemsPriceUpdated": {
+    "description": "Success message when item price is updated"
+  },
+  "itemsCreateSuccess": "Item added",
+  "@itemsCreateSuccess": {
+    "description": "Success message when a new item is created"
+  },
+  "itemsUnitsLoading": "Loading units...",
+  "@itemsUnitsLoading": {
+    "description": "Placeholder while loading units of measure"
+  },
+  "itemsUnitsLoadError": "Could not load units of measure",
+  "@itemsUnitsLoadError": {
+    "description": "Error message when units of measure fail to load"
+  },
+  "itemsCatalogAction": "Items catalog",
+  "@itemsCatalogAction": {
+    "description": "Action label to open items catalog from quotation"
+  },
+  "navItems": "Items",
+  "@navItems": {
+    "description": "Navigation label for items and prices"
+  },
   "settingsEnquiryFlowTitle": "Enquiry pipeline",
   "@settingsEnquiryFlowTitle": {
     "description": "Settings tile title for enquiry flow"

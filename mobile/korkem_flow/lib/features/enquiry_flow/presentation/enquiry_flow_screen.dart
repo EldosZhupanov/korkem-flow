@@ -1162,9 +1162,23 @@ class _Step3ProposalSectionState extends ConsumerState<_Step3ProposalSection> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SectionLabel('3. ${l10n.enquiryFlowStep3}'),
-                StatusChip(
-                  label: isDone ? l10n.qDraft : l10n.qOpen,
-                  intent: isDone ? StatusIntent.success : StatusIntent.info,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!isDone)
+                      TextButton.icon(
+                        icon: const Icon(
+                          AppIcons.item,
+                          size: AppIconSize.small,
+                        ),
+                        label: Text(l10n.itemsCatalogAction),
+                        onPressed: () => context.push(Routes.items),
+                      ),
+                    StatusChip(
+                      label: isDone ? l10n.qDraft : l10n.qOpen,
+                      intent: isDone ? StatusIntent.success : StatusIntent.info,
+                    ),
+                  ],
                 ),
               ],
             ),

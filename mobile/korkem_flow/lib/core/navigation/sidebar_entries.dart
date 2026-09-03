@@ -119,6 +119,11 @@ const sidebarSectionEntries = <SidebarEntry>[
     icon: AppIcons.profile,
     labelOf: _profile,
   ),
+  SidebarPage(
+    path: Routes.items,
+    icon: AppIcons.item,
+    labelOf: _items,
+  ),
 ];
 
 /// Pinned to the bottom, where every application has taught people to look.
@@ -144,4 +149,5 @@ String _tasks(AppLocalizations l10n) => l10n.navTasks;
 String _production(AppLocalizations l10n) => l10n.navOperations;
 String _clients(AppLocalizations l10n) => l10n.navClients;
 String _profile(AppLocalizations l10n) => l10n.navProfile;
+String _items(AppLocalizations l10n) => l10n.navItems;
 String _settings(AppLocalizations l10n) => l10n.settingsTitle;

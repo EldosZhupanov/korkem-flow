@@ -589,6 +589,99 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось загрузить реквизиты компании';
 
   @override
+  String get itemsTitle => 'Номенклатура и цены';
+
+  @override
+  String get itemsSubtitle => 'Каталог изделий, единицы измерения и цены';
+
+  @override
+  String get itemsSearchHint => 'Поиск по названию или коду';
+
+  @override
+  String get itemsEmptyTitle => 'В каталоге пока нет позиций';
+
+  @override
+  String get itemsEmptyMessage => 'Добавьте первую позицию номенклатуры';
+
+  @override
+  String get itemsAddItem => 'Добавить позицию';
+
+  @override
+  String get itemsCreateTitle => 'Новая позиция';
+
+  @override
+  String get itemsNameLabel => 'Название позиции';
+
+  @override
+  String get itemsNameHint => 'Шкаф распашной двухдверный';
+
+  @override
+  String get itemsNameRequired => 'Введите название позиции';
+
+  @override
+  String get itemsCodeLabel => 'Код / артикул (необязательно)';
+
+  @override
+  String get itemsCodeHint => 'CAB-01';
+
+  @override
+  String get itemsUnitLabel => 'Единица измерения';
+
+  @override
+  String get itemsUnitHint => 'Выберите единицу';
+
+  @override
+  String get itemsUnitRequired => 'Единица измерения обязательна';
+
+  @override
+  String get itemsDescriptionLabel => 'Описание';
+
+  @override
+  String get itemsDescriptionHint => 'Материалы, фурнитура, особенности';
+
+  @override
+  String get itemsPriceLabel => 'Цена продажи (необязательно)';
+
+  @override
+  String get itemsPriceHint => '0 ₸';
+
+  @override
+  String get itemsPriceOnRequest => 'Цена по расчёту';
+
+  @override
+  String get itemsPriceLabelShort => 'Цена';
+
+  @override
+  String get itemsSetPriceTitle => 'Изменить цену';
+
+  @override
+  String get itemsSetPriceAction => 'Установить цену';
+
+  @override
+  String get itemsPriceRequired => 'Укажите цену';
+
+  @override
+  String get itemsPriceInvalid => 'Некорректная сумма';
+
+  @override
+  String get itemsPriceUpdated => 'Цена обновлена';
+
+  @override
+  String get itemsCreateSuccess => 'Позиция добавлена';
+
+  @override
+  String get itemsUnitsLoading => 'Загрузка единиц...';
+
+  @override
+  String get itemsUnitsLoadError => 'Не удалось загрузить единицы измерения';
+
+  @override
+  String get itemsCatalogAction => 'Каталог позиций';
+
+  @override
+  String get navItems => 'Номенклатура';
+
+  @override
   String get settingsEnquiryFlowTitle => 'Проводка заявки';
 
   @override
