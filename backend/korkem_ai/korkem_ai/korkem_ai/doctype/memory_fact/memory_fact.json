@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-09-04 03:40:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "scope",
+  "owner_key",
+  "company",
+  "category",
+  "column_break_fact",
+  "subject",
+  "predicate",
+  "value",
+  "section_break_origin",
+  "source_type",
+  "source_reference",
+  "confidence",
+  "column_break_life",
+  "importance",
+  "is_active",
+  "expires_at",
+  "superseded_by",
+  "confirmed_by",
+  "confirmed_at"
+ ],
+ "fields": [
+  {
+   "description": "Чей это факт: всей компании или одного человека. Разные предметы, и смешивать их нельзя — «мы считаем ЛДСП в квадратных метрах» верно для всех, «Нурлан предпочитает казахский» только для него.",
+   "fieldname": "scope",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Область",
+   "options": "company\nuser",
+   "reqd": 1
+  },
+  {
+   "description": "Пользователь для области user. Для company пусто: владелец факта — сама компания.",
+   "fieldname": "owner_key",
+   "fieldtype": "Link",
+   "label": "Человек",
+   "options": "User"
+  },
+  {
+   "description": "Заполняется всегда, даже когда узел обслуживает одну компанию. Поле, добавленное потом, требует переноса данных; поле, стоящее с самого начала, — нет.",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Компания",
+   "options": "Company"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Категория",
+   "options": "role\nresponsibility\npreference\nterminology\nprocess\ndecision\nequipment\nrule",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_fact",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "О ком или о чём. «Нурлан», «ЛДСП», «раскрой».",
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "О чём",
+   "reqd": 1
+  },
+  {
+   "description": "Что именно утверждается. «должность», «единица измерения», «срок по умолчанию».",
+   "fieldname": "predicate",
+   "fieldtype": "Data",
+   "label": "Что",
+   "reqd": 1
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Значение",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_origin",
+   "fieldtype": "Section Break",
+   "label": "Откуда взялось"
+  },
+  {
+   "description": "Человек должен видеть источник, иначе не может решить, верить факту или нет.",
+   "fieldname": "source_type",
+   "fieldtype": "Select",
+   "label": "Источник",
+   "options": "stated\ninferred\nimported",
+   "reqd": 1
+  },
+  {
+   "description": "Разговор, документ или запись, откуда это взято.",
+   "fieldname": "source_reference",
+   "fieldtype": "Data",
+   "label": "Ссылка на источник"
+  },
+  {
+   "default": "0.5",
+   "description": "От нуля до единицы. Сказанное человеком — единица; выведенное нами — меньше.",
+   "fieldname": "confidence",
+   "fieldtype": "Float",
+   "label": "Уверенность",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_life",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.5",
+   "description": "Насколько важно помнить. По ней отбираются факты, когда бюджет контекста мал.",
+   "fieldname": "importance",
+   "fieldtype": "Float",
+   "label": "Важность",
+   "precision": "2"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Действует"
+  },
+  {
+   "description": "После этого времени факт не берётся в контекст. Пусто — не устаревает сам.",
+   "fieldname": "expires_at",
+   "fieldtype": "Datetime",
+   "label": "Действует до"
+  },
+  {
+   "description": "Факт, который пришёл на смену. «Нурлан основной оператор ЧПУ» не должен жить вечно.",
+   "fieldname": "superseded_by",
+   "fieldtype": "Link",
+   "label": "Заменён на",
+   "options": "Memory Fact"
+  },
+  {
+   "description": "Подтверждённый человеком факт живёт дольше выведенного и не устаревает молча.",
+   "fieldname": "confirmed_by",
+   "fieldtype": "Link",
+   "label": "Подтвердил",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "confirmed_at",
+   "fieldtype": "Datetime",
+   "label": "Когда подтверждён",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-04 03:40:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem AI",
+ "name": "Memory Fact",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

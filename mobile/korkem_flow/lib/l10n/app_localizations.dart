@@ -5264,6 +5264,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'free'**
   String get aiCascadeFree;
+
+  /// No description provided for @memoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What KORKEM Knows'**
+  String get memoryTitle;
+
+  /// No description provided for @memorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company knowledge and your work habits'**
+  String get memorySubtitle;
+
+  /// No description provided for @memorySectionCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'About company'**
+  String get memorySectionCompany;
+
+  /// No description provided for @memorySectionUser.
+  ///
+  /// In en, this message translates to:
+  /// **'About me'**
+  String get memorySectionUser;
+
+  /// No description provided for @memoryEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'KORKEM hasn\'t remembered anything yet'**
+  String get memoryEmptyTitle;
+
+  /// No description provided for @memoryEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Knowledge about the workshop, business rules, and your preferences will appear here as the assistant learns.'**
+  String get memoryEmptyBody;
+
+  /// No description provided for @memoryEmptyCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'No company facts yet'**
+  String get memoryEmptyCompany;
+
+  /// No description provided for @memoryEmptyUser.
+  ///
+  /// In en, this message translates to:
+  /// **'No facts about you yet'**
+  String get memoryEmptyUser;
+
+  /// No description provided for @memoryStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get memoryStatusConfirmed;
+
+  /// No description provided for @memoryStatusUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'System inferred'**
+  String get memoryStatusUnconfirmed;
+
+  /// No description provided for @memoryActionView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get memoryActionView;
+
+  /// No description provided for @memoryActionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get memoryActionEdit;
+
+  /// No description provided for @memoryActionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get memoryActionDelete;
+
+  /// No description provided for @memoryActionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get memoryActionConfirm;
+
+  /// No description provided for @memoryActionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get memoryActionSave;
+
+  /// No description provided for @memoryEditDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Fact'**
+  String get memoryEditDialogTitle;
+
+  /// No description provided for @memoryEditHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fact text'**
+  String get memoryEditHint;
+
+  /// No description provided for @memoryDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete fact?'**
+  String get memoryDeleteConfirmTitle;
+
+  /// No description provided for @memoryDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory is easy to delete and cannot be restored. KORKEM will stop using this fact in conversations.'**
+  String get memoryDeleteConfirmBody;
+
+  /// No description provided for @memoryFactUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Fact updated'**
+  String get memoryFactUpdated;
+
+  /// No description provided for @memoryFactConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fact confirmed'**
+  String get memoryFactConfirmed;
+
+  /// No description provided for @memoryFactDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Fact deleted'**
+  String get memoryFactDeleted;
+
+  /// No description provided for @memorySourcePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: {source}'**
+  String memorySourcePrefix(String source);
 }
 
 class _AppLocalizationsDelegate

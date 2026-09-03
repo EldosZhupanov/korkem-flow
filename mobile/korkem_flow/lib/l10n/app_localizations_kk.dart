@@ -2911,4 +2911,77 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get aiCascadeFree => 'тегін';
+
+  @override
+  String get memoryTitle => 'KORKEM не біледі';
+
+  @override
+  String get memorySubtitle => 'Кәсіпорын мен жұмыс әдеттеріңіз туралы жад';
+
+  @override
+  String get memorySectionCompany => 'Кәсіпорын туралы';
+
+  @override
+  String get memorySectionUser => 'Мен туралы';
+
+  @override
+  String get memoryEmptyTitle => 'KORKEM әзірге сіз туралы ештеңе сақтамады';
+
+  @override
+  String get memoryEmptyBody =>
+      'Мұнда ассистент сөйлесу кезінде қолданатын цех, жұмыс ережелері мен қалауларыңыз туралы мәліметтер пайда болады.';
+
+  @override
+  String get memoryEmptyCompany => 'Кәсіпорын туралы мәліметтер әзірге жоқ';
+
+  @override
+  String get memoryEmptyUser => 'Сіз туралы мәліметтер әзірге жоқ';
+
+  @override
+  String get memoryStatusConfirmed => 'Расталды';
+
+  @override
+  String get memoryStatusUnconfirmed => 'Жүйе анықтаған';
+
+  @override
+  String get memoryActionView => 'Қарау';
+
+  @override
+  String get memoryActionEdit => 'Түзету';
+
+  @override
+  String get memoryActionDelete => 'Жою';
+
+  @override
+  String get memoryActionConfirm => 'Растау';
+
+  @override
+  String get memoryActionSave => 'Сақтау';
+
+  @override
+  String get memoryEditDialogTitle => 'Мәліметті түзету';
+
+  @override
+  String get memoryEditHint => 'Мәлімет мәтіні';
+
+  @override
+  String get memoryDeleteConfirmTitle => 'Мәліметті жою керек пе?';
+
+  @override
+  String get memoryDeleteConfirmBody =>
+      'Жадты жою оңай, бірақ қайтару мүмкін емес. KORKEM бұл мәліметті сөйлесу кезінде ескермейтін болады.';
+
+  @override
+  String get memoryFactUpdated => 'Мәлімет жаңартылды';
+
+  @override
+  String get memoryFactConfirmed => 'Мәлімет расталды';
+
+  @override
+  String get memoryFactDeleted => 'Мәлімет жойылды';
+
+  @override
+  String memorySourcePrefix(String source) {
+    return 'Дереккөз: $source';
+  }
 }

@@ -2966,4 +2966,77 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aiCascadeFree => 'бесплатно';
+
+  @override
+  String get memoryTitle => 'Что KORKEM знает';
+
+  @override
+  String get memorySubtitle => 'Память о компании и ваших привычках';
+
+  @override
+  String get memorySectionCompany => 'О компании';
+
+  @override
+  String get memorySectionUser => 'Обо мне';
+
+  @override
+  String get memoryEmptyTitle => 'KORKEM пока ничего о вас не запомнил';
+
+  @override
+  String get memoryEmptyBody =>
+      'Здесь появятся знания о цехе, правилах работы и ваших предпочтениях, которые ассистент использует в разговорах.';
+
+  @override
+  String get memoryEmptyCompany => 'Пока нет фактов о компании';
+
+  @override
+  String get memoryEmptyUser => 'Пока нет фактов о вас';
+
+  @override
+  String get memoryStatusConfirmed => 'Подтверждено';
+
+  @override
+  String get memoryStatusUnconfirmed => 'Выведено системой';
+
+  @override
+  String get memoryActionView => 'Посмотреть';
+
+  @override
+  String get memoryActionEdit => 'Исправить';
+
+  @override
+  String get memoryActionDelete => 'Удалить';
+
+  @override
+  String get memoryActionConfirm => 'Подтвердить';
+
+  @override
+  String get memoryActionSave => 'Сохранить';
+
+  @override
+  String get memoryEditDialogTitle => 'Исправить факт';
+
+  @override
+  String get memoryEditHint => 'Текст факта';
+
+  @override
+  String get memoryDeleteConfirmTitle => 'Удалить факт?';
+
+  @override
+  String get memoryDeleteConfirmBody =>
+      'Удалить память легко, вернуть нельзя. KORKEM перестанет учитывать этот факт в разговорах.';
+
+  @override
+  String get memoryFactUpdated => 'Факт обновлён';
+
+  @override
+  String get memoryFactConfirmed => 'Факт подтверждён';
+
+  @override
+  String get memoryFactDeleted => 'Факт удалён';
+
+  @override
+  String memorySourcePrefix(String source) {
+    return 'Источник: $source';
+  }
 }

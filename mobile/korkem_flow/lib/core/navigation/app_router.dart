@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/enquiry_flow/presentation/enquiry_flow_scre
 import 'package:korkem_flow/features/integration_settings/presentation/integration_settings_screen.dart';
 import 'package:korkem_flow/features/items/presentation/items_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
+import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/delivery_centre_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/operations_screen.dart';
@@ -86,6 +87,7 @@ abstract final class Routes {
   static const channelSettings = '/settings/channels';
   static const deliveryCentre = '/settings/deliveries';
   static const workInstructions = '/settings/instructions';
+  static const memory = '/settings/memory';
   static const orders = '/orders';
 
   /// One order. `:name` is the Frappe document name (`SAL-ORD-…`).
@@ -189,6 +191,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.workInstructions,
         builder: (context, state) => const WorkInstructionsScreen(),
+      ),
+      GoRoute(
+        path: Routes.memory,
+        builder: (context, state) => const MemoryScreen(),
       ),
       GoRoute(
         path: Routes.orders,

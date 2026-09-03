@@ -3397,5 +3397,35 @@
   "updateInstall": "Update",
   "aiCascadeTitle": "Order of asking",
   "aiCascadeSubtitle": "Top down: when one runs out of quota, the next one answers.",
-  "aiCascadeFree": "free"
+  "aiCascadeFree": "free",
+  "memoryTitle": "What KORKEM Knows",
+  "memorySubtitle": "Company knowledge and your work habits",
+  "memorySectionCompany": "About company",
+  "memorySectionUser": "About me",
+  "memoryEmptyTitle": "KORKEM hasn't remembered anything yet",
+  "memoryEmptyBody": "Knowledge about the workshop, business rules, and your preferences will appear here as the assistant learns.",
+  "memoryEmptyCompany": "No company facts yet",
+  "memoryEmptyUser": "No facts about you yet",
+  "memoryStatusConfirmed": "Confirmed",
+  "memoryStatusUnconfirmed": "System inferred",
+  "memoryActionView": "View",
+  "memoryActionEdit": "Edit",
+  "memoryActionDelete": "Delete",
+  "memoryActionConfirm": "Confirm",
+  "memoryActionSave": "Save",
+  "memoryEditDialogTitle": "Edit Fact",
+  "memoryEditHint": "Fact text",
+  "memoryDeleteConfirmTitle": "Delete fact?",
+  "memoryDeleteConfirmBody": "Memory is easy to delete and cannot be restored. KORKEM will stop using this fact in conversations.",
+  "memoryFactUpdated": "Fact updated",
+  "memoryFactConfirmed": "Fact confirmed",
+  "memoryFactDeleted": "Fact deleted",
+  "memorySourcePrefix": "Source: {source}",
+  "@memorySourcePrefix": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  }
 }

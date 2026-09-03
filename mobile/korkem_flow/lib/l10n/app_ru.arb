@@ -1028,5 +1028,35 @@
   "updateInstall": "Обновить",
   "aiCascadeTitle": "Порядок обращения",
   "aiCascadeSubtitle": "Спрашиваем сверху вниз: когда у одной кончается квота, отвечает следующая.",
-  "aiCascadeFree": "бесплатно"
+  "aiCascadeFree": "бесплатно",
+  "memoryTitle": "Что KORKEM знает",
+  "memorySubtitle": "Память о компании и ваших привычках",
+  "memorySectionCompany": "О компании",
+  "memorySectionUser": "Обо мне",
+  "memoryEmptyTitle": "KORKEM пока ничего о вас не запомнил",
+  "memoryEmptyBody": "Здесь появятся знания о цехе, правилах работы и ваших предпочтениях, которые ассистент использует в разговорах.",
+  "memoryEmptyCompany": "Пока нет фактов о компании",
+  "memoryEmptyUser": "Пока нет фактов о вас",
+  "memoryStatusConfirmed": "Подтверждено",
+  "memoryStatusUnconfirmed": "Выведено системой",
+  "memoryActionView": "Посмотреть",
+  "memoryActionEdit": "Исправить",
+  "memoryActionDelete": "Удалить",
+  "memoryActionConfirm": "Подтвердить",
+  "memoryActionSave": "Сохранить",
+  "memoryEditDialogTitle": "Исправить факт",
+  "memoryEditHint": "Текст факта",
+  "memoryDeleteConfirmTitle": "Удалить факт?",
+  "memoryDeleteConfirmBody": "Удалить память легко, вернуть нельзя. KORKEM перестанет учитывать этот факт в разговорах.",
+  "memoryFactUpdated": "Факт обновлён",
+  "memoryFactConfirmed": "Факт подтверждён",
+  "memoryFactDeleted": "Факт удалён",
+  "memorySourcePrefix": "Источник: {source}",
+  "@memorySourcePrefix": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  }
 }

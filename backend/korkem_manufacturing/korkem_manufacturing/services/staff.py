@@ -77,13 +77,22 @@ def members() -> list[dict]:
 		if row["name"] in ("Administrator", "Guest"):
 			continue
 		roles = _roles_of(row["name"])
+		# `get_list` возвращает не всё, что попросили: поля, читать которые
+		# вызывающему не положено, оно вырезает молча. От лица владельца
+		# приходит одно, от лица замерщика — другое, и обращение по ключу
+		# роняет запрос там, где список должен просто показать меньше.
+		#
+		# Найдено CI на чистом стенде: у меня тест шёл от пользователя с более
+		# широкими правами и проходил.
 		people.append(
 			{
 				"email": row["name"],
-				"full_name": row["full_name"] or row["name"],
-				"first_name": row["first_name"] or "",
-				"enabled": bool(row["enabled"]),
-				"creation": row["creation"],
+				"full_name": row.get("full_name") or row["name"],
+				"first_name": row.get("first_name") or "",
+				# Отсутствие поля — не «выключен». Человек, которого мы не
+				# вправе разглядывать целиком, всё ещё работает.
+				"enabled": bool(row.get("enabled", 1)),
+				"creation": row.get("creation"),
 				"position": _position_from(roles),
 				"is_owner": OWNER_ROLE in roles,
 			}

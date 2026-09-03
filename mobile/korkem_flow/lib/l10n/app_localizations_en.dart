@@ -2948,4 +2948,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiCascadeFree => 'free';
+
+  @override
+  String get memoryTitle => 'What KORKEM Knows';
+
+  @override
+  String get memorySubtitle => 'Company knowledge and your work habits';
+
+  @override
+  String get memorySectionCompany => 'About company';
+
+  @override
+  String get memorySectionUser => 'About me';
+
+  @override
+  String get memoryEmptyTitle => 'KORKEM hasn\'t remembered anything yet';
+
+  @override
+  String get memoryEmptyBody =>
+      'Knowledge about the workshop, business rules, and your preferences will appear here as the assistant learns.';
+
+  @override
+  String get memoryEmptyCompany => 'No company facts yet';
+
+  @override
+  String get memoryEmptyUser => 'No facts about you yet';
+
+  @override
+  String get memoryStatusConfirmed => 'Confirmed';
+
+  @override
+  String get memoryStatusUnconfirmed => 'System inferred';
+
+  @override
+  String get memoryActionView => 'View';
+
+  @override
+  String get memoryActionEdit => 'Edit';
+
+  @override
+  String get memoryActionDelete => 'Delete';
+
+  @override
+  String get memoryActionConfirm => 'Confirm';
+
+  @override
+  String get memoryActionSave => 'Save';
+
+  @override
+  String get memoryEditDialogTitle => 'Edit Fact';
+
+  @override
+  String get memoryEditHint => 'Fact text';
+
+  @override
+  String get memoryDeleteConfirmTitle => 'Delete fact?';
+
+  @override
+  String get memoryDeleteConfirmBody =>
+      'Memory is easy to delete and cannot be restored. KORKEM will stop using this fact in conversations.';
+
+  @override
+  String get memoryFactUpdated => 'Fact updated';
+
+  @override
+  String get memoryFactConfirmed => 'Fact confirmed';
+
+  @override
+  String get memoryFactDeleted => 'Fact deleted';
+
+  @override
+  String memorySourcePrefix(String source) {
+    return 'Source: $source';
+  }
 }

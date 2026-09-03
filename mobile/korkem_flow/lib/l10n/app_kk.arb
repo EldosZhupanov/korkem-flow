@@ -1028,5 +1028,35 @@
   "updateInstall": "Жаңарту",
   "aiCascadeTitle": "Сұрау тәртібі",
   "aiCascadeSubtitle": "Жоғарыдан төмен сұраймыз: біреуінің шегі бітсе, келесісі жауап береді.",
-  "aiCascadeFree": "тегін"
+  "aiCascadeFree": "тегін",
+  "memoryTitle": "KORKEM не біледі",
+  "memorySubtitle": "Кәсіпорын мен жұмыс әдеттеріңіз туралы жад",
+  "memorySectionCompany": "Кәсіпорын туралы",
+  "memorySectionUser": "Мен туралы",
+  "memoryEmptyTitle": "KORKEM әзірге сіз туралы ештеңе сақтамады",
+  "memoryEmptyBody": "Мұнда ассистент сөйлесу кезінде қолданатын цех, жұмыс ережелері мен қалауларыңыз туралы мәліметтер пайда болады.",
+  "memoryEmptyCompany": "Кәсіпорын туралы мәліметтер әзірге жоқ",
+  "memoryEmptyUser": "Сіз туралы мәліметтер әзірге жоқ",
+  "memoryStatusConfirmed": "Расталды",
+  "memoryStatusUnconfirmed": "Жүйе анықтаған",
+  "memoryActionView": "Қарау",
+  "memoryActionEdit": "Түзету",
+  "memoryActionDelete": "Жою",
+  "memoryActionConfirm": "Растау",
+  "memoryActionSave": "Сақтау",
+  "memoryEditDialogTitle": "Мәліметті түзету",
+  "memoryEditHint": "Мәлімет мәтіні",
+  "memoryDeleteConfirmTitle": "Мәліметті жою керек пе?",
+  "memoryDeleteConfirmBody": "Жадты жою оңай, бірақ қайтару мүмкін емес. KORKEM бұл мәліметті сөйлесу кезінде ескермейтін болады.",
+  "memoryFactUpdated": "Мәлімет жаңартылды",
+  "memoryFactConfirmed": "Мәлімет расталды",
+  "memoryFactDeleted": "Мәлімет жойылды",
+  "memorySourcePrefix": "Дереккөз: {source}",
+  "@memorySourcePrefix": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  }
 }
