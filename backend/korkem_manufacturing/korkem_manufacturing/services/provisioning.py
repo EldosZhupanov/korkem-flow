@@ -134,29 +134,48 @@ def claim(
 	if not owner_password:
 		frappe.throw("Owner password is required.")
 
-	_run_erpnext_setup(
-		company=company,
-		owner_email=owner_email,
-		owner_name=owner_name,
-		owner_password=owner_password,
-		country=country,
-		currency=currency,
-		timezone=timezone,
-		language=language,
-	)
+	# Everything from here writes what only an administrator may write, and the
+	# caller is `Guest` -- deliberately, because the endpoint has to answer on a
+	# node where nobody has an account yet. ERPNext's wizard is the first to
+	# refuse: it writes `System Settings`, and the failure arrives as
+	#
+	#     User guest does not have access to this document: System Settings
+	#
+	# which reads like a permission bug in KORKEM and is not one. The authority
+	# for this block is the one-time code, and it has just been proven; the
+	# elevation is therefore explicit, starts only after `_verify_code`, and is
+	# undone whatever happens next.
+	#
+	# Found by the first real installation (2026-09-03), not by the suite: every
+	# test here runs as Administrator, so the guest path had never been walked.
+	caller = frappe.session.user
+	frappe.set_user("Administrator")
+	try:
+		_run_erpnext_setup(
+			company=company,
+			owner_email=owner_email,
+			owner_name=owner_name,
+			owner_password=owner_password,
+			country=country,
+			currency=currency,
+			timezone=timezone,
+			language=language,
+		)
 
-	if not is_claimed():
-		# The wizard reports success by making this true. If it is still false
-		# the node is untouched and must stay claimable, so say so plainly
-		# rather than leaving the caller with a green answer and no company.
-		frappe.throw("ERPNext setup did not complete; the node is still unclaimed.")
+		if not is_claimed():
+			# The wizard reports success by making this true. If it is still false
+			# the node is untouched and must stay claimable, so say so plainly
+			# rather than leaving the caller with a green answer and no company.
+			frappe.throw("ERPNext setup did not complete; the node is still unclaimed.")
 
-	name_the_shipping_warehouse(company)
-	owner = _make_owner(owner_email, owner_name, company)
+		name_the_shipping_warehouse(company)
+		owner = _make_owner(owner_email, owner_name, company)
 
-	frappe.db.set_default(CLAIM_CODE_KEY, "")
-	frappe.db.set_default(CLAIM_ATTEMPTS_KEY, "")
-	_audit(company, owner_email)
+		frappe.db.set_default(CLAIM_CODE_KEY, "")
+		frappe.db.set_default(CLAIM_ATTEMPTS_KEY, "")
+		_audit(company, owner_email)
+	finally:
+		frappe.set_user(caller)
 
 	return {
 		"status": "claimed",

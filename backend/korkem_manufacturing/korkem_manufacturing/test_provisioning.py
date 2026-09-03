@@ -160,3 +160,83 @@ class TestTheCompanyAbbreviation(IntegrationTestCase):
 
 	def test_a_nameless_company_still_gets_something_usable(self):
 		self.assertEqual(provisioning._abbreviation("!!!"), "KRK")
+
+
+class TestTheGuestWhoBuildsTheCompany(IntegrationTestCase):
+	"""Присвоение приходит от гостя — и должно строить компанию от админа.
+
+	Найдено первой настоящей установкой 3 сентября 2026, а не этим набором.
+	Приложение дошло до сервера, ввело верный код и получило:
+
+	    User guest does not have access to this document: System Settings
+
+	Читается как дефект прав в KORKEM, и им не является: endpoint открыт гостю
+	намеренно — на неприсвоенном узле аккаунтов ещё нет, — а мастер ERPNext
+	пишет `System Settings`, чего гостю нельзя. Ни один тест этого не поймал,
+	потому что все они идут от Administrator: гостевая дорога не была пройдена
+	ни разу.
+
+	Здесь проверяется ровно то, чего не хватало: кто именно строит компанию, и
+	что вызывающий возвращается на место после — в том числе когда сборка
+	упала.
+	"""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+
+	def _claim_as_guest(self, setup_spy):
+		"""Пройти присвоение от имени гостя, подменив всё, что пишет в базу."""
+		code = None
+		with patch.object(provisioning, "is_claimed", return_value=False):
+			code = provisioning.claim_code()
+
+		frappe.set_user("Guest")
+		with (
+			patch.object(provisioning, "is_claimed", side_effect=[False, True]),
+			patch.object(provisioning, "_run_erpnext_setup", setup_spy),
+			patch.object(provisioning, "name_the_shipping_warehouse"),
+			patch.object(
+				provisioning, "_make_owner", return_value={"user": "x@example.com"}
+			),
+			patch.object(provisioning, "_audit"),
+		):
+			return provisioning.claim(
+				code=code,
+				company="Гостевая проверка",
+				owner_email="guest-claim@example.com",
+				owner_name="Проверка",
+				owner_password="не-читается-никем",
+			)
+
+	def test_the_wizard_runs_as_administrator_not_as_the_guest_who_asked(self):
+		seen = []
+
+		def spy(**_kwargs):
+			seen.append(frappe.session.user)
+
+		self._claim_as_guest(spy)
+
+		self.assertEqual(
+			seen,
+			["Administrator"],
+			"мастер ERPNext должен строить компанию от администратора: гостю "
+			"нельзя писать System Settings",
+		)
+
+	def test_the_caller_is_put_back_afterwards(self):
+		self._claim_as_guest(lambda **_kwargs: None)
+
+		self.assertEqual(frappe.session.user, "Guest")
+
+	def test_the_caller_is_put_back_even_when_the_build_fails(self):
+		def explode(**_kwargs):
+			raise RuntimeError("мастер упал на середине")
+
+		with self.assertRaises(RuntimeError):
+			self._claim_as_guest(explode)
+
+		self.assertEqual(
+			frappe.session.user,
+			"Guest",
+			"повышение прав, которое переживает ошибку, — это дыра, а не удобство",
+		)

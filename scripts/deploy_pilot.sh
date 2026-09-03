@@ -253,6 +253,17 @@ if [ -n "${KORKEM_PUBLIC_HOST:-}" ]; then
   fi
 fi
 
+# A fresh node belongs to nobody, and the first person to type the claim code
+# becomes its owner -- so the code has to reach the installer and nobody else.
+# It used to reach only the node's standard output, mixed in with every request,
+# and the owner of the first real installation could not find it there. One
+# command, asked at the moment somebody is standing at the machine.
+say "Claim"
+"${COMPOSE[@]}" exec -T bench bash -lc \
+  "cd ~/frappe-bench && bench --site $SITE_NAME execute korkem_manufacturing.node_code.show" \
+  2>/dev/null | sed -n '/====/,/====/p;/уже принадлежит/p;/уже выдан/,/новый/p' \
+  || warn "could not ask the node whether it has an owner yet."
+
 say "Done"
 printf '    Site:        %s\n' "$SITE_NAME"
 printf '    Environment: %s\n' "$env_name"
