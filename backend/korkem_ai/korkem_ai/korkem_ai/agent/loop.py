@@ -41,7 +41,7 @@ from dataclasses import dataclass, field
 import frappe
 
 from korkem_ai.korkem_ai.agent import prompt as prompt_module
-from korkem_ai.korkem_ai.orchestrator import llm
+from korkem_ai.korkem_ai.orchestrator import llm, router
 from korkem_ai.korkem_ai.orchestrator.protocol import (
 	AIMessage,
 	AIResponse,
@@ -93,7 +93,11 @@ def run_turn(
 	`approved_calls` are call ids a human has explicitly agreed to; anything
 	requiring confirmation and absent from it stops the turn.
 	"""
-	provider = provider or llm.get_provider()
+	# `provider` передают только тогда, когда вызывающий имел в виду именно его:
+	# проверка соединения, тест, разбор одного случая. Обычный ход модель себе
+	# не выбирает — её выбирает роутер, и он же меняет её, когда у первой
+	# кончилась квота.
+	pinned = provider
 	approved_calls = approved_calls or set()
 	messages = list(history)
 	executed: list[dict] = []
@@ -106,8 +110,22 @@ def run_turn(
 	)
 	tools = registry.offered_to()
 
+	def complete_once():
+		"""Одно обращение к модели — своей или выбранной роутером.
+
+		Инструменты выполняются ниже, между обращениями. Поэтому смена модели
+		внутри хода не может выполнить действие дважды: всё уже сделанное лежит
+		в `messages` и уходит следующей модели как факт. Это свойство держится
+		на том, что роутер стоит здесь, а не оборачивает весь ход.
+		"""
+		if pinned is not None:
+			return _complete(pinned, system, messages, tools, on_event)
+		return router.complete(
+			lambda adapter: _complete(adapter, system, messages, tools, on_event)
+		)
+
 	for _ in range(MAX_ITERATIONS):
-		response = _complete(provider, system, messages, tools, on_event)
+		response = complete_once()
 		usage_total = _add_usage(usage_total, response.usage)
 
 		if not response.wants_tools:

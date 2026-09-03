@@ -34,8 +34,15 @@ No implementation code was written or modified to produce this ADR set, per the 
 | [0024](./ADR-0024-node-runs-on-wsl2.md) | Узел работает на WSL2, на компьютере, который у клиента уже есть | Принято |
 | [0025](./ADR-0025-cloud-relays-never-stores.md) | Облако передаёт, но не хранит | Принято |
 | [0026](./ADR-0026-node-to-cloud-tunnel.md) | Исходящий туннель от узла к облаку | Предложено |
+| [0027](./ADR-0027-claiming-an-unconfigured-node.md) | Присвоение неприсвоенного узла | Принято |
+| [0028](./ADR-0028-ai-through-korkem-gateway.md) | Модели вызывает KORKEM, а не завод | **Отменено ADR-0029** в тот же день |
+| [0029](./ADR-0029-each-company-brings-its-own-keys.md) | Ключи приносит компания, а не мы | Принято |
 
-26 ADRs total: the 15 required by the master prompt, plus 8 identified as necessary during authoring and validation (0016-0023), and 3 product decisions added later (0024-0026).
+29 ADRs total: the 15 required by the master prompt, plus 8 identified as necessary during authoring and validation (0016-0023), and 5 product decisions added later (0024-0029).
+
+**ADR-0028 отменено ADR-0029 в тот же день.** Оно оставлено целиком, а не
+удалено: пара решений показывает, почему выбранный путь выбран. `ADR-0025`
+(«облако передаёт, но не хранит») в итоге остался в силе полностью.
 
 ## Collective Validation Pass
 

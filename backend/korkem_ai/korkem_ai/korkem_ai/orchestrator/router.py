@@ -1,126 +1,170 @@
 # Copyright (c) 2026, KORKEM and contributors
 # For license information, please see license.txt
-"""The AI Orchestrator's router.
+"""Какая модель отвечает на этот вызов, и что делать, когда она не смогла.
 
-Per ADR-0003 this holds routing logic only -- classify the message, dispatch to
-the skill that owns that intent, record what happened on the conversation. It
-contains no business rules and writes no business data; skills produce Pending
-Actions and the domain layer executes them on approval (ADR-0015).
+## Зачем
 
-Per ADR-0016 the agent skills are logical roles in this one process, not
-separate services.
+Бесплатный тариф Gemini — двадцать обращений в сутки на модель. Один вопрос
+ассистенту стоит трёх, значит владелец получает шесть-семь вопросов и тишину до
+завтра. Бесплатная GLM на OpenRouter делит лимит со всем миром и отвечает
+`429`, когда кастрюля пуста. Ни то, ни другое не чинится с нашей стороны — но
+чинится тем, что моделей больше одной.
+
+Правило простое и взято не из моды: **самая дешёвая модель, которая справится.**
+Дорогая — когда дешёвая не смогла. Так работают RouteLLM и FrugalGPT, и так
+экономия получается кратной, а не процентной.
+
+## Что здесь есть и чего пока нет
+
+Есть **цепочка по стоимости**: провайдеры пробуются от дешёвого к дорогому, и
+отказ по исчерпанной квоте или недоступности переводит вызов к следующему.
+Это то, что нужно владельцу сегодня: Gemini кончился на двадцатом вопросе —
+следующий ответ приходит от другой модели, а не «нет связи».
+
+Нет **выбора по сложности задачи**: «эта задача простая, эта требует
+рассуждения». Для него нужен классификатор, которого у нас пока нет, и делать
+вид, что он есть, — хуже, чем не делать его. Порядок сегодня задаёт цена,
+записанная в самом провайдере, а не догадка о задаче.
+
+## Почему переключение не может создать заказ дважды
+
+Это единственное место, где ошибка стоила бы денег клиента, и оно решается не
+осторожностью, а тем, где стоит роутер.
+
+Инструменты выполняет цикл агента, **между** обращениями к модели. Роутер
+подменяет только само обращение. К моменту переключения всё, что уже
+выполнено, лежит в истории сообщений и уходит следующей модели как факт: она
+видит, что заказ создан, и не создаёт его снова. Повторно вызывается разговор,
+а не действие.
+
+Поэтому здесь нет ни «идемпотентности», ни защёлок: их не требуется, пока
+роутер стоит там, где стоит. Сдвинуть его наружу, обернув повтором весь ход, —
+и повторный счёт клиенту станет вопросом времени.
 """
+
+from __future__ import annotations
 
 import frappe
 
-from korkem_ai.korkem_ai import budget, usage
-from korkem_ai.korkem_ai.agents import sales_agent
-from korkem_ai.korkem_ai.orchestrator import intent as intent_module, llm
+from korkem_ai.korkem_ai import errors
+from korkem_ai.korkem_ai.orchestrator import llm
 
-# intent -> handler. Sprint 1 implements the sales path end to end; the other
-# intents are recognised (so they aren't misrouted into it) and answered with a
-# holding reply until their own skills land.
-SKILL_ROUTES = {
-	"new_order_inquiry": sales_agent.handle_inquiry,
-}
+PROVIDER_DOCTYPE = "AI Provider"
 
-FALLBACK_REPLIES = {
-	"order_status": "Thanks! Let me check on your order and get back to you shortly.",
-	"general_question": "Thanks for your message! Someone from our team will reply shortly.",
-	"other": "Thanks for reaching out to KORKEM! How can we help you today?",
-}
+#: Отказы, после которых имеет смысл спросить другую модель.
+#:
+#: Кончившаяся квота, лежащий провайдер и молчание по таймауту — не наши ошибки
+#: и у другой модели их может не быть.
+RETRYABLE = (errors.RateLimited, errors.ProviderUnavailable, errors.AITimeout)
 
-
-def handle_message(
-	conversation_name: str,
-	message_text: str,
-	request_id: str | None = None,
-	channel: str = "App",
-) -> dict:
-	"""Route one inbound customer message. Returns a summary of what was done."""
-	conversation = frappe.get_doc("Agent Conversation", conversation_name)
-	try:
-		budget.check("Guest")
-	except budget.BudgetExceeded as exc:
-		reply = str(exc)
-		conversation.add_message("Agent", reply)
-		return {"status": "refused", "handled": False, "reply": reply}
-
-	# Resolved here only so the spend can be attributed to a provider and a
-	# model. That is an accounting need, and accounting must never break the
-	# work it accounts for — the same rule `usage.record_turn` exists to hold.
-	#
-	# Raising here turned a configuration problem into an unexplained routing
-	# failure: `AINotConfigured` escaped the whole sales path even when the
-	# caller had supplied its own classifier and no provider was needed at all.
-	# With `None`, `classify` falls back to `llm.get_provider()` exactly as it
-	# did before, and says so in its own words if there is nothing to fall back
-	# to.
-	adapter = None
-	try:
-		adapter = llm.resolve(None, None)
-	except Exception:
-		pass
-
-	try:
-		classified = intent_module.classify(message_text, provider=adapter)
-	except Exception:
-		usage.record_failure(
-			adapter=adapter,
-			turn_id=request_id,
-			request_id=request_id,
-			conversation=conversation_name,
-			channel=channel,
-			user="Guest",
-		)
-		raise
-
-	usage.record_turn(
-		adapter,
-		adapter=adapter,
-		turn_id=request_id,
-		request_id=request_id,
-		conversation=conversation_name,
-		channel=channel,
-		user="Guest",
-	)
-	intent = classified["intent"]
-
-	conversation.add_message("System", f"Classified intent: {intent}")
-
-	handler = SKILL_ROUTES.get(intent)
-	if not handler:
-		reply = FALLBACK_REPLIES.get(intent, FALLBACK_REPLIES["other"])
-		conversation.add_message("Agent", reply)
-		return {"intent": intent, "handled": False, "reply": reply}
-
-	action = handler(conversation_name, classified)
-	conversation.add_message(
-		"Agent",
-		"Thanks! I've prepared a quote for our team to review — we'll confirm shortly.",
-	)
-	return {"intent": intent, "handled": True, "pending_action": action.name}
+#: Отказы, после которых переключаться бессмысленно и вредно.
+#:
+#: Неверный ключ, слишком длинный контекст и неправильный запрос повторятся у
+#: всех: у следующей модели тот же контекст и тот же запрос. Перебирать
+#: провайдеров ради одного и того же отказа — это платить за него несколько раз
+#: и показать человеку последнюю ошибку вместо настоящей.
+FINAL = (errors.AIAuthError, errors.ContextTooLarge, errors.InvalidToolArguments)
 
 
-def handle_message_async(
-	conversation_name: str,
-	message_text: str,
-	request_id: str | None = None,
-	channel: str = "App",
-):
-	"""Queue routing as a background job.
+class NoProviderAnswered(errors.AIError):
+	"""Все модели цепочки отказали. Несёт причину первой — она объясняет больше."""
 
-	Per ADR-0009 an LLM call is a third-party call with unbounded latency and must
-	never block a request handler -- the WhatsApp webhook returns immediately and
-	the orchestrator runs here.
+
+def chain(preferred: str | None = None) -> list[dict]:
+	"""Провайдеры по порядку: сначала дешёвые.
+
+	Порядок задаёт цена, записанная в самом провайдере, а не наше мнение о нём.
+	Провайдер без цены считается бесплатным и идёт первым — это верно для
+	бесплатных тарифов и для локальной модели, и неверно только там, где цену
+	забыли проставить. Забытая цена стоит одного лишнего обращения, а не
+	неправильного счёта.
+
+	`preferred` ставится в голову цепочки, кем бы он ни был: человек, явно
+	назвавший провайдера, имел в виду его, а не наш порядок.
 	"""
-	frappe.enqueue(
-		"korkem_ai.korkem_ai.orchestrator.router.handle_message",
-		queue="long",
-		conversation_name=conversation_name,
-		message_text=message_text,
-		request_id=request_id,
-		channel=channel,
-		job_id=request_id,
-		deduplicate=bool(request_id),
+	rows = frappe.get_all(
+		PROVIDER_DOCTYPE,
+		filters={"enabled": 1},
+		fields=["name", "model", "input_rate_per_1k", "output_rate_per_1k"],
 	)
+
+	def cost(row) -> float:
+		# Один вход к четырём выходам — грубо, но это соотношение обычного
+		# разговора, и оно ближе к правде, чем считать их поровну.
+		return (row["input_rate_per_1k"] or 0) + 4 * (row["output_rate_per_1k"] or 0)
+
+	rows.sort(key=lambda row: (cost(row), row["name"]))
+
+	if preferred:
+		rows.sort(key=lambda row: row["name"] != preferred)
+
+	return rows
+
+
+def complete(call, *, preferred: str | None = None, on_switch=None):
+	"""Выполнить одно обращение к модели, перебирая цепочку при отказе.
+
+	`call` получает готовый адаптер и делает с ним ровно один вызов. Всё, что
+	между вызовами — выполнение инструментов, история, подтверждения, — остаётся
+	снаружи и не повторяется. Смотри заголовок модуля: на этом и держится то,
+	что переключение не может выполнить действие дважды.
+	"""
+	attempts = chain(preferred)
+	if not attempts:
+		errors.throw(
+			"Ни один провайдер ИИ не включён.", errors.AIErrorCode.NOT_CONFIGURED
+		)
+
+	first_failure = None
+	for index, row in enumerate(attempts):
+		try:
+			adapter = llm.resolve(row["name"], row["model"])
+		except errors.AIError as exc:
+			# Провайдер включён, но настроен наполовину. Это не повод обрывать
+			# цепочку — это повод пройти мимо него.
+			first_failure = first_failure or exc
+			continue
+
+		try:
+			return call(adapter)
+		except FINAL:
+			# Ответ будет тем же у всех. Отдаём его как есть, не тратя чужие
+			# квоты на повторение одной и той же ошибки.
+			raise
+		except RETRYABLE as exc:
+			first_failure = first_failure or exc
+			_record(row["name"], exc)
+			if on_switch and index + 1 < len(attempts):
+				on_switch(row["name"], attempts[index + 1]["name"], exc)
+			continue
+
+	raise NoProviderAnswered(
+		"Ни одна из моделей не ответила. "
+		f"Первая причина: {first_failure}"
+		if first_failure
+		else "Ни одна из моделей не ответила."
+	)
+
+
+def _record(provider: str, exc: Exception) -> None:
+	"""Запомнить отказ в самом провайдере.
+
+	Не ради статистики: владелец должен видеть, какая модель кончилась и когда,
+	не открывая журналов. Без этого «ассистент стал медленнее» остаётся
+	догадкой.
+	"""
+	try:
+		if frappe.db.exists(PROVIDER_DOCTYPE, provider):
+			frappe.db.set_value(
+				PROVIDER_DOCTYPE,
+				provider,
+				{
+					"last_tested_at": frappe.utils.now_datetime(),
+					"last_test_ok": 0,
+					"last_test_error": str(exc)[:500],
+				},
+				update_modified=False,
+			)
+	except Exception:
+		# Запись о неудаче не имеет права стать второй неудачей.
+		pass

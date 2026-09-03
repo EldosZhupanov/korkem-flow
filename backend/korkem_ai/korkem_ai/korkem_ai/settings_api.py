@@ -221,6 +221,44 @@ def list_models(provider: str | None = None) -> dict:
 	return {"provider": name, "supported": True, "models": lister()}
 
 
+@frappe.whitelist()
+def cascade() -> list[dict]:
+	"""Порядок, в котором спрашиваются модели, — тот же, что применит роутер.
+
+	Владельцу нужно видеть каскад целиком, а не список настроек: «сначала эта,
+	если кончилась — эта, потом эта». Иначе включённый провайдер и работающий
+	провайдер выглядят одинаково, а разницу человек узнаёт в тот момент, когда
+	ассистент замолчал.
+
+	Считается тем же `router.chain`, что и решает на самом деле: два места,
+	отвечающие на один вопрос по-разному, однажды разойдутся.
+	"""
+	frappe.only_for("System Manager")
+
+	from korkem_ai.korkem_ai.orchestrator import router
+
+	rows = []
+	for position, row in enumerate(router.chain(), start=1):
+		state = frappe.db.get_value(
+			PROVIDER_DOCTYPE,
+			row["name"],
+			["last_test_ok", "last_test_error", "last_tested_at"],
+			as_dict=True,
+		) or {}
+		rows.append(
+			{
+				"position": position,
+				"provider": row["name"],
+				"model": row["model"],
+				"free": not (row["input_rate_per_1k"] or row["output_rate_per_1k"]),
+				"last_ok": bool(state.get("last_test_ok")),
+				"last_error": (state.get("last_test_error") or "")[:200],
+				"last_tested_at": state.get("last_tested_at"),
+			}
+		)
+	return rows
+
+
 def _record(provider: str, ok: bool, error: str | None = None):
 	if frappe.db.exists(PROVIDER_DOCTYPE, provider):
 		frappe.get_doc(PROVIDER_DOCTYPE, provider).record_test(ok=ok, error=error)
