@@ -63,11 +63,22 @@ class SessionController extends AsyncNotifier<Session> {
             : _rebind(credentials, user),
       );
     } on AuthFailure {
+      // Единственная причина забыть человека: сервер сказал, что он не тот, за
+      // кого себя выдаёт. Всё остальное — наши трудности, а не его.
       await store.clear();
       return Session(serverUrl: serverUrl);
-    } on NetworkFailure {
-      // Offline launch: trust the stored credential rather than throwing the
-      // user back to a login screen they cannot complete without a network.
+    } on Object {
+      // Сюда попадает всё прочее: нет сети, 500, разрыв на середине, ответ не
+      // того вида. Раньше отсюда наверх уходило исключение, провайдер сессии
+      // становился ошибкой, роутер видел «не вошёл» и показывал экран входа —
+      // человек вводил почту и пароль заново из-за чужой пятисотки.
+      //
+      // Владелец описал это как «когда я вышел и опять захожу, всегда
+      // спрашивает мою почту и пароль». Учётные данные при этом на месте:
+      // приложение их не потеряло, оно решило, что они не годятся.
+      //
+      // Теперь сохранённые данные остаются, и первый же настоящий запрос
+      // покажет, живы они или нет — если нет, вернётся `AuthFailure` выше.
       return Session(serverUrl: serverUrl, credentials: credentials);
     }
   }

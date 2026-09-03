@@ -1,7 +1,7 @@
 name: korkem_flow
 description: "KORKEM Flow — mobile client for the KORKEM furniture manufacturing OS."
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.2.0+2
 
 environment:
   sdk: ^3.12.2
@@ -36,6 +36,9 @@ dependencies:
   # Material 3's native icon set; variable fill axis drives selected state
   material_symbols_icons: ^4.2960.0
   meta: ^1.16.0
+  open_filex: ^4.7.0
+  package_info_plus: ^10.2.1
+  path_provider: ^2.1.6
   shared_preferences: ^2.5.5
   # The assistant's replies arrive on Frappe's socket.io channel rather than
   # on the HTTP response: an LLM call is queued server-side (ADR-0009), so

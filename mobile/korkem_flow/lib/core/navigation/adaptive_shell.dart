@@ -8,6 +8,7 @@ import 'package:korkem_flow/core/api/mutation_outbox_banner.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/navigation/app_shell_scope.dart';
 import 'package:korkem_flow/core/navigation/app_sidebar.dart';
+import 'package:korkem_flow/core/updates/update_banner.dart';
 
 /// Top-level chrome: a drawer on a phone, a permanent panel on a wide screen.
 ///
@@ -120,6 +121,7 @@ class _AdaptiveShellState extends ConsumerState<AdaptiveShell>
 
   Widget _content() => Column(
     children: [
+      const UpdateBanner(),
       const MutationOutboxBanner(),
       Expanded(child: widget.navigationShell),
     ],

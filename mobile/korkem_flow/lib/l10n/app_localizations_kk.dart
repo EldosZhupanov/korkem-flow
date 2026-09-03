@@ -2893,4 +2893,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String workstationDuration(String minutes) {
     return '$minutes мин';
   }
+
+  @override
+  String updateAvailable(String version) {
+    return '$version жаңартуы қолжетімді';
+  }
+
+  @override
+  String get updateInstall => 'Жаңарту';
 }

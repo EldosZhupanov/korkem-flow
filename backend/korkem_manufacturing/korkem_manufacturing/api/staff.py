@@ -9,6 +9,18 @@ import frappe
 from korkem_manufacturing.services import staff as service
 
 
+@frappe.whitelist()
+def members() -> list[dict]:
+	"""Кто в компании и кем работает."""
+	return service.members()
+
+
+@frappe.whitelist()
+def can_invite() -> bool:
+	"""Может ли спрашивающий звать людей."""
+	return service.can_invite()
+
+
 @frappe.whitelist(methods=["POST"])
 def change_position(email: str, position: str) -> dict:
 	"""Сменить должность человека — то есть набор его прав."""

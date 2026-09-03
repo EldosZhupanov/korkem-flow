@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
-import 'package:korkem_flow/core/api/frappe_query.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
 
 final teamRepositoryProvider = Provider<TeamRepository>((ref) {
@@ -18,6 +17,8 @@ class TeamRepository {
   static const positionsEndpoint =
       'korkem_manufacturing.api.invitations.positions';
   static const inviteEndpoint = 'korkem_manufacturing.api.invitations.invite';
+  static const membersEndpoint = 'korkem_manufacturing.api.staff.members';
+  static const canInviteEndpoint = 'korkem_manufacturing.api.staff.can_invite';
   static const changePositionEndpoint =
       'korkem_manufacturing.api.staff.change_position';
   static const deactivateEndpoint = 'korkem_manufacturing.api.staff.deactivate';
@@ -45,64 +46,37 @@ class TeamRepository {
         .toList(growable: false);
   }
 
-  /// Fetches system users for the factory and resolves their assigned roles.
+  /// Кто в компании и кем работает — по ответу сервера, а не по догадке.
+  ///
+  /// Раньше здесь было два запроса: список людей и отдельно их роли из
+  /// `Has Role`. Вторая — детская таблица, и Frappe закрывает её даже от
+  /// владельца компании. Отказ ловился пустым `catch`, роли приходили пустыми,
+  /// должность выводилась из пустоты — и владелец видел себя «рабочим цеха», а
+  /// кнопка «Пригласить сотрудника» не появлялась вовсе.
+  ///
+  /// Должность считает сервер: он и раздаёт роли, и знает, кто владелец.
   Future<List<TeamMember>> fetchTeamMembers() async {
-    final userRows = await _client.getList(
-      'User',
-      const FrappeQuery(
-        fields: [
-          'name',
-          'email',
-          'first_name',
-          'full_name',
-          'enabled',
-          'user_type',
-          'creation',
-        ],
-        filters: [
-          FrappeFilter.equals('user_type', 'System User'),
-        ],
-        orderBy: 'creation desc',
-        limitPageLength: 100,
-      ),
-    );
+    final response = await _client.callMethod(membersEndpoint);
+    final rows = response['message'] ?? response['data'];
 
-    final filteredUsers = userRows
-        .where((row) {
-          final name = '${row['name'] ?? ''}'.trim();
-          return name != 'Administrator' && name != 'Guest';
-        })
-        .toList(growable: false);
-
-    final rolesByUser = <String, List<String>>{};
-    try {
-      final roleRows = await _client.getList(
-        'Has Role',
-        const FrappeQuery(
-          fields: ['parent', 'role'],
-          filters: [FrappeFilter.equals('parenttype', 'User')],
-          limitPageLength: 0,
-        ),
+    if (rows is! List) {
+      throw const ServerFailure(
+        'Сервер не вернул список сотрудников. Показывать пустую команду там, '
+        'где люди есть, — хуже, чем сказать об этом.',
       );
-      for (final row in roleRows) {
-        final parent = '${row['parent'] ?? ''}';
-        final role = '${row['role'] ?? ''}';
-        if (parent.isNotEmpty && role.isNotEmpty) {
-          rolesByUser.putIfAbsent(parent, () => []).add(role);
-        }
-      }
-    } on Object catch (_) {
-      // If Has Role is not queried directly, we proceed with User roles
     }
 
-    return filteredUsers
-        .map(
-          (row) => TeamMember.fromJson(
-            row,
-            roles: rolesByUser['${row['name'] ?? ''}'] ?? const [],
-          ),
-        )
+    return rows
+        .whereType<Map<Object?, Object?>>()
+        .map((e) => TeamMember.fromJson(Map<String, dynamic>.from(e)))
         .toList(growable: false);
+  }
+
+  /// Может ли вошедший звать людей. Ответ сервера, одним словом.
+  Future<bool> canInvite() async {
+    final response = await _client.callMethod(canInviteEndpoint);
+    final value = response['message'] ?? response['data'];
+    return value == true || value == 1;
   }
 
   /// Creates a company-bound employee with the specific position.

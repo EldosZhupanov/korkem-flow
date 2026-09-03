@@ -1016,5 +1016,14 @@
   "workstationDueOn": "Мерзімі: {date}",
   "workstationItemLabel": "Бұйым: {item}",
   "workstationQtyLabel": "Саны: {qty}",
-  "workstationDuration": "{minutes} мин"
+  "workstationDuration": "{minutes} мин",
+  "updateAvailable": "{version} жаңартуы қолжетімді",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstall": "Жаңарту"
 }

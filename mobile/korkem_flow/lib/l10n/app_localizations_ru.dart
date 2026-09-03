@@ -2948,4 +2948,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String workstationDuration(String minutes) {
     return '$minutes мин';
   }
+
+  @override
+  String updateAvailable(String version) {
+    return 'Доступно обновление $version';
+  }
+
+  @override
+  String get updateInstall => 'Обновить';
 }

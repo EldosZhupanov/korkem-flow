@@ -136,6 +136,47 @@ void main() {
       expect(session.isAuthenticated, isTrue);
       expect(store.cleared, isFalse);
     });
+
+    test('чужая пятисотка при запуске не выкидывает на экран входа', () async {
+      // Владелец: «когда я вышел и опять захожу, всегда спрашивает мою почту и
+      // пароль». Учётные данные при этом лежали на месте — приложение решало,
+      // что они не годятся, из-за ошибки, которая к ним отношения не имеет.
+      //
+      // Раньше `build` ловил только «сессия истекла» и «нет сети»; всё
+      // остальное уходило наверх, провайдер сессии становился ошибкой, роутер
+      // видел «не вошёл». Пятисотка на сервере читалась как «вас тут не знают».
+      final store = _FakeStore(credentials: _stored, serverUrl: 'https://s.kz');
+      when(
+        () => repository.verify(
+          baseUrl: any(named: 'baseUrl'),
+          credentials: any(named: 'credentials'),
+        ),
+      ).thenThrow(const ServerFailure('Internal Server Error'));
+
+      final session = await containerWith(store).read(sessionProvider.future);
+
+      expect(session.isAuthenticated, isTrue);
+      expect(
+        store.cleared,
+        isFalse,
+        reason: 'забыть человека вправе только сервер, сказавший «это не вы»',
+      );
+    });
+
+    test('«это не вы» — единственная причина забыть учётные данные', () async {
+      final store = _FakeStore(credentials: _stored, serverUrl: 'https://s.kz');
+      when(
+        () => repository.verify(
+          baseUrl: any(named: 'baseUrl'),
+          credentials: any(named: 'credentials'),
+        ),
+      ).thenThrow(const AuthFailure('expired'));
+
+      final session = await containerWith(store).read(sessionProvider.future);
+
+      expect(session.isAuthenticated, isFalse);
+      expect(store.cleared, isTrue);
+    });
   });
 
   group('signIn', () {

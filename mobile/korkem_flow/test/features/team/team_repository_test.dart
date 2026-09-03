@@ -152,56 +152,64 @@ void main() {
   });
 
   group('TeamRepository', () {
-    test('fetches and maps team members with roles', () async {
-      final dio = createDio((options) async {
-        if (options.path.contains('/api/resource/User')) {
+    test(
+      'команду и должности отдаёт сервер, а не выводит приложение',
+      () async {
+        // Роли клиенту не видны: `Has Role` — детская таблица, и Frappe
+        // закрывает её даже от владельца компании. Пока приложение выводило
+        // должность из ролей, отказ ловился пустым `catch`, роли приходили
+        // пустыми, и владелец видел себя «рабочим цеха» — а кнопки «Пригласить
+        // сотрудника» не было вовсе.
+        final dio = createDio((options) async {
+          expect(
+            options.path,
+            '/api/method/korkem_manufacturing.api.staff.members',
+            reason: 'к таблице ролей приложение больше не ходит',
+          );
           return _json({
-            'data': [
+            'message': [
               {
-                'name': 'owner@korkem.kz',
                 'email': 'owner@korkem.kz',
-                'first_name': 'Aidos',
                 'full_name': 'Aidos Owner',
-                'enabled': 1,
-                'user_type': 'System User',
+                'first_name': 'Aidos',
+                'enabled': true,
+                'position': 'owner',
+                'is_owner': true,
               },
               {
-                'name': 'worker@korkem.kz',
-                'email': 'worker@korkem.kz',
+                'email': 'cutter@korkem.kz',
+                'full_name': 'Berik Cutter',
                 'first_name': 'Berik',
-                'full_name': 'Berik Worker',
-                'enabled': 1,
-                'user_type': 'System User',
+                'enabled': true,
+                'position': 'cutter',
+                'is_owner': false,
               },
             ],
           });
-        }
-        if (options.path.contains('/api/resource/Has%20Role') ||
-            options.path.contains('/api/resource/Has Role')) {
-          return _json({
-            'data': [
-              {'parent': 'owner@korkem.kz', 'role': 'System Manager'},
-              {'parent': 'worker@korkem.kz', 'role': 'Manufacturing User'},
-              {'parent': 'worker@korkem.kz', 'role': 'Stock User'},
-            ],
-          });
-        }
-        return _json({'data': <Map<String, dynamic>>[]});
+        });
+
+        final members = await TeamRepository(
+          FrappeClient(dio),
+        ).fetchTeamMembers();
+
+        expect(members.length, 2);
+        expect(members[0].position, EmployeePosition.owner);
+        expect(members[0].isOwner, isTrue);
+        expect(members[1].position, EmployeePosition.cutter);
+        expect(members[1].isOwner, isFalse);
+      },
+    );
+
+    test('право приглашать — ответ сервера, одним словом', () async {
+      final dio = createDio((options) async {
+        expect(
+          options.path,
+          '/api/method/korkem_manufacturing.api.staff.can_invite',
+        );
+        return _json({'message': true});
       });
 
-      final client = FrappeClient(dio);
-      final repo = TeamRepository(client);
-
-      final members = await repo.fetchTeamMembers();
-
-      expect(members.length, 2);
-      expect(members[0].email, 'owner@korkem.kz');
-      expect(members[0].position, EmployeePosition.owner);
-      expect(members[0].isOwner, isTrue);
-
-      expect(members[1].email, 'worker@korkem.kz');
-      expect(members[1].position, EmployeePosition.shopFloor);
-      expect(members[1].isOwner, isFalse);
+      expect(await TeamRepository(FrappeClient(dio)).canInvite(), isTrue);
     });
 
     test('fetches positions from the server endpoint', () async {

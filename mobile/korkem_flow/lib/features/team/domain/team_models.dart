@@ -138,6 +138,7 @@ class TeamMember {
     required this.position,
     required this.roles,
     required this.enabled,
+    this.ownerByServer = false,
     this.creation,
   });
 
@@ -160,8 +161,15 @@ class TeamMember {
             r,
     ];
 
+    // Должность приходит от сервера — он её и считает. `explicitPosition`
+    // остался для случаев, где вызывающий знает её точно (ответ на
+    // приглашение), а вывод из ролей — для старых ответов без поля: роли
+    // клиенту не видны, и полагаться на них нельзя.
+    final fromBody = json['position'];
     final position = explicitPosition != null
         ? EmployeePosition.fromId(explicitPosition)
+        : (fromBody is String && fromBody.isNotEmpty)
+        ? EmployeePosition.fromId(fromBody)
         : EmployeePosition.fromRoles(parsedRoles);
 
     DateTime? creation;
@@ -174,6 +182,7 @@ class TeamMember {
       firstName: firstName.isNotEmpty ? firstName : email.split('@').first,
       fullName: fullName.isNotEmpty ? fullName : email,
       position: position,
+      ownerByServer: json['is_owner'] == true || json['is_owner'] == 1,
       roles: parsedRoles,
       enabled: enabled,
       creation: creation,
@@ -188,10 +197,13 @@ class TeamMember {
   final bool enabled;
   final DateTime? creation;
 
-  bool get isOwner =>
-      position == EmployeePosition.owner ||
-      roles.contains('System Manager') ||
-      roles.contains('Korkem Admin');
+  /// Владелец — по слову сервера, а не по выводу из ролей.
+  ///
+  /// Роли клиенту не видны: `Has Role` Frappe закрывает даже от владельца
+  /// компании. Пока это выводили здесь, владелец не узнавал сам себя.
+  final bool ownerByServer;
+
+  bool get isOwner => ownerByServer || position == EmployeePosition.owner;
 
   TeamMember copyWith({
     String? email,
@@ -207,6 +219,7 @@ class TeamMember {
       firstName: firstName ?? this.firstName,
       fullName: fullName ?? this.fullName,
       position: position ?? this.position,
+      ownerByServer: ownerByServer,
       roles: roles ?? this.roles,
       enabled: enabled ?? this.enabled,
       creation: creation ?? this.creation,

@@ -2930,4 +2930,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String workstationDuration(String minutes) {
     return '$minutes min';
   }
+
+  @override
+  String updateAvailable(String version) {
+    return 'Update $version is available';
+  }
+
+  @override
+  String get updateInstall => 'Update';
 }

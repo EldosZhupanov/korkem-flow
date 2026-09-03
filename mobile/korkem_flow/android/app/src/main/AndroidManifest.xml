@@ -19,6 +19,12 @@
          запуске: до входа человеку нечего сообщать, а отказ на пустом месте
          возвращается только через настройки телефона. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Обновление приложения без Google Play. Владелец сказал прямо: клиент,
+         скачавший приложение один раз, не должен скачивать его снова руками.
+         С этим разрешением приложение может передать скачанный файл системному
+         установщику; окно установки показывает Android, и согласие даёт
+         человек — обойти его нельзя и не нужно. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <application
         android:label="KORKEM Flow"
         android:name="${applicationName}"

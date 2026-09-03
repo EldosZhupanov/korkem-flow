@@ -47,6 +47,90 @@ from korkem_manufacturing.services.scope import current_company
 OWNER_ROLE = "System Manager"
 
 
+def members() -> list[dict]:
+	"""Кто в компании, с должностью каждого — посчитанной здесь, а не на клиенте.
+
+	Приложение раньше собирало это само: брало список людей, отдельно
+	запрашивало `Has Role` и выводило должность из ролей. Роли — детская
+	таблица, читать её напрямую владельцу Frappe не разрешает, и приложение
+	получало отказ. Отказ проглатывался тихо, роли приходили пустыми, и
+	владелец компании отображался как «рабочий цеха» — а вместе с этим исчезала
+	кнопка «Пригласить сотрудника», потому что экран не узнавал в нём владельца.
+
+	Найдено 4 сентября 2026 на живом узле: владелец не мог позвать ни одного
+	человека в собственную компанию. В журнале сервера в ту же секунду лежало
+	`PermissionError: Insufficient Permission for Has Role`.
+
+	Считать должность обязан сервер: он и раздаёт роли (`invitations.POSITIONS`),
+	и знает, кто владелец. Клиент показывает, а не выводит — R1.
+	"""
+	rows = frappe.get_list(
+		"User",
+		filters={"user_type": "System User", "enabled": ["in", (0, 1)]},
+		fields=["name", "full_name", "first_name", "enabled", "creation"],
+		order_by="creation asc",
+		limit_page_length=0,
+	)
+
+	people = []
+	for row in rows:
+		if row["name"] in ("Administrator", "Guest"):
+			continue
+		roles = _roles_of(row["name"])
+		people.append(
+			{
+				"email": row["name"],
+				"full_name": row["full_name"] or row["name"],
+				"first_name": row["first_name"] or "",
+				"enabled": bool(row["enabled"]),
+				"creation": row["creation"],
+				"position": _position_from(roles),
+				"is_owner": OWNER_ROLE in roles,
+			}
+		)
+	return people
+
+
+def can_invite() -> bool:
+	"""Может ли тот, кто спрашивает, звать людей и назначать должности.
+
+	Один ответ на один вопрос, вместо того чтобы клиент выводил его из списка
+	ролей, которого он всё равно не видит.
+	"""
+	return OWNER_ROLE in _roles_of(frappe.session.user)
+
+
+def _roles_of(user: str) -> set[str]:
+	"""Роли человека.
+
+	Через `frappe.get_roles`, а не запросом к `Has Role`: детскую таблицу ролей
+	Frappe закрывает даже от владельца компании, и запрос к ней — это отказ,
+	который кто-нибудь однажды снова проглотит.
+	"""
+	return set(frappe.get_roles(user))
+
+
+def _position_from(roles: set[str]) -> str:
+	"""Должность по ролям — самая узкая из подходящих.
+
+	Владелец идёт первым: у него есть роли всех должностей сразу, и без этой
+	проверки он оказался бы кем угодно. Дальше — по совпадению набора: должность
+	подходит, если человек имеет все её роли.
+	"""
+	if OWNER_ROLE in roles:
+		return "owner"
+
+	best = None
+	for position, needed in POSITIONS.items():
+		if position == "shop_floor":
+			# Он остался ради приглашённых раньше и не должен выигрывать у
+			# конкретного станка, чей набор ролей такой же.
+			continue
+		if set(needed) <= roles and (best is None or len(needed) > len(POSITIONS[best])):
+			best = position
+	return best or "shop_floor"
+
+
 def change_position(*, email: str, position: str) -> dict:
 	"""Сменить должность человека — то есть набор его прав."""
 	frappe.only_for(OWNER_ROLE)

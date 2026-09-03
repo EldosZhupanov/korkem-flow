@@ -8,6 +8,7 @@ from __future__ import annotations
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from korkem_ai.korkem_ai import onboarding
 from korkem_manufacturing.services import invitations
 from korkem_manufacturing.services import staff as service
 
@@ -162,3 +163,77 @@ class TestStaffAccess(IntegrationTestCase):
 
 		self.assertGreaterEqual(result["sessions_closed"], 1)
 		self.assertEqual(frappe.db.count("Sessions", {"user": self.email}), 0)
+
+
+class TestWhoIsInTheCompany(IntegrationTestCase):
+	"""Список команды и должность каждого — считает сервер.
+
+	Найдено 4 сентября 2026 на живом узле. Приложение собирало должность само:
+	брало людей, отдельно спрашивало `Has Role` и выводило должность из ролей.
+	`Has Role` — детская таблица, и Frappe закрывает её даже от владельца
+	компании. Отказ проглатывался тихо, роли приходили пустыми, владелец
+	показывался как «рабочий цеха» — и вместе с этим исчезала кнопка
+	«Пригласить сотрудника», потому что экран не узнавал в нём владельца.
+
+	В журнале сервера в ту же секунду лежало:
+
+	    PermissionError: Insufficient Permission for Has Role
+
+	Владелец не мог позвать ни одного человека в собственную компанию.
+	"""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+
+	def test_the_owner_is_named_owner_and_not_a_machine_operator(self):
+		"""Проверяется правило, а не содержимое стенда.
+
+		У владельца есть роли всех должностей сразу — их выдаёт мастер ERPNext.
+		Без явной проверки на владельца он совпал бы с первой подошедшей
+		должностью и оказался бы «рабочим цеха» — ровно то, что владелец и
+		увидел у себя на экране.
+		"""
+		owner_roles = set(onboarding.OWNER_ROLES) | {"Sales User", "Stock User"}
+
+		self.assertEqual(service._position_from(owner_roles), "owner")
+
+	def test_a_person_gets_the_narrowest_position_their_roles_fit(self):
+		"""Начальник цеха и сборщик не должны становиться одним и тем же."""
+		self.assertEqual(
+			service._position_from(set(invitations.POSITIONS["shop_manager"])),
+			"shop_manager",
+		)
+		self.assertEqual(
+			service._position_from(set(invitations.POSITIONS["accountant"])),
+			"accountant",
+		)
+
+	def test_somebody_with_no_position_of_ours_is_not_called_the_owner(self):
+		"""Пустые роли — это «неизвестно», а не «хозяин»."""
+		self.assertEqual(service._position_from(set()), "shop_floor")
+
+	def test_an_owner_may_invite(self):
+		self.assertTrue(service.can_invite())
+
+	def test_service_accounts_are_not_staff(self):
+		emails = {p["email"] for p in service.members()}
+
+		self.assertNotIn("Administrator", emails)
+		self.assertNotIn("Guest", emails)
+
+	def test_the_answer_needs_no_child_table_the_caller_cannot_read(self):
+		"""Тот самый отказ: проверка идёт от лица живого человека, не админа."""
+		owner = frappe.db.get_value(
+			"User", {"user_type": "System User", "enabled": 1, "name": ["not in", ("Administrator", "Guest")]}
+		)
+		if not owner:
+			self.skipTest("на этом стенде нет ни одного живого пользователя")
+
+		frappe.set_user(owner)
+		try:
+			people = service.members()
+		finally:
+			frappe.set_user("Administrator")
+
+		self.assertTrue(people, "список команды не должен приходить пустым")
+		self.assertTrue(all(p["position"] for p in people))

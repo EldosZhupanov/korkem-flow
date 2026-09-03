@@ -1,0 +1,103 @@
+{
+ "actions": [],
+ "autoname": "format:{platform}-{version}",
+ "creation": "2026-09-04 01:10:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "platform",
+  "version",
+  "build_number",
+  "column_break_file",
+  "file_url",
+  "published",
+  "mandatory",
+  "section_break_notes",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "platform",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Платформа",
+   "options": "Android\nWindows",
+   "reqd": 1
+  },
+  {
+   "description": "Как в pubspec.yaml, например 0.2.0",
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Версия",
+   "reqd": 1
+  },
+  {
+   "description": "Растёт с каждой сборкой. По нему и сравнивают: две сборки одной версии различает только он.",
+   "fieldname": "build_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Номер сборки",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_file",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Адрес файла. Относительный путь считается от этого узла.",
+   "fieldname": "file_url",
+   "fieldtype": "Data",
+   "label": "Файл",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "description": "Пока не отмечено, приложения этой версии не увидят.",
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Опубликовано"
+  },
+  {
+   "default": "0",
+   "description": "Обновление, которое нельзя отложить. Ставится, когда старая версия перестала работать с сервером, а не ради того, чтобы поторопить.",
+   "fieldname": "mandatory",
+   "fieldtype": "Check",
+   "label": "Обязательное"
+  },
+  {
+   "fieldname": "section_break_notes",
+   "fieldtype": "Section Break",
+   "label": "Что изменилось"
+  },
+  {
+   "description": "Человеческим языком: что человек увидит по-новому. Не список коммитов.",
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Описание"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-09-04 01:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem AI",
+ "name": "App Release",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "build_number",
+ "sort_order": "DESC",
+ "states": []
+}

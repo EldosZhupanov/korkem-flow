@@ -3385,5 +3385,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "updateAvailable": "Update {version} is available",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstall": "Update"
 }
