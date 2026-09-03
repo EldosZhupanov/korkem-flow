@@ -1,0 +1,39 @@
+{
+ "actions": [],
+ "creation": "2026-09-03 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "merchant_id",
+  "column_break_creds",
+  "api_key",
+  "webhook_secret",
+  "section_break_health",
+  "last_status",
+  "last_checked_on",
+  "last_error"
+ ],
+ "fields": [
+  {"fieldname": "enabled", "fieldtype": "Check", "label": "Enabled"},
+  {"fieldname": "merchant_id", "fieldtype": "Data", "label": "Merchant ID", "description": "Идентификатор торговой точки в Kaspi"},
+  {"fieldname": "column_break_creds", "fieldtype": "Column Break"},
+  {"fieldname": "api_key", "fieldtype": "Password", "label": "API Key"},
+  {"fieldname": "webhook_secret", "fieldtype": "Password", "label": "Webhook Secret"},
+  {"fieldname": "section_break_health", "fieldtype": "Section Break", "label": "Connection"},
+  {"fieldname": "last_status", "fieldtype": "Data", "label": "Last Status", "read_only": 1},
+  {"fieldname": "last_checked_on", "fieldtype": "Datetime", "label": "Last Checked On", "read_only": 1},
+  {"fieldname": "last_error", "fieldtype": "Small Text", "label": "Last Error", "read_only": 1}
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-03 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Kaspi Settings",
+ "owner": "Administrator",
+ "permissions": [{"create": 1, "delete": 1, "email": 1, "print": 1, "read": 1, "role": "System Manager", "share": 1, "write": 1}],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
