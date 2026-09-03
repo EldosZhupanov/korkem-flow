@@ -93,8 +93,17 @@ class Item {
   /// Detailed description, specifications, or notes.
   final String description;
 
-  /// Optional selling/catalog price. Custom furniture may not have a fixed
-  /// catalog price upfront (`null` = not estimated yet).
+  /// Optional selling/catalog price.
+  ///
+  /// `null` means the price has not been worked out yet — normal for
+  /// made-to-order furniture, where the number follows the measurement. Zero
+  /// means free: a sample, a fitting thrown in with an order. They are not the
+  /// same answer and must not collapse into one.
+  ///
+  /// Nothing enforced that until a mutation test broke it deliberately: turning
+  /// every zero into `null` left all 740 tests green, because no fixture in the
+  /// project used a price of zero. Three tests in
+  /// `items_repository_test.dart` hold the line now.
   final double? salePrice;
 
   Item copyWith({

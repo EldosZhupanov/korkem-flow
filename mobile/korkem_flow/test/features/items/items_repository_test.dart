@@ -385,4 +385,45 @@ void main() {
       },
     );
   });
+
+  group('цена ноль и цена не названа', () {
+    // Найдено мутацией: если `Item.fromJson` начнёт превращать ноль в null,
+    // ни один из 740 тестов не упадёт — во всех фикстурах цена либо большая,
+    // либо отсутствует. Ноль не встречался нигде, а это разные вещи:
+    // ноль значит «бесплатно» (образец, подарок к заказу), null — «ещё не
+    // считали», что для мебели на заказ нормальное состояние.
+    test('ноль остаётся нулём, а не превращается в «цену по расчёту»', () {
+      final item = Item.fromJson(const {
+        'code': 'SAMPLE-01',
+        'name': 'Образец фасада МДФ',
+        'unit': 'Nos',
+        'price': 0,
+      });
+
+      expect(item.salePrice, 0.0);
+      expect(item.salePrice, isNotNull);
+    });
+
+    test('отсутствие цены остаётся отсутствием, а не нулём', () {
+      final item = Item.fromJson(const {
+        'code': 'KITCHEN-01',
+        'name': 'Кухонный гарнитур',
+        'unit': 'Nos',
+        'price': null,
+      });
+
+      expect(item.salePrice, isNull);
+    });
+
+    test('ноль строкой — тоже ноль', () {
+      final item = Item.fromJson(const {
+        'code': 'SAMPLE-02',
+        'name': 'Образец кромки',
+        'unit': 'Meter',
+        'price': '0',
+      });
+
+      expect(item.salePrice, 0.0);
+    });
+  });
 }
