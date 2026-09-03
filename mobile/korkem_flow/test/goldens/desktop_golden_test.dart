@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:korkem_flow/features/orders/data/order_design_repository.dart';
+import 'package:korkem_flow/features/orders/data/order_installation_repository.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
+import 'package:korkem_flow/features/orders/domain/order_design.dart';
+import 'package:korkem_flow/features/orders/domain/order_installation.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
@@ -32,6 +36,18 @@ class _MockProductionCommandRepository extends Mock
 
 class _MockReceivingRepository extends Mock implements ReceivingRepository {}
 
+/// Каждый раздел экрана ходит на сервер, и каждый должен быть подменён.
+///
+/// Не подменить один — значит снять снимок с состояния, которое зависит от
+/// того, успел ли провайдер ответить. Так этот эталон однажды и покраснел:
+/// локально сложилось одно, на CI другое. Снимок обязан быть функцией кода,
+/// а не расписания.
+class _MockOrderDesignRepository extends Mock
+    implements OrderDesignRepository {}
+
+class _MockOrderInstallationRepository extends Mock
+    implements OrderInstallationRepository {}
+
 void main() {
   const desktop = Size(1440, 900);
 
@@ -39,12 +55,16 @@ void main() {
   late _MockWorkOrderRepository workOrderRepo;
   late _MockProductionCommandRepository productionCommandRepo;
   late _MockReceivingRepository receivingRepo;
+  late _MockOrderDesignRepository designRepo;
+  late _MockOrderInstallationRepository installationRepo;
 
   setUp(() {
     salesOrderRepo = _MockSalesOrderRepository();
     workOrderRepo = _MockWorkOrderRepository();
     productionCommandRepo = _MockProductionCommandRepository();
     receivingRepo = _MockReceivingRepository();
+    designRepo = _MockOrderDesignRepository();
+    installationRepo = _MockOrderInstallationRepository();
   });
 
   // Real furniture, real Kazakh customers, real money. A golden full of
@@ -99,17 +119,35 @@ void main() {
     when(
       () => salesOrderRepo.fetchDeliveries(any()),
     ).thenAnswer((_) async => const []);
+    when(
+      () => designRepo.fetchDesign(any()),
+    ).thenAnswer(
+      (_) async => const OrderDesign(
+        salesOrder: 'SAL-ORD-2026-00001',
+      ),
+    );
+    when(
+      () => installationRepo.fetchInstallation(any()),
+    ).thenAnswer(
+      (_) async => const OrderInstallation(
+        salesOrder: 'SAL-ORD-2026-00001',
+      ),
+    );
     when(() => workOrderRepo.fetchForDeal(any())).thenAnswer((_) async => []);
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           salesOrderRepositoryProvider.overrideWithValue(salesOrderRepo),
+          orderInstallationRepositoryProvider.overrideWithValue(
+            installationRepo,
+          ),
           workOrderRepositoryProvider.overrideWithValue(workOrderRepo),
           productionCommandRepositoryProvider.overrideWithValue(
             productionCommandRepo,
           ),
           receivingRepositoryProvider.overrideWithValue(receivingRepo),
+          orderDesignRepositoryProvider.overrideWithValue(designRepo),
         ],
         child: harness(const OrdersScreen(), locale: const Locale('ru')),
       ),

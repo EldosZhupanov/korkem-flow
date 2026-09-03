@@ -720,6 +720,70 @@
   "@orderDesignCompletedNotice": {
     "description": "Banner when design is verified and completed"
   },
+  "orderInstallationSection": "Installation",
+  "@orderInstallationSection": {
+    "description": "Section header for installation on order screen"
+  },
+  "orderInstallationStatusNotScheduled": "Not scheduled",
+  "@orderInstallationStatusNotScheduled": {
+    "description": "Status badge when installation is not scheduled"
+  },
+  "orderInstallationStatusScheduled": "Scheduled",
+  "@orderInstallationStatusScheduled": {
+    "description": "Status badge when installation is scheduled"
+  },
+  "orderInstallationStatusCompleted": "Completed",
+  "@orderInstallationStatusCompleted": {
+    "description": "Status badge when installation is completed"
+  },
+  "orderInstallationStatusOverdue": "Overdue",
+  "@orderInstallationStatusOverdue": {
+    "description": "Status badge when installation is overdue"
+  },
+  "orderInstallationNoDeliveryNotice": "Shipment comes first, then installation. A crew arriving without furniture wastes a day, and the client loses trust.",
+  "@orderInstallationNoDeliveryNotice": {
+    "description": "Explanation when no items have been delivered yet"
+  },
+  "orderInstallationReadyToSchedule": "Furniture has been shipped. Schedule the installation crew arrival date.",
+  "@orderInstallationReadyToSchedule": {
+    "description": "Notice when order has shipments and is ready for installation"
+  },
+  "orderInstallationScheduleAction": "Schedule installation",
+  "@orderInstallationScheduleAction": {
+    "description": "Button to schedule installation"
+  },
+  "orderInstallationInstallerLabel": "Installer / Crew",
+  "@orderInstallationInstallerLabel": {
+    "description": "Label for assigned installer"
+  },
+  "orderInstallationDateLabel": "Installation date",
+  "@orderInstallationDateLabel": {
+    "description": "Label for installation date"
+  },
+  "orderInstallationDateRequired": "Specify installation date",
+  "@orderInstallationDateRequired": {
+    "description": "Validation message when installation date is missing"
+  },
+  "orderInstallationCompleteAction": "Installation completed",
+  "@orderInstallationCompleteAction": {
+    "description": "Button to complete installation"
+  },
+  "orderInstallationCompleteDialogTitle": "Complete installation",
+  "@orderInstallationCompleteDialogTitle": {
+    "description": "Title for complete installation dialog"
+  },
+  "orderInstallationNotesLabel": "Crew notes",
+  "@orderInstallationNotesLabel": {
+    "description": "Label for crew notes"
+  },
+  "orderInstallationNotesHint": "E.g. wall was uneven, installed with extension filler",
+  "@orderInstallationNotesHint": {
+    "description": "Hint for crew notes field"
+  },
+  "orderInstallationCompletedNotice": "Installation completed successfully",
+  "@orderInstallationCompletedNotice": {
+    "description": "Banner when installation is successfully completed"
+  },
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",

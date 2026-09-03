@@ -659,6 +659,57 @@ class AppLocalizationsRu extends AppLocalizations {
   String get orderDesignCompletedNotice => 'Дизайн принят, чертежи проверены';
 
   @override
+  String get orderInstallationSection => 'Монтаж';
+
+  @override
+  String get orderInstallationStatusNotScheduled => 'Не назначен';
+
+  @override
+  String get orderInstallationStatusScheduled => 'Назначен';
+
+  @override
+  String get orderInstallationStatusCompleted => 'Выполнен';
+
+  @override
+  String get orderInstallationStatusOverdue => 'Просрочен';
+
+  @override
+  String get orderInstallationNoDeliveryNotice =>
+      'Сначала отгрузка, потом монтаж. Бригада, приехавшая к клиенту без мебели, теряет день, а клиент — доверие.';
+
+  @override
+  String get orderInstallationReadyToSchedule =>
+      'Мебель отгружена. Назначьте дату выезда монтажной бригады.';
+
+  @override
+  String get orderInstallationScheduleAction => 'Назначить монтаж';
+
+  @override
+  String get orderInstallationInstallerLabel => 'Монтажник / Бригада';
+
+  @override
+  String get orderInstallationDateLabel => 'Дата монтажа';
+
+  @override
+  String get orderInstallationDateRequired => 'Укажите дату монтажа';
+
+  @override
+  String get orderInstallationCompleteAction => 'Монтаж выполнен';
+
+  @override
+  String get orderInstallationCompleteDialogTitle => 'Завершение монтажа';
+
+  @override
+  String get orderInstallationNotesLabel => 'Заметки бригады';
+
+  @override
+  String get orderInstallationNotesHint =>
+      'Например: стена оказалась кривой, ставили с доборным элементом';
+
+  @override
+  String get orderInstallationCompletedNotice => 'Монтаж успешно завершён';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override

@@ -30,6 +30,7 @@ abstract final class AppIcons {
   static const IconData settings = Symbols.settings_rounded;
   static const IconData design = Symbols.draw_rounded;
   static const IconData attachment = Symbols.attach_file_rounded;
+  static const IconData installation = Symbols.handyman_rounded;
 
   // ── Actions ──────────────────────────────────────────────────────────────
   static const IconData search = Symbols.search_rounded;

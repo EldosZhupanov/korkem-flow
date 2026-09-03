@@ -1294,6 +1294,102 @@ abstract class AppLocalizations {
   /// **'Design accepted, drawings verified'**
   String get orderDesignCompletedNotice;
 
+  /// Section header for installation on order screen
+  ///
+  /// In en, this message translates to:
+  /// **'Installation'**
+  String get orderInstallationSection;
+
+  /// Status badge when installation is not scheduled
+  ///
+  /// In en, this message translates to:
+  /// **'Not scheduled'**
+  String get orderInstallationStatusNotScheduled;
+
+  /// Status badge when installation is scheduled
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get orderInstallationStatusScheduled;
+
+  /// Status badge when installation is completed
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get orderInstallationStatusCompleted;
+
+  /// Status badge when installation is overdue
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get orderInstallationStatusOverdue;
+
+  /// Explanation when no items have been delivered yet
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment comes first, then installation. A crew arriving without furniture wastes a day, and the client loses trust.'**
+  String get orderInstallationNoDeliveryNotice;
+
+  /// Notice when order has shipments and is ready for installation
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture has been shipped. Schedule the installation crew arrival date.'**
+  String get orderInstallationReadyToSchedule;
+
+  /// Button to schedule installation
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule installation'**
+  String get orderInstallationScheduleAction;
+
+  /// Label for assigned installer
+  ///
+  /// In en, this message translates to:
+  /// **'Installer / Crew'**
+  String get orderInstallationInstallerLabel;
+
+  /// Label for installation date
+  ///
+  /// In en, this message translates to:
+  /// **'Installation date'**
+  String get orderInstallationDateLabel;
+
+  /// Validation message when installation date is missing
+  ///
+  /// In en, this message translates to:
+  /// **'Specify installation date'**
+  String get orderInstallationDateRequired;
+
+  /// Button to complete installation
+  ///
+  /// In en, this message translates to:
+  /// **'Installation completed'**
+  String get orderInstallationCompleteAction;
+
+  /// Title for complete installation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Complete installation'**
+  String get orderInstallationCompleteDialogTitle;
+
+  /// Label for crew notes
+  ///
+  /// In en, this message translates to:
+  /// **'Crew notes'**
+  String get orderInstallationNotesLabel;
+
+  /// Hint for crew notes field
+  ///
+  /// In en, this message translates to:
+  /// **'E.g. wall was uneven, installed with extension filler'**
+  String get orderInstallationNotesHint;
+
+  /// Banner when installation is successfully completed
+  ///
+  /// In en, this message translates to:
+  /// **'Installation completed successfully'**
+  String get orderInstallationCompletedNotice;
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:

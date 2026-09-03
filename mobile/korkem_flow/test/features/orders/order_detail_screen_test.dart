@@ -2,9 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/data/order_design_repository.dart';
+import 'package:korkem_flow/features/orders/data/order_installation_repository.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/order_design.dart';
+import 'package:korkem_flow/features/orders/domain/order_installation.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/start_production_button.dart';
@@ -29,6 +31,9 @@ class _MockReceivingRepository extends Mock implements ReceivingRepository {}
 class _MockOrderDesignRepository extends Mock
     implements OrderDesignRepository {}
 
+class _MockOrderInstallationRepository extends Mock
+    implements OrderInstallationRepository {}
+
 const _order = SalesOrder(
   name: 'SAL-ORD-00001',
   customer: 'Мебель Астана',
@@ -43,6 +48,7 @@ void main() {
   late _MockProductionCommandRepository commands;
   late _MockReceivingRepository receivingRepo;
   late _MockOrderDesignRepository designRepo;
+  late _MockOrderInstallationRepository installationRepo;
 
   setUp(() {
     orders = _MockSalesOrderRepository();
@@ -50,12 +56,14 @@ void main() {
     commands = _MockProductionCommandRepository();
     receivingRepo = _MockReceivingRepository();
     designRepo = _MockOrderDesignRepository();
+    installationRepo = _MockOrderInstallationRepository();
   });
 
   void stubOrder({
     List<SalesOrder> found = const [_order],
     List<SalesOrderDelivery> deliveries = const [],
     OrderDesign? design,
+    OrderInstallation? installation,
   }) {
     when(
       () => orders.fetchPage(
@@ -77,6 +85,15 @@ void main() {
             salesOrder: 'SAL-ORD-00001',
           ),
     );
+    when(
+      () => installationRepo.fetchInstallation(any()),
+    ).thenAnswer(
+      (_) async =>
+          installation ??
+          const OrderInstallation(
+            salesOrder: 'SAL-ORD-00001',
+          ),
+    );
   }
 
   Future<void> pump(
@@ -93,6 +110,9 @@ void main() {
         overrides: [
           salesOrderRepositoryProvider.overrideWithValue(orders),
           orderDesignRepositoryProvider.overrideWithValue(designRepo),
+          orderInstallationRepositoryProvider.overrideWithValue(
+            installationRepo,
+          ),
           workOrderRepositoryProvider.overrideWithValue(workOrders),
           productionCommandRepositoryProvider.overrideWithValue(commands),
           receivingRepositoryProvider.overrideWithValue(receivingRepo),

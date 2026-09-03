@@ -657,6 +657,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderDesignCompletedNotice => 'Design accepted, drawings verified';
 
   @override
+  String get orderInstallationSection => 'Installation';
+
+  @override
+  String get orderInstallationStatusNotScheduled => 'Not scheduled';
+
+  @override
+  String get orderInstallationStatusScheduled => 'Scheduled';
+
+  @override
+  String get orderInstallationStatusCompleted => 'Completed';
+
+  @override
+  String get orderInstallationStatusOverdue => 'Overdue';
+
+  @override
+  String get orderInstallationNoDeliveryNotice =>
+      'Shipment comes first, then installation. A crew arriving without furniture wastes a day, and the client loses trust.';
+
+  @override
+  String get orderInstallationReadyToSchedule =>
+      'Furniture has been shipped. Schedule the installation crew arrival date.';
+
+  @override
+  String get orderInstallationScheduleAction => 'Schedule installation';
+
+  @override
+  String get orderInstallationInstallerLabel => 'Installer / Crew';
+
+  @override
+  String get orderInstallationDateLabel => 'Installation date';
+
+  @override
+  String get orderInstallationDateRequired => 'Specify installation date';
+
+  @override
+  String get orderInstallationCompleteAction => 'Installation completed';
+
+  @override
+  String get orderInstallationCompleteDialogTitle => 'Complete installation';
+
+  @override
+  String get orderInstallationNotesLabel => 'Crew notes';
+
+  @override
+  String get orderInstallationNotesHint =>
+      'E.g. wall was uneven, installed with extension filler';
+
+  @override
+  String get orderInstallationCompletedNotice =>
+      'Installation completed successfully';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

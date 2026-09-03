@@ -14,10 +14,12 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/application/order_design_controller.dart';
 import 'package:korkem_flow/features/orders/application/order_detail_controller.dart';
+import 'package:korkem_flow/features/orders/application/order_installation_controller.dart';
 import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/create_delivery_button.dart';
 import 'package:korkem_flow/features/orders/presentation/order_design_section.dart';
+import 'package:korkem_flow/features/orders/presentation/order_installation_section.dart';
 import 'package:korkem_flow/features/orders/presentation/sales_order_status_label.dart';
 import 'package:korkem_flow/features/orders/presentation/start_production_button.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
@@ -93,7 +95,8 @@ class _Body extends ConsumerWidget {
           ..invalidate(orderDetailProvider(order.name))
           ..invalidate(orderDesignProvider(order.name))
           ..invalidate(orderWorkOrdersProvider(order.name))
-          ..invalidate(orderDeliveriesProvider(order.name));
+          ..invalidate(orderDeliveriesProvider(order.name))
+          ..invalidate(orderInstallationProvider(order.name));
       },
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -134,6 +137,8 @@ class _Body extends ConsumerWidget {
               child: Center(child: CircularProgressIndicator()),
             ),
           },
+          const SizedBox(height: AppSpacing.xl),
+          OrderInstallationSection(order: order),
         ],
       ),
     );

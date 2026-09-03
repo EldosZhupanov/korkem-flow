@@ -648,6 +648,57 @@ class AppLocalizationsKk extends AppLocalizations {
       'Дизайн қабылданды, сызбалар тексерілді';
 
   @override
+  String get orderInstallationSection => 'Орнату';
+
+  @override
+  String get orderInstallationStatusNotScheduled => 'Тағайындалмаған';
+
+  @override
+  String get orderInstallationStatusScheduled => 'Тағайындалды';
+
+  @override
+  String get orderInstallationStatusCompleted => 'Орындалды';
+
+  @override
+  String get orderInstallationStatusOverdue => 'Мерзімі өтті';
+
+  @override
+  String get orderInstallationNoDeliveryNotice =>
+      'Алдымен жеткізу, содан кейін орнату. Жиһазсыз келген бригада бір күнді жоғалтады, ал клиент сенімді жоғалтады.';
+
+  @override
+  String get orderInstallationReadyToSchedule =>
+      'Жиһаз жөнелтілді. Орнату бригадасының баратын күнін белгілеңіз.';
+
+  @override
+  String get orderInstallationScheduleAction => 'Орнатуды тағайындау';
+
+  @override
+  String get orderInstallationInstallerLabel => 'Орнатушы / Бригада';
+
+  @override
+  String get orderInstallationDateLabel => 'Орнату күні';
+
+  @override
+  String get orderInstallationDateRequired => 'Орнату күнін көрсетіңіз';
+
+  @override
+  String get orderInstallationCompleteAction => 'Орнату орындалды';
+
+  @override
+  String get orderInstallationCompleteDialogTitle => 'Орнатуды аяқтау';
+
+  @override
+  String get orderInstallationNotesLabel => 'Бригаданың жазбалары';
+
+  @override
+  String get orderInstallationNotesHint =>
+      'Мысалы: қабырға қисық болып шықты, қосымша элементпен орнаттық';
+
+  @override
+  String get orderInstallationCompletedNotice => 'Орнату сәтті аяқталды';
+
+  @override
   String get settingsTitle => 'Параметрлер';
 
   @override
