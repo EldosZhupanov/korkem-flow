@@ -2,10 +2,15 @@
 # See license.txt
 """Чтение выгрузки БАЗИС.
 
-Файлы здесь **выдуманы по документации**, а не выгружены с производства.
-Одного настоящего экспорта всё ещё нет, и до него эти тесты закрепляют наше
-понимание формата, а не сам формат. Когда файл появится, первое действие —
-прогнать его через `inspect` и сверить с тем, что здесь написано.
+Здесь два набора файлов, и разница между ними — главное, что стоит знать.
+
+`SPECIFICATION` собран **по документации**. Он остаётся, потому что описывает
+формат таким, каким его обещает БАЗИС: с заполненным `SyncID`, с операциями,
+с единицами измерения у каждого материала.
+
+`REAL_*` — выдержки из **настоящих выгрузок**, присланных владельцем 3 сентября
+(БАЗИС 10.1 и 10.4, пять файлов с живого производства). Они отличаются от
+документации в пяти местах, и каждое из пяти сначала ломало разбор.
 """
 
 from __future__ import annotations
@@ -275,3 +280,192 @@ class TestBuildingASpecification(IntegrationTestCase):
 		frappe.set_user(email)
 		with self.assertRaises(frappe.PermissionError):
 			self._import()
+
+
+REAL_BLOCKS = """<?xml version="1.0" encoding="UTF-8"?>
+<Проект Наименование="" Номер="" Версия="10.4.1.24600">
+  <Изделие>
+    <Наименование>Модель7</Наименование>
+    <ТипОбъекта>Модель</ТипОбъекта>
+    <Количество>1</Количество>
+    <Цена>89,09</Цена>
+    <СписокЭлементов>
+      <Блок>
+        <Наименование>3</Наименование>
+        <ТипОбъекта>Блок</ТипОбъекта>
+        <Количество>1</Количество>
+        <СписокЭлементов>
+          <Объект>
+            <ТипОбъекта>Панель</ТипОбъекта>
+            <Наименование>дно</Наименование>
+            <Длина>600</Длина>
+            <Ширина>460</Ширина>
+            <Количество>1</Количество>
+            <ОсновнойМатериал>
+              <ID>-1</ID>
+              <Наименование>ДСП 16 мм</Наименование>
+              <Количество>0.276</Количество>
+              <ЕдИзм/>
+              <Цена>0</Цена>
+              <SyncID/>
+            </ОсновнойМатериал>
+          </Объект>
+          <Объект>
+            <ТипОбъекта>Панель</ТипОбъекта>
+            <Наименование>З/с</Наименование>
+            <Количество>1</Количество>
+            <ОсновнойМатериал>
+              <ID>7100</ID>
+              <Наименование>ДВП 3 мм</Наименование>
+              <Количество>0</Количество>
+              <ЕдИзм>кв.м</ЕдИзм>
+              <Цена>0</Цена>
+              <SyncID/>
+            </ОсновнойМатериал>
+          </Объект>
+          <Блок>
+            <Наименование>Шариковые</Наименование>
+            <ТипОбъекта>Блок</ТипОбъекта>
+            <Количество>1</Количество>
+            <СписокЭлементов>
+              <Объект>
+                <ТипОбъекта>Панель</ТипОбъекта>
+                <Наименование>фасад ящ</Наименование>
+                <Длина>182</Длина>
+                <Ширина>597</Ширина>
+                <Количество>1</Количество>
+                <СписокКромок1>
+                  <Кромка><Наименование>ABS H1599 23/2.0</Наименование><Длина>637</Длина></Кромка>
+                </СписокКромок1>
+                <ОсновнойМатериал>
+                  <ID>814</ID>
+                  <Наименование>ДСП U156 ST9 18мм</Наименование>
+                  <Количество>0.1304</Количество>
+                  <ЕдИзм/>
+                  <Цена>0</Цена>
+                  <SyncID/>
+                </ОсновнойМатериал>
+                <СопутствующиеМатериалы>
+                  <СопутствующийМатериал>
+                    <ID>1676</ID>
+                    <Наименование>ABS H1599 23/2.0</Наименование>
+                    <Количество>1.8898</Количество>
+                    <ЕдИзм/>
+                    <Цена>7.8</Цена>
+                    <SyncID/>
+                  </СопутствующийМатериал>
+                </СопутствующиеМатериалы>
+              </Объект>
+              <Объект>
+                <ТипОбъекта>Фурнитура</ТипОбъекта>
+                <Наименование>Шуруп 3.5*16мм</Наименование>
+                <Код>1220103016</Код>
+                <Количество>22</Количество>
+                <ОсновнойМатериал>
+                  <ID>-1</ID>
+                  <Наименование>Шуруп 3.5*16мм</Наименование>
+                  <Код>1220103016</Код>
+                  <Количество>22</Количество>
+                  <ЕдИзм/>
+                  <Цена>0</Цена>
+                  <SyncID/>
+                </ОсновнойМатериал>
+              </Объект>
+            </СписокЭлементов>
+          </Блок>
+        </СписокЭлементов>
+      </Блок>
+    </СписокЭлементов>
+    <СписокОпераций/>
+    <Артикул/>
+    <Заказ/>
+  </Изделие>
+</Проект>
+"""
+
+
+class TestRealExports(IntegrationTestCase):
+	"""Выдержки из настоящих выгрузок. Каждый тест — расхождение с документацией."""
+
+	def _read(self) -> dict:
+		return service.inspect(content=REAL_BLOCKS.encode("utf-8"))["products"][0]
+
+	def test_parts_hide_inside_nested_blocks(self):
+		"""Изделие → Блок (секция) → Блок (ящик) → Объект.
+
+		Первая версия читала только прямых детей и находила ноль деталей из
+		пяти. Проверка это и показала — не документация.
+		"""
+		parts = self._read()["parts"]
+
+		self.assertEqual(len(parts), 4)
+		self.assertIn("3 / Шариковые", {part["block"] for part in parts})
+
+	def test_sync_id_is_empty_in_real_life_and_the_id_carries_identity(self):
+		"""Документация обещает `SyncID`. В пяти файлах он пуст везде."""
+		by_name = {row["name"]: row for row in self._read()["materials"]}
+
+		self.assertEqual(by_name["ДСП U156 ST9 18мм"]["sync_id"], "814")
+		# `ID = -1` — это «в справочнике БАЗИС такого нет», а не идентификатор.
+		self.assertEqual(by_name["Шуруп 3.5*16мм"]["sync_id"], "1220103016")
+		self.assertIsNone(by_name["ДСП 16 мм"]["sync_id"])
+
+	def test_an_empty_unit_on_a_panel_means_square_metres(self):
+		"""Проверено арифметикой: 600 × 460 = 0.276, ровно как в файле."""
+		by_name = {row["name"]: row for row in self._read()["materials"]}
+		board = by_name["ДСП 16 мм"]
+
+		self.assertIsNone(board["unit"])
+		self.assertEqual(service._unit(board["unit"], board["owner"], board["kind"]), "Square Meter")
+
+	def test_an_empty_unit_on_edge_banding_means_running_metres(self):
+		"""637 + 637 + 222 + 222 мм при коэффициенте 1.1 дают ровно 1.8898."""
+		by_name = {row["name"]: row for row in self._read()["materials"]}
+		edge = by_name["ABS H1599 23/2.0"]
+
+		self.assertEqual(edge["kind"], "СопутствующийМатериал")
+		self.assertEqual(service._unit(edge["unit"], edge["owner"], edge["kind"]), "Meter")
+
+	def test_an_empty_unit_on_hardware_means_pieces(self):
+		by_name = {row["name"]: row for row in self._read()["materials"]}
+		screw = by_name["Шуруп 3.5*16мм"]
+
+		self.assertEqual(service._unit(screw["unit"], screw["owner"], screw["kind"]), "Nos")
+
+	def test_no_operations_at_all_in_these_files(self):
+		"""`СписокОпераций` пуст во всех пяти. Маршрут отсюда не собирается."""
+		self.assertEqual(self._read()["operations"], [])
+
+
+class TestBuildingFromARealExport(IntegrationTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+
+	def test_the_specification_comes_out_with_the_right_units(self):
+		result = service.import_specification(content=REAL_BLOCKS.encode("utf-8"))
+		bom = frappe.get_doc("BOM", result["products"][0]["bom"])
+		by_code = {row.item_code: row for row in bom.items}
+
+		board = next(code for code in by_code if code.endswith("ДСП 16 мм"))
+		self.assertEqual(by_code[board].uom, "Square Meter")
+		self.assertEqual(by_code[f"{service.CODE_PREFIX}-1676"].uom, "Meter")
+		self.assertEqual(by_code[f"{service.CODE_PREFIX}-1220103016"].uom, "Nos")
+
+	def test_a_material_without_a_quantity_is_named_not_invented(self):
+		"""Ноль в выгрузке — «БАЗИС это не посчитал», а не «одна штука»."""
+		result = service.import_specification(content=REAL_BLOCKS.encode("utf-8"))
+		product = result["products"][0]
+
+		self.assertIn("ДВП 3 мм", product["materials_without_quantity"])
+		bom = frappe.get_doc("BOM", product["bom"])
+		self.assertNotIn(
+			f"{service.CODE_PREFIX}-7100", {row.item_code for row in bom.items}
+		)
+
+	def test_one_material_is_one_line_no_matter_how_many_parts_use_it(self):
+		"""Закупка должна видеть одну позицию ЛДСП, а не двадцать."""
+		result = service.import_specification(content=REAL_BLOCKS.encode("utf-8"))
+		bom = frappe.get_doc("BOM", result["products"][0]["bom"])
+
+		codes = [row.item_code for row in bom.items]
+		self.assertEqual(len(codes), len(set(codes)))

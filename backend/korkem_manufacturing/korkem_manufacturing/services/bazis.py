@@ -18,16 +18,25 @@
 выгрузка приходит в `windows-1251` не реже, чем в UTF-8. Объявление в первой
 строке XML говорит, в какой именно; угадывать не надо, надо прочитать.
 
-**Идентификатор — `SyncID`, а не название.** Технолог правит названия чаще
-всего остального, и повторная выгрузка исправленного проекта — это «обновить то
-же самое», а не «создать ещё раз». Без устойчивого идентификатора повторный
-импорт либо задваивает состав, либо угадывает соответствие по строке, которую
-только что поменяли.
+**Идентификатор ищется по очереди: `SyncID`, `ID`, `Код`, наименование.**
+Документация обещает `SyncID`, и первая версия этого файла на него и опиралась.
+В пяти настоящих выгрузках с производства (БАЗИС 10.1 и 10.4) **`SyncID` пуст
+везде** — `<SyncID/>`, — а живой идентификатор лежит в `<ID>`. Причём `ID = -1`
+означает «в справочнике БАЗИС этого нет», то есть тоже не идентификатор.
+Порядок именно такой: обещанное поле первым, чтобы заработало само, когда
+технолог начнёт его заполнять.
 
-**Проверено на выдуманном файле, собранном по документации.** Одного настоящего
-экспорта с живого производства всё ещё нет, и до него этот разбор — обоснованное
-предположение, а не факт. Отдельно об этом сказано в ROADMAP; когда файл
-появится, первое, что с ним нужно сделать, — прогнать через `inspect` и сверить.
+**Детали лежат в блоках, вложенных друг в друга.** Изделие → `Блок` (секция) →
+`Блок` (ящик) → `Объект` (панель). Есть ещё `Сборка` — составная фурнитура со
+своим списком. Первая версия читала только прямых детей и на настоящем файле
+находила **ноль деталей из пяти**; проверка это и показала. Обход рекурсивный,
+и путь блоков сохраняется: цеху важно, из какого ящика деталь.
+
+**Разобрано на пяти настоящих выгрузках, присланных владельцем 3 сентября.**
+До них здесь стояли файлы, собранные по документации, и четыре вещи из четырёх
+оказались не такими. Что всё ещё не проверено: **операции**. `СписокОпераций`
+пуст во всех пяти файлах, то есть маршрут из этих выгрузок не собирается вовсе,
+и код маршрута по-прежнему держится на документации.
 """
 
 from __future__ import annotations
@@ -79,23 +88,59 @@ def _parsed(content: bytes) -> ET.Element:
 		frappe.throw(f"Это не XML или он повреждён: {error}")
 
 
+#: Контейнеры, внутри которых лежат детали. `Блок` — секция или ящик, вложенные
+#: друг в друга; `Сборка` — составная фурнитура со своим списком.
+CONTAINERS = ("Блок", "Сборка")
+
+
 def _product(node: ET.Element) -> dict:
+	parts: list[dict] = []
+	_collect_parts(node, (), parts)
+
 	return {
 		"name": _text(node, "Наименование"),
 		"article": _text(node, "Артикул"),
 		"order": _text(node, "Заказ"),
 		"qty": _number(node, "Количество"),
 		"price": _number(node, "Цена"),
-		"parts": [_part(row) for row in node.iterfind("./СписокЭлементов/Объект")],
-		"materials": [_material(row) for row in node.iter("ОсновнойМатериал")],
+		"parts": parts,
+		"materials": _materials(node),
 		"operations": [
 			_operation(row) for row in node.iterfind("./СписокОпераций/*")
 		],
 	}
 
 
-def _part(node: ET.Element) -> dict:
+def _materials(node: ET.Element) -> list[dict]:
+	"""Материалы вместе с типом объекта, которому они принадлежат.
+
+	Тип нужен затем, что пустая единица измерения у панели и у фурнитуры
+	означает разное, и узнать это можно только по владельцу.
+	"""
+	found: list[dict] = []
+	for owner in node.iter():
+		if owner.tag not in ("Объект", "Изделие", "Блок", "Сборка"):
+			continue
+		kind = _text(owner, "ТипОбъекта")
+		for tag in ("ОсновнойМатериал", "СопутствующийМатериал"):
+			for row in owner.findall(f"./{tag}") + owner.findall(f"./СопутствующиеМатериалы/{tag}"):
+				found.append(_material(row, kind, tag))
+	return found
+
+
+def _collect_parts(node: ET.Element, path: tuple[str, ...], into: list[dict]) -> None:
+	"""Обойти изделие вглубь, помня, в каком блоке лежит деталь."""
+	for child in node.findall("./СписокЭлементов/*"):
+		if child.tag == "Объект":
+			into.append(_part(child, path))
+		elif child.tag in CONTAINERS:
+			name = _text(child, "Наименование") or child.tag
+			_collect_parts(child, (*path, name), into)
+
+
+def _part(node: ET.Element, path: tuple[str, ...] = ()) -> dict:
 	return {
+		"block": " / ".join(path) or None,
 		"name": _text(node, "Наименование"),
 		"code": _text(node, "Код"),
 		"kind": _text(node, "Тип"),
@@ -103,18 +148,26 @@ def _part(node: ET.Element) -> dict:
 		"width": _number(node, "Ширина"),
 		"thickness": _number(node, "Толщина"),
 		"qty": _number(node, "Количество"),
+		# Кромки лежат в четырёх списках по сторонам детали, плюс отдельный
+		# список для криволинейного контура. Пустая кромка — заглушка стороны,
+		# а не материал: у неё нет наименования.
 		"edges": [
-			_text(edge, "Наименование")
-			for edge in node.iterfind("./СписокКромок/Кромка")
+			name
+			for edge in node.iter("Кромка")
+			if (name := _text(edge, "Наименование"))
 		],
 	}
 
 
-def _material(node: ET.Element) -> dict:
+def _material(
+	node: ET.Element, owner: str | None = None, kind: str | None = None
+) -> dict:
 	return {
-		"sync_id": _text(node, "SyncID"),
+		"sync_id": _identity(node),
 		"name": _text(node, "Наименование"),
 		"code": _text(node, "Код"),
+		"owner": owner,
+		"kind": kind,
 		"unit": _text(node, "ЕдИзм"),
 		"qty": _number(node, "Количество"),
 		"price": _number(node, "Цена"),
@@ -129,6 +182,24 @@ def _operation(node: ET.Element) -> dict:
 		"price": _number(node, "Цена"),
 		"minutes": _number(node, "Трудоёмкость"),
 	}
+
+
+def _identity(node: ET.Element) -> str | None:
+	"""Чем этот материал опознаётся при повторном импорте.
+
+	`SyncID` обещан документацией и пуст во всех настоящих выгрузках. `ID` есть
+	и живой, но `-1` означает «в справочнике БАЗИС такого нет» — это не
+	идентификатор, а его отсутствие.
+	"""
+	sync = _text(node, "SyncID")
+	if sync:
+		return sync
+
+	identifier = _text(node, "ID")
+	if identifier and identifier.strip() != "-1":
+		return identifier
+
+	return _text(node, "Код")
 
 
 def _text(node: ET.Element, tag: str) -> str | None:
@@ -163,6 +234,9 @@ UNITS: dict[str, str] = {
 	"шт.": "Nos",
 	"компл": "Set",
 	"компл.": "Set",
+	# «комп» — так это пишет БАЗИС в настоящих выгрузках.
+	"комп": "Set",
+	"комп.": "Set",
 	"м": "Meter",
 	"м.": "Meter",
 	"пог.м": "Meter",
@@ -193,7 +267,8 @@ def import_specification(*, content: bytes, sales_order: str | None = None) -> d
 
 	**Незнакомая единица измерения останавливает импорт до записи.** Подставить
 	вместо неё штуки значит напечатать в накладной неправду, а её читает клиент.
-	Отказ приходит со списком того, что не разобрали.
+	Отказ приходит со списком того, что не разобрали. Пустая единица — не
+	незнакомая: см. ниже, она разрешается по типу объекта.
 
 	**Операция без рабочего места в маршрут не встаёт, и это не ошибка файла.**
 	БАЗИС говорит, что делают и сколько это занимает, но не на каком станке
@@ -225,7 +300,8 @@ def _refuse_unknown_units(read: dict) -> None:
 			material["unit"]
 			for product in read["products"]
 			for material in product["materials"]
-			if material["unit"] and _unit(material["unit"]) is None
+			if material["unit"]
+			and _unit(material["unit"], material.get("owner"), material.get("kind")) is None
 		}
 	)
 	if unknown:
@@ -237,10 +313,30 @@ def _refuse_unknown_units(read: dict) -> None:
 		)
 
 
-def _unit(raw: str | None) -> str | None:
-	if not raw:
-		return "Nos"
-	return UNITS.get(raw.strip().lower())
+def _unit(
+	raw: str | None, owner: str | None = None, kind: str | None = None
+) -> str | None:
+	"""Единица материала. Пустая — норма, и разрешается по типу объекта.
+
+	В настоящих выгрузках `ЕдИзм` у основного материала пуст почти всегда, а
+	количество при этом — площадь листа. Проверено арифметикой на файлах
+	владельца: у детали «дно» 600×460 стоит 0.276, что ровно 0.6 × 0.46; у
+	«Boc» 600×430 при коэффициенте 1.2 стоит 0.3096, что ровно 0.6 × 0.43 × 1.2.
+	Это метры квадратные, а не штуки, и подставлять сюда штуки нельзя — ERPNext
+	справедливо отказывается принимать 0.276 штуки.
+
+	У сопутствующего материала панели пустая единица означает **погонные
+	метры**: это кромка, и считается она по периметру. Тоже проверено: у фасада
+	637 + 637 + 222 + 222 мм при коэффициенте 1.1 дают ровно 1.8898.
+
+	У фурнитуры пустая единица означает штуки: там количество целое — четыре
+	ноги, двадцать два шурупа.
+	"""
+	if raw and raw.strip():
+		return UNITS.get(raw.strip().lower())
+	if owner == "Панель":
+		return "Meter" if kind == "СопутствующийМатериал" else "Square Meter"
+	return "Nos"
 
 
 def _one_product(product: dict, company: str, sales_order: str | None) -> dict:
@@ -254,7 +350,7 @@ def _one_product(product: dict, company: str, sales_order: str | None) -> dict:
 		workstation = frappe.db.get_value("Operation", name, "workstation")
 		(routed if workstation else pending).append((name, workstation, row))
 
-	bom, status = _bom(item, product, materials, routed, company)
+	bom, status, skipped = _bom(item, product, materials, routed, company)
 
 	return {
 		"product": product["name"],
@@ -262,6 +358,7 @@ def _one_product(product: dict, company: str, sales_order: str | None) -> dict:
 		"bom": bom,
 		"bom_status": status,
 		"materials": materials,
+		"materials_without_quantity": skipped,
 		"operations": [name for name, _, _ in routed],
 		"operations_awaiting_workstation": [name for name, _, _ in pending],
 		"sales_order": sales_order,
@@ -304,7 +401,7 @@ def _material_item(material: dict) -> str:
 
 	code = f"{CODE_PREFIX}-{key}"[:140]
 	name = (material.get("name") or key)[:140]
-	unit = _unit(material.get("unit")) or "Nos"
+	unit = _unit(material.get("unit"), material.get("owner"), material.get("kind")) or "Nos"
 
 	if frappe.db.exists("Item", code):
 		# Наименование обновляем: технолог его правит, и в спецификации должно
@@ -350,15 +447,29 @@ def _bom(item: str, product: dict, materials: list[str], operations: list[str], 
 	doc.set("items", [])
 	doc.set("operations", [])
 
+	# Один материал приходит десятками строк — по разу на каждую деталь. В
+	# спецификации он должен стоять один раз с общим количеством: иначе закупка
+	# увидит двадцать позиций ЛДСП вместо одной и не поймёт, сколько брать.
+	summed: dict[tuple[str, str], dict] = {}
+	skipped: list[str] = []
 	for material, row in zip(materials, product["materials"], strict=False):
+		quantity = frappe.utils.flt(row.get("qty"))
+		if quantity <= 0:
+			# Ноль в выгрузке значит «БАЗИС это не посчитал». Написать вместо
+			# него единицу — придумать за технолога количество, по которому
+			# потом закупят.
+			skipped.append(row.get("name") or material)
+			continue
+		uom = _unit(row.get("unit"), row.get("owner"), row.get("kind")) or "Nos"
+		line = summed.setdefault(
+			(material, uom), {"qty": 0.0, "rate": row.get("price") or 0}
+		)
+		line["qty"] += quantity
+
+	for (material, uom), line in summed.items():
 		doc.append(
 			"items",
-			{
-				"item_code": material,
-				"qty": row.get("qty") or 1,
-				"uom": _unit(row.get("unit")) or "Nos",
-				"rate": row.get("price") or 0,
-			},
+			{"item_code": material, "qty": line["qty"], "uom": uom, "rate": line["rate"]},
 		)
 
 	if operations:
@@ -383,7 +494,7 @@ def _bom(item: str, product: dict, materials: list[str], operations: list[str], 
 		)
 
 	doc.save()
-	return doc.name, status
+	return doc.name, status, skipped
 
 
 def _item_group() -> str:
