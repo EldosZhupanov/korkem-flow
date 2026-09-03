@@ -78,6 +78,26 @@ to the one picture the person chose rather than to the whole gallery — the app
 asks for `READ_EXTERNAL_STORAGE`. Camera permission is requested at the moment the
 person taps, not when the screen opens.
 
+### file_picker
+
+| | |
+|---|---|
+| **Package** | `file_picker` (pub.dev), resolved 12.2.0 |
+| **License** | MIT — `Copyright (c) 2018 Miguel Ruivo` |
+| **Source** | https://github.com/miguelpruivo/flutter_file_picker |
+| **Purpose** | Choosing the XML the technologist exported from БАЗИС |
+
+Chosen because the file is picked from wherever the technologist saved it — a
+download folder, a flash drive, a messenger's folder — and the system picker is
+the only thing that reaches all of them. It carries no ProGuard rules of its own
+(checked, not assumed), and it does not need any: the release build under R8
+succeeds with it — three ABIs, 22.0 / 24.1 / 25.6 MB, built 2026-09-03.
+
+A caution earned the same day: a release build that follows an interrupted one
+can fail with a compilation error that has nothing to do with the code. It
+happened here and was briefly mistaken for a regression. A clean run is the only
+run worth believing.
+
 ## Illustrations and animations
 
 None bundled yet.

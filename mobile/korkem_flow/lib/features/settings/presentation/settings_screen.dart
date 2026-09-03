@@ -124,6 +124,18 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.xl),
 
+          SectionLabel(l10n.integrationsTitle),
+          Card(
+            child: ListTile(
+              key: const ValueKey('integrationSettings'),
+              leading: const Icon(AppIcons.noAccess),
+              title: Text(l10n.integrationsSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.integrations),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
           SectionLabel(l10n.channelsTitle),
           Card(
             child: ListTile(

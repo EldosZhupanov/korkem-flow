@@ -929,6 +929,143 @@
   "@bazisEmptyOperations": {
     "description": "Empty state message for operations"
   },
+  "integrationsTitle": "Integrations",
+  "@integrationsTitle": {
+    "description": "Title for integrations settings screen"
+  },
+  "integrationsSubtitle": "TrustMe and Kaspi Pay Keys",
+  "@integrationsSubtitle": {
+    "description": "Subtitle for integrations settings screen"
+  },
+  "integrationsSecurityNote": "These are your company keys. They are stored encrypted on your server and are never shared externally.",
+  "@integrationsSecurityNote": {
+    "description": "Security explanation for API keys and secrets"
+  },
+  "trustmeTitle": "TrustMe",
+  "@trustmeTitle": {
+    "description": "Provider title for TrustMe"
+  },
+  "trustmeSubtitle": "Digital contract signing",
+  "@trustmeSubtitle": {
+    "description": "Subtitle for TrustMe"
+  },
+  "trustmeBinLabel": "Organization BIN",
+  "@trustmeBinLabel": {
+    "description": "Label for organization BIN"
+  },
+  "trustmeBinHint": "12 digits",
+  "@trustmeBinHint": {
+    "description": "Hint for organization BIN"
+  },
+  "trustmeApiTokenLabel": "API Token",
+  "@trustmeApiTokenLabel": {
+    "description": "Label for API token"
+  },
+  "trustmeApiTokenHint": "Enter new token to change",
+  "@trustmeApiTokenHint": {
+    "description": "Hint for API token"
+  },
+  "trustmeWebhookSecretLabel": "Webhook Secret",
+  "@trustmeWebhookSecretLabel": {
+    "description": "Label for webhook secret"
+  },
+  "trustmeWebhookSecretHint": "Enter new secret to change",
+  "@trustmeWebhookSecretHint": {
+    "description": "Hint for webhook secret"
+  },
+  "kaspiTitle": "Kaspi Pay",
+  "@kaspiTitle": {
+    "description": "Provider title for Kaspi Pay"
+  },
+  "kaspiSubtitle": "Payment acceptance and invoicing",
+  "@kaspiSubtitle": {
+    "description": "Subtitle for Kaspi Pay"
+  },
+  "kaspiMerchantIdLabel": "Merchant / Point ID",
+  "@kaspiMerchantIdLabel": {
+    "description": "Label for merchant ID"
+  },
+  "kaspiMerchantIdHint": "Identifier in Kaspi Pay",
+  "@kaspiMerchantIdHint": {
+    "description": "Hint for merchant ID"
+  },
+  "kaspiApiKeyLabel": "API Key",
+  "@kaspiApiKeyLabel": {
+    "description": "Label for API key"
+  },
+  "kaspiApiKeyHint": "Enter new key to change",
+  "@kaspiApiKeyHint": {
+    "description": "Hint for API key"
+  },
+  "kaspiWebhookSecretLabel": "Webhook Secret",
+  "@kaspiWebhookSecretLabel": {
+    "description": "Label for webhook secret"
+  },
+  "kaspiWebhookSecretHint": "Enter new secret to change",
+  "@kaspiWebhookSecretHint": {
+    "description": "Hint for webhook secret"
+  },
+  "integrationSecretConfigured": "Configured",
+  "@integrationSecretConfigured": {
+    "description": "Badge indicating secret is stored"
+  },
+  "integrationSecretNotConfigured": "Not configured",
+  "@integrationSecretNotConfigured": {
+    "description": "Badge indicating secret is not set"
+  },
+  "integrationClearSecretAction": "Delete",
+  "@integrationClearSecretAction": {
+    "description": "Button to clear a stored secret"
+  },
+  "integrationSaveAction": "Save",
+  "@integrationSaveAction": {
+    "description": "Button to save integration settings"
+  },
+  "integrationSavedSuccess": "Settings saved",
+  "@integrationSavedSuccess": {
+    "description": "Notice when settings saved successfully"
+  },
+  "integrationClearDialogTitle": "Delete key?",
+  "@integrationClearDialogTitle": {
+    "description": "Title for secret deletion confirmation dialog"
+  },
+  "integrationClearDialogMessage": "Delete {secretName}? {providerName} integration will stop working until a new key is entered.",
+  "@integrationClearDialogMessage": {
+    "description": "Message for secret deletion confirmation dialog",
+    "placeholders": {
+      "secretName": { "type": "String" },
+      "providerName": { "type": "String" }
+    }
+  },
+  "integrationClearSuccess": "Key deleted",
+  "@integrationClearSuccess": {
+    "description": "Notice when secret is deleted"
+  },
+  "integrationLastStatusLabel": "Status: {status}",
+  "@integrationLastStatusLabel": {
+    "description": "Label for integration last status",
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "integrationLastErrorLabel": "Error: {error}",
+  "@integrationLastErrorLabel": {
+    "description": "Label for integration last error",
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "integrationLastCheckedLabel": "Checked: {date}",
+  "@integrationLastCheckedLabel": {
+    "description": "Label for last checked date",
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "integrationEnableToggle": "Enable integration",
+  "@integrationEnableToggle": {
+    "description": "Switch label to enable/disable integration"
+  },
   "companyDetailsDocNote": "Details are used to generate contracts, invoices, and waybills.",
   "@companyDetailsDocNote": {
     "description": "Note explaining where company details are used"

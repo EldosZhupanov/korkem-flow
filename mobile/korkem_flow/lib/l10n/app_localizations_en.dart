@@ -796,6 +796,108 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bazisEmptyOperations => 'No operations in product';
 
   @override
+  String get integrationsTitle => 'Integrations';
+
+  @override
+  String get integrationsSubtitle => 'TrustMe and Kaspi Pay Keys';
+
+  @override
+  String get integrationsSecurityNote =>
+      'These are your company keys. They are stored encrypted on your server and are never shared externally.';
+
+  @override
+  String get trustmeTitle => 'TrustMe';
+
+  @override
+  String get trustmeSubtitle => 'Digital contract signing';
+
+  @override
+  String get trustmeBinLabel => 'Organization BIN';
+
+  @override
+  String get trustmeBinHint => '12 digits';
+
+  @override
+  String get trustmeApiTokenLabel => 'API Token';
+
+  @override
+  String get trustmeApiTokenHint => 'Enter new token to change';
+
+  @override
+  String get trustmeWebhookSecretLabel => 'Webhook Secret';
+
+  @override
+  String get trustmeWebhookSecretHint => 'Enter new secret to change';
+
+  @override
+  String get kaspiTitle => 'Kaspi Pay';
+
+  @override
+  String get kaspiSubtitle => 'Payment acceptance and invoicing';
+
+  @override
+  String get kaspiMerchantIdLabel => 'Merchant / Point ID';
+
+  @override
+  String get kaspiMerchantIdHint => 'Identifier in Kaspi Pay';
+
+  @override
+  String get kaspiApiKeyLabel => 'API Key';
+
+  @override
+  String get kaspiApiKeyHint => 'Enter new key to change';
+
+  @override
+  String get kaspiWebhookSecretLabel => 'Webhook Secret';
+
+  @override
+  String get kaspiWebhookSecretHint => 'Enter new secret to change';
+
+  @override
+  String get integrationSecretConfigured => 'Configured';
+
+  @override
+  String get integrationSecretNotConfigured => 'Not configured';
+
+  @override
+  String get integrationClearSecretAction => 'Delete';
+
+  @override
+  String get integrationSaveAction => 'Save';
+
+  @override
+  String get integrationSavedSuccess => 'Settings saved';
+
+  @override
+  String get integrationClearDialogTitle => 'Delete key?';
+
+  @override
+  String integrationClearDialogMessage(String secretName, String providerName) {
+    return 'Delete $secretName? $providerName integration will stop working until a new key is entered.';
+  }
+
+  @override
+  String get integrationClearSuccess => 'Key deleted';
+
+  @override
+  String integrationLastStatusLabel(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String integrationLastErrorLabel(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String integrationLastCheckedLabel(String date) {
+    return 'Checked: $date';
+  }
+
+  @override
+  String get integrationEnableToggle => 'Enable integration';
+
+  @override
   String get companyDetailsDocNote =>
       'Details are used to generate contracts, invoices, and waybills.';
 

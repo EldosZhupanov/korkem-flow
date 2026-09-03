@@ -1449,6 +1449,192 @@ abstract class AppLocalizations {
   /// **'No operations in product'**
   String get bazisEmptyOperations;
 
+  /// Title for integrations settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Integrations'**
+  String get integrationsTitle;
+
+  /// Subtitle for integrations settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'TrustMe and Kaspi Pay Keys'**
+  String get integrationsSubtitle;
+
+  /// Security explanation for API keys and secrets
+  ///
+  /// In en, this message translates to:
+  /// **'These are your company keys. They are stored encrypted on your server and are never shared externally.'**
+  String get integrationsSecurityNote;
+
+  /// Provider title for TrustMe
+  ///
+  /// In en, this message translates to:
+  /// **'TrustMe'**
+  String get trustmeTitle;
+
+  /// Subtitle for TrustMe
+  ///
+  /// In en, this message translates to:
+  /// **'Digital contract signing'**
+  String get trustmeSubtitle;
+
+  /// Label for organization BIN
+  ///
+  /// In en, this message translates to:
+  /// **'Organization BIN'**
+  String get trustmeBinLabel;
+
+  /// Hint for organization BIN
+  ///
+  /// In en, this message translates to:
+  /// **'12 digits'**
+  String get trustmeBinHint;
+
+  /// Label for API token
+  ///
+  /// In en, this message translates to:
+  /// **'API Token'**
+  String get trustmeApiTokenLabel;
+
+  /// Hint for API token
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new token to change'**
+  String get trustmeApiTokenHint;
+
+  /// Label for webhook secret
+  ///
+  /// In en, this message translates to:
+  /// **'Webhook Secret'**
+  String get trustmeWebhookSecretLabel;
+
+  /// Hint for webhook secret
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new secret to change'**
+  String get trustmeWebhookSecretHint;
+
+  /// Provider title for Kaspi Pay
+  ///
+  /// In en, this message translates to:
+  /// **'Kaspi Pay'**
+  String get kaspiTitle;
+
+  /// Subtitle for Kaspi Pay
+  ///
+  /// In en, this message translates to:
+  /// **'Payment acceptance and invoicing'**
+  String get kaspiSubtitle;
+
+  /// Label for merchant ID
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant / Point ID'**
+  String get kaspiMerchantIdLabel;
+
+  /// Hint for merchant ID
+  ///
+  /// In en, this message translates to:
+  /// **'Identifier in Kaspi Pay'**
+  String get kaspiMerchantIdHint;
+
+  /// Label for API key
+  ///
+  /// In en, this message translates to:
+  /// **'API Key'**
+  String get kaspiApiKeyLabel;
+
+  /// Hint for API key
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new key to change'**
+  String get kaspiApiKeyHint;
+
+  /// Label for webhook secret
+  ///
+  /// In en, this message translates to:
+  /// **'Webhook Secret'**
+  String get kaspiWebhookSecretLabel;
+
+  /// Hint for webhook secret
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new secret to change'**
+  String get kaspiWebhookSecretHint;
+
+  /// Badge indicating secret is stored
+  ///
+  /// In en, this message translates to:
+  /// **'Configured'**
+  String get integrationSecretConfigured;
+
+  /// Badge indicating secret is not set
+  ///
+  /// In en, this message translates to:
+  /// **'Not configured'**
+  String get integrationSecretNotConfigured;
+
+  /// Button to clear a stored secret
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get integrationClearSecretAction;
+
+  /// Button to save integration settings
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get integrationSaveAction;
+
+  /// Notice when settings saved successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved'**
+  String get integrationSavedSuccess;
+
+  /// Title for secret deletion confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete key?'**
+  String get integrationClearDialogTitle;
+
+  /// Message for secret deletion confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {secretName}? {providerName} integration will stop working until a new key is entered.'**
+  String integrationClearDialogMessage(String secretName, String providerName);
+
+  /// Notice when secret is deleted
+  ///
+  /// In en, this message translates to:
+  /// **'Key deleted'**
+  String get integrationClearSuccess;
+
+  /// Label for integration last status
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}'**
+  String integrationLastStatusLabel(String status);
+
+  /// Label for integration last error
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String integrationLastErrorLabel(String error);
+
+  /// Label for last checked date
+  ///
+  /// In en, this message translates to:
+  /// **'Checked: {date}'**
+  String integrationLastCheckedLabel(String date);
+
+  /// Switch label to enable/disable integration
+  ///
+  /// In en, this message translates to:
+  /// **'Enable integration'**
+  String get integrationEnableToggle;
+
   /// Note explaining where company details are used
   ///
   /// In en, this message translates to:

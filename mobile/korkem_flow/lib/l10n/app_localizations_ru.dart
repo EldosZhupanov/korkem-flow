@@ -799,6 +799,108 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bazisEmptyOperations => 'В изделии нет технологических операций';
 
   @override
+  String get integrationsTitle => 'Интеграции';
+
+  @override
+  String get integrationsSubtitle => 'Ключи TrustMe и Kaspi Pay';
+
+  @override
+  String get integrationsSecurityNote =>
+      'Это ключи вашей компании. Они хранятся в зашифрованном виде на вашем сервере и наружу не передаются.';
+
+  @override
+  String get trustmeTitle => 'TrustMe';
+
+  @override
+  String get trustmeSubtitle => 'Электронное подписание договоров';
+
+  @override
+  String get trustmeBinLabel => 'БИН организации';
+
+  @override
+  String get trustmeBinHint => '12 цифр';
+
+  @override
+  String get trustmeApiTokenLabel => 'API-токен';
+
+  @override
+  String get trustmeApiTokenHint => 'Введите новый токен для изменения';
+
+  @override
+  String get trustmeWebhookSecretLabel => 'Секрет вебхука (Webhook Secret)';
+
+  @override
+  String get trustmeWebhookSecretHint => 'Введите новый секрет для изменения';
+
+  @override
+  String get kaspiTitle => 'Kaspi Pay';
+
+  @override
+  String get kaspiSubtitle => 'Приём оплаты и выставление счетов';
+
+  @override
+  String get kaspiMerchantIdLabel => 'ID мерчанта / Точки';
+
+  @override
+  String get kaspiMerchantIdHint => 'Идентификатор в Kaspi Pay';
+
+  @override
+  String get kaspiApiKeyLabel => 'API-ключ';
+
+  @override
+  String get kaspiApiKeyHint => 'Введите новый ключ для изменения';
+
+  @override
+  String get kaspiWebhookSecretLabel => 'Секрет вебхука (Webhook Secret)';
+
+  @override
+  String get kaspiWebhookSecretHint => 'Введите новый секрет для изменения';
+
+  @override
+  String get integrationSecretConfigured => 'Ключ задан';
+
+  @override
+  String get integrationSecretNotConfigured => 'Ключа нет';
+
+  @override
+  String get integrationClearSecretAction => 'Удалить';
+
+  @override
+  String get integrationSaveAction => 'Сохранить';
+
+  @override
+  String get integrationSavedSuccess => 'Настройки сохранены';
+
+  @override
+  String get integrationClearDialogTitle => 'Удалить ключ?';
+
+  @override
+  String integrationClearDialogMessage(String secretName, String providerName) {
+    return 'Удалить $secretName? Интеграция $providerName перестанет работать до ввода нового ключа.';
+  }
+
+  @override
+  String get integrationClearSuccess => 'Ключ удалён';
+
+  @override
+  String integrationLastStatusLabel(String status) {
+    return 'Статус: $status';
+  }
+
+  @override
+  String integrationLastErrorLabel(String error) {
+    return 'Ошибка: $error';
+  }
+
+  @override
+  String integrationLastCheckedLabel(String date) {
+    return 'Проверено: $date';
+  }
+
+  @override
+  String get integrationEnableToggle => 'Включить интеграцию';
+
+  @override
   String get companyDetailsDocNote =>
       'Реквизиты используются для формирования договоров, счетов и накладных.';
 

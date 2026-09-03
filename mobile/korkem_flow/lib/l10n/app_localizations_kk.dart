@@ -783,6 +783,109 @@ class AppLocalizationsKk extends AppLocalizations {
   String get bazisEmptyOperations => 'Бұйымда технологиялық операциялар жоқ';
 
   @override
+  String get integrationsTitle => 'Интеграциялар';
+
+  @override
+  String get integrationsSubtitle => 'TrustMe және Kaspi Pay кілттері';
+
+  @override
+  String get integrationsSecurityNote =>
+      'Бұл сіздің компанияңыздың кілттері. Олар серверіңізде шифрланған түрде сақталады және сыртқа берілмейді.';
+
+  @override
+  String get trustmeTitle => 'TrustMe';
+
+  @override
+  String get trustmeSubtitle => 'Шарттарға электронды қол қою';
+
+  @override
+  String get trustmeBinLabel => 'Ұйымның БСН';
+
+  @override
+  String get trustmeBinHint => '12 сан';
+
+  @override
+  String get trustmeApiTokenLabel => 'API-токен';
+
+  @override
+  String get trustmeApiTokenHint => 'Өзгерту үшін жаңа токен енгізіңіз';
+
+  @override
+  String get trustmeWebhookSecretLabel => 'Вебхук құпиясы (Webhook Secret)';
+
+  @override
+  String get trustmeWebhookSecretHint =>
+      'Өзгерту үшін жаңа құпия сөз енгізіңіз';
+
+  @override
+  String get kaspiTitle => 'Kaspi Pay';
+
+  @override
+  String get kaspiSubtitle => 'Төлем қабылдау және шот ұсыну';
+
+  @override
+  String get kaspiMerchantIdLabel => 'Мерчант / Нүкте ID';
+
+  @override
+  String get kaspiMerchantIdHint => 'Kaspi Pay-дегі сәйкестендіргіш';
+
+  @override
+  String get kaspiApiKeyLabel => 'API-кілт';
+
+  @override
+  String get kaspiApiKeyHint => 'Өзгерту үшін жаңа кілт енгізіңіз';
+
+  @override
+  String get kaspiWebhookSecretLabel => 'Вебхук құпиясы (Webhook Secret)';
+
+  @override
+  String get kaspiWebhookSecretHint => 'Өзгерту үшін жаңа құпия сөз енгізіңіз';
+
+  @override
+  String get integrationSecretConfigured => 'Кілт орнатылған';
+
+  @override
+  String get integrationSecretNotConfigured => 'Кілт жоқ';
+
+  @override
+  String get integrationClearSecretAction => 'Жою';
+
+  @override
+  String get integrationSaveAction => 'Сақтау';
+
+  @override
+  String get integrationSavedSuccess => 'Баптаулар сақталды';
+
+  @override
+  String get integrationClearDialogTitle => 'Кілтті жою керек пе?';
+
+  @override
+  String integrationClearDialogMessage(String secretName, String providerName) {
+    return '$secretName жойылсын ба? Жаңа кілт енгізілгенше $providerName интеграциясы жұмыс істемейді.';
+  }
+
+  @override
+  String get integrationClearSuccess => 'Кілт жойылды';
+
+  @override
+  String integrationLastStatusLabel(String status) {
+    return 'Күйі: $status';
+  }
+
+  @override
+  String integrationLastErrorLabel(String error) {
+    return 'Қате: $error';
+  }
+
+  @override
+  String integrationLastCheckedLabel(String date) {
+    return 'Тексерілді: $date';
+  }
+
+  @override
+  String get integrationEnableToggle => 'Интеграцияны қосу';
+
+  @override
   String get companyDetailsDocNote =>
       'Деректемелер шарттарды, шоттар мен жүкқұжаттарды жасау үшін қолданылады.';
 
