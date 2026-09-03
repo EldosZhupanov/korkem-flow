@@ -116,23 +116,30 @@ def _job_card_summary(work_order: str) -> dict:
 	}
 
 
-def _named(row: dict) -> dict:
-	"""Строка дефицита в обзоре: что и сколько не хватает, и всё.
+def _named(row: dict, quantity: str) -> dict:
+	"""Строка дефицита в обзоре: что не хватает, сколько, и всё.
 
 	Полная строка несёт тринадцать чисел — требуется, израсходовано, осталось,
 	зарезервировано, доступно, ожидается, заказано, и так далее. В обзоре по
 	двадцати заказам это тридцать тысяч символов, которые уезжают в модель и
-	оплачиваются на каждом шаге хода: обзор стоил 16 800 токенов, больше всего
-	каталога инструментов.
+	оплачиваются на каждом шаге хода: обзор стоил 16 800 токенов, больше, чем
+	весь каталог инструментов.
 
 	Обзор отвечает на вопрос «что мешает», а не «объясни по каждому числу». На
 	второй отвечает `inventory.material_shortage` — он для того и есть, и его
-	вызывают, когда спросили именно про один заказ.
+	зовут, когда спросили именно про один заказ.
+
+	**У каждого списка своё число, и подставлять одно вместо другого нельзя.**
+	`shortages` считает, чего надо докупить; `blocking_materials` — чего нет на
+	полке. На пустом складе они совпадают, и первая версия этой обрезки
+	поставила закупочное количество в оба. Поймал CI на тесте, который читает
+	`physical_shortage_qty` — и правильно сделал: цифра «нечем пилить» и цифра
+	«надо заказать» это разные ответы разным людям.
 	"""
 	return {
 		"item_code": row.get("item_code"),
 		"item_name": row.get("item_name"),
-		"short_qty": row.get("shortage_qty"),
+		quantity: row.get(quantity),
 		"uom": row.get("uom"),
 	}
 
@@ -191,11 +198,11 @@ def production_control(sales_order: str | None = None, limit: int | None = None)
 				"in_production": bool(unfinished),
 				"started": started,
 				"material_status": "shortage" if blocking else "ok",
-				"shortages": [_named(row) for row in blocking],
+				"shortages": [_named(row, "shortage_qty") for row in blocking],
 				# «Можно ли запускать» — about material only, so it stays true
 				# for a job already running that has everything it needs.
 				"can_start": not missing,
-				"blocking_materials": [_named(row) for row in missing],
+				"blocking_materials": [_named(row, "physical_shortage_qty") for row in missing],
 				"ready_to_start": not started and not missing,
 			}
 		)
