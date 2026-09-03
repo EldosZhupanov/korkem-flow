@@ -294,6 +294,63 @@ def import_specification(*, content: bytes, sales_order: str | None = None) -> d
 	return {"company": company, "products": imported, "totals": read["totals"]}
 
 
+def accept(*, bom: str) -> dict:
+	"""Согласиться со спецификацией — и тем самым пустить её в дело.
+
+	Импорт приносит черновик, и граница между черновиком и согласованным
+	проходит не там, где я сначала думал. Проверено прогоном, а не чтением:
+
+	* **закупка работает и по черновику.** Расчёт дефицита ищет действующую
+	  спецификацию, а не проведённую, и черновик в этот ответ попадает. То есть
+	  материалы можно посчитать и заказать, ещё не согласившись с составом, —
+	  и это удобно: поставщику нужно время;
+	* **производство по черновику не запускается.** Наряд отказывается
+	  создаваться: «BOM must be submitted». Отказ приходит из проверки ссылок
+	  Frappe — она не пускает ссылку на непроведённый документ, — и проверен он
+	  живым прогоном: тестовая среда эту проверку не воспроизводит, поэтому в
+	  тестах закреплено только обратное, что после согласия наряд создаётся.
+
+	Здесь и есть смысл согласия: технолог говорит «да, состав верный», и с этой
+	минуты по спецификации можно резать. До неё — только считать и закупать.
+
+	**Проведённую спецификацию импорт больше не трогает.** Повторная выгрузка
+	создаст новый черновик рядом; согласиться с ним — снова решение человека.
+	"""
+	frappe.only_for("System Manager")
+
+	doc = _visible_bom(bom)
+	if doc.docstatus == 1:
+		return {"bom": doc.name, "item": doc.item, "status": "already_accepted"}
+	if doc.docstatus == 2:
+		frappe.throw("Эта спецификация отменена. Импортируйте выгрузку заново.")
+
+	if not doc.get("items"):
+		frappe.throw("В спецификации нет ни одного материала — соглашаться не с чем.")
+
+	doc.is_active = 1
+	doc.is_default = 1
+	doc.submit()
+
+	return {
+		"bom": doc.name,
+		"item": doc.item,
+		"materials": len(doc.get("items")),
+		"status": "accepted",
+	}
+
+
+def _visible_bom(name: str):
+	company = frappe.defaults.get_user_default("Company") or frappe.db.get_value(
+		"Company", {}, "name"
+	)
+	row = frappe.db.get_value("BOM", name, ["name", "company"], as_dict=True)
+	if not row:
+		frappe.throw(f"Нет такой спецификации: «{name}».")
+	if row["company"] != company:
+		frappe.throw("Эта спецификация не этой компании.", frappe.PermissionError)
+	return frappe.get_doc("BOM", name)
+
+
 def _refuse_unknown_units(read: dict) -> None:
 	unknown = sorted(
 		{

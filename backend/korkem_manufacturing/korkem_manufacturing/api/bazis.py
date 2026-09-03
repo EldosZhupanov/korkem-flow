@@ -29,3 +29,9 @@ def import_specification(sales_order: str | None = None) -> dict:
 	return service.import_specification(
 		content=uploaded.stream.read(), sales_order=sales_order
 	)
+
+
+@frappe.whitelist(methods=["POST"])
+def accept(bom: str) -> dict:
+	"""Согласиться со спецификацией — после этого её видит расчёт дефицита."""
+	return service.accept(bom=bom)

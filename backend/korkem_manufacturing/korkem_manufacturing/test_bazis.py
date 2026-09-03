@@ -301,10 +301,22 @@ class TestBuildingASpecification(IntegrationTestCase):
 			self._import()
 
 
+def _real_export(product: str | None = None) -> bytes:
+	"""Настоящая выгрузка с уникальным именем изделия.
+
+	Имя подставляется на каждый прогон, потому что спецификация — документ с
+	номером на изделие, и проведённая живёт дальше отката: `submit` коммитит.
+	Тест, опирающийся на постоянное имя, начинает зависеть от того, что осталось
+	на стенде от прошлого раза. Найдено ровно так.
+	"""
+	name = product or f"Модель {frappe.generate_hash(length=8)}"
+	return REAL_BLOCKS.format(product=name).encode("utf-8")
+
+
 REAL_BLOCKS = """<?xml version="1.0" encoding="UTF-8"?>
 <Проект Наименование="" Номер="" Версия="10.4.1.24600">
   <Изделие>
-    <Наименование>Модель7</Наименование>
+    <Наименование>{product}</Наименование>
     <ТипОбъекта>Модель</ТипОбъекта>
     <Количество>1</Количество>
     <Цена>89,09</Цена>
@@ -407,7 +419,7 @@ class TestRealExports(IntegrationTestCase):
 	"""Выдержки из настоящих выгрузок. Каждый тест — расхождение с документацией."""
 
 	def _read(self) -> dict:
-		return service.inspect(content=REAL_BLOCKS.encode("utf-8"))["products"][0]
+		return service.inspect(content=_real_export())["products"][0]
 
 	def test_parts_hide_inside_nested_blocks(self):
 		"""Изделие → Блок (секция) → Блок (ящик) → Объект.
@@ -461,7 +473,7 @@ class TestBuildingFromARealExport(IntegrationTestCase):
 		frappe.set_user("Administrator")
 
 	def test_the_specification_comes_out_with_the_right_units(self):
-		result = service.import_specification(content=REAL_BLOCKS.encode("utf-8"))
+		result = service.import_specification(content=_real_export())
 		bom = frappe.get_doc("BOM", result["products"][0]["bom"])
 		by_code = {row.item_code: row for row in bom.items}
 
@@ -472,7 +484,7 @@ class TestBuildingFromARealExport(IntegrationTestCase):
 
 	def test_a_material_without_a_quantity_is_named_not_invented(self):
 		"""Ноль в выгрузке — «БАЗИС это не посчитал», а не «одна штука»."""
-		result = service.import_specification(content=REAL_BLOCKS.encode("utf-8"))
+		result = service.import_specification(content=_real_export())
 		product = result["products"][0]
 
 		self.assertIn("ДВП 3 мм", product["materials_without_quantity"])
@@ -483,8 +495,129 @@ class TestBuildingFromARealExport(IntegrationTestCase):
 
 	def test_one_material_is_one_line_no_matter_how_many_parts_use_it(self):
 		"""Закупка должна видеть одну позицию ЛДСП, а не двадцать."""
-		result = service.import_specification(content=REAL_BLOCKS.encode("utf-8"))
+		result = service.import_specification(content=_real_export())
 		bom = frappe.get_doc("BOM", result["products"][0]["bom"])
 
 		codes = [row.item_code for row in bom.items]
 		self.assertEqual(len(codes), len(set(codes)))
+
+
+class TestFromAnExportToAShortageList(IntegrationTestCase):
+	"""Смысл шестого этапа: файл технолога превращается в список закупки.
+
+	Здесь же записана граница между черновиком и согласованным составом. Она
+	проходит не там, где ожидалось, и выяснилось это прогоном: по черновику
+	**можно считать и закупать**, но **нельзя пилить**.
+	"""
+
+	def setUp(self):
+		frappe.set_user("Administrator")
+
+	def test_materials_can_be_counted_before_anyone_agrees_with_the_specification(self):
+		"""Закупка идёт и по черновику: поставщику нужно время."""
+		from korkem_manufacturing.services import warehouse as warehouse_service
+
+		order, bom = self._order_for_an_import(accept_it=False)
+		shortage = warehouse_service.material_shortage(sales_order=order)
+
+		self.assertEqual(frappe.db.get_value("BOM", bom, "docstatus"), 0)
+		self.assertEqual(len(shortage["items"]), 4)
+
+	def test_after_agreeing_production_can_start(self):
+		"""Обратное — что по черновику наряд не создаётся — проверено живым
+		прогоном, а не здесь: отказ приходит из проверки ссылок Frappe, и
+		тестовая среда её не воспроизводит. Тест, который проходил бы не по той
+		причине, хуже отсутствующего.
+		"""
+		_, bom = self._order_for_an_import(accept_it=True)
+		item = frappe.db.get_value("BOM", bom, "item")
+		frappe.db.set_value("Item", item, "is_stock_item", 1)
+
+		order = frappe.get_doc(
+			{
+				"doctype": "Work Order",
+				"production_item": item,
+				"bom_no": bom,
+				"qty": 1,
+				"company": frappe.db.get_value("BOM", bom, "company"),
+			}
+		)
+		order.insert()
+		self.assertEqual(order.bom_no, bom)
+
+	def test_once_accepted_every_material_from_the_file_becomes_a_shortage(self):
+		from korkem_manufacturing.services import warehouse as warehouse_service
+
+		order, _ = self._order_for_an_import(accept_it=True)
+		items = warehouse_service.material_shortage(sales_order=order)["items"]
+		by_code = {row["item_code"]: row for row in items}
+
+		# Четыре, а не пять: у ДВП в выгрузке нулевое количество, и оно
+		# намеренно не попадает в спецификацию.
+		self.assertEqual(len(items), 4)
+		# Числа и единицы — те самые, что стоят в выгрузке технолога.
+		self.assertEqual(by_code[f"{service.CODE_PREFIX}-1220103016"]["required_qty"], 22)
+		self.assertEqual(by_code[f"{service.CODE_PREFIX}-1220103016"]["uom"], "Nos")
+		self.assertEqual(by_code[f"{service.CODE_PREFIX}-1676"]["uom"], "Meter")
+		board = next(
+			code for code in by_code if code.endswith("ДСП 16 мм")
+		)
+		self.assertEqual(by_code[board]["required_qty"], 0.276)
+		self.assertEqual(by_code[board]["uom"], "Square Meter")
+
+	def test_accepting_twice_is_not_an_error(self):
+		_, bom = self._order_for_an_import(accept_it=True)
+		again = service.accept(bom=bom)
+		self.assertEqual(again["status"], "already_accepted")
+
+	def test_a_specification_from_another_company_is_refused(self):
+		with self.assertRaises(frappe.ValidationError):
+			service.accept(bom="BOM-НЕТ-ТАКОЙ-001")
+
+	def test_an_employee_cannot_accept_a_specification(self):
+		"""Согласие пускает состав в производство и в закупку."""
+		from korkem_manufacturing.services import invitations
+
+		_, bom = self._order_for_an_import(accept_it=False)
+		email = f"zamer-{frappe.generate_hash(length=8)}@korkem.kz"
+		invitations.invite_employee(email=email, position="shop_floor")
+		self.addCleanup(frappe.set_user, "Administrator")
+
+		frappe.set_user(email)
+		with self.assertRaises(frappe.PermissionError):
+			service.accept(bom=bom)
+
+	def _order_for_an_import(self, *, accept_it: bool) -> tuple[str, str]:
+		from korkem_manufacturing.services import acceptance as acceptance_service
+		from korkem_manufacturing.services import capture as capture_service
+		from korkem_manufacturing.services import catalogue as catalogue_service
+		from korkem_manufacturing.services import enquiry as enquiry_service
+		from korkem_manufacturing.services import proposal as proposal_service
+
+		imported = service.import_specification(content=_real_export())
+		product = imported["products"][0]
+		if accept_it:
+			service.accept(bom=product["bom"])
+
+		# Изделие из БАЗИС — складское: его собирают и отгружают со склада,
+		# в отличие от позиции каталога, которую считают по проекту.
+		frappe.db.set_value("Item", product["item"], "is_stock_item", 1)
+		catalogue_service.set_price(code=product["item"], price=120000)
+
+		capture = capture_service.record(
+			text="Шкаф",
+			understood={"customer_hint": f"Клиент {frappe.generate_hash(length=6)}"},
+			assign_to="Administrator",
+		)["capture"]
+		enquiry = enquiry_service.convert(capture=capture)["enquiry"]
+		quotation = proposal_service.draft(
+			enquiry=enquiry, items=[{"item_code": product["item"], "qty": 1}]
+		)["quotation"]
+		frappe.db.set_value("Quotation", quotation, "docstatus", 1)
+		order = acceptance_service.accept(
+			quotation=quotation,
+			deliver_on=frappe.utils.add_days(frappe.utils.nowdate(), 14),
+		)["sales_order"]
+		frappe.db.set_value("Sales Order", order, "docstatus", 1)
+
+		return order, product["bom"]
