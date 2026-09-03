@@ -1668,7 +1668,77 @@
   },
   "todayTileError": "Failed to load",
   "@todayTileError": {
-    "description": "Error text for an individual tile."
+    "description": "Error text on today dashboard tile."
+  },
+  "todayUnassignedCapturesTitle": "Unassigned captures",
+  "@todayUnassignedCapturesTitle": {
+    "description": "Title for unassigned voice captures group"
+  },
+  "todayUnassignedCapturesEmpty": "Nothing lost: all captures have been assigned",
+  "@todayUnassignedCapturesEmpty": {
+    "description": "Empty state good news for captures"
+  },
+  "todayOverdueTasksTitle": "Overdue tasks",
+  "@todayOverdueTasksTitle": {
+    "description": "Title for overdue tasks group"
+  },
+  "todayOverdueTasksEmpty": "All on schedule: no overdue measurements, designs, or installations",
+  "@todayOverdueTasksEmpty": {
+    "description": "Empty state good news for tasks"
+  },
+  "todayOrdersWithoutDesignTitle": "Orders without design",
+  "@todayOrdersWithoutDesignTitle": {
+    "description": "Title for orders without design group"
+  },
+  "todayOrdersWithoutDesignEmpty": "Design is assigned for all orders",
+  "@todayOrdersWithoutDesignEmpty": {
+    "description": "Empty state good news for orders without design"
+  },
+  "todayDeliveredNotInvoicedTitle": "Shipped without invoice",
+  "@todayDeliveredNotInvoicedTitle": {
+    "description": "Title for delivered orders not invoiced group"
+  },
+  "todayDeliveredNotInvoicedEmpty": "All shipments are billed",
+  "@todayDeliveredNotInvoicedEmpty": {
+    "description": "Empty state good news for unbilled shipments"
+  },
+  "todayAllClearHeadline": "Everything is under control",
+  "@todayAllClearHeadline": {
+    "description": "Headline when all 4 attention groups are clear"
+  },
+  "todayAllClearDescription": "All requests are assigned, nothing is overdue, designs are in progress, and all deliveries have invoices.",
+  "@todayAllClearDescription": {
+    "description": "Description when all 4 attention groups are clear"
+  },
+  "todayOverdueWasDue": "Was due: {date}",
+  "@todayOverdueWasDue": {
+    "description": "Overdue task due date label",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "todayDeliveryDue": "Due delivery: {date}",
+  "@todayDeliveryDue": {
+    "description": "Order delivery deadline label",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "todayBilledProgress": "Shipped {delivered}%, billed {billed}%",
+  "@todayBilledProgress": {
+    "description": "Shipment vs invoice progress",
+    "placeholders": {
+      "delivered": {
+        "type": "String"
+      },
+      "billed": {
+        "type": "String"
+      }
+    }
   },
   "orderProductionSection": "Production",
   "@orderProductionSection": {

@@ -6,6 +6,8 @@ import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/features/today/data/today_attention_repository.dart';
+import 'package:korkem_flow/features/today/domain/today_attention.dart';
 import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
 import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
 import 'package:meta/meta.dart';
@@ -128,4 +130,18 @@ final todayStockSummaryProvider = FutureProvider<TodayStockSummary>((
     deficitCount: deficits.length,
     deficitPositions: deficits,
   );
+});
+
+/// Что застряло в цепочке — сказанное без исполнителя, просроченное, заказы
+/// без дизайна, отгруженное без счёта.
+///
+/// Держится рядом со сводками, а не вместо них: сводка отвечает «сколько», этот
+/// список — «что делать». Владелец читает их подряд, но считает их сервер по
+/// разным маршрутам, и сливать их не надо.
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final todayAttentionProvider = FutureProvider.autoDispose<TodayAttention>((
+  ref,
+) {
+  return ref.watch(todayAttentionRepositoryProvider).fetchTodayAttention();
 });

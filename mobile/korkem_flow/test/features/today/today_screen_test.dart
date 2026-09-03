@@ -1,242 +1,274 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:korkem_flow/core/api/api_providers.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
-import 'package:korkem_flow/core/api/frappe_exception.dart';
-import 'package:korkem_flow/core/api/mutation_outbox.dart';
-import 'package:korkem_flow/core/time/clock.dart';
-import 'package:korkem_flow/features/approvals/application/approvals_controller.dart';
-import 'package:korkem_flow/features/approvals/data/pending_action_repository.dart';
-import 'package:korkem_flow/features/approvals/domain/pending_action.dart';
-import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
-import 'package:korkem_flow/features/orders/domain/sales_order.dart';
-import 'package:korkem_flow/features/production/application/production_controller.dart';
-import 'package:korkem_flow/features/production/data/work_order_repository.dart';
-import 'package:korkem_flow/features/production/domain/work_order.dart';
+import 'package:korkem_flow/core/design/theme/app_theme.dart';
+import 'package:korkem_flow/features/today/application/today_controller.dart';
+import 'package:korkem_flow/features/today/data/today_attention_repository.dart';
+import 'package:korkem_flow/features/today/domain/today_attention.dart';
 import 'package:korkem_flow/features/today/presentation/today_screen.dart';
-import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
-import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:korkem_flow/l10n/app_localizations.dart';
 
-import '../../support/widget_harness.dart';
+class _FakeTodayAttentionRepository extends TodayAttentionRepository {
+  _FakeTodayAttentionRepository({required this.attention}) : super(dummyClient);
 
-class _MockSalesOrderRepository extends Mock implements SalesOrderRepository {}
+  static final dummyDio = Dio();
+  static final dummyClient = FrappeClient(dummyDio);
 
-class _MockWorkOrderRepository extends Mock implements WorkOrderRepository {}
+  final TodayAttention attention;
 
-class _MockPendingActionRepository extends Mock
-    implements PendingActionRepository {}
-
-class _MockStockRepository extends Mock implements StockRepository {}
-
-class _MockClient extends Mock implements FrappeClient {}
+  @override
+  Future<TodayAttention> fetchTodayAttention() async => attention;
+}
 
 void main() {
-  late _MockSalesOrderRepository salesOrderRepo;
-  late _MockWorkOrderRepository workOrderRepo;
-  late _MockPendingActionRepository approvalsRepo;
-  late _MockStockRepository stockRepo;
-  late _MockClient client;
-  late MutationOutbox outbox;
-
-  final fixedClock = DateTime(2026, 8, 31, 12);
-
-  setUp(() {
-    salesOrderRepo = _MockSalesOrderRepository();
-    workOrderRepo = _MockWorkOrderRepository();
-    approvalsRepo = _MockPendingActionRepository();
-    stockRepo = _MockStockRepository();
-    client = _MockClient();
-    var counter = 0;
-    outbox = MutationOutbox(keyFactory: () => 'intent-${++counter}');
-  });
-
-  tearDown(() => outbox.dispose());
-
-  void mockDefaults({
-    List<SalesOrder> orders = const [],
-    List<WorkOrder> workOrders = const [],
-    List<PendingAction> approvals = const [],
-    List<StockPosition> stock = const [],
-  }) {
-    when(
-      () => salesOrderRepo.fetchPage(pageSize: any(named: 'pageSize')),
-    ).thenAnswer(
-      (_) async => SalesOrdersPage(orders: orders, total: orders.length),
-    );
-
-    when(
-      () => workOrderRepo.fetchPage(
-        pageSize: any(named: 'pageSize'),
-        status: WorkOrderStatus.inProcess,
-      ),
-    ).thenAnswer((_) async => workOrders);
-
-    when(
-      () => approvalsRepo.fetchPage(
-        pageSize: any(named: 'pageSize'),
-        status: PendingActionStatus.pending,
-      ),
-    ).thenAnswer((_) async => approvals);
-
-    when(
-      () => stockRepo.fetchStock(pageSize: any(named: 'pageSize')),
-    ).thenAnswer(
-      (_) async => StockPage(items: stock, total: stock.length),
-    );
-  }
-
-  Future<void> pumpTodayScreen(WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          salesOrderRepositoryProvider.overrideWithValue(salesOrderRepo),
-          workOrderRepositoryProvider.overrideWithValue(workOrderRepo),
-          pendingActionRepositoryProvider.overrideWithValue(approvalsRepo),
-          stockRepositoryProvider.overrideWithValue(stockRepo),
-          mutationOutboxProvider.overrideWithValue(outbox),
-          frappeClientProvider.overrideWithValue(client),
-          clockProvider.overrideWithValue(() => fixedClock),
-        ],
-        retry: (_, _) => null,
-        child: harness(const TodayScreen()),
-      ),
-    );
+  /// Экран стал длинным: сверху сводки, ниже — то, что застряло. `ListView`
+  /// строит лениво, поэтому в окне на 600 точек нижняя половина просто не
+  /// существует, и тест ищет то, чего никто не рисовал. Окно на высоту экрана.
+  Future<void> pumpScreen(WidgetTester tester, Widget app) async {
+    tester.view.physicalSize = const Size(1200, 3600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(app);
     await tester.pumpAndSettle();
   }
 
-  testWidgets('renders all 5 operational tiles with numbers', (tester) async {
-    mockDefaults(
-      orders: [
-        SalesOrder(
-          name: 'ORD-1',
-          customer: 'Customer 1',
-          status: SalesOrderStatus.toDeliverAndBill,
-          deliveryDate: DateTime(2026, 9, 10),
+  Widget buildHarness({
+    required _FakeTodayAttentionRepository repo,
+    List<RouteBase>? additionalRoutes,
+    bool stockFails = false,
+  }) {
+    final router = GoRouter(
+      initialLocation: '/today',
+      routes: [
+        GoRoute(
+          path: '/today',
+          builder: (context, state) => const TodayScreen(),
         ),
-      ],
-      workOrders: [
-        WorkOrder(
-          id: 'WO-1',
-          status: WorkOrderStatus.inProcess,
-          qty: 10,
-          plannedEndDate: DateTime(2026, 9, 15),
-        ),
-      ],
-      stock: [
-        const StockPosition(
-          itemCode: 'MAT-1',
-          warehouse: 'Main',
-          actualQty: 10,
-          projectedQty: 5,
-        ),
+        ...?additionalRoutes,
       ],
     );
 
-    await pumpTodayScreen(tester);
-
-    expect(find.text('Active Orders'), findsOneWidget);
-    expect(find.text('In Production'), findsOneWidget);
-    expect(find.text('Pending Approvals'), findsOneWidget);
-    expect(find.text('Stock Shortage'), findsOneWidget);
-    expect(find.text('Not Sent'), findsOneWidget);
-    expect(find.text('All sent'), findsOneWidget);
-
-    // All clear because 0 overdue, 0 pending, 0 deficit, 0 outbox
-    expect(find.text('All Clear', skipOffstage: false), findsOneWidget);
-  });
-
-  testWidgets('single tile failure does not crash the other tiles', (
-    tester,
-  ) async {
-    mockDefaults(
-      orders: const [
-        SalesOrder(
-          name: 'ORD-1',
-          customer: 'Customer 1',
-          status: SalesOrderStatus.toDeliverAndBill,
+    return ProviderScope(
+      // Riverpod 3 повторяет упавший провайдер с задержкой, и он навсегда
+      // остаётся «загружается», а не «упал». В тесте нам нужен именно отказ.
+      retry: (_, _) => null,
+      overrides: [
+        todayAttentionRepositoryProvider.overrideWithValue(repo),
+        // Сводки заглушены целиком: без этого экран уходит в сеть, и картинка
+        // теста начинает зависеть от того, кто ответил первым.
+        todayOrdersSummaryProvider.overrideWith(
+          (ref) async => const TodayOrdersSummary(
+            activeCount: 0,
+            lateCount: 0,
+            totalCount: 0,
+          ),
+        ),
+        todayProductionSummaryProvider.overrideWith(
+          (ref) async =>
+              const TodayProductionSummary(inProcessCount: 0, lateCount: 0),
+        ),
+        todayApprovalsSummaryProvider.overrideWith(
+          (ref) async => const TodayApprovalsSummary(pendingCount: 0),
+        ),
+        todayStockSummaryProvider.overrideWith(
+          (ref) async => stockFails
+              ? throw Exception('склад недоступен')
+              : const TodayStockSummary(deficitCount: 0),
         ),
       ],
+      child: MaterialApp.router(
+        theme: AppTheme.light(),
+        locale: const Locale('ru'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: router,
+      ),
     );
-
-    // Stock repository fails
-    when(
-      () => stockRepo.fetchStock(pageSize: any(named: 'pageSize')),
-    ).thenThrow(const ServerFailure('Stock service unreachable'));
-
-    await pumpTodayScreen(tester);
-
-    // Active orders tile is still healthy and rendered
-    expect(find.text('Active Orders'), findsOneWidget);
-    expect(find.text('1'), findsOneWidget);
-
-    // Stock tile shows localized error message instead of crashing
-    expect(find.text('Failed to load'), findsOneWidget);
-  });
-
-  testWidgets('shows attention section when overdue or deficit exists', (
-    tester,
-  ) async {
-    mockDefaults(
-      orders: [
-        SalesOrder(
-          name: 'ORD-LATE',
-          customer: 'Customer 1',
-          status: SalesOrderStatus.toDeliverAndBill,
-          deliveryDate: DateTime(2026, 8, 20), // overdue against fixedClock
-        ),
-      ],
-      stock: [
-        const StockPosition(
-          itemCode: 'MAT-DEFICIT',
-          warehouse: 'Main',
-          actualQty: 0,
-          projectedQty: -5, // deficit
-        ),
-      ],
-    );
-
-    await pumpTodayScreen(tester);
-
-    expect(
-      find.text('NEEDS ATTENTION', skipOffstage: false),
-      findsOneWidget,
-    );
-    expect(find.text('1 overdue', skipOffstage: false), findsWidgets);
-    expect(find.text('1 item in deficit', skipOffstage: false), findsWidgets);
-  });
+  }
 
   testWidgets(
-    'shows attention section and tile with warning when outbox has '
-    'pending items',
+    'renders single all-clear hero when all four attention groups are empty',
     (tester) async {
-      mockDefaults();
-
-      when(
-        () => client.callMethod(
-          any(),
-          params: any(named: 'params'),
-          post: true,
-        ),
-      ).thenThrow(const NetworkFailure('offline'));
-
-      try {
-        await outbox.execute(
-          client,
-          'example.mutate',
-          params: const {'id': '1'},
-        );
-      } on Object catch (_) {}
-
-      await pumpTodayScreen(tester);
-
-      expect(find.text('Not Sent'), findsWidgets);
-      expect(
-        find.text('1 command waiting to send', skipOffstage: false),
-        findsWidgets,
+      final repo = _FakeTodayAttentionRepository(
+        attention: const TodayAttention(),
       );
-      expect(find.text('NEEDS ATTENTION', skipOffstage: false), findsOneWidget);
-      expect(find.text('All Clear', skipOffstage: false), findsNothing);
+
+      await pumpScreen(tester, buildHarness(repo: repo));
+
+      expect(find.text('Что требует внимания'), findsOneWidget);
+      expect(find.text('Всё под контролем'), findsOneWidget);
+      expect(
+        find.textContaining('Все обращения переданы, просрочек нет'),
+        findsOneWidget,
+      );
+
+      // Ensure 4 group headers are NOT rendered when all clear
+      expect(find.text('Не передано в работу'), findsNothing);
+      expect(find.text('Просроченные задачи'), findsNothing);
+      expect(find.text('Заказы без дизайна'), findsNothing);
+      expect(find.text('Отгружено без счёта'), findsNothing);
     },
   );
+
+  testWidgets(
+    'renders four groups, showing items for active ones '
+    'and good news for empty ones',
+    (tester) async {
+      final repo = _FakeTodayAttentionRepository(
+        attention: const TodayAttention(
+          unassignedCaptures: [
+            UnassignedCaptureItem(
+              capture: 'CAP-001',
+              said: 'Заказчик просит прихожую',
+              since: '2026-09-02 09:00',
+              customer: 'Аскар',
+            ),
+          ],
+          ordersWithoutDesign: [
+            OrderWithoutDesignItem(
+              salesOrder: 'SAL-ORD-2026-00001',
+              customer: 'ТОО Мебель',
+              due: '2026-09-20',
+            ),
+          ],
+          deliveredNotInvoiced: [
+            DeliveredNotInvoicedItem(
+              salesOrder: 'SAL-ORD-2026-00002',
+              customer: 'ЖК Батыс',
+              total: 2500000,
+              deliveredPercent: 100,
+            ),
+          ],
+        ),
+      );
+
+      await pumpScreen(tester, buildHarness(repo: repo));
+
+      // Group 1: Has item
+      expect(find.text('Не передано в работу'), findsOneWidget);
+      expect(find.text('«Заказчик просит прихожую»'), findsOneWidget);
+      expect(find.textContaining('Аскар'), findsOneWidget);
+
+      // Group 2: Empty -> Good news!
+      expect(find.text('Просроченные задачи'), findsOneWidget);
+      expect(
+        find.text('Всё в срок: нет просроченных замеров, дизайнов и монтажей'),
+        findsOneWidget,
+      );
+
+      // Group 3: Has item
+      expect(find.text('Заказы без дизайна'), findsOneWidget);
+      expect(find.text('SAL-ORD-2026-00001'), findsOneWidget);
+      expect(find.textContaining('ТОО Мебель'), findsOneWidget);
+
+      // Group 4: Has item
+      expect(find.text('Отгружено без счёта'), findsOneWidget);
+      expect(find.textContaining('SAL-ORD-2026-00002'), findsOneWidget);
+      expect(find.textContaining('ЖК Батыс'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'tapping attention items navigates to target resolution screens',
+    (tester) async {
+      String? navigatedRoute;
+
+      final repo = _FakeTodayAttentionRepository(
+        attention: const TodayAttention(
+          unassignedCaptures: [
+            UnassignedCaptureItem(
+              capture: 'CAP-001',
+              said: 'Заказчик просит прихожую',
+              since: '2026-09-02',
+              customer: 'Аскар',
+            ),
+          ],
+          overdueTasks: [
+            OverdueTaskItem(
+              task: 'TASK-001',
+              title: 'Замер',
+              who: 'Ерлан',
+              wasDue: '2026-09-01',
+              on: 'SAL-ORD-2026-00099',
+            ),
+          ],
+          ordersWithoutDesign: [
+            OrderWithoutDesignItem(
+              salesOrder: 'SAL-ORD-2026-00001',
+              customer: 'ТОО Мебель',
+            ),
+          ],
+        ),
+      );
+
+      final additionalRoutes = [
+        GoRoute(
+          path: '/enquiry-flow',
+          builder: (context, state) {
+            navigatedRoute =
+                '/enquiry-flow?capture=${state.uri.queryParameters['capture']}';
+            return const Scaffold(body: Text('Enquiry Flow Screen'));
+          },
+        ),
+        GoRoute(
+          path: '/orders/:name',
+          builder: (context, state) {
+            navigatedRoute = '/orders/${state.pathParameters['name']}';
+            return const Scaffold(body: Text('Order Detail Screen'));
+          },
+        ),
+      ];
+
+      await pumpScreen(
+        tester,
+        buildHarness(repo: repo, additionalRoutes: additionalRoutes),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap capture -> navigates to enquiry-flow with capture parameter
+      await tester.tap(find.text('«Заказчик просит прихожую»'));
+      await tester.pumpAndSettle();
+      expect(navigatedRoute, '/enquiry-flow?capture=CAP-001');
+
+      // Go back to today
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();
+
+      // Tap overdue task linked to Sales Order -> navigates to order
+      await tester.tap(find.text('Замер'));
+      await tester.pumpAndSettle();
+      expect(navigatedRoute, '/orders/SAL-ORD-2026-00099');
+    },
+  );
+
+  testWidgets('упавшая сводка не прячет список дел', (tester) async {
+    // Склад недоступен — это не повод оставить владельца без списка того, что
+    // застряло. Раньше сводки и дела жили на разных экранах, и такой вопрос не
+    // возникал; теперь они рядом, и падение одной половины должно оставаться
+    // падением одной половины.
+    final repo = _FakeTodayAttentionRepository(
+      attention: const TodayAttention(
+        unassignedCaptures: [
+          UnassignedCaptureItem(
+            capture: 'CAP-001',
+            said: 'Заказчик просит прихожую',
+            since: '2026-09-02',
+            customer: 'Данияр',
+          ),
+        ],
+      ),
+    );
+
+    await pumpScreen(
+      tester,
+      buildHarness(repo: repo, stockFails: true),
+    );
+
+    expect(find.text('Не удалось загрузить'), findsOneWidget);
+    expect(find.textContaining('Заказчик просит прихожую'), findsOneWidget);
+    expect(find.text('Не передано в работу'), findsOneWidget);
+  });
 }

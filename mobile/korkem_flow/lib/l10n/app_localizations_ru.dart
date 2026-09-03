@@ -1604,10 +1604,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get soOnHold => 'На удержании';
 
   @override
-  String get todayTitle => 'Сегодня';
+  String get todayTitle => 'Что требует внимания';
 
   @override
-  String get todaySubtitle => 'Оперативная сводка цеха';
+  String get todaySubtitle =>
+      'Ежедневный контроль цепочки производства и продаж';
 
   @override
   String get todayActiveOrders => 'Активные заказы';
@@ -1700,6 +1701,54 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get todayTileError => 'Не удалось загрузить';
+
+  @override
+  String get todayUnassignedCapturesTitle => 'Не передано в работу';
+
+  @override
+  String get todayUnassignedCapturesEmpty =>
+      'Ничего не потеряно: все обращения переданы в работу';
+
+  @override
+  String get todayOverdueTasksTitle => 'Просроченные задачи';
+
+  @override
+  String get todayOverdueTasksEmpty =>
+      'Всё в срок: нет просроченных замеров, дизайнов и монтажей';
+
+  @override
+  String get todayOrdersWithoutDesignTitle => 'Заказы без дизайна';
+
+  @override
+  String get todayOrdersWithoutDesignEmpty => 'По всем заказам назначен дизайн';
+
+  @override
+  String get todayDeliveredNotInvoicedTitle => 'Отгружено без счёта';
+
+  @override
+  String get todayDeliveredNotInvoicedEmpty => 'Все отгрузки закрыты счетами';
+
+  @override
+  String get todayAllClearHeadline => 'Всё под контролем';
+
+  @override
+  String get todayAllClearDescription =>
+      'Все обращения переданы, просрочек нет, дизайн назначен по всем заказам, а отгрузки закрыты счетами.';
+
+  @override
+  String todayOverdueWasDue(String date) {
+    return 'Срок истёк: $date';
+  }
+
+  @override
+  String todayDeliveryDue(String date) {
+    return 'Срок сдачи: $date';
+  }
+
+  @override
+  String todayBilledProgress(String delivered, String billed) {
+    return 'Отгружено $delivered%, выставлено $billed%';
+  }
 
   @override
   String get orderProductionSection => 'Производство';

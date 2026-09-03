@@ -1594,10 +1594,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get soOnHold => 'Кідіртілген';
 
   @override
-  String get todayTitle => 'Бүгін';
+  String get todayTitle => 'Назар аударуды қажет етеді';
 
   @override
-  String get todaySubtitle => 'Цехтың жедел жиынтығы';
+  String get todaySubtitle => 'Өндіріс пен сату тізбегін күнделікті бақылау';
 
   @override
   String get todayActiveOrders => 'Белсенді тапсырыстар';
@@ -1658,6 +1658,56 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get todayTileError => 'Жүктеу мүмкін болмады';
+
+  @override
+  String get todayUnassignedCapturesTitle => 'Жұмысқа берілмеген';
+
+  @override
+  String get todayUnassignedCapturesEmpty =>
+      'Ештеңе жоғалған жоқ: барлық өтініштер жұмысқа берілді';
+
+  @override
+  String get todayOverdueTasksTitle => 'Мерзімі өткен тапсырмалар';
+
+  @override
+  String get todayOverdueTasksEmpty =>
+      'Барлығы уақытында: мерзімі өткен өлшеу, дизайн немесе монтаж жоқ';
+
+  @override
+  String get todayOrdersWithoutDesignTitle => 'Дизайнсыз тапсырыстар';
+
+  @override
+  String get todayOrdersWithoutDesignEmpty =>
+      'Барлық тапсырыстар бойынша дизайн тағайындалды';
+
+  @override
+  String get todayDeliveredNotInvoicedTitle => 'Шотсыз жөнелтілгендер';
+
+  @override
+  String get todayDeliveredNotInvoicedEmpty =>
+      'Барлық жөнелтілімдер шоттармен жабылған';
+
+  @override
+  String get todayAllClearHeadline => 'Барлығы бақылауда';
+
+  @override
+  String get todayAllClearDescription =>
+      'Барлық өтініштер тапсырылды, мерзімі өткендер жоқ, барлық тапсырыстар бойынша дизайн тағайындалды және жөнелтілімдер шоттармен жабылды.';
+
+  @override
+  String todayOverdueWasDue(String date) {
+    return 'Мерзімі өтті: $date';
+  }
+
+  @override
+  String todayDeliveryDue(String date) {
+    return 'Тапсыру мерзімі: $date';
+  }
+
+  @override
+  String todayBilledProgress(String delivered, String billed) {
+    return '$delivered% жөнелтілді, $billed% шот шығарылды';
+  }
 
   @override
   String get orderProductionSection => 'Өндіріс';

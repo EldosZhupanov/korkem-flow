@@ -10,6 +10,8 @@ import 'package:korkem_flow/features/production/application/production_controlle
 import 'package:korkem_flow/features/production/data/work_order_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/today/application/today_controller.dart';
+import 'package:korkem_flow/features/today/data/today_attention_repository.dart';
+import 'package:korkem_flow/features/today/domain/today_attention.dart';
 import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
 import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
 import 'package:mocktail/mocktail.dart';
@@ -22,6 +24,9 @@ class _MockPendingActionRepository extends Mock
     implements PendingActionRepository {}
 
 class _MockStockRepository extends Mock implements StockRepository {}
+
+class _MockTodayAttentionRepository extends Mock
+    implements TodayAttentionRepository {}
 
 void main() {
   late _MockSalesOrderRepository salesOrderRepo;
@@ -184,6 +189,42 @@ void main() {
 
       expect(summary.deficitCount, 1);
       expect(summary.deficitPositions.single.itemCode, 'MAT-1');
+    });
+  });
+
+  group('todayAttentionProvider', () {
+    test('отдаёт то, что застряло, ровно как его вернул сервер', () async {
+      final attentionRepository = _MockTodayAttentionRepository();
+      const expected = TodayAttention(
+        unassignedCaptures: [
+          UnassignedCaptureItem(
+            capture: 'CAP-001',
+            said: 'Новый шкаф',
+            since: '2026-09-02',
+            customer: 'Данияр',
+          ),
+        ],
+      );
+
+      when(attentionRepository.fetchTodayAttention).thenAnswer(
+        (_) async => expected,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          todayAttentionRepositoryProvider.overrideWithValue(
+            attentionRepository,
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final attention = await container.read(todayAttentionProvider.future);
+
+      expect(attention.isAllClear, isFalse);
+      expect(attention.unassignedCaptures.length, 1);
+      expect(attention.unassignedCaptures.first.said, 'Новый шкаф');
+      verify(attentionRepository.fetchTodayAttention).called(1);
     });
   });
 }

@@ -3,20 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:korkem_flow/core/api/api_providers.dart';
-import 'package:korkem_flow/core/api/mutation_outbox.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/motion/animated_counter.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
-import 'package:korkem_flow/core/design/widgets/section_label.dart';
+import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/today/application/today_controller.dart';
+import 'package:korkem_flow/features/today/domain/today_attention.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-/// The Today screen: operational shop floor overview.
+/// The owner's daily attention dashboard:
+/// what requires action across the whole pipeline.
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
 
@@ -25,11 +28,8 @@ class TodayScreen extends ConsumerWidget {
       ..invalidate(todayOrdersSummaryProvider)
       ..invalidate(todayProductionSummaryProvider)
       ..invalidate(todayApprovalsSummaryProvider)
-      ..invalidate(todayStockSummaryProvider);
-    final outbox = ref.read(mutationOutboxProvider);
-    if (outbox.snapshot.pendingCount > 0) {
-      unawaited(outbox.retryPending(ref.read(frappeClientProvider)));
-    }
+      ..invalidate(todayStockSummaryProvider)
+      ..invalidate(todayAttentionProvider);
   }
 
   @override
@@ -39,23 +39,7 @@ class TodayScreen extends ConsumerWidget {
     final productionAsync = ref.watch(todayProductionSummaryProvider);
     final approvalsAsync = ref.watch(todayApprovalsSummaryProvider);
     final stockAsync = ref.watch(todayStockSummaryProvider);
-    final outbox = ref.watch(mutationOutboxProvider);
-    final outboxSnapshot =
-        ref.watch(mutationOutboxSnapshotProvider).value ?? outbox.snapshot;
-    final outboxCount = outboxSnapshot.pendingCount;
-
-    final totalAlerts =
-        (ordersAsync.value?.lateCount ?? 0) +
-        (productionAsync.value?.lateCount ?? 0) +
-        (approvalsAsync.value?.pendingCount ?? 0) +
-        (stockAsync.value?.deficitCount ?? 0) +
-        outboxCount;
-
-    final isAllLoaded =
-        ordersAsync.hasValue &&
-        productionAsync.hasValue &&
-        approvalsAsync.hasValue &&
-        stockAsync.hasValue;
+    final attentionAsync = ref.watch(todayAttentionProvider);
 
     return AppScreen(
       title: l10n.todayTitle,
@@ -72,7 +56,7 @@ class TodayScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
 
-            // ── 5 Operational KPI Tiles ──────────────────────────────────────
+            // Сколько — состояние цеха одним взглядом.
             _OrdersTile(state: ordersAsync),
             const SizedBox(height: AppSpacing.md),
             _ProductionTile(state: productionAsync),
@@ -80,111 +64,493 @@ class TodayScreen extends ConsumerWidget {
             _ApprovalsTile(state: approvalsAsync),
             const SizedBox(height: AppSpacing.md),
             _StockTile(state: stockAsync),
-            const SizedBox(height: AppSpacing.md),
-            _OutboxTile(snapshot: outboxSnapshot),
             const SizedBox(height: AppSpacing.xl),
 
-            // ── Operational status / Attention section ────────────────────────
-            if (isAllLoaded && totalAlerts == 0)
-              _AllClearBanner(
-                title: l10n.todayAllClearTitle,
-                subtitle: l10n.todayAllClearSubtitle,
-              )
-            else if (totalAlerts > 0) ...[
-              SectionLabel(l10n.todayAttentionTitle),
-              const SizedBox(height: AppSpacing.sm),
-              if ((ordersAsync.value?.lateCount ?? 0) > 0)
-                _AttentionItemCard(
-                  icon: AppIcons.quote,
-                  title: l10n.ordersTitle,
-                  subtitle: l10n.todayLateOrders(
-                    ordersAsync.value!.lateCount,
-                  ),
-                  intent: StatusIntent.danger,
-                  onTap: () => context.push(Routes.orders),
-                ),
-              if ((productionAsync.value?.lateCount ?? 0) > 0) ...[
-                const SizedBox(height: AppSpacing.sm),
-                _AttentionItemCard(
-                  icon: AppIcons.workOrder,
-                  title: l10n.todayInProduction,
-                  subtitle: l10n.todayLateOrders(
-                    productionAsync.value!.lateCount,
-                  ),
-                  intent: StatusIntent.danger,
-                  onTap: () => context.push(Routes.production),
-                ),
-              ],
-              if ((approvalsAsync.value?.pendingCount ?? 0) > 0) ...[
-                const SizedBox(height: AppSpacing.sm),
-                _AttentionItemCard(
-                  icon: AppIcons.approval,
-                  title: l10n.todayApprovals,
-                  subtitle: l10n.todayApprovalsCount(
-                    approvalsAsync.value!.pendingCount,
-                  ),
-                  intent: StatusIntent.warning,
-                  onTap: () => context.push(Routes.approvals),
-                ),
-              ],
-              if ((stockAsync.value?.deficitCount ?? 0) > 0) ...[
-                const SizedBox(height: AppSpacing.sm),
-                _AttentionItemCard(
-                  icon: AppIcons.warehouse,
-                  title: l10n.todayStockDeficit,
-                  subtitle: l10n.todayDeficitCount(
-                    stockAsync.value!.deficitCount,
-                  ),
-                  intent: StatusIntent.danger,
-                  onTap: () => context.push(Routes.deliveryCentre),
-                ),
-              ],
-              if (outboxCount > 0) ...[
-                const SizedBox(height: AppSpacing.sm),
-                _AttentionItemCard(
-                  icon: AppIcons.refresh,
-                  title: l10n.todayOutboxTitle,
-                  subtitle: l10n.outboxPending(outboxCount),
-                  intent: StatusIntent.warning,
-                  onTap: () => context.push(Routes.outbox),
-                ),
-              ],
-            ],
-
-            const SizedBox(height: AppSpacing.xl),
-            SectionLabel(l10n.todayQuickNav),
-            const SizedBox(height: AppSpacing.sm),
-            _QuickNavRow(
-              icon: AppIcons.quote,
-              label: l10n.ordersTitle,
-              onTap: () => context.push(Routes.orders),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            _QuickNavRow(
-              icon: AppIcons.workOrder,
-              label: l10n.todayInProduction,
-              onTap: () => context.push(Routes.production),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            _QuickNavRow(
-              icon: AppIcons.approval,
-              label: l10n.todayApprovals,
-              onTap: () => context.push(Routes.approvals),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            _QuickNavRow(
-              icon: AppIcons.warehouse,
-              label: l10n.todayStockDeficit,
-              onTap: () => context.push(Routes.deliveryCentre),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            _QuickNavRow(
-              icon: AppIcons.refresh,
-              label: l10n.todayOutboxTitle,
-              onTap: () => context.push(Routes.outbox),
-            ),
+            // Что делать — то, что застряло в цепочке. Считается на сервере,
+            // по другому маршруту: сводка отвечает «сколько», этот список —
+            // «чем заняться сейчас».
+            switch (attentionAsync) {
+              AsyncData(:final value) => _Body(attention: value),
+              AsyncError(:final error) => ErrorView(
+                error: error,
+                onRetry: () => ref.invalidate(todayAttentionProvider),
+              ),
+              _ => const Center(child: CircularProgressIndicator()),
+            },
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Body extends StatelessWidget {
+  const _Body({required this.attention});
+
+  final TodayAttention attention;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final money = NumberFormat.currency(
+      locale: locale,
+      symbol: '₸',
+      decimalDigits: 0,
+    );
+
+    if (attention.isAllClear) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _AllClearHero(
+            title: l10n.todayAllClearHeadline,
+            description: l10n.todayAllClearDescription,
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Group 1: Unassigned captures
+        _AttentionGroupHeader(
+          title: l10n.todayUnassignedCapturesTitle,
+          count: attention.unassignedCaptures.length,
+          icon: AppIcons.conversation,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (attention.unassignedCaptures.isEmpty)
+          _GoodNewsCard(message: l10n.todayUnassignedCapturesEmpty)
+        else
+          for (final item in attention.unassignedCaptures) ...[
+            _CaptureAttentionCard(item: item),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        const SizedBox(height: AppSpacing.xl),
+
+        // Group 2: Overdue tasks
+        _AttentionGroupHeader(
+          title: l10n.todayOverdueTasksTitle,
+          count: attention.overdueTasks.length,
+          icon: AppIcons.schedule,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (attention.overdueTasks.isEmpty)
+          _GoodNewsCard(message: l10n.todayOverdueTasksEmpty)
+        else
+          for (final item in attention.overdueTasks) ...[
+            _TaskAttentionCard(item: item),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        const SizedBox(height: AppSpacing.xl),
+
+        // Group 3: Orders without design
+        _AttentionGroupHeader(
+          title: l10n.todayOrdersWithoutDesignTitle,
+          count: attention.ordersWithoutDesign.length,
+          icon: AppIcons.item,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (attention.ordersWithoutDesign.isEmpty)
+          _GoodNewsCard(message: l10n.todayOrdersWithoutDesignEmpty)
+        else
+          for (final item in attention.ordersWithoutDesign) ...[
+            _OrderNoDesignCard(item: item),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        const SizedBox(height: AppSpacing.xl),
+
+        // Group 4: Delivered not invoiced
+        _AttentionGroupHeader(
+          title: l10n.todayDeliveredNotInvoicedTitle,
+          count: attention.deliveredNotInvoiced.length,
+          icon: AppIcons.quote,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (attention.deliveredNotInvoiced.isEmpty)
+          _GoodNewsCard(message: l10n.todayDeliveredNotInvoicedEmpty)
+        else
+          for (final item in attention.deliveredNotInvoiced) ...[
+            _DeliveredNotInvoicedCard(item: item, money: money),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+      ],
+    );
+  }
+}
+
+class _AllClearHero extends StatelessWidget {
+  const _AllClearHero({
+    required this.title,
+    required this.description,
+  });
+
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.xxl),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(
+            alpha: AppTint.ornamentOnDark,
+          ),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            AppIcons.success,
+            color: theme.colorScheme.primary,
+            size: AppIconSize.illustration,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            title,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            description,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttentionGroupHeader extends StatelessWidget {
+  const _AttentionGroupHeader({
+    required this.title,
+    required this.count,
+    required this.icon,
+  });
+
+  final String title;
+  final int count;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: AppIconSize.dense,
+          color: count > 0
+              ? theme.colorScheme.error
+              : theme.colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        StatusChip(
+          label: '$count',
+          intent: count > 0 ? StatusIntent.danger : StatusIntent.success,
+        ),
+      ],
+    );
+  }
+}
+
+class _GoodNewsCard extends StatelessWidget {
+  const _GoodNewsCard({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(
+          alpha: AppTint.surface,
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            AppIcons.success,
+            color: theme.colorScheme.primary,
+            size: AppIconSize.small,
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CaptureAttentionCard extends StatelessWidget {
+  const _CaptureAttentionCard({required this.item});
+
+  final UnassignedCaptureItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return AppCard(
+      onTap: () {
+        unawaited(
+          context.push('${Routes.enquiryFlow}?capture=${item.capture}'),
+        );
+      },
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '«${item.said}»',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  item.customer != null && item.customer!.isNotEmpty
+                      ? '${item.customer!} • ${item.since}'
+                      : item.since,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Icon(
+            AppIcons.forward,
+            size: AppIconSize.dense,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TaskAttentionCard extends StatelessWidget {
+  const _TaskAttentionCard({required this.item});
+
+  final OverdueTaskItem item;
+
+  void _navigate(BuildContext context) {
+    final onDoc = item.on;
+    if (onDoc != null && onDoc.startsWith('SAL-ORD-')) {
+      unawaited(context.push(Routes.order(onDoc)));
+    } else if (onDoc != null && onDoc.isNotEmpty) {
+      unawaited(context.push('${Routes.enquiryFlow}?capture=$onDoc'));
+    } else {
+      unawaited(context.push(Routes.tasks));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final displayTitle = item.title != null && item.title!.isNotEmpty
+        ? item.title!
+        : item.task;
+
+    return AppCard(
+      onTap: () => _navigate(context),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  displayTitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  item.who != null && item.who!.isNotEmpty
+                      ? '${item.who!} • ${l10n.todayOverdueWasDue(item.wasDue)}'
+                      : l10n.todayOverdueWasDue(item.wasDue),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+                if (item.on != null && item.on!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    item.on!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Icon(
+            AppIcons.forward,
+            size: AppIconSize.dense,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderNoDesignCard extends StatelessWidget {
+  const _OrderNoDesignCard({required this.item});
+
+  final OrderWithoutDesignItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    final customer = item.customer;
+    final due = item.due;
+    final subtitle = customer != null && customer.isNotEmpty
+        ? '$customer${due != null ? ' • ${l10n.todayDeliveryDue(due)}' : ''}'
+        : (due != null ? l10n.todayDeliveryDue(due) : '');
+
+    return AppCard(
+      onTap: () {
+        unawaited(context.push(Routes.order(item.salesOrder)));
+      },
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.salesOrder,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Icon(
+            AppIcons.forward,
+            size: AppIconSize.dense,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DeliveredNotInvoicedCard extends StatelessWidget {
+  const _DeliveredNotInvoicedCard({
+    required this.item,
+    required this.money,
+  });
+
+  final DeliveredNotInvoicedItem item;
+  final NumberFormat money;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    final customer = item.customer;
+    final progress = l10n.todayBilledProgress(
+      '${item.deliveredPercent.toInt()}',
+      '${item.billedPercent.toInt()}',
+    );
+    final subtitle = customer != null && customer.isNotEmpty
+        ? '$customer • $progress'
+        : progress;
+
+    return AppCard(
+      onTap: () {
+        unawaited(context.push(Routes.order(item.salesOrder)));
+      },
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${item.salesOrder} — ${money.format(item.total)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Icon(
+            AppIcons.forward,
+            size: AppIconSize.dense,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ],
       ),
     );
   }
@@ -354,29 +720,6 @@ class _StockTile extends StatelessWidget {
   }
 }
 
-class _OutboxTile extends StatelessWidget {
-  const _OutboxTile({required this.snapshot});
-
-  final OutboxSnapshot snapshot;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final count = snapshot.pendingCount;
-
-    return _OperationalTile(
-      title: l10n.todayOutboxTitle,
-      value: count,
-      statusText: count > 0
-          ? l10n.outboxPending(count)
-          : l10n.todayOutboxAllSent,
-      icon: AppIcons.refresh,
-      intent: count > 0 ? StatusIntent.warning : StatusIntent.success,
-      onTap: () => context.push(Routes.outbox),
-    );
-  }
-}
-
 class _OperationalTile extends StatelessWidget {
   const _OperationalTile({
     required this.title,
@@ -480,136 +823,6 @@ class _OperationalTile extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AllClearBanner extends StatelessWidget {
-  const _AllClearBanner({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final successColor = context.statusColors.success;
-
-    return AppCard(
-      child: Row(
-        children: [
-          Icon(AppIcons.check, size: AppIconSize.normal, color: successColor),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: successColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xxs),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttentionItemCard extends StatelessWidget {
-  const _AttentionItemCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.intent,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final StatusIntent intent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final accent = context.statusColors.resolve(intent);
-
-    return AppCard(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Icon(icon, size: AppIconSize.small, color: accent),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: theme.textTheme.titleSmall),
-                const SizedBox(height: AppSpacing.xxs),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(color: accent),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            AppIcons.forward,
-            size: AppIconSize.dense,
-            color: theme.colorScheme.outline,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickNavRow extends StatelessWidget {
-  const _QuickNavRow({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return AppCard(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: AppIconSize.small,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
-          Icon(
-            AppIcons.forward,
-            size: AppIconSize.dense,
-            color: theme.colorScheme.outline,
-          ),
-        ],
       ),
     );
   }

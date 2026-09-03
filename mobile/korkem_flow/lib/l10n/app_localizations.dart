@@ -3166,11 +3166,89 @@ abstract class AppLocalizations {
   /// **'Quick Navigation'**
   String get todayQuickNav;
 
-  /// Error text for an individual tile.
+  /// Error text on today dashboard tile.
   ///
   /// In en, this message translates to:
   /// **'Failed to load'**
   String get todayTileError;
+
+  /// Title for unassigned voice captures group
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned captures'**
+  String get todayUnassignedCapturesTitle;
+
+  /// Empty state good news for captures
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing lost: all captures have been assigned'**
+  String get todayUnassignedCapturesEmpty;
+
+  /// Title for overdue tasks group
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue tasks'**
+  String get todayOverdueTasksTitle;
+
+  /// Empty state good news for tasks
+  ///
+  /// In en, this message translates to:
+  /// **'All on schedule: no overdue measurements, designs, or installations'**
+  String get todayOverdueTasksEmpty;
+
+  /// Title for orders without design group
+  ///
+  /// In en, this message translates to:
+  /// **'Orders without design'**
+  String get todayOrdersWithoutDesignTitle;
+
+  /// Empty state good news for orders without design
+  ///
+  /// In en, this message translates to:
+  /// **'Design is assigned for all orders'**
+  String get todayOrdersWithoutDesignEmpty;
+
+  /// Title for delivered orders not invoiced group
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped without invoice'**
+  String get todayDeliveredNotInvoicedTitle;
+
+  /// Empty state good news for unbilled shipments
+  ///
+  /// In en, this message translates to:
+  /// **'All shipments are billed'**
+  String get todayDeliveredNotInvoicedEmpty;
+
+  /// Headline when all 4 attention groups are clear
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is under control'**
+  String get todayAllClearHeadline;
+
+  /// Description when all 4 attention groups are clear
+  ///
+  /// In en, this message translates to:
+  /// **'All requests are assigned, nothing is overdue, designs are in progress, and all deliveries have invoices.'**
+  String get todayAllClearDescription;
+
+  /// Overdue task due date label
+  ///
+  /// In en, this message translates to:
+  /// **'Was due: {date}'**
+  String todayOverdueWasDue(String date);
+
+  /// Order delivery deadline label
+  ///
+  /// In en, this message translates to:
+  /// **'Due delivery: {date}'**
+  String todayDeliveryDue(String date);
+
+  /// Shipment vs invoice progress
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped {delivered}%, billed {billed}%'**
+  String todayBilledProgress(String delivered, String billed);
 
   /// Section heading for the production jobs of one order.
   ///

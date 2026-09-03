@@ -1690,6 +1690,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayTileError => 'Failed to load';
 
   @override
+  String get todayUnassignedCapturesTitle => 'Unassigned captures';
+
+  @override
+  String get todayUnassignedCapturesEmpty =>
+      'Nothing lost: all captures have been assigned';
+
+  @override
+  String get todayOverdueTasksTitle => 'Overdue tasks';
+
+  @override
+  String get todayOverdueTasksEmpty =>
+      'All on schedule: no overdue measurements, designs, or installations';
+
+  @override
+  String get todayOrdersWithoutDesignTitle => 'Orders without design';
+
+  @override
+  String get todayOrdersWithoutDesignEmpty =>
+      'Design is assigned for all orders';
+
+  @override
+  String get todayDeliveredNotInvoicedTitle => 'Shipped without invoice';
+
+  @override
+  String get todayDeliveredNotInvoicedEmpty => 'All shipments are billed';
+
+  @override
+  String get todayAllClearHeadline => 'Everything is under control';
+
+  @override
+  String get todayAllClearDescription =>
+      'All requests are assigned, nothing is overdue, designs are in progress, and all deliveries have invoices.';
+
+  @override
+  String todayOverdueWasDue(String date) {
+    return 'Was due: $date';
+  }
+
+  @override
+  String todayDeliveryDue(String date) {
+    return 'Due delivery: $date';
+  }
+
+  @override
+  String todayBilledProgress(String delivered, String billed) {
+    return 'Shipped $delivered%, billed $billed%';
+  }
+
+  @override
   String get orderProductionSection => 'Production';
 
   @override
