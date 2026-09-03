@@ -31,6 +31,9 @@ abstract final class AppIcons {
   static const IconData design = Symbols.draw_rounded;
   static const IconData attachment = Symbols.attach_file_rounded;
   static const IconData installation = Symbols.handyman_rounded;
+  static const IconData camera = Symbols.photo_camera_rounded;
+  static const IconData gallery = Symbols.photo_library_rounded;
+  static const IconData image = Symbols.image_rounded;
 
   // ── Actions ──────────────────────────────────────────────────────────────
   static const IconData search = Symbols.search_rounded;

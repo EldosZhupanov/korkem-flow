@@ -107,12 +107,14 @@ class _FakeEnquiryFlowRepository extends EnquiryFlowRepository {
     String? addressLine,
     String? city,
     String? measuredOn,
+    List<String> photos = const [],
   }) async {
     final res = MeasurementResult(
       enquiry: enquiry,
       dimensions: dimensions,
       notes: notes,
       measuredOn: measuredOn ?? '2026-09-03',
+      photos: photos,
     );
     measurements[enquiry] = res;
     return res;

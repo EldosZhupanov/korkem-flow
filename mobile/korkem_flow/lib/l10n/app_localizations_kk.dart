@@ -531,6 +531,27 @@ class AppLocalizationsKk extends AppLocalizations {
   String get enquiryFlowRecordMeasurementAction => 'Өлшеу нәтижесін жазу';
 
   @override
+  String get enquiryFlowAttachPhotos => 'Фотосуреттер мен сілтемелер';
+
+  @override
+  String get enquiryFlowTakePhoto => 'Суретке түсіру';
+
+  @override
+  String get enquiryFlowPickGallery => 'Галереядан';
+
+  @override
+  String enquiryFlowPhotosCount(int count) {
+    return '$count фото тіркелді';
+  }
+
+  @override
+  String get enquiryFlowRemovePhoto => 'Фотоны өшіру';
+
+  @override
+  String get enquiryFlowPermissionDenied =>
+      'Камераға немесе галереяға рұқсат берілмеген. Өлшеу фотосуретін тіркеу үшін құрылғы баптауларында рұқсат беріңіз.';
+
+  @override
   String get enquiryFlowItemCode => 'Позиция атауы';
 
   @override

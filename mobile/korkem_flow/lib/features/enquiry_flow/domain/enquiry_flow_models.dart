@@ -125,12 +125,14 @@ class MeasurementResult {
     this.taskClosed,
     this.dimensions,
     this.notes,
+    this.photos = const [],
   });
 
   factory MeasurementResult.fromJson(
     Map<String, dynamic> json, {
     String? dimensions,
     String? notes,
+    List<String> photos = const [],
   }) {
     final message = json['message'] is Map<String, dynamic>
         ? json['message'] as Map<String, dynamic>
@@ -143,6 +145,7 @@ class MeasurementResult {
       measuredOn: '${message['measured_on'] ?? ''}',
       dimensions: dimensions,
       notes: notes,
+      photos: photos,
     );
   }
 
@@ -152,6 +155,7 @@ class MeasurementResult {
   final String measuredOn;
   final String? dimensions;
   final String? notes;
+  final List<String> photos;
 }
 
 /// An individual line item in a commercial proposal (Quotation).

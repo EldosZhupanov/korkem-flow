@@ -56,6 +56,28 @@ Dart package, so no icon files are vendored into `assets/`.
 **One icon set only.** Mixing icon families is the most visible way an interface reads as assembled
 rather than designed.
 
+## Plugins
+
+### image_picker
+
+| | |
+|---|---|
+| **Package** | `image_picker` (pub.dev), resolved 1.2.3 |
+| **License** | BSD-3-Clause — `Copyright 2013 The Flutter Authors` |
+| **Source** | https://github.com/flutter/packages/tree/main/packages/image_picker |
+| **Purpose** | Photographs taken at a measurement: the wall, the socket, the pipe in the corner |
+
+Maintained by the Flutter team itself, which is the reason it was chosen over the
+community pickers: this plugin runs inside a release build behind R8, and a plugin
+whose native side stops being maintained is a build that stops working on the next
+Android release. It carries its own consumer ProGuard rules, so no entry in
+`android/app/proguard-rules.pro` is needed for it.
+
+On Android 13 and later it goes through the system photo picker, which grants access
+to the one picture the person chose rather than to the whole gallery — the app never
+asks for `READ_EXTERNAL_STORAGE`. Camera permission is requested at the moment the
+person taps, not when the screen opens.
+
 ## Illustrations and animations
 
 None bundled yet.

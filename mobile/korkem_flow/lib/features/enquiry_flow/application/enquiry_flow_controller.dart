@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:korkem_flow/features/enquiry_flow/data/enquiry_flow_repository.dart';
+import 'package:korkem_flow/features/enquiry_flow/data/measurement_photo_repository.dart';
 import 'package:korkem_flow/features/enquiry_flow/domain/enquiry_flow_models.dart';
 
 // AutoDisposeFutureProvider is not exported as a public type.
@@ -159,8 +161,15 @@ class EnquiryFlowActionsController {
     String? addressLine,
     String? city,
     String? measuredOn,
+    List<XFile> photos = const [],
   }) async {
     final repo = _ref.read(enquiryFlowRepositoryProvider);
+    final photoRepo = _ref.read(measurementPhotoRepositoryProvider);
+
+    final attachedNames = photos.isNotEmpty
+        ? await photoRepo.attach(enquiry, photos)
+        : const <String>[];
+
     final result = await repo.recordMeasurement(
       enquiry: enquiry,
       dimensions: dimensions,
@@ -168,6 +177,7 @@ class EnquiryFlowActionsController {
       addressLine: addressLine,
       city: city,
       measuredOn: measuredOn,
+      photos: attachedNames,
     );
     _ref.invalidate(enquiryPipelineProvider(captureId));
     return result;

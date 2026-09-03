@@ -90,6 +90,27 @@ class FrappeClient {
     );
   }
 
+  /// `POST /api/method/<path>` с файлом в теле — так снимок с телефона
+  /// доходит до сервера. Frappe читает его из `frappe.request.files`.
+  ///
+  /// Не base64 в JSON: это треть лишнего веса на мобильной сети и снимок
+  /// целиком в памяти дважды.
+  Future<Map<String, dynamic>> uploadFile(
+    String path, {
+    required String field,
+    required String filename,
+    required List<int> bytes,
+    Map<String, dynamic> fields = const <String, dynamic>{},
+  }) {
+    final form = FormData.fromMap(<String, dynamic>{
+      ...fields,
+      field: MultipartFile.fromBytes(bytes, filename: filename),
+    });
+    return _send<Map<String, dynamic>>(
+      () => _dio.post<Map<String, dynamic>>('/api/method/$path', data: form),
+    );
+  }
+
   Future<T> _send<T>(Future<Response<T>> Function() request) async {
     try {
       final response = await request();

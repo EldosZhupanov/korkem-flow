@@ -201,6 +201,7 @@ class EnquiryFlowRepository {
     String? addressLine,
     String? city,
     String? measuredOn,
+    List<String> photos = const [],
   }) async {
     final response = await _client.callMethod(
       measurementEndpoint,
@@ -221,6 +222,7 @@ class EnquiryFlowRepository {
       response,
       dimensions: dimensions,
       notes: notes,
+      photos: photos,
     );
   }
 

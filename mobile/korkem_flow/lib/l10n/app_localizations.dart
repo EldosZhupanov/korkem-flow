@@ -1072,6 +1072,42 @@ abstract class AppLocalizations {
   /// **'Record measurement'**
   String get enquiryFlowRecordMeasurementAction;
 
+  /// Label for photo attachment section on measurement step
+  ///
+  /// In en, this message translates to:
+  /// **'Photos and references'**
+  String get enquiryFlowAttachPhotos;
+
+  /// Button to capture a photo with camera
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get enquiryFlowTakePhoto;
+
+  /// Button to pick photos from gallery
+  ///
+  /// In en, this message translates to:
+  /// **'From gallery'**
+  String get enquiryFlowPickGallery;
+
+  /// Count badge of attached measurement photos
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} photo attached} other{{count} photos attached}}'**
+  String enquiryFlowPhotosCount(int count);
+
+  /// Tooltip/label to remove attached photo
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get enquiryFlowRemovePhoto;
+
+  /// Error message when camera or photo permissions are denied
+  ///
+  /// In en, this message translates to:
+  /// **'Camera or gallery access was denied. Grant permission in device settings to attach measurement photos.'**
+  String get enquiryFlowPermissionDenied;
+
   /// Field label for proposal item name
   ///
   /// In en, this message translates to:

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
@@ -18,6 +20,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/enquiry_flow/application/enquiry_flow_controller.dart';
+import 'package:korkem_flow/features/enquiry_flow/application/image_picker_service.dart';
 import 'package:korkem_flow/features/enquiry_flow/domain/enquiry_flow_models.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -635,15 +638,67 @@ class _Step2MeasurementSectionState
   final _notesController = TextEditingController();
   final _addressController = TextEditingController();
   final _cityController = TextEditingController();
+  final List<XFile> _selectedPhotos = [];
   String? _errorMessage;
+  String? _permissionErrorMessage;
   bool _isSubmitting = false;
+
+  Future<void> _takePhoto() async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      final picker = ref.read(imagePickerServiceProvider);
+      final photo = await picker.pickImageFromCamera();
+      if (photo != null) {
+        setState(() {
+          _selectedPhotos.add(photo);
+          _permissionErrorMessage = null;
+        });
+      }
+    } on ImagePickerPermissionException {
+      setState(() {
+        _permissionErrorMessage = l10n.enquiryFlowPermissionDenied;
+      });
+    } on Object catch (e) {
+      setState(() {
+        _permissionErrorMessage = '$e';
+      });
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      final picker = ref.read(imagePickerServiceProvider);
+      final photos = await picker.pickMultiImage();
+      if (photos.isNotEmpty) {
+        setState(() {
+          _selectedPhotos.addAll(photos);
+          _permissionErrorMessage = null;
+        });
+      }
+    } on ImagePickerPermissionException {
+      setState(() {
+        _permissionErrorMessage = l10n.enquiryFlowPermissionDenied;
+      });
+    } on Object catch (e) {
+      setState(() {
+        _permissionErrorMessage = '$e';
+      });
+    }
+  }
+
+  void _removePhoto(int index) {
+    setState(() {
+      _selectedPhotos.removeAt(index);
+    });
+  }
 
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context);
     final dim = _dimensionsController.text.trim();
     final notes = _notesController.text.trim();
 
-    if (dim.isEmpty && notes.isEmpty) {
+    if (dim.isEmpty && notes.isEmpty && _selectedPhotos.isEmpty) {
       setState(() {
         _errorMessage = l10n.enquiryFlowDimensions;
       });
@@ -653,6 +708,7 @@ class _Step2MeasurementSectionState
     setState(() {
       _isSubmitting = true;
       _errorMessage = null;
+      _permissionErrorMessage = null;
     });
 
     try {
@@ -661,10 +717,11 @@ class _Step2MeasurementSectionState
           .recordMeasurement(
             captureId: widget.data.capture.id,
             enquiry: widget.data.enquiryId!,
-            dimensions: dim,
-            notes: notes,
+            dimensions: dim.isNotEmpty ? dim : null,
+            notes: notes.isNotEmpty ? notes : null,
             addressLine: _addressController.text.trim(),
             city: _cityController.text.trim(),
+            photos: List<XFile>.unmodifiable(_selectedPhotos),
           );
       if (mounted) {
         setState(() => _isSubmitting = false);
@@ -743,12 +800,37 @@ class _Step2MeasurementSectionState
                   color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
-                child: Text(
-                  '${l10n.enquiryFlowStep2}: '
-                  '${widget.data.measurement?.dimensions ?? 'Выполнен'}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${l10n.enquiryFlowStep2}: '
+                      '${widget.data.measurement?.dimensions ?? 'Выполнен'}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (widget.data.measurement?.photos.isNotEmpty == true) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Row(
+                        children: [
+                          const Icon(
+                            AppIcons.camera,
+                            size: AppIconSize.dense,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            l10n.enquiryFlowPhotosCount(
+                              widget.data.measurement!.photos.length,
+                            ),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ] else ...[
@@ -799,6 +881,68 @@ class _Step2MeasurementSectionState
                   ),
                 ],
               ),
+              const SizedBox(height: AppSpacing.md),
+
+              // ── Photos and references ──────────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    l10n.enquiryFlowAttachPhotos,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (_selectedPhotos.isNotEmpty)
+                    StatusChip(
+                      label: '${_selectedPhotos.length}',
+                      intent: StatusIntent.info,
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              if (_permissionErrorMessage != null) ...[
+                _ErrorBanner(message: _permissionErrorMessage!),
+                const SizedBox(height: AppSpacing.sm),
+              ],
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.tonalIcon(
+                      onPressed: _isSubmitting ? null : _takePhoto,
+                      icon: const Icon(AppIcons.camera),
+                      label: Text(l10n.enquiryFlowTakePhoto),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _isSubmitting ? null : _pickFromGallery,
+                      icon: const Icon(AppIcons.gallery),
+                      label: Text(l10n.enquiryFlowPickGallery),
+                    ),
+                  ),
+                ],
+              ),
+              if (_selectedPhotos.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.sm),
+                SizedBox(
+                  height: AppPlaceholder.rowHeight,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _selectedPhotos.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(width: AppSpacing.sm),
+                    itemBuilder: (context, index) {
+                      return _PhotoThumbnail(
+                        photo: _selectedPhotos[index],
+                        onRemove: () => _removePhoto(index),
+                      );
+                    },
+                  ),
+                ),
+              ],
+
               const SizedBox(height: AppSpacing.lg),
               FilledButton.icon(
                 onPressed: _isSubmitting ? null : _submit,
@@ -815,6 +959,83 @@ class _Step2MeasurementSectionState
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _PhotoThumbnail extends StatelessWidget {
+  const _PhotoThumbnail({
+    required this.photo,
+    required this.onRemove,
+  });
+
+  final XFile photo;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: AppPlaceholder.rowHeight,
+      height: AppPlaceholder.rowHeight,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant,
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            child: FutureBuilder<Uint8List>(
+              future: photo.readAsBytes(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data!.isNotEmpty) {
+                  return Image.memory(
+                    snapshot.data!,
+                    fit: BoxFit.cover,
+                  );
+                }
+                return Center(
+                  child: Icon(
+                    AppIcons.image,
+                    size: AppIconSize.normal,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                );
+              },
+            ),
+          ),
+          Positioned(
+            top: AppSpacing.xxs,
+            right: AppSpacing.xxs,
+            child: Material(
+              color: theme.colorScheme.scrim.withValues(
+                alpha: AppTint.shimmerRest,
+              ),
+              shape: const CircleBorder(),
+              child: InkWell(
+                onTap: onRemove,
+                customBorder: const CircleBorder(),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xxs),
+                  child: Icon(
+                    AppIcons.close,
+                    size: AppIconSize.dense,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

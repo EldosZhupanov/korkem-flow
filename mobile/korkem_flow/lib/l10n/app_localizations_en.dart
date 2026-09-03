@@ -542,6 +542,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enquiryFlowRecordMeasurementAction => 'Record measurement';
 
   @override
+  String get enquiryFlowAttachPhotos => 'Photos and references';
+
+  @override
+  String get enquiryFlowTakePhoto => 'Take photo';
+
+  @override
+  String get enquiryFlowPickGallery => 'From gallery';
+
+  @override
+  String enquiryFlowPhotosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos attached',
+      one: '$count photo attached',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get enquiryFlowRemovePhoto => 'Remove photo';
+
+  @override
+  String get enquiryFlowPermissionDenied =>
+      'Camera or gallery access was denied. Grant permission in device settings to attach measurement photos.';
+
+  @override
   String get enquiryFlowItemCode => 'Item name';
 
   @override

@@ -572,6 +572,35 @@
   "@enquiryFlowRecordMeasurementAction": {
     "description": "Button to record measurement"
   },
+  "enquiryFlowAttachPhotos": "Photos and references",
+  "@enquiryFlowAttachPhotos": {
+    "description": "Label for photo attachment section on measurement step"
+  },
+  "enquiryFlowTakePhoto": "Take photo",
+  "@enquiryFlowTakePhoto": {
+    "description": "Button to capture a photo with camera"
+  },
+  "enquiryFlowPickGallery": "From gallery",
+  "@enquiryFlowPickGallery": {
+    "description": "Button to pick photos from gallery"
+  },
+  "enquiryFlowPhotosCount": "{count, plural, one{{count} photo attached} other{{count} photos attached}}",
+  "@enquiryFlowPhotosCount": {
+    "description": "Count badge of attached measurement photos",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "enquiryFlowRemovePhoto": "Remove photo",
+  "@enquiryFlowRemovePhoto": {
+    "description": "Tooltip/label to remove attached photo"
+  },
+  "enquiryFlowPermissionDenied": "Camera or gallery access was denied. Grant permission in device settings to attach measurement photos.",
+  "@enquiryFlowPermissionDenied": {
+    "description": "Error message when camera or photo permissions are denied"
+  },
   "enquiryFlowItemCode": "Item name",
   "@enquiryFlowItemCode": {
     "description": "Field label for proposal item name"

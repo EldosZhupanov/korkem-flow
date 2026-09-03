@@ -544,6 +544,35 @@ class AppLocalizationsRu extends AppLocalizations {
   String get enquiryFlowRecordMeasurementAction => 'Записать результат замера';
 
   @override
+  String get enquiryFlowAttachPhotos => 'Фотографии и референсы';
+
+  @override
+  String get enquiryFlowTakePhoto => 'Сделать фото';
+
+  @override
+  String get enquiryFlowPickGallery => 'Из галереи';
+
+  @override
+  String enquiryFlowPhotosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count фото приложено',
+      many: '$count фото приложено',
+      few: '$count фото приложено',
+      one: '$count фото приложено',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get enquiryFlowRemovePhoto => 'Удалить фото';
+
+  @override
+  String get enquiryFlowPermissionDenied =>
+      'Доступ к камере или галерее не предоставлен. Разрешите доступ в настройках устройства, чтобы прикрепить фото замера.';
+
+  @override
   String get enquiryFlowItemCode => 'Наименование позиции';
 
   @override
