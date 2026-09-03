@@ -81,6 +81,9 @@ REQUEST_TIMEOUT_SECONDS = 120
 DEFAULT_BASE_URLS = {
 	"OpenAI": "https://api.openai.com/v1",
 	"OpenRouter": "https://openrouter.ai/api/v1",
+	# Groq говорит на диалекте OpenAI, поэтому отдельного адаптера ему не нужно —
+	# нужен только адрес, которого человек не должен знать наизусть.
+	"Groq": "https://api.groq.com/openai/v1",
 	"Google Gemini": "https://generativelanguage.googleapis.com/v1beta",
 	# The bench runs in a container; the host's Ollama is not on its localhost.
 	"Ollama": "http://host.docker.internal:11434",
@@ -110,6 +113,7 @@ PROVIDER_ADAPTERS = {
 	"Anthropic": "AnthropicProvider",
 	"OpenAI": "OpenAICompatibleProvider",
 	"OpenRouter": "OpenAICompatibleProvider",
+	"Groq": "OpenAICompatibleProvider",
 	"OpenAI-compatible": "OpenAICompatibleProvider",
 	"Google Gemini": "GeminiProvider",
 	"Ollama": "OllamaProvider",
@@ -258,7 +262,7 @@ def _build(provider: str, model: str, api_key, base_url, effort: str):
 		_require(api_key, "Google Gemini needs an API key")
 		return GeminiProvider(model=model, api_key=api_key, base_url=base_url)
 
-	if provider in ("OpenAI", "OpenRouter", "OpenAI-compatible"):
+	if provider in ("OpenAI", "OpenRouter", "Groq", "OpenAI-compatible"):
 		# The one case with no default: an OpenAI-compatible endpoint is
 		# whatever the operator points it at, and guessing would send a
 		# credential somewhere nobody chose.

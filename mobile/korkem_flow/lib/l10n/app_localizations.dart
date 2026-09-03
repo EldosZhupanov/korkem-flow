@@ -5246,6 +5246,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update'**
   String get updateInstall;
+
+  /// No description provided for @aiCascadeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order of asking'**
+  String get aiCascadeTitle;
+
+  /// No description provided for @aiCascadeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top down: when one runs out of quota, the next one answers.'**
+  String get aiCascadeSubtitle;
+
+  /// No description provided for @aiCascadeFree.
+  ///
+  /// In en, this message translates to:
+  /// **'free'**
+  String get aiCascadeFree;
 }
 
 class _AppLocalizationsDelegate

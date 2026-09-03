@@ -32,7 +32,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Provider",
-   "options": "Anthropic\nOpenAI\nOpenRouter\nGoogle Gemini\nOllama\nOpenAI-compatible",
+   "options": "Anthropic\nOpenAI\nOpenRouter\nGroq\nGoogle Gemini\nOllama\nOpenAI-compatible",
    "reqd": 1,
    "unique": 1
   },

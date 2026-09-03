@@ -4,9 +4,11 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
+import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/features/ai_settings/data/ai_settings_repository.dart';
 import 'package:korkem_flow/features/ai_settings/domain/ai_provider_config.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -45,6 +47,8 @@ class AiSettingsScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
                 _SecurityNote(text: l10n.aiSettingsKeyNeverLeaves),
+                const SizedBox(height: AppSpacing.lg),
+                const _Cascade(),
                 const SizedBox(height: AppSpacing.lg),
                 for (final provider in data.providers) ...[
                   _ProviderTile(config: provider),
@@ -353,6 +357,88 @@ class _Capabilities extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Порядок, в котором спрашиваются модели.
+///
+/// Список настроенных провайдеров не отвечает на вопрос, который на самом деле
+/// у владельца: «кто ответит, когда первая кончится». Включённый провайдер и
+/// работающий выглядят в списке одинаково, а разницу человек узнаёт в тот
+/// момент, когда ассистент замолчал.
+class _Cascade extends ConsumerWidget {
+  const _Cascade();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final cascade = ref.watch(aiCascadeProvider);
+    final steps = cascade.value ?? const <AiCascadeStep>[];
+    if (steps.isEmpty) return const SizedBox.shrink();
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.aiCascadeTitle, style: theme.textTheme.titleSmall),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l10n.aiCascadeSubtitle,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          for (final step in steps)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Row(
+                children: [
+                  Text(
+                    '${step.position}',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(step.provider, style: theme.textTheme.bodyMedium),
+                        Text(
+                          step.model,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        // Причина отказа — словами провайдера. Наш пересказ
+                        // «что-то пошло не так» здесь не помогает никому.
+                        if (!step.lastOk && step.lastError.isNotEmpty)
+                          Text(
+                            step.lastError,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: context.statusColors.danger,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (step.free)
+                    StatusChip(
+                      label: l10n.aiCascadeFree,
+                      intent: StatusIntent.success,
+                      compact: true,
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

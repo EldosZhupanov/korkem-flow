@@ -81,6 +81,21 @@ class AiSettingsRepository {
     ];
   }
 
+  /// Порядок, в котором роутер будет спрашивать модели.
+  ///
+  /// Считает сервер тем же кодом, что и решает на самом деле. Повторить это
+  /// правило здесь значило бы завести второе место, отвечающее на тот же
+  /// вопрос, — и однажды они разойдутся.
+  Future<List<AiCascadeStep>> cascade() async {
+    final response = await _client.callMethod('$_base.cascade');
+    final rows = response['message'] ?? response['data'];
+    if (rows is! List) return const [];
+    return rows
+        .whereType<Map<Object?, Object?>>()
+        .map((e) => AiCascadeStep.fromJson(Map<String, dynamic>.from(e)))
+        .toList(growable: false);
+  }
+
   Future<void> setDefault(String provider, {String? model}) =>
       _client.callMethod(
         '$_base.set_default_provider',
@@ -98,3 +113,8 @@ final aiProvidersProvider =
     FutureProvider<
       ({List<AiProviderConfig> providers, String defaultProvider})
     >((ref) => ref.watch(aiSettingsRepositoryProvider).list());
+
+/// Каскад: что спросят первым, что вторым, что когда всё кончится.
+final aiCascadeProvider = FutureProvider<List<AiCascadeStep>>(
+  (ref) => ref.watch(aiSettingsRepositoryProvider).cascade(),
+);

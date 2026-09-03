@@ -2938,4 +2938,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateInstall => 'Update';
+
+  @override
+  String get aiCascadeTitle => 'Order of asking';
+
+  @override
+  String get aiCascadeSubtitle =>
+      'Top down: when one runs out of quota, the next one answers.';
+
+  @override
+  String get aiCascadeFree => 'free';
 }

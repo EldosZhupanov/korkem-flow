@@ -2901,4 +2901,14 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get updateInstall => 'Жаңарту';
+
+  @override
+  String get aiCascadeTitle => 'Сұрау тәртібі';
+
+  @override
+  String get aiCascadeSubtitle =>
+      'Жоғарыдан төмен сұраймыз: біреуінің шегі бітсе, келесісі жауап береді.';
+
+  @override
+  String get aiCascadeFree => 'тегін';
 }

@@ -2956,4 +2956,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get updateInstall => 'Обновить';
+
+  @override
+  String get aiCascadeTitle => 'Порядок обращения';
+
+  @override
+  String get aiCascadeSubtitle =>
+      'Спрашиваем сверху вниз: когда у одной кончается квота, отвечает следующая.';
+
+  @override
+  String get aiCascadeFree => 'бесплатно';
 }

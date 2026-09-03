@@ -1025,5 +1025,8 @@
       }
     }
   },
-  "updateInstall": "Жаңарту"
+  "updateInstall": "Жаңарту",
+  "aiCascadeTitle": "Сұрау тәртібі",
+  "aiCascadeSubtitle": "Жоғарыдан төмен сұраймыз: біреуінің шегі бітсе, келесісі жауап береді.",
+  "aiCascadeFree": "тегін"
 }

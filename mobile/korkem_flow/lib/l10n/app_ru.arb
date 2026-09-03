@@ -1025,5 +1025,8 @@
       }
     }
   },
-  "updateInstall": "Обновить"
+  "updateInstall": "Обновить",
+  "aiCascadeTitle": "Порядок обращения",
+  "aiCascadeSubtitle": "Спрашиваем сверху вниз: когда у одной кончается квота, отвечает следующая.",
+  "aiCascadeFree": "бесплатно"
 }

@@ -3394,5 +3394,8 @@
       }
     }
   },
-  "updateInstall": "Update"
+  "updateInstall": "Update",
+  "aiCascadeTitle": "Order of asking",
+  "aiCascadeSubtitle": "Top down: when one runs out of quota, the next one answers.",
+  "aiCascadeFree": "free"
 }

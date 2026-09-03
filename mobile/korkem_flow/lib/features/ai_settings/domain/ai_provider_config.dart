@@ -74,3 +74,43 @@ class AiProviderConfig {
 
   bool get ready => configured && enabled && (hasKey || !needsKey);
 }
+
+/// Один шаг каскада: какую модель спросят и что с ней было в прошлый раз.
+@immutable
+class AiCascadeStep {
+  const AiCascadeStep({
+    required this.position,
+    required this.provider,
+    required this.model,
+    required this.free,
+    required this.lastOk,
+    required this.lastError,
+  });
+
+  factory AiCascadeStep.fromJson(Map<String, dynamic> json) {
+    return AiCascadeStep(
+      position: switch (json['position']) {
+        final int value => value,
+        final String value => int.tryParse(value) ?? 0,
+        _ => 0,
+      },
+      provider: '${json['provider'] ?? ''}',
+      model: '${json['model'] ?? ''}',
+      free: json['free'] == true || json['free'] == 1,
+      lastOk: json['last_ok'] == true || json['last_ok'] == 1,
+      lastError: '${json['last_error'] ?? ''}',
+    );
+  }
+
+  final int position;
+  final String provider;
+  final String model;
+
+  /// Бесплатный по цене, записанной в самом провайдере.
+  final bool free;
+
+  /// Чем закончилось последнее обращение. Владелец должен видеть, какая модель
+  /// кончилась, не открывая журналов сервера.
+  final bool lastOk;
+  final String lastError;
+}
