@@ -74,6 +74,19 @@ SPECIFICATION = """<?xml version="1.0" encoding="utf-8"?>
 """
 
 
+def _some_workstation() -> str:
+	"""Любое рабочее место, а если их нет — заведённое здесь же."""
+	existing = frappe.get_all("Workstation", pluck="name", limit_page_length=1)
+	if existing:
+		return existing[0]
+
+	name = f"Форматник {frappe.generate_hash(length=6)}"
+	doc = frappe.get_doc({"doctype": "Workstation", "workstation_name": name})
+	doc.flags.ignore_mandatory = True
+	doc.insert()
+	return doc.name
+
+
 class TestReadingABazisExport(IntegrationTestCase):
 	def _bytes(self, text: str = SPECIFICATION, encoding: str = "utf-8") -> bytes:
 		declared = text.replace('encoding="utf-8"', f'encoding="{encoding}"')
@@ -230,9 +243,15 @@ class TestBuildingASpecification(IntegrationTestCase):
 		self.assertTrue(frappe.db.exists("Operation", "Раскрой"))
 
 	def test_once_the_workstation_is_named_the_operation_joins_the_route(self):
-		"""Владелец говорит это один раз — в справочнике операций ERPNext."""
+		"""Владелец говорит это один раз — в справочнике операций ERPNext.
+
+		Рабочее место заводится тестом, а не берётся из существующих: на чистой
+		установке их нет ни одного, и `[0]` роняет тест. Найдено красным CI на
+		коммите, который локально был зелёным, — у моего стенда есть состояние,
+		которого у клиента не будет.
+		"""
 		self._import()
-		workstation = frappe.get_all("Workstation", pluck="name", limit_page_length=1)[0]
+		workstation = _some_workstation()
 		frappe.db.set_value("Operation", "Раскрой", "workstation", workstation)
 
 		product = self._import()["products"][0]
