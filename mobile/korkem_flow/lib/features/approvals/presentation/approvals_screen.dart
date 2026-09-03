@@ -57,7 +57,21 @@ class ApprovalCard extends ConsumerStatefulWidget {
 class _ApprovalCardState extends ConsumerState<ApprovalCard> {
   bool _busy = false;
 
-  Future<void> _resolve({required bool approved}) async {
+  Future<void> _reject() async {
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (context) => _RejectReasonDialog(action: widget.action),
+    );
+
+    if (reason == null) return;
+
+    await _resolve(
+      approved: false,
+      reason: reason.isEmpty ? null : reason,
+    );
+  }
+
+  Future<void> _resolve({required bool approved, String? reason}) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
 
@@ -65,7 +79,7 @@ class _ApprovalCardState extends ConsumerState<ApprovalCard> {
     try {
       await ref
           .read(approvalsControllerProvider.notifier)
-          .resolve(widget.action, approved: approved);
+          .resolve(widget.action, approved: approved, reason: reason);
 
       messenger.showDone(
         approved ? l10n.approvalApproved : l10n.approvalRejected,
@@ -153,7 +167,7 @@ class _ApprovalCardState extends ConsumerState<ApprovalCard> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _busy ? null : () => _resolve(approved: false),
+                    onPressed: _busy ? null : _reject,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: theme.colorScheme.error,
                     ),
@@ -198,6 +212,80 @@ class StatusChipFor extends StatelessWidget {
       label: showExpired ? l10n.approvalExpired : action.status.label(l10n),
       intent: showExpired ? StatusIntent.neutral : action.status.intent,
       compact: true,
+    );
+  }
+}
+
+class _RejectReasonDialog extends StatefulWidget {
+  const _RejectReasonDialog({required this.action});
+
+  final PendingAction action;
+
+  @override
+  State<_RejectReasonDialog> createState() => _RejectReasonDialogState();
+}
+
+class _RejectReasonDialogState extends State<_RejectReasonDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    return AlertDialog(
+      title: Text(l10n.approvalRejectDialogTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.action.entityName != null) ...[
+            Text(
+              '${widget.action.entityType ?? ''} ${widget.action.entityName}'
+                  .trim(),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            maxLines: 3,
+            minLines: 1,
+            decoration: InputDecoration(
+              hintText: l10n.approvalRejectReasonHint,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.actionCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
+          style: FilledButton.styleFrom(
+            backgroundColor: theme.colorScheme.error,
+            foregroundColor: theme.colorScheme.onError,
+          ),
+          child: Text(l10n.approvalReject),
+        ),
+      ],
     );
   }
 }

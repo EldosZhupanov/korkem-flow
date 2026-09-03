@@ -54,7 +54,17 @@ class PendingActionRepository {
   Future<void> approve(String id) =>
       _client.runDocMethod(doctype, id, 'approve');
 
-  Future<void> reject(String id) => _client.runDocMethod(doctype, id, 'reject');
+  Future<void> reject(String id, {String? reason}) {
+    final trimmed = reason?.trim();
+    return _client.runDocMethod(
+      doctype,
+      id,
+      'reject',
+      args: trimmed != null && trimmed.isNotEmpty
+          ? <String, dynamic>{'reason': trimmed}
+          : null,
+    );
+  }
 
   static PendingAction fromJson(Map<String, dynamic> json) {
     return PendingAction(

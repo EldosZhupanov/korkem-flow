@@ -51,13 +51,17 @@ class ApprovalsController extends PagedListController<PendingAction> {
   /// server-side — creating a quote, scheduling production — and showing it as
   /// done before the server agrees would be claiming work happened that may
   /// not have. The row stays until the backend confirms.
-  Future<void> resolve(PendingAction action, {required bool approved}) async {
+  Future<void> resolve(
+    PendingAction action, {
+    required bool approved,
+    String? reason,
+  }) async {
     final repository = ref.read(pendingActionRepositoryProvider);
 
     if (approved) {
       await repository.approve(action.id);
     } else {
-      await repository.reject(action.id);
+      await repository.reject(action.id, reason: reason);
     }
 
     final current = state.value;

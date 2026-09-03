@@ -29,7 +29,7 @@ class _FakePendingActionRepository extends PendingActionRepository {
   fetchPageHandler;
 
   final Future<void> Function(String id)? approveHandler;
-  final Future<void> Function(String id)? rejectHandler;
+  final Future<void> Function(String id, {String? reason})? rejectHandler;
 
   @override
   Future<List<PendingAction>> fetchPage({
@@ -55,9 +55,9 @@ class _FakePendingActionRepository extends PendingActionRepository {
   }
 
   @override
-  Future<void> reject(String id) async {
+  Future<void> reject(String id, {String? reason}) async {
     if (rejectHandler != null) {
-      return rejectHandler!(id);
+      return rejectHandler!(id, reason: reason);
     }
   }
 }
@@ -210,17 +210,19 @@ void main() {
   );
 
   testWidgets(
-    '3. «Отклонить» действительно вызывает сервер (reject) '
-    'и выводит подтверждение',
+    '3a. Набранная причина доходит до репозитория дословно '
+    'при отклонении',
     (tester) async {
       String? rejectedId;
+      String? rejectedReason;
 
       final repo = _FakePendingActionRepository(
         fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
           sampleAction1,
         ],
-        rejectHandler: (id) async {
+        rejectHandler: (id, {reason}) async {
           rejectedId = id;
+          rejectedReason = reason;
         },
       );
 
@@ -233,13 +235,152 @@ void main() {
       await tester.tap(rejectButton);
       await tester.pumpAndSettle();
 
+      // Dialog is shown
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Отклонить действие'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('CRM Deal Заказ кухни для Ерлана'),
+        ),
+        findsOneWidget,
+      );
+
+      // Type the exact reason
+      const testReason = 'Не тот клиент, дубль сделки из CRM';
+      await tester.enterText(find.byType(TextField), testReason);
+      await tester.pumpAndSettle();
+
+      // Confirm reject in dialog
+      final confirmRejectButton = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(FilledButton, 'Отклонить'),
+      );
+      await tester.tap(confirmRejectButton);
+      await tester.pumpAndSettle();
+
       expect(rejectedId, 'PA-001');
+      expect(rejectedReason, testReason);
       expect(find.text('Отклонено'), findsOneWidget);
+      expect(find.text('crm.create_deal'), findsNothing);
     },
   );
 
   testWidgets(
-    '4. Отказ сервера показан словами сервера '
+    '3b. Отказ без причины вызывает сервер и проходит '
+    '(причина null или пустая)',
+    (tester) async {
+      String? rejectedId;
+      String? rejectedReason;
+      var rejectCalled = false;
+
+      final repo = _FakePendingActionRepository(
+        fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
+          sampleAction1,
+        ],
+        rejectHandler: (id, {reason}) async {
+          rejectCalled = true;
+          rejectedId = id;
+          rejectedReason = reason;
+        },
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Отклонить'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      // Confirm without typing any reason
+      final confirmRejectButton = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(FilledButton, 'Отклонить'),
+      );
+      await tester.tap(confirmRejectButton);
+      await tester.pumpAndSettle();
+
+      expect(rejectCalled, isTrue);
+      expect(rejectedId, 'PA-001');
+      expect(rejectedReason, isNull);
+      expect(find.text('Отклонено'), findsOneWidget);
+      expect(find.text('crm.create_deal'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    '3c. Закрытие диалога кнопкой отмены не вызывает reject вообще '
+    '(счётчик вызовов ноль)',
+    (tester) async {
+      var callCount = 0;
+
+      final repo = _FakePendingActionRepository(
+        fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
+          sampleAction1,
+        ],
+        rejectHandler: (id, {reason}) async {
+          callCount++;
+        },
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Отклонить'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      // Tap Cancel in dialog
+      final cancelButton = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(TextButton, 'Отмена'),
+      );
+      await tester.tap(cancelButton);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(callCount, 0);
+      expect(find.text('crm.create_deal'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    '3d. Закрытие диалога тапом мимо не вызывает reject вообще '
+    '(счётчик вызовов ноль)',
+    (tester) async {
+      var callCount = 0;
+
+      final repo = _FakePendingActionRepository(
+        fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
+          sampleAction1,
+        ],
+        rejectHandler: (id, {reason}) async {
+          callCount++;
+        },
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Отклонить'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      // Tap outside the dialog
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(callCount, 0);
+      expect(find.text('crm.create_deal'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    '4a. Отказ сервера на approve показан словами сервера '
     '(например, действие устарело/отменено)',
     (tester) async {
       final repo = _FakePendingActionRepository(
@@ -264,6 +405,44 @@ void main() {
         find.text('Сделка уже закрыта другим менеджером в ERPNext'),
         findsOneWidget,
       );
+    },
+  );
+
+  testWidgets(
+    '4b. Отказ сервера на reject показан его словами '
+    '(например, действие уже отменено)',
+    (tester) async {
+      final repo = _FakePendingActionRepository(
+        fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
+          sampleAction1,
+        ],
+        rejectHandler: (id, {reason}) async {
+          throw const ServerFailure(
+            'Действие уже выполнено другим пользователем',
+          );
+        },
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Отклонить'));
+      await tester.pumpAndSettle();
+
+      final confirmRejectButton = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(FilledButton, 'Отклонить'),
+      );
+      await tester.tap(confirmRejectButton);
+      await tester.pumpAndSettle();
+
+      // Verbatim server refusal displayed in SnackBar
+      expect(
+        find.text('Действие уже выполнено другим пользователем'),
+        findsOneWidget,
+      );
+      // Action remains in the queue
+      expect(find.text('crm.create_deal'), findsOneWidget);
     },
   );
 

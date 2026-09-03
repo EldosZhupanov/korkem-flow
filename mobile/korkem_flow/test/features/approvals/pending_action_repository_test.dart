@@ -166,12 +166,52 @@ void main() {
       ).called(1);
     });
 
-    test('reject calls runDocMethod with reject', () async {
+    test(
+      'reject calls runDocMethod with reject without args when reason is null',
+      () async {
+        when(
+          () => client.runDocMethod('Pending Action', 'PA-456', 'reject'),
+        ).thenAnswer((_) async => {'message': 'rejected'});
+
+        await repository.reject('PA-456');
+
+        verify(
+          () => client.runDocMethod('Pending Action', 'PA-456', 'reject'),
+        ).called(1);
+      },
+    );
+
+    test(
+      'reject calls runDocMethod with args containing reason when provided',
+      () async {
+        when(
+          () => client.runDocMethod(
+            'Pending Action',
+            'PA-456',
+            'reject',
+            args: {'reason': 'Не тот клиент'},
+          ),
+        ).thenAnswer((_) async => {'message': 'rejected'});
+
+        await repository.reject('PA-456', reason: 'Не тот клиент');
+
+        verify(
+          () => client.runDocMethod(
+            'Pending Action',
+            'PA-456',
+            'reject',
+            args: {'reason': 'Не тот клиент'},
+          ),
+        ).called(1);
+      },
+    );
+
+    test('reject ignores whitespace-only reason and passes no args', () async {
       when(
         () => client.runDocMethod('Pending Action', 'PA-456', 'reject'),
       ).thenAnswer((_) async => {'message': 'rejected'});
 
-      await repository.reject('PA-456');
+      await repository.reject('PA-456', reason: '   ');
 
       verify(
         () => client.runDocMethod('Pending Action', 'PA-456', 'reject'),
