@@ -138,7 +138,18 @@ bench --site <сайт> execute korkem_manufacturing.chain_smoke.run
 
 ### 1. The domain and DNS
 
-- [ ] **Buy the domain.**
+**`korkem.asia` was bought on 2026-09-03** at Hoster.kz. It resolves to nothing
+yet — there is no server to point it at. The name chosen for the application is
+`api.korkem.asia`, leaving the apex free for a landing page later without
+renaming a live Frappe site.
+
+A step-by-step runbook for the machine itself, in Russian and written for
+somebody who does not administer servers daily, is
+[`SERVER_FIRST_RUN_RU.md`](./SERVER_FIRST_RUN_RU.md). It carries what this file
+cannot: the swap, the firewall, the private-repo clone, and the reason the
+minimum machine is 2 cores / 4 GB rather than the cheapest tier.
+
+- [x] **Buy the domain.** `korkem.asia`, 2026-09-03.
 - [ ] **Point it at the machine.** An `A` record (and `AAAA` if the machine has
       IPv6) for the name you will use — e.g. `korkem.example.com` — pointing at
       the server's public address. Verify from *outside* the network:
@@ -174,6 +185,11 @@ gitignored.
       (leave it at `webhooks` if only the bots should be reachable).
 - [ ] Real `MYSQL_ROOT_PASSWORD` and `ADMIN_PASSWORD` — generated, not typed.
       `openssl rand -base64 24`.
+- [ ] `scripts/fetch_vendor.sh` — a clone of this repository does **not**
+      contain frappe, erpnext or crm, and Docker will happily bind-mount three
+      empty directories instead of saying so. Since 2026-09-03
+      `deploy_pilot.sh` refuses in its own preflight rather than letting
+      bootstrap fail ten minutes later; both branches of that check were run.
 - [ ] `scripts/deploy_pilot.sh --check`, then `scripts/deploy_pilot.sh`.
 
 **A caution about `SITE_NAME`.** Frappe resolves an incoming request to a site
@@ -228,6 +244,15 @@ The full step-by-step is `docs/ai_phase33_production_channel_launch.md`
 § "Test procedure for the day credentials exist". Nothing about it has changed.
 
 ### 8. Backups, before the first real order
+
+**This one does not currently work on a Linux server, and that is a decision
+waiting on the owner, not a bug to patch.** `backup_offsite.sh` refuses any
+destination outside `/mnt/<drive-letter>/` — a guard written for WSL2, where a
+copy inside the VHDX is a copy on the disk that will fail. The requirement is
+right; its spelling is Windows. A VPS has no such path, so the cron line below
+will not run there. "Off the machine" on a VPS means attached block storage,
+object storage (S3/R2) or another host over ssh — which of those decides the
+code, so the code waits for the answer.
 
 - [ ] Read `BACKUP_AND_RESTORE.md`.
 - [ ] Install the cron line.

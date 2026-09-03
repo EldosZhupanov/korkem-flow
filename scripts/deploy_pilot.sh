@@ -94,7 +94,44 @@ else
   warn "The site will be reachable on 127.0.0.1:8000 only. See docs/operations/PRE_DOMAIN_CHECKLIST.md."
 fi
 
-# --- 2. tooling -------------------------------------------------------------
+# --- 2. sources -------------------------------------------------------------
+#
+# The bench container bind-mounts frappe, erpnext and crm from the repository
+# root, and those three are **not in this repository** — they are 3.8 GB of
+# upstream history, pinned in vendor.lock and restored by fetch_vendor.sh.
+#
+# A `git clone` on a fresh server therefore does not contain them. Docker does
+# not refuse a bind mount whose source is missing: it creates an empty directory
+# and starts the container, and the failure surfaces minutes later, inside
+# bootstrap, as `bench init` complaining about a path. On a machine somebody is
+# deploying to for the first time that reads as "the deployment is broken"
+# rather than "one command was not run".
+#
+# Checked here, by name, because this is the last moment where saying so is cheap.
+
+say "Sources"
+
+missing=()
+while read -r name url commit branch; do
+  case "$name" in ''|\#*) continue ;; esac
+  case "$name" in frappe|erpnext|crm) ;; *) continue ;; esac   # relaticle is not part of the bench
+  dir="$ROOT/$name"
+  if [ ! -d "$dir/.git" ]; then
+    missing+=("$name (missing)")
+  elif [ "$(git -C "$dir" rev-parse HEAD)" != "$commit" ]; then
+    missing+=("$name (at $(git -C "$dir" rev-parse --short HEAD), lock says ${commit:0:10})")
+  else
+    ok "$name at ${commit:0:10}"
+  fi
+done < "$ROOT/vendor.lock"
+
+if [ ${#missing[@]} -gt 0 ] && [ "${KORKEM_ALLOW_VENDOR_DRIFT:-0}" != "1" ]; then
+  printf '    \033[31m%s\033[0m\n' "${missing[@]}" >&2
+  die "upstream sources do not match vendor.lock. Run: scripts/fetch_vendor.sh
+       (Deliberately deploying a moved checkout? KORKEM_ALLOW_VENDOR_DRIFT=1 — and record why.)"
+fi
+
+# --- 3. tooling -------------------------------------------------------------
 
 say "Tooling"
 command -v docker >/dev/null || die "docker is not installed."
@@ -108,7 +145,7 @@ if [ "$CHECK_ONLY" = "1" ]; then
   exit 0
 fi
 
-# --- 3. database ------------------------------------------------------------
+# --- 4. database ------------------------------------------------------------
 
 say "Database"
 "${COMPOSE[@]}" up -d mariadb redis-cache redis-queue
@@ -122,7 +159,7 @@ done
 [ "${status:-}" = "healthy" ] || die "MariaDB did not become healthy. Check: docker compose logs mariadb"
 ok "MariaDB healthy, data volume attached"
 
-# --- 4. backup --------------------------------------------------------------
+# --- 5. backup --------------------------------------------------------------
 
 say "Backup before migrating"
 if "${COMPOSE[@]}" ps --format '{{.Service}}' | grep -qx bench; then
@@ -137,7 +174,7 @@ else
   warn "bench container is not running yet; nothing to back up."
 fi
 
-# --- 5. application ---------------------------------------------------------
+# --- 6. application ---------------------------------------------------------
 
 say "Application"
 "${COMPOSE[@]}" up -d --build
@@ -158,13 +195,13 @@ done
   || die "the site never answered /health. Check: docker compose logs bench"
 ok "/health answers"
 
-# --- 6. migrations ----------------------------------------------------------
+# --- 7. migrations ----------------------------------------------------------
 
 say "Migrations"
 "${COMPOSE[@]}" exec -T bench bash -lc "cd ~/frappe-bench && bench --site $SITE_NAME migrate"
 ok "schema and patches applied"
 
-# --- 7. verification --------------------------------------------------------
+# --- 8. verification --------------------------------------------------------
 
 say "Verification"
 
