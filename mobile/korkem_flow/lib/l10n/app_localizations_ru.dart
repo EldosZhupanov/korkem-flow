@@ -547,6 +547,120 @@ class AppLocalizationsRu extends AppLocalizations {
   String get companyDetailsSubtitle => 'Адрес, БИН и банковские реквизиты';
 
   @override
+  String get warehousesSettingsTitle => 'Склады';
+
+  @override
+  String get warehousesSettingsSubtitle => 'Места хранения и склад отгрузки';
+
+  @override
+  String get warehousesTitle => 'Склады';
+
+  @override
+  String get warehousesSubtitle =>
+      'Места хранения и склад отгрузки готовой продукции';
+
+  @override
+  String get warehousesTipTitle => 'Как сменить имя склада в документах';
+
+  @override
+  String get warehousesTipBody =>
+      'В ERPNext нельзя переименовать склад напрямую. Чтобы в накладных стояло понятное имя: заведите свой склад с нужным названием → назначьте его складом отгрузки → отключите английский Finished Goods.';
+
+  @override
+  String get warehousesSectionActive => 'Склады';
+
+  @override
+  String get warehousesSectionDisabled => 'Отключённые склады';
+
+  @override
+  String get warehousesShippingDefaultBadge => 'Склад отгрузки';
+
+  @override
+  String get warehousesStatusDisabled => 'Отключён';
+
+  @override
+  String warehousesPositionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count позиций',
+      few: '$count позиции',
+      one: '$count позиция',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get warehousesActionSetShippingDefault => 'Сделать складом отгрузки';
+
+  @override
+  String get warehousesActionDisable => 'Отключить склад';
+
+  @override
+  String get warehousesActionEnable => 'Включить склад';
+
+  @override
+  String get warehousesCreateButton => 'Новый склад';
+
+  @override
+  String get warehousesCreateDialogTitle => 'Новый склад';
+
+  @override
+  String get warehousesCreateDialogSubtitle =>
+      'Второй цех, арендованное помещение, машина';
+
+  @override
+  String get warehousesNameLabel => 'Название склада';
+
+  @override
+  String get warehousesNameHint => 'напр. Склад материалов';
+
+  @override
+  String get warehousesNameError => 'Введите название склада';
+
+  @override
+  String warehousesCreateSuccess(String name) {
+    return 'Склад «$name» создан';
+  }
+
+  @override
+  String warehousesSetShippingDefaultSuccess(String name) {
+    return 'Склад «$name» назначен складом отгрузки';
+  }
+
+  @override
+  String get warehousesDisableDialogTitle => 'Отключить склад?';
+
+  @override
+  String warehousesDisableDialogMessage(String name) {
+    return 'Отключить склад «$name»? Склад перестанет предлагаться в новых документах, история остатков сохранится.';
+  }
+
+  @override
+  String warehousesDisableSuccess(String name) {
+    return 'Склад «$name» отключён';
+  }
+
+  @override
+  String get warehousesEnableDialogTitle => 'Включить склад?';
+
+  @override
+  String warehousesEnableDialogMessage(String name) {
+    return 'Включить склад «$name»? Он снова станет доступен для выбора в складских документах.';
+  }
+
+  @override
+  String warehousesEnableSuccess(String name) {
+    return 'Склад «$name» включён';
+  }
+
+  @override
+  String get warehousesEmptyTitle => 'Склады не найдены';
+
+  @override
+  String get warehousesEmptyMessage => 'Список складов компании пуст.';
+
+  @override
   String get companyDetailsDocNote =>
       'Реквизиты используются для формирования договоров, счетов и накладных.';
 

@@ -1066,6 +1066,186 @@ abstract class AppLocalizations {
   /// **'Address, BIN, and bank details'**
   String get companyDetailsSubtitle;
 
+  /// Settings tile title for warehouses
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouses'**
+  String get warehousesSettingsTitle;
+
+  /// Settings tile subtitle for warehouses
+  ///
+  /// In en, this message translates to:
+  /// **'Storage locations and shipping warehouse'**
+  String get warehousesSettingsSubtitle;
+
+  /// Title for warehouses management screen
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouses'**
+  String get warehousesTitle;
+
+  /// Subtitle for warehouses management screen
+  ///
+  /// In en, this message translates to:
+  /// **'Storage locations and finished goods shipping warehouse'**
+  String get warehousesSubtitle;
+
+  /// Title for warehouse renaming guidance tip
+  ///
+  /// In en, this message translates to:
+  /// **'How to change warehouse name in documents'**
+  String get warehousesTipTitle;
+
+  /// Body explaining the 3-step workflow to get desired warehouse name in documents
+  ///
+  /// In en, this message translates to:
+  /// **'ERPNext does not allow renaming warehouses directly. To have a clear name on waybills: create your warehouse with the desired name → set it as shipping default → disable the English Finished Goods.'**
+  String get warehousesTipBody;
+
+  /// Section header for active warehouses
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouses'**
+  String get warehousesSectionActive;
+
+  /// Section header for disabled warehouses
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled Warehouses'**
+  String get warehousesSectionDisabled;
+
+  /// Badge for the default shipping warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping Default'**
+  String get warehousesShippingDefaultBadge;
+
+  /// Badge for disabled warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get warehousesStatusDisabled;
+
+  /// Count of item positions stored in warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} item position} other{{count} item positions}}'**
+  String warehousesPositionsCount(int count);
+
+  /// Action to set warehouse as shipping default
+  ///
+  /// In en, this message translates to:
+  /// **'Set as shipping default'**
+  String get warehousesActionSetShippingDefault;
+
+  /// Action to disable warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'Disable warehouse'**
+  String get warehousesActionDisable;
+
+  /// Action to enable disabled warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'Enable warehouse'**
+  String get warehousesActionEnable;
+
+  /// Button to create new warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'New warehouse'**
+  String get warehousesCreateButton;
+
+  /// Title for new warehouse dialog
+  ///
+  /// In en, this message translates to:
+  /// **'New warehouse'**
+  String get warehousesCreateDialogTitle;
+
+  /// Subtitle for new warehouse dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Second workshop, rented space, vehicle'**
+  String get warehousesCreateDialogSubtitle;
+
+  /// Label for warehouse name input
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse name'**
+  String get warehousesNameLabel;
+
+  /// Hint for warehouse name input
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Materials Warehouse'**
+  String get warehousesNameHint;
+
+  /// Validation error when warehouse name is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Enter warehouse name'**
+  String get warehousesNameError;
+
+  /// Success feedback after creating warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse \'{name}\' created'**
+  String warehousesCreateSuccess(String name);
+
+  /// Success feedback after setting shipping default warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse \'{name}\' set as shipping default'**
+  String warehousesSetShippingDefaultSuccess(String name);
+
+  /// Title for disable warehouse confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Disable warehouse?'**
+  String get warehousesDisableDialogTitle;
+
+  /// Message for disable warehouse confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Disable warehouse \'{name}\'? It will no longer appear in new documents, stock history remains preserved.'**
+  String warehousesDisableDialogMessage(String name);
+
+  /// Success feedback after disabling warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse \'{name}\' disabled'**
+  String warehousesDisableSuccess(String name);
+
+  /// Title for enable warehouse confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Enable warehouse?'**
+  String get warehousesEnableDialogTitle;
+
+  /// Message for enable warehouse confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Enable warehouse \'{name}\'? It will become available again in stock documents.'**
+  String warehousesEnableDialogMessage(String name);
+
+  /// Success feedback after enabling warehouse
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse \'{name}\' enabled'**
+  String warehousesEnableSuccess(String name);
+
+  /// Title when no warehouses are returned
+  ///
+  /// In en, this message translates to:
+  /// **'No warehouses found'**
+  String get warehousesEmptyTitle;
+
+  /// Message when no warehouses are returned
+  ///
+  /// In en, this message translates to:
+  /// **'Company warehouse list is empty.'**
+  String get warehousesEmptyMessage;
+
   /// Note explaining where company details are used
   ///
   /// In en, this message translates to:

@@ -99,6 +99,16 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(Routes.companyDetails),
             ),
           ),
+          Card(
+            child: ListTile(
+              key: const ValueKey('warehousesSettings'),
+              leading: const Icon(AppIcons.warehouse),
+              title: Text(l10n.warehousesSettingsTitle),
+              subtitle: Text(l10n.warehousesSettingsSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.warehouses),
+            ),
+          ),
           const SizedBox(height: AppSpacing.xl),
 
           SectionLabel(l10n.aiSettingsTitle),

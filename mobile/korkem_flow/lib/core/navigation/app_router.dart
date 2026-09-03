@@ -36,6 +36,7 @@ import 'package:korkem_flow/features/tasks/presentation/tasks_screen.dart';
 import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/features/today/presentation/today_screen.dart';
 import 'package:korkem_flow/features/warehouse/presentation/stock_detail_screen.dart';
+import 'package:korkem_flow/features/warehouses/presentation/warehouses_screen.dart';
 import 'package:korkem_flow/features/workstations/presentation/workstations_screen.dart';
 
 /// Route paths, referenced by name rather than typed as literals at call sites.
@@ -46,6 +47,7 @@ abstract final class Routes {
   static const adminStats = '/admin-stats';
   static const team = '/team';
   static const items = '/items';
+  static const warehouses = '/settings/warehouses';
   static const enquiryFlow = '/enquiry-flow';
 
   /// The assistant, and where signing in lands.
@@ -232,6 +234,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.items,
         builder: (context, state) => const ItemsScreen(),
+      ),
+      GoRoute(
+        path: Routes.warehouses,
+        builder: (context, state) => const WarehousesScreen(),
       ),
       GoRoute(
         path: Routes.enquiryFlow,

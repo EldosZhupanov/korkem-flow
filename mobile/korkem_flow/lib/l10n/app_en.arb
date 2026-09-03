@@ -591,6 +591,161 @@
   "@companyDetailsSubtitle": {
     "description": "Subtitle for company details screen"
   },
+  "warehousesSettingsTitle": "Warehouses",
+  "@warehousesSettingsTitle": {
+    "description": "Settings tile title for warehouses"
+  },
+  "warehousesSettingsSubtitle": "Storage locations and shipping warehouse",
+  "@warehousesSettingsSubtitle": {
+    "description": "Settings tile subtitle for warehouses"
+  },
+  "warehousesTitle": "Warehouses",
+  "@warehousesTitle": {
+    "description": "Title for warehouses management screen"
+  },
+  "warehousesSubtitle": "Storage locations and finished goods shipping warehouse",
+  "@warehousesSubtitle": {
+    "description": "Subtitle for warehouses management screen"
+  },
+  "warehousesTipTitle": "How to change warehouse name in documents",
+  "@warehousesTipTitle": {
+    "description": "Title for warehouse renaming guidance tip"
+  },
+  "warehousesTipBody": "ERPNext does not allow renaming warehouses directly. To have a clear name on waybills: create your warehouse with the desired name → set it as shipping default → disable the English Finished Goods.",
+  "@warehousesTipBody": {
+    "description": "Body explaining the 3-step workflow to get desired warehouse name in documents"
+  },
+  "warehousesSectionActive": "Warehouses",
+  "@warehousesSectionActive": {
+    "description": "Section header for active warehouses"
+  },
+  "warehousesSectionDisabled": "Disabled Warehouses",
+  "@warehousesSectionDisabled": {
+    "description": "Section header for disabled warehouses"
+  },
+  "warehousesShippingDefaultBadge": "Shipping Default",
+  "@warehousesShippingDefaultBadge": {
+    "description": "Badge for the default shipping warehouse"
+  },
+  "warehousesStatusDisabled": "Disabled",
+  "@warehousesStatusDisabled": {
+    "description": "Badge for disabled warehouse"
+  },
+  "warehousesPositionsCount": "{count, plural, one{{count} item position} other{{count} item positions}}",
+  "@warehousesPositionsCount": {
+    "description": "Count of item positions stored in warehouse",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "warehousesActionSetShippingDefault": "Set as shipping default",
+  "@warehousesActionSetShippingDefault": {
+    "description": "Action to set warehouse as shipping default"
+  },
+  "warehousesActionDisable": "Disable warehouse",
+  "@warehousesActionDisable": {
+    "description": "Action to disable warehouse"
+  },
+  "warehousesActionEnable": "Enable warehouse",
+  "@warehousesActionEnable": {
+    "description": "Action to enable disabled warehouse"
+  },
+  "warehousesCreateButton": "New warehouse",
+  "@warehousesCreateButton": {
+    "description": "Button to create new warehouse"
+  },
+  "warehousesCreateDialogTitle": "New warehouse",
+  "@warehousesCreateDialogTitle": {
+    "description": "Title for new warehouse dialog"
+  },
+  "warehousesCreateDialogSubtitle": "Second workshop, rented space, vehicle",
+  "@warehousesCreateDialogSubtitle": {
+    "description": "Subtitle for new warehouse dialog"
+  },
+  "warehousesNameLabel": "Warehouse name",
+  "@warehousesNameLabel": {
+    "description": "Label for warehouse name input"
+  },
+  "warehousesNameHint": "e.g. Materials Warehouse",
+  "@warehousesNameHint": {
+    "description": "Hint for warehouse name input"
+  },
+  "warehousesNameError": "Enter warehouse name",
+  "@warehousesNameError": {
+    "description": "Validation error when warehouse name is empty"
+  },
+  "warehousesCreateSuccess": "Warehouse '{name}' created",
+  "@warehousesCreateSuccess": {
+    "description": "Success feedback after creating warehouse",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "warehousesSetShippingDefaultSuccess": "Warehouse '{name}' set as shipping default",
+  "@warehousesSetShippingDefaultSuccess": {
+    "description": "Success feedback after setting shipping default warehouse",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "warehousesDisableDialogTitle": "Disable warehouse?",
+  "@warehousesDisableDialogTitle": {
+    "description": "Title for disable warehouse confirmation dialog"
+  },
+  "warehousesDisableDialogMessage": "Disable warehouse '{name}'? It will no longer appear in new documents, stock history remains preserved.",
+  "@warehousesDisableDialogMessage": {
+    "description": "Message for disable warehouse confirmation dialog",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "warehousesDisableSuccess": "Warehouse '{name}' disabled",
+  "@warehousesDisableSuccess": {
+    "description": "Success feedback after disabling warehouse",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "warehousesEnableDialogTitle": "Enable warehouse?",
+  "@warehousesEnableDialogTitle": {
+    "description": "Title for enable warehouse confirmation dialog"
+  },
+  "warehousesEnableDialogMessage": "Enable warehouse '{name}'? It will become available again in stock documents.",
+  "@warehousesEnableDialogMessage": {
+    "description": "Message for enable warehouse confirmation dialog",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "warehousesEnableSuccess": "Warehouse '{name}' enabled",
+  "@warehousesEnableSuccess": {
+    "description": "Success feedback after enabling warehouse",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "warehousesEmptyTitle": "No warehouses found",
+  "@warehousesEmptyTitle": {
+    "description": "Title when no warehouses are returned"
+  },
+  "warehousesEmptyMessage": "Company warehouse list is empty.",
+  "@warehousesEmptyMessage": {
+    "description": "Message when no warehouses are returned"
+  },
   "companyDetailsDocNote": "Details are used to generate contracts, invoices, and waybills.",
   "@companyDetailsDocNote": {
     "description": "Note explaining where company details are used"

@@ -536,6 +536,115 @@ class AppLocalizationsKk extends AppLocalizations {
   String get companyDetailsSubtitle => 'Мекенжай, БСН және банк деректемелері';
 
   @override
+  String get warehousesSettingsTitle => 'Қоймалар';
+
+  @override
+  String get warehousesSettingsSubtitle =>
+      'Сақтау орындары және жөнелту қоймасы';
+
+  @override
+  String get warehousesTitle => 'Қоймалар';
+
+  @override
+  String get warehousesSubtitle =>
+      'Сақтау орындары және дайын өнімді жөнелту қоймасы';
+
+  @override
+  String get warehousesTipTitle =>
+      'Құжаттардағы қойма атауын қалай өзгертуге болады';
+
+  @override
+  String get warehousesTipBody =>
+      'ERPNext жүйесінде қойма атауын тікелей өзгертуге болмайды. Жөнелтпе құжаттарда түсінікті атау болуы үшін: қажетті атаумен жаңа қойма ашыңыз → оны жөнелту қоймасы етіп белгілеңіз → ағылшынша Finished Goods қоймасын өшіріңіз.';
+
+  @override
+  String get warehousesSectionActive => 'Қоймалар';
+
+  @override
+  String get warehousesSectionDisabled => 'Өшірілген қоймалар';
+
+  @override
+  String get warehousesShippingDefaultBadge => 'Жөнелту қоймасы';
+
+  @override
+  String get warehousesStatusDisabled => 'Өшірілген';
+
+  @override
+  String warehousesPositionsCount(int count) {
+    return '$count позиция';
+  }
+
+  @override
+  String get warehousesActionSetShippingDefault => 'Жөнелту қоймасы ету';
+
+  @override
+  String get warehousesActionDisable => 'Қойманы өшіру';
+
+  @override
+  String get warehousesActionEnable => 'Қойманы қосу';
+
+  @override
+  String get warehousesCreateButton => 'Жаңа қойма';
+
+  @override
+  String get warehousesCreateDialogTitle => 'Жаңа қойма';
+
+  @override
+  String get warehousesCreateDialogSubtitle =>
+      'Екінші цех, жалға алынған орын, көлік';
+
+  @override
+  String get warehousesNameLabel => 'Қойма атауы';
+
+  @override
+  String get warehousesNameHint => 'мыс. Материалдар қоймасы';
+
+  @override
+  String get warehousesNameError => 'Қойма атауын енгізіңіз';
+
+  @override
+  String warehousesCreateSuccess(String name) {
+    return '«$name» қоймасы құрылды';
+  }
+
+  @override
+  String warehousesSetShippingDefaultSuccess(String name) {
+    return '«$name» қоймасы жөнелту қоймасы болып тағайындалды';
+  }
+
+  @override
+  String get warehousesDisableDialogTitle => 'Қойманы өшіру керек пе?';
+
+  @override
+  String warehousesDisableDialogMessage(String name) {
+    return '«$name» қоймасын өшіру керек пе? Қойма жаңа құжаттарда ұсынылмайды, қалдықтар тарихы сақталады.';
+  }
+
+  @override
+  String warehousesDisableSuccess(String name) {
+    return '«$name» қоймасы өшірілді';
+  }
+
+  @override
+  String get warehousesEnableDialogTitle => 'Қойманы қосу керек пе?';
+
+  @override
+  String warehousesEnableDialogMessage(String name) {
+    return '«$name» қоймасын қосу керек пе? Ол қойма құжаттарында қайтадан қолжетімді болады.';
+  }
+
+  @override
+  String warehousesEnableSuccess(String name) {
+    return '«$name» қоймасы қосылды';
+  }
+
+  @override
+  String get warehousesEmptyTitle => 'Қоймалар табылмады';
+
+  @override
+  String get warehousesEmptyMessage => 'Компанияның қоймалар тізімі бос.';
+
+  @override
   String get companyDetailsDocNote =>
       'Деректемелер шарттарды, шоттар мен жүкқұжаттарды жасау үшін қолданылады.';
 

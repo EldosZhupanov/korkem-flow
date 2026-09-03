@@ -545,6 +545,120 @@ class AppLocalizationsEn extends AppLocalizations {
   String get companyDetailsSubtitle => 'Address, BIN, and bank details';
 
   @override
+  String get warehousesSettingsTitle => 'Warehouses';
+
+  @override
+  String get warehousesSettingsSubtitle =>
+      'Storage locations and shipping warehouse';
+
+  @override
+  String get warehousesTitle => 'Warehouses';
+
+  @override
+  String get warehousesSubtitle =>
+      'Storage locations and finished goods shipping warehouse';
+
+  @override
+  String get warehousesTipTitle => 'How to change warehouse name in documents';
+
+  @override
+  String get warehousesTipBody =>
+      'ERPNext does not allow renaming warehouses directly. To have a clear name on waybills: create your warehouse with the desired name → set it as shipping default → disable the English Finished Goods.';
+
+  @override
+  String get warehousesSectionActive => 'Warehouses';
+
+  @override
+  String get warehousesSectionDisabled => 'Disabled Warehouses';
+
+  @override
+  String get warehousesShippingDefaultBadge => 'Shipping Default';
+
+  @override
+  String get warehousesStatusDisabled => 'Disabled';
+
+  @override
+  String warehousesPositionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count item positions',
+      one: '$count item position',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get warehousesActionSetShippingDefault => 'Set as shipping default';
+
+  @override
+  String get warehousesActionDisable => 'Disable warehouse';
+
+  @override
+  String get warehousesActionEnable => 'Enable warehouse';
+
+  @override
+  String get warehousesCreateButton => 'New warehouse';
+
+  @override
+  String get warehousesCreateDialogTitle => 'New warehouse';
+
+  @override
+  String get warehousesCreateDialogSubtitle =>
+      'Second workshop, rented space, vehicle';
+
+  @override
+  String get warehousesNameLabel => 'Warehouse name';
+
+  @override
+  String get warehousesNameHint => 'e.g. Materials Warehouse';
+
+  @override
+  String get warehousesNameError => 'Enter warehouse name';
+
+  @override
+  String warehousesCreateSuccess(String name) {
+    return 'Warehouse \'$name\' created';
+  }
+
+  @override
+  String warehousesSetShippingDefaultSuccess(String name) {
+    return 'Warehouse \'$name\' set as shipping default';
+  }
+
+  @override
+  String get warehousesDisableDialogTitle => 'Disable warehouse?';
+
+  @override
+  String warehousesDisableDialogMessage(String name) {
+    return 'Disable warehouse \'$name\'? It will no longer appear in new documents, stock history remains preserved.';
+  }
+
+  @override
+  String warehousesDisableSuccess(String name) {
+    return 'Warehouse \'$name\' disabled';
+  }
+
+  @override
+  String get warehousesEnableDialogTitle => 'Enable warehouse?';
+
+  @override
+  String warehousesEnableDialogMessage(String name) {
+    return 'Enable warehouse \'$name\'? It will become available again in stock documents.';
+  }
+
+  @override
+  String warehousesEnableSuccess(String name) {
+    return 'Warehouse \'$name\' enabled';
+  }
+
+  @override
+  String get warehousesEmptyTitle => 'No warehouses found';
+
+  @override
+  String get warehousesEmptyMessage => 'Company warehouse list is empty.';
+
+  @override
   String get companyDetailsDocNote =>
       'Details are used to generate contracts, invoices, and waybills.';
 
