@@ -864,6 +864,51 @@
       }
     }
   },
+  "orderInvoicingSection": "Invoice",
+  "@orderInvoicingSection": {
+    "description": "Section header for invoicing on order screen"
+  },
+  "orderInvoicingStatusNotDrafted": "Not issued",
+  "@orderInvoicingStatusNotDrafted": {
+    "description": "Status badge when no invoice has been drafted"
+  },
+  "orderInvoicingStatusDrafted": "Issued",
+  "@orderInvoicingStatusDrafted": {
+    "description": "Status badge when sales invoice is drafted or submitted"
+  },
+  "orderInvoicingStatusPaid": "Paid",
+  "@orderInvoicingStatusPaid": {
+    "description": "Status badge when sales invoice is paid"
+  },
+  "orderInvoicingOrderNotSubmittedNotice": "The order is not yet submitted. An invoice for a draft is an invoice for something not yet agreed upon.",
+  "@orderInvoicingOrderNotSubmittedNotice": {
+    "description": "Notice when sales order is in draft state"
+  },
+  "orderInvoicingNoDeliveryNotice": "Nothing has been shipped for this order yet. An invoice for undelivered furniture causes conflict with the client.",
+  "@orderInvoicingNoDeliveryNotice": {
+    "description": "Notice when no items have been delivered"
+  },
+  "orderInvoicingCreateAction": "Issue invoice",
+  "@orderInvoicingCreateAction": {
+    "description": "Action button to draft sales invoice"
+  },
+  "orderInvoicingNumberLabel": "Invoice number",
+  "@orderInvoicingNumberLabel": {
+    "description": "Label for invoice number"
+  },
+  "orderInvoicingTotalLabel": "Invoice total",
+  "@orderInvoicingTotalLabel": {
+    "description": "Label for invoice grand total"
+  },
+  "orderInvoicingSuccessNotice": "Invoice {invoice} created successfully",
+  "@orderInvoicingSuccessNotice": {
+    "description": "Banner when sales invoice is successfully created",
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",

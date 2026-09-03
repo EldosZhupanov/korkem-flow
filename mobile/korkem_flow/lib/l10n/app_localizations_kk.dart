@@ -754,6 +754,40 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String get orderInvoicingSection => 'Шот';
+
+  @override
+  String get orderInvoicingStatusNotDrafted => 'Шығарылмаған';
+
+  @override
+  String get orderInvoicingStatusDrafted => 'Шығарылды';
+
+  @override
+  String get orderInvoicingStatusPaid => 'Төленді';
+
+  @override
+  String get orderInvoicingOrderNotSubmittedNotice =>
+      'Тапсырыс әлі расталмаған. Жоба бойынша шот — бұл ешкім түпкілікті келіспеген нәрсеге арналған шот.';
+
+  @override
+  String get orderInvoicingNoDeliveryNotice =>
+      'Тапсырыс бойынша ештеңе жөнелтілмеген. Жеткізілмеген жиһазға шот ұсыну — риза клиентпен қарым-қатынасты бұзудың ең жылдам жолы.';
+
+  @override
+  String get orderInvoicingCreateAction => 'Шот шығару';
+
+  @override
+  String get orderInvoicingNumberLabel => 'Шот нөмірі';
+
+  @override
+  String get orderInvoicingTotalLabel => 'Шот сомасы';
+
+  @override
+  String orderInvoicingSuccessNotice(String invoice) {
+    return '$invoice шоты сәтті жасалды';
+  }
+
+  @override
   String get settingsTitle => 'Параметрлер';
 
   @override

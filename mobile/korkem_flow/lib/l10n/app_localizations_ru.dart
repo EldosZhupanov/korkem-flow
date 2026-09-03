@@ -765,6 +765,40 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get orderInvoicingSection => 'Счёт';
+
+  @override
+  String get orderInvoicingStatusNotDrafted => 'Не выставлен';
+
+  @override
+  String get orderInvoicingStatusDrafted => 'Выставлен';
+
+  @override
+  String get orderInvoicingStatusPaid => 'Оплачен';
+
+  @override
+  String get orderInvoicingOrderNotSubmittedNotice =>
+      'Заказ ещё не проведён. Счёт по черновику — это счёт за то, о чём никто окончательно не договорился.';
+
+  @override
+  String get orderInvoicingNoDeliveryNotice =>
+      'По заказу ничего не отгружено. Счёт за непривезённую мебель — самый быстрый способ поссориться с довольным клиентом.';
+
+  @override
+  String get orderInvoicingCreateAction => 'Выставить счёт';
+
+  @override
+  String get orderInvoicingNumberLabel => 'Номер счёта';
+
+  @override
+  String get orderInvoicingTotalLabel => 'Сумма счёта';
+
+  @override
+  String orderInvoicingSuccessNotice(String invoice) {
+    return 'Счёт $invoice успешно сформирован';
+  }
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override

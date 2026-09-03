@@ -764,6 +764,40 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get orderInvoicingSection => 'Invoice';
+
+  @override
+  String get orderInvoicingStatusNotDrafted => 'Not issued';
+
+  @override
+  String get orderInvoicingStatusDrafted => 'Issued';
+
+  @override
+  String get orderInvoicingStatusPaid => 'Paid';
+
+  @override
+  String get orderInvoicingOrderNotSubmittedNotice =>
+      'The order is not yet submitted. An invoice for a draft is an invoice for something not yet agreed upon.';
+
+  @override
+  String get orderInvoicingNoDeliveryNotice =>
+      'Nothing has been shipped for this order yet. An invoice for undelivered furniture causes conflict with the client.';
+
+  @override
+  String get orderInvoicingCreateAction => 'Issue invoice';
+
+  @override
+  String get orderInvoicingNumberLabel => 'Invoice number';
+
+  @override
+  String get orderInvoicingTotalLabel => 'Invoice total';
+
+  @override
+  String orderInvoicingSuccessNotice(String invoice) {
+    return 'Invoice $invoice created successfully';
+  }
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

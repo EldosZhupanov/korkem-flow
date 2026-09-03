@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/orders/data/order_design_repository.dart';
 import 'package:korkem_flow/features/orders/data/order_installation_repository.dart';
+import 'package:korkem_flow/features/orders/data/order_invoice_repository.dart';
 import 'package:korkem_flow/features/orders/data/order_warranty_repository.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/order_design.dart';
 import 'package:korkem_flow/features/orders/domain/order_installation.dart';
+import 'package:korkem_flow/features/orders/domain/order_invoice.dart';
 import 'package:korkem_flow/features/orders/domain/order_warranty.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
@@ -53,6 +55,9 @@ class _MockOrderInstallationRepository extends Mock
 class _MockOrderWarrantyRepository extends Mock
     implements OrderWarrantyRepository {}
 
+class _MockOrderInvoiceRepository extends Mock
+    implements OrderInvoiceRepository {}
+
 void main() {
   const desktop = Size(1440, 900);
 
@@ -63,6 +68,7 @@ void main() {
   late _MockOrderDesignRepository designRepo;
   late _MockOrderInstallationRepository installationRepo;
   late _MockOrderWarrantyRepository warrantyRepo;
+  late _MockOrderInvoiceRepository invoiceRepo;
 
   setUp(() {
     salesOrderRepo = _MockSalesOrderRepository();
@@ -72,6 +78,7 @@ void main() {
     designRepo = _MockOrderDesignRepository();
     installationRepo = _MockOrderInstallationRepository();
     warrantyRepo = _MockOrderWarrantyRepository();
+    invoiceRepo = _MockOrderInvoiceRepository();
   });
 
   // Real furniture, real Kazakh customers, real money. A golden full of
@@ -147,6 +154,13 @@ void main() {
         salesOrder: 'SAL-ORD-2026-00001',
       ),
     );
+    when(
+      () => invoiceRepo.fetchInvoice(any()),
+    ).thenAnswer(
+      (_) async => const OrderInvoice(
+        salesOrder: 'SAL-ORD-2026-00001',
+      ),
+    );
     when(() => workOrderRepo.fetchForDeal(any())).thenAnswer((_) async => []);
 
     await tester.pumpWidget(
@@ -158,6 +172,7 @@ void main() {
             installationRepo,
           ),
           orderWarrantyRepositoryProvider.overrideWithValue(warrantyRepo),
+          orderInvoiceRepositoryProvider.overrideWithValue(invoiceRepo),
           workOrderRepositoryProvider.overrideWithValue(workOrderRepo),
           productionCommandRepositoryProvider.overrideWithValue(
             productionCommandRepo,

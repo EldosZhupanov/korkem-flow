@@ -1480,6 +1480,66 @@ abstract class AppLocalizations {
   /// **'Claim {claim} registered successfully'**
   String orderWarrantyClaimSuccessNotice(String claim);
 
+  /// Section header for invoicing on order screen
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice'**
+  String get orderInvoicingSection;
+
+  /// Status badge when no invoice has been drafted
+  ///
+  /// In en, this message translates to:
+  /// **'Not issued'**
+  String get orderInvoicingStatusNotDrafted;
+
+  /// Status badge when sales invoice is drafted or submitted
+  ///
+  /// In en, this message translates to:
+  /// **'Issued'**
+  String get orderInvoicingStatusDrafted;
+
+  /// Status badge when sales invoice is paid
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get orderInvoicingStatusPaid;
+
+  /// Notice when sales order is in draft state
+  ///
+  /// In en, this message translates to:
+  /// **'The order is not yet submitted. An invoice for a draft is an invoice for something not yet agreed upon.'**
+  String get orderInvoicingOrderNotSubmittedNotice;
+
+  /// Notice when no items have been delivered
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has been shipped for this order yet. An invoice for undelivered furniture causes conflict with the client.'**
+  String get orderInvoicingNoDeliveryNotice;
+
+  /// Action button to draft sales invoice
+  ///
+  /// In en, this message translates to:
+  /// **'Issue invoice'**
+  String get orderInvoicingCreateAction;
+
+  /// Label for invoice number
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice number'**
+  String get orderInvoicingNumberLabel;
+
+  /// Label for invoice grand total
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice total'**
+  String get orderInvoicingTotalLabel;
+
+  /// Banner when sales invoice is successfully created
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice {invoice} created successfully'**
+  String orderInvoicingSuccessNotice(String invoice);
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:

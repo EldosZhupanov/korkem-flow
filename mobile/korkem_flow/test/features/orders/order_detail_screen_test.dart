@@ -3,11 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/data/order_design_repository.dart';
 import 'package:korkem_flow/features/orders/data/order_installation_repository.dart';
+import 'package:korkem_flow/features/orders/data/order_invoice_repository.dart';
 import 'package:korkem_flow/features/orders/data/order_warranty_repository.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/order_design.dart';
 import 'package:korkem_flow/features/orders/domain/order_installation.dart';
+import 'package:korkem_flow/features/orders/domain/order_invoice.dart';
 import 'package:korkem_flow/features/orders/domain/order_warranty.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
@@ -39,6 +41,9 @@ class _MockOrderInstallationRepository extends Mock
 class _MockOrderWarrantyRepository extends Mock
     implements OrderWarrantyRepository {}
 
+class _MockOrderInvoiceRepository extends Mock
+    implements OrderInvoiceRepository {}
+
 const _order = SalesOrder(
   name: 'SAL-ORD-00001',
   customer: 'Мебель Астана',
@@ -55,6 +60,7 @@ void main() {
   late _MockOrderDesignRepository designRepo;
   late _MockOrderInstallationRepository installationRepo;
   late _MockOrderWarrantyRepository warrantyRepo;
+  late _MockOrderInvoiceRepository invoiceRepo;
 
   setUp(() {
     orders = _MockSalesOrderRepository();
@@ -64,6 +70,7 @@ void main() {
     designRepo = _MockOrderDesignRepository();
     installationRepo = _MockOrderInstallationRepository();
     warrantyRepo = _MockOrderWarrantyRepository();
+    invoiceRepo = _MockOrderInvoiceRepository();
   });
 
   void stubOrder({
@@ -72,6 +79,7 @@ void main() {
     OrderDesign? design,
     OrderInstallation? installation,
     OrderWarranty? warranty,
+    OrderInvoice? invoice,
   }) {
     when(
       () => orders.fetchPage(
@@ -111,6 +119,15 @@ void main() {
             salesOrder: 'SAL-ORD-00001',
           ),
     );
+    when(
+      () => invoiceRepo.fetchInvoice(any()),
+    ).thenAnswer(
+      (_) async =>
+          invoice ??
+          const OrderInvoice(
+            salesOrder: 'SAL-ORD-00001',
+          ),
+    );
   }
 
   Future<void> pump(
@@ -131,6 +148,7 @@ void main() {
             installationRepo,
           ),
           orderWarrantyRepositoryProvider.overrideWithValue(warrantyRepo),
+          orderInvoiceRepositoryProvider.overrideWithValue(invoiceRepo),
           workOrderRepositoryProvider.overrideWithValue(workOrders),
           productionCommandRepositoryProvider.overrideWithValue(commands),
           receivingRepositoryProvider.overrideWithValue(receivingRepo),
