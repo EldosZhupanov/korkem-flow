@@ -112,18 +112,38 @@ fi
 say "Sources"
 
 missing=()
+unreadable=()
 while read -r name url commit branch; do
   case "$name" in ''|\#*) continue ;; esac
   case "$name" in frappe|erpnext|crm) ;; *) continue ;; esac   # relaticle is not part of the bench
   dir="$ROOT/$name"
   if [ ! -d "$dir/.git" ]; then
     missing+=("$name (missing)")
-  elif [ "$(git -C "$dir" rev-parse HEAD)" != "$commit" ]; then
-    missing+=("$name (at $(git -C "$dir" rev-parse --short HEAD), lock says ${commit:0:10})")
+    continue
+  fi
+  # git refuses to read a repository owned by somebody else, and says so on
+  # stderr while exiting non-zero. Without this branch that refusal arrives
+  # as an empty HEAD and gets reported as "the checkout has drifted" -- the
+  # wrong cause, and one an operator cannot act on. It is not hypothetical:
+  # the bench container runs as uid 1000, a server's login user often does
+  # not, and the fix for *that* is to chown the trees to 1000 -- which is
+  # what makes git refuse here. Both are correct; only the message was not.
+  if ! head="$(git -C "$dir" rev-parse HEAD 2>/dev/null)"; then
+    unreadable+=("$name")
+  elif [ "$head" != "$commit" ]; then
+    missing+=("$name (at ${head:0:10}, lock says ${commit:0:10})")
   else
     ok "$name at ${commit:0:10}"
   fi
 done < "$ROOT/vendor.lock"
+
+if [ ${#unreadable[@]} -gt 0 ]; then
+  for name in "${unreadable[@]}"; do
+    printf '    \033[31m%s: git will not read it (ownership)\033[0m\n' "$name" >&2
+    printf '         git config --global --add safe.directory %s\n' "$ROOT/$name" >&2
+  done
+  die "the upstream checkouts exist but git refuses to read them. Run the lines above, then re-run."
+fi
 
 if [ ${#missing[@]} -gt 0 ] && [ "${KORKEM_ALLOW_VENDOR_DRIFT:-0}" != "1" ]; then
   printf '    \033[31m%s\033[0m\n' "${missing[@]}" >&2
