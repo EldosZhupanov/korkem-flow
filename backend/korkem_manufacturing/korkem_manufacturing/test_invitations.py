@@ -104,17 +104,60 @@ class TestEmployeeInvitations(IntegrationTestCase):
 		)
 		self.assertTrue(audit, "the invitation has no R9 audit record")
 
-	def test_each_position_maps_to_fixed_erpnext_roles(self):
-		expected = {
-			"manager": {"Sales Manager"},
-			"warehouse": {"Stock User"},
-			"accountant": {"Accounts User"},
-			"shop_floor": {"Manufacturing User", "Stock User"},
-		}
-		for position, roles in expected.items():
+	#: Каждая должность и то, что человек по ней получает. Записано здесь
+	#: целиком и вручную: словарь на сервере — это раздача прав, и менять его
+	#: молча нельзя. Любое расхождение обязано провалить проверку, а не
+	#: подстроиться под неё.
+	EXPECTED_ROLES = {
+		"manager": {"Sales User", "Sales Manager"},
+		"measurer": {"Sales User"},
+		"designer": {"Manufacturing User", "Item Manager"},
+		"shop_manager": {"Manufacturing Manager", "Manufacturing User", "Stock User"},
+		"cutter": {"Manufacturing User", "Stock User"},
+		"edge_banding": {"Manufacturing User", "Stock User"},
+		"cnc": {"Manufacturing User", "Stock User"},
+		"painter": {"Manufacturing User", "Stock User"},
+		"assembler": {"Manufacturing User", "Stock User"},
+		"warehouse": {"Stock User"},
+		"installer": {"Manufacturing User", "Stock User"},
+		"accountant": {"Accounts User"},
+		"shop_floor": {"Manufacturing User", "Stock User"},
+	}
+
+	def test_the_table_of_positions_is_the_one_written_down_here(self):
+		"""Сверка таблицы, без создания людей.
+
+		Раньше эта проверка приглашала по человеку на должность. С четырьмя
+		должностями это стоило четыре учётные записи, с тринадцатью — тринадцать,
+		а Frappe ограничивает создание пользователей шестьюдесятью в час на сайт:
+		набор начал бы ронять сам себя и соседние тесты. Раздачу прав можно
+		сверить, ничего не создавая; сквозной путь проверяют тесты ниже.
+		"""
+		self.assertEqual(
+			{position: set(roles) for position, roles in invitations.POSITIONS.items()},
+			self.EXPECTED_ROLES,
+			"словарь должностей разошёлся с тем, что здесь записано. Это раздача "
+			"прав: если расхождение намеренное — обновите таблицу выше вместе с ним",
+		)
+
+	def test_every_role_named_here_exists_on_the_site(self):
+		"""Опечатка в названии роли не должна становиться правом.
+
+		`_require_roles` отказывается приглашать с несуществующей ролью — но
+		узнать об этом при живом приглашении значило бы узнать от клиента.
+		"""
+		named = {role for roles in invitations.POSITIONS.values() for role in roles}
+		missing = sorted(r for r in named if not frappe.db.exists("Role", r))
+		self.assertFalse(missing, f"этих ролей нет на сайте: {missing}")
+
+	def test_the_two_ends_of_the_mapping_still_work_end_to_end(self):
+		"""Две должности целиком: самая широкая и самая узкая."""
+		for position in ("shop_manager", "measurer"):
 			with self.subTest(position=position):
 				result = self._invite(self._email(position), position)
-				self.assertEqual(set(result["roles_added"]), roles)
+				self.assertEqual(
+					set(result["roles_added"]), self.EXPECTED_ROLES[position]
+				)
 
 	def test_an_ordinary_employee_cannot_invite_anyone(self):
 		caller = self._email("ordinary")

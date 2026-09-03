@@ -7,7 +7,16 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// strictly to backend-owned permission sets.
 enum EmployeePosition {
   manager('manager'),
+  measurer('measurer'),
+  designer('designer'),
+  shopManager('shop_manager'),
+  cutter('cutter'),
+  edgeBanding('edge_banding'),
+  cnc('cnc'),
+  painter('painter'),
+  assembler('assembler'),
   warehouse('warehouse'),
+  installer('installer'),
   accountant('accountant'),
   shopFloor('shop_floor'),
   owner('owner');
@@ -19,11 +28,25 @@ enum EmployeePosition {
   /// Positions available in the invitation form.
   ///
   /// The owner is already present and cannot be invited from the form.
+  /// Порядок — по ходу заказа: продажа, замер, конструктор, цех, склад,
+  /// монтаж, деньги. Тот же порядок, что и на сервере.
+  ///
+  /// `shopFloor` здесь нет намеренно: он остался ради тех, кого пригласили до
+  /// 4 сентября 2026, и показывать его в форме — значит предлагать новую
+  /// должность «рабочий цеха» вместо конкретного станка.
   static const List<EmployeePosition> selectable = [
     manager,
+    measurer,
+    designer,
+    shopManager,
+    cutter,
+    edgeBanding,
+    cnc,
+    painter,
+    assembler,
     warehouse,
+    installer,
     accountant,
-    shopFloor,
   ];
 
   static EmployeePosition fromId(String? id) {
@@ -32,6 +55,15 @@ enum EmployeePosition {
       'manager' => manager,
       'warehouse' => warehouse,
       'accountant' => accountant,
+      'measurer' => measurer,
+      'designer' => designer,
+      'shop_manager' || 'shopmanager' => shopManager,
+      'cutter' => cutter,
+      'edge_banding' || 'edgebanding' => edgeBanding,
+      'cnc' => cnc,
+      'painter' => painter,
+      'assembler' => assembler,
+      'installer' => installer,
       'shop_floor' || 'shopfloor' => shopFloor,
       'owner' => owner,
       _ => shopFloor,
@@ -63,7 +95,16 @@ enum EmployeePosition {
 
   String localizedName(AppLocalizations l10n) => switch (this) {
     manager => l10n.teamPositionManager,
+    measurer => l10n.teamPositionMeasurer,
+    designer => l10n.teamPositionDesigner,
+    shopManager => l10n.teamPositionShopManager,
+    cutter => l10n.teamPositionCutter,
+    edgeBanding => l10n.teamPositionEdgeBanding,
+    cnc => l10n.teamPositionCnc,
+    painter => l10n.teamPositionPainter,
+    assembler => l10n.teamPositionAssembler,
     warehouse => l10n.teamPositionWarehouse,
+    installer => l10n.teamPositionInstaller,
     accountant => l10n.teamPositionAccountant,
     shopFloor => l10n.teamPositionShopFloor,
     owner => l10n.teamPositionOwner,
@@ -71,7 +112,16 @@ enum EmployeePosition {
 
   String localizedDescription(AppLocalizations l10n) => switch (this) {
     manager => l10n.teamPositionManagerDesc,
+    measurer => l10n.teamPositionMeasurerDesc,
+    designer => l10n.teamPositionDesignerDesc,
+    shopManager => l10n.teamPositionShopManagerDesc,
+    cutter => l10n.teamPositionCutterDesc,
+    edgeBanding => l10n.teamPositionEdgeBandingDesc,
+    cnc => l10n.teamPositionCncDesc,
+    painter => l10n.teamPositionPainterDesc,
+    assembler => l10n.teamPositionAssemblerDesc,
     warehouse => l10n.teamPositionWarehouseDesc,
+    installer => l10n.teamPositionInstallerDesc,
     accountant => l10n.teamPositionAccountantDesc,
     shopFloor => l10n.teamPositionShopFloorDesc,
     owner => l10n.teamPositionOwnerDesc,

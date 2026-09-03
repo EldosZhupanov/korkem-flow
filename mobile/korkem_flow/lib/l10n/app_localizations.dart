@@ -844,6 +844,114 @@ abstract class AppLocalizations {
   /// **'Machines, work instructions, progress reporting'**
   String get teamPositionShopFloorDesc;
 
+  /// No description provided for @teamPositionMeasurer.
+  ///
+  /// In en, this message translates to:
+  /// **'Surveyor'**
+  String get teamPositionMeasurer;
+
+  /// No description provided for @teamPositionMeasurerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits the client, takes measurements and photos'**
+  String get teamPositionMeasurerDesc;
+
+  /// No description provided for @teamPositionDesigner.
+  ///
+  /// In en, this message translates to:
+  /// **'Design engineer'**
+  String get teamPositionDesigner;
+
+  /// No description provided for @teamPositionDesignerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawings, specifications, BAZIS imports'**
+  String get teamPositionDesignerDesc;
+
+  /// No description provided for @teamPositionShopManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop manager'**
+  String get teamPositionShopManager;
+
+  /// No description provided for @teamPositionShopManagerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigns work and watches the deadlines'**
+  String get teamPositionShopManagerDesc;
+
+  /// No description provided for @teamPositionCutter.
+  ///
+  /// In en, this message translates to:
+  /// **'Panel saw operator'**
+  String get teamPositionCutter;
+
+  /// No description provided for @teamPositionCutterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cuts board material'**
+  String get teamPositionCutterDesc;
+
+  /// No description provided for @teamPositionEdgeBanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge bander'**
+  String get teamPositionEdgeBanding;
+
+  /// No description provided for @teamPositionEdgeBandingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge banding machine'**
+  String get teamPositionEdgeBandingDesc;
+
+  /// No description provided for @teamPositionCnc.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC operator'**
+  String get teamPositionCnc;
+
+  /// No description provided for @teamPositionCncDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Drilling and routing'**
+  String get teamPositionCncDesc;
+
+  /// No description provided for @teamPositionPainter.
+  ///
+  /// In en, this message translates to:
+  /// **'Finisher'**
+  String get teamPositionPainter;
+
+  /// No description provided for @teamPositionPainterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Painting and coating'**
+  String get teamPositionPainterDesc;
+
+  /// No description provided for @teamPositionAssembler.
+  ///
+  /// In en, this message translates to:
+  /// **'Assembler'**
+  String get teamPositionAssembler;
+
+  /// No description provided for @teamPositionAssemblerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Assembly and packing'**
+  String get teamPositionAssemblerDesc;
+
+  /// No description provided for @teamPositionInstaller.
+  ///
+  /// In en, this message translates to:
+  /// **'Installer'**
+  String get teamPositionInstaller;
+
+  /// No description provided for @teamPositionInstallerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery and installation at the client'**
+  String get teamPositionInstallerDesc;
+
   /// Position label for company owner
   ///
   /// In en, this message translates to:
@@ -2703,6 +2811,12 @@ abstract class AppLocalizations {
   /// **'Connection'**
   String get settingsConnection;
 
+  /// No description provided for @settingsLookAndLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Look and language'**
+  String get settingsLookAndLanguage;
+
   /// No description provided for @navDashboard.
   ///
   /// In en, this message translates to:
@@ -3027,6 +3141,18 @@ abstract class AppLocalizations {
   /// **'Rejected'**
   String get approvalRejected;
 
+  /// No description provided for @approvalRejectDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Action'**
+  String get approvalRejectDialogTitle;
+
+  /// No description provided for @approvalRejectReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get approvalRejectReasonHint;
+
   /// No description provided for @approvalExpires.
   ///
   /// In en, this message translates to:
@@ -3326,6 +3452,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop dictating'**
   String get chatDictateStop;
+
+  /// No description provided for @chatDictateUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Dictation is unavailable. Allow microphone access in your phone settings, or type instead.'**
+  String get chatDictateUnavailable;
 
   /// Status line under the assistant name. It says plainly that no language model is connected, so nobody mistakes a canned reply for a real one
   ///

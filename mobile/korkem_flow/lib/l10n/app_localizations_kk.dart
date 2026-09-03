@@ -409,6 +409,62 @@ class AppLocalizationsKk extends AppLocalizations {
       'Станоктар, ауысымдық тапсырмалар, жұмыс есептері';
 
   @override
+  String get teamPositionMeasurer => 'Өлшеуші';
+
+  @override
+  String get teamPositionMeasurerDesc => 'Клиентке барып өлшем мен фото алады';
+
+  @override
+  String get teamPositionDesigner => 'Конструктор-дизайнер';
+
+  @override
+  String get teamPositionDesignerDesc =>
+      'Сызба, спецификация, БАЗИС-тен жүктеу';
+
+  @override
+  String get teamPositionShopManager => 'Цех бастығы';
+
+  @override
+  String get teamPositionShopManagerDesc =>
+      'Жұмысты бөледі және мерзімді қадағалайды';
+
+  @override
+  String get teamPositionCutter => 'Кесуші';
+
+  @override
+  String get teamPositionCutterDesc => 'ЛДСП және плиталарды кесу';
+
+  @override
+  String get teamPositionEdgeBanding => 'Жиектеуші';
+
+  @override
+  String get teamPositionEdgeBandingDesc => 'Жиек жабыстыру станогы';
+
+  @override
+  String get teamPositionCnc => 'ЧПУ операторы';
+
+  @override
+  String get teamPositionCncDesc => 'Бұрғылау және фрезерлеу';
+
+  @override
+  String get teamPositionPainter => 'Бояушы';
+
+  @override
+  String get teamPositionPainterDesc => 'Бояу және жабын';
+
+  @override
+  String get teamPositionAssembler => 'Жинақтаушы';
+
+  @override
+  String get teamPositionAssemblerDesc => 'Бұйымды жинау және орау';
+
+  @override
+  String get teamPositionInstaller => 'Монтаждаушы';
+
+  @override
+  String get teamPositionInstallerDesc => 'Жеткізу және клиентте орнату';
+
+  @override
   String get teamPositionOwner => 'Иесі';
 
   @override
@@ -1455,6 +1511,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get settingsConnection => 'Қосылым';
 
   @override
+  String get settingsLookAndLanguage => 'Безендіру және тіл';
+
+  @override
   String get navDashboard => 'Басты бет';
 
   @override
@@ -1623,6 +1682,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get approvalRejected => 'Бас тартылды';
 
   @override
+  String get approvalRejectDialogTitle => 'Әрекеттен бас тарту';
+
+  @override
+  String get approvalRejectReasonHint => 'Бас тарту себебі (міндетті емес)';
+
+  @override
   String get approvalExpires => 'Мерзімі';
 
   @override
@@ -1774,6 +1839,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get chatDictateStop => 'Дауысты тоқтату';
+
+  @override
+  String get chatDictateUnavailable =>
+      'Микрофон қолжетімсіз. Телефон параметрлерінде рұқсат беріңіз немесе мәтінмен жазыңыз.';
 
   @override
   String get chatLocalMode => 'Жергілікті режим · KORKEM деректері';

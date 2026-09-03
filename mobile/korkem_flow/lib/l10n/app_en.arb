@@ -409,6 +409,24 @@
     "description": "Position label for shop floor worker"
   },
   "teamPositionShopFloorDesc": "Machines, work instructions, progress reporting",
+  "teamPositionMeasurer": "Surveyor",
+  "teamPositionMeasurerDesc": "Visits the client, takes measurements and photos",
+  "teamPositionDesigner": "Design engineer",
+  "teamPositionDesignerDesc": "Drawings, specifications, BAZIS imports",
+  "teamPositionShopManager": "Shop manager",
+  "teamPositionShopManagerDesc": "Assigns work and watches the deadlines",
+  "teamPositionCutter": "Panel saw operator",
+  "teamPositionCutterDesc": "Cuts board material",
+  "teamPositionEdgeBanding": "Edge bander",
+  "teamPositionEdgeBandingDesc": "Edge banding machine",
+  "teamPositionCnc": "CNC operator",
+  "teamPositionCncDesc": "Drilling and routing",
+  "teamPositionPainter": "Finisher",
+  "teamPositionPainterDesc": "Painting and coating",
+  "teamPositionAssembler": "Assembler",
+  "teamPositionAssemblerDesc": "Assembly and packing",
+  "teamPositionInstaller": "Installer",
+  "teamPositionInstallerDesc": "Delivery and installation at the client",
   "@teamPositionShopFloorDesc": {
     "description": "Description for shop floor position"
   },
@@ -770,10 +788,18 @@
   "@bazisTotalsSummary": {
     "description": "Summary string of totals in Bazis export",
     "placeholders": {
-      "products": { "type": "int" },
-      "parts": { "type": "int" },
-      "materials": { "type": "int" },
-      "operations": { "type": "int" }
+      "products": {
+        "type": "int"
+      },
+      "parts": {
+        "type": "int"
+      },
+      "materials": {
+        "type": "int"
+      },
+      "operations": {
+        "type": "int"
+      }
     }
   },
   "bazisCreateSpecificationAction": "Create Specification",
@@ -796,87 +822,117 @@
   "@bazisArticleLabel": {
     "description": "Label for product article",
     "placeholders": {
-      "article": { "type": "String" }
+      "article": {
+        "type": "String"
+      }
     }
   },
   "bazisOrderLabel": "Order: {order}",
   "@bazisOrderLabel": {
     "description": "Label for product order reference",
     "placeholders": {
-      "order": { "type": "String" }
+      "order": {
+        "type": "String"
+      }
     }
   },
   "bazisPriceLabel": "Price: {price}",
   "@bazisPriceLabel": {
     "description": "Label for price",
     "placeholders": {
-      "price": { "type": "String" }
+      "price": {
+        "type": "String"
+      }
     }
   },
   "bazisQtyLabel": "{qty} pcs",
   "@bazisQtyLabel": {
     "description": "Quantity in pieces",
     "placeholders": {
-      "qty": { "type": "String" }
+      "qty": {
+        "type": "String"
+      }
     }
   },
   "bazisPartsTab": "Parts ({count})",
   "@bazisPartsTab": {
     "description": "Tab header for parts",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bazisMaterialsTab": "Materials ({count})",
   "@bazisMaterialsTab": {
     "description": "Tab header for materials",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bazisOperationsTab": "Operations ({count})",
   "@bazisOperationsTab": {
     "description": "Tab header for operations",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bazisPartBlockLabel": "Block: {block}",
   "@bazisPartBlockLabel": {
     "description": "Structural block/drawer workshop location for part",
     "placeholders": {
-      "block": { "type": "String" }
+      "block": {
+        "type": "String"
+      }
     }
   },
   "bazisPartDimensions": "{length} × {width} × {thickness} mm",
   "@bazisPartDimensions": {
     "description": "Dimensions of part in mm",
     "placeholders": {
-      "length": { "type": "String" },
-      "width": { "type": "String" },
-      "thickness": { "type": "String" }
+      "length": {
+        "type": "String"
+      },
+      "width": {
+        "type": "String"
+      },
+      "thickness": {
+        "type": "String"
+      }
     }
   },
   "bazisPartEdges": "Edge: {edges}",
   "@bazisPartEdges": {
     "description": "Edge materials list for part",
     "placeholders": {
-      "edges": { "type": "String" }
+      "edges": {
+        "type": "String"
+      }
     }
   },
   "bazisMaterialUnitQty": "{qty} {unit}",
   "@bazisMaterialUnitQty": {
     "description": "Quantity and unit of material",
     "placeholders": {
-      "qty": { "type": "String" },
-      "unit": { "type": "String" }
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
   "bazisOperationMinutes": "{minutes} min.",
   "@bazisOperationMinutes": {
     "description": "Operation time in minutes",
     "placeholders": {
-      "minutes": { "type": "String" }
+      "minutes": {
+        "type": "String"
+      }
     }
   },
   "bazisBomStatusCreated": "Specification created",
@@ -907,14 +963,18 @@
   "@bazisBomDocLabel": {
     "description": "Label with BOM document name",
     "placeholders": {
-      "bom": { "type": "String" }
+      "bom": {
+        "type": "String"
+      }
     }
   },
   "bazisItemDocLabel": "Item: {item}",
   "@bazisItemDocLabel": {
     "description": "Label with Item document name",
     "placeholders": {
-      "item": { "type": "String" }
+      "item": {
+        "type": "String"
+      }
     }
   },
   "bazisEmptyParts": "No parts in product",
@@ -1033,8 +1093,12 @@
   "@integrationClearDialogMessage": {
     "description": "Message for secret deletion confirmation dialog",
     "placeholders": {
-      "secretName": { "type": "String" },
-      "providerName": { "type": "String" }
+      "secretName": {
+        "type": "String"
+      },
+      "providerName": {
+        "type": "String"
+      }
     }
   },
   "integrationClearSuccess": "Key deleted",
@@ -1045,21 +1109,27 @@
   "@integrationLastStatusLabel": {
     "description": "Label for integration last status",
     "placeholders": {
-      "status": { "type": "String" }
+      "status": {
+        "type": "String"
+      }
     }
   },
   "integrationLastErrorLabel": "Error: {error}",
   "@integrationLastErrorLabel": {
     "description": "Label for integration last error",
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "integrationLastCheckedLabel": "Checked: {date}",
   "@integrationLastCheckedLabel": {
     "description": "Label for last checked date",
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "integrationEnableToggle": "Enable integration",
@@ -1796,6 +1866,7 @@
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",
   "settingsConnection": "Connection",
+  "settingsLookAndLanguage": "Look and language",
   "navDashboard": "Home",
   "dashboardGreeting": "Today",
   "dashboardMyWork": "My work",
@@ -1861,6 +1932,8 @@
   "approvalReject": "Reject",
   "approvalApproved": "Approved",
   "approvalRejected": "Rejected",
+  "approvalRejectDialogTitle": "Reject Action",
+  "approvalRejectReasonHint": "Reason (optional)",
   "approvalExpires": "Expires",
   "approvalExpired": "Expired",
   "productionEmpty": "No work orders",
@@ -1932,6 +2005,7 @@
     "description": "Starts voice input"
   },
   "chatDictateStop": "Stop dictating",
+  "chatDictateUnavailable": "Dictation is unavailable. Allow microphone access in your phone settings, or type instead.",
   "chatLocalMode": "Local mode · KORKEM data",
   "@chatLocalMode": {
     "description": "Status line under the assistant name. It says plainly that no language model is connected, so nobody mistakes a canned reply for a real one"

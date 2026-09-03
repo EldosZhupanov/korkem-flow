@@ -32,6 +32,7 @@ class SpeechDictation implements ChatDictation {
   bool get isAvailable => _available;
 
   /// Asks the platform once whether dictation can run here.
+  @override
   Future<bool> ensureReady() async {
     if (_initialised) return _available;
     _initialised = true;

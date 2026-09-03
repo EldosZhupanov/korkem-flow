@@ -103,10 +103,14 @@ const sidebarSectionEntries = <SidebarEntry>[
     labelOf: _home,
   ),
   SidebarBranch(path: Routes.sales, icon: AppIcons.deal, labelOf: _sales),
-  SidebarLink(
-    path: Routes.clients,
-    icon: AppIcons.customer,
-    labelOf: _clients,
+  // «Клиенты» здесь больше нет. Это была вторая дверь в ту же комнату:
+  // «Продажи» открываются вкладками Сделки · Лиды · Клиенты · Счета, и строка
+  // в меню вела на ту же вкладку. Владелец нажимал «Клиенты» и попадал в
+  // «Продажи» — то есть меню обещало раздел, а показывало другой.
+  SidebarPage(
+    path: Routes.enquiryFlow,
+    icon: AppIcons.enquiryFlow,
+    labelOf: _enquiryFlow,
   ),
   SidebarBranch(path: Routes.tasks, icon: AppIcons.task, labelOf: _tasks),
   SidebarLink(
@@ -123,6 +127,13 @@ const sidebarSectionEntries = <SidebarEntry>[
     path: Routes.items,
     icon: AppIcons.item,
     labelOf: _items,
+  ),
+  // Команда — ежедневная работа владельца, а не настройка. В настройках она
+  // лежала рядом с выбором темы, то есть рядом с тем, что трогают раз в жизни.
+  SidebarPage(
+    path: Routes.team,
+    icon: AppIcons.team,
+    labelOf: _team,
   ),
 ];
 
@@ -147,7 +158,8 @@ String _home(AppLocalizations l10n) => l10n.navDashboard;
 String _sales(AppLocalizations l10n) => l10n.navSales;
 String _tasks(AppLocalizations l10n) => l10n.navTasks;
 String _production(AppLocalizations l10n) => l10n.navOperations;
-String _clients(AppLocalizations l10n) => l10n.navClients;
+String _team(AppLocalizations l10n) => l10n.teamTitle;
+String _enquiryFlow(AppLocalizations l10n) => l10n.enquiryFlowTitle;
 String _profile(AppLocalizations l10n) => l10n.navProfile;
 String _items(AppLocalizations l10n) => l10n.navItems;
 String _settings(AppLocalizations l10n) => l10n.settingsTitle;

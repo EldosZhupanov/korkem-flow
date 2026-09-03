@@ -32,63 +32,6 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
-          SectionLabel(l10n.profileAppearance),
-          AppCard(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-            child: RadioGroup<ThemeMode>(
-              groupValue: settings.themeMode,
-              onChanged: (value) => value == null
-                  ? null
-                  : ref
-                        .read(settingsControllerProvider.notifier)
-                        .setThemeMode(value),
-              child: Column(
-                children: [
-                  for (final mode in ThemeMode.values)
-                    RadioListTile<ThemeMode>(
-                      value: mode,
-                      title: Text(switch (mode) {
-                        ThemeMode.system => l10n.themeSystem,
-                        ThemeMode.light => l10n.themeLight,
-                        ThemeMode.dark => l10n.themeDark,
-                      }),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-
-          SectionLabel(l10n.profileLanguage),
-          AppCard(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-            // Nullable, and the null entry is listed first — mirroring the
-            // theme group above. Without it the default state (follow the
-            // device) matched no option, so the group opened with nothing
-            // selected and there was no way back to it once a language had
-            // been picked.
-            child: RadioGroup<Locale?>(
-              groupValue: settings.locale,
-              onChanged: (value) => ref
-                  .read(settingsControllerProvider.notifier)
-                  .setLocale(value),
-              child: Column(
-                children: [
-                  RadioListTile<Locale?>(
-                    value: null,
-                    title: Text(l10n.languageSystem),
-                  ),
-                  for (final locale in AppLocalizations.supportedLocales)
-                    RadioListTile<Locale?>(
-                      value: locale,
-                      title: Text(languageEndonym(locale.languageCode)),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-
           SectionLabel(l10n.companyDetailsTitle),
           Card(
             child: ListTile(
@@ -168,28 +111,6 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.xl),
 
-          SectionLabel(l10n.teamTitle),
-          Card(
-            child: ListTile(
-              key: const ValueKey('teamSettings'),
-              leading: const Icon(AppIcons.lead),
-              title: Text(l10n.settingsTeamTitle),
-              subtitle: Text(l10n.settingsTeamSubtitle),
-              trailing: const Icon(AppIcons.forward),
-              onTap: () => context.push(Routes.team),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              key: const ValueKey('enquiryFlowSettings'),
-              leading: const Icon(AppIcons.deal),
-              title: Text(l10n.settingsEnquiryFlowTitle),
-              subtitle: Text(l10n.settingsEnquiryFlowSubtitle),
-              trailing: const Icon(AppIcons.forward),
-              onTap: () => context.push(Routes.enquiryFlow),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.settingsConnection),
           AppCard(
             child: Column(
@@ -213,6 +134,68 @@ class SettingsScreen extends ConsumerWidget {
           // Not localised, and deliberately so: this is a developer tool that
           // never reaches a release build, and translating it into three
           // languages would imply otherwise to the next person reading the ARB.
+          // Тема и язык стояли первыми и занимали весь первый экран: семь
+          // переключателей до единой строчки о работе. Их трогают один раз за
+          // всё время, поэтому они внизу и одним разделом — там, где ищут
+          // редкое, а не там, где начинают.
+          const SizedBox(height: AppSpacing.xl),
+          SectionLabel(l10n.settingsLookAndLanguage),
+          AppCard(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            child: RadioGroup<ThemeMode>(
+              groupValue: settings.themeMode,
+              onChanged: (value) => value == null
+                  ? null
+                  : ref
+                        .read(settingsControllerProvider.notifier)
+                        .setThemeMode(value),
+              child: Column(
+                children: [
+                  for (final mode in ThemeMode.values)
+                    RadioListTile<ThemeMode>(
+                      value: mode,
+                      title: Text(switch (mode) {
+                        ThemeMode.system => l10n.themeSystem,
+                        ThemeMode.light => l10n.themeLight,
+                        ThemeMode.dark => l10n.themeDark,
+                      }),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
+          SectionLabel(l10n.profileLanguage),
+          AppCard(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            // Nullable, and the null entry is listed first — mirroring the
+            // theme group above. Without it the default state (follow the
+            // device) matched no option, so the group opened with nothing
+            // selected and there was no way back to it once a language had
+            // been picked.
+            child: RadioGroup<Locale?>(
+              groupValue: settings.locale,
+              onChanged: (value) => ref
+                  .read(settingsControllerProvider.notifier)
+                  .setLocale(value),
+              child: Column(
+                children: [
+                  RadioListTile<Locale?>(
+                    value: null,
+                    title: Text(l10n.languageSystem),
+                  ),
+                  for (final locale in AppLocalizations.supportedLocales)
+                    RadioListTile<Locale?>(
+                      value: locale,
+                      title: Text(languageEndonym(locale.languageCode)),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
           if (kDebugMode) ...[
             const SizedBox(height: AppSpacing.xl),
             const SectionLabel('Debug'),

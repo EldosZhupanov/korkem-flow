@@ -14,11 +14,41 @@ import frappe
 from korkem_ai.korkem_ai import onboarding
 from korkem_manufacturing.services.scope import current_company
 
+#: Роли цеха, одинаковые для всех, кто стоит у станка. Раскройщик, кромщик,
+#: оператор ЧПУ, маляр и сборщик видят и делают одно и то же: свои задания и
+#: списание материала. Различает их не право, а участок — операция и рабочее
+#: место, по которым им приходит работа.
+_STANDS_AT_A_MACHINE = onboarding.DEFAULT_EMPLOYEE_ROLES
+
+#: Должности завода. Ключ уходит на клиент и в аудит; кортеж — то, что реально
+#: получает человек.
+#:
+#: **Должностей больше, чем наборов прав, и это не дублирование.** Владелец
+#: назвал свой цех поимённо — раскройщик, кромщик, фрезеровщик, маляр,
+#: сборщик, — и в мебельном производстве это разные люди у разных станков.
+#: Права у них совпадают, потому что каждый из них делает ровно одно: закрывает
+#: свою операцию. Свести их в одного «рабочего цеха» значило бы потерять то,
+#: по чему распределяется работа и считается загрузка участка, — ради экономии
+#: четырёх строк словаря.
+#:
+#: Порядок — по ходу заказа: продажа, замер, конструктор, цех, склад, монтаж,
+#: деньги. Клиент показывает список так, как его отдаёт сервер.
 POSITIONS = {
-	"manager": ("Sales Manager",),
+	"manager": ("Sales User", "Sales Manager"),
+	"measurer": ("Sales User",),
+	"designer": ("Manufacturing User", "Item Manager"),
+	"shop_manager": ("Manufacturing Manager", "Manufacturing User", "Stock User"),
+	"cutter": _STANDS_AT_A_MACHINE,
+	"edge_banding": _STANDS_AT_A_MACHINE,
+	"cnc": _STANDS_AT_A_MACHINE,
+	"painter": _STANDS_AT_A_MACHINE,
+	"assembler": _STANDS_AT_A_MACHINE,
 	"warehouse": ("Stock User",),
+	"installer": ("Manufacturing User", "Stock User"),
 	"accountant": ("Accounts User",),
-	"shop_floor": onboarding.DEFAULT_EMPLOYEE_ROLES,
+	# Сохранён намеренно: им приглашали до 4 сентября 2026, и он стоит на живых
+	# учётных записях. Убрать ключ — значит сломать их должность задним числом.
+	"shop_floor": _STANDS_AT_A_MACHINE,
 }
 
 

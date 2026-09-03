@@ -422,6 +422,63 @@ class AppLocalizationsRu extends AppLocalizations {
       'Станки, сменные задания, отчёты о работе';
 
   @override
+  String get teamPositionMeasurer => 'Замерщик';
+
+  @override
+  String get teamPositionMeasurerDesc =>
+      'Выезжает к клиенту, снимает размеры и фото';
+
+  @override
+  String get teamPositionDesigner => 'Конструктор-дизайнер';
+
+  @override
+  String get teamPositionDesignerDesc =>
+      'Чертёж, спецификация, выгрузка из БАЗИС';
+
+  @override
+  String get teamPositionShopManager => 'Начальник цеха';
+
+  @override
+  String get teamPositionShopManagerDesc =>
+      'Распределяет работу и следит за сроками';
+
+  @override
+  String get teamPositionCutter => 'Раскройщик';
+
+  @override
+  String get teamPositionCutterDesc => 'Распил ЛДСП и плитных материалов';
+
+  @override
+  String get teamPositionEdgeBanding => 'Кромщик';
+
+  @override
+  String get teamPositionEdgeBandingDesc => 'Кромкооблицовочный станок';
+
+  @override
+  String get teamPositionCnc => 'Оператор ЧПУ';
+
+  @override
+  String get teamPositionCncDesc => 'Присадка и фрезеровка';
+
+  @override
+  String get teamPositionPainter => 'Маляр';
+
+  @override
+  String get teamPositionPainterDesc => 'Покраска и покрытие';
+
+  @override
+  String get teamPositionAssembler => 'Сборщик';
+
+  @override
+  String get teamPositionAssemblerDesc => 'Сборка и упаковка изделия';
+
+  @override
+  String get teamPositionInstaller => 'Монтажник';
+
+  @override
+  String get teamPositionInstallerDesc => 'Доставка и установка у клиента';
+
+  @override
   String get teamPositionOwner => 'Владелец';
 
   @override
@@ -1476,6 +1533,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsConnection => 'Подключение';
 
   @override
+  String get settingsLookAndLanguage => 'Оформление и язык';
+
+  @override
   String get navDashboard => 'Главная';
 
   @override
@@ -1645,6 +1705,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get approvalRejected => 'Отклонено';
 
   @override
+  String get approvalRejectDialogTitle => 'Отклонить действие';
+
+  @override
+  String get approvalRejectReasonHint => 'Причина отказа (необязательно)';
+
+  @override
   String get approvalExpires => 'Истекает';
 
   @override
@@ -1795,6 +1861,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chatDictateStop => 'Остановить диктовку';
+
+  @override
+  String get chatDictateUnavailable =>
+      'Микрофон недоступен. Разрешите доступ в настройках телефона или продиктуйте текстом.';
 
   @override
   String get chatLocalMode => 'Локальный режим · данные KORKEM';

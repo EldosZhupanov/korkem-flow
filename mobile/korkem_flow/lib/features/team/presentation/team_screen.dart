@@ -361,11 +361,25 @@ class _TeamMemberCard extends StatelessWidget {
 
     final statusIntent = !member.enabled
         ? StatusIntent.neutral
+        // Цвет говорит про участок завода, а не про конкретный станок.
+        // Тринадцать должностей и тринадцать оттенков означали бы, что цвет не
+        // значит ничего: список стал бы гирляндой. Четыре области —
+        // продажи, цех, склад, деньги — это то, что человек и правда различает
+        // взглядом.
         : switch (member.position) {
             EmployeePosition.owner => StatusIntent.danger,
-            EmployeePosition.manager => StatusIntent.info,
+            EmployeePosition.manager ||
+            EmployeePosition.measurer ||
+            EmployeePosition.designer => StatusIntent.info,
             EmployeePosition.accountant => StatusIntent.success,
-            EmployeePosition.warehouse => StatusIntent.warning,
+            EmployeePosition.warehouse ||
+            EmployeePosition.installer => StatusIntent.warning,
+            EmployeePosition.shopManager ||
+            EmployeePosition.cutter ||
+            EmployeePosition.edgeBanding ||
+            EmployeePosition.cnc ||
+            EmployeePosition.painter ||
+            EmployeePosition.assembler ||
             EmployeePosition.shopFloor => StatusIntent.neutral,
           };
 

@@ -420,6 +420,64 @@ class AppLocalizationsEn extends AppLocalizations {
       'Machines, work instructions, progress reporting';
 
   @override
+  String get teamPositionMeasurer => 'Surveyor';
+
+  @override
+  String get teamPositionMeasurerDesc =>
+      'Visits the client, takes measurements and photos';
+
+  @override
+  String get teamPositionDesigner => 'Design engineer';
+
+  @override
+  String get teamPositionDesignerDesc =>
+      'Drawings, specifications, BAZIS imports';
+
+  @override
+  String get teamPositionShopManager => 'Shop manager';
+
+  @override
+  String get teamPositionShopManagerDesc =>
+      'Assigns work and watches the deadlines';
+
+  @override
+  String get teamPositionCutter => 'Panel saw operator';
+
+  @override
+  String get teamPositionCutterDesc => 'Cuts board material';
+
+  @override
+  String get teamPositionEdgeBanding => 'Edge bander';
+
+  @override
+  String get teamPositionEdgeBandingDesc => 'Edge banding machine';
+
+  @override
+  String get teamPositionCnc => 'CNC operator';
+
+  @override
+  String get teamPositionCncDesc => 'Drilling and routing';
+
+  @override
+  String get teamPositionPainter => 'Finisher';
+
+  @override
+  String get teamPositionPainterDesc => 'Painting and coating';
+
+  @override
+  String get teamPositionAssembler => 'Assembler';
+
+  @override
+  String get teamPositionAssemblerDesc => 'Assembly and packing';
+
+  @override
+  String get teamPositionInstaller => 'Installer';
+
+  @override
+  String get teamPositionInstallerDesc =>
+      'Delivery and installation at the client';
+
+  @override
   String get teamPositionOwner => 'Owner';
 
   @override
@@ -1470,6 +1528,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsConnection => 'Connection';
 
   @override
+  String get settingsLookAndLanguage => 'Look and language';
+
+  @override
   String get navDashboard => 'Home';
 
   @override
@@ -1638,6 +1699,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get approvalRejected => 'Rejected';
 
   @override
+  String get approvalRejectDialogTitle => 'Reject Action';
+
+  @override
+  String get approvalRejectReasonHint => 'Reason (optional)';
+
+  @override
   String get approvalExpires => 'Expires';
 
   @override
@@ -1789,6 +1856,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatDictateStop => 'Stop dictating';
+
+  @override
+  String get chatDictateUnavailable =>
+      'Dictation is unavailable. Allow microphone access in your phone settings, or type instead.';
 
   @override
   String get chatLocalMode => 'Local mode · KORKEM data';

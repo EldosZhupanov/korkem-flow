@@ -4,6 +4,16 @@
          only in the debug and profile manifests, so a debug build works and
          the release APK is dead on arrival. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Диктовка в ассистенте. Владелец описал продукт словами «цифровой
+         администратор, которому я могу сказать всё голосом», и без этой строки
+         сказать нельзя ничего: `speech_to_text` спрашивает у платформы, умеет
+         ли она распознавать речь, платформа без разрешения отвечает «нет», а
+         композер честно прячет кнопку, которая не может работать. Снаружи это
+         выглядит как отсутствующая функция, хотя код на месте.
+         Разрешение спрашивается при первом нажатии на микрофон, а не при
+         запуске: просить доступ к микрофону у человека, который ещё ничего не
+         сделал, — верный способ получить отказ навсегда. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <application
         android:label="KORKEM Flow"
         android:name="${applicationName}"
@@ -62,6 +72,19 @@
         <intent>
             <action android:name="android.intent.action.SENDTO"/>
             <data android:scheme="mailto"/>
+        </intent>
+
+        <!-- Служба распознавания речи. С Android 11 пакеты не видны друг другу
+             по умолчанию, поэтому без этих двух объявлений приложение не найдёт
+             распознаватель, даже когда он установлен и разрешение выдано.
+             Два, а не одно: старые устройства отвечают на RecognitionService,
+             новые — на ACTION_RECOGNIZE_SPEECH, и `speech_to_text` спрашивает
+             оба. -->
+        <intent>
+            <action android:name="android.speech.RecognitionService"/>
+        </intent>
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH"/>
         </intent>
     </queries>
 </manifest>

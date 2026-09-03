@@ -25,9 +25,13 @@ class ChatComposer extends StatefulWidget {
   /// is answered has nowhere to go.
   final bool enabled;
 
-  /// Absent where dictation cannot run: an unsupported device, a refused
-  /// permission, or a test. The button is then not drawn at all rather than
-  /// drawn and made useless.
+  /// Отсутствует только там, где диктовки не существует как таковой — в тесте
+  /// или на платформе без распознавания речи.
+  ///
+  /// Раньше сюда передавали `null` ещё и когда платформа ответила «не умею», и
+  /// это оказалось ошибкой: без выданного разрешения она отвечает так всегда, а
+  /// спросить разрешение можно только по нажатию кнопки, которой из-за этого не
+  /// было. Готовность выясняется в `ensureReady`, по нажатию.
   final ChatDictation? dictation;
 
   @override
@@ -41,6 +45,17 @@ class ChatComposer extends StatefulWidget {
 /// implementation rather than an edit here.
 abstract class ChatDictation {
   bool get isListening;
+
+  /// Спрашивает платформу, можно ли здесь диктовать, и — при первом вызове —
+  /// вызывает системный запрос разрешения на микрофон.
+  ///
+  /// Раньше композер получал уже готовый ответ и при «нет» не рисовал кнопку
+  /// вовсе. Выглядело это честно, а работало плохо: на устройстве без выданного
+  /// разрешения платформа отвечает «нет» всегда, спросить её некому, и функция
+  /// исчезает навсегда, ничего об этом не сказав. Кнопка теперь есть всегда, а
+  /// разрешение спрашивается в тот момент, когда человек её нажал — то есть
+  /// когда он уже понимает, зачем оно.
+  Future<bool> ensureReady();
 
   /// Appends what it hears to the field; the user still presses send.
   Future<void> start(ValueChanged<String> onResult);
@@ -83,6 +98,22 @@ class _ChatComposerState extends State<ChatComposer> {
   Future<void> _toggleDictation() async {
     final dictation = widget.dictation;
     if (dictation == null) return;
+
+    if (!dictation.isListening) {
+      // Первое нажатие поднимает системный запрос разрешения. Отказ — обычный
+      // исход, и человеку про него говорят: молчащая кнопка читается как
+      // сломанное приложение.
+      final ready = await dictation.ensureReady();
+      if (!ready) {
+        if (mounted) {
+          final l10n = AppLocalizations.of(context);
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.chatDictateUnavailable)));
+        }
+        return;
+      }
+    }
 
     if (dictation.isListening) {
       await dictation.stop();

@@ -221,7 +221,10 @@ class _ChatConversationView extends ConsumerWidget {
         ChatComposer(
           onSend: onSend,
           enabled: !busy,
-          dictation: dictation.isAvailable ? dictation : null,
+          // Всегда, а не только когда платформа уже сказала «умею».
+          // Готовность выясняется по нажатию: до него спросить разрешение
+          // не у кого, и кнопка не появлялась бы никогда.
+          dictation: dictation,
         ),
       ],
     );
