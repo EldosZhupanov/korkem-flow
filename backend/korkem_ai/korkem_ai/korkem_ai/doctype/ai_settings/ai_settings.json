@@ -33,11 +33,11 @@
   {
    "default": "Anthropic",
    "depends_on": "enabled",
-   "description": "Which LLM the gateway calls. OpenAI-compatible covers any endpoint speaking the OpenAI chat API \u2014 vLLM, LM Studio, a corporate gateway \u2014 and requires a Base URL.",
+   "description": "Which LLM the gateway calls. OpenAI-compatible covers any endpoint speaking the OpenAI chat API — vLLM, LM Studio, a corporate gateway — and requires a Base URL.",
    "fieldname": "provider",
    "fieldtype": "Select",
    "label": "Provider",
-   "options": "Anthropic\nOpenAI\nOpenRouter\nGoogle Gemini\nOllama\nOpenAI-compatible",
+   "options": "Anthropic\nOpenAI\nOpenRouter\nGroq\nGoogle Gemini\nOllama\nOpenAI-compatible",
    "reqd": 1
   },
   {
@@ -47,7 +47,7 @@
   {
    "default": "claude-opus-5",
    "depends_on": "enabled",
-   "description": "Model ID, as the provider names it \u2014 claude-opus-5, gpt-5, anthropic/claude-opus-5, gemini-2.5-pro, qwen2.5-coder:7b.",
+   "description": "Model ID, as the provider names it — claude-opus-5, gpt-5, anthropic/claude-opus-5, gemini-2.5-pro, qwen2.5-coder:7b.",
    "fieldname": "model",
    "fieldtype": "Data",
    "label": "Model",
@@ -89,7 +89,7 @@
    "fieldname": "section_break_budget",
    "fieldtype": "Section Break",
    "label": "Budget and Rate Limits",
-   "description": "The server is the only place these are enforced. A limit kept in a client is a suggestion. Zero means no limit \u2014 which is the current default and is a deliberate choice, not an oversight."
+   "description": "The server is the only place these are enforced. A limit kept in a client is a suggestion. Zero means no limit — which is the current default and is a deliberate choice, not an oversight."
   },
   {
    "fieldname": "daily_tokens_per_user",

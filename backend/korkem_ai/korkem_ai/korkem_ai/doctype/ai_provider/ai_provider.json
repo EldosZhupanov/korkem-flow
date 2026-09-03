@@ -20,6 +20,7 @@
   "last_test_ok",
   "column_break_status",
   "last_test_error",
+  "cooldown_until",
   "section_break_rates",
   "input_rate_per_1k",
   "output_rate_per_1k",
@@ -108,6 +109,13 @@
    "fieldname": "last_test_error",
    "fieldtype": "Small Text",
    "label": "Last Test Error",
+   "read_only": 1
+  },
+  {
+   "description": "До этого времени провайдер пропускается. Ставится, когда он ответил «квота исчерпана»: спрашивать его каждым сообщением значит тратить время человека на заведомый отказ.",
+   "fieldname": "cooldown_until",
+   "fieldtype": "Datetime",
+   "label": "Отдыхает до",
    "read_only": 1
   },
   {

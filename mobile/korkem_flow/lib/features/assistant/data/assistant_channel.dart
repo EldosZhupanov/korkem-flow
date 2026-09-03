@@ -106,8 +106,28 @@ class FrappeSocketChannel implements AssistantChannel {
   /// Derived rather than configured separately so there is one server setting
   /// to get wrong instead of two — and so pointing the app at an emulator host
   /// moves the socket with it.
+  ///
+  /// ## Почему порт подменяется не всегда
+  ///
+  /// На стенде разработчика socket.io слушает свой порт 9000, и туда надо
+  /// стучаться напрямую. На настоящем узле его наружу не публикуют вовсе:
+  /// снаружи открыты только 22, 80 и 443, а реальное время идёт через тот же
+  /// TLS-адрес, что и всё остальное — Caddy разбирает `/socket.io` и передаёт
+  /// внутрь.
+  ///
+  /// Подменяя порт всегда, приложение стучалось в закрытый 9000 и молчало.
+  /// Сервер при этом отвечал: ход выполнялся за секунды, событие уходило в
+  /// сокет, которого никто не слушал, а человек читал «не удалось связаться с
+  /// KORKEM» — сообщение про сеть там, где сеть работала.
+  ///
+  /// Признак — схема. `https` означает, что перед узлом стоит терминатор TLS,
+  /// а он по определению один на 443: незашифрованного socket.io за ним не
+  /// бывает.
   Uri get endpoint {
     final base = Uri.parse(baseUrl);
+    if (base.scheme == 'https') {
+      return base.replace(path: '/$siteName');
+    }
     return base.replace(port: socketPort, path: '/$siteName');
   }
 

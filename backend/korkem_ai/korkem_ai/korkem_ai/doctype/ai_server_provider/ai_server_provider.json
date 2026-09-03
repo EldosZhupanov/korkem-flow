@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "autoname": "format:{provider}-{model}",
+ "creation": "2026-09-04 02:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "provider",
+  "model",
+  "enabled",
+  "priority",
+  "column_break_credentials",
+  "api_key",
+  "base_url",
+  "billing_tier",
+  "section_break_state",
+  "cooldown_until",
+  "last_error",
+  "column_break_rates",
+  "input_rate_per_1k",
+  "output_rate_per_1k"
+ ],
+ "fields": [
+  {
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Провайдер",
+   "options": "Anthropic\nOpenAI\nOpenRouter\nGroq\nGoogle Gemini\nOpenAI-compatible",
+   "reqd": 1
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Модель",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Включён"
+  },
+  {
+   "default": "100",
+   "description": "Меньше — раньше. Резерв перебирается по этому числу, а не по цене: здесь платим мы, и порядок задаём мы.",
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Очерёдность"
+  },
+  {
+   "fieldname": "column_break_credentials",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Ключ KORKEM с оплатой. Не покидает сервер: ни один эндпоинт его не возвращает, приложение о нём не знает.",
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "Ключ KORKEM"
+  },
+  {
+   "fieldname": "base_url",
+   "fieldtype": "Data",
+   "label": "Адрес API"
+  },
+  {
+   "description": "Свободный текст: Tier 1, Tier 2. Ни на что в коде не влияет и влиять не должен — смена тарифа это настройка, а не переписывание роутера.",
+   "fieldname": "billing_tier",
+   "fieldtype": "Data",
+   "label": "Тариф"
+  },
+  {
+   "fieldname": "section_break_state",
+   "fieldtype": "Section Break",
+   "label": "Состояние"
+  },
+  {
+   "description": "До этого времени провайдер пропускается. Ставится автоматически после исчерпания квоты.",
+   "fieldname": "cooldown_until",
+   "fieldtype": "Datetime",
+   "label": "Отдыхает до",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Последняя ошибка",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "input_rate_per_1k",
+   "fieldtype": "Float",
+   "label": "Цена входа за 1К",
+   "precision": "6"
+  },
+  {
+   "fieldname": "output_rate_per_1k",
+   "fieldtype": "Float",
+   "label": "Цена выхода за 1К",
+   "precision": "6"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-04 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem AI",
+ "name": "AI Server Provider",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "priority",
+ "sort_order": "ASC",
+ "states": []
+}

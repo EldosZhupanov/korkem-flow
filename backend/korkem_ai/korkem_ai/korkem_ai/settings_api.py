@@ -222,30 +222,31 @@ def list_models(provider: str | None = None) -> dict:
 
 
 @frappe.whitelist()
-def cascade() -> list[dict]:
-	"""Порядок, в котором спрашиваются модели, — тот же, что применит роутер.
+def cascade() -> dict:
+	"""Что увидит владелец: его провайдеры по порядку и факт наличия резерва.
 
-	Владельцу нужно видеть каскад целиком, а не список настроек: «сначала эта,
-	если кончилась — эта, потом эта». Иначе включённый провайдер и работающий
-	провайдер выглядят одинаково, а разницу человек узнаёт в тот момент, когда
-	ассистент замолчал.
+	Про резерв KORKEM сообщается **одной строкой** — включён или нет. Ни имени
+	провайдера, ни модели, ни тем более ключа: это наша инфраструктура, и
+	показывать её клиенту незачем. Ключ не проходит через этот эндпоинт даже в
+	виде маски: маска — тоже утечка длины.
 
-	Считается тем же `router.chain`, что и решает на самом деле: два места,
-	отвечающие на один вопрос по-разному, однажды разойдутся.
+	Порядок клиентских провайдеров считает `router.user_chain` — тот же код,
+	что применит роутер. Второе место, отвечающее на тот же вопрос, однажды
+	разойдётся с первым, и разойдётся молча.
 	"""
 	frappe.only_for("System Manager")
 
 	from korkem_ai.korkem_ai.orchestrator import router
 
-	rows = []
-	for position, row in enumerate(router.chain(), start=1):
+	mine = []
+	for position, row in enumerate(router.user_chain(), start=1):
 		state = frappe.db.get_value(
 			PROVIDER_DOCTYPE,
 			row["name"],
-			["last_test_ok", "last_test_error", "last_tested_at"],
+			["last_test_ok", "last_test_error", "last_tested_at", "cooldown_until"],
 			as_dict=True,
 		) or {}
-		rows.append(
+		mine.append(
 			{
 				"position": position,
 				"provider": row["name"],
@@ -254,9 +255,16 @@ def cascade() -> list[dict]:
 				"last_ok": bool(state.get("last_test_ok")),
 				"last_error": (state.get("last_test_error") or "")[:200],
 				"last_tested_at": state.get("last_tested_at"),
+				"resting_until": state.get("cooldown_until"),
 			}
 		)
-	return rows
+
+	return {
+		"mine": mine,
+		# Число, а не список: сколько резервных моделей готово ответить, когда
+		# у клиента кончится. Больше знать ему не нужно и не полагается.
+		"korkem_reserve": len(router.server_chain()),
+	}
 
 
 def _record(provider: str, ok: bool, error: str | None = None):

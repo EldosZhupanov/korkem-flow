@@ -198,3 +198,172 @@ class TestNothingIsDoneTwice(IntegrationTestCase):
 class _Adapter:
 	def __init__(self, name):
 		self.name = name
+
+
+def _server(provider: str, model: str, *, priority=100, enabled=1) -> str:
+	name = f"{provider}-{model}"
+	if frappe.db.exists(router.SERVER_DOCTYPE, name):
+		frappe.delete_doc(router.SERVER_DOCTYPE, name, force=True, ignore_permissions=True)
+	frappe.get_doc(
+		{
+			"doctype": router.SERVER_DOCTYPE,
+			"provider": provider,
+			"model": model,
+			"enabled": enabled,
+			"priority": priority,
+			"api_key": "ключ-korkem",
+			"base_url": "https://example.test/v1",
+		}
+	).insert(ignore_permissions=True)
+	return name
+
+
+class TestTwoPoolsNeverMix(IntegrationTestCase):
+	"""Ключ клиента и ключ KORKEM — разные вещи, и это структурное разделение.
+
+	Смешать их значит однажды обслужить одного клиента ключом другого. Провайдеры
+	называют это обходом опубликованных ограничений и блокируют за это аккаунт
+	клиента, а не наш (`ADR-0029`). Фильтр можно забыть в одном запросе из
+	десяти; отдельная таблица забыться не может.
+	"""
+
+	def setUp(self):
+		frappe.db.delete(router.PROVIDER_DOCTYPE)
+		frappe.db.delete(router.SERVER_DOCTYPE)
+
+	def tearDown(self):
+		frappe.db.delete(router.PROVIDER_DOCTYPE)
+		frappe.db.delete(router.SERVER_DOCTYPE)
+
+	def test_the_user_pool_holds_no_server_keys(self):
+		_provider("Ollama")
+		_server("Google Gemini", "gemini-3.5-flash")
+
+		self.assertEqual([row["name"] for row in router.user_chain()], ["Ollama"])
+		self.assertTrue(all(row["scope"] == router.USER for row in router.user_chain()))
+
+	def test_the_server_pool_holds_no_user_keys(self):
+		_provider("Ollama")
+		_server("Google Gemini", "gemini-3.5-flash")
+
+		names = [row["name"] for row in router.server_chain()]
+		self.assertEqual(names, ["Google Gemini-gemini-3.5-flash"])
+		self.assertTrue(all(row["scope"] == router.SERVER for row in router.server_chain()))
+
+	def test_the_client_is_asked_first_and_korkem_pays_last(self):
+		_provider("Ollama")
+		_server("Google Gemini", "gemini-3.5-flash")
+
+		scopes = [row["scope"] for row in router.chain()]
+
+		self.assertEqual(scopes, [router.USER, router.SERVER])
+
+	def test_the_server_pool_is_ordered_by_decision_not_by_price(self):
+		"""Здесь платим мы, поэтому очерёдность назначается, а не считается."""
+		_server("Groq", "gpt-oss-120b", priority=20)
+		_server("Google Gemini", "gemini-3.8-flash", priority=10)
+
+		self.assertEqual(
+			[row["model"] for row in router.server_chain()],
+			["gemini-3.8-flash", "gpt-oss-120b"],
+		)
+
+
+class TestWhenTheClientRunsOut(IntegrationTestCase):
+	"""Главное требование: работа не останавливается из-за кончившейся квоты."""
+
+	def setUp(self):
+		frappe.db.delete(router.PROVIDER_DOCTYPE)
+		frappe.db.delete(router.SERVER_DOCTYPE)
+
+	def tearDown(self):
+		frappe.db.delete(router.PROVIDER_DOCTYPE)
+		frappe.db.delete(router.SERVER_DOCTYPE)
+
+	def _run(self, behaviour):
+		seen = []
+
+		def call(adapter):
+			seen.append(adapter.name)
+			return behaviour(adapter.name)
+
+		with patch.object(router, "_adapter", side_effect=lambda row: _Adapter(row["name"])):
+			return router.complete(call), seen
+
+	def test_while_the_client_key_works_korkem_pays_nothing(self):
+		_provider("Ollama")
+		_server("Google Gemini", "gemini-3.5-flash")
+
+		_result, seen = self._run(lambda name: "ответ")
+
+		self.assertEqual(seen, ["Ollama"], "резерв не трогаем, пока клиентский отвечает")
+
+	def test_an_exhausted_client_pool_falls_through_to_korkem(self):
+		_provider("Ollama")
+		_server("Google Gemini", "gemini-3.5-flash")
+
+		def behaviour(name):
+			if name == "Ollama":
+				raise errors.RateLimited("квота клиента исчерпана")
+			return "ответ"
+
+		result, seen = self._run(behaviour)
+
+		self.assertEqual(result, "ответ", "человек получает ответ, а не «quota exceeded»")
+		self.assertEqual(seen, ["Ollama", "Google Gemini-gemini-3.5-flash"])
+
+	def test_an_exhausted_provider_is_sent_to_rest(self):
+		"""Иначе исчерпанного спрашивают на каждом сообщении, и человек ждёт зря."""
+		_provider("Ollama")
+		_server("Google Gemini", "gemini-3.5-flash")
+
+		def behaviour(name):
+			if name == "Ollama":
+				raise errors.RateLimited("кончилась")
+			return "ответ"
+
+		self._run(behaviour)
+
+		self.assertTrue(
+			frappe.db.get_value(router.PROVIDER_DOCTYPE, "Ollama", "cooldown_until"),
+			"провайдер, ответивший «квота исчерпана», обязан уйти отдыхать",
+		)
+		self.assertEqual(
+			[row["name"] for row in router.user_chain()],
+			[],
+			"и на следующем сообщении его в цепочке уже нет",
+		)
+
+	def test_when_both_pools_are_gone_the_refusal_is_controlled(self):
+		_provider("Ollama")
+		_server("Google Gemini", "gemini-3.5-flash")
+
+		def behaviour(name):
+			raise errors.RateLimited(f"{name} исчерпан")
+
+		with self.assertRaises(router.NoProviderAnswered):
+			self._run(behaviour)
+
+
+class TestTheServerKeyStaysOnTheServer(IntegrationTestCase):
+	"""Требование владельца: резерв KORKEM живёт на сервере, а не в приложении."""
+
+	def setUp(self):
+		frappe.db.delete(router.SERVER_DOCTYPE)
+		_server("Google Gemini", "gemini-3.5-flash")
+
+	def tearDown(self):
+		frappe.db.delete(router.SERVER_DOCTYPE)
+
+	def test_the_chain_carries_no_key(self):
+		for row in router.server_chain():
+			self.assertNotIn("api_key", row)
+			self.assertNotIn("ключ-korkem", str(row))
+
+	def test_the_screen_the_owner_sees_carries_no_key(self):
+		from korkem_ai.korkem_ai import settings_api
+
+		payload = str(settings_api.cascade())
+
+		self.assertNotIn("ключ-korkem", payload)
+		self.assertNotIn("api_key", payload)

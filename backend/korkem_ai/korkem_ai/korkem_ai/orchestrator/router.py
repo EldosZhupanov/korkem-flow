@@ -50,6 +50,20 @@ from korkem_ai.korkem_ai import errors
 from korkem_ai.korkem_ai.orchestrator import llm
 
 PROVIDER_DOCTYPE = "AI Provider"
+SERVER_DOCTYPE = "AI Server Provider"
+
+#: Чей ключ. Не смешивается никогда — см. заголовок `server_chain`.
+USER = "user"
+SERVER = "server"
+
+#: Сколько провайдер отдыхает после «квота исчерпана».
+#:
+#: Не настройка, а следствие того, как считают провайдеры: суточные квоты
+#: сбрасываются раз в сутки, минутные — через минуту, и узнать какая именно
+#: кончилась по ответу нельзя. Полчаса — компромисс: минутный лимит к этому
+#: времени отпустит, суточный нет, и повторная проверка стоит одного запроса,
+#: а не одного на каждое сообщение человека.
+COOLDOWN_MINUTES = 30
 
 #: Отказы, после которых имеет смысл спросить другую модель.
 #:
@@ -71,6 +85,11 @@ class NoProviderAnswered(errors.AIError):
 
 
 def chain(preferred: str | None = None) -> list[dict]:
+	"""Оба пула подряд: сначала ключи клиента, потом резерв KORKEM."""
+	return user_chain(preferred) + server_chain()
+
+
+def user_chain(preferred: str | None = None) -> list[dict]:
 	"""Провайдеры по порядку: сначала дешёвые.
 
 	Порядок задаёт цена, записанная в самом провайдере, а не наше мнение о нём.
@@ -85,8 +104,11 @@ def chain(preferred: str | None = None) -> list[dict]:
 	rows = frappe.get_all(
 		PROVIDER_DOCTYPE,
 		filters={"enabled": 1},
-		fields=["name", "model", "input_rate_per_1k", "output_rate_per_1k"],
+		fields=["name", "model", "input_rate_per_1k", "output_rate_per_1k", "cooldown_until"],
 	)
+	rows = [row for row in rows if not _resting(row)]
+	for row in rows:
+		row["scope"] = USER
 
 	def cost(row) -> float:
 		# Один вход к четырём выходам — грубо, но это соотношение обычного
@@ -99,6 +121,50 @@ def chain(preferred: str | None = None) -> list[dict]:
 		rows.sort(key=lambda row: row["name"] != preferred)
 
 	return rows
+
+
+def server_chain() -> list[dict]:
+	"""Резерв KORKEM: наши ключи, наш счёт, наш порядок.
+
+	Порядок задаёт `priority`, а не цена: здесь платим мы, и очерёдность — это
+	решение, а не расчёт. Клиентский пул наоборот сортируется по цене, потому
+	что там дешёвое для клиента и есть правильное.
+
+	Пул общий по определению: он не привязан ни к какой компании, потому что
+	принадлежит нам. Ключи клиентов общими не бывают никогда — `ADR-0029`.
+	"""
+	if not frappe.db.table_exists(SERVER_DOCTYPE):
+		return []
+
+	rows = frappe.get_all(
+		SERVER_DOCTYPE,
+		filters={"enabled": 1},
+		fields=[
+			"name",
+			"provider",
+			"model",
+			"priority",
+			"cooldown_until",
+			"input_rate_per_1k",
+			"output_rate_per_1k",
+		],
+		order_by="priority asc, name asc",
+	)
+	out = []
+	for row in rows:
+		if _resting(row):
+			continue
+		row["scope"] = SERVER
+		out.append(row)
+	return out
+
+
+def _resting(row: dict) -> bool:
+	"""Провайдер, которого недавно отправили отдыхать."""
+	until = row.get("cooldown_until")
+	if not until:
+		return False
+	return frappe.utils.get_datetime(until) > frappe.utils.now_datetime()
 
 
 def complete(call, *, preferred: str | None = None, on_switch=None):
@@ -118,7 +184,7 @@ def complete(call, *, preferred: str | None = None, on_switch=None):
 	first_failure = None
 	for index, row in enumerate(attempts):
 		try:
-			adapter = llm.resolve(row["name"], row["model"])
+			adapter = _adapter(row)
 		except errors.AIError as exc:
 			# Провайдер включён, но настроен наполовину. Это не повод обрывать
 			# цепочку — это повод пройти мимо него.
@@ -133,7 +199,7 @@ def complete(call, *, preferred: str | None = None, on_switch=None):
 			raise
 		except RETRYABLE as exc:
 			first_failure = first_failure or exc
-			_record(row["name"], exc)
+			_record(row, exc)
 			if on_switch and index + 1 < len(attempts):
 				on_switch(row["name"], attempts[index + 1]["name"], exc)
 			continue
@@ -146,25 +212,61 @@ def complete(call, *, preferred: str | None = None, on_switch=None):
 	)
 
 
-def _record(provider: str, exc: Exception) -> None:
-	"""Запомнить отказ в самом провайдере.
+def _adapter(row: dict):
+	"""Построить адаптер для строки любого из двух пулов.
 
-	Не ради статистики: владелец должен видеть, какая модель кончилась и когда,
-	не открывая журналов. Без этого «ассистент стал медленнее» остаётся
-	догадкой.
+	Ключ резервного провайдера читается здесь и нигде больше: он не проходит
+	ни через один whitelisted-эндпоинт и не попадает в ответ приложению.
 	"""
+	if row.get("scope") == SERVER:
+		doc = frappe.get_doc(SERVER_DOCTYPE, row["name"])
+		return llm._build(
+			provider=doc.provider,
+			model=doc.model,
+			api_key=doc.get_password("api_key", raise_exception=False),
+			base_url=(doc.base_url or "").strip()
+			or llm.DEFAULT_BASE_URLS.get(doc.provider),
+			effort="low",
+		)
+	return llm.resolve(row["name"], row["model"])
+
+
+def _record(row: dict, exc: Exception) -> None:
+	"""Запомнить отказ и отправить провайдера отдыхать.
+
+	Две вещи сразу, и вторая важнее. Без отдыха исчерпанный провайдер
+	спрашивается снова на каждое сообщение: человек ждёт лишний круг по
+	цепочке, а провайдер получает запрос, на который заведомо ответит отказом.
+
+	Владелец при этом должен видеть, какая модель кончилась и когда, не
+	открывая журналов сервера.
+	"""
+	doctype = SERVER_DOCTYPE if row.get("scope") == SERVER else PROVIDER_DOCTYPE
+	rest_until = frappe.utils.add_to_date(
+		frappe.utils.now_datetime(), minutes=COOLDOWN_MINUTES
+	)
 	try:
-		if frappe.db.exists(PROVIDER_DOCTYPE, provider):
+		if not frappe.db.exists(doctype, row["name"]):
+			return
+		if doctype == SERVER_DOCTYPE:
 			frappe.db.set_value(
-				PROVIDER_DOCTYPE,
-				provider,
-				{
-					"last_tested_at": frappe.utils.now_datetime(),
-					"last_test_ok": 0,
-					"last_test_error": str(exc)[:500],
-				},
+				doctype,
+				row["name"],
+				{"cooldown_until": rest_until, "last_error": str(exc)[:500]},
 				update_modified=False,
 			)
+			return
+		frappe.db.set_value(
+			doctype,
+			row["name"],
+			{
+				"last_tested_at": frappe.utils.now_datetime(),
+				"last_test_ok": 0,
+				"last_test_error": str(exc)[:500],
+				"cooldown_until": rest_until,
+			},
+			update_modified=False,
+		)
 	except Exception:
 		# Запись о неудаче не имеет права стать второй неудачей.
 		pass
