@@ -116,6 +116,27 @@ def _job_card_summary(work_order: str) -> dict:
 	}
 
 
+def _named(row: dict) -> dict:
+	"""Строка дефицита в обзоре: что и сколько не хватает, и всё.
+
+	Полная строка несёт тринадцать чисел — требуется, израсходовано, осталось,
+	зарезервировано, доступно, ожидается, заказано, и так далее. В обзоре по
+	двадцати заказам это тридцать тысяч символов, которые уезжают в модель и
+	оплачиваются на каждом шаге хода: обзор стоил 16 800 токенов, больше всего
+	каталога инструментов.
+
+	Обзор отвечает на вопрос «что мешает», а не «объясни по каждому числу». На
+	второй отвечает `inventory.material_shortage` — он для того и есть, и его
+	вызывают, когда спросили именно про один заказ.
+	"""
+	return {
+		"item_code": row.get("item_code"),
+		"item_name": row.get("item_name"),
+		"short_qty": row.get("shortage_qty"),
+		"uom": row.get("uom"),
+	}
+
+
 def production_control(sales_order: str | None = None, limit: int | None = None):
 	"""Everything live on the floor, counted rather than described.
 
@@ -170,11 +191,11 @@ def production_control(sales_order: str | None = None, limit: int | None = None)
 				"in_production": bool(unfinished),
 				"started": started,
 				"material_status": "shortage" if blocking else "ok",
-				"shortages": blocking,
+				"shortages": [_named(row) for row in blocking],
 				# «Можно ли запускать» — about material only, so it stays true
 				# for a job already running that has everything it needs.
 				"can_start": not missing,
-				"blocking_materials": missing,
+				"blocking_materials": [_named(row) for row in missing],
 				"ready_to_start": not started and not missing,
 			}
 		)
