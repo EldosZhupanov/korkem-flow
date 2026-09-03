@@ -488,6 +488,146 @@
   "@settingsTeamSubtitle": {
     "description": "Settings tile subtitle for team management"
   },
+  "companyDetailsTitle": "Company details",
+  "@companyDetailsTitle": {
+    "description": "Title for company details screen"
+  },
+  "companyDetailsSubtitle": "Address, BIN, and bank details",
+  "@companyDetailsSubtitle": {
+    "description": "Subtitle for company details screen"
+  },
+  "companyDetailsDocNote": "Details are used to generate contracts, invoices, and waybills.",
+  "@companyDetailsDocNote": {
+    "description": "Note explaining where company details are used"
+  },
+  "companyDetailsSectionGeneral": "General information",
+  "@companyDetailsSectionGeneral": {
+    "description": "Section header for general company information"
+  },
+  "companyDetailsNameLabel": "Company name",
+  "@companyDetailsNameLabel": {
+    "description": "Label for company name field"
+  },
+  "companyDetailsNameHint": "Korkem Furniture LLC",
+  "@companyDetailsNameHint": {
+    "description": "Hint for company name field"
+  },
+  "companyDetailsBinLabel": "BIN",
+  "@companyDetailsBinLabel": {
+    "description": "Label for BIN / Business Identification Number"
+  },
+  "companyDetailsBinHint": "12 digits",
+  "@companyDetailsBinHint": {
+    "description": "Hint for BIN field"
+  },
+  "companyDetailsBinError": "BIN must contain exactly 12 digits",
+  "@companyDetailsBinError": {
+    "description": "Validation error when BIN is not 12 digits"
+  },
+  "companyDetailsSectionContacts": "Contacts and address",
+  "@companyDetailsSectionContacts": {
+    "description": "Section header for contacts and address"
+  },
+  "companyDetailsCityLabel": "City",
+  "@companyDetailsCityLabel": {
+    "description": "Label for city field"
+  },
+  "companyDetailsCityHint": "Almaty",
+  "@companyDetailsCityHint": {
+    "description": "Hint for city field"
+  },
+  "companyDetailsAddressLabel": "Legal address",
+  "@companyDetailsAddressLabel": {
+    "description": "Label for legal address field"
+  },
+  "companyDetailsAddressHint": "150 Abay ave., office 401",
+  "@companyDetailsAddressHint": {
+    "description": "Hint for address field"
+  },
+  "companyDetailsPhoneLabel": "Phone",
+  "@companyDetailsPhoneLabel": {
+    "description": "Label for phone field"
+  },
+  "companyDetailsPhoneHint": "+7 777 123 45 67",
+  "@companyDetailsPhoneHint": {
+    "description": "Hint for phone field"
+  },
+  "companyDetailsEmailLabel": "Email",
+  "@companyDetailsEmailLabel": {
+    "description": "Label for company email field"
+  },
+  "companyDetailsEmailHint": "info@korkem.kz",
+  "@companyDetailsEmailHint": {
+    "description": "Hint for email field"
+  },
+  "companyDetailsEmailError": "Enter a valid email address",
+  "@companyDetailsEmailError": {
+    "description": "Validation error for company email field"
+  },
+  "companyDetailsWebsiteLabel": "Website",
+  "@companyDetailsWebsiteLabel": {
+    "description": "Label for company website field"
+  },
+  "companyDetailsWebsiteHint": "korkem.kz",
+  "@companyDetailsWebsiteHint": {
+    "description": "Hint for company website field"
+  },
+  "companyDetailsReadOnlyNameNotice": "Company name is set during creation and changed in company profile",
+  "@companyDetailsReadOnlyNameNotice": {
+    "description": "Notice that company name is read-only on details screen"
+  },
+  "companyDetailsSectionBank": "Bank details",
+  "@companyDetailsSectionBank": {
+    "description": "Section header for banking details"
+  },
+  "companyDetailsBankNameLabel": "Bank name",
+  "@companyDetailsBankNameLabel": {
+    "description": "Label for bank name field"
+  },
+  "companyDetailsBankNameHint": "Kaspi Bank JSC",
+  "@companyDetailsBankNameHint": {
+    "description": "Hint for bank name field"
+  },
+  "companyDetailsIbanLabel": "Bank account (IBAN)",
+  "@companyDetailsIbanLabel": {
+    "description": "Label for IBAN account field"
+  },
+  "companyDetailsIbanHint": "KZ...",
+  "@companyDetailsIbanHint": {
+    "description": "Hint for IBAN field"
+  },
+  "companyDetailsIbanHelper": "Format: KZ and 18 characters (e.g. KZ69...)",
+  "@companyDetailsIbanHelper": {
+    "description": "Helper note showing IBAN format"
+  },
+  "companyDetailsIbanError": "Kazakhstan IBAN must start with KZ and contain 20 characters",
+  "@companyDetailsIbanError": {
+    "description": "Validation error when Kazakhstan IBAN format is invalid"
+  },
+  "companyDetailsBikLabel": "Bank BIC",
+  "@companyDetailsBikLabel": {
+    "description": "Label for BIC / SWIFT code field"
+  },
+  "companyDetailsBikHint": "CASPKZ2A",
+  "@companyDetailsBikHint": {
+    "description": "Hint for BIC field"
+  },
+  "companyDetailsBikError": "BIC must contain 8 to 11 characters",
+  "@companyDetailsBikError": {
+    "description": "Validation error for BIC code"
+  },
+  "companyDetailsSaveButton": "Save details",
+  "@companyDetailsSaveButton": {
+    "description": "Save button on company details screen"
+  },
+  "companyDetailsSaveSuccess": "Company details saved successfully",
+  "@companyDetailsSaveSuccess": {
+    "description": "Success message when company details are saved"
+  },
+  "companyDetailsLoadError": "Failed to load company details",
+  "@companyDetailsLoadError": {
+    "description": "Error message when company details cannot be loaded"
+  },
   "settingsEnquiryFlowTitle": "Enquiry pipeline",
   "@settingsEnquiryFlowTitle": {
     "description": "Settings tile title for enquiry flow"

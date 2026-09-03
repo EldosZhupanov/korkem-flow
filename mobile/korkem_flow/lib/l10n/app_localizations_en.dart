@@ -476,6 +476,115 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTeamSubtitle => 'Invite employees and assign positions';
 
   @override
+  String get companyDetailsTitle => 'Company details';
+
+  @override
+  String get companyDetailsSubtitle => 'Address, BIN, and bank details';
+
+  @override
+  String get companyDetailsDocNote =>
+      'Details are used to generate contracts, invoices, and waybills.';
+
+  @override
+  String get companyDetailsSectionGeneral => 'General information';
+
+  @override
+  String get companyDetailsNameLabel => 'Company name';
+
+  @override
+  String get companyDetailsNameHint => 'Korkem Furniture LLC';
+
+  @override
+  String get companyDetailsBinLabel => 'BIN';
+
+  @override
+  String get companyDetailsBinHint => '12 digits';
+
+  @override
+  String get companyDetailsBinError => 'BIN must contain exactly 12 digits';
+
+  @override
+  String get companyDetailsSectionContacts => 'Contacts and address';
+
+  @override
+  String get companyDetailsCityLabel => 'City';
+
+  @override
+  String get companyDetailsCityHint => 'Almaty';
+
+  @override
+  String get companyDetailsAddressLabel => 'Legal address';
+
+  @override
+  String get companyDetailsAddressHint => '150 Abay ave., office 401';
+
+  @override
+  String get companyDetailsPhoneLabel => 'Phone';
+
+  @override
+  String get companyDetailsPhoneHint => '+7 777 123 45 67';
+
+  @override
+  String get companyDetailsEmailLabel => 'Email';
+
+  @override
+  String get companyDetailsEmailHint => 'info@korkem.kz';
+
+  @override
+  String get companyDetailsEmailError => 'Enter a valid email address';
+
+  @override
+  String get companyDetailsWebsiteLabel => 'Website';
+
+  @override
+  String get companyDetailsWebsiteHint => 'korkem.kz';
+
+  @override
+  String get companyDetailsReadOnlyNameNotice =>
+      'Company name is set during creation and changed in company profile';
+
+  @override
+  String get companyDetailsSectionBank => 'Bank details';
+
+  @override
+  String get companyDetailsBankNameLabel => 'Bank name';
+
+  @override
+  String get companyDetailsBankNameHint => 'Kaspi Bank JSC';
+
+  @override
+  String get companyDetailsIbanLabel => 'Bank account (IBAN)';
+
+  @override
+  String get companyDetailsIbanHint => 'KZ...';
+
+  @override
+  String get companyDetailsIbanHelper =>
+      'Format: KZ and 18 characters (e.g. KZ69...)';
+
+  @override
+  String get companyDetailsIbanError =>
+      'Kazakhstan IBAN must start with KZ and contain 20 characters';
+
+  @override
+  String get companyDetailsBikLabel => 'Bank BIC';
+
+  @override
+  String get companyDetailsBikHint => 'CASPKZ2A';
+
+  @override
+  String get companyDetailsBikError => 'BIC must contain 8 to 11 characters';
+
+  @override
+  String get companyDetailsSaveButton => 'Save details';
+
+  @override
+  String get companyDetailsSaveSuccess => 'Company details saved successfully';
+
+  @override
+  String get companyDetailsLoadError => 'Failed to load company details';
+
+  @override
   String get settingsEnquiryFlowTitle => 'Enquiry pipeline';
 
   @override

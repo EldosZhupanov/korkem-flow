@@ -89,6 +89,18 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.xl),
 
+          SectionLabel(l10n.companyDetailsTitle),
+          Card(
+            child: ListTile(
+              key: const ValueKey('companyDetailsSettings'),
+              leading: const Icon(AppIcons.customer),
+              title: Text(l10n.companyDetailsSubtitle),
+              trailing: const Icon(AppIcons.forward),
+              onTap: () => context.push(Routes.companyDetails),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
           SectionLabel(l10n.aiSettingsTitle),
           Card(
             child: ListTile(

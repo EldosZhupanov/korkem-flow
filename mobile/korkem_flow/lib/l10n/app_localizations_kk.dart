@@ -467,6 +467,117 @@ class AppLocalizationsKk extends AppLocalizations {
       'Қызметкерлерді шақыру және лауазымдарды таңдау';
 
   @override
+  String get companyDetailsTitle => 'Компания деректемелері';
+
+  @override
+  String get companyDetailsSubtitle => 'Мекенжай, БСН және банк деректемелері';
+
+  @override
+  String get companyDetailsDocNote =>
+      'Деректемелер шарттарды, шоттар мен жүкқұжаттарды жасау үшін қолданылады.';
+
+  @override
+  String get companyDetailsSectionGeneral => 'Негізгі деректер';
+
+  @override
+  String get companyDetailsNameLabel => 'Компания атауы';
+
+  @override
+  String get companyDetailsNameHint => '«Көркем Жиһаз» ЖШС';
+
+  @override
+  String get companyDetailsBinLabel => 'БСН';
+
+  @override
+  String get companyDetailsBinHint => '12 сан';
+
+  @override
+  String get companyDetailsBinError => 'БСН дәл 12 саннан тұруы керек';
+
+  @override
+  String get companyDetailsSectionContacts => 'Байланыс және мекенжай';
+
+  @override
+  String get companyDetailsCityLabel => 'Қала';
+
+  @override
+  String get companyDetailsCityHint => 'Алматы';
+
+  @override
+  String get companyDetailsAddressLabel => 'Заңды мекенжайы';
+
+  @override
+  String get companyDetailsAddressHint => 'Абай к-сі, 150, 401 кеңсе';
+
+  @override
+  String get companyDetailsPhoneLabel => 'Телефон';
+
+  @override
+  String get companyDetailsPhoneHint => '+7 777 123 45 67';
+
+  @override
+  String get companyDetailsEmailLabel => 'Электрондық пошта';
+
+  @override
+  String get companyDetailsEmailHint => 'info@korkem.kz';
+
+  @override
+  String get companyDetailsEmailError => 'Дұрыс электрондық поштаны енгізіңіз';
+
+  @override
+  String get companyDetailsWebsiteLabel => 'Веб-сайт';
+
+  @override
+  String get companyDetailsWebsiteHint => 'korkem.kz';
+
+  @override
+  String get companyDetailsReadOnlyNameNotice =>
+      'Компания атауы компанияны құру кезінде орнатылады және компания бейінінде өзгереді';
+
+  @override
+  String get companyDetailsSectionBank => 'Банк деректемелері';
+
+  @override
+  String get companyDetailsBankNameLabel => 'Банк атауы';
+
+  @override
+  String get companyDetailsBankNameHint => '«Kaspi Bank» АҚ';
+
+  @override
+  String get companyDetailsIbanLabel => 'Есеп айырысу шоты (IBAN)';
+
+  @override
+  String get companyDetailsIbanHint => 'KZ...';
+
+  @override
+  String get companyDetailsIbanHelper =>
+      'Пішімі: KZ және 18 таңба (мысалы, KZ69...)';
+
+  @override
+  String get companyDetailsIbanError =>
+      'Қазақстанның IBAN-ы KZ-тен басталып, 20 таңбадан тұруы керек';
+
+  @override
+  String get companyDetailsBikLabel => 'Банктің БСК (БИК)';
+
+  @override
+  String get companyDetailsBikHint => 'CASPKZ2A';
+
+  @override
+  String get companyDetailsBikError =>
+      'БСК 8-ден 11-ге дейін таңбадан тұруы керек';
+
+  @override
+  String get companyDetailsSaveButton => 'Деректемелерді сақтау';
+
+  @override
+  String get companyDetailsSaveSuccess => 'Деректемелер сәтті сақталды';
+
+  @override
+  String get companyDetailsLoadError =>
+      'Компания деректемелерін жүктеу мүмкін болмады';
+
+  @override
   String get settingsEnquiryFlowTitle => 'Өтінімді жүргізу';
 
   @override

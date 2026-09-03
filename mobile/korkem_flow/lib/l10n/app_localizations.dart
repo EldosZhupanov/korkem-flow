@@ -946,6 +946,216 @@ abstract class AppLocalizations {
   /// **'Invite employees and assign positions'**
   String get settingsTeamSubtitle;
 
+  /// Title for company details screen
+  ///
+  /// In en, this message translates to:
+  /// **'Company details'**
+  String get companyDetailsTitle;
+
+  /// Subtitle for company details screen
+  ///
+  /// In en, this message translates to:
+  /// **'Address, BIN, and bank details'**
+  String get companyDetailsSubtitle;
+
+  /// Note explaining where company details are used
+  ///
+  /// In en, this message translates to:
+  /// **'Details are used to generate contracts, invoices, and waybills.'**
+  String get companyDetailsDocNote;
+
+  /// Section header for general company information
+  ///
+  /// In en, this message translates to:
+  /// **'General information'**
+  String get companyDetailsSectionGeneral;
+
+  /// Label for company name field
+  ///
+  /// In en, this message translates to:
+  /// **'Company name'**
+  String get companyDetailsNameLabel;
+
+  /// Hint for company name field
+  ///
+  /// In en, this message translates to:
+  /// **'Korkem Furniture LLC'**
+  String get companyDetailsNameHint;
+
+  /// Label for BIN / Business Identification Number
+  ///
+  /// In en, this message translates to:
+  /// **'BIN'**
+  String get companyDetailsBinLabel;
+
+  /// Hint for BIN field
+  ///
+  /// In en, this message translates to:
+  /// **'12 digits'**
+  String get companyDetailsBinHint;
+
+  /// Validation error when BIN is not 12 digits
+  ///
+  /// In en, this message translates to:
+  /// **'BIN must contain exactly 12 digits'**
+  String get companyDetailsBinError;
+
+  /// Section header for contacts and address
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts and address'**
+  String get companyDetailsSectionContacts;
+
+  /// Label for city field
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get companyDetailsCityLabel;
+
+  /// Hint for city field
+  ///
+  /// In en, this message translates to:
+  /// **'Almaty'**
+  String get companyDetailsCityHint;
+
+  /// Label for legal address field
+  ///
+  /// In en, this message translates to:
+  /// **'Legal address'**
+  String get companyDetailsAddressLabel;
+
+  /// Hint for address field
+  ///
+  /// In en, this message translates to:
+  /// **'150 Abay ave., office 401'**
+  String get companyDetailsAddressHint;
+
+  /// Label for phone field
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get companyDetailsPhoneLabel;
+
+  /// Hint for phone field
+  ///
+  /// In en, this message translates to:
+  /// **'+7 777 123 45 67'**
+  String get companyDetailsPhoneHint;
+
+  /// Label for company email field
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get companyDetailsEmailLabel;
+
+  /// Hint for email field
+  ///
+  /// In en, this message translates to:
+  /// **'info@korkem.kz'**
+  String get companyDetailsEmailHint;
+
+  /// Validation error for company email field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get companyDetailsEmailError;
+
+  /// Label for company website field
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get companyDetailsWebsiteLabel;
+
+  /// Hint for company website field
+  ///
+  /// In en, this message translates to:
+  /// **'korkem.kz'**
+  String get companyDetailsWebsiteHint;
+
+  /// Notice that company name is read-only on details screen
+  ///
+  /// In en, this message translates to:
+  /// **'Company name is set during creation and changed in company profile'**
+  String get companyDetailsReadOnlyNameNotice;
+
+  /// Section header for banking details
+  ///
+  /// In en, this message translates to:
+  /// **'Bank details'**
+  String get companyDetailsSectionBank;
+
+  /// Label for bank name field
+  ///
+  /// In en, this message translates to:
+  /// **'Bank name'**
+  String get companyDetailsBankNameLabel;
+
+  /// Hint for bank name field
+  ///
+  /// In en, this message translates to:
+  /// **'Kaspi Bank JSC'**
+  String get companyDetailsBankNameHint;
+
+  /// Label for IBAN account field
+  ///
+  /// In en, this message translates to:
+  /// **'Bank account (IBAN)'**
+  String get companyDetailsIbanLabel;
+
+  /// Hint for IBAN field
+  ///
+  /// In en, this message translates to:
+  /// **'KZ...'**
+  String get companyDetailsIbanHint;
+
+  /// Helper note showing IBAN format
+  ///
+  /// In en, this message translates to:
+  /// **'Format: KZ and 18 characters (e.g. KZ69...)'**
+  String get companyDetailsIbanHelper;
+
+  /// Validation error when Kazakhstan IBAN format is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Kazakhstan IBAN must start with KZ and contain 20 characters'**
+  String get companyDetailsIbanError;
+
+  /// Label for BIC / SWIFT code field
+  ///
+  /// In en, this message translates to:
+  /// **'Bank BIC'**
+  String get companyDetailsBikLabel;
+
+  /// Hint for BIC field
+  ///
+  /// In en, this message translates to:
+  /// **'CASPKZ2A'**
+  String get companyDetailsBikHint;
+
+  /// Validation error for BIC code
+  ///
+  /// In en, this message translates to:
+  /// **'BIC must contain 8 to 11 characters'**
+  String get companyDetailsBikError;
+
+  /// Save button on company details screen
+  ///
+  /// In en, this message translates to:
+  /// **'Save details'**
+  String get companyDetailsSaveButton;
+
+  /// Success message when company details are saved
+  ///
+  /// In en, this message translates to:
+  /// **'Company details saved successfully'**
+  String get companyDetailsSaveSuccess;
+
+  /// Error message when company details cannot be loaded
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load company details'**
+  String get companyDetailsLoadError;
+
   /// Settings tile title for enquiry flow
   ///
   /// In en, this message translates to:

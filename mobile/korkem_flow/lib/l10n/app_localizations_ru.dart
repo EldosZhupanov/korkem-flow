@@ -478,6 +478,117 @@ class AppLocalizationsRu extends AppLocalizations {
       'Приглашение сотрудников и выбор должностей';
 
   @override
+  String get companyDetailsTitle => 'Реквизиты компании';
+
+  @override
+  String get companyDetailsSubtitle => 'Адрес, БИН и банковские реквизиты';
+
+  @override
+  String get companyDetailsDocNote =>
+      'Реквизиты используются для формирования договоров, счетов и накладных.';
+
+  @override
+  String get companyDetailsSectionGeneral => 'Основные данные';
+
+  @override
+  String get companyDetailsNameLabel => 'Наименование компании';
+
+  @override
+  String get companyDetailsNameHint => 'ТОО «Көркем Жиһаз»';
+
+  @override
+  String get companyDetailsBinLabel => 'БИН';
+
+  @override
+  String get companyDetailsBinHint => '12 цифр';
+
+  @override
+  String get companyDetailsBinError => 'БИН должен содержать ровно 12 цифр';
+
+  @override
+  String get companyDetailsSectionContacts => 'Контакты и адрес';
+
+  @override
+  String get companyDetailsCityLabel => 'Город';
+
+  @override
+  String get companyDetailsCityHint => 'Алматы';
+
+  @override
+  String get companyDetailsAddressLabel => 'Юридический адрес';
+
+  @override
+  String get companyDetailsAddressHint => 'ул. Абая, 150, офис 401';
+
+  @override
+  String get companyDetailsPhoneLabel => 'Телефон';
+
+  @override
+  String get companyDetailsPhoneHint => '+7 777 123 45 67';
+
+  @override
+  String get companyDetailsEmailLabel => 'Электронная почта';
+
+  @override
+  String get companyDetailsEmailHint => 'info@korkem.kz';
+
+  @override
+  String get companyDetailsEmailError => 'Введите корректный адрес почты';
+
+  @override
+  String get companyDetailsWebsiteLabel => 'Веб-сайт';
+
+  @override
+  String get companyDetailsWebsiteHint => 'korkem.kz';
+
+  @override
+  String get companyDetailsReadOnlyNameNotice =>
+      'Название компании задаётся при создании и меняется в профиле компании';
+
+  @override
+  String get companyDetailsSectionBank => 'Банковские реквизиты';
+
+  @override
+  String get companyDetailsBankNameLabel => 'Наименование банка';
+
+  @override
+  String get companyDetailsBankNameHint => 'АО «Kaspi Bank»';
+
+  @override
+  String get companyDetailsIbanLabel => 'Расчётный счёт (IBAN)';
+
+  @override
+  String get companyDetailsIbanHint => 'KZ...';
+
+  @override
+  String get companyDetailsIbanHelper =>
+      'Формат: KZ и 18 знаков (например, KZ69...)';
+
+  @override
+  String get companyDetailsIbanError =>
+      'IBAN Казахстана должен начинаться с KZ и содержать 20 символов';
+
+  @override
+  String get companyDetailsBikLabel => 'БИК банка';
+
+  @override
+  String get companyDetailsBikHint => 'CASPKZ2A';
+
+  @override
+  String get companyDetailsBikError =>
+      'БИК должен содержать от 8 до 11 символов';
+
+  @override
+  String get companyDetailsSaveButton => 'Сохранить реквизиты';
+
+  @override
+  String get companyDetailsSaveSuccess => 'Реквизиты успешно сохранены';
+
+  @override
+  String get companyDetailsLoadError =>
+      'Не удалось загрузить реквизиты компании';
+
+  @override
   String get settingsEnquiryFlowTitle => 'Проводка заявки';
 
   @override

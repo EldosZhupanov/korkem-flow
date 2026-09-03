@@ -12,6 +12,7 @@ import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
 import 'package:korkem_flow/features/channel_settings/presentation/channel_settings_screen.dart';
+import 'package:korkem_flow/features/company_details/presentation/company_details_screen.dart';
 import 'package:korkem_flow/features/customers/presentation/customer_detail_screen.dart';
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
@@ -72,6 +73,7 @@ abstract final class Routes {
   static const tasks = '/tasks';
   static const profile = '/profile';
   static const settings = '/settings';
+  static const companyDetails = '/settings/company';
   static const aiSettings = '/settings/ai';
   static const channelSettings = '/settings/channels';
   static const deliveryCentre = '/settings/deliveries';
@@ -159,6 +161,10 @@ GoRouter createRouter(Ref ref) {
               state.uri.queryParameters['server'] ??
               '',
         ),
+      ),
+      GoRoute(
+        path: Routes.companyDetails,
+        builder: (context, state) => const CompanyDetailsScreen(),
       ),
       GoRoute(
         path: Routes.aiSettings,
