@@ -215,4 +215,41 @@ void main() {
       );
     });
   });
+
+  _unknownMeansClaimed();
+}
+
+void _unknownMeansClaimed() {
+  group('Ответ, который мы не поняли, означает «узел занят»', () {
+    // Направление этого умолчания — не вкусовщина. Репозиторий в трёх местах
+    // считает непонятный ответ признаком занятого узла: при пустом адресе, при
+    // 404 и при теле не того вида. Модель делала обратное — и это та же ошибка
+    // с другой стороны: показать экран регистрации там, где хозяин уже есть,
+    // значит предложить человеку создать компанию поверх существующей.
+    test('поля claimed нет — считаем занятым, а не свободным', () {
+      final status = ProvisioningStatus.fromJson(const {
+        'languages': ['ru'],
+      });
+
+      expect(status.claimed, isTrue);
+    });
+
+    test('claimed: false остаётся false — узел действительно свободен', () {
+      final status = ProvisioningStatus.fromJson(const {
+        'claimed': false,
+        'languages': ['ru'],
+      });
+
+      expect(status.claimed, isFalse);
+    });
+
+    test('claimed: true остаётся true', () {
+      final status = ProvisioningStatus.fromJson(const {
+        'claimed': true,
+        'languages': ['ru'],
+      });
+
+      expect(status.claimed, isTrue);
+    });
+  });
 }

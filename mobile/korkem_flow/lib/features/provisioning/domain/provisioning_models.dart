@@ -12,7 +12,13 @@ class ProvisioningStatus {
     final rawLangs = json['languages'] as List? ?? const [];
     final langs = rawLangs.map((e) => e.toString()).toList();
     return ProvisioningStatus(
-      claimed: json['claimed'] as bool? ?? false,
+      // «Не знаю» означает «занят», как и в трёх запасных ветках
+      // репозитория. Направление здесь не вкусовое: показать экран
+      // регистрации владельцу узла, у которого уже есть хозяин, — это
+      // предложить человеку создать компанию поверх существующей, а на чужом
+      // узле — попытаться его присвоить. Отсутствие поля означает, что мы не
+      // поняли ответ; не понимая ответа, регистрацию не предлагают.
+      claimed: json['claimed'] as bool? ?? true,
       languages: langs.isEmpty ? const ['ru', 'kk', 'en'] : langs,
     );
   }
