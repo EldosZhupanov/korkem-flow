@@ -699,6 +699,61 @@ class AppLocalizationsKk extends AppLocalizations {
   String get orderInstallationCompletedNotice => 'Орнату сәтті аяқталды';
 
   @override
+  String get orderWarrantySection => 'Кепілдік';
+
+  @override
+  String get orderWarrantyNotStartedNotice =>
+      'Кепілдік жөнелтілгеннен кейін басталады.';
+
+  @override
+  String orderWarrantyShippedOn(String date) {
+    return 'Жөнелтілді: $date';
+  }
+
+  @override
+  String get orderWarrantyStatusActive => 'Жарамды';
+
+  @override
+  String get orderWarrantyStatusExpired => 'Аяқталды';
+
+  @override
+  String get orderWarrantyStatusNoWarranty => 'Кепілдіксіз';
+
+  @override
+  String orderWarrantyUntil(String date) {
+    return '$date дейін';
+  }
+
+  @override
+  String orderWarrantyPeriodDays(int days) {
+    return '$days күн';
+  }
+
+  @override
+  String get orderWarrantyClaimAction => 'Рекламация ресімдеу';
+
+  @override
+  String get orderWarrantyClaimDialogTitle => 'Рекламация ресімдеу';
+
+  @override
+  String get orderWarrantyItemLabel => 'Позиция';
+
+  @override
+  String get orderWarrantyComplaintLabel => 'Не болды';
+
+  @override
+  String get orderWarrantyComplaintHint =>
+      'Ақауды егжей-тегжейлі сипаттаңыз: не бұзылды, қандай жағдайда';
+
+  @override
+  String get orderWarrantyComplaintRequired => 'Рекламация себебін сипаттаңыз';
+
+  @override
+  String orderWarrantyClaimSuccessNotice(String claim) {
+    return 'Рекламация $claim сәтті тіркелді';
+  }
+
+  @override
   String get settingsTitle => 'Параметрлер';
 
   @override

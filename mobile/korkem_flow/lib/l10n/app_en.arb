@@ -784,6 +784,86 @@
   "@orderInstallationCompletedNotice": {
     "description": "Banner when installation is successfully completed"
   },
+  "orderWarrantySection": "Warranty",
+  "@orderWarrantySection": {
+    "description": "Section header for warranty on order screen"
+  },
+  "orderWarrantyNotStartedNotice": "Warranty will start after shipment.",
+  "@orderWarrantyNotStartedNotice": {
+    "description": "Notice when order has not been shipped yet"
+  },
+  "orderWarrantyShippedOn": "Shipped on: {date}",
+  "@orderWarrantyShippedOn": {
+    "description": "Date when goods were first shipped to customer",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "orderWarrantyStatusActive": "Active",
+  "@orderWarrantyStatusActive": {
+    "description": "Status badge for active warranty"
+  },
+  "orderWarrantyStatusExpired": "Expired",
+  "@orderWarrantyStatusExpired": {
+    "description": "Status badge for expired warranty"
+  },
+  "orderWarrantyStatusNoWarranty": "No warranty",
+  "@orderWarrantyStatusNoWarranty": {
+    "description": "Status badge when item has no warranty period"
+  },
+  "orderWarrantyUntil": "until {date}",
+  "@orderWarrantyUntil": {
+    "description": "Warranty expiration date",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "orderWarrantyPeriodDays": "{days} days",
+  "@orderWarrantyPeriodDays": {
+    "description": "Warranty duration in days",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "orderWarrantyClaimAction": "File warranty claim",
+  "@orderWarrantyClaimAction": {
+    "description": "Action button to file a warranty claim"
+  },
+  "orderWarrantyClaimDialogTitle": "File warranty claim",
+  "@orderWarrantyClaimDialogTitle": {
+    "description": "Title for warranty claim dialog"
+  },
+  "orderWarrantyItemLabel": "Item",
+  "@orderWarrantyItemLabel": {
+    "description": "Label for selecting item in claim dialog"
+  },
+  "orderWarrantyComplaintLabel": "What happened",
+  "@orderWarrantyComplaintLabel": {
+    "description": "Label for complaint description"
+  },
+  "orderWarrantyComplaintHint": "Describe the issue in detail: what broke, under what conditions",
+  "@orderWarrantyComplaintHint": {
+    "description": "Hint text for complaint input"
+  },
+  "orderWarrantyComplaintRequired": "Describe reason for the claim",
+  "@orderWarrantyComplaintRequired": {
+    "description": "Validation error when complaint is empty"
+  },
+  "orderWarrantyClaimSuccessNotice": "Claim {claim} registered successfully",
+  "@orderWarrantyClaimSuccessNotice": {
+    "description": "Banner when warranty claim is accepted",
+    "placeholders": {
+      "claim": {
+        "type": "String"
+      }
+    }
+  },
   "settingsTitle": "Settings",
   "settingsAccount": "Account",
   "settingsSignedInAs": "Signed in as",

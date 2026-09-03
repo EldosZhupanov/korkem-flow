@@ -709,6 +709,61 @@ class AppLocalizationsEn extends AppLocalizations {
       'Installation completed successfully';
 
   @override
+  String get orderWarrantySection => 'Warranty';
+
+  @override
+  String get orderWarrantyNotStartedNotice =>
+      'Warranty will start after shipment.';
+
+  @override
+  String orderWarrantyShippedOn(String date) {
+    return 'Shipped on: $date';
+  }
+
+  @override
+  String get orderWarrantyStatusActive => 'Active';
+
+  @override
+  String get orderWarrantyStatusExpired => 'Expired';
+
+  @override
+  String get orderWarrantyStatusNoWarranty => 'No warranty';
+
+  @override
+  String orderWarrantyUntil(String date) {
+    return 'until $date';
+  }
+
+  @override
+  String orderWarrantyPeriodDays(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get orderWarrantyClaimAction => 'File warranty claim';
+
+  @override
+  String get orderWarrantyClaimDialogTitle => 'File warranty claim';
+
+  @override
+  String get orderWarrantyItemLabel => 'Item';
+
+  @override
+  String get orderWarrantyComplaintLabel => 'What happened';
+
+  @override
+  String get orderWarrantyComplaintHint =>
+      'Describe the issue in detail: what broke, under what conditions';
+
+  @override
+  String get orderWarrantyComplaintRequired => 'Describe reason for the claim';
+
+  @override
+  String orderWarrantyClaimSuccessNotice(String claim) {
+    return 'Claim $claim registered successfully';
+  }
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

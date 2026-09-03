@@ -3,10 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/data/order_design_repository.dart';
 import 'package:korkem_flow/features/orders/data/order_installation_repository.dart';
+import 'package:korkem_flow/features/orders/data/order_warranty_repository.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/order_design.dart';
 import 'package:korkem_flow/features/orders/domain/order_installation.dart';
+import 'package:korkem_flow/features/orders/domain/order_warranty.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/start_production_button.dart';
@@ -34,6 +36,9 @@ class _MockOrderDesignRepository extends Mock
 class _MockOrderInstallationRepository extends Mock
     implements OrderInstallationRepository {}
 
+class _MockOrderWarrantyRepository extends Mock
+    implements OrderWarrantyRepository {}
+
 const _order = SalesOrder(
   name: 'SAL-ORD-00001',
   customer: 'Мебель Астана',
@@ -49,6 +54,7 @@ void main() {
   late _MockReceivingRepository receivingRepo;
   late _MockOrderDesignRepository designRepo;
   late _MockOrderInstallationRepository installationRepo;
+  late _MockOrderWarrantyRepository warrantyRepo;
 
   setUp(() {
     orders = _MockSalesOrderRepository();
@@ -57,6 +63,7 @@ void main() {
     receivingRepo = _MockReceivingRepository();
     designRepo = _MockOrderDesignRepository();
     installationRepo = _MockOrderInstallationRepository();
+    warrantyRepo = _MockOrderWarrantyRepository();
   });
 
   void stubOrder({
@@ -64,6 +71,7 @@ void main() {
     List<SalesOrderDelivery> deliveries = const [],
     OrderDesign? design,
     OrderInstallation? installation,
+    OrderWarranty? warranty,
   }) {
     when(
       () => orders.fetchPage(
@@ -94,6 +102,15 @@ void main() {
             salesOrder: 'SAL-ORD-00001',
           ),
     );
+    when(
+      () => warrantyRepo.fetchWarranty(any()),
+    ).thenAnswer(
+      (_) async =>
+          warranty ??
+          const OrderWarranty(
+            salesOrder: 'SAL-ORD-00001',
+          ),
+    );
   }
 
   Future<void> pump(
@@ -113,6 +130,7 @@ void main() {
           orderInstallationRepositoryProvider.overrideWithValue(
             installationRepo,
           ),
+          orderWarrantyRepositoryProvider.overrideWithValue(warrantyRepo),
           workOrderRepositoryProvider.overrideWithValue(workOrders),
           productionCommandRepositoryProvider.overrideWithValue(commands),
           receivingRepositoryProvider.overrideWithValue(receivingRepo),

@@ -710,6 +710,61 @@ class AppLocalizationsRu extends AppLocalizations {
   String get orderInstallationCompletedNotice => 'Монтаж успешно завершён';
 
   @override
+  String get orderWarrantySection => 'Гарантия';
+
+  @override
+  String get orderWarrantyNotStartedNotice =>
+      'Гарантия начнётся после отгрузки.';
+
+  @override
+  String orderWarrantyShippedOn(String date) {
+    return 'Отгружено: $date';
+  }
+
+  @override
+  String get orderWarrantyStatusActive => 'Действует';
+
+  @override
+  String get orderWarrantyStatusExpired => 'Закончилась';
+
+  @override
+  String get orderWarrantyStatusNoWarranty => 'Без гарантии';
+
+  @override
+  String orderWarrantyUntil(String date) {
+    return 'до $date';
+  }
+
+  @override
+  String orderWarrantyPeriodDays(int days) {
+    return '$days дн.';
+  }
+
+  @override
+  String get orderWarrantyClaimAction => 'Оформить рекламацию';
+
+  @override
+  String get orderWarrantyClaimDialogTitle => 'Оформление рекламации';
+
+  @override
+  String get orderWarrantyItemLabel => 'Позиция';
+
+  @override
+  String get orderWarrantyComplaintLabel => 'Что случилось';
+
+  @override
+  String get orderWarrantyComplaintHint =>
+      'Опишите дефект подробно: что сломалось, при каких условиях';
+
+  @override
+  String get orderWarrantyComplaintRequired => 'Опишите причину рекламации';
+
+  @override
+  String orderWarrantyClaimSuccessNotice(String claim) {
+    return 'Рекламация $claim успешно зарегистрирована';
+  }
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override

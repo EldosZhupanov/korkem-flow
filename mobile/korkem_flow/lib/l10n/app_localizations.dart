@@ -1390,6 +1390,96 @@ abstract class AppLocalizations {
   /// **'Installation completed successfully'**
   String get orderInstallationCompletedNotice;
 
+  /// Section header for warranty on order screen
+  ///
+  /// In en, this message translates to:
+  /// **'Warranty'**
+  String get orderWarrantySection;
+
+  /// Notice when order has not been shipped yet
+  ///
+  /// In en, this message translates to:
+  /// **'Warranty will start after shipment.'**
+  String get orderWarrantyNotStartedNotice;
+
+  /// Date when goods were first shipped to customer
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped on: {date}'**
+  String orderWarrantyShippedOn(String date);
+
+  /// Status badge for active warranty
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get orderWarrantyStatusActive;
+
+  /// Status badge for expired warranty
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get orderWarrantyStatusExpired;
+
+  /// Status badge when item has no warranty period
+  ///
+  /// In en, this message translates to:
+  /// **'No warranty'**
+  String get orderWarrantyStatusNoWarranty;
+
+  /// Warranty expiration date
+  ///
+  /// In en, this message translates to:
+  /// **'until {date}'**
+  String orderWarrantyUntil(String date);
+
+  /// Warranty duration in days
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String orderWarrantyPeriodDays(int days);
+
+  /// Action button to file a warranty claim
+  ///
+  /// In en, this message translates to:
+  /// **'File warranty claim'**
+  String get orderWarrantyClaimAction;
+
+  /// Title for warranty claim dialog
+  ///
+  /// In en, this message translates to:
+  /// **'File warranty claim'**
+  String get orderWarrantyClaimDialogTitle;
+
+  /// Label for selecting item in claim dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get orderWarrantyItemLabel;
+
+  /// Label for complaint description
+  ///
+  /// In en, this message translates to:
+  /// **'What happened'**
+  String get orderWarrantyComplaintLabel;
+
+  /// Hint text for complaint input
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the issue in detail: what broke, under what conditions'**
+  String get orderWarrantyComplaintHint;
+
+  /// Validation error when complaint is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Describe reason for the claim'**
+  String get orderWarrantyComplaintRequired;
+
+  /// Banner when warranty claim is accepted
+  ///
+  /// In en, this message translates to:
+  /// **'Claim {claim} registered successfully'**
+  String orderWarrantyClaimSuccessNotice(String claim);
+
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:

@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/orders/data/order_design_repository.dart';
 import 'package:korkem_flow/features/orders/data/order_installation_repository.dart';
+import 'package:korkem_flow/features/orders/data/order_warranty_repository.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/order_design.dart';
 import 'package:korkem_flow/features/orders/domain/order_installation.dart';
+import 'package:korkem_flow/features/orders/domain/order_warranty.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
@@ -48,6 +50,9 @@ class _MockOrderDesignRepository extends Mock
 class _MockOrderInstallationRepository extends Mock
     implements OrderInstallationRepository {}
 
+class _MockOrderWarrantyRepository extends Mock
+    implements OrderWarrantyRepository {}
+
 void main() {
   const desktop = Size(1440, 900);
 
@@ -57,6 +62,7 @@ void main() {
   late _MockReceivingRepository receivingRepo;
   late _MockOrderDesignRepository designRepo;
   late _MockOrderInstallationRepository installationRepo;
+  late _MockOrderWarrantyRepository warrantyRepo;
 
   setUp(() {
     salesOrderRepo = _MockSalesOrderRepository();
@@ -65,6 +71,7 @@ void main() {
     receivingRepo = _MockReceivingRepository();
     designRepo = _MockOrderDesignRepository();
     installationRepo = _MockOrderInstallationRepository();
+    warrantyRepo = _MockOrderWarrantyRepository();
   });
 
   // Real furniture, real Kazakh customers, real money. A golden full of
@@ -133,21 +140,29 @@ void main() {
         salesOrder: 'SAL-ORD-2026-00001',
       ),
     );
+    when(
+      () => warrantyRepo.fetchWarranty(any()),
+    ).thenAnswer(
+      (_) async => const OrderWarranty(
+        salesOrder: 'SAL-ORD-2026-00001',
+      ),
+    );
     when(() => workOrderRepo.fetchForDeal(any())).thenAnswer((_) async => []);
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           salesOrderRepositoryProvider.overrideWithValue(salesOrderRepo),
+          orderDesignRepositoryProvider.overrideWithValue(designRepo),
           orderInstallationRepositoryProvider.overrideWithValue(
             installationRepo,
           ),
+          orderWarrantyRepositoryProvider.overrideWithValue(warrantyRepo),
           workOrderRepositoryProvider.overrideWithValue(workOrderRepo),
           productionCommandRepositoryProvider.overrideWithValue(
             productionCommandRepo,
           ),
           receivingRepositoryProvider.overrideWithValue(receivingRepo),
-          orderDesignRepositoryProvider.overrideWithValue(designRepo),
         ],
         child: harness(const OrdersScreen(), locale: const Locale('ru')),
       ),
