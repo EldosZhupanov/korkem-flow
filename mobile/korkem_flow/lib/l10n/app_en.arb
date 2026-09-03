@@ -746,6 +746,189 @@
   "@warehousesEmptyMessage": {
     "description": "Message when no warehouses are returned"
   },
+  "bazisImportTitle": "Bazis Specification",
+  "@bazisImportTitle": {
+    "description": "Screen title for Bazis specification import"
+  },
+  "bazisImportSubtitle": "Inspect CAD export and create product BOM",
+  "@bazisImportSubtitle": {
+    "description": "Screen subtitle for Bazis specification import"
+  },
+  "bazisPickFileAction": "Select Bazis File",
+  "@bazisPickFileAction": {
+    "description": "Button to pick a Bazis XML export file"
+  },
+  "bazisChangeFileAction": "Select another file",
+  "@bazisChangeFileAction": {
+    "description": "Button to change the selected file"
+  },
+  "bazisPickFileHint": "XML project export from Bazis-Mebelschik (.xml)",
+  "@bazisPickFileHint": {
+    "description": "Hint text for picking Bazis XML export"
+  },
+  "bazisTotalsSummary": "Products: {products} · Parts: {parts} · Materials: {materials} · Operations: {operations}",
+  "@bazisTotalsSummary": {
+    "description": "Summary string of totals in Bazis export",
+    "placeholders": {
+      "products": { "type": "int" },
+      "parts": { "type": "int" },
+      "materials": { "type": "int" },
+      "operations": { "type": "int" }
+    }
+  },
+  "bazisCreateSpecificationAction": "Create Specification",
+  "@bazisCreateSpecificationAction": {
+    "description": "Button to create BOM specification in ERPNext"
+  },
+  "bazisCreatingSpecification": "Creating specification…",
+  "@bazisCreatingSpecification": {
+    "description": "Loading label while creating BOM specification"
+  },
+  "bazisInspectingFile": "Reading export…",
+  "@bazisInspectingFile": {
+    "description": "Loading label while inspecting Bazis file"
+  },
+  "bazisProductLabel": "Product",
+  "@bazisProductLabel": {
+    "description": "Label for product"
+  },
+  "bazisArticleLabel": "Article: {article}",
+  "@bazisArticleLabel": {
+    "description": "Label for product article",
+    "placeholders": {
+      "article": { "type": "String" }
+    }
+  },
+  "bazisOrderLabel": "Order: {order}",
+  "@bazisOrderLabel": {
+    "description": "Label for product order reference",
+    "placeholders": {
+      "order": { "type": "String" }
+    }
+  },
+  "bazisPriceLabel": "Price: {price}",
+  "@bazisPriceLabel": {
+    "description": "Label for price",
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  },
+  "bazisQtyLabel": "{qty} pcs",
+  "@bazisQtyLabel": {
+    "description": "Quantity in pieces",
+    "placeholders": {
+      "qty": { "type": "String" }
+    }
+  },
+  "bazisPartsTab": "Parts ({count})",
+  "@bazisPartsTab": {
+    "description": "Tab header for parts",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bazisMaterialsTab": "Materials ({count})",
+  "@bazisMaterialsTab": {
+    "description": "Tab header for materials",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bazisOperationsTab": "Operations ({count})",
+  "@bazisOperationsTab": {
+    "description": "Tab header for operations",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bazisPartBlockLabel": "Block: {block}",
+  "@bazisPartBlockLabel": {
+    "description": "Structural block/drawer workshop location for part",
+    "placeholders": {
+      "block": { "type": "String" }
+    }
+  },
+  "bazisPartDimensions": "{length} × {width} × {thickness} mm",
+  "@bazisPartDimensions": {
+    "description": "Dimensions of part in mm",
+    "placeholders": {
+      "length": { "type": "String" },
+      "width": { "type": "String" },
+      "thickness": { "type": "String" }
+    }
+  },
+  "bazisPartEdges": "Edge: {edges}",
+  "@bazisPartEdges": {
+    "description": "Edge materials list for part",
+    "placeholders": {
+      "edges": { "type": "String" }
+    }
+  },
+  "bazisMaterialUnitQty": "{qty} {unit}",
+  "@bazisMaterialUnitQty": {
+    "description": "Quantity and unit of material",
+    "placeholders": {
+      "qty": { "type": "String" },
+      "unit": { "type": "String" }
+    }
+  },
+  "bazisOperationMinutes": "{minutes} min.",
+  "@bazisOperationMinutes": {
+    "description": "Operation time in minutes",
+    "placeholders": {
+      "minutes": { "type": "String" }
+    }
+  },
+  "bazisBomStatusCreated": "Specification created",
+  "@bazisBomStatusCreated": {
+    "description": "Badge when a new BOM draft was created"
+  },
+  "bazisBomStatusUpdated": "Specification draft updated",
+  "@bazisBomStatusUpdated": {
+    "description": "Badge when an existing BOM draft was updated"
+  },
+  "bazisMaterialsWithoutQtyAlert": "Materials without calculated quantity (omitted from BOM):",
+  "@bazisMaterialsWithoutQtyAlert": {
+    "description": "Alert header for skipped materials with 0 quantity"
+  },
+  "bazisOperationsAwaitingWorkstationAlert": "Operations awaiting workstation assignment (added to catalog, not placed in routing):",
+  "@bazisOperationsAwaitingWorkstationAlert": {
+    "description": "Alert header for operations with no workstation"
+  },
+  "bazisImportSuccessTitle": "Specification prepared",
+  "@bazisImportSuccessTitle": {
+    "description": "Success title after import"
+  },
+  "bazisImportAnotherAction": "Upload another export",
+  "@bazisImportAnotherAction": {
+    "description": "Button to upload another file"
+  },
+  "bazisBomDocLabel": "BOM doc: {bom}",
+  "@bazisBomDocLabel": {
+    "description": "Label with BOM document name",
+    "placeholders": {
+      "bom": { "type": "String" }
+    }
+  },
+  "bazisItemDocLabel": "Item: {item}",
+  "@bazisItemDocLabel": {
+    "description": "Label with Item document name",
+    "placeholders": {
+      "item": { "type": "String" }
+    }
+  },
+  "bazisEmptyParts": "No parts in product",
+  "@bazisEmptyParts": {
+    "description": "Empty state message for parts"
+  },
+  "bazisEmptyMaterials": "No materials in product",
+  "@bazisEmptyMaterials": {
+    "description": "Empty state message for materials"
+  },
+  "bazisEmptyOperations": "No operations in product",
+  "@bazisEmptyOperations": {
+    "description": "Empty state message for operations"
+  },
   "companyDetailsDocNote": "Details are used to generate contracts, invoices, and waybills.",
   "@companyDetailsDocNote": {
     "description": "Note explaining where company details are used"

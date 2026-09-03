@@ -1246,6 +1246,209 @@ abstract class AppLocalizations {
   /// **'Company warehouse list is empty.'**
   String get warehousesEmptyMessage;
 
+  /// Screen title for Bazis specification import
+  ///
+  /// In en, this message translates to:
+  /// **'Bazis Specification'**
+  String get bazisImportTitle;
+
+  /// Screen subtitle for Bazis specification import
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect CAD export and create product BOM'**
+  String get bazisImportSubtitle;
+
+  /// Button to pick a Bazis XML export file
+  ///
+  /// In en, this message translates to:
+  /// **'Select Bazis File'**
+  String get bazisPickFileAction;
+
+  /// Button to change the selected file
+  ///
+  /// In en, this message translates to:
+  /// **'Select another file'**
+  String get bazisChangeFileAction;
+
+  /// Hint text for picking Bazis XML export
+  ///
+  /// In en, this message translates to:
+  /// **'XML project export from Bazis-Mebelschik (.xml)'**
+  String get bazisPickFileHint;
+
+  /// Summary string of totals in Bazis export
+  ///
+  /// In en, this message translates to:
+  /// **'Products: {products} · Parts: {parts} · Materials: {materials} · Operations: {operations}'**
+  String bazisTotalsSummary(
+    int products,
+    int parts,
+    int materials,
+    int operations,
+  );
+
+  /// Button to create BOM specification in ERPNext
+  ///
+  /// In en, this message translates to:
+  /// **'Create Specification'**
+  String get bazisCreateSpecificationAction;
+
+  /// Loading label while creating BOM specification
+  ///
+  /// In en, this message translates to:
+  /// **'Creating specification…'**
+  String get bazisCreatingSpecification;
+
+  /// Loading label while inspecting Bazis file
+  ///
+  /// In en, this message translates to:
+  /// **'Reading export…'**
+  String get bazisInspectingFile;
+
+  /// Label for product
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get bazisProductLabel;
+
+  /// Label for product article
+  ///
+  /// In en, this message translates to:
+  /// **'Article: {article}'**
+  String bazisArticleLabel(String article);
+
+  /// Label for product order reference
+  ///
+  /// In en, this message translates to:
+  /// **'Order: {order}'**
+  String bazisOrderLabel(String order);
+
+  /// Label for price
+  ///
+  /// In en, this message translates to:
+  /// **'Price: {price}'**
+  String bazisPriceLabel(String price);
+
+  /// Quantity in pieces
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} pcs'**
+  String bazisQtyLabel(String qty);
+
+  /// Tab header for parts
+  ///
+  /// In en, this message translates to:
+  /// **'Parts ({count})'**
+  String bazisPartsTab(int count);
+
+  /// Tab header for materials
+  ///
+  /// In en, this message translates to:
+  /// **'Materials ({count})'**
+  String bazisMaterialsTab(int count);
+
+  /// Tab header for operations
+  ///
+  /// In en, this message translates to:
+  /// **'Operations ({count})'**
+  String bazisOperationsTab(int count);
+
+  /// Structural block/drawer workshop location for part
+  ///
+  /// In en, this message translates to:
+  /// **'Block: {block}'**
+  String bazisPartBlockLabel(String block);
+
+  /// Dimensions of part in mm
+  ///
+  /// In en, this message translates to:
+  /// **'{length} × {width} × {thickness} mm'**
+  String bazisPartDimensions(String length, String width, String thickness);
+
+  /// Edge materials list for part
+  ///
+  /// In en, this message translates to:
+  /// **'Edge: {edges}'**
+  String bazisPartEdges(String edges);
+
+  /// Quantity and unit of material
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} {unit}'**
+  String bazisMaterialUnitQty(String qty, String unit);
+
+  /// Operation time in minutes
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min.'**
+  String bazisOperationMinutes(String minutes);
+
+  /// Badge when a new BOM draft was created
+  ///
+  /// In en, this message translates to:
+  /// **'Specification created'**
+  String get bazisBomStatusCreated;
+
+  /// Badge when an existing BOM draft was updated
+  ///
+  /// In en, this message translates to:
+  /// **'Specification draft updated'**
+  String get bazisBomStatusUpdated;
+
+  /// Alert header for skipped materials with 0 quantity
+  ///
+  /// In en, this message translates to:
+  /// **'Materials without calculated quantity (omitted from BOM):'**
+  String get bazisMaterialsWithoutQtyAlert;
+
+  /// Alert header for operations with no workstation
+  ///
+  /// In en, this message translates to:
+  /// **'Operations awaiting workstation assignment (added to catalog, not placed in routing):'**
+  String get bazisOperationsAwaitingWorkstationAlert;
+
+  /// Success title after import
+  ///
+  /// In en, this message translates to:
+  /// **'Specification prepared'**
+  String get bazisImportSuccessTitle;
+
+  /// Button to upload another file
+  ///
+  /// In en, this message translates to:
+  /// **'Upload another export'**
+  String get bazisImportAnotherAction;
+
+  /// Label with BOM document name
+  ///
+  /// In en, this message translates to:
+  /// **'BOM doc: {bom}'**
+  String bazisBomDocLabel(String bom);
+
+  /// Label with Item document name
+  ///
+  /// In en, this message translates to:
+  /// **'Item: {item}'**
+  String bazisItemDocLabel(String item);
+
+  /// Empty state message for parts
+  ///
+  /// In en, this message translates to:
+  /// **'No parts in product'**
+  String get bazisEmptyParts;
+
+  /// Empty state message for materials
+  ///
+  /// In en, this message translates to:
+  /// **'No materials in product'**
+  String get bazisEmptyMaterials;
+
+  /// Empty state message for operations
+  ///
+  /// In en, this message translates to:
+  /// **'No operations in product'**
+  String get bazisEmptyOperations;
+
   /// Note explaining where company details are used
   ///
   /// In en, this message translates to:

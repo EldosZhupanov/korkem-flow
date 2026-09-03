@@ -645,6 +645,144 @@ class AppLocalizationsKk extends AppLocalizations {
   String get warehousesEmptyMessage => 'Компанияның қоймалар тізімі бос.';
 
   @override
+  String get bazisImportTitle => 'БАЗИС спецификациясы';
+
+  @override
+  String get bazisImportSubtitle =>
+      'Жүктелімді тексеру және бұйым спецификациясын жасау';
+
+  @override
+  String get bazisPickFileAction => 'БАЗИС файлын таңдау';
+
+  @override
+  String get bazisChangeFileAction => 'Басқа файл таңдау';
+
+  @override
+  String get bazisPickFileHint =>
+      'БАЗИС-Мебельщик бағдарламасынан XML-жүктелім (.xml)';
+
+  @override
+  String bazisTotalsSummary(
+    int products,
+    int parts,
+    int materials,
+    int operations,
+  ) {
+    return 'Бұйымдар: $products · Бөлшектер: $parts · Материалдар: $materials · Операциялар: $operations';
+  }
+
+  @override
+  String get bazisCreateSpecificationAction => 'Спецификацияны құру';
+
+  @override
+  String get bazisCreatingSpecification => 'Спецификация құрылуда…';
+
+  @override
+  String get bazisInspectingFile => 'Жүктелім оқылуда…';
+
+  @override
+  String get bazisProductLabel => 'Бұйым';
+
+  @override
+  String bazisArticleLabel(String article) {
+    return 'Артикул: $article';
+  }
+
+  @override
+  String bazisOrderLabel(String order) {
+    return 'Тапсырыс: $order';
+  }
+
+  @override
+  String bazisPriceLabel(String price) {
+    return 'Бағасы: $price';
+  }
+
+  @override
+  String bazisQtyLabel(String qty) {
+    return '$qty дана';
+  }
+
+  @override
+  String bazisPartsTab(int count) {
+    return 'Бөлшектер ($count)';
+  }
+
+  @override
+  String bazisMaterialsTab(int count) {
+    return 'Материалдар ($count)';
+  }
+
+  @override
+  String bazisOperationsTab(int count) {
+    return 'Операциялар ($count)';
+  }
+
+  @override
+  String bazisPartBlockLabel(String block) {
+    return 'Блок: $block';
+  }
+
+  @override
+  String bazisPartDimensions(String length, String width, String thickness) {
+    return '$length × $width × $thickness мм';
+  }
+
+  @override
+  String bazisPartEdges(String edges) {
+    return 'Жиек: $edges';
+  }
+
+  @override
+  String bazisMaterialUnitQty(String qty, String unit) {
+    return '$qty $unit';
+  }
+
+  @override
+  String bazisOperationMinutes(String minutes) {
+    return '$minutes мин.';
+  }
+
+  @override
+  String get bazisBomStatusCreated => 'Спецификация құрылды';
+
+  @override
+  String get bazisBomStatusUpdated => 'Спецификация нобайы жаңартылды';
+
+  @override
+  String get bazisMaterialsWithoutQtyAlert =>
+      'Мөлшері есептелмеген материалдар (спецификацияға кірмеді):';
+
+  @override
+  String get bazisOperationsAwaitingWorkstationAlert =>
+      'Жұмыс орны тағайындалмаған операциялар (анықтамалыққа енгізілді, бірақ бағытқа қосылмады):';
+
+  @override
+  String get bazisImportSuccessTitle => 'Спецификация дайын';
+
+  @override
+  String get bazisImportAnotherAction => 'Басқа жүктелімді жүктеу';
+
+  @override
+  String bazisBomDocLabel(String bom) {
+    return 'BOM спецификациясы: $bom';
+  }
+
+  @override
+  String bazisItemDocLabel(String item) {
+    return 'Номенклатура: $item';
+  }
+
+  @override
+  String get bazisEmptyParts => 'Бұйымда бөлшектер жоқ';
+
+  @override
+  String get bazisEmptyMaterials => 'Бұйымда материалдар жоқ';
+
+  @override
+  String get bazisEmptyOperations => 'Бұйымда технологиялық операциялар жоқ';
+
+  @override
   String get companyDetailsDocNote =>
       'Деректемелер шарттарды, шоттар мен жүкқұжаттарды жасау үшін қолданылады.';
 

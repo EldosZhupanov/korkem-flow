@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
@@ -9,6 +10,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/application/order_design_controller.dart';
 import 'package:korkem_flow/features/orders/domain/order_design.dart';
@@ -524,13 +526,30 @@ class _DesignCardState extends ConsumerState<_DesignCard> {
                   for (final att in design.attachments)
                     _AttachmentTile(attachment: att),
                   const SizedBox(height: AppSpacing.sm),
-                  OutlinedButton.icon(
-                    onPressed: _showAttachDialog,
-                    icon: const Icon(
-                      AppIcons.attachment,
-                      size: AppIconSize.dense,
-                    ),
-                    label: Text(l10n.orderDesignAttachFileAction),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _showAttachDialog,
+                        icon: const Icon(
+                          AppIcons.attachment,
+                          size: AppIconSize.dense,
+                        ),
+                        label: Text(l10n.orderDesignAttachFileAction),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () => context.push(
+                          '${Routes.bazisImport}?'
+                          'sales_order=${widget.order.name}',
+                        ),
+                        icon: const Icon(
+                          AppIcons.task,
+                          size: AppIconSize.dense,
+                        ),
+                        label: Text(l10n.bazisImportTitle),
+                      ),
+                    ],
                   ),
                 ],
               ),

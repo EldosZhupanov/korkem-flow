@@ -11,6 +11,7 @@ import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dar
 import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
+import 'package:korkem_flow/features/bazis/presentation/bazis_import_screen.dart';
 import 'package:korkem_flow/features/channel_settings/presentation/channel_settings_screen.dart';
 import 'package:korkem_flow/features/company_details/presentation/company_details_screen.dart';
 import 'package:korkem_flow/features/customers/presentation/customer_detail_screen.dart';
@@ -48,6 +49,7 @@ abstract final class Routes {
   static const team = '/team';
   static const items = '/items';
   static const warehouses = '/settings/warehouses';
+  static const bazisImport = '/bazis-import';
   static const enquiryFlow = '/enquiry-flow';
 
   /// The assistant, and where signing in lands.
@@ -238,6 +240,13 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.warehouses,
         builder: (context, state) => const WarehousesScreen(),
+      ),
+      GoRoute(
+        path: Routes.bazisImport,
+        builder: (context, state) {
+          final salesOrder = state.uri.queryParameters['sales_order'];
+          return BazisImportScreen(salesOrder: salesOrder);
+        },
       ),
       GoRoute(
         path: Routes.enquiryFlow,

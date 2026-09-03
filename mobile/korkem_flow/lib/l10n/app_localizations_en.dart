@@ -659,6 +659,143 @@ class AppLocalizationsEn extends AppLocalizations {
   String get warehousesEmptyMessage => 'Company warehouse list is empty.';
 
   @override
+  String get bazisImportTitle => 'Bazis Specification';
+
+  @override
+  String get bazisImportSubtitle => 'Inspect CAD export and create product BOM';
+
+  @override
+  String get bazisPickFileAction => 'Select Bazis File';
+
+  @override
+  String get bazisChangeFileAction => 'Select another file';
+
+  @override
+  String get bazisPickFileHint =>
+      'XML project export from Bazis-Mebelschik (.xml)';
+
+  @override
+  String bazisTotalsSummary(
+    int products,
+    int parts,
+    int materials,
+    int operations,
+  ) {
+    return 'Products: $products · Parts: $parts · Materials: $materials · Operations: $operations';
+  }
+
+  @override
+  String get bazisCreateSpecificationAction => 'Create Specification';
+
+  @override
+  String get bazisCreatingSpecification => 'Creating specification…';
+
+  @override
+  String get bazisInspectingFile => 'Reading export…';
+
+  @override
+  String get bazisProductLabel => 'Product';
+
+  @override
+  String bazisArticleLabel(String article) {
+    return 'Article: $article';
+  }
+
+  @override
+  String bazisOrderLabel(String order) {
+    return 'Order: $order';
+  }
+
+  @override
+  String bazisPriceLabel(String price) {
+    return 'Price: $price';
+  }
+
+  @override
+  String bazisQtyLabel(String qty) {
+    return '$qty pcs';
+  }
+
+  @override
+  String bazisPartsTab(int count) {
+    return 'Parts ($count)';
+  }
+
+  @override
+  String bazisMaterialsTab(int count) {
+    return 'Materials ($count)';
+  }
+
+  @override
+  String bazisOperationsTab(int count) {
+    return 'Operations ($count)';
+  }
+
+  @override
+  String bazisPartBlockLabel(String block) {
+    return 'Block: $block';
+  }
+
+  @override
+  String bazisPartDimensions(String length, String width, String thickness) {
+    return '$length × $width × $thickness mm';
+  }
+
+  @override
+  String bazisPartEdges(String edges) {
+    return 'Edge: $edges';
+  }
+
+  @override
+  String bazisMaterialUnitQty(String qty, String unit) {
+    return '$qty $unit';
+  }
+
+  @override
+  String bazisOperationMinutes(String minutes) {
+    return '$minutes min.';
+  }
+
+  @override
+  String get bazisBomStatusCreated => 'Specification created';
+
+  @override
+  String get bazisBomStatusUpdated => 'Specification draft updated';
+
+  @override
+  String get bazisMaterialsWithoutQtyAlert =>
+      'Materials without calculated quantity (omitted from BOM):';
+
+  @override
+  String get bazisOperationsAwaitingWorkstationAlert =>
+      'Operations awaiting workstation assignment (added to catalog, not placed in routing):';
+
+  @override
+  String get bazisImportSuccessTitle => 'Specification prepared';
+
+  @override
+  String get bazisImportAnotherAction => 'Upload another export';
+
+  @override
+  String bazisBomDocLabel(String bom) {
+    return 'BOM doc: $bom';
+  }
+
+  @override
+  String bazisItemDocLabel(String item) {
+    return 'Item: $item';
+  }
+
+  @override
+  String get bazisEmptyParts => 'No parts in product';
+
+  @override
+  String get bazisEmptyMaterials => 'No materials in product';
+
+  @override
+  String get bazisEmptyOperations => 'No operations in product';
+
+  @override
   String get companyDetailsDocNote =>
       'Details are used to generate contracts, invoices, and waybills.';
 

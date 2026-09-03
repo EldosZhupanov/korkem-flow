@@ -661,6 +661,144 @@ class AppLocalizationsRu extends AppLocalizations {
   String get warehousesEmptyMessage => 'Список складов компании пуст.';
 
   @override
+  String get bazisImportTitle => 'Спецификация из БАЗИС';
+
+  @override
+  String get bazisImportSubtitle =>
+      'Проверка выгрузки и создание спецификации изделия';
+
+  @override
+  String get bazisPickFileAction => 'Выбрать файл БАЗИС';
+
+  @override
+  String get bazisChangeFileAction => 'Выбрать другой файл';
+
+  @override
+  String get bazisPickFileHint =>
+      'XML-выгрузка проекта из БАЗИС-Мебельщик (.xml)';
+
+  @override
+  String bazisTotalsSummary(
+    int products,
+    int parts,
+    int materials,
+    int operations,
+  ) {
+    return 'Изделий: $products · Деталей: $parts · Материалов: $materials · Операций: $operations';
+  }
+
+  @override
+  String get bazisCreateSpecificationAction => 'Создать спецификацию';
+
+  @override
+  String get bazisCreatingSpecification => 'Создание спецификации…';
+
+  @override
+  String get bazisInspectingFile => 'Чтение выгрузки…';
+
+  @override
+  String get bazisProductLabel => 'Изделие';
+
+  @override
+  String bazisArticleLabel(String article) {
+    return 'Артикул: $article';
+  }
+
+  @override
+  String bazisOrderLabel(String order) {
+    return 'Заказ: $order';
+  }
+
+  @override
+  String bazisPriceLabel(String price) {
+    return 'Цена: $price';
+  }
+
+  @override
+  String bazisQtyLabel(String qty) {
+    return '$qty шт.';
+  }
+
+  @override
+  String bazisPartsTab(int count) {
+    return 'Детали ($count)';
+  }
+
+  @override
+  String bazisMaterialsTab(int count) {
+    return 'Материалы ($count)';
+  }
+
+  @override
+  String bazisOperationsTab(int count) {
+    return 'Операции ($count)';
+  }
+
+  @override
+  String bazisPartBlockLabel(String block) {
+    return 'Блок: $block';
+  }
+
+  @override
+  String bazisPartDimensions(String length, String width, String thickness) {
+    return '$length × $width × $thickness мм';
+  }
+
+  @override
+  String bazisPartEdges(String edges) {
+    return 'Кромка: $edges';
+  }
+
+  @override
+  String bazisMaterialUnitQty(String qty, String unit) {
+    return '$qty $unit';
+  }
+
+  @override
+  String bazisOperationMinutes(String minutes) {
+    return '$minutes мин.';
+  }
+
+  @override
+  String get bazisBomStatusCreated => 'Спецификация создана';
+
+  @override
+  String get bazisBomStatusUpdated => 'Черновик спецификации обновлён';
+
+  @override
+  String get bazisMaterialsWithoutQtyAlert =>
+      'Материалы без расчёта количества (не вошли в спецификацию):';
+
+  @override
+  String get bazisOperationsAwaitingWorkstationAlert =>
+      'Операции без назначенного рабочего места (внесены в справочник, но не включены в маршрут):';
+
+  @override
+  String get bazisImportSuccessTitle => 'Спецификация готова';
+
+  @override
+  String get bazisImportAnotherAction => 'Загрузить другую выгрузку';
+
+  @override
+  String bazisBomDocLabel(String bom) {
+    return 'Спецификация BOM: $bom';
+  }
+
+  @override
+  String bazisItemDocLabel(String item) {
+    return 'Номенклатура: $item';
+  }
+
+  @override
+  String get bazisEmptyParts => 'В изделии нет деталей';
+
+  @override
+  String get bazisEmptyMaterials => 'В изделии нет материалов';
+
+  @override
+  String get bazisEmptyOperations => 'В изделии нет технологических операций';
+
+  @override
   String get companyDetailsDocNote =>
       'Реквизиты используются для формирования договоров, счетов и накладных.';
 
