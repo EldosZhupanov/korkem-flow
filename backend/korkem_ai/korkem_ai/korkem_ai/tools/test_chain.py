@@ -129,3 +129,149 @@ class TestTheChainIsReachable(IntegrationTestCase):
 		result = registry.execute("chain.record_measurement", {"enquiry": "OPP-НЕТ-ТАКОЙ"})
 
 		self.assertFalse(result["ok"], result)
+
+
+class TestTheRestOfTheChainIsReachable(IntegrationTestCase):
+	"""После замера ассистент немел. Здесь проверяется, что перестал.
+
+	Проверяются не объявления, а вызовы — и в первую очередь **отказы**:
+	правило, живущее в сервисе, должно доходить до ассистента отказом, а не
+	теряться по дороге в бодрое «готово».
+	"""
+
+	def setUp(self):
+		frappe.set_user("Administrator")
+
+	def test_every_link_of_the_chain_has_a_tool(self):
+		for name in (
+			"chain.draft_proposal",
+			"chain.accept_proposal",
+			"chain.draft_contract",
+			"chain.sign_contract",
+			"chain.assign_design",
+			"chain.deliver_design",
+			"chain.schedule_installation",
+			"chain.complete_installation",
+			"chain.warranty_status",
+			"chain.warranty_claim",
+			"chain.draft_invoice",
+			"chain.catalogue_items",
+			"chain.create_item",
+		):
+			with self.subTest(tool=name):
+				self.assertIsNotNone(registry.find(name), f"{name} нет в каталоге")
+
+	def test_a_proposal_becomes_an_order_and_then_a_contract(self):
+		enquiry, item = _an_enquiry_with_an_item()
+
+		quoted = registry.execute(
+			"chain.draft_proposal",
+			{"enquiry": enquiry, "items": [{"item_code": item, "qty": 1}]},
+		)
+		self.assertTrue(quoted["ok"], quoted)
+		quotation = quoted["data"]["quotation"]
+		frappe.get_doc("Quotation", quotation).submit()
+
+		accepted = registry.execute(
+			"chain.accept_proposal",
+			{
+				"quotation": quotation,
+				"deliver_on": frappe.utils.add_days(frappe.utils.nowdate(), 21),
+			},
+		)
+		self.assertTrue(accepted["ok"], accepted)
+		order = accepted["data"]["sales_order"]
+
+		drafted = registry.execute("chain.draft_contract", {"sales_order": order})
+		self.assertTrue(drafted["ok"], drafted)
+
+		signed = registry.execute(
+			"chain.sign_contract",
+			{"contract": drafted["data"]["contract"], "signee": "Данияр Ахметов"},
+		)
+		self.assertTrue(signed["ok"], signed)
+		self.assertEqual(signed["data"]["signee"], "Данияр Ахметов")
+
+	def test_a_design_without_a_drawing_is_refused_to_the_assistant_too(self):
+		"""«Готово» без чертежа — самая дорогая ложь в производстве."""
+		order = _an_order()
+		registry.execute(
+			"chain.assign_design",
+			{
+				"sales_order": order,
+				"designer": "Administrator",
+				"due_on": frappe.utils.add_days(frappe.utils.nowdate(), 5),
+			},
+		)
+
+		result = registry.execute("chain.deliver_design", {"sales_order": order})
+
+		self.assertFalse(result["ok"], "дизайн принялся без чертежа")
+
+	def test_installation_before_shipping_is_refused_to_the_assistant_too(self):
+		"""Бригада без мебели теряет день, а клиент — доверие."""
+		order = _an_order()
+
+		result = registry.execute(
+			"chain.schedule_installation",
+			{
+				"sales_order": order,
+				"installer": "Administrator",
+				"install_on": frappe.utils.nowdate(),
+			},
+		)
+
+		self.assertFalse(result["ok"], "монтаж назначился до отгрузки")
+
+	def test_an_invoice_for_nothing_shipped_is_refused_to_the_assistant_too(self):
+		order = _an_order()
+		frappe.get_doc("Sales Order", order).submit()
+
+		result = registry.execute("chain.draft_invoice", {"sales_order": order})
+
+		self.assertFalse(result["ok"], "счёт выставился за неотгруженное")
+
+	def test_the_catalogue_offers_seven_units_not_two_hundred(self):
+		result = registry.execute("chain.catalogue_units", {})
+
+		self.assertTrue(result["ok"], result)
+		units = result["data"]["units"]
+		self.assertLessEqual(len(units), 7)
+		self.assertEqual(units[0]["unit"], "Nos")
+
+	def test_an_item_with_a_unit_nobody_offered_is_refused(self):
+		result = registry.execute(
+			"chain.create_item",
+			{"name": f"Шкаф {frappe.generate_hash(length=6)}", "unit": "Acre"},
+		)
+
+		self.assertFalse(result["ok"], "позиция завелась в акрах")
+
+
+def _an_enquiry_with_an_item() -> tuple[str, str]:
+	from korkem_manufacturing.services import catalogue as catalogue_service
+
+	item = f"Кухня {frappe.generate_hash(length=6)}"
+	catalogue_service.create(name=item, unit="Nos", price=650000)
+
+	said = registry.execute(
+		"chain.record_capture",
+		{"text": "Кухня", "customer_hint": f"Клиент {frappe.generate_hash(length=6)}"},
+	)["data"]["capture"]
+	enquiry = registry.execute("chain.convert_capture", {"capture": said})["data"]["enquiry"]
+	return enquiry, item
+
+
+def _an_order() -> str:
+	from korkem_manufacturing.services import acceptance as acceptance_service
+	from korkem_manufacturing.services import proposal as proposal_service
+
+	enquiry, item = _an_enquiry_with_an_item()
+	quotation = proposal_service.draft(
+		enquiry=enquiry, items=[{"item_code": item, "qty": 1}]
+	)["quotation"]
+	frappe.db.set_value("Quotation", quotation, "docstatus", 1)
+	return acceptance_service.accept(
+		quotation=quotation,
+		deliver_on=frappe.utils.add_days(frappe.utils.nowdate(), 21),
+	)["sales_order"]
