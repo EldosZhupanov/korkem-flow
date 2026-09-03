@@ -41,6 +41,7 @@ from dataclasses import dataclass, field
 import frappe
 
 from korkem_ai.korkem_ai.agent import prompt as prompt_module
+from korkem_ai.korkem_ai.context import tools as context_tools
 from korkem_ai.korkem_ai.orchestrator import llm, router
 from korkem_ai.korkem_ai.orchestrator.protocol import (
 	AIMessage,
@@ -115,7 +116,17 @@ def run_turn(
 		today=frappe.utils.nowdate(),
 		role=policy.role_of(),
 	)
-	tools = registry.offered_to()
+	# Не весь каталог, а то, о чём спросили. Измерено 4 сентября: схемы
+	# 65 инструментов — 93% запроса, ещё до того как человек что-то сказал.
+	# Вопрос про склад не нуждается в схемах договоров и рабочих мест.
+	#
+	# Отбор правилами, а не отдельным вызовом модели: такой вызов стоил бы
+	# того же, что мы экономим, и добавил бы задержку к каждому вопросу.
+	# Незнакомый вопрос получает весь каталог — молчащий ассистент хуже
+	# дорогого.
+	tools, tool_context = context_tools.offered(
+		_last_question(history), all_specs=registry.offered_to()
+	)
 
 	def complete_once():
 		"""Одно обращение к модели — своей или выбранной роутером.
@@ -282,6 +293,21 @@ def _run(call: AIToolCall, run_id: str | None = None) -> dict:
 		"call_id": call.id,
 		"payload": outcome,
 	}
+
+
+def _last_question(history) -> str:
+	"""Последнее, что сказал человек.
+
+	По нему выбираются области инструментов. Берётся именно последнее, а не вся
+	переписка: разговор мог начаться со склада и перейти к счетам, и отбор
+	должен следовать за человеком, а не за тем, с чего он начал.
+	"""
+	for message in reversed(list(history or ())):
+		if getattr(message, "role", None) == "user":
+			text = getattr(message, "text", None) or getattr(message, "content", None)
+			if isinstance(text, str) and text.strip():
+				return text
+	return ""
 
 
 def _add_usage(total: AIUsage, addition: AIUsage | None) -> AIUsage:
