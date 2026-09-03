@@ -26,7 +26,15 @@
   "cost_basis",
   "column_break_cost",
   "estimated_cost",
-  "cost_currency"
+  "cost_currency",
+  "credential_scope",
+  "attempt",
+  "fallback_from",
+  "fallback_reason",
+  "latency_ms",
+  "provider_error_code",
+  "tool_calls",
+  "cached_tokens"
  ],
  "fields": [
   {
@@ -156,6 +164,59 @@
    "fieldtype": "Link",
    "options": "Currency",
    "label": "Cost Currency"
+  },
+  {
+   "fieldname": "credential_scope",
+   "fieldtype": "Select",
+   "label": "Чей ключ",
+   "read_only": 1,
+   "options": "\nuser\nserver",
+   "description": "user — ключ клиента, server — резерв KORKEM. Разделение обязано быть видно в учёте: по нему считают, сколько платим мы."
+  },
+  {
+   "fieldname": "attempt",
+   "fieldtype": "Int",
+   "label": "Попытка",
+   "read_only": 1,
+   "description": "Номер в цепочке. Первая попытка — 1; всё, что больше, означает, что до неё кто-то отказал."
+  },
+  {
+   "fieldname": "fallback_from",
+   "fieldtype": "Data",
+   "label": "Переключились с",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fallback_reason",
+   "fieldtype": "Data",
+   "label": "Причина переключения",
+   "read_only": 1,
+   "description": "Класс ошибки, а не её текст: текст провайдера может содержать что угодно."
+  },
+  {
+   "fieldname": "latency_ms",
+   "fieldtype": "Int",
+   "label": "Длительность, мс",
+   "read_only": 1
+  },
+  {
+   "fieldname": "provider_error_code",
+   "fieldtype": "Data",
+   "label": "Код ошибки провайдера",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tool_calls",
+   "fieldtype": "Int",
+   "label": "Вызовов инструментов",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cached_tokens",
+   "fieldtype": "Int",
+   "label": "Токенов из кеша",
+   "read_only": 1,
+   "description": "Не все провайдеры сообщают. Пусто означает «не знаем», а не ноль."
   }
  ],
  "index_web_pages_for_search": 0,

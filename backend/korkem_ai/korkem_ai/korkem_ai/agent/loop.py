@@ -86,12 +86,19 @@ def run_turn(
 	provider=None,
 	approved_calls: set[str] | None = None,
 	on_event=None,
+	run_id: str | None = None,
 ) -> TurnResult:
 	"""Run one turn to completion, a pause for confirmation, or the cap.
 
 	`history` is the conversation so far, ending with the user's new message.
 	`approved_calls` are call ids a human has explicitly agreed to; anything
 	requiring confirmation and absent from it stops the turn.
+
+	`run_id` — этот ход. Через него пишущие инструменты получают ключ
+	однократного выполнения: перезапущенный ход не создаст второй заказ, даже
+	если первый успел выполниться и результат до истории не дошёл. Без него
+	защиты нет, поэтому вызывающие обязаны его передавать — а те, кто не
+	передаёт, платят дубликатом при первом же обрыве.
 	"""
 	# `provider` передают только тогда, когда вызывающий имел в виду именно его:
 	# проверка соединения, тест, разбор одного случая. Обычный ход модель себе
@@ -159,7 +166,7 @@ def run_turn(
 			)
 
 		for call in response.tool_calls:
-			result = _run(call)
+			result = _run(call, run_id)
 			executed.append(result)
 			messages.append(
 				AIMessage.tool(
@@ -250,7 +257,7 @@ def _needs_approval(call: AIToolCall) -> bool:
 	return bool(spec and spec.requires_confirmation)
 
 
-def _run(call: AIToolCall) -> dict:
+def _run(call: AIToolCall, run_id: str | None = None) -> dict:
 	if call.malformed:
 		# The provider gave us arguments that would not parse. Telling the model
 		# so lets it retry; raising would lose the conversation over a stray
@@ -268,7 +275,7 @@ def _run(call: AIToolCall) -> dict:
 			},
 		}
 
-	outcome = registry.execute(call.name, call.arguments)
+	outcome = registry.execute(call.name, call.arguments, run_id=run_id)
 	return {
 		"ok": outcome["ok"],
 		"tool": call.name,

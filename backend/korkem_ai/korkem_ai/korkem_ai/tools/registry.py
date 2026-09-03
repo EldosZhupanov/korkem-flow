@@ -35,6 +35,7 @@ place.
 from __future__ import annotations
 
 import enum
+import hashlib
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -210,7 +211,9 @@ def validate_arguments(spec: ToolSpec, arguments: dict) -> list[str]:
 	return schema_validator.validate(arguments or {}, spec.input_schema)
 
 
-def execute(name: str, arguments: dict | None = None) -> dict:
+def execute(
+	name: str, arguments: dict | None = None, *, run_id: str | None = None
+) -> dict:
 	"""Run a registered tool after checking it is allowed to run.
 
 	Returns a structured result. Failures come back as data rather than
@@ -220,6 +223,38 @@ def execute(name: str, arguments: dict | None = None) -> dict:
 	This function does **not** decide whether a confirmation was obtained.
 	That belongs to the agent loop, which knows whether a human said yes;
 	`spec.requires_confirmation` is what it asks.
+
+	## `run_id` и почему без него заказ может создаться дважды
+
+	До появления этого аргумента от повторного действия защищало одно: порядок
+	в цикле агента. Инструмент выполнялся, результат ложился в историю, и
+	следующая модель его не повторяла. Это верно ровно для одного случая —
+	**когда результат вернулся.**
+
+	Случай, который так не закрывается:
+
+	    crm.create_order()  →  заказ создан в ERPNext
+	                        →  процесс упал до записи результата
+	                        →  ход перезапустили
+	                        →  модель просит то же самое снова
+
+	Истории нет, потому что её не успели записать; модель не знает, что заказ
+	уже есть; заказов становится два. С деньгами и производством это дороже
+	любой другой ошибки в системе.
+
+	`run_id` — ход, в котором инструмент вызвали. Пишущие инструменты проходят
+	через `idempotency.execute`, где запись о выполнении и сам побочный эффект
+	коммитятся **одной транзакцией**: повтор с тем же ключом упирается в замок
+	первичного ключа и получает сохранённый ответ, ничего не выполняя.
+
+	Ключ строится из хода, имени инструмента и отпечатка аргументов, а не из
+	идентификатора вызова у модели. При перезапуске хода модель выдаёт новые
+	идентификаторы вызовов — ключ на них не пережил бы именно тот сбой, ради
+	которого он нужен. А «тот же ход, тот же инструмент, те же аргументы» это
+	одно и то же намерение, сколько бы раз его ни повторили.
+
+	Читающие инструменты идут мимо: у них нет побочного эффекта, и запись о
+	каждом `get_order` была бы мусором в таблице.
 	"""
 	arguments = arguments or {}
 	started = time.monotonic()
@@ -267,7 +302,7 @@ def execute(name: str, arguments: dict | None = None) -> dict:
 			)
 
 	try:
-		data = spec.handler(**arguments)
+		data = _run_handler(spec, arguments, run_id)
 	except frappe.PermissionError:
 		return _failure(name, "You do not have permission to do that.", code="permission_denied")
 	except frappe.ValidationError as exc:
@@ -281,6 +316,44 @@ def execute(name: str, arguments: dict | None = None) -> dict:
 	elapsed_ms = int((time.monotonic() - started) * 1000)
 	_log(name, "success", elapsed_ms)
 	return {"ok": True, "tool": name, "data": data}
+
+
+def _run_handler(spec: ToolSpec, arguments: dict, run_id: str | None):
+	"""Выполнить обработчик — один раз за ход, если он что-то меняет.
+
+	Читающие идут напрямую: побочного эффекта нет, повторить нечего, а запись о
+	каждом чтении была бы мусором.
+	"""
+	if spec.risk is Risk.READ or not run_id:
+		return spec.handler(**arguments)
+
+	from korkem_manufacturing.services import idempotency
+
+	key = _turn_key(run_id, spec.name, arguments)
+	# `idempotency.execute` требует от действия словарь: он его сохраняет и
+	# возвращает при повторе. Обработчик инструмента может вернуть что угодно,
+	# поэтому ответ заворачивается и разворачивается здесь.
+	stored = idempotency.execute(
+		action=f"ai_tool:{spec.name}",
+		idempotency_key=key,
+		arguments=arguments,
+		callback=lambda: {"value": spec.handler(**arguments)},
+	)
+	return stored.get("value")
+
+
+def _turn_key(run_id: str, tool: str, arguments: dict) -> str:
+	"""Ход + инструмент + аргументы.
+
+	Отпечаток аргументов входит в ключ, потому что один инструмент законно
+	вызывают дважды за ход с разными аргументами — два задания, два замера. Без
+	отпечатка второй вызов вернул бы результат первого, и это была бы уже не
+	защита, а потеря работы.
+	"""
+	fingerprint = hashlib.sha256(
+		frappe.as_json(arguments, indent=None, separators=(",", ":")).encode()
+	).hexdigest()[:16]
+	return f"turn:{run_id}:{tool}:{fingerprint}"
 
 
 def _failure(name: str, message: str, code: str) -> dict:

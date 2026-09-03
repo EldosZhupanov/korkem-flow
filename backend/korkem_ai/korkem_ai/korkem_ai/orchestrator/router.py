@@ -44,6 +44,8 @@
 
 from __future__ import annotations
 
+import time
+
 import frappe
 
 from korkem_ai.korkem_ai import errors
@@ -167,7 +169,7 @@ def _resting(row: dict) -> bool:
 	return frappe.utils.get_datetime(until) > frappe.utils.now_datetime()
 
 
-def complete(call, *, preferred: str | None = None, on_switch=None):
+def complete(call, *, preferred: str | None = None, on_switch=None, turn_id: str | None = None):
 	"""Выполнить одно обращение к модели, перебирая цепочку при отказе.
 
 	`call` получает готовый адаптер и делает с ним ровно один вызов. Всё, что
@@ -182,6 +184,7 @@ def complete(call, *, preferred: str | None = None, on_switch=None):
 		)
 
 	first_failure = None
+	previous = None
 	for index, row in enumerate(attempts):
 		try:
 			adapter = _adapter(row)
@@ -191,8 +194,9 @@ def complete(call, *, preferred: str | None = None, on_switch=None):
 			first_failure = first_failure or exc
 			continue
 
+		started = time.monotonic()
 		try:
-			return call(adapter)
+			answer = call(adapter)
 		except FINAL:
 			# Ответ будет тем же у всех. Отдаём его как есть, не тратя чужие
 			# квоты на повторение одной и той же ошибки.
@@ -200,9 +204,17 @@ def complete(call, *, preferred: str | None = None, on_switch=None):
 		except RETRYABLE as exc:
 			first_failure = first_failure or exc
 			_record(row, exc)
+			_ledger(
+				row, index + 1, "failed", started, previous, exc, turn_id=turn_id
+			)
+			previous = row["name"]
 			if on_switch and index + 1 < len(attempts):
 				on_switch(row["name"], attempts[index + 1]["name"], exc)
 			continue
+
+		_ledger(row, index + 1, "answered", started, previous, None, turn_id=turn_id,
+			usage=getattr(answer, "usage", None))
+		return answer
 
 	raise NoProviderAnswered(
 		"Ни одна из моделей не ответила. "
@@ -210,6 +222,36 @@ def complete(call, *, preferred: str | None = None, on_switch=None):
 		if first_failure
 		else "Ни одна из моделей не ответила."
 	)
+
+
+def _ledger(row, attempt, status, started, previous, exc, *, turn_id=None, usage=None):
+	"""Строка в журнал на каждую попытку. Никогда не мешает работе.
+
+	Наружу из этой функции не выходит ничего: журнал, уронивший ход, хуже
+	отсутствующего журнала. По этим строкам потом отвечают на вопросы, на
+	которые иначе отвечают догадками — сколько ходов дошло до нашего
+	оплачиваемого резерва, какой провайдер чаще отказывает, стало ли медленнее.
+	"""
+	try:
+		from korkem_ai.korkem_ai import usage as ledger
+
+		ledger.record_attempt(
+			provider=row.get("provider") or row["name"],
+			model=row.get("model"),
+			scope=row.get("scope") or USER,
+			attempt=attempt,
+			status=status,
+			started=started,
+			usage=usage,
+			fallback_from=previous,
+			# Класс ошибки, а не её текст: текст провайдера может содержать
+			# что угодно, включая обрывки запроса человека.
+			fallback_reason=type(exc).__name__ if exc else None,
+			error_code=getattr(exc, "code", None) if exc else None,
+			turn_id=turn_id,
+		)
+	except Exception:
+		pass
 
 
 def _adapter(row: dict):

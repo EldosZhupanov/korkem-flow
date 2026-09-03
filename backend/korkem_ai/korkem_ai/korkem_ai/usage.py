@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import random
 import string
+import time
 
 import frappe
 
@@ -62,8 +63,15 @@ def record(
 	conversation: str | None = None,
 	channel: str = "App",
 	user: str | None = None,
+	extra: dict | None = None,
 ) -> str | None:
 	"""Write one row for one finished turn. Never raises.
+
+	`extra` — поля попытки: чей ключ, какая по счёту, с кого переключились и
+	почему. Отдельный словарь, а не десять аргументов: их пишет только роутер,
+	и остальным вызывающим они не нужны. Ключи, которых нет в доктайпе,
+	отбрасываются молча — вызывающий не должен падать из-за поля, которое ещё
+	не завели.
 
 	Returns the row's name, or `None` if it could not be written — which is
 	information for a log, not for the caller, who has real work to finish.
@@ -81,6 +89,7 @@ def record(
 			conversation=conversation,
 			channel=channel,
 			user=user or frappe.session.user,
+			extra=extra,
 		)
 		frappe.db.release_savepoint(savepoint)
 		return name
@@ -208,6 +217,19 @@ def record_failure(
 	)
 
 
+def _known_fields(extra: dict | None) -> dict:
+	"""Только те поля, что и правда есть в доктайпе.
+
+	Журнал не имеет права стать причиной падения: вызывающий занят настоящей
+	работой, а неизвестное поле — это наша недоделанная миграция, а не его
+	ошибка.
+	"""
+	if not extra:
+		return {}
+	meta = frappe.get_meta(DOCTYPE)
+	return {k: v for k, v in extra.items() if v is not None and meta.has_field(k)}
+
+
 def _default_provider() -> str | None:
 	"""The configured provider name, or None. Never raises."""
 	try:
@@ -227,6 +249,7 @@ def _insert(
 	conversation: str | None,
 	channel: str,
 	user: str,
+	extra: dict | None = None,
 ) -> str:
 	if request_id:
 		existing = frappe.db.get_value(DOCTYPE, {"request_id": request_id}, "name")
@@ -254,6 +277,7 @@ def _insert(
 			"cost_basis": basis,
 			"estimated_cost": cost,
 			"cost_currency": currency,
+			**_known_fields(extra),
 		}
 	)
 	# Nobody holds write permission on this doctype, deliberately: a user who
@@ -341,3 +365,146 @@ def spent_today_by_company(company: str | None = None) -> dict:
 		as_dict=True,
 	)[0]
 	return {"tokens": int(row.tokens), "cost": float(row.cost), "turns": int(row.turns)}
+
+
+def record_attempt(
+	*,
+	provider: str,
+	model: str | None,
+	scope: str,
+	attempt: int,
+	status: str,
+	started: float,
+	usage: AIUsage | None = None,
+	fallback_from: str | None = None,
+	fallback_reason: str | None = None,
+	error_code: str | None = None,
+	turn_id: str | None = None,
+	request_id: str | None = None,
+) -> str | None:
+	"""Одна попытка обращения к модели — успешная или нет.
+
+	## Зачем отдельно от `record`
+
+	`record` пишет **завершённый ход**: сколько он стоил и чем кончился. Этого
+	достаточно для счёта и недостаточно для вопроса «почему стало медленно».
+	Ход, ответивший с третьей попытки, в нём выглядит как обычный, и по такому
+	журналу нельзя узнать ни что первые два провайдера отказали, ни сколько
+	ходов вообще дошло до нашего оплачиваемого резерва.
+
+	Строка на попытку отвечает ровно на это. Она же — основа счёта: платим мы
+	только за строки с `scope = server`.
+
+	## Чего здесь не будет никогда
+
+	Ни вопроса человека, ни ответа модели, ни аргументов инструментов, ни ключа.
+	Причина отказа записывается **классом ошибки**, а не текстом провайдера:
+	текст может содержать что угодно, включая обрывки запроса.
+	"""
+	latency = int((time.monotonic() - started) * 1000)
+	return record(
+		usage,
+		provider=provider,
+		model=model,
+		status=status,
+		turn_id=turn_id,
+		request_id=request_id,
+		extra={
+			"credential_scope": scope,
+			"attempt": attempt,
+			"fallback_from": fallback_from,
+			"fallback_reason": fallback_reason,
+			"provider_error_code": error_code,
+			"latency_ms": latency,
+		},
+	)
+
+
+def metrics(days: int = 30) -> dict:
+	"""Ответы на вопросы, на которые иначе отвечают догадками.
+
+	Считается по строкам попыток, а не по завершённым ходам: ход, ответивший с
+	третьей попытки, в журнале ходов выглядит как обычный, и по нему нельзя
+	узнать ни что два провайдера отказали, ни сколько ходов дошло до
+	оплачиваемого резерва.
+
+	`days` — окно. Тридцать дней по умолчанию, потому что счёт приходит за
+	месяц; для суточного вопроса передают единицу.
+
+	Слова статуса те же, что у завершённых ходов — `answered` и `failed`. Свой
+	словарь для попыток означал бы два способа сказать одно и то же в одной
+	таблице.
+	"""
+	since = frappe.utils.add_days(frappe.utils.nowdate(), -abs(days))
+	rows = frappe.get_all(
+		DOCTYPE,
+		filters={"creation": [">=", since]},
+		fields=[
+			"provider",
+			"model",
+			"status",
+			"credential_scope",
+			"attempt",
+			"fallback_reason",
+			"latency_ms",
+			"input_tokens",
+			"output_tokens",
+			"estimated_cost",
+			"creation",
+		],
+		limit_page_length=0,
+	)
+
+	attempts = [r for r in rows if r["attempt"]]
+	first_try = [r for r in attempts if r["attempt"] == 1 and r["status"] == "answered"]
+	server = [r for r in attempts if r["credential_scope"] == "server"]
+	server_success = [r for r in server if r["status"] == "answered"]
+	latencies = sorted(r["latency_ms"] for r in attempts if r["latency_ms"])
+
+	by_reason: dict[str, int] = {}
+	for row in attempts:
+		if row["fallback_reason"]:
+			by_reason[row["fallback_reason"]] = by_reason.get(row["fallback_reason"], 0) + 1
+
+	by_model: dict[str, dict] = {}
+	for row in attempts:
+		key = f"{row['provider']} · {row['model']}"
+		bucket = by_model.setdefault(
+			key, {"attempts": 0, "input_tokens": 0, "output_tokens": 0, "cost": 0.0}
+		)
+		bucket["attempts"] += 1
+		bucket["input_tokens"] += row["input_tokens"] or 0
+		bucket["output_tokens"] += row["output_tokens"] or 0
+		bucket["cost"] += row["estimated_cost"] or 0
+
+	month_start = frappe.utils.get_first_day(frappe.utils.nowdate())
+	today = frappe.utils.nowdate()
+
+	def spend(rows_, since_date):
+		return round(
+			sum(
+				(r["estimated_cost"] or 0)
+				for r in rows_
+				if frappe.utils.getdate(r["creation"]) >= frappe.utils.getdate(since_date)
+			),
+			4,
+		)
+
+	return {
+		"window_days": abs(days),
+		"attempts": len(attempts),
+		# Ходы, которым хватило первого же провайдера. Чем ближе к общему числу,
+		# тем спокойнее живёт человек: переключение стоит ему ожидания.
+		"answered_first_try": len(first_try),
+		"fallbacks": len([r for r in attempts if r["attempt"] > 1]),
+		"reached_korkem_reserve": len(server),
+		# Доля, за которую платим мы. Это и есть себестоимость ассистента.
+		"server_share": round(len(server) / len(attempts), 4) if attempts else 0,
+		"server_answered": len(server_success),
+		"by_failure": by_reason,
+		"by_model": by_model,
+		"latency_avg_ms": round(sum(latencies) / len(latencies)) if latencies else None,
+		"latency_p95_ms": latencies[int(len(latencies) * 0.95)] if latencies else None,
+		"server_cost_today": spend(server, today),
+		"server_cost_month": spend(server, month_start),
+	}

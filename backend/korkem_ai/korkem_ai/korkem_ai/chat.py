@@ -261,7 +261,9 @@ def run_turn_job(
 			messages.extend(_carry_out(approved_calls, publish))
 
 		adapter = llm.resolve(provider, model)
-		result = loop.run_turn(messages, provider=adapter, on_event=publish)
+		result = loop.run_turn(
+			messages, provider=adapter, on_event=publish, run_id=turn_id
+		)
 	except Exception as exc:
 		code = errors.classify(exc)
 		frappe.log_error(title="AI chat turn failed", message=frappe.get_traceback())
