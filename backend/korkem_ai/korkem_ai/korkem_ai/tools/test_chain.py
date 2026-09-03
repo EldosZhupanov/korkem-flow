@@ -84,3 +84,48 @@ class TestTheChainIsReachable(IntegrationTestCase):
 				source,
 				f"{forbidden} в обёртке означает правило, продублированное мимо сервиса",
 			)
+
+	def test_converting_a_note_really_makes_an_enquiry(self):
+		"""Проверять объявление инструмента мало: он должен работать.
+
+		Первая версия этих тестов смотрела только на уровень риска — то есть
+		прошла бы и на обёртке, которая ничего не вызывает.
+		"""
+		said = registry.execute(
+			"chain.record_capture",
+			{"text": "Шкаф-купе", "customer_hint": f"Клиент {frappe.generate_hash(length=6)}"},
+		)["data"]["capture"]
+
+		result = registry.execute("chain.convert_capture", {"capture": said})
+
+		self.assertTrue(result["ok"], result)
+		enquiry = result["data"]["enquiry"]
+		self.assertTrue(frappe.db.exists("Opportunity", enquiry))
+
+	def test_recording_a_measurement_puts_the_address_where_delivery_looks(self):
+		said = registry.execute(
+			"chain.record_capture",
+			{"text": "Кухня", "customer_hint": f"Клиент {frappe.generate_hash(length=6)}"},
+		)["data"]["capture"]
+		enquiry = registry.execute("chain.convert_capture", {"capture": said})["data"][
+			"enquiry"
+		]
+
+		result = registry.execute(
+			"chain.record_measurement",
+			{
+				"enquiry": enquiry,
+				"dimensions": "3200x600",
+				"address_line": "проспект Абая 15",
+				"city": "Астана",
+			},
+		)
+
+		self.assertTrue(result["ok"], result)
+		self.assertTrue(result["data"]["address"], "адрес не стал адресом")
+
+	def test_a_refusal_from_the_service_reaches_the_assistant_as_a_refusal(self):
+		"""Отказ сервиса не должен превращаться в «ок» по дороге."""
+		result = registry.execute("chain.record_measurement", {"enquiry": "OPP-НЕТ-ТАКОЙ"})
+
+		self.assertFalse(result["ok"], result)
