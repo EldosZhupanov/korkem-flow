@@ -4,6 +4,10 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Уведомления. `google-services.json` рядом с этим файлом содержит два
+    // приложения одного проекта Firebase, и плагин сам выбирает то, чей пакет
+    // совпадает с applicationId ниже.
+    id("com.google.gms.google-services")
 }
 
 // Release signing credentials, kept out of the repository.

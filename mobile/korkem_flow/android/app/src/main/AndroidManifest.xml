@@ -14,6 +14,11 @@
          запуске: просить доступ к микрофону у человека, который ещё ничего не
          сделал, — верный способ получить отказ навсегда. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Уведомления. С Android 13 это отдельное разрешение, и без него
+         система молча не показывает ничего. Спрашивается после входа, а не при
+         запуске: до входа человеку нечего сообщать, а отказ на пустом месте
+         возвращается только через настройки телефона. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="KORKEM Flow"
         android:name="${applicationName}"

@@ -21,6 +21,10 @@ plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.android.application") version "9.0.1" apply false
     id("org.jetbrains.kotlin.android") version "2.3.20" apply false
+    // Читает android/app/google-services.json и раздаёт из него идентификаторы
+    // проекта в сборку. Без плагина файл лежит без дела, и Firebase на старте
+    // падает с «no Firebase App has been created».
+    id("com.google.gms.google-services") version "4.5.0" apply false
 }
 
 include(":app")

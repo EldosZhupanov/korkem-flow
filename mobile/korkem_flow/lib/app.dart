@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/core/push/push_registration.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -17,6 +18,12 @@ class KorkemFlowApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsControllerProvider);
+
+    // Держит подписку на уведомления живой на всё время работы приложения.
+    // Провайдер сам слушает вход и выход; без этой строки он не создаётся
+    // никогда, и адрес телефона до узла не доходит — а узнать об этом можно
+    // было бы только по тому, что уведомления не приходят.
+    ref.watch(pushRegistrationProvider);
 
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,

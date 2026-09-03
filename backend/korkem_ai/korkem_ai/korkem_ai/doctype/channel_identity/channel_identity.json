@@ -24,8 +24,9 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Channel",
-   "options": "Telegram\nWhatsApp",
-   "reqd": 1
+   "options": "Telegram\nWhatsApp\nPush",
+   "reqd": 1,
+   "description": "Push — это приложение на телефоне человека, а external_id — адрес устройства от Firebase. У одного человека их столько, сколько устройств: телефон в цехе и телефон дома — две записи."
   },
   {
    "description": "The channel's own identifier — a Telegram user id or a phone number in international format. Matched exactly; never by name.",

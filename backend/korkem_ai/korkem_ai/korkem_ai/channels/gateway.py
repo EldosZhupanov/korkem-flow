@@ -56,6 +56,9 @@ from korkem_ai.korkem_ai.tools import policy
 #: recorded from any source names its origin in one vocabulary.
 TELEGRAM = "Telegram"
 WHATSAPP = "WhatsApp"
+#: Приложение на телефоне человека. Не мессенджер: сюда уходит сигнал,
+#: а не сообщение — см. `integrations/push.py`.
+PUSH = "Push"
 
 CONVERSATION = "Agent Conversation"
 MESSAGE = "Agent Conversation Message"
@@ -546,4 +549,14 @@ def deliver(
 		from korkem_ai.korkem_ai.integrations import whatsapp
 
 		return whatsapp.send_message(chat_id, text, confirm_for=confirm_for, ask=ask)
+	if channel == PUSH:
+		from korkem_ai.korkem_ai.integrations import push
+
+		# `text` сюда доходит и здесь же остаётся. Push идёт через серверы
+		# Google, а мы обещаем клиенту, что содержание его работы не покидает
+		# здания (R6): наружу уходит только признак события, а текст человек
+		# читает в приложении, забрав его со своего узла. Кнопки подтверждения
+		# по той же причине не отправляются — согласиться с предложением можно
+		# в приложении, где видно, с чем именно соглашаешься.
+		return push.send(chat_id)
 	frappe.throw(f"No adapter for channel {channel}")

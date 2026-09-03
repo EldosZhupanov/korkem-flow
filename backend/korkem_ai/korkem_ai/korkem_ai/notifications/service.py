@@ -54,7 +54,11 @@ DELIVERY = "Notification Delivery"
 #: Which chat channel to try first. A `Channel Identity` may carry its own
 #: `priority`, and this is the tie-break when several are equal — Telegram first
 #: because a bot message is free and a WhatsApp template message is not.
-CHANNEL_ORDER = ("Telegram", "WhatsApp")
+#: Порядок предпочтения. Push последний намеренно: он будит телефон, но
+#: ничего не рассказывает — человек обязан открыть приложение. Telegram
+#: и WhatsApp доносят саму новость, и если человек привязал мессенджер,
+#: это для него быстрее.
+CHANNEL_ORDER = ("Telegram", "WhatsApp", "Push")
 
 
 def identities_for(user: str) -> list[dict]:

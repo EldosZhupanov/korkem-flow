@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
@@ -5,7 +6,7 @@ import 'package:korkem_flow/core/auth/auth_credentials.dart';
 import 'package:korkem_flow/core/auth/auth_repository.dart';
 import 'package:korkem_flow/core/auth/credential_store.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
-import 'package:meta/meta.dart';
+import 'package:korkem_flow/core/push/push_registration.dart';
 
 /// Who is signed in, and against which site.
 ///
@@ -120,6 +121,15 @@ class SessionController extends AsyncNotifier<Session> {
     final current = state.value;
     final credentials = current?.credentials;
     final serverUrl = current?.serverUrl ?? ref.read(appConfigProvider).baseUrl;
+
+    // Пока доступ ещё есть: сказать узлу, что на этот телефон присылать больше
+    // не надо. Ниже доступ будет стёрт, и сказать это станет нечем. Обёрнуто
+    // так, чтобы никакая беда с уведомлениями не помешала человеку выйти.
+    try {
+      await ref.read(pushRegistrationProvider).withdrawNow();
+    } on Object catch (error) {
+      debugPrint('Push withdrawal on sign-out failed: $error');
+    }
 
     try {
       if (credentials != null) {

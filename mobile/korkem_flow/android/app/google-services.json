@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1028860068560",
+    "project_id": "korkem-2c814",
+    "storage_bucket": "korkem-2c814.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028860068560:android:3eac7707426faca19f94d5",
+        "android_client_info": {
+          "package_name": "com.korkem.appkorkem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATPYKWAesQaH1mR7VPJHn5PNJ_GbYn4fg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028860068560:android:0c204d5b33f8b8349f94d5",
+        "android_client_info": {
+          "package_name": "kz.korkem.korkem_flow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATPYKWAesQaH1mR7VPJHn5PNJ_GbYn4fg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

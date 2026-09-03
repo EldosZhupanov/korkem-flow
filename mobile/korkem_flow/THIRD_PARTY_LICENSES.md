@@ -58,6 +58,26 @@ rather than designed.
 
 ## Plugins
 
+### firebase_core, firebase_messaging
+
+| | |
+|---|---|
+| **Packages** | `firebase_core` (4.14.0), `firebase_messaging` (16.6.0), pub.dev |
+| **License** | BSD-3-Clause — `Copyright 2017 The Chromium Authors` |
+| **Source** | https://github.com/firebase/flutterfire |
+| **Purpose** | Уведомление на телефон о том, что на узле что-то произошло |
+
+Взяты ради одного: разбудить приложение. Содержания в уведомлении нет и быть не
+должно — push идёт через серверы Google, а завод нам доверил обратное. Что
+именно уходит наружу и почему так мало, написано в
+`backend/korkem_ai/korkem_ai/korkem_ai/integrations/push.py`, и это закреплено
+двумя проверками, которые ловят любую попытку добавить туда текст.
+
+Проект Firebase принадлежит владельцу узла — как ключ ИИ и токен Telegram.
+`android/app/google-services.json` не секрет: это открытые идентификаторы
+проекта, они и так уезжают внутри APK. Настоящий секрет — ключ сервисного
+аккаунта — живёт в настройках узла зашифрованным и в репозиторий не попадает.
+
 ### image_picker
 
 | | |
