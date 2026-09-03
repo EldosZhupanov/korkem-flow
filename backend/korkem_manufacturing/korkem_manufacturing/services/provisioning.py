@@ -223,6 +223,8 @@ def _run_erpnext_setup(
 	"""Hand the whole company build to ERPNext, exactly as the desk does."""
 	from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
 
+	_refuse_crm_demo_data()
+
 	first_name, _, last_name = owner_name.partition(" ")
 	setup_complete(
 		{
@@ -246,6 +248,45 @@ def _run_erpnext_setup(
 			),
 		}
 	)
+
+
+#: Frappe CRM's own state flag, by its name in `crm/demo/api.py`. Ours to read
+#: and set, never to rename: it is upstream's, and the only reason we know it is
+#: that upstream returns early when it is set.
+CRM_DEMO_STATE_KEY = "crm_demo_data_created"
+
+
+def _refuse_crm_demo_data() -> None:
+	"""Frappe CRM seeds a fake sales team when the wizard finishes. Not here.
+
+	`crm/hooks.py` registers
+
+	    setup_wizard_complete = "crm.demo.api.create_demo_data"
+
+	and that hook fires on **every** site whose setup wizard completes — ours
+	included, because claiming a node *is* running that wizard. On the first
+	real installation (api.korkem.asia, 2026-09-03) it produced three fake
+	salespeople, twelve leads, seven deals, seven organisations and eleven
+	contacts on a node whose environment is `pilot`, minutes after a real
+	company took it. None of them could sign in — they have no passwords — but
+	they were in the owner's lists, and one of them held Sales Manager.
+
+	Our own environment guard does not reach this. `require_non_production`
+	protects the fixtures *we* wrote; this hook belongs to a vendored app, and
+	vendored trees are not ours to edit.
+
+	Upstream's own early return is the lever: `create_demo_data` does nothing
+	when its state flag is already set. Setting it first means the data is never
+	created, rather than created and then deleted — which matters, because
+	deleting afterwards leaves the creation in the audit trail of a client's
+	production system.
+
+	Unconditional on purpose, and not gated on the environment: claiming a node
+	is a real company taking it, and a real company never wants somebody else's
+	demonstration data. A developer who wants CRM's demo set can clear the flag
+	and call the hook by hand.
+	"""
+	frappe.db.set_default(CRM_DEMO_STATE_KEY, "1")
 
 
 def _wizard_language(language: str) -> str:

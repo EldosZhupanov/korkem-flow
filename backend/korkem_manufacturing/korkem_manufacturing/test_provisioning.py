@@ -240,3 +240,81 @@ class TestTheGuestWhoBuildsTheCompany(IntegrationTestCase):
 			"Guest",
 			"повышение прав, которое переживает ошибку, — это дыра, а не удобство",
 		)
+
+
+class TestNobodyElsesDemoData(IntegrationTestCase):
+	"""Присвоение узла не должно приносить чужую демонстрацию.
+
+	Найдено первой настоящей установкой 3 сентября 2026. Через минуту после
+	того, как компания заняла узел, на нём оказались три несуществующих
+	сотрудника, двенадцать заявок, семь сделок, семь организаций и одиннадцать
+	контактов. Ни один из сотрудников не мог войти — паролей у них нет, — но
+	они стояли в списках владельца, и один держал роль Sales Manager.
+
+	Источник не наш: `crm/hooks.py` регистрирует
+	`setup_wizard_complete = "crm.demo.api.create_demo_data"`, и хук срабатывает
+	на любом сайте, чей мастер настройки завершился. Присвоение узла — это и
+	есть завершение мастера. Наша защита пилота сюда не достаёт: она прикрывает
+	фикстуры, которые написали мы.
+
+	Рычаг — собственный ранний возврат upstream: при уже поднятом флаге он не
+	делает ничего. Поэтому проверяется не «удалили после», а «не создавали
+	вовсе»: удаление осталось бы в истории боевой системы клиента.
+	"""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+
+	def test_the_flag_is_up_before_the_wizard_runs_not_after(self):
+		"""Порядок здесь и есть содержание проверки.
+
+		Флаг **снимается перед проверкой**, и это не формальность. Первая
+		версия этого теста его не снимала — а на стенде разработки он уже стоял
+		от прошлых запусков, поэтому тест проходил и с починкой, и без неё.
+		Поймано мутацией: убрал вызов, тест остался зелёным. Проверка, которая
+		проходит при сломанном коде, хуже отсутствующей — она создаёт
+		уверенность.
+		"""
+		before = frappe.db.get_default(provisioning.CRM_DEMO_STATE_KEY)
+		frappe.db.set_default(provisioning.CRM_DEMO_STATE_KEY, "")
+		self.addCleanup(
+			frappe.db.set_default, provisioning.CRM_DEMO_STATE_KEY, before or ""
+		)
+		self.assertFalse(
+			frappe.db.get_default(provisioning.CRM_DEMO_STATE_KEY),
+			"флаг должен быть снят, иначе проверка ниже ничего не проверяет",
+		)
+
+		seen = {}
+
+		def spy(_args=None, **_kwargs):
+			seen["flag"] = frappe.db.get_default(provisioning.CRM_DEMO_STATE_KEY)
+
+		with (
+			patch.object(provisioning, "is_claimed", return_value=False),
+			patch(
+				"frappe.desk.page.setup_wizard.setup_wizard.setup_complete",
+				spy,
+			),
+		):
+			provisioning._run_erpnext_setup(
+				company="Проверка флага",
+				owner_email="flag@example.com",
+				owner_name="Проверка",
+				owner_password="не-читается",
+				country="Kazakhstan",
+				currency="KZT",
+				timezone="Asia/Almaty",
+				language="ru",
+			)
+
+		self.assertEqual(
+			seen.get("flag"),
+			"1",
+			"флаг CRM должен стоять до запуска мастера: иначе демонстрационные "
+			"данные создаются, и удалять их придётся уже из боевой системы",
+		)
+
+	def test_the_key_is_upstreams_own_name(self):
+		"""Переименуем — и предохранитель перестанет срабатывать молча."""
+		self.assertEqual(provisioning.CRM_DEMO_STATE_KEY, "crm_demo_data_created")
