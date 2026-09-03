@@ -29,7 +29,7 @@ from __future__ import annotations
 import frappe
 
 from korkem_ai.korkem_ai.tools.registry import Risk, ToolSpec, register
-from korkem_ai.korkem_ai.tools import scope
+from korkem_ai.korkem_ai.tools import paging, scope
 from korkem_ai.korkem_ai.tools.scope import ensure_company, scoped
 
 MAX_LIMIT = 50
@@ -77,7 +77,7 @@ def search_sales_orders(
 		limit=_limit(limit),
 		order_by="transaction_date desc",
 	)
-	return {"sales_orders": rows, "count": len(rows)}
+	return {"sales_orders": rows, **paging.page(rows, "Sales Order", scoped(filters))}
 
 
 #: Sales Order statuses that are no longer live work.
@@ -242,7 +242,7 @@ def search_work_orders(
 	)
 	for row in rows:
 		row["remaining_qty"] = round((row["qty"] or 0) - (row["produced_qty"] or 0), 3)
-	return {"work_orders": rows, "count": len(rows)}
+	return {"work_orders": rows, **paging.page(rows, "Work Order", scoped(filters))}
 
 
 # --------------------------------------------------------------------------
@@ -277,7 +277,7 @@ def get_stock(item_codes: list | None = None, warehouse: str | None = None):
 		],
 		limit=MAX_LIMIT,
 	)
-	return {"stock": rows, "count": len(rows)}
+	return {"stock": rows, **paging.page(rows, "Bin", scoped(filters))}
 
 
 # --------------------------------------------------------------------------

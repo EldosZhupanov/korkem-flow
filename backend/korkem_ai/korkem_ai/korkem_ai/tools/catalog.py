@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import frappe
 
-from korkem_ai.korkem_ai.tools import registry
+from korkem_ai.korkem_ai.tools import paging, registry
 from korkem_ai.korkem_ai.tools.registry import Risk, ToolSpec, register
 
 #: Hard ceiling on rows returned to a model, whatever it asks for.
@@ -87,7 +87,7 @@ def search_deals(status: str | None = None, search: str | None = None, limit: in
 		limit=_limit(limit),
 		order_by="modified desc",
 	)
-	return {"deals": rows, "count": len(rows)}
+	return {"deals": rows, **paging.page(rows, "CRM Deal", filters)}
 
 
 def get_deal(name: str):
@@ -119,7 +119,7 @@ def search_organizations(search: str | None = None, limit: int | None = None):
 		limit=_limit(limit),
 		order_by="modified desc",
 	)
-	return {"organizations": rows, "count": len(rows)}
+	return {"organizations": rows, **paging.page(rows, "CRM Organization", filters)}
 
 
 def search_leads(status: str | None = None, search: str | None = None, limit: int | None = None):
@@ -136,7 +136,7 @@ def search_leads(status: str | None = None, search: str | None = None, limit: in
 		limit=_limit(limit),
 		order_by="modified desc",
 	)
-	return {"leads": rows, "count": len(rows)}
+	return {"leads": rows, **paging.page(rows, "CRM Lead", filters)}
 
 
 # --------------------------------------------------------------------------
@@ -187,7 +187,7 @@ def list_tasks(
 	# echoes back something that round-trips through JSON unchanged.
 	for row in rows:
 		row["name"] = str(row["name"])
-	return {"tasks": rows, "count": len(rows)}
+	return {"tasks": rows, **paging.page(rows, "CRM Task", filters)}
 
 
 # --------------------------------------------------------------------------
@@ -216,7 +216,7 @@ def list_work_orders(status: str | None = None, limit: int | None = None):
 		limit=_limit(limit),
 		order_by="planned_end_date asc",
 	)
-	return {"work_orders": rows, "count": len(rows)}
+	return {"work_orders": rows, **paging.page(rows, "Work Order", filters)}
 
 
 # --------------------------------------------------------------------------
@@ -523,7 +523,7 @@ def search_users(search: str | None = None, limit: int | None = None):
 		limit=_limit(limit),
 		order_by="full_name asc",
 	)
-	return {"users": rows, "count": len(rows)}
+	return {"users": rows, **paging.page(rows, "User", filters)}
 
 
 register(
@@ -717,6 +717,7 @@ register(
 # Sales, manufacturing and stock. Imported here so the catalogue stays the one
 # place tools are registered — the agent loop imports this module and gets all
 # of them, rather than each caller remembering a list.
+from korkem_ai.korkem_ai.tools import chain  # noqa: E402,F401  (import registers)
 from korkem_ai.korkem_ai.tools import erp  # noqa: E402,F401  (import registers)
 from korkem_ai.korkem_ai.tools import procurement  # noqa: E402,F401  (import registers)
 from korkem_ai.korkem_ai.tools import control  # noqa: E402,F401  (import registers)
