@@ -9,6 +9,7 @@ from frappe.tests import IntegrationTestCase
 
 from korkem_manufacturing.api import attention as api
 from korkem_manufacturing.services import attention as service
+from korkem_manufacturing.services.attention import TASK_DOCTYPE
 from korkem_manufacturing.services import capture as capture_service
 
 
@@ -104,3 +105,32 @@ class TestScope(IntegrationTestCase):
 
 		self.assertEqual(set(inspect.signature(service.today).parameters), set())
 		self.assertEqual(set(inspect.signature(api.today).parameters), set())
+
+
+class TestATaskWithoutADeadline(IntegrationTestCase):
+	"""Задача без срока не просрочена — сколько бы её ни откладывали.
+
+	Найдено прогоном, а не рассуждением. `due_date` у задачи CRM — Datetime, и
+	фильтр «меньше сегодняшней даты» пропускает строки, где срока нет вовсе:
+	и `get_list`, и `get_all` возвращают их наравне с настоящими. Список
+	показывает двадцать самых старых, и на стенде, где таких задач накопилось,
+	они вытеснили настоящие целиком — экран показывал двадцать «просроченных»
+	задач без единого дедлайна.
+	"""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+
+	def test_a_task_with_no_due_date_is_not_overdue(self):
+		captured = capture_service.record(
+			text="Задача без срока",
+			assign_to="Administrator",
+		)["capture"]
+		task = frappe.db.get_value("Capture", captured, "task")
+		frappe.db.set_value(TASK_DOCTYPE, task, "due_date", None)
+
+		overdue = service.today()["overdue_tasks"]
+
+		self.assertNotIn(captured, {row["on"] for row in overdue})
+		# И ни одна строка в ответе не приходит без срока.
+		self.assertTrue(all(row["was_due"] for row in overdue))

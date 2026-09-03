@@ -79,11 +79,19 @@ def _overdue_tasks() -> list[dict]:
 	"""
 	rows = frappe.get_list(
 		TASK_DOCTYPE,
-		filters={
-			"status": ["!=", "Done"],
-			"due_date": ["<", frappe.utils.nowdate()],
-			"reference_doctype": ["in", ["Capture", "Sales Order"]],
-		},
+		filters=[
+			[TASK_DOCTYPE, "status", "!=", "Done"],
+			# Срок должен быть задан, и это приходится сказать отдельно.
+			# `due_date` у задачи — Datetime, и сравнение «меньше даты» пропускает
+			# строки, где срока нет вовсе: и `get_list`, и `get_all` возвращают
+			# их наравне с настоящими. На экране владельца это выглядело как
+			# двадцать просроченных задач без единого дедлайна, вытеснявших
+			# настоящие — список показывает двадцать самых старых. Найдено
+			# прогоном на стенде, где таких задач накопилось.
+			[TASK_DOCTYPE, "due_date", "is", "set"],
+			[TASK_DOCTYPE, "due_date", "<", frappe.utils.nowdate()],
+			[TASK_DOCTYPE, "reference_doctype", "in", ["Capture", "Sales Order"]],
+		],
 		fields=["name", "title", "assigned_to", "due_date", "reference_doctype", "reference_docname"],
 		order_by="due_date asc",
 		limit_page_length=20,
