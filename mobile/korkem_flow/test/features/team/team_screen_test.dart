@@ -17,11 +17,13 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 class _FakeTeamRepository extends TeamRepository {
   _FakeTeamRepository({
     required this.fetchMembersHandler,
+    this.positionsHandler,
     this.inviteHandler,
   }) : super(dummyClient);
 
   static final dummyClient = FrappeClient(Dio());
   final Future<List<TeamMember>> Function() fetchMembersHandler;
+  final Future<List<PositionOption>> Function()? positionsHandler;
   final Future<TeamInviteResult> Function(
     String email,
     String firstName,
@@ -30,24 +32,56 @@ class _FakeTeamRepository extends TeamRepository {
   inviteHandler;
 
   @override
+  Future<List<PositionOption>> fetchPositions() {
+    if (positionsHandler != null) {
+      return positionsHandler!();
+    }
+    return Future.value(const [
+      PositionOption(
+        position: 'shop_floor',
+        roles: ['Manufacturing User', 'Stock User'],
+      ),
+      PositionOption(
+        position: 'manager',
+        roles: ['Sales Manager'],
+      ),
+      PositionOption(
+        position: 'warehouse',
+        roles: ['Stock User'],
+      ),
+      PositionOption(
+        position: 'accountant',
+        roles: ['Accounts User'],
+      ),
+    ]);
+  }
+
+  @override
   Future<List<TeamMember>> fetchTeamMembers() => fetchMembersHandler();
 
   @override
   Future<TeamInviteResult> inviteEmployee({
     required String email,
-    required EmployeePosition position,
+    required dynamic position,
     String firstName = '',
   }) {
+    final ep = position is EmployeePosition
+        ? position
+        : EmployeePosition.fromId('$position');
     if (inviteHandler != null) {
-      return inviteHandler!(email, firstName, position);
+      return inviteHandler!(email, firstName, ep);
     }
     return Future.value(
       TeamInviteResult(
         user: email,
         company: 'KORKEM',
         created: true,
-        position: position,
+        position: ep,
         rolesAdded: const [],
+        nextStep:
+            'Set a password for this account in the desk '
+            '(User → Set New Password), or configure SMTP '
+            "and use Frappe's password reset.",
       ),
     );
   }
@@ -313,6 +347,162 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Пока вы один'), findsOneWidget);
+  });
+
+  testWidgets(
+    'positions in dropdown are fetched dynamically from server endpoint',
+    (tester) async {
+      final repo = _FakeTeamRepository(
+        fetchMembersHandler: () async => [
+          const TeamMember(
+            email: 'owner@korkem.kz',
+            firstName: 'Aidos',
+            fullName: 'Aidos Owner',
+            position: EmployeePosition.owner,
+            roles: ['System Manager'],
+            enabled: true,
+          ),
+        ],
+        positionsHandler: () async => [
+          const PositionOption(
+            position: 'custom_role',
+            roles: ['Custom Permission Role'],
+          ),
+          const PositionOption(
+            position: 'manager',
+            roles: ['Sales Manager'],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Пригласить сотрудника').first);
+      await tester.pumpAndSettle();
+
+      // Tap the dropdown
+      await tester.tap(find.text('custom_role'));
+      await tester.pumpAndSettle();
+
+      // Verify server position exists
+      expect(find.text('custom_role'), findsWidgets);
+      expect(find.text('Менеджер'), findsWidgets);
+
+      // Verify positions not returned by server are NOT shown
+      expect(find.text('Бухгалтер'), findsNothing);
+      expect(find.text('Кладовщик'), findsNothing);
+    },
+  );
+
+  testWidgets('shows server next_step and password_not_set on success', (
+    tester,
+  ) async {
+    final repo = _FakeTeamRepository(
+      fetchMembersHandler: () async => [
+        const TeamMember(
+          email: 'owner@korkem.kz',
+          firstName: 'Aidos',
+          fullName: 'Aidos Owner',
+          position: EmployeePosition.owner,
+          roles: ['System Manager'],
+          enabled: true,
+        ),
+      ],
+      inviteHandler: (email, name, position) async => TeamInviteResult(
+        user: email,
+        company: 'KORKEM',
+        created: true,
+        position: position,
+        rolesAdded: const ['Stock User'],
+        nextStep:
+            'Set a password for this account in the desk '
+            '(User → Set New Password), or configure SMTP '
+            "and use Frappe's password reset.",
+      ),
+    );
+
+    await tester.pumpWidget(buildHarness(tester, repository: repo));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Пригласить сотрудника').first);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Электронная почта'),
+      'warehouse@korkem.kz',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Имя сотрудника'),
+      'Nurlan',
+    );
+
+    await tester.tap(find.text('Отправить приглашение'));
+    await tester.pumpAndSettle();
+
+    // Verify success dialog
+    expect(find.text('Сотрудник приглашён'), findsOneWidget);
+    expect(find.text('Следующий шаг'), findsOneWidget);
+    expect(
+      find.text(
+        'Set a password for this account in the desk '
+        '(User → Set New Password), or configure SMTP '
+        "and use Frappe's password reset.",
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Пароль не установлен'), findsOneWidget);
+
+    // Close success dialog
+    await tester.tap(find.text('Закрыть'));
+    await tester.pumpAndSettle();
+    expect(find.text('Сотрудник приглашён'), findsNothing);
+  });
+
+  testWidgets('shows exact server refusal message on invite error', (
+    tester,
+  ) async {
+    final repo = _FakeTeamRepository(
+      fetchMembersHandler: () async => [
+        const TeamMember(
+          email: 'owner@korkem.kz',
+          firstName: 'Aidos',
+          fullName: 'Aidos Owner',
+          position: EmployeePosition.owner,
+          roles: ['System Manager'],
+          enabled: true,
+        ),
+      ],
+      inviteHandler: (email, name, position) async {
+        throw const ValidationFailure(
+          'Unknown position. '
+          'Choose manager, warehouse, accountant or shop_floor.',
+        );
+      },
+    );
+
+    await tester.pumpWidget(buildHarness(tester, repository: repo));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Пригласить сотрудника').first);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Электронная почта'),
+      'bad@korkem.kz',
+    );
+
+    await tester.tap(find.text('Отправить приглашение'));
+    await tester.pumpAndSettle();
+
+    // Verify server's exact refusal message is shown verbatim
+    expect(
+      find.text(
+        'Unknown position. '
+        'Choose manager, warehouse, accountant or shop_floor.',
+      ),
+      findsOneWidget,
+    );
   });
 }
 

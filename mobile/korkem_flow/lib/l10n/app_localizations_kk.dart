@@ -426,9 +426,25 @@ class AppLocalizationsKk extends AppLocalizations {
   String get teamInviteSuccess => 'Шақыру жіберілді';
 
   @override
+  String get teamInviteSuccessTitle => 'Қызметкер шақырылды';
+
+  @override
   String teamInviteSuccessDetail(String name, String position) {
     return '$name қызметкері «$position» лауазымымен қосылды';
   }
+
+  @override
+  String get teamNextStepTitle => 'Келесі қадам';
+
+  @override
+  String get teamPasswordNotSet => 'Құпия сөз орнатылмаған';
+
+  @override
+  String get teamPositionsLoading => 'Лауазымдар жүктелуде...';
+
+  @override
+  String get teamPositionsLoadError =>
+      'Лауазымдар тізімін жүктеу мүмкін болмады';
 
   @override
   String get teamForbiddenTitle => 'Тек иесі үшін';

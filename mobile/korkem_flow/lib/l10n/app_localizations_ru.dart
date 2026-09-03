@@ -438,9 +438,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teamInviteSuccess => 'Приглашение отправлено';
 
   @override
+  String get teamInviteSuccessTitle => 'Сотрудник приглашён';
+
+  @override
   String teamInviteSuccessDetail(String name, String position) {
     return 'Сотрудник $name добавлен с должностью «$position»';
   }
+
+  @override
+  String get teamNextStepTitle => 'Следующий шаг';
+
+  @override
+  String get teamPasswordNotSet => 'Пароль не установлен';
+
+  @override
+  String get teamPositionsLoading => 'Загрузка должностей...';
+
+  @override
+  String get teamPositionsLoadError => 'Не удалось загрузить список должностей';
 
   @override
   String get teamForbiddenTitle => 'Только для владельца';

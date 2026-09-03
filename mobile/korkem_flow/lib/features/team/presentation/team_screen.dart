@@ -319,7 +319,7 @@ class _InviteEmployeeDialogState extends ConsumerState<_InviteEmployeeDialog> {
   final _emailController = TextEditingController();
   final _firstNameController = TextEditingController();
 
-  EmployeePosition _selectedPosition = EmployeePosition.shopFloor;
+  String? _selectedPosition;
   String? _errorMessage;
   bool _isSubmitting = false;
 
@@ -330,9 +330,12 @@ class _InviteEmployeeDialogState extends ConsumerState<_InviteEmployeeDialog> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    final l10n = AppLocalizations.of(context);
+  Future<void> _submit(List<PositionOption> positions) async {
     if (!_formKey.currentState!.validate()) return;
+    final pos =
+        _selectedPosition ??
+        (positions.isNotEmpty ? positions.first.position : null);
+    if (pos == null) return;
 
     setState(() {
       _isSubmitting = true;
@@ -344,28 +347,24 @@ class _InviteEmployeeDialogState extends ConsumerState<_InviteEmployeeDialog> {
           .read(teamInviteControllerProvider.notifier)
           .invite(
             email: _emailController.text.trim(),
-            position: _selectedPosition,
+            position: pos,
             firstName: _firstNameController.text.trim(),
           );
 
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.teamInviteSuccessDetail(
-                result.user,
-                _selectedPosition.localizedName(l10n),
-              ),
-            ),
+        unawaited(
+          showDialog<void>(
+            context: context,
+            builder: (context) => _InviteSuccessDialog(result: result),
           ),
         );
       }
-    } on TeamForbiddenException {
+    } on TeamForbiddenException catch (e) {
       if (mounted) {
         setState(() {
           _isSubmitting = false;
-          _errorMessage = l10n.teamForbiddenMessage;
+          _errorMessage = e.message;
         });
       }
     } on FrappeException catch (e) {
@@ -389,6 +388,7 @@ class _InviteEmployeeDialogState extends ConsumerState<_InviteEmployeeDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final positionsAsync = ref.watch(teamPositionsProvider);
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -492,30 +492,87 @@ class _InviteEmployeeDialogState extends ConsumerState<_InviteEmployeeDialog> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                DropdownButtonFormField<EmployeePosition>(
-                  initialValue: _selectedPosition,
-                  decoration: InputDecoration(
-                    labelText: l10n.teamPositionLabel,
-                    prefixIcon: const Icon(AppIcons.task),
-                  ),
-                  items: [
-                    for (final pos in EmployeePosition.selectable)
-                      DropdownMenuItem(
-                        value: pos,
-                        child: Text(pos.localizedName(l10n)),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _selectedPosition = value);
-                    }
+                positionsAsync.when(
+                  data: (positions) {
+                    final effectivePosition =
+                        _selectedPosition != null &&
+                            positions.any(
+                              (p) => p.position == _selectedPosition,
+                            )
+                        ? _selectedPosition
+                        : (positions.isNotEmpty
+                              ? positions.first.position
+                              : null);
+
+                    final selectedOption = positions
+                        .where((p) => p.position == effectivePosition)
+                        .firstOrNull;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          initialValue: effectivePosition,
+                          decoration: InputDecoration(
+                            labelText: l10n.teamPositionLabel,
+                            prefixIcon: const Icon(AppIcons.task),
+                          ),
+                          items: [
+                            for (final pos in positions)
+                              DropdownMenuItem(
+                                value: pos.position,
+                                child: Text(pos.localizedName(l10n)),
+                              ),
+                          ],
+                          onChanged: _isSubmitting
+                              ? null
+                              : (value) {
+                                  if (value != null) {
+                                    setState(() => _selectedPosition = value);
+                                  }
+                                },
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return l10n.teamPositionLabel;
+                            }
+                            return null;
+                          },
+                        ),
+                        if (selectedOption != null) ...[
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            selectedOption.localizedDescription(l10n),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
                   },
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  _selectedPosition.localizedDescription(l10n),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                  loading: () => InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: l10n.teamPositionLabel,
+                      prefixIcon: const Icon(AppIcons.task),
+                    ),
+                    child: Text(
+                      l10n.teamPositionsLoading,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  error: (e, _) => InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: l10n.teamPositionLabel,
+                      prefixIcon: const Icon(AppIcons.danger),
+                    ),
+                    child: Text(
+                      l10n.teamPositionsLoadError,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -530,7 +587,13 @@ class _InviteEmployeeDialogState extends ConsumerState<_InviteEmployeeDialog> {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     FilledButton(
-                      onPressed: _isSubmitting ? null : _submit,
+                      onPressed: _isSubmitting
+                          ? null
+                          : () {
+                              final positions =
+                                  positionsAsync.value ?? const [];
+                              unawaited(_submit(positions));
+                            },
                       child: _isSubmitting
                           ? const SizedBox.square(
                               dimension: AppIconSize.small,
@@ -544,6 +607,135 @@ class _InviteEmployeeDialogState extends ConsumerState<_InviteEmployeeDialog> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InviteSuccessDialog extends StatelessWidget {
+  const _InviteSuccessDialog({required this.result});
+
+  final TeamInviteResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    final positionName = result.position.localizedName(l10n);
+
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: AppBreakpoints.compact),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    AppIcons.success,
+                    color: theme.colorScheme.primary,
+                    size: AppIconSize.normal,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      l10n.teamInviteSuccessTitle,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(AppIcons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                l10n.teamInviteSuccessDetail(result.user, positionName),
+                style: theme.textTheme.bodyMedium,
+              ),
+              if (result.nextStep != null &&
+                  result.nextStep!.trim().isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(
+                      color: theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            AppIcons.info,
+                            size: AppIconSize.small,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            l10n.teamNextStepTitle,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        result.nextStep!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              if (!result.passwordSet) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    Icon(
+                      AppIcons.warning,
+                      size: AppIconSize.dense,
+                      color: theme.colorScheme.error,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      l10n.teamPasswordNotSet,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: AppSpacing.lg),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(l10n.actionClose),
+                ),
+              ),
+            ],
           ),
         ),
       ),

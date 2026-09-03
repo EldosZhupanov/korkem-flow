@@ -874,11 +874,41 @@ abstract class AppLocalizations {
   /// **'Invitation sent'**
   String get teamInviteSuccess;
 
+  /// Title for invitation success dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Employee invited'**
+  String get teamInviteSuccessTitle;
+
   /// Detailed success message
   ///
   /// In en, this message translates to:
   /// **'Employee {name} added with position \'{position}\''**
   String teamInviteSuccessDetail(String name, String position);
+
+  /// Label for server next step in invitation result
+  ///
+  /// In en, this message translates to:
+  /// **'Next step'**
+  String get teamNextStepTitle;
+
+  /// Notice that invited employee needs password configured
+  ///
+  /// In en, this message translates to:
+  /// **'Password not set'**
+  String get teamPasswordNotSet;
+
+  /// Placeholder while loading server positions
+  ///
+  /// In en, this message translates to:
+  /// **'Loading positions...'**
+  String get teamPositionsLoading;
+
+  /// Error loading server positions
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load positions list'**
+  String get teamPositionsLoadError;
 
   /// Title when employee lacks permission to invite
   ///

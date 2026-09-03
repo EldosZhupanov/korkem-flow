@@ -5,6 +5,15 @@ import 'package:korkem_flow/features/team/domain/team_models.dart';
 
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
+final teamPositionsProvider = FutureProvider.autoDispose<List<PositionOption>>((
+  ref,
+) async {
+  final repo = ref.watch(teamRepositoryProvider);
+  return repo.fetchPositions();
+});
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
 final teamMembersProvider = FutureProvider.autoDispose<List<TeamMember>>((
   ref,
 ) async {
@@ -43,7 +52,7 @@ class TeamInviteController extends AsyncNotifier<TeamInviteResult?> {
 
   Future<TeamInviteResult> invite({
     required String email,
-    required EmployeePosition position,
+    required String position,
     String firstName = '',
   }) async {
     state = const AsyncValue.loading();

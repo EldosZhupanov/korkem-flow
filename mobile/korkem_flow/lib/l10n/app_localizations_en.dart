@@ -437,9 +437,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamInviteSuccess => 'Invitation sent';
 
   @override
+  String get teamInviteSuccessTitle => 'Employee invited';
+
+  @override
   String teamInviteSuccessDetail(String name, String position) {
     return 'Employee $name added with position \'$position\'';
   }
+
+  @override
+  String get teamNextStepTitle => 'Next step';
+
+  @override
+  String get teamPasswordNotSet => 'Password not set';
+
+  @override
+  String get teamPositionsLoading => 'Loading positions...';
+
+  @override
+  String get teamPositionsLoadError => 'Could not load positions list';
 
   @override
   String get teamForbiddenTitle => 'Owner only';

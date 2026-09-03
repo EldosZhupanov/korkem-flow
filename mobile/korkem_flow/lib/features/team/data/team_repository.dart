@@ -15,8 +15,31 @@ class TeamRepository {
 
   final FrappeClient _client;
 
-  static const inviteEndpoint =
-      'korkem_manufacturing.services.invitations.invite_employee';
+  static const positionsEndpoint =
+      'korkem_manufacturing.api.invitations.positions';
+  static const inviteEndpoint = 'korkem_manufacturing.api.invitations.invite';
+
+  /// Должности и роли за ними — с сервера.
+  ///
+  /// Пустой ответ здесь не бывает: должности заданы в коде сервера, и если
+  /// список не пришёл, значит сломался ответ, а не кончились должности. Тихо
+  /// вернуть пустоту значило бы показать владельцу форму без единой должности
+  /// и ни слова о том, почему.
+  Future<List<PositionOption>> fetchPositions() async {
+    final response = await _client.callMethod(positionsEndpoint);
+    final rows = response['message'] ?? response['data'];
+
+    if (rows is! List) {
+      throw const ServerFailure(
+        'Сервер не вернул список должностей. Приглашать вслепую нельзя: '
+        'за должностью стоят права.',
+      );
+    }
+    return rows
+        .whereType<Map<String, dynamic>>()
+        .map(PositionOption.fromJson)
+        .toList(growable: false);
+  }
 
   /// Fetches system users for the factory and resolves their assigned roles.
   Future<List<TeamMember>> fetchTeamMembers() async {
@@ -81,7 +104,7 @@ class TeamRepository {
   /// Creates a company-bound employee with the specific position.
   Future<TeamInviteResult> inviteEmployee({
     required String email,
-    required EmployeePosition position,
+    required String position,
     String firstName = '',
   }) async {
     try {
@@ -91,21 +114,16 @@ class TeamRepository {
         params: {
           'email': email.trim().toLowerCase(),
           'first_name': firstName.trim(),
-          'position': position.id,
+          'position': position.trim(),
         },
       );
       return TeamInviteResult.fromJson(response);
-    } on FrappeException catch (e) {
-      final msg = e.message.toLowerCase();
-      if (e is PermissionFailure ||
-          msg.contains('system manager') ||
-          msg.contains('owner') ||
-          msg.contains('permission') ||
-          msg.contains('cannot change your own roles') ||
-          msg.contains('only the owner')) {
-        throw const TeamForbiddenException();
-      }
-      rethrow;
+    } on PermissionFailure catch (e) {
+      // Сервер отвечает 403, проверено живым запросом от сотрудника без прав.
+      // Разбирать текст сообщения не нужно и опасно: отказ по смыслу «нельзя»
+      // и отказ по смыслу «не та должность» приходят с разными кодами, а
+      // совпадение слова в прозе однажды спутает их.
+      throw TeamForbiddenException(e.message);
     }
   }
 }

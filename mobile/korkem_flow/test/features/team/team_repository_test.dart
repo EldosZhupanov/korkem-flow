@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
 
@@ -98,11 +99,63 @@ void main() {
       expect(members[1].isOwner, isFalse);
     });
 
+    test('fetches positions from the server endpoint', () async {
+      final dio = createDio((options) async {
+        expect(
+          options.path,
+          '/api/method/korkem_manufacturing.api.invitations.positions',
+        );
+        return _json({
+          'message': [
+            {
+              'position': 'accountant',
+              'roles': ['Accounts User'],
+            },
+            {
+              'position': 'manager',
+              'roles': ['Sales Manager'],
+            },
+            {
+              'position': 'shop_floor',
+              'roles': ['Manufacturing User', 'Stock User'],
+            },
+            {
+              'position': 'warehouse',
+              'roles': ['Stock User'],
+            },
+          ],
+        });
+      });
+
+      final client = FrappeClient(dio);
+      final repo = TeamRepository(client);
+
+      final positions = await repo.fetchPositions();
+      expect(positions.length, 4);
+      expect(positions[0].position, 'accountant');
+      expect(positions[0].roles, ['Accounts User']);
+      expect(positions[2].position, 'shop_floor');
+    });
+
+    test(
+      'сломанный список должностей — это отказ, а не пустая форма',
+      () async {
+        // Должности заданы в коде сервера: пустого списка там не бывает. Если
+        // ответ не список, значит сломался ответ, а не кончились должности.
+        // Тихая пустота показала бы владельцу форму без единой должности и ни
+        // слова о том, почему он не может никого пригласить.
+        final dio = createDio((_) async => _json({'message': 'что-то не то'}));
+        final repo = TeamRepository(FrappeClient(dio));
+
+        await expectLater(repo.fetchPositions(), throwsA(isA<ServerFailure>()));
+      },
+    );
+
     test('invites employee with mapped position payload', () async {
       final dio = createDio((options) async {
         expect(
           options.path,
-          '/api/method/korkem_manufacturing.services.invitations.invite_employee',
+          '/api/method/korkem_manufacturing.api.invitations.invite',
         );
         final data = options.data as Map<String, dynamic>;
         expect(data['email'], 'accountant@korkem.kz');
@@ -116,6 +169,11 @@ void main() {
             'created': true,
             'roles_added': ['Accounts User'],
             'position': 'accountant',
+            'password_set': false,
+            'next_step':
+                'Set a password for this account in the desk '
+                '(User → Set New Password), or configure SMTP '
+                "and use Frappe's password reset.",
           },
         });
       });
@@ -125,7 +183,7 @@ void main() {
 
       final result = await repo.inviteEmployee(
         email: 'accountant@korkem.kz',
-        position: EmployeePosition.accountant,
+        position: EmployeePosition.accountant.id,
         firstName: 'Saule',
       );
 
@@ -133,6 +191,8 @@ void main() {
       expect(result.created, isTrue);
       expect(result.position, EmployeePosition.accountant);
       expect(result.rolesAdded, contains('Accounts User'));
+      expect(result.passwordSet, isFalse);
+      expect(result.nextStep, contains('User → Set New Password'));
     });
 
     test('throws TeamForbiddenException on permission error', () async {
@@ -154,7 +214,7 @@ void main() {
       expect(
         () => repo.inviteEmployee(
           email: 'test@korkem.kz',
-          position: EmployeePosition.warehouse,
+          position: EmployeePosition.warehouse.id,
         ),
         throwsA(isA<TeamForbiddenException>()),
       );

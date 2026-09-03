@@ -144,6 +144,61 @@ class TeamMember {
       roles.contains('Korkem Admin');
 }
 
+/// A job position option retrieved from the server, mapping to backend-owned
+/// roles.
+@immutable
+class PositionOption {
+  const PositionOption({
+    required this.position,
+    required this.roles,
+  });
+
+  factory PositionOption.fromJson(Map<String, dynamic> json) {
+    return PositionOption(
+      position: '${json['position'] ?? ''}'.trim(),
+      roles: [
+        if (json['roles'] is List)
+          for (final r in json['roles'] as List) '$r',
+      ],
+    );
+  }
+
+  final String position;
+  final List<String> roles;
+
+  String localizedName(AppLocalizations l10n) {
+    final ep = EmployeePosition.fromId(position);
+    if (position == 'owner' ||
+        ep != EmployeePosition.shopFloor ||
+        position == 'shop_floor' ||
+        position == 'shopfloor') {
+      return ep.localizedName(l10n);
+    }
+    return position;
+  }
+
+  String localizedDescription(AppLocalizations l10n) {
+    final ep = EmployeePosition.fromId(position);
+    if (position == 'owner' ||
+        ep != EmployeePosition.shopFloor ||
+        position == 'shop_floor' ||
+        position == 'shopfloor') {
+      return ep.localizedDescription(l10n);
+    }
+    return roles.join(', ');
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PositionOption &&
+          runtimeType == other.runtimeType &&
+          position == other.position;
+
+  @override
+  int get hashCode => position.hashCode;
+}
+
 /// The response payload when an employee is created or invited.
 @immutable
 class TeamInviteResult {
@@ -153,6 +208,9 @@ class TeamInviteResult {
     required this.created,
     required this.position,
     required this.rolesAdded,
+    this.passwordSet = false,
+    this.nextStep,
+    this.rawPosition,
   });
 
   factory TeamInviteResult.fromJson(Map<String, dynamic> json) {
@@ -162,15 +220,20 @@ class TeamInviteResult {
               ? json['data'] as Map<String, dynamic>
               : json);
 
+    final rawPos = message['position'] as String?;
     return TeamInviteResult(
       user: '${message['user'] ?? ''}',
       company: message['company'] as String?,
       created: message['created'] == true || message['created'] == 1,
-      position: EmployeePosition.fromId(message['position'] as String?),
+      position: EmployeePosition.fromId(rawPos),
+      rawPosition: rawPos,
       rolesAdded: [
         if (message['roles_added'] is List)
           for (final r in message['roles_added'] as List) '$r',
       ],
+      passwordSet:
+          message['password_set'] == true || message['password_set'] == 1,
+      nextStep: message['next_step'] as String?,
     );
   }
 
@@ -178,7 +241,10 @@ class TeamInviteResult {
   final String? company;
   final bool created;
   final EmployeePosition position;
+  final String? rawPosition;
   final List<String> rolesAdded;
+  final bool passwordSet;
+  final String? nextStep;
 }
 
 /// Refusal when a non-owner attempts to invite or manage employees.

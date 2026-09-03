@@ -432,6 +432,10 @@
   "@teamInviteSuccess": {
     "description": "Success message when invitation is sent"
   },
+  "teamInviteSuccessTitle": "Employee invited",
+  "@teamInviteSuccessTitle": {
+    "description": "Title for invitation success dialog"
+  },
   "teamInviteSuccessDetail": "Employee {name} added with position '{position}'",
   "@teamInviteSuccessDetail": {
     "description": "Detailed success message",
@@ -443,6 +447,22 @@
         "type": "String"
       }
     }
+  },
+  "teamNextStepTitle": "Next step",
+  "@teamNextStepTitle": {
+    "description": "Label for server next step in invitation result"
+  },
+  "teamPasswordNotSet": "Password not set",
+  "@teamPasswordNotSet": {
+    "description": "Notice that invited employee needs password configured"
+  },
+  "teamPositionsLoading": "Loading positions...",
+  "@teamPositionsLoading": {
+    "description": "Placeholder while loading server positions"
+  },
+  "teamPositionsLoadError": "Could not load positions list",
+  "@teamPositionsLoadError": {
+    "description": "Error loading server positions"
   },
   "teamForbiddenTitle": "Owner only",
   "@teamForbiddenTitle": {
