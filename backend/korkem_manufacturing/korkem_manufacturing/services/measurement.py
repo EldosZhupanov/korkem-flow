@@ -19,6 +19,12 @@
 моменту будет потерян среди других комментариев. Поэтому адрес идёт в
 `Address` ERPNext, привязанный к клиенту, — туда, где его будут искать.
 
+**Фотография стены — это тоже размер.** Замерщик стоит на объекте с телефоном,
+и то, что он видит, словами не передаётся: розетка не на месте, труба в углу,
+пол с уклоном. Через месяц в цехе такой снимок стоит дороже всех заметок,
+поэтому фото ложится на ту же заявку, что и размеры, — туда, где его будут
+искать дизайн, доставка и монтаж.
+
 **Размеры остаются текстом, и это осознанно.** «3200 на 600, высота 2100, угол
 слева» — это то, что говорит замерщик, и разбирать это на поля значит
 навязывать форму, которой у мебели на заказ нет. Разбор придёт вместе с
@@ -65,6 +71,144 @@ def record(
 		"task_closed": closed,
 		"measured_on": measured_on or frappe.utils.nowdate(),
 	}
+
+
+#: Что мы соглашаемся принять с телефона. Ровно то, что делает камера, и
+#: ничего сверх: Pillow умеет открыть четыре десятка форматов, включая PSD и
+#: WMF, и каждый лишний — это ещё один разборщик, которому мы отдаём чужой файл.
+PHOTO_FORMATS: dict[str, str] = {"JPEG": "jpg", "PNG": "png"}
+
+#: Предел на один снимок. Телефонная камера даёт 3–8 МБ; двадцать оставляет
+#: запас и всё ещё отсекает «случайно отправил видео».
+MAX_PHOTO_BYTES = 20 * 1024 * 1024
+
+
+def attach_photo(*, enquiry: str, filename: str, content: bytes) -> dict:
+	"""Приложить снимок с замера к заявке.
+
+	Снимок сохраняется **без EXIF**. Телефон записывает в него координаты места
+	съёмки, то есть адрес квартиры клиента, — и делает это молча. Frappe умеет
+	их срезать, но только для JPEG, только если у файла проставлен тип, и только
+	когда включена настройка сайта; три условия, любое из которых однажды
+	окажется ложным. Здесь оно безусловно.
+
+	Файл кладётся **закрытым**. Открытый файл в Frappe доступен по ссылке
+	любому, кто её знает, а это фотография чужой квартиры: где окно, где дверь,
+	что стоит в комнате. Такая ссылка не должна существовать.
+
+	Тип определяется разбором, а не первыми байтами. Имя файла приходит с
+	телефона и означает ровно то, что в нём написал отправитель, а шапку JPEG
+	приписать к чему угодно — минута. Frappe всё равно откроет файл, чтобы
+	срезать EXIF, и на подделке падает пятисоткой; лучше отказать здесь, словами.
+	"""
+	opportunity = _visible_enquiry(enquiry)
+
+	if not content:
+		frappe.throw("Пустой файл. Снимок не дошёл — попробуйте ещё раз.")
+
+	if len(content) > MAX_PHOTO_BYTES:
+		frappe.throw(
+			f"Снимок больше {MAX_PHOTO_BYTES // (1024 * 1024)} МБ. "
+			"Похоже, это видео, а не фотография."
+		)
+
+	extension = _photo_kind(content)
+	content = _without_exif(content, extension)
+
+	doc = frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_name": _safe_name(filename, extension),
+			"attached_to_doctype": "Opportunity",
+			"attached_to_name": opportunity.name,
+			"is_private": 1,
+			"content": content,
+		}
+	)
+	doc.insert()
+
+	return {
+		"enquiry": opportunity.name,
+		"file": doc.name,
+		"file_name": doc.file_name,
+		"size": len(content),
+		"status": "attached",
+	}
+
+
+def photos(*, enquiry: str) -> list[dict]:
+	"""Что уже приложено к этой заявке."""
+	opportunity = _visible_enquiry(enquiry)
+	return [
+		{"file": row["name"], "file_name": row["file_name"], "size": row.get("file_size")}
+		for row in frappe.get_all(
+			"File",
+			filters={
+				"attached_to_doctype": "Opportunity",
+				"attached_to_name": opportunity.name,
+			},
+			fields=["name", "file_name", "file_size"],
+			order_by="creation asc",
+		)
+	]
+
+
+def _photo_kind(content: bytes) -> str:
+	"""Какой это снимок — по содержимому, с отказом словами, если никакой."""
+	import io
+
+	from PIL import Image, UnidentifiedImageError
+
+	refusal = (
+		"Это не фотография. С замера принимаются снимки JPEG и PNG — "
+		"то, что делает камера телефона."
+	)
+	try:
+		with Image.open(io.BytesIO(content)) as image:
+			image.verify()
+			fmt = image.format
+	except (UnidentifiedImageError, OSError, ValueError):
+		frappe.throw(refusal)
+
+	if fmt not in PHOTO_FORMATS:
+		frappe.throw(refusal)
+	return PHOTO_FORMATS[fmt]
+
+
+def _without_exif(content: bytes, extension: str) -> bytes:
+	"""Пересобрать снимок из одних пикселей.
+
+	Пересжатие теряет немного качества, и это правильная цена: снимок нужен,
+	чтобы увидеть розетку и трубу, а не чтобы печатать. Всё остальное, что
+	телефон дописал сбоку, — координаты, модель, время — уходит вместе с
+	контейнером.
+	"""
+	import io
+
+	from PIL import Image
+
+	with Image.open(io.BytesIO(content)) as image:
+		pixels = Image.new(image.mode, image.size)
+		pixels.putdata(list(image.getdata()))
+		buffer = io.BytesIO()
+		if extension == "jpg":
+			pixels.convert("RGB").save(buffer, format="JPEG", quality=90)
+		else:
+			pixels.save(buffer, format="PNG")
+	return buffer.getvalue()
+
+
+def _safe_name(filename: str, extension: str) -> str:
+	"""Имя, за которое отвечаем мы, а не отправитель.
+
+	От присланного остаётся только основа, и та обрезанная; расширение ставится
+	по содержимому. Путь, кавычки и точки из имени уходят: файл с именем
+	`../../x.png` — не имя, а попытка.
+	"""
+	base = (filename or "").rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
+	base = base.rsplit(".", 1)[0]
+	base = "".join(c for c in base if c.isalnum() or c in " -_")[:40].strip()
+	return f"{base or 'замер'}-{frappe.generate_hash(length=6)}.{extension}"
 
 
 def _visible_enquiry(name: str):
