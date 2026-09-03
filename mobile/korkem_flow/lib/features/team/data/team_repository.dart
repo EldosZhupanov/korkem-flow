@@ -9,7 +9,7 @@ final teamRepositoryProvider = Provider<TeamRepository>((ref) {
   return TeamRepository(ref.watch(frappeClientProvider));
 });
 
-/// Data access for factory employee accounts and invitations.
+/// Data access for factory employee accounts, positions, and access.
 class TeamRepository {
   TeamRepository(this._client);
 
@@ -18,6 +18,10 @@ class TeamRepository {
   static const positionsEndpoint =
       'korkem_manufacturing.api.invitations.positions';
   static const inviteEndpoint = 'korkem_manufacturing.api.invitations.invite';
+  static const changePositionEndpoint =
+      'korkem_manufacturing.api.staff.change_position';
+  static const deactivateEndpoint = 'korkem_manufacturing.api.staff.deactivate';
+  static const reactivateEndpoint = 'korkem_manufacturing.api.staff.reactivate';
 
   /// Должности и роли за ними — с сервера.
   ///
@@ -36,8 +40,8 @@ class TeamRepository {
       );
     }
     return rows
-        .whereType<Map<String, dynamic>>()
-        .map(PositionOption.fromJson)
+        .whereType<Map<Object?, Object?>>()
+        .map((e) => PositionOption.fromJson(Map<String, dynamic>.from(e)))
         .toList(growable: false);
   }
 
@@ -125,5 +129,98 @@ class TeamRepository {
       // совпадение слова в прозе однажды спутает их.
       throw TeamForbiddenException(e.message);
     }
+  }
+
+  /// Сменить должность сотрудника (набор его прав).
+  ///
+  /// Вызывает POST korkem_manufacturing.api.staff.change_position.
+  Future<ChangePositionResult> changePosition({
+    required String email,
+    required String position,
+  }) async {
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanPosition = position.trim();
+    if (cleanEmail.isEmpty) {
+      throw const ValidationFailure('Email is required.');
+    }
+    if (cleanPosition.isEmpty) {
+      throw const ValidationFailure('Position is required.');
+    }
+
+    final response = await _client.callMethod(
+      changePositionEndpoint,
+      post: true,
+      params: {
+        'email': cleanEmail,
+        'position': cleanPosition,
+      },
+    );
+
+    final dynamic raw = response['message'] ?? response['data'];
+    if (raw == null || raw is! Map || raw.isEmpty) {
+      throw const ServerFailure(
+        'Failed to change position: unexpected response from server.',
+      );
+    }
+
+    return ChangePositionResult.fromJson(Map<String, dynamic>.from(raw));
+  }
+
+  /// Закрыть вход ушедшему сотруднику и завершить его активные сессии.
+  ///
+  /// Вызывает POST korkem_manufacturing.api.staff.deactivate.
+  Future<DeactivateResult> deactivate({
+    required String email,
+  }) async {
+    final cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail.isEmpty) {
+      throw const ValidationFailure('Email is required.');
+    }
+
+    final response = await _client.callMethod(
+      deactivateEndpoint,
+      post: true,
+      params: {
+        'email': cleanEmail,
+      },
+    );
+
+    final dynamic raw = response['message'] ?? response['data'];
+    if (raw == null || raw is! Map || raw.isEmpty) {
+      throw const ServerFailure(
+        'Failed to deactivate employee: unexpected response from server.',
+      );
+    }
+
+    return DeactivateResult.fromJson(Map<String, dynamic>.from(raw));
+  }
+
+  /// Вернуть доступ сотруднику.
+  ///
+  /// Вызывает POST korkem_manufacturing.api.staff.reactivate.
+  Future<ReactivateResult> reactivate({
+    required String email,
+  }) async {
+    final cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail.isEmpty) {
+      throw const ValidationFailure('Email is required.');
+    }
+
+    final response = await _client.callMethod(
+      reactivateEndpoint,
+      post: true,
+      params: {
+        'email': cleanEmail,
+      },
+    );
+
+    final dynamic raw = response['message'] ?? response['data'];
+    if (raw == null || raw is! Map || raw.isEmpty) {
+      throw const ServerFailure(
+        'Failed to reactivate employee: unexpected response from server.',
+      );
+    }
+
+    return ReactivateResult.fromJson(Map<String, dynamic>.from(raw));
   }
 }

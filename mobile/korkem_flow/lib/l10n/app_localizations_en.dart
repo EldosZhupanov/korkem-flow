@@ -470,6 +470,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamSectionMembers => 'Employees';
 
   @override
+  String get teamChangePositionTitle => 'Change Position';
+
+  @override
+  String get teamChangePositionAction => 'Change Position';
+
+  @override
+  String get teamSavePosition => 'Save Position';
+
+  @override
+  String teamChangePositionSuccess(String name, String position) {
+    return 'Position for $name updated to «$position»';
+  }
+
+  @override
+  String get teamDeactivateAction => 'Revoke Access';
+
+  @override
+  String get teamDeactivateDialogTitle => 'Revoke Access?';
+
+  @override
+  String teamDeactivateConfirmMessage(String name) {
+    return 'Revoke access for $name? The employee will lose system access and all open sessions will be closed.';
+  }
+
+  @override
+  String get teamDeactivateConfirmButton => 'Revoke Access';
+
+  @override
+  String teamDeactivateSuccess(int count) {
+    return 'Access revoked, sessions closed: $count';
+  }
+
+  @override
+  String get teamReactivateAction => 'Restore Access';
+
+  @override
+  String get teamReactivateDialogTitle => 'Restore Access?';
+
+  @override
+  String teamReactivateConfirmMessage(String name) {
+    return 'Restore access for $name?';
+  }
+
+  @override
+  String get teamReactivateConfirmButton => 'Restore Access';
+
+  @override
+  String get teamReactivateSuccess => 'Access restored';
+
+  @override
+  String get teamStatusDisabled => 'Access Revoked';
+
+  @override
+  String get teamStatusActive => 'Active';
+
+  @override
+  String get teamSectionDisabled => 'Deactivated Employees';
+
+  @override
+  String get teamCannotModifySelf =>
+      'You cannot change your own position or revoke your own access';
+
+  @override
   String get settingsTeamTitle => 'Team and employees';
 
   @override

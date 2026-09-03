@@ -142,6 +142,48 @@ class TeamMember {
       position == EmployeePosition.owner ||
       roles.contains('System Manager') ||
       roles.contains('Korkem Admin');
+
+  TeamMember copyWith({
+    String? email,
+    String? firstName,
+    String? fullName,
+    EmployeePosition? position,
+    List<String>? roles,
+    bool? enabled,
+    DateTime? creation,
+  }) {
+    return TeamMember(
+      email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      fullName: fullName ?? this.fullName,
+      position: position ?? this.position,
+      roles: roles ?? this.roles,
+      enabled: enabled ?? this.enabled,
+      creation: creation ?? this.creation,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TeamMember &&
+          runtimeType == other.runtimeType &&
+          email == other.email &&
+          firstName == other.firstName &&
+          fullName == other.fullName &&
+          position == other.position &&
+          listEquals(roles, other.roles) &&
+          enabled == other.enabled;
+
+  @override
+  int get hashCode => Object.hash(
+    email,
+    firstName,
+    fullName,
+    position,
+    Object.hashAll(roles),
+    enabled,
+  );
 }
 
 /// A job position option retrieved from the server, mapping to backend-owned
@@ -245,6 +287,142 @@ class TeamInviteResult {
   final List<String> rolesAdded;
   final bool passwordSet;
   final String? nextStep;
+}
+
+/// Result of changing an employee's position.
+@immutable
+class ChangePositionResult {
+  const ChangePositionResult({
+    required this.user,
+    required this.position,
+    required this.roles,
+    required this.enabled,
+  });
+
+  factory ChangePositionResult.fromJson(Map<String, dynamic> json) {
+    final message = json['message'] is Map<String, dynamic>
+        ? json['message'] as Map<String, dynamic>
+        : (json['data'] is Map<String, dynamic>
+              ? json['data'] as Map<String, dynamic>
+              : json);
+
+    return ChangePositionResult(
+      user: '${message['user'] ?? ''}',
+      position: '${message['position'] ?? ''}',
+      roles: [
+        if (message['roles'] is List)
+          for (final r in message['roles'] as List) '$r',
+      ],
+      enabled: message['enabled'] == true || message['enabled'] == 1,
+    );
+  }
+
+  final String user;
+  final String position;
+  final List<String> roles;
+  final bool enabled;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChangePositionResult &&
+          runtimeType == other.runtimeType &&
+          user == other.user &&
+          position == other.position &&
+          listEquals(roles, other.roles) &&
+          enabled == other.enabled;
+
+  @override
+  int get hashCode =>
+      Object.hash(user, position, Object.hashAll(roles), enabled);
+}
+
+/// Result of deactivating an employee account.
+@immutable
+class DeactivateResult {
+  const DeactivateResult({
+    required this.user,
+    required this.enabled,
+    required this.sessionsClosed,
+    required this.status,
+  });
+
+  factory DeactivateResult.fromJson(Map<String, dynamic> json) {
+    final message = json['message'] is Map<String, dynamic>
+        ? json['message'] as Map<String, dynamic>
+        : (json['data'] is Map<String, dynamic>
+              ? json['data'] as Map<String, dynamic>
+              : json);
+
+    return DeactivateResult(
+      user: '${message['user'] ?? ''}',
+      enabled: message['enabled'] == true || message['enabled'] == 1,
+      sessionsClosed: switch (message['sessions_closed']) {
+        final num n => n.toInt(),
+        final String s when int.tryParse(s) != null => int.parse(s),
+        _ => 0,
+      },
+      status: '${message['status'] ?? ''}',
+    );
+  }
+
+  final String user;
+  final bool enabled;
+  final int sessionsClosed;
+  final String status;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DeactivateResult &&
+          runtimeType == other.runtimeType &&
+          user == other.user &&
+          enabled == other.enabled &&
+          sessionsClosed == other.sessionsClosed &&
+          status == other.status;
+
+  @override
+  int get hashCode => Object.hash(user, enabled, sessionsClosed, status);
+}
+
+/// Result of reactivating an employee account.
+@immutable
+class ReactivateResult {
+  const ReactivateResult({
+    required this.user,
+    required this.enabled,
+    required this.status,
+  });
+
+  factory ReactivateResult.fromJson(Map<String, dynamic> json) {
+    final message = json['message'] is Map<String, dynamic>
+        ? json['message'] as Map<String, dynamic>
+        : (json['data'] is Map<String, dynamic>
+              ? json['data'] as Map<String, dynamic>
+              : json);
+
+    return ReactivateResult(
+      user: '${message['user'] ?? ''}',
+      enabled: message['enabled'] == true || message['enabled'] == 1,
+      status: '${message['status'] ?? ''}',
+    );
+  }
+
+  final String user;
+  final bool enabled;
+  final String status;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ReactivateResult &&
+          runtimeType == other.runtimeType &&
+          user == other.user &&
+          enabled == other.enabled &&
+          status == other.status;
+
+  @override
+  int get hashCode => Object.hash(user, enabled, status);
 }
 
 /// Refusal when a non-owner attempts to invite or manage employees.

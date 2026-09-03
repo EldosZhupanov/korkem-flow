@@ -460,6 +460,69 @@ class AppLocalizationsKk extends AppLocalizations {
   String get teamSectionMembers => 'Қызметкерлер';
 
   @override
+  String get teamChangePositionTitle => 'Қызметін өзгерту';
+
+  @override
+  String get teamChangePositionAction => 'Қызметін өзгерту';
+
+  @override
+  String get teamSavePosition => 'Лауазымды сақтау';
+
+  @override
+  String teamChangePositionSuccess(String name, String position) {
+    return '$name қызметкерінің лауазымы «$position» болып өзгертілді';
+  }
+
+  @override
+  String get teamDeactivateAction => 'Кіруді жабу';
+
+  @override
+  String get teamDeactivateDialogTitle => 'Кіруді жабу керек пе?';
+
+  @override
+  String teamDeactivateConfirmMessage(String name) {
+    return '$name қызметкерінің кіруін жабу керек пе? Қызметкер жүйеге кіру мүмкіндігінен айырылады және барлық ашық сеанстар жабылады.';
+  }
+
+  @override
+  String get teamDeactivateConfirmButton => 'Кіруді жабу';
+
+  @override
+  String teamDeactivateSuccess(int count) {
+    return 'Кіру жабылды, аяқталған сеанстар: $count';
+  }
+
+  @override
+  String get teamReactivateAction => 'Кіруді қайтару';
+
+  @override
+  String get teamReactivateDialogTitle => 'Кіруді қайтару керек пе?';
+
+  @override
+  String teamReactivateConfirmMessage(String name) {
+    return '$name қызметкеріне кіру рұқсатын қайтару керек пе?';
+  }
+
+  @override
+  String get teamReactivateConfirmButton => 'Кіруді қайтару';
+
+  @override
+  String get teamReactivateSuccess => 'Кіру рұқсаты қайтарылды';
+
+  @override
+  String get teamStatusDisabled => 'Кіру жабылған';
+
+  @override
+  String get teamStatusActive => 'Белсенді';
+
+  @override
+  String get teamSectionDisabled => 'Кіруі жабылған қызметкерлер';
+
+  @override
+  String get teamCannotModifySelf =>
+      'Өз лауазымыңызды өзгертуге немесе өзіңізді өшіруге болмайды';
+
+  @override
   String get settingsTeamTitle => 'Команда және қызметкерлер';
 
   @override

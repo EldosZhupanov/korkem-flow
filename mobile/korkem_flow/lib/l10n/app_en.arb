@@ -480,6 +480,101 @@
   "@teamSectionMembers": {
     "description": "Section header for team members list"
   },
+  "teamChangePositionTitle": "Change Position",
+  "@teamChangePositionTitle": {
+    "description": "Title for changing employee position dialog"
+  },
+  "teamChangePositionAction": "Change Position",
+  "@teamChangePositionAction": {
+    "description": "Action label to open change position dialog"
+  },
+  "teamSavePosition": "Save Position",
+  "@teamSavePosition": {
+    "description": "Button to save changed position"
+  },
+  "teamChangePositionSuccess": "Position for {name} updated to «{position}»",
+  "@teamChangePositionSuccess": {
+    "description": "Success message when position is changed",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "teamDeactivateAction": "Revoke Access",
+  "@teamDeactivateAction": {
+    "description": "Action label to deactivate employee"
+  },
+  "teamDeactivateDialogTitle": "Revoke Access?",
+  "@teamDeactivateDialogTitle": {
+    "description": "Title for deactivate confirmation dialog"
+  },
+  "teamDeactivateConfirmMessage": "Revoke access for {name}? The employee will lose system access and all open sessions will be closed.",
+  "@teamDeactivateConfirmMessage": {
+    "description": "Confirmation message for deactivating employee",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teamDeactivateConfirmButton": "Revoke Access",
+  "@teamDeactivateConfirmButton": {
+    "description": "Confirmation button to deactivate"
+  },
+  "teamDeactivateSuccess": "Access revoked, sessions closed: {count}",
+  "@teamDeactivateSuccess": {
+    "description": "Success message with closed sessions count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamReactivateAction": "Restore Access",
+  "@teamReactivateAction": {
+    "description": "Action label to reactivate employee"
+  },
+  "teamReactivateDialogTitle": "Restore Access?",
+  "@teamReactivateDialogTitle": {
+    "description": "Title for reactivate confirmation dialog"
+  },
+  "teamReactivateConfirmMessage": "Restore access for {name}?",
+  "@teamReactivateConfirmMessage": {
+    "description": "Confirmation message for reactivating employee",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teamReactivateConfirmButton": "Restore Access",
+  "@teamReactivateConfirmButton": {
+    "description": "Confirmation button to reactivate"
+  },
+  "teamReactivateSuccess": "Access restored",
+  "@teamReactivateSuccess": {
+    "description": "Success message when employee access is restored"
+  },
+  "teamStatusDisabled": "Access Revoked",
+  "@teamStatusDisabled": {
+    "description": "Status badge for deactivated employee"
+  },
+  "teamStatusActive": "Active",
+  "@teamStatusActive": {
+    "description": "Status badge for active employee"
+  },
+  "teamSectionDisabled": "Deactivated Employees",
+  "@teamSectionDisabled": {
+    "description": "Section header for deactivated employees"
+  },
+  "teamCannotModifySelf": "You cannot change your own position or revoke your own access",
+  "@teamCannotModifySelf": {
+    "description": "Tooltip or notice when attempting to modify own account"
+  },
   "settingsTeamTitle": "Team and employees",
   "@settingsTeamTitle": {
     "description": "Settings tile title for team management"

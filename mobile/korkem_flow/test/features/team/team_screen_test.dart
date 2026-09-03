@@ -8,6 +8,7 @@ import 'package:korkem_flow/core/auth/auth_credentials.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
@@ -19,6 +20,9 @@ class _FakeTeamRepository extends TeamRepository {
     required this.fetchMembersHandler,
     this.positionsHandler,
     this.inviteHandler,
+    this.changePositionHandler,
+    this.deactivateHandler,
+    this.reactivateHandler,
   }) : super(dummyClient);
 
   static final dummyClient = FrappeClient(Dio());
@@ -30,6 +34,10 @@ class _FakeTeamRepository extends TeamRepository {
     EmployeePosition position,
   )?
   inviteHandler;
+  final Future<ChangePositionResult> Function(String email, String position)?
+  changePositionHandler;
+  final Future<DeactivateResult> Function(String email)? deactivateHandler;
+  final Future<ReactivateResult> Function(String email)? reactivateHandler;
 
   @override
   Future<List<PositionOption>> fetchPositions() {
@@ -85,6 +93,53 @@ class _FakeTeamRepository extends TeamRepository {
       ),
     );
   }
+
+  @override
+  Future<ChangePositionResult> changePosition({
+    required String email,
+    required String position,
+  }) {
+    if (changePositionHandler != null) {
+      return changePositionHandler!(email, position);
+    }
+    return Future.value(
+      ChangePositionResult(
+        user: email,
+        position: position,
+        roles: const [],
+        enabled: true,
+      ),
+    );
+  }
+
+  @override
+  Future<DeactivateResult> deactivate({required String email}) {
+    if (deactivateHandler != null) {
+      return deactivateHandler!(email);
+    }
+    return Future.value(
+      DeactivateResult(
+        user: email,
+        enabled: false,
+        sessionsClosed: 1,
+        status: 'disabled',
+      ),
+    );
+  }
+
+  @override
+  Future<ReactivateResult> reactivate({required String email}) {
+    if (reactivateHandler != null) {
+      return reactivateHandler!(email);
+    }
+    return Future.value(
+      ReactivateResult(
+        user: email,
+        enabled: true,
+        status: 'enabled',
+      ),
+    );
+  }
 }
 
 void main() {
@@ -94,8 +149,7 @@ void main() {
     String currentUser = 'owner@korkem.kz',
     bool isOwner = true,
   }) {
-    tester.view.physicalSize = const Size(800, 1400);
-    tester.view.devicePixelRatio = 1.0;
+    tester.view.physicalSize = const Size(1200, 2400);
     addTearDown(() => tester.view.resetPhysicalSize());
 
     return ProviderScope(
@@ -504,6 +558,369 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('deactivation requires confirmation with person name', (
+    tester,
+  ) async {
+    String? deactivatedEmail;
+
+    final repo = _FakeTeamRepository(
+      fetchMembersHandler: () async => [
+        const TeamMember(
+          email: 'owner@korkem.kz',
+          firstName: 'Aidos',
+          fullName: 'Aidos Owner',
+          position: EmployeePosition.owner,
+          roles: ['System Manager'],
+          enabled: true,
+        ),
+        const TeamMember(
+          email: 'worker@korkem.kz',
+          firstName: 'Кайрат',
+          fullName: 'Кайрат Мастеров',
+          position: EmployeePosition.shopFloor,
+          roles: ['Manufacturing User'],
+          enabled: true,
+        ),
+      ],
+      deactivateHandler: (email) async {
+        deactivatedEmail = email;
+        return DeactivateResult(
+          user: email,
+          enabled: false,
+          sessionsClosed: 2,
+          status: 'disabled',
+        );
+      },
+    );
+
+    await tester.pumpWidget(buildHarness(tester, repository: repo));
+    await tester.pumpAndSettle();
+
+    // Open popup menu on employee card
+    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.pumpAndSettle();
+
+    // Tap "Закрыть доступ"
+    await tester.tap(find.text('Закрыть доступ'));
+    await tester.pumpAndSettle();
+
+    // Verify confirmation dialog includes person's name
+    expect(find.text('Закрыть доступ?'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.textContaining('Кайрат Мастеров'),
+      ),
+      findsOneWidget,
+    );
+
+    // Confirm deactivation
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(FilledButton, 'Закрыть доступ'),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(deactivatedEmail, 'worker@korkem.kz');
+    expect(find.text('Доступ закрыт, завершено сеансов: 2'), findsOneWidget);
+  });
+
+  testWidgets('shows sessions_closed count even when zero sessions closed', (
+    tester,
+  ) async {
+    final repo = _FakeTeamRepository(
+      fetchMembersHandler: () async => [
+        const TeamMember(
+          email: 'owner@korkem.kz',
+          firstName: 'Aidos',
+          fullName: 'Aidos Owner',
+          position: EmployeePosition.owner,
+          roles: ['System Manager'],
+          enabled: true,
+        ),
+        const TeamMember(
+          email: 'worker@korkem.kz',
+          firstName: 'Кайрат',
+          fullName: 'Кайрат',
+          position: EmployeePosition.shopFloor,
+          roles: ['Manufacturing User'],
+          enabled: true,
+        ),
+      ],
+      deactivateHandler: (email) async => DeactivateResult(
+        user: email,
+        enabled: false,
+        sessionsClosed: 0,
+        status: 'disabled',
+      ),
+    );
+
+    await tester.pumpWidget(buildHarness(tester, repository: repo));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Закрыть доступ'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(FilledButton, 'Закрыть доступ'),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Доступ закрыт, завершено сеансов: 0'), findsOneWidget);
+  });
+
+  testWidgets(
+    'self-protection: no action menu or deactivate on current user card',
+    (tester) async {
+      final repo = _FakeTeamRepository(
+        fetchMembersHandler: () async => [
+          const TeamMember(
+            email: 'owner@korkem.kz',
+            firstName: 'Aidos',
+            fullName: 'Aidos Owner',
+            position: EmployeePosition.owner,
+            roles: ['System Manager'],
+            enabled: true,
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        buildHarness(
+          tester,
+          repository: repo,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // On own card, AppIcons.more popup menu is NOT shown
+      expect(find.byIcon(AppIcons.more), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'displays exact server refusal when attempting to deactivate last owner',
+    (tester) async {
+      final repo = _FakeTeamRepository(
+        fetchMembersHandler: () async => [
+          const TeamMember(
+            email: 'current_owner@korkem.kz',
+            firstName: 'Aidos',
+            fullName: 'Aidos Owner',
+            position: EmployeePosition.owner,
+            roles: ['System Manager'],
+            enabled: true,
+          ),
+          const TeamMember(
+            email: 'other_owner@korkem.kz',
+            firstName: 'Baurzhan',
+            fullName: 'Baurzhan Owner',
+            position: EmployeePosition.owner,
+            roles: ['System Manager'],
+            enabled: true,
+          ),
+        ],
+        deactivateHandler: (email) async {
+          throw const PermissionFailure(
+            'Это последний владелец. Компания без него не сможет ни '
+            'пригласить, ни исправить, ни включить обратно.',
+          );
+        },
+      );
+
+      await tester.pumpWidget(
+        buildHarness(
+          tester,
+          repository: repo,
+          currentUser: 'current_owner@korkem.kz',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(AppIcons.more));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Закрыть доступ'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.widgetWithText(FilledButton, 'Закрыть доступ'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Это последний владелец. Компания без него не сможет ни '
+          'пригласить, ни исправить, ни включить обратно.',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('changes employee position via change position dialog', (
+    tester,
+  ) async {
+    String? changedEmail;
+    String? changedPosition;
+
+    final repo = _FakeTeamRepository(
+      fetchMembersHandler: () async => [
+        const TeamMember(
+          email: 'owner@korkem.kz',
+          firstName: 'Aidos',
+          fullName: 'Aidos Owner',
+          position: EmployeePosition.owner,
+          roles: ['System Manager'],
+          enabled: true,
+        ),
+        const TeamMember(
+          email: 'worker@korkem.kz',
+          firstName: 'Кайрат',
+          fullName: 'Кайрат Мастеров',
+          position: EmployeePosition.shopFloor,
+          roles: ['Manufacturing User'],
+          enabled: true,
+        ),
+      ],
+      changePositionHandler: (email, position) async {
+        changedEmail = email;
+        changedPosition = position;
+        return ChangePositionResult(
+          user: email,
+          position: position,
+          roles: const ['Accounts User'],
+          enabled: true,
+        );
+      },
+    );
+
+    await tester.pumpWidget(buildHarness(tester, repository: repo));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Сменить должность'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Сменить должность'), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byType(Dialog),
+        matching: find.text('Кайрат Мастеров'),
+      ),
+      findsOneWidget,
+    );
+
+    // Open positions dropdown and select accountant
+    await tester.tap(find.text('Рабочий цеха').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Бухгалтер').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Сохранить должность'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(changedEmail, 'worker@korkem.kz');
+    expect(changedPosition, 'accountant');
+    expect(
+      find.text('Должность сотрудника Кайрат Мастеров изменена на «Бухгалтер»'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+    'deactivated employee remains visible in list and can be reactivated',
+    (tester) async {
+      String? reactivatedEmail;
+
+      final repo = _FakeTeamRepository(
+        fetchMembersHandler: () async => [
+          const TeamMember(
+            email: 'owner@korkem.kz',
+            firstName: 'Aidos',
+            fullName: 'Aidos Owner',
+            position: EmployeePosition.owner,
+            roles: ['System Manager'],
+            enabled: true,
+          ),
+          const TeamMember(
+            email: 'ex_worker@korkem.kz',
+            firstName: 'Серик',
+            fullName: 'Серик Бывший',
+            position: EmployeePosition.shopFloor,
+            roles: [],
+            enabled: false,
+          ),
+        ],
+        reactivateHandler: (email) async {
+          reactivatedEmail = email;
+          return ReactivateResult(
+            user: email,
+            enabled: true,
+            status: 'enabled',
+          );
+        },
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      // Verify deactivated employee is visible in the disabled section
+      expect(
+        find.widgetWithText(SectionLabel, 'ОТКЛЮЧЁННЫЕ СОТРУДНИКИ'),
+        findsOneWidget,
+      );
+      expect(find.text('Серик Бывший'), findsOneWidget);
+      expect(find.text('Доступ закрыт'), findsOneWidget);
+
+      // Tap reactivate icon button on the deactivated card
+      await tester.tap(find.byTooltip('Вернуть доступ'));
+      await tester.pumpAndSettle();
+
+      // Verify confirmation dialog includes employee name
+      expect(find.text('Вернуть доступ?'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.textContaining('Серик Бывший'),
+        ),
+        findsOneWidget,
+      );
+
+      // Confirm
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.widgetWithText(FilledButton, 'Вернуть доступ'),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(reactivatedEmail, 'ex_worker@korkem.kz');
+      expect(find.text('Доступ возвращён'), findsOneWidget);
+    },
+  );
 }
 
 class _TestSessionController extends SessionController {

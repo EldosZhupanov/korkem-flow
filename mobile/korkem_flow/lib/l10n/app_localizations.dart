@@ -934,6 +934,114 @@ abstract class AppLocalizations {
   /// **'Employees'**
   String get teamSectionMembers;
 
+  /// Title for changing employee position dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Change Position'**
+  String get teamChangePositionTitle;
+
+  /// Action label to open change position dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Change Position'**
+  String get teamChangePositionAction;
+
+  /// Button to save changed position
+  ///
+  /// In en, this message translates to:
+  /// **'Save Position'**
+  String get teamSavePosition;
+
+  /// Success message when position is changed
+  ///
+  /// In en, this message translates to:
+  /// **'Position for {name} updated to «{position}»'**
+  String teamChangePositionSuccess(String name, String position);
+
+  /// Action label to deactivate employee
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke Access'**
+  String get teamDeactivateAction;
+
+  /// Title for deactivate confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke Access?'**
+  String get teamDeactivateDialogTitle;
+
+  /// Confirmation message for deactivating employee
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke access for {name}? The employee will lose system access and all open sessions will be closed.'**
+  String teamDeactivateConfirmMessage(String name);
+
+  /// Confirmation button to deactivate
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke Access'**
+  String get teamDeactivateConfirmButton;
+
+  /// Success message with closed sessions count
+  ///
+  /// In en, this message translates to:
+  /// **'Access revoked, sessions closed: {count}'**
+  String teamDeactivateSuccess(int count);
+
+  /// Action label to reactivate employee
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Access'**
+  String get teamReactivateAction;
+
+  /// Title for reactivate confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Access?'**
+  String get teamReactivateDialogTitle;
+
+  /// Confirmation message for reactivating employee
+  ///
+  /// In en, this message translates to:
+  /// **'Restore access for {name}?'**
+  String teamReactivateConfirmMessage(String name);
+
+  /// Confirmation button to reactivate
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Access'**
+  String get teamReactivateConfirmButton;
+
+  /// Success message when employee access is restored
+  ///
+  /// In en, this message translates to:
+  /// **'Access restored'**
+  String get teamReactivateSuccess;
+
+  /// Status badge for deactivated employee
+  ///
+  /// In en, this message translates to:
+  /// **'Access Revoked'**
+  String get teamStatusDisabled;
+
+  /// Status badge for active employee
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get teamStatusActive;
+
+  /// Section header for deactivated employees
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated Employees'**
+  String get teamSectionDisabled;
+
+  /// Tooltip or notice when attempting to modify own account
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot change your own position or revoke your own access'**
+  String get teamCannotModifySelf;
+
   /// Settings tile title for team management
   ///
   /// In en, this message translates to:

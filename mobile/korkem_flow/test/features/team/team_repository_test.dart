@@ -46,6 +46,111 @@ void main() {
     )..httpClientAdapter = _FakeAdapter(handler);
   }
 
+  group('Team domain models', () {
+    test('TeamMember serialization and equality', () {
+      const member1 = TeamMember(
+        email: 'worker@korkem.kz',
+        firstName: 'Berik',
+        fullName: 'Berik Worker',
+        position: EmployeePosition.shopFloor,
+        roles: ['Manufacturing User'],
+        enabled: true,
+      );
+
+      final member2 = member1.copyWith(position: EmployeePosition.manager);
+      expect(member2.position, EmployeePosition.manager);
+      expect(member2.email, 'worker@korkem.kz');
+
+      final fromJson = TeamMember.fromJson(const {
+        'name': 'worker@korkem.kz',
+        'email': 'worker@korkem.kz',
+        'first_name': 'Berik',
+        'full_name': 'Berik Worker',
+        'enabled': 1,
+        'roles': [
+          {'role': 'Manufacturing User'},
+        ],
+      });
+
+      expect(fromJson, member1);
+    });
+
+    test('ChangePositionResult fromJson and equality', () {
+      final res1 = ChangePositionResult.fromJson(const {
+        'message': {
+          'user': 'worker@korkem.kz',
+          'position': 'manager',
+          'roles': ['Sales Manager'],
+          'enabled': true,
+        },
+      });
+
+      expect(res1.user, 'worker@korkem.kz');
+      expect(res1.position, 'manager');
+      expect(res1.roles, ['Sales Manager']);
+      expect(res1.enabled, isTrue);
+
+      final res2 = ChangePositionResult.fromJson(const {
+        'user': 'worker@korkem.kz',
+        'position': 'manager',
+        'roles': ['Sales Manager'],
+        'enabled': true,
+      });
+
+      expect(res1, res2);
+      expect(res1.hashCode, res2.hashCode);
+    });
+
+    test('DeactivateResult fromJson and equality', () {
+      final res1 = DeactivateResult.fromJson(const {
+        'message': {
+          'user': 'worker@korkem.kz',
+          'enabled': false,
+          'sessions_closed': 2,
+          'status': 'disabled',
+        },
+      });
+
+      expect(res1.user, 'worker@korkem.kz');
+      expect(res1.enabled, isFalse);
+      expect(res1.sessionsClosed, 2);
+      expect(res1.status, 'disabled');
+
+      final res2 = DeactivateResult.fromJson(const {
+        'user': 'worker@korkem.kz',
+        'enabled': false,
+        'sessions_closed': 2,
+        'status': 'disabled',
+      });
+
+      expect(res1, res2);
+      expect(res1.hashCode, res2.hashCode);
+    });
+
+    test('ReactivateResult fromJson and equality', () {
+      final res1 = ReactivateResult.fromJson(const {
+        'message': {
+          'user': 'worker@korkem.kz',
+          'enabled': true,
+          'status': 'enabled',
+        },
+      });
+
+      expect(res1.user, 'worker@korkem.kz');
+      expect(res1.enabled, isTrue);
+      expect(res1.status, 'enabled');
+
+      final res2 = ReactivateResult.fromJson(const {
+        'user': 'worker@korkem.kz',
+        'enabled': true,
+        'status': 'enabled',
+      });
+
+      expect(res1, res2);
+      expect(res1.hashCode, res2.hashCode);
+    });
+  });
+
   group('TeamRepository', () {
     test('fetches and maps team members with roles', () async {
       final dio = createDio((options) async {
@@ -217,6 +322,178 @@ void main() {
           position: EmployeePosition.warehouse.id,
         ),
         throwsA(isA<TeamForbiddenException>()),
+      );
+    });
+
+    test(
+      'changePosition sends correct payload to staff.change_position',
+      () async {
+        final dio = createDio((options) async {
+          expect(
+            options.path,
+            '/api/method/korkem_manufacturing.api.staff.change_position',
+          );
+          final data = options.data as Map<String, dynamic>;
+          expect(data['email'], 'worker@korkem.kz');
+          expect(data['position'], 'manager');
+
+          return _json({
+            'message': {
+              'user': 'worker@korkem.kz',
+              'position': 'manager',
+              'roles': ['Sales Manager'],
+              'enabled': true,
+            },
+          });
+        });
+
+        final repo = TeamRepository(FrappeClient(dio));
+        final result = await repo.changePosition(
+          email: 'worker@korkem.kz',
+          position: 'manager',
+        );
+
+        expect(result.user, 'worker@korkem.kz');
+        expect(result.position, 'manager');
+        expect(result.roles, ['Sales Manager']);
+        expect(result.enabled, isTrue);
+      },
+    );
+
+    test('changePosition validates non-empty arguments', () async {
+      final repo = TeamRepository(
+        FrappeClient(createDio((_) async => _json({}))),
+      );
+
+      expect(
+        () => repo.changePosition(email: '', position: 'manager'),
+        throwsA(isA<ValidationFailure>()),
+      );
+
+      expect(
+        () => repo.changePosition(email: 'worker@korkem.kz', position: ''),
+        throwsA(isA<ValidationFailure>()),
+      );
+    });
+
+    test(
+      'changePosition throws ServerFailure on unexpected response',
+      () async {
+        final dio = createDio((options) async {
+          return _json({'message': null});
+        });
+
+        final repo = TeamRepository(FrappeClient(dio));
+        expect(
+          () => repo.changePosition(
+            email: 'worker@korkem.kz',
+            position: 'manager',
+          ),
+          throwsA(isA<ServerFailure>()),
+        );
+      },
+    );
+
+    test(
+      'deactivate sends email to staff.deactivate and returns sessions_closed',
+      () async {
+        final dio = createDio((options) async {
+          expect(
+            options.path,
+            '/api/method/korkem_manufacturing.api.staff.deactivate',
+          );
+          final data = options.data as Map<String, dynamic>;
+          expect(data['email'], 'worker@korkem.kz');
+
+          return _json({
+            'message': {
+              'user': 'worker@korkem.kz',
+              'enabled': false,
+              'sessions_closed': 2,
+              'status': 'disabled',
+            },
+          });
+        });
+
+        final repo = TeamRepository(FrappeClient(dio));
+        final result = await repo.deactivate(email: 'worker@korkem.kz');
+
+        expect(result.user, 'worker@korkem.kz');
+        expect(result.enabled, isFalse);
+        expect(result.sessionsClosed, 2);
+        expect(result.status, 'disabled');
+      },
+    );
+
+    test('deactivate validates non-empty email', () async {
+      final repo = TeamRepository(
+        FrappeClient(createDio((_) async => _json({}))),
+      );
+
+      expect(
+        () => repo.deactivate(email: '  '),
+        throwsA(isA<ValidationFailure>()),
+      );
+    });
+
+    test('deactivate throws ServerFailure on unexpected response', () async {
+      final dio = createDio((options) async {
+        return _json({'message': <String, dynamic>{}});
+      });
+
+      final repo = TeamRepository(FrappeClient(dio));
+      expect(
+        () => repo.deactivate(email: 'worker@korkem.kz'),
+        throwsA(isA<ServerFailure>()),
+      );
+    });
+
+    test('reactivate sends email to staff.reactivate', () async {
+      final dio = createDio((options) async {
+        expect(
+          options.path,
+          '/api/method/korkem_manufacturing.api.staff.reactivate',
+        );
+        final data = options.data as Map<String, dynamic>;
+        expect(data['email'], 'worker@korkem.kz');
+
+        return _json({
+          'message': {
+            'user': 'worker@korkem.kz',
+            'enabled': true,
+            'status': 'enabled',
+          },
+        });
+      });
+
+      final repo = TeamRepository(FrappeClient(dio));
+      final result = await repo.reactivate(email: 'worker@korkem.kz');
+
+      expect(result.user, 'worker@korkem.kz');
+      expect(result.enabled, isTrue);
+      expect(result.status, 'enabled');
+    });
+
+    test('reactivate validates non-empty email', () async {
+      final repo = TeamRepository(
+        FrappeClient(createDio((_) async => _json({}))),
+      );
+
+      expect(
+        () => repo.reactivate(email: ''),
+        throwsA(isA<ValidationFailure>()),
+      );
+    });
+
+    test('reactivate throws ServerFailure on unexpected response', () async {
+      final dio = createDio((options) async {
+        return _json({'message': null});
+      });
+
+      final repo = TeamRepository(FrappeClient(dio));
+      expect(
+        () => repo.reactivate(email: 'worker@korkem.kz'),
+        throwsA(isA<ServerFailure>()),
       );
     });
   });

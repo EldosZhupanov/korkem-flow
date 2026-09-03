@@ -471,6 +471,69 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teamSectionMembers => 'Сотрудники';
 
   @override
+  String get teamChangePositionTitle => 'Сменить должность';
+
+  @override
+  String get teamChangePositionAction => 'Сменить должность';
+
+  @override
+  String get teamSavePosition => 'Сохранить должность';
+
+  @override
+  String teamChangePositionSuccess(String name, String position) {
+    return 'Должность сотрудника $name изменена на «$position»';
+  }
+
+  @override
+  String get teamDeactivateAction => 'Закрыть доступ';
+
+  @override
+  String get teamDeactivateDialogTitle => 'Закрыть доступ?';
+
+  @override
+  String teamDeactivateConfirmMessage(String name) {
+    return 'Закрыть доступ сотруднику $name? Человек потеряет доступ к системе и будут завершены все открытые сеансы работы.';
+  }
+
+  @override
+  String get teamDeactivateConfirmButton => 'Закрыть доступ';
+
+  @override
+  String teamDeactivateSuccess(int count) {
+    return 'Доступ закрыт, завершено сеансов: $count';
+  }
+
+  @override
+  String get teamReactivateAction => 'Вернуть доступ';
+
+  @override
+  String get teamReactivateDialogTitle => 'Вернуть доступ?';
+
+  @override
+  String teamReactivateConfirmMessage(String name) {
+    return 'Вернуть доступ сотруднику $name?';
+  }
+
+  @override
+  String get teamReactivateConfirmButton => 'Вернуть доступ';
+
+  @override
+  String get teamReactivateSuccess => 'Доступ возвращён';
+
+  @override
+  String get teamStatusDisabled => 'Доступ закрыт';
+
+  @override
+  String get teamStatusActive => 'Активен';
+
+  @override
+  String get teamSectionDisabled => 'Отключённые сотрудники';
+
+  @override
+  String get teamCannotModifySelf =>
+      'Нельзя изменить собственную должность или закрыть себе доступ';
+
+  @override
   String get settingsTeamTitle => 'Команда и сотрудники';
 
   @override
