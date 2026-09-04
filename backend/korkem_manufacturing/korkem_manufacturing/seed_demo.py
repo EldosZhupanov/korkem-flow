@@ -561,9 +561,68 @@ def seed_users():
 			user.append("roles", {"role": role})
 		user.new_password = DEMO_PASSWORD
 		user.save(ignore_permissions=True)
+		_bind_to_company(email)
 
+	_administrator_means_korkem()
 	frappe.db.commit()
 	return sorted(USERS)
+
+
+def _bind_to_company(email: str):
+	"""Привязать демо-сотрудника к КОРКЕМ через User Permission.
+
+	Без этого компания сотрудника — умолчание сайта, а умолчание сайта меняется
+	от чужой руки: достаточно зарегистрировать в приложении вторую компанию, и
+	она становится ответом на вопрос «чья это смена». Тесты цеха продолжали
+	брать заказы КОРКЕМ, а инструменты отвечали уже про другую компанию и
+	сообщали «заказ не найден» — тридцать семь тестов, и ни один из них не
+	показывал на настоящую причину.
+
+	Это же и правильный способ по ERPNext: User Permission — единственная
+	привязка, которую `get_list` учитывает сам.
+	"""
+	if frappe.db.exists(
+		"User Permission", {"user": email, "allow": "Company", "for_value": COMPANY}
+	):
+		return
+	frappe.get_doc(
+		{
+			"doctype": "User Permission",
+			"user": email,
+			"allow": "Company",
+			"for_value": COMPANY,
+			"apply_to_all_doctypes": 1,
+		}
+	).insert(ignore_permissions=True)
+
+
+def _administrator_means_korkem():
+	"""Демо-завод принадлежит КОРКЕМ, и умолчание сайта должно это говорить.
+
+	Почти весь набор тестов цеха ходит по этому заводу от лица Administrator.
+	Своей компании у Administrator нет, поэтому «какая компания» уходит к
+	умолчанию сайта — а умолчание сайта меняется от чужой руки: достаточно
+	завести в приложении вторую компанию, и семьдесят один тест начинает падать
+	с «заказ не найден», не показывая ни одного пальца в сторону причины.
+
+	Умолчание пользователя тут не годится, и это проверено, а не предположено:
+	строка `company` у Administrator стояла на КОРКЕМ, а
+	`frappe.defaults.get_user_default("Company")` продолжал отвечать умолчанием
+	сайта. Поэтому — сайт.
+
+	Владельца это не задевает: у каждого, кто зашёл через приложение, есть свой
+	User Permission на свою компанию, и он читается раньше умолчания.
+	"""
+	frappe.db.set_single_value("Global Defaults", "default_company", COMPANY)
+	# И отдельно — глобальное умолчание `company`. Это **не** то же самое поле:
+	# `Global Defaults.default_company` живёт в `tabSingles`, а отвечает на
+	# вопрос «какая компания» строка `company` в `tabDefaultValue` с родителем
+	# `__default`, которую пишет `on_update` документа. `set_single_value`
+	# документ не открывает, поэтому одна строка менялась, а вторая оставалась
+	# от прежней компании — и `scope.current_company()` продолжал отвечать ею,
+	# хотя в настройках сайта уже стояло КОРКЕМ. Час на этом потерян.
+	frappe.defaults.set_global_default("company", COMPANY)
+	frappe.defaults.clear_defaults_cache()
 
 
 def remove_users():
@@ -577,6 +636,7 @@ def remove_users():
 def seed():
 	"""Create the dataset. Safe to run twice."""
 	environment.require_non_production("Seeding the demo factory")
+	_administrator_means_korkem()
 	_sheet_uom()
 	_item_group()
 	seed_shop_floor()

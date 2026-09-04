@@ -2,6 +2,7 @@
 # See license.txt
 
 import frappe
+import frappe.utils.password
 from frappe.tests import IntegrationTestCase
 
 
@@ -39,6 +40,17 @@ class TestAISettingsValidation(IntegrationTestCase):
 			settings.save()
 
 	def test_cloud_provider_without_a_key_is_refused(self):
+		"""«Пусто в поле» и «ключа нет» — разные вещи, и проверка про вторую.
+
+		Ключ живёт не в поле, а в хранилище паролей, и `save_provider` намеренно
+		пропускает пустую строку: пустое поле значит «не меняю», а не «сотри
+		рабочий ключ». Поэтому очистить поле мало — на стенде, где ключ и правда
+		настроен, `get_password` продолжал возвращать его, и проверка ловила
+		состояние стенда вместо поведения кода.
+		"""
+		frappe.utils.password.remove_encrypted_password(
+			"AI Settings", "AI Settings", "api_key"
+		)
 		settings = self._settings(provider="OpenAI", base_url="", api_key="")
 		with self.assertRaises(frappe.ValidationError):
 			settings.save()

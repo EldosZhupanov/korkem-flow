@@ -26,7 +26,12 @@ Resolution order, most specific first:
 1. **A Company User Permission on the user.** ERPNext's own way of binding
    somebody to one company, and the only one that also constrains `get_list`
    automatically.
-2. **The user's default company**, set per user in Frappe's defaults.
+2. **The user's default company**, set per user in Frappe's defaults. Do not
+   rely on this one to override the site default: observed on 2026-09-04, a
+   `company` row on the user did *not* win over Global Defaults, and a row
+   written under `Company` did nothing at all. Bind a person to a company with
+   a **User Permission** — step 1 — which is the only mechanism that also
+   constrains `get_list`.
 3. **The site's default company**, from Global Defaults.
 
 If none of those answers, the tools refuse rather than guess. "Which company?"
