@@ -13,6 +13,8 @@ class ChatMessage {
     this.unrecognised = false,
     this.failure,
     this.fromFallback = false,
+    this.source,
+    this.sourceLabel,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
@@ -26,6 +28,8 @@ class ChatMessage {
         .where((f) => f.name == json['failure'])
         .firstOrNull,
     fromFallback: json['fromFallback'] as bool? ?? false,
+    source: MessageSource.fromWire(json['source'] as String?),
+    sourceLabel: (json['source_label'] ?? json['sourceLabel']) as String?,
   );
 
   final String id;
@@ -67,6 +71,25 @@ class ChatMessage {
   /// connected still says which of its turns were never answered by one.
   final bool fromFallback;
 
+  /// Откуда пришёл текст.
+  ///
+  /// `null` — поля не было: старый сервер его не шлёт, и вся прошлая переписка
+  /// иначе вдруг стала бы чужой. Отсутствие поля значит «это ваши слова».
+  ///
+  /// [MessageSource.unknown] — поле было, но значение незнакомое. Это не то же
+  /// самое: сервер что-то сказал про происхождение, а мы не разобрали. Считать
+  /// такое своим значило бы, что достаточно прислать новое слово, чтобы чужой
+  /// текст перестал быть чужим.
+  final MessageSource? source;
+
+  /// Human-readable origin label supplied by the server
+  /// (e.g. «Клиент, WhatsApp +7 777 …»).
+  final String? sourceLabel;
+
+  /// Whether this message was sent directly by the workshop owner, rather
+  /// than arriving from an external untrusted origin.
+  bool get isOwner => source == null || source == MessageSource.owner;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'role': role.wireValue,
@@ -76,7 +99,39 @@ class ChatMessage {
     if (unrecognised) 'unrecognised': true,
     if (failure != null) 'failure': failure!.name,
     if (fromFallback) 'fromFallback': true,
+    if (source != null) 'source': source!.wireValue,
+    if (sourceLabel != null) 'source_label': sourceLabel,
   };
+}
+
+/// Provenance of a message in a conversation.
+///
+/// Distinguishes the workshop owner's trusted instructions from external,
+/// untrusted data (customer input, WhatsApp, Telegram, email).
+enum MessageSource {
+  owner('owner'),
+  customer('customer'),
+  telegram('telegram'),
+  whatsapp('whatsapp'),
+  email('email'),
+
+  /// Сервер назвал источник, которого мы не знаем. Читается как чужой.
+  unknown('unknown');
+
+  const MessageSource(this.wireValue);
+
+  final String wireValue;
+
+  static MessageSource? fromWire(String? value) {
+    if (value == null) return null;
+    final normalized = value.trim().toLowerCase();
+    for (final source in MessageSource.values) {
+      if (source.wireValue == normalized) return source;
+    }
+    // Незнакомое значение — не «своё». Граница, которую можно снять незнакомым
+    // словом, не граница.
+    return MessageSource.unknown;
+  }
 }
 
 enum ChatRole {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
 import 'package:korkem_flow/core/design/motion/entrance.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/features/assistant/domain/assistant_event.dart';
@@ -20,6 +21,8 @@ const String assistantName = 'KORKEM AI';
 /// are short and belong to them; the assistant's answer runs the full width
 /// with a small label above it, because an answer may be long and a bubble
 /// around a paragraph of Markdown reads as a quotation rather than as a reply.
+/// External untrusted messages (e.g. customer inputs) are rendered as quotes
+/// with a left bar and provenance caption.
 class ChatMessageView extends StatelessWidget {
   const ChatMessageView({required this.message, super.key});
 
@@ -31,7 +34,10 @@ class ChatMessageView extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       child: Entrance(
         child: switch (message.role) {
-          ChatRole.user => _UserTurn(body: message.body),
+          ChatRole.user =>
+            message.isOwner
+                ? _UserTurn(body: message.body)
+                : _ExternalTurn(message: message),
           ChatRole.assistant => _AssistantTurn(message: message),
         },
       ),
@@ -72,6 +78,128 @@ class _UserTurn extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// An untrusted message from an external origin (customer, WhatsApp, etc.).
+///
+/// Displayed as a quoted block with a left accent bar, a distinct background,
+/// and a header stating the origin and clarifying that it is incoming data
+/// rather than a direct instruction from the workshop owner.
+class _ExternalTurn extends StatelessWidget {
+  const _ExternalTurn({required this.message});
+
+  final ChatMessage message;
+
+  static const double _maxWidthFraction = 0.88;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final statusColors = context.statusColors;
+
+    final sourceTitle =
+        (message.sourceLabel != null && message.sourceLabel!.trim().isNotEmpty)
+        ? message.sourceLabel!.trim()
+        : l10n.chatExternalMessageDefault;
+
+    // Слева, а не справа: справа стоят ваши собственные сообщения, и чужой
+    // текст в той же колонке читается как ваш, сколько бы полос мы вокруг него
+    // ни нарисовали.
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * _maxWidthFraction,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: AppSpacing.xs,
+                    color: statusColors.info,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                        vertical: AppSpacing.md,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _ExternalSourceHeader(title: sourceTitle),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            message.body,
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExternalSourceHeader extends StatelessWidget {
+  const _ExternalSourceHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final statusColors = context.statusColors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              AppIcons.conversation,
+              size: AppIconSize.dense,
+              color: statusColors.info,
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Flexible(
+              child: Text(
+                title,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: statusColors.info,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xxs),
+        Text(
+          l10n.chatExternalDataNotice,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
     );
   }
 }

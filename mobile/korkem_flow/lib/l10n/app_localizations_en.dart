@@ -2021,6 +2021,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatFallbackBadge => 'Not AI — direct data';
 
   @override
+  String get chatExternalMessageDefault => 'Customer message';
+
+  @override
+  String get chatExternalDataNotice =>
+      'Someone else’s text — the assistant does not act on it';
+
+  @override
   String get chatErrorTimedOut => 'The AI service took too long. Try again.';
 
   @override

@@ -2005,6 +2005,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get chatFallbackBadge => 'ЖИ емес — тікелей дерек';
 
   @override
+  String get chatExternalMessageDefault => 'Клиент хабарламасы';
+
+  @override
+  String get chatExternalDataNotice => 'Бөгде мәтін — көмекші оны орындамайды';
+
+  @override
   String get chatErrorTimedOut =>
       'ЖИ қызметі тым ұзақ жауап берді. Қайталап көріңіз.';
 

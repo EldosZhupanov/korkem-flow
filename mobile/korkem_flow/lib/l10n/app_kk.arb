@@ -609,6 +609,8 @@
   "chatConfirmReject": "Болдырмау",
   "chatConfirmRejected": "Болдырылмады. Ештеңе өзгерген жоқ.",
   "chatFallbackBadge": "ЖИ емес — тікелей дерек",
+  "chatExternalMessageDefault": "Клиент хабарламасы",
+  "chatExternalDataNotice": "Бөгде мәтін — көмекші оны орындамайды",
   "chatErrorTimedOut": "ЖИ қызметі тым ұзақ жауап берді. Қайталап көріңіз.",
   "chatErrorModelNotFound": "Таңдалған модель қолжетімсіз. ЖИ параметрлерінен басқасын таңдаңыз.",
   "chatErrorContextTooLarge": "Бұл диалог тым ұзын. Жаңасын бастаңыз.",

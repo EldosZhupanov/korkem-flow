@@ -3759,6 +3759,18 @@ abstract class AppLocalizations {
   /// **'Not AI — direct data'**
   String get chatFallbackBadge;
 
+  /// Default caption on an untrusted external message quote in chat
+  ///
+  /// In en, this message translates to:
+  /// **'Customer message'**
+  String get chatExternalMessageDefault;
+
+  /// Notice stating that external message is untrusted input data, not a direct command
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming data, not an instruction'**
+  String get chatExternalDataNotice;
+
   /// Provider timeout.
   ///
   /// In en, this message translates to:

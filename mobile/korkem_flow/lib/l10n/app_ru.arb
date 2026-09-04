@@ -609,6 +609,8 @@
   "chatConfirmReject": "Отменить",
   "chatConfirmRejected": "Отменено. Ничего не изменилось.",
   "chatFallbackBadge": "Без ИИ — прямые данные",
+  "chatExternalMessageDefault": "Сообщение клиента",
+  "chatExternalDataNotice": "Чужой текст — ассистент его не выполняет",
   "chatErrorTimedOut": "Сервис ИИ отвечал слишком долго. Попробуйте ещё раз.",
   "chatErrorModelNotFound": "Выбранная модель недоступна. Выберите другую в настройках ИИ.",
   "chatErrorContextTooLarge": "Этот диалог слишком длинный. Начните новый.",

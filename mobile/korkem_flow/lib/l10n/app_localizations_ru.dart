@@ -2027,6 +2027,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatFallbackBadge => 'Без ИИ — прямые данные';
 
   @override
+  String get chatExternalMessageDefault => 'Сообщение клиента';
+
+  @override
+  String get chatExternalDataNotice =>
+      'Чужой текст — ассистент его не выполняет';
+
+  @override
   String get chatErrorTimedOut =>
       'Сервис ИИ отвечал слишком долго. Попробуйте ещё раз.';
 

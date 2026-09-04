@@ -2108,6 +2108,14 @@
   "@chatFallbackBadge": {
     "description": "Badge on a reply produced without a model."
   },
+  "chatExternalMessageDefault": "Customer message",
+  "@chatExternalMessageDefault": {
+    "description": "Default caption on an untrusted external message quote in chat"
+  },
+  "chatExternalDataNotice": "Someone else’s text — the assistant does not act on it",
+  "@chatExternalDataNotice": {
+    "description": "Notice stating that external message is untrusted input data, not a direct command"
+  },
   "chatErrorTimedOut": "The AI service took too long. Try again.",
   "@chatErrorTimedOut": {
     "description": "Provider timeout."
