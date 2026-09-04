@@ -3427,5 +3427,37 @@
         "type": "String"
       }
     }
+  },
+  "promptBreakdownTitle": "Last prompt breakdown",
+  "promptBreakdownTokens": "{count} tokens",
+  "@promptBreakdownTokens": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "promptBreakdownHeaviest": "heaviest",
+  "promptBreakdownEmpty": "No prompts yet",
+  "promptBreakdownEmptyBody": "Token usage breakdown will appear here after the first assistant request.",
+  "tokenCategoryInstruction": "System instruction",
+  "tokenCategoryTools": "Tool schemas",
+  "tokenCategoryCompanyMemory": "Company memory",
+  "tokenCategoryUserMemory": "User memory",
+  "tokenCategoryConversation": "Conversation",
+  "tokenCategoryOrderData": "Order data",
+  "tokenCategoryOther": "Other",
+  "aiWeeklySummaryTitle": "Weekly summary",
+  "aiWeeklyTurns": "Total turns",
+  "aiWeeklyPrimaryModel": "Primary model",
+  "aiWeeklyReserve": "KORKEM reserve",
+  "aiWeeklyAvgDuration": "Average duration",
+  "aiWeeklySeconds": "{seconds} s",
+  "@aiWeeklySeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   }
 }

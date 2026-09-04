@@ -3039,4 +3039,63 @@ class AppLocalizationsRu extends AppLocalizations {
   String memorySourcePrefix(String source) {
     return 'Источник: $source';
   }
+
+  @override
+  String get promptBreakdownTitle => 'Из чего сложился последний запрос';
+
+  @override
+  String promptBreakdownTokens(String count) {
+    return '$count токенов';
+  }
+
+  @override
+  String get promptBreakdownHeaviest => 'самое тяжёлое';
+
+  @override
+  String get promptBreakdownEmpty => 'Запросов ещё не было';
+
+  @override
+  String get promptBreakdownEmptyBody =>
+      'Здесь появится разбивка токенов после первого обращения к ассистенту.';
+
+  @override
+  String get tokenCategoryInstruction => 'Инструкция';
+
+  @override
+  String get tokenCategoryTools => 'Схемы инструментов';
+
+  @override
+  String get tokenCategoryCompanyMemory => 'Память компании';
+
+  @override
+  String get tokenCategoryUserMemory => 'Память обо мне';
+
+  @override
+  String get tokenCategoryConversation => 'Разговор';
+
+  @override
+  String get tokenCategoryOrderData => 'Данные заказа';
+
+  @override
+  String get tokenCategoryOther => 'Прочее';
+
+  @override
+  String get aiWeeklySummaryTitle => 'Сводка за неделю';
+
+  @override
+  String get aiWeeklyTurns => 'Всего ходов';
+
+  @override
+  String get aiWeeklyPrimaryModel => 'Первой моделью';
+
+  @override
+  String get aiWeeklyReserve => 'Резерв KORKEM';
+
+  @override
+  String get aiWeeklyAvgDuration => 'Средняя длительность';
+
+  @override
+  String aiWeeklySeconds(String seconds) {
+    return '$seconds с';
+  }
 }

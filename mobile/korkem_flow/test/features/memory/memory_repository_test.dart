@@ -144,6 +144,7 @@ void main() {
           post: true,
           params: {
             'name': 'MEM-C1',
+            'value': 'Цех работает с 8 до 17',
             'text': 'Цех работает с 8 до 17',
           },
         ),
@@ -172,6 +173,7 @@ void main() {
           post: true,
           params: {
             'name': 'MEM-C1',
+            'value': 'Цех работает с 8 до 17',
             'text': 'Цех работает с 8 до 17',
           },
         ),

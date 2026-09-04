@@ -15,10 +15,10 @@ class MemoryRepository {
 
   final FrappeClient _client;
 
-  static const listEndpoint = 'korkem_manufacturing.api.memory.list';
-  static const updateEndpoint = 'korkem_manufacturing.api.memory.update';
-  static const confirmEndpoint = 'korkem_manufacturing.api.memory.confirm';
-  static const deleteEndpoint = 'korkem_manufacturing.api.memory.delete';
+  static const listEndpoint = 'korkem_ai.korkem_ai.memory_api.list';
+  static const updateEndpoint = 'korkem_ai.korkem_ai.memory_api.update';
+  static const confirmEndpoint = 'korkem_ai.korkem_ai.memory_api.confirm';
+  static const deleteEndpoint = 'korkem_ai.korkem_ai.memory_api.delete';
 
   /// Fetches all memory facts for the company and current user.
   Future<List<MemoryFact>> fetchAll() async {
@@ -82,6 +82,7 @@ class MemoryRepository {
       post: true,
       params: {
         'name': id,
+        'value': text,
         'text': text,
       },
     );

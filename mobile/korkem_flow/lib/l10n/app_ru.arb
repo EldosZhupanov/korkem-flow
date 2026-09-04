@@ -1058,5 +1058,37 @@
         "type": "String"
       }
     }
+  },
+  "promptBreakdownTitle": "Из чего сложился последний запрос",
+  "promptBreakdownTokens": "{count} токенов",
+  "@promptBreakdownTokens": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "promptBreakdownHeaviest": "самое тяжёлое",
+  "promptBreakdownEmpty": "Запросов ещё не было",
+  "promptBreakdownEmptyBody": "Здесь появится разбивка токенов после первого обращения к ассистенту.",
+  "tokenCategoryInstruction": "Инструкция",
+  "tokenCategoryTools": "Схемы инструментов",
+  "tokenCategoryCompanyMemory": "Память компании",
+  "tokenCategoryUserMemory": "Память обо мне",
+  "tokenCategoryConversation": "Разговор",
+  "tokenCategoryOrderData": "Данные заказа",
+  "tokenCategoryOther": "Прочее",
+  "aiWeeklySummaryTitle": "Сводка за неделю",
+  "aiWeeklyTurns": "Всего ходов",
+  "aiWeeklyPrimaryModel": "Первой моделью",
+  "aiWeeklyReserve": "Резерв KORKEM",
+  "aiWeeklyAvgDuration": "Средняя длительность",
+  "aiWeeklySeconds": "{seconds} с",
+  "@aiWeeklySeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   }
 }

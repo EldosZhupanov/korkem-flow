@@ -381,6 +381,7 @@ def record_attempt(
 	error_code: str | None = None,
 	turn_id: str | None = None,
 	request_id: str | None = None,
+	breakdown: dict | None = None,
 ) -> str | None:
 	"""Одна попытка обращения к модели — успешная или нет.
 
@@ -416,6 +417,7 @@ def record_attempt(
 			"fallback_reason": fallback_reason,
 			"provider_error_code": error_code,
 			"latency_ms": latency,
+			"context_breakdown": frappe.as_json(breakdown) if breakdown else None,
 		},
 	)
 

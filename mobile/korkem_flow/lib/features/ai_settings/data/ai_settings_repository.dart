@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/features/ai_settings/domain/ai_provider_config.dart';
+import 'package:korkem_flow/features/ai_settings/domain/prompt_breakdown.dart';
 
 /// The client half of the AI gateway's settings API.
 ///
@@ -102,6 +103,25 @@ class AiSettingsRepository {
         post: true,
         params: {'provider': provider, 'model': ?model},
       );
+
+  static const _usageBase = 'korkem_ai.korkem_ai.usage_api';
+
+  /// Загружает разбивку последнего запроса по токенам и недельную сводку.
+  Future<PromptBreakdownReport> promptBreakdown() async {
+    final response = await _client.callMethod(
+      '$_usageBase.get_prompt_breakdown',
+    );
+    final message = response['message'];
+    if (message is Map<String, dynamic>) {
+      return PromptBreakdownReport.fromJson(message);
+    }
+    if (message is Map) {
+      return PromptBreakdownReport.fromJson(
+        Map<String, dynamic>.from(message),
+      );
+    }
+    return const PromptBreakdownReport.empty();
+  }
 }
 
 final aiSettingsRepositoryProvider = Provider<AiSettingsRepository>(
@@ -117,4 +137,9 @@ final aiProvidersProvider =
 /// Каскад: что спросят первым, что вторым, что когда всё кончится.
 final aiCascadeProvider = FutureProvider<List<AiCascadeStep>>(
   (ref) => ref.watch(aiSettingsRepositoryProvider).cascade(),
+);
+
+/// Разбивку токенов последнего запроса и сводка использования за неделю.
+final aiPromptBreakdownProvider = FutureProvider<PromptBreakdownReport>(
+  (ref) => ref.watch(aiSettingsRepositoryProvider).promptBreakdown(),
 );

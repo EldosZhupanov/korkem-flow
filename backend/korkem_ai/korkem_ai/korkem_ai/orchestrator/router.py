@@ -169,7 +169,14 @@ def _resting(row: dict) -> bool:
 	return frappe.utils.get_datetime(until) > frappe.utils.now_datetime()
 
 
-def complete(call, *, preferred: str | None = None, on_switch=None, turn_id: str | None = None):
+def complete(
+	call,
+	*,
+	preferred: str | None = None,
+	on_switch=None,
+	turn_id: str | None = None,
+	breakdown: dict | None = None,
+):
 	"""Выполнить одно обращение к модели, перебирая цепочку при отказе.
 
 	`call` получает готовый адаптер и делает с ним ровно один вызов. Всё, что
@@ -205,7 +212,8 @@ def complete(call, *, preferred: str | None = None, on_switch=None, turn_id: str
 			first_failure = first_failure or exc
 			_record(row, exc)
 			_ledger(
-				row, index + 1, "failed", started, previous, exc, turn_id=turn_id
+				row, index + 1, "failed", started, previous, exc,
+				turn_id=turn_id, breakdown=breakdown,
 			)
 			previous = row["name"]
 			if on_switch and index + 1 < len(attempts):
@@ -213,7 +221,7 @@ def complete(call, *, preferred: str | None = None, on_switch=None, turn_id: str
 			continue
 
 		_ledger(row, index + 1, "answered", started, previous, None, turn_id=turn_id,
-			usage=getattr(answer, "usage", None))
+			usage=getattr(answer, "usage", None), breakdown=breakdown)
 		return answer
 
 	raise NoProviderAnswered(
@@ -224,7 +232,7 @@ def complete(call, *, preferred: str | None = None, on_switch=None, turn_id: str
 	)
 
 
-def _ledger(row, attempt, status, started, previous, exc, *, turn_id=None, usage=None):
+def _ledger(row, attempt, status, started, previous, exc, *, turn_id=None, usage=None, breakdown=None):
 	"""Строка в журнал на каждую попытку. Никогда не мешает работе.
 
 	Наружу из этой функции не выходит ничего: журнал, уронивший ход, хуже
@@ -249,6 +257,7 @@ def _ledger(row, attempt, status, started, previous, exc, *, turn_id=None, usage
 			fallback_reason=type(exc).__name__ if exc else None,
 			error_code=getattr(exc, "code", None) if exc else None,
 			turn_id=turn_id,
+			breakdown=breakdown,
 		)
 	except Exception:
 		pass

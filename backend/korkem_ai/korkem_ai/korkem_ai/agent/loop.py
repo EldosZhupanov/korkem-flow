@@ -128,6 +128,11 @@ def run_turn(
 		_last_question(history), all_specs=registry.offered_to()
 	)
 
+	# Из чего сложился этот запрос. Считается здесь, где всё собрано, и
+	# записывается один раз за ход: человек должен видеть не сумму, а что
+	# именно её создало. Без разбивки «почему так дорого» остаётся догадкой.
+	breakdown = _breakdown(system, messages, tool_context)
+
 	def complete_once():
 		"""Одно обращение к модели — своей или выбранной роутером.
 
@@ -139,7 +144,9 @@ def run_turn(
 		if pinned is not None:
 			return _complete(pinned, system, messages, tools, on_event)
 		return router.complete(
-			lambda adapter: _complete(adapter, system, messages, tools, on_event)
+			lambda adapter: _complete(adapter, system, messages, tools, on_event),
+			turn_id=run_id,
+			breakdown=breakdown,
 		)
 
 	for _ in range(MAX_ITERATIONS):
@@ -292,6 +299,29 @@ def _run(call: AIToolCall, run_id: str | None = None) -> dict:
 		"tool": call.name,
 		"call_id": call.id,
 		"payload": outcome,
+	}
+
+
+def _breakdown(system: str, messages, tool_context: dict) -> dict:
+	"""Оценка по разделам, а не измерение.
+
+	Токенизатор у каждого провайдера свой, и точное число известно только после
+	ответа. Четыре символа на токен — грубое правило, одинаковое для всех
+	строк, поэтому сравнивать разделы между собой оно позволяет, а обещать
+	точную цену — нет.
+	"""
+	conversation = sum(len(getattr(m, "text", None) or "") for m in messages)
+	return {
+		"instruction": len(system or "") // 4,
+		"tools": tool_context.get("tokens", 0),
+		"conversation": conversation // 4,
+		# Память в контекст пока не попадает: Этап 1 её хранит, Этап 2 ещё не
+		# подаёт. Ноль здесь — правда, а не заглушка.
+		"company_memory": 0,
+		"user_memory": 0,
+		"tools_offered": tool_context.get("offered"),
+		"tools_total": tool_context.get("total"),
+		"tools_unmatched": tool_context.get("unmatched"),
 	}
 
 

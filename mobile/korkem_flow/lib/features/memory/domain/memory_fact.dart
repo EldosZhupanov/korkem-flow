@@ -38,7 +38,7 @@ class MemoryFact {
 
     return MemoryFact(
       id: '${json['name'] ?? json['id'] ?? ''}',
-      text: '${json['text'] ?? json['fact'] ?? ''}'.trim(),
+      text: '${json['text'] ?? json['value'] ?? json['fact'] ?? ''}'.trim(),
       scope: MemoryScope.fromWire(rawScope),
       sourceLabel: source.isNotEmpty ? source : '—',
       isConfirmed: json['confirmed'] == true || json['is_confirmed'] == true,

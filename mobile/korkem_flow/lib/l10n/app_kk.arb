@@ -1058,5 +1058,37 @@
         "type": "String"
       }
     }
+  },
+  "promptBreakdownTitle": "Соңғы сұраныс неден құралды",
+  "promptBreakdownTokens": "{count} токен",
+  "@promptBreakdownTokens": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "promptBreakdownHeaviest": "ең ауыры",
+  "promptBreakdownEmpty": "Әзірге сұраныстар болған жоқ",
+  "promptBreakdownEmptyBody": "Ассистентке алғашқы сұраныстан кейін мұнда токендердің бөлінісі пайда болады.",
+  "tokenCategoryInstruction": "Нұсқаулық",
+  "tokenCategoryTools": "Құралдар сызбалары",
+  "tokenCategoryCompanyMemory": "Кәсіпорын жады",
+  "tokenCategoryUserMemory": "Мен туралы жад",
+  "tokenCategoryConversation": "Сөйлесу",
+  "tokenCategoryOrderData": "Тапсырыс деректері",
+  "tokenCategoryOther": "Басқа",
+  "aiWeeklySummaryTitle": "Апталық жиынтық",
+  "aiWeeklyTurns": "Барлық қадамдар",
+  "aiWeeklyPrimaryModel": "Бірінші модельмен",
+  "aiWeeklyReserve": "KORKEM резерві",
+  "aiWeeklyAvgDuration": "Орташа ұзақтығы",
+  "aiWeeklySeconds": "{seconds} с",
+  "@aiWeeklySeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   }
 }

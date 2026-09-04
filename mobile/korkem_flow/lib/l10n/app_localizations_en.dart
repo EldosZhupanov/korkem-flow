@@ -3021,4 +3021,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String memorySourcePrefix(String source) {
     return 'Source: $source';
   }
+
+  @override
+  String get promptBreakdownTitle => 'Last prompt breakdown';
+
+  @override
+  String promptBreakdownTokens(String count) {
+    return '$count tokens';
+  }
+
+  @override
+  String get promptBreakdownHeaviest => 'heaviest';
+
+  @override
+  String get promptBreakdownEmpty => 'No prompts yet';
+
+  @override
+  String get promptBreakdownEmptyBody =>
+      'Token usage breakdown will appear here after the first assistant request.';
+
+  @override
+  String get tokenCategoryInstruction => 'System instruction';
+
+  @override
+  String get tokenCategoryTools => 'Tool schemas';
+
+  @override
+  String get tokenCategoryCompanyMemory => 'Company memory';
+
+  @override
+  String get tokenCategoryUserMemory => 'User memory';
+
+  @override
+  String get tokenCategoryConversation => 'Conversation';
+
+  @override
+  String get tokenCategoryOrderData => 'Order data';
+
+  @override
+  String get tokenCategoryOther => 'Other';
+
+  @override
+  String get aiWeeklySummaryTitle => 'Weekly summary';
+
+  @override
+  String get aiWeeklyTurns => 'Total turns';
+
+  @override
+  String get aiWeeklyPrimaryModel => 'Primary model';
+
+  @override
+  String get aiWeeklyReserve => 'KORKEM reserve';
+
+  @override
+  String get aiWeeklyAvgDuration => 'Average duration';
+
+  @override
+  String aiWeeklySeconds(String seconds) {
+    return '$seconds s';
+  }
 }

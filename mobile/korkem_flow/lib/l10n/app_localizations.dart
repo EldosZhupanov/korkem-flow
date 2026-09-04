@@ -5402,6 +5402,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Source: {source}'**
   String memorySourcePrefix(String source);
+
+  /// No description provided for @promptBreakdownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last prompt breakdown'**
+  String get promptBreakdownTitle;
+
+  /// No description provided for @promptBreakdownTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tokens'**
+  String promptBreakdownTokens(String count);
+
+  /// No description provided for @promptBreakdownHeaviest.
+  ///
+  /// In en, this message translates to:
+  /// **'heaviest'**
+  String get promptBreakdownHeaviest;
+
+  /// No description provided for @promptBreakdownEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No prompts yet'**
+  String get promptBreakdownEmpty;
+
+  /// No description provided for @promptBreakdownEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Token usage breakdown will appear here after the first assistant request.'**
+  String get promptBreakdownEmptyBody;
+
+  /// No description provided for @tokenCategoryInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'System instruction'**
+  String get tokenCategoryInstruction;
+
+  /// No description provided for @tokenCategoryTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool schemas'**
+  String get tokenCategoryTools;
+
+  /// No description provided for @tokenCategoryCompanyMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Company memory'**
+  String get tokenCategoryCompanyMemory;
+
+  /// No description provided for @tokenCategoryUserMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'User memory'**
+  String get tokenCategoryUserMemory;
+
+  /// No description provided for @tokenCategoryConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get tokenCategoryConversation;
+
+  /// No description provided for @tokenCategoryOrderData.
+  ///
+  /// In en, this message translates to:
+  /// **'Order data'**
+  String get tokenCategoryOrderData;
+
+  /// No description provided for @tokenCategoryOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get tokenCategoryOther;
+
+  /// No description provided for @aiWeeklySummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly summary'**
+  String get aiWeeklySummaryTitle;
+
+  /// No description provided for @aiWeeklyTurns.
+  ///
+  /// In en, this message translates to:
+  /// **'Total turns'**
+  String get aiWeeklyTurns;
+
+  /// No description provided for @aiWeeklyPrimaryModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary model'**
+  String get aiWeeklyPrimaryModel;
+
+  /// No description provided for @aiWeeklyReserve.
+  ///
+  /// In en, this message translates to:
+  /// **'KORKEM reserve'**
+  String get aiWeeklyReserve;
+
+  /// No description provided for @aiWeeklyAvgDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Average duration'**
+  String get aiWeeklyAvgDuration;
+
+  /// No description provided for @aiWeeklySeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s'**
+  String aiWeeklySeconds(String seconds);
 }
 
 class _AppLocalizationsDelegate

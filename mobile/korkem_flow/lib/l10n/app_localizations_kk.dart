@@ -2984,4 +2984,63 @@ class AppLocalizationsKk extends AppLocalizations {
   String memorySourcePrefix(String source) {
     return 'Дереккөз: $source';
   }
+
+  @override
+  String get promptBreakdownTitle => 'Соңғы сұраныс неден құралды';
+
+  @override
+  String promptBreakdownTokens(String count) {
+    return '$count токен';
+  }
+
+  @override
+  String get promptBreakdownHeaviest => 'ең ауыры';
+
+  @override
+  String get promptBreakdownEmpty => 'Әзірге сұраныстар болған жоқ';
+
+  @override
+  String get promptBreakdownEmptyBody =>
+      'Ассистентке алғашқы сұраныстан кейін мұнда токендердің бөлінісі пайда болады.';
+
+  @override
+  String get tokenCategoryInstruction => 'Нұсқаулық';
+
+  @override
+  String get tokenCategoryTools => 'Құралдар сызбалары';
+
+  @override
+  String get tokenCategoryCompanyMemory => 'Кәсіпорын жады';
+
+  @override
+  String get tokenCategoryUserMemory => 'Мен туралы жад';
+
+  @override
+  String get tokenCategoryConversation => 'Сөйлесу';
+
+  @override
+  String get tokenCategoryOrderData => 'Тапсырыс деректері';
+
+  @override
+  String get tokenCategoryOther => 'Басқа';
+
+  @override
+  String get aiWeeklySummaryTitle => 'Апталық жиынтық';
+
+  @override
+  String get aiWeeklyTurns => 'Барлық қадамдар';
+
+  @override
+  String get aiWeeklyPrimaryModel => 'Бірінші модельмен';
+
+  @override
+  String get aiWeeklyReserve => 'KORKEM резерві';
+
+  @override
+  String get aiWeeklyAvgDuration => 'Орташа ұзақтығы';
+
+  @override
+  String aiWeeklySeconds(String seconds) {
+    return '$seconds с';
+  }
 }

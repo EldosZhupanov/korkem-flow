@@ -34,7 +34,8 @@
   "latency_ms",
   "provider_error_code",
   "tool_calls",
-  "cached_tokens"
+  "cached_tokens",
+  "context_breakdown"
  ],
  "fields": [
   {
@@ -217,6 +218,13 @@
    "label": "Токенов из кеша",
    "read_only": 1,
    "description": "Не все провайдеры сообщают. Пусто означает «не знаем», а не ноль."
+  },
+  {
+   "description": "Из чего сложился запрос: раздел и оценка в токенах. Одно поле, а не шесть колонок — разделы будут меняться, и каждый новый не должен стоить миграции.",
+   "fieldname": "context_breakdown",
+   "fieldtype": "Long Text",
+   "label": "Из чего сложился запрос",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 0,
