@@ -2486,6 +2486,78 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String todayHeaderDate(String date) {
+    return 'Сегодня, $date';
+  }
+
+  @override
+  String get todayImportantOverdue => 'Просрочено';
+
+  @override
+  String get todayImportantDueToday => 'Сдать сегодня';
+
+  @override
+  String get todayImportantDueThisWeek => 'Сдать на этой неделе';
+
+  @override
+  String get todayImportantUnpaid => 'Не оплачено';
+
+  @override
+  String get todayImportantMaterialDeficit => 'Материала не хватает';
+
+  @override
+  String get todayImportantInstallationToday => 'Монтаж сегодня';
+
+  @override
+  String get todayImportantRequiresDecision => 'Требует решения';
+
+  @override
+  String todayOrdersCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'заказа',
+      many: 'заказов',
+      few: 'заказа',
+      one: 'заказ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayPositionsCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'позиций',
+      many: 'позиций',
+      few: 'позиции',
+      one: 'позиция',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayApprovalsCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'согласований',
+      many: 'согласований',
+      few: 'согласования',
+      one: 'согласование',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayEmptyStateTitle => 'Всё под контролем';
+
+  @override
+  String get todayEmptyStateDescription =>
+      'На сегодня нет просрочек, дефицита материалов и действий, требующих решения.';
+
+  @override
   String get orderProductionSection => 'Производство';
 
   @override

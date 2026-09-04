@@ -315,7 +315,46 @@ def execute(
 
 	elapsed_ms = int((time.monotonic() - started) * 1000)
 	_log(name, "success", elapsed_ms)
+	_note_subject(data)
 	return {"ok": True, "tool": name, "data": data}
+
+
+#: Что в ответе инструмента означает предмет разговора.
+#:
+#: Имена полей — те, которыми отвечает ERPNext. Список короткий намеренно:
+#: запоминать всё подряд значит однажды подставить «этот» не туда.
+SUBJECT_FIELDS = {
+	"sales_order": "order",
+	"order": "order",
+	"customer": "customer",
+	"item_code": "item",
+	"item": "item",
+	"task": "task",
+	"employee": "employee",
+	"project": "project",
+}
+
+
+def _note_subject(data) -> None:
+	"""Запомнить, о чём теперь речь.
+
+	Из того, что **нашла система**, а не из слов человека: он мог сказать
+	«заказ Ерлана», а найтись мог заказ Ерлана Сериковича — и «этот заказ»
+	должно указывать на найденное.
+
+	Никогда не мешает работе: контекст, уронивший ход, хуже отсутствующего.
+	"""
+	if not isinstance(data, dict):
+		return
+	try:
+		from korkem_ai.korkem_ai.context import entities
+
+		for field, kind in SUBJECT_FIELDS.items():
+			value = data.get(field)
+			if isinstance(value, str) and value.strip():
+				entities.remember(kind, value.strip())
+	except Exception:
+		pass
 
 
 def _run_handler(spec: ToolSpec, arguments: dict, run_id: str | None):

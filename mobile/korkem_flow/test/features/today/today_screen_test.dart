@@ -1,50 +1,29 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
-import 'package:korkem_flow/features/today/application/today_controller.dart';
-import 'package:korkem_flow/features/today/data/today_attention_repository.dart';
-import 'package:korkem_flow/features/today/domain/today_attention.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/core/time/clock.dart';
+import 'package:korkem_flow/features/today/data/today_repository.dart';
+import 'package:korkem_flow/features/today/domain/today_summary.dart';
 import 'package:korkem_flow/features/today/presentation/today_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-class _FakeTodayAttentionRepository extends TodayAttentionRepository {
-  _FakeTodayAttentionRepository({required this.attention}) : super(dummyClient);
-
-  static final dummyDio = Dio();
-  static final dummyClient = FrappeClient(dummyDio);
-
-  final TodayAttention attention;
-
-  @override
-  Future<TodayAttention> fetchTodayAttention() async => attention;
-}
-
 void main() {
-  /// Экран стал длинным: сверху сводки, ниже — то, что застряло. `ListView`
-  /// строит лениво, поэтому в окне на 600 точек нижняя половина просто не
-  /// существует, и тест ищет то, чего никто не рисовал. Окно на высоту экрана.
-  Future<void> pumpScreen(WidgetTester tester, Widget app) async {
-    tester.view.physicalSize = const Size(1200, 3600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(app);
-    await tester.pumpAndSettle();
-  }
+  final testDate = DateTime(2026, 9, 4, 9);
 
   Widget buildHarness({
-    required _FakeTodayAttentionRepository repo,
+    required AsyncValue<TodaySummary> summaryState,
     List<RouteBase>? additionalRoutes,
-    bool stockFails = false,
+    DateTime? clockDate,
   }) {
     final router = GoRouter(
-      initialLocation: '/today',
+      initialLocation: Routes.today,
       routes: [
         GoRoute(
-          path: '/today',
+          path: Routes.today,
           builder: (context, state) => const TodayScreen(),
         ),
         ...?additionalRoutes,
@@ -52,31 +31,39 @@ void main() {
     );
 
     return ProviderScope(
-      // Riverpod 3 повторяет упавший провайдер с задержкой, и он навсегда
-      // остаётся «загружается», а не «упал». В тесте нам нужен именно отказ.
-      retry: (_, _) => null,
       overrides: [
-        todayAttentionRepositoryProvider.overrideWithValue(repo),
-        // Сводки заглушены целиком: без этого экран уходит в сеть, и картинка
-        // теста начинает зависеть от того, кто ответил первым.
-        todayOrdersSummaryProvider.overrideWith(
-          (ref) async => const TodayOrdersSummary(
-            activeCount: 0,
-            lateCount: 0,
-            totalCount: 0,
-          ),
+        clockProvider.overrideWithValue(() => clockDate ?? testDate),
+        todaySummaryProvider.overrideWith((ref) => summaryState.value!),
+      ],
+      child: MaterialApp.router(
+        theme: AppTheme.light(),
+        locale: const Locale('ru'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: router,
+      ),
+    );
+  }
+
+  Widget buildErrorHarness({
+    required Object error,
+    DateTime? clockDate,
+  }) {
+    final router = GoRouter(
+      initialLocation: Routes.today,
+      routes: [
+        GoRoute(
+          path: Routes.today,
+          builder: (context, state) => const TodayScreen(),
         ),
-        todayProductionSummaryProvider.overrideWith(
-          (ref) async =>
-              const TodayProductionSummary(inProcessCount: 0, lateCount: 0),
-        ),
-        todayApprovalsSummaryProvider.overrideWith(
-          (ref) async => const TodayApprovalsSummary(pendingCount: 0),
-        ),
-        todayStockSummaryProvider.overrideWith(
-          (ref) async => stockFails
-              ? throw Exception('склад недоступен')
-              : const TodayStockSummary(deficitCount: 0),
+      ],
+    );
+
+    return ProviderScope(
+      overrides: [
+        clockProvider.overrideWithValue(() => clockDate ?? testDate),
+        todaySummaryProvider.overrideWith(
+          (ref) => Future<TodaySummary>.error(error),
         ),
       ],
       child: MaterialApp.router(
@@ -89,186 +76,209 @@ void main() {
     );
   }
 
-  testWidgets(
-    'renders single all-clear hero when all four attention groups are empty',
-    (tester) async {
-      final repo = _FakeTodayAttentionRepository(
-        attention: const TodayAttention(),
+  group('TodayScreen', () {
+    testWidgets('shows localized header date', (tester) async {
+      await tester.pumpWidget(
+        buildHarness(
+          summaryState: const AsyncData(TodaySummary()),
+          clockDate: DateTime(2026, 9, 4),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Сегодня, 4 сентября'), findsWidgets);
+    });
+
+    testWidgets('1. строка с нулём не показывается', (tester) async {
+      // Data matching the mockup partially:
+      // only overdue and dueThisWeek are non-zero.
+      const summary = TodaySummary(
+        overdueOrders: 3,
+        dueThisWeekOrders: 7,
       );
 
-      await pumpScreen(tester, buildHarness(repo: repo));
+      await tester.pumpWidget(
+        buildHarness(summaryState: const AsyncData(summary)),
+      );
+      await tester.pumpAndSettle();
 
-      expect(find.text('Что требует внимания'), findsOneWidget);
+      // Non-zero rows are rendered with their numbers and labels
+      expect(find.text('Просрочено'), findsOneWidget);
+      expect(find.text('3'), findsOneWidget);
+      expect(find.text('заказа'), findsOneWidget);
+
+      expect(find.text('Сдать на этой неделе'), findsOneWidget);
+      expect(find.text('7'), findsOneWidget);
+      expect(find.text('заказов'), findsOneWidget);
+
+      // Zero-value rows MUST NOT be shown
+      expect(find.text('Сдать сегодня'), findsNothing);
+      expect(find.text('Не оплачено'), findsNothing);
+      expect(find.text('Материала не хватает'), findsNothing);
+      expect(find.text('Монтаж сегодня'), findsNothing);
+      expect(find.text('Требует решения'), findsNothing);
+
+      // No good news / empty badges for zero counts
+      expect(find.textContaining(': 0'), findsNothing);
+      expect(find.textContaining('0 заказов'), findsNothing);
+    });
+
+    testWidgets('2. всё по нулям — показывается объяснение, а не пустота', (
+      tester,
+    ) async {
+      const emptySummary = TodaySummary();
+
+      await tester.pumpWidget(
+        buildHarness(summaryState: const AsyncData(emptySummary)),
+      );
+      await tester.pumpAndSettle();
+
+      // Explanation state is visible
       expect(find.text('Всё под контролем'), findsOneWidget);
       expect(
-        find.textContaining('Все обращения переданы, просрочек нет'),
+        find.text(
+          'На сегодня нет просрочек, дефицита материалов и действий, '
+          'требующих решения.',
+        ),
         findsOneWidget,
       );
 
-      // Ensure 4 group headers are NOT rendered when all clear
-      expect(find.text('Не передано в работу'), findsNothing);
-      expect(find.text('Просроченные задачи'), findsNothing);
-      expect(find.text('Заказы без дизайна'), findsNothing);
-      expect(find.text('Отгружено без счёта'), findsNothing);
-    },
-  );
+      // No metric rows rendered
+      expect(find.text('Просрочено'), findsNothing);
+      expect(find.text('Сдать сегодня'), findsNothing);
+      expect(find.text('Сдать на этой неделе'), findsNothing);
+      expect(find.text('Не оплачено'), findsNothing);
+      expect(find.text('Материала не хватает'), findsNothing);
+      expect(find.text('Монтаж сегодня'), findsNothing);
+      expect(find.text('Требует решения'), findsNothing);
+    });
 
-  testWidgets(
-    'renders four groups, showing items for active ones '
-    'and good news for empty ones',
-    (tester) async {
-      final repo = _FakeTodayAttentionRepository(
-        attention: const TodayAttention(
-          unassignedCaptures: [
-            UnassignedCaptureItem(
-              capture: 'CAP-001',
-              said: 'Заказчик просит прихожую',
-              since: '2026-09-02 09:00',
-              customer: 'Аскар',
-            ),
-          ],
-          ordersWithoutDesign: [
-            OrderWithoutDesignItem(
-              salesOrder: 'SAL-ORD-2026-00001',
-              customer: 'ТОО Мебель',
-              due: '2026-09-20',
-            ),
-          ],
-          deliveredNotInvoiced: [
-            DeliveredNotInvoicedItem(
-              salesOrder: 'SAL-ORD-2026-00002',
-              customer: 'ЖК Батыс',
-              total: 2500000,
-              deliveredPercent: 100,
-            ),
-          ],
-        ),
+    testWidgets('3. нажатие ведёт туда, куда обещает', (tester) async {
+      const fullSummary = TodaySummary(
+        overdueOrders: 3,
+        dueTodayOrders: 2,
+        dueThisWeekOrders: 7,
+        unpaidAmount: 1240000,
+        materialDeficitCount: 4,
+        installationsToday: 1,
+        pendingApprovals: 2,
       );
 
-      await pumpScreen(tester, buildHarness(repo: repo));
-
-      // Group 1: Has item
-      expect(find.text('Не передано в работу'), findsOneWidget);
-      expect(find.text('«Заказчик просит прихожую»'), findsOneWidget);
-      expect(find.textContaining('Аскар'), findsOneWidget);
-
-      // Group 2: Empty -> Good news!
-      expect(find.text('Просроченные задачи'), findsOneWidget);
-      expect(
-        find.text('Всё в срок: нет просроченных замеров, дизайнов и монтажей'),
-        findsOneWidget,
-      );
-
-      // Group 3: Has item
-      expect(find.text('Заказы без дизайна'), findsOneWidget);
-      expect(find.text('SAL-ORD-2026-00001'), findsOneWidget);
-      expect(find.textContaining('ТОО Мебель'), findsOneWidget);
-
-      // Group 4: Has item
-      expect(find.text('Отгружено без счёта'), findsOneWidget);
-      expect(find.textContaining('SAL-ORD-2026-00002'), findsOneWidget);
-      expect(find.textContaining('ЖК Батыс'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'tapping attention items navigates to target resolution screens',
-    (tester) async {
-      String? navigatedRoute;
-
-      final repo = _FakeTodayAttentionRepository(
-        attention: const TodayAttention(
-          unassignedCaptures: [
-            UnassignedCaptureItem(
-              capture: 'CAP-001',
-              said: 'Заказчик просит прихожую',
-              since: '2026-09-02',
-              customer: 'Аскар',
-            ),
-          ],
-          overdueTasks: [
-            OverdueTaskItem(
-              task: 'TASK-001',
-              title: 'Замер',
-              who: 'Ерлан',
-              wasDue: '2026-09-01',
-              on: 'SAL-ORD-2026-00099',
-            ),
-          ],
-          ordersWithoutDesign: [
-            OrderWithoutDesignItem(
-              salesOrder: 'SAL-ORD-2026-00001',
-              customer: 'ТОО Мебель',
-            ),
-          ],
-        ),
-      );
+      String? lastNavigatedUri;
 
       final additionalRoutes = [
         GoRoute(
-          path: '/enquiry-flow',
+          path: Routes.orders,
           builder: (context, state) {
-            navigatedRoute =
-                '/enquiry-flow?capture=${state.uri.queryParameters['capture']}';
-            return const Scaffold(body: Text('Enquiry Flow Screen'));
+            lastNavigatedUri = state.uri.toString();
+            return const Scaffold(body: Text('Orders Screen'));
           },
         ),
         GoRoute(
-          path: '/orders/:name',
+          path: Routes.items,
           builder: (context, state) {
-            navigatedRoute = '/orders/${state.pathParameters['name']}';
-            return const Scaffold(body: Text('Order Detail Screen'));
+            lastNavigatedUri = state.uri.toString();
+            return const Scaffold(body: Text('Items Screen'));
+          },
+        ),
+        GoRoute(
+          path: Routes.tasks,
+          builder: (context, state) {
+            lastNavigatedUri = state.uri.toString();
+            return const Scaffold(body: Text('Tasks Screen'));
+          },
+        ),
+        GoRoute(
+          path: Routes.approvals,
+          builder: (context, state) {
+            lastNavigatedUri = state.uri.toString();
+            return const Scaffold(body: Text('Approvals Screen'));
           },
         ),
       ];
 
-      await pumpScreen(
-        tester,
-        buildHarness(repo: repo, additionalRoutes: additionalRoutes),
+      await tester.pumpWidget(
+        buildHarness(
+          summaryState: const AsyncData(fullSummary),
+          additionalRoutes: additionalRoutes,
+        ),
       );
       await tester.pumpAndSettle();
 
-      // Tap capture -> navigates to enquiry-flow with capture parameter
-      await tester.tap(find.text('«Заказчик просит прихожую»'));
-      await tester.pumpAndSettle();
-      expect(navigatedRoute, '/enquiry-flow?capture=CAP-001');
+      // All 7 rows are displayed
+      expect(find.text('Просрочено'), findsOneWidget);
+      expect(find.text('Сдать сегодня'), findsOneWidget);
+      expect(find.text('Сдать на этой неделе'), findsOneWidget);
+      expect(find.text('Не оплачено'), findsOneWidget);
+      expect(find.text('Материала не хватает'), findsOneWidget);
+      expect(find.text('Монтаж сегодня'), findsOneWidget);
+      expect(find.text('Требует решения'), findsOneWidget);
 
-      // Go back to today
-      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      // 1. Tap "Просрочено" -> /orders?filter=overdue
+      await tester.tap(find.text('Просрочено'));
+      await tester.pumpAndSettle();
+      expect(lastNavigatedUri, '/orders?filter=overdue');
+      tester.state<NavigatorState>(find.byType(Navigator).last).pop();
       await tester.pumpAndSettle();
 
-      // Tap overdue task linked to Sales Order -> navigates to order
-      await tester.tap(find.text('Замер'));
+      // 2. Tap "Сдать сегодня" -> /orders?filter=due_today
+      await tester.tap(find.text('Сдать сегодня'));
       await tester.pumpAndSettle();
-      expect(navigatedRoute, '/orders/SAL-ORD-2026-00099');
-    },
-  );
+      expect(lastNavigatedUri, '/orders?filter=due_today');
+      tester.state<NavigatorState>(find.byType(Navigator).last).pop();
+      await tester.pumpAndSettle();
 
-  testWidgets('упавшая сводка не прячет список дел', (tester) async {
-    // Склад недоступен — это не повод оставить владельца без списка того, что
-    // застряло. Раньше сводки и дела жили на разных экранах, и такой вопрос не
-    // возникал; теперь они рядом, и падение одной половины должно оставаться
-    // падением одной половины.
-    final repo = _FakeTodayAttentionRepository(
-      attention: const TodayAttention(
-        unassignedCaptures: [
-          UnassignedCaptureItem(
-            capture: 'CAP-001',
-            said: 'Заказчик просит прихожую',
-            since: '2026-09-02',
-            customer: 'Данияр',
+      // 3. Tap "Сдать на этой неделе" -> /orders?filter=due_this_week
+      await tester.tap(find.text('Сдать на этой неделе'));
+      await tester.pumpAndSettle();
+      expect(lastNavigatedUri, '/orders?filter=due_this_week');
+      tester.state<NavigatorState>(find.byType(Navigator).last).pop();
+      await tester.pumpAndSettle();
+
+      // 4. Tap "Не оплачено" -> /orders?filter=unpaid
+      await tester.tap(find.text('Не оплачено'));
+      await tester.pumpAndSettle();
+      expect(lastNavigatedUri, '/orders?filter=unpaid');
+      tester.state<NavigatorState>(find.byType(Navigator).last).pop();
+      await tester.pumpAndSettle();
+
+      // 5. Tap "Материала не хватает" -> /items?filter=deficit
+      await tester.tap(find.text('Материала не хватает'));
+      await tester.pumpAndSettle();
+      expect(lastNavigatedUri, '/items?filter=deficit');
+      tester.state<NavigatorState>(find.byType(Navigator).last).pop();
+      await tester.pumpAndSettle();
+
+      // 6. Tap "Монтаж сегодня" -> /tasks?filter=today
+      await tester.tap(find.text('Монтаж сегодня'));
+      await tester.pumpAndSettle();
+      expect(lastNavigatedUri, '/tasks?filter=today');
+      tester.state<NavigatorState>(find.byType(Navigator).last).pop();
+      await tester.pumpAndSettle();
+
+      // 7. Tap "Требует решения" -> /dashboard/approvals
+      await tester.tap(find.text('Требует решения'));
+      await tester.pumpAndSettle();
+      expect(lastNavigatedUri, '/dashboard/approvals');
+    });
+
+    testWidgets('4. отказ сервера показан его словами', (tester) async {
+      await tester.pumpWidget(
+        buildErrorHarness(
+          error: const ServerFailure(
+            'Сервер перегружен: сервис оперативной сводки временно недоступен',
           ),
-        ],
-      ),
-    );
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    await pumpScreen(
-      tester,
-      buildHarness(repo: repo, stockFails: true),
-    );
-
-    expect(find.text('Не удалось загрузить'), findsOneWidget);
-    expect(find.textContaining('Заказчик просит прихожую'), findsOneWidget);
-    expect(find.text('Не передано в работу'), findsOneWidget);
+      expect(
+        find.text(
+          'Сервер перегружен: сервис оперативной сводки временно недоступен',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Повторить'), findsOneWidget);
+    });
   });
 }

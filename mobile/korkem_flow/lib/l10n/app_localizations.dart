@@ -4521,6 +4521,84 @@ abstract class AppLocalizations {
   /// **'Shipped {delivered}%, billed {billed}%'**
   String todayBilledProgress(String delivered, String billed);
 
+  /// Screen header with date
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {date}'**
+  String todayHeaderDate(String date);
+
+  /// Row label for overdue orders
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get todayImportantOverdue;
+
+  /// Row label for orders due today
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get todayImportantDueToday;
+
+  /// Row label for orders due this week
+  ///
+  /// In en, this message translates to:
+  /// **'Due this week'**
+  String get todayImportantDueThisWeek;
+
+  /// Row label for unpaid amount
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get todayImportantUnpaid;
+
+  /// Row label for material shortage positions
+  ///
+  /// In en, this message translates to:
+  /// **'Material shortage'**
+  String get todayImportantMaterialDeficit;
+
+  /// Row label for installations scheduled today
+  ///
+  /// In en, this message translates to:
+  /// **'Installation today'**
+  String get todayImportantInstallationToday;
+
+  /// Row label for pending approval decisions
+  ///
+  /// In en, this message translates to:
+  /// **'Requires decision'**
+  String get todayImportantRequiresDecision;
+
+  /// Unit for orders count
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{order} other{orders}}'**
+  String todayOrdersCountUnit(int count);
+
+  /// Unit for material items/positions count
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{item} other{items}}'**
+  String todayPositionsCountUnit(int count);
+
+  /// Unit for approvals count
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{approval} other{approvals}}'**
+  String todayApprovalsCountUnit(int count);
+
+  /// Empty state title when all metrics are zero
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is under control'**
+  String get todayEmptyStateTitle;
+
+  /// Empty state description when all metrics are zero
+  ///
+  /// In en, this message translates to:
+  /// **'No overdue orders, material shortages, or actions requiring decisions for today.'**
+  String get todayEmptyStateDescription;
+
   /// Section heading for the production jobs of one order.
   ///
   /// In en, this message translates to:

@@ -12,11 +12,22 @@ from korkem_ai.korkem_ai.context import entities
 PERSON = "entity-test@korkem.kz"
 
 
-def _person(email: str) -> str:
+def _person(email: str, *, employee: bool = False) -> str:
+	"""Человек для проверки.
+
+	`employee` — с ролью цеха. Без неё `policy.role_of` считает человека
+	клиентом, а клиенту инструменты склада и продаж не положены: политика
+	работает верно, и обходить её в тесте значило бы проверять не тот путь.
+	"""
 	if not frappe.db.exists("User", email):
 		frappe.get_doc(
 			{"doctype": "User", "email": email, "first_name": "Проверка", "send_welcome_email": 0}
 		).insert(ignore_permissions=True)
+	if employee:
+		doc = frappe.get_doc("User", email)
+		if "Manufacturing User" not in {r.role for r in doc.get("roles") or []}:
+			doc.append("roles", {"role": "Manufacturing User"})
+			doc.save(ignore_permissions=True)
 	return email
 
 
@@ -128,3 +139,71 @@ class TestMoneyNeverUsesAPronoun(IntegrationTestCase):
 
 		self.assertIn("money", text)
 		self.assertIn("ask which one", text)
+
+
+class TestTheToolsAreWhatFillTheContext(IntegrationTestCase):
+	"""Предмет разговора берётся из найденного, а не из сказанного.
+
+	Человек мог сказать «заказ Ерлана», а найтись мог заказ Ерлана Сериковича —
+	и «этот заказ» должно указывать на найденное.
+	"""
+
+	def setUp(self):
+		self.user = _person("entity-tools@korkem.kz", employee=True)
+		frappe.db.delete(entities.DOCTYPE, {"user": self.user})
+		frappe.set_user(self.user)
+		self.names = []
+
+	def tearDown(self):
+		from korkem_ai.korkem_ai.tools import registry
+
+		frappe.set_user("Administrator")
+		for name in self.names:
+			registry._REGISTRY.pop(name, None)
+		frappe.db.delete(entities.DOCTYPE, {"user": self.user})
+
+	def _tool(self, payload):
+		from korkem_ai.korkem_ai.tools import registry
+
+		name = f"sales.find_{frappe.generate_hash(length=6)}"
+		self.names.append(name)
+		registry._REGISTRY[name] = registry.ToolSpec(
+			name=name,
+			description="проверка",
+			input_schema={"type": "object", "properties": {}},
+			risk=registry.Risk.READ,
+			handler=lambda **kw: payload,
+		)
+		return name
+
+	def test_a_found_order_becomes_this_order(self):
+		from korkem_ai.korkem_ai.tools import registry
+
+		tool = self._tool({"sales_order": "SAL-ORD-2026-00042", "total": 650000})
+
+		result = registry.execute(tool, {})
+
+		self.assertTrue(result["ok"], result)
+		self.assertEqual(
+			entities.current("order", user=self.user), "SAL-ORD-2026-00042"
+		)
+
+	def test_a_result_without_a_subject_changes_nothing(self):
+		from korkem_ai.korkem_ai.tools import registry
+
+		entities.remember("order", "SAL-ORD-00001", user=self.user)
+		registry.execute(self._tool({"count": 3, "total": 12}), {})
+
+		self.assertEqual(entities.current("order", user=self.user), "SAL-ORD-00001")
+
+	def test_a_broken_context_never_breaks_the_tool(self):
+		"""Контекст, уронивший ход, хуже отсутствующего контекста."""
+		from unittest.mock import patch
+
+		from korkem_ai.korkem_ai.tools import registry
+
+		tool = self._tool({"sales_order": "SAL-ORD-00003"})
+		with patch.object(entities, "remember", side_effect=RuntimeError("база упала")):
+			result = registry.execute(tool, {})
+
+		self.assertTrue(result["ok"])

@@ -2470,6 +2470,72 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String todayHeaderDate(String date) {
+    return 'Today, $date';
+  }
+
+  @override
+  String get todayImportantOverdue => 'Overdue';
+
+  @override
+  String get todayImportantDueToday => 'Due today';
+
+  @override
+  String get todayImportantDueThisWeek => 'Due this week';
+
+  @override
+  String get todayImportantUnpaid => 'Unpaid';
+
+  @override
+  String get todayImportantMaterialDeficit => 'Material shortage';
+
+  @override
+  String get todayImportantInstallationToday => 'Installation today';
+
+  @override
+  String get todayImportantRequiresDecision => 'Requires decision';
+
+  @override
+  String todayOrdersCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'orders',
+      one: 'order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayPositionsCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'items',
+      one: 'item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayApprovalsCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'approvals',
+      one: 'approval',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayEmptyStateTitle => 'Everything is under control';
+
+  @override
+  String get todayEmptyStateDescription =>
+      'No overdue orders, material shortages, or actions requiring decisions for today.';
+
+  @override
   String get orderProductionSection => 'Production';
 
   @override

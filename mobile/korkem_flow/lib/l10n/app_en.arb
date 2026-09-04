@@ -2697,6 +2697,78 @@
       }
     }
   },
+  "todayHeaderDate": "Today, {date}",
+  "@todayHeaderDate": {
+    "description": "Screen header with date",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "todayImportantOverdue": "Overdue",
+  "@todayImportantOverdue": {
+    "description": "Row label for overdue orders"
+  },
+  "todayImportantDueToday": "Due today",
+  "@todayImportantDueToday": {
+    "description": "Row label for orders due today"
+  },
+  "todayImportantDueThisWeek": "Due this week",
+  "@todayImportantDueThisWeek": {
+    "description": "Row label for orders due this week"
+  },
+  "todayImportantUnpaid": "Unpaid",
+  "@todayImportantUnpaid": {
+    "description": "Row label for unpaid amount"
+  },
+  "todayImportantMaterialDeficit": "Material shortage",
+  "@todayImportantMaterialDeficit": {
+    "description": "Row label for material shortage positions"
+  },
+  "todayImportantInstallationToday": "Installation today",
+  "@todayImportantInstallationToday": {
+    "description": "Row label for installations scheduled today"
+  },
+  "todayImportantRequiresDecision": "Requires decision",
+  "@todayImportantRequiresDecision": {
+    "description": "Row label for pending approval decisions"
+  },
+  "todayOrdersCountUnit": "{count, plural, one{order} other{orders}}",
+  "@todayOrdersCountUnit": {
+    "description": "Unit for orders count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayPositionsCountUnit": "{count, plural, one{item} other{items}}",
+  "@todayPositionsCountUnit": {
+    "description": "Unit for material items/positions count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayApprovalsCountUnit": "{count, plural, one{approval} other{approvals}}",
+  "@todayApprovalsCountUnit": {
+    "description": "Unit for approvals count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayEmptyStateTitle": "Everything is under control",
+  "@todayEmptyStateTitle": {
+    "description": "Empty state title when all metrics are zero"
+  },
+  "todayEmptyStateDescription": "No overdue orders, material shortages, or actions requiring decisions for today.",
+  "@todayEmptyStateDescription": {
+    "description": "Empty state description when all metrics are zero"
+  },
   "orderProductionSection": "Production",
   "@orderProductionSection": {
     "description": "Section heading for the production jobs of one order."

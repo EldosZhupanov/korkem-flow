@@ -2434,6 +2434,69 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String todayHeaderDate(String date) {
+    return 'Бүгін, $date';
+  }
+
+  @override
+  String get todayImportantOverdue => 'Мерзімі өткен';
+
+  @override
+  String get todayImportantDueToday => 'Бүгін өткізу';
+
+  @override
+  String get todayImportantDueThisWeek => 'Осы аптада өткізу';
+
+  @override
+  String get todayImportantUnpaid => 'Төленбеген';
+
+  @override
+  String get todayImportantMaterialDeficit => 'Материал жетпейді';
+
+  @override
+  String get todayImportantInstallationToday => 'Бүгінгі монтаж';
+
+  @override
+  String get todayImportantRequiresDecision => 'Шешімді қажет етеді';
+
+  @override
+  String todayOrdersCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count тапсырыс',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayPositionsCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count позиция',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayApprovalsCountUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count келісім',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayEmptyStateTitle => 'Барлығы бақылауда';
+
+  @override
+  String get todayEmptyStateDescription =>
+      'Бүгінге мерзімі өткен тапсырыстар, материал тапшылығы және шешімді қажет ететін әрекеттер жоқ.';
+
+  @override
   String get orderProductionSection => 'Өндіріс';
 
   @override
