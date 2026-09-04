@@ -40,6 +40,7 @@ from dataclasses import dataclass, field
 
 import frappe
 
+from korkem_ai.korkem_ai import untrusted
 from korkem_ai.korkem_ai.agent import prompt as prompt_module
 from korkem_ai.korkem_ai.context import tools as context_tools
 from korkem_ai.korkem_ai.orchestrator import llm, router
@@ -115,6 +116,10 @@ def run_turn(
 		user_full_name=frappe.utils.get_fullname(frappe.session.user),
 		today=frappe.utils.nowdate(),
 		role=policy.role_of(),
+		# Правило о чужом тексте нужно ровно тогда, когда чужой текст в ходе
+		# есть. Спрашиваем сами сообщения, а не вызывающего: конверт мог прийти
+		# из истории переписки, а не из последней реплики.
+		has_untrusted=any(untrusted.is_wrapped(m.text) for m in messages),
 	)
 	# Не весь каталог, а то, о чём спросили. Измерено 4 сентября: схемы
 	# 65 инструментов — 93% запроса, ещё до того как человек что-то сказал.

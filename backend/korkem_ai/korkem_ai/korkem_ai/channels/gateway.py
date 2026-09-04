@@ -191,9 +191,9 @@ def accept(message: InboundMessage) -> dict:
 		# tools would refuse everything with an error a customer should never
 		# see.
 		if frappe.db.get_single_value("AI Settings", "enabled"):
-			from korkem_ai.korkem_ai.orchestrator import router
+			from korkem_ai.korkem_ai.orchestrator import inbound
 
-			router.handle_message_async(
+			inbound.handle_message_async(
 				conversation.name,
 				message.text,
 				# Only when the provider actually gave us an id. `request_id`
@@ -317,7 +317,7 @@ def _run_turn(
 	request_id: str | None = None,
 ):
 	"""The turn itself, once the session and the role pin are in place."""
-	from korkem_ai.korkem_ai import budget, errors, usage
+	from korkem_ai.korkem_ai import budget, errors, untrusted, usage
 	from korkem_ai.korkem_ai.agent import loop
 	from korkem_ai.korkem_ai.orchestrator import llm
 	from korkem_ai.korkem_ai.orchestrator.protocol import AIMessage
@@ -365,9 +365,22 @@ def _run_turn(
 		budget.check(user)
 
 		adapter = llm.resolve(None, None)
+		# Слова сотрудника — указание. Текст клиента — данные: он уходит модели
+		# в конверте, из которого его нельзя выдать за указание, потому что для
+		# модели «оформи отгрузку» от клиента и от владельца выглядят одинаково,
+		# а различает их только то, кто это написал. Роль берётся из базы —
+		# из `Channel Identity`, который пишет только администратор, — и никогда
+		# из самого сообщения.
+		prompt_text = (
+			untrusted.wrap(text, origin=f"клиент, {channel}")
+			if policy.role_of() == policy.CUSTOMER
+			else text
+		)
 		# Тот же ключ однократного выполнения, что и в приложении: канал ходит
 		# в тот же мозг и создаёт те же заказы.
-		result = loop.run_turn([AIMessage.user(text)], provider=adapter, run_id=turn)
+		result = loop.run_turn(
+			[AIMessage.user(prompt_text)], provider=adapter, run_id=turn
+		)
 		# Same single point as the app path: every outcome is known here, and a
 		# channel turn costs exactly what an app turn costs. `record_turn`
 		# rather than `record` so that nothing about describing the turn is

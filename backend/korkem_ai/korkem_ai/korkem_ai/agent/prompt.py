@@ -24,6 +24,7 @@ destructive tool to be talked into using.
 
 import frappe
 
+from korkem_ai.korkem_ai import untrusted
 from korkem_ai.korkem_ai.tools import policy
 
 SYSTEM_INSTRUCTION = """\
@@ -145,6 +146,7 @@ def build(
 	user_full_name: str | None = None,
 	today: str | None = None,
 	role: str | None = None,
+	has_untrusted: bool = False,
 ) -> str:
 	"""The instruction, plus the little context a model cannot look up.
 
@@ -156,8 +158,16 @@ def build(
 	`role` selects which instruction is in force. It comes from
 	`policy.role_of`, which reads the database — never from anything the person
 	wrote, and never from an argument the model produced.
+
+	`has_untrusted` добавляет правило о чужом тексте. Оно стоит около шестидесяти
+	токенов и добавляется только когда в ходе действительно есть конверт: платить
+	за него на каждом вопросе владельца значило бы отменить половину того, что
+	дал отбор инструментов по области.
 	"""
 	lines = [CUSTOMER_INSTRUCTION if role == policy.CUSTOMER else SYSTEM_INSTRUCTION]
+
+	if has_untrusted:
+		lines.append(untrusted.RULE)
 
 	context = []
 	if user_full_name:
