@@ -22,6 +22,9 @@ abstract final class AppIcons {
   static const IconData task = Symbols.checklist_rounded;
   static const IconData warehouse = Symbols.warehouse_rounded;
   static const IconData item = Symbols.inventory_2_rounded;
+  static const IconData material = Symbols.category_rounded;
+  static const IconData board = Symbols.layers_rounded;
+  static const IconData edge = Symbols.border_style_rounded;
   static const IconData approval = Symbols.approval_rounded;
   static const IconData conversation = Symbols.forum_rounded;
   static const IconData dashboard = Symbols.dashboard_rounded;

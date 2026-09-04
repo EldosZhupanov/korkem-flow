@@ -3245,4 +3245,102 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get eventsDismissSuccess => 'Событие скрыто';
+
+  @override
+  String get materialsTitle => 'Материалы';
+
+  @override
+  String get materialsSubtitle => 'Каталог плит и кромки';
+
+  @override
+  String get navMaterials => 'Материалы';
+
+  @override
+  String get materialKindBoard => 'Плита';
+
+  @override
+  String get materialKindEdge => 'Кромка';
+
+  @override
+  String get materialsFilterAll => 'Все';
+
+  @override
+  String get materialsFilterBoards => 'Плиты';
+
+  @override
+  String get materialsFilterEdges => 'Кромка';
+
+  @override
+  String materialsThicknessLabel(String thickness) {
+    return '$thickness мм';
+  }
+
+  @override
+  String materialsFormatDimensions(int width, int height) {
+    return '$width×$height мм';
+  }
+
+  @override
+  String get materialsColorWhite => 'Белый';
+
+  @override
+  String get materialsColorWood => 'Дерево';
+
+  @override
+  String get materialsColorGrey => 'Серый';
+
+  @override
+  String get materialsColorBlack => 'Чёрный';
+
+  @override
+  String get materialsFilterThickness16 => '16 мм';
+
+  @override
+  String get materialsFilterThickness18 => '18 мм';
+
+  @override
+  String get materialsSearchHint =>
+      'Поиск по коду декора, названию, производителю';
+
+  @override
+  String get materialsEmptyTitle => 'Каталог материалов пуст';
+
+  @override
+  String get materialsEmptyMessage =>
+      'Позиции каталога появятся здесь после синхронизации.';
+
+  @override
+  String get materialsEmptyFilteredTitle => 'Ничего не найдено';
+
+  @override
+  String get materialsEmptyFilteredMessage =>
+      'Попробуйте изменить параметры поиска или сбросить фильтры.';
+
+  @override
+  String get materialsFilterTitle => 'Фильтры';
+
+  @override
+  String get materialsFilterThickness => 'Толщина';
+
+  @override
+  String get materialsFilterColorFamily => 'Семейство цвета';
+
+  @override
+  String get materialsFilterKind => 'Тип материала';
+
+  @override
+  String get materialsActive => 'Активен';
+
+  @override
+  String get materialsInactive => 'Архив';
+
+  @override
+  String materialsFitsThickness(String thickness) {
+    return 'под $thickness мм';
+  }
+
+  @override
+  String materialsEdgeWidth(String width) {
+    return 'ширина $width мм';
+  }
 }

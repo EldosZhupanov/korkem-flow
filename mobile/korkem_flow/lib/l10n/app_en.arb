@@ -3635,5 +3635,144 @@
   "eventsDismissSuccess": "Event dismissed",
   "@eventsDismissSuccess": {
     "description": "Feedback message when an event is dismissed"
+  },
+  "materialsTitle": "Materials",
+  "@materialsTitle": {
+    "description": "Title of the Materials screen"
+  },
+  "materialsSubtitle": "Board and edge catalogue",
+  "@materialsSubtitle": {
+    "description": "Subtitle of the Materials screen"
+  },
+  "navMaterials": "Materials",
+  "@navMaterials": {
+    "description": "Sidebar and navigation label for Materials"
+  },
+  "materialKindBoard": "Board",
+  "@materialKindBoard": {
+    "description": "Chip label for board/sheet material"
+  },
+  "materialKindEdge": "Edge",
+  "@materialKindEdge": {
+    "description": "Chip label for edge band material"
+  },
+  "materialsFilterAll": "All",
+  "@materialsFilterAll": {
+    "description": "Filter option to show all materials"
+  },
+  "materialsFilterBoards": "Boards",
+  "@materialsFilterBoards": {
+    "description": "Filter option to show only boards"
+  },
+  "materialsFilterEdges": "Edges",
+  "@materialsFilterEdges": {
+    "description": "Filter option to show only edges"
+  },
+  "materialsThicknessLabel": "{thickness} mm",
+  "@materialsThicknessLabel": {
+    "description": "Formatted thickness in millimeters",
+    "placeholders": {
+      "thickness": {
+        "type": "String"
+      }
+    }
+  },
+  "materialsFormatDimensions": "{width}×{height} mm",
+  "@materialsFormatDimensions": {
+    "description": "Sheet dimensions formatted as width × height mm",
+    "placeholders": {
+      "width": {
+        "type": "int"
+      },
+      "height": {
+        "type": "int"
+      }
+    }
+  },
+  "materialsColorWhite": "White",
+  "@materialsColorWhite": {
+    "description": "White color family"
+  },
+  "materialsColorWood": "Wood",
+  "@materialsColorWood": {
+    "description": "Wood color family"
+  },
+  "materialsColorGrey": "Grey",
+  "@materialsColorGrey": {
+    "description": "Grey color family"
+  },
+  "materialsColorBlack": "Black",
+  "@materialsColorBlack": {
+    "description": "Black color family"
+  },
+  "materialsFilterThickness16": "16 mm",
+  "@materialsFilterThickness16": {
+    "description": "Filter chip for 16 mm thickness"
+  },
+  "materialsFilterThickness18": "18 mm",
+  "@materialsFilterThickness18": {
+    "description": "Filter chip for 18 mm thickness"
+  },
+  "materialsSearchHint": "Search by decor code, name, manufacturer",
+  "@materialsSearchHint": {
+    "description": "Hint text for materials search field"
+  },
+  "materialsEmptyTitle": "Catalogue is empty",
+  "@materialsEmptyTitle": {
+    "description": "Empty state title when there are no materials"
+  },
+  "materialsEmptyMessage": "Catalogue items will appear here once synchronized.",
+  "@materialsEmptyMessage": {
+    "description": "Empty state message when there are no materials"
+  },
+  "materialsEmptyFilteredTitle": "No materials found",
+  "@materialsEmptyFilteredTitle": {
+    "description": "Empty state title when search or filters yield no results"
+  },
+  "materialsEmptyFilteredMessage": "Try adjusting your search terms or clearing active filters.",
+  "@materialsEmptyFilteredMessage": {
+    "description": "Empty state message when search or filters yield no results"
+  },
+  "materialsFilterTitle": "Filters",
+  "@materialsFilterTitle": {
+    "description": "Title for filter sheet"
+  },
+  "materialsFilterThickness": "Thickness",
+  "@materialsFilterThickness": {
+    "description": "Thickness section title"
+  },
+  "materialsFilterColorFamily": "Color family",
+  "@materialsFilterColorFamily": {
+    "description": "Color family section title"
+  },
+  "materialsFilterKind": "Type",
+  "@materialsFilterKind": {
+    "description": "Material kind filter title"
+  },
+  "materialsActive": "Active",
+  "@materialsActive": {
+    "description": "Active status label"
+  },
+  "materialsInactive": "Inactive",
+  "@materialsInactive": {
+    "description": "Inactive status label"
+  },
+  "materialsFitsThickness": "fits {thickness} mm",
+  "@materialsFitsThickness": {
+    "description": "Board thickness that this edge fits",
+    "placeholders": {
+      "thickness": {
+        "type": "String"
+      }
+    }
+  },
+  "materialsEdgeWidth": "width {width} mm",
+  "@materialsEdgeWidth": {
+    "description": "Width of the edge banding",
+    "placeholders": {
+      "width": {
+        "type": "String"
+      }
+    }
   }
 }

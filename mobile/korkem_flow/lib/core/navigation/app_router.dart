@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/enquiry_flow/presentation/enquiry_flow_scre
 import 'package:korkem_flow/features/integration_settings/presentation/integration_settings_screen.dart';
 import 'package:korkem_flow/features/items/presentation/items_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
+import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/delivery_centre_screen.dart';
@@ -50,6 +51,7 @@ abstract final class Routes {
   static const adminStats = '/admin-stats';
   static const team = '/team';
   static const items = '/items';
+  static const materials = '/materials';
   static const warehouses = '/settings/warehouses';
   static const integrations = '/settings/integrations';
   static const bazisImport = '/bazis-import';
@@ -244,6 +246,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.items,
         builder: (context, state) => const ItemsScreen(),
+      ),
+      GoRoute(
+        path: Routes.materials,
+        builder: (context, state) => const MaterialsScreen(),
       ),
       GoRoute(
         path: Routes.warehouses,

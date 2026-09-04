@@ -128,6 +128,11 @@ const sidebarSectionEntries = <SidebarEntry>[
     icon: AppIcons.item,
     labelOf: _items,
   ),
+  SidebarPage(
+    path: Routes.materials,
+    icon: AppIcons.material,
+    labelOf: _materials,
+  ),
   // Команда — ежедневная работа владельца, а не настройка. В настройках она
   // лежала рядом с выбором темы, то есть рядом с тем, что трогают раз в жизни.
   SidebarPage(
@@ -162,4 +167,5 @@ String _team(AppLocalizations l10n) => l10n.teamTitle;
 String _enquiryFlow(AppLocalizations l10n) => l10n.enquiryFlowTitle;
 String _profile(AppLocalizations l10n) => l10n.navProfile;
 String _items(AppLocalizations l10n) => l10n.navItems;
+String _materials(AppLocalizations l10n) => l10n.navMaterials;
 String _settings(AppLocalizations l10n) => l10n.settingsTitle;

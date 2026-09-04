@@ -3221,4 +3221,101 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventsDismissSuccess => 'Event dismissed';
+
+  @override
+  String get materialsTitle => 'Materials';
+
+  @override
+  String get materialsSubtitle => 'Board and edge catalogue';
+
+  @override
+  String get navMaterials => 'Materials';
+
+  @override
+  String get materialKindBoard => 'Board';
+
+  @override
+  String get materialKindEdge => 'Edge';
+
+  @override
+  String get materialsFilterAll => 'All';
+
+  @override
+  String get materialsFilterBoards => 'Boards';
+
+  @override
+  String get materialsFilterEdges => 'Edges';
+
+  @override
+  String materialsThicknessLabel(String thickness) {
+    return '$thickness mm';
+  }
+
+  @override
+  String materialsFormatDimensions(int width, int height) {
+    return '$width×$height mm';
+  }
+
+  @override
+  String get materialsColorWhite => 'White';
+
+  @override
+  String get materialsColorWood => 'Wood';
+
+  @override
+  String get materialsColorGrey => 'Grey';
+
+  @override
+  String get materialsColorBlack => 'Black';
+
+  @override
+  String get materialsFilterThickness16 => '16 mm';
+
+  @override
+  String get materialsFilterThickness18 => '18 mm';
+
+  @override
+  String get materialsSearchHint => 'Search by decor code, name, manufacturer';
+
+  @override
+  String get materialsEmptyTitle => 'Catalogue is empty';
+
+  @override
+  String get materialsEmptyMessage =>
+      'Catalogue items will appear here once synchronized.';
+
+  @override
+  String get materialsEmptyFilteredTitle => 'No materials found';
+
+  @override
+  String get materialsEmptyFilteredMessage =>
+      'Try adjusting your search terms or clearing active filters.';
+
+  @override
+  String get materialsFilterTitle => 'Filters';
+
+  @override
+  String get materialsFilterThickness => 'Thickness';
+
+  @override
+  String get materialsFilterColorFamily => 'Color family';
+
+  @override
+  String get materialsFilterKind => 'Type';
+
+  @override
+  String get materialsActive => 'Active';
+
+  @override
+  String get materialsInactive => 'Inactive';
+
+  @override
+  String materialsFitsThickness(String thickness) {
+    return 'fits $thickness mm';
+  }
+
+  @override
+  String materialsEdgeWidth(String width) {
+    return 'width $width mm';
+  }
 }

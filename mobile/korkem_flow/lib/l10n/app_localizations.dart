@@ -5714,6 +5714,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Event dismissed'**
   String get eventsDismissSuccess;
+
+  /// Title of the Materials screen
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get materialsTitle;
+
+  /// Subtitle of the Materials screen
+  ///
+  /// In en, this message translates to:
+  /// **'Board and edge catalogue'**
+  String get materialsSubtitle;
+
+  /// Sidebar and navigation label for Materials
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get navMaterials;
+
+  /// Chip label for board/sheet material
+  ///
+  /// In en, this message translates to:
+  /// **'Board'**
+  String get materialKindBoard;
+
+  /// Chip label for edge band material
+  ///
+  /// In en, this message translates to:
+  /// **'Edge'**
+  String get materialKindEdge;
+
+  /// Filter option to show all materials
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get materialsFilterAll;
+
+  /// Filter option to show only boards
+  ///
+  /// In en, this message translates to:
+  /// **'Boards'**
+  String get materialsFilterBoards;
+
+  /// Filter option to show only edges
+  ///
+  /// In en, this message translates to:
+  /// **'Edges'**
+  String get materialsFilterEdges;
+
+  /// Formatted thickness in millimeters
+  ///
+  /// In en, this message translates to:
+  /// **'{thickness} mm'**
+  String materialsThicknessLabel(String thickness);
+
+  /// Sheet dimensions formatted as width × height mm
+  ///
+  /// In en, this message translates to:
+  /// **'{width}×{height} mm'**
+  String materialsFormatDimensions(int width, int height);
+
+  /// White color family
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get materialsColorWhite;
+
+  /// Wood color family
+  ///
+  /// In en, this message translates to:
+  /// **'Wood'**
+  String get materialsColorWood;
+
+  /// Grey color family
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get materialsColorGrey;
+
+  /// Black color family
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get materialsColorBlack;
+
+  /// Filter chip for 16 mm thickness
+  ///
+  /// In en, this message translates to:
+  /// **'16 mm'**
+  String get materialsFilterThickness16;
+
+  /// Filter chip for 18 mm thickness
+  ///
+  /// In en, this message translates to:
+  /// **'18 mm'**
+  String get materialsFilterThickness18;
+
+  /// Hint text for materials search field
+  ///
+  /// In en, this message translates to:
+  /// **'Search by decor code, name, manufacturer'**
+  String get materialsSearchHint;
+
+  /// Empty state title when there are no materials
+  ///
+  /// In en, this message translates to:
+  /// **'Catalogue is empty'**
+  String get materialsEmptyTitle;
+
+  /// Empty state message when there are no materials
+  ///
+  /// In en, this message translates to:
+  /// **'Catalogue items will appear here once synchronized.'**
+  String get materialsEmptyMessage;
+
+  /// Empty state title when search or filters yield no results
+  ///
+  /// In en, this message translates to:
+  /// **'No materials found'**
+  String get materialsEmptyFilteredTitle;
+
+  /// Empty state message when search or filters yield no results
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your search terms or clearing active filters.'**
+  String get materialsEmptyFilteredMessage;
+
+  /// Title for filter sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get materialsFilterTitle;
+
+  /// Thickness section title
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness'**
+  String get materialsFilterThickness;
+
+  /// Color family section title
+  ///
+  /// In en, this message translates to:
+  /// **'Color family'**
+  String get materialsFilterColorFamily;
+
+  /// Material kind filter title
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get materialsFilterKind;
+
+  /// Active status label
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get materialsActive;
+
+  /// Inactive status label
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get materialsInactive;
+
+  /// Board thickness that this edge fits
+  ///
+  /// In en, this message translates to:
+  /// **'fits {thickness} mm'**
+  String materialsFitsThickness(String thickness);
+
+  /// Width of the edge banding
+  ///
+  /// In en, this message translates to:
+  /// **'width {width} mm'**
+  String materialsEdgeWidth(String width);
 }
 
 class _AppLocalizationsDelegate

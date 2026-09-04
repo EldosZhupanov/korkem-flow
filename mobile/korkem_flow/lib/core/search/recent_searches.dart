@@ -87,4 +87,5 @@ abstract final class SearchScope {
   static const customers = 'customers';
   static const quotes = 'quotes';
   static const warehouse = 'warehouse';
+  static const materials = 'materials';
 }

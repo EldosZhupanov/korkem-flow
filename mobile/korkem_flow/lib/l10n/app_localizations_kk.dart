@@ -3180,4 +3180,102 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get eventsDismissSuccess => 'Оқиға жасырылды';
+
+  @override
+  String get materialsTitle => 'Материалдар';
+
+  @override
+  String get materialsSubtitle => 'Тақталар мен жиектер каталогы';
+
+  @override
+  String get navMaterials => 'Материалдар';
+
+  @override
+  String get materialKindBoard => 'Тақта';
+
+  @override
+  String get materialKindEdge => 'Жиек';
+
+  @override
+  String get materialsFilterAll => 'Барлығы';
+
+  @override
+  String get materialsFilterBoards => 'Тақталар';
+
+  @override
+  String get materialsFilterEdges => 'Жиектер';
+
+  @override
+  String materialsThicknessLabel(String thickness) {
+    return '$thickness мм';
+  }
+
+  @override
+  String materialsFormatDimensions(int width, int height) {
+    return '$width×$height мм';
+  }
+
+  @override
+  String get materialsColorWhite => 'Ақ';
+
+  @override
+  String get materialsColorWood => 'Ағаш';
+
+  @override
+  String get materialsColorGrey => 'Сұр';
+
+  @override
+  String get materialsColorBlack => 'Қара';
+
+  @override
+  String get materialsFilterThickness16 => '16 мм';
+
+  @override
+  String get materialsFilterThickness18 => '18 мм';
+
+  @override
+  String get materialsSearchHint =>
+      'Декор коды, атауы, өндірушісі бойынша іздеу';
+
+  @override
+  String get materialsEmptyTitle => 'Материалдар каталогы бос';
+
+  @override
+  String get materialsEmptyMessage =>
+      'Каталог элементтері синхрондаудан кейін осында пайда болады.';
+
+  @override
+  String get materialsEmptyFilteredTitle => 'Ештеңе табылмады';
+
+  @override
+  String get materialsEmptyFilteredMessage =>
+      'Іздеу параметрлерін өзгертіп немесе сүзгілерді тазартып көріңіз.';
+
+  @override
+  String get materialsFilterTitle => 'Сүзгілер';
+
+  @override
+  String get materialsFilterThickness => 'Қалыңдығы';
+
+  @override
+  String get materialsFilterColorFamily => 'Түс тобы';
+
+  @override
+  String get materialsFilterKind => 'Материал түрі';
+
+  @override
+  String get materialsActive => 'Белсенді';
+
+  @override
+  String get materialsInactive => 'Мұрағат';
+
+  @override
+  String materialsFitsThickness(String thickness) {
+    return '$thickness мм үшін';
+  }
+
+  @override
+  String materialsEdgeWidth(String width) {
+    return 'ені $width мм';
+  }
 }
