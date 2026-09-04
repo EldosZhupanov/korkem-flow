@@ -93,6 +93,33 @@ DEFAULT_BASE_URLS = {
 _GEMINI_UNSUPPORTED_SCHEMA_KEYS = ("additionalProperties", "$schema", "definitions", "$defs")
 
 
+def strict_schema(schema):
+	"""Схема в том виде, какого требует строгий режим OpenAI-совместимых.
+
+	Ровно обратное тому, что делает `GeminiProvider.prune_schema`, и это не
+	совпадение: два диалекта расходятся именно здесь. Gemini выбрасывает
+	`additionalProperties` как незнакомый ключ; OpenAI и Groq при
+	`strict: true` **требуют** его на каждом объекте и требуют, чтобы `required`
+	перечислял все свойства.
+
+	Найдено 4 сентября на настоящем ключе Groq: экран настроек говорил
+	«провайдер недоступен» о провайдере, который прекрасно отвечает. Наш запрос
+	был неверным, а человек пошёл бы искать неполадку в сети.
+	"""
+	if isinstance(schema, dict):
+		out = {key: strict_schema(value) for key, value in schema.items()}
+		if out.get("type") == "object":
+			properties = out.get("properties") or {}
+			out["additionalProperties"] = False
+			# Строгий режим не знает необязательных полей: перечислить нужно
+			# все, иначе провайдер отказывает целиком.
+			out["required"] = list(properties)
+		return out
+	if isinstance(schema, list):
+		return [strict_schema(item) for item in schema]
+	return schema
+
+
 class LLMError(errors.AIError):
 	"""Raised when the provider is misconfigured or returns something unusable.
 
@@ -663,7 +690,11 @@ class OpenAICompatibleProvider(HasCapabilities):
 				],
 				"response_format": {
 					"type": "json_schema",
-					"json_schema": {"name": "response", "strict": True, "schema": schema},
+					"json_schema": {
+						"name": "response",
+						"strict": True,
+						"schema": strict_schema(schema),
+					},
 				},
 				"temperature": 0,
 			},

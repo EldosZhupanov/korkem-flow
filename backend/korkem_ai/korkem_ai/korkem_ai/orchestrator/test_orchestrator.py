@@ -285,6 +285,60 @@ class TestOpenAICompatibleProvider(IntegrationTestCase):
 			provider.complete_json("sys", "user", {})
 
 
+class TestStrictSchema(IntegrationTestCase):
+	"""Обратная сторона того же расхождения диалектов.
+
+	Gemini выбрасывает `additionalProperties`; OpenAI и Groq при `strict: true`
+	его требуют — на каждом объекте, вместе с `required` на все свойства.
+
+	Найдено 4 сентября на настоящем ключе Groq: экран настроек сказал «провайдер
+	недоступен» о провайдере, который отвечает без единой запинки. Виноват был
+	наш запрос, а человек пошёл бы искать неполадку в сети.
+	"""
+
+	def test_every_object_gets_additional_properties_false(self):
+		strict = llm.strict_schema(
+			{
+				"type": "object",
+				"properties": {
+					"ok": {"type": "boolean"},
+					"nested": {"type": "object", "properties": {"a": {"type": "string"}}},
+					"list": {"type": "array", "items": {"type": "object", "properties": {}}},
+				},
+			}
+		)
+
+		self.assertIs(strict["additionalProperties"], False)
+		self.assertIs(strict["properties"]["nested"]["additionalProperties"], False)
+		self.assertIs(strict["properties"]["list"]["items"]["additionalProperties"], False)
+
+	def test_required_lists_every_property(self):
+		"""Строгий режим не знает необязательных полей: назвать надо все."""
+		strict = llm.strict_schema(
+			{
+				"type": "object",
+				"properties": {"ok": {"type": "boolean"}, "why": {"type": "string"}},
+				"required": ["ok"],
+			}
+		)
+
+		self.assertEqual(sorted(strict["required"]), ["ok", "why"])
+
+	def test_what_is_not_an_object_is_left_alone(self):
+		strict = llm.strict_schema({"type": "string", "description": "просто строка"})
+
+		self.assertNotIn("additionalProperties", strict)
+		self.assertEqual(strict["description"], "просто строка")
+
+	def test_the_original_schema_is_not_modified(self):
+		"""Схема приходит из реестра инструментов и живёт дольше одного вызова."""
+		original = {"type": "object", "properties": {"ok": {"type": "boolean"}}}
+
+		llm.strict_schema(original)
+
+		self.assertNotIn("additionalProperties", original)
+
+
 class TestGeminiProvider(IntegrationTestCase):
 	def test_prunes_schema_keys_gemini_rejects(self):
 		"""Gemini's schema dialect is a subset; passing the full thing 400s."""
