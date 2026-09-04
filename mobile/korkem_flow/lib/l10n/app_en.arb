@@ -98,6 +98,15 @@
       }
     }
   },
+  "taskForeignAssigneeExplanation": "Assigned to {assignee}. Can be completed by the assignee or shift supervisor",
+  "@taskForeignAssigneeExplanation": {
+    "description": "Explains whose task this is and who can complete it when assigned to someone else",
+    "placeholders": {
+      "assignee": {
+        "type": "String"
+      }
+    }
+  },
   "actionUndo": "Undo",
   "@actionUndo": {
     "description": "Takes back a task completion during the few seconds before it is sent"

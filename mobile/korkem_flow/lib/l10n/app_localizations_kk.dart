@@ -124,6 +124,11 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String taskForeignAssigneeExplanation(String assignee) {
+    return 'Тапсырма: $assignee. Орындаушы немесе ауысым шебері аяқтай алады';
+  }
+
+  @override
   String get actionUndo => 'Болдырмау';
 
   @override

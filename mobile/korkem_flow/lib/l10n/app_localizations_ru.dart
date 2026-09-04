@@ -132,6 +132,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String taskForeignAssigneeExplanation(String assignee) {
+    return 'Задача: $assignee. Закрыть может исполнитель или старший смены';
+  }
+
+  @override
   String get actionUndo => 'Отменить';
 
   @override

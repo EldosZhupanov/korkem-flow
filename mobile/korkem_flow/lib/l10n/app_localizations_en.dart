@@ -131,6 +131,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String taskForeignAssigneeExplanation(String assignee) {
+    return 'Assigned to $assignee. Can be completed by the assignee or shift supervisor';
+  }
+
+  @override
   String get actionUndo => 'Undo';
 
   @override

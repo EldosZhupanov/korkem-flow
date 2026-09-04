@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/motion/swipe_action.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -161,9 +162,10 @@ class _Section extends StatelessWidget {
 /// was never sent. `CRM Task` has no reopen call, and offering an undo that
 /// could not actually undo would be worse than offering none.
 class TaskCard extends ConsumerStatefulWidget {
-  const TaskCard({required this.task, super.key});
+  const TaskCard({required this.task, this.currentUser, super.key});
 
   final WorkTask task;
+  final String? currentUser;
 
   @override
   ConsumerState<TaskCard> createState() => _TaskCardState();
@@ -195,9 +197,19 @@ class _TaskCardState extends ConsumerState<TaskCard> {
     final due = task.dueDate;
     final success = context.statusColors.success;
 
+    final session = ref.watch(sessionProvider).value;
+    final user = (widget.currentUser ?? session?.user)?.trim();
+    final assigned = task.assignedTo?.trim();
+    final isAssigned = assigned != null && assigned.isNotEmpty;
+    final isForeign =
+        isAssigned &&
+        (user == null || assigned.toLowerCase() != user.toLowerCase());
+
     return Dismissible(
       key: ValueKey(task.id),
-      direction: DismissDirection.startToEnd,
+      direction: isForeign
+          ? DismissDirection.none
+          : DismissDirection.startToEnd,
       onUpdate: (details) {
         if (details.progress != _progress) {
           setState(() => _progress = details.progress);
@@ -211,6 +223,9 @@ class _TaskCardState extends ConsumerState<TaskCard> {
       onDismissed: (_) => _complete(),
       child: EntityCard(
         title: task.title,
+        subtitle: isForeign
+            ? l10n.taskForeignAssigneeExplanation(assigned)
+            : null,
         // Priority, not overdue-ness: the red section header above already says
         // "overdue", and repeating it here bought nothing while costing the
         // title half a line. Priority is shown nowhere else, and only the
@@ -240,9 +255,11 @@ class _TaskCardState extends ConsumerState<TaskCard> {
         leading: IconButton(
           icon: const Icon(AppIcons.success),
           iconSize: AppIconSize.normal,
-          color: theme.colorScheme.outline,
-          tooltip: l10n.taskComplete,
-          onPressed: _complete,
+          color: isForeign ? null : theme.colorScheme.outline,
+          tooltip: isForeign
+              ? l10n.taskForeignAssigneeExplanation(assigned)
+              : l10n.taskComplete,
+          onPressed: isForeign ? null : _complete,
         ),
       ),
     );

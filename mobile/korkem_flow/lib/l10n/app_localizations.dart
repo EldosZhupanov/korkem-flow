@@ -310,6 +310,12 @@ abstract class AppLocalizations {
   /// **'Couldn\'t complete the task. {reason}'**
   String taskCompleteFailed(String reason);
 
+  /// Explains whose task this is and who can complete it when assigned to someone else
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned to {assignee}. Can be completed by the assignee or shift supervisor'**
+  String taskForeignAssigneeExplanation(String assignee);
+
   /// Takes back a task completion during the few seconds before it is sent
   ///
   /// In en, this message translates to:
@@ -5697,7 +5703,7 @@ abstract class AppLocalizations {
   /// **'Dismiss'**
   String get eventsActionDismiss;
 
-  /// Shown in place of the events feed when it could not be loaded
+  /// No description provided for @eventsLoadFailed.
   ///
   /// In en, this message translates to:
   /// **'Could not load events'**

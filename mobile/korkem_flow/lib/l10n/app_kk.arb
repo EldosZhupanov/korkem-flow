@@ -35,6 +35,7 @@
   "taskComplete": "Аяқтау",
   "taskCompleted": "Тапсырма аяқталды",
   "taskCompleteFailed": "Тапсырманы аяқтау мүмкін болмады. {reason}",
+  "taskForeignAssigneeExplanation": "Тапсырма: {assignee}. Орындаушы немесе ауысым шебері аяқтай алады",
   "actionUndo": "Болдырмау",
   "taskProduction": "Өндіріс",
   "profileTitle": "Профиль",

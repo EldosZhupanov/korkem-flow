@@ -35,6 +35,7 @@
   "taskComplete": "Завершить",
   "taskCompleted": "Задача завершена",
   "taskCompleteFailed": "Не удалось завершить задачу. {reason}",
+  "taskForeignAssigneeExplanation": "Задача: {assignee}. Закрыть может исполнитель или старший смены",
   "actionUndo": "Отменить",
   "taskProduction": "Производство",
   "profileTitle": "Профиль",

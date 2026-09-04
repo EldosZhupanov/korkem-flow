@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/auth/auth_credentials.dart';
+import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
@@ -17,6 +19,15 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockTaskRepository extends Mock implements TaskRepository {}
+
+class _TestSessionController extends SessionController {
+  _TestSessionController(this._initial);
+
+  final Session _initial;
+
+  @override
+  Future<Session> build() async => _initial;
+}
 
 void main() {
   late _MockTaskRepository repository;
@@ -47,6 +58,7 @@ void main() {
   Widget buildHarness({
     required List<WorkTask> tasks,
     Locale locale = const Locale('ru'),
+    String? currentUser,
   }) {
     when(
       () => repository.fetchPage(
@@ -60,6 +72,18 @@ void main() {
       overrides: [
         taskRepositoryProvider.overrideWithValue(repository),
         clockProvider.overrideWithValue(() => now),
+        if (currentUser != null)
+          sessionProvider.overrideWith(
+            () => _TestSessionController(
+              Session(
+                serverUrl: 'https://korkem.test',
+                credentials: SessionCredentials(
+                  user: currentUser,
+                  sid: 'test_sid',
+                ),
+              ),
+            ),
+          ),
       ],
       child: MaterialApp(
         theme: AppTheme.light(),
@@ -220,12 +244,13 @@ void main() {
     );
 
     testWidgets(
-      '5. отображение исполнителя и поведение при чужой задаче',
+      '5. чужая задача выглядит чужой: кнопка и свайп неактивны, '
+      'есть объяснение одной строкой',
       (tester) async {
         final myTask = makeTask(
           id: 401,
           title: 'Моя задача: сборка каркаса',
-          assignedTo: 'Текущий Рабочий',
+          assignedTo: 'worker@korkem.kz',
           dueDate: now.add(const Duration(hours: 2)),
         );
         final foreignTask = makeTask(
@@ -234,26 +259,170 @@ void main() {
           assignedTo: 'Мастер Ахметов',
           dueDate: now.add(const Duration(hours: 5)),
         );
+        final unassignedTask = makeTask(
+          id: 403,
+          title: 'Свободная задача: упаковка заказа',
+          dueDate: now.add(const Duration(hours: 6)),
+        );
 
-        await tester.pumpWidget(buildHarness(tasks: [myTask, foreignTask]));
+        await tester.pumpWidget(
+          buildHarness(
+            tasks: [myTask, foreignTask, unassignedTask],
+            currentUser: 'worker@korkem.kz',
+          ),
+        );
         await tester.pumpAndSettle();
 
-        // Имя назначенного исполнителя видно на карточке в метаданных
-        expect(find.text('Текущий Рабочий'), findsOneWidget);
-        expect(find.text('Мастер Ахметов'), findsOneWidget);
+        // 1. Чужая задача выглядит чужой: разница видна до нажатия.
+        // Выводится одна строка: чья задача и кто может её закрыть
+        expect(
+          find.text(
+            'Задача: Мастер Ахметов. '
+            'Закрыть может исполнитель или старший смены',
+          ),
+          findsOneWidget,
+        );
+        // Для своей и свободной задач такого объяснения нет
+        expect(
+          find.textContaining('worker@korkem.kz. Закрыть может'),
+          findsNothing,
+        );
 
-        // Находка: экран НЕ разграничивает права и не блокирует кнопку закрытия
-        // для чужих задач — любой рабочий может закрыть чужую задачу без
-        // предупреждения:
-        final completeButtons = find.byType(IconButton);
-        expect(completeButtons, findsNWidgets(2));
+        // 2. Кнопка на чужой задаче неактивна (onPressed == null),
+        // на своей и свободной — активна (onPressed != null)
+        final iconButtons = tester
+            .widgetList<IconButton>(find.byType(IconButton))
+            .toList();
+        expect(iconButtons, hasLength(3));
+        expect(iconButtons[0].onPressed, isNotNull);
+        expect(iconButtons[1].onPressed, isNull);
+        expect(iconButtons[2].onPressed, isNotNull);
 
-        // Закрываем именно чужую задачу (вторую)
-        await tester.tap(completeButtons.at(1));
+        // 3. Свайп на чужой задаче неактивен (direction == none),
+        // на своей и свободной — активен (direction == startToEnd)
+        final dismissibles = tester
+            .widgetList<Dismissible>(find.byType(Dismissible))
+            .toList();
+        expect(dismissibles, hasLength(3));
+        expect(dismissibles[0].direction, equals(DismissDirection.startToEnd));
+        expect(dismissibles[1].direction, equals(DismissDirection.none));
+        expect(dismissibles[2].direction, equals(DismissDirection.startToEnd));
+      },
+    );
+
+    testWidgets(
+      'сервер отказывает при активной кнопке — отказ доходит словами, '
+      'строка возвращается',
+      (tester) async {
+        const serverRefusal =
+            'Эту задачу закрывает тот, кому она назначена. '
+            'Если человек не может — закрыть за него может старший смены.';
+        when(
+          () => repository.complete(any(), notes: any(named: 'notes')),
+        ).thenThrow(const ValidationFailure(serverRefusal));
+
+        final task = makeTask(
+          id: 450,
+          title: 'Своя задача: фрезеровка пазов',
+          assignedTo: 'worker@korkem.kz',
+          dueDate: now.add(const Duration(hours: 1)),
+        );
+
+        await tester.pumpWidget(
+          buildHarness(
+            tasks: [task],
+            currentUser: 'worker@korkem.kz',
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Кнопка активна
+        final button = tester.widget<IconButton>(find.byType(IconButton));
+        expect(button.onPressed, isNotNull);
+
+        // Нажимаем «Завершить»
+        await tester.tap(find.byType(IconButton));
+        await tester.pump();
+
+        // Сначала строка оптимистично скрылась
+        expect(find.text('Своя задача: фрезеровка пазов'), findsNothing);
+
+        // Истекает окно отмены — запрос уходит и падает с отказом сервера
         await tester.pump(AppDebounce.undo + const Duration(milliseconds: 100));
+        await tester.pumpAndSettle();
 
-        // Серверный вызов на закрытие чужой задачи отправляется без ограничений
-        verify(() => repository.complete(402)).called(1);
+        // Отказ дошёл до человека словами
+        expect(
+          find.textContaining('Не удалось завершить задачу'),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining(serverRefusal),
+          findsOneWidget,
+        );
+
+        // Строка вернулась на экран
+        expect(find.text('Своя задача: фрезеровка пазов'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'объяснение чужой задачи переведено на три языка (ru, kk, en)',
+      (tester) async {
+        final foreignTask = makeTask(
+          id: 480,
+          title: 'Задача цеха',
+          assignedTo: 'Serik',
+          dueDate: now.add(const Duration(hours: 1)),
+        );
+
+        // Русский (ru)
+        await tester.pumpWidget(
+          buildHarness(
+            tasks: [foreignTask],
+            currentUser: 'Other',
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text(
+            'Задача: Serik. Закрыть может исполнитель или старший смены',
+          ),
+          findsOneWidget,
+        );
+
+        // Казахский (kk)
+        await tester.pumpWidget(
+          buildHarness(
+            tasks: [foreignTask],
+            currentUser: 'Other',
+            locale: const Locale('kk'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text(
+            'Тапсырма: Serik. Орындаушы немесе ауысым шебері аяқтай алады',
+          ),
+          findsOneWidget,
+        );
+
+        // Английский (en)
+        await tester.pumpWidget(
+          buildHarness(
+            tasks: [foreignTask],
+            currentUser: 'Other',
+            locale: const Locale('en'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text(
+            'Assigned to Serik. '
+            'Can be completed by the assignee or shift supervisor',
+          ),
+          findsOneWidget,
+        );
       },
     );
 
