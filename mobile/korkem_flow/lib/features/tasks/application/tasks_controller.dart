@@ -71,15 +71,16 @@ class TasksController extends AsyncNotifier<List<WorkTask>> {
   /// it was. A no-op once the request has gone, which is why the snackbar
   /// offering it lives exactly as long as the window.
   void undoComplete(WorkTask task) {
-    final pending = _pending.remove(task.id);
-    if (pending == null) return;
+    final pending = _pending[task.id];
+    if (pending == null || !pending.timer.isActive) return;
 
+    _pending.remove(task.id);
     pending.timer.cancel();
     _restore(pending);
   }
 
   Future<void> _send(WorkTask task, String? notes) async {
-    final pending = _pending.remove(task.id);
+    final pending = _pending[task.id];
     if (pending == null) return;
 
     try {
@@ -93,6 +94,8 @@ class TasksController extends AsyncNotifier<List<WorkTask>> {
       // even be mounted. Surfacing it as state lets whichever screen *is*
       // mounted tell the user.
       ref.read(taskFailureProvider.notifier).report(error);
+    } finally {
+      _pending.remove(task.id);
     }
   }
 

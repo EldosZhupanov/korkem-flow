@@ -153,4 +153,37 @@ void main() {
       expect(idsIn(container), [1, 3]);
     });
   });
+
+  test(
+    'a refresh while complete is in flight does not resurrect the row '
+    'and does not allow duplicate completion',
+    () {
+      final completer = Completer<void>();
+      when(
+        () => repository.complete(any(), notes: any(named: 'notes')),
+      ).thenAnswer((_) => completer.future);
+
+      fakeAsync((async) {
+        final container = loadedIn(async);
+        final notifier = container.read(tasksControllerProvider.notifier)
+          ..completeLater(_task(2));
+
+        // Undo window closes, _send triggers complete(2) which stays in-flight
+        async.elapse(AppDebounce.undo);
+        verify(() => repository.complete(2)).called(1);
+
+        // A refresh arrives while complete is in-flight
+        // (server returns [1, 2, 3])
+        unawaited(notifier.refresh());
+        async.flushMicrotasks();
+
+        // The task MUST NOT be resurrected while complete is still in-flight
+        expect(idsIn(container), [1, 3]);
+
+        // Finishing the in-flight request
+        completer.complete();
+        async.flushMicrotasks();
+      });
+    },
+  );
 }
