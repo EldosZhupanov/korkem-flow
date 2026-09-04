@@ -4,6 +4,15 @@
 #
 #   scripts/backup_offsite.sh                     # uses $KORKEM_BACKUP_DIR
 #   scripts/backup_offsite.sh /mnt/c/KorkemBackups
+#   scripts/backup_offsite.sh oci://korkem-backups   # Oracle Object Storage
+#
+# Назначение `oci://<bucket>` — для боевого узла: там «другой диск» не помогает,
+# потому что диск у машины один, и вместе с ним уезжает всё. Копия должна
+# оказаться в другой системе хранения, а не в другой папке.
+#
+# Доступ — instance principal: сервер предъявляет сам себя, ключа на диске нет
+# и украсть из резервной копии нечего. Требует политики в тенанси; без неё
+# скрипт останавливается и говорит, какой именно.
 #
 # Why this exists. `bench backup` writes into the site directory, which lives
 # in the same Docker volume as the database it is backing up — inside the same
@@ -39,14 +48,31 @@ There is deliberately no default: this script decides where your only copy lives
 # The whole point is landing outside the WSL virtual disk. /mnt/... is a Windows
 # drive or a network mount; anything else is the same disk we are protecting
 # against. This warns rather than refuses — a NAS mounted elsewhere is valid.
+BUCKET=""
 case "$DEST" in
+  oci://*)
+    BUCKET="${DEST#oci://}"
+    [ -n "$BUCKET" ] || die "oci:// без имени bucket"
+    OCI="${KORKEM_OCI_CLI:-$HOME/.oci-venv/bin/oci}"
+    [ -x "$OCI" ] || die "Нет oci CLI по пути $OCI. Задайте KORKEM_OCI_CLI."
+    # Проверяем доступ до того, как снимать копию: узнать, что положить её
+    # некуда, лучше за секунду до работы, чем через десять минут после.
+    "$OCI" os bucket get --auth instance_principal --bucket-name "$BUCKET" >/dev/null 2>&1 \
+      || die "Object Storage не отвечает на bucket '$BUCKET'.
+Обычно это не сеть, а политика: инстанс предъявляет себя, но ему не разрешили.
+Нужна политика вида:
+  Allow dynamic-group <группа> to manage object-family in compartment <компартмент>"
+    ok "bucket $BUCKET доступен"
+    ;;
   /mnt/*) : ;;
   *) warn "$DEST does not look like a mounted host or network drive."
      warn "If it is on the same disk as the bench, this is a copy, not a backup." ;;
 esac
 
-mkdir -p "$DEST" || die "Cannot create $DEST"
-[ -w "$DEST" ] || die "$DEST is not writable"
+if [ -z "$BUCKET" ]; then
+  mkdir -p "$DEST" || die "Cannot create $DEST"
+  [ -w "$DEST" ] || die "$DEST is not writable"
+fi
 
 # --- which bench, which site --------------------------------------------------
 #
@@ -81,6 +107,52 @@ ok "$(printf '%s\n' "$NEW" | wc -l) new artifact(s)"
 # --- move it out, and prove it arrived ---------------------------------------
 say "Copy out and verify"
 STAMP="$(date +%Y-%m-%d_%H%M%S)"
+
+if [ -n "$BUCKET" ]; then
+  # --- в Object Storage ---
+  #
+  # Проверка та же и по той же причине: скопировано — ещё не значит доехало.
+  # Сверяется не ответ службы о самой себе, а то, что она отдаёт обратно:
+  # выгруженный объект скачивается и хешируется заново. Дороже; зато «копия
+  # есть» перестаёт быть верой.
+  failed=0
+  TMP="$(mktemp -d)"
+  trap 'rm -rf "$TMP"' EXIT
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    src_sum="$(docker exec "$CONTAINER" sh -lc "sha256sum '$REMOTE_DIR/$f'" | awk '{print $1}')"
+    docker cp "$CONTAINER:$REMOTE_DIR/$f" "$TMP/$f" >/dev/null \
+      || { printf '    \033[31mfail\033[0m %s — не достали из контейнера\n' "$f"; failed=1; continue; }
+    "$OCI" os object put --auth instance_principal --bucket-name "$BUCKET" \
+      --file "$TMP/$f" --name "$STAMP/$f" --force >/dev/null 2>&1 \
+      || { printf '    \033[31mfail\033[0m %s — не выгрузился\n' "$f"; failed=1; continue; }
+    "$OCI" os object get --auth instance_principal --bucket-name "$BUCKET" \
+      --name "$STAMP/$f" --file "$TMP/back-$f" >/dev/null 2>&1 \
+      || { printf '    \033[31mfail\033[0m %s — не скачался обратно\n' "$f"; failed=1; continue; }
+    dst_sum="$(sha256sum "$TMP/back-$f" | awk '{print $1}')"
+    if [ "$src_sum" = "$dst_sum" ]; then
+      ok "$f  $(stat -c%s "$TMP/$f") bytes  ${src_sum:0:16}…"
+      printf '%s  %s\n' "$src_sum" "$f" >> "$TMP/SHA256SUMS"
+    else
+      printf '    \033[31mfail\033[0m %s — хеш разошёлся, копия испорчена\n' "$f"
+      failed=1
+    fi
+    rm -f "$TMP/$f" "$TMP/back-$f"
+  done <<< "$NEW"
+
+  [ "$failed" -eq 0 ] || die "Хотя бы один файл не доехал целым. Ничего не удалено."
+  "$OCI" os object put --auth instance_principal --bucket-name "$BUCKET" \
+    --file "$TMP/SHA256SUMS" --name "$STAMP/SHA256SUMS" --force >/dev/null 2>&1 || true
+  ok "весь набор сверен побайтно"
+  # Старое здесь не удаляется намеренно. Срок хранения в Object Storage —
+  # правило самого bucket (lifecycle policy), и это лучше скрипта: правило
+  # действует, даже когда скрипт не запустился, а скрипт, удаляющий копии,
+  # однажды удалит их в тот единственный день, когда не смог создать новую.
+  say "Готово"
+  ok "$BUCKET/$STAMP"
+  exit 0
+fi
+
 SET_DIR="$DEST/$STAMP"
 mkdir -p "$SET_DIR"
 
