@@ -531,4 +531,170 @@ void main() {
       expect(find.text('Решений не требуется'), findsOneWidget);
     },
   );
+
+  group('Предпросмотр действия перед подтверждением', () {
+    testWidgets('предпросмотр показан строками, а не одной строкой JSON', (
+      tester,
+    ) async {
+      const actionWithPreview = PendingAction(
+        id: 'PA-PREVIEW-UI-1',
+        status: PendingActionStatus.pending,
+        agentSkill: 'crm.create_invoice',
+        entityType: 'Sales Invoice',
+        entityName: 'ACC-SINV-2026-00012',
+        preview: ActionPreview(
+          title: 'Будет создан счёт',
+          fields: [
+            ActionPreviewField(label: 'Клиент', value: 'Ерлан Сериков'),
+            ActionPreviewField(label: 'Заказ', value: 'SAL-ORD-2026-00042'),
+            ActionPreviewField(label: 'Сумма', value: '650 000 ₸'),
+            ActionPreviewField(label: 'Срок', value: '17 сентября'),
+          ],
+        ),
+      );
+
+      final repo = _FakePendingActionRepository(
+        fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
+          actionWithPreview,
+        ],
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Будет создан счёт'), findsOneWidget);
+      expect(find.text('Клиент'), findsOneWidget);
+      expect(find.text('Ерлан Сериков'), findsOneWidget);
+      expect(find.text('Заказ'), findsOneWidget);
+      expect(find.text('SAL-ORD-2026-00042'), findsOneWidget);
+      expect(find.text('Сумма'), findsOneWidget);
+      expect(find.text('650 000 ₸'), findsOneWidget);
+      expect(find.text('Срок'), findsOneWidget);
+      expect(find.text('17 сентября'), findsOneWidget);
+
+      // Verify discrete table rows are used rather than a raw JSON dump
+      expect(find.byType(Table), findsOneWidget);
+      expect(tester.widget<Table>(find.byType(Table)).children.length, 4);
+      expect(find.textContaining('{"'), findsNothing);
+      expect(find.textContaining('fields'), findsNothing);
+    });
+
+    testWidgets(
+      'действие без предпросмотра выглядит как раньше и кнопки на месте',
+      (tester) async {
+        final actionWithoutPreview = PendingAction(
+          id: 'PA-NO-PREVIEW',
+          status: PendingActionStatus.pending,
+          agentSkill: 'crm.create_deal',
+          entityType: 'CRM Deal',
+          entityName: 'Заказ кухни для Ерлана',
+          expiresAt: DateTime(2026, 9, 3, 18),
+        );
+
+        final repo = _FakePendingActionRepository(
+          fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
+            actionWithoutPreview,
+          ],
+        );
+
+        await tester.pumpWidget(buildHarness(tester, repository: repo));
+        await tester.pumpAndSettle();
+
+        expect(find.text('crm.create_deal'), findsOneWidget);
+        expect(find.text('CRM Deal Заказ кухни для Ерлана'), findsOneWidget);
+        expect(find.text('Ожидает'), findsOneWidget);
+        expect(find.textContaining('Истекает:'), findsOneWidget);
+        expect(find.text('Согласовать'), findsOneWidget);
+        expect(find.text('Отклонить'), findsOneWidget);
+        expect(find.byType(Table), findsNothing);
+      },
+    );
+
+    testWidgets('поля с пустым значением не показываются', (tester) async {
+      const actionWithEmptyFields = PendingAction(
+        id: 'PA-EMPTY-FIELDS',
+        status: PendingActionStatus.pending,
+        agentSkill: 'inventory.order_material',
+        preview: ActionPreview(
+          title: 'Будет создан заказ материалов',
+          fields: [
+            ActionPreviewField(label: 'Поставщик', value: 'Egger KZ'),
+            ActionPreviewField(label: 'Сумма', value: ''),
+            ActionPreviewField(label: 'Скидка', value: '   '),
+            ActionPreviewField(label: '', value: 'Значение без метки'),
+            ActionPreviewField(label: 'Срок', value: '25 сентября'),
+          ],
+        ),
+      );
+
+      final repo = _FakePendingActionRepository(
+        fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
+          actionWithEmptyFields,
+        ],
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Будет создан заказ материалов'), findsOneWidget);
+      expect(find.text('Поставщик'), findsOneWidget);
+      expect(find.text('Egger KZ'), findsOneWidget);
+      expect(find.text('Срок'), findsOneWidget);
+      expect(find.text('25 сентября'), findsOneWidget);
+
+      // Empty or missing fields must NOT be shown and must not have
+      // invented placeholders
+      expect(find.text('Сумма'), findsNothing);
+      expect(find.text('Скидка'), findsNothing);
+      expect(find.text('сумма не указана'), findsNothing);
+      expect(find.text('Значение без метки'), findsNothing);
+      expect(find.byType(Table), findsOneWidget);
+      expect(tester.widget<Table>(find.byType(Table)).children.length, 2);
+    });
+
+    testWidgets('длинное значение не ломает вёрстку карточки', (tester) async {
+      const actionWithLongValues = PendingAction(
+        id: 'PA-LONG-VAL',
+        status: PendingActionStatus.pending,
+        agentSkill: 'logistics.schedule_delivery',
+        preview: ActionPreview(
+          title: 'Будет запланирована доставка готовой мебели',
+          fields: [
+            ActionPreviewField(
+              label: 'Адрес доставки',
+              value:
+                  'Республика Казахстан, город Астана, район Есиль, '
+                  'проспект Кабанбай батыра, дом 53, корпус 2, блок Б, '
+                  'подъезд 3, этаж 14, квартира 182, домофон 182K '
+                  '(просьба оставить у консьержа при отсутствии клиента дома)',
+            ),
+            ActionPreviewField(
+              label: 'Специальные инструкции для водителя и грузчиков',
+              value:
+                  'Крупногабаритные столешницы из массива дуба 3000х600х40 мм. '
+                  'Подъём на 14 этаж только грузовым лифтом. При заносе '
+                  'не наклонять упаковку фасадов более чем на 45 градусов.',
+            ),
+          ],
+        ),
+      );
+
+      final repo = _FakePendingActionRepository(
+        fetchPageHandler: ({required pageSize, offset = 0, status}) async => [
+          actionWithLongValues,
+        ],
+      );
+
+      await tester.pumpWidget(buildHarness(tester, repository: repo));
+      await tester.pumpAndSettle();
+
+      // Verify no RenderFlex or layout exceptions occurred
+      expect(tester.takeException(), isNull);
+
+      expect(find.text('Адрес доставки'), findsOneWidget);
+      expect(find.textContaining('Республика Казахстан'), findsOneWidget);
+      expect(find.text('Согласовать'), findsOneWidget);
+      expect(find.text('Отклонить'), findsOneWidget);
+    });
+  });
 }

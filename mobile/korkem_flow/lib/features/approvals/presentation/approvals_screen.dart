@@ -136,6 +136,11 @@ class _ApprovalCardState extends ConsumerState<ApprovalCard> {
             ),
           ],
 
+          if (action.preview case final preview? when preview.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            _ActionPreviewSection(preview: preview),
+          ],
+
           if (expiry != null) ...[
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -286,6 +291,87 @@ class _RejectReasonDialogState extends State<_RejectReasonDialog> {
           child: Text(l10n.approvalReject),
         ),
       ],
+    );
+  }
+}
+
+class _ActionPreviewSection extends StatelessWidget {
+  const _ActionPreviewSection({required this.preview});
+
+  final ActionPreview preview;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final visibleFields = preview.fields
+        .where((f) => f.label.trim().isNotEmpty && f.value.trim().isNotEmpty)
+        .toList(growable: false);
+
+    final hasTitle = preview.title != null && preview.title!.trim().isNotEmpty;
+
+    if (!hasTitle && visibleFields.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasTitle) ...[
+            Text(
+              preview.title!.trim(),
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (visibleFields.isNotEmpty) const SizedBox(height: AppSpacing.sm),
+          ],
+          if (visibleFields.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: AppSpacing.xs),
+              child: Table(
+                columnWidths: const {
+                  0: IntrinsicColumnWidth(),
+                  1: FlexColumnWidth(),
+                },
+                children: [
+                  for (final field in visibleFields)
+                    TableRow(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            right: AppSpacing.lg,
+                            bottom: AppSpacing.xs,
+                          ),
+                          child: Text(
+                            field.label,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                          child: Text(
+                            field.value,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

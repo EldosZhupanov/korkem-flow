@@ -1,5 +1,8 @@
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/features/approvals/domain/action_preview.dart';
 import 'package:meta/meta.dart';
+
+export 'package:korkem_flow/features/approvals/domain/action_preview.dart';
 
 /// A decision an AI agent is blocked on.
 ///
@@ -18,6 +21,7 @@ class PendingAction {
     this.expiresAt,
     this.resolvedBy,
     this.resolvedAt,
+    this.preview,
   });
 
   final String id;
@@ -35,6 +39,7 @@ class PendingAction {
   final DateTime? expiresAt;
   final String? resolvedBy;
   final DateTime? resolvedAt;
+  final ActionPreview? preview;
 
   /// Expiry is enforced server-side at approval time, not by this flag — the
   /// backend re-checks and refuses. This only decides what the UI offers, so a

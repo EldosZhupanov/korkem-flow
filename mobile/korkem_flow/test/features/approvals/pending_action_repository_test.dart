@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_query.dart';
@@ -103,6 +105,129 @@ void main() {
       expect(a1, equals(a2));
       expect(a1.hashCode, equals(a2.hashCode));
       expect(a1, isNot(equals(b)));
+    });
+
+    test('parses action preview from preview object with title and fields', () {
+      final json = {
+        'name': 'PA-PREVIEW-1',
+        'status': 'Pending',
+        'agent_skill': 'crm.create_invoice',
+        'preview': {
+          'title': 'Будет создан счёт',
+          'fields': [
+            {'label': 'Клиент', 'value': 'Ерлан Сериков'},
+            {'label': 'Заказ', 'value': 'SAL-ORD-2026-00042'},
+            {'label': 'Сумма', 'value': '650 000 ₸'},
+            {'label': 'Срок', 'value': '17 сентября'},
+          ],
+        },
+      };
+
+      final action = PendingActionRepository.fromJson(json);
+
+      expect(action.preview, isNotNull);
+      expect(action.preview!.title, 'Будет создан счёт');
+      expect(action.preview!.fields.length, 4);
+      expect(
+        action.preview!.fields[0],
+        const ActionPreviewField(label: 'Клиент', value: 'Ерлан Сериков'),
+      );
+      expect(
+        action.preview!.fields[1],
+        const ActionPreviewField(label: 'Заказ', value: 'SAL-ORD-2026-00042'),
+      );
+      expect(
+        action.preview!.fields[2],
+        const ActionPreviewField(label: 'Сумма', value: '650 000 ₸'),
+      );
+      expect(
+        action.preview!.fields[3],
+        const ActionPreviewField(label: 'Срок', value: '17 сентября'),
+      );
+    });
+
+    test(
+      'parses preview from display_data JSON string with summary and changes',
+      () {
+        final json = {
+          'name': 'PA-PREVIEW-2',
+          'status': 'Pending',
+          'agent_skill': 'production.create_work_order',
+          'display_data': jsonEncode({
+            'summary': 'Запуск распила ЛДСП',
+            'changes': [
+              {'field': 'Цех', 'new': 'Цех 1'},
+              {'field': 'Количество', 'new': '12 шт'},
+            ],
+          }),
+        };
+
+        final action = PendingActionRepository.fromJson(json);
+
+        expect(action.preview, isNotNull);
+        expect(action.preview!.title, 'Запуск распила ЛДСП');
+        expect(action.preview!.fields.length, 2);
+        expect(
+          action.preview!.fields[0],
+          const ActionPreviewField(label: 'Цех', value: 'Цех 1'),
+        );
+        expect(
+          action.preview!.fields[1],
+          const ActionPreviewField(label: 'Количество', value: '12 шт'),
+        );
+      },
+    );
+
+    test(
+      'filters out fields with empty or whitespace-only labels and values',
+      () {
+        final json = {
+          'name': 'PA-PREVIEW-3',
+          'status': 'Pending',
+          'agent_skill': 'test.filter',
+          'preview': {
+            'title': 'Предпросмотр',
+            'fields': [
+              {'label': 'Клиент', 'value': 'Айдос'},
+              {'label': 'Сумма', 'value': ''},
+              {'label': 'Скидка', 'value': '   '},
+              {'label': '', 'value': 'Без метки'},
+              {'label': '   ', 'value': 'Тоже без метки'},
+              {'label': 'Срок', 'value': 'Завтра'},
+            ],
+          },
+        };
+
+        final action = PendingActionRepository.fromJson(json);
+
+        expect(action.preview, isNotNull);
+        expect(action.preview!.fields.length, 2);
+        expect(action.preview!.fields[0].label, 'Клиент');
+        expect(action.preview!.fields[0].value, 'Айдос');
+        expect(action.preview!.fields[1].label, 'Срок');
+        expect(action.preview!.fields[1].value, 'Завтра');
+      },
+    );
+
+    test('returns null preview when string is malformed or data is empty', () {
+      final malformed = PendingActionRepository.fromJson(const {
+        'name': 'PA-MALFORMED',
+        'status': 'Pending',
+        'agent_skill': 'test.bad',
+        'display_data': '{broken json :::',
+      });
+      expect(malformed.preview, isNull);
+
+      final emptyPreview = PendingActionRepository.fromJson(const {
+        'name': 'PA-EMPTY',
+        'status': 'Pending',
+        'agent_skill': 'test.empty',
+        'preview': {
+          'title': '',
+          'fields': <Map<String, dynamic>>[],
+        },
+      });
+      expect(emptyPreview.preview, isNull);
     });
   });
 

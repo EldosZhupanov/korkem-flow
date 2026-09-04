@@ -37,6 +37,7 @@ from __future__ import annotations
 import json
 
 import frappe
+from korkem_ai.korkem_ai.agent import preview
 
 PENDING_ACTION = "Pending Action"
 
@@ -70,6 +71,13 @@ def record(
 		summary = summarise(call.name, arguments)
 		if summary:
 			display["summary"] = summary
+		# Что именно произойдёт — словами накладной, а не именем функции.
+		# Согласие, данное на непонятную строку, ничего не стоит: человек
+		# согласился с тем, чего не прочитал. Ключ добавляется рядом со старыми,
+		# а не вместо: `summary` и `arguments` читают телеграм-подтверждения.
+		shown = preview.build(call.name, arguments)
+		if shown:
+			display["preview"] = shown
 
 		action = frappe.get_doc(
 			{
