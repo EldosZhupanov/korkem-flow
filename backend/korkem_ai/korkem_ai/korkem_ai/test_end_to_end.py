@@ -18,7 +18,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 
 from korkem_ai.korkem_ai import notifications
-from korkem_ai.korkem_ai.orchestrator import router
+from korkem_ai.korkem_ai.orchestrator import inbound
 
 CUSTOMER_PHONE = "77010001122"
 CUSTOMER_MESSAGE = "Здравствуйте! Нужны кухонные фасады, 8 штук. Сколько будет стоить?"
@@ -50,7 +50,7 @@ class TestSprint1EndToEnd(IntegrationTestCase):
 		with patch.object(notifications.whatsapp, "queue_send_message") as outbound:
 			# 1. The customer's WhatsApp message arrives.
 			with patch(
-				"korkem_ai.korkem_ai.orchestrator.router.intent_module.classify",
+				"korkem_ai.korkem_ai.orchestrator.inbound.intent_module.classify",
 				return_value=CLASSIFIED,
 			):
 				_dispatch_inbound_message(
@@ -72,7 +72,7 @@ class TestSprint1EndToEnd(IntegrationTestCase):
 				# 2. The orchestrator classifies and routes it. Called directly rather
 				# than through the queue so the test asserts on the outcome, not on
 				# worker timing -- handle_message_async only wraps this in enqueue().
-				routed = router.handle_message(conversation[0], CUSTOMER_MESSAGE)
+				routed = inbound.handle_message(conversation[0], CUSTOMER_MESSAGE)
 
 			self.assertEqual(routed["intent"], "new_order_inquiry")
 			self.assertTrue(routed["handled"])

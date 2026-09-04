@@ -7,7 +7,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 
 from korkem_ai.korkem_ai import budget, errors
-from korkem_ai.korkem_ai.orchestrator import intent, llm, router
+from korkem_ai.korkem_ai.orchestrator import inbound, intent, llm
 from korkem_ai.korkem_ai.orchestrator.protocol import AIUsage
 
 
@@ -378,10 +378,10 @@ class TestRouter(IntegrationTestCase):
 			"korkem_ai.korkem_ai.orchestrator.llm.resolve",
 			side_effect=errors.AINotConfigured("AI is not enabled in AI Settings"),
 		), patch(
-			"korkem_ai.korkem_ai.orchestrator.router.intent_module.classify",
+			"korkem_ai.korkem_ai.orchestrator.inbound.intent_module.classify",
 			return_value={"intent": "other", "confidence": 1.0},
 		):
-			result = router.handle_message(conversation.name, "Здравствуйте")
+			result = inbound.handle_message(conversation.name, "Здравствуйте")
 
 		# The assertion is simply that it returned. `AINotConfigured` used to
 		# propagate out of this call and abandon the sales path entirely.
@@ -396,7 +396,7 @@ class TestRouter(IntegrationTestCase):
 	def test_an_unlinked_sender_is_refused_before_the_provider(self, _check, classify):
 		conversation = self._conversation()
 
-		result = router.handle_message(conversation.name, "Нужна кухня")
+		result = inbound.handle_message(conversation.name, "Нужна кухня")
 
 		self.assertEqual(result["status"], "refused")
 		classify.assert_not_called()
@@ -418,7 +418,7 @@ class TestRouter(IntegrationTestCase):
 		}
 		conversation = self._conversation()
 
-		router.handle_message(
+		inbound.handle_message(
 			conversation.name,
 			"Здравствуйте",
 			request_id="WhatsApp:provider-message-1",
@@ -442,7 +442,7 @@ class TestRouter(IntegrationTestCase):
 		}
 		conversation = self._conversation()
 
-		result = router.handle_message(conversation.name, "Нужны фасады для кухни, 12 штук")
+		result = inbound.handle_message(conversation.name, "Нужны фасады для кухни, 12 штук")
 
 		self.assertTrue(result["handled"])
 		action = frappe.get_doc("Pending Action", result["pending_action"])
@@ -461,7 +461,7 @@ class TestRouter(IntegrationTestCase):
 		}
 		conversation = self._conversation()
 
-		router.handle_message(conversation.name, "need doors")
+		inbound.handle_message(conversation.name, "need doors")
 
 		self.assertFalse(frappe.db.exists("CRM Organization", "Unapproved Customer LLC"))
 
@@ -475,7 +475,7 @@ class TestRouter(IntegrationTestCase):
 		}
 		conversation = self._conversation()
 
-		result = router.handle_message(conversation.name, "What are your hours?")
+		result = inbound.handle_message(conversation.name, "What are your hours?")
 
 		self.assertFalse(result["handled"])
 		self.assertIn("reply", result)
@@ -493,7 +493,7 @@ class TestRouter(IntegrationTestCase):
 		}
 		conversation = self._conversation()
 
-		router.handle_message(conversation.name, "hi")
+		inbound.handle_message(conversation.name, "hi")
 
 		messages = frappe.get_all(
 			"Agent Conversation Message",

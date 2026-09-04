@@ -141,12 +141,12 @@ class TestAnUnknownSenderIsNotTrusted(_GatewayTestCase):
 			gateway.accept(_message())
 
 		queued = [call.args[0] for call in enqueued.call_args_list]
-		self.assertIn("korkem_ai.korkem_ai.orchestrator.router.handle_message", queued)
+		self.assertIn("korkem_ai.korkem_ai.orchestrator.inbound.handle_message", queued)
 		self.assertNotIn("korkem_ai.korkem_ai.channels.gateway.run_turn_job", queued)
 		router_call = next(
 			call
 			for call in enqueued.call_args_list
-			if call.args[0] == "korkem_ai.korkem_ai.orchestrator.router.handle_message"
+			if call.args[0] == "korkem_ai.korkem_ai.orchestrator.inbound.handle_message"
 		)
 		self.assertEqual(router_call.kwargs["request_id"], "Telegram:m-1")
 		self.assertEqual(router_call.kwargs["job_id"], "Telegram:m-1")
@@ -173,7 +173,7 @@ class TestAnUnknownSenderIsNotTrusted(_GatewayTestCase):
 		router_call = next(
 			call
 			for call in enqueued.call_args_list
-			if call.args[0] == "korkem_ai.korkem_ai.orchestrator.router.handle_message"
+			if call.args[0] == "korkem_ai.korkem_ai.orchestrator.inbound.handle_message"
 		)
 		self.assertIsNone(router_call.kwargs["request_id"])
 		self.assertFalse(
