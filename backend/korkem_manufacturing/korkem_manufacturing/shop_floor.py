@@ -14,6 +14,8 @@ rather than fake it, the Work Order's own ERPNext status is left to ERPNext.
 
 import frappe
 
+from korkem_manufacturing.services import authority
+
 TASK_DOCTYPE = "CRM Task"
 DONE = "Done"
 
@@ -33,6 +35,15 @@ def complete_task(task: TaskName, notes: str | None = None) -> TaskName:
 	exactly the same effects as calling this method. One path, fired once.
 	"""
 	doc = frappe.get_doc(TASK_DOCTYPE, task)
+
+	# До 4 сентября здесь не было ни одной проверки, а сохранение шло с
+	# `ignore_permissions=True`: любой вошедший мог закрыть чужую задачу в
+	# чужой компании. Нашлось не чтением кода, а вопросом «а что видит
+	# рабочий», заданным про экран.
+	#
+	# Проверка доменная, а не ролевая, потому что правило «своя задача или ты
+	# старший» ролью невыразимо: роль не знает, кому назначена строка.
+	authority.require_can_finish_task(doc)
 
 	if doc.status == DONE:
 		frappe.throw(f"Task {task} is already complete")
