@@ -3147,4 +3147,32 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get assistantCheckTakingLonger =>
       'Тексеру әдеттегіден ұзаққа созылуда. Бір минуттан кейін қайта қараңыз.';
+
+  @override
+  String get eventsTitle => 'KORKEM байқаған жайттар';
+
+  @override
+  String get eventsAllClearTitle => 'Барлығы бақылауда';
+
+  @override
+  String get eventsAllClearDescription =>
+      'Зауыт жоспар бойынша жұмыс істеп жатыр, шұғыл оқиғалар жоқ.';
+
+  @override
+  String get eventsSeverityHigh => 'Шұғыл';
+
+  @override
+  String get eventsSeverityMedium => 'Назар аударыңыз';
+
+  @override
+  String get eventsSeverityLow => 'Ақпарат';
+
+  @override
+  String get eventsActionDismiss => 'Жасыру';
+
+  @override
+  String get eventsLoadFailed => 'Оқиғаларды жүктеу мүмкін болмады';
+
+  @override
+  String get eventsDismissSuccess => 'Оқиға жасырылды';
 }

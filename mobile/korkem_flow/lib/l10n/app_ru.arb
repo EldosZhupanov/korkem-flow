@@ -1138,5 +1138,14 @@
       }
     }
   },
-  "assistantCheckTakingLonger": "Проверка идёт дольше обычного. Загляните сюда через минуту."
+  "assistantCheckTakingLonger": "Проверка идёт дольше обычного. Загляните сюда через минуту.",
+  "eventsTitle": "Замечено KORKEM",
+  "eventsAllClearTitle": "Всё под контролем",
+  "eventsAllClearDescription": "Завод идёт по плану, срочных событий нет.",
+  "eventsSeverityHigh": "Срочно",
+  "eventsSeverityMedium": "Внимание",
+  "eventsSeverityLow": "Инфо",
+  "eventsActionDismiss": "Скрыть",
+  "eventsLoadFailed": "Не удалось загрузить события",
+  "eventsDismissSuccess": "Событие скрыто"
 }

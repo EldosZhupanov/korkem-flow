@@ -3593,5 +3593,38 @@
   "assistantCheckTakingLonger": "The check is taking longer than usual. Please check back in a minute.",
   "@assistantCheckTakingLonger": {
     "description": "Notice shown when assistant check polling times out"
+  },
+  "eventsTitle": "Noticed by KORKEM",
+  "@eventsTitle": {
+    "description": "Title of the proactive events section"
+  },
+  "eventsAllClearTitle": "Everything is under control",
+  "@eventsAllClearTitle": {
+    "description": "Title shown when there are no urgent proactive events"
+  },
+  "eventsAllClearDescription": "Factory is running on schedule, no urgent events.",
+  "@eventsAllClearDescription": {
+    "description": "Description shown when there are no urgent proactive events"
+  },
+  "eventsSeverityHigh": "Urgent",
+  "@eventsSeverityHigh": {
+    "description": "High severity label"
+  },
+  "eventsSeverityMedium": "Attention",
+  "@eventsSeverityMedium": {
+    "description": "Medium severity label"
+  },
+  "eventsSeverityLow": "Info",
+  "@eventsSeverityLow": {
+    "description": "Low severity label"
+  },
+  "eventsActionDismiss": "Dismiss",
+  "eventsLoadFailed": "Could not load events",
+  "@eventsActionDismiss": {
+    "description": "Button label to dismiss a proactive event"
+  },
+  "eventsDismissSuccess": "Event dismissed",
+  "@eventsDismissSuccess": {
+    "description": "Feedback message when an event is dismissed"
   }
 }

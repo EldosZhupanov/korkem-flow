@@ -3212,4 +3212,32 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get assistantCheckTakingLonger =>
       'Проверка идёт дольше обычного. Загляните сюда через минуту.';
+
+  @override
+  String get eventsTitle => 'Замечено KORKEM';
+
+  @override
+  String get eventsAllClearTitle => 'Всё под контролем';
+
+  @override
+  String get eventsAllClearDescription =>
+      'Завод идёт по плану, срочных событий нет.';
+
+  @override
+  String get eventsSeverityHigh => 'Срочно';
+
+  @override
+  String get eventsSeverityMedium => 'Внимание';
+
+  @override
+  String get eventsSeverityLow => 'Инфо';
+
+  @override
+  String get eventsActionDismiss => 'Скрыть';
+
+  @override
+  String get eventsLoadFailed => 'Не удалось загрузить события';
+
+  @override
+  String get eventsDismissSuccess => 'Событие скрыто';
 }

@@ -6,10 +6,35 @@ import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
+import 'package:korkem_flow/features/events/data/events_repository.dart';
+import 'package:korkem_flow/features/events/domain/proactive_event.dart';
 import 'package:korkem_flow/features/today/data/today_repository.dart';
 import 'package:korkem_flow/features/today/domain/today_summary.dart';
 import 'package:korkem_flow/features/today/presentation/today_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
+
+class _NoEventsRepository implements EventsRepository {
+  @override
+  Future<List<ProactiveEvent>> fetchPending() async => const [];
+
+  @override
+  Future<void> dismiss(String eventId) async {}
+}
+
+class _OneEventRepository implements EventsRepository {
+  @override
+  Future<List<ProactiveEvent>> fetchPending() async => [
+    ProactiveEvent.fromJson(const {
+      'id': 'overdue_order:SAL-ORD-1',
+      'kind': 'overdue_order',
+      'severity': 'high',
+      'title': 'Ахметов: срок прошёл 1 сентября',
+    })!,
+  ];
+
+  @override
+  Future<void> dismiss(String eventId) async {}
+}
 
 void main() {
   final testDate = DateTime(2026, 9, 4, 9);
@@ -33,6 +58,7 @@ void main() {
     return ProviderScope(
       overrides: [
         clockProvider.overrideWithValue(() => clockDate ?? testDate),
+        eventsRepositoryProvider.overrideWithValue(_NoEventsRepository()),
         todaySummaryProvider.overrideWith((ref) => summaryState.value!),
       ],
       child: MaterialApp.router(
@@ -48,6 +74,7 @@ void main() {
   Widget buildErrorHarness({
     required Object error,
     DateTime? clockDate,
+    EventsRepository? events,
   }) {
     final router = GoRouter(
       initialLocation: Routes.today,
@@ -62,6 +89,11 @@ void main() {
     return ProviderScope(
       overrides: [
         clockProvider.overrideWithValue(() => clockDate ?? testDate),
+        // Лента живёт своим состоянием и в этом тесте не участвует: проверяется
+        // то, как экран показывает отказ сводки, а не отказ всего сразу.
+        eventsRepositoryProvider.overrideWithValue(
+          events ?? _NoEventsRepository(),
+        ),
         todaySummaryProvider.overrideWith(
           (ref) => Future<TodaySummary>.error(error),
         ),
@@ -279,6 +311,22 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Повторить'), findsOneWidget);
+    });
+
+    testWidgets('5. сводка упала — тревога всё равно видна', (tester) async {
+      // Лента жила внутри состояния сводки, поэтому «срок послезавтра, работа
+      // не начата» пропадало, пока считалось число просрочек, — а если сводка
+      // падала, то и вовсе. Тревога не должна зависеть от соседнего запроса.
+      await tester.pumpWidget(
+        buildErrorHarness(
+          error: const ServerFailure('Сводка не сосчиталась'),
+          events: _OneEventRepository(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ахметов: срок прошёл 1 сентября'), findsOneWidget);
+      expect(find.text('Сводка не сосчиталась'), findsOneWidget);
     });
   });
 }

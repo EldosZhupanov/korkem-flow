@@ -5654,6 +5654,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The check is taking longer than usual. Please check back in a minute.'**
   String get assistantCheckTakingLonger;
+
+  /// Title of the proactive events section
+  ///
+  /// In en, this message translates to:
+  /// **'Noticed by KORKEM'**
+  String get eventsTitle;
+
+  /// Title shown when there are no urgent proactive events
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is under control'**
+  String get eventsAllClearTitle;
+
+  /// Description shown when there are no urgent proactive events
+  ///
+  /// In en, this message translates to:
+  /// **'Factory is running on schedule, no urgent events.'**
+  String get eventsAllClearDescription;
+
+  /// High severity label
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get eventsSeverityHigh;
+
+  /// Medium severity label
+  ///
+  /// In en, this message translates to:
+  /// **'Attention'**
+  String get eventsSeverityMedium;
+
+  /// Low severity label
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get eventsSeverityLow;
+
+  /// Button label to dismiss a proactive event
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get eventsActionDismiss;
+
+  /// Shown in place of the events feed when it could not be loaded
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load events'**
+  String get eventsLoadFailed;
+
+  /// Feedback message when an event is dismissed
+  ///
+  /// In en, this message translates to:
+  /// **'Event dismissed'**
+  String get eventsDismissSuccess;
 }
 
 class _AppLocalizationsDelegate

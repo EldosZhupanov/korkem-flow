@@ -3188,4 +3188,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get assistantCheckTakingLonger =>
       'The check is taking longer than usual. Please check back in a minute.';
+
+  @override
+  String get eventsTitle => 'Noticed by KORKEM';
+
+  @override
+  String get eventsAllClearTitle => 'Everything is under control';
+
+  @override
+  String get eventsAllClearDescription =>
+      'Factory is running on schedule, no urgent events.';
+
+  @override
+  String get eventsSeverityHigh => 'Urgent';
+
+  @override
+  String get eventsSeverityMedium => 'Attention';
+
+  @override
+  String get eventsSeverityLow => 'Info';
+
+  @override
+  String get eventsActionDismiss => 'Dismiss';
+
+  @override
+  String get eventsLoadFailed => 'Could not load events';
+
+  @override
+  String get eventsDismissSuccess => 'Event dismissed';
 }

@@ -14,6 +14,8 @@ import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
+import 'package:korkem_flow/features/events/application/events_controller.dart';
+import 'package:korkem_flow/features/events/presentation/widgets/events_feed.dart';
 import 'package:korkem_flow/features/today/data/today_repository.dart';
 import 'package:korkem_flow/features/today/domain/today_summary.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -38,23 +40,36 @@ class TodayScreen extends ConsumerWidget {
     return AppScreen(
       title: headerTitle,
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(todaySummaryProvider.future),
+        onRefresh: () async {
+          await Future.wait<dynamic>([
+            ref.refresh(todaySummaryProvider.future),
+            ref.read(eventsControllerProvider.notifier).refresh(),
+          ]);
+        },
+        // Лента идёт своим состоянием, а не внутри состояния сводки. Держать
+        // её там значило бы прятать «срок послезавтра, работа не начата» на
+        // то время, пока считается число просрочек, — а если сводка упала, то
+        // и вовсе. Тревога не должна зависеть от соседнего запроса.
         child: ReadableWidth(
           child: summaryAsync.when(
-            loading: () => const ListSkeleton(),
+            loading: () => const _TodayLoading(),
             error: (error, _) {
               final errorMessage = error is FrappeException
                   ? error.message
                   : error is Exception
                   ? error.toString().replaceFirst(RegExp(r'^Exception:\s*'), '')
                   : error.toString();
-              return ErrorView(
+              return _TodaySummaryFailed(
                 error: ServerFailure(errorMessage),
                 onRetry: () => ref.refresh(todaySummaryProvider.future),
               );
             },
             data: (summary) {
-              if (summary.isAllClear) {
+              final eventsState = ref.watch(eventsControllerProvider);
+              final hasEvents =
+                  eventsState.hasValue && eventsState.value!.isNotEmpty;
+
+              if (summary.isAllClear && !hasEvents) {
                 return _AllClearState(
                   title: l10n.todayEmptyStateTitle,
                   description: l10n.todayEmptyStateDescription,
@@ -63,6 +78,7 @@ class TodayScreen extends ConsumerWidget {
               return _ImportantMetricsList(
                 summary: summary,
                 headerTitle: headerTitle,
+                hasEvents: hasEvents,
               );
             },
           ),
@@ -72,14 +88,53 @@ class TodayScreen extends ConsumerWidget {
   }
 }
 
+/// Пока сводка считается, лента событий уже может что-то показать.
+class _TodayLoading extends StatelessWidget {
+  const _TodayLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: const [
+        EventsFeed(),
+        SizedBox(height: AppSpacing.md),
+        ListSkeleton(),
+      ],
+    );
+  }
+}
+
+/// Сводка не сосчиталась — это не повод скрывать то, что уже известно.
+class _TodaySummaryFailed extends StatelessWidget {
+  const _TodaySummaryFailed({required this.error, required this.onRetry});
+
+  final Object error;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: [
+        const EventsFeed(),
+        const SizedBox(height: AppSpacing.md),
+        ErrorView(error: error, onRetry: onRetry),
+      ],
+    );
+  }
+}
+
 class _ImportantMetricsList extends StatelessWidget {
   const _ImportantMetricsList({
     required this.summary,
     required this.headerTitle,
+    this.hasEvents = false,
   });
 
   final TodaySummary summary;
   final String headerTitle;
+  final bool hasEvents;
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +223,11 @@ class _ImportantMetricsList extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
+
+        if (hasEvents) ...[
+          const EventsFeed(),
+          const SizedBox(height: AppSpacing.md),
+        ],
 
         for (final row in operationalRows) ...[
           row,

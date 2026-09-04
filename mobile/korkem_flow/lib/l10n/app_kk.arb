@@ -1138,5 +1138,14 @@
       }
     }
   },
-  "assistantCheckTakingLonger": "Тексеру әдеттегіден ұзаққа созылуда. Бір минуттан кейін қайта қараңыз."
+  "assistantCheckTakingLonger": "Тексеру әдеттегіден ұзаққа созылуда. Бір минуттан кейін қайта қараңыз.",
+  "eventsTitle": "KORKEM байқаған жайттар",
+  "eventsAllClearTitle": "Барлығы бақылауда",
+  "eventsAllClearDescription": "Зауыт жоспар бойынша жұмыс істеп жатыр, шұғыл оқиғалар жоқ.",
+  "eventsSeverityHigh": "Шұғыл",
+  "eventsSeverityMedium": "Назар аударыңыз",
+  "eventsSeverityLow": "Ақпарат",
+  "eventsActionDismiss": "Жасыру",
+  "eventsLoadFailed": "Оқиғаларды жүктеу мүмкін болмады",
+  "eventsDismissSuccess": "Оқиға жасырылды"
 }
