@@ -11,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/features/ai_settings/data/ai_settings_repository.dart';
 import 'package:korkem_flow/features/ai_settings/domain/ai_provider_config.dart';
+import 'package:korkem_flow/features/ai_settings/presentation/widgets/assistant_check_section.dart';
 import 'package:korkem_flow/features/ai_settings/presentation/widgets/prompt_breakdown_section.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -52,6 +53,8 @@ class AiSettingsScreen extends ConsumerWidget {
                 const _Cascade(),
                 const SizedBox(height: AppSpacing.lg),
                 const PromptBreakdownSection(),
+                const SizedBox(height: AppSpacing.lg),
+                const AssistantCheckSection(),
                 const SizedBox(height: AppSpacing.lg),
                 for (final provider in data.providers) ...[
                   _ProviderTile(config: provider),

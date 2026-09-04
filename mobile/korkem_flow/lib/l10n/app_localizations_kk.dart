@@ -3106,4 +3106,35 @@ class AppLocalizationsKk extends AppLocalizations {
   String aiWeeklySeconds(String seconds) {
     return '$seconds с';
   }
+
+  @override
+  String get assistantCheckTitle => 'Ассистентті тексеру';
+
+  @override
+  String get assistantCheckRunButton => 'Тексеру';
+
+  @override
+  String get assistantCheckRunning => 'Тексерілуде...';
+
+  @override
+  String get assistantCheckNotRunTitle => 'Тексеру іске қосылмады';
+
+  @override
+  String get assistantCheckNotRunDescription =>
+      'Ассистенттің цехтың әдеттегі сценарийлерін дұрыс орындайтынын тексеру үшін іске қосыңыз.';
+
+  @override
+  String assistantCheckPassedSummary(int passed, int total) {
+    return '$total-ден $passed өтті';
+  }
+
+  @override
+  String assistantCheckLastRun(String time) {
+    return 'соңғы тексеру $time';
+  }
+
+  @override
+  String assistantCheckDurationSeconds(String seconds) {
+    return '$seconds с';
+  }
 }

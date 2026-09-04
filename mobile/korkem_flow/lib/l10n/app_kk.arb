@@ -1103,5 +1103,37 @@
         "type": "String"
       }
     }
+  },
+  "assistantCheckTitle": "Ассистентті тексеру",
+  "assistantCheckRunButton": "Тексеру",
+  "assistantCheckRunning": "Тексерілуде...",
+  "assistantCheckNotRunTitle": "Тексеру іске қосылмады",
+  "assistantCheckNotRunDescription": "Ассистенттің цехтың әдеттегі сценарийлерін дұрыс орындайтынын тексеру үшін іске қосыңыз.",
+  "assistantCheckPassedSummary": "{total}-ден {passed} өтті",
+  "@assistantCheckPassedSummary": {
+    "placeholders": {
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantCheckLastRun": "соңғы тексеру {time}",
+  "@assistantCheckLastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "assistantCheckDurationSeconds": "{seconds} с",
+  "@assistantCheckDurationSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   }
 }

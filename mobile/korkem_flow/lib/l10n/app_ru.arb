@@ -1103,5 +1103,37 @@
         "type": "String"
       }
     }
+  },
+  "assistantCheckTitle": "Проверка ассистента",
+  "assistantCheckRunButton": "Прогнать",
+  "assistantCheckRunning": "Идёт проверка...",
+  "assistantCheckNotRunTitle": "Проверка не запускалась",
+  "assistantCheckNotRunDescription": "Запустите проверку, чтобы убедиться, что ассистент справляется с типичными сценариями цеха.",
+  "assistantCheckPassedSummary": "Пройдено {passed} из {total}",
+  "@assistantCheckPassedSummary": {
+    "placeholders": {
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantCheckLastRun": "последний прогон {time}",
+  "@assistantCheckLastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "assistantCheckDurationSeconds": "{seconds} с",
+  "@assistantCheckDurationSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   }
 }

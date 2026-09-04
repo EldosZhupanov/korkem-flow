@@ -5588,6 +5588,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{seconds} s'**
   String aiWeeklySeconds(String seconds);
+
+  /// Title of the assistant check section in AI settings
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant Quality Check'**
+  String get assistantCheckTitle;
+
+  /// Button to trigger assistant test suite run
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get assistantCheckRunButton;
+
+  /// Label when test run is in progress
+  ///
+  /// In en, this message translates to:
+  /// **'Running check...'**
+  String get assistantCheckRunning;
+
+  /// Title when assistant check hasn't run yet
+  ///
+  /// In en, this message translates to:
+  /// **'Check has not been run'**
+  String get assistantCheckNotRunTitle;
+
+  /// Description explaining why to run the check
+  ///
+  /// In en, this message translates to:
+  /// **'Run the check to verify the assistant performs correctly on typical workshop scenarios.'**
+  String get assistantCheckNotRunDescription;
+
+  /// Summary count of passed scenarios
+  ///
+  /// In en, this message translates to:
+  /// **'Passed {passed} of {total}'**
+  String assistantCheckPassedSummary(int passed, int total);
+
+  /// Timestamp of the last run
+  ///
+  /// In en, this message translates to:
+  /// **'last run {time}'**
+  String assistantCheckLastRun(String time);
+
+  /// Duration in seconds for scenario execution
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s'**
+  String assistantCheckDurationSeconds(String seconds);
 }
 
 class _AppLocalizationsDelegate

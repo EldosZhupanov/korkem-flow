@@ -3531,5 +3531,55 @@
         "type": "String"
       }
     }
+  },
+  "assistantCheckTitle": "Assistant Quality Check",
+  "@assistantCheckTitle": {
+    "description": "Title of the assistant check section in AI settings"
+  },
+  "assistantCheckRunButton": "Run",
+  "@assistantCheckRunButton": {
+    "description": "Button to trigger assistant test suite run"
+  },
+  "assistantCheckRunning": "Running check...",
+  "@assistantCheckRunning": {
+    "description": "Label when test run is in progress"
+  },
+  "assistantCheckNotRunTitle": "Check has not been run",
+  "@assistantCheckNotRunTitle": {
+    "description": "Title when assistant check hasn't run yet"
+  },
+  "assistantCheckNotRunDescription": "Run the check to verify the assistant performs correctly on typical workshop scenarios.",
+  "@assistantCheckNotRunDescription": {
+    "description": "Description explaining why to run the check"
+  },
+  "assistantCheckPassedSummary": "Passed {passed} of {total}",
+  "@assistantCheckPassedSummary": {
+    "description": "Summary count of passed scenarios",
+    "placeholders": {
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantCheckLastRun": "last run {time}",
+  "@assistantCheckLastRun": {
+    "description": "Timestamp of the last run",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "assistantCheckDurationSeconds": "{seconds} s",
+  "@assistantCheckDurationSeconds": {
+    "description": "Duration in seconds for scenario execution",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   }
 }

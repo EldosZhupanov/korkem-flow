@@ -3170,4 +3170,35 @@ class AppLocalizationsRu extends AppLocalizations {
   String aiWeeklySeconds(String seconds) {
     return '$seconds с';
   }
+
+  @override
+  String get assistantCheckTitle => 'Проверка ассистента';
+
+  @override
+  String get assistantCheckRunButton => 'Прогнать';
+
+  @override
+  String get assistantCheckRunning => 'Идёт проверка...';
+
+  @override
+  String get assistantCheckNotRunTitle => 'Проверка не запускалась';
+
+  @override
+  String get assistantCheckNotRunDescription =>
+      'Запустите проверку, чтобы убедиться, что ассистент справляется с типичными сценариями цеха.';
+
+  @override
+  String assistantCheckPassedSummary(int passed, int total) {
+    return 'Пройдено $passed из $total';
+  }
+
+  @override
+  String assistantCheckLastRun(String time) {
+    return 'последний прогон $time';
+  }
+
+  @override
+  String assistantCheckDurationSeconds(String seconds) {
+    return '$seconds с';
+  }
 }

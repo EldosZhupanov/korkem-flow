@@ -3146,4 +3146,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String aiWeeklySeconds(String seconds) {
     return '$seconds s';
   }
+
+  @override
+  String get assistantCheckTitle => 'Assistant Quality Check';
+
+  @override
+  String get assistantCheckRunButton => 'Run';
+
+  @override
+  String get assistantCheckRunning => 'Running check...';
+
+  @override
+  String get assistantCheckNotRunTitle => 'Check has not been run';
+
+  @override
+  String get assistantCheckNotRunDescription =>
+      'Run the check to verify the assistant performs correctly on typical workshop scenarios.';
+
+  @override
+  String assistantCheckPassedSummary(int passed, int total) {
+    return 'Passed $passed of $total';
+  }
+
+  @override
+  String assistantCheckLastRun(String time) {
+    return 'last run $time';
+  }
+
+  @override
+  String assistantCheckDurationSeconds(String seconds) {
+    return '$seconds s';
+  }
 }
