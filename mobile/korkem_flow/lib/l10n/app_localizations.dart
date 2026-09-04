@@ -3768,7 +3768,7 @@ abstract class AppLocalizations {
   /// Notice stating that external message is untrusted input data, not a direct command
   ///
   /// In en, this message translates to:
-  /// **'Incoming data, not an instruction'**
+  /// **'Someone else’s text — the assistant does not act on it'**
   String get chatExternalDataNotice;
 
   /// Provider timeout.
