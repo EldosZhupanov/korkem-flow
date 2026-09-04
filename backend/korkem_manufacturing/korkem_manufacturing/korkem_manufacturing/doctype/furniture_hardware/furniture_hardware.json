@@ -1,0 +1,84 @@
+{
+ "actions": [],
+ "autoname": "format:HW-{####}",
+ "creation": "2026-09-04 18:40:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "hardware_type", "brand", "model", "hardware_name", "column_break_what",
+  "company", "colour", "active",
+  "section_break_hinge", "cup_diameter_mm", "cup_depth_mm", "overlay",
+  "column_break_hinge", "mounting_system", "opening_angle_deg", "soft_close",
+  "section_break_runner", "length_mm", "load_kg",
+  "section_break_notes", "notes"
+ ],
+ "fields": [
+  {
+   "description": "Петля, направляющая, ручка, опора, полкодержатель.",
+   "fieldname": "hardware_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Вид",
+   "options": "hinge\nrunner\nhandle\nleg\nshelf_support",
+   "reqd": 1
+  },
+  {"fieldname": "brand", "fieldtype": "Data", "in_list_view": 1, "label": "Бренд"},
+  {"fieldname": "model", "fieldtype": "Data", "in_list_view": 1, "label": "Модель"},
+  {"fieldname": "hardware_name", "fieldtype": "Data", "in_list_view": 1, "label": "Название", "reqd": 1},
+  {"fieldname": "column_break_what", "fieldtype": "Column Break"},
+  {"fieldname": "company", "fieldtype": "Link", "label": "Компания", "options": "Company", "reqd": 1},
+  {"fieldname": "colour", "fieldtype": "Data", "label": "Цвет"},
+  {"default": "1", "fieldname": "active", "fieldtype": "Check", "label": "В работе"},
+  {"fieldname": "section_break_hinge", "fieldtype": "Section Break", "label": "Петля"},
+  {
+   "description": "35 мм — стандарт для ЛДСП и МДФ. 26 мм для лёгких фасадов, 40 мм реже.",
+   "fieldname": "cup_diameter_mm",
+   "fieldtype": "Float",
+   "label": "Чашка, диаметр мм"
+  },
+  {
+   "default": "11.3",
+   "description": "Глубина сверления. 11,3 мм обычная; для фасадов 12–14 мм есть петли на 10 мм.",
+   "fieldname": "cup_depth_mm",
+   "fieldtype": "Float",
+   "label": "Чашка, глубина мм"
+  },
+  {
+   "description": "Тип наложения. Накладная — фасад перекрывает боковину почти полностью; полунакладная — два фасада делят торец пополам; вкладная — фасад внутри корпуса. От него зависит вся присадка.",
+   "fieldname": "overlay",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Наложение",
+   "options": "\nfull\nhalf\ninset"
+  },
+  {"fieldname": "column_break_hinge", "fieldtype": "Column Break"},
+  {
+   "description": "Система присадки: австрийская 45/9,5 · итальянская 48/6,0 · немецкая 52/5,5 · мини 38/7,5 (межцентровое / отступ).",
+   "fieldname": "mounting_system",
+   "fieldtype": "Select",
+   "label": "Система присадки",
+   "options": "\naustrian\nitalian\ngerman\nmini"
+  },
+  {"fieldname": "opening_angle_deg", "fieldtype": "Float", "label": "Угол открывания, °"},
+  {"default": "0", "fieldname": "soft_close", "fieldtype": "Check", "label": "С доводчиком"},
+  {"fieldname": "section_break_runner", "fieldtype": "Section Break", "label": "Направляющая"},
+  {"fieldname": "length_mm", "fieldtype": "Float", "in_list_view": 1, "label": "Длина, мм"},
+  {"fieldname": "load_kg", "fieldtype": "Float", "label": "Нагрузка, кг"},
+  {"fieldname": "section_break_notes", "fieldtype": "Section Break"},
+  {"fieldname": "notes", "fieldtype": "Small Text", "label": "Примечание"}
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-04 18:40:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Furniture Hardware",
+ "owner": "Administrator",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "role": "System Manager", "write": 1},
+  {"read": 1, "role": "Manufacturing User"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

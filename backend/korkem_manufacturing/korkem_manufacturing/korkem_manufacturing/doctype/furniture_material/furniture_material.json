@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "autoname": "format:MAT-{####}",
+ "creation": "2026-09-04 18:30:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "kind", "manufacturer", "decor_code", "material_name", "column_break_what",
+  "company", "color_family", "active",
+  "section_break_board", "thickness_mm", "sheet_width_mm", "sheet_height_mm",
+  "column_break_edge", "edge_width_mm", "fits_thickness_mm",
+  "section_break_source", "notes"
+ ],
+ "fields": [
+  {
+   "description": "Плита или кромка. Разные вещи с разным применением: плиту раскраивают, кромкой закрывают торец.",
+   "fieldname": "kind",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Что это",
+   "options": "board\nedge",
+   "reqd": 1
+  },
+  {
+   "fieldname": "manufacturer",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Производитель"
+  },
+  {
+   "description": "Код декора производителя: W1000 ST9, U999 ST2, H1277 ST9. Мебельщик ищет по нему, а не по названию — «белых премиумов» у трёх производителей три разных.",
+   "fieldname": "decor_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Код декора"
+  },
+  {
+   "fieldname": "material_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Название",
+   "reqd": 1
+  },
+  {"fieldname": "column_break_what", "fieldtype": "Column Break"},
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Компания",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "color_family",
+   "fieldtype": "Select",
+   "label": "Семейство цвета",
+   "options": "\nwhite\ngrey\nblack\nwood\ncolour"
+  },
+  {"default": "1", "fieldname": "active", "fieldtype": "Check", "label": "В работе"},
+  {"fieldname": "section_break_board", "fieldtype": "Section Break", "label": "Плита"},
+  {
+   "description": "16 или 18 мм — то, что применяют в корпусной мебели. В массовом производстве преобладает 16.",
+   "fieldname": "thickness_mm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Толщина, мм"
+  },
+  {"default": "2800", "fieldname": "sheet_width_mm", "fieldtype": "Float", "label": "Лист, длина мм"},
+  {"default": "2070", "fieldname": "sheet_height_mm", "fieldtype": "Float", "label": "Лист, ширина мм"},
+  {"fieldname": "column_break_edge", "fieldtype": "Column Break"},
+  {
+   "description": "Ширина ленты. Для плиты 18 мм — 22–23 мм.",
+   "fieldname": "edge_width_mm",
+   "fieldtype": "Float",
+   "label": "Кромка, ширина мм"
+  },
+  {
+   "description": "Под какую толщину плиты эта кромка. Кромка привязана к плите, а не к декору: закрыть торец 16 мм лентой под 18 нельзя.",
+   "fieldname": "fits_thickness_mm",
+   "fieldtype": "Float",
+   "label": "Кромка под толщину, мм"
+  },
+  {"fieldname": "section_break_source", "fieldtype": "Section Break"},
+  {"fieldname": "notes", "fieldtype": "Small Text", "label": "Примечание"}
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-04 18:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Furniture Material",
+ "owner": "Administrator",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "role": "System Manager", "write": 1},
+  {"read": 1, "role": "Manufacturing User"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

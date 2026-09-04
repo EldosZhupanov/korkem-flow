@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "autoname": "format:TPL-{####}",
+ "creation": "2026-09-04 19:05:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "category", "template_name", "column_break_what", "company", "active",
+  "section_break_size", "default_width_mm", "default_height_mm", "default_depth_mm",
+  "column_break_range", "min_width_mm", "max_width_mm", "min_height_mm", "max_height_mm",
+  "min_depth_mm", "max_depth_mm",
+  "section_break_doors", "door_type", "min_doors", "max_doors",
+  "column_break_doors", "default_doors", "overlay",
+  "section_break_notes", "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Вид изделия",
+   "options": "wardrobe\nkitchen\ncabinet\ntv_unit\ntable",
+   "reqd": 1
+  },
+  {"fieldname": "template_name", "fieldtype": "Data", "in_list_view": 1, "label": "Название", "reqd": 1},
+  {"fieldname": "column_break_what", "fieldtype": "Column Break"},
+  {"fieldname": "company", "fieldtype": "Link", "label": "Компания", "options": "Company", "reqd": 1},
+  {"default": "1", "fieldname": "active", "fieldtype": "Check", "label": "В работе"},
+  {"fieldname": "section_break_size", "fieldtype": "Section Break", "label": "Размеры по умолчанию"},
+  {"fieldname": "default_width_mm", "fieldtype": "Float", "in_list_view": 1, "label": "Ширина, мм", "reqd": 1},
+  {
+   "default": "2400",
+   "description": "Типовая высота шкафа — 2400 мм. Это то, от чего считают, а не то, что нельзя менять.",
+   "fieldname": "default_height_mm",
+   "fieldtype": "Float",
+   "label": "Высота, мм",
+   "reqd": 1
+  },
+  {
+   "default": "600",
+   "description": "Типовая глубина шкафа — 600 мм.",
+   "fieldname": "default_depth_mm",
+   "fieldtype": "Float",
+   "label": "Глубина, мм",
+   "reqd": 1
+  },
+  {"fieldname": "column_break_range", "fieldtype": "Column Break"},
+  {"fieldname": "min_width_mm", "fieldtype": "Float", "label": "Ширина от, мм"},
+  {"fieldname": "max_width_mm", "fieldtype": "Float", "label": "Ширина до, мм"},
+  {"fieldname": "min_height_mm", "fieldtype": "Float", "label": "Высота от, мм"},
+  {"fieldname": "max_height_mm", "fieldtype": "Float", "label": "Высота до, мм"},
+  {"fieldname": "min_depth_mm", "fieldtype": "Float", "label": "Глубина от, мм"},
+  {"fieldname": "max_depth_mm", "fieldtype": "Float", "label": "Глубина до, мм"},
+  {"fieldname": "section_break_doors", "fieldtype": "Section Break", "label": "Двери"},
+  {
+   "fieldname": "door_type",
+   "fieldtype": "Select",
+   "label": "Тип дверей",
+   "options": "\nhinged\nsliding\nopen"
+  },
+  {"fieldname": "min_doors", "fieldtype": "Int", "label": "Дверей от"},
+  {"fieldname": "max_doors", "fieldtype": "Int", "label": "Дверей до"},
+  {"fieldname": "column_break_doors", "fieldtype": "Column Break"},
+  {"fieldname": "default_doors", "fieldtype": "Int", "label": "Дверей по умолчанию"},
+  {
+   "description": "Как фасад садится на корпус. Определяет, какие петли подойдут.",
+   "fieldname": "overlay",
+   "fieldtype": "Select",
+   "label": "Наложение фасада",
+   "options": "\nfull\nhalf\ninset"
+  },
+  {"fieldname": "section_break_notes", "fieldtype": "Section Break"},
+  {"fieldname": "description", "fieldtype": "Small Text", "label": "Описание"}
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-04 19:05:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Furniture Template",
+ "owner": "Administrator",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "role": "System Manager", "write": 1},
+  {"read": 1, "role": "Manufacturing User"}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
