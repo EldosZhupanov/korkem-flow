@@ -3201,4 +3201,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String assistantCheckDurationSeconds(String seconds) {
     return '$seconds с';
   }
+
+  @override
+  String get assistantCheckTakingLonger =>
+      'Проверка идёт дольше обычного. Загляните сюда через минуту.';
 }

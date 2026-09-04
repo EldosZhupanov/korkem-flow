@@ -3581,5 +3581,9 @@
         "type": "String"
       }
     }
+  },
+  "assistantCheckTakingLonger": "The check is taking longer than usual. Please check back in a minute.",
+  "@assistantCheckTakingLonger": {
+    "description": "Notice shown when assistant check polling times out"
   }
 }

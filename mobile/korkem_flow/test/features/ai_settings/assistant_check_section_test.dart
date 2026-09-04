@@ -15,6 +15,7 @@ class _FakeAssistantCheckRepository implements AssistantCheckRepository {
     this.runDelay,
     this.loadDelay,
     this.runError,
+    this.pollSequence,
   });
 
   AssistantCheckReport initialReport;
@@ -22,12 +23,22 @@ class _FakeAssistantCheckRepository implements AssistantCheckRepository {
   Duration? runDelay;
   Duration? loadDelay;
   Exception? runError;
+  List<AssistantCheckReport>? pollSequence;
   int runCallCount = 0;
+  int getLastRunCallCount = 0;
+  int pollCount = 0;
 
   @override
   Future<AssistantCheckReport> getLastRun() async {
+    getLastRunCallCount++;
     if (loadDelay != null) {
       await Future<void>.delayed(loadDelay!);
+    }
+    if (runCallCount > 0 && pollSequence != null && pollSequence!.isNotEmpty) {
+      final index = pollCount < pollSequence!.length
+          ? pollCount++
+          : pollSequence!.length - 1;
+      return pollSequence![index];
     }
     return initialReport;
   }
@@ -284,6 +295,22 @@ void main() {
       );
     });
 
+    testWidgets('отказ без слов всё равно что-то говорит', (tester) async {
+      // Сервер обязан прислать причину. Если однажды не пришлёт — пустая
+      // красная строка с кнопкой «Повторить» не скажет человеку ничего.
+      final repo = _FakeAssistantCheckRepository(
+        initialReport: const AssistantCheckReport(
+          status: AssistantCheckStatus.failed,
+        ),
+      );
+
+      await tester.pumpWidget(buildHarness(repository: repo));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Что-то пошло не так.'), findsOneWidget);
+      expect(find.text('Повторить'), findsOneWidget);
+    });
+
     testWidgets('показывает отказ сервера его словами при сбое', (
       tester,
     ) async {
@@ -305,5 +332,181 @@ void main() {
       );
       expect(find.text('Повторить'), findsOneWidget);
     });
+
+    testWidgets(
+      'прогон: сервер отдаёт running, на 3-м опросе completed — экран '
+      'показывает результат',
+      (tester) async {
+        final repo = _FakeAssistantCheckRepository(
+          runResult: const AssistantCheckReport(
+            status: AssistantCheckStatus.running,
+          ),
+          pollSequence: const [
+            AssistantCheckReport(status: AssistantCheckStatus.running),
+            AssistantCheckReport(status: AssistantCheckStatus.running),
+            AssistantCheckReport(
+              status: AssistantCheckStatus.completed,
+              scenarios: [
+                CheckScenario(
+                  id: '1',
+                  name: 'Найти заказ по нечёткому описанию',
+                  passed: true,
+                  durationSeconds: 1.2,
+                ),
+              ],
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(buildHarness(repository: repo));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Проверка не запускалась'), findsOneWidget);
+
+        await tester.tap(find.text('Прогнать'));
+        await tester.pump();
+
+        expect(find.text('Идёт проверка...'), findsOneWidget);
+        expect(find.byType(LinearProgressIndicator), findsOneWidget);
+
+        // Poll 1 (2s)
+        await tester.pump(const Duration(seconds: 2));
+        expect(find.text('Идёт проверка...'), findsOneWidget);
+        expect(repo.pollCount, 1);
+
+        // Poll 2 (4s)
+        await tester.pump(const Duration(seconds: 2));
+        expect(find.text('Идёт проверка...'), findsOneWidget);
+        expect(repo.pollCount, 2);
+
+        // Poll 3 (6s)
+        await tester.pump(const Duration(seconds: 2));
+        await tester.pumpAndSettle();
+        expect(repo.pollCount, 3);
+
+        expect(find.text('Найти заказ по нечёткому описанию'), findsOneWidget);
+        expect(find.text('1.2 с'), findsOneWidget);
+        expect(find.text('Пройдено 1 из 1'), findsOneWidget);
+        expect(find.text('Идёт проверка...'), findsNothing);
+        expect(find.text('Прогнать'), findsOneWidget);
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).enabled,
+          isTrue,
+        );
+      },
+    );
+
+    testWidgets('закрытый экран перестаёт опрашивать сервер', (tester) async {
+      final repo = _FakeAssistantCheckRepository(
+        runResult: const AssistantCheckReport(
+          status: AssistantCheckStatus.running,
+        ),
+        pollSequence: const [
+          AssistantCheckReport(status: AssistantCheckStatus.running),
+        ],
+      );
+
+      await tester.pumpWidget(buildHarness(repository: repo));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Прогнать'));
+      await tester.pump();
+
+      // Advance 2 seconds for poll 1
+      await tester.pump(const Duration(seconds: 2));
+      final callsBeforeClose = repo.getLastRunCallCount;
+      expect(callsBeforeClose, greaterThanOrEqualTo(2));
+
+      // Close screen by replacing with SizedBox
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
+
+      // Advance time further
+      await tester.pump(const Duration(seconds: 10));
+
+      // Polls must not continue after screen disposal
+      expect(repo.getLastRunCallCount, callsBeforeClose);
+    });
+
+    testWidgets(
+      'потолок 3 минуты: бесконечный running прекращает опрос, показывает '
+      'предупреждение и возвращает кнопку',
+      (tester) async {
+        final repo = _FakeAssistantCheckRepository(
+          runResult: const AssistantCheckReport(
+            status: AssistantCheckStatus.running,
+          ),
+          pollSequence: const [
+            AssistantCheckReport(status: AssistantCheckStatus.running),
+          ],
+        );
+
+        await tester.pumpWidget(buildHarness(repository: repo));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Прогнать'));
+        await tester.pump();
+
+        expect(find.text('Идёт проверка...'), findsOneWidget);
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).enabled,
+          isFalse,
+        );
+
+        // Advance by 3 minutes in fake time
+        await tester.pump(const Duration(minutes: 3));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(
+            'Проверка идёт дольше обычного. Загляните сюда через минуту.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Идёт проверка...'), findsNothing);
+        expect(find.byType(LinearProgressIndicator), findsNothing);
+        expect(find.text('Прогнать'), findsOneWidget);
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).enabled,
+          isTrue,
+        );
+      },
+    );
+
+    testWidgets(
+      'статус failed в отчёте показывает отказ в _ErrorBox с failure_reason',
+      (tester) async {
+        const failureText = 'Сервис моделей ИИ перегружен запросами';
+        final repo = _FakeAssistantCheckRepository(
+          runResult: const AssistantCheckReport(
+            status: AssistantCheckStatus.running,
+          ),
+          pollSequence: const [
+            AssistantCheckReport(
+              status: AssistantCheckStatus.failed,
+              failureReason: failureText,
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(buildHarness(repository: repo));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Прогнать'));
+        await tester.pump();
+
+        // 1st poll returns failed
+        await tester.pump(const Duration(seconds: 2));
+        await tester.pumpAndSettle();
+
+        expect(find.text(failureText), findsOneWidget);
+        expect(find.text('Повторить'), findsOneWidget);
+        expect(find.text('Идёт проверка...'), findsNothing);
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).enabled,
+          isTrue,
+        );
+      },
+    );
   });
 }

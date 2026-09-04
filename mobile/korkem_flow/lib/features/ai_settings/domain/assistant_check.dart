@@ -83,12 +83,16 @@ class AssistantCheckReport {
     this.status = AssistantCheckStatus.notRun,
     this.lastRunAt,
     this.scenarios = const [],
+    this.failureReason,
+    this.isTimedOut = false,
   });
 
   const AssistantCheckReport.notRun()
     : status = AssistantCheckStatus.notRun,
       lastRunAt = null,
-      scenarios = const [];
+      scenarios = const [],
+      failureReason = null,
+      isTimedOut = false;
 
   factory AssistantCheckReport.fromJson(Map<String, dynamic> json) {
     final rawScenarios = json['scenarios'] ?? json['tests'] ?? json['items'];
@@ -111,12 +115,17 @@ class AssistantCheckReport {
         ? DateTime.tryParse(rawDate)?.toLocal()
         : null;
 
+    final failureReason =
+        (json['failure_reason'] ?? json['reason'] ?? json['error'])?.toString();
+
     final rawStatus = json['status']?.toString().toLowerCase();
     final AssistantCheckStatus status;
     if (rawStatus == 'running') {
       status = AssistantCheckStatus.running;
     } else if (rawStatus == 'failed') {
       status = AssistantCheckStatus.failed;
+    } else if (rawStatus == 'completed') {
+      status = AssistantCheckStatus.completed;
     } else if (scenarios.isNotEmpty || lastRunAt != null) {
       status = AssistantCheckStatus.completed;
     } else {
@@ -127,12 +136,15 @@ class AssistantCheckReport {
       status: status,
       lastRunAt: lastRunAt,
       scenarios: scenarios,
+      failureReason: failureReason,
     );
   }
 
   final AssistantCheckStatus status;
   final DateTime? lastRunAt;
   final List<CheckScenario> scenarios;
+  final String? failureReason;
+  final bool isTimedOut;
 
   /// The same report, marked as a run in progress.
   ///
@@ -146,11 +158,20 @@ class AssistantCheckReport {
     scenarios: scenarios,
   );
 
+  /// The same report, marked as timed out after the polling ceiling.
+  AssistantCheckReport asTimedOut() => AssistantCheckReport(
+    status: status,
+    lastRunAt: lastRunAt,
+    scenarios: scenarios,
+    failureReason: failureReason,
+    isTimedOut: true,
+  );
+
   /// True when a test run has been performed at least once.
   bool get hasRun => scenarios.isNotEmpty || lastRunAt != null;
 
   /// True when the test suite is actively executing.
-  bool get isRunning => status == AssistantCheckStatus.running;
+  bool get isRunning => status == AssistantCheckStatus.running && !isTimedOut;
 
   int get totalCount => scenarios.length;
 
@@ -164,17 +185,22 @@ class AssistantCheckReport {
       other is AssistantCheckReport &&
           other.status == status &&
           other.lastRunAt == lastRunAt &&
+          other.failureReason == failureReason &&
+          other.isTimedOut == isTimedOut &&
           listEquals(other.scenarios, scenarios);
 
   @override
   int get hashCode => Object.hash(
     status,
     lastRunAt,
+    failureReason,
+    isTimedOut,
     Object.hashAll(scenarios),
   );
 
   @override
   String toString() =>
       'AssistantCheckReport(status: $status, lastRunAt: $lastRunAt, '
-      'scenarios: ${scenarios.length})';
+      'scenarios: ${scenarios.length}, failure: $failureReason, '
+      'timedOut: $isTimedOut)';
 }

@@ -3177,4 +3177,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String assistantCheckDurationSeconds(String seconds) {
     return '$seconds s';
   }
+
+  @override
+  String get assistantCheckTakingLonger =>
+      'The check is taking longer than usual. Please check back in a minute.';
 }

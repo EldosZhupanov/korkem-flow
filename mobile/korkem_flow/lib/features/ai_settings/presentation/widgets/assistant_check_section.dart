@@ -80,6 +80,35 @@ class AssistantCheckSection extends ConsumerWidget {
                 onRetry: () =>
                     ref.read(assistantCheckControllerProvider.notifier).run(),
               ),
+            ] else if (report != null &&
+                report.status == AssistantCheckStatus.failed) ...[
+              const SizedBox(height: AppSpacing.md),
+              _ErrorBox(
+                // Сервер обязан прислать причину, но пустая красная строка с
+                // кнопкой «Повторить» — это отказ без слов, и человек не
+                // узнает из неё ничего. Общая фраза хуже точной и лучше пустой.
+                error: (report.failureReason?.isNotEmpty ?? false)
+                    ? report.failureReason!
+                    : l10n.errorGeneric,
+                onRetry: () =>
+                    ref.read(assistantCheckControllerProvider.notifier).run(),
+              ),
+            ] else if (report != null && report.isTimedOut) ...[
+              const SizedBox(height: AppSpacing.md),
+              _TimeoutNotice(
+                message: l10n.assistantCheckTakingLonger,
+              ),
+              if (report.hasRun && report.scenarios.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                for (final scenario in report.scenarios) ...[
+                  _ScenarioRow(scenario: scenario),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+                const SizedBox(height: AppSpacing.xs),
+                const Divider(),
+                const SizedBox(height: AppSpacing.xs),
+                _FooterRow(report: report),
+              ],
             ] else if (report != null && report.hasRun) ...[
               const SizedBox(height: AppSpacing.md),
               for (final scenario in report.scenarios) ...[
@@ -144,6 +173,38 @@ class _NotRunExplanation extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TimeoutNotice extends StatelessWidget {
+  const _TimeoutNotice({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final statusColors = context.statusColors;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          AppIcons.warning,
+          size: AppIconSize.dense,
+          color: statusColors.warning,
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            message,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],

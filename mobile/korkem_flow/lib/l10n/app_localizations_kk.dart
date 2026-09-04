@@ -3137,4 +3137,8 @@ class AppLocalizationsKk extends AppLocalizations {
   String assistantCheckDurationSeconds(String seconds) {
     return '$seconds с';
   }
+
+  @override
+  String get assistantCheckTakingLonger =>
+      'Тексеру әдеттегіден ұзаққа созылуда. Бір минуттан кейін қайта қараңыз.';
 }

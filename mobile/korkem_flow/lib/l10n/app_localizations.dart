@@ -5636,6 +5636,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{seconds} s'**
   String assistantCheckDurationSeconds(String seconds);
+
+  /// Notice shown when assistant check polling times out
+  ///
+  /// In en, this message translates to:
+  /// **'The check is taking longer than usual. Please check back in a minute.'**
+  String get assistantCheckTakingLonger;
 }
 
 class _AppLocalizationsDelegate
