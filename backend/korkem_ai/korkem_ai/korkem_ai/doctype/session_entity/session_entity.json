@@ -1,0 +1,50 @@
+{
+ "actions": [],
+ "autoname": "field:user",
+ "creation": "2026-09-04 06:10:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["user", "company", "entities", "updated_at"],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Человек",
+   "options": "User",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Компания",
+   "options": "Company"
+  },
+  {
+   "description": "О чём человек говорит прямо сейчас: заказ, клиент, изделие. С отметкой времени у каждой записи — по ней решают, не устарела ли ссылка.",
+   "fieldname": "entities",
+   "fieldtype": "Long Text",
+   "label": "Сущности разговора"
+  },
+  {
+   "fieldname": "updated_at",
+   "fieldtype": "Datetime",
+   "label": "Обновлено",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-04 06:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem AI",
+ "name": "Session Entity",
+ "owner": "Administrator",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "role": "System Manager", "write": 1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -172,7 +172,28 @@ def build(
 	if facts:
 		lines.append(facts)
 
+	subject = _conversation_subject()
+	if subject:
+		lines.append(subject)
+
 	return "".join(lines)
+
+
+def _conversation_subject() -> str:
+	"""О чём идёт речь: «этот заказ», «она», «поменяй там».
+
+	Отдельно от истории разговора, потому что история ограничена сорока
+	сообщениями и обрезается молча. Человек, вернувшийся к беседе через час,
+	продолжает говорить «этот заказ» — и получал вопрос «какой именно» там, где
+	секунду назад всё понималось.
+	"""
+	try:
+		from korkem_ai.korkem_ai.context import entities
+
+		return entities.described()
+	except Exception:
+		# Контекст, уронивший ход, хуже отсутствующего контекста.
+		return ""
 
 
 def _remembered() -> str:
