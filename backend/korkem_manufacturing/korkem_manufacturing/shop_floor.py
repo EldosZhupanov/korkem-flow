@@ -79,11 +79,25 @@ def record_completion(doc):
 	frappe.get_doc(...).add_comment() is Frappe's native timeline mechanism, so
 	this shows up for anyone looking at the Work Order in the Desk -- no parallel
 	logging system invented for it.
+
+	## Кто закрыл — это тот, кто нажал
+
+	Раньше здесь стояло `doc.assigned_to or frappe.session.user`, то есть в
+	журнал шёл тот, **на кого задача была назначена**. Пока закрыть мог только
+	он сам, разница не проявлялась. Как только старший смены получил право
+	закрывать за ушедшего домой, запись стала неверной ровно в том случае, ради
+	которого она и ведётся: «кто на самом деле это сделал».
+
+	Назначенный не выброшен — он остаётся в строке, когда закрыл не он. Иначе
+	пропала бы вторая половина ответа: за кого.
 	"""
 	work_order = frappe.get_doc("Work Order", doc.reference_docname)
+	who = frappe.session.user
+	assigned = (doc.assigned_to or "").strip()
+	on_behalf = f" (за {assigned})" if assigned and assigned != who else ""
 	work_order.add_comment(
 		"Info",
-		f"Production task completed by {doc.assigned_to or frappe.session.user}: {doc.title}",
+		f"Production task completed by {who}{on_behalf}: {doc.title}",
 	)
 
 

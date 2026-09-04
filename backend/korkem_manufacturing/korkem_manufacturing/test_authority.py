@@ -110,6 +110,49 @@ class TestWhoMayFinishATask(_TaskCase):
 		self.assertIn("старший", str(caught.exception))
 
 
+class TestTheTrailSaysWhoActuallyDidIt(_TaskCase):
+	"""Журнал наряда — это ответ на вопрос «кто закрыл», и он должен быть верным.
+
+	Раньше в него шёл тот, **на кого задача назначена**. Пока закрывать мог
+	только он, разница не проявлялась. Как только старший получил право
+	закрывать за ушедшего домой, запись стала неверной ровно в том случае, ради
+	которого журнал и ведётся.
+	"""
+
+	def comments_of(self, work_order):
+		return frappe.get_all(
+			"Comment",
+			filters={"reference_doctype": "Work Order", "reference_name": work_order},
+			fields=["content"],
+			order_by="creation desc",
+			limit=3,
+		)
+
+	def test_a_supervisor_closing_for_someone_is_recorded_as_the_supervisor(self):
+		task = self.a_task(assigned_to=IVAN)
+
+		frappe.set_user(MANAGER)
+		if not authority.is_supervisor():
+			self.skipTest("на этом стенде у менеджера нет роли старшего")
+		shop_floor.complete_task(task.name)
+
+		frappe.set_user("Administrator")
+		latest = " ".join(c.content for c in self.comments_of(task.reference_docname))
+		self.assertIn(MANAGER, latest, "в журнале должен стоять тот, кто нажал")
+		self.assertIn(IVAN, latest, "и за кого — иначе пропадает половина ответа")
+
+	def test_closing_your_own_task_names_you_once(self):
+		task = self.a_task(assigned_to=IVAN)
+
+		frappe.set_user(IVAN)
+		shop_floor.complete_task(task.name)
+
+		frappe.set_user("Administrator")
+		latest = self.comments_of(task.reference_docname)[0].content
+		self.assertIn(IVAN, latest)
+		self.assertNotIn("за ", latest, "«за самого себя» — это шум, а не сведения")
+
+
 class TestTheCheckIsNotOnlyAboutAssignment(_TaskCase):
 	def test_a_task_of_another_company_reads_as_absent(self):
 		"""«Есть, но не твоя» рассказывает о чужой компании больше, чем следует."""
