@@ -315,8 +315,10 @@ def _breakdown(system: str, messages, tool_context: dict) -> dict:
 		"instruction": len(system or "") // 4,
 		"tools": tool_context.get("tokens", 0),
 		"conversation": conversation // 4,
-		# Память в контекст пока не попадает: Этап 1 её хранит, Этап 2 ещё не
-		# подаёт. Ноль здесь — правда, а не заглушка.
+		# Память теперь внутри инструкции, и отдельно её не измерить: она
+		# часть той же строки. Считать её дважды — врать в сумме, поэтому
+		# разделы остаются нулями до тех пор, пока сборка контекста не станет
+		# отдавать части по отдельности.
 		"company_memory": 0,
 		"user_memory": 0,
 		"tools_offered": tool_context.get("offered"),

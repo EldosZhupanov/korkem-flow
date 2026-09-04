@@ -22,6 +22,8 @@ of defence, not the first one — the first one is that the model has no
 destructive tool to be talked into using.
 """
 
+import frappe
+
 from korkem_ai.korkem_ai.tools import policy
 
 SYSTEM_INSTRUCTION = """\
@@ -166,4 +168,73 @@ def build(
 	if context:
 		lines.append("\n## This session\n\n" + " ".join(context) + "\n")
 
+	facts = _remembered()
+	if facts:
+		lines.append(facts)
+
 	return "".join(lines)
+
+
+def _remembered() -> str:
+	"""Что KORKEM помнит об этом цехе и об этом человеке.
+
+	## Почему это в инструкции, а не в разговоре
+
+	Память — не реплика собеседника, а условие, в котором он работает. «ЛДСП
+	считаем в квадратных метрах» верно до вопроса и после него; вставленное в
+	историю как чьи-то слова, оно однажды будет процитировано обратно человеку
+	как его собственная фраза.
+
+	## Почему так мало
+
+	Берётся дюжина самых важных фактов, а не вся память. Вся память в каждом
+	запросе — это плата за токены и шум, в котором тонет нужное. Остальное
+	модель может спросить отдельно: память лежит в базе и никуда не денется.
+
+	## Чего здесь нет и не будет
+
+	Изменяемого состояния. Заказы, остатки, цены и сроки живут в ERPNext, и
+	модель обязана спрашивать их инструментом, а не вспоминать. `Memory Fact`
+	отказывается хранить такое на входе — здесь это правило просто не нарушается
+	второй раз.
+	"""
+	try:
+		from korkem_ai.korkem_ai import memory
+	except Exception:
+		return ""
+
+	try:
+		company = memory.recall(scope=memory.COMPANY, limit=8)
+		mine = memory.recall(scope=memory.USER, owner=frappe.session.user, limit=4)
+	except Exception:
+		# Память, уронившая ход, хуже отсутствующей памяти.
+		return ""
+
+	if not company and not mine:
+		return ""
+
+	lines = ["\n## What KORKEM remembers\n"]
+	lines.append(
+		"\nThese are stable facts about this workshop, not current business "
+		"state. Stock, prices, order status and deadlines must be looked up "
+		"with a tool — never recalled from here.\n"
+	)
+	if company:
+		lines.append("\nAbout the company:\n")
+		lines.extend(f"- {_said(row)}\n" for row in company)
+	if mine:
+		lines.append("\nAbout the person you are speaking with:\n")
+		lines.extend(f"- {_said(row)}\n" for row in mine)
+	return "".join(lines)
+
+
+def _said(row: dict) -> str:
+	"""Факт одной строкой, с пометкой, если он выведен, а не сказан.
+
+	Модель должна отличать «владелец сказал» от «мы предположили»: на первом
+	можно строить ответ, на втором — уточняющий вопрос.
+	"""
+	text = f"{row['subject']} · {row['predicate']}: {row['value']}"
+	if row.get("source_type") == "inferred" and not row.get("confirmed_at"):
+		return f"{text} (inferred, not confirmed)"
+	return text

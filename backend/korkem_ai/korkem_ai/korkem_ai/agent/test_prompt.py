@@ -74,3 +74,82 @@ class TestTheRoleComesFromTheDatabase(IntegrationTestCase):
 		self.addCleanup(frappe.delete_doc, "User", email, force=True, ignore_permissions=True)
 
 		self.assertEqual(policy.role_of(email), policy.CUSTOMER)
+
+
+class TestWhatKorkemRemembersReachesTheModel(IntegrationTestCase):
+	"""Память попадает в инструкцию, а не в разговор.
+
+	Память — не реплика собеседника, а условие, в котором он работает. «ЛДСП
+	считаем в квадратных метрах» верно до вопроса и после него; вставленное в
+	историю как чьи-то слова, оно однажды будет процитировано обратно человеку
+	как его собственная фраза.
+	"""
+
+	def setUp(self):
+		from korkem_ai.korkem_ai import memory
+
+		frappe.db.delete(memory.DOCTYPE)
+
+	def tearDown(self):
+		from korkem_ai.korkem_ai import memory
+
+		frappe.db.delete(memory.DOCTYPE)
+
+	def test_a_company_fact_is_in_the_instruction(self):
+		from korkem_ai.korkem_ai import memory
+
+		memory.remember(
+			scope=memory.COMPANY, category="terminology", subject="ЛДСП",
+			predicate="единица измерения", value="квадратные метры",
+		)
+
+		text = prompt.build(user_full_name="Владелец", today="2026-09-04")
+
+		self.assertIn("квадратные метры", text)
+
+	def test_an_inferred_fact_is_marked_as_inferred(self):
+		"""Модель должна отличать «сказали» от «мы предположили».
+
+		На первом можно строить ответ, на втором — уточняющий вопрос.
+		"""
+		from korkem_ai.korkem_ai import memory
+
+		memory.remember(
+			scope=memory.COMPANY, category="process", subject="раскрой",
+			predicate="порядок", value="сначала длинные детали",
+			source_type="inferred",
+		)
+
+		text = prompt.build(user_full_name="Владелец", today="2026-09-04")
+
+		self.assertIn("inferred, not confirmed", text)
+
+	def test_the_model_is_told_this_is_not_current_business_state(self):
+		"""Иначе модель назовёт остаток по памяти вместо того, чтобы спросить."""
+		from korkem_ai.korkem_ai import memory
+
+		memory.remember(
+			scope=memory.COMPANY, category="rule", subject="кромка",
+			predicate="единица", value="метры",
+		)
+
+		text = prompt.build(user_full_name="Владелец", today="2026-09-04")
+
+		self.assertIn("must be looked up with a tool", text)
+
+	def test_an_empty_memory_adds_nothing(self):
+		"""Пустой раздел «что я помню» — это токены за молчание."""
+		text = prompt.build(user_full_name="Владелец", today="2026-09-04")
+
+		self.assertNotIn("What KORKEM remembers", text)
+
+	def test_a_broken_memory_never_breaks_the_turn(self):
+		"""Память, уронившая ход, хуже отсутствующей памяти."""
+		from unittest.mock import patch
+
+		from korkem_ai.korkem_ai import memory
+
+		with patch.object(memory, "recall", side_effect=RuntimeError("база упала")):
+			text = prompt.build(user_full_name="Владелец", today="2026-09-04")
+
+		self.assertIn("Владелец", text)
