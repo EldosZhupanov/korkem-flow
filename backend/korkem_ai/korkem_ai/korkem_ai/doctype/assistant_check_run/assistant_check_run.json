@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-09-04 07:50:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "status",
+  "started_at",
+  "finished_at",
+  "passed_count",
+  "total_count",
+  "scenarios",
+  "failure_reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Компания",
+   "options": "Company"
+  },
+  {
+   "default": "running",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Состояние",
+   "options": "running\ncompleted\nfailed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "Начат",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finished_at",
+   "fieldtype": "Datetime",
+   "label": "Закончен",
+   "read_only": 1
+  },
+  {
+   "fieldname": "passed_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Прошло",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Всего",
+   "read_only": 1
+  },
+  {
+   "description": "Результат каждого сценария: прошёл ли, сколько занял и — если не прошёл — чем именно.",
+   "fieldname": "scenarios",
+   "fieldtype": "Long Text",
+   "label": "Сценарии",
+   "read_only": 1
+  },
+  {
+   "description": "Заполняется, когда прогон не состоялся целиком: кончилась квота, не настроен провайдер.",
+   "fieldname": "failure_reason",
+   "fieldtype": "Small Text",
+   "label": "Почему не состоялся",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-04 07:50:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem AI",
+ "name": "Assistant Check Run",
+ "owner": "Administrator",
+ "permissions": [
+  {"create": 1, "delete": 1, "read": 1, "role": "System Manager", "write": 1}
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
