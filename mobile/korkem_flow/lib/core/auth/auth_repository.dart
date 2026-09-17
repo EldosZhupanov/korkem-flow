@@ -16,8 +16,41 @@ class AuthRepository {
   static const _generateKeysPath =
       '/api/method/frappe.core.doctype.user.user.generate_keys';
   static const _whoAmIPath = '/api/method/frappe.auth.get_logged_user';
+  static const _registerPath =
+      '/api/method/korkem_manufacturing.api.registration.register';
 
   final Dio _dio;
+
+  /// Registers a new furniture company and its owner account.
+  Future<void> register({
+    required String baseUrl,
+    required String companyName,
+    required String ownerName,
+    required String email,
+    required String password,
+    String phone = '',
+  }) async {
+    try {
+      final response = await _dio.postUri<Map<String, dynamic>>(
+        _uri(baseUrl, _registerPath),
+        data: {
+          'company_name': companyName.trim(),
+          'owner_name': ownerName.trim(),
+          'email': email.trim(),
+          'password': password,
+          'phone': phone.trim(),
+        },
+      );
+      final message = response.data?['message'];
+      if (message is Map && message['status'] != 'ok') {
+        throw AuthFailure(
+          message['message'] as String? ?? 'Registration failed.',
+        );
+      }
+    } on DioException catch (error) {
+      throw FrappeException.fromDio(error);
+    }
+  }
 
   /// Exchanges a password for a durable credential.
   ///

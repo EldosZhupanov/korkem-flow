@@ -57,6 +57,7 @@ class _Proposer:
 class _ProcurementTestCase(IntegrationTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
+		self.turn_id = frappe.generate_hash(length=24)
 		self.order = _order()
 		if not self.order:
 			self.skipTest("seed_demo has not been run on this site")
@@ -102,7 +103,7 @@ class _ProcurementTestCase(IntegrationTestCase):
 		):
 			chat.run_turn_job(
 				user=frappe.session.user,
-				turn_id="mr1",
+				turn_id=self.turn_id,
 				message="не хватает материалов, создай заявку",
 				history=[],
 				approved_calls=approved or [],

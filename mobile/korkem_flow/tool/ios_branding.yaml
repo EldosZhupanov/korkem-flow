@@ -1,0 +1,17 @@
+# iOS only: do not regenerate the accepted Android/Windows assets.
+# dart run flutter_launcher_icons -f tool/ios_branding.yaml
+# dart run flutter_native_splash:create --path=tool/ios_branding.yaml
+flutter_launcher_icons:
+  image_path: assets/brand/icon_play.png
+  android: false
+  ios: true
+  remove_alpha_ios: true
+  background_color_ios: "#2B382A"
+flutter_native_splash:
+  android: false
+  ios: true
+  web: false
+  color: "#2B382A"
+  color_dark: "#2B382A"
+  image: assets/brand/icon_monochrome.png
+  image_dark: assets/brand/icon_monochrome.png

@@ -14,11 +14,11 @@ class AppConfig {
     return const AppConfig(
       baseUrl: String.fromEnvironment(
         'KORKEM_BASE_URL',
-        defaultValue: 'http://korkem.localhost:8000',
+        defaultValue: 'https://api.korkem.asia',
       ),
       flavor: String.fromEnvironment(
         'KORKEM_FLAVOR',
-        defaultValue: 'dev',
+        defaultValue: 'prod',
       ),
     );
   }

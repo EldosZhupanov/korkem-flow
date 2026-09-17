@@ -82,6 +82,11 @@ RETRYABLE = (errors.RateLimited, errors.ProviderUnavailable, errors.AITimeout)
 FINAL = (errors.AIAuthError, errors.ContextTooLarge, errors.InvalidToolArguments)
 
 
+#: Кто отвечал последним в этом ходе. Читает тот, кто пишет исход хода; сам
+#: роутер уже записал построчно каждую попытку.
+LAST_ADAPTER_FLAG = "korkem_last_adapter"
+
+
 class NoProviderAnswered(errors.AIError):
 	"""Все модели цепочки отказали. Несёт причину первой — она объясняет больше."""
 
@@ -202,6 +207,11 @@ def complete(
 			continue
 
 		started = time.monotonic()
+		# Кто именно отвечал — нужно тому, кто будет записывать исход хода.
+		# Без этого запись назвала бы провайдера по умолчанию, то есть соврала
+		# бы ровно в том случае, ради которого учёт и ведётся: когда ответил
+		# не первый.
+		frappe.flags[LAST_ADAPTER_FLAG] = adapter
 		try:
 			answer = call(adapter)
 		except FINAL:

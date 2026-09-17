@@ -728,3 +728,4 @@ from korkem_ai.korkem_ai.tools import delivery  # noqa: E402,F401  (import regis
 from korkem_ai.korkem_ai.tools import timeline  # noqa: E402,F401  (import registers)
 from korkem_ai.korkem_ai.tools import orders  # noqa: E402,F401  (import registers)
 from korkem_ai.korkem_ai.tools import dispatch  # noqa: E402,F401  (import registers)
+from korkem_ai.korkem_ai.tools import calculations  # noqa: E402,F401 (import registers)

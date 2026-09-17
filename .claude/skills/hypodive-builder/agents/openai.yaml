@@ -1,0 +1,4 @@
+interface:
+  display_name: "HYPODIVE Builder"
+  short_description: "Build one canonical system and freeze its evidence"
+  default_prompt: "Use $hypodive-builder to build the requested capability, verify its invariants, freeze reproducible evidence, and prepare a falsifier handoff."

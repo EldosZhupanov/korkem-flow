@@ -213,6 +213,46 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authInvalidServer => 'Некорректный адрес.';
 
   @override
+  String get authRegister => 'Регистрация';
+
+  @override
+  String get authNoAccount => 'Нет аккаунта? Зарегистрироваться';
+
+  @override
+  String get authAlreadyHaveAccount => 'Уже есть аккаунт? Войти';
+
+  @override
+  String get authRegisterSubtitle =>
+      'Создайте рабочее пространство для вашего мебельного цеха';
+
+  @override
+  String get authCompanyName => 'Название компании / цеха';
+
+  @override
+  String get authCompanyNameHint => 'Например: Мебель Астана, ИП Марат';
+
+  @override
+  String get authOwnerName => 'Ваше имя';
+
+  @override
+  String get authOwnerNameHint => 'Имя и фамилия';
+
+  @override
+  String get authConfirmPassword => 'Повторите пароль';
+
+  @override
+  String get authPasswordsDoNotMatch => 'Пароли не совпадают.';
+
+  @override
+  String get authPasswordTooShort => 'Пароль должен быть не менее 6 символов.';
+
+  @override
+  String get authCustomServer => 'Настройки сервера';
+
+  @override
+  String get authHideServer => 'Скрыть настройки сервера';
+
+  @override
   String get claimTitle => 'Первый запуск';
 
   @override
@@ -3343,4 +3383,134 @@ class AppLocalizationsRu extends AppLocalizations {
   String materialsEdgeWidth(String width) {
     return 'ширина $width мм';
   }
+
+  @override
+  String get hardwareTitle => 'Фурнитура';
+
+  @override
+  String get hardwareSubtitle => 'Петли, направляющие и комплектующие';
+
+  @override
+  String get navHardware => 'Фурнитура';
+
+  @override
+  String get hardwareTypeAll => 'Все типы';
+
+  @override
+  String get hardwareTypeHinge => 'Петли';
+
+  @override
+  String get hardwareTypeRunner => 'Направляющие';
+
+  @override
+  String get hardwareTypeHandle => 'Ручки';
+
+  @override
+  String get hardwareTypeLeg => 'Опоры и ножки';
+
+  @override
+  String get hardwareTypeShelfSupport => 'Полкодержатели';
+
+  @override
+  String get hardwareKindHinge => 'Петля';
+
+  @override
+  String get hardwareKindRunner => 'Направляющая';
+
+  @override
+  String get hardwareKindHandle => 'Ручка';
+
+  @override
+  String get hardwareKindLeg => 'Опора';
+
+  @override
+  String get hardwareKindShelfSupport => 'Полкодержатель';
+
+  @override
+  String get hardwareOverlayAll => 'Все наложения';
+
+  @override
+  String get hardwareOverlayFull => 'Накладная';
+
+  @override
+  String get hardwareOverlayHalf => 'Полунакладная';
+
+  @override
+  String get hardwareOverlayInset => 'Вкладная';
+
+  @override
+  String get hardwareOverlayFullExplanation =>
+      'Фасад полностью перекрывает торец корпуса';
+
+  @override
+  String get hardwareOverlayHalfExplanation =>
+      'Два фасада делят один торец корпуса';
+
+  @override
+  String get hardwareOverlayInsetExplanation => 'Фасад утоплен внутрь корпуса';
+
+  @override
+  String get hardwareMountingAustrian => 'Австрийская (45 мм)';
+
+  @override
+  String get hardwareMountingItalian => 'Итальянская (48 мм)';
+
+  @override
+  String get hardwareMountingGerman => 'Немецкая (52 мм)';
+
+  @override
+  String get hardwareMountingMini => 'Мини (38 мм)';
+
+  @override
+  String hardwareOpeningAngle(String angle) {
+    return '$angle°';
+  }
+
+  @override
+  String hardwareCupSpec(String diameter, String depth) {
+    return 'Чашка Ø$diameter×$depth мм';
+  }
+
+  @override
+  String hardwareCupDiameter(String diameter) {
+    return 'Ø$diameter мм';
+  }
+
+  @override
+  String hardwareLength(String length) {
+    return '$length мм';
+  }
+
+  @override
+  String hardwareLoad(String load) {
+    return 'до $load кг';
+  }
+
+  @override
+  String hardwareHoleSpacing(String spacing) {
+    return 'Межцентровое $spacing мм';
+  }
+
+  @override
+  String get hardwareSoftClose => 'С доводчиком';
+
+  @override
+  String get hardwareNoSoftClose => 'Без доводчика';
+
+  @override
+  String get hardwareSearchHint => 'Поиск по модели, бренду, названию';
+
+  @override
+  String get hardwareEmptyTitle => 'Каталог фурнитуры пуст';
+
+  @override
+  String get hardwareEmptyMessage =>
+      'Позиции фурнитуры появятся здесь после синхронизации.';
+
+  @override
+  String get hardwareEmptyFilteredTitle => 'Фурнитура не найдена';
+
+  @override
+  String get hardwareEmptyFilteredMessage =>
+      'Попробуйте изменить тип фурнитуры, наложение или сбросить фильтры.';
 }

@@ -1,0 +1,60 @@
+# Proxy profile: **KORKEM SaaS Portal + Frappe Backend**.
+# Opt in with KORKEM_PROXY_PROFILE=portal.
+#
+# Routes:
+# - Next.js Web Portal: `/`, `/features`, `/download`, `/about`, `/login`, `/register`, `/app/*`, `/_next/*` -> `web:3000`
+# - Frappe Backend API: `/api/*`, `/files/*`, `/assets/*`, `/desk*` -> `bench:8000`
+# - Frappe Realtime: `/socket.io/*` -> `bench:9000`
+#
+{$KORKEM_PUBLIC_HOST} {
+	tls {$KORKEM_ACME_EMAIL}
+
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	request_body {
+		max_size 100MB
+	}
+
+	@apk path *.apk
+	header @apk {
+		Content-Type "application/vnd.android.package-archive"
+		Content-Disposition "attachment; filename=korkem-flow.apk"
+	}
+
+	# Realtime WebSockets
+	@socketio path /socket.io /socket.io/*
+	handle @socketio {
+		reverse_proxy bench:9000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	# Backend API & assets
+	@backend_routes path /api/* /files/* /assets/* /desk*
+	handle @backend_routes {
+		reverse_proxy bench:8000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	# Next.js Web Portal (default handler)
+	handle {
+		reverse_proxy web:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+}

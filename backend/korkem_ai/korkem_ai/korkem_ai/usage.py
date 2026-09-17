@@ -35,6 +35,7 @@ from __future__ import annotations
 import random
 import string
 import time
+from decimal import Decimal
 
 import frappe
 
@@ -311,6 +312,21 @@ def _price(provider: str | None, model: str | None, usage: AIUsage | None):
 	if not usage or not provider:
 		return 0.0, None, "not priced"
 
+	rates = frappe.conf.get('korkem_ai_pricing')
+	if rates is not None:
+		from korkem_ai.korkem_ai.pricing import estimate
+
+		try:
+			priced = estimate(provider=provider, model=model, on=frappe.utils.nowdate(),
+				input_tokens=usage.input_tokens, output_tokens=usage.output_tokens, rates=rates)
+		except (ValueError, TypeError, KeyError, AttributeError):
+			# Bad price configuration must not discard a valid token ledger row.
+			frappe.logger('korkem_ai.usage').warning('Invalid dated pricing configuration')
+			return 0.0, None, 'not priced'
+		if priced is None:
+			return 0.0, None, 'not priced'
+		return float(Decimal(priced['cost']).quantize(Decimal('0.000001'))), priced['currency'], 'provider rate'
+
 	row = frappe.db.get_value(
 		"AI Provider",
 		provider,
@@ -320,10 +336,9 @@ def _price(provider: str | None, model: str | None, usage: AIUsage | None):
 	if not row or not (row.input_rate_per_1k or row.output_rate_per_1k):
 		return 0.0, None, "not priced"
 
-	cost = (usage.input_tokens or 0) / 1000 * (row.input_rate_per_1k or 0) + (
-		usage.output_tokens or 0
-	) / 1000 * (row.output_rate_per_1k or 0)
-	return round(cost, 6), row.rate_currency, "provider rate"
+	cost = (Decimal(usage.input_tokens or 0) * Decimal(str(row.input_rate_per_1k or 0))
+		+ Decimal(usage.output_tokens or 0) * Decimal(str(row.output_rate_per_1k or 0))) / 1000
+	return float(cost.quantize(Decimal('0.000001'))), row.rate_currency, "provider rate"
 
 
 def spent_today(user: str | None = None) -> dict:

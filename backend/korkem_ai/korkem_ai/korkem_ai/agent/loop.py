@@ -59,6 +59,8 @@ from korkem_ai.korkem_ai.tools import catalog, policy, registry  # noqa: F401 - 
 #: with room to recover from one bad call, and small enough that a loop cannot
 #: quietly spend a fortune.
 MAX_ITERATIONS = 5
+MAX_TOOL_CALLS = 20
+MAX_IDENTICAL_CALLS = 3
 
 
 @dataclass
@@ -89,6 +91,7 @@ def run_turn(
 	approved_calls: set[str] | None = None,
 	on_event=None,
 	run_id: str | None = None,
+	should_cancel=None,
 ) -> TurnResult:
 	"""Run one turn to completion, a pause for confirmation, or the cap.
 
@@ -111,6 +114,7 @@ def run_turn(
 	messages = list(history)
 	executed: list[dict] = []
 	usage_total = AIUsage()
+	seen_calls: dict[str, int] = {}
 
 	system = prompt_module.build(
 		user_full_name=frappe.utils.get_fullname(frappe.session.user),
@@ -155,6 +159,8 @@ def run_turn(
 		)
 
 	for _ in range(MAX_ITERATIONS):
+		if should_cancel and should_cancel():
+			return TurnResult(status='cancelled', messages=messages, executed=executed, usage=usage_total)
 		response = complete_once()
 		usage_total = _add_usage(usage_total, response.usage)
 
@@ -170,6 +176,8 @@ def run_turn(
 			)
 
 		messages.append(AIMessage.assistant(text=response.text, tool_calls=response.tool_calls))
+		if len(executed) + len(response.tool_calls) > MAX_TOOL_CALLS:
+			return TurnResult(status='exhausted', messages=messages, executed=executed, usage=usage_total)
 
 		blocked = [
 			call
@@ -189,6 +197,12 @@ def run_turn(
 			)
 
 		for call in response.tool_calls:
+			if should_cancel and should_cancel():
+				return TurnResult(status='cancelled', messages=messages, executed=executed, usage=usage_total)
+			fingerprint = json.dumps([call.name, call.arguments], sort_keys=True, default=str)
+			seen_calls[fingerprint] = seen_calls.get(fingerprint, 0) + 1
+			if seen_calls[fingerprint] > MAX_IDENTICAL_CALLS:
+				return TurnResult(status='exhausted', messages=messages, executed=executed, usage=usage_total)
 			result = _run(call, run_id)
 			executed.append(result)
 			messages.append(

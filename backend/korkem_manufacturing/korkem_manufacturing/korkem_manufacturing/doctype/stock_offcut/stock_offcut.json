@@ -1,0 +1,203 @@
+{
+ "actions": [],
+ "autoname": "format:OFFCUT-{####}",
+ "creation": "2026-09-17 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "material_item",
+  "decor",
+  "thickness_mm",
+  "length_mm",
+  "width_mm",
+  "area_m2",
+  "warehouse",
+  "storage_cell",
+  "status",
+  "reserved_for_order",
+  "source_stock_entry",
+  "source_work_order",
+  "source_job_card",
+  "source_order",
+  "qr_code",
+  "barcode",
+  "created_by",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "material_item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Material / Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "decor",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Decor Code / Name"
+  },
+  {
+   "fieldname": "thickness_mm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Thickness (mm)"
+  },
+  {
+   "fieldname": "length_mm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Length (mm)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "width_mm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Width (mm)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "area_m2",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Area (m²)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "storage_cell",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Storage Cell / Bin"
+  },
+  {
+   "default": "Available",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Available\nReserved\nConsumed\nScrapped",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reserved_for_order",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Reserved For Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "source_stock_entry",
+   "fieldtype": "Link",
+   "label": "Source Stock Entry",
+   "options": "Stock Entry"
+  },
+  {
+   "fieldname": "source_work_order",
+   "fieldtype": "Link",
+   "label": "Source Work Order",
+   "options": "Work Order"
+  },
+  {
+   "fieldname": "source_job_card",
+   "fieldtype": "Link",
+   "label": "Source Job Card",
+   "options": "Job Card"
+  },
+  {
+   "fieldname": "source_order",
+   "fieldtype": "Link",
+   "label": "Source Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "qr_code",
+   "fieldtype": "Data",
+   "label": "QR Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "barcode",
+   "fieldtype": "Data",
+   "label": "Barcode",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Data",
+   "label": "Created By"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-17 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Stock Offcut",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Manufacturing Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Manufacturing User",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Stock User",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

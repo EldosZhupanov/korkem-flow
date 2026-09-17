@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "Attach a photo of the measurement or furniture to your enquiry.";
+"NSPhotoLibraryUsageDescription" = "Select a measurement photo or reference image to attach to your enquiry.";
+"NSMicrophoneUsageDescription" = "Dictate a message to the KORKEM assistant.";
+"NSSpeechRecognitionUsageDescription" = "Convert your speech into message text using the device speech recognition service.";
+"NSLocalNetworkUsageDescription" = "Connect to your company's KORKEM node on the local network.";

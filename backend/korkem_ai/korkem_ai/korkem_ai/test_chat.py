@@ -17,6 +17,7 @@ from frappe.tests import IntegrationTestCase
 
 from korkem_ai.korkem_ai import chat, errors
 from korkem_ai.korkem_ai.agent import loop
+from korkem_ai.korkem_ai.orchestrator import router as router_module
 from korkem_ai.korkem_ai.orchestrator.protocol import AIResponse, AIToolCall, AIUsage
 from korkem_ai.korkem_ai.tools import registry
 from korkem_ai.korkem_ai.tools.registry import Risk, ToolSpec
@@ -126,6 +127,8 @@ class _ChatTestCase(IntegrationTestCase):
 	"""
 
 	def setUp(self):
+		# Each test is a new intent; retries within it retain this same key.
+		self.turn_id = frappe.generate_hash(length=24)
 		self.previous_settings = {
 			field: frappe.db.get_single_value("AI Settings", field)
 			for field in ("enabled", "provider", "model")
@@ -141,7 +144,7 @@ class _ChatTestCase(IntegrationTestCase):
 		frappe.db.set_single_value("AI Settings", self.previous_settings)
 		frappe.db.commit()
 
-	def run_job(self, provider, approved=None, message="do the thing", turn_id="t1"):
+	def run_job(self, provider, approved=None, message="do the thing", turn_id=None):
 		published = []
 
 		def record(event, payload=None, user=None, **kwargs):
@@ -154,15 +157,35 @@ class _ChatTestCase(IntegrationTestCase):
 		with (
 			patch("korkem_ai.korkem_ai.chat.frappe.publish_realtime", side_effect=record),
 			patch.object(loop.llm, "get_provider", return_value=provider),
+			# Ход без названной модели идёт через роутер — так с 4 сентября,
+			# и так и должно быть: закреплённая модель отменяет каскад. Здесь
+			# роутер подменяется тем же написанным провайдером, потому что эти
+			# тесты про предложения и подтверждения, а не про выбор модели.
+			patch.object(loop.router, "complete", side_effect=_router_using(provider)),
 		):
 			chat.run_turn_job(
 				user=frappe.session.user,
-				turn_id=turn_id,
+				turn_id=turn_id or self.turn_id,
 				message=message,
 				history=[],
 				approved_calls=approved or [],
 			)
 		return published
+
+
+def _router_using(provider):
+	"""Подставной роутер, который держит тот же договор, что и настоящий.
+
+	Настоящий роутер не только выбирает модель — он записывает, **кто отвечал**,
+	чтобы исход хода не приписали провайдеру по умолчанию. Подмена, которая
+	этого не делает, проверяла бы код на несуществующем поведении.
+	"""
+
+	def complete(call, **kwargs):
+		frappe.flags[router_module.LAST_ADAPTER_FLAG] = provider
+		return call(provider)
+
+	return complete
 
 
 class TestConfigurationIsCheckedBeforeTheQueue(_ChatTestCase):
@@ -197,7 +220,7 @@ class TestConfigurationIsCheckedBeforeTheQueue(_ChatTestCase):
 		disable_ai()
 
 		with self.assertRaises(errors.AINotConfigured):
-			chat.confirm(turn_id="t1", call_ids=["anything"], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=["anything"], message="yes")
 
 		enqueue.assert_not_called()
 
@@ -250,7 +273,7 @@ class TestConfigurationIsCheckedBeforeTheQueue(_ChatTestCase):
 	@patch("korkem_ai.korkem_ai.chat.frappe.enqueue")
 	def test_confirm_requires_something_to_have_been_approved(self, enqueue):
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[], message="do it")
+			chat.confirm(turn_id=self.turn_id, call_ids=[], message="do it")
 		enqueue.assert_not_called()
 
 
@@ -324,7 +347,7 @@ class TestAProposalIsWrittenDownBeforeAnyoneIsAsked(_ChatTestCase):
 
 		self.assertEqual(action.tool, TEST_TOOL)
 		self.assertEqual(action.status, "Pending")
-		self.assertEqual(action.turn_id, "t1")
+		self.assertEqual(action.turn_id, self.turn_id)
 		self.assertEqual(frappe.parse_json(action.action_data)["note"], "original")
 
 
@@ -400,7 +423,7 @@ class TestOnlyYourOwnPendingActionCanBeConfirmed(_ChatTestCase):
 	@patch("korkem_ai.korkem_ai.chat.frappe.enqueue")
 	def test_an_invented_call_id_approves_nothing(self, enqueue):
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=["not-a-real-id"], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=["not-a-real-id"], message="yes")
 
 		enqueue.assert_not_called()
 		self.assertEqual(self.tool.ran_with, [])
@@ -414,7 +437,7 @@ class TestOnlyYourOwnPendingActionCanBeConfirmed(_ChatTestCase):
 		frappe.set_user(user)
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call_id], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call_id], message="yes")
 
 		enqueue.assert_not_called()
 
@@ -426,7 +449,7 @@ class TestOnlyYourOwnPendingActionCanBeConfirmed(_ChatTestCase):
 		self.run_job(provider, approved=[call_id])
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call_id], message="again")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call_id], message="again")
 
 		self.assertEqual(len(self.tool.ran_with), 1, "the write ran twice")
 
@@ -459,7 +482,7 @@ class TestOnlyYourOwnPendingActionCanBeConfirmed(_ChatTestCase):
 		chat.reject(call_ids=[call_id])
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call_id], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call_id], message="yes")
 
 		self.assertEqual(self.tool.ran_with, [])
 
@@ -477,7 +500,7 @@ class TestTheJobPublishesProgress(_ChatTestCase):
 		self.assertEqual([p["type"] for p in published], ["started", "done"])
 		self.assertEqual(published[-1]["text"], "Nothing is overdue.")
 		self.assertEqual(published[-1]["usage"]["output_tokens"], 2)
-		self.assertTrue(all(p["turn_id"] == "t1" for p in published))
+		self.assertTrue(all(p["turn_id"] == self.turn_id for p in published))
 
 	def test_tool_activity_is_published_as_it_happens(self):
 		"""The UI shows "Searching tasks…" from these, so they must arrive

@@ -9,9 +9,12 @@
 Отраслевые факты, из которых это следует, — в `docs/product/furniture_reference.md`.
 """
 
+import inspect
+
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from korkem_manufacturing.api import materials as materials_api
 from korkem_manufacturing.services import materials
 from korkem_manufacturing.services.scope import current_company
 
@@ -153,20 +156,22 @@ class TestHardwareIsMatchedByGeometry(_MaterialCase):
 	разошёлся бы с действительностью на третьей позиции.
 	"""
 
-	def hinge(self, name, overlay, brand="ТестБренд"):
+	def hinge(self, name, overlay, brand="ТестБренд", soft_close=None):
+		values = {
+			"doctype": "Furniture Hardware",
+			"hardware_type": "hinge",
+			"company": self.company,
+			"hardware_name": name,
+			"brand": brand,
+			"overlay": overlay,
+			"cup_diameter_mm": 35.0,
+			"mounting_system": "german",
+			"opening_angle_deg": 110.0,
+		}
+		if soft_close is not None:
+			values["soft_close"] = soft_close
 		return frappe.get_doc(
-			{
-				"doctype": "Furniture Hardware",
-				"hardware_type": "hinge",
-				"company": self.company,
-				"hardware_name": name,
-				"brand": brand,
-				"overlay": overlay,
-				"cup_diameter_mm": 35.0,
-				"cup_depth_mm": 11.3,
-				"mounting_system": "german",
-				"opening_angle_deg": 110.0,
-			}
+			values
 		).insert(ignore_permissions=True)
 
 	def runner(self, name, length):
@@ -178,6 +183,18 @@ class TestHardwareIsMatchedByGeometry(_MaterialCase):
 				"hardware_name": name,
 				"brand": "ТестБренд",
 				"length_mm": length,
+			}
+		).insert(ignore_permissions=True)
+
+	def handle(self, name, hole_spacing):
+		return frappe.get_doc(
+			{
+				"doctype": "Furniture Hardware",
+				"hardware_type": "handle",
+				"company": self.company,
+				"hardware_name": name,
+				"brand": "ТестБренд",
+				"hole_spacing_mm": hole_spacing,
 			}
 		).insert(ignore_permissions=True)
 
@@ -238,6 +255,73 @@ class TestHardwareIsMatchedByGeometry(_MaterialCase):
 		fitting = materials.runners_for(500.0)
 
 		self.assertEqual([r["length_mm"] for r in fitting], [450.0, 350.0])
+
+	def test_hardware_search_exposes_a_handles_hole_spacing(self):
+		"""Межцентровое ручки — не длина направляющей и имеет своё поле."""
+		self.handle("Ручка 128", 128.0)
+
+		found = materials.search_hardware(hardware_type="handle")["hardware"]
+
+		self.assertEqual(len(found), 1)
+		self.assertEqual(found[0]["hole_spacing_mm"], 128.0)
+
+	def test_unspecified_hinge_facts_remain_unknown(self):
+		"""A standard value is not evidence that this particular hinge has it."""
+		self.hinge("Петля без необязательных параметров", "full")
+
+		found = materials.search_hardware(
+			query="без необязательных параметров"
+		)["hardware"][0]
+
+		self.assertIsNone(found["cup_depth_mm"])
+		self.assertIsNone(found["soft_close"])
+
+	def test_explicit_soft_close_yes_and_no_are_returned_as_booleans(self):
+		self.hinge("Петля с доводчиком", "full", soft_close="yes")
+		self.hinge("Петля без доводчика", "full", soft_close="no")
+
+		found = materials.search_hardware(query="Петля")["hardware"]
+
+		self.assertEqual(
+			{row["name"]: row["soft_close"] for row in found},
+			{"Петля без доводчика": False, "Петля с доводчиком": True},
+		)
+
+	def test_hardware_search_is_bounded_and_reports_the_full_total(self):
+		for index in range(3):
+			self.handle(f"Ручка страницы {index}", 96.0 + index * 32)
+
+		page = materials.search_hardware(query="Ручка страницы", limit=2, start=1)
+
+		self.assertEqual(len(page["hardware"]), 2)
+		self.assertEqual(page["total"], 3)
+
+	def test_hardware_search_never_returns_another_companys_row(self):
+		ours = self.handle("Ручка наша", 128.0)
+		foreign = self.handle("Ручка чужая", 160.0)
+		frappe.db.set_value(materials.HARDWARE, foreign.name, "company", "OTHER")
+
+		found = materials.search_hardware(hardware_type="handle")["hardware"]
+
+		self.assertIn(ours.name, {row["id"] for row in found})
+		self.assertNotIn(foreign.name, {row["id"] for row in found})
+
+
+class TestHardwareEndpointIsPublished(IntegrationTestCase):
+	def test_company_is_derived_server_side(self):
+		self.assertEqual(
+			set(inspect.signature(materials_api.hardware).parameters),
+			{"hardware_type", "overlay", "query", "limit", "start"},
+		)
+
+	def test_endpoint_is_whitelisted_for_get(self):
+		path = "korkem_manufacturing.api.materials.hardware"
+		whitelisted = (
+			frappe.whitelisted_methods
+			if hasattr(frappe, "whitelisted_methods")
+			else {f"{fn.__module__}.{fn.__name__}" for fn in frappe.whitelisted}
+		)
+		self.assertIn(path, whitelisted)
 
 
 class TestTemplateBoundsRefuseBeforeTheCut(IntegrationTestCase):

@@ -191,6 +191,34 @@ class _CompleteOperationDialogState
                   return null;
                 },
               ),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _qtyController,
+                builder: (context, val, _) {
+                  final parsedQty = double.tryParse(val.text.trim()) ?? 0.0;
+                  if (parsedQty <= 0) return const SizedBox.shrink();
+                  final estAmount = (parsedQty * 150.0).round();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xs),
+                    child: Row(
+                      children: [
+                        Icon(
+                          AppIcons.quote,
+                          size: AppIconSize.dense,
+                          color: theme.colorScheme.primary,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(
+                          'Сдельно: ~$estAmount ₸',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: AppSpacing.md),
               TextFormField(
                 controller: _scrapController,

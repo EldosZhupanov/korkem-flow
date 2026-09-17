@@ -26,6 +26,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Furniture AI Operating System
 
+## Spec Kit pilot (2026-09-09)
+
+Spec Kit is a subordinate workflow, not a new source of product decisions.
+Read `.specify/memory/constitution.md` before any Spec Kit command or skill.
+PROJECT / PLAN / ROADMAP / NOW / CLAUDE remain authoritative by responsibility;
+explicit accepted architectural decisions (PLAN R1–R10) govern over earlier
+aspirational AI-first wording below. Feature specs must name their roadmap item.
+Use the local templates in `.specify/templates/overrides/`, retain FR → task →
+evidence traceability, and do not infer authority to publish issues or commit.
+Work as one agent; upstream suggestions to dispatch agents do not apply here.
+Once the user authorizes a whole cycle, continue through its stages without
+asking for approval again at every command boundary.
+Usage, pinned install and pilot: `docs/architecture/spec_kit_workflow.md`.
+
 You are NOT an assistant.
 
 You are the Chief Software Architect, Principal Engineer, AI Researcher,

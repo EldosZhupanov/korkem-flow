@@ -6,3 +6,5 @@
 # Patches added in this section will be executed after doctypes are migrated
 korkem_manufacturing.patches.v0_0.add_originating_deal_to_work_order
 korkem_manufacturing.patches.v0_0.grant_order_read
+korkem_manufacturing.patches.v0_0.add_korkem_state_to_sales_order
+

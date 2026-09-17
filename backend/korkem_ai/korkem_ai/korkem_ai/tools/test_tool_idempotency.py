@@ -16,7 +16,9 @@ def _spec(name: str, risk: registry.Risk, handler) -> registry.ToolSpec:
 	spec = registry.ToolSpec(
 		name=name,
 		description="проверка",
-		input_schema={"type": "object", "properties": {}},
+		input_schema={"type": "object", "properties": {
+			"item": {"type": "string"}, "name": {"type": "string"}, "q": {"type": "string"},
+		}},
 		risk=risk,
 		handler=handler,
 	)

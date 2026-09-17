@@ -90,13 +90,7 @@ def _mine(name: str) -> None:
 	Без этой проверки достаточно знать чужой идентификатор, чтобы стереть
 	чужую память.
 	"""
-	row = frappe.db.get_value(
-		memory.DOCTYPE, name, ["scope", "owner_key", "company"], as_dict=True
-	)
-	if not row:
-		frappe.throw("Такого факта нет.")
-	if row.scope == memory.USER and row.owner_key != frappe.session.user:
-		frappe.throw("Это факт о другом человеке.", frappe.PermissionError)
+	memory.require_access(name)
 
 
 def _row(name: str) -> dict:

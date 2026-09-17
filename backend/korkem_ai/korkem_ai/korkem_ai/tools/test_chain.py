@@ -17,6 +17,14 @@ from korkem_ai.korkem_ai.tools.registry import Risk
 
 
 class TestTheChainIsReachable(IntegrationTestCase):
+	def test_quotation_lines_have_a_typed_closed_schema(self):
+		spec = registry.get("chain.draft_proposal")
+		arguments = {"enquiry": "test", "items": [{"item_code": "test", "qty": 2, "rate": 10}]}
+		self.assertEqual(registry.validate_arguments(spec, arguments), [])
+		for row in ({"item_code": "test", "qty": -1}, {"item_code": "test", "company": "foreign"}, {}):
+			with self.subTest(row=row):
+				self.assertTrue(registry.validate_arguments(spec, {"enquiry": "test", "items": [row]}))
+
 	def test_the_owner_can_say_write_this_down(self):
 		"""Тот самый вопрос, ради которого всё."""
 		self.assertIsNotNone(registry.find("chain.record_capture"))

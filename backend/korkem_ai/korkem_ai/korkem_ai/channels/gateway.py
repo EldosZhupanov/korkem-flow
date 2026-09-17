@@ -364,7 +364,13 @@ def _run_turn(
 		# because Telegram reaches the identical brain.
 		budget.check(user)
 
-		adapter = llm.resolve(None, None)
+		# Проверяем, что настроено хоть что-то, но **не закрепляем** модель:
+		# закреплённая отменяет каскад. Ровно это и случилось 4 сентября —
+		# Gemini не ответил, и владелец получил «не удалось связаться», хотя
+		# рядом были настроены Groq и OpenRouter. В учёте видно: попытка одна,
+		# перехода нет.
+		llm.ensure_configured()
+		adapter = None
 		# Слова сотрудника — указание. Текст клиента — данные: он уходит модели
 		# в конверте, из которого его нельзя выдать за указание, потому что для
 		# модели «оформи отгрузку» от клиента и от владельца выглядят одинаково,
@@ -378,9 +384,7 @@ def _run_turn(
 		)
 		# Тот же ключ однократного выполнения, что и в приложении: канал ходит
 		# в тот же мозг и создаёт те же заказы.
-		result = loop.run_turn(
-			[AIMessage.user(prompt_text)], provider=adapter, run_id=turn
-		)
+		result = loop.run_turn([AIMessage.user(prompt_text)], run_id=turn)
 		# Same single point as the app path: every outcome is known here, and a
 		# channel turn costs exactly what an app turn costs. `record_turn`
 		# rather than `record` so that nothing about describing the turn is

@@ -55,6 +55,7 @@ class _Proposer:
 class _WriteToolTestCase(IntegrationTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
+		self.turn_id = frappe.generate_hash(length=24)
 		self.previous_settings = {
 			field: frappe.db.get_single_value("AI Settings", field)
 			for field in ("enabled", "provider", "model")
@@ -112,7 +113,7 @@ class _WriteToolTestCase(IntegrationTestCase):
 		):
 			chat.run_turn_job(
 				user=frappe.session.user,
-				turn_id="t1",
+				turn_id=self.turn_id,
 				message=f"create a lead for {MARK}",
 				history=[],
 				approved_calls=approved or [],
@@ -179,7 +180,7 @@ class TestReplayCannotCreateASecondLead(_WriteToolTestCase):
 		self.run_turn(provider, approved=[call["id"]])
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call["id"]], message="again")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call["id"]], message="again")
 
 		self.assertEqual(self.leads(), 1, "a replayed confirmation created a second lead")
 
@@ -215,7 +216,7 @@ class TestTheServerDecidesWhatRuns(_WriteToolTestCase):
 
 		# A client trying to substitute different arguments has nowhere to put
 		# them — `confirm` takes ids only.
-		chat.confirm(turn_id="t1", call_ids=[call["id"]], message="yes")
+		chat.confirm(turn_id=self.turn_id, call_ids=[call["id"]], message="yes")
 		frappe.db.rollback()
 
 		action = frappe.get_doc("Pending Action", call["id"])
@@ -230,13 +231,13 @@ class TestTheServerDecidesWhatRuns(_WriteToolTestCase):
 		frappe.set_user(user)
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call["id"]], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call["id"]], message="yes")
 
 		self.assertEqual(self.leads(), 0)
 
 	def test_an_invented_call_id_writes_nothing(self):
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=["made-up"], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=["made-up"], message="yes")
 
 		self.assertEqual(self.leads(), 0)
 
@@ -256,7 +257,7 @@ class TestTheServerDecidesWhatRuns(_WriteToolTestCase):
 		chat.reject(call_ids=[call["id"]])
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call["id"]], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call["id"]], message="yes")
 
 		self.assertEqual(self.leads(), 0)
 
@@ -446,7 +447,7 @@ class TestCreateTaskFollowsTheSameSafetyChain(_TaskTestCase):
 		self.run_turn(provider, approved=[call["id"]])
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call["id"]], message="again")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call["id"]], message="again")
 
 		self.assertEqual(self.tasks(), 1, "a replay created a second task")
 
@@ -465,7 +466,7 @@ class TestCreateTaskFollowsTheSameSafetyChain(_TaskTestCase):
 		frappe.set_user(user)
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call["id"]], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call["id"]], message="yes")
 
 		self.assertEqual(self.tasks(), 0)
 
@@ -485,7 +486,7 @@ class TestCreateTaskFollowsTheSameSafetyChain(_TaskTestCase):
 		chat.reject(call_ids=[call["id"]])
 
 		with self.assertRaises(frappe.ValidationError):
-			chat.confirm(turn_id="t1", call_ids=[call["id"]], message="yes")
+			chat.confirm(turn_id=self.turn_id, call_ids=[call["id"]], message="yes")
 
 		self.assertEqual(self.tasks(), 0)
 

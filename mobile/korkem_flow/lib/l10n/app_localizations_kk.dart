@@ -205,6 +205,47 @@ class AppLocalizationsKk extends AppLocalizations {
   String get authInvalidServer => 'Мекенжай жарамсыз.';
 
   @override
+  String get authRegister => 'Тіркелу';
+
+  @override
+  String get authNoAccount => 'Тіркелгі жоқ па? Тіркелу';
+
+  @override
+  String get authAlreadyHaveAccount => 'Тіркелгіңіз бар ма? Кіру';
+
+  @override
+  String get authRegisterSubtitle =>
+      'Жиһаз цехыңызға арналған жұмыс кеңістігін құрыңыз';
+
+  @override
+  String get authCompanyName => 'Компания / цех атауы';
+
+  @override
+  String get authCompanyNameHint => 'Мысалы: Мебель Астана, ЖК Марат';
+
+  @override
+  String get authOwnerName => 'Аты-жөніңіз';
+
+  @override
+  String get authOwnerNameHint => 'Аты және тегі';
+
+  @override
+  String get authConfirmPassword => 'Құпия сөзді қайталаңыз';
+
+  @override
+  String get authPasswordsDoNotMatch => 'Құпия сөздер сәйкес келмейді.';
+
+  @override
+  String get authPasswordTooShort =>
+      'Құпия сөз кемінде 6 таңбадан тұруы керек.';
+
+  @override
+  String get authCustomServer => 'Сервер параметрлері';
+
+  @override
+  String get authHideServer => 'Сервер параметрлерін жасыру';
+
+  @override
   String get claimTitle => 'Алғашқы іске қосу';
 
   @override
@@ -3278,4 +3319,135 @@ class AppLocalizationsKk extends AppLocalizations {
   String materialsEdgeWidth(String width) {
     return 'ені $width мм';
   }
+
+  @override
+  String get hardwareTitle => 'Фурнитура';
+
+  @override
+  String get hardwareSubtitle => 'Топсалар, бағыттауыштар және жиынтықтауыштар';
+
+  @override
+  String get navHardware => 'Фурнитура';
+
+  @override
+  String get hardwareTypeAll => 'Барлық түрлері';
+
+  @override
+  String get hardwareTypeHinge => 'Топсалар';
+
+  @override
+  String get hardwareTypeRunner => 'Бағыттауыштар';
+
+  @override
+  String get hardwareTypeHandle => 'Тұтқалар';
+
+  @override
+  String get hardwareTypeLeg => 'Тіректер мен аяқтар';
+
+  @override
+  String get hardwareTypeShelfSupport => 'Сөре ұстағыштар';
+
+  @override
+  String get hardwareKindHinge => 'Топса';
+
+  @override
+  String get hardwareKindRunner => 'Бағыттауыш';
+
+  @override
+  String get hardwareKindHandle => 'Тұтқа';
+
+  @override
+  String get hardwareKindLeg => 'Тірек';
+
+  @override
+  String get hardwareKindShelfSupport => 'Сөре ұстағыш';
+
+  @override
+  String get hardwareOverlayAll => 'Барлық жабу түрлері';
+
+  @override
+  String get hardwareOverlayFull => 'Үстіңгі жаппа';
+
+  @override
+  String get hardwareOverlayHalf => 'Жартылай жаппа';
+
+  @override
+  String get hardwareOverlayInset => 'Ішкі';
+
+  @override
+  String get hardwareOverlayFullExplanation =>
+      'Фасад корпус қырын толығымен жабады';
+
+  @override
+  String get hardwareOverlayHalfExplanation =>
+      'Екі фасад бір корпус қырын бөліседі';
+
+  @override
+  String get hardwareOverlayInsetExplanation =>
+      'Фасад корпус ішіне кірігіп тұрады';
+
+  @override
+  String get hardwareMountingAustrian => 'Австриялық (45 мм)';
+
+  @override
+  String get hardwareMountingItalian => 'Италиялық (48 мм)';
+
+  @override
+  String get hardwareMountingGerman => 'Германиялық (52 мм)';
+
+  @override
+  String get hardwareMountingMini => 'Мини (38 мм)';
+
+  @override
+  String hardwareOpeningAngle(String angle) {
+    return '$angle°';
+  }
+
+  @override
+  String hardwareCupSpec(String diameter, String depth) {
+    return 'Тостағанша Ø$diameter×$depth мм';
+  }
+
+  @override
+  String hardwareCupDiameter(String diameter) {
+    return 'Ø$diameter мм';
+  }
+
+  @override
+  String hardwareLength(String length) {
+    return '$length мм';
+  }
+
+  @override
+  String hardwareLoad(String load) {
+    return '$load кг дейін';
+  }
+
+  @override
+  String hardwareHoleSpacing(String spacing) {
+    return 'Бекіту аралығы $spacing мм';
+  }
+
+  @override
+  String get hardwareSoftClose => 'Жұмсақ жапқышпен';
+
+  @override
+  String get hardwareNoSoftClose => 'Жұмсақ жапқышсыз';
+
+  @override
+  String get hardwareSearchHint => 'Үлгі, бренд, атау бойынша іздеу';
+
+  @override
+  String get hardwareEmptyTitle => 'Фурнитура каталогы бос';
+
+  @override
+  String get hardwareEmptyMessage =>
+      'Фурнитура элементтері синхрондаудан кейін осында пайда болады.';
+
+  @override
+  String get hardwareEmptyFilteredTitle => 'Фурнитура табылмады';
+
+  @override
+  String get hardwareEmptyFilteredMessage =>
+      'Фурнитура түрін, жабу түрін өзгертіп немесе сүзгілерді тазартып көріңіз.';
 }

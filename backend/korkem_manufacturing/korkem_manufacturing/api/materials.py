@@ -33,3 +33,21 @@ def materials(
 def edges(thickness: float | str) -> dict:
 	"""Кромка под эту толщину плиты."""
 	return {"edges": service.edges_for(float(thickness))}
+
+
+@frappe.whitelist(methods=["GET"])
+def hardware(
+	hardware_type: str | None = None,
+	overlay: str | None = None,
+	query: str | None = None,
+	limit: int | str = service.DEFAULT_PAGE,
+	start: int | str = 0,
+) -> dict:
+	"""Страница каталога фурнитуры этой компании."""
+	return service.search_hardware(
+		hardware_type=hardware_type,
+		overlay=overlay,
+		query=query,
+		limit=int(limit or service.DEFAULT_PAGE),
+		start=int(start or 0),
+	)

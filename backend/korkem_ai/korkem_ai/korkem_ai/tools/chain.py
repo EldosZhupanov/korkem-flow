@@ -349,7 +349,17 @@ register(
 				"items": {
 					"type": "array",
 					"description": "Lines: item_code, qty, and rate when it differs from the price list.",
-					"items": {"type": "object"},
+					"items": {
+						"type": "object",
+						"properties": {
+							"item_code": {"type": "string", "minLength": 1},
+							"qty": {"type": "number", "exclusiveMinimum": 0},
+							"rate": {"type": "number", "minimum": 0},
+							"description": {"type": "string"},
+						},
+						"required": ["item_code"],
+						"additionalProperties": False,
+					},
 				},
 				"valid_days": {"type": "integer", "description": "How long the price holds."},
 			},

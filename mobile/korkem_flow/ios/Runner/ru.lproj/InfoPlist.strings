@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "Сделать снимок замера или мебели и прикрепить его к заявке.";
+"NSPhotoLibraryUsageDescription" = "Выбрать фотографию замера или образец из галереи для заявки.";
+"NSMicrophoneUsageDescription" = "Надиктовать сообщение помощнику KORKEM.";
+"NSSpeechRecognitionUsageDescription" = "Преобразовать речь в текст сообщения с помощью службы распознавания устройства.";
+"NSLocalNetworkUsageDescription" = "Подключиться к узлу KORKEM вашей компании в локальной сети.";

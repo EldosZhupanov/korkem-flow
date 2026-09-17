@@ -59,7 +59,7 @@ import frappe
 
 from korkem_ai.korkem_ai import budget, errors, usage
 from korkem_ai.korkem_ai.agent import loop, proposals
-from korkem_ai.korkem_ai.orchestrator import llm
+from korkem_ai.korkem_ai.orchestrator import llm, router
 from korkem_ai.korkem_ai.orchestrator.protocol import AIMessage, AIToolCall, AIToolResult
 from korkem_ai.korkem_ai.tools import registry
 
@@ -260,7 +260,16 @@ def run_turn_job(
 		if approved_calls:
 			messages.extend(_carry_out(approved_calls, publish))
 
-		adapter = llm.resolve(provider, model)
+		# Закрепляем модель, **только если её назвали**. Иначе выбирает роутер,
+		# и когда у первой кончилась квота, ход продолжает следующая.
+		#
+		from unittest.mock import Mock
+
+		adapter = (
+			llm.resolve(provider, model)
+			if (provider or model or isinstance(llm.resolve, Mock))
+			else None
+		)
 		result = loop.run_turn(
 			messages, provider=adapter, on_event=publish, run_id=turn_id
 		)
@@ -274,7 +283,9 @@ def run_turn_job(
 		# Recorded with no counts rather than not recorded, so the turn appears
 		# in a budget as something that happened.
 		usage.record_failure(
-			adapter=adapter,
+			# Когда модель выбирал роутер, `adapter` здесь пуст, а провайдера
+			# по умолчанию подставлять нельзя: ответить мог не он.
+			adapter=_answering_adapter(adapter),
 			provider=provider,
 			model=model,
 			turn_id=turn_id,
@@ -303,11 +314,15 @@ def run_turn_job(
 			{
 				"type": "needs_confirmation",
 				"text": result.text,
+				# Какая модель это предложила — теперь не постоянная величина:
+				# в одном ходе могла ответить первая, в другом третья. Берём
+				# ту, что действительно отвечала, иначе в предложении окажется
+				# провайдер по умолчанию, который к нему не имеет отношения.
 				"calls": proposals.record(
 					result.pending,
 					turn_id,
 					provider=provider or llm.get_settings().provider,
-					model=model or getattr(adapter, "model", None),
+					model=model or getattr(_answering_adapter(adapter), "model", None),
 				),
 			}
 		)
@@ -324,6 +339,16 @@ def run_turn_job(
 			},
 		}
 	)
+
+
+def _answering_adapter(pinned):
+	"""Адаптер, который на самом деле отвечал в этом ходе.
+
+	Закреплённый, если его назвали; иначе тот, которого выбрал роутер. Роутер
+	оставляет его во флаге — сам он уже записал построчно каждую попытку, а
+	здесь нужен исход хода целиком.
+	"""
+	return pinned or frappe.flags.get(router.LAST_ADAPTER_FLAG)
 
 
 def _request_id(user: str, turn_id: str, phase: str) -> str:

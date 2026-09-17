@@ -144,6 +144,19 @@
   },
   "authFieldRequired": "Required",
   "authInvalidServer": "That is not a valid address.",
+  "authRegister": "Register",
+  "authNoAccount": "Don't have an account? Register",
+  "authAlreadyHaveAccount": "Already have an account? Sign In",
+  "authRegisterSubtitle": "Create a workspace for your furniture business",
+  "authCompanyName": "Company / workshop name",
+  "authCompanyNameHint": "E.g. Astana Furniture, IP Marat",
+  "authOwnerName": "Your name",
+  "authOwnerNameHint": "First and last name",
+  "authConfirmPassword": "Confirm password",
+  "authPasswordsDoNotMatch": "Passwords do not match.",
+  "authPasswordTooShort": "Password must be at least 6 characters.",
+  "authCustomServer": "Server settings",
+  "authHideServer": "Hide server settings",
   "claimTitle": "First run",
   "@claimTitle": {
     "description": "Title of the first-run claiming wizard"
@@ -3774,5 +3787,190 @@
         "type": "String"
       }
     }
+  },
+  "hardwareTitle": "Hardware",
+  "@hardwareTitle": {
+    "description": "Title of the Hardware screen"
+  },
+  "hardwareSubtitle": "Hinges, runners and fittings",
+  "@hardwareSubtitle": {
+    "description": "Subtitle of the Hardware screen"
+  },
+  "navHardware": "Hardware",
+  "@navHardware": {
+    "description": "Sidebar navigation label for Hardware"
+  },
+  "hardwareTypeAll": "All types",
+  "@hardwareTypeAll": {
+    "description": "Filter option to show all hardware types"
+  },
+  "hardwareTypeHinge": "Hinges",
+  "@hardwareTypeHinge": {
+    "description": "Filter option for hinges"
+  },
+  "hardwareTypeRunner": "Runners",
+  "@hardwareTypeRunner": {
+    "description": "Filter option for runners/slides"
+  },
+  "hardwareTypeHandle": "Handles",
+  "@hardwareTypeHandle": {
+    "description": "Filter option for handles"
+  },
+  "hardwareTypeLeg": "Legs",
+  "@hardwareTypeLeg": {
+    "description": "Filter option for legs and feet"
+  },
+  "hardwareTypeShelfSupport": "Shelf supports",
+  "@hardwareTypeShelfSupport": {
+    "description": "Filter option for shelf supports"
+  },
+  "hardwareKindHinge": "Hinge",
+  "@hardwareKindHinge": {
+    "description": "Kind chip label for hinge"
+  },
+  "hardwareKindRunner": "Runner",
+  "@hardwareKindRunner": {
+    "description": "Kind chip label for runner"
+  },
+  "hardwareKindHandle": "Handle",
+  "@hardwareKindHandle": {
+    "description": "Kind chip label for handle"
+  },
+  "hardwareKindLeg": "Leg",
+  "@hardwareKindLeg": {
+    "description": "Kind chip label for leg"
+  },
+  "hardwareKindShelfSupport": "Shelf support",
+  "@hardwareKindShelfSupport": {
+    "description": "Kind chip label for shelf support"
+  },
+  "hardwareOverlayAll": "Any overlay",
+  "@hardwareOverlayAll": {
+    "description": "Filter option for any hinge overlay"
+  },
+  "hardwareOverlayFull": "Full overlay",
+  "@hardwareOverlayFull": {
+    "description": "Hinge overlay type: full"
+  },
+  "hardwareOverlayHalf": "Half overlay",
+  "@hardwareOverlayHalf": {
+    "description": "Hinge overlay type: half"
+  },
+  "hardwareOverlayInset": "Inset",
+  "@hardwareOverlayInset": {
+    "description": "Hinge overlay type: inset"
+  },
+  "hardwareOverlayFullExplanation": "Door fully overlaps the cabinet edge",
+  "@hardwareOverlayFullExplanation": {
+    "description": "Explanation of full overlay hinge installation"
+  },
+  "hardwareOverlayHalfExplanation": "Two doors share one cabinet edge",
+  "@hardwareOverlayHalfExplanation": {
+    "description": "Explanation of half overlay hinge installation"
+  },
+  "hardwareOverlayInsetExplanation": "Door sits flush inside the cabinet",
+  "@hardwareOverlayInsetExplanation": {
+    "description": "Explanation of inset hinge installation"
+  },
+  "hardwareMountingAustrian": "Austrian (45 mm)",
+  "@hardwareMountingAustrian": {
+    "description": "Mounting hole pattern: Austrian 45mm"
+  },
+  "hardwareMountingItalian": "Italian (48 mm)",
+  "@hardwareMountingItalian": {
+    "description": "Mounting hole pattern: Italian 48mm"
+  },
+  "hardwareMountingGerman": "German (52 mm)",
+  "@hardwareMountingGerman": {
+    "description": "Mounting hole pattern: German 52mm"
+  },
+  "hardwareMountingMini": "Mini (38 mm)",
+  "@hardwareMountingMini": {
+    "description": "Mounting hole pattern: Mini 38mm"
+  },
+  "hardwareOpeningAngle": "{angle}°",
+  "@hardwareOpeningAngle": {
+    "description": "Hinge opening angle in degrees",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "hardwareCupSpec": "Cup Ø{diameter}×{depth} mm",
+  "@hardwareCupSpec": {
+    "description": "Cup diameter and depth",
+    "placeholders": {
+      "diameter": {
+        "type": "String"
+      },
+      "depth": {
+        "type": "String"
+      }
+    }
+  },
+  "hardwareCupDiameter": "Ø{diameter} mm",
+  "@hardwareCupDiameter": {
+    "description": "Hinge cup diameter",
+    "placeholders": {
+      "diameter": {
+        "type": "String"
+      }
+    }
+  },
+  "hardwareLength": "{length} mm",
+  "@hardwareLength": {
+    "description": "Hardware length in mm",
+    "placeholders": {
+      "length": {
+        "type": "String"
+      }
+    }
+  },
+  "hardwareLoad": "up to {load} kg",
+  "@hardwareLoad": {
+    "description": "Load capacity in kg",
+    "placeholders": {
+      "load": {
+        "type": "String"
+      }
+    }
+  },
+  "hardwareHoleSpacing": "Hole spacing {spacing} mm",
+  "@hardwareHoleSpacing": {
+    "description": "Distance between handle mounting-hole centres",
+    "placeholders": {
+      "spacing": {
+        "type": "String"
+      }
+    }
+  },
+  "hardwareSoftClose": "Soft-close",
+  "@hardwareSoftClose": {
+    "description": "Soft-close integrated damper label"
+  },
+  "hardwareNoSoftClose": "No soft-close",
+  "@hardwareNoSoftClose": {
+    "description": "No damper"
+  },
+  "hardwareSearchHint": "Search by model, brand, name",
+  "@hardwareSearchHint": {
+    "description": "Hint text for hardware search field"
+  },
+  "hardwareEmptyTitle": "Hardware catalogue is empty",
+  "@hardwareEmptyTitle": {
+    "description": "Empty state title when there is no hardware"
+  },
+  "hardwareEmptyMessage": "Hardware items will appear here once synchronized.",
+  "@hardwareEmptyMessage": {
+    "description": "Empty state message when there is no hardware"
+  },
+  "hardwareEmptyFilteredTitle": "No hardware found",
+  "@hardwareEmptyFilteredTitle": {
+    "description": "Empty state title when filters match nothing"
+  },
+  "hardwareEmptyFilteredMessage": "Try adjusting the hardware type, overlay, or clearing active filters.",
+  "@hardwareEmptyFilteredMessage": {
+    "description": "Empty state message when filters match nothing"
   }
 }

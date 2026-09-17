@@ -178,6 +178,7 @@ scheduler_events = {
 	# hears within at most one more hour; running every few minutes would add no
 	# useful urgency, while daily could repeat the original full-day loss.
 	"hourly": ["korkem_manufacturing.services.reminders.run"],
+	"all": ["korkem_manufacturing.services.outbox_workers.cron_dispatch_outbox"],
 }
 
 # Testing

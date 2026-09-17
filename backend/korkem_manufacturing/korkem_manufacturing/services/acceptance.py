@@ -75,6 +75,7 @@ def accept(*, quotation: str, deliver_on: str) -> dict:
 	order = make_sales_order(doc.name)
 	order.delivery_date = deliver_on
 	warehouse = _shipping_warehouse(order)
+	order.set_warehouse = warehouse
 	for row in order.items:
 		row.delivery_date = deliver_on
 		if not row.warehouse and _is_stock_item(row.item_code):
@@ -134,3 +135,73 @@ def _shipping_warehouse(order) -> str:
 		"У компании не задан склад готовой продукции, а без него заказ не знает, "
 		"откуда отгружать. Задайте его в настройках компании."
 	)
+
+
+def sign_acceptance_act(
+	*,
+	sales_order: str,
+	signed_by: str,
+	signed_on: str | None = None,
+	notes: str | None = None,
+	photos: list[str] | None = None,
+) -> dict[str, Any]:
+	"""Клиент подписывает Акт сдачи-приемки установленной мебели."""
+	if not frappe.db.exists("Sales Order", sales_order):
+		frappe.throw(f"Заказ {sales_order} не найден.", frappe.DoesNotExistError)
+
+	order = frappe.get_doc("Sales Order", sales_order)
+	comp = order.company
+	date_signed = signed_on or frappe.utils.nowdate()
+
+	from korkem_manufacturing.services import audit, outbox
+
+	# Фиксируем в аудите и Outbox
+	audit.record_audit(
+		action="order.acceptance_signed",
+		entity_type="Sales Order",
+		entity_id=sales_order,
+		diff={
+			"signed_by": signed_by,
+			"signed_on": str(date_signed),
+			"notes": notes,
+			"photos": photos or [],
+		},
+		reason=f"Подписан Акт сдачи-приемки клиентом: {signed_by}",
+		company=comp,
+		actor=signed_by,
+	)
+
+	outbox.record_event(
+		event_name="acceptance.signed",
+		aggregate_type="Sales Order",
+		aggregate_id=sales_order,
+		payload={
+			"sales_order": sales_order,
+			"company": comp,
+			"customer": order.customer,
+			"signed_by": signed_by,
+			"signed_on": str(date_signed),
+			"notes": notes,
+			"photos": photos or [],
+			"timestamp": str(frappe.utils.now_datetime()),
+		},
+		company=comp,
+		actor=signed_by,
+	)
+
+	return {
+		"sales_order": sales_order,
+		"signed_by": signed_by,
+		"signed_on": str(date_signed),
+		"status": "signed",
+	}
+
+
+def is_acceptance_signed(sales_order: str) -> bool:
+	"""Проверяет, подписан ли Акт сдачи-приемки клиентом."""
+	exists = frappe.db.exists(
+		"Domain Audit Event",
+		{"entity_type": "Sales Order", "entity_id": sales_order, "action": "order.acceptance_signed"},
+	)
+	return bool(exists)
+

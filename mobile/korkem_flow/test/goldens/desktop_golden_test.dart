@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/data/order_design_repository.dart';
 import 'package:korkem_flow/features/orders/data/order_installation_repository.dart';
 import 'package:korkem_flow/features/orders/data/order_invoice_repository.dart';
@@ -166,6 +167,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          clockProvider.overrideWithValue(() => DateTime(2026, 9, 4)),
           salesOrderRepositoryProvider.overrideWithValue(salesOrderRepo),
           orderDesignRepositoryProvider.overrideWithValue(designRepo),
           orderInstallationRepositoryProvider.overrideWithValue(

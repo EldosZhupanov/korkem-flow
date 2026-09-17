@@ -93,6 +93,19 @@ class MaterialsScreen extends ConsumerWidget {
                       .read(materialsFilterProvider.notifier)
                       .setKind(selected ? MaterialKind.edge : null),
                 ),
+                const SizedBox(width: AppSpacing.sm),
+                FilterChip(
+                  key: const ValueKey('filter:offcuts'),
+                  avatar: const Icon(
+                    AppIcons.dimension,
+                    size: AppIconSize.inline,
+                  ),
+                  label: const Text('Остатки'),
+                  selected: filter.query?.contains('остаток') ?? false,
+                  onSelected: (selected) => ref
+                      .read(materialsFilterProvider.notifier)
+                      .setQuery(selected ? 'остаток' : ''),
+                ),
                 const SizedBox(width: AppSpacing.md),
                 FilterChip(
                   key: const ValueKey('filter:thickness:16'),

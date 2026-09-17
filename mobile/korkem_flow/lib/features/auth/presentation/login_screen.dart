@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
+import 'package:korkem_flow/core/config/app_config.dart';
 import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
 import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -33,15 +34,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   bool _obscured = true;
   bool _busy = false;
+  bool _showServerConfig = false;
   String? _failure;
 
   @override
   void initState() {
     super.initState();
-    // Pre-filled from the last known server so a re-login after an expired
-    // session is two fields, not three.
+    final defaultUrl = ref.read(sessionProvider).value?.serverUrl ?? '';
     _server = TextEditingController(
-      text: ref.read(sessionProvider).value?.serverUrl ?? '',
+      text: defaultUrl.isNotEmpty
+          ? defaultUrl
+          : ref.read(appConfigProvider).baseUrl,
     );
   }
 
@@ -55,6 +58,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context);
+    if (_server.text.trim().isEmpty) {
+      _server.text = ref.read(appConfigProvider).baseUrl;
+    }
     final serverError = _validateServer(_server.text, l10n);
     if (serverError != null) {
       _formKey.currentState?.validate();
@@ -142,19 +148,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: AppSpacing.xxl),
 
-                    TextFormField(
-                      controller: _server,
-                      keyboardType: TextInputType.url,
-                      autocorrect: false,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        labelText: l10n.authServer,
-                        hintText: l10n.authServerHint,
-                        prefixIcon: const Icon(AppIcons.settings),
+                    if (_showServerConfig) ...[
+                      TextFormField(
+                        controller: _server,
+                        keyboardType: TextInputType.url,
+                        autocorrect: false,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          labelText: l10n.authServer,
+                          hintText: l10n.authServerHint,
+                          prefixIcon: const Icon(AppIcons.settings),
+                        ),
+                        validator: (value) => _validateServer(value, l10n),
                       ),
-                      validator: (value) => _validateServer(value, l10n),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
 
                     TextFormField(
                       controller: _email,
@@ -229,6 +237,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: _busy
                           ? const AppBusyIndicator()
                           : Text(l10n.authSignIn),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    OutlinedButton(
+                      onPressed: _busy
+                          ? null
+                          : () => context.push(Routes.register),
+                      child: Text(l10n.authRegister),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Center(
+                      child: TextButton.icon(
+                        icon: Icon(
+                          _showServerConfig
+                              ? AppIcons.hidden
+                              : AppIcons.settings,
+                          size: AppIconSize.small,
+                        ),
+                        label: Text(
+                          _showServerConfig
+                              ? l10n.authHideServer
+                              : l10n.authCustomServer,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        onPressed: () => setState(
+                          () => _showServerConfig = !_showServerConfig,
+                        ),
+                      ),
                     ),
                   ],
                 ),

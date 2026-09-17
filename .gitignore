@@ -51,6 +51,7 @@ __pycache__/
 .ruff_cache/
 dist/
 build/
+.next/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -74,3 +75,6 @@ build/
 scrinshoot and Api/
 *.key
 api-keys/
+
+# Reference repositories for temporary architectural inspection
+.references/

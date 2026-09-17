@@ -80,15 +80,15 @@ the shop floor may be running Kazakh.
 
 ## Platform targets — what exists today
 
-Only `android/` and `linux/` exist. There is **no `windows/`, `ios/` or
-`macos/` folder**, so "KORKEM Flow Desktop.exe" is not currently a build
-target. Adding Windows is `flutter create --platforms=windows .` plus a real
-pass over plugins, fonts and file paths; iOS and macOS additionally need a Mac
-and a paid Apple account.
+`android/`, `linux/` and `windows/` exist. As of 2026-09-10, `ios/` is
+prepared but **NOT MAC/DEVICE VERIFIED**; `macos/` is absent. Do not recreate
+the iOS project or replace its permission/Keychain settings. Follow
+`docs/operations/IOS_ON_MAC_RU.md` for the pinned SDK and first build.
+Personal iPhone testing and App Store distribution have different Apple
+account requirements; do not require a paid account just to start Simulator.
 
-There is also **no local database** — `sqlite`/`drift`/`isar`/`hive` and
-`path_provider` are all absent. Offline is not "degraded" today, it is absent.
-Any offline work starts by choosing that dependency deliberately.
+The mutation outbox persists in secure storage and `path_provider` is present.
+That is not a complete offline database or proof of iOS restart behaviour.
 
 ## Running against a bench
 

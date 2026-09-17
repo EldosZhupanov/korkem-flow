@@ -74,6 +74,7 @@ def emit(event: str, **payload) -> list[str]:
 	return delivered
 
 
+
 def _call(dotted: str, event: str, payload: dict) -> bool:
 	savepoint = "korkem_evt_" + frappe.generate_hash(length=8)
 	try:
@@ -91,3 +92,35 @@ def _call(dotted: str, event: str, payload: dict) -> bool:
 			message=frappe.get_traceback(with_context=True),
 		)
 		return False
+
+
+def emit_outbox(
+	event: str,
+	aggregate_type: str = "Generic",
+	aggregate_id: str = "",
+	company: str | None = None,
+	correlation_id: str | None = None,
+	**payload,
+) -> str | None:
+	"""Record a business event in the Transactional Outbox.
+	
+	Ensures the event is committed in the same database transaction.
+	"""
+	try:
+		from korkem_manufacturing.services import outbox
+		return outbox.record_event(
+			event_name=event,
+			aggregate_type=aggregate_type,
+			aggregate_id=aggregate_id,
+			payload=payload,
+			company=company,
+			correlation_id=correlation_id,
+		)
+	except Exception:
+		frappe.log_error(
+			title=f"Failed to record outbox event for {event}",
+			message=frappe.get_traceback(with_context=True),
+		)
+		return None
+
+

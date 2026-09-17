@@ -123,24 +123,54 @@ def ensure_user_in_company(user: str, company: str | None = None) -> None:
 def belongs_to_company(doctype: str, name: str) -> bool:
 	"""Whether one named document is this session's to look at.
 
-	For the tools that fetch a document by name rather than by filter, where a
-	list filter cannot do the work.
+	Fail-closed: non-existent records, records from another company,
+	or missing company context on scoped doctypes return False.
 	"""
+	if not name or not frappe.db.exists(doctype, name):
+		return False
+
+	meta = frappe.get_meta(doctype)
+	if not meta.has_field("company"):
+		# A doctype with no company column (Item, Supplier) is a shared master.
+		return True
+
 	company = frappe.db.get_value(doctype, name, "company")
-	# A doctype with no company column is a shared master and is not scoped.
-	return company is None or company == current_company()
+	if not company:
+		return False
+
+	try:
+		session_company = current_company()
+	except Exception:
+		return False
+
+	return company == session_company
 
 
 def ensure_company(doctype: str, name: str) -> None:
-	"""Refuse a document belonging to somebody else.
+	"""Refuse a document belonging to somebody else or non-existent (fail closed).
 
-	Worded as "not found" on purpose. Confirming that
-	`SAL-ORD-…` exists but belongs to another company is itself a disclosure —
-	it tells the caller how another company's numbering runs and that a given
-	document is real.
+	Worded as "not found" on purpose to avoid leaking numbering schemes or existence.
 	"""
 	if not belongs_to_company(doctype, name):
-		frappe.throw(f"{doctype} {name} not found.")
+		frappe.throw(f"{doctype} {name} not found.", frappe.PermissionError)
+
+
+def enforce_tenant_scope(entity_company: str, caller_company: str | None = None) -> None:
+	"""Explicit fail-closed tenant boundary guard."""
+	active = caller_company
+	if not active:
+		try:
+			active = current_company()
+		except Exception:
+			active = None
+	if not entity_company or not active:
+		frappe.throw("Company context missing. Fail closed.", frappe.PermissionError)
+	if entity_company != active:
+		frappe.throw(
+			f"Tenant isolation violation: cannot access company '{entity_company}' from company '{active}'.",
+			frappe.PermissionError,
+		)
+
 
 
 class CustomerNotLinked(frappe.ValidationError):

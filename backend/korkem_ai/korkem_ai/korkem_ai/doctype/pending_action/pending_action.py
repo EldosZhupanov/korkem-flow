@@ -197,7 +197,10 @@ class PendingAction(Document):
 		arguments = frappe.parse_json(self.action_data) or {}
 
 		if self.tool:
-			return registry.execute(self.tool, arguments)
+			# Provider retries can record another proposal for the same turn.
+			# Claiming one proposal prevents double-clicks on that row only;
+			# the shared turn key also protects the actual business operation.
+			return registry.execute(self.tool, arguments, run_id=self.turn_id or self.name)
 
 		return frappe.get_attr(self.action_class)(**arguments)
 

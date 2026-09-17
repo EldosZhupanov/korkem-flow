@@ -21,6 +21,8 @@ except where the schema is so wrong there is nothing to check against.
 
 from __future__ import annotations
 
+import math
+
 _TYPE_CHECKS = {
 	"object": lambda value: isinstance(value, dict),
 	"array": lambda value: isinstance(value, list),
@@ -54,6 +56,11 @@ def validate(value, schema: dict, path: str = "") -> list[str]:
 		problems += _validate_array(value, schema, where)
 	elif isinstance(value, (int, float)) and not isinstance(value, bool):
 		problems += _validate_number(value, schema, where)
+	elif isinstance(value, str):
+		if 'minLength' in schema and len(value) < schema['minLength']:
+			problems.append(f"{where} is too short")
+		if 'maxLength' in schema and len(value) > schema['maxLength']:
+			problems.append(f"{where} is too long")
 
 	return problems
 
@@ -69,7 +76,7 @@ def _validate_object(value: dict, schema: dict, where: str) -> list[str]:
 	# Strict by default: only an explicit `additionalProperties: true` allows
 	# extras. A model inventing arguments is a signal, not noise.
 	allow_extra = schema.get("additionalProperties", False) is True
-	if properties and not allow_extra:
+	if not allow_extra:
 		for name in value:
 			if name not in properties:
 				known = ", ".join(sorted(properties)) or "none"
@@ -91,12 +98,20 @@ def _validate_array(value: list, schema: dict, where: str) -> list[str]:
 
 	if "maxItems" in schema and len(value) > schema["maxItems"]:
 		problems.append(f"{where} may have at most {schema['maxItems']} items")
+	if "minItems" in schema and len(value) < schema["minItems"]:
+		problems.append(f"{where} must have at least {schema['minItems']} items")
 
 	return problems
 
 
 def _validate_number(value, schema: dict, where: str) -> list[str]:
 	problems: list[str] = []
+	if isinstance(value, float) and not math.isfinite(value):
+		return [f"{where} must be finite"]
+	if 'exclusiveMinimum' in schema and value <= schema['exclusiveMinimum']:
+		problems.append(f"{where} must be greater than {schema['exclusiveMinimum']}")
+	if 'exclusiveMaximum' in schema and value >= schema['exclusiveMaximum']:
+		problems.append(f"{where} must be less than {schema['exclusiveMaximum']}")
 	if "minimum" in schema and value < schema["minimum"]:
 		problems.append(f"{where} must be at least {schema['minimum']}")
 	if "maximum" in schema and value > schema["maximum"]:

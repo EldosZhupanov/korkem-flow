@@ -466,6 +466,84 @@ abstract class AppLocalizations {
   /// **'That is not a valid address.'**
   String get authInvalidServer;
 
+  /// No description provided for @authRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get authRegister;
+
+  /// No description provided for @authNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? Register'**
+  String get authNoAccount;
+
+  /// No description provided for @authAlreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign In'**
+  String get authAlreadyHaveAccount;
+
+  /// No description provided for @authRegisterSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a workspace for your furniture business'**
+  String get authRegisterSubtitle;
+
+  /// No description provided for @authCompanyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Company / workshop name'**
+  String get authCompanyName;
+
+  /// No description provided for @authCompanyNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'E.g. Astana Furniture, IP Marat'**
+  String get authCompanyNameHint;
+
+  /// No description provided for @authOwnerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get authOwnerName;
+
+  /// No description provided for @authOwnerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'First and last name'**
+  String get authOwnerNameHint;
+
+  /// No description provided for @authConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get authConfirmPassword;
+
+  /// No description provided for @authPasswordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get authPasswordsDoNotMatch;
+
+  /// No description provided for @authPasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters.'**
+  String get authPasswordTooShort;
+
+  /// No description provided for @authCustomServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server settings'**
+  String get authCustomServer;
+
+  /// No description provided for @authHideServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide server settings'**
+  String get authHideServer;
+
   /// Title of the first-run claiming wizard
   ///
   /// In en, this message translates to:
@@ -5888,6 +5966,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'width {width} mm'**
   String materialsEdgeWidth(String width);
+
+  /// Title of the Hardware screen
+  ///
+  /// In en, this message translates to:
+  /// **'Hardware'**
+  String get hardwareTitle;
+
+  /// Subtitle of the Hardware screen
+  ///
+  /// In en, this message translates to:
+  /// **'Hinges, runners and fittings'**
+  String get hardwareSubtitle;
+
+  /// Sidebar navigation label for Hardware
+  ///
+  /// In en, this message translates to:
+  /// **'Hardware'**
+  String get navHardware;
+
+  /// Filter option to show all hardware types
+  ///
+  /// In en, this message translates to:
+  /// **'All types'**
+  String get hardwareTypeAll;
+
+  /// Filter option for hinges
+  ///
+  /// In en, this message translates to:
+  /// **'Hinges'**
+  String get hardwareTypeHinge;
+
+  /// Filter option for runners/slides
+  ///
+  /// In en, this message translates to:
+  /// **'Runners'**
+  String get hardwareTypeRunner;
+
+  /// Filter option for handles
+  ///
+  /// In en, this message translates to:
+  /// **'Handles'**
+  String get hardwareTypeHandle;
+
+  /// Filter option for legs and feet
+  ///
+  /// In en, this message translates to:
+  /// **'Legs'**
+  String get hardwareTypeLeg;
+
+  /// Filter option for shelf supports
+  ///
+  /// In en, this message translates to:
+  /// **'Shelf supports'**
+  String get hardwareTypeShelfSupport;
+
+  /// Kind chip label for hinge
+  ///
+  /// In en, this message translates to:
+  /// **'Hinge'**
+  String get hardwareKindHinge;
+
+  /// Kind chip label for runner
+  ///
+  /// In en, this message translates to:
+  /// **'Runner'**
+  String get hardwareKindRunner;
+
+  /// Kind chip label for handle
+  ///
+  /// In en, this message translates to:
+  /// **'Handle'**
+  String get hardwareKindHandle;
+
+  /// Kind chip label for leg
+  ///
+  /// In en, this message translates to:
+  /// **'Leg'**
+  String get hardwareKindLeg;
+
+  /// Kind chip label for shelf support
+  ///
+  /// In en, this message translates to:
+  /// **'Shelf support'**
+  String get hardwareKindShelfSupport;
+
+  /// Filter option for any hinge overlay
+  ///
+  /// In en, this message translates to:
+  /// **'Any overlay'**
+  String get hardwareOverlayAll;
+
+  /// Hinge overlay type: full
+  ///
+  /// In en, this message translates to:
+  /// **'Full overlay'**
+  String get hardwareOverlayFull;
+
+  /// Hinge overlay type: half
+  ///
+  /// In en, this message translates to:
+  /// **'Half overlay'**
+  String get hardwareOverlayHalf;
+
+  /// Hinge overlay type: inset
+  ///
+  /// In en, this message translates to:
+  /// **'Inset'**
+  String get hardwareOverlayInset;
+
+  /// Explanation of full overlay hinge installation
+  ///
+  /// In en, this message translates to:
+  /// **'Door fully overlaps the cabinet edge'**
+  String get hardwareOverlayFullExplanation;
+
+  /// Explanation of half overlay hinge installation
+  ///
+  /// In en, this message translates to:
+  /// **'Two doors share one cabinet edge'**
+  String get hardwareOverlayHalfExplanation;
+
+  /// Explanation of inset hinge installation
+  ///
+  /// In en, this message translates to:
+  /// **'Door sits flush inside the cabinet'**
+  String get hardwareOverlayInsetExplanation;
+
+  /// Mounting hole pattern: Austrian 45mm
+  ///
+  /// In en, this message translates to:
+  /// **'Austrian (45 mm)'**
+  String get hardwareMountingAustrian;
+
+  /// Mounting hole pattern: Italian 48mm
+  ///
+  /// In en, this message translates to:
+  /// **'Italian (48 mm)'**
+  String get hardwareMountingItalian;
+
+  /// Mounting hole pattern: German 52mm
+  ///
+  /// In en, this message translates to:
+  /// **'German (52 mm)'**
+  String get hardwareMountingGerman;
+
+  /// Mounting hole pattern: Mini 38mm
+  ///
+  /// In en, this message translates to:
+  /// **'Mini (38 mm)'**
+  String get hardwareMountingMini;
+
+  /// Hinge opening angle in degrees
+  ///
+  /// In en, this message translates to:
+  /// **'{angle}°'**
+  String hardwareOpeningAngle(String angle);
+
+  /// Cup diameter and depth
+  ///
+  /// In en, this message translates to:
+  /// **'Cup Ø{diameter}×{depth} mm'**
+  String hardwareCupSpec(String diameter, String depth);
+
+  /// Hinge cup diameter
+  ///
+  /// In en, this message translates to:
+  /// **'Ø{diameter} mm'**
+  String hardwareCupDiameter(String diameter);
+
+  /// Hardware length in mm
+  ///
+  /// In en, this message translates to:
+  /// **'{length} mm'**
+  String hardwareLength(String length);
+
+  /// Load capacity in kg
+  ///
+  /// In en, this message translates to:
+  /// **'up to {load} kg'**
+  String hardwareLoad(String load);
+
+  /// Distance between handle mounting-hole centres
+  ///
+  /// In en, this message translates to:
+  /// **'Hole spacing {spacing} mm'**
+  String hardwareHoleSpacing(String spacing);
+
+  /// Soft-close integrated damper label
+  ///
+  /// In en, this message translates to:
+  /// **'Soft-close'**
+  String get hardwareSoftClose;
+
+  /// No damper
+  ///
+  /// In en, this message translates to:
+  /// **'No soft-close'**
+  String get hardwareNoSoftClose;
+
+  /// Hint text for hardware search field
+  ///
+  /// In en, this message translates to:
+  /// **'Search by model, brand, name'**
+  String get hardwareSearchHint;
+
+  /// Empty state title when there is no hardware
+  ///
+  /// In en, this message translates to:
+  /// **'Hardware catalogue is empty'**
+  String get hardwareEmptyTitle;
+
+  /// Empty state message when there is no hardware
+  ///
+  /// In en, this message translates to:
+  /// **'Hardware items will appear here once synchronized.'**
+  String get hardwareEmptyMessage;
+
+  /// Empty state title when filters match nothing
+  ///
+  /// In en, this message translates to:
+  /// **'No hardware found'**
+  String get hardwareEmptyFilteredTitle;
+
+  /// Empty state message when filters match nothing
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting the hardware type, overlay, or clearing active filters.'**
+  String get hardwareEmptyFilteredMessage;
 }
 
 class _AppLocalizationsDelegate

@@ -26,6 +26,7 @@ def execute(
 	idempotency_key: str | None,
 	arguments: dict,
 	callback: Callable[[], dict],
+	company: str | None = None,
 ) -> dict:
 	"""Run once per user, action and client key, or replay its stored result."""
 	if idempotency_key is None:
@@ -33,7 +34,16 @@ def execute(
 
 	key = _validated_key(idempotency_key)
 	user = frappe.session.user
-	name = _record_name(user, action, key)
+
+	active_company = company
+	if not active_company:
+		try:
+			from korkem_manufacturing.services.scope import current_company
+			active_company = current_company()
+		except Exception:
+			active_company = None
+
+	name = _record_name(user, action, key, active_company)
 	fingerprint = _fingerprint(arguments)
 	savepoint = "korkem_idempotency_" + frappe.generate_hash(length=8)
 	frappe.db.savepoint(savepoint)
@@ -42,6 +52,7 @@ def execute(
 		{
 			"doctype": "Idempotency Record",
 			"name": name,
+			"company": active_company,
 			"request_user": user,
 			"action": action,
 			"request_fingerprint": fingerprint,
@@ -126,9 +137,24 @@ def _validated_key(value: str) -> str:
 	return value
 
 
-def _record_name(user: str, action: str, key: str) -> str:
-	digest = hashlib.sha256(f"{user}\0{action}\0{key}".encode()).hexdigest()
+def _record_name(user: str, action: str, key: str, company: str | None = None) -> str:
+	if company:
+		digest = hashlib.sha256(f"{company}\0{user}\0{action}\0{key}".encode()).hexdigest()
+	else:
+		digest = hashlib.sha256(f"{user}\0{action}\0{key}".encode()).hexdigest()
 	return f"idem-{digest}"
+
+
+def cleanup_expired(days: int = 30) -> int:
+	"""Remove idempotency records older than retention policy."""
+	cutoff = frappe.utils.add_to_date(frappe.utils.now_datetime(), days=-days)
+	old_records = frappe.get_all("Idempotency Record", filters={"modified": ["<", cutoff]}, pluck="name")
+	if not old_records:
+		return 0
+	frappe.db.delete("Idempotency Record", {"name": ["in", old_records]})
+	return len(old_records)
+
+
 
 
 def _fingerprint(arguments: dict) -> str:

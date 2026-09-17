@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/ai_settings/presentation/ai_settings_screen
 import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dart';
 import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
+import 'package:korkem_flow/features/auth/presentation/register_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
 import 'package:korkem_flow/features/bazis/presentation/bazis_import_screen.dart';
 import 'package:korkem_flow/features/channel_settings/presentation/channel_settings_screen.dart';
@@ -18,6 +19,7 @@ import 'package:korkem_flow/features/customers/presentation/customer_detail_scre
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/enquiry_flow/presentation/enquiry_flow_screen.dart';
+import 'package:korkem_flow/features/hardware/presentation/hardware_screen.dart';
 import 'package:korkem_flow/features/integration_settings/presentation/integration_settings_screen.dart';
 import 'package:korkem_flow/features/items/presentation/items_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
@@ -47,11 +49,13 @@ import 'package:korkem_flow/features/workstations/presentation/workstations_scre
 abstract final class Routes {
   static const splash = '/';
   static const login = '/login';
+  static const register = '/register';
   static const claim = '/claim';
   static const adminStats = '/admin-stats';
   static const team = '/team';
   static const items = '/items';
   static const materials = '/materials';
+  static const hardware = '/hardware';
   static const warehouses = '/settings/warehouses';
   static const integrations = '/settings/integrations';
   static const bazisImport = '/bazis-import';
@@ -148,10 +152,13 @@ GoRouter createRouter(Ref ref) {
       final atEntry =
           location == Routes.splash ||
           location == Routes.login ||
+          location == Routes.register ||
           location == Routes.claim;
 
       if (!signedIn) {
-        if (location == Routes.claim) return null;
+        if (location == Routes.claim || location == Routes.register) {
+          return null;
+        }
         return atEntry ? Routes.login : Routes.login;
       }
       return atEntry ? Routes.chat : null;
@@ -164,6 +171,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.register,
+        builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
         path: Routes.claim,
@@ -250,6 +261,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.materials,
         builder: (context, state) => const MaterialsScreen(),
+      ),
+      GoRoute(
+        path: Routes.hardware,
+        builder: (context, state) => const HardwareScreen(),
       ),
       GoRoute(
         path: Routes.warehouses,

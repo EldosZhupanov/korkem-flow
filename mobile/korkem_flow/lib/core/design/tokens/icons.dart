@@ -25,6 +25,10 @@ abstract final class AppIcons {
   static const IconData material = Symbols.category_rounded;
   static const IconData board = Symbols.layers_rounded;
   static const IconData edge = Symbols.border_style_rounded;
+  static const IconData hardware = Symbols.hardware_rounded;
+  static const IconData hinge = Symbols.door_front_rounded;
+  static const IconData runner = Symbols.view_sidebar_rounded;
+  static const IconData handle = Symbols.drag_handle_rounded;
   static const IconData approval = Symbols.approval_rounded;
   static const IconData conversation = Symbols.forum_rounded;
   static const IconData dashboard = Symbols.dashboard_rounded;
@@ -42,6 +46,15 @@ abstract final class AppIcons {
   static const IconData image = Symbols.image_rounded;
 
   // ── Actions ──────────────────────────────────────────────────────────────
+  static const IconData overlay = Symbols.layers_rounded;
+  static const IconData openingAngle = Symbols.turn_right_rounded;
+  static const IconData diameter = Symbols.circle_rounded;
+  static const IconData mounting = Symbols.handyman_rounded;
+  static const IconData softClose = Symbols.motion_sensor_idle_rounded;
+  static const IconData colour = Symbols.palette_rounded;
+  static const IconData dimension = Symbols.straighten_rounded;
+  static const IconData load = Symbols.weight_rounded;
+
   static const IconData search = Symbols.search_rounded;
   static const IconData filter = Symbols.filter_list_rounded;
   static const IconData sort = Symbols.sort_rounded;

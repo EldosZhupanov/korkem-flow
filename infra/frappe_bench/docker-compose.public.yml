@@ -1,46 +1,31 @@
-# Public HTTPS front door.
-#
-#   docker compose -f docker-compose.yml -f docker-compose.public.yml up -d
-#
-# and for a pilot, with the production process model as well:
-#
-#   docker compose -f docker-compose.yml \
-#                  -f docker-compose.pilot.yml \
-#                  -f docker-compose.public.yml up -d
-#
-# It is a separate file rather than a flag in the main one because a bench that
-# is *not* published should not be one edit away from being published.
-#
-# Caddy is here for one reason: it obtains and renews the certificate itself
-# from Let's Encrypt, so the only operator input is a hostname that resolves to
-# this machine. That is the whole difference between "we could go live" and a
-# morning spent on certbot.
-#
-# **Two profiles**, chosen with `KORKEM_PROXY_PROFILE`:
-#
-#   webhooks  (default) — only the two provider webhook paths are proxied and
-#             everything else answers 404. This is the right profile for a bot
-#             that must be reachable when nothing else should be.
-#   app       — the whole application, for real users signing in from outside.
-#
-# The default is the narrower one on purpose: publishing the desk is a decision,
-# and a decision should have to be typed.
 services:
+  web:
+    image: node:22-alpine
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - /home/ubuntu/korkem-flow/web/.next/standalone:/app
+      - /home/ubuntu/korkem-flow/web/.next/static:/app/.next/static
+      - /home/ubuntu/korkem-flow/web/public:/app/public
+    command: ["node", "server.js"]
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - KORKEM_BACKEND_URL=http://bench:8000
+    depends_on:
+      - bench
+
   proxy:
     image: caddy:2-alpine
     restart: unless-stopped
     depends_on:
       - bench
+      - web
     environment:
-      # The public hostname. A record pointing at this machine must exist
-      # before the container starts, or the certificate cannot be issued.
       KORKEM_PUBLIC_HOST: ${KORKEM_PUBLIC_HOST}
-      # Where Let's Encrypt sends expiry warnings.
       KORKEM_ACME_EMAIL: ${KORKEM_ACME_EMAIL}
     volumes:
       - ./proxy/${KORKEM_PROXY_PROFILE:-webhooks}.Caddyfile:/etc/caddy/Caddyfile:ro
-      # The issued certificate and its account key. Losing this volume means
-      # re-issuing on the next start, which Let's Encrypt rate-limits.
       - caddy-data:/data
       - caddy-config:/config
     ports:
@@ -48,9 +33,6 @@ services:
       - "443:443"
 
   bench:
-    # The application port stops being published once something else is in
-    # front of it. Everything reaches Frappe through the proxy, which is what
-    # makes "is this request really from Telegram" a question with one answer.
     ports: !override
       - "127.0.0.1:8000:8000"
 

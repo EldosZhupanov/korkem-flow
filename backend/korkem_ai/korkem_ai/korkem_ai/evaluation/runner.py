@@ -111,11 +111,11 @@ def run_job(run_name: str, user: str):
 	doc.save(ignore_permissions=True)
 
 
-def run_all(*, run_id: str | None = None, provider=None) -> list[dict]:
+def run_all(*, run_id: str | None = None, provider=None, cases=None) -> list[dict]:
 	"""Прогоняет весь набор и возвращает строки для экрана."""
 	return [
 		run_one(scenario, run_id=run_id, provider=provider)
-		for scenario in catalogue.CATALOGUE
+		for scenario in (catalogue.CATALOGUE if cases is None else cases)
 	]
 
 
@@ -165,6 +165,9 @@ def _observe(scenario: Scenario, *, run_id: str | None, provider=None) -> TurnFa
 		wrote=tuple(name for name in executed if _writes(name)),
 		proposed=proposed,
 		tools_used=frozenset(executed) | frozenset(proposed),
+		arguments=tuple((call.name, call.arguments) for message in result.messages for call in message.tool_calls),
+		results=tuple((call['tool'], call['payload']['data']) for call in result.executed
+			if call['ok'] and isinstance(call['payload'].get('data'), dict)),
 	)
 
 

@@ -212,6 +212,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authInvalidServer => 'That is not a valid address.';
 
   @override
+  String get authRegister => 'Register';
+
+  @override
+  String get authNoAccount => 'Don\'t have an account? Register';
+
+  @override
+  String get authAlreadyHaveAccount => 'Already have an account? Sign In';
+
+  @override
+  String get authRegisterSubtitle =>
+      'Create a workspace for your furniture business';
+
+  @override
+  String get authCompanyName => 'Company / workshop name';
+
+  @override
+  String get authCompanyNameHint => 'E.g. Astana Furniture, IP Marat';
+
+  @override
+  String get authOwnerName => 'Your name';
+
+  @override
+  String get authOwnerNameHint => 'First and last name';
+
+  @override
+  String get authConfirmPassword => 'Confirm password';
+
+  @override
+  String get authPasswordsDoNotMatch => 'Passwords do not match.';
+
+  @override
+  String get authPasswordTooShort => 'Password must be at least 6 characters.';
+
+  @override
+  String get authCustomServer => 'Server settings';
+
+  @override
+  String get authHideServer => 'Hide server settings';
+
+  @override
   String get claimTitle => 'First run';
 
   @override
@@ -3318,4 +3358,135 @@ class AppLocalizationsEn extends AppLocalizations {
   String materialsEdgeWidth(String width) {
     return 'width $width mm';
   }
+
+  @override
+  String get hardwareTitle => 'Hardware';
+
+  @override
+  String get hardwareSubtitle => 'Hinges, runners and fittings';
+
+  @override
+  String get navHardware => 'Hardware';
+
+  @override
+  String get hardwareTypeAll => 'All types';
+
+  @override
+  String get hardwareTypeHinge => 'Hinges';
+
+  @override
+  String get hardwareTypeRunner => 'Runners';
+
+  @override
+  String get hardwareTypeHandle => 'Handles';
+
+  @override
+  String get hardwareTypeLeg => 'Legs';
+
+  @override
+  String get hardwareTypeShelfSupport => 'Shelf supports';
+
+  @override
+  String get hardwareKindHinge => 'Hinge';
+
+  @override
+  String get hardwareKindRunner => 'Runner';
+
+  @override
+  String get hardwareKindHandle => 'Handle';
+
+  @override
+  String get hardwareKindLeg => 'Leg';
+
+  @override
+  String get hardwareKindShelfSupport => 'Shelf support';
+
+  @override
+  String get hardwareOverlayAll => 'Any overlay';
+
+  @override
+  String get hardwareOverlayFull => 'Full overlay';
+
+  @override
+  String get hardwareOverlayHalf => 'Half overlay';
+
+  @override
+  String get hardwareOverlayInset => 'Inset';
+
+  @override
+  String get hardwareOverlayFullExplanation =>
+      'Door fully overlaps the cabinet edge';
+
+  @override
+  String get hardwareOverlayHalfExplanation =>
+      'Two doors share one cabinet edge';
+
+  @override
+  String get hardwareOverlayInsetExplanation =>
+      'Door sits flush inside the cabinet';
+
+  @override
+  String get hardwareMountingAustrian => 'Austrian (45 mm)';
+
+  @override
+  String get hardwareMountingItalian => 'Italian (48 mm)';
+
+  @override
+  String get hardwareMountingGerman => 'German (52 mm)';
+
+  @override
+  String get hardwareMountingMini => 'Mini (38 mm)';
+
+  @override
+  String hardwareOpeningAngle(String angle) {
+    return '$angle°';
+  }
+
+  @override
+  String hardwareCupSpec(String diameter, String depth) {
+    return 'Cup Ø$diameter×$depth mm';
+  }
+
+  @override
+  String hardwareCupDiameter(String diameter) {
+    return 'Ø$diameter mm';
+  }
+
+  @override
+  String hardwareLength(String length) {
+    return '$length mm';
+  }
+
+  @override
+  String hardwareLoad(String load) {
+    return 'up to $load kg';
+  }
+
+  @override
+  String hardwareHoleSpacing(String spacing) {
+    return 'Hole spacing $spacing mm';
+  }
+
+  @override
+  String get hardwareSoftClose => 'Soft-close';
+
+  @override
+  String get hardwareNoSoftClose => 'No soft-close';
+
+  @override
+  String get hardwareSearchHint => 'Search by model, brand, name';
+
+  @override
+  String get hardwareEmptyTitle => 'Hardware catalogue is empty';
+
+  @override
+  String get hardwareEmptyMessage =>
+      'Hardware items will appear here once synchronized.';
+
+  @override
+  String get hardwareEmptyFilteredTitle => 'No hardware found';
+
+  @override
+  String get hardwareEmptyFilteredMessage =>
+      'Try adjusting the hardware type, overlay, or clearing active filters.';
 }

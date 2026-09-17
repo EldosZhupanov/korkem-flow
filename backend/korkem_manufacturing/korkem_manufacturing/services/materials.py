@@ -67,8 +67,43 @@ HARDWARE_FIELDS = (
 	"soft_close",
 	"length_mm",
 	"load_kg",
+	"hole_spacing_mm",
 	"colour",
 )
+
+HARDWARE_NUMERIC_FACTS = (
+	"cup_diameter_mm",
+	"cup_depth_mm",
+	"opening_angle_deg",
+	"length_mm",
+	"load_kg",
+	"hole_spacing_mm",
+)
+
+
+def _public_hardware(rows: list[dict]) -> list[dict]:
+	"""Shape stored hardware values into the nullable public contract.
+
+	Frappe numeric fields read an empty value as ``0.0``. Zero is not a valid
+	dimension here, so exposing it would turn "not recorded" into a technical
+	fact. Soft-close is stored as a three-state Select for the same reason.
+	"""
+	result = []
+	for raw_row in rows:
+		row = dict(raw_row)
+		for field in HARDWARE_NUMERIC_FACTS:
+			if not row.get(field):
+				row[field] = None
+
+		soft_close = row.get("soft_close")
+		if soft_close in (True, 1, "1", "yes"):
+			row["soft_close"] = True
+		elif soft_close in (False, "0", "no"):
+			row["soft_close"] = False
+		else:
+			row["soft_close"] = None
+		result.append(row)
+	return result
 
 
 def search(
@@ -144,7 +179,7 @@ def hinges_for(overlay: str) -> list[dict]:
 		fields=list(HARDWARE_FIELDS),
 		order_by="brand asc, model asc",
 	)
-	return rows
+	return _public_hardware(rows)
 
 
 def runners_for(depth_mm: float) -> list[dict]:
@@ -153,7 +188,7 @@ def runners_for(depth_mm: float) -> list[dict]:
 	Направляющая длиннее корпуса не встанет — это не предпочтение, а размер.
 	Ровно поэтому подбор здесь, а не у модели.
 	"""
-	return frappe.get_list(
+	return _public_hardware(frappe.get_list(
 		HARDWARE,
 		filters={
 			"company": current_company(),
@@ -163,7 +198,7 @@ def runners_for(depth_mm: float) -> list[dict]:
 		},
 		fields=list(HARDWARE_FIELDS),
 		order_by="length_mm desc",
-	)
+	))
 
 
 def edges_for(thickness: float) -> list[dict]:
@@ -183,3 +218,49 @@ def edges_for(thickness: float) -> list[dict]:
 		fields=list(FIELDS),
 		order_by="edge_width_mm asc",
 	)
+
+
+def search_hardware(
+	*,
+	hardware_type: str | None = None,
+	overlay: str | None = None,
+	query: str | None = None,
+	limit: int = DEFAULT_PAGE,
+	start: int = 0,
+) -> dict:
+	"""Фурнитура этой компании, подходящая под запрос."""
+	filters = {"company": current_company(), "active": 1}
+	if hardware_type:
+		filters["hardware_type"] = hardware_type
+	if overlay:
+		filters["overlay"] = overlay
+
+	or_filters = None
+	if query and query.strip():
+		like = f"%{query.strip()}%"
+		or_filters = {
+			"brand": ["like", like],
+			"model": ["like", like],
+			"hardware_name": ["like", like],
+		}
+
+	limit = max(1, min(int(limit or DEFAULT_PAGE), MAX_PAGE))
+	rows = frappe.get_list(
+		HARDWARE,
+		filters=filters,
+		or_filters=or_filters,
+		fields=list(HARDWARE_FIELDS),
+		order_by="brand asc, model asc, hardware_name asc",
+		limit_start=int(start or 0),
+		limit_page_length=limit,
+	)
+	total = len(
+		frappe.get_list(
+			HARDWARE,
+			filters=filters,
+			or_filters=or_filters,
+			pluck="name",
+			limit_page_length=0,
+		)
+	)
+	return {"hardware": _public_hardware(rows), "total": total}

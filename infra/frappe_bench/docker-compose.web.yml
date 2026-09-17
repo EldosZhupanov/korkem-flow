@@ -1,0 +1,18 @@
+# KORKEM Next.js SaaS Web Portal service
+#
+#   docker compose -f docker-compose.yml -f docker-compose.web.yml up -d
+#
+services:
+  web:
+    build:
+      context: ../../web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - KORKEM_BACKEND_URL=http://bench:8000
+    depends_on:
+      - bench
+    ports:
+      - "127.0.0.1:3000:3000"

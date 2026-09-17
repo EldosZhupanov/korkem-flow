@@ -23,6 +23,7 @@ import 'package:korkem_flow/features/orders/presentation/create_delivery_button.
 import 'package:korkem_flow/features/orders/presentation/order_design_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_installation_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_invoicing_section.dart';
+import 'package:korkem_flow/features/orders/presentation/order_stock_reservation_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_warranty_section.dart';
 import 'package:korkem_flow/features/orders/presentation/sales_order_status_label.dart';
 import 'package:korkem_flow/features/orders/presentation/start_production_button.dart';
@@ -110,6 +111,8 @@ class _Body extends ConsumerWidget {
           _Header(order: order),
           const SizedBox(height: AppSpacing.xl),
           OrderDesignSection(order: order),
+          const SizedBox(height: AppSpacing.xl),
+          OrderStockReservationSection(order: order),
           const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.orderProductionSection),
           const SizedBox(height: AppSpacing.sm),

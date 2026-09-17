@@ -1,0 +1,4 @@
+interface:
+  display_name: "HYPODIVE Falsification-First"
+  short_description: "Challenge claims with the cheapest decisive kill-test"
+  default_prompt: "Use $hypodive-falsification-first to audit the strongest claims in this repository. Start in Mode A, compare under matched rules, and stop if a decisive kill-test fails."

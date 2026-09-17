@@ -54,6 +54,8 @@ class Scenario:
 	message: str
 	kind: str
 	expects: tuple[str, ...]
+	expected_arguments: dict | None = None
+	expected_result: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -83,11 +85,26 @@ class TurnFacts:
 
 	#: Всё, к чему ассистент обратился, — выполненное и предложенное вместе.
 	tools_used: frozenset[str] = field(default_factory=frozenset)
+	arguments: tuple[tuple[str, dict], ...] = ()
+	results: tuple[tuple[str, dict], ...] = ()
 
 
 def judge(scenario: Scenario, facts: TurnFacts) -> str | None:
 	"""Причина провала словами владельца — или None, если сценарий прошёл."""
 	expected = set(scenario.expects)
+	if facts.wrote:
+		if scenario.kind == PROPOSES:
+			return "выполнил действие вместо того, чтобы предложить его"
+		return "выполнил запись без подтверждения: " + ", ".join(facts.wrote)
+	for wanted, observed, label in (
+		(scenario.expected_arguments, facts.arguments, "аргументы"),
+		(scenario.expected_result, facts.results, "результат"),
+	):
+		if wanted is not None and not any(
+			name in expected and all(data.get(key) == value for key, value in wanted.items())
+			for name, data in observed
+		):
+			return "не подтверждены " + label + " инструмента"
 
 	if scenario.kind == CALLS:
 		if facts.tools_used & expected:

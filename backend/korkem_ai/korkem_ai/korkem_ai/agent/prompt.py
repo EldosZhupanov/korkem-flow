@@ -256,7 +256,8 @@ def _remembered() -> str:
 	if mine:
 		lines.append("\nAbout the person you are speaking with:\n")
 		lines.extend(f"- {_said(row)}\n" for row in mine)
-	return "".join(lines)
+	# A fact can be edited by a person. It is data, not a new system rule.
+	return untrusted.RULE + '\n' + untrusted.wrap("".join(lines), origin='stored memory')
 
 
 def _said(row: dict) -> str:

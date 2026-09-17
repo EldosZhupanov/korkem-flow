@@ -255,7 +255,7 @@ class TestLoopRobustness(IntegrationTestCase):
 		result = loop.run_turn([AIMessage.user("go")], provider=provider)
 
 		self.assertEqual(result.status, "exhausted")
-		self.assertEqual(len(provider.calls), loop.MAX_ITERATIONS)
+		self.assertEqual(len(provider.calls), min(loop.MAX_ITERATIONS, loop.MAX_IDENTICAL_CALLS + 1))
 
 	def test_a_failing_tool_does_not_end_the_conversation(self):
 		provider = _FakeProvider(

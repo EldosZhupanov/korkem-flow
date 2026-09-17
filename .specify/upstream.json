@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/github/spec-kit",
+  "release": "v1.0.4",
+  "commit": "cb610277fdea781fcfa83d20522c2db37c94068d",
+  "license": "MIT",
+  "installed_on": "2026-09-09",
+  "integration": "claude (.claude/skills) + codex (.agents/skills)",
+  "customization": "templates/overrides + memory/constitution.md; shared upstream scripts unchanged"
+}

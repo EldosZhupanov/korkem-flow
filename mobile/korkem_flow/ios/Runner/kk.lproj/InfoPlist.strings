@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "Өлшеуді немесе жиһазды суретке түсіріп, өтінімге тіркеу.";
+"NSPhotoLibraryUsageDescription" = "Өтінімге тіркеу үшін галереядан өлшеу фотосын немесе үлгіні таңдау.";
+"NSMicrophoneUsageDescription" = "KORKEM көмекшісіне хабарламаны дауыспен енгізу.";
+"NSSpeechRecognitionUsageDescription" = "Құрылғының сөйлеуді тану қызметі арқылы дауысты хабарлама мәтініне айналдыру.";
+"NSLocalNetworkUsageDescription" = "Жергілікті желіде компанияңыздың KORKEM түйініне қосылу.";

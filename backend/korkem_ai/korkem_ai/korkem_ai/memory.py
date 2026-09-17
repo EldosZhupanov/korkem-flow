@@ -109,11 +109,22 @@ def recall(
 	выше выведенного нами — он знает свой цех лучше, чем модель, которая его
 	слушала.
 	"""
+	from korkem_manufacturing.services import identity
+
+	if not frappe.session.user or frappe.session.user == 'Guest':
+		frappe.throw('Authentication required.', frappe.PermissionError)
+	if owner and owner != frappe.session.user:
+		return []
+	if scope not in (None, COMPANY, USER):
+		frappe.throw('Unknown memory scope.')
+	company_visible = identity.role_of() != identity.CUSTOMER
+	if scope == COMPANY and not company_visible:
+		return []
 	filters = {"is_active": 1, "company": _company()}
 	if scope:
 		filters["scope"] = scope
-	if owner:
-		filters["owner_key"] = owner
+	if scope == USER or owner:
+		filters["owner_key"] = frappe.session.user
 
 	rows = frappe.get_all(
 		DOCTYPE,
@@ -121,6 +132,7 @@ def recall(
 		fields=[
 			"name",
 			"scope",
+			"owner_key",
 			"category",
 			"subject",
 			"predicate",
@@ -140,7 +152,9 @@ def recall(
 	fresh = [
 		row
 		for row in rows
-		if not row["expires_at"] or frappe.utils.get_datetime(row["expires_at"]) > now
+		if ((row['scope'] == COMPANY and company_visible)
+			or (row['scope'] == USER and row['owner_key'] == frappe.session.user))
+		and (not row["expires_at"] or frappe.utils.get_datetime(row["expires_at"]) > now)
 	]
 	fresh.sort(
 		key=lambda row: (
@@ -150,7 +164,7 @@ def recall(
 		),
 		reverse=True,
 	)
-	return fresh[:limit]
+	return fresh[:max(0, min(int(limit), 200))]
 
 
 def confirm(name: str) -> dict:
@@ -159,6 +173,7 @@ def confirm(name: str) -> dict:
 	Подтверждённое живёт дольше и стоит выше в отборе: это единственное место,
 	где человек может поправить то, что система вывела сама.
 	"""
+	require_access(name)
 	frappe.db.set_value(
 		DOCTYPE,
 		name,
@@ -179,6 +194,7 @@ def forget(name: str) -> dict:
 	перестал это знать» есть ответ. Для человека это неотличимо от удаления —
 	в контекст факт больше не попадает.
 	"""
+	require_access(name)
 	frappe.db.set_value(DOCTYPE, name, "is_active", 0)
 	return {"forgotten": name}
 
@@ -206,9 +222,19 @@ def _company() -> str | None:
 	компанию, но поле проставляется всегда — добавленное потом, оно потребовало
 	бы переноса данных.
 	"""
-	try:
-		from korkem_ai.korkem_ai.tools import scope as company_scope
+	from korkem_manufacturing.services import scope as company_scope
 
-		return company_scope.current_company()
-	except Exception:
-		return frappe.defaults.get_user_default("Company")
+	return company_scope.current_company()
+
+
+def require_access(name: str) -> None:
+	"""Fail closed before every mutation, including internal confirm/forget calls."""
+	if not frappe.session.user or frappe.session.user == 'Guest':
+		frappe.throw('Authentication required.', frappe.PermissionError)
+	row = frappe.db.get_value(DOCTYPE, name, ['scope', 'owner_key', 'company'], as_dict=True)
+	if not row or not row.company or row.company != _company():
+		frappe.throw('Memory fact is not available.', frappe.PermissionError)
+	if row.scope == USER and row.owner_key != frappe.session.user:
+		frappe.throw('Memory fact is not available.', frappe.PermissionError)
+	if row.scope == COMPANY and not frappe.has_permission(DOCTYPE, 'write'):
+		frappe.throw('Changing company memory requires permission.', frappe.PermissionError)
