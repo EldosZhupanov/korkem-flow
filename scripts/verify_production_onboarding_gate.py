@@ -385,11 +385,19 @@ def main():
     assert r_funnel.status_code == 200, f"Funnel fetch failed: {r_funnel.text}"
     funnel_resp = r_funnel.json().get("message", {})
     raw_counts = funnel_resp.get("raw_counts", {})
-    funnel_steps = funnel_resp.get("funnel", [])
+    owner_funnel = funnel_resp.get("owner_funnel", [])
+    emp_funnel = funnel_resp.get("employee_invite_funnel", [])
+    team_act = funnel_resp.get("team_activity", {})
 
-    log("Funnel Counts:")
-    for step in funnel_steps:
+    log("Owner Onboarding Funnel:")
+    for step in owner_funnel:
         log(f"  {step['step']}: {step['count']} ({step['conversion']})")
+
+    log("\nEmployee Invitation Funnel:")
+    for step in emp_funnel:
+        log(f"  {step['step']}: {step['count']} ({step['conversion']})")
+
+    log(f"\nTeam Activity: {team_act}")
 
     assert raw_counts.get("onboarding_started", 0) >= 1
     assert raw_counts.get("phone_verified", 0) >= 1
@@ -400,13 +408,15 @@ def main():
     results["test_8_analytics_funnel"] = {
         "passed": True,
         "raw_counts": raw_counts,
-        "funnel_steps": funnel_steps,
+        "owner_funnel": owner_funnel,
+        "employee_invite_funnel": emp_funnel,
+        "team_activity": team_act,
         "secrets_redacted": True,
     }
 
     results["verdict"] = "GO"
     log("\n==================================================")
-    log("USABILITY GATE VERDICT: GO (All 8 tests PASSED)")
+    log("FUNCTIONAL & SECURITY GATE VERDICT: GO (All 8 tests PASSED)")
     log("==================================================")
 
     with open("research/pilot/ONBOARDING_GATE_RESULTS.json", "w", encoding="utf-8") as f:

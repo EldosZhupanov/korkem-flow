@@ -125,37 +125,80 @@ def get_funnel_summary(company: str | None = None) -> dict:
 					continue
 			counts[op] += 1
 
-	started = counts["onboarding_started"]
-	verified = counts["phone_verified"]
-	created = counts["company_created"]
-	invited = counts["invite_created"]
-	accepted = counts["invite_accepted"]
+	# Extract role-specific counts where possible
+	owner_started = counts["onboarding_started"]
+	owner_phone_verified = min(counts["phone_verified"], max(1, owner_started)) if owner_started else 0
+	owner_profile = min(counts["profile_completed"], max(1, owner_phone_verified)) if owner_phone_verified else 0
+	owner_company = min(counts["company_created"], max(1, owner_profile)) if owner_profile else 0
+	owner_completed = min(counts["onboarding_completed"], max(1, owner_company)) if owner_company else 0
 
-	funnel_steps = [
-		{"step": "1. started", "count": started, "conversion": "100%"},
+	owner_funnel = [
+		{"step": "owner_onboarding_started", "count": owner_started, "conversion": "100.0%"},
 		{
-			"step": "2. phone_verified",
-			"count": verified,
-			"conversion": f"{(verified / started * 100):.1f}%" if started else "0%",
+			"step": "phone_verified",
+			"count": owner_phone_verified,
+			"conversion": f"{(owner_phone_verified / max(1, owner_started) * 100):.1f}%",
 		},
 		{
-			"step": "3. company_created",
-			"count": created,
-			"conversion": f"{(created / verified * 100):.1f}%" if verified else "0%",
+			"step": "profile_completed",
+			"count": owner_profile,
+			"conversion": f"{(owner_profile / max(1, owner_phone_verified) * 100):.1f}%",
 		},
 		{
-			"step": "4. first_employee_invited",
-			"count": invited,
-			"conversion": f"{(invited / created * 100):.1f}%" if created else "0%",
+			"step": "company_created",
+			"count": owner_company,
+			"conversion": f"{(owner_company / max(1, owner_profile) * 100):.1f}%",
 		},
 		{
-			"step": "5. invite_accepted",
-			"count": accepted,
-			"conversion": f"{(accepted / invited * 100):.1f}%" if invited else "0%",
+			"step": "owner_onboarding_completed",
+			"count": owner_completed,
+			"conversion": f"{(owner_completed / max(1, owner_company) * 100):.1f}%",
 		},
 	]
 
+	invites_created = counts["invite_created"]
+	invites_opened = min(counts["invite_opened"], max(1, invites_created)) if invites_created else 0
+	emp_verified = min(counts["phone_verified"], max(1, invites_opened)) if invites_opened else 0
+	invites_accepted = min(counts["invite_accepted"], max(1, emp_verified)) if emp_verified else 0
+	emp_completed = min(counts["onboarding_completed"], max(1, invites_accepted)) if invites_accepted else 0
+
+	employee_funnel = [
+		{"step": "invites_created", "count": invites_created, "conversion": "100.0%"},
+		{
+			"step": "invites_opened",
+			"count": invites_opened,
+			"conversion": f"{(invites_opened / max(1, invites_created) * 100):.1f}%",
+		},
+		{
+			"step": "phone_verified",
+			"count": emp_verified,
+			"conversion": f"{(emp_verified / max(1, invites_opened) * 100):.1f}%",
+		},
+		{
+			"step": "invites_accepted",
+			"count": invites_accepted,
+			"conversion": f"{(invites_accepted / max(1, emp_verified) * 100):.1f}%",
+		},
+		{
+			"step": "employee_onboarding_completed",
+			"count": emp_completed,
+			"conversion": f"{(emp_completed / max(1, invites_accepted) * 100):.1f}%",
+		},
+	]
+
+	companies_count = max(1, counts["company_created"])
+	team_activity = {
+		"companies_count": counts["company_created"],
+		"total_invites_created": invites_created,
+		"total_invites_accepted": invites_accepted,
+		"invites_created_per_company": round(invites_created / companies_count, 2) if counts["company_created"] else 0.0,
+		"accepted_invites_per_company": round(invites_accepted / companies_count, 2) if counts["company_created"] else 0.0,
+		"overall_acceptance_rate": f"{(invites_accepted / max(1, invites_created) * 100):.1f}%" if invites_created else "0.0%",
+	}
+
 	return {
 		"raw_counts": counts,
-		"funnel": funnel_steps,
+		"owner_funnel": owner_funnel,
+		"employee_invite_funnel": employee_funnel,
+		"team_activity": team_activity,
 	}

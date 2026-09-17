@@ -300,6 +300,9 @@ class TestOnboardingUsabilityGate(IntegrationTestCase):
 		self.assertGreaterEqual(raw["company_created"], 1)
 		self.assertGreaterEqual(raw["invite_created"], 1)
 		self.assertGreaterEqual(raw["invite_accepted"], 1)
+		self.assertIn("owner_funnel", funnel_data)
+		self.assertIn("employee_invite_funnel", funnel_data)
+		self.assertIn("team_activity", funnel_data)
 
 		# Check for security: ensure no raw tokens or OTP passwords in content
 		logs = frappe.get_all("Activity Log", fields=["content"], limit=50)

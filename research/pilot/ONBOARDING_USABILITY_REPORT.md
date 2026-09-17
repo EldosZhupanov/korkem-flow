@@ -1,12 +1,18 @@
-# KORKEM Flow v2: Onboarding Usability Gate Report (Pilot P1)
+# KORKEM Flow v2: Production Onboarding Functional & Security Gate Report
+
+> [!NOTE] Classification & Scope
+> This report documents the **PRODUCTION ONBOARDING FUNCTIONAL & SECURITY GATE** executed via automated production API suites.
+> - **What it proves:** Production endpoints work, invite lifecycle works, OTP/account flow is functional, RBAC is backend-enforced, revocation works, role change works, analytics events work, invite context is preserved, and zero manual database intervention is required.
+> - **What it does NOT prove:** Whether a human owner can understand onboarding, whether a human employee can complete onboarding without questions, actual human completion time, or actual UX confusion/drop-off rate.
+> - **Human Usability Evidence:** Documented in [HUMAN_ONBOARDING_USABILITY_REPORT.md](file:///home/eldos/furniture_ai/research/pilot/HUMAN_ONBOARDING_USABILITY_REPORT.md).
 
 ## Executive Summary
-An end-to-end **Onboarding Usability Gate** was executed against the production environment (`https://api.korkem.asia` and `https://korkem.asia`) on **September 17, 2026**.
+An automated **Production Onboarding Functional & Security Gate** was executed against the live production environment (`https://api.korkem.asia` and `https://korkem.asia`) on **September 17, 2026**.
 
-The test protocol evaluated whether a furniture workshop owner and their craftsmen can independently onboard, establish company identity, invite staff, and operate workstation modules without developer assistance or manual database intervention.
+The test protocol mechanically verified that all backend endpoints, data mutations, cryptographic tokens, role bindings, and security boundaries function without error.
 
-### Gate Verdict: **GO**
-All 8 verification scenarios passed successfully on production. Zero developer interventions were required.
+### Gate Verdict: **GO (Functional & Security)**
+All 8 automated verification scenarios passed successfully on production. Zero manual database interventions were required.
 
 ---
 
