@@ -1,0 +1,98 @@
+{
+  "test_1_owner_clean_device": {
+    "passed": true,
+    "time_to_phone_verified_sec": 1.06,
+    "time_to_company_created_sec": 4.78,
+    "total_onboarding_time_sec": 5.37,
+    "initials": "АМ",
+    "setup_progress": 25,
+    "number_of_questions": 0,
+    "number_of_errors": 0,
+    "developer_help_required": false
+  },
+  "test_2_employee_invitation": {
+    "passed": true,
+    "time_to_invite_sent_sec": 0.47,
+    "invite_url": "https://korkem.asia/join/_A04oK_asAXpIx-US8HjrBxnC7UKzKZSWlzqJt47wus",
+    "short_code": "00001",
+    "whatsapp_sharing_ready": true,
+    "questions_errors": 0
+  },
+  "test_3_employee_uninstalled": {
+    "passed": true,
+    "invite_context_recovered": true,
+    "company_name": "Алма Мебель 1789662091_363",
+    "role_title": "Оператор раскроя",
+    "landing_route": "/workstations/Раскрой",
+    "manual_selection_required": false,
+    "time_to_joined_sec": 0.62
+  },
+  "test_4_existing_user": {
+    "passed": true,
+    "duplicate_user_avoided": true,
+    "replay_rejected": true,
+    "revocation_enforced": true
+  },
+  "test_5_real_rbac": {
+    "passed": true,
+    "cutting_operator_blocked_from_invitations": true,
+    "cutting_operator_blocked_from_deactivation": true,
+    "cutting_operator_blocked_from_position_change": true
+  },
+  "test_6_employee_removal": {
+    "passed": true,
+    "employee_disabled": true,
+    "sessions_closed": 1,
+    "subsequent_mutations_blocked": true
+  },
+  "test_7_role_change": {
+    "passed": true,
+    "new_position": "assembler",
+    "assigned_roles": [
+      "Manufacturing User",
+      "Stock User"
+    ]
+  },
+  "test_8_analytics_funnel": {
+    "passed": true,
+    "raw_counts": {
+      "onboarding_started": 2,
+      "phone_verified": 1,
+      "profile_completed": 1,
+      "company_created": 1,
+      "invite_created": 3,
+      "invite_opened": 1,
+      "invite_accepted": 2,
+      "onboarding_completed": 3
+    },
+    "funnel_steps": [
+      {
+        "step": "1. started",
+        "count": 2,
+        "conversion": "100%"
+      },
+      {
+        "step": "2. phone_verified",
+        "count": 1,
+        "conversion": "50.0%"
+      },
+      {
+        "step": "3. company_created",
+        "count": 1,
+        "conversion": "100.0%"
+      },
+      {
+        "step": "4. first_employee_invited",
+        "count": 3,
+        "conversion": "300.0%"
+      },
+      {
+        "step": "5. invite_accepted",
+        "count": 2,
+        "conversion": "66.7%"
+      }
+    ],
+    "secrets_redacted": true
+  },
+  "verdict": "GO"
+}

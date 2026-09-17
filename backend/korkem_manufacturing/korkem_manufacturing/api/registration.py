@@ -45,3 +45,9 @@ def verify_otp(phone: str, code: str, session_id: str = "") -> dict:
 def get_initials(name: str) -> dict:
 	"""Generate company initials avatar letters."""
 	return {"initials": service.get_initials(name)}
+
+
+# Aliases for client API convenience
+request_phone_otp = request_otp
+verify_phone_otp = verify_otp
+register_owner_company = register
