@@ -78,3 +78,10 @@ api-keys/
 
 # Reference repositories for temporary architectural inspection
 .references/
+
+# Release binary archives (served externally or locally via object storage)
+*.apk
+*.aab
+*.zip
+*.tar.gz
+*.tsbuildinfo

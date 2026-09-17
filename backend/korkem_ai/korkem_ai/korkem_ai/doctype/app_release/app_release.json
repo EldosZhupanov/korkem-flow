@@ -21,7 +21,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Платформа",
-   "options": "Android\nWindows",
+   "options": "Android\nWindows\nLinux",
    "reqd": 1
   },
   {

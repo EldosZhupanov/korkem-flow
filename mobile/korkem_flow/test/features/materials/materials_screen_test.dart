@@ -234,7 +234,9 @@ void main() {
         ).called(1);
 
         // 2. Фильтр цвета «Дерево» (wood)
-        await tester.tap(find.byKey(const ValueKey('filter:color:wood')));
+        final woodChip = find.byKey(const ValueKey('filter:color:wood'));
+        await tester.ensureVisible(woodChip);
+        await tester.tap(woodChip);
         await tester.pumpAndSettle();
 
         verify(
@@ -249,7 +251,9 @@ void main() {
         ).called(1);
 
         // 3. Фильтр типа «Плиты» (board)
-        await tester.tap(find.byKey(const ValueKey('filter:board')));
+        final boardChip = find.byKey(const ValueKey('filter:board'));
+        await tester.ensureVisible(boardChip);
+        await tester.tap(boardChip);
         await tester.pumpAndSettle();
 
         verify(

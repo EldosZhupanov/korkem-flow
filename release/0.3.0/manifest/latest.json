@@ -1,0 +1,60 @@
+{
+  "version": "0.3.0",
+  "build_number": 5,
+  "release_date": "2026-09-17",
+  "channels": {
+    "stable": {
+      "version": "0.3.0",
+      "build_number": 5
+    }
+  },
+  "platforms": {
+    "android": {
+      "apk": {
+        "filename": "korkem-flow-0.3.0-android.apk",
+        "alias": "korkem-flow.apk",
+        "url": "/files/korkem-flow.apk",
+        "size_bytes": 68099982,
+        "sha256": "a22a317e4ae6ca08d4f3edc96101f3e96d0f1f71ecbfe54553b5d2a7f3ab59aa",
+        "min_sdk": 21,
+        "target_sdk": 35
+      },
+      "aab": {
+        "filename": "korkem-flow-0.3.0-android.aab",
+        "size_bytes": 65715416,
+        "sha256": "3069a9d994a0cb99efb98c5dc6dffdc5786cf0eadc8ddc87168f645cc0a50f60"
+      }
+    },
+    "windows": {
+      "zip": {
+        "filename": "korkem-flow-0.3.0-windows-x64.zip",
+        "alias": "korkem-flow-windows-x64.zip",
+        "url": "/files/korkem-flow-windows-x64.zip",
+        "size_bytes": 30617591,
+        "sha256": "5a66e395d265b34def79f0c3f9562767f0a60764793055ed93ea0a9f8aafb295",
+        "arch": "x64",
+        "format": "portable_zip"
+      }
+    },
+    "linux": {
+      "tar_gz": {
+        "filename": "korkem-flow-0.3.0-linux-x64.tar.gz",
+        "alias": "korkem-flow-linux-x64.tar.gz",
+        "url": "/files/korkem-flow-linux-x64.tar.gz",
+        "size_bytes": 29109606,
+        "sha256": "bef4acfe319bd7097a17430098743e4cdd3b62b5875a7c055c2336fa8933e26e",
+        "arch": "x64",
+        "format": "tar.gz"
+      }
+    },
+    "ios": {
+      "status": "in_preparation",
+      "pwa_ready": true,
+      "pwa_url": "/app",
+      "testflight_notes": "iOS Runner configured in mobile/korkem_flow/ios, awaiting Apple Developer signing credentials."
+    }
+  },
+  "release_notes": {
+    "ru": "Релиз KORKEM Flow v0.3.0: сквозной цикл мебельного производства, деловые остатки (Offcuts), сдельная оплата (Piece-work), расширенная интеграция со статусами Sales Order и синхронизация авансов."
+  }
+}

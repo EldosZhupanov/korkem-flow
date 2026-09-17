@@ -177,15 +177,36 @@ class _Header extends ConsumerWidget {
     final transaction = order.transactionDate;
     final delivery = order.deliveryDate;
 
+    final advance = order.advancePaid;
+    final balance = (order.grandTotal - advance).clamp(0.0, double.infinity);
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: StatusChip(
-              label: order.status.label(l10n),
-              intent: order.status.intent,
+            child: Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
+              children: [
+                StatusChip(
+                  label: (order.korkemState?.isNotEmpty ?? false)
+                      ? order.korkemState!
+                      : order.status.label(l10n),
+                  intent: order.status.intent,
+                ),
+                if (advance > 0)
+                  StatusChip(
+                    label: 'Оплачено: ${money.format(advance)}',
+                    intent: StatusIntent.success,
+                  ),
+                if (balance > 0 && advance > 0)
+                  StatusChip(
+                    label: 'Остаток: ${money.format(balance)}',
+                    intent: StatusIntent.warning,
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: AppSpacing.md),

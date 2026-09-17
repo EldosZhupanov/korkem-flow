@@ -17,6 +17,8 @@ SALES_ORDER_FIELDS = (
 	"delivery_date",
 	"grand_total",
 	"per_delivered",
+	"korkem_state",
+	"advance_paid",
 )
 WORK_ORDER_FIELDS = (
 	"name",

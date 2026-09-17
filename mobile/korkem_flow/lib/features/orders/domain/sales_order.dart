@@ -12,6 +12,8 @@ class SalesOrder {
     this.deliveryDate,
     this.grandTotal = 0,
     this.perDelivered = 0,
+    this.korkemState,
+    this.advancePaid = 0,
   });
 
   factory SalesOrder.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,8 @@ class SalesOrder {
       deliveryDate: _date(json['delivery_date']),
       grandTotal: _number(json['grand_total']) ?? 0,
       perDelivered: _number(json['per_delivered']) ?? 0,
+      korkemState: _text(json['korkem_state']),
+      advancePaid: _number(json['advance_paid']) ?? 0,
     );
   }
 
@@ -33,6 +37,8 @@ class SalesOrder {
   final DateTime? deliveryDate;
   final double grandTotal;
   final double perDelivered;
+  final String? korkemState;
+  final double advancePaid;
 
   /// Progress of delivery in 0.0–1.0 range.
   double get deliveryProgress => (perDelivered / 100.0).clamp(0.0, 1.0);

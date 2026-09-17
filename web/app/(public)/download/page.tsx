@@ -23,7 +23,7 @@ export default function DownloadPage() {
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center mb-16">
           <Badge variant="outline" className="mb-4 border-primary/30 text-primary">
-            Центр загрузок KORKEM
+            Центр загрузок KORKEM • Версия 0.3.0 (Сборка 5)
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
             Скачайте приложения для всех ваших устройств
@@ -34,89 +34,168 @@ export default function DownloadPage() {
         </div>
 
         {/* Primary Download Platforms */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {/* Android Card */}
-          <div className="rounded-2xl border-2 border-emerald-500/30 bg-card p-6 sm:p-8 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
-              Релиз 2026
-            </div>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                <Smartphone className="h-7 w-7" />
+          <div className="rounded-2xl border-2 border-emerald-500/30 bg-card p-6 sm:p-7 shadow-sm relative overflow-hidden flex flex-col justify-between">
+            <div>
+              <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                Релиз 0.3.0
               </div>
-              <div>
-                <h3 className="text-2xl font-bold text-foreground">Android</h3>
-                <p className="text-xs text-muted-foreground">Смартфоны и планшеты мастеров и замерщиков</p>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                  <Smartphone className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Android</h3>
+                  <p className="text-xs text-muted-foreground">Смартфоны и планшеты цеха</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                APK-пакет для смартфонов и планшетов (Android 8.0+). Поддерживает замеры, фотофиксацию, отметку операций Job Card и автообновление.
+              </p>
+
+              <div className="space-y-1.5 mb-6 rounded-xl bg-muted/40 p-3 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Версия:</span>
+                  <span className="font-semibold text-foreground">0.3.0 (Сборка 5)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Размер файла:</span>
+                  <span className="font-semibold text-foreground">68.1 МБ</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Формат:</span>
+                  <span className="font-semibold text-foreground">APK / AAB</span>
+                </div>
               </div>
             </div>
 
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-              Универсальный установочный пакет APK для любых моделей смартфонов (Samsung, Xiaomi, Huawei, Honor, Oppo, Realme). Поддерживает замеры, фотофиксацию и офлайн-режим.
-            </p>
-
-            <div className="space-y-2 mb-6 rounded-xl bg-muted/40 p-4 text-xs">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Версия:</span>
-                <span className="font-semibold text-foreground">v0.3.0 Release</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Размер файла:</span>
-                <span className="font-semibold text-foreground">~68.0 МБ</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Требования:</span>
-                <span className="font-semibold text-foreground">Android 8.0 или выше</span>
-              </div>
-            </div>
-
-            <Button size="lg" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2 h-12 text-base font-semibold shadow-md" asChild>
+            <Button size="lg" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2 h-11 text-sm font-semibold shadow-md" asChild>
               <a href="/files/korkem-flow.apk" download="korkem-flow.apk">
-                <Download className="h-5 w-5" />
-                <span>Скачать APK для Android (68 МБ)</span>
+                <Download className="h-4 w-4" />
+                <span>Скачать APK (68.1 МБ)</span>
               </a>
             </Button>
           </div>
 
           {/* Windows Desktop Card */}
-          <div className="rounded-2xl border-2 border-blue-500/30 bg-card p-6 sm:p-8 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
-              Десктоп Релиз
-            </div>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-14 w-14 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
-                <Laptop className="h-7 w-7" />
+          <div className="rounded-2xl border-2 border-blue-500/30 bg-card p-6 sm:p-7 shadow-sm relative overflow-hidden flex flex-col justify-between">
+            <div>
+              <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                Windows x64
               </div>
-              <div>
-                <h3 className="text-2xl font-bold text-foreground">Windows x64</h3>
-                <p className="text-xs text-muted-foreground">Рабочие места технологов и конструкторов</p>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-12 w-12 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                  <Laptop className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Windows</h3>
+                  <p className="text-xs text-muted-foreground">Рабочие места конструкторов</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                Портативный ZIP-архив для Windows 10 / 11 (64-бит). Не требует установки: распакуйте и запустите <code className="bg-muted px-1 py-0.5 rounded">korkem_flow.exe</code>.
+              </p>
+
+              <div className="space-y-1.5 mb-6 rounded-xl bg-muted/40 p-3 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Версия:</span>
+                  <span className="font-semibold text-foreground">0.3.0 (Сборка 5)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Размер архива:</span>
+                  <span className="font-semibold text-foreground">30.6 МБ</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Формат:</span>
+                  <span className="font-semibold text-foreground">Portable ZIP</span>
+                </div>
               </div>
             </div>
 
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-              Портативное десктопное приложение для 64-битных систем Windows. Высокая скорость расчетов карт раскроя, прямой экспорт управляющих программ для станков с ЧПУ.
-            </p>
-
-            <div className="space-y-2 mb-6 rounded-xl bg-muted/40 p-4 text-xs">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Версия:</span>
-                <span className="font-semibold text-foreground">v0.3.0 Desktop</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Размер архива:</span>
-                <span className="font-semibold text-foreground">~30.6 МБ</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Требования:</span>
-                <span className="font-semibold text-foreground">Windows 10 / 11 (64-bit)</span>
-              </div>
-            </div>
-
-            <Button size="lg" className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 h-12 text-base font-semibold shadow-md" asChild>
+            <Button size="lg" className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 text-sm font-semibold shadow-md" asChild>
               <a href="/files/korkem-flow-windows-x64.zip" download="korkem-flow-windows-x64.zip">
-                <Download className="h-5 w-5" />
+                <Download className="h-4 w-4" />
                 <span>Скачать для Windows (30.6 МБ)</span>
               </a>
             </Button>
+          </div>
+
+          {/* Linux Desktop Card */}
+          <div className="rounded-2xl border-2 border-indigo-500/30 bg-card p-6 sm:p-7 shadow-sm relative overflow-hidden flex flex-col justify-between">
+            <div>
+              <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                Linux x64
+              </div>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                  <Laptop className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Linux</h3>
+                  <p className="text-xs text-muted-foreground">Ubuntu, Debian, Fedora x64</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                Автономный tar.gz бандл для рабочих станций Linux x64 с поддержкой GTK3/OpenGL и ускоренной обработкой карт раскроя.
+              </p>
+
+              <div className="space-y-1.5 mb-6 rounded-xl bg-muted/40 p-3 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Версия:</span>
+                  <span className="font-semibold text-foreground">0.3.0 (Сборка 5)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Размер архива:</span>
+                  <span className="font-semibold text-foreground">29.1 МБ</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Формат:</span>
+                  <span className="font-semibold text-foreground">tar.gz</span>
+                </div>
+              </div>
+            </div>
+
+            <Button size="lg" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white gap-2 h-11 text-sm font-semibold shadow-md" asChild>
+              <a href="/files/korkem-flow-linux-x64.tar.gz" download="korkem-flow-linux-x64.tar.gz">
+                <Download className="h-4 w-4" />
+                <span>Скачать для Linux (29.1 МБ)</span>
+              </a>
+            </Button>
+          </div>
+        </div>
+
+        {/* Release Verification & Checksums */}
+        <div className="rounded-xl border border-border/80 bg-muted/30 p-4 mb-12 flex flex-wrap items-center justify-between gap-4 text-xs">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-emerald-500" />
+            <span className="font-medium text-foreground">
+              Все бинарные сборки подписаны и проверены контрольными суммами SHA-256.
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <a 
+              href="/downloads/SHA256SUMS.txt" 
+              target="_blank" 
+              rel="noreferrer"
+              className="text-primary hover:underline font-semibold flex items-center gap-1"
+            >
+              <span>SHA256SUMS.txt</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+            <span className="text-muted-foreground">•</span>
+            <a 
+              href="/downloads/latest.json" 
+              target="_blank" 
+              rel="noreferrer"
+              className="text-primary hover:underline font-semibold flex items-center gap-1"
+            >
+              <span>Манифест latest.json</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
         </div>
 
@@ -130,15 +209,15 @@ export default function DownloadPage() {
               </div>
               <div>
                 <h4 className="text-lg font-bold text-foreground">Apple iPhone & iPad</h4>
-                <p className="text-xs text-muted-foreground">PWA и Мобильный веб-клиент</p>
+                <p className="text-xs text-muted-foreground">TestFlight (скоро) и Веб-приложение (PWA)</p>
               </div>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-              Полнофункциональная веб-версия оптимизирована под сенсорные экраны iOS. Вы можете мгновенно установить приложение на главный экран без App Store:
+              Нативная сборка iOS Runner готова к публикации в Apple Developer Program. Прямо сейчас на iPhone доступна быстрая установка веб-приложения:
             </p>
             <ol className="list-decimal list-inside space-y-1.5 text-xs text-foreground bg-muted/30 p-3 rounded-lg">
-              <li>Откройте сайт <span className="font-semibold">korkem.asia</span> в Safari на вашем iPhone.</li>
-              <li>Нажмите кнопку «Поделиться» (иконка квадрата со стрелкой вверх).</li>
+              <li>Откройте <span className="font-semibold">korkem.localhost</span> (или адрес вашего цеха) в Safari.</li>
+              <li>Нажмите кнопку «Поделиться» (квадрат со стрелкой вверх).</li>
               <li>Выберите «На экран «Домой»» (Add to Home Screen).</li>
             </ol>
           </div>
@@ -155,7 +234,7 @@ export default function DownloadPage() {
               </div>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-              На компьютерах Apple с чипами M1/M2/M3/M4 и Intel веб-кабинет KORKEM работает с максимальной скоростью в Safari, Chrome и Arc:
+              На компьютерах Apple с чипами Apple Silicon (M1–M4) и Intel веб-кабинет KORKEM работает на полной скорости в Safari, Chrome и Arc:
             </p>
             <div className="space-y-2">
               <Button variant="outline" size="sm" className="w-full justify-between" asChild>
@@ -165,7 +244,7 @@ export default function DownloadPage() {
                 </Link>
               </Button>
               <p className="text-[11px] text-muted-foreground">
-                В браузере Chrome доступна опция "Установить приложение KORKEM", создающая отдельное нативное окно в Dock.
+                В браузере Chrome доступна опция "Установить приложение KORKEM", создающая нативное окно в Dock.
               </p>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/time/clock.dart';
@@ -134,6 +135,13 @@ void main() {
     WidgetTester tester, {
     List<WorkOrder> jobs = const [],
   }) async {
+    tester.view.physicalSize = const Size(1200, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     when(() => workOrders.fetchForDeal(any())).thenAnswer((_) async => jobs);
 
     await tester.pumpWidget(
