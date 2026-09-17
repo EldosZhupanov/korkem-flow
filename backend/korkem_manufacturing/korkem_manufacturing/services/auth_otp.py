@@ -84,6 +84,9 @@ def request_otp(phone: str) -> dict:
 	session_id = secrets.token_hex(16)
 	frappe.cache.set_value(f"otp_session:{session_id}", clean_phone, expires_in_sec=OTP_EXPIRY_SECONDS)
 
+	from korkem_manufacturing.services import analytics
+	analytics.track_event("onboarding_started", properties={"phone": clean_phone})
+
 	return {
 		"status": "ok",
 		"phone": clean_phone,
@@ -123,6 +126,9 @@ def verify_otp(phone: str, code: str, session_id: str = "") -> dict:
 
 	# Generate verification token
 	verification_token = mint_verification_token(clean_phone)
+
+	from korkem_manufacturing.services import analytics
+	analytics.track_event("phone_verified", properties={"phone": clean_phone})
 
 	return {
 		"status": "ok",

@@ -284,6 +284,15 @@ def create_invitation(
 
 	_audit(company, f"token:{doc.name}", canonical_role)
 
+	from korkem_manufacturing.services import analytics
+	analytics.track_event(
+		"invite_created",
+		company=company,
+		properties={"role": canonical_role, "invitation_id": doc.name},
+		reference_doctype="Company Invitation",
+		reference_name=doc.name,
+	)
+
 	return {
 		"status": "ok",
 		"invitation_id": doc.name,
@@ -371,6 +380,14 @@ def get_invitation_info(token: str) -> dict:
 	company_name = invite.company
 	company_logo = frappe.db.get_value("Company", company_name, "company_logo")
 	inviter_name = frappe.db.get_value("User", invite.invited_by, "full_name") or invite.invited_by
+	from korkem_manufacturing.services import analytics
+	analytics.track_event(
+		"invite_opened",
+		company=company_name,
+		properties={"role": canonical_role, "invitation_id": invite.name},
+		reference_doctype="Company Invitation",
+		reference_name=invite.name,
+	)
 
 	return {
 		"valid": True,
@@ -442,12 +459,16 @@ def accept_invitation(
 	meta = CANONICAL_ROLES.get(canonical_role, CANONICAL_ROLES["CUTTING_OPERATOR"])
 	target_roles = list(meta["roles"])
 
-	# Determine user email
+	# Determine user email: reuse existing user by phone if present
 	user_email = (email or "").strip().lower()
 	if not user_email:
-		# Synthetic email for phone-based identity
-		phone_digits = "".join(c for c in clean_phone if c.isdigit())
-		user_email = f"user_{phone_digits}@korkem.user"
+		existing_by_phone = frappe.db.get_value("User", {"mobile_no": clean_phone}, "name")
+		if existing_by_phone:
+			user_email = existing_by_phone
+		else:
+			# Synthetic email for phone-based identity
+			phone_digits = "".join(c for c in clean_phone if c.isdigit())
+			user_email = f"user_{phone_digits}@korkem.user"
 
 	first_name, _, last_name = full_name.partition(" ")
 	if not first_name:
@@ -519,6 +540,23 @@ def accept_invitation(
 		)
 
 		_audit(invite.company, user_email, canonical_role)
+
+		from korkem_manufacturing.services import analytics
+		analytics.track_event(
+			"invite_accepted",
+			user=user_email,
+			company=invite.company,
+			properties={"role": canonical_role, "invitation_id": invite.name},
+			reference_doctype="Company Invitation",
+			reference_name=invite.name,
+		)
+		analytics.track_event(
+			"onboarding_completed",
+			user=user_email,
+			company=invite.company,
+			properties={"role": canonical_role},
+		)
+
 		frappe.db.commit()
 
 		return {

@@ -161,6 +161,11 @@ def register_company(
 
 		initials = get_initials(company_name)
 
+		from korkem_manufacturing.services import analytics
+		analytics.track_event("profile_completed", user=email, company=company_name, properties={"phone": phone, "has_logo": bool(logo_url)})
+		analytics.track_event("company_created", user=email, company=company_name, properties={"company": company_name})
+		analytics.track_event("onboarding_completed", user=email, company=company_name, properties={"role": "OWNER"})
+
 		return {
 			"status": "ok",
 			"email": email,
