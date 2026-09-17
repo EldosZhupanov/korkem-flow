@@ -3058,6 +3058,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateInstall => 'Update';
 
   @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateNow => 'Update Now';
+
+  @override
+  String get updateDialogTitle => 'KORKEM Flow Update';
+
+  @override
+  String updateBuildLabel(String version, int build) {
+    return 'Version $version (build $build)';
+  }
+
+  @override
+  String get updateNotesTitle => 'What\'s New:';
+
+  @override
+  String get updateDownloading => 'Downloading update...';
+
+  @override
+  String get updateCheckButton => 'Check for updates';
+
+  @override
+  String get updateUpToDate => 'Latest version is installed';
+
+  @override
+  String get updateOpenBrowser => 'Open in browser';
+
+  @override
+  String get updateInstallSystemPrompt =>
+      'The system installer will open after the download completes.';
+
+  @override
   String get aiCascadeTitle => 'Order of asking';
 
   @override

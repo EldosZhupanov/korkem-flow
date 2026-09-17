@@ -14,8 +14,8 @@
         "filename": "korkem-flow-0.3.0-android.apk",
         "alias": "korkem-flow.apk",
         "url": "/files/korkem-flow.apk",
-        "size_bytes": 68248158,
-        "sha256": "58282fd2544b8e0938fa1906ee546d802953110e7c6ca34712e88990a62ddc20",
+        "size_bytes": 68264542,
+        "sha256": "d25c6980ce07cf8c8f696c1923d8c5af458ccb6f95687f32d79ded2ad9fcafd4",
         "min_sdk": 21,
         "target_sdk": 35
       },

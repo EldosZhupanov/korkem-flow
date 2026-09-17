@@ -5421,6 +5421,66 @@ abstract class AppLocalizations {
   /// **'Update'**
   String get updateInstall;
 
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Now'**
+  String get updateNow;
+
+  /// No description provided for @updateDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'KORKEM Flow Update'**
+  String get updateDialogTitle;
+
+  /// No description provided for @updateBuildLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} (build {build})'**
+  String updateBuildLabel(String version, int build);
+
+  /// No description provided for @updateNotesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s New:'**
+  String get updateNotesTitle;
+
+  /// No description provided for @updateDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading update...'**
+  String get updateDownloading;
+
+  /// No description provided for @updateCheckButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get updateCheckButton;
+
+  /// No description provided for @updateUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest version is installed'**
+  String get updateUpToDate;
+
+  /// No description provided for @updateOpenBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get updateOpenBrowser;
+
+  /// No description provided for @updateInstallSystemPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'The system installer will open after the download completes.'**
+  String get updateInstallSystemPrompt;
+
   /// No description provided for @aiCascadeTitle.
   ///
   /// In en, this message translates to:

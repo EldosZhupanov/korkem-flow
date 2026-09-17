@@ -3082,6 +3082,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateInstall => 'Обновить';
 
   @override
+  String get updateLater => 'Позже';
+
+  @override
+  String get updateNow => 'Обновить сейчас';
+
+  @override
+  String get updateDialogTitle => 'Обновление KORKEM Flow';
+
+  @override
+  String updateBuildLabel(String version, int build) {
+    return 'Версия $version (сборка $build)';
+  }
+
+  @override
+  String get updateNotesTitle => 'Что нового:';
+
+  @override
+  String get updateDownloading => 'Загрузка обновления...';
+
+  @override
+  String get updateCheckButton => 'Проверить обновления';
+
+  @override
+  String get updateUpToDate => 'У вас установлена последняя версия';
+
+  @override
+  String get updateOpenBrowser => 'Скачать через браузер';
+
+  @override
+  String get updateInstallSystemPrompt =>
+      'После загрузки откроется установщик системы.';
+
+  @override
   String get aiCascadeTitle => 'Порядок обращения';
 
   @override

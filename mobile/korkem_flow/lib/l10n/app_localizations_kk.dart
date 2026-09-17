@@ -3018,6 +3018,39 @@ class AppLocalizationsKk extends AppLocalizations {
   String get updateInstall => 'Жаңарту';
 
   @override
+  String get updateLater => 'Кейінірек';
+
+  @override
+  String get updateNow => 'Қазір жаңарту';
+
+  @override
+  String get updateDialogTitle => 'KORKEM Flow жаңартуы';
+
+  @override
+  String updateBuildLabel(String version, int build) {
+    return 'Нұсқасы $version ($build-құрастырылым)';
+  }
+
+  @override
+  String get updateNotesTitle => 'Жаңа мүмкіндіктер:';
+
+  @override
+  String get updateDownloading => 'Жаңарту жүктелуде...';
+
+  @override
+  String get updateCheckButton => 'Жаңартуларды тексеру';
+
+  @override
+  String get updateUpToDate => 'Соңғы нұсқасы орнатылған';
+
+  @override
+  String get updateOpenBrowser => 'Браузер арқылы жүктеу';
+
+  @override
+  String get updateInstallSystemPrompt =>
+      'Жүктеу аяқталған соң жүйелік орнатушы ашылады.';
+
+  @override
   String get aiCascadeTitle => 'Сұрау тәртібі';
 
   @override

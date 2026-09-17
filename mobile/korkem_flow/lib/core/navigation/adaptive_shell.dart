@@ -9,6 +9,8 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/navigation/app_shell_scope.dart';
 import 'package:korkem_flow/core/navigation/app_sidebar.dart';
 import 'package:korkem_flow/core/updates/update_banner.dart';
+import 'package:korkem_flow/core/updates/update_controller.dart';
+import 'package:korkem_flow/core/updates/update_dialog.dart';
 
 /// Top-level chrome: a drawer on a phone, a permanent panel on a wide screen.
 ///
@@ -35,11 +37,22 @@ class _AdaptiveShellState extends ConsumerState<AdaptiveShell>
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _drawerOpen = false;
+  bool _updatePrompted = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final updateState = ref.read(updateControllerProvider);
+      if (updateState.available != null &&
+          !updateState.dismissed &&
+          !_updatePrompted) {
+        _updatePrompted = true;
+        unawaited(showUpdateConfirmationDialog(context));
+      }
+    });
   }
 
   @override
@@ -56,10 +69,23 @@ class _AdaptiveShellState extends ConsumerState<AdaptiveShell>
           .read(mutationOutboxProvider)
           .retryPending(ref.read(frappeClientProvider)),
     );
+    unawaited(ref.read(updateControllerProvider.notifier).check());
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<UpdateState>(updateControllerProvider, (previous, next) {
+      if (next.available != null &&
+          !next.dismissed &&
+          !_updatePrompted) {
+        _updatePrompted = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            unawaited(showUpdateConfirmationDialog(context));
+          }
+        });
+      }
+    });
     // Both dimensions, and the height is not a formality.
     //
     // A tablet at 768 has room for a permanent panel and a conversation column

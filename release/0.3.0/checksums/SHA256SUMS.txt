@@ -1,8 +1,8 @@
 # KORKEM Flow v0.3.0 (Build 6) — SHA-256 Checksums
 # Generated: 2026-09-17T22:27:00+05:00
 
-58282fd2544b8e0938fa1906ee546d802953110e7c6ca34712e88990a62ddc20  korkem-flow-0.3.0-android.apk
-58282fd2544b8e0938fa1906ee546d802953110e7c6ca34712e88990a62ddc20  korkem-flow.apk
+d25c6980ce07cf8c8f696c1923d8c5af458ccb6f95687f32d79ded2ad9fcafd4  korkem-flow-0.3.0-android.apk
+d25c6980ce07cf8c8f696c1923d8c5af458ccb6f95687f32d79ded2ad9fcafd4  korkem-flow.apk
 3069a9d994a0cb99efb98c5dc6dffdc5786cf0eadc8ddc87168f645cc0a50f60  korkem-flow-0.3.0-android.aab
 5a66e395d265b34def79f0c3f9562767f0a60764793055ed93ea0a9f8aafb295  korkem-flow-0.3.0-windows-x64.zip
 5a66e395d265b34def79f0c3f9562767f0a60764793055ed93ea0a9f8aafb295  korkem-flow-windows-x64.zip

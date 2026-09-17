@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
@@ -11,6 +14,8 @@ import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
+import 'package:korkem_flow/core/updates/update_controller.dart';
+import 'package:korkem_flow/core/updates/update_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Display preferences and connection details.
@@ -26,6 +31,7 @@ class SettingsScreen extends ConsumerWidget {
     final settings = ref.watch(settingsControllerProvider);
     final config = ref.watch(appConfigProvider);
     final session = ref.watch(sessionProvider).value;
+    final updateState = ref.watch(updateControllerProvider);
 
     return AppScreen(
       title: l10n.settingsTitle,
@@ -125,8 +131,68 @@ class SettingsScreen extends ConsumerWidget {
                 InfoRow(
                   icon: AppIcons.info,
                   label: l10n.profileVersion,
-                  value: '${config.flavor} · 0.1.0',
+                  value: '${config.flavor} · '
+                      '${updateState.currentVersion ?? "0.3.0"} '
+                      '(${updateState.currentBuild ?? 6})',
                 ),
+                const Divider(height: AppSpacing.xl),
+                if (updateState.hasUpdate) ...[
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(AppIcons.down, color: AppColors.forest),
+                    title: Text(
+                      l10n.updateAvailable(updateState.available!.version),
+                    ),
+                    subtitle: Text(
+                      l10n.updateBuildLabel(
+                        updateState.available!.version,
+                        updateState.available!.build,
+                      ),
+                    ),
+                    trailing: FilledButton(
+                      onPressed: () =>
+                          unawaited(showUpdateConfirmationDialog(context)),
+                      child: Text(l10n.updateInstall),
+                    ),
+                  ),
+                ] else ...[
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(AppIcons.refresh),
+                    title: Text(l10n.updateCheckButton),
+                    subtitle: Text(l10n.updateUpToDate),
+                    trailing: updateState.isChecking
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : TextButton(
+                            onPressed: () async {
+                              await ref
+                                  .read(updateControllerProvider.notifier)
+                                  .check(force: true);
+                              if (context.mounted) {
+                                final current =
+                                    ref.read(updateControllerProvider);
+                                if (current.hasUpdate) {
+                                  unawaited(
+                                    showUpdateConfirmationDialog(context),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(l10n.updateUpToDate),
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            child: Text(l10n.updateCheckButton),
+                          ),
+                  ),
+                ],
               ],
             ),
           ),
