@@ -216,7 +216,7 @@ export default function DownloadPage() {
               Нативная сборка iOS Runner готова к публикации в Apple Developer Program. Прямо сейчас на iPhone доступна быстрая установка веб-приложения:
             </p>
             <ol className="list-decimal list-inside space-y-1.5 text-xs text-foreground bg-muted/30 p-3 rounded-lg">
-              <li>Откройте <span className="font-semibold">korkem.localhost</span> (или адрес вашего цеха) в Safari.</li>
+              <li>Откройте сайт <span className="font-semibold">korkem.asia</span> в Safari на вашем iPhone.</li>
               <li>Нажмите кнопку «Поделиться» (квадрат со стрелкой вверх).</li>
               <li>Выберите «На экран «Домой»» (Add to Home Screen).</li>
             </ol>
