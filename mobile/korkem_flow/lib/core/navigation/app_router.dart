@@ -9,6 +9,7 @@ import 'package:korkem_flow/features/admin_stats/presentation/admin_stats_screen
 import 'package:korkem_flow/features/ai_settings/presentation/ai_settings_screen.dart';
 import 'package:korkem_flow/features/approvals/presentation/approvals_screen.dart';
 import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
+import 'package:korkem_flow/features/auth/presentation/join_invite_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/login_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/register_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
@@ -50,6 +51,37 @@ abstract final class Routes {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
+  static const join = '/join/:token';
+  static String joinUrl(String token) => '/join/$token';
+
+  /// Target route based on canonical role.
+  static String routeForRole(String role) {
+    switch (role.toUpperCase()) {
+      case 'CUTTING_OPERATOR':
+        return '/workstations/Раскрой';
+      case 'EDGEBANDING_OPERATOR':
+        return '/workstations/Кромкооблицовка';
+      case 'CNC_OPERATOR':
+        return '/workstations/ЧПУ';
+      case 'ASSEMBLER':
+        return '/workstations/Сборка';
+      case 'MEASURER':
+        return tasks;
+      case 'DESIGNER_TECHNOLOGIST':
+        return bazisImport;
+      case 'PRODUCTION_MANAGER':
+        return orders;
+      case 'DRIVER':
+        return deliveryCentre;
+      case 'ACCOUNTANT':
+        return today;
+      case 'OWNER':
+      case 'ADMIN':
+      default:
+        return dashboard;
+    }
+  }
+
   static const claim = '/claim';
   static const adminStats = '/admin-stats';
   static const team = '/team';
@@ -149,19 +181,21 @@ GoRouter createRouter(Ref ref) {
       }
 
       final signedIn = session.value?.isAuthenticated ?? false;
+      final isJoin = location.startsWith('/join');
       final atEntry =
           location == Routes.splash ||
           location == Routes.login ||
           location == Routes.register ||
-          location == Routes.claim;
+          location == Routes.claim ||
+          isJoin;
 
       if (!signedIn) {
-        if (location == Routes.claim || location == Routes.register) {
+        if (location == Routes.claim || location == Routes.register || isJoin) {
           return null;
         }
         return atEntry ? Routes.login : Routes.login;
       }
-      return atEntry ? Routes.chat : null;
+      return atEntry && !isJoin ? Routes.chat : null;
     },
     routes: [
       GoRoute(
@@ -175,6 +209,12 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.register,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/join/:token',
+        builder: (context, state) => JoinInviteScreen(
+          token: state.pathParameters['token'] ?? '',
+        ),
       ),
       GoRoute(
         path: Routes.claim,

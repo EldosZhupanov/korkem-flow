@@ -339,4 +339,197 @@ export const korkemApi = {
   async reactivateMember(email: string): Promise<{ status: string }> {
     return this.reactivateStaff(email);
   },
+
+  // Invitations & Onboarding
+  async getInvitationInfo(token: string): Promise<{
+    valid: boolean;
+    invitation_id?: string;
+    company_name?: string;
+    company_logo?: string;
+    role_name?: string;
+    role_title_ru?: string;
+    role_title_kz?: string;
+    desc_ru?: string;
+    desc_kz?: string;
+    landing_route?: string;
+    invited_by?: string;
+    phone?: string;
+    expires_at?: string;
+    short_code?: string;
+    status?: string;
+    error?: string;
+  }> {
+    return request(
+      `/api/method/korkem_manufacturing.api.invitations.get_info?token=${encodeURIComponent(token)}`
+    );
+  },
+
+  async acceptInvitation(params: {
+    token: string;
+    phone: string;
+    full_name: string;
+    email?: string;
+    password?: string;
+  }): Promise<{
+    status: string;
+    user: string;
+    phone: string;
+    full_name: string;
+    company: string;
+    role_name: string;
+    role_title_ru: string;
+    role_title_kz: string;
+    landing_route: string;
+    message: string;
+  }> {
+    return request(
+      '/api/method/korkem_manufacturing.api.invitations.accept',
+      {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }
+    );
+  },
+
+  async createInvitation(params: {
+    role_name: string;
+    phone?: string;
+    max_uses?: number;
+    expires_days?: number;
+    company?: string;
+  }): Promise<{
+    status: string;
+    invitation_id: string;
+    token: string;
+    invite_url: string;
+    short_code: string;
+    company: string;
+    role_name: string;
+    role_title_ru: string;
+    role_title_kz: string;
+    landing_route: string;
+    expires_at: string;
+    share_text_kz: string;
+    share_text_ru: string;
+    whatsapp_url_kz: string;
+    whatsapp_url_ru: string;
+    telegram_url_kz: string;
+    telegram_url_ru: string;
+  }> {
+    return request(
+      '/api/method/korkem_manufacturing.api.invitations.create',
+      {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }
+    );
+  },
+
+  async revokeInvitation(invitation_id: string): Promise<{ status: string }> {
+    return request(
+      '/api/method/korkem_manufacturing.api.invitations.revoke',
+      {
+        method: 'POST',
+        body: JSON.stringify({ invitation_id }),
+      }
+    );
+  },
+
+  async resendInvitation(invitation_id: string): Promise<{
+    status: string;
+    invitation_id: string;
+    token: string;
+    invite_url: string;
+    role_name: string;
+    role_title_ru: string;
+    role_title_kz: string;
+    share_text_kz: string;
+    share_text_ru: string;
+    whatsapp_url_kz: string;
+    whatsapp_url_ru: string;
+    telegram_url_kz: string;
+    telegram_url_ru: string;
+  }> {
+    return request(
+      '/api/method/korkem_manufacturing.api.invitations.resend',
+      {
+        method: 'POST',
+        body: JSON.stringify({ invitation_id }),
+      }
+    );
+  },
+
+  async changeInvitationRole(invitation_id: string, new_role: string): Promise<{ status: string }> {
+    return request(
+      '/api/method/korkem_manufacturing.api.invitations.change_role',
+      {
+        method: 'POST',
+        body: JSON.stringify({ invitation_id, new_role }),
+      }
+    );
+  },
+
+  async listInvitations(company?: string): Promise<Array<{
+    id: string;
+    role_name: string;
+    role_title_ru: string;
+    role_title_kz: string;
+    invited_by: string;
+    phone: string;
+    expires_at: string;
+    status: string;
+    created_at: string;
+    accepted_at?: string;
+    accepted_by?: string;
+  }>> {
+    const query = company ? `?company=${encodeURIComponent(company)}` : '';
+    const res = await request<any>(`/api/method/korkem_manufacturing.api.invitations.list_all${query}`);
+    return Array.isArray(res) ? res : [];
+  },
+
+  async getCanonicalRoles(): Promise<Array<{
+    key: string;
+    title_ru: string;
+    title_kz: string;
+    desc_ru: string;
+    desc_kz: string;
+    landing_route: string;
+    roles: string[];
+  }>> {
+    const res = await request<any>('/api/method/korkem_manufacturing.api.invitations.canonical_roles');
+    return Array.isArray(res) ? res : [];
+  },
+
+  async requestOtp(phone: string): Promise<{
+    status: string;
+    phone: string;
+    session_id: string;
+    expires_in: number;
+    dev_code?: string;
+    message: string;
+  }> {
+    return request(
+      '/api/method/korkem_manufacturing.api.registration.request_otp',
+      {
+        method: 'POST',
+        body: JSON.stringify({ phone }),
+      }
+    );
+  },
+
+  async verifyOtp(phone: string, code: string, session_id?: string): Promise<{
+    status: string;
+    verified: boolean;
+    phone: string;
+    verification_token: string;
+    message: string;
+  }> {
+    return request(
+      '/api/method/korkem_manufacturing.api.registration.verify_otp',
+      {
+        method: 'POST',
+        body: JSON.stringify({ phone, code, session_id }),
+      }
+    );
+  },
 };

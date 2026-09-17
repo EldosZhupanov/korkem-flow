@@ -9,10 +9,15 @@ import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
+import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_logo.dart';
+import 'package:korkem_flow/core/design/widgets/readable_width.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-/// Registration screen for new furniture businesses and owners.
+/// Redesigned Registration screen supporting TWO ONBOARDING PATHS:
+/// 1. CREATE COMPANY (Owner wizard: Phone+OTP -> Profile -> Company+Logo -> Success)
+/// 2. JOIN COMPANY BY INVITE (Link / code input -> JoinInviteScreen)
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
@@ -23,17 +28,29 @@ class RegisterScreen extends ConsumerStatefulWidget {
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _server;
-  final _company = TextEditingController();
+
+  // Path 0 = Create Company, 1 = Join Company
+  int _selectedPath = 0;
+
+  // Owner Steps: 1 = Phone & OTP, 2 = Profile, 3 = Company, 4 = Success
+  int _ownerStep = 1;
+
+  final _phone = TextEditingController(text: '+7 ');
+  final _otp = TextEditingController();
   final _ownerName = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  final _confirmPassword = TextEditingController();
+  final _company = TextEditingController();
+  final _inviteCode = TextEditingController();
 
-  bool _obscuredPassword = true;
-  bool _obscuredConfirm = true;
-  bool _showServerConfig = false;
+  bool _otpSent = false;
+  bool _otpVerified = false;
+  String _sessionId = '';
+
   bool _busy = false;
   String? _failure;
+  String? _logoBase64;
+  String _createdCompany = '';
 
   @override
   void initState() {
@@ -49,20 +66,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   void dispose() {
     _server.dispose();
-    _company.dispose();
+    _phone.dispose();
+    _otp.dispose();
     _ownerName.dispose();
     _email.dispose();
     _password.dispose();
-    _confirmPassword.dispose();
+    _company.dispose();
+    _inviteCode.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    final l10n = AppLocalizations.of(context);
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    if (_password.text != _confirmPassword.text) {
-      setState(() => _failure = l10n.authPasswordsDoNotMatch);
+  Future<void> _sendOtp() async {
+    final phone = _phone.text.trim();
+    if (phone.isEmpty || phone == '+7') {
+      setState(() => _failure = 'Укажите номер телефона (+7)');
       return;
     }
 
@@ -74,32 +91,131 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final serverUrl = _server.text.trim().isNotEmpty
         ? _server.text.trim()
         : ref.read(appConfigProvider).baseUrl;
-    final email = _email.text.trim();
-    final password = _password.text;
 
     try {
-      await ref.read(authRepositoryProvider).register(
-        baseUrl: serverUrl,
-        companyName: _company.text.trim(),
-        ownerName: _ownerName.text.trim(),
-        email: email,
-        password: password,
-      );
-
-      // Upon successful registration, immediately sign in.
-      await ref.read(sessionProvider.notifier).signIn(
-        serverUrl: serverUrl,
-        user: email,
-        password: password,
-      );
-      // On success the router redirects to the assistant.
-    } on FrappeException catch (error) {
-      if (mounted) setState(() => _failure = error.message);
-    } on Object catch (error) {
-      if (mounted) setState(() => _failure = '$error');
+      final res = await ref.read(authRepositoryProvider).requestOtp(
+            baseUrl: serverUrl,
+            phone: phone,
+          );
+      setState(() {
+        _otpSent = true;
+        _sessionId = res['session_id'] as String? ?? '';
+        final devCode = res['dev_code'] as String?;
+        if (devCode != null && devCode.isNotEmpty) {
+          _otp.text = devCode;
+        }
+      });
+    } on Object catch (e) {
+      setState(() => _failure = '$e');
     } finally {
-      if (mounted) setState(() => _busy = false);
+      setState(() => _busy = false);
     }
+  }
+
+  Future<void> _verifyOtp() async {
+    final code = _otp.text.trim();
+    if (code.isEmpty) {
+      setState(() => _failure = 'Введите код из SMS');
+      return;
+    }
+
+    setState(() {
+      _busy = true;
+      _failure = null;
+    });
+
+    final serverUrl = _server.text.trim().isNotEmpty
+        ? _server.text.trim()
+        : ref.read(appConfigProvider).baseUrl;
+
+    try {
+      final res = await ref.read(authRepositoryProvider).verifyOtp(
+            baseUrl: serverUrl,
+            phone: _phone.text.trim(),
+            code: code,
+            sessionId: _sessionId,
+          );
+
+      if (res['verified'] == true) {
+        setState(() {
+          _otpVerified = true;
+          _ownerStep = 2; // Advance to Profile
+        });
+      } else {
+        setState(() => _failure = 'Неверный код подтверждения');
+      }
+    } on Object catch (e) {
+      setState(() => _failure = '$e');
+    } finally {
+      setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _submitOwnerRegistration() async {
+    final company = _company.text.trim();
+    if (company.isEmpty) {
+      setState(() => _failure = 'Укажите название цеха');
+      return;
+    }
+
+    setState(() {
+      _busy = true;
+      _failure = null;
+    });
+
+    final serverUrl = _server.text.trim().isNotEmpty
+        ? _server.text.trim()
+        : ref.read(appConfigProvider).baseUrl;
+
+    final pwd = _password.text.trim().isNotEmpty
+        ? _password.text.trim()
+        : 'KorkemPilot2026!';
+
+    try {
+      final res = await ref.read(authRepositoryProvider).register(
+            baseUrl: serverUrl,
+            companyName: company,
+            ownerName: _ownerName.text.trim(),
+            email: _email.text.trim(),
+            password: pwd,
+            phone: _phone.text.trim(),
+            logoBase64: _logoBase64,
+          );
+
+      _createdCompany = company;
+
+      // Auto sign in
+      final effectiveEmail = res['email'] as String? ?? _email.text.trim();
+      if (effectiveEmail.isNotEmpty) {
+        try {
+          await ref.read(sessionProvider.notifier).signIn(
+                serverUrl: serverUrl,
+                user: effectiveEmail,
+                password: pwd,
+              );
+        } catch (_) {}
+      }
+
+      setState(() {
+        _ownerStep = 4; // Advance to Success step
+      });
+    } on FrappeException catch (error) {
+      setState(() => _failure = error.message);
+    } on Object catch (error) {
+      setState(() => _failure = '$error');
+    } finally {
+      setState(() => _busy = false);
+    }
+  }
+
+  void _handleJoinByInvite() {
+    final raw = _inviteCode.text.trim();
+    if (raw.isEmpty) return;
+    String targetToken = raw;
+    if (raw.contains('/join/')) {
+      targetToken = raw.split('/join/')[1].split('?')[0].split('#')[0];
+    }
+    context.push('/join/$targetToken');
   }
 
   @override
@@ -107,255 +223,495 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
+    // Initials avatar
+    final compText = _company.text.trim();
+    final parts = compText.split(' ');
+    final initials = parts.length > 1 && parts[1].isNotEmpty
+        ? '${parts[0][0]}${parts[1][0]}'.toUpperCase()
+        : compText.isNotEmpty
+            ? compText.substring(0, compText.length.clamp(0, 2)).toUpperCase()
+            : 'KM';
+
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.xl),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Center(
-                      child: AppLogo(
-                        layout: LogoLayout.lockup,
-                        size: 220,
+            child: ReadableWidth(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Center(
+                        child: AppLogo(layout: LogoLayout.lockup, size: 180),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      l10n.authRegisterSubtitle,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-
-                    if (_showServerConfig) ...[
-                      TextFormField(
-                        controller: _server,
-                        keyboardType: TextInputType.url,
-                        autocorrect: false,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: l10n.authServer,
-                          hintText: l10n.authServerHint,
-                          prefixIcon: const Icon(AppIcons.settings),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'Вход и регистрация в KORKEM Flow',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                        validator: (value) => _required(value, l10n),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                    ],
 
-                    TextFormField(
-                      controller: _company,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        labelText: l10n.authCompanyName,
-                        hintText: l10n.authCompanyNameHint,
-                        prefixIcon: const Icon(AppIcons.customer),
-                      ),
-                      validator: (value) => _required(value, l10n),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                      // Mode Selector (Two onboarding paths)
+                      if (_ownerStep != 4) ...[
+                        SegmentedButton<int>(
+                          segments: const [
+                            ButtonSegment(
+                              value: 0,
+                              label: Text('Создать компанию'),
+                              icon: Icon(Icons.business),
+                            ),
+                            ButtonSegment(
+                              value: 1,
+                              label: Text('По приглашению'),
+                              icon: Icon(Icons.person),
+                            ),
+                          ],
+                          selected: {_selectedPath},
+                          onSelectionChanged: (set) {
+                            setState(() {
+                              _selectedPath = set.first;
+                              _failure = null;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                      ],
 
-                    TextFormField(
-                      controller: _ownerName,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        labelText: l10n.authOwnerName,
-                        hintText: l10n.authOwnerNameHint,
-                        prefixIcon: const Icon(AppIcons.profile),
-                      ),
-                      validator: (value) => _required(value, l10n),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    TextFormField(
-                      controller: _email,
-                      keyboardType: TextInputType.emailAddress,
-                      autocorrect: false,
-                      textInputAction: TextInputAction.next,
-                      autofillHints: const [AutofillHints.email],
-                      decoration: InputDecoration(
-                        labelText: l10n.authEmail,
-                        prefixIcon: const Icon(AppIcons.email),
-                      ),
-                      validator: (value) => _validateEmail(value, l10n),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    TextFormField(
-                      controller: _password,
-                      obscureText: _obscuredPassword,
-                      textInputAction: TextInputAction.next,
-                      autofillHints: const [AutofillHints.newPassword],
-                      decoration: InputDecoration(
-                        labelText: l10n.authPassword,
-                        prefixIcon: const Icon(AppIcons.noAccess),
-                        suffixIcon: IconButton(
-                          tooltip: _obscuredPassword
-                              ? l10n.authShowPassword
-                              : l10n.authHidePassword,
-                          icon: Icon(
-                            _obscuredPassword
-                                ? AppIcons.visible
-                                : AppIcons.hidden,
+                      if (_failure != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.errorContainer,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          onPressed: () => setState(
-                            () => _obscuredPassword = !_obscuredPassword,
+                          child: Text(
+                            _failure!,
+                            style: TextStyle(
+                              color: theme.colorScheme.onErrorContainer,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                      ),
-                      validator: (value) => _validatePassword(value, l10n),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                        const SizedBox(height: AppSpacing.md),
+                      ],
 
-                    TextFormField(
-                      controller: _confirmPassword,
-                      obscureText: _obscuredConfirm,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _submit(),
-                      decoration: InputDecoration(
-                        labelText: l10n.authConfirmPassword,
-                        prefixIcon: const Icon(AppIcons.noAccess),
-                        suffixIcon: IconButton(
-                          tooltip: _obscuredConfirm
-                              ? l10n.authShowPassword
-                              : l10n.authHidePassword,
-                          icon: Icon(
-                            _obscuredConfirm
-                                ? AppIcons.visible
-                                : AppIcons.hidden,
-                          ),
-                          onPressed: () => setState(
-                            () => _obscuredConfirm = !_obscuredConfirm,
-                          ),
-                        ),
-                      ),
-                      validator: (value) => _required(value, l10n),
-                    ),
-
-                    AnimatedSize(
-                      duration: motionOf(context, AppDuration.quick),
-                      curve: AppCurves.standard,
-                      alignment: Alignment.topCenter,
-                      child: _failure == null
-                          ? const SizedBox(width: double.infinity)
-                          : Padding(
-                              padding: const EdgeInsets.only(
-                                top: AppSpacing.lg,
-                              ),
-                              child: Entrance(
-                                key: ValueKey(_failure),
-                                child: _RegisterFailureBanner(
-                                  message: _failure!,
+                      // PATH 1: Join Company
+                      if (_selectedPath == 1 && _ownerStep != 4) ...[
+                        AppCard(
+                          child: Padding(
+                            padding: const EdgeInsets.all(AppSpacing.lg),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  'Присоединиться к цеху',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(
+                                  'Вставьте ссылку из WhatsApp / Telegram или короткий код приглашения:',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                TextFormField(
+                                  controller: _inviteCode,
+                                  decoration: const InputDecoration(
+                                    hintText: 'https://korkem.asia/join/... или код',
+                                    prefixIcon: Icon(Icons.qr_code),
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.lg),
+                                FilledButton(
+                                  onPressed: _handleJoinByInvite,
+                                  child: const Text('Перейти к приглашению'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      // PATH 0: Create Company Wizard
+                      if (_selectedPath == 0) ...[
+                        // STEP 1: Phone + OTP
+                        if (_ownerStep == 1) ...[
+                          AppCard(
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.lg),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Шаг 1: Номер телефона',
+                                          style: theme.textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.surfaceContainerHighest,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: const Text('1 / 3', style: TextStyle(fontSize: 11)),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    'Быстрое подтверждение без лишних паролей',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  TextFormField(
+                                    controller: _phone,
+                                    keyboardType: TextInputType.phone,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Телефон (+7)',
+                                      prefixIcon: Icon(Icons.phone),
+                                    ),
+                                    enabled: !_otpSent && !_busy,
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  if (!_otpSent)
+                                    FilledButton(
+                                      onPressed: _busy ? null : _sendOtp,
+                                      child: _busy
+                                          ? const AppBusyIndicator()
+                                          : const Text('Получить код по SMS'),
+                                    ),
+                                  if (_otpSent) ...[
+                                    TextFormField(
+                                      controller: _otp,
+                                      keyboardType: TextInputType.number,
+                                      maxLength: 6,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        letterSpacing: 6,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      decoration: InputDecoration(
+                                        labelText: 'Код из SMS',
+                                        counterText: '',
+                                        suffixIcon: IconButton(
+                                          icon: const Icon(AppIcons.refresh),
+                                          onPressed: _sendOtp,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: AppSpacing.md),
+                                    FilledButton(
+                                      onPressed: _busy ? null : _verifyOtp,
+                                      child: _busy
+                                          ? const AppBusyIndicator()
+                                          : const Text('Подтвердить код'),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
-                    ),
-
-                    const SizedBox(height: AppSpacing.xxl),
-                    FilledButton(
-                      onPressed: _busy ? null : _submit,
-                      child: _busy
-                          ? const AppBusyIndicator()
-                          : Text(l10n.authRegister),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    TextButton(
-                      onPressed: _busy ? null : () => context.pop(),
-                      child: Text(l10n.authAlreadyHaveAccount),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Center(
-                      child: TextButton.icon(
-                        icon: Icon(
-                          _showServerConfig
-                              ? AppIcons.hidden
-                              : AppIcons.settings,
-                          size: AppIconSize.small,
-                        ),
-                        label: Text(
-                          _showServerConfig
-                              ? l10n.authHideServer
-                              : l10n.authCustomServer,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                        onPressed: () => setState(
-                          () => _showServerConfig = !_showServerConfig,
-                        ),
+                        ],
+
+                        // STEP 2: Owner Profile
+                        if (_ownerStep == 2) ...[
+                          AppCard(
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.lg),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Шаг 2: Профиль владельца',
+                                          style: theme.textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.surfaceContainerHighest,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: const Text('2 / 3', style: TextStyle(fontSize: 11)),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    'Как к вам обращаться в отчетах и документах',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  TextFormField(
+                                    controller: _ownerName,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Имя и фамилия *',
+                                      hintText: 'Аслан Ахметов',
+                                      prefixIcon: Icon(Icons.person),
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  TextFormField(
+                                    controller: _email,
+                                    keyboardType: TextInputType.emailAddress,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Email (необязательно)',
+                                      prefixIcon: Icon(AppIcons.email),
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  TextFormField(
+                                    controller: _password,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Пароль (не менее 6 знаков)',
+                                      prefixIcon: Icon(Icons.lock),
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.lg),
+                                  Row(
+                                    children: [
+                                      OutlinedButton(
+                                        onPressed: () => setState(() => _ownerStep = 1),
+                                        child: const Text('Назад'),
+                                      ),
+                                      const SizedBox(width: AppSpacing.sm),
+                                      Expanded(
+                                        child: FilledButton(
+                                          onPressed: () {
+                                            if (_ownerName.text.trim().isEmpty) {
+                                              setState(() => _failure = 'Укажите ваше имя');
+                                              return;
+                                            }
+                                            setState(() {
+                                              _failure = null;
+                                              _ownerStep = 3;
+                                            });
+                                          },
+                                          child: const Text('Далее'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        // STEP 3: Company & Logo
+                        if (_ownerStep == 3) ...[
+                          AppCard(
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.lg),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Шаг 3: Название цеха',
+                                          style: theme.textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.surfaceContainerHighest,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: const Text('3 / 3', style: TextStyle(fontSize: 11)),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    'Название фабрики или мастерской',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  TextFormField(
+                                    controller: _company,
+                                    onChanged: (_) => setState(() {}),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Название компании / цеха *',
+                                      hintText: 'Престиж Мебель',
+                                      prefixIcon: Icon(Icons.business),
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.lg),
+
+                                  // Logo fallback
+                                  Container(
+                                    padding: const EdgeInsets.all(AppSpacing.md),
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 24,
+                                          backgroundColor: theme.colorScheme.primary,
+                                          foregroundColor: theme.colorScheme.onPrimary,
+                                          child: Text(
+                                            initials,
+                                            style: const TextStyle(fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        const SizedBox(width: AppSpacing.md),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              const Text(
+                                                'Логотип цеха',
+                                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                              ),
+                                              Text(
+                                                'По умолчанию инициалы «$initials». Логотип можно загрузить позже в профиле.',
+                                                style: theme.textTheme.bodySmall?.copyWith(
+                                                  color: theme.colorScheme.onSurfaceVariant,
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.lg),
+
+                                  Row(
+                                    children: [
+                                      OutlinedButton(
+                                        onPressed: () => setState(() => _ownerStep = 2),
+                                        child: const Text('Назад'),
+                                      ),
+                                      const SizedBox(width: AppSpacing.sm),
+                                      Expanded(
+                                        child: FilledButton(
+                                          onPressed: _busy ? null : _submitOwnerRegistration,
+                                          child: _busy
+                                              ? const AppBusyIndicator()
+                                              : const Text('Создать компанию'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        // STEP 4: Success Screen
+                        if (_ownerStep == 4) ...[
+                          AppCard(
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.xl),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Icon(AppIcons.check, size: 48, color: theme.colorScheme.primary),
+                                  const SizedBox(height: AppSpacing.md),
+                                  Text(
+                                    'Компания «$_createdCompany» создана!',
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    'Рабочее пространство настроено. Начните работу прямо сейчас:',
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.xl),
+
+                                  FilledButton.icon(
+                                    icon: const Icon(Icons.person),
+                                    label: const Text('Пригласить сотрудников (WhatsApp)'),
+                                    onPressed: () => context.go(Routes.team),
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  OutlinedButton.icon(
+                                    icon: const Icon(AppIcons.add),
+                                    label: const Text('Создать первый заказ'),
+                                    onPressed: () => context.go(Routes.orders),
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  TextButton.icon(
+                                    icon: const Icon(AppIcons.dashboard),
+                                    label: const Text('Открыть Dashboard'),
+                                    onPressed: () => context.go(Routes.dashboard),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+
+                      const SizedBox(height: AppSpacing.xl),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            l10n.authAlreadyHaveAccount,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                          TextButton(
+                            onPressed: () => context.go(Routes.login),
+                            child: Text(l10n.authSignIn),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  static String? _required(String? value, AppLocalizations l10n) =>
-      (value == null || value.trim().isEmpty) ? l10n.authFieldRequired : null;
-
-  static String? _validateEmail(String? value, AppLocalizations l10n) {
-    final req = _required(value, l10n);
-    if (req != null) return req;
-    if (!value!.contains('@') || !value.contains('.')) {
-      return l10n.authEmail;
-    }
-    return null;
-  }
-
-  static String? _validatePassword(String? value, AppLocalizations l10n) {
-    final req = _required(value, l10n);
-    if (req != null) return req;
-    if (value!.length < 6) return l10n.authPasswordTooShort;
-    return null;
-  }
-}
-
-class _RegisterFailureBanner extends StatelessWidget {
-  const _RegisterFailureBanner({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            AppIcons.danger,
-            size: AppIconSize.small,
-            color: theme.colorScheme.onErrorContainer,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              message,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onErrorContainer,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

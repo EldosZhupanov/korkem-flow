@@ -17,6 +17,7 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/dashboard/application/dashboard_controller.dart';
 import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/features/dashboard/presentation/attention_hero.dart';
+import 'package:korkem_flow/features/dashboard/presentation/company_setup_progress_widget.dart';
 import 'package:korkem_flow/features/dashboard/presentation/workload_bar.dart';
 import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -83,9 +84,16 @@ class _Body extends StatelessWidget {
     final pending = _metric(DashboardSummary.pendingActions);
     final needsYou = (overdue ?? 0) + (pending ?? 0) > 0;
 
+    final totalOrders = (_metric(DashboardSummary.openDeals) ?? 0) +
+        (_metric(DashboardSummary.workOrdersInProgress) ?? 0);
+
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
+        if (!isLoading)
+          CompanySetupProgressWidget(
+            hasOrders: totalOrders > 0,
+          ),
         // What needs you comes first. The screen used to open with six equal
         // tiles and put the actionable list below them, so the two facts that
         // actually stop work — an overdue task, a decision an agent is blocked

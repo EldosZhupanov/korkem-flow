@@ -18,17 +18,105 @@ class AuthRepository {
   static const _whoAmIPath = '/api/method/frappe.auth.get_logged_user';
   static const _registerPath =
       '/api/method/korkem_manufacturing.api.registration.register';
+  static const _requestOtpPath =
+      '/api/method/korkem_manufacturing.api.registration.request_otp';
+  static const _verifyOtpPath =
+      '/api/method/korkem_manufacturing.api.registration.verify_otp';
+  static const _inviteInfoPath =
+      '/api/method/korkem_manufacturing.api.invitations.get_info';
+  static const _acceptInvitePath =
+      '/api/method/korkem_manufacturing.api.invitations.accept';
 
   final Dio _dio;
 
+  /// Requests a 4-digit OTP code for phone verification.
+  Future<Map<String, dynamic>> requestOtp({
+    required String baseUrl,
+    required String phone,
+  }) async {
+    try {
+      final response = await _dio.postUri<Map<String, dynamic>>(
+        _uri(baseUrl, _requestOtpPath),
+        data: {'phone': phone.trim()},
+      );
+      return (response.data?['message'] as Map<String, dynamic>?) ?? {};
+    } on DioException catch (error) {
+      throw FrappeException.fromDio(error);
+    }
+  }
+
+  /// Verifies the submitted OTP code.
+  Future<Map<String, dynamic>> verifyOtp({
+    required String baseUrl,
+    required String phone,
+    required String code,
+    String sessionId = '',
+  }) async {
+    try {
+      final response = await _dio.postUri<Map<String, dynamic>>(
+        _uri(baseUrl, _verifyOtpPath),
+        data: {
+          'phone': phone.trim(),
+          'code': code.trim(),
+          'session_id': sessionId.trim(),
+        },
+      );
+      return (response.data?['message'] as Map<String, dynamic>?) ?? {};
+    } on DioException catch (error) {
+      throw FrappeException.fromDio(error);
+    }
+  }
+
+  /// Fetches context for an invitation token.
+  Future<Map<String, dynamic>> getInvitationInfo({
+    required String baseUrl,
+    required String token,
+  }) async {
+    try {
+      final response = await _dio.getUri<Map<String, dynamic>>(
+        _uri(baseUrl, '$_inviteInfoPath?token=${Uri.encodeComponent(token)}'),
+      );
+      return (response.data?['message'] as Map<String, dynamic>?) ?? {};
+    } on DioException catch (error) {
+      throw FrappeException.fromDio(error);
+    }
+  }
+
+  /// Accepts an invitation, binds to company & role.
+  Future<Map<String, dynamic>> acceptInvitation({
+    required String baseUrl,
+    required String token,
+    required String phone,
+    required String fullName,
+    String email = '',
+    String password = '',
+  }) async {
+    try {
+      final response = await _dio.postUri<Map<String, dynamic>>(
+        _uri(baseUrl, _acceptInvitePath),
+        data: {
+          'token': token.trim(),
+          'phone': phone.trim(),
+          'full_name': fullName.trim(),
+          'email': email.trim(),
+          'password': password,
+        },
+      );
+      return (response.data?['message'] as Map<String, dynamic>?) ?? {};
+    } on DioException catch (error) {
+      throw FrappeException.fromDio(error);
+    }
+  }
+
   /// Registers a new furniture company and its owner account.
-  Future<void> register({
+  Future<Map<String, dynamic>> register({
     required String baseUrl,
     required String companyName,
     required String ownerName,
     required String email,
     required String password,
     String phone = '',
+    String? logoBase64,
   }) async {
     try {
       final response = await _dio.postUri<Map<String, dynamic>>(
@@ -39,6 +127,7 @@ class AuthRepository {
           'email': email.trim(),
           'password': password,
           'phone': phone.trim(),
+          if (logoBase64 != null) 'logo_base64': logoBase64,
         },
       );
       final message = response.data?['message'];
@@ -47,6 +136,7 @@ class AuthRepository {
           message['message'] as String? ?? 'Registration failed.',
         );
       }
+      return (message as Map<String, dynamic>?) ?? {};
     } on DioException catch (error) {
       throw FrappeException.fromDio(error);
     }
