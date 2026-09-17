@@ -1,11 +1,11 @@
 {
   "version": "0.3.0",
-  "build_number": 5,
+  "build_number": 6,
   "release_date": "2026-09-17",
   "channels": {
     "stable": {
       "version": "0.3.0",
-      "build_number": 5
+      "build_number": 6
     }
   },
   "platforms": {
@@ -14,8 +14,8 @@
         "filename": "korkem-flow-0.3.0-android.apk",
         "alias": "korkem-flow.apk",
         "url": "/files/korkem-flow.apk",
-        "size_bytes": 68099982,
-        "sha256": "a22a317e4ae6ca08d4f3edc96101f3e96d0f1f71ecbfe54553b5d2a7f3ab59aa",
+        "size_bytes": 68248158,
+        "sha256": "58282fd2544b8e0938fa1906ee546d802953110e7c6ca34712e88990a62ddc20",
         "min_sdk": 21,
         "target_sdk": 35
       },
@@ -55,6 +55,6 @@
     }
   },
   "release_notes": {
-    "ru": "Релиз KORKEM Flow v0.3.0: сквозной цикл мебельного производства, деловые остатки (Offcuts), сдельная оплата (Piece-work), расширенная интеграция со статусами Sales Order и синхронизация авансов."
+    "ru": "Релиз KORKEM Flow v0.3.0 (Build 6): Нативный онбординг Pilot P1 — 2 сценария входа (создание компании / вход по инвайту), SMS/OTP подтверждение номера Казахстана (+7), безопасные приглашения сотрудников через WhatsApp с авто-определением цеха и роли, ролевые рабочие места и прогрессивный чек-лист цеха."
   }
 }
