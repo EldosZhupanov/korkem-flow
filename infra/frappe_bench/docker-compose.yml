@@ -88,6 +88,7 @@ services:
       KORKEM_ENV: ${KORKEM_ENV:-development}
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+      LAYA_ROUTER_URL: http://laya-router:8001
     volumes:
       - bench-data:/home/frappe
       - ../../frappe:/workspace/vendor/frappe
@@ -117,7 +118,27 @@ services:
       # First boot builds assets and installs four apps; that is not a failure.
       start_period: 900s
 
+  laya-router:
+    build:
+      context: ../../backend/korkem_laya
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
+    environment:
+      - PORT=8001
+      - WORKERS=1
+    volumes:
+      - laya-models:/root/.cache/huggingface
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8001/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
 volumes:
   mariadb-data:
   redis-queue-data:
   bench-data:
+  laya-models:

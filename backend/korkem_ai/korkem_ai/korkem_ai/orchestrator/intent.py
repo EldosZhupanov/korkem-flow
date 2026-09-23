@@ -59,8 +59,47 @@ details they did not state -- use null when something was not mentioned.
 Messages may be in Russian, Kazakh, or English. Classify by meaning, not language."""
 
 
+def classify_with_laya(message: str) -> dict | None:
+	"""Попытка быстрой классификации через локальный микросервис Laya."""
+	import json
+	import os
+	import urllib.request
+	url = os.environ.get("LAYA_ROUTER_URL", "http://laya-router:8001")
+	candidate_urls = [url]
+	if "laya-router" in url:
+		candidate_urls.append("http://127.0.0.1:8001")
+
+	for target in candidate_urls:
+		try:
+			req = urllib.request.Request(
+				f"{target}/v1/intent",
+				data=json.dumps({"message": message}).encode("utf-8"),
+				headers={"Content-Type": "application/json"},
+				method="POST",
+			)
+			with urllib.request.urlopen(req, timeout=1.0) as resp:
+				if resp.status == 200:
+					data = json.loads(resp.read().decode("utf-8"))
+					intent = data.get("intent")
+					if intent in ("order_status", "general_question", "other") and data.get("confidence", 0) > 0.5:
+						return {
+							"intent": intent,
+							"customer_name": None,
+							"product_description": None,
+							"quantity": None,
+						}
+		except Exception:
+			continue
+	return None
+
+
 def classify(message: str, provider=None) -> dict:
 	"""Classify a customer message. Returns the validated intent dict."""
+	if not provider:
+		laya_fast = classify_with_laya(message)
+		if laya_fast:
+			return laya_fast
+
 	provider = provider or llm.get_provider()
 	result = provider.complete_json(
 		system=SYSTEM_PROMPT,

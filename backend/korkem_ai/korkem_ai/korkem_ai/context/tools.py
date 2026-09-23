@@ -35,6 +35,8 @@
 from __future__ import annotations
 
 import json
+import os
+import urllib.request
 
 from korkem_ai.korkem_ai.tools import registry
 
@@ -93,11 +95,35 @@ DOMAIN_WORDS: dict[str, tuple[str, ...]] = {
 ALWAYS = ("profile",)
 
 
+def query_laya_router(question: str) -> dict | None:
+	"""Запрос к локальному System 1 микросервису Laya."""
+	url = os.environ.get("LAYA_ROUTER_URL", "http://laya-router:8001")
+	candidate_urls = [url]
+	if "laya-router" in url:
+		candidate_urls.append("http://127.0.0.1:8001")
+
+	for target in candidate_urls:
+		try:
+			req = urllib.request.Request(
+				f"{target}/v1/route",
+				data=json.dumps({"text": question}).encode("utf-8"),
+				headers={"Content-Type": "application/json"},
+				method="POST",
+			)
+			with urllib.request.urlopen(req, timeout=1.0) as resp:
+				if resp.status == 200:
+					return json.loads(resp.read().decode("utf-8"))
+		except Exception:
+			continue
+	return None
+
+
 def select(question: str) -> tuple[list[str], bool]:
 	"""Области для этого вопроса и признак «слова не узнались».
 
-	Второе значение важнее первого для учёта: по нему видно, как часто мы
-	платим полную цену, и стоит ли расширять словарь.
+	1. Быстрый проход: проверка ключевых корней (0.01 мс).
+	2. Семантический проход: локальный микросервис Laya System 1 (30-50 мс).
+	3. Деградация: показ всех инструментов, если оба прохода не дали результата.
 	"""
 	text = (question or "").lower()
 	hit = {
@@ -105,9 +131,17 @@ def select(question: str) -> tuple[list[str], bool]:
 		for domain, words in DOMAIN_WORDS.items()
 		if any(word in text for word in words)
 	}
-	if not hit:
-		return sorted(DOMAIN_WORDS), True
-	return sorted(hit | set(ALWAYS)), False
+	if hit:
+		return sorted(hit | set(ALWAYS)), False
+
+	# Если ключевые слова не дали совпадения — опрашиваем Laya System 1
+	laya_res = query_laya_router(question)
+	if laya_res and isinstance(laya_res, dict):
+		domain = laya_res.get("domain")
+		if domain and domain in DOMAIN_WORDS and domain != "profile":
+			return sorted({domain} | set(ALWAYS)), False
+
+	return sorted(DOMAIN_WORDS), True
 
 
 def offered(question: str, *, all_specs=None) -> tuple[list, dict]:
