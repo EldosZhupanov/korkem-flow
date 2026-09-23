@@ -144,3 +144,17 @@ class TestTheLoopFollowsThePerson(IntegrationTestCase):
 		self.assertEqual(loop._last_question([]), "")
 		_, info = ctx.offered("", all_specs=CATALOGUE)
 		self.assertTrue(info["unmatched"], "пустой вопрос — это незнакомый вопрос")
+
+	def test_greetings_offer_only_profile_and_no_heavy_tools(self):
+		kept, info = ctx.offered("Привет, кто ты?", all_specs=CATALOGUE)
+		names = {spec.name for spec in kept}
+		self.assertEqual(names, {"profile.current_user"})
+		self.assertFalse(info["unmatched"])
+
+	def test_order_queries_route_to_sales_and_manufacturing(self):
+		kept, info = ctx.offered("где заказ 104?", all_specs=CATALOGUE)
+		names = {spec.name for spec in kept}
+		self.assertIn("sales.invoice", names)
+		self.assertIn("manufacturing.start", names)
+		self.assertNotIn("inventory.stock", names)
+		self.assertFalse(info["unmatched"])

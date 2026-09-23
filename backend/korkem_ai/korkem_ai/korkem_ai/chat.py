@@ -57,7 +57,7 @@ import json
 
 import frappe
 
-from korkem_ai.korkem_ai import budget, errors, usage
+from korkem_ai.korkem_ai import budget, cache, errors, usage
 from korkem_ai.korkem_ai.agent import loop, proposals
 from korkem_ai.korkem_ai.orchestrator import llm, router
 from korkem_ai.korkem_ai.orchestrator.protocol import AIMessage, AIToolCall, AIToolResult
@@ -249,6 +249,42 @@ def run_turn_job(
 
 	publish({"type": "started"})
 
+	# 1. Fast path: check Redis semantic cache for read-only answers
+	if not approved_calls and (not history or len(history) <= 2):
+		cached = cache.get(message)
+		if cached and cached.get("text"):
+			cached_text = cached["text"]
+			publish({"type": "delta", "text": cached_text})
+			publish(
+				{
+					"type": "done",
+					"status": "answered",
+					"text": cached_text,
+					"cached": True,
+					"usage": {
+						"input_tokens": 0,
+						"output_tokens": 0,
+					},
+				}
+			)
+			from korkem_ai.korkem_ai.agent.loop import TurnResult
+			cached_res = TurnResult(
+				status="answered",
+				text=cached_text,
+				usage=usage.AIUsage(input_tokens=0, output_tokens=0),
+			)
+			usage.record_turn(
+				cached_res,
+				adapter=None,
+				provider="Redis Cache",
+				model="semantic-cache",
+				turn_id=turn_id,
+				request_id=request_id,
+				channel="App",
+				user=user,
+			)
+			return
+
 	adapter = None
 	try:
 		messages = _to_messages(history) + [AIMessage.user(message)]
@@ -273,6 +309,14 @@ def run_turn_job(
 		result = loop.run_turn(
 			messages, provider=adapter, on_event=publish, run_id=turn_id
 		)
+
+		# Save read-only turn in Redis cache for instant future retrieval
+		if cache.is_cacheable(result, history):
+			cache.put(
+				message,
+				result.text,
+				executed_tools=[c.get("tool") for c in result.executed if isinstance(c, dict)],
+			)
 	except Exception as exc:
 		code = errors.classify(exc)
 		frappe.log_error(title="AI chat turn failed", message=frappe.get_traceback())
