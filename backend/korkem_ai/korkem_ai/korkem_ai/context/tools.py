@@ -104,13 +104,14 @@ def query_laya_router(question: str) -> dict | None:
 
 	for target in candidate_urls:
 		try:
+			timeout_sec = float(os.environ.get("LAYA_TIMEOUT", "4.0"))
 			req = urllib.request.Request(
 				f"{target}/v1/route",
 				data=json.dumps({"text": question}).encode("utf-8"),
 				headers={"Content-Type": "application/json"},
 				method="POST",
 			)
-			with urllib.request.urlopen(req, timeout=1.0) as resp:
+			with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
 				if resp.status == 200:
 					return json.loads(resp.read().decode("utf-8"))
 		except Exception:
