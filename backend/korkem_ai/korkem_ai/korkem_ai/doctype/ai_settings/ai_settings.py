@@ -49,7 +49,14 @@ class AISettings(Document):
 		# Anthropic is the exception: its SDK also resolves a key from the
 		# environment, so a blank field there is a legitimate configuration.
 		needs_key = self.provider in ("OpenAI", "OpenRouter", "Google Gemini", "OpenAI-compatible")
-		if needs_key and not self.get_password("api_key", raise_exception=False):
+		has_key = bool(self.get_password("api_key", raise_exception=False))
+		if not has_key and frappe.db.exists("AI Provider", self.provider):
+			has_key = bool(
+				frappe.get_doc("AI Provider", self.provider).get_password(
+					"api_key", raise_exception=False
+				)
+			)
+		if needs_key and not has_key:
 			frappe.throw(f"{self.provider} needs an API key")
 
 
@@ -68,7 +75,10 @@ def test_connection() -> dict:
 	frappe.only_for("System Manager")
 
 	settings = llm.get_settings()
-	provider = llm.get_provider(settings)
+	try:
+		provider = llm.resolve(settings.provider, settings.model)
+	except Exception:
+		provider = llm.get_provider(settings)
 
 	try:
 		provider.complete_json(

@@ -187,13 +187,15 @@ _EXCEPTIONS = {
 }
 
 
-def code_for_status(status: int) -> AIErrorCode:
+def code_for_status(status: int, text: str = "") -> AIErrorCode:
 	"""Map a provider's HTTP status onto the taxonomy.
 
 	401/403 and 429 are worth telling apart from everything else because they
 	are the two failures with a specific, different remedy: fix the key, or
 	wait. Every other 4xx/5xx is the provider being unusable right now.
 	"""
+	if text and ("rate_limit" in text.lower() or "tpm" in text.lower()):
+		return AIErrorCode.RATE_LIMITED
 	if status in (401, 403):
 		return AIErrorCode.AUTH_ERROR
 	if status == 404:

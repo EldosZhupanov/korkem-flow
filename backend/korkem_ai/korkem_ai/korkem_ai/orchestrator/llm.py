@@ -90,7 +90,17 @@ DEFAULT_BASE_URLS = {
 }
 
 #: Keys Gemini's schema dialect rejects outright.
-_GEMINI_UNSUPPORTED_SCHEMA_KEYS = ("additionalProperties", "$schema", "definitions", "$defs")
+_GEMINI_UNSUPPORTED_SCHEMA_KEYS = (
+	"additionalProperties",
+	"$schema",
+	"definitions",
+	"$defs",
+	"exclusiveMinimum",
+	"exclusiveMaximum",
+	"minProperties",
+	"maxProperties",
+	"uniqueItems",
+)
 
 
 def strict_schema(schema):
@@ -329,7 +339,7 @@ def _post_json(url: str, headers: dict, payload: dict) -> dict:
 		# for opposite responses from the operator, so the status decides.
 		errors.throw(
 			f"AI provider returned {response.status_code}: {response.text[:500]}",
-			errors.code_for_status(response.status_code),
+			errors.code_for_status(response.status_code, response.text),
 		)
 
 	try:
@@ -350,7 +360,7 @@ def _get_json(url: str, headers: dict) -> dict:
 	if response.status_code >= 400:
 		errors.throw(
 			f"AI provider returned {response.status_code}: {response.text[:500]}",
-			errors.code_for_status(response.status_code),
+			errors.code_for_status(response.status_code, response.text),
 		)
 
 	try:
@@ -380,7 +390,7 @@ def _post_stream(url: str, headers: dict, payload: dict):
 		if response.status_code >= 400:
 			errors.throw(
 				f"AI provider returned {response.status_code}: {response.text[:500]}",
-				errors.code_for_status(response.status_code),
+				errors.code_for_status(response.status_code, response.text),
 			)
 
 		# SSE bodies are UTF-8. `requests` does not know that: RFC 2616 makes
