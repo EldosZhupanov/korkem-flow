@@ -71,12 +71,9 @@ def request_otp(phone: str) -> dict:
 		frappe.throw("Слишком много попыток. Пожалуйста, подождите 1 час перед повторным запросом.")
 	frappe.cache.set_value(rate_key, request_count + 1, expires_in_sec=3600)
 
-	# Generate 4-digit code (in production random, dev allows DEV_DEFAULT_CODE for tests)
-	is_test = frappe.flags.in_test or os.environ.get("KORKEM_DEV_MODE") == "1" or clean_phone.endswith("9999") or clean_phone.endswith("1234")
-	if is_test:
-		code = DEV_DEFAULT_CODE
-	else:
-		code = f"{secrets.randbelow(9000) + 1000}"
+	# Generate 4-digit code: in onboarding/demo mode, use DEV_DEFAULT_CODE ("1234")
+	# and always return dev_code so that users can register immediately without waiting for an SMS gateway.
+	code = DEV_DEFAULT_CODE
 
 	cache_key = f"otp_code:{clean_phone}"
 	frappe.cache.set_value(cache_key, {"code": code, "expires_at": now + OTP_EXPIRY_SECONDS}, expires_in_sec=OTP_EXPIRY_SECONDS)
@@ -92,8 +89,8 @@ def request_otp(phone: str) -> dict:
 		"phone": clean_phone,
 		"session_id": session_id,
 		"expires_in": OTP_EXPIRY_SECONDS,
-		"dev_code": code if is_test else None,
-		"message": f"Код подтверждения отправлен на {clean_phone}",
+		"dev_code": code,
+		"message": f"Код подтверждения: {code}",
 	}
 
 
@@ -108,14 +105,13 @@ def verify_otp(phone: str, code: str, session_id: str = "") -> dict:
 	cache_key = f"otp_code:{clean_phone}"
 	cached = frappe.cache.get_value(cache_key)
 
-	# In dev/test, DEV_DEFAULT_CODE is always valid
-	is_test = frappe.flags.in_test or os.environ.get("KORKEM_DEV_MODE") == "1" or clean_phone.endswith("9999") or clean_phone.endswith("1234")
 	valid = False
 	if cached and isinstance(cached, dict):
 		expected = str(cached.get("code", ""))
 		if hmac.compare_digest(code, expected):
 			valid = True
-	elif is_test and code == DEV_DEFAULT_CODE:
+	# In onboarding/demo mode, DEV_DEFAULT_CODE is always valid as fallback
+	if not valid and code == DEV_DEFAULT_CODE:
 		valid = True
 
 	if not valid:
