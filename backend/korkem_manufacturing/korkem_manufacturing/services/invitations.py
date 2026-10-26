@@ -451,6 +451,15 @@ def accept_invitation(
 	if not clean_phone:
 		frappe.throw("Укажите номер телефона.", frappe.ValidationError)
 
+	# An invitation addressed to a phone belongs to that phone. Without this the
+	# link works for whoever it is forwarded to, which defeats naming the phone.
+	invited_phone = auth_otp.normalize_phone(frappe.db.get_value("Company Invitation", invite.name, "phone") or "")
+	if invited_phone and invited_phone != clean_phone:
+		frappe.throw(
+			"Это приглашение отправлено на другой номер телефона.",
+			frappe.PermissionError,
+		)
+
 	full_name = (full_name or "").strip()
 	if not full_name:
 		frappe.throw("Укажите имя и фамилию.", frappe.ValidationError)
@@ -478,12 +487,20 @@ def accept_invitation(
 	caller = frappe.session.user
 	frappe.set_user("Administrator")
 	try:
-		if frappe.db.exists("User", user_email):
+		is_existing_user = bool(frappe.db.exists("User", user_email))
+		if is_existing_user:
 			user_doc = frappe.get_doc("User", user_email)
-			user_doc.first_name = first_name
-			if last_name:
-				user_doc.last_name = last_name
-			user_doc.mobile_no = clean_phone
+			# An existing account is joined, never taken over. This endpoint is
+			# open to guests and the email is whatever the caller typed, so the
+			# account may well be somebody else's: its name, phone and password
+			# are not the caller's to set. The same person on the same phone is
+			# welcome; anyone else is told to sign in as themselves.
+			if auth_otp.normalize_phone(user_doc.mobile_no or "") != clean_phone:
+				frappe.throw(
+					"Этот email уже принадлежит другому пользователю. "
+					"Войдите в свой аккаунт или укажите другой email.",
+					frappe.PermissionError,
+				)
 			user_doc.enabled = 1
 		else:
 			user_doc = frappe.new_doc("User")
@@ -507,8 +524,9 @@ def accept_invitation(
 
 		user_doc.save(ignore_permissions=True)
 
-		# Set password if provided
-		if password and len(password) >= 6:
+		# A password is chosen once, by whoever creates the account here. An
+		# existing account keeps the password its owner set.
+		if password and len(password) >= 6 and not is_existing_user:
 			from frappe.utils.password import update_password
 			update_password(user_email, password)
 
@@ -694,11 +712,19 @@ def list_invitations(company: str | None = None) -> list[dict]:
 def invite_employee(*, email: str, first_name: str = "", position: str) -> dict:
 	"""Create one company-bound employee with the roles for position (legacy API)."""
 	frappe.only_for("System Manager")
-	canonical_role = normalize_role_name(position)
-	meta = CANONICAL_ROLES.get(canonical_role)
-	roles = meta["roles"] if meta else POSITIONS.get(position.lower().strip())
+	# The direct-invite path grants exactly what `POSITIONS` says, and nothing
+	# else: that dictionary is the list the app shows (`api.invitations.positions`)
+	# and the contract `test_invitations` pins row by row. Routing it through the
+	# canonical link-invitation roles (2026-09-17) silently turned "warehouse"
+	# into a production manager and an unknown word into a cutter. A job the
+	# server does not know is refused by name, never guessed.
+	position = (position or "").strip().lower()
+	roles = POSITIONS.get(position)
 	if not roles:
-		roles = _STANDS_AT_A_MACHINE
+		frappe.throw(
+			f"Неизвестная должность «{position}». Выберите одну из: {', '.join(sorted(POSITIONS))}.",
+			frappe.ValidationError,
+		)
 
 	company = current_company()
 	result = onboarding.create_employee(
@@ -707,8 +733,8 @@ def invite_employee(*, email: str, first_name: str = "", position: str) -> dict:
 		roles=list(roles),
 		company=company,
 	)
-	_audit(company, result["user"], canonical_role)
-	return {**result, "position": canonical_role.lower()}
+	_audit(company, result["user"], position)
+	return {**result, "position": position}
 
 
 def _audit(company: str, invited: str, position: str) -> None:

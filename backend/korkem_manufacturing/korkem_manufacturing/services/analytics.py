@@ -39,6 +39,11 @@ def sanitize_properties(props: dict | None) -> dict:
 		lower_k = str(k).lower()
 		if any(s in lower_k for s in SENSITIVE_KEYS):
 			sanitized[k] = "[REDACTED]"
+		elif "phone" in lower_k and isinstance(v, str):
+			# A funnel needs to know a phone was used, not whose it was. The
+			# Activity Log is readable by every System Manager on the node.
+			digits = "".join(c for c in v if c.isdigit())
+			sanitized[k] = f"***{digits[-2:]}" if digits else ""
 		elif isinstance(v, dict):
 			sanitized[k] = sanitize_properties(v)
 		else:

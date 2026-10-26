@@ -3,8 +3,13 @@
 """OTP (One-Time Password) service for Kazakhstan-friendly phone verification.
 
 Supports format +7 (7XX) XXX-XX-XX, +77XXXXXXXXX, and 87XXXXXXXXX.
-In pilot / development environments, standard dev code or Frappe cache-based codes
-allow frictionless verification while maintaining security invariants.
+
+**The fixed code exists only where nobody real signs in.** On a `development`
+site and inside the test runner the code is always ``DEV_DEFAULT_CODE`` and is
+returned to the caller as ``dev_code``, so a developer can register without an
+SMS gateway. On a `pilot` or `production` site the code is random, is never
+returned, and ``DEV_DEFAULT_CODE`` is an ordinary wrong guess: a code anyone can
+read in the source is not a proof of owning a phone.
 """
 
 from __future__ import annotations
@@ -17,10 +22,22 @@ import secrets
 import time
 import frappe
 
+from korkem_ai.korkem_ai import environment
+
 # Rate limiting settings
 MAX_OTP_PER_HOUR = 10
 OTP_EXPIRY_SECONDS = 300  # 5 minutes
 DEV_DEFAULT_CODE = "1234"
+
+
+def dev_codes_allowed() -> bool:
+	"""Whether the fixed, published development code may be issued and accepted.
+
+	Read through `environment.current()` — the one place that decides what kind
+	of site this is. An unlabelled or mislabelled site reads as production there,
+	so a deployment typo closes this door rather than opening it.
+	"""
+	return bool(frappe.flags.in_test) or environment.current() == environment.DEVELOPMENT
 
 
 def normalize_phone(phone: str) -> str:
@@ -71,9 +88,8 @@ def request_otp(phone: str) -> dict:
 		frappe.throw("Слишком много попыток. Пожалуйста, подождите 1 час перед повторным запросом.")
 	frappe.cache.set_value(rate_key, request_count + 1, expires_in_sec=3600)
 
-	# Generate 4-digit code: in onboarding/demo mode, use DEV_DEFAULT_CODE ("1234")
-	# and always return dev_code so that users can register immediately without waiting for an SMS gateway.
-	code = DEV_DEFAULT_CODE
+	dev = dev_codes_allowed()
+	code = DEV_DEFAULT_CODE if dev else f"{secrets.randbelow(9000) + 1000}"
 
 	cache_key = f"otp_code:{clean_phone}"
 	frappe.cache.set_value(cache_key, {"code": code, "expires_at": now + OTP_EXPIRY_SECONDS}, expires_in_sec=OTP_EXPIRY_SECONDS)
@@ -89,8 +105,8 @@ def request_otp(phone: str) -> dict:
 		"phone": clean_phone,
 		"session_id": session_id,
 		"expires_in": OTP_EXPIRY_SECONDS,
-		"dev_code": code,
-		"message": f"Код подтверждения: {code}",
+		"dev_code": code if dev else None,
+		"message": f"Код подтверждения: {code}" if dev else f"Код подтверждения отправлен на {clean_phone}",
 	}
 
 
@@ -110,8 +126,8 @@ def verify_otp(phone: str, code: str, session_id: str = "") -> dict:
 		expected = str(cached.get("code", ""))
 		if hmac.compare_digest(code, expected):
 			valid = True
-	# In onboarding/demo mode, DEV_DEFAULT_CODE is always valid as fallback
-	if not valid and code == DEV_DEFAULT_CODE:
+	# Only where the fixed code is issued may it stand in for an expired one.
+	if not valid and code == DEV_DEFAULT_CODE and dev_codes_allowed():
 		valid = True
 
 	if not valid:
