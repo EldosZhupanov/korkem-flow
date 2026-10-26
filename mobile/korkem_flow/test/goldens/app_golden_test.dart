@@ -22,8 +22,12 @@ import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/features/deals/application/deals_controller.dart';
 import 'package:korkem_flow/features/deals/domain/deal.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
+import 'package:korkem_flow/features/facade_prices/application/facade_price_controller.dart';
+import 'package:korkem_flow/features/facade_prices/domain/facade_price_table.dart';
 import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/features/notifications/domain/app_notification.dart';
+import 'package:korkem_flow/features/price_visibility/application/price_visibility_controller.dart';
+import 'package:korkem_flow/features/price_visibility/domain/price_visibility.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/quotes/application/quotes_controller.dart';
@@ -330,6 +334,12 @@ Future<void> _pumpApp(
           StatusCatalogRepository.dealStatusDoctype,
         ).overrideWith((ref) => Future<StatusCatalog>.value(_dealStatuses)),
         dashboardControllerProvider.overrideWith(_StubDashboard.new),
+        // Not an administrator: the price switch draws nothing, so the
+        // settings golden is unchanged by its arrival.
+        priceVisibilityControllerProvider.overrideWith(
+          _StubPriceVisibility.new,
+        ),
+        facadePriceControllerProvider.overrideWith(_StubFacadePrices.new),
         approvalsControllerProvider.overrideWith(_StubApprovals.new),
         productionControllerProvider.overrideWith(_StubProduction.new),
         quotesControllerProvider.overrideWith(_StubQuotes.new),
@@ -443,6 +453,21 @@ class _StubSettings extends SettingsController {
 
   @override
   AppSettings build() => _settings;
+}
+
+class _StubFacadePrices extends FacadePriceController {
+  @override
+  Future<FacadePriceTable> build() async =>
+      const FacadePriceTable(finishes: [], prices: [], canEdit: false);
+}
+
+class _StubPriceVisibility extends PriceVisibilityController {
+  @override
+  Future<PriceVisibility> build() async => const PriceVisibility(
+    floorSeesPrices: false,
+    youSeePrices: true,
+    canChange: false,
+  );
 }
 
 class _StubDashboard extends DashboardController {

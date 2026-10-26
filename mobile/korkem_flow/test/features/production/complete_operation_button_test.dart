@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
+import 'package:korkem_flow/features/enquiry_flow/application/image_picker_service.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
 import 'package:korkem_flow/features/production/presentation/complete_operation_button.dart';
@@ -11,6 +15,15 @@ import '../../support/widget_harness.dart';
 
 class _MockProductionCommandRepository extends Mock
     implements ProductionCommandRepository {}
+
+class _FakeCamera implements ImagePickerService {
+  @override
+  Future<XFile?> pickImageFromCamera() async =>
+      XFile.fromData(Uint8List.fromList([1, 2, 3]), name: 'IMG_1.jpg');
+
+  @override
+  Future<List<XFile>> pickMultiImage() async => const [];
+}
 
 const _operation = WorkOrderOperation(
   name: 'WO-OP-00001',
@@ -24,6 +37,8 @@ const _operation = WorkOrderOperation(
 
 void main() {
   late _MockProductionCommandRepository commandRepo;
+
+  setUpAll(() => registerFallbackValue(XFile('')));
 
   setUp(() {
     commandRepo = _MockProductionCommandRepository();
@@ -39,6 +54,7 @@ void main() {
       ProviderScope(
         overrides: [
           productionCommandRepositoryProvider.overrideWithValue(commandRepo),
+          imagePickerServiceProvider.overrideWithValue(_FakeCamera()),
         ],
         child: harness(
           Scaffold(
@@ -209,5 +225,88 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Предыдущая операция ещё не завершена'), findsOneWidget);
+  });
+
+  group('optional defect photo', () {
+    final addPhoto = find.byKey(const ValueKey('defectPhotoAdd'));
+
+    Future<void> enterScrap(WidgetTester tester, String value) async {
+      await tester.tap(find.byType(CompleteOperationButton));
+      await tester.pumpAndSettle();
+      final fields = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextFormField),
+      );
+      await tester.enterText(fields.at(1), value);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('is not offered when nothing was scrapped', (tester) async {
+      await pumpButton(tester);
+      await enterScrap(tester, '0');
+      expect(addPhoto, findsNothing);
+    });
+
+    testWidgets('is sent to the job card the server booked', (tester) async {
+      when(
+        () => commandRepo.completeOperation(
+          workOrder: any(named: 'workOrder'),
+          operation: any(named: 'operation'),
+          qty: any(named: 'qty'),
+          scrapQty: any(named: 'scrapQty'),
+        ),
+      ).thenAnswer(
+        (_) async =>
+            const CompleteOperationResult(status: 'completed', jobCard: 'JC-7'),
+      );
+      when(
+        () => commandRepo.attachDefectPhoto(
+          jobCard: any(named: 'jobCard'),
+          photo: any(named: 'photo'),
+        ),
+      ).thenAnswer((_) async {});
+
+      await pumpButton(tester);
+      await enterScrap(tester, '1');
+      await tester.tap(addPhoto);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('defectPhotoRemove')), findsOneWidget);
+
+      await tester.tap(dialogConfirmButton());
+      await tester.pumpAndSettle();
+
+      verify(
+        () => commandRepo.attachDefectPhoto(
+          jobCard: 'JC-7',
+          photo: any(named: 'photo'),
+        ),
+      ).called(1);
+    });
+
+    testWidgets('a stage booked without a photo sends none', (tester) async {
+      when(
+        () => commandRepo.completeOperation(
+          workOrder: any(named: 'workOrder'),
+          operation: any(named: 'operation'),
+          qty: any(named: 'qty'),
+          scrapQty: any(named: 'scrapQty'),
+        ),
+      ).thenAnswer(
+        (_) async =>
+            const CompleteOperationResult(status: 'completed', jobCard: 'JC-7'),
+      );
+
+      await pumpButton(tester);
+      await enterScrap(tester, '1');
+      await tester.tap(dialogConfirmButton());
+      await tester.pumpAndSettle();
+
+      verifyNever(
+        () => commandRepo.attachDefectPhoto(
+          jobCard: any(named: 'jobCard'),
+          photo: any(named: 'photo'),
+        ),
+      );
+    });
   });
 }

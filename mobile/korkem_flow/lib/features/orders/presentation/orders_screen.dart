@@ -232,12 +232,15 @@ class SalesOrderCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                currencyFormat.format(order.grandTotal),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              if (order.grandTotal case final total?)
+                Text(
+                  currencyFormat.format(total),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                )
+              else
+                const SizedBox.shrink(),
               if (order.perDelivered > 0)
                 Text(
                   l10n.ordersDeliveredProgress(

@@ -10,10 +10,10 @@ class SalesOrder {
     required this.status,
     this.transactionDate,
     this.deliveryDate,
-    this.grandTotal = 0,
+    this.grandTotal,
     this.perDelivered = 0,
     this.korkemState,
-    this.advancePaid = 0,
+    this.advancePaid,
   });
 
   factory SalesOrder.fromJson(Map<String, dynamic> json) {
@@ -23,10 +23,10 @@ class SalesOrder {
       status: SalesOrderStatus.fromWire(json['status'] as String?),
       transactionDate: _date(json['transaction_date']),
       deliveryDate: _date(json['delivery_date']),
-      grandTotal: _number(json['grand_total']) ?? 0,
+      grandTotal: _number(json['grand_total']),
       perDelivered: _number(json['per_delivered']) ?? 0,
       korkemState: _text(json['korkem_state']),
-      advancePaid: _number(json['advance_paid']) ?? 0,
+      advancePaid: _number(json['advance_paid']),
     );
   }
 
@@ -35,10 +35,16 @@ class SalesOrder {
   final SalesOrderStatus status;
   final DateTime? transactionDate;
   final DateTime? deliveryDate;
-  final double grandTotal;
+
+  /// The order's total, or `null` when the server decided this person may
+  /// not see money (see `services/price_visibility.py`). Never shown as 0:
+  /// "hidden" and "free" are different answers.
+  final double? grandTotal;
   final double perDelivered;
   final String? korkemState;
-  final double advancePaid;
+
+  /// Prepayment received so far; `null` when money is hidden, as above.
+  final double? advancePaid;
 
   /// Progress of delivery in 0.0–1.0 range.
   double get deliveryProgress => (perDelivered / 100.0).clamp(0.0, 1.0);

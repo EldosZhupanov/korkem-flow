@@ -3483,4 +3483,144 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get hardwareEmptyFilteredMessage =>
       'Фурнитура түрін, жабу түрін өзгертіп немесе сүзгілерді тазартып көріңіз.';
+
+  @override
+  String get priceVisibilityTitle => 'Цехқа арналған бағалар';
+
+  @override
+  String get priceVisibilitySubtitle =>
+      'Өндіріске, қоймаға және жүргізушілерге клиент бағалары мен тапсырыс сомаларын көрсету';
+
+  @override
+  String get priceVisibilitySaveFailed =>
+      'Сақтау мүмкін болмады. Қайталап көріңіз.';
+
+  @override
+  String get defectPhotoAdd => 'Ақау фотосы (қалауыңызша)';
+
+  @override
+  String get defectPhotoChosen => 'Фото тіркелді';
+
+  @override
+  String get defectPhotoRemove => 'Алып тастау';
+
+  @override
+  String get defectPhotoNotSent =>
+      'Кезең жазылды, бірақ ақау фотосы жіберілмеді.';
+
+  @override
+  String get defectPhotoCameraFailed => 'Камераны ашу мүмкін болмады.';
+
+  @override
+  String get facadePricesTitle => 'Фасад бағалары';
+
+  @override
+  String get facadePricesSubtitle => 'Фрезерлеу мен әрлеу бойынша 1 м² бағасы';
+
+  @override
+  String get facadePricesAddMilling => 'Фрезерлеу қосу';
+
+  @override
+  String get facadePricesMilling => 'Фрезерлеу';
+
+  @override
+  String get facadePricesFinish => 'Әрлеу';
+
+  @override
+  String get facadePricesPricePerM2 => '1 м² бағасы';
+
+  @override
+  String get facadePricesSold => 'Сатылады';
+
+  @override
+  String get facadePricesNotSold => 'Сатылмайды';
+
+  @override
+  String get facadePricesSaved => 'Баға сақталды';
+
+  @override
+  String get facadePricesSave => 'Сақтау';
+
+  @override
+  String get facadeQuoteTitle => 'Фасад тапсырысын есептеу';
+
+  @override
+  String get facadeQuoteAddLine => 'Фасад қосу';
+
+  @override
+  String get facadeQuoteDemolition => 'Бөлшектеу';
+
+  @override
+  String get facadeQuotePrepaymentManual => 'Алдын ала төлем (басқа болса)';
+
+  @override
+  String facadeQuotePrepaymentDefault(String percent) {
+    return 'Әдепкі бойынша сомадан $percent%';
+  }
+
+  @override
+  String get facadeQuoteCalculate => 'Есептеу';
+
+  @override
+  String get facadeQuoteNumberRequired => 'Санды енгізіңіз';
+
+  @override
+  String facadeQuoteLine(int number) {
+    return 'Фасад $number';
+  }
+
+  @override
+  String get facadeQuoteRemoveLine => 'Алып тастау';
+
+  @override
+  String get facadeQuoteWidth => 'Ені, мм';
+
+  @override
+  String get facadeQuoteHeight => 'Биіктігі, мм';
+
+  @override
+  String get facadeQuoteQty => 'Дана';
+
+  @override
+  String get facadeQuoteDoubleSided => 'Екі жақты';
+
+  @override
+  String get facadeQuoteCustomerMaterial => 'Тапсырыс берушінің материалы';
+
+  @override
+  String get facadeQuotePieces => 'Дана';
+
+  @override
+  String get facadeQuoteArea => 'Ауданы';
+
+  @override
+  String get facadeQuoteTotal => 'Сомасы';
+
+  @override
+  String get facadeQuotePrepayment => 'Келілақы';
+
+  @override
+  String get facadeQuoteBalance => 'Қалдық';
+
+  @override
+  String get facadeRulesNotOffered => 'Ұсынылмайды';
+
+  @override
+  String get facadeRulesTitle => 'Есептеу ережелері';
+
+  @override
+  String get facadeRulesDoubleSidedFactor => 'Екі жақты коэффициенті (×)';
+
+  @override
+  String get facadeRulesEmptyMeansOff => 'Бос — ұсынылмайды';
+
+  @override
+  String get facadeRulesDiscount =>
+      'Тапсырыс берушінің материалы үшін жеңілдік';
+
+  @override
+  String get facadeRulesDemolitionRate => 'Бөлшектеу бағасы';
+
+  @override
+  String get facadeRulesPrepayment => 'Әдепкі алдын ала төлем';
 }

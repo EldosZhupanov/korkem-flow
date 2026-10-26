@@ -3522,4 +3522,142 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hardwareEmptyFilteredMessage =>
       'Try adjusting the hardware type, overlay, or clearing active filters.';
+
+  @override
+  String get priceVisibilityTitle => 'Prices for the shop floor';
+
+  @override
+  String get priceVisibilitySubtitle =>
+      'Let production, warehouse and drivers see client prices and order totals';
+
+  @override
+  String get priceVisibilitySaveFailed => 'Could not save. Try again.';
+
+  @override
+  String get defectPhotoAdd => 'Defect photo (optional)';
+
+  @override
+  String get defectPhotoChosen => 'Photo attached';
+
+  @override
+  String get defectPhotoRemove => 'Remove';
+
+  @override
+  String get defectPhotoNotSent =>
+      'The stage is recorded, but the defect photo was not sent.';
+
+  @override
+  String get defectPhotoCameraFailed => 'Could not open the camera.';
+
+  @override
+  String get facadePricesTitle => 'Facade prices';
+
+  @override
+  String get facadePricesSubtitle => 'Price per m² by milling and finish';
+
+  @override
+  String get facadePricesAddMilling => 'Add milling';
+
+  @override
+  String get facadePricesMilling => 'Milling';
+
+  @override
+  String get facadePricesFinish => 'Finish';
+
+  @override
+  String get facadePricesPricePerM2 => 'Price per m²';
+
+  @override
+  String get facadePricesSold => 'Sold';
+
+  @override
+  String get facadePricesNotSold => 'Not sold';
+
+  @override
+  String get facadePricesSaved => 'Price saved';
+
+  @override
+  String get facadePricesSave => 'Save';
+
+  @override
+  String get facadeQuoteTitle => 'Facade order calculation';
+
+  @override
+  String get facadeQuoteAddLine => 'Add facade';
+
+  @override
+  String get facadeQuoteDemolition => 'Demolition';
+
+  @override
+  String get facadeQuotePrepaymentManual => 'Prepayment (if different)';
+
+  @override
+  String facadeQuotePrepaymentDefault(String percent) {
+    return 'By default $percent% of the total';
+  }
+
+  @override
+  String get facadeQuoteCalculate => 'Calculate';
+
+  @override
+  String get facadeQuoteNumberRequired => 'Enter a number';
+
+  @override
+  String facadeQuoteLine(int number) {
+    return 'Facade $number';
+  }
+
+  @override
+  String get facadeQuoteRemoveLine => 'Remove';
+
+  @override
+  String get facadeQuoteWidth => 'Width, mm';
+
+  @override
+  String get facadeQuoteHeight => 'Height, mm';
+
+  @override
+  String get facadeQuoteQty => 'Pcs';
+
+  @override
+  String get facadeQuoteDoubleSided => 'Double-sided';
+
+  @override
+  String get facadeQuoteCustomerMaterial => 'Customer\'s material';
+
+  @override
+  String get facadeQuotePieces => 'Pieces';
+
+  @override
+  String get facadeQuoteArea => 'Area';
+
+  @override
+  String get facadeQuoteTotal => 'Total';
+
+  @override
+  String get facadeQuotePrepayment => 'Prepayment';
+
+  @override
+  String get facadeQuoteBalance => 'Balance';
+
+  @override
+  String get facadeRulesNotOffered => 'Not offered';
+
+  @override
+  String get facadeRulesTitle => 'Order rules';
+
+  @override
+  String get facadeRulesDoubleSidedFactor => 'Double-sided factor (×)';
+
+  @override
+  String get facadeRulesEmptyMeansOff => 'Empty — not offered';
+
+  @override
+  String get facadeRulesDiscount => 'Discount for customer\'s material';
+
+  @override
+  String get facadeRulesDemolitionRate => 'Demolition price';
+
+  @override
+  String get facadeRulesPrepayment => 'Prepayment by default';
 }

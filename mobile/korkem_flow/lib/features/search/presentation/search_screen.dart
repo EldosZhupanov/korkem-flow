@@ -292,9 +292,9 @@ class _OrderResultCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                if (order.grandTotal > 0)
+                if (order.grandTotal case final total? when total > 0)
                   Text(
-                    money.format(order.grandTotal),
+                    money.format(total),
                     style: theme.textTheme.labelMedium,
                   ),
               ],

@@ -177,8 +177,13 @@ class _Header extends ConsumerWidget {
     final transaction = order.transactionDate;
     final delivery = order.deliveryDate;
 
-    final advance = order.advancePaid;
-    final balance = (order.grandTotal - advance).clamp(0.0, double.infinity);
+    // Both null for somebody the server hides money from; then no chip and no
+    // total is drawn at all, rather than "0 ₸".
+    final total = order.grandTotal;
+    final advance = order.advancePaid ?? 0;
+    final balance = total == null
+        ? 0.0
+        : (total - advance).clamp(0.0, double.infinity);
 
     return AppCard(
       child: Column(
@@ -210,7 +215,8 @@ class _Header extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          _Field(icon: AppIcons.quote, label: money.format(order.grandTotal)),
+          if (total != null)
+            _Field(icon: AppIcons.quote, label: money.format(total)),
           if (transaction != null)
             _Field(
               icon: AppIcons.schedule,
@@ -456,10 +462,10 @@ class _DeliveryCard extends StatelessWidget {
                 icon: AppIcons.schedule,
                 label: date.format(posting),
               ),
-            if (delivery.grandTotal > 0)
+            if (delivery.grandTotal case final total? when total > 0)
               _Field(
                 icon: AppIcons.quote,
-                label: money.format(delivery.grandTotal),
+                label: money.format(total),
               ),
             if (delivery.items.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.xs),

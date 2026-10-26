@@ -6254,6 +6254,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try adjusting the hardware type, overlay, or clearing active filters.'**
   String get hardwareEmptyFilteredMessage;
+
+  /// Settings switch: shop floor sees prices
+  ///
+  /// In en, this message translates to:
+  /// **'Prices for the shop floor'**
+  String get priceVisibilityTitle;
+
+  /// Settings switch: shop floor sees prices
+  ///
+  /// In en, this message translates to:
+  /// **'Let production, warehouse and drivers see client prices and order totals'**
+  String get priceVisibilitySubtitle;
+
+  /// Settings switch: shop floor sees prices
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Try again.'**
+  String get priceVisibilitySaveFailed;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'Defect photo (optional)'**
+  String get defectPhotoAdd;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'Photo attached'**
+  String get defectPhotoChosen;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get defectPhotoRemove;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'The stage is recorded, but the defect photo was not sent.'**
+  String get defectPhotoNotSent;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the camera.'**
+  String get defectPhotoCameraFailed;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Facade prices'**
+  String get facadePricesTitle;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Price per m² by milling and finish'**
+  String get facadePricesSubtitle;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Add milling'**
+  String get facadePricesAddMilling;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Milling'**
+  String get facadePricesMilling;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get facadePricesFinish;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Price per m²'**
+  String get facadePricesPricePerM2;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get facadePricesSold;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Not sold'**
+  String get facadePricesNotSold;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Price saved'**
+  String get facadePricesSaved;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get facadePricesSave;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Facade order calculation'**
+  String get facadeQuoteTitle;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Add facade'**
+  String get facadeQuoteAddLine;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Demolition'**
+  String get facadeQuoteDemolition;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment (if different)'**
+  String get facadeQuotePrepaymentManual;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'By default {percent}% of the total'**
+  String facadeQuotePrepaymentDefault(String percent);
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get facadeQuoteCalculate;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get facadeQuoteNumberRequired;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Facade {number}'**
+  String facadeQuoteLine(int number);
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get facadeQuoteRemoveLine;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Width, mm'**
+  String get facadeQuoteWidth;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Height, mm'**
+  String get facadeQuoteHeight;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Pcs'**
+  String get facadeQuoteQty;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Double-sided'**
+  String get facadeQuoteDoubleSided;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s material'**
+  String get facadeQuoteCustomerMaterial;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces'**
+  String get facadeQuotePieces;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get facadeQuoteArea;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get facadeQuoteTotal;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment'**
+  String get facadeQuotePrepayment;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get facadeQuoteBalance;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Not offered'**
+  String get facadeRulesNotOffered;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Order rules'**
+  String get facadeRulesTitle;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Double-sided factor (×)'**
+  String get facadeRulesDoubleSidedFactor;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Empty — not offered'**
+  String get facadeRulesEmptyMeansOff;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Discount for customer\'s material'**
+  String get facadeRulesDiscount;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Demolition price'**
+  String get facadeRulesDemolitionRate;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment by default'**
+  String get facadeRulesPrepayment;
 }
 
 class _AppLocalizationsDelegate

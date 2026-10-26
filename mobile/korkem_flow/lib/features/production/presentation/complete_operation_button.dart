@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/features/enquiry_flow/application/image_picker_service.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -71,6 +73,9 @@ class _CompleteOperationDialogState
   late final TextEditingController _scrapController;
   bool _isSubmitting = false;
 
+  /// Optional, and only offered once some scrap is entered.
+  XFile? _defectPhoto;
+
   @override
   void initState() {
     super.initState();
@@ -119,9 +124,12 @@ class _CompleteOperationDialogState
 
       if (!mounted) return;
 
-      if (result.status == 'completed' || result.status == 'ok') {
+      if (result.status == 'completed' ||
+          result.status == 'partially_completed' ||
+          result.status == 'ok') {
         Navigator.of(context).pop();
         messenger.showDone(l10n.completeOperationSuccess(opTitle));
+        await _sendDefectPhoto(result.jobCard, scrapQty, messenger, l10n);
         await widget.onCompleted();
       } else if (result.alreadyComplete) {
         Navigator.of(context).pop();
@@ -137,7 +145,9 @@ class _CompleteOperationDialogState
     } on MutationQueued {
       if (!mounted) return;
       Navigator.of(context).pop();
-      messenger.showFailureMessage(l10n.outboxQueued);
+      messenger.showFailureMessage(
+        _defectPhoto == null ? l10n.outboxQueued : l10n.defectPhotoNotSent,
+      );
       await widget.onCompleted();
     } on Object catch (e) {
       if (!mounted) return;
@@ -146,6 +156,38 @@ class _CompleteOperationDialogState
       if (mounted) {
         setState(() => _isSubmitting = false);
       }
+    }
+  }
+
+  /// The stage is already booked when this runs, so a failed photo must not
+  /// read as a failed stage: it says so in its own words.
+  Future<void> _sendDefectPhoto(
+    String? jobCard,
+    double scrapQty,
+    ScaffoldMessengerState messenger,
+    AppLocalizations l10n,
+  ) async {
+    final photo = _defectPhoto;
+    if (photo == null || jobCard == null || scrapQty <= 0) return;
+    try {
+      await ref
+          .read(productionCommandRepositoryProvider)
+          .attachDefectPhoto(jobCard: jobCard, photo: photo);
+    } on Object {
+      messenger.showFailureMessage(l10n.defectPhotoNotSent);
+    }
+  }
+
+  Future<void> _pickDefectPhoto() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    try {
+      final photo = await ref
+          .read(imagePickerServiceProvider)
+          .pickImageFromCamera();
+      if (photo != null && mounted) setState(() => _defectPhoto = photo);
+    } on Object {
+      messenger.showFailureMessage(l10n.defectPhotoCameraFailed);
     }
   }
 
@@ -238,6 +280,44 @@ class _CompleteOperationDialogState
                     return l10n.completeOperationInvalidQty;
                   }
                   return null;
+                },
+              ),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _scrapController,
+                builder: (context, val, _) {
+                  final scrap = double.tryParse(val.text.trim()) ?? 0.0;
+                  if (scrap <= 0) return const SizedBox.shrink();
+                  final photo = _defectPhoto;
+                  return Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: photo == null
+                        ? OutlinedButton.icon(
+                            key: const ValueKey('defectPhotoAdd'),
+                            onPressed: _isSubmitting ? null : _pickDefectPhoto,
+                            icon: const Icon(
+                              AppIcons.camera,
+                              size: AppIconSize.dense,
+                            ),
+                            label: Text(l10n.defectPhotoAdd),
+                          )
+                        : Row(
+                            children: [
+                              const Icon(
+                                AppIcons.check,
+                                size: AppIconSize.dense,
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              Expanded(child: Text(l10n.defectPhotoChosen)),
+                              TextButton(
+                                key: const ValueKey('defectPhotoRemove'),
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () => setState(() => _defectPhoto = null),
+                                child: Text(l10n.defectPhotoRemove),
+                              ),
+                            ],
+                          ),
+                  );
                 },
               ),
             ],

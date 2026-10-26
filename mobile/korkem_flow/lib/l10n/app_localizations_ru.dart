@@ -3546,4 +3546,143 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get hardwareEmptyFilteredMessage =>
       'Попробуйте изменить тип фурнитуры, наложение или сбросить фильтры.';
+
+  @override
+  String get priceVisibilityTitle => 'Цены для цеха';
+
+  @override
+  String get priceVisibilitySubtitle =>
+      'Показывать цеху, складу и водителям цены клиентов и суммы заказов';
+
+  @override
+  String get priceVisibilitySaveFailed =>
+      'Не удалось сохранить. Попробуйте ещё раз.';
+
+  @override
+  String get defectPhotoAdd => 'Фото брака (по желанию)';
+
+  @override
+  String get defectPhotoChosen => 'Фото приложено';
+
+  @override
+  String get defectPhotoRemove => 'Убрать';
+
+  @override
+  String get defectPhotoNotSent =>
+      'Этап записан, но фото брака не отправилось.';
+
+  @override
+  String get defectPhotoCameraFailed => 'Не удалось открыть камеру.';
+
+  @override
+  String get facadePricesTitle => 'Цены фасадов';
+
+  @override
+  String get facadePricesSubtitle => 'Цена за м² по фрезеровке и отделке';
+
+  @override
+  String get facadePricesAddMilling => 'Добавить фрезеровку';
+
+  @override
+  String get facadePricesMilling => 'Фрезеровка';
+
+  @override
+  String get facadePricesFinish => 'Отделка';
+
+  @override
+  String get facadePricesPricePerM2 => 'Цена за м²';
+
+  @override
+  String get facadePricesSold => 'Продаётся';
+
+  @override
+  String get facadePricesNotSold => 'Не продаётся';
+
+  @override
+  String get facadePricesSaved => 'Цена сохранена';
+
+  @override
+  String get facadePricesSave => 'Сохранить';
+
+  @override
+  String get facadeQuoteTitle => 'Расчёт заказа фасадов';
+
+  @override
+  String get facadeQuoteAddLine => 'Добавить фасад';
+
+  @override
+  String get facadeQuoteDemolition => 'Демонтаж';
+
+  @override
+  String get facadeQuotePrepaymentManual => 'Предоплата (если другая)';
+
+  @override
+  String facadeQuotePrepaymentDefault(String percent) {
+    return 'По умолчанию $percent% от суммы';
+  }
+
+  @override
+  String get facadeQuoteCalculate => 'Рассчитать';
+
+  @override
+  String get facadeQuoteNumberRequired => 'Введите число';
+
+  @override
+  String facadeQuoteLine(int number) {
+    return 'Фасад $number';
+  }
+
+  @override
+  String get facadeQuoteRemoveLine => 'Убрать';
+
+  @override
+  String get facadeQuoteWidth => 'Ширина, мм';
+
+  @override
+  String get facadeQuoteHeight => 'Высота, мм';
+
+  @override
+  String get facadeQuoteQty => 'Шт.';
+
+  @override
+  String get facadeQuoteDoubleSided => 'Двусторонний';
+
+  @override
+  String get facadeQuoteCustomerMaterial => 'Материал заказчика';
+
+  @override
+  String get facadeQuotePieces => 'Штук';
+
+  @override
+  String get facadeQuoteArea => 'Площадь';
+
+  @override
+  String get facadeQuoteTotal => 'Сумма';
+
+  @override
+  String get facadeQuotePrepayment => 'Предоплата';
+
+  @override
+  String get facadeQuoteBalance => 'Остаток';
+
+  @override
+  String get facadeRulesNotOffered => 'Не предлагается';
+
+  @override
+  String get facadeRulesTitle => 'Правила расчёта';
+
+  @override
+  String get facadeRulesDoubleSidedFactor => 'Коэффициент двустороннего (×)';
+
+  @override
+  String get facadeRulesEmptyMeansOff => 'Пусто — не предлагается';
+
+  @override
+  String get facadeRulesDiscount => 'Скидка за материал заказчика';
+
+  @override
+  String get facadeRulesDemolitionRate => 'Цена демонтажа';
+
+  @override
+  String get facadeRulesPrepayment => 'Предоплата по умолчанию';
 }

@@ -16,6 +16,8 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/updates/update_controller.dart';
 import 'package:korkem_flow/core/updates/update_dialog.dart';
+import 'package:korkem_flow/features/facade_prices/presentation/facade_prices_tile.dart';
+import 'package:korkem_flow/features/price_visibility/presentation/price_visibility_tile.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Display preferences and connection details.
@@ -58,6 +60,10 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(Routes.warehouses),
             ),
           ),
+          // Shown to the administrator only; draws nothing for anybody else.
+          const PriceVisibilityTile(),
+          // For the administrator and order managers only, like the matrix.
+          const FacadePricesTile(),
           const SizedBox(height: AppSpacing.xl),
 
           SectionLabel(l10n.aiSettingsTitle),

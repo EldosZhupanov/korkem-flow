@@ -3992,5 +3992,191 @@
   "hardwareEmptyFilteredMessage": "Try adjusting the hardware type, overlay, or clearing active filters.",
   "@hardwareEmptyFilteredMessage": {
     "description": "Empty state message when filters match nothing"
+  },
+  "priceVisibilityTitle": "Prices for the shop floor",
+  "@priceVisibilityTitle": {
+    "description": "Settings switch: shop floor sees prices"
+  },
+  "priceVisibilitySubtitle": "Let production, warehouse and drivers see client prices and order totals",
+  "@priceVisibilitySubtitle": {
+    "description": "Settings switch: shop floor sees prices"
+  },
+  "priceVisibilitySaveFailed": "Could not save. Try again.",
+  "@priceVisibilitySaveFailed": {
+    "description": "Settings switch: shop floor sees prices"
+  },
+  "defectPhotoAdd": "Defect photo (optional)",
+  "@defectPhotoAdd": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "defectPhotoChosen": "Photo attached",
+  "@defectPhotoChosen": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "defectPhotoRemove": "Remove",
+  "@defectPhotoRemove": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "defectPhotoNotSent": "The stage is recorded, but the defect photo was not sent.",
+  "@defectPhotoNotSent": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "defectPhotoCameraFailed": "Could not open the camera.",
+  "@defectPhotoCameraFailed": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "facadePricesTitle": "Facade prices",
+  "@facadePricesTitle": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesSubtitle": "Price per m² by milling and finish",
+  "@facadePricesSubtitle": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesAddMilling": "Add milling",
+  "@facadePricesAddMilling": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesMilling": "Milling",
+  "@facadePricesMilling": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesFinish": "Finish",
+  "@facadePricesFinish": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesPricePerM2": "Price per m²",
+  "@facadePricesPricePerM2": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesSold": "Sold",
+  "@facadePricesSold": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesNotSold": "Not sold",
+  "@facadePricesNotSold": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesSaved": "Price saved",
+  "@facadePricesSaved": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesSave": "Save",
+  "@facadePricesSave": {
+    "description": "Facade price matrix settings"
+  },
+  "facadeQuoteTitle": "Facade order calculation",
+  "@facadeQuoteTitle": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteAddLine": "Add facade",
+  "@facadeQuoteAddLine": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteDemolition": "Demolition",
+  "@facadeQuoteDemolition": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuotePrepaymentManual": "Prepayment (if different)",
+  "@facadeQuotePrepaymentManual": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuotePrepaymentDefault": "By default {percent}% of the total",
+  "@facadeQuotePrepaymentDefault": {
+    "description": "Facade order calculation",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeQuoteCalculate": "Calculate",
+  "@facadeQuoteCalculate": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteNumberRequired": "Enter a number",
+  "@facadeQuoteNumberRequired": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteLine": "Facade {number}",
+  "@facadeQuoteLine": {
+    "description": "Facade order calculation",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "facadeQuoteRemoveLine": "Remove",
+  "@facadeQuoteRemoveLine": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteWidth": "Width, mm",
+  "@facadeQuoteWidth": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteHeight": "Height, mm",
+  "@facadeQuoteHeight": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteQty": "Pcs",
+  "@facadeQuoteQty": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteDoubleSided": "Double-sided",
+  "@facadeQuoteDoubleSided": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteCustomerMaterial": "Customer's material",
+  "@facadeQuoteCustomerMaterial": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuotePieces": "Pieces",
+  "@facadeQuotePieces": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteArea": "Area",
+  "@facadeQuoteArea": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteTotal": "Total",
+  "@facadeQuoteTotal": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuotePrepayment": "Prepayment",
+  "@facadeQuotePrepayment": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteBalance": "Balance",
+  "@facadeQuoteBalance": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesNotOffered": "Not offered",
+  "@facadeRulesNotOffered": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesTitle": "Order rules",
+  "@facadeRulesTitle": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesDoubleSidedFactor": "Double-sided factor (×)",
+  "@facadeRulesDoubleSidedFactor": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesEmptyMeansOff": "Empty — not offered",
+  "@facadeRulesEmptyMeansOff": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesDiscount": "Discount for customer's material",
+  "@facadeRulesDiscount": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesDemolitionRate": "Demolition price",
+  "@facadeRulesDemolitionRate": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesPrepayment": "Prepayment by default",
+  "@facadeRulesPrepayment": {
+    "description": "Facade order calculation"
   }
 }
