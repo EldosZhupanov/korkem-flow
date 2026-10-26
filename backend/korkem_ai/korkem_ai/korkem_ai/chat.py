@@ -249,8 +249,13 @@ def run_turn_job(
 
 	publish({"type": "started"})
 
-	# 1. Fast path: check Redis semantic cache for read-only answers
-	if not approved_calls and (not history or len(history) <= 2):
+	# 1. Fast path: check Redis semantic cache for read-only answers.
+	#
+	# Off unless the site opts in (`korkem_ai_answer_cache`), and never when
+	# the person named a model: a cached answer skips the model, the tools and
+	# the confirmation step, so it must be a deliberate choice, not a default.
+	use_cache = cache.enabled() and not provider
+	if use_cache and not approved_calls and (not history or len(history) <= 2):
 		cached = cache.get(message)
 		if cached and cached.get("text"):
 			cached_text = cached["text"]
@@ -311,7 +316,7 @@ def run_turn_job(
 		)
 
 		# Save read-only turn in Redis cache for instant future retrieval
-		if cache.is_cacheable(result, history):
+		if use_cache and cache.is_cacheable(result, history):
 			cache.put(
 				message,
 				result.text,
