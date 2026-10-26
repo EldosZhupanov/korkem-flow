@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/enquiry_flow/application/image_picker_service.dart';
+import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
+import 'package:korkem_flow/features/piece_work/domain/piece_work.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
 import 'package:korkem_flow/features/production/presentation/complete_operation_button.dart';
@@ -55,6 +57,18 @@ void main() {
         overrides: [
           productionCommandRepositoryProvider.overrideWithValue(commandRepo),
           imagePickerServiceProvider.overrideWithValue(_FakeCamera()),
+          pieceRatesProvider.overrideWith(
+            (ref) async => const PieceRates(
+              rates: [
+                PieceRate(
+                  operation: 'Распил ДСП',
+                  rateType: PieceRate.perPart,
+                  rate: 200,
+                ),
+              ],
+              canEdit: false,
+            ),
+          ),
         ],
         child: harness(
           Scaffold(
@@ -309,4 +323,18 @@ void main() {
       );
     });
   });
+
+  testWidgets(
+    'the piece-rate estimate is the real rate, never an invented one',
+    (
+      tester,
+    ) async {
+      await pumpButton(tester);
+      await tester.tap(find.byType(CompleteOperationButton));
+      await tester.pumpAndSettle();
+      // 6 remaining pieces × 200 ₸ from the server's rate for this operation.
+      expect(find.textContaining('1,200'), findsOneWidget);
+      expect(find.textContaining('900'), findsNothing);
+    },
+  );
 }

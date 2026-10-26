@@ -3656,4 +3656,279 @@ class AppLocalizationsKk extends AppLocalizations {
   String orderPrepaymentDue(String amount) {
     return 'Алдын ала төлем күтілуде: $amount';
   }
+
+  @override
+  String get facadeJobsTitle => 'Жасалатын фасадтар';
+
+  @override
+  String get facadeJobsEmptyTitle => 'Жасалатын фасадтар жоқ';
+
+  @override
+  String get facadeJobsEmptyMessage =>
+      'Тапсырыс рәсімделгенде фасадтар осында пайда болады.';
+
+  @override
+  String facadeJobsDue(String date) {
+    return 'мерзімі $date';
+  }
+
+  @override
+  String get pieceWorkTitle => 'Кесімді жалақы';
+
+  @override
+  String get pieceWorkMine => 'Менің өнімім';
+
+  @override
+  String get pieceWorkNothingYet => 'Әзірге ештеңе есептелмеген';
+
+  @override
+  String get pieceWorkPending => 'Бекітуді күтуде';
+
+  @override
+  String get pieceWorkApproved => 'Бекітілді';
+
+  @override
+  String get pieceWorkPaid => 'Төленді';
+
+  @override
+  String get pieceWorkRejected => 'Қабылданбады';
+
+  @override
+  String get pieceWorkPcs => 'дана';
+
+  @override
+  String get pieceWorkToApprove => 'Бекітуге';
+
+  @override
+  String get pieceWorkNothingToApprove => 'Бекітетін ештеңе жоқ';
+
+  @override
+  String get pieceWorkApprove => 'Бекіту';
+
+  @override
+  String get pieceWorkReject => 'Қабылдамау';
+
+  @override
+  String get pieceWorkReason => 'Себебі — жұмысшы көреді';
+
+  @override
+  String get pieceWorkRates => 'Тарифтер';
+
+  @override
+  String get pieceWorkAddRate => 'Тариф қосу';
+
+  @override
+  String get pieceWorkDisabled => 'Өшірілген';
+
+  @override
+  String get pieceWorkCoefficients => 'Үстеме және демалыс';
+
+  @override
+  String get pieceWorkOvertime => 'Үстеме';
+
+  @override
+  String get pieceWorkWeekend => 'Демалыс';
+
+  @override
+  String get pieceWorkAfter => 'кейін';
+
+  @override
+  String get pieceWorkNoCoefficient => 'әдеттегідей';
+
+  @override
+  String get pieceWorkOperation => 'Операция';
+
+  @override
+  String get pieceWorkOperationHint =>
+      'Цехтегідей немесе «Фасад» — дайын фасадтар үшін';
+
+  @override
+  String get pieceWorkPerPiece => 'данасына';
+
+  @override
+  String get pieceWorkRate => 'Тариф';
+
+  @override
+  String get pieceWorkEnabled => 'Қолданыста';
+
+  @override
+  String get pieceWorkShiftEnd => 'Ауысым аяқталады (СС:ММ)';
+
+  @override
+  String get pieceWorkSaturdayOff => 'Сенбі — демалыс';
+
+  @override
+  String get pieceWorkSundayOff => 'Жексенбі — демалыс';
+
+  @override
+  String pieceWorkEstimate(String amount) {
+    return 'Кесімді: ~$amount';
+  }
+
+  @override
+  String get expensesTitle => 'Шұғыл шығындар';
+
+  @override
+  String get expensesAdd => 'Шығынды жазу';
+
+  @override
+  String get expensesPendingTotal => 'Шешімді күтуде';
+
+  @override
+  String get expensesEmptyTitle => 'Шығын жоқ';
+
+  @override
+  String get expensesEmptyMessage =>
+      'Жұмыс үшін ақша жұмсадыңыз ба? Осында түбіртекпен жазыңыз.';
+
+  @override
+  String get expensesFiled => 'Шығын жазылды';
+
+  @override
+  String get expensesReceiptNotSent =>
+      'Жазылды, бірақ түбіртек фотосы жіберілмеді.';
+
+  @override
+  String get expensesAmount => 'Сомасы';
+
+  @override
+  String get expensesPurpose => 'Не үшін';
+
+  @override
+  String get expensesCategory => 'Санаты';
+
+  @override
+  String get expensesReceipt => 'Түбіртек фотосы';
+
+  @override
+  String get pinAdminTitle => 'PIN арқылы кіру';
+
+  @override
+  String get pinAdminSubtitle => 'Цех планшеттері және оларға кім кіреді';
+
+  @override
+  String get pinAdminTablets => 'Планшеттер';
+
+  @override
+  String get pinAdminRegisterThis => 'Осы құрылғыны PIN планшеті ету';
+
+  @override
+  String pinAdminThisIs(String label) {
+    return 'Бұл құрылғы: $label';
+  }
+
+  @override
+  String get pinAdminRevoked => 'Өшірілген';
+
+  @override
+  String get pinAdminRevoke => 'Өшіру';
+
+  @override
+  String get pinAdminPeople => 'PIN бар қызметкерлер';
+
+  @override
+  String get pinAdminLocked => 'Қате әрекеттерден кейін бұғатталды';
+
+  @override
+  String get pinAdminClear => 'PIN алып тастау';
+
+  @override
+  String get pinAdminAssign => 'PIN тағайындау';
+
+  @override
+  String get pinAdminTabletName => 'Планшет атауы, мысалы «Цех, кесу»';
+
+  @override
+  String get pinAdminRegistered => 'Планшет тіркелді';
+
+  @override
+  String get pinAdminChoosePerson => 'Қызметкер';
+
+  @override
+  String get pinAdminNewPin => 'PIN, 4-тен 6 цифрға дейін';
+
+  @override
+  String get pinAdminPinSet => 'PIN тағайындалды';
+
+  @override
+  String get pinLoginTitle => 'PIN арқылы кіру';
+
+  @override
+  String get pinLoginSubtitle => 'Өзіңізді таңдап, PIN енгізіңіз';
+
+  @override
+  String get pinLoginUnavailableTitle => 'Бұл планшет PIN үшін бапталмаған';
+
+  @override
+  String get pinLoginUnavailableMessage =>
+      'Әкімшіден оны баптауларда тіркеуді сұраңыз.';
+
+  @override
+  String get pinLoginPin => 'PIN';
+
+  @override
+  String get materialStockTitle => 'Материалдар қоймасы';
+
+  @override
+  String get materialStockOnHand => 'Қалдықтар';
+
+  @override
+  String get materialStockReceive => 'Кіріс';
+
+  @override
+  String get materialStockLists => 'Анықтамалықтар';
+
+  @override
+  String get materialStockEmptyTitle => 'Қоймада әзірге ештеңе жоқ';
+
+  @override
+  String get materialStockEmptyMessage =>
+      'Сатып алынғандар кірістен кейін осында пайда болады.';
+
+  @override
+  String materialStockAverage(String price) {
+    return 'Орташа баға $price';
+  }
+
+  @override
+  String get materialStockFillAll => 'Барлық өрістерді толтырыңыз.';
+
+  @override
+  String materialStockReceived(String title, String onHand) {
+    return '$title: кіріске алынды, енді $onHand';
+  }
+
+  @override
+  String get materialStockName => 'Материал атауы';
+
+  @override
+  String get materialStockSupplier => 'Кімнен сатып алынды';
+
+  @override
+  String get materialStockQty => 'Қанша';
+
+  @override
+  String get materialStockUnit => 'Бірлік';
+
+  @override
+  String get materialStockPrice => 'Бірлік бағасы';
+
+  @override
+  String get materialStockSuppliers => 'Жеткізушілер';
+
+  @override
+  String get materialStockAdd => 'Қосу';
+
+  @override
+  String materialStockAdded(String value) {
+    return '«$value» қосылды';
+  }
+
+  @override
+  String materialStockOff(String value) {
+    return '$value (өшірілген)';
+  }
+
+  @override
+  String get materialStockOpen => 'Материалдар қоймасы';
 }

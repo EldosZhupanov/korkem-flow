@@ -221,6 +221,7 @@ def complete_operation(
 	def perform() -> dict:
 		result = shop_floor.complete_operation(**arguments)
 		_audit_operation(result)
+		result["piece_work_entry"] = _accrue_piece_work(result)
 		return result
 
 	return execute_idempotently(
@@ -313,4 +314,22 @@ def attach_defect_photo(job_card: str) -> dict:
 		filename=uploaded.filename or "",
 		content=uploaded.stream.read(),
 	)
+
+
+def _accrue_piece_work(result: dict) -> str | None:
+	"""Pay for what was just booked. A payroll problem never undoes a booking.
+
+	The stage is already in ERPNext by now. Refusing the request over a missing
+	rate or a broken rule would tell the cutter their work was not recorded
+	when it was; the error goes to the Error Log instead, where whoever keeps
+	the rates will see it.
+	"""
+	from korkem_manufacturing.services import piece_rates
+
+	try:
+		entry = piece_rates.accrue_stage(result)
+	except Exception:
+		frappe.log_error(title="Piece work accrual failed", message=frappe.get_traceback(with_context=True))
+		return None
+	return entry.name if entry else None
 

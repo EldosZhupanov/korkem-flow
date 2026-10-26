@@ -3693,4 +3693,279 @@ class AppLocalizationsEn extends AppLocalizations {
   String orderPrepaymentDue(String amount) {
     return 'Prepayment due: $amount';
   }
+
+  @override
+  String get facadeJobsTitle => 'Facades to make';
+
+  @override
+  String get facadeJobsEmptyTitle => 'No facades to make';
+
+  @override
+  String get facadeJobsEmptyMessage =>
+      'Facades appear here once an order is placed.';
+
+  @override
+  String facadeJobsDue(String date) {
+    return 'due $date';
+  }
+
+  @override
+  String get pieceWorkTitle => 'Piece work';
+
+  @override
+  String get pieceWorkMine => 'My work';
+
+  @override
+  String get pieceWorkNothingYet => 'Nothing accrued yet';
+
+  @override
+  String get pieceWorkPending => 'Awaiting approval';
+
+  @override
+  String get pieceWorkApproved => 'Approved';
+
+  @override
+  String get pieceWorkPaid => 'Paid';
+
+  @override
+  String get pieceWorkRejected => 'Rejected';
+
+  @override
+  String get pieceWorkPcs => 'pcs';
+
+  @override
+  String get pieceWorkToApprove => 'To approve';
+
+  @override
+  String get pieceWorkNothingToApprove => 'Nothing to approve';
+
+  @override
+  String get pieceWorkApprove => 'Approve';
+
+  @override
+  String get pieceWorkReject => 'Reject';
+
+  @override
+  String get pieceWorkReason => 'Reason — the worker will see it';
+
+  @override
+  String get pieceWorkRates => 'Rates';
+
+  @override
+  String get pieceWorkAddRate => 'Add a rate';
+
+  @override
+  String get pieceWorkDisabled => 'Disabled';
+
+  @override
+  String get pieceWorkCoefficients => 'Overtime and weekends';
+
+  @override
+  String get pieceWorkOvertime => 'Overtime';
+
+  @override
+  String get pieceWorkWeekend => 'Weekend';
+
+  @override
+  String get pieceWorkAfter => 'after';
+
+  @override
+  String get pieceWorkNoCoefficient => 'as usual';
+
+  @override
+  String get pieceWorkOperation => 'Operation';
+
+  @override
+  String get pieceWorkOperationHint =>
+      'As named in the shop, or «Фасад» for finished facades';
+
+  @override
+  String get pieceWorkPerPiece => 'per piece';
+
+  @override
+  String get pieceWorkRate => 'Rate';
+
+  @override
+  String get pieceWorkEnabled => 'In use';
+
+  @override
+  String get pieceWorkShiftEnd => 'Shift ends at (HH:MM)';
+
+  @override
+  String get pieceWorkSaturdayOff => 'Saturday is a day off';
+
+  @override
+  String get pieceWorkSundayOff => 'Sunday is a day off';
+
+  @override
+  String pieceWorkEstimate(String amount) {
+    return 'Piece rate: ~$amount';
+  }
+
+  @override
+  String get expensesTitle => 'Urgent expenses';
+
+  @override
+  String get expensesAdd => 'Add an expense';
+
+  @override
+  String get expensesPendingTotal => 'Awaiting a decision';
+
+  @override
+  String get expensesEmptyTitle => 'No expenses';
+
+  @override
+  String get expensesEmptyMessage =>
+      'Spent money on the job? Write it down here, with the receipt.';
+
+  @override
+  String get expensesFiled => 'Expense recorded';
+
+  @override
+  String get expensesReceiptNotSent =>
+      'Recorded, but the receipt photo was not sent.';
+
+  @override
+  String get expensesAmount => 'Amount';
+
+  @override
+  String get expensesPurpose => 'What for';
+
+  @override
+  String get expensesCategory => 'Category';
+
+  @override
+  String get expensesReceipt => 'Photo of the receipt';
+
+  @override
+  String get pinAdminTitle => 'PIN sign-in';
+
+  @override
+  String get pinAdminSubtitle => 'Shop-floor tablets and who signs in on them';
+
+  @override
+  String get pinAdminTablets => 'Tablets';
+
+  @override
+  String get pinAdminRegisterThis => 'Make this device a PIN tablet';
+
+  @override
+  String pinAdminThisIs(String label) {
+    return 'This device: $label';
+  }
+
+  @override
+  String get pinAdminRevoked => 'Switched off';
+
+  @override
+  String get pinAdminRevoke => 'Switch off';
+
+  @override
+  String get pinAdminPeople => 'People with a PIN';
+
+  @override
+  String get pinAdminLocked => 'Locked after wrong attempts';
+
+  @override
+  String get pinAdminClear => 'Remove PIN';
+
+  @override
+  String get pinAdminAssign => 'Assign a PIN';
+
+  @override
+  String get pinAdminTabletName => 'Tablet name, e.g. «Shop, cutting»';
+
+  @override
+  String get pinAdminRegistered => 'Tablet registered';
+
+  @override
+  String get pinAdminChoosePerson => 'Employee';
+
+  @override
+  String get pinAdminNewPin => 'PIN, 4 to 6 digits';
+
+  @override
+  String get pinAdminPinSet => 'PIN assigned';
+
+  @override
+  String get pinLoginTitle => 'Sign in with PIN';
+
+  @override
+  String get pinLoginSubtitle => 'Choose yourself and enter your PIN';
+
+  @override
+  String get pinLoginUnavailableTitle => 'This tablet is not set up for PINs';
+
+  @override
+  String get pinLoginUnavailableMessage =>
+      'Ask the administrator to register it in Settings.';
+
+  @override
+  String get pinLoginPin => 'PIN';
+
+  @override
+  String get materialStockTitle => 'Materials';
+
+  @override
+  String get materialStockOnHand => 'On hand';
+
+  @override
+  String get materialStockReceive => 'Receive';
+
+  @override
+  String get materialStockLists => 'Lists';
+
+  @override
+  String get materialStockEmptyTitle => 'Nothing in stock yet';
+
+  @override
+  String get materialStockEmptyMessage =>
+      'Purchases appear here once they are received.';
+
+  @override
+  String materialStockAverage(String price) {
+    return 'Average price $price';
+  }
+
+  @override
+  String get materialStockFillAll => 'Fill in every field.';
+
+  @override
+  String materialStockReceived(String title, String onHand) {
+    return '$title: received, now $onHand';
+  }
+
+  @override
+  String get materialStockName => 'Material name';
+
+  @override
+  String get materialStockSupplier => 'Bought from';
+
+  @override
+  String get materialStockQty => 'How many';
+
+  @override
+  String get materialStockUnit => 'Unit';
+
+  @override
+  String get materialStockPrice => 'Price per unit';
+
+  @override
+  String get materialStockSuppliers => 'Suppliers';
+
+  @override
+  String get materialStockAdd => 'Add';
+
+  @override
+  String materialStockAdded(String value) {
+    return '«$value» added';
+  }
+
+  @override
+  String materialStockOff(String value) {
+    return '$value (off)';
+  }
+
+  @override
+  String get materialStockOpen => 'Materials';
 }

@@ -4229,5 +4229,383 @@
         "type": "String"
       }
     }
+  },
+  "facadeJobsTitle": "Facades to make",
+  "@facadeJobsTitle": {
+    "description": "Shop-floor facade list"
+  },
+  "facadeJobsEmptyTitle": "No facades to make",
+  "@facadeJobsEmptyTitle": {
+    "description": "Shop-floor facade list"
+  },
+  "facadeJobsEmptyMessage": "Facades appear here once an order is placed.",
+  "@facadeJobsEmptyMessage": {
+    "description": "Shop-floor facade list"
+  },
+  "facadeJobsDue": "due {date}",
+  "@facadeJobsDue": {
+    "description": "Shop-floor facade list",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pieceWorkTitle": "Piece work",
+  "@pieceWorkTitle": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkMine": "My work",
+  "@pieceWorkMine": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkNothingYet": "Nothing accrued yet",
+  "@pieceWorkNothingYet": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkPending": "Awaiting approval",
+  "@pieceWorkPending": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkApproved": "Approved",
+  "@pieceWorkApproved": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkPaid": "Paid",
+  "@pieceWorkPaid": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkRejected": "Rejected",
+  "@pieceWorkRejected": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkPcs": "pcs",
+  "@pieceWorkPcs": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkToApprove": "To approve",
+  "@pieceWorkToApprove": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkNothingToApprove": "Nothing to approve",
+  "@pieceWorkNothingToApprove": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkApprove": "Approve",
+  "@pieceWorkApprove": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkReject": "Reject",
+  "@pieceWorkReject": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkReason": "Reason — the worker will see it",
+  "@pieceWorkReason": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkRates": "Rates",
+  "@pieceWorkRates": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkAddRate": "Add a rate",
+  "@pieceWorkAddRate": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkDisabled": "Disabled",
+  "@pieceWorkDisabled": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkCoefficients": "Overtime and weekends",
+  "@pieceWorkCoefficients": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkOvertime": "Overtime",
+  "@pieceWorkOvertime": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkWeekend": "Weekend",
+  "@pieceWorkWeekend": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkAfter": "after",
+  "@pieceWorkAfter": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkNoCoefficient": "as usual",
+  "@pieceWorkNoCoefficient": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkOperation": "Operation",
+  "@pieceWorkOperation": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkOperationHint": "As named in the shop, or «Фасад» for finished facades",
+  "@pieceWorkOperationHint": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkPerPiece": "per piece",
+  "@pieceWorkPerPiece": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkRate": "Rate",
+  "@pieceWorkRate": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkEnabled": "In use",
+  "@pieceWorkEnabled": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkShiftEnd": "Shift ends at (HH:MM)",
+  "@pieceWorkShiftEnd": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkSaturdayOff": "Saturday is a day off",
+  "@pieceWorkSaturdayOff": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkSundayOff": "Sunday is a day off",
+  "@pieceWorkSundayOff": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkEstimate": "Piece rate: ~{amount}",
+  "@pieceWorkEstimate": {
+    "description": "Piece-rate pay",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expensesTitle": "Urgent expenses",
+  "@expensesTitle": {
+    "description": "Urgent expenses"
+  },
+  "expensesAdd": "Add an expense",
+  "@expensesAdd": {
+    "description": "Urgent expenses"
+  },
+  "expensesPendingTotal": "Awaiting a decision",
+  "@expensesPendingTotal": {
+    "description": "Urgent expenses"
+  },
+  "expensesEmptyTitle": "No expenses",
+  "@expensesEmptyTitle": {
+    "description": "Urgent expenses"
+  },
+  "expensesEmptyMessage": "Spent money on the job? Write it down here, with the receipt.",
+  "@expensesEmptyMessage": {
+    "description": "Urgent expenses"
+  },
+  "expensesFiled": "Expense recorded",
+  "@expensesFiled": {
+    "description": "Urgent expenses"
+  },
+  "expensesReceiptNotSent": "Recorded, but the receipt photo was not sent.",
+  "@expensesReceiptNotSent": {
+    "description": "Urgent expenses"
+  },
+  "expensesAmount": "Amount",
+  "@expensesAmount": {
+    "description": "Urgent expenses"
+  },
+  "expensesPurpose": "What for",
+  "@expensesPurpose": {
+    "description": "Urgent expenses"
+  },
+  "expensesCategory": "Category",
+  "@expensesCategory": {
+    "description": "Urgent expenses"
+  },
+  "expensesReceipt": "Photo of the receipt",
+  "@expensesReceipt": {
+    "description": "Urgent expenses"
+  },
+  "pinAdminTitle": "PIN sign-in",
+  "@pinAdminTitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminSubtitle": "Shop-floor tablets and who signs in on them",
+  "@pinAdminSubtitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminTablets": "Tablets",
+  "@pinAdminTablets": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminRegisterThis": "Make this device a PIN tablet",
+  "@pinAdminRegisterThis": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminThisIs": "This device: {label}",
+  "@pinAdminThisIs": {
+    "description": "PIN sign-in on shop-floor tablets",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "pinAdminRevoked": "Switched off",
+  "@pinAdminRevoked": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminRevoke": "Switch off",
+  "@pinAdminRevoke": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminPeople": "People with a PIN",
+  "@pinAdminPeople": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminLocked": "Locked after wrong attempts",
+  "@pinAdminLocked": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminClear": "Remove PIN",
+  "@pinAdminClear": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminAssign": "Assign a PIN",
+  "@pinAdminAssign": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminTabletName": "Tablet name, e.g. «Shop, cutting»",
+  "@pinAdminTabletName": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminRegistered": "Tablet registered",
+  "@pinAdminRegistered": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminChoosePerson": "Employee",
+  "@pinAdminChoosePerson": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminNewPin": "PIN, 4 to 6 digits",
+  "@pinAdminNewPin": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminPinSet": "PIN assigned",
+  "@pinAdminPinSet": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginTitle": "Sign in with PIN",
+  "@pinLoginTitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginSubtitle": "Choose yourself and enter your PIN",
+  "@pinLoginSubtitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginUnavailableTitle": "This tablet is not set up for PINs",
+  "@pinLoginUnavailableTitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginUnavailableMessage": "Ask the administrator to register it in Settings.",
+  "@pinLoginUnavailableMessage": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginPin": "PIN",
+  "@pinLoginPin": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "materialStockTitle": "Materials",
+  "@materialStockTitle": {
+    "description": "Materials store"
+  },
+  "materialStockOnHand": "On hand",
+  "@materialStockOnHand": {
+    "description": "Materials store"
+  },
+  "materialStockReceive": "Receive",
+  "@materialStockReceive": {
+    "description": "Materials store"
+  },
+  "materialStockLists": "Lists",
+  "@materialStockLists": {
+    "description": "Materials store"
+  },
+  "materialStockEmptyTitle": "Nothing in stock yet",
+  "@materialStockEmptyTitle": {
+    "description": "Materials store"
+  },
+  "materialStockEmptyMessage": "Purchases appear here once they are received.",
+  "@materialStockEmptyMessage": {
+    "description": "Materials store"
+  },
+  "materialStockAverage": "Average price {price}",
+  "@materialStockAverage": {
+    "description": "Materials store",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockFillAll": "Fill in every field.",
+  "@materialStockFillAll": {
+    "description": "Materials store"
+  },
+  "materialStockReceived": "{title}: received, now {onHand}",
+  "@materialStockReceived": {
+    "description": "Materials store",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "onHand": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockName": "Material name",
+  "@materialStockName": {
+    "description": "Materials store"
+  },
+  "materialStockSupplier": "Bought from",
+  "@materialStockSupplier": {
+    "description": "Materials store"
+  },
+  "materialStockQty": "How many",
+  "@materialStockQty": {
+    "description": "Materials store"
+  },
+  "materialStockUnit": "Unit",
+  "@materialStockUnit": {
+    "description": "Materials store"
+  },
+  "materialStockPrice": "Price per unit",
+  "@materialStockPrice": {
+    "description": "Materials store"
+  },
+  "materialStockSuppliers": "Suppliers",
+  "@materialStockSuppliers": {
+    "description": "Materials store"
+  },
+  "materialStockAdd": "Add",
+  "@materialStockAdd": {
+    "description": "Materials store"
+  },
+  "materialStockAdded": "«{value}» added",
+  "@materialStockAdded": {
+    "description": "Materials store",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockOff": "{value} (off)",
+  "@materialStockOff": {
+    "description": "Materials store",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockOpen": "Materials",
+  "@materialStockOpen": {
+    "description": "Materials store"
   }
 }

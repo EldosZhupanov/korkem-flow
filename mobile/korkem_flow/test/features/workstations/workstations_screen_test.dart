@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
+import 'package:korkem_flow/features/piece_work/domain/piece_work.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/presentation/complete_operation_button.dart';
 import 'package:korkem_flow/features/workstations/data/workstation_repository.dart';
@@ -69,6 +71,9 @@ void main() {
         overrides: [
           workstationRepositoryProvider.overrideWithValue(workstationRepo),
           productionCommandRepositoryProvider.overrideWithValue(commandRepo),
+          pieceRatesProvider.overrideWith(
+            (ref) async => const PieceRates(rates: [], canEdit: false),
+          ),
         ],
         child: harness(
           WorkstationsScreen(selectedWorkstation: selectedWorkstation),

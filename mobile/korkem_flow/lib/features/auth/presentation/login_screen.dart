@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/auth/kiosk_store.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
 import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
@@ -245,6 +246,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           : () => context.push(Routes.register),
                       child: Text(l10n.authRegister),
                     ),
+                    // Only on a tablet the administrator registered for PINs.
+                    if (ref.watch(kioskDeviceProvider).value != null) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      OutlinedButton.icon(
+                        key: const ValueKey('openPinLogin'),
+                        icon: const Icon(AppIcons.noAccess),
+                        onPressed: _busy
+                            ? null
+                            : () => context.push(Routes.pinLogin),
+                        label: Text(l10n.pinLoginTitle),
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.md),
                     Center(
                       child: TextButton.icon(

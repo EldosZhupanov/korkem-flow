@@ -17,6 +17,7 @@ import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/updates/update_controller.dart';
 import 'package:korkem_flow/core/updates/update_dialog.dart';
 import 'package:korkem_flow/features/facade_prices/presentation/facade_prices_tile.dart';
+import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
 import 'package:korkem_flow/features/price_visibility/presentation/price_visibility_tile.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -64,6 +65,7 @@ class SettingsScreen extends ConsumerWidget {
           const PriceVisibilityTile(),
           // For the administrator and order managers only, like the matrix.
           const FacadePricesTile(),
+          PinAdminTile(onOpen: () => context.push(Routes.pinAdmin)),
           const SizedBox(height: AppSpacing.xl),
 
           SectionLabel(l10n.aiSettingsTitle),
@@ -137,7 +139,8 @@ class SettingsScreen extends ConsumerWidget {
                 InfoRow(
                   icon: AppIcons.info,
                   label: l10n.profileVersion,
-                  value: '${config.flavor} · '
+                  value:
+                      '${config.flavor} · '
                       '${updateState.currentVersion ?? "0.3.0"} '
                       '(${updateState.currentBuild ?? 6})',
                 ),
@@ -179,8 +182,9 @@ class SettingsScreen extends ConsumerWidget {
                                   .read(updateControllerProvider.notifier)
                                   .check(force: true);
                               if (context.mounted) {
-                                final current =
-                                    ref.read(updateControllerProvider);
+                                final current = ref.read(
+                                  updateControllerProvider,
+                                );
                                 if (current.hasUpdate) {
                                   unawaited(
                                     showUpdateConfirmationDialog(context),

@@ -26,6 +26,10 @@ class AuthRepository {
       '/api/method/korkem_manufacturing.api.invitations.get_info';
   static const _acceptInvitePath =
       '/api/method/korkem_manufacturing.api.invitations.accept';
+  static const _pinPeoplePath =
+      '/api/method/korkem_manufacturing.api.pin_login.device_people';
+  static const _pinLoginPath =
+      '/api/method/korkem_manufacturing.api.pin_login.login';
 
   final Dio _dio;
 
@@ -140,6 +144,61 @@ class AuthRepository {
     } on DioException catch (error) {
       throw FrappeException.fromDio(error);
     }
+  }
+
+  /// Who may sign in on this registered tablet: names only.
+  Future<List<({String user, String fullName})>> pinPeople({
+    required String baseUrl,
+    required String deviceToken,
+  }) async {
+    try {
+      final response = await _dio.postUri<Map<String, dynamic>>(
+        _uri(baseUrl, _pinPeoplePath),
+        data: {'device_token': deviceToken},
+      );
+      final message = response.data?['message'];
+      final people = message is Map ? message['people'] : null;
+      return [
+        for (final row in people is List ? people : const [])
+          if (row is Map)
+            (
+              user: '${row['user'] ?? ''}',
+              fullName: '${row['full_name'] ?? row['user'] ?? ''}',
+            ),
+      ];
+    } on DioException catch (error) {
+      throw FrappeException.fromDio(error);
+    }
+  }
+
+  /// Signs in with a PIN on a registered tablet. The server answers with an
+  /// ordinary Frappe session, so the result is a cookie credential — PIN
+  /// sign-in never mints API keys.
+  Future<AuthCredentials> signInWithPin({
+    required String baseUrl,
+    required String deviceToken,
+    required String user,
+    required String pin,
+  }) async {
+    final Response<dynamic> response;
+    try {
+      response = await _dio.postUri<dynamic>(
+        _uri(baseUrl, _pinLoginPath),
+        data: {'device_token': deviceToken, 'user': user, 'pin': pin},
+      );
+    } on DioException catch (error) {
+      final status = error.response?.statusCode;
+      if (status == 401 || status == 403 || status == 429) {
+        final failure = FrappeException.fromDio(error);
+        throw AuthFailure(failure.message);
+      }
+      throw FrappeException.fromDio(error);
+    }
+    final sid = _sidFrom(response.headers.map['set-cookie']);
+    if (sid == null) {
+      throw const ServerFailure('The server did not start a session.');
+    }
+    return SessionCredentials(user: user, sid: sid);
   }
 
   /// Exchanges a password for a durable credential.

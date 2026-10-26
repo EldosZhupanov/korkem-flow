@@ -10,7 +10,12 @@ from frappe.utils import flt
 
 class PieceWorkEntry(Document):
 	def before_insert(self):
-		self.amount = round(flt(self.quantity) * flt(self.rate), 2)
+		self.amount = self._amount()
+
+	def _amount(self) -> float:
+		# The coefficient is part of the amount, never a second line: one entry
+		# says what was made, at what rate, under what shift, and what it pays.
+		return round(flt(self.quantity) * flt(self.rate) * (flt(self.factor) or 1), 2)
 
 	def validate(self):
 		# 1. Tenant scope check
@@ -18,7 +23,7 @@ class PieceWorkEntry(Document):
 		enforce_tenant_scope(self.company)
 
 		# 2. Compute amount
-		self.amount = round(flt(self.quantity) * flt(self.rate), 2)
+		self.amount = self._amount()
 
 		# 3. Immutability checks once processed
 		if not self.is_new():

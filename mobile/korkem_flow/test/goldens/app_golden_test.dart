@@ -26,6 +26,8 @@ import 'package:korkem_flow/features/facade_prices/application/facade_price_cont
 import 'package:korkem_flow/features/facade_prices/domain/facade_price_table.dart';
 import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/features/notifications/domain/app_notification.dart';
+import 'package:korkem_flow/features/pin_login/data/pin_admin_repository.dart';
+import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
 import 'package:korkem_flow/features/price_visibility/application/price_visibility_controller.dart';
 import 'package:korkem_flow/features/price_visibility/domain/price_visibility.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
@@ -340,6 +342,10 @@ Future<void> _pumpApp(
           _StubPriceVisibility.new,
         ),
         facadePriceControllerProvider.overrideWith(_StubFacadePrices.new),
+        // Not an administrator: the PIN row is absent, as for most people.
+        pinHoldersProvider.overrideWith(
+          (ref) => Future<List<PinHolder>>.error(StateError('not admin')),
+        ),
         approvalsControllerProvider.overrideWith(_StubApprovals.new),
         productionControllerProvider.overrideWith(_StubProduction.new),
         quotesControllerProvider.overrideWith(_StubQuotes.new),

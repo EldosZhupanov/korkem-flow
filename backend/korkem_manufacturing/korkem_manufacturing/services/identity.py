@@ -68,3 +68,21 @@ def role_of(user: str | None = None) -> str:
 def effective_role(user: str | None = None, channel_role: str | None = None) -> str:
 	"""The role in force, after a channel identity has had its say."""
 	return _narrowed(_from_roles(user or frappe.session.user), channel_role)
+
+
+def is_staff(user: str | None = None) -> bool:
+	"""Somebody who works here — any desk role — and not a customer.
+
+	Not `role_of(...) == EMPLOYEE`: `EMPLOYEE_ROLES` predates drivers and
+	accounting (no Delivery or Accounts roles), so `role_of` calls them
+	customers. Widening that list changes what the assistant lets them do, which
+	is its own decision; this answers only "is this a member of staff".
+	"""
+	user = user or frappe.session.user
+	if user == "Guest":
+		return False
+	if user == "Administrator":
+		return True
+	roles = set(frappe.get_roles(user)) - {"All", "Guest", "Desk User"}
+	return bool(roles) and "Korkem Customer" not in roles
+

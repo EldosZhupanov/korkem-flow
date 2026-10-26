@@ -6572,6 +6572,516 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Prepayment due: {amount}'**
   String orderPrepaymentDue(String amount);
+
+  /// Shop-floor facade list
+  ///
+  /// In en, this message translates to:
+  /// **'Facades to make'**
+  String get facadeJobsTitle;
+
+  /// Shop-floor facade list
+  ///
+  /// In en, this message translates to:
+  /// **'No facades to make'**
+  String get facadeJobsEmptyTitle;
+
+  /// Shop-floor facade list
+  ///
+  /// In en, this message translates to:
+  /// **'Facades appear here once an order is placed.'**
+  String get facadeJobsEmptyMessage;
+
+  /// Shop-floor facade list
+  ///
+  /// In en, this message translates to:
+  /// **'due {date}'**
+  String facadeJobsDue(String date);
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Piece work'**
+  String get pieceWorkTitle;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'My work'**
+  String get pieceWorkMine;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing accrued yet'**
+  String get pieceWorkNothingYet;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting approval'**
+  String get pieceWorkPending;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get pieceWorkApproved;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get pieceWorkPaid;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get pieceWorkRejected;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get pieceWorkPcs;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'To approve'**
+  String get pieceWorkToApprove;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to approve'**
+  String get pieceWorkNothingToApprove;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get pieceWorkApprove;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get pieceWorkReject;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Reason — the worker will see it'**
+  String get pieceWorkReason;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Rates'**
+  String get pieceWorkRates;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Add a rate'**
+  String get pieceWorkAddRate;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get pieceWorkDisabled;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime and weekends'**
+  String get pieceWorkCoefficients;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime'**
+  String get pieceWorkOvertime;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend'**
+  String get pieceWorkWeekend;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'after'**
+  String get pieceWorkAfter;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'as usual'**
+  String get pieceWorkNoCoefficient;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Operation'**
+  String get pieceWorkOperation;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'As named in the shop, or «Фасад» for finished facades'**
+  String get pieceWorkOperationHint;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'per piece'**
+  String get pieceWorkPerPiece;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get pieceWorkRate;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get pieceWorkEnabled;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Shift ends at (HH:MM)'**
+  String get pieceWorkShiftEnd;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday is a day off'**
+  String get pieceWorkSaturdayOff;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday is a day off'**
+  String get pieceWorkSundayOff;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Piece rate: ~{amount}'**
+  String pieceWorkEstimate(String amount);
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent expenses'**
+  String get expensesTitle;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense'**
+  String get expensesAdd;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting a decision'**
+  String get expensesPendingTotal;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses'**
+  String get expensesEmptyTitle;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Spent money on the job? Write it down here, with the receipt.'**
+  String get expensesEmptyMessage;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Expense recorded'**
+  String get expensesFiled;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded, but the receipt photo was not sent.'**
+  String get expensesReceiptNotSent;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get expensesAmount;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'What for'**
+  String get expensesPurpose;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get expensesCategory;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of the receipt'**
+  String get expensesReceipt;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'PIN sign-in'**
+  String get pinAdminTitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Shop-floor tablets and who signs in on them'**
+  String get pinAdminSubtitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Tablets'**
+  String get pinAdminTablets;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Make this device a PIN tablet'**
+  String get pinAdminRegisterThis;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'This device: {label}'**
+  String pinAdminThisIs(String label);
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Switched off'**
+  String get pinAdminRevoked;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Switch off'**
+  String get pinAdminRevoke;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'People with a PIN'**
+  String get pinAdminPeople;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Locked after wrong attempts'**
+  String get pinAdminLocked;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Remove PIN'**
+  String get pinAdminClear;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a PIN'**
+  String get pinAdminAssign;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Tablet name, e.g. «Shop, cutting»'**
+  String get pinAdminTabletName;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Tablet registered'**
+  String get pinAdminRegistered;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Employee'**
+  String get pinAdminChoosePerson;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'PIN, 4 to 6 digits'**
+  String get pinAdminNewPin;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'PIN assigned'**
+  String get pinAdminPinSet;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with PIN'**
+  String get pinLoginTitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Choose yourself and enter your PIN'**
+  String get pinLoginSubtitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'This tablet is not set up for PINs'**
+  String get pinLoginUnavailableTitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the administrator to register it in Settings.'**
+  String get pinLoginUnavailableMessage;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get pinLoginPin;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get materialStockTitle;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'On hand'**
+  String get materialStockOnHand;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get materialStockReceive;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Lists'**
+  String get materialStockLists;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in stock yet'**
+  String get materialStockEmptyTitle;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases appear here once they are received.'**
+  String get materialStockEmptyMessage;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Average price {price}'**
+  String materialStockAverage(String price);
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in every field.'**
+  String get materialStockFillAll;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: received, now {onHand}'**
+  String materialStockReceived(String title, String onHand);
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Material name'**
+  String get materialStockName;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Bought from'**
+  String get materialStockSupplier;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'How many'**
+  String get materialStockQty;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get materialStockUnit;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Price per unit'**
+  String get materialStockPrice;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Suppliers'**
+  String get materialStockSuppliers;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get materialStockAdd;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'«{value}» added'**
+  String materialStockAdded(String value);
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'{value} (off)'**
+  String materialStockOff(String value);
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get materialStockOpen;
 }
 
 class _AppLocalizationsDelegate

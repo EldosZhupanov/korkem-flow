@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -7,6 +8,7 @@ import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/production/presentation/complete_operation_button.dart';
 import 'package:korkem_flow/features/workstations/data/workstation_repository.dart';
 import 'package:korkem_flow/features/workstations/domain/station_operation.dart';
@@ -66,6 +68,32 @@ class _WorkstationsScreenState extends ConsumerState<WorkstationsScreen> {
       return AppScreen(
         title: l10n.workstationsTitle,
         fullWidth: true,
+        actions: [
+          IconButton(
+            key: const ValueKey('openFacadeJobs'),
+            tooltip: l10n.facadeJobsTitle,
+            icon: const Icon(AppIcons.task),
+            onPressed: () => context.push(Routes.facadeJobs),
+          ),
+          IconButton(
+            key: const ValueKey('openPieceWork'),
+            tooltip: l10n.pieceWorkTitle,
+            icon: const Icon(AppIcons.quote),
+            onPressed: () => context.push(Routes.pieceWork),
+          ),
+          IconButton(
+            key: const ValueKey('openExpenses'),
+            tooltip: l10n.expensesTitle,
+            icon: const Icon(AppIcons.attachment),
+            onPressed: () => context.push(Routes.expenses),
+          ),
+          IconButton(
+            key: const ValueKey('openMaterialStock'),
+            tooltip: l10n.materialStockOpen,
+            icon: const Icon(AppIcons.material),
+            onPressed: () => context.push(Routes.materialStock),
+          ),
+        ],
         body: Row(
           children: [
             SizedBox(
@@ -117,6 +145,32 @@ class _WorkstationsScreenState extends ConsumerState<WorkstationsScreen> {
 
     return AppScreen(
       title: l10n.workstationsTitle,
+      actions: [
+        IconButton(
+          key: const ValueKey('openFacadeJobs'),
+          tooltip: l10n.facadeJobsTitle,
+          icon: const Icon(AppIcons.task),
+          onPressed: () => context.push(Routes.facadeJobs),
+        ),
+        IconButton(
+          key: const ValueKey('openPieceWork'),
+          tooltip: l10n.pieceWorkTitle,
+          icon: const Icon(AppIcons.quote),
+          onPressed: () => context.push(Routes.pieceWork),
+        ),
+        IconButton(
+          key: const ValueKey('openExpenses'),
+          tooltip: l10n.expensesTitle,
+          icon: const Icon(AppIcons.attachment),
+          onPressed: () => context.push(Routes.expenses),
+        ),
+        IconButton(
+          key: const ValueKey('openMaterialStock'),
+          tooltip: l10n.materialStockOpen,
+          icon: const Icon(AppIcons.material),
+          onPressed: () => context.push(Routes.materialStock),
+        ),
+      ],
       body: _WorkstationsList(
         stationsAsync: stationsAsync,
         selectedWorkstation: _selectedWorkstation,

@@ -13,3 +13,5 @@ korkem_manufacturing.patches.v0_0.hide_money_from_floor_roles
 korkem_manufacturing.patches.v0_0.seed_facade_prices
 korkem_manufacturing.patches.v0_0.add_facade_order_fields
 korkem_manufacturing.patches.v0_0.let_money_roles_edit_prices
+korkem_manufacturing.patches.v0_0.add_facade_job_status
+korkem_manufacturing.patches.v0_0.add_material_stock_fields

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/features/enquiry_flow/application/image_picker_service.dart';
+import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -233,12 +235,25 @@ class _CompleteOperationDialogState
                   return null;
                 },
               ),
+              // The estimate is the operation's real rate from the server, and
+              // only when it has one. It used to be a fixed 150 ₸ a piece —
+              // a number nobody set, shown to people about their own pay.
               ValueListenableBuilder<TextEditingValue>(
                 valueListenable: _qtyController,
                 builder: (context, val, _) {
                   final parsedQty = double.tryParse(val.text.trim()) ?? 0.0;
-                  if (parsedQty <= 0) return const SizedBox.shrink();
-                  final estAmount = (parsedQty * 150.0).round();
+                  final rate = ref
+                      .watch(pieceRatesProvider)
+                      .value
+                      ?.perPieceFor(opTitle);
+                  if (parsedQty <= 0 || rate == null) {
+                    return const SizedBox.shrink();
+                  }
+                  final estimate = NumberFormat.currency(
+                    locale: Localizations.localeOf(context).toLanguageTag(),
+                    symbol: '₸',
+                    decimalDigits: 0,
+                  ).format(parsedQty * rate);
                   return Padding(
                     padding: const EdgeInsets.only(top: AppSpacing.xs),
                     child: Row(
@@ -250,7 +265,7 @@ class _CompleteOperationDialogState
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          'Сдельно: ~$estAmount ₸',
+                          l10n.pieceWorkEstimate(estimate),
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.w600,

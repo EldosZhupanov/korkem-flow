@@ -52,6 +52,8 @@ def record_piece_work(
 	idempotency_key: str | None = None,
 	actor: str | None = None,
 	notes: str | None = None,
+	factor: float = 1.0,
+	shift_kind: str = "Обычная",
 ) -> Any:
 	"""Зафиксировать сдельную выработку по операции в статусе 'Pending Approval'."""
 	comp = company or current_company()
@@ -81,7 +83,10 @@ def record_piece_work(
 	if r < 0:
 		frappe.throw(f"Тариф не может быть отрицательным (передан: {rate}).", frappe.ValidationError)
 
-	amount = round(qty * r, 2)
+	factor = flt(factor) or 1.0
+	if factor < 1:
+		frappe.throw("Коэффициент не может уменьшать оплату.", frappe.ValidationError)
+	amount = round(qty * r * factor, 2)
 
 	doc = frappe.get_doc(
 		{
@@ -97,6 +102,8 @@ def record_piece_work(
 			"quantity": qty,
 			"unit": unit,
 			"rate": r,
+			"factor": factor,
+			"shift_kind": shift_kind,
 			"amount": amount,
 			"status": "Pending Approval",
 			"correlation_id": correlation_id,
@@ -230,6 +237,8 @@ def reverse_piece_work(
 			"quantity",
 			"unit",
 			"rate",
+			"factor",
+			"shift_kind",
 			"amount",
 			"status",
 		],
@@ -270,6 +279,8 @@ def reverse_piece_work(
 			"quantity": -flt(locked.quantity),
 			"unit": locked.unit,
 			"rate": flt(locked.rate),
+			"factor": flt(locked.factor) or 1,
+			"shift_kind": locked.shift_kind or "Обычная",
 			"amount": -flt(locked.amount),
 			"status": "Reversed",
 			"reversed_entry": locked.name,

@@ -3718,4 +3718,278 @@ class AppLocalizationsRu extends AppLocalizations {
   String orderPrepaymentDue(String amount) {
     return 'Ждём предоплату: $amount';
   }
+
+  @override
+  String get facadeJobsTitle => 'Фасады в работу';
+
+  @override
+  String get facadeJobsEmptyTitle => 'Фасадов в работе нет';
+
+  @override
+  String get facadeJobsEmptyMessage =>
+      'Фасады появятся здесь, когда будет оформлен заказ.';
+
+  @override
+  String facadeJobsDue(String date) {
+    return 'срок $date';
+  }
+
+  @override
+  String get pieceWorkTitle => 'Сдельная оплата';
+
+  @override
+  String get pieceWorkMine => 'Моя выработка';
+
+  @override
+  String get pieceWorkNothingYet => 'Пока ничего не начислено';
+
+  @override
+  String get pieceWorkPending => 'Ждёт утверждения';
+
+  @override
+  String get pieceWorkApproved => 'Утверждено';
+
+  @override
+  String get pieceWorkPaid => 'Выплачено';
+
+  @override
+  String get pieceWorkRejected => 'Отклонено';
+
+  @override
+  String get pieceWorkPcs => 'шт.';
+
+  @override
+  String get pieceWorkToApprove => 'На утверждение';
+
+  @override
+  String get pieceWorkNothingToApprove => 'Утверждать нечего';
+
+  @override
+  String get pieceWorkApprove => 'Утвердить';
+
+  @override
+  String get pieceWorkReject => 'Отклонить';
+
+  @override
+  String get pieceWorkReason => 'Причина — работник её увидит';
+
+  @override
+  String get pieceWorkRates => 'Тарифы';
+
+  @override
+  String get pieceWorkAddRate => 'Добавить тариф';
+
+  @override
+  String get pieceWorkDisabled => 'Отключён';
+
+  @override
+  String get pieceWorkCoefficients => 'Сверхурочные и выходные';
+
+  @override
+  String get pieceWorkOvertime => 'Сверхурочно';
+
+  @override
+  String get pieceWorkWeekend => 'Выходной';
+
+  @override
+  String get pieceWorkAfter => 'после';
+
+  @override
+  String get pieceWorkNoCoefficient => 'как обычно';
+
+  @override
+  String get pieceWorkOperation => 'Операция';
+
+  @override
+  String get pieceWorkOperationHint =>
+      'Как в цехе (например «Раскрой») или «Фасад» — за готовые фасады';
+
+  @override
+  String get pieceWorkPerPiece => 'за штуку';
+
+  @override
+  String get pieceWorkRate => 'Тариф';
+
+  @override
+  String get pieceWorkEnabled => 'Действует';
+
+  @override
+  String get pieceWorkShiftEnd => 'Смена заканчивается в (ЧЧ:ММ)';
+
+  @override
+  String get pieceWorkSaturdayOff => 'Суббота — выходной';
+
+  @override
+  String get pieceWorkSundayOff => 'Воскресенье — выходной';
+
+  @override
+  String pieceWorkEstimate(String amount) {
+    return 'Сдельно: ~$amount';
+  }
+
+  @override
+  String get expensesTitle => 'Срочные расходы';
+
+  @override
+  String get expensesAdd => 'Записать расход';
+
+  @override
+  String get expensesPendingTotal => 'Ждёт решения';
+
+  @override
+  String get expensesEmptyTitle => 'Расходов нет';
+
+  @override
+  String get expensesEmptyMessage =>
+      'Потратили деньги по работе? Запишите здесь, с чеком.';
+
+  @override
+  String get expensesFiled => 'Расход записан';
+
+  @override
+  String get expensesReceiptNotSent => 'Записано, но фото чека не отправилось.';
+
+  @override
+  String get expensesAmount => 'Сумма';
+
+  @override
+  String get expensesPurpose => 'На что';
+
+  @override
+  String get expensesCategory => 'Категория';
+
+  @override
+  String get expensesReceipt => 'Фото чека';
+
+  @override
+  String get pinAdminTitle => 'Вход по PIN';
+
+  @override
+  String get pinAdminSubtitle => 'Планшеты цеха и кто на них входит';
+
+  @override
+  String get pinAdminTablets => 'Планшеты';
+
+  @override
+  String get pinAdminRegisterThis => 'Сделать это устройство планшетом для PIN';
+
+  @override
+  String pinAdminThisIs(String label) {
+    return 'Это устройство: $label';
+  }
+
+  @override
+  String get pinAdminRevoked => 'Отключён';
+
+  @override
+  String get pinAdminRevoke => 'Отключить';
+
+  @override
+  String get pinAdminPeople => 'Сотрудники с PIN';
+
+  @override
+  String get pinAdminLocked => 'Заблокирован после неверных попыток';
+
+  @override
+  String get pinAdminClear => 'Снять PIN';
+
+  @override
+  String get pinAdminAssign => 'Назначить PIN';
+
+  @override
+  String get pinAdminTabletName => 'Название планшета, например «Цех, раскрой»';
+
+  @override
+  String get pinAdminRegistered => 'Планшет зарегистрирован';
+
+  @override
+  String get pinAdminChoosePerson => 'Сотрудник';
+
+  @override
+  String get pinAdminNewPin => 'PIN, от 4 до 6 цифр';
+
+  @override
+  String get pinAdminPinSet => 'PIN назначен';
+
+  @override
+  String get pinLoginTitle => 'Войти по PIN';
+
+  @override
+  String get pinLoginSubtitle => 'Выберите себя и введите PIN';
+
+  @override
+  String get pinLoginUnavailableTitle => 'Этот планшет не настроен для PIN';
+
+  @override
+  String get pinLoginUnavailableMessage =>
+      'Попросите администратора зарегистрировать его в настройках.';
+
+  @override
+  String get pinLoginPin => 'PIN';
+
+  @override
+  String get materialStockTitle => 'Склад материалов';
+
+  @override
+  String get materialStockOnHand => 'Остатки';
+
+  @override
+  String get materialStockReceive => 'Приход';
+
+  @override
+  String get materialStockLists => 'Справочники';
+
+  @override
+  String get materialStockEmptyTitle => 'На складе пока ничего нет';
+
+  @override
+  String get materialStockEmptyMessage =>
+      'Купленное появится здесь после прихода.';
+
+  @override
+  String materialStockAverage(String price) {
+    return 'Средняя цена $price';
+  }
+
+  @override
+  String get materialStockFillAll => 'Заполните все поля.';
+
+  @override
+  String materialStockReceived(String title, String onHand) {
+    return '$title: оприходовано, теперь $onHand';
+  }
+
+  @override
+  String get materialStockName => 'Название материала';
+
+  @override
+  String get materialStockSupplier => 'У кого купили';
+
+  @override
+  String get materialStockQty => 'Сколько';
+
+  @override
+  String get materialStockUnit => 'Единица';
+
+  @override
+  String get materialStockPrice => 'Цена за единицу';
+
+  @override
+  String get materialStockSuppliers => 'Поставщики';
+
+  @override
+  String get materialStockAdd => 'Добавить';
+
+  @override
+  String materialStockAdded(String value) {
+    return '«$value» добавлено';
+  }
+
+  @override
+  String materialStockOff(String value) {
+    return '$value (отключено)';
+  }
+
+  @override
+  String get materialStockOpen => 'Склад материалов';
 }
