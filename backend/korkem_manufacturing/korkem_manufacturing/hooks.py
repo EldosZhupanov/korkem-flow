@@ -168,6 +168,9 @@ doc_events = {
 			"korkem_manufacturing.services.invitations.prevent_self_role_change"
 		),
 	},
+	"Company": {
+		"after_insert": "korkem_manufacturing.services.facade_prices.on_company_created",
+	},
 }
 
 # Scheduled Tasks

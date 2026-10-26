@@ -1,0 +1,106 @@
+{
+ "actions": [],
+ "autoname": "field:company",
+ "creation": "2026-10-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "double_sided_factor",
+  "customer_material_offered",
+  "customer_material_discount_percent",
+  "demolition_unit",
+  "demolition_rate",
+  "prepayment_percent"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "double_sided_factor",
+   "fieldtype": "Float",
+   "label": "Double-sided factor",
+   "description": "Во сколько раз двусторонний дороже одностороннего (например 1.8). Пусто — двусторонние не считаются."
+  },
+  {
+   "default": "0",
+   "fieldname": "customer_material_offered",
+   "fieldtype": "Check",
+   "label": "Customer material accepted",
+   "description": "Принимаем материал заказчика (давальческий)."
+  },
+  {
+   "fieldname": "customer_material_discount_percent",
+   "fieldtype": "Percent",
+   "label": "Customer material discount, %",
+   "description": "Скидка с цены за м², когда материал заказчика (0 — без скидки).",
+   "depends_on": "customer_material_offered"
+  },
+  {
+   "fieldname": "demolition_unit",
+   "fieldtype": "Select",
+   "label": "Demolition unit",
+   "options": "\nЗа м²\nЗа штуку\nЗа заказ"
+  },
+  {
+   "fieldname": "demolition_rate",
+   "fieldtype": "Currency",
+   "label": "Demolition rate"
+  },
+  {
+   "fieldname": "prepayment_percent",
+   "fieldtype": "Percent",
+   "label": "Prepayment, %",
+   "description": "Предоплата по умолчанию. Менеджер может указать другую сумму в заказе."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Facade Pricing Settings",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Sales Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Sales User",
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 0
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

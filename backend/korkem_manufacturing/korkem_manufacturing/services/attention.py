@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import frappe
 
+from korkem_manufacturing.services import price_visibility
 from korkem_manufacturing.services.scope import scoped
 
 TASK_DOCTYPE = "CRM Task"
@@ -156,11 +157,12 @@ def _delivered_not_invoiced() -> list[dict]:
 		order_by="modified asc",
 		limit_page_length=20,
 	)
+	allowed = price_visibility.can_see_prices()
 	return [
 		{
 			"sales_order": row["name"],
 			"customer": row.get("customer"),
-			"total": frappe.utils.flt(row.get("grand_total")),
+			"total": price_visibility.money(row.get("grand_total"), allowed=allowed),
 			"delivered_percent": frappe.utils.flt(row.get("per_delivered")),
 			"billed_percent": frappe.utils.flt(row.get("per_billed")),
 		}

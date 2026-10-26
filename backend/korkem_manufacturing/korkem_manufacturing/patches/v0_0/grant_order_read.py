@@ -37,6 +37,15 @@ NEEDS_READ = (
 
 
 def execute():
+	# Copy the doctype's standard permissions into Custom DocPerm *before*
+	# adding ours. Frappe ignores every standard DocPerm of a doctype as soon
+	# as it has one Custom DocPerm row (frappe.permissions.get_valid_perms), so
+	# inserting rows here first silently took Sales Order away from Sales
+	# User, Sales Manager, Accounts User and Stock User on every new site.
+	from frappe.permissions import setup_custom_perms
+
+	setup_custom_perms(DOCTYPE)
+
 	for role in NEEDS_READ:
 		if not frappe.db.exists("Role", role):
 			# An app that installs those roles may not be present on every site.

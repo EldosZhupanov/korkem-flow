@@ -74,6 +74,7 @@ from korkem_ai.korkem_ai.notifications import events
 from korkem_ai.korkem_ai.tools import scope
 from korkem_ai.korkem_ai.tools.registry import Risk, ToolSpec, register
 from korkem_ai.korkem_ai.tools.scope import ensure_company, scoped
+from korkem_manufacturing.services import price_visibility
 
 MAX_CANDIDATES = 10
 
@@ -159,8 +160,10 @@ def search_items(query: str | None = None, limit: int | None = None):
 		order_by="item_name asc",
 	)
 	buyer = scope.customer_scope()
+	allowed = price_visibility.can_see_prices()
 	for row in rows:
-		row.update(_price_of(row["item_code"], buyer))
+		price = _price_of(row["item_code"], buyer)
+		row.update(price if allowed else {**price, "rate": None})
 	return {"items": rows, "count": len(rows)}
 
 

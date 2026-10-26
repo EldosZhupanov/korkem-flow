@@ -292,3 +292,25 @@ def _audit_operation(result: dict) -> None:
 			title="Could not record who finished a stage",
 			message=frappe.get_traceback(with_context=True),
 		)
+
+
+@frappe.whitelist(methods=["POST"])
+def attach_defect_photo(job_card: str) -> dict:
+	"""Приложить фото брака к этапу — по желанию, только если брак записан.
+
+	Файл приходит телом запроса (поле «file»), как его отправляет телефон.
+	"""
+	from korkem_manufacturing.services import defect_photo
+
+	job_card = _clean(job_card)
+	if not job_card:
+		frappe.throw("Укажите этап (job card), к которому относится фото.")
+	uploaded = (frappe.request.files or {}).get("file") if frappe.request else None
+	if uploaded is None:
+		frappe.throw("В запросе нет файла. Ожидается поле «file».")
+	return defect_photo.attach(
+		job_card=job_card,
+		filename=uploaded.filename or "",
+		content=uploaded.stream.read(),
+	)
+

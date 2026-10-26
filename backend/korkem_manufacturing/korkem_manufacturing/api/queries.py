@@ -7,6 +7,7 @@ from __future__ import annotations
 import frappe
 from frappe.utils import flt
 
+from korkem_manufacturing.services import price_visibility
 from korkem_manufacturing.services.scope import scoped
 
 SALES_ORDER_FIELDS = (
@@ -81,6 +82,9 @@ MATERIAL_REQUEST_FIELDS = (
 )
 MAX_LIMIT = 100
 
+#: The money among the fields above, hidden from callers who may not see it.
+SALES_ORDER_MONEY = ("grand_total", "advance_paid")
+
 
 @frappe.whitelist()
 def sales_orders(
@@ -123,7 +127,9 @@ def sales_orders(
 	orders = frappe.get_list("Sales Order", **query)
 
 	return {
-		"orders": orders,
+		# Money is the server's decision, not the screen's: a worker's phone is
+		# sent None, never a price it is trusted not to draw.
+		"orders": price_visibility.redact(orders, SALES_ORDER_MONEY),
 		"total": _total("Sales Order", filters, query.get("or_filters")),
 		"limit": limit,
 		"offset": offset,
@@ -329,8 +335,11 @@ def deliveries(sales_order: str, limit: int = 20, offset: int = 0) -> dict:
 	for item in items:
 		items_by_delivery.setdefault(item["parent"], []).append(_delivery_item(item))
 
+	allowed = price_visibility.can_see_prices()
 	return {
-		"deliveries": [_delivery(row, items_by_delivery.get(row["name"], [])) for row in rows],
+		"deliveries": [
+			_delivery(row, items_by_delivery.get(row["name"], []), allowed=allowed) for row in rows
+		],
 		"total": _total("Delivery Note", filters),
 		"limit": limit,
 		"offset": offset,
@@ -408,12 +417,12 @@ def _stock_item(row, item_names: dict[str, str | None]) -> dict:
 	}
 
 
-def _delivery(row, items: list[dict]) -> dict:
+def _delivery(row, items: list[dict], *, allowed: bool = True) -> dict:
 	return {
 		"name": row["name"],
 		"posting_date": _iso(row.get("posting_date")),
 		"status": row.get("status") or None,
-		"grand_total": flt(row.get("grand_total")),
+		"grand_total": price_visibility.money(row.get("grand_total"), allowed=allowed),
 		"items": items,
 	}
 
@@ -487,8 +496,9 @@ def receivable_purchase_orders(limit: int = 20, offset: int = 0) -> dict:
 		limit_start=offset,
 		limit_page_length=limit,
 	)
+	allowed = price_visibility.can_see_prices()
 	return {
-		"orders": [_purchase_order(row) for row in rows],
+		"orders": [_purchase_order(row, allowed=allowed) for row in rows],
 		"total": _total("Purchase Order", filters),
 		"limit": limit,
 		"offset": offset,
@@ -531,7 +541,7 @@ def orderable_material_requests(limit: int = 20, offset: int = 0) -> dict:
 	}
 
 
-def _purchase_order(row) -> dict:
+def _purchase_order(row, *, allowed: bool = True) -> dict:
 	return {
 		"name": row["name"],
 		"supplier": row.get("supplier") or None,
@@ -539,7 +549,7 @@ def _purchase_order(row) -> dict:
 		"expected_on": _iso(row.get("schedule_date")),
 		"status": row.get("status") or None,
 		"received_percent": flt(row.get("per_received")),
-		"total": flt(row.get("grand_total")),
+		"total": price_visibility.money(row.get("grand_total"), allowed=allowed),
 	}
 
 

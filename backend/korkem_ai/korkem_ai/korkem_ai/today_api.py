@@ -29,6 +29,7 @@ from __future__ import annotations
 import frappe
 
 from korkem_ai.korkem_ai.tools import scope
+from korkem_manufacturing.services import price_visibility
 
 
 @frappe.whitelist()
@@ -42,7 +43,9 @@ def get_summary() -> dict:
 		"overdue_orders": _orders(company, ["<", today]),
 		"due_today_orders": _orders(company, ["=", today]),
 		"due_this_week_orders": _orders(company, ["between", [today, week_end]]),
-		"unpaid_amount": _unpaid(company),
+		# None, not 0, for somebody who may not see money: "nobody owes us" and
+		# "not yours to know" are different answers.
+		"unpaid_amount": _unpaid(company) if price_visibility.can_see_prices() else None,
 		"material_deficit_count": _deficit(),
 		"installations_today": _installations(company, today),
 		"pending_approvals": _approvals(),
