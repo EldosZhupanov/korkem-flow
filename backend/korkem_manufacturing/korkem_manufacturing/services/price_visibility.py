@@ -78,6 +78,7 @@ MONEY_FIELDS: dict[str, tuple[str, ...]] = {
 		"discount_amount", "base_discount_amount", "additional_discount_percentage",
 		"advance_paid", "in_words", "base_in_words",
 		"amount_eligible_for_commission", "commission_rate", "total_commission",
+		"korkem_prepayment_agreed",
 	),
 	"Sales Order Item": (
 		"rate", "amount", "net_rate", "net_amount", "base_rate", "base_amount",
@@ -210,6 +211,7 @@ def apply_field_levels() -> None:
 
 	for parent in _PARENTS:
 		_ensure_level_one_read(parent, PRICE_ROLES)
+		_mirror_write_on_level_one(parent, PRICE_ROLES)
 
 	for doctype, fields in MONEY_FIELDS.items():
 		meta = frappe.get_meta(doctype)
@@ -237,6 +239,26 @@ def _ensure_level_one_read(doctype: str, roles) -> None:
 		if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 1}):
 			continue
 		add_permission(doctype, role, 1, "read")
+	frappe.clear_cache(doctype=doctype)
+
+
+def _mirror_write_on_level_one(doctype: str, roles) -> None:
+	"""A money role that may edit the document may edit its money too.
+
+	Moving rates to level 1 with a read-only grant meant a Sales User's edit to
+	a rate in the desk was silently reset by Frappe
+	(`Document.validate_higher_perm_levels`). Level 1 gets exactly the write
+	the role already has at level 0 — no more.
+	"""
+	for role in roles:
+		writes = frappe.db.get_value(
+			"Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 0}, "write"
+		)
+		if not writes:
+			continue
+		name = frappe.db.get_value("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 1}, "name")
+		if name and not frappe.db.get_value("Custom DocPerm", name, "write"):
+			frappe.db.set_value("Custom DocPerm", name, "write", 1)
 	frappe.clear_cache(doctype=doctype)
 
 

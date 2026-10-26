@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
@@ -10,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/facade_prices/application/facade_price_controller.dart';
 import 'package:korkem_flow/features/facade_prices/data/facade_price_repository.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_price_table.dart';
@@ -58,6 +61,8 @@ class _FacadeQuoteScreenState extends ConsumerState<FacadeQuoteScreen> {
   bool _demolition = false;
   bool _busy = false;
   FacadeQuote? _quote;
+  FacadeCustomer? _customer;
+  DateTime? _deliveryDate;
 
   @override
   void dispose() {
@@ -80,6 +85,69 @@ class _FacadeQuoteScreenState extends ConsumerState<FacadeQuoteScreen> {
     });
   }
 
+  List<FacadeLineInput> _inputs() => [
+    for (final line in _lines)
+      FacadeLineInput(
+        widthMm: double.parse(line.width.text),
+        heightMm: double.parse(line.height.text),
+        qty: int.parse(line.qty.text),
+        milling: line.milling!,
+        finish: line.finish!,
+        doubleSided: line.doubleSided,
+        customerMaterial: line.customerMaterial,
+      ),
+  ];
+
+  Future<void> _pickCustomer() async {
+    final picked = await showDialog<FacadeCustomer>(
+      context: context,
+      builder: (_) => const _CustomerPicker(),
+    );
+    if (picked != null && mounted) setState(() => _customer = picked);
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _deliveryDate ?? today.add(const Duration(days: 14)),
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
+    );
+    if (picked != null && mounted) setState(() => _deliveryDate = picked);
+  }
+
+  Future<void> _createOrder() async {
+    final customer = _customer;
+    final date = _deliveryDate;
+    if (customer == null || date == null) return;
+    if (!_formKey.currentState!.validate()) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.maybeOf(context);
+    final l10n = AppLocalizations.of(context);
+    setState(() => _busy = true);
+    try {
+      final result = await ref
+          .read(facadePriceRepositoryProvider)
+          .createOrder(
+            customer: customer.name,
+            deliveryDate: date,
+            lines: _inputs(),
+            demolition: _demolition,
+            prepaymentAmount: double.tryParse(_prepayment.text.trim()),
+          );
+      messenger.showDone(l10n.facadeOrderCreated(result.salesOrder));
+      router?.go(Routes.order(result.salesOrder));
+    } on MutationQueued {
+      messenger.showFailureMessage(l10n.outboxQueued);
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _calculate() async {
     if (!_formKey.currentState!.validate()) return;
     final messenger = ScaffoldMessenger.of(context);
@@ -89,18 +157,7 @@ class _FacadeQuoteScreenState extends ConsumerState<FacadeQuoteScreen> {
       final quote = await ref
           .read(facadePriceRepositoryProvider)
           .quote(
-            [
-              for (final line in _lines)
-                FacadeLineInput(
-                  widthMm: double.parse(line.width.text),
-                  heightMm: double.parse(line.height.text),
-                  qty: int.parse(line.qty.text),
-                  milling: line.milling!,
-                  finish: line.finish!,
-                  doubleSided: line.doubleSided,
-                  customerMaterial: line.customerMaterial,
-                ),
-            ],
+            _inputs(),
             demolition: _demolition,
             prepaymentAmount: double.tryParse(_prepayment.text.trim()),
           );
@@ -110,6 +167,49 @@ class _FacadeQuoteScreenState extends ConsumerState<FacadeQuoteScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Widget _orderCard(AppLocalizations l10n) {
+    final date = _deliveryDate;
+    final ready = _customer != null && date != null && !_busy;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionLabel(l10n.facadeOrderSection),
+          ListTile(
+            key: const ValueKey('facadeOrderCustomer'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(AppIcons.customer),
+            title: Text(_customer?.title ?? l10n.facadeOrderPickCustomer),
+            trailing: const Icon(AppIcons.forward),
+            onTap: _busy ? null : _pickCustomer,
+          ),
+          ListTile(
+            key: const ValueKey('facadeOrderDate'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(AppIcons.schedule),
+            title: Text(
+              date == null
+                  ? l10n.facadeOrderPickDate
+                  : l10n.facadeOrderDueOn(
+                      DateFormat.yMMMd(
+                        Localizations.localeOf(context).toLanguageTag(),
+                      ).format(date),
+                    ),
+            ),
+            trailing: const Icon(AppIcons.forward),
+            onTap: _busy ? null : _pickDate,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          FilledButton(
+            key: const ValueKey('facadeOrderCreate'),
+            onPressed: ready ? _createOrder : null,
+            child: Text(l10n.facadeOrderCreate),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -220,12 +320,92 @@ class _FacadeQuoteScreenState extends ConsumerState<FacadeQuoteScreen> {
                 if (_quote != null) ...[
                   const SizedBox(height: AppSpacing.md),
                   ReadableWidth(child: _Totals(quote: _quote!)),
+                  const SizedBox(height: AppSpacing.md),
+                  ReadableWidth(child: _orderCard(l10n)),
                 ],
               ],
             ),
           );
         },
       ),
+    );
+  }
+}
+
+class _CustomerPicker extends ConsumerStatefulWidget {
+  const _CustomerPicker();
+
+  @override
+  ConsumerState<_CustomerPicker> createState() => _CustomerPickerState();
+}
+
+class _CustomerPickerState extends ConsumerState<_CustomerPicker> {
+  final _search = TextEditingController();
+  late Future<List<FacadeCustomer>> _results = _load();
+
+  Future<List<FacadeCustomer>> _load() =>
+      ref.read(facadePriceRepositoryProvider).customers(search: _search.text);
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l10n.facadeOrderPickCustomer),
+      content: SizedBox(
+        width: AppBreakpoints.listPaneWidth,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              key: const ValueKey('facadeOrderCustomerSearch'),
+              controller: _search,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(AppIcons.search),
+                hintText: l10n.facadeOrderSearchCustomer,
+              ),
+              onSubmitted: (_) => setState(() => _results = _load()),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Flexible(
+              child: FutureBuilder<List<FacadeCustomer>>(
+                future: _results,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final rows = snapshot.data ?? const <FacadeCustomer>[];
+                  if (rows.isEmpty) {
+                    return Text(l10n.facadeOrderNoCustomers);
+                  }
+                  return ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (final row in rows)
+                        ListTile(
+                          title: Text(row.title),
+                          subtitle: row.phone == null ? null : Text(row.phone!),
+                          onTap: () => Navigator.of(context).pop(row),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.actionCancel),
+        ),
+      ],
     );
   }
 }

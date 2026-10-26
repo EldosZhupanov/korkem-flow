@@ -3623,4 +3623,37 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get facadeRulesPrepayment => 'Әдепкі алдын ала төлем';
+
+  @override
+  String get facadeOrderSection => 'Тапсырысты рәсімдеу';
+
+  @override
+  String get facadeOrderPickCustomer => 'Клиентті таңдаңыз';
+
+  @override
+  String get facadeOrderSearchCustomer => 'Аты — Enter басыңыз';
+
+  @override
+  String get facadeOrderNoCustomers => 'Клиенттер табылмады';
+
+  @override
+  String get facadeOrderPickDate => 'Тапсыру мерзімін таңдаңыз';
+
+  @override
+  String facadeOrderDueOn(String date) {
+    return 'Мерзімі: $date';
+  }
+
+  @override
+  String get facadeOrderCreate => 'Тапсырыс жасау';
+
+  @override
+  String facadeOrderCreated(String name) {
+    return '$name тапсырысы жасалды';
+  }
+
+  @override
+  String orderPrepaymentDue(String amount) {
+    return 'Алдын ала төлем күтілуде: $amount';
+  }
 }

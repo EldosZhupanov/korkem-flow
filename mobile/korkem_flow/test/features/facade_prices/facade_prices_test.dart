@@ -49,6 +49,29 @@ class _FakeRepository implements FacadePriceRepository {
 
   FacadeRules currentRules = const FacadeRules();
   final quoted = <List<FacadeLineInput>>[];
+  final ordered = <(String, DateTime, int)>[];
+
+  @override
+  Future<List<FacadeCustomer>> customers({String? search}) async => const [
+    FacadeCustomer(name: 'CUST-1', title: 'ТОО Уют', phone: '+7 700 000 00 00'),
+  ];
+
+  @override
+  Future<FacadeOrderResult> createOrder({
+    required String customer,
+    required DateTime deliveryDate,
+    required List<FacadeLineInput> lines,
+    bool demolition = false,
+    double? prepaymentAmount,
+  }) async {
+    ordered.add((customer, deliveryDate, lines.length));
+    return const FacadeOrderResult(
+      salesOrder: 'SAL-ORD-2026-00099',
+      total: 8400,
+      prepayment: 4200,
+      balance: 4200,
+    );
+  }
 
   @override
   Future<FacadeRules> fetchRules() async => currentRules;
@@ -188,5 +211,60 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CheckboxListTile), findsNothing);
     expect(find.byKey(const ValueKey('facadeQuoteDemolition')), findsNothing);
+  });
+
+  testWidgets('a calculated quote becomes an order for the chosen customer', (
+    tester,
+  ) async {
+    final repo = _FakeRepository(_table());
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [facadePriceRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const FacadeQuoteScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('facadeQuoteWidth:0')),
+      '500',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('facadeQuoteHeight:0')),
+      '400',
+    );
+    await tester.tap(find.byKey(const ValueKey('facadeQuoteCalculate')));
+    await tester.pumpAndSettle();
+
+    final create = find.byKey(const ValueKey('facadeOrderCreate'));
+    await tester.scrollUntilVisible(
+      create,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(tester.widget<FilledButton>(create).onPressed, isNull);
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('facadeOrderCustomer')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('facadeOrderCustomer')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ТОО Уют'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byKey(const ValueKey('facadeOrderDate')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('facadeOrderDate')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(create);
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+
+    expect(repo.ordered.single.$1, 'CUST-1');
+    expect(repo.ordered.single.$3, 1);
   });
 }

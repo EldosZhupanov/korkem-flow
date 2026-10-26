@@ -206,6 +206,14 @@ class _Header extends ConsumerWidget {
                     label: 'Оплачено: ${money.format(advance)}',
                     intent: StatusIntent.success,
                   ),
+                if (order.prepaymentAgreed case final agreed?
+                    when agreed > advance)
+                  StatusChip(
+                    label: l10n.orderPrepaymentDue(
+                      money.format(agreed - advance),
+                    ),
+                    intent: StatusIntent.warning,
+                  ),
                 if (balance > 0 && advance > 0)
                   StatusChip(
                     label: 'Остаток: ${money.format(balance)}',

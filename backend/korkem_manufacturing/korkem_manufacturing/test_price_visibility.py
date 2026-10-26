@@ -170,6 +170,24 @@ class TestMoneyRolesAlwaysSeeIt(_PriceTestCase):
 	def test_a_seller_sees_the_total(self):
 		self.assertEqual(self._listed(SELLER)["grand_total"], TOTAL)
 
+	def test_a_seller_may_still_edit_a_rate(self):
+		"""Regression: a read-only level 1 made Frappe discard a Sales User's rate edit."""
+		frappe.set_user(SELLER)
+		try:
+			access = frappe.get_doc("Sales Order", self.order).get_permlevel_access("write")
+		finally:
+			frappe.set_user("Administrator")
+		self.assertIn(1, access)
+
+	def test_the_shop_floor_gets_no_write_on_money(self):
+		self._switch(True)
+		frappe.set_user(CUTTER)
+		try:
+			access = frappe.get_doc("Sales Order", self.order).get_permlevel_access("write")
+		finally:
+			frappe.set_user("Administrator")
+		self.assertNotIn(1, access)
+
 	def test_a_seller_sees_it_over_rest_too(self):
 		self.assertEqual(self._rest(SELLER).get("grand_total"), TOTAL)
 

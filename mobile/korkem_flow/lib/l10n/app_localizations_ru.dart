@@ -3685,4 +3685,37 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get facadeRulesPrepayment => 'Предоплата по умолчанию';
+
+  @override
+  String get facadeOrderSection => 'Оформить заказ';
+
+  @override
+  String get facadeOrderPickCustomer => 'Выберите клиента';
+
+  @override
+  String get facadeOrderSearchCustomer => 'Имя — нажмите Enter';
+
+  @override
+  String get facadeOrderNoCustomers => 'Клиенты не найдены';
+
+  @override
+  String get facadeOrderPickDate => 'Выберите срок сдачи';
+
+  @override
+  String facadeOrderDueOn(String date) {
+    return 'Срок: $date';
+  }
+
+  @override
+  String get facadeOrderCreate => 'Создать заказ';
+
+  @override
+  String facadeOrderCreated(String name) {
+    return 'Заказ $name создан';
+  }
+
+  @override
+  String orderPrepaymentDue(String amount) {
+    return 'Ждём предоплату: $amount';
+  }
 }

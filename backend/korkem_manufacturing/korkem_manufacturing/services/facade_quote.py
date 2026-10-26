@@ -8,8 +8,9 @@ the order managers keep. Nothing here has a built-in rate. A rule nobody has
 set is refused in words ("двусторонние фасады не настроены"), never priced at
 a guess: a figure on a quote is a promise the factory has to honour.
 
-Money is Decimal throughout and rounded once per line to whole tenge, so the
-sum of the lines is the total the customer is shown.
+Money is Decimal throughout and rounded once per piece to whole tenge, so
+the sum of the lines is the total the customer is shown, and an order line
+(pieces × price per piece) reproduces it exactly.
 """
 
 from __future__ import annotations
@@ -176,7 +177,11 @@ def quote(
 
 		piece_area = width * height / Decimal(1_000_000)
 		area = piece_area * qty
-		amount = (area * rate).quantize(TENGE, rounding=ROUND_HALF_UP)
+		# Rounded per piece, then multiplied: the order line is pieces × a
+		# whole-tenge price, and ERPNext's own qty × rate then lands on exactly
+		# the figure the customer was quoted.
+		price_per_piece = (piece_area * rate).quantize(TENGE, rounding=ROUND_HALF_UP)
+		amount = price_per_piece * qty
 
 		pieces += int(qty)
 		area_total += area
@@ -191,18 +196,23 @@ def quote(
 				"finish": finish,
 				"area_m2": float(area.quantize(Decimal("0.0001"))),
 				"rate_per_m2": float(rate.quantize(TENGE, rounding=ROUND_HALF_UP)),
+				"price_per_piece": float(price_per_piece),
 				"amount": float(amount),
+				"double_sided": _flag(raw.get("double_sided")),
+				"customer_material": _flag(raw.get("customer_material")),
 				"notes": notes,
 			}
 		)
 
 	demolition_amount = Decimal("0")
+	demolition_basis = None
 	if _flag(demolition):
 		unit, demolition_rate = rules["demolition_unit"], rules["demolition_rate"]
 		if not unit or not demolition_rate:
 			frappe.throw("Демонтаж не настроен. Укажите способ и цену в настройках цен.")
 		basis = {PER_M2: area_total, PER_PIECE: Decimal(pieces), PER_ORDER: Decimal(1)}[unit]
 		demolition_amount = (basis * Decimal(str(demolition_rate))).quantize(TENGE, rounding=ROUND_HALF_UP)
+		demolition_basis = f"{unit}: {basis.quantize(Decimal('0.01')).normalize():f} × {demolition_rate:g} ₸"
 
 	total = facades_total + demolition_amount
 
@@ -226,6 +236,7 @@ def quote(
 		"area_m2": float(area_total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
 		"facades_total": float(facades_total),
 		"demolition": float(demolition_amount),
+		"demolition_basis": demolition_basis,
 		"total": float(total),
 		"prepayment": float(prepayment),
 		"prepayment_source": prepayment_source,

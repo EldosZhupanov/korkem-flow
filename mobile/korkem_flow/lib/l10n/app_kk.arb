@@ -1282,5 +1282,14 @@
   "facadeRulesEmptyMeansOff": "Бос — ұсынылмайды",
   "facadeRulesDiscount": "Тапсырыс берушінің материалы үшін жеңілдік",
   "facadeRulesDemolitionRate": "Бөлшектеу бағасы",
-  "facadeRulesPrepayment": "Әдепкі алдын ала төлем"
+  "facadeRulesPrepayment": "Әдепкі алдын ала төлем",
+  "facadeOrderSection": "Тапсырысты рәсімдеу",
+  "facadeOrderPickCustomer": "Клиентті таңдаңыз",
+  "facadeOrderSearchCustomer": "Аты — Enter басыңыз",
+  "facadeOrderNoCustomers": "Клиенттер табылмады",
+  "facadeOrderPickDate": "Тапсыру мерзімін таңдаңыз",
+  "facadeOrderDueOn": "Мерзімі: {date}",
+  "facadeOrderCreate": "Тапсырыс жасау",
+  "facadeOrderCreated": "{name} тапсырысы жасалды",
+  "orderPrepaymentDue": "Алдын ала төлем күтілуде: {amount}"
 }

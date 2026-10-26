@@ -116,3 +116,46 @@ double? _num(Object? value) => switch (value) {
   final String s => double.tryParse(s),
   _ => null,
 };
+
+/// An ERPNext customer an order can be written for.
+@immutable
+class FacadeCustomer {
+  const FacadeCustomer({required this.name, required this.title, this.phone});
+
+  factory FacadeCustomer.fromJson(Map<String, dynamic> json) {
+    final name = '${json['name'] ?? ''}';
+    return FacadeCustomer(
+      name: name,
+      title: json['customer_name'] as String? ?? name,
+      phone: json['phone'] as String?,
+    );
+  }
+
+  final String name;
+  final String title;
+  final String? phone;
+}
+
+/// The order the server created from a quote.
+@immutable
+class FacadeOrderResult {
+  const FacadeOrderResult({
+    required this.salesOrder,
+    required this.total,
+    required this.prepayment,
+    required this.balance,
+  });
+
+  factory FacadeOrderResult.fromJson(Map<String, dynamic> json) =>
+      FacadeOrderResult(
+        salesOrder: '${json['sales_order'] ?? ''}',
+        total: _num(json['total']) ?? 0,
+        prepayment: _num(json['prepayment']) ?? 0,
+        balance: _num(json['balance']) ?? 0,
+      );
+
+  final String salesOrder;
+  final double total;
+  final double prepayment;
+  final double balance;
+}

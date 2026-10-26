@@ -4178,5 +4178,56 @@
   "facadeRulesPrepayment": "Prepayment by default",
   "@facadeRulesPrepayment": {
     "description": "Facade order calculation"
+  },
+  "facadeOrderSection": "Place the order",
+  "@facadeOrderSection": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderPickCustomer": "Choose a customer",
+  "@facadeOrderPickCustomer": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderSearchCustomer": "Name — press Enter",
+  "@facadeOrderSearchCustomer": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderNoCustomers": "No customers found",
+  "@facadeOrderNoCustomers": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderPickDate": "Choose the due date",
+  "@facadeOrderPickDate": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderDueOn": "Due {date}",
+  "@facadeOrderDueOn": {
+    "description": "Facade order from a quote",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeOrderCreate": "Create order",
+  "@facadeOrderCreate": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderCreated": "Order {name} created",
+  "@facadeOrderCreated": {
+    "description": "Facade order from a quote",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPrepaymentDue": "Prepayment due: {amount}",
+  "@orderPrepaymentDue": {
+    "description": "Agreed prepayment not yet received",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }

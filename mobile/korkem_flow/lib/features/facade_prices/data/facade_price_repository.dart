@@ -4,17 +4,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_price_table.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 
 final facadePriceRepositoryProvider = Provider<FacadePriceRepository>((ref) {
-  return FacadePriceRepository(ref.watch(frappeClientProvider));
+  return FacadePriceRepository(
+    ref.watch(frappeClientProvider),
+    ref.watch(mutationOutboxProvider),
+  );
 });
 
 /// Reads and edits the facade price matrix. Who may do either is the
 /// server's decision; the shop floor is refused.
 class FacadePriceRepository {
-  const FacadePriceRepository(this._client);
+  FacadePriceRepository(this._client, [MutationOutbox? outbox])
+    : _outbox = outbox ?? MutationOutbox();
 
   static const _base = 'korkem_manufacturing.api.facade_prices';
   static const readEndpoint = '$_base.read';
@@ -22,8 +27,11 @@ class FacadePriceRepository {
   static const readRulesEndpoint = '$_base.read_settings';
   static const saveRulesEndpoint = '$_base.save_settings';
   static const quoteEndpoint = '$_base.quote';
+  static const customersEndpoint = '$_base.customers';
+  static const createOrderEndpoint = '$_base.create_order';
 
   final FrappeClient _client;
+  final MutationOutbox _outbox;
 
   Future<FacadePriceTable> fetch() async =>
       _parsed(await _client.callMethod(readEndpoint));
@@ -87,6 +95,49 @@ class FacadePriceRepository {
       },
     );
     return FacadeQuote.fromJson(_message(response));
+  }
+
+  /// ERPNext customers an order can be written for.
+  Future<List<FacadeCustomer>> customers({String? search}) async {
+    final response = await _client.callMethod(
+      customersEndpoint,
+      params: {
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      },
+    );
+    final raw = response['message'];
+    return [
+      for (final row in raw is List ? raw : const [])
+        if (row is Map) FacadeCustomer.fromJson(Map<String, dynamic>.from(row)),
+    ];
+  }
+
+  /// Creates the order. Prices are recomputed on the server from [lines];
+  /// the outbox carries one idempotency key, so a retried tap or a dropped
+  /// connection never makes a second order.
+  Future<FacadeOrderResult> createOrder({
+    required String customer,
+    required DateTime deliveryDate,
+    required List<FacadeLineInput> lines,
+    bool demolition = false,
+    double? prepaymentAmount,
+  }) async {
+    final day =
+        '${deliveryDate.year.toString().padLeft(4, '0')}-'
+        '${deliveryDate.month.toString().padLeft(2, '0')}-'
+        '${deliveryDate.day.toString().padLeft(2, '0')}';
+    final response = await _outbox.execute(
+      _client,
+      createOrderEndpoint,
+      params: {
+        'customer': customer,
+        'delivery_date': day,
+        'lines': jsonEncode([for (final line in lines) line.toJson()]),
+        'demolition': demolition ? 1 : 0,
+        'prepayment_amount': ?prepaymentAmount,
+      },
+    );
+    return FacadeOrderResult.fromJson(_message(response));
   }
 
   Map<String, dynamic> _message(Map<String, dynamic> response) {

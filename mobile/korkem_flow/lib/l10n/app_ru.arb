@@ -1282,5 +1282,14 @@
   "facadeRulesEmptyMeansOff": "Пусто — не предлагается",
   "facadeRulesDiscount": "Скидка за материал заказчика",
   "facadeRulesDemolitionRate": "Цена демонтажа",
-  "facadeRulesPrepayment": "Предоплата по умолчанию"
+  "facadeRulesPrepayment": "Предоплата по умолчанию",
+  "facadeOrderSection": "Оформить заказ",
+  "facadeOrderPickCustomer": "Выберите клиента",
+  "facadeOrderSearchCustomer": "Имя — нажмите Enter",
+  "facadeOrderNoCustomers": "Клиенты не найдены",
+  "facadeOrderPickDate": "Выберите срок сдачи",
+  "facadeOrderDueOn": "Срок: {date}",
+  "facadeOrderCreate": "Создать заказ",
+  "facadeOrderCreated": "Заказ {name} создан",
+  "orderPrepaymentDue": "Ждём предоплату: {amount}"
 }

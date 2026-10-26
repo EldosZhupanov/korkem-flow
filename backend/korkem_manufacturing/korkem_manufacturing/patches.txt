@@ -11,3 +11,5 @@ korkem_manufacturing.patches.v0_0.ensure_korkem_state_on_fresh_sites
 korkem_manufacturing.patches.v0_0.restore_standard_order_permissions
 korkem_manufacturing.patches.v0_0.hide_money_from_floor_roles
 korkem_manufacturing.patches.v0_0.seed_facade_prices
+korkem_manufacturing.patches.v0_0.add_facade_order_fields
+korkem_manufacturing.patches.v0_0.let_money_roles_edit_prices

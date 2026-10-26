@@ -14,6 +14,7 @@ class SalesOrder {
     this.perDelivered = 0,
     this.korkemState,
     this.advancePaid,
+    this.prepaymentAgreed,
   });
 
   factory SalesOrder.fromJson(Map<String, dynamic> json) {
@@ -27,6 +28,7 @@ class SalesOrder {
       perDelivered: _number(json['per_delivered']) ?? 0,
       korkemState: _text(json['korkem_state']),
       advancePaid: _number(json['advance_paid']),
+      prepaymentAgreed: _number(json['korkem_prepayment_agreed']),
     );
   }
 
@@ -45,6 +47,10 @@ class SalesOrder {
 
   /// Prepayment received so far; `null` when money is hidden, as above.
   final double? advancePaid;
+
+  /// The prepayment agreed with the customer when the order was taken —
+  /// a promise, unlike [advancePaid]. `null` when hidden or never agreed.
+  final double? prepaymentAgreed;
 
   /// Progress of delivery in 0.0–1.0 range.
   double get deliveryProgress => (perDelivered / 100.0).clamp(0.0, 1.0);

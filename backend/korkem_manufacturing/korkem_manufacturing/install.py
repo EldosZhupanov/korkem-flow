@@ -14,6 +14,7 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0.add_korkem_state_to_sales_order import (
 		execute as add_korkem_state,
 	)
+	from korkem_manufacturing.patches.v0_0.add_facade_order_fields import execute as add_facade_order_fields
 	from korkem_manufacturing.patches.v0_0.grant_order_read import execute as grant_order_read
 	from korkem_manufacturing.services import price_visibility
 
@@ -24,6 +25,7 @@ def after_install():
 	# Sales Order.korkem_state and the order state machine failed with
 	# "Unknown column 'korkem_state'".
 	add_korkem_state()
+	add_facade_order_fields()
 	# After grant_order_read: the floor roles must already read the order for
 	# the level-0/level-1 split to mean anything.
 	price_visibility.apply_field_levels()

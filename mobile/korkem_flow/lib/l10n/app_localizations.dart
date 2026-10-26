@@ -6518,6 +6518,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Prepayment by default'**
   String get facadeRulesPrepayment;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Place the order'**
+  String get facadeOrderSection;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a customer'**
+  String get facadeOrderPickCustomer;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Name — press Enter'**
+  String get facadeOrderSearchCustomer;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'No customers found'**
+  String get facadeOrderNoCustomers;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the due date'**
+  String get facadeOrderPickDate;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String facadeOrderDueOn(String date);
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Create order'**
+  String get facadeOrderCreate;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Order {name} created'**
+  String facadeOrderCreated(String name);
+
+  /// Agreed prepayment not yet received
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment due: {amount}'**
+  String orderPrepaymentDue(String amount);
 }
 
 class _AppLocalizationsDelegate

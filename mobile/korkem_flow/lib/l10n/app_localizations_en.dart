@@ -3660,4 +3660,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get facadeRulesPrepayment => 'Prepayment by default';
+
+  @override
+  String get facadeOrderSection => 'Place the order';
+
+  @override
+  String get facadeOrderPickCustomer => 'Choose a customer';
+
+  @override
+  String get facadeOrderSearchCustomer => 'Name — press Enter';
+
+  @override
+  String get facadeOrderNoCustomers => 'No customers found';
+
+  @override
+  String get facadeOrderPickDate => 'Choose the due date';
+
+  @override
+  String facadeOrderDueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get facadeOrderCreate => 'Create order';
+
+  @override
+  String facadeOrderCreated(String name) {
+    return 'Order $name created';
+  }
+
+  @override
+  String orderPrepaymentDue(String amount) {
+    return 'Prepayment due: $amount';
+  }
 }

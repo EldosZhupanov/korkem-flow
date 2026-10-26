@@ -20,6 +20,7 @@ SALES_ORDER_FIELDS = (
 	"per_delivered",
 	"korkem_state",
 	"advance_paid",
+	"korkem_prepayment_agreed",
 )
 WORK_ORDER_FIELDS = (
 	"name",
@@ -83,7 +84,7 @@ MATERIAL_REQUEST_FIELDS = (
 MAX_LIMIT = 100
 
 #: The money among the fields above, hidden from callers who may not see it.
-SALES_ORDER_MONEY = ("grand_total", "advance_paid")
+SALES_ORDER_MONEY = ("grand_total", "advance_paid", "korkem_prepayment_agreed")
 
 
 @frappe.whitelist()
