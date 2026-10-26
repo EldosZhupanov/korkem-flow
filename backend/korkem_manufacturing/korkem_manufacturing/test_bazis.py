@@ -18,6 +18,7 @@ from __future__ import annotations
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from korkem_manufacturing import testing
 from korkem_manufacturing.services import bazis as service
 
 SPECIFICATION = """<?xml version="1.0" encoding="utf-8"?>
@@ -619,5 +620,24 @@ class TestFromAnExportToAShortageList(IntegrationTestCase):
 			deliver_on=frappe.utils.add_days(frappe.utils.nowdate(), 14),
 		)["sales_order"]
 		frappe.db.set_value("Sales Order", order, "docstatus", 1)
+
+		# Accepting submits the BOM, and submit commits: without this every run
+		# left three open orders for «Клиент …» and three «Модель …» items in
+		# the catalogue, and korkem_ai's "first twenty" tests stopped seeing
+		# the seeded ones.
+		customer = frappe.db.get_value("Sales Order", order, "customer")
+		item = product["item"]
+		boms = frappe.get_all("BOM", filters={"item": item}, pluck="name", order_by="creation desc")
+		prices = frappe.get_all("Item Price", filters={"item_code": item}, pluck="name")
+		self.addCleanup(
+			testing.remove_order,
+			order,
+			also=[
+				("Customer", customer),
+				*[("BOM", name) for name in boms],
+				*[("Item Price", name) for name in prices],
+				("Item", item),
+			],
+		)
 
 		return order, product["bom"]

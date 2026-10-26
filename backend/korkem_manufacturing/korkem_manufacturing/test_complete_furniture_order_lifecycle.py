@@ -39,7 +39,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, flt, nowdate
 
-from korkem_manufacturing import setup
+from korkem_manufacturing import setup, testing
 from korkem_manufacturing.fixtures.demo_order import create_demo_furniture_order, get_demo_bazis_xml
 from korkem_manufacturing.services import (
 	acceptance,
@@ -241,6 +241,9 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 		)
 		sales_order_id = accept_res["sales_order"]
 		self.assertTrue(sales_order_id)
+		# A later stage commits, so the rollback does not reach this order:
+		# every run used to leave one more open order for Demo Kitchen Customer.
+		self.addCleanup(testing.remove_order, sales_order_id)
 		order_doc = frappe.get_doc("Sales Order", sales_order_id)
 		self.assertEqual(flt(order_doc.grand_total), 850000.0)
 
