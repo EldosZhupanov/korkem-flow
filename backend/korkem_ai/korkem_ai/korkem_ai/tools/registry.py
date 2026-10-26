@@ -303,6 +303,12 @@ def execute(
 
 	try:
 		data = _run_handler(spec, arguments, run_id)
+	except frappe.DoesNotExistError as exc:
+		# Before PermissionError: another company's document is refused as
+		# "not found" (scope.NotFoundInThisCompany is both), and the model must
+		# hear that — not a generic "no permission" that invites retrying as
+		# somebody else.
+		return _failure(name, str(exc), code="not_found")
 	except frappe.PermissionError:
 		return _failure(name, "You do not have permission to do that.", code="permission_denied")
 	except frappe.ValidationError as exc:

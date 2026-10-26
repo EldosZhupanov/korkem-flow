@@ -11,10 +11,18 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0.add_originating_deal_to_work_order import (
 		execute as add_originating_deal,
 	)
+	from korkem_manufacturing.patches.v0_0.add_korkem_state_to_sales_order import (
+		execute as add_korkem_state,
+	)
 	from korkem_manufacturing.patches.v0_0.grant_order_read import execute as grant_order_read
 
 	add_originating_deal()
 	grant_order_read()
+	# Every patch in patches.txt that adds metadata belongs here as well. This
+	# one was not (2026-09-17), so every site installed from then on had no
+	# Sales Order.korkem_state and the order state machine failed with
+	# "Unknown column 'korkem_state'".
+	add_korkem_state()
 
 
 def before_tests():

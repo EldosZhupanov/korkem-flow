@@ -35,14 +35,7 @@ def execute(
 	key = _validated_key(idempotency_key)
 	user = frappe.session.user
 
-	active_company = company
-	if not active_company:
-		try:
-			from korkem_manufacturing.services.scope import current_company
-			active_company = current_company()
-		except Exception:
-			active_company = None
-
+	active_company = _active_company(company)
 	name = _record_name(user, action, key, active_company)
 	fingerprint = _fingerprint(arguments)
 	savepoint = "korkem_idempotency_" + frappe.generate_hash(length=8)
@@ -135,6 +128,29 @@ def _validated_key(value: str) -> str:
 	if len(value) > MAX_KEY_LENGTH:
 		frappe.throw(f"idempotency_key cannot exceed {MAX_KEY_LENGTH} characters.")
 	return value
+
+
+def _active_company(company: str | None = None) -> str | None:
+	"""The company a record is scoped to: the one named, else the session's."""
+	if company:
+		return company
+	try:
+		from korkem_manufacturing.services.scope import current_company
+
+		return current_company()
+	except Exception:
+		return None
+
+
+def record_name_for(user: str, action: str, key: str, company: str | None = None) -> str:
+	"""The name `execute` gives the record for this request — one rule, one place.
+
+	Since records became company-scoped (2026-09-17) the name depends on the
+	session's company. Anything that has to find a record — a test, an
+	operator's script — asks here rather than re-deriving the rule and quietly
+	looking under a name nothing is ever stored under.
+	"""
+	return _record_name(user, action, _validated_key(key), _active_company(company))
 
 
 def _record_name(user: str, action: str, key: str, company: str | None = None) -> str:

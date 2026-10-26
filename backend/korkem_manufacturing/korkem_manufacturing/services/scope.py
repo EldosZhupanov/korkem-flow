@@ -146,13 +146,29 @@ def belongs_to_company(doctype: str, name: str) -> bool:
 	return company == session_company
 
 
-def ensure_company(doctype: str, name: str) -> None:
-	"""Refuse a document belonging to somebody else or non-existent (fail closed).
+class NotFoundInThisCompany(frappe.DoesNotExistError, frappe.PermissionError):
+	"""A document this session may not see — reported exactly like a missing one.
 
-	Worded as "not found" on purpose to avoid leaking numbering schemes or existence.
+	Both at once, deliberately. It *is* a refusal of access, so anything that
+	asks "was this a permission problem?" gets yes (`PermissionError`). And it
+	must *read* as not found, so anything that asks "is this a bad request?"
+	gets yes too (`DoesNotExistError` is a `ValidationError`, HTTP 404).
+	"""
+
+	http_status_code = 404
+
+
+def ensure_company(doctype: str, name: str) -> None:
+	"""Refuse a document from another company, or one that does not exist.
+
+	Both answers are the same "not found", and both come *before* any role
+	check. Were a missing name let through to the role check, a caller without
+	the role would hear "not found" for another company's real order and "no
+	rights" for a made-up one — and could map another company's numbering one
+	guess at a time.
 	"""
 	if not belongs_to_company(doctype, name):
-		frappe.throw(f"{doctype} {name} not found.", frappe.PermissionError)
+		frappe.throw(f"{doctype} {name} not found.", NotFoundInThisCompany)
 
 
 def enforce_tenant_scope(entity_company: str, caller_company: str | None = None) -> None:
