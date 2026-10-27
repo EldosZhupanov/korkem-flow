@@ -7082,6 +7082,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Materials'**
   String get materialStockOpen;
+
+  /// Order list filter: both lines of business.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get directionAll;
+
+  /// No description provided for @directionFurniture.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture'**
+  String get directionFurniture;
+
+  /// No description provided for @directionFacades.
+  ///
+  /// In en, this message translates to:
+  /// **'Facades'**
+  String get directionFacades;
+
+  /// Badge on an urgent order.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get orderUrgent;
+
+  /// No description provided for @tierNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get tierNew;
+
+  /// No description provided for @tierRegular.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular'**
+  String get tierRegular;
+
+  /// No description provided for @tierVip.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP'**
+  String get tierVip;
+
+  /// No description provided for @facadeSpecTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details'**
+  String get facadeSpecTitle;
+
+  /// No description provided for @facadeSpecThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness, mm'**
+  String get facadeSpecThickness;
+
+  /// No description provided for @facadeSpecDecorTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Face decor'**
+  String get facadeSpecDecorTop;
+
+  /// No description provided for @facadeSpecDecorBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Back decor'**
+  String get facadeSpecDecorBottom;
+
+  /// No description provided for @facadeSpecEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge profile'**
+  String get facadeSpecEdge;
+
+  /// No description provided for @facadeSpecNone.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get facadeSpecNone;
+
+  /// Colour group of a facade position.
+  ///
+  /// In en, this message translates to:
+  /// **'group “{group}”'**
+  String facadeSpecGroup(String group);
 }
 
 class _AppLocalizationsDelegate

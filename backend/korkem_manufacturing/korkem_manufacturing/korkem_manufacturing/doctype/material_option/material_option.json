@@ -25,7 +25,7 @@
    "reqd": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "options": "Толщина МДФ\nПроизводитель\nЦвет плёнки\nШирина плёнки\nТолщина плёнки"
+   "options": "Толщина МДФ\nПроизводитель\nЦвет плёнки\nШирина плёнки\nТолщина плёнки\nПрофиль кромки"
   },
   {
    "fieldname": "value",
@@ -43,7 +43,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-26 00:00:00.000000",
+ "modified": "2026-10-27 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Material Option",

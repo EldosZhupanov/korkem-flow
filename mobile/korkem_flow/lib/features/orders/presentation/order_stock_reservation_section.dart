@@ -33,8 +33,7 @@ class OrderStockReservationSection extends ConsumerWidget {
             const SectionLabel('Резервы материалов и остатков'),
             StatusChip(
               label: inProduction ? 'Списано в цех' : 'Зарезервировано',
-              intent:
-                  inProduction ? StatusIntent.success : StatusIntent.info,
+              intent: inProduction ? StatusIntent.success : StatusIntent.info,
             ),
           ],
         ),

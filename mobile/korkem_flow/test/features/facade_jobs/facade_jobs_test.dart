@@ -57,6 +57,34 @@ void main() {
     );
   });
 
+  test('the floor reads the decor, the edge and the colour group', () {
+    final job = FacadeJob.fromJson(const {
+      'line': 'ROW-3',
+      'sales_order': 'SO-3',
+      'status': 'В работе',
+      'thickness_mm': 19,
+      'decor_top': 'Графит',
+      'edge_profile': 'R3',
+      'color_group': 'Графит',
+    });
+    expect(
+      (job.thicknessMm, job.decorTop, job.edgeProfile, job.colorGroup),
+      (19, 'Графит', 'R3', 'Графит'),
+    );
+    expect(job.withStatus(FacadeJobStatus.done).decorTop, 'Графит');
+  });
+
+  test('an urgent order stays urgent when its facade moves along', () {
+    final job = FacadeJob.fromJson(const {
+      'line': 'ROW-2',
+      'sales_order': 'SO-2',
+      'status': 'В очереди',
+      'urgent': true,
+    });
+    expect(job.urgent, isTrue);
+    expect(job.withStatus(FacadeJobStatus.inWork).urgent, isTrue);
+  });
+
   testWidgets('the floor sees sizes and moves a facade into work', (
     tester,
   ) async {

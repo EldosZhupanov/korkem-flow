@@ -19,3 +19,11 @@ def jobs(status: str | None = None, limit: int = 100) -> dict:
 def set_status(line: str, status: str) -> dict:
 	"""Отметить фасад: «В очереди», «В работе» или «Готово»."""
 	return service.set_status(line=line, status=status)
+
+
+@frappe.whitelist(methods=["POST"])
+def set_color_group(lines: str | list, group: str | None = None) -> dict:
+	"""Назначить цветовую группу любым позициям фасадов — или снять её."""
+	from korkem_manufacturing.services import facade_spec
+
+	return facade_spec.set_color_group(lines=lines, group=group)

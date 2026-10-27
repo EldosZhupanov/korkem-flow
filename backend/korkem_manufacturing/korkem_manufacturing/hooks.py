@@ -169,7 +169,10 @@ doc_events = {
 		),
 	},
 	"Company": {
-		"after_insert": "korkem_manufacturing.services.facade_prices.on_company_created",
+		"after_insert": [
+			"korkem_manufacturing.services.facade_prices.on_company_created",
+			"korkem_manufacturing.services.crm_currency.on_company_created",
+		],
 	},
 }
 

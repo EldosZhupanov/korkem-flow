@@ -4607,5 +4607,22 @@
   "materialStockOpen": "Materials",
   "@materialStockOpen": {
     "description": "Materials store"
-  }
+  },
+  "directionAll": "All",
+  "directionFurniture": "Furniture",
+  "directionFacades": "Facades",
+  "orderUrgent": "Urgent",
+  "tierNew": "New",
+  "tierRegular": "Regular",
+  "tierVip": "VIP",
+  "@directionAll": {"description": "Order list filter: both lines of business."},
+  "@orderUrgent": {"description": "Badge on an urgent order."},
+  "facadeSpecTitle": "Technical details",
+  "facadeSpecThickness": "Thickness, mm",
+  "facadeSpecDecorTop": "Face decor",
+  "facadeSpecDecorBottom": "Back decor",
+  "facadeSpecEdge": "Edge profile",
+  "facadeSpecNone": "—",
+  "facadeSpecGroup": "group “{group}”",
+  "@facadeSpecGroup": {"description": "Colour group of a facade position.", "placeholders": {"group": {"type": "String"}}}
 }

@@ -3992,4 +3992,48 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get materialStockOpen => 'Склад материалов';
+
+  @override
+  String get directionAll => 'Все';
+
+  @override
+  String get directionFurniture => 'Мебель';
+
+  @override
+  String get directionFacades => 'Фасады';
+
+  @override
+  String get orderUrgent => 'Срочно';
+
+  @override
+  String get tierNew => 'Новый';
+
+  @override
+  String get tierRegular => 'Постоянный';
+
+  @override
+  String get tierVip => 'VIP';
+
+  @override
+  String get facadeSpecTitle => 'Технические параметры';
+
+  @override
+  String get facadeSpecThickness => 'Толщина, мм';
+
+  @override
+  String get facadeSpecDecorTop => 'Декор лицевой';
+
+  @override
+  String get facadeSpecDecorBottom => 'Декор обратной';
+
+  @override
+  String get facadeSpecEdge => 'Профиль кромки';
+
+  @override
+  String get facadeSpecNone => '—';
+
+  @override
+  String facadeSpecGroup(String group) {
+    return 'группа «$group»';
+  }
 }

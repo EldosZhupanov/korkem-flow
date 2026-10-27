@@ -21,6 +21,8 @@ SALES_ORDER_FIELDS = (
 	"korkem_state",
 	"advance_paid",
 	"korkem_prepayment_agreed",
+	"korkem_direction",
+	"korkem_urgent",
 )
 WORK_ORDER_FIELDS = (
 	"name",
@@ -93,6 +95,8 @@ def sales_orders(
 	search: str | None = None,
 	limit: int = 20,
 	offset: int = 0,
+	direction: str | None = None,
+	urgent_first: int = 0,
 ) -> dict:
 	"""Return the session company's sales orders visible to the caller.
 
@@ -107,14 +111,23 @@ def sales_orders(
 	status = _text(status, "status")
 	search = _text(search, "search")
 
+	from korkem_manufacturing.services import directions
+
+	direction = directions.validate_direction(_text(direction, "direction"))
+
 	filters = scoped()
 	if status:
 		filters["status"] = status
+	if direction:
+		filters["korkem_direction"] = direction
 
+	order_by = "transaction_date desc, name desc"
+	if _page_integer(urgent_first, "urgent_first"):
+		order_by = "korkem_urgent desc, " + order_by
 	query = {
 		"filters": filters,
 		"fields": list(SALES_ORDER_FIELDS),
-		"order_by": "transaction_date desc, name desc",
+		"order_by": order_by,
 		"limit_start": offset,
 		"limit_page_length": limit,
 	}
@@ -126,6 +139,7 @@ def sales_orders(
 		]
 
 	orders = frappe.get_list("Sales Order", **query)
+	_with_customer_tiers(orders)
 
 	return {
 		# Money is the server's decision, not the screen's: a worker's phone is
@@ -135,6 +149,17 @@ def sales_orders(
 		"limit": limit,
 		"offset": offset,
 	}
+
+
+def _with_customer_tiers(orders: list[dict]) -> None:
+	"""Each row gets its customer's tier (new, regular, VIP), in one query."""
+	names = list({row["customer"] for row in orders if row.get("customer")})
+	tiers = {}
+	if names:
+		rows = frappe.get_all("Customer", filters={"name": ["in", names]}, fields=["name", "korkem_tier"])
+		tiers = {row.name: row.korkem_tier for row in rows}
+	for row in orders:
+		row["customer_tier"] = tiers.get(row.get("customer")) or None
 
 
 @frappe.whitelist()

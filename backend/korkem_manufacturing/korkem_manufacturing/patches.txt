@@ -15,3 +15,6 @@ korkem_manufacturing.patches.v0_0.add_facade_order_fields
 korkem_manufacturing.patches.v0_0.let_money_roles_edit_prices
 korkem_manufacturing.patches.v0_0.add_facade_job_status
 korkem_manufacturing.patches.v0_0.add_material_stock_fields
+korkem_manufacturing.patches.v0_0.align_crm_currency
+korkem_manufacturing.patches.v0_0.add_order_direction_fields
+korkem_manufacturing.patches.v0_0.add_facade_spec_fields

@@ -1376,5 +1376,19 @@
   "materialStockAdd": "Добавить",
   "materialStockAdded": "«{value}» добавлено",
   "materialStockOff": "{value} (отключено)",
-  "materialStockOpen": "Склад материалов"
+  "materialStockOpen": "Склад материалов",
+  "directionAll": "Все",
+  "directionFurniture": "Мебель",
+  "directionFacades": "Фасады",
+  "orderUrgent": "Срочно",
+  "tierNew": "Новый",
+  "tierRegular": "Постоянный",
+  "tierVip": "VIP",
+  "facadeSpecTitle": "Технические параметры",
+  "facadeSpecThickness": "Толщина, мм",
+  "facadeSpecDecorTop": "Декор лицевой",
+  "facadeSpecDecorBottom": "Декор обратной",
+  "facadeSpecEdge": "Профиль кромки",
+  "facadeSpecNone": "—",
+  "facadeSpecGroup": "группа «{group}»"
 }

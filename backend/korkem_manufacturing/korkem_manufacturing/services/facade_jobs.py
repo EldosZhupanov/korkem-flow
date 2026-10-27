@@ -27,7 +27,8 @@ OPEN_ORDER = {"docstatus": 1, "status": ["not in", ["Closed", "Completed", "Canc
 LINE_FIELDS = (
 	"name", "parent", "idx", "qty", "korkem_width_mm", "korkem_height_mm", "korkem_area_m2",
 	"korkem_milling", "korkem_finish", "korkem_double_sided", "korkem_customer_material",
-	"korkem_facade_status",
+	"korkem_facade_status", "korkem_thickness_mm", "korkem_decor_top", "korkem_decor_bottom",
+	"korkem_edge_profile", "korkem_color_group",
 )
 MAX_LIMIT = 200
 
@@ -45,7 +46,7 @@ def jobs(status: str | None = None, limit: int = 100) -> dict:
 		for row in frappe.get_list(
 			"Sales Order",
 			filters=scoped(dict(OPEN_ORDER)),
-			fields=["name", "customer", "delivery_date"],
+			fields=["name", "customer", "delivery_date", "korkem_urgent"],
 			limit_page_length=0,
 		)
 	}
@@ -62,7 +63,16 @@ def jobs(status: str | None = None, limit: int = 100) -> dict:
 	# get_all, with the parent set already restricted above: the fields read
 	# are a fixed, money-free list, so nothing here depends on field levels.
 	lines = frappe.get_all("Sales Order Item", filters=filters, fields=list(LINE_FIELDS), limit_page_length=0)
-	lines.sort(key=lambda r: (str(orders[r["parent"]].get("delivery_date") or "9999"), r["parent"], r["idx"]))
+	# Urgent orders head the queue (KORKEM brief, «Срочный заказ»); within
+	# each group, soonest due first.
+	lines.sort(
+		key=lambda r: (
+			not orders[r["parent"]].get("korkem_urgent"),
+			str(orders[r["parent"]].get("delivery_date") or "9999"),
+			r["parent"],
+			r["idx"],
+		)
+	)
 	return {
 		"jobs": [_job(line, orders[line["parent"]]) for line in lines[:limit]],
 		"total": len(lines),
@@ -112,6 +122,7 @@ def _job(line: dict, order: dict) -> dict:
 		"sales_order": line["parent"],
 		"customer": order.get("customer"),
 		"due_on": str(order["delivery_date"]) if order.get("delivery_date") else None,
+		"urgent": bool(order.get("korkem_urgent")),
 		"width_mm": line["korkem_width_mm"],
 		"height_mm": line["korkem_height_mm"],
 		"qty": int(flt(line["qty"])),
@@ -121,4 +132,9 @@ def _job(line: dict, order: dict) -> dict:
 		"double_sided": bool(line["korkem_double_sided"]),
 		"customer_material": bool(line["korkem_customer_material"]),
 		"status": line["korkem_facade_status"] or QUEUED,
+		"thickness_mm": line["korkem_thickness_mm"] or None,
+		"decor_top": line["korkem_decor_top"],
+		"decor_bottom": line["korkem_decor_bottom"],
+		"edge_profile": line["korkem_edge_profile"],
+		"color_group": line["korkem_color_group"],
 	}

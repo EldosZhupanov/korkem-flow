@@ -3968,4 +3968,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get materialStockOpen => 'Materials';
+
+  @override
+  String get directionAll => 'All';
+
+  @override
+  String get directionFurniture => 'Furniture';
+
+  @override
+  String get directionFacades => 'Facades';
+
+  @override
+  String get orderUrgent => 'Urgent';
+
+  @override
+  String get tierNew => 'New';
+
+  @override
+  String get tierRegular => 'Regular';
+
+  @override
+  String get tierVip => 'VIP';
+
+  @override
+  String get facadeSpecTitle => 'Technical details';
+
+  @override
+  String get facadeSpecThickness => 'Thickness, mm';
+
+  @override
+  String get facadeSpecDecorTop => 'Face decor';
+
+  @override
+  String get facadeSpecDecorBottom => 'Back decor';
+
+  @override
+  String get facadeSpecEdge => 'Edge profile';
+
+  @override
+  String get facadeSpecNone => '—';
+
+  @override
+  String facadeSpecGroup(String group) {
+    return 'group “$group”';
+  }
 }

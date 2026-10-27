@@ -77,6 +77,7 @@ def create_order(
 	prepayment_amount: float | str | None = None,
 	notes: str | None = None,
 	idempotency_key: str | None = None,
+	urgent: int | str = 0,
 ) -> dict:
 	"""Создать заказ из расчёта. Цены пересчитываются на сервере, а не берутся у клиента.
 
@@ -93,6 +94,7 @@ def create_order(
 		"demolition": demolition,
 		"prepayment_amount": prepayment_amount,
 		"notes": notes,
+		"urgent": urgent,
 	}
 	return execute_idempotently(
 		"sales.create_facade_order",

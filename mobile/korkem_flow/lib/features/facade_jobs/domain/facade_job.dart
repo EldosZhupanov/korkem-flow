@@ -32,6 +32,12 @@ class FacadeJob {
     this.areaM2 = 0,
     this.doubleSided = false,
     this.customerMaterial = false,
+    this.urgent = false,
+    this.thicknessMm,
+    this.decorTop,
+    this.decorBottom,
+    this.edgeProfile,
+    this.colorGroup,
   });
 
   factory FacadeJob.fromJson(Map<String, dynamic> json) => FacadeJob(
@@ -48,6 +54,12 @@ class FacadeJob {
     doubleSided: json['double_sided'] == true,
     customerMaterial: json['customer_material'] == true,
     status: FacadeJobStatus.fromWire(json['status'] as String?),
+    urgent: json['urgent'] == true,
+    thicknessMm: (json['thickness_mm'] as num?)?.toInt(),
+    decorTop: json['decor_top'] as String?,
+    decorBottom: json['decor_bottom'] as String?,
+    edgeProfile: json['edge_profile'] as String?,
+    colorGroup: json['color_group'] as String?,
   );
 
   final String line;
@@ -64,6 +76,18 @@ class FacadeJob {
   final bool customerMaterial;
   final FacadeJobStatus status;
 
+  /// The order is urgent; the server already put it at the head of the queue.
+  final bool urgent;
+
+  /// What the floor reads beyond the size (`services/facade_spec.py`).
+  final int? thicknessMm;
+  final String? decorTop;
+  final String? decorBottom;
+  final String? edgeProfile;
+
+  /// The batch label the shop sorts by; the face decor unless set by hand.
+  final String? colorGroup;
+
   FacadeJob withStatus(FacadeJobStatus next) => FacadeJob(
     line: line,
     salesOrder: salesOrder,
@@ -78,5 +102,11 @@ class FacadeJob {
     doubleSided: doubleSided,
     customerMaterial: customerMaterial,
     status: next,
+    urgent: urgent,
+    thicknessMm: thicknessMm,
+    decorTop: decorTop,
+    decorBottom: decorBottom,
+    edgeProfile: edgeProfile,
+    colorGroup: colorGroup,
   );
 }

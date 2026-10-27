@@ -49,6 +49,10 @@ class FacadeLineInput {
     required this.finish,
     this.doubleSided = false,
     this.customerMaterial = false,
+    this.thicknessMm,
+    this.decorTop,
+    this.decorBottom,
+    this.edgeProfile,
   });
 
   final double widthMm;
@@ -59,6 +63,13 @@ class FacadeLineInput {
   final bool doubleSided;
   final bool customerMaterial;
 
+  /// What the floor reads; none of it changes the price. Values come from the
+  /// warehouse lists («Цвет плёнки», «Профиль кромки»).
+  final int? thicknessMm;
+  final String? decorTop;
+  final String? decorBottom;
+  final String? edgeProfile;
+
   Map<String, dynamic> toJson() => {
     'width_mm': widthMm,
     'height_mm': heightMm,
@@ -67,6 +78,10 @@ class FacadeLineInput {
     'finish': finish,
     'double_sided': doubleSided ? 1 : 0,
     'customer_material': customerMaterial ? 1 : 0,
+    'thickness_mm': ?thicknessMm,
+    'decor_top': ?decorTop,
+    'decor_bottom': ?decorBottom,
+    'edge_profile': ?edgeProfile,
   };
 }
 

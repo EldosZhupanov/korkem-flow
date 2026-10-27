@@ -49,5 +49,21 @@ class TestLeftoversAreRemoved(IntegrationTestCase):
 		self.assertEqual(testing.remove_order(keeper), [])
 		self.assertFalse(frappe.db.exists("Sales Order", keeper))
 
+	def test_the_order_s_tasks_go_with_it(self):
+		"""A task left behind would greet the next order to reuse the name."""
+		order, _ = self._committed_order()
+		task = frappe.get_doc(
+			{
+				"doctype": "CRM Task",
+				"title": "Дизайн",
+				"reference_doctype": "Sales Order",
+				"reference_docname": order,
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.commit()
+
+		self.assertEqual(testing.remove_order(order), [])
+		self.assertFalse(frappe.db.exists("CRM Task", task.name))
+
 	def test_an_order_that_is_already_gone_is_nothing_to_do(self):
 		self.assertEqual(testing.remove_order("SAL-ORD-НЕТ-ТАКОГО"), [])

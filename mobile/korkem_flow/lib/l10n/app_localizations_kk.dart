@@ -3931,4 +3931,48 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get materialStockOpen => 'Материалдар қоймасы';
+
+  @override
+  String get directionAll => 'Барлығы';
+
+  @override
+  String get directionFurniture => 'Жиһаз';
+
+  @override
+  String get directionFacades => 'Фасадтар';
+
+  @override
+  String get orderUrgent => 'Шұғыл';
+
+  @override
+  String get tierNew => 'Жаңа';
+
+  @override
+  String get tierRegular => 'Тұрақты';
+
+  @override
+  String get tierVip => 'VIP';
+
+  @override
+  String get facadeSpecTitle => 'Техникалық параметрлер';
+
+  @override
+  String get facadeSpecThickness => 'Қалыңдығы, мм';
+
+  @override
+  String get facadeSpecDecorTop => 'Бет декоры';
+
+  @override
+  String get facadeSpecDecorBottom => 'Артқы декор';
+
+  @override
+  String get facadeSpecEdge => 'Жиек профилі';
+
+  @override
+  String get facadeSpecNone => '—';
+
+  @override
+  String facadeSpecGroup(String group) {
+    return '«$group» тобы';
+  }
 }

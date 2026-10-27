@@ -17,6 +17,8 @@ import 'package:korkem_flow/features/facade_prices/application/facade_price_cont
 import 'package:korkem_flow/features/facade_prices/data/facade_price_repository.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_price_table.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
+import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
+import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 // AutoDisposeFutureProvider is not exported as a public type.
@@ -42,15 +44,20 @@ class _LineDraft {
   final width = TextEditingController();
   final height = TextEditingController();
   final qty = TextEditingController(text: '1');
+  final thickness = TextEditingController();
   String? milling;
   String? finish;
   bool doubleSided = false;
   bool customerMaterial = false;
+  String? decorTop;
+  String? decorBottom;
+  String? edgeProfile;
 
   void dispose() {
     width.dispose();
     height.dispose();
     qty.dispose();
+    thickness.dispose();
   }
 }
 
@@ -95,6 +102,10 @@ class _FacadeQuoteScreenState extends ConsumerState<FacadeQuoteScreen> {
         finish: line.finish!,
         doubleSided: line.doubleSided,
         customerMaterial: line.customerMaterial,
+        thicknessMm: int.tryParse(line.thickness.text.trim()),
+        decorTop: line.decorTop,
+        decorBottom: line.decorBottom,
+        edgeProfile: line.edgeProfile,
       ),
   ];
 
@@ -538,6 +549,21 @@ class _LineCardState extends State<_LineCard> {
                 ),
               ],
             ),
+            // Folded until opened: most quotes are priced before the decor is
+            // chosen, and the price does not depend on any of it.
+            ExpansionTile(
+              key: ValueKey('facadeSpec:${widget.index}'),
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              title: Text(l10n.facadeSpecTitle),
+              children: [
+                _SpecFields(
+                  index: widget.index,
+                  line: line,
+                  onChanged: () => changed(() {}),
+                ),
+              ],
+            ),
             if (widget.rules.doubleSidedOffered)
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
@@ -556,6 +582,111 @@ class _LineCardState extends State<_LineCard> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Thickness, decors and edge: what the floor reads, from the warehouse's own
+/// lists. Optional — a facade can be quoted before its decor is chosen — and
+/// none of it changes the price.
+class _SpecFields extends ConsumerWidget {
+  const _SpecFields({
+    required this.index,
+    required this.line,
+    required this.onChanged,
+  });
+
+  final int index;
+  final _LineDraft line;
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final lists = ref.watch(materialListsProvider).value;
+    List<String> values(String kind) => [
+      for (final option in lists?.lists[kind] ?? const <MaterialOption>[])
+        if (option.enabled) option.value,
+    ];
+
+    Widget pick(
+      String key,
+      String label,
+      String kind,
+      String? current,
+      ValueChanged<String?> set,
+    ) {
+      final choices = values(kind);
+      return Expanded(
+        child: DropdownButtonFormField<String?>(
+          key: ValueKey('$key:$index'),
+          initialValue: choices.contains(current) ? current : null,
+          isExpanded: true,
+          items: [
+            DropdownMenuItem(child: Text(l10n.facadeSpecNone)),
+            for (final value in choices)
+              DropdownMenuItem(value: value, child: Text(value)),
+          ],
+          onChanged: (value) {
+            set(value);
+            onChanged();
+          },
+          decoration: InputDecoration(
+            labelText: label,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                key: ValueKey('facadeSpecThickness:$index'),
+                controller: line.thickness,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  labelText: l10n.facadeSpecThickness,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (_) => onChanged(),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            pick(
+              'facadeSpecEdge',
+              l10n.facadeSpecEdge,
+              MaterialLists.edgeProfile,
+              line.edgeProfile,
+              (v) => line.edgeProfile = v,
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            pick(
+              'facadeSpecDecorTop',
+              l10n.facadeSpecDecorTop,
+              MaterialLists.filmColor,
+              line.decorTop,
+              (v) => line.decorTop = v,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            pick(
+              'facadeSpecDecorBottom',
+              l10n.facadeSpecDecorBottom,
+              MaterialLists.filmColor,
+              line.decorBottom,
+              (v) => line.decorBottom = v,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

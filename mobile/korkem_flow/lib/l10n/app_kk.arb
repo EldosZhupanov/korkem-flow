@@ -1376,5 +1376,19 @@
   "materialStockAdd": "Қосу",
   "materialStockAdded": "«{value}» қосылды",
   "materialStockOff": "{value} (өшірілген)",
-  "materialStockOpen": "Материалдар қоймасы"
+  "materialStockOpen": "Материалдар қоймасы",
+  "directionAll": "Барлығы",
+  "directionFurniture": "Жиһаз",
+  "directionFacades": "Фасадтар",
+  "orderUrgent": "Шұғыл",
+  "tierNew": "Жаңа",
+  "tierRegular": "Тұрақты",
+  "tierVip": "VIP",
+  "facadeSpecTitle": "Техникалық параметрлер",
+  "facadeSpecThickness": "Қалыңдығы, мм",
+  "facadeSpecDecorTop": "Бет декоры",
+  "facadeSpecDecorBottom": "Артқы декор",
+  "facadeSpecEdge": "Жиек профилі",
+  "facadeSpecNone": "—",
+  "facadeSpecGroup": "«{group}» тобы"
 }

@@ -31,7 +31,7 @@ from decimal import Decimal
 import frappe
 from frappe.utils import flt, getdate, nowdate
 
-from korkem_manufacturing.services import audit, facade_prices, facade_quote
+from korkem_manufacturing.services import audit, directions, facade_prices, facade_quote, facade_spec
 from korkem_manufacturing.services.scope import current_company
 
 FACADE_ITEM = "KORKEM-FACADE"
@@ -46,6 +46,7 @@ def create_order(
 	demolition=False,
 	prepayment_amount=None,
 	notes: str | None = None,
+	urgent=False,
 ) -> dict:
 	facade_prices.ensure_editor()
 	company = current_company()
@@ -71,6 +72,7 @@ def create_order(
 			"korkem_finish": line["finish"],
 			"korkem_double_sided": 1 if line["double_sided"] else 0,
 			"korkem_customer_material": 1 if line["customer_material"] else 0,
+			**facade_spec.as_fields({key: line.get(key) for key in facade_spec.FIELDS}),
 		}
 		for line in quote["lines"]
 	]
@@ -98,6 +100,9 @@ def create_order(
 				"transaction_date": nowdate(),
 				"delivery_date": str(wanted),
 				"order_type": "Sales",
+				# A facade quote makes a facade order; the screen does not say.
+				"korkem_direction": directions.FACADES,
+				"korkem_urgent": 1 if directions.flag(urgent) else 0,
 				# The rates are the quote's. A pricing rule silently applied on
 				# top would make a total nobody agreed to.
 				"ignore_pricing_rule": 1,

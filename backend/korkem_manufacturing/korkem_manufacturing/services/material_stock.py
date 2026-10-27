@@ -40,7 +40,7 @@ EDITORS = frozenset(
 )
 MDF, FILM, OTHER = "МДФ", "Плёнка ПВХ", "Прочее"
 KINDS = (MDF, FILM, OTHER)
-LISTS = ("Толщина МДФ", "Производитель", "Цвет плёнки", "Ширина плёнки", "Толщина плёнки")
+LISTS = ("Толщина МДФ", "Производитель", "Цвет плёнки", "Ширина плёнки", "Толщина плёнки", "Профиль кромки")
 #: Units a material is counted in. Created in ERPNext if missing.
 UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False}
 MAX_QTY = Decimal("100000")
@@ -122,15 +122,41 @@ def remove_option(option: str) -> dict:
 	return {**lists(), "outcome": outcome}
 
 
+#: Where a value of each list is used: a material's description, and — for
+#: the decor and the edge profile — the facade positions of orders.
+_ITEM_FIELD = {
+	"Толщина МДФ": "korkem_thickness_mm",
+	"Производитель": "korkem_manufacturer",
+	"Цвет плёнки": "korkem_color",
+	"Ширина плёнки": "korkem_film_width_mm",
+	"Толщина плёнки": "korkem_film_thickness_mm",
+}
+_ORDER_FIELDS = {
+	"Цвет плёнки": ("korkem_decor_top", "korkem_decor_bottom"),
+	"Профиль кромки": ("korkem_edge_profile",),
+}
+
+
 def _option_in_use(kind: str, value: str, company: str) -> bool:
-	field = {
-		"Толщина МДФ": "korkem_thickness_mm",
-		"Производитель": "korkem_manufacturer",
-		"Цвет плёнки": "korkem_color",
-		"Ширина плёнки": "korkem_film_width_mm",
-		"Толщина плёнки": "korkem_film_thickness_mm",
-	}[kind]
-	return bool(frappe.db.exists("Item", {"korkem_material_company": company, field: value}))
+	field = _ITEM_FIELD.get(kind)
+	if field and frappe.db.exists("Item", {"korkem_material_company": company, field: value}):
+		return True
+	for field in _ORDER_FIELDS.get(kind, ()):
+		if not frappe.db.has_column("Sales Order Item", field):
+			continue
+		used = frappe.db.sql(
+			f"""select 1 from `tabSales Order Item` i join `tabSales Order` o on o.name = i.parent
+			where i.parenttype = 'Sales Order' and o.company = %s and i.`{field}` = %s limit 1""",
+			(company, value),
+		)
+		if used:
+			return True
+	return False
+
+
+def enabled_values(kind: str, company: str) -> set[str]:
+	"""The values of one list a new record may use: the enabled ones."""
+	return _enabled_values(kind, company)
 
 
 def _enabled_values(kind: str, company: str) -> set[str]:

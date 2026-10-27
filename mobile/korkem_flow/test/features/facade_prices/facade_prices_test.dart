@@ -200,6 +200,34 @@ void main() {
     expect(find.byKey(const ValueKey('facadeQuoteTotals')), findsOneWidget);
   });
 
+  test('a line sends its spec only when one was chosen', () {
+    const plain = FacadeLineInput(
+      widthMm: 500,
+      heightMm: 400,
+      qty: 1,
+      milling: 'Квадро',
+      finish: _pvc,
+    );
+    expect(plain.toJson().containsKey('decor_top'), isFalse);
+
+    const specified = FacadeLineInput(
+      widthMm: 500,
+      heightMm: 400,
+      qty: 1,
+      milling: 'Квадро',
+      finish: _pvc,
+      thicknessMm: 19,
+      decorTop: 'Графит',
+      edgeProfile: 'R3',
+    );
+    final json = specified.toJson();
+    expect(
+      (json['thickness_mm'], json['decor_top'], json['edge_profile']),
+      (19, 'Графит', 'R3'),
+    );
+    expect(json.containsKey('decor_bottom'), isFalse);
+  });
+
   testWidgets('options nobody configured are not offered', (tester) async {
     final repo = _FakeRepository(_table());
     await tester.pumpWidget(
@@ -252,14 +280,24 @@ void main() {
     await tester.tap(find.text('ТОО Уют'));
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.byKey(const ValueKey('facadeOrderDate')));
+    // Scrolled to, not just found: the list builds lazily, and with the folded
+    // spec on each line the date row can sit just past the visible edge.
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('facadeOrderDate')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('facadeOrderDate')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(create);
+    await tester.scrollUntilVisible(
+      create,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(create);
     await tester.pumpAndSettle();

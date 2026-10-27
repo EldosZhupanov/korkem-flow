@@ -20,7 +20,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 import frappe
 from frappe.utils import flt
 
-from korkem_manufacturing.services import facade_prices
+from korkem_manufacturing.services import facade_prices, facade_spec
 from korkem_manufacturing.services.scope import current_company
 
 TENGE = Decimal("1")
@@ -155,6 +155,10 @@ def quote(
 			frappe.throw(f"{label}: количество — целое число от 1.")
 		milling = (raw.get("milling") or "").strip()
 		finish = raw.get("finish") or ""
+		# Thickness, decors, edge, colour group: no effect on the price, all
+		# of it what the floor reads. Checked here so a quote that would make
+		# an order the shop cannot read is refused before anybody agrees to it.
+		spec = facade_spec.read(raw, label, company)
 		rate = facade_prices.price_for(milling, finish, company)
 		if rate is None:
 			frappe.throw(f"{label}: «{milling} — {finish}» нет в прайсе. Добавьте цену в настройках.")
@@ -201,6 +205,7 @@ def quote(
 				"double_sided": _flag(raw.get("double_sided")),
 				"customer_material": _flag(raw.get("customer_material")),
 				"notes": notes,
+				**spec,
 			}
 		)
 

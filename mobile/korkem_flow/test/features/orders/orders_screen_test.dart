@@ -159,8 +159,14 @@ void main() {
     expect(find.textContaining('ДСП 16мм'), findsOneWidget);
     expect(find.textContaining('Лист'), findsOneWidget);
 
-    // Dialog can be dismissed
-    await tester.tap(find.byType(TextButton));
+    // Dialog can be dismissed — by its own button; the direction bar above the
+    // list has buttons of the same type.
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextButton),
+      ),
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(AlertDialog), findsNothing);

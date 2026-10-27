@@ -103,6 +103,16 @@ class _OrderCard extends ConsumerWidget {
                   ),
               ].join(' · '),
             ),
+            if (first.urgent)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: StatusChip(
+                  key: ValueKey('facadeUrgent:${first.salesOrder}'),
+                  label: l10n.orderUrgent,
+                  intent: StatusIntent.danger,
+                  compact: true,
+                ),
+              ),
             for (final job in jobs) _JobTile(job: job),
           ],
         ),
@@ -119,10 +129,15 @@ class _JobTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final decor = [?job.decorTop, ?job.decorBottom].join(' / ');
     final options = [
       job.finish,
+      if (job.thicknessMm case final mm?) '$mm мм',
+      if (decor.isNotEmpty) decor,
+      ?job.edgeProfile,
       if (job.doubleSided) l10n.facadeQuoteDoubleSided,
       if (job.customerMaterial) l10n.facadeQuoteCustomerMaterial,
+      if (job.colorGroup case final group?) l10n.facadeSpecGroup(group),
     ].join(' · ');
     return ListTile(
       key: ValueKey('facadeJob:${job.line}'),

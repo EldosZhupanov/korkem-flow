@@ -59,6 +59,20 @@ def order_trail(sales_order: str) -> list[tuple[str, str]]:
 	if not sales_order or not frappe.db.exists("Sales Order", sales_order):
 		return []
 	after: list[tuple[str, str]] = []
+	# Tasks and files hang off the order by name. Left behind, they outlive it
+	# — and Frappe hands a deleted last order's name to the next order
+	# (`revert_series_if_last`), which then finds a stranger's design task and
+	# reports «already assigned». Seen 2026-10-27 in test_design.
+	for doctype, kind_field, name_field in (
+		("CRM Task", "reference_doctype", "reference_docname"),
+		("File", "attached_to_doctype", "attached_to_name"),
+	):
+		after += [
+			(doctype, name)
+			for name in frappe.get_all(
+				doctype, filters={kind_field: "Sales Order", name_field: sales_order}, pluck="name"
+			)
+		]
 	for child, parent, field in (
 		("Sales Invoice Item", "Sales Invoice", "sales_order"),
 		("Delivery Note Item", "Delivery Note", "against_sales_order"),

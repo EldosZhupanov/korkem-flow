@@ -15,6 +15,9 @@ class SalesOrder {
     this.korkemState,
     this.advancePaid,
     this.prepaymentAgreed,
+    this.direction = OrderDirection.furniture,
+    this.urgent = false,
+    this.customerTier,
   });
 
   factory SalesOrder.fromJson(Map<String, dynamic> json) {
@@ -29,6 +32,9 @@ class SalesOrder {
       korkemState: _text(json['korkem_state']),
       advancePaid: _number(json['advance_paid']),
       prepaymentAgreed: _number(json['korkem_prepayment_agreed']),
+      direction: OrderDirection.fromWire(_text(json['korkem_direction'])),
+      urgent: json['korkem_urgent'] == 1 || json['korkem_urgent'] == true,
+      customerTier: CustomerTier.fromWire(_text(json['customer_tier'])),
     );
   }
 
@@ -51,6 +57,16 @@ class SalesOrder {
   /// The prepayment agreed with the customer when the order was taken —
   /// a promise, unlike [advancePaid]. `null` when hidden or never agreed.
   final double? prepaymentAgreed;
+
+  /// Which line of business this order belongs to. Set by the server: an
+  /// order made from a facade quote is a facade order.
+  final OrderDirection direction;
+
+  /// Urgent orders head every queue (KORKEM brief, «Срочный заказ»).
+  final bool urgent;
+
+  /// The customer's tier, when somebody set one.
+  final CustomerTier? customerTier;
 
   /// Progress of delivery in 0.0–1.0 range.
   double get deliveryProgress => (perDelivered / 100.0).clamp(0.0, 1.0);
@@ -86,6 +102,37 @@ class SalesOrder {
     if (value is! String) return null;
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : DateTime.tryParse(trimmed);
+  }
+}
+
+/// The two lines of business on one floor (`services/directions.py`).
+enum OrderDirection {
+  furniture('Furniture'),
+  facades('Facades');
+
+  const OrderDirection(this.wireValue);
+
+  final String wireValue;
+
+  static OrderDirection fromWire(String? value) =>
+      value == facades.wireValue ? facades : furniture;
+}
+
+/// A customer's tier: new, regular or VIP (`Customer.korkem_tier`).
+enum CustomerTier {
+  newcomer('New'),
+  regular('Regular'),
+  vip('VIP');
+
+  const CustomerTier(this.wireValue);
+
+  final String wireValue;
+
+  static CustomerTier? fromWire(String? value) {
+    for (final tier in CustomerTier.values) {
+      if (tier.wireValue == value) return tier;
+    }
+    return null;
   }
 }
 

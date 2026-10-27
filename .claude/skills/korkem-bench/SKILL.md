@@ -99,6 +99,21 @@ editing them.
 edge banding, and the fifth correctly refuses to start production. Restore the
 demo dataset between runs.
 
+**"Access denied for user '_…'@'172.18.0.x' (1045)" after a restart.** The
+site's database user was created for the bench container's IP of that day; a
+restart that gives the container another address locks the site out of its
+own database, and every `bench` command and test fails at connect. New sites
+are created with `--mariadb-user-host-login-scope='%'` (`bootstrap.sh`). An
+older site needs the same user granted for `'%'` once, as root in the
+`mariadb` container, with the password from `site_config.json` — never echo
+either password.
+
+**Twelve tests fail with "Failed to fetch exchange rate from KZT to INR".**
+CRM's base currency (`FCRM Settings.currency`) was not tenge, so every tenge
+organization asked a website for a rate. `services/crm_currency.align` makes
+the base the company currency (on install, on the first company, by patch);
+offline, a tenge record now needs no network.
+
 **Test evidence disappears.** The launch-readiness module's teardown deletes
 `Notification Delivery` and `Channel Event` **globally**. Take any verification
 *before* running further tests.

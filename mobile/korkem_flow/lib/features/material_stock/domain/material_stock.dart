@@ -82,12 +82,16 @@ class MaterialLists {
   static const filmColor = 'Цвет плёнки';
   static const filmWidth = 'Ширина плёнки';
   static const filmThickness = 'Толщина плёнки';
+
+  /// R3, 90° … — read by the facade positions of orders, not by materials.
+  static const edgeProfile = 'Профиль кромки';
   static const List<String> all = [
     mdfThickness,
     manufacturer,
     filmColor,
     filmWidth,
     filmThickness,
+    edgeProfile,
   ];
 
   final Map<String, List<MaterialOption>> lists;
