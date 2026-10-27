@@ -21,10 +21,12 @@ class CompanySetupProgressWidget extends StatefulWidget {
   final bool hasOrders;
 
   @override
-  State<CompanySetupProgressWidget> createState() => _CompanySetupProgressWidgetState();
+  State<CompanySetupProgressWidget> createState() =>
+      _CompanySetupProgressWidgetState();
 }
 
-class _CompanySetupProgressWidgetState extends State<CompanySetupProgressWidget> {
+class _CompanySetupProgressWidgetState
+    extends State<CompanySetupProgressWidget> {
   bool _dismissed = false;
 
   @override
@@ -35,7 +37,7 @@ class _CompanySetupProgressWidgetState extends State<CompanySetupProgressWidget>
     final hasEmployees = widget.hasEmployees;
     final hasOrders = widget.hasOrders;
 
-    int stepsDone = 1; // Company created
+    var stepsDone = 1; // Company created
     if (hasEmployees) stepsDone++;
     if (hasOrders) stepsDone++;
 
@@ -59,7 +61,11 @@ class _CompanySetupProgressWidgetState extends State<CompanySetupProgressWidget>
                   Expanded(
                     child: Row(
                       children: [
-                        Icon(AppIcons.settings, size: 20, color: theme.colorScheme.primary),
+                        Icon(
+                          AppIcons.settings,
+                          size: 20,
+                          color: theme.colorScheme.primary,
+                        ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
                           'Настройка компании: $percent%',
@@ -138,7 +144,9 @@ class _CompanySetupProgressWidgetState extends State<CompanySetupProgressWidget>
             Icon(
               completed ? AppIcons.check : Icons.radio_button_unchecked,
               size: 18,
-              color: completed ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+              color: completed
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(

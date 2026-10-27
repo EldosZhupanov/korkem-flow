@@ -23,7 +23,8 @@ class UpdateRepository {
   final AppConfig _config;
 
   static const _path = '/api/method/korkem_ai.korkem_ai.updates.latest';
-  static const _fallbackManifestUrl = 'https://korkem.asia/downloads/latest.json';
+  static const _fallbackManifestUrl =
+      'https://korkem.asia/downloads/latest.json';
 
   Future<AppUpdate?> check({
     required String platform,

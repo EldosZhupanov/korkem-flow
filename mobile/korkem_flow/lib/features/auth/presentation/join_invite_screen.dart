@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +16,7 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 
 /// Screen for joining an existing furniture company by invitation deep link.
 class JoinInviteScreen extends ConsumerStatefulWidget {
-  const JoinInviteScreen({super.key, required this.token});
+  const JoinInviteScreen({required this.token, super.key});
 
   final String token;
 
@@ -39,7 +41,7 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
   @override
   void initState() {
     super.initState();
-    _loadInviteInfo();
+    unawaited(_loadInviteInfo());
   }
 
   @override
@@ -224,7 +226,10 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
                 user: user,
                 password: '', // session created server-side
               );
-        } catch (_) {}
+        } on Object catch (_) {
+          // Not fatal: the person has joined; without a session the router
+          // sends them to sign in.
+        }
       }
 
       if (mounted) {

@@ -169,7 +169,8 @@ class UpdateController extends Notifier<UpdateState> {
         } else if (path.endsWith('.exe')) {
           filename = 'korkem-${update.build}.exe';
         } else {
-          filename = 'korkem-${update.build}'
+          filename =
+              'korkem-${update.build}'
               '${Platform.isWindows ? ".zip" : ".tar.gz"}';
         }
       }

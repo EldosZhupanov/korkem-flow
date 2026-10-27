@@ -75,9 +75,7 @@ class _AdaptiveShellState extends ConsumerState<AdaptiveShell>
   @override
   Widget build(BuildContext context) {
     ref.listen<UpdateState>(updateControllerProvider, (previous, next) {
-      if (next.available != null &&
-          !next.dismissed &&
-          !_updatePrompted) {
+      if (next.available != null && !next.dismissed && !_updatePrompted) {
         _updatePrompted = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {

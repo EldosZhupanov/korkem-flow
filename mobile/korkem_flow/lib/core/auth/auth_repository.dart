@@ -131,7 +131,7 @@ class AuthRepository {
           'email': email.trim(),
           'password': password,
           'phone': phone.trim(),
-          if (logoBase64 != null) 'logo_base64': logoBase64,
+          'logo_base64': ?logoBase64,
         },
       );
       final message = response.data?['message'];

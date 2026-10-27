@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +16,8 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Redesigned Registration screen supporting TWO ONBOARDING PATHS:
-/// 1. CREATE COMPANY (Owner wizard: Phone+OTP -> Profile -> Company+Logo -> Success)
+/// 1. CREATE COMPANY (Owner wizard:
+///    Phone+OTP -> Profile -> Company+Logo -> Success)
 /// 2. JOIN COMPANY BY INVITE (Link / code input -> JoinInviteScreen)
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -42,7 +45,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _inviteCode = TextEditingController();
 
   bool _otpSent = false;
-  bool _otpVerified = false;
   String _sessionId = '';
 
   bool _busy = false;
@@ -140,7 +142,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
       if (res['verified'] == true) {
         setState(() {
-          _otpVerified = true;
           _ownerStep = 2; // Advance to Profile
         });
       } else {
@@ -199,7 +200,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 user: effectiveEmail,
                 password: pwd,
               );
-        } catch (_) {}
+        } on Object catch (_) {
+          // Not fatal: the company exists; the success step still shows and
+          // the owner can sign in by hand.
+        }
       }
 
       setState(() {
@@ -217,11 +221,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void _handleJoinByInvite() {
     final raw = _inviteCode.text.trim();
     if (raw.isEmpty) return;
-    String targetToken = raw;
+    var targetToken = raw;
     if (raw.contains('/join/')) {
       targetToken = raw.split('/join/')[1].split('?')[0].split('#')[0];
     }
-    context.push('/join/$targetToken');
+    unawaited(context.push('/join/$targetToken'));
   }
 
   @override
@@ -494,7 +498,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   ),
                                   const SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    'Как к вам обращаться в отчетах и документах',
+                                    'Как к вам обращаться '
+                                    'в отчетах и документах',
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
@@ -663,7 +668,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                                 ),
                                               ),
                                               Text(
-                                                'По умолчанию инициалы «$initials». Логотип можно загрузить позже в профиле.',
+                                                'По умолчанию инициалы '
+                                                '«$initials». Логотип можно '
+                                                'загрузить позже в профиле.',
                                                 style: theme.textTheme.bodySmall
                                                     ?.copyWith(
                                                       color: theme
@@ -730,7 +737,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   ),
                                   const SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    'Рабочее пространство настроено. Начните работу прямо сейчас:',
+                                    'Рабочее пространство настроено. '
+                                    'Начните работу прямо сейчас:',
                                     textAlign: TextAlign.center,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant,
