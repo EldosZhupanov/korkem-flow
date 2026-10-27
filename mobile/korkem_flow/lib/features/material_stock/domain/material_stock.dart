@@ -115,19 +115,26 @@ class StockMaterial {
     required this.kind,
     required this.unit,
     required this.onHand,
+    this.reserved = 0,
+    double? free,
     this.averagePrice,
     this.enabled = true,
-  });
+  }) : free = free ?? onHand - reserved;
 
-  factory StockMaterial.fromJson(Map<String, dynamic> json) => StockMaterial(
-    item: '${json['item'] ?? ''}',
-    title: '${json['title'] ?? ''}',
-    kind: '${json['kind'] ?? ''}',
-    unit: '${json['unit'] ?? ''}',
-    onHand: (json['on_hand'] as num?)?.toDouble() ?? 0,
-    averagePrice: (json['average_price'] as num?)?.toDouble(),
-    enabled: json['enabled'] != false,
-  );
+  factory StockMaterial.fromJson(Map<String, dynamic> json) {
+    final onHand = (json['on_hand'] as num?)?.toDouble() ?? 0;
+    return StockMaterial(
+      item: '${json['item'] ?? ''}',
+      title: '${json['title'] ?? ''}',
+      kind: '${json['kind'] ?? ''}',
+      unit: '${json['unit'] ?? ''}',
+      onHand: onHand,
+      reserved: (json['reserved'] as num?)?.toDouble() ?? 0,
+      free: (json['free'] as num?)?.toDouble(),
+      averagePrice: (json['average_price'] as num?)?.toDouble(),
+      enabled: json['enabled'] != false,
+    );
+  }
 
   static const mdf = 'МДФ';
   static const film = 'Плёнка ПВХ';
@@ -140,7 +147,96 @@ class StockMaterial {
   final String unit;
   final double onHand;
 
+  /// Promised to orders and not yet written off. On hand is ERPNext's figure;
+  /// a reservation only narrows what is [free].
+  final double reserved;
+  final double free;
+
   /// `null` when prices are hidden from this person.
   final double? averagePrice;
   final bool enabled;
+}
+
+/// One material a facade order needs, counted on the server from its m².
+@immutable
+class FacadeMaterialNeed {
+  const FacadeMaterialNeed({
+    required this.kind,
+    required this.key,
+    required this.areaM2,
+    this.item,
+    this.title,
+    this.unit,
+    this.needed,
+    this.held = 0,
+    this.issued = 0,
+    this.free = 0,
+    this.short,
+    this.note,
+  });
+
+  factory FacadeMaterialNeed.fromJson(Map<String, dynamic> json) =>
+      FacadeMaterialNeed(
+        kind: '${json['kind'] ?? ''}',
+        key: '${json['key'] ?? ''}',
+        areaM2: (json['area_m2'] as num?)?.toDouble() ?? 0,
+        item: json['item'] as String?,
+        title: json['title'] as String?,
+        unit: json['unit'] as String?,
+        needed: (json['needed'] as num?)?.toDouble(),
+        held: (json['held'] as num?)?.toDouble() ?? 0,
+        issued: (json['issued'] as num?)?.toDouble() ?? 0,
+        free: (json['free'] as num?)?.toDouble() ?? 0,
+        short: (json['short'] as num?)?.toDouble(),
+        note: json['note'] as String?,
+      );
+
+  final String kind;
+
+  /// The thickness of an MDF or the decor of a film.
+  final String key;
+  final double areaM2;
+  final String? item;
+  final String? title;
+  final String? unit;
+
+  /// `null` when the server could not count it — [note] says why.
+  final double? needed;
+  final double held;
+  final double issued;
+  final double free;
+  final double? short;
+  final String? note;
+
+  bool get isShort => note != null || (short ?? 0) > 0;
+}
+
+/// What a facade order needs from the warehouse, as a whole.
+@immutable
+class FacadeMaterials {
+  const FacadeMaterials({
+    required this.materials,
+    required this.unresolved,
+    required this.fullyHeld,
+  });
+
+  factory FacadeMaterials.fromJson(Map<String, dynamic> json) =>
+      FacadeMaterials(
+        materials: [
+          for (final row in json['materials'] as List? ?? const [])
+            if (row is Map)
+              FacadeMaterialNeed.fromJson(Map<String, dynamic>.from(row)),
+        ],
+        unresolved: [
+          for (final note in json['unresolved'] as List? ?? const [])
+            if (note is String) note,
+        ],
+        fullyHeld: json['fully_held'] == true,
+      );
+
+  final List<FacadeMaterialNeed> materials;
+
+  /// Lines the server could not place: no thickness, no decor.
+  final List<String> unresolved;
+  final bool fullyHeld;
 }

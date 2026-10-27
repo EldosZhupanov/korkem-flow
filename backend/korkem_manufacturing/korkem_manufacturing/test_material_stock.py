@@ -127,6 +127,14 @@ class TestMaterialStock(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, service.receive, item, 1, 21_000, self.supplier)
 
+	def test_a_sheet_material_leaves_furniture_fractions_alone(self):
+		"""Furniture BOMs consume 4,2 sheets; defining an MDF once broke every Work Order."""
+		if not frappe.db.exists("UOM", "Лист"):
+			frappe.get_doc({"doctype": "UOM", "uom_name": "Лист", "must_be_whole_number": 0}).insert()
+		frappe.db.set_value("UOM", "Лист", "must_be_whole_number", 0)
+		self._mdf()
+		self.assertEqual(frappe.db.get_value("UOM", "Лист", "must_be_whole_number"), 0)
+
 	def test_whole_sheets_only(self):
 		item = self._mdf()
 		with self.assertRaises(frappe.ValidationError):

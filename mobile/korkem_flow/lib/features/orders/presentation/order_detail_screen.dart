@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
+import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
 import 'package:korkem_flow/features/orders/application/order_design_controller.dart';
 import 'package:korkem_flow/features/orders/application/order_detail_controller.dart';
 import 'package:korkem_flow/features/orders/application/order_installation_controller.dart';
@@ -21,6 +22,7 @@ import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/create_delivery_button.dart';
 import 'package:korkem_flow/features/orders/presentation/order_design_section.dart';
+import 'package:korkem_flow/features/orders/presentation/order_facade_materials_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_installation_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_invoicing_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_stock_reservation_section.dart';
@@ -103,7 +105,8 @@ class _Body extends ConsumerWidget {
           ..invalidate(orderDeliveriesProvider(order.name))
           ..invalidate(orderInstallationProvider(order.name))
           ..invalidate(orderWarrantyProvider(order.name))
-          ..invalidate(orderInvoiceProvider(order.name));
+          ..invalidate(orderInvoiceProvider(order.name))
+          ..invalidate(facadeMaterialsProvider(order.name));
       },
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -112,7 +115,12 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: AppSpacing.xl),
           OrderDesignSection(order: order),
           const SizedBox(height: AppSpacing.xl),
-          OrderStockReservationSection(order: order),
+          // A facade order's material is counted from its m² on the server;
+          // furniture keeps its own section.
+          if (order.direction == OrderDirection.facades)
+            OrderFacadeMaterialsSection(salesOrder: order.name)
+          else
+            OrderStockReservationSection(order: order),
           const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.orderProductionSection),
           const SizedBox(height: AppSpacing.sm),

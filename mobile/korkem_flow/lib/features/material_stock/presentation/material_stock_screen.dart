@@ -31,7 +31,10 @@ class MaterialStockScreen extends ConsumerWidget {
       key: ValueKey('materialStock:$canEdit'),
       title: l10n.materialStockTitle,
       tabs: [
-        AppTab(label: l10n.materialStockOnHand, view: const _OnHand()),
+        AppTab(
+          label: l10n.materialStockOnHand,
+          view: const MaterialStockOnHand(),
+        ),
         if (canEdit) ...[
           AppTab(label: l10n.materialStockReceive, view: const _Receive()),
           AppTab(label: l10n.materialStockLists, view: const _Lists()),
@@ -44,8 +47,27 @@ class MaterialStockScreen extends ConsumerWidget {
 String _plain(double v) =>
     v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
 
-class _OnHand extends ConsumerWidget {
-  const _OnHand();
+/// On hand and reserved when something is promised; the price when shown.
+Widget? _subtitle(
+  AppLocalizations l10n,
+  NumberFormat money,
+  StockMaterial row,
+) {
+  final lines = [
+    if (row.reserved > 0)
+      l10n.materialStockHeld(
+        '${_plain(row.onHand)} ${row.unit}',
+        '${_plain(row.reserved)} ${row.unit}',
+      ),
+    if (row.averagePrice != null)
+      l10n.materialStockAverage(money.format(row.averagePrice)),
+  ];
+  return lines.isEmpty ? null : Text(lines.join('\n'));
+}
+
+/// What is on hand, reserved and free — also a tab of the warehouse section.
+class MaterialStockOnHand extends ConsumerWidget {
+  const MaterialStockOnHand({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,15 +108,14 @@ class _OnHand extends ConsumerWidget {
                                 key: ValueKey('material:${row.item}'),
                                 child: ListTile(
                                   title: Text(row.title),
-                                  subtitle: row.averagePrice == null
-                                      ? null
-                                      : Text(
-                                          l10n.materialStockAverage(
-                                            money.format(row.averagePrice),
-                                          ),
-                                        ),
+                                  subtitle: _subtitle(l10n, money, row),
                                   trailing: Text(
-                                    '${_plain(row.onHand)} ${row.unit}',
+                                    row.reserved > 0
+                                        ? l10n.materialStockFree(
+                                            '${_plain(row.free)} ${row.unit}',
+                                          )
+                                        : '${_plain(row.onHand)} ${row.unit}',
+                                    key: ValueKey('materialQty:${row.item}'),
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall,

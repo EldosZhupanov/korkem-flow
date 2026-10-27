@@ -1390,5 +1390,13 @@
   "facadeSpecDecorBottom": "Артқы декор",
   "facadeSpecEdge": "Жиек профилі",
   "facadeSpecNone": "—",
-  "facadeSpecGroup": "«{group}» тобы"
+  "facadeSpecGroup": "«{group}» тобы",
+  "materialStockHeld": "Қоймада {onHand} · резервте {reserved}",
+  "materialStockFree": "бос {qty}",
+  "facadeMaterialsTitle": "Тапсырысқа материалдар",
+  "facadeMaterialsLine": "керек {needed} · резервте {held} · есептен шығарылды {issued}",
+  "facadeMaterialsShort": "жетпейді {qty}",
+  "facadeMaterialsHeld": "Барлығы резервте",
+  "facadeMaterialsReserve": "Бос материалды резервтеу",
+  "facadeMaterialsEmpty": "Қоймадан ештеңе керек емес"
 }

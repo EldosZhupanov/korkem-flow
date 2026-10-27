@@ -303,19 +303,28 @@ def _own_item(item: str) -> None:
 
 
 def _ensure_uom(unit: str) -> None:
-	# MariaDB compares names without case: an existing «Лист» answers for «лист»,
-	# and that is the UOM the item will carry. It must still count whole sheets.
-	existing = frappe.db.get_value("UOM", unit, ["name", "must_be_whole_number"], as_dict=True)
-	if not existing:
-		frappe.get_doc({"doctype": "UOM", "uom_name": unit, "must_be_whole_number": 1 if UNITS[unit] else 0}).insert(
+	"""The unit exists in ERPNext. Its whole-number flag is left alone.
+
+	Whole sheets, rolls and pieces are this store's own rule (`_whole_units`,
+	checked on every receipt), not the shared UOM's. Furniture BOMs consume a
+	fraction of a sheet — «4,2 листа» on a wardrobe — so a whole-number «Лист»
+	makes every Work Order transfer fail. Until 2026-10-27 this function set
+	the flag on an existing «Лист», and furniture production on that site
+	stopped with «Quantity (8.4) cannot be a fraction».
+	"""
+	# MariaDB compares names without case: an existing «Лист» answers for «лист».
+	if not frappe.db.exists("UOM", unit):
+		frappe.get_doc({"doctype": "UOM", "uom_name": unit, "must_be_whole_number": 0}).insert(
 			ignore_permissions=True
 		)
-	elif UNITS[unit] and not existing.must_be_whole_number:
-		frappe.db.set_value("UOM", existing.name, "must_be_whole_number", 1)
 
 
 def _whole_units(unit: str | None) -> bool:
-	"""Sheets, rolls and pieces come whole — by our list or by ERPNext's own flag."""
+	"""Sheets, rolls and pieces come whole — by our list or by ERPNext's own flag.
+
+	For the store's own receipts only; a furniture BOM may still consume part
+	of a sheet (see `_ensure_uom`).
+	"""
 	if not unit:
 		return False
 	return bool(UNITS.get(unit.lower())) or bool(frappe.db.get_value("UOM", unit, "must_be_whole_number"))
@@ -340,9 +349,12 @@ def materials(kind: str | None = None, include_disabled: bool = False) -> dict:
 		limit_page_length=1000,
 	)
 	stock = _stock([i.name for i in items], company)
+	held = _reserved([i.name for i in items], company)
 	allowed = price_visibility.can_see_prices()
 	return {
-		"materials": [_material_row(i, stock.get(i.name, (0.0, 0.0)), allowed) for i in items],
+		"materials": [
+			_material_row(i, stock.get(i.name, (0.0, 0.0)), allowed, held.get(i.name, 0.0)) for i in items
+		],
 		"can_edit": can_edit(),
 		"prices_visible": allowed,
 	}
@@ -359,7 +371,12 @@ def material(item: str) -> dict:
 		],
 		as_dict=True,
 	)
-	return _material_row(row, _stock([item], company).get(item, (0.0, 0.0)), price_visibility.can_see_prices())
+	return _material_row(
+		row,
+		_stock([item], company).get(item, (0.0, 0.0)),
+		price_visibility.can_see_prices(),
+		_reserved([item], company).get(item, 0.0),
+	)
 
 
 def _stock(items: list[str], company: str) -> dict[str, tuple[float, float]]:
@@ -381,7 +398,21 @@ def _stock(items: list[str], company: str) -> dict[str, tuple[float, float]]:
 	return {k: (round(q, 3), round(v / q, 2) if q else 0.0) for k, (q, v) in result.items()}
 
 
-def _material_row(i, stock: tuple[float, float], allowed: bool) -> dict:
+def _reserved(items: list[str], company: str) -> dict[str, float]:
+	"""Promised to orders and not yet written off (`stock_reservation`)."""
+	if not items:
+		return {}
+	result: dict[str, float] = {}
+	for r in frappe.get_all(
+		"Stock Reservation",
+		filters={"company": company, "status": "Active", "item_code": ["in", items]},
+		fields=["item_code", "qty"],
+	):
+		result[r.item_code] = result.get(r.item_code, 0.0) + flt(r.qty)
+	return {k: round(v, 3) for k, v in result.items()}
+
+
+def _material_row(i, stock: tuple[float, float], allowed: bool, reserved: float = 0.0) -> dict:
 	return {
 		"item": i.name,
 		"title": i.item_name,
@@ -394,6 +425,9 @@ def _material_row(i, stock: tuple[float, float], allowed: bool) -> dict:
 		"width": i.korkem_film_width_mm,
 		"film_thickness": i.korkem_film_thickness_mm,
 		"on_hand": stock[0],
+		# One ledger: on hand is ERPNext's; reserved only narrows what is free.
+		"reserved": reserved,
+		"free": round(stock[0] - reserved, 3),
 		"average_price": price_visibility.money(stock[1], allowed=allowed),
 	}
 

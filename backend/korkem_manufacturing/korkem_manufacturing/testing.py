@@ -101,7 +101,20 @@ def order_trail(sales_order: str) -> list[tuple[str, str]]:
 				)
 			]
 		after.append(("Work Order", work_order))
+	# A facade order's write-off names the order; cancelling it puts the
+	# material back. Its reservations go after the order, whose cancel
+	# releases them — an active one refuses to be deleted.
+	after += [
+		("Stock Entry", name)
+		for name in frappe.get_all(
+			"Stock Entry", filters={"korkem_sales_order": sales_order}, pluck="name", order_by="creation desc"
+		)
+	]
 	after.append(("Sales Order", sales_order))
+	after += [
+		("Stock Reservation", name)
+		for name in frappe.get_all("Stock Reservation", filters={"sales_order": sales_order}, pluck="name")
+	]
 	for quotation in _parents("Sales Order Item", "prevdoc_docname", None, parent=sales_order):
 		after.append(("Quotation", quotation))
 		opportunity = frappe.db.get_value("Quotation", quotation, "opportunity")

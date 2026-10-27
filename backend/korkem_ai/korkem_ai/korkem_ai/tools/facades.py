@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from korkem_manufacturing.api import directions as directions_api
 from korkem_manufacturing.api import facade_jobs as facade_jobs_api
+from korkem_manufacturing.api import facade_materials as facade_materials_api
 from korkem_manufacturing.api import facade_prices as facade_prices_api
 
 from korkem_ai.korkem_ai.tools.registry import Risk, ToolSpec, register
@@ -190,5 +191,32 @@ register(
 			if group
 			else f"Снять цветовую группу с позиций ({len(lines)})"
 		),
+	)
+)
+
+
+def _materials(sales_order: str) -> dict:
+	return facade_materials_api.need(sales_order=sales_order)
+
+
+register(
+	ToolSpec(
+		name="manufacturing.facade_materials",
+		description=(
+			"What a facade order needs from the warehouse: MDF sheets by thickness "
+			"and film by decor, counted from the order's square metres with the "
+			"factory's own waste norms; how much is held for it, already written "
+			"off, free on the shelf, and short. Lines missing a thickness or decor "
+			"are named. Writes nothing."
+		),
+		input_schema={
+			"type": "object",
+			"properties": {"sales_order": {"type": "string", "minLength": 1}},
+			"required": ["sales_order"],
+		},
+		risk=Risk.READ,
+		handler=_materials,
+		doctypes=("Sales Order",),
+		audit_category="production",
 	)
 )

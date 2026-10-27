@@ -168,6 +168,10 @@ doc_events = {
 			"korkem_manufacturing.services.invitations.prevent_self_role_change"
 		),
 	},
+	# A cancelled order holds nothing: services/facade_materials.py.
+	"Sales Order": {
+		"on_cancel": "korkem_manufacturing.services.facade_materials.on_order_cancelled",
+	},
 	"Company": {
 		"after_insert": [
 			"korkem_manufacturing.services.facade_prices.on_company_created",

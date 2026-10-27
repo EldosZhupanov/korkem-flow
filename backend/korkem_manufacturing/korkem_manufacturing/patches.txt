@@ -18,3 +18,6 @@ korkem_manufacturing.patches.v0_0.add_material_stock_fields
 korkem_manufacturing.patches.v0_0.align_crm_currency
 korkem_manufacturing.patches.v0_0.add_order_direction_fields
 korkem_manufacturing.patches.v0_0.add_facade_spec_fields
+korkem_manufacturing.patches.v0_0.add_facade_material_fields
+korkem_manufacturing.patches.v0_0.grant_sales_manager_account_read
+korkem_manufacturing.patches.v0_0.sheet_uom_takes_fractions

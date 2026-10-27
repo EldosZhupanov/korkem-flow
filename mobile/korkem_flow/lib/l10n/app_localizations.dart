@@ -7166,6 +7166,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'group “{group}”'**
   String facadeSpecGroup(String group);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'On hand {onHand} · reserved {reserved}'**
+  String materialStockHeld(String onHand, String reserved);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} free'**
+  String materialStockFree(String qty);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'Materials for the order'**
+  String get facadeMaterialsTitle;
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'need {needed} · held {held} · written off {issued}'**
+  String facadeMaterialsLine(String needed, String held, String issued);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'short {qty}'**
+  String facadeMaterialsShort(String qty);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'All held'**
+  String get facadeMaterialsHeld;
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve what is free'**
+  String get facadeMaterialsReserve;
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing needed from the warehouse'**
+  String get facadeMaterialsEmpty;
 }
 
 class _AppLocalizationsDelegate

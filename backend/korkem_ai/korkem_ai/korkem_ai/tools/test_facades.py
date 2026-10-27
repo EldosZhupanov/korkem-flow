@@ -30,6 +30,7 @@ class TestFacadeTools(IntegrationTestCase):
 	def test_reading_is_free_and_writing_waits_for_a_person(self):
 		self.assertEqual(registry.get("sales.facade_quote").risk, Risk.READ)
 		self.assertEqual(registry.get("manufacturing.facade_queue").risk, Risk.READ)
+		self.assertEqual(registry.get("manufacturing.facade_materials").risk, Risk.READ)
 		for name in ("sales.set_order_urgent", "sales.set_customer_tier", "manufacturing.set_color_group"):
 			with self.subTest(tool=name):
 				self.assertTrue(registry.get(name).requires_confirmation)

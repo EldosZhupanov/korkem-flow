@@ -107,6 +107,12 @@ def set_status(line: str, status: str) -> dict:
 			piece_rates.accrue_facade(line, row.parent)
 		elif before == DONE:
 			piece_rates.withdraw_facade(line)
+		# Material follows the first facade off the queue: what was held for
+		# the order is written off in ERPNext. Nothing held, nothing written.
+		if before == QUEUED:
+			from korkem_manufacturing.services import facade_materials
+
+			facade_materials.write_off(row.parent)
 		audit.record_audit(
 			action="manufacturing.facade_status",
 			entity_type="Sales Order",

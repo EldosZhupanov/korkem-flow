@@ -12,6 +12,7 @@ from korkem_manufacturing.services import facade_order, facade_prices, facade_qu
 
 COMPANY = "KORKEM"
 SELLER = "order.seller@example.com"
+HEAD_OF_SALES = "order.head@example.com"
 CUTTER = "order.cutter@example.com"
 PVC = facade_prices.PVC
 
@@ -36,6 +37,7 @@ class TestFacadeOrder(IntegrationTestCase):
 		frappe.set_user("Administrator")
 		facade_prices.seed_company(COMPANY)
 		_user(SELLER, "Sales User")
+		_user(HEAD_OF_SALES, "Sales Manager")
 		_user(CUTTER, "Manufacturing User")
 		cls.customer = frappe.db.get_value("Customer", {"disabled": 0}, "name")
 		assert cls.customer, "the seeded site has customers; no silent skip"
@@ -65,6 +67,11 @@ class TestFacadeOrder(IntegrationTestCase):
 			)
 		finally:
 			frappe.set_user("Administrator")
+
+	def test_the_head_of_sales_writes_an_order_too(self):
+		"""A Sales Manager alone once failed on the customer's receivable account."""
+		result = self._order(HEAD_OF_SALES)
+		self.assertEqual(frappe.db.get_value("Sales Order", result["sales_order"], "docstatus"), 1)
 
 	def test_the_order_carries_exactly_the_quoted_total(self):
 		result = self._order(lines=[_line(), _line(double_sided=1, qty=1)], demolition=1)

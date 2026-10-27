@@ -4036,4 +4036,36 @@ class AppLocalizationsRu extends AppLocalizations {
   String facadeSpecGroup(String group) {
     return 'группа «$group»';
   }
+
+  @override
+  String materialStockHeld(String onHand, String reserved) {
+    return 'На складе $onHand · в резерве $reserved';
+  }
+
+  @override
+  String materialStockFree(String qty) {
+    return 'свободно $qty';
+  }
+
+  @override
+  String get facadeMaterialsTitle => 'Материалы под заказ';
+
+  @override
+  String facadeMaterialsLine(String needed, String held, String issued) {
+    return 'нужно $needed · в резерве $held · списано $issued';
+  }
+
+  @override
+  String facadeMaterialsShort(String qty) {
+    return 'не хватает $qty';
+  }
+
+  @override
+  String get facadeMaterialsHeld => 'Всё зарезервировано';
+
+  @override
+  String get facadeMaterialsReserve => 'Зарезервировать свободное';
+
+  @override
+  String get facadeMaterialsEmpty => 'Со склада ничего не нужно';
 }

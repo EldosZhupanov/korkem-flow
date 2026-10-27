@@ -36,6 +36,12 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_facade_spec_fields
 
 	add_facade_spec_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_facade_material_fields
+
+	add_facade_material_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import grant_sales_manager_account_read
+
+	grant_sales_manager_account_read.execute()
 	# After grant_order_read: the floor roles must already read the order for
 	# the level-0/level-1 split to mean anything.
 	price_visibility.apply_field_levels()

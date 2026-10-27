@@ -4,15 +4,35 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
 import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
 import 'package:korkem_flow/features/material_stock/presentation/material_stock_screen.dart';
+import 'package:korkem_flow/features/orders/presentation/order_facade_materials_section.dart';
 
 import '../../support/widget_harness.dart';
 
 class _FakeRepository implements MaterialStockRepository {
-  _FakeRepository({required this.canEdit});
+  _FakeRepository({
+    required this.canEdit,
+    this.stock = const [
+      StockMaterial(
+        item: 'MAT-1',
+        title: 'МДФ 16 мм Kastamonu',
+        kind: StockMaterial.mdf,
+        unit: 'лист',
+        onHand: 45,
+      ),
+    ],
+    this.need = const FacadeMaterials(
+      materials: [],
+      unresolved: [],
+      fullyHeld: false,
+    ),
+  });
 
   final bool canEdit;
+  final List<StockMaterial> stock;
+  final FacadeMaterials need;
   final defined = <Map<String, String?>>[];
   final received = <(String, double, double, String)>[];
+  final reserved = <String>[];
 
   @override
   Future<MaterialLists> lists() async => MaterialLists.fromJson({
@@ -34,15 +54,16 @@ class _FakeRepository implements MaterialStockRepository {
   });
 
   @override
-  Future<List<StockMaterial>> materials() async => const [
-    StockMaterial(
-      item: 'MAT-1',
-      title: 'МДФ 16 мм Kastamonu',
-      kind: StockMaterial.mdf,
-      unit: 'лист',
-      onHand: 45,
-    ),
-  ];
+  Future<List<StockMaterial>> materials() async => stock;
+
+  @override
+  Future<FacadeMaterials> facadeMaterials(String salesOrder) async => need;
+
+  @override
+  Future<FacadeMaterials> reserveFacadeMaterials(String salesOrder) async {
+    reserved.add(salesOrder);
+    return need;
+  }
 
   @override
   Future<StockMaterial> define({
@@ -151,5 +172,83 @@ void main() {
 
     expect(repo.defined.single['thickness'], '16');
     expect(repo.received.single, ('MAT-1', 45.0, 21000.0, 'Profi'));
+  });
+
+  testWidgets('what is promised to orders is shown apart from what is free', (
+    tester,
+  ) async {
+    final repo = _FakeRepository(
+      canEdit: false,
+      stock: const [
+        StockMaterial(
+          item: 'MAT-2',
+          title: 'МДФ 18 мм Kastamonu',
+          kind: StockMaterial.mdf,
+          unit: 'лист',
+          onHand: 10,
+          reserved: 3,
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [materialStockRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MaterialStockScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('materialQty:MAT-2'))).data,
+      contains('7'),
+    );
+    expect(find.textContaining('10 лист'), findsOneWidget);
+    expect(find.textContaining('3 лист'), findsOneWidget);
+  });
+
+  testWidgets('a facade order says what is short and the warehouse holds it', (
+    tester,
+  ) async {
+    final repo = _FakeRepository(
+      canEdit: true,
+      need: FacadeMaterials.fromJson(const {
+        'materials': [
+          {
+            'kind': 'МДФ',
+            'key': '18',
+            'area_m2': 2.3,
+            'item': 'MAT-2',
+            'title': 'МДФ 18 мм Kastamonu',
+            'unit': 'лист',
+            'needed': 2,
+            'held': 1,
+            'issued': 0,
+            'free': 1,
+            'short': 1,
+          },
+        ],
+        'unresolved': ['Позиция 2: не выбран декор плёнки.'],
+        'fully_held': false,
+      }),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [materialStockRepositoryProvider.overrideWithValue(repo)],
+        child: harness(
+          const Scaffold(
+            body: SingleChildScrollView(
+              child: OrderFacadeMaterialsSection(salesOrder: 'SO-1'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('МДФ 18 мм Kastamonu'), findsOneWidget);
+    expect(find.textContaining('short 1'), findsOneWidget);
+    expect(find.textContaining('не выбран декор'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('facadeMaterialsReserve')));
+    await tester.pumpAndSettle();
+    expect(repo.reserved, ['SO-1']);
   });
 }

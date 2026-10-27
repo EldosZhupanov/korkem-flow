@@ -1390,5 +1390,13 @@
   "facadeSpecDecorBottom": "Декор обратной",
   "facadeSpecEdge": "Профиль кромки",
   "facadeSpecNone": "—",
-  "facadeSpecGroup": "группа «{group}»"
+  "facadeSpecGroup": "группа «{group}»",
+  "materialStockHeld": "На складе {onHand} · в резерве {reserved}",
+  "materialStockFree": "свободно {qty}",
+  "facadeMaterialsTitle": "Материалы под заказ",
+  "facadeMaterialsLine": "нужно {needed} · в резерве {held} · списано {issued}",
+  "facadeMaterialsShort": "не хватает {qty}",
+  "facadeMaterialsHeld": "Всё зарезервировано",
+  "facadeMaterialsReserve": "Зарезервировать свободное",
+  "facadeMaterialsEmpty": "Со склада ничего не нужно"
 }

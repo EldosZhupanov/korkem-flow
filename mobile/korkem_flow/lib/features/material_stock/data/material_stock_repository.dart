@@ -26,6 +26,14 @@ final stockMaterialsProvider = FutureProvider.autoDispose<List<StockMaterial>>(
   (ref) => ref.watch(materialStockRepositoryProvider).materials(),
 );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final facadeMaterialsProvider = FutureProvider.autoDispose
+    .family<FacadeMaterials, String>(
+      (ref, order) =>
+          ref.watch(materialStockRepositoryProvider).facadeMaterials(order),
+    );
+
 /// The materials store. Stock and average price are ERPNext's figures.
 class MaterialStockRepository {
   MaterialStockRepository(this._client, [MutationOutbox? outbox])
@@ -144,6 +152,32 @@ class MaterialStockRepository {
       material is Map ? Map<String, dynamic>.from(material) : const {},
     );
   }
+
+  static const _facadeBase = 'korkem_manufacturing.api.facade_materials';
+
+  /// What a facade order needs: MDF by thickness, film by decor.
+  Future<FacadeMaterials> facadeMaterials(String salesOrder) async =>
+      FacadeMaterials.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_facadeBase.need',
+            params: {'sales_order': salesOrder},
+          ),
+        ),
+      );
+
+  /// Holds what is free for whatever the order still lacks. Safe to repeat,
+  /// so it goes straight to the server rather than through the outbox.
+  Future<FacadeMaterials> reserveFacadeMaterials(String salesOrder) async =>
+      FacadeMaterials.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_facadeBase.reserve',
+            params: {'sales_order': salesOrder},
+            post: true,
+          ),
+        ),
+      );
 
   Map<String, dynamic> _map(Map<String, dynamic> response) {
     final raw = response['message'] ?? response['data'];

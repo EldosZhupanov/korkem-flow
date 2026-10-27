@@ -4012,4 +4012,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String facadeSpecGroup(String group) {
     return 'group “$group”';
   }
+
+  @override
+  String materialStockHeld(String onHand, String reserved) {
+    return 'On hand $onHand · reserved $reserved';
+  }
+
+  @override
+  String materialStockFree(String qty) {
+    return '$qty free';
+  }
+
+  @override
+  String get facadeMaterialsTitle => 'Materials for the order';
+
+  @override
+  String facadeMaterialsLine(String needed, String held, String issued) {
+    return 'need $needed · held $held · written off $issued';
+  }
+
+  @override
+  String facadeMaterialsShort(String qty) {
+    return 'short $qty';
+  }
+
+  @override
+  String get facadeMaterialsHeld => 'All held';
+
+  @override
+  String get facadeMaterialsReserve => 'Reserve what is free';
+
+  @override
+  String get facadeMaterialsEmpty => 'Nothing needed from the warehouse';
 }

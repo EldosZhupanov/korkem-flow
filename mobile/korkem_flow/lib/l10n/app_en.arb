@@ -4615,8 +4615,12 @@
   "tierNew": "New",
   "tierRegular": "Regular",
   "tierVip": "VIP",
-  "@directionAll": {"description": "Order list filter: both lines of business."},
-  "@orderUrgent": {"description": "Badge on an urgent order."},
+  "@directionAll": {
+    "description": "Order list filter: both lines of business."
+  },
+  "@orderUrgent": {
+    "description": "Badge on an urgent order."
+  },
   "facadeSpecTitle": "Technical details",
   "facadeSpecThickness": "Thickness, mm",
   "facadeSpecDecorTop": "Face decor",
@@ -4624,5 +4628,73 @@
   "facadeSpecEdge": "Edge profile",
   "facadeSpecNone": "—",
   "facadeSpecGroup": "group “{group}”",
-  "@facadeSpecGroup": {"description": "Colour group of a facade position.", "placeholders": {"group": {"type": "String"}}}
+  "@facadeSpecGroup": {
+    "description": "Colour group of a facade position.",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockHeld": "On hand {onHand} · reserved {reserved}",
+  "@materialStockHeld": {
+    "description": "Warehouse reservations (package 5)",
+    "placeholders": {
+      "onHand": {
+        "type": "String"
+      },
+      "reserved": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockFree": "{qty} free",
+  "@materialStockFree": {
+    "description": "Warehouse reservations (package 5)",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeMaterialsTitle": "Materials for the order",
+  "@facadeMaterialsTitle": {
+    "description": "Warehouse reservations (package 5)"
+  },
+  "facadeMaterialsLine": "need {needed} · held {held} · written off {issued}",
+  "@facadeMaterialsLine": {
+    "description": "Warehouse reservations (package 5)",
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "held": {
+        "type": "String"
+      },
+      "issued": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeMaterialsShort": "short {qty}",
+  "@facadeMaterialsShort": {
+    "description": "Warehouse reservations (package 5)",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeMaterialsHeld": "All held",
+  "@facadeMaterialsHeld": {
+    "description": "Warehouse reservations (package 5)"
+  },
+  "facadeMaterialsReserve": "Reserve what is free",
+  "@facadeMaterialsReserve": {
+    "description": "Warehouse reservations (package 5)"
+  },
+  "facadeMaterialsEmpty": "Nothing needed from the warehouse",
+  "@facadeMaterialsEmpty": {
+    "description": "Warehouse reservations (package 5)"
+  }
 }

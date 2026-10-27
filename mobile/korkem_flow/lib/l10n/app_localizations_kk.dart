@@ -3975,4 +3975,36 @@ class AppLocalizationsKk extends AppLocalizations {
   String facadeSpecGroup(String group) {
     return '«$group» тобы';
   }
+
+  @override
+  String materialStockHeld(String onHand, String reserved) {
+    return 'Қоймада $onHand · резервте $reserved';
+  }
+
+  @override
+  String materialStockFree(String qty) {
+    return 'бос $qty';
+  }
+
+  @override
+  String get facadeMaterialsTitle => 'Тапсырысқа материалдар';
+
+  @override
+  String facadeMaterialsLine(String needed, String held, String issued) {
+    return 'керек $needed · резервте $held · есептен шығарылды $issued';
+  }
+
+  @override
+  String facadeMaterialsShort(String qty) {
+    return 'жетпейді $qty';
+  }
+
+  @override
+  String get facadeMaterialsHeld => 'Барлығы резервте';
+
+  @override
+  String get facadeMaterialsReserve => 'Бос материалды резервтеу';
+
+  @override
+  String get facadeMaterialsEmpty => 'Қоймадан ештеңе керек емес';
 }

@@ -32,6 +32,8 @@ Covers the complete 23-stage operating system loop for "Demo Kitchen Customer" /
 
 from __future__ import annotations
 
+import math
+
 from decimal import Decimal
 from typing import Any
 
@@ -105,6 +107,36 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		frappe.db.rollback()
+
+	def _receive(self, item_code: str, qty: float) -> None:
+		"""Material arrives the way it really does: an ERPNext Material Receipt.
+
+		Until 2026-10-27 this test wrote the arrival into `Domain Stock Movement`,
+		and reservations read free stock from there as well as from ERPNext — a
+		second ledger the rest of the system never saw (services/stock_reservation.py).
+		"""
+		uom = frappe.db.get_value("Item", item_code, "stock_uom")
+		entry = frappe.get_doc(
+			{
+				"doctype": "Stock Entry",
+				"stock_entry_type": "Material Receipt",
+				"company": self.company,
+				"items": [
+					{
+						"item_code": item_code,
+						"qty": math.ceil(qty),
+						"uom": uom,
+						"basic_rate": 1000.0,
+						"t_warehouse": self.warehouse,
+					}
+				],
+			}
+		)
+		entry.insert(ignore_permissions=True)
+		entry.submit()
+		# test_01 commits mid-test; a receipt left behind would fill the shelf
+		# the next run expects to find empty.
+		self.addCleanup(testing.remove, [("Stock Entry", entry.name)])
 
 	def _setup_master_data(self):
 		"""Подготовка номенклатуры и базовых сущностей для канонического теста."""
@@ -417,14 +449,7 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 		for s in res_summary["shortages"]:
 			code = s["item_code"]
 			needed = flt(s["shortage_qty"])
-			stock_movement.record_movement(
-				item_code=code,
-				from_location="Suppliers",
-				to_location=self.warehouse,
-				qty=needed * 2.0,
-				reason="Поставка материалов под заказ",
-				company=self.company,
-			)
+			self._receive(code, needed * 2.0)
 
 		# 4. Повторное бронирование полностью закрывает потребность заказа
 		res_summary2 = stock_reservation.reserve_materials_for_order(
@@ -865,14 +890,7 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 
 		res = stock_reservation.reserve_materials_for_order(sales_order=so_id, warehouse=self.warehouse)
 		for s in res.get("shortages", []):
-			stock_movement.record_movement(
-				item_code=s["item_code"],
-				from_location="Suppliers",
-				to_location=self.warehouse,
-				qty=flt(s["shortage_qty"]) * 2.0,
-				reason="Склад",
-				company=self.company,
-			)
+			self._receive(s["item_code"], flt(s["shortage_qty"]) * 2.0)
 		stock_reservation.reserve_materials_for_order(sales_order=so_id, warehouse=self.warehouse)
 		order_state.transition(sales_order=so_id, target_state="In Production")
 		order_state.transition(sales_order=so_id, target_state="Quality Control")

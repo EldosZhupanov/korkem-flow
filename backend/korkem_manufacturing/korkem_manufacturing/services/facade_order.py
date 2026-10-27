@@ -31,7 +31,14 @@ from decimal import Decimal
 import frappe
 from frappe.utils import flt, getdate, nowdate
 
-from korkem_manufacturing.services import audit, directions, facade_prices, facade_quote, facade_spec
+from korkem_manufacturing.services import (
+	audit,
+	directions,
+	facade_materials,
+	facade_prices,
+	facade_quote,
+	facade_spec,
+)
 from korkem_manufacturing.services.scope import current_company
 
 FACADE_ITEM = "KORKEM-FACADE"
@@ -130,6 +137,10 @@ def create_order(
 		raise
 	frappe.db.release_savepoint(savepoint)
 
+	# Held at once, so the next order cannot promise the same sheets. Short
+	# material is part of the answer, not a reason to refuse the order.
+	materials = facade_materials.reserve(order.name)
+
 	audit.record_audit(
 		action="sales.facade_order_created",
 		entity_type="Sales Order",
@@ -152,6 +163,13 @@ def create_order(
 		"prepayment": quote["prepayment"],
 		"balance": quote["balance"],
 		"status": "created",
+		"materials_held": materials["fully_held"],
+		"materials_short": [
+			{"title": m["title"] or m["key"], "short": m["short"], "unit": m["unit"], "note": m["note"]}
+			for m in materials["materials"]
+			if m["short"] or m["note"]
+		]
+		+ [{"title": None, "short": None, "unit": None, "note": note} for note in materials["unresolved"]],
 	}
 
 
