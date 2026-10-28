@@ -28,14 +28,12 @@ from korkem_manufacturing.services import (
 	capture,
 	durable_jobs,
 	enquiry,
-	manufacturing_flow,
 	order_state,
 	outbox,
 	outbox_workers,
 	payments,
 	piece_work,
 	proposal,
-	stock_movement,
 	stock_reservation,
 )
 from korkem_manufacturing.services.scope import current_company
@@ -222,7 +220,7 @@ class TestChaosLifecycle(IntegrationTestCase):
 		self.assertIn("Конфликт конкурентного обновления", str(ctx.exception))
 
 	def test_04_duplicate_job_card_completion_idempotency(self):
-		"""4. Повторное нажатие кнопки завершения Job Card: возврат already_completed без двойного начисления."""
+		"""4. Повторное нажатие кнопки завершения Job Card: та же запись, без двойного начисления."""
 		so_id = self._create_sample_order("Chaos ShopFloor Customer")
 
 		ws = frappe.db.get_value("Workstation", {}, "name")
@@ -260,31 +258,32 @@ class TestChaosLifecycle(IntegrationTestCase):
 		)
 		jc.insert(ignore_permissions=True)
 
-		# Первое завершение операции
-		flow1 = manufacturing_flow.complete_operation_flow(
-			job_card=jc.name,
-			operator="Administrator",
-			employee="EMP-KITCHEN-001",
-			completed_qty=10.0,
-			rate_type="KZT_PER_PART",
-			rate=350.0,
-			company=self.company,
-		)
-		self.assertIn(flow1["status"], ("Completed", "completed"))
-		pwe_name = flow1["piece_work_entry"]
+		# Первое завершение операции: начисление сдельной оплаты с ключом
+		# идемпотентности, как его ставит настоящий путь — piece_rates.accrue_stage
+		# («stage:<карта>:<годных>»). До 28.10.2026 тест шёл через прототип
+		# complete_operation_flow, который писал ещё и второй журнал склада;
+		# прототип удалён по решению владельца, проверяемый инвариант — тот же.
+		key = f"stage:{jc.name}:10.0"
 
-		# Повторное завершение той же Job Card
-		flow2 = manufacturing_flow.complete_operation_flow(
-			job_card=jc.name,
-			operator="Administrator",
-			employee="EMP-KITCHEN-001",
-			completed_qty=10.0,
-			rate_type="KZT_PER_PART",
-			rate=350.0,
-			company=self.company,
-		)
-		self.assertEqual(flow2["status"], "already_completed")
-		self.assertEqual(flow2["piece_work_entry"], pwe_name)
+		def finish():
+			return piece_work.record_piece_work(
+				company=self.company,
+				employee="EMP-KITCHEN-001",
+				operation="Раскрой на ЧПУ",
+				rate_type="KZT_PER_PART",
+				quantity=10.0,
+				rate=350.0,
+				job_card=jc.name,
+				work_order=wo.name,
+				sales_order=so_id,
+				idempotency_key=key,
+				actor="Administrator",
+			)
+
+		pwe_name = finish().name
+
+		# Повторное нажатие «завершить» той же карты
+		self.assertEqual(finish().name, pwe_name)
 
 		# Проверяем, что в Piece Work Entry создана ровно 1 запись
 		pwe_count = frappe.db.count(

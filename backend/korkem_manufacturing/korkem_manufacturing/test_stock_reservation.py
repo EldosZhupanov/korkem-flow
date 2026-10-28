@@ -236,10 +236,10 @@ class TestStockReservation(IntegrationTestCase):
 			stock_reservation.get_available_unreserved_qty(self.company, warehouse, self.item_code),
 			free_before - 2.0,
 		)
-		self.assertFalse(frappe.db.exists("Domain Stock Movement", {"sales_order": self.sales_order}))
+		# There is no second ledger to write to (dropped 2026-10-28).
+		self.assertFalse(frappe.db.exists("DocType", "Domain Stock Movement"))
 
 		stock_reservation.release_reservations_for_order(self.sales_order)
 		self.assertEqual(
 			stock_reservation.get_available_unreserved_qty(self.company, warehouse, self.item_code), free_before
 		)
-		self.assertFalse(frappe.db.exists("Domain Stock Movement", {"sales_order": self.sales_order}))
