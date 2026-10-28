@@ -4696,5 +4696,191 @@
   "facadeMaterialsEmpty": "Nothing needed from the warehouse",
   "@facadeMaterialsEmpty": {
     "description": "Warehouse reservations (package 5)"
+  },
+  "crewTitle": "Who made it?",
+  "@crewTitle": {
+    "description": "Payroll (package 6)"
+  },
+  "crewHint": "Tick the crew. Shares in % are optional — empty means equal.",
+  "@crewHint": {
+    "description": "Payroll (package 6)"
+  },
+  "crewTooSmall": "A crew is at least two people.",
+  "@crewTooSmall": {
+    "description": "Payroll (package 6)"
+  },
+  "crewSharesAllOrNone": "Give everyone a share — or no one, for equal shares.",
+  "@crewSharesAllOrNone": {
+    "description": "Payroll (package 6)"
+  },
+  "crewDone": "Done",
+  "@crewDone": {
+    "description": "Payroll (package 6)"
+  },
+  "crewDoneTogether": "Done — made together…",
+  "@crewDoneTogether": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollTitle": "Pay sheet",
+  "@payrollTitle": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollCopyCsv": "Copy for accounting (CSV)",
+  "@payrollCopyCsv": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollCsvCopied": "Pay sheet copied — paste it into Excel",
+  "@payrollCsvCopied": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollPrevMonth": "Previous month",
+  "@payrollPrevMonth": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollNextMonth": "Next month",
+  "@payrollNextMonth": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollEmpty": "Nothing accrued this month",
+  "@payrollEmpty": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollTotal": "Total to pay",
+  "@payrollTotal": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollPiece": "Piece work",
+  "@payrollPiece": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollDailyBonus": "Daily bonuses",
+  "@payrollDailyBonus": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollMonthlyBonus": "Monthly bonus",
+  "@payrollMonthlyBonus": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollBonus": "Bonus",
+  "@payrollBonus": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollFine": "Fines",
+  "@payrollFine": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollAdvance": "Advances",
+  "@payrollAdvance": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollPending": "Not yet approved: {amount}",
+  "@payrollPending": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payrollAdjustments": "Advances, fines, bonuses",
+  "@payrollAdjustments": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollAddAdjustment": "Add",
+  "@payrollAddAdjustment": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollNoAdjustments": "None this month",
+  "@payrollNoAdjustments": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollReverse": "Reverse",
+  "@payrollReverse": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollEmployee": "Employee",
+  "@payrollEmployee": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollAmount": "Amount",
+  "@payrollAmount": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollReason": "Reason",
+  "@payrollReason": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusToday": "Today's bonus",
+  "@bonusToday": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusMonth": "This month's bonus",
+  "@bonusMonth": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusReached": "Reached — bonus {bonus}",
+  "@bonusReached": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusLeft": "{left} to go for {bonus}",
+  "@bonusLeft": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusRules": "Bonuses",
+  "@bonusRules": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusRuleDay": "From {threshold} a day — {bonus}",
+  "@bonusRuleDay": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusRuleMonth": "From {threshold} a month — {bonus}",
+  "@bonusRuleMonth": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusDayThreshold": "Daily threshold",
+  "@bonusDayThreshold": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusDayAmount": "Daily bonus",
+  "@bonusDayAmount": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusMonthThreshold": "Monthly threshold",
+  "@bonusMonthThreshold": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusMonthAmount": "Monthly bonus",
+  "@bonusMonthAmount": {
+    "description": "Payroll (package 6)"
   }
 }

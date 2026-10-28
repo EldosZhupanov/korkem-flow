@@ -4044,4 +4044,130 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get facadeMaterialsEmpty => 'Nothing needed from the warehouse';
+
+  @override
+  String get crewTitle => 'Who made it?';
+
+  @override
+  String get crewHint =>
+      'Tick the crew. Shares in % are optional — empty means equal.';
+
+  @override
+  String get crewTooSmall => 'A crew is at least two people.';
+
+  @override
+  String get crewSharesAllOrNone =>
+      'Give everyone a share — or no one, for equal shares.';
+
+  @override
+  String get crewDone => 'Done';
+
+  @override
+  String get crewDoneTogether => 'Done — made together…';
+
+  @override
+  String get payrollTitle => 'Pay sheet';
+
+  @override
+  String get payrollCopyCsv => 'Copy for accounting (CSV)';
+
+  @override
+  String get payrollCsvCopied => 'Pay sheet copied — paste it into Excel';
+
+  @override
+  String get payrollPrevMonth => 'Previous month';
+
+  @override
+  String get payrollNextMonth => 'Next month';
+
+  @override
+  String get payrollEmpty => 'Nothing accrued this month';
+
+  @override
+  String get payrollTotal => 'Total to pay';
+
+  @override
+  String get payrollPiece => 'Piece work';
+
+  @override
+  String get payrollDailyBonus => 'Daily bonuses';
+
+  @override
+  String get payrollMonthlyBonus => 'Monthly bonus';
+
+  @override
+  String get payrollBonus => 'Bonus';
+
+  @override
+  String get payrollFine => 'Fines';
+
+  @override
+  String get payrollAdvance => 'Advances';
+
+  @override
+  String payrollPending(String amount) {
+    return 'Not yet approved: $amount';
+  }
+
+  @override
+  String get payrollAdjustments => 'Advances, fines, bonuses';
+
+  @override
+  String get payrollAddAdjustment => 'Add';
+
+  @override
+  String get payrollNoAdjustments => 'None this month';
+
+  @override
+  String get payrollReverse => 'Reverse';
+
+  @override
+  String get payrollEmployee => 'Employee';
+
+  @override
+  String get payrollAmount => 'Amount';
+
+  @override
+  String get payrollReason => 'Reason';
+
+  @override
+  String get bonusToday => 'Today\'s bonus';
+
+  @override
+  String get bonusMonth => 'This month\'s bonus';
+
+  @override
+  String bonusReached(String bonus) {
+    return 'Reached — bonus $bonus';
+  }
+
+  @override
+  String bonusLeft(String left, String bonus) {
+    return '$left to go for $bonus';
+  }
+
+  @override
+  String get bonusRules => 'Bonuses';
+
+  @override
+  String bonusRuleDay(String threshold, String bonus) {
+    return 'From $threshold a day — $bonus';
+  }
+
+  @override
+  String bonusRuleMonth(String threshold, String bonus) {
+    return 'From $threshold a month — $bonus';
+  }
+
+  @override
+  String get bonusDayThreshold => 'Daily threshold';
+
+  @override
+  String get bonusDayAmount => 'Daily bonus';
+
+  @override
+  String get bonusMonthThreshold => 'Monthly threshold';
+
+  @override
+  String get bonusMonthAmount => 'Monthly bonus';
 }

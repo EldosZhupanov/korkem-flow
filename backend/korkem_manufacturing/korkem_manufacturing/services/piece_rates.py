@@ -38,6 +38,9 @@ APPROVERS = EDITORS
 FACADE_OPERATION = "Фасад"
 NORMAL, OVERTIME, WEEKEND = "Обычная", "Сверхурочно", "Выходной"
 PER_PART, PER_M2 = "KZT_PER_PART", "KZT_PER_M2"
+BONUS_FIELDS = ("daily_bonus_threshold", "daily_bonus", "monthly_bonus_threshold", "monthly_bonus")
+#: A facade can be made by a crew; more than this is a typo, not a crew.
+MAX_CREW = 5
 
 
 def _ensure(roles: frozenset, message: str) -> None:
@@ -94,7 +97,7 @@ def rules(company: str | None = None) -> dict:
 	row = frappe.db.get_value(
 		"Piece Work Rules",
 		company,
-		["shift_end", "overtime_factor", "weekend_factor", "saturday_is_weekend", "sunday_is_weekend"],
+		["shift_end", "overtime_factor", "weekend_factor", "saturday_is_weekend", "sunday_is_weekend", *BONUS_FIELDS],
 		as_dict=True,
 	) or frappe._dict(sunday_is_weekend=1)
 	return {
@@ -103,13 +106,15 @@ def rules(company: str | None = None) -> dict:
 		"weekend_factor": flt(row.weekend_factor) or None,
 		"saturday_is_weekend": bool(row.saturday_is_weekend),
 		"sunday_is_weekend": bool(row.sunday_is_weekend),
+		# Threshold bonuses (services/payroll.py). Empty means none.
+		**{field: flt(row.get(field)) or None for field in BONUS_FIELDS},
 	}
 
 
 def save_rules(**values) -> dict:
 	_ensure(EDITORS, "Коэффициенты задаёт администратор или начальник производства.")
 	company = current_company()
-	allowed = {"shift_end", "overtime_factor", "weekend_factor", "saturday_is_weekend", "sunday_is_weekend"}
+	allowed = {"shift_end", "overtime_factor", "weekend_factor", "saturday_is_weekend", "sunday_is_weekend", *BONUS_FIELDS}
 	doc = (
 		frappe.get_doc("Piece Work Rules", company)
 		if frappe.db.exists("Piece Work Rules", company)
@@ -180,8 +185,15 @@ def accrue_stage(result: dict, moment: datetime | None = None):
 	)
 
 
-def accrue_facade(line: str, sales_order: str, moment: datetime | None = None):
-	"""Pay for a facade line marked «Готово»."""
+def accrue_facade(line: str, sales_order: str, moment: datetime | None = None, crew=None):
+	"""Pay for a facade line marked «Готово» — to the person who marked it, or
+	split across the crew that made it.
+
+	`crew` is 2–5 people, each with a share in % (summing to 100) or none, for
+	equal shares. Each member gets their share of the quantity, at the rate, as
+	their own entry; each entry is approved on its own. Who was in the crew is
+	the floor's report, checked like any other: by the approver.
+	"""
 	company = current_company()
 	rate = _rate(company, FACADE_OPERATION)
 	if not rate:
@@ -190,23 +202,83 @@ def accrue_facade(line: str, sales_order: str, moment: datetime | None = None):
 	quantity, unit = (flt(row.korkem_area_m2), "m2") if rate.rate_type == PER_M2 else (flt(row.qty), "pcs")
 	if quantity <= 0:
 		return None
+	members = _crew(crew, company)
 	kind, factor = shift_of(moment or now_datetime(), company)
 	# A line can go back to «В работе» and be finished again — by somebody
 	# else, perhaps. Each finish is its own key; going back reverses the last.
-	finishes = frappe.db.count("Piece Work Entry", {"idempotency_key": ["like", f"facade:{line}:%"]})
-	return piece_work.record_piece_work(
-		company=company,
-		employee=frappe.session.user,
-		employee_name=frappe.db.get_value("User", frappe.session.user, "full_name"),
-		operation=FACADE_OPERATION,
-		rate_type=rate.rate_type,
-		quantity=quantity,
-		unit=unit,
-		rate=flt(rate.rate),
-		sales_order=sales_order,
-		idempotency_key=f"facade:{line}:{finishes + 1}",
-		factor=factor,
-		shift_kind=kind,
+	finish = _finishes(line) + 1
+	entries = []
+	for user, share in members:
+		entries.append(
+			piece_work.record_piece_work(
+				company=company,
+				employee=user,
+				employee_name=frappe.db.get_value("User", user, "full_name"),
+				operation=FACADE_OPERATION,
+				rate_type=rate.rate_type,
+				quantity=round(quantity * share / 100, 4),
+				unit=unit,
+				rate=flt(rate.rate),
+				sales_order=sales_order,
+				idempotency_key=f"facade:{line}:{finish}" + (f":{user}" if len(members) > 1 else ""),
+				factor=factor,
+				shift_kind=kind,
+				notes=f"Бригада: доля {share:g}%" if len(members) > 1 else None,
+			)
+		)
+	return entries[0] if len(entries) == 1 else entries
+
+
+def _finishes(line: str) -> int:
+	"""How many times the line has been finished: the highest finish number used."""
+	numbers = [
+		int(key.split(":")[2])
+		for key in frappe.get_all(
+			"Piece Work Entry", filters={"idempotency_key": ["like", f"facade:{line}:%"]}, pluck="idempotency_key"
+		)
+		if key and key.count(":") >= 2 and key.split(":")[2].isdigit()
+	]
+	return max(numbers, default=0)
+
+
+def check_crew(crew) -> list[tuple[str, float]]:
+	"""Refuse a crew that cannot be paid — before the facade is marked done."""
+	return _crew(crew, current_company())
+
+
+def _crew(crew, company: str) -> list[tuple[str, float]]:
+	"""(user, share %) pairs; the marker alone, at 100%, when no crew is named."""
+	if crew in (None, "", []):
+		return [(frappe.session.user, 100.0)]
+	if isinstance(crew, str):
+		crew = frappe.parse_json(crew)
+	if not isinstance(crew, list) or not 1 <= len(crew) <= MAX_CREW:
+		frappe.throw(f"Бригада — от 1 до {MAX_CREW} человек.")
+	members = []
+	for item in crew:
+		user = item.get("user") if isinstance(item, dict) else item
+		share = item.get("share") if isinstance(item, dict) else None
+		if not user or not frappe.db.exists("User", {"name": user, "enabled": 1}) or not _works_here(user, company):
+			frappe.throw("В бригаде указан человек, которого здесь нет.", frappe.DoesNotExistError)
+		members.append((user, None if share in (None, "") else flt(share)))
+	if len({u for u, _ in members}) != len(members):
+		frappe.throw("Один человек указан в бригаде дважды.")
+	given = [s for _, s in members if s is not None]
+	if not given:
+		return [(u, round(100.0 / len(members), 4)) for u, _ in members]
+	if len(given) != len(members):
+		frappe.throw("Укажите доли всем в бригаде — или никому, тогда поровну.")
+	if any(s <= 0 for s in given) or abs(sum(given) - 100) > 0.01:
+		frappe.throw("Доли бригады — больше нуля и в сумме 100%.")
+	return members
+
+
+def _works_here(user: str, company: str) -> bool:
+	"""A member of staff bound to this company (User Permission on Company)."""
+	from korkem_manufacturing.services.identity import is_staff
+
+	return is_staff(user) and frappe.db.exists(
+		"User Permission", {"user": user, "allow": "Company", "for_value": company}
 	)
 
 

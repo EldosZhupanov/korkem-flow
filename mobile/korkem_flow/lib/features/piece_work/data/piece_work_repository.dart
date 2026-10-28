@@ -27,6 +27,46 @@ final pendingPieceWorkProvider =
       (ref) => ref.watch(pieceWorkRepositoryProvider).pending(),
     );
 
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final bonusProgressProvider = FutureProvider.autoDispose<BonusProgress>(
+  (ref) => ref.watch(pieceWorkRepositoryProvider).progress(),
+);
+
+/// A calendar month, as the pay sheet is usually read.
+typedef PayPeriod = ({DateTime from, DateTime to});
+
+PayPeriod monthOf(DateTime day) => (
+  from: DateTime(day.year, day.month),
+  to: DateTime(day.year, day.month + 1, 0),
+);
+
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final payrollStatementProvider = FutureProvider.autoDispose
+    .family<PayrollStatement, PayPeriod>(
+      (ref, period) => ref.watch(pieceWorkRepositoryProvider).statement(period),
+    );
+
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final payAdjustmentsProvider = FutureProvider.autoDispose
+    .family<List<PayAdjustment>, PayPeriod>(
+      (ref, period) =>
+          ref.watch(pieceWorkRepositoryProvider).adjustments(period),
+    );
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final workersProvider = FutureProvider.autoDispose<List<Worker>>(
+  (ref) => ref.watch(pieceWorkRepositoryProvider).workers(),
+);
+
+String _day(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
 /// Piece-rate pay. Amounts are always the server's; nothing is multiplied here.
 class PieceWorkRepository {
   const PieceWorkRepository(this._client);
@@ -106,6 +146,112 @@ class PieceWorkRepository {
       ),
     ),
   );
+
+  static const _payroll = 'korkem_manufacturing.api.payroll';
+
+  /// Only the bonus fields: the other rules are left as they are.
+  Future<PieceRates> saveBonusRules({
+    double? dailyThreshold,
+    double? dailyBonus,
+    double? monthlyThreshold,
+    double? monthlyBonus,
+  }) async => PieceRates.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.save_rules',
+        post: true,
+        params: {
+          'daily_bonus_threshold': dailyThreshold ?? '',
+          'daily_bonus': dailyBonus ?? '',
+          'monthly_bonus_threshold': monthlyThreshold ?? '',
+          'monthly_bonus': monthlyBonus ?? '',
+        },
+      ),
+    ),
+  );
+
+  Future<List<Worker>> workers() async {
+    final raw = (await _client.callMethod('$_payroll.workers'))['message'];
+    return [
+      for (final row in raw is List ? raw : const [])
+        if (row is Map) Worker.fromJson(Map<String, dynamic>.from(row)),
+    ];
+  }
+
+  Future<BonusProgress> progress() async => BonusProgress.fromJson(
+    _map(await _client.callMethod('$_payroll.my_progress')),
+  );
+
+  Future<PayrollStatement> statement(PayPeriod period) async =>
+      PayrollStatement.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_payroll.statement',
+            params: {
+              'from_date': _day(period.from),
+              'to_date': _day(period.to),
+            },
+          ),
+        ),
+      );
+
+  /// The sheet as CSV text, for accounting.
+  Future<String> statementCsv(PayPeriod period) async {
+    final data = _map(
+      await _client.callMethod(
+        '$_payroll.statement_csv',
+        params: {'from_date': _day(period.from), 'to_date': _day(period.to)},
+      ),
+    );
+    return '${data['csv'] ?? ''}';
+  }
+
+  Future<List<PayAdjustment>> adjustments(PayPeriod period) async {
+    final raw = (await _client.callMethod(
+      '$_payroll.adjustments',
+      params: {'from_date': _day(period.from), 'to_date': _day(period.to)},
+    ))['message'];
+    return [
+      for (final row in raw is List ? raw : const [])
+        if (row is Map) PayAdjustment.fromJson(Map<String, dynamic>.from(row)),
+    ];
+  }
+
+  Future<PayAdjustment> addAdjustment({
+    required String employee,
+    required String kind,
+    required double amount,
+    required String reason,
+  }) async => PayAdjustment.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_payroll.add_adjustment',
+        post: true,
+        params: {
+          'employee': employee,
+          'kind': kind,
+          'amount': amount,
+          'reason': reason,
+        },
+      ),
+    ),
+  );
+
+  Future<void> approveAdjustment(String adjustment) async {
+    await _client.callMethod(
+      '$_payroll.approve_adjustment',
+      post: true,
+      params: {'adjustment': adjustment},
+    );
+  }
+
+  Future<void> reverseAdjustment(String adjustment, String reason) async {
+    await _client.callMethod(
+      '$_payroll.reverse_adjustment',
+      post: true,
+      params: {'adjustment': adjustment, 'reason': reason},
+    );
+  }
 
   Map<String, dynamic> _map(Map<String, dynamic> response) {
     final raw = response['message'] ?? response['data'];

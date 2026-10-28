@@ -79,8 +79,12 @@ def jobs(status: str | None = None, limit: int = 100) -> dict:
 	}
 
 
-def set_status(line: str, status: str) -> dict:
-	"""Move one facade line along: queued → in work → done (or back)."""
+def set_status(line: str, status: str, crew=None) -> dict:
+	"""Move one facade line along: queued → in work → done (or back).
+
+	`crew`, when a line is finished: the people who made it, with shares —
+	the pay is split between them (`piece_rates.accrue_facade`).
+	"""
 	if not MAY_REPORT.intersection(frappe.get_roles()):
 		frappe.throw("Статус фасада меняет производство.", frappe.PermissionError)
 	if status not in STATUSES:
@@ -97,6 +101,13 @@ def set_status(line: str, status: str) -> dict:
 		frappe.throw("Заказ ещё не подтверждён или отменён.")
 
 	before = row.korkem_facade_status or QUEUED
+	if status == DONE and before != DONE and crew:
+		# Checked before anything is written: the assistant's tool layer
+		# returns a failure as data without rolling back, so a crew refused
+		# after the status was set would leave a facade «Готово» and unpaid.
+		from korkem_manufacturing.services import piece_rates
+
+		piece_rates.check_crew(crew)
 	if before != status:
 		frappe.db.set_value("Sales Order Item", line, "korkem_facade_status", status)
 		# Pay follows the facade: finished pays, taken back from finished
@@ -104,7 +115,7 @@ def set_status(line: str, status: str) -> dict:
 		from korkem_manufacturing.services import piece_rates
 
 		if status == DONE:
-			piece_rates.accrue_facade(line, row.parent)
+			piece_rates.accrue_facade(line, row.parent, crew=crew)
 		elif before == DONE:
 			piece_rates.withdraw_facade(line)
 		# Material follows the first facade off the queue: what was held for

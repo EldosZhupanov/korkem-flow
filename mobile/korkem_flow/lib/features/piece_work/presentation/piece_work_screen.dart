@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -13,8 +14,10 @@ import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
 import 'package:korkem_flow/features/piece_work/domain/piece_work.dart';
+import 'package:korkem_flow/features/piece_work/presentation/payroll_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Piece-rate pay: my own work for everybody; approvals, rates and
@@ -33,13 +36,21 @@ class PieceWorkScreen extends ConsumerWidget {
       ref
         ..invalidate(myPieceWorkProvider)
         ..invalidate(pieceRatesProvider)
-        ..invalidate(pendingPieceWorkProvider);
+        ..invalidate(pendingPieceWorkProvider)
+        ..invalidate(bonusProgressProvider);
       await ref.read(myPieceWorkProvider.future);
     }
 
     return AppScreen(
       title: l10n.pieceWorkTitle,
       actions: [
+        if (canEdit)
+          IconButton(
+            key: const ValueKey('openPayroll'),
+            tooltip: l10n.payrollTitle,
+            icon: const Icon(AppIcons.payroll),
+            onPressed: () => context.push(Routes.payroll),
+          ),
         IconButton(
           tooltip: l10n.actionRefresh,
           icon: const Icon(AppIcons.refresh),
@@ -54,6 +65,8 @@ class PieceWorkScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
+              const ReadableWidth(child: BonusProgressCard()),
+              const SizedBox(height: AppSpacing.md),
               ReadableWidth(child: _Totals(work: work)),
               if (canEdit) ...[
                 const SizedBox(height: AppSpacing.xl),
@@ -320,8 +333,57 @@ class _Rates extends ConsumerWidget {
             onTap: () => _editRules(context, ref),
           ),
         ),
+        const SizedBox(height: AppSpacing.md),
+        AppCard(
+          child: ListTile(
+            key: const ValueKey('pieceBonusEdit'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.bonusRules),
+            subtitle: Text(
+              [
+                if (rates.dailyBonusThreshold case final t?)
+                  l10n.bonusRuleDay(
+                    money.format(t),
+                    money.format(rates.dailyBonus ?? 0),
+                  ),
+                if (rates.monthlyBonusThreshold case final t?)
+                  l10n.bonusRuleMonth(
+                    money.format(t),
+                    money.format(rates.monthlyBonus ?? 0),
+                  ),
+              ].join('\n').ifEmpty(off),
+            ),
+            trailing: const Icon(AppIcons.edit),
+            onTap: () => _editBonuses(context, ref),
+          ),
+        ),
       ],
     );
+  }
+
+  Future<void> _editBonuses(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    final result = await showDialog<PieceRates>(
+      context: context,
+      builder: (_) => _BonusDialog(rates: rates),
+    );
+    if (result == null) return;
+    try {
+      await ref
+          .read(pieceWorkRepositoryProvider)
+          .saveBonusRules(
+            dailyThreshold: result.dailyBonusThreshold,
+            dailyBonus: result.dailyBonus,
+            monthlyThreshold: result.monthlyBonusThreshold,
+            monthlyBonus: result.monthlyBonus,
+          );
+      ref
+        ..invalidate(pieceRatesProvider)
+        ..invalidate(bonusProgressProvider);
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    }
   }
 
   Future<void> _editRate(
@@ -599,3 +661,98 @@ class _RulesDialogState extends State<_RulesDialog> {
 /// What one rate is paid per: a square metre or a piece.
 String _unitOf(PieceRate rate, AppLocalizations l10n) =>
     rate.rateType == PieceRate.perM2 ? 'м²' : l10n.pieceWorkPcs;
+
+extension on String {
+  String ifEmpty(String other) => isEmpty ? other : this;
+}
+
+/// Thresholds and bonuses; an empty pair means no such bonus.
+class _BonusDialog extends StatefulWidget {
+  const _BonusDialog({required this.rates});
+
+  final PieceRates rates;
+
+  @override
+  State<_BonusDialog> createState() => _BonusDialogState();
+}
+
+class _BonusDialogState extends State<_BonusDialog> {
+  static String _text(double? v) => v == null ? '' : _plain(v);
+
+  late final _dayThreshold = TextEditingController(
+    text: _text(widget.rates.dailyBonusThreshold),
+  );
+  late final _dayBonus = TextEditingController(
+    text: _text(widget.rates.dailyBonus),
+  );
+  late final _monthThreshold = TextEditingController(
+    text: _text(widget.rates.monthlyBonusThreshold),
+  );
+  late final _monthBonus = TextEditingController(
+    text: _text(widget.rates.monthlyBonus),
+  );
+
+  @override
+  void dispose() {
+    _dayThreshold.dispose();
+    _dayBonus.dispose();
+    _monthThreshold.dispose();
+    _monthBonus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    Widget field(TextEditingController c, String label, String key) =>
+        TextField(
+          key: ValueKey(key),
+          controller: c,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+            labelText: label,
+            suffixText: '₸',
+            helperText: l10n.facadeRulesEmptyMeansOff,
+          ),
+        );
+    return AlertDialog(
+      title: Text(l10n.bonusRules),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            field(_dayThreshold, l10n.bonusDayThreshold, 'bonusDayThreshold'),
+            field(_dayBonus, l10n.bonusDayAmount, 'bonusDayAmount'),
+            field(
+              _monthThreshold,
+              l10n.bonusMonthThreshold,
+              'bonusMonthThreshold',
+            ),
+            field(_monthBonus, l10n.bonusMonthAmount, 'bonusMonthAmount'),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.actionCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('bonusSave'),
+          onPressed: () => Navigator.of(context).pop(
+            PieceRates(
+              rates: widget.rates.rates,
+              canEdit: true,
+              dailyBonusThreshold: double.tryParse(_dayThreshold.text),
+              dailyBonus: double.tryParse(_dayBonus.text),
+              monthlyBonusThreshold: double.tryParse(_monthThreshold.text),
+              monthlyBonus: double.tryParse(_monthBonus.text),
+            ),
+          ),
+          child: Text(l10n.facadePricesSave),
+        ),
+      ],
+    );
+  }
+}

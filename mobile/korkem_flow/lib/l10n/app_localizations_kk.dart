@@ -4007,4 +4007,130 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get facadeMaterialsEmpty => 'Қоймадан ештеңе керек емес';
+
+  @override
+  String get crewTitle => 'Кім жасады?';
+
+  @override
+  String get crewHint =>
+      'Бригаданы белгілеңіз. % үлесі — қалауыңызша, бос болса — тең.';
+
+  @override
+  String get crewTooSmall => 'Бригада — кемінде екі адам.';
+
+  @override
+  String get crewSharesAllOrNone =>
+      'Үлесті барлығына көрсетіңіз — не ешкімге, сонда тең.';
+
+  @override
+  String get crewDone => 'Дайын';
+
+  @override
+  String get crewDoneTogether => 'Дайын — бірге жасадық…';
+
+  @override
+  String get payrollTitle => 'Ведомость';
+
+  @override
+  String get payrollCopyCsv => 'Бухгалтерияға көшіру (CSV)';
+
+  @override
+  String get payrollCsvCopied => 'Ведомость көшірілді — Excel-ге қойыңыз';
+
+  @override
+  String get payrollPrevMonth => 'Алдыңғы ай';
+
+  @override
+  String get payrollNextMonth => 'Келесі ай';
+
+  @override
+  String get payrollEmpty => 'Бұл айда есептеу жоқ';
+
+  @override
+  String get payrollTotal => 'Төлеуге барлығы';
+
+  @override
+  String get payrollPiece => 'Кесімді';
+
+  @override
+  String get payrollDailyBonus => 'Күндік сыйақы';
+
+  @override
+  String get payrollMonthlyBonus => 'Айлық сыйақы';
+
+  @override
+  String get payrollBonus => 'Сыйақы';
+
+  @override
+  String get payrollFine => 'Айыппұл';
+
+  @override
+  String get payrollAdvance => 'Аванс';
+
+  @override
+  String payrollPending(String amount) {
+    return 'Әлі бекітілмеген: $amount';
+  }
+
+  @override
+  String get payrollAdjustments => 'Аванс, айыппұл, сыйақы';
+
+  @override
+  String get payrollAddAdjustment => 'Енгізу';
+
+  @override
+  String get payrollNoAdjustments => 'Бұл айда жоқ';
+
+  @override
+  String get payrollReverse => 'Сторнолау';
+
+  @override
+  String get payrollEmployee => 'Қызметкер';
+
+  @override
+  String get payrollAmount => 'Сома';
+
+  @override
+  String get payrollReason => 'Себебі';
+
+  @override
+  String get bonusToday => 'Бүгінгі сыйақы';
+
+  @override
+  String get bonusMonth => 'Осы айдың сыйақысы';
+
+  @override
+  String bonusReached(String bonus) {
+    return 'Жетті — сыйақы $bonus';
+  }
+
+  @override
+  String bonusLeft(String left, String bonus) {
+    return '$bonus сыйақыға $left қалды';
+  }
+
+  @override
+  String get bonusRules => 'Сыйақылар';
+
+  @override
+  String bonusRuleDay(String threshold, String bonus) {
+    return 'Күніне $threshold бастап — $bonus';
+  }
+
+  @override
+  String bonusRuleMonth(String threshold, String bonus) {
+    return 'Айына $threshold бастап — $bonus';
+  }
+
+  @override
+  String get bonusDayThreshold => 'Күн шегі';
+
+  @override
+  String get bonusDayAmount => 'Күндік сыйақы';
+
+  @override
+  String get bonusMonthThreshold => 'Ай шегі';
+
+  @override
+  String get bonusMonthAmount => 'Айлық сыйақы';
 }

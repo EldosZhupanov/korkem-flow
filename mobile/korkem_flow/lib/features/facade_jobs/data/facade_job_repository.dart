@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
@@ -38,11 +40,26 @@ class FacadeJobRepository {
 
   /// Through the outbox: a status set on the floor with no signal is sent
   /// when the connection is back, once.
-  Future<void> setStatus(String line, FacadeJobStatus status) async {
+  ///
+  /// [crew], when a facade is finished by several people: who, and their
+  /// shares in % (none — equal). The server splits the pay.
+  Future<void> setStatus(
+    String line,
+    FacadeJobStatus status, {
+    List<CrewShare>? crew,
+  }) async {
     await _outbox.execute(
       _client,
       setStatusEndpoint,
-      params: {'line': line, 'status': status.wire},
+      params: {
+        'line': line,
+        'status': status.wire,
+        if (crew != null && crew.isNotEmpty)
+          'crew': jsonEncode([
+            for (final member in crew)
+              {'user': member.user, 'share': ?member.share},
+          ]),
+      },
     );
   }
 }

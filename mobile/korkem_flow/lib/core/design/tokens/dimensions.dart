@@ -93,6 +93,12 @@ abstract final class AppBreakpoints {
 /// Heights that exist because a layout has to reserve space before it knows
 /// what will fill it. Each one is a promise that the placeholder and the real
 /// thing are the same size — get it wrong and content jumps on arrival.
+/// Widths of short inline fields that sit beside a label.
+abstract final class AppFieldWidth {
+  /// A percentage, «70 %» — a crew member's share.
+  static const double percent = 80;
+}
+
 abstract final class AppPlaceholder {
   /// A skeleton row, matching a populated entity card.
   static const double rowHeight = 88;

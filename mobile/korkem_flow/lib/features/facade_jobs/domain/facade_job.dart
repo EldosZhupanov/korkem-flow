@@ -110,3 +110,7 @@ class FacadeJob {
     colorGroup: colorGroup,
   );
 }
+
+/// One member of the crew that made a facade, and their share in %
+/// (`null` — the server splits equally).
+typedef CrewShare = ({String user, double? share});

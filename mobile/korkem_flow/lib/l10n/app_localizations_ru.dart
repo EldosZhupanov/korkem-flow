@@ -4068,4 +4068,130 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get facadeMaterialsEmpty => 'Со склада ничего не нужно';
+
+  @override
+  String get crewTitle => 'Кто делал?';
+
+  @override
+  String get crewHint =>
+      'Отметьте бригаду. Доли в % — по желанию, пусто — поровну.';
+
+  @override
+  String get crewTooSmall => 'Бригада — не меньше двух человек.';
+
+  @override
+  String get crewSharesAllOrNone =>
+      'Укажите доли всем — или никому, тогда поровну.';
+
+  @override
+  String get crewDone => 'Готово';
+
+  @override
+  String get crewDoneTogether => 'Готово — делали вместе…';
+
+  @override
+  String get payrollTitle => 'Ведомость';
+
+  @override
+  String get payrollCopyCsv => 'Скопировать для бухгалтерии (CSV)';
+
+  @override
+  String get payrollCsvCopied => 'Ведомость скопирована — вставьте в Excel';
+
+  @override
+  String get payrollPrevMonth => 'Предыдущий месяц';
+
+  @override
+  String get payrollNextMonth => 'Следующий месяц';
+
+  @override
+  String get payrollEmpty => 'За этот месяц начислений нет';
+
+  @override
+  String get payrollTotal => 'Итого к выплате';
+
+  @override
+  String get payrollPiece => 'Сдельно';
+
+  @override
+  String get payrollDailyBonus => 'Премии за день';
+
+  @override
+  String get payrollMonthlyBonus => 'Премия за месяц';
+
+  @override
+  String get payrollBonus => 'Премия';
+
+  @override
+  String get payrollFine => 'Штрафы';
+
+  @override
+  String get payrollAdvance => 'Авансы';
+
+  @override
+  String payrollPending(String amount) {
+    return 'Ещё не утверждено: $amount';
+  }
+
+  @override
+  String get payrollAdjustments => 'Авансы, штрафы, премии';
+
+  @override
+  String get payrollAddAdjustment => 'Внести';
+
+  @override
+  String get payrollNoAdjustments => 'В этом месяце нет';
+
+  @override
+  String get payrollReverse => 'Сторнировать';
+
+  @override
+  String get payrollEmployee => 'Сотрудник';
+
+  @override
+  String get payrollAmount => 'Сумма';
+
+  @override
+  String get payrollReason => 'Причина';
+
+  @override
+  String get bonusToday => 'Премия за день';
+
+  @override
+  String get bonusMonth => 'Премия за месяц';
+
+  @override
+  String bonusReached(String bonus) {
+    return 'Достигнуто — премия $bonus';
+  }
+
+  @override
+  String bonusLeft(String left, String bonus) {
+    return 'До премии $bonus осталось $left';
+  }
+
+  @override
+  String get bonusRules => 'Премии';
+
+  @override
+  String bonusRuleDay(String threshold, String bonus) {
+    return 'От $threshold за день — $bonus';
+  }
+
+  @override
+  String bonusRuleMonth(String threshold, String bonus) {
+    return 'От $threshold за месяц — $bonus';
+  }
+
+  @override
+  String get bonusDayThreshold => 'Порог дня';
+
+  @override
+  String get bonusDayAmount => 'Премия за день';
+
+  @override
+  String get bonusMonthThreshold => 'Порог месяца';
+
+  @override
+  String get bonusMonthAmount => 'Премия за месяц';
 }

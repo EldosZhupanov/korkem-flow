@@ -10,7 +10,13 @@
   "overtime_factor",
   "weekend_factor",
   "saturday_is_weekend",
-  "sunday_is_weekend"
+  "sunday_is_weekend",
+  "bonus_section",
+  "daily_bonus_threshold",
+  "daily_bonus",
+  "bonus_column",
+  "monthly_bonus_threshold",
+  "monthly_bonus"
  ],
  "fields": [
   {
@@ -50,11 +56,44 @@
    "fieldname": "sunday_is_weekend",
    "fieldtype": "Check",
    "label": "Sunday is a day off"
+  },
+  {
+   "fieldname": "bonus_section",
+   "fieldtype": "Section Break",
+   "label": "Bonuses"
+  },
+  {
+   "fieldname": "daily_bonus_threshold",
+   "fieldtype": "Currency",
+   "label": "Daily bonus threshold",
+   "description": "Сдельный заработок за день, с которого платится дневная премия. Пусто — премии нет."
+  },
+  {
+   "fieldname": "daily_bonus",
+   "fieldtype": "Currency",
+   "label": "Daily bonus",
+   "description": "Дневная премия, когда порог дня достигнут."
+  },
+  {
+   "fieldname": "bonus_column",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monthly_bonus_threshold",
+   "fieldtype": "Currency",
+   "label": "Monthly bonus threshold",
+   "description": "Сдельный заработок за календарный месяц, с которого платится месячная премия. Пусто — премии нет."
+  },
+  {
+   "fieldname": "monthly_bonus",
+   "fieldtype": "Currency",
+   "label": "Monthly bonus",
+   "description": "Месячная премия, когда порог месяца достигнут."
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-26 00:00:00.000000",
+ "modified": "2026-10-28 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Piece Work Rules",

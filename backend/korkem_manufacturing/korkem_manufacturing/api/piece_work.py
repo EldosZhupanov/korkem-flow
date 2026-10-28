@@ -28,8 +28,12 @@ def save_rules(
 	weekend_factor: float | str | None = None,
 	saturday_is_weekend: int | str | None = None,
 	sunday_is_weekend: int | str | None = None,
+	daily_bonus_threshold: float | str | None = None,
+	daily_bonus: float | str | None = None,
+	monthly_bonus_threshold: float | str | None = None,
+	monthly_bonus: float | str | None = None,
 ) -> dict:
-	"""Коэффициенты сверхурочных и выходных; не присланное поле не меняется."""
+	"""Коэффициенты сверхурочных и выходных, пороги премий; не присланное поле не меняется."""
 	sent = {
 		key: value
 		for key, value in {
@@ -38,6 +42,10 @@ def save_rules(
 			"weekend_factor": weekend_factor,
 			"saturday_is_weekend": saturday_is_weekend,
 			"sunday_is_weekend": sunday_is_weekend,
+			"daily_bonus_threshold": daily_bonus_threshold,
+			"daily_bonus": daily_bonus,
+			"monthly_bonus_threshold": monthly_bonus_threshold,
+			"monthly_bonus": monthly_bonus,
 		}.items()
 		if value is not None
 	}

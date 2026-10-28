@@ -13,6 +13,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/features/facade_jobs/data/facade_job_repository.dart';
 import 'package:korkem_flow/features/facade_jobs/domain/facade_job.dart';
+import 'package:korkem_flow/features/facade_jobs/presentation/crew_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 // AutoDisposeFutureProvider is not exported as a public type.
@@ -163,6 +164,8 @@ class _JobTile extends ConsumerWidget {
   Future<void> _choose(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);
+    // `null` status with crew = «Готово», made together.
+    var together = false;
     final next = await showModalBottomSheet<FacadeJobStatus>(
       context: context,
       builder: (sheet) => SafeArea(
@@ -178,13 +181,31 @@ class _JobTile extends ConsumerWidget {
                     : null,
                 onTap: () => Navigator.of(sheet).pop(status),
               ),
+            if (job.status != FacadeJobStatus.done)
+              ListTile(
+                key: const ValueKey('facadeJobDoneTogether'),
+                leading: const Icon(AppIcons.team),
+                title: Text(l10n.crewDoneTogether),
+                onTap: () {
+                  together = true;
+                  Navigator.of(sheet).pop(FacadeJobStatus.done);
+                },
+              ),
           ],
         ),
       ),
     );
     if (next == null || next == job.status) return;
+    List<CrewShare>? crew;
+    if (together) {
+      if (!context.mounted) return;
+      crew = await pickCrew(context);
+      if (crew == null) return;
+    }
     try {
-      await ref.read(facadeJobRepositoryProvider).setStatus(job.line, next);
+      await ref
+          .read(facadeJobRepositoryProvider)
+          .setStatus(job.line, next, crew: crew);
       ref.invalidate(facadeJobsProvider);
     } on MutationQueued {
       messenger.showFailureMessage(l10n.outboxQueued);

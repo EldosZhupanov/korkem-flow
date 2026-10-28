@@ -7214,6 +7214,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing needed from the warehouse'**
   String get facadeMaterialsEmpty;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Who made it?'**
+  String get crewTitle;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the crew. Shares in % are optional — empty means equal.'**
+  String get crewHint;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'A crew is at least two people.'**
+  String get crewTooSmall;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Give everyone a share — or no one, for equal shares.'**
+  String get crewSharesAllOrNone;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get crewDone;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Done — made together…'**
+  String get crewDoneTogether;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Pay sheet'**
+  String get payrollTitle;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Copy for accounting (CSV)'**
+  String get payrollCopyCsv;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Pay sheet copied — paste it into Excel'**
+  String get payrollCsvCopied;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get payrollPrevMonth;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get payrollNextMonth;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing accrued this month'**
+  String get payrollEmpty;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Total to pay'**
+  String get payrollTotal;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Piece work'**
+  String get payrollPiece;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonuses'**
+  String get payrollDailyBonus;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly bonus'**
+  String get payrollMonthlyBonus;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus'**
+  String get payrollBonus;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Fines'**
+  String get payrollFine;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Advances'**
+  String get payrollAdvance;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet approved: {amount}'**
+  String payrollPending(String amount);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Advances, fines, bonuses'**
+  String get payrollAdjustments;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get payrollAddAdjustment;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'None this month'**
+  String get payrollNoAdjustments;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Reverse'**
+  String get payrollReverse;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Employee'**
+  String get payrollEmployee;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get payrollAmount;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get payrollReason;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s bonus'**
+  String get bonusToday;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s bonus'**
+  String get bonusMonth;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Reached — bonus {bonus}'**
+  String bonusReached(String bonus);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'{left} to go for {bonus}'**
+  String bonusLeft(String left, String bonus);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Bonuses'**
+  String get bonusRules;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'From {threshold} a day — {bonus}'**
+  String bonusRuleDay(String threshold, String bonus);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'From {threshold} a month — {bonus}'**
+  String bonusRuleMonth(String threshold, String bonus);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Daily threshold'**
+  String get bonusDayThreshold;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus'**
+  String get bonusDayAmount;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly threshold'**
+  String get bonusMonthThreshold;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly bonus'**
+  String get bonusMonthAmount;
 }
 
 class _AppLocalizationsDelegate

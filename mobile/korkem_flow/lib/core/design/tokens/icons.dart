@@ -62,6 +62,9 @@ abstract final class AppIcons {
   static const IconData edit = Symbols.edit_rounded;
   static const IconData delete = Symbols.delete_rounded;
   static const IconData share = Symbols.share_rounded;
+
+  /// The pay sheet: what each worker is owed for a period.
+  static const IconData payroll = Symbols.payments_rounded;
   static const IconData refresh = Symbols.refresh_rounded;
   static const IconData close = Symbols.close_rounded;
   static const IconData back = Symbols.arrow_back_rounded;

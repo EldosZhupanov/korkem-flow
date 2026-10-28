@@ -21,3 +21,11 @@ class PieceWorkRules(Document):
 				frappe.throw(f"Коэффициент {label} — от 1 до 5.")
 		if flt(self.overtime_factor) and not self.shift_end:
 			frappe.throw("Для сверхурочных укажите, во сколько заканчивается смена.")
+		for period, threshold, bonus in (
+			("дня", "daily_bonus_threshold", "daily_bonus"),
+			("месяца", "monthly_bonus_threshold", "monthly_bonus"),
+		):
+			if flt(self.get(threshold)) < 0 or flt(self.get(bonus)) < 0:
+				frappe.throw("Порог и премия не бывают отрицательными.")
+			if bool(flt(self.get(threshold))) != bool(flt(self.get(bonus))):
+				frappe.throw(f"Для премии {period} укажите и порог, и сумму — или оставьте оба пустыми.")

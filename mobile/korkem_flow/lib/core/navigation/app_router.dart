@@ -38,6 +38,7 @@ import 'package:korkem_flow/features/operations/presentation/work_instructions_s
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
 import 'package:korkem_flow/features/outbox/presentation/outbox_screen.dart';
+import 'package:korkem_flow/features/piece_work/presentation/payroll_screen.dart';
 import 'package:korkem_flow/features/piece_work/presentation/piece_work_screen.dart';
 import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
 import 'package:korkem_flow/features/pin_login/presentation/pin_login_screen.dart';
@@ -133,6 +134,7 @@ abstract final class Routes {
   static const facadeQuote = '/facade-quote';
   static const facadeJobs = '/facade-jobs';
   static const pieceWork = '/piece-work';
+  static const payroll = '/payroll';
   static const expenses = '/expenses';
   static const materialStock = '/materials-stock';
   static const pinLogin = '/pin-login';
@@ -268,6 +270,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.pieceWork,
         builder: (context, state) => const PieceWorkScreen(),
+      ),
+      GoRoute(
+        path: Routes.payroll,
+        builder: (context, state) => const PayrollScreen(),
       ),
       GoRoute(
         path: Routes.facadeJobs,
