@@ -18,6 +18,7 @@ import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/updates/update_controller.dart';
 import 'package:korkem_flow/core/updates/update_dialog.dart';
 import 'package:korkem_flow/features/facade_prices/presentation/facade_prices_tile.dart';
+import 'package:korkem_flow/features/one_c/presentation/one_c_screen.dart';
 import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
 import 'package:korkem_flow/features/price_visibility/presentation/price_visibility_tile.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -92,6 +93,8 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(Routes.integrations),
             ),
           ),
+          // For the administrator and accounting only; nothing for the rest.
+          const OneCTile(),
           const SizedBox(height: AppSpacing.xl),
 
           SectionLabel(l10n.channelsTitle),

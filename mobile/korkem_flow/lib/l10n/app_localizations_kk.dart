@@ -4201,4 +4201,29 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get tradesSaved => 'Мамандықтар сақталды';
+
+  @override
+  String get oneCTitle => '1С-пен алмасу';
+
+  @override
+  String get oneCSubtitle => 'Бухгалтерияға сату, төлем, кіріс және ведомость';
+
+  @override
+  String get oneCEnabled => '1С-пен алмасу қосулы';
+
+  @override
+  String get oneCOffHint =>
+      'Алмасу өшірулі. Компанияда 1С жүргізілмесе, осылай қалдырыңыз.';
+
+  @override
+  String get oneCHowTo =>
+      '1С-те: «Кестелік құжаттан деректерді жүктеу» — көшірілгенді қойыңыз. Күн КК.АА.ЖЖЖЖ, бөлшек үтірмен.';
+
+  @override
+  String get oneCCopy => 'Көшіру';
+
+  @override
+  String oneCCopied(String title, int count) {
+    return '$title: жол саны — $count. 1С-ке қойыңыз.';
+  }
 }

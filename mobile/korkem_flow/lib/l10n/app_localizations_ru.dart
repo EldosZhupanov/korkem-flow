@@ -4262,4 +4262,30 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tradesSaved => 'Профессии сохранены';
+
+  @override
+  String get oneCTitle => 'Обмен с 1С';
+
+  @override
+  String get oneCSubtitle =>
+      'Выгрузка продаж, оплат, поступлений и ведомости для бухгалтерии';
+
+  @override
+  String get oneCEnabled => 'Обмен с 1С включён';
+
+  @override
+  String get oneCOffHint =>
+      'Обмен выключен. Если в компании 1С не ведут, так и оставьте.';
+
+  @override
+  String get oneCHowTo =>
+      'В 1С: «Загрузка данных из табличного документа» — вставьте скопированное. Даты ДД.ММ.ГГГГ, дробная часть через запятую.';
+
+  @override
+  String get oneCCopy => 'Скопировать';
+
+  @override
+  String oneCCopied(String title, int count) {
+    return '$title: строк — $count. Вставьте в 1С.';
+  }
 }

@@ -7562,6 +7562,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trades saved'**
   String get tradesSaved;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange with 1C'**
+  String get oneCTitle;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Sales, payments, receipts and pay sheet for accounting'**
+  String get oneCSubtitle;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange with 1C is on'**
+  String get oneCEnabled;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange is off. If the company keeps no 1C, leave it so.'**
+  String get oneCOffHint;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'In 1C: «Load data from a spreadsheet» — paste what you copied. Dates DD.MM.YYYY, decimal comma.'**
+  String get oneCHowTo;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get oneCCopy;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {count} rows. Paste into 1C.'**
+  String oneCCopied(String title, int count);
 }
 
 class _AppLocalizationsDelegate

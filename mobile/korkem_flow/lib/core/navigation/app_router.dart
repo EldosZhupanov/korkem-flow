@@ -32,6 +32,7 @@ import 'package:korkem_flow/features/material_stock/presentation/material_stock_
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
+import 'package:korkem_flow/features/one_c/presentation/one_c_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/delivery_centre_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/operations_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/work_instructions_screen.dart';
@@ -135,6 +136,7 @@ abstract final class Routes {
   static const facadeJobs = '/facade-jobs';
   static const pieceWork = '/piece-work';
   static const payroll = '/payroll';
+  static const oneC = '/settings/one-c';
   static const expenses = '/expenses';
   static const materialStock = '/materials-stock';
   static const pinLogin = '/pin-login';
@@ -274,6 +276,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.payroll,
         builder: (context, state) => const PayrollScreen(),
+      ),
+      GoRoute(
+        path: Routes.oneC,
+        builder: (context, state) => const OneCScreen(),
       ),
       GoRoute(
         path: Routes.facadeJobs,

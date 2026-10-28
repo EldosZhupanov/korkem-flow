@@ -4980,5 +4980,41 @@
   "tradesSaved": "Trades saved",
   "@tradesSaved": {
     "description": "Shop trades (package 6, part 2)"
+  },
+  "oneCTitle": "Exchange with 1C",
+  "@oneCTitle": {
+    "description": "Exchange with 1C"
+  },
+  "oneCSubtitle": "Sales, payments, receipts and pay sheet for accounting",
+  "@oneCSubtitle": {
+    "description": "Exchange with 1C"
+  },
+  "oneCEnabled": "Exchange with 1C is on",
+  "@oneCEnabled": {
+    "description": "Exchange with 1C"
+  },
+  "oneCOffHint": "Exchange is off. If the company keeps no 1C, leave it so.",
+  "@oneCOffHint": {
+    "description": "Exchange with 1C"
+  },
+  "oneCHowTo": "In 1C: «Load data from a spreadsheet» — paste what you copied. Dates DD.MM.YYYY, decimal comma.",
+  "@oneCHowTo": {
+    "description": "Exchange with 1C"
+  },
+  "oneCCopy": "Copy",
+  "@oneCCopy": {
+    "description": "Exchange with 1C"
+  },
+  "oneCCopied": "{title}: {count} rows. Paste into 1C.",
+  "@oneCCopied": {
+    "description": "Exchange with 1C",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

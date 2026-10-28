@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +28,8 @@ import 'package:korkem_flow/features/facade_prices/application/facade_price_cont
 import 'package:korkem_flow/features/facade_prices/domain/facade_price_table.dart';
 import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/features/notifications/domain/app_notification.dart';
+import 'package:korkem_flow/features/one_c/data/one_c_repository.dart';
+import 'package:korkem_flow/features/one_c/domain/one_c.dart';
 import 'package:korkem_flow/features/pin_login/data/pin_admin_repository.dart';
 import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
 import 'package:korkem_flow/features/price_visibility/application/price_visibility_controller.dart';
@@ -342,6 +346,10 @@ Future<void> _pumpApp(
           _StubPriceVisibility.new,
         ),
         facadePriceControllerProvider.overrideWith(_StubFacadePrices.new),
+        // Not accounting: the 1C row never appears, as for most people.
+        oneCSettingsProvider.overrideWith(
+          (ref) => Completer<OneCSettings>().future,
+        ),
         // Not an administrator: the PIN row is absent, as for most people.
         pinHoldersProvider.overrideWith(
           (ref) => Future<List<PinHolder>>.error(StateError('not admin')),

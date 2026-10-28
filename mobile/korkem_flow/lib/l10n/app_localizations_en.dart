@@ -4238,4 +4238,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tradesSaved => 'Trades saved';
+
+  @override
+  String get oneCTitle => 'Exchange with 1C';
+
+  @override
+  String get oneCSubtitle =>
+      'Sales, payments, receipts and pay sheet for accounting';
+
+  @override
+  String get oneCEnabled => 'Exchange with 1C is on';
+
+  @override
+  String get oneCOffHint =>
+      'Exchange is off. If the company keeps no 1C, leave it so.';
+
+  @override
+  String get oneCHowTo =>
+      'In 1C: «Load data from a spreadsheet» — paste what you copied. Dates DD.MM.YYYY, decimal comma.';
+
+  @override
+  String get oneCCopy => 'Copy';
+
+  @override
+  String oneCCopied(String title, int count) {
+    return '$title: $count rows. Paste into 1C.';
+  }
 }
