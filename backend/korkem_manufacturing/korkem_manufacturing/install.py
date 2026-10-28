@@ -39,6 +39,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_facade_material_fields
 
 	add_facade_material_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_film_textured_field
+
+	add_film_textured_field.execute()
 	from korkem_manufacturing.patches.v0_0 import grant_sales_manager_account_read
 
 	grant_sales_manager_account_read.execute()

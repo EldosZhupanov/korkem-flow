@@ -4288,4 +4288,148 @@ class AppLocalizationsRu extends AppLocalizations {
   String oneCCopied(String title, int count) {
     return '$title: строк — $count. Вставьте в 1С.';
   }
+
+  @override
+  String get pressLayoutTitle => 'Раскладка на пресс';
+
+  @override
+  String get pressTextured => 'ТЕКСТУРА — НЕ ВРАЩАТЬ';
+
+  @override
+  String get pressPlain => 'Однотонная — можно вращать';
+
+  @override
+  String pressLoad(int count, String metres) {
+    return 'Загрузка $count · секция $metres м';
+  }
+
+  @override
+  String pressFilmTotal(String metres) {
+    return 'Плёнка: $metres м';
+  }
+
+  @override
+  String pressCorrected(String reason, String metres) {
+    return 'Поправлено вручную: $reason. По раскладке — $metres м.';
+  }
+
+  @override
+  String pressTooBig(String positions) {
+    return 'Больше стола пресса: позиции $positions';
+  }
+
+  @override
+  String get pressCorrect => 'Поправить метраж';
+
+  @override
+  String get pressMetres => 'Метры плёнки';
+
+  @override
+  String get pressReason => 'Почему не по раскладке';
+
+  @override
+  String get pressBackToLayout => 'Вернуть по раскладке';
+
+  @override
+  String get pressNoFilm => 'В заказе нет фасадов в ПВХ-плёнке.';
+
+  @override
+  String get pressSettingsTitle => 'Пресс: поле, зазор, секции';
+
+  @override
+  String get pressLength => 'Рабочая длина, мм';
+
+  @override
+  String get pressWidth => 'Рабочая ширина, мм';
+
+  @override
+  String get pressMargin => 'Отступ от края, мм';
+
+  @override
+  String get pressGap => 'Зазор между деталями, мм';
+
+  @override
+  String get pressSections => 'Секции: плёнка и рабочая длина';
+
+  @override
+  String get pressSectionFilm => 'Плёнка, м';
+
+  @override
+  String get pressAddSection => 'Добавить секцию';
+
+  @override
+  String get pressSaved => 'Настройки пресса сохранены';
+
+  @override
+  String get materialTextured => 'Текстурная плёнка';
+
+  @override
+  String get materialTexturedHint =>
+      'Детали не вращаются на прессе, на раскладке — «НЕ ВРАЩАТЬ»';
+
+  @override
+  String get pressPrint => 'Печать раскладки';
+
+  @override
+  String pressPrintLoad(int count, int total, String metres) {
+    return 'Загрузка $count из $total · секция $metres м';
+  }
+
+  @override
+  String pressPrintSheet(int count) {
+    return 'Лист № $count';
+  }
+
+  @override
+  String pressPrintCopies(int count) {
+    return 'Кол-во копий: $count';
+  }
+
+  @override
+  String pressPrintSize(String size) {
+    return 'Размер: $size мм';
+  }
+
+  @override
+  String pressPrintSection(String metres) {
+    return 'Секция плёнки: $metres м';
+  }
+
+  @override
+  String pressPrintArea(String area) {
+    return 'S листа: $area м²';
+  }
+
+  @override
+  String pressPrintParts(String area, String share) {
+    return 'S деталей: $area м² ($share%)';
+  }
+
+  @override
+  String pressPrintWaste(String area, String share) {
+    return 'Отходы: $area м² ($share%)';
+  }
+
+  @override
+  String pressPrintCount(int count) {
+    return 'Кол-во деталей: $count';
+  }
+
+  @override
+  String pressPrintPerimeter(String metres) {
+    return 'Периметр деталей: $metres м';
+  }
+
+  @override
+  String pressPrintGap(String gap, String margin) {
+    return 'Зазор: $gap мм · отступ: $margin мм';
+  }
+
+  @override
+  String get pressPrintDetails => 'Детали';
+
+  @override
+  String pressPrintPage(int count) {
+    return 'Стр. $count';
+  }
 }

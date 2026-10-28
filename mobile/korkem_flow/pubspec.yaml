@@ -39,6 +39,10 @@ dependencies:
   open_filex: ^4.7.0
   package_info_plus: ^10.2.1
   path_provider: ^2.1.6
+  # The press map on paper for the vacuum operator (BSD-3/Apache-2.0): a PDF
+  # built on the device and handed to the system print dialog.
+  pdf: ^3.11.3
+  printing: ^5.14.2
   shared_preferences: ^2.5.5
   # The assistant's replies arrive on Frappe's socket.io channel rather than
   # on the HTTP response: an LLM call is queued server-side (ADR-0009), so

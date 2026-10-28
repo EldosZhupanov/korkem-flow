@@ -22,3 +22,4 @@ korkem_manufacturing.patches.v0_0.add_facade_material_fields
 korkem_manufacturing.patches.v0_0.grant_sales_manager_account_read
 korkem_manufacturing.patches.v0_0.sheet_uom_takes_fractions
 korkem_manufacturing.patches.v0_0.drop_domain_stock_movement
+korkem_manufacturing.patches.v0_0.add_film_textured_field

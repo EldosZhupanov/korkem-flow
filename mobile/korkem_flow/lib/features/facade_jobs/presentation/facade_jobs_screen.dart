@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -11,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/facade_jobs/data/facade_job_repository.dart';
 import 'package:korkem_flow/features/facade_jobs/domain/facade_job.dart';
 import 'package:korkem_flow/features/piece_work/domain/crew.dart';
@@ -168,6 +170,7 @@ class _JobTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     // `null` status with crew = «Готово», made together.
     var together = false;
+    var openLayout = false;
     final next = await showModalBottomSheet<FacadeJobStatus>(
       context: context,
       builder: (sheet) => SafeArea(
@@ -183,6 +186,15 @@ class _JobTile extends ConsumerWidget {
                     : null,
                 onTap: () => Navigator.of(sheet).pop(status),
               ),
+            ListTile(
+              key: const ValueKey('facadeJobPressLayout'),
+              leading: const Icon(AppIcons.pressLayout),
+              title: Text(l10n.pressLayoutTitle),
+              onTap: () {
+                openLayout = true;
+                Navigator.of(sheet).pop();
+              },
+            ),
             if (job.status != FacadeJobStatus.done)
               ListTile(
                 key: const ValueKey('facadeJobDoneTogether'),
@@ -197,6 +209,12 @@ class _JobTile extends ConsumerWidget {
         ),
       ),
     );
+    if (openLayout) {
+      if (context.mounted) {
+        await context.push(Routes.pressLayoutOf(job.salesOrder));
+      }
+      return;
+    }
     if (next == null || next == job.status) return;
     List<CrewShare>? crew;
     if (together) {

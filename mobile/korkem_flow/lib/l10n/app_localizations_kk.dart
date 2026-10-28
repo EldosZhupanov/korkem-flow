@@ -4226,4 +4226,148 @@ class AppLocalizationsKk extends AppLocalizations {
   String oneCCopied(String title, int count) {
     return '$title: жол саны — $count. 1С-ке қойыңыз.';
   }
+
+  @override
+  String get pressLayoutTitle => 'Пресске орналастыру';
+
+  @override
+  String get pressTextured => 'ТЕКСТУРА — АЙНАЛДЫРМАҢЫЗ';
+
+  @override
+  String get pressPlain => 'Біртүсті — айналдыруға болады';
+
+  @override
+  String pressLoad(int count, String metres) {
+    return '$count-жүктеме · секция $metres м';
+  }
+
+  @override
+  String pressFilmTotal(String metres) {
+    return 'Пленка: $metres м';
+  }
+
+  @override
+  String pressCorrected(String reason, String metres) {
+    return 'Қолмен түзетілді: $reason. Орналастыру бойынша — $metres м.';
+  }
+
+  @override
+  String pressTooBig(String positions) {
+    return 'Пресс үстелінен үлкен: $positions позициялар';
+  }
+
+  @override
+  String get pressCorrect => 'Метражды түзету';
+
+  @override
+  String get pressMetres => 'Пленка метрі';
+
+  @override
+  String get pressReason => 'Неге орналастыру бойынша емес';
+
+  @override
+  String get pressBackToLayout => 'Орналастыруға қайтару';
+
+  @override
+  String get pressNoFilm => 'Тапсырыста ПВХ-пленкалы фасад жоқ.';
+
+  @override
+  String get pressSettingsTitle => 'Пресс: аумақ, саңылау, секциялар';
+
+  @override
+  String get pressLength => 'Жұмыс ұзындығы, мм';
+
+  @override
+  String get pressWidth => 'Жұмыс ені, мм';
+
+  @override
+  String get pressMargin => 'Шеттен шегініс, мм';
+
+  @override
+  String get pressGap => 'Бөлшектер арасы, мм';
+
+  @override
+  String get pressSections => 'Секциялар: пленка және жұмыс ұзындығы';
+
+  @override
+  String get pressSectionFilm => 'Пленка, м';
+
+  @override
+  String get pressAddSection => 'Секция қосу';
+
+  @override
+  String get pressSaved => 'Пресс баптаулары сақталды';
+
+  @override
+  String get materialTextured => 'Текстуралы пленка';
+
+  @override
+  String get materialTexturedHint =>
+      'Бөлшектер прессте айналдырылмайды, орналастыруда — «АЙНАЛДЫРМАҢЫЗ»';
+
+  @override
+  String get pressPrint => 'Орналастыруды басып шығару';
+
+  @override
+  String pressPrintLoad(int count, int total, String metres) {
+    return '$total ішінен $count-жүктеме · секция $metres м';
+  }
+
+  @override
+  String pressPrintSheet(int count) {
+    return '№ $count парақ';
+  }
+
+  @override
+  String pressPrintCopies(int count) {
+    return 'Көшірме саны: $count';
+  }
+
+  @override
+  String pressPrintSize(String size) {
+    return 'Өлшемі: $size мм';
+  }
+
+  @override
+  String pressPrintSection(String metres) {
+    return 'Пленка секциясы: $metres м';
+  }
+
+  @override
+  String pressPrintArea(String area) {
+    return 'Парақ ауданы: $area м²';
+  }
+
+  @override
+  String pressPrintParts(String area, String share) {
+    return 'Бөлшектер ауданы: $area м² ($share%)';
+  }
+
+  @override
+  String pressPrintWaste(String area, String share) {
+    return 'Қалдық: $area м² ($share%)';
+  }
+
+  @override
+  String pressPrintCount(int count) {
+    return 'Бөлшек саны: $count';
+  }
+
+  @override
+  String pressPrintPerimeter(String metres) {
+    return 'Бөлшектер периметрі: $metres м';
+  }
+
+  @override
+  String pressPrintGap(String gap, String margin) {
+    return 'Саңылау: $gap мм · шегініс: $margin мм';
+  }
+
+  @override
+  String get pressPrintDetails => 'Бөлшектер';
+
+  @override
+  String pressPrintPage(int count) {
+    return '$count-бет';
+  }
 }

@@ -63,6 +63,18 @@ abstract final class AppIcons {
   static const IconData delete = Symbols.delete_rounded;
   static const IconData share = Symbols.share_rounded;
 
+  /// Facades laid out on the membrane-vacuum press.
+  static const IconData pressLayout = Symbols.grid_view_rounded;
+
+  /// On paper, through the system print dialog.
+  static const IconData print = Symbols.print_rounded;
+
+  /// A textured film: its parts are never turned on the press.
+  static const IconData textured = Symbols.texture_rounded;
+
+  /// The way a textured film's pattern runs on a part.
+  static const IconData direction = Symbols.north_rounded;
+
   /// The pay sheet: what each worker is owed for a period.
   static const IconData payroll = Symbols.payments_rounded;
   static const IconData refresh = Symbols.refresh_rounded;

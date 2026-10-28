@@ -4264,4 +4264,148 @@ class AppLocalizationsEn extends AppLocalizations {
   String oneCCopied(String title, int count) {
     return '$title: $count rows. Paste into 1C.';
   }
+
+  @override
+  String get pressLayoutTitle => 'Press layout';
+
+  @override
+  String get pressTextured => 'TEXTURED — DO NOT TURN';
+
+  @override
+  String get pressPlain => 'Plain — may be turned';
+
+  @override
+  String pressLoad(int count, String metres) {
+    return 'Load $count · section $metres m';
+  }
+
+  @override
+  String pressFilmTotal(String metres) {
+    return 'Film: $metres m';
+  }
+
+  @override
+  String pressCorrected(String reason, String metres) {
+    return 'Corrected by hand: $reason. Layout says $metres m.';
+  }
+
+  @override
+  String pressTooBig(String positions) {
+    return 'Larger than the press table: lines $positions';
+  }
+
+  @override
+  String get pressCorrect => 'Correct the metres';
+
+  @override
+  String get pressMetres => 'Film, metres';
+
+  @override
+  String get pressReason => 'Why not as laid out';
+
+  @override
+  String get pressBackToLayout => 'Back to the layout';
+
+  @override
+  String get pressNoFilm => 'The order has no PVC-film facades.';
+
+  @override
+  String get pressSettingsTitle => 'Press: area, gap, sections';
+
+  @override
+  String get pressLength => 'Working length, mm';
+
+  @override
+  String get pressWidth => 'Working width, mm';
+
+  @override
+  String get pressMargin => 'Margin at the edge, mm';
+
+  @override
+  String get pressGap => 'Gap between parts, mm';
+
+  @override
+  String get pressSections => 'Sections: film and working length';
+
+  @override
+  String get pressSectionFilm => 'Film, m';
+
+  @override
+  String get pressAddSection => 'Add a section';
+
+  @override
+  String get pressSaved => 'Press settings saved';
+
+  @override
+  String get materialTextured => 'Textured film';
+
+  @override
+  String get materialTexturedHint =>
+      'Parts are not turned on the press; the map says «DO NOT TURN»';
+
+  @override
+  String get pressPrint => 'Print the layout';
+
+  @override
+  String pressPrintLoad(int count, int total, String metres) {
+    return 'Load $count of $total · section $metres m';
+  }
+
+  @override
+  String pressPrintSheet(int count) {
+    return 'Sheet $count';
+  }
+
+  @override
+  String pressPrintCopies(int count) {
+    return 'Copies: $count';
+  }
+
+  @override
+  String pressPrintSize(String size) {
+    return 'Size: $size mm';
+  }
+
+  @override
+  String pressPrintSection(String metres) {
+    return 'Film section: $metres m';
+  }
+
+  @override
+  String pressPrintArea(String area) {
+    return 'Sheet area: $area m²';
+  }
+
+  @override
+  String pressPrintParts(String area, String share) {
+    return 'Parts: $area m² ($share%)';
+  }
+
+  @override
+  String pressPrintWaste(String area, String share) {
+    return 'Waste: $area m² ($share%)';
+  }
+
+  @override
+  String pressPrintCount(int count) {
+    return 'Parts: $count';
+  }
+
+  @override
+  String pressPrintPerimeter(String metres) {
+    return 'Parts perimeter: $metres m';
+  }
+
+  @override
+  String pressPrintGap(String gap, String margin) {
+    return 'Gap: $gap mm · margin: $margin mm';
+  }
+
+  @override
+  String get pressPrintDetails => 'Parts';
+
+  @override
+  String pressPrintPage(int count) {
+    return 'Page $count';
+  }
 }

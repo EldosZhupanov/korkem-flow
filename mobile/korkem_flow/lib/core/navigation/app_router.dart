@@ -43,6 +43,8 @@ import 'package:korkem_flow/features/piece_work/presentation/payroll_screen.dart
 import 'package:korkem_flow/features/piece_work/presentation/piece_work_screen.dart';
 import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
 import 'package:korkem_flow/features/pin_login/presentation/pin_login_screen.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_settings_screen.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_detail_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/provisioning/presentation/claim_screen.dart';
@@ -137,6 +139,12 @@ abstract final class Routes {
   static const pieceWork = '/piece-work';
   static const payroll = '/payroll';
   static const oneC = '/settings/one-c';
+  static const pressSettings = '/settings/press';
+  static const pressLayout = '/press-layout/:order';
+
+  /// One order's films on the membrane-vacuum press.
+  static String pressLayoutOf(String order) =>
+      '/press-layout/${Uri.encodeComponent(order)}';
   static const expenses = '/expenses';
   static const materialStock = '/materials-stock';
   static const pinLogin = '/pin-login';
@@ -280,6 +288,15 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.oneC,
         builder: (context, state) => const OneCScreen(),
+      ),
+      GoRoute(
+        path: Routes.pressSettings,
+        builder: (context, state) => const PressSettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.pressLayout,
+        builder: (context, state) =>
+            PressLayoutScreen(salesOrder: state.pathParameters['order'] ?? ''),
       ),
       GoRoute(
         path: Routes.facadeJobs,

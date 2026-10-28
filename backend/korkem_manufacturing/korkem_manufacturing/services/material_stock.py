@@ -297,6 +297,19 @@ def set_material_enabled(item: str, enabled: bool | int | str) -> dict:
 	return material(item)
 
 
+def set_film_textured(item: str, textured: bool | int | str) -> dict:
+	"""«Текстурная»: the film's pattern has a direction, so its parts are laid
+	out unturned and the press map says «НЕ ВРАЩАТЬ»."""
+	_ensure_editor()
+	_own_item(item)
+	if frappe.db.get_value("Item", item, "korkem_material_kind") != FILM:
+		frappe.throw("Текстурной бывает только плёнка.")
+	textured = bool(int(textured)) if isinstance(textured, str) else bool(textured)
+	frappe.db.set_value("Item", item, "korkem_film_textured", 1 if textured else 0)
+	audit.record_audit(action="stock.film_textured", entity_type="Item", entity_id=item, diff={"textured": textured})
+	return material(item)
+
+
 def _own_item(item: str) -> None:
 	if frappe.db.get_value("Item", item, "korkem_material_company") != current_company():
 		frappe.throw("Такого материала нет.", frappe.DoesNotExistError)
@@ -343,7 +356,7 @@ def materials(kind: str | None = None, include_disabled: bool = False) -> dict:
 		filters=filters,
 		fields=[
 			"name", "item_name", "stock_uom", "disabled", "korkem_material_kind", "korkem_thickness_mm",
-			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm",
+			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured",
 		],
 		order_by="item_name asc",
 		limit_page_length=1000,
@@ -367,7 +380,7 @@ def material(item: str) -> dict:
 		item,
 		[
 			"name", "item_name", "stock_uom", "disabled", "korkem_material_kind", "korkem_thickness_mm",
-			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm",
+			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured",
 		],
 		as_dict=True,
 	)
@@ -424,6 +437,8 @@ def _material_row(i, stock: tuple[float, float], allowed: bool, reserved: float 
 		"color": i.korkem_color,
 		"width": i.korkem_film_width_mm,
 		"film_thickness": i.korkem_film_thickness_mm,
+		# A textured film's parts never turn on the press (services/press_layout.py).
+		"textured": bool(i.get("korkem_film_textured")),
 		"on_hand": stock[0],
 		# One ledger: on hand is ERPNext's; reserved only narrows what is free.
 		"reserved": reserved,

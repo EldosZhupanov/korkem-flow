@@ -9,9 +9,11 @@ facades asks for one sheet, not ten fractions of one:
 
 - MDF: area × (1 + MDF waste) ÷ sheet area, rounded **up** to whole sheets
   (a material counted in m² takes the area itself);
-- film (only for a «ПВХ плёнка» finish): area × faces × (1 + film waste) —
-  a double-sided facade is wrapped on both — divided by the film width when
-  the film is counted in running metres, or the area when counted in m².
+- film (only for a «ПВХ плёнка» finish), counted in running metres: the
+  press loads its facades take — each load one section of the press, 1.1, 2.1
+  or 3.1 m, however full (`press_layout`), or the metres a manager set by
+  hand for that decor with a reason. Counted in m²: area × faces × (1 + film
+  waste) — a double-sided facade is wrapped on both.
 
 Sheet size and the two waste figures are the factory's own
 (`Facade Material Norms`, per company). A line with the customer's own
@@ -107,6 +109,7 @@ def need(sales_order: str) -> dict:
 	groups, unresolved = _demand(sales_order, rules)
 	held = _held(sales_order)
 	issued = _issued(sales_order)
+	press_metres = None
 
 	materials = []
 	for (kind, key), area in sorted(groups.items(), key=lambda kv: (kv[0][0], str(kv[0][1]))):
@@ -133,6 +136,13 @@ def need(sales_order: str) -> dict:
 			)
 		else:
 			qty = _in_stock_units(kind, area, item, rules)
+			if kind == material_stock.FILM and (item.stock_uom or "").strip().lower() in LENGTH_UNITS:
+				# Film goes by the press load, not by the square metre.
+				if press_metres is None:
+					from korkem_manufacturing.services import press_layout
+
+					press_metres = press_layout.film_metres(sales_order)
+				qty = press_metres.get(key, qty)
 			row["held"] = round(held.get(item.name, 0.0), 3)
 			row["issued"] = round(issued.get(item.name, 0.0), 3)
 			row["free"] = round(sum(_free_by_warehouse(item.name, company).values()), 3)

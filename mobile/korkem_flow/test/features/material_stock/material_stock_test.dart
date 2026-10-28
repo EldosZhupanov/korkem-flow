@@ -28,6 +28,11 @@ class _FakeRepository implements MaterialStockRepository {
   });
 
   final bool canEdit;
+  final textured = <(String, bool)>[];
+
+  @override
+  Future<void> setFilmTextured(String item, {required bool textured}) async =>
+      this.textured.add((item, textured));
   final List<StockMaterial> stock;
   final FacadeMaterials need;
   final defined = <Map<String, String?>>[];

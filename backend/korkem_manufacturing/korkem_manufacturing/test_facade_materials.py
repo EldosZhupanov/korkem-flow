@@ -80,6 +80,10 @@ class TestFacadeMaterials(IntegrationTestCase):
 		self.orders: list[str] = []
 		# The standard norms, whatever a previous test saved.
 		facade_materials.save_norms(**facade_materials.DEFAULTS)
+		# And the standard press: film is counted by its loads (press_layout).
+		from korkem_manufacturing.services import press_layout
+
+		press_layout.save_press_settings(**press_layout.DEFAULT_PRESS)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -131,8 +135,9 @@ class TestFacadeMaterials(IntegrationTestCase):
 		# 2 m² × 1.15 = 2.3 m² of a 2800×2070 sheet (5.796 m²): one sheet, not 0.4.
 		# ERPNext names units without regard to case: an existing «Лист» answers.
 		self.assertEqual((mdf["area_m2"], mdf["needed"], mdf["unit"].lower()), (2.3, 1.0, "лист"))
-		# 2 m² × 1.10 = 2.2 m² of 1400 mm film: 1.57 running metres.
-		self.assertEqual((film["area_m2"], film["needed"]), (2.2, 1.57))
+		# Film goes by the press load (press_layout): ten 500×400 facades with
+		# 60 mm gaps need the whole table, so 3.1 m — not 2.2 m² ÷ 1.4 m.
+		self.assertEqual((film["area_m2"], film["needed"]), (2.2, 3.1))
 
 	def test_a_double_sided_facade_is_wrapped_twice(self):
 		self._offering(double_sided_factor=1.8)

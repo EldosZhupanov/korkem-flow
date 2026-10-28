@@ -119,6 +119,7 @@ class StockMaterial {
     double? free,
     this.averagePrice,
     this.enabled = true,
+    this.textured = false,
   }) : free = free ?? onHand - reserved;
 
   factory StockMaterial.fromJson(Map<String, dynamic> json) {
@@ -133,6 +134,7 @@ class StockMaterial {
       free: (json['free'] as num?)?.toDouble(),
       averagePrice: (json['average_price'] as num?)?.toDouble(),
       enabled: json['enabled'] != false,
+      textured: json['textured'] == true,
     );
   }
 
@@ -155,6 +157,9 @@ class StockMaterial {
   /// `null` when prices are hidden from this person.
   final double? averagePrice;
   final bool enabled;
+
+  /// A film whose pattern has a direction: never turned on the press.
+  final bool textured;
 }
 
 /// One material a facade order needs, counted on the server from its m².

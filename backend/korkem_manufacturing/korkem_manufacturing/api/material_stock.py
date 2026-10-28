@@ -63,6 +63,12 @@ def set_material_enabled(item: str, enabled: bool | int | str) -> dict:
 	return service.set_material_enabled(item, enabled)
 
 
+@frappe.whitelist(methods=["POST"])
+def set_film_textured(item: str, textured: bool | int | str) -> dict:
+	"""«Текстурная» плёнка: на прессе её детали не вращают."""
+	return service.set_film_textured(item, textured)
+
+
 @frappe.whitelist(methods=["GET"])
 def materials(kind: str | None = None, include_disabled: bool | int | str = 0) -> dict:
 	"""Материалы с остатком; средняя цена — только тем, кому видны цены."""

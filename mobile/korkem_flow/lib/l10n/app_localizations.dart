@@ -7604,6 +7604,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{title}: {count} rows. Paste into 1C.'**
   String oneCCopied(String title, int count);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Press layout'**
+  String get pressLayoutTitle;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'TEXTURED — DO NOT TURN'**
+  String get pressTextured;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Plain — may be turned'**
+  String get pressPlain;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Load {count} · section {metres} m'**
+  String pressLoad(int count, String metres);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Film: {metres} m'**
+  String pressFilmTotal(String metres);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Corrected by hand: {reason}. Layout says {metres} m.'**
+  String pressCorrected(String reason, String metres);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Larger than the press table: lines {positions}'**
+  String pressTooBig(String positions);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Correct the metres'**
+  String get pressCorrect;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Film, metres'**
+  String get pressMetres;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Why not as laid out'**
+  String get pressReason;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the layout'**
+  String get pressBackToLayout;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'The order has no PVC-film facades.'**
+  String get pressNoFilm;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Press: area, gap, sections'**
+  String get pressSettingsTitle;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Working length, mm'**
+  String get pressLength;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Working width, mm'**
+  String get pressWidth;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Margin at the edge, mm'**
+  String get pressMargin;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Gap between parts, mm'**
+  String get pressGap;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Sections: film and working length'**
+  String get pressSections;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Film, m'**
+  String get pressSectionFilm;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Add a section'**
+  String get pressAddSection;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Press settings saved'**
+  String get pressSaved;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Textured film'**
+  String get materialTextured;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Parts are not turned on the press; the map says «DO NOT TURN»'**
+  String get materialTexturedHint;
+
+  /// Press layout print
+  ///
+  /// In en, this message translates to:
+  /// **'Print the layout'**
+  String get pressPrint;
+
+  /// Press layout print
+  ///
+  /// In en, this message translates to:
+  /// **'Load {count} of {total} · section {metres} m'**
+  String pressPrintLoad(int count, int total, String metres);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {count}'**
+  String pressPrintSheet(int count);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Copies: {count}'**
+  String pressPrintCopies(int count);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Size: {size} mm'**
+  String pressPrintSize(String size);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Film section: {metres} m'**
+  String pressPrintSection(String metres);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet area: {area} m²'**
+  String pressPrintArea(String area);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Parts: {area} m² ({share}%)'**
+  String pressPrintParts(String area, String share);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Waste: {area} m² ({share}%)'**
+  String pressPrintWaste(String area, String share);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Parts: {count}'**
+  String pressPrintCount(int count);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Parts perimeter: {metres} m'**
+  String pressPrintPerimeter(String metres);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Gap: {gap} mm · margin: {margin} mm'**
+  String pressPrintGap(String gap, String margin);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Parts'**
+  String get pressPrintDetails;
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Page {count}'**
+  String pressPrintPage(int count);
 }
 
 class _AppLocalizationsDelegate

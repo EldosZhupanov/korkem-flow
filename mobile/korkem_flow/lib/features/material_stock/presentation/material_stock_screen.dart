@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -10,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
 import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -44,6 +46,37 @@ class MaterialStockScreen extends ConsumerWidget {
   }
 }
 
+Future<void> _texturedSheet(
+  BuildContext context,
+  WidgetRef ref,
+  StockMaterial row,
+) async {
+  final messenger = ScaffoldMessenger.of(context);
+  final l10n = AppLocalizations.of(context);
+  final textured = await showModalBottomSheet<bool>(
+    context: context,
+    builder: (sheet) => SafeArea(
+      child: SwitchListTile(
+        key: const ValueKey('materialTextured'),
+        secondary: const Icon(AppIcons.textured),
+        title: Text(l10n.materialTextured),
+        subtitle: Text(l10n.materialTexturedHint),
+        value: row.textured,
+        onChanged: (on) => Navigator.of(sheet).pop(on),
+      ),
+    ),
+  );
+  if (textured == null || textured == row.textured) return;
+  try {
+    await ref
+        .read(materialStockRepositoryProvider)
+        .setFilmTextured(row.item, textured: textured);
+    ref.invalidate(stockMaterialsProvider);
+  } on Object catch (error) {
+    messenger.showFailure(error, l10n);
+  }
+}
+
 String _plain(double v) =>
     v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
 
@@ -54,6 +87,7 @@ Widget? _subtitle(
   StockMaterial row,
 ) {
   final lines = [
+    if (row.textured) l10n.materialTextured,
     if (row.reserved > 0)
       l10n.materialStockHeld(
         '${_plain(row.onHand)} ${row.unit}',
@@ -77,6 +111,7 @@ class MaterialStockOnHand extends ConsumerWidget {
       symbol: '₸',
       decimalDigits: 0,
     );
+    final canEdit = ref.watch(materialListsProvider).value?.canEdit ?? false;
     return ref
         .watch(stockMaterialsProvider)
         .when(
@@ -109,6 +144,12 @@ class MaterialStockOnHand extends ConsumerWidget {
                                 child: ListTile(
                                   title: Text(row.title),
                                   subtitle: _subtitle(l10n, money, row),
+                                  // A film's card: whether it may be turned
+                                  // on the press.
+                                  onTap:
+                                      canEdit && row.kind == StockMaterial.film
+                                      ? () => _texturedSheet(context, ref, row)
+                                      : null,
                                   trailing: Text(
                                     row.reserved > 0
                                         ? l10n.materialStockFree(
@@ -389,6 +430,18 @@ class _Lists extends ConsumerWidget {
           data: (lists) => ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
+              // The press the film is counted for (press_layout).
+              ReadableWidth(
+                child: Card(
+                  child: ListTile(
+                    key: const ValueKey('pressSettingsOpen'),
+                    leading: const Icon(AppIcons.pressLayout),
+                    title: Text(l10n.pressSettingsTitle),
+                    trailing: const Icon(AppIcons.forward),
+                    onTap: () => context.push(Routes.pressSettings),
+                  ),
+                ),
+              ),
               for (final list in MaterialLists.all)
                 ReadableWidth(
                   child: _ListCard(

@@ -91,6 +91,15 @@ class MaterialStockRepository {
         ),
       );
 
+  /// «Текстурная»: the film's parts are laid out on the press unturned.
+  Future<void> setFilmTextured(String item, {required bool textured}) async {
+    await _client.callMethod(
+      '$_base.set_film_textured',
+      post: true,
+      params: {'item': item, 'textured': textured ? 1 : 0},
+    );
+  }
+
   Future<List<StockMaterial>> materials() async {
     final data = _map(await _client.callMethod('$_base.materials'));
     return [

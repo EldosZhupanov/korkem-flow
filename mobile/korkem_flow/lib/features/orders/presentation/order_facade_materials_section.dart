@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
 import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -60,6 +63,14 @@ class _OrderFacadeMaterialsSectionState
         Row(
           children: [
             Expanded(child: SectionLabel(l10n.facadeMaterialsTitle)),
+            // Film goes by the press load: the map shows how.
+            IconButton(
+              key: const ValueKey('orderPressLayout'),
+              tooltip: l10n.pressLayoutTitle,
+              icon: const Icon(AppIcons.pressLayout),
+              onPressed: () =>
+                  context.push(Routes.pressLayoutOf(widget.salesOrder)),
+            ),
             if (needAsync.value?.fullyHeld ?? false)
               StatusChip(
                 label: l10n.facadeMaterialsHeld,

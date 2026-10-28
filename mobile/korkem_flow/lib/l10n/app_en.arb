@@ -5016,5 +5016,254 @@
         "type": "int"
       }
     }
+  },
+  "pressLayoutTitle": "Press layout",
+  "@pressLayoutTitle": {
+    "description": "Press layout"
+  },
+  "pressTextured": "TEXTURED — DO NOT TURN",
+  "@pressTextured": {
+    "description": "Press layout"
+  },
+  "pressPlain": "Plain — may be turned",
+  "@pressPlain": {
+    "description": "Press layout"
+  },
+  "pressLoad": "Load {count} · section {metres} m",
+  "@pressLoad": {
+    "description": "Press layout",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressFilmTotal": "Film: {metres} m",
+  "@pressFilmTotal": {
+    "description": "Press layout",
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressCorrected": "Corrected by hand: {reason}. Layout says {metres} m.",
+  "@pressCorrected": {
+    "description": "Press layout",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressTooBig": "Larger than the press table: lines {positions}",
+  "@pressTooBig": {
+    "description": "Press layout",
+    "placeholders": {
+      "positions": {
+        "type": "String"
+      }
+    }
+  },
+  "pressCorrect": "Correct the metres",
+  "@pressCorrect": {
+    "description": "Press layout"
+  },
+  "pressMetres": "Film, metres",
+  "@pressMetres": {
+    "description": "Press layout"
+  },
+  "pressReason": "Why not as laid out",
+  "@pressReason": {
+    "description": "Press layout"
+  },
+  "pressBackToLayout": "Back to the layout",
+  "@pressBackToLayout": {
+    "description": "Press layout"
+  },
+  "pressNoFilm": "The order has no PVC-film facades.",
+  "@pressNoFilm": {
+    "description": "Press layout"
+  },
+  "pressSettingsTitle": "Press: area, gap, sections",
+  "@pressSettingsTitle": {
+    "description": "Press layout"
+  },
+  "pressLength": "Working length, mm",
+  "@pressLength": {
+    "description": "Press layout"
+  },
+  "pressWidth": "Working width, mm",
+  "@pressWidth": {
+    "description": "Press layout"
+  },
+  "pressMargin": "Margin at the edge, mm",
+  "@pressMargin": {
+    "description": "Press layout"
+  },
+  "pressGap": "Gap between parts, mm",
+  "@pressGap": {
+    "description": "Press layout"
+  },
+  "pressSections": "Sections: film and working length",
+  "@pressSections": {
+    "description": "Press layout"
+  },
+  "pressSectionFilm": "Film, m",
+  "@pressSectionFilm": {
+    "description": "Press layout"
+  },
+  "pressAddSection": "Add a section",
+  "@pressAddSection": {
+    "description": "Press layout"
+  },
+  "pressSaved": "Press settings saved",
+  "@pressSaved": {
+    "description": "Press layout"
+  },
+  "materialTextured": "Textured film",
+  "@materialTextured": {
+    "description": "Press layout"
+  },
+  "materialTexturedHint": "Parts are not turned on the press; the map says «DO NOT TURN»",
+  "@materialTexturedHint": {
+    "description": "Press layout"
+  },
+  "pressPrint": "Print the layout",
+  "@pressPrint": {
+    "description": "Press layout print"
+  },
+  "pressPrintLoad": "Load {count} of {total} · section {metres} m",
+  "@pressPrintLoad": {
+    "description": "Press layout print",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintSheet": "Sheet {count}",
+  "@pressPrintSheet": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressPrintCopies": "Copies: {count}",
+  "@pressPrintCopies": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressPrintSize": "Size: {size} mm",
+  "@pressPrintSize": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintSection": "Film section: {metres} m",
+  "@pressPrintSection": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintArea": "Sheet area: {area} m²",
+  "@pressPrintArea": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintParts": "Parts: {area} m² ({share}%)",
+  "@pressPrintParts": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "share": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintWaste": "Waste: {area} m² ({share}%)",
+  "@pressPrintWaste": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "share": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintCount": "Parts: {count}",
+  "@pressPrintCount": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressPrintPerimeter": "Parts perimeter: {metres} m",
+  "@pressPrintPerimeter": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintGap": "Gap: {gap} mm · margin: {margin} mm",
+  "@pressPrintGap": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      },
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintDetails": "Parts",
+  "@pressPrintDetails": {
+    "description": "Press layout print, two loads a page"
+  },
+  "pressPrintPage": "Page {count}",
+  "@pressPrintPage": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
