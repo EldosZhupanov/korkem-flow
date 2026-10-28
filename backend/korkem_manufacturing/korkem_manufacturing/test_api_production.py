@@ -248,6 +248,8 @@ class TestBookingWorkAgainstAStage(_ApiTestCase):
 				"scrap_qty",
 				"rework_qty",
 				"idempotency_key",
+				# Who did the stage together (package 6): people, never a company.
+				"crew",
 			},
 		)
 

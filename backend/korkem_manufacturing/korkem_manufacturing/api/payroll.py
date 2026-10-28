@@ -65,3 +65,15 @@ def my_progress() -> dict:
 def workers() -> list[dict]:
 	"""Сотрудники компании — только имена: для бригады и для удержаний."""
 	return service.workers()
+
+
+@frappe.whitelist(methods=["POST"])
+def mark_paid(employee: str, from_date: str, to_date: str, note: str | None = None) -> dict:
+	"""«Выплачено»: закрыть период сотрудника — сумма записана, начисления выплачены."""
+	return service.mark_paid(employee=employee, from_date=from_date, to_date=to_date, note=note)
+
+
+@frappe.whitelist(methods=["GET"])
+def payouts(from_date: str | None = None, to_date: str | None = None) -> list[dict]:
+	"""Выплаты за период."""
+	return service.payouts(from_date=from_date, to_date=to_date)

@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/enquiry_flow/application/image_picker_service.dart';
 import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
+import 'package:korkem_flow/features/piece_work/domain/crew.dart';
 import 'package:korkem_flow/features/piece_work/domain/piece_work.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
@@ -68,6 +69,12 @@ void main() {
               ],
               canEdit: false,
             ),
+          ),
+          workersProvider.overrideWith(
+            (ref) async => const [
+              Worker(user: 'anna@example.com', name: 'Анна'),
+              Worker(user: 'boris@example.com', name: 'Борис'),
+            ],
           ),
         ],
         child: harness(
@@ -337,4 +344,62 @@ void main() {
       expect(find.textContaining('900'), findsNothing);
     },
   );
+
+  testWidgets('a stage done together sends the crew and what each made', (
+    tester,
+  ) async {
+    when(
+      () => commandRepo.completeOperation(
+        workOrder: any(named: 'workOrder'),
+        operation: any(named: 'operation'),
+        qty: any(named: 'qty'),
+        scrapQty: any(named: 'scrapQty'),
+        crew: any(named: 'crew'),
+      ),
+    ).thenAnswer(
+      (_) async => const CompleteOperationResult(status: 'completed'),
+    );
+    await pumpButton(tester);
+
+    await tester.tap(find.byType(CompleteOperationButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('stageCrewPick')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Who made how much, pcs'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('crew:anna@example.com')));
+    await tester.tap(find.byKey(const ValueKey('crew:boris@example.com')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('crewShare:anna@example.com')),
+      '4',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('crewShare:boris@example.com')),
+      '2',
+    );
+    await tester.tap(find.byKey(const ValueKey('crewDone')));
+    await tester.pumpAndSettle();
+    expect(find.text('Crew: 2 people'), findsOneWidget);
+
+    await tester.tap(dialogConfirmButton());
+    await tester.pumpAndSettle();
+
+    final sent =
+        verify(
+              () => commandRepo.completeOperation(
+                workOrder: 'MFG-WO-2026-00001',
+                operation: 'Распил ДСП',
+                qty: 6,
+                scrapQty: 0,
+                crew: captureAny(named: 'crew'),
+              ),
+            ).captured.single
+            as List<CrewShare>;
+    expect(sent, [
+      (user: 'anna@example.com', share: null, qty: 4.0),
+      (user: 'boris@example.com', share: null, qty: 2.0),
+    ]);
+  });
 }

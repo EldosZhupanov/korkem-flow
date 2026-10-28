@@ -4882,5 +4882,103 @@
   "bonusMonthAmount": "Monthly bonus",
   "@bonusMonthAmount": {
     "description": "Payroll (package 6)"
+  },
+  "crewSplitPercent": "In %",
+  "@crewSplitPercent": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "crewSplitByAmount": "Who made how much, {unit}",
+  "@crewSplitByAmount": {
+    "description": "Crews on stages (package 6, part 2)",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "crewHintAmount": "Tick the crew and enter how much each made. The amounts must add up to the total.",
+  "@crewHintAmount": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "crewMadeTogether": "Made together…",
+  "@crewMadeTogether": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "crewChosen": "Crew: {count} people",
+  "@crewChosen": {
+    "description": "Crews on stages (package 6, part 2)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "crewClear": "Remove the crew",
+  "@crewClear": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "unitPieces": "pcs",
+  "@unitPieces": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "unitSquareMetres": "m²",
+  "@unitSquareMetres": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "payrollPaid": "Paid out",
+  "@payrollPaid": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "payrollLeft": "Left to pay",
+  "@payrollLeft": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "payrollMarkPaid": "Mark as paid",
+  "@payrollMarkPaid": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "payrollMarkPaidConfirm": "{name}: paid {amount}? The period closes — no more advances, fines or bonuses can be entered for it.",
+  "@payrollMarkPaidConfirm": {
+    "description": "Payouts (package 6, part 2)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payrollMarkPaidDone": "Payout recorded",
+  "@payrollMarkPaidDone": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "payrollTotalLeft": "Left to pay in total",
+  "@payrollTotalLeft": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "tradesAction": "Shop trades",
+  "@tradesAction": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesTitle": "What they do",
+  "@tradesTitle": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesHint": "Several are fine. Trades give no rights — the position does.",
+  "@tradesHint": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesOwn": "Your own trade",
+  "@tradesOwn": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesAdd": "Add",
+  "@tradesAdd": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesSaved": "Trades saved",
+  "@tradesSaved": {
+    "description": "Shop trades (package 6, part 2)"
   }
 }

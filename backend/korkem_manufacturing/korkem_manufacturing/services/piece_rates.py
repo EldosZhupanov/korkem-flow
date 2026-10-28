@@ -156,8 +156,12 @@ def _rate(company: str, operation: str):
 	)
 
 
-def accrue_stage(result: dict, moment: datetime | None = None):
-	"""Pay for the pieces a finished stage just booked as good. No rate, no entry."""
+def accrue_stage(result: dict, moment: datetime | None = None, crew=None):
+	"""Pay for the pieces a finished stage just booked as good. No rate, no entry.
+
+	`crew`, as for a facade: the people who did the stage together; the booked
+	pieces are split between them by share or by each one's own count.
+	"""
 	booked = flt(result.get("booked_now"))
 	if booked <= 0 or result.get("status") not in ("completed", "partially_completed"):
 		return None
@@ -165,32 +169,52 @@ def accrue_stage(result: dict, moment: datetime | None = None):
 	rate = _rate(company, result.get("operation") or "")
 	if not rate or rate.rate_type != PER_PART:
 		return None
+	members = _crew(crew, company)
 	kind, factor = shift_of(moment or now_datetime(), company)
-	return piece_work.record_piece_work(
+	# The card's own running total after this booking: the same booking
+	# replayed lands on the same key; the next real booking does not.
+	key = f"stage:{result.get('job_card')}:{flt(result.get('good_qty'))}"
+	return _pay(
+		members,
+		booked,
+		key,
 		company=company,
-		employee=frappe.session.user,
-		employee_name=frappe.db.get_value("User", frappe.session.user, "full_name"),
 		operation=result["operation"],
 		rate_type=PER_PART,
-		quantity=booked,
 		unit="pcs",
 		rate=flt(rate.rate),
 		job_card=result.get("job_card"),
 		work_order=result.get("work_order"),
-		# The card's own running total after this booking: the same booking
-		# replayed lands on the same key; the next real booking does not.
-		idempotency_key=f"stage:{result.get('job_card')}:{flt(result.get('good_qty'))}",
 		factor=factor,
 		shift_kind=kind,
 	)
+
+
+def _pay(members: list[tuple[str, float]], quantity: float, key: str, **entry):
+	"""One entry per member, for their share of `quantity`; one entry alone
+	keeps the plain key, so a single worker's accrual reads as it always did."""
+	crew = len(members) > 1
+	entries = [
+		piece_work.record_piece_work(
+			employee=user,
+			employee_name=frappe.db.get_value("User", user, "full_name"),
+			quantity=round(quantity * share / 100, 4),
+			idempotency_key=key + (f":{user}" if crew else ""),
+			notes=f"Бригада: доля {round(share, 2):g}%" if crew else None,
+			**entry,
+		)
+		for user, share in members
+	]
+	return entries[0] if len(entries) == 1 else entries
 
 
 def accrue_facade(line: str, sales_order: str, moment: datetime | None = None, crew=None):
 	"""Pay for a facade line marked «Готово» — to the person who marked it, or
 	split across the crew that made it.
 
-	`crew` is 2–5 people, each with a share in % (summing to 100) or none, for
-	equal shares. Each member gets their share of the quantity, at the rate, as
+	`crew` is 2–5 people, each with a share in % (summing to 100), or each
+	with their own quantity — m² or pieces, summing to the line's — or with
+	neither, for equal shares. Each member gets their share of the quantity, at the rate, as
 	their own entry; each entry is approved on its own. Who was in the crew is
 	the floor's report, checked like any other: by the approver.
 	"""
@@ -202,31 +226,33 @@ def accrue_facade(line: str, sales_order: str, moment: datetime | None = None, c
 	quantity, unit = (flt(row.korkem_area_m2), "m2") if rate.rate_type == PER_M2 else (flt(row.qty), "pcs")
 	if quantity <= 0:
 		return None
-	members = _crew(crew, company)
+	members = _crew(crew, company, quantity)
 	kind, factor = shift_of(moment or now_datetime(), company)
 	# A line can go back to «В работе» and be finished again — by somebody
 	# else, perhaps. Each finish is its own key; going back reverses the last.
 	finish = _finishes(line) + 1
-	entries = []
-	for user, share in members:
-		entries.append(
-			piece_work.record_piece_work(
-				company=company,
-				employee=user,
-				employee_name=frappe.db.get_value("User", user, "full_name"),
-				operation=FACADE_OPERATION,
-				rate_type=rate.rate_type,
-				quantity=round(quantity * share / 100, 4),
-				unit=unit,
-				rate=flt(rate.rate),
-				sales_order=sales_order,
-				idempotency_key=f"facade:{line}:{finish}" + (f":{user}" if len(members) > 1 else ""),
-				factor=factor,
-				shift_kind=kind,
-				notes=f"Бригада: доля {share:g}%" if len(members) > 1 else None,
-			)
-		)
-	return entries[0] if len(entries) == 1 else entries
+	return _pay(
+		members,
+		quantity,
+		f"facade:{line}:{finish}",
+		company=company,
+		operation=FACADE_OPERATION,
+		rate_type=rate.rate_type,
+		unit=unit,
+		rate=flt(rate.rate),
+		sales_order=sales_order,
+		factor=factor,
+		shift_kind=kind,
+	)
+
+
+def facade_quantity(line: str) -> float | None:
+	"""What a finished facade line pays for: its m² or its pieces, by the rate."""
+	rate = _rate(current_company(), FACADE_OPERATION)
+	if not rate:
+		return None
+	row = frappe.db.get_value("Sales Order Item", line, ["qty", "korkem_area_m2"], as_dict=True)
+	return flt(row.korkem_area_m2) if rate.rate_type == PER_M2 else flt(row.qty)
 
 
 def _finishes(line: str) -> int:
@@ -241,36 +267,63 @@ def _finishes(line: str) -> int:
 	return max(numbers, default=0)
 
 
-def check_crew(crew) -> list[tuple[str, float]]:
-	"""Refuse a crew that cannot be paid — before the facade is marked done."""
-	return _crew(crew, current_company())
+def check_crew(crew, total: float | None = None) -> list[tuple[str, float]]:
+	"""Refuse a crew that cannot be paid — before anything is written."""
+	return _crew(crew, current_company(), total)
 
 
-def _crew(crew, company: str) -> list[tuple[str, float]]:
-	"""(user, share %) pairs; the marker alone, at 100%, when no crew is named."""
+def _crew(crew, company: str, total: float | None = None) -> list[tuple[str, float]]:
+	"""(user, share %) pairs; the marker alone, at 100%, when no crew is named.
+
+	Each member brings a share in %, or their own quantity (`qty`: m² or
+	pieces), or nothing — all the same way. Quantities become shares of their
+	sum, which must be `total` when the total is known.
+	"""
 	if crew in (None, "", []):
 		return [(frappe.session.user, 100.0)]
 	if isinstance(crew, str):
 		crew = frappe.parse_json(crew)
 	if not isinstance(crew, list) or not 1 <= len(crew) <= MAX_CREW:
 		frappe.throw(f"Бригада — от 1 до {MAX_CREW} человек.")
-	members = []
+	members, shares, quantities = [], [], []
 	for item in crew:
-		user = item.get("user") if isinstance(item, dict) else item
-		share = item.get("share") if isinstance(item, dict) else None
+		item = item if isinstance(item, dict) else {"user": item}
+		user = item.get("user")
 		if not user or not frappe.db.exists("User", {"name": user, "enabled": 1}) or not _works_here(user, company):
 			frappe.throw("В бригаде указан человек, которого здесь нет.", frappe.DoesNotExistError)
-		members.append((user, None if share in (None, "") else flt(share)))
-	if len({u for u, _ in members}) != len(members):
+		members.append(user)
+		shares.append(_number(item.get("share")))
+		quantities.append(_number(item.get("qty")))
+	if len(set(members)) != len(members):
 		frappe.throw("Один человек указан в бригаде дважды.")
-	given = [s for _, s in members if s is not None]
-	if not given:
-		return [(u, round(100.0 / len(members), 4)) for u, _ in members]
+	given_share = [s for s in shares if s is not None]
+	given_qty = [q for q in quantities if q is not None]
+	if given_share and given_qty:
+		frappe.throw("Делите бригаду одним способом: в процентах или по количеству.")
+	if not given_share and not given_qty:
+		return [(u, 100.0 / len(members)) for u in members]
+	given = given_share or given_qty
 	if len(given) != len(members):
 		frappe.throw("Укажите доли всем в бригаде — или никому, тогда поровну.")
-	if any(s <= 0 for s in given) or abs(sum(given) - 100) > 0.01:
-		frappe.throw("Доли бригады — больше нуля и в сумме 100%.")
-	return members
+	if any(v <= 0 for v in given):
+		frappe.throw("Доля каждого в бригаде — больше нуля.")
+	if given_share:
+		if abs(sum(given) - 100) > 0.01:
+			frappe.throw("Доли бригады в сумме — 100%.")
+		return list(zip(members, given))
+	done = sum(given)
+	if total is not None and abs(done - flt(total)) > 0.01:
+		frappe.throw(f"Бригада указала {done:g}, а сделано {flt(total):g}. Количества должны сойтись.")
+	return [(u, q * 100.0 / done) for u, q in zip(members, given)]
+
+
+def _number(value) -> float | None:
+	if value in (None, ""):
+		return None
+	try:
+		return float(value)
+	except (TypeError, ValueError):
+		frappe.throw(f"Доля бригады — число, а не {value!r}.")
 
 
 def _works_here(user: str, company: str) -> bool:

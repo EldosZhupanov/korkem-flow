@@ -17,6 +17,11 @@ class _FakeRepository implements PieceWorkRepository {
   final rejected = <(String, String)>[];
   final added = <(String, String, double, String)>[];
   final approvedAdjustments = <String>[];
+  final paidOut = <(String, PayPeriod)>[];
+
+  @override
+  Future<void> markPaid(String employee, PayPeriod period) async =>
+      paidOut.add((employee, period));
 
   @override
   Future<BonusProgress> progress() async => bonus;
@@ -49,6 +54,7 @@ class _FakeRepository implements PieceWorkRepository {
           },
         ],
         'total_to_pay': 93000,
+        'can_mark_paid': true,
       });
 
   @override
@@ -265,6 +271,46 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('adjustmentApprove')));
     await tester.pumpAndSettle();
     expect(repo.approvedAdjustments, ['PAY-ADJ-00001']);
+  });
+
+  testWidgets('a past month is marked paid, worker by worker', (tester) async {
+    final repo = _FakeRepository(canEdit: true);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [pieceWorkRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const PayrollScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // The current month has not ended: nothing to mark yet.
+    expect(
+      find.byKey(const ValueKey('payrollPay:aidos@example.com')),
+      findsNothing,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('payrollPrev')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('payrollPay:aidos@example.com')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('payrollPayConfirm')));
+    await tester.pumpAndSettle();
+
+    final now = DateTime.now();
+    expect(repo.paidOut, [
+      ('aidos@example.com', monthOf(DateTime(now.year, now.month - 1))),
+    ]);
+  });
+
+  test('a row says what is left after a payout', () {
+    final row = PayrollRow.fromJson(const {
+      'employee': 'aidos@example.com',
+      'to_pay': 93000,
+      'paid': 90000,
+    });
+    expect(row.left, 3000);
+    expect(PayrollRow.fromJson(const {'to_pay': 5000}).left, 5000);
   });
 
   testWidgets('a fine needs a person, an amount and a reason', (tester) async {

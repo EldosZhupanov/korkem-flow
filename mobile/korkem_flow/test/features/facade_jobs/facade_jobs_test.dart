@@ -5,6 +5,7 @@ import 'package:korkem_flow/features/facade_jobs/data/facade_job_repository.dart
 import 'package:korkem_flow/features/facade_jobs/domain/facade_job.dart';
 import 'package:korkem_flow/features/facade_jobs/presentation/facade_jobs_screen.dart';
 import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
+import 'package:korkem_flow/features/piece_work/domain/crew.dart';
 import 'package:korkem_flow/features/piece_work/domain/piece_work.dart';
 
 import '../../support/widget_harness.dart';
@@ -39,6 +40,19 @@ class _Colleagues extends Fake implements PieceWorkRepository {
     Worker(user: 'anna@example.com', name: 'Анна'),
     Worker(user: 'boris@example.com', name: 'Борис'),
   ];
+
+  /// A facade paid by the m², so the crew may split by m².
+  @override
+  Future<PieceRates> rates() async => const PieceRates(
+    rates: [
+      PieceRate(
+        operation: PieceRate.facadeOperation,
+        rateType: PieceRate.perM2,
+        rate: 2000,
+      ),
+    ],
+    canEdit: false,
+  );
 }
 
 const _job = FacadeJob(
@@ -159,8 +173,50 @@ void main() {
 
     expect(repo.changes, [('ROW-1', FacadeJobStatus.done)]);
     expect(repo.crews.single, [
-      (user: 'anna@example.com', share: null),
-      (user: 'boris@example.com', share: null),
+      (user: 'anna@example.com', share: null, qty: null),
+      (user: 'boris@example.com', share: null, qty: null),
+    ]);
+  });
+
+  testWidgets('a crew can split a facade by the m² each one made', (
+    tester,
+  ) async {
+    final repo = _FakeRepository([_job]);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          facadeJobRepositoryProvider.overrideWithValue(repo),
+          pieceWorkRepositoryProvider.overrideWithValue(_Colleagues()),
+        ],
+        child: harness(const FacadeJobsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('facadeJob:ROW-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('facadeJobDoneTogether')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Who made how much, m²'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('crew:anna@example.com')));
+    await tester.tap(find.byKey(const ValueKey('crew:boris@example.com')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('crewShare:anna@example.com')),
+      '1,5',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('crewShare:boris@example.com')),
+      '0.5',
+    );
+    await tester.tap(find.byKey(const ValueKey('crewDone')));
+    await tester.pumpAndSettle();
+
+    expect(repo.crews.single, [
+      (user: 'anna@example.com', share: null, qty: 1.5),
+      (user: 'boris@example.com', share: null, qty: 0.5),
     ]);
   });
 }

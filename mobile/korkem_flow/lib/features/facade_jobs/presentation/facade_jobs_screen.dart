@@ -13,7 +13,9 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/features/facade_jobs/data/facade_job_repository.dart';
 import 'package:korkem_flow/features/facade_jobs/domain/facade_job.dart';
-import 'package:korkem_flow/features/facade_jobs/presentation/crew_dialog.dart';
+import 'package:korkem_flow/features/piece_work/domain/crew.dart';
+import 'package:korkem_flow/features/piece_work/domain/piece_work.dart';
+import 'package:korkem_flow/features/piece_work/presentation/crew_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 // AutoDisposeFutureProvider is not exported as a public type.
@@ -199,7 +201,10 @@ class _JobTile extends ConsumerWidget {
     List<CrewShare>? crew;
     if (together) {
       if (!context.mounted) return;
-      crew = await pickCrew(context);
+      crew = await pickCrew(
+        context,
+        operation: PieceRate.facadeOperation,
+      );
       if (crew == null) return;
     }
     try {

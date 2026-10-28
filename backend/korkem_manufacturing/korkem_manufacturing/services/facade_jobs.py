@@ -107,7 +107,7 @@ def set_status(line: str, status: str, crew=None) -> dict:
 		# after the status was set would leave a facade «Готово» and unpaid.
 		from korkem_manufacturing.services import piece_rates
 
-		piece_rates.check_crew(crew)
+		piece_rates.check_crew(crew, piece_rates.facade_quantity(line))
 	if before != status:
 		frappe.db.set_value("Sales Order Item", line, "korkem_facade_status", status)
 		# Pay follows the facade: finished pays, taken back from finished

@@ -25,6 +25,7 @@ ANNA = "pay.anna@example.com"
 BORIS = "pay.boris@example.com"
 SELLER = "pay.seller@example.com"
 BOOKKEEPER = "pay.bookkeeper@example.com"
+CASHIER = "pay.cashier@example.com"
 STRANGER = "pay.stranger@example.com"
 
 
@@ -54,6 +55,7 @@ class TestPayroll(IntegrationTestCase):
 		_user(BORIS, "Manufacturing User")
 		_user(SELLER, "Sales User")
 		_user(BOOKKEEPER, "Accounts User")
+		_user(CASHIER, "Accounts Manager")
 		other = frappe.db.get_value("Company", {"name": ["!=", COMPANY]}, "name")
 		_user(STRANGER, "Manufacturing User", other or COMPANY)
 		cls.stranger_elsewhere = bool(other)
@@ -147,6 +149,61 @@ class TestPayroll(IntegrationTestCase):
 		)
 		self.assertEqual(live, [])
 
+	def _stage_entries(self, crew, booked=4):
+		piece_rates.set_rate("Раскрой", piece_rates.PER_PART, 150)
+		card = frappe.db.get_value("Job Card", {"company": COMPANY}, "name")
+		# A running total nobody else uses: each test's booking has its own key.
+		good = 10_000 + int(frappe.generate_hash(length=6), 16) % 1_000_000
+		stage = {"status": "completed", "operation": "Раскрой", "job_card": card, "work_order": None,
+				 "booked_now": booked, "good_qty": good}
+		self._as(ANNA, piece_rates.accrue_stage, stage, crew=crew)
+		return {
+			e.employee: flt(e.amount)
+			for e in frappe.get_all("Piece Work Entry", filters={"idempotency_key": ["like", f"stage:{card}:{flt(good)}%"]},
+									fields=["employee", "amount"])
+		}
+
+	def test_a_crew_shares_a_furniture_stage_too(self):
+		self.assertEqual(self._stage_entries([{"user": ANNA}, {"user": BORIS}]), {ANNA: 300, BORIS: 300})
+
+	def test_a_stage_crew_can_split_by_what_each_one_made(self):
+		paid = self._stage_entries([{"user": ANNA, "qty": 3}, {"user": BORIS, "qty": 1}])
+		self.assertEqual(paid, {ANNA: 450, BORIS: 150})
+
+	def test_a_facade_crew_can_split_by_square_metres(self):
+		_, line = self._facade_line()  # 2 m² at 2 000 ₸
+		self._as(ANNA, facade_jobs.set_status, line, facade_jobs.DONE,
+				 crew=[{"user": ANNA, "qty": 1.5}, {"user": BORIS, "qty": 0.5}])
+		paid = {
+			e.employee: flt(e.amount)
+			for e in frappe.get_all("Piece Work Entry", filters={"idempotency_key": ["like", f"facade:{line}:%"]},
+									fields=["employee", "amount"])
+		}
+		self.assertEqual(paid, {ANNA: 3_000, BORIS: 1_000})
+
+	def test_square_metres_must_add_up_to_the_facade(self):
+		_, line = self._facade_line()
+		with self.assertRaises(frappe.ValidationError):
+			self._as(ANNA, facade_jobs.set_status, line, facade_jobs.DONE,
+					 crew=[{"user": ANNA, "qty": 1.5}, {"user": BORIS, "qty": 1}])
+		self.assertNotEqual(
+			frappe.db.get_value("Sales Order Item", line, "korkem_facade_status"), facade_jobs.DONE
+		)
+
+	def test_a_crew_is_split_one_way_only(self):
+		with self.assertRaises(frappe.ValidationError):
+			self._as(ANNA, piece_rates.check_crew, [{"user": ANNA, "share": 50}, {"user": BORIS, "qty": 1}])
+
+	def test_a_stage_split_by_count_needs_the_count_before_booking(self):
+		from korkem_manufacturing.api import production
+
+		crew = [{"user": ANNA, "qty": 3}, {"user": BORIS, "qty": 1}]
+		with self.assertRaises(frappe.ValidationError):
+			self._as(ANNA, production._check_crew, crew, None)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(ANNA, production._check_crew, crew, 5)
+		self.assertEqual(len(self._as(ANNA, production._check_crew, crew, 4)), 2)
+
 	# --- adjustments ------------------------------------------------------------
 
 	def test_an_advance_is_approved_by_someone_else(self):
@@ -224,3 +281,68 @@ class TestPayroll(IntegrationTestCase):
 		self.assertEqual(set(people[0]), {"user", "name"})
 		if self.stranger_elsewhere:
 			self.assertNotIn(STRANGER, users)
+
+	# --- «Выплачено» ---------------------------------------------------------------
+
+	def _fresh_worker(self) -> str:
+		"""A worker with nothing in the ledger yet: a payout covers the whole period."""
+		email = f"pay.w{frappe.generate_hash(length=8)}@example.com"
+		_user(email, "Manufacturing User")
+		return email
+
+	def _month(self) -> dict:
+		today = frappe.utils.getdate(nowdate())
+		return {"from_date": str(get_first_day(today)), "to_date": str(today)}
+
+	def test_paying_out_closes_the_period(self):
+		worker = self._fresh_worker()
+		entry = self._accrue(worker, 20_000)
+		advance = self._as(CHIEF, payroll.add_adjustment, worker, payroll.ADVANCE, 5_000, "Аванс")
+		self._as(DEPUTY, payroll.approve_adjustment, advance["adjustment"])
+
+		payout = self._as(CASHIER, payroll.mark_paid, worker, **self._month())
+		self.assertEqual((payout["amount"], payout["entries"]), (15_000, 1))
+		self.assertEqual(frappe.db.get_value("Piece Work Entry", entry.name, "status"), "Paid")
+		row = self._row(worker, **self._month())
+		self.assertEqual((row["to_pay"], row["paid"], row["left"]), (15_000, 15_000, 0))
+
+		# The sum handed over cannot change behind the cashier's back.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(CHIEF, payroll.add_adjustment, worker, payroll.FINE, 1_000, "Брак")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(DEPUTY, payroll.reverse_adjustment, advance["adjustment"], "Ошибка")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(CASHIER, payroll.mark_paid, worker, **self._month())  # nothing new to pay
+
+	def test_work_approved_later_is_paid_by_marking_the_period_again(self):
+		worker = self._fresh_worker()
+		self._accrue(worker, 10_000)
+		self._as(CASHIER, payroll.mark_paid, worker, **self._month())
+		self._accrue(worker, 3_000)
+		self.assertEqual(self._row(worker, **self._month())["left"], 3_000)
+		again = self._as(CASHIER, payroll.mark_paid, worker, **self._month())
+		self.assertEqual(again["amount"], 3_000)
+
+	def test_nothing_waiting_for_approval_may_be_left_in_a_paid_period(self):
+		worker = self._fresh_worker()
+		self._accrue(worker, 10_000)
+		self._accrue(worker, 2_000, approve=False)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(CASHIER, payroll.mark_paid, worker, **self._month())
+
+	def test_periods_do_not_overlap_or_run_into_the_future(self):
+		worker = self._fresh_worker()
+		self._accrue(worker, 10_000)
+		month = self._month()
+		self._as(CASHIER, payroll.mark_paid, worker, **month)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(CASHIER, payroll.mark_paid, worker, add_days(month["from_date"], -10), month["to_date"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(CASHIER, payroll.mark_paid, worker, month["from_date"], add_days(nowdate(), 1))
+
+	def test_only_the_people_who_pay_mark_it_paid(self):
+		worker = self._fresh_worker()
+		self._accrue(worker, 10_000)
+		for outsider in (worker, BOOKKEEPER, ANNA):
+			with self.assertRaises(frappe.PermissionError):
+				self._as(outsider, payroll.mark_paid, worker, **self._month())

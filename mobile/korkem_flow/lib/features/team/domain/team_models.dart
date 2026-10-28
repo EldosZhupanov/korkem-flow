@@ -140,6 +140,7 @@ class TeamMember {
     required this.enabled,
     this.ownerByServer = false,
     this.creation,
+    this.trades = const [],
   });
 
   factory TeamMember.fromJson(
@@ -186,6 +187,10 @@ class TeamMember {
       roles: parsedRoles,
       enabled: enabled,
       creation: creation,
+      trades: [
+        if (json['trades'] is List)
+          for (final t in json['trades'] as List) '$t',
+      ],
     );
   }
 
@@ -196,6 +201,9 @@ class TeamMember {
   final List<String> roles;
   final bool enabled;
   final DateTime? creation;
+
+  /// What the person does at the factory — several at once. No rights.
+  final List<String> trades;
 
   /// Владелец — по слову сервера, а не по выводу из ролей.
   ///
@@ -223,6 +231,7 @@ class TeamMember {
       roles: roles ?? this.roles,
       enabled: enabled ?? this.enabled,
       creation: creation ?? this.creation,
+      trades: trades,
     );
   }
 
@@ -236,6 +245,7 @@ class TeamMember {
           fullName == other.fullName &&
           position == other.position &&
           listEquals(roles, other.roles) &&
+          listEquals(trades, other.trades) &&
           enabled == other.enabled;
 
   @override
@@ -245,8 +255,49 @@ class TeamMember {
     fullName,
     position,
     Object.hashAll(roles),
+    Object.hashAll(trades),
     enabled,
   );
+}
+
+/// A trade on the shop floor — «Раскройщик», «Сборщик» — as the company
+/// names it. [trade] is `null` for the usual ones the company has not
+/// stored yet.
+@immutable
+class ShopTrade {
+  const ShopTrade({required this.title, this.trade, this.enabled = true});
+
+  factory ShopTrade.fromJson(Map<String, dynamic> json) => ShopTrade(
+    trade: json['trade'] as String?,
+    title: '${json['title'] ?? ''}',
+    enabled: json['enabled'] != false,
+  );
+
+  final String? trade;
+  final String title;
+  final bool enabled;
+}
+
+/// The company's trades and whether this person may change them.
+@immutable
+class ShopTrades {
+  const ShopTrades({required this.trades, required this.canEdit});
+
+  factory ShopTrades.fromJson(Map<String, dynamic> json) => ShopTrades(
+    trades: [
+      for (final row in json['trades'] as List? ?? const [])
+        if (row is Map) ShopTrade.fromJson(Map<String, dynamic>.from(row)),
+    ],
+    canEdit: json['can_edit'] == true,
+  );
+
+  final List<ShopTrade> trades;
+  final bool canEdit;
+
+  List<String> get enabledTitles => [
+    for (final t in trades)
+      if (t.enabled) t.title,
+  ];
 }
 
 /// A job position option retrieved from the server, mapping to backend-owned

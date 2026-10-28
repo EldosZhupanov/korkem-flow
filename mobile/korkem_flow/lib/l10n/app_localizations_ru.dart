@@ -4194,4 +4194,72 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get bonusMonthAmount => 'Премия за месяц';
+
+  @override
+  String get crewSplitPercent => 'В %';
+
+  @override
+  String crewSplitByAmount(String unit) {
+    return 'Кто сколько, $unit';
+  }
+
+  @override
+  String get crewHintAmount =>
+      'Отметьте бригаду и впишите, кто сколько сделал. Сумма должна сойтись с итогом.';
+
+  @override
+  String get crewMadeTogether => 'Делали вместе…';
+
+  @override
+  String crewChosen(int count) {
+    return 'Бригада: $count чел.';
+  }
+
+  @override
+  String get crewClear => 'Убрать бригаду';
+
+  @override
+  String get unitPieces => 'шт';
+
+  @override
+  String get unitSquareMetres => 'м²';
+
+  @override
+  String get payrollPaid => 'Выплачено';
+
+  @override
+  String get payrollLeft => 'Остаток к выплате';
+
+  @override
+  String get payrollMarkPaid => 'Отметить выплату';
+
+  @override
+  String payrollMarkPaidConfirm(String name, String amount) {
+    return '$name: выплачено $amount? Период закроется — авансы, штрафы и премии за него больше не внести.';
+  }
+
+  @override
+  String get payrollMarkPaidDone => 'Выплата записана';
+
+  @override
+  String get payrollTotalLeft => 'Осталось выплатить';
+
+  @override
+  String get tradesAction => 'Профессии в цехе';
+
+  @override
+  String get tradesTitle => 'Чем занимается';
+
+  @override
+  String get tradesHint =>
+      'Можно несколько. Профессии не дают прав — права задаёт должность.';
+
+  @override
+  String get tradesOwn => 'Своя профессия';
+
+  @override
+  String get tradesAdd => 'Добавить';
+
+  @override
+  String get tradesSaved => 'Профессии сохранены';
 }

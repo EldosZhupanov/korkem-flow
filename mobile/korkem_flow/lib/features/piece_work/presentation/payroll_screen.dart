@@ -58,11 +58,53 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
     }
   }
 
+  /// «Выплачено» for one worker, after the person handing the money over
+  /// confirms the sum. Only offered for a period that has ended.
+  Future<void> _markPaid(PayrollRow row) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    final money = _money(context);
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: Text(l10n.payrollMarkPaid),
+        content: Text(
+          l10n.payrollMarkPaidConfirm(row.employeeName, money.format(row.left)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialog).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            key: const ValueKey('payrollPayConfirm'),
+            onPressed: () => Navigator.of(dialog).pop(true),
+            child: Text(l10n.payrollMarkPaid),
+          ),
+        ],
+      ),
+    );
+    if (sure != true) return;
+    try {
+      await ref
+          .read(pieceWorkRepositoryProvider)
+          .markPaid(row.employee, _period);
+      messenger.showDone(l10n.payrollMarkPaidDone);
+      ref
+        ..invalidate(payrollStatementProvider(_period))
+        ..invalidate(payAdjustmentsProvider(_period));
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final money = _money(context);
     final sheet = ref.watch(payrollStatementProvider(_period));
+    final now = DateTime.now();
+    final ended = !_period.to.isAfter(DateTime(now.year, now.month, now.day));
     final month = DateFormat.yMMMM(
       Localizations.localeOf(context).toLanguageTag(),
     ).format(_period.from);
@@ -124,7 +166,14 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                   if (data.rows.isEmpty)
                     ReadableWidth(child: Text(l10n.payrollEmpty)),
                   for (final row in data.rows)
-                    ReadableWidth(child: _RowCard(row: row)),
+                    ReadableWidth(
+                      child: _RowCard(
+                        row: row,
+                        onPay: data.canMarkPaid && ended && row.left > 0
+                            ? () => _markPaid(row)
+                            : null,
+                      ),
+                    ),
                   if (data.rows.isNotEmpty)
                     ReadableWidth(
                       child: Padding(
@@ -148,6 +197,21 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                         ),
                       ),
                     ),
+                  if (data.rows.isNotEmpty && data.totalLeft != data.totalToPay)
+                    ReadableWidth(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: Row(
+                          children: [
+                            Expanded(child: Text(l10n.payrollTotalLeft)),
+                            Text(
+                              money.format(data.totalLeft),
+                              key: const ValueKey('payrollTotalLeft'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -161,9 +225,12 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
 }
 
 class _RowCard extends StatelessWidget {
-  const _RowCard({required this.row});
+  const _RowCard({required this.row, this.onPay});
 
   final PayrollRow row;
+
+  /// «Отметить выплату», when this person may and the period has ended.
+  final VoidCallback? onPay;
 
   @override
   Widget build(BuildContext context) {
@@ -201,11 +268,34 @@ class _RowCard extends StatelessWidget {
           line(l10n.payrollBonus, row.bonus),
           line(l10n.payrollFine, row.fine, minus: true),
           line(l10n.payrollAdvance, row.advance, minus: true),
+          if (row.paid > 0) ...[
+            line(l10n.payrollPaid, row.paid, minus: true),
+            Row(
+              children: [
+                Expanded(child: Text(l10n.payrollLeft)),
+                Text(
+                  money.format(row.left),
+                  key: ValueKey('payrollLeft:${row.employee}'),
+                  style: theme.textTheme.titleSmall,
+                ),
+              ],
+            ),
+          ],
           if (row.pending > 0)
             Text(
               l10n.payrollPending(money.format(row.pending)),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: context.statusColors.warning,
+              ),
+            ),
+          if (onPay != null)
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton.icon(
+                key: ValueKey('payrollPay:${row.employee}'),
+                onPressed: onPay,
+                icon: const Icon(AppIcons.check, size: AppIconSize.dense),
+                label: Text(l10n.payrollMarkPaid),
               ),
             ),
         ],

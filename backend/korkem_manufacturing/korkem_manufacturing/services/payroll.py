@@ -17,6 +17,11 @@ This module adds the rest of a pay sheet and adds it up:
 - **The statement** for a period: per worker, approved piece pay + bonuses +
   one-off bonuses − fines − advances = to pay. Pending accruals are shown but
   not counted: nobody is paid for work nobody has checked.
+- **«Выплачено»** (`mark_paid`): a worker's period is paid out — a `Pay
+  Payout` records the sum, the period's approved accruals become «Paid», and
+  the period's advances, fines and bonuses can no longer be entered, approved
+  or reversed. Nothing still waiting for approval may be left in it. Work
+  approved later in the same period is paid by marking it again.
 
 A worker sees their own progress to the next bonus (`my_progress`), so the
 tablet can say «до дневной премии осталось 4 200 ₸».
@@ -39,10 +44,13 @@ from korkem_manufacturing.services.identity import is_staff
 from korkem_manufacturing.services.scope import current_company
 
 DOCTYPE = "Pay Adjustment"
+PAYOUT = "Pay Payout"
 ADVANCE, FINE, BONUS = "Аванс", "Штраф", "Премия"
 KINDS = (ADVANCE, FINE, BONUS)
 EDITORS = frozenset({"System Manager", "Manufacturing Manager"})
 READERS = EDITORS | {"Accounts Manager", "Accounts User"}
+#: Who may mark pay as paid out: the people who hand it over.
+PAYERS = EDITORS | {"Accounts Manager"}
 MAX_DAYS = 93
 COUNTED = ("Approved", "Paid")
 
@@ -81,6 +89,7 @@ def add_adjustment(
 	day = getdate(on_date) if on_date else getdate(nowdate())
 	if day > getdate(nowdate()):
 		frappe.throw("Дата не может быть в будущем.")
+	_ensure_open(employee, day, company)
 	if sales_order:
 		from korkem_manufacturing.services.scope import ensure_company
 
@@ -117,6 +126,7 @@ def approve_adjustment(adjustment: str) -> dict:
 		frappe.throw(f"Уже в статусе «{doc.status}».")
 	if frappe.session.user in (doc.employee, doc.created_by):
 		frappe.throw("Утверждает другой человек — не тот, кого это касается, и не тот, кто вносил.", frappe.PermissionError)
+	_ensure_open(doc.employee, getdate(doc.on_date), doc.company)
 	doc.db_set({"status": "Approved", "approved_by": frappe.session.user, "approved_at": now_datetime()})
 	audit.record_audit(action="payroll.adjustment_approved", entity_type=DOCTYPE, entity_id=doc.name)
 	return _adjustment(doc)
@@ -130,6 +140,7 @@ def reverse_adjustment(adjustment: str, reason: str) -> dict:
 		frappe.throw("Укажите причину — работник увидит её.")
 	if doc.status == "Reversed":
 		return _adjustment(doc)
+	_ensure_open(doc.employee, getdate(doc.on_date), doc.company)
 	doc.db_set({"status": "Reversed", "reversal_reason": reason[:500]})
 	audit.record_audit(
 		action="payroll.adjustment_reversed", entity_type=DOCTYPE, entity_id=doc.name, diff={"reason": reason}
@@ -204,11 +215,17 @@ def statement(from_date: str | None = None, to_date: str | None = None) -> dict:
 		key = {ADVANCE: "advance", FINE: "fine", BONUS: "bonus"}[a.kind]
 		row(a.employee, a.employee_name)[key] += flt(a.amount)
 
+	paid = _paid_within(company, start, end)
+	for employee in paid:
+		row(employee)
+
 	result = []
 	for r in sorted(rows.values(), key=lambda x: x["employee_name"]):
 		for key in ("piece", "pending", "daily_bonus", "monthly_bonus", "bonus", "fine", "advance"):
 			r[key] = round(r[key], 2)
 		r["to_pay"] = round(r["piece"] + r["daily_bonus"] + r["monthly_bonus"] + r["bonus"] - r["fine"] - r["advance"], 2)
+		r["paid"] = round(paid.get(r["employee"], 0.0), 2)
+		r["left"] = round(r["to_pay"] - r["paid"], 2)
 		result.append(r)
 	return {
 		"from_date": str(start),
@@ -216,6 +233,9 @@ def statement(from_date: str | None = None, to_date: str | None = None) -> dict:
 		"rules": rules,
 		"rows": result,
 		"total_to_pay": round(sum(r["to_pay"] for r in result), 2),
+		"total_paid": round(sum(r["paid"] for r in result), 2),
+		"total_left": round(sum(r["left"] for r in result), 2),
+		"can_mark_paid": bool(PAYERS.intersection(frappe.get_roles())),
 	}
 
 
@@ -225,14 +245,15 @@ def statement_csv(from_date: str | None = None, to_date: str | None = None) -> s
 	buffer = io.StringIO()
 	writer = csv.writer(buffer, delimiter=";")
 	writer.writerow(
-		["Сотрудник", "Сдельно", "Премия дня", "Премия месяца", "Премия", "Штраф", "Аванс", "К выплате", "Не утверждено"]
+		["Сотрудник", "Сдельно", "Премия дня", "Премия месяца", "Премия", "Штраф", "Аванс", "К выплате", "Выплачено",
+		 "Остаток", "Не утверждено"]
 	)
 	for r in data["rows"]:
 		writer.writerow(
 			[r["employee_name"], r["piece"], r["daily_bonus"], r["monthly_bonus"], r["bonus"], r["fine"],
-			 r["advance"], r["to_pay"], r["pending"]]
+			 r["advance"], r["to_pay"], r["paid"], r["left"], r["pending"]]
 		)
-	writer.writerow(["Итого", "", "", "", "", "", "", data["total_to_pay"], ""])
+	writer.writerow(["Итого", "", "", "", "", "", "", data["total_to_pay"], data["total_paid"], data["total_left"], ""])
 	audit.record_audit(
 		action="payroll.statement_exported",
 		entity_type="Company",
@@ -240,6 +261,166 @@ def statement_csv(from_date: str | None = None, to_date: str | None = None) -> s
 		diff={"from_date": data["from_date"], "to_date": data["to_date"], "rows": len(data["rows"])},
 	)
 	return buffer.getvalue()
+
+
+# --------------------------------------------------------------------------
+# «Выплачено»
+# --------------------------------------------------------------------------
+
+
+def mark_paid(employee: str, from_date: str, to_date: str, note: str | None = None) -> dict:
+	"""Pay a worker's period out: what is left of their «к выплате» becomes a
+	`Pay Payout`, and the period's approved accruals become «Paid».
+
+	One period per payout and no overlaps: a sheet paid for October cannot be
+	paid again for 15 September – 15 October. The same period marked again pays
+	only what was approved since.
+	"""
+	_ensure(PAYERS, "Выплату отмечает бухгалтер, начальник производства или администратор.")
+	company = current_company()
+	if not from_date or not to_date:
+		frappe.throw("Укажите период выплаты.")
+	start, end = _period(from_date, to_date)
+	if end > getdate(nowdate()):
+		frappe.throw("Период ещё не закончился — за текущие дни платят авансом.")
+	if employee == frappe.session.user:
+		frappe.throw("Свою выплату отмечает другой человек.", frappe.PermissionError)
+	_ensure_worker(employee, company)
+	# Two people marking the same sheet at once: the second waits here and
+	# then sees the first one's payout.
+	frappe.db.sql("SELECT name FROM `tabUser` WHERE name = %s FOR UPDATE", employee)
+
+	same = 0.0
+	for p in frappe.get_all(
+		PAYOUT,
+		filters={"company": company, "employee": employee, "from_date": ["<=", end], "to_date": [">=", start]},
+		fields=["name", "from_date", "to_date", "amount"],
+	):
+		if getdate(p.from_date) != start or getdate(p.to_date) != end:
+			frappe.throw(f"Пересекается с выплатой {p.name} за {p.from_date} – {p.to_date}.")
+		same += flt(p.amount)
+
+	waiting_work = len(_piece_entries(company, start, end, employee=employee, statuses=["Pending Approval"]))
+	waiting_adj = frappe.db.count(
+		DOCTYPE,
+		{"company": company, "employee": employee, "status": "Pending Approval", "on_date": ["between", [start, end]]},
+	)
+	if waiting_work or waiting_adj:
+		frappe.throw(
+			f"Сначала утвердите или отклоните то, что ждёт решения: начислений — {waiting_work}, "
+			f"авансов, штрафов и премий — {waiting_adj}."
+		)
+
+	row = next((r for r in statement(str(start), str(end))["rows"] if r["employee"] == employee), None)
+	approved = frappe.get_all(
+		"Piece Work Entry",
+		filters={
+			"company": company,
+			"employee": employee,
+			"status": "Approved",
+			"reversed_entry": ["is", "not set"],
+			"creation": ["between", [f"{start} 00:00:00", f"{end} 23:59:59.999999"]],
+		},
+		pluck="name",
+	)
+	left = round(flt(row["to_pay"]) - same, 2) if row else 0.0
+	if left < 0:
+		frappe.throw(
+			f"К выплате {left:g} ₸: удержано больше, чем заработано. Перенесите долг штрафом в следующий период."
+		)
+	if left == 0 and not approved:
+		frappe.throw("За этот период выплачивать нечего.")
+
+	from korkem_manufacturing.services import piece_work
+
+	for name in approved:
+		piece_work.mark_paid(name, actor=frappe.session.user)
+	doc = frappe.get_doc(
+		{
+			"doctype": PAYOUT,
+			"company": company,
+			"employee": employee,
+			"employee_name": frappe.db.get_value("User", employee, "full_name") or employee,
+			"from_date": str(start),
+			"to_date": str(end),
+			"amount": left,
+			"piece": flt(row["piece"]) if row else 0,
+			"bonuses": flt(row["daily_bonus"] + row["monthly_bonus"] + row["bonus"]) if row else 0,
+			"fine": flt(row["fine"]) if row else 0,
+			"advance": flt(row["advance"]) if row else 0,
+			"entries": len(approved),
+			"paid_by": frappe.session.user,
+			"paid_at": now_datetime(),
+			"note": (note or "").strip()[:500] or None,
+		}
+	)
+	doc.insert(ignore_permissions=True)
+	audit.record_audit(
+		action="payroll.paid_out",
+		entity_type=PAYOUT,
+		entity_id=doc.name,
+		diff={"employee": employee, "from_date": str(start), "to_date": str(end), "amount": left, "entries": len(approved)},
+	)
+	return _payout(doc)
+
+
+def payouts(from_date: str | None = None, to_date: str | None = None) -> list[dict]:
+	"""Payouts whose period touches the given one."""
+	_ensure(READERS, "Ведомость видят начальник производства, администратор и бухгалтерия.")
+	start, end = _period(from_date, to_date)
+	return [
+		_payout(r)
+		for r in frappe.get_all(
+			PAYOUT,
+			filters={"company": current_company(), "from_date": ["<=", end], "to_date": [">=", start]},
+			fields=["name", "employee", "employee_name", "from_date", "to_date", "amount", "entries", "paid_by",
+					"paid_at", "note"],
+			order_by="paid_at desc",
+			limit_page_length=1000,
+		)
+	]
+
+
+def _paid_within(company: str, start: date, end: date) -> dict[str, float]:
+	"""Per worker, what was paid out for periods inside [start, end]."""
+	paid: dict[str, float] = {}
+	for p in frappe.get_all(
+		PAYOUT,
+		filters={"company": company, "from_date": [">=", start], "to_date": ["<=", end]},
+		fields=["employee", "amount"],
+	):
+		paid[p.employee] = paid.get(p.employee, 0.0) + flt(p.amount)
+	return paid
+
+
+def _ensure_open(employee: str, day: date, company: str) -> None:
+	"""An advance, fine or bonus dated in a paid-out period would change a sum
+	already handed over: it goes into the next period instead."""
+	paid = frappe.db.get_value(
+		PAYOUT,
+		{"company": company, "employee": employee, "from_date": ["<=", day], "to_date": [">=", day]},
+		["name", "from_date", "to_date"],
+		as_dict=True,
+	)
+	if paid:
+		frappe.throw(
+			f"Период {paid.from_date} – {paid.to_date} уже выплачен ({paid.name}). Внесите в следующий период."
+		)
+
+
+def _payout(r) -> dict:
+	return {
+		"payout": r.name,
+		"employee": r.employee,
+		"employee_name": r.employee_name or r.employee,
+		"from_date": str(r.from_date),
+		"to_date": str(r.to_date),
+		"amount": flt(r.amount),
+		"entries": int(r.entries or 0),
+		"paid_by": r.paid_by,
+		"paid_at": str(r.paid_at) if r.paid_at else None,
+		"note": r.note,
+	}
 
 
 # --------------------------------------------------------------------------

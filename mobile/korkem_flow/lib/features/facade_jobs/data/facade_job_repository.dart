@@ -1,10 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/facade_jobs/domain/facade_job.dart';
+import 'package:korkem_flow/features/piece_work/domain/crew.dart';
 
 final facadeJobRepositoryProvider = Provider<FacadeJobRepository>((ref) {
   return FacadeJobRepository(
@@ -42,7 +41,7 @@ class FacadeJobRepository {
   /// when the connection is back, once.
   ///
   /// [crew], when a facade is finished by several people: who, and their
-  /// shares in % (none — equal). The server splits the pay.
+  /// shares in % or m² (none — equal). The server splits the pay.
   Future<void> setStatus(
     String line,
     FacadeJobStatus status, {
@@ -54,11 +53,7 @@ class FacadeJobRepository {
       params: {
         'line': line,
         'status': status.wire,
-        if (crew != null && crew.isNotEmpty)
-          'crew': jsonEncode([
-            for (final member in crew)
-              {'user': member.user, 'share': ?member.share},
-          ]),
+        if (crew != null && crew.isNotEmpty) 'crew': crewJson(crew),
       },
     );
   }

@@ -7442,6 +7442,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Monthly bonus'**
   String get bonusMonthAmount;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'In %'**
+  String get crewSplitPercent;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Who made how much, {unit}'**
+  String crewSplitByAmount(String unit);
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the crew and enter how much each made. The amounts must add up to the total.'**
+  String get crewHintAmount;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Made together…'**
+  String get crewMadeTogether;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Crew: {count} people'**
+  String crewChosen(int count);
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the crew'**
+  String get crewClear;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get unitPieces;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'m²'**
+  String get unitSquareMetres;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Paid out'**
+  String get payrollPaid;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay'**
+  String get payrollLeft;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as paid'**
+  String get payrollMarkPaid;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: paid {amount}? The period closes — no more advances, fines or bonuses can be entered for it.'**
+  String payrollMarkPaidConfirm(String name, String amount);
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Payout recorded'**
+  String get payrollMarkPaidDone;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay in total'**
+  String get payrollTotalLeft;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Shop trades'**
+  String get tradesAction;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'What they do'**
+  String get tradesTitle;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Several are fine. Trades give no rights — the position does.'**
+  String get tradesHint;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Your own trade'**
+  String get tradesOwn;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get tradesAdd;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Trades saved'**
+  String get tradesSaved;
 }
 
 class _AppLocalizationsDelegate

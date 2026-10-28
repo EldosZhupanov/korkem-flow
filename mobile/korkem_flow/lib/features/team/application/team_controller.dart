@@ -23,6 +23,12 @@ final teamMembersProvider = FutureProvider.autoDispose<List<TeamMember>>((
 
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
+final shopTradesProvider = FutureProvider.autoDispose<ShopTrades>(
+  (ref) => ref.watch(teamRepositoryProvider).fetchTrades(),
+);
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
 final canInviteProvider = FutureProvider.autoDispose<bool>((ref) async {
   // Один вопрос — один ответ сервера. Раньше это выводили здесь: брали список
   // команды, искали себя, смотрели роли. Роли клиенту не видны, поэтому

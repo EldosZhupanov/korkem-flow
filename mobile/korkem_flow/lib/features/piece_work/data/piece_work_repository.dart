@@ -195,6 +195,21 @@ class PieceWorkRepository {
         ),
       );
 
+  /// «Выплачено»: a worker's [period] is paid out. The server refuses a
+  /// period that has not ended, overlaps another payout, or still has
+  /// something waiting for approval.
+  Future<void> markPaid(String employee, PayPeriod period) async {
+    await _client.callMethod(
+      '$_payroll.mark_paid',
+      post: true,
+      params: {
+        'employee': employee,
+        'from_date': _day(period.from),
+        'to_date': _day(period.to),
+      },
+    );
+  }
+
   /// The sheet as CSV text, for accounting.
   Future<String> statementCsv(PayPeriod period) async {
     final data = _map(

@@ -72,6 +72,13 @@ def members() -> list[dict]:
 		limit_page_length=0,
 	)
 
+	from korkem_manufacturing.services import shop_trades
+
+	try:
+		trades = shop_trades.of_users()
+	except (frappe.ValidationError, frappe.PermissionError):
+		# No company in the session: the list still shows people, without trades.
+		trades = {}
 	people = []
 	for row in rows:
 		if row["name"] in ("Administrator", "Guest"):
@@ -95,6 +102,8 @@ def members() -> list[dict]:
 				"creation": row.get("creation"),
 				"position": _position_from(roles),
 				"is_owner": OWNER_ROLE in roles,
+				# What the person does at the factory, several at once; no rights.
+				"trades": trades.get(row["name"], []),
 			}
 		)
 	return people

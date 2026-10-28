@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
@@ -23,6 +25,33 @@ class TeamRepository {
       'korkem_manufacturing.api.staff.change_position';
   static const deactivateEndpoint = 'korkem_manufacturing.api.staff.deactivate';
   static const reactivateEndpoint = 'korkem_manufacturing.api.staff.reactivate';
+  static const _trades = 'korkem_manufacturing.api.shop_trades';
+
+  /// The company's shop trades; the usual ones until it names its own.
+  Future<ShopTrades> fetchTrades() async {
+    final response = await _client.callMethod('$_trades.trades');
+    final body = response['message'] ?? response;
+    return ShopTrades.fromJson(
+      body is Map ? Map<String, dynamic>.from(body) : const {},
+    );
+  }
+
+  Future<void> addTrade(String title) async {
+    await _client.callMethod(
+      '$_trades.add_trade',
+      post: true,
+      params: {'title': title},
+    );
+  }
+
+  /// A person's trades, all at once: the list replaces what they had.
+  Future<void> setMemberTrades(String user, List<String> titles) async {
+    await _client.callMethod(
+      '$_trades.set_member_trades',
+      post: true,
+      params: {'user': user, 'titles': jsonEncode(titles)},
+    );
+  }
 
   /// Должности и роли за ними — с сервера.
   ///

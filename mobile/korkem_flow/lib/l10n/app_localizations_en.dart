@@ -4170,4 +4170,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bonusMonthAmount => 'Monthly bonus';
+
+  @override
+  String get crewSplitPercent => 'In %';
+
+  @override
+  String crewSplitByAmount(String unit) {
+    return 'Who made how much, $unit';
+  }
+
+  @override
+  String get crewHintAmount =>
+      'Tick the crew and enter how much each made. The amounts must add up to the total.';
+
+  @override
+  String get crewMadeTogether => 'Made together…';
+
+  @override
+  String crewChosen(int count) {
+    return 'Crew: $count people';
+  }
+
+  @override
+  String get crewClear => 'Remove the crew';
+
+  @override
+  String get unitPieces => 'pcs';
+
+  @override
+  String get unitSquareMetres => 'm²';
+
+  @override
+  String get payrollPaid => 'Paid out';
+
+  @override
+  String get payrollLeft => 'Left to pay';
+
+  @override
+  String get payrollMarkPaid => 'Mark as paid';
+
+  @override
+  String payrollMarkPaidConfirm(String name, String amount) {
+    return '$name: paid $amount? The period closes — no more advances, fines or bonuses can be entered for it.';
+  }
+
+  @override
+  String get payrollMarkPaidDone => 'Payout recorded';
+
+  @override
+  String get payrollTotalLeft => 'Left to pay in total';
+
+  @override
+  String get tradesAction => 'Shop trades';
+
+  @override
+  String get tradesTitle => 'What they do';
+
+  @override
+  String get tradesHint =>
+      'Several are fine. Trades give no rights — the position does.';
+
+  @override
+  String get tradesOwn => 'Your own trade';
+
+  @override
+  String get tradesAdd => 'Add';
+
+  @override
+  String get tradesSaved => 'Trades saved';
 }

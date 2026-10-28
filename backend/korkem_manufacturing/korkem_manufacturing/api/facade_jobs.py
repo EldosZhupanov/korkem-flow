@@ -19,7 +19,8 @@ def jobs(status: str | None = None, limit: int = 100) -> dict:
 def set_status(line: str, status: str, crew: str | list | None = None) -> dict:
 	"""Отметить фасад: «В очереди», «В работе» или «Готово».
 
-	`crew` — при «Готово»: кто делал и доли в % ([{"user", "share"}]); пусто — тот, кто отмечает.
+	`crew` — при «Готово»: кто делал и доли в % ([{"user", "share"}]) или кто сколько м²/шт
+	([{"user", "qty"}]); пусто — тот, кто отмечает.
 	"""
 	return service.set_status(line=line, status=status, crew=crew)
 

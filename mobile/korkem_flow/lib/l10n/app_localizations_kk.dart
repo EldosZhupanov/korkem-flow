@@ -4133,4 +4133,72 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get bonusMonthAmount => 'Айлық сыйақы';
+
+  @override
+  String get crewSplitPercent => '% бойынша';
+
+  @override
+  String crewSplitByAmount(String unit) {
+    return 'Кім қанша, $unit';
+  }
+
+  @override
+  String get crewHintAmount =>
+      'Бригаданы белгілеп, кім қанша жасағанын жазыңыз. Қосындысы жалпы санға сай болуы керек.';
+
+  @override
+  String get crewMadeTogether => 'Бірге жасадық…';
+
+  @override
+  String crewChosen(int count) {
+    return 'Бригада: $count адам';
+  }
+
+  @override
+  String get crewClear => 'Бригаданы алып тастау';
+
+  @override
+  String get unitPieces => 'дана';
+
+  @override
+  String get unitSquareMetres => 'м²';
+
+  @override
+  String get payrollPaid => 'Төленді';
+
+  @override
+  String get payrollLeft => 'Төленетін қалдық';
+
+  @override
+  String get payrollMarkPaid => 'Төлемді белгілеу';
+
+  @override
+  String payrollMarkPaidConfirm(String name, String amount) {
+    return '$name: $amount төленді ме? Кезең жабылады — оған аванс, айыппұл, сыйақы енді енгізілмейді.';
+  }
+
+  @override
+  String get payrollMarkPaidDone => 'Төлем жазылды';
+
+  @override
+  String get payrollTotalLeft => 'Төлеу қалды';
+
+  @override
+  String get tradesAction => 'Цехтегі мамандықтар';
+
+  @override
+  String get tradesTitle => 'Немен айналысады';
+
+  @override
+  String get tradesHint =>
+      'Бірнешеуі болады. Мамандық құқық бермейді — құқықты лауазым береді.';
+
+  @override
+  String get tradesOwn => 'Өз мамандығы';
+
+  @override
+  String get tradesAdd => 'Қосу';
+
+  @override
+  String get tradesSaved => 'Мамандықтар сақталды';
 }

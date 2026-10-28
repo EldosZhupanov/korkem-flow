@@ -8,6 +8,8 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/features/enquiry_flow/application/image_picker_service.dart';
 import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
+import 'package:korkem_flow/features/piece_work/domain/crew.dart';
+import 'package:korkem_flow/features/piece_work/presentation/crew_dialog.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -78,6 +80,9 @@ class _CompleteOperationDialogState
   /// Optional, and only offered once some scrap is entered.
   XFile? _defectPhoto;
 
+  /// Who did the stage together; `null` — the person booking it.
+  List<CrewShare>? _crew;
+
   @override
   void initState() {
     super.initState();
@@ -122,6 +127,7 @@ class _CompleteOperationDialogState
             operation: widget.operation.operation ?? widget.operation.name,
             qty: qty,
             scrapQty: scrapQty,
+            crew: _crew,
           );
 
       if (!mounted) return;
@@ -178,6 +184,11 @@ class _CompleteOperationDialogState
     } on Object {
       messenger.showFailureMessage(l10n.defectPhotoNotSent);
     }
+  }
+
+  Future<void> _pickCrew(String operation) async {
+    final crew = await pickCrew(context, operation: operation);
+    if (crew != null && mounted) setState(() => _crew = crew);
   }
 
   Future<void> _pickDefectPhoto() async {
@@ -276,6 +287,13 @@ class _CompleteOperationDialogState
                   );
                 },
               ),
+              const SizedBox(height: AppSpacing.sm),
+              _CrewRow(
+                crew: _crew,
+                enabled: !_isSubmitting,
+                onPick: () => _pickCrew(opTitle),
+                onClear: () => setState(() => _crew = null),
+              ),
               const SizedBox(height: AppSpacing.md),
               TextFormField(
                 controller: _scrapController,
@@ -356,6 +374,47 @@ class _CompleteOperationDialogState
                   ),
                 )
               : Text(l10n.completeOperationAction),
+        ),
+      ],
+    );
+  }
+}
+
+/// «Made together…», or the crew already chosen with a way to drop it.
+class _CrewRow extends StatelessWidget {
+  const _CrewRow({
+    required this.crew,
+    required this.enabled,
+    required this.onPick,
+    required this.onClear,
+  });
+
+  final List<CrewShare>? crew;
+  final bool enabled;
+  final VoidCallback onPick;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final chosen = crew;
+    if (chosen == null) {
+      return TextButton.icon(
+        key: const ValueKey('stageCrewPick'),
+        onPressed: enabled ? onPick : null,
+        icon: const Icon(AppIcons.team, size: AppIconSize.dense),
+        label: Text(l10n.crewMadeTogether),
+      );
+    }
+    return Row(
+      children: [
+        const Icon(AppIcons.team, size: AppIconSize.dense),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(child: Text(l10n.crewChosen(chosen.length))),
+        TextButton(
+          key: const ValueKey('stageCrewClear'),
+          onPressed: enabled ? onClear : null,
+          child: Text(l10n.crewClear),
         ),
       ],
     );

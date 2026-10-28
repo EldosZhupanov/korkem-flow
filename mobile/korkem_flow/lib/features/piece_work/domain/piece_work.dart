@@ -104,6 +104,10 @@ class PieceRate {
   static const perPart = 'KZT_PER_PART';
   static const perM2 = 'KZT_PER_M2';
 
+  /// The operation a finished facade is paid under
+  /// (`piece_rates.FACADE_OPERATION` on the server).
+  static const facadeOperation = 'Фасад';
+
   final String operation;
   final String rateType;
   final double rate;
@@ -172,6 +176,15 @@ class PieceRates {
           r.rateType == PieceRate.perPart) {
         return r.rate;
       }
+    }
+    return null;
+  }
+
+  /// How [operation] is paid — [PieceRate.perPart] or [PieceRate.perM2] —
+  /// or `null` when it has no rate.
+  String? rateTypeFor(String operation) {
+    for (final r in rates) {
+      if (r.operation == operation && r.enabled) return r.rateType;
     }
     return null;
   }
@@ -248,7 +261,9 @@ class PayrollRow {
     required this.fine,
     required this.advance,
     required this.toPay,
-  });
+    this.paid = 0,
+    double? left,
+  }) : left = left ?? toPay - paid;
 
   factory PayrollRow.fromJson(Map<String, dynamic> json) => PayrollRow(
     employee: '${json['employee'] ?? ''}',
@@ -261,6 +276,8 @@ class PayrollRow {
     fine: _num(json['fine']) ?? 0,
     advance: _num(json['advance']) ?? 0,
     toPay: _num(json['to_pay']) ?? 0,
+    paid: _num(json['paid']) ?? 0,
+    left: _num(json['left']),
   );
 
   final String employee;
@@ -273,6 +290,11 @@ class PayrollRow {
   final double fine;
   final double advance;
   final double toPay;
+
+  /// Already paid out for this period («Выплачено»), and what is left of
+  /// [toPay] after it.
+  final double paid;
+  final double left;
 }
 
 /// The pay sheet for a period.
@@ -283,6 +305,8 @@ class PayrollStatement {
     required this.toDate,
     required this.rows,
     required this.totalToPay,
+    this.totalLeft = 0,
+    this.canMarkPaid = false,
   });
 
   factory PayrollStatement.fromJson(Map<String, dynamic> json) =>
@@ -294,12 +318,18 @@ class PayrollStatement {
             if (row is Map) PayrollRow.fromJson(Map<String, dynamic>.from(row)),
         ],
         totalToPay: _num(json['total_to_pay']) ?? 0,
+        totalLeft: _num(json['total_left']) ?? _num(json['total_to_pay']) ?? 0,
+        canMarkPaid: json['can_mark_paid'] == true,
       );
 
   final String fromDate;
   final String toDate;
   final List<PayrollRow> rows;
   final double totalToPay;
+
+  /// What is still to be paid out, and whether this person hands pay over.
+  final double totalLeft;
+  final bool canMarkPaid;
 }
 
 /// An advance, a fine or a one-off bonus.
