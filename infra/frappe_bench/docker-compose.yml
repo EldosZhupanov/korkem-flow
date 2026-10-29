@@ -32,6 +32,15 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
+      # MariaDB 11.6.2 turned snapshot isolation on by default: a transaction
+      # that reads a row another one has since committed fails with 1020
+      # «Record has changed since last read», which Frappe raises as a
+      # deadlock. Frappe's transactions — a request, a background job, a test
+      # — were designed on the older REPEATABLE READ, where the later write
+      # simply wins. CI hit it twice on 29.10.2026 (saving a user while the
+      # queue worker touched its Contact); a pilot under real load would show
+      # it to users. Off, as every MariaDB before 11.6 had it.
+      - --innodb-snapshot-isolation=OFF
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
