@@ -10,12 +10,6 @@ dynamic = ["version"]
 dependencies = [
     # "frappe~=16.0.0" # Installed and managed by bench.
     "anthropic>=0.69.0",
-    # Frappe declares pydantic~=2.13.4 and validates whitelisted arguments
-    # with it. A fresh `bench setup requirements` (what CI runs) let the
-    # newest anthropic lift it to 2.14, which validates differently from the
-    # benches the suites were written on: five «malformed input is refused»
-    # tests failed on CI only (29.10.2026). Held to Frappe's own pin.
-    "pydantic~=2.13.4",
 ]
 
 [build-system]

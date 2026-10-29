@@ -92,7 +92,8 @@ run_backend() {
   # here turns that from a day of guessing into a diff.
   say "backend: versions"
   docker compose -f "$COMPOSE_FILE" exec -T bench bash -lc \
-    "cd /home/frappe/frappe-bench && env/bin/python --version && env/bin/pip freeze 2>/dev/null \
+    "cd /home/frappe/frappe-bench && for a in frappe erpnext crm; do echo \"\$a \$(git -C apps/\$a rev-parse --short=10 HEAD 2>/dev/null)\"; done \
+     && env/bin/python --version && env/bin/pip freeze 2>/dev/null \
      | grep -iE '^(pydantic|pydantic.core|anthropic|frappe|erpnext|crm|pymysql|rq|redis)==' ; \
      mariadb --version 2>/dev/null || true; env/bin/pip check 2>&1 | head -10" || true
 

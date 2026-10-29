@@ -115,14 +115,6 @@ link_own_app korkem_ai
 bench setup requirements --dev
 bench setup requirements --node
 
-# Frappe declares pydantic~=2.13.4 and validates every whitelisted call with
-# it; something in the dev requirements resolves past that on a fresh bench.
-# CI got 2.14.1 while every developer bench sat on 2.13.5, and 2.14 checks
-# argument types the 2.13 benches never did — five tests failed on CI only
-# (29.10.2026). Re-assert Frappe's own pin last, so nothing installed after it
-# can lift it.
-./env/bin/pip install --quiet "pydantic~=2.13.4"
-
 # Developer mode rebuilds and re-exports doctype JSON on save, exposes the
 # developer tooling in the desk, and is what `seed_users` has always keyed its
 # refusal on. It is a development setting and is set as one.

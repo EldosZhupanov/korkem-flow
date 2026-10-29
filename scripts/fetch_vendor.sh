@@ -60,6 +60,10 @@ while read -r name url commit branch; do
     elif [ "$(git -C "$dir" rev-parse HEAD)" != "$commit" ]; then
       warn "  $name: at $(git -C "$dir" rev-parse --short HEAD), lock says ${commit:0:10}"
       status=1
+    elif [ "$(git -C "$dir" rev-parse --verify --quiet "refs/heads/$branch")" != "$commit" ]; then
+      # The bench clones the branch, not HEAD — see the note below.
+      warn "  $name: HEAD is pinned, but branch $branch is at $(git -C "$dir" rev-parse --short "refs/heads/$branch" 2>/dev/null || echo none) — the bench would build that"
+      status=1
     else
       printf '  %-10s %s ✓\n' "$name" "${commit:0:10}"
     fi
@@ -74,7 +78,16 @@ while read -r name url commit branch; do
   fi
 
   current="$(git -C "$dir" rev-parse HEAD)"
-  if [ "$current" = "$commit" ]; then
+  # The branch is checked as well as HEAD. The bench does not use this
+  # checkout: `bench init --frappe-branch develop` and `bench get-app` *clone*
+  # it, and a clone takes the branch tip, not a detached HEAD. Until
+  # 29.10.2026 the branch stayed where `git clone` left it, so CI pinned
+  # vendor/frappe at 39dc511 and then built its bench from develop's tip —
+  # Frappe 17.0.0.dev0 wanting pydantic 2.14 — while every developer bench,
+  # whose clone predated any upstream movement, ran the pin. Twelve tests
+  # failed on CI only, and none of them was about our code.
+  branch_at="$(git -C "$dir" rev-parse --verify --quiet "refs/heads/$branch" || true)"
+  if [ "$current" = "$commit" ] && [ "$branch_at" = "$commit" ]; then
     printf '  %-10s already at %s\n' "$name" "${commit:0:10}"
     continue
   fi
@@ -87,7 +100,8 @@ while read -r name url commit branch; do
 
   say "$name — moving ${current:0:10} → ${commit:0:10}"
   git -C "$dir" fetch --quiet origin "$commit" 2>/dev/null || git -C "$dir" fetch --quiet origin
-  git -C "$dir" checkout --quiet "$commit"
+  # -B: the branch moves with HEAD, so whatever clones this checkout gets the pin.
+  git -C "$dir" checkout --quiet -B "$branch" "$commit"
 done < "$LOCK"
 
 if [ "$CHECK_ONLY" = 1 ]; then
