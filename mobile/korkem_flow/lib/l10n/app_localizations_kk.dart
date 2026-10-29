@@ -4502,4 +4502,16 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get logisticsDeliveryOptional => 'Жеткізу (төлесеңіз)';
+
+  @override
+  String get materialMin => 'Қоймадағы ең аз мөлшер';
+
+  @override
+  String get materialMinHint =>
+      'Бос қалдық азайса, иесіне «тапсырыс беру керек» деген хабар келеді. Бос немесе 0 — ескертусіз.';
+
+  @override
+  String materialLow(String minimum) {
+    return 'Аз — ең азы $minimum';
+  }
 }

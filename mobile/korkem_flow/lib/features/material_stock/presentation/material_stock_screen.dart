@@ -55,34 +55,128 @@ class MaterialStockScreen extends ConsumerWidget {
   }
 }
 
-Future<void> _texturedSheet(
+/// A material's card for whoever keeps the warehouse: its minimum — below it
+/// the owner is told to order more — and, for a film, whether it may be
+/// turned on the press.
+Future<void> _materialSheet(
   BuildContext context,
   WidgetRef ref,
   StockMaterial row,
 ) async {
-  final messenger = ScaffoldMessenger.of(context);
-  final l10n = AppLocalizations.of(context);
-  final textured = await showModalBottomSheet<bool>(
+  final changed = await showModalBottomSheet<bool>(
     context: context,
-    builder: (sheet) => SafeArea(
-      child: SwitchListTile(
-        key: const ValueKey('materialTextured'),
-        secondary: const Icon(AppIcons.textured),
-        title: Text(l10n.materialTextured),
-        subtitle: Text(l10n.materialTexturedHint),
-        value: row.textured,
-        onChanged: (on) => Navigator.of(sheet).pop(on),
-      ),
-    ),
+    isScrollControlled: true,
+    builder: (_) => _MaterialSheet(row: row),
   );
-  if (textured == null || textured == row.textured) return;
-  try {
-    await ref
-        .read(materialStockRepositoryProvider)
-        .setFilmTextured(row.item, textured: textured);
-    ref.invalidate(stockMaterialsProvider);
-  } on Object catch (error) {
-    messenger.showFailure(error, l10n);
+  if (changed ?? false) ref.invalidate(stockMaterialsProvider);
+}
+
+class _MaterialSheet extends ConsumerStatefulWidget {
+  const _MaterialSheet({required this.row});
+
+  final StockMaterial row;
+
+  @override
+  ConsumerState<_MaterialSheet> createState() => _MaterialSheetState();
+}
+
+class _MaterialSheetState extends ConsumerState<_MaterialSheet> {
+  late final TextEditingController _min = TextEditingController(
+    text: widget.row.minStock > 0 ? _plain(widget.row.minStock) : '',
+  );
+  late bool _textured = widget.row.textured;
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _min.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
+    final text = _min.text.trim().replaceAll(',', '.');
+    final minimum = text.isEmpty ? 0.0 : double.tryParse(text);
+    if (minimum == null || minimum < 0) {
+      messenger.showFailureMessage(l10n.materialStockFillAll);
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final repo = ref.read(materialStockRepositoryProvider);
+      if (minimum != widget.row.minStock) {
+        await repo.setMinStock(widget.row.item, minimum);
+      }
+      if (_textured != widget.row.textured) {
+        await repo.setFilmTextured(widget.row.item, textured: _textured);
+      }
+      navigator.pop(true);
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: AppSpacing.lg,
+          right: AppSpacing.lg,
+          top: AppSpacing.lg,
+          bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.lg,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.row.title,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextField(
+              key: const ValueKey('materialMin'),
+              controller: _min,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+              ],
+              decoration: InputDecoration(
+                labelText: l10n.materialMin,
+                helperText: l10n.materialMinHint,
+                helperMaxLines: 3,
+                suffixText: widget.row.unit,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            if (widget.row.kind == StockMaterial.film)
+              SwitchListTile(
+                key: const ValueKey('materialTextured'),
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(AppIcons.textured),
+                title: Text(l10n.materialTextured),
+                subtitle: Text(l10n.materialTexturedHint),
+                value: _textured,
+                onChanged: (on) => setState(() => _textured = on),
+              ),
+            const SizedBox(height: AppSpacing.md),
+            FilledButton(
+              key: const ValueKey('materialSave'),
+              onPressed: _busy ? null : _save,
+              child: Text(l10n.facadePricesSave),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -96,6 +190,7 @@ Widget? _subtitle(
   StockMaterial row,
 ) {
   final lines = [
+    if (row.low) l10n.materialLow('${_plain(row.minStock)} ${row.unit}'),
     if (row.textured) l10n.materialTextured,
     if (row.reserved > 0)
       l10n.materialStockHeld(
@@ -153,11 +248,10 @@ class MaterialStockOnHand extends ConsumerWidget {
                                 child: ListTile(
                                   title: Text(row.title),
                                   subtitle: _subtitle(l10n, money, row),
-                                  // A film's card: whether it may be turned
-                                  // on the press.
-                                  onTap:
-                                      canEdit && row.kind == StockMaterial.film
-                                      ? () => _texturedSheet(context, ref, row)
+                                  // Its minimum, and for a film whether it
+                                  // may be turned on the press.
+                                  onTap: canEdit
+                                      ? () => _materialSheet(context, ref, row)
                                       : null,
                                   trailing: Text(
                                     row.reserved > 0
@@ -166,9 +260,16 @@ class MaterialStockOnHand extends ConsumerWidget {
                                           )
                                         : '${_plain(row.onHand)} ${row.unit}',
                                     key: ValueKey('materialQty:${row.item}'),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleSmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(
+                                          color: row.low
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.error
+                                              : null,
+                                        ),
                                   ),
                                 ),
                               ),

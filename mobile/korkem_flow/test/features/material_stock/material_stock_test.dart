@@ -33,6 +33,10 @@ class _FakeRepository implements MaterialStockRepository {
   @override
   Future<void> setFilmTextured(String item, {required bool textured}) async =>
       this.textured.add((item, textured));
+  final minimums = <(String, double)>[];
+  @override
+  Future<void> setMinStock(String item, double minimum) async =>
+      minimums.add((item, minimum));
   final List<StockMaterial> stock;
   final FacadeMaterials need;
   final defined = <Map<String, String?>>[];
@@ -233,6 +237,47 @@ void main() {
       );
     },
   );
+
+  testWidgets('a manager sets the minimum on the material card', (
+    tester,
+  ) async {
+    final repo = await pump(tester, canEdit: true);
+    await tester.tap(find.byKey(const ValueKey('material:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('materialMin')), '10');
+    await tester.tap(find.byKey(const ValueKey('materialSave')));
+    await tester.pumpAndSettle();
+
+    expect(repo.minimums.single, ('MAT-1', 10.0));
+    // The floor sees no card to open: the minimum is the warehouse's to keep.
+    expect(repo.textured, isEmpty);
+  });
+
+  testWidgets('a material below its minimum says so', (tester) async {
+    final repo = _FakeRepository(
+      canEdit: false,
+      stock: const [
+        StockMaterial(
+          item: 'MAT-3',
+          title: 'МДФ 16 мм Kastamonu',
+          kind: StockMaterial.mdf,
+          unit: 'лист',
+          onHand: 3,
+          minStock: 10,
+          low: true,
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [materialStockRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MaterialStockScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Low — minimum 10 лист'), findsOneWidget);
+  });
 
   testWidgets('what is promised to orders is shown apart from what is free', (
     tester,

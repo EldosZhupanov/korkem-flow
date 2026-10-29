@@ -102,6 +102,15 @@ class MaterialStockRepository {
     );
   }
 
+  /// «Минимум на складе»: below it the owner is warned. 0 turns it off.
+  Future<void> setMinStock(String item, double minimum) async {
+    await _client.callMethod(
+      '$_base.set_min_stock',
+      post: true,
+      params: {'item': item, 'minimum': minimum},
+    );
+  }
+
   Future<List<StockMaterial>> materials() async {
     final data = _map(await _client.callMethod('$_base.materials'));
     return [

@@ -268,6 +268,11 @@ def reserve(sales_order: str) -> dict:
 			short = round(short - take, 3)
 	result = need(sales_order)
 	result["reservations_created"] = created
+	if created:
+		# What was free just became promised: say so now if that crossed a minimum.
+		from korkem_manufacturing.services import stock_alerts
+
+		stock_alerts.check(company, [r["item"] for r in before["materials"] if r["item"]])
 	return result
 
 
@@ -313,6 +318,9 @@ def write_off(sales_order: str) -> str | None:
 		entity_id=sales_order,
 		diff={"stock_entry": entry.name, "items": {r.item_code: flt(r.qty) for r in held}},
 	)
+	from korkem_manufacturing.services import stock_alerts
+
+	stock_alerts.check(company, [r.item_code for r in held])
 	return entry.name
 
 

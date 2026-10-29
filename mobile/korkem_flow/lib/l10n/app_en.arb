@@ -5466,5 +5466,22 @@
   "logisticsDeliveryOptional": "Delivery (if paid for)",
   "@logisticsDeliveryOptional": {
     "description": "Logistics: deliveries kept apart from material"
+  },
+  "materialMin": "Minimum on hand",
+  "@materialMin": {
+    "description": "Material stock: minimum and low warning"
+  },
+  "materialMinHint": "When free stock drops below it, the owner is told to order more. Empty or 0 — no warning.",
+  "@materialMinHint": {
+    "description": "Material stock: minimum and low warning"
+  },
+  "materialLow": "Low — minimum {minimum}",
+  "@materialLow": {
+    "description": "Material stock: minimum and low warning",
+    "placeholders": {
+      "minimum": {
+        "type": "String"
+      }
+    }
   }
 }

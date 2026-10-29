@@ -4564,4 +4564,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get logisticsDeliveryOptional => 'Доставка (если платили)';
+
+  @override
+  String get materialMin => 'Минимум на складе';
+
+  @override
+  String get materialMinHint =>
+      'Когда свободного станет меньше, владельцу придёт «пора заказывать». Пусто или 0 — без предупреждения.';
+
+  @override
+  String materialLow(String minimum) {
+    return 'Мало — минимум $minimum';
+  }
 }

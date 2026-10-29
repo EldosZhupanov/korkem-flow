@@ -226,6 +226,7 @@ korkem_domain_events = {
 	"reminder.measurement_task": [
 		"korkem_ai.korkem_ai.notifications.events.measurement_task"
 	],
+	"stock.low": ["korkem_ai.korkem_ai.notifications.events.stock_low"],
 }
 
 

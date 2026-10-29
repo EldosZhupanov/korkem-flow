@@ -187,7 +187,12 @@ scheduler_events = {
 	# A forgotten capture becomes stale after 24 hours. Hourly means the owner
 	# hears within at most one more hour; running every few minutes would add no
 	# useful urgency, while daily could repeat the original full-day loss.
-	"hourly": ["korkem_manufacturing.services.reminders.run"],
+	# «Мало листов» — the hour is the latest; a reservation or a write-off
+	# that crosses a minimum says so at once (services/stock_alerts.py).
+	"hourly": [
+		"korkem_manufacturing.services.reminders.run",
+		"korkem_manufacturing.services.stock_alerts.run",
+	],
 	"all": ["korkem_manufacturing.services.outbox_workers.cron_dispatch_outbox"],
 }
 

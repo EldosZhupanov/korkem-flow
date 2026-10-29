@@ -310,6 +310,28 @@ def set_film_textured(item: str, textured: bool | int | str) -> dict:
 	return material(item)
 
 
+def set_min_stock(item: str, minimum) -> dict:
+	"""«Минимум на складе»: below it, free stock is announced as low
+	(`stock_alerts`). Zero turns the warning off."""
+	_ensure_editor()
+	_own_item(item)
+	try:
+		value = Decimal(str(minimum if minimum not in (None, "") else 0).replace(",", "."))
+	except (InvalidOperation, ValueError):
+		frappe.throw("Минимум — число.")
+	if not value.is_finite() or value < 0 or value > MAX_QTY:
+		frappe.throw("Минимум — от нуля и больше.")
+	unit = frappe.db.get_value("Item", item, "stock_uom")
+	if _whole_units(unit) and value != value.to_integral_value():
+		frappe.throw(f"«{unit}» считается только целыми.")
+	frappe.db.set_value("Item", item, "korkem_min_stock", float(value))
+	audit.record_audit(action="stock.min_set", entity_type="Item", entity_id=item, diff={"minimum": float(value)})
+	from korkem_manufacturing.services import stock_alerts
+
+	stock_alerts.check(current_company(), [item])
+	return material(item)
+
+
 def _own_item(item: str) -> None:
 	if frappe.db.get_value("Item", item, "korkem_material_company") != current_company():
 		frappe.throw("Такого материала нет.", frappe.DoesNotExistError)
@@ -357,6 +379,7 @@ def materials(kind: str | None = None, include_disabled: bool = False) -> dict:
 		fields=[
 			"name", "item_name", "stock_uom", "disabled", "korkem_material_kind", "korkem_thickness_mm",
 			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured",
+			"korkem_min_stock",
 		],
 		order_by="item_name asc",
 		limit_page_length=1000,
@@ -381,6 +404,7 @@ def material(item: str) -> dict:
 		[
 			"name", "item_name", "stock_uom", "disabled", "korkem_material_kind", "korkem_thickness_mm",
 			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured",
+			"korkem_min_stock",
 		],
 		as_dict=True,
 	)
@@ -443,6 +467,9 @@ def _material_row(i, stock: tuple[float, float], allowed: bool, reserved: float 
 		# One ledger: on hand is ERPNext's; reserved only narrows what is free.
 		"reserved": reserved,
 		"free": round(stock[0] - reserved, 3),
+		# Below it, the owner is told (services/stock_alerts.py); 0 — no warning.
+		"min_stock": flt(i.get("korkem_min_stock")),
+		"low": flt(i.get("korkem_min_stock")) > 0 and round(stock[0] - reserved, 3) < flt(i.get("korkem_min_stock")),
 		"average_price": price_visibility.money(stock[1], allowed=allowed),
 	}
 
