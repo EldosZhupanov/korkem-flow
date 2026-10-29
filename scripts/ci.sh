@@ -94,7 +94,7 @@ run_backend() {
   docker compose -f "$COMPOSE_FILE" exec -T bench bash -lc \
     "cd /home/frappe/frappe-bench && env/bin/python --version && env/bin/pip freeze 2>/dev/null \
      | grep -iE '^(pydantic|pydantic.core|anthropic|frappe|erpnext|crm|pymysql|rq|redis)==' ; \
-     mariadb --version 2>/dev/null || true" || true
+     mariadb --version 2>/dev/null || true; env/bin/pip check 2>&1 | head -10" || true
 
   say "backend: seeding the demo factory"
   docker compose -f "$COMPOSE_FILE" exec -T bench bash -o pipefail -lc \
