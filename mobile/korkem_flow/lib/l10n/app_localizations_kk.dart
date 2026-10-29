@@ -4370,4 +4370,136 @@ class AppLocalizationsKk extends AppLocalizations {
   String pressPrintPage(int count) {
     return '$count-бет';
   }
+
+  @override
+  String get logisticsTitle => 'Логистика';
+
+  @override
+  String get logisticsDeliveries => 'Жеткізулер';
+
+  @override
+  String get logisticsSummary => 'Қорытынды';
+
+  @override
+  String get logisticsAdd => 'Жеткізуді жазу';
+
+  @override
+  String get logisticsEmpty => 'Бұл айда жеткізу жоқ';
+
+  @override
+  String get logisticsEmptyMessage =>
+      'Газель, такси, көлік компаниясы — материалды жеткізу қанша тұрғанын жазыңыз.';
+
+  @override
+  String get logisticsAmount => 'Жеткізу қанша тұрды';
+
+  @override
+  String get logisticsFrom => 'Қайдан (қала)';
+
+  @override
+  String get logisticsTransport => 'Немен жеткізілді';
+
+  @override
+  String get logisticsCarrier => 'Тасымалдаушы (міндетті емес)';
+
+  @override
+  String get logisticsWhat => 'Не жеткізілді';
+
+  @override
+  String get logisticsQty => 'Қанша';
+
+  @override
+  String get logisticsUnit => 'Бірл.';
+
+  @override
+  String get logisticsOrder => 'Тапсырыс № (тапсырыс үшін болса)';
+
+  @override
+  String get logisticsOrderedOn => 'Тапсырыс берілді';
+
+  @override
+  String get logisticsDeliveredOn => 'Жеткізілді';
+
+  @override
+  String get logisticsUrgent => 'Шұғыл (жылдамдық үшін қосып төледік)';
+
+  @override
+  String get logisticsNote => 'Ескертпе';
+
+  @override
+  String get logisticsSaved => 'Жеткізу жазылды';
+
+  @override
+  String get logisticsCancel => 'Жазбаны болдырмау';
+
+  @override
+  String get logisticsCancelReason => 'Неге болдырмайсыз';
+
+  @override
+  String logisticsCancelled(String reason) {
+    return 'Болдырылмады: $reason';
+  }
+
+  @override
+  String logisticsDays(int count) {
+    return 'жолда $count күн';
+  }
+
+  @override
+  String logisticsTotal(String amount) {
+    return 'Айға барлығы: $amount';
+  }
+
+  @override
+  String logisticsPrevious(String amount) {
+    return 'Өткен ай: $amount';
+  }
+
+  @override
+  String get logisticsByCategory => 'Материалдар бойынша';
+
+  @override
+  String get logisticsByCity => 'Қалалар бойынша';
+
+  @override
+  String get logisticsByTransport => 'Жеткізу тәсілі бойынша';
+
+  @override
+  String get logisticsByCarrier => 'Тасымалдаушылар бойынша';
+
+  @override
+  String get logisticsPerUnit => 'Бірлікке';
+
+  @override
+  String logisticsPerUnitLine(String amount, String unit, String qty) {
+    return '$unit үшін $amount · $qty $unit жеткізілді';
+  }
+
+  @override
+  String logisticsCount(int count) {
+    return 'жеткізу: $count';
+  }
+
+  @override
+  String logisticsAverageDays(String days) {
+    return 'жолда орташа $days күн';
+  }
+
+  @override
+  String logisticsUrgentLine(int count, String amount) {
+    return 'Шұғыл: $count, $amount';
+  }
+
+  @override
+  String get logisticsUnlinked => 'Жеткізуі жоқ кірістер';
+
+  @override
+  String get logisticsUnlinkedHint =>
+      'Материал келді, бірақ жеткізу жазылмады. Жазыңыз — немесе жеткізуші әкелсе 0 ₸.';
+
+  @override
+  String get logisticsWrite => 'Жазу';
+
+  @override
+  String get logisticsDeliveryOptional => 'Жеткізу (төлесеңіз)';
 }

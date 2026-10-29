@@ -188,45 +188,51 @@ void main() {
     expect(repo.deliveries.single, isNull);
   });
 
-  testWidgets('the delivery is written with the receipt, apart from the price', (
-    tester,
-  ) async {
-    final repo = await pump(tester, canEdit: true);
-    await tester.tap(find.text('Receive'));
-    await tester.pumpAndSettle();
-    for (final (key, value) in [
-      ('pick:Толщина МДФ', '16'),
-      ('pick:Производитель', 'Kastamonu'),
-      ('pickSupplier', 'Profi'),
-    ]) {
-      await tester.tap(find.byKey(ValueKey(key)));
+  testWidgets(
+    'the delivery is written with the receipt, apart from the price',
+    (
+      tester,
+    ) async {
+      final repo = await pump(tester, canEdit: true);
+      await tester.tap(find.text('Receive'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(value).last);
+      for (final (key, value) in [
+        ('pick:Толщина МДФ', '16'),
+        ('pick:Производитель', 'Kastamonu'),
+        ('pickSupplier', 'Profi'),
+      ]) {
+        await tester.tap(find.byKey(ValueKey(key)));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(value).last);
+        await tester.pumpAndSettle();
+      }
+      await tester.enterText(find.byKey(const ValueKey('receiveQty')), '30');
+      await tester.enterText(
+        find.byKey(const ValueKey('receivePrice')),
+        '21000',
+      );
+      for (final (key, value) in [
+        ('receiveDeliveryAmount', '10000'),
+        ('receiveDeliveryFrom', 'Астана'),
+        ('receiveDeliveryTransport', 'Газель'),
+      ]) {
+        await tester.ensureVisible(find.byKey(ValueKey(key)));
+        await tester.enterText(find.byKey(ValueKey(key)), value);
+      }
       await tester.pumpAndSettle();
-    }
-    await tester.enterText(find.byKey(const ValueKey('receiveQty')), '30');
-    await tester.enterText(find.byKey(const ValueKey('receivePrice')), '21000');
-    for (final (key, value) in [
-      ('receiveDeliveryAmount', '10000'),
-      ('receiveDeliveryFrom', 'Астана'),
-      ('receiveDeliveryTransport', 'Газель'),
-    ]) {
-      await tester.ensureVisible(find.byKey(ValueKey(key)));
-      await tester.enterText(find.byKey(ValueKey(key)), value);
-    }
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(const ValueKey('receiveSubmit')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('receiveSubmit')));
-    await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const ValueKey('receiveSubmit')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('receiveSubmit')));
+      await tester.pumpAndSettle();
 
-    expect(repo.received.single, ('MAT-1', 30.0, 21000.0, 'Profi'));
-    final delivery = repo.deliveries.single!;
-    expect(
-      (delivery.amount, delivery.fromCity, delivery.transport),
-      (10000.0, 'Астана', 'Газель'),
-    );
-  });
+      expect(repo.received.single, ('MAT-1', 30.0, 21000.0, 'Profi'));
+      final delivery = repo.deliveries.single!;
+      expect(
+        (delivery.amount, delivery.fromCity, delivery.transport),
+        (10000.0, 'Астана', 'Газель'),
+      );
+    },
+  );
 
   testWidgets('what is promised to orders is shown apart from what is free', (
     tester,

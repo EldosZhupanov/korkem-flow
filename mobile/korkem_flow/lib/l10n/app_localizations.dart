@@ -7826,6 +7826,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page {count}'**
   String pressPrintPage(int count);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Logistics'**
+  String get logisticsTitle;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries'**
+  String get logisticsDeliveries;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get logisticsSummary;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Record a delivery'**
+  String get logisticsAdd;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries this month'**
+  String get logisticsEmpty;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'A van, a taxi, a transport company — write down what bringing the material cost.'**
+  String get logisticsEmptyMessage;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery cost'**
+  String get logisticsAmount;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'From (city)'**
+  String get logisticsFrom;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered by'**
+  String get logisticsTransport;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Carrier (optional)'**
+  String get logisticsCarrier;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'What came'**
+  String get logisticsWhat;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get logisticsQty;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get logisticsUnit;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Order № (if for an order)'**
+  String get logisticsOrder;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered'**
+  String get logisticsOrderedOn;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get logisticsDeliveredOn;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent (paid extra for speed)'**
+  String get logisticsUrgent;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get logisticsNote;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery recorded'**
+  String get logisticsSaved;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the record'**
+  String get logisticsCancel;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Why cancel'**
+  String get logisticsCancelReason;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled: {reason}'**
+  String logisticsCancelled(String reason);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days on the road'**
+  String logisticsDays(int count);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'This month: {amount}'**
+  String logisticsTotal(String amount);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Last month: {amount}'**
+  String logisticsPrevious(String amount);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'By material'**
+  String get logisticsByCategory;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'By city'**
+  String get logisticsByCity;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'By way of delivery'**
+  String get logisticsByTransport;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'By carrier'**
+  String get logisticsByCarrier;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Per unit'**
+  String get logisticsPerUnit;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per {unit} · {qty} {unit} delivered'**
+  String logisticsPerUnitLine(String amount, String unit, String qty);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'deliveries: {count}'**
+  String logisticsCount(int count);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days on the road on average'**
+  String logisticsAverageDays(String days);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent: {count} for {amount}'**
+  String logisticsUrgentLine(int count, String amount);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts without a delivery'**
+  String get logisticsUnlinked;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'The material came but its delivery was not written down. Write it — or 0 ₸ if the supplier brought it.'**
+  String get logisticsUnlinkedHint;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get logisticsWrite;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery (if paid for)'**
+  String get logisticsDeliveryOptional;
 }
 
 class _AppLocalizationsDelegate

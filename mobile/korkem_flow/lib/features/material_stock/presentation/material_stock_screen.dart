@@ -225,7 +225,10 @@ class _ReceiveState extends ConsumerState<_Receive> {
     }
     final from = _deliveryFrom.text.trim();
     final transport = _deliveryTransport.text.trim();
-    if (amount == null || amount < 0 || from.length < 2 || transport.length < 2) {
+    if (amount == null ||
+        amount < 0 ||
+        from.length < 2 ||
+        transport.length < 2) {
       return (ok: false, delivery: null);
     }
     return (

@@ -65,9 +65,7 @@ class _DeliveryFormState extends ConsumerState<DeliveryForm> {
 
   static String _plain(double? value) {
     if (value == null) return '';
-    return value == value.roundToDouble()
-        ? value.toStringAsFixed(0)
-        : '$value';
+    return value == value.roundToDouble() ? value.toStringAsFixed(0) : '$value';
   }
 
   @override
@@ -196,7 +194,9 @@ class _DeliveryFormState extends ConsumerState<DeliveryForm> {
     final l10n = AppLocalizations.of(context);
     final offered = ref.watch(logisticsSuggestionsProvider).value;
     final categories = offered?.categories ?? const <String>[];
-    final day = DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag());
+    final day = DateFormat.yMMMd(
+      Localizations.localeOf(context).toLanguageTag(),
+    );
     Widget gap() => const SizedBox(height: AppSpacing.md);
     return Padding(
       padding: EdgeInsets.only(
@@ -223,8 +223,13 @@ class _DeliveryFormState extends ConsumerState<DeliveryForm> {
             ),
             gap(),
           ],
-          _field('deliveryAmount', l10n.logisticsAmount, _amount,
-              number: true, suffix: '₸'),
+          _field(
+            'deliveryAmount',
+            l10n.logisticsAmount,
+            _amount,
+            number: true,
+            suffix: '₸',
+          ),
           gap(),
           _field('deliveryCity', l10n.logisticsFrom, _city),
           _choices('deliveryCityChip', offered?.cities ?? const [], _city),
@@ -248,8 +253,12 @@ class _DeliveryFormState extends ConsumerState<DeliveryForm> {
           Row(
             children: [
               Expanded(
-                child: _field('deliveryQty', l10n.logisticsQty, _qty,
-                    number: true),
+                child: _field(
+                  'deliveryQty',
+                  l10n.logisticsQty,
+                  _qty,
+                  number: true,
+                ),
               ),
               const SizedBox(width: AppSpacing.sm),
               SizedBox(

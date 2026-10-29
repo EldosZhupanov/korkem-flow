@@ -173,7 +173,10 @@ void main() {
       find.byKey(const ValueKey('deliveryAmount')),
       '5000',
     );
-    for (final chip in ['deliveryCityChip:Астана', 'deliveryTransportChip:Такси']) {
+    for (final chip in [
+      'deliveryCityChip:Астана',
+      'deliveryTransportChip:Такси',
+    ]) {
       await tester.ensureVisible(find.byKey(ValueKey(chip)));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(ValueKey(chip)));

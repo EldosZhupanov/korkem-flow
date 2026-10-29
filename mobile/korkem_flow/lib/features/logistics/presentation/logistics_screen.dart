@@ -288,7 +288,10 @@ class _Summary extends ConsumerWidget {
               if (s.unlinked.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.lg),
                 SectionLabel(l10n.logisticsUnlinked),
-                Text(l10n.logisticsUnlinkedHint, style: theme.textTheme.bodySmall),
+                Text(
+                  l10n.logisticsUnlinkedHint,
+                  style: theme.textTheme.bodySmall,
+                ),
                 for (final r in s.unlinked)
                   ListTile(
                     key: ValueKey('logisticsUnlinked:${r.receipt}'),

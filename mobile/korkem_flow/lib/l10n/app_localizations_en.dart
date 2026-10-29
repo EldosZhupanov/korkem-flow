@@ -4408,4 +4408,136 @@ class AppLocalizationsEn extends AppLocalizations {
   String pressPrintPage(int count) {
     return 'Page $count';
   }
+
+  @override
+  String get logisticsTitle => 'Logistics';
+
+  @override
+  String get logisticsDeliveries => 'Deliveries';
+
+  @override
+  String get logisticsSummary => 'Summary';
+
+  @override
+  String get logisticsAdd => 'Record a delivery';
+
+  @override
+  String get logisticsEmpty => 'No deliveries this month';
+
+  @override
+  String get logisticsEmptyMessage =>
+      'A van, a taxi, a transport company — write down what bringing the material cost.';
+
+  @override
+  String get logisticsAmount => 'Delivery cost';
+
+  @override
+  String get logisticsFrom => 'From (city)';
+
+  @override
+  String get logisticsTransport => 'Delivered by';
+
+  @override
+  String get logisticsCarrier => 'Carrier (optional)';
+
+  @override
+  String get logisticsWhat => 'What came';
+
+  @override
+  String get logisticsQty => 'Quantity';
+
+  @override
+  String get logisticsUnit => 'Unit';
+
+  @override
+  String get logisticsOrder => 'Order № (if for an order)';
+
+  @override
+  String get logisticsOrderedOn => 'Ordered';
+
+  @override
+  String get logisticsDeliveredOn => 'Arrived';
+
+  @override
+  String get logisticsUrgent => 'Urgent (paid extra for speed)';
+
+  @override
+  String get logisticsNote => 'Note';
+
+  @override
+  String get logisticsSaved => 'Delivery recorded';
+
+  @override
+  String get logisticsCancel => 'Cancel the record';
+
+  @override
+  String get logisticsCancelReason => 'Why cancel';
+
+  @override
+  String logisticsCancelled(String reason) {
+    return 'Cancelled: $reason';
+  }
+
+  @override
+  String logisticsDays(int count) {
+    return '$count days on the road';
+  }
+
+  @override
+  String logisticsTotal(String amount) {
+    return 'This month: $amount';
+  }
+
+  @override
+  String logisticsPrevious(String amount) {
+    return 'Last month: $amount';
+  }
+
+  @override
+  String get logisticsByCategory => 'By material';
+
+  @override
+  String get logisticsByCity => 'By city';
+
+  @override
+  String get logisticsByTransport => 'By way of delivery';
+
+  @override
+  String get logisticsByCarrier => 'By carrier';
+
+  @override
+  String get logisticsPerUnit => 'Per unit';
+
+  @override
+  String logisticsPerUnitLine(String amount, String unit, String qty) {
+    return '$amount per $unit · $qty $unit delivered';
+  }
+
+  @override
+  String logisticsCount(int count) {
+    return 'deliveries: $count';
+  }
+
+  @override
+  String logisticsAverageDays(String days) {
+    return '$days days on the road on average';
+  }
+
+  @override
+  String logisticsUrgentLine(int count, String amount) {
+    return 'Urgent: $count for $amount';
+  }
+
+  @override
+  String get logisticsUnlinked => 'Receipts without a delivery';
+
+  @override
+  String get logisticsUnlinkedHint =>
+      'The material came but its delivery was not written down. Write it — or 0 ₸ if the supplier brought it.';
+
+  @override
+  String get logisticsWrite => 'Record';
+
+  @override
+  String get logisticsDeliveryOptional => 'Delivery (if paid for)';
 }
