@@ -14,13 +14,14 @@ from korkem_ai.korkem_ai.tools.domain_registry import (
 	RiskLevel,
 	ToolSecurityError,
 )
+from korkem_manufacturing import testing
 
 
 class TestRegistrySecurity(IntegrationTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
 		self.company = "KORKEM"
-		self.foreign_company = "Мебель Тест Цех"
+		self.foreign_company = testing.second_company()
 
 	def tearDown(self):
 		frappe.db.rollback()

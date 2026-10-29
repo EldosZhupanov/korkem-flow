@@ -122,20 +122,43 @@ def _bench_free_from(card_doc):
 	without ever having been started begins where the previous job on that
 	bench ended, rather than at some invented hour that runs straight through
 	its neighbours.
+
+	The card's own earlier, closed logs count too: a held piece recovered on
+	the same card must not start before the part of the job already booked.
+	And a bench whose last job ended *now or later* — two stages closed in the
+	same second, as a test or a quick foreman does — starts at that end, not a
+	minute back: until 29.10.2026 it fell back to «a minute ago» and ran
+	straight through the job it was meant to follow («From Time and To Time of
+	PO-JOB00021 are overlapping with PO-JOB00020»).
 	"""
 	latest = frappe.db.sql(
 		"""
 		select max(log.to_time)
 		from `tabJob Card Time Log` log
 		join `tabJob Card` card on card.name = log.parent
-		where card.workstation = %s and card.docstatus < 2 and card.name != %s
+		where card.workstation = %s and card.docstatus < 2
 		""",
-		(card_doc.workstation, card_doc.name),
+		(card_doc.workstation,),
 	)[0][0]
-	fallback = add_to_date(now_datetime(), minutes=-1)
-	if not latest:
-		return fallback
-	return max(get_datetime(latest), fallback) if get_datetime(latest) < now_datetime() else fallback
+	start = add_to_date(now_datetime(), minutes=-1)
+	if latest and get_datetime(latest) > start:
+		start = get_datetime(latest)
+	return start
+
+
+def _bench_until(card_doc):
+	"""When the open log closes: now, but always after it began.
+
+	`_bench_free_from` may start a log at the end of a job that closed this
+	very second; «now» can then equal or precede it, and ERPNext refuses the
+	row («From time must be less than to time»). A second after the start is
+	the honest shortest job the bench can record.
+	"""
+	opened = [get_datetime(row.from_time) for row in card_doc.time_logs if row.from_time and not row.to_time]
+	now = now_datetime()
+	if opened and max(opened) >= now:
+		return add_to_date(max(opened), seconds=1)
+	return now
 
 
 #: The shop's rework operation. Marked `is_corrective_operation` in ERPNext, so
@@ -713,7 +736,7 @@ def _complete_operation(
 		qty=asked,
 		pending_qty=max(0.0, pending),
 		process_loss_qty=scrapped_before + scrap,
-		end_time=now_datetime(),
+		end_time=_bench_until(doc),
 		auto_submit=pending <= 0,
 	)
 

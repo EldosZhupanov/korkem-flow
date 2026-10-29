@@ -79,6 +79,19 @@ run_backend() {
   # `Host:` matters everywhere a bench is probed over HTTP: Frappe 17 resolves a
   # request to a site by that header alone, and `default_site` is CLI-only.
 
+  # The suites are written against the seeded demo factory — «Павлодар Уют»,
+  # «ДСП 16мм», its running work orders and job cards — exactly as the
+  # development bench has it. A clean site has none of that, so on CI 22 tests
+  # failed for want of a customer and korkem_ai skipped whole classes
+  # («seed_demo has not been run on this site»). Seed it the way a developer
+  # does; both calls are idempotent, and the seed refuses a pilot or
+  # production site on its own.
+  say "backend: seeding the demo factory"
+  docker compose -f "$COMPOSE_FILE" exec -T bench bash -o pipefail -lc \
+    "cd /home/frappe/frappe-bench && bench --site \"\$SITE_NAME\" execute korkem_manufacturing.setup.provision \
+     && bench --site \"\$SITE_NAME\" execute korkem_manufacturing.seed_demo.seed > /dev/null" \
+    || fail "seeding the demo factory"
+
   for app in korkem_manufacturing korkem_ai; do
     say "backend: $app"
     docker compose -f "$COMPOSE_FILE" exec -T bench bash -o pipefail -lc \
