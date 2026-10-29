@@ -86,6 +86,16 @@ run_backend() {
   # («seed_demo has not been run on this site»). Seed it the way a developer
   # does; both calls are idempotent, and the seed refuses a pilot or
   # production site on its own.
+  # What this bench actually runs on. A clean CI bench resolves its Python
+  # packages fresh, a developer's bench resolved them months ago, and the two
+  # have disagreed before (pydantic 2.14 against 2.13, 29.10.2026). One line
+  # here turns that from a day of guessing into a diff.
+  say "backend: versions"
+  docker compose -f "$COMPOSE_FILE" exec -T bench bash -lc \
+    "cd /home/frappe/frappe-bench && env/bin/python --version && env/bin/pip freeze 2>/dev/null \
+     | grep -iE '^(pydantic|pydantic.core|anthropic|frappe|erpnext|crm|pymysql|rq|redis)==' ; \
+     mariadb --version 2>/dev/null || true" || true
+
   say "backend: seeding the demo factory"
   docker compose -f "$COMPOSE_FILE" exec -T bench bash -o pipefail -lc \
     "cd /home/frappe/frappe-bench && bench --site \"\$SITE_NAME\" execute korkem_manufacturing.setup.provision \
