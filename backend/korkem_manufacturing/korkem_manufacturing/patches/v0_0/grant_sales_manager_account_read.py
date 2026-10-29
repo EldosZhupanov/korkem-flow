@@ -20,29 +20,34 @@ ROLE = "Sales Manager"
 
 
 def execute():
-	if not frappe.db.exists("Role", ROLE):
+	grant_read(DOCTYPE, ROLE)
+
+
+def grant_read(doctype: str, role: str) -> None:
+	"""Read and select on `doctype` for `role`, as a Custom DocPerm. Idempotent."""
+	if not frappe.db.exists("Role", role):
 		return
-	if frappe.db.exists("Custom DocPerm", {"parent": DOCTYPE, "role": ROLE, "permlevel": 0, "read": 1}):
+	if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 0, "read": 1}):
 		return
 	# Copy the standard rows first: Frappe ignores every standard DocPerm of a
 	# doctype once it has one Custom DocPerm (see grant_order_read.py).
 	from frappe.permissions import setup_custom_perms
 
-	setup_custom_perms(DOCTYPE)
-	existing = frappe.db.get_value("Custom DocPerm", {"parent": DOCTYPE, "role": ROLE, "permlevel": 0}, "name")
+	setup_custom_perms(doctype)
+	existing = frappe.db.get_value("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 0}, "name")
 	if existing:
 		frappe.db.set_value("Custom DocPerm", existing, {"read": 1, "select": 1})
 	else:
 		frappe.get_doc(
 			{
 				"doctype": "Custom DocPerm",
-				"parent": DOCTYPE,
+				"parent": doctype,
 				"parenttype": "DocType",
 				"parentfield": "permissions",
-				"role": ROLE,
+				"role": role,
 				"permlevel": 0,
 				"read": 1,
 				"select": 1,
 			}
 		).insert(ignore_permissions=True)
-	frappe.clear_cache(doctype=DOCTYPE)
+	frappe.clear_cache(doctype=doctype)
