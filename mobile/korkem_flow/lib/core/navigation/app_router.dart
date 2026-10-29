@@ -20,19 +20,32 @@ import 'package:korkem_flow/features/customers/presentation/customer_detail_scre
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/enquiry_flow/presentation/enquiry_flow_screen.dart';
+import 'package:korkem_flow/features/expenses/presentation/expenses_screen.dart';
+import 'package:korkem_flow/features/facade_jobs/presentation/facade_jobs_screen.dart';
+import 'package:korkem_flow/features/facade_prices/presentation/facade_prices_screen.dart';
+import 'package:korkem_flow/features/facade_prices/presentation/facade_quote_screen.dart';
 import 'package:korkem_flow/features/hardware/presentation/hardware_screen.dart';
 import 'package:korkem_flow/features/integration_settings/presentation/integration_settings_screen.dart';
 import 'package:korkem_flow/features/items/presentation/items_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
+import 'package:korkem_flow/features/logistics/presentation/logistics_screen.dart';
+import 'package:korkem_flow/features/material_stock/presentation/material_stock_screen.dart';
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
+import 'package:korkem_flow/features/one_c/presentation/one_c_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/delivery_centre_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/operations_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/work_instructions_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
 import 'package:korkem_flow/features/outbox/presentation/outbox_screen.dart';
+import 'package:korkem_flow/features/piece_work/presentation/payroll_screen.dart';
+import 'package:korkem_flow/features/piece_work/presentation/piece_work_screen.dart';
+import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
+import 'package:korkem_flow/features/pin_login/presentation/pin_login_screen.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_settings_screen.dart';
 import 'package:korkem_flow/features/production/presentation/work_order_detail_screen.dart';
 import 'package:korkem_flow/features/profile/presentation/profile_screen.dart';
 import 'package:korkem_flow/features/provisioning/presentation/claim_screen.dart';
@@ -121,6 +134,23 @@ abstract final class Routes {
   static const profile = '/profile';
   static const settings = '/settings';
   static const companyDetails = '/settings/company';
+  static const facadePrices = '/settings/facade-prices';
+  static const facadeQuote = '/facade-quote';
+  static const facadeJobs = '/facade-jobs';
+  static const pieceWork = '/piece-work';
+  static const payroll = '/payroll';
+  static const oneC = '/settings/one-c';
+  static const logistics = '/logistics';
+  static const pressSettings = '/settings/press';
+  static const pressLayout = '/press-layout/:order';
+
+  /// One order's films on the membrane-vacuum press.
+  static String pressLayoutOf(String order) =>
+      '/press-layout/${Uri.encodeComponent(order)}';
+  static const expenses = '/expenses';
+  static const materialStock = '/materials-stock';
+  static const pinLogin = '/pin-login';
+  static const pinAdmin = '/settings/pin';
   static const aiSettings = '/settings/ai';
   static const channelSettings = '/settings/channels';
   static const deliveryCentre = '/settings/deliveries';
@@ -187,10 +217,14 @@ GoRouter createRouter(Ref ref) {
           location == Routes.login ||
           location == Routes.register ||
           location == Routes.claim ||
+          location == Routes.pinLogin ||
           isJoin;
 
       if (!signedIn) {
-        if (location == Routes.claim || location == Routes.register || isJoin) {
+        if (location == Routes.claim ||
+            location == Routes.register ||
+            location == Routes.pinLogin ||
+            isJoin) {
           return null;
         }
         return atEntry ? Routes.login : Routes.login;
@@ -228,6 +262,59 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.companyDetails,
         builder: (context, state) => const CompanyDetailsScreen(),
+      ),
+      GoRoute(
+        path: Routes.facadePrices,
+        builder: (context, state) => const FacadePricesScreen(),
+      ),
+      GoRoute(
+        path: Routes.facadeQuote,
+        builder: (context, state) => const FacadeQuoteScreen(),
+      ),
+      GoRoute(
+        path: Routes.materialStock,
+        builder: (context, state) => const MaterialStockScreen(),
+      ),
+      GoRoute(
+        path: Routes.expenses,
+        builder: (context, state) => const ExpensesScreen(),
+      ),
+      GoRoute(
+        path: Routes.pieceWork,
+        builder: (context, state) => const PieceWorkScreen(),
+      ),
+      GoRoute(
+        path: Routes.payroll,
+        builder: (context, state) => const PayrollScreen(),
+      ),
+      GoRoute(
+        path: Routes.oneC,
+        builder: (context, state) => const OneCScreen(),
+      ),
+      GoRoute(
+        path: Routes.logistics,
+        builder: (context, state) => const LogisticsScreen(),
+      ),
+      GoRoute(
+        path: Routes.pressSettings,
+        builder: (context, state) => const PressSettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.pressLayout,
+        builder: (context, state) =>
+            PressLayoutScreen(salesOrder: state.pathParameters['order'] ?? ''),
+      ),
+      GoRoute(
+        path: Routes.facadeJobs,
+        builder: (context, state) => const FacadeJobsScreen(),
+      ),
+      GoRoute(
+        path: Routes.pinLogin,
+        builder: (context, state) => const PinLoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.pinAdmin,
+        builder: (context, state) => const PinAdminScreen(),
       ),
       GoRoute(
         path: Routes.aiSettings,

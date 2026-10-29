@@ -156,6 +156,11 @@ abstract final class AppTint {
   /// direction, not enough to read as a second shape.
   static const double surfaceFaint = 0.04;
 
+  /// A warning laid over a surface someone must not miss — the textured
+  /// film's band and parts on the press map. Stronger than [surface]: it is
+  /// read at arm's length beside a machine.
+  static const double warningBand = 0.18;
+
   /// Light falling behind a shape rather than a shape of its own.
   static const double glow = 0.07;
 

@@ -6254,6 +6254,1806 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try adjusting the hardware type, overlay, or clearing active filters.'**
   String get hardwareEmptyFilteredMessage;
+
+  /// Settings switch: shop floor sees prices
+  ///
+  /// In en, this message translates to:
+  /// **'Prices for the shop floor'**
+  String get priceVisibilityTitle;
+
+  /// Settings switch: shop floor sees prices
+  ///
+  /// In en, this message translates to:
+  /// **'Let production, warehouse and drivers see client prices and order totals'**
+  String get priceVisibilitySubtitle;
+
+  /// Settings switch: shop floor sees prices
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Try again.'**
+  String get priceVisibilitySaveFailed;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'Defect photo (optional)'**
+  String get defectPhotoAdd;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'Photo attached'**
+  String get defectPhotoChosen;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get defectPhotoRemove;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'The stage is recorded, but the defect photo was not sent.'**
+  String get defectPhotoNotSent;
+
+  /// Optional defect photo when completing a stage
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the camera.'**
+  String get defectPhotoCameraFailed;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Facade prices'**
+  String get facadePricesTitle;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Price per m² by milling and finish'**
+  String get facadePricesSubtitle;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Add milling'**
+  String get facadePricesAddMilling;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Milling'**
+  String get facadePricesMilling;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get facadePricesFinish;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Price per m²'**
+  String get facadePricesPricePerM2;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get facadePricesSold;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Not sold'**
+  String get facadePricesNotSold;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Price saved'**
+  String get facadePricesSaved;
+
+  /// Facade price matrix settings
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get facadePricesSave;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Facade order calculation'**
+  String get facadeQuoteTitle;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Add facade'**
+  String get facadeQuoteAddLine;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Demolition'**
+  String get facadeQuoteDemolition;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment (if different)'**
+  String get facadeQuotePrepaymentManual;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'By default {percent}% of the total'**
+  String facadeQuotePrepaymentDefault(String percent);
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get facadeQuoteCalculate;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get facadeQuoteNumberRequired;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Facade {number}'**
+  String facadeQuoteLine(int number);
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get facadeQuoteRemoveLine;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Width, mm'**
+  String get facadeQuoteWidth;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Height, mm'**
+  String get facadeQuoteHeight;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Pcs'**
+  String get facadeQuoteQty;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Double-sided'**
+  String get facadeQuoteDoubleSided;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s material'**
+  String get facadeQuoteCustomerMaterial;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces'**
+  String get facadeQuotePieces;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get facadeQuoteArea;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get facadeQuoteTotal;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment'**
+  String get facadeQuotePrepayment;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get facadeQuoteBalance;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Not offered'**
+  String get facadeRulesNotOffered;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Order rules'**
+  String get facadeRulesTitle;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Double-sided factor (×)'**
+  String get facadeRulesDoubleSidedFactor;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Empty — not offered'**
+  String get facadeRulesEmptyMeansOff;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Discount for customer\'s material'**
+  String get facadeRulesDiscount;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Demolition price'**
+  String get facadeRulesDemolitionRate;
+
+  /// Facade order calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment by default'**
+  String get facadeRulesPrepayment;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Place the order'**
+  String get facadeOrderSection;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a customer'**
+  String get facadeOrderPickCustomer;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Name — press Enter'**
+  String get facadeOrderSearchCustomer;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'No customers found'**
+  String get facadeOrderNoCustomers;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the due date'**
+  String get facadeOrderPickDate;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String facadeOrderDueOn(String date);
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Create order'**
+  String get facadeOrderCreate;
+
+  /// Facade order from a quote
+  ///
+  /// In en, this message translates to:
+  /// **'Order {name} created'**
+  String facadeOrderCreated(String name);
+
+  /// Agreed prepayment not yet received
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment due: {amount}'**
+  String orderPrepaymentDue(String amount);
+
+  /// Shop-floor facade list
+  ///
+  /// In en, this message translates to:
+  /// **'Facades to make'**
+  String get facadeJobsTitle;
+
+  /// Shop-floor facade list
+  ///
+  /// In en, this message translates to:
+  /// **'No facades to make'**
+  String get facadeJobsEmptyTitle;
+
+  /// Shop-floor facade list
+  ///
+  /// In en, this message translates to:
+  /// **'Facades appear here once an order is placed.'**
+  String get facadeJobsEmptyMessage;
+
+  /// Shop-floor facade list
+  ///
+  /// In en, this message translates to:
+  /// **'due {date}'**
+  String facadeJobsDue(String date);
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Piece work'**
+  String get pieceWorkTitle;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'My work'**
+  String get pieceWorkMine;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing accrued yet'**
+  String get pieceWorkNothingYet;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting approval'**
+  String get pieceWorkPending;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get pieceWorkApproved;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get pieceWorkPaid;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get pieceWorkRejected;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get pieceWorkPcs;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'To approve'**
+  String get pieceWorkToApprove;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to approve'**
+  String get pieceWorkNothingToApprove;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get pieceWorkApprove;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get pieceWorkReject;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Reason — the worker will see it'**
+  String get pieceWorkReason;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Rates'**
+  String get pieceWorkRates;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Add a rate'**
+  String get pieceWorkAddRate;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get pieceWorkDisabled;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime and weekends'**
+  String get pieceWorkCoefficients;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime'**
+  String get pieceWorkOvertime;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend'**
+  String get pieceWorkWeekend;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'after'**
+  String get pieceWorkAfter;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'as usual'**
+  String get pieceWorkNoCoefficient;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Operation'**
+  String get pieceWorkOperation;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'As named in the shop, or «Фасад» for finished facades'**
+  String get pieceWorkOperationHint;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'per piece'**
+  String get pieceWorkPerPiece;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get pieceWorkRate;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get pieceWorkEnabled;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Shift ends at (HH:MM)'**
+  String get pieceWorkShiftEnd;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday is a day off'**
+  String get pieceWorkSaturdayOff;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday is a day off'**
+  String get pieceWorkSundayOff;
+
+  /// Piece-rate pay
+  ///
+  /// In en, this message translates to:
+  /// **'Piece rate: ~{amount}'**
+  String pieceWorkEstimate(String amount);
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent expenses'**
+  String get expensesTitle;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense'**
+  String get expensesAdd;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting a decision'**
+  String get expensesPendingTotal;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses'**
+  String get expensesEmptyTitle;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Spent money on the job? Write it down here, with the receipt.'**
+  String get expensesEmptyMessage;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Expense recorded'**
+  String get expensesFiled;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded, but the receipt photo was not sent.'**
+  String get expensesReceiptNotSent;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get expensesAmount;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'What for'**
+  String get expensesPurpose;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get expensesCategory;
+
+  /// Urgent expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of the receipt'**
+  String get expensesReceipt;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'PIN sign-in'**
+  String get pinAdminTitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Shop-floor tablets and who signs in on them'**
+  String get pinAdminSubtitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Tablets'**
+  String get pinAdminTablets;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Make this device a PIN tablet'**
+  String get pinAdminRegisterThis;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'This device: {label}'**
+  String pinAdminThisIs(String label);
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Switched off'**
+  String get pinAdminRevoked;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Switch off'**
+  String get pinAdminRevoke;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'People with a PIN'**
+  String get pinAdminPeople;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Locked after wrong attempts'**
+  String get pinAdminLocked;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Remove PIN'**
+  String get pinAdminClear;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a PIN'**
+  String get pinAdminAssign;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Tablet name, e.g. «Shop, cutting»'**
+  String get pinAdminTabletName;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Tablet registered'**
+  String get pinAdminRegistered;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Employee'**
+  String get pinAdminChoosePerson;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'PIN, 4 to 6 digits'**
+  String get pinAdminNewPin;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'PIN assigned'**
+  String get pinAdminPinSet;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with PIN'**
+  String get pinLoginTitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Choose yourself and enter your PIN'**
+  String get pinLoginSubtitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'This tablet is not set up for PINs'**
+  String get pinLoginUnavailableTitle;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the administrator to register it in Settings.'**
+  String get pinLoginUnavailableMessage;
+
+  /// PIN sign-in on shop-floor tablets
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get pinLoginPin;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get materialStockTitle;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'On hand'**
+  String get materialStockOnHand;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get materialStockReceive;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Lists'**
+  String get materialStockLists;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in stock yet'**
+  String get materialStockEmptyTitle;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases appear here once they are received.'**
+  String get materialStockEmptyMessage;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Average price {price}'**
+  String materialStockAverage(String price);
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in every field.'**
+  String get materialStockFillAll;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: received, now {onHand}'**
+  String materialStockReceived(String title, String onHand);
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Material name'**
+  String get materialStockName;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Bought from'**
+  String get materialStockSupplier;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'How many'**
+  String get materialStockQty;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get materialStockUnit;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Price per unit'**
+  String get materialStockPrice;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Suppliers'**
+  String get materialStockSuppliers;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get materialStockAdd;
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'«{value}» added'**
+  String materialStockAdded(String value);
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'{value} (off)'**
+  String materialStockOff(String value);
+
+  /// Materials store
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get materialStockOpen;
+
+  /// Order list filter: both lines of business.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get directionAll;
+
+  /// No description provided for @directionFurniture.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture'**
+  String get directionFurniture;
+
+  /// No description provided for @directionFacades.
+  ///
+  /// In en, this message translates to:
+  /// **'Facades'**
+  String get directionFacades;
+
+  /// Badge on an urgent order.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get orderUrgent;
+
+  /// No description provided for @tierNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get tierNew;
+
+  /// No description provided for @tierRegular.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular'**
+  String get tierRegular;
+
+  /// No description provided for @tierVip.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP'**
+  String get tierVip;
+
+  /// No description provided for @facadeSpecTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details'**
+  String get facadeSpecTitle;
+
+  /// No description provided for @facadeSpecThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness, mm'**
+  String get facadeSpecThickness;
+
+  /// No description provided for @facadeSpecDecorTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Face decor'**
+  String get facadeSpecDecorTop;
+
+  /// No description provided for @facadeSpecDecorBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Back decor'**
+  String get facadeSpecDecorBottom;
+
+  /// No description provided for @facadeSpecEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge profile'**
+  String get facadeSpecEdge;
+
+  /// No description provided for @facadeSpecNone.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get facadeSpecNone;
+
+  /// Colour group of a facade position.
+  ///
+  /// In en, this message translates to:
+  /// **'group “{group}”'**
+  String facadeSpecGroup(String group);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'On hand {onHand} · reserved {reserved}'**
+  String materialStockHeld(String onHand, String reserved);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} free'**
+  String materialStockFree(String qty);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'Materials for the order'**
+  String get facadeMaterialsTitle;
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'need {needed} · held {held} · written off {issued}'**
+  String facadeMaterialsLine(String needed, String held, String issued);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'short {qty}'**
+  String facadeMaterialsShort(String qty);
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'All held'**
+  String get facadeMaterialsHeld;
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve what is free'**
+  String get facadeMaterialsReserve;
+
+  /// Warehouse reservations (package 5)
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing needed from the warehouse'**
+  String get facadeMaterialsEmpty;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Who made it?'**
+  String get crewTitle;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the crew. Shares in % are optional — empty means equal.'**
+  String get crewHint;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'A crew is at least two people.'**
+  String get crewTooSmall;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Give everyone a share — or no one, for equal shares.'**
+  String get crewSharesAllOrNone;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get crewDone;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Done — made together…'**
+  String get crewDoneTogether;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Pay sheet'**
+  String get payrollTitle;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Copy for accounting (CSV)'**
+  String get payrollCopyCsv;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Pay sheet copied — paste it into Excel'**
+  String get payrollCsvCopied;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get payrollPrevMonth;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get payrollNextMonth;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing accrued this month'**
+  String get payrollEmpty;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Total to pay'**
+  String get payrollTotal;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Piece work'**
+  String get payrollPiece;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonuses'**
+  String get payrollDailyBonus;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly bonus'**
+  String get payrollMonthlyBonus;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus'**
+  String get payrollBonus;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Fines'**
+  String get payrollFine;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Advances'**
+  String get payrollAdvance;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet approved: {amount}'**
+  String payrollPending(String amount);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Advances, fines, bonuses'**
+  String get payrollAdjustments;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get payrollAddAdjustment;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'None this month'**
+  String get payrollNoAdjustments;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Reverse'**
+  String get payrollReverse;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Employee'**
+  String get payrollEmployee;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get payrollAmount;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get payrollReason;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s bonus'**
+  String get bonusToday;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s bonus'**
+  String get bonusMonth;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Reached — bonus {bonus}'**
+  String bonusReached(String bonus);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'{left} to go for {bonus}'**
+  String bonusLeft(String left, String bonus);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Bonuses'**
+  String get bonusRules;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'From {threshold} a day — {bonus}'**
+  String bonusRuleDay(String threshold, String bonus);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'From {threshold} a month — {bonus}'**
+  String bonusRuleMonth(String threshold, String bonus);
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Daily threshold'**
+  String get bonusDayThreshold;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus'**
+  String get bonusDayAmount;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly threshold'**
+  String get bonusMonthThreshold;
+
+  /// Payroll (package 6)
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly bonus'**
+  String get bonusMonthAmount;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'In %'**
+  String get crewSplitPercent;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Who made how much, {unit}'**
+  String crewSplitByAmount(String unit);
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the crew and enter how much each made. The amounts must add up to the total.'**
+  String get crewHintAmount;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Made together…'**
+  String get crewMadeTogether;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Crew: {count} people'**
+  String crewChosen(int count);
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the crew'**
+  String get crewClear;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get unitPieces;
+
+  /// Crews on stages (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'m²'**
+  String get unitSquareMetres;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Paid out'**
+  String get payrollPaid;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay'**
+  String get payrollLeft;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as paid'**
+  String get payrollMarkPaid;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: paid {amount}? The period closes — no more advances, fines or bonuses can be entered for it.'**
+  String payrollMarkPaidConfirm(String name, String amount);
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Payout recorded'**
+  String get payrollMarkPaidDone;
+
+  /// Payouts (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay in total'**
+  String get payrollTotalLeft;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Shop trades'**
+  String get tradesAction;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'What they do'**
+  String get tradesTitle;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Several are fine. Trades give no rights — the position does.'**
+  String get tradesHint;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Your own trade'**
+  String get tradesOwn;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get tradesAdd;
+
+  /// Shop trades (package 6, part 2)
+  ///
+  /// In en, this message translates to:
+  /// **'Trades saved'**
+  String get tradesSaved;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange with 1C'**
+  String get oneCTitle;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Sales, payments, receipts and pay sheet for accounting'**
+  String get oneCSubtitle;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange with 1C is on'**
+  String get oneCEnabled;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange is off. If the company keeps no 1C, leave it so.'**
+  String get oneCOffHint;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'In 1C: «Load data from a spreadsheet» — paste what you copied. Dates DD.MM.YYYY, decimal comma.'**
+  String get oneCHowTo;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get oneCCopy;
+
+  /// Exchange with 1C
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {count} rows. Paste into 1C.'**
+  String oneCCopied(String title, int count);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Press layout'**
+  String get pressLayoutTitle;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'TEXTURED — DO NOT TURN'**
+  String get pressTextured;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Plain — may be turned'**
+  String get pressPlain;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Load {count} · section {metres} m'**
+  String pressLoad(int count, String metres);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Film: {metres} m'**
+  String pressFilmTotal(String metres);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Corrected by hand: {reason}. Layout says {metres} m.'**
+  String pressCorrected(String reason, String metres);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Larger than the press table: lines {positions}'**
+  String pressTooBig(String positions);
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Correct the metres'**
+  String get pressCorrect;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Film, metres'**
+  String get pressMetres;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Why not as laid out'**
+  String get pressReason;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the layout'**
+  String get pressBackToLayout;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'The order has no PVC-film facades.'**
+  String get pressNoFilm;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Press: area, gap, sections'**
+  String get pressSettingsTitle;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Working length, mm'**
+  String get pressLength;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Working width, mm'**
+  String get pressWidth;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Margin at the edge, mm'**
+  String get pressMargin;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Gap between parts, mm'**
+  String get pressGap;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Sections: film and working length'**
+  String get pressSections;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Film, m'**
+  String get pressSectionFilm;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Add a section'**
+  String get pressAddSection;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Press settings saved'**
+  String get pressSaved;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Textured film'**
+  String get materialTextured;
+
+  /// Press layout
+  ///
+  /// In en, this message translates to:
+  /// **'Parts are not turned on the press; the map says «DO NOT TURN»'**
+  String get materialTexturedHint;
+
+  /// Press layout print
+  ///
+  /// In en, this message translates to:
+  /// **'Print the layout'**
+  String get pressPrint;
+
+  /// Press layout print
+  ///
+  /// In en, this message translates to:
+  /// **'Load {count} of {total} · section {metres} m'**
+  String pressPrintLoad(int count, int total, String metres);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {count}'**
+  String pressPrintSheet(int count);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Copies: {count}'**
+  String pressPrintCopies(int count);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Size: {size} mm'**
+  String pressPrintSize(String size);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Film section: {metres} m'**
+  String pressPrintSection(String metres);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet area: {area} m²'**
+  String pressPrintArea(String area);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Parts: {area} m² ({share}%)'**
+  String pressPrintParts(String area, String share);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Waste: {area} m² ({share}%)'**
+  String pressPrintWaste(String area, String share);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Parts: {count}'**
+  String pressPrintCount(int count);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Parts perimeter: {metres} m'**
+  String pressPrintPerimeter(String metres);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Gap: {gap} mm · margin: {margin} mm'**
+  String pressPrintGap(String gap, String margin);
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Parts'**
+  String get pressPrintDetails;
+
+  /// Press layout print, two loads a page
+  ///
+  /// In en, this message translates to:
+  /// **'Page {count}'**
+  String pressPrintPage(int count);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Logistics'**
+  String get logisticsTitle;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries'**
+  String get logisticsDeliveries;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get logisticsSummary;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Record a delivery'**
+  String get logisticsAdd;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries this month'**
+  String get logisticsEmpty;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'A van, a taxi, a transport company — write down what bringing the material cost.'**
+  String get logisticsEmptyMessage;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery cost'**
+  String get logisticsAmount;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'From (city)'**
+  String get logisticsFrom;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered by'**
+  String get logisticsTransport;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Carrier (optional)'**
+  String get logisticsCarrier;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'What came'**
+  String get logisticsWhat;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get logisticsQty;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get logisticsUnit;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Order № (if for an order)'**
+  String get logisticsOrder;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered'**
+  String get logisticsOrderedOn;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get logisticsDeliveredOn;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent (paid extra for speed)'**
+  String get logisticsUrgent;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get logisticsNote;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery recorded'**
+  String get logisticsSaved;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the record'**
+  String get logisticsCancel;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Why cancel'**
+  String get logisticsCancelReason;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled: {reason}'**
+  String logisticsCancelled(String reason);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days on the road'**
+  String logisticsDays(int count);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'This month: {amount}'**
+  String logisticsTotal(String amount);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Last month: {amount}'**
+  String logisticsPrevious(String amount);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'By material'**
+  String get logisticsByCategory;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'By city'**
+  String get logisticsByCity;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'By way of delivery'**
+  String get logisticsByTransport;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'By carrier'**
+  String get logisticsByCarrier;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Per unit'**
+  String get logisticsPerUnit;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} per {unit} · {qty} {unit} delivered'**
+  String logisticsPerUnitLine(String amount, String unit, String qty);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'deliveries: {count}'**
+  String logisticsCount(int count);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days on the road on average'**
+  String logisticsAverageDays(String days);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent: {count} for {amount}'**
+  String logisticsUrgentLine(int count, String amount);
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts without a delivery'**
+  String get logisticsUnlinked;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'The material came but its delivery was not written down. Write it — or 0 ₸ if the supplier brought it.'**
+  String get logisticsUnlinkedHint;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get logisticsWrite;
+
+  /// Logistics: deliveries kept apart from material
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery (if paid for)'**
+  String get logisticsDeliveryOptional;
 }
 
 class _AppLocalizationsDelegate

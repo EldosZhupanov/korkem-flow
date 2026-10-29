@@ -67,7 +67,10 @@ void main() {
           updateRepositoryProvider.overrideWithValue(
             UpdateRepository(
               dio,
-              const AppConfig(baseUrl: 'https://api.korkem.asia', flavor: 'prod'),
+              const AppConfig(
+                baseUrl: 'https://api.korkem.asia',
+                flavor: 'prod',
+              ),
             ),
           ),
         ],
@@ -110,7 +113,10 @@ void main() {
           updateRepositoryProvider.overrideWithValue(
             UpdateRepository(
               dio,
-              const AppConfig(baseUrl: 'https://api.korkem.asia', flavor: 'prod'),
+              const AppConfig(
+                baseUrl: 'https://api.korkem.asia',
+                flavor: 'prod',
+              ),
             ),
           ),
         ],
@@ -155,7 +161,10 @@ void main() {
           updateRepositoryProvider.overrideWithValue(
             UpdateRepository(
               dio,
-              const AppConfig(baseUrl: 'https://api.korkem.asia', flavor: 'prod'),
+              const AppConfig(
+                baseUrl: 'https://api.korkem.asia',
+                flavor: 'prod',
+              ),
             ),
           ),
         ],

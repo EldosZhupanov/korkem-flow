@@ -34,6 +34,10 @@ def provision():
 	created["company"] = ensure_company()
 	created["items"] = ensure_items()
 	created["bom"] = ensure_bom()
+	from korkem_manufacturing.services import crm_currency
+
+	# Tenge needs no exchange-rate lookup once CRM's base is tenge too.
+	created["crm_currency"] = crm_currency.align(COMPANY)
 	frappe.db.commit()
 	return created
 

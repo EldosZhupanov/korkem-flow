@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
 import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
@@ -12,11 +13,10 @@ import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_logo.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
-import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Screen for joining an existing furniture company by invitation deep link.
 class JoinInviteScreen extends ConsumerStatefulWidget {
-  const JoinInviteScreen({super.key, required this.token});
+  const JoinInviteScreen({required this.token, super.key});
 
   final String token;
 
@@ -41,7 +41,7 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
   @override
   void initState() {
     super.initState();
-    _loadInviteInfo();
+    unawaited(_loadInviteInfo());
   }
 
   @override
@@ -58,7 +58,8 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
       _error = null;
     });
 
-    final baseUrl = ref.read(sessionProvider).value?.serverUrl ??
+    final baseUrl =
+        ref.read(sessionProvider).value?.serverUrl ??
         ref.read(appConfigProvider).baseUrl;
 
     try {
@@ -105,7 +106,8 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
       _error = null;
     });
 
-    final baseUrl = ref.read(sessionProvider).value?.serverUrl ??
+    final baseUrl =
+        ref.read(sessionProvider).value?.serverUrl ??
         ref.read(appConfigProvider).baseUrl;
 
     try {
@@ -146,11 +148,14 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
       _error = null;
     });
 
-    final baseUrl = ref.read(sessionProvider).value?.serverUrl ??
+    final baseUrl =
+        ref.read(sessionProvider).value?.serverUrl ??
         ref.read(appConfigProvider).baseUrl;
 
     try {
-      final res = await ref.read(authRepositoryProvider).verifyOtp(
+      final res = await ref
+          .read(authRepositoryProvider)
+          .verifyOtp(
             baseUrl: baseUrl,
             phone: _phoneController.text.trim(),
             code: code,
@@ -192,11 +197,14 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
       _error = null;
     });
 
-    final baseUrl = ref.read(sessionProvider).value?.serverUrl ??
+    final baseUrl =
+        ref.read(sessionProvider).value?.serverUrl ??
         ref.read(appConfigProvider).baseUrl;
 
     try {
-      final res = await ref.read(authRepositoryProvider).acceptInvitation(
+      final res = await ref
+          .read(authRepositoryProvider)
+          .acceptInvitation(
             baseUrl: baseUrl,
             token: widget.token,
             phone: _phoneController.text.trim(),
@@ -211,12 +219,17 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
       // Sign in automatically to set session
       if (user.isNotEmpty) {
         try {
-          await ref.read(sessionProvider.notifier).signIn(
+          await ref
+              .read(sessionProvider.notifier)
+              .signIn(
                 serverUrl: baseUrl,
                 user: user,
                 password: '', // session created server-side
               );
-        } catch (_) {}
+        } on Object catch (_) {
+          // Not fatal: the person has joined; without a session the router
+          // sends them to sign in.
+        }
       }
 
       if (mounted) {
@@ -251,17 +264,25 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(AppIcons.warning, size: 48, color: theme.colorScheme.error),
+                  Icon(
+                    AppIcons.warning,
+                    size: 48,
+                    color: theme.colorScheme.error,
+                  ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
                     'Приглашение недействительно',
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     _error!,
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   FilledButton(
@@ -285,7 +306,9 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
     final parts = companyName.split(' ');
     final initials = parts.length > 1
         ? '${parts[0][0]}${parts[1][0]}'.toUpperCase()
-        : companyName.substring(0, companyName.length.clamp(0, 2)).toUpperCase();
+        : companyName
+              .substring(0, companyName.length.clamp(0, 2))
+              .toUpperCase();
 
     return Scaffold(
       body: SafeArea(
@@ -302,13 +325,17 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
                     Text(
                       'Приглашение в команду',
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       'Вас пригласил $invitedBy',
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
 
@@ -324,7 +351,10 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
                               foregroundColor: theme.colorScheme.onPrimary,
                               child: Text(
                                 initials,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
                             ),
                             const SizedBox(width: AppSpacing.md),
@@ -334,11 +364,15 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
                                 children: [
                                   Text(
                                     companyName,
-                                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 2),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: theme.colorScheme.primaryContainer,
                                       borderRadius: BorderRadius.circular(6),
@@ -346,7 +380,9 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
                                     child: Text(
                                       roleTitle,
                                       style: TextStyle(
-                                        color: theme.colorScheme.onPrimaryContainer,
+                                        color: theme
+                                            .colorScheme
+                                            .onPrimaryContainer,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 12,
                                       ),
@@ -356,10 +392,13 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       descRu,
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.onSurfaceVariant,
-                                        fontSize: 11,
-                                      ),
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            color: theme
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                            fontSize: 11,
+                                          ),
                                     ),
                                   ],
                                 ],
@@ -380,7 +419,10 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
                         ),
                         child: Text(
                           _error!,
-                          style: TextStyle(color: theme.colorScheme.onErrorContainer, fontSize: 12),
+                          style: TextStyle(
+                            color: theme.colorScheme.onErrorContainer,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppSpacing.md),
@@ -411,7 +453,11 @@ class _JoinInviteScreenState extends ConsumerState<JoinInviteScreen> {
                           keyboardType: TextInputType.number,
                           maxLength: 6,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(letterSpacing: 8, fontSize: 20, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            letterSpacing: 8,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                           decoration: const InputDecoration(
                             labelText: 'Код из SMS',
                             counterText: '',

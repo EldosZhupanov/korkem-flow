@@ -32,12 +32,16 @@ class SalesOrderRepository {
     int offset = 0,
     SalesOrderStatus? status,
     String? search,
+    OrderDirection? direction,
   }) async {
     final response = await _client.callMethod(
       queryPath,
       params: {
         'limit': pageSize,
         'offset': offset,
+        // Urgent orders first, the brief's «Срочные вверху».
+        'urgent_first': 1,
+        if (direction != null) 'direction': direction.wireValue,
         if (status != null) 'status': status.wireValue,
         if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
       },

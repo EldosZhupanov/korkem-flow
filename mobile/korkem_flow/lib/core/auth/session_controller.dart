@@ -128,6 +128,30 @@ class SessionController extends AsyncNotifier<Session> {
     }
   }
 
+  /// PIN sign-in on a registered tablet. Same contract as [signIn]: the
+  /// session changes only on success, and a failure is rethrown for the screen.
+  Future<void> signInWithPin({
+    required String serverUrl,
+    required String deviceToken,
+    required String user,
+    required String pin,
+  }) async {
+    final credentials = await ref
+        .read(authRepositoryProvider)
+        .signInWithPin(
+          baseUrl: serverUrl,
+          deviceToken: deviceToken,
+          user: user,
+          pin: pin,
+        );
+    final store = ref.read(credentialStoreProvider);
+    await store.writeServerUrl(serverUrl);
+    await store.write(credentials);
+    state = AsyncValue.data(
+      Session(serverUrl: serverUrl, credentials: credentials),
+    );
+  }
+
   Future<void> signOut() async {
     final current = state.value;
     final credentials = current?.credentials;

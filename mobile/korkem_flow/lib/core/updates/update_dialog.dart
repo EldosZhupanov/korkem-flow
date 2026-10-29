@@ -37,8 +37,8 @@ class UpdateConfirmationDialog extends ConsumerWidget {
 
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final isDesktop = !kIsWeb &&
-        (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+    final isDesktop =
+        !kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
 
     return AlertDialog(
       title: Row(
@@ -90,12 +90,14 @@ class UpdateConfirmationDialog extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.5),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.5,
+                  ),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant
-                        .withValues(alpha: 0.5),
+                    color: theme.colorScheme.outlineVariant.withValues(
+                      alpha: 0.5,
+                    ),
                   ),
                 ),
                 child: Text(
@@ -147,8 +149,9 @@ class UpdateConfirmationDialog extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
-                  color: context.statusColors.danger
-                      .withValues(alpha: AppTint.surface),
+                  color: context.statusColors.danger.withValues(
+                    alpha: AppTint.surface,
+                  ),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
                 child: Row(

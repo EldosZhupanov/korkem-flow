@@ -29,7 +29,15 @@ from typing import Any
 import frappe
 from frappe.utils import flt, nowdate
 
+from korkem_manufacturing.services import price_visibility
 from korkem_manufacturing.services.scope import current_company, enforce_tenant_scope
+
+
+#: Every figure of the finance section is money; all of it follows the same rule.
+_FINANCE_KEYS = (
+	"total_order_value", "total_revenue_ytd", "total_paid",
+	"outstanding_receivable", "estimated_gross_margin", "collection_rate_pct",
+)
 
 
 def get_owner_dashboard(company: str | None = None) -> dict[str, Any]:
@@ -108,14 +116,14 @@ def get_owner_dashboard(company: str | None = None) -> dict[str, Any]:
 			"material_shortages": shortage_count,
 			"delayed_orders": delayed_count,
 		},
-		"finance": {
+		"finance": price_visibility.redact({
 			"total_order_value": total_revenue,
 			"total_revenue_ytd": total_revenue,
 			"total_paid": total_paid,
 			"outstanding_receivable": total_outstanding,
 			"estimated_gross_margin": estimated_gross_margin,
 			"collection_rate_pct": round((total_paid / total_revenue * 100), 1) if total_revenue > 0 else 0.0,
-		},
+		}, _FINANCE_KEYS),
 		"manufacturing": {
 			"active_work_orders_count": len(work_orders),
 			"active_job_cards_count": len(job_cards),

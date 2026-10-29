@@ -105,4 +105,36 @@ void main() {
       expect(SalesOrderStatus.draft.intent, StatusIntent.neutral);
     });
   });
+
+  group('direction, urgency and tier', () {
+    test('a facade order that is urgent, for a VIP customer', () {
+      final order = SalesOrder.fromJson(const {
+        'name': 'SO-1',
+        'customer': 'Цех Нур',
+        'status': 'To Deliver and Bill',
+        'korkem_direction': 'Facades',
+        'korkem_urgent': 1,
+        'customer_tier': 'VIP',
+      });
+      expect(order.direction, OrderDirection.facades);
+      expect(order.urgent, isTrue);
+      expect(order.customerTier, CustomerTier.vip);
+    });
+
+    test('an old server, sending none of it, reads as plain furniture', () {
+      final order = SalesOrder.fromJson(const {
+        'name': 'SO-2',
+        'customer': 'Иванов',
+        'status': 'Draft',
+      });
+      expect(order.direction, OrderDirection.furniture);
+      expect(order.urgent, isFalse);
+      expect(order.customerTier, isNull);
+    });
+
+    test('an unknown tier is no tier, not a guess', () {
+      expect(CustomerTier.fromWire('Gold'), isNull);
+      expect(CustomerTier.fromWire('Regular'), CustomerTier.regular);
+    });
+  });
 }

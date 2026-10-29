@@ -19,9 +19,11 @@ PLANNER = "korkem.planner@example.com"
 
 class TestSalesOrderQuery(IntegrationTestCase):
 	def test_company_is_not_a_caller_argument(self):
+		# The line of business and the urgent-first order are the caller's to
+		# choose; the company never is.
 		self.assertEqual(
 			set(inspect.signature(api.sales_orders).parameters),
-			{"status", "search", "limit", "offset"},
+			{"status", "search", "limit", "offset", "direction", "urgent_first"},
 		)
 
 	def test_another_companys_order_is_not_visible(self):

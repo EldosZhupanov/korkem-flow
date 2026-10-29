@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
+import 'package:korkem_flow/features/piece_work/domain/crew.dart';
 
 final productionCommandRepositoryProvider =
     Provider<ProductionCommandRepository>(
@@ -40,6 +42,27 @@ class ProductionCommandRepository {
   static const completeOperationPath =
       'korkem_manufacturing.api.production.complete_operation';
 
+  static const defectPhotoPath =
+      'korkem_manufacturing.api.production.attach_defect_photo';
+
+  /// Attaches an optional photo of a defect to the stage that booked it.
+  ///
+  /// Not queued in the outbox: a photo is megabytes, and it only makes sense
+  /// against a job card the server has already confirmed. The server refuses
+  /// a card with no scrap or rework recorded.
+  Future<void> attachDefectPhoto({
+    required String jobCard,
+    required XFile photo,
+  }) async {
+    await _client.uploadFile(
+      defectPhotoPath,
+      field: 'file',
+      filename: photo.name.isNotEmpty ? photo.name : 'брак.jpg',
+      bytes: await photo.readAsBytes(),
+      fields: <String, dynamic>{'job_card': jobCard},
+    );
+  }
+
   /// Plans the work if needed, then moves material into work-in-progress.
   ///
   /// Refusals are outcomes, not exceptions: `StartProductionResult.blocked`
@@ -70,6 +93,9 @@ class ProductionCommandRepository {
   /// them apart: good output excludes process loss, and folding scrap into
   /// [qty] would let spoiled panels become finished goods. Omit [qty] and
   /// everything still outstanding is taken.
+  ///
+  /// [crew], when the stage was done by several people: the server splits
+  /// the piece pay between them, and refuses a crew before booking anything.
   Future<CompleteOperationResult> completeOperation({
     String? operation,
     String? salesOrder,
@@ -77,6 +103,7 @@ class ProductionCommandRepository {
     double? qty,
     double? scrapQty,
     double? reworkQty,
+    List<CrewShare>? crew,
   }) async {
     final response = await _outbox.execute(
       _client,
@@ -88,6 +115,7 @@ class ProductionCommandRepository {
         'qty': ?qty,
         'scrap_qty': ?scrapQty,
         'rework_qty': ?reworkQty,
+        if (crew != null && crew.isNotEmpty) 'crew': crewJson(crew),
       },
     );
     return CompleteOperationResult.fromJson(response['message'] ?? response);

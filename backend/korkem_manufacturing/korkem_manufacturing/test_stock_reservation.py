@@ -200,3 +200,46 @@ class TestStockReservation(IntegrationTestCase):
 
 		offcut_doc = frappe.get_doc("Stock Offcut", offcut.name)
 		self.assertEqual(offcut_doc.status, "Consumed")
+
+	def test_a_reservation_is_a_promise_not_a_movement(self):
+		"""One stock ledger: ERPNext keeps the quantity, a reservation only narrows what is free."""
+		warehouse = frappe.db.get_value("Warehouse", {"company": self.company, "is_group": 0}, "name")
+		receipt = frappe.get_doc(
+			{
+				"doctype": "Stock Entry",
+				"stock_entry_type": "Material Receipt",
+				"company": self.company,
+				"items": [
+					{"item_code": self.item_code, "qty": 5, "uom": "Nos", "basic_rate": 1000, "t_warehouse": warehouse}
+				],
+			}
+		)
+		receipt.insert(ignore_permissions=True)
+		receipt.submit()
+		on_hand = frappe.db.get_value("Bin", {"warehouse": warehouse, "item_code": self.item_code}, "actual_qty")
+		free_before = stock_reservation.get_available_unreserved_qty(self.company, warehouse, self.item_code)
+
+		stock_reservation.reserve_stock(
+			company=self.company,
+			sales_order=self.sales_order,
+			item_code=self.item_code,
+			qty=2.0,
+			warehouse=warehouse,
+			strict_stock_check=True,
+		)
+
+		self.assertEqual(
+			frappe.db.get_value("Bin", {"warehouse": warehouse, "item_code": self.item_code}, "actual_qty"),
+			on_hand,
+		)
+		self.assertEqual(
+			stock_reservation.get_available_unreserved_qty(self.company, warehouse, self.item_code),
+			free_before - 2.0,
+		)
+		# There is no second ledger to write to (dropped 2026-10-28).
+		self.assertFalse(frappe.db.exists("DocType", "Domain Stock Movement"))
+
+		stock_reservation.release_reservations_for_order(self.sales_order)
+		self.assertEqual(
+			stock_reservation.get_available_unreserved_qty(self.company, warehouse, self.item_code), free_before
+		)

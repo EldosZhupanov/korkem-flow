@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/features/enquiry_flow/application/image_picker_service.dart';
+import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
+import 'package:korkem_flow/features/piece_work/domain/crew.dart';
+import 'package:korkem_flow/features/piece_work/presentation/crew_dialog.dart';
 import 'package:korkem_flow/features/production/data/production_command_repository.dart';
 import 'package:korkem_flow/features/production/domain/work_order_operation.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -71,6 +77,12 @@ class _CompleteOperationDialogState
   late final TextEditingController _scrapController;
   bool _isSubmitting = false;
 
+  /// Optional, and only offered once some scrap is entered.
+  XFile? _defectPhoto;
+
+  /// Who did the stage together; `null` — the person booking it.
+  List<CrewShare>? _crew;
+
   @override
   void initState() {
     super.initState();
@@ -115,13 +127,17 @@ class _CompleteOperationDialogState
             operation: widget.operation.operation ?? widget.operation.name,
             qty: qty,
             scrapQty: scrapQty,
+            crew: _crew,
           );
 
       if (!mounted) return;
 
-      if (result.status == 'completed' || result.status == 'ok') {
+      if (result.status == 'completed' ||
+          result.status == 'partially_completed' ||
+          result.status == 'ok') {
         Navigator.of(context).pop();
         messenger.showDone(l10n.completeOperationSuccess(opTitle));
+        await _sendDefectPhoto(result.jobCard, scrapQty, messenger, l10n);
         await widget.onCompleted();
       } else if (result.alreadyComplete) {
         Navigator.of(context).pop();
@@ -137,7 +153,9 @@ class _CompleteOperationDialogState
     } on MutationQueued {
       if (!mounted) return;
       Navigator.of(context).pop();
-      messenger.showFailureMessage(l10n.outboxQueued);
+      messenger.showFailureMessage(
+        _defectPhoto == null ? l10n.outboxQueued : l10n.defectPhotoNotSent,
+      );
       await widget.onCompleted();
     } on Object catch (e) {
       if (!mounted) return;
@@ -146,6 +164,43 @@ class _CompleteOperationDialogState
       if (mounted) {
         setState(() => _isSubmitting = false);
       }
+    }
+  }
+
+  /// The stage is already booked when this runs, so a failed photo must not
+  /// read as a failed stage: it says so in its own words.
+  Future<void> _sendDefectPhoto(
+    String? jobCard,
+    double scrapQty,
+    ScaffoldMessengerState messenger,
+    AppLocalizations l10n,
+  ) async {
+    final photo = _defectPhoto;
+    if (photo == null || jobCard == null || scrapQty <= 0) return;
+    try {
+      await ref
+          .read(productionCommandRepositoryProvider)
+          .attachDefectPhoto(jobCard: jobCard, photo: photo);
+    } on Object {
+      messenger.showFailureMessage(l10n.defectPhotoNotSent);
+    }
+  }
+
+  Future<void> _pickCrew(String operation) async {
+    final crew = await pickCrew(context, operation: operation);
+    if (crew != null && mounted) setState(() => _crew = crew);
+  }
+
+  Future<void> _pickDefectPhoto() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    try {
+      final photo = await ref
+          .read(imagePickerServiceProvider)
+          .pickImageFromCamera();
+      if (photo != null && mounted) setState(() => _defectPhoto = photo);
+    } on Object {
+      messenger.showFailureMessage(l10n.defectPhotoCameraFailed);
     }
   }
 
@@ -191,12 +246,25 @@ class _CompleteOperationDialogState
                   return null;
                 },
               ),
+              // The estimate is the operation's real rate from the server, and
+              // only when it has one. It used to be a fixed 150 ₸ a piece —
+              // a number nobody set, shown to people about their own pay.
               ValueListenableBuilder<TextEditingValue>(
                 valueListenable: _qtyController,
                 builder: (context, val, _) {
                   final parsedQty = double.tryParse(val.text.trim()) ?? 0.0;
-                  if (parsedQty <= 0) return const SizedBox.shrink();
-                  final estAmount = (parsedQty * 150.0).round();
+                  final rate = ref
+                      .watch(pieceRatesProvider)
+                      .value
+                      ?.perPieceFor(opTitle);
+                  if (parsedQty <= 0 || rate == null) {
+                    return const SizedBox.shrink();
+                  }
+                  final estimate = NumberFormat.currency(
+                    locale: Localizations.localeOf(context).toLanguageTag(),
+                    symbol: '₸',
+                    decimalDigits: 0,
+                  ).format(parsedQty * rate);
                   return Padding(
                     padding: const EdgeInsets.only(top: AppSpacing.xs),
                     child: Row(
@@ -208,7 +276,7 @@ class _CompleteOperationDialogState
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          'Сдельно: ~$estAmount ₸',
+                          l10n.pieceWorkEstimate(estimate),
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.w600,
@@ -218,6 +286,13 @@ class _CompleteOperationDialogState
                     ),
                   );
                 },
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _CrewRow(
+                crew: _crew,
+                enabled: !_isSubmitting,
+                onPick: () => _pickCrew(opTitle),
+                onClear: () => setState(() => _crew = null),
               ),
               const SizedBox(height: AppSpacing.md),
               TextFormField(
@@ -238,6 +313,44 @@ class _CompleteOperationDialogState
                     return l10n.completeOperationInvalidQty;
                   }
                   return null;
+                },
+              ),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _scrapController,
+                builder: (context, val, _) {
+                  final scrap = double.tryParse(val.text.trim()) ?? 0.0;
+                  if (scrap <= 0) return const SizedBox.shrink();
+                  final photo = _defectPhoto;
+                  return Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: photo == null
+                        ? OutlinedButton.icon(
+                            key: const ValueKey('defectPhotoAdd'),
+                            onPressed: _isSubmitting ? null : _pickDefectPhoto,
+                            icon: const Icon(
+                              AppIcons.camera,
+                              size: AppIconSize.dense,
+                            ),
+                            label: Text(l10n.defectPhotoAdd),
+                          )
+                        : Row(
+                            children: [
+                              const Icon(
+                                AppIcons.check,
+                                size: AppIconSize.dense,
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              Expanded(child: Text(l10n.defectPhotoChosen)),
+                              TextButton(
+                                key: const ValueKey('defectPhotoRemove'),
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () => setState(() => _defectPhoto = null),
+                                child: Text(l10n.defectPhotoRemove),
+                              ),
+                            ],
+                          ),
+                  );
                 },
               ),
             ],
@@ -261,6 +374,47 @@ class _CompleteOperationDialogState
                   ),
                 )
               : Text(l10n.completeOperationAction),
+        ),
+      ],
+    );
+  }
+}
+
+/// «Made together…», or the crew already chosen with a way to drop it.
+class _CrewRow extends StatelessWidget {
+  const _CrewRow({
+    required this.crew,
+    required this.enabled,
+    required this.onPick,
+    required this.onClear,
+  });
+
+  final List<CrewShare>? crew;
+  final bool enabled;
+  final VoidCallback onPick;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final chosen = crew;
+    if (chosen == null) {
+      return TextButton.icon(
+        key: const ValueKey('stageCrewPick'),
+        onPressed: enabled ? onPick : null,
+        icon: const Icon(AppIcons.team, size: AppIconSize.dense),
+        label: Text(l10n.crewMadeTogether),
+      );
+    }
+    return Row(
+      children: [
+        const Icon(AppIcons.team, size: AppIconSize.dense),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(child: Text(l10n.crewChosen(chosen.length))),
+        TextButton(
+          key: const ValueKey('stageCrewClear'),
+          onPressed: enabled ? onClear : null,
+          child: Text(l10n.crewClear),
         ),
       ],
     );

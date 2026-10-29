@@ -48,6 +48,9 @@ from typing import Any
 import frappe
 from korkem_ai.korkem_ai.tools import policy, scope
 
+#: Site config flag. The cache is off unless a site sets this to a true value.
+ENABLED_CONFIG_KEY = "korkem_ai_answer_cache"
+
 DEFAULT_CACHE_TTL = 300  # 5 minutes
 STATIC_CACHE_TTL = 3600  # 1 hour for greetings / static help
 CACHE_KEY_PREFIX = "korkem_ai:cache:"
@@ -91,6 +94,17 @@ _GREETING_PATTERNS = (
 )
 
 
+def enabled() -> bool:
+	"""Whether chat may answer from this cache at all.
+
+	Off by default (2026-10-26). An answer from here skips the model, every
+	tool and the human-confirmation step, so serving one must be something a
+	site chose. Before this switch it was always on, and a repeated "create a
+	lead for …" could come back as a stored "done" with nothing created.
+	"""
+	return bool(frappe.conf.get(ENABLED_CONFIG_KEY))
+
+
 def normalize(query: str) -> str:
 	"""Normalize a question for semantic/exact matching.
 
@@ -114,10 +128,18 @@ def is_greeting(query: str) -> bool:
 	return any(norm.startswith(p) or norm == p for p in _GREETING_PATTERNS)
 
 
-def make_key(query: str, company: str | None = None, role: str | None = None) -> str:
-	"""Tenant-isolated, role-isolated Redis cache key."""
+def make_key(
+	query: str, company: str | None = None, role: str | None = None, user: str | None = None
+) -> str:
+	"""Tenant-, role- and person-isolated Redis cache key.
+
+	The person is part of the key: "мои задачи", "кто я", "что мне сегодня
+	делать" have a different right answer for every employee, even two with
+	the same role in the same company.
+	"""
 	norm = normalize(query)
-	query_hash = hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
+	who = (user or getattr(frappe.session, "user", None) or "Guest").strip()
+	query_hash = hashlib.sha256(f"{who}\0{norm}".encode("utf-8")).hexdigest()[:16]
 	try:
 		comp = (company or scope.current_company() or "global").strip()
 	except Exception:
@@ -129,12 +151,14 @@ def make_key(query: str, company: str | None = None, role: str | None = None) ->
 	return f"{CACHE_KEY_PREFIX}{comp}:{r}:{query_hash}"
 
 
-def get(query: str, company: str | None = None, role: str | None = None) -> dict[str, Any] | None:
+def get(
+	query: str, company: str | None = None, role: str | None = None, user: str | None = None
+) -> dict[str, Any] | None:
 	"""Retrieve cached answer from Redis if fresh."""
 	if not query or not query.strip():
 		return None
 
-	key = make_key(query, company=company, role=role)
+	key = make_key(query, company=company, role=role, user=user)
 	try:
 		cache = frappe.cache()
 		raw = cache.get_value(key)
@@ -155,6 +179,7 @@ def put(
 	role: str | None = None,
 	executed_tools: list[str] | None = None,
 	ttl: int | None = None,
+	user: str | None = None,
 ) -> bool:
 	"""Store read-only answer in Redis."""
 	if not query or not text:
@@ -163,7 +188,7 @@ def put(
 	if ttl is None:
 		ttl = STATIC_CACHE_TTL if is_greeting(query) else DEFAULT_CACHE_TTL
 
-	key = make_key(query, company=company, role=role)
+	key = make_key(query, company=company, role=role, user=user)
 	payload = {
 		"query": normalize(query),
 		"text": text,
@@ -192,15 +217,19 @@ def is_cacheable(result: Any, history: list | None = None) -> bool:
 	if getattr(result, "pending", None):
 		return False
 
-	# If write tools were executed, do not cache
+	# Only turns whose every tool is *declared* read-only. The registry's risk
+	# is the one definition of "this changes something"; guessing from verbs in
+	# the name missed `chain.sign_contract`, `payment.record`,
+	# `inventory.write_off` and other writes. An unknown tool counts as a write.
+	from korkem_ai.korkem_ai.tools import catalog  # noqa: F401  (registers the tools)
+	from korkem_ai.korkem_ai.tools import registry
+	from korkem_ai.korkem_ai.tools.registry import Risk
+
 	executed = getattr(result, "executed", [])
-	write_verbs = (
-		"create", "update", "delete", "start", "stop", "complete",
-		"assign", "log", "accept", "reject", "cancel", "submit",
-	)
 	for item in executed:
 		tool_name = item.get("tool", "") if isinstance(item, dict) else getattr(item, "name", "")
-		if any(w in tool_name for w in write_verbs):
+		spec = registry.find(tool_name)
+		if spec is None or spec.risk is not Risk.READ:
 			return False
 
 	# If multi-turn dialogue with lots of specific context, do not cache

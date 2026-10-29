@@ -32,6 +32,8 @@ Covers the complete 23-stage operating system loop for "Demo Kitchen Customer" /
 
 from __future__ import annotations
 
+import math
+
 from decimal import Decimal
 from typing import Any
 
@@ -39,7 +41,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, flt, nowdate
 
-from korkem_manufacturing import setup
+from korkem_manufacturing import setup, testing
 from korkem_manufacturing.fixtures.demo_order import create_demo_furniture_order, get_demo_bazis_xml
 from korkem_manufacturing.services import (
 	acceptance,
@@ -53,7 +55,6 @@ from korkem_manufacturing.services import (
 	durable_jobs,
 	enquiry,
 	installation,
-	manufacturing_flow,
 	measurement,
 	offcuts,
 	order_state,
@@ -64,7 +65,6 @@ from korkem_manufacturing.services import (
 	production,
 	proposal,
 	qc,
-	stock_movement,
 	stock_reservation,
 	timeline,
 	warranty,
@@ -105,6 +105,88 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		frappe.db.rollback()
+
+	def _receive(self, item_code: str, qty: float) -> None:
+		"""Material arrives the way it really does: an ERPNext Material Receipt.
+
+		Until 2026-10-27 this test wrote the arrival into `Domain Stock Movement`,
+		and reservations read free stock from there as well as from ERPNext — a
+		second ledger the rest of the system never saw (services/stock_reservation.py).
+		"""
+		uom = frappe.db.get_value("Item", item_code, "stock_uom")
+		entry = frappe.get_doc(
+			{
+				"doctype": "Stock Entry",
+				"stock_entry_type": "Material Receipt",
+				"company": self.company,
+				"items": [
+					{
+						"item_code": item_code,
+						"qty": math.ceil(qty),
+						"uom": uom,
+						"basic_rate": 1000.0,
+						"t_warehouse": self.warehouse,
+					}
+				],
+			}
+		)
+		entry.insert(ignore_permissions=True)
+		entry.submit()
+		# test_01 commits mid-test; a receipt left behind would fill the shelf
+		# the next run expects to find empty.
+		self.addCleanup(testing.remove, [("Stock Entry", entry.name)])
+
+	def _finish_operation(
+		self,
+		*,
+		job_card: str,
+		operator: str,
+		employee: str,
+		completed_qty: float,
+		rate_type: str,
+		rate: float,
+		company: str,
+		offcut_data: dict | None = None,
+	) -> dict:
+		"""A stage finished on the floor: the card closes, the cutter's offcut is
+		shelved, and the work waits for pay approval.
+
+		Until 2026-10-28 this went through the prototype complete_operation_flow,
+		which also wrote a second stock ledger (Domain Stock Movement). Both were
+		removed by the owner's decision; the effects this test checks are made
+		here with the services that remain.
+		"""
+		card = frappe.get_doc("Job Card", job_card)
+		card.db_set({"status": "Completed", "total_completed_qty": completed_qty}, update_modified=True)
+		sales_order = frappe.db.get_value("Work Order", card.work_order, "sales_order")
+		offcut = None
+		if offcut_data:
+			offcut = offcuts.create_offcut(
+				company=company,
+				material_item=offcut_data["material_item"],
+				length_mm=offcut_data["length_mm"],
+				width_mm=offcut_data["width_mm"],
+				thickness_mm=offcut_data["thickness_mm"],
+				decor=offcut_data["decor"],
+				warehouse=offcut_data["warehouse"],
+				source_order=sales_order,
+				source_work_order=card.work_order,
+				source_job_card=job_card,
+			)
+		piece_work.record_piece_work(
+			company=company,
+			employee=employee,
+			operation=card.operation,
+			rate_type=rate_type,
+			quantity=completed_qty,
+			rate=rate,
+			job_card=job_card,
+			sales_order=sales_order,
+			work_order=card.work_order,
+			idempotency_key=f"jobcard-complete-{job_card}",
+			actor=operator,
+		)
+		return {"status": "completed", "offcut": offcut.name if offcut else None}
 
 	def _setup_master_data(self):
 		"""Подготовка номенклатуры и базовых сущностей для канонического теста."""
@@ -241,6 +323,9 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 		)
 		sales_order_id = accept_res["sales_order"]
 		self.assertTrue(sales_order_id)
+		# A later stage commits, so the rollback does not reach this order:
+		# every run used to leave one more open order for Demo Kitchen Customer.
+		self.addCleanup(testing.remove_order, sales_order_id)
 		order_doc = frappe.get_doc("Sales Order", sales_order_id)
 		self.assertEqual(flt(order_doc.grand_total), 850000.0)
 
@@ -414,14 +499,7 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 		for s in res_summary["shortages"]:
 			code = s["item_code"]
 			needed = flt(s["shortage_qty"])
-			stock_movement.record_movement(
-				item_code=code,
-				from_location="Suppliers",
-				to_location=self.warehouse,
-				qty=needed * 2.0,
-				reason="Поставка материалов под заказ",
-				company=self.company,
-			)
+			self._receive(code, needed * 2.0)
 
 		# 4. Повторное бронирование полностью закрывает потребность заказа
 		res_summary2 = stock_reservation.reserve_materials_for_order(
@@ -499,7 +577,7 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 		# -------------------------------------------------------------
 		# Операция 1: Раскрой (Cutting) — производит деловой остаток ЛДСП 1200x600мм
 		cut_jc, cut_op, cut_type, cut_rate, cut_qty = job_cards[0]
-		cut_flow = manufacturing_flow.complete_operation_flow(
+		cut_flow = self._finish_operation(
 			job_card=cut_jc,
 			operator="Administrator",
 			employee=self.employee,
@@ -528,7 +606,7 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 
 		# Операции 2, 3, 4: Кромление, Присадка, Сборка
 		for jc_name, op_name, r_type, rate, qty in job_cards[1:]:
-			flow_res = manufacturing_flow.complete_operation_flow(
+			flow_res = self._finish_operation(
 				job_card=jc_name,
 				operator="Administrator",
 				employee=self.employee,
@@ -656,17 +734,7 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 		so_doc = frappe.get_doc("Sales Order", sales_order_id)
 		shipping_warehouse = so_doc.items[0].warehouse or self.warehouse
 
-		# 1. Запись в Domain Stock Movement
-		stock_movement.record_movement(
-			item_code="KIT-3600-MOD",
-			from_location="Suppliers",
-			to_location=shipping_warehouse,
-			qty=1.0,
-			reason="Выпуск готовой кухни из сборочного цеха",
-			company=self.company,
-		)
-
-		# 2. Оприходование готового изделия на склад в ERPNext (обновление Bin)
+		# Оприходование готового изделия на склад в ERPNext (обновление Bin)
 		se = frappe.get_doc(
 			{
 				"doctype": "Stock Entry",
@@ -862,14 +930,7 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 
 		res = stock_reservation.reserve_materials_for_order(sales_order=so_id, warehouse=self.warehouse)
 		for s in res.get("shortages", []):
-			stock_movement.record_movement(
-				item_code=s["item_code"],
-				from_location="Suppliers",
-				to_location=self.warehouse,
-				qty=flt(s["shortage_qty"]) * 2.0,
-				reason="Склад",
-				company=self.company,
-			)
+			self._receive(s["item_code"], flt(s["shortage_qty"]) * 2.0)
 		stock_reservation.reserve_materials_for_order(sales_order=so_id, warehouse=self.warehouse)
 		order_state.transition(sales_order=so_id, target_state="In Production")
 		order_state.transition(sales_order=so_id, target_state="Quality Control")

@@ -12,12 +12,14 @@
 #          to say why each is there.
 #   watch  gone. It rebuilds assets on every file change; in a pilot the assets
 #          are built once, by `bootstrap.sh`, and nothing edits them afterwards.
-#   others unchanged — the socket.io server, the scheduler, and one queue worker
-#          covering the short, default and long queues.
+#   worker /workspace/scripts/worker.sh: `bench worker`, started again when RQ
+#          quits on a Redis timeout — otherwise honcho stops everything.
+#   others unchanged — the socket.io server and the scheduler; the worker covers
+#          the short, default and long queues.
 web: /workspace/scripts/web.sh
 
 socketio: bench socketio
 
 schedule: bench schedule
 
-worker: bench worker
+worker: /workspace/scripts/worker.sh

@@ -1,0 +1,138 @@
+{
+ "actions": [],
+ "autoname": "field:company",
+ "creation": "2026-10-27 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "sheet_length_mm",
+  "sheet_width_mm",
+  "mdf_waste_percent",
+  "film_waste_percent",
+  "press_section",
+  "press_length_mm",
+  "press_width_mm",
+  "press_margin_mm",
+  "press_gap_mm",
+  "press_sections"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "sheet_length_mm",
+   "fieldtype": "Int",
+   "label": "MDF sheet length, mm",
+   "default": "2800",
+   "description": "Длина листа МДФ, мм."
+  },
+  {
+   "fieldname": "sheet_width_mm",
+   "fieldtype": "Int",
+   "label": "MDF sheet width, mm",
+   "default": "2070",
+   "description": "Ширина листа МДФ, мм."
+  },
+  {
+   "fieldname": "mdf_waste_percent",
+   "fieldtype": "Percent",
+   "label": "MDF waste, %",
+   "default": "15",
+   "description": "Запас на раскрой МДФ: сколько процентов сверх площади фасадов."
+  },
+  {
+   "fieldname": "film_waste_percent",
+   "fieldtype": "Percent",
+   "label": "Film waste, %",
+   "default": "10",
+   "description": "Запас плёнки на загиб по кромке и обрезь."
+  },
+  {
+   "fieldname": "press_section",
+   "fieldtype": "Section Break",
+   "label": "Membrane-vacuum press"
+  },
+  {
+   "fieldname": "press_length_mm",
+   "fieldtype": "Int",
+   "label": "Press working length, mm"
+  },
+  {
+   "fieldname": "press_width_mm",
+   "fieldtype": "Int",
+   "label": "Press working width, mm"
+  },
+  {
+   "fieldname": "press_margin_mm",
+   "fieldtype": "Int",
+   "label": "Margin at the edge, mm"
+  },
+  {
+   "fieldname": "press_gap_mm",
+   "fieldtype": "Int",
+   "label": "Gap between parts, mm"
+  },
+  {
+   "fieldname": "press_sections",
+   "fieldtype": "Small Text",
+   "label": "Sections (JSON: film_m, length_mm)"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-29 03:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Facade Material Norms",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Stock Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Purchase Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Sales Manager",
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Manufacturing Manager",
+   "write": 0
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

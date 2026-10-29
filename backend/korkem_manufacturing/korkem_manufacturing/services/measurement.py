@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import frappe
 
+from korkem_manufacturing.services import photo_files
 from korkem_manufacturing.services.scope import scoped
 
 
@@ -73,14 +74,8 @@ def record(
 	}
 
 
-#: Что мы соглашаемся принять с телефона. Ровно то, что делает камера, и
-#: ничего сверх: Pillow умеет открыть четыре десятка форматов, включая PSD и
-#: WMF, и каждый лишний — это ещё один разборщик, которому мы отдаём чужой файл.
-PHOTO_FORMATS: dict[str, str] = {"JPEG": "jpg", "PNG": "png"}
-
-#: Предел на один снимок. Телефонная камера даёт 3–8 МБ; двадцать оставляет
-#: запас и всё ещё отсекает «случайно отправил видео».
-MAX_PHOTO_BYTES = 20 * 1024 * 1024
+#: Kept under its old name: the limit is the same for every photo from a phone.
+MAX_PHOTO_BYTES = photo_files.MAX_PHOTO_BYTES
 
 
 def attach_photo(*, enquiry: str, filename: str, content: bytes) -> dict:
@@ -102,23 +97,12 @@ def attach_photo(*, enquiry: str, filename: str, content: bytes) -> dict:
 	срезать EXIF, и на подделке падает пятисоткой; лучше отказать здесь, словами.
 	"""
 	opportunity = _visible_enquiry(enquiry)
-
-	if not content:
-		frappe.throw("Пустой файл. Снимок не дошёл — попробуйте ещё раз.")
-
-	if len(content) > MAX_PHOTO_BYTES:
-		frappe.throw(
-			f"Снимок больше {MAX_PHOTO_BYTES // (1024 * 1024)} МБ. "
-			"Похоже, это видео, а не фотография."
-		)
-
-	extension = _photo_kind(content)
-	content = _without_exif(content, extension)
+	file_name, content = photo_files.cleaned(filename, content, fallback_name="замер")
 
 	doc = frappe.get_doc(
 		{
 			"doctype": "File",
-			"file_name": _safe_name(filename, extension),
+			"file_name": file_name,
 			"attached_to_doctype": "Opportunity",
 			"attached_to_name": opportunity.name,
 			"is_private": 1,
@@ -151,64 +135,6 @@ def photos(*, enquiry: str) -> list[dict]:
 			order_by="creation asc",
 		)
 	]
-
-
-def _photo_kind(content: bytes) -> str:
-	"""Какой это снимок — по содержимому, с отказом словами, если никакой."""
-	import io
-
-	from PIL import Image, UnidentifiedImageError
-
-	refusal = (
-		"Это не фотография. С замера принимаются снимки JPEG и PNG — "
-		"то, что делает камера телефона."
-	)
-	try:
-		with Image.open(io.BytesIO(content)) as image:
-			image.verify()
-			fmt = image.format
-	except (UnidentifiedImageError, OSError, ValueError):
-		frappe.throw(refusal)
-
-	if fmt not in PHOTO_FORMATS:
-		frappe.throw(refusal)
-	return PHOTO_FORMATS[fmt]
-
-
-def _without_exif(content: bytes, extension: str) -> bytes:
-	"""Пересобрать снимок из одних пикселей.
-
-	Пересжатие теряет немного качества, и это правильная цена: снимок нужен,
-	чтобы увидеть розетку и трубу, а не чтобы печатать. Всё остальное, что
-	телефон дописал сбоку, — координаты, модель, время — уходит вместе с
-	контейнером.
-	"""
-	import io
-
-	from PIL import Image
-
-	with Image.open(io.BytesIO(content)) as image:
-		pixels = Image.new(image.mode, image.size)
-		pixels.putdata(list(image.getdata()))
-		buffer = io.BytesIO()
-		if extension == "jpg":
-			pixels.convert("RGB").save(buffer, format="JPEG", quality=90)
-		else:
-			pixels.save(buffer, format="PNG")
-	return buffer.getvalue()
-
-
-def _safe_name(filename: str, extension: str) -> str:
-	"""Имя, за которое отвечаем мы, а не отправитель.
-
-	От присланного остаётся только основа, и та обрезанная; расширение ставится
-	по содержимому. Путь, кавычки и точки из имени уходят: файл с именем
-	`../../x.png` — не имя, а попытка.
-	"""
-	base = (filename or "").rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
-	base = base.rsplit(".", 1)[0]
-	base = "".join(c for c in base if c.isalnum() or c in " -_")[:40].strip()
-	return f"{base or 'замер'}-{frappe.generate_hash(length=6)}.{extension}"
 
 
 def _visible_enquiry(name: str):

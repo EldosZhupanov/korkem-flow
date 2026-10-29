@@ -269,7 +269,7 @@ class TestTheRecordSharesTheBusinessTransaction(IntegrationTestCase):
 	def test_a_failed_callback_leaves_neither_business_write_nor_record(self):
 		marker = "idempotency-half-write-" + frappe.generate_hash(length=8)
 		key = "failed-" + frappe.generate_hash(length=8)
-		name = idempotency._record_name(frappe.session.user, "test.atomicity", key)
+		name = idempotency.record_name_for(frappe.session.user, "test.atomicity", key)
 
 		def half_write():
 			frappe.get_doc({"doctype": "ToDo", "description": marker}).insert()
@@ -284,7 +284,7 @@ class TestTheRecordSharesTheBusinessTransaction(IntegrationTestCase):
 	def test_rolling_back_the_request_removes_both_business_write_and_result(self):
 		marker = "idempotency-same-transaction-" + frappe.generate_hash(length=8)
 		key = "transaction-" + frappe.generate_hash(length=8)
-		name = idempotency._record_name(frappe.session.user, "test.same-transaction", key)
+		name = idempotency.record_name_for(frappe.session.user, "test.same-transaction", key)
 
 		def write():
 			doc = frappe.get_doc({"doctype": "ToDo", "description": marker}).insert()
@@ -393,8 +393,8 @@ class TestRetention(IntegrationTestCase):
 	def test_records_older_than_thirty_days_are_cleaned_by_frappe(self):
 		old_key = "old-" + frappe.generate_hash(length=8)
 		new_key = "new-" + frappe.generate_hash(length=8)
-		old_name = idempotency._record_name(frappe.session.user, "test.retention", old_key)
-		new_name = idempotency._record_name(frappe.session.user, "test.retention", new_key)
+		old_name = idempotency.record_name_for(frappe.session.user, "test.retention", old_key)
+		new_name = idempotency.record_name_for(frappe.session.user, "test.retention", new_key)
 
 		idempotency.execute("test.retention", old_key, {}, lambda: {"status": "old"})
 		idempotency.execute("test.retention", new_key, {}, lambda: {"status": "new"})

@@ -17,6 +17,8 @@
   "quantity",
   "unit",
   "rate",
+  "shift_kind",
+  "factor",
   "amount",
   "status",
   "approved_by",
@@ -110,6 +112,21 @@
    "reqd": 1
   },
   {
+   "default": "Обычная",
+   "fieldname": "shift_kind",
+   "fieldtype": "Select",
+   "label": "Shift",
+   "options": "Обычная\nСверхурочно\nВыходной",
+   "in_list_view": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "factor",
+   "fieldtype": "Float",
+   "label": "Factor",
+   "precision": "2"
+  },
+  {
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -166,7 +183,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-09-17 00:00:00.000000",
+ "modified": "2026-10-26 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Piece Work Entry",

@@ -22,7 +22,7 @@ from typing import Any
 import frappe
 from frappe.utils import flt, now_datetime
 
-from korkem_manufacturing.services import audit, outbox
+from korkem_manufacturing.services import audit, outbox, price_visibility
 from korkem_manufacturing.services.scope import current_company, scoped
 
 # ----------------------------------------------------------------------
@@ -130,14 +130,15 @@ def get_order_state(sales_order: str) -> dict[str, Any]:
 	current_state = getattr(order, "korkem_state", None) or _infer_state_from_erpnext(order)
 	
 	allowed_targets = sorted(list(ALLOWED_TRANSITIONS.get(current_state, set())))
+	allowed = price_visibility.can_see_prices()
 	return {
 		"sales_order": order.name,
 		"company": order.company,
 		"customer": order.customer,
 		"current_state": current_state,
 		"allowed_next_states": allowed_targets,
-		"total_amount": flt(order.grand_total),
-		"advance_paid": flt(getattr(order, "advance_paid", 0)),
+		"total_amount": price_visibility.money(order.grand_total, allowed=allowed),
+		"advance_paid": price_visibility.money(getattr(order, "advance_paid", 0), allowed=allowed),
 		"per_delivered": flt(getattr(order, "per_delivered", 0)),
 		"per_billed": flt(getattr(order, "per_billed", 0)),
 		"docstatus": order.docstatus,
@@ -338,6 +339,8 @@ def _check_preconditions(
 		paid = flt(getattr(order, "advance_paid", 0))
 		skip_check = context and context.get("skip_deposit_check")
 		if not skip_check and total > 0 and (paid / total) < 0.5:
+			if not price_visibility.can_see_prices():
+				return "Для готовности к производству требуется предоплата не менее 50%."
 			return f"Для готовности к производству требуется предоплата не менее 50% (оплачено: {paid} из {total} KZT)."
 
 	if target == IN_PRODUCTION:
@@ -401,6 +404,8 @@ def _check_preconditions(
 		total = flt(order.grand_total)
 		paid = flt(getattr(order, "advance_paid", 0))
 		if not (context and context.get("skip_payment_check")) and total > 0 and paid < total:
+			if not price_visibility.can_see_prices():
+				return "Заказ не может быть завершен: заказ оплачен не полностью."
 			return f"Заказ не может быть завершен: заказ оплачен не полностью (оплачено {paid} из {total} KZT)."
 
 	if target == WARRANTY:

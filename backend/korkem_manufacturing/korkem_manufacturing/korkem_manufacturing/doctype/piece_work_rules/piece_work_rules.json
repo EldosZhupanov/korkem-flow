@@ -1,0 +1,136 @@
+{
+ "actions": [],
+ "autoname": "field:company",
+ "creation": "2026-10-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "shift_end",
+  "overtime_factor",
+  "weekend_factor",
+  "saturday_is_weekend",
+  "sunday_is_weekend",
+  "bonus_section",
+  "daily_bonus_threshold",
+  "daily_bonus",
+  "bonus_column",
+  "monthly_bonus_threshold",
+  "monthly_bonus"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "shift_end",
+   "fieldtype": "Time",
+   "label": "Shift ends at",
+   "description": "После этого времени работа считается сверхурочной. Пусто — сверхурочных нет."
+  },
+  {
+   "fieldname": "overtime_factor",
+   "fieldtype": "Float",
+   "label": "Overtime factor",
+   "description": "Например 1.5. Пусто — сверхурочные оплачиваются как обычно."
+  },
+  {
+   "fieldname": "weekend_factor",
+   "fieldtype": "Float",
+   "label": "Weekend factor",
+   "description": "Например 2. Пусто — выходные оплачиваются как обычно."
+  },
+  {
+   "default": "0",
+   "fieldname": "saturday_is_weekend",
+   "fieldtype": "Check",
+   "label": "Saturday is a day off"
+  },
+  {
+   "default": "1",
+   "fieldname": "sunday_is_weekend",
+   "fieldtype": "Check",
+   "label": "Sunday is a day off"
+  },
+  {
+   "fieldname": "bonus_section",
+   "fieldtype": "Section Break",
+   "label": "Bonuses"
+  },
+  {
+   "fieldname": "daily_bonus_threshold",
+   "fieldtype": "Currency",
+   "label": "Daily bonus threshold",
+   "description": "Сдельный заработок за день, с которого платится дневная премия. Пусто — премии нет."
+  },
+  {
+   "fieldname": "daily_bonus",
+   "fieldtype": "Currency",
+   "label": "Daily bonus",
+   "description": "Дневная премия, когда порог дня достигнут."
+  },
+  {
+   "fieldname": "bonus_column",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monthly_bonus_threshold",
+   "fieldtype": "Currency",
+   "label": "Monthly bonus threshold",
+   "description": "Сдельный заработок за календарный месяц, с которого платится месячная премия. Пусто — премии нет."
+  },
+  {
+   "fieldname": "monthly_bonus",
+   "fieldtype": "Currency",
+   "label": "Monthly bonus",
+   "description": "Месячная премия, когда порог месяца достигнут."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-28 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Piece Work Rules",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Manufacturing Manager",
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Manufacturing User",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 0
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

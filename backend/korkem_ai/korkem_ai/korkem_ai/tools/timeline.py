@@ -44,6 +44,7 @@ from frappe.utils import flt, getdate, nowdate
 from korkem_ai.korkem_ai.tools import scope
 from korkem_ai.korkem_ai.tools.registry import Risk, ToolSpec, register
 from korkem_ai.korkem_ai.tools.scope import scoped
+from korkem_manufacturing.services import price_visibility
 
 #: Sales Order statuses that no longer represent live work.
 CLOSED = ("Completed", "Closed", "Cancelled")
@@ -125,6 +126,7 @@ def _sales_section(customer: str) -> tuple[list[dict], list[str]]:
 		limit_page_length=0,
 	)
 	today = getdate(nowdate())
+	allowed = price_visibility.can_see_prices()
 	reported = []
 	for order in orders:
 		due = getdate(order["delivery_date"]) if order["delivery_date"] else None
@@ -141,7 +143,7 @@ def _sales_section(customer: str) -> tuple[list[dict], list[str]]:
 				"delivery_date": str(due) if due else None,
 				"days_to_delivery": (due - today).days if due else None,
 				"overdue": bool(due and due < today and flt(order["per_delivered"]) < 100),
-				"value": flt(order["grand_total"]),
+				"value": price_visibility.money(order.get("grand_total"), allowed=allowed),
 				"currency": order["currency"],
 				"delivered_percent": flt(order["per_delivered"]),
 				"items": [

@@ -7,7 +7,7 @@ class SalesOrderDelivery {
     required this.name,
     this.postingDate,
     this.status,
-    this.grandTotal = 0,
+    this.grandTotal,
     this.items = const [],
   });
 
@@ -17,7 +17,7 @@ class SalesOrderDelivery {
       name: json['name'] as String? ?? '',
       postingDate: _date(json['posting_date']),
       status: json['status'] as String?,
-      grandTotal: _number(json['grand_total']) ?? 0,
+      grandTotal: _number(json['grand_total']),
       items: [
         for (final raw in rawItems)
           if (raw is Map<String, dynamic>)
@@ -31,7 +31,9 @@ class SalesOrderDelivery {
   final String name;
   final DateTime? postingDate;
   final String? status;
-  final double grandTotal;
+
+  /// `null` when the server hides money from this person.
+  final double? grandTotal;
   final List<SalesOrderDeliveryItem> items;
 
   @override

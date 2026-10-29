@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,10 +7,8 @@ import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
 import 'package:korkem_flow/core/design/motion/app_busy_indicator.dart';
-import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
-import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_logo.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
@@ -16,7 +16,8 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Redesigned Registration screen supporting TWO ONBOARDING PATHS:
-/// 1. CREATE COMPANY (Owner wizard: Phone+OTP -> Profile -> Company+Logo -> Success)
+/// 1. CREATE COMPANY (Owner wizard:
+///    Phone+OTP -> Profile -> Company+Logo -> Success)
 /// 2. JOIN COMPANY BY INVITE (Link / code input -> JoinInviteScreen)
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -44,7 +45,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _inviteCode = TextEditingController();
 
   bool _otpSent = false;
-  bool _otpVerified = false;
   String _sessionId = '';
 
   bool _busy = false;
@@ -93,7 +93,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         : ref.read(appConfigProvider).baseUrl;
 
     try {
-      final res = await ref.read(authRepositoryProvider).requestOtp(
+      final res = await ref
+          .read(authRepositoryProvider)
+          .requestOtp(
             baseUrl: serverUrl,
             phone: phone,
           );
@@ -129,7 +131,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         : ref.read(appConfigProvider).baseUrl;
 
     try {
-      final res = await ref.read(authRepositoryProvider).verifyOtp(
+      final res = await ref
+          .read(authRepositoryProvider)
+          .verifyOtp(
             baseUrl: serverUrl,
             phone: _phone.text.trim(),
             code: code,
@@ -138,7 +142,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
       if (res['verified'] == true) {
         setState(() {
-          _otpVerified = true;
           _ownerStep = 2; // Advance to Profile
         });
       } else {
@@ -172,7 +175,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         : 'KorkemPilot2026!';
 
     try {
-      final res = await ref.read(authRepositoryProvider).register(
+      final res = await ref
+          .read(authRepositoryProvider)
+          .register(
             baseUrl: serverUrl,
             companyName: company,
             ownerName: _ownerName.text.trim(),
@@ -188,12 +193,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       final effectiveEmail = res['email'] as String? ?? _email.text.trim();
       if (effectiveEmail.isNotEmpty) {
         try {
-          await ref.read(sessionProvider.notifier).signIn(
+          await ref
+              .read(sessionProvider.notifier)
+              .signIn(
                 serverUrl: serverUrl,
                 user: effectiveEmail,
                 password: pwd,
               );
-        } catch (_) {}
+        } on Object catch (_) {
+          // Not fatal: the company exists; the success step still shows and
+          // the owner can sign in by hand.
+        }
       }
 
       setState(() {
@@ -211,11 +221,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void _handleJoinByInvite() {
     final raw = _inviteCode.text.trim();
     if (raw.isEmpty) return;
-    String targetToken = raw;
+    var targetToken = raw;
     if (raw.contains('/join/')) {
       targetToken = raw.split('/join/')[1].split('?')[0].split('#')[0];
     }
-    context.push('/join/$targetToken');
+    unawaited(context.push('/join/$targetToken'));
   }
 
   @override
@@ -229,8 +239,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final initials = parts.length > 1 && parts[1].isNotEmpty
         ? '${parts[0][0]}${parts[1][0]}'.toUpperCase()
         : compText.isNotEmpty
-            ? compText.substring(0, compText.length.clamp(0, 2)).toUpperCase()
-            : 'KM';
+        ? compText.substring(0, compText.length.clamp(0, 2)).toUpperCase()
+        : 'KM';
 
     return Scaffold(
       body: SafeArea(
@@ -327,7 +337,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 TextFormField(
                                   controller: _inviteCode,
                                   decoration: const InputDecoration(
-                                    hintText: 'https://korkem.asia/join/... или код',
+                                    hintText:
+                                        'https://korkem.asia/join/... или код',
                                     prefixIcon: Icon(Icons.qr_code),
                                   ),
                                 ),
@@ -353,23 +364,35 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
                                           'Шаг 1: Номер телефона',
-                                          style: theme.textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: theme.textTheme.titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                       ),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: theme.colorScheme.surfaceContainerHighest,
-                                          borderRadius: BorderRadius.circular(12),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
                                         ),
-                                        child: const Text('1 / 3', style: TextStyle(fontSize: 11)),
+                                        decoration: BoxDecoration(
+                                          color: theme
+                                              .colorScheme
+                                              .surfaceContainerHighest,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          '1 / 3',
+                                          style: TextStyle(fontSize: 11),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -441,29 +464,42 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
                                           'Шаг 2: Профиль владельца',
-                                          style: theme.textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: theme.textTheme.titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                       ),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: theme.colorScheme.surfaceContainerHighest,
-                                          borderRadius: BorderRadius.circular(12),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
                                         ),
-                                        child: const Text('2 / 3', style: TextStyle(fontSize: 11)),
+                                        decoration: BoxDecoration(
+                                          color: theme
+                                              .colorScheme
+                                              .surfaceContainerHighest,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          '2 / 3',
+                                          style: TextStyle(fontSize: 11),
+                                        ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    'Как к вам обращаться в отчетах и документах',
+                                    'Как к вам обращаться '
+                                    'в отчетах и документах',
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
@@ -499,15 +535,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   Row(
                                     children: [
                                       OutlinedButton(
-                                        onPressed: () => setState(() => _ownerStep = 1),
+                                        onPressed: () =>
+                                            setState(() => _ownerStep = 1),
                                         child: const Text('Назад'),
                                       ),
                                       const SizedBox(width: AppSpacing.sm),
                                       Expanded(
                                         child: FilledButton(
                                           onPressed: () {
-                                            if (_ownerName.text.trim().isEmpty) {
-                                              setState(() => _failure = 'Укажите ваше имя');
+                                            if (_ownerName.text
+                                                .trim()
+                                                .isEmpty) {
+                                              setState(
+                                                () => _failure =
+                                                    'Укажите ваше имя',
+                                              );
                                               return;
                                             }
                                             setState(() {
@@ -535,23 +577,35 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
                                           'Шаг 3: Название цеха',
-                                          style: theme.textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: theme.textTheme.titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                       ),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: theme.colorScheme.surfaceContainerHighest,
-                                          borderRadius: BorderRadius.circular(12),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
                                         ),
-                                        child: const Text('3 / 3', style: TextStyle(fontSize: 11)),
+                                        decoration: BoxDecoration(
+                                          color: theme
+                                              .colorScheme
+                                              .surfaceContainerHighest,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          '3 / 3',
+                                          style: TextStyle(fontSize: 11),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -576,37 +630,54 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                                   // Logo fallback
                                   Container(
-                                    padding: const EdgeInsets.all(AppSpacing.md),
+                                    padding: const EdgeInsets.all(
+                                      AppSpacing.md,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: theme.colorScheme.surfaceContainerHighest,
+                                      color: theme
+                                          .colorScheme
+                                          .surfaceContainerHighest,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Row(
                                       children: [
                                         CircleAvatar(
                                           radius: 24,
-                                          backgroundColor: theme.colorScheme.primary,
-                                          foregroundColor: theme.colorScheme.onPrimary,
+                                          backgroundColor:
+                                              theme.colorScheme.primary,
+                                          foregroundColor:
+                                              theme.colorScheme.onPrimary,
                                           child: Text(
                                             initials,
-                                            style: const TextStyle(fontWeight: FontWeight.bold),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: AppSpacing.md),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               const Text(
                                                 'Логотип цеха',
-                                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 13,
+                                                ),
                                               ),
                                               Text(
-                                                'По умолчанию инициалы «$initials». Логотип можно загрузить позже в профиле.',
-                                                style: theme.textTheme.bodySmall?.copyWith(
-                                                  color: theme.colorScheme.onSurfaceVariant,
-                                                  fontSize: 11,
-                                                ),
+                                                'По умолчанию инициалы '
+                                                '«$initials». Логотип можно '
+                                                'загрузить позже в профиле.',
+                                                style: theme.textTheme.bodySmall
+                                                    ?.copyWith(
+                                                      color: theme
+                                                          .colorScheme
+                                                          .onSurfaceVariant,
+                                                      fontSize: 11,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -619,13 +690,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   Row(
                                     children: [
                                       OutlinedButton(
-                                        onPressed: () => setState(() => _ownerStep = 2),
+                                        onPressed: () =>
+                                            setState(() => _ownerStep = 2),
                                         child: const Text('Назад'),
                                       ),
                                       const SizedBox(width: AppSpacing.sm),
                                       Expanded(
                                         child: FilledButton(
-                                          onPressed: _busy ? null : _submitOwnerRegistration,
+                                          onPressed: _busy
+                                              ? null
+                                              : _submitOwnerRegistration,
                                           child: _busy
                                               ? const AppBusyIndicator()
                                               : const Text('Создать компанию'),
@@ -647,18 +721,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Icon(AppIcons.check, size: 48, color: theme.colorScheme.primary),
+                                  Icon(
+                                    AppIcons.check,
+                                    size: 48,
+                                    color: theme.colorScheme.primary,
+                                  ),
                                   const SizedBox(height: AppSpacing.md),
                                   Text(
                                     'Компания «$_createdCompany» создана!',
                                     textAlign: TextAlign.center,
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                   ),
                                   const SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    'Рабочее пространство настроено. Начните работу прямо сейчас:',
+                                    'Рабочее пространство настроено. '
+                                    'Начните работу прямо сейчас:',
                                     textAlign: TextAlign.center,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant,
@@ -668,7 +748,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                                   FilledButton.icon(
                                     icon: const Icon(Icons.person),
-                                    label: const Text('Пригласить сотрудников (WhatsApp)'),
+                                    label: const Text(
+                                      'Пригласить сотрудников (WhatsApp)',
+                                    ),
                                     onPressed: () => context.go(Routes.team),
                                   ),
                                   const SizedBox(height: AppSpacing.sm),
@@ -681,7 +763,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   TextButton.icon(
                                     icon: const Icon(AppIcons.dashboard),
                                     label: const Text('Открыть Dashboard'),
-                                    onPressed: () => context.go(Routes.dashboard),
+                                    onPressed: () =>
+                                        context.go(Routes.dashboard),
                                   ),
                                 ],
                               ),

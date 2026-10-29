@@ -14,6 +14,9 @@ KORKEM_ENV="${KORKEM_ENV:-development}"
 cd /home/frappe/frappe-bench
 
 if [ "$KORKEM_ENV" = "development" ]; then
+  # The generated Procfile starts `bench worker` directly; when it quits on a
+  # Redis timeout honcho stops everything else too. See scripts/worker.sh.
+  sed -i -E 's#^worker:([[:space:]]+)bench worker#worker:\1/workspace/scripts/worker.sh#' Procfile
   exec bench start
 fi
 

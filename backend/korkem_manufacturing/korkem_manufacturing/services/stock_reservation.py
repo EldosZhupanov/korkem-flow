@@ -8,6 +8,16 @@
 - Идемпотентность по уникальному ключу брони;
 - Автоматическое освобождение резервов при отмене заказа (Order State Machine Integration);
 - Проверка покрытия спецификации заказа резервами перед запуском в производство (Preconditions Gate).
+
+**Один учёт остатков — ERPNext.** Бронь — это обещание, а не перемещение:
+материал остаётся на своём складе, и `Bin.actual_qty` его по-прежнему
+показывает. «Свободно» = остаток ERPNext минус активные брони. Перемещает
+и списывает материал только документ ERPNext (`Stock Entry`): для мебели —
+передача по наряду (`production._start_production`), для фасадов — списание
+под заказ. До 27.10.2026 бронь писала ещё и проводки в `Domain Stock Movement`
+на виртуальные «Reserved:<заказ>» и «WIP:<заказ>» — второй журнал, который
+расходился с первым: остаток ERPNext не уменьшался, а «свободно» читалось из
+обоих сразу (PLAN: «не строим свой склад»).
 """
 
 from __future__ import annotations
@@ -20,7 +30,6 @@ from frappe.utils import flt, now_datetime
 from korkem_manufacturing.services import audit, outbox
 from korkem_manufacturing.services.offcuts import consume_offcut, release_offcut, reserve_offcut
 from korkem_manufacturing.services.scope import current_company, enforce_tenant_scope
-from korkem_manufacturing.services.stock_movement import record_movement
 
 DOCTYPE = "Stock Reservation"
 
@@ -30,20 +39,12 @@ def get_available_unreserved_qty(company: str | None, warehouse: str, item_code:
 	comp = company or current_company()
 	enforce_tenant_scope(comp)
 
-	# 1. Физический остаток из ERPNext Bin
-	actual_qty = frappe.db.get_value(
-		"Bin",
-		{"warehouse": warehouse, "item_code": item_code},
-		"actual_qty",
+	# 1. Физический остаток — только ERPNext Bin, единственный учёт остатков
+	physical_qty = flt(
+		frappe.db.get_value("Bin", {"warehouse": warehouse, "item_code": item_code}, "actual_qty")
 	)
-	physical_qty = flt(actual_qty) if actual_qty is not None else 0.0
 
-	# 2. Если в Bin пусто, проверим регистр Domain Stock Movement
-	if physical_qty == 0.0:
-		from korkem_manufacturing.services.stock_movement import get_balance
-		physical_qty = max(0.0, get_balance(comp, warehouse, item_code))
-
-	# 3. Сумма активных броней на этом складе
+	# 2. Сумма активных броней на этом складе
 	reserved_qty = frappe.db.sql(
 		"""
 		SELECT COALESCE(SUM(qty), 0)
@@ -126,21 +127,6 @@ def reserve_stock(
 	)
 	doc.insert(ignore_permissions=True)
 
-	# Двойная запись в складской регистр
-	record_movement(
-		company=comp,
-		from_location=warehouse,
-		to_location=f"Reserved:{sales_order}",
-		item_code=item_code,
-		qty=q,
-		reason="Stock Reservation",
-		sales_order=sales_order,
-		work_order=work_order,
-		offcut=offcut,
-		correlation_id=idempotency_key,
-		actor=actor,
-		timestamp=now_ts,
-	)
 
 	audit.record_audit(
 		action="stock.reservation_created",
@@ -218,20 +204,6 @@ def release_reservations_for_order(
 			update_modified=True,
 		)
 
-		# Сторнирующее движение в складском регистре
-		record_movement(
-			company=res.company,
-			from_location=f"Reserved:{sales_order}",
-			to_location=res.warehouse,
-			item_code=res.item_code,
-			qty=flt(res.qty),
-			reason="Reservation Release",
-			sales_order=sales_order,
-			offcut=res.offcut,
-			actor=actor,
-			timestamp=now_ts,
-			is_compensation=1,
-		)
 
 		released_ids.append(res.name)
 
@@ -297,19 +269,6 @@ def consume_reservations_for_order(
 			update_modified=True,
 		)
 
-		record_movement(
-			company=res.company,
-			from_location=f"Reserved:{sales_order}",
-			to_location=f"WIP:{sales_order}",
-			item_code=res.item_code,
-			qty=flt(res.qty),
-			reason="Production Consumption",
-			sales_order=sales_order,
-			work_order=work_order,
-			offcut=res.offcut,
-			actor=actor,
-			timestamp=now_ts,
-		)
 
 		consumed_ids.append(res.name)
 

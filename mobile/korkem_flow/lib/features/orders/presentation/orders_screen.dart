@@ -13,6 +13,7 @@ import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/core/pagination/paged_list_controller.dart';
 import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/orders/application/orders_controller.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
@@ -81,40 +82,17 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
       _selectedName = items.first.name;
     }
 
-    final list = CrmListSection(
-      searchValue: filter.search,
-      onSearch: (value) => ref
-          .read(ordersFilterProvider.notifier)
-          .setSearch(value.isEmpty ? null : value),
-      isFiltered: filter.status != null,
-      onFilter: () => _openFilter(context),
-      child: PagedListView<SalesOrder>(
-        state: ordersState,
-        onRefresh: controller.refresh,
-        onLoadMore: controller.loadMore,
-        itemBuilder: (context, order) => SalesOrderCard(
-          order: order,
-          isSelected: isWide && _selectedName == order.name,
-          onTap: isWide
-              ? () => setState(() => _selectedName = order.name)
-              : null,
+    final list = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _DirectionBar(
+          selected: filter.direction,
+          onChanged: ref.read(ordersFilterProvider.notifier).setDirection,
         ),
-        emptyView: (context) => ListEmptyView(
-          icon: AppIcons.quote,
-          title: l10n.ordersEmpty,
-          message: switch (filter) {
-            _ when filter.search != null => l10n.searchNoResults(
-              filter.search!,
-            ),
-            _ when filter.status != null => l10n.filterNoResults,
-            _ => l10n.ordersEmptyBody,
-          },
-          onRefresh: controller.refresh,
-          onClearFilter: filter.status == null && filter.search == null
-              ? null
-              : ref.read(ordersFilterProvider.notifier).clear,
+        Expanded(
+          child: _list(context, filter, controller, ordersState, isWide),
         ),
-      ),
+      ],
     );
 
     if (!isWide) {
@@ -153,6 +131,91 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _list(
+    BuildContext context,
+    OrdersFilter filter,
+    OrdersController controller,
+    AsyncValue<PagedList<SalesOrder>> ordersState,
+    bool isWide,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    return CrmListSection(
+      searchValue: filter.search,
+      onSearch: (value) => ref
+          .read(ordersFilterProvider.notifier)
+          .setSearch(value.isEmpty ? null : value),
+      isFiltered: filter.status != null,
+      onFilter: () => _openFilter(context),
+      child: PagedListView<SalesOrder>(
+        state: ordersState,
+        onRefresh: controller.refresh,
+        onLoadMore: controller.loadMore,
+        itemBuilder: (context, order) => SalesOrderCard(
+          order: order,
+          isSelected: isWide && _selectedName == order.name,
+          onTap: isWide
+              ? () => setState(() => _selectedName = order.name)
+              : null,
+        ),
+        emptyView: (context) => ListEmptyView(
+          icon: AppIcons.quote,
+          title: l10n.ordersEmpty,
+          message: switch (filter) {
+            _ when filter.search != null => l10n.searchNoResults(
+              filter.search!,
+            ),
+            _ when filter.status != null || filter.direction != null =>
+              l10n.filterNoResults,
+            _ => l10n.ordersEmptyBody,
+          },
+          onRefresh: controller.refresh,
+          onClearFilter: filter.isEmpty
+              ? null
+              : ref.read(ordersFilterProvider.notifier).clear,
+        ),
+      ),
+    );
+  }
+}
+
+/// Both lines of business, or one of them. Above the list rather than in the
+/// filter sheet: it is the first question a manager asks of the list.
+class _DirectionBar extends StatelessWidget {
+  const _DirectionBar({required this.selected, required this.onChanged});
+
+  final OrderDirection? selected;
+  final ValueChanged<OrderDirection?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xs,
+      ),
+      child: SegmentedButton<OrderDirection?>(
+        key: const ValueKey('ordersDirection'),
+        showSelectedIcon: false,
+        segments: [
+          ButtonSegment(value: null, label: Text(l10n.directionAll)),
+          ButtonSegment(
+            value: OrderDirection.furniture,
+            label: Text(l10n.directionFurniture),
+          ),
+          ButtonSegment(
+            value: OrderDirection.facades,
+            label: Text(l10n.directionFacades),
+          ),
+        ],
+        selected: {selected},
+        onSelectionChanged: (choice) => onChanged(choice.first),
       ),
     );
   }
@@ -215,6 +278,15 @@ class SalesOrderCard extends ConsumerWidget {
                         ),
                       ),
                     ],
+                    if (_marks(order, l10n) case final marks
+                        when marks.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Wrap(
+                        spacing: AppSpacing.xs,
+                        runSpacing: AppSpacing.xs,
+                        children: marks,
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -232,12 +304,15 @@ class SalesOrderCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                currencyFormat.format(order.grandTotal),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              if (order.grandTotal case final total?)
+                Text(
+                  currencyFormat.format(total),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                )
+              else
+                const SizedBox.shrink(),
               if (order.perDelivered > 0)
                 Text(
                   l10n.ordersDeliveredProgress(
@@ -290,6 +365,30 @@ class SalesOrderCard extends ConsumerWidget {
     );
   }
 }
+
+/// What sets this order apart at a glance: urgent, a facade order, a VIP
+/// customer. Nothing for an ordinary furniture order, so most rows stay quiet.
+List<Widget> _marks(SalesOrder order, AppLocalizations l10n) => [
+  if (order.urgent)
+    StatusChip(
+      key: const ValueKey('orderUrgent'),
+      label: l10n.orderUrgent,
+      intent: StatusIntent.danger,
+      compact: true,
+    ),
+  if (order.direction == OrderDirection.facades)
+    StatusChip(
+      label: l10n.directionFacades,
+      intent: StatusIntent.info,
+      compact: true,
+    ),
+  if (order.customerTier == CustomerTier.vip)
+    StatusChip(
+      label: l10n.tierVip,
+      intent: StatusIntent.warning,
+      compact: true,
+    ),
+];
 
 class _OrderMeta extends StatelessWidget {
   const _OrderMeta({required this.icon, required this.label, this.intent});

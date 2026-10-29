@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:korkem_flow/features/auth/presentation/join_invite_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/register_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 

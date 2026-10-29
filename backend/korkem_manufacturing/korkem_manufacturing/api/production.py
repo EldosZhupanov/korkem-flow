@@ -178,8 +178,12 @@ def complete_operation(
 	scrap_qty: float | None = None,
 	rework_qty: float | None = None,
 	idempotency_key: str | None = None,
+	crew: str | list | None = None,
 ) -> dict:
 	"""Record that a production stage is finished.
+
+	`crew`: the people who did it together — the pay for the pieces is split
+	between them (`piece_rates.accrue_stage`). Checked before the booking.
 
 	Quantities are read as numbers here rather than trusted as whatever the
 	caller sent: a string "4" from a form and a float 4.0 from a tool must mean
@@ -217,18 +221,42 @@ def complete_operation(
 		"scrap_qty": _quantity(scrap_qty, "scrap_qty"),
 		"rework_qty": _quantity(rework_qty, "rework_qty"),
 	}
+	members = _check_crew(crew, arguments["qty"])
 
 	def perform() -> dict:
 		result = shop_floor.complete_operation(**arguments)
 		_audit_operation(result)
+		entries = _accrue_piece_work(result, crew)
+		result["piece_work_entry"] = entries[0] if entries else None
+		if members:
+			result["piece_work_entries"] = entries
 		return result
 
 	return execute_idempotently(
 		"manufacturing.complete_operation",
 		idempotency_key,
-		arguments,
+		# A crew is part of the request; none leaves the fingerprint as it was.
+		{**arguments, "crew": members} if members else arguments,
 		perform,
 	)
+
+
+def _check_crew(crew, qty: float | None) -> list | None:
+	"""A crew is refused before the stage is booked, never after.
+
+	Shares by count must add up to what is being booked, so the count has to
+	be said: «the rest of the card» is not a number a crew can split.
+	"""
+	if crew in (None, "", []):
+		return None
+	from korkem_manufacturing.services import piece_rates
+
+	if isinstance(crew, str):
+		crew = frappe.parse_json(crew)
+	by_count = isinstance(crew, list) and any(isinstance(m, dict) and m.get("qty") not in (None, "") for m in crew)
+	if by_count and qty is None:
+		frappe.throw("Чтобы разделить по количеству, укажите, сколько сделано.")
+	return piece_rates.check_crew(crew, qty if by_count else None)
 
 
 def _clean(value: str | None) -> str | None:
@@ -292,3 +320,45 @@ def _audit_operation(result: dict) -> None:
 			title="Could not record who finished a stage",
 			message=frappe.get_traceback(with_context=True),
 		)
+
+
+@frappe.whitelist(methods=["POST"])
+def attach_defect_photo(job_card: str) -> dict:
+	"""Приложить фото брака к этапу — по желанию, только если брак записан.
+
+	Файл приходит телом запроса (поле «file»), как его отправляет телефон.
+	"""
+	from korkem_manufacturing.services import defect_photo
+
+	job_card = _clean(job_card)
+	if not job_card:
+		frappe.throw("Укажите этап (job card), к которому относится фото.")
+	uploaded = (frappe.request.files or {}).get("file") if frappe.request else None
+	if uploaded is None:
+		frappe.throw("В запросе нет файла. Ожидается поле «file».")
+	return defect_photo.attach(
+		job_card=job_card,
+		filename=uploaded.filename or "",
+		content=uploaded.stream.read(),
+	)
+
+
+def _accrue_piece_work(result: dict, crew=None) -> list[str]:
+	"""Pay for what was just booked. A payroll problem never undoes a booking.
+
+	The stage is already in ERPNext by now. Refusing the request over a missing
+	rate or a broken rule would tell the cutter their work was not recorded
+	when it was; the error goes to the Error Log instead, where whoever keeps
+	the rates will see it.
+	"""
+	from korkem_manufacturing.services import piece_rates
+
+	try:
+		entry = piece_rates.accrue_stage(result, crew=crew)
+	except Exception:
+		frappe.log_error(title="Piece work accrual failed", message=frappe.get_traceback(with_context=True))
+		return []
+	if not entry:
+		return []
+	return [e.name for e in entry] if isinstance(entry, list) else [entry.name]
+

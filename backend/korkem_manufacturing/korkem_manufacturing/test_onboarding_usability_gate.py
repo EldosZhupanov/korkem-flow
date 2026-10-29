@@ -308,6 +308,8 @@ class TestOnboardingUsabilityGate(IntegrationTestCase):
 		logs = frappe.get_all("Activity Log", fields=["content"], limit=50)
 		for log in logs:
 			content = log.get("content") or ""
-			self.assertNotIn("1234", content)  # OTP code
+			# The OTP code as a number of its own — not the digits inside a longer
+			# name: invitation INV-01234 arrives once the counter gets there.
+			self.assertNotRegex(content, r"(?<!\d)1234(?!\d)")  # OTP code
 			if hasattr(self, "invite_token"):
 				self.assertNotIn(self.invite_token, content)  # Raw invite secret

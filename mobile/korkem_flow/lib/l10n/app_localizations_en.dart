@@ -3522,4 +3522,1022 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hardwareEmptyFilteredMessage =>
       'Try adjusting the hardware type, overlay, or clearing active filters.';
+
+  @override
+  String get priceVisibilityTitle => 'Prices for the shop floor';
+
+  @override
+  String get priceVisibilitySubtitle =>
+      'Let production, warehouse and drivers see client prices and order totals';
+
+  @override
+  String get priceVisibilitySaveFailed => 'Could not save. Try again.';
+
+  @override
+  String get defectPhotoAdd => 'Defect photo (optional)';
+
+  @override
+  String get defectPhotoChosen => 'Photo attached';
+
+  @override
+  String get defectPhotoRemove => 'Remove';
+
+  @override
+  String get defectPhotoNotSent =>
+      'The stage is recorded, but the defect photo was not sent.';
+
+  @override
+  String get defectPhotoCameraFailed => 'Could not open the camera.';
+
+  @override
+  String get facadePricesTitle => 'Facade prices';
+
+  @override
+  String get facadePricesSubtitle => 'Price per m² by milling and finish';
+
+  @override
+  String get facadePricesAddMilling => 'Add milling';
+
+  @override
+  String get facadePricesMilling => 'Milling';
+
+  @override
+  String get facadePricesFinish => 'Finish';
+
+  @override
+  String get facadePricesPricePerM2 => 'Price per m²';
+
+  @override
+  String get facadePricesSold => 'Sold';
+
+  @override
+  String get facadePricesNotSold => 'Not sold';
+
+  @override
+  String get facadePricesSaved => 'Price saved';
+
+  @override
+  String get facadePricesSave => 'Save';
+
+  @override
+  String get facadeQuoteTitle => 'Facade order calculation';
+
+  @override
+  String get facadeQuoteAddLine => 'Add facade';
+
+  @override
+  String get facadeQuoteDemolition => 'Demolition';
+
+  @override
+  String get facadeQuotePrepaymentManual => 'Prepayment (if different)';
+
+  @override
+  String facadeQuotePrepaymentDefault(String percent) {
+    return 'By default $percent% of the total';
+  }
+
+  @override
+  String get facadeQuoteCalculate => 'Calculate';
+
+  @override
+  String get facadeQuoteNumberRequired => 'Enter a number';
+
+  @override
+  String facadeQuoteLine(int number) {
+    return 'Facade $number';
+  }
+
+  @override
+  String get facadeQuoteRemoveLine => 'Remove';
+
+  @override
+  String get facadeQuoteWidth => 'Width, mm';
+
+  @override
+  String get facadeQuoteHeight => 'Height, mm';
+
+  @override
+  String get facadeQuoteQty => 'Pcs';
+
+  @override
+  String get facadeQuoteDoubleSided => 'Double-sided';
+
+  @override
+  String get facadeQuoteCustomerMaterial => 'Customer\'s material';
+
+  @override
+  String get facadeQuotePieces => 'Pieces';
+
+  @override
+  String get facadeQuoteArea => 'Area';
+
+  @override
+  String get facadeQuoteTotal => 'Total';
+
+  @override
+  String get facadeQuotePrepayment => 'Prepayment';
+
+  @override
+  String get facadeQuoteBalance => 'Balance';
+
+  @override
+  String get facadeRulesNotOffered => 'Not offered';
+
+  @override
+  String get facadeRulesTitle => 'Order rules';
+
+  @override
+  String get facadeRulesDoubleSidedFactor => 'Double-sided factor (×)';
+
+  @override
+  String get facadeRulesEmptyMeansOff => 'Empty — not offered';
+
+  @override
+  String get facadeRulesDiscount => 'Discount for customer\'s material';
+
+  @override
+  String get facadeRulesDemolitionRate => 'Demolition price';
+
+  @override
+  String get facadeRulesPrepayment => 'Prepayment by default';
+
+  @override
+  String get facadeOrderSection => 'Place the order';
+
+  @override
+  String get facadeOrderPickCustomer => 'Choose a customer';
+
+  @override
+  String get facadeOrderSearchCustomer => 'Name — press Enter';
+
+  @override
+  String get facadeOrderNoCustomers => 'No customers found';
+
+  @override
+  String get facadeOrderPickDate => 'Choose the due date';
+
+  @override
+  String facadeOrderDueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get facadeOrderCreate => 'Create order';
+
+  @override
+  String facadeOrderCreated(String name) {
+    return 'Order $name created';
+  }
+
+  @override
+  String orderPrepaymentDue(String amount) {
+    return 'Prepayment due: $amount';
+  }
+
+  @override
+  String get facadeJobsTitle => 'Facades to make';
+
+  @override
+  String get facadeJobsEmptyTitle => 'No facades to make';
+
+  @override
+  String get facadeJobsEmptyMessage =>
+      'Facades appear here once an order is placed.';
+
+  @override
+  String facadeJobsDue(String date) {
+    return 'due $date';
+  }
+
+  @override
+  String get pieceWorkTitle => 'Piece work';
+
+  @override
+  String get pieceWorkMine => 'My work';
+
+  @override
+  String get pieceWorkNothingYet => 'Nothing accrued yet';
+
+  @override
+  String get pieceWorkPending => 'Awaiting approval';
+
+  @override
+  String get pieceWorkApproved => 'Approved';
+
+  @override
+  String get pieceWorkPaid => 'Paid';
+
+  @override
+  String get pieceWorkRejected => 'Rejected';
+
+  @override
+  String get pieceWorkPcs => 'pcs';
+
+  @override
+  String get pieceWorkToApprove => 'To approve';
+
+  @override
+  String get pieceWorkNothingToApprove => 'Nothing to approve';
+
+  @override
+  String get pieceWorkApprove => 'Approve';
+
+  @override
+  String get pieceWorkReject => 'Reject';
+
+  @override
+  String get pieceWorkReason => 'Reason — the worker will see it';
+
+  @override
+  String get pieceWorkRates => 'Rates';
+
+  @override
+  String get pieceWorkAddRate => 'Add a rate';
+
+  @override
+  String get pieceWorkDisabled => 'Disabled';
+
+  @override
+  String get pieceWorkCoefficients => 'Overtime and weekends';
+
+  @override
+  String get pieceWorkOvertime => 'Overtime';
+
+  @override
+  String get pieceWorkWeekend => 'Weekend';
+
+  @override
+  String get pieceWorkAfter => 'after';
+
+  @override
+  String get pieceWorkNoCoefficient => 'as usual';
+
+  @override
+  String get pieceWorkOperation => 'Operation';
+
+  @override
+  String get pieceWorkOperationHint =>
+      'As named in the shop, or «Фасад» for finished facades';
+
+  @override
+  String get pieceWorkPerPiece => 'per piece';
+
+  @override
+  String get pieceWorkRate => 'Rate';
+
+  @override
+  String get pieceWorkEnabled => 'In use';
+
+  @override
+  String get pieceWorkShiftEnd => 'Shift ends at (HH:MM)';
+
+  @override
+  String get pieceWorkSaturdayOff => 'Saturday is a day off';
+
+  @override
+  String get pieceWorkSundayOff => 'Sunday is a day off';
+
+  @override
+  String pieceWorkEstimate(String amount) {
+    return 'Piece rate: ~$amount';
+  }
+
+  @override
+  String get expensesTitle => 'Urgent expenses';
+
+  @override
+  String get expensesAdd => 'Add an expense';
+
+  @override
+  String get expensesPendingTotal => 'Awaiting a decision';
+
+  @override
+  String get expensesEmptyTitle => 'No expenses';
+
+  @override
+  String get expensesEmptyMessage =>
+      'Spent money on the job? Write it down here, with the receipt.';
+
+  @override
+  String get expensesFiled => 'Expense recorded';
+
+  @override
+  String get expensesReceiptNotSent =>
+      'Recorded, but the receipt photo was not sent.';
+
+  @override
+  String get expensesAmount => 'Amount';
+
+  @override
+  String get expensesPurpose => 'What for';
+
+  @override
+  String get expensesCategory => 'Category';
+
+  @override
+  String get expensesReceipt => 'Photo of the receipt';
+
+  @override
+  String get pinAdminTitle => 'PIN sign-in';
+
+  @override
+  String get pinAdminSubtitle => 'Shop-floor tablets and who signs in on them';
+
+  @override
+  String get pinAdminTablets => 'Tablets';
+
+  @override
+  String get pinAdminRegisterThis => 'Make this device a PIN tablet';
+
+  @override
+  String pinAdminThisIs(String label) {
+    return 'This device: $label';
+  }
+
+  @override
+  String get pinAdminRevoked => 'Switched off';
+
+  @override
+  String get pinAdminRevoke => 'Switch off';
+
+  @override
+  String get pinAdminPeople => 'People with a PIN';
+
+  @override
+  String get pinAdminLocked => 'Locked after wrong attempts';
+
+  @override
+  String get pinAdminClear => 'Remove PIN';
+
+  @override
+  String get pinAdminAssign => 'Assign a PIN';
+
+  @override
+  String get pinAdminTabletName => 'Tablet name, e.g. «Shop, cutting»';
+
+  @override
+  String get pinAdminRegistered => 'Tablet registered';
+
+  @override
+  String get pinAdminChoosePerson => 'Employee';
+
+  @override
+  String get pinAdminNewPin => 'PIN, 4 to 6 digits';
+
+  @override
+  String get pinAdminPinSet => 'PIN assigned';
+
+  @override
+  String get pinLoginTitle => 'Sign in with PIN';
+
+  @override
+  String get pinLoginSubtitle => 'Choose yourself and enter your PIN';
+
+  @override
+  String get pinLoginUnavailableTitle => 'This tablet is not set up for PINs';
+
+  @override
+  String get pinLoginUnavailableMessage =>
+      'Ask the administrator to register it in Settings.';
+
+  @override
+  String get pinLoginPin => 'PIN';
+
+  @override
+  String get materialStockTitle => 'Materials';
+
+  @override
+  String get materialStockOnHand => 'On hand';
+
+  @override
+  String get materialStockReceive => 'Receive';
+
+  @override
+  String get materialStockLists => 'Lists';
+
+  @override
+  String get materialStockEmptyTitle => 'Nothing in stock yet';
+
+  @override
+  String get materialStockEmptyMessage =>
+      'Purchases appear here once they are received.';
+
+  @override
+  String materialStockAverage(String price) {
+    return 'Average price $price';
+  }
+
+  @override
+  String get materialStockFillAll => 'Fill in every field.';
+
+  @override
+  String materialStockReceived(String title, String onHand) {
+    return '$title: received, now $onHand';
+  }
+
+  @override
+  String get materialStockName => 'Material name';
+
+  @override
+  String get materialStockSupplier => 'Bought from';
+
+  @override
+  String get materialStockQty => 'How many';
+
+  @override
+  String get materialStockUnit => 'Unit';
+
+  @override
+  String get materialStockPrice => 'Price per unit';
+
+  @override
+  String get materialStockSuppliers => 'Suppliers';
+
+  @override
+  String get materialStockAdd => 'Add';
+
+  @override
+  String materialStockAdded(String value) {
+    return '«$value» added';
+  }
+
+  @override
+  String materialStockOff(String value) {
+    return '$value (off)';
+  }
+
+  @override
+  String get materialStockOpen => 'Materials';
+
+  @override
+  String get directionAll => 'All';
+
+  @override
+  String get directionFurniture => 'Furniture';
+
+  @override
+  String get directionFacades => 'Facades';
+
+  @override
+  String get orderUrgent => 'Urgent';
+
+  @override
+  String get tierNew => 'New';
+
+  @override
+  String get tierRegular => 'Regular';
+
+  @override
+  String get tierVip => 'VIP';
+
+  @override
+  String get facadeSpecTitle => 'Technical details';
+
+  @override
+  String get facadeSpecThickness => 'Thickness, mm';
+
+  @override
+  String get facadeSpecDecorTop => 'Face decor';
+
+  @override
+  String get facadeSpecDecorBottom => 'Back decor';
+
+  @override
+  String get facadeSpecEdge => 'Edge profile';
+
+  @override
+  String get facadeSpecNone => '—';
+
+  @override
+  String facadeSpecGroup(String group) {
+    return 'group “$group”';
+  }
+
+  @override
+  String materialStockHeld(String onHand, String reserved) {
+    return 'On hand $onHand · reserved $reserved';
+  }
+
+  @override
+  String materialStockFree(String qty) {
+    return '$qty free';
+  }
+
+  @override
+  String get facadeMaterialsTitle => 'Materials for the order';
+
+  @override
+  String facadeMaterialsLine(String needed, String held, String issued) {
+    return 'need $needed · held $held · written off $issued';
+  }
+
+  @override
+  String facadeMaterialsShort(String qty) {
+    return 'short $qty';
+  }
+
+  @override
+  String get facadeMaterialsHeld => 'All held';
+
+  @override
+  String get facadeMaterialsReserve => 'Reserve what is free';
+
+  @override
+  String get facadeMaterialsEmpty => 'Nothing needed from the warehouse';
+
+  @override
+  String get crewTitle => 'Who made it?';
+
+  @override
+  String get crewHint =>
+      'Tick the crew. Shares in % are optional — empty means equal.';
+
+  @override
+  String get crewTooSmall => 'A crew is at least two people.';
+
+  @override
+  String get crewSharesAllOrNone =>
+      'Give everyone a share — or no one, for equal shares.';
+
+  @override
+  String get crewDone => 'Done';
+
+  @override
+  String get crewDoneTogether => 'Done — made together…';
+
+  @override
+  String get payrollTitle => 'Pay sheet';
+
+  @override
+  String get payrollCopyCsv => 'Copy for accounting (CSV)';
+
+  @override
+  String get payrollCsvCopied => 'Pay sheet copied — paste it into Excel';
+
+  @override
+  String get payrollPrevMonth => 'Previous month';
+
+  @override
+  String get payrollNextMonth => 'Next month';
+
+  @override
+  String get payrollEmpty => 'Nothing accrued this month';
+
+  @override
+  String get payrollTotal => 'Total to pay';
+
+  @override
+  String get payrollPiece => 'Piece work';
+
+  @override
+  String get payrollDailyBonus => 'Daily bonuses';
+
+  @override
+  String get payrollMonthlyBonus => 'Monthly bonus';
+
+  @override
+  String get payrollBonus => 'Bonus';
+
+  @override
+  String get payrollFine => 'Fines';
+
+  @override
+  String get payrollAdvance => 'Advances';
+
+  @override
+  String payrollPending(String amount) {
+    return 'Not yet approved: $amount';
+  }
+
+  @override
+  String get payrollAdjustments => 'Advances, fines, bonuses';
+
+  @override
+  String get payrollAddAdjustment => 'Add';
+
+  @override
+  String get payrollNoAdjustments => 'None this month';
+
+  @override
+  String get payrollReverse => 'Reverse';
+
+  @override
+  String get payrollEmployee => 'Employee';
+
+  @override
+  String get payrollAmount => 'Amount';
+
+  @override
+  String get payrollReason => 'Reason';
+
+  @override
+  String get bonusToday => 'Today\'s bonus';
+
+  @override
+  String get bonusMonth => 'This month\'s bonus';
+
+  @override
+  String bonusReached(String bonus) {
+    return 'Reached — bonus $bonus';
+  }
+
+  @override
+  String bonusLeft(String left, String bonus) {
+    return '$left to go for $bonus';
+  }
+
+  @override
+  String get bonusRules => 'Bonuses';
+
+  @override
+  String bonusRuleDay(String threshold, String bonus) {
+    return 'From $threshold a day — $bonus';
+  }
+
+  @override
+  String bonusRuleMonth(String threshold, String bonus) {
+    return 'From $threshold a month — $bonus';
+  }
+
+  @override
+  String get bonusDayThreshold => 'Daily threshold';
+
+  @override
+  String get bonusDayAmount => 'Daily bonus';
+
+  @override
+  String get bonusMonthThreshold => 'Monthly threshold';
+
+  @override
+  String get bonusMonthAmount => 'Monthly bonus';
+
+  @override
+  String get crewSplitPercent => 'In %';
+
+  @override
+  String crewSplitByAmount(String unit) {
+    return 'Who made how much, $unit';
+  }
+
+  @override
+  String get crewHintAmount =>
+      'Tick the crew and enter how much each made. The amounts must add up to the total.';
+
+  @override
+  String get crewMadeTogether => 'Made together…';
+
+  @override
+  String crewChosen(int count) {
+    return 'Crew: $count people';
+  }
+
+  @override
+  String get crewClear => 'Remove the crew';
+
+  @override
+  String get unitPieces => 'pcs';
+
+  @override
+  String get unitSquareMetres => 'm²';
+
+  @override
+  String get payrollPaid => 'Paid out';
+
+  @override
+  String get payrollLeft => 'Left to pay';
+
+  @override
+  String get payrollMarkPaid => 'Mark as paid';
+
+  @override
+  String payrollMarkPaidConfirm(String name, String amount) {
+    return '$name: paid $amount? The period closes — no more advances, fines or bonuses can be entered for it.';
+  }
+
+  @override
+  String get payrollMarkPaidDone => 'Payout recorded';
+
+  @override
+  String get payrollTotalLeft => 'Left to pay in total';
+
+  @override
+  String get tradesAction => 'Shop trades';
+
+  @override
+  String get tradesTitle => 'What they do';
+
+  @override
+  String get tradesHint =>
+      'Several are fine. Trades give no rights — the position does.';
+
+  @override
+  String get tradesOwn => 'Your own trade';
+
+  @override
+  String get tradesAdd => 'Add';
+
+  @override
+  String get tradesSaved => 'Trades saved';
+
+  @override
+  String get oneCTitle => 'Exchange with 1C';
+
+  @override
+  String get oneCSubtitle =>
+      'Sales, payments, receipts and pay sheet for accounting';
+
+  @override
+  String get oneCEnabled => 'Exchange with 1C is on';
+
+  @override
+  String get oneCOffHint =>
+      'Exchange is off. If the company keeps no 1C, leave it so.';
+
+  @override
+  String get oneCHowTo =>
+      'In 1C: «Load data from a spreadsheet» — paste what you copied. Dates DD.MM.YYYY, decimal comma.';
+
+  @override
+  String get oneCCopy => 'Copy';
+
+  @override
+  String oneCCopied(String title, int count) {
+    return '$title: $count rows. Paste into 1C.';
+  }
+
+  @override
+  String get pressLayoutTitle => 'Press layout';
+
+  @override
+  String get pressTextured => 'TEXTURED — DO NOT TURN';
+
+  @override
+  String get pressPlain => 'Plain — may be turned';
+
+  @override
+  String pressLoad(int count, String metres) {
+    return 'Load $count · section $metres m';
+  }
+
+  @override
+  String pressFilmTotal(String metres) {
+    return 'Film: $metres m';
+  }
+
+  @override
+  String pressCorrected(String reason, String metres) {
+    return 'Corrected by hand: $reason. Layout says $metres m.';
+  }
+
+  @override
+  String pressTooBig(String positions) {
+    return 'Larger than the press table: lines $positions';
+  }
+
+  @override
+  String get pressCorrect => 'Correct the metres';
+
+  @override
+  String get pressMetres => 'Film, metres';
+
+  @override
+  String get pressReason => 'Why not as laid out';
+
+  @override
+  String get pressBackToLayout => 'Back to the layout';
+
+  @override
+  String get pressNoFilm => 'The order has no PVC-film facades.';
+
+  @override
+  String get pressSettingsTitle => 'Press: area, gap, sections';
+
+  @override
+  String get pressLength => 'Working length, mm';
+
+  @override
+  String get pressWidth => 'Working width, mm';
+
+  @override
+  String get pressMargin => 'Margin at the edge, mm';
+
+  @override
+  String get pressGap => 'Gap between parts, mm';
+
+  @override
+  String get pressSections => 'Sections: film and working length';
+
+  @override
+  String get pressSectionFilm => 'Film, m';
+
+  @override
+  String get pressAddSection => 'Add a section';
+
+  @override
+  String get pressSaved => 'Press settings saved';
+
+  @override
+  String get materialTextured => 'Textured film';
+
+  @override
+  String get materialTexturedHint =>
+      'Parts are not turned on the press; the map says «DO NOT TURN»';
+
+  @override
+  String get pressPrint => 'Print the layout';
+
+  @override
+  String pressPrintLoad(int count, int total, String metres) {
+    return 'Load $count of $total · section $metres m';
+  }
+
+  @override
+  String pressPrintSheet(int count) {
+    return 'Sheet $count';
+  }
+
+  @override
+  String pressPrintCopies(int count) {
+    return 'Copies: $count';
+  }
+
+  @override
+  String pressPrintSize(String size) {
+    return 'Size: $size mm';
+  }
+
+  @override
+  String pressPrintSection(String metres) {
+    return 'Film section: $metres m';
+  }
+
+  @override
+  String pressPrintArea(String area) {
+    return 'Sheet area: $area m²';
+  }
+
+  @override
+  String pressPrintParts(String area, String share) {
+    return 'Parts: $area m² ($share%)';
+  }
+
+  @override
+  String pressPrintWaste(String area, String share) {
+    return 'Waste: $area m² ($share%)';
+  }
+
+  @override
+  String pressPrintCount(int count) {
+    return 'Parts: $count';
+  }
+
+  @override
+  String pressPrintPerimeter(String metres) {
+    return 'Parts perimeter: $metres m';
+  }
+
+  @override
+  String pressPrintGap(String gap, String margin) {
+    return 'Gap: $gap mm · margin: $margin mm';
+  }
+
+  @override
+  String get pressPrintDetails => 'Parts';
+
+  @override
+  String pressPrintPage(int count) {
+    return 'Page $count';
+  }
+
+  @override
+  String get logisticsTitle => 'Logistics';
+
+  @override
+  String get logisticsDeliveries => 'Deliveries';
+
+  @override
+  String get logisticsSummary => 'Summary';
+
+  @override
+  String get logisticsAdd => 'Record a delivery';
+
+  @override
+  String get logisticsEmpty => 'No deliveries this month';
+
+  @override
+  String get logisticsEmptyMessage =>
+      'A van, a taxi, a transport company — write down what bringing the material cost.';
+
+  @override
+  String get logisticsAmount => 'Delivery cost';
+
+  @override
+  String get logisticsFrom => 'From (city)';
+
+  @override
+  String get logisticsTransport => 'Delivered by';
+
+  @override
+  String get logisticsCarrier => 'Carrier (optional)';
+
+  @override
+  String get logisticsWhat => 'What came';
+
+  @override
+  String get logisticsQty => 'Quantity';
+
+  @override
+  String get logisticsUnit => 'Unit';
+
+  @override
+  String get logisticsOrder => 'Order № (if for an order)';
+
+  @override
+  String get logisticsOrderedOn => 'Ordered';
+
+  @override
+  String get logisticsDeliveredOn => 'Arrived';
+
+  @override
+  String get logisticsUrgent => 'Urgent (paid extra for speed)';
+
+  @override
+  String get logisticsNote => 'Note';
+
+  @override
+  String get logisticsSaved => 'Delivery recorded';
+
+  @override
+  String get logisticsCancel => 'Cancel the record';
+
+  @override
+  String get logisticsCancelReason => 'Why cancel';
+
+  @override
+  String logisticsCancelled(String reason) {
+    return 'Cancelled: $reason';
+  }
+
+  @override
+  String logisticsDays(int count) {
+    return '$count days on the road';
+  }
+
+  @override
+  String logisticsTotal(String amount) {
+    return 'This month: $amount';
+  }
+
+  @override
+  String logisticsPrevious(String amount) {
+    return 'Last month: $amount';
+  }
+
+  @override
+  String get logisticsByCategory => 'By material';
+
+  @override
+  String get logisticsByCity => 'By city';
+
+  @override
+  String get logisticsByTransport => 'By way of delivery';
+
+  @override
+  String get logisticsByCarrier => 'By carrier';
+
+  @override
+  String get logisticsPerUnit => 'Per unit';
+
+  @override
+  String logisticsPerUnitLine(String amount, String unit, String qty) {
+    return '$amount per $unit · $qty $unit delivered';
+  }
+
+  @override
+  String logisticsCount(int count) {
+    return 'deliveries: $count';
+  }
+
+  @override
+  String logisticsAverageDays(String days) {
+    return '$days days on the road on average';
+  }
+
+  @override
+  String logisticsUrgentLine(int count, String amount) {
+    return 'Urgent: $count for $amount';
+  }
+
+  @override
+  String get logisticsUnlinked => 'Receipts without a delivery';
+
+  @override
+  String get logisticsUnlinkedHint =>
+      'The material came but its delivery was not written down. Write it — or 0 ₸ if the supplier brought it.';
+
+  @override
+  String get logisticsWrite => 'Record';
+
+  @override
+  String get logisticsDeliveryOptional => 'Delivery (if paid for)';
 }

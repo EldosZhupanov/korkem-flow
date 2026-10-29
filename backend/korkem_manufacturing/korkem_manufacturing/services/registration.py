@@ -24,6 +24,18 @@ from korkem_manufacturing.services import auth_otp
 from korkem_manufacturing.services.provisioning import name_the_shipping_warehouse
 
 
+class AlreadyRegistered(frappe.ValidationError):
+	"""The email or the company name is taken.
+
+	A `ValidationError`, so callers and tests treat it as the refusal of bad
+	input that it is; HTTP 409, so a client can tell "taken" from "malformed".
+	`frappe.DuplicateEntryError` was used before and is neither: it derives from
+	`NameError`, which `except ValidationError` does not catch.
+	"""
+
+	http_status_code = 409
+
+
 def get_initials(name: str) -> str:
 	"""Generate 1 or 2 letter initials from company or person name."""
 	parts = [p.strip() for p in (name or "").split() if p.strip()]
@@ -77,45 +89,56 @@ def register_company(
 		if frappe.db.exists("User", email):
 			frappe.throw(
 				f"Пользователь с email {email} уже существует. Пожалуйста, выполните вход.",
-				frappe.DuplicateEntryError,
+				AlreadyRegistered,
 			)
 
-		# 2. Ensure company exists or create new
+		# 2. A new company, never an existing one.
+		#
+		# This endpoint is open to guests. Binding the caller to a company that
+		# already exists would hand a stranger owner rights over somebody else's
+		# factory for the price of typing its name. Joining an existing company
+		# is what an invitation is for.
+		if frappe.db.exists("Company", company_name):
+			frappe.throw(
+				f"Компания «{company_name}» уже зарегистрирована. "
+				"Чтобы работать в ней, попросите владельца прислать приглашение.",
+				AlreadyRegistered,
+			)
+
 		logo_url = None
-		if not frappe.db.exists("Company", company_name):
-			letters = [c for c in company_name.upper() if c.isalnum()]
-			base_abbr = "".join(letters[:5]) or "MFG"
-			abbr = base_abbr
-			idx = 1
-			while frappe.db.exists("Company", {"abbr": abbr}):
-				suffix = str(idx)
-				abbr = f"{base_abbr[: max(1, 5 - len(suffix))]}{suffix}"
-				idx += 1
+		letters = [c for c in company_name.upper() if c.isalnum()]
+		base_abbr = "".join(letters[:5]) or "MFG"
+		abbr = base_abbr
+		idx = 1
+		while frappe.db.exists("Company", {"abbr": abbr}):
+			suffix = str(idx)
+			abbr = f"{base_abbr[: max(1, 5 - len(suffix))]}{suffix}"
+			idx += 1
 
-			company_doc = frappe.get_doc(
-				{
-					"doctype": "Company",
-					"company_name": company_name,
-					"abbr": abbr,
-					"default_currency": currency,
-					"country": country,
-				}
-			)
-			company_doc.insert(ignore_permissions=True)
-			name_the_shipping_warehouse(company_name)
+		company_doc = frappe.get_doc(
+			{
+				"doctype": "Company",
+				"company_name": company_name,
+				"abbr": abbr,
+				"default_currency": currency,
+				"country": country,
+			}
+		)
+		company_doc.insert(ignore_permissions=True)
+		name_the_shipping_warehouse(company_name)
 
-			# Attach logo if provided
-			if logo_base64:
-				try:
-					raw_b64 = logo_base64.split(",", 1)[1] if "," in logo_base64 else logo_base64
-					data = base64.b64decode(raw_b64)
-					file_name = f"logo_{abbr.lower()}.png"
-					file_doc = save_file(file_name, data, "Company", company_name, is_private=0)
-					company_doc.company_logo = file_doc.file_url
-					company_doc.save(ignore_permissions=True)
-					logo_url = file_doc.file_url
-				except Exception:
-					pass
+		# Attach logo if provided
+		if logo_base64:
+			try:
+				raw_b64 = logo_base64.split(",", 1)[1] if "," in logo_base64 else logo_base64
+				data = base64.b64decode(raw_b64)
+				file_name = f"logo_{abbr.lower()}.png"
+				file_doc = save_file(file_name, data, "Company", company_name, is_private=0)
+				company_doc.company_logo = file_doc.file_url
+				company_doc.save(ignore_permissions=True)
+				logo_url = file_doc.file_url
+			except Exception:
+				pass
 
 		# 3. Create owner user
 		first_name, _, last_name = owner_name.partition(" ")

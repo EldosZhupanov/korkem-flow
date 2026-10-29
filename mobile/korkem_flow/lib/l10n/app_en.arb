@@ -3992,5 +3992,1479 @@
   "hardwareEmptyFilteredMessage": "Try adjusting the hardware type, overlay, or clearing active filters.",
   "@hardwareEmptyFilteredMessage": {
     "description": "Empty state message when filters match nothing"
+  },
+  "priceVisibilityTitle": "Prices for the shop floor",
+  "@priceVisibilityTitle": {
+    "description": "Settings switch: shop floor sees prices"
+  },
+  "priceVisibilitySubtitle": "Let production, warehouse and drivers see client prices and order totals",
+  "@priceVisibilitySubtitle": {
+    "description": "Settings switch: shop floor sees prices"
+  },
+  "priceVisibilitySaveFailed": "Could not save. Try again.",
+  "@priceVisibilitySaveFailed": {
+    "description": "Settings switch: shop floor sees prices"
+  },
+  "defectPhotoAdd": "Defect photo (optional)",
+  "@defectPhotoAdd": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "defectPhotoChosen": "Photo attached",
+  "@defectPhotoChosen": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "defectPhotoRemove": "Remove",
+  "@defectPhotoRemove": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "defectPhotoNotSent": "The stage is recorded, but the defect photo was not sent.",
+  "@defectPhotoNotSent": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "defectPhotoCameraFailed": "Could not open the camera.",
+  "@defectPhotoCameraFailed": {
+    "description": "Optional defect photo when completing a stage"
+  },
+  "facadePricesTitle": "Facade prices",
+  "@facadePricesTitle": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesSubtitle": "Price per m² by milling and finish",
+  "@facadePricesSubtitle": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesAddMilling": "Add milling",
+  "@facadePricesAddMilling": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesMilling": "Milling",
+  "@facadePricesMilling": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesFinish": "Finish",
+  "@facadePricesFinish": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesPricePerM2": "Price per m²",
+  "@facadePricesPricePerM2": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesSold": "Sold",
+  "@facadePricesSold": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesNotSold": "Not sold",
+  "@facadePricesNotSold": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesSaved": "Price saved",
+  "@facadePricesSaved": {
+    "description": "Facade price matrix settings"
+  },
+  "facadePricesSave": "Save",
+  "@facadePricesSave": {
+    "description": "Facade price matrix settings"
+  },
+  "facadeQuoteTitle": "Facade order calculation",
+  "@facadeQuoteTitle": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteAddLine": "Add facade",
+  "@facadeQuoteAddLine": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteDemolition": "Demolition",
+  "@facadeQuoteDemolition": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuotePrepaymentManual": "Prepayment (if different)",
+  "@facadeQuotePrepaymentManual": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuotePrepaymentDefault": "By default {percent}% of the total",
+  "@facadeQuotePrepaymentDefault": {
+    "description": "Facade order calculation",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeQuoteCalculate": "Calculate",
+  "@facadeQuoteCalculate": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteNumberRequired": "Enter a number",
+  "@facadeQuoteNumberRequired": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteLine": "Facade {number}",
+  "@facadeQuoteLine": {
+    "description": "Facade order calculation",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "facadeQuoteRemoveLine": "Remove",
+  "@facadeQuoteRemoveLine": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteWidth": "Width, mm",
+  "@facadeQuoteWidth": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteHeight": "Height, mm",
+  "@facadeQuoteHeight": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteQty": "Pcs",
+  "@facadeQuoteQty": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteDoubleSided": "Double-sided",
+  "@facadeQuoteDoubleSided": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteCustomerMaterial": "Customer's material",
+  "@facadeQuoteCustomerMaterial": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuotePieces": "Pieces",
+  "@facadeQuotePieces": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteArea": "Area",
+  "@facadeQuoteArea": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteTotal": "Total",
+  "@facadeQuoteTotal": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuotePrepayment": "Prepayment",
+  "@facadeQuotePrepayment": {
+    "description": "Facade order calculation"
+  },
+  "facadeQuoteBalance": "Balance",
+  "@facadeQuoteBalance": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesNotOffered": "Not offered",
+  "@facadeRulesNotOffered": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesTitle": "Order rules",
+  "@facadeRulesTitle": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesDoubleSidedFactor": "Double-sided factor (×)",
+  "@facadeRulesDoubleSidedFactor": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesEmptyMeansOff": "Empty — not offered",
+  "@facadeRulesEmptyMeansOff": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesDiscount": "Discount for customer's material",
+  "@facadeRulesDiscount": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesDemolitionRate": "Demolition price",
+  "@facadeRulesDemolitionRate": {
+    "description": "Facade order calculation"
+  },
+  "facadeRulesPrepayment": "Prepayment by default",
+  "@facadeRulesPrepayment": {
+    "description": "Facade order calculation"
+  },
+  "facadeOrderSection": "Place the order",
+  "@facadeOrderSection": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderPickCustomer": "Choose a customer",
+  "@facadeOrderPickCustomer": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderSearchCustomer": "Name — press Enter",
+  "@facadeOrderSearchCustomer": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderNoCustomers": "No customers found",
+  "@facadeOrderNoCustomers": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderPickDate": "Choose the due date",
+  "@facadeOrderPickDate": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderDueOn": "Due {date}",
+  "@facadeOrderDueOn": {
+    "description": "Facade order from a quote",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeOrderCreate": "Create order",
+  "@facadeOrderCreate": {
+    "description": "Facade order from a quote"
+  },
+  "facadeOrderCreated": "Order {name} created",
+  "@facadeOrderCreated": {
+    "description": "Facade order from a quote",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPrepaymentDue": "Prepayment due: {amount}",
+  "@orderPrepaymentDue": {
+    "description": "Agreed prepayment not yet received",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeJobsTitle": "Facades to make",
+  "@facadeJobsTitle": {
+    "description": "Shop-floor facade list"
+  },
+  "facadeJobsEmptyTitle": "No facades to make",
+  "@facadeJobsEmptyTitle": {
+    "description": "Shop-floor facade list"
+  },
+  "facadeJobsEmptyMessage": "Facades appear here once an order is placed.",
+  "@facadeJobsEmptyMessage": {
+    "description": "Shop-floor facade list"
+  },
+  "facadeJobsDue": "due {date}",
+  "@facadeJobsDue": {
+    "description": "Shop-floor facade list",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pieceWorkTitle": "Piece work",
+  "@pieceWorkTitle": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkMine": "My work",
+  "@pieceWorkMine": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkNothingYet": "Nothing accrued yet",
+  "@pieceWorkNothingYet": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkPending": "Awaiting approval",
+  "@pieceWorkPending": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkApproved": "Approved",
+  "@pieceWorkApproved": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkPaid": "Paid",
+  "@pieceWorkPaid": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkRejected": "Rejected",
+  "@pieceWorkRejected": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkPcs": "pcs",
+  "@pieceWorkPcs": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkToApprove": "To approve",
+  "@pieceWorkToApprove": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkNothingToApprove": "Nothing to approve",
+  "@pieceWorkNothingToApprove": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkApprove": "Approve",
+  "@pieceWorkApprove": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkReject": "Reject",
+  "@pieceWorkReject": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkReason": "Reason — the worker will see it",
+  "@pieceWorkReason": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkRates": "Rates",
+  "@pieceWorkRates": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkAddRate": "Add a rate",
+  "@pieceWorkAddRate": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkDisabled": "Disabled",
+  "@pieceWorkDisabled": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkCoefficients": "Overtime and weekends",
+  "@pieceWorkCoefficients": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkOvertime": "Overtime",
+  "@pieceWorkOvertime": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkWeekend": "Weekend",
+  "@pieceWorkWeekend": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkAfter": "after",
+  "@pieceWorkAfter": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkNoCoefficient": "as usual",
+  "@pieceWorkNoCoefficient": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkOperation": "Operation",
+  "@pieceWorkOperation": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkOperationHint": "As named in the shop, or «Фасад» for finished facades",
+  "@pieceWorkOperationHint": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkPerPiece": "per piece",
+  "@pieceWorkPerPiece": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkRate": "Rate",
+  "@pieceWorkRate": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkEnabled": "In use",
+  "@pieceWorkEnabled": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkShiftEnd": "Shift ends at (HH:MM)",
+  "@pieceWorkShiftEnd": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkSaturdayOff": "Saturday is a day off",
+  "@pieceWorkSaturdayOff": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkSundayOff": "Sunday is a day off",
+  "@pieceWorkSundayOff": {
+    "description": "Piece-rate pay"
+  },
+  "pieceWorkEstimate": "Piece rate: ~{amount}",
+  "@pieceWorkEstimate": {
+    "description": "Piece-rate pay",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expensesTitle": "Urgent expenses",
+  "@expensesTitle": {
+    "description": "Urgent expenses"
+  },
+  "expensesAdd": "Add an expense",
+  "@expensesAdd": {
+    "description": "Urgent expenses"
+  },
+  "expensesPendingTotal": "Awaiting a decision",
+  "@expensesPendingTotal": {
+    "description": "Urgent expenses"
+  },
+  "expensesEmptyTitle": "No expenses",
+  "@expensesEmptyTitle": {
+    "description": "Urgent expenses"
+  },
+  "expensesEmptyMessage": "Spent money on the job? Write it down here, with the receipt.",
+  "@expensesEmptyMessage": {
+    "description": "Urgent expenses"
+  },
+  "expensesFiled": "Expense recorded",
+  "@expensesFiled": {
+    "description": "Urgent expenses"
+  },
+  "expensesReceiptNotSent": "Recorded, but the receipt photo was not sent.",
+  "@expensesReceiptNotSent": {
+    "description": "Urgent expenses"
+  },
+  "expensesAmount": "Amount",
+  "@expensesAmount": {
+    "description": "Urgent expenses"
+  },
+  "expensesPurpose": "What for",
+  "@expensesPurpose": {
+    "description": "Urgent expenses"
+  },
+  "expensesCategory": "Category",
+  "@expensesCategory": {
+    "description": "Urgent expenses"
+  },
+  "expensesReceipt": "Photo of the receipt",
+  "@expensesReceipt": {
+    "description": "Urgent expenses"
+  },
+  "pinAdminTitle": "PIN sign-in",
+  "@pinAdminTitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminSubtitle": "Shop-floor tablets and who signs in on them",
+  "@pinAdminSubtitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminTablets": "Tablets",
+  "@pinAdminTablets": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminRegisterThis": "Make this device a PIN tablet",
+  "@pinAdminRegisterThis": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminThisIs": "This device: {label}",
+  "@pinAdminThisIs": {
+    "description": "PIN sign-in on shop-floor tablets",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "pinAdminRevoked": "Switched off",
+  "@pinAdminRevoked": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminRevoke": "Switch off",
+  "@pinAdminRevoke": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminPeople": "People with a PIN",
+  "@pinAdminPeople": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminLocked": "Locked after wrong attempts",
+  "@pinAdminLocked": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminClear": "Remove PIN",
+  "@pinAdminClear": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminAssign": "Assign a PIN",
+  "@pinAdminAssign": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminTabletName": "Tablet name, e.g. «Shop, cutting»",
+  "@pinAdminTabletName": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminRegistered": "Tablet registered",
+  "@pinAdminRegistered": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminChoosePerson": "Employee",
+  "@pinAdminChoosePerson": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminNewPin": "PIN, 4 to 6 digits",
+  "@pinAdminNewPin": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinAdminPinSet": "PIN assigned",
+  "@pinAdminPinSet": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginTitle": "Sign in with PIN",
+  "@pinLoginTitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginSubtitle": "Choose yourself and enter your PIN",
+  "@pinLoginSubtitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginUnavailableTitle": "This tablet is not set up for PINs",
+  "@pinLoginUnavailableTitle": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginUnavailableMessage": "Ask the administrator to register it in Settings.",
+  "@pinLoginUnavailableMessage": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "pinLoginPin": "PIN",
+  "@pinLoginPin": {
+    "description": "PIN sign-in on shop-floor tablets"
+  },
+  "materialStockTitle": "Materials",
+  "@materialStockTitle": {
+    "description": "Materials store"
+  },
+  "materialStockOnHand": "On hand",
+  "@materialStockOnHand": {
+    "description": "Materials store"
+  },
+  "materialStockReceive": "Receive",
+  "@materialStockReceive": {
+    "description": "Materials store"
+  },
+  "materialStockLists": "Lists",
+  "@materialStockLists": {
+    "description": "Materials store"
+  },
+  "materialStockEmptyTitle": "Nothing in stock yet",
+  "@materialStockEmptyTitle": {
+    "description": "Materials store"
+  },
+  "materialStockEmptyMessage": "Purchases appear here once they are received.",
+  "@materialStockEmptyMessage": {
+    "description": "Materials store"
+  },
+  "materialStockAverage": "Average price {price}",
+  "@materialStockAverage": {
+    "description": "Materials store",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockFillAll": "Fill in every field.",
+  "@materialStockFillAll": {
+    "description": "Materials store"
+  },
+  "materialStockReceived": "{title}: received, now {onHand}",
+  "@materialStockReceived": {
+    "description": "Materials store",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "onHand": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockName": "Material name",
+  "@materialStockName": {
+    "description": "Materials store"
+  },
+  "materialStockSupplier": "Bought from",
+  "@materialStockSupplier": {
+    "description": "Materials store"
+  },
+  "materialStockQty": "How many",
+  "@materialStockQty": {
+    "description": "Materials store"
+  },
+  "materialStockUnit": "Unit",
+  "@materialStockUnit": {
+    "description": "Materials store"
+  },
+  "materialStockPrice": "Price per unit",
+  "@materialStockPrice": {
+    "description": "Materials store"
+  },
+  "materialStockSuppliers": "Suppliers",
+  "@materialStockSuppliers": {
+    "description": "Materials store"
+  },
+  "materialStockAdd": "Add",
+  "@materialStockAdd": {
+    "description": "Materials store"
+  },
+  "materialStockAdded": "«{value}» added",
+  "@materialStockAdded": {
+    "description": "Materials store",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockOff": "{value} (off)",
+  "@materialStockOff": {
+    "description": "Materials store",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockOpen": "Materials",
+  "@materialStockOpen": {
+    "description": "Materials store"
+  },
+  "directionAll": "All",
+  "directionFurniture": "Furniture",
+  "directionFacades": "Facades",
+  "orderUrgent": "Urgent",
+  "tierNew": "New",
+  "tierRegular": "Regular",
+  "tierVip": "VIP",
+  "@directionAll": {
+    "description": "Order list filter: both lines of business."
+  },
+  "@orderUrgent": {
+    "description": "Badge on an urgent order."
+  },
+  "facadeSpecTitle": "Technical details",
+  "facadeSpecThickness": "Thickness, mm",
+  "facadeSpecDecorTop": "Face decor",
+  "facadeSpecDecorBottom": "Back decor",
+  "facadeSpecEdge": "Edge profile",
+  "facadeSpecNone": "—",
+  "facadeSpecGroup": "group “{group}”",
+  "@facadeSpecGroup": {
+    "description": "Colour group of a facade position.",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockHeld": "On hand {onHand} · reserved {reserved}",
+  "@materialStockHeld": {
+    "description": "Warehouse reservations (package 5)",
+    "placeholders": {
+      "onHand": {
+        "type": "String"
+      },
+      "reserved": {
+        "type": "String"
+      }
+    }
+  },
+  "materialStockFree": "{qty} free",
+  "@materialStockFree": {
+    "description": "Warehouse reservations (package 5)",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeMaterialsTitle": "Materials for the order",
+  "@facadeMaterialsTitle": {
+    "description": "Warehouse reservations (package 5)"
+  },
+  "facadeMaterialsLine": "need {needed} · held {held} · written off {issued}",
+  "@facadeMaterialsLine": {
+    "description": "Warehouse reservations (package 5)",
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "held": {
+        "type": "String"
+      },
+      "issued": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeMaterialsShort": "short {qty}",
+  "@facadeMaterialsShort": {
+    "description": "Warehouse reservations (package 5)",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "facadeMaterialsHeld": "All held",
+  "@facadeMaterialsHeld": {
+    "description": "Warehouse reservations (package 5)"
+  },
+  "facadeMaterialsReserve": "Reserve what is free",
+  "@facadeMaterialsReserve": {
+    "description": "Warehouse reservations (package 5)"
+  },
+  "facadeMaterialsEmpty": "Nothing needed from the warehouse",
+  "@facadeMaterialsEmpty": {
+    "description": "Warehouse reservations (package 5)"
+  },
+  "crewTitle": "Who made it?",
+  "@crewTitle": {
+    "description": "Payroll (package 6)"
+  },
+  "crewHint": "Tick the crew. Shares in % are optional — empty means equal.",
+  "@crewHint": {
+    "description": "Payroll (package 6)"
+  },
+  "crewTooSmall": "A crew is at least two people.",
+  "@crewTooSmall": {
+    "description": "Payroll (package 6)"
+  },
+  "crewSharesAllOrNone": "Give everyone a share — or no one, for equal shares.",
+  "@crewSharesAllOrNone": {
+    "description": "Payroll (package 6)"
+  },
+  "crewDone": "Done",
+  "@crewDone": {
+    "description": "Payroll (package 6)"
+  },
+  "crewDoneTogether": "Done — made together…",
+  "@crewDoneTogether": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollTitle": "Pay sheet",
+  "@payrollTitle": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollCopyCsv": "Copy for accounting (CSV)",
+  "@payrollCopyCsv": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollCsvCopied": "Pay sheet copied — paste it into Excel",
+  "@payrollCsvCopied": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollPrevMonth": "Previous month",
+  "@payrollPrevMonth": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollNextMonth": "Next month",
+  "@payrollNextMonth": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollEmpty": "Nothing accrued this month",
+  "@payrollEmpty": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollTotal": "Total to pay",
+  "@payrollTotal": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollPiece": "Piece work",
+  "@payrollPiece": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollDailyBonus": "Daily bonuses",
+  "@payrollDailyBonus": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollMonthlyBonus": "Monthly bonus",
+  "@payrollMonthlyBonus": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollBonus": "Bonus",
+  "@payrollBonus": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollFine": "Fines",
+  "@payrollFine": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollAdvance": "Advances",
+  "@payrollAdvance": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollPending": "Not yet approved: {amount}",
+  "@payrollPending": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payrollAdjustments": "Advances, fines, bonuses",
+  "@payrollAdjustments": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollAddAdjustment": "Add",
+  "@payrollAddAdjustment": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollNoAdjustments": "None this month",
+  "@payrollNoAdjustments": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollReverse": "Reverse",
+  "@payrollReverse": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollEmployee": "Employee",
+  "@payrollEmployee": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollAmount": "Amount",
+  "@payrollAmount": {
+    "description": "Payroll (package 6)"
+  },
+  "payrollReason": "Reason",
+  "@payrollReason": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusToday": "Today's bonus",
+  "@bonusToday": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusMonth": "This month's bonus",
+  "@bonusMonth": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusReached": "Reached — bonus {bonus}",
+  "@bonusReached": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusLeft": "{left} to go for {bonus}",
+  "@bonusLeft": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusRules": "Bonuses",
+  "@bonusRules": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusRuleDay": "From {threshold} a day — {bonus}",
+  "@bonusRuleDay": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusRuleMonth": "From {threshold} a month — {bonus}",
+  "@bonusRuleMonth": {
+    "description": "Payroll (package 6)",
+    "placeholders": {
+      "threshold": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusDayThreshold": "Daily threshold",
+  "@bonusDayThreshold": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusDayAmount": "Daily bonus",
+  "@bonusDayAmount": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusMonthThreshold": "Monthly threshold",
+  "@bonusMonthThreshold": {
+    "description": "Payroll (package 6)"
+  },
+  "bonusMonthAmount": "Monthly bonus",
+  "@bonusMonthAmount": {
+    "description": "Payroll (package 6)"
+  },
+  "crewSplitPercent": "In %",
+  "@crewSplitPercent": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "crewSplitByAmount": "Who made how much, {unit}",
+  "@crewSplitByAmount": {
+    "description": "Crews on stages (package 6, part 2)",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "crewHintAmount": "Tick the crew and enter how much each made. The amounts must add up to the total.",
+  "@crewHintAmount": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "crewMadeTogether": "Made together…",
+  "@crewMadeTogether": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "crewChosen": "Crew: {count} people",
+  "@crewChosen": {
+    "description": "Crews on stages (package 6, part 2)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "crewClear": "Remove the crew",
+  "@crewClear": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "unitPieces": "pcs",
+  "@unitPieces": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "unitSquareMetres": "m²",
+  "@unitSquareMetres": {
+    "description": "Crews on stages (package 6, part 2)"
+  },
+  "payrollPaid": "Paid out",
+  "@payrollPaid": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "payrollLeft": "Left to pay",
+  "@payrollLeft": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "payrollMarkPaid": "Mark as paid",
+  "@payrollMarkPaid": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "payrollMarkPaidConfirm": "{name}: paid {amount}? The period closes — no more advances, fines or bonuses can be entered for it.",
+  "@payrollMarkPaidConfirm": {
+    "description": "Payouts (package 6, part 2)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payrollMarkPaidDone": "Payout recorded",
+  "@payrollMarkPaidDone": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "payrollTotalLeft": "Left to pay in total",
+  "@payrollTotalLeft": {
+    "description": "Payouts (package 6, part 2)"
+  },
+  "tradesAction": "Shop trades",
+  "@tradesAction": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesTitle": "What they do",
+  "@tradesTitle": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesHint": "Several are fine. Trades give no rights — the position does.",
+  "@tradesHint": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesOwn": "Your own trade",
+  "@tradesOwn": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesAdd": "Add",
+  "@tradesAdd": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "tradesSaved": "Trades saved",
+  "@tradesSaved": {
+    "description": "Shop trades (package 6, part 2)"
+  },
+  "oneCTitle": "Exchange with 1C",
+  "@oneCTitle": {
+    "description": "Exchange with 1C"
+  },
+  "oneCSubtitle": "Sales, payments, receipts and pay sheet for accounting",
+  "@oneCSubtitle": {
+    "description": "Exchange with 1C"
+  },
+  "oneCEnabled": "Exchange with 1C is on",
+  "@oneCEnabled": {
+    "description": "Exchange with 1C"
+  },
+  "oneCOffHint": "Exchange is off. If the company keeps no 1C, leave it so.",
+  "@oneCOffHint": {
+    "description": "Exchange with 1C"
+  },
+  "oneCHowTo": "In 1C: «Load data from a spreadsheet» — paste what you copied. Dates DD.MM.YYYY, decimal comma.",
+  "@oneCHowTo": {
+    "description": "Exchange with 1C"
+  },
+  "oneCCopy": "Copy",
+  "@oneCCopy": {
+    "description": "Exchange with 1C"
+  },
+  "oneCCopied": "{title}: {count} rows. Paste into 1C.",
+  "@oneCCopied": {
+    "description": "Exchange with 1C",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressLayoutTitle": "Press layout",
+  "@pressLayoutTitle": {
+    "description": "Press layout"
+  },
+  "pressTextured": "TEXTURED — DO NOT TURN",
+  "@pressTextured": {
+    "description": "Press layout"
+  },
+  "pressPlain": "Plain — may be turned",
+  "@pressPlain": {
+    "description": "Press layout"
+  },
+  "pressLoad": "Load {count} · section {metres} m",
+  "@pressLoad": {
+    "description": "Press layout",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressFilmTotal": "Film: {metres} m",
+  "@pressFilmTotal": {
+    "description": "Press layout",
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressCorrected": "Corrected by hand: {reason}. Layout says {metres} m.",
+  "@pressCorrected": {
+    "description": "Press layout",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressTooBig": "Larger than the press table: lines {positions}",
+  "@pressTooBig": {
+    "description": "Press layout",
+    "placeholders": {
+      "positions": {
+        "type": "String"
+      }
+    }
+  },
+  "pressCorrect": "Correct the metres",
+  "@pressCorrect": {
+    "description": "Press layout"
+  },
+  "pressMetres": "Film, metres",
+  "@pressMetres": {
+    "description": "Press layout"
+  },
+  "pressReason": "Why not as laid out",
+  "@pressReason": {
+    "description": "Press layout"
+  },
+  "pressBackToLayout": "Back to the layout",
+  "@pressBackToLayout": {
+    "description": "Press layout"
+  },
+  "pressNoFilm": "The order has no PVC-film facades.",
+  "@pressNoFilm": {
+    "description": "Press layout"
+  },
+  "pressSettingsTitle": "Press: area, gap, sections",
+  "@pressSettingsTitle": {
+    "description": "Press layout"
+  },
+  "pressLength": "Working length, mm",
+  "@pressLength": {
+    "description": "Press layout"
+  },
+  "pressWidth": "Working width, mm",
+  "@pressWidth": {
+    "description": "Press layout"
+  },
+  "pressMargin": "Margin at the edge, mm",
+  "@pressMargin": {
+    "description": "Press layout"
+  },
+  "pressGap": "Gap between parts, mm",
+  "@pressGap": {
+    "description": "Press layout"
+  },
+  "pressSections": "Sections: film and working length",
+  "@pressSections": {
+    "description": "Press layout"
+  },
+  "pressSectionFilm": "Film, m",
+  "@pressSectionFilm": {
+    "description": "Press layout"
+  },
+  "pressAddSection": "Add a section",
+  "@pressAddSection": {
+    "description": "Press layout"
+  },
+  "pressSaved": "Press settings saved",
+  "@pressSaved": {
+    "description": "Press layout"
+  },
+  "materialTextured": "Textured film",
+  "@materialTextured": {
+    "description": "Press layout"
+  },
+  "materialTexturedHint": "Parts are not turned on the press; the map says «DO NOT TURN»",
+  "@materialTexturedHint": {
+    "description": "Press layout"
+  },
+  "pressPrint": "Print the layout",
+  "@pressPrint": {
+    "description": "Press layout print"
+  },
+  "pressPrintLoad": "Load {count} of {total} · section {metres} m",
+  "@pressPrintLoad": {
+    "description": "Press layout print",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintSheet": "Sheet {count}",
+  "@pressPrintSheet": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressPrintCopies": "Copies: {count}",
+  "@pressPrintCopies": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressPrintSize": "Size: {size} mm",
+  "@pressPrintSize": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintSection": "Film section: {metres} m",
+  "@pressPrintSection": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintArea": "Sheet area: {area} m²",
+  "@pressPrintArea": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintParts": "Parts: {area} m² ({share}%)",
+  "@pressPrintParts": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "share": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintWaste": "Waste: {area} m² ({share}%)",
+  "@pressPrintWaste": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "share": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintCount": "Parts: {count}",
+  "@pressPrintCount": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressPrintPerimeter": "Parts perimeter: {metres} m",
+  "@pressPrintPerimeter": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintGap": "Gap: {gap} mm · margin: {margin} mm",
+  "@pressPrintGap": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "gap": {
+        "type": "String"
+      },
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintDetails": "Parts",
+  "@pressPrintDetails": {
+    "description": "Press layout print, two loads a page"
+  },
+  "pressPrintPage": "Page {count}",
+  "@pressPrintPage": {
+    "description": "Press layout print, two loads a page",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logisticsTitle": "Logistics",
+  "@logisticsTitle": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsDeliveries": "Deliveries",
+  "@logisticsDeliveries": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsSummary": "Summary",
+  "@logisticsSummary": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsAdd": "Record a delivery",
+  "@logisticsAdd": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsEmpty": "No deliveries this month",
+  "@logisticsEmpty": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsEmptyMessage": "A van, a taxi, a transport company — write down what bringing the material cost.",
+  "@logisticsEmptyMessage": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsAmount": "Delivery cost",
+  "@logisticsAmount": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsFrom": "From (city)",
+  "@logisticsFrom": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsTransport": "Delivered by",
+  "@logisticsTransport": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsCarrier": "Carrier (optional)",
+  "@logisticsCarrier": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsWhat": "What came",
+  "@logisticsWhat": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsQty": "Quantity",
+  "@logisticsQty": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsUnit": "Unit",
+  "@logisticsUnit": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsOrder": "Order № (if for an order)",
+  "@logisticsOrder": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsOrderedOn": "Ordered",
+  "@logisticsOrderedOn": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsDeliveredOn": "Arrived",
+  "@logisticsDeliveredOn": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsUrgent": "Urgent (paid extra for speed)",
+  "@logisticsUrgent": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsNote": "Note",
+  "@logisticsNote": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsSaved": "Delivery recorded",
+  "@logisticsSaved": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsCancel": "Cancel the record",
+  "@logisticsCancel": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsCancelReason": "Why cancel",
+  "@logisticsCancelReason": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsCancelled": "Cancelled: {reason}",
+  "@logisticsCancelled": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsDays": "{count} days on the road",
+  "@logisticsDays": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logisticsTotal": "This month: {amount}",
+  "@logisticsTotal": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsPrevious": "Last month: {amount}",
+  "@logisticsPrevious": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsByCategory": "By material",
+  "@logisticsByCategory": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsByCity": "By city",
+  "@logisticsByCity": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsByTransport": "By way of delivery",
+  "@logisticsByTransport": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsByCarrier": "By carrier",
+  "@logisticsByCarrier": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsPerUnit": "Per unit",
+  "@logisticsPerUnit": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsPerUnitLine": "{amount} per {unit} · {qty} {unit} delivered",
+  "@logisticsPerUnitLine": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsCount": "deliveries: {count}",
+  "@logisticsCount": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logisticsAverageDays": "{days} days on the road on average",
+  "@logisticsAverageDays": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsUrgentLine": "Urgent: {count} for {amount}",
+  "@logisticsUrgentLine": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsUnlinked": "Receipts without a delivery",
+  "@logisticsUnlinked": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsUnlinkedHint": "The material came but its delivery was not written down. Write it — or 0 ₸ if the supplier brought it.",
+  "@logisticsUnlinkedHint": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsWrite": "Record",
+  "@logisticsWrite": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsDeliveryOptional": "Delivery (if paid for)",
+  "@logisticsDeliveryOptional": {
+    "description": "Logistics: deliveries kept apart from material"
   }
 }

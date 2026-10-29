@@ -9,7 +9,9 @@ from korkem_manufacturing.services import registration
 class TestRegistration(IntegrationTestCase):
 	def setUp(self):
 		self.test_email = "furniture.test.maker@example.com"
-		self.test_company = "Мебель Тест Цех"
+		# Unique per test: registration refuses an existing company by design,
+		# and a company left by an earlier test would otherwise be "existing".
+		self.test_company = f"Мебель Тест Цех {frappe.generate_hash(length=6)}"
 		self._cleanup()
 
 	def tearDown(self):
@@ -17,14 +19,19 @@ class TestRegistration(IntegrationTestCase):
 
 	def _cleanup(self):
 		frappe.set_user("Administrator")
-		if frappe.db.exists("User", self.test_email):
-			frappe.delete_doc("User", self.test_email, force=1, ignore_permissions=True)
+		# Permissions and contacts first: a User with linked rows is not deleted.
 		for perm in frappe.get_all(
 			"User Permission",
 			filters={"user": self.test_email},
 			pluck="name",
 		):
 			frappe.delete_doc("User Permission", perm, force=1, ignore_permissions=True)
+		for contact in frappe.get_all("Contact", filters={"user": self.test_email}, pluck="name"):
+			frappe.delete_doc("Contact", contact, force=1, ignore_permissions=True)
+		if frappe.db.exists("User", self.test_email):
+			frappe.delete_doc("User", self.test_email, force=1, ignore_permissions=True)
+		if frappe.db.exists("Company", self.test_company):
+			frappe.delete_doc("Company", self.test_company, force=1, ignore_permissions=True)
 		frappe.db.commit()
 
 	def test_register_creates_company_and_owner(self):

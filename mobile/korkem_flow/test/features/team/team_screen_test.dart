@@ -38,6 +38,21 @@ class _FakeTeamRepository extends TeamRepository {
   changePositionHandler;
   final Future<DeactivateResult> Function(String email)? deactivateHandler;
   final Future<ReactivateResult> Function(String email)? reactivateHandler;
+  final savedTrades = <(String, List<String>)>[];
+
+  @override
+  Future<ShopTrades> fetchTrades() async => const ShopTrades(
+    trades: [
+      ShopTrade(trade: 'TRADE-00001', title: 'Раскройщик'),
+      ShopTrade(trade: 'TRADE-00002', title: 'Кромщик'),
+      ShopTrade(trade: 'TRADE-00003', title: 'Маляр', enabled: false),
+    ],
+    canEdit: true,
+  );
+
+  @override
+  Future<void> setMemberTrades(String user, List<String> titles) async =>
+      savedTrades.add((user, titles));
 
   @override
   Future<List<PositionOption>> fetchPositions() {
@@ -921,6 +936,55 @@ void main() {
       expect(find.text('Доступ возвращён'), findsOneWidget);
     },
   );
+
+  testWidgets('a worker has several trades, set from the team list', (
+    tester,
+  ) async {
+    final repo = _FakeTeamRepository(
+      fetchMembersHandler: () async => [
+        const TeamMember(
+          email: 'cutter@korkem.kz',
+          firstName: 'Ержан',
+          fullName: 'Ержан Раскрой',
+          position: EmployeePosition.cutter,
+          roles: ['Manufacturing User'],
+          enabled: true,
+          trades: ['Раскройщик'],
+        ),
+      ],
+    );
+    await tester.pumpWidget(buildHarness(tester, repository: repo));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('memberTrades:cutter@korkem.kz')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('memberTradesAction')));
+    await tester.pumpAndSettle();
+    // A switched-off trade is not offered.
+    expect(find.byKey(const ValueKey('trade:Маляр')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('trade:Кромщик')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tradesSave')));
+    await tester.pumpAndSettle();
+
+    // Records compare lists by identity, so the parts are checked apart.
+    expect(repo.savedTrades.single.$1, 'cutter@korkem.kz');
+    expect(repo.savedTrades.single.$2, ['Раскройщик', 'Кромщик']);
+  });
+
+  test('trades come from the server with the person', () {
+    final member = TeamMember.fromJson(const {
+      'email': 'cutter@korkem.kz',
+      'position': 'cutter',
+      'enabled': true,
+      'trades': ['Раскройщик', 'Кромщик'],
+    });
+    expect(member.trades, ['Раскройщик', 'Кромщик']);
+  });
 }
 
 class _TestSessionController extends SessionController {

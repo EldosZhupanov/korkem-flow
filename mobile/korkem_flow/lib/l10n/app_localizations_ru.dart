@@ -3546,4 +3546,1022 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get hardwareEmptyFilteredMessage =>
       'Попробуйте изменить тип фурнитуры, наложение или сбросить фильтры.';
+
+  @override
+  String get priceVisibilityTitle => 'Цены для цеха';
+
+  @override
+  String get priceVisibilitySubtitle =>
+      'Показывать цеху, складу и водителям цены клиентов и суммы заказов';
+
+  @override
+  String get priceVisibilitySaveFailed =>
+      'Не удалось сохранить. Попробуйте ещё раз.';
+
+  @override
+  String get defectPhotoAdd => 'Фото брака (по желанию)';
+
+  @override
+  String get defectPhotoChosen => 'Фото приложено';
+
+  @override
+  String get defectPhotoRemove => 'Убрать';
+
+  @override
+  String get defectPhotoNotSent =>
+      'Этап записан, но фото брака не отправилось.';
+
+  @override
+  String get defectPhotoCameraFailed => 'Не удалось открыть камеру.';
+
+  @override
+  String get facadePricesTitle => 'Цены фасадов';
+
+  @override
+  String get facadePricesSubtitle => 'Цена за м² по фрезеровке и отделке';
+
+  @override
+  String get facadePricesAddMilling => 'Добавить фрезеровку';
+
+  @override
+  String get facadePricesMilling => 'Фрезеровка';
+
+  @override
+  String get facadePricesFinish => 'Отделка';
+
+  @override
+  String get facadePricesPricePerM2 => 'Цена за м²';
+
+  @override
+  String get facadePricesSold => 'Продаётся';
+
+  @override
+  String get facadePricesNotSold => 'Не продаётся';
+
+  @override
+  String get facadePricesSaved => 'Цена сохранена';
+
+  @override
+  String get facadePricesSave => 'Сохранить';
+
+  @override
+  String get facadeQuoteTitle => 'Расчёт заказа фасадов';
+
+  @override
+  String get facadeQuoteAddLine => 'Добавить фасад';
+
+  @override
+  String get facadeQuoteDemolition => 'Демонтаж';
+
+  @override
+  String get facadeQuotePrepaymentManual => 'Предоплата (если другая)';
+
+  @override
+  String facadeQuotePrepaymentDefault(String percent) {
+    return 'По умолчанию $percent% от суммы';
+  }
+
+  @override
+  String get facadeQuoteCalculate => 'Рассчитать';
+
+  @override
+  String get facadeQuoteNumberRequired => 'Введите число';
+
+  @override
+  String facadeQuoteLine(int number) {
+    return 'Фасад $number';
+  }
+
+  @override
+  String get facadeQuoteRemoveLine => 'Убрать';
+
+  @override
+  String get facadeQuoteWidth => 'Ширина, мм';
+
+  @override
+  String get facadeQuoteHeight => 'Высота, мм';
+
+  @override
+  String get facadeQuoteQty => 'Шт.';
+
+  @override
+  String get facadeQuoteDoubleSided => 'Двусторонний';
+
+  @override
+  String get facadeQuoteCustomerMaterial => 'Материал заказчика';
+
+  @override
+  String get facadeQuotePieces => 'Штук';
+
+  @override
+  String get facadeQuoteArea => 'Площадь';
+
+  @override
+  String get facadeQuoteTotal => 'Сумма';
+
+  @override
+  String get facadeQuotePrepayment => 'Предоплата';
+
+  @override
+  String get facadeQuoteBalance => 'Остаток';
+
+  @override
+  String get facadeRulesNotOffered => 'Не предлагается';
+
+  @override
+  String get facadeRulesTitle => 'Правила расчёта';
+
+  @override
+  String get facadeRulesDoubleSidedFactor => 'Коэффициент двустороннего (×)';
+
+  @override
+  String get facadeRulesEmptyMeansOff => 'Пусто — не предлагается';
+
+  @override
+  String get facadeRulesDiscount => 'Скидка за материал заказчика';
+
+  @override
+  String get facadeRulesDemolitionRate => 'Цена демонтажа';
+
+  @override
+  String get facadeRulesPrepayment => 'Предоплата по умолчанию';
+
+  @override
+  String get facadeOrderSection => 'Оформить заказ';
+
+  @override
+  String get facadeOrderPickCustomer => 'Выберите клиента';
+
+  @override
+  String get facadeOrderSearchCustomer => 'Имя — нажмите Enter';
+
+  @override
+  String get facadeOrderNoCustomers => 'Клиенты не найдены';
+
+  @override
+  String get facadeOrderPickDate => 'Выберите срок сдачи';
+
+  @override
+  String facadeOrderDueOn(String date) {
+    return 'Срок: $date';
+  }
+
+  @override
+  String get facadeOrderCreate => 'Создать заказ';
+
+  @override
+  String facadeOrderCreated(String name) {
+    return 'Заказ $name создан';
+  }
+
+  @override
+  String orderPrepaymentDue(String amount) {
+    return 'Ждём предоплату: $amount';
+  }
+
+  @override
+  String get facadeJobsTitle => 'Фасады в работу';
+
+  @override
+  String get facadeJobsEmptyTitle => 'Фасадов в работе нет';
+
+  @override
+  String get facadeJobsEmptyMessage =>
+      'Фасады появятся здесь, когда будет оформлен заказ.';
+
+  @override
+  String facadeJobsDue(String date) {
+    return 'срок $date';
+  }
+
+  @override
+  String get pieceWorkTitle => 'Сдельная оплата';
+
+  @override
+  String get pieceWorkMine => 'Моя выработка';
+
+  @override
+  String get pieceWorkNothingYet => 'Пока ничего не начислено';
+
+  @override
+  String get pieceWorkPending => 'Ждёт утверждения';
+
+  @override
+  String get pieceWorkApproved => 'Утверждено';
+
+  @override
+  String get pieceWorkPaid => 'Выплачено';
+
+  @override
+  String get pieceWorkRejected => 'Отклонено';
+
+  @override
+  String get pieceWorkPcs => 'шт.';
+
+  @override
+  String get pieceWorkToApprove => 'На утверждение';
+
+  @override
+  String get pieceWorkNothingToApprove => 'Утверждать нечего';
+
+  @override
+  String get pieceWorkApprove => 'Утвердить';
+
+  @override
+  String get pieceWorkReject => 'Отклонить';
+
+  @override
+  String get pieceWorkReason => 'Причина — работник её увидит';
+
+  @override
+  String get pieceWorkRates => 'Тарифы';
+
+  @override
+  String get pieceWorkAddRate => 'Добавить тариф';
+
+  @override
+  String get pieceWorkDisabled => 'Отключён';
+
+  @override
+  String get pieceWorkCoefficients => 'Сверхурочные и выходные';
+
+  @override
+  String get pieceWorkOvertime => 'Сверхурочно';
+
+  @override
+  String get pieceWorkWeekend => 'Выходной';
+
+  @override
+  String get pieceWorkAfter => 'после';
+
+  @override
+  String get pieceWorkNoCoefficient => 'как обычно';
+
+  @override
+  String get pieceWorkOperation => 'Операция';
+
+  @override
+  String get pieceWorkOperationHint =>
+      'Как в цехе (например «Раскрой») или «Фасад» — за готовые фасады';
+
+  @override
+  String get pieceWorkPerPiece => 'за штуку';
+
+  @override
+  String get pieceWorkRate => 'Тариф';
+
+  @override
+  String get pieceWorkEnabled => 'Действует';
+
+  @override
+  String get pieceWorkShiftEnd => 'Смена заканчивается в (ЧЧ:ММ)';
+
+  @override
+  String get pieceWorkSaturdayOff => 'Суббота — выходной';
+
+  @override
+  String get pieceWorkSundayOff => 'Воскресенье — выходной';
+
+  @override
+  String pieceWorkEstimate(String amount) {
+    return 'Сдельно: ~$amount';
+  }
+
+  @override
+  String get expensesTitle => 'Срочные расходы';
+
+  @override
+  String get expensesAdd => 'Записать расход';
+
+  @override
+  String get expensesPendingTotal => 'Ждёт решения';
+
+  @override
+  String get expensesEmptyTitle => 'Расходов нет';
+
+  @override
+  String get expensesEmptyMessage =>
+      'Потратили деньги по работе? Запишите здесь, с чеком.';
+
+  @override
+  String get expensesFiled => 'Расход записан';
+
+  @override
+  String get expensesReceiptNotSent => 'Записано, но фото чека не отправилось.';
+
+  @override
+  String get expensesAmount => 'Сумма';
+
+  @override
+  String get expensesPurpose => 'На что';
+
+  @override
+  String get expensesCategory => 'Категория';
+
+  @override
+  String get expensesReceipt => 'Фото чека';
+
+  @override
+  String get pinAdminTitle => 'Вход по PIN';
+
+  @override
+  String get pinAdminSubtitle => 'Планшеты цеха и кто на них входит';
+
+  @override
+  String get pinAdminTablets => 'Планшеты';
+
+  @override
+  String get pinAdminRegisterThis => 'Сделать это устройство планшетом для PIN';
+
+  @override
+  String pinAdminThisIs(String label) {
+    return 'Это устройство: $label';
+  }
+
+  @override
+  String get pinAdminRevoked => 'Отключён';
+
+  @override
+  String get pinAdminRevoke => 'Отключить';
+
+  @override
+  String get pinAdminPeople => 'Сотрудники с PIN';
+
+  @override
+  String get pinAdminLocked => 'Заблокирован после неверных попыток';
+
+  @override
+  String get pinAdminClear => 'Снять PIN';
+
+  @override
+  String get pinAdminAssign => 'Назначить PIN';
+
+  @override
+  String get pinAdminTabletName => 'Название планшета, например «Цех, раскрой»';
+
+  @override
+  String get pinAdminRegistered => 'Планшет зарегистрирован';
+
+  @override
+  String get pinAdminChoosePerson => 'Сотрудник';
+
+  @override
+  String get pinAdminNewPin => 'PIN, от 4 до 6 цифр';
+
+  @override
+  String get pinAdminPinSet => 'PIN назначен';
+
+  @override
+  String get pinLoginTitle => 'Войти по PIN';
+
+  @override
+  String get pinLoginSubtitle => 'Выберите себя и введите PIN';
+
+  @override
+  String get pinLoginUnavailableTitle => 'Этот планшет не настроен для PIN';
+
+  @override
+  String get pinLoginUnavailableMessage =>
+      'Попросите администратора зарегистрировать его в настройках.';
+
+  @override
+  String get pinLoginPin => 'PIN';
+
+  @override
+  String get materialStockTitle => 'Склад материалов';
+
+  @override
+  String get materialStockOnHand => 'Остатки';
+
+  @override
+  String get materialStockReceive => 'Приход';
+
+  @override
+  String get materialStockLists => 'Справочники';
+
+  @override
+  String get materialStockEmptyTitle => 'На складе пока ничего нет';
+
+  @override
+  String get materialStockEmptyMessage =>
+      'Купленное появится здесь после прихода.';
+
+  @override
+  String materialStockAverage(String price) {
+    return 'Средняя цена $price';
+  }
+
+  @override
+  String get materialStockFillAll => 'Заполните все поля.';
+
+  @override
+  String materialStockReceived(String title, String onHand) {
+    return '$title: оприходовано, теперь $onHand';
+  }
+
+  @override
+  String get materialStockName => 'Название материала';
+
+  @override
+  String get materialStockSupplier => 'У кого купили';
+
+  @override
+  String get materialStockQty => 'Сколько';
+
+  @override
+  String get materialStockUnit => 'Единица';
+
+  @override
+  String get materialStockPrice => 'Цена за единицу';
+
+  @override
+  String get materialStockSuppliers => 'Поставщики';
+
+  @override
+  String get materialStockAdd => 'Добавить';
+
+  @override
+  String materialStockAdded(String value) {
+    return '«$value» добавлено';
+  }
+
+  @override
+  String materialStockOff(String value) {
+    return '$value (отключено)';
+  }
+
+  @override
+  String get materialStockOpen => 'Склад материалов';
+
+  @override
+  String get directionAll => 'Все';
+
+  @override
+  String get directionFurniture => 'Мебель';
+
+  @override
+  String get directionFacades => 'Фасады';
+
+  @override
+  String get orderUrgent => 'Срочно';
+
+  @override
+  String get tierNew => 'Новый';
+
+  @override
+  String get tierRegular => 'Постоянный';
+
+  @override
+  String get tierVip => 'VIP';
+
+  @override
+  String get facadeSpecTitle => 'Технические параметры';
+
+  @override
+  String get facadeSpecThickness => 'Толщина, мм';
+
+  @override
+  String get facadeSpecDecorTop => 'Декор лицевой';
+
+  @override
+  String get facadeSpecDecorBottom => 'Декор обратной';
+
+  @override
+  String get facadeSpecEdge => 'Профиль кромки';
+
+  @override
+  String get facadeSpecNone => '—';
+
+  @override
+  String facadeSpecGroup(String group) {
+    return 'группа «$group»';
+  }
+
+  @override
+  String materialStockHeld(String onHand, String reserved) {
+    return 'На складе $onHand · в резерве $reserved';
+  }
+
+  @override
+  String materialStockFree(String qty) {
+    return 'свободно $qty';
+  }
+
+  @override
+  String get facadeMaterialsTitle => 'Материалы под заказ';
+
+  @override
+  String facadeMaterialsLine(String needed, String held, String issued) {
+    return 'нужно $needed · в резерве $held · списано $issued';
+  }
+
+  @override
+  String facadeMaterialsShort(String qty) {
+    return 'не хватает $qty';
+  }
+
+  @override
+  String get facadeMaterialsHeld => 'Всё зарезервировано';
+
+  @override
+  String get facadeMaterialsReserve => 'Зарезервировать свободное';
+
+  @override
+  String get facadeMaterialsEmpty => 'Со склада ничего не нужно';
+
+  @override
+  String get crewTitle => 'Кто делал?';
+
+  @override
+  String get crewHint =>
+      'Отметьте бригаду. Доли в % — по желанию, пусто — поровну.';
+
+  @override
+  String get crewTooSmall => 'Бригада — не меньше двух человек.';
+
+  @override
+  String get crewSharesAllOrNone =>
+      'Укажите доли всем — или никому, тогда поровну.';
+
+  @override
+  String get crewDone => 'Готово';
+
+  @override
+  String get crewDoneTogether => 'Готово — делали вместе…';
+
+  @override
+  String get payrollTitle => 'Ведомость';
+
+  @override
+  String get payrollCopyCsv => 'Скопировать для бухгалтерии (CSV)';
+
+  @override
+  String get payrollCsvCopied => 'Ведомость скопирована — вставьте в Excel';
+
+  @override
+  String get payrollPrevMonth => 'Предыдущий месяц';
+
+  @override
+  String get payrollNextMonth => 'Следующий месяц';
+
+  @override
+  String get payrollEmpty => 'За этот месяц начислений нет';
+
+  @override
+  String get payrollTotal => 'Итого к выплате';
+
+  @override
+  String get payrollPiece => 'Сдельно';
+
+  @override
+  String get payrollDailyBonus => 'Премии за день';
+
+  @override
+  String get payrollMonthlyBonus => 'Премия за месяц';
+
+  @override
+  String get payrollBonus => 'Премия';
+
+  @override
+  String get payrollFine => 'Штрафы';
+
+  @override
+  String get payrollAdvance => 'Авансы';
+
+  @override
+  String payrollPending(String amount) {
+    return 'Ещё не утверждено: $amount';
+  }
+
+  @override
+  String get payrollAdjustments => 'Авансы, штрафы, премии';
+
+  @override
+  String get payrollAddAdjustment => 'Внести';
+
+  @override
+  String get payrollNoAdjustments => 'В этом месяце нет';
+
+  @override
+  String get payrollReverse => 'Сторнировать';
+
+  @override
+  String get payrollEmployee => 'Сотрудник';
+
+  @override
+  String get payrollAmount => 'Сумма';
+
+  @override
+  String get payrollReason => 'Причина';
+
+  @override
+  String get bonusToday => 'Премия за день';
+
+  @override
+  String get bonusMonth => 'Премия за месяц';
+
+  @override
+  String bonusReached(String bonus) {
+    return 'Достигнуто — премия $bonus';
+  }
+
+  @override
+  String bonusLeft(String left, String bonus) {
+    return 'До премии $bonus осталось $left';
+  }
+
+  @override
+  String get bonusRules => 'Премии';
+
+  @override
+  String bonusRuleDay(String threshold, String bonus) {
+    return 'От $threshold за день — $bonus';
+  }
+
+  @override
+  String bonusRuleMonth(String threshold, String bonus) {
+    return 'От $threshold за месяц — $bonus';
+  }
+
+  @override
+  String get bonusDayThreshold => 'Порог дня';
+
+  @override
+  String get bonusDayAmount => 'Премия за день';
+
+  @override
+  String get bonusMonthThreshold => 'Порог месяца';
+
+  @override
+  String get bonusMonthAmount => 'Премия за месяц';
+
+  @override
+  String get crewSplitPercent => 'В %';
+
+  @override
+  String crewSplitByAmount(String unit) {
+    return 'Кто сколько, $unit';
+  }
+
+  @override
+  String get crewHintAmount =>
+      'Отметьте бригаду и впишите, кто сколько сделал. Сумма должна сойтись с итогом.';
+
+  @override
+  String get crewMadeTogether => 'Делали вместе…';
+
+  @override
+  String crewChosen(int count) {
+    return 'Бригада: $count чел.';
+  }
+
+  @override
+  String get crewClear => 'Убрать бригаду';
+
+  @override
+  String get unitPieces => 'шт';
+
+  @override
+  String get unitSquareMetres => 'м²';
+
+  @override
+  String get payrollPaid => 'Выплачено';
+
+  @override
+  String get payrollLeft => 'Остаток к выплате';
+
+  @override
+  String get payrollMarkPaid => 'Отметить выплату';
+
+  @override
+  String payrollMarkPaidConfirm(String name, String amount) {
+    return '$name: выплачено $amount? Период закроется — авансы, штрафы и премии за него больше не внести.';
+  }
+
+  @override
+  String get payrollMarkPaidDone => 'Выплата записана';
+
+  @override
+  String get payrollTotalLeft => 'Осталось выплатить';
+
+  @override
+  String get tradesAction => 'Профессии в цехе';
+
+  @override
+  String get tradesTitle => 'Чем занимается';
+
+  @override
+  String get tradesHint =>
+      'Можно несколько. Профессии не дают прав — права задаёт должность.';
+
+  @override
+  String get tradesOwn => 'Своя профессия';
+
+  @override
+  String get tradesAdd => 'Добавить';
+
+  @override
+  String get tradesSaved => 'Профессии сохранены';
+
+  @override
+  String get oneCTitle => 'Обмен с 1С';
+
+  @override
+  String get oneCSubtitle =>
+      'Выгрузка продаж, оплат, поступлений и ведомости для бухгалтерии';
+
+  @override
+  String get oneCEnabled => 'Обмен с 1С включён';
+
+  @override
+  String get oneCOffHint =>
+      'Обмен выключен. Если в компании 1С не ведут, так и оставьте.';
+
+  @override
+  String get oneCHowTo =>
+      'В 1С: «Загрузка данных из табличного документа» — вставьте скопированное. Даты ДД.ММ.ГГГГ, дробная часть через запятую.';
+
+  @override
+  String get oneCCopy => 'Скопировать';
+
+  @override
+  String oneCCopied(String title, int count) {
+    return '$title: строк — $count. Вставьте в 1С.';
+  }
+
+  @override
+  String get pressLayoutTitle => 'Раскладка на пресс';
+
+  @override
+  String get pressTextured => 'ТЕКСТУРА — НЕ ВРАЩАТЬ';
+
+  @override
+  String get pressPlain => 'Однотонная — можно вращать';
+
+  @override
+  String pressLoad(int count, String metres) {
+    return 'Загрузка $count · секция $metres м';
+  }
+
+  @override
+  String pressFilmTotal(String metres) {
+    return 'Плёнка: $metres м';
+  }
+
+  @override
+  String pressCorrected(String reason, String metres) {
+    return 'Поправлено вручную: $reason. По раскладке — $metres м.';
+  }
+
+  @override
+  String pressTooBig(String positions) {
+    return 'Больше стола пресса: позиции $positions';
+  }
+
+  @override
+  String get pressCorrect => 'Поправить метраж';
+
+  @override
+  String get pressMetres => 'Метры плёнки';
+
+  @override
+  String get pressReason => 'Почему не по раскладке';
+
+  @override
+  String get pressBackToLayout => 'Вернуть по раскладке';
+
+  @override
+  String get pressNoFilm => 'В заказе нет фасадов в ПВХ-плёнке.';
+
+  @override
+  String get pressSettingsTitle => 'Пресс: поле, зазор, секции';
+
+  @override
+  String get pressLength => 'Рабочая длина, мм';
+
+  @override
+  String get pressWidth => 'Рабочая ширина, мм';
+
+  @override
+  String get pressMargin => 'Отступ от края, мм';
+
+  @override
+  String get pressGap => 'Зазор между деталями, мм';
+
+  @override
+  String get pressSections => 'Секции: плёнка и рабочая длина';
+
+  @override
+  String get pressSectionFilm => 'Плёнка, м';
+
+  @override
+  String get pressAddSection => 'Добавить секцию';
+
+  @override
+  String get pressSaved => 'Настройки пресса сохранены';
+
+  @override
+  String get materialTextured => 'Текстурная плёнка';
+
+  @override
+  String get materialTexturedHint =>
+      'Детали не вращаются на прессе, на раскладке — «НЕ ВРАЩАТЬ»';
+
+  @override
+  String get pressPrint => 'Печать раскладки';
+
+  @override
+  String pressPrintLoad(int count, int total, String metres) {
+    return 'Загрузка $count из $total · секция $metres м';
+  }
+
+  @override
+  String pressPrintSheet(int count) {
+    return 'Лист № $count';
+  }
+
+  @override
+  String pressPrintCopies(int count) {
+    return 'Кол-во копий: $count';
+  }
+
+  @override
+  String pressPrintSize(String size) {
+    return 'Размер: $size мм';
+  }
+
+  @override
+  String pressPrintSection(String metres) {
+    return 'Секция плёнки: $metres м';
+  }
+
+  @override
+  String pressPrintArea(String area) {
+    return 'S листа: $area м²';
+  }
+
+  @override
+  String pressPrintParts(String area, String share) {
+    return 'S деталей: $area м² ($share%)';
+  }
+
+  @override
+  String pressPrintWaste(String area, String share) {
+    return 'Отходы: $area м² ($share%)';
+  }
+
+  @override
+  String pressPrintCount(int count) {
+    return 'Кол-во деталей: $count';
+  }
+
+  @override
+  String pressPrintPerimeter(String metres) {
+    return 'Периметр деталей: $metres м';
+  }
+
+  @override
+  String pressPrintGap(String gap, String margin) {
+    return 'Зазор: $gap мм · отступ: $margin мм';
+  }
+
+  @override
+  String get pressPrintDetails => 'Детали';
+
+  @override
+  String pressPrintPage(int count) {
+    return 'Стр. $count';
+  }
+
+  @override
+  String get logisticsTitle => 'Логистика';
+
+  @override
+  String get logisticsDeliveries => 'Доставки';
+
+  @override
+  String get logisticsSummary => 'Итоги';
+
+  @override
+  String get logisticsAdd => 'Записать доставку';
+
+  @override
+  String get logisticsEmpty => 'В этом месяце доставок нет';
+
+  @override
+  String get logisticsEmptyMessage =>
+      'Газель, такси, транспортная компания — запишите, сколько стоило привезти материал.';
+
+  @override
+  String get logisticsAmount => 'Сколько стоила доставка';
+
+  @override
+  String get logisticsFrom => 'Откуда (город)';
+
+  @override
+  String get logisticsTransport => 'Чем привезли';
+
+  @override
+  String get logisticsCarrier => 'Перевозчик (необязательно)';
+
+  @override
+  String get logisticsWhat => 'Что привезли';
+
+  @override
+  String get logisticsQty => 'Сколько';
+
+  @override
+  String get logisticsUnit => 'Ед.';
+
+  @override
+  String get logisticsOrder => 'Заказ № (если для заказа)';
+
+  @override
+  String get logisticsOrderedOn => 'Заказали';
+
+  @override
+  String get logisticsDeliveredOn => 'Привезли';
+
+  @override
+  String get logisticsUrgent => 'Срочно (доплатили за скорость)';
+
+  @override
+  String get logisticsNote => 'Заметка';
+
+  @override
+  String get logisticsSaved => 'Доставка записана';
+
+  @override
+  String get logisticsCancel => 'Отменить запись';
+
+  @override
+  String get logisticsCancelReason => 'Почему отменяете';
+
+  @override
+  String logisticsCancelled(String reason) {
+    return 'Отменено: $reason';
+  }
+
+  @override
+  String logisticsDays(int count) {
+    return 'в пути $count дн.';
+  }
+
+  @override
+  String logisticsTotal(String amount) {
+    return 'Всего за месяц: $amount';
+  }
+
+  @override
+  String logisticsPrevious(String amount) {
+    return 'Прошлый месяц: $amount';
+  }
+
+  @override
+  String get logisticsByCategory => 'По материалам';
+
+  @override
+  String get logisticsByCity => 'По городам';
+
+  @override
+  String get logisticsByTransport => 'По способу доставки';
+
+  @override
+  String get logisticsByCarrier => 'По перевозчикам';
+
+  @override
+  String get logisticsPerUnit => 'За единицу';
+
+  @override
+  String logisticsPerUnitLine(String amount, String unit, String qty) {
+    return '$amount за $unit · привезли $qty $unit';
+  }
+
+  @override
+  String logisticsCount(int count) {
+    return 'доставок: $count';
+  }
+
+  @override
+  String logisticsAverageDays(String days) {
+    return 'в пути в среднем $days дн.';
+  }
+
+  @override
+  String logisticsUrgentLine(int count, String amount) {
+    return 'Срочные: $count на $amount';
+  }
+
+  @override
+  String get logisticsUnlinked => 'Приходы без доставки';
+
+  @override
+  String get logisticsUnlinkedHint =>
+      'Материал пришёл, а доставку не записали. Запишите — или 0 ₸, если привёз поставщик.';
+
+  @override
+  String get logisticsWrite => 'Записать';
+
+  @override
+  String get logisticsDeliveryOptional => 'Доставка (если платили)';
 }

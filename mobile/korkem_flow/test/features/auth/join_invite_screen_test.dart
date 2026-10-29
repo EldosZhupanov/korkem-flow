@@ -24,7 +24,9 @@ class FakeAuthRepository extends Fake implements AuthRepository {
 }
 
 void main() {
-  testWidgets('JoinInviteScreen loads and displays workshop context', (tester) async {
+  testWidgets('JoinInviteScreen loads and displays workshop context', (
+    tester,
+  ) async {
     final fakeRepo = FakeAuthRepository();
 
     await tester.pumpWidget(
@@ -49,7 +51,10 @@ void main() {
     expect(find.text('Престиж Мебель'), findsOneWidget);
     expect(find.text('Оператор раскроя'), findsOneWidget);
     expect(find.text('Вас пригласил Аслан Ахметов'), findsOneWidget);
-    expect(find.text('ПМ'), findsOneWidget); // Cyrillic Initials avatar for Престиж Мебель
+    expect(
+      find.text('ПМ'),
+      findsOneWidget,
+    ); // Cyrillic Initials avatar for Престиж Мебель
     expect(find.text('Получить код по SMS'), findsOneWidget);
   });
 }

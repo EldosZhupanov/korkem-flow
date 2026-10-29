@@ -31,6 +31,7 @@ import frappe
 from korkem_ai.korkem_ai.tools.registry import Risk, ToolSpec, register
 from korkem_ai.korkem_ai.tools import paging, scope
 from korkem_ai.korkem_ai.tools.scope import ensure_company, scoped
+from korkem_manufacturing.services import price_visibility
 
 MAX_LIMIT = 50
 
@@ -77,7 +78,10 @@ def search_sales_orders(
 		limit=_limit(limit),
 		order_by="transaction_date desc",
 	)
-	return {"sales_orders": rows, **paging.page(rows, "Sales Order", scoped(filters))}
+	return {
+		"sales_orders": price_visibility.redact(rows, ("grand_total",)),
+		**paging.page(rows, "Sales Order", scoped(filters)),
+	}
 
 
 #: Sales Order statuses that are no longer live work.
@@ -143,7 +147,7 @@ def get_sales_order(name: str):
 		"transaction_date": str(order.transaction_date),
 		"delivery_date": str(order.delivery_date) if order.delivery_date else None,
 		"currency": order.currency,
-		"grand_total": order.grand_total,
+		"grand_total": order.grand_total if price_visibility.can_see_prices() else None,
 		"per_delivered": order.per_delivered,
 		"items": [
 			{

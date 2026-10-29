@@ -19,6 +19,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
+import 'package:korkem_flow/features/team/presentation/trades_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Screen displaying the company team members, invitations, position changes,
@@ -254,6 +255,8 @@ class _TeamContent extends StatelessWidget {
                   member: member,
                   isSelf: isSelf,
                   canManage: canInvite,
+                  onEditTrades: () =>
+                      unawaited(showTradesDialog(context, member)),
                   onChangePosition: () => _openChangePositionDialog(
                     context,
                     member,
@@ -345,11 +348,15 @@ class _TeamMemberCard extends StatelessWidget {
     required this.onChangePosition,
     required this.onDeactivate,
     required this.onReactivate,
+    this.onEditTrades,
   });
 
   final TeamMember member;
   final bool isSelf;
   final bool canManage;
+
+  /// «Профессии в цехе»: what the person does. A trade gives no rights.
+  final VoidCallback? onEditTrades;
   final VoidCallback onChangePosition;
   final VoidCallback onDeactivate;
   final VoidCallback onReactivate;
@@ -425,6 +432,14 @@ class _TeamMemberCard extends StatelessWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+                if (member.trades.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xxs),
+                  Text(
+                    member.trades.join(' · '),
+                    key: ValueKey('memberTrades:${member.email}'),
+                    style: theme.textTheme.labelSmall,
+                  ),
+                ],
                 if (!member.enabled) ...[
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
@@ -454,6 +469,8 @@ class _TeamMemberCard extends StatelessWidget {
                 onSelected: (action) {
                   if (action == 'position') {
                     onChangePosition();
+                  } else if (action == 'trades') {
+                    onEditTrades?.call();
                   } else if (action == 'deactivate') {
                     onDeactivate();
                   }
@@ -472,6 +489,21 @@ class _TeamMemberCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (onEditTrades != null)
+                    PopupMenuItem(
+                      key: const ValueKey('memberTradesAction'),
+                      value: 'trades',
+                      child: Row(
+                        children: [
+                          const Icon(
+                            AppIcons.team,
+                            size: AppIconSize.small,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(l10n.tradesAction),
+                        ],
+                      ),
+                    ),
                   PopupMenuItem(
                     value: 'deactivate',
                     child: Row(

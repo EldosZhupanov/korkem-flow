@@ -95,3 +95,39 @@ class TestSemanticCache(IntegrationTestCase):
 			executed=[{"tool": "inventory.get_stock", "ok": True}],
 		)
 		self.assertTrue(cache.is_cacheable(res_read))
+
+
+class TestTheCacheCannotStandInForAPersonOrAWrite(IntegrationTestCase):
+	"""Regressions from 2026-10-26: the cache answered for the wrong person and
+	could replay a stored "done" in place of a write that needed confirmation."""
+
+	def setUp(self):
+		cache.clear_cache()
+
+	def tearDown(self):
+		cache.clear_cache()
+
+	def test_the_cache_is_off_unless_the_site_opts_in(self):
+		import frappe
+
+		with patch.dict(frappe.conf, {cache.ENABLED_CONFIG_KEY: 0}):
+			self.assertFalse(cache.enabled())
+		with patch.dict(frappe.conf, {cache.ENABLED_CONFIG_KEY: 1}):
+			self.assertTrue(cache.enabled())
+
+	def test_two_people_with_the_same_role_do_not_share_an_answer(self):
+		q = "Какие у меня задачи на сегодня?"
+		cache.put(q, "Айдос: распил заказа 104.", company="CompanyA", role="Cutter", user="aidos@example.com")
+
+		self.assertIsNotNone(cache.get(q, company="CompanyA", role="Cutter", user="aidos@example.com"))
+		self.assertIsNone(cache.get(q, company="CompanyA", role="Cutter", user="erlan@example.com"))
+
+	def test_a_write_whose_name_hides_it_is_not_cached(self):
+		for tool in ("payment.record", "chain.sign_contract", "inventory.write_off"):
+			with self.subTest(tool=tool):
+				result = TurnResult(status="answered", text="Готово", executed=[{"tool": tool, "ok": True}])
+				self.assertFalse(cache.is_cacheable(result))
+
+	def test_an_unknown_tool_counts_as_a_write(self):
+		result = TurnResult(status="answered", text="?", executed=[{"tool": "no.such_tool", "ok": True}])
+		self.assertFalse(cache.is_cacheable(result))

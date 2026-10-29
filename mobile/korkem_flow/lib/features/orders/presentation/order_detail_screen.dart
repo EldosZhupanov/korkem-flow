@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/time/clock.dart';
+import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
 import 'package:korkem_flow/features/orders/application/order_design_controller.dart';
 import 'package:korkem_flow/features/orders/application/order_detail_controller.dart';
 import 'package:korkem_flow/features/orders/application/order_installation_controller.dart';
@@ -21,6 +22,7 @@ import 'package:korkem_flow/features/orders/domain/delivery_note.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/create_delivery_button.dart';
 import 'package:korkem_flow/features/orders/presentation/order_design_section.dart';
+import 'package:korkem_flow/features/orders/presentation/order_facade_materials_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_installation_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_invoicing_section.dart';
 import 'package:korkem_flow/features/orders/presentation/order_stock_reservation_section.dart';
@@ -103,7 +105,8 @@ class _Body extends ConsumerWidget {
           ..invalidate(orderDeliveriesProvider(order.name))
           ..invalidate(orderInstallationProvider(order.name))
           ..invalidate(orderWarrantyProvider(order.name))
-          ..invalidate(orderInvoiceProvider(order.name));
+          ..invalidate(orderInvoiceProvider(order.name))
+          ..invalidate(facadeMaterialsProvider(order.name));
       },
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -112,7 +115,12 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: AppSpacing.xl),
           OrderDesignSection(order: order),
           const SizedBox(height: AppSpacing.xl),
-          OrderStockReservationSection(order: order),
+          // A facade order's material is counted from its m² on the server;
+          // furniture keeps its own section.
+          if (order.direction == OrderDirection.facades)
+            OrderFacadeMaterialsSection(salesOrder: order.name)
+          else
+            OrderStockReservationSection(order: order),
           const SizedBox(height: AppSpacing.xl),
           SectionLabel(l10n.orderProductionSection),
           const SizedBox(height: AppSpacing.sm),
@@ -177,8 +185,13 @@ class _Header extends ConsumerWidget {
     final transaction = order.transactionDate;
     final delivery = order.deliveryDate;
 
-    final advance = order.advancePaid;
-    final balance = (order.grandTotal - advance).clamp(0.0, double.infinity);
+    // Both null for somebody the server hides money from; then no chip and no
+    // total is drawn at all, rather than "0 ₸".
+    final total = order.grandTotal;
+    final advance = order.advancePaid ?? 0;
+    final balance = total == null
+        ? 0.0
+        : (total - advance).clamp(0.0, double.infinity);
 
     return AppCard(
       child: Column(
@@ -201,6 +214,14 @@ class _Header extends ConsumerWidget {
                     label: 'Оплачено: ${money.format(advance)}',
                     intent: StatusIntent.success,
                   ),
+                if (order.prepaymentAgreed case final agreed?
+                    when agreed > advance)
+                  StatusChip(
+                    label: l10n.orderPrepaymentDue(
+                      money.format(agreed - advance),
+                    ),
+                    intent: StatusIntent.warning,
+                  ),
                 if (balance > 0 && advance > 0)
                   StatusChip(
                     label: 'Остаток: ${money.format(balance)}',
@@ -210,7 +231,8 @@ class _Header extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          _Field(icon: AppIcons.quote, label: money.format(order.grandTotal)),
+          if (total != null)
+            _Field(icon: AppIcons.quote, label: money.format(total)),
           if (transaction != null)
             _Field(
               icon: AppIcons.schedule,
@@ -456,10 +478,10 @@ class _DeliveryCard extends StatelessWidget {
                 icon: AppIcons.schedule,
                 label: date.format(posting),
               ),
-            if (delivery.grandTotal > 0)
+            if (delivery.grandTotal case final total? when total > 0)
               _Field(
                 icon: AppIcons.quote,
-                label: money.format(delivery.grandTotal),
+                label: money.format(total),
               ),
             if (delivery.items.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.xs),

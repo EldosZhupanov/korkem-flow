@@ -16,15 +16,31 @@ it.
 
 from __future__ import annotations
 
+from unittest import mock
+
 import frappe
 from frappe.tests import IntegrationTestCase
 
 from korkem_manufacturing import setup
 from korkem_manufacturing.api import production as api
+from korkem_manufacturing.services import scope as scope_service
 from korkem_manufacturing.services import production as service
 from korkem_manufacturing.services import shop_floor
 from unittest.mock import patch
 
+
+
+def _order_is_ours(test):
+	"""State what the made-up name in this test stands for: a document of the
+	caller's own company.
+
+	The test is about the role check or input validation, which run *after* the
+	company scope gate. Since 2026-10-26 that gate refuses a name that does not
+	exist (otherwise a caller without the role could tell another company's real
+	documents from made-up ones), so the assumption the name used to make
+	implicitly is made explicitly here. What the test asserts is unchanged.
+	"""
+	return mock.patch.object(scope_service, "belongs_to_company", new=lambda *args, **kwargs: True)(test)
 
 class _ApiTestCase(IntegrationTestCase):
 	@classmethod
@@ -103,6 +119,7 @@ class TestTheEndpointChecksTheCaller(_ApiTestCase):
 
 		self.assertEqual(moved, [], "the service must not run for a refused caller")
 
+	@_order_is_ours
 	def test_the_refusal_says_what_to_do_about_it(self):
 		email = self._user("no.rights2@korkem.local", roles=("Sales User",))
 		frappe.set_user(email)
@@ -110,6 +127,7 @@ class TestTheEndpointChecksTheCaller(_ApiTestCase):
 			api.start_production("SAL-ORD-ANY")
 		self.assertIn("manufacturing manager", str(caught.exception).lower())
 
+	@_order_is_ours
 	def test_a_manufacturing_user_passes_the_role_check(self):
 		"""It may still be refused further down — but not for its role."""
 		email = self._user("floor@korkem.local", roles=("Manufacturing User",))
@@ -230,6 +248,8 @@ class TestBookingWorkAgainstAStage(_ApiTestCase):
 				"scrap_qty",
 				"rework_qty",
 				"idempotency_key",
+				# Who did the stage together (package 6): people, never a company.
+				"crew",
 			},
 		)
 
@@ -237,6 +257,7 @@ class TestBookingWorkAgainstAStage(_ApiTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			api.complete_operation(work_order="MFG-WO-SOMEBODY-ELSES")
 
+	@_order_is_ours
 	def test_a_quantity_that_is_not_a_number_says_so(self):
 		"""Rather than becoming None and booking the whole outstanding run.
 
@@ -248,10 +269,12 @@ class TestBookingWorkAgainstAStage(_ApiTestCase):
 			api.complete_operation(work_order="MFG-WO-ANY", qty="четыре")
 		self.assertIn("qty", str(caught.exception))
 
+	@_order_is_ours
 	def test_a_negative_quantity_is_refused(self):
 		with self.assertRaises(frappe.ValidationError):
 			api.complete_operation(work_order="MFG-WO-ANY", scrap_qty=-1)
 
+	@_order_is_ours
 	def test_a_numeric_string_is_accepted_as_the_number_it_is(self):
 		booked = {}
 		original = shop_floor.complete_operation

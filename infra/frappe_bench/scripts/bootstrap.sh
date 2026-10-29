@@ -157,9 +157,15 @@ bench set-config -g redis_socketio "$FRAPPE_REDIS_QUEUE"
 bench set-config -g webserver_host 127.0.0.1
 
 if [ ! -d "sites/$SITE_NAME" ]; then
+  # The site's database user may log in from any address on the compose
+  # network. Without this Frappe binds it to the bench container's IP of the
+  # day, and the first restart that hands the container another address
+  # (observed 2026-10-27 after a WSL restart: .5 -> .4) locks the site out of
+  # its own database with "Access denied (1045)".
   bench new-site "$SITE_NAME" \
     --db-host mariadb --db-port 3306 \
     --db-root-username root --db-root-password "$MYSQL_ROOT_PASSWORD" \
+    --mariadb-user-host-login-scope='%' \
     --admin-password "$ADMIN_PASSWORD" \
     --set-default --verbose
 

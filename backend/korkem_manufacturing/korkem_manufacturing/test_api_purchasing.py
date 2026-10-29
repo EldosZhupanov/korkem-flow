@@ -10,13 +10,29 @@ language model nor production rights.
 
 from __future__ import annotations
 
+from unittest import mock
+
 import frappe
 from frappe.tests import IntegrationTestCase
 
 from korkem_manufacturing import setup
 from korkem_manufacturing.api import purchasing as api
+from korkem_manufacturing.services import scope as scope_service
 from korkem_manufacturing.services import purchasing as service
 
+
+
+def _order_is_ours(test):
+	"""State what the made-up name in this test stands for: a document of the
+	caller's own company.
+
+	The test is about the role check or input validation, which run *after* the
+	company scope gate. Since 2026-10-26 that gate refuses a name that does not
+	exist (otherwise a caller without the role could tell another company's real
+	documents from made-up ones), so the assumption the name used to make
+	implicitly is made explicitly here. What the test asserts is unchanged.
+	"""
+	return mock.patch.object(scope_service, "belongs_to_company", new=lambda *args, **kwargs: True)(test)
 
 class _ReceivingTestCase(IntegrationTestCase):
 	@classmethod
@@ -61,6 +77,7 @@ class TestItRefusesMalformedInput(_ReceivingTestCase):
 			api.receive_purchase_order("PUR-ORD-DOES-NOT-EXIST")
 		self.assertIn("PUR-ORD-DOES-NOT-EXIST", str(caught.exception))
 
+	@_order_is_ours
 	def test_malformed_items_are_refused_rather_than_dropped(self):
 		"""Dropping them would book the whole order in.
 
@@ -72,6 +89,7 @@ class TestItRefusesMalformedInput(_ReceivingTestCase):
 			api.receive_purchase_order("PUR-ORD-ANY", items="{not json")
 		self.assertIn("items", str(caught.exception))
 
+	@_order_is_ours
 	def test_items_that_are_not_a_list_are_refused(self):
 		with self.assertRaises(frappe.ValidationError):
 			api.receive_purchase_order("PUR-ORD-ANY", items='{"item_code": "ДСП"}')
@@ -98,6 +116,7 @@ class TestItChecksTheCaller(_ReceivingTestCase):
 
 		self.assertEqual(booked, [], "the service must not run for a refused caller")
 
+	@_order_is_ours
 	def test_the_refusal_says_who_to_ask(self):
 		email = self._user("cutter2@korkem.local", roles=("Manufacturing User",))
 		frappe.set_user(email)
@@ -105,6 +124,7 @@ class TestItChecksTheCaller(_ReceivingTestCase):
 			api.receive_purchase_order("PUR-ORD-ANY")
 		self.assertIn("stock manager", str(caught.exception).lower())
 
+	@_order_is_ours
 	def test_a_stock_user_passes_the_role_check(self):
 		email = self._user("store@korkem.local", roles=("Stock User",))
 		frappe.set_user(email)
@@ -175,6 +195,7 @@ class TestOrderingFromASupplier(_ReceivingTestCase):
 
 		self.assertEqual(ordered, [])
 
+	@_order_is_ours
 	def test_the_refusal_says_who_to_ask(self):
 		email = self._user("keeper2@korkem.local", roles=("Stock User",))
 		frappe.set_user(email)
@@ -182,6 +203,7 @@ class TestOrderingFromASupplier(_ReceivingTestCase):
 			api.create_purchase_order("MAT-MR-ANY")
 		self.assertIn("purchase manager", str(caught.exception).lower())
 
+	@_order_is_ours
 	def test_a_purchase_user_passes_the_role_check(self):
 		email = self._user("buyer@korkem.local", roles=("Purchase User",))
 		frappe.set_user(email)

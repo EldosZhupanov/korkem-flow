@@ -27,6 +27,13 @@ EMPLOYEE_ROLES = frozenset(
 		"Sales User",
 		"Sales Manager",
 		"Quality Manager",
+		# Drivers and bookkeeping work here too. Left out, they read as
+		# customers: scoped to orders that are "theirs" (none) and offered
+		# only the customer allowlist.
+		"Delivery User",
+		"Delivery Manager",
+		"Accounts User",
+		"Accounts Manager",
 	}
 )
 
@@ -68,3 +75,20 @@ def role_of(user: str | None = None) -> str:
 def effective_role(user: str | None = None, channel_role: str | None = None) -> str:
 	"""The role in force, after a channel identity has had its say."""
 	return _narrowed(_from_roles(user or frappe.session.user), channel_role)
+
+
+def is_staff(user: str | None = None) -> bool:
+	"""Somebody who works here — any desk role — and not a customer.
+
+	Wider than `role_of(...) == EMPLOYEE`: any desk role counts, including one
+	the administrator invents, while `EMPLOYEE_ROLES` lists the roles the
+	assistant knows how to serve.
+	"""
+	user = user or frappe.session.user
+	if user == "Guest":
+		return False
+	if user == "Administrator":
+		return True
+	roles = set(frappe.get_roles(user)) - {"All", "Guest", "Desk User"}
+	return bool(roles) and "Korkem Customer" not in roles
+

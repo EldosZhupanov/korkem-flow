@@ -10,12 +10,18 @@ import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
 import 'package:korkem_flow/core/updates/update_controller.dart';
 import 'package:korkem_flow/core/updates/update_dialog.dart';
+import 'package:korkem_flow/features/facade_prices/presentation/facade_prices_tile.dart';
+import 'package:korkem_flow/features/logistics/presentation/logistics_screen.dart';
+import 'package:korkem_flow/features/one_c/presentation/one_c_screen.dart';
+import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
+import 'package:korkem_flow/features/price_visibility/presentation/price_visibility_tile.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Display preferences and connection details.
@@ -58,6 +64,11 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(Routes.warehouses),
             ),
           ),
+          // Shown to the administrator only; draws nothing for anybody else.
+          const PriceVisibilityTile(),
+          // For the administrator and order managers only, like the matrix.
+          const FacadePricesTile(),
+          PinAdminTile(onOpen: () => context.push(Routes.pinAdmin)),
           const SizedBox(height: AppSpacing.xl),
 
           SectionLabel(l10n.aiSettingsTitle),
@@ -83,6 +94,9 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push(Routes.integrations),
             ),
           ),
+          // For the administrator and accounting only; nothing for the rest.
+          const OneCTile(),
+          const LogisticsTile(),
           const SizedBox(height: AppSpacing.xl),
 
           SectionLabel(l10n.channelsTitle),
@@ -131,7 +145,8 @@ class SettingsScreen extends ConsumerWidget {
                 InfoRow(
                   icon: AppIcons.info,
                   label: l10n.profileVersion,
-                  value: '${config.flavor} · '
+                  value:
+                      '${config.flavor} · '
                       '${updateState.currentVersion ?? "0.3.0"} '
                       '(${updateState.currentBuild ?? 6})',
                 ),
@@ -173,19 +188,17 @@ class SettingsScreen extends ConsumerWidget {
                                   .read(updateControllerProvider.notifier)
                                   .check(force: true);
                               if (context.mounted) {
-                                final current =
-                                    ref.read(updateControllerProvider);
+                                final current = ref.read(
+                                  updateControllerProvider,
+                                );
                                 if (current.hasUpdate) {
                                   unawaited(
                                     showUpdateConfirmationDialog(context),
                                   );
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(l10n.updateUpToDate),
-                                      duration: const Duration(seconds: 2),
-                                    ),
-                                  );
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showDone(l10n.updateUpToDate);
                                 }
                               }
                             },

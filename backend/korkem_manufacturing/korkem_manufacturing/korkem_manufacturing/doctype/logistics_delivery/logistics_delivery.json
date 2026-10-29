@@ -1,0 +1,209 @@
+{
+ "actions": [],
+ "autoname": "format:LOG-{#####}",
+ "creation": "2026-10-29 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "delivered_on",
+  "ordered_on",
+  "category",
+  "amount",
+  "from_city",
+  "transport",
+  "carrier",
+  "urgent",
+  "supplier",
+  "sales_order",
+  "receipt",
+  "item",
+  "what",
+  "qty",
+  "unit",
+  "note",
+  "cancelled",
+  "cancelled_by",
+  "cancel_reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "delivered_on",
+   "fieldtype": "Date",
+   "label": "Arrived",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "ordered_on",
+   "fieldtype": "Date",
+   "label": "Ordered"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "label": "For",
+   "options": "МДФ\nПлёнка ПВХ\nПрочее",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Cost",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "from_city",
+   "fieldtype": "Data",
+   "label": "From",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "transport",
+   "fieldtype": "Data",
+   "label": "By",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "carrier",
+   "fieldtype": "Data",
+   "label": "Carrier"
+  },
+  {
+   "fieldname": "urgent",
+   "fieldtype": "Check",
+   "label": "Urgent",
+   "default": "0"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Order",
+   "options": "Sales Order",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "receipt",
+   "fieldtype": "Link",
+   "label": "Receipt",
+   "options": "Stock Entry"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Material",
+   "options": "Item"
+  },
+  {
+   "fieldname": "what",
+   "fieldtype": "Data",
+   "label": "What came"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "unit",
+   "fieldtype": "Data",
+   "label": "Unit"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
+  },
+  {
+   "fieldname": "cancelled",
+   "fieldtype": "Check",
+   "label": "Cancelled",
+   "default": "0",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cancelled_by",
+   "fieldtype": "Link",
+   "label": "Cancelled by",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancel_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancel reason",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-29 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Logistics Delivery",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Purchase Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Stock Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Accounts User",
+   "write": 0
+  }
+ ],
+ "sort_field": "delivered_on",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

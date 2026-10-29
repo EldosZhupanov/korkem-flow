@@ -98,6 +98,25 @@ void main() {
       expect(params['search'], 'Мебель Групп');
     });
 
+    test('urgent orders are asked for first', () async {
+      respond({'orders': <Map<String, dynamic>>[], 'total': 0});
+
+      await repository.fetchPage(pageSize: 20);
+
+      expect(sentParams()['urgent_first'], 1);
+    });
+
+    test('a direction is sent only when one is chosen', () async {
+      respond({'orders': <Map<String, dynamic>>[], 'total': 0});
+
+      await repository.fetchPage(
+        pageSize: 20,
+        direction: OrderDirection.facades,
+      );
+
+      expect(sentParams()['direction'], 'Facades');
+    });
+
     test('an empty or whitespace search is not sent', () async {
       respond({'orders': <Map<String, dynamic>>[], 'total': 0});
 

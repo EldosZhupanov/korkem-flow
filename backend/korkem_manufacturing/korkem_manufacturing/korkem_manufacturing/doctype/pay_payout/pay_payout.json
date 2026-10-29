@@ -1,0 +1,159 @@
+{
+ "actions": [],
+ "autoname": "format:PAY-OUT-{#####}",
+ "creation": "2026-10-28 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "employee",
+  "employee_name",
+  "from_date",
+  "to_date",
+  "amount",
+  "piece",
+  "bonuses",
+  "fine",
+  "advance",
+  "entries",
+  "paid_by",
+  "paid_at",
+  "note"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "User",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Paid",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "piece",
+   "fieldtype": "Currency",
+   "label": "Piece pay",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bonuses",
+   "fieldtype": "Currency",
+   "label": "Bonuses",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fine",
+   "fieldtype": "Currency",
+   "label": "Fines",
+   "read_only": 1
+  },
+  {
+   "fieldname": "advance",
+   "fieldtype": "Currency",
+   "label": "Advances",
+   "read_only": 1
+  },
+  {
+   "fieldname": "entries",
+   "fieldtype": "Int",
+   "label": "Accruals paid",
+   "read_only": 1
+  },
+  {
+   "fieldname": "paid_by",
+   "fieldtype": "Link",
+   "label": "Paid by",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "paid_at",
+   "fieldtype": "Datetime",
+   "label": "Paid at",
+   "read_only": 1
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-28 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Pay Payout",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Manufacturing Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Accounts User",
+   "write": 0
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

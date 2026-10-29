@@ -49,6 +49,7 @@ from frappe.utils import add_days, flt, getdate, nowdate
 
 from korkem_ai.korkem_ai.tools.registry import Risk, ToolSpec, register
 from korkem_ai.korkem_ai.tools.scope import current_company, ensure_company, scoped
+from korkem_manufacturing.services import price_visibility
 
 #: Material Requests still worth acting on.
 OPEN_REQUEST_STATUSES = ("Pending", "Partially Ordered", "Partially Received", "Ordered")
@@ -258,6 +259,7 @@ def search_purchase_orders(
 		):
 			rows.setdefault(row["parent"], []).append(row)
 
+	allowed = price_visibility.can_see_prices()
 	orders = []
 	for header in headers:
 		items = [
@@ -268,8 +270,8 @@ def search_purchase_orders(
 				"received_qty": flt(row["received_qty"]),
 				"pending_qty": round(max(0.0, flt(row["qty"]) - flt(row["received_qty"])), 3),
 				"uom": row["uom"],
-				"rate": flt(row["rate"]),
-				"amount": flt(row["amount"]),
+				"rate": price_visibility.money(row["rate"], allowed=allowed),
+				"amount": price_visibility.money(row["amount"], allowed=allowed),
 				"warehouse": row["warehouse"],
 				"expected_on": str(row["schedule_date"]) if row["schedule_date"] else None,
 				"material_request": row["material_request"],
@@ -295,7 +297,7 @@ def search_purchase_orders(
 			"pending_qty": round(outstanding, 3),
 			"overdue": bool(late),
 			"days_overdue": late,
-			"total": flt(header["grand_total"]),
+			"total": price_visibility.money(header.get("grand_total"), allowed=allowed),
 			"currency": header["currency"],
 			"items": items,
 			"material_requests": sorted({i["material_request"] for i in items if i["material_request"]}),

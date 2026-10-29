@@ -48,6 +48,20 @@ class TestARoleComesFromTheDatabase(_PolicyTestCase):
 	def test_a_planner_is_an_employee(self):
 		self.assertEqual(policy.role_of(PLANNER), policy.EMPLOYEE)
 
+	def test_a_driver_and_a_bookkeeper_are_employees_not_customers(self):
+		"""Read as customers, they were scoped to orders that are theirs: none."""
+		for email, role in (
+			("korkem.driver@example.com", "Delivery User"),
+			("korkem.bookkeeper@example.com", "Accounts Manager"),
+		):
+			with self.subTest(role=role):
+				if not frappe.db.exists("User", email):
+					doc = frappe.new_doc("User")
+					doc.update({"email": email, "first_name": role, "send_welcome_email": 0})
+					doc.append("roles", {"role": role})
+					doc.insert(ignore_permissions=True)
+				self.assertEqual(policy.role_of(email), policy.EMPLOYEE)
+
 	def test_a_user_with_no_operational_role_is_a_customer(self):
 		self.assertEqual(policy.role_of(self.customer()), policy.CUSTOMER)
 

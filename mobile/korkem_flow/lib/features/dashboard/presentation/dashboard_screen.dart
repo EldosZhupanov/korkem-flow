@@ -84,7 +84,8 @@ class _Body extends StatelessWidget {
     final pending = _metric(DashboardSummary.pendingActions);
     final needsYou = (overdue ?? 0) + (pending ?? 0) > 0;
 
-    final totalOrders = (_metric(DashboardSummary.openDeals) ?? 0) +
+    final totalOrders =
+        (_metric(DashboardSummary.openDeals) ?? 0) +
         (_metric(DashboardSummary.workOrdersInProgress) ?? 0);
 
     return ListView(
