@@ -85,14 +85,20 @@ def receive(
 	warehouse: str | None = None,
 	received_on: str | None = None,
 	note: str | None = None,
+	delivery: dict | str | None = None,
 	idempotency_key: str | None = None,
 ) -> dict:
-	"""Оприходовать покупку: сколько, по какой цене, у кого. Проводится в ERPNext."""
+	"""Оприходовать покупку: сколько, по какой цене, у кого. Проводится в ERPNext.
+
+	`delivery` — стоимость доставки (сумма, откуда, чем) — пишется отдельной
+	записью логистики к этому приходу."""
 	from korkem_manufacturing.services.idempotency import execute as execute_idempotently
 
+	if isinstance(delivery, str):
+		delivery = frappe.parse_json(delivery) if delivery.strip() else None
 	arguments = {
 		"item": item, "qty": qty, "price_per_unit": price_per_unit, "supplier": supplier,
-		"warehouse": warehouse, "received_on": received_on, "note": note,
+		"warehouse": warehouse, "received_on": received_on, "note": note, "delivery": delivery,
 	}
 	return execute_idempotently(
 		"stock.material_received", idempotency_key, arguments, lambda: service.receive(**arguments)

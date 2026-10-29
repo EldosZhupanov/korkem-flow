@@ -66,6 +66,9 @@ abstract final class AppIcons {
   /// Facades laid out on the membrane-vacuum press.
   static const IconData pressLayout = Symbols.grid_view_rounded;
 
+  /// Logistics: what bringing material in cost — a Газель, a taxi.
+  static const IconData delivery = Symbols.local_shipping_rounded;
+
   /// On paper, through the system print dialog.
   static const IconData print = Symbols.print_rounded;
 

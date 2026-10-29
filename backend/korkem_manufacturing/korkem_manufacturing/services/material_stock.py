@@ -473,8 +473,14 @@ def receive(
 	warehouse: str | None = None,
 	received_on: str | None = None,
 	note: str | None = None,
+	delivery: dict | None = None,
 ) -> dict:
-	"""Bought `qty` of `item` from `supplier` at `price_per_unit` each."""
+	"""Bought `qty` of `item` from `supplier` at `price_per_unit` each.
+
+	`delivery` — what bringing it cost (`amount`, `from_city`, `transport`,
+	optionally `carrier`, `urgent`, `ordered_on`) — is written as its own
+	logistics record against this receipt, not added to the price.
+	"""
 	_ensure_editor()
 	company = current_company()
 	_own_item(item)
@@ -534,7 +540,18 @@ def receive(
 		entity_id=entry.name,
 		diff={"item": item, "qty": float(quantity), "price": float(price), "supplier": supplier, "warehouse": target},
 	)
-	return {"receipt": entry.name, "material": material(item)}
+	result = {"receipt": entry.name, "material": material(item)}
+	if delivery:
+		# Imported here: logistics reads this module's kinds and editors.
+		from korkem_manufacturing.services import logistics
+
+		allowed = ("amount", "from_city", "transport", "carrier", "urgent", "ordered_on")
+		result["delivery"] = logistics.record(
+			**{k: delivery.get(k) for k in allowed},
+			delivered_on=str(day),
+			receipt=entry.name,
+		)
+	return result
 
 
 def cancel_receipt(receipt: str) -> dict:
@@ -552,6 +569,15 @@ def cancel_receipt(receipt: str) -> dict:
 	# the right answer and is passed on as it is.
 	doc.cancel()
 	audit.record_audit(action="stock.receipt_cancelled", entity_type="Stock Entry", entity_id=receipt)
+	# Its delivery goes with it: a cancelled receipt brought nothing in.
+	for delivery in frappe.get_all(
+		"Logistics Delivery", filters={"receipt": receipt, "cancelled": 0}, pluck="name"
+	):
+		frappe.db.set_value(
+			"Logistics Delivery",
+			delivery,
+			{"cancelled": 1, "cancelled_by": frappe.session.user, "cancel_reason": "Приход отменён"},
+		)
 	return {"receipt": receipt, "status": "cancelled"}
 
 

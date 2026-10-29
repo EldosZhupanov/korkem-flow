@@ -26,6 +26,8 @@ import 'package:korkem_flow/features/deals/domain/deal.dart';
 import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart';
 import 'package:korkem_flow/features/facade_prices/application/facade_price_controller.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_price_table.dart';
+import 'package:korkem_flow/features/logistics/data/logistics_repository.dart';
+import 'package:korkem_flow/features/logistics/domain/logistics.dart';
 import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/features/notifications/domain/app_notification.dart';
 import 'package:korkem_flow/features/one_c/data/one_c_repository.dart';
@@ -349,6 +351,10 @@ Future<void> _pumpApp(
         // Not accounting: the 1C row never appears, as for most people.
         oneCSettingsProvider.overrideWith(
           (ref) => Completer<OneCSettings>().future,
+        ),
+        // Not a manager: the logistics row never appears either.
+        logisticsSuggestionsProvider.overrideWith(
+          (ref) => Completer<LogisticsSuggestions>().future,
         ),
         // Not an administrator: the PIN row is absent, as for most people.
         pinHoldersProvider.overrideWith(

@@ -5265,5 +5265,206 @@
         "type": "int"
       }
     }
+  },
+  "logisticsTitle": "Logistics",
+  "@logisticsTitle": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsDeliveries": "Deliveries",
+  "@logisticsDeliveries": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsSummary": "Summary",
+  "@logisticsSummary": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsAdd": "Record a delivery",
+  "@logisticsAdd": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsEmpty": "No deliveries this month",
+  "@logisticsEmpty": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsEmptyMessage": "A van, a taxi, a transport company — write down what bringing the material cost.",
+  "@logisticsEmptyMessage": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsAmount": "Delivery cost",
+  "@logisticsAmount": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsFrom": "From (city)",
+  "@logisticsFrom": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsTransport": "Delivered by",
+  "@logisticsTransport": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsCarrier": "Carrier (optional)",
+  "@logisticsCarrier": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsWhat": "What came",
+  "@logisticsWhat": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsQty": "Quantity",
+  "@logisticsQty": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsUnit": "Unit",
+  "@logisticsUnit": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsOrder": "Order № (if for an order)",
+  "@logisticsOrder": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsOrderedOn": "Ordered",
+  "@logisticsOrderedOn": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsDeliveredOn": "Arrived",
+  "@logisticsDeliveredOn": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsUrgent": "Urgent (paid extra for speed)",
+  "@logisticsUrgent": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsNote": "Note",
+  "@logisticsNote": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsSaved": "Delivery recorded",
+  "@logisticsSaved": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsCancel": "Cancel the record",
+  "@logisticsCancel": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsCancelReason": "Why cancel",
+  "@logisticsCancelReason": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsCancelled": "Cancelled: {reason}",
+  "@logisticsCancelled": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsDays": "{count} days on the road",
+  "@logisticsDays": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logisticsTotal": "This month: {amount}",
+  "@logisticsTotal": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsPrevious": "Last month: {amount}",
+  "@logisticsPrevious": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsByCategory": "By material",
+  "@logisticsByCategory": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsByCity": "By city",
+  "@logisticsByCity": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsByTransport": "By way of delivery",
+  "@logisticsByTransport": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsByCarrier": "By carrier",
+  "@logisticsByCarrier": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsPerUnit": "Per unit",
+  "@logisticsPerUnit": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsPerUnitLine": "{amount} per {unit} · {qty} {unit} delivered",
+  "@logisticsPerUnitLine": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsCount": "deliveries: {count}",
+  "@logisticsCount": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logisticsAverageDays": "{days} days on the road on average",
+  "@logisticsAverageDays": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsUrgentLine": "Urgent: {count} for {amount}",
+  "@logisticsUrgentLine": {
+    "description": "Logistics: deliveries kept apart from material",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "logisticsUnlinked": "Receipts without a delivery",
+  "@logisticsUnlinked": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsUnlinkedHint": "The material came but its delivery was not written down. Write it — or 0 ₸ if the supplier brought it.",
+  "@logisticsUnlinkedHint": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsWrite": "Record",
+  "@logisticsWrite": {
+    "description": "Logistics: deliveries kept apart from material"
+  },
+  "logisticsDeliveryOptional": "Delivery (if paid for)",
+  "@logisticsDeliveryOptional": {
+    "description": "Logistics: deliveries kept apart from material"
   }
 }

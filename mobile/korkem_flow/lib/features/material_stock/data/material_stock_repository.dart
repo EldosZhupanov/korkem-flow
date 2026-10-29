@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
@@ -144,6 +146,7 @@ class MaterialStockRepository {
     required double qty,
     required double pricePerUnit,
     required String supplier,
+    ReceiptDelivery? delivery,
   }) async {
     final response = await _outbox.execute(
       _client,
@@ -153,6 +156,12 @@ class MaterialStockRepository {
         'qty': qty,
         'price_per_unit': pricePerUnit,
         'supplier': supplier,
+        if (delivery != null)
+          'delivery': jsonEncode({
+            'amount': delivery.amount,
+            'from_city': delivery.fromCity,
+            'transport': delivery.transport,
+          }),
       },
     );
     final data = _map(response);

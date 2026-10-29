@@ -245,3 +245,7 @@ class FacadeMaterials {
   final List<String> unresolved;
   final bool fullyHeld;
 }
+
+/// What bringing a receipt in cost — written as its own logistics record
+/// (`services/logistics.py`), never added to the material's price.
+typedef ReceiptDelivery = ({double amount, String fromCity, String transport});

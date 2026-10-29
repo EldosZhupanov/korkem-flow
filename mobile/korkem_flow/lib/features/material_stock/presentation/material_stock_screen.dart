@@ -32,6 +32,15 @@ class MaterialStockScreen extends ConsumerWidget {
       // than a live TabController being handed a different length.
       key: ValueKey('materialStock:$canEdit'),
       title: l10n.materialStockTitle,
+      actions: [
+        if (canEdit)
+          IconButton(
+            key: const ValueKey('openLogistics'),
+            tooltip: l10n.logisticsTitle,
+            icon: const Icon(AppIcons.delivery),
+            onPressed: () => context.push(Routes.logistics),
+          ),
+      ],
       tabs: [
         AppTab(
           label: l10n.materialStockOnHand,
@@ -185,16 +194,44 @@ class _ReceiveState extends ConsumerState<_Receive> {
   final _name = TextEditingController();
   final _qty = TextEditingController();
   final _price = TextEditingController();
+  final _deliveryAmount = TextEditingController();
+  final _deliveryFrom = TextEditingController();
+  final _deliveryTransport = TextEditingController();
   String? _unit;
   String? _supplier;
   bool _busy = false;
 
   @override
   void dispose() {
-    _name.dispose();
-    _qty.dispose();
-    _price.dispose();
+    for (final c in [
+      _name,
+      _qty,
+      _price,
+      _deliveryAmount,
+      _deliveryFrom,
+      _deliveryTransport,
+    ]) {
+      c.dispose();
+    }
     super.dispose();
+  }
+
+  /// The delivery, when its cost was typed; the place and the way are then
+  /// needed too. Nothing typed is no delivery — the reminder asks later.
+  ({bool ok, ReceiptDelivery? delivery}) _delivery() {
+    final amount = double.tryParse(_deliveryAmount.text.replaceAll(',', '.'));
+    if (_deliveryAmount.text.trim().isEmpty) {
+      return (ok: true, delivery: null);
+    }
+    final from = _deliveryFrom.text.trim();
+    final transport = _deliveryTransport.text.trim();
+    if (amount == null || amount < 0 || from.length < 2 || transport.length < 2) {
+      return (ok: false, delivery: null);
+    }
+    return (
+      ok: true,
+      delivery: (amount: amount, fromCity: from, transport: transport),
+    );
   }
 
   List<String> _needed() => switch (_kind) {
@@ -218,7 +255,9 @@ class _ReceiveState extends ConsumerState<_Receive> {
     final price = double.tryParse(_price.text);
     final unit = _unit ?? (lists.units.isEmpty ? null : lists.units.first);
     final supplier = _supplier;
-    if (qty == null ||
+    final delivery = _delivery();
+    if (!delivery.ok ||
+        qty == null ||
         qty <= 0 ||
         price == null ||
         price <= 0 ||
@@ -247,6 +286,7 @@ class _ReceiveState extends ConsumerState<_Receive> {
         qty: qty,
         pricePerUnit: price,
         supplier: supplier,
+        delivery: delivery.delivery,
       );
       messenger.showDone(
         l10n.materialStockReceived(
@@ -254,8 +294,15 @@ class _ReceiveState extends ConsumerState<_Receive> {
           '${_plain(after.onHand)} ${after.unit}',
         ),
       );
-      _qty.clear();
-      _price.clear();
+      for (final c in [
+        _qty,
+        _price,
+        _deliveryAmount,
+        _deliveryFrom,
+        _deliveryTransport,
+      ]) {
+        c.clear();
+      }
       ref.invalidate(stockMaterialsProvider);
     } on Object catch (error) {
       messenger.showFailure(error, l10n);
@@ -395,6 +442,47 @@ class _ReceiveState extends ConsumerState<_Receive> {
                             suffixText: '₸',
                             border: const OutlineInputBorder(),
                           ),
+                        ),
+                        gap(),
+                        SectionLabel(l10n.logisticsDeliveryOptional),
+                        TextField(
+                          key: const ValueKey('receiveDeliveryAmount'),
+                          controller: _deliveryAmount,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: l10n.logisticsAmount,
+                            suffixText: '₸',
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                        gap(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                key: const ValueKey('receiveDeliveryFrom'),
+                                controller: _deliveryFrom,
+                                decoration: InputDecoration(
+                                  labelText: l10n.logisticsFrom,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: TextField(
+                                key: const ValueKey('receiveDeliveryTransport'),
+                                controller: _deliveryTransport,
+                                decoration: InputDecoration(
+                                  labelText: l10n.logisticsTransport,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         gap(),
                         FilledButton(

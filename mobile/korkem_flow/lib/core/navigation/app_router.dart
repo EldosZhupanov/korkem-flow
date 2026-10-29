@@ -28,6 +28,7 @@ import 'package:korkem_flow/features/hardware/presentation/hardware_screen.dart'
 import 'package:korkem_flow/features/integration_settings/presentation/integration_settings_screen.dart';
 import 'package:korkem_flow/features/items/presentation/items_screen.dart';
 import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart';
+import 'package:korkem_flow/features/logistics/presentation/logistics_screen.dart';
 import 'package:korkem_flow/features/material_stock/presentation/material_stock_screen.dart';
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
@@ -139,6 +140,7 @@ abstract final class Routes {
   static const pieceWork = '/piece-work';
   static const payroll = '/payroll';
   static const oneC = '/settings/one-c';
+  static const logistics = '/logistics';
   static const pressSettings = '/settings/press';
   static const pressLayout = '/press-layout/:order';
 
@@ -288,6 +290,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.oneC,
         builder: (context, state) => const OneCScreen(),
+      ),
+      GoRoute(
+        path: Routes.logistics,
+        builder: (context, state) => const LogisticsScreen(),
       ),
       GoRoute(
         path: Routes.pressSettings,
