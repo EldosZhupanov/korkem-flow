@@ -73,6 +73,31 @@ class TestFacadeOrder(IntegrationTestCase):
 		result = self._order(HEAD_OF_SALES)
 		self.assertEqual(frappe.db.get_value("Sales Order", result["sales_order"], "docstatus"), 1)
 
+	def test_the_head_of_sales_writes_for_a_customer_with_an_address(self):
+		"""ERPNext renders the billing address onto the order and checks the
+		reader may see it. CI found it on 29.10.2026, where the first customer
+		happened to have one: «Sales Manager» alone was refused."""
+		name = "Фасад Тест Адрес"
+		if not frappe.db.exists("Customer", name):
+			frappe.get_doc(
+				{"doctype": "Customer", "customer_name": name, "customer_type": "Individual"}
+			).insert(ignore_permissions=True)
+		if not frappe.db.exists("Dynamic Link", {"link_doctype": "Customer", "link_name": name, "parenttype": "Address"}):
+			frappe.get_doc(
+				{
+					"doctype": "Address",
+					"address_title": name,
+					"address_type": "Billing",
+					"address_line1": "ул. Абая, 1",
+					"city": "Астана",
+					"country": frappe.db.get_value("Company", COMPANY, "country") or "Kazakhstan",
+					"is_primary_address": 1,
+					"links": [{"link_doctype": "Customer", "link_name": name}],
+				}
+			).insert(ignore_permissions=True)
+		result = self._order(HEAD_OF_SALES, customer=name)
+		self.assertEqual(frappe.db.get_value("Sales Order", result["sales_order"], "docstatus"), 1)
+
 	def test_the_order_carries_exactly_the_quoted_total(self):
 		result = self._order(lines=[_line(), _line(double_sided=1, qty=1)], demolition=1)
 		order = frappe.get_doc("Sales Order", result["sales_order"])

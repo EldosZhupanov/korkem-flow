@@ -79,6 +79,30 @@ run_backend() {
   # `Host:` matters everywhere a bench is probed over HTTP: Frappe 17 resolves a
   # request to a site by that header alone, and `default_site` is CLI-only.
 
+  # The suites are written against the seeded demo factory — «Павлодар Уют»,
+  # «ДСП 16мм», its running work orders and job cards — exactly as the
+  # development bench has it. A clean site has none of that, so on CI 22 tests
+  # failed for want of a customer and korkem_ai skipped whole classes
+  # («seed_demo has not been run on this site»). Seed it the way a developer
+  # does; both calls are idempotent, and the seed refuses a pilot or
+  # production site on its own.
+  # What this bench actually runs on. A clean CI bench resolves its Python
+  # packages fresh, a developer's bench resolved them months ago, and the two
+  # have disagreed before (pydantic 2.14 against 2.13, 29.10.2026). One line
+  # here turns that from a day of guessing into a diff.
+  say "backend: versions"
+  docker compose -f "$COMPOSE_FILE" exec -T bench bash -lc \
+    "cd /home/frappe/frappe-bench && for a in frappe erpnext crm; do echo \"\$a \$(git -C apps/\$a rev-parse --short=10 HEAD 2>/dev/null)\"; done \
+     && env/bin/python --version && env/bin/pip freeze 2>/dev/null \
+     | grep -iE '^(pydantic|pydantic.core|anthropic|frappe|erpnext|crm|pymysql|rq|redis)==' ; \
+     mariadb --version 2>/dev/null || true; env/bin/pip check 2>&1 | head -10" || true
+
+  say "backend: seeding the demo factory"
+  docker compose -f "$COMPOSE_FILE" exec -T bench bash -o pipefail -lc \
+    "cd /home/frappe/frappe-bench && bench --site \"\$SITE_NAME\" execute korkem_manufacturing.setup.provision \
+     && bench --site \"\$SITE_NAME\" execute korkem_manufacturing.seed_demo.seed > /dev/null" \
+    || fail "seeding the demo factory"
+
   for app in korkem_manufacturing korkem_ai; do
     say "backend: $app"
     docker compose -f "$COMPOSE_FILE" exec -T bench bash -o pipefail -lc \

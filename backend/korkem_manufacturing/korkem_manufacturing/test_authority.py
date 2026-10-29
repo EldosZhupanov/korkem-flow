@@ -143,12 +143,33 @@ class TestTheTrailSaysWhoActuallyDidIt(_TaskCase):
 
 	def test_closing_your_own_task_names_you_once(self):
 		task = self.a_task(assigned_to=IVAN)
+		# The comment this close writes, not «the newest one»: the test before
+		# writes to the same work order within the same second, and on a fast
+		# clean site the two tied on `creation` and came back in either order
+		# (29.10.2026, a supervisor's «за …» read as this one's).
+		before = set(
+			frappe.get_all(
+				"Comment",
+				filters={"reference_doctype": "Work Order", "reference_name": task.reference_docname},
+				pluck="name",
+			)
+		)
 
 		frappe.set_user(IVAN)
 		shop_floor.complete_task(task.name)
 
 		frappe.set_user("Administrator")
-		latest = self.comments_of(task.reference_docname)[0].content
+		written = [
+			c.content
+			for c in frappe.get_all(
+				"Comment",
+				filters={"reference_doctype": "Work Order", "reference_name": task.reference_docname},
+				fields=["name", "content"],
+			)
+			if c.name not in before
+		]
+		self.assertEqual(len(written), 1, written)
+		latest = written[0]
 		self.assertIn(IVAN, latest)
 		self.assertNotIn("за ", latest, "«за самого себя» — это шум, а не сведения")
 

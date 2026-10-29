@@ -9,6 +9,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
 
 from korkem_ai.korkem_ai.tools.domain_registry import DomainToolRegistry, ToolSecurityError
+from korkem_manufacturing import testing
 from korkem_manufacturing.api import order_state as order_state_api
 from korkem_manufacturing.services import automation, order_state, outbox
 from korkem_manufacturing.services.scope import (
@@ -23,7 +24,7 @@ class TestTenantIsolation(IntegrationTestCase):
 	def setUpClass(cls):
 		super().setUpClass()
 		cls.company_a = "KORKEM"
-		cls.company_b = "Мебель Тест Цех"
+		cls.company_b = testing.second_company()
 
 	def setUp(self):
 		frappe.set_user("Administrator")

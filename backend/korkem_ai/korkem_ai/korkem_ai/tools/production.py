@@ -70,6 +70,7 @@ from korkem_manufacturing.services.shop_floor import (  # noqa: F401
 	CARD_DONE,
 	CORRECTIVE_OPERATION,
 	_bench_free_from,
+	_bench_until,
 	_card_quantities,
 	_cards_for,
 	_catch_up_card,
@@ -565,7 +566,7 @@ def complete_rework(
 			qty=flt(card.for_quantity),
 			pending_qty=0,
 			process_loss_qty=0,
-			end_time=now_datetime(),
+			end_time=_bench_until(card),
 			auto_submit=True,
 		)
 
@@ -587,7 +588,7 @@ def complete_rework(
 			qty=moving,
 			pending_qty=max(0.0, remaining),
 			process_loss_qty=flt(origin.process_loss_qty),
-			end_time=now_datetime(),
+			end_time=_bench_until(origin),
 			auto_submit=remaining <= 0,
 		)
 		origin.reload()

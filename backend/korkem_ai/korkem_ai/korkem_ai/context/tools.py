@@ -134,6 +134,11 @@ def select(question: str) -> tuple[list[str], bool]:
 	}
 	if hit:
 		return sorted(hit | set(ALWAYS)), False
+	# Пустой вопрос — незнакомый вопрос, и спрашивать о нём модель нечего:
+	# CI 29.10.2026, где Laya работает, отнёс пустую строку к одной области
+	# и ассистент остался бы с её инструментами вместо всех.
+	if not text.strip():
+		return sorted(DOMAIN_WORDS), True
 
 	# Если ключевые слова не дали совпадения — опрашиваем Laya System 1
 	laya_res = query_laya_router(question)

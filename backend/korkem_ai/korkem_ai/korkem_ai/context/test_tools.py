@@ -5,10 +5,26 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from unittest.mock import patch
 
 from frappe.tests import IntegrationTestCase
 
 from korkem_ai.korkem_ai.context import tools as ctx
+
+#: These tests are about the dictionary, so the semantic router behind it is
+#: held silent — as on every developer bench, where laya-router is stopped.
+#: On CI it runs, and its own guess for «расскажи анекдот» made three of them
+#: depend on a model's mood (29.10.2026). What a router answer does is tested
+#: once, on purpose, below.
+_SILENT_ROUTER = patch.object(ctx, "query_laya_router", return_value=None)
+
+
+def setUpModule():
+	_SILENT_ROUTER.start()
+
+
+def tearDownModule():
+	_SILENT_ROUTER.stop()
 
 
 @dataclass
@@ -102,6 +118,20 @@ class TestAnUnrecognisedQuestionCostsWhatItAlwaysCost(IntegrationTestCase):
 
 		self.assertEqual(len(kept), 1)
 		self.assertTrue(info["unmatched"])
+
+
+class TestTheRouterIsAskedOnlyWhenTheWordsMiss(IntegrationTestCase):
+	def test_a_router_answer_narrows_an_unrecognised_question(self):
+		with patch.object(ctx, "query_laya_router", return_value={"domain": "inventory"}):
+			domains, unmatched = ctx.select("а что там с тем белым для Айгуль")
+		self.assertIn("inventory", domains)
+		self.assertFalse(unmatched)
+
+	def test_an_empty_question_never_reaches_the_router(self):
+		with patch.object(ctx, "query_laya_router", return_value={"domain": "inventory"}) as router:
+			_, unmatched = ctx.select("")
+		router.assert_not_called()
+		self.assertTrue(unmatched)
 
 
 class TestTheSavingIsReal(IntegrationTestCase):

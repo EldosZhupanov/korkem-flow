@@ -171,3 +171,36 @@ def _parents(child: str, field: str, value: str | None, *, parent: str | None = 
 	else:
 		rows = frappe.get_all(child, filters={field: value}, pluck="parent")
 	return list(dict.fromkeys(rows))
+
+
+#: The other tenant the isolation tests read and write across.
+SECOND_COMPANY = "Мебель Тест Цех"
+
+
+def second_company() -> str:
+	"""A second company on the site, for the tenant-isolation tests.
+
+	Those tests always assumed one existed. It did on the development bench,
+	where an early registration run had left it behind, and nowhere else — so on
+	a clean site, which is what CI builds, fourteen of them failed with
+	«Could not find Company: Мебель Тест Цех». Created once, like the seeded
+	KORKEM company, and committed: the tests roll back after every case.
+	"""
+	if frappe.db.exists("Company", SECOND_COMPANY):
+		return SECOND_COMPANY
+	base = frappe.db.get_value(
+		"Company", "KORKEM", ["default_currency", "country"], as_dict=True
+	) or frappe._dict(default_currency="KZT", country="Kazakhstan")
+	frappe.get_doc(
+		{
+			"doctype": "Company",
+			"company_name": SECOND_COMPANY,
+			"abbr": "MTC",
+			"default_currency": base.default_currency,
+			"country": base.country,
+			"create_chart_of_accounts_based_on": "Standard Template",
+			"chart_of_accounts": "Standard",
+		}
+	).insert(ignore_permissions=True)
+	frappe.db.commit()
+	return SECOND_COMPANY

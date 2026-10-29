@@ -7,6 +7,7 @@ from __future__ import annotations
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from korkem_manufacturing import testing
 from korkem_manufacturing.services import idempotency
 
 
@@ -14,7 +15,7 @@ class TestIdempotencyConcurrency(IntegrationTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
 		self.company_a = "KORKEM"
-		self.company_b = "Мебель Тест Цех"
+		self.company_b = testing.second_company()
 
 	def tearDown(self):
 		frappe.db.rollback()
