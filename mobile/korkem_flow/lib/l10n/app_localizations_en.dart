@@ -4540,4 +4540,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logisticsDeliveryOptional => 'Delivery (if paid for)';
+
+  @override
+  String get materialMin => 'Minimum on hand';
+
+  @override
+  String get materialMinHint =>
+      'When free stock drops below it, the owner is told to order more. Empty or 0 — no warning.';
+
+  @override
+  String materialLow(String minimum) {
+    return 'Low — minimum $minimum';
+  }
 }

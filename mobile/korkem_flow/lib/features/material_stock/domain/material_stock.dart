@@ -120,6 +120,8 @@ class StockMaterial {
     this.averagePrice,
     this.enabled = true,
     this.textured = false,
+    this.minStock = 0,
+    this.low = false,
   }) : free = free ?? onHand - reserved;
 
   factory StockMaterial.fromJson(Map<String, dynamic> json) {
@@ -135,6 +137,8 @@ class StockMaterial {
       averagePrice: (json['average_price'] as num?)?.toDouble(),
       enabled: json['enabled'] != false,
       textured: json['textured'] == true,
+      minStock: (json['min_stock'] as num?)?.toDouble() ?? 0,
+      low: json['low'] == true,
     );
   }
 
@@ -160,6 +164,12 @@ class StockMaterial {
 
   /// A film whose pattern has a direction: never turned on the press.
   final bool textured;
+
+  /// «Минимум на складе»; 0 — nobody asked to be warned.
+  final double minStock;
+
+  /// Free is below [minStock]: the owner has been told to order more.
+  final bool low;
 }
 
 /// One material a facade order needs, counted on the server from its m².

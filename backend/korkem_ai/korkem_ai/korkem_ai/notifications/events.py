@@ -66,6 +66,8 @@ ORDER_WAITING_MATERIAL = "order.waiting_material"
 # reminded about one forgotten item once.
 STALE_CAPTURE = "reminder.capture_stale"
 MEASUREMENT_TASK = "reminder.measurement_task"
+# «Мало листов» (korkem_manufacturing.services.stock_alerts).
+STOCK_LOW = "stock.low"
 
 
 def stale_capture(capture: str, company: str) -> list[str]:
@@ -121,6 +123,46 @@ def measurement_task(
 		reference_doctype="CRM Task",
 		reference_name=str(row.name),
 		company=company,
+	)
+
+
+def _qty(value) -> str:
+	value = float(value or 0)
+	return f"{value:g}".replace(".", ",")
+
+
+def stock_low(
+	company: str,
+	day: str,
+	item: str,
+	title: str,
+	unit: str,
+	on_hand: float,
+	reserved: float,
+	free: float,
+	minimum: float,
+) -> list[str]:
+	"""«Мало листов» — before the shop stands waiting for material.
+
+	Once a day per material: the date is the key suffix, so an hourly run does
+	not repeat the morning's warning, and the next day it is said again if
+	nothing came in.
+	"""
+	if frappe.db.get_value("Item", item, "korkem_material_company") != company:
+		return []
+	promised = f", обещано заказам {_qty(reserved)}" if reserved else ""
+	return service.emit(
+		STOCK_LOW,
+		recipients=recipients.owners_for_company(company),
+		body=(
+			f"Мало на складе: {title} — свободно {_qty(free)} {unit} "
+			f"(на складе {_qty(on_hand)}{promised}), минимум {_qty(minimum)}. "
+			"Пора заказывать, чтобы цех не ждал."
+		),
+		reference_doctype="Item",
+		reference_name=item,
+		company=company,
+		key_suffix=str(day),
 	)
 
 

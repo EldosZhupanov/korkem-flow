@@ -69,6 +69,12 @@ def set_film_textured(item: str, textured: bool | int | str) -> dict:
 	return service.set_film_textured(item, textured)
 
 
+@frappe.whitelist(methods=["POST"])
+def set_min_stock(item: str, minimum: float | str) -> dict:
+	"""«Минимум на складе»: ниже него — предупреждение владельцу. 0 — без него."""
+	return service.set_min_stock(item, minimum)
+
+
 @frappe.whitelist(methods=["GET"])
 def materials(kind: str | None = None, include_disabled: bool | int | str = 0) -> dict:
 	"""Материалы с остатком; средняя цена — только тем, кому видны цены."""

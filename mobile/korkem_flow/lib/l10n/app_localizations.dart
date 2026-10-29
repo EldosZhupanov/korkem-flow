@@ -8054,6 +8054,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delivery (if paid for)'**
   String get logisticsDeliveryOptional;
+
+  /// Material stock: minimum and low warning
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum on hand'**
+  String get materialMin;
+
+  /// Material stock: minimum and low warning
+  ///
+  /// In en, this message translates to:
+  /// **'When free stock drops below it, the owner is told to order more. Empty or 0 — no warning.'**
+  String get materialMinHint;
+
+  /// Material stock: minimum and low warning
+  ///
+  /// In en, this message translates to:
+  /// **'Low — minimum {minimum}'**
+  String materialLow(String minimum);
 }
 
 class _AppLocalizationsDelegate
