@@ -18,6 +18,10 @@ COMPANY = setup.COMPANY
 MANAGER = "count.manager@example.com"
 CUTTER = "count.cutter@example.com"
 MAKER = "SC-Kronospan"
+#: A thickness no other test uses. Facade orders pick «an MDF of that
+#: thickness», and an 18 mm sheet of this test's once took the place of
+#: test_facade_materials' own on CI (30.10.2026).
+THICKNESS = "19"
 SUPPLIER = "SC Supplier Test"
 
 
@@ -37,11 +41,11 @@ class TestTheMonthEndCount(IntegrationTestCase):
 		frappe.set_user("Administrator")
 		_user(MANAGER, "Sales Manager")
 		_user(CUTTER, "Manufacturing User")
-		for kind, value in (("Толщина МДФ", "18"), ("Производитель", MAKER)):
+		for kind, value in (("Толщина МДФ", THICKNESS), ("Производитель", MAKER)):
 			material_stock.add_option(kind, value)
 		material_stock.add_supplier(SUPPLIER)
 		cls.supplier = frappe.db.get_value("Supplier", {"supplier_name": SUPPLIER}, "name")
-		cls.mdf = material_stock.define_material(material_stock.MDF, "лист", thickness="18", manufacturer=MAKER)["item"]
+		cls.mdf = material_stock.define_material(material_stock.MDF, "лист", thickness=THICKNESS, manufacturer=MAKER)["item"]
 		cls.order = frappe.db.get_value("Sales Order", {"company": COMPANY, "docstatus": 1}, "name")
 		assert cls.order, "the seeded site has submitted orders; no silent skip"
 		frappe.db.commit()
