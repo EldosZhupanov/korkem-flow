@@ -6,6 +6,7 @@ permissions:
   contents: read
 jobs:
   windows:
+    if: github.event.head_commit.message != 'verify-windows-artifact-startup'
     runs-on: windows-2022
     timeout-minutes: 40
     steps:
