@@ -4608,4 +4608,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String stockUsageLoss(String qty, String money) {
     return 'Unaccounted: $qty$money';
   }
+
+  @override
+  String get materialsAdd => 'Add material';
+
+  @override
+  String get materialsName => 'Material name';
+
+  @override
+  String get materialsManufacturer => 'Manufacturer';
+
+  @override
+  String get materialsDecorCode => 'Decor code';
+
+  @override
+  String get materialsThicknessInput => 'Thickness, mm';
+
+  @override
+  String get materialsSheetWidthInput => 'Sheet width, mm';
+
+  @override
+  String get materialsSheetHeightInput => 'Sheet height, mm';
+
+  @override
+  String get materialsEdgeWidthInput => 'Edge width, mm';
+
+  @override
+  String get materialsFitsThicknessInput => 'For board thickness, mm';
+
+  @override
+  String get materialsPositiveDimension => 'Enter a positive number';
+
+  @override
+  String get materialsCreateSuccess => 'Material added';
+
+  @override
+  String get materialsSave => 'Save';
 }

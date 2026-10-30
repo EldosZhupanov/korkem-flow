@@ -138,6 +138,7 @@ class FrappeSocketChannel implements AssistantChannel {
 
     final controller = StreamController<Map<String, dynamic>>.broadcast();
     _controller = controller;
+    final connected = Completer<void>();
 
     final origin = endpoint.replace(path: '').toString();
     final options = io.OptionBuilder()
@@ -161,6 +162,7 @@ class FrappeSocketChannel implements AssistantChannel {
         }
       })
       ..onConnect((_) {
+        if (!connected.isCompleted) connected.complete();
         _note('connected');
         _status.add(ChannelStatus.connected);
       })
@@ -198,6 +200,9 @@ class FrappeSocketChannel implements AssistantChannel {
       ..connect();
 
     _socket = socket;
+    // Queue the turn only after the user room is joined. Opening a transport
+    // asynchronously used to lose fast responses on the first message.
+    await connected.future.timeout(const Duration(seconds: 10));
     return controller.stream;
   }
 

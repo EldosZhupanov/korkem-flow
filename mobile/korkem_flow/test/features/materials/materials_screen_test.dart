@@ -55,6 +55,57 @@ void main() {
   }
 
   group('Экран «Материалы» (MaterialsScreen)', () {
+    testWidgets('owner saves a board and sees it in the refreshed catalogue', (
+      tester,
+    ) async {
+      final rows = <MaterialItem>[];
+      when(
+        () => repository.create(
+          name: any(named: 'name'),
+          kind: any(named: 'kind'),
+          manufacturer: any(named: 'manufacturer'),
+          decorCode: any(named: 'decorCode'),
+          thicknessMm: any(named: 'thicknessMm'),
+          sheetWidthMm: any(named: 'sheetWidthMm'),
+          sheetHeightMm: any(named: 'sheetHeightMm'),
+          edgeWidthMm: any(named: 'edgeWidthMm'),
+          fitsThicknessMm: any(named: 'fitsThicknessMm'),
+        ),
+      ).thenAnswer((invocation) async {
+        final material = MaterialItem(
+          id: 'NEW-1',
+          name: invocation.namedArguments[#name] as String,
+          kind: MaterialKind.board,
+          thicknessMm: invocation.namedArguments[#thicknessMm] as double,
+        );
+        rows.add(material);
+        return material;
+      });
+      await tester.pumpWidget(buildHarness(materials: rows));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Добавить материал'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Сохранить'));
+      await tester.tap(find.text('Сохранить'));
+      await tester.pumpAndSettle();
+      expect(find.text('Обязательное поле'), findsOneWidget);
+      expect(rows, isEmpty);
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Название материала'),
+        'Новая плита',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Толщина, мм'),
+        '16,5',
+      );
+      await tester.ensureVisible(find.text('Сохранить'));
+      await tester.tap(find.text('Сохранить'));
+      await tester.pumpAndSettle();
+      expect(rows.single.thicknessMm, 16.5);
+      expect(find.text('Новая плита'), findsOneWidget);
+      expect(find.text('Материал добавлен'), findsOneWidget);
+    });
+
     testWidgets('1. код декора видно всегда и на первом месте в заголовке', (
       tester,
     ) async {

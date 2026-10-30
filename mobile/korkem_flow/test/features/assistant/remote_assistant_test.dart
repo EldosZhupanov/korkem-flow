@@ -345,6 +345,77 @@ void main() {
     expect(kinds, ['AssistantDelta', 'AssistantDone']);
   });
 
+  test(
+    'started before the HTTP acknowledgement keeps a slow turn alive',
+    () async {
+      final acknowledgement = Completer<Map<String, dynamic>>();
+      final channel = _FakeChannel();
+      final client = _RecoveryClient(acknowledgement: acknowledgement);
+      final assistant = RemoteAssistant(
+        client: client,
+        channel: channel,
+        firstEventTimeout: const Duration(milliseconds: 30),
+      );
+      final events = assistant.send(prompt: 'hi', history: const []).toList();
+      await channel.ready;
+      channel.emit({'turn_id': 't1', 'type': 'started'});
+      await Future<void>.delayed(Duration.zero);
+      acknowledgement.complete({
+        'message': {'turn_id': 't1'},
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      channel.emit({'turn_id': 't1', 'type': 'done', 'text': 'A slow answer'});
+      final received = await events;
+      expect(received.whereType<AssistantFailed>(), isEmpty);
+      expect(received.whereType<AssistantDone>().single.text, 'A slow answer');
+    },
+  );
+
+  test(
+    'HTTPS recovers a completed response when the socket delivers nothing',
+    () async {
+      final client = _RecoveryClient(
+        recovered: {
+          'turn_id': 't1',
+          'type': 'done',
+          'text': 'Recovered answer',
+        },
+      );
+      final assistant = RemoteAssistant(
+        client: client,
+        channel: _FakeChannel(),
+      );
+      final events = await assistant
+          .send(prompt: 'hi', history: const [])
+          .toList();
+      expect(events.whereType<AssistantDone>().single.text, 'Recovered answer');
+      expect(
+        client.sendCount,
+        1,
+        reason: 'Recovery must not bill a second prompt',
+      );
+    },
+  );
+
+  test('a turn with progress but no result has a bounded timeout', () async {
+    final client = _RecoveryClient(
+      recovered: {'turn_id': 't1', 'type': 'started'},
+    );
+    final assistant = RemoteAssistant(
+      client: client,
+      channel: _FakeChannel(),
+      turnTimeout: const Duration(milliseconds: 50),
+      pollInterval: const Duration(milliseconds: 10),
+    );
+    final events = await assistant
+        .send(prompt: 'hi', history: const [])
+        .toList();
+    expect(
+      events.whereType<AssistantFailed>().single.reason,
+      AssistantFailure.timedOut,
+    );
+  });
+
   test('only prose is sent back as history', () async {
     // The server refuses to rebuild tool results from client input, so sending
     // them would be pointless — and being able to would let a client fabricate
@@ -392,10 +463,40 @@ class _RecordingClient implements FrappeClient {
     Map<String, dynamic>? params,
     bool post = false,
   }) async {
+    if (path.endsWith('.result')) return {'message': <String, dynamic>{}};
     lastParams = params;
     return {
       'message': {'turn_id': turnId, 'event': 'korkem_ai_chat'},
     };
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _RecoveryClient implements FrappeClient {
+  _RecoveryClient({this.acknowledgement, this.recovered});
+
+  final Completer<Map<String, dynamic>>? acknowledgement;
+  final Map<String, dynamic>? recovered;
+  var sendCount = 0;
+
+  @override
+  Future<Map<String, dynamic>> callMethod(
+    String path, {
+    Map<String, dynamic>? params,
+    bool post = false,
+  }) async {
+    if (path.endsWith('.result')) {
+      if (recovered == null) throw const NetworkFailure('Recovery unavailable');
+      return {'message': recovered};
+    }
+    sendCount++;
+    return acknowledgement != null
+        ? acknowledgement!.future
+        : {
+            'message': {'turn_id': 't1'},
+          };
   }
 
   @override

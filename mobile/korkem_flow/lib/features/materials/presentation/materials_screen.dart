@@ -4,6 +4,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/app_search_field.dart';
 import 'package:korkem_flow/core/design/widgets/paged_list_view.dart';
@@ -11,10 +12,11 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/search/recent_searches.dart';
 import 'package:korkem_flow/features/materials/application/materials_controller.dart';
 import 'package:korkem_flow/features/materials/domain/material_item.dart';
+import 'package:korkem_flow/features/materials/presentation/material_create_sheet.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-/// Read-only catalogue of materials (boards and edges) with search and filters.
+/// Catalogue of materials (boards and edges) with search and filters.
 class MaterialsScreen extends ConsumerWidget {
   const MaterialsScreen({super.key});
 
@@ -28,6 +30,27 @@ class MaterialsScreen extends ConsumerWidget {
       title: l10n.materialsTitle,
       subtitle: l10n.materialsSubtitle,
       actions: [
+        IconButton(
+          tooltip: l10n.materialsAdd,
+          icon: const Icon(AppIcons.add),
+          onPressed: () async {
+            final created = await showModalBottomSheet<bool>(
+              context: context,
+              isScrollControlled: true,
+              constraints: const BoxConstraints(maxWidth: 600),
+              builder: (_) => const MaterialCreateSheet(),
+            );
+            if (created == true) {
+              ref.read(materialsFilterProvider.notifier).clear();
+              await ref.read(materialsControllerProvider.notifier).refresh();
+              if (context.mounted) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showDone(l10n.materialsCreateSuccess);
+              }
+            }
+          },
+        ),
         IconButton(
           tooltip: l10n.actionRefresh,
           icon: const Icon(AppIcons.refresh),

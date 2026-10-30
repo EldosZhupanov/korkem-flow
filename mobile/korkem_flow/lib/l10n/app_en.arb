@@ -5584,5 +5584,17 @@
         "type": "String"
       }
     }
-  }
+  },
+  "materialsAdd": "Add material",
+  "materialsName": "Material name",
+  "materialsManufacturer": "Manufacturer",
+  "materialsDecorCode": "Decor code",
+  "materialsThicknessInput": "Thickness, mm",
+  "materialsSheetWidthInput": "Sheet width, mm",
+  "materialsSheetHeightInput": "Sheet height, mm",
+  "materialsEdgeWidthInput": "Edge width, mm",
+  "materialsFitsThicknessInput": "For board thickness, mm",
+  "materialsPositiveDimension": "Enter a positive number",
+  "materialsCreateSuccess": "Material added",
+  "materialsSave": "Save"
 }

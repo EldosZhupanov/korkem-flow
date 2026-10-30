@@ -8156,6 +8156,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unaccounted: {qty}{money}'**
   String stockUsageLoss(String qty, String money);
+
+  /// No description provided for @materialsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add material'**
+  String get materialsAdd;
+
+  /// No description provided for @materialsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Material name'**
+  String get materialsName;
+
+  /// No description provided for @materialsManufacturer.
+  ///
+  /// In en, this message translates to:
+  /// **'Manufacturer'**
+  String get materialsManufacturer;
+
+  /// No description provided for @materialsDecorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Decor code'**
+  String get materialsDecorCode;
+
+  /// No description provided for @materialsThicknessInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness, mm'**
+  String get materialsThicknessInput;
+
+  /// No description provided for @materialsSheetWidthInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet width, mm'**
+  String get materialsSheetWidthInput;
+
+  /// No description provided for @materialsSheetHeightInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet height, mm'**
+  String get materialsSheetHeightInput;
+
+  /// No description provided for @materialsEdgeWidthInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge width, mm'**
+  String get materialsEdgeWidthInput;
+
+  /// No description provided for @materialsFitsThicknessInput.
+  ///
+  /// In en, this message translates to:
+  /// **'For board thickness, mm'**
+  String get materialsFitsThicknessInput;
+
+  /// No description provided for @materialsPositiveDimension.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a positive number'**
+  String get materialsPositiveDimension;
+
+  /// No description provided for @materialsCreateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Material added'**
+  String get materialsCreateSuccess;
+
+  /// No description provided for @materialsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get materialsSave;
 }
 
 class _AppLocalizationsDelegate

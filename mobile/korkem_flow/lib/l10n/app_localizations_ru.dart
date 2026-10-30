@@ -4632,4 +4632,40 @@ class AppLocalizationsRu extends AppLocalizations {
   String stockUsageLoss(String qty, String money) {
     return 'Не объяснено: $qty$money';
   }
+
+  @override
+  String get materialsAdd => 'Добавить материал';
+
+  @override
+  String get materialsName => 'Название материала';
+
+  @override
+  String get materialsManufacturer => 'Производитель';
+
+  @override
+  String get materialsDecorCode => 'Код декора';
+
+  @override
+  String get materialsThicknessInput => 'Толщина, мм';
+
+  @override
+  String get materialsSheetWidthInput => 'Ширина листа, мм';
+
+  @override
+  String get materialsSheetHeightInput => 'Высота листа, мм';
+
+  @override
+  String get materialsEdgeWidthInput => 'Ширина кромки, мм';
+
+  @override
+  String get materialsFitsThicknessInput => 'Для плиты толщиной, мм';
+
+  @override
+  String get materialsPositiveDimension => 'Введите положительное число';
+
+  @override
+  String get materialsCreateSuccess => 'Материал добавлен';
+
+  @override
+  String get materialsSave => 'Сохранить';
 }

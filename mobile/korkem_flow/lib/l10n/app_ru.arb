@@ -1555,5 +1555,17 @@
   "stockUsageCountedOn": "Пересчитано {date}",
   "stockUsageLine": "Было {start} · пришло {bought} · осталось {end} {unit}",
   "stockUsageUsed": "Ушло по факту {used}, по заказам {orders}",
-  "stockUsageLoss": "Не объяснено: {qty}{money}"
+  "stockUsageLoss": "Не объяснено: {qty}{money}",
+  "materialsAdd": "Добавить материал",
+  "materialsName": "Название материала",
+  "materialsManufacturer": "Производитель",
+  "materialsDecorCode": "Код декора",
+  "materialsThicknessInput": "Толщина, мм",
+  "materialsSheetWidthInput": "Ширина листа, мм",
+  "materialsSheetHeightInput": "Высота листа, мм",
+  "materialsEdgeWidthInput": "Ширина кромки, мм",
+  "materialsFitsThicknessInput": "Для плиты толщиной, мм",
+  "materialsPositiveDimension": "Введите положительное число",
+  "materialsCreateSuccess": "Материал добавлен",
+  "materialsSave": "Сохранить"
 }

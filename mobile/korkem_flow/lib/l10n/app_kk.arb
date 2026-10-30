@@ -1555,5 +1555,17 @@
   "stockUsageCountedOn": "Саналды {date}",
   "stockUsageLine": "Болды {start} · келді {bought} · қалды {end} {unit}",
   "stockUsageUsed": "Іс жүзінде кетті {used}, тапсырыстарға {orders}",
-  "stockUsageLoss": "Түсіндірілмеген: {qty}{money}"
+  "stockUsageLoss": "Түсіндірілмеген: {qty}{money}",
+  "materialsAdd": "Материал қосу",
+  "materialsName": "Материал атауы",
+  "materialsManufacturer": "Өндіруші",
+  "materialsDecorCode": "Декор коды",
+  "materialsThicknessInput": "Қалыңдығы, мм",
+  "materialsSheetWidthInput": "Парақ ені, мм",
+  "materialsSheetHeightInput": "Парақ биіктігі, мм",
+  "materialsEdgeWidthInput": "Жиек ені, мм",
+  "materialsFitsThicknessInput": "Плита қалыңдығы үшін, мм",
+  "materialsPositiveDimension": "Оң сан енгізіңіз",
+  "materialsCreateSuccess": "Материал қосылды",
+  "materialsSave": "Сақтау"
 }

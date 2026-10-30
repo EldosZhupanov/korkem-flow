@@ -1,0 +1,39 @@
+name: Windows release
+on:
+  push:
+    branches: [release/windows-0.3.1-build8]
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          cache: true
+      - name: Build Windows portable release
+        shell: pwsh
+        working-directory: mobile/korkem_flow
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:JAVA_HOME = $env:JAVA_HOME_21_X64
+          flutter pub get
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          flutter build windows --release --no-pub --no-tree-shake-icons --dart-define=KORKEM_BASE_URL=https://api.korkem.asia --dart-define=KORKEM_FLAVOR=prod
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $release = Join-Path $PWD 'build/windows/x64/runner/Release'
+          foreach ($file in @('korkem_flow.exe','flutter_windows.dll','data/app.so','data/icudtl.dat')) {
+            if (-not (Test-Path (Join-Path $release $file))) { throw "Missing $file" }
+          }
+          New-Item -ItemType Directory -Force -Path ../../windows-artifact | Out-Null
+          Compress-Archive -Path "$release/*" -DestinationPath ../../windows-artifact/korkem-flow-0.3.1-windows-x64.zip -CompressionLevel Optimal
+          Get-FileHash ../../windows-artifact/korkem-flow-0.3.1-windows-x64.zip -Algorithm SHA256 | Format-List
+          (Get-Item "$release/korkem_flow.exe").VersionInfo | Select-Object FileVersion,ProductVersion | ConvertTo-Json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: korkem-windows-0.3.1-build8
+          path: windows-artifact/
+          retention-days: 14

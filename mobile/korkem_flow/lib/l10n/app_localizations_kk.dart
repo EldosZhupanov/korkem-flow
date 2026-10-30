@@ -4570,4 +4570,40 @@ class AppLocalizationsKk extends AppLocalizations {
   String stockUsageLoss(String qty, String money) {
     return 'Түсіндірілмеген: $qty$money';
   }
+
+  @override
+  String get materialsAdd => 'Материал қосу';
+
+  @override
+  String get materialsName => 'Материал атауы';
+
+  @override
+  String get materialsManufacturer => 'Өндіруші';
+
+  @override
+  String get materialsDecorCode => 'Декор коды';
+
+  @override
+  String get materialsThicknessInput => 'Қалыңдығы, мм';
+
+  @override
+  String get materialsSheetWidthInput => 'Парақ ені, мм';
+
+  @override
+  String get materialsSheetHeightInput => 'Парақ биіктігі, мм';
+
+  @override
+  String get materialsEdgeWidthInput => 'Жиек ені, мм';
+
+  @override
+  String get materialsFitsThicknessInput => 'Плита қалыңдығы үшін, мм';
+
+  @override
+  String get materialsPositiveDimension => 'Оң сан енгізіңіз';
+
+  @override
+  String get materialsCreateSuccess => 'Материал қосылды';
+
+  @override
+  String get materialsSave => 'Сақтау';
 }

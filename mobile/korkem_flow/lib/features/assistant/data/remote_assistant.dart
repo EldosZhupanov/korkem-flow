@@ -25,11 +25,14 @@ class RemoteAssistant extends AssistantRepository {
     required this.client,
     required this.channel,
     this.firstEventTimeout = defaultFirstEventTimeout,
+    this.pollInterval = const Duration(seconds: 2),
+    this.turnTimeout = const Duration(minutes: 5),
   });
 
   static const _sendMethod = 'korkem_ai.korkem_ai.chat.send';
   static const _confirmMethod = 'korkem_ai.korkem_ai.chat.confirm';
   static const _rejectMethod = 'korkem_ai.korkem_ai.chat.reject';
+  static const _resultMethod = 'korkem_ai.korkem_ai.chat.result';
 
   /// How long to wait for the *first* sign of life before giving up.
   ///
@@ -48,6 +51,8 @@ class RemoteAssistant extends AssistantRepository {
   /// Overridable so a test does not have to wait three quarters of a minute,
   /// and so a deployment on a slower link can widen it without a code change.
   final Duration firstEventTimeout;
+  final Duration pollInterval;
+  final Duration turnTimeout;
 
   final FrappeClient client;
   final AssistantChannel channel;
@@ -117,6 +122,10 @@ class RemoteAssistant extends AssistantRepository {
     // Fires if nothing at all arrives. Cancelled by the first event, so a turn
     // that is genuinely working is never cut off.
     Timer? silence;
+    Timer? polling;
+    Timer? deadline;
+    var receivedEvent = false;
+    var pollingInFlight = false;
     void giveUp() {
       if (controller.isClosed) return;
       controller.add(const AssistantFailed(AssistantFailure.offline));
@@ -124,40 +133,65 @@ class RemoteAssistant extends AssistantRepository {
     }
 
     void handle(Map<String, dynamic> payload) {
+      if (controller.isClosed) return;
+      receivedEvent = true;
       silence?.cancel();
       final event = _decode(payload);
       if (event != null) controller.add(event);
       if (_terminal(payload)) unawaited(controller.close());
     }
 
+    Future<void> recover() async {
+      final turn = expectedTurn;
+      if (turn == null || controller.isClosed || pollingInFlight) return;
+      pollingInFlight = true;
+      try {
+        final response = await client.callMethod(
+          _resultMethod,
+          params: {'turn_id': turn},
+        );
+        if (controller.isClosed) return;
+        final raw = response['message'];
+        if (raw is Map && raw['turn_id'] == turn) {
+          final payload = Map<String, dynamic>.from(raw);
+          if (payload['type'] != null) handle(payload);
+        }
+      } on FrappeException {
+        // A transient polling failure cannot discard a still-streaming turn.
+        // The first-event and overall deadlines bound a disconnected server.
+      } finally {
+        pollingInFlight = false;
+      }
+    }
+
     try {
-      subscription = (await channel.events()).listen(
-        (payload) {
-          if (expectedTurn == null) {
-            pending.add(payload);
-            return;
-          }
-          if (payload['turn_id'] != expectedTurn) return;
-          handle(payload);
-        },
-        onError: (Object error) {
-          // Logged, not swallowed. The user still sees only "offline" — a
-          // transport error is not something they can act on — but this used
-          // to be `onError: (_)`, which discarded the one string that says
-          // *why*. Diagnosing the emulator failure needed a temporary patch to
-          // this exact line, which is a bad way to learn something the app
-          // already knew.
-          //
-          // Transport-level only: this carries a connection error, never a
-          // payload, so there is nothing here to leak.
-          debugPrint('Assistant channel failed: $error');
-          controller.add(const AssistantFailed(AssistantFailure.offline));
-          unawaited(controller.close());
-        },
-      );
+      try {
+        subscription = (await channel.events()).listen(
+          (payload) {
+            if (expectedTurn == null) {
+              pending.add(payload);
+              return;
+            }
+            if (payload['turn_id'] != expectedTurn) return;
+            handle(payload);
+          },
+          onError: (Object error) {
+            // Connection errors are diagnostic only: the same answer can
+            // still arrive over HTTPS, without submitting the prompt twice.
+            debugPrint('Assistant channel failed: $error');
+            // HTTP recovery remains available when this transport fails.
+          },
+        );
+      } on Object catch (error) {
+        debugPrint('Assistant channel unavailable: $error');
+      }
 
       final response = await start();
       expectedTurn = (response['message'] as Map?)?['turn_id'] as String?;
+      if (expectedTurn == null || expectedTurn.isEmpty) {
+        yield const AssistantFailed(AssistantFailure.unknown);
+        return;
+      }
 
       // Drain the window now that ours can be told apart.
       for (final payload in pending) {
@@ -167,8 +201,17 @@ class RemoteAssistant extends AssistantRepository {
 
       // Started only once the turn is actually queued — timing the HTTP call
       // as well would punish a slow request for the socket's sins.
-      if (!controller.isClosed) {
+      if (!controller.isClosed && !receivedEvent) {
         silence = Timer(firstEventTimeout, giveUp);
+      }
+      if (!controller.isClosed) {
+        deadline = Timer(turnTimeout, () {
+          if (controller.isClosed) return;
+          controller.add(const AssistantFailed(AssistantFailure.timedOut));
+          unawaited(controller.close());
+        });
+        polling = Timer.periodic(pollInterval, (_) => unawaited(recover()));
+        unawaited(recover());
       }
 
       yield* controller.stream;
@@ -176,6 +219,8 @@ class RemoteAssistant extends AssistantRepository {
       yield AssistantFailed(_failureOf(error));
     } finally {
       silence?.cancel();
+      polling?.cancel();
+      deadline?.cancel();
       await subscription?.cancel();
       // Not awaited, deliberately. `close()` completes only once the stream has
       // been consumed, so on the path where sending threw before anything

@@ -27,6 +27,37 @@ class MaterialsRepository {
 
   final FrappeClient _client;
 
+  Future<MaterialItem> create({
+    required String name,
+    required String kind,
+    String? manufacturer,
+    String? decorCode,
+    double? thicknessMm,
+    double? sheetWidthMm,
+    double? sheetHeightMm,
+    double? edgeWidthMm,
+    double? fitsThicknessMm,
+  }) async {
+    final response = await _client.callMethod(
+      'korkem_manufacturing.api.materials.create',
+      post: true,
+      params: {
+        'name': name.trim(),
+        'kind': kind,
+        'manufacturer': ?manufacturer,
+        'decor_code': ?decorCode,
+        'thickness_mm': ?thicknessMm,
+        'sheet_width_mm': ?sheetWidthMm,
+        'sheet_height_mm': ?sheetHeightMm,
+        'edge_width_mm': ?edgeWidthMm,
+        'fits_thickness_mm': ?fitsThicknessMm,
+      },
+    );
+    return MaterialItem.fromJson(
+      Map<String, dynamic>.from(response['message'] as Map),
+    );
+  }
+
   /// Fetches a paginated slice of the materials catalogue matching the filters.
   Future<MaterialsPage> fetchMaterials({
     int limit = 20,
