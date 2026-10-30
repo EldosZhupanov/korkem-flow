@@ -42,18 +42,21 @@ from korkem_manufacturing.services.scope import current_company, ensure_company
 NORMS = "Facade Material Norms"
 OVERRIDE = "Facade Film Metres"
 #: The shop's Yellow 3013: working area inside, and its sections — film ordered
-#: (m) against the working length it gives (mm). The whole table: 3.1 m of film
-#: for 2 850 mm inside, the rest goes over the frame. The two shorter sections'
-#: working lengths are a first guess with the same 250 mm over the frame.
+#: (m) against the working length it gives (mm). Measured on the shop's press
+#: by the owner, 30.10.2026 — the area facades can be laid on, per section:
+#: 3,1 m → 2 750 × 1 150, 2,1 m → 1 700 × 1 150, 1,1 m → 850 × 1 150 mm.
+#: Those are already the usable sizes, so the default margin is 0; the gap
+#: between facades stays the shop's 60 mm. All of it is editable in the
+#: press settings.
 DEFAULT_PRESS = {
-	"press_length_mm": 2850,
-	"press_width_mm": 1210,
-	"press_margin_mm": 50,
+	"press_length_mm": 2750,
+	"press_width_mm": 1150,
+	"press_margin_mm": 0,
 	"press_gap_mm": 60,
 	"press_sections": [
 		{"film_m": 1.1, "length_mm": 850},
-		{"film_m": 2.1, "length_mm": 1850},
-		{"film_m": 3.1, "length_mm": 2850},
+		{"film_m": 2.1, "length_mm": 1700},
+		{"film_m": 3.1, "length_mm": 2750},
 	],
 }
 
