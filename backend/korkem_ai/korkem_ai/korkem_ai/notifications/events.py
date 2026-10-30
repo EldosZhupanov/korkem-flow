@@ -70,6 +70,8 @@ MEASUREMENT_TASK = "reminder.measurement_task"
 STOCK_LOW = "stock.low"
 # «Посчитайте склад» (korkem_manufacturing.services.stock_count).
 STOCK_COUNT_DUE = "stock.count_due"
+# «Привезли, а доставку не записали» (korkem_manufacturing.services.logistics).
+DELIVERY_MISSING = "logistics.delivery_missing"
 
 
 def stale_capture(capture: str, company: str) -> list[str]:
@@ -183,6 +185,34 @@ def stock_count_due(company: str, month: str) -> list[str]:
 		reference_name=company,
 		company=company,
 		key_suffix=str(month),
+	)
+
+
+def delivery_missing(
+	company: str,
+	receipt: str,
+	date: str,
+	supplier: str | None = None,
+	item: str | None = None,
+	title: str | None = None,
+	qty: float | None = None,
+	unit: str | None = None,
+) -> list[str]:
+	"""Material came in and nobody wrote what bringing it cost. Once per receipt."""
+	if frappe.db.get_value("Stock Entry", receipt, "company") != company:
+		return []
+	what = f"{title} — {_qty(qty)} {unit or ''}".strip() if title else "материал"
+	return service.emit(
+		DELIVERY_MISSING,
+		recipients=recipients.owners_for_company(company),
+		body=(
+			f"Пришло {date}: {what}. Доставку не записали — сколько она стоила? "
+			"Логистика → Итоги → «Приходы без доставки». Если привёз поставщик сам, "
+			"запишите 0 ₸."
+		),
+		reference_doctype="Stock Entry",
+		reference_name=receipt,
+		company=company,
 	)
 
 
