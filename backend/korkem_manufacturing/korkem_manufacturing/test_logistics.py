@@ -191,3 +191,48 @@ class TestLogistics(IntegrationTestCase):
 		self.assertEqual(offered["cities"][0], "Талдыкорган")
 		self.assertIn("Алматы", offered["cities"])
 		self.assertEqual(offered["transports"].count("Такси"), 1)
+
+	def test_a_receipt_left_without_its_delivery_is_asked_about_after_a_day(self):
+		from unittest.mock import patch
+
+		from korkem_manufacturing import domain_events
+
+		old = material_stock.receive(self.mdf, 7, 21_000, self.supplier, received_on=add_days(nowdate(), -2))["receipt"]
+		fresh = material_stock.receive(self.mdf, 3, 21_000, self.supplier)["receipt"]
+		written = material_stock.receive(self.mdf, 4, 21_000, self.supplier, received_on=add_days(nowdate(), -2))["receipt"]
+		self._record(amount=0, from_city="Астана", transport="Привёз поставщик", receipt=written)
+		try:
+			asked = []
+			with patch.object(
+				domain_events, "emit", side_effect=lambda event, **kw: asked.append((event, kw["receipt"]))
+			):
+				logistics.remind()
+			mine = [r for e, r in asked if e == logistics.DELIVERY_MISSING and r in (old, fresh, written)]
+			# The one from two days ago; not today's, not the one already written.
+			self.assertEqual(mine, [old])
+		finally:
+			for receipt in (written, fresh, old):
+				material_stock.cancel_receipt(receipt)
+
+	def test_the_owner_is_told_in_words_and_only_about_their_company(self):
+		from korkem_ai.korkem_ai.notifications import events
+
+		receipt = material_stock.receive(self.mdf, 7, 21_000, self.supplier)["receipt"]
+		try:
+			self.assertEqual(
+				events.delivery_missing(company="Мебель Тест Цех", receipt=receipt, date=nowdate()), []
+			)
+			events.delivery_missing(
+				company=COMPANY, receipt=receipt, date=nowdate(), title="МДФ 16 мм", qty=7, unit="лист"
+			)
+			body = frappe.db.get_value(
+				"Notification Delivery",
+				{"event": logistics.DELIVERY_MISSING, "reference_name": receipt},
+				"body",
+			)
+			if body:  # only when this site has an owner bound to KORKEM
+				self.assertIn("МДФ 16 мм — 7 лист", body)
+				self.assertIn("0 ₸", body)
+		finally:
+			frappe.db.delete("Notification Delivery", {"reference_name": receipt})
+			material_stock.cancel_receipt(receipt)

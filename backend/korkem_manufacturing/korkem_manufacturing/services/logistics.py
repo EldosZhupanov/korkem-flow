@@ -413,10 +413,10 @@ def suggestions() -> dict:
 	}
 
 
-def unlinked_receipts(days: int = UNLINKED_DAYS) -> list[dict]:
+def unlinked_receipts(days: int = UNLINKED_DAYS, company: str | None = None) -> list[dict]:
 	"""Recent receipts with no delivery written against them — the question
 	the reminder asks: «привезли 30 листов, а доставку не записали»."""
-	company = current_company()
+	company = company or current_company()
 	since = add_days(nowdate(), -int(days))
 	entries = frappe.get_all(
 		"Stock Entry",
@@ -451,3 +451,32 @@ def unlinked_receipts(days: int = UNLINKED_DAYS) -> list[dict]:
 			}
 		)
 	return result
+
+
+#: A receipt gets a day before anyone is asked: the delivery is usually
+#: written the same evening, and a reminder an hour after unloading is noise.
+REMIND_AFTER_DAYS = 1
+DELIVERY_MISSING = "logistics.delivery_missing"
+
+
+def remind() -> int:
+	"""Hourly: each receipt older than a day, younger than two weeks, with no
+	delivery written, is asked about once (`logistics.delivery_missing`; the
+	receipt is the subject, so delivery is idempotent on it)."""
+	from korkem_manufacturing import domain_events
+
+	cutoff = getdate(add_days(nowdate(), -REMIND_AFTER_DAYS))
+	companies = frappe.get_all(
+		"Stock Entry",
+		filters={"korkem_material_receipt": 1, "docstatus": 1, "posting_date": [">=", add_days(nowdate(), -UNLINKED_DAYS)]},
+		pluck="company",
+		distinct=True,
+	)
+	asked = 0
+	for company in companies:
+		for row in unlinked_receipts(company=company):
+			if getdate(row["date"]) > cutoff:
+				continue
+			domain_events.emit(DELIVERY_MISSING, company=company, **row)
+			asked += 1
+	return asked
