@@ -8072,6 +8072,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Low — minimum {minimum}'**
   String materialLow(String minimum);
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get stockCountTab;
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'What is on the shelf now'**
+  String get stockCountTitle;
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Type what you counted. Empty rows are left alone. Differences from the books are posted as one document, and the month\'s usage is counted from this figure.'**
+  String get stockCountHint;
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'In the books: {qty}'**
+  String stockCountBooks(String qty);
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'on shelf'**
+  String get stockCountOnShelf;
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Save the count'**
+  String get stockCountSave;
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing entered.'**
+  String get stockCountNothing;
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Count saved, differences: {count}'**
+  String stockCountSaved(int count);
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'The month\'s usage'**
+  String get stockUsageTitle;
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Not counted this month yet — «left» is still from the books.'**
+  String get stockUsageNotCounted;
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Counted on {date}'**
+  String stockUsageCountedOn(String date);
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Start {start} · bought {bought} · left {end} {unit}'**
+  String stockUsageLine(String start, String bought, String end, String unit);
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Used in fact {used}, by orders {orders}'**
+  String stockUsageUsed(String used, String orders);
+
+  /// Stock count and the month's usage
+  ///
+  /// In en, this message translates to:
+  /// **'Unaccounted: {qty}{money}'**
+  String stockUsageLoss(String qty, String money);
 }
 
 class _AppLocalizationsDelegate

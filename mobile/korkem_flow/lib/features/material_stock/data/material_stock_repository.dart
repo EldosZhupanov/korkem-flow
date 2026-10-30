@@ -22,6 +22,14 @@ final materialListsProvider = FutureProvider.autoDispose<MaterialLists>(
   (ref) => ref.watch(materialStockRepositoryProvider).lists(),
 );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final monthUsageProvider = FutureProvider.autoDispose
+    .family<MonthUsage, String>(
+      (ref, month) =>
+          ref.watch(materialStockRepositoryProvider).monthUsage(month),
+    );
+
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final stockMaterialsProvider = FutureProvider.autoDispose<List<StockMaterial>>(
@@ -205,6 +213,41 @@ class MaterialStockRepository {
           ),
         ),
       );
+
+  static const _countBase = 'korkem_manufacturing.api.stock_count';
+
+  /// What was counted on the shelf; differences are posted by the server.
+  /// Returns how many materials differed from the books.
+  Future<int> recordCount(Map<String, double> counted) async {
+    final data = _map(
+      await _outbox.execute(
+        _client,
+        '$_countBase.record',
+        params: {'counted': jsonEncode(counted)},
+      ),
+    );
+    return [
+      for (final r in data['rows'] as List? ?? const [])
+        if (r is Map && ((r['difference'] as num?) ?? 0) != 0) r,
+    ].length;
+  }
+
+  Future<MonthUsage> monthUsage(String month) async {
+    final data = _map(
+      await _client.callMethod(
+        '$_countBase.month_usage',
+        params: {'month': month},
+      ),
+    );
+    return (
+      month: '${data['month'] ?? month}',
+      countedOn: data['counted_on'] as String?,
+      materials: [
+        for (final r in data['materials'] as List? ?? const [])
+          if (r is Map) MaterialUsage.fromJson(Map<String, dynamic>.from(r)),
+      ],
+    );
+  }
 
   Map<String, dynamic> _map(Map<String, dynamic> response) {
     final raw = response['message'] ?? response['data'];

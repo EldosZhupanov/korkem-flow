@@ -1541,5 +1541,19 @@
   "logisticsDeliveryOptional": "Жеткізу (төлесеңіз)",
   "materialMin": "Қоймадағы ең аз мөлшер",
   "materialMinHint": "Бос қалдық азайса, иесіне «тапсырыс беру керек» деген хабар келеді. Бос немесе 0 — ескертусіз.",
-  "materialLow": "Аз — ең азы {minimum}"
+  "materialLow": "Аз — ең азы {minimum}",
+  "stockCountTab": "Санау",
+  "stockCountTitle": "Сөреде қазір не бар",
+  "stockCountHint": "Қанша санағаныңызды жазыңыз. Бос жолдар өзгермейді. Есептен айырмашылық бір құжатпен өтеді, айлық шығын осы саннан есептеледі.",
+  "stockCountBooks": "Есеп бойынша: {qty}",
+  "stockCountOnShelf": "сөреде",
+  "stockCountSave": "Санауды сақтау",
+  "stockCountNothing": "Ештеңе енгізілмеді.",
+  "stockCountSaved": "Санау сақталды, айырмашылық: {count}",
+  "stockUsageTitle": "Айлық шығын",
+  "stockUsageNotCounted": "Бұл айда қойма әлі саналмаған — «қалды» әзірге есеп бойынша.",
+  "stockUsageCountedOn": "Саналды {date}",
+  "stockUsageLine": "Болды {start} · келді {bought} · қалды {end} {unit}",
+  "stockUsageUsed": "Іс жүзінде кетті {used}, тапсырыстарға {orders}",
+  "stockUsageLoss": "Түсіндірілмеген: {qty}{money}"
 }

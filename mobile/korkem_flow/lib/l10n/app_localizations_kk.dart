@@ -4514,4 +4514,60 @@ class AppLocalizationsKk extends AppLocalizations {
   String materialLow(String minimum) {
     return 'Аз — ең азы $minimum';
   }
+
+  @override
+  String get stockCountTab => 'Санау';
+
+  @override
+  String get stockCountTitle => 'Сөреде қазір не бар';
+
+  @override
+  String get stockCountHint =>
+      'Қанша санағаныңызды жазыңыз. Бос жолдар өзгермейді. Есептен айырмашылық бір құжатпен өтеді, айлық шығын осы саннан есептеледі.';
+
+  @override
+  String stockCountBooks(String qty) {
+    return 'Есеп бойынша: $qty';
+  }
+
+  @override
+  String get stockCountOnShelf => 'сөреде';
+
+  @override
+  String get stockCountSave => 'Санауды сақтау';
+
+  @override
+  String get stockCountNothing => 'Ештеңе енгізілмеді.';
+
+  @override
+  String stockCountSaved(int count) {
+    return 'Санау сақталды, айырмашылық: $count';
+  }
+
+  @override
+  String get stockUsageTitle => 'Айлық шығын';
+
+  @override
+  String get stockUsageNotCounted =>
+      'Бұл айда қойма әлі саналмаған — «қалды» әзірге есеп бойынша.';
+
+  @override
+  String stockUsageCountedOn(String date) {
+    return 'Саналды $date';
+  }
+
+  @override
+  String stockUsageLine(String start, String bought, String end, String unit) {
+    return 'Болды $start · келді $bought · қалды $end $unit';
+  }
+
+  @override
+  String stockUsageUsed(String used, String orders) {
+    return 'Іс жүзінде кетті $used, тапсырыстарға $orders';
+  }
+
+  @override
+  String stockUsageLoss(String qty, String money) {
+    return 'Түсіндірілмеген: $qty$money';
+  }
 }

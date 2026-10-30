@@ -4552,4 +4552,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String materialLow(String minimum) {
     return 'Low — minimum $minimum';
   }
+
+  @override
+  String get stockCountTab => 'Count';
+
+  @override
+  String get stockCountTitle => 'What is on the shelf now';
+
+  @override
+  String get stockCountHint =>
+      'Type what you counted. Empty rows are left alone. Differences from the books are posted as one document, and the month\'s usage is counted from this figure.';
+
+  @override
+  String stockCountBooks(String qty) {
+    return 'In the books: $qty';
+  }
+
+  @override
+  String get stockCountOnShelf => 'on shelf';
+
+  @override
+  String get stockCountSave => 'Save the count';
+
+  @override
+  String get stockCountNothing => 'Nothing entered.';
+
+  @override
+  String stockCountSaved(int count) {
+    return 'Count saved, differences: $count';
+  }
+
+  @override
+  String get stockUsageTitle => 'The month\'s usage';
+
+  @override
+  String get stockUsageNotCounted =>
+      'Not counted this month yet — «left» is still from the books.';
+
+  @override
+  String stockUsageCountedOn(String date) {
+    return 'Counted on $date';
+  }
+
+  @override
+  String stockUsageLine(String start, String bought, String end, String unit) {
+    return 'Start $start · bought $bought · left $end $unit';
+  }
+
+  @override
+  String stockUsageUsed(String used, String orders) {
+    return 'Used in fact $used, by orders $orders';
+  }
+
+  @override
+  String stockUsageLoss(String qty, String money) {
+    return 'Unaccounted: $qty$money';
+  }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
 import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
 import 'package:korkem_flow/features/material_stock/presentation/material_stock_screen.dart';
+import 'package:korkem_flow/features/material_stock/presentation/stock_count_tab.dart';
 import 'package:korkem_flow/features/orders/presentation/order_facade_materials_section.dart';
 
 import '../../support/widget_harness.dart';
@@ -33,6 +34,32 @@ class _FakeRepository implements MaterialStockRepository {
   @override
   Future<void> setFilmTextured(String item, {required bool textured}) async =>
       this.textured.add((item, textured));
+  final counts = <Map<String, double>>[];
+  @override
+  Future<int> recordCount(Map<String, double> counted) async {
+    counts.add(counted);
+    return counted.length;
+  }
+
+  @override
+  Future<MonthUsage> monthUsage(String month) async => (
+    month: month,
+    countedOn: '2026-10-31',
+    materials: const [
+      MaterialUsage(
+        item: 'MAT-1',
+        title: 'МДФ 16 мм Kastamonu',
+        unit: 'лист',
+        start: 0,
+        bought: 50,
+        end: 2,
+        used: 48,
+        byOrders: 40,
+        unaccounted: 8,
+        unaccountedValue: 168000,
+      ),
+    ],
+  );
   final minimums = <(String, double)>[];
   @override
   Future<void> setMinStock(String item, double minimum) async =>
@@ -251,6 +278,32 @@ void main() {
     expect(repo.minimums.single, ('MAT-1', 10.0));
     // The floor sees no card to open: the minimum is the warehouse's to keep.
     expect(repo.textured, isEmpty);
+  });
+
+  testWidgets('the month-end count: typed, saved, and the loss shown', (
+    tester,
+  ) async {
+    final repo = await pump(tester, canEdit: true);
+    await tester.tap(find.text('Count'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('countQty:MAT-1')), '2');
+    await tester.ensureVisible(find.byKey(const ValueKey('countSave')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('countSave')));
+    await tester.pumpAndSettle();
+
+    expect(repo.counts.single, {'MAT-1': 2.0});
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('usageLoss:MAT-1')),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(StockCountTab),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(find.textContaining('Unaccounted: 8 лист'), findsOneWidget);
   });
 
   testWidgets('a material below its minimum says so', (tester) async {

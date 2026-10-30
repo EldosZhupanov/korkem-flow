@@ -5483,5 +5483,106 @@
         "type": "String"
       }
     }
+  },
+  "stockCountTab": "Count",
+  "@stockCountTab": {
+    "description": "Stock count and the month's usage"
+  },
+  "stockCountTitle": "What is on the shelf now",
+  "@stockCountTitle": {
+    "description": "Stock count and the month's usage"
+  },
+  "stockCountHint": "Type what you counted. Empty rows are left alone. Differences from the books are posted as one document, and the month's usage is counted from this figure.",
+  "@stockCountHint": {
+    "description": "Stock count and the month's usage"
+  },
+  "stockCountBooks": "In the books: {qty}",
+  "@stockCountBooks": {
+    "description": "Stock count and the month's usage",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCountOnShelf": "on shelf",
+  "@stockCountOnShelf": {
+    "description": "Stock count and the month's usage"
+  },
+  "stockCountSave": "Save the count",
+  "@stockCountSave": {
+    "description": "Stock count and the month's usage"
+  },
+  "stockCountNothing": "Nothing entered.",
+  "@stockCountNothing": {
+    "description": "Stock count and the month's usage"
+  },
+  "stockCountSaved": "Count saved, differences: {count}",
+  "@stockCountSaved": {
+    "description": "Stock count and the month's usage",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stockUsageTitle": "The month's usage",
+  "@stockUsageTitle": {
+    "description": "Stock count and the month's usage"
+  },
+  "stockUsageNotCounted": "Not counted this month yet — «left» is still from the books.",
+  "@stockUsageNotCounted": {
+    "description": "Stock count and the month's usage"
+  },
+  "stockUsageCountedOn": "Counted on {date}",
+  "@stockUsageCountedOn": {
+    "description": "Stock count and the month's usage",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "stockUsageLine": "Start {start} · bought {bought} · left {end} {unit}",
+  "@stockUsageLine": {
+    "description": "Stock count and the month's usage",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "bought": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockUsageUsed": "Used in fact {used}, by orders {orders}",
+  "@stockUsageUsed": {
+    "description": "Stock count and the month's usage",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "orders": {
+        "type": "String"
+      }
+    }
+  },
+  "stockUsageLoss": "Unaccounted: {qty}{money}",
+  "@stockUsageLoss": {
+    "description": "Stock count and the month's usage",
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "money": {
+        "type": "String"
+      }
+    }
   }
 }

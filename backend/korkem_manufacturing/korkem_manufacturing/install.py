@@ -45,6 +45,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_min_stock_field
 
 	add_min_stock_field.execute()
+	from korkem_manufacturing.patches.v0_0 import add_stock_count_field
+
+	add_stock_count_field.execute()
 	from korkem_manufacturing.patches.v0_0 import grant_sales_manager_account_read
 
 	grant_sales_manager_account_read.execute()
