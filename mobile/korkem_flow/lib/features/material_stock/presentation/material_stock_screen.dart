@@ -14,6 +14,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
 import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
+import 'package:korkem_flow/features/material_stock/presentation/stock_count_tab.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The materials store: what is on hand, a receipt, and the lists behind it.
@@ -48,6 +49,7 @@ class MaterialStockScreen extends ConsumerWidget {
         ),
         if (canEdit) ...[
           AppTab(label: l10n.materialStockReceive, view: const _Receive()),
+          AppTab(label: l10n.stockCountTab, view: const StockCountTab()),
           AppTab(label: l10n.materialStockLists, view: const _Lists()),
         ],
       ],

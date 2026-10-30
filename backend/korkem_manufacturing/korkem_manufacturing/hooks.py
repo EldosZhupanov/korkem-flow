@@ -192,6 +192,8 @@ scheduler_events = {
 	"hourly": [
 		"korkem_manufacturing.services.reminders.run",
 		"korkem_manufacturing.services.stock_alerts.run",
+		# The month's last two days: «посчитайте склад», once a month.
+		"korkem_manufacturing.services.stock_count.remind",
 	],
 	"all": ["korkem_manufacturing.services.outbox_workers.cron_dispatch_outbox"],
 }

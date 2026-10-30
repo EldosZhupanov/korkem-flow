@@ -68,6 +68,8 @@ STALE_CAPTURE = "reminder.capture_stale"
 MEASUREMENT_TASK = "reminder.measurement_task"
 # «Мало листов» (korkem_manufacturing.services.stock_alerts).
 STOCK_LOW = "stock.low"
+# «Посчитайте склад» (korkem_manufacturing.services.stock_count).
+STOCK_COUNT_DUE = "stock.count_due"
 
 
 def stale_capture(capture: str, company: str) -> list[str]:
@@ -163,6 +165,24 @@ def stock_low(
 		reference_name=item,
 		company=company,
 		key_suffix=str(day),
+	)
+
+
+def stock_count_due(company: str, month: str) -> list[str]:
+	"""The month's last days and nobody has counted the shelf: once a month."""
+	if not frappe.db.exists("Company", company):
+		return []
+	return service.emit(
+		STOCK_COUNT_DUE,
+		recipients=recipients.owners_for_company(company),
+		body=(
+			"Конец месяца: посчитайте остатки МДФ и плёнки на полке — "
+			"Склад → Пересчёт. Расход месяца считается по факту от этой цифры."
+		),
+		reference_doctype="Company",
+		reference_name=company,
+		company=company,
+		key_suffix=str(month),
 	)
 
 

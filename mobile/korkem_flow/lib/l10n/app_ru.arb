@@ -1541,5 +1541,19 @@
   "logisticsDeliveryOptional": "Доставка (если платили)",
   "materialMin": "Минимум на складе",
   "materialMinHint": "Когда свободного станет меньше, владельцу придёт «пора заказывать». Пусто или 0 — без предупреждения.",
-  "materialLow": "Мало — минимум {minimum}"
+  "materialLow": "Мало — минимум {minimum}",
+  "stockCountTab": "Пересчёт",
+  "stockCountTitle": "Что на полке сейчас",
+  "stockCountHint": "Впишите, сколько насчитали. Пустые строки не трогаются. Расхождения с учётом проводятся одним документом, и расход месяца считается от этой цифры.",
+  "stockCountBooks": "По учёту: {qty}",
+  "stockCountOnShelf": "на полке",
+  "stockCountSave": "Сохранить пересчёт",
+  "stockCountNothing": "Ничего не введено.",
+  "stockCountSaved": "Пересчёт сохранён, расхождений: {count}",
+  "stockUsageTitle": "Расход месяца",
+  "stockUsageNotCounted": "В этом месяце склад ещё не пересчитывали — «осталось» пока по учёту.",
+  "stockUsageCountedOn": "Пересчитано {date}",
+  "stockUsageLine": "Было {start} · пришло {bought} · осталось {end} {unit}",
+  "stockUsageUsed": "Ушло по факту {used}, по заказам {orders}",
+  "stockUsageLoss": "Не объяснено: {qty}{money}"
 }

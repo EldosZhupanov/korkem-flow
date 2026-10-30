@@ -4576,4 +4576,60 @@ class AppLocalizationsRu extends AppLocalizations {
   String materialLow(String minimum) {
     return 'Мало — минимум $minimum';
   }
+
+  @override
+  String get stockCountTab => 'Пересчёт';
+
+  @override
+  String get stockCountTitle => 'Что на полке сейчас';
+
+  @override
+  String get stockCountHint =>
+      'Впишите, сколько насчитали. Пустые строки не трогаются. Расхождения с учётом проводятся одним документом, и расход месяца считается от этой цифры.';
+
+  @override
+  String stockCountBooks(String qty) {
+    return 'По учёту: $qty';
+  }
+
+  @override
+  String get stockCountOnShelf => 'на полке';
+
+  @override
+  String get stockCountSave => 'Сохранить пересчёт';
+
+  @override
+  String get stockCountNothing => 'Ничего не введено.';
+
+  @override
+  String stockCountSaved(int count) {
+    return 'Пересчёт сохранён, расхождений: $count';
+  }
+
+  @override
+  String get stockUsageTitle => 'Расход месяца';
+
+  @override
+  String get stockUsageNotCounted =>
+      'В этом месяце склад ещё не пересчитывали — «осталось» пока по учёту.';
+
+  @override
+  String stockUsageCountedOn(String date) {
+    return 'Пересчитано $date';
+  }
+
+  @override
+  String stockUsageLine(String start, String bought, String end, String unit) {
+    return 'Было $start · пришло $bought · осталось $end $unit';
+  }
+
+  @override
+  String stockUsageUsed(String used, String orders) {
+    return 'Ушло по факту $used, по заказам $orders';
+  }
+
+  @override
+  String stockUsageLoss(String qty, String money) {
+    return 'Не объяснено: $qty$money';
+  }
 }

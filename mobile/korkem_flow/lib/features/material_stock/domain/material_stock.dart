@@ -259,3 +259,63 @@ class FacadeMaterials {
 /// What bringing a receipt in cost — written as its own logistics record
 /// (`services/logistics.py`), never added to the material's price.
 typedef ReceiptDelivery = ({double amount, String fromCity, String transport});
+
+/// One material over a month, from ERPNext's stock ledger
+/// (`services/stock_count.py`): what the shelf really gave up.
+@immutable
+class MaterialUsage {
+  const MaterialUsage({
+    required this.item,
+    required this.title,
+    required this.unit,
+    required this.start,
+    required this.bought,
+    required this.end,
+    required this.used,
+    required this.byOrders,
+    required this.unaccounted,
+    this.unaccountedValue,
+  });
+
+  factory MaterialUsage.fromJson(Map<String, dynamic> json) {
+    double n(String key) => (json[key] as num?)?.toDouble() ?? 0;
+    return MaterialUsage(
+      item: '${json['item'] ?? ''}',
+      title: '${json['title'] ?? ''}',
+      unit: '${json['unit'] ?? ''}',
+      start: n('start'),
+      bought: n('bought'),
+      end: n('end'),
+      used: n('used'),
+      byOrders: n('by_orders'),
+      unaccounted: n('unaccounted'),
+      unaccountedValue: (json['unaccounted_value'] as num?)?.toDouble(),
+    );
+  }
+
+  final String item;
+  final String title;
+  final String unit;
+  final double start;
+  final double bought;
+  final double end;
+
+  /// At the start + bought − at the end.
+  final double used;
+
+  /// What facade orders wrote off.
+  final double byOrders;
+
+  /// Used in fact beyond what orders took: spoilt, thrown away, taken.
+  final double unaccounted;
+
+  /// What the count wrote off, in tenge; `null` when prices are hidden.
+  final double? unaccountedValue;
+}
+
+/// The month's usage, and when the shelf was last counted in it.
+typedef MonthUsage = ({
+  String month,
+  String? countedOn,
+  List<MaterialUsage> materials,
+});

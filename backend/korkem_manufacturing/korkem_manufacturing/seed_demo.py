@@ -548,6 +548,14 @@ def seed_users():
 	for email, (first_name, roles) in USERS.items():
 		if frappe.db.exists("User", email):
 			user = frappe.get_doc("User", email)
+			# Already as seeded: not saved again. Every save rewrites the user's
+			# Contact, and the suites call this in setUp — on CI a queued update
+			# of the same Contact landed between ERPNext's read and write and the
+			# save failed with «Иван (Contact) has been modified after you have
+			# opened it» (30.10.2026). Saving nothing has nothing to race.
+			if _as_seeded(user, roles):
+				_bind_to_company(email)
+				continue
 		else:
 			user = frappe.new_doc("User")
 			user.update({"email": email, "first_name": first_name, "send_welcome_email": 0})
@@ -566,6 +574,23 @@ def seed_users():
 	_administrator_means_korkem()
 	frappe.db.commit()
 	return sorted(USERS)
+
+
+def _as_seeded(user, roles) -> bool:
+	"""Enabled, a system user, exactly these roles, and the demo password."""
+	from frappe.utils.password import check_password
+
+	if not user.enabled or user.user_type != "System User":
+		return False
+	held = {r.role for r in user.roles}
+	# Frappe adds its own automatic roles to a system user; they are not drift.
+	if not set(roles) <= held or held - set(roles) - {"All", "Guest", "Desk User"}:
+		return False
+	try:
+		check_password(user.name, DEMO_PASSWORD, delete_tracker_cache=False)
+	except frappe.AuthenticationError:
+		return False
+	return True
 
 
 def _bind_to_company(email: str):
