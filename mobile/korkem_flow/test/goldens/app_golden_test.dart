@@ -415,6 +415,16 @@ Future<void> _openTab(WidgetTester tester, String label) async {
   // phone's fold, and a blind tap there hits whatever happens to be at those
   // coordinates — which is how a golden ends up passing while photographing
   // the wrong screen.
+  // A ListView builds only what is near the screen, so a row far enough down
+  // is not in the tree at all until the list is scrolled to it — which «МДФ»
+  // did to «Профиль» on a phone (31.10.2026).
+  final list = find
+      .descendant(of: find.byType(Drawer), matching: find.byType(Scrollable))
+      .first;
+  for (var i = 0; i < 20 && find.text(label).evaluate().isEmpty; i++) {
+    await tester.drag(list, const Offset(0, -100));
+    await tester.pumpAndSettle();
+  }
   final row = find.text(label).last;
   await tester.ensureVisible(row);
   await tester.pumpAndSettle();

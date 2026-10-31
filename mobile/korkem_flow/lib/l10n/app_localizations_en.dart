@@ -4608,4 +4608,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String stockUsageLoss(String qty, String money) {
     return 'Unaccounted: $qty$money';
   }
+
+  @override
+  String get navMdf => 'MDF';
+
+  @override
+  String get mdfOrders => 'Orders';
+
+  @override
+  String get mdfOrdersHint => 'All orders: due dates, payments, debt';
+
+  @override
+  String get mdfQuoteHint => 'Lines, m², price — and the order';
+
+  @override
+  String get mdfJobsHint => 'Queued, in work, done';
+
+  @override
+  String get mdfPress => 'Press';
+
+  @override
+  String get mdfPressHint =>
+      'Table and section sizes; the layout opens from an order';
+
+  @override
+  String get mdfStockHint => 'MDF and film: on hand, low, month-end count';
+
+  @override
+  String get mdfLogisticsHint => 'MDF and film deliveries and their cost';
+
+  @override
+  String get mdfPricesHint => 'Price per m² by milling and finish';
 }
