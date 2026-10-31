@@ -104,7 +104,9 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
     final money = _money(context);
     final sheet = ref.watch(payrollStatementProvider(_period));
     final now = DateTime.now();
-    final ended = !_period.to.isAfter(DateTime(now.year, now.month, now.day));
+    // Ended means the last day is behind us: on 31 October October's work
+    // is still being done, so it cannot be paid out yet.
+    final ended = DateTime(now.year, now.month, now.day).isAfter(_period.to);
     final month = DateFormat.yMMMM(
       Localizations.localeOf(context).toLanguageTag(),
     ).format(_period.from);

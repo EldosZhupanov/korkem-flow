@@ -5584,5 +5584,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "navMdf": "MDF",
+  "mdfOrders": "Orders",
+  "mdfOrdersHint": "All orders: due dates, payments, debt",
+  "mdfQuoteHint": "Lines, m², price — and the order",
+  "mdfJobsHint": "Queued, in work, done",
+  "mdfPress": "Press",
+  "mdfPressHint": "Table and section sizes; the layout opens from an order",
+  "mdfStockHint": "MDF and film: on hand, low, month-end count",
+  "mdfLogisticsHint": "MDF and film deliveries and their cost",
+  "mdfPricesHint": "Price per m² by milling and finish"
 }
