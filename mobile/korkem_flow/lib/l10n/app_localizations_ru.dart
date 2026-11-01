@@ -4662,4 +4662,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPricesHint => 'Цена за м² по фрезеровке и покрытию';
+
+  @override
+  String get facadePricesEmptyNotSold => 'Пусто — не продаётся';
+
+  @override
+  String get facadePricesNeedOne => 'Укажите цену хотя бы для одной отделки.';
 }

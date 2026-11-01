@@ -4601,4 +4601,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPricesHint => 'Фреза мен жабын бойынша 1 м² бағасы';
+
+  @override
+  String get facadePricesEmptyNotSold => 'Бос — сатылмайды';
+
+  @override
+  String get facadePricesNeedOne => 'Кем дегенде бір әрлеудің бағасын жазыңыз.';
 }
