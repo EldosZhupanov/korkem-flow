@@ -31,6 +31,7 @@ import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart'
 import 'package:korkem_flow/features/logistics/presentation/logistics_screen.dart';
 import 'package:korkem_flow/features/material_stock/presentation/material_stock_screen.dart';
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
 import 'package:korkem_flow/features/one_c/presentation/one_c_screen.dart';
@@ -141,6 +142,9 @@ abstract final class Routes {
   static const payroll = '/payroll';
   static const oneC = '/settings/one-c';
   static const logistics = '/logistics';
+
+  /// «МДФ»: one door to every facade-shop screen.
+  static const mdf = '/mdf';
   static const pressSettings = '/settings/press';
   static const pressLayout = '/press-layout/:order';
 
@@ -294,6 +298,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.logistics,
         builder: (context, state) => const LogisticsScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdf,
+        builder: (context, state) => const MdfScreen(),
       ),
       GoRoute(
         path: Routes.pressSettings,

@@ -4634,6 +4634,36 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get navMdf => 'МДФ';
+
+  @override
+  String get mdfOrders => 'Заказы';
+
+  @override
+  String get mdfOrdersHint => 'Все заказы: сроки, оплаты, долг';
+
+  @override
+  String get mdfQuoteHint => 'Позиции, м², цена — и сразу заказ';
+
+  @override
+  String get mdfJobsHint => 'Что в очереди, что в работе, что готово';
+
+  @override
+  String get mdfPress => 'Пресс';
+
+  @override
+  String get mdfPressHint => 'Размеры стола и секций; раскладка — из заказа';
+
+  @override
+  String get mdfStockHint => 'МДФ и плёнка: остатки, «мало», пересчёт';
+
+  @override
+  String get mdfLogisticsHint => 'Доставки МДФ и плёнки, сколько стоили';
+
+  @override
+  String get mdfPricesHint => 'Цена за м² по фрезеровке и покрытию';
+
+  @override
   String get materialsAdd => 'Добавить материал';
 
   @override

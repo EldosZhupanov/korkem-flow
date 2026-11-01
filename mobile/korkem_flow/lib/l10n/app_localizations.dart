@@ -8157,6 +8157,66 @@ abstract class AppLocalizations {
   /// **'Unaccounted: {qty}{money}'**
   String stockUsageLoss(String qty, String money);
 
+  /// No description provided for @navMdf.
+  ///
+  /// In en, this message translates to:
+  /// **'MDF'**
+  String get navMdf;
+
+  /// No description provided for @mdfOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get mdfOrders;
+
+  /// No description provided for @mdfOrdersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'All orders: due dates, payments, debt'**
+  String get mdfOrdersHint;
+
+  /// No description provided for @mdfQuoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines, m², price — and the order'**
+  String get mdfQuoteHint;
+
+  /// No description provided for @mdfJobsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued, in work, done'**
+  String get mdfJobsHint;
+
+  /// No description provided for @mdfPress.
+  ///
+  /// In en, this message translates to:
+  /// **'Press'**
+  String get mdfPress;
+
+  /// No description provided for @mdfPressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Table and section sizes; the layout opens from an order'**
+  String get mdfPressHint;
+
+  /// No description provided for @mdfStockHint.
+  ///
+  /// In en, this message translates to:
+  /// **'MDF and film: on hand, low, month-end count'**
+  String get mdfStockHint;
+
+  /// No description provided for @mdfLogisticsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'MDF and film deliveries and their cost'**
+  String get mdfLogisticsHint;
+
+  /// No description provided for @mdfPricesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per m² by milling and finish'**
+  String get mdfPricesHint;
+
   /// No description provided for @materialsAdd.
   ///
   /// In en, this message translates to:

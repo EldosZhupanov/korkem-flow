@@ -1,12 +1,11 @@
 name: Windows release
 on:
   push:
-    branches: [release/windows-0.3.1-build8]
+    branches: [release/windows-0.3.2-build9]
 permissions:
   contents: read
 jobs:
   windows:
-    if: github.event.head_commit.message != 'verify-windows-artifact-startup'
     runs-on: windows-2022
     timeout-minutes: 40
     steps:
@@ -15,7 +14,7 @@ jobs:
         with:
           flutter-version: '3.44.8'
           cache: true
-      - name: Build Windows portable release
+      - name: Build and package Windows
         shell: pwsh
         working-directory: mobile/korkem_flow
         run: |
@@ -30,11 +29,31 @@ jobs:
             if (-not (Test-Path (Join-Path $release $file))) { throw "Missing $file" }
           }
           New-Item -ItemType Directory -Force -Path ../../windows-artifact | Out-Null
-          Compress-Archive -Path "$release/*" -DestinationPath ../../windows-artifact/korkem-flow-0.3.1-windows-x64.zip -CompressionLevel Optimal
-          Get-FileHash ../../windows-artifact/korkem-flow-0.3.1-windows-x64.zip -Algorithm SHA256 | Format-List
-          (Get-Item "$release/korkem_flow.exe").VersionInfo | Select-Object FileVersion,ProductVersion | ConvertTo-Json
+          Compress-Archive -Path "$release/*" -DestinationPath ../../windows-artifact/korkem-flow-0.3.2-windows-x64.zip -CompressionLevel Optimal
+          Get-FileHash ../../windows-artifact/korkem-flow-0.3.2-windows-x64.zip -Algorithm SHA256 | Format-List
+      - name: Verify the extracted application starts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Expand-Archive windows-artifact/korkem-flow-0.3.2-windows-x64.zip windows-smoke
+          $bundle = (Resolve-Path windows-smoke).Path
+          $exe = Join-Path $bundle 'korkem_flow.exe'
+          $version = (Get-Item $exe).VersionInfo
+          if ($version.ProductVersion -ne '0.3.2+9') { throw "Wrong version: $($version.ProductVersion)" }
+          $p = Start-Process $exe -WorkingDirectory $bundle -PassThru -RedirectStandardOutput windows-artifact/stdout.log -RedirectStandardError windows-artifact/stderr.log
+          try {
+            Start-Sleep -Seconds 15
+            $p.Refresh()
+            if ($p.HasExited) { throw "Release exited: $($p.ExitCode)" }
+            Start-Sleep -Seconds 15
+            $p.Refresh()
+            if ($p.HasExited -or -not $p.Responding -or $p.MainWindowHandle -eq 0) { throw 'Release has no responsive window' }
+            @{file_version=$version.FileVersion; product_version=$version.ProductVersion; alive=$true; responding=$p.Responding; window_title=$p.MainWindowTitle; seconds=30; source_commit='${{ github.sha }}'} | ConvertTo-Json | Tee-Object windows-artifact/smoke.json
+          } finally {
+            if (-not $p.HasExited) { $p.CloseMainWindow() | Out-Null; Start-Sleep -Seconds 2; $p.Refresh(); if (-not $p.HasExited) { Stop-Process -Id $p.Id } }
+          }
       - uses: actions/upload-artifact@v4
         with:
-          name: korkem-windows-0.3.1-build8
+          name: korkem-windows-0.3.2-build9
           path: windows-artifact/
-          retention-days: 14
+          retention-days: 30

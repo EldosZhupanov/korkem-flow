@@ -4572,6 +4572,37 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String get navMdf => 'МДФ';
+
+  @override
+  String get mdfOrders => 'Тапсырыстар';
+
+  @override
+  String get mdfOrdersHint => 'Барлық тапсырыстар: мерзім, төлем, қарыз';
+
+  @override
+  String get mdfQuoteHint => 'Позициялар, м², баға — бірден тапсырыс';
+
+  @override
+  String get mdfJobsHint => 'Кезекте, жұмыста, дайын';
+
+  @override
+  String get mdfPress => 'Пресс';
+
+  @override
+  String get mdfPressHint =>
+      'Үстел мен секция өлшемдері; орналасу — тапсырыстан';
+
+  @override
+  String get mdfStockHint => 'МДФ мен пленка: қалдық, «аз», қайта санау';
+
+  @override
+  String get mdfLogisticsHint => 'МДФ мен пленка жеткізу, құны';
+
+  @override
+  String get mdfPricesHint => 'Фреза мен жабын бойынша 1 м² бағасы';
+
+  @override
   String get materialsAdd => 'Материал қосу';
 
   @override
