@@ -5594,5 +5594,7 @@
   "mdfPressHint": "Table and section sizes; the layout opens from an order",
   "mdfStockHint": "MDF and film: on hand, low, month-end count",
   "mdfLogisticsHint": "MDF and film deliveries and their cost",
-  "mdfPricesHint": "Price per m² by milling and finish"
+  "mdfPricesHint": "Price per m² by milling and finish",
+  "facadePricesEmptyNotSold": "Empty — not sold",
+  "facadePricesNeedOne": "Enter a price for at least one finish."
 }

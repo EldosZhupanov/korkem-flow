@@ -4639,4 +4639,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPricesHint => 'Price per m² by milling and finish';
+
+  @override
+  String get facadePricesEmptyNotSold => 'Empty — not sold';
+
+  @override
+  String get facadePricesNeedOne => 'Enter a price for at least one finish.';
 }
