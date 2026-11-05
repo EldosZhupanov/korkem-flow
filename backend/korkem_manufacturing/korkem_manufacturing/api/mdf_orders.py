@@ -13,7 +13,7 @@ PAYMENT_METHODS = ("Kaspi", "Наличные", "Перевод", "Карта")
 
 
 @frappe.whitelist(methods=["POST"])
-def price(lines, finish: str | None = None, default_rate=None) -> dict:
+def price(lines: str | list, finish: str | None = None, default_rate: float | str | None = None) -> dict:
 	"""Посчитать позиции, ничего не сохраняя — для мгновенного пересчёта на экране."""
 	from korkem_manufacturing.services import facade_prices
 
@@ -22,7 +22,8 @@ def price(lines, finish: str | None = None, default_rate=None) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def save_draft(customer: str, delivery_date: str, head=None, lines=None, order: str | None = None,
+def save_draft(customer: str, delivery_date: str, head: str | dict | None = None, lines: str | list | None = None,
+			   order: str | None = None,
 			   notes: str | None = None) -> dict:
 	return service.save_draft(customer=customer, delivery_date=delivery_date, head=head, lines=lines,
 							  order=order, notes=notes)
