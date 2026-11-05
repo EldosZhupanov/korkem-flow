@@ -1,0 +1,107 @@
+# Copyright (c) 2026, KORKEM and contributors
+# For license information, please see license.txt
+"""Заказы МДФ — тонкая обёртка над services/mdf_orders.py."""
+
+from __future__ import annotations
+
+import frappe
+
+from korkem_manufacturing.services import mdf_orders as service
+
+#: How the owner's customers pay (OnayBaza «Төлем есебі»: каспи, қолма-қол).
+PAYMENT_METHODS = ("Kaspi", "Наличные", "Перевод", "Карта")
+
+
+@frappe.whitelist(methods=["POST"])
+def price(lines: str | list, finish: str | None = None, default_rate: float | str | None = None) -> dict:
+	"""Посчитать позиции, ничего не сохраняя — для мгновенного пересчёта на экране."""
+	from korkem_manufacturing.services import facade_prices
+
+	facade_prices.ensure_editor()
+	return service.price(lines, finish=finish, default_rate=default_rate)
+
+
+@frappe.whitelist(methods=["POST"])
+def save_draft(customer: str, delivery_date: str, head: str | dict | None = None, lines: str | list | None = None,
+			   order: str | None = None,
+			   notes: str | None = None) -> dict:
+	return service.save_draft(customer=customer, delivery_date=delivery_date, head=head, lines=lines,
+							  order=order, notes=notes)
+
+
+@frappe.whitelist(methods=["POST"])
+def accept(order: str) -> dict:
+	return service.accept(order)
+
+
+@frappe.whitelist(methods=["POST"])
+def delete_draft(order: str) -> dict:
+	return service.delete_draft(order)
+
+
+@frappe.whitelist(methods=["POST"])
+def cancel(order: str, reason: str) -> dict:
+	return service.cancel(order, reason)
+
+
+@frappe.whitelist(methods=["POST"])
+def set_stage(order: str, stage: str, done: bool | int | str = 1) -> dict:
+	return service.set_stage(order, stage, done)
+
+
+@frappe.whitelist(methods=["POST"])
+def hold(order: str, reason: str | None = None) -> dict:
+	return service.hold(order, reason)
+
+
+@frappe.whitelist(methods=["POST"])
+def hand_over(order: str, comment: str | None = None) -> dict:
+	return service.hand_over(order, comment)
+
+
+@frappe.whitelist(methods=["GET"])
+def card(order: str) -> dict:
+	return service.card(order)
+
+
+@frappe.whitelist(methods=["GET"])
+def listing(search: str | None = None, status: str | None = None, overdue: bool | int | str = 0,
+			with_debt: bool | int | str = 0, start: int = 0, limit: int = 50) -> dict:
+	return service.listing(search=search, status=status, overdue=overdue, with_debt=with_debt,
+						   start=start, limit=limit)
+
+
+@frappe.whitelist(methods=["GET"])
+def stages_for(finish: str | None = None) -> list[str]:
+	return service.stages_for(finish)
+
+
+@frappe.whitelist(methods=["POST"])
+def add_payment(order: str, amount: float | str, method: str = "Kaspi", paid_on: str | None = None,
+				idempotency_key: str | None = None) -> dict:
+	"""Оплата по заказу: сумма, способ, дата. Через общий сервис платежей."""
+	from korkem_manufacturing.services import facade_prices, payments
+
+	facade_prices.ensure_editor()
+	if method not in PAYMENT_METHODS:
+		frappe.throw(f"Способ оплаты — один из: {', '.join(PAYMENT_METHODS)}.")
+	_ensure_mode(method)
+	doc = service._accepted(order)
+	payments.record_payment(
+		sales_order=doc.name,
+		amount=amount,
+		payment_type="Deposit" if not service._debt(doc) or float(doc.advance_paid or 0) == 0 else "Final",
+		mode_of_payment=method,
+		paid_on=paid_on,
+		idempotency_key=idempotency_key,
+	)
+	return service.card(doc.name)
+
+
+def _ensure_mode(method: str) -> None:
+	if frappe.db.exists("Mode of Payment", method):
+		return
+	frappe.get_doc(
+		{"doctype": "Mode of Payment", "mode_of_payment": method, "type": "Cash" if method == "Наличные" else "Bank",
+		 "enabled": 1}
+	).insert(ignore_permissions=True)

@@ -4643,4 +4643,260 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get facadePricesNeedOne => 'Кем дегенде бір әрлеудің бағасын жазыңыз.';
+
+  @override
+  String get mdfOrdersTitle => 'МДФ тапсырыстары';
+
+  @override
+  String get mdfOrderNew => 'Жаңа тапсырыс';
+
+  @override
+  String get mdfOrderSearch => '№, тапсырушы, телефон, түс';
+
+  @override
+  String get mdfFilterAll => 'Барлығы';
+
+  @override
+  String get mdfFilterOverdue => 'Мерзімі өткен';
+
+  @override
+  String get mdfFilterDebt => 'Қарызы бар';
+
+  @override
+  String get mdfStatusDraft => 'Жоба';
+
+  @override
+  String get mdfStatusAccepted => 'Қабылданды';
+
+  @override
+  String get mdfStatusInShop => 'Цехта';
+
+  @override
+  String get mdfStatusReady => 'Дайын';
+
+  @override
+  String get mdfStatusHandedOver => 'Берілді';
+
+  @override
+  String get mdfStatusOnHold => 'Тоқтатылды';
+
+  @override
+  String get mdfStatusCancelled => 'Болдырылмады';
+
+  @override
+  String get mdfStageCut => 'Кесу';
+
+  @override
+  String get mdfStageMill => 'Фреза';
+
+  @override
+  String get mdfStageSand => 'Жону';
+
+  @override
+  String get mdfStageVacuum => 'Вакуум';
+
+  @override
+  String get mdfStagePaint => 'Бояу';
+
+  @override
+  String get mdfEmpty => 'Әзірге тапсырыс жоқ';
+
+  @override
+  String get mdfEmptyHint =>
+      'Біріншісін рәсімдеу үшін «Жаңа тапсырыс» басыңыз.';
+
+  @override
+  String mdfDebt(String amount) {
+    return 'Қарыз $amount';
+  }
+
+  @override
+  String get mdfCustomer => 'Тапсырушы';
+
+  @override
+  String get mdfDue => 'Аяқтау';
+
+  @override
+  String get mdfHeadSection => 'Фасад параметрлері';
+
+  @override
+  String get mdfThickness => 'Қалыңдығы, мм';
+
+  @override
+  String get mdfFinish => 'Беті';
+
+  @override
+  String get mdfDecorTop => 'Түсі (үсті)';
+
+  @override
+  String get mdfDecorBottom => 'Түсі (асты)';
+
+  @override
+  String get mdfPatina => 'Зеңжар';
+
+  @override
+  String get mdfMilling => 'Беткі нақыш';
+
+  @override
+  String get mdfEdge => 'Шеткі нақыш';
+
+  @override
+  String get mdfExtraName => 'Қосымша атауы';
+
+  @override
+  String get mdfDefaultRate => '1 м² бағасы (әдепкі)';
+
+  @override
+  String get mdfNone => '—';
+
+  @override
+  String get mdfLinesSection => 'Позициялар';
+
+  @override
+  String get mdfHeight => 'Биіктігі';
+
+  @override
+  String get mdfWidth => 'Ені';
+
+  @override
+  String get mdfQty => 'Саны';
+
+  @override
+  String get mdfNote => 'Ескерту';
+
+  @override
+  String get mdfRate => 'Бағасы';
+
+  @override
+  String get mdfArea => 'м²';
+
+  @override
+  String get mdfAmount => 'Сомасы';
+
+  @override
+  String get mdfAddLine => 'Жол қосу';
+
+  @override
+  String get mdfNoPrice => 'бағасы жоқ';
+
+  @override
+  String get mdfManualRate => 'баға қолмен';
+
+  @override
+  String mdfTotals(String pieces, String area, String total) {
+    return '$pieces дана · $area м² · $total';
+  }
+
+  @override
+  String mdfPaidDebt(String paid, String debt) {
+    return 'Төленді $paid · Қалдық $debt';
+  }
+
+  @override
+  String get mdfSaveDraft => 'Сақтау';
+
+  @override
+  String get mdfAccept => 'Тапсырысты қабылдау';
+
+  @override
+  String get mdfDeleteDraft => 'Жобаны жою';
+
+  @override
+  String get mdfSaved => 'Тапсырыс сақталды';
+
+  @override
+  String get mdfAccepted => 'Тапсырыс қабылданды — бағалар бекітілді';
+
+  @override
+  String get mdfNeedCustomer => 'Тапсырушы мен мерзімді таңдаңыз.';
+
+  @override
+  String get mdfNeedLine => 'Кемінде бір позиция қосыңыз.';
+
+  @override
+  String get mdfStagesSection => 'Кезеңдер';
+
+  @override
+  String get mdfPaymentsSection => 'Төлемдер';
+
+  @override
+  String get mdfAddPayment => 'Төлем енгізу';
+
+  @override
+  String get mdfPaymentAmount => 'Сома, ₸';
+
+  @override
+  String get mdfPaymentMethod => 'Тәсіл';
+
+  @override
+  String get mdfNoPayments => 'Әзірге төлем жоқ';
+
+  @override
+  String get mdfHold => 'Тоқтату';
+
+  @override
+  String get mdfResume => 'Жалғастыру';
+
+  @override
+  String get mdfHoldReason => 'Неге тоқтатылды';
+
+  @override
+  String get mdfCancelOrder => 'Тапсырысты болдырмау';
+
+  @override
+  String get mdfCancelReason => 'Болдырмау себебі';
+
+  @override
+  String get mdfHandOver => 'Тапсырушыға беру';
+
+  @override
+  String get mdfHandOverComment => 'Неге қарызбен береміз';
+
+  @override
+  String get mdfOverdue => 'Мерзімі өтті';
+
+  @override
+  String get mdfDueSoon => 'Мерзімі жақын';
+
+  @override
+  String get mdfConfirm => 'Дайын';
+
+  @override
+  String get mdfCancel => 'Болдырмау';
+
+  @override
+  String get mdfLineDelete => 'Жолды жою';
+
+  @override
+  String get mdfLineDuplicate => 'Көшірме';
+
+  @override
+  String get mdfChangeAccepted =>
+      'Қабылданған тапсырыс «Тапсырысты өзгерту» арқылы өзгереді — жақында.';
+
+  @override
+  String mdfPrintTitle(String name) {
+    return 'Тапсырыс №$name';
+  }
+
+  @override
+  String get mdfPrintAccepted => 'Қабылданған күні';
+
+  @override
+  String get mdfPrintPhone => 'Телефон';
+
+  @override
+  String get mdfPrintPaid => 'Кепілақы, теңге';
+
+  @override
+  String get mdfPrintDebt => 'Қалдық, теңге';
+
+  @override
+  String get mdfPrintTotal => 'Барлығы:';
+
+  @override
+  String get mdfPrintClient => 'Тапсырыс_Клиент';
+
+  @override
+  String get mdfPrintShop => 'Тапсырыс_Цех';
 }

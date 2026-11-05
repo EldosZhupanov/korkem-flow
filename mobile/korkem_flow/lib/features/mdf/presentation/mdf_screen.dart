@@ -26,7 +26,7 @@ class MdfScreen extends StatelessWidget {
         AppIcons.deal,
         l10n.mdfOrders,
         l10n.mdfOrdersHint,
-        Routes.orders,
+        Routes.mdfOrders,
       ),
       _MdfRow(
         'quote',

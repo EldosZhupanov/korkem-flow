@@ -4681,4 +4681,259 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get facadePricesNeedOne => 'Enter a price for at least one finish.';
+
+  @override
+  String get mdfOrdersTitle => 'MDF orders';
+
+  @override
+  String get mdfOrderNew => 'New order';
+
+  @override
+  String get mdfOrderSearch => 'No., customer, phone, colour';
+
+  @override
+  String get mdfFilterAll => 'All';
+
+  @override
+  String get mdfFilterOverdue => 'Overdue';
+
+  @override
+  String get mdfFilterDebt => 'With debt';
+
+  @override
+  String get mdfStatusDraft => 'Draft';
+
+  @override
+  String get mdfStatusAccepted => 'Accepted';
+
+  @override
+  String get mdfStatusInShop => 'In the shop';
+
+  @override
+  String get mdfStatusReady => 'Ready';
+
+  @override
+  String get mdfStatusHandedOver => 'Handed over';
+
+  @override
+  String get mdfStatusOnHold => 'On hold';
+
+  @override
+  String get mdfStatusCancelled => 'Cancelled';
+
+  @override
+  String get mdfStageCut => 'Cut';
+
+  @override
+  String get mdfStageMill => 'Milling';
+
+  @override
+  String get mdfStageSand => 'Sanding';
+
+  @override
+  String get mdfStageVacuum => 'Vacuum';
+
+  @override
+  String get mdfStagePaint => 'Painting';
+
+  @override
+  String get mdfEmpty => 'No orders yet';
+
+  @override
+  String get mdfEmptyHint => 'Tap «New order» to write the first one.';
+
+  @override
+  String mdfDebt(String amount) {
+    return 'Debt $amount';
+  }
+
+  @override
+  String get mdfCustomer => 'Customer';
+
+  @override
+  String get mdfDue => 'Due';
+
+  @override
+  String get mdfHeadSection => 'Facade';
+
+  @override
+  String get mdfThickness => 'Thickness, mm';
+
+  @override
+  String get mdfFinish => 'Finish';
+
+  @override
+  String get mdfDecorTop => 'Face decor';
+
+  @override
+  String get mdfDecorBottom => 'Back decor';
+
+  @override
+  String get mdfPatina => 'Patina';
+
+  @override
+  String get mdfMilling => 'Milling';
+
+  @override
+  String get mdfEdge => 'Edge';
+
+  @override
+  String get mdfExtraName => 'Extra name';
+
+  @override
+  String get mdfDefaultRate => 'Default price per m²';
+
+  @override
+  String get mdfNone => '—';
+
+  @override
+  String get mdfLinesSection => 'Lines';
+
+  @override
+  String get mdfHeight => 'Height';
+
+  @override
+  String get mdfWidth => 'Width';
+
+  @override
+  String get mdfQty => 'Qty';
+
+  @override
+  String get mdfNote => 'Note';
+
+  @override
+  String get mdfRate => 'Price m²';
+
+  @override
+  String get mdfArea => 'm²';
+
+  @override
+  String get mdfAmount => 'Amount';
+
+  @override
+  String get mdfAddLine => 'Add line';
+
+  @override
+  String get mdfNoPrice => 'no price';
+
+  @override
+  String get mdfManualRate => 'price by hand';
+
+  @override
+  String mdfTotals(String pieces, String area, String total) {
+    return '$pieces pcs · $area m² · $total';
+  }
+
+  @override
+  String mdfPaidDebt(String paid, String debt) {
+    return 'Paid $paid · Debt $debt';
+  }
+
+  @override
+  String get mdfSaveDraft => 'Save';
+
+  @override
+  String get mdfAccept => 'Accept the order';
+
+  @override
+  String get mdfDeleteDraft => 'Delete draft';
+
+  @override
+  String get mdfSaved => 'Order saved';
+
+  @override
+  String get mdfAccepted => 'Order accepted — prices fixed';
+
+  @override
+  String get mdfNeedCustomer => 'Pick the customer and the due date.';
+
+  @override
+  String get mdfNeedLine => 'Add at least one line.';
+
+  @override
+  String get mdfStagesSection => 'Stages';
+
+  @override
+  String get mdfPaymentsSection => 'Payments';
+
+  @override
+  String get mdfAddPayment => 'Add payment';
+
+  @override
+  String get mdfPaymentAmount => 'Amount, ₸';
+
+  @override
+  String get mdfPaymentMethod => 'Method';
+
+  @override
+  String get mdfNoPayments => 'No payments yet';
+
+  @override
+  String get mdfHold => 'Put on hold';
+
+  @override
+  String get mdfResume => 'Resume';
+
+  @override
+  String get mdfHoldReason => 'Why on hold';
+
+  @override
+  String get mdfCancelOrder => 'Cancel order';
+
+  @override
+  String get mdfCancelReason => 'Reason';
+
+  @override
+  String get mdfHandOver => 'Hand over';
+
+  @override
+  String get mdfHandOverComment => 'Why hand over with a debt';
+
+  @override
+  String get mdfOverdue => 'Overdue';
+
+  @override
+  String get mdfDueSoon => 'Due soon';
+
+  @override
+  String get mdfConfirm => 'Done';
+
+  @override
+  String get mdfCancel => 'Cancel';
+
+  @override
+  String get mdfLineDelete => 'Delete line';
+
+  @override
+  String get mdfLineDuplicate => 'Duplicate';
+
+  @override
+  String get mdfChangeAccepted =>
+      'An accepted order changes through «Change order» — coming.';
+
+  @override
+  String mdfPrintTitle(String name) {
+    return 'Order No. $name';
+  }
+
+  @override
+  String get mdfPrintAccepted => 'Accepted';
+
+  @override
+  String get mdfPrintPhone => 'Phone';
+
+  @override
+  String get mdfPrintPaid => 'Paid, ₸';
+
+  @override
+  String get mdfPrintDebt => 'Balance, ₸';
+
+  @override
+  String get mdfPrintTotal => 'Total:';
+
+  @override
+  String get mdfPrintClient => 'Customer copy';
+
+  @override
+  String get mdfPrintShop => 'Shop copy';
 }
