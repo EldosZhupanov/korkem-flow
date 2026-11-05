@@ -4897,4 +4897,30 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get mdfChangeAccepted =>
       'Принятый заказ меняется через «Изменить заказ» — скоро.';
+
+  @override
+  String mdfPrintTitle(String name) {
+    return 'Заказ №$name';
+  }
+
+  @override
+  String get mdfPrintAccepted => 'Принят';
+
+  @override
+  String get mdfPrintPhone => 'Телефон';
+
+  @override
+  String get mdfPrintPaid => 'Предоплата, ₸';
+
+  @override
+  String get mdfPrintDebt => 'Остаток, ₸';
+
+  @override
+  String get mdfPrintTotal => 'Итого:';
+
+  @override
+  String get mdfPrintClient => 'Бланк клиенту';
+
+  @override
+  String get mdfPrintShop => 'Наряд в цех';
 }

@@ -22,6 +22,7 @@ import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// One MDF order, as one window — OnayBaza's card, compact.
@@ -818,6 +819,26 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     ScaffoldMessenger.of(context).showDone(l10n.mdfSaved);
   }
 
+  Future<void> _print({required bool withPrices}) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final words = mdfPrintWords(l10n);
+    try {
+      await printMdfOrder(
+        name: o.name,
+        build: () => buildMdfOrderPdf(
+          o,
+          words,
+          withPrices: withPrices,
+          locale: locale,
+        ),
+      );
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -885,6 +906,24 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             color: o.debt > 0 ? theme.colorScheme.error : null,
             fontWeight: FontWeight.w600,
           ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Wrap(
+          spacing: AppSpacing.sm,
+          children: [
+            OutlinedButton.icon(
+              key: const ValueKey('mdfPrintClient'),
+              onPressed: () => _print(withPrices: true),
+              icon: const Icon(AppIcons.print),
+              label: Text(l10n.mdfPrintClient),
+            ),
+            OutlinedButton.icon(
+              key: const ValueKey('mdfPrintShop'),
+              onPressed: () => _print(withPrices: false),
+              icon: const Icon(AppIcons.print),
+              label: Text(l10n.mdfPrintShop),
+            ),
+          ],
         ),
         const SizedBox(height: AppSpacing.lg),
         SectionLabel(l10n.mdfStagesSection),
@@ -1111,3 +1150,30 @@ class _PaymentDialogState extends State<_PaymentDialog> {
     );
   }
 }
+
+/// The printed order's words, from the reader's language.
+MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
+  title: l10n.mdfPrintTitle,
+  accepted: l10n.mdfPrintAccepted,
+  due: l10n.mdfDue,
+  customer: l10n.mdfCustomer,
+  phone: l10n.mdfPrintPhone,
+  thickness: l10n.mdfThickness,
+  finish: l10n.mdfFinish,
+  decorTop: l10n.mdfDecorTop,
+  decorBottom: l10n.mdfDecorBottom,
+  patina: l10n.mdfPatina,
+  milling: l10n.mdfMilling,
+  edge: l10n.mdfEdge,
+  extraName: l10n.mdfExtraName,
+  paid: l10n.mdfPrintPaid,
+  debt: l10n.mdfPrintDebt,
+  note: l10n.mdfNote,
+  height: l10n.mdfHeight,
+  width: l10n.mdfWidth,
+  qty: l10n.mdfQty,
+  area: l10n.mdfArea,
+  rate: l10n.mdfRate,
+  amount: l10n.mdfAmount,
+  total: l10n.mdfPrintTotal,
+);

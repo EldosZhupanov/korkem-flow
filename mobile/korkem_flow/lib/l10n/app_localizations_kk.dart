@@ -4837,4 +4837,30 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get mdfChangeAccepted =>
       'Қабылданған тапсырыс «Тапсырысты өзгерту» арқылы өзгереді — жақында.';
+
+  @override
+  String mdfPrintTitle(String name) {
+    return 'Тапсырыс №$name';
+  }
+
+  @override
+  String get mdfPrintAccepted => 'Қабылданған күні';
+
+  @override
+  String get mdfPrintPhone => 'Телефон';
+
+  @override
+  String get mdfPrintPaid => 'Кепілақы, теңге';
+
+  @override
+  String get mdfPrintDebt => 'Қалдық, теңге';
+
+  @override
+  String get mdfPrintTotal => 'Барлығы:';
+
+  @override
+  String get mdfPrintClient => 'Тапсырыс_Клиент';
+
+  @override
+  String get mdfPrintShop => 'Тапсырыс_Цех';
 }

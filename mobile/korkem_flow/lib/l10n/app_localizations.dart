@@ -8672,6 +8672,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An accepted order changes through «Change order» — coming.'**
   String get mdfChangeAccepted;
+
+  /// No description provided for @mdfPrintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order No. {name}'**
+  String mdfPrintTitle(String name);
+
+  /// No description provided for @mdfPrintAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get mdfPrintAccepted;
+
+  /// No description provided for @mdfPrintPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get mdfPrintPhone;
+
+  /// No description provided for @mdfPrintPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid, ₸'**
+  String get mdfPrintPaid;
+
+  /// No description provided for @mdfPrintDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance, ₸'**
+  String get mdfPrintDebt;
+
+  /// No description provided for @mdfPrintTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total:'**
+  String get mdfPrintTotal;
+
+  /// No description provided for @mdfPrintClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer copy'**
+  String get mdfPrintClient;
+
+  /// No description provided for @mdfPrintShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop copy'**
+  String get mdfPrintShop;
 }
 
 class _AppLocalizationsDelegate

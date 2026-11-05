@@ -1641,5 +1641,13 @@
   "mdfCancel": "Отмена",
   "mdfLineDelete": "Удалить строку",
   "mdfLineDuplicate": "Дублировать",
-  "mdfChangeAccepted": "Принятый заказ меняется через «Изменить заказ» — скоро."
+  "mdfChangeAccepted": "Принятый заказ меняется через «Изменить заказ» — скоро.",
+  "mdfPrintTitle": "Заказ №{name}",
+  "mdfPrintAccepted": "Принят",
+  "mdfPrintPhone": "Телефон",
+  "mdfPrintPaid": "Предоплата, ₸",
+  "mdfPrintDebt": "Остаток, ₸",
+  "mdfPrintTotal": "Итого:",
+  "mdfPrintClient": "Бланк клиенту",
+  "mdfPrintShop": "Наряд в цех"
 }

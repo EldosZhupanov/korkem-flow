@@ -1641,5 +1641,13 @@
   "mdfCancel": "Болдырмау",
   "mdfLineDelete": "Жолды жою",
   "mdfLineDuplicate": "Көшірме",
-  "mdfChangeAccepted": "Қабылданған тапсырыс «Тапсырысты өзгерту» арқылы өзгереді — жақында."
+  "mdfChangeAccepted": "Қабылданған тапсырыс «Тапсырысты өзгерту» арқылы өзгереді — жақында.",
+  "mdfPrintTitle": "Тапсырыс №{name}",
+  "mdfPrintAccepted": "Қабылданған күні",
+  "mdfPrintPhone": "Телефон",
+  "mdfPrintPaid": "Кепілақы, теңге",
+  "mdfPrintDebt": "Қалдық, теңге",
+  "mdfPrintTotal": "Барлығы:",
+  "mdfPrintClient": "Тапсырыс_Клиент",
+  "mdfPrintShop": "Тапсырыс_Цех"
 }

@@ -4874,4 +4874,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mdfChangeAccepted =>
       'An accepted order changes through «Change order» — coming.';
+
+  @override
+  String mdfPrintTitle(String name) {
+    return 'Order No. $name';
+  }
+
+  @override
+  String get mdfPrintAccepted => 'Accepted';
+
+  @override
+  String get mdfPrintPhone => 'Phone';
+
+  @override
+  String get mdfPrintPaid => 'Paid, ₸';
+
+  @override
+  String get mdfPrintDebt => 'Balance, ₸';
+
+  @override
+  String get mdfPrintTotal => 'Total:';
+
+  @override
+  String get mdfPrintClient => 'Customer copy';
+
+  @override
+  String get mdfPrintShop => 'Shop copy';
 }

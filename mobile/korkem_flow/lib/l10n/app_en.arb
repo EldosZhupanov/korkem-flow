@@ -5700,5 +5700,20 @@
   "mdfCancel": "Cancel",
   "mdfLineDelete": "Delete line",
   "mdfLineDuplicate": "Duplicate",
-  "mdfChangeAccepted": "An accepted order changes through «Change order» — coming."
+  "mdfChangeAccepted": "An accepted order changes through «Change order» — coming.",
+  "mdfPrintTitle": "Order No. {name}",
+  "@mdfPrintTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPrintAccepted": "Accepted",
+  "mdfPrintPhone": "Phone",
+  "mdfPrintPaid": "Paid, ₸",
+  "mdfPrintDebt": "Balance, ₸",
+  "mdfPrintTotal": "Total:",
+  "mdfPrintClient": "Customer copy",
+  "mdfPrintShop": "Shop copy"
 }
