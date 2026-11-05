@@ -8774,6 +8774,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Repeat order'**
   String get mdfRepeat;
+
+  /// No description provided for @filmShortageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Film to buy'**
+  String get filmShortageTitle;
+
+  /// No description provided for @filmShortageEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No film needed for orders'**
+  String get filmShortageEmpty;
+
+  /// No description provided for @filmShortageEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted film orders show here until the vacuum is ticked.'**
+  String get filmShortageEmptyHint;
+
+  /// No description provided for @filmShortageTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed {needed} m · to buy {toBuy} m'**
+  String filmShortageTotals(String needed, String toBuy);
+
+  /// No description provided for @filmShortageByFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'By film'**
+  String get filmShortageByFilm;
+
+  /// No description provided for @filmShortageByOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'By order'**
+  String get filmShortageByOrder;
+
+  /// No description provided for @filmShortageLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders · needed {needed} · held {held} · free {free} {unit}'**
+  String filmShortageLine(
+    String orders,
+    String needed,
+    String held,
+    String free,
+    String unit,
+  );
+
+  /// No description provided for @filmShortageBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {qty} {unit}'**
+  String filmShortageBuy(String qty, String unit);
+
+  /// No description provided for @filmShortageEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Enough'**
+  String get filmShortageEnough;
+
+  /// No description provided for @filmShortageShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} m short'**
+  String filmShortageShort(String qty);
+
+  /// No description provided for @filmShortageNotOnBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'This film is not in stock — add it under «Stock».'**
+  String get filmShortageNotOnBooks;
+
+  /// No description provided for @mdfFilmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How many metres of which film to order'**
+  String get mdfFilmHint;
 }
 
 class _AppLocalizationsDelegate

@@ -4936,4 +4936,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfRepeat => 'Repeat order';
+
+  @override
+  String get filmShortageTitle => 'Film to buy';
+
+  @override
+  String get filmShortageEmpty => 'No film needed for orders';
+
+  @override
+  String get filmShortageEmptyHint =>
+      'Accepted film orders show here until the vacuum is ticked.';
+
+  @override
+  String filmShortageTotals(String needed, String toBuy) {
+    return 'Needed $needed m · to buy $toBuy m';
+  }
+
+  @override
+  String get filmShortageByFilm => 'By film';
+
+  @override
+  String get filmShortageByOrder => 'By order';
+
+  @override
+  String filmShortageLine(
+    String orders,
+    String needed,
+    String held,
+    String free,
+    String unit,
+  ) {
+    return '$orders orders · needed $needed · held $held · free $free $unit';
+  }
+
+  @override
+  String filmShortageBuy(String qty, String unit) {
+    return 'Buy $qty $unit';
+  }
+
+  @override
+  String get filmShortageEnough => 'Enough';
+
+  @override
+  String filmShortageShort(String qty) {
+    return '$qty m short';
+  }
+
+  @override
+  String get filmShortageNotOnBooks =>
+      'This film is not in stock — add it under «Stock».';
+
+  @override
+  String get mdfFilmHint => 'How many metres of which film to order';
 }

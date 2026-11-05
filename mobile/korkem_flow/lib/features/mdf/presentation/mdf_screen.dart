@@ -57,6 +57,13 @@ class MdfScreen extends StatelessWidget {
         Routes.materialStock,
       ),
       _MdfRow(
+        'film',
+        AppIcons.material,
+        l10n.filmShortageTitle,
+        l10n.mdfFilmHint,
+        Routes.mdfFilm,
+      ),
+      _MdfRow(
         'logistics',
         AppIcons.delivery,
         l10n.logisticsTitle,

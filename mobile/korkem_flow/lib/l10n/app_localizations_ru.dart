@@ -4959,4 +4959,56 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfRepeat => 'Повторить заказ';
+
+  @override
+  String get filmShortageTitle => 'Плёнка: что докупить';
+
+  @override
+  String get filmShortageEmpty => 'Плёнка для заказов не нужна';
+
+  @override
+  String get filmShortageEmptyHint =>
+      'Здесь появятся принятые заказы с плёнкой, пока не отмечен вакуум.';
+
+  @override
+  String filmShortageTotals(String needed, String toBuy) {
+    return 'Нужно $needed м · докупить $toBuy м';
+  }
+
+  @override
+  String get filmShortageByFilm => 'По плёнке';
+
+  @override
+  String get filmShortageByOrder => 'По заказам';
+
+  @override
+  String filmShortageLine(
+    String orders,
+    String needed,
+    String held,
+    String free,
+    String unit,
+  ) {
+    return 'Заказов $orders · нужно $needed · под заказы $held · свободно $free $unit';
+  }
+
+  @override
+  String filmShortageBuy(String qty, String unit) {
+    return 'Докупить $qty $unit';
+  }
+
+  @override
+  String get filmShortageEnough => 'Хватает';
+
+  @override
+  String filmShortageShort(String qty) {
+    return 'не хватает $qty м';
+  }
+
+  @override
+  String get filmShortageNotOnBooks =>
+      'Этой плёнки нет в складе — добавьте её в «Склад».';
+
+  @override
+  String get mdfFilmHint => 'Сколько метров какой плёнки заказать у поставщика';
 }

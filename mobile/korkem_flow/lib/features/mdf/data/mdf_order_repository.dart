@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
+import 'package:korkem_flow/features/mdf/domain/film_shortage.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 
 final mdfOrderRepositoryProvider = Provider<MdfOrderRepository>(
@@ -29,6 +30,12 @@ final mdfOrdersProvider = FutureProvider.autoDispose
     .family<List<MdfOrderRow>, MdfListQuery>(
       (ref, query) => ref.watch(mdfOrderRepositoryProvider).listing(query),
     );
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmShortageProvider = FutureProvider.autoDispose<FilmShortage>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).filmShortage(),
+);
 
 // AutoDisposeFutureProviderFamily is not exported as a public type.
 // ignore: specify_nonobvious_property_types
@@ -117,6 +124,11 @@ class MdfOrderRepository {
           ),
         ),
       );
+
+  /// The film open orders still need, by film, and what to buy.
+  Future<FilmShortage> filmShortage() async => FilmShortage.fromJson(
+    _map(await _client.callMethod('$_base.film_shortage')),
+  );
 
   /// The head of the last order this manager wrote, or null for the first.
   Future<MdfHead?> lastHead() async {
