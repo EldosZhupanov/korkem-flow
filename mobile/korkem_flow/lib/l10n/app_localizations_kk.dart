@@ -4863,4 +4863,40 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPrintShop => 'Тапсырыс_Цех';
+
+  @override
+  String get mdfPasteSizes => 'Өлшемдерді қою';
+
+  @override
+  String get mdfPasteHint =>
+      'Өлшемдерді WhatsApp, Excel немесе бланктен көшіріңіз — әр жолға бір бөлшек: «348 997 2», «348х997-2шт». Саннан кейінгі сөздер ескертуге түседі.';
+
+  @override
+  String mdfPasteFound(int count) {
+    return 'Табылған жолдар: $count';
+  }
+
+  @override
+  String mdfPasteSkipped(String rows) {
+    return 'Өткізілді (өлшем емес): $rows';
+  }
+
+  @override
+  String get mdfPasteAdd => 'Тапсырысқа қосу';
+
+  @override
+  String mdfPasted(int count) {
+    return 'Қосылған жолдар: $count';
+  }
+
+  @override
+  String get mdfNewCustomer => 'Жаңа тапсырушы';
+
+  @override
+  String mdfNewCustomerOption(String name) {
+    return '+ Жаңа тапсырушы «$name»';
+  }
+
+  @override
+  String get mdfRepeat => 'Тапсырысты қайталау';
 }

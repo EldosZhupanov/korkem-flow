@@ -4900,4 +4900,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPrintShop => 'Shop copy';
+
+  @override
+  String get mdfPasteSizes => 'Paste sizes';
+
+  @override
+  String get mdfPasteHint =>
+      'Copy sizes from WhatsApp, Excel or a form — one part per line: «348 997 2», «348x997-2pcs». Words after the count become the note.';
+
+  @override
+  String mdfPasteFound(int count) {
+    return 'Lines found: $count';
+  }
+
+  @override
+  String mdfPasteSkipped(String rows) {
+    return 'Skipped (not sizes): $rows';
+  }
+
+  @override
+  String get mdfPasteAdd => 'Add to the order';
+
+  @override
+  String mdfPasted(int count) {
+    return 'Lines added: $count';
+  }
+
+  @override
+  String get mdfNewCustomer => 'New customer';
+
+  @override
+  String mdfNewCustomerOption(String name) {
+    return '+ New customer «$name»';
+  }
+
+  @override
+  String get mdfRepeat => 'Repeat order';
 }

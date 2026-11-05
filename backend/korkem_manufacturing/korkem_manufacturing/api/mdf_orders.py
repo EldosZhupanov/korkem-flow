@@ -71,6 +71,16 @@ def listing(search: str | None = None, status: str | None = None, overdue: bool 
 						   start=start, limit=limit)
 
 
+@frappe.whitelist(methods=["POST"])
+def new_customer(name: str, phone: str | None = None) -> dict:
+	return service.new_customer(name, phone)
+
+
+@frappe.whitelist(methods=["GET"])
+def last_head() -> dict:
+	return service.last_head()
+
+
 @frappe.whitelist(methods=["GET"])
 def stages_for(finish: str | None = None) -> list[str]:
 	return service.stages_for(finish)

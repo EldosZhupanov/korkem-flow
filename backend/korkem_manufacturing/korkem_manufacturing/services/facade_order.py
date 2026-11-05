@@ -184,11 +184,15 @@ def customers(search: str | None = None, limit: int = 20) -> list[dict]:
 	company = current_company()
 	limit = max(1, min(int(limit or 20), 50))
 	filters = {"disabled": 0}
+	or_filters = None
 	if search and search.strip():
-		filters["customer_name"] = ["like", f"%{search.strip()}%"]
+		# By name or by phone: the manager types whichever the customer gave.
+		like = f"%{search.strip()}%"
+		or_filters = {"customer_name": ["like", like], "mobile_no": ["like", like]}
 	rows = frappe.get_all(
 		"Customer",
 		filters=filters,
+		or_filters=or_filters,
 		fields=["name", "customer_name", "mobile_no"],
 		order_by="modified desc",
 		limit_page_length=limit * 3,

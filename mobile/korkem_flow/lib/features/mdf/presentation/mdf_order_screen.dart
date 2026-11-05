@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/material_stock/data/material_stock_reposito
 import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -31,10 +32,13 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// with the stages ticked by the manager, the payments, and on hold /
 /// cancel / hand over.
 class MdfOrderScreen extends ConsumerWidget {
-  const MdfOrderScreen({this.name, super.key});
+  const MdfOrderScreen({this.name, this.template, super.key});
 
   /// Null for a new order.
   final String? name;
+
+  /// «Повторить заказ»: a new draft that starts as a copy of this one.
+  final MdfOrder? template;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,7 +46,7 @@ class MdfOrderScreen extends ConsumerWidget {
     if (name == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.mdfOrderNew)),
-        body: const _DraftForm(),
+        body: _DraftForm(template: template),
       );
     }
     final order = ref.watch(mdfOrderProvider(name!));
@@ -120,9 +124,13 @@ class _LineFields {
 }
 
 class _DraftForm extends ConsumerStatefulWidget {
-  const _DraftForm({this.order, super.key});
+  const _DraftForm({this.order, this.template, super.key});
 
+  /// The draft being changed; null for a new one.
   final MdfOrder? order;
+
+  /// For a new draft: the order it repeats (customer, head and lines).
+  final MdfOrder? template;
 
   @override
   ConsumerState<_DraftForm> createState() => _DraftFormState();
@@ -131,7 +139,8 @@ class _DraftForm extends ConsumerStatefulWidget {
 class _DraftFormState extends ConsumerState<_DraftForm> {
   FacadeCustomer? _customer;
   DateTime? _due;
-  late MdfHead _head = widget.order?.head ?? const MdfHead();
+  late MdfHead _head =
+      widget.order?.head ?? widget.template?.head ?? const MdfHead();
   final _thickness = TextEditingController();
   final _patina = TextEditingController();
   final _extra = TextEditingController();
@@ -144,14 +153,14 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   @override
   void initState() {
     super.initState();
-    final o = widget.order;
+    final o = widget.order ?? widget.template;
     if (o != null) {
       _customer = FacadeCustomer(
         name: o.customer,
         title: o.customerName,
         phone: o.phone,
       );
-      _due = DateTime.tryParse(o.deliveryDate);
+      if (widget.order != null) _due = DateTime.tryParse(o.deliveryDate);
       _thickness.text = o.head.thicknessMm?.toString() ?? '';
       _patina.text = o.head.patina ?? '';
       _extra.text = o.head.extraName ?? '';
@@ -170,7 +179,61 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       }
     }
     if (_lines.isEmpty) _lines.add(_LineFields(milling: _head.milling));
+    if (o == null) unawaited(_startFromLastHead());
     _reprice();
+  }
+
+  /// A new order starts with the head of the last one this manager wrote:
+  /// the same finish, thickness and edge more often than not.
+  Future<void> _startFromLastHead() async {
+    try {
+      final head = await ref.read(mdfOrderRepositoryProvider).lastHead();
+      if (!mounted || head == null) return;
+      setState(() {
+        _head = head;
+        if (_thickness.text.isEmpty) {
+          _thickness.text = head.thicknessMm?.toString() ?? '';
+        }
+        if (_patina.text.isEmpty) _patina.text = head.patina ?? '';
+        if (_defaultRate.text.isEmpty) {
+          _defaultRate.text = head.defaultRate?.toStringAsFixed(0) ?? '';
+        }
+        for (final l in _lines) {
+          l.milling ??= head.milling;
+        }
+      });
+      _reprice();
+    } on Object {
+      // A blank head is a fine start too.
+    }
+  }
+
+  Future<void> _paste() async {
+    final l10n = AppLocalizations.of(context);
+    final pasted = await showDialog<SizePaste>(
+      context: context,
+      builder: (_) => _PasteDialog(milling: _head.milling),
+    );
+    if (pasted == null || pasted.lines.isEmpty) return;
+    setState(() {
+      if (_lines.length == 1 && _lines.first.input() == null) {
+        _lines.removeAt(0).dispose();
+      }
+      for (final l in pasted.lines) {
+        _lines.add(
+          _LineFields(
+            h: '${l.heightMm}',
+            w: '${l.widthMm}',
+            q: '${l.qty}',
+            milling: l.milling,
+            note: l.note,
+          ),
+        );
+      }
+    });
+    _reprice();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showDone(l10n.mdfPasted(pasted.lines.length));
   }
 
   @override
@@ -477,7 +540,17 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-              SectionLabel(l10n.mdfLinesSection),
+              Row(
+                children: [
+                  Expanded(child: SectionLabel(l10n.mdfLinesSection)),
+                  TextButton.icon(
+                    key: const ValueKey('mdfPaste'),
+                    onPressed: _paste,
+                    icon: const Icon(AppIcons.paste),
+                    label: Text(l10n.mdfPasteSizes),
+                  ),
+                ],
+              ),
               for (var i = 0; i < _lines.length; i++)
                 _LineRow(
                   key: ObjectKey(_lines[i]),
@@ -738,20 +811,36 @@ class _CustomerField extends ConsumerWidget {
     return Autocomplete<FacadeCustomer>(
       key: const ValueKey('mdfCustomer'),
       initialValue: TextEditingValue(text: initial?.title ?? ''),
-      displayStringForOption: (c) =>
-          c.phone == null ? c.title : '${c.title} · ${c.phone}',
+      displayStringForOption: (c) => c.name.isEmpty
+          ? l10n.mdfNewCustomerOption(c.title)
+          : c.phone == null
+          ? c.title
+          : '${c.title} · ${c.phone}',
       optionsBuilder: (value) async {
         final text = value.text.trim();
         if (text.length < 2) return const [];
+        var found = <FacadeCustomer>[];
         try {
-          return await ref
+          found = await ref
               .read(facadePriceRepositoryProvider)
               .customers(search: text);
         } on Object {
-          return const [];
+          // Offer to write a new one all the same.
         }
+        // The last option writes the typed name down as a new customer.
+        return [...found, FacadeCustomer(name: '', title: text)];
       },
-      onSelected: onPicked,
+      onSelected: (c) async {
+        if (c.name.isNotEmpty) {
+          onPicked(c);
+          return;
+        }
+        final made = await showDialog<FacadeCustomer>(
+          context: context,
+          builder: (_) => _NewCustomerDialog(typed: c.title),
+        );
+        if (made != null) onPicked(made);
+      },
       fieldViewBuilder: (context, controller, focus, onSubmit) => TextField(
         key: const ValueKey('mdfCustomerField'),
         controller: controller,
@@ -916,6 +1005,12 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               onPressed: () => _print(withPrices: true),
               icon: const Icon(AppIcons.print),
               label: Text(l10n.mdfPrintClient),
+            ),
+            OutlinedButton.icon(
+              key: const ValueKey('mdfRepeat'),
+              onPressed: () => context.push(Routes.mdfOrderNew, extra: o),
+              icon: const Icon(AppIcons.add),
+              label: Text(l10n.mdfRepeat),
             ),
             OutlinedButton.icon(
               key: const ValueKey('mdfPrintShop'),
@@ -1177,3 +1272,167 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   amount: l10n.mdfAmount,
   total: l10n.mdfPrintTotal,
 );
+
+class _PasteDialog extends StatefulWidget {
+  const _PasteDialog({this.milling});
+
+  final String? milling;
+
+  @override
+  State<_PasteDialog> createState() => _PasteDialogState();
+}
+
+class _PasteDialogState extends State<_PasteDialog> {
+  final _text = TextEditingController();
+  SizePaste _parsed = (lines: const [], skipped: const []);
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return AlertDialog(
+      title: Text(l10n.mdfPasteSizes),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 10,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.mdfPasteHint, style: theme.textTheme.bodySmall),
+            const SizedBox(height: AppSpacing.sm),
+            TextField(
+              key: const ValueKey('mdfPasteText'),
+              controller: _text,
+              autofocus: true,
+              minLines: 6,
+              maxLines: 14,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              onChanged: (v) => setState(
+                () => _parsed = parseSizes(v, milling: widget.milling),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l10n.mdfPasteFound(_parsed.lines.length),
+              key: const ValueKey('mdfPasteFound'),
+              style: theme.textTheme.titleSmall,
+            ),
+            if (_parsed.skipped.isNotEmpty)
+              Text(
+                l10n.mdfPasteSkipped(_parsed.skipped.take(3).join(' · ')),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('mdfPasteAdd'),
+          onPressed: _parsed.lines.isEmpty
+              ? null
+              : () => Navigator.of(context).pop(_parsed),
+          child: Text(l10n.mdfPasteAdd),
+        ),
+      ],
+    );
+  }
+}
+
+class _NewCustomerDialog extends ConsumerStatefulWidget {
+  const _NewCustomerDialog({required this.typed});
+
+  final String typed;
+
+  @override
+  ConsumerState<_NewCustomerDialog> createState() => _NewCustomerDialogState();
+}
+
+class _NewCustomerDialogState extends ConsumerState<_NewCustomerDialog> {
+  late final bool _typedPhone = RegExp(
+    r'^[+\d\s()-]{6,}$',
+  ).hasMatch(widget.typed);
+  late final _name = TextEditingController(
+    text: _typedPhone ? '' : widget.typed,
+  );
+  late final _phone = TextEditingController(
+    text: _typedPhone ? widget.typed : '',
+  );
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _phone.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    setState(() => _busy = true);
+    try {
+      final made = await ref
+          .read(mdfOrderRepositoryProvider)
+          .newCustomer(
+            _name.text.trim(),
+            phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
+          );
+      navigator.pop(made);
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l10n.mdfNewCustomer),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            key: const ValueKey('mdfNewCustomerName'),
+            controller: _name,
+            autofocus: !_typedPhone,
+            decoration: InputDecoration(labelText: l10n.mdfCustomer),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            key: const ValueKey('mdfNewCustomerPhone'),
+            controller: _phone,
+            autofocus: _typedPhone,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(labelText: l10n.mdfPrintPhone),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('mdfNewCustomerSave'),
+          onPressed: _busy ? null : _save,
+          child: Text(l10n.mdfConfirm),
+        ),
+      ],
+    );
+  }
+}

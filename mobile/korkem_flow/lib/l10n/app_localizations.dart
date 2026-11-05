@@ -8720,6 +8720,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shop copy'**
   String get mdfPrintShop;
+
+  /// No description provided for @mdfPasteSizes.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste sizes'**
+  String get mdfPasteSizes;
+
+  /// No description provided for @mdfPasteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy sizes from WhatsApp, Excel or a form — one part per line: «348 997 2», «348x997-2pcs». Words after the count become the note.'**
+  String get mdfPasteHint;
+
+  /// No description provided for @mdfPasteFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines found: {count}'**
+  String mdfPasteFound(int count);
+
+  /// No description provided for @mdfPasteSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped (not sizes): {rows}'**
+  String mdfPasteSkipped(String rows);
+
+  /// No description provided for @mdfPasteAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to the order'**
+  String get mdfPasteAdd;
+
+  /// No description provided for @mdfPasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines added: {count}'**
+  String mdfPasted(int count);
+
+  /// No description provided for @mdfNewCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer'**
+  String get mdfNewCustomer;
+
+  /// No description provided for @mdfNewCustomerOption.
+  ///
+  /// In en, this message translates to:
+  /// **'+ New customer «{name}»'**
+  String mdfNewCustomerOption(String name);
+
+  /// No description provided for @mdfRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat order'**
+  String get mdfRepeat;
 }
 
 class _AppLocalizationsDelegate
