@@ -5606,5 +5606,7 @@
   "materialsFitsThicknessInput": "For board thickness, mm",
   "materialsPositiveDimension": "Enter a positive number",
   "materialsCreateSuccess": "Material added",
-  "materialsSave": "Save"
+  "materialsSave": "Save",
+  "facadePricesEmptyNotSold": "Empty — not sold",
+  "facadePricesNeedOne": "Enter a price for at least one finish."
 }

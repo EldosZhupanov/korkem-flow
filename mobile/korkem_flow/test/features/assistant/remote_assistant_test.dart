@@ -479,7 +479,7 @@ class _RecoveryClient implements FrappeClient {
 
   final Completer<Map<String, dynamic>>? acknowledgement;
   final Map<String, dynamic>? recovered;
-  var sendCount = 0;
+  int sendCount = 0;
 
   @override
   Future<Map<String, dynamic>> callMethod(

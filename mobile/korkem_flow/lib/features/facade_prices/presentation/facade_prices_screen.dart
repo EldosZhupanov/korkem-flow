@@ -88,7 +88,7 @@ class FacadePricesScreen extends ConsumerWidget {
   }) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);
-    final result = await showDialog<_Edit>(
+    final result = await showDialog<List<_Edit>>(
       context: context,
       builder: (_) => _EditDialog(
         finishes: table.finishes,
@@ -99,16 +99,19 @@ class FacadePricesScreen extends ConsumerWidget {
             : null,
       ),
     );
-    if (result == null) return;
+    if (result == null || result.isEmpty) return;
     try {
-      await ref
-          .read(facadePriceControllerProvider.notifier)
-          .save(
-            milling: result.milling,
-            finish: result.finish,
-            pricePerM2: result.price,
-            enabled: result.enabled,
-          );
+      // A new milling arrives with a price per finish; each is its own cell.
+      for (final edit in result) {
+        await ref
+            .read(facadePriceControllerProvider.notifier)
+            .save(
+              milling: edit.milling,
+              finish: edit.finish,
+              pricePerM2: edit.price,
+              enabled: edit.enabled,
+            );
+      }
       messenger.showDone(l10n.facadePricesSaved);
     } on Object catch (error) {
       messenger.showFailure(error, l10n);
@@ -217,9 +220,18 @@ class _EditDialogState extends State<_EditDialog> {
         ? ''
         : widget.current!.pricePerM2.toStringAsFixed(0),
   );
-  late String? _finish =
+  late final String? _finish =
       widget.finish ?? (widget.finishes.isEmpty ? null : widget.finishes.first);
   late bool _enabled = widget.current?.enabled ?? true;
+
+  /// A new milling gets one price field per finish, all visible at once.
+  /// It used to be one field and a finish picker, and switching the finish
+  /// kept the typed price — so «ПВХ 19 500», then «Эмаль», saved 19 500 as
+  /// the enamel price (owner, 01.11.2026). Empty means «не продаётся».
+  late final Map<String, TextEditingController> _byFinish = {
+    for (final f in widget.finishes) f: TextEditingController(),
+  };
+  bool _noPrice = false;
 
   bool get _isNew => widget.milling == null;
 
@@ -227,6 +239,9 @@ class _EditDialogState extends State<_EditDialog> {
   void dispose() {
     _milling.dispose();
     _price.dispose();
+    for (final c in _byFinish.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -257,37 +272,55 @@ class _EditDialogState extends State<_EditDialog> {
                     : null,
               ),
               const SizedBox(height: AppSpacing.md),
-              DropdownButtonFormField<String>(
-                initialValue: _finish,
-                items: [
-                  for (final f in widget.finishes)
-                    DropdownMenuItem(value: f, child: Text(f)),
-                ],
-                onChanged: (v) => setState(() => _finish = v),
+              for (final MapEntry(key: finish, value: controller)
+                  in _byFinish.entries) ...[
+                TextFormField(
+                  key: ValueKey('facadePriceFor:$finish'),
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                    labelText: finish,
+                    hintText: l10n.facadePricesEmptyNotSold,
+                    suffixText: '₸ / м²',
+                    border: const OutlineInputBorder(),
+                  ),
+                  validator: (v) {
+                    final text = (v ?? '').trim();
+                    if (text.isEmpty) return null;
+                    final n = double.tryParse(text);
+                    return (n == null || n <= 0)
+                        ? l10n.facadePricesPricePerM2
+                        : null;
+                  },
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
+              if (_noPrice)
+                Text(
+                  l10n.facadePricesNeedOne,
+                  key: const ValueKey('facadePriceNeedOne'),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+            ],
+            if (!_isNew)
+              TextFormField(
+                key: const ValueKey('facadePriceValue'),
+                controller: _price,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  labelText: l10n.facadePricesFinish,
+                  labelText: l10n.facadePricesPricePerM2,
+                  suffixText: '₸',
                   border: const OutlineInputBorder(),
                 ),
+                validator: (v) {
+                  final n = double.tryParse((v ?? '').trim());
+                  return (n == null || n <= 0)
+                      ? l10n.facadePricesPricePerM2
+                      : null;
+                },
               ),
-              const SizedBox(height: AppSpacing.md),
-            ],
-            TextFormField(
-              key: const ValueKey('facadePriceValue'),
-              controller: _price,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: l10n.facadePricesPricePerM2,
-                suffixText: '₸',
-                border: const OutlineInputBorder(),
-              ),
-              validator: (v) {
-                final n = double.tryParse((v ?? '').trim());
-                return (n == null || n <= 0)
-                    ? l10n.facadePricesPricePerM2
-                    : null;
-              },
-            ),
             if (!_isNew)
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -306,15 +339,34 @@ class _EditDialogState extends State<_EditDialog> {
         FilledButton(
           key: const ValueKey('facadePriceSave'),
           onPressed: () {
-            if (!_formKey.currentState!.validate() || _finish == null) return;
-            Navigator.of(context).pop(
+            if (!_formKey.currentState!.validate()) return;
+            if (_isNew) {
+              final edits = [
+                for (final MapEntry(key: finish, value: c) in _byFinish.entries)
+                  if (c.text.trim().isNotEmpty)
+                    _Edit(
+                      _milling.text.trim(),
+                      finish,
+                      double.parse(c.text.trim()),
+                      enabled: true,
+                    ),
+              ];
+              if (edits.isEmpty) {
+                setState(() => _noPrice = true);
+                return;
+              }
+              Navigator.of(context).pop(edits);
+              return;
+            }
+            if (_finish == null) return;
+            Navigator.of(context).pop([
               _Edit(
                 _milling.text.trim(),
-                _finish!,
+                _finish,
                 double.parse(_price.text.trim()),
                 enabled: _enabled,
               ),
-            );
+            ]);
           },
           child: Text(l10n.facadePricesSave),
         ),

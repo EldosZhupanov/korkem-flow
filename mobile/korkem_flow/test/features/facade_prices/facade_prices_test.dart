@@ -159,6 +159,47 @@ void main() {
     expect(find.textContaining('22'), findsWidgets);
   });
 
+  testWidgets('a new milling takes a price per finish; empty is not sold', (
+    tester,
+  ) async {
+    // 01.11.2026: one price field and a finish picker saved «ПВХ 19 500»
+    // as the enamel price once the picker was switched.
+    final repo = await pump(tester, _table());
+
+    await tester.tap(find.byKey(const ValueKey('facadePriceAdd')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('facadePriceMilling')),
+      'Рифлёный 16-14',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('facadePriceFor:$_pvc')),
+      '19500',
+    );
+    await tester.tap(find.byKey(const ValueKey('facadePriceSave')));
+    await tester.pumpAndSettle();
+
+    expect(repo.saves, [('Рифлёный 16-14', _pvc, 19500.0)]);
+  });
+
+  testWidgets('a new milling with no price at all is not saved', (
+    tester,
+  ) async {
+    final repo = await pump(tester, _table());
+
+    await tester.tap(find.byKey(const ValueKey('facadePriceAdd')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('facadePriceMilling')),
+      'Пустая',
+    );
+    await tester.tap(find.byKey(const ValueKey('facadePriceSave')));
+    await tester.pumpAndSettle();
+
+    expect(repo.saves, isEmpty);
+    expect(find.byKey(const ValueKey('facadePriceNeedOne')), findsOneWidget);
+  });
+
   testWidgets('somebody who may not edit gets no pencil and no add button', (
     tester,
   ) async {

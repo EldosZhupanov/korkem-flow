@@ -4637,4 +4637,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get materialsSave => 'Сақтау';
+
+  @override
+  String get facadePricesEmptyNotSold => 'Бос — сатылмайды';
+
+  @override
+  String get facadePricesNeedOne => 'Кем дегенде бір әрлеудің бағасын жазыңыз.';
 }

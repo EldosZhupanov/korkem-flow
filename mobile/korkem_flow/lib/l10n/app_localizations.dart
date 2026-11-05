@@ -8288,6 +8288,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get materialsSave;
+
+  /// No description provided for @facadePricesEmptyNotSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty — not sold'**
+  String get facadePricesEmptyNotSold;
+
+  /// No description provided for @facadePricesNeedOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a price for at least one finish.'**
+  String get facadePricesNeedOne;
 }
 
 class _AppLocalizationsDelegate

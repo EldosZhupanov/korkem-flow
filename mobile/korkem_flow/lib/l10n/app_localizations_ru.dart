@@ -4698,4 +4698,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get materialsSave => 'Сохранить';
+
+  @override
+  String get facadePricesEmptyNotSold => 'Пусто — не продаётся';
+
+  @override
+  String get facadePricesNeedOne => 'Укажите цену хотя бы для одной отделки.';
 }

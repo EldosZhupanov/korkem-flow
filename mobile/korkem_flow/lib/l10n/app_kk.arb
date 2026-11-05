@@ -1577,5 +1577,7 @@
   "materialsFitsThicknessInput": "Плита қалыңдығы үшін, мм",
   "materialsPositiveDimension": "Оң сан енгізіңіз",
   "materialsCreateSuccess": "Материал қосылды",
-  "materialsSave": "Сақтау"
+  "materialsSave": "Сақтау",
+  "facadePricesEmptyNotSold": "Бос — сатылмайды",
+  "facadePricesNeedOne": "Кем дегенде бір әрлеудің бағасын жазыңыз."
 }

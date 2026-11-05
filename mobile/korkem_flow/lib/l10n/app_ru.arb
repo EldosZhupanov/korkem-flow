@@ -1577,5 +1577,7 @@
   "materialsFitsThicknessInput": "Для плиты толщиной, мм",
   "materialsPositiveDimension": "Введите положительное число",
   "materialsCreateSuccess": "Материал добавлен",
-  "materialsSave": "Сохранить"
+  "materialsSave": "Сохранить",
+  "facadePricesEmptyNotSold": "Пусто — не продаётся",
+  "facadePricesNeedOne": "Укажите цену хотя бы для одной отделки."
 }
