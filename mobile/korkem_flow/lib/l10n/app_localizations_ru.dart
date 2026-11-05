@@ -5011,4 +5011,35 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfFilmHint => 'Сколько метров какой плёнки заказать у поставщика';
+
+  @override
+  String get mdfDebtsTitle => 'Долги';
+
+  @override
+  String get mdfDebtsEmpty => 'Долгов нет';
+
+  @override
+  String get mdfDebtsEmptyHint => 'Все принятые заказы оплачены.';
+
+  @override
+  String mdfDebtsTotal(String amount) {
+    return 'Всего долгов: $amount';
+  }
+
+  @override
+  String get mdfDebtsByCustomer => 'По клиентам';
+
+  @override
+  String get mdfDebtsByOrder => 'По заказам';
+
+  @override
+  String mdfDebtsOrders(int count) {
+    return 'Заказов с долгом: $count';
+  }
+
+  @override
+  String get mdfDebtsHandedOver => 'Выдан с долгом';
+
+  @override
+  String get mdfDebtsHint => 'Кто сколько должен — по клиентам и заказам';
 }

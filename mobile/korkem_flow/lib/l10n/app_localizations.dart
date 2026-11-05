@@ -8852,6 +8852,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'How many metres of which film to order'**
   String get mdfFilmHint;
+
+  /// No description provided for @mdfDebtsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts'**
+  String get mdfDebtsTitle;
+
+  /// No description provided for @mdfDebtsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No debts'**
+  String get mdfDebtsEmpty;
+
+  /// No description provided for @mdfDebtsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every accepted order is paid up.'**
+  String get mdfDebtsEmptyHint;
+
+  /// No description provided for @mdfDebtsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total owed: {amount}'**
+  String mdfDebtsTotal(String amount);
+
+  /// No description provided for @mdfDebtsByCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'By customer'**
+  String get mdfDebtsByCustomer;
+
+  /// No description provided for @mdfDebtsByOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'By order'**
+  String get mdfDebtsByOrder;
+
+  /// No description provided for @mdfDebtsOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders owing: {count}'**
+  String mdfDebtsOrders(int count);
+
+  /// No description provided for @mdfDebtsHandedOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over owing'**
+  String get mdfDebtsHandedOver;
+
+  /// No description provided for @mdfDebtsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Who owes what, by customer and order'**
+  String get mdfDebtsHint;
 }
 
 class _AppLocalizationsDelegate

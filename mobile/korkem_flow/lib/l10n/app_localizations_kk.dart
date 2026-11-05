@@ -4951,4 +4951,35 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfFilmHint => 'Жеткізушіден қай пленканың неше метрін алу керек';
+
+  @override
+  String get mdfDebtsTitle => 'Қарыз';
+
+  @override
+  String get mdfDebtsEmpty => 'Қарыз жоқ';
+
+  @override
+  String get mdfDebtsEmptyHint => 'Барлық қабылданған тапсырыстар төленді.';
+
+  @override
+  String mdfDebtsTotal(String amount) {
+    return 'Барлық қарыз: $amount';
+  }
+
+  @override
+  String get mdfDebtsByCustomer => 'Тапсырушылар бойынша';
+
+  @override
+  String get mdfDebtsByOrder => 'Тапсырыстар бойынша';
+
+  @override
+  String mdfDebtsOrders(int count) {
+    return 'Қарызы бар тапсырыс: $count';
+  }
+
+  @override
+  String get mdfDebtsHandedOver => 'Қарызбен берілді';
+
+  @override
+  String get mdfDebtsHint => 'Кім қанша қарыз — тапсырушы мен тапсырыс бойынша';
 }

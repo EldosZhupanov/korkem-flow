@@ -5810,5 +5810,28 @@
     }
   },
   "filmShortageNotOnBooks": "This film is not in stock — add it under «Stock».",
-  "mdfFilmHint": "How many metres of which film to order"
+  "mdfFilmHint": "How many metres of which film to order",
+  "mdfDebtsTitle": "Debts",
+  "mdfDebtsEmpty": "No debts",
+  "mdfDebtsEmptyHint": "Every accepted order is paid up.",
+  "mdfDebtsTotal": "Total owed: {amount}",
+  "@mdfDebtsTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDebtsByCustomer": "By customer",
+  "mdfDebtsByOrder": "By order",
+  "mdfDebtsOrders": "Orders owing: {count}",
+  "@mdfDebtsOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfDebtsHandedOver": "Handed over owing",
+  "mdfDebtsHint": "Who owes what, by customer and order"
 }
