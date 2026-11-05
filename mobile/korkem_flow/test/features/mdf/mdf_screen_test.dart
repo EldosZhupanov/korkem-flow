@@ -9,7 +9,7 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// Every row of «МДФ» opens the screen that already lives at its route.
 void main() {
   const rows = {
-    'orders': Routes.orders,
+    'orders': Routes.mdfOrders,
     'quote': Routes.facadeQuote,
     'jobs': Routes.facadeJobs,
     'press': Routes.pressSettings,

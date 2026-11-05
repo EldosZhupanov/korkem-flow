@@ -5596,5 +5596,124 @@
   "mdfLogisticsHint": "MDF and film deliveries and their cost",
   "mdfPricesHint": "Price per m² by milling and finish",
   "facadePricesEmptyNotSold": "Empty — not sold",
-  "facadePricesNeedOne": "Enter a price for at least one finish."
+  "facadePricesNeedOne": "Enter a price for at least one finish.",
+  "mdfOrdersTitle": "MDF orders",
+  "mdfOrderNew": "New order",
+  "mdfOrderSearch": "No., customer, phone, colour",
+  "mdfFilterAll": "All",
+  "mdfFilterOverdue": "Overdue",
+  "mdfFilterDebt": "With debt",
+  "mdfStatusDraft": "Draft",
+  "mdfStatusAccepted": "Accepted",
+  "mdfStatusInShop": "In the shop",
+  "mdfStatusReady": "Ready",
+  "mdfStatusHandedOver": "Handed over",
+  "mdfStatusOnHold": "On hold",
+  "mdfStatusCancelled": "Cancelled",
+  "mdfStageCut": "Cut",
+  "mdfStageMill": "Milling",
+  "mdfStageSand": "Sanding",
+  "mdfStageVacuum": "Vacuum",
+  "mdfStagePaint": "Painting",
+  "mdfEmpty": "No orders yet",
+  "mdfEmptyHint": "Tap «New order» to write the first one.",
+  "mdfDebt": "Debt {amount}",
+  "@mdfDebt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfCustomer": "Customer",
+  "mdfDue": "Due",
+  "mdfHeadSection": "Facade",
+  "mdfThickness": "Thickness, mm",
+  "mdfFinish": "Finish",
+  "mdfDecorTop": "Face decor",
+  "mdfDecorBottom": "Back decor",
+  "mdfPatina": "Patina",
+  "mdfMilling": "Milling",
+  "mdfEdge": "Edge",
+  "mdfExtraName": "Extra name",
+  "mdfDefaultRate": "Default price per m²",
+  "mdfNone": "—",
+  "mdfLinesSection": "Lines",
+  "mdfHeight": "Height",
+  "mdfWidth": "Width",
+  "mdfQty": "Qty",
+  "mdfNote": "Note",
+  "mdfRate": "Price m²",
+  "mdfArea": "m²",
+  "mdfAmount": "Amount",
+  "mdfAddLine": "Add line",
+  "mdfNoPrice": "no price",
+  "mdfManualRate": "price by hand",
+  "mdfTotals": "{pieces} pcs · {area} m² · {total}",
+  "@mdfTotals": {
+    "placeholders": {
+      "pieces": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPaidDebt": "Paid {paid} · Debt {debt}",
+  "@mdfPaidDebt": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "debt": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSaveDraft": "Save",
+  "mdfAccept": "Accept the order",
+  "mdfDeleteDraft": "Delete draft",
+  "mdfSaved": "Order saved",
+  "mdfAccepted": "Order accepted — prices fixed",
+  "mdfNeedCustomer": "Pick the customer and the due date.",
+  "mdfNeedLine": "Add at least one line.",
+  "mdfStagesSection": "Stages",
+  "mdfPaymentsSection": "Payments",
+  "mdfAddPayment": "Add payment",
+  "mdfPaymentAmount": "Amount, ₸",
+  "mdfPaymentMethod": "Method",
+  "mdfNoPayments": "No payments yet",
+  "mdfHold": "Put on hold",
+  "mdfResume": "Resume",
+  "mdfHoldReason": "Why on hold",
+  "mdfCancelOrder": "Cancel order",
+  "mdfCancelReason": "Reason",
+  "mdfHandOver": "Hand over",
+  "mdfHandOverComment": "Why hand over with a debt",
+  "mdfOverdue": "Overdue",
+  "mdfDueSoon": "Due soon",
+  "mdfConfirm": "Done",
+  "mdfCancel": "Cancel",
+  "mdfLineDelete": "Delete line",
+  "mdfLineDuplicate": "Duplicate",
+  "mdfChangeAccepted": "An accepted order changes through «Change order» — coming.",
+  "mdfPrintTitle": "Order No. {name}",
+  "@mdfPrintTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPrintAccepted": "Accepted",
+  "mdfPrintPhone": "Phone",
+  "mdfPrintPaid": "Paid, ₸",
+  "mdfPrintDebt": "Balance, ₸",
+  "mdfPrintTotal": "Total:",
+  "mdfPrintClient": "Customer copy",
+  "mdfPrintShop": "Shop copy"
 }
