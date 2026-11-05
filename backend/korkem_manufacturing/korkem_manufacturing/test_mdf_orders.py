@@ -1,0 +1,207 @@
+# Copyright (c) 2026, KORKEM and contributors
+# See license.txt
+"""The MDF order card, on the owner's own order forms.
+
+№1129 (27.10.2026, Арман Қалдыбаев): four lines, two millings, 3,04 m² and
+58 680 ₸. №36 (06.12.2025, Тұрсын Қасенов): twelve lines, 21 pieces, 9,60 m².
+Both were priced by hand in OnayBaza; the arithmetic here has to land on the
+same figures, line by line.
+"""
+
+from __future__ import annotations
+
+import frappe
+from frappe.tests import IntegrationTestCase
+from frappe.utils import add_days, flt, nowdate
+
+from korkem_manufacturing.services import facade_prices, mdf_orders
+
+COMPANY = "KORKEM"
+MANAGER = "mdf.manager@example.com"
+CUTTER = "mdf.cutter@example.com"
+PVC = facade_prices.PVC
+FLAT, PATTERN = "МДФ Тест Тегіс 90°", "МДФ Тест Суреттегі үлгі"
+
+ORDER_1129 = [
+	{"height_mm": 130, "width_mm": 1040, "qty": 1, "milling": FLAT},
+	{"height_mm": 1577, "width_mm": 517, "qty": 2, "milling": PATTERN},
+	{"height_mm": 1130, "width_mm": 517, "qty": 2, "milling": PATTERN},
+	{"height_mm": 95, "width_mm": 1040, "qty": 1, "milling": FLAT},
+]
+ORDER_36 = [
+	(348, 997, 2), (348, 947, 1), (2027, 497, 4), (2027, 472, 2), (2480, 60, 1), (2480, 120, 1),
+	(1550, 60, 2), (348, 597, 2), (100, 597, 2), (2050, 497, 1), (148, 597, 1), (730, 240, 2),
+]
+
+
+def _user(email: str, role: str) -> None:
+	if not frappe.db.exists("User", email):
+		frappe.get_doc(
+			{"doctype": "User", "email": email, "first_name": email.split("@")[0], "send_welcome_email": 0,
+			 "roles": [{"role": role}]}
+		).insert(ignore_permissions=True)
+	frappe.defaults.set_user_default("Company", COMPANY, user=email)
+
+
+class TestMdfOrders(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		frappe.set_user("Administrator")
+		facade_prices.seed_company(COMPANY)
+		_user(MANAGER, "Sales User")
+		_user(CUTTER, "Manufacturing User")
+		cls.customer = frappe.db.get_value("Customer", {"disabled": 0}, "name")
+		assert cls.customer, "the seeded site has customers; no silent skip"
+
+	def setUp(self):
+		frappe.set_user("Administrator")
+		facade_prices.set_price(FLAT, PVC, 17_000)
+		facade_prices.set_price(PATTERN, PVC, 19_500)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+
+	def _as(self, user, fn, *args, **kwargs):
+		frappe.set_user(user)
+		try:
+			return fn(*args, **kwargs)
+		finally:
+			frappe.set_user("Administrator")
+
+	def _draft(self, lines=None, **head):
+		return self._as(
+			MANAGER,
+			mdf_orders.save_draft,
+			customer=self.customer,
+			delivery_date=add_days(nowdate(), 7),
+			head={"finish": PVC, "thickness_mm": 16, **head},
+			lines=lines or ORDER_1129,
+		)
+
+	# --- the arithmetic, on the owner's forms ---
+
+	def test_order_1129_lands_on_58_680(self):
+		result = self._as(MANAGER, mdf_orders.price, ORDER_1129, finish=PVC)
+		self.assertEqual([line["area_m2"] for line in result["lines"]], [0.14, 1.63, 1.17, 0.10])
+		self.assertEqual([line["amount"] for line in result["lines"]], [2380, 31785, 22815, 1700])
+		self.assertEqual((result["pieces"], result["area_m2"], result["total"]), (6, 3.04, 58680))
+
+	def test_order_36_has_no_minimum_area(self):
+		lines = [{"height_mm": h, "width_mm": w, "qty": q, "milling": FLAT} for h, w, q in ORDER_36]
+		result = self._as(MANAGER, mdf_orders.price, lines, finish=PVC)
+		self.assertEqual(result["lines"][10]["area_m2"], 0.09)  # 148 × 597 stays 0,09
+		self.assertEqual((result["pieces"], result["area_m2"]), (21, 9.60))
+
+	def test_a_price_nobody_set_counts_at_zero_and_says_so(self):
+		lines = [*ORDER_1129, {"height_mm": 500, "width_mm": 400, "qty": 1, "milling": "Нет такой"}]
+		result = self._as(MANAGER, mdf_orders.price, lines, finish=PVC)
+		self.assertEqual(result["no_price_lines"], [5])
+		self.assertEqual(result["total"], 58680)
+
+	def test_a_price_typed_on_the_line_wins(self):
+		lines = [{**ORDER_1129[0], "rate": 15_000}]
+		line = self._as(MANAGER, mdf_orders.price, lines, finish=PVC)["lines"][0]
+		self.assertEqual((line["rate_m2"], line["amount"], line["manual_rate"]), (15000, 2100, True))
+
+	# --- the card ---
+
+	def test_draft_accept_and_the_total_erpnext_keeps(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self.assertEqual((card["status"], card["total"], card["area_m2"]), ("draft", 58680, 3.04))
+		card = self._as(MANAGER, mdf_orders.accept, card["name"])
+		self.assertEqual((card["status"], card["total"], card["debt"]), ("accepted", 58680, 58680))
+
+	def test_three_pieces_of_an_amount_three_does_not_divide(self):
+		"""10 000 ₸ over 3 pieces is 3 333,33… a piece; the order keeps 10 000."""
+		lines = [{"height_mm": 1000, "width_mm": 500, "qty": 3, "milling": FLAT, "rate": 6_666.67}]
+		card = self._draft(lines)
+		self.addCleanup(self._drop, card["name"])
+		self.assertEqual(card["total"], 10000)
+
+	def test_a_draft_changes_an_accepted_order_does_not(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer,
+						delivery_date=add_days(nowdate(), 9), head={"finish": PVC},
+						lines=ORDER_1129[:2], order=card["name"])
+		self.assertEqual(card["total"], 2380 + 31785)
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.save_draft, customer=self.customer,
+					 delivery_date=add_days(nowdate(), 9), head={"finish": PVC},
+					 lines=ORDER_1129, order=card["name"])
+
+	def test_film_is_ready_after_the_vacuum_and_never_painted(self):
+		self.assertEqual(mdf_orders.stages_for(PVC), ["cut", "mill", "sand", "vacuum"])
+		self.assertIn("paint", mdf_orders.stages_for("Эмаль"))
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		for stage in ("cut", "mill", "sand"):
+			card = self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
+		self.assertEqual(card["status"], "in_shop")
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum")
+		self.assertEqual((card["status"], card["ready_on"]), ("ready", nowdate()))
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum", 0)
+		self.assertEqual((card["status"], card["ready_on"]), ("in_shop", None))
+
+	def test_not_handed_over_with_a_debt_unless_an_administrator_says_why(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		for stage in mdf_orders.stages_for(PVC):
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.hand_over, card["name"])
+		with self.assertRaises(frappe.ValidationError):
+			mdf_orders.hand_over(card["name"])  # an administrator, but no comment
+		card = mdf_orders.hand_over(card["name"], comment="Доплатит в пятницу")
+		self.assertEqual(card["status"], "handed_over")
+
+	def test_on_hold_needs_nothing_more_than_a_reason(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		card = self._as(MANAGER, mdf_orders.hold, card["name"], "Клиент меняет цвет")
+		self.assertEqual((card["status"], card["hold_reason"]), ("on_hold", "Клиент меняет цвет"))
+		card = self._as(MANAGER, mdf_orders.hold, card["name"])
+		self.assertEqual(card["status"], "accepted")
+
+	def test_only_a_draft_is_deleted(self):
+		card = self._draft()
+		self._as(MANAGER, mdf_orders.delete_draft, card["name"])
+		self.assertFalse(frappe.db.exists("Sales Order", card["name"]))
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.delete_draft, card["name"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.cancel, card["name"], "  ")
+
+	def test_the_list_finds_by_customer_and_status(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		name = frappe.db.get_value("Customer", self.customer, "customer_name")
+		found = self._as(MANAGER, mdf_orders.listing, search=name[:5], status="draft")["orders"]
+		self.assertIn(card["name"], [row["name"] for row in found])
+		row = next(row for row in found if row["name"] == card["name"])
+		self.assertEqual((row["area_m2"], row["total"], row["status"]), (3.04, 58680, "draft"))
+
+	def test_the_floor_does_not_open_the_card(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, mdf_orders.card, card["name"])
+
+	def _drop(self, name: str) -> None:
+		frappe.set_user("Administrator")
+		if not frappe.db.exists("Sales Order", name):
+			return
+		doc = frappe.get_doc("Sales Order", name)
+		if doc.docstatus == 1:
+			doc.cancel()  # releases what the order held (facade_materials.on_order_cancelled)
+		frappe.delete_doc("Sales Order", name, force=True, ignore_permissions=True)
+		frappe.db.commit()

@@ -4668,4 +4668,233 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get facadePricesNeedOne => 'Укажите цену хотя бы для одной отделки.';
+
+  @override
+  String get mdfOrdersTitle => 'Заказы МДФ';
+
+  @override
+  String get mdfOrderNew => 'Новый заказ';
+
+  @override
+  String get mdfOrderSearch => '№, клиент, телефон, цвет';
+
+  @override
+  String get mdfFilterAll => 'Все';
+
+  @override
+  String get mdfFilterOverdue => 'Просрочено';
+
+  @override
+  String get mdfFilterDebt => 'С долгом';
+
+  @override
+  String get mdfStatusDraft => 'Черновик';
+
+  @override
+  String get mdfStatusAccepted => 'Принят';
+
+  @override
+  String get mdfStatusInShop => 'В цеху';
+
+  @override
+  String get mdfStatusReady => 'Готов';
+
+  @override
+  String get mdfStatusHandedOver => 'Выдан';
+
+  @override
+  String get mdfStatusOnHold => 'Приостановлен';
+
+  @override
+  String get mdfStatusCancelled => 'Отменён';
+
+  @override
+  String get mdfStageCut => 'Раскрой';
+
+  @override
+  String get mdfStageMill => 'Фреза';
+
+  @override
+  String get mdfStageSand => 'Шлифовка';
+
+  @override
+  String get mdfStageVacuum => 'Вакуум';
+
+  @override
+  String get mdfStagePaint => 'Покраска';
+
+  @override
+  String get mdfEmpty => 'Заказов пока нет';
+
+  @override
+  String get mdfEmptyHint => 'Нажмите «Новый заказ», чтобы оформить первый.';
+
+  @override
+  String mdfDebt(String amount) {
+    return 'Долг $amount';
+  }
+
+  @override
+  String get mdfCustomer => 'Клиент';
+
+  @override
+  String get mdfDue => 'Срок';
+
+  @override
+  String get mdfHeadSection => 'Параметры фасада';
+
+  @override
+  String get mdfThickness => 'Толщина, мм';
+
+  @override
+  String get mdfFinish => 'Покрытие';
+
+  @override
+  String get mdfDecorTop => 'Цвет лица';
+
+  @override
+  String get mdfDecorBottom => 'Цвет обратной стороны';
+
+  @override
+  String get mdfPatina => 'Патина';
+
+  @override
+  String get mdfMilling => 'Фрезеровка';
+
+  @override
+  String get mdfEdge => 'Кромка';
+
+  @override
+  String get mdfExtraName => 'Доп. название';
+
+  @override
+  String get mdfDefaultRate => 'Цена за м² по умолчанию';
+
+  @override
+  String get mdfNone => '—';
+
+  @override
+  String get mdfLinesSection => 'Позиции';
+
+  @override
+  String get mdfHeight => 'Высота';
+
+  @override
+  String get mdfWidth => 'Ширина';
+
+  @override
+  String get mdfQty => 'Кол.';
+
+  @override
+  String get mdfNote => 'Примечание';
+
+  @override
+  String get mdfRate => 'Цена м²';
+
+  @override
+  String get mdfArea => 'м²';
+
+  @override
+  String get mdfAmount => 'Сумма';
+
+  @override
+  String get mdfAddLine => 'Добавить строку';
+
+  @override
+  String get mdfNoPrice => 'нет цены';
+
+  @override
+  String get mdfManualRate => 'цена вручную';
+
+  @override
+  String mdfTotals(String pieces, String area, String total) {
+    return '$pieces шт · $area м² · $total';
+  }
+
+  @override
+  String mdfPaidDebt(String paid, String debt) {
+    return 'Оплачено $paid · Долг $debt';
+  }
+
+  @override
+  String get mdfSaveDraft => 'Сохранить';
+
+  @override
+  String get mdfAccept => 'Принять заказ';
+
+  @override
+  String get mdfDeleteDraft => 'Удалить черновик';
+
+  @override
+  String get mdfSaved => 'Заказ сохранён';
+
+  @override
+  String get mdfAccepted => 'Заказ принят — цены зафиксированы';
+
+  @override
+  String get mdfNeedCustomer => 'Выберите клиента и срок.';
+
+  @override
+  String get mdfNeedLine => 'Добавьте хотя бы одну позицию.';
+
+  @override
+  String get mdfStagesSection => 'Этапы';
+
+  @override
+  String get mdfPaymentsSection => 'Оплаты';
+
+  @override
+  String get mdfAddPayment => 'Внести оплату';
+
+  @override
+  String get mdfPaymentAmount => 'Сумма, ₸';
+
+  @override
+  String get mdfPaymentMethod => 'Способ';
+
+  @override
+  String get mdfNoPayments => 'Оплат пока нет';
+
+  @override
+  String get mdfHold => 'Приостановить';
+
+  @override
+  String get mdfResume => 'Возобновить';
+
+  @override
+  String get mdfHoldReason => 'Почему приостановлен';
+
+  @override
+  String get mdfCancelOrder => 'Отменить заказ';
+
+  @override
+  String get mdfCancelReason => 'Причина отмены';
+
+  @override
+  String get mdfHandOver => 'Выдать клиенту';
+
+  @override
+  String get mdfHandOverComment => 'Почему выдаём с долгом';
+
+  @override
+  String get mdfOverdue => 'Просрочен';
+
+  @override
+  String get mdfDueSoon => 'Срок скоро';
+
+  @override
+  String get mdfConfirm => 'Готово';
+
+  @override
+  String get mdfCancel => 'Отмена';
+
+  @override
+  String get mdfLineDelete => 'Удалить строку';
+
+  @override
+  String get mdfLineDuplicate => 'Дублировать';
+
+  @override
+  String get mdfChangeAccepted =>
+      'Принятый заказ меняется через «Изменить заказ» — скоро.';
 }

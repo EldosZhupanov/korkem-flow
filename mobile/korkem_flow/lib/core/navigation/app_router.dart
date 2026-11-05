@@ -31,6 +31,8 @@ import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart'
 import 'package:korkem_flow/features/logistics/presentation/logistics_screen.dart';
 import 'package:korkem_flow/features/material_stock/presentation/material_stock_screen.dart';
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
@@ -145,6 +147,13 @@ abstract final class Routes {
 
   /// «МДФ»: one door to every facade-shop screen.
   static const mdf = '/mdf';
+
+  /// «Заказы МДФ»: the list, a new order, one order.
+  static const mdfOrders = '/mdf/orders';
+  static const mdfOrderNew = '/mdf/orders/new';
+  static const mdfOrderPattern = '/mdf/orders/:name';
+  static String mdfOrder(String name) =>
+      '/mdf/orders/${Uri.encodeComponent(name)}';
   static const pressSettings = '/settings/press';
   static const pressLayout = '/press-layout/:order';
 
@@ -302,6 +311,19 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.mdf,
         builder: (context, state) => const MdfScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfOrders,
+        builder: (context, state) => const MdfOrdersScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfOrderNew,
+        builder: (context, state) => const MdfOrderScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfOrderPattern,
+        builder: (context, state) =>
+            MdfOrderScreen(name: state.pathParameters['name']),
       ),
       GoRoute(
         path: Routes.pressSettings,

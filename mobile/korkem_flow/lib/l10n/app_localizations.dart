@@ -8228,6 +8228,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a price for at least one finish.'**
   String get facadePricesNeedOne;
+
+  /// No description provided for @mdfOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MDF orders'**
+  String get mdfOrdersTitle;
+
+  /// No description provided for @mdfOrderNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get mdfOrderNew;
+
+  /// No description provided for @mdfOrderSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'No., customer, phone, colour'**
+  String get mdfOrderSearch;
+
+  /// No description provided for @mdfFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get mdfFilterAll;
+
+  /// No description provided for @mdfFilterOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get mdfFilterOverdue;
+
+  /// No description provided for @mdfFilterDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'With debt'**
+  String get mdfFilterDebt;
+
+  /// No description provided for @mdfStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get mdfStatusDraft;
+
+  /// No description provided for @mdfStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get mdfStatusAccepted;
+
+  /// No description provided for @mdfStatusInShop.
+  ///
+  /// In en, this message translates to:
+  /// **'In the shop'**
+  String get mdfStatusInShop;
+
+  /// No description provided for @mdfStatusReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get mdfStatusReady;
+
+  /// No description provided for @mdfStatusHandedOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over'**
+  String get mdfStatusHandedOver;
+
+  /// No description provided for @mdfStatusOnHold.
+  ///
+  /// In en, this message translates to:
+  /// **'On hold'**
+  String get mdfStatusOnHold;
+
+  /// No description provided for @mdfStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get mdfStatusCancelled;
+
+  /// No description provided for @mdfStageCut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get mdfStageCut;
+
+  /// No description provided for @mdfStageMill.
+  ///
+  /// In en, this message translates to:
+  /// **'Milling'**
+  String get mdfStageMill;
+
+  /// No description provided for @mdfStageSand.
+  ///
+  /// In en, this message translates to:
+  /// **'Sanding'**
+  String get mdfStageSand;
+
+  /// No description provided for @mdfStageVacuum.
+  ///
+  /// In en, this message translates to:
+  /// **'Vacuum'**
+  String get mdfStageVacuum;
+
+  /// No description provided for @mdfStagePaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Painting'**
+  String get mdfStagePaint;
+
+  /// No description provided for @mdfEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get mdfEmpty;
+
+  /// No description provided for @mdfEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap «New order» to write the first one.'**
+  String get mdfEmptyHint;
+
+  /// No description provided for @mdfDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt {amount}'**
+  String mdfDebt(String amount);
+
+  /// No description provided for @mdfCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get mdfCustomer;
+
+  /// No description provided for @mdfDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get mdfDue;
+
+  /// No description provided for @mdfHeadSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Facade'**
+  String get mdfHeadSection;
+
+  /// No description provided for @mdfThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness, mm'**
+  String get mdfThickness;
+
+  /// No description provided for @mdfFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get mdfFinish;
+
+  /// No description provided for @mdfDecorTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Face decor'**
+  String get mdfDecorTop;
+
+  /// No description provided for @mdfDecorBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Back decor'**
+  String get mdfDecorBottom;
+
+  /// No description provided for @mdfPatina.
+  ///
+  /// In en, this message translates to:
+  /// **'Patina'**
+  String get mdfPatina;
+
+  /// No description provided for @mdfMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Milling'**
+  String get mdfMilling;
+
+  /// No description provided for @mdfEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge'**
+  String get mdfEdge;
+
+  /// No description provided for @mdfExtraName.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra name'**
+  String get mdfExtraName;
+
+  /// No description provided for @mdfDefaultRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Default price per m²'**
+  String get mdfDefaultRate;
+
+  /// No description provided for @mdfNone.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get mdfNone;
+
+  /// No description provided for @mdfLinesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines'**
+  String get mdfLinesSection;
+
+  /// No description provided for @mdfHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get mdfHeight;
+
+  /// No description provided for @mdfWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Width'**
+  String get mdfWidth;
+
+  /// No description provided for @mdfQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get mdfQty;
+
+  /// No description provided for @mdfNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get mdfNote;
+
+  /// No description provided for @mdfRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Price m²'**
+  String get mdfRate;
+
+  /// No description provided for @mdfArea.
+  ///
+  /// In en, this message translates to:
+  /// **'m²'**
+  String get mdfArea;
+
+  /// No description provided for @mdfAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get mdfAmount;
+
+  /// No description provided for @mdfAddLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add line'**
+  String get mdfAddLine;
+
+  /// No description provided for @mdfNoPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'no price'**
+  String get mdfNoPrice;
+
+  /// No description provided for @mdfManualRate.
+  ///
+  /// In en, this message translates to:
+  /// **'price by hand'**
+  String get mdfManualRate;
+
+  /// No description provided for @mdfTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'{pieces} pcs · {area} m² · {total}'**
+  String mdfTotals(String pieces, String area, String total);
+
+  /// No description provided for @mdfPaidDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {paid} · Debt {debt}'**
+  String mdfPaidDebt(String paid, String debt);
+
+  /// No description provided for @mdfSaveDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get mdfSaveDraft;
+
+  /// No description provided for @mdfAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the order'**
+  String get mdfAccept;
+
+  /// No description provided for @mdfDeleteDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete draft'**
+  String get mdfDeleteDraft;
+
+  /// No description provided for @mdfSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Order saved'**
+  String get mdfSaved;
+
+  /// No description provided for @mdfAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Order accepted — prices fixed'**
+  String get mdfAccepted;
+
+  /// No description provided for @mdfNeedCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the customer and the due date.'**
+  String get mdfNeedCustomer;
+
+  /// No description provided for @mdfNeedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one line.'**
+  String get mdfNeedLine;
+
+  /// No description provided for @mdfStagesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages'**
+  String get mdfStagesSection;
+
+  /// No description provided for @mdfPaymentsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get mdfPaymentsSection;
+
+  /// No description provided for @mdfAddPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add payment'**
+  String get mdfAddPayment;
+
+  /// No description provided for @mdfPaymentAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount, ₸'**
+  String get mdfPaymentAmount;
+
+  /// No description provided for @mdfPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get mdfPaymentMethod;
+
+  /// No description provided for @mdfNoPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet'**
+  String get mdfNoPayments;
+
+  /// No description provided for @mdfHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Put on hold'**
+  String get mdfHold;
+
+  /// No description provided for @mdfResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get mdfResume;
+
+  /// No description provided for @mdfHoldReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why on hold'**
+  String get mdfHoldReason;
+
+  /// No description provided for @mdfCancelOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get mdfCancelOrder;
+
+  /// No description provided for @mdfCancelReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get mdfCancelReason;
+
+  /// No description provided for @mdfHandOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand over'**
+  String get mdfHandOver;
+
+  /// No description provided for @mdfHandOverComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Why hand over with a debt'**
+  String get mdfHandOverComment;
+
+  /// No description provided for @mdfOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get mdfOverdue;
+
+  /// No description provided for @mdfDueSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Due soon'**
+  String get mdfDueSoon;
+
+  /// No description provided for @mdfConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get mdfConfirm;
+
+  /// No description provided for @mdfCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get mdfCancel;
+
+  /// No description provided for @mdfLineDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete line'**
+  String get mdfLineDelete;
+
+  /// No description provided for @mdfLineDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get mdfLineDuplicate;
+
+  /// No description provided for @mdfChangeAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'An accepted order changes through «Change order» — coming.'**
+  String get mdfChangeAccepted;
 }
 
 class _AppLocalizationsDelegate
