@@ -196,6 +196,24 @@ class TestMdfOrders(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, mdf_orders.card, card["name"])
 
+	def test_a_new_customer_on_the_card_and_the_same_phone_twice(self):
+		first = self._as(MANAGER, mdf_orders.new_customer, "Тест Қалдыбаев", "8 (777) 990-11-22")
+		self.assertFalse(first["existing"])
+		again = self._as(MANAGER, mdf_orders.new_customer, "Другое имя", "+7 777 990 11 22")
+		self.assertEqual((again["name"], again["existing"]), (first["name"], True))
+		from korkem_manufacturing.services import facade_order
+
+		found = self._as(MANAGER, facade_order.customers, search="990-11")
+		self.assertIn(first["name"], [row["name"] for row in found])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.new_customer, "Тест", "123")
+
+	def test_a_new_order_starts_from_the_last_head(self):
+		card = self._draft(edge_profile=None, patina="Золото")
+		self.addCleanup(self._drop, card["name"])
+		head = self._as(MANAGER, mdf_orders.last_head)
+		self.assertEqual((head["finish"], head["patina"], head["thickness_mm"]), (PVC, "Золото", 16))
+
 	def _drop(self, name: str) -> None:
 		frappe.set_user("Administrator")
 		if not frappe.db.exists("Sales Order", name):

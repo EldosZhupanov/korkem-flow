@@ -362,6 +362,56 @@ def card(order: str) -> dict:
 	}
 
 
+def new_customer(name: str, phone: str | None = None) -> dict:
+	"""A customer written down on the card itself — name and phone, nothing else.
+
+	The same phone twice is the same customer: the one already on file is
+	returned rather than a second card for the same person.
+	"""
+	facade_prices.ensure_editor()
+	name = " ".join((name or "").split())[:140]
+	if len(name) < 2:
+		frappe.throw("Укажите имя клиента.")
+	digits = "".join(ch for ch in (phone or "") if ch.isdigit())
+	if phone and not 10 <= len(digits) <= 12:
+		frappe.throw("Телефон — 10–12 цифр, например 8 777 123 45 67.")
+	if digits:
+		for row in frappe.get_all("Customer", filters={"disabled": 0, "mobile_no": ["is", "set"]},
+								  fields=["name", "customer_name", "mobile_no"]):
+			if "".join(ch for ch in row.mobile_no if ch.isdigit())[-10:] == digits[-10:]:
+				return {"name": row.name, "customer_name": row.customer_name, "phone": row.mobile_no,
+						"existing": True}
+	doc = frappe.get_doc(
+		{
+			"doctype": "Customer",
+			"customer_name": name,
+			"customer_type": "Individual",
+			"mobile_no": (phone or "").strip() or None,
+		}
+	)
+	doc.insert()
+	audit.record_audit(action="mdf.customer_created", entity_type="Customer", entity_id=doc.name,
+					   diff={"name": name})
+	return {"name": doc.name, "customer_name": doc.customer_name, "phone": doc.mobile_no, "existing": False}
+
+
+def last_head() -> dict:
+	"""The head of the last MDF order this person wrote — what a new one starts from."""
+	facade_prices.ensure_editor()
+	name = frappe.db.get_value(
+		"Sales Order",
+		{"company": current_company(), "korkem_direction": directions.FACADES, "owner": frappe.session.user},
+		"name",
+		order_by="creation desc",
+	)
+	if not name:
+		return {}
+	doc = frappe.get_doc("Sales Order", name)
+	head = {key: doc.get(field) for key, field in HEAD.items()}
+	head.pop("extra_name", None)
+	return head
+
+
 STATUS_FILTERS = ("draft", "accepted", "in_shop", "ready", "handed_over", "on_hold", "cancelled")
 
 

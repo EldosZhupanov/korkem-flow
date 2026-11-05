@@ -1649,5 +1649,14 @@
   "mdfPrintDebt": "Остаток, ₸",
   "mdfPrintTotal": "Итого:",
   "mdfPrintClient": "Бланк клиенту",
-  "mdfPrintShop": "Наряд в цех"
+  "mdfPrintShop": "Наряд в цех",
+  "mdfPasteSizes": "Вставить размеры",
+  "mdfPasteHint": "Скопируйте размеры из WhatsApp, Excel или бланка — по одной детали в строке: «348 997 2», «348х997-2шт». Слова после количества станут примечанием.",
+  "mdfPasteFound": "Найдено строк: {count}",
+  "mdfPasteSkipped": "Пропущено (не размеры): {rows}",
+  "mdfPasteAdd": "Добавить в заказ",
+  "mdfPasted": "Добавлено строк: {count}",
+  "mdfNewCustomer": "Новый клиент",
+  "mdfNewCustomerOption": "+ Новый клиент «{name}»",
+  "mdfRepeat": "Повторить заказ"
 }

@@ -4923,4 +4923,40 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPrintShop => 'Наряд в цех';
+
+  @override
+  String get mdfPasteSizes => 'Вставить размеры';
+
+  @override
+  String get mdfPasteHint =>
+      'Скопируйте размеры из WhatsApp, Excel или бланка — по одной детали в строке: «348 997 2», «348х997-2шт». Слова после количества станут примечанием.';
+
+  @override
+  String mdfPasteFound(int count) {
+    return 'Найдено строк: $count';
+  }
+
+  @override
+  String mdfPasteSkipped(String rows) {
+    return 'Пропущено (не размеры): $rows';
+  }
+
+  @override
+  String get mdfPasteAdd => 'Добавить в заказ';
+
+  @override
+  String mdfPasted(int count) {
+    return 'Добавлено строк: $count';
+  }
+
+  @override
+  String get mdfNewCustomer => 'Новый клиент';
+
+  @override
+  String mdfNewCustomerOption(String name) {
+    return '+ Новый клиент «$name»';
+  }
+
+  @override
+  String get mdfRepeat => 'Повторить заказ';
 }

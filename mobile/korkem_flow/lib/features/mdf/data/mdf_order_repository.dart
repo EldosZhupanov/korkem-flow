@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
+import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 
 final mdfOrderRepositoryProvider = Provider<MdfOrderRepository>(
@@ -103,6 +104,25 @@ class MdfOrderRepository {
   });
 
   Future<MdfOrder> accept(String order) => _post('accept', {'order': order});
+
+  /// A customer written down on the card: name and phone. The same phone
+  /// twice gives back the customer already on file.
+  Future<FacadeCustomer> newCustomer(String name, {String? phone}) async =>
+      FacadeCustomer.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.new_customer',
+            post: true,
+            params: {'name': name, 'phone': ?phone},
+          ),
+        ),
+      );
+
+  /// The head of the last order this manager wrote, or null for the first.
+  Future<MdfHead?> lastHead() async {
+    final head = _map(await _client.callMethod('$_base.last_head'));
+    return head.isEmpty ? null : MdfHead.fromJson(head);
+  }
 
   Future<void> deleteDraft(String order) async {
     await _client.callMethod(

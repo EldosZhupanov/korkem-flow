@@ -31,6 +31,7 @@ import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart'
 import 'package:korkem_flow/features/logistics/presentation/logistics_screen.dart';
 import 'package:korkem_flow/features/material_stock/presentation/material_stock_screen.dart';
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_screen.dart';
@@ -318,7 +319,9 @@ GoRouter createRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.mdfOrderNew,
-        builder: (context, state) => const MdfOrderScreen(),
+        builder: (context, state) => MdfOrderScreen(
+          template: state.extra is MdfOrder ? state.extra! as MdfOrder : null,
+        ),
       ),
       GoRoute(
         path: Routes.mdfOrderPattern,
