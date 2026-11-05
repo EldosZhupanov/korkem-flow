@@ -233,7 +233,9 @@ def delete_draft(order: str) -> dict:
 	doc = _order(order)
 	if doc.docstatus != 0:
 		frappe.throw("Принятый заказ не удаляется — отмените его с причиной.")
-	frappe.delete_doc("Sales Order", doc.name)
+	# force: a draft has no ledger entries, and a stale log written under the
+	# same name (naming series reuse a deleted name) must not keep it alive.
+	frappe.delete_doc("Sales Order", doc.name, force=True)
 	audit.record_audit(action="mdf.order_draft_deleted", entity_type="Sales Order", entity_id=doc.name, diff={})
 	return {"deleted": doc.name}
 

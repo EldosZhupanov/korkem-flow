@@ -203,5 +203,6 @@ class TestMdfOrders(IntegrationTestCase):
 		doc = frappe.get_doc("Sales Order", name)
 		if doc.docstatus == 1:
 			doc.cancel()  # releases what the order held (facade_materials.on_order_cancelled)
-		frappe.delete_doc("Sales Order", name, force=True, ignore_permissions=True)
-		frappe.db.commit()
+		# Nothing committed and nothing hard-deleted: the class rolls back, and
+		# a deleted order would hand its name back to the naming series for the
+		# next test to inherit (CI, 05.11.2026).
