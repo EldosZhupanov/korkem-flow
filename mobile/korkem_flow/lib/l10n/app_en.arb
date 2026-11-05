@@ -5752,5 +5752,63 @@
       }
     }
   },
-  "mdfRepeat": "Repeat order"
+  "mdfRepeat": "Repeat order",
+  "filmShortageTitle": "Film to buy",
+  "filmShortageEmpty": "No film needed for orders",
+  "filmShortageEmptyHint": "Accepted film orders show here until the vacuum is ticked.",
+  "filmShortageTotals": "Needed {needed} m · to buy {toBuy} m",
+  "@filmShortageTotals": {
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "toBuy": {
+        "type": "String"
+      }
+    }
+  },
+  "filmShortageByFilm": "By film",
+  "filmShortageByOrder": "By order",
+  "filmShortageLine": "{orders} orders · needed {needed} · held {held} · free {free} {unit}",
+  "@filmShortageLine": {
+    "placeholders": {
+      "orders": {
+        "type": "String"
+      },
+      "needed": {
+        "type": "String"
+      },
+      "held": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "filmShortageBuy": "Buy {qty} {unit}",
+  "@filmShortageBuy": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "filmShortageEnough": "Enough",
+  "filmShortageShort": "{qty} m short",
+  "@filmShortageShort": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "filmShortageNotOnBooks": "This film is not in stock — add it under «Stock».",
+  "mdfFilmHint": "How many metres of which film to order"
 }

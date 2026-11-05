@@ -52,6 +52,10 @@ class TestMdfOrders(IntegrationTestCase):
 		_user(MANAGER, "Sales User")
 		_user(CUTTER, "Manufacturing User")
 		cls.customer = frappe.db.get_value("Customer", {"disabled": 0}, "name")
+		from korkem_manufacturing.services import material_stock
+
+		material_stock.add_option("Цвет плёнки", "МДФ Тест Венге")
+		cls.decor = "МДФ Тест Венге"
 		assert cls.customer, "the seeded site has customers; no silent skip"
 
 	def setUp(self):
@@ -213,6 +217,26 @@ class TestMdfOrders(IntegrationTestCase):
 		self.addCleanup(self._drop, card["name"])
 		head = self._as(MANAGER, mdf_orders.last_head)
 		self.assertEqual((head["finish"], head["patina"], head["thickness_mm"]), (PVC, "Золото", 16))
+
+	def test_the_film_an_accepted_order_still_needs_is_on_the_list(self):
+		from korkem_manufacturing.services import film_shortage
+
+		card = self._draft(decor_top=self.decor)
+		self.addCleanup(self._drop, card["name"])
+		before = {r["order"] for r in self._as(MANAGER, film_shortage.shortage)["orders"]}
+		self.assertNotIn(card["name"], before)  # a draft holds nothing and needs nothing yet
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		report = self._as(MANAGER, film_shortage.shortage)
+		mine = [r for r in report["orders"] if r["order"] == card["name"]]
+		self.assertEqual([r["decor"] for r in mine], [self.decor])
+		self.assertGreater(mine[0]["needed"], 0)
+		film = next(f for f in report["by_film"] if f["decor"] == self.decor)
+		self.assertGreaterEqual(film["to_buy"], 0)
+		self.assertLessEqual(film["to_buy"], film["needed"])
+		for stage in ("cut", "mill", "sand", "vacuum"):
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
+		after = {r["order"] for r in self._as(MANAGER, film_shortage.shortage)["orders"]}
+		self.assertNotIn(card["name"], after)  # pressed: the film is on the facades
 
 	def _drop(self, name: str) -> None:
 		frappe.set_user("Administrator")

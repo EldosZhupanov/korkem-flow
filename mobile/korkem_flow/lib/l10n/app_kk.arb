@@ -1658,5 +1658,17 @@
   "mdfPasted": "Қосылған жолдар: {count}",
   "mdfNewCustomer": "Жаңа тапсырушы",
   "mdfNewCustomerOption": "+ Жаңа тапсырушы «{name}»",
-  "mdfRepeat": "Тапсырысты қайталау"
+  "mdfRepeat": "Тапсырысты қайталау",
+  "filmShortageTitle": "Пленка: не алу керек",
+  "filmShortageEmpty": "Тапсырыстарға пленка керек емес",
+  "filmShortageEmptyHint": "Вакуум белгіленгенше пленкасы бар қабылданған тапсырыстар осында көрінеді.",
+  "filmShortageTotals": "Керек {needed} м · алу керек {toBuy} м",
+  "filmShortageByFilm": "Пленка бойынша",
+  "filmShortageByOrder": "Тапсырыстар бойынша",
+  "filmShortageLine": "Тапсырыс {orders} · керек {needed} · бекітілген {held} · бос {free} {unit}",
+  "filmShortageBuy": "Алу {qty} {unit}",
+  "filmShortageEnough": "Жеткілікті",
+  "filmShortageShort": "{qty} м жетпейді",
+  "filmShortageNotOnBooks": "Бұл пленка қоймада жоқ — «Қоймаға» қосыңыз.",
+  "mdfFilmHint": "Жеткізушіден қай пленканың неше метрін алу керек"
 }

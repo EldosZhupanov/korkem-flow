@@ -1658,5 +1658,17 @@
   "mdfPasted": "Добавлено строк: {count}",
   "mdfNewCustomer": "Новый клиент",
   "mdfNewCustomerOption": "+ Новый клиент «{name}»",
-  "mdfRepeat": "Повторить заказ"
+  "mdfRepeat": "Повторить заказ",
+  "filmShortageTitle": "Плёнка: что докупить",
+  "filmShortageEmpty": "Плёнка для заказов не нужна",
+  "filmShortageEmptyHint": "Здесь появятся принятые заказы с плёнкой, пока не отмечен вакуум.",
+  "filmShortageTotals": "Нужно {needed} м · докупить {toBuy} м",
+  "filmShortageByFilm": "По плёнке",
+  "filmShortageByOrder": "По заказам",
+  "filmShortageLine": "Заказов {orders} · нужно {needed} · под заказы {held} · свободно {free} {unit}",
+  "filmShortageBuy": "Докупить {qty} {unit}",
+  "filmShortageEnough": "Хватает",
+  "filmShortageShort": "не хватает {qty} м",
+  "filmShortageNotOnBooks": "Этой плёнки нет в складе — добавьте её в «Склад».",
+  "mdfFilmHint": "Сколько метров какой плёнки заказать у поставщика"
 }

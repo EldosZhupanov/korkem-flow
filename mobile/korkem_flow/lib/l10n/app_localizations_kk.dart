@@ -4899,4 +4899,56 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfRepeat => 'Тапсырысты қайталау';
+
+  @override
+  String get filmShortageTitle => 'Пленка: не алу керек';
+
+  @override
+  String get filmShortageEmpty => 'Тапсырыстарға пленка керек емес';
+
+  @override
+  String get filmShortageEmptyHint =>
+      'Вакуум белгіленгенше пленкасы бар қабылданған тапсырыстар осында көрінеді.';
+
+  @override
+  String filmShortageTotals(String needed, String toBuy) {
+    return 'Керек $needed м · алу керек $toBuy м';
+  }
+
+  @override
+  String get filmShortageByFilm => 'Пленка бойынша';
+
+  @override
+  String get filmShortageByOrder => 'Тапсырыстар бойынша';
+
+  @override
+  String filmShortageLine(
+    String orders,
+    String needed,
+    String held,
+    String free,
+    String unit,
+  ) {
+    return 'Тапсырыс $orders · керек $needed · бекітілген $held · бос $free $unit';
+  }
+
+  @override
+  String filmShortageBuy(String qty, String unit) {
+    return 'Алу $qty $unit';
+  }
+
+  @override
+  String get filmShortageEnough => 'Жеткілікті';
+
+  @override
+  String filmShortageShort(String qty) {
+    return '$qty м жетпейді';
+  }
+
+  @override
+  String get filmShortageNotOnBooks =>
+      'Бұл пленка қоймада жоқ — «Қоймаға» қосыңыз.';
+
+  @override
+  String get mdfFilmHint => 'Жеткізушіден қай пленканың неше метрін алу керек';
 }

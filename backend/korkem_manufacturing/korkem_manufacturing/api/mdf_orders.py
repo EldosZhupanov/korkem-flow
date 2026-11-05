@@ -77,6 +77,14 @@ def new_customer(name: str, phone: str | None = None) -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
+def film_shortage() -> dict:
+	"""Плёнка: сколько нужно по открытым заказам и сколько докупить."""
+	from korkem_manufacturing.services import film_shortage as films
+
+	return films.shortage()
+
+
+@frappe.whitelist(methods=["GET"])
 def last_head() -> dict:
 	return service.last_head()
 
