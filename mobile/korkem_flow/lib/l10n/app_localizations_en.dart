@@ -5019,4 +5019,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfDebtsHint => 'Who owes what, by customer and order';
+
+  @override
+  String get mdfBatchTitle => 'Parts by film';
+
+  @override
+  String get mdfBatchHint =>
+      'Every part of the open orders of one film, as one list';
+
+  @override
+  String get mdfBatchShow => 'Show';
+
+  @override
+  String mdfBatchTotals(String orders, String pieces, String area) {
+    return '$orders orders · $pieces parts · $area m²';
+  }
+
+  @override
+  String get mdfBatchParts => 'Parts (same sizes summed)';
+
+  @override
+  String get mdfBatchLong => 'Long';
+
+  @override
+  String get mdfBatchShort => 'Short';
+
+  @override
+  String get mdfBatchOrders => 'Orders';
 }

@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/mdf/domain/film_shortage.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_batch.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_debts.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 
@@ -140,6 +141,17 @@ class MdfOrderRepository {
   /// Who owes what: by customer and by order.
   Future<MdfDebts> debts() async =>
       MdfDebts.fromJson(_map(await _client.callMethod('$_base.debts')));
+
+  /// The parts of every open order of one film (and milling), as one list.
+  Future<MdfBatch> batch({String? decor, String? milling}) async =>
+      MdfBatch.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.batch',
+            params: {'decor': ?decor, 'milling': ?milling},
+          ),
+        ),
+      );
 
   /// The head of the last order this manager wrote, or null for the first.
   Future<MdfHead?> lastHead() async {

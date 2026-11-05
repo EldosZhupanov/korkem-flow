@@ -33,6 +33,7 @@ import 'package:korkem_flow/features/material_stock/presentation/material_stock_
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/film_shortage_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_batch_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_debts_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
@@ -157,6 +158,7 @@ abstract final class Routes {
   static const mdfOrderPattern = '/mdf/orders/:name';
   static const mdfFilm = '/mdf/film';
   static const mdfDebts = '/mdf/debts';
+  static const mdfBatch = '/mdf/batch';
   static String mdfOrder(String name) =>
       '/mdf/orders/${Uri.encodeComponent(name)}';
   static const pressSettings = '/settings/press';
@@ -320,6 +322,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.mdfOrders,
         builder: (context, state) => const MdfOrdersScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfBatch,
+        builder: (context, state) => const MdfBatchScreen(),
       ),
       GoRoute(
         path: Routes.mdfDebts,

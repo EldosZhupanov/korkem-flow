@@ -4982,4 +4982,31 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfDebtsHint => 'Кім қанша қарыз — тапсырушы мен тапсырыс бойынша';
+
+  @override
+  String get mdfBatchTitle => 'Пленка бойынша бөлшектер';
+
+  @override
+  String get mdfBatchHint =>
+      'Бір пленкалы ашық тапсырыстардың барлық бөлшегі — бір тізіммен';
+
+  @override
+  String get mdfBatchShow => 'Көрсету';
+
+  @override
+  String mdfBatchTotals(String orders, String pieces, String area) {
+    return 'Тапсырыс $orders · бөлшек $pieces дана · $area м²';
+  }
+
+  @override
+  String get mdfBatchParts => 'Бөлшектер (бірдей өлшемдер қосылған)';
+
+  @override
+  String get mdfBatchLong => 'Ұзындығы';
+
+  @override
+  String get mdfBatchShort => 'Ені';
+
+  @override
+  String get mdfBatchOrders => 'Тапсырыстар';
 }

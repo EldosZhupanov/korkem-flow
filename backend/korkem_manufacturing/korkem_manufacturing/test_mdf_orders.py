@@ -253,6 +253,21 @@ class TestMdfOrders(IntegrationTestCase):
 		later = self._as(MANAGER, mdf_orders.debts, since=add_days(nowdate(), 1))
 		self.assertNotIn(card["name"], [o["name"] for o in later["orders"]])
 
+	def test_two_orders_of_one_film_cut_as_one_list(self):
+		first = self._draft(decor_top=self.decor)
+		second = self._draft([{"height_mm": 1040, "width_mm": 130, "qty": 3, "milling": FLAT}], decor_top=self.decor)
+		for card in (first, second):
+			self.addCleanup(self._drop, card["name"])
+			self._as(MANAGER, mdf_orders.accept, card["name"])
+		batch = self._as(MANAGER, mdf_orders.batch, decor=self.decor, milling=FLAT)
+		self.assertEqual({o["name"] for o in batch["orders"]}, {first["name"], second["name"]})
+		# 130 × 1040 from №1 and 1040 × 130 turned from №2 are one part: 1 + 3 pieces.
+		row = next(r for r in batch["parts"] if (r["long_mm"], r["short_mm"]) == (1040, 130))
+		self.assertEqual((row["qty"], set(row["orders"])), (4, {first["name"], second["name"]}))
+		self.assertEqual([r["milling"] for r in batch["parts"]], [FLAT] * len(batch["parts"]))
+		longest = [r["long_mm"] for r in batch["parts"]]
+		self.assertEqual(longest, sorted(longest, reverse=True))
+
 	def _drop(self, name: str) -> None:
 		frappe.set_user("Administrator")
 		if not frappe.db.exists("Sales Order", name):
