@@ -1670,5 +1670,14 @@
   "filmShortageEnough": "Жеткілікті",
   "filmShortageShort": "{qty} м жетпейді",
   "filmShortageNotOnBooks": "Бұл пленка қоймада жоқ — «Қоймаға» қосыңыз.",
-  "mdfFilmHint": "Жеткізушіден қай пленканың неше метрін алу керек"
+  "mdfFilmHint": "Жеткізушіден қай пленканың неше метрін алу керек",
+  "mdfDebtsTitle": "Қарыз",
+  "mdfDebtsEmpty": "Қарыз жоқ",
+  "mdfDebtsEmptyHint": "Барлық қабылданған тапсырыстар төленді.",
+  "mdfDebtsTotal": "Барлық қарыз: {amount}",
+  "mdfDebtsByCustomer": "Тапсырушылар бойынша",
+  "mdfDebtsByOrder": "Тапсырыстар бойынша",
+  "mdfDebtsOrders": "Қарызы бар тапсырыс: {count}",
+  "mdfDebtsHandedOver": "Қарызбен берілді",
+  "mdfDebtsHint": "Кім қанша қарыз — тапсырушы мен тапсырыс бойынша"
 }

@@ -85,6 +85,12 @@ def film_shortage() -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
+def debts(since: str | None = None, until: str | None = None) -> dict:
+	"""Долги: по заказам и по клиентам."""
+	return service.debts(since=since, until=until)
+
+
+@frappe.whitelist(methods=["GET"])
 def last_head() -> dict:
 	return service.last_head()
 

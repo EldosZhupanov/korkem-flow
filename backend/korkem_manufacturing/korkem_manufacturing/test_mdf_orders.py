@@ -238,6 +238,21 @@ class TestMdfOrders(IntegrationTestCase):
 		after = {r["order"] for r in self._as(MANAGER, film_shortage.shortage)["orders"]}
 		self.assertNotIn(card["name"], after)  # pressed: the film is on the facades
 
+	def test_debts_by_order_and_by_customer(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		before = self._as(MANAGER, mdf_orders.debts)
+		self.assertNotIn(card["name"], [o["name"] for o in before["orders"]])  # a draft owes nothing
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		report = self._as(MANAGER, mdf_orders.debts)
+		mine = next(o for o in report["orders"] if o["name"] == card["name"])
+		self.assertEqual(mine["debt"], 58680)
+		customer = next(c for c in report["customers"] if c["customer"] == self.customer)
+		self.assertGreaterEqual(customer["debt"], 58680)
+		self.assertAlmostEqual(report["total"], sum(o["debt"] for o in report["orders"]), places=2)
+		later = self._as(MANAGER, mdf_orders.debts, since=add_days(nowdate(), 1))
+		self.assertNotIn(card["name"], [o["name"] for o in later["orders"]])
+
 	def _drop(self, name: str) -> None:
 		frappe.set_user("Administrator")
 		if not frappe.db.exists("Sales Order", name):

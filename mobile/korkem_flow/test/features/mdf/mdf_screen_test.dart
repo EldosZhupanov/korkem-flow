@@ -14,6 +14,7 @@ void main() {
     'jobs': Routes.facadeJobs,
     'press': Routes.pressSettings,
     'stock': Routes.materialStock,
+    'debts': Routes.mdfDebts,
     'film': Routes.mdfFilm,
     'logistics': Routes.logistics,
     'prices': Routes.facadePrices,

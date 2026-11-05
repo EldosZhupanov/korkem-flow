@@ -1670,5 +1670,14 @@
   "filmShortageEnough": "Хватает",
   "filmShortageShort": "не хватает {qty} м",
   "filmShortageNotOnBooks": "Этой плёнки нет в складе — добавьте её в «Склад».",
-  "mdfFilmHint": "Сколько метров какой плёнки заказать у поставщика"
+  "mdfFilmHint": "Сколько метров какой плёнки заказать у поставщика",
+  "mdfDebtsTitle": "Долги",
+  "mdfDebtsEmpty": "Долгов нет",
+  "mdfDebtsEmptyHint": "Все принятые заказы оплачены.",
+  "mdfDebtsTotal": "Всего долгов: {amount}",
+  "mdfDebtsByCustomer": "По клиентам",
+  "mdfDebtsByOrder": "По заказам",
+  "mdfDebtsOrders": "Заказов с долгом: {count}",
+  "mdfDebtsHandedOver": "Выдан с долгом",
+  "mdfDebtsHint": "Кто сколько должен — по клиентам и заказам"
 }

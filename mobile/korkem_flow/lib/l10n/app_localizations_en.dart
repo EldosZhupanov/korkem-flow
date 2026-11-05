@@ -4988,4 +4988,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfFilmHint => 'How many metres of which film to order';
+
+  @override
+  String get mdfDebtsTitle => 'Debts';
+
+  @override
+  String get mdfDebtsEmpty => 'No debts';
+
+  @override
+  String get mdfDebtsEmptyHint => 'Every accepted order is paid up.';
+
+  @override
+  String mdfDebtsTotal(String amount) {
+    return 'Total owed: $amount';
+  }
+
+  @override
+  String get mdfDebtsByCustomer => 'By customer';
+
+  @override
+  String get mdfDebtsByOrder => 'By order';
+
+  @override
+  String mdfDebtsOrders(int count) {
+    return 'Orders owing: $count';
+  }
+
+  @override
+  String get mdfDebtsHandedOver => 'Handed over owing';
+
+  @override
+  String get mdfDebtsHint => 'Who owes what, by customer and order';
 }
