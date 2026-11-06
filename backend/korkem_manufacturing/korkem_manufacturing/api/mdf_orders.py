@@ -71,6 +71,36 @@ def listing(search: str | None = None, status: str | None = None, overdue: bool 
 						   start=start, limit=limit)
 
 
+@frappe.whitelist(methods=["POST"])
+def new_customer(name: str, phone: str | None = None) -> dict:
+	return service.new_customer(name, phone)
+
+
+@frappe.whitelist(methods=["GET"])
+def film_shortage() -> dict:
+	"""Плёнка: сколько нужно по открытым заказам и сколько докупить."""
+	from korkem_manufacturing.services import film_shortage as films
+
+	return films.shortage()
+
+
+@frappe.whitelist(methods=["GET"])
+def debts(since: str | None = None, until: str | None = None) -> dict:
+	"""Долги: по заказам и по клиентам."""
+	return service.debts(since=since, until=until)
+
+
+@frappe.whitelist(methods=["GET"])
+def batch(decor: str | None = None, milling: str | None = None, include_in_shop: bool | int | str = 1) -> dict:
+	"""Все детали открытых заказов одной плёнки (и фрезы) одним списком."""
+	return service.batch(decor=decor, milling=milling, include_in_shop=include_in_shop)
+
+
+@frappe.whitelist(methods=["GET"])
+def last_head() -> dict:
+	return service.last_head()
+
+
 @frappe.whitelist(methods=["GET"])
 def stages_for(finish: str | None = None) -> list[str]:
 	return service.stages_for(finish)

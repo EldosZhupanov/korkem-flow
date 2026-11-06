@@ -5727,5 +5727,144 @@
   "mdfPrintDebt": "Balance, ₸",
   "mdfPrintTotal": "Total:",
   "mdfPrintClient": "Customer copy",
-  "mdfPrintShop": "Shop copy"
+  "mdfPrintShop": "Shop copy",
+  "mdfPasteSizes": "Paste sizes",
+  "mdfPasteHint": "Copy sizes from WhatsApp, Excel or a form — one part per line: «348 997 2», «348x997-2pcs». Words after the count become the note.",
+  "mdfPasteFound": "Lines found: {count}",
+  "@mdfPasteFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfPasteSkipped": "Skipped (not sizes): {rows}",
+  "@mdfPasteSkipped": {
+    "placeholders": {
+      "rows": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPasteAdd": "Add to the order",
+  "mdfPasted": "Lines added: {count}",
+  "@mdfPasted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfNewCustomer": "New customer",
+  "mdfNewCustomerOption": "+ New customer «{name}»",
+  "@mdfNewCustomerOption": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRepeat": "Repeat order",
+  "filmShortageTitle": "Film to buy",
+  "filmShortageEmpty": "No film needed for orders",
+  "filmShortageEmptyHint": "Accepted film orders show here until the vacuum is ticked.",
+  "filmShortageTotals": "Needed {needed} m · to buy {toBuy} m",
+  "@filmShortageTotals": {
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "toBuy": {
+        "type": "String"
+      }
+    }
+  },
+  "filmShortageByFilm": "By film",
+  "filmShortageByOrder": "By order",
+  "filmShortageLine": "{orders} orders · needed {needed} · held {held} · free {free} {unit}",
+  "@filmShortageLine": {
+    "placeholders": {
+      "orders": {
+        "type": "String"
+      },
+      "needed": {
+        "type": "String"
+      },
+      "held": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "filmShortageBuy": "Buy {qty} {unit}",
+  "@filmShortageBuy": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "filmShortageEnough": "Enough",
+  "filmShortageShort": "{qty} m short",
+  "@filmShortageShort": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "filmShortageNotOnBooks": "This film is not in stock — add it under «Stock».",
+  "mdfFilmHint": "How many metres of which film to order",
+  "mdfDebtsTitle": "Debts",
+  "mdfDebtsEmpty": "No debts",
+  "mdfDebtsEmptyHint": "Every accepted order is paid up.",
+  "mdfDebtsTotal": "Total owed: {amount}",
+  "@mdfDebtsTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDebtsByCustomer": "By customer",
+  "mdfDebtsByOrder": "By order",
+  "mdfDebtsOrders": "Orders owing: {count}",
+  "@mdfDebtsOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfDebtsHandedOver": "Handed over owing",
+  "mdfDebtsHint": "Who owes what, by customer and order",
+  "mdfBatchTitle": "Parts by film",
+  "mdfBatchHint": "Every part of the open orders of one film, as one list",
+  "mdfBatchShow": "Show",
+  "mdfBatchTotals": "{orders} orders · {pieces} parts · {area} m²",
+  "@mdfBatchTotals": {
+    "placeholders": {
+      "orders": {
+        "type": "String"
+      },
+      "pieces": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfBatchParts": "Parts (same sizes summed)",
+  "mdfBatchLong": "Long",
+  "mdfBatchShort": "Short",
+  "mdfBatchOrders": "Orders"
 }

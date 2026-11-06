@@ -4899,4 +4899,150 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPrintShop => 'Тапсырыс_Цех';
+
+  @override
+  String get mdfPasteSizes => 'Өлшемдерді қою';
+
+  @override
+  String get mdfPasteHint =>
+      'Өлшемдерді WhatsApp, Excel немесе бланктен көшіріңіз — әр жолға бір бөлшек: «348 997 2», «348х997-2шт». Саннан кейінгі сөздер ескертуге түседі.';
+
+  @override
+  String mdfPasteFound(int count) {
+    return 'Табылған жолдар: $count';
+  }
+
+  @override
+  String mdfPasteSkipped(String rows) {
+    return 'Өткізілді (өлшем емес): $rows';
+  }
+
+  @override
+  String get mdfPasteAdd => 'Тапсырысқа қосу';
+
+  @override
+  String mdfPasted(int count) {
+    return 'Қосылған жолдар: $count';
+  }
+
+  @override
+  String get mdfNewCustomer => 'Жаңа тапсырушы';
+
+  @override
+  String mdfNewCustomerOption(String name) {
+    return '+ Жаңа тапсырушы «$name»';
+  }
+
+  @override
+  String get mdfRepeat => 'Тапсырысты қайталау';
+
+  @override
+  String get filmShortageTitle => 'Пленка: не алу керек';
+
+  @override
+  String get filmShortageEmpty => 'Тапсырыстарға пленка керек емес';
+
+  @override
+  String get filmShortageEmptyHint =>
+      'Вакуум белгіленгенше пленкасы бар қабылданған тапсырыстар осында көрінеді.';
+
+  @override
+  String filmShortageTotals(String needed, String toBuy) {
+    return 'Керек $needed м · алу керек $toBuy м';
+  }
+
+  @override
+  String get filmShortageByFilm => 'Пленка бойынша';
+
+  @override
+  String get filmShortageByOrder => 'Тапсырыстар бойынша';
+
+  @override
+  String filmShortageLine(
+    String orders,
+    String needed,
+    String held,
+    String free,
+    String unit,
+  ) {
+    return 'Тапсырыс $orders · керек $needed · бекітілген $held · бос $free $unit';
+  }
+
+  @override
+  String filmShortageBuy(String qty, String unit) {
+    return 'Алу $qty $unit';
+  }
+
+  @override
+  String get filmShortageEnough => 'Жеткілікті';
+
+  @override
+  String filmShortageShort(String qty) {
+    return '$qty м жетпейді';
+  }
+
+  @override
+  String get filmShortageNotOnBooks =>
+      'Бұл пленка қоймада жоқ — «Қоймаға» қосыңыз.';
+
+  @override
+  String get mdfFilmHint => 'Жеткізушіден қай пленканың неше метрін алу керек';
+
+  @override
+  String get mdfDebtsTitle => 'Қарыз';
+
+  @override
+  String get mdfDebtsEmpty => 'Қарыз жоқ';
+
+  @override
+  String get mdfDebtsEmptyHint => 'Барлық қабылданған тапсырыстар төленді.';
+
+  @override
+  String mdfDebtsTotal(String amount) {
+    return 'Барлық қарыз: $amount';
+  }
+
+  @override
+  String get mdfDebtsByCustomer => 'Тапсырушылар бойынша';
+
+  @override
+  String get mdfDebtsByOrder => 'Тапсырыстар бойынша';
+
+  @override
+  String mdfDebtsOrders(int count) {
+    return 'Қарызы бар тапсырыс: $count';
+  }
+
+  @override
+  String get mdfDebtsHandedOver => 'Қарызбен берілді';
+
+  @override
+  String get mdfDebtsHint => 'Кім қанша қарыз — тапсырушы мен тапсырыс бойынша';
+
+  @override
+  String get mdfBatchTitle => 'Пленка бойынша бөлшектер';
+
+  @override
+  String get mdfBatchHint =>
+      'Бір пленкалы ашық тапсырыстардың барлық бөлшегі — бір тізіммен';
+
+  @override
+  String get mdfBatchShow => 'Көрсету';
+
+  @override
+  String mdfBatchTotals(String orders, String pieces, String area) {
+    return 'Тапсырыс $orders · бөлшек $pieces дана · $area м²';
+  }
+
+  @override
+  String get mdfBatchParts => 'Бөлшектер (бірдей өлшемдер қосылған)';
+
+  @override
+  String get mdfBatchLong => 'Ұзындығы';
+
+  @override
+  String get mdfBatchShort => 'Ені';
+
+  @override
+  String get mdfBatchOrders => 'Тапсырыстар';
 }

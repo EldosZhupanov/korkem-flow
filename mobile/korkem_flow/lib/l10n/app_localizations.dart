@@ -8792,6 +8792,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shop copy'**
   String get mdfPrintShop;
+
+  /// No description provided for @mdfPasteSizes.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste sizes'**
+  String get mdfPasteSizes;
+
+  /// No description provided for @mdfPasteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy sizes from WhatsApp, Excel or a form — one part per line: «348 997 2», «348x997-2pcs». Words after the count become the note.'**
+  String get mdfPasteHint;
+
+  /// No description provided for @mdfPasteFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines found: {count}'**
+  String mdfPasteFound(int count);
+
+  /// No description provided for @mdfPasteSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped (not sizes): {rows}'**
+  String mdfPasteSkipped(String rows);
+
+  /// No description provided for @mdfPasteAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to the order'**
+  String get mdfPasteAdd;
+
+  /// No description provided for @mdfPasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines added: {count}'**
+  String mdfPasted(int count);
+
+  /// No description provided for @mdfNewCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer'**
+  String get mdfNewCustomer;
+
+  /// No description provided for @mdfNewCustomerOption.
+  ///
+  /// In en, this message translates to:
+  /// **'+ New customer «{name}»'**
+  String mdfNewCustomerOption(String name);
+
+  /// No description provided for @mdfRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat order'**
+  String get mdfRepeat;
+
+  /// No description provided for @filmShortageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Film to buy'**
+  String get filmShortageTitle;
+
+  /// No description provided for @filmShortageEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No film needed for orders'**
+  String get filmShortageEmpty;
+
+  /// No description provided for @filmShortageEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted film orders show here until the vacuum is ticked.'**
+  String get filmShortageEmptyHint;
+
+  /// No description provided for @filmShortageTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed {needed} m · to buy {toBuy} m'**
+  String filmShortageTotals(String needed, String toBuy);
+
+  /// No description provided for @filmShortageByFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'By film'**
+  String get filmShortageByFilm;
+
+  /// No description provided for @filmShortageByOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'By order'**
+  String get filmShortageByOrder;
+
+  /// No description provided for @filmShortageLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders · needed {needed} · held {held} · free {free} {unit}'**
+  String filmShortageLine(
+    String orders,
+    String needed,
+    String held,
+    String free,
+    String unit,
+  );
+
+  /// No description provided for @filmShortageBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {qty} {unit}'**
+  String filmShortageBuy(String qty, String unit);
+
+  /// No description provided for @filmShortageEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Enough'**
+  String get filmShortageEnough;
+
+  /// No description provided for @filmShortageShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} m short'**
+  String filmShortageShort(String qty);
+
+  /// No description provided for @filmShortageNotOnBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'This film is not in stock — add it under «Stock».'**
+  String get filmShortageNotOnBooks;
+
+  /// No description provided for @mdfFilmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How many metres of which film to order'**
+  String get mdfFilmHint;
+
+  /// No description provided for @mdfDebtsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts'**
+  String get mdfDebtsTitle;
+
+  /// No description provided for @mdfDebtsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No debts'**
+  String get mdfDebtsEmpty;
+
+  /// No description provided for @mdfDebtsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every accepted order is paid up.'**
+  String get mdfDebtsEmptyHint;
+
+  /// No description provided for @mdfDebtsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total owed: {amount}'**
+  String mdfDebtsTotal(String amount);
+
+  /// No description provided for @mdfDebtsByCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'By customer'**
+  String get mdfDebtsByCustomer;
+
+  /// No description provided for @mdfDebtsByOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'By order'**
+  String get mdfDebtsByOrder;
+
+  /// No description provided for @mdfDebtsOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders owing: {count}'**
+  String mdfDebtsOrders(int count);
+
+  /// No description provided for @mdfDebtsHandedOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over owing'**
+  String get mdfDebtsHandedOver;
+
+  /// No description provided for @mdfDebtsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Who owes what, by customer and order'**
+  String get mdfDebtsHint;
+
+  /// No description provided for @mdfBatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts by film'**
+  String get mdfBatchTitle;
+
+  /// No description provided for @mdfBatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every part of the open orders of one film, as one list'**
+  String get mdfBatchHint;
+
+  /// No description provided for @mdfBatchShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get mdfBatchShow;
+
+  /// No description provided for @mdfBatchTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders · {pieces} parts · {area} m²'**
+  String mdfBatchTotals(String orders, String pieces, String area);
+
+  /// No description provided for @mdfBatchParts.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts (same sizes summed)'**
+  String get mdfBatchParts;
+
+  /// No description provided for @mdfBatchLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get mdfBatchLong;
+
+  /// No description provided for @mdfBatchShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get mdfBatchShort;
+
+  /// No description provided for @mdfBatchOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get mdfBatchOrders;
 }
 
 class _AppLocalizationsDelegate

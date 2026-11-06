@@ -362,6 +362,154 @@ def card(order: str) -> dict:
 	}
 
 
+def new_customer(name: str, phone: str | None = None) -> dict:
+	"""A customer written down on the card itself — name and phone, nothing else.
+
+	The same phone twice is the same customer: the one already on file is
+	returned rather than a second card for the same person.
+	"""
+	facade_prices.ensure_editor()
+	name = " ".join((name or "").split())[:140]
+	if len(name) < 2:
+		frappe.throw("Укажите имя клиента.")
+	digits = "".join(ch for ch in (phone or "") if ch.isdigit())
+	if phone and not 10 <= len(digits) <= 12:
+		frappe.throw("Телефон — 10–12 цифр, например 8 777 123 45 67.")
+	if digits:
+		for row in frappe.get_all("Customer", filters={"disabled": 0, "mobile_no": ["is", "set"]},
+								  fields=["name", "customer_name", "mobile_no"]):
+			if "".join(ch for ch in row.mobile_no if ch.isdigit())[-10:] == digits[-10:]:
+				return {"name": row.name, "customer_name": row.customer_name, "phone": row.mobile_no,
+						"existing": True}
+	doc = frappe.get_doc(
+		{
+			"doctype": "Customer",
+			"customer_name": name,
+			"customer_type": "Individual",
+			"mobile_no": (phone or "").strip() or None,
+		}
+	)
+	doc.insert()
+	audit.record_audit(action="mdf.customer_created", entity_type="Customer", entity_id=doc.name,
+					   diff={"name": name})
+	return {"name": doc.name, "customer_name": doc.customer_name, "phone": doc.mobile_no, "existing": False}
+
+
+def debts(since: str | None = None, until: str | None = None) -> dict:
+	"""Who owes what — OnayBaza's «Қарыз»: by order, and summed by customer.
+
+	An accepted, not cancelled order whose payments fall short of its total.
+	`since` / `until` narrow by the order's date; without them, every debt.
+	"""
+	facade_prices.ensure_editor()
+	filters = {"company": current_company(), "korkem_direction": directions.FACADES, "docstatus": 1}
+	if since and until:
+		filters["transaction_date"] = ["between", [getdate(since), getdate(until)]]
+	elif since:
+		filters["transaction_date"] = [">=", getdate(since)]
+	elif until:
+		filters["transaction_date"] = ["<=", getdate(until)]
+	rows = frappe.get_all(
+		"Sales Order",
+		filters=filters,
+		fields=["name", "transaction_date", "delivery_date", "customer", "customer_name", "grand_total",
+				"advance_paid", "docstatus", "korkem_handed_over_on"],
+		order_by="transaction_date asc, name asc",
+		limit_page_length=2000,
+	)
+	orders, by_customer = [], {}
+	for row in rows:
+		debt = _debt(row)
+		if debt <= 0:
+			continue
+		orders.append({"name": row.name, "created_on": str(row.transaction_date), "customer": row.customer,
+					   "customer_name": row.customer_name, "total": flt(row.grand_total),
+					   "paid": flt(row.advance_paid), "debt": float(debt),
+					   "handed_over": bool(row.korkem_handed_over_on)})
+		entry = by_customer.setdefault(row.customer, {"customer": row.customer, "customer_name": row.customer_name,
+													  "orders": 0, "debt": Decimal(0)})
+		entry["orders"] += 1
+		entry["debt"] += debt
+	customers = sorted(
+		({**c, "debt": float(c["debt"])} for c in by_customer.values()), key=lambda c: -c["debt"]
+	)
+	return {"orders": orders, "customers": customers,
+			"total": float(sum((Decimal(str(o["debt"])) for o in orders), Decimal(0)))}
+
+
+def batch(decor: str | None = None, milling: str | None = None, include_in_shop=True) -> dict:
+	"""Every part of the open orders that share a film and a milling, as one list.
+
+	OnayBaza's «Тапсырыс Кестесі»: pick the film on the face (and the
+	milling), and the parts of every order waiting for it come out together
+	— one cut, one press load for several orders. Identical sizes (a part
+	turned 90° is the same part) are one row with the pieces summed and the
+	orders listed, largest first, the way the shop cuts.
+	"""
+	facade_prices.ensure_editor()
+	decor = (decor or "").strip() or None
+	milling = (milling or "").strip() or None
+	filters = {"company": current_company(), "korkem_direction": directions.FACADES, "docstatus": 1,
+			   "korkem_ready_on": ["is", "not set"], "korkem_handed_over_on": ["is", "not set"],
+			   "korkem_hold_reason": ["is", "not set"]}
+	if decor:
+		filters["korkem_decor_top"] = decor
+	orders = frappe.get_all("Sales Order", filters=filters,
+							fields=["name", "customer_name", "delivery_date", "korkem_decor_top", *STAGES.values()],
+							order_by="delivery_date asc, name asc", limit_page_length=500)
+	if not directions.flag(include_in_shop):
+		orders = [o for o in orders if not any(o.get(f) for f in STAGES.values())]
+	names = [o.name for o in orders]
+	parts: dict[tuple, dict] = {}
+	used = set()
+	if names:
+		for line in frappe.get_all(
+			"Sales Order Item",
+			filters={"parent": ["in", names], "item_code": facade_order.FACADE_ITEM},
+			fields=["parent", "korkem_height_mm", "korkem_width_mm", "qty", "korkem_milling", "korkem_area_m2"],
+		):
+			if milling and (line.korkem_milling or "") != milling:
+				continue
+			h, w = int(line.korkem_height_mm or 0), int(line.korkem_width_mm or 0)
+			key = (max(h, w), min(h, w), line.korkem_milling or "")
+			row = parts.setdefault(key, {"long_mm": key[0], "short_mm": key[1], "milling": key[2] or None,
+										 "qty": 0, "area_m2": Decimal(0), "orders": []})
+			row["qty"] += int(line.qty)
+			row["area_m2"] += Decimal(str(flt(line.korkem_area_m2)))
+			if line.parent not in row["orders"]:
+				row["orders"].append(line.parent)
+			used.add(line.parent)
+	rows = sorted(parts.values(), key=lambda r: (-r["long_mm"], -r["short_mm"], r["milling"] or ""))
+	for row in rows:
+		row["area_m2"] = float(row["area_m2"].quantize(AREA, rounding=ROUND_HALF_UP))
+	return {
+		"decor": decor,
+		"milling": milling,
+		"orders": [{"name": o.name, "customer_name": o.customer_name, "delivery_date": str(o.delivery_date)}
+				   for o in orders if o.name in used],
+		"parts": rows,
+		"pieces": sum(r["qty"] for r in rows),
+		"area_m2": float(sum((Decimal(str(r["area_m2"])) for r in rows), Decimal(0))),
+	}
+
+
+def last_head() -> dict:
+	"""The head of the last MDF order this person wrote — what a new one starts from."""
+	facade_prices.ensure_editor()
+	name = frappe.db.get_value(
+		"Sales Order",
+		{"company": current_company(), "korkem_direction": directions.FACADES, "owner": frappe.session.user},
+		"name",
+		order_by="creation desc",
+	)
+	if not name:
+		return {}
+	doc = frappe.get_doc("Sales Order", name)
+	head = {key: doc.get(field) for key, field in HEAD.items()}
+	head.pop("extra_name", None)
+	return head
+
+
 STATUS_FILTERS = ("draft", "accepted", "in_shop", "ready", "handed_over", "on_hold", "cancelled")
 
 

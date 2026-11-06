@@ -31,6 +31,10 @@ import 'package:korkem_flow/features/leads/presentation/lead_detail_screen.dart'
 import 'package:korkem_flow/features/logistics/presentation/logistics_screen.dart';
 import 'package:korkem_flow/features/material_stock/presentation/material_stock_screen.dart';
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/presentation/film_shortage_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_batch_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_debts_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_screen.dart';
@@ -152,6 +156,9 @@ abstract final class Routes {
   static const mdfOrders = '/mdf/orders';
   static const mdfOrderNew = '/mdf/orders/new';
   static const mdfOrderPattern = '/mdf/orders/:name';
+  static const mdfFilm = '/mdf/film';
+  static const mdfDebts = '/mdf/debts';
+  static const mdfBatch = '/mdf/batch';
   static String mdfOrder(String name) =>
       '/mdf/orders/${Uri.encodeComponent(name)}';
   static const pressSettings = '/settings/press';
@@ -317,8 +324,22 @@ GoRouter createRouter(Ref ref) {
         builder: (context, state) => const MdfOrdersScreen(),
       ),
       GoRoute(
+        path: Routes.mdfBatch,
+        builder: (context, state) => const MdfBatchScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfDebts,
+        builder: (context, state) => const MdfDebtsScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfFilm,
+        builder: (context, state) => const FilmShortageScreen(),
+      ),
+      GoRoute(
         path: Routes.mdfOrderNew,
-        builder: (context, state) => const MdfOrderScreen(),
+        builder: (context, state) => MdfOrderScreen(
+          template: state.extra is MdfOrder ? state.extra! as MdfOrder : null,
+        ),
       ),
       GoRoute(
         path: Routes.mdfOrderPattern,

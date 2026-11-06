@@ -4936,4 +4936,150 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPrintShop => 'Shop copy';
+
+  @override
+  String get mdfPasteSizes => 'Paste sizes';
+
+  @override
+  String get mdfPasteHint =>
+      'Copy sizes from WhatsApp, Excel or a form — one part per line: «348 997 2», «348x997-2pcs». Words after the count become the note.';
+
+  @override
+  String mdfPasteFound(int count) {
+    return 'Lines found: $count';
+  }
+
+  @override
+  String mdfPasteSkipped(String rows) {
+    return 'Skipped (not sizes): $rows';
+  }
+
+  @override
+  String get mdfPasteAdd => 'Add to the order';
+
+  @override
+  String mdfPasted(int count) {
+    return 'Lines added: $count';
+  }
+
+  @override
+  String get mdfNewCustomer => 'New customer';
+
+  @override
+  String mdfNewCustomerOption(String name) {
+    return '+ New customer «$name»';
+  }
+
+  @override
+  String get mdfRepeat => 'Repeat order';
+
+  @override
+  String get filmShortageTitle => 'Film to buy';
+
+  @override
+  String get filmShortageEmpty => 'No film needed for orders';
+
+  @override
+  String get filmShortageEmptyHint =>
+      'Accepted film orders show here until the vacuum is ticked.';
+
+  @override
+  String filmShortageTotals(String needed, String toBuy) {
+    return 'Needed $needed m · to buy $toBuy m';
+  }
+
+  @override
+  String get filmShortageByFilm => 'By film';
+
+  @override
+  String get filmShortageByOrder => 'By order';
+
+  @override
+  String filmShortageLine(
+    String orders,
+    String needed,
+    String held,
+    String free,
+    String unit,
+  ) {
+    return '$orders orders · needed $needed · held $held · free $free $unit';
+  }
+
+  @override
+  String filmShortageBuy(String qty, String unit) {
+    return 'Buy $qty $unit';
+  }
+
+  @override
+  String get filmShortageEnough => 'Enough';
+
+  @override
+  String filmShortageShort(String qty) {
+    return '$qty m short';
+  }
+
+  @override
+  String get filmShortageNotOnBooks =>
+      'This film is not in stock — add it under «Stock».';
+
+  @override
+  String get mdfFilmHint => 'How many metres of which film to order';
+
+  @override
+  String get mdfDebtsTitle => 'Debts';
+
+  @override
+  String get mdfDebtsEmpty => 'No debts';
+
+  @override
+  String get mdfDebtsEmptyHint => 'Every accepted order is paid up.';
+
+  @override
+  String mdfDebtsTotal(String amount) {
+    return 'Total owed: $amount';
+  }
+
+  @override
+  String get mdfDebtsByCustomer => 'By customer';
+
+  @override
+  String get mdfDebtsByOrder => 'By order';
+
+  @override
+  String mdfDebtsOrders(int count) {
+    return 'Orders owing: $count';
+  }
+
+  @override
+  String get mdfDebtsHandedOver => 'Handed over owing';
+
+  @override
+  String get mdfDebtsHint => 'Who owes what, by customer and order';
+
+  @override
+  String get mdfBatchTitle => 'Parts by film';
+
+  @override
+  String get mdfBatchHint =>
+      'Every part of the open orders of one film, as one list';
+
+  @override
+  String get mdfBatchShow => 'Show';
+
+  @override
+  String mdfBatchTotals(String orders, String pieces, String area) {
+    return '$orders orders · $pieces parts · $area m²';
+  }
+
+  @override
+  String get mdfBatchParts => 'Parts (same sizes summed)';
+
+  @override
+  String get mdfBatchLong => 'Long';
+
+  @override
+  String get mdfBatchShort => 'Short';
+
+  @override
+  String get mdfBatchOrders => 'Orders';
 }

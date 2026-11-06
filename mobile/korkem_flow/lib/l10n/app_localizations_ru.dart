@@ -4959,4 +4959,150 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPrintShop => 'Наряд в цех';
+
+  @override
+  String get mdfPasteSizes => 'Вставить размеры';
+
+  @override
+  String get mdfPasteHint =>
+      'Скопируйте размеры из WhatsApp, Excel или бланка — по одной детали в строке: «348 997 2», «348х997-2шт». Слова после количества станут примечанием.';
+
+  @override
+  String mdfPasteFound(int count) {
+    return 'Найдено строк: $count';
+  }
+
+  @override
+  String mdfPasteSkipped(String rows) {
+    return 'Пропущено (не размеры): $rows';
+  }
+
+  @override
+  String get mdfPasteAdd => 'Добавить в заказ';
+
+  @override
+  String mdfPasted(int count) {
+    return 'Добавлено строк: $count';
+  }
+
+  @override
+  String get mdfNewCustomer => 'Новый клиент';
+
+  @override
+  String mdfNewCustomerOption(String name) {
+    return '+ Новый клиент «$name»';
+  }
+
+  @override
+  String get mdfRepeat => 'Повторить заказ';
+
+  @override
+  String get filmShortageTitle => 'Плёнка: что докупить';
+
+  @override
+  String get filmShortageEmpty => 'Плёнка для заказов не нужна';
+
+  @override
+  String get filmShortageEmptyHint =>
+      'Здесь появятся принятые заказы с плёнкой, пока не отмечен вакуум.';
+
+  @override
+  String filmShortageTotals(String needed, String toBuy) {
+    return 'Нужно $needed м · докупить $toBuy м';
+  }
+
+  @override
+  String get filmShortageByFilm => 'По плёнке';
+
+  @override
+  String get filmShortageByOrder => 'По заказам';
+
+  @override
+  String filmShortageLine(
+    String orders,
+    String needed,
+    String held,
+    String free,
+    String unit,
+  ) {
+    return 'Заказов $orders · нужно $needed · под заказы $held · свободно $free $unit';
+  }
+
+  @override
+  String filmShortageBuy(String qty, String unit) {
+    return 'Докупить $qty $unit';
+  }
+
+  @override
+  String get filmShortageEnough => 'Хватает';
+
+  @override
+  String filmShortageShort(String qty) {
+    return 'не хватает $qty м';
+  }
+
+  @override
+  String get filmShortageNotOnBooks =>
+      'Этой плёнки нет в складе — добавьте её в «Склад».';
+
+  @override
+  String get mdfFilmHint => 'Сколько метров какой плёнки заказать у поставщика';
+
+  @override
+  String get mdfDebtsTitle => 'Долги';
+
+  @override
+  String get mdfDebtsEmpty => 'Долгов нет';
+
+  @override
+  String get mdfDebtsEmptyHint => 'Все принятые заказы оплачены.';
+
+  @override
+  String mdfDebtsTotal(String amount) {
+    return 'Всего долгов: $amount';
+  }
+
+  @override
+  String get mdfDebtsByCustomer => 'По клиентам';
+
+  @override
+  String get mdfDebtsByOrder => 'По заказам';
+
+  @override
+  String mdfDebtsOrders(int count) {
+    return 'Заказов с долгом: $count';
+  }
+
+  @override
+  String get mdfDebtsHandedOver => 'Выдан с долгом';
+
+  @override
+  String get mdfDebtsHint => 'Кто сколько должен — по клиентам и заказам';
+
+  @override
+  String get mdfBatchTitle => 'Детали по плёнке';
+
+  @override
+  String get mdfBatchHint =>
+      'Все детали открытых заказов одной плёнки — одним списком';
+
+  @override
+  String get mdfBatchShow => 'Показать';
+
+  @override
+  String mdfBatchTotals(String orders, String pieces, String area) {
+    return 'Заказов $orders · деталей $pieces шт · $area м²';
+  }
+
+  @override
+  String get mdfBatchParts => 'Детали (одинаковые размеры сложены)';
+
+  @override
+  String get mdfBatchLong => 'Длина';
+
+  @override
+  String get mdfBatchShort => 'Ширина';
+
+  @override
+  String get mdfBatchOrders => 'Заказы';
 }

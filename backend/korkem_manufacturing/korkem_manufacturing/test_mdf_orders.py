@@ -52,6 +52,10 @@ class TestMdfOrders(IntegrationTestCase):
 		_user(MANAGER, "Sales User")
 		_user(CUTTER, "Manufacturing User")
 		cls.customer = frappe.db.get_value("Customer", {"disabled": 0}, "name")
+		from korkem_manufacturing.services import material_stock
+
+		material_stock.add_option("Цвет плёнки", "МДФ Тест Венге")
+		cls.decor = "МДФ Тест Венге"
 		assert cls.customer, "the seeded site has customers; no silent skip"
 
 	def setUp(self):
@@ -195,6 +199,74 @@ class TestMdfOrders(IntegrationTestCase):
 		self.addCleanup(self._drop, card["name"])
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, mdf_orders.card, card["name"])
+
+	def test_a_new_customer_on_the_card_and_the_same_phone_twice(self):
+		first = self._as(MANAGER, mdf_orders.new_customer, "Тест Қалдыбаев", "8 (777) 990-11-22")
+		self.assertFalse(first["existing"])
+		again = self._as(MANAGER, mdf_orders.new_customer, "Другое имя", "+7 777 990 11 22")
+		self.assertEqual((again["name"], again["existing"]), (first["name"], True))
+		from korkem_manufacturing.services import facade_order
+
+		found = self._as(MANAGER, facade_order.customers, search="990-11")
+		self.assertIn(first["name"], [row["name"] for row in found])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.new_customer, "Тест", "123")
+
+	def test_a_new_order_starts_from_the_last_head(self):
+		card = self._draft(edge_profile=None, patina="Золото")
+		self.addCleanup(self._drop, card["name"])
+		head = self._as(MANAGER, mdf_orders.last_head)
+		self.assertEqual((head["finish"], head["patina"], head["thickness_mm"]), (PVC, "Золото", 16))
+
+	def test_the_film_an_accepted_order_still_needs_is_on_the_list(self):
+		from korkem_manufacturing.services import film_shortage
+
+		card = self._draft(decor_top=self.decor)
+		self.addCleanup(self._drop, card["name"])
+		before = {r["order"] for r in self._as(MANAGER, film_shortage.shortage)["orders"]}
+		self.assertNotIn(card["name"], before)  # a draft holds nothing and needs nothing yet
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		report = self._as(MANAGER, film_shortage.shortage)
+		mine = [r for r in report["orders"] if r["order"] == card["name"]]
+		self.assertEqual([r["decor"] for r in mine], [self.decor])
+		self.assertGreater(mine[0]["needed"], 0)
+		film = next(f for f in report["by_film"] if f["decor"] == self.decor)
+		self.assertGreaterEqual(film["to_buy"], 0)
+		self.assertLessEqual(film["to_buy"], film["needed"])
+		for stage in ("cut", "mill", "sand", "vacuum"):
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
+		after = {r["order"] for r in self._as(MANAGER, film_shortage.shortage)["orders"]}
+		self.assertNotIn(card["name"], after)  # pressed: the film is on the facades
+
+	def test_debts_by_order_and_by_customer(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		before = self._as(MANAGER, mdf_orders.debts)
+		self.assertNotIn(card["name"], [o["name"] for o in before["orders"]])  # a draft owes nothing
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		report = self._as(MANAGER, mdf_orders.debts)
+		mine = next(o for o in report["orders"] if o["name"] == card["name"])
+		self.assertEqual(mine["debt"], 58680)
+		customer = next(c for c in report["customers"] if c["customer"] == self.customer)
+		self.assertGreaterEqual(customer["debt"], 58680)
+		self.assertAlmostEqual(report["total"], sum(o["debt"] for o in report["orders"]), places=2)
+		later = self._as(MANAGER, mdf_orders.debts, since=add_days(nowdate(), 1))
+		self.assertNotIn(card["name"], [o["name"] for o in later["orders"]])
+
+	def test_two_orders_of_one_film_cut_as_one_list(self):
+		first = self._draft(decor_top=self.decor)
+		second = self._draft([{"height_mm": 1040, "width_mm": 130, "qty": 3, "milling": FLAT}], decor_top=self.decor)
+		for card in (first, second):
+			self.addCleanup(self._drop, card["name"])
+			self._as(MANAGER, mdf_orders.accept, card["name"])
+		batch = self._as(MANAGER, mdf_orders.batch, decor=self.decor, milling=FLAT)
+		self.assertEqual({o["name"] for o in batch["orders"]}, {first["name"], second["name"]})
+		# 130 × 1040 from №1 and 1040 × 130 turned from №2 are one part: 1 + 3 pieces.
+		row = next(r for r in batch["parts"] if (r["long_mm"], r["short_mm"]) == (1040, 130))
+		self.assertEqual((row["qty"], set(row["orders"])), (4, {first["name"], second["name"]}))
+		self.assertEqual([r["milling"] for r in batch["parts"]], [FLAT] * len(batch["parts"]))
+		longest = [r["long_mm"] for r in batch["parts"]]
+		self.assertEqual(longest, sorted(longest, reverse=True))
 
 	def _drop(self, name: str) -> None:
 		frappe.set_user("Administrator")

@@ -5,6 +5,10 @@ import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
+import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
+import 'package:korkem_flow/features/mdf/domain/film_shortage.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_batch.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_debts.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 
 final mdfOrderRepositoryProvider = Provider<MdfOrderRepository>(
@@ -28,6 +32,18 @@ final mdfOrdersProvider = FutureProvider.autoDispose
     .family<List<MdfOrderRow>, MdfListQuery>(
       (ref, query) => ref.watch(mdfOrderRepositoryProvider).listing(query),
     );
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfDebtsProvider = FutureProvider.autoDispose<MdfDebts>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).debts(),
+);
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmShortageProvider = FutureProvider.autoDispose<FilmShortage>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).filmShortage(),
+);
 
 // AutoDisposeFutureProviderFamily is not exported as a public type.
 // ignore: specify_nonobvious_property_types
@@ -103,6 +119,45 @@ class MdfOrderRepository {
   });
 
   Future<MdfOrder> accept(String order) => _post('accept', {'order': order});
+
+  /// A customer written down on the card: name and phone. The same phone
+  /// twice gives back the customer already on file.
+  Future<FacadeCustomer> newCustomer(String name, {String? phone}) async =>
+      FacadeCustomer.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.new_customer',
+            post: true,
+            params: {'name': name, 'phone': ?phone},
+          ),
+        ),
+      );
+
+  /// The film open orders still need, by film, and what to buy.
+  Future<FilmShortage> filmShortage() async => FilmShortage.fromJson(
+    _map(await _client.callMethod('$_base.film_shortage')),
+  );
+
+  /// Who owes what: by customer and by order.
+  Future<MdfDebts> debts() async =>
+      MdfDebts.fromJson(_map(await _client.callMethod('$_base.debts')));
+
+  /// The parts of every open order of one film (and milling), as one list.
+  Future<MdfBatch> batch({String? decor, String? milling}) async =>
+      MdfBatch.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.batch',
+            params: {'decor': ?decor, 'milling': ?milling},
+          ),
+        ),
+      );
+
+  /// The head of the last order this manager wrote, or null for the first.
+  Future<MdfHead?> lastHead() async {
+    final head = _map(await _client.callMethod('$_base.last_head'));
+    return head.isEmpty ? null : MdfHead.fromJson(head);
+  }
 
   Future<void> deleteDraft(String order) async {
     await _client.callMethod(

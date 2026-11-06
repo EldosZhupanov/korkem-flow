@@ -14,6 +14,9 @@ void main() {
     'jobs': Routes.facadeJobs,
     'press': Routes.pressSettings,
     'stock': Routes.materialStock,
+    'batch': Routes.mdfBatch,
+    'debts': Routes.mdfDebts,
+    'film': Routes.mdfFilm,
     'logistics': Routes.logistics,
     'prices': Routes.facadePrices,
   };
@@ -45,12 +48,18 @@ void main() {
     return router;
   }
 
-  testWidgets('the block is titled МДФ and lists the seven parts', (
+  testWidgets('the block is titled МДФ and lists its parts', (
     tester,
   ) async {
     await pump(tester);
     expect(find.text('МДФ'), findsOneWidget);
     for (final id in rows.keys) {
+      // A ListView builds only what is near the screen; scroll to each.
+      await tester.scrollUntilVisible(
+        find.byKey(ValueKey('mdf:$id')),
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.byKey(ValueKey('mdf:$id')), findsOneWidget);
     }
   });
