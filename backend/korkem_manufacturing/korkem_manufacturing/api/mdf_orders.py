@@ -35,6 +35,13 @@ def accept(order: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
+def change_order(order: str, lines: str | list, reason: str, head: str | dict | None = None,
+				 delivery_date: str | None = None) -> dict:
+	"""Изменить принятый заказ: позиции (и шапку, срок) с причиной в истории."""
+	return service.change_order(order, lines=lines, reason=reason, head=head, delivery_date=delivery_date)
+
+
+@frappe.whitelist(methods=["POST"])
 def delete_draft(order: str) -> dict:
 	return service.delete_draft(order)
 

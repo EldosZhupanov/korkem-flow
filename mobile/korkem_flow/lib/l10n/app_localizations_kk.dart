@@ -5009,4 +5009,19 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfBatchOrders => 'Тапсырыстар';
+
+  @override
+  String get mdfChangeOrder => 'Тапсырысты өзгерту';
+
+  @override
+  String get mdfChangeReason => 'Не және неге өзгереді';
+
+  @override
+  String get mdfSaveChange => 'Өзгерістерді сақтау';
+
+  @override
+  String get mdfChanged => 'Тапсырыс өзгертілді — тарихқа жазылды';
+
+  @override
+  String get mdfHistorySection => 'Тарих';
 }

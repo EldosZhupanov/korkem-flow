@@ -5069,4 +5069,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfBatchOrders => 'Заказы';
+
+  @override
+  String get mdfChangeOrder => 'Изменить заказ';
+
+  @override
+  String get mdfChangeReason => 'Что и почему меняется';
+
+  @override
+  String get mdfSaveChange => 'Сохранить изменения';
+
+  @override
+  String get mdfChanged => 'Заказ изменён — записано в историю';
+
+  @override
+  String get mdfHistorySection => 'История';
 }

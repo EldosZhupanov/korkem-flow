@@ -260,6 +260,27 @@ class MdfPricing {
   final double total;
 }
 
+/// One entry of the order's history: when, who, what.
+@immutable
+class MdfHistoryEntry {
+  const MdfHistoryEntry({
+    required this.at,
+    required this.by,
+    required this.text,
+  });
+
+  factory MdfHistoryEntry.fromJson(Map<String, dynamic> json) =>
+      MdfHistoryEntry(
+        at: '${json['at'] ?? ''}',
+        by: '${json['by'] ?? ''}',
+        text: '${json['text'] ?? ''}',
+      );
+
+  final String at;
+  final String by;
+  final String text;
+}
+
 @immutable
 class MdfPayment {
   const MdfPayment({required this.amount, required this.date, this.method});
@@ -300,6 +321,7 @@ class MdfOrder {
     this.handedOverOn,
     this.holdReason,
     this.notes,
+    this.history = const [],
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -338,6 +360,10 @@ class MdfOrder {
     handedOverOn: _s(json['handed_over_on']),
     holdReason: _s(json['hold_reason']),
     notes: _s(json['notes']),
+    history: [
+      for (final h in json['history'] as List? ?? const [])
+        if (h is Map) MdfHistoryEntry.fromJson(Map<String, dynamic>.from(h)),
+    ],
   );
 
   final String name;
@@ -363,6 +389,9 @@ class MdfOrder {
   final String? handedOverOn;
   final String? holdReason;
   final String? notes;
+
+  /// Newest first: changes, holds, hand-overs with a debt.
+  final List<MdfHistoryEntry> history;
 
   bool get isDraft => status == MdfStatus.draft;
 }

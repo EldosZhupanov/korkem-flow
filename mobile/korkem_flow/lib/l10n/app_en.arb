@@ -5854,5 +5854,10 @@
   "mdfBatchParts": "Parts (same sizes summed)",
   "mdfBatchLong": "Long",
   "mdfBatchShort": "Short",
-  "mdfBatchOrders": "Orders"
+  "mdfBatchOrders": "Orders",
+  "mdfChangeOrder": "Change order",
+  "mdfChangeReason": "What changes and why",
+  "mdfSaveChange": "Save changes",
+  "mdfChanged": "Order changed — written into its history",
+  "mdfHistorySection": "History"
 }
