@@ -322,6 +322,7 @@ class MdfOrder {
     this.holdReason,
     this.notes,
     this.history = const [],
+    this.stageWorkers = const {},
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -364,6 +365,13 @@ class MdfOrder {
       for (final h in json['history'] as List? ?? const [])
         if (h is Map) MdfHistoryEntry.fromJson(Map<String, dynamic>.from(h)),
     ],
+    stageWorkers: {
+      for (final s in json['stages'] as List? ?? const [])
+        if (s is Map &&
+            MdfStage.parse(s['stage']) != null &&
+            _s(s['worker_name']) != null)
+          MdfStage.parse(s['stage'])!: _s(s['worker_name'])!,
+    },
   );
 
   final String name;
@@ -392,6 +400,9 @@ class MdfOrder {
 
   /// Newest first: changes, holds, hand-overs with a debt.
   final List<MdfHistoryEntry> history;
+
+  /// Who did a ticked stage, when the manager said.
+  final Map<MdfStage, String> stageWorkers;
 
   bool get isDraft => status == MdfStatus.draft;
 }

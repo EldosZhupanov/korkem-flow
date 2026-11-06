@@ -8,9 +8,12 @@ import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/mdf/domain/film_shortage.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_batch.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_cash.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_debts.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_volume.dart';
 
 final mdfOrderRepositoryProvider = Provider<MdfOrderRepository>(
   (ref) => MdfOrderRepository(
@@ -38,6 +41,41 @@ final mdfOrdersProvider = FutureProvider.autoDispose
 // ignore: specify_nonobvious_property_types
 final mdfPlanProvider = FutureProvider.autoDispose<MdfPlan>(
   (ref) => ref.watch(mdfOrderRepositoryProvider).plan(),
+);
+
+/// The days a cash book or a report covers, both ends included (`yyyy-MM-dd`).
+typedef MdfPeriod = ({String since, String until});
+
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfCashProvider = FutureProvider.autoDispose.family<MdfCash, MdfPeriod>(
+  (ref, p) => ref
+      .watch(mdfOrderRepositoryProvider)
+      .cash(since: p.since, until: p.until),
+);
+
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfReportProvider = FutureProvider.autoDispose
+    .family<MdfReport, MdfPeriod>(
+      (ref, p) => ref
+          .watch(mdfOrderRepositoryProvider)
+          .report(since: p.since, until: p.until),
+    );
+
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfVolumeProvider = FutureProvider.autoDispose
+    .family<MdfVolume, MdfPeriod>(
+      (ref, p) => ref
+          .watch(mdfOrderRepositoryProvider)
+          .volume(since: p.since, until: p.until),
+    );
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfWorkersProvider = FutureProvider.autoDispose<List<MdfWorker>>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).workers(),
 );
 
 // AutoDisposeFutureProvider is not exported as a public type.
@@ -180,6 +218,30 @@ class MdfOrderRepository {
   Future<MdfPlan> plan() async =>
       MdfPlan.fromJson(_map(await _client.callMethod('$_base.plan')));
 
+  /// «Касса» for the days [since, until] (`yyyy-MM-dd`).
+  Future<MdfCash> cash({required String since, required String until}) async =>
+      MdfCash.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.cash',
+            params: {'since': since, 'until': until},
+          ),
+        ),
+      );
+
+  /// «Отчёт по заказам» for the orders dated [since, until].
+  Future<MdfReport> report({
+    required String since,
+    required String until,
+  }) async => MdfReport.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.report',
+        params: {'since': since, 'until': until},
+      ),
+    ),
+  );
+
   /// The head of the last order this manager wrote, or null for the first.
   Future<MdfHead?> lastHead() async {
     final head = _map(await _client.callMethod('$_base.last_head'));
@@ -197,15 +259,41 @@ class MdfOrderRepository {
   Future<MdfOrder> cancel(String order, String reason) =>
       _post('cancel', {'order': order, 'reason': reason});
 
+  /// [worker] — the Employee who did it, for the work volume.
   Future<MdfOrder> setStage(
     String order,
     MdfStage stage, {
     required bool done,
+    String? worker,
   }) => _post('set_stage', {
     'order': order,
     'stage': stage.name,
     'done': done ? 1 : 0,
+    'worker': ?worker,
   });
+
+  /// Who can be named on a stage: the company's active employees.
+  Future<List<MdfWorker>> workers() async {
+    final response = await _client.callMethod('$_base.workers');
+    final raw = response['message'] ?? response['data'];
+    return [
+      for (final w in raw is List ? raw : const <Object>[])
+        if (w is Map) MdfWorker.fromJson(Map<String, dynamic>.from(w)),
+    ];
+  }
+
+  /// «Объём работ» for the stages ticked in [since, until].
+  Future<MdfVolume> volume({
+    required String since,
+    required String until,
+  }) async => MdfVolume.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.volume',
+        params: {'since': since, 'until': until},
+      ),
+    ),
+  );
 
   /// A reason puts it on hold; none takes it off.
   Future<MdfOrder> hold(String order, String? reason) =>

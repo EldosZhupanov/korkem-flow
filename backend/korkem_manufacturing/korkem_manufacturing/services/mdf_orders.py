@@ -56,6 +56,8 @@ STAGES = {
 	"vacuum": "korkem_stage_vacuum",
 	"paint": "korkem_stage_paint",
 }
+#: Who did the stage: an Employee, written with the tick (OnayBaza «Жұмыс көлемі»).
+STAGE_BY = {stage: f"{field}_by" for stage, field in STAGES.items()}
 HEAD = {
 	"thickness_mm": "korkem_thickness_mm",
 	"finish": "korkem_finish",
@@ -341,8 +343,12 @@ def cancel(order: str, reason: str) -> dict:
 	return card(doc.name)
 
 
-def set_stage(order: str, stage: str, done=True) -> dict:
-	"""Tick or untick one stage. The date is today's; the last tick makes the order ready."""
+def set_stage(order: str, stage: str, done=True, worker: str | None = None) -> dict:
+	"""Tick or untick one stage. The date is today's; the last tick makes the order ready.
+
+	`worker` — the Employee who did it, for the shop's work volume; optional,
+	since the manager ticks and may not know. Unticking forgets them.
+	"""
 	facade_prices.ensure_editor()
 	doc = _accepted(order)
 	if stage not in STAGES:
@@ -350,13 +356,17 @@ def set_stage(order: str, stage: str, done=True) -> dict:
 	if doc.korkem_handed_over_on:
 		frappe.throw("Заказ уже выдан.")
 	done = directions.flag(done)
-	doc.db_set(STAGES[stage], nowdate() if done else None, update_modified=True)
+	if worker:
+		if frappe.db.get_value("Employee", worker, "company") != doc.company:
+			frappe.throw("Такого сотрудника в компании нет.")
+	doc.db_set({STAGES[stage]: nowdate() if done else None, STAGE_BY[stage]: (worker or None) if done else None},
+			   update_modified=True)
 	needed = stages_for(doc.korkem_finish)
 	doc.reload()
 	ready = all(doc.get(STAGES[s]) for s in needed)
 	doc.db_set("korkem_ready_on", (doc.korkem_ready_on or nowdate()) if ready else None, update_modified=False)
 	audit.record_audit(action="mdf.stage", entity_type="Sales Order", entity_id=doc.name,
-					   diff={"stage": stage, "done": done, "ready": ready})
+					   diff={"stage": stage, "done": done, "ready": ready, "worker": worker if done else None})
 	return card(doc.name)
 
 
@@ -440,7 +450,13 @@ def card(order: str) -> dict:
 		"paid": flt(doc.advance_paid),
 		"debt": float(_debt(doc)),
 		"payments": paid_rows,
-		"stages": [{"stage": s, "done_on": str(doc.get(STAGES[s])) if doc.get(STAGES[s]) else None} for s in needed],
+		"stages": [
+			{"stage": s, "done_on": str(doc.get(STAGES[s])) if doc.get(STAGES[s]) else None,
+			 "worker": doc.get(STAGE_BY[s]),
+			 "worker_name": frappe.db.get_value("Employee", doc.get(STAGE_BY[s]), "employee_name")
+			 if doc.get(STAGE_BY[s]) else None}
+			for s in needed
+		],
 		"ready_on": str(doc.korkem_ready_on) if doc.korkem_ready_on else None,
 		"handed_over_on": str(doc.korkem_handed_over_on) if doc.korkem_handed_over_on else None,
 		"hold_reason": doc.korkem_hold_reason,

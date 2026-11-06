@@ -52,8 +52,8 @@ def cancel(order: str, reason: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def set_stage(order: str, stage: str, done: bool | int | str = 1) -> dict:
-	return service.set_stage(order, stage, done)
+def set_stage(order: str, stage: str, done: bool | int | str = 1, worker: str | None = None) -> dict:
+	return service.set_stage(order, stage, done, worker=worker)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -107,6 +107,38 @@ def batch(decor: str | None = None, milling: str | None = None, include_in_shop:
 def plan(days: int | str = 14) -> dict:
 	"""Жоспар: очередь каждого этапа с м² и приём заказов по дням."""
 	return service.plan(days=int(days or 14))
+
+
+@frappe.whitelist(methods=["GET"])
+def cash(since: str | None = None, until: str | None = None) -> dict:
+	"""Касса: оплаты по дням и способам, одобренные расходы, остаток за период."""
+	from korkem_manufacturing.services import mdf_cash
+
+	return mdf_cash.cash(since=since, until=until)
+
+
+@frappe.whitelist(methods=["GET"])
+def report(since: str | None = None, until: str | None = None) -> dict:
+	"""Отчёт по заказам за период: сколько, м², сумма, оплачено, долг; по статусам, плёнкам, клиентам."""
+	from korkem_manufacturing.services import mdf_report
+
+	return mdf_report.report(since=since, until=until)
+
+
+@frappe.whitelist(methods=["GET"])
+def volume(since: str | None = None, until: str | None = None) -> dict:
+	"""Объём работ: м² и заказы по сотрудникам и этапам за период."""
+	from korkem_manufacturing.services import mdf_volume
+
+	return mdf_volume.volume(since=since, until=until)
+
+
+@frappe.whitelist(methods=["GET"])
+def workers() -> list[dict]:
+	"""Кого можно указать исполнителем этапа: активные сотрудники компании."""
+	from korkem_manufacturing.services import mdf_volume
+
+	return mdf_volume.workers()
 
 
 @frappe.whitelist(methods=["GET"])

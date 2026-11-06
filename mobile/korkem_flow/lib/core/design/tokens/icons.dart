@@ -72,6 +72,7 @@ abstract final class AppIcons {
 
   /// On paper, through the system print dialog.
   static const IconData print = Symbols.print_rounded;
+  static const IconData report = Symbols.bar_chart_rounded;
 
   /// A textured film: its parts are never turned on the press.
   static const IconData textured = Symbols.texture_rounded;

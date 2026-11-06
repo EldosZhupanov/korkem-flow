@@ -13,6 +13,7 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 String _m2(double v) => v.toStringAsFixed(2);
@@ -33,11 +34,21 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
   Future<void> _tick(PlanStage stage, PlanOrder order) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final worker = await pickMdfWorker(
+      context,
+      '${order.name} · ${mdfStageLabel(stage.stage, l10n)}',
+    );
+    if (worker == null || !mounted) return;
     setState(() => _busy = order.name);
     try {
       await ref
           .read(mdfOrderRepositoryProvider)
-          .setStage(order.name, stage.stage, done: true);
+          .setStage(
+            order.name,
+            stage.stage,
+            done: true,
+            worker: worker.isEmpty ? null : worker,
+          );
       messenger.showDone(
         l10n.mdfPlanTicked(order.name, mdfStageLabel(stage.stage, l10n)),
       );

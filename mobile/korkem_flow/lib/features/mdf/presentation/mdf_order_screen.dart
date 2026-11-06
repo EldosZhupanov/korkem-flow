@@ -1098,9 +1098,11 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               FilterChip(
                 key: ValueKey('mdfStage:${stage.name}'),
                 label: Text(
-                  doneOn == null
-                      ? mdfStageLabel(stage, l10n)
-                      : '${mdfStageLabel(stage, l10n)} · $doneOn',
+                  [
+                    mdfStageLabel(stage, l10n),
+                    ?doneOn,
+                    ?o.stageWorkers[stage],
+                  ].join(' · '),
                 ),
                 selected: doneOn != null,
                 onSelected: !open || _busy || o.status == MdfStatus.onHold
