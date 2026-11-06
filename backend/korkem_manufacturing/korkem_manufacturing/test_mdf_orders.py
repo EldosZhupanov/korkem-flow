@@ -294,6 +294,129 @@ class TestMdfOrders(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, mdf_orders.change_order, card["name"], lines=ORDER_1129, reason="Поздно")
 
+	def test_the_plan_puts_an_order_at_its_first_unticked_stage(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+
+		def where():
+			plan = self._as(MANAGER, mdf_orders.plan)
+			return next((q["stage"] for q in plan["stages"] for o in q["orders"] if o["name"] == card["name"]),
+						None), plan
+
+		stage, plan = where()
+		self.assertEqual(stage, "cut")
+		cut = next(q for q in plan["stages"] if q["stage"] == "cut")
+		self.assertGreaterEqual(cut["area_m2"], 3.04)
+		self.assertTrue(any(d["date"] == nowdate() for d in plan["intake"]))
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "cut")
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "mill")
+		self.assertEqual(where()[0], "sand")
+		self._as(MANAGER, mdf_orders.hold, card["name"], "Ждём плёнку")
+		self.assertIsNone(where()[0])  # on hold waits nowhere
+
+	def test_the_cash_book_shows_a_payment_by_its_method_and_an_approved_expense(self):
+		from korkem_manufacturing.api import mdf_orders as api
+		from korkem_manufacturing.services import mdf_cash, urgent_expenses
+
+		before = self._as(MANAGER, mdf_cash.cash)
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		self._as(MANAGER, api.add_payment, card["name"], 20_000, "Kaspi")
+		self.addCleanup(self._cancel_payments, card["name"])
+		expense = frappe.get_doc(
+			{"doctype": urgent_expenses.DOCTYPE, "company": COMPANY, "requested_by": CUTTER, "amount": 3_500,
+			 "purpose": "Пилки для форматки", "category": "Инструмент", "status": urgent_expenses.APPROVED,
+			 "decided_by": "Administrator", "decided_at": frappe.utils.now_datetime()}
+		).insert(ignore_permissions=True)
+		# An expense is never deleted (urgent_expense.on_trash); the class rolls back.
+
+		cash = self._as(MANAGER, mdf_cash.cash)
+		self.assertEqual(cash["since"], nowdate())
+		self.assertIn(card["name"], [p["order"] for p in cash["payments"] if p["method"] == "Kaspi"])
+		self.assertEqual(cash["total_in"] - before["total_in"], 20_000)  # the part paid, not the order's total
+		self.assertEqual([p["amount"] for p in self._as(MANAGER, mdf_orders.card, card["name"])["payments"]], [20_000])
+		self.assertEqual(cash["total_out"] - before["total_out"], 3_500)
+		self.assertEqual(cash["net"], cash["total_in"] - cash["total_out"])
+		today = cash["days"][0]
+		self.assertEqual((today["date"], today["net"]), (nowdate(), today["in"] - today["out"]))
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, mdf_cash.cash)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_cash.cash, since=nowdate(), until=add_days(nowdate(), -1))
+
+	def test_the_order_report_counts_accepted_orders_and_cancelled_ones_apart(self):
+		from korkem_manufacturing.services import mdf_report
+
+		before = self._as(MANAGER, mdf_report.report, since=nowdate(), until=nowdate())
+		kept, dropped, draft = self._draft(decor_top=self.decor), self._draft(), self._draft()
+		for card in (kept, dropped, draft):
+			self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, kept["name"])
+		self._as(MANAGER, mdf_orders.accept, dropped["name"])
+		self._as(MANAGER, mdf_orders.cancel, dropped["name"], "Клиент передумал")
+
+		report = self._as(MANAGER, mdf_report.report, since=nowdate(), until=nowdate())
+		self.assertEqual(report["orders"] - before["orders"], 1)  # the draft is not an order yet
+		self.assertEqual(report["cancelled"] - before["cancelled"], 1)
+		self.assertAlmostEqual(report["area_m2"] - before["area_m2"], 3.04, places=2)
+		self.assertEqual(report["total"] - before["total"], 58_680)
+		venge = next(d for d in report["by_decor"] if d["decor"] == self.decor)
+		self.assertGreaterEqual(venge["orders"], 1)
+		self.assertIn("accepted", [s["status"] for s in report["by_status"]])
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, mdf_report.report)
+
+	def test_a_stage_ticked_with_a_worker_counts_to_their_work_volume(self):
+		from korkem_manufacturing.services import mdf_volume
+
+		worker = self._worker()
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		before = self._as(MANAGER, mdf_volume.volume, since=nowdate(), until=nowdate())
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "cut", worker=worker)
+		self.assertEqual(card["stages"][0]["worker"], worker)
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "mill")  # nobody named
+
+		after = self._as(MANAGER, mdf_volume.volume, since=nowdate(), until=nowdate())
+
+		def area(report, who):
+			return next((w["area_m2"] for w in report["workers"] if w["worker"] == who), 0)
+
+		self.assertAlmostEqual(area(after, worker) - area(before, worker), 3.04, places=2)
+		self.assertAlmostEqual(after["unassigned_m2"] - before["unassigned_m2"], 3.04, places=2)
+		self.assertIn(worker, [w["employee"] for w in self._as(MANAGER, mdf_volume.workers)])
+
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "cut", done=False)
+		self.assertIsNone(card["stages"][0]["worker"])  # unticking forgets who
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], "cut", worker="EMP-NOBODY")
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, mdf_volume.volume)
+
+	def _worker(self) -> str:
+		existing = frappe.db.get_value("Employee", {"company": COMPANY, "status": "Active"}, "name")
+		if existing:
+			return existing
+		return frappe.get_doc(
+			{"doctype": "Employee", "first_name": "Цех", "last_name": "Тест", "company": COMPANY, "status": "Active",
+			 "gender": self._gender(), "date_of_birth": "1990-01-01",
+			 "date_of_joining": "2024-01-01"}
+		).insert(ignore_permissions=True).name
+
+	def _gender(self) -> str:
+		if not frappe.db.exists("Gender", "Male"):
+			frappe.get_doc({"doctype": "Gender", "gender": "Male"}).insert(ignore_permissions=True)
+		return "Male"
+
+	def _cancel_payments(self, order: str) -> None:
+		frappe.set_user("Administrator")
+		for parent in frappe.get_all("Payment Entry Reference", filters={"reference_name": order, "docstatus": 1},
+									 pluck="parent"):
+			frappe.get_doc("Payment Entry", parent).cancel()
+
 	def _drop(self, name: str) -> None:
 		frappe.set_user("Administrator")
 		if not frappe.db.exists("Sales Order", name):

@@ -5061,4 +5061,139 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfHistorySection => 'History';
+
+  @override
+  String get mdfPlanTitle => 'Shop plan';
+
+  @override
+  String get mdfPlanHint => 'What waits at each stage, in m²';
+
+  @override
+  String mdfPlanInWork(String area) {
+    return 'In work: $area m²';
+  }
+
+  @override
+  String get mdfPlanTick => 'Stage done';
+
+  @override
+  String mdfPlanTicked(String order, String stage) {
+    return '$order: «$stage» ticked';
+  }
+
+  @override
+  String get mdfPlanIntake => 'Orders taken in, by day';
+
+  @override
+  String mdfPlanIntakeDay(String orders, String area) {
+    return '$orders orders · $area m²';
+  }
+
+  @override
+  String get mdfCashTitle => 'Cash book';
+
+  @override
+  String get mdfCashHint => 'Payments by method, expenses, balance';
+
+  @override
+  String get mdfCashToday => 'Today';
+
+  @override
+  String get mdfCashWeek => '7 days';
+
+  @override
+  String get mdfCashMonth => '30 days';
+
+  @override
+  String get mdfCashIn => 'In';
+
+  @override
+  String get mdfCashOut => 'Out';
+
+  @override
+  String get mdfCashNet => 'Balance';
+
+  @override
+  String get mdfCashByDay => 'By day';
+
+  @override
+  String get mdfCashPayments => 'Payments';
+
+  @override
+  String get mdfCashNoPayments => 'No payments in this period';
+
+  @override
+  String get mdfCashExpenses => 'Expenses';
+
+  @override
+  String get mdfReportTitle => 'Order report';
+
+  @override
+  String get mdfReportHint => 'Orders, m² and money for a period';
+
+  @override
+  String get mdfReportThisMonth => 'This month';
+
+  @override
+  String get mdfReportLastMonth => 'Last month';
+
+  @override
+  String get mdfReportYear => 'Year';
+
+  @override
+  String get mdfReportOrders => 'Orders';
+
+  @override
+  String get mdfReportArea => 'Area';
+
+  @override
+  String get mdfReportTotal => 'Total';
+
+  @override
+  String get mdfReportPaid => 'Paid';
+
+  @override
+  String get mdfReportDebt => 'Owed';
+
+  @override
+  String get mdfReportCancelled => 'Cancelled';
+
+  @override
+  String get mdfReportByDecor => 'By film';
+
+  @override
+  String get mdfReportTopCustomers => 'Top customers';
+
+  @override
+  String mdfReportLine(String orders, String area, String total) {
+    return '$orders orders · $area m² · $total';
+  }
+
+  @override
+  String mdfReportOwes(String amount) {
+    return 'owes $amount';
+  }
+
+  @override
+  String get mdfVolumeTitle => 'Work volume';
+
+  @override
+  String get mdfVolumeHint => 'm² per worker and stage';
+
+  @override
+  String get mdfVolumeByWorker => 'By worker';
+
+  @override
+  String get mdfVolumeEmpty => 'No stages ticked in this period';
+
+  @override
+  String mdfVolumeUnassigned(String area) {
+    return 'With nobody named: $area';
+  }
+
+  @override
+  String get mdfWhoDidIt => 'Who did this stage?';
+
+  @override
+  String get mdfWorkerNobody => 'Nobody named';
 }

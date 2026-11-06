@@ -5024,4 +5024,139 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfHistorySection => 'Тарих';
+
+  @override
+  String get mdfPlanTitle => 'Жоспар';
+
+  @override
+  String get mdfPlanHint => 'Әр кезеңде не күтуде және неше м²';
+
+  @override
+  String mdfPlanInWork(String area) {
+    return 'Жұмыста: $area м²';
+  }
+
+  @override
+  String get mdfPlanTick => 'Кезең дайын';
+
+  @override
+  String mdfPlanTicked(String order, String stage) {
+    return '$order: «$stage» белгіленді';
+  }
+
+  @override
+  String get mdfPlanIntake => 'Күндер бойынша қабылдау';
+
+  @override
+  String mdfPlanIntakeDay(String orders, String area) {
+    return '$orders тапс. · $area м²';
+  }
+
+  @override
+  String get mdfCashTitle => 'Касса';
+
+  @override
+  String get mdfCashHint => 'Төлемдер, шығындар және қалдық';
+
+  @override
+  String get mdfCashToday => 'Бүгін';
+
+  @override
+  String get mdfCashWeek => '7 күн';
+
+  @override
+  String get mdfCashMonth => '30 күн';
+
+  @override
+  String get mdfCashIn => 'Түсті';
+
+  @override
+  String get mdfCashOut => 'Шықты';
+
+  @override
+  String get mdfCashNet => 'Қалдық';
+
+  @override
+  String get mdfCashByDay => 'Күндер бойынша';
+
+  @override
+  String get mdfCashPayments => 'Төлемдер';
+
+  @override
+  String get mdfCashNoPayments => 'Бұл кезеңде төлем жоқ';
+
+  @override
+  String get mdfCashExpenses => 'Шығындар';
+
+  @override
+  String get mdfReportTitle => 'Тапсырыс есебі';
+
+  @override
+  String get mdfReportHint => 'Кезеңдегі тапсырыс, м² және ақша';
+
+  @override
+  String get mdfReportThisMonth => 'Осы ай';
+
+  @override
+  String get mdfReportLastMonth => 'Өткен ай';
+
+  @override
+  String get mdfReportYear => 'Жыл';
+
+  @override
+  String get mdfReportOrders => 'Тапсырыс';
+
+  @override
+  String get mdfReportArea => 'Аудан';
+
+  @override
+  String get mdfReportTotal => 'Сома';
+
+  @override
+  String get mdfReportPaid => 'Төленді';
+
+  @override
+  String get mdfReportDebt => 'Қарыз';
+
+  @override
+  String get mdfReportCancelled => 'Бас тартылды';
+
+  @override
+  String get mdfReportByDecor => 'Үлдірлер бойынша';
+
+  @override
+  String get mdfReportTopCustomers => 'Үздік клиенттер';
+
+  @override
+  String mdfReportLine(String orders, String area, String total) {
+    return '$orders тапс. · $area м² · $total';
+  }
+
+  @override
+  String mdfReportOwes(String amount) {
+    return 'қарыз $amount';
+  }
+
+  @override
+  String get mdfVolumeTitle => 'Жұмыс көлемі';
+
+  @override
+  String get mdfVolumeHint => 'Әркім кезеңдер бойынша неше м² жасады';
+
+  @override
+  String get mdfVolumeByWorker => 'Қызметкерлер бойынша';
+
+  @override
+  String get mdfVolumeEmpty => 'Бұл кезеңде кезеңдер белгіленбеген';
+
+  @override
+  String mdfVolumeUnassigned(String area) {
+    return 'Орындаушысыз: $area';
+  }
+
+  @override
+  String get mdfWhoDidIt => 'Бұл кезеңді кім жасады?';
+
+  @override
+  String get mdfWorkerNobody => 'Көрсетпеу';
 }

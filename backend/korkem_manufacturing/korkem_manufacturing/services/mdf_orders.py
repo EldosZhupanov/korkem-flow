@@ -56,6 +56,8 @@ STAGES = {
 	"vacuum": "korkem_stage_vacuum",
 	"paint": "korkem_stage_paint",
 }
+#: Who did the stage: an Employee, written with the tick (OnayBaza «Жұмыс көлемі»).
+STAGE_BY = {stage: f"{field}_by" for stage, field in STAGES.items()}
 HEAD = {
 	"thickness_mm": "korkem_thickness_mm",
 	"finish": "korkem_finish",
@@ -341,8 +343,12 @@ def cancel(order: str, reason: str) -> dict:
 	return card(doc.name)
 
 
-def set_stage(order: str, stage: str, done=True) -> dict:
-	"""Tick or untick one stage. The date is today's; the last tick makes the order ready."""
+def set_stage(order: str, stage: str, done=True, worker: str | None = None) -> dict:
+	"""Tick or untick one stage. The date is today's; the last tick makes the order ready.
+
+	`worker` — the Employee who did it, for the shop's work volume; optional,
+	since the manager ticks and may not know. Unticking forgets them.
+	"""
 	facade_prices.ensure_editor()
 	doc = _accepted(order)
 	if stage not in STAGES:
@@ -350,13 +356,17 @@ def set_stage(order: str, stage: str, done=True) -> dict:
 	if doc.korkem_handed_over_on:
 		frappe.throw("Заказ уже выдан.")
 	done = directions.flag(done)
-	doc.db_set(STAGES[stage], nowdate() if done else None, update_modified=True)
+	if worker:
+		if frappe.db.get_value("Employee", worker, "company") != doc.company:
+			frappe.throw("Такого сотрудника в компании нет.")
+	doc.db_set({STAGES[stage]: nowdate() if done else None, STAGE_BY[stage]: (worker or None) if done else None},
+			   update_modified=True)
 	needed = stages_for(doc.korkem_finish)
 	doc.reload()
 	ready = all(doc.get(STAGES[s]) for s in needed)
 	doc.db_set("korkem_ready_on", (doc.korkem_ready_on or nowdate()) if ready else None, update_modified=False)
 	audit.record_audit(action="mdf.stage", entity_type="Sales Order", entity_id=doc.name,
-					   diff={"stage": stage, "done": done, "ready": ready})
+					   diff={"stage": stage, "done": done, "ready": ready, "worker": worker if done else None})
 	return card(doc.name)
 
 
@@ -440,7 +450,13 @@ def card(order: str) -> dict:
 		"paid": flt(doc.advance_paid),
 		"debt": float(_debt(doc)),
 		"payments": paid_rows,
-		"stages": [{"stage": s, "done_on": str(doc.get(STAGES[s])) if doc.get(STAGES[s]) else None} for s in needed],
+		"stages": [
+			{"stage": s, "done_on": str(doc.get(STAGES[s])) if doc.get(STAGES[s]) else None,
+			 "worker": doc.get(STAGE_BY[s]),
+			 "worker_name": frappe.db.get_value("Employee", doc.get(STAGE_BY[s]), "employee_name")
+			 if doc.get(STAGE_BY[s]) else None}
+			for s in needed
+		],
 		"ready_on": str(doc.korkem_ready_on) if doc.korkem_ready_on else None,
 		"handed_over_on": str(doc.korkem_handed_over_on) if doc.korkem_handed_over_on else None,
 		"hold_reason": doc.korkem_hold_reason,
@@ -577,6 +593,61 @@ def batch(decor: str | None = None, milling: str | None = None, include_in_shop=
 		"parts": rows,
 		"pieces": sum(r["qty"] for r in rows),
 		"area_m2": float(sum((Decimal(str(r["area_m2"])) for r in rows), Decimal(0))),
+	}
+
+
+def plan(days: int = 14) -> dict:
+	"""«Жоспар» — the shop's plan: what waits at each stage, and in m².
+
+	An order waits at the first stage of its finish that is not ticked; one
+	on hold, ready or handed over waits nowhere. Within a stage the earliest
+	due date comes first. Below, the orders taken in over the last `days`
+	days, by day, the way OnayBaza shows «Қабылданған күні».
+	"""
+	facade_prices.ensure_editor()
+	company = current_company()
+	days = max(1, min(int(days or 14), 92))
+	rows = frappe.get_all(
+		"Sales Order",
+		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
+				 "korkem_ready_on": ["is", "not set"], "korkem_handed_over_on": ["is", "not set"],
+				 "korkem_hold_reason": ["is", "not set"]},
+		fields=["name", "docstatus", "customer_name", "delivery_date", "transaction_date", "korkem_finish",
+				"korkem_decor_top", "korkem_milling", "advance_paid", "grand_total", "korkem_ready_on",
+				"korkem_handed_over_on", "korkem_hold_reason", *STAGES.values()],
+		order_by="delivery_date asc, name asc",
+		limit_page_length=1000,
+	)
+	queues = {stage: {"stage": stage, "orders": [], "area_m2": Decimal(0)} for stage in STAGES}
+	for row in rows:
+		waiting = next((s for s in stages_for(row.korkem_finish) if not row.get(STAGES[s])), None)
+		if waiting is None:
+			continue
+		area = Decimal(str(_area(row.name)))
+		queues[waiting]["area_m2"] += area
+		queues[waiting]["orders"].append(
+			{"name": row.name, "customer_name": row.customer_name, "delivery_date": str(row.delivery_date),
+			 "decor_top": row.korkem_decor_top, "milling": row.korkem_milling, "area_m2": float(area),
+			 "overdue": _overdue(row), "due_soon": _due_soon(row), "debt": float(_debt(row))}
+		)
+	since = add_days(nowdate(), -days + 1)
+	intake = {}
+	for row in frappe.get_all(
+		"Sales Order",
+		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
+				 "transaction_date": [">=", since]},
+		fields=["name", "transaction_date"],
+		limit_page_length=2000,
+	):
+		day = intake.setdefault(str(row.transaction_date), {"date": str(row.transaction_date), "orders": 0,
+														   "area_m2": Decimal(0)})
+		day["orders"] += 1
+		day["area_m2"] += Decimal(str(_area(row.name)))
+	return {
+		"stages": [{**q, "area_m2": float(q["area_m2"])} for q in queues.values()],
+		"intake": [{**d, "area_m2": float(d["area_m2"])} for d in sorted(intake.values(), key=lambda d: d["date"],
+																		  reverse=True)],
+		"in_work_m2": float(sum((q["area_m2"] for q in queues.values()), Decimal(0))),
 	}
 
 
