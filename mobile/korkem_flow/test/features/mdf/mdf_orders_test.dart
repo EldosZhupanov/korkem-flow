@@ -91,6 +91,7 @@ class _FakeRepository implements MdfOrderRepository {
     String order,
     MdfStage stage, {
     required bool done,
+    String? worker,
   }) async {
     ticked.add((stage, done));
     stages = {...stages, stage.name: done ? '2026-11-05' : null};

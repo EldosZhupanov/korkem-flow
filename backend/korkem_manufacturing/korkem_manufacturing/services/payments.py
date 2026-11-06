@@ -81,6 +81,12 @@ def record_payment(
 		pe = get_payment_entry("Sales Order", sales_order)
 		pe.paid_amount = amt
 		pe.received_amount = amt
+		# get_payment_entry allocates the whole outstanding to the order; a part
+		# payment must allocate only what was paid, or the order's payments read
+		# the full total (found by the MDF cash book, 07.11.2026).
+		for ref in pe.references:
+			if ref.reference_doctype == "Sales Order" and ref.reference_name == sales_order:
+				ref.allocated_amount = min(amt, flt(ref.outstanding_amount) or amt)
 		pe.mode_of_payment = mode_of_payment
 		pe.reference_no = idempotency_key or ref
 		pe.reference_date = date_paid

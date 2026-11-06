@@ -5866,5 +5866,105 @@
   "mdfBatchParts": "Parts (same sizes summed)",
   "mdfBatchLong": "Long",
   "mdfBatchShort": "Short",
-  "mdfBatchOrders": "Orders"
+  "mdfBatchOrders": "Orders",
+  "mdfChangeOrder": "Change order",
+  "mdfChangeReason": "What changes and why",
+  "mdfSaveChange": "Save changes",
+  "mdfChanged": "Order changed — written into its history",
+  "mdfHistorySection": "History",
+  "mdfPlanTitle": "Shop plan",
+  "mdfPlanHint": "What waits at each stage, in m²",
+  "mdfPlanInWork": "In work: {area} m²",
+  "@mdfPlanInWork": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPlanTick": "Stage done",
+  "mdfPlanTicked": "{order}: «{stage}» ticked",
+  "@mdfPlanTicked": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPlanIntake": "Orders taken in, by day",
+  "mdfPlanIntakeDay": "{orders} orders · {area} m²",
+  "@mdfPlanIntakeDay": {
+    "placeholders": {
+      "orders": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfCashTitle": "Cash book",
+  "mdfCashHint": "Payments by method, expenses, balance",
+  "mdfCashToday": "Today",
+  "mdfCashWeek": "7 days",
+  "mdfCashMonth": "30 days",
+  "mdfCashIn": "In",
+  "mdfCashOut": "Out",
+  "mdfCashNet": "Balance",
+  "mdfCashByDay": "By day",
+  "mdfCashPayments": "Payments",
+  "mdfCashNoPayments": "No payments in this period",
+  "mdfCashExpenses": "Expenses",
+  "mdfReportTitle": "Order report",
+  "mdfReportHint": "Orders, m² and money for a period",
+  "mdfReportThisMonth": "This month",
+  "mdfReportLastMonth": "Last month",
+  "mdfReportYear": "Year",
+  "mdfReportOrders": "Orders",
+  "mdfReportArea": "Area",
+  "mdfReportTotal": "Total",
+  "mdfReportPaid": "Paid",
+  "mdfReportDebt": "Owed",
+  "mdfReportCancelled": "Cancelled",
+  "mdfReportByDecor": "By film",
+  "mdfReportTopCustomers": "Top customers",
+  "mdfReportLine": "{orders} orders · {area} m² · {total}",
+  "@mdfReportLine": {
+    "placeholders": {
+      "orders": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfReportOwes": "owes {amount}",
+  "@mdfReportOwes": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfVolumeTitle": "Work volume",
+  "mdfVolumeHint": "m² per worker and stage",
+  "mdfVolumeByWorker": "By worker",
+  "mdfVolumeEmpty": "No stages ticked in this period",
+  "mdfVolumeUnassigned": "With nobody named: {area}",
+  "@mdfVolumeUnassigned": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfWhoDidIt": "Who did this stage?",
+  "mdfWorkerNobody": "Nobody named"
 }

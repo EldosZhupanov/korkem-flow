@@ -9026,6 +9026,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Orders'**
   String get mdfBatchOrders;
+
+  /// No description provided for @mdfChangeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Change order'**
+  String get mdfChangeOrder;
+
+  /// No description provided for @mdfChangeReason.
+  ///
+  /// In en, this message translates to:
+  /// **'What changes and why'**
+  String get mdfChangeReason;
+
+  /// No description provided for @mdfSaveChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get mdfSaveChange;
+
+  /// No description provided for @mdfChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Order changed — written into its history'**
+  String get mdfChanged;
+
+  /// No description provided for @mdfHistorySection.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get mdfHistorySection;
+
+  /// No description provided for @mdfPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop plan'**
+  String get mdfPlanTitle;
+
+  /// No description provided for @mdfPlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What waits at each stage, in m²'**
+  String get mdfPlanHint;
+
+  /// No description provided for @mdfPlanInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'In work: {area} m²'**
+  String mdfPlanInWork(String area);
+
+  /// No description provided for @mdfPlanTick.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage done'**
+  String get mdfPlanTick;
+
+  /// No description provided for @mdfPlanTicked.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: «{stage}» ticked'**
+  String mdfPlanTicked(String order, String stage);
+
+  /// No description provided for @mdfPlanIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders taken in, by day'**
+  String get mdfPlanIntake;
+
+  /// No description provided for @mdfPlanIntakeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders · {area} m²'**
+  String mdfPlanIntakeDay(String orders, String area);
+
+  /// No description provided for @mdfCashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash book'**
+  String get mdfCashTitle;
+
+  /// No description provided for @mdfCashHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments by method, expenses, balance'**
+  String get mdfCashHint;
+
+  /// No description provided for @mdfCashToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get mdfCashToday;
+
+  /// No description provided for @mdfCashWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get mdfCashWeek;
+
+  /// No description provided for @mdfCashMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get mdfCashMonth;
+
+  /// No description provided for @mdfCashIn.
+  ///
+  /// In en, this message translates to:
+  /// **'In'**
+  String get mdfCashIn;
+
+  /// No description provided for @mdfCashOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Out'**
+  String get mdfCashOut;
+
+  /// No description provided for @mdfCashNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get mdfCashNet;
+
+  /// No description provided for @mdfCashByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'By day'**
+  String get mdfCashByDay;
+
+  /// No description provided for @mdfCashPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get mdfCashPayments;
+
+  /// No description provided for @mdfCashNoPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments in this period'**
+  String get mdfCashNoPayments;
+
+  /// No description provided for @mdfCashExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get mdfCashExpenses;
+
+  /// No description provided for @mdfReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order report'**
+  String get mdfReportTitle;
+
+  /// No description provided for @mdfReportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders, m² and money for a period'**
+  String get mdfReportHint;
+
+  /// No description provided for @mdfReportThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get mdfReportThisMonth;
+
+  /// No description provided for @mdfReportLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get mdfReportLastMonth;
+
+  /// No description provided for @mdfReportYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get mdfReportYear;
+
+  /// No description provided for @mdfReportOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get mdfReportOrders;
+
+  /// No description provided for @mdfReportArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get mdfReportArea;
+
+  /// No description provided for @mdfReportTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get mdfReportTotal;
+
+  /// No description provided for @mdfReportPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get mdfReportPaid;
+
+  /// No description provided for @mdfReportDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed'**
+  String get mdfReportDebt;
+
+  /// No description provided for @mdfReportCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get mdfReportCancelled;
+
+  /// No description provided for @mdfReportByDecor.
+  ///
+  /// In en, this message translates to:
+  /// **'By film'**
+  String get mdfReportByDecor;
+
+  /// No description provided for @mdfReportTopCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top customers'**
+  String get mdfReportTopCustomers;
+
+  /// No description provided for @mdfReportLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders · {area} m² · {total}'**
+  String mdfReportLine(String orders, String area, String total);
+
+  /// No description provided for @mdfReportOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {amount}'**
+  String mdfReportOwes(String amount);
+
+  /// No description provided for @mdfVolumeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Work volume'**
+  String get mdfVolumeTitle;
+
+  /// No description provided for @mdfVolumeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'m² per worker and stage'**
+  String get mdfVolumeHint;
+
+  /// No description provided for @mdfVolumeByWorker.
+  ///
+  /// In en, this message translates to:
+  /// **'By worker'**
+  String get mdfVolumeByWorker;
+
+  /// No description provided for @mdfVolumeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No stages ticked in this period'**
+  String get mdfVolumeEmpty;
+
+  /// No description provided for @mdfVolumeUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'With nobody named: {area}'**
+  String mdfVolumeUnassigned(String area);
+
+  /// No description provided for @mdfWhoDidIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did this stage?'**
+  String get mdfWhoDidIt;
+
+  /// No description provided for @mdfWorkerNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody named'**
+  String get mdfWorkerNobody;
 }
 
 class _AppLocalizationsDelegate

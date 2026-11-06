@@ -124,13 +124,24 @@ class _LineFields {
 }
 
 class _DraftForm extends ConsumerStatefulWidget {
-  const _DraftForm({this.order, this.template, super.key});
+  const _DraftForm({
+    this.order,
+    this.template,
+    this.onChanged,
+    super.key,
+  });
 
   /// The draft being changed; null for a new one.
   final MdfOrder? order;
 
   /// For a new draft: the order it repeats (customer, head and lines).
   final MdfOrder? template;
+
+  /// Set when [order] is accepted and being changed: Save asks for the
+  /// reason and changes the order in place; called with the changed card.
+  final ValueChanged<MdfOrder>? onChanged;
+
+  bool get changing => onChanged != null;
 
   @override
   ConsumerState<_DraftForm> createState() => _DraftFormState();
@@ -341,6 +352,44 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     } on Object catch (error) {
       messenger.showFailure(error, l10n);
       return null;
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// «Сохранить изменения» on an accepted order: the reason first, then
+  /// the change; the payments stay as they are.
+  Future<void> _saveChange() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    if (_inputs.isEmpty) {
+      messenger.showFailureMessage(l10n.mdfNeedLine);
+      return;
+    }
+    final reason = await showReasonDialog(
+      context,
+      title: l10n.mdfChangeOrder,
+      label: l10n.mdfChangeReason,
+      confirm: l10n.mdfConfirm,
+      cancel: l10n.mdfCancel,
+      fieldKey: const ValueKey('mdfChangeReasonField'),
+    );
+    if (reason == null) return;
+    setState(() => _busy = true);
+    try {
+      final changed = await ref
+          .read(mdfOrderRepositoryProvider)
+          .changeOrder(
+            widget.order!.name,
+            lines: _inputs,
+            reason: reason,
+            head: _readHead(),
+            deliveryDate: _due?.toIso8601String().substring(0, 10),
+          );
+      messenger.showDone(l10n.mdfChanged);
+      widget.onChanged!(changed);
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -597,22 +646,30 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                   key: const ValueKey('mdfTotals'),
                   style: theme.textTheme.titleMedium,
                 ),
-                if (widget.order != null)
-                  TextButton(
-                    key: const ValueKey('mdfDelete'),
-                    onPressed: _busy ? null : _delete,
-                    child: Text(l10n.mdfDeleteDraft),
+                if (widget.changing)
+                  FilledButton(
+                    key: const ValueKey('mdfSaveChange'),
+                    onPressed: _busy ? null : _saveChange,
+                    child: Text(l10n.mdfSaveChange),
+                  )
+                else ...[
+                  if (widget.order != null)
+                    TextButton(
+                      key: const ValueKey('mdfDelete'),
+                      onPressed: _busy ? null : _delete,
+                      child: Text(l10n.mdfDeleteDraft),
+                    ),
+                  OutlinedButton(
+                    key: const ValueKey('mdfSave'),
+                    onPressed: _busy ? null : _saveAndShow,
+                    child: Text(l10n.mdfSaveDraft),
                   ),
-                OutlinedButton(
-                  key: const ValueKey('mdfSave'),
-                  onPressed: _busy ? null : _saveAndShow,
-                  child: Text(l10n.mdfSaveDraft),
-                ),
-                FilledButton(
-                  key: const ValueKey('mdfAccept'),
-                  onPressed: _busy ? null : () => _saveAndShow(accept: true),
-                  child: Text(l10n.mdfAccept),
-                ),
+                  FilledButton(
+                    key: const ValueKey('mdfAccept'),
+                    onPressed: _busy ? null : () => _saveAndShow(accept: true),
+                    child: Text(l10n.mdfAccept),
+                  ),
+                ],
               ],
             ),
           ),
@@ -864,6 +921,7 @@ class _AcceptedView extends ConsumerStatefulWidget {
 
 class _AcceptedViewState extends ConsumerState<_AcceptedView> {
   bool _busy = false;
+  bool _editing = false;
 
   MdfOrder get o => widget.order;
 
@@ -930,6 +988,16 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
 
   @override
   Widget build(BuildContext context) {
+    if (_editing) {
+      return _DraftForm(
+        key: ValueKey('change:${o.name}'),
+        order: o,
+        onChanged: (_) {
+          setState(() => _editing = false);
+          ref.invalidate(mdfOrderProvider(o.name));
+        },
+      );
+    }
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final money = mdfMoney(context);
@@ -1030,9 +1098,11 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               FilterChip(
                 key: ValueKey('mdfStage:${stage.name}'),
                 label: Text(
-                  doneOn == null
-                      ? mdfStageLabel(stage, l10n)
-                      : '${mdfStageLabel(stage, l10n)} · $doneOn',
+                  [
+                    mdfStageLabel(stage, l10n),
+                    ?doneOn,
+                    ?o.stageWorkers[stage],
+                  ].join(' · '),
                 ),
                 selected: doneOn != null,
                 onSelected: !open || _busy || o.status == MdfStatus.onHold
@@ -1086,7 +1156,27 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             ],
           ),
         ),
-        Text(l10n.mdfChangeAccepted, style: theme.textTheme.bodySmall),
+        if (open)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              key: const ValueKey('mdfChangeOrder'),
+              onPressed: _busy ? null : () => setState(() => _editing = true),
+              icon: const Icon(AppIcons.edit),
+              label: Text(l10n.mdfChangeOrder),
+            ),
+          ),
+        if (o.history.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.lg),
+          SectionLabel(l10n.mdfHistorySection),
+          for (final h in o.history)
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              title: Text(h.text),
+              subtitle: Text('${h.at} · ${h.by}'),
+            ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         SectionLabel(l10n.mdfPaymentsSection),
         if (o.payments.isEmpty)

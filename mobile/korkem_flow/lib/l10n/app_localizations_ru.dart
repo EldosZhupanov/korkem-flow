@@ -5105,4 +5105,154 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfBatchOrders => 'Заказы';
+
+  @override
+  String get mdfChangeOrder => 'Изменить заказ';
+
+  @override
+  String get mdfChangeReason => 'Что и почему меняется';
+
+  @override
+  String get mdfSaveChange => 'Сохранить изменения';
+
+  @override
+  String get mdfChanged => 'Заказ изменён — записано в историю';
+
+  @override
+  String get mdfHistorySection => 'История';
+
+  @override
+  String get mdfPlanTitle => 'План цеха';
+
+  @override
+  String get mdfPlanHint => 'Что ждёт на каждом этапе и сколько м²';
+
+  @override
+  String mdfPlanInWork(String area) {
+    return 'В работе: $area м²';
+  }
+
+  @override
+  String get mdfPlanTick => 'Этап готов';
+
+  @override
+  String mdfPlanTicked(String order, String stage) {
+    return '$order: «$stage» отмечен';
+  }
+
+  @override
+  String get mdfPlanIntake => 'Приём заказов по дням';
+
+  @override
+  String mdfPlanIntakeDay(String orders, String area) {
+    return '$orders зак. · $area м²';
+  }
+
+  @override
+  String get mdfCashTitle => 'Касса';
+
+  @override
+  String get mdfCashHint => 'Оплаты по способам, расходы и остаток';
+
+  @override
+  String get mdfCashToday => 'Сегодня';
+
+  @override
+  String get mdfCashWeek => '7 дней';
+
+  @override
+  String get mdfCashMonth => '30 дней';
+
+  @override
+  String get mdfCashIn => 'Пришло';
+
+  @override
+  String get mdfCashOut => 'Ушло';
+
+  @override
+  String get mdfCashNet => 'Остаток';
+
+  @override
+  String get mdfCashByDay => 'По дням';
+
+  @override
+  String get mdfCashPayments => 'Оплаты';
+
+  @override
+  String get mdfCashNoPayments => 'За этот период оплат нет';
+
+  @override
+  String get mdfCashExpenses => 'Расходы';
+
+  @override
+  String get mdfReportTitle => 'Отчёт по заказам';
+
+  @override
+  String get mdfReportHint => 'Сколько заказов, м² и денег за период';
+
+  @override
+  String get mdfReportThisMonth => 'Этот месяц';
+
+  @override
+  String get mdfReportLastMonth => 'Прошлый';
+
+  @override
+  String get mdfReportYear => 'Год';
+
+  @override
+  String get mdfReportOrders => 'Заказов';
+
+  @override
+  String get mdfReportArea => 'Площадь';
+
+  @override
+  String get mdfReportTotal => 'Сумма';
+
+  @override
+  String get mdfReportPaid => 'Оплачено';
+
+  @override
+  String get mdfReportDebt => 'Долг';
+
+  @override
+  String get mdfReportCancelled => 'Отменено';
+
+  @override
+  String get mdfReportByDecor => 'По плёнкам';
+
+  @override
+  String get mdfReportTopCustomers => 'Лучшие клиенты';
+
+  @override
+  String mdfReportLine(String orders, String area, String total) {
+    return '$orders зак. · $area м² · $total';
+  }
+
+  @override
+  String mdfReportOwes(String amount) {
+    return 'долг $amount';
+  }
+
+  @override
+  String get mdfVolumeTitle => 'Объём работ';
+
+  @override
+  String get mdfVolumeHint => 'Сколько м² сделал каждый по этапам';
+
+  @override
+  String get mdfVolumeByWorker => 'По сотрудникам';
+
+  @override
+  String get mdfVolumeEmpty => 'За этот период этапы не отмечены';
+
+  @override
+  String mdfVolumeUnassigned(String area) {
+    return 'Без исполнителя: $area';
+  }
+
+  @override
+  String get mdfWhoDidIt => 'Кто сделал этот этап?';
+
+  @override
+  String get mdfWorkerNobody => 'Не указывать';
 }

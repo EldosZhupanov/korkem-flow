@@ -49,6 +49,17 @@ ORDER = [
 	 "insert_after": "korkem_ready_on"},
 	{"fieldname": "korkem_hold_reason", "label": "On hold because", "fieldtype": "Small Text",
 	 "insert_after": "korkem_handed_over_on"},
+	# Who did each stage — the shop's work volume (OnayBaza «Жұмыс көлемі»), 07.11.2026.
+	{"fieldname": "korkem_stage_cut_by", "label": "Cut by", "fieldtype": "Link", "options": "Employee",
+	 "insert_after": "korkem_hold_reason"},
+	{"fieldname": "korkem_stage_mill_by", "label": "Milled by", "fieldtype": "Link", "options": "Employee",
+	 "insert_after": "korkem_stage_cut_by"},
+	{"fieldname": "korkem_stage_sand_by", "label": "Sanded by", "fieldtype": "Link", "options": "Employee",
+	 "insert_after": "korkem_stage_mill_by"},
+	{"fieldname": "korkem_stage_vacuum_by", "label": "Pressed by", "fieldtype": "Link", "options": "Employee",
+	 "insert_after": "korkem_stage_sand_by"},
+	{"fieldname": "korkem_stage_paint_by", "label": "Painted by", "fieldtype": "Link", "options": "Employee",
+	 "insert_after": "korkem_stage_vacuum_by"},
 ]
 
 LINE = [
