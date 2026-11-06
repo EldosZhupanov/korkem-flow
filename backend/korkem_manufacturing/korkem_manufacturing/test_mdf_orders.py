@@ -268,6 +268,32 @@ class TestMdfOrders(IntegrationTestCase):
 		longest = [r["long_mm"] for r in batch["parts"]]
 		self.assertEqual(longest, sorted(longest, reverse=True))
 
+	def test_an_accepted_order_changes_with_a_reason_and_keeps_its_history(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.change_order, card["name"], lines=ORDER_1129[:2], reason=" ")
+		changed = self._as(MANAGER, mdf_orders.change_order, card["name"],
+						   lines=[*ORDER_1129[:2], {"height_mm": 500, "width_mm": 400, "qty": 2, "milling": FLAT}],
+						   reason="Клиент убрал две полоски, добавил две двери")
+		# 2 380 + 31 785 + 0,40 м² × 17 000 = 6 800
+		self.assertEqual(changed["total"], 2380 + 31785 + 6800)
+		self.assertEqual([line["area_m2"] for line in changed["lines"]], [0.14, 1.63, 0.40])
+		self.assertEqual(changed["lines"][2]["milling"], FLAT)
+		self.assertEqual(changed["status"], "accepted")
+		self.assertTrue(any("Клиент убрал" in h["text"] for h in changed["history"]))
+
+	def test_a_handed_over_order_is_not_changed(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		for stage in mdf_orders.stages_for(PVC):
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
+		mdf_orders.hand_over(card["name"], comment="Тест")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.change_order, card["name"], lines=ORDER_1129, reason="Поздно")
+
 	def _drop(self, name: str) -> None:
 		frappe.set_user("Administrator")
 		if not frappe.db.exists("Sales Order", name):

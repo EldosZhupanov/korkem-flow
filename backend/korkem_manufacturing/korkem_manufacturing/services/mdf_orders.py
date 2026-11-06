@@ -227,6 +227,92 @@ def accept(order: str) -> dict:
 	return card(doc.name)
 
 
+def change_order(order: str, *, lines, reason: str, head=None, delivery_date: str | None = None) -> dict:
+	"""«Изменить заказ» after «Принять»: new lines (and head, due date), the reason
+	written into the order's history, the payments untouched.
+
+	ERPNext's own update of a submitted order's lines does the change, so
+	what was paid stays paid; the owner's arithmetic prices the new lines
+	exactly as on a draft. The material held for the order is held again for
+	what it now needs.
+	"""
+	import json
+
+	from erpnext.controllers.accounts_controller import update_child_qty_rate
+
+	facade_prices.ensure_editor()
+	reason = _reason(reason, "Укажите, что и почему меняется в заказе.")
+	doc = _accepted(order)
+	if doc.korkem_handed_over_on:
+		frappe.throw("Заказ уже выдан — его не меняют.")
+	head = frappe.parse_json(head) if isinstance(head, str) else head
+	values = _head(head, doc.company) if head else {key: doc.get(field) for key, field in HEAD.items()}
+	wanted = _due(delivery_date) if delivery_date else getdate(doc.delivery_date)
+	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=doc.company)
+	if not quote["lines"]:
+		frappe.throw("В заказе должна остаться хотя бы одна позиция.")
+	before = {"total": flt(doc.grand_total), "lines": [
+		f"{i.korkem_height_mm}×{i.korkem_width_mm}×{int(i.qty)}" for i in doc.items
+		if i.item_code == facade_order.FACADE_ITEM]}
+
+	existing = [i for i in doc.items if i.item_code == facade_order.FACADE_ITEM]
+	keep = [i for i in doc.items if i.item_code != facade_order.FACADE_ITEM]
+	rows = [_item(line, values, wanted) for line in quote["lines"]]
+	trans = [{"docname": i.name, "item_code": i.item_code, "qty": i.qty, "rate": i.rate, "uom": i.uom,
+			  "conversion_factor": i.conversion_factor, "delivery_date": str(i.delivery_date)} for i in keep]
+	for index, row in enumerate(rows):
+		entry = {"item_code": row["item_code"], "qty": row["qty"], "rate": row["rate"], "uom": "Nos",
+				 "conversion_factor": 1, "delivery_date": str(wanted)}
+		if index < len(existing):
+			entry["docname"] = existing[index].name
+		trans.append(entry)
+	update_child_qty_rate("Sales Order", json.dumps(trans), doc.name)
+
+	doc.reload()
+	facade_rows = sorted((i for i in doc.items if i.item_code == facade_order.FACADE_ITEM), key=lambda i: i.idx)
+	custom = [{k: v for k, v in row.items() if k.startswith("korkem_") or k in ("item_name", "description")}
+			  for row in rows]
+	for item, fields in zip(facade_rows, custom, strict=False):
+		frappe.db.set_value("Sales Order Item", item.name, fields, update_modified=False)
+	for key, field in HEAD.items():
+		if doc.get(field) != values[key]:
+			doc.db_set(field, values[key], update_modified=False)
+	if str(getdate(doc.delivery_date)) != str(wanted):
+		doc.db_set("delivery_date", str(wanted), update_modified=False)
+	doc.reload()
+	_check_total(doc, quote["total"])
+
+	on_hold = frappe.db.exists("Stock Reservation", {"sales_order": doc.name, "status": "Active"})
+	if on_hold:
+		from korkem_manufacturing.services import stock_reservation
+
+		stock_reservation.release_reservations_for_order(doc.name, reason="Заказ изменён")
+	facade_materials.reserve(doc.name)
+
+	after = {"total": flt(doc.grand_total), "lines": [f"{line['height_mm']}×{line['width_mm']}×{line['qty']}"
+													  for line in quote["lines"]]}
+	doc.add_comment("Comment", f"Изменён: {reason}. Было {before['total']:,.0f} ₸, стало {after['total']:,.0f} ₸."
+					.replace(",", " "))
+	audit.record_audit(action="mdf.order_changed", entity_type="Sales Order", entity_id=doc.name,
+					   diff={"reason": reason, "before": before, "after": after})
+	return card(doc.name)
+
+
+def history(order: str) -> list[dict]:
+	"""What happened to the order, newest first: comments and the audit trail."""
+	facade_prices.ensure_editor()
+	doc = _order(order)
+	rows = frappe.get_all(
+		"Comment",
+		filters={"reference_doctype": "Sales Order", "reference_name": doc.name, "comment_type": "Comment"},
+		fields=["creation", "owner", "content"],
+		order_by="creation desc",
+		limit_page_length=100,
+	)
+	return [{"at": str(r.creation)[:16], "by": r.owner, "text": frappe.utils.strip_html(r.content or "")}
+			for r in rows]
+
+
 def delete_draft(order: str) -> dict:
 	"""Only a draft is deleted; an accepted order is cancelled, with a reason."""
 	facade_prices.ensure_editor()
@@ -359,6 +445,7 @@ def card(order: str) -> dict:
 		"handed_over_on": str(doc.korkem_handed_over_on) if doc.korkem_handed_over_on else None,
 		"hold_reason": doc.korkem_hold_reason,
 		"notes": doc.terms,
+		"history": history(doc.name),
 	}
 
 

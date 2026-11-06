@@ -5046,4 +5046,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfBatchOrders => 'Orders';
+
+  @override
+  String get mdfChangeOrder => 'Change order';
+
+  @override
+  String get mdfChangeReason => 'What changes and why';
+
+  @override
+  String get mdfSaveChange => 'Save changes';
+
+  @override
+  String get mdfChanged => 'Order changed — written into its history';
+
+  @override
+  String get mdfHistorySection => 'History';
 }

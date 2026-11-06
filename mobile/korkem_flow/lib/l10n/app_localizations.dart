@@ -8954,6 +8954,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Orders'**
   String get mdfBatchOrders;
+
+  /// No description provided for @mdfChangeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Change order'**
+  String get mdfChangeOrder;
+
+  /// No description provided for @mdfChangeReason.
+  ///
+  /// In en, this message translates to:
+  /// **'What changes and why'**
+  String get mdfChangeReason;
+
+  /// No description provided for @mdfSaveChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get mdfSaveChange;
+
+  /// No description provided for @mdfChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Order changed — written into its history'**
+  String get mdfChanged;
+
+  /// No description provided for @mdfHistorySection.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get mdfHistorySection;
 }
 
 class _AppLocalizationsDelegate

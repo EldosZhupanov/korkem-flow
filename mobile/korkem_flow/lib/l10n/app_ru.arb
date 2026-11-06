@@ -1687,5 +1687,10 @@
   "mdfBatchParts": "Детали (одинаковые размеры сложены)",
   "mdfBatchLong": "Длина",
   "mdfBatchShort": "Ширина",
-  "mdfBatchOrders": "Заказы"
+  "mdfBatchOrders": "Заказы",
+  "mdfChangeOrder": "Изменить заказ",
+  "mdfChangeReason": "Что и почему меняется",
+  "mdfSaveChange": "Сохранить изменения",
+  "mdfChanged": "Заказ изменён — записано в историю",
+  "mdfHistorySection": "История"
 }

@@ -1687,5 +1687,10 @@
   "mdfBatchParts": "Бөлшектер (бірдей өлшемдер қосылған)",
   "mdfBatchLong": "Ұзындығы",
   "mdfBatchShort": "Ені",
-  "mdfBatchOrders": "Тапсырыстар"
+  "mdfBatchOrders": "Тапсырыстар",
+  "mdfChangeOrder": "Тапсырысты өзгерту",
+  "mdfChangeReason": "Не және неге өзгереді",
+  "mdfSaveChange": "Өзгерістерді сақтау",
+  "mdfChanged": "Тапсырыс өзгертілді — тарихқа жазылды",
+  "mdfHistorySection": "Тарих"
 }

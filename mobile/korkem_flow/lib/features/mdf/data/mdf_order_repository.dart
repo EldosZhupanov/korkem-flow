@@ -120,6 +120,22 @@ class MdfOrderRepository {
 
   Future<MdfOrder> accept(String order) => _post('accept', {'order': order});
 
+  /// «Изменить заказ» after it was accepted: the reason goes into its
+  /// history; the payments stay.
+  Future<MdfOrder> changeOrder(
+    String order, {
+    required List<MdfLineInput> lines,
+    required String reason,
+    MdfHead? head,
+    String? deliveryDate,
+  }) => _post('change_order', {
+    'order': order,
+    'lines': jsonEncode([for (final l in lines) l.toJson()]),
+    'reason': reason,
+    if (head != null) 'head': jsonEncode(head.toJson()),
+    'delivery_date': ?deliveryDate,
+  });
+
   /// A customer written down on the card: name and phone. The same phone
   /// twice gives back the customer already on file.
   Future<FacadeCustomer> newCustomer(String name, {String? phone}) async =>
