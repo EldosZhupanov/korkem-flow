@@ -5042,4 +5042,31 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfDebtsHint => 'Кто сколько должен — по клиентам и заказам';
+
+  @override
+  String get mdfBatchTitle => 'Детали по плёнке';
+
+  @override
+  String get mdfBatchHint =>
+      'Все детали открытых заказов одной плёнки — одним списком';
+
+  @override
+  String get mdfBatchShow => 'Показать';
+
+  @override
+  String mdfBatchTotals(String orders, String pieces, String area) {
+    return 'Заказов $orders · деталей $pieces шт · $area м²';
+  }
+
+  @override
+  String get mdfBatchParts => 'Детали (одинаковые размеры сложены)';
+
+  @override
+  String get mdfBatchLong => 'Длина';
+
+  @override
+  String get mdfBatchShort => 'Ширина';
+
+  @override
+  String get mdfBatchOrders => 'Заказы';
 }

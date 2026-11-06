@@ -5833,5 +5833,26 @@
     }
   },
   "mdfDebtsHandedOver": "Handed over owing",
-  "mdfDebtsHint": "Who owes what, by customer and order"
+  "mdfDebtsHint": "Who owes what, by customer and order",
+  "mdfBatchTitle": "Parts by film",
+  "mdfBatchHint": "Every part of the open orders of one film, as one list",
+  "mdfBatchShow": "Show",
+  "mdfBatchTotals": "{orders} orders · {pieces} parts · {area} m²",
+  "@mdfBatchTotals": {
+    "placeholders": {
+      "orders": {
+        "type": "String"
+      },
+      "pieces": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfBatchParts": "Parts (same sizes summed)",
+  "mdfBatchLong": "Long",
+  "mdfBatchShort": "Short",
+  "mdfBatchOrders": "Orders"
 }

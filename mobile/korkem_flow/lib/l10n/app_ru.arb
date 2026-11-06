@@ -1679,5 +1679,13 @@
   "mdfDebtsByOrder": "По заказам",
   "mdfDebtsOrders": "Заказов с долгом: {count}",
   "mdfDebtsHandedOver": "Выдан с долгом",
-  "mdfDebtsHint": "Кто сколько должен — по клиентам и заказам"
+  "mdfDebtsHint": "Кто сколько должен — по клиентам и заказам",
+  "mdfBatchTitle": "Детали по плёнке",
+  "mdfBatchHint": "Все детали открытых заказов одной плёнки — одним списком",
+  "mdfBatchShow": "Показать",
+  "mdfBatchTotals": "Заказов {orders} · деталей {pieces} шт · {area} м²",
+  "mdfBatchParts": "Детали (одинаковые размеры сложены)",
+  "mdfBatchLong": "Длина",
+  "mdfBatchShort": "Ширина",
+  "mdfBatchOrders": "Заказы"
 }

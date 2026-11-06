@@ -1679,5 +1679,13 @@
   "mdfDebtsByOrder": "Тапсырыстар бойынша",
   "mdfDebtsOrders": "Қарызы бар тапсырыс: {count}",
   "mdfDebtsHandedOver": "Қарызбен берілді",
-  "mdfDebtsHint": "Кім қанша қарыз — тапсырушы мен тапсырыс бойынша"
+  "mdfDebtsHint": "Кім қанша қарыз — тапсырушы мен тапсырыс бойынша",
+  "mdfBatchTitle": "Пленка бойынша бөлшектер",
+  "mdfBatchHint": "Бір пленкалы ашық тапсырыстардың барлық бөлшегі — бір тізіммен",
+  "mdfBatchShow": "Көрсету",
+  "mdfBatchTotals": "Тапсырыс {orders} · бөлшек {pieces} дана · {area} м²",
+  "mdfBatchParts": "Бөлшектер (бірдей өлшемдер қосылған)",
+  "mdfBatchLong": "Ұзындығы",
+  "mdfBatchShort": "Ені",
+  "mdfBatchOrders": "Тапсырыстар"
 }

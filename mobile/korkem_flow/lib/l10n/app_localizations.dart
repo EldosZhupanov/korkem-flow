@@ -8906,6 +8906,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Who owes what, by customer and order'**
   String get mdfDebtsHint;
+
+  /// No description provided for @mdfBatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts by film'**
+  String get mdfBatchTitle;
+
+  /// No description provided for @mdfBatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every part of the open orders of one film, as one list'**
+  String get mdfBatchHint;
+
+  /// No description provided for @mdfBatchShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get mdfBatchShow;
+
+  /// No description provided for @mdfBatchTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders · {pieces} parts · {area} m²'**
+  String mdfBatchTotals(String orders, String pieces, String area);
+
+  /// No description provided for @mdfBatchParts.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts (same sizes summed)'**
+  String get mdfBatchParts;
+
+  /// No description provided for @mdfBatchLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get mdfBatchLong;
+
+  /// No description provided for @mdfBatchShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get mdfBatchShort;
+
+  /// No description provided for @mdfBatchOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get mdfBatchOrders;
 }
 
 class _AppLocalizationsDelegate

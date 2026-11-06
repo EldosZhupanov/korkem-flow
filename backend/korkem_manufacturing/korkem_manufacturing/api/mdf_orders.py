@@ -91,6 +91,12 @@ def debts(since: str | None = None, until: str | None = None) -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
+def batch(decor: str | None = None, milling: str | None = None, include_in_shop: bool | int | str = 1) -> dict:
+	"""Все детали открытых заказов одной плёнки (и фрезы) одним списком."""
+	return service.batch(decor=decor, milling=milling, include_in_shop=include_in_shop)
+
+
+@frappe.whitelist(methods=["GET"])
 def last_head() -> dict:
 	return service.last_head()
 
