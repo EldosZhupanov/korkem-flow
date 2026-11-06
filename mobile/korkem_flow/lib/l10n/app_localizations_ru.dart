@@ -5084,4 +5084,31 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfHistorySection => 'История';
+
+  @override
+  String get mdfPlanTitle => 'План цеха';
+
+  @override
+  String get mdfPlanHint => 'Что ждёт на каждом этапе и сколько м²';
+
+  @override
+  String mdfPlanInWork(String area) {
+    return 'В работе: $area м²';
+  }
+
+  @override
+  String get mdfPlanTick => 'Этап готов';
+
+  @override
+  String mdfPlanTicked(String order, String stage) {
+    return '$order: «$stage» отмечен';
+  }
+
+  @override
+  String get mdfPlanIntake => 'Приём заказов по дням';
+
+  @override
+  String mdfPlanIntakeDay(String orders, String area) {
+    return '$orders зак. · $area м²';
+  }
 }

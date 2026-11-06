@@ -5859,5 +5859,39 @@
   "mdfChangeReason": "What changes and why",
   "mdfSaveChange": "Save changes",
   "mdfChanged": "Order changed — written into its history",
-  "mdfHistorySection": "History"
+  "mdfHistorySection": "History",
+  "mdfPlanTitle": "Shop plan",
+  "mdfPlanHint": "What waits at each stage, in m²",
+  "mdfPlanInWork": "In work: {area} m²",
+  "@mdfPlanInWork": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPlanTick": "Stage done",
+  "mdfPlanTicked": "{order}: «{stage}» ticked",
+  "@mdfPlanTicked": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPlanIntake": "Orders taken in, by day",
+  "mdfPlanIntakeDay": "{orders} orders · {area} m²",
+  "@mdfPlanIntakeDay": {
+    "placeholders": {
+      "orders": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -294,6 +294,27 @@ class TestMdfOrders(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, mdf_orders.change_order, card["name"], lines=ORDER_1129, reason="Поздно")
 
+	def test_the_plan_puts_an_order_at_its_first_unticked_stage(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+
+		def where():
+			plan = self._as(MANAGER, mdf_orders.plan)
+			return next((q["stage"] for q in plan["stages"] for o in q["orders"] if o["name"] == card["name"]),
+						None), plan
+
+		stage, plan = where()
+		self.assertEqual(stage, "cut")
+		cut = next(q for q in plan["stages"] if q["stage"] == "cut")
+		self.assertGreaterEqual(cut["area_m2"], 3.04)
+		self.assertTrue(any(d["date"] == nowdate() for d in plan["intake"]))
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "cut")
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "mill")
+		self.assertEqual(where()[0], "sand")
+		self._as(MANAGER, mdf_orders.hold, card["name"], "Ждём плёнку")
+		self.assertIsNone(where()[0])  # on hold waits nowhere
+
 	def _drop(self, name: str) -> None:
 		frappe.set_user("Administrator")
 		if not frappe.db.exists("Sales Order", name):

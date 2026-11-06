@@ -8984,6 +8984,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'History'**
   String get mdfHistorySection;
+
+  /// No description provided for @mdfPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop plan'**
+  String get mdfPlanTitle;
+
+  /// No description provided for @mdfPlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What waits at each stage, in m²'**
+  String get mdfPlanHint;
+
+  /// No description provided for @mdfPlanInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'In work: {area} m²'**
+  String mdfPlanInWork(String area);
+
+  /// No description provided for @mdfPlanTick.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage done'**
+  String get mdfPlanTick;
+
+  /// No description provided for @mdfPlanTicked.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: «{stage}» ticked'**
+  String mdfPlanTicked(String order, String stage);
+
+  /// No description provided for @mdfPlanIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders taken in, by day'**
+  String get mdfPlanIntake;
+
+  /// No description provided for @mdfPlanIntakeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders · {area} m²'**
+  String mdfPlanIntakeDay(String orders, String area);
 }
 
 class _AppLocalizationsDelegate

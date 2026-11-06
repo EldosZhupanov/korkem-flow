@@ -5024,4 +5024,31 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfHistorySection => 'Тарих';
+
+  @override
+  String get mdfPlanTitle => 'Жоспар';
+
+  @override
+  String get mdfPlanHint => 'Әр кезеңде не күтуде және неше м²';
+
+  @override
+  String mdfPlanInWork(String area) {
+    return 'Жұмыста: $area м²';
+  }
+
+  @override
+  String get mdfPlanTick => 'Кезең дайын';
+
+  @override
+  String mdfPlanTicked(String order, String stage) {
+    return '$order: «$stage» белгіленді';
+  }
+
+  @override
+  String get mdfPlanIntake => 'Күндер бойынша қабылдау';
+
+  @override
+  String mdfPlanIntakeDay(String orders, String area) {
+    return '$orders тапс. · $area м²';
+  }
 }

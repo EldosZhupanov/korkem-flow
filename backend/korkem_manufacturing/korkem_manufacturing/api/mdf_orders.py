@@ -104,6 +104,12 @@ def batch(decor: str | None = None, milling: str | None = None, include_in_shop:
 
 
 @frappe.whitelist(methods=["GET"])
+def plan(days: int | str = 14) -> dict:
+	"""Жоспар: очередь каждого этапа с м² и приём заказов по дням."""
+	return service.plan(days=int(days or 14))
+
+
+@frappe.whitelist(methods=["GET"])
 def last_head() -> dict:
 	return service.last_head()
 

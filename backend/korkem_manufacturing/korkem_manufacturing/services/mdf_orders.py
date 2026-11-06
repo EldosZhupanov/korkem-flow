@@ -580,6 +580,61 @@ def batch(decor: str | None = None, milling: str | None = None, include_in_shop=
 	}
 
 
+def plan(days: int = 14) -> dict:
+	"""«Жоспар» — the shop's plan: what waits at each stage, and in m².
+
+	An order waits at the first stage of its finish that is not ticked; one
+	on hold, ready or handed over waits nowhere. Within a stage the earliest
+	due date comes first. Below, the orders taken in over the last `days`
+	days, by day, the way OnayBaza shows «Қабылданған күні».
+	"""
+	facade_prices.ensure_editor()
+	company = current_company()
+	days = max(1, min(int(days or 14), 92))
+	rows = frappe.get_all(
+		"Sales Order",
+		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
+				 "korkem_ready_on": ["is", "not set"], "korkem_handed_over_on": ["is", "not set"],
+				 "korkem_hold_reason": ["is", "not set"]},
+		fields=["name", "docstatus", "customer_name", "delivery_date", "transaction_date", "korkem_finish",
+				"korkem_decor_top", "korkem_milling", "advance_paid", "grand_total", "korkem_ready_on",
+				"korkem_handed_over_on", "korkem_hold_reason", *STAGES.values()],
+		order_by="delivery_date asc, name asc",
+		limit_page_length=1000,
+	)
+	queues = {stage: {"stage": stage, "orders": [], "area_m2": Decimal(0)} for stage in STAGES}
+	for row in rows:
+		waiting = next((s for s in stages_for(row.korkem_finish) if not row.get(STAGES[s])), None)
+		if waiting is None:
+			continue
+		area = Decimal(str(_area(row.name)))
+		queues[waiting]["area_m2"] += area
+		queues[waiting]["orders"].append(
+			{"name": row.name, "customer_name": row.customer_name, "delivery_date": str(row.delivery_date),
+			 "decor_top": row.korkem_decor_top, "milling": row.korkem_milling, "area_m2": float(area),
+			 "overdue": _overdue(row), "due_soon": _due_soon(row), "debt": float(_debt(row))}
+		)
+	since = add_days(nowdate(), -days + 1)
+	intake = {}
+	for row in frappe.get_all(
+		"Sales Order",
+		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
+				 "transaction_date": [">=", since]},
+		fields=["name", "transaction_date"],
+		limit_page_length=2000,
+	):
+		day = intake.setdefault(str(row.transaction_date), {"date": str(row.transaction_date), "orders": 0,
+														   "area_m2": Decimal(0)})
+		day["orders"] += 1
+		day["area_m2"] += Decimal(str(_area(row.name)))
+	return {
+		"stages": [{**q, "area_m2": float(q["area_m2"])} for q in queues.values()],
+		"intake": [{**d, "area_m2": float(d["area_m2"])} for d in sorted(intake.values(), key=lambda d: d["date"],
+																		  reverse=True)],
+		"in_work_m2": float(sum((q["area_m2"] for q in queues.values()), Decimal(0))),
+	}
+
+
 def last_head() -> dict:
 	"""The head of the last MDF order this person wrote — what a new one starts from."""
 	facade_prices.ensure_editor()

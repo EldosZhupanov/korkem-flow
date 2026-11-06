@@ -1692,5 +1692,12 @@
   "mdfChangeReason": "Не және неге өзгереді",
   "mdfSaveChange": "Өзгерістерді сақтау",
   "mdfChanged": "Тапсырыс өзгертілді — тарихқа жазылды",
-  "mdfHistorySection": "Тарих"
+  "mdfHistorySection": "Тарих",
+  "mdfPlanTitle": "Жоспар",
+  "mdfPlanHint": "Әр кезеңде не күтуде және неше м²",
+  "mdfPlanInWork": "Жұмыста: {area} м²",
+  "mdfPlanTick": "Кезең дайын",
+  "mdfPlanTicked": "{order}: «{stage}» белгіленді",
+  "mdfPlanIntake": "Күндер бойынша қабылдау",
+  "mdfPlanIntakeDay": "{orders} тапс. · {area} м²"
 }

@@ -1692,5 +1692,12 @@
   "mdfChangeReason": "Что и почему меняется",
   "mdfSaveChange": "Сохранить изменения",
   "mdfChanged": "Заказ изменён — записано в историю",
-  "mdfHistorySection": "История"
+  "mdfHistorySection": "История",
+  "mdfPlanTitle": "План цеха",
+  "mdfPlanHint": "Что ждёт на каждом этапе и сколько м²",
+  "mdfPlanInWork": "В работе: {area} м²",
+  "mdfPlanTick": "Этап готов",
+  "mdfPlanTicked": "{order}: «{stage}» отмечен",
+  "mdfPlanIntake": "Приём заказов по дням",
+  "mdfPlanIntakeDay": "{orders} зак. · {area} м²"
 }

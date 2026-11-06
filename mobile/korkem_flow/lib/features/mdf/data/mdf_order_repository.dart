@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/mdf/domain/film_shortage.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_batch.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_debts.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 
 final mdfOrderRepositoryProvider = Provider<MdfOrderRepository>(
   (ref) => MdfOrderRepository(
@@ -32,6 +33,12 @@ final mdfOrdersProvider = FutureProvider.autoDispose
     .family<List<MdfOrderRow>, MdfListQuery>(
       (ref, query) => ref.watch(mdfOrderRepositoryProvider).listing(query),
     );
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfPlanProvider = FutureProvider.autoDispose<MdfPlan>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).plan(),
+);
 
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
@@ -168,6 +175,10 @@ class MdfOrderRepository {
           ),
         ),
       );
+
+  /// «Жоспар»: what waits at each stage, and the intake by day.
+  Future<MdfPlan> plan() async =>
+      MdfPlan.fromJson(_map(await _client.callMethod('$_base.plan')));
 
   /// The head of the last order this manager wrote, or null for the first.
   Future<MdfHead?> lastHead() async {

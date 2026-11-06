@@ -5061,4 +5061,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfHistorySection => 'History';
+
+  @override
+  String get mdfPlanTitle => 'Shop plan';
+
+  @override
+  String get mdfPlanHint => 'What waits at each stage, in m²';
+
+  @override
+  String mdfPlanInWork(String area) {
+    return 'In work: $area m²';
+  }
+
+  @override
+  String get mdfPlanTick => 'Stage done';
+
+  @override
+  String mdfPlanTicked(String order, String stage) {
+    return '$order: «$stage» ticked';
+  }
+
+  @override
+  String get mdfPlanIntake => 'Orders taken in, by day';
+
+  @override
+  String mdfPlanIntakeDay(String orders, String area) {
+    return '$orders orders · $area m²';
+  }
 }
