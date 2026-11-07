@@ -112,6 +112,9 @@ services:
       # and it is a decision somebody makes on purpose.
       - "127.0.0.1:8000:8000"
       - "127.0.0.1:9000:9000"
+      # The owner's working site (`work.localhost`), when there is one — see
+      # scripts/start.sh. Loopback only, like the rest.
+      - "127.0.0.1:8002:8002"
     healthcheck:
       # The app's own liveness route, so what Docker believes and what an
       # operator's `curl` reports are the same answer from the same code.
