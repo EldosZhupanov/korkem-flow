@@ -142,6 +142,35 @@ def workers() -> list[dict]:
 
 
 @frappe.whitelist(methods=["GET"])
+def dictionaries() -> dict:
+	"""Справочники бланка: толщина, покрытие, цвет плёнки, патина, фрезеровка, кромка."""
+	from korkem_manufacturing.services import mdf_dictionaries
+
+	return mdf_dictionaries.dictionaries()
+
+
+@frappe.whitelist(methods=["POST"])
+def dictionary_add(kind: str, value: str) -> dict:
+	from korkem_manufacturing.services import mdf_dictionaries
+
+	return mdf_dictionaries.add(kind, value)
+
+
+@frappe.whitelist(methods=["POST"])
+def dictionary_rename(kind: str, option: str, value: str) -> dict:
+	from korkem_manufacturing.services import mdf_dictionaries
+
+	return mdf_dictionaries.rename(kind, option, value)
+
+
+@frappe.whitelist(methods=["POST"])
+def dictionary_remove(kind: str, option: str) -> dict:
+	from korkem_manufacturing.services import mdf_dictionaries
+
+	return mdf_dictionaries.remove(kind, option)
+
+
+@frappe.whitelist(methods=["GET"])
 def last_head() -> dict:
 	return service.last_head()
 

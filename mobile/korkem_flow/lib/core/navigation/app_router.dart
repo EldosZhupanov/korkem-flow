@@ -36,6 +36,7 @@ import 'package:korkem_flow/features/mdf/presentation/film_shortage_screen.dart'
 import 'package:korkem_flow/features/mdf/presentation/mdf_batch_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_cash_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_debts_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dictionaries_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_plan_screen.dart';
@@ -167,6 +168,7 @@ abstract final class Routes {
   static const mdfCash = '/mdf/cash';
   static const mdfReport = '/mdf/report';
   static const mdfVolume = '/mdf/volume';
+  static const mdfDictionaries = '/mdf/dictionaries';
   static String mdfOrder(String name) =>
       '/mdf/orders/${Uri.encodeComponent(name)}';
   static const pressSettings = '/settings/press';
@@ -330,6 +332,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.mdfOrders,
         builder: (context, state) => const MdfOrdersScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfDictionaries,
+        builder: (context, state) => const MdfDictionariesScreen(),
       ),
       GoRoute(
         path: Routes.mdfVolume,

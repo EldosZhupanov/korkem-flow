@@ -5196,4 +5196,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfWorkerNobody => 'Nobody named';
+
+  @override
+  String get mdfDictTitle => 'Lists';
+
+  @override
+  String get mdfDictHint => 'Thickness, finish, colours, patina, milling, edge';
+
+  @override
+  String get mdfDictOpen => 'List';
+
+  @override
+  String get mdfDictDecor => 'Film colour';
+
+  @override
+  String get mdfDictAdd => 'Add';
+
+  @override
+  String get mdfDictRename => 'Rename';
+
+  @override
+  String get mdfDictDelete => 'Delete';
+
+  @override
+  String get mdfDictValue => 'Value';
+
+  @override
+  String get mdfDictEmpty => 'The list is empty. Press «+» to add.';
+
+  @override
+  String mdfDictDeleteAsk(String value) {
+    return 'Delete «$value»? If orders already use it, it only leaves the list; the orders stay as they are.';
+  }
 }

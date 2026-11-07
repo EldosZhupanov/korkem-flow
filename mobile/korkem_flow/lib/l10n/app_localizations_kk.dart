@@ -5159,4 +5159,36 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfWorkerNobody => 'Көрсетпеу';
+
+  @override
+  String get mdfDictTitle => 'Анықтамалықтар';
+
+  @override
+  String get mdfDictHint => 'Қалыңдық, беті, түстер, зеңжар, нақыш, қыры';
+
+  @override
+  String get mdfDictOpen => 'Анықтамалық';
+
+  @override
+  String get mdfDictDecor => 'Үлдір түсі';
+
+  @override
+  String get mdfDictAdd => 'Қосу';
+
+  @override
+  String get mdfDictRename => 'Өзгерту';
+
+  @override
+  String get mdfDictDelete => 'Жою';
+
+  @override
+  String get mdfDictValue => 'Мәні';
+
+  @override
+  String get mdfDictEmpty => 'Тізім бос. Қосу үшін «+» басыңыз.';
+
+  @override
+  String mdfDictDeleteAsk(String value) {
+    return '«$value» жою керек пе? Тапсырыстарда болса, тек тізімнен жоғалады, тапсырыстар өзгермейді.';
+  }
 }

@@ -31,6 +31,48 @@ EDITORS = frozenset({"System Manager", "Sales Manager", "Sales User"})
 PVC, ENAMEL, ROUGH = "ПВХ плёнка", "Эмаль", "Черновая"
 FINISHES = (PVC, ENAMEL, ROUGH)
 
+#: The «Покрытие» and «Фрезеровка» lists of `Material Option` — the owner's
+#: own, edited from the order form (OnayBaza's dictionaries, 08.11.2026).
+#: Nothing is written into them for him: «я сам заполню».
+FINISH_LIST, MILLING_LIST = "Покрытие", "Фрезеровка"
+
+
+def is_film(finish: str | None) -> bool:
+	"""A film-pressed finish, whatever the owner calls it («ПВХ плёнка», «Пленка ПВХ»)."""
+	name = (finish or "").lower()
+	return "плён" in name or "плен" in name or "пвх" in name
+
+
+def finishes(company: str | None = None) -> list[str]:
+	"""The finishes a price can be set for: the starting three, then the «Покрытие» list."""
+	company = company or current_company()
+	own = frappe.get_all(
+		"Material Option",
+		filters={"company": company, "kind": FINISH_LIST, "enabled": 1},
+		pluck="value",
+		order_by="creation asc",
+	)
+	return list(dict.fromkeys([*FINISHES, *own]))
+
+
+def millings(company: str | None = None) -> list[str]:
+	"""The «Фрезеровка» list, then any milling that has a price and is not on it yet."""
+	company = company or current_company()
+	own = frappe.get_all(
+		"Material Option",
+		filters={"company": company, "kind": MILLING_LIST, "enabled": 1},
+		pluck="value",
+		order_by="creation asc",
+	)
+	listed = set(frappe.get_all(
+		"Material Option", filters={"company": company, "kind": MILLING_LIST}, pluck="value"
+	))
+	priced = frappe.get_all(
+		"Facade Price", filters={"company": company}, pluck="milling", distinct=True, order_by="milling asc"
+	)
+	return own + [m for m in priced if m not in listed]
+
+
 #: ₸ per m², from the factory's price list.
 STARTING_PRICES: dict[tuple[str, str], int] = {
 	("Квадро", PVC): 21_000,
@@ -99,7 +141,8 @@ def table() -> dict:
 	)
 	return {
 		"company": company,
-		"finishes": list(FINISHES),
+		"finishes": finishes(company),
+		"millings": millings(company),
 		"prices": [
 			{
 				"milling": row.milling,
@@ -118,8 +161,9 @@ def set_price(milling: str, finish: str, price_per_m2, enabled: bool | int | str
 	ensure_editor()
 	company = current_company()
 	milling = (milling or "").strip()
-	if finish not in FINISHES:
-		frappe.throw(f"Отделка должна быть одной из: {', '.join(FINISHES)}.")
+	allowed = finishes(company)
+	if finish not in allowed:
+		frappe.throw(f"Покрытие должно быть одним из: {', '.join(allowed)}.")
 	try:
 		price = Decimal(str(price_per_m2))
 	except Exception:

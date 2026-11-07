@@ -61,6 +61,7 @@ abstract final class AppIcons {
   static const IconData add = Symbols.add_rounded;
   static const IconData paste = Symbols.content_paste_rounded;
   static const IconData edit = Symbols.edit_rounded;
+  static const IconData dictionary = Symbols.list_alt_rounded;
   static const IconData delete = Symbols.delete_rounded;
   static const IconData share = Symbols.share_rounded;
 

@@ -5219,4 +5219,37 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfWorkerNobody => 'Не указывать';
+
+  @override
+  String get mdfDictTitle => 'Справочники';
+
+  @override
+  String get mdfDictHint =>
+      'Толщина, покрытие, цвета, патина, фрезеровка, кромка';
+
+  @override
+  String get mdfDictOpen => 'Справочник';
+
+  @override
+  String get mdfDictDecor => 'Цвет плёнки';
+
+  @override
+  String get mdfDictAdd => 'Добавить';
+
+  @override
+  String get mdfDictRename => 'Изменить';
+
+  @override
+  String get mdfDictDelete => 'Удалить';
+
+  @override
+  String get mdfDictValue => 'Значение';
+
+  @override
+  String get mdfDictEmpty => 'Список пуст. Нажмите «+», чтобы добавить.';
+
+  @override
+  String mdfDictDeleteAsk(String value) {
+    return 'Удалить «$value»? Если оно уже есть в заказах, оно просто исчезнет из списка, заказы не изменятся.';
+  }
 }
