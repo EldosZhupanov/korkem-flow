@@ -40,7 +40,9 @@ EDITORS = frozenset(
 )
 MDF, FILM, OTHER = "МДФ", "Плёнка ПВХ", "Прочее"
 KINDS = (MDF, FILM, OTHER)
-LISTS = ("Толщина МДФ", "Производитель", "Цвет плёнки", "Ширина плёнки", "Толщина плёнки", "Профиль кромки")
+LISTS = ("Толщина МДФ", "Производитель", "Цвет плёнки", "Ширина плёнки", "Толщина плёнки", "Профиль кромки",
+		 # The MDF order form's own lists (08.11.2026); the stock screen does not show them.
+		 "Покрытие", "Патина", "Фрезеровка")
 #: Units a material is counted in. Created in ERPNext if missing.
 UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False}
 MAX_QTY = Decimal("100000")
@@ -88,6 +90,12 @@ def lists() -> dict:
 
 def add_option(kind: str, value: str) -> dict:
 	_ensure_editor()
+	put_option(kind, value)
+	return lists()
+
+
+def put_option(kind: str, value: str) -> None:
+	"""Add a value to a list, or switch it back on. The caller has checked who may."""
 	if kind not in LISTS:
 		frappe.throw(f"Список — один из: {', '.join(LISTS)}.")
 	company = current_company()
@@ -101,12 +109,16 @@ def add_option(kind: str, value: str) -> dict:
 			{"doctype": "Material Option", "company": company, "kind": kind, "value": value, "enabled": 1}
 		).insert(ignore_permissions=True)
 	audit.record_audit(action="stock.option_added", entity_type="Material Option", entity_id=f"{kind}: {value}")
-	return lists()
 
 
 def remove_option(option: str) -> dict:
 	"""Delete an unused entry; switch off one that a material already uses."""
 	_ensure_editor()
+	return {**lists(), "outcome": drop_option(option)}
+
+
+def drop_option(option: str) -> str:
+	"""Delete or switch off one entry; "deleted" or "disabled". The caller has checked who may."""
 	row = frappe.db.get_value("Material Option", option, ["company", "kind", "value"], as_dict=True)
 	if not row or row.company != current_company():
 		frappe.throw("Такого значения нет.", frappe.DoesNotExistError)
@@ -119,7 +131,7 @@ def remove_option(option: str) -> dict:
 	audit.record_audit(
 		action=f"stock.option_{outcome}", entity_type="Material Option", entity_id=f"{row.kind}: {row.value}"
 	)
-	return {**lists(), "outcome": outcome}
+	return outcome
 
 
 #: Where a value of each list is used: a material's description, and — for
@@ -134,6 +146,17 @@ _ITEM_FIELD = {
 _ORDER_FIELDS = {
 	"Цвет плёнки": ("korkem_decor_top", "korkem_decor_bottom"),
 	"Профиль кромки": ("korkem_edge_profile",),
+	"Покрытие": ("korkem_finish",),
+	"Фрезеровка": ("korkem_milling",),
+}
+#: The same, on the head of an MDF order (`mdf_orders`), which is the order itself.
+_HEAD_FIELDS = {
+	"Цвет плёнки": ("korkem_decor_top", "korkem_decor_bottom"),
+	"Профиль кромки": ("korkem_edge_profile",),
+	"Покрытие": ("korkem_finish",),
+	"Фрезеровка": ("korkem_milling",),
+	"Патина": ("korkem_patina",),
+	"Толщина МДФ": ("korkem_thickness_mm",),
 }
 
 
@@ -151,7 +174,20 @@ def _option_in_use(kind: str, value: str, company: str) -> bool:
 		)
 		if used:
 			return True
+	for field in _HEAD_FIELDS.get(kind, ()):
+		if not frappe.db.has_column("Sales Order", field):
+			continue
+		if frappe.db.exists("Sales Order", {"company": company, field: _head_value(field, value)}):
+			return True
 	return False
+
+
+def _head_value(field: str, value: str):
+	"""The thickness is kept as a number on the order («16»), the list says «16 мм»."""
+	if field == "korkem_thickness_mm":
+		digits = "".join(ch for ch in value if ch.isdigit())
+		return int(digits) if digits else -1
+	return value
 
 
 def enabled_values(kind: str, company: str) -> set[str]:

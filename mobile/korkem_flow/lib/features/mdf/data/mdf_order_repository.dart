@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/mdf/domain/film_shortage.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_batch.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_cash.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_debts.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
@@ -76,6 +77,12 @@ final mdfVolumeProvider = FutureProvider.autoDispose
 // ignore: specify_nonobvious_property_types
 final mdfWorkersProvider = FutureProvider.autoDispose<List<MdfWorker>>(
   (ref) => ref.watch(mdfOrderRepositoryProvider).workers(),
+);
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfDictionariesProvider = FutureProvider.autoDispose<MdfDictionaries>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).dictionaries(),
 );
 
 // AutoDisposeFutureProvider is not exported as a public type.
@@ -239,6 +246,37 @@ class MdfOrderRepository {
         '$_base.report',
         params: {'since': since, 'until': until},
       ),
+    ),
+  );
+
+  /// The order form's lists.
+  Future<MdfDictionaries> dictionaries() async => MdfDictionaries.fromJson(
+    _map(await _client.callMethod('$_base.dictionaries')),
+  );
+
+  Future<MdfDictionaries> dictionaryAdd(MdfDictKind kind, String value) =>
+      _dict('dictionary_add', {'kind': kind.wire, 'value': value});
+
+  Future<MdfDictionaries> dictionaryRename(
+    MdfDictKind kind,
+    String option,
+    String value,
+  ) => _dict('dictionary_rename', {
+    'kind': kind.wire,
+    'option': option,
+    'value': value,
+  });
+
+  /// A value an order or a material uses is only switched off.
+  Future<MdfDictionaries> dictionaryRemove(MdfDictKind kind, String option) =>
+      _dict('dictionary_remove', {'kind': kind.wire, 'option': option});
+
+  Future<MdfDictionaries> _dict(
+    String method,
+    Map<String, dynamic> params,
+  ) async => MdfDictionaries.fromJson(
+    _map(
+      await _client.callMethod('$_base.$method', post: true, params: params),
     ),
   );
 

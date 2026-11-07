@@ -406,6 +406,69 @@ class TestMdfOrders(IntegrationTestCase):
 			 "date_of_joining": "2024-01-01"}
 		).insert(ignore_permissions=True).name
 
+	# --- the order form's dictionaries (OnayBaza's blue button) ---
+
+	def test_a_dictionary_value_is_added_renamed_with_its_price_and_deleted(self):
+		from korkem_manufacturing.services import mdf_dictionaries as dicts
+
+		lists = self._as(MANAGER, dicts.dictionaries)
+		self.assertEqual(set(lists), {"thickness", "finish", "decor", "patina", "milling", "edge"})
+		self.assertNotIn(PVC, [v["value"] for v in lists["finish"]])  # nothing is filled in for the owner
+
+		lists = self._as(MANAGER, dicts.add, "patina", "  Алтын/Золотой ")
+		self.assertIn("Алтын/Золотой", [v["value"] for v in lists["patina"]])
+		self.assertEqual(len(self._as(MANAGER, dicts.add, "patina", "Алтын/Золотой")["patina"]),
+						 len(lists["patina"]))  # the same value twice is one value
+
+		lists = self._as(MANAGER, dicts.add, "milling", "МДФ Тест Квадро 10")
+		self._as(MANAGER, facade_prices.set_price, "МДФ Тест Квадро 10", PVC, 21_000)
+		option = next(v["id"] for v in lists["milling"] if v["value"] == "МДФ Тест Квадро 10")
+		lists = self._as(MANAGER, dicts.rename, "milling", option, "МДФ Тест Квадро 12")
+		self.assertIn("МДФ Тест Квадро 12", [v["value"] for v in lists["milling"]])
+		self.assertEqual(facade_prices.price_for("МДФ Тест Квадро 12", PVC, COMPANY), 21_000)  # the price follows
+		self.assertIsNone(facade_prices.price_for("МДФ Тест Квадро 10", PVC, COMPANY))
+
+		result = self._as(MANAGER, dicts.remove, "milling", option)
+		self.assertEqual(result["outcome"], "deleted")
+		self.assertNotIn("МДФ Тест Квадро 12", [v["value"] for v in result["milling"]])
+		self.assertIsNone(facade_prices.price_for("МДФ Тест Квадро 12", PVC, COMPANY))  # its price is switched off
+
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, dicts.add, "patina", "   ")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, dicts.add, "nonsense", "x")
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, dicts.dictionaries)
+
+	def test_a_value_an_order_uses_is_switched_off_not_deleted_and_names_stay_unique(self):
+		from korkem_manufacturing.services import mdf_dictionaries as dicts
+
+		lists = self._as(MANAGER, dicts.add, "edge", "МДФ Тест R3")
+		lists = self._as(MANAGER, dicts.add, "edge", "МДФ Тест R4")
+		r3, r4 = (next(v["id"] for v in lists["edge"] if v["value"] == name) for name in ("МДФ Тест R3", "МДФ Тест R4"))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, dicts.rename, "edge", r4, "МДФ Тест R3")
+		card = self._draft(edge_profile="МДФ Тест R3")
+		self.addCleanup(self._drop, card["name"])
+
+		result = self._as(MANAGER, dicts.remove, "edge", r3)
+		self.assertEqual(result["outcome"], "disabled")
+		self.assertNotIn("МДФ Тест R3", [v["value"] for v in result["edge"]])
+		self.assertEqual(frappe.db.get_value("Sales Order", card["name"], "korkem_edge_profile"), "МДФ Тест R3")
+		with self.assertRaises(frappe.DoesNotExistError):
+			self._as(MANAGER, dicts.rename, "patina", r4, "x")  # an id from another list
+
+	def test_a_new_finish_can_be_priced_and_a_film_is_known_by_its_name(self):
+		from korkem_manufacturing.services import mdf_dictionaries as dicts
+
+		self._as(MANAGER, dicts.add, "finish", "МДФ Тест Переделка")
+		self._as(MANAGER, facade_prices.set_price, FLAT, "МДФ Тест Переделка", 8_000)
+		self.assertEqual(facade_prices.price_for(FLAT, "МДФ Тест Переделка", COMPANY), 8_000)
+		self.assertTrue(facade_prices.is_film("Пленка ПВХ"))
+		self.assertTrue(facade_prices.is_film(PVC))
+		self.assertFalse(facade_prices.is_film("Бояу/Краска"))
+		self.assertEqual(mdf_orders.stages_for("Пленка ПВХ"), ["cut", "mill", "sand", "vacuum"])
+
 	def _gender(self) -> str:
 		if not frappe.db.exists("Gender", "Male"):
 			frappe.get_doc({"doctype": "Gender", "gender": "Male"}).insert(ignore_permissions=True)

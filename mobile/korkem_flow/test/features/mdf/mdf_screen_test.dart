@@ -22,6 +22,7 @@ void main() {
     'debts': Routes.mdfDebts,
     'film': Routes.mdfFilm,
     'logistics': Routes.logistics,
+    'dictionaries': Routes.mdfDictionaries,
     'prices': Routes.facadePrices,
   };
 
