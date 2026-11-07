@@ -117,7 +117,11 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'New chat'), findsNothing);
   });
 
-  testWidgets('wide screen displays two-pane master-detail layout', (
+  // История живёт только в боковой панели оболочки (07.11.2026). Экран
+  // чата на широком окне раньше рисовал свой второй список рядом с ней —
+  // те же чаты дважды. Переключение и «Новый чат» проверяются тестами
+  // боковой панели.
+  testWidgets('wide screen renders one column without its own history list', (
     tester,
   ) async {
     final thread1 = sampleThread(
@@ -140,83 +144,21 @@ void main() {
       size: const Size(1200, 800),
     );
 
-    // Master list has both threads
-    expect(find.text('Покажи мои сделки'), findsWidgets);
-    expect(find.text('Что в производстве?'), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, 'New chat'), findsOneWidget);
-
-    // Detail pane shows active thread message
+    // The active conversation is shown once, as the conversation.
+    expect(find.text('Покажи мои сделки'), findsOneWidget);
     expect(find.text('Вот сделки'), findsOneWidget);
+    // Nothing on this screen lists the other thread or starts a new one.
+    expect(find.text('Что в производстве?'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'New chat'), findsNothing);
+    expect(find.byType(VerticalDivider), findsNothing);
   });
 
-  testWidgets('wide screen displays empty state when no threads exist', (
+  testWidgets('wide screen with no threads shows the welcome view only', (
     tester,
   ) async {
-    await pumpScreen(
-      tester,
-      size: const Size(1200, 800),
-    );
-
-    expect(find.text('No conversations yet'), findsOneWidget);
-    expect(
-      find.text('Your conversations with the assistant will appear here.'),
-      findsOneWidget,
-    );
-    expect(find.byType(ChatEmptyView), findsOneWidget);
-  });
-
-  testWidgets('wide screen switches active thread on tap', (tester) async {
-    final thread1 = sampleThread(
-      't1',
-      prompt: 'Покажи мои сделки',
-      reply: 'Вот сделки',
-      updatedAt: now,
-    );
-    final thread2 = sampleThread(
-      't2',
-      prompt: 'Что в производстве?',
-      reply: 'В производстве 3 заказа',
-      updatedAt: now.subtract(const Duration(days: 3)),
-    );
-
-    await pumpScreen(
-      tester,
-      threads: [thread1, thread2],
-      activeThread: thread1,
-      size: const Size(1200, 800),
-    );
-
-    expect(find.text('Вот сделки'), findsOneWidget);
-    expect(find.text('В производстве 3 заказа'), findsNothing);
-
-    await tester.tap(find.text('Что в производстве?'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('В производстве 3 заказа'), findsOneWidget);
-  });
-
-  testWidgets('wide screen New Chat button resets active thread', (
-    tester,
-  ) async {
-    final thread1 = sampleThread(
-      't1',
-      prompt: 'Покажи мои сделки',
-      reply: 'Вот сделки',
-      updatedAt: now,
-    );
-
-    await pumpScreen(
-      tester,
-      threads: [thread1],
-      activeThread: thread1,
-      size: const Size(1200, 800),
-    );
-
-    expect(find.text('Вот сделки'), findsOneWidget);
-
-    await tester.tap(find.widgetWithText(FilledButton, 'New chat'));
-    await tester.pumpAndSettle();
+    await pumpScreen(tester, size: const Size(1200, 800));
 
     expect(find.byType(ChatEmptyView), findsOneWidget);
+    expect(find.text('No conversations yet'), findsNothing);
   });
 }

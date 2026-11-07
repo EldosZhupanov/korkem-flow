@@ -17,6 +17,15 @@ if [ "$KORKEM_ENV" = "development" ]; then
   # The generated Procfile starts `bench worker` directly; when it quits on a
   # Redis timeout honcho stops everything else too. See scripts/worker.sh.
   sed -i -E 's#^worker:([[:space:]]+)bench worker#worker:\1/workspace/scripts/worker.sh#' Procfile
+  # The owner's working base, while there is no reachable server (07.11.2026):
+  # a second site, served on its own port by its own dev server, because
+  # `bench serve` answers every request with the default site and ignores the
+  # Host header — on :8000 `work.localhost` would silently read the test base.
+  # Present only when the site exists; nothing changes on a bench without it.
+  sed -i '/^work:/d' Procfile
+  if [ -d sites/work.localhost ]; then
+    echo "work: bench --site work.localhost serve --port 8002" >> Procfile
+  fi
   exec bench start
 fi
 
