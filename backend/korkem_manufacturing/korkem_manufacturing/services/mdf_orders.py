@@ -82,7 +82,7 @@ def stages_for(finish: str | None) -> list[str]:
 	one hides work.
 	"""
 	name = (finish or "").lower()
-	if "плён" in name or "плен" in name or "пвх" in name:
+	if facade_prices.is_film(finish):
 		return ["cut", "mill", "sand", "vacuum"]
 	if "эмал" in name or "краск" in name or "бояу" in name:
 		return ["cut", "mill", "sand", "paint"]

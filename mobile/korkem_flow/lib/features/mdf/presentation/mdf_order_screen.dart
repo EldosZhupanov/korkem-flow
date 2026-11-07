@@ -14,14 +14,13 @@ import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
-import 'package:korkem_flow/features/facade_prices/application/facade_price_controller.dart';
 import 'package:korkem_flow/features/facade_prices/data/facade_price_repository.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
-import 'package:korkem_flow/features/material_stock/data/material_stock_repository.dart';
-import 'package:korkem_flow/features/material_stock/domain/material_stock.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -152,8 +151,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   DateTime? _due;
   late MdfHead _head =
       widget.order?.head ?? widget.template?.head ?? const MdfHead();
-  final _thickness = TextEditingController();
-  final _patina = TextEditingController();
   final _extra = TextEditingController();
   final _defaultRate = TextEditingController();
   final List<_LineFields> _lines = [];
@@ -172,8 +169,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         phone: o.phone,
       );
       if (widget.order != null) _due = DateTime.tryParse(o.deliveryDate);
-      _thickness.text = o.head.thicknessMm?.toString() ?? '';
-      _patina.text = o.head.patina ?? '';
       _extra.text = o.head.extraName ?? '';
       _defaultRate.text = o.head.defaultRate?.toStringAsFixed(0) ?? '';
       for (final l in o.lines) {
@@ -202,10 +197,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       if (!mounted || head == null) return;
       setState(() {
         _head = head;
-        if (_thickness.text.isEmpty) {
-          _thickness.text = head.thicknessMm?.toString() ?? '';
-        }
-        if (_patina.text.isEmpty) _patina.text = head.patina ?? '';
         if (_defaultRate.text.isEmpty) {
           _defaultRate.text = head.defaultRate?.toStringAsFixed(0) ?? '';
         }
@@ -250,7 +241,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   @override
   void dispose() {
     _debounce?.cancel();
-    for (final c in [_thickness, _patina, _extra, _defaultRate]) {
+    for (final c in [_extra, _defaultRate]) {
       c.dispose();
     }
     for (final l in _lines) {
@@ -260,11 +251,11 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   }
 
   MdfHead _readHead() => MdfHead(
-    thicknessMm: int.tryParse(_thickness.text.trim()),
+    thicknessMm: _head.thicknessMm,
     finish: _head.finish,
     decorTop: _head.decorTop,
     decorBottom: _head.decorBottom,
-    patina: _patina.text.trim().isEmpty ? null : _patina.text.trim(),
+    patina: _head.patina,
     milling: _head.milling,
     edgeProfile: _head.edgeProfile,
     extraName: _extra.text.trim().isEmpty ? null : _extra.text.trim(),
@@ -446,38 +437,68 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final money = mdfMoney(context);
-    final table = ref.watch(facadePriceControllerProvider).value;
-    final lists = ref.watch(materialListsProvider).value;
-    List<String> values(String kind) => [
-      for (final o in lists?.lists[kind] ?? const <MaterialOption>[])
-        if (o.enabled) o.value,
-    ];
-    final finishes = table?.finishes ?? const <String>[];
-    final millings = table?.millings ?? const <String>[];
+    final dicts =
+        ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty;
+    final millings = dicts.values(MdfDictKind.milling);
+    // The thickness is a number on the order; the list says «16 мм».
+    final thicknesses = dicts.values(MdfDictKind.thickness);
+    final thickness = _head.thicknessMm == null
+        ? null
+        : thicknesses.firstWhere(
+            (v) => thicknessOf(v) == _head.thicknessMm,
+            orElse: () => '${_head.thicknessMm}',
+          );
+
+    void choose(ValueChanged<String?> set, String? v) {
+      setState(() => set(v));
+      _reprice();
+    }
 
     Widget pick(
       String key,
       String label,
-      List<String> choices,
+      MdfDictKind kind,
       String? current,
-      ValueChanged<String?> set,
-    ) => SizedBox(
-      width: AppSpacing.xxxl * 5,
-      child: DropdownButtonFormField<String?>(
-        key: ValueKey(key),
-        initialValue: choices.contains(current) ? current : null,
-        isExpanded: true,
-        items: [
-          DropdownMenuItem(child: Text(l10n.mdfNone)),
-          for (final v in choices) DropdownMenuItem(value: v, child: Text(v)),
-        ],
-        onChanged: (v) {
-          setState(() => set(v));
-          _reprice();
-        },
-        decoration: InputDecoration(labelText: label, isDense: true),
-      ),
-    );
+      ValueChanged<String?> set, {
+      double width = AppSpacing.xxxl * 5,
+    }) {
+      final choices = mdfChoices(dicts.values(kind), current);
+      return SizedBox(
+        width: width,
+        child: Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<String?>(
+                key: ValueKey('$key:${choices.length}'),
+                initialValue: current,
+                isExpanded: true,
+                items: [
+                  DropdownMenuItem(child: Text(l10n.mdfNone)),
+                  for (final v in choices)
+                    DropdownMenuItem(value: v, child: Text(v)),
+                ],
+                onChanged: (v) => choose(set, v),
+                decoration: InputDecoration(labelText: label, isDense: true),
+              ),
+            ),
+            IconButton(
+              key: ValueKey('dict:${kind.name}'),
+              tooltip: l10n.mdfDictOpen,
+              icon: const Icon(AppIcons.dictionary),
+              onPressed: () async {
+                final picked = await showMdfDictionary(
+                  context,
+                  kind,
+                  title: label,
+                  current: current,
+                );
+                if (picked != null && mounted) choose(set, picked);
+              },
+            ),
+          ],
+        ),
+      );
+    }
 
     Widget text(
       String key,
@@ -536,49 +557,55 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 spacing: AppSpacing.md,
                 runSpacing: AppSpacing.md,
                 children: [
-                  text(
+                  pick(
                     'mdfThickness',
                     l10n.mdfThickness,
-                    _thickness,
-                    digits: true,
-                    width: 110,
+                    MdfDictKind.thickness,
+                    thickness,
+                    (v) => _head = _copyHead(thicknessMm: thicknessOf(v)),
                   ),
                   pick(
                     'mdfFinish',
                     l10n.mdfFinish,
-                    finishes,
+                    MdfDictKind.finish,
                     _head.finish,
                     (v) => _head = _copyHead(finish: v),
                   ),
                   pick(
                     'mdfDecorTop',
                     l10n.mdfDecorTop,
-                    values('Цвет плёнки'),
+                    MdfDictKind.decor,
                     _head.decorTop,
                     (v) => _head = _copyHead(decorTop: v),
                   ),
                   pick(
                     'mdfDecorBottom',
                     l10n.mdfDecorBottom,
-                    values('Цвет плёнки'),
+                    MdfDictKind.decor,
                     _head.decorBottom,
                     (v) => _head = _copyHead(decorBottom: v),
                   ),
                   pick(
                     'mdfMilling',
                     l10n.mdfMilling,
-                    millings,
+                    MdfDictKind.milling,
                     _head.milling,
                     (v) => _head = _copyHead(milling: v),
                   ),
                   pick(
                     'mdfEdge',
                     l10n.mdfEdge,
-                    values('Профиль кромки'),
+                    MdfDictKind.edge,
                     _head.edgeProfile,
                     (v) => _head = _copyHead(edgeProfile: v),
                   ),
-                  text('mdfPatina', l10n.mdfPatina, _patina),
+                  pick(
+                    'mdfPatina',
+                    l10n.mdfPatina,
+                    MdfDictKind.patina,
+                    _head.patina,
+                    (v) => _head = _copyHead(patina: v),
+                  ),
                   text('mdfExtra', l10n.mdfExtraName, _extra),
                   text(
                     'mdfDefaultRate',
@@ -679,19 +706,21 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   }
 
   MdfHead _copyHead({
+    Object? thicknessMm = _keep,
+    Object? patina = _keep,
     Object? finish = _keep,
     Object? decorTop = _keep,
     Object? decorBottom = _keep,
     Object? milling = _keep,
     Object? edgeProfile = _keep,
   }) => MdfHead(
-    thicknessMm: _head.thicknessMm,
+    thicknessMm: thicknessMm == _keep ? _head.thicknessMm : thicknessMm as int?,
     finish: finish == _keep ? _head.finish : finish as String?,
     decorTop: decorTop == _keep ? _head.decorTop : decorTop as String?,
     decorBottom: decorBottom == _keep
         ? _head.decorBottom
         : decorBottom as String?,
-    patina: _head.patina,
+    patina: patina == _keep ? _head.patina : patina as String?,
     milling: milling == _keep ? _head.milling : milling as String?,
     edgeProfile: edgeProfile == _keep
         ? _head.edgeProfile
@@ -788,13 +817,11 @@ class _LineRow extends StatelessWidget {
             width: 180,
             child: DropdownButtonFormField<String?>(
               key: ValueKey('mdfLineMilling:$index'),
-              initialValue: millings.contains(line.milling)
-                  ? line.milling
-                  : null,
+              initialValue: line.milling,
               isExpanded: true,
               items: [
                 DropdownMenuItem(child: Text(l10n.mdfNone)),
-                for (final m in millings)
+                for (final m in mdfChoices(millings, line.milling))
                   DropdownMenuItem(value: m, child: Text(m)),
               ],
               onChanged: (v) {

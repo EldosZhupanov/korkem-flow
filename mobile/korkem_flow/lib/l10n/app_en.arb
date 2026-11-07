@@ -5966,5 +5966,22 @@
     }
   },
   "mdfWhoDidIt": "Who did this stage?",
-  "mdfWorkerNobody": "Nobody named"
+  "mdfWorkerNobody": "Nobody named",
+  "mdfDictTitle": "Lists",
+  "mdfDictHint": "Thickness, finish, colours, patina, milling, edge",
+  "mdfDictOpen": "List",
+  "mdfDictDecor": "Film colour",
+  "mdfDictAdd": "Add",
+  "mdfDictRename": "Rename",
+  "mdfDictDelete": "Delete",
+  "mdfDictValue": "Value",
+  "mdfDictEmpty": "The list is empty. Press «+» to add.",
+  "mdfDictDeleteAsk": "Delete «{value}»? If orders already use it, it only leaves the list; the orders stay as they are.",
+  "@mdfDictDeleteAsk": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  }
 }

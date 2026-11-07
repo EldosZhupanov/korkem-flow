@@ -1745,5 +1745,15 @@
   "mdfVolumeEmpty": "За этот период этапы не отмечены",
   "mdfVolumeUnassigned": "Без исполнителя: {area}",
   "mdfWhoDidIt": "Кто сделал этот этап?",
-  "mdfWorkerNobody": "Не указывать"
+  "mdfWorkerNobody": "Не указывать",
+  "mdfDictTitle": "Справочники",
+  "mdfDictHint": "Толщина, покрытие, цвета, патина, фрезеровка, кромка",
+  "mdfDictOpen": "Справочник",
+  "mdfDictDecor": "Цвет плёнки",
+  "mdfDictAdd": "Добавить",
+  "mdfDictRename": "Изменить",
+  "mdfDictDelete": "Удалить",
+  "mdfDictValue": "Значение",
+  "mdfDictEmpty": "Список пуст. Нажмите «+», чтобы добавить.",
+  "mdfDictDeleteAsk": "Удалить «{value}»? Если оно уже есть в заказах, оно просто исчезнет из списка, заказы не изменятся."
 }

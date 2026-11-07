@@ -1745,5 +1745,15 @@
   "mdfVolumeEmpty": "Бұл кезеңде кезеңдер белгіленбеген",
   "mdfVolumeUnassigned": "Орындаушысыз: {area}",
   "mdfWhoDidIt": "Бұл кезеңді кім жасады?",
-  "mdfWorkerNobody": "Көрсетпеу"
+  "mdfWorkerNobody": "Көрсетпеу",
+  "mdfDictTitle": "Анықтамалықтар",
+  "mdfDictHint": "Қалыңдық, беті, түстер, зеңжар, нақыш, қыры",
+  "mdfDictOpen": "Анықтамалық",
+  "mdfDictDecor": "Үлдір түсі",
+  "mdfDictAdd": "Қосу",
+  "mdfDictRename": "Өзгерту",
+  "mdfDictDelete": "Жою",
+  "mdfDictValue": "Мәні",
+  "mdfDictEmpty": "Тізім бос. Қосу үшін «+» басыңыз.",
+  "mdfDictDeleteAsk": "«{value}» жою керек пе? Тапсырыстарда болса, тек тізімнен жоғалады, тапсырыстар өзгермейді."
 }

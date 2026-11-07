@@ -113,6 +113,13 @@ class MdfScreen extends StatelessWidget {
         Routes.logistics,
       ),
       _MdfRow(
+        'dictionaries',
+        AppIcons.dictionary,
+        l10n.mdfDictTitle,
+        l10n.mdfDictHint,
+        Routes.mdfDictionaries,
+      ),
+      _MdfRow(
         'prices',
         AppIcons.payroll,
         l10n.facadePricesTitle,

@@ -9302,6 +9302,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nobody named'**
   String get mdfWorkerNobody;
+
+  /// No description provided for @mdfDictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lists'**
+  String get mdfDictTitle;
+
+  /// No description provided for @mdfDictHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness, finish, colours, patina, milling, edge'**
+  String get mdfDictHint;
+
+  /// No description provided for @mdfDictOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get mdfDictOpen;
+
+  /// No description provided for @mdfDictDecor.
+  ///
+  /// In en, this message translates to:
+  /// **'Film colour'**
+  String get mdfDictDecor;
+
+  /// No description provided for @mdfDictAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get mdfDictAdd;
+
+  /// No description provided for @mdfDictRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get mdfDictRename;
+
+  /// No description provided for @mdfDictDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get mdfDictDelete;
+
+  /// No description provided for @mdfDictValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get mdfDictValue;
+
+  /// No description provided for @mdfDictEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The list is empty. Press «+» to add.'**
+  String get mdfDictEmpty;
+
+  /// No description provided for @mdfDictDeleteAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete «{value}»? If orders already use it, it only leaves the list; the orders stay as they are.'**
+  String mdfDictDeleteAsk(String value);
 }
 
 class _AppLocalizationsDelegate
