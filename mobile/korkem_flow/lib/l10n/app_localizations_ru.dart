@@ -5252,4 +5252,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String mdfDictDeleteAsk(String value) {
     return 'Удалить «$value»? Если оно уже есть в заказах, оно просто исчезнет из списка, заказы не изменятся.';
   }
+
+  @override
+  String get mdfCustomers => 'Клиенты';
+
+  @override
+  String get mdfCustomerSearch => 'Имя, телефон или организация';
+
+  @override
+  String get mdfNothingFound => 'Ничего не найдено';
+
+  @override
+  String get mdfCustomerName => 'Имя';
+
+  @override
+  String get mdfCustomerPhone => 'Телефон';
+
+  @override
+  String get mdfCustomerOrg => 'Организация';
+
+  @override
+  String mdfCustomerDeleteAsk(String name) {
+    return 'Удалить клиента «$name»? Если у него есть заказы, он просто исчезнет из списка, заказы останутся.';
+  }
 }

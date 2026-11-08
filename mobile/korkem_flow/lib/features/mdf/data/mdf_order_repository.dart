@@ -87,6 +87,12 @@ final mdfDictionariesProvider = FutureProvider.autoDispose<MdfDictionaries>(
 
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
+final mdfCustomersProvider = FutureProvider.autoDispose<List<FacadeCustomer>>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).customerList(),
+);
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
 final mdfDebtsProvider = FutureProvider.autoDispose<MdfDebts>(
   (ref) => ref.watch(mdfOrderRepositoryProvider).debts(),
 );
@@ -279,6 +285,63 @@ class MdfOrderRepository {
       await _client.callMethod('$_base.$method', post: true, params: params),
     ),
   );
+
+  /// «Заказчик»: every customer, by name.
+  Future<List<FacadeCustomer>> customerList() async {
+    final response = await _client.callMethod('$_base.customer_list');
+    final raw = response['message'] ?? response['data'];
+    return [
+      for (final c in raw is List ? raw : const <Object>[])
+        if (c is Map) FacadeCustomer.fromJson(Map<String, dynamic>.from(c)),
+    ];
+  }
+
+  Future<FacadeCustomer> customerAdd(
+    String name, {
+    String? phone,
+    String? organization,
+  }) async => FacadeCustomer.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.customer_add',
+        post: true,
+        params: {
+          'name': name,
+          'phone': ?phone,
+          'organization': ?organization,
+        },
+      ),
+    ),
+  );
+
+  Future<FacadeCustomer> customerUpdate(
+    String customer,
+    String name, {
+    String? phone,
+    String? organization,
+  }) async => FacadeCustomer.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.customer_update',
+        post: true,
+        params: {
+          'customer': customer,
+          'name': name,
+          'phone': ?phone,
+          'organization': ?organization,
+        },
+      ),
+    ),
+  );
+
+  /// Deleted when the customer has no orders; disabled otherwise.
+  Future<void> customerRemove(String customer) async {
+    await _client.callMethod(
+      '$_base.customer_remove',
+      post: true,
+      params: {'customer': customer},
+    );
+  }
 
   /// The head of the last order this manager wrote, or null for the first.
   Future<MdfHead?> lastHead() async {

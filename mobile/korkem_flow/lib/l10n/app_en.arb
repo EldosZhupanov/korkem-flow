@@ -5971,5 +5971,19 @@
         "type": "String"
       }
     }
+  },
+  "mdfCustomers": "Customers",
+  "mdfCustomerSearch": "Name, phone or organisation",
+  "mdfNothingFound": "Nothing found",
+  "mdfCustomerName": "Name",
+  "mdfCustomerPhone": "Phone",
+  "mdfCustomerOrg": "Organisation",
+  "mdfCustomerDeleteAsk": "Delete the customer «{name}»? If they have orders, they only leave the list; the orders stay.",
+  "@mdfCustomerDeleteAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

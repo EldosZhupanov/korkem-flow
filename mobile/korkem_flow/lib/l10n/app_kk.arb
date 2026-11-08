@@ -1743,5 +1743,12 @@
   "mdfDictDelete": "Жою",
   "mdfDictValue": "Мәні",
   "mdfDictEmpty": "Тізім бос. Қосу үшін «+» басыңыз.",
-  "mdfDictDeleteAsk": "«{value}» жою керек пе? Тапсырыстарда болса, тек тізімнен жоғалады, тапсырыстар өзгермейді."
+  "mdfDictDeleteAsk": "«{value}» жою керек пе? Тапсырыстарда болса, тек тізімнен жоғалады, тапсырыстар өзгермейді.",
+  "mdfCustomers": "Тапсырушылар",
+  "mdfCustomerSearch": "Аты, телефоны немесе ұйымы",
+  "mdfNothingFound": "Ештеңе табылмады",
+  "mdfCustomerName": "Аты-жөні",
+  "mdfCustomerPhone": "Телефон",
+  "mdfCustomerOrg": "Ұйым",
+  "mdfCustomerDeleteAsk": "«{name}» тапсырушысын жою керек пе? Тапсырыстары болса, тек тізімнен жоғалады, тапсырыстар қалады."
 }

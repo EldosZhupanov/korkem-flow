@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -32,6 +33,14 @@ class MdfDictionariesScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
+          ReadableWidth(
+            child: ListTile(
+              key: const ValueKey('dictList:customer'),
+              leading: const Icon(AppIcons.dictionary),
+              title: Text(l10n.mdfCustomers),
+              onTap: () => showMdfCustomers(context),
+            ),
+          ),
           for (final kind in MdfDictKind.values)
             ReadableWidth(
               child: ListTile(
