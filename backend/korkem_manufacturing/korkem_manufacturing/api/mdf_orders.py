@@ -171,6 +171,35 @@ def dictionary_remove(kind: str, option: str) -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
+def customer_list() -> list[dict]:
+	"""Справочник клиентов: имя, телефон, организация."""
+	from korkem_manufacturing.services import mdf_customers
+
+	return mdf_customers.customers()
+
+
+@frappe.whitelist(methods=["POST"])
+def customer_add(name: str, phone: str | None = None, organization: str | None = None) -> dict:
+	from korkem_manufacturing.services import mdf_customers
+
+	return mdf_customers.add(name, phone, organization)
+
+
+@frappe.whitelist(methods=["POST"])
+def customer_update(customer: str, name: str, phone: str | None = None, organization: str | None = None) -> dict:
+	from korkem_manufacturing.services import mdf_customers
+
+	return mdf_customers.update(customer, name, phone, organization)
+
+
+@frappe.whitelist(methods=["POST"])
+def customer_remove(customer: str) -> dict:
+	from korkem_manufacturing.services import mdf_customers
+
+	return mdf_customers.remove(customer)
+
+
+@frappe.whitelist(methods=["GET"])
 def last_head() -> dict:
 	return service.last_head()
 

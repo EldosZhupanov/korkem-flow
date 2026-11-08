@@ -76,18 +76,27 @@ PRECISE = {
 }
 
 
+#: OnayBaza's customer list has an organisation beside the name and phone
+#: (08.11.2026) — «ИП Куат», «Дом Мебели».
+CUSTOMER = [
+	{"fieldname": "korkem_organization", "label": "Organisation", "fieldtype": "Data",
+	 "insert_after": "customer_name"},
+]
+
+
 def execute():
 	create_custom_fields(
 		{
 			"Sales Order": [f for f in ORDER if not _exists("Sales Order", f["fieldname"])],
 			"Sales Order Item": [f for f in LINE if not _exists("Sales Order Item", f["fieldname"])],
+			"Customer": [f for f in CUSTOMER if not _exists("Customer", f["fieldname"])],
 		},
 		update=True,
 	)
 	for doctype, fields in PRECISE.items():
 		for field in fields:
 			make_property_setter(doctype, field, "precision", "6", "Select", validate_fields_for_doctype=False)
-	for doctype in ("Sales Order", "Sales Order Item", "Sales Invoice Item"):
+	for doctype in ("Sales Order", "Sales Order Item", "Sales Invoice Item", "Customer"):
 		frappe.clear_cache(doctype=doctype)
 
 

@@ -5264,4 +5264,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String mdfDictDeleteAsk(String value) {
     return 'Delete «$value»? If orders already use it, it only leaves the list; the orders stay as they are.';
   }
+
+  @override
+  String get mdfCustomers => 'Customers';
+
+  @override
+  String get mdfCustomerSearch => 'Name, phone or organisation';
+
+  @override
+  String get mdfNothingFound => 'Nothing found';
+
+  @override
+  String get mdfCustomerName => 'Name';
+
+  @override
+  String get mdfCustomerPhone => 'Phone';
+
+  @override
+  String get mdfCustomerOrg => 'Organisation';
+
+  @override
+  String mdfCustomerDeleteAsk(String name) {
+    return 'Delete the customer «$name»? If they have orders, they only leave the list; the orders stay.';
+  }
 }

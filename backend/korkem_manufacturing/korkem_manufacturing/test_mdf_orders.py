@@ -474,6 +474,40 @@ class TestMdfOrders(IntegrationTestCase):
 			frappe.get_doc({"doctype": "Gender", "gender": "Male"}).insert(ignore_permissions=True)
 		return "Male"
 
+	def test_the_customer_list_adds_edits_and_deletes_a_customer(self):
+		from korkem_manufacturing.services import mdf_customers
+
+		import random
+
+		phone = "8 701 " + "".join(random.choices("0123456789", k=7))
+		added = self._as(MANAGER, mdf_customers.add, "МДФ Тест Куат", phone, "ИП Куат")
+		self.addCleanup(lambda: frappe.db.exists("Customer", added["name"]) and frappe.delete_doc(
+			"Customer", added["name"], force=True, ignore_permissions=True))
+		self.assertEqual(added["organization"], "ИП Куат")
+		listed = {c["name"]: c for c in self._as(MANAGER, mdf_customers.customers)}
+		self.assertEqual(listed[added["name"]]["phone"], phone)
+
+		with self.assertRaises(frappe.ValidationError):  # the same phone is the same person
+			self._as(MANAGER, mdf_customers.add, "МДФ Тест Куат второй", phone)
+		changed = self._as(MANAGER, mdf_customers.update, added["name"], "МДФ Тест Куат С.", phone, "Куад")
+		self.assertEqual((changed["customer_name"], changed["organization"]), ("МДФ Тест Куат С.", "Куад"))
+
+		self.assertEqual(self._as(MANAGER, mdf_customers.remove, added["name"])["outcome"], "deleted")
+		self.assertFalse(frappe.db.exists("Customer", added["name"]))
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, mdf_customers.customers)
+
+	def test_a_customer_with_an_order_is_disabled_not_deleted(self):
+		from korkem_manufacturing.services import mdf_customers
+
+		made = self._as(MANAGER, mdf_customers.add, "МДФ Тест С заказом")
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=made["name"], delivery_date=add_days(nowdate(), 7),
+						head={"finish": PVC, "thickness_mm": 16}, lines=ORDER_1129)
+		self.addCleanup(self._drop, card["name"])
+		self.assertEqual(self._as(MANAGER, mdf_customers.remove, made["name"])["outcome"], "disabled")
+		self.assertTrue(frappe.db.get_value("Customer", made["name"], "disabled"))
+		self.assertNotIn(made["name"], [c["name"] for c in self._as(MANAGER, mdf_customers.customers)])
+
 	def _cancel_payments(self, order: str) -> None:
 		frappe.set_user("Administrator")
 		for parent in frappe.get_all("Payment Entry Reference", filters={"reference_name": order, "docstatus": 1},

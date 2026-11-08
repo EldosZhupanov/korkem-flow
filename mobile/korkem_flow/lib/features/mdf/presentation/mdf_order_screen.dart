@@ -20,6 +20,7 @@ import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
@@ -534,9 +535,25 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                   SizedBox(
                     width: AppSpacing.xxxl * 6,
                     child: _CustomerField(
+                      // A customer chosen from the list refills the field.
+                      key: ValueKey('mdfCustomerOf:${_customer?.name}'),
                       initial: _customer,
                       onPicked: (c) => setState(() => _customer = c),
                     ),
+                  ),
+                  IconButton(
+                    key: const ValueKey('dict:customer'),
+                    tooltip: l10n.mdfCustomers,
+                    icon: const Icon(AppIcons.dictionary),
+                    onPressed: () async {
+                      final picked = await showMdfCustomers(
+                        context,
+                        current: _customer?.name,
+                      );
+                      if (picked != null && mounted) {
+                        setState(() => _customer = picked);
+                      }
+                    },
                   ),
                   OutlinedButton.icon(
                     key: const ValueKey('mdfDue'),
@@ -884,7 +901,11 @@ class _LineRow extends StatelessWidget {
 }
 
 class _CustomerField extends ConsumerWidget {
-  const _CustomerField({required this.initial, required this.onPicked});
+  const _CustomerField({
+    required this.initial,
+    required this.onPicked,
+    super.key,
+  });
 
   final FacadeCustomer? initial;
   final ValueChanged<FacadeCustomer> onPicked;

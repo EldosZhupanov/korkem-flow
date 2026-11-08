@@ -135,7 +135,12 @@ double? _num(Object? value) => switch (value) {
 /// An ERPNext customer an order can be written for.
 @immutable
 class FacadeCustomer {
-  const FacadeCustomer({required this.name, required this.title, this.phone});
+  const FacadeCustomer({
+    required this.name,
+    required this.title,
+    this.phone,
+    this.organization,
+  });
 
   factory FacadeCustomer.fromJson(Map<String, dynamic> json) {
     final name = '${json['name'] ?? ''}';
@@ -143,12 +148,16 @@ class FacadeCustomer {
       name: name,
       title: json['customer_name'] as String? ?? name,
       phone: json['phone'] as String?,
+      organization: json['organization'] as String?,
     );
   }
 
   final String name;
   final String title;
   final String? phone;
+
+  /// «ИП Куат», «Дом Мебели» — OnayBaza's third column.
+  final String? organization;
 }
 
 /// The order the server created from a quote.
