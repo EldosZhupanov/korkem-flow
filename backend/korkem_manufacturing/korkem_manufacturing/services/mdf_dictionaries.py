@@ -11,7 +11,11 @@ film colour added here is the colour a roll of film is received under:
 
 	thickness — «Толщина МДФ»     decor   — «Цвет плёнки» (face and back)
 	finish    — «Покрытие»        patina  — «Патина»
-	milling   — «Фрезеровка»      edge    — «Профиль кромки»
+	milling   — «Фрезеровка»      edge    — «Профиль кромки» (край фасада)
+	material  — «Материал»        bank    — «Банк» (перевод, карта)
+
+R0 and R3 on the edge list cannot be renamed or deleted: R3 is every
+position's edge unless the manager picks another, R0 a sharp corner.
 
 Two rules keep what is already written true:
 
@@ -30,9 +34,11 @@ import frappe
 from korkem_manufacturing.services import audit, facade_prices, material_stock
 from korkem_manufacturing.services.scope import current_company
 
-#: «16 мм МДФ», «16 мм ЛМДФ», «3 мм ХДФ» — the board a position is made of,
-#: its thickness first (08.11.2026). It stands in for the bare thickness list.
+#: МДФ, ЛМДФ, ХДФ — the board a position is made of; its thickness is a list
+#: of its own since 09.11.2026 (an older «16 мм МДФ» still reads as 16 mm).
 MATERIAL = "Материал"
+#: The edges no one may rename or delete (`mdf_orders.STANDARD_EDGES`).
+LOCKED = {"edge": ("R0", "R3")}
 
 KINDS: dict[str, str] = {
 	"material": MATERIAL,
@@ -42,6 +48,7 @@ KINDS: dict[str, str] = {
 	"patina": "Патина",
 	"milling": facade_prices.MILLING_LIST,
 	"edge": "Профиль кромки",
+	"bank": "Банк",
 }
 
 #: Where a renamed value is carried: the price matrix, and the stock's materials.
@@ -73,6 +80,11 @@ def _row(key: str, option: str):
 	return row
 
 
+def _unlocked(key: str, value: str) -> None:
+	if value in LOCKED.get(key, ()):
+		frappe.throw(f"«{value}» — постоянное значение, его нельзя менять или удалять.")
+
+
 def dictionaries() -> dict:
 	"""Every list, its switched-on values in the order they were added."""
 	facade_prices.ensure_editor()
@@ -102,6 +114,7 @@ def rename(key: str, option: str, value: str) -> dict:
 	facade_prices.ensure_editor()
 	kind = _kind(key)
 	row = _row(key, option)
+	_unlocked(key, row.value)
 	value = _clean(value)
 	if value == row.value:
 		return dictionaries()
@@ -126,6 +139,7 @@ def rename(key: str, option: str, value: str) -> dict:
 def remove(key: str, option: str) -> dict:
 	facade_prices.ensure_editor()
 	row = _row(key, option)
+	_unlocked(key, row.value)
 	outcome = material_stock.drop_option(option)
 	field = _PRICE_FIELD.get(key)
 	if field:

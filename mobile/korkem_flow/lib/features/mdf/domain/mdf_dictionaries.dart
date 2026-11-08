@@ -3,14 +3,19 @@ import 'package:flutter/foundation.dart';
 /// The order form's lists, each kept by the owner himself — OnayBaza's blue
 /// button beside every drop-down (`services/mdf_dictionaries.py`).
 enum MdfDictKind {
-  /// «16 мм МДФ», «3 мм ХДФ» — the board, its thickness first (08.11.2026).
+  /// МДФ, ЛМДФ, ХДФ — the board; its thickness is its own list (09.11.2026).
   material,
   thickness,
   finish,
   decor,
   patina,
   milling,
-  edge;
+
+  /// The facade's edge: R0 … R5, полукруг, ступенька, фаска.
+  edge,
+
+  /// The bank of a transfer or a card payment: Kaspi, Halyk, Forte …
+  bank;
 
   String get wire => name;
 }
@@ -64,8 +69,9 @@ List<String> mdfChoices(List<String> values, String? current) => [
     current,
 ];
 
-/// Every position's edge radius unless the manager picks another (owner,
-/// 08.11.2026); R0 is a sharp corner. Both need no list.
+/// Every position's edge unless the manager picks another (owner,
+/// 08.11.2026); R0 is a sharp corner. Both need no list and cannot be
+/// renamed or deleted.
 const mdfDefaultEdge = 'R3';
 const List<String> mdfStandardEdges = ['R0', mdfDefaultEdge];
 
@@ -75,3 +81,9 @@ List<String> mdfEdges(List<String> listed) => [
   for (final e in listed)
     if (!mdfStandardEdges.contains(e)) e,
 ];
+
+/// How a thickness shows: the list's own words for it («16 мм»), else the
+/// millimetres; null for none.
+String? mdfThicknessLabel(List<String> listed, int? mm) => mm == null
+    ? null
+    : listed.firstWhere((v) => thicknessOf(v) == mm, orElse: () => '$mm мм');

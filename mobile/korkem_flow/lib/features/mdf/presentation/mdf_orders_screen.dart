@@ -182,6 +182,7 @@ String mdfStageLabel(MdfStage stage, AppLocalizations l10n) => switch (stage) {
   MdfStage.sand => l10n.mdfStageSand,
   MdfStage.vacuum => l10n.mdfStageVacuum,
   MdfStage.paint => l10n.mdfStagePaint,
+  MdfStage.ready => l10n.mdfStageReady,
 };
 
 NumberFormat mdfMoney(BuildContext context) => NumberFormat.currency(

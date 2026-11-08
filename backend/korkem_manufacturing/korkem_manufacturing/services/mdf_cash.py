@@ -39,7 +39,7 @@ def _period(since: str | None, until: str | None) -> tuple:
 def _payments(company: str, since, until) -> list[dict]:
 	return frappe.db.sql(
 		"""
-		select pe.posting_date as date, pe.mode_of_payment as method, pe.owner as received_by,
+		select pe.posting_date as date, pe.mode_of_payment as method, pe.korkem_bank as bank, pe.owner as received_by,
 			   per.reference_name as order_name, so.customer_name, per.allocated_amount as amount
 		from `tabPayment Entry Reference` per
 		join `tabPayment Entry` pe on pe.name = per.parent
@@ -69,15 +69,27 @@ def _expenses(company: str, since, until) -> list[dict]:
 	]
 
 
+#: Payments written before banks were (09.11.2026): «Kaspi» was a method.
+_LEGACY = {"Kaspi": ("Перевод", "Kaspi")}
+
+
+def method_and_bank(method: str | None, bank: str | None = None) -> tuple[str, str | None]:
+	"""A payment's method and its bank, an old «Kaspi» read as a Kaspi transfer."""
+	if method in _LEGACY:
+		return _LEGACY[method][0], bank or _LEGACY[method][1]
+	return method or "—", bank or None
+
+
 def cash(since: str | None = None, until: str | None = None) -> dict:
 	"""Money in by day and method, money out, and the balance, for [since, until]."""
 	facade_prices.ensure_editor()
 	company = current_company()
 	since_d, until_d = _period(since, until)
 	payments = [
-		{"date": str(p.date), "method": p.method or "—", "order": p.order_name, "customer_name": p.customer_name,
+		{"date": str(p.date), "method": m, "bank": b, "order": p.order_name, "customer_name": p.customer_name,
 		 "amount": flt(p.amount), "received_by": p.received_by}
 		for p in _payments(company, since_d, until_d)
+		for m, b in [method_and_bank(p.method, p.bank)]
 	]
 	expenses = _expenses(company, since_d, until_d)
 
@@ -87,12 +99,16 @@ def cash(since: str | None = None, until: str | None = None) -> dict:
 		return days.setdefault(date, {"date": date, "in": Decimal(0), "out": Decimal(0), "by_method": {}})
 
 	by_method: dict[str, Decimal] = {}
+	by_bank: dict[str, dict[str, Decimal]] = {}
 	for p in payments:
 		amount = Decimal(str(p["amount"]))
 		d = day(p["date"])
 		d["in"] += amount
 		d["by_method"][p["method"]] = d["by_method"].get(p["method"], Decimal(0)) + amount
 		by_method[p["method"]] = by_method.get(p["method"], Decimal(0)) + amount
+		if p["bank"]:
+			banks = by_bank.setdefault(p["method"], {})
+			banks[p["bank"]] = banks.get(p["bank"], Decimal(0)) + amount
 	for e in expenses:
 		day(e["date"])["out"] += Decimal(str(e["amount"]))
 
@@ -106,7 +122,12 @@ def cash(since: str | None = None, until: str | None = None) -> dict:
 			 "by_method": {m: float(v) for m, v in sorted(d["by_method"].items())}}
 			for d in sorted(days.values(), key=lambda d: d["date"], reverse=True)
 		],
-		"by_method": [{"method": m, "amount": float(v)} for m, v in sorted(by_method.items(), key=lambda kv: -kv[1])],
+		"by_method": [
+			{"method": m, "amount": float(v),
+			 "banks": [{"bank": b, "amount": float(a)}
+					   for b, a in sorted(by_bank.get(m, {}).items(), key=lambda kv: -kv[1])]}
+			for m, v in sorted(by_method.items(), key=lambda kv: -kv[1])
+		],
 		"payments": list(reversed(payments)),
 		"expenses": list(reversed(expenses)),
 		"total_in": float(total_in),

@@ -39,8 +39,14 @@ enum MdfStage {
   cut,
   mill,
   sand,
+  paint,
   vacuum,
-  paint;
+
+  /// «Готово»: checked and packed — the order is ready only then.
+  ready;
+
+  /// What «+ этап» may add for a rework.
+  static const List<MdfStage> extra = [paint, vacuum];
 
   static MdfStage? parse(Object? raw) {
     for (final s in values) {
@@ -209,6 +215,7 @@ class MdfLineInput {
     this.material,
     this.edge,
     this.patina,
+    this.thicknessMm,
   });
 
   final int heightMm;
@@ -216,6 +223,9 @@ class MdfLineInput {
   final int qty;
   final String? milling;
   final String? note;
+
+  /// Its own thickness; null — the order's.
+  final int? thicknessMm;
 
   /// Typed by hand; null means the film group's price, else the price list.
   final double? rate;
@@ -245,6 +255,7 @@ class MdfLineInput {
     'material': ?material,
     'edge': ?edge,
     'patina': ?patina,
+    'thickness_mm': ?thicknessMm,
   };
 }
 
@@ -393,17 +404,26 @@ class MdfHistoryEntry {
 
 @immutable
 class MdfPayment {
-  const MdfPayment({required this.amount, required this.date, this.method});
+  const MdfPayment({
+    required this.amount,
+    required this.date,
+    this.method,
+    this.bank,
+  });
 
   factory MdfPayment.fromJson(Map<String, dynamic> json) => MdfPayment(
     amount: _d(json['amount']),
     date: '${json['date'] ?? ''}',
     method: _s(json['method']),
+    bank: _s(json['bank']),
   );
 
   final double amount;
   final String date;
+
+  /// Перевод, наличные, карта — and the bank of a transfer or a card.
   final String? method;
+  final String? bank;
 }
 
 /// The whole card.
@@ -434,6 +454,7 @@ class MdfOrder {
     this.history = const [],
     this.stageWorkers = const {},
     this.customerTags = const [],
+    this.extraStages = const {},
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -484,6 +505,13 @@ class MdfOrder {
           MdfStage.parse(s['stage'])!: _s(s['worker_name'])!,
     },
     customerTags: MdfCustomerTag.parse(json['customer_tags']),
+    extraStages: {
+      for (final s in json['stages'] as List? ?? const [])
+        if (s is Map &&
+            s['extra'] == true &&
+            MdfStage.parse(s['stage']) != null)
+          MdfStage.parse(s['stage'])!,
+    },
   );
 
   final String name;
@@ -518,6 +546,9 @@ class MdfOrder {
 
   /// The customer's tags (VIP, prepay only …), from the customer list.
   final List<MdfCustomerTag> customerTags;
+
+  /// The stages «+ этап» added for a rework.
+  final Set<MdfStage> extraStages;
 
   List<MdfOrderTag> get tags => head.tags;
 

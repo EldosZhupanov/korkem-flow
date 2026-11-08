@@ -8,8 +8,12 @@ import frappe
 
 from korkem_manufacturing.services import mdf_orders as service
 
-#: How the owner's customers pay (OnayBaza «Төлем есебі»: каспи, қолма-қол).
-PAYMENT_METHODS = ("Kaspi", "Наличные", "Перевод", "Карта")
+#: How the owner's customers pay (09.11.2026): перевод and карта name a bank
+#: from the «Банк» list (Kaspi, Halyk, Forte …), наличные do not.
+PAYMENT_METHODS = ("Перевод", "Наличные", "Карта")
+WITH_BANK = ("Перевод", "Карта")
+#: What an older app sends: «Kaspi» was a method before banks were.
+LEGACY_METHODS = {"Kaspi": ("Перевод", "Kaspi")}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -55,6 +59,12 @@ def cancel(order: str, reason: str) -> dict:
 @frappe.whitelist(methods=["POST"])
 def set_stage(order: str, stage: str, done: bool | int | str = 1, worker: str | None = None) -> dict:
 	return service.set_stage(order, stage, done, worker=worker)
+
+
+@frappe.whitelist(methods=["POST"])
+def extra_stage(order: str, stage: str, on: bool | int | str = 1) -> dict:
+	"""«+ этап» для переделки: краска или вакуум, которых нет у покрытия заказа."""
+	return service.extra_stage(order, stage, on)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -213,14 +223,22 @@ def stages_for(finish: str | None = None) -> list[str]:
 
 
 @frappe.whitelist(methods=["POST"])
-def add_payment(order: str, amount: float | str, method: str = "Kaspi", paid_on: str | None = None,
-				idempotency_key: str | None = None) -> dict:
-	"""Оплата по заказу: сумма, способ, дата. Через общий сервис платежей."""
-	from korkem_manufacturing.services import facade_prices, payments
+def add_payment(order: str, amount: float | str, method: str = "Перевод", paid_on: str | None = None,
+				idempotency_key: str | None = None, bank: str | None = None) -> dict:
+	"""Оплата по заказу: сумма, способ (и банк перевода или карты), дата."""
+	from korkem_manufacturing.services import facade_prices, facade_spec, payments
+	from korkem_manufacturing.services.scope import current_company
 
 	facade_prices.ensure_editor()
+	if method in LEGACY_METHODS:
+		method, bank = LEGACY_METHODS[method][0], bank or LEGACY_METHODS[method][1]
 	if method not in PAYMENT_METHODS:
 		frappe.throw(f"Способ оплаты — один из: {', '.join(PAYMENT_METHODS)}.")
+	bank = facade_spec._text(bank) if method in WITH_BANK else None
+	if bank:
+		banks = facade_spec._values("Банк", current_company())
+		if banks and bank not in banks and bank not in {b for _, b in LEGACY_METHODS.values()}:
+			frappe.throw(f"Банка «{bank}» нет в справочнике «Банк».")
 	_ensure_mode(method)
 	doc = service._accepted(order)
 	payments.record_payment(
@@ -228,6 +246,7 @@ def add_payment(order: str, amount: float | str, method: str = "Kaspi", paid_on:
 		amount=amount,
 		payment_type="Deposit" if not service._debt(doc) or float(doc.advance_paid or 0) == 0 else "Final",
 		mode_of_payment=method,
+		bank=bank,
 		paid_on=paid_on,
 		idempotency_key=idempotency_key,
 	)

@@ -17,13 +17,20 @@ const Map<String, Object> _day = {
 
 const Map<String, Object> _rest = {
   'by_method': [
-    {'method': 'Kaspi', 'amount': 30000},
-    {'method': 'Наличные', 'amount': 20000},
+    {
+      'method': 'Перевод',
+      'amount': 30000,
+      'banks': [
+        {'bank': 'Kaspi', 'amount': 30000},
+      ],
+    },
+    {'method': 'Наличные', 'amount': 20000, 'banks': <Object>[]},
   ],
   'payments': [
     {
       'date': '2026-11-07',
-      'method': 'Kaspi',
+      'method': 'Перевод',
+      'bank': 'Kaspi',
       'order': 'SAL-ORD-1129',
       'customer_name': 'Арман',
       'amount': 30000,
@@ -60,6 +67,13 @@ MdfCash _cash(MdfPeriod p) => MdfCash.fromJson({
 });
 
 void main() {
+  test('a transfer and a card keep their banks', () {
+    final c = _cash((since: '2026-11-07', until: '2026-11-07'));
+    expect(c.byBank['Перевод'], {'Kaspi': 30000});
+    expect(c.byBank['Наличные'], isEmpty);
+    expect(c.payments.single.bank, 'Kaspi');
+  });
+
   test('a range ends today and goes back 0, 6 or 29 days', () {
     final today = DateTime(2026, 11, 7);
     expect(cashPeriodOf(CashRange.today, today), (
@@ -87,7 +101,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('cashIn')), findsOneWidget);
-    expect(find.byKey(const ValueKey('cashMethod:Kaspi')), findsOneWidget);
+    expect(find.byKey(const ValueKey('cashMethod:Перевод')), findsOneWidget);
+    expect(find.textContaining('Kaspi'), findsWidgets);
     expect(find.byKey(const ValueKey('cashDay:2026-11-07')), findsNothing);
 
     await tester.tap(find.text('7 days'));

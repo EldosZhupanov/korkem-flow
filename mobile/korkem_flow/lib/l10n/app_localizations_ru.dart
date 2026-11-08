@@ -4757,7 +4757,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfStageVacuum => 'Вакуум';
 
   @override
-  String get mdfStagePaint => 'Покраска';
+  String get mdfStagePaint => 'Краска';
 
   @override
   String get mdfEmpty => 'Заказов пока нет';
@@ -5378,13 +5378,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfFilterRework => 'Переделки';
 
   @override
-  String get mdfColEdge => 'R';
+  String get mdfColEdge => 'Край';
 
   @override
-  String get mdfColMaterial => 'Толщина и материал';
-
-  @override
-  String get mdfEdgeDefault => 'R по умолчанию';
+  String get mdfEdgeDefault => 'Край по умолчанию';
 
   @override
   String get mdfExtraAdd => '+ доп.';
@@ -5411,4 +5408,34 @@ class AppLocalizationsRu extends AppLocalizations {
   String mdfPrepayOnlyAsk(String customer) {
     return '$customer: только предоплата, а оплаты нет. Всё равно принять?';
   }
+
+  @override
+  String get mdfThicknessShort => 'Толщина';
+
+  @override
+  String get mdfCopyOrder => 'Копировать заказ';
+
+  @override
+  String get mdfAddStage => 'этап';
+
+  @override
+  String get mdfStageReady => 'Готово';
+
+  @override
+  String get mdfPayTransfer => 'Перевод';
+
+  @override
+  String get mdfPayCash => 'Наличные';
+
+  @override
+  String get mdfPayCard => 'Карта';
+
+  @override
+  String get mdfPayBank => 'Банк';
+
+  @override
+  String get mdfDictBank => 'Банки';
+
+  @override
+  String get mdfDictLocked => 'Постоянное значение — не удаляется';
 }

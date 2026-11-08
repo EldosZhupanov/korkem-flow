@@ -50,14 +50,18 @@ TENGE = Decimal("1")
 MIN_MM, MAX_MM = 10, 3000
 MAX_LINES = 300
 
-#: Stage → field, in the order the shop works.
+#: Stage → field, in the order the shop works (owner, 09.11.2026): раскрой,
+#: фреза, шлифовка, краска, вакуум, готово.
 STAGES = {
 	"cut": "korkem_stage_cut",
 	"mill": "korkem_stage_mill",
 	"sand": "korkem_stage_sand",
-	"vacuum": "korkem_stage_vacuum",
 	"paint": "korkem_stage_paint",
+	"vacuum": "korkem_stage_vacuum",
+	"ready": "korkem_stage_ready",
 }
+#: The stages a rework may add to an order whose finish does not have them.
+EXTRA_STAGES = ("paint", "vacuum")
 #: Who did the stage: an Employee, written with the tick (OnayBaza «Жұмыс көлемі»).
 STAGE_BY = {stage: f"{field}_by" for stage, field in STAGES.items()}
 HEAD = {
@@ -83,22 +87,36 @@ STANDARD_EDGES = ("R0", DEFAULT_EDGE)
 DUE_SOON_DAYS = 2
 
 
-def stages_for(finish: str | None) -> list[str]:
-	"""The stages an order with this finish goes through.
+def stages_for(finish: str | None, extra: str | list | None = None) -> list[str]:
+	"""The stages an order with this finish goes through, «готово» last.
 
 	Film is pressed and never painted; enamel is painted and never pressed;
 	a raw («черновая») facade is cut, milled and sanded. A finish the rule does
 	not recognise gets every stage — a tick too many is harmless, a missing
-	one hides work.
+	one hides work. `extra` adds what a rework needs (a film facade repainted,
+	a painted one pressed), in the shop's order.
 	"""
 	name = (finish or "").lower()
 	if facade_prices.is_film(finish):
-		return ["cut", "mill", "sand", "vacuum"]
-	if "эмал" in name or "краск" in name or "бояу" in name:
-		return ["cut", "mill", "sand", "paint"]
-	if "чернов" in name:
-		return ["cut", "mill", "sand"]
-	return list(STAGES)
+		base = {"cut", "mill", "sand", "vacuum"}
+	elif "эмал" in name or "краск" in name or "бояу" in name:
+		base = {"cut", "mill", "sand", "paint"}
+	elif "чернов" in name:
+		base = {"cut", "mill", "sand"}
+	else:
+		base = set(STAGES)
+	base |= set(_extra(extra)) | {"ready"}
+	return [s for s in STAGES if s in base]
+
+
+def _extra(raw) -> list[str]:
+	items = raw if isinstance(raw, (list, tuple)) else (raw or "").split(",")
+	return [s for s in EXTRA_STAGES if s in {str(i).strip() for i in items}]
+
+
+def stages_of(row) -> list[str]:
+	"""An order's stages: its finish's, with what was added to it."""
+	return stages_for(row.get("korkem_finish"), row.get("korkem_extra_stages"))
 
 
 # --- the arithmetic --------------------------------------------------------
@@ -145,6 +163,7 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		milling = (raw.get("milling") or "").strip()
 		film, film_back, material = _line_spec(raw, label, company)
 		edge, patina = _line_finish(raw, label, company)
+		thickness = _line_thickness(raw, label, material)
 		manual = raw.get("rate") not in (None, "")
 		if manual:
 			rate = _money(raw.get("rate"), f"{label}, цена")
@@ -178,7 +197,7 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 				"film": film,
 				"film_back": film_back,
 				"material": material,
-				"thickness_mm": thickness_of(material),
+				"thickness_mm": thickness,
 				"edge": edge,
 				"patina": patina,
 			}
@@ -221,6 +240,22 @@ def _line_spec(raw: dict, label: str, company: str) -> tuple[str | None, str | N
 	if material and material not in facade_spec._values(mdf_dictionaries.MATERIAL, company):
 		frappe.throw(f"{label}: материала «{material}» нет в справочнике «{mdf_dictionaries.MATERIAL}».")
 	return film, film_back, material
+
+
+def _line_thickness(raw: dict, label: str, material: str | None) -> int | None:
+	"""A position's own thickness, mm (09.11.2026: thickness and material apart).
+
+	Typed as a number, or «16 мм» from the thickness list; a position without
+	one takes the thickness its material's name starts with — an order written
+	when the material list said «16 мм МДФ».
+	"""
+	raw_value = raw.get("thickness_mm")
+	if raw_value in (None, ""):
+		return thickness_of(material)
+	value = raw_value if isinstance(raw_value, int) else thickness_of(str(raw_value))
+	if value is None or not facade_spec.MIN_THICKNESS <= value <= facade_spec.MAX_THICKNESS:
+		frappe.throw(f"{label}: толщина «{raw_value}» — {facade_spec.MIN_THICKNESS}–{facade_spec.MAX_THICKNESS} мм.")
+	return value
 
 
 def _line_finish(raw: dict, label: str, company: str) -> tuple[str | None, str | None]:
@@ -478,14 +513,50 @@ def set_stage(order: str, stage: str, done=True, worker: str | None = None) -> d
 	if worker:
 		if frappe.db.get_value("Employee", worker, "company") != doc.company:
 			frappe.throw("Такого сотрудника в компании нет.")
+	needed = stages_of(doc)
+	if stage not in needed:
+		frappe.throw("У этого заказа такого этапа нет — добавьте его кнопкой «+ этап».")
+	if stage == "ready" and done:
+		missing = [s for s in needed if s != "ready" and not doc.get(STAGES[s])]
+		if missing:
+			frappe.throw("«Готово» — после всех этапов. Не отмечено: " + ", ".join(STAGE_NAMES[s] for s in missing) + ".")
 	doc.db_set({STAGES[stage]: nowdate() if done else None, STAGE_BY[stage]: (worker or None) if done else None},
 			   update_modified=True)
-	needed = stages_for(doc.korkem_finish)
 	doc.reload()
+	# Ready is «готово» ticked — checked and packed, not the last machine stage.
 	ready = all(doc.get(STAGES[s]) for s in needed)
 	doc.db_set("korkem_ready_on", (doc.korkem_ready_on or nowdate()) if ready else None, update_modified=False)
 	audit.record_audit(action="mdf.stage", entity_type="Sales Order", entity_id=doc.name,
 					   diff={"stage": stage, "done": done, "ready": ready, "worker": worker if done else None})
+	return card(doc.name)
+
+
+STAGE_NAMES = {"cut": "раскрой", "mill": "фреза", "sand": "шлифовка", "paint": "краска", "vacuum": "вакуум",
+			   "ready": "готово"}
+
+
+def extra_stage(order: str, stage: str, on=True) -> dict:
+	"""«+ этап»: a rework needs a stage its finish has not — paint, or vacuum.
+
+	Taking one off again is allowed while it is unticked.
+	"""
+	facade_prices.ensure_editor()
+	doc = _accepted(order)
+	if stage not in EXTRA_STAGES:
+		frappe.throw("Добавить можно краску или вакуум.")
+	if doc.korkem_handed_over_on:
+		frappe.throw("Заказ уже выдан.")
+	on = directions.flag(on)
+	extra = set(_extra(doc.get("korkem_extra_stages")))
+	if not on and doc.get(STAGES[stage]):
+		frappe.throw("Этап уже отмечен — сначала снимите отметку.")
+	extra = extra | {stage} if on else extra - {stage}
+	doc.db_set("korkem_extra_stages", ",".join(s for s in EXTRA_STAGES if s in extra) or None, update_modified=True)
+	# One more stage to go, or one fewer: ready is every stage of the order ticked.
+	ready = all(doc.get(STAGES[s]) for s in stages_of(doc))
+	doc.db_set("korkem_ready_on", (doc.korkem_ready_on or nowdate()) if ready else None, update_modified=False)
+	audit.record_audit(action="mdf.extra_stage", entity_type="Sales Order", entity_id=doc.name,
+					   diff={"stage": stage, "on": on})
 	return card(doc.name)
 
 
@@ -522,7 +593,7 @@ def card(order: str) -> dict:
 	"""Everything the card shows, in one answer."""
 	facade_prices.ensure_editor()
 	doc = _order(order)
-	needed = stages_for(doc.korkem_finish)
+	needed = stages_of(doc)
 	lines = [
 		{
 			"name": item.name,
@@ -553,10 +624,14 @@ def card(order: str) -> dict:
 	)
 	paid_rows = []
 	for row in payments:
-		entry = frappe.db.get_value("Payment Entry", row.parent, ["posting_date", "mode_of_payment", "owner"],
+		entry = frappe.db.get_value("Payment Entry", row.parent,
+									["posting_date", "mode_of_payment", "korkem_bank", "owner"],
 									as_dict=True)
+		from korkem_manufacturing.services.mdf_cash import method_and_bank
+
+		method, bank = method_and_bank(entry.mode_of_payment, entry.korkem_bank)
 		paid_rows.append({"amount": flt(row.allocated_amount), "date": str(entry.posting_date),
-						  "method": entry.mode_of_payment, "received_by": entry.owner})
+						  "method": method, "bank": bank, "received_by": entry.owner})
 	return {
 		"name": doc.name,
 		"status": status_of(doc),
@@ -580,7 +655,8 @@ def card(order: str) -> dict:
 		"debt": float(_debt(doc)),
 		"payments": paid_rows,
 		"stages": [
-			{"stage": s, "done_on": str(doc.get(STAGES[s])) if doc.get(STAGES[s]) else None,
+			{"stage": s, "done_on": _done_on(doc, s),
+			 "extra": s in _extra(doc.get("korkem_extra_stages")),
 			 "worker": doc.get(STAGE_BY[s]),
 			 "worker_name": frappe.db.get_value("Employee", doc.get(STAGE_BY[s]), "employee_name")
 			 if doc.get(STAGE_BY[s]) else None}
@@ -592,6 +668,14 @@ def card(order: str) -> dict:
 		"notes": doc.terms,
 		"history": history(doc.name),
 	}
+
+
+def _done_on(doc, stage: str) -> str | None:
+	done = doc.get(STAGES[stage])
+	# An order made ready before «готово» was a stage: its ready day stands for it.
+	if not done and stage == "ready":
+		done = doc.korkem_ready_on
+	return str(done) if done else None
 
 
 def new_customer(name: str, phone: str | None = None) -> dict:
@@ -744,13 +828,13 @@ def plan(days: int = 14) -> dict:
 		fields=["name", "docstatus", "customer", "customer_name", "delivery_date", "transaction_date",
 				"korkem_finish", "korkem_decor_top", "korkem_milling", "advance_paid", "grand_total",
 				"korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason", "korkem_tags",
-				*STAGES.values()],
+				"korkem_extra_stages", *STAGES.values()],
 		order_by="delivery_date asc, name asc",
 		limit_page_length=1000,
 	)
 	queues = {stage: {"stage": stage, "orders": [], "area_m2": Decimal(0)} for stage in STAGES}
 	for row in rows:
-		needed = stages_for(row.korkem_finish)
+		needed = stages_of(row)
 		waiting = next((s for s in needed if not row.get(STAGES[s])), None)
 		if waiting is None:
 			continue
@@ -864,7 +948,7 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 	fields = ["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name",
 			  "grand_total", "advance_paid", "korkem_finish", "korkem_decor_top", "korkem_milling",
 			  "korkem_edge_profile", "korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason",
-			  "korkem_tags", *STAGES.values()]
+			  "korkem_tags", "korkem_extra_stages", *STAGES.values()]
 	if tag and tag not in mdf_tags.ORDER + mdf_tags.CUSTOMER:
 		frappe.throw(f"Метки «{tag}» нет.")
 	if tag in mdf_tags.ORDER:
@@ -891,7 +975,7 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 		debt = _debt(row)
 		if directions.flag(with_debt) and debt <= 0:
 			continue
-		done = [s for s in stages_for(row.korkem_finish) if row.get(STAGES[s])]
+		done = [s for s in stages_of(row) if row.get(STAGES[s])]
 		out.append(
 			{
 				"name": row.name,

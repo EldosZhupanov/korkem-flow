@@ -5354,13 +5354,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfFilterRework => 'Reworks';
 
   @override
-  String get mdfColEdge => 'R';
+  String get mdfColEdge => 'Edge';
 
   @override
-  String get mdfColMaterial => 'Thickness and material';
-
-  @override
-  String get mdfEdgeDefault => 'Default R';
+  String get mdfEdgeDefault => 'Default edge';
 
   @override
   String get mdfExtraAdd => '+ extra';
@@ -5387,4 +5384,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String mdfPrepayOnlyAsk(String customer) {
     return '$customer: prepayment only, and nothing is paid. Accept anyway?';
   }
+
+  @override
+  String get mdfThicknessShort => 'Thickness';
+
+  @override
+  String get mdfCopyOrder => 'Copy order';
+
+  @override
+  String get mdfAddStage => 'stage';
+
+  @override
+  String get mdfStageReady => 'Ready';
+
+  @override
+  String get mdfPayTransfer => 'Transfer';
+
+  @override
+  String get mdfPayCash => 'Cash';
+
+  @override
+  String get mdfPayCard => 'Card';
+
+  @override
+  String get mdfPayBank => 'Bank';
+
+  @override
+  String get mdfDictBank => 'Banks';
+
+  @override
+  String get mdfDictLocked => 'Always on the list — can\'t be removed';
 }
