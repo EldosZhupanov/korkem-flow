@@ -9462,19 +9462,13 @@ abstract class AppLocalizations {
   /// No description provided for @mdfColEdge.
   ///
   /// In en, this message translates to:
-  /// **'R'**
+  /// **'Edge'**
   String get mdfColEdge;
-
-  /// No description provided for @mdfColMaterial.
-  ///
-  /// In en, this message translates to:
-  /// **'Thickness and material'**
-  String get mdfColMaterial;
 
   /// No description provided for @mdfEdgeDefault.
   ///
   /// In en, this message translates to:
-  /// **'Default R'**
+  /// **'Default edge'**
   String get mdfEdgeDefault;
 
   /// No description provided for @mdfExtraAdd.
@@ -9524,6 +9518,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{customer}: prepayment only, and nothing is paid. Accept anyway?'**
   String mdfPrepayOnlyAsk(String customer);
+
+  /// No description provided for @mdfThicknessShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness'**
+  String get mdfThicknessShort;
+
+  /// No description provided for @mdfCopyOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy order'**
+  String get mdfCopyOrder;
+
+  /// No description provided for @mdfAddStage.
+  ///
+  /// In en, this message translates to:
+  /// **'stage'**
+  String get mdfAddStage;
+
+  /// No description provided for @mdfStageReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get mdfStageReady;
+
+  /// No description provided for @mdfPayTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get mdfPayTransfer;
+
+  /// No description provided for @mdfPayCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get mdfPayCash;
+
+  /// No description provided for @mdfPayCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get mdfPayCard;
+
+  /// No description provided for @mdfPayBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get mdfPayBank;
+
+  /// No description provided for @mdfDictBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Banks'**
+  String get mdfDictBank;
+
+  /// No description provided for @mdfDictLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Always on the list — can\'t be removed'**
+  String get mdfDictLocked;
 }
 
 class _AppLocalizationsDelegate

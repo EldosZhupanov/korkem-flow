@@ -79,7 +79,7 @@ final MdfPrintWords _words = (
   back: 'асты',
   subtotal: 'Барлығы',
   radius: 'R',
-  materialColumn: 'Қалыңдығы мен материалы',
+  thicknessColumn: 'Қалыңдығы',
 );
 
 void main() {

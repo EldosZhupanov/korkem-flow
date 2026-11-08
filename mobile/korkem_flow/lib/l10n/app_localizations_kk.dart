@@ -5281,13 +5281,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfFilterRework => 'Қайта жасаулар';
 
   @override
-  String get mdfColEdge => 'R';
+  String get mdfColEdge => 'Жиегі';
 
   @override
-  String get mdfColMaterial => 'Қалыңдығы мен материалы';
-
-  @override
-  String get mdfEdgeDefault => 'Әдепкі R';
+  String get mdfEdgeDefault => 'Әдепкі жиек';
 
   @override
   String get mdfExtraAdd => '+ қосымша';
@@ -5314,4 +5311,34 @@ class AppLocalizationsKk extends AppLocalizations {
   String mdfPrepayOnlyAsk(String customer) {
     return '$customer: тек алдын ала төлем, бірақ төлем жоқ. Бәрібір қабылдау керек пе?';
   }
+
+  @override
+  String get mdfThicknessShort => 'Қалыңдығы';
+
+  @override
+  String get mdfCopyOrder => 'Тапсырысты көшіру';
+
+  @override
+  String get mdfAddStage => 'кезең';
+
+  @override
+  String get mdfStageReady => 'Дайын';
+
+  @override
+  String get mdfPayTransfer => 'Аударым';
+
+  @override
+  String get mdfPayCash => 'Қолма-қол';
+
+  @override
+  String get mdfPayCard => 'Карта';
+
+  @override
+  String get mdfPayBank => 'Банк';
+
+  @override
+  String get mdfDictBank => 'Банктер';
+
+  @override
+  String get mdfDictLocked => 'Тұрақты мән — өшірілмейді';
 }

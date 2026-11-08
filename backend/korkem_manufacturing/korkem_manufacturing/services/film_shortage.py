@@ -38,14 +38,14 @@ def shortage() -> dict:
 			"korkem_handed_over_on": ["is", "not set"],
 			"korkem_stage_vacuum": ["is", "not set"],
 		},
-		fields=["name", "customer_name", "delivery_date", "korkem_finish"],
+		fields=["name", "customer_name", "delivery_date", "korkem_finish", "korkem_extra_stages"],
 		order_by="delivery_date asc, name asc",
 		limit_page_length=500,
 	)
 	films: dict[str, dict] = {}
 	rows = []
 	for order in orders:
-		if "vacuum" not in mdf_orders.stages_for(order.korkem_finish):
+		if "vacuum" not in mdf_orders.stages_of(order):
 			continue
 		need = facade_materials.need(order.name)
 		press = None
