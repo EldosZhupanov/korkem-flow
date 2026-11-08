@@ -6014,9 +6014,8 @@
   "mdfFilterUrgent": "Urgent",
   "mdfFilterFurnitureMakers": "Furniture makers",
   "mdfFilterRework": "Reworks",
-  "mdfColEdge": "R",
-  "mdfColMaterial": "Thickness and material",
-  "mdfEdgeDefault": "Default R",
+  "mdfColEdge": "Edge",
+  "mdfEdgeDefault": "Default edge",
   "mdfExtraAdd": "+ extra",
   "mdfDeadlineToday": "Today",
   "mdfDeadlineTomorrow": "Tomorrow",
@@ -6031,5 +6030,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mdfThicknessShort": "Thickness",
+  "mdfCopyOrder": "Copy order",
+  "mdfAddStage": "stage",
+  "mdfStageReady": "Ready",
+  "mdfPayTransfer": "Transfer",
+  "mdfPayCash": "Cash",
+  "mdfPayCard": "Card",
+  "mdfPayBank": "Bank",
+  "mdfDictBank": "Banks",
+  "mdfDictLocked": "Always on the list — can't be removed"
 }

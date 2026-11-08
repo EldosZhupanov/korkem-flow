@@ -1772,9 +1772,8 @@
   "mdfFilterUrgent": "Шұғыл",
   "mdfFilterFurnitureMakers": "Жиһазшылар",
   "mdfFilterRework": "Қайта жасаулар",
-  "mdfColEdge": "R",
-  "mdfColMaterial": "Қалыңдығы мен материалы",
-  "mdfEdgeDefault": "Әдепкі R",
+  "mdfColEdge": "Жиегі",
+  "mdfEdgeDefault": "Әдепкі жиек",
   "mdfExtraAdd": "+ қосымша",
   "mdfDeadlineToday": "Бүгін",
   "mdfDeadlineTomorrow": "Ертең",
@@ -1782,5 +1781,15 @@
   "mdfAtRisk": "Үлгермейді",
   "mdfTvTitle": "Цех экраны",
   "mdfTvHint": "Бүгін, ертең, кейін — цехтағы теледидарға",
-  "mdfPrepayOnlyAsk": "{customer}: тек алдын ала төлем, бірақ төлем жоқ. Бәрібір қабылдау керек пе?"
+  "mdfPrepayOnlyAsk": "{customer}: тек алдын ала төлем, бірақ төлем жоқ. Бәрібір қабылдау керек пе?",
+  "mdfThicknessShort": "Қалыңдығы",
+  "mdfCopyOrder": "Тапсырысты көшіру",
+  "mdfAddStage": "кезең",
+  "mdfStageReady": "Дайын",
+  "mdfPayTransfer": "Аударым",
+  "mdfPayCash": "Қолма-қол",
+  "mdfPayCard": "Карта",
+  "mdfPayBank": "Банк",
+  "mdfDictBank": "Банктер",
+  "mdfDictLocked": "Тұрақты мән — өшірілмейді"
 }

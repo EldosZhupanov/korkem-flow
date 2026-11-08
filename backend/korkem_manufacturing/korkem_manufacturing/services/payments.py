@@ -31,6 +31,7 @@ def record_payment(
 	company: str | None = None,
 	reference_no: str | None = None,
 	mode_of_payment: str = "Bank Transfer",
+	bank: str | None = None,
 	paid_on: str | None = None,
 	actor: str | None = None,
 	idempotency_key: str | None = None,
@@ -88,6 +89,8 @@ def record_payment(
 			if ref.reference_doctype == "Sales Order" and ref.reference_name == sales_order:
 				ref.allocated_amount = min(amt, flt(ref.outstanding_amount) or amt)
 		pe.mode_of_payment = mode_of_payment
+		if bank:
+			pe.set("korkem_bank", bank)  # a transfer's or a card's bank (MDF orders)
 		pe.reference_no = idempotency_key or ref
 		pe.reference_date = date_paid
 		pe.insert(ignore_permissions=True)

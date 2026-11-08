@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -39,8 +40,8 @@ typedef MdfPrintWords = ({
   /// The R column: a position's edge radius (R0 — a sharp corner, in bold).
   String radius,
 
-  /// «Толщина и материал».
-  String materialColumn,
+  /// «Толщина» as a column head (thickness and material apart, 09.11.2026).
+  String thicknessColumn,
 });
 
 /// One MDF order on an A4 page, the way the owner prints it from OnayBaza
@@ -77,13 +78,11 @@ Future<Uint8List> buildMdfOrderPdf(
     (words.due, order.deliveryDate),
     (words.customer, order.customerName),
     (words.phone, order.phone ?? ''),
-    (
-      words.material,
-      h.material ?? (h.thicknessMm == null ? '' : '${h.thicknessMm} мм'),
-    ),
+    (words.thickness, h.thicknessMm == null ? '' : '${h.thicknessMm} мм'),
+    (words.material, h.material ?? ''),
     (words.finish, h.finish ?? ''),
     if (h.patina != null) (words.patina, h.patina!),
-    (words.milling, h.milling ?? ''),
+    if (h.milling != null) (words.milling, h.milling!),
     (words.edge, h.edgeProfile ?? ''),
     if (h.extraName != null) (words.extraName, h.extraName!),
     if (withPrices) (words.paid, money.format(order.paid)),
@@ -108,7 +107,8 @@ Future<Uint8List> buildMdfOrderPdf(
     words.milling,
     words.radius,
     words.film,
-    words.materialColumn,
+    words.thicknessColumn,
+    words.material,
     words.area,
     if (withPrices) words.rate,
     if (withPrices) words.amount,
@@ -131,7 +131,11 @@ Future<Uint8List> buildMdfOrderPdf(
       text('${l.widthMm}', right: true),
       text('${l.qty}', right: true),
       text([l.milling, l.note].whereType<String>().join(' · ')),
-      text(l.edge ?? '', style: l.edge == 'R0' ? bold : null),
+      // Any edge but the usual R3 in bold: the shop must not miss it.
+      text(
+        l.edge ?? '',
+        style: l.edge != null && l.edge != mdfDefaultEdge ? bold : null,
+      ),
       text(
         [
           l.film ?? '',
@@ -139,7 +143,8 @@ Future<Uint8List> buildMdfOrderPdf(
           if (l.patina != null) '+ ${words.patina}: ${l.patina}',
         ].join('\n'),
       ),
-      text(l.material ?? (l.thicknessMm == null ? '' : '${l.thicknessMm} мм')),
+      text(l.thicknessMm == null ? '' : '${l.thicknessMm} мм', right: true),
+      text(l.material ?? ''),
       text(area.format(l.areaM2), right: true),
       if (withPrices) text(money.format(l.rateM2), right: true),
       if (withPrices) text(money.format(l.amount), right: true),
@@ -153,6 +158,7 @@ Future<Uint8List> buildMdfOrderPdf(
           text(label, style: bold),
           text(''),
           text('$pieces', style: bold, right: true),
+          text(''),
           text(''),
           text(''),
           text(''),
@@ -213,9 +219,8 @@ Future<Uint8List> buildMdfOrderPdf(
           border: pw.TableBorder.all(width: 0.5),
           columnWidths: {
             0: const pw.FixedColumnWidth(24),
-            5: const pw.FixedColumnWidth(30),
             for (var i = 1; i < columns.length; i++)
-              if (i != 5) i: pw.FlexColumnWidth(i == 4 || i == 6 ? 3 : 1.4),
+              i: pw.FlexColumnWidth(i == 4 || i == 6 ? 3 : 1.4),
           },
           children: [
             pw.TableRow(

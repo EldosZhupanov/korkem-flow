@@ -383,6 +383,17 @@ class MdfOrderRepository {
     'worker': ?worker,
   });
 
+  /// «+ этап»: paint or vacuum for a rework, or taken off again.
+  Future<MdfOrder> extraStage(
+    String order,
+    MdfStage stage, {
+    required bool on,
+  }) => _post('extra_stage', {
+    'order': order,
+    'stage': stage.name,
+    'on': on ? 1 : 0,
+  });
+
   /// Who can be named on a stage: the company's active employees.
   Future<List<MdfWorker>> workers() async {
     final response = await _client.callMethod('$_base.workers');
@@ -418,11 +429,17 @@ class MdfOrderRepository {
     String order, {
     required double amount,
     required String method,
+    String? bank,
   }) async {
     await _outbox.execute(
       _client,
       '$_base.add_payment',
-      params: {'order': order, 'amount': amount, 'method': method},
+      params: {
+        'order': order,
+        'amount': amount,
+        'method': method,
+        'bank': ?bank,
+      },
     );
   }
 

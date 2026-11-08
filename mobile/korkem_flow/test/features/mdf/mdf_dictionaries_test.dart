@@ -13,6 +13,10 @@ import '../../support/widget_harness.dart';
 class _FakeRepository implements MdfOrderRepository {
   final Map<MdfDictKind, List<MdfDictEntry>> lists = {
     MdfDictKind.patina: [const MdfDictEntry(id: 'p1', value: 'Жоқ/Нет')],
+    MdfDictKind.edge: [
+      const MdfDictEntry(id: 'e1', value: 'R3'),
+      const MdfDictEntry(id: 'e2', value: 'Полукруг'),
+    ],
   };
   var _next = 0;
 
@@ -115,6 +119,39 @@ void main() {
     expect(thicknessOf('—'), isNull);
     expect(thicknessOf('16 мм ЛМДФ'), 16);
     expect(thicknessOf('3 мм ХДФ'), 3);
+    expect(mdfThicknessLabel(['16 мм', '18'], 16), '16 мм');
+    expect(mdfThicknessLabel(['16 мм'], 22), '22 мм');
+    expect(mdfThicknessLabel(['16 мм'], null), isNull);
+    expect(mdfEdges(['Полукруг', 'R3']), ['R0', 'R3', 'Полукруг']);
+  });
+
+  testWidgets('R0 and R3 stand locked on the edge list; the rest are edited', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfOrderRepositoryProvider.overrideWithValue(_FakeRepository()),
+        ],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () =>
+                  showMdfDictionary(context, MdfDictKind.edge, title: 'Edge'),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    // R0 is not on the server's list, and is shown all the same.
+    expect(find.byKey(const ValueKey('dictLocked:R0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('dictLocked:R3')), findsOneWidget);
+    expect(find.byKey(const ValueKey('dictDelete:R3')), findsNothing);
+    expect(find.byKey(const ValueKey('dictDelete:Полукруг')), findsOneWidget);
+    expect(find.byKey(const ValueKey('dictEdit:Полукруг')), findsOneWidget);
   });
 
   testWidgets('add, rename, delete and choose in one list', (tester) async {

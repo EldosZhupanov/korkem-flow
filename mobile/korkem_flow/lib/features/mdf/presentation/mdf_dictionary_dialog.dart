@@ -139,7 +139,15 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
           ),
           data: (d) {
             final entries = d.entries(widget.kind);
-            if (entries.isEmpty) {
+            // R0 and R3 are always there and stay (09.11.2026).
+            final locked = widget.kind == MdfDictKind.edge
+                ? mdfStandardEdges
+                : const <String>[];
+            final standing = [
+              for (final v in locked)
+                if (!entries.any((e) => e.value == v)) v,
+            ];
+            if (entries.isEmpty && standing.isEmpty) {
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
@@ -150,33 +158,51 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
                 ),
               );
             }
+            Widget lock(String value) => ListTile(
+              key: ValueKey('dictEntry:$value'),
+              dense: true,
+              selected: value == widget.current,
+              title: Text(value),
+              onTap: () => Navigator.of(context).pop(value),
+              trailing: Tooltip(
+                message: l10n.mdfDictLocked,
+                child: Icon(
+                  AppIcons.noAccess,
+                  key: ValueKey('dictLocked:$value'),
+                ),
+              ),
+            );
             return ListView(
               children: [
+                for (final v in standing) lock(v),
                 for (final e in entries)
-                  ListTile(
-                    key: ValueKey('dictEntry:${e.value}'),
-                    dense: true,
-                    selected: e.value == widget.current,
-                    title: Text(e.value),
-                    onTap: () => Navigator.of(context).pop(e.value),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          key: ValueKey('dictEdit:${e.value}'),
-                          tooltip: l10n.mdfDictRename,
-                          onPressed: _busy ? null : () => _rename(e),
-                          icon: const Icon(AppIcons.edit),
-                        ),
-                        IconButton(
-                          key: ValueKey('dictDelete:${e.value}'),
-                          tooltip: l10n.mdfDictDelete,
-                          onPressed: _busy ? null : () => _delete(e),
-                          icon: const Icon(AppIcons.delete),
-                        ),
-                      ],
+                  if (locked.contains(e.value))
+                    lock(e.value)
+                  else
+                    ListTile(
+                      key: ValueKey('dictEntry:${e.value}'),
+                      dense: true,
+                      selected: e.value == widget.current,
+                      title: Text(e.value),
+                      onTap: () => Navigator.of(context).pop(e.value),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            key: ValueKey('dictEdit:${e.value}'),
+                            tooltip: l10n.mdfDictRename,
+                            onPressed: _busy ? null : () => _rename(e),
+                            icon: const Icon(AppIcons.edit),
+                          ),
+                          IconButton(
+                            key: ValueKey('dictDelete:${e.value}'),
+                            tooltip: l10n.mdfDictDelete,
+                            onPressed: _busy ? null : () => _delete(e),
+                            icon: const Icon(AppIcons.delete),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
               ],
             );
           },

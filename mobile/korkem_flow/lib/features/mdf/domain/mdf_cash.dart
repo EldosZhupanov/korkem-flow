@@ -39,11 +39,13 @@ class CashPayment {
     required this.order,
     required this.customerName,
     required this.amount,
+    this.bank,
   });
 
   factory CashPayment.fromJson(Map<String, dynamic> json) => CashPayment(
     date: '${json['date']}',
     method: '${json['method'] ?? '—'}',
+    bank: json['bank'] == null ? null : '${json['bank']}',
     order: '${json['order'] ?? ''}',
     customerName: '${json['customer_name'] ?? ''}',
     amount: _d(json['amount']),
@@ -51,6 +53,9 @@ class CashPayment {
 
   final String date;
   final String method;
+
+  /// The bank of a transfer or a card; null for cash.
+  final String? bank;
   final String order;
   final String customerName;
   final double amount;
@@ -92,6 +97,7 @@ class MdfCash {
     required this.totalIn,
     required this.totalOut,
     required this.net,
+    this.byBank = const {},
   });
 
   factory MdfCash.fromJson(Map<String, dynamic> json) => MdfCash(
@@ -104,6 +110,14 @@ class MdfCash {
     byMethod: {
       for (final m in json['by_method'] as List? ?? const [])
         if (m is Map) '${m['method']}': _d(m['amount']),
+    },
+    byBank: {
+      for (final m in json['by_method'] as List? ?? const [])
+        if (m is Map && m['banks'] is List)
+          '${m['method']}': {
+            for (final b in m['banks'] as List)
+              if (b is Map) '${b['bank']}': _d(b['amount']),
+          },
     },
     payments: [
       for (final p in json['payments'] as List? ?? const [])
@@ -124,6 +138,9 @@ class MdfCash {
 
   /// Biggest first.
   final Map<String, double> byMethod;
+
+  /// A method's money by bank (Перевод → Kaspi, Halyk …), biggest first.
+  final Map<String, Map<String, double>> byBank;
   final List<CashPayment> payments;
   final List<CashExpense> expenses;
   final double totalIn;

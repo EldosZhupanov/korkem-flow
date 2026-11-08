@@ -152,7 +152,11 @@ class _CashBody extends StatelessWidget {
               for (final e in c.byMethod.entries)
                 StatusChip(
                   key: ValueKey('cashMethod:${e.key}'),
-                  label: '${e.key}: ${money.format(e.value)}',
+                  label: [
+                    '${e.key}: ${money.format(e.value)}',
+                    if (c.byBank[e.key]?.isNotEmpty ?? false)
+                      '(${_banks(c.byBank[e.key]!, money)})',
+                  ].join(' '),
                   intent: StatusIntent.success,
                 ),
             ],
@@ -192,7 +196,9 @@ class _CashBody extends StatelessWidget {
               dense: true,
               contentPadding: EdgeInsets.zero,
               title: Text('${p.order} · ${p.customerName}'),
-              subtitle: Text('${p.date} · ${p.method}'),
+              subtitle: Text(
+                [p.date, p.method, ?p.bank].join(' · '),
+              ),
               trailing: Text(money.format(p.amount)),
               onTap: () => context.push(Routes.mdfOrder(p.order)),
             ),
@@ -215,3 +221,8 @@ class _CashBody extends StatelessWidget {
     );
   }
 }
+
+/// «Kaspi 300 000 ₸, Halyk 100 000 ₸» — a method's money by bank.
+String _banks(Map<String, double> banks, NumberFormat money) => [
+  for (final b in banks.entries) '${b.key} ${money.format(b.value)}',
+].join(', ');

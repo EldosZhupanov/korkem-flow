@@ -137,19 +137,47 @@ class TestMdfOrders(IntegrationTestCase):
 					 delivery_date=add_days(nowdate(), 9), head={"finish": PVC},
 					 lines=ORDER_1129, order=card["name"])
 
-	def test_film_is_ready_after_the_vacuum_and_never_painted(self):
-		self.assertEqual(mdf_orders.stages_for(PVC), ["cut", "mill", "sand", "vacuum"])
-		self.assertIn("paint", mdf_orders.stages_for("Эмаль"))
+	def test_film_is_ready_when_готово_is_ticked_after_the_vacuum_and_never_painted(self):
+		# The owner's stages (09.11.2026): «готово» last, checked and packed.
+		self.assertEqual(mdf_orders.stages_for(PVC), ["cut", "mill", "sand", "vacuum", "ready"])
+		self.assertEqual(mdf_orders.stages_for("Эмаль"), ["cut", "mill", "sand", "paint", "ready"])
 		card = self._draft()
 		self.addCleanup(self._drop, card["name"])
 		self._as(MANAGER, mdf_orders.accept, card["name"])
+		with self.assertRaises(frappe.ValidationError):  # a film facade is not painted
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint")
 		for stage in ("cut", "mill", "sand"):
 			card = self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
-		self.assertEqual(card["status"], "in_shop")
+		with self.assertRaises(frappe.ValidationError):  # «готово» only after every stage
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], "ready")
 		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum")
+		self.assertEqual((card["status"], card["ready_on"]), ("in_shop", None))  # pressed, not yet checked
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "ready")
 		self.assertEqual((card["status"], card["ready_on"]), ("ready", nowdate()))
-		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum", 0)
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "ready", 0)
 		self.assertEqual((card["status"], card["ready_on"]), ("in_shop", None))
+
+	def test_a_rework_adds_a_stage_its_finish_has_not(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		for stage in mdf_orders.stages_for(PVC):
+			card = self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
+		self.assertEqual(card["status"], "ready")
+		# Repainted after a master's mistake: paint goes before the vacuum, and
+		# the order is not ready until it is done.
+		card = self._as(MANAGER, mdf_orders.extra_stage, card["name"], "paint")
+		self.assertEqual([s["stage"] for s in card["stages"]], ["cut", "mill", "sand", "paint", "vacuum", "ready"])
+		self.assertTrue(next(s for s in card["stages"] if s["stage"] == "paint")["extra"])
+		self.assertIsNone(card["ready_on"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.extra_stage, card["name"], "cut")
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint")
+		with self.assertRaises(frappe.ValidationError):  # ticked: it stays
+			self._as(MANAGER, mdf_orders.extra_stage, card["name"], "paint", 0)
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint", 0)
+		card = self._as(MANAGER, mdf_orders.extra_stage, card["name"], "paint", 0)
+		self.assertNotIn("paint", [s["stage"] for s in card["stages"]])
 
 	def test_not_handed_over_with_a_debt_unless_an_administrator_says_why(self):
 		card = self._draft()
@@ -338,7 +366,11 @@ class TestMdfOrders(IntegrationTestCase):
 
 		cash = self._as(MANAGER, mdf_cash.cash)
 		self.assertEqual(cash["since"], nowdate())
-		self.assertIn(card["name"], [p["order"] for p in cash["payments"] if p["method"] == "Kaspi"])
+		# An older app's «Kaspi» is a Kaspi transfer (09.11.2026: method and bank).
+		mine = next(p for p in cash["payments"] if p["order"] == card["name"])
+		self.assertEqual((mine["method"], mine["bank"]), ("Перевод", "Kaspi"))
+		transfer = next(m for m in cash["by_method"] if m["method"] == "Перевод")
+		self.assertIn("Kaspi", [b["bank"] for b in transfer["banks"]])
 		self.assertEqual(cash["total_in"] - before["total_in"], 20_000)  # the part paid, not the order's total
 		self.assertEqual([p["amount"] for p in self._as(MANAGER, mdf_orders.card, card["name"])["payments"]], [20_000])
 		self.assertEqual(cash["total_out"] - before["total_out"], 3_500)
@@ -416,7 +448,7 @@ class TestMdfOrders(IntegrationTestCase):
 		from korkem_manufacturing.services import mdf_dictionaries as dicts
 
 		lists = self._as(MANAGER, dicts.dictionaries)
-		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge"})
+		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge", "bank"})
 		self.assertNotIn(PVC, [v["value"] for v in lists["finish"]])  # nothing is filled in for the owner
 
 		lists = self._as(MANAGER, dicts.add, "patina", "  Алтын/Золотой ")
@@ -471,7 +503,7 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertTrue(facade_prices.is_film("Пленка ПВХ"))
 		self.assertTrue(facade_prices.is_film(PVC))
 		self.assertFalse(facade_prices.is_film("Бояу/Краска"))
-		self.assertEqual(mdf_orders.stages_for("Пленка ПВХ"), ["cut", "mill", "sand", "vacuum"])
+		self.assertEqual(mdf_orders.stages_for("Пленка ПВХ"), ["cut", "mill", "sand", "vacuum", "ready"])
 
 	def _gender(self) -> str:
 		if not frappe.db.exists("Gender", "Male"):
@@ -618,6 +650,47 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertTrue(mdf_orders._at_risk(5, 1))
 		self.assertFalse(mdf_orders._at_risk(4, 1))
 		self.assertFalse(mdf_orders._at_risk(9, -1))  # overdue is late, not at risk
+
+	def test_a_payment_names_its_method_and_the_bank_of_a_transfer(self):
+		from korkem_manufacturing.api import mdf_orders as api
+		from korkem_manufacturing.services import mdf_dictionaries
+
+		self._as(MANAGER, mdf_dictionaries.add, "bank", "МДФ Тест Халык")
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		self.addCleanup(self._cancel_payments, card["name"])
+		self._as(MANAGER, api.add_payment, card["name"], 5_000, "Карта", bank="МДФ Тест Халык")
+		card = self._as(MANAGER, api.add_payment, card["name"], 1_000, "Наличные", bank="МДФ Тест Халык")
+		# Two payments of one day, in no particular order; cash has no bank.
+		self.assertEqual({(p["method"], p["bank"]) for p in card["payments"]},
+						 {("Карта", "МДФ Тест Халык"), ("Наличные", None)})
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, api.add_payment, card["name"], 1_000, "Перевод", bank="Нет такого банка")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, api.add_payment, card["name"], 1_000, "Бартер")
+
+	def test_thickness_and_material_apart_and_the_standard_edges_stay(self):
+		from korkem_manufacturing.services import mdf_dictionaries
+
+		self._as(MANAGER, mdf_dictionaries.add, "material", "МДФ")
+		lines = [{**ORDER_1129[0], "material": "МДФ", "thickness_mm": 18},
+				 {**ORDER_1129[1], "material": "МДФ", "thickness_mm": "10 мм"},
+				 {**ORDER_1129[2]}]
+		card = self._draft(lines=lines, material="МДФ", thickness_mm=16)
+		self.addCleanup(self._drop, card["name"])
+		self.assertEqual([(l["material"], l["thickness_mm"]) for l in card["lines"][:3]],
+						 [("МДФ", 18), ("МДФ", 10), ("МДФ", 16)])  # the third takes the head's
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.price, [{**ORDER_1129[0], "thickness_mm": 99}], finish=PVC)
+		from korkem_manufacturing.services import material_stock
+
+		material_stock.put_option("Профиль кромки", "R3")
+		r3 = next(e for e in self._as(MANAGER, mdf_dictionaries.dictionaries)["edge"] if e["value"] == "R3")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_dictionaries.remove, "edge", r3["id"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_dictionaries.rename, "edge", r3["id"], "R4")
 
 	def test_a_material_name_gives_the_thickness(self):
 		self.assertEqual(mdf_orders.thickness_of("16 мм ЛМДФ"), 16)

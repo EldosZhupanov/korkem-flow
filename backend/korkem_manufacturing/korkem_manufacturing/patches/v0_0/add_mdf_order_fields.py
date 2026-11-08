@@ -68,6 +68,14 @@ ORDER = [
 	 "insert_after": "korkem_stage_sand_by"},
 	{"fieldname": "korkem_stage_paint_by", "label": "Painted by", "fieldtype": "Link", "options": "Employee",
 	 "insert_after": "korkem_stage_vacuum_by"},
+	# «Готово» — the last stage, checked and packed (owner, 09.11.2026).
+	{"fieldname": "korkem_stage_ready", "label": "Checked and packed", "fieldtype": "Date",
+	 "insert_after": "korkem_stage_paint"},
+	{"fieldname": "korkem_stage_ready_by", "label": "Checked by", "fieldtype": "Link", "options": "Employee",
+	 "insert_after": "korkem_stage_paint_by"},
+	# A stage its finish does not have, added for a rework: paint, vacuum.
+	{"fieldname": "korkem_extra_stages", "label": "Extra stages", "fieldtype": "Data",
+	 "insert_after": "korkem_stage_ready_by"},
 ]
 
 LINE = [
@@ -97,9 +105,17 @@ CUSTOMER = [
 ]
 
 
+#: The bank of a transfer or a card payment (Kaspi, Halyk, Forte …), beside
+#: its method — перевод, наличные, карта (owner, 09.11.2026).
+PAYMENT = [
+	{"fieldname": "korkem_bank", "label": "Bank", "fieldtype": "Data", "insert_after": "mode_of_payment"},
+]
+
+
 def execute():
 	create_custom_fields(
 		{
+			"Payment Entry": [f for f in PAYMENT if not _exists("Payment Entry", f["fieldname"])],
 			"Sales Order": [f for f in ORDER if not _exists("Sales Order", f["fieldname"])],
 			"Sales Order Item": [f for f in LINE if not _exists("Sales Order Item", f["fieldname"])],
 			"Customer": [f for f in CUSTOMER if not _exists("Customer", f["fieldname"])],
@@ -109,7 +125,7 @@ def execute():
 	for doctype, fields in PRECISE.items():
 		for field in fields:
 			make_property_setter(doctype, field, "precision", "6", "Select", validate_fields_for_doctype=False)
-	for doctype in ("Sales Order", "Sales Order Item", "Sales Invoice Item", "Customer"):
+	for doctype in ("Sales Order", "Sales Order Item", "Sales Invoice Item", "Customer", "Payment Entry"):
 		frappe.clear_cache(doctype=doctype)
 
 

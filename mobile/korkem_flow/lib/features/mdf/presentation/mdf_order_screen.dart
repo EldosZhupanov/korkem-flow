@@ -86,6 +86,7 @@ class _LineFields {
     this.material,
     this.edge = mdfDefaultEdge,
     this.patina,
+    this.thicknessMm,
     Set<_Extra>? extras,
   }) : height = TextEditingController(text: h),
        width = TextEditingController(text: w),
@@ -116,7 +117,10 @@ class _LineFields {
   /// Its own board; null — the order's.
   String? material;
 
-  /// The radius of its edges; R3 unless the manager says, R0 a sharp corner.
+  /// Its own thickness, mm; null — the order's.
+  int? thicknessMm;
+
+  /// Its edge; R3 unless the manager says, R0 a sharp corner.
   String? edge;
   String? patina;
 
@@ -155,6 +159,7 @@ class _LineFields {
       material: material,
       edge: edge,
       patina: patina,
+      thicknessMm: thicknessMm,
     );
   }
 
@@ -170,6 +175,7 @@ class _LineFields {
     material: material,
     edge: edge,
     patina: patina,
+    thicknessMm: thicknessMm,
     extras: {...extras},
   );
 
@@ -258,6 +264,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             film: l.film,
             filmBack: l.filmBack,
             material: l.material == o.head.material ? null : l.material,
+            thicknessMm: l.thicknessMm == o.head.thicknessMm
+                ? null
+                : l.thicknessMm,
             edge: l.edge ?? o.head.edgeProfile ?? mdfDefaultEdge,
             patina: l.patina,
           ),
@@ -277,12 +286,17 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       final head = await ref.read(mdfOrderRepositoryProvider).lastHead();
       if (!mounted || head == null) return;
       setState(() {
-        _head = head;
-        if (_defaultRate.text.isEmpty) {
-          _defaultRate.text = head.defaultRate?.toStringAsFixed(0) ?? '';
-        }
+        // Milling is a position's and the price a film group's now: the
+        // head brings neither.
+        _head = MdfHead(
+          thicknessMm: head.thicknessMm,
+          finish: head.finish,
+          decorTop: head.decorTop,
+          decorBottom: head.decorBottom,
+          edgeProfile: head.edgeProfile,
+          material: head.material,
+        );
         for (final l in _lines) {
-          l.milling ??= head.milling;
           if (l.input() == null) l.edge = _defaultEdge;
         }
       });
@@ -296,7 +310,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     final l10n = AppLocalizations.of(context);
     final pasted = await showDialog<SizePaste>(
       context: context,
-      builder: (_) => _PasteDialog(milling: _head.milling),
+      builder: (_) => _PasteDialog(milling: _lastMilling(_films.last)),
     );
     if (pasted == null || pasted.lines.isEmpty) return;
     setState(() {
@@ -325,8 +339,22 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   /// The order's default radius: the head's, else R3.
   String get _defaultEdge => _head.edgeProfile ?? mdfDefaultEdge;
 
-  _LineFields _blank(String? film) =>
-      _LineFields(milling: _head.milling, film: film, edge: _defaultEdge);
+  /// A new row's milling: the row above it — the same milling runs on more
+  /// often than not; the head's on an older order, which still has one.
+  String? _lastMilling(String? film) {
+    final mates = [
+      for (final l in _lines)
+        if (l.film == film) l,
+    ];
+    final above = mates.isNotEmpty ? mates.last : _lines.lastOrNull;
+    return above?.milling ?? _head.milling;
+  }
+
+  _LineFields _blank(String? film) => _LineFields(
+    milling: _lastMilling(film),
+    film: film,
+    edge: _defaultEdge,
+  );
 
   TextEditingController _rateOf(String? film) =>
       _filmRates[film] ??= TextEditingController();
@@ -351,7 +379,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   }
 
   MdfHead _readHead() => MdfHead(
-    thicknessMm: thicknessOf(_head.material) ?? _head.thicknessMm,
+    thicknessMm: _head.thicknessMm ?? thicknessOf(_head.material),
     finish: _head.finish,
     // The first film stands for the order where one film is asked for.
     decorTop: _films.whereType<String>().firstOrNull ?? _head.decorTop,
@@ -695,6 +723,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     final materials = dicts.values(MdfDictKind.material);
     final films = dicts.values(MdfDictKind.decor);
     final edges = mdfEdges(dicts.values(MdfDictKind.edge));
+    final thicknesses = dicts.values(MdfDictKind.thickness);
     final patinas = dicts.values(MdfDictKind.patina);
     final pricedIndex = _pricedIndex;
     MdfLine? pricedOf(_LineFields l) {
@@ -716,19 +745,21 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       String? current,
       ValueChanged<String?> set, {
       double width = AppSpacing.xxxl * 5,
+      List<String>? values,
+      bool required = false,
     }) {
-      final choices = mdfChoices(dicts.values(kind), current);
+      final choices = mdfChoices(values ?? dicts.values(kind), current);
       return SizedBox(
         width: width,
         child: Row(
           children: [
             Expanded(
               child: DropdownButtonFormField<String?>(
-                key: ValueKey('$key:${choices.length}'),
+                key: ValueKey('$key:${choices.length}:$current'),
                 initialValue: current,
                 isExpanded: true,
                 items: [
-                  DropdownMenuItem(child: Text(l10n.mdfNone)),
+                  if (!required) DropdownMenuItem(child: Text(l10n.mdfNone)),
                   for (final v in choices)
                     DropdownMenuItem(value: v, child: Text(v)),
                 ],
@@ -832,15 +863,22 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 spacing: AppSpacing.md,
                 runSpacing: AppSpacing.md,
                 children: [
+                  // Thickness and material apart (owner, 09.11.2026).
+                  pick(
+                    'mdfThickness',
+                    l10n.mdfThicknessShort,
+                    MdfDictKind.thickness,
+                    mdfThicknessLabel(thicknesses, _head.thicknessMm),
+                    (v) => _head = _copyHead(thicknessMm: thicknessOf(v)),
+                    width: AppSpacing.xxxl * 4,
+                  ),
                   pick(
                     'mdfMaterial',
                     l10n.mdfMaterial,
                     MdfDictKind.material,
                     _head.material,
-                    (v) => _head = _copyHead(
-                      material: v,
-                      thicknessMm: thicknessOf(v) ?? _head.thicknessMm,
-                    ),
+                    (v) => _head = _copyHead(material: v),
+                    width: AppSpacing.xxxl * 4,
                   ),
                   pick(
                     'mdfFinish',
@@ -849,44 +887,25 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                     _head.finish,
                     (v) => _head = _copyHead(finish: v),
                   ),
+                  // No milling and no price here (owner, 09.11.2026): each
+                  // position has its own milling, each film group its price.
                   pick(
-                    'mdfMilling',
-                    l10n.mdfMilling,
-                    MdfDictKind.milling,
-                    _head.milling,
-                    (v) => _head = _copyHead(milling: v),
-                  ),
-                  SizedBox(
-                    width: AppSpacing.xxxl * 3,
-                    child: DropdownButtonFormField<String>(
-                      key: ValueKey('mdfEdge:${edges.length}'),
-                      initialValue: _defaultEdge,
-                      isExpanded: true,
-                      items: [
-                        for (final e in mdfChoices(edges, _defaultEdge))
-                          DropdownMenuItem(value: e, child: Text(e)),
-                      ],
-                      onChanged: (v) => choose((next) {
-                        final was = _defaultEdge;
-                        _head = _copyHead(edgeProfile: next);
-                        // Rows on the old default follow; changed ones stay.
-                        for (final l in _lines) {
-                          if (l.edge == was) l.edge = _defaultEdge;
-                        }
-                      }, v),
-                      decoration: InputDecoration(
-                        labelText: l10n.mdfEdgeDefault,
-                        isDense: true,
-                      ),
-                    ),
+                    'mdfEdge',
+                    l10n.mdfEdgeDefault,
+                    MdfDictKind.edge,
+                    _defaultEdge,
+                    (next) {
+                      final was = _defaultEdge;
+                      _head = _copyHead(edgeProfile: next);
+                      // Rows on the old default follow; changed ones stay.
+                      for (final l in _lines) {
+                        if (l.edge == was) l.edge = _defaultEdge;
+                      }
+                    },
+                    values: edges,
+                    required: true,
                   ),
                   text('mdfExtra', l10n.mdfExtraName, _extra),
-                  text(
-                    'mdfDefaultRate',
-                    l10n.mdfDefaultRate,
-                    _defaultRate,
-                    digits: true,
-                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -956,6 +975,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                           films: films,
                           edges: edges,
                           patinas: patinas,
+                          thicknesses: thicknesses,
+                          headThickness: _head.thicknessMm,
                           defaultEdge: _defaultEdge,
                           headMaterial: _head.material,
                           groupRate: _rateOf(film).text.trim(),
@@ -1260,6 +1281,8 @@ class _LineRow extends StatelessWidget {
     required this.films,
     required this.edges,
     required this.patinas,
+    required this.thicknesses,
+    required this.headThickness,
     required this.defaultEdge,
     required this.headMaterial,
     required this.groupRate,
@@ -1281,6 +1304,10 @@ class _LineRow extends StatelessWidget {
   final List<String> films;
   final List<String> edges;
   final List<String> patinas;
+  final List<String> thicknesses;
+
+  /// The order's thickness, mm: what a row without its own shows.
+  final int? headThickness;
 
   /// The order's radius; a row with another one is highlighted.
   final String defaultEdge;
@@ -1462,12 +1489,30 @@ class _LineRow extends StatelessWidget {
                 160,
                 (v) => line.milling = v,
               ),
+              // The milling list is here now, not in the head (09.11.2026).
+              IconButton(
+                key: ValueKey('dict:milling:$index'),
+                tooltip: l10n.mdfDictOpen,
+                icon: const Icon(AppIcons.dictionary),
+                onPressed: () async {
+                  final picked = await showMdfDictionary(
+                    context,
+                    MdfDictKind.milling,
+                    title: l10n.mdfMilling,
+                    current: line.milling,
+                  );
+                  if (picked != null) {
+                    line.milling = picked;
+                    onChanged();
+                  }
+                },
+              ),
               drop(
                 'mdfLineEdge',
                 l10n.mdfColEdge,
                 edge,
                 edges,
-                76,
+                130,
                 (v) => line.edge = v,
                 required: true,
                 highlight: edge != defaultEdge,
@@ -1482,11 +1527,24 @@ class _LineRow extends StatelessWidget {
                 ),
               ),
               drop(
+                'mdfLineThickness',
+                l10n.mdfThicknessShort,
+                mdfThicknessLabel(thicknesses, line.thicknessMm),
+                thicknesses,
+                100,
+                (v) {
+                  final mm = thicknessOf(v);
+                  line.thicknessMm = mm == headThickness ? null : mm;
+                },
+                none: mdfThicknessLabel(thicknesses, headThickness),
+                highlight: line.thicknessMm != null,
+              ),
+              drop(
                 'mdfLineMaterial',
-                l10n.mdfColMaterial,
+                l10n.mdfMaterial,
                 line.material,
                 materials,
-                150,
+                130,
                 (v) => line.material = v == headMaterial ? null : v,
                 none: headMaterial ?? l10n.mdfNone,
                 highlight: line.material != null,
@@ -1734,7 +1792,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
 
   Future<void> _payment() async {
     final l10n = AppLocalizations.of(context);
-    final result = await showDialog<(double, String)>(
+    final result = await showDialog<_Payment>(
       context: context,
       builder: (_) => const _PaymentDialog(),
     );
@@ -1742,7 +1800,12 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     await _run(() async {
       await ref
           .read(mdfOrderRepositoryProvider)
-          .addPayment(o.name, amount: result.$1, method: result.$2);
+          .addPayment(
+            o.name,
+            amount: result.amount,
+            method: result.method,
+            bank: result.bank,
+          );
       return o;
     });
     if (!mounted) return;
@@ -1789,13 +1852,15 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     final open =
         o.status != MdfStatus.cancelled && o.status != MdfStatus.handedOver;
     final h = o.head;
+    final millings = {for (final l in o.lines) ?l.milling}.join(', ');
     final headLine = [
       if (h.thicknessMm != null) '${h.thicknessMm} мм',
+      h.material,
       h.finish,
       h.decorTop,
       if (h.decorBottom != null) '/ ${h.decorBottom}',
-      h.milling,
-      if (h.edgeProfile != null) '${l10n.mdfColEdge} ${h.edgeProfile}',
+      if (millings.isNotEmpty) millings else h.milling,
+      if (h.edgeProfile != null) '${l10n.mdfColEdge}: ${h.edgeProfile}',
       h.patina,
       h.extraName,
     ].whereType<String>().join(' · ');
@@ -1859,16 +1924,23 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               label: Text(l10n.mdfPrintClient),
             ),
             OutlinedButton.icon(
-              key: const ValueKey('mdfRepeat'),
-              onPressed: () => context.push(Routes.mdfOrderNew, extra: o),
-              icon: const Icon(AppIcons.add),
-              label: Text(l10n.mdfRepeat),
-            ),
-            OutlinedButton.icon(
               key: const ValueKey('mdfPrintShop'),
               onPressed: () => _print(withPrices: false),
               icon: const Icon(AppIcons.print),
               label: Text(l10n.mdfPrintShop),
+            ),
+            // Rarely needed (owner, 09.11.2026): out of the way, in «⋮».
+            PopupMenuButton<String>(
+              key: const ValueKey('mdfMoreMenu'),
+              icon: const Icon(AppIcons.more),
+              onSelected: (_) => context.push(Routes.mdfOrderNew, extra: o),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  key: const ValueKey('mdfRepeat'),
+                  value: 'copy',
+                  child: Text(l10n.mdfCopyOrder),
+                ),
+              ],
             ),
           ],
         ),
@@ -1892,6 +1964,42 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                 onSelected: !open || _busy || o.status == MdfStatus.onHold
                     ? null
                     : (v) => _run(() => repo.setStage(o.name, stage, done: v)),
+                // A stage added for a rework goes again while unticked.
+                onDeleted:
+                    open &&
+                        !_busy &&
+                        doneOn == null &&
+                        o.extraStages.contains(stage)
+                    ? () => _run(
+                        () => repo.extraStage(o.name, stage, on: false),
+                      )
+                    : null,
+              ),
+            if (open && MdfStage.extra.any((s) => !o.stages.containsKey(s)))
+              PopupMenuButton<MdfStage>(
+                key: const ValueKey('mdfAddStage'),
+                tooltip: l10n.mdfAddStage,
+                enabled: !_busy,
+                onSelected: (s) =>
+                    _run(() => repo.extraStage(o.name, s, on: true)),
+                itemBuilder: (_) => [
+                  for (final s in MdfStage.extra)
+                    if (!o.stages.containsKey(s))
+                      PopupMenuItem(
+                        key: ValueKey('mdfAddStage:${s.name}'),
+                        value: s,
+                        child: Text(mdfStageLabel(s, l10n)),
+                      ),
+                ],
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  child: Text(
+                    '+ ${l10n.mdfAddStage}',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
               ),
           ],
         ),
@@ -1909,7 +2017,8 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               DataColumn(label: Text(l10n.mdfMilling)),
               DataColumn(label: Text(l10n.mdfColEdge)),
               DataColumn(label: Text(l10n.mdfFilm)),
-              DataColumn(label: Text(l10n.mdfColMaterial)),
+              DataColumn(label: Text(l10n.mdfThicknessShort), numeric: true),
+              DataColumn(label: Text(l10n.mdfMaterial)),
               DataColumn(label: Text(l10n.mdfArea), numeric: true),
               DataColumn(label: Text(l10n.mdfRate), numeric: true),
               DataColumn(label: Text(l10n.mdfAmount), numeric: true),
@@ -1938,7 +2047,9 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                         Text(
                           line.edge ?? '',
                           key: ValueKey('mdfLineEdgeShown:$n'),
-                          style: line.edge == 'R0'
+                          // Not the usual R3: the shop must see it.
+                          style:
+                              line.edge != null && line.edge != mdfDefaultEdge
                               ? const TextStyle(fontWeight: FontWeight.w700)
                               : null,
                         ),
@@ -1957,12 +2068,12 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                       ),
                       DataCell(
                         Text(
-                          line.material ??
-                              (line.thicknessMm == null
-                                  ? ''
-                                  : '${line.thicknessMm} мм'),
+                          line.thicknessMm == null
+                              ? ''
+                              : '${line.thicknessMm} мм',
                         ),
                       ),
+                      DataCell(Text(line.material ?? '')),
                       DataCell(Text(line.areaM2.toStringAsFixed(2))),
                       DataCell(
                         Text(
@@ -1989,6 +2100,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                         style: TextStyle(color: AppColors.filmGroup(g)),
                       ),
                     ),
+                    const DataCell(Text('')),
                     const DataCell(Text('')),
                     DataCell(Text(group.areaM2.toStringAsFixed(2))),
                     const DataCell(Text('')),
@@ -2029,7 +2141,9 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             dense: true,
             contentPadding: EdgeInsets.zero,
             title: Text(money.format(p.amount)),
-            subtitle: Text([p.date, p.method].whereType<String>().join(' · ')),
+            subtitle: Text(
+              [p.date, p.method, p.bank].whereType<String>().join(' · '),
+            ),
           ),
         if (open)
           Align(
@@ -2113,17 +2227,28 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
   }
 }
 
-class _PaymentDialog extends StatefulWidget {
+/// How a payment came: one of three, and for a transfer or a card the bank
+/// (owner, 09.11.2026). The words are the server's — what the cash book shows.
+const _transfer = 'Перевод';
+const _cash = 'Наличные';
+const _card = 'Карта';
+const List<String> _methods = [_transfer, _cash, _card];
+
+typedef _Payment = ({double amount, String method, String? bank});
+
+class _PaymentDialog extends ConsumerStatefulWidget {
   const _PaymentDialog();
 
   @override
-  State<_PaymentDialog> createState() => _PaymentDialogState();
+  ConsumerState<_PaymentDialog> createState() => _PaymentDialogState();
 }
 
-class _PaymentDialogState extends State<_PaymentDialog> {
-  static const _methods = ['Kaspi', 'Наличные', 'Перевод', 'Карта'];
+class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
   final _amount = TextEditingController();
-  String _method = _methods.first;
+  String _method = _transfer;
+  String? _bank;
+
+  bool get _withBank => _method != _cash;
 
   @override
   void dispose() {
@@ -2134,31 +2259,82 @@ class _PaymentDialogState extends State<_PaymentDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final banks =
+        (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
+            .values(MdfDictKind.bank);
+    String label(String m) => switch (m) {
+      _transfer => l10n.mdfPayTransfer,
+      _cash => l10n.mdfPayCash,
+      _ => l10n.mdfPayCard,
+    };
     return AlertDialog(
       title: Text(l10n.mdfAddPayment),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            key: const ValueKey('mdfPaymentAmount'),
-            controller: _amount,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(labelText: l10n.mdfPaymentAmount),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          DropdownButtonFormField<String>(
-            key: const ValueKey('mdfPaymentMethod'),
-            initialValue: _method,
-            items: [
-              for (final m in _methods)
-                DropdownMenuItem(value: m, child: Text(m)),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 8,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              key: const ValueKey('mdfPaymentAmount'),
+              controller: _amount,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(labelText: l10n.mdfPaymentAmount),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.sm,
+              children: [
+                for (final m in _methods)
+                  ChoiceChip(
+                    key: ValueKey('mdfPaymentMethod:$m'),
+                    label: Text(label(m)),
+                    selected: _method == m,
+                    onSelected: (_) => setState(() => _method = m),
+                  ),
+              ],
+            ),
+            if (_withBank) ...[
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String?>(
+                      key: ValueKey('mdfPaymentBank:${banks.length}:$_bank'),
+                      initialValue: _bank,
+                      isExpanded: true,
+                      items: [
+                        DropdownMenuItem(child: Text(l10n.mdfNone)),
+                        for (final b in mdfChoices(banks, _bank))
+                          DropdownMenuItem(value: b, child: Text(b)),
+                      ],
+                      onChanged: (v) => setState(() => _bank = v),
+                      decoration: InputDecoration(labelText: l10n.mdfPayBank),
+                    ),
+                  ),
+                  IconButton(
+                    key: const ValueKey('dict:bank'),
+                    tooltip: l10n.mdfDictOpen,
+                    icon: const Icon(AppIcons.dictionary),
+                    onPressed: () async {
+                      final picked = await showMdfDictionary(
+                        context,
+                        MdfDictKind.bank,
+                        title: l10n.mdfPayBank,
+                        current: _bank,
+                      );
+                      if (picked != null && mounted) {
+                        setState(() => _bank = picked);
+                      }
+                    },
+                  ),
+                ],
+              ),
             ],
-            onChanged: (v) => setState(() => _method = v ?? _method),
-            decoration: InputDecoration(labelText: l10n.mdfPaymentMethod),
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -2170,7 +2346,11 @@ class _PaymentDialogState extends State<_PaymentDialog> {
           onPressed: () {
             final amount = double.tryParse(_amount.text.trim());
             if (amount == null || amount <= 0) return;
-            Navigator.of(context).pop((amount, _method));
+            Navigator.of(context).pop<_Payment>((
+              amount: amount,
+              method: _method,
+              bank: _withBank ? _bank : null,
+            ));
           },
           child: Text(l10n.mdfConfirm),
         ),
@@ -2209,7 +2389,7 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   film: l10n.mdfFilm,
   back: l10n.mdfBackSideShort,
   subtotal: l10n.mdfFilmSubtotal,
-  materialColumn: l10n.mdfColMaterial,
+  thicknessColumn: l10n.mdfThicknessShort,
 );
 
 class _PasteDialog extends StatefulWidget {

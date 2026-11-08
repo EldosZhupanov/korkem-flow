@@ -61,6 +61,8 @@ Map<String, Object?> _card({
 
 class _FakeRepository implements MdfOrderRepository {
   final ticked = <(MdfStage, bool)>[];
+  final added = <(MdfStage, bool)>[];
+  final paid = <(double, String, String?)>[];
   final queries = <MdfListQuery>[];
   Map<String, String?> stages = {};
 
@@ -105,6 +107,24 @@ class _FakeRepository implements MdfOrderRepository {
     stages = {...stages, stage.name: done ? '2026-11-05' : null};
     return card(order);
   }
+
+  @override
+  Future<MdfOrder> extraStage(
+    String order,
+    MdfStage stage, {
+    required bool on,
+  }) async {
+    added.add((stage, on));
+    return card(order);
+  }
+
+  @override
+  Future<void> addPayment(
+    String order, {
+    required double amount,
+    required String method,
+    String? bank,
+  }) async => paid.add((amount, method, bank));
 
   /// The server's arithmetic, in short: the area rounded, times the price
   /// typed or the film's.
@@ -395,6 +415,75 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('mdfFilter:furnitureMaker')));
     await tester.pumpAndSettle();
     expect(repo.queries.last.tag, 'furniture_maker');
+  });
+
+  test('«готово» is a stage, after the vacuum', () {
+    expect(MdfStage.parse('ready'), MdfStage.ready);
+    expect(MdfStage.values.last, MdfStage.ready);
+    expect(MdfStage.extra, [MdfStage.paint, MdfStage.vacuum]);
+    final order = MdfOrder.fromJson({
+      ..._card(),
+      'stages': const [
+        {'stage': 'cut'},
+        {'stage': 'paint', 'extra': true},
+        {'stage': 'ready'},
+      ],
+    });
+    expect(order.extraStages, {MdfStage.paint});
+  });
+
+  testWidgets('«+ этап» adds paint to a film order for a rework', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfAddStage')));
+    await tester.pumpAndSettle();
+    // A film order has its vacuum: only paint is offered.
+    expect(find.byKey(const ValueKey('mdfAddStage:vacuum')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('mdfAddStage:paint')));
+    await tester.pumpAndSettle();
+    expect(repo.added, [(MdfStage.paint, true)]);
+  });
+
+  testWidgets('a payment in cash asks for no bank; a transfer does', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfAddPayment')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('dict:bank')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentMethod:Наличные')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('dict:bank')), findsNothing);
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfPaymentAmount')),
+      '5000',
+    );
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentSave')));
+    await tester.pumpAndSettle();
+    expect(repo.paid, [(5000.0, 'Наличные', null)]);
   });
 
   testWidgets('the manager ticks a stage on the card', (tester) async {
