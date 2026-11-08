@@ -5378,4 +5378,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfDictLocked => 'Always on the list — can\'t be removed';
+
+  @override
+  String get mdfCoatingPvc => 'PVC';
+
+  @override
+  String get mdfCoatingPaint => 'Paint';
+
+  @override
+  String get mdfCoatingRaw => 'Raw';
+
+  @override
+  String get mdfCoatingPick => 'Which coating?';
+
+  @override
+  String get mdfColor => 'Colour';
+
+  @override
+  String get mdfDictPaint => 'Paints';
 }

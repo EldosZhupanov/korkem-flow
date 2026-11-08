@@ -344,6 +344,67 @@ void main() {
     );
   });
 
+  test('one colour name under two coatings is two groups', () {
+    final order = MdfOrder.fromJson({
+      ..._card(),
+      'lines': const [
+        {'height_mm': 500, 'width_mm': 500, 'qty': 1, 'coating': 'pvc'},
+        {
+          'height_mm': 500,
+          'width_mm': 500,
+          'qty': 1,
+          'coating': 'paint',
+          'film': 'RAL 9010',
+        },
+        {'height_mm': 400, 'width_mm': 400, 'qty': 1, 'coating': 'pvc'},
+      ],
+    });
+    final groups = mdfFilmGroups(order.lines);
+    expect(
+      [for (final g in groups) (g.coating, g.film)],
+      [
+        (MdfCoating.pvc, null),
+        (MdfCoating.paint, 'RAL 9010'),
+      ],
+    );
+    expect(groups.first.pieces, 2);
+    expect(
+      const MdfLineInput(
+        heightMm: 1,
+        widthMm: 1,
+        qty: 1,
+        coating: MdfCoating.paint,
+      ).toJson()['coating'],
+      'paint',
+    );
+  });
+
+  testWidgets('«+ Добавить покрытие» asks the type first', (tester) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfOrderRepositoryProvider.overrideWithValue(_FakeRepository()),
+        ],
+        child: harness(const MdfOrderScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfAddFilm')));
+    await tester.pumpAndSettle();
+    for (final c in MdfCoating.values) {
+      expect(find.byKey(ValueKey('mdfCoating:${c.name}')), findsOneWidget);
+    }
+    // A raw facade has no colour: no list to pick from, the group is made.
+    await tester.tap(find.byKey(const ValueKey('mdfCoating:raw')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfGroupCoating:0:raw')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfFilmPick:0:0')), findsNothing);
+  });
+
   test('the positions fall into film groups in the order films appear', () {
     final order = MdfOrder.fromJson(_twoFilms());
     final groups = mdfFilmGroups(order.lines);

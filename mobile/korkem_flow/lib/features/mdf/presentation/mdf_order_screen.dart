@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_coating.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
@@ -70,6 +71,12 @@ class MdfOrderScreen extends ConsumerWidget {
 
 // --- the draft -------------------------------------------------------------
 
+/// A group of positions: its coating type and its colour (none for raw).
+typedef _Group = ({MdfCoating coating, String? film});
+
+/// The first group of a new order, before anything is chosen.
+const _Group _noGroup = (coating: MdfCoating.pvc, film: null);
+
 /// What «+ доп.» adds under a row; each shows as a chip with ✕.
 enum _Extra { back, patina, note }
 
@@ -87,6 +94,7 @@ class _LineFields {
     this.edge = mdfDefaultEdge,
     this.patina,
     this.thicknessMm,
+    this.coating = MdfCoating.pvc,
     Set<_Extra>? extras,
   }) : height = TextEditingController(text: h),
        width = TextEditingController(text: w),
@@ -108,8 +116,11 @@ class _LineFields {
   final TextEditingController rate;
   String? milling;
 
-  /// The film group it is in.
+  /// The group it is in: a coating type and a colour of that type.
+  MdfCoating coating;
   String? film;
+
+  _Group get group => (coating: coating, film: film);
 
   /// Its back film; null — one-sided.
   String? filmBack;
@@ -160,6 +171,7 @@ class _LineFields {
       edge: edge,
       patina: patina,
       thicknessMm: thicknessMm,
+      coating: coating,
     );
   }
 
@@ -176,6 +188,7 @@ class _LineFields {
     edge: edge,
     patina: patina,
     thicknessMm: thicknessMm,
+    coating: coating,
     extras: {...extras},
   );
 
@@ -223,7 +236,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   final List<_LineFields> _lines = [];
 
   /// The film groups, in the order they were added; null — no film chosen.
-  final List<String?> _films = [];
+  final List<_Group> _films = [];
 
   /// Each film group's price per m².
   final Map<String?, TextEditingController> _filmRates = {};
@@ -249,7 +262,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         _rateOf(e.key).text = e.value.toStringAsFixed(0);
       }
       for (final l in o.lines) {
-        if (!_films.contains(l.film)) _films.add(l.film);
+        final g = (coating: l.coating ?? MdfCoating.pvc, film: l.film);
+        if (!_films.contains(g)) _films.add(g);
         final groupRate = o.head.filmRates[l.film];
         _lines.add(
           _LineFields(
@@ -262,6 +276,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 ? l.rateM2.toStringAsFixed(0)
                 : null,
             film: l.film,
+            coating: g.coating,
             filmBack: l.filmBack,
             material: l.material == o.head.material ? null : l.material,
             thicknessMm: l.thicknessMm == o.head.thicknessMm
@@ -273,7 +288,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         );
       }
     }
-    if (_films.isEmpty) _films.add(null);
+    if (_films.isEmpty) _films.add(_noGroup);
     if (_lines.isEmpty) _lines.add(_blank(_films.first));
     if (o == null) unawaited(_startFromLastHead());
     _reprice();
@@ -290,7 +305,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         // head brings neither.
         _head = MdfHead(
           thicknessMm: head.thicknessMm,
-          finish: head.finish,
           decorTop: head.decorTop,
           decorBottom: head.decorBottom,
           edgeProfile: head.edgeProfile,
@@ -325,7 +339,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             q: '${l.qty}',
             milling: l.milling,
             note: l.note,
-            film: _films.last,
+            film: _films.last.film,
+            coating: _films.last.coating,
             edge: _defaultEdge,
           ),
         );
@@ -341,18 +356,19 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
 
   /// A new row's milling: the row above it — the same milling runs on more
   /// often than not; the head's on an older order, which still has one.
-  String? _lastMilling(String? film) {
+  String? _lastMilling(_Group group) {
     final mates = [
       for (final l in _lines)
-        if (l.film == film) l,
+        if (l.group == group) l,
     ];
     final above = mates.isNotEmpty ? mates.last : _lines.lastOrNull;
     return above?.milling ?? _head.milling;
   }
 
-  _LineFields _blank(String? film) => _LineFields(
-    milling: _lastMilling(film),
-    film: film,
+  _LineFields _blank(_Group group) => _LineFields(
+    milling: _lastMilling(group),
+    film: group.film,
+    coating: group.coating,
     edge: _defaultEdge,
   );
 
@@ -361,9 +377,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
 
   /// The lines as they are shown and sent: film group by film group.
   List<_LineFields> get _ordered => [
-    for (final f in _films)
+    for (final g in _films)
       for (final l in _lines)
-        if (l.film == f) l,
+        if (l.group == g) l,
   ];
 
   @override
@@ -381,8 +397,14 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   MdfHead _readHead() => MdfHead(
     thicknessMm: _head.thicknessMm ?? thicknessOf(_head.material),
     finish: _head.finish,
-    // The first film stands for the order where one film is asked for.
-    decorTop: _films.whereType<String>().firstOrNull ?? _head.decorTop,
+    // The first film stands for the order where one film is asked for;
+    // a paint is no film.
+    decorTop:
+        _films
+            .where((g) => g.coating == MdfCoating.pvc && g.film != null)
+            .firstOrNull
+            ?.film ??
+        _head.decorTop,
     decorBottom: _head.decorBottom,
     // Patina is a position's now; an old order's head keeps its own.
     patina: _head.patina,
@@ -394,7 +416,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     filmRates: {
       for (final e in _filmRates.entries)
         if (e.key != null &&
-            _films.contains(e.key) &&
+            _films.any((g) => g.film == e.key) &&
             double.tryParse(e.value.text.trim()) != null)
           e.key!: double.parse(e.value.text.trim()),
     },
@@ -441,8 +463,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     });
   }
 
-  void _addLine({_LineFields? from, String? film}) {
-    final line = from?.copy() ?? _blank(film ?? _films.last);
+  void _addLine({_LineFields? from, _Group? group}) {
+    final line = from?.copy() ?? _blank(group ?? _films.last);
     setState(() => _lines.add(line));
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => line.heightFocus.requestFocus(),
@@ -458,11 +480,11 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     _reprice();
   }
 
-  /// Up or down within its film group.
+  /// Up or down within its group.
   void _move(_LineFields line, int by) {
     final mates = [
       for (final l in _lines)
-        if (l.film == line.film) l,
+        if (l.group == line.group) l,
     ];
     final j = mates.indexOf(line) + by;
     if (j < 0 || j >= mates.length) return;
@@ -476,67 +498,96 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     _reprice();
   }
 
-  /// «+ Добавить покрытие»: a film from the list, and its first line.
+  /// «+ Добавить покрытие»: the type first — ПВХ, краска, черновой — then a
+  /// colour from that type's own list, so they never mix (09.11.2026).
   Future<void> _addFilm() async {
     final l10n = AppLocalizations.of(context);
-    final film = await showMdfDictionary(
-      context,
-      MdfDictKind.decor,
-      title: l10n.mdfFilmPick,
+    final coating = await showDialog<MdfCoating>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(l10n.mdfCoatingPick),
+        children: [
+          for (final c in MdfCoating.values)
+            SimpleDialogOption(
+              key: ValueKey('mdfCoating:${c.name}'),
+              onPressed: () => Navigator.of(context).pop(c),
+              child: Text(mdfCoatingLabel(c, l10n)),
+            ),
+        ],
+      ),
     );
-    if (film == null || !mounted) return;
-    if (_films.contains(film)) {
-      _addLine(film: film);
+    if (coating == null || !mounted) return;
+    final kind = mdfCoatingList(coating);
+    String? film;
+    if (kind != null) {
+      film = await showMdfDictionary(
+        context,
+        kind,
+        title: mdfCoatingLabel(coating, l10n),
+      );
+      if (film == null || !mounted) return;
+    }
+    final group = (coating: coating, film: film);
+    if (_films.contains(group)) {
+      _addLine(group: group);
       return;
     }
     setState(() {
-      // A first group still without a film and without sizes takes it.
+      // A first group still without a colour and without sizes takes it.
       final blank =
           _films.length == 1 &&
-          _films.first == null &&
+          _films.first == _noGroup &&
           _lines.every((l) => l.input() == null);
       if (blank) {
-        _films[0] = film;
+        _films[0] = group;
         for (final l in _lines) {
-          l.film = film;
+          l
+            ..coating = coating
+            ..film = film;
         }
       } else {
-        _films.add(film);
-        _lines.add(_blank(film));
+        _films.add(group);
+        _lines.add(_blank(group));
       }
     });
     _reprice();
   }
 
-  /// The group's film changed: its lines and its price go with it.
-  void _renameFilm(String? from, String? to) {
-    if (from == to) return;
+  /// The group's colour changed — within its type: its lines and its price
+  /// go with it.
+  void _renameFilm(_Group from, String? to) {
+    final next = (coating: from.coating, film: to);
+    if (from == next) return;
     setState(() {
-      if (_films.contains(to)) {
+      if (_films.contains(next)) {
         _films.remove(from);
       } else {
-        _films[_films.indexOf(from)] = to;
+        _films[_films.indexOf(from)] = next;
       }
       for (final l in _lines) {
-        if (l.film == from) l.film = to;
+        if (l.group == from) l.film = to;
       }
-      final rate = _filmRates.remove(from);
+      final rate = _filmRates.remove(from.film);
       if (rate != null && !_filmRates.containsKey(to)) _filmRates[to] = rate;
     });
     _reprice();
   }
 
-  Future<void> _removeFilm(String? film) async {
+  Future<void> _removeFilm(_Group group) async {
     final l10n = AppLocalizations.of(context);
     final mates = [
       for (final l in _lines)
-        if (l.film == film) l,
+        if (l.group == group) l,
     ];
     if (mates.any((l) => l.input() != null)) {
       final sure = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          content: Text(l10n.mdfFilmRemoveAsk(film ?? l10n.mdfNone)),
+          content: Text(
+            l10n.mdfFilmRemoveAsk(
+              group.film ?? mdfCoatingLabel(group.coating, l10n),
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -557,9 +608,11 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         _lines.remove(l);
         l.dispose();
       }
-      _films.remove(film);
-      _filmRates.remove(film)?.dispose();
-      if (_films.isEmpty) _films.add(null);
+      _films.remove(group);
+      if (!_films.any((g) => g.film == group.film)) {
+        _filmRates.remove(group.film)?.dispose();
+      }
+      if (_films.isEmpty) _films.add(_noGroup);
       if (_lines.isEmpty) _lines.add(_blank(_films.first));
     });
     _reprice();
@@ -721,7 +774,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty;
     final millings = dicts.values(MdfDictKind.milling);
     final materials = dicts.values(MdfDictKind.material);
-    final films = dicts.values(MdfDictKind.decor);
     final edges = mdfEdges(dicts.values(MdfDictKind.edge));
     final thicknesses = dicts.values(MdfDictKind.thickness);
     final patinas = dicts.values(MdfDictKind.patina);
@@ -880,13 +932,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                     (v) => _head = _copyHead(material: v),
                     width: AppSpacing.xxxl * 4,
                   ),
-                  pick(
-                    'mdfFinish',
-                    l10n.mdfFinish,
-                    MdfDictKind.finish,
-                    _head.finish,
-                    (v) => _head = _copyHead(finish: v),
-                  ),
+                  // No «Покрытие» here (09.11.2026): each group has its own.
                   // No milling and no price here (owner, 09.11.2026): each
                   // position has its own milling, each film group its price.
                   pick(
@@ -942,10 +988,15 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
               ),
               for (var g = 0; g < _films.length; g++)
                 () {
-                  final film = _films[g];
+                  final group = _films[g];
+                  final film = group.film;
+                  final kind = mdfCoatingList(group.coating);
+                  final colors = kind == null
+                      ? const <String>[]
+                      : dicts.values(kind);
                   final mates = [
                     for (final l in _lines)
-                      if (l.film == film) l,
+                      if (l.group == group) l,
                   ];
                   final priced = [for (final l in mates) ?pricedOf(l)];
                   final first = number;
@@ -953,16 +1004,17 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                   return _FilmGroup(
                     key: ValueKey('mdfFilmGroup:$g'),
                     index: g,
+                    coating: group.coating,
                     film: film,
-                    films: films,
+                    films: colors,
                     rate: _rateOf(film),
                     pieces: priced.fold(0, (sum, p) => sum + p.qty),
                     areaM2: priced.fold<double>(0, (sum, p) => sum + p.areaM2),
                     amount: priced.fold<double>(0, (sum, p) => sum + p.amount),
-                    onFilm: (to) => _renameFilm(film, to),
+                    onFilm: (to) => _renameFilm(group, to),
                     onRateChanged: _reprice,
-                    onRemove: () => _removeFilm(film),
-                    onAddLine: () => _addLine(film: film),
+                    onRemove: () => _removeFilm(group),
+                    onAddLine: () => _addLine(group: group),
                     children: [
                       for (var i = 0; i < mates.length; i++)
                         _LineRow(
@@ -972,7 +1024,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                           priced: pricedOf(mates[i]),
                           millings: millings,
                           materials: materials,
-                          films: films,
+                          films: colors,
                           edges: edges,
                           patinas: patinas,
                           thicknesses: thicknesses,
@@ -986,7 +1038,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                             setState(() {});
                             _reprice();
                           },
-                          onNext: () => _addLine(film: film),
+                          onNext: () => _addLine(group: group),
                           onDuplicate: () => _addLine(from: mates[i]),
                           onDelete: () => _removeLine(mates[i]),
                           onUp: () => _move(mates[i], -1),
@@ -1112,6 +1164,7 @@ MdfHead? _withoutTags(MdfHead? h) => h == null
 class _FilmGroup extends StatelessWidget {
   const _FilmGroup({
     required this.index,
+    required this.coating,
     required this.film,
     required this.films,
     required this.rate,
@@ -1127,7 +1180,10 @@ class _FilmGroup extends StatelessWidget {
   });
 
   final int index;
+  final MdfCoating coating;
   final String? film;
+
+  /// The colours of its coating type — films, or paints; none for raw.
   final List<String> films;
   final TextEditingController rate;
   final int pieces;
@@ -1181,25 +1237,34 @@ class _FilmGroup extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(
-                    width: AppSpacing.xxxl * 5,
-                    child: DropdownButtonFormField<String?>(
-                      key: ValueKey('mdfFilmPick:$index:${films.length}'),
-                      initialValue: film,
-                      isExpanded: true,
-                      items: [
-                        DropdownMenuItem(child: Text(l10n.mdfFilmNone)),
-                        for (final f in mdfChoices(films, film))
-                          DropdownMenuItem(value: f, child: Text(f)),
-                      ],
-                      onChanged: onFilm,
-                      style: theme.textTheme.titleSmall?.copyWith(color: color),
-                      decoration: InputDecoration(
-                        labelText: l10n.mdfFilm,
-                        isDense: true,
+                  // The type, then a colour of that type only.
+                  StatusChip(
+                    key: ValueKey('mdfGroupCoating:$index:${coating.name}'),
+                    label: mdfCoatingLabel(coating, l10n),
+                    intent: StatusIntent.neutral,
+                  ),
+                  if (coating != MdfCoating.raw)
+                    SizedBox(
+                      width: AppSpacing.xxxl * 5,
+                      child: DropdownButtonFormField<String?>(
+                        key: ValueKey('mdfFilmPick:$index:${films.length}'),
+                        initialValue: film,
+                        isExpanded: true,
+                        items: [
+                          DropdownMenuItem(child: Text(l10n.mdfFilmNone)),
+                          for (final f in mdfChoices(films, film))
+                            DropdownMenuItem(value: f, child: Text(f)),
+                        ],
+                        onChanged: onFilm,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: color,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: l10n.mdfColor,
+                          isDense: true,
+                        ),
                       ),
                     ),
-                  ),
                   SizedBox(
                     width: 130,
                     child: TextField(
@@ -1520,7 +1585,9 @@ class _LineRow extends StatelessWidget {
               SizedBox(
                 width: 140,
                 child: Text(
-                  line.film ?? l10n.mdfFilmNone,
+                  line.coating == MdfCoating.raw
+                      ? mdfCoatingLabel(MdfCoating.raw, l10n)
+                      : line.film ?? l10n.mdfFilmNone,
                   key: ValueKey('mdfLineFilm:$index'),
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium,
@@ -1597,7 +1664,9 @@ class _LineRow extends StatelessWidget {
                 },
                 itemBuilder: (_) => [
                   for (final e in _Extra.values)
-                    if (!line.extras.contains(e))
+                    // A raw facade has no colour, so no back side either.
+                    if (!line.extras.contains(e) &&
+                        !(e == _Extra.back && line.coating == MdfCoating.raw))
                       PopupMenuItem(
                         key: ValueKey('mdfMore:${e.name}'),
                         value: e,
@@ -2057,7 +2126,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                       DataCell(
                         Text(
                           [
-                            line.film ?? '',
+                            mdfGroupName(line.coating, line.film, l10n),
                             if (line.filmBack != null)
                               '+ ${l10n.mdfBackSideShort}: ${line.filmBack}',
                             if (line.patina != null)
@@ -2096,7 +2165,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                     const DataCell(Text('')),
                     DataCell(
                       Text(
-                        group.film ?? '',
+                        mdfGroupName(group.coating, group.film, l10n),
                         style: TextStyle(color: AppColors.filmGroup(g)),
                       ),
                     ),
@@ -2389,6 +2458,7 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   film: l10n.mdfFilm,
   back: l10n.mdfBackSideShort,
   subtotal: l10n.mdfFilmSubtotal,
+  coating: (c) => mdfCoatingLabel(c, l10n),
   thicknessColumn: l10n.mdfThicknessShort,
 );
 

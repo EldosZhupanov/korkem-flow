@@ -62,6 +62,13 @@ STAGES = {
 }
 #: The stages a rework may add to an order whose finish does not have them.
 EXTRA_STAGES = ("paint", "vacuum")
+#: What a film group is coated with (owner, 09.11.2026): a type, then a colour
+#: from that type's own list, so a paint never lands in a film group. The
+#: type decides the shop's stage: a film is pressed, a paint is painted, a
+#: raw («черновой») facade neither. Fixed here because the stages are.
+COATINGS = ("pvc", "paint", "raw")
+COATING_LIST = {"pvc": facade_spec.DECOR, "paint": "Краска", "raw": None}
+COATING_STAGE = {"pvc": "vacuum", "paint": "paint", "raw": None}
 #: Who did the stage: an Employee, written with the tick (OnayBaza «Жұмыс көлемі»).
 STAGE_BY = {stage: f"{field}_by" for stage, field in STAGES.items()}
 HEAD = {
@@ -77,6 +84,7 @@ HEAD = {
 	"material": "korkem_material",
 	"film_rates": "korkem_film_rates",
 	"tags": "korkem_tags",
+	"coatings": "korkem_coatings",
 }
 #: Every new position's edge radius unless the manager picks another (owner,
 #: 08.11.2026); «R0» is a sharp corner.
@@ -87,7 +95,7 @@ STANDARD_EDGES = ("R0", DEFAULT_EDGE)
 DUE_SOON_DAYS = 2
 
 
-def stages_for(finish: str | None, extra: str | list | None = None) -> list[str]:
+def stages_for(finish: str | None, extra: str | list | None = None, coatings: str | list | None = None) -> list[str]:
 	"""The stages an order with this finish goes through, «готово» last.
 
 	Film is pressed and never painted; enamel is painted and never pressed;
@@ -97,7 +105,13 @@ def stages_for(finish: str | None, extra: str | list | None = None) -> list[str]
 	a painted one pressed), in the shop's order.
 	"""
 	name = (finish or "").lower()
-	if facade_prices.is_film(finish):
+	kinds = [c for c in (coatings if isinstance(coatings, (list, tuple)) else (coatings or "").split(","))
+			 if c in COATINGS]
+	if kinds:
+		# Its groups' coatings decide: a film group is pressed, a paint group
+		# painted; an order of both goes through both.
+		base = {"cut", "mill", "sand"} | {COATING_STAGE[c] for c in kinds if COATING_STAGE[c]}
+	elif facade_prices.is_film(finish):
 		base = {"cut", "mill", "sand", "vacuum"}
 	elif "эмал" in name or "краск" in name or "бояу" in name:
 		base = {"cut", "mill", "sand", "paint"}
@@ -116,7 +130,29 @@ def _extra(raw) -> list[str]:
 
 def stages_of(row) -> list[str]:
 	"""An order's stages: its finish's, with what was added to it."""
-	return stages_for(row.get("korkem_finish"), row.get("korkem_extra_stages"))
+	return stages_for(row.get("korkem_finish"), row.get("korkem_extra_stages"), row.get("korkem_coatings"))
+
+
+def coating_of(finish: str | None) -> str | None:
+	"""The coating type a finish's name says — for an order written before groups had one."""
+	name = (finish or "").lower()
+	if facade_prices.is_film(finish):
+		return "pvc"
+	if "эмал" in name or "краск" in name or "бояу" in name:
+		return "paint"
+	if "чернов" in name:
+		return "raw"
+	return None
+
+
+def _finish_for(coating: str | None, company: str) -> str | None:
+	"""The finish a coating type is priced under: the «Покрытие» list's own word for it."""
+	if not coating:
+		return None
+	for name in facade_prices.finishes(company):
+		if coating_of(name) == coating:
+			return name
+	return {"pvc": facade_prices.PVC, "paint": facade_prices.ENAMEL, "raw": facade_prices.ROUGH}[coating]
 
 
 # --- the arithmetic --------------------------------------------------------
@@ -161,7 +197,11 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 			frappe.throw(f"{label}: количество — целое число от 1.")
 
 		milling = (raw.get("milling") or "").strip()
-		film, film_back, material = _line_spec(raw, label, company)
+		coating = raw.get("coating") or coating_of(finish)
+		if coating is not None and coating not in COATINGS:
+			frappe.throw(f"{label}: покрытие — одно из: ПВХ, краска, черновой.")
+		line_finish = _finish_for(coating, company) if raw.get("coating") else finish
+		film, film_back, material = _line_spec(raw, label, company, coating)
 		edge, patina = _line_finish(raw, label, company)
 		thickness = _line_thickness(raw, label, material)
 		manual = raw.get("rate") not in (None, "")
@@ -170,7 +210,7 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		elif film and film in by_film:
 			rate = by_film[film]
 		else:
-			found = facade_prices.price_for(milling, finish or "", company) if milling and finish else None
+			found = facade_prices.price_for(milling, line_finish or "", company) if milling and line_finish else None
 			rate = found if found is not None else fallback
 		no_price = rate is None
 		rate = rate or Decimal("0")
@@ -200,6 +240,8 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 				"thickness_mm": thickness,
 				"edge": edge,
 				"patina": patina,
+				"coating": coating,
+				"finish": line_finish,
 			}
 		)
 	return {
@@ -222,21 +264,27 @@ def thickness_of(material: str | None) -> int | None:
 	return int(digits) if digits else None
 
 
-def _line_spec(raw: dict, label: str, company: str) -> tuple[str | None, str | None, str | None]:
-	"""A position's own film, back film and material — each from its list.
+def _line_spec(raw: dict, label: str, company: str,
+			   coating: str | None = "pvc") -> tuple[str | None, str | None, str | None]:
+	"""A position's own colour, back colour and material — each from its list.
 
 	An order of several films (08.11.2026) carries the film on the position;
-	the back film only when the manager switched the back side on for it.
+	the back film only when the manager switched the back side on for it. A
+	paint group's colours come from the paint list, a film group's from the
+	film list (09.11.2026); a raw group has none.
 	"""
 	from korkem_manufacturing.services import mdf_dictionaries
 
 	film = facade_spec._text(raw.get("film"))
 	film_back = facade_spec._text(raw.get("film_back"))
 	material = facade_spec._text(raw.get("material"))
-	films = facade_spec._values(facade_spec.DECOR, company) if film or film_back else set()
-	for value, name in ((film, "плёнка"), (film_back, "плёнка обратной стороны")):
-		if value and value not in films:
-			frappe.throw(f"{label}: {name} «{value}» нет в справочнике «{facade_spec.DECOR}».")
+	kind = COATING_LIST.get(coating or "pvc")
+	if kind is None and (film or film_back):
+		frappe.throw(f"{label}: у чернового фасада нет цвета.")
+	known = facade_spec._values(kind, company) if kind and (film or film_back) else set()
+	for value, name in ((film, "цвет"), (film_back, "цвет обратной стороны")):
+		if value and value not in known:
+			frappe.throw(f"{label}: {name} «{value}» нет в справочнике «{kind}».")
 	if material and material not in facade_spec._values(mdf_dictionaries.MATERIAL, company):
 		frappe.throw(f"{label}: материала «{material}» нет в справочнике «{mdf_dictionaries.MATERIAL}».")
 	return film, film_back, material
@@ -272,6 +320,14 @@ def _line_finish(raw: dict, label: str, company: str) -> tuple[str | None, str |
 			if known and value not in known:
 				frappe.throw(f"{label}: {name} «{value}» нет в справочнике «{kind}».")
 	return edge, patina
+
+
+def _coatings_into(values: dict, lines: list[dict]) -> None:
+	"""The order's coatings, from its groups; its finish, if the head names none, the first group's."""
+	kinds = [c for c in COATINGS if any(line.get("coating") == c for line in lines)]
+	values["coatings"] = ",".join(kinds) or None
+	if not values.get("finish"):
+		values["finish"] = next((line.get("finish") for line in lines if line.get("finish")), None)
 
 
 def _put_standard_edges(head, lines, company: str) -> None:
@@ -329,6 +385,7 @@ def save_draft(*, customer: str, delivery_date: str, head=None, lines=None, orde
 	values = _head(head, company)
 	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=company,
 				  film_rates=values["film_rates"])
+	_coatings_into(values, quote["lines"])
 	if not quote["lines"]:
 		frappe.throw("Добавьте хотя бы одну позицию.")
 	facade_order._ensure_items()
@@ -405,6 +462,7 @@ def change_order(order: str, *, lines, reason: str, head=None, delivery_date: st
 	wanted = _due(delivery_date) if delivery_date else getdate(doc.delivery_date)
 	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=doc.company,
 				  film_rates=values["film_rates"])
+	_coatings_into(values, quote["lines"])
 	if not quote["lines"]:
 		frappe.throw("В заказе должна остаться хотя бы одна позиция.")
 	before = {"total": flt(doc.grand_total), "lines": [
@@ -613,6 +671,7 @@ def card(order: str) -> dict:
 			"thickness_mm": item.korkem_thickness_mm,
 			"edge": item.korkem_edge_profile,
 			"patina": item.get("korkem_line_patina"),
+			"coating": item.get("korkem_line_coating") or coating_of(item.korkem_finish or doc.korkem_finish),
 		}
 		for item in doc.items
 		if item.item_code == facade_order.FACADE_ITEM
@@ -828,7 +887,7 @@ def plan(days: int = 14) -> dict:
 		fields=["name", "docstatus", "customer", "customer_name", "delivery_date", "transaction_date",
 				"korkem_finish", "korkem_decor_top", "korkem_milling", "advance_paid", "grand_total",
 				"korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason", "korkem_tags",
-				"korkem_extra_stages", *STAGES.values()],
+				"korkem_extra_stages", "korkem_coatings", *STAGES.values()],
 		order_by="delivery_date asc, name asc",
 		limit_page_length=1000,
 	)
@@ -903,6 +962,7 @@ def last_head() -> dict:
 	head = {key: doc.get(field) for key, field in HEAD.items()}
 	head.pop("extra_name", None)
 	head.pop("tags", None)  # urgent or a rework is this order's, not the next one's
+	head.pop("coatings", None)  # its groups', not a head to start from
 	return head
 
 
@@ -948,7 +1008,7 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 	fields = ["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name",
 			  "grand_total", "advance_paid", "korkem_finish", "korkem_decor_top", "korkem_milling",
 			  "korkem_edge_profile", "korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason",
-			  "korkem_tags", "korkem_extra_stages", *STAGES.values()]
+			  "korkem_tags", "korkem_extra_stages", "korkem_coatings", *STAGES.values()]
 	if tag and tag not in mdf_tags.ORDER + mdf_tags.CUSTOMER:
 		frappe.throw(f"Метки «{tag}» нет.")
 	if tag in mdf_tags.ORDER:
@@ -1054,7 +1114,8 @@ def _item(line: dict, head: dict, wanted) -> dict:
 		"korkem_width_mm": line["width_mm"],
 		"korkem_area_m2": line["area_m2"],
 		"korkem_milling": milling,
-		"korkem_finish": head["finish"],
+		"korkem_finish": line.get("finish") or head["finish"],
+		"korkem_line_coating": line.get("coating"),
 		"korkem_line_note": line["note"],
 		"korkem_rate_m2": line["rate_m2"],
 		"korkem_manual_rate": 1 if line["manual_rate"] else 0,
@@ -1066,10 +1127,12 @@ def _item(line: dict, head: dict, wanted) -> dict:
 		**facade_spec.as_fields(
 			{
 				"thickness_mm": line.get("thickness_mm") or head["thickness_mm"],
-				"decor_top": line.get("film") or head["decor_top"],
-				"decor_bottom": line.get("film_back") or head["decor_bottom"],
+				# A paint or raw group's colour is its own, never the head's film.
+				"decor_top": line.get("film") or (head["decor_top"] if line.get("coating") in (None, "pvc") else None),
+				"decor_bottom": line.get("film_back") or (head["decor_bottom"] if line.get("coating") in (None, "pvc")
+														  else None),
 				"edge_profile": line.get("edge") or head["edge_profile"],
-				"color_group": line.get("film") or head["decor_top"],
+				"color_group": line.get("film") or (head["decor_top"] if line.get("coating") in (None, "pvc") else None),
 			}
 		),
 	}

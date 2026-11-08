@@ -1791,5 +1791,11 @@
   "mdfPayCard": "Карта",
   "mdfPayBank": "Банк",
   "mdfDictBank": "Банктер",
-  "mdfDictLocked": "Тұрақты мән — өшірілмейді"
+  "mdfDictLocked": "Тұрақты мән — өшірілмейді",
+  "mdfCoatingPvc": "ПВХ",
+  "mdfCoatingPaint": "Бояу",
+  "mdfCoatingRaw": "Өңделмеген",
+  "mdfCoatingPick": "Қандай жабын?",
+  "mdfColor": "Түсі",
+  "mdfDictPaint": "Бояулар"
 }

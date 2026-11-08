@@ -448,7 +448,7 @@ class TestMdfOrders(IntegrationTestCase):
 		from korkem_manufacturing.services import mdf_dictionaries as dicts
 
 		lists = self._as(MANAGER, dicts.dictionaries)
-		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge", "bank"})
+		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge", "bank", "paint"})
 		self.assertNotIn(PVC, [v["value"] for v in lists["finish"]])  # nothing is filled in for the owner
 
 		lists = self._as(MANAGER, dicts.add, "patina", "  Алтын/Золотой ")
@@ -691,6 +691,34 @@ class TestMdfOrders(IntegrationTestCase):
 			self._as(MANAGER, mdf_dictionaries.remove, "edge", r3["id"])
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, mdf_dictionaries.rename, "edge", r3["id"], "R4")
+
+	def test_each_group_has_its_coating_and_a_colour_from_that_coatings_list(self):
+		from korkem_manufacturing.services import mdf_dictionaries
+
+		self._as(MANAGER, mdf_dictionaries.add, "paint", "МДФ Тест RAL 9010")
+		lines = [
+			{**ORDER_1129[0], "coating": "pvc", "film": self.decor, "rate": 17_000},
+			{**ORDER_1129[1], "coating": "paint", "film": "МДФ Тест RAL 9010", "rate": 24_000},
+			{**ORDER_1129[2], "coating": "raw", "rate": 9_000},
+		]
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
+						head={"thickness_mm": 16}, lines=lines)
+		self.addCleanup(self._drop, card["name"])
+		self.assertEqual([(l["coating"], l["film"]) for l in card["lines"][:3]],
+						 [("pvc", self.decor), ("paint", "МДФ Тест RAL 9010"), ("raw", None)])
+		self.assertIsNotNone(card["head"]["finish"])  # the first group's, for whatever reads the head
+		# A film group is pressed, a paint group painted: this order goes through both.
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		card = self._as(MANAGER, mdf_orders.card, card["name"])
+		self.assertEqual([s["stage"] for s in card["stages"]], ["cut", "mill", "sand", "paint", "vacuum", "ready"])
+
+		with self.assertRaises(frappe.ValidationError):  # a paint is not a film
+			self._as(MANAGER, mdf_orders.price, [{**lines[0], "film": "МДФ Тест RAL 9010"}], finish=None)
+		with self.assertRaises(frappe.ValidationError):  # nor a film a paint
+			self._as(MANAGER, mdf_orders.price, [{**lines[1], "film": self.decor}], finish=None)
+		with self.assertRaises(frappe.ValidationError):  # a raw facade has no colour
+			self._as(MANAGER, mdf_orders.price, [{**lines[2], "film": self.decor}], finish=None)
+		self.assertEqual(mdf_orders.stages_for(None, coatings="raw"), ["cut", "mill", "sand", "ready"])
 
 	def test_a_material_name_gives_the_thickness(self):
 		self.assertEqual(mdf_orders.thickness_of("16 мм ЛМДФ"), 16)

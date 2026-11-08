@@ -78,6 +78,7 @@ final MdfPrintWords _words = (
   film: 'Пленка',
   back: 'асты',
   subtotal: 'Барлығы',
+  coating: (c) => c.name,
   radius: 'R',
   thicknessColumn: 'Қалыңдығы',
 );
@@ -123,6 +124,7 @@ void main() {
           'rate_m2': 21000,
           'amount': 5040,
           'film': 'Палома',
+          'coating': 'pvc',
           'film_back': 'Графит',
           'material': '10 мм МДФ',
           'edge': 'R0',

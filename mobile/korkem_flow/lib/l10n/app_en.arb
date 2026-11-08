@@ -6040,5 +6040,11 @@
   "mdfPayCard": "Card",
   "mdfPayBank": "Bank",
   "mdfDictBank": "Banks",
-  "mdfDictLocked": "Always on the list — can't be removed"
+  "mdfDictLocked": "Always on the list — can't be removed",
+  "mdfCoatingPvc": "PVC",
+  "mdfCoatingPaint": "Paint",
+  "mdfCoatingRaw": "Raw",
+  "mdfCoatingPick": "Which coating?",
+  "mdfColor": "Colour",
+  "mdfDictPaint": "Paints"
 }

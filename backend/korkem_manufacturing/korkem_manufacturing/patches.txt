@@ -32,3 +32,4 @@ korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-08 customer orga
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-08 film groups and material
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-08 tags, a position's patina
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-09 stage ready, extra stages, payment bank
+korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-09 coating of a group
