@@ -15,7 +15,10 @@ enum MdfDictKind {
   edge,
 
   /// The bank of a transfer or a card payment: Kaspi, Halyk, Forte …
-  bank;
+  bank,
+
+  /// A paint group's colours: RAL 9010, NCS S 3040-Y60R … (09.11.2026).
+  paint;
 
   String get wire => name;
 }

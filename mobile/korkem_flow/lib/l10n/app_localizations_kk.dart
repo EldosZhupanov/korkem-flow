@@ -5341,4 +5341,22 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfDictLocked => 'Тұрақты мән — өшірілмейді';
+
+  @override
+  String get mdfCoatingPvc => 'ПВХ';
+
+  @override
+  String get mdfCoatingPaint => 'Бояу';
+
+  @override
+  String get mdfCoatingRaw => 'Өңделмеген';
+
+  @override
+  String get mdfCoatingPick => 'Қандай жабын?';
+
+  @override
+  String get mdfColor => 'Түсі';
+
+  @override
+  String get mdfDictPaint => 'Бояулар';
 }

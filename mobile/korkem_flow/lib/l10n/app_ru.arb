@@ -1791,5 +1791,11 @@
   "mdfPayCard": "Карта",
   "mdfPayBank": "Банк",
   "mdfDictBank": "Банки",
-  "mdfDictLocked": "Постоянное значение — не удаляется"
+  "mdfDictLocked": "Постоянное значение — не удаляется",
+  "mdfCoatingPvc": "ПВХ",
+  "mdfCoatingPaint": "Краска",
+  "mdfCoatingRaw": "Черновой",
+  "mdfCoatingPick": "Какое покрытие?",
+  "mdfColor": "Цвет",
+  "mdfDictPaint": "Краски"
 }

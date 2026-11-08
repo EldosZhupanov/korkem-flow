@@ -5402,4 +5402,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfDictLocked => 'Постоянное значение — не удаляется';
+
+  @override
+  String get mdfCoatingPvc => 'ПВХ';
+
+  @override
+  String get mdfCoatingPaint => 'Краска';
+
+  @override
+  String get mdfCoatingRaw => 'Черновой';
+
+  @override
+  String get mdfCoatingPick => 'Какое покрытие?';
+
+  @override
+  String get mdfColor => 'Цвет';
+
+  @override
+  String get mdfDictPaint => 'Краски';
 }

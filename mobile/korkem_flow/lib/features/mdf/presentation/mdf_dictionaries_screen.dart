@@ -19,6 +19,7 @@ String mdfDictLabel(MdfDictKind kind, AppLocalizations l10n) => switch (kind) {
   MdfDictKind.milling => l10n.mdfMilling,
   MdfDictKind.edge => l10n.mdfColEdge,
   MdfDictKind.bank => l10n.mdfDictBank,
+  MdfDictKind.paint => l10n.mdfDictPaint,
 };
 
 /// «Справочники»: every list of the order form in one place.
