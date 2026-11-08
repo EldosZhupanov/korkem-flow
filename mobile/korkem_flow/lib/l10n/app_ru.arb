@@ -1750,5 +1750,16 @@
   "mdfCustomerName": "Имя",
   "mdfCustomerPhone": "Телефон",
   "mdfCustomerOrg": "Организация",
-  "mdfCustomerDeleteAsk": "Удалить клиента «{name}»? Если у него есть заказы, он просто исчезнет из списка, заказы останутся."
+  "mdfCustomerDeleteAsk": "Удалить клиента «{name}»? Если у него есть заказы, он просто исчезнет из списка, заказы останутся.",
+  "mdfMaterial": "Материал",
+  "mdfFilm": "Плёнка",
+  "mdfFilmNone": "Плёнка не выбрана",
+  "mdfFilmPick": "Плёнка группы",
+  "mdfFilmRate": "Цена за м²",
+  "mdfFilmRemove": "Убрать группу",
+  "mdfFilmRemoveAsk": "Убрать группу «{film}» вместе с её позициями?",
+  "mdfFilmSubtotal": "Итого группы",
+  "mdfAddFilm": "Добавить покрытие",
+  "mdfBackSide": "Обратная сторона",
+  "mdfBackSideShort": "обр."
 }

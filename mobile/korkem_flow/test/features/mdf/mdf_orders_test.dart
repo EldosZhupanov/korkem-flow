@@ -98,11 +98,148 @@ class _FakeRepository implements MdfOrderRepository {
     return card(order);
   }
 
+  /// The server's arithmetic, in short: the area rounded, times the price
+  /// typed or the film's.
+  @override
+  Future<MdfPricing> price({
+    required List<MdfLineInput> lines,
+    String? finish,
+    double? defaultRate,
+    Map<String, double> filmRates = const {},
+  }) async {
+    final priced = [
+      for (final l in lines)
+        () {
+          final area = double.parse(
+            (l.heightMm * l.widthMm * l.qty / 1e6).toStringAsFixed(2),
+          );
+          final rate = l.rate ?? filmRates[l.film] ?? 0;
+          return MdfLine(
+            heightMm: l.heightMm,
+            widthMm: l.widthMm,
+            qty: l.qty,
+            areaM2: area,
+            rateM2: rate,
+            amount: (area * rate).roundToDouble(),
+            film: l.film,
+          );
+        }(),
+    ];
+    return MdfPricing(
+      lines: priced,
+      pieces: priced.fold(0, (s, l) => s + l.qty),
+      areaM2: priced.fold<double>(0, (s, l) => s + l.areaM2),
+      total: priced.fold<double>(0, (s, l) => s + l.amount),
+    );
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// A draft of two films, as Олжас Мухаметхан brought it (08.11.2026).
+Map<String, Object?> _twoFilms() => {
+  ..._card(status: 'draft'),
+  'head': {
+    'material': '16 мм МДФ',
+    'film_rates': {'Белый Матовый': 17000, 'Палома': 18000},
+  },
+  'lines': [
+    {
+      'height_mm': 718,
+      'width_mm': 500,
+      'qty': 2,
+      'area_m2': 0.72,
+      'rate_m2': 17000,
+      'amount': 12240,
+      'film': 'Белый Матовый',
+      'material': '16 мм МДФ',
+    },
+    {
+      'height_mm': 300,
+      'width_mm': 400,
+      'qty': 2,
+      'area_m2': 0.24,
+      'rate_m2': 21000,
+      'amount': 5040,
+      'manual_rate': true,
+      'film': 'Палома',
+      'film_back': 'Графит',
+      'material': '10 мм МДФ',
+    },
+    {
+      'height_mm': 500,
+      'width_mm': 498,
+      'qty': 5,
+      'area_m2': 1.25,
+      'rate_m2': 18000,
+      'amount': 22500,
+      'film': 'Палома',
+      'material': '16 мм МДФ',
+    },
+  ],
+};
+
+class _TwoFilms extends _FakeRepository {
+  @override
+  Future<MdfOrder> card(String name) async => MdfOrder.fromJson(_twoFilms());
+}
+
 void main() {
+  testWidgets('a draft of two films shows a group for each, with its totals', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(_TwoFilms())],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfFilm:Белый Матовый')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfFilm:Палома')), findsOneWidget);
+    // The film's price in the header; a price typed on a line stays its own.
+    final rate = tester.widget<TextField>(
+      find.byKey(const ValueKey('mdfFilmRate:1')),
+    );
+    expect(rate.controller!.text, '18000');
+    final own = tester.widget<TextField>(
+      find.byKey(const ValueKey('mdfRate:1')),
+    );
+    expect(own.controller!.text, '21000');
+    final group = tester.widget<TextField>(
+      find.byKey(const ValueKey('mdfRate:2')),
+    );
+    expect(group.controller!.text, isEmpty);
+    // Positions keep one numbering through the groups; Палома: 2 + 5 pieces.
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('mdfFilmTotals:1'))).data,
+      contains('7'),
+    );
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('mdfFilmTotals:1'))).data,
+      contains('1.49'),
+    );
+  });
+
+  test('the positions fall into film groups in the order films appear', () {
+    final order = MdfOrder.fromJson(_twoFilms());
+    final groups = mdfFilmGroups(order.lines);
+    expect([for (final g in groups) g.film], ['Белый Матовый', 'Палома']);
+    expect([for (final (n, _) in groups.last.lines) n], [2, 3]);
+    expect(groups.last.pieces, 7);
+    expect(groups.last.areaM2, 1.49);
+    expect(groups.last.amount, 27540);
+    expect(order.head.filmRates['Палома'], 18000);
+    expect(order.lines[1].filmBack, 'Графит');
+  });
+
   test('a card reads the stages its finish has, in order', () {
     final order = MdfOrder.fromJson(_card(stages: {'cut': '2026-11-01'}));
     expect(order.stages.keys, [

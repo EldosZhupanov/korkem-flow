@@ -355,7 +355,8 @@ def _parts_by_decor(sales_order: str) -> dict[str, list[Part]]:
 				"korkem_customer_material", "korkem_decor_top", "korkem_decor_bottom"],
 		order_by="idx",
 	):
-		if line.korkem_customer_material or not facade_prices.is_film(line.korkem_finish):
+		film = facade_prices.is_film(line.korkem_finish) or (not line.korkem_finish and line.korkem_decor_top)
+		if line.korkem_customer_material or not film:
 			continue
 		faces = [line.korkem_decor_top]
 		if line.korkem_double_sided:

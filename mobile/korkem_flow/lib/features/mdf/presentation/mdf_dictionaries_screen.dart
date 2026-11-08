@@ -11,6 +11,7 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The name of one list, as the order form labels its drop-down.
 String mdfDictLabel(MdfDictKind kind, AppLocalizations l10n) => switch (kind) {
+  MdfDictKind.material => l10n.mdfMaterial,
   MdfDictKind.thickness => l10n.mdfThickness,
   MdfDictKind.finish => l10n.mdfFinish,
   MdfDictKind.decor => l10n.mdfDictDecor,
@@ -42,24 +43,25 @@ class MdfDictionariesScreen extends ConsumerWidget {
             ),
           ),
           for (final kind in MdfDictKind.values)
-            ReadableWidth(
-              child: ListTile(
-                key: ValueKey('dictList:${kind.name}'),
-                leading: const Icon(AppIcons.dictionary),
-                title: Text(mdfDictLabel(kind, l10n)),
-                subtitle: Text(
-                  dicts.values(kind).take(4).join(' · '),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text('${dicts.entries(kind).length}'),
-                onTap: () => showMdfDictionary(
-                  context,
-                  kind,
-                  title: mdfDictLabel(kind, l10n),
+            if (kind != MdfDictKind.thickness)
+              ReadableWidth(
+                child: ListTile(
+                  key: ValueKey('dictList:${kind.name}'),
+                  leading: const Icon(AppIcons.dictionary),
+                  title: Text(mdfDictLabel(kind, l10n)),
+                  subtitle: Text(
+                    dicts.values(kind).take(4).join(' · '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Text('${dicts.entries(kind).length}'),
+                  onTap: () => showMdfDictionary(
+                    context,
+                    kind,
+                    title: mdfDictLabel(kind, l10n),
+                  ),
                 ),
               ),
-            ),
         ],
       ),
     );

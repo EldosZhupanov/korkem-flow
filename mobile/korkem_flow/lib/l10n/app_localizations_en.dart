@@ -5251,4 +5251,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String mdfCustomerDeleteAsk(String name) {
     return 'Delete the customer «$name»? If they have orders, they only leave the list; the orders stay.';
   }
+
+  @override
+  String get mdfMaterial => 'Material';
+
+  @override
+  String get mdfFilm => 'Film';
+
+  @override
+  String get mdfFilmNone => 'No film chosen';
+
+  @override
+  String get mdfFilmPick => 'The group\'s film';
+
+  @override
+  String get mdfFilmRate => 'Price per m²';
+
+  @override
+  String get mdfFilmRemove => 'Remove the group';
+
+  @override
+  String mdfFilmRemoveAsk(String film) {
+    return 'Remove the «$film» group with its positions?';
+  }
+
+  @override
+  String get mdfFilmSubtotal => 'Group total';
+
+  @override
+  String get mdfAddFilm => 'Add a film';
+
+  @override
+  String get mdfBackSide => 'Back side';
+
+  @override
+  String get mdfBackSideShort => 'back';
 }

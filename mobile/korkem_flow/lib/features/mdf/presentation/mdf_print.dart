@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -30,6 +31,10 @@ typedef MdfPrintWords = ({
   String rate,
   String amount,
   String total,
+  String material,
+  String film,
+  String back,
+  String subtotal,
 });
 
 /// One MDF order on an A4 page, the way the owner prints it from OnayBaza
@@ -65,10 +70,11 @@ Future<Uint8List> buildMdfOrderPdf(
     (words.due, order.deliveryDate),
     (words.customer, order.customerName),
     (words.phone, order.phone ?? ''),
-    (words.thickness, h.thicknessMm == null ? '' : '${h.thicknessMm} мм'),
+    (
+      words.material,
+      h.material ?? (h.thicknessMm == null ? '' : '${h.thicknessMm} мм'),
+    ),
     (words.finish, h.finish ?? ''),
-    (words.decorTop, h.decorTop ?? ''),
-    (words.decorBottom, h.decorBottom ?? ''),
     (words.patina, h.patina ?? ''),
     (words.milling, h.milling ?? ''),
     (words.edge, h.edgeProfile ?? ''),
@@ -89,14 +95,62 @@ Future<Uint8List> buildMdfOrderPdf(
 
   final columns = [
     '№',
-    words.note,
     words.height,
     words.width,
     words.qty,
+    words.milling,
+    words.material,
+    words.film,
     words.area,
     if (withPrices) words.rate,
     if (withPrices) words.amount,
   ];
+  final groups = mdfFilmGroups(order.lines);
+
+  // The film's colour, pale enough to print text over and to survive a
+  // monochrome printer as a grey band; the film is named in words as well.
+  PdfColor tint(int g) {
+    final c = AppColors.filmGroup(g);
+    double pale(double v) => 1 - (1 - v) * 0.2;
+    return PdfColor(pale(c.r), pale(c.g), pale(c.b));
+  }
+
+  pw.TableRow lineRow(int n, MdfLine l, int g) => pw.TableRow(
+    decoration: pw.BoxDecoration(color: tint(g)),
+    children: [
+      text('$n'),
+      text('${l.heightMm}', right: true),
+      text('${l.widthMm}', right: true),
+      text('${l.qty}', right: true),
+      text([l.milling, l.note].whereType<String>().join(' · ')),
+      text(l.material ?? (l.thicknessMm == null ? '' : '${l.thicknessMm} мм')),
+      text(
+        [
+          l.film ?? '',
+          if (l.filmBack != null) '+ ${words.back}: ${l.filmBack}',
+        ].join('\n'),
+      ),
+      text(area.format(l.areaM2), right: true),
+      if (withPrices) text(money.format(l.rateM2), right: true),
+      if (withPrices) text(money.format(l.amount), right: true),
+    ],
+  );
+
+  pw.TableRow sumRow(String label, int pieces, double m2, double amount) =>
+      pw.TableRow(
+        children: [
+          text(''),
+          text(label, style: bold),
+          text(''),
+          text('$pieces', style: bold, right: true),
+          text(''),
+          text(''),
+          text(''),
+          text(area.format(m2), style: bold, right: true),
+          if (withPrices) text(''),
+          if (withPrices) text(money.format(amount), style: bold, right: true),
+        ],
+      );
 
   doc.addPage(
     pw.MultiPage(
@@ -148,48 +202,25 @@ Future<Uint8List> buildMdfOrderPdf(
           border: pw.TableBorder.all(width: 0.5),
           columnWidths: {
             0: const pw.FixedColumnWidth(24),
-            1: const pw.FlexColumnWidth(4),
-            for (var i = 2; i < columns.length; i++)
-              i: const pw.FlexColumnWidth(1.4),
+            for (var i = 1; i < columns.length; i++)
+              i: pw.FlexColumnWidth(i == 4 || i == 6 ? 3 : 1.4),
           },
           children: [
             pw.TableRow(
               decoration: const pw.BoxDecoration(color: PdfColors.grey200),
               children: [for (final c in columns) text(c, style: bold)],
             ),
-            for (var i = 0; i < order.lines.length; i++)
-              pw.TableRow(
-                children: [
-                  text('${i + 1}'),
-                  text(
-                    [
-                      order.lines[i].milling,
-                      order.lines[i].note,
-                    ].whereType<String>().join(' · '),
-                  ),
-                  text('${order.lines[i].heightMm}', right: true),
-                  text('${order.lines[i].widthMm}', right: true),
-                  text('${order.lines[i].qty}', right: true),
-                  text(area.format(order.lines[i].areaM2), right: true),
-                  if (withPrices)
-                    text(money.format(order.lines[i].rateM2), right: true),
-                  if (withPrices)
-                    text(money.format(order.lines[i].amount), right: true),
-                ],
-              ),
-            pw.TableRow(
-              children: [
-                text(''),
-                text(words.total, style: bold),
-                text(''),
-                text(''),
-                text('${order.pieces}', style: bold, right: true),
-                text(area.format(order.areaM2), style: bold, right: true),
-                if (withPrices) text(''),
-                if (withPrices)
-                  text(money.format(order.total), style: bold, right: true),
-              ],
-            ),
+            for (final (g, group) in groups.indexed) ...[
+              for (final (n, l) in group.lines) lineRow(n, l, g),
+              if (groups.length > 1)
+                sumRow(
+                  '${words.subtotal}: ${group.film ?? ''}',
+                  group.pieces,
+                  group.areaM2,
+                  group.amount,
+                ),
+            ],
+            sumRow(words.total, order.pieces, order.areaM2, order.total),
           ],
         ),
       ],
