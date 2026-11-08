@@ -40,6 +40,8 @@ from korkem_manufacturing.services import (
 	facade_order,
 	facade_prices,
 	facade_spec,
+	material_stock,
+	mdf_tags,
 )
 from korkem_manufacturing.services.scope import current_company, enforce_tenant_scope
 
@@ -70,7 +72,13 @@ HEAD = {
 	"default_rate": "korkem_default_rate",
 	"material": "korkem_material",
 	"film_rates": "korkem_film_rates",
+	"tags": "korkem_tags",
 }
+#: Every new position's edge radius unless the manager picks another (owner,
+#: 08.11.2026); «R0» is a sharp corner.
+DEFAULT_EDGE = "R3"
+#: The radii every position may have without anyone adding them to the list.
+STANDARD_EDGES = ("R0", DEFAULT_EDGE)
 #: A warning this many days before the due date, if the order is not ready.
 DUE_SOON_DAYS = 2
 
@@ -136,6 +144,7 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 
 		milling = (raw.get("milling") or "").strip()
 		film, film_back, material = _line_spec(raw, label, company)
+		edge, patina = _line_finish(raw, label, company)
 		manual = raw.get("rate") not in (None, "")
 		if manual:
 			rate = _money(raw.get("rate"), f"{label}, цена")
@@ -170,6 +179,8 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 				"film_back": film_back,
 				"material": material,
 				"thickness_mm": thickness_of(material),
+				"edge": edge,
+				"patina": patina,
 			}
 		)
 	return {
@@ -212,6 +223,38 @@ def _line_spec(raw: dict, label: str, company: str) -> tuple[str | None, str | N
 	return film, film_back, material
 
 
+def _line_finish(raw: dict, label: str, company: str) -> tuple[str | None, str | None]:
+	"""A position's edge radius and patina, each from its list when the list has values.
+
+	R0 and R3 need no list: R3 is every position's radius unless the manager
+	says otherwise, R0 a sharp corner (owner, 08.11.2026).
+	"""
+	edge = facade_spec._text(raw.get("edge"))
+	patina = facade_spec._text(raw.get("patina"))
+	for value, kind, name in ((edge, facade_spec.EDGE, "радиус края"), (patina, "Патина", "патина")):
+		if value and value not in STANDARD_EDGES:
+			known = facade_spec._values(kind, company)
+			if known and value not in known:
+				frappe.throw(f"{label}: {name} «{value}» нет в справочнике «{kind}».")
+	return edge, patina
+
+
+def _put_standard_edges(head, lines, company: str) -> None:
+	"""R0 and R3 on the «Профиль кромки» list once an order uses them.
+
+	The item's facade fields take an edge from that list only; the two
+	standard radii should not wait for someone to add them first.
+	"""
+	head = frappe.parse_json(head) if isinstance(head, str) else (head or {})
+	lines = frappe.parse_json(lines) if isinstance(lines, str) else (lines or [])
+	used = {facade_spec._text(head.get("edge_profile"))} | {
+		facade_spec._text(line.get("edge")) for line in lines if isinstance(line, dict)
+	}
+	missing = used.intersection(STANDARD_EDGES) - facade_spec._values(facade_spec.EDGE, company)
+	for edge in sorted(missing):
+		material_stock.put_option(facade_spec.EDGE, edge)
+
+
 def _film_rates(raw, company: str) -> str | None:
 	"""Each film's price per m², stored as JSON on the order: {"Палома": 18000}."""
 	import json
@@ -247,6 +290,7 @@ def save_draft(*, customer: str, delivery_date: str, head=None, lines=None, orde
 	head = frappe.parse_json(head) if isinstance(head, str) else (head or {})
 	customer = facade_order._customer(customer, company)
 	wanted = _due(delivery_date)
+	_put_standard_edges(head, lines, company)
 	values = _head(head, company)
 	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=company,
 				  film_rates=values["film_rates"])
@@ -321,6 +365,7 @@ def change_order(order: str, *, lines, reason: str, head=None, delivery_date: st
 	if doc.korkem_handed_over_on:
 		frappe.throw("Заказ уже выдан — его не меняют.")
 	head = frappe.parse_json(head) if isinstance(head, str) else head
+	_put_standard_edges(head, lines, doc.company)
 	values = _head(head, doc.company) if head else {key: doc.get(field) for key, field in HEAD.items()}
 	wanted = _due(delivery_date) if delivery_date else getdate(doc.delivery_date)
 	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=doc.company,
@@ -495,6 +540,8 @@ def card(order: str) -> dict:
 			"film_back": item.korkem_decor_bottom if item.korkem_double_sided else None,
 			"material": item.korkem_material,
 			"thickness_mm": item.korkem_thickness_mm,
+			"edge": item.korkem_edge_profile,
+			"patina": item.get("korkem_line_patina"),
 		}
 		for item in doc.items
 		if item.item_code == facade_order.FACADE_ITEM
@@ -518,10 +565,13 @@ def card(order: str) -> dict:
 		"customer": doc.customer,
 		"customer_name": doc.customer_name,
 		"phone": frappe.db.get_value("Customer", doc.customer, "mobile_no"),
+		"customer_tags": mdf_tags.parse(frappe.db.get_value("Customer", doc.customer, "korkem_tags")),
+		"tags": mdf_tags.parse(doc.get("korkem_tags")),
 		"created_on": str(doc.transaction_date),
 		"delivery_date": str(doc.delivery_date),
 		"head": {**{key: doc.get(field) for key, field in HEAD.items()},
-				 "film_rates": frappe.parse_json(doc.korkem_film_rates) if doc.korkem_film_rates else {}},
+				 "film_rates": frappe.parse_json(doc.korkem_film_rates) if doc.korkem_film_rates else {},
+				 "tags": mdf_tags.parse(doc.get("korkem_tags"))},
 		"lines": lines,
 		"pieces": sum(line["qty"] for line in lines),
 		"area_m2": flt(sum(Decimal(str(line["area_m2"])) for line in lines), 2),
@@ -595,7 +645,7 @@ def debts(since: str | None = None, until: str | None = None) -> dict:
 		"Sales Order",
 		filters=filters,
 		fields=["name", "transaction_date", "delivery_date", "customer", "customer_name", "grand_total",
-				"advance_paid", "docstatus", "korkem_handed_over_on"],
+				"advance_paid", "docstatus", "korkem_handed_over_on", "korkem_tags"],
 		order_by="transaction_date asc, name asc",
 		limit_page_length=2000,
 	)
@@ -691,24 +741,33 @@ def plan(days: int = 14) -> dict:
 		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
 				 "korkem_ready_on": ["is", "not set"], "korkem_handed_over_on": ["is", "not set"],
 				 "korkem_hold_reason": ["is", "not set"]},
-		fields=["name", "docstatus", "customer_name", "delivery_date", "transaction_date", "korkem_finish",
-				"korkem_decor_top", "korkem_milling", "advance_paid", "grand_total", "korkem_ready_on",
-				"korkem_handed_over_on", "korkem_hold_reason", *STAGES.values()],
+		fields=["name", "docstatus", "customer", "customer_name", "delivery_date", "transaction_date",
+				"korkem_finish", "korkem_decor_top", "korkem_milling", "advance_paid", "grand_total",
+				"korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason", "korkem_tags",
+				*STAGES.values()],
 		order_by="delivery_date asc, name asc",
 		limit_page_length=1000,
 	)
 	queues = {stage: {"stage": stage, "orders": [], "area_m2": Decimal(0)} for stage in STAGES}
 	for row in rows:
-		waiting = next((s for s in stages_for(row.korkem_finish) if not row.get(STAGES[s])), None)
+		needed = stages_for(row.korkem_finish)
+		waiting = next((s for s in needed if not row.get(STAGES[s])), None)
 		if waiting is None:
 			continue
 		area = Decimal(str(_area(row.name)))
+		left = len(needed) - needed.index(waiting)
+		days_left = (getdate(row.delivery_date) - getdate(nowdate())).days
+		tags = mdf_tags.parse(row.korkem_tags)
 		queues[waiting]["area_m2"] += area
 		queues[waiting]["orders"].append(
 			{"name": row.name, "customer_name": row.customer_name, "delivery_date": str(row.delivery_date),
 			 "decor_top": row.korkem_decor_top, "milling": row.korkem_milling, "area_m2": float(area),
-			 "overdue": _overdue(row), "due_soon": _due_soon(row), "debt": float(_debt(row))}
+			 "overdue": _overdue(row), "due_soon": _due_soon(row), "debt": float(_debt(row)),
+			 "tags": tags, "stage": waiting, "stages_left": left, "days_left": days_left,
+			 "at_risk": _at_risk(left, days_left)}
 		)
+	for queue in queues.values():
+		queue["orders"].sort(key=lambda o: ("urgent" not in o["tags"], o["delivery_date"], o["name"]))
 	since = add_days(nowdate(), -days + 1)
 	intake = {}
 	for row in frappe.get_all(
@@ -730,6 +789,21 @@ def plan(days: int = 14) -> dict:
 	}
 
 
+#: How many stages the shop gets through in a day, for «не успевает».
+STAGES_PER_DAY = 2
+
+
+def _at_risk(stages_left: int, days_left: int) -> bool:
+	"""Will it miss its date? More stages left than the days left can carry.
+
+	The due day itself counts: an order due today with two stages left still
+	makes it, one with three does not. Overdue is past risk — it is late.
+	"""
+	if days_left < 0:
+		return False
+	return stages_left > (days_left + 1) * STAGES_PER_DAY
+
+
 def last_head() -> dict:
 	"""The head of the last MDF order this person wrote — what a new one starts from."""
 	facade_prices.ensure_editor()
@@ -744,6 +818,7 @@ def last_head() -> dict:
 	doc = frappe.get_doc("Sales Order", name)
 	head = {key: doc.get(field) for key, field in HEAD.items()}
 	head.pop("extra_name", None)
+	head.pop("tags", None)  # urgent or a rework is this order's, not the next one's
 	return head
 
 
@@ -767,8 +842,11 @@ def status_of(doc) -> str:
 
 
 def listing(search: str | None = None, status: str | None = None, overdue=False, with_debt=False,
-			start: int = 0, limit: int = 50) -> dict:
-	"""The list of MDF orders, newest first, a page at a time."""
+			start: int = 0, limit: int = 50, tag: str | None = None) -> dict:
+	"""The list of MDF orders, newest first, a page at a time; urgent open ones first.
+
+	`tag` narrows to one tag — an order's (urgent, rework, …) or its customer's (vip, …).
+	"""
 	facade_prices.ensure_editor()
 	company = current_company()
 	limit = max(1, min(int(limit or 50), 200))
@@ -786,10 +864,23 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 	fields = ["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name",
 			  "grand_total", "advance_paid", "korkem_finish", "korkem_decor_top", "korkem_milling",
 			  "korkem_edge_profile", "korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason",
-			  *STAGES.values()]
+			  "korkem_tags", *STAGES.values()]
+	if tag and tag not in mdf_tags.ORDER + mdf_tags.CUSTOMER:
+		frappe.throw(f"Метки «{tag}» нет.")
+	if tag in mdf_tags.ORDER:
+		filters["korkem_tags"] = ["like", f"%{tag}%"]
+	elif tag:
+		tagged = frappe.get_all("Customer", filters={"korkem_tags": ["like", f"%{tag}%"]}, pluck="name",
+								limit_page_length=0)
+		filters["customer"] = ["in", tagged or [""]]
 	rows = frappe.get_all("Sales Order", filters=filters, or_filters=or_filters, fields=fields,
 						  order_by="creation desc", limit_start=start, limit_page_length=limit * 3 if (
 							  status or overdue or with_debt) else limit)
+	customer_tags = {
+		c.name: mdf_tags.parse(c.korkem_tags)
+		for c in frappe.get_all("Customer", filters={"name": ["in", list({r.customer for r in rows}) or [""]]},
+								fields=["name", "korkem_tags"], limit_page_length=0)
+	}
 	out = []
 	for row in rows:
 		row_status = status_of(row)
@@ -820,10 +911,14 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 				"paid": flt(row.advance_paid),
 				"debt": float(debt),
 				"stage": done[-1] if done else None,
+				"tags": mdf_tags.parse(row.korkem_tags),
+				"customer_tags": customer_tags.get(row.customer, []),
 			}
 		)
 		if len(out) >= limit:
 			break
+	# An urgent order still in work goes to the top of its page.
+	out.sort(key=lambda o: not ("urgent" in o["tags"] and o["status"] in ("accepted", "in_shop")))
 	return {"orders": out, "start": start, "limit": limit}
 
 
@@ -852,6 +947,7 @@ def _head(head: dict, company: str) -> dict:
 		"default_rate": float(_money(default_rate, "Цена за м²")) if default_rate not in (None, "") else None,
 		"material": material,
 		"film_rates": _film_rates(head.get("film_rates"), company),
+		"tags": mdf_tags.clean(head.get("tags"), mdf_tags.ORDER, "Заказ"),
 	}
 
 
@@ -879,6 +975,7 @@ def _item(line: dict, head: dict, wanted) -> dict:
 		"korkem_rate_m2": line["rate_m2"],
 		"korkem_manual_rate": 1 if line["manual_rate"] else 0,
 		"korkem_material": line.get("material") or head.get("material"),
+		"korkem_line_patina": line.get("patina"),
 		# A position of its own film (and back film) is that film's; one
 		# without takes the head's, as every order did before groups.
 		"korkem_double_sided": 1 if line.get("film_back") else 0,
@@ -887,7 +984,7 @@ def _item(line: dict, head: dict, wanted) -> dict:
 				"thickness_mm": line.get("thickness_mm") or head["thickness_mm"],
 				"decor_top": line.get("film") or head["decor_top"],
 				"decor_bottom": line.get("film_back") or head["decor_bottom"],
-				"edge_profile": head["edge_profile"],
+				"edge_profile": line.get("edge") or head["edge_profile"],
 				"color_group": line.get("film") or head["decor_top"],
 			}
 		),
@@ -920,7 +1017,7 @@ def _accepted(name: str):
 
 
 def _debt(row) -> Decimal:
-	if row.docstatus != 1:
+	if row.docstatus != 1 or not mdf_tags.owed(row.get("korkem_tags")):
 		return Decimal("0")
 	return max(Decimal("0"), Decimal(str(flt(row.grand_total))) - Decimal(str(flt(row.advance_paid))))
 

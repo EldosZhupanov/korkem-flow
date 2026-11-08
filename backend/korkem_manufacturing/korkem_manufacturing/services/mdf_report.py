@@ -73,7 +73,7 @@ def report(since: str | None = None, until: str | None = None) -> dict:
 				 "transaction_date": ["between", [since_d, until_d]]},
 		fields=["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name",
 				"grand_total", "advance_paid", "korkem_finish", "korkem_decor_top", "korkem_ready_on",
-				"korkem_handed_over_on", "korkem_hold_reason", *mdf_orders.STAGES.values()],
+				"korkem_handed_over_on", "korkem_hold_reason", "korkem_tags", *mdf_orders.STAGES.values()],
 		limit_page_length=0,
 	)
 	areas = _areas([r.name for r in rows if r.docstatus == 1])

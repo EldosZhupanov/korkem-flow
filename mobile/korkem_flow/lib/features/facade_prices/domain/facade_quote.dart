@@ -140,6 +140,7 @@ class FacadeCustomer {
     required this.title,
     this.phone,
     this.organization,
+    this.tags = const [],
   });
 
   factory FacadeCustomer.fromJson(Map<String, dynamic> json) {
@@ -149,6 +150,9 @@ class FacadeCustomer {
       title: json['customer_name'] as String? ?? name,
       phone: json['phone'] as String?,
       organization: json['organization'] as String?,
+      tags: [
+        for (final t in json['tags'] as List? ?? const []) '$t',
+      ],
     );
   }
 
@@ -158,6 +162,10 @@ class FacadeCustomer {
 
   /// «ИП Куат», «Дом Мебели» — OnayBaza's third column.
   final String? organization;
+
+  /// The customer's tag codes (vip, prepay_only …) — the MDF order's
+  /// customer list sets them.
+  final List<String> tags;
 }
 
 /// The order the server created from a quote.

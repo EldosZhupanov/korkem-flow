@@ -5286,4 +5286,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfBackSideShort => 'back';
+
+  @override
+  String get mdfTagUrgent => 'Urgent';
+
+  @override
+  String get mdfTagRework => 'Rework';
+
+  @override
+  String get mdfTagWarranty => 'Warranty';
+
+  @override
+  String get mdfTagVip => 'VIP';
+
+  @override
+  String get mdfTagFurnitureMaker => 'Furniture maker';
+
+  @override
+  String get mdfTagNew => 'New';
+
+  @override
+  String get mdfTagPrepayOnly => 'Prepayment only';
+
+  @override
+  String get mdfFilterUrgent => 'Urgent';
+
+  @override
+  String get mdfFilterFurnitureMakers => 'Furniture makers';
+
+  @override
+  String get mdfFilterRework => 'Reworks';
+
+  @override
+  String get mdfColEdge => 'R';
+
+  @override
+  String get mdfColMaterial => 'Thickness and material';
+
+  @override
+  String get mdfEdgeDefault => 'Default R';
+
+  @override
+  String get mdfExtraAdd => '+ extra';
+
+  @override
+  String get mdfDeadlineToday => 'Today';
+
+  @override
+  String get mdfDeadlineTomorrow => 'Tomorrow';
+
+  @override
+  String get mdfDeadlineLater => 'Later';
+
+  @override
+  String get mdfAtRisk => 'Won\'t make it';
+
+  @override
+  String get mdfTvTitle => 'Shop screen';
+
+  @override
+  String get mdfTvHint => 'Today, tomorrow, later — for the shop\'s TV';
+
+  @override
+  String mdfPrepayOnlyAsk(String customer) {
+    return '$customer: prepayment only, and nothing is paid. Accept anyway?';
+  }
 }

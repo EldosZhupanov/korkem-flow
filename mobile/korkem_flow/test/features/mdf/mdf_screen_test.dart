@@ -15,6 +15,7 @@ void main() {
     'press': Routes.pressSettings,
     'stock': Routes.materialStock,
     'plan': Routes.mdfPlan,
+    'tv': Routes.mdfTv,
     'batch': Routes.mdfBatch,
     'cash': Routes.mdfCash,
     'report': Routes.mdfReport,

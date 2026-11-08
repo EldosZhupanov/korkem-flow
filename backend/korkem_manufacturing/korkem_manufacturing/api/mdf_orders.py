@@ -74,9 +74,9 @@ def card(order: str) -> dict:
 
 @frappe.whitelist(methods=["GET"])
 def listing(search: str | None = None, status: str | None = None, overdue: bool | int | str = 0,
-			with_debt: bool | int | str = 0, start: int = 0, limit: int = 50) -> dict:
+			with_debt: bool | int | str = 0, start: int = 0, limit: int = 50, tag: str | None = None) -> dict:
 	return service.listing(search=search, status=status, overdue=overdue, with_debt=with_debt,
-						   start=start, limit=limit)
+						   start=start, limit=limit, tag=tag)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -180,17 +180,19 @@ def customer_list() -> list[dict]:
 
 
 @frappe.whitelist(methods=["POST"])
-def customer_add(name: str, phone: str | None = None, organization: str | None = None) -> dict:
+def customer_add(name: str, phone: str | None = None, organization: str | None = None,
+				 tags: str | list | None = None) -> dict:
 	from korkem_manufacturing.services import mdf_customers
 
-	return mdf_customers.add(name, phone, organization)
+	return mdf_customers.add(name, phone, organization, tags)
 
 
 @frappe.whitelist(methods=["POST"])
-def customer_update(customer: str, name: str, phone: str | None = None, organization: str | None = None) -> dict:
+def customer_update(customer: str, name: str, phone: str | None = None, organization: str | None = None,
+					tags: str | list | None = None) -> dict:
 	from korkem_manufacturing.services import mdf_customers
 
-	return mdf_customers.update(customer, name, phone, organization)
+	return mdf_customers.update(customer, name, phone, organization, tags)
 
 
 @frappe.whitelist(methods=["POST"])

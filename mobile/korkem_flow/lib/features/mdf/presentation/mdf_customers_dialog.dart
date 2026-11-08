@@ -6,9 +6,12 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-/// OnayBaza's «Заказчик» window: name, phone, organisation, with add, edit
+/// OnayBaza's «Заказчик» window: name, phone, organisation and tags (VIP,
+/// мебельщик, новый, только предоплата), with add, edit
 /// and delete. Tapping a customer chooses them; closing returns null.
 Future<FacadeCustomer?> showMdfCustomers(
   BuildContext context, {
@@ -67,6 +70,7 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
         input.name,
         phone: input.phone,
         organization: input.organization,
+        tags: input.tags,
       ),
     );
   }
@@ -81,6 +85,7 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
         input.name,
         phone: input.phone,
         organization: input.organization,
+        tags: input.tags,
       ),
     );
   }
@@ -181,9 +186,18 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
                           dense: true,
                           selected: c.name == widget.current,
                           title: Text(c.title),
-                          subtitle: Text(
-                            [?c.phone, ?c.organization].join(' · '),
-                            style: theme.textTheme.bodySmall,
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                [?c.phone, ?c.organization].join(' · '),
+                                style: theme.textTheme.bodySmall,
+                              ),
+                              if (c.tags.isNotEmpty)
+                                MdfTagBadges(
+                                  customerTags: MdfCustomerTag.parse(c.tags),
+                                ),
+                            ],
                           ),
                           onTap: () => Navigator.of(context).pop(c),
                           trailing: Row(
@@ -222,7 +236,12 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
   }
 }
 
-typedef _CustomerInput = ({String name, String? phone, String? organization});
+typedef _CustomerInput = ({
+  String name,
+  String? phone,
+  String? organization,
+  List<String> tags,
+});
 
 class _CustomerEditDialog extends StatefulWidget {
   const _CustomerEditDialog({required this.title, this.initial});
@@ -240,6 +259,9 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
   late final _org = TextEditingController(
     text: widget.initial?.organization ?? '',
   );
+  late final Set<MdfCustomerTag> _tags = {
+    ...MdfCustomerTag.parse(widget.initial?.tags ?? const <String>[]),
+  };
 
   @override
   void dispose() {
@@ -258,6 +280,10 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
       name: _name.text.trim(),
       phone: _or(_phone),
       organization: _or(_org),
+      tags: [
+        for (final t in MdfCustomerTag.values)
+          if (_tags.contains(t)) t.wire,
+      ],
     ));
   }
 
@@ -288,6 +314,29 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
               controller: _org,
               decoration: InputDecoration(labelText: l10n.mdfCustomerOrg),
               onSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  for (final t in MdfCustomerTag.values)
+                    FilterChip(
+                      key: ValueKey('customerTag:${t.wire}'),
+                      label: Text(mdfCustomerTagLabel(t, l10n)),
+                      selected: _tags.contains(t),
+                      onSelected: (on) => setState(() {
+                        if (on) {
+                          _tags.add(t);
+                        } else {
+                          _tags.remove(t);
+                        }
+                      }),
+                    ),
+                ],
+              ),
             ),
           ],
         ),

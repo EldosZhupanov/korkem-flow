@@ -11,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The list of MDF orders — OnayBaza's «Тапсырыстар», compact: who, when,
@@ -22,7 +23,18 @@ class MdfOrdersScreen extends ConsumerStatefulWidget {
   ConsumerState<MdfOrdersScreen> createState() => _MdfOrdersScreenState();
 }
 
-enum _Filter { all, draft, inShop, ready, overdue, debt }
+enum _Filter {
+  all,
+  draft,
+  inShop,
+  ready,
+  overdue,
+  debt,
+  urgent,
+  vip,
+  furnitureMaker,
+  rework,
+}
 
 class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
   String _search = '';
@@ -38,6 +50,13 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     },
     overdue: _filter == _Filter.overdue,
     withDebt: _filter == _Filter.debt,
+    tag: switch (_filter) {
+      _Filter.urgent => MdfOrderTag.urgent.wire,
+      _Filter.vip => MdfCustomerTag.vip.wire,
+      _Filter.furnitureMaker => MdfCustomerTag.furnitureMaker.wire,
+      _Filter.rework => MdfOrderTag.rework.wire,
+      _ => null,
+    },
   );
 
   Future<void> _open(String? name) async {
@@ -58,6 +77,10 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
       _Filter.ready => l10n.mdfStatusReady,
       _Filter.overdue => l10n.mdfFilterOverdue,
       _Filter.debt => l10n.mdfFilterDebt,
+      _Filter.urgent => l10n.mdfFilterUrgent,
+      _Filter.vip => l10n.mdfTagVip,
+      _Filter.furnitureMaker => l10n.mdfFilterFurnitureMakers,
+      _Filter.rework => l10n.mdfFilterRework,
     };
     return Scaffold(
       appBar: AppBar(
@@ -199,7 +222,13 @@ class _OrderRow extends StatelessWidget {
                 children: [
                   Text(
                     '${row.name} · ${row.customerName}',
-                    style: theme.textTheme.titleSmall,
+                    // Urgent and still in work: red, and first in the list.
+                    style: row.urgent && _inWork(row.status)
+                        ? theme.textTheme.titleSmall?.copyWith(
+                            color: theme.colorScheme.error,
+                            fontWeight: FontWeight.w700,
+                          )
+                        : theme.textTheme.titleSmall,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
@@ -236,6 +265,10 @@ class _OrderRow extends StatelessWidget {
                           intent: StatusIntent.warning,
                           compact: true,
                         ),
+                      MdfTagBadges(
+                        orderTags: row.tags,
+                        customerTags: row.customerTags,
+                      ),
                     ],
                   ),
                 ],
@@ -266,3 +299,6 @@ class _OrderRow extends StatelessWidget {
     );
   }
 }
+
+bool _inWork(MdfStatus s) =>
+    s == MdfStatus.accepted || s == MdfStatus.inShop || s == MdfStatus.ready;
