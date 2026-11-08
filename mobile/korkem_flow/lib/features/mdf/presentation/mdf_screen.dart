@@ -64,6 +64,13 @@ class MdfScreen extends StatelessWidget {
         Routes.mdfPlan,
       ),
       _MdfRow(
+        'tv',
+        AppIcons.tv,
+        l10n.mdfTvTitle,
+        l10n.mdfTvHint,
+        Routes.mdfTv,
+      ),
+      _MdfRow(
         'batch',
         AppIcons.pressLayout,
         l10n.mdfBatchTitle,

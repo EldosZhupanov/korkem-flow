@@ -61,10 +61,16 @@ Map<String, Object?> _card({
 
 class _FakeRepository implements MdfOrderRepository {
   final ticked = <(MdfStage, bool)>[];
+  final queries = <MdfListQuery>[];
   Map<String, String?> stages = {};
 
   @override
-  Future<List<MdfOrderRow>> listing(MdfListQuery query) async => [
+  Future<List<MdfOrderRow>> listing(MdfListQuery query) async {
+    queries.add(query);
+    return _rows;
+  }
+
+  static final _rows = [
     MdfOrderRow.fromJson(const {
       'name': 'SAL-ORD-1129',
       'status': 'in_shop',
@@ -79,6 +85,8 @@ class _FakeRepository implements MdfOrderRepository {
       'paid': 0,
       'debt': 58680,
       'stage': 'mill',
+      'tags': ['urgent'],
+      'customer_tags': ['vip'],
     }),
   ];
 
@@ -166,6 +174,8 @@ Map<String, Object?> _twoFilms() => {
       'film': 'Палома',
       'film_back': 'Графит',
       'material': '10 мм МДФ',
+      'edge': 'R0',
+      'patina': 'Золото',
     },
     {
       'height_mm': 500,
@@ -228,6 +238,92 @@ void main() {
     );
   });
 
+  testWidgets('a row has its R, R3 by default, and its extras under it', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(_TwoFilms())],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    String? edgeOf(int i) => tester
+        .widget<DropdownButtonFormField<String?>>(
+          find.byWidgetPredicate(
+            (w) =>
+                w is DropdownButtonFormField<String?> &&
+                '${w.key}'.contains('mdfLineEdge:$i:'),
+          ),
+        )
+        .initialValue;
+    expect(edgeOf(0), 'R3'); // nobody said otherwise
+    expect(edgeOf(1), 'R0'); // a sharp corner
+    // Position 2 has its back side and its patina, each a chip with ✕.
+    expect(find.byKey(const ValueKey('mdfExtra:back:1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfExtra:patina:1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfExtra:back:0')), findsNothing);
+    // «+ доп.» → Примечание on position 1.
+    await tester.tap(find.byKey(const ValueKey('mdfMore:0')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfMore:note')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfExtra:note:0')), findsOneWidget);
+    // ✕ takes the patina off position 2.
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('mdfExtra:patina:1')),
+        matching: find.byKey(const ValueKey('mdfExtraRemove')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfExtra:patina:1')), findsNothing);
+    expect(find.byKey(const ValueKey('mdfExtra:back:1')), findsOneWidget);
+    // The order's tags are chips in the head.
+    await tester.tap(find.byKey(const ValueKey('mdfOrderTag:urgent')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<FilterChip>(find.byKey(const ValueKey('mdfOrderTag:urgent')))
+          .selected,
+      isTrue,
+    );
+  });
+
+  test('tags, a radius and a patina come and go as the server has them', () {
+    final order = MdfOrder.fromJson({
+      ..._twoFilms(),
+      'customer_tags': const ['vip', 'prepay_only', 'nonsense'],
+      'head': const {
+        'tags': ['urgent'],
+      },
+    });
+    expect(order.tags, [MdfOrderTag.urgent]);
+    expect(order.customerTags, [
+      MdfCustomerTag.vip,
+      MdfCustomerTag.prepayOnly,
+    ]);
+    expect(order.lines[1].edge, 'R0');
+    expect(order.lines[1].patina, 'Золото');
+    expect(const MdfHead(tags: [MdfOrderTag.rework]).toJson(), {
+      'tags': ['rework'],
+    });
+    expect(
+      const MdfLineInput(
+        heightMm: 1,
+        widthMm: 1,
+        qty: 1,
+        edge: 'R0',
+        patina: 'Золото',
+      ).toJson(),
+      containsPair('edge', 'R0'),
+    );
+  });
+
   test('the positions fall into film groups in the order films appear', () {
     final order = MdfOrder.fromJson(_twoFilms());
     final groups = mdfFilmGroups(order.lines);
@@ -275,6 +371,30 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const ValueKey('mdfDebt:SAL-ORD-1129')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfTag:urgent')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfCustomerTag:vip')), findsOneWidget);
+  });
+
+  testWidgets('a tag filter asks the server for that tag', (tester) async {
+    tester.view
+      ..physicalSize = const Size(2400, 1600)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrdersScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(repo.queries.last.tag, isNull);
+    await tester.tap(find.byKey(const ValueKey('mdfFilter:urgent')));
+    await tester.pumpAndSettle();
+    expect(repo.queries.last.tag, 'urgent');
+    await tester.tap(find.byKey(const ValueKey('mdfFilter:furnitureMaker')));
+    await tester.pumpAndSettle();
+    expect(repo.queries.last.tag, 'furniture_maker');
   });
 
   testWidgets('the manager ticks a stage on the card', (tester) async {

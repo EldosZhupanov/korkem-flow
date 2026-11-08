@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_deadline.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -19,7 +20,8 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 String _m2(double v) => v.toStringAsFixed(2);
 
 /// «Жоспар» — the shop's plan: each stage with the orders waiting for it and
-/// their m², earliest due first; a tick moves an order to its next stage.
+/// their m², urgent then earliest due first, each with its traffic light
+/// (today / tomorrow / later) and «не успевает»; a tick moves an order on.
 /// The manager does the ticking (owner, 01.11.2026).
 class MdfPlanScreen extends ConsumerStatefulWidget {
   const MdfPlanScreen({super.key});
@@ -66,7 +68,17 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
     final theme = Theme.of(context);
     final plan = ref.watch(mdfPlanProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.mdfPlanTitle)),
+      appBar: AppBar(
+        title: Text(l10n.mdfPlanTitle),
+        actions: [
+          IconButton(
+            key: const ValueKey('planTv'),
+            tooltip: l10n.mdfTvTitle,
+            onPressed: () => context.push(Routes.mdfTv),
+            icon: const Icon(AppIcons.tv),
+          ),
+        ],
+      ),
       body: plan.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorView(
@@ -115,20 +127,40 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
                         key: ValueKey('plan:${s.stage.name}:${o.name}'),
                         contentPadding: EdgeInsets.zero,
                         dense: true,
-                        title: Text('${o.name} · ${o.customerName}'),
-                        subtitle: Text(
-                          [
-                            o.decorTop,
-                            o.milling,
-                            '${_m2(o.areaM2)} м²',
-                            o.deliveryDate,
-                          ].whereType<String>().join(' · '),
-                          style: o.overdue
-                              ? theme.textTheme.bodySmall?.copyWith(
+                        leading: Icon(
+                          AppIcons.schedule,
+                          color: context.statusColors.resolve(
+                            mdfDeadlineIntent(o.deadline),
+                          ),
+                        ),
+                        title: Text(
+                          '${o.name} · ${o.customerName}',
+                          style: o.urgent
+                              ? TextStyle(
                                   color: theme.colorScheme.error,
                                   fontWeight: FontWeight.w700,
                                 )
                               : null,
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              [
+                                o.decorTop,
+                                o.milling,
+                                '${_m2(o.areaM2)} м²',
+                                o.deliveryDate,
+                              ].whereType<String>().join(' · '),
+                              style: o.overdue
+                                  ? theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.error,
+                                      fontWeight: FontWeight.w700,
+                                    )
+                                  : null,
+                            ),
+                            MdfDeadlineChips(order: o),
+                          ],
                         ),
                         onTap: () => context.push(Routes.mdfOrder(o.name)),
                         trailing: IconButton(

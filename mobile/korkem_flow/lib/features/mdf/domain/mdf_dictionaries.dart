@@ -63,3 +63,15 @@ List<String> mdfChoices(List<String> values, String? current) => [
   if (current != null && current.isNotEmpty && !values.contains(current))
     current,
 ];
+
+/// Every position's edge radius unless the manager picks another (owner,
+/// 08.11.2026); R0 is a sharp corner. Both need no list.
+const mdfDefaultEdge = 'R3';
+const List<String> mdfStandardEdges = ['R0', mdfDefaultEdge];
+
+/// The radii to choose from: the two standard ones, then the list's.
+List<String> mdfEdges(List<String> listed) => [
+  ...mdfStandardEdges,
+  for (final e in listed)
+    if (!mdfStandardEdges.contains(e)) e,
+];

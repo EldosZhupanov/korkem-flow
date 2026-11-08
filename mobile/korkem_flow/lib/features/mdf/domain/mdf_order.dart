@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
+
+export 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 
 /// Where an MDF order is (`korkem_manufacturing.services.mdf_orders`).
 enum MdfStatus {
@@ -71,6 +74,8 @@ class MdfOrderRow {
     this.milling,
     this.edgeProfile,
     this.stage,
+    this.tags = const [],
+    this.customerTags = const [],
   });
 
   factory MdfOrderRow.fromJson(Map<String, dynamic> json) => MdfOrderRow(
@@ -90,12 +95,18 @@ class MdfOrderRow {
     paid: _d(json['paid']),
     debt: _d(json['debt']),
     stage: MdfStage.parse(json['stage']),
+    tags: MdfOrderTag.parse(json['tags']),
+    customerTags: MdfCustomerTag.parse(json['customer_tags']),
   );
 
   final String name;
   final MdfStatus status;
   final bool overdue;
   final bool dueSoon;
+  final List<MdfOrderTag> tags;
+  final List<MdfCustomerTag> customerTags;
+
+  bool get urgent => tags.contains(MdfOrderTag.urgent);
   final String createdOn;
   final String deliveryDate;
   final String customerName;
@@ -125,6 +136,7 @@ class MdfHead {
     this.defaultRate,
     this.material,
     this.filmRates = const {},
+    this.tags = const [],
   });
 
   factory MdfHead.fromJson(Map<String, dynamic> json) => MdfHead(
@@ -143,6 +155,7 @@ class MdfHead {
         for (final e in (json['film_rates'] as Map).entries)
           '${e.key}': _d(e.value),
     },
+    tags: MdfOrderTag.parse(json['tags']),
   );
 
   final int? thicknessMm;
@@ -161,6 +174,9 @@ class MdfHead {
   /// Each film group's price per m² (an order of several films).
   final Map<String, double> filmRates;
 
+  /// Urgent, a rework, a warranty job.
+  final List<MdfOrderTag> tags;
+
   Map<String, dynamic> toJson() => {
     'thickness_mm': ?thicknessMm,
     'finish': ?finish,
@@ -173,6 +189,8 @@ class MdfHead {
     'default_rate': ?defaultRate,
     'material': ?material,
     if (filmRates.isNotEmpty) 'film_rates': filmRates,
+    // None sent is none kept: the server clears an order's tags.
+    if (tags.isNotEmpty) 'tags': [for (final t in tags) t.wire],
   };
 }
 
@@ -189,6 +207,8 @@ class MdfLineInput {
     this.film,
     this.filmBack,
     this.material,
+    this.edge,
+    this.patina,
   });
 
   final int heightMm;
@@ -208,6 +228,11 @@ class MdfLineInput {
   /// Its own board; null — the order's.
   final String? material;
 
+  /// The radius of its edges (R3 unless the manager says; R0 is a sharp
+  /// corner) and its patina, rare.
+  final String? edge;
+  final String? patina;
+
   Map<String, dynamic> toJson() => {
     'height_mm': heightMm,
     'width_mm': widthMm,
@@ -218,6 +243,8 @@ class MdfLineInput {
     'film': ?film,
     'film_back': ?filmBack,
     'material': ?material,
+    'edge': ?edge,
+    'patina': ?patina,
   };
 }
 
@@ -239,6 +266,8 @@ class MdfLine {
     this.filmBack,
     this.material,
     this.thicknessMm,
+    this.edge,
+    this.patina,
   });
 
   factory MdfLine.fromJson(Map<String, dynamic> json) => MdfLine(
@@ -256,6 +285,8 @@ class MdfLine {
     filmBack: _s(json['film_back']),
     material: _s(json['material']),
     thicknessMm: json['thickness_mm'] == null ? null : _i(json['thickness_mm']),
+    edge: _s(json['edge']),
+    patina: _s(json['patina']),
   );
 
   final int heightMm;
@@ -272,6 +303,8 @@ class MdfLine {
   final String? filmBack;
   final String? material;
   final int? thicknessMm;
+  final String? edge;
+  final String? patina;
 }
 
 /// One film's positions, in the order the films first appear; positions keep
@@ -400,6 +433,7 @@ class MdfOrder {
     this.notes,
     this.history = const [],
     this.stageWorkers = const {},
+    this.customerTags = const [],
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -449,6 +483,7 @@ class MdfOrder {
             _s(s['worker_name']) != null)
           MdfStage.parse(s['stage'])!: _s(s['worker_name'])!,
     },
+    customerTags: MdfCustomerTag.parse(json['customer_tags']),
   );
 
   final String name;
@@ -480,6 +515,11 @@ class MdfOrder {
 
   /// Who did a ticked stage, when the manager said.
   final Map<MdfStage, String> stageWorkers;
+
+  /// The customer's tags (VIP, prepay only …), from the customer list.
+  final List<MdfCustomerTag> customerTags;
+
+  List<MdfOrderTag> get tags => head.tags;
 
   bool get isDraft => status == MdfStatus.draft;
 }

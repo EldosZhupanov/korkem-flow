@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import frappe
 
-from korkem_manufacturing.services import audit, facade_prices
+from korkem_manufacturing.services import audit, facade_prices, mdf_tags
 from korkem_manufacturing.services.scope import current_company
 
 MAX = 2000
@@ -61,32 +61,36 @@ def _allowed(names: list[str], company: str) -> set[str]:
 
 def _row(doc) -> dict:
 	return {"name": doc.name, "customer_name": doc.customer_name, "phone": doc.mobile_no,
-			"organization": doc.get("korkem_organization")}
+			"organization": doc.get("korkem_organization"), "tags": mdf_tags.parse(doc.get("korkem_tags"))}
 
 
 def customers() -> list[dict]:
 	"""Every customer the company sells to, by name."""
 	facade_prices.ensure_editor()
 	rows = frappe.get_all("Customer", filters={"disabled": 0},
-						  fields=["name", "customer_name", "mobile_no", "korkem_organization"],
+						  fields=["name", "customer_name", "mobile_no", "korkem_organization", "korkem_tags"],
 						  order_by="customer_name asc", limit_page_length=MAX)
 	allowed = _allowed([r.name for r in rows], current_company()) if rows else set()
 	return [{"name": r.name, "customer_name": r.customer_name, "phone": r.mobile_no,
-			 "organization": r.korkem_organization} for r in rows if r.name in allowed]
+			 "organization": r.korkem_organization, "tags": mdf_tags.parse(r.korkem_tags)}
+			for r in rows if r.name in allowed]
 
 
-def add(name: str, phone: str | None = None, organization: str | None = None) -> dict:
+def add(name: str, phone: str | None = None, organization: str | None = None, tags=None) -> dict:
 	facade_prices.ensure_editor()
 	name, phone, organization = _clean(name, phone, organization)
+	tags = mdf_tags.clean(tags, mdf_tags.CUSTOMER, "Клиент")
 	if other := _same_phone(phone):
 		frappe.throw(f"Этот телефон уже у клиента «{other}».")
 	doc = frappe.get_doc({"doctype": "Customer", "customer_name": name, "customer_type": "Individual",
-						  "mobile_no": phone, "korkem_organization": organization}).insert()
+						  "mobile_no": phone, "korkem_organization": organization, "korkem_tags": tags}).insert()
 	audit.record_audit(action="mdf.customer_created", entity_type="Customer", entity_id=doc.name, diff={"name": name})
 	return _row(doc)
 
 
-def update(customer: str, name: str, phone: str | None = None, organization: str | None = None) -> dict:
+def update(customer: str, name: str, phone: str | None = None, organization: str | None = None,
+		   tags=None) -> dict:
+	"""Change a customer; `tags` None keeps theirs, an empty list clears them."""
 	facade_prices.ensure_editor()
 	doc = _own(customer)
 	name, phone, organization = _clean(name, phone, organization)
@@ -96,6 +100,8 @@ def update(customer: str, name: str, phone: str | None = None, organization: str
 	doc.customer_name = name
 	doc.mobile_no = phone
 	doc.korkem_organization = organization
+	if tags is not None:
+		doc.korkem_tags = mdf_tags.clean(tags, mdf_tags.CUSTOMER, "Клиент")
 	doc.save()
 	audit.record_audit(action="mdf.customer_changed", entity_type="Customer", entity_id=doc.name,
 					   diff={"before": before, "after": _row(doc)})

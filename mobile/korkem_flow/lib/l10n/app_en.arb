@@ -6003,5 +6003,33 @@
   "mdfFilmSubtotal": "Group total",
   "mdfAddFilm": "Add a film",
   "mdfBackSide": "Back side",
-  "mdfBackSideShort": "back"
+  "mdfBackSideShort": "back",
+  "mdfTagUrgent": "Urgent",
+  "mdfTagRework": "Rework",
+  "mdfTagWarranty": "Warranty",
+  "mdfTagVip": "VIP",
+  "mdfTagFurnitureMaker": "Furniture maker",
+  "mdfTagNew": "New",
+  "mdfTagPrepayOnly": "Prepayment only",
+  "mdfFilterUrgent": "Urgent",
+  "mdfFilterFurnitureMakers": "Furniture makers",
+  "mdfFilterRework": "Reworks",
+  "mdfColEdge": "R",
+  "mdfColMaterial": "Thickness and material",
+  "mdfEdgeDefault": "Default R",
+  "mdfExtraAdd": "+ extra",
+  "mdfDeadlineToday": "Today",
+  "mdfDeadlineTomorrow": "Tomorrow",
+  "mdfDeadlineLater": "Later",
+  "mdfAtRisk": "Won't make it",
+  "mdfTvTitle": "Shop screen",
+  "mdfTvHint": "Today, tomorrow, later — for the shop's TV",
+  "mdfPrepayOnlyAsk": "{customer}: prepayment only, and nothing is paid. Accept anyway?",
+  "@mdfPrepayOnlyAsk": {
+    "placeholders": {
+      "customer": {
+        "type": "String"
+      }
+    }
+  }
 }

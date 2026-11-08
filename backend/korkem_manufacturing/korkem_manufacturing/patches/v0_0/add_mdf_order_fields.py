@@ -42,8 +42,10 @@ ORDER = [
 	 "insert_after": "korkem_default_rate"},
 	{"fieldname": "korkem_film_rates", "label": "Price per m² by film", "fieldtype": "Small Text",
 	 "insert_after": "korkem_material"},
+	# «Срочный», «Переделка», «Гарантия» — the order's tags (08.11.2026).
+	{"fieldname": "korkem_tags", "label": "Tags", "fieldtype": "Small Text", "insert_after": "korkem_film_rates"},
 	{"fieldname": "korkem_mdf_stages", "label": "Stages", "fieldtype": "Column Break",
-	 "insert_after": "korkem_film_rates"},
+	 "insert_after": "korkem_tags"},
 	{"fieldname": "korkem_stage_cut", "label": "Cut", "fieldtype": "Date", "insert_after": "korkem_mdf_stages"},
 	{"fieldname": "korkem_stage_mill", "label": "Milled", "fieldtype": "Date", "insert_after": "korkem_stage_cut"},
 	{"fieldname": "korkem_stage_sand", "label": "Sanded", "fieldtype": "Date", "insert_after": "korkem_stage_mill"},
@@ -75,6 +77,8 @@ LINE = [
 	{"fieldname": "korkem_manual_rate", "label": "Price set by hand", "fieldtype": "Check",
 	 "insert_after": "korkem_rate_m2"},
 	{"fieldname": "korkem_material", "label": "Material", "fieldtype": "Data", "insert_after": "korkem_manual_rate"},
+	# A position's patina — rare, so a position's own (08.11.2026).
+	{"fieldname": "korkem_line_patina", "label": "Patina", "fieldtype": "Data", "insert_after": "korkem_material"},
 ]
 
 PRECISE = {
@@ -88,6 +92,8 @@ PRECISE = {
 CUSTOMER = [
 	{"fieldname": "korkem_organization", "label": "Organisation", "fieldtype": "Data",
 	 "insert_after": "customer_name"},
+	# «VIP», «Мебельщик», «Новый», «Только предоплата» (08.11.2026).
+	{"fieldname": "korkem_tags", "label": "Tags", "fieldtype": "Small Text", "insert_after": "korkem_organization"},
 ]
 
 

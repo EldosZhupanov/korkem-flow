@@ -552,6 +552,73 @@ class TestMdfOrders(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, mdf_orders.price, [{**lines[0], "material": "99 мм Картон"}], finish=PVC)
 
+	def test_a_position_keeps_its_own_radius_and_patina(self):
+		from korkem_manufacturing.services import material_stock
+
+		for kind, value in (("Профиль кромки", "R3"), ("Профиль кромки", "R0"), ("Патина", "МДФ Тест Золото")):
+			material_stock.put_option(kind, value)
+		lines = [{**ORDER_1129[0], "edge": "R0", "patina": "МДФ Тест Золото"}, {**ORDER_1129[1], "edge": "R3"}]
+		card = self._draft(lines=lines, edge_profile="R3")
+		self.addCleanup(self._drop, card["name"])
+		got = [(l["edge"], l["patina"]) for l in card["lines"]]
+		self.assertEqual(got, [("R0", "МДФ Тест Золото"), ("R3", None)])
+		with self.assertRaises(frappe.ValidationError):  # a radius nobody put on the list
+			self._as(MANAGER, mdf_orders.price, [{**ORDER_1129[0], "edge": "R99"}], finish=PVC)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.price, [{**ORDER_1129[0], "patina": "Нет такой"}], finish=PVC)
+
+	def test_tags_of_an_order_and_of_its_customer(self):
+		from korkem_manufacturing.services import mdf_customers
+
+		made = self._as(MANAGER, mdf_customers.add, "МДФ Тест Вип", None, None, ["prepay_only", "vip"])
+		self.addCleanup(lambda: frappe.delete_doc("Customer", made["name"], force=True, ignore_permissions=True))
+		self.assertEqual(made["tags"], ["vip", "prepay_only"])  # kept in a fixed order
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_customers.update, made["name"], "МДФ Тест Вип", None, None, ["king"])
+		calm = self._as(MANAGER, mdf_orders.save_draft, customer=made["name"], delivery_date=add_days(nowdate(), 7),
+						head={"finish": PVC, "thickness_mm": 16}, lines=ORDER_1129)
+		self.addCleanup(self._drop, calm["name"])
+		urgent = self._as(MANAGER, mdf_orders.save_draft, customer=made["name"],
+						  delivery_date=add_days(nowdate(), 7),
+						  head={"finish": PVC, "thickness_mm": 16, "tags": ["urgent"]}, lines=ORDER_1129)
+		self.addCleanup(self._drop, urgent["name"])
+		self.assertEqual(urgent["tags"], ["urgent"])
+		self.assertEqual(urgent["head"]["tags"], ["urgent"])
+		self.assertNotIn("tags", self._as(MANAGER, mdf_orders.last_head))
+		self.assertEqual(urgent["customer_tags"], ["vip", "prepay_only"])
+		with self.assertRaises(frappe.ValidationError):
+			self._draft(tags=["vip"])  # a customer's tag is not an order's
+
+		self._as(MANAGER, mdf_orders.accept, calm["name"])
+		self._as(MANAGER, mdf_orders.accept, urgent["name"])
+		listed = self._as(MANAGER, mdf_orders.listing, search="МДФ Тест Вип")["orders"]
+		self.assertEqual([o["name"] for o in listed][:1], [urgent["name"]])  # urgent first
+		self.assertEqual(
+			[o["name"] for o in self._as(MANAGER, mdf_orders.listing, tag="urgent", search="МДФ Тест Вип")["orders"]],
+			[urgent["name"]])
+		self.assertEqual(
+			{o["name"] for o in self._as(MANAGER, mdf_orders.listing, tag="vip")["orders"]} >= {calm["name"],
+																					 urgent["name"]}, True)
+		cut = next(q for q in self._as(MANAGER, mdf_orders.plan)["stages"] if q["stage"] == "cut")
+		mine = [o for o in cut["orders"] if o["name"] in (calm["name"], urgent["name"])]
+		self.assertEqual(mine[0]["name"], urgent["name"])
+		self.assertGreaterEqual(mine[0]["days_left"], 7)  # a weekend date moves to a working day
+		self.assertFalse(mine[0]["at_risk"])
+
+	def test_a_rework_or_a_warranty_job_owes_nothing(self):
+		card = self._draft(tags=["rework"])
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		self.assertEqual(self._as(MANAGER, mdf_orders.card, card["name"])["debt"], 0)
+		self.assertNotIn(card["name"], [o["name"] for o in self._as(MANAGER, mdf_orders.debts)["orders"]])
+
+	def test_an_order_misses_its_date_when_its_stages_outrun_its_days(self):
+		self.assertFalse(mdf_orders._at_risk(2, 0))  # due today, two stages: still makes it
+		self.assertTrue(mdf_orders._at_risk(3, 0))
+		self.assertTrue(mdf_orders._at_risk(5, 1))
+		self.assertFalse(mdf_orders._at_risk(4, 1))
+		self.assertFalse(mdf_orders._at_risk(9, -1))  # overdue is late, not at risk
+
 	def test_a_material_name_gives_the_thickness(self):
 		self.assertEqual(mdf_orders.thickness_of("16 мм ЛМДФ"), 16)
 		self.assertEqual(mdf_orders.thickness_of("3 мм ХДФ"), 3)

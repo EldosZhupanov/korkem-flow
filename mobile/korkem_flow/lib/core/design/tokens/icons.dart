@@ -32,6 +32,9 @@ abstract final class AppIcons {
   static const IconData approval = Symbols.approval_rounded;
   static const IconData conversation = Symbols.forum_rounded;
   static const IconData dashboard = Symbols.dashboard_rounded;
+
+  /// The shop's wall screen (MDF plan as three columns).
+  static const IconData tv = Symbols.tv_rounded;
   static const IconData notification = Symbols.notifications_rounded;
   static const IconData profile = Symbols.account_circle_rounded;
   static const IconData settings = Symbols.settings_rounded;
