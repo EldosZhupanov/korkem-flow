@@ -68,6 +68,8 @@ HEAD = {
 	"edge_profile": "korkem_edge_profile",
 	"extra_name": "korkem_extra_name",
 	"default_rate": "korkem_default_rate",
+	"material": "korkem_material",
+	"film_rates": "korkem_film_rates",
 }
 #: A warning this many days before the due date, if the order is not ready.
 DUE_SOON_DAYS = 2
@@ -94,12 +96,17 @@ def stages_for(finish: str | None) -> list[str]:
 # --- the arithmetic --------------------------------------------------------
 
 
-def price(lines, *, finish: str | None, default_rate=None, company: str | None = None) -> dict:
+def price(lines, *, finish: str | None, default_rate=None, company: str | None = None, film_rates=None) -> dict:
 	"""Price lines the owner's way. Pure arithmetic and price lookups; saves nothing.
 
 	Each line: `height_mm`, `width_mm`, `qty`, and optionally `milling`,
-	`note`, `rate` (a price typed by hand). Returns the lines with `area_m2`,
-	`rate_m2`, `amount`, `manual_rate`, `no_price`, and the totals.
+	`note`, `rate` (a price typed by hand), `film`, `film_back`, `material`.
+	Returns the lines with `area_m2`, `rate_m2`, `amount`, `manual_rate`,
+	`no_price`, and the totals.
+
+	The price of a line, first found: typed on the line; its film's price in
+	`film_rates` (an order of several films, 08.11.2026); the price list for
+	its milling and the finish; the order's default.
 	"""
 	if isinstance(lines, str):
 		lines = frappe.parse_json(lines)
@@ -109,6 +116,9 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		frappe.throw(f"Не больше {MAX_LINES} позиций в одном заказе.")
 	company = company or current_company()
 	fallback = _money(default_rate, "Цена за м² по умолчанию") if default_rate not in (None, "") else None
+	if isinstance(film_rates, str):
+		film_rates = frappe.parse_json(film_rates) if film_rates.strip() else {}
+	by_film = {k: _money(v, f"Цена за м² плёнки «{k}»") for k, v in (film_rates or {}).items() if v not in (None, "")}
 
 	priced, pieces, area_total, total = [], 0, Decimal("0"), Decimal("0")
 	for index, raw in enumerate(lines, start=1):
@@ -125,9 +135,12 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 			frappe.throw(f"{label}: количество — целое число от 1.")
 
 		milling = (raw.get("milling") or "").strip()
+		film, film_back, material = _line_spec(raw, label, company)
 		manual = raw.get("rate") not in (None, "")
 		if manual:
 			rate = _money(raw.get("rate"), f"{label}, цена")
+		elif film and film in by_film:
+			rate = by_film[film]
 		else:
 			found = facade_prices.price_for(milling, finish or "", company) if milling and finish else None
 			rate = found if found is not None else fallback
@@ -153,6 +166,10 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 				"amount": float(amount),
 				"manual_rate": manual,
 				"no_price": no_price,
+				"film": film,
+				"film_back": film_back,
+				"material": material,
+				"thickness_mm": thickness_of(material),
 			}
 		)
 	return {
@@ -162,6 +179,61 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		"total": float(total),
 		"no_price_lines": [line["line"] for line in priced if line["no_price"]],
 	}
+
+
+def thickness_of(material: str | None) -> int | None:
+	"""«16 мм ЛМДФ» → 16: the thickness a material's name starts with."""
+	digits = ""
+	for ch in (material or "").strip():
+		if ch.isdigit():
+			digits += ch
+		elif digits:
+			break
+	return int(digits) if digits else None
+
+
+def _line_spec(raw: dict, label: str, company: str) -> tuple[str | None, str | None, str | None]:
+	"""A position's own film, back film and material — each from its list.
+
+	An order of several films (08.11.2026) carries the film on the position;
+	the back film only when the manager switched the back side on for it.
+	"""
+	from korkem_manufacturing.services import mdf_dictionaries
+
+	film = facade_spec._text(raw.get("film"))
+	film_back = facade_spec._text(raw.get("film_back"))
+	material = facade_spec._text(raw.get("material"))
+	films = facade_spec._values(facade_spec.DECOR, company) if film or film_back else set()
+	for value, name in ((film, "плёнка"), (film_back, "плёнка обратной стороны")):
+		if value and value not in films:
+			frappe.throw(f"{label}: {name} «{value}» нет в справочнике «{facade_spec.DECOR}».")
+	if material and material not in facade_spec._values(mdf_dictionaries.MATERIAL, company):
+		frappe.throw(f"{label}: материала «{material}» нет в справочнике «{mdf_dictionaries.MATERIAL}».")
+	return film, film_back, material
+
+
+def _film_rates(raw, company: str) -> str | None:
+	"""Each film's price per m², stored as JSON on the order: {"Палома": 18000}."""
+	import json
+
+	if raw in (None, "", {}):
+		return None
+	if isinstance(raw, str):
+		raw = frappe.parse_json(raw)
+	if not isinstance(raw, dict):
+		frappe.throw("Цены плёнок — это пары «плёнка: цена».")
+	films = facade_spec._values(facade_spec.DECOR, company)
+	rates = {}
+	for film, rate in raw.items():
+		film = facade_spec._text(film)
+		if not film:
+			continue
+		if film not in films:
+			frappe.throw(f"Плёнки «{film}» нет в справочнике «{facade_spec.DECOR}».")
+		if rate in (None, ""):
+			continue
+		rates[film] = float(_money(rate, f"Цена за м² плёнки «{film}»"))
+	return json.dumps(rates, ensure_ascii=False, sort_keys=True) if rates else None
 
 
 # --- the card --------------------------------------------------------------
@@ -176,7 +248,8 @@ def save_draft(*, customer: str, delivery_date: str, head=None, lines=None, orde
 	customer = facade_order._customer(customer, company)
 	wanted = _due(delivery_date)
 	values = _head(head, company)
-	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=company)
+	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=company,
+				  film_rates=values["film_rates"])
 	if not quote["lines"]:
 		frappe.throw("Добавьте хотя бы одну позицию.")
 	facade_order._ensure_items()
@@ -250,7 +323,8 @@ def change_order(order: str, *, lines, reason: str, head=None, delivery_date: st
 	head = frappe.parse_json(head) if isinstance(head, str) else head
 	values = _head(head, doc.company) if head else {key: doc.get(field) for key, field in HEAD.items()}
 	wanted = _due(delivery_date) if delivery_date else getdate(doc.delivery_date)
-	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=doc.company)
+	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=doc.company,
+				  film_rates=values["film_rates"])
 	if not quote["lines"]:
 		frappe.throw("В заказе должна остаться хотя бы одна позиция.")
 	before = {"total": flt(doc.grand_total), "lines": [
@@ -417,6 +491,10 @@ def card(order: str) -> dict:
 			"amount": flt(item.amount),
 			"manual_rate": bool(item.korkem_manual_rate),
 			"no_price": not flt(item.korkem_rate_m2),
+			"film": item.korkem_decor_top,
+			"film_back": item.korkem_decor_bottom if item.korkem_double_sided else None,
+			"material": item.korkem_material,
+			"thickness_mm": item.korkem_thickness_mm,
 		}
 		for item in doc.items
 		if item.item_code == facade_order.FACADE_ITEM
@@ -442,7 +520,8 @@ def card(order: str) -> dict:
 		"phone": frappe.db.get_value("Customer", doc.customer, "mobile_no"),
 		"created_on": str(doc.transaction_date),
 		"delivery_date": str(doc.delivery_date),
-		"head": {key: doc.get(field) for key, field in HEAD.items()},
+		"head": {**{key: doc.get(field) for key, field in HEAD.items()},
+				 "film_rates": frappe.parse_json(doc.korkem_film_rates) if doc.korkem_film_rates else {}},
 		"lines": lines,
 		"pieces": sum(line["qty"] for line in lines),
 		"area_m2": flt(sum(Decimal(str(line["area_m2"])) for line in lines), 2),
@@ -755,8 +834,14 @@ def _head(head: dict, company: str) -> dict:
 	spec = facade_spec.read(head, "Заказ", company)
 	finish = (head.get("finish") or "").strip() or None
 	default_rate = head.get("default_rate")
+	material = facade_spec._text(head.get("material"))
+	if material:
+		from korkem_manufacturing.services import mdf_dictionaries
+
+		if material not in facade_spec._values(mdf_dictionaries.MATERIAL, company):
+			frappe.throw(f"Заказ: материала «{material}» нет в справочнике «{mdf_dictionaries.MATERIAL}».")
 	return {
-		"thickness_mm": spec["thickness_mm"],
+		"thickness_mm": spec["thickness_mm"] or thickness_of(material),
 		"finish": finish,
 		"decor_top": spec["decor_top"],
 		"decor_bottom": spec["decor_bottom"],
@@ -765,6 +850,8 @@ def _head(head: dict, company: str) -> dict:
 		"edge_profile": spec["edge_profile"],
 		"extra_name": (head.get("extra_name") or "").strip()[:140] or None,
 		"default_rate": float(_money(default_rate, "Цена за м²")) if default_rate not in (None, "") else None,
+		"material": material,
+		"film_rates": _film_rates(head.get("film_rates"), company),
 	}
 
 
@@ -791,13 +878,17 @@ def _item(line: dict, head: dict, wanted) -> dict:
 		"korkem_line_note": line["note"],
 		"korkem_rate_m2": line["rate_m2"],
 		"korkem_manual_rate": 1 if line["manual_rate"] else 0,
+		"korkem_material": line.get("material") or head.get("material"),
+		# A position of its own film (and back film) is that film's; one
+		# without takes the head's, as every order did before groups.
+		"korkem_double_sided": 1 if line.get("film_back") else 0,
 		**facade_spec.as_fields(
 			{
-				"thickness_mm": head["thickness_mm"],
-				"decor_top": head["decor_top"],
-				"decor_bottom": head["decor_bottom"],
+				"thickness_mm": line.get("thickness_mm") or head["thickness_mm"],
+				"decor_top": line.get("film") or head["decor_top"],
+				"decor_bottom": line.get("film_back") or head["decor_bottom"],
 				"edge_profile": head["edge_profile"],
-				"color_group": head["decor_top"],
+				"color_group": line.get("film") or head["decor_top"],
 			}
 		),
 	}

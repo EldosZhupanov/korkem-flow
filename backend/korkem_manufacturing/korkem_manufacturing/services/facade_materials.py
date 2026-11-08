@@ -185,7 +185,9 @@ def _demand(sales_order: str, rules: dict) -> tuple[dict, list[str]]:
 			groups[key] = groups.get(key, Decimal(0)) + area * mdf_factor
 		else:
 			unresolved.append(f"Позиция {line.idx}: не указана толщина МДФ.")
-		if not facade_prices.is_film(line.korkem_finish):
+		if not facade_prices.is_film(line.korkem_finish) and not (not line.korkem_finish and line.korkem_decor_top):
+			# A position with a film and no finish named is film (an order of
+			# several films, 08.11.2026).
 			continue
 		faces = [line.korkem_decor_top]
 		if line.korkem_double_sided:

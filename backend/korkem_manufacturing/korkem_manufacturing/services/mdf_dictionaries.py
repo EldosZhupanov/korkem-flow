@@ -30,7 +30,12 @@ import frappe
 from korkem_manufacturing.services import audit, facade_prices, material_stock
 from korkem_manufacturing.services.scope import current_company
 
+#: «16 мм МДФ», «16 мм ЛМДФ», «3 мм ХДФ» — the board a position is made of,
+#: its thickness first (08.11.2026). It stands in for the bare thickness list.
+MATERIAL = "Материал"
+
 KINDS: dict[str, str] = {
+	"material": MATERIAL,
 	"thickness": "Толщина МДФ",
 	"finish": facade_prices.FINISH_LIST,
 	"decor": "Цвет плёнки",

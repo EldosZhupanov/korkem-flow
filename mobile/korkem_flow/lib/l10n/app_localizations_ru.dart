@@ -5311,4 +5311,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String mdfCustomerDeleteAsk(String name) {
     return 'Удалить клиента «$name»? Если у него есть заказы, он просто исчезнет из списка, заказы останутся.';
   }
+
+  @override
+  String get mdfMaterial => 'Материал';
+
+  @override
+  String get mdfFilm => 'Плёнка';
+
+  @override
+  String get mdfFilmNone => 'Плёнка не выбрана';
+
+  @override
+  String get mdfFilmPick => 'Плёнка группы';
+
+  @override
+  String get mdfFilmRate => 'Цена за м²';
+
+  @override
+  String get mdfFilmRemove => 'Убрать группу';
+
+  @override
+  String mdfFilmRemoveAsk(String film) {
+    return 'Убрать группу «$film» вместе с её позициями?';
+  }
+
+  @override
+  String get mdfFilmSubtotal => 'Итого группы';
+
+  @override
+  String get mdfAddFilm => 'Добавить покрытие';
+
+  @override
+  String get mdfBackSide => 'Обратная сторона';
+
+  @override
+  String get mdfBackSideShort => 'обр.';
 }

@@ -5,7 +5,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 
 /// The owner's №1129, Kazakh names and all, on paper.
-final _order = MdfOrder.fromJson(const {
+const Map<String, Object?> _orderJson = {
   'name': 'SAL-ORD-1129',
   'status': 'accepted',
   'customer': 'Арман Қалдыбаев',
@@ -46,7 +46,9 @@ final _order = MdfOrder.fromJson(const {
   'debt': 34165,
   'payments': <Object>[],
   'stages': <Object>[],
-});
+};
+
+final _order = MdfOrder.fromJson(_orderJson);
 
 final MdfPrintWords _words = (
   title: (name) => 'Тапсырыс №$name',
@@ -72,6 +74,10 @@ final MdfPrintWords _words = (
   rate: 'Бағасы',
   amount: 'Сомасы',
   total: 'Барлығы:',
+  material: 'Материал',
+  film: 'Пленка',
+  back: 'асты',
+  subtotal: 'Барлығы',
 );
 
 void main() {
@@ -91,4 +97,39 @@ void main() {
       },
     );
   }
+
+  test('an order of several films prints each film with its total', () async {
+    final order = MdfOrder.fromJson({
+      for (final e in _orderJson.entries)
+        if (e.key != 'lines') e.key: e.value,
+      'lines': const [
+        {
+          'height_mm': 718,
+          'width_mm': 500,
+          'qty': 2,
+          'area_m2': 0.72,
+          'rate_m2': 17000,
+          'amount': 12240,
+          'film': 'Белый Матовый',
+          'material': '16 мм МДФ',
+        },
+        {
+          'height_mm': 300,
+          'width_mm': 400,
+          'qty': 2,
+          'area_m2': 0.24,
+          'rate_m2': 21000,
+          'amount': 5040,
+          'film': 'Палома',
+          'film_back': 'Графит',
+          'material': '10 мм МДФ',
+        },
+      ],
+    });
+    final groups = mdfFilmGroups(order.lines);
+    expect([for (final g in groups) g.film], ['Белый Матовый', 'Палома']);
+    expect(groups.last.lines.single.$1, 2);
+    final bytes = await buildMdfOrderPdf(order, _words, withPrices: false);
+    expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
+  });
 }

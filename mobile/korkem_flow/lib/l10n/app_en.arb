@@ -5997,5 +5997,23 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mdfMaterial": "Material",
+  "mdfFilm": "Film",
+  "mdfFilmNone": "No film chosen",
+  "mdfFilmPick": "The group's film",
+  "mdfFilmRate": "Price per m²",
+  "mdfFilmRemove": "Remove the group",
+  "mdfFilmRemoveAsk": "Remove the «{film}» group with its positions?",
+  "@mdfFilmRemoveAsk": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfFilmSubtotal": "Group total",
+  "mdfAddFilm": "Add a film",
+  "mdfBackSide": "Back side",
+  "mdfBackSideShort": "back"
 }

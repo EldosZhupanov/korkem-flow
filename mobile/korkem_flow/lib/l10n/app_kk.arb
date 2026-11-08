@@ -1762,5 +1762,16 @@
   "mdfCustomerName": "Аты-жөні",
   "mdfCustomerPhone": "Телефон",
   "mdfCustomerOrg": "Ұйым",
-  "mdfCustomerDeleteAsk": "«{name}» тапсырушысын жою керек пе? Тапсырыстары болса, тек тізімнен жоғалады, тапсырыстар қалады."
+  "mdfCustomerDeleteAsk": "«{name}» тапсырушысын жою керек пе? Тапсырыстары болса, тек тізімнен жоғалады, тапсырыстар қалады.",
+  "mdfMaterial": "Материал",
+  "mdfFilm": "Үлдір",
+  "mdfFilmNone": "Үлдір таңдалмаған",
+  "mdfFilmPick": "Топтың үлдірі",
+  "mdfFilmRate": "1 м² бағасы",
+  "mdfFilmRemove": "Топты алып тастау",
+  "mdfFilmRemoveAsk": "«{film}» тобын позицияларымен бірге алып тастау керек пе?",
+  "mdfFilmSubtotal": "Топ бойынша барлығы",
+  "mdfAddFilm": "Жабын қосу",
+  "mdfBackSide": "Арт жағы",
+  "mdfBackSideShort": "арты"
 }

@@ -42,7 +42,7 @@ MDF, FILM, OTHER = "МДФ", "Плёнка ПВХ", "Прочее"
 KINDS = (MDF, FILM, OTHER)
 LISTS = ("Толщина МДФ", "Производитель", "Цвет плёнки", "Ширина плёнки", "Толщина плёнки", "Профиль кромки",
 		 # The MDF order form's own lists (08.11.2026); the stock screen does not show them.
-		 "Покрытие", "Патина", "Фрезеровка")
+		 "Покрытие", "Патина", "Фрезеровка", "Материал")
 #: Units a material is counted in. Created in ERPNext if missing.
 UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False}
 MAX_QTY = Decimal("100000")

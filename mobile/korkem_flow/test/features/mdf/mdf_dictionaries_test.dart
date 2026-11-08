@@ -109,6 +109,8 @@ void main() {
     expect(mdfChoices(['R3'], null), ['R3']);
     expect(thicknessOf('16 мм'), 16);
     expect(thicknessOf('—'), isNull);
+    expect(thicknessOf('16 мм ЛМДФ'), 16);
+    expect(thicknessOf('3 мм ХДФ'), 3);
   });
 
   testWidgets('add, rename, delete and choose in one list', (tester) async {

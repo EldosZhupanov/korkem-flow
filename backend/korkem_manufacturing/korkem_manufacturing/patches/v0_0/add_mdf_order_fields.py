@@ -36,8 +36,14 @@ ORDER = [
 	 "insert_after": "korkem_edge_profile"},
 	{"fieldname": "korkem_default_rate", "label": "Default price per m²", "fieldtype": "Currency",
 	 "insert_after": "korkem_extra_name", "non_negative": 1},
-	{"fieldname": "korkem_mdf_stages", "label": "Stages", "fieldtype": "Column Break",
+	# An order of several films (08.11.2026): the board for every position
+	# unless one says otherwise, and each film's own price per m².
+	{"fieldname": "korkem_material", "label": "Material", "fieldtype": "Data",
 	 "insert_after": "korkem_default_rate"},
+	{"fieldname": "korkem_film_rates", "label": "Price per m² by film", "fieldtype": "Small Text",
+	 "insert_after": "korkem_material"},
+	{"fieldname": "korkem_mdf_stages", "label": "Stages", "fieldtype": "Column Break",
+	 "insert_after": "korkem_film_rates"},
 	{"fieldname": "korkem_stage_cut", "label": "Cut", "fieldtype": "Date", "insert_after": "korkem_mdf_stages"},
 	{"fieldname": "korkem_stage_mill", "label": "Milled", "fieldtype": "Date", "insert_after": "korkem_stage_cut"},
 	{"fieldname": "korkem_stage_sand", "label": "Sanded", "fieldtype": "Date", "insert_after": "korkem_stage_mill"},
@@ -68,6 +74,7 @@ LINE = [
 	 "insert_after": "korkem_line_note", "non_negative": 1},
 	{"fieldname": "korkem_manual_rate", "label": "Price set by hand", "fieldtype": "Check",
 	 "insert_after": "korkem_rate_m2"},
+	{"fieldname": "korkem_material", "label": "Material", "fieldtype": "Data", "insert_after": "korkem_manual_rate"},
 ]
 
 PRECISE = {

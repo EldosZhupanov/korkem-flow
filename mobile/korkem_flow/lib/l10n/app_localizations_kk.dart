@@ -5250,4 +5250,39 @@ class AppLocalizationsKk extends AppLocalizations {
   String mdfCustomerDeleteAsk(String name) {
     return '«$name» тапсырушысын жою керек пе? Тапсырыстары болса, тек тізімнен жоғалады, тапсырыстар қалады.';
   }
+
+  @override
+  String get mdfMaterial => 'Материал';
+
+  @override
+  String get mdfFilm => 'Үлдір';
+
+  @override
+  String get mdfFilmNone => 'Үлдір таңдалмаған';
+
+  @override
+  String get mdfFilmPick => 'Топтың үлдірі';
+
+  @override
+  String get mdfFilmRate => '1 м² бағасы';
+
+  @override
+  String get mdfFilmRemove => 'Топты алып тастау';
+
+  @override
+  String mdfFilmRemoveAsk(String film) {
+    return '«$film» тобын позицияларымен бірге алып тастау керек пе?';
+  }
+
+  @override
+  String get mdfFilmSubtotal => 'Топ бойынша барлығы';
+
+  @override
+  String get mdfAddFilm => 'Жабын қосу';
+
+  @override
+  String get mdfBackSide => 'Арт жағы';
+
+  @override
+  String get mdfBackSideShort => 'арты';
 }
