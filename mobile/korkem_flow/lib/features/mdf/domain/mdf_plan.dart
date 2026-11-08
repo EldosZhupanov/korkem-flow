@@ -15,6 +15,11 @@ class PlanOrder {
     this.overdue = false,
     this.dueSoon = false,
     this.debt = 0,
+    this.tags = const [],
+    this.stage,
+    this.stagesLeft = 0,
+    this.daysLeft,
+    this.atRisk = false,
   });
 
   factory PlanOrder.fromJson(Map<String, dynamic> json) => PlanOrder(
@@ -27,6 +32,11 @@ class PlanOrder {
     overdue: json['overdue'] == true,
     dueSoon: json['due_soon'] == true,
     debt: _d(json['debt']),
+    tags: MdfOrderTag.parse(json['tags']),
+    stage: MdfStage.parse(json['stage']),
+    stagesLeft: (json['stages_left'] as num?)?.toInt() ?? 0,
+    daysLeft: (json['days_left'] as num?)?.toInt(),
+    atRisk: json['at_risk'] == true,
   );
 
   final String name;
@@ -38,6 +48,33 @@ class PlanOrder {
   final bool overdue;
   final bool dueSoon;
   final double debt;
+  final List<MdfOrderTag> tags;
+
+  /// The stage it waits at, how many are left with it, and days to its date.
+  final MdfStage? stage;
+  final int stagesLeft;
+  final int? daysLeft;
+
+  /// More stages left than the days can carry: «не успевает».
+  final bool atRisk;
+
+  bool get urgent => tags.contains(MdfOrderTag.urgent);
+
+  MdfDeadline get deadline => MdfDeadline.of(daysLeft);
+}
+
+/// The shop's traffic light for a date: today or late, tomorrow, later.
+enum MdfDeadline {
+  now,
+  tomorrow,
+  later;
+
+  static MdfDeadline of(int? daysLeft) => switch (daysLeft) {
+    null => later,
+    <= 0 => now,
+    1 => tomorrow,
+    _ => later,
+  };
 }
 
 /// The orders waiting at one stage, and their m².

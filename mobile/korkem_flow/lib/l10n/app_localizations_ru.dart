@@ -5346,4 +5346,69 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfBackSideShort => 'обр.';
+
+  @override
+  String get mdfTagUrgent => 'Срочный';
+
+  @override
+  String get mdfTagRework => 'Переделка';
+
+  @override
+  String get mdfTagWarranty => 'Гарантия';
+
+  @override
+  String get mdfTagVip => 'VIP';
+
+  @override
+  String get mdfTagFurnitureMaker => 'Мебельщик';
+
+  @override
+  String get mdfTagNew => 'Новый';
+
+  @override
+  String get mdfTagPrepayOnly => 'Только предоплата';
+
+  @override
+  String get mdfFilterUrgent => 'Срочные';
+
+  @override
+  String get mdfFilterFurnitureMakers => 'Мебельщики';
+
+  @override
+  String get mdfFilterRework => 'Переделки';
+
+  @override
+  String get mdfColEdge => 'R';
+
+  @override
+  String get mdfColMaterial => 'Толщина и материал';
+
+  @override
+  String get mdfEdgeDefault => 'R по умолчанию';
+
+  @override
+  String get mdfExtraAdd => '+ доп.';
+
+  @override
+  String get mdfDeadlineToday => 'Сегодня';
+
+  @override
+  String get mdfDeadlineTomorrow => 'Завтра';
+
+  @override
+  String get mdfDeadlineLater => 'Дальше';
+
+  @override
+  String get mdfAtRisk => 'Не успевает';
+
+  @override
+  String get mdfTvTitle => 'Экран цеха';
+
+  @override
+  String get mdfTvHint => 'Сегодня, завтра, дальше — для телевизора в цехе';
+
+  @override
+  String mdfPrepayOnlyAsk(String customer) {
+    return '$customer: только предоплата, а оплаты нет. Всё равно принять?';
+  }
 }

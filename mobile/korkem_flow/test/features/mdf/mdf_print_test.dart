@@ -78,6 +78,8 @@ final MdfPrintWords _words = (
   film: 'Пленка',
   back: 'асты',
   subtotal: 'Барлығы',
+  radius: 'R',
+  materialColumn: 'Қалыңдығы мен материалы',
 );
 
 void main() {
@@ -123,12 +125,16 @@ void main() {
           'film': 'Палома',
           'film_back': 'Графит',
           'material': '10 мм МДФ',
+          'edge': 'R0',
+          'patina': 'Алтын',
         },
       ],
     });
     final groups = mdfFilmGroups(order.lines);
     expect([for (final g in groups) g.film], ['Белый Матовый', 'Палома']);
     expect(groups.last.lines.single.$1, 2);
+    expect(groups.last.lines.single.$2.edge, 'R0');
+    expect(groups.last.lines.single.$2.patina, 'Алтын');
     final bytes = await buildMdfOrderPdf(order, _words, withPrices: false);
     expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
   });

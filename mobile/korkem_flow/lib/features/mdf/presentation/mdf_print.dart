@@ -35,11 +35,18 @@ typedef MdfPrintWords = ({
   String film,
   String back,
   String subtotal,
+
+  /// The R column: a position's edge radius (R0 — a sharp corner, in bold).
+  String radius,
+
+  /// «Толщина и материал».
+  String materialColumn,
 });
 
 /// One MDF order on an A4 page, the way the owner prints it from OnayBaza
 /// («Тапсырыс №36», «№1129»): a head of label / value rows, then the lines
-/// — №, note, height, width, pieces, m² — and «Барлығы».
+/// — №, height, width, pieces, milling, R, film, material, m² — and
+/// «Барлығы». The back side and a patina are written under the film.
 ///
 /// [withPrices] is the customer's copy («Тапсырыс_Клиент»): the price and
 /// amount columns, what was paid and what is left. Without it, it is the
@@ -75,7 +82,7 @@ Future<Uint8List> buildMdfOrderPdf(
       h.material ?? (h.thicknessMm == null ? '' : '${h.thicknessMm} мм'),
     ),
     (words.finish, h.finish ?? ''),
-    (words.patina, h.patina ?? ''),
+    if (h.patina != null) (words.patina, h.patina!),
     (words.milling, h.milling ?? ''),
     (words.edge, h.edgeProfile ?? ''),
     if (h.extraName != null) (words.extraName, h.extraName!),
@@ -99,8 +106,9 @@ Future<Uint8List> buildMdfOrderPdf(
     words.width,
     words.qty,
     words.milling,
-    words.material,
+    words.radius,
     words.film,
+    words.materialColumn,
     words.area,
     if (withPrices) words.rate,
     if (withPrices) words.amount,
@@ -123,13 +131,15 @@ Future<Uint8List> buildMdfOrderPdf(
       text('${l.widthMm}', right: true),
       text('${l.qty}', right: true),
       text([l.milling, l.note].whereType<String>().join(' · ')),
-      text(l.material ?? (l.thicknessMm == null ? '' : '${l.thicknessMm} мм')),
+      text(l.edge ?? '', style: l.edge == 'R0' ? bold : null),
       text(
         [
           l.film ?? '',
           if (l.filmBack != null) '+ ${words.back}: ${l.filmBack}',
+          if (l.patina != null) '+ ${words.patina}: ${l.patina}',
         ].join('\n'),
       ),
+      text(l.material ?? (l.thicknessMm == null ? '' : '${l.thicknessMm} мм')),
       text(area.format(l.areaM2), right: true),
       if (withPrices) text(money.format(l.rateM2), right: true),
       if (withPrices) text(money.format(l.amount), right: true),
@@ -143,6 +153,7 @@ Future<Uint8List> buildMdfOrderPdf(
           text(label, style: bold),
           text(''),
           text('$pieces', style: bold, right: true),
+          text(''),
           text(''),
           text(''),
           text(''),
@@ -202,8 +213,9 @@ Future<Uint8List> buildMdfOrderPdf(
           border: pw.TableBorder.all(width: 0.5),
           columnWidths: {
             0: const pw.FixedColumnWidth(24),
+            5: const pw.FixedColumnWidth(30),
             for (var i = 1; i < columns.length; i++)
-              i: pw.FlexColumnWidth(i == 4 || i == 6 ? 3 : 1.4),
+              if (i != 5) i: pw.FlexColumnWidth(i == 4 || i == 6 ? 3 : 1.4),
           },
           children: [
             pw.TableRow(

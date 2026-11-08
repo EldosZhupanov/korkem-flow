@@ -42,6 +42,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_plan_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_report_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_tv_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_volume_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
@@ -165,6 +166,9 @@ abstract final class Routes {
   static const mdfDebts = '/mdf/debts';
   static const mdfBatch = '/mdf/batch';
   static const mdfPlan = '/mdf/plan';
+
+  /// The plan for a TV on the shop's wall: today, tomorrow, later.
+  static const mdfTv = '/mdf/tv';
   static const mdfCash = '/mdf/cash';
   static const mdfReport = '/mdf/report';
   static const mdfVolume = '/mdf/volume';
@@ -352,6 +356,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.mdfPlan,
         builder: (context, state) => const MdfPlanScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfTv,
+        builder: (context, state) => const MdfTvScreen(),
       ),
       GoRoute(
         path: Routes.mdfBatch,

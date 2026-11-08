@@ -29,6 +29,9 @@ typedef MdfListQuery = ({
   MdfStatus? status,
   bool overdue,
   bool withDebt,
+
+  /// An order's tag code (urgent, rework) or a customer's (vip …).
+  String? tag,
 });
 
 // AutoDisposeFutureProviderFamily is not exported as a public type.
@@ -128,6 +131,7 @@ class MdfOrderRepository {
           if (query.status != null) 'status': query.status!.wire,
           if (query.overdue) 'overdue': 1,
           if (query.withDebt) 'with_debt': 1,
+          'tag': ?query.tag,
         },
       ),
     );
@@ -302,6 +306,7 @@ class MdfOrderRepository {
     String name, {
     String? phone,
     String? organization,
+    List<String> tags = const [],
   }) async => FacadeCustomer.fromJson(
     _map(
       await _client.callMethod(
@@ -311,6 +316,7 @@ class MdfOrderRepository {
           'name': name,
           'phone': ?phone,
           'organization': ?organization,
+          'tags': jsonEncode(tags),
         },
       ),
     ),
@@ -321,6 +327,7 @@ class MdfOrderRepository {
     String name, {
     String? phone,
     String? organization,
+    List<String> tags = const [],
   }) async => FacadeCustomer.fromJson(
     _map(
       await _client.callMethod(
@@ -331,6 +338,7 @@ class MdfOrderRepository {
           'name': name,
           'phone': ?phone,
           'organization': ?organization,
+          'tags': jsonEncode(tags),
         },
       ),
     ),

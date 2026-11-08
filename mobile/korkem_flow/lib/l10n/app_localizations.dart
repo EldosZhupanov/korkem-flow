@@ -9470,6 +9470,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'back'**
   String get mdfBackSideShort;
+
+  /// No description provided for @mdfTagUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get mdfTagUrgent;
+
+  /// No description provided for @mdfTagRework.
+  ///
+  /// In en, this message translates to:
+  /// **'Rework'**
+  String get mdfTagRework;
+
+  /// No description provided for @mdfTagWarranty.
+  ///
+  /// In en, this message translates to:
+  /// **'Warranty'**
+  String get mdfTagWarranty;
+
+  /// No description provided for @mdfTagVip.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP'**
+  String get mdfTagVip;
+
+  /// No description provided for @mdfTagFurnitureMaker.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture maker'**
+  String get mdfTagFurnitureMaker;
+
+  /// No description provided for @mdfTagNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get mdfTagNew;
+
+  /// No description provided for @mdfTagPrepayOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment only'**
+  String get mdfTagPrepayOnly;
+
+  /// No description provided for @mdfFilterUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get mdfFilterUrgent;
+
+  /// No description provided for @mdfFilterFurnitureMakers.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture makers'**
+  String get mdfFilterFurnitureMakers;
+
+  /// No description provided for @mdfFilterRework.
+  ///
+  /// In en, this message translates to:
+  /// **'Reworks'**
+  String get mdfFilterRework;
+
+  /// No description provided for @mdfColEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'R'**
+  String get mdfColEdge;
+
+  /// No description provided for @mdfColMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness and material'**
+  String get mdfColMaterial;
+
+  /// No description provided for @mdfEdgeDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default R'**
+  String get mdfEdgeDefault;
+
+  /// No description provided for @mdfExtraAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'+ extra'**
+  String get mdfExtraAdd;
+
+  /// No description provided for @mdfDeadlineToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get mdfDeadlineToday;
+
+  /// No description provided for @mdfDeadlineTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get mdfDeadlineTomorrow;
+
+  /// No description provided for @mdfDeadlineLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get mdfDeadlineLater;
+
+  /// No description provided for @mdfAtRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Won\'t make it'**
+  String get mdfAtRisk;
+
+  /// No description provided for @mdfTvTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop screen'**
+  String get mdfTvTitle;
+
+  /// No description provided for @mdfTvHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, tomorrow, later — for the shop\'s TV'**
+  String get mdfTvHint;
+
+  /// No description provided for @mdfPrepayOnlyAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'{customer}: prepayment only, and nothing is paid. Accept anyway?'**
+  String mdfPrepayOnlyAsk(String customer);
 }
 
 class _AppLocalizationsDelegate

@@ -67,12 +67,14 @@ class _FakeRepository implements MdfOrderRepository {
     String name, {
     String? phone,
     String? organization,
+    List<String> tags = const [],
   }) async {
     final c = FacadeCustomer(
       name: 'C-${customers.length + 1}',
       title: name,
       phone: phone,
       organization: organization,
+      tags: tags,
     );
     customers.add(c);
     return c;
@@ -84,6 +86,7 @@ class _FakeRepository implements MdfOrderRepository {
     String name, {
     String? phone,
     String? organization,
+    List<String> tags = const [],
   }) async {
     final i = customers.indexWhere((c) => c.name == customer);
     return customers[i] = FacadeCustomer(
@@ -91,6 +94,7 @@ class _FakeRepository implements MdfOrderRepository {
       title: name,
       phone: phone,
       organization: organization,
+      tags: tags,
     );
   }
 
