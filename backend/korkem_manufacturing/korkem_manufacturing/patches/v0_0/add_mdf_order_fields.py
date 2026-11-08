@@ -76,6 +76,9 @@ ORDER = [
 	# A stage its finish does not have, added for a rework: paint, vacuum.
 	{"fieldname": "korkem_extra_stages", "label": "Extra stages", "fieldtype": "Data",
 	 "insert_after": "korkem_stage_ready_by"},
+	# The coatings of its groups — pvc, paint, raw — which decide its stages.
+	{"fieldname": "korkem_coatings", "label": "Coatings", "fieldtype": "Data",
+	 "insert_after": "korkem_extra_stages"},
 ]
 
 LINE = [
@@ -87,6 +90,9 @@ LINE = [
 	{"fieldname": "korkem_material", "label": "Material", "fieldtype": "Data", "insert_after": "korkem_manual_rate"},
 	# A position's patina — rare, so a position's own (08.11.2026).
 	{"fieldname": "korkem_line_patina", "label": "Patina", "fieldtype": "Data", "insert_after": "korkem_material"},
+	# The coating of its group: pvc (a film), paint (a colour), raw (09.11.2026).
+	{"fieldname": "korkem_line_coating", "label": "Coating", "fieldtype": "Data",
+	 "insert_after": "korkem_line_patina"},
 ]
 
 PRECISE = {

@@ -34,6 +34,23 @@ enum MdfStatus {
   };
 }
 
+/// What a group of positions is coated with (owner, 09.11.2026): a type
+/// first, then a colour from that type's own list — a paint never lands in
+/// a film group. The type decides the stage: a film is pressed, a paint is
+/// painted, a raw facade neither.
+enum MdfCoating {
+  pvc,
+  paint,
+  raw;
+
+  static MdfCoating? parse(Object? raw) {
+    for (final c in values) {
+      if (c.name == raw) return c;
+    }
+    return null;
+  }
+}
+
 /// The shop stages, in the order the shop works (OnayBaza's ticks).
 enum MdfStage {
   cut,
@@ -216,6 +233,7 @@ class MdfLineInput {
     this.edge,
     this.patina,
     this.thicknessMm,
+    this.coating,
   });
 
   final int heightMm;
@@ -223,6 +241,9 @@ class MdfLineInput {
   final int qty;
   final String? milling;
   final String? note;
+
+  /// Its group's coating; [film] is a colour from that coating's list.
+  final MdfCoating? coating;
 
   /// Its own thickness; null — the order's.
   final int? thicknessMm;
@@ -256,6 +277,7 @@ class MdfLineInput {
     'edge': ?edge,
     'patina': ?patina,
     'thickness_mm': ?thicknessMm,
+    'coating': ?coating?.name,
   };
 }
 
@@ -279,6 +301,7 @@ class MdfLine {
     this.thicknessMm,
     this.edge,
     this.patina,
+    this.coating,
   });
 
   factory MdfLine.fromJson(Map<String, dynamic> json) => MdfLine(
@@ -298,6 +321,7 @@ class MdfLine {
     thicknessMm: json['thickness_mm'] == null ? null : _i(json['thickness_mm']),
     edge: _s(json['edge']),
     patina: _s(json['patina']),
+    coating: MdfCoating.parse(json['coating']),
   );
 
   final int heightMm;
@@ -316,11 +340,13 @@ class MdfLine {
   final int? thicknessMm;
   final String? edge;
   final String? patina;
+  final MdfCoating? coating;
 }
 
 /// One film's positions, in the order the films first appear; positions keep
 /// their number in the whole order.
 typedef MdfFilmGroup = ({
+  MdfCoating? coating,
   String? film,
   List<(int, MdfLine)> lines,
   int pieces,
@@ -330,25 +356,26 @@ typedef MdfFilmGroup = ({
 
 /// The order's positions by film, for the card and the printouts.
 List<MdfFilmGroup> mdfFilmGroups(List<MdfLine> lines) {
-  final order = <String?>[];
-  final by = <String?, List<(int, MdfLine)>>{};
+  final order = <(MdfCoating?, String?)>[];
+  final by = <(MdfCoating?, String?), List<(int, MdfLine)>>{};
   for (var i = 0; i < lines.length; i++) {
-    final film = lines[i].film;
-    if (!by.containsKey(film)) order.add(film);
-    (by[film] ??= []).add((i + 1, lines[i]));
+    final key = (lines[i].coating, lines[i].film);
+    if (!by.containsKey(key)) order.add(key);
+    (by[key] ??= []).add((i + 1, lines[i]));
   }
   return [
-    for (final film in order)
+    for (final key in order)
       (
-        film: film,
-        lines: by[film]!,
-        pieces: by[film]!.fold(0, (sum, l) => sum + l.$2.qty),
+        coating: key.$1,
+        film: key.$2,
+        lines: by[key]!,
+        pieces: by[key]!.fold(0, (sum, l) => sum + l.$2.qty),
         areaM2: double.parse(
-          by[film]!
+          by[key]!
               .fold<double>(0, (sum, l) => sum + l.$2.areaM2)
               .toStringAsFixed(2),
         ),
-        amount: by[film]!.fold<double>(0, (sum, l) => sum + l.$2.amount),
+        amount: by[key]!.fold<double>(0, (sum, l) => sum + l.$2.amount),
       ),
   ];
 }

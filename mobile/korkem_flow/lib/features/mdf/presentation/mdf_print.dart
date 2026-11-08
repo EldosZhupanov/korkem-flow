@@ -42,6 +42,9 @@ typedef MdfPrintWords = ({
 
   /// «Толщина» as a column head (thickness and material apart, 09.11.2026).
   String thicknessColumn,
+
+  /// A group's coating type by name: ПВХ, краска, черновой.
+  String Function(MdfCoating coating) coating,
 });
 
 /// One MDF order on an A4 page, the way the owner prints it from OnayBaza
@@ -138,7 +141,7 @@ Future<Uint8List> buildMdfOrderPdf(
       ),
       text(
         [
-          l.film ?? '',
+          _groupName(words, l.coating, l.film),
           if (l.filmBack != null) '+ ${words.back}: ${l.filmBack}',
           if (l.patina != null) '+ ${words.patina}: ${l.patina}',
         ].join('\n'),
@@ -231,7 +234,8 @@ Future<Uint8List> buildMdfOrderPdf(
               for (final (n, l) in group.lines) lineRow(n, l, g),
               if (groups.length > 1)
                 sumRow(
-                  '${words.subtotal}: ${group.film ?? ''}',
+                  '${words.subtotal}: '
+                  '${_groupName(words, group.coating, group.film)}',
                   group.pieces,
                   group.areaM2,
                   group.amount,
@@ -250,3 +254,8 @@ Future<void> printMdfOrder({
   required String name,
   required Future<Uint8List> Function() build,
 }) => Printing.layoutPdf(name: name, onLayout: (_) => build());
+
+String _groupName(MdfPrintWords words, MdfCoating? coating, String? film) => [
+  if (coating != null) words.coating(coating),
+  ?film,
+].join(' · ');

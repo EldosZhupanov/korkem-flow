@@ -9650,6 +9650,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Always on the list — can\'t be removed'**
   String get mdfDictLocked;
+
+  /// No description provided for @mdfCoatingPvc.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC'**
+  String get mdfCoatingPvc;
+
+  /// No description provided for @mdfCoatingPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint'**
+  String get mdfCoatingPaint;
+
+  /// No description provided for @mdfCoatingRaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw'**
+  String get mdfCoatingRaw;
+
+  /// No description provided for @mdfCoatingPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Which coating?'**
+  String get mdfCoatingPick;
+
+  /// No description provided for @mdfColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get mdfColor;
+
+  /// No description provided for @mdfDictPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paints'**
+  String get mdfDictPaint;
 }
 
 class _AppLocalizationsDelegate

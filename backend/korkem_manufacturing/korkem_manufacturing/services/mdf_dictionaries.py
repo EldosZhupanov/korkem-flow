@@ -49,6 +49,9 @@ KINDS: dict[str, str] = {
 	"milling": facade_prices.MILLING_LIST,
 	"edge": "Профиль кромки",
 	"bank": "Банк",
+	# RAL 9010, NCS S 3040-Y60R, MPC 9010 — a paint group's colours, apart from
+	# the films (owner, 09.11.2026: «не будут смешиваться краски и плёнки»).
+	"paint": "Краска",
 }
 
 #: Where a renamed value is carried: the price matrix, and the stock's materials.
