@@ -9290,6 +9290,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete «{value}»? If orders already use it, it only leaves the list; the orders stay as they are.'**
   String mdfDictDeleteAsk(String value);
+
+  /// No description provided for @mdfCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get mdfCustomers;
+
+  /// No description provided for @mdfCustomerSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, phone or organisation'**
+  String get mdfCustomerSearch;
+
+  /// No description provided for @mdfNothingFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get mdfNothingFound;
+
+  /// No description provided for @mdfCustomerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get mdfCustomerName;
+
+  /// No description provided for @mdfCustomerPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get mdfCustomerPhone;
+
+  /// No description provided for @mdfCustomerOrg.
+  ///
+  /// In en, this message translates to:
+  /// **'Organisation'**
+  String get mdfCustomerOrg;
+
+  /// No description provided for @mdfCustomerDeleteAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the customer «{name}»? If they have orders, they only leave the list; the orders stay.'**
+  String mdfCustomerDeleteAsk(String name);
 }
 
 class _AppLocalizationsDelegate

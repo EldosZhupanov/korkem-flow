@@ -5191,4 +5191,27 @@ class AppLocalizationsKk extends AppLocalizations {
   String mdfDictDeleteAsk(String value) {
     return '«$value» жою керек пе? Тапсырыстарда болса, тек тізімнен жоғалады, тапсырыстар өзгермейді.';
   }
+
+  @override
+  String get mdfCustomers => 'Тапсырушылар';
+
+  @override
+  String get mdfCustomerSearch => 'Аты, телефоны немесе ұйымы';
+
+  @override
+  String get mdfNothingFound => 'Ештеңе табылмады';
+
+  @override
+  String get mdfCustomerName => 'Аты-жөні';
+
+  @override
+  String get mdfCustomerPhone => 'Телефон';
+
+  @override
+  String get mdfCustomerOrg => 'Ұйым';
+
+  @override
+  String mdfCustomerDeleteAsk(String name) {
+    return '«$name» тапсырушысын жою керек пе? Тапсырыстары болса, тек тізімнен жоғалады, тапсырыстар қалады.';
+  }
 }
