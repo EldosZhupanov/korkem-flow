@@ -9332,6 +9332,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete the customer «{name}»? If they have orders, they only leave the list; the orders stay.'**
   String mdfCustomerDeleteAsk(String name);
+
+  /// No description provided for @mdfMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get mdfMaterial;
+
+  /// No description provided for @mdfFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film'**
+  String get mdfFilm;
+
+  /// No description provided for @mdfFilmNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No film chosen'**
+  String get mdfFilmNone;
+
+  /// No description provided for @mdfFilmPick.
+  ///
+  /// In en, this message translates to:
+  /// **'The group\'s film'**
+  String get mdfFilmPick;
+
+  /// No description provided for @mdfFilmRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per m²'**
+  String get mdfFilmRate;
+
+  /// No description provided for @mdfFilmRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the group'**
+  String get mdfFilmRemove;
+
+  /// No description provided for @mdfFilmRemoveAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the «{film}» group with its positions?'**
+  String mdfFilmRemoveAsk(String film);
+
+  /// No description provided for @mdfFilmSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Group total'**
+  String get mdfFilmSubtotal;
+
+  /// No description provided for @mdfAddFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a film'**
+  String get mdfAddFilm;
+
+  /// No description provided for @mdfBackSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Back side'**
+  String get mdfBackSide;
+
+  /// No description provided for @mdfBackSideShort.
+  ///
+  /// In en, this message translates to:
+  /// **'back'**
+  String get mdfBackSideShort;
 }
 
 class _AppLocalizationsDelegate

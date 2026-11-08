@@ -213,6 +213,10 @@ class TestMdfOrders(IntegrationTestCase):
 			self._as(MANAGER, mdf_orders.new_customer, "Тест", "123")
 
 	def test_a_new_order_starts_from_the_last_head(self):
+		from korkem_manufacturing.services import material_stock
+
+		# Once the patina list has values, an order's patina must be one of them.
+		self._as(MANAGER, material_stock.put_option, "Патина", "Золото")
 		card = self._draft(edge_profile=None, patina="Золото")
 		self.addCleanup(self._drop, card["name"])
 		head = self._as(MANAGER, mdf_orders.last_head)
@@ -412,7 +416,7 @@ class TestMdfOrders(IntegrationTestCase):
 		from korkem_manufacturing.services import mdf_dictionaries as dicts
 
 		lists = self._as(MANAGER, dicts.dictionaries)
-		self.assertEqual(set(lists), {"thickness", "finish", "decor", "patina", "milling", "edge"})
+		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge"})
 		self.assertNotIn(PVC, [v["value"] for v in lists["finish"]])  # nothing is filled in for the owner
 
 		lists = self._as(MANAGER, dicts.add, "patina", "  Алтын/Золотой ")
@@ -507,6 +511,52 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertEqual(self._as(MANAGER, mdf_customers.remove, made["name"])["outcome"], "disabled")
 		self.assertTrue(frappe.db.get_value("Customer", made["name"], "disabled"))
 		self.assertNotIn(made["name"], [c["name"] for c in self._as(MANAGER, mdf_customers.customers)])
+
+	def test_an_order_of_several_films_keeps_each_positions_film_back_and_material(self):
+		from korkem_manufacturing.services import mdf_dictionaries
+
+		for kind, value in (("decor", "МДФ Тест Палома"), ("material", "16 мм МДФ"), ("material", "3 мм ХДФ")):
+			self._as(MANAGER, mdf_dictionaries.add, kind, value)
+		paloma = "МДФ Тест Палома"
+		lines = [
+			{"height_mm": 718, "width_mm": 500, "qty": 2, "milling": FLAT, "film": self.decor, "material": "16 мм МДФ",
+			 "rate": 17_000},
+			{"height_mm": 2000, "width_mm": 500, "qty": 2, "milling": FLAT, "film": self.decor, "material": "16 мм МДФ",
+			 "film_back": self.decor, "rate": 19_500},
+			{"height_mm": 300, "width_mm": 400, "qty": 2, "milling": PATTERN, "film": paloma, "material": "3 мм ХДФ",
+			 "film_back": paloma, "rate": 21_000},
+			# No price typed: the film's price in the group's header.
+			{"height_mm": 500, "width_mm": 498, "qty": 5, "milling": PATTERN, "film": paloma},
+		]
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
+						head={"finish": PVC, "material": "16 мм МДФ",
+							  "film_rates": {self.decor: 17_000, paloma: 18_000}},
+						lines=lines)
+		self.addCleanup(self._drop, card["name"])
+
+		self.assertEqual(card["head"]["material"], "16 мм МДФ")
+		self.assertEqual(card["head"]["thickness_mm"], 16)  # from the material's name
+		self.assertEqual(card["head"]["film_rates"], {self.decor: 17_000, paloma: 18_000})
+		got = [(l["film"], l["film_back"], l["material"], l["thickness_mm"], l["amount"]) for l in card["lines"]]
+		self.assertEqual(got, [
+			(self.decor, None, "16 мм МДФ", 16, 12_240),
+			(self.decor, self.decor, "16 мм МДФ", 16, 39_000),
+			(paloma, paloma, "3 мм ХДФ", 3, 5_040),
+			(paloma, None, "16 мм МДФ", 16, 22_500),  # 1.25 m² × the group's 18 000; the head's material
+		])
+		self.assertFalse(card["lines"][3]["manual_rate"])
+		self.assertEqual(card["total"], 78_780)
+
+		with self.assertRaises(frappe.ValidationError):  # a film nobody put on the list
+			self._as(MANAGER, mdf_orders.price, [{**lines[0], "film": "Нет такой плёнки"}], finish=PVC)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.price, [{**lines[0], "material": "99 мм Картон"}], finish=PVC)
+
+	def test_a_material_name_gives_the_thickness(self):
+		self.assertEqual(mdf_orders.thickness_of("16 мм ЛМДФ"), 16)
+		self.assertEqual(mdf_orders.thickness_of("3 мм ХДФ"), 3)
+		self.assertIsNone(mdf_orders.thickness_of("ЛМДФ"))
+		self.assertIsNone(mdf_orders.thickness_of(None))
 
 	def _cancel_payments(self, order: str) -> None:
 		frappe.set_user("Administrator")

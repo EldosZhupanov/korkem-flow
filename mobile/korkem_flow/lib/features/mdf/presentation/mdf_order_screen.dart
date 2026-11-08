@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
@@ -76,6 +77,9 @@ class _LineFields {
     this.milling,
     String? note,
     String? rate,
+    this.film,
+    this.filmBack,
+    this.material,
   }) : height = TextEditingController(text: h),
        width = TextEditingController(text: w),
        qty = TextEditingController(text: q ?? '1'),
@@ -88,6 +92,15 @@ class _LineFields {
   final TextEditingController note;
   final TextEditingController rate;
   String? milling;
+
+  /// The film group it is in.
+  String? film;
+
+  /// Its back film; null — one-sided.
+  String? filmBack;
+
+  /// Its own board; null — the order's.
+  String? material;
   final heightFocus = FocusNode();
 
   MdfLineInput? input() {
@@ -103,6 +116,9 @@ class _LineFields {
       milling: milling,
       note: note.text.trim().isEmpty ? null : note.text.trim(),
       rate: r,
+      film: film,
+      filmBack: filmBack,
+      material: material,
     );
   }
 
@@ -113,6 +129,9 @@ class _LineFields {
     milling: milling,
     note: note.text,
     rate: rate.text,
+    film: film,
+    filmBack: filmBack,
+    material: material,
   );
 
   void dispose() {
@@ -155,6 +174,12 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   final _extra = TextEditingController();
   final _defaultRate = TextEditingController();
   final List<_LineFields> _lines = [];
+
+  /// The film groups, in the order they were added; null — no film chosen.
+  final List<String?> _films = [];
+
+  /// Each film group's price per m².
+  final Map<String?, TextEditingController> _filmRates = {};
   MdfPricing _pricing = MdfPricing.empty;
   Timer? _debounce;
   bool _busy = false;
@@ -172,7 +197,12 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       if (widget.order != null) _due = DateTime.tryParse(o.deliveryDate);
       _extra.text = o.head.extraName ?? '';
       _defaultRate.text = o.head.defaultRate?.toStringAsFixed(0) ?? '';
+      for (final e in o.head.filmRates.entries) {
+        _rateOf(e.key).text = e.value.toStringAsFixed(0);
+      }
       for (final l in o.lines) {
+        if (!_films.contains(l.film)) _films.add(l.film);
+        final groupRate = o.head.filmRates[l.film];
         _lines.add(
           _LineFields(
             h: '${l.heightMm}',
@@ -180,12 +210,20 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             q: '${l.qty}',
             milling: l.milling,
             note: l.note,
-            rate: l.manualRate ? l.rateM2.toStringAsFixed(0) : null,
+            rate: l.manualRate && l.rateM2 != groupRate
+                ? l.rateM2.toStringAsFixed(0)
+                : null,
+            film: l.film,
+            filmBack: l.filmBack,
+            material: l.material == o.head.material ? null : l.material,
           ),
         );
       }
     }
-    if (_lines.isEmpty) _lines.add(_LineFields(milling: _head.milling));
+    if (_films.isEmpty) _films.add(null);
+    if (_lines.isEmpty) {
+      _lines.add(_LineFields(milling: _head.milling, film: _films.first));
+    }
     if (o == null) unawaited(_startFromLastHead());
     _reprice();
   }
@@ -230,6 +268,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             q: '${l.qty}',
             milling: l.milling,
             note: l.note,
+            film: _films.last,
           ),
         );
       }
@@ -239,10 +278,20 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     ScaffoldMessenger.of(context).showDone(l10n.mdfPasted(pasted.lines.length));
   }
 
+  TextEditingController _rateOf(String? film) =>
+      _filmRates[film] ??= TextEditingController();
+
+  /// The lines as they are shown and sent: film group by film group.
+  List<_LineFields> get _ordered => [
+    for (final f in _films)
+      for (final l in _lines)
+        if (l.film == f) l,
+  ];
+
   @override
   void dispose() {
     _debounce?.cancel();
-    for (final c in [_extra, _defaultRate]) {
+    for (final c in [_extra, _defaultRate, ..._filmRates.values]) {
       c.dispose();
     }
     for (final l in _lines) {
@@ -252,20 +301,39 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   }
 
   MdfHead _readHead() => MdfHead(
-    thicknessMm: _head.thicknessMm,
+    thicknessMm: thicknessOf(_head.material) ?? _head.thicknessMm,
     finish: _head.finish,
-    decorTop: _head.decorTop,
+    // The first film stands for the order where one film is asked for.
+    decorTop: _films.whereType<String>().firstOrNull ?? _head.decorTop,
     decorBottom: _head.decorBottom,
     patina: _head.patina,
     milling: _head.milling,
     edgeProfile: _head.edgeProfile,
     extraName: _extra.text.trim().isEmpty ? null : _extra.text.trim(),
     defaultRate: double.tryParse(_defaultRate.text.trim()),
+    material: _head.material,
+    filmRates: {
+      for (final e in _filmRates.entries)
+        if (e.key != null &&
+            _films.contains(e.key) &&
+            double.tryParse(e.value.text.trim()) != null)
+          e.key!: double.parse(e.value.text.trim()),
+    },
   );
 
   List<MdfLineInput> get _inputs => [
-    for (final l in _lines) ?l.input(),
+    for (final l in _ordered) ?l.input(),
   ];
+
+  /// Where each shown line's figures are in the priced answer.
+  Map<_LineFields, int> get _pricedIndex {
+    final out = <_LineFields, int>{};
+    var i = 0;
+    for (final l in _ordered) {
+      if (l.input() != null) out[l] = i++;
+    }
+    return out;
+  }
 
   /// Instant arithmetic: the server prices, the screen shows.
   void _reprice() {
@@ -284,6 +352,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
               lines: inputs,
               finish: head.finish,
               defaultRate: head.defaultRate,
+              filmRates: head.filmRates,
             );
         if (mounted) setState(() => _pricing = pricing);
       } on Object {
@@ -292,29 +361,134 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     });
   }
 
-  void _addLine({_LineFields? from}) {
-    final line = from?.copy() ?? _LineFields(milling: _head.milling);
+  void _addLine({_LineFields? from, String? film}) {
+    final line =
+        from?.copy() ??
+        _LineFields(milling: _head.milling, film: film ?? _films.last);
     setState(() => _lines.add(line));
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => line.heightFocus.requestFocus(),
     );
   }
 
-  void _removeLine(int i) {
+  void _removeLine(_LineFields line) {
     setState(() {
-      _lines.removeAt(i).dispose();
-      if (_lines.isEmpty) _lines.add(_LineFields(milling: _head.milling));
+      _lines.remove(line);
+      line.dispose();
+      if (_lines.isEmpty) {
+        _lines.add(_LineFields(milling: _head.milling, film: _films.first));
+      }
     });
     _reprice();
   }
 
-  void _move(int i, int by) {
-    final j = i + by;
-    if (j < 0 || j >= _lines.length) return;
+  /// Up or down within its film group.
+  void _move(_LineFields line, int by) {
+    final mates = [
+      for (final l in _lines)
+        if (l.film == line.film) l,
+    ];
+    final j = mates.indexOf(line) + by;
+    if (j < 0 || j >= mates.length) return;
+    final other = mates[j];
     setState(() {
-      final line = _lines.removeAt(i);
-      _lines.insert(j, line);
+      final a = _lines.indexOf(line);
+      final b = _lines.indexOf(other);
+      _lines[a] = other;
+      _lines[b] = line;
     });
+    _reprice();
+  }
+
+  /// «+ Добавить покрытие»: a film from the list, and its first line.
+  Future<void> _addFilm() async {
+    final l10n = AppLocalizations.of(context);
+    final film = await showMdfDictionary(
+      context,
+      MdfDictKind.decor,
+      title: l10n.mdfFilmPick,
+    );
+    if (film == null || !mounted) return;
+    if (_films.contains(film)) {
+      _addLine(film: film);
+      return;
+    }
+    setState(() {
+      // A first group still without a film and without sizes takes it.
+      final blank =
+          _films.length == 1 &&
+          _films.first == null &&
+          _lines.every((l) => l.input() == null);
+      if (blank) {
+        _films[0] = film;
+        for (final l in _lines) {
+          l.film = film;
+        }
+      } else {
+        _films.add(film);
+        _lines.add(_LineFields(milling: _head.milling, film: film));
+      }
+    });
+    _reprice();
+  }
+
+  /// The group's film changed: its lines and its price go with it.
+  void _renameFilm(String? from, String? to) {
+    if (from == to) return;
+    setState(() {
+      if (_films.contains(to)) {
+        _films.remove(from);
+      } else {
+        _films[_films.indexOf(from)] = to;
+      }
+      for (final l in _lines) {
+        if (l.film == from) l.film = to;
+      }
+      final rate = _filmRates.remove(from);
+      if (rate != null && !_filmRates.containsKey(to)) _filmRates[to] = rate;
+    });
+    _reprice();
+  }
+
+  Future<void> _removeFilm(String? film) async {
+    final l10n = AppLocalizations.of(context);
+    final mates = [
+      for (final l in _lines)
+        if (l.film == film) l,
+    ];
+    if (mates.any((l) => l.input() != null)) {
+      final sure = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Text(l10n.mdfFilmRemoveAsk(film ?? l10n.mdfNone)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+            ),
+            FilledButton(
+              key: const ValueKey('mdfFilmRemoveYes'),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.mdfDictDelete),
+            ),
+          ],
+        ),
+      );
+      if (sure != true || !mounted) return;
+    }
+    setState(() {
+      for (final l in mates) {
+        _lines.remove(l);
+        l.dispose();
+      }
+      _films.remove(film);
+      _filmRates.remove(film)?.dispose();
+      if (_films.isEmpty) _films.add(null);
+      if (_lines.isEmpty) {
+        _lines.add(_LineFields(milling: _head.milling, film: _films.first));
+      }
+    });
+    _reprice();
   }
 
   Future<MdfOrder?> _save() async {
@@ -441,14 +615,15 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     final dicts =
         ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty;
     final millings = dicts.values(MdfDictKind.milling);
-    // The thickness is a number on the order; the list says «16 мм».
-    final thicknesses = dicts.values(MdfDictKind.thickness);
-    final thickness = _head.thicknessMm == null
-        ? null
-        : thicknesses.firstWhere(
-            (v) => thicknessOf(v) == _head.thicknessMm,
-            orElse: () => '${_head.thicknessMm}',
-          );
+    final materials = dicts.values(MdfDictKind.material);
+    final films = dicts.values(MdfDictKind.decor);
+    final pricedIndex = _pricedIndex;
+    MdfLine? pricedOf(_LineFields l) {
+      final i = pricedIndex[l];
+      return i != null && i < _pricing.lines.length ? _pricing.lines[i] : null;
+    }
+
+    var number = 0;
 
     void choose(ValueChanged<String?> set, String? v) {
       setState(() => set(v));
@@ -575,11 +750,14 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 runSpacing: AppSpacing.md,
                 children: [
                   pick(
-                    'mdfThickness',
-                    l10n.mdfThickness,
-                    MdfDictKind.thickness,
-                    thickness,
-                    (v) => _head = _copyHead(thicknessMm: thicknessOf(v)),
+                    'mdfMaterial',
+                    l10n.mdfMaterial,
+                    MdfDictKind.material,
+                    _head.material,
+                    (v) => _head = _copyHead(
+                      material: v,
+                      thicknessMm: thicknessOf(v) ?? _head.thicknessMm,
+                    ),
                   ),
                   pick(
                     'mdfFinish',
@@ -587,20 +765,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                     MdfDictKind.finish,
                     _head.finish,
                     (v) => _head = _copyHead(finish: v),
-                  ),
-                  pick(
-                    'mdfDecorTop',
-                    l10n.mdfDecorTop,
-                    MdfDictKind.decor,
-                    _head.decorTop,
-                    (v) => _head = _copyHead(decorTop: v),
-                  ),
-                  pick(
-                    'mdfDecorBottom',
-                    l10n.mdfDecorBottom,
-                    MdfDictKind.decor,
-                    _head.decorBottom,
-                    (v) => _head = _copyHead(decorBottom: v),
                   ),
                   pick(
                     'mdfMilling',
@@ -644,28 +808,63 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                   ),
                 ],
               ),
-              for (var i = 0; i < _lines.length; i++)
-                _LineRow(
-                  key: ObjectKey(_lines[i]),
-                  index: i,
-                  line: _lines[i],
-                  priced: i < _pricing.lines.length ? _pricing.lines[i] : null,
-                  millings: millings,
-                  isLast: i == _lines.length - 1,
-                  onChanged: _reprice,
-                  onNext: _addLine,
-                  onDuplicate: () => _addLine(from: _lines[i]),
-                  onDelete: () => _removeLine(i),
-                  onUp: () => _move(i, -1),
-                  onDown: () => _move(i, 1),
-                ),
+              for (var g = 0; g < _films.length; g++)
+                () {
+                  final film = _films[g];
+                  final mates = [
+                    for (final l in _lines)
+                      if (l.film == film) l,
+                  ];
+                  final priced = [for (final l in mates) ?pricedOf(l)];
+                  final first = number;
+                  number += mates.length;
+                  return _FilmGroup(
+                    key: ValueKey('mdfFilmGroup:$g'),
+                    index: g,
+                    film: film,
+                    films: films,
+                    rate: _rateOf(film),
+                    pieces: priced.fold(0, (sum, p) => sum + p.qty),
+                    areaM2: priced.fold<double>(0, (sum, p) => sum + p.areaM2),
+                    amount: priced.fold<double>(0, (sum, p) => sum + p.amount),
+                    onFilm: (to) => _renameFilm(film, to),
+                    onRateChanged: _reprice,
+                    onRemove: () => _removeFilm(film),
+                    onAddLine: () => _addLine(film: film),
+                    children: [
+                      for (var i = 0; i < mates.length; i++)
+                        _LineRow(
+                          key: ObjectKey(mates[i]),
+                          index: first + i,
+                          line: mates[i],
+                          priced: pricedOf(mates[i]),
+                          millings: millings,
+                          materials: materials,
+                          films: films,
+                          headMaterial: _head.material,
+                          groupRate: _rateOf(film).text.trim(),
+                          isLast:
+                              g == _films.length - 1 && i == mates.length - 1,
+                          onChanged: () {
+                            setState(() {});
+                            _reprice();
+                          },
+                          onNext: () => _addLine(film: film),
+                          onDuplicate: () => _addLine(from: mates[i]),
+                          onDelete: () => _removeLine(mates[i]),
+                          onUp: () => _move(mates[i], -1),
+                          onDown: () => _move(mates[i], 1),
+                        ),
+                    ],
+                  );
+                }(),
               Align(
                 alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  key: const ValueKey('mdfAddLine'),
-                  onPressed: _addLine,
+                child: OutlinedButton.icon(
+                  key: const ValueKey('mdfAddFilm'),
+                  onPressed: _addFilm,
                   icon: const Icon(AppIcons.add),
-                  label: Text(l10n.mdfAddLine),
+                  label: Text(l10n.mdfAddFilm),
                 ),
               ),
             ],
@@ -723,6 +922,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   }
 
   MdfHead _copyHead({
+    Object? material = _keep,
     Object? thicknessMm = _keep,
     Object? patina = _keep,
     Object? finish = _keep,
@@ -744,19 +944,186 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         : edgeProfile as String?,
     extraName: _head.extraName,
     defaultRate: _head.defaultRate,
+    material: material == _keep ? _head.material : material as String?,
+    filmRates: _head.filmRates,
   );
 }
 
 const _keep = Object();
 
-/// One line, typed like a spreadsheet row: Enter moves on, Enter on the last
-/// field of the last row starts a new one.
+/// One film's positions: a coloured header with the film, its price per m²
+/// and its totals; the rows; «+ строка»; «Итого группы».
+class _FilmGroup extends StatelessWidget {
+  const _FilmGroup({
+    required this.index,
+    required this.film,
+    required this.films,
+    required this.rate,
+    required this.pieces,
+    required this.areaM2,
+    required this.amount,
+    required this.onFilm,
+    required this.onRateChanged,
+    required this.onRemove,
+    required this.onAddLine,
+    required this.children,
+    super.key,
+  });
+
+  final int index;
+  final String? film;
+  final List<String> films;
+  final TextEditingController rate;
+  final int pieces;
+  final double areaM2;
+  final double amount;
+  final ValueChanged<String?> onFilm;
+  final VoidCallback onRateChanged;
+  final VoidCallback onRemove;
+  final VoidCallback onAddLine;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final money = mdfMoney(context);
+    final color = AppColors.filmGroup(index);
+    final totals = l10n.mdfTotals(
+      '$pieces',
+      areaM2.toStringAsFixed(2),
+      money.format(amount),
+    );
+    return Container(
+      key: ValueKey('mdfFilm:${film ?? ''}'),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(color: color, width: AppSpacing.xs),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ColoredBox(
+            color: color.withValues(alpha: AppTint.surface),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
+              child: Wrap(
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.sm,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Container(
+                    width: AppSpacing.md,
+                    height: AppSpacing.md,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(
+                    width: AppSpacing.xxxl * 5,
+                    child: DropdownButtonFormField<String?>(
+                      key: ValueKey('mdfFilmPick:$index:${films.length}'),
+                      initialValue: film,
+                      isExpanded: true,
+                      items: [
+                        DropdownMenuItem(child: Text(l10n.mdfFilmNone)),
+                        for (final f in mdfChoices(films, film))
+                          DropdownMenuItem(value: f, child: Text(f)),
+                      ],
+                      onChanged: onFilm,
+                      style: theme.textTheme.titleSmall?.copyWith(color: color),
+                      decoration: InputDecoration(
+                        labelText: l10n.mdfFilm,
+                        isDense: true,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 130,
+                    child: TextField(
+                      key: ValueKey('mdfFilmRate:$index'),
+                      controller: rate,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      onChanged: (_) => onRateChanged(),
+                      decoration: InputDecoration(
+                        labelText: l10n.mdfFilmRate,
+                        isDense: true,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    totals,
+                    key: ValueKey('mdfFilmTotals:$index'),
+                    style: theme.textTheme.titleSmall?.copyWith(color: color),
+                  ),
+                  IconButton(
+                    key: ValueKey('mdfFilmRemove:$index'),
+                    tooltip: l10n.mdfFilmRemove,
+                    onPressed: onRemove,
+                    icon: const Icon(AppIcons.delete),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.sm,
+              0,
+              0,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ...children,
+                Row(
+                  children: [
+                    TextButton.icon(
+                      key: ValueKey('mdfAddLine:$index'),
+                      onPressed: onAddLine,
+                      icon: const Icon(AppIcons.add),
+                      label: Text(l10n.mdfAddLine),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${l10n.mdfFilmSubtotal}: $totals',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One line, typed like a spreadsheet row — height, width, pieces, milling,
+/// material, back side, price — Enter moves on, Enter on the last field of
+/// the last row starts a new one.
 class _LineRow extends StatelessWidget {
   const _LineRow({
     required this.index,
     required this.line,
     required this.priced,
     required this.millings,
+    required this.materials,
+    required this.films,
+    required this.headMaterial,
+    required this.groupRate,
     required this.isLast,
     required this.onChanged,
     required this.onNext,
@@ -771,6 +1138,12 @@ class _LineRow extends StatelessWidget {
   final _LineFields line;
   final MdfLine? priced;
   final List<String> millings;
+  final List<String> materials;
+  final List<String> films;
+  final String? headMaterial;
+
+  /// The group's price, shown under an empty price field.
+  final String groupRate;
   final bool isLast;
   final VoidCallback onChanged;
   final VoidCallback onNext;
@@ -784,6 +1157,12 @@ class _LineRow extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final money = mdfMoney(context);
+    final warn = context.statusColors.warning;
+    final own = InputDecoration(
+      isDense: true,
+      filled: true,
+      fillColor: warn.withValues(alpha: AppTint.surface),
+    );
 
     Widget cell(
       String key,
@@ -793,6 +1172,8 @@ class _LineRow extends StatelessWidget {
       bool digits = true,
       FocusNode? focus,
       bool last = false,
+      String? hint,
+      bool highlight = false,
     }) => SizedBox(
       width: width,
       child: TextField(
@@ -808,11 +1189,42 @@ class _LineRow extends StatelessWidget {
             : TextInputAction.next,
         onSubmitted: last && isLast ? (_) => onNext() : null,
         onChanged: (_) => onChanged(),
-        decoration: InputDecoration(labelText: label, isDense: true),
+        decoration: (highlight ? own : const InputDecoration(isDense: true))
+            .copyWith(labelText: label, hintText: hint),
+      ),
+    );
+
+    Widget drop(
+      String key,
+      String label,
+      String? value,
+      List<String> choices,
+      double width,
+      ValueChanged<String?> set, {
+      String? none,
+      bool highlight = false,
+    }) => SizedBox(
+      width: width,
+      child: DropdownButtonFormField<String?>(
+        key: ValueKey('$key:$index:${choices.length}'),
+        initialValue: value,
+        isExpanded: true,
+        items: [
+          DropdownMenuItem(child: Text(none ?? l10n.mdfNone)),
+          for (final m in mdfChoices(choices, value))
+            DropdownMenuItem(value: m, child: Text(m)),
+        ],
+        onChanged: (v) {
+          set(v);
+          onChanged();
+        },
+        decoration: (highlight ? own : const InputDecoration(isDense: true))
+            .copyWith(labelText: label),
       ),
     );
 
     final p = priced;
+    final back = line.filmBack != null;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Wrap(
@@ -830,29 +1242,81 @@ class _LineRow extends StatelessWidget {
           ),
           cell('mdfW', l10n.mdfWidth, line.width, 80),
           cell('mdfQ', l10n.mdfQty, line.qty, 56),
+          drop(
+            'mdfLineMilling',
+            l10n.mdfMilling,
+            line.milling,
+            millings,
+            160,
+            (v) => line.milling = v,
+          ),
+          drop(
+            'mdfLineMaterial',
+            l10n.mdfMaterial,
+            line.material,
+            materials,
+            150,
+            (v) => line.material = v == headMaterial ? null : v,
+            none: headMaterial ?? l10n.mdfNone,
+            highlight: line.material != null,
+          ),
           SizedBox(
-            width: 180,
-            child: DropdownButtonFormField<String?>(
-              key: ValueKey('mdfLineMilling:$index'),
-              initialValue: line.milling,
-              isExpanded: true,
-              items: [
-                DropdownMenuItem(child: Text(l10n.mdfNone)),
-                for (final m in mdfChoices(millings, line.milling))
-                  DropdownMenuItem(value: m, child: Text(m)),
+            width: back ? 230 : 150,
+            child: Row(
+              children: [
+                Tooltip(
+                  message: l10n.mdfBackSide,
+                  child: Switch(
+                    key: ValueKey('mdfBack:$index'),
+                    value: back,
+                    onChanged: (on) {
+                      line.filmBack = on
+                          ? (line.film ?? films.firstOrNull)
+                          : null;
+                      onChanged();
+                    },
+                  ),
+                ),
+                if (back)
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      key: ValueKey('mdfBackFilm:$index:${films.length}'),
+                      initialValue: line.filmBack,
+                      isExpanded: true,
+                      items: [
+                        for (final f in mdfChoices(films, line.filmBack))
+                          DropdownMenuItem(value: f, child: Text(f)),
+                      ],
+                      onChanged: (v) {
+                        line.filmBack = v;
+                        onChanged();
+                      },
+                      decoration: InputDecoration(
+                        labelText: l10n.mdfBackSideShort,
+                        isDense: true,
+                      ),
+                    ),
+                  )
+                else
+                  Flexible(
+                    child: Text(
+                      l10n.mdfBackSide,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
               ],
-              onChanged: (v) {
-                line.milling = v;
-                onChanged();
-              },
-              decoration: InputDecoration(
-                labelText: l10n.mdfMilling,
-                isDense: true,
-              ),
             ),
           ),
-          cell('mdfNote', l10n.mdfNote, line.note, 140, digits: false),
-          cell('mdfRate', l10n.mdfRate, line.rate, 90, last: true),
+          cell(
+            'mdfRate',
+            l10n.mdfRate,
+            line.rate,
+            90,
+            last: true,
+            hint: groupRate.isEmpty ? null : groupRate,
+            highlight: line.rate.text.trim().isNotEmpty,
+          ),
+          cell('mdfNote', l10n.mdfNote, line.note, 130, digits: false),
           SizedBox(
             width: 150,
             child: p == null
@@ -872,11 +1336,6 @@ class _LineRow extends StatelessWidget {
                           label: l10n.mdfNoPrice,
                           intent: StatusIntent.warning,
                           compact: true,
-                        )
-                      else if (p.manualRate)
-                        Text(
-                          l10n.mdfManualRate,
-                          style: theme.textTheme.bodySmall,
                         ),
                     ],
                   ),
@@ -1164,43 +1623,89 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
+            key: const ValueKey('mdfLinesTable'),
             columns: [
               const DataColumn(label: Text('№')),
-              DataColumn(label: Text(l10n.mdfMilling)),
               DataColumn(label: Text(l10n.mdfHeight), numeric: true),
               DataColumn(label: Text(l10n.mdfWidth), numeric: true),
               DataColumn(label: Text(l10n.mdfQty), numeric: true),
+              DataColumn(label: Text(l10n.mdfMilling)),
+              DataColumn(label: Text(l10n.mdfMaterial)),
+              DataColumn(label: Text(l10n.mdfFilm)),
               DataColumn(label: Text(l10n.mdfArea), numeric: true),
               DataColumn(label: Text(l10n.mdfRate), numeric: true),
               DataColumn(label: Text(l10n.mdfAmount), numeric: true),
             ],
             rows: [
-              for (var i = 0; i < o.lines.length; i++)
+              for (final (g, group) in mdfFilmGroups(o.lines).indexed) ...[
+                for (final (n, line) in group.lines)
+                  DataRow(
+                    color: WidgetStatePropertyAll(
+                      AppColors.filmGroup(g).withValues(alpha: AppTint.surface),
+                    ),
+                    cells: [
+                      DataCell(Text('$n')),
+                      DataCell(Text('${line.heightMm}')),
+                      DataCell(Text('${line.widthMm}')),
+                      DataCell(Text('${line.qty}')),
+                      DataCell(
+                        Text(
+                          [
+                            line.milling,
+                            line.note,
+                          ].whereType<String>().join(' · '),
+                        ),
+                      ),
+                      DataCell(
+                        Text(
+                          line.material ??
+                              (line.thicknessMm == null
+                                  ? ''
+                                  : '${line.thicknessMm} мм'),
+                        ),
+                      ),
+                      DataCell(
+                        Text(
+                          [
+                            line.film ?? '',
+                            if (line.filmBack != null)
+                              '+ ${l10n.mdfBackSideShort}: ${line.filmBack}',
+                          ].join('\n'),
+                          style: TextStyle(color: AppColors.filmGroup(g)),
+                        ),
+                      ),
+                      DataCell(Text(line.areaM2.toStringAsFixed(2))),
+                      DataCell(
+                        Text(
+                          line.noPrice
+                              ? l10n.mdfNoPrice
+                              : money.format(line.rateM2),
+                        ),
+                      ),
+                      DataCell(Text(money.format(line.amount))),
+                    ],
+                  ),
                 DataRow(
+                  key: ValueKey('mdfFilmSubtotal:$g'),
                   cells: [
-                    DataCell(Text('${i + 1}')),
+                    const DataCell(Text('')),
+                    DataCell(Text(l10n.mdfFilmSubtotal)),
+                    const DataCell(Text('')),
+                    DataCell(Text('${group.pieces}')),
+                    const DataCell(Text('')),
+                    const DataCell(Text('')),
                     DataCell(
                       Text(
-                        [
-                          o.lines[i].milling,
-                          o.lines[i].note,
-                        ].whereType<String>().join(' · '),
+                        group.film ?? '',
+                        style: TextStyle(color: AppColors.filmGroup(g)),
                       ),
                     ),
-                    DataCell(Text('${o.lines[i].heightMm}')),
-                    DataCell(Text('${o.lines[i].widthMm}')),
-                    DataCell(Text('${o.lines[i].qty}')),
-                    DataCell(Text(o.lines[i].areaM2.toStringAsFixed(2))),
-                    DataCell(
-                      Text(
-                        o.lines[i].noPrice
-                            ? l10n.mdfNoPrice
-                            : money.format(o.lines[i].rateM2),
-                      ),
-                    ),
-                    DataCell(Text(money.format(o.lines[i].amount))),
+                    DataCell(Text(group.areaM2.toStringAsFixed(2))),
+                    const DataCell(Text('')),
+                    DataCell(Text(money.format(group.amount))),
                   ],
                 ),
+              ],
             ],
           ),
         ),
@@ -1409,6 +1914,10 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   rate: l10n.mdfRate,
   amount: l10n.mdfAmount,
   total: l10n.mdfPrintTotal,
+  material: l10n.mdfMaterial,
+  film: l10n.mdfFilm,
+  back: l10n.mdfBackSideShort,
+  subtotal: l10n.mdfFilmSubtotal,
 );
 
 class _PasteDialog extends StatefulWidget {

@@ -123,6 +123,8 @@ class MdfHead {
     this.edgeProfile,
     this.extraName,
     this.defaultRate,
+    this.material,
+    this.filmRates = const {},
   });
 
   factory MdfHead.fromJson(Map<String, dynamic> json) => MdfHead(
@@ -135,6 +137,12 @@ class MdfHead {
     edgeProfile: _s(json['edge_profile']),
     extraName: _s(json['extra_name']),
     defaultRate: json['default_rate'] == null ? null : _d(json['default_rate']),
+    material: _s(json['material']),
+    filmRates: {
+      if (json['film_rates'] is Map)
+        for (final e in (json['film_rates'] as Map).entries)
+          '${e.key}': _d(e.value),
+    },
   );
 
   final int? thicknessMm;
@@ -147,6 +155,12 @@ class MdfHead {
   final String? extraName;
   final double? defaultRate;
 
+  /// The board of every position that does not name its own.
+  final String? material;
+
+  /// Each film group's price per m² (an order of several films).
+  final Map<String, double> filmRates;
+
   Map<String, dynamic> toJson() => {
     'thickness_mm': ?thicknessMm,
     'finish': ?finish,
@@ -157,6 +171,8 @@ class MdfHead {
     'edge_profile': ?edgeProfile,
     'extra_name': ?extraName,
     'default_rate': ?defaultRate,
+    'material': ?material,
+    if (filmRates.isNotEmpty) 'film_rates': filmRates,
   };
 }
 
@@ -170,6 +186,9 @@ class MdfLineInput {
     this.milling,
     this.note,
     this.rate,
+    this.film,
+    this.filmBack,
+    this.material,
   });
 
   final int heightMm;
@@ -178,8 +197,16 @@ class MdfLineInput {
   final String? milling;
   final String? note;
 
-  /// Typed by hand; null means «from «Цены фасадов»».
+  /// Typed by hand; null means the film group's price, else the price list.
   final double? rate;
+
+  /// The film group the position is in, and its back film if the back side
+  /// was switched on for it.
+  final String? film;
+  final String? filmBack;
+
+  /// Its own board; null — the order's.
+  final String? material;
 
   Map<String, dynamic> toJson() => {
     'height_mm': heightMm,
@@ -188,6 +215,9 @@ class MdfLineInput {
     'milling': ?milling,
     'note': ?note,
     'rate': ?rate,
+    'film': ?film,
+    'film_back': ?filmBack,
+    'material': ?material,
   };
 }
 
@@ -205,6 +235,10 @@ class MdfLine {
     this.note,
     this.manualRate = false,
     this.noPrice = false,
+    this.film,
+    this.filmBack,
+    this.material,
+    this.thicknessMm,
   });
 
   factory MdfLine.fromJson(Map<String, dynamic> json) => MdfLine(
@@ -218,6 +252,10 @@ class MdfLine {
     amount: _d(json['amount']),
     manualRate: json['manual_rate'] == true,
     noPrice: json['no_price'] == true,
+    film: _s(json['film']),
+    filmBack: _s(json['film_back']),
+    material: _s(json['material']),
+    thicknessMm: json['thickness_mm'] == null ? null : _i(json['thickness_mm']),
   );
 
   final int heightMm;
@@ -230,6 +268,45 @@ class MdfLine {
   final double amount;
   final bool manualRate;
   final bool noPrice;
+  final String? film;
+  final String? filmBack;
+  final String? material;
+  final int? thicknessMm;
+}
+
+/// One film's positions, in the order the films first appear; positions keep
+/// their number in the whole order.
+typedef MdfFilmGroup = ({
+  String? film,
+  List<(int, MdfLine)> lines,
+  int pieces,
+  double areaM2,
+  double amount,
+});
+
+/// The order's positions by film, for the card and the printouts.
+List<MdfFilmGroup> mdfFilmGroups(List<MdfLine> lines) {
+  final order = <String?>[];
+  final by = <String?, List<(int, MdfLine)>>{};
+  for (var i = 0; i < lines.length; i++) {
+    final film = lines[i].film;
+    if (!by.containsKey(film)) order.add(film);
+    (by[film] ??= []).add((i + 1, lines[i]));
+  }
+  return [
+    for (final film in order)
+      (
+        film: film,
+        lines: by[film]!,
+        pieces: by[film]!.fold(0, (sum, l) => sum + l.$2.qty),
+        areaM2: double.parse(
+          by[film]!
+              .fold<double>(0, (sum, l) => sum + l.$2.areaM2)
+              .toStringAsFixed(2),
+        ),
+        amount: by[film]!.fold<double>(0, (sum, l) => sum + l.$2.amount),
+      ),
+  ];
 }
 
 /// What `price` answers: the lines priced and the totals.

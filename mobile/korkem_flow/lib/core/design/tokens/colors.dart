@@ -96,6 +96,26 @@ abstract final class AppColors {
   static const secondaryContainerDark = Color(0xFF29383F);
   static const tertiaryContainerLight = Color(0xFFE4E2D8);
   static const tertiaryContainerDark = Color(0xFF33392F);
+
+  // ── Film groups ──────────────────────────────────────────────────────────
+  // An MDF order of several films (08.11.2026): each film's positions are
+  // drawn in one of these, in the order the films appear, so the press crew
+  // tells them apart at a glance. Mid tones: they read as text on cream and
+  // on forest alike, and as a tint at [AppTint.surface] behind a row.
+
+  static const filmGroups = <Color>[
+    Color(0xFF1D9E75), // teal
+    Color(0xFF7F77DD), // violet
+    Color(0xFFD85A30), // coral
+    Color(0xFF639922), // green
+    Color(0xFF378ADD), // blue
+    Color(0xFFD4537E), // pink
+    Color(0xFFBA7517), // amber
+    Color(0xFF888780), // stone
+  ];
+
+  /// The colour of the [index]th film of an order; past eight, round again.
+  static Color filmGroup(int index) => filmGroups[index % filmGroups.length];
 }
 
 /// Depth, as two shadows rather than one.

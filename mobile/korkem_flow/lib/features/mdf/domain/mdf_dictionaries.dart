@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 /// The order form's lists, each kept by the owner himself — OnayBaza's blue
 /// button beside every drop-down (`services/mdf_dictionaries.py`).
 enum MdfDictKind {
+  /// «16 мм МДФ», «3 мм ХДФ» — the board, its thickness first (08.11.2026).
+  material,
   thickness,
   finish,
   decor,
@@ -47,10 +49,11 @@ class MdfDictionaries {
   ];
 }
 
-/// «16 мм» → 16: the order keeps the thickness as a number.
+/// «16 мм ЛМДФ» → 16: the thickness a material's name starts with; the
+/// order keeps it as a number.
 int? thicknessOf(String? value) {
-  final digits = (value ?? '').replaceAll(RegExp('[^0-9]'), '');
-  return digits.isEmpty ? null : int.tryParse(digits);
+  final m = RegExp(r'^\D*(\d+)').firstMatch(value ?? '');
+  return m == null ? null : int.tryParse(m.group(1)!);
 }
 
 /// What a drop-down offers: the list, and the value already chosen even if
