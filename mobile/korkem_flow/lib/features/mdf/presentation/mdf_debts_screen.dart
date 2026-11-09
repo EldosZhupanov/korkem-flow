@@ -9,6 +9,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -88,7 +89,7 @@ class MdfDebtsScreen extends ConsumerWidget {
                                   intent: StatusIntent.danger,
                                   compact: true,
                                 )
-                              : Text(o.createdOn),
+                              : Text(mdfDay(o.createdOn)),
                           onTap: () => context.push(Routes.mdfOrder(o.name)),
                         ),
                       ),

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -105,8 +106,8 @@ Future<Uint8List> buildMdfOrderPdf(
     for (final l in order.lines) ?l.thicknessMm,
   }.toList()..sort();
   final head = <(String, String)>[
-    (words.accepted, order.createdOn),
-    (words.due, order.deliveryDate),
+    (words.accepted, mdfDay(order.createdOn)),
+    (words.due, mdfDay(order.deliveryDate)),
     (words.customer, order.customerName),
     (words.phone, order.phone ?? ''),
     (
@@ -142,8 +143,8 @@ Future<Uint8List> buildMdfOrderPdf(
       ),
     ),
     if (h.extraName != null) (words.extraName, h.extraName!),
-    if (withPrices) (words.paid, money.format(order.paid)),
-    if (withPrices) (words.debt, money.format(order.debt)),
+    if (withPrices) (words.paid, '${money.format(order.paid)} ₸'),
+    if (withPrices) (words.debt, '${money.format(order.debt)} ₸'),
   ];
 
   pw.Widget text(String value, {pw.TextStyle? style, bool right = false}) =>
@@ -331,19 +332,3 @@ String _groupName(MdfPrintWords words, MdfCoating? coating, String? film) => [
   if (coating != null) words.coating(coating),
   ?film,
 ].join(' · ');
-
-/// «R0» before «R3» before «R10», and words after them by alphabet: a
-/// run of digits compares as a number.
-int mdfNaturalCompare(String a, String b) {
-  final digits = RegExp(r'\d+');
-  final ma = digits.firstMatch(a);
-  final mb = digits.firstMatch(b);
-  final pa = ma == null ? a : a.substring(0, ma.start);
-  final pb = mb == null ? b : b.substring(0, mb.start);
-  if (ma != null && mb != null && pa == pb) {
-    final byNumber = int.parse(ma[0]!).compareTo(int.parse(mb[0]!));
-    if (byNumber != 0) return byNumber;
-  }
-  // Latin «R…» before Cyrillic words: code units already order them so.
-  return a.toLowerCase().compareTo(b.toLowerCase());
-}

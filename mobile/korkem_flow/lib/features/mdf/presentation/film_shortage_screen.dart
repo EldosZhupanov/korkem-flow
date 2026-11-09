@@ -10,6 +10,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 String _m(double v) => v.toStringAsFixed(1);
@@ -114,7 +115,7 @@ class FilmShortageScreen extends ConsumerWidget {
                             [
                               o.decor,
                               '${_m(o.needed)} м',
-                              o.deliveryDate,
+                              mdfDay(o.deliveryDate),
                             ].join(' · '),
                           ),
                           trailing: o.short > 0

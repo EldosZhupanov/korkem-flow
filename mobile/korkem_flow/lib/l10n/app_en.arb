@@ -5711,8 +5711,8 @@
   },
   "mdfPrintAccepted": "Accepted",
   "mdfPrintPhone": "Phone",
-  "mdfPrintPaid": "Paid, ₸",
-  "mdfPrintDebt": "Balance, ₸",
+  "mdfPrintPaid": "Paid",
+  "mdfPrintDebt": "Balance",
   "mdfPrintTotal": "Total:",
   "mdfPrintClient": "Customer copy",
   "mdfPrintShop": "Shop copy",
@@ -6090,5 +6090,14 @@
       }
     }
   },
-  "mdfTagsTitle": "Tags"
+  "mdfTagsTitle": "Tags",
+  "mdfDueInDays": "+{n} days",
+  "mdfDueCalendar": "Pick in the calendar…",
+  "@mdfDueInDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

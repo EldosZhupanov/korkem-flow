@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_deadline.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
@@ -150,7 +151,7 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
                                 o.decorTop,
                                 o.milling,
                                 '${_m2(o.areaM2)} м²',
-                                o.deliveryDate,
+                                mdfDay(o.deliveryDate),
                               ].whereType<String>().join(' · '),
                               style: o.overdue
                                   ? theme.textTheme.bodySmall?.copyWith(
@@ -180,7 +181,7 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
                     child: ListTile(
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      title: Text(d.date),
+                      title: Text(mdfDay(d.date)),
                       trailing: Text(
                         l10n.mdfPlanIntakeDay('${d.orders}', _m2(d.areaM2)),
                       ),
