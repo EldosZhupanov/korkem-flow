@@ -5550,4 +5550,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfHandedOverDone => 'Order handed over';
+
+  @override
+  String get mdfPayOrderTotal => 'Order';
+
+  @override
+  String get mdfPayPaid => 'Paid';
+
+  @override
+  String get mdfPayLeft => 'Left';
+
+  @override
+  String get mdfPayAddPart => 'Another method';
+
+  @override
+  String mdfPayAfter(String sum, String debt) {
+    return 'Total $sum · debt after $debt';
+  }
+
+  @override
+  String mdfPayOver(String amount) {
+    return '$amount more than is left. It may be paid already';
+  }
+
+  @override
+  String get mdfPayOverOk => 'It is an overpayment / advance';
 }

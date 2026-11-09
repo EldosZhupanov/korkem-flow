@@ -6157,5 +6157,29 @@
   },
   "mdfReturnToWork": "Back to work",
   "mdfReturnReason": "Why back to work",
-  "mdfHandedOverDone": "Order handed over"
+  "mdfHandedOverDone": "Order handed over",
+  "mdfPayOrderTotal": "Order",
+  "mdfPayPaid": "Paid",
+  "mdfPayLeft": "Left",
+  "mdfPayAddPart": "Another method",
+  "mdfPayAfter": "Total {sum} · debt after {debt}",
+  "@mdfPayAfter": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "debt": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPayOver": "{amount} more than is left. It may be paid already",
+  "@mdfPayOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPayOverOk": "It is an overpayment / advance"
 }

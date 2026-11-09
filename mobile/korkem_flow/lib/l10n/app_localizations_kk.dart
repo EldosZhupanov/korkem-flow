@@ -5512,4 +5512,29 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfHandedOverDone => 'Тапсырыс берілді';
+
+  @override
+  String get mdfPayOrderTotal => 'Тапсырыс';
+
+  @override
+  String get mdfPayPaid => 'Төленді';
+
+  @override
+  String get mdfPayLeft => 'Қалдық';
+
+  @override
+  String get mdfPayAddPart => 'Тағы бір тәсіл';
+
+  @override
+  String mdfPayAfter(String sum, String debt) {
+    return 'Барлығы $sum · төлемнен кейін қарыз $debt';
+  }
+
+  @override
+  String mdfPayOver(String amount) {
+    return 'Қалдықтан $amount артық. Төлем енгізілген сияқты';
+  }
+
+  @override
+  String get mdfPayOverOk => 'Бұл артық төлем / аванс';
 }

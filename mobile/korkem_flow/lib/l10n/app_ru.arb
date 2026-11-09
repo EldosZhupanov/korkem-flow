@@ -1842,5 +1842,12 @@
   "mdfHandedWithDebt": "с долгом {amount}",
   "mdfReturnToWork": "Вернуть в работу",
   "mdfReturnReason": "Почему возвращаете в работу",
-  "mdfHandedOverDone": "Заказ выдан"
+  "mdfHandedOverDone": "Заказ выдан",
+  "mdfPayOrderTotal": "Заказ",
+  "mdfPayPaid": "Оплачено",
+  "mdfPayLeft": "Остаток",
+  "mdfPayAddPart": "Ещё способ",
+  "mdfPayAfter": "Итого {sum} · долг после оплаты {debt}",
+  "mdfPayOver": "Больше остатка на {amount}. Похоже, оплата уже внесена",
+  "mdfPayOverOk": "Это переплата / аванс"
 }

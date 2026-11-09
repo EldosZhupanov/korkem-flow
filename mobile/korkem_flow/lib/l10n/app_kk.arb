@@ -1842,5 +1842,12 @@
   "mdfHandedWithDebt": "қарызбен {amount}",
   "mdfReturnToWork": "Жұмысқа қайтару",
   "mdfReturnReason": "Неге жұмысқа қайтарасыз",
-  "mdfHandedOverDone": "Тапсырыс берілді"
+  "mdfHandedOverDone": "Тапсырыс берілді",
+  "mdfPayOrderTotal": "Тапсырыс",
+  "mdfPayPaid": "Төленді",
+  "mdfPayLeft": "Қалдық",
+  "mdfPayAddPart": "Тағы бір тәсіл",
+  "mdfPayAfter": "Барлығы {sum} · төлемнен кейін қарыз {debt}",
+  "mdfPayOver": "Қалдықтан {amount} артық. Төлем енгізілген сияқты",
+  "mdfPayOverOk": "Бұл артық төлем / аванс"
 }

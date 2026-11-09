@@ -5573,4 +5573,29 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfHandedOverDone => 'Заказ выдан';
+
+  @override
+  String get mdfPayOrderTotal => 'Заказ';
+
+  @override
+  String get mdfPayPaid => 'Оплачено';
+
+  @override
+  String get mdfPayLeft => 'Остаток';
+
+  @override
+  String get mdfPayAddPart => 'Ещё способ';
+
+  @override
+  String mdfPayAfter(String sum, String debt) {
+    return 'Итого $sum · долг после оплаты $debt';
+  }
+
+  @override
+  String mdfPayOver(String amount) {
+    return 'Больше остатка на $amount. Похоже, оплата уже внесена';
+  }
+
+  @override
+  String get mdfPayOverOk => 'Это переплата / аванс';
 }

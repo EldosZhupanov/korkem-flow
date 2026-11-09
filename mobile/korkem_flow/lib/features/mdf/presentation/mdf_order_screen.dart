@@ -2165,20 +2165,23 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
 
   Future<void> _payment() async {
     final l10n = AppLocalizations.of(context);
-    final result = await showDialog<_Payment>(
+    final result = await showDialog<_Payments>(
       context: context,
-      builder: (_) => const _PaymentDialog(),
+      builder: (_) => _PaymentDialog(order: o),
     );
     if (result == null) return;
+    // Each part is a payment of its own: the cash book splits the day by
+    // method and bank, and a wrong part is fixed on its own.
     await _run(() async {
-      await ref
-          .read(mdfOrderRepositoryProvider)
-          .addPayment(
-            o.name,
-            amount: result.amount,
-            method: result.method,
-            bank: result.bank,
-          );
+      final repo = ref.read(mdfOrderRepositoryProvider);
+      for (final p in result.parts) {
+        await repo.addPayment(
+          o.name,
+          amount: p.amount,
+          method: p.method,
+          bank: p.bank,
+        );
+      }
       return o;
     });
     if (!mounted) return;
@@ -2188,11 +2191,12 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
   /// «Исправить» (owner, 09.11.2026): the payment's own figures to start
   /// from, and why.
   Future<void> _fixPayment(MdfPayment p) async {
-    final result = await showDialog<_Payment>(
+    final result = await showDialog<_Payments>(
       context: context,
-      builder: (_) => _PaymentDialog(fixing: p),
+      builder: (_) => _PaymentDialog(order: o, fixing: p),
     );
     if (result == null || p.entry == null) return;
+    final part = result.parts.single;
     await _run(
       () => ref
           .read(mdfOrderRepositoryProvider)
@@ -2200,9 +2204,9 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             o.name,
             entry: p.entry!,
             reason: result.reason ?? '',
-            amount: result.amount,
-            method: result.method,
-            bank: result.bank,
+            amount: part.amount,
+            method: part.method,
+            bank: part.bank,
           ),
     );
   }
@@ -2743,15 +2747,30 @@ const _cash = 'Наличные';
 const _card = 'Карта';
 const List<String> _methods = [_transfer, _cash, _card];
 
-typedef _Payment = ({
-  double amount,
-  String method,
-  String? bank,
-  String? reason,
-});
+typedef _Payment = ({double amount, String method, String? bank});
+
+/// What the payment dialog gives back: one part or several (cash and a
+/// transfer at once, owner 09.11.2026), and why, when a payment is fixed.
+typedef _Payments = ({List<_Payment> parts, String? reason});
+
+/// One way of paying in the dialog: the method, its bank, the amount.
+class _Part {
+  _Part({this.method = _transfer, this.bank, String amount = ''})
+    : amount = TextEditingController(text: amount);
+
+  String method;
+  String? bank;
+  final TextEditingController amount;
+
+  bool get withBank => method != _cash;
+  double get value => double.tryParse(amount.text.trim()) ?? 0;
+}
 
 class _PaymentDialog extends ConsumerStatefulWidget {
-  const _PaymentDialog({this.fixing});
+  const _PaymentDialog({required this.order, this.fixing});
+
+  /// Its total, what is paid and what is left — shown on top.
+  final MdfOrder order;
 
   /// The payment being fixed: its figures to start from, and a reason asked.
   final MdfPayment? fixing;
@@ -2761,38 +2780,64 @@ class _PaymentDialog extends ConsumerStatefulWidget {
 }
 
 class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
-  final _amount = TextEditingController();
   final _reason = TextEditingController();
-  String _method = _transfer;
-  String? _bank;
+  final _parts = <_Part>[];
   String? _reasonChip;
-
-  bool get _withBank => _method != _cash;
+  bool _overpayOk = false;
 
   @override
   void initState() {
     super.initState();
     final p = widget.fixing;
-    if (p != null) {
-      _amount.text = p.amount.toStringAsFixed(0);
-      _method = _methods.contains(p.method) ? p.method! : _transfer;
-      _bank = p.bank;
+    _parts.add(
+      p == null
+          ? _Part()
+          : _Part(
+              method: _methods.contains(p.method) ? p.method! : _transfer,
+              bank: p.bank,
+              amount: p.amount.toStringAsFixed(0),
+            ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    for (final part in _parts) {
+      part.amount.dispose();
     }
+    super.dispose();
   }
 
   String? get _why => mdfReason(_reasonChip, _reason.text);
 
-  @override
-  void dispose() {
-    _amount.dispose();
-    _reason.dispose();
-    super.dispose();
+  /// What is left to pay before this dialog — a fixed payment counts as
+  /// not paid, since it is entered again.
+  double get _left => widget.order.debt + (widget.fixing?.amount ?? 0);
+
+  double get _sum => _parts.fold(0, (s, p) => s + p.value);
+
+  bool get _over => _sum > _left + 0.5;
+
+  void _addPart() {
+    final rest = _left - _sum;
+    setState(
+      () => _parts.add(
+        _Part(
+          method: _parts.last.method == _cash ? _transfer : _cash,
+          amount: rest > 0 ? rest.toStringAsFixed(0) : '',
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final money = mdfMoney(context);
     final fixing = widget.fixing != null;
+    final o = widget.order;
     final banks =
         (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
             .values(MdfDictKind.bank);
@@ -2801,55 +2846,87 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
       _cash => l10n.mdfPayCash,
       _ => l10n.mdfPayCard,
     };
-    return AlertDialog(
-      title: Text(fixing ? l10n.mdfPaymentFixTitle : l10n.mdfAddPayment),
-      content: SizedBox(
-        width: AppSpacing.xxxl * 8,
+    Widget figure(String name, double value) => Expanded(
+      child: Card.filled(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: theme.textTheme.labelSmall),
+              Text(money.format(value), style: theme.textTheme.titleSmall),
+            ],
+          ),
+        ),
+      ),
+    );
+    Widget part(int i, _Part p) {
+      // The first row keeps its plain keys; a second, «:1» and on.
+      final k = i == 0 ? '' : ':$i';
+      final bankKey = 'mdfPaymentBank$k:${banks.length}:${p.bank}';
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.md),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              key: const ValueKey('mdfPaymentAmount'),
-              controller: _amount,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(labelText: l10n.mdfPaymentAmount),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    key: ValueKey('mdfPaymentAmount$k'),
+                    controller: p.amount,
+                    autofocus: i == 0,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      labelText: l10n.mdfPaymentAmount,
+                    ),
+                  ),
+                ),
+                if (i > 0)
+                  IconButton(
+                    key: ValueKey('mdfPaymentPartRemove$k'),
+                    icon: const Icon(AppIcons.close),
+                    onPressed: () => setState(() {
+                      _parts.removeAt(i).amount.dispose();
+                    }),
+                  ),
+              ],
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.sm),
             Wrap(
               spacing: AppSpacing.sm,
               children: [
                 for (final m in _methods)
                   ChoiceChip(
-                    key: ValueKey('mdfPaymentMethod:$m'),
+                    key: ValueKey('mdfPaymentMethod:$m$k'),
                     label: Text(label(m)),
-                    selected: _method == m,
-                    onSelected: (_) => setState(() => _method = m),
+                    selected: p.method == m,
+                    onSelected: (_) => setState(() => p.method = m),
                   ),
               ],
             ),
-            if (_withBank) ...[
-              const SizedBox(height: AppSpacing.md),
+            if (p.withBank) ...[
+              const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<String?>(
-                      key: ValueKey('mdfPaymentBank:${banks.length}:$_bank'),
-                      initialValue: _bank,
+                      key: ValueKey(bankKey),
+                      initialValue: p.bank,
                       isExpanded: true,
                       items: [
                         DropdownMenuItem(child: Text(l10n.mdfNone)),
-                        for (final b in mdfChoices(banks, _bank))
+                        for (final b in mdfChoices(banks, p.bank))
                           DropdownMenuItem(value: b, child: Text(b)),
                       ],
-                      onChanged: (v) => setState(() => _bank = v),
+                      onChanged: (v) => setState(() => p.bank = v),
                       decoration: InputDecoration(labelText: l10n.mdfPayBank),
                     ),
                   ),
                   IconButton(
-                    key: const ValueKey('dict:bank'),
+                    key: ValueKey('dict:bank$k'),
                     tooltip: l10n.mdfDictOpen,
                     icon: const Icon(AppIcons.dictionary),
                     onPressed: () async {
@@ -2857,28 +2934,97 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
                         context,
                         MdfDictKind.bank,
                         title: l10n.mdfPayBank,
-                        current: _bank,
+                        current: p.bank,
                       );
                       if (picked != null && mounted) {
-                        setState(() => _bank = picked);
+                        setState(() => p.bank = picked);
                       }
                     },
                   ),
                 ],
               ),
             ],
-            if (fixing) ...[
-              const SizedBox(height: AppSpacing.md),
-              MdfReasonPicker(
-                reasons: mdfPaymentReasons(l10n),
-                chip: _reasonChip,
-                controller: _reason,
-                label: l10n.mdfPaymentReason,
-                onChip: (c) => setState(() => _reasonChip = c),
-                onText: () => setState(() {}),
-              ),
-            ],
           ],
+        ),
+      );
+    }
+
+    final after = _left - _sum;
+    final ready =
+        _sum > 0 &&
+        _parts.every((p) => p.value > 0) &&
+        (!_over || _overpayOk) &&
+        (!fixing || _why != null);
+    return AlertDialog(
+      title: Text(fixing ? l10n.mdfPaymentFixTitle : l10n.mdfAddPayment),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 9,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                key: const ValueKey('mdfPaymentFigures'),
+                children: [
+                  figure(l10n.mdfPayOrderTotal, o.total),
+                  figure(
+                    l10n.mdfPayPaid,
+                    o.paid - (widget.fixing?.amount ?? 0),
+                  ),
+                  figure(l10n.mdfPayLeft, _left),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              for (final (i, p) in _parts.indexed) part(i, p),
+              if (!fixing)
+                TextButton.icon(
+                  key: const ValueKey('mdfPaymentAddPart'),
+                  onPressed: _addPart,
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.mdfPayAddPart),
+                ),
+              Text(
+                l10n.mdfPayAfter(
+                  money.format(_sum),
+                  money.format(after < 0 ? 0 : after),
+                ),
+                key: const ValueKey('mdfPaymentAfter'),
+                style: theme.textTheme.titleSmall,
+              ),
+              // More than is owed: the 294 300 of order 00013 (09.11.2026).
+              if (_over) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  l10n.mdfPayOver(money.format(_sum - _left)),
+                  key: const ValueKey('mdfPaymentOver'),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                CheckboxListTile(
+                  key: const ValueKey('mdfPaymentOverOk'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: _overpayOk,
+                  onChanged: (v) => setState(() => _overpayOk = v ?? false),
+                  title: Text(l10n.mdfPayOverOk),
+                ),
+              ],
+              if (fixing) ...[
+                const SizedBox(height: AppSpacing.md),
+                MdfReasonPicker(
+                  reasons: mdfPaymentReasons(l10n),
+                  chip: _reasonChip,
+                  controller: _reason,
+                  label: l10n.mdfPaymentReason,
+                  onChip: (c) => setState(() => _reasonChip = c),
+                  onText: () => setState(() {}),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
       actions: [
@@ -2888,18 +3034,19 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
         ),
         FilledButton(
           key: const ValueKey('mdfPaymentSave'),
-          onPressed: fixing && _why == null
+          onPressed: !ready
               ? null
-              : () {
-                  final amount = double.tryParse(_amount.text.trim());
-                  if (amount == null || amount <= 0) return;
-                  Navigator.of(context).pop<_Payment>((
-                    amount: amount,
-                    method: _method,
-                    bank: _withBank ? _bank : null,
-                    reason: _why,
-                  ));
-                },
+              : () => Navigator.of(context).pop<_Payments>((
+                  parts: [
+                    for (final p in _parts)
+                      (
+                        amount: p.value,
+                        method: p.method,
+                        bank: p.withBank ? p.bank : null,
+                      ),
+                  ],
+                  reason: _why,
+                )),
           child: Text(l10n.mdfConfirm),
         ),
       ],

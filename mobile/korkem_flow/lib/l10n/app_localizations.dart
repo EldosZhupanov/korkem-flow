@@ -9884,6 +9884,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Order handed over'**
   String get mdfHandedOverDone;
+
+  /// No description provided for @mdfPayOrderTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get mdfPayOrderTotal;
+
+  /// No description provided for @mdfPayPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get mdfPayPaid;
+
+  /// No description provided for @mdfPayLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get mdfPayLeft;
+
+  /// No description provided for @mdfPayAddPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Another method'**
+  String get mdfPayAddPart;
+
+  /// No description provided for @mdfPayAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {sum} · debt after {debt}'**
+  String mdfPayAfter(String sum, String debt);
+
+  /// No description provided for @mdfPayOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} more than is left. It may be paid already'**
+  String mdfPayOver(String amount);
+
+  /// No description provided for @mdfPayOverOk.
+  ///
+  /// In en, this message translates to:
+  /// **'It is an overpayment / advance'**
+  String get mdfPayOverOk;
 }
 
 class _AppLocalizationsDelegate

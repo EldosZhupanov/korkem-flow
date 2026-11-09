@@ -721,6 +721,8 @@ void main() {
       find.byKey(const ValueKey('mdfPaymentAmount')),
       '5000',
     );
+    // The save button wakes up once there is an amount.
+    await tester.pump();
     await tester.tap(find.byKey(const ValueKey('mdfPaymentSave')));
     await tester.pumpAndSettle();
     expect(repo.paid, [(5000.0, 'Наличные', null)]);
@@ -887,5 +889,54 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Done').last);
     await tester.pumpAndSettle();
     expect(repo.returned, ['Скол']);
+  });
+
+  testWidgets('a payment in cash and a transfer at once; the rest fills in', (
+    tester,
+  ) async {
+    final repo = _FakeRepository();
+    await _pumpCard(tester, repo);
+    await tester.tap(find.byKey(const ValueKey('mdfAddPayment')));
+    await tester.pumpAndSettle();
+    // The order's total, what is paid and what is left, on top.
+    expect(find.byKey(const ValueKey('mdfPaymentFigures')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentMethod:Наличные')));
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfPaymentAmount')),
+      '10000',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentAddPart')));
+    await tester.pumpAndSettle();
+    // 34 165 owed, 10 000 in cash: the transfer takes the rest.
+    expect(find.text('24165'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentSave')));
+    await tester.pumpAndSettle();
+    expect(repo.paid, [
+      (10000.0, 'Наличные', null),
+      (24165.0, 'Перевод', null),
+    ]);
+  });
+
+  testWidgets('more than is owed asks to be called an overpayment', (
+    tester,
+  ) async {
+    final repo = _FakeRepository();
+    await _pumpCard(tester, repo);
+    await tester.tap(find.byKey(const ValueKey('mdfAddPayment')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfPaymentAmount')),
+      '68330',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfPaymentOver')), findsOneWidget);
+    final save = find.byKey(const ValueKey('mdfPaymentSave'));
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentOverOk')));
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repo.paid, [(68330.0, 'Перевод', null)]);
   });
 }
