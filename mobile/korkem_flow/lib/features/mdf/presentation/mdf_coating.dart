@@ -25,3 +25,11 @@ String mdfGroupName(
   if (coating != null) mdfCoatingLabel(coating, l10n),
   ?film,
 ].join(' · ');
+
+/// What a group without a colour says: «Плёнка не выбрана», «Краска не
+/// выбрана».
+String mdfCoatingNone(MdfCoating coating, AppLocalizations l10n) =>
+    switch (coating) {
+      MdfCoating.paint => l10n.mdfPaintNone,
+      MdfCoating.pvc || MdfCoating.raw => l10n.mdfFilmNone,
+    };

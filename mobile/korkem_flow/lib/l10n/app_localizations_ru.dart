@@ -5420,4 +5420,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfDictPaint => 'Краски';
+
+  @override
+  String get mdfPaintNone => 'Краска не выбрана';
 }
