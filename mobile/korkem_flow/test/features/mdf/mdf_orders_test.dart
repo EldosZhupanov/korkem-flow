@@ -289,6 +289,9 @@ void main() {
     expect(find.byKey(const ValueKey('mdfExtra:back:1')), findsOneWidget);
     expect(find.byKey(const ValueKey('mdfExtra:patina:1')), findsOneWidget);
     expect(find.byKey(const ValueKey('mdfExtra:back:0')), findsNothing);
+    // The patina and the back side open their lists from the chip.
+    expect(find.byKey(const ValueKey('dict:patina:1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('dict:back:1')), findsOneWidget);
     // «+ доп.» → Примечание on position 1.
     await tester.tap(find.byKey(const ValueKey('mdfMore:0')));
     await tester.pumpAndSettle();

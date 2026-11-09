@@ -1495,6 +1495,31 @@ class _LineRow extends StatelessWidget {
           ),
         );
 
+    /// A list's own button beside its pick: add, rename, delete, choose.
+    Widget dictButton(
+      String key,
+      MdfDictKind kind,
+      String title,
+      String? current,
+      ValueChanged<String> set,
+    ) => IconButton(
+      key: ValueKey('dict:$key:$index'),
+      tooltip: l10n.mdfDictOpen,
+      icon: const Icon(AppIcons.dictionary),
+      onPressed: () async {
+        final picked = await showMdfDictionary(
+          context,
+          kind,
+          title: title,
+          current: current,
+        );
+        if (picked != null) {
+          set(picked);
+          onChanged();
+        }
+      },
+    );
+
     final p = priced;
     final edge = line.edge ?? defaultEdge;
     final extras = <Widget>[
@@ -1506,14 +1531,23 @@ class _LineRow extends StatelessWidget {
             line.drop(_Extra.back);
             onChanged();
           },
-          child: drop(
-            'mdfBackFilm',
-            l10n.mdfBackSide,
-            line.filmBack,
-            films,
-            200,
-            (v) => line.filmBack = v,
-            required: true,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              drop(
+                'mdfBackFilm',
+                l10n.mdfBackSide,
+                line.filmBack,
+                films,
+                200,
+                (v) => line.filmBack = v,
+                required: true,
+              ),
+              if (mdfCoatingList(line.coating) case final kind?)
+                dictButton('back', kind, l10n.mdfBackSide, line.filmBack, (v) {
+                  line.filmBack = v;
+                }),
+            ],
           ),
         ),
       if (line.extras.contains(_Extra.patina))
@@ -1524,13 +1558,26 @@ class _LineRow extends StatelessWidget {
             line.drop(_Extra.patina);
             onChanged();
           },
-          child: drop(
-            'mdfLinePatina',
-            l10n.mdfPatina,
-            line.patina,
-            patinas,
-            180,
-            (v) => line.patina = v,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              drop(
+                'mdfLinePatina',
+                l10n.mdfPatina,
+                line.patina,
+                patinas,
+                180,
+                (v) => line.patina = v,
+              ),
+              // The patina list, here: add, rename, delete (09.11.2026).
+              dictButton(
+                'patina',
+                MdfDictKind.patina,
+                l10n.mdfPatina,
+                line.patina,
+                (v) => line.patina = v,
+              ),
+            ],
           ),
         ),
       if (line.extras.contains(_Extra.note))
