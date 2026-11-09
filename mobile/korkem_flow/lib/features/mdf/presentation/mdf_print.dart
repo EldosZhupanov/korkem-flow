@@ -82,7 +82,15 @@ Future<Uint8List> buildMdfOrderPdf(
     await rootBundle.load('assets/fonts/Inter-Variable.ttf'),
   );
   final doc = pw.Document(
-    theme: pw.ThemeData.withFont(base: font, bold: font),
+    // The bundled Inter has no italic face: without naming it for italics
+    // too, the PDF falls back to a font with no Cyrillic and prints boxes
+    // (10.11.2026, the note and «итого группы»).
+    theme: pw.ThemeData.withFont(
+      base: font,
+      bold: font,
+      italic: font,
+      boldItalic: font,
+    ),
   );
   final money = NumberFormat.decimalPattern(locale);
   final area = NumberFormat('0.00', locale);
@@ -90,8 +98,10 @@ Future<Uint8List> buildMdfOrderPdf(
   final cell = pw.TextStyle(fontSize: size);
   final bold = pw.TextStyle(fontSize: size, fontWeight: pw.FontWeight.bold);
   final small = pw.TextStyle(fontSize: size - 2);
+  // A size up on the shop's copy only: the customer's has two more
+  // columns, and «2000» broke in two there (10.11.2026).
   final sizes = pw.TextStyle(
-    fontSize: size + 1.5,
+    fontSize: withPrices ? size : size + 1.5,
     fontWeight: pw.FontWeight.bold,
   );
   final h = order.head;
@@ -295,7 +305,8 @@ Future<Uint8List> buildMdfOrderPdf(
                     ),
             ),
           ),
-          cell('$pieces ${words.pieces}', 9),
+          // The number alone, under «Кол.»: «шт» broke the narrow column.
+          cell('$pieces', 9),
           pw.Spacer(flex: 26 + 15 + 30 + 13 + 14),
           cell(area.format(m2), 12),
           if (withPrices) pw.Spacer(flex: 15),
@@ -311,6 +322,7 @@ Future<Uint8List> buildMdfOrderPdf(
     final c = AppColors.filmGroup(g);
     double mid(double v) => 1 - (1 - v) * 0.45;
     return pw.Container(
+      width: double.infinity,
       decoration: pw.BoxDecoration(
         color: PdfColor(mid(c.r), mid(c.g), mid(c.b)),
         border: const pw.Border(
