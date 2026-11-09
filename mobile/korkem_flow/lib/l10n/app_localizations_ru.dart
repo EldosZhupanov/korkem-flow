@@ -5494,4 +5494,83 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfDueCalendar => 'Выбрать в календаре…';
+
+  @override
+  String get mdfPaymentFix => 'Исправить';
+
+  @override
+  String get mdfPaymentDelete => 'Удалить оплату';
+
+  @override
+  String get mdfPaymentFixTitle => 'Исправить оплату';
+
+  @override
+  String get mdfPaymentReason => 'Причина';
+
+  @override
+  String get mdfPayReasonAmount => 'Ошибка в сумме';
+
+  @override
+  String get mdfPayReasonMethod => 'Не тот способ';
+
+  @override
+  String get mdfPayReasonBank => 'Не тот банк';
+
+  @override
+  String get mdfPayReasonTwice => 'Внесли дважды';
+
+  @override
+  String get mdfPaymentCancelled => 'отменена';
+
+  @override
+  String get mdfHandOverCheck => 'Проверка перед выдачей';
+
+  @override
+  String get mdfHandOverStagesDone => 'Все этапы пройдены';
+
+  @override
+  String mdfHandOverCounted(int n) {
+    return 'Пересчитал детали: $n шт';
+  }
+
+  @override
+  String get mdfTakenByClient => 'Клиент';
+
+  @override
+  String get mdfTakenByOther => 'Другой человек';
+
+  @override
+  String get mdfTakenByName => 'Кто забрал';
+
+  @override
+  String get mdfTakenByPhone => 'Телефон';
+
+  @override
+  String mdfHandedOverOn(String date) {
+    return 'Выдан $date';
+  }
+
+  @override
+  String mdfHandedOverBy(String name) {
+    return 'выдал $name';
+  }
+
+  @override
+  String mdfTakenBy(String who) {
+    return 'забрал $who';
+  }
+
+  @override
+  String mdfHandedWithDebt(String amount) {
+    return 'с долгом $amount';
+  }
+
+  @override
+  String get mdfReturnToWork => 'Вернуть в работу';
+
+  @override
+  String get mdfReturnReason => 'Почему возвращаете в работу';
+
+  @override
+  String get mdfHandedOverDone => 'Заказ выдан';
 }

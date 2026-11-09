@@ -26,6 +26,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_coating.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_hand_over.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
@@ -2184,6 +2185,74 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     ScaffoldMessenger.of(context).showDone(l10n.mdfSaved);
   }
 
+  /// «Исправить» (owner, 09.11.2026): the payment's own figures to start
+  /// from, and why.
+  Future<void> _fixPayment(MdfPayment p) async {
+    final result = await showDialog<_Payment>(
+      context: context,
+      builder: (_) => _PaymentDialog(fixing: p),
+    );
+    if (result == null || p.entry == null) return;
+    await _run(
+      () => ref
+          .read(mdfOrderRepositoryProvider)
+          .fixPayment(
+            o.name,
+            entry: p.entry!,
+            reason: result.reason ?? '',
+            amount: result.amount,
+            method: result.method,
+            bank: result.bank,
+          ),
+    );
+  }
+
+  Future<void> _deletePayment(MdfPayment p) async {
+    final reason = await showMdfPaymentDelete(
+      context,
+      p,
+      mdfMoney(context).format(p.amount),
+    );
+    if (reason == null || p.entry == null) return;
+    await _run(
+      () => ref
+          .read(mdfOrderRepositoryProvider)
+          .deletePayment(o.name, entry: p.entry!, reason: reason),
+    );
+  }
+
+  /// The check before a hand-over, then «Заказ выдан» — the manager sees it
+  /// went through (09.11.2026: the buttons only vanished).
+  Future<void> _handOver() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final got = await showMdfHandOver(context, o);
+    if (got == null) return;
+    var ok = false;
+    await _run(() async {
+      final card = await ref
+          .read(mdfOrderRepositoryProvider)
+          .handOver(
+            o.name,
+            comment: got.comment,
+            takenBy: got.takenBy,
+            takenPhone: got.takenPhone,
+          );
+      ok = true;
+      return card;
+    });
+    if (ok) messenger.showDone(l10n.mdfHandedOverDone);
+  }
+
+  Future<void> _returnToWork() async {
+    final l10n = AppLocalizations.of(context);
+    final reason = await _ask(l10n.mdfReturnToWork, l10n.mdfReturnReason, l10n);
+    if (reason == null) return;
+    await _run(
+      () => ref.read(mdfOrderRepositoryProvider).returnToWork(o.name, reason),
+    );
+  }
+
   Future<void> _print({required bool withPrices}) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -2264,6 +2333,14 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             '${l10n.mdfStatusOnHold}: ${o.holdReason}',
             style: theme.textTheme.bodyMedium,
           ),
+        if (o.status == MdfStatus.handedOver) ...[
+          const SizedBox(height: AppSpacing.sm),
+          MdfHandedOverBanner(
+            order: o,
+            money: money,
+            onReturn: _busy ? null : _returnToWork,
+          ),
+        ],
         if (headLine.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.sm),
           Text(headLine),
@@ -2397,7 +2474,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             ],
             rows: [
               for (final (g, group) in mdfFilmGroups(o.lines).indexed) ...[
-                for (final (n, line) in group.lines)
+                for (final (n, line) in group.lines) ...[
                   DataRow(
                     color: WidgetStatePropertyAll(
                       AppColors.filmGroup(g).withValues(alpha: AppTint.surface),
@@ -2407,14 +2484,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                       DataCell(Text('${line.heightMm}')),
                       DataCell(Text('${line.widthMm}')),
                       DataCell(Text('${line.qty}')),
-                      DataCell(
-                        Text(
-                          [
-                            line.milling,
-                            line.note,
-                          ].whereType<String>().join(' · '),
-                        ),
-                      ),
+                      DataCell(Text(line.milling ?? '')),
                       DataCell(
                         Text(
                           line.edge ?? '',
@@ -2428,13 +2498,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                       ),
                       DataCell(
                         Text(
-                          [
-                            mdfGroupName(line.coating, line.film, l10n),
-                            if (line.filmBack != null)
-                              '+ ${l10n.mdfBackSideShort}: ${line.filmBack}',
-                            if (line.patina != null)
-                              '+ ${l10n.mdfPatina}: ${line.patina}',
-                          ].join('\n'),
+                          mdfGroupName(line.coating, line.film, l10n),
                           style: TextStyle(color: AppColors.filmGroup(g)),
                         ),
                       ),
@@ -2457,6 +2521,28 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                       DataCell(Text(money.format(line.amount))),
                     ],
                   ),
+                  // Variant Б (owner, 09.11.2026): the back side, a patina
+                  // and the note on a row of their own under the position.
+                  if (_extras(line, l10n) case final extras?)
+                    DataRow(
+                      key: ValueKey('mdfLineExtras:$n'),
+                      color: WidgetStatePropertyAll(
+                        AppColors.filmGroup(
+                          g,
+                        ).withValues(alpha: AppTint.surface),
+                      ),
+                      cells: [
+                        const DataCell(Text('')),
+                        DataCell(
+                          _Spanning(
+                            extras,
+                            key: ValueKey('mdfLineExtras:$n'),
+                          ),
+                        ),
+                        for (var i = 2; i < 12; i++) const DataCell(Text('')),
+                      ],
+                    ),
+                ],
                 DataRow(
                   key: ValueKey('mdfFilmSubtotal:$g'),
                   cells: [
@@ -2508,11 +2594,24 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         SectionLabel(l10n.mdfPaymentsSection),
         if (o.payments.isEmpty)
           Text(l10n.mdfNoPayments, style: theme.textTheme.bodySmall),
-        for (final p in o.payments)
+        for (final (i, p) in o.payments.indexed)
           ListTile(
+            key: ValueKey('mdfPayment:$i'),
             dense: true,
             contentPadding: EdgeInsets.zero,
-            title: Text(money.format(p.amount)),
+            // Fixed or deleted: struck through, the history says why.
+            title: Text(
+              [
+                money.format(p.amount),
+                if (p.cancelled) l10n.mdfPaymentCancelled,
+              ].join(' · '),
+              style: p.cancelled
+                  ? TextStyle(
+                      decoration: TextDecoration.lineThrough,
+                      color: theme.colorScheme.outline,
+                    )
+                  : null,
+            ),
             subtitle: Text(
               [
                 mdfDay(p.date),
@@ -2520,6 +2619,30 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                 p.bank,
               ].whereType<String>().join(' · '),
             ),
+            trailing:
+                p.cancelled ||
+                    p.entry == null ||
+                    o.status == MdfStatus.cancelled
+                ? null
+                : PopupMenuButton<bool>(
+                    key: ValueKey('mdfPaymentMenu:$i'),
+                    icon: const Icon(AppIcons.more),
+                    enabled: !_busy,
+                    onSelected: (fix) =>
+                        fix ? _fixPayment(p) : _deletePayment(p),
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        key: ValueKey('mdfPaymentFix:$i'),
+                        value: true,
+                        child: Text(l10n.mdfPaymentFix),
+                      ),
+                      PopupMenuItem(
+                        key: ValueKey('mdfPaymentDelete:$i'),
+                        value: false,
+                        child: Text(l10n.mdfPaymentDelete),
+                      ),
+                    ],
+                  ),
           ),
         if (open)
           Align(
@@ -2540,22 +2663,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               if (o.status == MdfStatus.ready)
                 FilledButton(
                   key: const ValueKey('mdfHandOver'),
-                  onPressed: _busy
-                      ? null
-                      : () async {
-                          String? comment;
-                          if (o.debt > 0) {
-                            comment = await _ask(
-                              l10n.mdfHandOver,
-                              l10n.mdfHandOverComment,
-                              l10n,
-                            );
-                            if (comment == null) return;
-                          }
-                          await _run(
-                            () => repo.handOver(o.name, comment: comment),
-                          );
-                        },
+                  onPressed: _busy ? null : _handOver,
                   child: Text(l10n.mdfHandOver),
                 ),
               OutlinedButton(
@@ -2603,6 +2711,31 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
   }
 }
 
+String? _extras(MdfLine line, AppLocalizations l10n) => mdfExtrasLine(
+  line,
+  back: l10n.mdfBackSideShort,
+  patina: l10n.mdfPatina,
+  note: l10n.mdfNote,
+);
+
+/// Text that runs on across the empty cells to its right, so one row of a
+/// table can carry a line as wide as the table without widening a column.
+class _Spanning extends StatelessWidget {
+  const _Spanning(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 0,
+    child: OverflowBox(
+      alignment: Alignment.centerLeft,
+      maxWidth: double.infinity,
+      child: Text(text, softWrap: false),
+    ),
+  );
+}
+
 /// How a payment came: one of three, and for a transfer or a card the bank
 /// (owner, 09.11.2026). The words are the server's — what the cash book shows.
 const _transfer = 'Перевод';
@@ -2610,10 +2743,18 @@ const _cash = 'Наличные';
 const _card = 'Карта';
 const List<String> _methods = [_transfer, _cash, _card];
 
-typedef _Payment = ({double amount, String method, String? bank});
+typedef _Payment = ({
+  double amount,
+  String method,
+  String? bank,
+  String? reason,
+});
 
 class _PaymentDialog extends ConsumerStatefulWidget {
-  const _PaymentDialog();
+  const _PaymentDialog({this.fixing});
+
+  /// The payment being fixed: its figures to start from, and a reason asked.
+  final MdfPayment? fixing;
 
   @override
   ConsumerState<_PaymentDialog> createState() => _PaymentDialogState();
@@ -2621,20 +2762,37 @@ class _PaymentDialog extends ConsumerStatefulWidget {
 
 class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
   final _amount = TextEditingController();
+  final _reason = TextEditingController();
   String _method = _transfer;
   String? _bank;
+  String? _reasonChip;
 
   bool get _withBank => _method != _cash;
 
   @override
+  void initState() {
+    super.initState();
+    final p = widget.fixing;
+    if (p != null) {
+      _amount.text = p.amount.toStringAsFixed(0);
+      _method = _methods.contains(p.method) ? p.method! : _transfer;
+      _bank = p.bank;
+    }
+  }
+
+  String? get _why => mdfReason(_reasonChip, _reason.text);
+
+  @override
   void dispose() {
     _amount.dispose();
+    _reason.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final fixing = widget.fixing != null;
     final banks =
         (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
             .values(MdfDictKind.bank);
@@ -2644,7 +2802,7 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
       _ => l10n.mdfPayCard,
     };
     return AlertDialog(
-      title: Text(l10n.mdfAddPayment),
+      title: Text(fixing ? l10n.mdfPaymentFixTitle : l10n.mdfAddPayment),
       content: SizedBox(
         width: AppSpacing.xxxl * 8,
         child: Column(
@@ -2709,6 +2867,17 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
                 ],
               ),
             ],
+            if (fixing) ...[
+              const SizedBox(height: AppSpacing.md),
+              MdfReasonPicker(
+                reasons: mdfPaymentReasons(l10n),
+                chip: _reasonChip,
+                controller: _reason,
+                label: l10n.mdfPaymentReason,
+                onChip: (c) => setState(() => _reasonChip = c),
+                onText: () => setState(() {}),
+              ),
+            ],
           ],
         ),
       ),
@@ -2719,15 +2888,18 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
         ),
         FilledButton(
           key: const ValueKey('mdfPaymentSave'),
-          onPressed: () {
-            final amount = double.tryParse(_amount.text.trim());
-            if (amount == null || amount <= 0) return;
-            Navigator.of(context).pop<_Payment>((
-              amount: amount,
-              method: _method,
-              bank: _withBank ? _bank : null,
-            ));
-          },
+          onPressed: fixing && _why == null
+              ? null
+              : () {
+                  final amount = double.tryParse(_amount.text.trim());
+                  if (amount == null || amount <= 0) return;
+                  Navigator.of(context).pop<_Payment>((
+                    amount: amount,
+                    method: _method,
+                    bank: _withBank ? _bank : null,
+                    reason: _why,
+                  ));
+                },
           child: Text(l10n.mdfConfirm),
         ),
       ],
@@ -2769,6 +2941,8 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   thicknessColumn: l10n.mdfPrintThickShort,
   materialColumn: l10n.mdfPrintMaterialShort,
   pieces: l10n.mdfPrintPieces,
+  tags: l10n.mdfTagsTitle,
+  tag: (t) => mdfOrderTagLabel(t, l10n),
 );
 
 class _PasteDialog extends StatefulWidget {

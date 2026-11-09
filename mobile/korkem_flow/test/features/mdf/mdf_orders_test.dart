@@ -162,8 +162,108 @@ class _FakeRepository implements MdfOrderRepository {
     );
   }
 
+  final fixed = <(String, String, double, String)>[];
+  final deleted = <(String, String)>[];
+  final handed = <(String?, String?, String?)>[];
+  final returned = <String>[];
+
+  @override
+  Future<MdfOrder> fixPayment(
+    String order, {
+    required String entry,
+    required String reason,
+    required double amount,
+    required String method,
+    String? bank,
+  }) async {
+    fixed.add((entry, reason, amount, method));
+    return card(order);
+  }
+
+  @override
+  Future<MdfOrder> deletePayment(
+    String order, {
+    required String entry,
+    required String reason,
+  }) async {
+    deleted.add((entry, reason));
+    return card(order);
+  }
+
+  @override
+  Future<MdfOrder> handOver(
+    String order, {
+    String? comment,
+    String? takenBy,
+    String? takenPhone,
+  }) async {
+    handed.add((comment, takenBy, takenPhone));
+    return card(order);
+  }
+
+  @override
+  Future<MdfOrder> returnToWork(String order, String reason) async {
+    returned.add(reason);
+    return card(order);
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// SAL-ORD-2026-00013 as the owner saw it (09.11.2026): extras on a
+/// position, a payment entered twice, every stage done.
+class _Rich extends _FakeRepository {
+  _Rich({this.status = 'ready', this.extra = const {}});
+
+  final String status;
+  final Map<String, Object?> extra;
+
+  @override
+  Future<MdfOrder> card(String name) async => MdfOrder.fromJson({
+    ..._twoFilms(),
+    'status': status,
+    'paid': 294300,
+    'debt': 0,
+    'payments': const [
+      {
+        'entry': 'ACC-PAY-1',
+        'amount': 147150,
+        'date': '2026-11-09',
+        'method': 'Перевод',
+        'bank': 'Kaspi',
+      },
+      {
+        'entry': 'ACC-PAY-2',
+        'amount': 147150,
+        'date': '2026-11-09',
+        'method': 'Перевод',
+        'bank': 'Kaspi',
+      },
+      {
+        'entry': 'ACC-PAY-0',
+        'amount': 5000,
+        'date': '2026-11-08',
+        'method': 'Наличные',
+        'cancelled': true,
+      },
+    ],
+    ...extra,
+  });
+}
+
+Future<void> _pumpCard(WidgetTester tester, _FakeRepository repo) async {
+  tester.view
+    ..physicalSize = const Size(2400, 4000)
+    ..devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+      child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+    ),
+  );
+  await tester.pumpAndSettle();
 }
 
 /// A draft of two films, as Олжас Мухаметхан brought it (08.11.2026).
@@ -678,5 +778,114 @@ void main() {
     expect(repo.ticked, [(MdfStage.cut, true)]);
     // Day.month, the way the shop reads it (09.11.2026).
     expect(find.textContaining('05.11'), findsOneWidget);
+  });
+
+  testWidgets("a position's extras get a row of their own under it", (
+    tester,
+  ) async {
+    await _pumpCard(tester, _Rich());
+    // Position 2 has a back side and a patina; 1 and 3 have none.
+    expect(find.byKey(const ValueKey('mdfLineExtras:2')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfLineExtras:1')), findsNothing);
+    expect(find.textContaining('Графит'), findsOneWidget);
+    expect(find.textContaining('Золото'), findsOneWidget);
+  });
+
+  testWidgets('a payment is fixed with a reason; a cancelled one has no menu', (
+    tester,
+  ) async {
+    final repo = _Rich();
+    await _pumpCard(tester, repo);
+    expect(find.byKey(const ValueKey('mdfPaymentMenu:2')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentMenu:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentDelete:1')));
+    await tester.pumpAndSettle();
+    final yes = find.byKey(const ValueKey('mdfPaymentDeleteYes'));
+    expect(tester.widget<FilledButton>(yes).onPressed, isNull);
+    await tester.tap(find.byKey(const ValueKey('mdfPayReason:3')));
+    await tester.pumpAndSettle();
+    await tester.tap(yes);
+    await tester.pumpAndSettle();
+    expect(repo.deleted.single.$1, 'ACC-PAY-2');
+
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentMenu:0')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentFix:0')));
+    await tester.pumpAndSettle();
+    // The payment's own figures to start from.
+    expect(find.text('147150'), findsOneWidget);
+    final save = find.byKey(const ValueKey('mdfPaymentSave'));
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfPaymentAmount')),
+      '140000',
+    );
+    await tester.tap(find.byKey(const ValueKey('mdfPayReason:0')));
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repo.fixed.single, (
+      'ACC-PAY-1',
+      'Wrong amount',
+      140000.0,
+      'Перевод',
+    ));
+  });
+
+  testWidgets('a hand-over asks the pieces counted and who takes it', (
+    tester,
+  ) async {
+    final repo = _Rich();
+    await _pumpCard(tester, repo);
+    await tester.tap(find.byKey(const ValueKey('mdfHandOver')));
+    await tester.pumpAndSettle();
+    final yes = find.byKey(const ValueKey('mdfHandOverYes'));
+    expect(tester.widget<FilledButton>(yes).onPressed, isNull);
+    await tester.tap(find.byKey(const ValueKey('mdfHandOverCounted')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(yes).onPressed, isNotNull);
+    await tester.tap(find.byKey(const ValueKey('mdfTakenOther')));
+    await tester.pumpAndSettle();
+    // Someone else: a name is needed.
+    expect(tester.widget<FilledButton>(yes).onPressed, isNull);
+    await tester.enterText(find.byKey(const ValueKey('mdfTakenName')), 'Ерлан');
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfTakenPhone')),
+      '87011234567',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(yes);
+    await tester.pumpAndSettle();
+    expect(repo.handed.single, (null, 'Ерлан', '87011234567'));
+    expect(find.text('Order handed over'), findsOneWidget);
+  });
+
+  testWidgets('a handed-over order says who took it and goes back to work', (
+    tester,
+  ) async {
+    final repo = _Rich(
+      status: 'handed_over',
+      extra: {
+        'debt': 1000,
+        'handed_over_on': '2026-11-09',
+        'handed_over_by': 'Олжас',
+        'taken_by': 'Ерлан',
+        'taken_phone': '87011234567',
+      },
+    );
+    await _pumpCard(tester, repo);
+    expect(find.byKey(const ValueKey('mdfHandedOverBanner')), findsOneWidget);
+    expect(find.textContaining('09.11.2026'), findsWidgets);
+    expect(find.textContaining('Ерлан, 87011234567'), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfHandedWithDebt')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfHandOver')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('mdfReturnToWork')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('mdfReason')), 'Скол');
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Done').last);
+    await tester.pumpAndSettle();
+    expect(repo.returned, ['Скол']);
   });
 }

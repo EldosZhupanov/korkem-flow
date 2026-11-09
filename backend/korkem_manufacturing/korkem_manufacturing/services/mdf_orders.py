@@ -633,22 +633,63 @@ def hold(order: str, reason: str | None = None) -> dict:
 	return card(doc.name)
 
 
-def hand_over(order: str, comment: str | None = None) -> dict:
-	"""«Выдан». Not with a debt, unless an administrator says why."""
+def hand_over(order: str, comment: str | None = None, taken_by: str | None = None,
+			  taken_phone: str | None = None) -> dict:
+	"""«Выдан». Not with a debt, unless an administrator says why.
+
+	`taken_by` — who came for it, when not the customer (owner, 09.11.2026):
+	a driver, a relative; with a phone. Empty means the customer.
+	"""
 	facade_prices.ensure_editor()
 	doc = _accepted(order)
+	if doc.korkem_handed_over_on:
+		frappe.throw("Заказ уже выдан.")
 	if not doc.korkem_ready_on:
 		frappe.throw("Заказ ещё не готов — не все этапы отмечены.")
 	debt = _debt(doc)
 	if debt > 0:
-		if "System Manager" not in frappe.get_roles():
+		if not _is_owner():
 			frappe.throw(f"Остаток долга {debt:,.0f} ₸ — выдать может администратор с комментарием.".replace(",", " "))
 		_reason(comment, "Укажите, почему заказ выдан с долгом.")
 		doc.add_comment("Comment", f"Выдан с долгом {debt:,.0f} ₸: {comment.strip()}".replace(",", " "))
-	doc.db_set("korkem_handed_over_on", nowdate(), update_modified=True)
+	taken_by = (taken_by or "").strip()[:140] or None
+	taken_phone = (taken_phone or "").strip()[:40] or None
+	doc.db_set({"korkem_handed_over_on": nowdate(), "korkem_taken_by": taken_by,
+				"korkem_taken_phone": taken_phone if taken_by else None,
+				"korkem_handed_over_by": frappe.session.user}, update_modified=True)
+	who = f"{taken_by}{', ' + taken_phone if taken_phone else ''}" if taken_by else "клиент"
+	doc.add_comment("Comment", f"Выдан. Забрал: {who}.")
 	audit.record_audit(action="mdf.handed_over", entity_type="Sales Order", entity_id=doc.name,
-					   diff={"debt": float(debt)})
+					   diff={"debt": float(debt), "taken_by": taken_by})
 	return card(doc.name)
+
+
+def return_to_work(order: str, reason: str) -> dict:
+	"""«Вернуть в работу»: a hand-over undone — by mistake, or the client
+	brought it back. The manager may on the day it was handed over; later,
+	only the owner (09.11.2026). «Готово» comes off: the order is in the shop
+	again and is packed again before it goes.
+	"""
+	facade_prices.ensure_editor()
+	reason = _reason(reason, "Укажите, почему заказ возвращается в работу.")
+	doc = _accepted(order)
+	if not doc.korkem_handed_over_on:
+		frappe.throw("Заказ ещё не выдан.")
+	if getdate(doc.korkem_handed_over_on) != getdate(nowdate()) and not _is_owner():
+		frappe.throw("Выдан не сегодня — вернуть в работу может только владелец.")
+	doc.db_set({"korkem_handed_over_on": None, "korkem_taken_by": None, "korkem_taken_phone": None,
+				"korkem_handed_over_by": None, STAGES["ready"]: None, STAGE_BY["ready"]: None,
+				"korkem_ready_on": None}, update_modified=True)
+	doc.add_comment("Comment", f"Возвращён в работу: {reason}")
+	audit.record_audit(action="mdf.returned_to_work", entity_type="Sales Order", entity_id=doc.name,
+					   diff={"reason": reason})
+	return card(doc.name)
+
+
+def _is_owner() -> bool:
+	"""The owner's word: what a manager may not do — a hand-over with a debt,
+	a fix of an old payment, an old hand-over undone."""
+	return "System Manager" in frappe.get_roles()
 
 
 def card(order: str) -> dict:
@@ -680,21 +721,9 @@ def card(order: str) -> dict:
 		for item in doc.items
 		if item.item_code == facade_order.FACADE_ITEM
 	]
-	payments = frappe.get_all(
-		"Payment Entry Reference",
-		filters={"reference_doctype": "Sales Order", "reference_name": doc.name, "docstatus": 1},
-		fields=["parent", "allocated_amount"],
-	)
-	paid_rows = []
-	for row in payments:
-		entry = frappe.db.get_value("Payment Entry", row.parent,
-									["posting_date", "mode_of_payment", "korkem_bank", "owner"],
-									as_dict=True)
-		from korkem_manufacturing.services.mdf_cash import method_and_bank
+	from korkem_manufacturing.services import mdf_payments
 
-		method, bank = method_and_bank(entry.mode_of_payment, entry.korkem_bank)
-		paid_rows.append({"amount": flt(row.allocated_amount), "date": str(entry.posting_date),
-						  "method": method, "bank": bank, "received_by": entry.owner})
+	paid_rows = mdf_payments.rows(doc.name)
 	return {
 		"name": doc.name,
 		"status": status_of(doc),
@@ -727,6 +756,9 @@ def card(order: str) -> dict:
 		],
 		"ready_on": str(doc.korkem_ready_on) if doc.korkem_ready_on else None,
 		"handed_over_on": str(doc.korkem_handed_over_on) if doc.korkem_handed_over_on else None,
+		"taken_by": doc.get("korkem_taken_by"),
+		"taken_phone": doc.get("korkem_taken_phone"),
+		"handed_over_by": _full_name(doc.get("korkem_handed_over_by")),
 		"hold_reason": doc.korkem_hold_reason,
 		"notes": doc.terms,
 		"history": history(doc.name),
@@ -1148,6 +1180,12 @@ def _check_total(doc, expected: float) -> None:
 			f"ERPNext посчитал заказ на {flt(doc.grand_total):,.2f} ₸, а расчёт — на {expected:,.0f} ₸. "
 			"Вероятно, настроен налог или правило цены. Заказ не сохранён.".replace(",", " ")
 		)
+
+
+def _full_name(user: str | None) -> str | None:
+	if not user:
+		return None
+	return frappe.db.get_value("User", user, "full_name") or user
 
 
 def _order(name: str):

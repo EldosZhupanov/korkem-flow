@@ -422,8 +422,49 @@ class MdfOrderRepository {
   Future<MdfOrder> hold(String order, String? reason) =>
       _post('hold', {'order': order, 'reason': ?reason});
 
-  Future<MdfOrder> handOver(String order, {String? comment}) =>
-      _post('hand_over', {'order': order, 'comment': ?comment});
+  /// [takenBy] — who came for it when not the customer, with a phone.
+  Future<MdfOrder> handOver(
+    String order, {
+    String? comment,
+    String? takenBy,
+    String? takenPhone,
+  }) => _post('hand_over', {
+    'order': order,
+    'comment': ?comment,
+    'taken_by': ?takenBy,
+    'taken_phone': ?takenPhone,
+  });
+
+  /// A hand-over undone, with a reason (the same day, or by the owner).
+  Future<MdfOrder> returnToWork(String order, String reason) =>
+      _post('return_to_work', {'order': order, 'reason': reason});
+
+  /// A payment entered wrong: cancelled on the server and entered again.
+  Future<MdfOrder> fixPayment(
+    String order, {
+    required String entry,
+    required String reason,
+    required double amount,
+    required String method,
+    String? bank,
+  }) => _post('fix_payment', {
+    'order': order,
+    'entry': entry,
+    'reason': reason,
+    'amount': amount,
+    'method': method,
+    'bank': ?bank,
+  });
+
+  Future<MdfOrder> deletePayment(
+    String order, {
+    required String entry,
+    required String reason,
+  }) => _post('delete_payment', {
+    'order': order,
+    'entry': entry,
+    'reason': reason,
+  });
 
   /// Written once even if the network drops halfway (idempotency key).
   Future<void> addPayment(

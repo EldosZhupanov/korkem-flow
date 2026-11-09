@@ -722,6 +722,59 @@ class TestMdfOrders(IntegrationTestCase):
 			self._as(MANAGER, mdf_orders.price, [{**lines[2], "film": self.decor}], finish=None)
 		self.assertEqual(mdf_orders.stages_for(None, coatings="raw"), ["cut", "mill", "sand", "ready"])
 
+	def test_a_payment_is_fixed_or_taken_back_the_same_day_and_an_old_one_only_by_the_owner(self):
+		from korkem_manufacturing.api import mdf_orders as api
+
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		self.addCleanup(self._cancel_payments, card["name"])
+		card = self._as(MANAGER, api.add_payment, card["name"], 50_000, "Наличные")
+		entry = card["payments"][0]["entry"]
+		# Typed 50 000 for 5 000: cancelled and entered again, the old one struck through.
+		card = self._as(MANAGER, api.fix_payment, card["name"], entry, "Ошибка в сумме", 5_000, "Наличные")
+		self.assertEqual(card["paid"], 5_000)
+		self.assertEqual([(p["amount"], p["cancelled"]) for p in card["payments"]],
+						 [(50_000, True), (5_000, False)])
+		self.assertTrue(any("Оплата исправлена" in h["text"] and "Ошибка в сумме" in h["text"]
+							for h in card["history"]))
+		with self.assertRaises(frappe.ValidationError):  # already cancelled
+			self._as(MANAGER, api.delete_payment, card["name"], entry, "Дважды")
+		with self.assertRaises(frappe.ValidationError):  # no reason
+			self._as(MANAGER, api.delete_payment, card["name"], card["payments"][1]["entry"], " ")
+		# Entered yesterday: the manager may not, the owner may.
+		live = card["payments"][1]["entry"]
+		frappe.db.set_value("Payment Entry", live, "creation", add_days(nowdate(), -1), update_modified=False)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, api.delete_payment, card["name"], live, "Не тот заказ")
+		card = api.delete_payment(card["name"], live, "Не тот заказ")
+		self.assertEqual(card["paid"], 0)
+		self.assertTrue(all(p["cancelled"] for p in card["payments"]))
+
+	def test_a_hand_over_says_who_took_it_and_goes_back_to_work_with_a_reason(self):
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		for stage in mdf_orders.stages_for(PVC):
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
+		card = mdf_orders.hand_over(card["name"], comment="Доплатит", taken_by="Ерлан, водитель",
+									taken_phone="87011234567")
+		self.assertEqual((card["taken_by"], card["taken_phone"]), ("Ерлан, водитель", "87011234567"))
+		self.assertTrue(any("Забрал: Ерлан, водитель" in h["text"] for h in card["history"]))
+		with self.assertRaises(frappe.ValidationError):  # twice
+			mdf_orders.hand_over(card["name"], comment="Ещё раз")
+		with self.assertRaises(frappe.ValidationError):  # no reason
+			self._as(MANAGER, mdf_orders.return_to_work, card["name"], "")
+		# Handed over yesterday: only the owner takes it back.
+		frappe.db.set_value("Sales Order", card["name"], "korkem_handed_over_on", add_days(nowdate(), -1))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.return_to_work, card["name"], "Скол на детали")
+		card = mdf_orders.return_to_work(card["name"], "Скол на детали")
+		self.assertEqual(card["status"], "in_shop")
+		self.assertIsNone(card["taken_by"])
+		self.assertIsNone(next(s for s in card["stages"] if s["stage"] == "ready")["done_on"])
+		self.assertTrue(any("Возвращён в работу: Скол на детали" in h["text"] for h in card["history"]))
+
 	def test_a_material_name_gives_the_thickness(self):
 		self.assertEqual(mdf_orders.thickness_of("16 мм ЛМДФ"), 16)
 		self.assertEqual(mdf_orders.thickness_of("3 мм ХДФ"), 3)
