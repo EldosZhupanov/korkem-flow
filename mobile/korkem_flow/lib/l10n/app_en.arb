@@ -6071,5 +6071,36 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mdfColCoating": "Coating",
+  "mdfPrintHeightShort": "H",
+  "mdfPrintWidthShort": "W",
+  "mdfPrintThickShort": "Thk.",
+  "mdfPrintMaterialShort": "Mat.",
+  "mdfPrintSubtotal": "Total",
+  "mdfPrintPieces": "pcs",
+  "mdfChangesTitle": "What changed",
+  "mdfReasonClient": "Customer changed it",
+  "mdfReasonMistake": "Mistake at intake",
+  "mdfReasonAdded": "Positions added",
+  "mdfReasonPrice": "Price changed",
+  "mdfLeaveUnsaved": "Leave without saving? The changes will be lost.",
+  "mdfLeave": "Leave",
+  "mdfChangeAdded": "Position {n} added",
+  "mdfChangeRemoved": "Position {n} removed",
+  "@mdfChangeAdded": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@mdfChangeRemoved": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfTagsTitle": "Tags"
 }

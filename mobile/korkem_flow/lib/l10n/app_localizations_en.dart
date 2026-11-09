@@ -5443,4 +5443,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String mdfCoatingSwitchAsk(String film, String coating) {
     return '«$film» is not in the «$coating» list. The block\'s colour will be cleared; positions, sizes and prices stay. Change it?';
   }
+
+  @override
+  String get mdfColCoating => 'Coating';
+
+  @override
+  String get mdfPrintHeightShort => 'H';
+
+  @override
+  String get mdfPrintWidthShort => 'W';
+
+  @override
+  String get mdfPrintThickShort => 'Thk.';
+
+  @override
+  String get mdfPrintMaterialShort => 'Mat.';
+
+  @override
+  String get mdfPrintSubtotal => 'Total';
+
+  @override
+  String get mdfPrintPieces => 'pcs';
+
+  @override
+  String get mdfChangesTitle => 'What changed';
+
+  @override
+  String get mdfReasonClient => 'Customer changed it';
+
+  @override
+  String get mdfReasonMistake => 'Mistake at intake';
+
+  @override
+  String get mdfReasonAdded => 'Positions added';
+
+  @override
+  String get mdfReasonPrice => 'Price changed';
+
+  @override
+  String get mdfLeaveUnsaved =>
+      'Leave without saving? The changes will be lost.';
+
+  @override
+  String get mdfLeave => 'Leave';
+
+  @override
+  String mdfChangeAdded(int n) {
+    return 'Position $n added';
+  }
+
+  @override
+  String mdfChangeRemoved(int n) {
+    return 'Position $n removed';
+  }
+
+  @override
+  String get mdfTagsTitle => 'Tags';
 }
