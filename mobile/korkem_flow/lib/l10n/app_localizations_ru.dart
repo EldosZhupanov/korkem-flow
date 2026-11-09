@@ -5423,4 +5423,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPaintNone => 'Краска не выбрана';
+
+  @override
+  String get mdfCoatingNotChosen => 'Покрытие не выбрано';
+
+  @override
+  String mdfCoatingSwitchAsk(String film, String coating) {
+    return '«$film» нет в справочнике «$coating». Цвет блока сбросится, позиции, размеры и цены останутся. Сменить?';
+  }
 }

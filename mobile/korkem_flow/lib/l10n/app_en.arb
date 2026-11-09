@@ -6047,5 +6047,17 @@
   "mdfCoatingPick": "Which coating?",
   "mdfColor": "Colour",
   "mdfDictPaint": "Paints",
-  "mdfPaintNone": "No paint chosen"
+  "mdfPaintNone": "No paint chosen",
+  "mdfCoatingNotChosen": "No coating chosen",
+  "mdfCoatingSwitchAsk": "«{film}» is not in the «{coating}» list. The block's colour will be cleared; positions, sizes and prices stay. Change it?",
+  "@mdfCoatingSwitchAsk": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      },
+      "coating": {
+        "type": "String"
+      }
+    }
+  }
 }

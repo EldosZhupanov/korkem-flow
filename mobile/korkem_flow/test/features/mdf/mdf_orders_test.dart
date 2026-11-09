@@ -384,6 +384,67 @@ void main() {
     );
   });
 
+  testWidgets("a new order's first block asks its type; a type can change", (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfOrderRepositoryProvider.overrideWithValue(_FakeRepository()),
+        ],
+        child: harness(const MdfOrderScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // No ПВХ by default: the manager may start with paint.
+    for (final c in MdfCoating.values) {
+      expect(find.byKey(ValueKey('mdfGroupType:0:${c.name}')), findsOneWidget);
+    }
+    await tester.tap(find.byKey(const ValueKey('mdfGroupType:0:paint')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('mdfGroupCoating:0:paint')),
+      findsOneWidget,
+    );
+    // And changed from the header: no colour yet, so no question.
+    await tester.tap(find.byKey(const ValueKey('mdfGroupCoating:0:paint')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfGroupTypeTo:raw')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfGroupCoating:0:raw')), findsOneWidget);
+  });
+
+  testWidgets("changing a coloured block's type asks, then clears the colour", (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(_TwoFilms())],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfGroupCoating:0:pvc')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfGroupTypeTo:paint')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfCoatingSwitchYes')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('mdfGroupCoating:0:paint')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('mdfGroupCoating:1:pvc')), findsOneWidget);
+  });
+
   testWidgets('«+ Добавить покрытие» asks the type first', (tester) async {
     tester.view
       ..physicalSize = const Size(2400, 3200)
