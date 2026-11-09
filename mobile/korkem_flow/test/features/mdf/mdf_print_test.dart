@@ -84,10 +84,61 @@ final MdfPrintWords _words = (
   pieces: 'дана',
   radius: 'R',
   thicknessColumn: 'Қалыңдығы',
+  tags: 'Белгілер',
+  tag: (t) => t.wire,
 );
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('an urgent warranty order prints its tags on both copies', () async {
+    final order = MdfOrder.fromJson({
+      ..._orderJson,
+      'head': {
+        ...(_orderJson['head']! as Map<String, Object?>),
+        'tags': const ['urgent', 'warranty'],
+      },
+    });
+    expect(order.tags, [MdfOrderTag.urgent, MdfOrderTag.warranty]);
+    for (final withPrices in [true, false]) {
+      final bytes = await buildMdfOrderPdf(
+        order,
+        _words,
+        withPrices: withPrices,
+      );
+      expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
+    }
+  });
+
+  test("a position's extras read on one line, the note apart", () {
+    const plain = MdfLine(
+      heightMm: 100,
+      widthMm: 100,
+      qty: 1,
+      areaM2: 0.01,
+      rateM2: 0,
+      amount: 0,
+    );
+    expect(
+      mdfExtrasLine(plain, back: 'обр.', patina: 'Патина', note: 'Прим.'),
+      isNull,
+    );
+    const rich = MdfLine(
+      heightMm: 100,
+      widthMm: 100,
+      qty: 1,
+      areaM2: 0.01,
+      rateM2: 0,
+      amount: 0,
+      filmBack: 'Графит',
+      patina: 'Золото',
+      note: 'Продолжение узора',
+    );
+    expect(
+      mdfExtrasLine(rich, back: 'обр.', patina: 'Патина', note: 'Прим.'),
+      '+ обр.: Графит   + Патина: Золото   Прим.: Продолжение узора',
+    );
+  });
 
   for (final withPrices in [true, false]) {
     test(

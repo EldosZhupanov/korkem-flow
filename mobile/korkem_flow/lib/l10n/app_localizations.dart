@@ -9746,6 +9746,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick in the calendar…'**
   String get mdfDueCalendar;
+
+  /// No description provided for @mdfPaymentFix.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix'**
+  String get mdfPaymentFix;
+
+  /// No description provided for @mdfPaymentDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete payment'**
+  String get mdfPaymentDelete;
+
+  /// No description provided for @mdfPaymentFixTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix the payment'**
+  String get mdfPaymentFixTitle;
+
+  /// No description provided for @mdfPaymentReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get mdfPaymentReason;
+
+  /// No description provided for @mdfPayReasonAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong amount'**
+  String get mdfPayReasonAmount;
+
+  /// No description provided for @mdfPayReasonMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong method'**
+  String get mdfPayReasonMethod;
+
+  /// No description provided for @mdfPayReasonBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong bank'**
+  String get mdfPayReasonBank;
+
+  /// No description provided for @mdfPayReasonTwice.
+  ///
+  /// In en, this message translates to:
+  /// **'Entered twice'**
+  String get mdfPayReasonTwice;
+
+  /// No description provided for @mdfPaymentCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'cancelled'**
+  String get mdfPaymentCancelled;
+
+  /// No description provided for @mdfHandOverCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check before hand-over'**
+  String get mdfHandOverCheck;
+
+  /// No description provided for @mdfHandOverStagesDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All stages done'**
+  String get mdfHandOverStagesDone;
+
+  /// No description provided for @mdfHandOverCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted the pieces: {n}'**
+  String mdfHandOverCounted(int n);
+
+  /// No description provided for @mdfTakenByClient.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer'**
+  String get mdfTakenByClient;
+
+  /// No description provided for @mdfTakenByOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else'**
+  String get mdfTakenByOther;
+
+  /// No description provided for @mdfTakenByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken by'**
+  String get mdfTakenByName;
+
+  /// No description provided for @mdfTakenByPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get mdfTakenByPhone;
+
+  /// No description provided for @mdfHandedOverOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over {date}'**
+  String mdfHandedOverOn(String date);
+
+  /// No description provided for @mdfHandedOverBy.
+  ///
+  /// In en, this message translates to:
+  /// **'by {name}'**
+  String mdfHandedOverBy(String name);
+
+  /// No description provided for @mdfTakenBy.
+  ///
+  /// In en, this message translates to:
+  /// **'taken by {who}'**
+  String mdfTakenBy(String who);
+
+  /// No description provided for @mdfHandedWithDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'with a debt of {amount}'**
+  String mdfHandedWithDebt(String amount);
+
+  /// No description provided for @mdfReturnToWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to work'**
+  String get mdfReturnToWork;
+
+  /// No description provided for @mdfReturnReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why back to work'**
+  String get mdfReturnReason;
+
+  /// No description provided for @mdfHandedOverDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Order handed over'**
+  String get mdfHandedOverDone;
+
+  /// No description provided for @mdfPayOrderTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get mdfPayOrderTotal;
+
+  /// No description provided for @mdfPayPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get mdfPayPaid;
+
+  /// No description provided for @mdfPayLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get mdfPayLeft;
+
+  /// No description provided for @mdfPayAddPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Another method'**
+  String get mdfPayAddPart;
+
+  /// No description provided for @mdfPayAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {sum} · debt after {debt}'**
+  String mdfPayAfter(String sum, String debt);
+
+  /// No description provided for @mdfPayOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} more than is left. It may be paid already'**
+  String mdfPayOver(String amount);
+
+  /// No description provided for @mdfPayOverOk.
+  ///
+  /// In en, this message translates to:
+  /// **'It is an overpayment / advance'**
+  String get mdfPayOverOk;
 }
 
 class _AppLocalizationsDelegate

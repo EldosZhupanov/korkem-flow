@@ -73,8 +73,14 @@ def hold(order: str, reason: str | None = None) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def hand_over(order: str, comment: str | None = None) -> dict:
-	return service.hand_over(order, comment)
+def hand_over(order: str, comment: str | None = None, taken_by: str | None = None,
+			  taken_phone: str | None = None) -> dict:
+	return service.hand_over(order, comment, taken_by=taken_by, taken_phone=taken_phone)
+
+
+@frappe.whitelist(methods=["POST"])
+def return_to_work(order: str, reason: str) -> dict:
+	return service.return_to_work(order, reason)
 
 
 @frappe.whitelist(methods=["GET"])
@@ -226,20 +232,10 @@ def stages_for(finish: str | None = None) -> list[str]:
 def add_payment(order: str, amount: float | str, method: str = "Перевод", paid_on: str | None = None,
 				idempotency_key: str | None = None, bank: str | None = None) -> dict:
 	"""Оплата по заказу: сумма, способ (и банк перевода или карты), дата."""
-	from korkem_manufacturing.services import facade_prices, facade_spec, payments
-	from korkem_manufacturing.services.scope import current_company
+	from korkem_manufacturing.services import facade_prices, payments
 
 	facade_prices.ensure_editor()
-	if method in LEGACY_METHODS:
-		method, bank = LEGACY_METHODS[method][0], bank or LEGACY_METHODS[method][1]
-	if method not in PAYMENT_METHODS:
-		frappe.throw(f"Способ оплаты — один из: {', '.join(PAYMENT_METHODS)}.")
-	bank = facade_spec._text(bank) if method in WITH_BANK else None
-	if bank:
-		banks = facade_spec._values("Банк", current_company())
-		if banks and bank not in banks and bank not in {b for _, b in LEGACY_METHODS.values()}:
-			frappe.throw(f"Банка «{bank}» нет в справочнике «Банк».")
-	_ensure_mode(method)
+	method, bank = _method_bank(method, bank)
 	doc = service._accepted(order)
 	payments.record_payment(
 		sales_order=doc.name,
@@ -250,7 +246,53 @@ def add_payment(order: str, amount: float | str, method: str = "Перевод",
 		paid_on=paid_on,
 		idempotency_key=idempotency_key,
 	)
+	from korkem_manufacturing.services import mdf_payments
+
+	doc.add_comment("Comment", f"Оплата: {mdf_payments._words(float(amount), method, bank)}.")
 	return service.card(doc.name)
+
+
+@frappe.whitelist(methods=["POST"])
+def fix_payment(order: str, entry: str, reason: str, amount: float | str, method: str,
+				bank: str | None = None) -> dict:
+	"""A payment entered wrong: cancelled and entered again (owner, 09.11.2026)."""
+	from korkem_manufacturing.services import facade_prices, mdf_payments
+
+	facade_prices.ensure_editor()
+	reason = service._reason(reason, "Укажите, почему оплата исправляется.")
+	method, bank = _method_bank(method, bank)
+	doc = service._accepted(order)
+	mdf_payments.fix(doc, entry, reason=reason, amount=amount, method=method, bank=bank)
+	return service.card(doc.name)
+
+
+@frappe.whitelist(methods=["POST"])
+def delete_payment(order: str, entry: str, reason: str) -> dict:
+	from korkem_manufacturing.services import facade_prices, mdf_payments
+
+	facade_prices.ensure_editor()
+	reason = service._reason(reason, "Укажите, почему оплата удаляется.")
+	doc = service._accepted(order)
+	mdf_payments.delete(doc, entry, reason=reason)
+	return service.card(doc.name)
+
+
+def _method_bank(method: str, bank: str | None) -> tuple[str, str | None]:
+	"""One of the three methods, and the bank from the «Банк» list for a transfer or a card."""
+	from korkem_manufacturing.services import facade_spec
+	from korkem_manufacturing.services.scope import current_company
+
+	if method in LEGACY_METHODS:
+		method, bank = LEGACY_METHODS[method][0], bank or LEGACY_METHODS[method][1]
+	if method not in PAYMENT_METHODS:
+		frappe.throw(f"Способ оплаты — один из: {', '.join(PAYMENT_METHODS)}.")
+	bank = facade_spec._text(bank) if method in WITH_BANK else None
+	if bank:
+		banks = facade_spec._values("Банк", current_company())
+		if banks and bank not in banks and bank not in {b for _, b in LEGACY_METHODS.values()}:
+			frappe.throw(f"Банка «{bank}» нет в справочнике «Банк».")
+	_ensure_mode(method)
+	return method, bank
 
 
 def _ensure_mode(method: str) -> None:

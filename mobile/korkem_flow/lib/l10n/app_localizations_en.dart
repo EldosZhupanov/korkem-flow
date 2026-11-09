@@ -5471,4 +5471,108 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfDueCalendar => 'Pick in the calendar…';
+
+  @override
+  String get mdfPaymentFix => 'Fix';
+
+  @override
+  String get mdfPaymentDelete => 'Delete payment';
+
+  @override
+  String get mdfPaymentFixTitle => 'Fix the payment';
+
+  @override
+  String get mdfPaymentReason => 'Reason';
+
+  @override
+  String get mdfPayReasonAmount => 'Wrong amount';
+
+  @override
+  String get mdfPayReasonMethod => 'Wrong method';
+
+  @override
+  String get mdfPayReasonBank => 'Wrong bank';
+
+  @override
+  String get mdfPayReasonTwice => 'Entered twice';
+
+  @override
+  String get mdfPaymentCancelled => 'cancelled';
+
+  @override
+  String get mdfHandOverCheck => 'Check before hand-over';
+
+  @override
+  String get mdfHandOverStagesDone => 'All stages done';
+
+  @override
+  String mdfHandOverCounted(int n) {
+    return 'Counted the pieces: $n';
+  }
+
+  @override
+  String get mdfTakenByClient => 'The customer';
+
+  @override
+  String get mdfTakenByOther => 'Someone else';
+
+  @override
+  String get mdfTakenByName => 'Taken by';
+
+  @override
+  String get mdfTakenByPhone => 'Phone';
+
+  @override
+  String mdfHandedOverOn(String date) {
+    return 'Handed over $date';
+  }
+
+  @override
+  String mdfHandedOverBy(String name) {
+    return 'by $name';
+  }
+
+  @override
+  String mdfTakenBy(String who) {
+    return 'taken by $who';
+  }
+
+  @override
+  String mdfHandedWithDebt(String amount) {
+    return 'with a debt of $amount';
+  }
+
+  @override
+  String get mdfReturnToWork => 'Back to work';
+
+  @override
+  String get mdfReturnReason => 'Why back to work';
+
+  @override
+  String get mdfHandedOverDone => 'Order handed over';
+
+  @override
+  String get mdfPayOrderTotal => 'Order';
+
+  @override
+  String get mdfPayPaid => 'Paid';
+
+  @override
+  String get mdfPayLeft => 'Left';
+
+  @override
+  String get mdfPayAddPart => 'Another method';
+
+  @override
+  String mdfPayAfter(String sum, String debt) {
+    return 'Total $sum · debt after $debt';
+  }
+
+  @override
+  String mdfPayOver(String amount) {
+    return '$amount more than is left. It may be paid already';
+  }
+
+  @override
+  String get mdfPayOverOk => 'It is an overpayment / advance';
 }

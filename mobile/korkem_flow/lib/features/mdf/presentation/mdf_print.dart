@@ -53,6 +53,10 @@ typedef MdfPrintWords = ({
 
   /// «шт» in a group's and the order's total line.
   String pieces,
+
+  /// «Метки» — the head's row of the order's tags, and a tag by name.
+  String tags,
+  String Function(MdfOrderTag tag) tag,
 });
 
 /// One MDF order on an A4 page, the way the owner prints it from OnayBaza
@@ -102,6 +106,10 @@ Future<Uint8List> buildMdfOrderPdf(
     return seen.isNotEmpty ? seen : fallback ?? '';
   }
 
+  // Срочный, гарантия, переделка (owner, 09.11.2026, variant В): a row of
+  // the head on both copies, and on the shop's a black band across the top
+  // that the floor sees from the door.
+  final tagNames = [for (final t in order.tags) words.tag(t)];
   final thicknesses = {
     for (final l in order.lines) ?l.thicknessMm,
   }.toList()..sort();
@@ -143,6 +151,7 @@ Future<Uint8List> buildMdfOrderPdf(
       ),
     ),
     if (h.extraName != null) (words.extraName, h.extraName!),
+    if (tagNames.isNotEmpty) (words.tags, tagNames.join(', ')),
     if (withPrices) (words.paid, '${money.format(order.paid)} ₸'),
     if (withPrices) (words.debt, '${money.format(order.debt)} ₸'),
   ];
@@ -186,19 +195,13 @@ Future<Uint8List> buildMdfOrderPdf(
       text('${l.heightMm}', right: true),
       text('${l.widthMm}', right: true),
       text('${l.qty}', right: true),
-      text([l.milling, l.note].whereType<String>().join(' · ')),
+      text(l.milling ?? ''),
       // Any edge but the usual R3 in bold: the shop must not miss it.
       text(
         l.edge ?? '',
         style: l.edge != null && l.edge != mdfDefaultEdge ? bold : null,
       ),
-      text(
-        [
-          _groupName(words, l.coating, l.film),
-          if (l.filmBack != null) '+ ${words.back}: ${l.filmBack}',
-          if (l.patina != null) '+ ${words.patina}: ${l.patina}',
-        ].join('\n'),
-      ),
+      text(_groupName(words, l.coating, l.film)),
       text(l.thicknessMm == null ? '' : '${l.thicknessMm} мм', right: true),
       text(l.material ?? ''),
       text(area.format(l.areaM2), right: true),
@@ -248,11 +251,66 @@ Future<Uint8List> buildMdfOrderPdf(
     children: children,
   );
 
+  // Variant Б (owner, 09.11.2026): what a position has besides its film —
+  // the back side, a patina, a note — on a line of its own under it, across
+  // the page, instead of a third line squeezed into the film's cell.
+  List<pw.Widget> groupLines(MdfFilmGroup group, int g) {
+    final out = <pw.Widget>[];
+    var pending = <pw.TableRow>[];
+    for (final (n, l) in group.lines) {
+      pending.add(lineRow(n, l, g));
+      final extras = mdfExtrasLine(
+        l,
+        back: words.back,
+        patina: words.patina,
+        note: words.note,
+      );
+      if (extras == null) continue;
+      out
+        ..add(rows(pending))
+        ..add(
+          pw.Container(
+            width: double.infinity,
+            decoration: pw.BoxDecoration(
+              color: tint(g),
+              border: const pw.Border(
+                left: pw.BorderSide(width: 0.5),
+                right: pw.BorderSide(width: 0.5),
+                bottom: pw.BorderSide(width: 0.5),
+              ),
+            ),
+            padding: const pw.EdgeInsets.only(left: 24),
+            child: text(extras),
+          ),
+        );
+      pending = [];
+    }
+    if (pending.isNotEmpty) out.add(rows(pending));
+    return out;
+  }
+
   doc.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(28, 24, 28, 24),
       build: (context) => [
+        if (!withPrices && tagNames.isNotEmpty)
+          pw.Container(
+            width: double.infinity,
+            margin: const pw.EdgeInsets.only(bottom: 8),
+            padding: const pw.EdgeInsets.symmetric(vertical: 6),
+            color: PdfColors.black,
+            child: pw.Text(
+              tagNames.join(' · ').toUpperCase(),
+              textAlign: pw.TextAlign.center,
+              style: const pw.TextStyle(
+                fontSize: 20,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.white,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ),
         pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
@@ -301,7 +359,7 @@ Future<Uint8List> buildMdfOrderPdf(
           ),
         ]),
         for (final (g, group) in groups.indexed) ...[
-          rows([for (final (n, l) in group.lines) lineRow(n, l, g)]),
+          ...groupLines(group, g),
           if (groups.length > 1)
             sumLine(
               '${words.subtotal} '
@@ -327,6 +385,23 @@ Future<void> printMdfOrder({
   required String name,
   required Future<Uint8List> Function() build,
 }) => Printing.layoutPdf(name: name, onLayout: (_) => build());
+
+/// A position's extras in one line — «+ обр.: …   + патина: …   Прим.: …» —
+/// or null when it has none; the card and the printout both show it under
+/// the position.
+String? mdfExtrasLine(
+  MdfLine l, {
+  required String back,
+  required String patina,
+  required String note,
+}) {
+  final parts = [
+    if (l.filmBack != null) '+ $back: ${l.filmBack}',
+    if (l.patina != null) '+ $patina: ${l.patina}',
+    if (l.note != null && l.note!.trim().isNotEmpty) '$note: ${l.note!.trim()}',
+  ];
+  return parts.isEmpty ? null : parts.join('   ');
+}
 
 String _groupName(MdfPrintWords words, MdfCoating? coating, String? film) => [
   if (coating != null) words.coating(coating),

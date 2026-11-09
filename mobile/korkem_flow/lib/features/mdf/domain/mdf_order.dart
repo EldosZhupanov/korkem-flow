@@ -436,6 +436,8 @@ class MdfPayment {
     required this.date,
     this.method,
     this.bank,
+    this.entry,
+    this.cancelled = false,
   });
 
   factory MdfPayment.fromJson(Map<String, dynamic> json) => MdfPayment(
@@ -443,7 +445,15 @@ class MdfPayment {
     date: '${json['date'] ?? ''}',
     method: _s(json['method']),
     bank: _s(json['bank']),
+    entry: _s(json['entry']),
+    cancelled: json['cancelled'] == true,
   );
+
+  /// The server's name of it — what a fix or a delete points at.
+  final String? entry;
+
+  /// Fixed or deleted: shown struck through, counted nowhere.
+  final bool cancelled;
 
   final double amount;
   final String date;
@@ -476,6 +486,9 @@ class MdfOrder {
     this.phone,
     this.readyOn,
     this.handedOverOn,
+    this.takenBy,
+    this.takenPhone,
+    this.handedOverBy,
     this.holdReason,
     this.notes,
     this.history = const [],
@@ -518,6 +531,9 @@ class MdfOrder {
     },
     readyOn: _s(json['ready_on']),
     handedOverOn: _s(json['handed_over_on']),
+    takenBy: _s(json['taken_by']),
+    takenPhone: _s(json['taken_phone']),
+    handedOverBy: _s(json['handed_over_by']),
     holdReason: _s(json['hold_reason']),
     notes: _s(json['notes']),
     history: [
@@ -562,6 +578,11 @@ class MdfOrder {
   final Map<MdfStage, String?> stages;
   final String? readyOn;
   final String? handedOverOn;
+
+  /// Who came for it, when not the customer — with a phone; and who gave it.
+  final String? takenBy;
+  final String? takenPhone;
+  final String? handedOverBy;
   final String? holdReason;
   final String? notes;
 
