@@ -10,10 +10,10 @@ String mdfCoatingLabel(MdfCoating coating, AppLocalizations l10n) =>
     };
 
 /// The list a coating's colours come from; a raw facade has none.
-MdfDictKind? mdfCoatingList(MdfCoating coating) => switch (coating) {
+MdfDictKind? mdfCoatingList(MdfCoating? coating) => switch (coating) {
   MdfCoating.pvc => MdfDictKind.decor,
   MdfCoating.paint => MdfDictKind.paint,
-  MdfCoating.raw => null,
+  MdfCoating.raw || null => null,
 };
 
 /// «ПВХ · Графит», «Краска · RAL 9010», «Черновой» — a group by name.
@@ -28,8 +28,9 @@ String mdfGroupName(
 
 /// What a group without a colour says: «Плёнка не выбрана», «Краска не
 /// выбрана».
-String mdfCoatingNone(MdfCoating coating, AppLocalizations l10n) =>
+String mdfCoatingNone(MdfCoating? coating, AppLocalizations l10n) =>
     switch (coating) {
       MdfCoating.paint => l10n.mdfPaintNone,
       MdfCoating.pvc || MdfCoating.raw => l10n.mdfFilmNone,
+      null => l10n.mdfCoatingNotChosen,
     };

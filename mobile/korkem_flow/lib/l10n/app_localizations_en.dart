@@ -5399,4 +5399,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPaintNone => 'No paint chosen';
+
+  @override
+  String get mdfCoatingNotChosen => 'No coating chosen';
+
+  @override
+  String mdfCoatingSwitchAsk(String film, String coating) {
+    return '«$film» is not in the «$coating» list. The block\'s colour will be cleared; positions, sizes and prices stay. Change it?';
+  }
 }

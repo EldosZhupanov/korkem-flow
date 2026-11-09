@@ -9620,6 +9620,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No paint chosen'**
   String get mdfPaintNone;
+
+  /// No description provided for @mdfCoatingNotChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'No coating chosen'**
+  String get mdfCoatingNotChosen;
+
+  /// No description provided for @mdfCoatingSwitchAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'«{film}» is not in the «{coating}» list. The block\'s colour will be cleared; positions, sizes and prices stay. Change it?'**
+  String mdfCoatingSwitchAsk(String film, String coating);
 }
 
 class _AppLocalizationsDelegate

@@ -5362,4 +5362,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPaintNone => 'Бояу таңдалмаған';
+
+  @override
+  String get mdfCoatingNotChosen => 'Жабын таңдалмаған';
+
+  @override
+  String mdfCoatingSwitchAsk(String film, String coating) {
+    return '«$film» «$coating» анықтамалығында жоқ. Блок түсі өшеді, позициялар, өлшемдер мен бағалар қалады. Ауыстыру керек пе?';
+  }
 }
