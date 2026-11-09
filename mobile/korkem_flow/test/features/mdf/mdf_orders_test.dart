@@ -614,6 +614,43 @@ void main() {
     expect(repo.paid, [(5000.0, 'Наличные', null)]);
   });
 
+  testWidgets('a change with nothing changed asks no reason', (tester) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfChangeOrder')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfSaveChange')));
+    await tester.pumpAndSettle();
+    // Straight back to the card: no dialog, nothing sent.
+    expect(find.byKey(const ValueKey('mdfChangeReasonField')), findsNothing);
+    expect(find.byKey(const ValueKey('mdfChangeOrder')), findsOneWidget);
+
+    // A real change: the dialog says what, and a ready reason is enough.
+    await tester.tap(find.byKey(const ValueKey('mdfChangeOrder')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('mdfQ:0')), '9');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfSaveChange')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfChangesList')), findsOneWidget);
+    expect(find.textContaining('→ 9'), findsOneWidget);
+    final yes = find.byKey(const ValueKey('mdfChangeReasonYes'));
+    expect(tester.widget<FilledButton>(yes).onPressed, isNull);
+    await tester.tap(find.byKey(const ValueKey('mdfReasonChip:0')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(yes).onPressed, isNotNull);
+  });
+
   testWidgets('the manager ticks a stage on the card', (tester) async {
     final repo = _FakeRepository();
     await tester.pumpWidget(

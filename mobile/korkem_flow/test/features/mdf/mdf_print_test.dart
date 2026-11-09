@@ -79,6 +79,8 @@ final MdfPrintWords _words = (
   back: 'асты',
   subtotal: 'Барлығы',
   coating: (c) => c.name,
+  materialColumn: 'Матер.',
+  pieces: 'дана',
   radius: 'R',
   thicknessColumn: 'Қалыңдығы',
 );

@@ -45,6 +45,13 @@ typedef MdfPrintWords = ({
 
   /// A group's coating type by name: ПВХ, краска, черновой.
   String Function(MdfCoating coating) coating,
+
+  /// «Матер.» — the material column's short head (09.11.2026: full words
+  /// broke letter by letter in narrow columns).
+  String materialColumn,
+
+  /// «шт» in a group's and the order's total line.
+  String pieces,
 });
 
 /// One MDF order on an A4 page, the way the owner prints it from OnayBaza
@@ -76,17 +83,46 @@ Future<Uint8List> buildMdfOrderPdf(
   final bold = pw.TextStyle(fontSize: size, fontWeight: pw.FontWeight.bold);
   final h = order.head;
 
+  final groups = mdfFilmGroups(order.lines);
+  // The head says what the positions have, every kind of it (owner,
+  // 09.11.2026): «16 мм, 18 мм», all the coatings, «R3, R0» — the order's
+  // defaults only where no position says.
+  String all(Iterable<String?> values, String? fallback) {
+    final seen = <String>{
+      for (final v in values)
+        if (v != null && v.isNotEmpty) v,
+    }.join(', ');
+    return seen.isNotEmpty ? seen : fallback ?? '';
+  }
+
+  final thicknesses = {
+    for (final l in order.lines) ?l.thicknessMm,
+  }.toList()..sort();
   final head = <(String, String)>[
     (words.accepted, order.createdOn),
     (words.due, order.deliveryDate),
     (words.customer, order.customerName),
     (words.phone, order.phone ?? ''),
-    (words.thickness, h.thicknessMm == null ? '' : '${h.thicknessMm} мм'),
-    (words.material, h.material ?? ''),
-    (words.finish, h.finish ?? ''),
+    (
+      words.thickness,
+      all(
+        [for (final t in thicknesses) '$t мм'],
+        h.thicknessMm == null ? null : '${h.thicknessMm} мм',
+      ),
+    ),
+    (
+      words.material,
+      all([for (final l in order.lines) l.material], h.material),
+    ),
+    (
+      words.film,
+      all([
+        for (final g in groups) _groupName(words, g.coating, g.film),
+      ], h.finish),
+    ),
     if (h.patina != null) (words.patina, h.patina!),
     if (h.milling != null) (words.milling, h.milling!),
-    (words.edge, h.edgeProfile ?? ''),
+    (words.radius, all([for (final l in order.lines) l.edge], h.edgeProfile)),
     if (h.extraName != null) (words.extraName, h.extraName!),
     if (withPrices) (words.paid, money.format(order.paid)),
     if (withPrices) (words.debt, money.format(order.debt)),
@@ -111,13 +147,11 @@ Future<Uint8List> buildMdfOrderPdf(
     words.radius,
     words.film,
     words.thicknessColumn,
-    words.material,
+    words.materialColumn,
     words.area,
     if (withPrices) words.rate,
     if (withPrices) words.amount,
   ];
-  final groups = mdfFilmGroups(order.lines);
-
   // The film's colour, pale enough to print text over and to survive a
   // monochrome printer as a grey band; the film is named in words as well.
   PdfColor tint(int g) {
@@ -154,23 +188,45 @@ Future<Uint8List> buildMdfOrderPdf(
     ],
   );
 
-  pw.TableRow sumRow(String label, int pieces, double m2, double amount) =>
-      pw.TableRow(
-        children: [
-          text(''),
-          text(label, style: bold),
-          text(''),
-          text('$pieces', style: bold, right: true),
-          text(''),
-          text(''),
-          text(''),
-          text(''),
-          text(''),
-          text(area.format(m2), style: bold, right: true),
-          if (withPrices) text(''),
-          if (withPrices) text(money.format(amount), style: bold, right: true),
-        ],
+  // A total on one line across the page, not squeezed into a column.
+  pw.Widget sumLine(String label, int pieces, double m2, double amount) =>
+      pw.Container(
+        decoration: const pw.BoxDecoration(
+          border: pw.Border(
+            left: pw.BorderSide(width: 0.5),
+            right: pw.BorderSide(width: 0.5),
+            bottom: pw.BorderSide(width: 0.5),
+          ),
+        ),
+        child: text(
+          [
+            '$label: $pieces ${words.pieces}',
+            '${area.format(m2)} м²',
+            if (withPrices) money.format(amount),
+          ].join(' · '),
+          style: bold,
+        ),
       );
+
+  final widths = <int, pw.TableColumnWidth>{
+    0: const pw.FixedColumnWidth(24),
+    1: const pw.FlexColumnWidth(1.1),
+    2: const pw.FlexColumnWidth(1.1),
+    3: const pw.FlexColumnWidth(0.9),
+    4: const pw.FlexColumnWidth(2.6),
+    5: const pw.FlexColumnWidth(1.5),
+    6: const pw.FlexColumnWidth(3),
+    7: const pw.FlexColumnWidth(1.3),
+    8: const pw.FlexColumnWidth(1.4),
+    9: const pw.FlexColumnWidth(1.2),
+    if (withPrices) 10: const pw.FlexColumnWidth(1.5),
+    if (withPrices) 11: const pw.FlexColumnWidth(1.8),
+  };
+  pw.Table rows(List<pw.TableRow> children) => pw.Table(
+    border: pw.TableBorder.all(width: 0.5),
+    columnWidths: widths,
+    children: children,
+  );
 
   doc.addPage(
     pw.MultiPage(
@@ -218,31 +274,28 @@ Future<Uint8List> buildMdfOrderPdf(
           ],
         ),
         pw.SizedBox(height: 10),
-        pw.Table(
-          border: pw.TableBorder.all(width: 0.5),
-          columnWidths: {
-            0: const pw.FixedColumnWidth(24),
-            for (var i = 1; i < columns.length; i++)
-              i: pw.FlexColumnWidth(i == 4 || i == 6 ? 3 : 1.4),
-          },
-          children: [
-            pw.TableRow(
-              decoration: const pw.BoxDecoration(color: PdfColors.grey200),
-              children: [for (final c in columns) text(c, style: bold)],
+        rows([
+          pw.TableRow(
+            decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+            children: [for (final c in columns) text(c, style: bold)],
+          ),
+        ]),
+        for (final (g, group) in groups.indexed) ...[
+          rows([for (final (n, l) in group.lines) lineRow(n, l, g)]),
+          if (groups.length > 1)
+            sumLine(
+              '${words.subtotal} '
+              '${_groupName(words, group.coating, group.film)}',
+              group.pieces,
+              group.areaM2,
+              group.amount,
             ),
-            for (final (g, group) in groups.indexed) ...[
-              for (final (n, l) in group.lines) lineRow(n, l, g),
-              if (groups.length > 1)
-                sumRow(
-                  '${words.subtotal}: '
-                  '${_groupName(words, group.coating, group.film)}',
-                  group.pieces,
-                  group.areaM2,
-                  group.amount,
-                ),
-            ],
-            sumRow(words.total, order.pieces, order.areaM2, order.total),
-          ],
+        ],
+        sumLine(
+          words.total.replaceAll(':', ''),
+          order.pieces,
+          order.areaM2,
+          order.total,
         ),
       ],
     ),

@@ -5431,4 +5431,59 @@ class AppLocalizationsRu extends AppLocalizations {
   String mdfCoatingSwitchAsk(String film, String coating) {
     return '«$film» нет в справочнике «$coating». Цвет блока сбросится, позиции, размеры и цены останутся. Сменить?';
   }
+
+  @override
+  String get mdfColCoating => 'Покрытие';
+
+  @override
+  String get mdfPrintHeightShort => 'Выс.';
+
+  @override
+  String get mdfPrintWidthShort => 'Шир.';
+
+  @override
+  String get mdfPrintThickShort => 'Толщ.';
+
+  @override
+  String get mdfPrintMaterialShort => 'Матер.';
+
+  @override
+  String get mdfPrintSubtotal => 'Итого';
+
+  @override
+  String get mdfPrintPieces => 'шт';
+
+  @override
+  String get mdfChangesTitle => 'Что изменилось';
+
+  @override
+  String get mdfReasonClient => 'Клиент изменил';
+
+  @override
+  String get mdfReasonMistake => 'Ошибка при приёме';
+
+  @override
+  String get mdfReasonAdded => 'Добавили позиции';
+
+  @override
+  String get mdfReasonPrice => 'Изменили цену';
+
+  @override
+  String get mdfLeaveUnsaved => 'Выйти без сохранения? Изменения пропадут.';
+
+  @override
+  String get mdfLeave => 'Выйти';
+
+  @override
+  String mdfChangeAdded(int n) {
+    return 'Добавлена позиция $n';
+  }
+
+  @override
+  String mdfChangeRemoved(int n) {
+    return 'Убрана позиция $n';
+  }
+
+  @override
+  String get mdfTagsTitle => 'Метки';
 }
