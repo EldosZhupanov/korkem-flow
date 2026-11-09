@@ -5573,4 +5573,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPayOverOk => 'Бұл артық төлем / аванс';
+
+  @override
+  String get mdfNoteShort => 'Ескер.';
 }

@@ -9998,6 +9998,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It is an overpayment / advance'**
   String get mdfPayOverOk;
+
+  /// No description provided for @mdfNoteShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get mdfNoteShort;
 }
 
 class _AppLocalizationsDelegate

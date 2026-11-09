@@ -1861,5 +1861,6 @@
   "mdfPayAddPart": "Тағы бір тәсіл",
   "mdfPayAfter": "Барлығы {sum} · төлемнен кейін қарыз {debt}",
   "mdfPayOver": "Қалдықтан {amount} артық. Төлем енгізілген сияқты",
-  "mdfPayOverOk": "Бұл артық төлем / аванс"
+  "mdfPayOverOk": "Бұл артық төлем / аванс",
+  "mdfNoteShort": "Ескер."
 }

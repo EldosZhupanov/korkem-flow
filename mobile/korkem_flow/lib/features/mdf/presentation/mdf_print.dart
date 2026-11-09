@@ -57,6 +57,9 @@ typedef MdfPrintWords = ({
   /// «Метки» — the head's row of the order's tags, and a tag by name.
   String tags,
   String Function(MdfOrderTag tag) tag,
+
+  /// The due date's weekday by name — «четверг» under it in the stamp.
+  String Function(DateTime day) weekday,
 });
 
 /// One MDF order on an A4 page, the way the owner prints it from OnayBaza
@@ -86,6 +89,11 @@ Future<Uint8List> buildMdfOrderPdf(
   final size = withPrices ? 10.0 : 12.0;
   final cell = pw.TextStyle(fontSize: size);
   final bold = pw.TextStyle(fontSize: size, fontWeight: pw.FontWeight.bold);
+  final small = pw.TextStyle(fontSize: size - 2);
+  final sizes = pw.TextStyle(
+    fontSize: size + 1.5,
+    fontWeight: pw.FontWeight.bold,
+  );
   final h = order.head;
 
   final groups = mdfFilmGroups(order.lines);
@@ -113,11 +121,13 @@ Future<Uint8List> buildMdfOrderPdf(
   final thicknesses = {
     for (final l in order.lines) ?l.thicknessMm,
   }.toList()..sort();
+  // Variant 2 (owner, 10.11.2026): the due date is a stamp of its own and
+  // the tags sit framed under the number, so the head is pairs — the
+  // customer and the phone, paid and owed — five rows where it was eleven.
   final head = <(String, String)>[
-    (words.accepted, mdfDay(order.createdOn)),
-    (words.due, mdfDay(order.deliveryDate)),
     (words.customer, order.customerName),
     (words.phone, order.phone ?? ''),
+    (words.accepted, mdfDay(order.createdOn)),
     (
       words.thickness,
       all(
@@ -151,7 +161,6 @@ Future<Uint8List> buildMdfOrderPdf(
       ),
     ),
     if (h.extraName != null) (words.extraName, h.extraName!),
-    if (tagNames.isNotEmpty) (words.tags, tagNames.join(', ')),
     if (withPrices) (words.paid, '${money.format(order.paid)} ₸'),
     if (withPrices) (words.debt, '${money.format(order.debt)} ₸'),
   ];
@@ -192,16 +201,34 @@ Future<Uint8List> buildMdfOrderPdf(
     decoration: pw.BoxDecoration(color: tint(g)),
     children: [
       text('$n'),
-      text('${l.heightMm}', right: true),
-      text('${l.widthMm}', right: true),
-      text('${l.qty}', right: true),
+      // The sizes are what the shop works by (owner, 10.11.2026): bold
+      // and a size up; the rest of the row stays plain.
+      text('${l.heightMm}', right: true, style: sizes),
+      text('${l.widthMm}', right: true, style: sizes),
+      text('${l.qty}', right: true, style: sizes),
       text(l.milling ?? ''),
       // Any edge but the usual R3 in bold: the shop must not miss it.
       text(
         l.edge ?? '',
         style: l.edge != null && l.edge != mdfDefaultEdge ? bold : null,
       ),
-      text(_groupName(words, l.coating, l.film)),
+      // Variant А (owner, 10.11.2026): the back side and a patina are the
+      // colour of the part, so they sit under the coating, smaller.
+      pw.Padding(
+        padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(_groupName(words, l.coating, l.film), style: cell),
+            for (final x in mdfCoatingExtras(
+              l,
+              back: words.back,
+              patina: words.patina,
+            ))
+              pw.Text(x, style: small),
+          ],
+        ),
+      ),
       text(l.thicknessMm == null ? '' : '${l.thicknessMm} мм', right: true),
       text(l.material ?? ''),
       text(area.format(l.areaM2), right: true),
@@ -209,27 +236,6 @@ Future<Uint8List> buildMdfOrderPdf(
       if (withPrices) text(money.format(l.amount), right: true),
     ],
   );
-
-  // A total on one line across the page, not squeezed into a column.
-  pw.Widget sumLine(String label, int pieces, double m2, double amount) =>
-      pw.Container(
-        width: double.infinity,
-        decoration: const pw.BoxDecoration(
-          border: pw.Border(
-            left: pw.BorderSide(width: 0.5),
-            right: pw.BorderSide(width: 0.5),
-            bottom: pw.BorderSide(width: 0.5),
-          ),
-        ),
-        child: text(
-          [
-            '$label: $pieces ${words.pieces}',
-            '${area.format(m2)} м²',
-            if (withPrices) money.format(amount),
-          ].join(' · '),
-          style: bold,
-        ),
-      );
 
   final widths = <int, pw.TableColumnWidth>{
     0: const pw.FixedColumnWidth(24),
@@ -245,32 +251,113 @@ Future<Uint8List> buildMdfOrderPdf(
     if (withPrices) 10: const pw.FlexColumnWidth(1.5),
     if (withPrices) 11: const pw.FlexColumnWidth(1.8),
   };
+  // A total under its own columns (owner, 10.11.2026): pieces under
+  // «Кол», m² under «м²», money under «Сумма». A group's is near black,
+  // smaller, its label in italics; the order's is large and bold under a
+  // thick rule.
+  pw.Widget sumRow(
+    String label,
+    int pieces,
+    double m2,
+    double amount, {
+    bool order = false,
+  }) {
+    final style = order
+        ? pw.TextStyle(fontSize: size + 2, fontWeight: pw.FontWeight.bold)
+        : pw.TextStyle(fontSize: size - 1, color: PdfColors.grey800);
+    final line = pw.BorderSide(width: order ? 2 : 0.5);
+    pw.Widget cell(String v, int flex) => pw.Expanded(
+      flex: flex,
+      child: text(v, style: style, right: true),
+    );
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        border: pw.Border(
+          left: const pw.BorderSide(width: 0.5),
+          right: const pw.BorderSide(width: 0.5),
+          bottom: const pw.BorderSide(width: 0.5),
+          top: order ? line : pw.BorderSide.none,
+        ),
+      ),
+      child: pw.Row(
+        children: [
+          pw.SizedBox(width: 24),
+          pw.Expanded(
+            flex: 22,
+            child: text(
+              label,
+              style: order
+                  ? style
+                  : pw.TextStyle(
+                      fontSize: size - 1,
+                      color: PdfColors.grey800,
+                      fontStyle: pw.FontStyle.italic,
+                    ),
+            ),
+          ),
+          cell('$pieces ${words.pieces}', 9),
+          pw.Spacer(flex: 26 + 15 + 30 + 13 + 14),
+          cell(area.format(m2), 12),
+          if (withPrices) pw.Spacer(flex: 15),
+          if (withPrices) cell(money.format(amount), 18),
+        ],
+      ),
+    );
+  }
+
+  // The coating's name over its positions, across the page (owner,
+  // 10.11.2026): where «Белый Матовый» begins is seen before its rows.
+  pw.Widget groupHead(MdfFilmGroup group, int g) {
+    final c = AppColors.filmGroup(g);
+    double mid(double v) => 1 - (1 - v) * 0.45;
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        color: PdfColor(mid(c.r), mid(c.g), mid(c.b)),
+        border: const pw.Border(
+          left: pw.BorderSide(width: 0.5),
+          right: pw.BorderSide(width: 0.5),
+          bottom: pw.BorderSide(width: 0.5),
+        ),
+      ),
+      child: text(
+        _groupName(words, group.coating, group.film),
+        style: pw.TextStyle(fontSize: size + 1, fontWeight: pw.FontWeight.bold),
+      ),
+    );
+  }
+
   pw.Table rows(List<pw.TableRow> children) => pw.Table(
     border: pw.TableBorder.all(width: 0.5),
     columnWidths: widths,
     children: children,
   );
 
-  // Variant Б (owner, 09.11.2026): what a position has besides its film —
-  // the back side, a patina, a note — on a line of its own under it, across
-  // the page, instead of a third line squeezed into the film's cell.
+  // A position's note on a line of its own under it (owner, 10.11.2026,
+  // variant А): a dashed line from «Выс.» to the edge, the № cell running
+  // on through it — one position, two lines.
   List<pw.Widget> groupLines(MdfFilmGroup group, int g) {
     final out = <pw.Widget>[];
     var pending = <pw.TableRow>[];
     for (final (n, l) in group.lines) {
       pending.add(lineRow(n, l, g));
-      final extras = mdfExtrasLine(
-        l,
-        back: words.back,
-        patina: words.patina,
-        note: words.note,
-      );
-      if (extras == null) continue;
+      final note = mdfLineNote(l);
+      if (note == null) continue;
       out
-        ..add(rows(pending))
+        ..add(
+          pw.Table(
+            border: const pw.TableBorder(
+              left: pw.BorderSide(width: 0.5),
+              right: pw.BorderSide(width: 0.5),
+              top: pw.BorderSide(width: 0.5),
+              horizontalInside: pw.BorderSide(width: 0.5),
+              verticalInside: pw.BorderSide(width: 0.5),
+            ),
+            columnWidths: widths,
+            children: pending,
+          ),
+        )
         ..add(
           pw.Container(
-            width: double.infinity,
             decoration: pw.BoxDecoration(
               color: tint(g),
               border: const pw.Border(
@@ -279,8 +366,36 @@ Future<Uint8List> buildMdfOrderPdf(
                 bottom: pw.BorderSide(width: 0.5),
               ),
             ),
-            padding: const pw.EdgeInsets.only(left: 24),
-            child: text(extras),
+            child: pw.Row(
+              children: [
+                pw.Container(
+                  width: 24,
+                  height: 16,
+                  decoration: const pw.BoxDecoration(
+                    border: pw.Border(right: pw.BorderSide(width: 0.5)),
+                  ),
+                ),
+                pw.Expanded(
+                  child: pw.Container(
+                    decoration: const pw.BoxDecoration(
+                      border: pw.Border(
+                        top: pw.BorderSide(
+                          width: 0.6,
+                          style: pw.BorderStyle.dashed,
+                        ),
+                      ),
+                    ),
+                    child: text(
+                      '${words.note}: $note',
+                      style: pw.TextStyle(
+                        fontSize: size - 1,
+                        fontStyle: pw.FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       pending = [];
@@ -315,14 +430,47 @@ Future<Uint8List> buildMdfOrderPdf(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
             pw.Expanded(
-              child: pw.Text(
-                words.title(order.name),
-                style: const pw.TextStyle(
-                  fontSize: 18,
-                  fontWeight: pw.FontWeight.bold,
-                ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    words.title(order.name),
+                    style: const pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                  if (tagNames.isNotEmpty) ...[
+                    pw.SizedBox(height: 4),
+                    pw.Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: [
+                        for (final t in tagNames)
+                          pw.Container(
+                            padding: const pw.EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: pw.BoxDecoration(
+                              border: pw.Border.all(width: 1.5),
+                            ),
+                            child: pw.Text(
+                              t.toUpperCase(),
+                              style: const pw.TextStyle(
+                                fontSize: 11,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
+            _dueStamp(order.deliveryDate, words),
+            if (!withPrices) pw.SizedBox(width: 8),
             if (!withPrices)
               pw.SizedBox(
                 width: 64,
@@ -335,45 +483,64 @@ Future<Uint8List> buildMdfOrderPdf(
           ],
         ),
         pw.SizedBox(height: 8),
-        pw.Table(
-          border: pw.TableBorder.all(width: 0.5),
-          columnWidths: const {
-            0: pw.FlexColumnWidth(2),
-            1: pw.FlexColumnWidth(3),
-          },
-          children: [
-            for (final (label, value) in head)
+        for (final (i, row) in _pairs(
+          head,
+          film: words.film,
+          paid: words.paid,
+        ).indexed)
+          pw.Table(
+            border: pw.TableBorder(
+              left: const pw.BorderSide(width: 0.5),
+              right: const pw.BorderSide(width: 0.5),
+              bottom: const pw.BorderSide(width: 0.5),
+              top: i == 0
+                  ? const pw.BorderSide(width: 0.5)
+                  : pw.BorderSide.none,
+              verticalInside: const pw.BorderSide(width: 0.5),
+            ),
+            columnWidths: row.length == 1
+                ? const {0: pw.FlexColumnWidth(2), 1: pw.FlexColumnWidth(8)}
+                : const {
+                    0: pw.FlexColumnWidth(2),
+                    1: pw.FlexColumnWidth(3),
+                    2: pw.FlexColumnWidth(2),
+                    3: pw.FlexColumnWidth(3),
+                  },
+            children: [
               pw.TableRow(
                 children: [
-                  text(label),
-                  text(value, style: bold),
+                  for (final (label, value) in row) ...[
+                    text(label),
+                    text(value, style: bold),
+                  ],
                 ],
               ),
-          ],
-        ),
+            ],
+          ),
         pw.SizedBox(height: 10),
         rows([
           pw.TableRow(
-            decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+            decoration: const pw.BoxDecoration(color: PdfColors.grey300),
             children: [for (final c in columns) text(c, style: bold)],
           ),
         ]),
         for (final (g, group) in groups.indexed) ...[
+          groupHead(group, g),
           ...groupLines(group, g),
           if (groups.length > 1)
-            sumLine(
-              '${words.subtotal} '
-              '${_groupName(words, group.coating, group.film)}',
+            sumRow(
+              words.subtotal.toLowerCase(),
               group.pieces,
               group.areaM2,
               group.amount,
             ),
         ],
-        sumLine(
-          words.total.replaceAll(':', ''),
+        sumRow(
+          words.total.replaceAll(':', '').toUpperCase(),
           order.pieces,
           order.areaM2,
           order.total,
+          order: true,
         ),
       ],
     ),
@@ -386,22 +553,85 @@ Future<void> printMdfOrder({
   required Future<Uint8List> Function() build,
 }) => Printing.layoutPdf(name: name, onLayout: (_) => build());
 
-/// A position's extras in one line — «+ обр.: …   + патина: …   Прим.: …» —
-/// or null when it has none; the card and the printout both show it under
-/// the position.
-String? mdfExtrasLine(
+/// The head's rows: two pairs side by side, the coatings — the longest —
+/// across the whole width.
+List<List<(String, String)>> _pairs(
+  List<(String, String)> head, {
+  required String film,
+  required String paid,
+}) {
+  final out = <List<(String, String)>>[];
+  (String, String)? left;
+  for (final item in head) {
+    if (item.$1 == film) {
+      out.add([item]);
+      continue;
+    }
+    // Paid and owed always side by side.
+    if (item.$1 == paid && left != null) {
+      out.add([left]);
+      left = null;
+    }
+    if (left == null) {
+      left = item;
+    } else {
+      out.add([left, item]);
+      left = null;
+    }
+  }
+  if (left != null) out.add([left]);
+  return out;
+}
+
+/// «СРОК 13.11.2026 четверг» in a thick frame: the date the shop works to,
+/// seen before anything else on the page (owner, 10.11.2026).
+pw.Widget _dueStamp(String due, MdfPrintWords words) {
+  final day = DateTime.tryParse(due);
+  return pw.Container(
+    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: pw.BoxDecoration(border: pw.Border.all(width: 2.5)),
+    child: pw.Column(
+      children: [
+        pw.Text(
+          words.due.toUpperCase(),
+          style: const pw.TextStyle(fontSize: 9),
+        ),
+        pw.Text(
+          mdfDay(due),
+          style: const pw.TextStyle(
+            fontSize: 18,
+            fontWeight: pw.FontWeight.bold,
+          ),
+        ),
+        if (day != null)
+          pw.Text(
+            words.weekday(day),
+            style: const pw.TextStyle(fontSize: 9),
+          ),
+      ],
+    ),
+  );
+}
+
+/// What a position's coating has besides its colour — «Обр.: Графит»,
+/// «Патина: Золотой» — a line each under it, on the card and the printout.
+List<String> mdfCoatingExtras(
   MdfLine l, {
   required String back,
   required String patina,
-  required String note,
-}) {
-  final parts = [
-    if (l.filmBack != null) '+ $back: ${l.filmBack}',
-    if (l.patina != null) '+ $patina: ${l.patina}',
-    if (l.note != null && l.note!.trim().isNotEmpty) '$note: ${l.note!.trim()}',
-  ];
-  return parts.isEmpty ? null : parts.join('   ');
+}) => [
+  if (l.filmBack != null) '${_capital(back)}: ${l.filmBack}',
+  if (l.patina != null) '${_capital(patina)}: ${l.patina}',
+];
+
+/// A position's note, or null when it has none.
+String? mdfLineNote(MdfLine l) {
+  final note = l.note?.trim();
+  return note == null || note.isEmpty ? null : note;
 }
+
+String _capital(String s) =>
+    s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
 
 String _groupName(MdfPrintWords words, MdfCoating? coating, String? film) => [
   if (coating != null) words.coating(coating),

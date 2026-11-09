@@ -6193,5 +6193,6 @@
       }
     }
   },
-  "mdfPayOverOk": "It is an overpayment / advance"
+  "mdfPayOverOk": "It is an overpayment / advance",
+  "mdfNoteShort": "Note"
 }

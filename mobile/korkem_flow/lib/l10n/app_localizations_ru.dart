@@ -5634,4 +5634,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPayOverOk => 'Это переплата / аванс';
+
+  @override
+  String get mdfNoteShort => 'Прим.';
 }
