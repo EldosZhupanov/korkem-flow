@@ -9632,6 +9632,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'«{film}» is not in the «{coating}» list. The block\'s colour will be cleared; positions, sizes and prices stay. Change it?'**
   String mdfCoatingSwitchAsk(String film, String coating);
+
+  /// No description provided for @mdfColCoating.
+  ///
+  /// In en, this message translates to:
+  /// **'Coating'**
+  String get mdfColCoating;
+
+  /// No description provided for @mdfPrintHeightShort.
+  ///
+  /// In en, this message translates to:
+  /// **'H'**
+  String get mdfPrintHeightShort;
+
+  /// No description provided for @mdfPrintWidthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'W'**
+  String get mdfPrintWidthShort;
+
+  /// No description provided for @mdfPrintThickShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Thk.'**
+  String get mdfPrintThickShort;
+
+  /// No description provided for @mdfPrintMaterialShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Mat.'**
+  String get mdfPrintMaterialShort;
+
+  /// No description provided for @mdfPrintSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get mdfPrintSubtotal;
+
+  /// No description provided for @mdfPrintPieces.
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get mdfPrintPieces;
+
+  /// No description provided for @mdfChangesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What changed'**
+  String get mdfChangesTitle;
+
+  /// No description provided for @mdfReasonClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer changed it'**
+  String get mdfReasonClient;
+
+  /// No description provided for @mdfReasonMistake.
+  ///
+  /// In en, this message translates to:
+  /// **'Mistake at intake'**
+  String get mdfReasonMistake;
+
+  /// No description provided for @mdfReasonAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions added'**
+  String get mdfReasonAdded;
+
+  /// No description provided for @mdfReasonPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price changed'**
+  String get mdfReasonPrice;
+
+  /// No description provided for @mdfLeaveUnsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave without saving? The changes will be lost.'**
+  String get mdfLeaveUnsaved;
+
+  /// No description provided for @mdfLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get mdfLeave;
+
+  /// No description provided for @mdfChangeAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Position {n} added'**
+  String mdfChangeAdded(int n);
+
+  /// No description provided for @mdfChangeRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Position {n} removed'**
+  String mdfChangeRemoved(int n);
+
+  /// No description provided for @mdfTagsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get mdfTagsTitle;
 }
 
 class _AppLocalizationsDelegate

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -293,8 +294,84 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     if (_films.isEmpty) _films.add(_noGroup);
     if (_lines.isEmpty) _lines.add(_blank(_films.first));
     if (o == null) unawaited(_startFromLastHead());
+    _initial = _snapshot();
+    _initialLines = _inputs;
+    _initialHead = _readHead();
+    _initialDue = _due;
     _reprice();
   }
+
+  /// The order as it was opened — to tell a change from none (09.11.2026:
+  /// «хотели что-то изменить, но не изменили, а система не пропускает»).
+  late String _initial;
+  late List<MdfLineInput> _initialLines;
+  late MdfHead _initialHead;
+  DateTime? _initialDue;
+
+  String _snapshot() => jsonEncode({
+    'lines': [for (final l in _inputs) l.toJson()],
+    'head': _readHead().toJson(),
+    'due': _due?.toIso8601String().substring(0, 10),
+  });
+
+  bool get _dirty => _snapshot() != _initial;
+
+  /// What changed, in words, for the reason dialog — sizes and the rest by
+  /// position number, the head's fields by name.
+  List<String> _changes(AppLocalizations l10n) {
+    String show(Object? v) => v == null || v == '' ? '—' : '$v';
+    String day(DateTime? d) => show(d?.toIso8601String().substring(0, 10));
+    final out = <String>[];
+    if (_initialDue != _due) {
+      out.add('${l10n.mdfDue}: ${day(_initialDue)} → ${day(_due)}');
+    }
+    final before = _initialHead.toJson();
+    final after = _readHead().toJson();
+    for (final key in {...before.keys, ...after.keys}) {
+      if (jsonEncode(before[key]) != jsonEncode(after[key])) {
+        final name = _fieldName(key, l10n);
+        out.add('$name: ${show(before[key])} → ${show(after[key])}');
+      }
+    }
+    final now = _inputs;
+    for (var i = 0; i < now.length || i < _initialLines.length; i++) {
+      if (i >= _initialLines.length) {
+        out.add(l10n.mdfChangeAdded(i + 1));
+        continue;
+      }
+      if (i >= now.length) {
+        out.add(l10n.mdfChangeRemoved(i + 1));
+        continue;
+      }
+      final a = _initialLines[i].toJson();
+      final b = now[i].toJson();
+      final diffs = [
+        for (final key in {...a.keys, ...b.keys})
+          if (jsonEncode(a[key]) != jsonEncode(b[key]))
+            '${_fieldName(key, l10n)} ${show(a[key])} → ${show(b[key])}',
+      ];
+      if (diffs.isNotEmpty) out.add('${i + 1}: ${diffs.join('; ')}');
+    }
+    return out;
+  }
+
+  String _fieldName(String key, AppLocalizations l10n) => switch (key) {
+    'height_mm' => l10n.mdfHeight,
+    'width_mm' => l10n.mdfWidth,
+    'qty' => l10n.mdfQty,
+    'milling' => l10n.mdfMilling,
+    'edge' || 'edge_profile' => l10n.mdfColEdge,
+    'thickness_mm' => l10n.mdfThicknessShort,
+    'material' => l10n.mdfMaterial,
+    'film' || 'decor_top' => l10n.mdfColCoating,
+    'film_back' => l10n.mdfBackSide,
+    'patina' => l10n.mdfPatina,
+    'note' => l10n.mdfNote,
+    'rate' || 'film_rates' || 'default_rate' => l10n.mdfRate,
+    'coating' => l10n.mdfColCoating,
+    'tags' => l10n.mdfTagsTitle,
+    _ => key,
+  };
 
   /// A new order starts with the head of the last one this manager wrote:
   /// the same finish, thickness and edge more often than not.
@@ -708,19 +785,20 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   Future<void> _saveChange() async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    // Nothing changed: back to the card, no reason to ask for.
+    if (!_dirty) {
+      widget.onChanged!(widget.order!);
+      return;
+    }
     if (_inputs.isEmpty) {
       messenger.showFailureMessage(l10n.mdfNeedLine);
       return;
     }
-    final reason = await showReasonDialog(
-      context,
-      title: l10n.mdfChangeOrder,
-      label: l10n.mdfChangeReason,
-      confirm: l10n.mdfConfirm,
-      cancel: l10n.mdfCancel,
-      fieldKey: const ValueKey('mdfChangeReasonField'),
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (_) => _ChangeReasonDialog(changes: _changes(l10n)),
     );
-    if (reason == null) return;
+    if (reason == null || reason.isEmpty || !mounted) return;
     setState(() => _busy = true);
     try {
       final changed = await ref
@@ -911,256 +989,296 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       ),
     );
 
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              Wrap(
-                spacing: AppSpacing.md,
-                runSpacing: AppSpacing.md,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                children: [
-                  SizedBox(
-                    width: AppSpacing.xxxl * 6,
-                    child: _CustomerField(
-                      // A customer chosen from the list refills the field.
-                      key: ValueKey('mdfCustomerOf:${_customer?.name}'),
-                      initial: _customer,
-                      onPicked: (c) => setState(() => _customer = c),
-                    ),
-                  ),
-                  IconButton(
-                    key: const ValueKey('dict:customer'),
-                    tooltip: l10n.mdfCustomers,
-                    icon: const Icon(AppIcons.dictionary),
-                    onPressed: () async {
-                      final picked = await showMdfCustomers(
-                        context,
-                        current: _customer?.name,
-                      );
-                      if (picked != null && mounted) {
-                        setState(() => _customer = picked);
-                      }
-                    },
-                  ),
-                  if (_customer?.tags.isNotEmpty ?? false)
-                    MdfTagBadges(
-                      customerTags: MdfCustomerTag.parse(_customer!.tags),
-                    ),
-                  OutlinedButton.icon(
-                    key: const ValueKey('mdfDue'),
-                    onPressed: _pickDue,
-                    icon: const Icon(AppIcons.schedule),
-                    label: Text(
-                      _due == null
-                          ? l10n.mdfDue
-                          : '${l10n.mdfDue}: '
-                                '${_due!.toIso8601String().substring(0, 10)}',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              SectionLabel(l10n.mdfHeadSection),
-              Wrap(
-                spacing: AppSpacing.md,
-                runSpacing: AppSpacing.md,
-                children: [
-                  // Thickness and material apart (owner, 09.11.2026).
-                  pick(
-                    'mdfThickness',
-                    l10n.mdfThicknessShort,
-                    MdfDictKind.thickness,
-                    mdfThicknessLabel(thicknesses, _head.thicknessMm),
-                    (v) => _head = _copyHead(thicknessMm: thicknessOf(v)),
-                    width: AppSpacing.xxxl * 4,
-                  ),
-                  pick(
-                    'mdfMaterial',
-                    l10n.mdfMaterial,
-                    MdfDictKind.material,
-                    _head.material,
-                    (v) => _head = _copyHead(material: v),
-                    width: AppSpacing.xxxl * 4,
-                  ),
-                  // No «Покрытие» here (09.11.2026): each group has its own.
-                  // No milling and no price here (owner, 09.11.2026): each
-                  // position has its own milling, each film group its price.
-                  pick(
-                    'mdfEdge',
-                    l10n.mdfEdgeDefault,
-                    MdfDictKind.edge,
-                    _defaultEdge,
-                    (next) {
-                      final was = _defaultEdge;
-                      _head = _copyHead(edgeProfile: next);
-                      // Rows on the old default follow; changed ones stay.
-                      for (final l in _lines) {
-                        if (l.edge == was) l.edge = _defaultEdge;
-                      }
-                    },
-                    values: edges,
-                    required: true,
-                  ),
-                  text('mdfExtra', l10n.mdfExtraName, _extra),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Wrap(
-                spacing: AppSpacing.sm,
-                children: [
-                  for (final t in MdfOrderTag.values)
-                    FilterChip(
-                      key: ValueKey('mdfOrderTag:${t.wire}'),
-                      label: Text(mdfOrderTagLabel(t, l10n)),
-                      selected: _head.tags.contains(t),
-                      onSelected: (on) => setState(
-                        () => _head = _copyHead(
-                          tags: [
-                            for (final x in MdfOrderTag.values)
-                              if (x == t ? on : _head.tags.contains(x)) x,
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Row(
-                children: [
-                  Expanded(child: SectionLabel(l10n.mdfLinesSection)),
-                  TextButton.icon(
-                    key: const ValueKey('mdfPaste'),
-                    onPressed: _paste,
-                    icon: const Icon(AppIcons.paste),
-                    label: Text(l10n.mdfPasteSizes),
-                  ),
-                ],
-              ),
-              for (var g = 0; g < _films.length; g++)
-                () {
-                  final group = _films[g];
-                  final film = group.film;
-                  final kind = mdfCoatingList(group.coating);
-                  final colors = kind == null
-                      ? const <String>[]
-                      : dicts.values(kind);
-                  final mates = [
-                    for (final l in _lines)
-                      if (l.group == group) l,
-                  ];
-                  final priced = [for (final l in mates) ?pricedOf(l)];
-                  final first = number;
-                  number += mates.length;
-                  return _FilmGroup(
-                    key: ValueKey('mdfFilmGroup:$g'),
-                    index: g,
-                    coating: group.coating,
-                    film: film,
-                    films: colors,
-                    rate: _rateOf(film),
-                    pieces: priced.fold(0, (sum, p) => sum + p.qty),
-                    areaM2: priced.fold<double>(0, (sum, p) => sum + p.areaM2),
-                    amount: priced.fold<double>(0, (sum, p) => sum + p.amount),
-                    onFilm: (to) => _renameFilm(group, to),
-                    onType: (to) => _setType(group, to),
-                    onRateChanged: _reprice,
-                    onRemove: () => _removeFilm(group),
-                    onAddLine: () => _addLine(group: group),
-                    children: [
-                      for (var i = 0; i < mates.length; i++)
-                        _LineRow(
-                          key: ObjectKey(mates[i]),
-                          index: first + i,
-                          line: mates[i],
-                          priced: pricedOf(mates[i]),
-                          millings: millings,
-                          materials: materials,
-                          films: colors,
-                          edges: edges,
-                          patinas: patinas,
-                          thicknesses: thicknesses,
-                          headThickness: _head.thicknessMm,
-                          defaultEdge: _defaultEdge,
-                          headMaterial: _head.material,
-                          groupRate: _rateOf(film).text.trim(),
-                          isLast:
-                              g == _films.length - 1 && i == mates.length - 1,
-                          onChanged: () {
-                            setState(() {});
-                            _reprice();
-                          },
-                          onNext: () => _addLine(group: group),
-                          onDuplicate: () => _addLine(from: mates[i]),
-                          onDelete: () => _removeLine(mates[i]),
-                          onUp: () => _move(mates[i], -1),
-                          onDown: () => _move(mates[i], 1),
-                        ),
-                    ],
-                  );
-                }(),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  key: const ValueKey('mdfAddFilm'),
-                  onPressed: _addFilm,
-                  icon: const Icon(AppIcons.add),
-                  label: Text(l10n.mdfAddFilm),
+    // Changes not saved: «назад» asks before they are lost (09.11.2026).
+    return PopScope(
+      canPop: !widget.changing || !_dirty,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final navigator = Navigator.of(context);
+        final leave = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(AppLocalizations.of(context).mdfLeaveUnsaved),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  MaterialLocalizations.of(context).cancelButtonLabel,
                 ),
+              ),
+              FilledButton(
+                key: const ValueKey('mdfLeaveYes'),
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(AppLocalizations.of(context).mdfLeave),
               ),
             ],
           ),
-        ),
-        Material(
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.sm,
-              alignment: WrapAlignment.end,
-              crossAxisAlignment: WrapCrossAlignment.center,
+        );
+        if (leave ?? false) {
+          _initial = _snapshot();
+          setState(() {});
+          navigator.pop();
+        }
+      },
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                Text(
-                  l10n.mdfTotals(
-                    '${_pricing.pieces}',
-                    _pricing.areaM2.toStringAsFixed(2),
-                    money.format(_pricing.total),
-                  ),
-                  key: const ValueKey('mdfTotals'),
-                  style: theme.textTheme.titleMedium,
-                ),
-                if (widget.changing)
-                  FilledButton(
-                    key: const ValueKey('mdfSaveChange'),
-                    onPressed: _busy ? null : _saveChange,
-                    child: Text(l10n.mdfSaveChange),
-                  )
-                else ...[
-                  if (widget.order != null)
-                    TextButton(
-                      key: const ValueKey('mdfDelete'),
-                      onPressed: _busy ? null : _delete,
-                      child: Text(l10n.mdfDeleteDraft),
+                Wrap(
+                  spacing: AppSpacing.md,
+                  runSpacing: AppSpacing.md,
+                  crossAxisAlignment: WrapCrossAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: AppSpacing.xxxl * 6,
+                      child: _CustomerField(
+                        // A customer chosen from the list refills the field.
+                        key: ValueKey('mdfCustomerOf:${_customer?.name}'),
+                        initial: _customer,
+                        onPicked: (c) => setState(() => _customer = c),
+                      ),
                     ),
-                  OutlinedButton(
-                    key: const ValueKey('mdfSave'),
-                    onPressed: _busy ? null : _saveAndShow,
-                    child: Text(l10n.mdfSaveDraft),
+                    IconButton(
+                      key: const ValueKey('dict:customer'),
+                      tooltip: l10n.mdfCustomers,
+                      icon: const Icon(AppIcons.dictionary),
+                      onPressed: () async {
+                        final picked = await showMdfCustomers(
+                          context,
+                          current: _customer?.name,
+                        );
+                        if (picked != null && mounted) {
+                          setState(() => _customer = picked);
+                        }
+                      },
+                    ),
+                    if (_customer?.tags.isNotEmpty ?? false)
+                      MdfTagBadges(
+                        customerTags: MdfCustomerTag.parse(_customer!.tags),
+                      ),
+                    OutlinedButton.icon(
+                      key: const ValueKey('mdfDue'),
+                      onPressed: _pickDue,
+                      icon: const Icon(AppIcons.schedule),
+                      label: Text(
+                        _due == null
+                            ? l10n.mdfDue
+                            : '${l10n.mdfDue}: '
+                                  '${_due!.toIso8601String().substring(0, 10)}',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                SectionLabel(l10n.mdfHeadSection),
+                Wrap(
+                  spacing: AppSpacing.md,
+                  runSpacing: AppSpacing.md,
+                  children: [
+                    // Thickness and material apart (owner, 09.11.2026).
+                    pick(
+                      'mdfThickness',
+                      l10n.mdfThicknessShort,
+                      MdfDictKind.thickness,
+                      mdfThicknessLabel(thicknesses, _head.thicknessMm),
+                      (v) => _head = _copyHead(thicknessMm: thicknessOf(v)),
+                      width: AppSpacing.xxxl * 4,
+                    ),
+                    pick(
+                      'mdfMaterial',
+                      l10n.mdfMaterial,
+                      MdfDictKind.material,
+                      _head.material,
+                      (v) => _head = _copyHead(material: v),
+                      width: AppSpacing.xxxl * 4,
+                    ),
+                    // No «Покрытие» here (09.11.2026): each group has its own.
+                    // No milling and no price here (owner, 09.11.2026): each
+                    // position has its own milling, each film group its price.
+                    pick(
+                      'mdfEdge',
+                      l10n.mdfEdgeDefault,
+                      MdfDictKind.edge,
+                      _defaultEdge,
+                      (next) {
+                        final was = _defaultEdge;
+                        _head = _copyHead(edgeProfile: next);
+                        // Rows on the old default follow; changed ones stay.
+                        for (final l in _lines) {
+                          if (l.edge == was) l.edge = _defaultEdge;
+                        }
+                      },
+                      values: edges,
+                      required: true,
+                    ),
+                    text('mdfExtra', l10n.mdfExtraName, _extra),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  children: [
+                    for (final t in MdfOrderTag.values)
+                      FilterChip(
+                        key: ValueKey('mdfOrderTag:${t.wire}'),
+                        label: Text(mdfOrderTagLabel(t, l10n)),
+                        selected: _head.tags.contains(t),
+                        onSelected: (on) => setState(
+                          () => _head = _copyHead(
+                            tags: [
+                              for (final x in MdfOrderTag.values)
+                                if (x == t ? on : _head.tags.contains(x)) x,
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Row(
+                  children: [
+                    Expanded(child: SectionLabel(l10n.mdfLinesSection)),
+                    TextButton.icon(
+                      key: const ValueKey('mdfPaste'),
+                      onPressed: _paste,
+                      icon: const Icon(AppIcons.paste),
+                      label: Text(l10n.mdfPasteSizes),
+                    ),
+                  ],
+                ),
+                for (var g = 0; g < _films.length; g++)
+                  () {
+                    final group = _films[g];
+                    final film = group.film;
+                    final kind = mdfCoatingList(group.coating);
+                    final colors = kind == null
+                        ? const <String>[]
+                        : dicts.values(kind);
+                    final mates = [
+                      for (final l in _lines)
+                        if (l.group == group) l,
+                    ];
+                    final priced = [for (final l in mates) ?pricedOf(l)];
+                    final first = number;
+                    number += mates.length;
+                    return _FilmGroup(
+                      key: ValueKey('mdfFilmGroup:$g'),
+                      index: g,
+                      coating: group.coating,
+                      film: film,
+                      films: colors,
+                      rate: _rateOf(film),
+                      pieces: priced.fold(0, (sum, p) => sum + p.qty),
+                      areaM2: priced.fold<double>(
+                        0,
+                        (sum, p) => sum + p.areaM2,
+                      ),
+                      amount: priced.fold<double>(
+                        0,
+                        (sum, p) => sum + p.amount,
+                      ),
+                      onFilm: (to) => _renameFilm(group, to),
+                      onType: (to) => _setType(group, to),
+                      onRateChanged: _reprice,
+                      onRemove: () => _removeFilm(group),
+                      onAddLine: () => _addLine(group: group),
+                      children: [
+                        for (var i = 0; i < mates.length; i++)
+                          _LineRow(
+                            key: ObjectKey(mates[i]),
+                            index: first + i,
+                            line: mates[i],
+                            priced: pricedOf(mates[i]),
+                            millings: millings,
+                            materials: materials,
+                            films: colors,
+                            edges: edges,
+                            patinas: patinas,
+                            thicknesses: thicknesses,
+                            headThickness: _head.thicknessMm,
+                            defaultEdge: _defaultEdge,
+                            headMaterial: _head.material,
+                            groupRate: _rateOf(film).text.trim(),
+                            isLast:
+                                g == _films.length - 1 && i == mates.length - 1,
+                            onChanged: () {
+                              setState(() {});
+                              _reprice();
+                            },
+                            onNext: () => _addLine(group: group),
+                            onDuplicate: () => _addLine(from: mates[i]),
+                            onDelete: () => _removeLine(mates[i]),
+                            onUp: () => _move(mates[i], -1),
+                            onDown: () => _move(mates[i], 1),
+                          ),
+                      ],
+                    );
+                  }(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    key: const ValueKey('mdfAddFilm'),
+                    onPressed: _addFilm,
+                    icon: const Icon(AppIcons.add),
+                    label: Text(l10n.mdfAddFilm),
                   ),
-                  FilledButton(
-                    key: const ValueKey('mdfAccept'),
-                    onPressed: _busy ? null : () => _saveAndShow(accept: true),
-                    child: Text(l10n.mdfAccept),
-                  ),
-                ],
+                ),
               ],
             ),
           ),
-        ),
-      ],
+          Material(
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Wrap(
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.sm,
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    l10n.mdfTotals(
+                      '${_pricing.pieces}',
+                      _pricing.areaM2.toStringAsFixed(2),
+                      money.format(_pricing.total),
+                    ),
+                    key: const ValueKey('mdfTotals'),
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  if (widget.changing)
+                    FilledButton(
+                      key: const ValueKey('mdfSaveChange'),
+                      onPressed: _busy ? null : _saveChange,
+                      child: Text(l10n.mdfSaveChange),
+                    )
+                  else ...[
+                    if (widget.order != null)
+                      TextButton(
+                        key: const ValueKey('mdfDelete'),
+                        onPressed: _busy ? null : _delete,
+                        child: Text(l10n.mdfDeleteDraft),
+                      ),
+                    OutlinedButton(
+                      key: const ValueKey('mdfSave'),
+                      onPressed: _busy ? null : _saveAndShow,
+                      child: Text(l10n.mdfSaveDraft),
+                    ),
+                    FilledButton(
+                      key: const ValueKey('mdfAccept'),
+                      onPressed: _busy
+                          ? null
+                          : () => _saveAndShow(accept: true),
+                      child: Text(l10n.mdfAccept),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2237,7 +2355,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               DataColumn(label: Text(l10n.mdfQty), numeric: true),
               DataColumn(label: Text(l10n.mdfMilling)),
               DataColumn(label: Text(l10n.mdfColEdge)),
-              DataColumn(label: Text(l10n.mdfFilm)),
+              DataColumn(label: Text(l10n.mdfColCoating)),
               DataColumn(label: Text(l10n.mdfThicknessShort), numeric: true),
               DataColumn(label: Text(l10n.mdfMaterial)),
               DataColumn(label: Text(l10n.mdfArea), numeric: true),
@@ -2587,7 +2705,7 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   due: l10n.mdfDue,
   customer: l10n.mdfCustomer,
   phone: l10n.mdfPrintPhone,
-  thickness: l10n.mdfThickness,
+  thickness: l10n.mdfThicknessShort,
   finish: l10n.mdfFinish,
   decorTop: l10n.mdfDecorTop,
   decorBottom: l10n.mdfDecorBottom,
@@ -2599,19 +2717,21 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   paid: l10n.mdfPrintPaid,
   debt: l10n.mdfPrintDebt,
   note: l10n.mdfNote,
-  height: l10n.mdfHeight,
-  width: l10n.mdfWidth,
+  height: l10n.mdfPrintHeightShort,
+  width: l10n.mdfPrintWidthShort,
   qty: l10n.mdfQty,
   area: l10n.mdfArea,
   rate: l10n.mdfRate,
   amount: l10n.mdfAmount,
   total: l10n.mdfPrintTotal,
   material: l10n.mdfMaterial,
-  film: l10n.mdfFilm,
+  film: l10n.mdfColCoating,
   back: l10n.mdfBackSideShort,
-  subtotal: l10n.mdfFilmSubtotal,
+  subtotal: l10n.mdfPrintSubtotal,
   coating: (c) => mdfCoatingLabel(c, l10n),
-  thicknessColumn: l10n.mdfThicknessShort,
+  thicknessColumn: l10n.mdfPrintThickShort,
+  materialColumn: l10n.mdfPrintMaterialShort,
+  pieces: l10n.mdfPrintPieces,
 );
 
 class _PasteDialog extends StatefulWidget {
@@ -2771,6 +2891,105 @@ class _NewCustomerDialogState extends ConsumerState<_NewCustomerDialog> {
         FilledButton(
           key: const ValueKey('mdfNewCustomerSave'),
           onPressed: _busy ? null : _save,
+          child: Text(l10n.mdfConfirm),
+        ),
+      ],
+    );
+  }
+}
+
+/// «Изменить заказ»: what changed, in words, a ready reason to tap, a
+/// note if there is more to say. A reason is needed — a chip or words.
+class _ChangeReasonDialog extends StatefulWidget {
+  const _ChangeReasonDialog({required this.changes});
+
+  final List<String> changes;
+
+  @override
+  State<_ChangeReasonDialog> createState() => _ChangeReasonDialogState();
+}
+
+class _ChangeReasonDialogState extends State<_ChangeReasonDialog> {
+  final _note = TextEditingController();
+  String? _chip;
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  String get _reason =>
+      [?_chip, if (_note.text.trim().isNotEmpty) _note.text.trim()].join(' — ');
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final chips = [
+      l10n.mdfReasonClient,
+      l10n.mdfReasonMistake,
+      l10n.mdfReasonAdded,
+      l10n.mdfReasonPrice,
+    ];
+    return AlertDialog(
+      title: Text(l10n.mdfChangeOrder),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 10,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.changes.isNotEmpty) ...[
+              Text(l10n.mdfChangesTitle, style: theme.textTheme.labelLarge),
+              const SizedBox(height: AppSpacing.xs),
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxHeight: AppSpacing.xxxl * 4,
+                ),
+                child: SingleChildScrollView(
+                  child: Text(
+                    widget.changes.join('\n'),
+                    key: const ValueKey('mdfChangesList'),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
+              children: [
+                for (final (i, c) in chips.indexed)
+                  ChoiceChip(
+                    key: ValueKey('mdfReasonChip:$i'),
+                    label: Text(c),
+                    selected: _chip == c,
+                    onSelected: (on) => setState(() => _chip = on ? c : null),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            TextField(
+              key: const ValueKey('mdfChangeReasonField'),
+              controller: _note,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(labelText: l10n.mdfChangeReason),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('mdfChangeReasonYes'),
+          onPressed: _reason.isEmpty
+              ? null
+              : () => Navigator.of(context).pop(_reason),
           child: Text(l10n.mdfConfirm),
         ),
       ],

@@ -1800,5 +1800,22 @@
   "mdfDictPaint": "Бояулар",
   "mdfPaintNone": "Бояу таңдалмаған",
   "mdfCoatingNotChosen": "Жабын таңдалмаған",
-  "mdfCoatingSwitchAsk": "«{film}» «{coating}» анықтамалығында жоқ. Блок түсі өшеді, позициялар, өлшемдер мен бағалар қалады. Ауыстыру керек пе?"
+  "mdfCoatingSwitchAsk": "«{film}» «{coating}» анықтамалығында жоқ. Блок түсі өшеді, позициялар, өлшемдер мен бағалар қалады. Ауыстыру керек пе?",
+  "mdfColCoating": "Жабын",
+  "mdfPrintHeightShort": "Биікт.",
+  "mdfPrintWidthShort": "Ені",
+  "mdfPrintThickShort": "Қалың.",
+  "mdfPrintMaterialShort": "Матер.",
+  "mdfPrintSubtotal": "Барлығы",
+  "mdfPrintPieces": "дана",
+  "mdfChangesTitle": "Өзгерістер",
+  "mdfReasonClient": "Клиент өзгертті",
+  "mdfReasonMistake": "Қабылдаудағы қате",
+  "mdfReasonAdded": "Позиция қосылды",
+  "mdfReasonPrice": "Баға өзгерді",
+  "mdfLeaveUnsaved": "Сақтамай шығу керек пе? Өзгерістер жоғалады.",
+  "mdfLeave": "Шығу",
+  "mdfChangeAdded": "{n}-позиция қосылды",
+  "mdfChangeRemoved": "{n}-позиция алынды",
+  "mdfTagsTitle": "Белгілер"
 }

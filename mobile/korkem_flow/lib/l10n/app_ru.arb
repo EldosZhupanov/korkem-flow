@@ -1800,5 +1800,22 @@
   "mdfDictPaint": "Краски",
   "mdfPaintNone": "Краска не выбрана",
   "mdfCoatingNotChosen": "Покрытие не выбрано",
-  "mdfCoatingSwitchAsk": "«{film}» нет в справочнике «{coating}». Цвет блока сбросится, позиции, размеры и цены останутся. Сменить?"
+  "mdfCoatingSwitchAsk": "«{film}» нет в справочнике «{coating}». Цвет блока сбросится, позиции, размеры и цены останутся. Сменить?",
+  "mdfColCoating": "Покрытие",
+  "mdfPrintHeightShort": "Выс.",
+  "mdfPrintWidthShort": "Шир.",
+  "mdfPrintThickShort": "Толщ.",
+  "mdfPrintMaterialShort": "Матер.",
+  "mdfPrintSubtotal": "Итого",
+  "mdfPrintPieces": "шт",
+  "mdfChangesTitle": "Что изменилось",
+  "mdfReasonClient": "Клиент изменил",
+  "mdfReasonMistake": "Ошибка при приёме",
+  "mdfReasonAdded": "Добавили позиции",
+  "mdfReasonPrice": "Изменили цену",
+  "mdfLeaveUnsaved": "Выйти без сохранения? Изменения пропадут.",
+  "mdfLeave": "Выйти",
+  "mdfChangeAdded": "Добавлена позиция {n}",
+  "mdfChangeRemoved": "Убрана позиция {n}",
+  "mdfTagsTitle": "Метки"
 }

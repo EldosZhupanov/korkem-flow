@@ -5370,4 +5370,59 @@ class AppLocalizationsKk extends AppLocalizations {
   String mdfCoatingSwitchAsk(String film, String coating) {
     return '«$film» «$coating» анықтамалығында жоқ. Блок түсі өшеді, позициялар, өлшемдер мен бағалар қалады. Ауыстыру керек пе?';
   }
+
+  @override
+  String get mdfColCoating => 'Жабын';
+
+  @override
+  String get mdfPrintHeightShort => 'Биікт.';
+
+  @override
+  String get mdfPrintWidthShort => 'Ені';
+
+  @override
+  String get mdfPrintThickShort => 'Қалың.';
+
+  @override
+  String get mdfPrintMaterialShort => 'Матер.';
+
+  @override
+  String get mdfPrintSubtotal => 'Барлығы';
+
+  @override
+  String get mdfPrintPieces => 'дана';
+
+  @override
+  String get mdfChangesTitle => 'Өзгерістер';
+
+  @override
+  String get mdfReasonClient => 'Клиент өзгертті';
+
+  @override
+  String get mdfReasonMistake => 'Қабылдаудағы қате';
+
+  @override
+  String get mdfReasonAdded => 'Позиция қосылды';
+
+  @override
+  String get mdfReasonPrice => 'Баға өзгерді';
+
+  @override
+  String get mdfLeaveUnsaved => 'Сақтамай шығу керек пе? Өзгерістер жоғалады.';
+
+  @override
+  String get mdfLeave => 'Шығу';
+
+  @override
+  String mdfChangeAdded(int n) {
+    return '$n-позиция қосылды';
+  }
+
+  @override
+  String mdfChangeRemoved(int n) {
+    return '$n-позиция алынды';
+  }
+
+  @override
+  String get mdfTagsTitle => 'Белгілер';
 }
