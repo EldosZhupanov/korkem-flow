@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -2462,6 +2463,8 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             key: const ValueKey('mdfLinesTable'),
+            // A coating with a back side and a patina is three lines high.
+            dataRowMaxHeight: double.infinity,
             columns: [
               const DataColumn(label: Text('№')),
               DataColumn(label: Text(l10n.mdfHeight), numeric: true),
@@ -2478,6 +2481,23 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             ],
             rows: [
               for (final (g, group) in mdfFilmGroups(o.lines).indexed) ...[
+                // The coating's name over its positions (owner, 10.11.2026).
+                DataRow(
+                  key: ValueKey('mdfGroupHead:$g'),
+                  color: WidgetStatePropertyAll(
+                    AppColors.filmGroup(g).withValues(alpha: AppTint.groupHead),
+                  ),
+                  cells: [
+                    DataCell(
+                      _Spanning(
+                        mdfGroupName(group.coating, group.film, l10n),
+                        key: ValueKey('mdfGroupHeadText:$g'),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    for (var i = 1; i < 12; i++) const DataCell(Text('')),
+                  ],
+                ),
                 for (final (n, line) in group.lines) ...[
                   DataRow(
                     color: WidgetStatePropertyAll(
@@ -2500,10 +2520,26 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                               : null,
                         ),
                       ),
+                      // The back side and a patina under the coating
+                      // (owner, 10.11.2026, variant А).
                       DataCell(
-                        Text(
-                          mdfGroupName(line.coating, line.film, l10n),
-                          style: TextStyle(color: AppColors.filmGroup(g)),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              mdfGroupName(line.coating, line.film, l10n),
+                              style: TextStyle(
+                                color: AppColors.filmGroup(g),
+                              ),
+                            ),
+                            for (final x in mdfCoatingExtras(
+                              line,
+                              back: l10n.mdfBackSideShort,
+                              patina: l10n.mdfPatina,
+                            ))
+                              Text(x, style: theme.textTheme.bodySmall),
+                          ],
                         ),
                       ),
                       DataCell(
@@ -2525,9 +2561,9 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                       DataCell(Text(money.format(line.amount))),
                     ],
                   ),
-                  // Variant Б (owner, 09.11.2026): the back side, a patina
-                  // and the note on a row of their own under the position.
-                  if (_extras(line, l10n) case final extras?)
+                  // The note on a row of its own under the position, from
+                  // «Выс.» on (owner, 10.11.2026).
+                  if (mdfLineNote(line) case final note?)
                     DataRow(
                       key: ValueKey('mdfLineExtras:$n'),
                       color: WidgetStatePropertyAll(
@@ -2539,7 +2575,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                         const DataCell(Text('')),
                         DataCell(
                           _Spanning(
-                            extras,
+                            '${l10n.mdfNoteShort}: $note',
                             key: ValueKey('mdfLineExtras:$n'),
                           ),
                         ),
@@ -2715,29 +2751,41 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
   }
 }
 
-String? _extras(MdfLine line, AppLocalizations l10n) => mdfExtrasLine(
-  line,
-  back: l10n.mdfBackSideShort,
-  patina: l10n.mdfPatina,
-  note: l10n.mdfNote,
-);
-
 /// Text that runs on across the empty cells to its right, so one row of a
 /// table can carry a line as wide as the table without widening a column.
 class _Spanning extends StatelessWidget {
-  const _Spanning(this.text, {super.key});
+  const _Spanning(this.text, {this.style, super.key});
 
   final String text;
 
+  /// Italic by default — a note; a group's name passes its own.
+  final TextStyle? style;
+
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: 0,
-    child: OverflowBox(
-      alignment: Alignment.centerLeft,
-      maxWidth: double.infinity,
-      child: Text(text, softWrap: false),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final shown = DefaultTextStyle.of(
+      context,
+    ).style.merge(style ?? const TextStyle(fontStyle: FontStyle.italic));
+    // The row grows with its tallest cell, so no height comes from above:
+    // the box is as tall as its one line of text, measured.
+    final line = TextPainter(
+      text: TextSpan(text: text, style: shown),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final height = line.height;
+    line.dispose();
+    return SizedBox(
+      width: 0,
+      height: height,
+      child: OverflowBox(
+        alignment: Alignment.centerLeft,
+        maxWidth: double.infinity,
+        child: Text(text, softWrap: false, style: shown),
+      ),
+    );
+  }
 }
 
 /// How a payment came: one of three, and for a transfer or a card the bank
@@ -3070,9 +3118,9 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   edge: l10n.mdfEdgeDefault,
   radius: l10n.mdfColEdge,
   extraName: l10n.mdfExtraName,
-  paid: l10n.mdfPrintPaid,
+  paid: l10n.mdfPayPaid,
   debt: l10n.mdfPrintDebt,
-  note: l10n.mdfNote,
+  note: l10n.mdfNoteShort,
   height: l10n.mdfPrintHeightShort,
   width: l10n.mdfPrintWidthShort,
   qty: l10n.mdfQty,
@@ -3083,13 +3131,14 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   material: l10n.mdfMaterial,
   film: l10n.mdfColCoating,
   back: l10n.mdfBackSideShort,
-  subtotal: l10n.mdfPrintSubtotal,
+  subtotal: l10n.mdfFilmSubtotal,
   coating: (c) => mdfCoatingLabel(c, l10n),
   thicknessColumn: l10n.mdfPrintThickShort,
   materialColumn: l10n.mdfPrintMaterialShort,
   pieces: l10n.mdfPrintPieces,
   tags: l10n.mdfTagsTitle,
   tag: (t) => mdfOrderTagLabel(t, l10n),
+  weekday: (d) => DateFormat.EEEE(l10n.localeName).format(d),
 );
 
 class _PasteDialog extends StatefulWidget {

@@ -181,6 +181,10 @@ abstract final class AppTint {
   /// read at arm's length beside a machine.
   static const double warningBand = 0.18;
 
+  /// A group's heading over its rows — its coating's name — a step darker
+  /// than the rows' [surface] so the group is seen to begin there.
+  static const double groupHead = 0.28;
+
   /// Light falling behind a shape rather than a shape of its own.
   static const double glow = 0.07;
 
