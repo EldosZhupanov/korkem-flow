@@ -5469,4 +5469,108 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfDueCalendar => 'Күнтізбеден таңдау…';
+
+  @override
+  String get mdfPaymentFix => 'Түзету';
+
+  @override
+  String get mdfPaymentDelete => 'Төлемді жою';
+
+  @override
+  String get mdfPaymentFixTitle => 'Төлемді түзету';
+
+  @override
+  String get mdfPaymentReason => 'Себебі';
+
+  @override
+  String get mdfPayReasonAmount => 'Сомада қате';
+
+  @override
+  String get mdfPayReasonMethod => 'Тәсілі басқа';
+
+  @override
+  String get mdfPayReasonBank => 'Банкі басқа';
+
+  @override
+  String get mdfPayReasonTwice => 'Екі рет енгізілді';
+
+  @override
+  String get mdfPaymentCancelled => 'жойылды';
+
+  @override
+  String get mdfHandOverCheck => 'Беру алдындағы тексеру';
+
+  @override
+  String get mdfHandOverStagesDone => 'Барлық кезеңдер өтті';
+
+  @override
+  String mdfHandOverCounted(int n) {
+    return 'Бөлшектерді санадым: $n дана';
+  }
+
+  @override
+  String get mdfTakenByClient => 'Клиент';
+
+  @override
+  String get mdfTakenByOther => 'Басқа адам';
+
+  @override
+  String get mdfTakenByName => 'Кім алды';
+
+  @override
+  String get mdfTakenByPhone => 'Телефон';
+
+  @override
+  String mdfHandedOverOn(String date) {
+    return 'Берілді $date';
+  }
+
+  @override
+  String mdfHandedOverBy(String name) {
+    return 'берген $name';
+  }
+
+  @override
+  String mdfTakenBy(String who) {
+    return 'алған $who';
+  }
+
+  @override
+  String mdfHandedWithDebt(String amount) {
+    return 'қарызбен $amount';
+  }
+
+  @override
+  String get mdfReturnToWork => 'Жұмысқа қайтару';
+
+  @override
+  String get mdfReturnReason => 'Неге жұмысқа қайтарасыз';
+
+  @override
+  String get mdfHandedOverDone => 'Тапсырыс берілді';
+
+  @override
+  String get mdfPayOrderTotal => 'Тапсырыс';
+
+  @override
+  String get mdfPayPaid => 'Төленді';
+
+  @override
+  String get mdfPayLeft => 'Қалдық';
+
+  @override
+  String get mdfPayAddPart => 'Тағы бір тәсіл';
+
+  @override
+  String mdfPayAfter(String sum, String debt) {
+    return 'Барлығы $sum · төлемнен кейін қарыз $debt';
+  }
+
+  @override
+  String mdfPayOver(String amount) {
+    return 'Қалдықтан $amount артық. Төлем енгізілген сияқты';
+  }
+
+  @override
+  String get mdfPayOverOk => 'Бұл артық төлем / аванс';
 }

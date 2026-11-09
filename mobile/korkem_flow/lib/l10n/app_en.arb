@@ -6111,5 +6111,87 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mdfPaymentFix": "Fix",
+  "mdfPaymentDelete": "Delete payment",
+  "mdfPaymentFixTitle": "Fix the payment",
+  "mdfPaymentReason": "Reason",
+  "mdfPayReasonAmount": "Wrong amount",
+  "mdfPayReasonMethod": "Wrong method",
+  "mdfPayReasonBank": "Wrong bank",
+  "mdfPayReasonTwice": "Entered twice",
+  "mdfPaymentCancelled": "cancelled",
+  "mdfHandOverCheck": "Check before hand-over",
+  "mdfHandOverStagesDone": "All stages done",
+  "mdfHandOverCounted": "Counted the pieces: {n}",
+  "@mdfHandOverCounted": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfTakenByClient": "The customer",
+  "mdfTakenByOther": "Someone else",
+  "mdfTakenByName": "Taken by",
+  "mdfTakenByPhone": "Phone",
+  "mdfHandedOverOn": "Handed over {date}",
+  "@mdfHandedOverOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfHandedOverBy": "by {name}",
+  "@mdfHandedOverBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfTakenBy": "taken by {who}",
+  "@mdfTakenBy": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfHandedWithDebt": "with a debt of {amount}",
+  "@mdfHandedWithDebt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfReturnToWork": "Back to work",
+  "mdfReturnReason": "Why back to work",
+  "mdfHandedOverDone": "Order handed over",
+  "mdfPayOrderTotal": "Order",
+  "mdfPayPaid": "Paid",
+  "mdfPayLeft": "Left",
+  "mdfPayAddPart": "Another method",
+  "mdfPayAfter": "Total {sum} · debt after {debt}",
+  "@mdfPayAfter": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "debt": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPayOver": "{amount} more than is left. It may be paid already",
+  "@mdfPayOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPayOverOk": "It is an overpayment / advance"
 }

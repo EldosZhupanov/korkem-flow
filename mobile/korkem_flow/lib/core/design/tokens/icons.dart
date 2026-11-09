@@ -97,6 +97,7 @@ abstract final class AppIcons {
   static const IconData send = Symbols.arrow_upward_rounded;
   static const IconData menu = Symbols.menu_rounded;
   static const IconData more = Symbols.more_vert_rounded;
+  static const IconData undo = Symbols.undo_rounded;
   static const IconData check = Symbols.check_rounded;
   static const IconData call = Symbols.call_rounded;
   static const IconData email = Symbols.mail_rounded;

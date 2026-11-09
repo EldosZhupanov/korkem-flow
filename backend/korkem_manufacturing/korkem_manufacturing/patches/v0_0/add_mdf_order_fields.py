@@ -79,6 +79,13 @@ ORDER = [
 	# The coatings of its groups — pvc, paint, raw — which decide its stages.
 	{"fieldname": "korkem_coatings", "label": "Coatings", "fieldtype": "Data",
 	 "insert_after": "korkem_extra_stages"},
+	# Who took the order away and who gave it (owner, 09.11.2026).
+	{"fieldname": "korkem_taken_by", "label": "Taken by", "fieldtype": "Data",
+	 "insert_after": "korkem_coatings"},
+	{"fieldname": "korkem_taken_phone", "label": "Taken by, phone", "fieldtype": "Data",
+	 "insert_after": "korkem_taken_by"},
+	{"fieldname": "korkem_handed_over_by", "label": "Handed over by", "fieldtype": "Data",
+	 "insert_after": "korkem_taken_phone"},
 ]
 
 LINE = [
