@@ -87,11 +87,17 @@ Future<Uint8List> buildMdfOrderPdf(
   // The head says what the positions have, every kind of it (owner,
   // 09.11.2026): «16 мм, 18 мм», all the coatings, «R3, R0» — the order's
   // defaults only where no position says.
-  String all(Iterable<String?> values, String? fallback) {
-    final seen = <String>{
+  String all(
+    Iterable<String?> values,
+    String? fallback, {
+    bool sorted = false,
+  }) {
+    final kinds = <String>{
       for (final v in values)
         if (v != null && v.isNotEmpty) v,
-    }.join(', ');
+    }.toList();
+    if (sorted) kinds.sort(mdfNaturalCompare);
+    final seen = kinds.join(', ');
     return seen.isNotEmpty ? seen : fallback ?? '';
   }
 
@@ -112,7 +118,11 @@ Future<Uint8List> buildMdfOrderPdf(
     ),
     (
       words.material,
-      all([for (final l in order.lines) l.material], h.material),
+      all(
+        [for (final l in order.lines) l.material],
+        h.material,
+        sorted: true,
+      ),
     ),
     (
       words.film,
@@ -122,7 +132,15 @@ Future<Uint8List> buildMdfOrderPdf(
     ),
     if (h.patina != null) (words.patina, h.patina!),
     if (h.milling != null) (words.milling, h.milling!),
-    (words.radius, all([for (final l in order.lines) l.edge], h.edgeProfile)),
+    // R0, R1, R3, R5, then the named edges by alphabet (owner, 09.11.2026).
+    (
+      words.radius,
+      all(
+        [for (final l in order.lines) l.edge],
+        h.edgeProfile,
+        sorted: true,
+      ),
+    ),
     if (h.extraName != null) (words.extraName, h.extraName!),
     if (withPrices) (words.paid, money.format(order.paid)),
     if (withPrices) (words.debt, money.format(order.debt)),
@@ -191,6 +209,7 @@ Future<Uint8List> buildMdfOrderPdf(
   // A total on one line across the page, not squeezed into a column.
   pw.Widget sumLine(String label, int pieces, double m2, double amount) =>
       pw.Container(
+        width: double.infinity,
         decoration: const pw.BoxDecoration(
           border: pw.Border(
             left: pw.BorderSide(width: 0.5),
@@ -312,3 +331,19 @@ String _groupName(MdfPrintWords words, MdfCoating? coating, String? film) => [
   if (coating != null) words.coating(coating),
   ?film,
 ].join(' · ');
+
+/// «R0» before «R3» before «R10», and words after them by alphabet: a
+/// run of digits compares as a number.
+int mdfNaturalCompare(String a, String b) {
+  final digits = RegExp(r'\d+');
+  final ma = digits.firstMatch(a);
+  final mb = digits.firstMatch(b);
+  final pa = ma == null ? a : a.substring(0, ma.start);
+  final pb = mb == null ? b : b.substring(0, mb.start);
+  if (ma != null && mb != null && pa == pb) {
+    final byNumber = int.parse(ma[0]!).compareTo(int.parse(mb[0]!));
+    if (byNumber != 0) return byNumber;
+  }
+  // Latin «R…» before Cyrillic words: code units already order them so.
+  return a.toLowerCase().compareTo(b.toLowerCase());
+}
