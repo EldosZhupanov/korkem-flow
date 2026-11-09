@@ -1810,5 +1810,7 @@
   "mdfCoatingPick": "Какое покрытие?",
   "mdfColor": "Цвет",
   "mdfDictPaint": "Краски",
-  "mdfPaintNone": "Краска не выбрана"
+  "mdfPaintNone": "Краска не выбрана",
+  "mdfCoatingNotChosen": "Покрытие не выбрано",
+  "mdfCoatingSwitchAsk": "«{film}» нет в справочнике «{coating}». Цвет блока сбросится, позиции, размеры и цены останутся. Сменить?"
 }

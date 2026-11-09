@@ -1810,5 +1810,7 @@
   "mdfCoatingPick": "Қандай жабын?",
   "mdfColor": "Түсі",
   "mdfDictPaint": "Бояулар",
-  "mdfPaintNone": "Бояу таңдалмаған"
+  "mdfPaintNone": "Бояу таңдалмаған",
+  "mdfCoatingNotChosen": "Жабын таңдалмаған",
+  "mdfCoatingSwitchAsk": "«{film}» «{coating}» анықтамалығында жоқ. Блок түсі өшеді, позициялар, өлшемдер мен бағалар қалады. Ауыстыру керек пе?"
 }

@@ -72,10 +72,11 @@ class MdfOrderScreen extends ConsumerWidget {
 // --- the draft -------------------------------------------------------------
 
 /// A group of positions: its coating type and its colour (none for raw).
-typedef _Group = ({MdfCoating coating, String? film});
+typedef _Group = ({MdfCoating? coating, String? film});
 
-/// The first group of a new order, before anything is chosen.
-const _Group _noGroup = (coating: MdfCoating.pvc, film: null);
+/// The first group of a new order, before anything is chosen — not even its
+/// type: a manager may start with paint or a raw facade (09.11.2026).
+const _Group _noGroup = (coating: null, film: null);
 
 /// What «+ доп.» adds under a row; each shows as a chip with ✕.
 enum _Extra { back, patina, note }
@@ -94,7 +95,7 @@ class _LineFields {
     this.edge = mdfDefaultEdge,
     this.patina,
     this.thicknessMm,
-    this.coating = MdfCoating.pvc,
+    this.coating,
     Set<_Extra>? extras,
   }) : height = TextEditingController(text: h),
        width = TextEditingController(text: w),
@@ -116,8 +117,9 @@ class _LineFields {
   final TextEditingController rate;
   String? milling;
 
-  /// The group it is in: a coating type and a colour of that type.
-  MdfCoating coating;
+  /// The group it is in: a coating type and a colour of that type; no type
+  /// yet on a new order's first group.
+  MdfCoating? coating;
   String? film;
 
   _Group get group => (coating: coating, film: film);
@@ -573,6 +575,57 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     _reprice();
   }
 
+  /// The group's type chosen or changed from its header. A colour of the old
+  /// type is not one of the new type's, so it goes — the positions, sizes,
+  /// millings and prices stay (09.11.2026).
+  Future<void> _setType(_Group from, MdfCoating to) async {
+    if (from.coating == to) return;
+    final l10n = AppLocalizations.of(context);
+    if (from.film != null) {
+      final sure = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Text(
+            l10n.mdfCoatingSwitchAsk(from.film!, mdfCoatingLabel(to, l10n)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+            ),
+            FilledButton(
+              key: const ValueKey('mdfCoatingSwitchYes'),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(MaterialLocalizations.of(context).okButtonLabel),
+            ),
+          ],
+        ),
+      );
+      if (sure != true || !mounted) return;
+    }
+    final next = (coating: to, film: null);
+    setState(() {
+      if (_films.contains(next)) {
+        _films.remove(from); // a group of that type without colour: one block
+      } else {
+        _films[_films.indexOf(from)] = next;
+      }
+      for (final l in _lines) {
+        if (l.group == from) {
+          l
+            ..coating = to
+            ..film = null;
+          if (to == MdfCoating.raw) {
+            l
+              ..filmBack = null
+              ..extras.remove(_Extra.back);
+          }
+        }
+      }
+    });
+    _reprice();
+  }
+
   Future<void> _removeFilm(_Group group) async {
     final l10n = AppLocalizations.of(context);
     final mates = [
@@ -585,7 +638,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         builder: (context) => AlertDialog(
           content: Text(
             l10n.mdfFilmRemoveAsk(
-              group.film ?? mdfCoatingLabel(group.coating, l10n),
+              group.film ?? mdfCoatingNone(group.coating, l10n),
             ),
           ),
           actions: [
@@ -1012,6 +1065,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                     areaM2: priced.fold<double>(0, (sum, p) => sum + p.areaM2),
                     amount: priced.fold<double>(0, (sum, p) => sum + p.amount),
                     onFilm: (to) => _renameFilm(group, to),
+                    onType: (to) => _setType(group, to),
                     onRateChanged: _reprice,
                     onRemove: () => _removeFilm(group),
                     onAddLine: () => _addLine(group: group),
@@ -1172,6 +1226,7 @@ class _FilmGroup extends StatelessWidget {
     required this.areaM2,
     required this.amount,
     required this.onFilm,
+    required this.onType,
     required this.onRateChanged,
     required this.onRemove,
     required this.onAddLine,
@@ -1180,7 +1235,9 @@ class _FilmGroup extends StatelessWidget {
   });
 
   final int index;
-  final MdfCoating coating;
+
+  /// Null on a new order's first group until the manager picks one.
+  final MdfCoating? coating;
   final String? film;
 
   /// The colours of its coating type — films, or paints; none for raw.
@@ -1190,6 +1247,7 @@ class _FilmGroup extends StatelessWidget {
   final double areaM2;
   final double amount;
   final ValueChanged<String?> onFilm;
+  final ValueChanged<MdfCoating> onType;
   final VoidCallback onRateChanged;
   final VoidCallback onRemove;
   final VoidCallback onAddLine;
@@ -1237,13 +1295,41 @@ class _FilmGroup extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  // The type, then a colour of that type only.
-                  StatusChip(
-                    key: ValueKey('mdfGroupCoating:$index:${coating.name}'),
-                    label: mdfCoatingLabel(coating, l10n),
-                    intent: StatusIntent.neutral,
-                  ),
-                  if (coating != MdfCoating.raw)
+                  // The type, then a colour of that type only. No type yet:
+                  // the three to pick from; a type: a button to change it.
+                  if (coating == null) ...[
+                    Text(
+                      l10n.mdfCoatingPick,
+                      style: theme.textTheme.labelLarge,
+                    ),
+                    for (final c in MdfCoating.values)
+                      ChoiceChip(
+                        key: ValueKey('mdfGroupType:$index:${c.name}'),
+                        label: Text(mdfCoatingLabel(c, l10n)),
+                        selected: false,
+                        onSelected: (_) => onType(c),
+                      ),
+                  ] else
+                    PopupMenuButton<MdfCoating>(
+                      key: ValueKey('mdfGroupCoating:$index:${coating!.name}'),
+                      tooltip: l10n.mdfCoatingPick,
+                      onSelected: onType,
+                      itemBuilder: (_) => [
+                        for (final c in MdfCoating.values)
+                          CheckedPopupMenuItem(
+                            key: ValueKey('mdfGroupTypeTo:${c.name}'),
+                            value: c,
+                            checked: c == coating,
+                            child: Text(mdfCoatingLabel(c, l10n)),
+                          ),
+                      ],
+                      child: Chip(
+                        label: Text(mdfCoatingLabel(coating!, l10n)),
+                        avatar: const Icon(AppIcons.down),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  if (coating != null && coating != MdfCoating.raw)
                     SizedBox(
                       width: AppSpacing.xxxl * 5,
                       child: DropdownButtonFormField<String?>(
@@ -1262,7 +1348,7 @@ class _FilmGroup extends StatelessWidget {
                           color: color,
                         ),
                         decoration: InputDecoration(
-                          labelText: mdfCoatingLabel(coating, l10n),
+                          labelText: mdfCoatingLabel(coating!, l10n),
                           isDense: true,
                         ),
                       ),
@@ -1278,7 +1364,7 @@ class _FilmGroup extends StatelessWidget {
                         final picked = await showMdfDictionary(
                           context,
                           kind,
-                          title: mdfCoatingLabel(coating, l10n),
+                          title: mdfCoatingLabel(coating!, l10n),
                           current: film,
                         );
                         if (picked != null) onFilm(picked);
