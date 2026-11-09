@@ -281,6 +281,8 @@ void main() {
           ),
         )
         .initialValue;
+    // Each film group opens its own list from the header.
+    expect(find.byKey(const ValueKey('dict:group:0')), findsOneWidget);
     expect(edgeOf(0), 'R3'); // nobody said otherwise
     expect(edgeOf(1), 'R0'); // a sharp corner
     // Position 2 has its back side and its patina, each a chip with ✕.
@@ -403,6 +405,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('mdfGroupCoating:0:raw')), findsOneWidget);
     expect(find.byKey(const ValueKey('mdfFilmPick:0:0')), findsNothing);
+    expect(find.byKey(const ValueKey('dict:group:0')), findsNothing);
   });
 
   test('the positions fall into film groups in the order films appear', () {

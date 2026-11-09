@@ -1797,5 +1797,6 @@
   "mdfCoatingRaw": "Өңделмеген",
   "mdfCoatingPick": "Қандай жабын?",
   "mdfColor": "Түсі",
-  "mdfDictPaint": "Бояулар"
+  "mdfDictPaint": "Бояулар",
+  "mdfPaintNone": "Бояу таңдалмаған"
 }

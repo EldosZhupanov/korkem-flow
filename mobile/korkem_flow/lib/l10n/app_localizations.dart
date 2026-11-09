@@ -9614,6 +9614,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paints'**
   String get mdfDictPaint;
+
+  /// No description provided for @mdfPaintNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No paint chosen'**
+  String get mdfPaintNone;
 }
 
 class _AppLocalizationsDelegate

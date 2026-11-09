@@ -1797,5 +1797,6 @@
   "mdfCoatingRaw": "Черновой",
   "mdfCoatingPick": "Какое покрытие?",
   "mdfColor": "Цвет",
-  "mdfDictPaint": "Краски"
+  "mdfDictPaint": "Краски",
+  "mdfPaintNone": "Краска не выбрана"
 }
