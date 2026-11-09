@@ -701,9 +701,11 @@ class TestMdfOrders(IntegrationTestCase):
 			{**ORDER_1129[1], "coating": "paint", "film": "МДФ Тест RAL 9010", "rate": 24_000},
 			{**ORDER_1129[2], "coating": "raw", "rate": 9_000},
 		]
+		# A paint group has its price too (the owner's order of 09.11.2026 failed on it).
 		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
-						head={"thickness_mm": 16}, lines=lines)
+						head={"thickness_mm": 16, "film_rates": {"МДФ Тест RAL 9010": 30_000}}, lines=lines)
 		self.addCleanup(self._drop, card["name"])
+		self.assertEqual(card["head"]["film_rates"], {"МДФ Тест RAL 9010": 30_000})
 		self.assertEqual([(l["coating"], l["film"]) for l in card["lines"][:3]],
 						 [("pvc", self.decor), ("paint", "МДФ Тест RAL 9010"), ("raw", None)])
 		self.assertIsNotNone(card["head"]["finish"])  # the first group's, for whatever reads the head

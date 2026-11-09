@@ -6058,5 +6058,6 @@
   "mdfCoatingRaw": "Raw",
   "mdfCoatingPick": "Which coating?",
   "mdfColor": "Colour",
-  "mdfDictPaint": "Paints"
+  "mdfDictPaint": "Paints",
+  "mdfPaintNone": "No paint chosen"
 }

@@ -5395,4 +5395,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfDictPaint => 'Бояулар';
+
+  @override
+  String get mdfPaintNone => 'Бояу таңдалмаған';
 }

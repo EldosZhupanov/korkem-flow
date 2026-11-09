@@ -1251,7 +1251,9 @@ class _FilmGroup extends StatelessWidget {
                         initialValue: film,
                         isExpanded: true,
                         items: [
-                          DropdownMenuItem(child: Text(l10n.mdfFilmNone)),
+                          DropdownMenuItem(
+                            child: Text(mdfCoatingNone(coating, l10n)),
+                          ),
                           for (final f in mdfChoices(films, film))
                             DropdownMenuItem(value: f, child: Text(f)),
                         ],
@@ -1260,10 +1262,27 @@ class _FilmGroup extends StatelessWidget {
                           color: color,
                         ),
                         decoration: InputDecoration(
-                          labelText: l10n.mdfColor,
+                          labelText: mdfCoatingLabel(coating, l10n),
                           isDense: true,
                         ),
                       ),
+                    ),
+                  // The type's own list, here: add, rename, delete a film
+                  // or a paint without leaving the order (09.11.2026).
+                  if (mdfCoatingList(coating) case final kind?)
+                    IconButton(
+                      key: ValueKey('dict:group:$index'),
+                      tooltip: l10n.mdfDictOpen,
+                      icon: const Icon(AppIcons.dictionary),
+                      onPressed: () async {
+                        final picked = await showMdfDictionary(
+                          context,
+                          kind,
+                          title: mdfCoatingLabel(coating, l10n),
+                          current: film,
+                        );
+                        if (picked != null) onFilm(picked);
+                      },
                     ),
                   SizedBox(
                     width: 130,
@@ -1476,6 +1495,31 @@ class _LineRow extends StatelessWidget {
           ),
         );
 
+    /// A list's own button beside its pick: add, rename, delete, choose.
+    Widget dictButton(
+      String key,
+      MdfDictKind kind,
+      String title,
+      String? current,
+      ValueChanged<String> set,
+    ) => IconButton(
+      key: ValueKey('dict:$key:$index'),
+      tooltip: l10n.mdfDictOpen,
+      icon: const Icon(AppIcons.dictionary),
+      onPressed: () async {
+        final picked = await showMdfDictionary(
+          context,
+          kind,
+          title: title,
+          current: current,
+        );
+        if (picked != null) {
+          set(picked);
+          onChanged();
+        }
+      },
+    );
+
     final p = priced;
     final edge = line.edge ?? defaultEdge;
     final extras = <Widget>[
@@ -1487,14 +1531,23 @@ class _LineRow extends StatelessWidget {
             line.drop(_Extra.back);
             onChanged();
           },
-          child: drop(
-            'mdfBackFilm',
-            l10n.mdfBackSide,
-            line.filmBack,
-            films,
-            200,
-            (v) => line.filmBack = v,
-            required: true,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              drop(
+                'mdfBackFilm',
+                l10n.mdfBackSide,
+                line.filmBack,
+                films,
+                200,
+                (v) => line.filmBack = v,
+                required: true,
+              ),
+              if (mdfCoatingList(line.coating) case final kind?)
+                dictButton('back', kind, l10n.mdfBackSide, line.filmBack, (v) {
+                  line.filmBack = v;
+                }),
+            ],
           ),
         ),
       if (line.extras.contains(_Extra.patina))
@@ -1505,13 +1558,26 @@ class _LineRow extends StatelessWidget {
             line.drop(_Extra.patina);
             onChanged();
           },
-          child: drop(
-            'mdfLinePatina',
-            l10n.mdfPatina,
-            line.patina,
-            patinas,
-            180,
-            (v) => line.patina = v,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              drop(
+                'mdfLinePatina',
+                l10n.mdfPatina,
+                line.patina,
+                patinas,
+                180,
+                (v) => line.patina = v,
+              ),
+              // The patina list, here: add, rename, delete (09.11.2026).
+              dictButton(
+                'patina',
+                MdfDictKind.patina,
+                l10n.mdfPatina,
+                line.patina,
+                (v) => line.patina = v,
+              ),
+            ],
           ),
         ),
       if (line.extras.contains(_Extra.note))
@@ -1587,7 +1653,7 @@ class _LineRow extends StatelessWidget {
                 child: Text(
                   line.coating == MdfCoating.raw
                       ? mdfCoatingLabel(MdfCoating.raw, l10n)
-                      : line.film ?? l10n.mdfFilmNone,
+                      : line.film ?? mdfCoatingNone(line.coating, l10n),
                   key: ValueKey('mdfLineFilm:$index'),
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium,

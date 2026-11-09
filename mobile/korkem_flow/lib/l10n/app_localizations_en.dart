@@ -5432,4 +5432,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfDictPaint => 'Paints';
+
+  @override
+  String get mdfPaintNone => 'No paint chosen';
 }
