@@ -347,7 +347,11 @@ def _put_standard_edges(head, lines, company: str) -> None:
 
 
 def _film_rates(raw, company: str) -> str | None:
-	"""Each film's price per m², stored as JSON on the order: {"Палома": 18000}."""
+	"""Each group's price per m², stored as JSON on the order: {"Палома": 18000}.
+
+	A group's colour is a film or, since 09.11.2026, a paint — RAL 9010 is
+	priced like a film is.
+	"""
 	import json
 
 	if raw in (None, "", {}):
@@ -356,17 +360,17 @@ def _film_rates(raw, company: str) -> str | None:
 		raw = frappe.parse_json(raw)
 	if not isinstance(raw, dict):
 		frappe.throw("Цены плёнок — это пары «плёнка: цена».")
-	films = facade_spec._values(facade_spec.DECOR, company)
+	films = facade_spec._values(facade_spec.DECOR, company) | facade_spec._values(COATING_LIST["paint"], company)
 	rates = {}
 	for film, rate in raw.items():
 		film = facade_spec._text(film)
 		if not film:
 			continue
 		if film not in films:
-			frappe.throw(f"Плёнки «{film}» нет в справочнике «{facade_spec.DECOR}».")
+			frappe.throw(f"Цвета «{film}» нет ни в справочнике «{facade_spec.DECOR}», ни в «{COATING_LIST['paint']}».")
 		if rate in (None, ""):
 			continue
-		rates[film] = float(_money(rate, f"Цена за м² плёнки «{film}»"))
+		rates[film] = float(_money(rate, f"Цена за м² «{film}»"))
 	return json.dumps(rates, ensure_ascii=False, sort_keys=True) if rates else None
 
 
