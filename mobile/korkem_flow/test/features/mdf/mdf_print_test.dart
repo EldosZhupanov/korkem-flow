@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 
@@ -141,5 +142,13 @@ void main() {
     expect(groups.last.lines.single.$2.patina, 'Алтын');
     final bytes = await buildMdfOrderPdf(order, _words, withPrices: false);
     expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
+  });
+
+  test('edges and materials sort naturally in the head', () {
+    final edges = ['R3', 'Полукруг', 'R10', 'R0', 'Фаска 45°', 'R1']
+      ..sort(mdfNaturalCompare);
+    expect(edges, ['R0', 'R1', 'R3', 'R10', 'Полукруг', 'Фаска 45°']);
+    final materials = ['ХДФ', 'МДФ', 'ЛМДФ']..sort(mdfNaturalCompare);
+    expect(materials, ['ЛМДФ', 'МДФ', 'ХДФ']);
   });
 }

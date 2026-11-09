@@ -4946,10 +4946,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfPrintPhone => 'Телефон';
 
   @override
-  String get mdfPrintPaid => 'Предоплата, ₸';
+  String get mdfPrintPaid => 'Предоплата';
 
   @override
-  String get mdfPrintDebt => 'Остаток, ₸';
+  String get mdfPrintDebt => 'Остаток';
 
   @override
   String get mdfPrintTotal => 'Итого:';
@@ -5522,4 +5522,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfTagsTitle => 'Метки';
+
+  @override
+  String mdfDueInDays(int n) {
+    return '+$n дн.';
+  }
+
+  @override
+  String get mdfDueCalendar => 'Выбрать в календаре…';
 }

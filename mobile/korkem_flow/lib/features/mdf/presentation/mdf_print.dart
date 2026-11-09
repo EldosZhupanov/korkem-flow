@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -87,11 +88,17 @@ Future<Uint8List> buildMdfOrderPdf(
   // The head says what the positions have, every kind of it (owner,
   // 09.11.2026): «16 мм, 18 мм», all the coatings, «R3, R0» — the order's
   // defaults only where no position says.
-  String all(Iterable<String?> values, String? fallback) {
-    final seen = <String>{
+  String all(
+    Iterable<String?> values,
+    String? fallback, {
+    bool sorted = false,
+  }) {
+    final kinds = <String>{
       for (final v in values)
         if (v != null && v.isNotEmpty) v,
-    }.join(', ');
+    }.toList();
+    if (sorted) kinds.sort(mdfNaturalCompare);
+    final seen = kinds.join(', ');
     return seen.isNotEmpty ? seen : fallback ?? '';
   }
 
@@ -99,8 +106,8 @@ Future<Uint8List> buildMdfOrderPdf(
     for (final l in order.lines) ?l.thicknessMm,
   }.toList()..sort();
   final head = <(String, String)>[
-    (words.accepted, order.createdOn),
-    (words.due, order.deliveryDate),
+    (words.accepted, mdfDay(order.createdOn)),
+    (words.due, mdfDay(order.deliveryDate)),
     (words.customer, order.customerName),
     (words.phone, order.phone ?? ''),
     (
@@ -112,7 +119,11 @@ Future<Uint8List> buildMdfOrderPdf(
     ),
     (
       words.material,
-      all([for (final l in order.lines) l.material], h.material),
+      all(
+        [for (final l in order.lines) l.material],
+        h.material,
+        sorted: true,
+      ),
     ),
     (
       words.film,
@@ -122,10 +133,18 @@ Future<Uint8List> buildMdfOrderPdf(
     ),
     if (h.patina != null) (words.patina, h.patina!),
     if (h.milling != null) (words.milling, h.milling!),
-    (words.radius, all([for (final l in order.lines) l.edge], h.edgeProfile)),
+    // R0, R1, R3, R5, then the named edges by alphabet (owner, 09.11.2026).
+    (
+      words.radius,
+      all(
+        [for (final l in order.lines) l.edge],
+        h.edgeProfile,
+        sorted: true,
+      ),
+    ),
     if (h.extraName != null) (words.extraName, h.extraName!),
-    if (withPrices) (words.paid, money.format(order.paid)),
-    if (withPrices) (words.debt, money.format(order.debt)),
+    if (withPrices) (words.paid, '${money.format(order.paid)} ₸'),
+    if (withPrices) (words.debt, '${money.format(order.debt)} ₸'),
   ];
 
   pw.Widget text(String value, {pw.TextStyle? style, bool right = false}) =>
@@ -191,6 +210,7 @@ Future<Uint8List> buildMdfOrderPdf(
   // A total on one line across the page, not squeezed into a column.
   pw.Widget sumLine(String label, int pieces, double m2, double amount) =>
       pw.Container(
+        width: double.infinity,
         decoration: const pw.BoxDecoration(
           border: pw.Border(
             left: pw.BorderSide(width: 0.5),

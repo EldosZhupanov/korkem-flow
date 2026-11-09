@@ -8766,13 +8766,13 @@ abstract class AppLocalizations {
   /// No description provided for @mdfPrintPaid.
   ///
   /// In en, this message translates to:
-  /// **'Paid, ₸'**
+  /// **'Paid'**
   String get mdfPrintPaid;
 
   /// No description provided for @mdfPrintDebt.
   ///
   /// In en, this message translates to:
-  /// **'Balance, ₸'**
+  /// **'Balance'**
   String get mdfPrintDebt;
 
   /// No description provided for @mdfPrintTotal.
@@ -9806,6 +9806,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tags'**
   String get mdfTagsTitle;
+
+  /// No description provided for @mdfDueInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'+{n} days'**
+  String mdfDueInDays(int n);
+
+  /// No description provided for @mdfDueCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick in the calendar…'**
+  String get mdfDueCalendar;
 }
 
 class _AppLocalizationsDelegate

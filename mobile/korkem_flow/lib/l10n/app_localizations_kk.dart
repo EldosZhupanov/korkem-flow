@@ -4886,10 +4886,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfPrintPhone => 'Телефон';
 
   @override
-  String get mdfPrintPaid => 'Кепілақы, теңге';
+  String get mdfPrintPaid => 'Кепілақы';
 
   @override
-  String get mdfPrintDebt => 'Қалдық, теңге';
+  String get mdfPrintDebt => 'Қалдық';
 
   @override
   String get mdfPrintTotal => 'Барлығы:';
@@ -5461,4 +5461,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfTagsTitle => 'Белгілер';
+
+  @override
+  String mdfDueInDays(int n) {
+    return '+$n күн';
+  }
+
+  @override
+  String get mdfDueCalendar => 'Күнтізбеден таңдау…';
 }

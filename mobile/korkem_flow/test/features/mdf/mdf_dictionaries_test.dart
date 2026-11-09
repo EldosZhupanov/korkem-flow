@@ -123,6 +123,30 @@ void main() {
     expect(mdfThicknessLabel(['16 мм'], 22), '22 мм');
     expect(mdfThicknessLabel(['16 мм'], null), isNull);
     expect(mdfEdges(['Полукруг', 'R3']), ['R0', 'R3', 'Полукруг']);
+    // Every list in order: numbers by size, words by alphabet.
+    final d = MdfDictionaries.fromJson(const {
+      'thickness': [
+        {'id': 'a', 'value': '18 мм'},
+        {'id': 'b', 'value': '8 мм'},
+        {'id': 'c', 'value': '10 мм'},
+      ],
+      'paint': [
+        {'id': 'd', 'value': 'RAL 9016'},
+        {'id': 'e', 'value': 'NCS S 3040-Y60R'},
+        {'id': 'f', 'value': 'RAL 9010'},
+      ],
+      'milling': [
+        {'id': 'g', 'value': 'Рифленый'},
+        {'id': 'h', 'value': 'Классика'},
+      ],
+    });
+    expect(d.values(MdfDictKind.thickness), ['8 мм', '10 мм', '18 мм']);
+    expect(d.values(MdfDictKind.paint), [
+      'NCS S 3040-Y60R',
+      'RAL 9010',
+      'RAL 9016',
+    ]);
+    expect(d.values(MdfDictKind.milling), ['Классика', 'Рифленый']);
   });
 
   testWidgets('R0 and R3 stand locked on the edge list; the rest are edited', (
