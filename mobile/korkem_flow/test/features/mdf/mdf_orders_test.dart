@@ -782,15 +782,24 @@ void main() {
     expect(find.textContaining('05.11'), findsOneWidget);
   });
 
-  testWidgets("a position's extras get a row of their own under it", (
-    tester,
-  ) async {
-    await _pumpCard(tester, _Rich());
-    // Position 2 has a back side and a patina; 1 and 3 have none.
-    expect(find.byKey(const ValueKey('mdfLineExtras:2')), findsOneWidget);
-    expect(find.byKey(const ValueKey('mdfLineExtras:1')), findsNothing);
+  testWidgets("a position's back side and patina sit under its coating; "
+      'a note gets a row of its own', (tester) async {
+    final noted = [
+      for (final l in _twoFilms()['lines']! as List<Object?>)
+        {...l! as Map<String, Object?>},
+    ];
+    noted[0]['note'] = 'Продолжение узора';
+    await _pumpCard(tester, _Rich(extra: {'lines': noted}));
+    // Position 2's back side and patina are in its coating cell, not a row.
     expect(find.textContaining('Графит'), findsOneWidget);
     expect(find.textContaining('Золото'), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfLineExtras:2')), findsNothing);
+    // Position 1's note is a row under it.
+    expect(find.byKey(const ValueKey('mdfLineExtras:1')), findsOneWidget);
+    // Each coating's name heads its group.
+    expect(find.byKey(const ValueKey('mdfGroupHeadText:0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfGroupHeadText:1')), findsOneWidget);
+    expect(find.textContaining('Продолжение узора'), findsOneWidget);
   });
 
   testWidgets('a payment is fixed with a reason; a cancelled one has no menu', (

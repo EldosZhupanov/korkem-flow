@@ -1849,5 +1849,6 @@
   "mdfPayAddPart": "Ещё способ",
   "mdfPayAfter": "Итого {sum} · долг после оплаты {debt}",
   "mdfPayOver": "Больше остатка на {amount}. Похоже, оплата уже внесена",
-  "mdfPayOverOk": "Это переплата / аванс"
+  "mdfPayOverOk": "Это переплата / аванс",
+  "mdfNoteShort": "Прим."
 }

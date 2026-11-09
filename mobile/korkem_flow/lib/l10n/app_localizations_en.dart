@@ -5575,4 +5575,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPayOverOk => 'It is an overpayment / advance';
+
+  @override
+  String get mdfNoteShort => 'Note';
 }

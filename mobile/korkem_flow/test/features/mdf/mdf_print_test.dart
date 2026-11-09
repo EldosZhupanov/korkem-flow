@@ -86,6 +86,7 @@ final MdfPrintWords _words = (
   thicknessColumn: 'Қалыңдығы',
   tags: 'Белгілер',
   tag: (t) => t.wire,
+  weekday: (d) => 'бейсенбі',
 );
 
 void main() {
@@ -110,7 +111,7 @@ void main() {
     }
   });
 
-  test("a position's extras read on one line, the note apart", () {
+  test("a position's back side and patina go under its coating", () {
     const plain = MdfLine(
       heightMm: 100,
       widthMm: 100,
@@ -118,11 +119,10 @@ void main() {
       areaM2: 0.01,
       rateM2: 0,
       amount: 0,
+      note: '  ',
     );
-    expect(
-      mdfExtrasLine(plain, back: 'обр.', patina: 'Патина', note: 'Прим.'),
-      isNull,
-    );
+    expect(mdfCoatingExtras(plain, back: 'обр.', patina: 'Патина'), isEmpty);
+    expect(mdfLineNote(plain), isNull);
     const rich = MdfLine(
       heightMm: 100,
       widthMm: 100,
@@ -132,12 +132,13 @@ void main() {
       amount: 0,
       filmBack: 'Графит',
       patina: 'Золото',
-      note: 'Продолжение узора',
+      note: ' Продолжение узора ',
     );
-    expect(
-      mdfExtrasLine(rich, back: 'обр.', patina: 'Патина', note: 'Прим.'),
-      '+ обр.: Графит   + Патина: Золото   Прим.: Продолжение узора',
-    );
+    expect(mdfCoatingExtras(rich, back: 'обр.', patina: 'патина'), [
+      'Обр.: Графит',
+      'Патина: Золото',
+    ]);
+    expect(mdfLineNote(rich), 'Продолжение узора');
   });
 
   for (final withPrices in [true, false]) {
