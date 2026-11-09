@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 
@@ -472,6 +473,17 @@ void main() {
     expect(find.byKey(const ValueKey('dict:group:0')), findsNothing);
   });
 
+  test('dates read day.month.year; a week ahead skips a Sunday', () {
+    expect(mdfDay('2026-11-09'), '09.11.2026');
+    expect(mdfDay('2026-11-09', year: false), '09.11');
+    expect(mdfDay('soon'), 'soon');
+    // Monday 09.11.2026 + 7 = Monday 16.11.
+    expect(mdfDueIn(DateTime(2026, 11, 9)), DateTime(2026, 11, 16));
+    // Monday + 6 = Sunday 15.11 → Monday 16.11.
+    expect(mdfDueIn(DateTime(2026, 11, 9), days: 6), DateTime(2026, 11, 16));
+    expect(mdfIso(DateTime(2026, 1, 5)), '2026-01-05');
+  });
+
   test('the positions fall into film groups in the order films appear', () {
     final order = MdfOrder.fromJson(_twoFilms());
     final groups = mdfFilmGroups(order.lines);
@@ -664,6 +676,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('mdfStage:cut')));
     await tester.pumpAndSettle();
     expect(repo.ticked, [(MdfStage.cut, true)]);
-    expect(find.textContaining('2026-11-05'), findsOneWidget);
+    // Day.month, the way the shop reads it (09.11.2026).
+    expect(find.textContaining('05.11'), findsOneWidget);
   });
 }

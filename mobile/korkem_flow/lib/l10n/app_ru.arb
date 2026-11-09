@@ -1645,8 +1645,8 @@
   "mdfPrintTitle": "Заказ №{name}",
   "mdfPrintAccepted": "Принят",
   "mdfPrintPhone": "Телефон",
-  "mdfPrintPaid": "Предоплата, ₸",
-  "mdfPrintDebt": "Остаток, ₸",
+  "mdfPrintPaid": "Предоплата",
+  "mdfPrintDebt": "Остаток",
   "mdfPrintTotal": "Итого:",
   "mdfPrintClient": "Бланк клиенту",
   "mdfPrintShop": "Наряд в цех",
@@ -1817,5 +1817,7 @@
   "mdfLeave": "Выйти",
   "mdfChangeAdded": "Добавлена позиция {n}",
   "mdfChangeRemoved": "Убрана позиция {n}",
-  "mdfTagsTitle": "Метки"
+  "mdfTagsTitle": "Метки",
+  "mdfDueInDays": "+{n} дн.",
+  "mdfDueCalendar": "Выбрать в календаре…"
 }

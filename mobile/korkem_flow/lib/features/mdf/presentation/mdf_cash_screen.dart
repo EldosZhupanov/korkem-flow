@@ -11,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_cash.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -171,7 +172,7 @@ class _CashBody extends StatelessWidget {
                 key: ValueKey('cashDay:${d.date}'),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
-                title: Text(d.date),
+                title: Text(mdfDay(d.date)),
                 subtitle: d.byMethod.isEmpty
                     ? null
                     : Text(
@@ -197,7 +198,7 @@ class _CashBody extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               title: Text('${p.order} · ${p.customerName}'),
               subtitle: Text(
-                [p.date, p.method, ?p.bank].join(' · '),
+                [mdfDay(p.date), p.method, ?p.bank].join(' · '),
               ),
               trailing: Text(money.format(p.amount)),
               onTap: () => context.push(Routes.mdfOrder(p.order)),
@@ -212,7 +213,7 @@ class _CashBody extends StatelessWidget {
                 dense: true,
                 contentPadding: EdgeInsets.zero,
                 title: Text(e.purpose),
-                subtitle: Text('${e.date} · ${e.category}'),
+                subtitle: Text('${mdfDay(e.date)} · ${e.category}'),
                 trailing: Text('−${money.format(e.amount)}'),
               ),
             ),

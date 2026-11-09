@@ -11,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -234,7 +235,7 @@ class _OrderRow extends StatelessWidget {
                   ),
                   Text(
                     [
-                      '${row.createdOn} → ${row.deliveryDate}',
+                      '${mdfDay(row.createdOn)} → ${mdfDay(row.deliveryDate)}',
                       ?row.phone,
                     ].join(' · '),
                     style: theme.textTheme.bodySmall,

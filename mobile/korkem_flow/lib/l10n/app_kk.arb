@@ -1645,8 +1645,8 @@
   "mdfPrintTitle": "Тапсырыс №{name}",
   "mdfPrintAccepted": "Қабылданған күні",
   "mdfPrintPhone": "Телефон",
-  "mdfPrintPaid": "Кепілақы, теңге",
-  "mdfPrintDebt": "Қалдық, теңге",
+  "mdfPrintPaid": "Кепілақы",
+  "mdfPrintDebt": "Қалдық",
   "mdfPrintTotal": "Барлығы:",
   "mdfPrintClient": "Тапсырыс_Клиент",
   "mdfPrintShop": "Тапсырыс_Цех",
@@ -1817,5 +1817,7 @@
   "mdfLeave": "Шығу",
   "mdfChangeAdded": "{n}-позиция қосылды",
   "mdfChangeRemoved": "{n}-позиция алынды",
-  "mdfTagsTitle": "Белгілер"
+  "mdfTagsTitle": "Белгілер",
+  "mdfDueInDays": "+{n} күн",
+  "mdfDueCalendar": "Күнтізбеден таңдау…"
 }

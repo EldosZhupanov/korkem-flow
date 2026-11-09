@@ -24,6 +24,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_coating.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
@@ -251,6 +252,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   void initState() {
     super.initState();
     final o = widget.order ?? widget.template;
+    // A new order — a copy too — is due in a week (owner, 09.11.2026).
+    if (widget.order == null) _due = mdfDueIn(DateTime.now());
     if (o != null) {
       _customer = FacadeCustomer(
         name: o.customer,
@@ -320,7 +323,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   /// position number, the head's fields by name.
   List<String> _changes(AppLocalizations l10n) {
     String show(Object? v) => v == null || v == '' ? '—' : '$v';
-    String day(DateTime? d) => show(d?.toIso8601String().substring(0, 10));
+    String day(DateTime? d) => d == null ? '—' : mdfDayOf(d);
     final out = <String>[];
     if (_initialDue != _due) {
       out.add('${l10n.mdfDue}: ${day(_initialDue)} → ${day(_due)}');
@@ -885,11 +888,42 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     }
   }
 
+  /// «Срок»: +3, +7, +10, +14 days in one tap (a Sunday moves to Monday),
+  /// or the calendar.
   Future<void> _pickDue() async {
+    final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
+    final quick = await showDialog<DateTime?>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(l10n.mdfDue),
+        children: [
+          for (final days in mdfDueQuickDays)
+            SimpleDialogOption(
+              key: ValueKey('mdfDueIn:$days'),
+              onPressed: () =>
+                  Navigator.of(context).pop(mdfDueIn(now, days: days)),
+              child: Text(
+                '${l10n.mdfDueInDays(days)} — '
+                '${mdfDayOf(mdfDueIn(now, days: days))}',
+              ),
+            ),
+          SimpleDialogOption(
+            key: const ValueKey('mdfDueCalendar'),
+            onPressed: () => Navigator.of(context).pop(DateTime(0)),
+            child: Text(l10n.mdfDueCalendar),
+          ),
+        ],
+      ),
+    );
+    if (quick == null || !mounted) return;
+    if (quick.year != 0) {
+      setState(() => _due = quick);
+      return;
+    }
     final picked = await showDatePicker(
       context: context,
-      initialDate: _due ?? now.add(const Duration(days: 7)),
+      initialDate: _due ?? mdfDueIn(now),
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now.add(const Duration(days: 365)),
     );
@@ -1065,8 +1099,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       label: Text(
                         _due == null
                             ? l10n.mdfDue
-                            : '${l10n.mdfDue}: '
-                                  '${_due!.toIso8601String().substring(0, 10)}',
+                            : '${l10n.mdfDue}: ${mdfDayOf(_due!)}',
                       ),
                     ),
                   ],
@@ -2222,7 +2255,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         Text(
           [
             o.phone,
-            '${o.createdOn} → ${o.deliveryDate}',
+            '${mdfDay(o.createdOn)} → ${mdfDay(o.deliveryDate)}',
           ].whereType<String>().join(' · '),
           style: theme.textTheme.bodySmall,
         ),
@@ -2295,7 +2328,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                 label: Text(
                   [
                     mdfStageLabel(stage, l10n),
-                    ?doneOn,
+                    if (doneOn != null) mdfDay(doneOn, year: false),
                     ?o.stageWorkers[stage],
                   ].join(' · '),
                 ),
@@ -2481,7 +2514,11 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             contentPadding: EdgeInsets.zero,
             title: Text(money.format(p.amount)),
             subtitle: Text(
-              [p.date, p.method, p.bank].whereType<String>().join(' · '),
+              [
+                mdfDay(p.date),
+                p.method,
+                p.bank,
+              ].whereType<String>().join(' · '),
             ),
           ),
         if (open)

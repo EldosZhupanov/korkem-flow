@@ -296,10 +296,11 @@ class MdfOrderRepository {
   Future<List<FacadeCustomer>> customerList() async {
     final response = await _client.callMethod('$_base.customer_list');
     final raw = response['message'] ?? response['data'];
+    // By name, by alphabet (owner, 09.11.2026).
     return [
       for (final c in raw is List ? raw : const <Object>[])
         if (c is Map) FacadeCustomer.fromJson(Map<String, dynamic>.from(c)),
-    ];
+    ]..sort((a, b) => mdfNaturalCompare(a.title, b.title));
   }
 
   Future<FacadeCustomer> customerAdd(

@@ -42,14 +42,15 @@ class MdfDictionaries {
             for (final e in json[kind.wire] as List? ?? const [])
               if (e is Map)
                 MdfDictEntry(id: '${e['id']}', value: '${e['value']}'),
-          ],
+          ]..sort((a, b) => mdfNaturalCompare(a.value, b.value)),
       });
 
   static const empty = MdfDictionaries({});
 
   final Map<MdfDictKind, List<MdfDictEntry>> _lists;
 
-  /// In the order they were added.
+  /// In order (owner, 09.11.2026): numbers by size — 8 мм before 10 мм,
+  /// R0 before R3, RAL 9010 before RAL 9016 — words by alphabet.
   List<MdfDictEntry> entries(MdfDictKind kind) => _lists[kind] ?? const [];
 
   List<String> values(MdfDictKind kind) => [
@@ -90,3 +91,21 @@ List<String> mdfEdges(List<String> listed) => [
 String? mdfThicknessLabel(List<String> listed, int? mm) => mm == null
     ? null
     : listed.firstWhere((v) => thicknessOf(v) == mm, orElse: () => '$mm мм');
+
+/// «R0» before «R3» before «R10», «8 мм» before «10 мм», «RAL 9010» before
+/// «RAL 10000»; words by alphabet, Latin before Cyrillic. Where two values
+/// share what comes before their first number, the number decides.
+int mdfNaturalCompare(String a, String b) {
+  final digits = RegExp(r'\d+');
+  final ma = digits.firstMatch(a);
+  final mb = digits.firstMatch(b);
+  if (ma != null && mb != null) {
+    final pa = a.substring(0, ma.start).toLowerCase();
+    final pb = b.substring(0, mb.start).toLowerCase();
+    if (pa == pb) {
+      final byNumber = int.parse(ma[0]!).compareTo(int.parse(mb[0]!));
+      if (byNumber != 0) return byNumber;
+    }
+  }
+  return a.toLowerCase().compareTo(b.toLowerCase());
+}
