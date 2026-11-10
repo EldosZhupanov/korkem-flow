@@ -107,11 +107,137 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
+        // A film is added here, at its maker (owner, 10.11.2026) — and its
+        // card opens at once to be filled in.
+        if (c.canEdit)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FilledButton.icon(
+              key: ValueKey('filmAdd:$maker'),
+              onPressed: () => _add(c, maker),
+              icon: const Icon(AppIcons.add),
+              label: Text(l10n.filmAdd),
+            ),
+          ),
+        if (films.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Text(l10n.filmEmpty(maker)),
+          ),
         for (final f in films)
           FilmTile(
             film: f,
             onTap: c.canEdit ? () => showFilmCard(context, f, c) : null,
           ),
+      ],
+    );
+  }
+
+  Future<void> _add(FilmCatalog c, String maker) async {
+    final made = await showDialog<Film>(
+      context: context,
+      builder: (_) => _FilmAddDialog(maker: maker),
+    );
+    if (made == null || !mounted) return;
+    ref.invalidate(filmCatalogProvider);
+    await showFilmCard(context, made, c);
+  }
+}
+
+class _FilmAddDialog extends ConsumerStatefulWidget {
+  const _FilmAddDialog({required this.maker});
+
+  final String maker;
+
+  @override
+  ConsumerState<_FilmAddDialog> createState() => _FilmAddDialogState();
+}
+
+class _FilmAddDialogState extends ConsumerState<_FilmAddDialog> {
+  final _name = TextEditingController();
+  final _thickness = TextEditingController(text: '0,3');
+  final _width = TextEditingController(text: '1400');
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _thickness.dispose();
+    _width.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final made = await ref
+          .read(filmCatalogRepositoryProvider)
+          .add(
+            maker: widget.maker,
+            colour: _name.text.trim(),
+            thickness: _thickness.text.trim(),
+            width: _width.text.trim(),
+          );
+      if (mounted) Navigator.of(context).pop(made);
+    } on Object catch (e) {
+      setState(() {
+        _busy = false;
+        _error = '$e';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text('${l10n.filmAdd} · ${widget.maker}'),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 8,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              key: const ValueKey('filmAdd:name'),
+              controller: _name,
+              autofocus: true,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(labelText: l10n.filmName),
+            ),
+            TextField(
+              key: const ValueKey('filmAdd:thickness'),
+              controller: _thickness,
+              decoration: InputDecoration(labelText: l10n.filmThickness),
+            ),
+            TextField(
+              key: const ValueKey('filmAdd:width'),
+              controller: _width,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(labelText: l10n.filmWidth),
+            ),
+            if (_error != null)
+              Text(
+                _error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmAdd:save'),
+          onPressed: _busy || _name.text.trim().length < 2 ? null : _save,
+          child: Text(l10n.filmSave),
+        ),
       ],
     );
   }

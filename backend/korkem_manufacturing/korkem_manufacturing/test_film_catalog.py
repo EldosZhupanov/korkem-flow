@@ -117,6 +117,19 @@ class TestFilmCatalog(IntegrationTestCase):
 		picked = facade_materials._pick_item(material_stock.FILM, "KIRA · Белый Матовый", COMPANY, {})
 		self.assertEqual(picked.name, kira)
 
+	def test_a_film_is_added_from_the_catalogue_itself(self):
+		made = self._as(MANAGER, service.add, "KIRA", "Шалфей Новый")
+		self.assertEqual((made["maker"], made["colour"], made["width_mm"]), ("KIRA", "Шалфей Новый", 1400))
+		self.assertEqual(made["label"], "KIRA · Шалфей Новый")
+		# The same film again is the same film, not a second one.
+		self.assertEqual(self._as(MANAGER, service.add, "KIRA", "Шалфей Новый")["item"], made["item"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.add, "Никто", "Шалфей Новый")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.add, "KIRA", " ")
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, service.add, "KIRA", "Чужая")
+
 	def test_a_colour_no_film_carries_is_unassigned(self):
 		self._film("KIRA")
 		catalog = self._as(MANAGER, service.catalog)

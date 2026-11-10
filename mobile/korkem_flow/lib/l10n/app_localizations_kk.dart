@@ -5596,4 +5596,21 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmSave => 'Сақтау';
+
+  @override
+  String get filmAdd => 'Үлдір';
+
+  @override
+  String filmEmpty(String maker) {
+    return '$maker өндірушісінде әзірге үлдір жоқ. Біріншісін қосу үшін «Үлдір» басыңыз.';
+  }
+
+  @override
+  String get filmName => 'Үлдір атауы';
+
+  @override
+  String get filmThickness => 'Қалыңдығы, мм';
+
+  @override
+  String get filmWidth => 'Орам ені, мм';
 }

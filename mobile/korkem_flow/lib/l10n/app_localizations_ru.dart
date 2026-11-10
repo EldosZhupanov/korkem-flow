@@ -5657,4 +5657,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmSave => 'Сохранить';
+
+  @override
+  String get filmAdd => 'Плёнка';
+
+  @override
+  String filmEmpty(String maker) {
+    return 'У $maker пока нет плёнок. Нажмите «Плёнка», чтобы добавить первую.';
+  }
+
+  @override
+  String get filmName => 'Название плёнки';
+
+  @override
+  String get filmThickness => 'Толщина, мм';
+
+  @override
+  String get filmWidth => 'Ширина рулона, мм';
 }

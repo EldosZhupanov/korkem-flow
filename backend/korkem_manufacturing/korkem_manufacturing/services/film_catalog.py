@@ -115,6 +115,35 @@ def catalog() -> dict:
 	}
 
 
+def add(maker: str, colour: str, thickness: str | None = None, width: str | None = None) -> dict:
+	"""A new film of this maker, from the catalogue itself (owner, 10.11.2026:
+	«где карточка плёнки?» — there was nowhere to add one but the stock).
+
+	The film is the stock's material, counted in metres; its colour, width
+	and thickness are put on the stock's lists if they are not there yet. A
+	roll is 1400 mm wide unless said otherwise.
+	"""
+	material_stock._ensure_editor()
+	company = current_company()
+	maker = " ".join((maker or "").split())
+	colour = " ".join((colour or "").split())[:100]
+	width = " ".join(str(width or "1400").split())
+	thickness = " ".join(str(thickness or "0,3").split())
+	if maker not in material_stock.enabled_values(MAKERS, company):
+		frappe.throw(f"Производителя «{maker or '—'}» нет в справочнике «{MAKERS}».")
+	if len(colour) < 2:
+		frappe.throw("Назовите плёнку.")
+	if SEP in colour:
+		frappe.throw(f"В названии плёнки не должно быть «{SEP.strip()}».")
+	for kind, value in ((COLOURS, colour), ("Ширина плёнки", width), ("Толщина плёнки", thickness)):
+		if value not in material_stock.enabled_values(kind, company):
+			material_stock.put_option(kind, value)
+	made = material_stock.define_material(
+		material_stock.FILM, "м", color=colour, width=width, film_thickness=thickness, manufacturer=maker
+	)
+	return film(made["item"])
+
+
 def set_card(item: str, **card) -> dict:
 	"""Write a film's card. A field left out stays as it is; an empty one is cleared."""
 	material_stock._ensure_editor()
