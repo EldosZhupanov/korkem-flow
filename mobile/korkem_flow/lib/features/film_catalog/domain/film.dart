@@ -9,6 +9,7 @@ class Film {
     required this.item,
     required this.maker,
     required this.colour,
+    this.label,
     this.title = '',
     this.widthMm,
     this.thicknessMm,
@@ -31,6 +32,7 @@ class Film {
     title: '${json['title'] ?? ''}',
     maker: '${json['maker'] ?? ''}',
     colour: '${json['colour'] ?? ''}',
+    label: _s(json['label']),
     widthMm: _d(json['width_mm']),
     thicknessMm: _d(json['thickness_mm']),
     enabled: json['enabled'] != false,
@@ -51,6 +53,10 @@ class Film {
   final String title;
   final String maker;
   final String colour;
+
+  /// How an order names this film: «KIRA · Белый Матовый» — the maker is
+  /// part of the name, the same colour of another maker is another film.
+  final String? label;
   final double? widthMm;
   final double? thicknessMm;
 

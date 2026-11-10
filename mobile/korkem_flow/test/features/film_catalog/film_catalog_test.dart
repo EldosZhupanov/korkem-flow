@@ -13,6 +13,7 @@ const _json = <String, dynamic>{
       'item': 'MAT-1',
       'maker': 'KIRA',
       'colour': 'Белый Матовый',
+      'label': 'KIRA · Белый Матовый',
       'code': 'KR-101',
       'type': 'Матовая',
       'hex': '#F4F3EE',
@@ -111,5 +112,35 @@ void main() {
     expect(repo.cards.single.$1, 'MAT-1');
     expect(repo.cards.single.$2['ral'], '9003');
     expect(repo.cards.single.$2['code'], 'KR-101');
+  });
+
+  testWidgets('a film for an order: the maker, then its film by name', (
+    tester,
+  ) async {
+    String? picked;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(_Fake())],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () async => picked = await showFilmPicker(context),
+              child: const Text('pick'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('pick'));
+    await tester.pumpAndSettle();
+    // JS Group opens first; its film has no name for an order, so none shows.
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('pickMaker:KIRA')));
+    await tester.pumpAndSettle();
+    // Only KIRA's films that are still made and named.
+    expect(find.byKey(const ValueKey('film:MAT-4')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('film:MAT-1')));
+    await tester.pumpAndSettle();
+    expect(picked, 'KIRA · Белый Матовый');
   });
 }

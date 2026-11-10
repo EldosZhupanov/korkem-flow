@@ -53,6 +53,38 @@ _FIELDS = [
 
 _HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 
+#: How an order names a catalogue film: «KIRA · Белый Матовый». The maker is
+#: part of the name — the same colour of another maker is another film — and
+#: an order's old plain colour («Белый Матовый») stays what it was.
+SEP = " · "
+
+
+def label(maker: str, colour: str) -> str:
+	return f"{maker}{SEP}{colour}"
+
+
+def split(name: str | None) -> tuple[str, str] | None:
+	"""A film's maker and colour from its name in an order; None for a plain colour."""
+	if not name or SEP not in name:
+		return None
+	maker, colour = name.split(SEP, 1)
+	return (maker, colour) if maker and colour else None
+
+
+def labels(company: str) -> set[str]:
+	"""Every catalogue film's name — a film no longer made too: an order
+	that names it must still save."""
+	return {
+		label(r.korkem_manufacturer, r.korkem_color)
+		for r in frappe.get_all(
+			"Item",
+			filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM},
+			fields=["korkem_manufacturer", "korkem_color"],
+			limit_page_length=5000,
+		)
+		if r.korkem_manufacturer and r.korkem_color
+	}
+
 
 def catalog() -> dict:
 	"""Every film, with its card and what is on hand; the makers and types to pick from."""
@@ -145,6 +177,8 @@ def _film(i, on_hand: float, held: float) -> dict:
 		"title": i.item_name,
 		"maker": i.korkem_manufacturer or "",
 		"colour": i.korkem_color or "",
+		"label": label(i.korkem_manufacturer, i.korkem_color)
+		if i.korkem_manufacturer and i.korkem_color else None,
 		"width_mm": flt(i.korkem_film_width_mm) or None,
 		"thickness_mm": flt(i.korkem_film_thickness_mm) or None,
 		"textured": bool(i.korkem_film_textured),

@@ -100,6 +100,23 @@ class TestFilmCatalog(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, service.set_card, item, code="X")
 
+	def test_an_order_names_a_film_by_its_maker(self):
+		from korkem_manufacturing.services import facade_materials, mdf_orders
+
+		kira = self._film("KIRA")
+		self._film("JS Group")
+		row = next(f for f in self._as(MANAGER, service.catalog)["films"] if f["item"] == kira)
+		self.assertEqual(row["label"], "KIRA · Белый Матовый")
+		self.assertEqual(service.split("KIRA · Белый Матовый"), ("KIRA", "Белый Матовый"))
+		self.assertIsNone(service.split("Белый Матовый"))
+		# The order form takes the catalogue's name, and the plain colour as before.
+		known = mdf_orders._colours("Цвет плёнки", COMPANY)
+		self.assertTrue({"KIRA · Белый Матовый", "JS Group · Белый Матовый", "Белый Матовый"} <= known)
+		self.assertNotIn("Nobody · Белый Матовый", known)
+		# And the stock finds that maker's roll, not the other's.
+		picked = facade_materials._pick_item(material_stock.FILM, "KIRA · Белый Матовый", COMPANY, {})
+		self.assertEqual(picked.name, kira)
+
 	def test_a_colour_no_film_carries_is_unassigned(self):
 		self._film("KIRA")
 		catalog = self._as(MANAGER, service.catalog)

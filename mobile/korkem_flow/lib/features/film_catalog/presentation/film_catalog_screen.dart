@@ -362,3 +362,131 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
     );
   }
 }
+
+/// A film for an order, in three steps (owner, 10.11.2026): the maker, the
+/// type, then that maker's film — with what is on hand beside it. Gives the
+/// film's name for the order, «KIRA · Белый Матовый».
+Future<String?> showFilmPicker(BuildContext context, {String? current}) =>
+    showDialog<String>(
+      context: context,
+      builder: (_) => _FilmPickerDialog(current: current),
+    );
+
+class _FilmPickerDialog extends ConsumerStatefulWidget {
+  const _FilmPickerDialog({this.current});
+
+  final String? current;
+
+  @override
+  ConsumerState<_FilmPickerDialog> createState() => _FilmPickerDialogState();
+}
+
+class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
+  String? _maker;
+  String? _type;
+  String _search = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = ref.watch(filmCatalogProvider).value;
+    final tabs = c?.tabs ?? const <String>[];
+    // The film the group has now opens its maker; else the first maker.
+    final maker =
+        _maker ??
+        c?.films
+            .where((f) => f.label != null && f.label == widget.current)
+            .map((f) => f.maker)
+            .firstOrNull ??
+        tabs.firstOrNull;
+    final films = c == null || maker == null
+        ? const <Film>[]
+        : [
+            for (final f in c.of(maker, type: _type, search: _search))
+              if (f.enabled && f.label != null) f,
+          ];
+    return AlertDialog(
+      title: Text(l10n.filmCatalogTitle),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 11,
+        height: AppSpacing.xxxl * 9,
+        child: c == null
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.filmMaker,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      for (final m in tabs)
+                        ChoiceChip(
+                          key: ValueKey('pickMaker:$m'),
+                          label: Text(m),
+                          selected: maker == m,
+                          onSelected: (_) => setState(() => _maker = m),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    l10n.filmType,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      ChoiceChip(
+                        key: const ValueKey('pickType:all'),
+                        label: Text(l10n.filmAllTypes),
+                        selected: _type == null,
+                        onSelected: (_) => setState(() => _type = null),
+                      ),
+                      for (final t in c.types)
+                        ChoiceChip(
+                          key: ValueKey('pickType:$t'),
+                          label: Text(t),
+                          selected: _type == t,
+                          onSelected: (on) =>
+                              setState(() => _type = on ? t : null),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  TextField(
+                    key: const ValueKey('pickSearch'),
+                    onChanged: (v) => setState(() => _search = v),
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(AppIcons.search),
+                      labelText: l10n.filmSearchIn(maker ?? ''),
+                      isDense: true,
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        for (final f in films)
+                          FilmTile(
+                            film: f,
+                            onTap: () => Navigator.of(context).pop(f.label),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+      ],
+    );
+  }
+}
