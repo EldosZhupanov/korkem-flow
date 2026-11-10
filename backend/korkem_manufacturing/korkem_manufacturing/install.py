@@ -48,6 +48,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_film_card_fields
 
 	add_film_card_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_film_dept_fields
+
+	add_film_dept_fields.execute()
 	from korkem_manufacturing.patches.v0_0 import add_stock_count_field
 
 	add_stock_count_field.execute()

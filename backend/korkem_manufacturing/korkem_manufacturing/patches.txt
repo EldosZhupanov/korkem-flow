@@ -26,6 +26,7 @@ korkem_manufacturing.patches.v0_0.add_film_textured_field
 korkem_manufacturing.patches.v0_0.grant_sales_manager_address_read
 korkem_manufacturing.patches.v0_0.add_min_stock_field
 korkem_manufacturing.patches.v0_0.add_film_card_fields
+korkem_manufacturing.patches.v0_0.add_film_dept_fields
 korkem_manufacturing.patches.v0_0.add_stock_count_field
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-07 who did each stage
