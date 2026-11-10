@@ -124,9 +124,9 @@ Future<Uint8List> buildMdfOrderPdf(
     return seen.isNotEmpty ? seen : fallback ?? '';
   }
 
-  // Срочный, гарантия, переделка (owner, 09.11.2026, variant В): a row of
-  // the head on both copies, and on the shop's a black band across the top
-  // that the floor sees from the door.
+  // Срочный, гарантия, переделка: framed under the order's number on both
+  // copies. The black band over the shop's copy is gone (owner, 10.11.2026:
+  // «под заказом достаточно»).
   final tagNames = [for (final t in order.tags) words.tag(t)];
   final thicknesses = {
     for (final l in order.lines) ?l.thicknessMm,
@@ -251,13 +251,15 @@ Future<Uint8List> buildMdfOrderPdf(
     0: const pw.FixedColumnWidth(24),
     1: const pw.FlexColumnWidth(1.1),
     2: const pw.FlexColumnWidth(1.1),
-    3: const pw.FlexColumnWidth(0.9),
-    4: const pw.FlexColumnWidth(2.6),
+    // «Кол.» and «м²» a little wider (owner, 10.11.2026): the header «Кол.»
+    // and the order's «14,20» broke in two on the customer's copy.
+    3: const pw.FlexColumnWidth(),
+    4: const pw.FlexColumnWidth(2.4),
     5: const pw.FlexColumnWidth(1.5),
     6: const pw.FlexColumnWidth(3),
     7: const pw.FlexColumnWidth(1.3),
     8: const pw.FlexColumnWidth(1.4),
-    9: const pw.FlexColumnWidth(1.2),
+    9: const pw.FlexColumnWidth(1.3),
     if (withPrices) 10: const pw.FlexColumnWidth(1.5),
     if (withPrices) 11: const pw.FlexColumnWidth(1.8),
   };
@@ -273,7 +275,12 @@ Future<Uint8List> buildMdfOrderPdf(
     bool order = false,
   }) {
     final style = order
-        ? pw.TextStyle(fontSize: size + 2, fontWeight: pw.FontWeight.bold)
+        // Larger on the shop's copy; on the customer's, with two money
+        // columns, «363 780» must stay on one line.
+        ? pw.TextStyle(
+            fontSize: withPrices ? size + 0.5 : size + 2,
+            fontWeight: pw.FontWeight.bold,
+          )
         : pw.TextStyle(fontSize: size - 1, color: PdfColors.grey800);
     final line = pw.BorderSide(width: order ? 2 : 0.5);
     pw.Widget cell(String v, int flex) => pw.Expanded(
@@ -306,9 +313,9 @@ Future<Uint8List> buildMdfOrderPdf(
             ),
           ),
           // The number alone, under «Кол.»: «шт» broke the narrow column.
-          cell('$pieces', 9),
-          pw.Spacer(flex: 26 + 15 + 30 + 13 + 14),
-          cell(area.format(m2), 12),
+          cell('$pieces', 10),
+          pw.Spacer(flex: 24 + 15 + 30 + 13 + 14),
+          cell(area.format(m2), 13),
           if (withPrices) pw.Spacer(flex: 15),
           if (withPrices) cell(money.format(amount), 18),
         ],
@@ -421,23 +428,6 @@ Future<Uint8List> buildMdfOrderPdf(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(28, 24, 28, 24),
       build: (context) => [
-        if (!withPrices && tagNames.isNotEmpty)
-          pw.Container(
-            width: double.infinity,
-            margin: const pw.EdgeInsets.only(bottom: 8),
-            padding: const pw.EdgeInsets.symmetric(vertical: 6),
-            color: PdfColors.black,
-            child: pw.Text(
-              tagNames.join(' · ').toUpperCase(),
-              textAlign: pw.TextAlign.center,
-              style: const pw.TextStyle(
-                fontSize: 20,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.white,
-                letterSpacing: 1.5,
-              ),
-            ),
-          ),
         pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
