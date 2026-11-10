@@ -24,6 +24,27 @@ class FilmCatalogRepository {
   Future<FilmCatalog> catalog() async =>
       FilmCatalog.fromJson(_map(await _client.callMethod('$_base.catalog')));
 
+  /// A new film of this maker; a roll is 1400 mm wide unless said.
+  Future<Film> add({
+    required String maker,
+    required String colour,
+    String? thickness,
+    String? width,
+  }) async => Film.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.add',
+        post: true,
+        params: {
+          'maker': maker,
+          'colour': colour,
+          'thickness': ?thickness,
+          'width': ?width,
+        },
+      ),
+    ),
+  );
+
   /// Writes the fields given; a null one is cleared, a missing one kept.
   Future<Film> setCard(String item, Map<String, Object?> card) async =>
       Film.fromJson(

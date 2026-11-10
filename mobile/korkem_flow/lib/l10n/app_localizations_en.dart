@@ -5634,4 +5634,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmSave => 'Save';
+
+  @override
+  String get filmAdd => 'Film';
+
+  @override
+  String filmEmpty(String maker) {
+    return '$maker has no films yet. Press “Film” to add the first.';
+  }
+
+  @override
+  String get filmName => 'Film name';
+
+  @override
+  String get filmThickness => 'Thickness, mm';
+
+  @override
+  String get filmWidth => 'Roll width, mm';
 }

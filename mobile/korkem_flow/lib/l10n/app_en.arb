@@ -6213,5 +6213,17 @@
   "filmSupplier": "Supplier",
   "filmPriceM": "Supplier price, ₸/m",
   "filmUrl": "Web page",
-  "filmSave": "Save"
+  "filmSave": "Save",
+  "filmAdd": "Film",
+  "filmEmpty": "{maker} has no films yet. Press “Film” to add the first.",
+  "@filmEmpty": {
+    "placeholders": {
+      "maker": {
+        "type": "String"
+      }
+    }
+  },
+  "filmName": "Film name",
+  "filmThickness": "Thickness, mm",
+  "filmWidth": "Roll width, mm"
 }

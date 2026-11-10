@@ -59,6 +59,19 @@ class _Fake implements FilmCatalogRepository {
   @override
   Future<FilmCatalog> catalog() async => FilmCatalog.fromJson(_json);
 
+  final added = <(String, String, String?, String?)>[];
+
+  @override
+  Future<Film> add({
+    required String maker,
+    required String colour,
+    String? thickness,
+    String? width,
+  }) async {
+    added.add((maker, colour, thickness, width));
+    return Film(item: 'MAT-9', maker: maker, colour: colour);
+  }
+
   @override
   Future<Film> setCard(String item, Map<String, Object?> card) async {
     cards.add((item, card));
@@ -112,6 +125,34 @@ void main() {
     expect(repo.cards.single.$1, 'MAT-1');
     expect(repo.cards.single.$2['ral'], '9003');
     expect(repo.cards.single.$2['code'], 'KR-101');
+  });
+
+  testWidgets('a film is added at its maker, and its card opens', (
+    tester,
+  ) async {
+    final repo = _Fake();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const FilmCatalogScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmAdd:JS Group')));
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('filmAdd:save'));
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmAdd:name')),
+      'Молочный',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    // A roll is 1400 wide and 0,3 thick unless said otherwise.
+    expect(repo.added.single, ('JS Group', 'Молочный', '0,3', '1400'));
+    // Its card is open, to be filled in.
+    expect(find.byKey(const ValueKey('filmCard:save')), findsOneWidget);
   });
 
   testWidgets('a film for an order: the maker, then its film by name', (
