@@ -1850,5 +1850,22 @@
   "mdfPayAfter": "Итого {sum} · долг после оплаты {debt}",
   "mdfPayOver": "Больше остатка на {amount}. Похоже, оплата уже внесена",
   "mdfPayOverOk": "Это переплата / аванс",
-  "mdfNoteShort": "Прим."
+  "mdfNoteShort": "Прим.",
+  "filmCatalogTitle": "Плёнки ПВХ",
+  "filmMaker": "Производитель",
+  "filmType": "Тип плёнки",
+  "filmAllTypes": "Все типы",
+  "filmSearchIn": "Поиск в {maker}",
+  "filmHave": "есть · {metres} м",
+  "filmToOrder": "заказать",
+  "filmOff": "не выпускается",
+  "filmUnassigned": "не указан",
+  "filmUnassignedHint": "Цвета без производителя. Заведите плёнку на складе материалов и укажите производителя — старые заказы останутся как есть.",
+  "filmCode": "Код",
+  "filmSample": "Образец цвета (#F4F3EE)",
+  "filmRal": "Близкий RAL",
+  "filmSupplier": "Поставщик",
+  "filmPriceM": "Цена у поставщика, ₸/м",
+  "filmUrl": "Ссылка на сайт",
+  "filmSave": "Сохранить"
 }

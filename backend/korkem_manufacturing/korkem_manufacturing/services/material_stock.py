@@ -144,6 +144,7 @@ _ITEM_FIELD = {
 	"Цвет плёнки": "korkem_color",
 	"Ширина плёнки": "korkem_film_width_mm",
 	"Толщина плёнки": "korkem_film_thickness_mm",
+	"Тип плёнки": "korkem_film_type",
 }
 _ORDER_FIELDS = {
 	"Цвет плёнки": ("korkem_decor_top", "korkem_decor_bottom"),

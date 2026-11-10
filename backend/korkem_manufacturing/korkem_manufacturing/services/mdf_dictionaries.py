@@ -52,6 +52,10 @@ KINDS: dict[str, str] = {
 	# RAL 9010, NCS S 3040-Y60R, MPC 9010 — a paint group's colours, apart from
 	# the films (owner, 09.11.2026: «не будут смешиваться краски и плёнки»).
 	"paint": "Краска",
+	# A film's maker and its type, each a list the owner keeps (10.11.2026):
+	# KIRA, JS Group, МС-Груп …; матовая, софт, древесная …
+	"maker": "Производитель",
+	"film_type": "Тип плёнки",
 }
 
 #: Where a renamed value is carried: the price matrix, and the stock's materials.

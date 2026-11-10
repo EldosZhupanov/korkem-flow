@@ -448,7 +448,7 @@ class TestMdfOrders(IntegrationTestCase):
 		from korkem_manufacturing.services import mdf_dictionaries as dicts
 
 		lists = self._as(MANAGER, dicts.dictionaries)
-		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge", "bank", "paint"})
+		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge", "bank", "paint", "maker", "film_type"})
 		self.assertNotIn(PVC, [v["value"] for v in lists["finish"]])  # nothing is filled in for the owner
 
 		lists = self._as(MANAGER, dicts.add, "patina", "  Алтын/Золотой ")

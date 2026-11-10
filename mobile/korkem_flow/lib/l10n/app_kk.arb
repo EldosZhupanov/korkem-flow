@@ -1850,5 +1850,22 @@
   "mdfPayAfter": "Барлығы {sum} · төлемнен кейін қарыз {debt}",
   "mdfPayOver": "Қалдықтан {amount} артық. Төлем енгізілген сияқты",
   "mdfPayOverOk": "Бұл артық төлем / аванс",
-  "mdfNoteShort": "Ескер."
+  "mdfNoteShort": "Ескер.",
+  "filmCatalogTitle": "ПВХ үлдірлері",
+  "filmMaker": "Өндіруші",
+  "filmType": "Үлдір түрі",
+  "filmAllTypes": "Барлық түрлері",
+  "filmSearchIn": "{maker} ішінен іздеу",
+  "filmHave": "бар · {metres} м",
+  "filmToOrder": "тапсырыс беру",
+  "filmOff": "шығарылмайды",
+  "filmUnassigned": "көрсетілмеген",
+  "filmUnassignedHint": "Өндірушісі жоқ түстер. Материалдар қоймасында үлдірді өндірушісімен енгізіңіз — ескі тапсырыстар өзгермейді.",
+  "filmCode": "Коды",
+  "filmSample": "Түс үлгісі (#F4F3EE)",
+  "filmRal": "Жақын RAL",
+  "filmSupplier": "Жеткізуші",
+  "filmPriceM": "Жеткізуші бағасы, ₸/м",
+  "filmUrl": "Сайтқа сілтеме",
+  "filmSave": "Сақтау"
 }
