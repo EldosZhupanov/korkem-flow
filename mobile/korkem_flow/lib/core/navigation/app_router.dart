@@ -24,6 +24,7 @@ import 'package:korkem_flow/features/expenses/presentation/expenses_screen.dart'
 import 'package:korkem_flow/features/facade_jobs/presentation/facade_jobs_screen.dart';
 import 'package:korkem_flow/features/facade_prices/presentation/facade_prices_screen.dart';
 import 'package:korkem_flow/features/facade_prices/presentation/facade_quote_screen.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_dept_screen.dart';
 import 'package:korkem_flow/features/hardware/presentation/hardware_screen.dart';
 import 'package:korkem_flow/features/integration_settings/presentation/integration_settings_screen.dart';
 import 'package:korkem_flow/features/items/presentation/items_screen.dart';
@@ -173,6 +174,9 @@ abstract final class Routes {
   static const mdfReport = '/mdf/report';
   static const mdfVolume = '/mdf/volume';
   static const mdfDictionaries = '/mdf/dictionaries';
+
+  /// «Отдел плёнки» — a department of its own (owner, 10.11.2026).
+  static const filmDept = '/film';
   static String mdfOrder(String name) =>
       '/mdf/orders/${Uri.encodeComponent(name)}';
   static const pressSettings = '/settings/press';
@@ -340,6 +344,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.mdfDictionaries,
         builder: (context, state) => const MdfDictionariesScreen(),
+      ),
+      GoRoute(
+        path: Routes.filmDept,
+        builder: (context, state) => const FilmDeptScreen(),
       ),
       GoRoute(
         path: Routes.mdfVolume,

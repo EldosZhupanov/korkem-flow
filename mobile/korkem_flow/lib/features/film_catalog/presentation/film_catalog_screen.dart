@@ -363,6 +363,12 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
     text: widget.film.priceM?.toStringAsFixed(0),
   );
   late final _url = TextEditingController(text: widget.film.url);
+  late final _retail = TextEditingController(
+    text: widget.film.retailM?.toStringAsFixed(0),
+  );
+  late final _wholesale = TextEditingController(
+    text: widget.film.wholesaleM?.toStringAsFixed(0),
+  );
   late String? _type = widget.film.type;
   late String? _supplier = widget.film.supplier;
   bool _busy = false;
@@ -370,7 +376,7 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
 
   @override
   void dispose() {
-    for (final c in [_code, _hex, _ral, _price, _url]) {
+    for (final c in [_code, _hex, _ral, _price, _url, _retail, _wholesale]) {
       c.dispose();
     }
     super.dispose();
@@ -389,6 +395,8 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
         'ral': _ral.text.trim(),
         'supplier': _supplier,
         'price_m': _price.text.trim(),
+        'retail_m': _retail.text.trim(),
+        'wholesale_m': _wholesale.text.trim(),
         'url': _url.text.trim(),
       });
       ref.invalidate(filmCatalogProvider);
@@ -464,6 +472,18 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(labelText: l10n.filmPriceM),
               ),
+              // What the department sells a metre at (10.11.2026).
+              for (final (key, ctl, label) in [
+                ('retail', _retail, l10n.filmRetailM),
+                ('wholesale', _wholesale, l10n.filmWholesaleM),
+              ])
+                TextField(
+                  key: ValueKey('filmCard:$key'),
+                  controller: ctl,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(labelText: label),
+                ),
               field('url', _url, l10n.filmUrl),
               if (_error != null)
                 Text(

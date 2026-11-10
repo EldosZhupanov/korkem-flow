@@ -207,8 +207,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 	for r in rows:
 		head = frappe.db.get_value(
 			"Stock Entry", r.parent,
-			["posting_date", "purpose", "korkem_supplier", "korkem_film_kind", "korkem_film_customer",
-			 "korkem_film_order", "korkem_film_reason", "owner"], as_dict=True,
+			["posting_date", "posting_time", "creation", "purpose", "korkem_supplier", "korkem_film_kind",
+			 "korkem_film_customer", "korkem_film_order", "korkem_film_reason", "owner"], as_dict=True,
 		)
 		if not head:
 			continue
@@ -223,7 +223,14 @@ def history(item: str, limit: int = 100) -> list[dict]:
 			"party": _party(head, kind),
 			"reason": head.korkem_film_reason,
 			"by": head.owner,
+			"_at": (str(head.posting_date), str(head.posting_time), str(head.creation), r.parent),
 		})
+	# Newest first by when it was posted, then entered — and by the entry's
+	# own number last: two movements entered in the same second are still in
+	# the order they were made (the rows' own `creation` ties there).
+	out.sort(key=lambda m: m["_at"], reverse=True)
+	for m in out:
+		del m["_at"]
 	return out
 
 

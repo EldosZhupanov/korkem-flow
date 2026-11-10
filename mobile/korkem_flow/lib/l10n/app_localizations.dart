@@ -10064,6 +10064,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Roll width, mm'**
   String get filmWidth;
+
+  /// No description provided for @filmDeptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Film department'**
+  String get filmDeptTitle;
+
+  /// No description provided for @filmCatalogShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalogue'**
+  String get filmCatalogShort;
+
+  /// No description provided for @filmTabStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get filmTabStock;
+
+  /// No description provided for @filmTabSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get filmTabSales;
+
+  /// No description provided for @filmTabCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get filmTabCustomers;
+
+  /// No description provided for @filmSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get filmSell;
+
+  /// No description provided for @filmReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get filmReceive;
+
+  /// No description provided for @filmToShop.
+  ///
+  /// In en, this message translates to:
+  /// **'To the shop'**
+  String get filmToShop;
+
+  /// No description provided for @filmWriteOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Write off'**
+  String get filmWriteOff;
+
+  /// No description provided for @filmEditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get filmEditCard;
+
+  /// No description provided for @filmHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get filmHistory;
+
+  /// No description provided for @filmHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has come or left yet.'**
+  String get filmHistoryEmpty;
+
+  /// No description provided for @filmMetresLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Metres'**
+  String get filmMetresLabel;
+
+  /// No description provided for @filmNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'not that much in stock'**
+  String get filmNotEnough;
+
+  /// No description provided for @filmReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get filmReason;
+
+  /// No description provided for @filmForOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'For order (optional)'**
+  String get filmForOrder;
+
+  /// No description provided for @filmReasonSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample for a customer'**
+  String get filmReasonSample;
+
+  /// No description provided for @filmReasonDamaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Damaged roll'**
+  String get filmReasonDamaged;
+
+  /// No description provided for @filmReasonTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Press test'**
+  String get filmReasonTest;
+
+  /// No description provided for @filmRetailM.
+  ///
+  /// In en, this message translates to:
+  /// **'Retail, ₸/m'**
+  String get filmRetailM;
+
+  /// No description provided for @filmWholesaleM.
+  ///
+  /// In en, this message translates to:
+  /// **'Wholesale, ₸/m'**
+  String get filmWholesaleM;
+
+  /// No description provided for @filmRetail.
+  ///
+  /// In en, this message translates to:
+  /// **'retail'**
+  String get filmRetail;
+
+  /// No description provided for @filmWholesale.
+  ///
+  /// In en, this message translates to:
+  /// **'wholesale'**
+  String get filmWholesale;
+
+  /// No description provided for @filmDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount, %'**
+  String get filmDiscount;
+
+  /// No description provided for @filmSalePriceM.
+  ///
+  /// In en, this message translates to:
+  /// **'Price, ₸/m'**
+  String get filmSalePriceM;
+
+  /// No description provided for @filmSaleAddLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Another film'**
+  String get filmSaleAddLine;
+
+  /// No description provided for @filmSaleTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {amount}'**
+  String filmSaleTotal(String amount);
+
+  /// No description provided for @filmSalePaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid now, ₸'**
+  String get filmSalePaid;
+
+  /// No description provided for @filmSaleDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'debt {amount}'**
+  String filmSaleDebt(String amount);
+
+  /// No description provided for @filmSalesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales yet.'**
+  String get filmSalesEmpty;
+
+  /// No description provided for @filmCustomersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No film customers yet — they appear after the first sale.'**
+  String get filmCustomersEmpty;
+
+  /// No description provided for @filmStockEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No films yet. Add them in the catalogue.'**
+  String get filmStockEmpty;
+
+  /// No description provided for @filmLow.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m · low'**
+  String filmLow(String metres);
+
+  /// No description provided for @filmLowCount.
+  ///
+  /// In en, this message translates to:
+  /// **'low in stock · {n}'**
+  String filmLowCount(int n);
+
+  /// No description provided for @filmAsleep.
+  ///
+  /// In en, this message translates to:
+  /// **'asleep · {days} d'**
+  String filmAsleep(int days);
+
+  /// No description provided for @filmMonthMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m this month'**
+  String filmMonthMetres(String metres);
+
+  /// No description provided for @filmMoveReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'receipt'**
+  String get filmMoveReceipt;
+
+  /// No description provided for @filmMoveSale.
+  ///
+  /// In en, this message translates to:
+  /// **'sale'**
+  String get filmMoveSale;
+
+  /// No description provided for @filmMoveShop.
+  ///
+  /// In en, this message translates to:
+  /// **'to the shop'**
+  String get filmMoveShop;
+
+  /// No description provided for @filmMoveWriteOff.
+  ///
+  /// In en, this message translates to:
+  /// **'write-off'**
+  String get filmMoveWriteOff;
+
+  /// No description provided for @filmMoveOther.
+  ///
+  /// In en, this message translates to:
+  /// **'issue'**
+  String get filmMoveOther;
+
+  /// No description provided for @filmDeptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Film stock, sales by the metre, customers'**
+  String get filmDeptHint;
 }
 
 class _AppLocalizationsDelegate

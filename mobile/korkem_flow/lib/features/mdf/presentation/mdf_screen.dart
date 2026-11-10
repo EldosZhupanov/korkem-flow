@@ -28,6 +28,15 @@ class MdfScreen extends StatelessWidget {
         l10n.mdfOrdersHint,
         Routes.mdfOrders,
       ),
+      // «Отдел плёнки» — a department of its own (owner, 10.11.2026): it buys
+      // film from wholesalers and sells it by the metre.
+      _MdfRow(
+        'filmDept',
+        AppIcons.warehouse,
+        l10n.filmDeptTitle,
+        l10n.filmDeptHint,
+        Routes.filmDept,
+      ),
       _MdfRow(
         'quote',
         AppIcons.quote,

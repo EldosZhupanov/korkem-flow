@@ -5613,4 +5613,143 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmWidth => 'Орам ені, мм';
+
+  @override
+  String get filmDeptTitle => 'Үлдір бөлімі';
+
+  @override
+  String get filmCatalogShort => 'Каталог';
+
+  @override
+  String get filmTabStock => 'Қойма';
+
+  @override
+  String get filmTabSales => 'Сатылымдар';
+
+  @override
+  String get filmTabCustomers => 'Клиенттер';
+
+  @override
+  String get filmSell => 'Сату';
+
+  @override
+  String get filmReceive => 'Кіріс';
+
+  @override
+  String get filmToShop => 'Цехқа';
+
+  @override
+  String get filmWriteOff => 'Есептен шығару';
+
+  @override
+  String get filmEditCard => 'Карточка';
+
+  @override
+  String get filmHistory => 'Тарихы';
+
+  @override
+  String get filmHistoryEmpty => 'Әзірге кіріс те, шығыс та жоқ.';
+
+  @override
+  String get filmMetresLabel => 'Метр';
+
+  @override
+  String get filmNotEnough => 'қоймада мұнша жоқ';
+
+  @override
+  String get filmReason => 'Себебі';
+
+  @override
+  String get filmForOrder => 'Тапсырыс үшін (міндетті емес)';
+
+  @override
+  String get filmReasonSample => 'Клиентке үлгі';
+
+  @override
+  String get filmReasonDamaged => 'Орам ақауы';
+
+  @override
+  String get filmReasonTest => 'Престе сынақ';
+
+  @override
+  String get filmRetailM => 'Бөлшек, ₸/м';
+
+  @override
+  String get filmWholesaleM => 'Көтерме, ₸/м';
+
+  @override
+  String get filmRetail => 'бөлшек';
+
+  @override
+  String get filmWholesale => 'көтерме';
+
+  @override
+  String get filmDiscount => 'Жеңілдік, %';
+
+  @override
+  String get filmSalePriceM => 'Бағасы, ₸/м';
+
+  @override
+  String get filmSaleAddLine => 'Тағы үлдір';
+
+  @override
+  String filmSaleTotal(String amount) {
+    return 'Сомасы: $amount';
+  }
+
+  @override
+  String get filmSalePaid => 'Қазір төленді, ₸';
+
+  @override
+  String filmSaleDebt(String amount) {
+    return 'қарыз $amount';
+  }
+
+  @override
+  String get filmSalesEmpty => 'Әзірге сатылым жоқ.';
+
+  @override
+  String get filmCustomersEmpty =>
+      'Үлдір клиенттері әзірге жоқ — алғашқы сатылымнан кейін пайда болады.';
+
+  @override
+  String get filmStockEmpty => 'Әзірге үлдір жоқ. Каталогқа енгізіңіз.';
+
+  @override
+  String filmLow(String metres) {
+    return '$metres м · аз';
+  }
+
+  @override
+  String filmLowCount(int n) {
+    return 'қоймада аз · $n';
+  }
+
+  @override
+  String filmAsleep(int days) {
+    return 'ұйықтап қалды · $days күн';
+  }
+
+  @override
+  String filmMonthMetres(String metres) {
+    return 'айына $metres м';
+  }
+
+  @override
+  String get filmMoveReceipt => 'кіріс';
+
+  @override
+  String get filmMoveSale => 'сатылым';
+
+  @override
+  String get filmMoveShop => 'цехқа';
+
+  @override
+  String get filmMoveWriteOff => 'есептен шығару';
+
+  @override
+  String get filmMoveOther => 'шығыс';
+
+  @override
+  String get filmDeptHint => 'Үлдір қоймасы, метрлеп сату, клиенттер';
 }

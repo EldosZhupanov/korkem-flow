@@ -6225,5 +6225,89 @@
   },
   "filmName": "Film name",
   "filmThickness": "Thickness, mm",
-  "filmWidth": "Roll width, mm"
+  "filmWidth": "Roll width, mm",
+  "filmDeptTitle": "Film department",
+  "filmCatalogShort": "Catalogue",
+  "filmTabStock": "Stock",
+  "filmTabSales": "Sales",
+  "filmTabCustomers": "Customers",
+  "filmSell": "Sell",
+  "filmReceive": "Receipt",
+  "filmToShop": "To the shop",
+  "filmWriteOff": "Write off",
+  "filmEditCard": "Card",
+  "filmHistory": "History",
+  "filmHistoryEmpty": "Nothing has come or left yet.",
+  "filmMetresLabel": "Metres",
+  "filmNotEnough": "not that much in stock",
+  "filmReason": "Reason",
+  "filmForOrder": "For order (optional)",
+  "filmReasonSample": "Sample for a customer",
+  "filmReasonDamaged": "Damaged roll",
+  "filmReasonTest": "Press test",
+  "filmRetailM": "Retail, ₸/m",
+  "filmWholesaleM": "Wholesale, ₸/m",
+  "filmRetail": "retail",
+  "filmWholesale": "wholesale",
+  "filmDiscount": "Discount, %",
+  "filmSalePriceM": "Price, ₸/m",
+  "filmSaleAddLine": "Another film",
+  "filmSaleTotal": "Total: {amount}",
+  "@filmSaleTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalePaid": "Paid now, ₸",
+  "filmSaleDebt": "debt {amount}",
+  "@filmSaleDebt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesEmpty": "No sales yet.",
+  "filmCustomersEmpty": "No film customers yet — they appear after the first sale.",
+  "filmStockEmpty": "No films yet. Add them in the catalogue.",
+  "filmLow": "{metres} m · low",
+  "@filmLow": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmLowCount": "low in stock · {n}",
+  "@filmLowCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmAsleep": "asleep · {days} d",
+  "@filmAsleep": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmMonthMetres": "{metres} m this month",
+  "@filmMonthMetres": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmMoveReceipt": "receipt",
+  "filmMoveSale": "sale",
+  "filmMoveShop": "to the shop",
+  "filmMoveWriteOff": "write-off",
+  "filmMoveOther": "issue",
+  "filmDeptHint": "Film stock, sales by the metre, customers"
 }
