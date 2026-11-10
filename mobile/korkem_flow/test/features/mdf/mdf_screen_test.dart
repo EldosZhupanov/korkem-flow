@@ -11,6 +11,7 @@ void main() {
   const rows = {
     'orders': Routes.mdfOrders,
     'quote': Routes.facadeQuote,
+    'filmDept': Routes.filmDept,
     'jobs': Routes.facadeJobs,
     'press': Routes.pressSettings,
     'stock': Routes.materialStock,

@@ -43,7 +43,13 @@ CARD = {
 	"supplier": "korkem_film_supplier",
 	"price_m": "korkem_film_price_m",
 	"url": "korkem_film_url",
+	# What the department sells a metre for (`film_dept`).
+	"retail_m": "korkem_film_retail_m",
+	"wholesale_m": "korkem_film_wholesale_m",
 }
+
+#: The card's money, per running metre.
+PRICES = ("price_m", "retail_m", "wholesale_m")
 
 _FIELDS = [
 	"name", "item_name", "stock_uom", "disabled", "korkem_manufacturer", "korkem_color",
@@ -177,7 +183,7 @@ def film(item: str) -> dict:
 def _clean(key: str, value, company: str):
 	if value is None or str(value).strip() == "":
 		return None
-	if key == "price_m":
+	if key in PRICES:
 		try:
 			price = flt(value)
 		except (TypeError, ValueError):
@@ -218,5 +224,8 @@ def _film(i, on_hand: float, held: float) -> dict:
 		"min_stock": flt(i.korkem_min_stock) or None,
 		**{key: i.get(field) for key, field in CARD.items()},
 		# Money: the shop floor sees metres, not what was paid (`price_visibility`).
-		"price_m": (flt(i.get(CARD["price_m"])) or None) if price_visibility.can_see_prices() else None,
+		**{
+			key: (flt(i.get(CARD[key])) or None) if price_visibility.can_see_prices() else None
+			for key in PRICES
+		},
 	}

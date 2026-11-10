@@ -24,6 +24,9 @@ class Film {
     this.ral,
     this.supplier,
     this.priceM,
+    this.retailM,
+    this.wholesaleM,
+    this.low = false,
     this.url,
   });
 
@@ -46,6 +49,9 @@ class Film {
     ral: _s(json['ral']),
     supplier: _s(json['supplier']),
     priceM: _d(json['price_m']),
+    retailM: _d(json['retail_m']),
+    wholesaleM: _d(json['wholesale_m']),
+    low: json['low'] == true,
     url: _s(json['url']),
   );
 
@@ -78,6 +84,13 @@ class Film {
 
   /// What the supplier charges us per running metre; null when hidden.
   final double? priceM;
+
+  /// What the department sells a metre at: over the counter, to the trade.
+  final double? retailM;
+  final double? wholesaleM;
+
+  /// Less on hand than the film's minimum: time to order.
+  final bool low;
   final String? url;
 
   /// What is free: on hand and not promised.

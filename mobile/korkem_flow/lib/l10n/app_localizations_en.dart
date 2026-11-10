@@ -5687,4 +5687,143 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmWidth => 'Roll width, mm';
+
+  @override
+  String get filmDeptTitle => 'Film department';
+
+  @override
+  String get filmCatalogShort => 'Catalogue';
+
+  @override
+  String get filmTabStock => 'Stock';
+
+  @override
+  String get filmTabSales => 'Sales';
+
+  @override
+  String get filmTabCustomers => 'Customers';
+
+  @override
+  String get filmSell => 'Sell';
+
+  @override
+  String get filmReceive => 'Receipt';
+
+  @override
+  String get filmToShop => 'To the shop';
+
+  @override
+  String get filmWriteOff => 'Write off';
+
+  @override
+  String get filmEditCard => 'Card';
+
+  @override
+  String get filmHistory => 'History';
+
+  @override
+  String get filmHistoryEmpty => 'Nothing has come or left yet.';
+
+  @override
+  String get filmMetresLabel => 'Metres';
+
+  @override
+  String get filmNotEnough => 'not that much in stock';
+
+  @override
+  String get filmReason => 'Reason';
+
+  @override
+  String get filmForOrder => 'For order (optional)';
+
+  @override
+  String get filmReasonSample => 'Sample for a customer';
+
+  @override
+  String get filmReasonDamaged => 'Damaged roll';
+
+  @override
+  String get filmReasonTest => 'Press test';
+
+  @override
+  String get filmRetailM => 'Retail, ₸/m';
+
+  @override
+  String get filmWholesaleM => 'Wholesale, ₸/m';
+
+  @override
+  String get filmRetail => 'retail';
+
+  @override
+  String get filmWholesale => 'wholesale';
+
+  @override
+  String get filmDiscount => 'Discount, %';
+
+  @override
+  String get filmSalePriceM => 'Price, ₸/m';
+
+  @override
+  String get filmSaleAddLine => 'Another film';
+
+  @override
+  String filmSaleTotal(String amount) {
+    return 'Total: $amount';
+  }
+
+  @override
+  String get filmSalePaid => 'Paid now, ₸';
+
+  @override
+  String filmSaleDebt(String amount) {
+    return 'debt $amount';
+  }
+
+  @override
+  String get filmSalesEmpty => 'No sales yet.';
+
+  @override
+  String get filmCustomersEmpty =>
+      'No film customers yet — they appear after the first sale.';
+
+  @override
+  String get filmStockEmpty => 'No films yet. Add them in the catalogue.';
+
+  @override
+  String filmLow(String metres) {
+    return '$metres m · low';
+  }
+
+  @override
+  String filmLowCount(int n) {
+    return 'low in stock · $n';
+  }
+
+  @override
+  String filmAsleep(int days) {
+    return 'asleep · $days d';
+  }
+
+  @override
+  String filmMonthMetres(String metres) {
+    return '$metres m this month';
+  }
+
+  @override
+  String get filmMoveReceipt => 'receipt';
+
+  @override
+  String get filmMoveSale => 'sale';
+
+  @override
+  String get filmMoveShop => 'to the shop';
+
+  @override
+  String get filmMoveWriteOff => 'write-off';
+
+  @override
+  String get filmMoveOther => 'issue';
+
+  @override
+  String get filmDeptHint => 'Film stock, sales by the metre, customers';
 }
