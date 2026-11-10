@@ -42,7 +42,9 @@ MDF, FILM, OTHER = "МДФ", "Плёнка ПВХ", "Прочее"
 KINDS = (MDF, FILM, OTHER)
 LISTS = ("Толщина МДФ", "Производитель", "Цвет плёнки", "Ширина плёнки", "Толщина плёнки", "Профиль кромки",
 		 # The MDF order form's own lists (08.11.2026); the stock screen does not show them.
-		 "Покрытие", "Патина", "Фрезеровка", "Материал", "Банк", "Краска")
+		 "Покрытие", "Патина", "Фрезеровка", "Материал", "Банк", "Краска",
+		 # Матовая, софт, древесная… — a film card's type (owner, 10.11.2026).
+		 "Тип плёнки")
 #: Units a material is counted in. Created in ERPNext if missing.
 UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False}
 MAX_QTY = Decimal("100000")
@@ -142,6 +144,7 @@ _ITEM_FIELD = {
 	"Цвет плёнки": "korkem_color",
 	"Ширина плёнки": "korkem_film_width_mm",
 	"Толщина плёнки": "korkem_film_thickness_mm",
+	"Тип плёнки": "korkem_film_type",
 }
 _ORDER_FIELDS = {
 	"Цвет плёнки": ("korkem_decor_top", "korkem_decor_bottom"),

@@ -5614,4 +5614,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfNoteShort => 'Note';
+
+  @override
+  String get filmCatalogTitle => 'PVC films';
+
+  @override
+  String get filmMaker => 'Maker';
+
+  @override
+  String get filmType => 'Film type';
+
+  @override
+  String get filmAllTypes => 'All types';
+
+  @override
+  String filmSearchIn(String maker) {
+    return 'Search in $maker';
+  }
+
+  @override
+  String filmHave(String metres) {
+    return 'in stock · $metres m';
+  }
+
+  @override
+  String get filmToOrder => 'to order';
+
+  @override
+  String get filmOff => 'discontinued';
+
+  @override
+  String get filmUnassigned => 'no maker';
+
+  @override
+  String get filmUnassignedHint =>
+      'Colours with no maker. Add the film in materials stock with its maker — old orders stay as they are.';
+
+  @override
+  String get filmCode => 'Code';
+
+  @override
+  String get filmSample => 'Sample colour (#F4F3EE)';
+
+  @override
+  String get filmRal => 'Nearest RAL';
+
+  @override
+  String get filmSupplier => 'Supplier';
+
+  @override
+  String get filmPriceM => 'Supplier price, ₸/m';
+
+  @override
+  String get filmUrl => 'Web page';
+
+  @override
+  String get filmSave => 'Save';
 }

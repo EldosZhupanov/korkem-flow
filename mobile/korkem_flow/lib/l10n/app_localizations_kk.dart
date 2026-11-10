@@ -5576,4 +5576,60 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfNoteShort => 'Ескер.';
+
+  @override
+  String get filmCatalogTitle => 'ПВХ үлдірлері';
+
+  @override
+  String get filmMaker => 'Өндіруші';
+
+  @override
+  String get filmType => 'Үлдір түрі';
+
+  @override
+  String get filmAllTypes => 'Барлық түрлері';
+
+  @override
+  String filmSearchIn(String maker) {
+    return '$maker ішінен іздеу';
+  }
+
+  @override
+  String filmHave(String metres) {
+    return 'бар · $metres м';
+  }
+
+  @override
+  String get filmToOrder => 'тапсырыс беру';
+
+  @override
+  String get filmOff => 'шығарылмайды';
+
+  @override
+  String get filmUnassigned => 'көрсетілмеген';
+
+  @override
+  String get filmUnassignedHint =>
+      'Өндірушісі жоқ түстер. Материалдар қоймасында үлдірді өндірушісімен енгізіңіз — ескі тапсырыстар өзгермейді.';
+
+  @override
+  String get filmCode => 'Коды';
+
+  @override
+  String get filmSample => 'Түс үлгісі (#F4F3EE)';
+
+  @override
+  String get filmRal => 'Жақын RAL';
+
+  @override
+  String get filmSupplier => 'Жеткізуші';
+
+  @override
+  String get filmPriceM => 'Жеткізуші бағасы, ₸/м';
+
+  @override
+  String get filmUrl => 'Сайтқа сілтеме';
+
+  @override
+  String get filmSave => 'Сақтау';
 }

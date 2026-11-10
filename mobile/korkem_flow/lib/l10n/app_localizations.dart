@@ -10004,6 +10004,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Note'**
   String get mdfNoteShort;
+
+  /// No description provided for @filmCatalogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC films'**
+  String get filmCatalogTitle;
+
+  /// No description provided for @filmMaker.
+  ///
+  /// In en, this message translates to:
+  /// **'Maker'**
+  String get filmMaker;
+
+  /// No description provided for @filmType.
+  ///
+  /// In en, this message translates to:
+  /// **'Film type'**
+  String get filmType;
+
+  /// No description provided for @filmAllTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'All types'**
+  String get filmAllTypes;
+
+  /// No description provided for @filmSearchIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Search in {maker}'**
+  String filmSearchIn(String maker);
+
+  /// No description provided for @filmHave.
+  ///
+  /// In en, this message translates to:
+  /// **'in stock · {metres} m'**
+  String filmHave(String metres);
+
+  /// No description provided for @filmToOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'to order'**
+  String get filmToOrder;
+
+  /// No description provided for @filmOff.
+  ///
+  /// In en, this message translates to:
+  /// **'discontinued'**
+  String get filmOff;
+
+  /// No description provided for @filmUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'no maker'**
+  String get filmUnassigned;
+
+  /// No description provided for @filmUnassignedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours with no maker. Add the film in materials stock with its maker — old orders stay as they are.'**
+  String get filmUnassignedHint;
+
+  /// No description provided for @filmCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get filmCode;
+
+  /// No description provided for @filmSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample colour (#F4F3EE)'**
+  String get filmSample;
+
+  /// No description provided for @filmRal.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest RAL'**
+  String get filmRal;
+
+  /// No description provided for @filmSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get filmSupplier;
+
+  /// No description provided for @filmPriceM.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier price, ₸/m'**
+  String get filmPriceM;
+
+  /// No description provided for @filmUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Web page'**
+  String get filmUrl;
+
+  /// No description provided for @filmSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get filmSave;
 }
 
 class _AppLocalizationsDelegate

@@ -6194,5 +6194,36 @@
     }
   },
   "mdfPayOverOk": "It is an overpayment / advance",
-  "mdfNoteShort": "Note"
+  "mdfNoteShort": "Note",
+  "filmCatalogTitle": "PVC films",
+  "filmMaker": "Maker",
+  "filmType": "Film type",
+  "filmAllTypes": "All types",
+  "filmSearchIn": "Search in {maker}",
+  "@filmSearchIn": {
+    "placeholders": {
+      "maker": {
+        "type": "String"
+      }
+    }
+  },
+  "filmHave": "in stock · {metres} m",
+  "@filmHave": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmToOrder": "to order",
+  "filmOff": "discontinued",
+  "filmUnassigned": "no maker",
+  "filmUnassignedHint": "Colours with no maker. Add the film in materials stock with its maker — old orders stay as they are.",
+  "filmCode": "Code",
+  "filmSample": "Sample colour (#F4F3EE)",
+  "filmRal": "Nearest RAL",
+  "filmSupplier": "Supplier",
+  "filmPriceM": "Supplier price, ₸/m",
+  "filmUrl": "Web page",
+  "filmSave": "Save"
 }

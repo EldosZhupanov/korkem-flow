@@ -19,6 +19,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/facade_prices/data/facade_price_repository.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
+import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
@@ -1486,7 +1487,11 @@ class _FilmGroup extends StatelessWidget {
                     SizedBox(
                       width: AppSpacing.xxxl * 5,
                       child: DropdownButtonFormField<String?>(
-                        key: ValueKey('mdfFilmPick:$index:${films.length}'),
+                        // The film is in the key: one picked from the
+                        // catalogue must show at once.
+                        key: ValueKey(
+                          'mdfFilmPick:$index:${films.length}:$film',
+                        ),
                         initialValue: film,
                         isExpanded: true,
                         items: [
@@ -1505,6 +1510,21 @@ class _FilmGroup extends StatelessWidget {
                           isDense: true,
                         ),
                       ),
+                    ),
+                  // A film from the catalogue: the maker, the type, then that
+                  // maker's film (owner, 10.11.2026).
+                  if (coating == MdfCoating.pvc)
+                    IconButton(
+                      key: ValueKey('filmPick:$index'),
+                      tooltip: l10n.filmCatalogTitle,
+                      icon: const Icon(AppIcons.search),
+                      onPressed: () async {
+                        final picked = await showFilmPicker(
+                          context,
+                          current: film,
+                        );
+                        if (picked != null) onFilm(picked);
+                      },
                     ),
                   // The type's own list, here: add, rename, delete a film
                   // or a paint without leaving the order (09.11.2026).
