@@ -18,9 +18,18 @@ enum MdfDictKind {
   bank,
 
   /// A paint group's colours: RAL 9010, NCS S 3040-Y60R … (09.11.2026).
-  paint;
+  paint,
 
-  String get wire => name;
+  /// A PVC film's maker — KIRA, JS Group, МС-Груп … (10.11.2026).
+  maker,
+
+  /// A PVC film's type — матовая, софт, древесная, глянец … (10.11.2026).
+  filmType;
+
+  String get wire => switch (this) {
+    MdfDictKind.filmType => 'film_type',
+    _ => name,
+  };
 }
 
 @immutable

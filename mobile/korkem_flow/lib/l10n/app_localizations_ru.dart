@@ -5601,4 +5601,60 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfNoteShort => 'Прим.';
+
+  @override
+  String get filmCatalogTitle => 'Плёнки ПВХ';
+
+  @override
+  String get filmMaker => 'Производитель';
+
+  @override
+  String get filmType => 'Тип плёнки';
+
+  @override
+  String get filmAllTypes => 'Все типы';
+
+  @override
+  String filmSearchIn(String maker) {
+    return 'Поиск в $maker';
+  }
+
+  @override
+  String filmHave(String metres) {
+    return 'есть · $metres м';
+  }
+
+  @override
+  String get filmToOrder => 'заказать';
+
+  @override
+  String get filmOff => 'не выпускается';
+
+  @override
+  String get filmUnassigned => 'не указан';
+
+  @override
+  String get filmUnassignedHint =>
+      'Цвета без производителя. Заведите плёнку на складе материалов и укажите производителя — старые заказы останутся как есть.';
+
+  @override
+  String get filmCode => 'Код';
+
+  @override
+  String get filmSample => 'Образец цвета (#F4F3EE)';
+
+  @override
+  String get filmRal => 'Близкий RAL';
+
+  @override
+  String get filmSupplier => 'Поставщик';
+
+  @override
+  String get filmPriceM => 'Цена у поставщика, ₸/м';
+
+  @override
+  String get filmUrl => 'Ссылка на сайт';
+
+  @override
+  String get filmSave => 'Сохранить';
 }

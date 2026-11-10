@@ -1,0 +1,46 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/api/api_providers.dart';
+import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+
+final filmCatalogRepositoryProvider = Provider<FilmCatalogRepository>(
+  (ref) => FilmCatalogRepository(ref.watch(frappeClientProvider)),
+);
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmCatalogProvider = FutureProvider.autoDispose<FilmCatalog>(
+  (ref) => ref.watch(filmCatalogRepositoryProvider).catalog(),
+);
+
+/// The PVC film catalogue — `korkem_manufacturing.api.film_catalog`.
+class FilmCatalogRepository {
+  const FilmCatalogRepository(this._client);
+
+  static const _base = 'korkem_manufacturing.api.film_catalog';
+
+  final FrappeClient _client;
+
+  Future<FilmCatalog> catalog() async =>
+      FilmCatalog.fromJson(_map(await _client.callMethod('$_base.catalog')));
+
+  /// Writes the fields given; a null one is cleared, a missing one kept.
+  Future<Film> setCard(String item, Map<String, Object?> card) async =>
+      Film.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.set_card',
+            post: true,
+            params: {
+              'item': item,
+              for (final e in card.entries) e.key: e.value ?? '',
+            },
+          ),
+        ),
+      );
+
+  static Map<String, dynamic> _map(Map<String, dynamic> response) {
+    final raw = response['message'] ?? response;
+    return raw is Map<String, dynamic> ? raw : const {};
+  }
+}

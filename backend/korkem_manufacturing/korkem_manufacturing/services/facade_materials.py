@@ -221,7 +221,15 @@ def _pick_item(kind: str, key, company: str, held: dict):
 	if kind == material_stock.MDF:
 		filters["korkem_thickness_mm"] = str(key)
 	else:
-		filters["korkem_color"] = key
+		# «KIRA · Белый Матовый» is that maker's roll and no other's; a plain
+		# colour is any maker's, as before.
+		from korkem_manufacturing.services import film_catalog
+
+		named = film_catalog.split(key)
+		if named:
+			filters["korkem_manufacturer"], filters["korkem_color"] = named
+		else:
+			filters["korkem_color"] = key
 	items = frappe.get_all(
 		"Item", filters=filters, fields=["name", "item_name", "stock_uom", "korkem_film_width_mm"], order_by="name"
 	)

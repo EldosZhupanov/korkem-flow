@@ -281,7 +281,7 @@ def _line_spec(raw: dict, label: str, company: str,
 	kind = COATING_LIST.get(coating or "pvc")
 	if kind is None and (film or film_back):
 		frappe.throw(f"{label}: у чернового фасада нет цвета.")
-	known = facade_spec._values(kind, company) if kind and (film or film_back) else set()
+	known = _colours(kind, company) if kind and (film or film_back) else set()
 	for value, name in ((film, "цвет"), (film_back, "цвет обратной стороны")):
 		if value and value not in known:
 			frappe.throw(f"{label}: {name} «{value}» нет в справочнике «{kind}».")
@@ -346,6 +346,19 @@ def _put_standard_edges(head, lines, company: str) -> None:
 		material_stock.put_option(facade_spec.EDGE, edge)
 
 
+def _colours(kind: str, company: str) -> set[str]:
+	"""What a group of this coating may be called. A film is the list's plain
+	colour, as before, or a catalogue film by its maker — «KIRA · Белый
+	Матовый» (owner, 10.11.2026: the same name is another shade at each maker).
+	"""
+	known = facade_spec._values(kind, company)
+	if kind == facade_spec.DECOR:
+		from korkem_manufacturing.services import film_catalog
+
+		known = known | film_catalog.labels(company)
+	return known
+
+
 def _film_rates(raw, company: str) -> str | None:
 	"""Each group's price per m², stored as JSON on the order: {"Палома": 18000}.
 
@@ -360,7 +373,7 @@ def _film_rates(raw, company: str) -> str | None:
 		raw = frappe.parse_json(raw)
 	if not isinstance(raw, dict):
 		frappe.throw("Цены плёнок — это пары «плёнка: цена».")
-	films = facade_spec._values(facade_spec.DECOR, company) | facade_spec._values(COATING_LIST["paint"], company)
+	films = _colours(facade_spec.DECOR, company) | facade_spec._values(COATING_LIST["paint"], company)
 	rates = {}
 	for film, rate in raw.items():
 		film = facade_spec._text(film)
