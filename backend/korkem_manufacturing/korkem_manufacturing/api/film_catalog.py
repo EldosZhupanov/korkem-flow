@@ -16,6 +16,12 @@ def catalog() -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
+def add(maker: str, colour: str, thickness: str | None = None, width: str | None = None) -> dict:
+	"""Новая плёнка производителя — прямо из каталога."""
+	return service.add(maker, colour, thickness=thickness, width=width)
+
+
+@frappe.whitelist(methods=["POST"])
 def set_card(
 	item: str,
 	code: str | None = None,

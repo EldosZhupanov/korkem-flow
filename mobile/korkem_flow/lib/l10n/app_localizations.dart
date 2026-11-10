@@ -10106,6 +10106,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get filmSave;
+
+  /// No description provided for @filmAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Film'**
+  String get filmAdd;
+
+  /// No description provided for @filmEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'{maker} has no films yet. Press “Film” to add the first.'**
+  String filmEmpty(String maker);
+
+  /// No description provided for @filmName.
+  ///
+  /// In en, this message translates to:
+  /// **'Film name'**
+  String get filmName;
+
+  /// No description provided for @filmThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness, mm'**
+  String get filmThickness;
+
+  /// No description provided for @filmWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll width, mm'**
+  String get filmWidth;
 }
 
 class _AppLocalizationsDelegate
