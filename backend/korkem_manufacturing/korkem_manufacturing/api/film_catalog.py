@@ -31,6 +31,8 @@ def set_card(
 	supplier: str | None = None,
 	price_m: float | str | None = None,
 	url: str | None = None,
+	retail_m: float | str | None = None,
+	wholesale_m: float | str | None = None,
 ) -> dict:
 	"""Карточка плёнки: код, тип, образец, RAL, поставщик, цена за метр, ссылка."""
 	sent = frappe.form_dict
@@ -39,6 +41,7 @@ def set_card(
 		for key, value in {
 			"code": code, "type": type, "hex": hex, "ral": ral,
 			"supplier": supplier, "price_m": price_m, "url": url,
+			"retail_m": retail_m, "wholesale_m": wholesale_m,
 		}.items()
 		if key in sent
 	}

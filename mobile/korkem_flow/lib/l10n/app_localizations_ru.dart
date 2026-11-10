@@ -5674,4 +5674,143 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmWidth => 'Ширина рулона, мм';
+
+  @override
+  String get filmDeptTitle => 'Отдел плёнки';
+
+  @override
+  String get filmCatalogShort => 'Каталог';
+
+  @override
+  String get filmTabStock => 'Склад';
+
+  @override
+  String get filmTabSales => 'Продажи';
+
+  @override
+  String get filmTabCustomers => 'Клиенты';
+
+  @override
+  String get filmSell => 'Продать';
+
+  @override
+  String get filmReceive => 'Приход';
+
+  @override
+  String get filmToShop => 'В цех';
+
+  @override
+  String get filmWriteOff => 'Списать';
+
+  @override
+  String get filmEditCard => 'Карточка';
+
+  @override
+  String get filmHistory => 'История';
+
+  @override
+  String get filmHistoryEmpty => 'Пока ничего не приходило и не уходило.';
+
+  @override
+  String get filmMetresLabel => 'Метров';
+
+  @override
+  String get filmNotEnough => 'столько нет на складе';
+
+  @override
+  String get filmReason => 'Причина';
+
+  @override
+  String get filmForOrder => 'Для заказа (необязательно)';
+
+  @override
+  String get filmReasonSample => 'Образец клиенту';
+
+  @override
+  String get filmReasonDamaged => 'Брак рулона';
+
+  @override
+  String get filmReasonTest => 'Тест на прессе';
+
+  @override
+  String get filmRetailM => 'Розница, ₸/м';
+
+  @override
+  String get filmWholesaleM => 'Опт, ₸/м';
+
+  @override
+  String get filmRetail => 'розница';
+
+  @override
+  String get filmWholesale => 'опт';
+
+  @override
+  String get filmDiscount => 'Скидка, %';
+
+  @override
+  String get filmSalePriceM => 'Цена, ₸/м';
+
+  @override
+  String get filmSaleAddLine => 'Ещё плёнка';
+
+  @override
+  String filmSaleTotal(String amount) {
+    return 'Сумма: $amount';
+  }
+
+  @override
+  String get filmSalePaid => 'Оплачено сейчас, ₸';
+
+  @override
+  String filmSaleDebt(String amount) {
+    return 'долг $amount';
+  }
+
+  @override
+  String get filmSalesEmpty => 'Продаж пока нет.';
+
+  @override
+  String get filmCustomersEmpty =>
+      'Клиентов плёнки пока нет — они появятся после первой продажи.';
+
+  @override
+  String get filmStockEmpty => 'Плёнок пока нет. Заведите их в каталоге.';
+
+  @override
+  String filmLow(String metres) {
+    return '$metres м · мало';
+  }
+
+  @override
+  String filmLowCount(int n) {
+    return 'мало на складе · $n';
+  }
+
+  @override
+  String filmAsleep(int days) {
+    return 'уснул · $days дн.';
+  }
+
+  @override
+  String filmMonthMetres(String metres) {
+    return '$metres м за месяц';
+  }
+
+  @override
+  String get filmMoveReceipt => 'приход';
+
+  @override
+  String get filmMoveSale => 'продажа';
+
+  @override
+  String get filmMoveShop => 'в цех';
+
+  @override
+  String get filmMoveWriteOff => 'списание';
+
+  @override
+  String get filmMoveOther => 'расход';
+
+  @override
+  String get filmDeptHint => 'Склад плёнки, продажа на метраж, клиенты';
 }
