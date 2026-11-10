@@ -385,6 +385,11 @@ class _SalesTab extends ConsumerWidget {
           for (final (i, s) in rows.indexed)
             ListTile(
               key: ValueKey('filmSaleRow:$i'),
+              // The sale's own card: a debt paid off, a mistake cancelled.
+              onTap: () async {
+                final done = await showFilmSaleCard(context, s);
+                if (done ?? false) _refresh(ref);
+              },
               title: Text(
                 '${mdfDay(s.date)} · ${s.customerName ?? '—'}',
                 style: const TextStyle(fontWeight: FontWeight.w600),

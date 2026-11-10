@@ -1914,5 +1914,9 @@
   "filmMoveShop": "в цех",
   "filmMoveWriteOff": "списание",
   "filmMoveOther": "расход",
-  "filmDeptHint": "Склад плёнки, продажа на метраж, клиенты"
+  "filmDeptHint": "Склад плёнки, продажа на метраж, клиенты",
+  "filmPayDebt": "Доплатить, ₸",
+  "filmCancelMove": "Отменить продажу",
+  "filmCancelReason": "Почему отменяете",
+  "filmClose": "Закрыть"
 }

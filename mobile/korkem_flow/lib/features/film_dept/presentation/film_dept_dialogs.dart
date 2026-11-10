@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
@@ -714,6 +715,174 @@ class _TermsDialogState extends ConsumerState<_TermsDialog> with _Saving {
                 ),
           child: Text(l10n.filmSave),
         ),
+      ],
+    );
+  }
+}
+
+/// A sale opened from the list: what was sold, what is paid — and the two
+/// things done to it afterwards: more money against a debt, and a cancel
+/// for one entered by mistake (the metres go back on the shelf).
+Future<bool?> showFilmSaleCard(BuildContext context, FilmSale sale) =>
+    showDialog<bool>(
+      context: context,
+      builder: (_) => _SaleCardDialog(sale: sale),
+    );
+
+class _SaleCardDialog extends ConsumerStatefulWidget {
+  const _SaleCardDialog({required this.sale});
+
+  final FilmSale sale;
+
+  @override
+  ConsumerState<_SaleCardDialog> createState() => _SaleCardDialogState();
+}
+
+class _SaleCardDialogState extends ConsumerState<_SaleCardDialog>
+    with _Saving {
+  late final _amount = TextEditingController(
+    text: (widget.sale.debt ?? 0) > 0
+        ? widget.sale.debt!.toStringAsFixed(0)
+        : '',
+  );
+  String _method = filmCash;
+  String? _bank;
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    super.dispose();
+  }
+
+  Future<void> _cancel() async {
+    final l10n = AppLocalizations.of(context);
+    final reason = await showReasonDialog(
+      context,
+      title: l10n.filmCancelMove,
+      label: l10n.filmCancelReason,
+      confirm: l10n.mdfConfirm,
+      cancel: l10n.mdfCancel,
+      fieldKey: const ValueKey('filmCancelReason'),
+    );
+    if (reason == null) return;
+    await save(
+      () => ref
+          .read(filmDeptRepositoryProvider)
+          .cancel(widget.sale.entry, reason),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final money = mdfMoney(context);
+    final s = widget.sale;
+    final debt = s.debt ?? 0;
+    final banks =
+        (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
+            .values(MdfDictKind.bank);
+    final amount = _number(_amount.text) ?? 0;
+    String label(String m) => switch (m) {
+      filmTransfer => l10n.mdfPayTransfer,
+      filmCash => l10n.mdfPayCash,
+      _ => l10n.mdfPayCard,
+    };
+    return AlertDialog(
+      title: Text(s.customerName ?? l10n.filmMoveSale),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 9,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final l in s.lines)
+                Text(
+                  [
+                    l.title,
+                    '${filmMetres(l.metres)} м',
+                    if (l.priceM != null) '${money.format(l.priceM)}/м',
+                  ].join(' · '),
+                ),
+              const SizedBox(height: AppSpacing.sm),
+              if (s.amount != null)
+                Text(
+                  l10n.filmSaleTotal(money.format(s.amount)),
+                  style: theme.textTheme.titleMedium,
+                ),
+              if (debt > 0) ...[
+                Text(
+                  l10n.filmSaleDebt(money.format(debt)),
+                  key: const ValueKey('filmSaleCardDebt'),
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+                TextField(
+                  key: const ValueKey('filmPayAmount'),
+                  controller: _amount,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(labelText: l10n.filmPayDebt),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  children: [
+                    for (final m in const [filmCash, filmTransfer, filmCard])
+                      ChoiceChip(
+                        key: ValueKey('filmPayMethod:$m'),
+                        label: Text(label(m)),
+                        selected: _method == m,
+                        onSelected: (_) => setState(() => _method = m),
+                      ),
+                  ],
+                ),
+                if (_method != filmCash)
+                  DropdownButtonFormField<String?>(
+                    key: ValueKey('filmPayBank:${banks.length}'),
+                    initialValue: banks.contains(_bank) ? _bank : null,
+                    items: [
+                      DropdownMenuItem(child: Text(l10n.mdfNone)),
+                      for (final b in banks)
+                        DropdownMenuItem(value: b, child: Text(b)),
+                    ],
+                    onChanged: (v) => setState(() => _bank = v),
+                    decoration: InputDecoration(labelText: l10n.mdfPayBank),
+                  ),
+              ],
+              errorLine(context),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          key: const ValueKey('filmSaleCancel'),
+          onPressed: busy ? null : _cancel,
+          child: Text(l10n.filmCancelMove),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.filmClose),
+        ),
+        if (debt > 0)
+          FilledButton(
+            key: const ValueKey('filmPaySave'),
+            onPressed: busy || amount <= 0 || amount > debt + 0.5
+                ? null
+                : () => save(
+                    () => ref
+                        .read(filmDeptRepositoryProvider)
+                        .pay(
+                          s.entry,
+                          amount: amount,
+                          method: _method,
+                          bank: _method != filmCash ? _bank : null,
+                        ),
+                  ),
+            child: Text(l10n.filmPayDebt),
+          ),
       ],
     );
   }

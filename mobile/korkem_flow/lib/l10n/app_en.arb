@@ -6309,5 +6309,9 @@
   "filmMoveShop": "to the shop",
   "filmMoveWriteOff": "write-off",
   "filmMoveOther": "issue",
-  "filmDeptHint": "Film stock, sales by the metre, customers"
+  "filmDeptHint": "Film stock, sales by the metre, customers",
+  "filmPayDebt": "Pay off, ₸",
+  "filmCancelMove": "Cancel the sale",
+  "filmCancelReason": "Why cancel",
+  "filmClose": "Close"
 }

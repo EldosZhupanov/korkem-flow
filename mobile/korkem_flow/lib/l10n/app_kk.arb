@@ -1914,5 +1914,9 @@
   "filmMoveShop": "цехқа",
   "filmMoveWriteOff": "есептен шығару",
   "filmMoveOther": "шығыс",
-  "filmDeptHint": "Үлдір қоймасы, метрлеп сату, клиенттер"
+  "filmDeptHint": "Үлдір қоймасы, метрлеп сату, клиенттер",
+  "filmPayDebt": "Қосымша төлеу, ₸",
+  "filmCancelMove": "Сатылымды жою",
+  "filmCancelReason": "Неге жоясыз",
+  "filmClose": "Жабу"
 }
