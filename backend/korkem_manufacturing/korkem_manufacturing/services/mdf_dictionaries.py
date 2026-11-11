@@ -125,7 +125,12 @@ def rename(key: str, option: str, value: str) -> dict:
 	value = _clean(value)
 	if value == row.value:
 		return dictionaries()
-	if frappe.db.exists("Material Option", {"company": row.company, "kind": kind, "value": value}):
+	# The database compares names without case, so «KASPI» → «Kaspi» finds the
+	# row itself: only another row is a duplicate (owner, 11.11.2026).
+	twins = frappe.get_all(
+		"Material Option", filters={"company": row.company, "kind": kind, "value": value}, pluck="name"
+	)
+	if any(name != option for name in twins):
 		frappe.throw(f"«{value}» уже есть в этом списке.")
 
 	frappe.db.set_value("Material Option", option, "value", value)
@@ -142,6 +147,9 @@ def rename(key: str, option: str, value: str) -> dict:
 		from korkem_manufacturing.services import film_sources
 
 		film_sources.maker_renamed(row.value, value)
+		from korkem_manufacturing.services import film_catalog
+
+		film_catalog.maker_renamed(row.value, value)
 	audit.record_audit(action="mdf.dictionary_renamed", entity_type="Material Option", entity_id=option,
 					   diff={"list": kind, "before": row.value, "after": value})
 	return dictionaries()

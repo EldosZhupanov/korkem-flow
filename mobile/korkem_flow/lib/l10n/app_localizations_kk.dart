@@ -5548,10 +5548,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmMaker => 'Өндіруші';
 
   @override
-  String get filmType => 'Үлдір түрі';
+  String get filmType => 'Пленка беті';
 
   @override
-  String get filmAllTypes => 'Барлық түрлері';
+  String get filmAllTypes => 'Кез келген бет';
 
   @override
   String filmSearchIn(String maker) {
@@ -5574,7 +5574,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmUnassignedHint =>
-      'Өндірушісі жоқ түстер. Материалдар қоймасында үлдірді өндірушісімен енгізіңіз — ескі тапсырыстар өзгермейді.';
+      'Ескі тізімдегі, өндірушісі жоқ түстер. Мұндай пленка керек болса — оны өндірушіде «Пленка» батырмасымен қосып, мұнда алып тастаңыз. Ескі тапсырыстар сол күйінде қалады.';
 
   @override
   String get filmCode => 'Коды';
@@ -5625,6 +5625,47 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmTabCustomers => 'Клиенттер';
+
+  @override
+  String get filmCollection => 'Топтама';
+
+  @override
+  String get filmCollections => 'Топтамалар';
+
+  @override
+  String get filmAllCollections => 'Барлық топтамалар';
+
+  @override
+  String get filmCollectionAdd => 'Жаңа топтама';
+
+  @override
+  String get filmCollectionRename => 'Топтаманың атын өзгерту';
+
+  @override
+  String get filmCollectionName => 'Топтама атауы';
+
+  @override
+  String filmCollectionRemoveAsk(String name) {
+    return '«$name» топтамасын алып тастау керек пе?';
+  }
+
+  @override
+  String get filmCollectionRemoveHint =>
+      'Оның пленкалары каталогта топтамасыз қалады.';
+
+  @override
+  String filmCollectionsEmpty(String name) {
+    return '$name өндірушісінде әзірге топтама жоқ. Қосу үшін + басыңыз.';
+  }
+
+  @override
+  String filmLooseDropAsk(String name) {
+    return '«$name» түсін алып тастау керек пе?';
+  }
+
+  @override
+  String get filmLooseDropHint =>
+      'Ол көрсетілген тапсырыстар жазылғандай қалады.';
 
   @override
   String get filmTabSources => 'Жеткізушілер';

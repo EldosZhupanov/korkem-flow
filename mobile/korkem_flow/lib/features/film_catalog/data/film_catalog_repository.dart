@@ -30,6 +30,7 @@ class FilmCatalogRepository {
     required String colour,
     String? thickness,
     String? width,
+    String? collection,
   }) async => Film.fromJson(
     _map(
       await _client.callMethod(
@@ -40,6 +41,7 @@ class FilmCatalogRepository {
           'colour': colour,
           'thickness': ?thickness,
           'width': ?width,
+          'collection': ?collection,
         },
       ),
     ),
@@ -59,6 +61,35 @@ class FilmCatalogRepository {
           ),
         ),
       );
+
+  /// A maker's own collections: add, rename (its films follow), remove
+  /// (its films stay, without one).
+  Future<void> addCollection(String maker, String name) => _client.callMethod(
+    '$_base.add_collection',
+    post: true,
+    params: {'maker': maker, 'name': name},
+  );
+
+  Future<void> renameCollection(String maker, String name, String newName) =>
+      _client.callMethod(
+        '$_base.rename_collection',
+        post: true,
+        params: {'maker': maker, 'name': name, 'new_name': newName},
+      );
+
+  Future<void> removeCollection(String maker, String name) =>
+      _client.callMethod(
+        '$_base.remove_collection',
+        post: true,
+        params: {'maker': maker, 'name': name},
+      );
+
+  /// Takes a colour of the old list off «не указан».
+  Future<void> dropUnassigned(String colour) => _client.callMethod(
+    '$_base.drop_unassigned',
+    post: true,
+    params: {'colour': colour},
+  );
 
   static Map<String, dynamic> _map(Map<String, dynamic> response) {
     final raw = response['message'] ?? response;

@@ -15,6 +15,12 @@ the metre; there is no m² on a film's card.
 **Makers and types are lists the owner keeps** (`Material Option`
 «Производитель», «Тип плёнки»): added, renamed and removed like any other.
 
+**A maker groups its films into collections of its own** (owner,
+11.11.2026): Adilet has Solid Color and Wood, another has ALDA, Софт SF,
+Древесные. A collection belongs to one maker — kept as `Material Option`
+«Коллекция плёнки» under the name «Maker · Collection», so two makers may
+each have a «Древесные» — and the owner adds, renames and removes them.
+
 A colour of the order form's old list that no film carries yet is shown
 under «не указан» — the orders that name it stay as they are, and the owner
 gives it a maker when there is time.
@@ -33,11 +39,13 @@ from korkem_manufacturing.services.scope import current_company
 MAKERS = "Производитель"
 TYPES = "Тип плёнки"
 COLOURS = "Цвет плёнки"
+COLLECTIONS = "Коллекция плёнки"
 
 #: The card's own fields, as the client names them.
 CARD = {
 	"code": "korkem_film_code",
 	"type": "korkem_film_type",
+	"collection": "korkem_film_collection",
 	"hex": "korkem_film_hex",
 	"ral": "korkem_film_ral",
 	"supplier": "korkem_film_supplier",
@@ -116,6 +124,7 @@ def catalog() -> dict:
 		"unassigned": loose,
 		"makers": sorted(material_stock.enabled_values(MAKERS, company), key=str.casefold),
 		"types": sorted(material_stock.enabled_values(TYPES, company), key=str.casefold),
+		"collections": collections(company),
 		"suppliers": [s for s in material_stock.suppliers() if s["enabled"]],
 		# Maker → the sources that sell it (`film_sources`): a receipt offers those first.
 		"sources_by_maker": _by_maker(),
@@ -129,7 +138,136 @@ def _by_maker() -> dict:
 	return film_sources.by_maker()
 
 
-def add(maker: str, colour: str, thickness: str | None = None, width: str | None = None) -> dict:
+def collections(company: str | None = None) -> dict[str, list[str]]:
+	"""Maker → its collections, by name."""
+	result: dict[str, list[str]] = {}
+	for value in material_stock.enabled_values(COLLECTIONS, company or current_company()):
+		pair = split(value)
+		if pair:
+			result.setdefault(pair[0], []).append(pair[1])
+	return {maker: sorted(names, key=str.casefold) for maker, names in result.items()}
+
+
+def _collection_name(name: str | None) -> str:
+	name = " ".join((name or "").split())[:100]
+	if len(name) < 2:
+		frappe.throw("Назовите коллекцию.")
+	if SEP in name:
+		frappe.throw(f"В названии коллекции не должно быть «{SEP.strip()}».")
+	return name
+
+
+def _collection_option(maker: str, name: str, company: str) -> str:
+	option = frappe.db.get_value(
+		"Material Option",
+		{"company": company, "kind": COLLECTIONS, "value": label(maker, name), "enabled": 1},
+		"name",
+	)
+	if not option:
+		frappe.throw(f"Коллекции «{name}» у {maker} нет.", frappe.DoesNotExistError)
+	return option
+
+
+def _films_of(maker: str, collection: str, company: str) -> list[str]:
+	return frappe.get_all(
+		"Item",
+		filters={
+			"korkem_material_company": company,
+			"korkem_material_kind": material_stock.FILM,
+			"korkem_manufacturer": maker,
+			"korkem_film_collection": collection,
+		},
+		pluck="name",
+		limit_page_length=5000,
+	)
+
+
+def add_collection(maker: str, name: str) -> dict:
+	"""A new collection of this maker; one removed before comes back."""
+	material_stock._ensure_editor()
+	company = current_company()
+	maker = " ".join((maker or "").split())
+	if maker not in material_stock.enabled_values(MAKERS, company):
+		frappe.throw(f"Производителя «{maker or '—'}» нет в справочнике «{MAKERS}».")
+	material_stock.put_option(COLLECTIONS, label(maker, _collection_name(name)))
+	return catalog()
+
+
+def rename_collection(maker: str, name: str, new_name: str) -> dict:
+	"""Rename a collection; its films follow."""
+	material_stock._ensure_editor()
+	company = current_company()
+	option = _collection_option(maker, name, company)
+	new_name = _collection_name(new_name)
+	if new_name == name:
+		return catalog()
+	twins = frappe.get_all(
+		"Material Option",
+		filters={"company": company, "kind": COLLECTIONS, "value": label(maker, new_name)},
+		pluck="name",
+	)
+	if any(twin != option for twin in twins):
+		frappe.throw(f"Коллекция «{new_name}» у {maker} уже есть.")
+	frappe.db.set_value("Material Option", option, "value", label(maker, new_name))
+	for item in _films_of(maker, name, company):
+		frappe.db.set_value("Item", item, "korkem_film_collection", new_name)
+	audit.record_audit(
+		action="film.collection_renamed", entity_type="Material Option", entity_id=option,
+		diff={"maker": maker, "before": name, "after": new_name},
+	)
+	return catalog()
+
+
+def remove_collection(maker: str, name: str) -> dict:
+	"""Remove a collection. Its films stay in the catalogue, without one."""
+	material_stock._ensure_editor()
+	company = current_company()
+	option = _collection_option(maker, name, company)
+	for item in _films_of(maker, name, company):
+		frappe.db.set_value("Item", item, "korkem_film_collection", None)
+	frappe.delete_doc("Material Option", option, ignore_permissions=True, force=True)
+	audit.record_audit(
+		action="film.collection_removed", entity_type="Material Option", entity_id=option,
+		diff={"maker": maker, "collection": name},
+	)
+	return catalog()
+
+
+def drop_unassigned(colour: str) -> dict:
+	"""Take a colour of the old list off «не указан» (owner, 11.11.2026: the
+	old list is no longer kept by hand). Orders that name it stay as written."""
+	material_stock._ensure_editor()
+	company = current_company()
+	if colour not in catalog()["unassigned"]:
+		frappe.throw(f"«{colour}» — плёнка каталога или такого цвета нет.")
+	option = frappe.db.get_value(
+		"Material Option", {"company": company, "kind": COLOURS, "value": colour, "enabled": 1}, "name"
+	)
+	material_stock.drop_option(option)
+	return catalog()
+
+
+def maker_renamed(before: str, after: str) -> None:
+	"""A renamed maker keeps its collections (`mdf_dictionaries.rename`)."""
+	company = current_company()
+	for r in frappe.get_all(
+		"Material Option",
+		filters={"company": company, "kind": COLLECTIONS, "value": ["like", f"{before}{SEP}%"]},
+		fields=["name", "value"],
+		limit_page_length=1000,
+	):
+		pair = split(r.value)
+		if pair and pair[0] == before:
+			frappe.db.set_value("Material Option", r.name, "value", label(after, pair[1]))
+
+
+def add(
+	maker: str,
+	colour: str,
+	thickness: str | None = None,
+	width: str | None = None,
+	collection: str | None = None,
+) -> dict:
 	"""A new film of this maker, from the catalogue itself (owner, 10.11.2026:
 	«где карточка плёнки?» — there was nowhere to add one but the stock).
 
@@ -155,6 +293,9 @@ def add(maker: str, colour: str, thickness: str | None = None, width: str | None
 	made = material_stock.define_material(
 		material_stock.FILM, "м", color=colour, width=width, film_thickness=thickness, manufacturer=maker
 	)
+	collection = " ".join((collection or "").split())
+	if collection:
+		set_card(made["item"], collection=collection)
 	return film(made["item"])
 
 
@@ -170,6 +311,10 @@ def set_card(item: str, **card) -> dict:
 		if key not in card:
 			continue
 		values[field] = _clean(key, card[key], company)
+	if values.get(CARD["collection"]):
+		maker = frappe.db.get_value("Item", item, "korkem_manufacturer")
+		if values[CARD["collection"]] not in collections(company).get(maker, []):
+			frappe.throw(f"Коллекции «{values[CARD['collection']]}» у {maker or '—'} нет. Добавьте её.")
 	if values:
 		frappe.db.set_value("Item", item, values)
 		audit.record_audit(action="film.card_set", entity_type="Item", entity_id=item, diff=values)
@@ -214,6 +359,15 @@ def _clean(key: str, value, company: str):
 	return text
 
 
+def _number(text) -> float | None:
+	"""«0,3» is 0.3: the lists are written with a comma, and `flt` reads a
+	comma as a thousands mark — the catalogue showed a 3 mm film (11.11.2026)."""
+	try:
+		return float(str(text or "").replace(" ", "").replace(",", ".")) or None
+	except ValueError:
+		return None
+
+
 def _film(i, on_hand: float, held: float) -> dict:
 	return {
 		"item": i.name,
@@ -222,8 +376,8 @@ def _film(i, on_hand: float, held: float) -> dict:
 		"colour": i.korkem_color or "",
 		"label": label(i.korkem_manufacturer, i.korkem_color)
 		if i.korkem_manufacturer and i.korkem_color else None,
-		"width_mm": flt(i.korkem_film_width_mm) or None,
-		"thickness_mm": flt(i.korkem_film_thickness_mm) or None,
+		"width_mm": _number(i.korkem_film_width_mm),
+		"thickness_mm": _number(i.korkem_film_thickness_mm),
 		"textured": bool(i.korkem_film_textured),
 		"enabled": not i.disabled,
 		"unit": i.stock_uom,

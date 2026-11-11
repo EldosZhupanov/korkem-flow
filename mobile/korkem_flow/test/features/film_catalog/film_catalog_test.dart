@@ -35,6 +35,7 @@ const _json = <String, dynamic>{
       'maker': 'KIRA',
       'colour': 'Шалфей',
       'type': 'Софт',
+      'collection': 'Wood',
       'on_hand': 0,
     },
     {
@@ -47,6 +48,9 @@ const _json = <String, dynamic>{
   'unassigned': ['Палома'],
   'makers': ['JS Group', 'KIRA'],
   'types': ['Матовая', 'Софт'],
+  'collections': {
+    'KIRA': ['Solid', 'Wood'],
+  },
   'suppliers': [
     {'supplier': 'SUP-1', 'name': 'МС-Груп', 'enabled': true},
   ],
@@ -60,6 +64,27 @@ class _Fake implements FilmCatalogRepository {
   Future<FilmCatalog> catalog() async => FilmCatalog.fromJson(_json);
 
   final added = <(String, String, String?, String?)>[];
+  final addedTo = <String?>[];
+  final collectionCalls = <String>[];
+  final dropped = <String>[];
+
+  @override
+  Future<void> addCollection(String maker, String name) async =>
+      collectionCalls.add('add $maker $name');
+
+  @override
+  Future<void> renameCollection(
+    String maker,
+    String name,
+    String newName,
+  ) async => collectionCalls.add('rename $maker $name $newName');
+
+  @override
+  Future<void> removeCollection(String maker, String name) async =>
+      collectionCalls.add('remove $maker $name');
+
+  @override
+  Future<void> dropUnassigned(String colour) async => dropped.add(colour);
 
   @override
   Future<Film> add({
@@ -67,7 +92,9 @@ class _Fake implements FilmCatalogRepository {
     required String colour,
     String? thickness,
     String? width,
+    String? collection,
   }) async {
+    addedTo.add(collection);
     added.add((maker, colour, thickness, width));
     return Film(item: 'MAT-9', maker: maker, colour: colour);
   }
@@ -90,6 +117,15 @@ void main() {
     expect([for (final f in c.of('JS Group')) f.item], ['MAT-2']);
     expect([for (final f in c.of('KIRA', type: 'Софт')) f.item], ['MAT-3']);
     expect([for (final f in c.of('KIRA', search: 'kr-1')) f.item], ['MAT-1']);
+    // A maker's own collections; another maker has none of them.
+    expect(c.collectionsOf('KIRA'), ['Solid', 'Wood']);
+    expect(c.collectionsOf('JS Group'), isEmpty);
+    expect(
+      [for (final f in c.of('KIRA', collection: 'Wood')) f.item],
+      [
+        'MAT-3',
+      ],
+    );
     expect(c.films.first.argb, 0xFFF4F3EE);
     expect(c.films.first.free, 84);
     expect(c.suppliers.single.name, 'МС-Груп');
@@ -183,5 +219,90 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('film:MAT-1')));
     await tester.pumpAndSettle();
     expect(picked, 'KIRA · Белый Матовый');
+  });
+
+  testWidgets('a maker has its own collections: filter, add into, keep', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _Fake();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const FilmCatalogScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmMaker:KIRA')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsOneWidget);
+    await tester.tap(
+      find.byKey(const ValueKey('filmCollectionChip:KIRA:Wood')),
+    );
+    await tester.pumpAndSettle();
+    // Only the collection's films.
+    expect(find.byKey(const ValueKey('film:MAT-3')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+
+    // A film added now goes into the open collection.
+    await tester.tap(find.byKey(const ValueKey('filmAdd:KIRA')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmAdd:name')), 'Дуб');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmAdd:save')));
+    await tester.pumpAndSettle();
+    expect(repo.addedTo.single, 'Wood');
+    await tester.tap(find.text('Cancel').last);
+    await tester.pumpAndSettle();
+
+    // The list of collections is the owner's: add, rename, remove.
+    await tester.tap(find.byKey(const ValueKey('filmCollections:KIRA')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCollection:add')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmCollection:name')),
+      'Soft',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCollection:ok')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCollection:edit:Wood')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmCollection:name')),
+      'Древесные',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCollection:ok')));
+    await tester.pumpAndSettle();
+    expect(repo.collectionCalls, [
+      'add KIRA Soft',
+      'rename KIRA Wood Древесные',
+    ]);
+  });
+
+  testWidgets('an old colour without a maker is taken off after a yes', (
+    tester,
+  ) async {
+    final repo = _Fake();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const FilmCatalogScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmMaker:none')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmLooseDrop:Палома')));
+    await tester.pumpAndSettle();
+    expect(repo.dropped, isEmpty);
+    await tester.tap(find.text('Delete').last);
+    await tester.pumpAndSettle();
+    expect(repo.dropped, ['Палома']);
   });
 }
