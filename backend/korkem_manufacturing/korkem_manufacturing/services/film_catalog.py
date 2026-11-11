@@ -599,7 +599,9 @@ def film(item: str) -> dict:
 
 def _clean(key: str, value, company: str):
 	if value is None or str(value).strip() == "":
-		return None
+		# A price column takes no emptiness: an empty price is kept as 0 and
+		# read back as empty (11.11.2026: a card with no prices did not save).
+		return 0.0 if key in PRICES else None
 	if key in PRICES:
 		try:
 			price = flt(value)

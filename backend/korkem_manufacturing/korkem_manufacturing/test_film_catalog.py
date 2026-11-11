@@ -82,6 +82,10 @@ class TestFilmCatalog(IntegrationTestCase):
 		# A field left out stays; an empty one is cleared.
 		card = self._as(MANAGER, service.set_card, item, ral="")
 		self.assertEqual((card["code"], card["ral"]), ("KR-101", None))
+		# Prices left empty save too, and read back as empty.
+		card = self._as(MANAGER, service.set_card, item, price_m="", retail_m="", wholesale_m=None)
+		self.assertEqual((card["price_m"], card["retail_m"], card["wholesale_m"]), (None, None, None))
+		self.assertEqual(card["code"], "KR-101")
 
 	def test_a_card_refuses_what_is_not_in_the_lists_or_not_a_colour(self):
 		item = self._film("KIRA")
