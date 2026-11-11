@@ -48,6 +48,20 @@ final filmTeamProvider = FutureProvider.autoDispose.family<FilmTeam, String?>(
   (ref, month) => ref.watch(filmDeptRepositoryProvider).team(month),
 );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmCashProvider = FutureProvider.autoDispose
+    .family<FilmCashBook, ({String? since, String? until})>(
+      (ref, p) => ref.watch(filmDeptRepositoryProvider).cash(p.since, p.until),
+    );
+
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmReportProvider = FutureProvider.autoDispose
+    .family<FilmReport, String?>(
+      (ref, month) => ref.watch(filmDeptRepositoryProvider).report(month),
+    );
+
 /// The film department — `korkem_manufacturing.api.film_dept`.
 class FilmDeptRepository {
   const FilmDeptRepository(this._client);
@@ -93,6 +107,29 @@ class FilmDeptRepository {
     },
   );
 
+  /// Metres put by for a customer until a day.
+  Future<void> hold({
+    required String item,
+    required String customer,
+    required double metres,
+    String? until,
+  }) => _client.callMethod(
+    '$_base.hold',
+    post: true,
+    params: {
+      'item': item,
+      'customer': customer,
+      'metres': metres,
+      'until': ?until,
+    },
+  );
+
+  Future<void> releaseHold(String hold) => _client.callMethod(
+    '$_base.release_hold',
+    post: true,
+    params: {'hold': hold},
+  );
+
   /// The roll on its way came: on the shelf today; [metres] if not as many.
   Future<void> arrived(String entry, {double? metres}) => _client.callMethod(
     '$_base.arrived',
@@ -119,11 +156,40 @@ class FilmDeptRepository {
         _map(await _client.callMethod('$_base.delivery_options')),
       );
 
+  /// The department's own cash book — `api.film_cash`.
+  Future<FilmCashBook> cash(String? since, String? until) async =>
+      FilmCashBook.fromJson(
+        _map(
+          await _client.callMethod(
+            'korkem_manufacturing.api.film_cash.book',
+            params: {'since': ?since, 'until': ?until},
+          ),
+        ),
+      );
+
+  /// Given back to the employee, or paid to the carrier, today.
+  Future<void> settleDelivery(String receipt, String method) =>
+      _client.callMethod(
+        'korkem_manufacturing.api.film_cash.settle',
+        post: true,
+        params: {'receipt': receipt, 'method': method},
+      );
+
   /// The month by seller and the team's bonus — `api.film_team`.
   Future<FilmTeam> team(String? month) async => FilmTeam.fromJson(
     _map(
       await _client.callMethod(
         'korkem_manufacturing.api.film_team.team',
+        params: {'month': ?month},
+      ),
+    ),
+  );
+
+  /// The month on one page — `api.film_team.report`.
+  Future<FilmReport> report(String? month) async => FilmReport.fromJson(
+    _map(
+      await _client.callMethod(
+        'korkem_manufacturing.api.film_team.report',
         params: {'month': ?month},
       ),
     ),

@@ -200,6 +200,23 @@ void main() {
     expect(find.byKey(const ValueKey('facadePriceNeedOne')), findsOneWidget);
   });
 
+  testWidgets('a finish a milling is not sold in is folded away', (
+    tester,
+  ) async {
+    await pump(tester, _table());
+    // Тегіс has no enamel: hidden until asked for.
+    expect(
+      find.byKey(const ValueKey('facadePrice:Тегіс:$_enamel')),
+      findsNothing,
+    );
+    await tester.tap(find.byKey(const ValueKey('facadePrices:more:Тегіс')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('facadePrice:Тегіс:$_enamel')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('somebody who may not edit gets no pencil and no add button', (
     tester,
   ) async {

@@ -66,6 +66,9 @@ class FilmMove {
         perM: _d(d['per_m']),
         urgent: d['urgent'] == true,
         receivedBy: _s(d['received_by']),
+        payer: _s(d['payer']),
+        paidBy: _s(d['paid_by']),
+        settled: d['settled'] == true,
       ),
       _ => null,
     },
@@ -110,6 +113,104 @@ typedef FilmDelivery = ({
   double? perM,
   bool urgent,
   String? receivedBy,
+  String? payer,
+  String? paidBy,
+  bool settled,
+});
+
+/// Who paid for bringing a roll (owner, 11.11.2026) — the server's words.
+abstract final class FilmPayer {
+  static const cash = 'cash';
+  static const employee = 'employee';
+  static const unpaid = 'unpaid';
+  static const supplier = 'supplier';
+}
+
+/// The film department's own cash book over a period, and what is owed.
+@immutable
+class FilmCashBook {
+  const FilmCashBook({
+    required this.since,
+    required this.until,
+    this.ins = const [],
+    this.inTotal = 0,
+    this.outs = const [],
+    this.outTotal = 0,
+    this.balance = 0,
+    this.logistics = 0,
+    this.logisticsPerM,
+    this.employees = const [],
+    this.carriers = const [],
+  });
+
+  factory FilmCashBook.fromJson(Map<String, dynamic> json) {
+    final owed = json['owed'] as Map<String, dynamic>? ?? const {};
+    FilmOwed row(Map<String, dynamic> r) => (
+      receipt: '${r['receipt']}',
+      date: '${r['date'] ?? ''}',
+      amount: _d(r['amount']) ?? 0,
+      who: _s(r['name']) ?? _s(r['transport']),
+      supplier: _s(r['supplier']),
+    );
+    return FilmCashBook(
+      since: '${json['since'] ?? ''}',
+      until: '${json['until'] ?? ''}',
+      ins: [
+        for (final r in json['in'] as List? ?? const [])
+          if (r is Map<String, dynamic>)
+            (way: '${r['way']}', amount: _d(r['amount']) ?? 0),
+      ],
+      inTotal: _d(json['in_total']) ?? 0,
+      outs: [
+        for (final r in json['out'] as List? ?? const [])
+          if (r is Map<String, dynamic>)
+            (
+              date: '${r['date'] ?? ''}',
+              what: '${r['what'] ?? ''}',
+              amount: _d(r['amount']) ?? 0,
+              way: _s(r['way']),
+            ),
+      ],
+      outTotal: _d(json['out_total']) ?? 0,
+      balance: _d(json['balance']) ?? 0,
+      logistics: _d(json['logistics']) ?? 0,
+      logisticsPerM: _d(json['logistics_per_m']),
+      employees: [
+        for (final r in owed['employees'] as List? ?? const [])
+          if (r is Map<String, dynamic>) row(r),
+      ],
+      carriers: [
+        for (final r in owed['carriers'] as List? ?? const [])
+          if (r is Map<String, dynamic>) row(r),
+      ],
+    );
+  }
+
+  final String since;
+  final String until;
+  final List<({String way, double amount})> ins;
+  final double inTotal;
+  final List<({String date, String what, double amount, String? way})> outs;
+  final double outTotal;
+  final double balance;
+
+  /// What bringing film cost in the period — shown, not in the bonus.
+  final double logistics;
+  final double? logisticsPerM;
+
+  /// Owed back to employees who paid out of their pocket.
+  final List<FilmOwed> employees;
+
+  /// Owed to carriers not paid yet.
+  final List<FilmOwed> carriers;
+}
+
+typedef FilmOwed = ({
+  String receipt,
+  String date,
+  double amount,
+  String? who,
+  String? supplier,
 });
 
 /// What a receipt asks about its delivery and a sale about its seller.
@@ -371,6 +472,7 @@ class FilmCustomer {
     this.debt = 0,
     this.last,
     this.idleDays,
+    this.debtDays,
     this.asleep = false,
   });
 
@@ -386,6 +488,7 @@ class FilmCustomer {
     debt: _d(json['debt']) ?? 0,
     last: _s(json['last']),
     idleDays: (json['idle_days'] as num?)?.toInt(),
+    debtDays: (json['debt_days'] as num?)?.toInt(),
     asleep: json['asleep'] == true,
   );
 
@@ -400,6 +503,9 @@ class FilmCustomer {
   final double debt;
   final String? last;
   final int? idleDays;
+
+  /// How long the oldest unpaid sale has waited, in days.
+  final int? debtDays;
 
   /// Bought before and has not for two months: worth a call.
   final bool asleep;
@@ -433,3 +539,70 @@ typedef FilmPayment = ({
   String method,
   String? bank,
 });
+
+/// The film department's month on one page: what sold most and what each
+/// film earned over its cost; what lies on the shelf unmoved.
+@immutable
+class FilmReport {
+  const FilmReport({
+    required this.month,
+    this.metres = 0,
+    this.amount = 0,
+    this.margin = 0,
+    this.top = const [],
+    this.idle = const [],
+    this.idleDays = 60,
+  });
+
+  factory FilmReport.fromJson(Map<String, dynamic> json) => FilmReport(
+    month: '${json['month'] ?? ''}',
+    metres: _d(json['metres']) ?? 0,
+    amount: _d(json['amount']) ?? 0,
+    margin: _d(json['margin']) ?? 0,
+    top: [
+      for (final r in json['top'] as List? ?? const [])
+        if (r is Map<String, dynamic>)
+          (
+            item: '${r['item']}',
+            title: '${r['title'] ?? r['item']}',
+            metres: _d(r['metres']) ?? 0,
+            amount: _d(r['amount']) ?? 0,
+            margin: _d(r['margin']) ?? 0,
+            marginM: _d(r['margin_m']),
+          ),
+    ],
+    idle: [
+      for (final r in json['idle'] as List? ?? const [])
+        if (r is Map<String, dynamic>)
+          (
+            item: '${r['item']}',
+            title: '${r['title'] ?? r['item']}',
+            onHand: _d(r['on_hand']) ?? 0,
+            days: (r['days'] as num?)?.toInt() ?? 0,
+            value: _d(r['value']),
+          ),
+    ],
+    idleDays: (json['idle_days'] as num?)?.toInt() ?? 60,
+  );
+
+  final String month;
+  final double metres;
+  final double amount;
+  final double margin;
+  final List<
+    ({
+      String item,
+      String title,
+      double metres,
+      double amount,
+      double margin,
+      double? marginM,
+    })
+  >
+  top;
+  final List<
+    ({String item, String title, double onHand, int days, double? value})
+  >
+  idle;
+  final int idleDays;
+}

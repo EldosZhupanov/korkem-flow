@@ -21,11 +21,20 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 ///
 /// Edited by the administrator and the managers who take orders; the server
 /// enforces that, and this screen only hides the pencil from anybody else.
-class FacadePricesScreen extends ConsumerWidget {
+class FacadePricesScreen extends ConsumerStatefulWidget {
   const FacadePricesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FacadePricesScreen> createState() => _FacadePricesState();
+}
+
+class _FacadePricesState extends ConsumerState<FacadePricesScreen> {
+  /// Millings with no price at all, folded away (owner, 11.11.2026: the
+  /// screen was mostly «Не продаётся»).
+  bool _unsold = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tableAsync = ref.watch(facadePriceControllerProvider);
     final table = tableAsync.value;
@@ -55,26 +64,53 @@ class FacadePricesScreen extends ConsumerWidget {
           error: error,
           onRetry: () => ref.invalidate(facadePriceControllerProvider),
         ),
-        data: (table) => ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            for (final milling in table.millings)
-              ReadableWidth(
-                child: _MillingCard(
-                  milling: milling,
-                  table: table,
-                  onEdit: (finish) => _edit(
-                    context,
-                    ref,
-                    table,
-                    milling: milling,
-                    finish: finish,
+        data: (table) {
+          bool sold(String m) => table.finishes.any(
+            (f) => table.cell(m, f)?.enabled ?? false,
+          );
+          final priced = [
+            for (final m in table.millings)
+              if (sold(m)) m,
+          ];
+          final unpriced = [
+            for (final m in table.millings)
+              if (!sold(m)) m,
+          ];
+          Widget card(String milling) => ReadableWidth(
+            child: _MillingCard(
+              key: ValueKey('facadeMilling:$milling'),
+              milling: milling,
+              table: table,
+              onEdit: (finish) => _edit(
+                context,
+                ref,
+                table,
+                milling: milling,
+                finish: finish,
+              ),
+            ),
+          );
+          return ListView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            children: [
+              for (final milling in priced) card(milling),
+              if (unpriced.isNotEmpty)
+                ReadableWidth(
+                  child: TextButton.icon(
+                    key: const ValueKey('facadePrices:unsold'),
+                    onPressed: () => setState(() => _unsold = !_unsold),
+                    icon: Icon(_unsold ? AppIcons.collapse : AppIcons.expand),
+                    label: Text(
+                      l10n.facadePricesUnsoldMillings(unpriced.length),
+                    ),
                   ),
                 ),
-              ),
-            ReadableWidth(child: FacadeRulesCard(canEdit: table.canEdit)),
-          ],
-        ),
+              if (_unsold)
+                for (final milling in unpriced) card(milling),
+              ReadableWidth(child: FacadeRulesCard(canEdit: table.canEdit)),
+            ],
+          );
+        },
       ),
     );
   }
@@ -119,16 +155,31 @@ class FacadePricesScreen extends ConsumerWidget {
   }
 }
 
-class _MillingCard extends StatelessWidget {
+class _MillingCard extends StatefulWidget {
   const _MillingCard({
     required this.milling,
     required this.table,
     required this.onEdit,
+    super.key,
   });
 
   final String milling;
   final FacadePriceTable table;
   final void Function(String finish) onEdit;
+
+  @override
+  State<_MillingCard> createState() => _MillingCardState();
+}
+
+/// One milling: the finishes it is sold in; those it is not — old names
+/// beside the new ones, «ПВХ плёнка» beside «ПВХ» — folded under one line
+/// (owner, 11.11.2026), a tap away to price one.
+class _MillingCardState extends State<_MillingCard> {
+  bool _all = false;
+
+  String get milling => widget.milling;
+  FacadePriceTable get table => widget.table;
+  void Function(String finish) get onEdit => widget.onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +189,9 @@ class _MillingCard extends StatelessWidget {
       symbol: '₸',
       decimalDigits: 0,
     );
+    final hidden = table.finishes
+        .where((f) => !(table.cell(milling, f)?.enabled ?? false))
+        .length;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: AppCard(
@@ -146,7 +200,18 @@ class _MillingCard extends StatelessWidget {
           children: [
             SectionLabel(milling),
             for (final finish in table.finishes)
-              _priceRow(context, l10n, money, finish),
+              if (_all || (table.cell(milling, finish)?.enabled ?? false))
+                _priceRow(context, l10n, money, finish),
+            if (hidden > 0)
+              TextButton(
+                key: ValueKey('facadePrices:more:$milling'),
+                onPressed: () => setState(() => _all = !_all),
+                child: Text(
+                  _all
+                      ? l10n.facadePricesHideUnsold
+                      : l10n.facadePricesShowUnsold(hidden),
+                ),
+              ),
           ],
         ),
       ),

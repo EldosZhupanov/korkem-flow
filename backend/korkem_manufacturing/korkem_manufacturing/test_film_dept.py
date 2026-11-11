@@ -186,6 +186,20 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertIn("Такси", options["transports"])
 		self.assertIn("Привёз поставщик", options["transports"])
 
+	def test_a_film_that_ran_low_says_what_to_order(self):
+		def row() -> dict:
+			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
+
+		self.assertIsNone(row()["reorder"])
+		material_stock.set_min_stock(self.film, 60)
+		# 50 m left, the minimum 60: as much as last time, from the same place.
+		order = row()["reorder"]
+		self.assertEqual((order["metres"], order["supplier"], order["price_m"]), (50, self.supplier, 3200))
+		# Ordered: on its way, enough — nothing more is asked.
+		self._as(MANAGER, service.receive, self.film, order["metres"], order["price_m"], order["supplier"],
+				 arrives_on=add_days(nowdate(), 2))
+		self.assertIsNone(row()["reorder"])
+
 	def test_a_roll_on_its_way_is_not_on_the_shelf_until_it_comes(self):
 		def row() -> dict:
 			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
@@ -220,6 +234,40 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertEqual(row()["coming"], [])
 		self.assertEqual(self._free(), 78)
 
+	def test_the_film_cash_book_keeps_the_departments_own_money(self):
+		from korkem_manufacturing.services import film_cash
+
+		def got(**delivery) -> str:
+			return self._as(MANAGER, service.receive, self.film, 10, 3200, self.supplier, delivery=delivery)["receipt"]
+
+		by_cash = got(transport="Такси", amount=5000)
+		by_me = got(transport="Такси", amount=3000, payer="employee", paid_by=MANAGER)
+		owed = got(transport="КАМАЗ", amount=2000, payer="unpaid")
+		free = got(transport="Привёз поставщик", amount=900, payer="supplier")
+		with self.assertRaises(frappe.ValidationError):
+			got(amount=100, payer="кто-то")
+		self.assertEqual(flt(frappe.db.get_value("Stock Entry", free, "korkem_delivery_cost")), 0)
+		before_in = self._as(MANAGER, film_cash.book)["in_total"]
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 2, "price_m": 4000}],
+				 payments=[{"amount": 8000, "method": "Наличные"}])
+		book = self._as(MANAGER, film_cash.book)
+		self.assertEqual(book["in_total"] - before_in, 8000)
+		# Out of the department's cash: only what the cash paid.
+		self.assertEqual([o["amount"] for o in book["out"] if o["receipt"] in (by_cash, by_me, owed, free)], [5000])
+		self.assertIn(by_me, [e["receipt"] for e in book["owed"]["employees"]])
+		self.assertIn(owed, [c["receipt"] for c in book["owed"]["carriers"]])
+		# Given back: out of the cash today, off the list; twice is refused.
+		self._as(MANAGER, film_cash.settle, by_me, "Перевод")
+		book = self._as(MANAGER, film_cash.book)
+		self.assertEqual(sorted(o["amount"] for o in book["out"] if o["receipt"] in (by_cash, by_me)), [3000, 5000])
+		self.assertNotIn(by_me, [e["receipt"] for e in book["owed"]["employees"]])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, film_cash.settle, by_me)
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, film_cash.book)
+		row = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == by_me)
+		self.assertEqual((row["delivery"]["payer"], row["delivery"]["settled"]), ("employee", True))
+
 	def test_the_team_month_counts_the_paid_margin_by_seller(self):
 		from korkem_manufacturing.services import film_team
 
@@ -248,6 +296,52 @@ class TestFilmDept(IntegrationTestCase):
 			self._as(MANAGER, film_team.set_settings, pct=20)
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, film_team.team)
+
+	def test_the_month_report_ranks_films_and_their_margin(self):
+		from korkem_manufacturing.services import film_team
+
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 5, "price_m": 4200}])
+		report = self._as(MANAGER, film_team.report)
+		row = next(r for r in report["top"] if r["item"] == self.film)
+		# Bought at 3 200, sold at 4 200: 1 000 a metre, 5 000 on five.
+		self.assertEqual((row["metres"], row["amount"], row["margin"], row["margin_m"]), (5, 21000, 5000, 1000))
+		self.assertIn("KIRA", row["title"])
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, film_team.report)
+
+	def test_metres_put_by_for_a_customer_are_not_sold_to_another(self):
+		other = "Film Dept Other Buyer"
+		if not frappe.db.exists("Customer", {"customer_name": other}):
+			frappe.get_doc({"doctype": "Customer", "customer_name": other, "customer_type": "Company"}).insert(
+				ignore_permissions=True
+			)
+		other = frappe.db.get_value("Customer", {"customer_name": other}, "name")
+		held = self._as(MANAGER, service.hold, self.film, self.buyer, 30)
+		self.assertEqual(self._free(), 20)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.hold, self.film, other, 25)
+		# Another customer may have only what is free; the press too.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.sell, other, [{"item": self.film, "metres": 25, "price_m": 4000}])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.to_shop, self.film, 25)
+		# The one it was put by for takes it: the hold is used up.
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 30, "price_m": 4000}])
+		self.assertEqual(frappe.db.get_value("Film Hold", held["hold"], "status"), "Sold")
+		self.assertEqual(self._free(), 20)
+		again = self._as(MANAGER, service.hold, self.film, other, 5)
+		self._as(MANAGER, service.release_hold, again["hold"])
+		self.assertEqual(self._free(), 20)
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, service.hold, self.film, other, 1)
+
+	def test_a_customer_in_debt_says_how_long(self):
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 1, "price_m": 4000}],
+				 payments=[{"amount": 1000, "method": "Наличные"}])
+		row = next(c for c in self._as(MANAGER, service.customers) if c["customer"] == self.buyer)
+		self.assertGreater(row["debt"], 0)
+		self.assertIsNotNone(row["debt_days"])
+		self.assertGreaterEqual(row["debt_days"], 0)
 
 	def test_the_customers_card_sets_the_price(self):
 		self.assertEqual(self._as(MANAGER, service.price_for, self.film, self.buyer)["price_m"], 3900)

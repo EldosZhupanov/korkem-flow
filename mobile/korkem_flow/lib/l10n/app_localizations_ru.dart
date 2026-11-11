@@ -6251,4 +6251,272 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmOnWay => 'В пути';
+
+  @override
+  String filmOnlyHave(String metres) {
+    return 'есть только $metres м';
+  }
+
+  @override
+  String filmLeft(String metres) {
+    return 'останется $metres м';
+  }
+
+  @override
+  String filmLeftLow(String metres) {
+    return 'останется $metres м — мало';
+  }
+
+  @override
+  String filmTakeAll(String metres) {
+    return 'Взять всё $metres м';
+  }
+
+  @override
+  String filmMoreComing(String metres, String day) {
+    return '+$metres м в пути, придёт $day';
+  }
+
+  @override
+  String get filmDeliveryPayer => 'Кто заплатил';
+
+  @override
+  String get filmPayerCash => 'Касса плёнки';
+
+  @override
+  String get filmPayerEmployee => 'Сотрудник из своих';
+
+  @override
+  String get filmPayerUnpaid => 'Не оплачено';
+
+  @override
+  String get filmPaidBy => 'Кто заплатил из своих';
+
+  @override
+  String get filmPaidCash => 'из кассы';
+
+  @override
+  String filmPaidByBack(String who) {
+    return 'заплатил $who, вернули';
+  }
+
+  @override
+  String filmPaidByOwed(String who) {
+    return 'заплатил $who — вернуть';
+  }
+
+  @override
+  String get filmCarrierPaid => 'перевозчику оплачено';
+
+  @override
+  String get filmCarrierOwed => 'не оплачено перевозчику';
+
+  @override
+  String get filmPaidSupplier => 'за счёт поставщика';
+
+  @override
+  String get filmTabCash => 'Касса';
+
+  @override
+  String filmSettleBy(String how) {
+    return 'Оплачено: $how';
+  }
+
+  @override
+  String get filmGaveBack => 'Вернул';
+
+  @override
+  String get filmPaidCarrier => 'Оплатил';
+
+  @override
+  String get filmCashToday => 'Сегодня';
+
+  @override
+  String get filmCashMonth => 'Месяц';
+
+  @override
+  String get filmCashIn => 'Пришло';
+
+  @override
+  String get filmCashOut => 'Ушло';
+
+  @override
+  String get filmCashNothing => '—';
+
+  @override
+  String get filmCashTotal => 'Итого';
+
+  @override
+  String get filmCashBalance => 'Остаток';
+
+  @override
+  String filmCashLogistics(String sum) {
+    return 'Логистика за период: $sum — в бонус не входит';
+  }
+
+  @override
+  String filmCashLogisticsPerM(String sum, String per) {
+    return 'Логистика за период: $sum (≈ $per на метр) — в бонус не входит';
+  }
+
+  @override
+  String get filmOwedEmployees => 'Вернуть сотрудникам';
+
+  @override
+  String get filmOwedCarriers => 'Долг перевозчикам';
+
+  @override
+  String get filmToday => 'Сегодня';
+
+  @override
+  String get filmYesterday => 'Вчера';
+
+  @override
+  String get filmHistoryAll => 'Все';
+
+  @override
+  String get filmHistoryReceipts => 'Приходы';
+
+  @override
+  String get filmHistorySales => 'Продажи';
+
+  @override
+  String get filmHistoryShop => 'В цех';
+
+  @override
+  String get filmHistoryWriteOffs => 'Списания';
+
+  @override
+  String filmAfter(String metres) {
+    return 'стало $metres м';
+  }
+
+  @override
+  String filmReorderBanner(int count) {
+    return 'Пора заказать — мало плёнки: $count';
+  }
+
+  @override
+  String get filmReorderOpen => 'Заказать';
+
+  @override
+  String get filmReorderTitle => 'Заказать плёнку';
+
+  @override
+  String filmReorderLeft(String metres) {
+    return 'осталось $metres м';
+  }
+
+  @override
+  String filmReorderTotal(String sum, String day) {
+    return 'Итого $sum · придёт $day';
+  }
+
+  @override
+  String filmReorderSave(int count) {
+    return 'Оформить ($count)';
+  }
+
+  @override
+  String filmDebtors(int count, String sum) {
+    return 'Должники: $count · $sum';
+  }
+
+  @override
+  String get filmRemind => 'Напомнить в WhatsApp';
+
+  @override
+  String filmRemindText(String name, String sum) {
+    return 'Здравствуйте, $name! Напоминаем об оплате за плёнку: остаток $sum. Спасибо!';
+  }
+
+  @override
+  String filmDebtDays(int days) {
+    return 'долг $days дн.';
+  }
+
+  @override
+  String get filmReportTop => 'Что продали за месяц';
+
+  @override
+  String filmReportTotals(String metres, String amount, String margin) {
+    return '$metres м · выручка $amount · маржа $margin';
+  }
+
+  @override
+  String filmReportMarginM(String sum) {
+    return 'маржа $sum/м';
+  }
+
+  @override
+  String filmReportIdle(int days) {
+    return 'Лежит без движения больше $days дн.';
+  }
+
+  @override
+  String filmReportIdleDays(int days) {
+    return '$days дн. без движения';
+  }
+
+  @override
+  String filmReportFrozen(String sum) {
+    return 'заморожено $sum';
+  }
+
+  @override
+  String get filmReceipt => 'Чек';
+
+  @override
+  String get filmReceiptDate => 'Дата';
+
+  @override
+  String get filmReceiptCustomer => 'Клиент';
+
+  @override
+  String get filmReceiptFilm => 'Плёнка';
+
+  @override
+  String get filmReceiptMetres => 'Метров';
+
+  @override
+  String get filmReceiptPrice => 'Цена за м';
+
+  @override
+  String get filmReceiptAmount => 'Сумма';
+
+  @override
+  String get filmReceiptTotal => 'Итого';
+
+  @override
+  String get filmReceiptPaid => 'Оплачено';
+
+  @override
+  String get filmReceiptDebt => 'Долг';
+
+  @override
+  String get filmHold => 'Отложить';
+
+  @override
+  String get filmHoldRelease => 'Снять';
+
+  @override
+  String get filmHoldUntil => 'До какого дня';
+
+  @override
+  String filmHeldFor(String metres, String customer, String day) {
+    return 'отложено $metres м за $customer до $day';
+  }
+
+  @override
+  String facadePricesUnsoldMillings(int count) {
+    return 'Фрезеровки без цен: $count';
+  }
+
+  @override
+  String facadePricesShowUnsold(int count) {
+    return 'Не продаётся: $count — показать';
+  }
+
+  @override
+  String get facadePricesHideUnsold => 'Скрыть непродаваемые';
 }

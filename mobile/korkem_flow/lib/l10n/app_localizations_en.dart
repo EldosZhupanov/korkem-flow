@@ -6228,4 +6228,272 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmOnWay => 'On its way';
+
+  @override
+  String filmOnlyHave(String metres) {
+    return 'only $metres m in stock';
+  }
+
+  @override
+  String filmLeft(String metres) {
+    return '$metres m left';
+  }
+
+  @override
+  String filmLeftLow(String metres) {
+    return '$metres m left — low';
+  }
+
+  @override
+  String filmTakeAll(String metres) {
+    return 'Take all $metres m';
+  }
+
+  @override
+  String filmMoreComing(String metres, String day) {
+    return '+$metres m on its way, arrives $day';
+  }
+
+  @override
+  String get filmDeliveryPayer => 'Who paid';
+
+  @override
+  String get filmPayerCash => 'Film cash';
+
+  @override
+  String get filmPayerEmployee => 'Employee, own money';
+
+  @override
+  String get filmPayerUnpaid => 'Not paid yet';
+
+  @override
+  String get filmPaidBy => 'Paid out of pocket by';
+
+  @override
+  String get filmPaidCash => 'from the cash';
+
+  @override
+  String filmPaidByBack(String who) {
+    return 'paid by $who, given back';
+  }
+
+  @override
+  String filmPaidByOwed(String who) {
+    return 'paid by $who — to give back';
+  }
+
+  @override
+  String get filmCarrierPaid => 'carrier paid';
+
+  @override
+  String get filmCarrierOwed => 'carrier not paid';
+
+  @override
+  String get filmPaidSupplier => 'on the supplier';
+
+  @override
+  String get filmTabCash => 'Cash';
+
+  @override
+  String filmSettleBy(String how) {
+    return 'Paid: $how';
+  }
+
+  @override
+  String get filmGaveBack => 'Gave back';
+
+  @override
+  String get filmPaidCarrier => 'Paid';
+
+  @override
+  String get filmCashToday => 'Today';
+
+  @override
+  String get filmCashMonth => 'Month';
+
+  @override
+  String get filmCashIn => 'In';
+
+  @override
+  String get filmCashOut => 'Out';
+
+  @override
+  String get filmCashNothing => '—';
+
+  @override
+  String get filmCashTotal => 'Total';
+
+  @override
+  String get filmCashBalance => 'Balance';
+
+  @override
+  String filmCashLogistics(String sum) {
+    return 'Logistics in the period: $sum — not in the bonus';
+  }
+
+  @override
+  String filmCashLogisticsPerM(String sum, String per) {
+    return 'Logistics in the period: $sum (≈ $per a metre) — not in the bonus';
+  }
+
+  @override
+  String get filmOwedEmployees => 'Owed to employees';
+
+  @override
+  String get filmOwedCarriers => 'Owed to carriers';
+
+  @override
+  String get filmToday => 'Today';
+
+  @override
+  String get filmYesterday => 'Yesterday';
+
+  @override
+  String get filmHistoryAll => 'All';
+
+  @override
+  String get filmHistoryReceipts => 'Receipts';
+
+  @override
+  String get filmHistorySales => 'Sales';
+
+  @override
+  String get filmHistoryShop => 'To the shop';
+
+  @override
+  String get filmHistoryWriteOffs => 'Write-offs';
+
+  @override
+  String filmAfter(String metres) {
+    return 'then $metres m';
+  }
+
+  @override
+  String filmReorderBanner(int count) {
+    return 'Time to order — films running low: $count';
+  }
+
+  @override
+  String get filmReorderOpen => 'Order';
+
+  @override
+  String get filmReorderTitle => 'Order film';
+
+  @override
+  String filmReorderLeft(String metres) {
+    return '$metres m left';
+  }
+
+  @override
+  String filmReorderTotal(String sum, String day) {
+    return 'Total $sum · arrives $day';
+  }
+
+  @override
+  String filmReorderSave(int count) {
+    return 'Place ($count)';
+  }
+
+  @override
+  String filmDebtors(int count, String sum) {
+    return 'Owing: $count · $sum';
+  }
+
+  @override
+  String get filmRemind => 'Remind in WhatsApp';
+
+  @override
+  String filmRemindText(String name, String sum) {
+    return 'Hello, $name! A reminder about the film payment: $sum left. Thank you!';
+  }
+
+  @override
+  String filmDebtDays(int days) {
+    return 'owing $days d';
+  }
+
+  @override
+  String get filmReportTop => 'What sold this month';
+
+  @override
+  String filmReportTotals(String metres, String amount, String margin) {
+    return '$metres m · takings $amount · margin $margin';
+  }
+
+  @override
+  String filmReportMarginM(String sum) {
+    return 'margin $sum/m';
+  }
+
+  @override
+  String filmReportIdle(int days) {
+    return 'Unmoved for over $days d';
+  }
+
+  @override
+  String filmReportIdleDays(int days) {
+    return '$days d unmoved';
+  }
+
+  @override
+  String filmReportFrozen(String sum) {
+    return '$sum tied up';
+  }
+
+  @override
+  String get filmReceipt => 'Receipt';
+
+  @override
+  String get filmReceiptDate => 'Date';
+
+  @override
+  String get filmReceiptCustomer => 'Customer';
+
+  @override
+  String get filmReceiptFilm => 'Film';
+
+  @override
+  String get filmReceiptMetres => 'Metres';
+
+  @override
+  String get filmReceiptPrice => 'Price a metre';
+
+  @override
+  String get filmReceiptAmount => 'Amount';
+
+  @override
+  String get filmReceiptTotal => 'Total';
+
+  @override
+  String get filmReceiptPaid => 'Paid';
+
+  @override
+  String get filmReceiptDebt => 'Owing';
+
+  @override
+  String get filmHold => 'Put by';
+
+  @override
+  String get filmHoldRelease => 'Release';
+
+  @override
+  String get filmHoldUntil => 'Until';
+
+  @override
+  String filmHeldFor(String metres, String customer, String day) {
+    return '$metres m put by for $customer until $day';
+  }
+
+  @override
+  String facadePricesUnsoldMillings(int count) {
+    return 'Millings with no price: $count';
+  }
+
+  @override
+  String facadePricesShowUnsold(int count) {
+    return 'Not sold: $count — show';
+  }
+
+  @override
+  String get facadePricesHideUnsold => 'Hide the unsold';
 }

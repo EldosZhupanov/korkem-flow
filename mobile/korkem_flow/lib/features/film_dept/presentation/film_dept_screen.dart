@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/contact/contact_actions.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
@@ -10,6 +13,7 @@ import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_cash_tab.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_team_tab.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
@@ -28,7 +32,7 @@ class FilmDeptScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.filmDeptTitle),
@@ -69,6 +73,10 @@ class FilmDeptScreen extends ConsumerWidget {
                 key: const ValueKey('filmTab:team'),
                 text: l10n.filmTabTeam,
               ),
+              Tab(
+                key: const ValueKey('filmTab:cash'),
+                text: l10n.filmTabCash,
+              ),
             ],
           ),
         ),
@@ -79,6 +87,7 @@ class FilmDeptScreen extends ConsumerWidget {
             _CustomersTab(),
             FilmSourcesTab(),
             FilmTeamTab(),
+            FilmCashTab(),
           ],
         ),
       ),
@@ -280,6 +289,17 @@ String? _about(FilmMove m, AppLocalizations l10n, NumberFormat money) {
             ? money.format(d.cost)
             : '${money.format(d.cost)} (${money.format(d.perM)}/м)',
       if (d.urgent) l10n.filmUrgent.toLowerCase(),
+      ?switch (d.payer) {
+        FilmPayer.cash => l10n.filmPaidCash,
+        FilmPayer.employee =>
+          d.settled
+              ? l10n.filmPaidByBack(d.paidBy ?? '')
+              : l10n.filmPaidByOwed(d.paidBy ?? ''),
+        FilmPayer.unpaid =>
+          d.settled ? l10n.filmCarrierPaid : l10n.filmCarrierOwed,
+        FilmPayer.supplier => l10n.filmPaidSupplier,
+        _ => null,
+      },
       if (d.receivedBy case final who?) l10n.filmTakenBy(who),
     ],
     if (m.seller case final who?) l10n.filmSoldBy(who),
@@ -346,6 +366,28 @@ class _StockTabState extends ConsumerState<_StockTab> {
                 ),
               ],
             ),
+            // Time to order (owner, 11.11.2026): what ran low, as last time.
+            if (c.canEdit && c.films.any((f) => f.reorder != null))
+              Card(
+                key: const ValueKey('filmReorder:banner'),
+                color: Theme.of(context).colorScheme.tertiaryContainer,
+                child: ListTile(
+                  leading: const Icon(AppIcons.delivery),
+                  title: Text(
+                    l10n.filmReorderBanner(
+                      c.films.where((f) => f.reorder != null).length,
+                    ),
+                  ),
+                  trailing: FilledButton(
+                    key: const ValueKey('filmReorder:open'),
+                    onPressed: () async {
+                      final done = await showFilmReorder(context, c);
+                      if (done ?? false) _refresh(ref);
+                    },
+                    child: Text(l10n.filmReorderOpen),
+                  ),
+                ),
+              ),
             const SizedBox(height: AppSpacing.sm),
             if (films.isEmpty)
               Padding(
@@ -395,13 +437,22 @@ class _StockTile extends StatelessWidget {
         filmName(f),
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
-      subtitle: f.coming.isEmpty
+      subtitle: f.coming.isEmpty && f.holds.isEmpty
           ? Text([?f.code, ?f.type].join(' · '))
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (f.code != null || f.type != null)
                   Text([?f.code, ?f.type].join(' · ')),
+                for (final h in f.holds)
+                  Text(
+                    l10n.filmHeldFor(
+                      filmMetres(h.metres),
+                      h.customerName,
+                      mdfDay(h.until, year: false),
+                    ),
+                    style: TextStyle(color: theme.colorScheme.tertiary),
+                  ),
                 for (final c in f.coming)
                   Text(
                     filmComingLine(c, l10n),
@@ -521,6 +572,56 @@ class FilmPage extends ConsumerWidget {
               canEdit: stock.canEdit,
               onDone: () => _refresh(ref, item),
             ),
+          for (final h in film.holds)
+            ListTile(
+              key: ValueKey('filmHold:${h.hold}'),
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                AppIcons.hold,
+                color: h.late
+                    ? theme.colorScheme.error
+                    : theme.colorScheme.tertiary,
+              ),
+              title: Text(
+                l10n.filmHeldFor(
+                  filmMetres(h.metres),
+                  h.customerName,
+                  mdfDay(h.until, year: false),
+                ),
+                style: h.late
+                    ? TextStyle(color: theme.colorScheme.error)
+                    : null,
+              ),
+              trailing: stock.canEdit
+                  ? Wrap(
+                      spacing: AppSpacing.xs,
+                      children: [
+                        FilledButton(
+                          key: ValueKey('filmHold:sell:${h.hold}'),
+                          onPressed: () => act(
+                            () => showFilmSale(
+                              context,
+                              stock,
+                              film: film,
+                              customer: h.customer,
+                            ),
+                          ),
+                          child: Text(l10n.filmSell),
+                        ),
+                        TextButton(
+                          key: ValueKey('filmHold:release:${h.hold}'),
+                          onPressed: () async {
+                            await ref
+                                .read(filmDeptRepositoryProvider)
+                                .releaseHold(h.hold);
+                            _refresh(ref, item);
+                          },
+                          child: Text(l10n.filmHoldRelease),
+                        ),
+                      ],
+                    )
+                  : null,
+            ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             children: [
@@ -548,7 +649,7 @@ class FilmPage extends ConsumerWidget {
                 ),
                 FilledButton(
                   key: const ValueKey('filmPage:sell'),
-                  onPressed: film.free <= 0
+                  onPressed: film.free <= 0 && film.holds.isEmpty
                       ? null
                       : () => act(
                           () => showFilmSale(context, stock, film: film),
@@ -563,6 +664,14 @@ class FilmPage extends ConsumerWidget {
                           () => showFilmIssue(context, film, writeOff: false),
                         ),
                   child: Text(l10n.filmToShop),
+                ),
+                // Put by for a customer (owner, 11.11.2026).
+                OutlinedButton(
+                  key: const ValueKey('filmPage:hold'),
+                  onPressed: film.free <= 0
+                      ? null
+                      : () => act(() => showFilmHold(context, film)),
+                  child: Text(l10n.filmHold),
                 ),
                 OutlinedButton(
                   key: const ValueKey('filmPage:writeOff'),
@@ -593,19 +702,14 @@ class FilmPage extends ConsumerWidget {
             loading: () => const [LinearProgressIndicator()],
             error: (e, _) => [Text('$e')],
             data: (rows) => [
-              if (rows.isEmpty) Text(l10n.filmHistoryEmpty),
-              for (final (i, (m, about)) in [
-                for (final m in rows) (m, _about(m, l10n, money)),
-              ].indexed)
-                ListTile(
-                  key: ValueKey('filmMove:$i'),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  // A movement entered wrong is put right from here (owner,
-                  // 11.11.2026); one already put right stays struck through.
-                  onTap:
-                      stock.canEdit && !m.struck && m.kind != FilmMoveKind.other
-                      ? () => act(
+              if (rows.isEmpty)
+                Text(l10n.filmHistoryEmpty)
+              else
+                _History(
+                  rows: rows,
+                  onHand: film.onHand,
+                  onTap: stock.canEdit
+                      ? (m) => act(
                           () => showFilmCorrect(
                             context,
                             move: m,
@@ -614,51 +718,6 @@ class FilmPage extends ConsumerWidget {
                           ),
                         )
                       : null,
-                  title: Text(
-                    [
-                      mdfDay(m.date),
-                      filmMoveLabel(m.kind, l10n),
-                      ?m.party,
-                      ?m.reason,
-                      if (m.priceM != null) price(m.priceM),
-                    ].join(' · '),
-                    style: m.struck
-                        ? TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            color: theme.colorScheme.outline,
-                          )
-                        : null,
-                  ),
-                  subtitle: m.fixed || about != null
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (about != null)
-                              Text(about, key: ValueKey('filmMoveAbout:$i')),
-                            if (m.fixed)
-                              Text(
-                                l10n.filmCorrected(
-                                  mdfDay(m.fixAt!.split(' ').first),
-                                  m.fixBy ?? '',
-                                  m.fixReason ?? '',
-                                ),
-                                key: ValueKey('filmMoveFixed:$i'),
-                              ),
-                          ],
-                        )
-                      : null,
-                  trailing: Text(
-                    '${m.metres > 0 ? '+' : '−'}${filmMetres(m.metres.abs())}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      decoration: m.struck ? TextDecoration.lineThrough : null,
-                      color: m.struck
-                          ? theme.colorScheme.outline
-                          : m.metres > 0
-                          ? theme.colorScheme.primary
-                          : null,
-                    ),
-                  ),
                 ),
             ],
           ),
@@ -667,6 +726,304 @@ class FilmPage extends ConsumerWidget {
     );
   }
 }
+
+/// A film's history (owner, 11.11.2026: «приход и продажа как-то
+/// отличались, чтобы не терять»): each kind its colour and mark, by day,
+/// what stayed on the shelf after each, a filter by kind and its totals.
+class _History extends StatefulWidget {
+  const _History({required this.rows, required this.onHand, this.onTap});
+
+  final List<FilmMove> rows;
+  final double onHand;
+  final void Function(FilmMove)? onTap;
+
+  @override
+  State<_History> createState() => _HistoryState();
+}
+
+class _HistoryState extends State<_History> {
+  FilmMoveKind? _only;
+
+  static const List<FilmMoveKind> _kinds = [
+    FilmMoveKind.receipt,
+    FilmMoveKind.sale,
+    FilmMoveKind.shop,
+    FilmMoveKind.writeOff,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final money = mdfMoney(context);
+    final status = context.statusColors;
+    // What stayed on the shelf after each: from what is there now, back.
+    final after = <FilmMove, double>{};
+    var running = widget.onHand;
+    for (final m in widget.rows) {
+      if (m.struck) continue;
+      after[m] = running;
+      running -= m.metres;
+    }
+    final counts = <FilmMoveKind, int>{};
+    for (final m in widget.rows) {
+      if (!m.struck) counts[m.kind] = (counts[m.kind] ?? 0) + 1;
+    }
+    final shown = [
+      for (final m in widget.rows)
+        if (_only == null || m.kind == _only) m,
+    ];
+    final totals = <FilmMoveKind, double>{};
+    for (final m in shown) {
+      if (!m.struck) totals[m.kind] = (totals[m.kind] ?? 0) + m.metres;
+    }
+    final now = DateTime.now();
+    String dayLabel(String iso) {
+      final d = DateTime.tryParse(iso);
+      if (d == null) return iso;
+      final days = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).difference(DateTime(d.year, d.month, d.day)).inDays;
+      return switch (days) {
+        0 => l10n.filmToday,
+        1 => l10n.filmYesterday,
+        _ => mdfDay(iso),
+      };
+    }
+
+    final children = <Widget>[
+      Wrap(
+        spacing: AppSpacing.xs,
+        runSpacing: AppSpacing.xs,
+        children: [
+          ChoiceChip(
+            key: const ValueKey('filmHistory:all'),
+            label: Text(l10n.filmHistoryAll),
+            selected: _only == null,
+            onSelected: (_) => setState(() => _only = null),
+          ),
+          for (final k in _kinds)
+            if ((counts[k] ?? 0) > 0)
+              // The filter is the legend too: each kind in its colour.
+              ChoiceChip(
+                key: ValueKey('filmHistory:${k.name}'),
+                avatar: Icon(
+                  filmMoveIcon(k),
+                  color: status.resolve(filmMoveIntent(k)),
+                ),
+                showCheckmark: false,
+                label: Text('${filmMovePlural(k, l10n)} ${counts[k]}'),
+                selected: _only == k,
+                selectedColor: status
+                    .resolve(filmMoveIntent(k))
+                    .withValues(alpha: AppTint.surface),
+                side: BorderSide(color: status.resolve(filmMoveIntent(k))),
+                onSelected: (_) => setState(() => _only = k),
+              ),
+        ],
+      ),
+      const SizedBox(height: AppSpacing.sm),
+    ];
+    String? lastDay;
+    for (final m in shown) {
+      if (m.date != lastDay) {
+        lastDay = m.date;
+        children.add(
+          Padding(
+            padding: const EdgeInsets.only(
+              top: AppSpacing.sm,
+              bottom: AppSpacing.xs,
+            ),
+            child: Text(
+              dayLabel(m.date),
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.outline,
+              ),
+            ),
+          ),
+        );
+      }
+      final i = widget.rows.indexOf(m);
+      final about = _about(m, l10n, money);
+      final color = m.struck
+          ? theme.colorScheme.outline
+          : status.resolve(filmMoveIntent(m.kind));
+      final struck = m.struck
+          ? TextStyle(
+              decoration: TextDecoration.lineThrough,
+              color: theme.colorScheme.outline,
+            )
+          : null;
+      final sum = m.kind == FilmMoveKind.sale && m.priceM != null
+          ? money.format(m.metres.abs() * m.priceM!)
+          : null;
+      children.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+          child: Material(
+            color: theme.colorScheme.surfaceContainerLow,
+            child: InkWell(
+              key: ValueKey('filmMove:$i'),
+              // A movement entered wrong is put right from here (owner,
+              // 11.11.2026); one already put right stays struck through.
+              onTap:
+                  widget.onTap != null &&
+                      !m.struck &&
+                      m.kind != FilmMoveKind.other
+                  ? () => widget.onTap!(m)
+                  : null,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(color: color, width: AppSpacing.xs),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(filmMoveIcon(m.kind), color: color),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: filmMoveTitle(m.kind, l10n),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: [
+                                      '',
+                                      ?m.party,
+                                      ?m.reason,
+                                      if (m.priceM != null)
+                                        '${money.format(m.priceM)}/м',
+                                      ?sum,
+                                    ].join(' · '),
+                                  ),
+                                ],
+                              ),
+                              style: struck,
+                            ),
+                            if (about != null)
+                              Text(
+                                about,
+                                key: ValueKey('filmMoveAbout:$i'),
+                                style: theme.textTheme.bodySmall,
+                              ),
+                            if (m.fixed)
+                              Text(
+                                l10n.filmCorrected(
+                                  mdfDay(m.fixAt!.split(' ').first),
+                                  m.fixBy ?? '',
+                                  m.fixReason ?? '',
+                                ),
+                                key: ValueKey('filmMoveFixed:$i'),
+                                style: theme.textTheme.bodySmall,
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${m.metres > 0 ? '+' : '−'}'
+                            '${filmMetres(m.metres.abs())} м',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: color,
+                              fontWeight: FontWeight.w700,
+                              decoration: m.struck
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                          ),
+                          if (after[m] case final left?)
+                            Text(
+                              l10n.filmAfter(filmMetres(left)),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.outline,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    children.add(
+      Padding(
+        padding: const EdgeInsets.only(top: AppSpacing.sm),
+        child: Text(
+          [
+            for (final k in _kinds)
+              if (totals[k] case final t?)
+                '${filmMovePlural(k, l10n)} ${_signed(t)} м',
+          ].join(' · '),
+          key: const ValueKey('filmHistory:totals'),
+          style: theme.textTheme.bodySmall,
+        ),
+      ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    );
+  }
+}
+
+/// «+50», «−12» — metres with their direction.
+String _signed(double metres) =>
+    '${metres > 0 ? '+' : '−'}${filmMetres(metres.abs())}';
+
+/// Each kind its colour: in green, a sale blue, the press grey, a loss red.
+StatusIntent filmMoveIntent(FilmMoveKind kind) => switch (kind) {
+  FilmMoveKind.receipt => StatusIntent.success,
+  FilmMoveKind.sale => StatusIntent.info,
+  FilmMoveKind.writeOff => StatusIntent.danger,
+  _ => StatusIntent.neutral,
+};
+
+IconData filmMoveIcon(FilmMoveKind kind) => switch (kind) {
+  FilmMoveKind.receipt => AppIcons.moveIn,
+  FilmMoveKind.sale => AppIcons.moveOut,
+  FilmMoveKind.shop => AppIcons.mounting,
+  FilmMoveKind.writeOff => AppIcons.delete,
+  FilmMoveKind.other => AppIcons.moveOut,
+};
+
+/// «Приход», «Продажа» — at the head of a row.
+String filmMoveTitle(FilmMoveKind kind, AppLocalizations l10n) {
+  final w = filmMoveLabel(kind, l10n);
+  return w.isEmpty ? w : w[0].toUpperCase() + w.substring(1);
+}
+
+/// «Приходы», «Продажи» — on the filter.
+String filmMovePlural(FilmMoveKind kind, AppLocalizations l10n) =>
+    switch (kind) {
+      FilmMoveKind.receipt => l10n.filmHistoryReceipts,
+      FilmMoveKind.sale => l10n.filmHistorySales,
+      FilmMoveKind.shop => l10n.filmHistoryShop,
+      FilmMoveKind.writeOff => l10n.filmHistoryWriteOffs,
+      FilmMoveKind.other => l10n.filmMoveOther,
+    };
 
 String filmMoveLabel(FilmMoveKind kind, AppLocalizations l10n) =>
     switch (kind) {
@@ -739,11 +1096,20 @@ class _SalesTab extends ConsumerWidget {
   }
 }
 
-class _CustomersTab extends ConsumerWidget {
+class _CustomersTab extends ConsumerStatefulWidget {
   const _CustomersTab();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CustomersTab> createState() => _CustomersTabState();
+}
+
+/// Who buys film — and, a tap away, who owes: how much, how long, and a
+/// reminder in WhatsApp already written (owner, 11.11.2026).
+class _CustomersTabState extends ConsumerState<_CustomersTab> {
+  bool _debtors = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final money = mdfMoney(context);
@@ -754,57 +1120,90 @@ class _CustomersTab extends ConsumerWidget {
         error: e,
         onRetry: () => ref.invalidate(filmCustomersProvider),
       ),
-      data: (rows) => ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          if (rows.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Text(l10n.filmCustomersEmpty),
-            ),
-          for (final c in rows)
-            ListTile(
-              key: ValueKey('filmCustomer:${c.customer}'),
-              onTap: () async {
-                final done = await showFilmCustomerTerms(context, c);
-                if (done ?? false) ref.invalidate(filmCustomersProvider);
-              },
-              title: Text(
-                c.name,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+      data: (all) {
+        final owing = [
+          for (final c in all)
+            if (c.debt > 0.5) c,
+        ]..sort((a, b) => (b.debtDays ?? 0).compareTo(a.debtDays ?? 0));
+        final rows = _debtors ? owing : all;
+        final owed = owing.fold<double>(0, (s, c) => s + c.debt);
+        return ListView(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          children: [
+            if (owing.isNotEmpty)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: FilterChip(
+                  key: const ValueKey('filmCustomers:debtors'),
+                  label: Text(
+                    l10n.filmDebtors(owing.length, money.format(owed)),
+                  ),
+                  selected: _debtors,
+                  onSelected: (on) => setState(() => _debtors = on),
+                ),
               ),
-              subtitle: Text(
-                [
-                  if (c.wholesale) l10n.filmWholesale else l10n.filmRetail,
-                  if (c.discount > 0) '−${filmMetres(c.discount)}%',
-                  if (c.last != null) mdfDay(c.last),
-                  if (c.asleep) l10n.filmAsleep(c.idleDays ?? 0),
-                ].join(' · '),
-                style: c.asleep
-                    ? TextStyle(color: theme.colorScheme.error)
+            if (rows.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Text(l10n.filmCustomersEmpty),
+              ),
+            for (final c in rows)
+              ListTile(
+                leading: c.debt > 0.5 && c.phone != null
+                    ? IconButton(
+                        key: ValueKey('filmCustomer:remind:${c.customer}'),
+                        tooltip: l10n.filmRemind,
+                        icon: const Icon(AppIcons.whatsApp),
+                        onPressed: () => ContactActions.whatsAppMessage(
+                          c.phone,
+                          l10n.filmRemindText(c.name, money.format(c.debt)),
+                        ),
+                      )
                     : null,
+                key: ValueKey('filmCustomer:${c.customer}'),
+                onTap: () async {
+                  final done = await showFilmCustomerTerms(context, c);
+                  if (done ?? false) ref.invalidate(filmCustomersProvider);
+                },
+                title: Text(
+                  c.name,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  [
+                    if (c.wholesale) l10n.filmWholesale else l10n.filmRetail,
+                    if (c.discount > 0) '−${filmMetres(c.discount)}%',
+                    if (c.last != null) mdfDay(c.last),
+                    if (c.asleep) l10n.filmAsleep(c.idleDays ?? 0),
+                    if (c.debt > 0.5 && c.debtDays != null)
+                      l10n.filmDebtDays(c.debtDays!),
+                  ].join(' · '),
+                  style: c.asleep
+                      ? TextStyle(color: theme.colorScheme.error)
+                      : null,
+                ),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      l10n.filmMonthMetres(filmMetres(c.monthM)),
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    Text(
+                      c.debt > 0
+                          ? l10n.filmSaleDebt(money.format(c.debt))
+                          : money.format(c.total),
+                      style: c.debt > 0
+                          ? TextStyle(color: theme.colorScheme.error)
+                          : null,
+                    ),
+                  ],
+                ),
               ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    l10n.filmMonthMetres(filmMetres(c.monthM)),
-                    style: theme.textTheme.titleSmall,
-                  ),
-                  Text(
-                    c.debt > 0
-                        ? l10n.filmSaleDebt(money.format(c.debt))
-                        : money.format(c.total),
-                    style: c.debt > 0
-                        ? TextStyle(color: theme.colorScheme.error)
-                        : null,
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
