@@ -6231,6 +6231,25 @@
   "filmTabStock": "Stock",
   "filmTabSales": "Sales",
   "filmTabCustomers": "Customers",
+  "filmCorrectTitle": "Correct",
+  "filmCorrectReason": "Why it is corrected",
+  "filmCorrectHint": "The old entry stays, struck through — who corrected it and why is seen.",
+  "filmCorrectSave": "Correct",
+  "filmCorrectCancel": "Cancel the entry",
+  "filmCorrected": "corrected {date} · {who} · “{reason}”",
+  "@filmCorrected": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "filmSaleAddPart": "another way",
   "filmSalePaidFull": "Paid in full",
   "filmSaleOverpaid": "{amount} over the total — not allowed",

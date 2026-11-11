@@ -5691,6 +5691,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmTabCustomers => 'Клиенты';
 
   @override
+  String get filmCorrectTitle => 'Исправить';
+
+  @override
+  String get filmCorrectReason => 'Почему исправляете';
+
+  @override
+  String get filmCorrectHint =>
+      'Старая запись останется зачёркнутой — видно, кто и почему исправил.';
+
+  @override
+  String get filmCorrectSave => 'Исправить';
+
+  @override
+  String get filmCorrectCancel => 'Отменить запись';
+
+  @override
+  String filmCorrected(String date, String who, String reason) {
+    return 'исправлено $date · $who · «$reason»';
+  }
+
+  @override
   String get filmSaleAddPart => 'ещё способ';
 
   @override

@@ -5668,6 +5668,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTabCustomers => 'Customers';
 
   @override
+  String get filmCorrectTitle => 'Correct';
+
+  @override
+  String get filmCorrectReason => 'Why it is corrected';
+
+  @override
+  String get filmCorrectHint =>
+      'The old entry stays, struck through — who corrected it and why is seen.';
+
+  @override
+  String get filmCorrectSave => 'Correct';
+
+  @override
+  String get filmCorrectCancel => 'Cancel the entry';
+
+  @override
+  String filmCorrected(String date, String who, String reason) {
+    return 'corrected $date · $who · “$reason”';
+  }
+
+  @override
   String get filmSaleAddPart => 'another way';
 
   @override

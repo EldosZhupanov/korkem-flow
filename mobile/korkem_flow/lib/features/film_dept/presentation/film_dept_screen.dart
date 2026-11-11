@@ -343,6 +343,19 @@ class FilmPage extends ConsumerWidget {
                   key: ValueKey('filmMove:$i'),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
+                  // A movement entered wrong is put right from here (owner,
+                  // 11.11.2026); one already put right stays struck through.
+                  onTap:
+                      stock.canEdit && !m.struck && m.kind != FilmMoveKind.other
+                      ? () => act(
+                          () => showFilmCorrect(
+                            context,
+                            move: m,
+                            film: film,
+                            stock: stock,
+                          ),
+                        )
+                      : null,
                   title: Text(
                     [
                       mdfDay(m.date),
@@ -351,12 +364,33 @@ class FilmPage extends ConsumerWidget {
                       ?m.reason,
                       if (m.priceM != null) price(m.priceM),
                     ].join(' · '),
+                    style: m.struck
+                        ? TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            color: theme.colorScheme.outline,
+                          )
+                        : null,
                   ),
+                  subtitle: m.fixed
+                      ? Text(
+                          l10n.filmCorrected(
+                            mdfDay(m.fixAt!.split(' ').first),
+                            m.fixBy ?? '',
+                            m.fixReason ?? '',
+                          ),
+                          key: ValueKey('filmMoveFixed:$i'),
+                        )
+                      : null,
                   trailing: Text(
                     '${m.metres > 0 ? '+' : '−'}${filmMetres(m.metres.abs())}',
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      color: m.metres > 0 ? theme.colorScheme.primary : null,
+                      decoration: m.struck ? TextDecoration.lineThrough : null,
+                      color: m.struck
+                          ? theme.colorScheme.outline
+                          : m.metres > 0
+                          ? theme.colorScheme.primary
+                          : null,
                     ),
                   ),
                 ),

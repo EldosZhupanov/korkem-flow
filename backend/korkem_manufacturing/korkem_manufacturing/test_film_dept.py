@@ -136,6 +136,37 @@ class TestFilmDept(IntegrationTestCase):
 						payments=[{"amount": 4000, "method": "Наличные"}, {"amount": 5000, "method": "Перевод"}])
 		self.assertEqual((paid["paid"], paid["debt"], len(paid["payments"])), (39000, 0, 5))
 
+	def test_a_movement_entered_wrong_is_made_again_right_and_the_wrong_one_struck(self):
+		# The receipt of 50 was really 45, at 3 100.
+		first = self._as(MANAGER, service.history, self.film)[-1]
+		fixed = self._as(MANAGER, service.correct, first["entry"], self.film, "ошибся в метраже",
+						 metres=45, price_m=3100)
+		self.assertEqual(self._free(), 45)
+		log = self._as(MANAGER, service.history, self.film)
+		new = next(m for m in log if m["entry"] == fixed["entry"])
+		old = next(m for m in log if m["entry"] == first["entry"])
+		self.assertEqual((new["metres"], new["price_m"], new["struck"]), (45, 3100, False))
+		self.assertEqual(new["fix"]["reason"], "ошибся в метраже")
+		self.assertTrue(old["struck"])
+		# A sale: fewer metres, the payment carried over.
+		sale = self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 12}],
+						payments=[{"amount": 20000, "method": "Наличные"}])
+		again = self._as(MANAGER, service.correct, sale["entry"], self.film, "не те метры", metres=10)
+		moved = self._as(MANAGER, service.movement, again["entry"])
+		self.assertEqual((moved["amount"], moved["paid"], moved["debt"]), (39000, 20000, 19000))
+		self.assertEqual(self._free(), 35)
+		# A reason is a must; a struck movement is not corrected twice.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.correct, again["entry"], self.film, "", metres=9)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.correct, sale["entry"], self.film, "ещё раз", metres=9)
+		# A write-off: other metres, other words.
+		off = self._as(MANAGER, service.write_off, self.film, 2, "брак при резке")
+		redo = self._as(MANAGER, service.correct, off["entry"], self.film, "был 1 метр", metres=1,
+						why="брак, край")
+		self.assertEqual(self._as(MANAGER, service.movement, redo["entry"])["reason"], "брак, край")
+		self.assertEqual(self._free(), 34)
+
 	def test_the_customers_card_sets_the_price(self):
 		self.assertEqual(self._as(MANAGER, service.price_for, self.film, self.buyer)["price_m"], 3900)
 		self._as(MANAGER, service.set_customer, self.buyer, tier="wholesale", discount=5)

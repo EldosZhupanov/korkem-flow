@@ -10095,6 +10095,42 @@ abstract class AppLocalizations {
   /// **'Customers'**
   String get filmTabCustomers;
 
+  /// No description provided for @filmCorrectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct'**
+  String get filmCorrectTitle;
+
+  /// No description provided for @filmCorrectReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why it is corrected'**
+  String get filmCorrectReason;
+
+  /// No description provided for @filmCorrectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The old entry stays, struck through — who corrected it and why is seen.'**
+  String get filmCorrectHint;
+
+  /// No description provided for @filmCorrectSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct'**
+  String get filmCorrectSave;
+
+  /// No description provided for @filmCorrectCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the entry'**
+  String get filmCorrectCancel;
+
+  /// No description provided for @filmCorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'corrected {date} · {who} · “{reason}”'**
+  String filmCorrected(String date, String who, String reason);
+
   /// No description provided for @filmSaleAddPart.
   ///
   /// In en, this message translates to:
