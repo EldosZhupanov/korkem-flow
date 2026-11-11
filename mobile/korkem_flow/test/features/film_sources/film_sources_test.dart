@@ -199,4 +199,37 @@ void main() {
       'завод в Ульяновске',
     ));
   });
+
+  testWidgets('a film window picks its supplier, the maker’s own first', (
+    tester,
+  ) async {
+    String? picked = 'none';
+    await _pump(
+      tester,
+      Builder(
+        builder: (context) => TextButton(
+          onPressed: () async =>
+              picked = await showFilmSourcePicker(context, maker: 'MC Group'),
+          child: const Text('pick'),
+        ),
+      ),
+    );
+    await tester.tap(find.text('pick'));
+    await tester.pumpAndSettle();
+    // Almaty sells MC Group: it comes first, Astana after.
+    final almaty = tester.getTopLeft(
+      find.byKey(const ValueKey('filmSourcePick:SUP-2')),
+    );
+    final astana = tester.getTopLeft(
+      find.byKey(const ValueKey('filmSourcePick:SUP-1')),
+    );
+    expect(almaty.dy, lessThan(astana.dy));
+    expect(
+      find.byKey(const ValueKey('filmSourcePick:edit:SUP-1')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('filmSourcePick:SUP-2')));
+    await tester.pumpAndSettle();
+    expect(picked, 'SUP-2');
+  });
 }

@@ -56,7 +56,14 @@ KINDS: dict[str, str] = {
 	# KIRA, JS Group, МС-Груп …; матовая, софт, древесная …
 	"maker": "Производитель",
 	"film_type": "Тип плёнки",
+	# A roll's thickness and width, kept from the film's own window
+	# (owner, 11.11.2026: «чтобы все окошки редактировались»).
+	"film_thickness": "Толщина плёнки",
+	"film_width": "Ширина плёнки",
 }
+
+#: Lists a film's title is made of: renamed, the films' titles follow.
+_FILM_TITLE_LISTS = {"Цвет плёнки", "Толщина плёнки", "Ширина плёнки", "Производитель"}
 
 #: Where a renamed value is carried: the price matrix, and the stock's materials.
 _PRICE_FIELD = {"finish": "finish", "milling": "milling"}
@@ -143,6 +150,10 @@ def rename(key: str, option: str, value: str) -> dict:
 		for name in frappe.get_all("Item", filters={"korkem_material_company": row.company, item_field: row.value},
 								   pluck="name"):
 			frappe.db.set_value("Item", name, item_field, value)
+	if kind in _FILM_TITLE_LISTS:
+		from korkem_manufacturing.services import film_catalog
+
+		film_catalog.retitle(row.company)
 	if key == "maker":
 		from korkem_manufacturing.services import film_sources
 

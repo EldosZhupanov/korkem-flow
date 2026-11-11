@@ -5624,7 +5624,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmSupplier => 'Supplier';
 
   @override
-  String get filmPriceM => 'Supplier price, ₸/m';
+  String get filmPriceM => 'Purchase, ₸/m';
 
   @override
   String get filmUrl => 'Web page';

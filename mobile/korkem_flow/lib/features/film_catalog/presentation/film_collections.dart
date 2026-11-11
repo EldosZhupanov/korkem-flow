@@ -8,17 +8,22 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// A maker's own collections (owner, 11.11.2026) — ALDA, Solid Color,
 /// Древесные…: add, rename, remove. A removed collection's films stay in the
-/// catalogue, without one.
-Future<void> showFilmCollections(BuildContext context, String maker) =>
-    showDialog<void>(
-      context: context,
-      builder: (_) => _CollectionsDialog(maker: maker),
-    );
+/// catalogue, without one. Tapping a collection chooses it — the dialog
+/// gives it back, so a film's window picks from here too.
+Future<String?> showFilmCollections(
+  BuildContext context,
+  String maker, {
+  String? current,
+}) => showDialog<String>(
+  context: context,
+  builder: (_) => _CollectionsDialog(maker: maker, current: current),
+);
 
 class _CollectionsDialog extends ConsumerStatefulWidget {
-  const _CollectionsDialog({required this.maker});
+  const _CollectionsDialog({required this.maker, this.current});
 
   final String maker;
+  final String? current;
 
   @override
   ConsumerState<_CollectionsDialog> createState() => _CollectionsDialogState();
@@ -123,6 +128,8 @@ class _CollectionsDialogState extends ConsumerState<_CollectionsDialog> {
                 ListTile(
                   key: ValueKey('filmCollection:$name'),
                   dense: true,
+                  selected: name == widget.current,
+                  onTap: () => Navigator.of(context).pop(name),
                   title: Text(name),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,

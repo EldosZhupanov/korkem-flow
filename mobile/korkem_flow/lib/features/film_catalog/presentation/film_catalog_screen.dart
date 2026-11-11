@@ -9,6 +9,8 @@ import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.d
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_collections.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// «Плёнки ПВХ» (owner, 10.11.2026): a tab per maker, never one list of all
@@ -131,7 +133,13 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
                 key: ValueKey('filmCollections:$maker'),
                 avatar: const Icon(AppIcons.edit),
                 label: Text(l10n.filmCollections),
-                onPressed: () => showFilmCollections(context, maker),
+                onPressed: () async {
+                  // A collection tapped there is opened here.
+                  final name = await showFilmCollections(context, maker);
+                  if (name != null && mounted) {
+                    setState(() => _collection[maker] = name);
+                  }
+                },
               ),
           ],
         ),
@@ -229,6 +237,82 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
 /// most likely bought at the same place.
 final _lastSupplier = <String, String>{};
 
+/// A field of a film's window with its list's own button (owner,
+/// 11.11.2026: «чтобы все окошки редактировались»): the list opens to be
+/// added to, renamed, cleaned — and what is tapped there is chosen here.
+Widget _withList(
+  BuildContext context, {
+  required String key,
+  required Widget child,
+  required VoidCallback onEdit,
+}) => Row(
+  children: [
+    Expanded(child: child),
+    IconButton(
+      key: ValueKey(key),
+      tooltip: AppLocalizations.of(context).mdfDictOpen,
+      onPressed: onEdit,
+      icon: const Icon(AppIcons.edit),
+    ),
+  ],
+);
+
+/// The lists a film's window keeps, each returning what was chosen there
+/// (null: nothing chosen, keep what was). The catalogue is reloaded after,
+/// so whatever was added or renamed shows at once.
+mixin _FilmLists<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  void _reload() {
+    if (mounted) ref.invalidate(filmCatalogProvider);
+  }
+
+  Future<String?> _fromDictionary(
+    MdfDictKind kind,
+    String title,
+    String? current,
+  ) async {
+    final picked = await showMdfDictionary(
+      context,
+      kind,
+      title: title,
+      current: current,
+    );
+    _reload();
+    return picked;
+  }
+
+  Future<String?> _collectionFrom(String maker, String? current) async {
+    final picked = await showFilmCollections(
+      context,
+      maker,
+      current: current,
+    );
+    _reload();
+    return picked;
+  }
+
+  Future<String?> _supplierFrom(String maker, String? current) async {
+    final picked = await showFilmSourcePicker(
+      context,
+      maker: maker,
+      current: current,
+    );
+    _reload();
+    return picked;
+  }
+}
+
+/// The suppliers a film of [maker] is offered, with [current] kept even
+/// when it is another maker's.
+List<({String id, String name})> _suppliersOf(
+  FilmCatalog c,
+  String maker,
+  String? current,
+) => [
+  ...c.suppliersFor(maker),
+  for (final s in c.suppliers)
+    if (s.id == current && !c.suppliersFor(maker).contains(s)) s,
+];
+
 /// A new film with all that is known of it, in one window (owner,
 /// 11.11.2026: the manager should not open the card after every film) —
 /// and «Сохранить и ещё» keeps the window for the next one.
@@ -250,7 +334,8 @@ class _FilmAddDialog extends ConsumerStatefulWidget {
   ConsumerState<_FilmAddDialog> createState() => _FilmAddDialogState();
 }
 
-class _FilmAddDialogState extends ConsumerState<_FilmAddDialog> {
+class _FilmAddDialogState extends ConsumerState<_FilmAddDialog>
+    with _FilmLists<_FilmAddDialog> {
   final _name = TextEditingController();
   final _code = TextEditingController();
   final _thickness = TextEditingController(text: '0,3');
@@ -351,9 +436,10 @@ class _FilmAddDialogState extends ConsumerState<_FilmAddDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final c = widget.catalog;
+    // Live: a list changed from here shows at once.
+    final c = ref.watch(filmCatalogProvider).value ?? widget.catalog;
     final collections = c.collectionsOf(widget.maker);
-    final suppliers = c.suppliersFor(widget.maker);
+    final suppliers = _suppliersOf(c, widget.maker, _supplier);
     final ready = !_busy && _name.text.trim().length >= 2;
     Widget pair(Widget left, Widget right) => Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,61 +493,123 @@ class _FilmAddDialogState extends ConsumerState<_FilmAddDialog> {
                   controller: _code,
                   decoration: InputDecoration(labelText: l10n.filmCode),
                 ),
-                DropdownButtonFormField<String?>(
-                  key: const ValueKey('filmAdd:type'),
-                  initialValue: _type,
-                  isExpanded: true,
-                  items: [
-                    DropdownMenuItem(child: Text(l10n.mdfNone)),
-                    for (final t in c.types)
-                      DropdownMenuItem(value: t, child: Text(t)),
-                  ],
-                  onChanged: (v) => setState(() => _type = v),
-                  decoration: InputDecoration(labelText: l10n.filmType),
+                _withList(
+                  context,
+                  key: 'filmAdd:type:edit',
+                  onEdit: () async {
+                    final v = await _fromDictionary(
+                      MdfDictKind.filmType,
+                      l10n.filmType,
+                      _type,
+                    );
+                    if (v != null && mounted) setState(() => _type = v);
+                  },
+                  child: DropdownButtonFormField<String?>(
+                    // The value is in the key: one chosen in the list must
+                    // show at once.
+                    key: ValueKey('filmAdd:type:$_type:${c.types.length}'),
+                    initialValue: c.types.contains(_type) ? _type : null,
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem(child: Text(l10n.mdfNone)),
+                      for (final t in c.types)
+                        DropdownMenuItem(value: t, child: Text(t)),
+                    ],
+                    onChanged: (v) => setState(() => _type = v),
+                    decoration: InputDecoration(labelText: l10n.filmType),
+                  ),
                 ),
               ),
               pair(
-                DropdownButtonFormField<String?>(
-                  key: const ValueKey('filmAdd:collection'),
-                  initialValue: collections.contains(_collection)
-                      ? _collection
-                      : null,
-                  isExpanded: true,
-                  items: [
-                    DropdownMenuItem(child: Text(l10n.mdfNone)),
-                    for (final name in collections)
-                      DropdownMenuItem(value: name, child: Text(name)),
-                  ],
-                  onChanged: (v) => setState(() => _collection = v),
-                  decoration: InputDecoration(labelText: l10n.filmCollection),
+                _withList(
+                  context,
+                  key: 'filmAdd:collection:edit',
+                  onEdit: () async {
+                    final v = await _collectionFrom(widget.maker, _collection);
+                    if (v != null && mounted) setState(() => _collection = v);
+                  },
+                  child: DropdownButtonFormField<String?>(
+                    key: ValueKey(
+                      'filmAdd:collection:$_collection:${collections.length}',
+                    ),
+                    initialValue: collections.contains(_collection)
+                        ? _collection
+                        : null,
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem(child: Text(l10n.mdfNone)),
+                      for (final name in collections)
+                        DropdownMenuItem(value: name, child: Text(name)),
+                    ],
+                    onChanged: (v) => setState(() => _collection = v),
+                    decoration: InputDecoration(
+                      labelText: l10n.filmCollection,
+                    ),
+                  ),
                 ),
-                DropdownButtonFormField<String?>(
-                  key: const ValueKey('filmAdd:supplier'),
-                  initialValue: suppliers.any((s) => s.id == _supplier)
-                      ? _supplier
-                      : null,
-                  isExpanded: true,
-                  items: [
-                    DropdownMenuItem(child: Text(l10n.mdfNone)),
-                    for (final s in suppliers)
-                      DropdownMenuItem(value: s.id, child: Text(s.name)),
-                  ],
-                  onChanged: (v) => setState(() => _supplier = v),
-                  decoration: InputDecoration(labelText: l10n.filmSupplier),
+                _withList(
+                  context,
+                  key: 'filmAdd:supplier:edit',
+                  onEdit: () async {
+                    final v = await _supplierFrom(widget.maker, _supplier);
+                    if (v != null && mounted) setState(() => _supplier = v);
+                  },
+                  child: DropdownButtonFormField<String?>(
+                    key: ValueKey(
+                      'filmAdd:supplier:$_supplier:${suppliers.length}',
+                    ),
+                    initialValue: suppliers.any((s) => s.id == _supplier)
+                        ? _supplier
+                        : null,
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem(child: Text(l10n.mdfNone)),
+                      for (final s in suppliers)
+                        DropdownMenuItem(value: s.id, child: Text(s.name)),
+                    ],
+                    onChanged: (v) => setState(() => _supplier = v),
+                    decoration: InputDecoration(labelText: l10n.filmSupplier),
+                  ),
                 ),
               ),
               pair(
-                TextField(
-                  key: const ValueKey('filmAdd:thickness'),
-                  controller: _thickness,
-                  decoration: InputDecoration(labelText: l10n.filmThickness),
+                _withList(
+                  context,
+                  key: 'filmAdd:thickness:edit',
+                  onEdit: () async {
+                    final v = await _fromDictionary(
+                      MdfDictKind.filmThickness,
+                      l10n.filmThickness,
+                      _thickness.text.trim(),
+                    );
+                    if (v != null) _thickness.text = v;
+                  },
+                  child: TextField(
+                    key: const ValueKey('filmAdd:thickness'),
+                    controller: _thickness,
+                    decoration: InputDecoration(
+                      labelText: l10n.filmThickness,
+                    ),
+                  ),
                 ),
-                TextField(
-                  key: const ValueKey('filmAdd:width'),
-                  controller: _width,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(labelText: l10n.filmWidth),
+                _withList(
+                  context,
+                  key: 'filmAdd:width:edit',
+                  onEdit: () async {
+                    final v = await _fromDictionary(
+                      MdfDictKind.filmWidth,
+                      l10n.filmWidth,
+                      _width.text.trim(),
+                    );
+                    if (v != null) _width.text = v;
+                  },
+                  child: TextField(
+                    key: const ValueKey('filmAdd:width'),
+                    controller: _width,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(labelText: l10n.filmWidth),
+                  ),
                 ),
               ),
               Row(
@@ -654,7 +802,8 @@ class _FilmCardDialog extends ConsumerStatefulWidget {
   ConsumerState<_FilmCardDialog> createState() => _FilmCardDialogState();
 }
 
-class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
+class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
+    with _FilmLists<_FilmCardDialog> {
   late final _name = TextEditingController(text: widget.film.colour);
   late final _thickness = TextEditingController(
     text: widget.film.thicknessMm == null
@@ -782,7 +931,9 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final f = widget.film;
-    final c = widget.catalog;
+    final c = ref.watch(filmCatalogProvider).value ?? widget.catalog;
+    final collections = c.collectionsOf(f.maker);
+    final suppliers = _suppliersOf(c, f.maker, _supplier);
     Widget field(String key, TextEditingController ctl, String label) =>
         TextField(
           key: ValueKey('filmCard:$key'),
@@ -809,52 +960,115 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: field('thickness', _thickness, l10n.filmThickness),
+                    child: _withList(
+                      context,
+                      key: 'filmCard:thickness:edit',
+                      onEdit: () async {
+                        final v = await _fromDictionary(
+                          MdfDictKind.filmThickness,
+                          l10n.filmThickness,
+                          _thickness.text.trim(),
+                        );
+                        if (v != null) _thickness.text = v;
+                      },
+                      child: field(
+                        'thickness',
+                        _thickness,
+                        l10n.filmThickness,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
-                  Expanded(child: field('width', _width, l10n.filmWidth)),
+                  Expanded(
+                    child: _withList(
+                      context,
+                      key: 'filmCard:width:edit',
+                      onEdit: () async {
+                        final v = await _fromDictionary(
+                          MdfDictKind.filmWidth,
+                          l10n.filmWidth,
+                          _width.text.trim(),
+                        );
+                        if (v != null) _width.text = v;
+                      },
+                      child: field('width', _width, l10n.filmWidth),
+                    ),
+                  ),
                 ],
               ),
               field('code', _code, l10n.filmCode),
-              if (c.collectionsOf(f.maker).isNotEmpty)
-                DropdownButtonFormField<String?>(
-                  key: const ValueKey('filmCard:collection'),
-                  initialValue: c.collectionsOf(f.maker).contains(_collection)
+              _withList(
+                context,
+                key: 'filmCard:collection:edit',
+                onEdit: () async {
+                  final v = await _collectionFrom(f.maker, _collection);
+                  if (v != null && mounted) setState(() => _collection = v);
+                },
+                child: DropdownButtonFormField<String?>(
+                  key: ValueKey(
+                    'filmCard:collection:$_collection:${collections.length}',
+                  ),
+                  initialValue: collections.contains(_collection)
                       ? _collection
                       : null,
+                  isExpanded: true,
                   items: [
                     DropdownMenuItem(child: Text(l10n.mdfNone)),
-                    for (final name in c.collectionsOf(f.maker))
+                    for (final name in collections)
                       DropdownMenuItem(value: name, child: Text(name)),
                   ],
                   onChanged: (v) => setState(() => _collection = v),
                   decoration: InputDecoration(labelText: l10n.filmCollection),
                 ),
-              DropdownButtonFormField<String?>(
-                key: const ValueKey('filmCard:type'),
-                initialValue: c.types.contains(_type) ? _type : null,
-                items: [
-                  DropdownMenuItem(child: Text(l10n.mdfNone)),
-                  for (final t in c.types)
-                    DropdownMenuItem(value: t, child: Text(t)),
-                ],
-                onChanged: (v) => setState(() => _type = v),
-                decoration: InputDecoration(labelText: l10n.filmType),
+              ),
+              _withList(
+                context,
+                key: 'filmCard:type:edit',
+                onEdit: () async {
+                  final v = await _fromDictionary(
+                    MdfDictKind.filmType,
+                    l10n.filmType,
+                    _type,
+                  );
+                  if (v != null && mounted) setState(() => _type = v);
+                },
+                child: DropdownButtonFormField<String?>(
+                  key: ValueKey('filmCard:type:$_type:${c.types.length}'),
+                  initialValue: c.types.contains(_type) ? _type : null,
+                  isExpanded: true,
+                  items: [
+                    DropdownMenuItem(child: Text(l10n.mdfNone)),
+                    for (final t in c.types)
+                      DropdownMenuItem(value: t, child: Text(t)),
+                  ],
+                  onChanged: (v) => setState(() => _type = v),
+                  decoration: InputDecoration(labelText: l10n.filmType),
+                ),
               ),
               field('ral', _ral, l10n.filmRal),
-              DropdownButtonFormField<String?>(
-                key: const ValueKey('filmCard:supplier'),
-                initialValue:
-                    c.suppliersFor(f.maker).any((s) => s.id == _supplier)
-                    ? _supplier
-                    : null,
-                items: [
-                  DropdownMenuItem(child: Text(l10n.mdfNone)),
-                  for (final s in c.suppliersFor(f.maker))
-                    DropdownMenuItem(value: s.id, child: Text(s.name)),
-                ],
-                onChanged: (v) => setState(() => _supplier = v),
-                decoration: InputDecoration(labelText: l10n.filmSupplier),
+              _withList(
+                context,
+                key: 'filmCard:supplier:edit',
+                onEdit: () async {
+                  final v = await _supplierFrom(f.maker, _supplier);
+                  if (v != null && mounted) setState(() => _supplier = v);
+                },
+                child: DropdownButtonFormField<String?>(
+                  key: ValueKey(
+                    'filmCard:supplier:$_supplier:${suppliers.length}',
+                  ),
+                  initialValue: suppliers.any((s) => s.id == _supplier)
+                      ? _supplier
+                      : null,
+                  isExpanded: true,
+                  items: [
+                    DropdownMenuItem(child: Text(l10n.mdfNone)),
+                    for (final s in suppliers)
+                      DropdownMenuItem(value: s.id, child: Text(s.name)),
+                  ],
+                  onChanged: (v) => setState(() => _supplier = v),
+                  decoration: InputDecoration(labelText: l10n.filmSupplier),
+                ),
               ),
               TextField(
                 key: const ValueKey('filmCard:price'),

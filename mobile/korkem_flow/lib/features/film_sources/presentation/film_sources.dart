@@ -441,3 +441,101 @@ class _MakerDialogState extends ConsumerState<_MakerDialog> {
     );
   }
 }
+
+/// Where a film of [maker] is bought, picked from its own window (owner,
+/// 11.11.2026): the maker's sources first, then the rest; each opens its
+/// card to be changed or removed, and a new one is added already selling
+/// [maker]. Tapping a source chooses it — the dialog gives back its id.
+Future<String?> showFilmSourcePicker(
+  BuildContext context, {
+  required String maker,
+  String? current,
+}) => showDialog<String>(
+  context: context,
+  builder: (_) => _SourcePickerDialog(maker: maker, current: current),
+);
+
+class _SourcePickerDialog extends ConsumerWidget {
+  const _SourcePickerDialog({required this.maker, this.current});
+
+  final String maker;
+  final String? current;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final sources = ref.watch(filmSourcesProvider);
+    final s = sources.value;
+    final ordered = s == null
+        ? const <FilmSource>[]
+        : [
+            for (final src in s.sources)
+              if (src.makers.contains(maker)) src,
+            for (final src in s.sources)
+              if (!src.makers.contains(maker)) src,
+          ];
+    return AlertDialog(
+      title: Row(
+        children: [
+          Expanded(child: Text('${l10n.filmSupplier} · $maker')),
+          if (s?.canEdit ?? false)
+            IconButton(
+              key: const ValueKey('filmSourcePick:add'),
+              tooltip: l10n.filmSourceAdd,
+              onPressed: () => showFilmSourceCard(
+                context,
+                makers: s!.makers,
+                maker: maker,
+              ),
+              icon: const Icon(AppIcons.add),
+            ),
+        ],
+      ),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 9,
+        height: AppSpacing.xxxl * 8,
+        child: sources.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => ErrorView(
+            error: e,
+            onRetry: () => ref.invalidate(filmSourcesProvider),
+          ),
+          data: (s) => ordered.isEmpty
+              ? Center(child: Text(l10n.filmSourcesEmpty))
+              : ListView(
+                  children: [
+                    for (final src in ordered)
+                      ListTile(
+                        key: ValueKey('filmSourcePick:${src.id}'),
+                        dense: true,
+                        selected: src.id == current,
+                        onTap: () => Navigator.of(context).pop(src.id),
+                        title: Text(src.name),
+                        subtitle: src.line.isEmpty ? null : Text(src.line),
+                        trailing: s.canEdit
+                            ? IconButton(
+                                key: ValueKey('filmSourcePick:edit:${src.id}'),
+                                tooltip: l10n.filmSourceAdd,
+                                onPressed: () => showFilmSourceCard(
+                                  context,
+                                  source: src,
+                                  makers: s.makers,
+                                ),
+                                icon: const Icon(AppIcons.edit),
+                              )
+                            : null,
+                      ),
+                  ],
+                ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          key: const ValueKey('filmSourcePick:close'),
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.filmClose),
+        ),
+      ],
+    );
+  }
+}
