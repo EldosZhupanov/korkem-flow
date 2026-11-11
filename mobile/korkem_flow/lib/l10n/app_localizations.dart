@@ -11461,6 +11461,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Driver\'s phone'**
   String get filmDriverPhone;
+
+  /// No description provided for @filmFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get filmFree;
+
+  /// No description provided for @filmHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Put by'**
+  String get filmHeld;
+
+  /// No description provided for @filmReceiptPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get filmReceiptPayment;
+
+  /// No description provided for @filmReceiptServedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Served by {name}'**
+  String filmReceiptServedBy(String name);
+
+  /// No description provided for @filmReceiptThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for choosing us!'**
+  String get filmReceiptThanks;
+
+  /// No description provided for @filmReceiptWish.
+  ///
+  /// In en, this message translates to:
+  /// **'A fine choice — may your facades bring you joy for years. We look forward to seeing you again!'**
+  String get filmReceiptWish;
 }
 
 class _AppLocalizationsDelegate

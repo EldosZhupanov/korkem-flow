@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/film_dept/presentation/film_dept_screen.dar
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 
 import '../../support/widget_harness.dart';
 
@@ -505,6 +506,11 @@ void main() {
         amount: 46800,
         paid: 20000,
         debt: 26800,
+        seller: 'Olzhas',
+        payments: [
+          (date: '2026-11-09', amount: 15000, method: 'Наличные', bank: null),
+          (date: '2026-11-09', amount: 5000, method: 'Перевод', bank: 'Kaspi'),
+        ],
         lines: [
           FilmSaleLine(
             item: 'MAT-1',
@@ -525,6 +531,11 @@ void main() {
         total: 'Итого',
         paid: 'Оплачено',
         debt: 'Долг',
+        payment: 'Оплата',
+        method: (m) => m,
+        servedBy: (n) => 'Вас обслуживал: $n',
+        thanks: 'Спасибо!',
+        wish: 'Хорошего дня',
       ),
     );
     expect(String.fromCharCodes(bytes.sublist(0, 5)), '%PDF-');
@@ -589,16 +600,8 @@ void main() {
       'urgent': false,
     });
     expect(repo.deliveries.single.$2, 'a@k.kz');
-    // On its way, due in two days unless said.
-    final now = DateTime.now();
-    expect(
-      repo.arrivals.single,
-      DateTime(
-        now.year,
-        now.month,
-        now.day + 2,
-      ).toIso8601String().substring(0, 10),
-    );
+    // On its way, due in two days unless said — a Sunday moves to Monday.
+    expect(repo.arrivals.single, mdfIso(mdfDueIn(DateTime.now(), days: 2)));
   });
 
   testWidgets('what ran low is ordered as last time, on its way', (

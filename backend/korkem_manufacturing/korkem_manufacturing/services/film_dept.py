@@ -866,6 +866,8 @@ def movement(entry: str) -> dict:
 		"bank": doc.get("korkem_film_pay_bank"),
 		"payments": _payments(doc) if money else [],
 		"lines": _lines(doc, money),
+		# Who served the customer — on the receipt (owner, 12.11.2026).
+		"seller": get_fullname(doc.get("korkem_film_seller") or doc.owner),
 	}
 
 

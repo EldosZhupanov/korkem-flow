@@ -406,6 +406,7 @@ class FilmSale {
     this.bank,
     this.lines = const [],
     this.payments = const [],
+    this.seller,
   });
 
   factory FilmSale.fromJson(Map<String, dynamic> json) => FilmSale(
@@ -432,6 +433,7 @@ class FilmSale {
             bank: _s(p['bank']),
           ),
     ],
+    seller: _s(json['seller']),
   );
 
   final String entry;
@@ -448,6 +450,9 @@ class FilmSale {
   /// Every payment of the sale — at the sale and against its debt, each
   /// way of its own (owner, 11.11.2026: cash and a transfer at once).
   final List<FilmPayment> payments;
+
+  /// Who served the customer.
+  final String? seller;
 
   double get metres => lines.fold(0, (sum, l) => sum + l.metres);
 }

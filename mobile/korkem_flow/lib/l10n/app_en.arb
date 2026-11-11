@@ -6936,5 +6936,18 @@
   "mdfGroupStock": "Stock and buying",
   "mdfGroupSettings": "Lists and prices",
   "filmDriver": "Driver",
-  "filmDriverPhone": "Driver's phone"
+  "filmDriverPhone": "Driver's phone",
+  "filmFree": "Free",
+  "filmHeld": "Put by",
+  "filmReceiptPayment": "Payment",
+  "filmReceiptServedBy": "Served by {name}",
+  "@filmReceiptServedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiptThanks": "Thank you for choosing us!",
+  "filmReceiptWish": "A fine choice — may your facades bring you joy for years. We look forward to seeing you again!"
 }

@@ -2104,5 +2104,11 @@
   "mdfGroupStock": "Склад и закупки",
   "mdfGroupSettings": "Справочники и цены",
   "filmDriver": "Водитель",
-  "filmDriverPhone": "Телефон водителя"
+  "filmDriverPhone": "Телефон водителя",
+  "filmFree": "Свободно",
+  "filmHeld": "Отложено",
+  "filmReceiptPayment": "Оплата",
+  "filmReceiptServedBy": "Вас обслуживал(а): {name}",
+  "filmReceiptThanks": "Спасибо, что выбрали нас!",
+  "filmReceiptWish": "Отличный выбор — пусть ваши фасады радуют вас долгие годы. Будем рады видеть вас снова!"
 }

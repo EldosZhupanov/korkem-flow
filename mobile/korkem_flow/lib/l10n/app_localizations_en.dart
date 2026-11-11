@@ -6478,4 +6478,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmDriverPhone => 'Driver\'s phone';
+
+  @override
+  String get filmFree => 'Free';
+
+  @override
+  String get filmHeld => 'Put by';
+
+  @override
+  String get filmReceiptPayment => 'Payment';
+
+  @override
+  String filmReceiptServedBy(String name) {
+    return 'Served by $name';
+  }
+
+  @override
+  String get filmReceiptThanks => 'Thank you for choosing us!';
+
+  @override
+  String get filmReceiptWish =>
+      'A fine choice — may your facades bring you joy for years. We look forward to seeing you again!';
 }

@@ -177,8 +177,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   DateTime? get _due {
     if (_picked != null) return _picked;
     if (_inDays == 0) return null;
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day + _inDays);
+    // A Sunday — the shop's day off — moves to Monday (12.11.2026).
+    return mdfDueIn(DateTime.now(), days: _inDays);
   }
 
   Future<void> _pickDay() async {
@@ -968,22 +968,10 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                           onChanged: (_) => setState(_fillPaid),
                           decoration: InputDecoration(
                             labelText: l10n.filmMetresLabel,
-                            // What stays on the shelf, as it is typed
-                            // (owner, 11.11.2026).
-                            errorText: line.over
-                                ? l10n.filmOnlyHave(filmMetres(line.have))
-                                : null,
-                            helperText: line.m > 0 && !line.over
-                                ? line.low
-                                      ? l10n.filmLeftLow(filmMetres(line.left))
-                                      : l10n.filmLeft(filmMetres(line.left))
-                                : null,
-                            helperMaxLines: 2,
-                            helperStyle: TextStyle(
-                              color: line.low
-                                  ? context.statusColors.warning
-                                  : context.statusColors.success,
-                            ),
+                            // Red when too much; the words go on a line
+                            // of their own below, so the three fields
+                            // stay level (owner, 12.11.2026).
+                            error: line.over ? const SizedBox.shrink() : null,
                           ),
                         ),
                       ),
@@ -1015,6 +1003,27 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                     ],
                   ),
                 ),
+                // What stays on the shelf, as it is typed — in full
+                // (owner, 11.11.2026).
+                if (line.m > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                    child: Text(
+                      line.over
+                          ? l10n.filmOnlyHave(filmMetres(line.have))
+                          : line.low
+                          ? l10n.filmLeftLow(filmMetres(line.left))
+                          : l10n.filmLeft(filmMetres(line.left)),
+                      key: ValueKey('filmSaleLeft:$i'),
+                      style: TextStyle(
+                        color: line.over
+                            ? Theme.of(context).colorScheme.error
+                            : line.low
+                            ? context.statusColors.warning
+                            : context.statusColors.success,
+                      ),
+                    ),
+                  ),
                 if (line.over || line.low)
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.xs),
@@ -1497,6 +1506,16 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
               total: l10n.filmReceiptTotal,
               paid: l10n.filmReceiptPaid,
               debt: l10n.filmReceiptDebt,
+              payment: l10n.filmReceiptPayment,
+              method: (m) => switch (m) {
+                filmCash => l10n.mdfPayCash,
+                filmTransfer => l10n.mdfPayTransfer,
+                filmCard => l10n.mdfPayCard,
+                _ => m,
+              },
+              servedBy: l10n.filmReceiptServedBy,
+              thanks: l10n.filmReceiptThanks,
+              wish: l10n.filmReceiptWish,
             ), locale: locale);
             await shareFilmReceipt(widget.sale, bytes);
           },
@@ -1829,8 +1848,7 @@ class _ReorderDialogState extends ConsumerState<_ReorderDialog> with _Saving {
         if (l.on && l.ready) l,
     ];
     final total = chosen.fold<double>(0, (s, l) => s + l.m * l.p);
-    final now = DateTime.now();
-    final due = DateTime(now.year, now.month, now.day + 2);
+    final due = mdfDueIn(DateTime.now(), days: 2);
     return AlertDialog(
       title: Text(l10n.filmReorderTitle),
       content: SizedBox(
@@ -1967,6 +1985,32 @@ class _HoldDialogState extends ConsumerState<_HoldDialog> with _Saving {
   String? _customer;
   int _days = 3;
 
+  /// A day picked on the calendar wins over the quick choices.
+  DateTime? _picked;
+
+  /// Until when: a Sunday — the shop's day off — moves to Monday
+  /// (owner, 12.11.2026), as an order's due date does.
+  DateTime get _until {
+    if (_picked != null) return _picked!;
+    final now = DateTime.now();
+    if (_days == 0) return DateTime(now.year, now.month, now.day);
+    return mdfDueIn(now, days: _days);
+  }
+
+  Future<void> _pickDay() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _until.weekday == DateTime.sunday
+          ? _until.add(const Duration(days: 1))
+          : _until,
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: now.add(const Duration(days: 60)),
+      selectableDayPredicate: (d) => d.weekday != DateTime.sunday,
+    );
+    if (picked != null && mounted) setState(() => _picked = picked);
+  }
+
   @override
   void dispose() {
     _metres.dispose();
@@ -1979,8 +2023,7 @@ class _HoldDialogState extends ConsumerState<_HoldDialog> with _Saving {
     final customers =
         ref.watch(mdfCustomersProvider).value ?? const <FacadeCustomer>[];
     final metres = _number(_metres.text) ?? 0;
-    final now = DateTime.now();
-    final until = DateTime(now.year, now.month, now.day + _days);
+    final until = _until;
     final over = metres > widget.film.free + 0.0001;
     return AlertDialog(
       title: Text('${l10n.filmHold} · ${filmName(widget.film)}'),
@@ -2022,8 +2065,10 @@ class _HoldDialogState extends ConsumerState<_HoldDialog> with _Saving {
             Text(l10n.filmHoldUntil),
             Wrap(
               spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
               children: [
                 for (final (d, label) in [
+                  (0, l10n.filmToday),
                   (1, l10n.filmArrivalTomorrow),
                   (3, l10n.filmArrivalThree),
                   (7, l10n.filmArrivalWeek),
@@ -2031,9 +2076,20 @@ class _HoldDialogState extends ConsumerState<_HoldDialog> with _Saving {
                   ChoiceChip(
                     key: ValueKey('filmHoldDays:$d'),
                     label: Text(label),
-                    selected: _days == d,
-                    onSelected: (_) => setState(() => _days = d),
+                    selected: _picked == null && _days == d,
+                    onSelected: (_) => setState(() {
+                      _picked = null;
+                      _days = d;
+                    }),
                   ),
+                ActionChip(
+                  key: const ValueKey('filmHoldDays:pick'),
+                  avatar: const Icon(AppIcons.calendar),
+                  label: Text(
+                    _picked == null ? l10n.filmArrivalPick : mdfDayOf(_picked!),
+                  ),
+                  onPressed: _pickDay,
+                ),
               ],
             ),
             Text(_dayName(context, until)),
