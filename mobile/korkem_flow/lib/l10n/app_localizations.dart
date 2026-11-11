@@ -3633,6 +3633,12 @@ abstract class AppLocalizations {
   /// **'History'**
   String get chatHistory;
 
+  /// No description provided for @chatHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet.'**
+  String get chatHistoryEmpty;
+
   /// No description provided for @chatToday.
   ///
   /// In en, this message translates to:
