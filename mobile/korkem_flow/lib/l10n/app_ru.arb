@@ -2121,5 +2121,8 @@
   "facadePricesVariantHint": "Цена — как у вида. В заказе появится как «вид вариант».",
   "filmIssuedBy": "Выдал со склада",
   "filmReceiptIssuedBy": "Выдал со склада: {name}",
-  "filmReceiptSignIssued": "Выдал"
+  "filmReceiptSignIssued": "Выдал",
+  "filmHeldShort": "отложено {metres} м",
+  "filmOnWayShort": "в пути {metres} м",
+  "filmReceivePick": "Приход — какая плёнка?"
 }

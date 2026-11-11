@@ -6503,4 +6503,17 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmReceiptSignIssued => 'Берді';
+
+  @override
+  String filmHeldShort(String metres) {
+    return '$metres м бөлінген';
+  }
+
+  @override
+  String filmOnWayShort(String metres) {
+    return 'жолда $metres м';
+  }
+
+  @override
+  String get filmReceivePick => 'Кіріс — қай пленка?';
 }

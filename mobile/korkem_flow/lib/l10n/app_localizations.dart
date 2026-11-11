@@ -11563,6 +11563,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Handed out'**
   String get filmReceiptSignIssued;
+
+  /// No description provided for @filmHeldShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m put by'**
+  String filmHeldShort(String metres);
+
+  /// No description provided for @filmOnWayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m on its way'**
+  String filmOnWayShort(String metres);
+
+  /// No description provided for @filmReceivePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt — which film?'**
+  String get filmReceivePick;
 }
 
 class _AppLocalizationsDelegate

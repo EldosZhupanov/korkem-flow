@@ -2121,5 +2121,8 @@
   "facadePricesVariantHint": "Бағасы — түрі сияқты. Тапсырыста «түр нұсқа» болып шығады.",
   "filmIssuedBy": "Қоймадан берген",
   "filmReceiptIssuedBy": "Қоймадан берген: {name}",
-  "filmReceiptSignIssued": "Берді"
+  "filmReceiptSignIssued": "Берді",
+  "filmHeldShort": "{metres} м бөлінген",
+  "filmOnWayShort": "жолда {metres} м",
+  "filmReceivePick": "Кіріс — қай пленка?"
 }

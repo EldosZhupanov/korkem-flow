@@ -654,6 +654,22 @@ void main() {
     expect(repo.holds.single, ('MAT-1', 'CUST-1', 30.0));
   });
 
+  testWidgets('a receipt starts from the stock list: pick the film first', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
+    await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3500');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceiveSave')));
+    await tester.pumpAndSettle();
+    expect(repo.received.single.$1, 'MAT-1');
+  });
+
   testWidgets('a roll already here goes on the shelf at once', (tester) async {
     final repo = await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmStock:MAT-1')));

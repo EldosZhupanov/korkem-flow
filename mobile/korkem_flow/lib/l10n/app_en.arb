@@ -6988,5 +6988,22 @@
       }
     }
   },
-  "filmReceiptSignIssued": "Handed out"
+  "filmReceiptSignIssued": "Handed out",
+  "filmHeldShort": "{metres} m put by",
+  "@filmHeldShort": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOnWayShort": "{metres} m on its way",
+  "@filmOnWayShort": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceivePick": "Receipt — which film?"
 }
