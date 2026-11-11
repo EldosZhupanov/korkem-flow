@@ -5580,9 +5580,6 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmCode => 'Коды';
 
   @override
-  String get filmSample => 'Түс үлгісі (#F4F3EE)';
-
-  @override
   String get filmRal => 'Жақын RAL';
 
   @override
@@ -5628,6 +5625,82 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmTabCustomers => 'Клиенттер';
+
+  @override
+  String get filmTabSources => 'Жеткізушілер';
+
+  @override
+  String get filmSourceAdd => 'Жеткізуші';
+
+  @override
+  String get filmSourcesEmpty =>
+      'Жеткізушілер әзірге жоқ. Пленканы қайдан алатыныңызды қосыңыз: өндірушінің қаладағы филиалы немесе көтерме сатушы.';
+
+  @override
+  String get filmSourceName => 'Атауы (мысалы, Adilet · Алматы)';
+
+  @override
+  String get filmSrcKind => 'Бұл кім (филиал, көтерме сатушы)';
+
+  @override
+  String get filmSrcCity => 'Қала';
+
+  @override
+  String get filmSrcContact => 'Байланыс тұлғасы';
+
+  @override
+  String get filmSrcPhone => 'Телефон';
+
+  @override
+  String get filmSrcPhone2 => 'Екінші телефон';
+
+  @override
+  String get filmSrcWhatsapp => 'WhatsApp';
+
+  @override
+  String get filmSrcAddress => 'Қойма мекенжайы';
+
+  @override
+  String get filmSrcLead => 'Жеткізу мерзімі';
+
+  @override
+  String get filmSrcMinOrder => 'Ең аз партия';
+
+  @override
+  String get filmSrcNote => 'Ескертпе';
+
+  @override
+  String get filmSrcMakers => 'Кімнің пленкаларын сатады';
+
+  @override
+  String get filmSourceRemove => 'Тізімнен алып тастау';
+
+  @override
+  String filmSourceRemoveAsk(String name) {
+    return '«$name» жеткізушісін алып тастау керек пе?';
+  }
+
+  @override
+  String get filmSourceRemoveHint => 'Одан келген кірістер тарихта қалады.';
+
+  @override
+  String get filmMakerCard => 'Өндіруші карточкасы';
+
+  @override
+  String get filmMakerSite => 'Сайт';
+
+  @override
+  String get filmMakerSources => 'Бұл пленканы қайдан аламыз';
+
+  @override
+  String get filmMakerNoSources =>
+      'Қайдан алу керектігі әзірге көрсетілмеген. Дереккөз қосыңыз.';
+
+  @override
+  String get filmSourceNew => 'Дереккөз қосу';
+
+  @override
+  String get filmReceiveFrom => 'Қайдан келді';
 
   @override
   String get filmSell => 'Сату';
@@ -5752,4 +5825,16 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmDeptHint => 'Үлдір қоймасы, метрлеп сату, клиенттер';
+
+  @override
+  String get filmPayDebt => 'Қосымша төлеу, ₸';
+
+  @override
+  String get filmCancelMove => 'Сатылымды жою';
+
+  @override
+  String get filmCancelReason => 'Неге жоясыз';
+
+  @override
+  String get filmClose => 'Жабу';
 }

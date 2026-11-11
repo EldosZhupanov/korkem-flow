@@ -138,6 +138,10 @@ def rename(key: str, option: str, value: str) -> dict:
 		for name in frappe.get_all("Item", filters={"korkem_material_company": row.company, item_field: row.value},
 								   pluck="name"):
 			frappe.db.set_value("Item", name, item_field, value)
+	if key == "maker":
+		from korkem_manufacturing.services import film_sources
+
+		film_sources.maker_renamed(row.value, value)
 	audit.record_audit(action="mdf.dictionary_renamed", entity_type="Material Option", entity_id=option,
 					   diff={"list": kind, "before": row.value, "after": value})
 	return dictionaries()
