@@ -61,25 +61,28 @@ class MdfDictionariesScreen extends ConsumerWidget {
             ),
           ),
           // Thickness has its own list again (09.11.2026), banks too.
+          // The old «Цвет плёнки» list is not shown (owner, 11.11.2026): films
+          // are kept in the catalogue, maker by maker.
           for (final kind in MdfDictKind.values)
-            ReadableWidth(
-              child: ListTile(
-                key: ValueKey('dictList:${kind.name}'),
-                leading: const Icon(AppIcons.dictionary),
-                title: Text(mdfDictLabel(kind, l10n)),
-                subtitle: Text(
-                  dicts.values(kind).take(4).join(' · '),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text('${dicts.entries(kind).length}'),
-                onTap: () => showMdfDictionary(
-                  context,
-                  kind,
-                  title: mdfDictLabel(kind, l10n),
+            if (kind != MdfDictKind.decor)
+              ReadableWidth(
+                child: ListTile(
+                  key: ValueKey('dictList:${kind.name}'),
+                  leading: const Icon(AppIcons.dictionary),
+                  title: Text(mdfDictLabel(kind, l10n)),
+                  subtitle: Text(
+                    dicts.values(kind).take(4).join(' · '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Text('${dicts.entries(kind).length}'),
+                  onTap: () => showMdfDictionary(
+                    context,
+                    kind,
+                    title: mdfDictLabel(kind, l10n),
+                  ),
                 ),
               ),
-            ),
         ],
       ),
     );

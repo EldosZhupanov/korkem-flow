@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_catalog/presentation/film_collections.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -22,6 +24,9 @@ class FilmCatalogScreen extends ConsumerStatefulWidget {
 class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
   String? _type;
   String _search = '';
+
+  /// The collection open at each maker — every maker has its own.
+  final _collection = <String, String>{};
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +70,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
             body: TabBarView(
               children: [
                 for (final m in tabs) _makerTab(c, m, l10n),
-                _Unassigned(colours: c.unassigned),
+                _Unassigned(colours: c.unassigned, canEdit: c.canEdit),
               ],
             ),
           ),
@@ -75,10 +80,56 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
   }
 
   Widget _makerTab(FilmCatalog c, String maker, AppLocalizations l10n) {
-    final films = c.of(maker, type: _type, search: _search);
+    final collections = c.collectionsOf(maker);
+    // A collection renamed or removed meanwhile is no longer a filter.
+    final collection = collections.contains(_collection[maker])
+        ? _collection[maker]
+        : null;
+    final films = c.of(
+      maker,
+      type: _type,
+      collection: collection,
+      search: _search,
+    );
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.md),
       children: [
+        // The maker's own collections (owner, 11.11.2026): ALDA, Solid
+        // Color, Древесные… — and the button that keeps their list.
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.xs,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            ChoiceChip(
+              key: ValueKey('filmCollectionAll:$maker'),
+              label: Text(l10n.filmAllCollections),
+              selected: collection == null,
+              onSelected: (_) => setState(() => _collection.remove(maker)),
+            ),
+            for (final name in collections)
+              ChoiceChip(
+                key: ValueKey('filmCollectionChip:$maker:$name'),
+                label: Text(name),
+                selected: collection == name,
+                onSelected: (on) => setState(() {
+                  if (on) {
+                    _collection[maker] = name;
+                  } else {
+                    _collection.remove(maker);
+                  }
+                }),
+              ),
+            if (c.canEdit)
+              ActionChip(
+                key: ValueKey('filmCollections:$maker'),
+                avatar: const Icon(AppIcons.edit),
+                label: Text(l10n.filmCollections),
+                onPressed: () => showFilmCollections(context, maker),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.xs,
@@ -117,7 +168,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
             if (c.canEdit)
               FilledButton.icon(
                 key: ValueKey('filmAdd:$maker'),
-                onPressed: () => _add(c, maker),
+                onPressed: () => _add(c, maker, collection),
                 icon: const Icon(AppIcons.add),
                 label: Text(l10n.filmAdd),
               ),
@@ -145,10 +196,14 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
     );
   }
 
-  Future<void> _add(FilmCatalog c, String maker) async {
+  Future<void> _add(FilmCatalog c, String maker, String? collection) async {
     final made = await showDialog<Film>(
       context: context,
-      builder: (_) => _FilmAddDialog(maker: maker),
+      builder: (_) => _FilmAddDialog(
+        maker: maker,
+        collections: c.collectionsOf(maker),
+        collection: collection,
+      ),
     );
     if (made == null || !mounted) return;
     ref.invalidate(filmCatalogProvider);
@@ -157,9 +212,18 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
 }
 
 class _FilmAddDialog extends ConsumerStatefulWidget {
-  const _FilmAddDialog({required this.maker});
+  const _FilmAddDialog({
+    required this.maker,
+    this.collections = const [],
+    this.collection,
+  });
 
   final String maker;
+
+  /// The maker's collections; the new film goes into [collection] — the
+  /// one open in the catalogue — unless another is picked.
+  final List<String> collections;
+  final String? collection;
 
   @override
   ConsumerState<_FilmAddDialog> createState() => _FilmAddDialogState();
@@ -169,6 +233,7 @@ class _FilmAddDialogState extends ConsumerState<_FilmAddDialog> {
   final _name = TextEditingController();
   final _thickness = TextEditingController(text: '0,3');
   final _width = TextEditingController(text: '1400');
+  late String? _collection = widget.collection;
   bool _busy = false;
   String? _error;
 
@@ -193,6 +258,7 @@ class _FilmAddDialogState extends ConsumerState<_FilmAddDialog> {
             colour: _name.text.trim(),
             thickness: _thickness.text.trim(),
             width: _width.text.trim(),
+            collection: _collection,
           );
       if (mounted) Navigator.of(context).pop(made);
     } on Object catch (e) {
@@ -220,6 +286,18 @@ class _FilmAddDialogState extends ConsumerState<_FilmAddDialog> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(labelText: l10n.filmName),
             ),
+            if (widget.collections.isNotEmpty)
+              DropdownButtonFormField<String?>(
+                key: const ValueKey('filmAdd:collection'),
+                initialValue: _collection,
+                items: [
+                  DropdownMenuItem(child: Text(l10n.mdfNone)),
+                  for (final name in widget.collections)
+                    DropdownMenuItem(value: name, child: Text(name)),
+                ],
+                onChanged: (v) => setState(() => _collection = v),
+                decoration: InputDecoration(labelText: l10n.filmCollection),
+              ),
             TextField(
               key: const ValueKey('filmAdd:thickness'),
               controller: _thickness,
@@ -285,6 +363,7 @@ class FilmTile extends StatelessWidget {
         ),
         subtitle: Text(
           [
+            ?f.collection,
             ?f.type,
             if (f.thicknessMm != null) '${_metres(f.thicknessMm!)} мм',
             if (f.widthMm != null) '${f.widthMm!.toStringAsFixed(0)} мм',
@@ -327,13 +406,33 @@ class FilmSample extends StatelessWidget {
 String _metres(double v) =>
     v == v.roundToDouble() ? v.toStringAsFixed(0) : '$v'.replaceAll('.', ',');
 
-class _Unassigned extends StatelessWidget {
-  const _Unassigned({required this.colours});
+class _Unassigned extends ConsumerWidget {
+  const _Unassigned({required this.colours, required this.canEdit});
 
   final List<String> colours;
+  final bool canEdit;
+
+  Future<void> _drop(BuildContext context, WidgetRef ref, String c) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final yes = await showConfirmDialog(
+      context: context,
+      title: l10n.filmLooseDropAsk(c),
+      message: l10n.filmLooseDropHint,
+      confirmLabel: l10n.mdfDictDelete,
+      isDestructive: true,
+    );
+    if (!yes) return;
+    try {
+      await ref.read(filmCatalogRepositoryProvider).dropUnassigned(c);
+      ref.invalidate(filmCatalogProvider);
+    } on Object catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -344,6 +443,16 @@ class _Unassigned extends StatelessWidget {
           ListTile(
             key: ValueKey('filmLoose:$c'),
             title: Text(c),
+            // The old list is no longer kept by hand: a colour that is
+            // not a film of some maker is taken off here (11.11.2026).
+            trailing: canEdit
+                ? IconButton(
+                    key: ValueKey('filmLooseDrop:$c'),
+                    tooltip: l10n.mdfDictDelete,
+                    onPressed: () => _drop(context, ref, c),
+                    icon: const Icon(AppIcons.delete),
+                  )
+                : null,
           ),
       ],
     );
@@ -381,6 +490,7 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
     text: widget.film.wholesaleM?.toStringAsFixed(0),
   );
   late String? _type = widget.film.type;
+  late String? _collection = widget.film.collection;
   late String? _supplier = widget.film.supplier;
   bool _busy = false;
   String? _error;
@@ -402,6 +512,7 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
       await ref.read(filmCatalogRepositoryProvider).setCard(widget.film.item, {
         'code': _code.text.trim(),
         'type': _type,
+        'collection': _collection,
         'ral': _ral.text.trim(),
         'supplier': _supplier,
         'price_m': _price.text.trim(),
@@ -443,6 +554,20 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
                 f.free > 0 ? l10n.filmHave(_metres(f.free)) : l10n.filmToOrder,
               ),
               field('code', _code, l10n.filmCode),
+              if (c.collectionsOf(f.maker).isNotEmpty)
+                DropdownButtonFormField<String?>(
+                  key: const ValueKey('filmCard:collection'),
+                  initialValue: c.collectionsOf(f.maker).contains(_collection)
+                      ? _collection
+                      : null,
+                  items: [
+                    DropdownMenuItem(child: Text(l10n.mdfNone)),
+                    for (final name in c.collectionsOf(f.maker))
+                      DropdownMenuItem(value: name, child: Text(name)),
+                  ],
+                  onChanged: (v) => setState(() => _collection = v),
+                  decoration: InputDecoration(labelText: l10n.filmCollection),
+                ),
               DropdownButtonFormField<String?>(
                 key: const ValueKey('filmCard:type'),
                 initialValue: c.types.contains(_type) ? _type : null,
@@ -534,6 +659,7 @@ class _FilmPickerDialog extends ConsumerStatefulWidget {
 class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
   String? _maker;
   String? _type;
+  String? _collection;
   String _search = '';
 
   @override
@@ -549,17 +675,27 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
             .map((f) => f.maker)
             .firstOrNull ??
         tabs.firstOrNull;
+    final collections = c == null || maker == null
+        ? const <String>[]
+        : c.collectionsOf(maker);
     final films = c == null || maker == null
         ? const <Film>[]
         : [
-            for (final f in c.of(maker, type: _type, search: _search))
+            for (final f in c.of(
+              maker,
+              type: _type,
+              collection: collections.contains(_collection)
+                  ? _collection
+                  : null,
+              search: _search,
+            ))
               if (f.enabled && f.label != null) f,
           ];
     return AlertDialog(
       title: Text(l10n.filmCatalogTitle),
       content: SizedBox(
         width: AppSpacing.xxxl * 11,
-        height: AppSpacing.xxxl * 9,
+        height: AppSpacing.xxxl * 10,
         child: c == null
             ? const Center(child: CircularProgressIndicator())
             : Column(
@@ -578,10 +714,41 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
                           key: ValueKey('pickMaker:$m'),
                           label: Text(m),
                           selected: maker == m,
-                          onSelected: (_) => setState(() => _maker = m),
+                          onSelected: (_) => setState(() {
+                            _maker = m;
+                            _collection = null;
+                          }),
                         ),
                     ],
                   ),
+                  if (collections.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      l10n.filmCollection,
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.xs,
+                      children: [
+                        ChoiceChip(
+                          key: const ValueKey('pickCollection:all'),
+                          label: Text(l10n.filmAllCollections),
+                          selected: !collections.contains(_collection),
+                          onSelected: (_) => setState(() => _collection = null),
+                        ),
+                        for (final name in collections)
+                          ChoiceChip(
+                            key: ValueKey('pickCollection:$name'),
+                            label: Text(name),
+                            selected: _collection == name,
+                            onSelected: (on) => setState(
+                              () => _collection = on ? name : null,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     l10n.filmType,

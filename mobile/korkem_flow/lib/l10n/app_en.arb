@@ -6197,8 +6197,8 @@
   "mdfNoteShort": "Note",
   "filmCatalogTitle": "PVC films",
   "filmMaker": "Maker",
-  "filmType": "Film type",
-  "filmAllTypes": "All types",
+  "filmType": "Film surface",
+  "filmAllTypes": "Any surface",
   "filmSearchIn": "Search in {maker}",
   "@filmSearchIn": {
     "placeholders": {
@@ -6218,7 +6218,7 @@
   "filmToOrder": "to order",
   "filmOff": "discontinued",
   "filmUnassigned": "no maker",
-  "filmUnassignedHint": "Colours with no maker. Add the film in materials stock with its maker — old orders stay as they are.",
+  "filmUnassignedHint": "Colours of the old list, without a maker. If such a film is needed, add it at its maker with “Film” and remove it here. Old orders stay as they are.",
   "filmCode": "Code",
   "filmRal": "Nearest RAL",
   "filmSupplier": "Supplier",
@@ -6242,6 +6242,38 @@
   "filmTabStock": "Stock",
   "filmTabSales": "Sales",
   "filmTabCustomers": "Customers",
+  "filmCollection": "Collection",
+  "filmCollections": "Collections",
+  "filmAllCollections": "All collections",
+  "filmCollectionAdd": "New collection",
+  "filmCollectionRename": "Rename the collection",
+  "filmCollectionName": "Collection name",
+  "filmCollectionRemoveAsk": "Remove the collection “{name}”?",
+  "@filmCollectionRemoveAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCollectionRemoveHint": "Its films stay in the catalogue, without a collection.",
+  "filmCollectionsEmpty": "{name} has no collections yet. Press + to add one.",
+  "@filmCollectionsEmpty": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmLooseDropAsk": "Remove the colour “{name}”?",
+  "@filmLooseDropAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmLooseDropHint": "Orders that name it stay as written.",
   "filmTabSources": "Suppliers",
   "filmSourceAdd": "Supplier",
   "filmSourcesEmpty": "No suppliers yet. Add where film is bought: a maker's branch in a city or a wholesaler.",

@@ -20,6 +20,7 @@ class Film {
     this.minStock,
     this.code,
     this.type,
+    this.collection,
     this.hex,
     this.ral,
     this.supplier,
@@ -45,6 +46,7 @@ class Film {
     minStock: _d(json['min_stock']),
     code: _s(json['code']),
     type: _s(json['type']),
+    collection: _s(json['collection']),
     hex: _s(json['hex']),
     ral: _s(json['ral']),
     supplier: _s(json['supplier']),
@@ -76,6 +78,9 @@ class Film {
   final double? minStock;
   final String? code;
   final String? type;
+
+  /// The maker's collection it belongs to — ALDA, Solid Color…
+  final String? collection;
 
   /// The sample's colour, «#F4F3EE».
   final String? hex;
@@ -115,6 +120,7 @@ class FilmCatalog {
     this.types = const [],
     this.suppliers = const [],
     this.sourcesByMaker = const {},
+    this.collections = const {},
     this.canEdit = false,
   });
 
@@ -138,6 +144,11 @@ class FilmCatalog {
         for (final e in by.entries)
           e.key: [for (final s in e.value as List? ?? const []) '$s'],
     },
+    collections: {
+      if (json['collections'] case final Map<String, dynamic> by)
+        for (final e in by.entries)
+          e.key: [for (final s in e.value as List? ?? const []) '$s'],
+    },
     canEdit: json['can_edit'] == true,
   );
 
@@ -152,7 +163,15 @@ class FilmCatalog {
   /// Maker → the suppliers that sell its film (owner, 11.11.2026: the same
   /// maker is bought in Astana and in Almaty).
   final Map<String, List<String>> sourcesByMaker;
+
+  /// Maker → its own collections (owner, 11.11.2026): each maker groups its
+  /// films its own way.
+  final Map<String, List<String>> collections;
   final bool canEdit;
+
+  /// The collections of [maker], by name.
+  List<String> collectionsOf(String maker) =>
+      collections[maker] ?? const <String>[];
 
   /// Where a film of [maker] may have come from: the maker's own sources,
   /// or every supplier while none is named for it.
@@ -175,15 +194,21 @@ class FilmCatalog {
     return out;
   }
 
-  /// One maker's films, of one type when given, found by a search when
-  /// given; switched-off ones last.
-  List<Film> of(String maker, {String? type, String search = ''}) {
+  /// One maker's films — of one collection and of one type when given,
+  /// found by a search when given; switched-off ones last.
+  List<Film> of(
+    String maker, {
+    String? type,
+    String? collection,
+    String search = '',
+  }) {
     final q = search.trim().toLowerCase();
     final out =
         [
           for (final f in films)
             if (f.maker == maker &&
                 (type == null || f.type == type) &&
+                (collection == null || f.collection == collection) &&
                 (q.isEmpty ||
                     f.colour.toLowerCase().contains(q) ||
                     (f.code ?? '').toLowerCase().contains(q)))

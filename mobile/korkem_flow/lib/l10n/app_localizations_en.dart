@@ -5622,10 +5622,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmMaker => 'Maker';
 
   @override
-  String get filmType => 'Film type';
+  String get filmType => 'Film surface';
 
   @override
-  String get filmAllTypes => 'All types';
+  String get filmAllTypes => 'Any surface';
 
   @override
   String filmSearchIn(String maker) {
@@ -5648,7 +5648,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmUnassignedHint =>
-      'Colours with no maker. Add the film in materials stock with its maker — old orders stay as they are.';
+      'Colours of the old list, without a maker. If such a film is needed, add it at its maker with “Film” and remove it here. Old orders stay as they are.';
 
   @override
   String get filmCode => 'Code';
@@ -5699,6 +5699,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmTabCustomers => 'Customers';
+
+  @override
+  String get filmCollection => 'Collection';
+
+  @override
+  String get filmCollections => 'Collections';
+
+  @override
+  String get filmAllCollections => 'All collections';
+
+  @override
+  String get filmCollectionAdd => 'New collection';
+
+  @override
+  String get filmCollectionRename => 'Rename the collection';
+
+  @override
+  String get filmCollectionName => 'Collection name';
+
+  @override
+  String filmCollectionRemoveAsk(String name) {
+    return 'Remove the collection “$name”?';
+  }
+
+  @override
+  String get filmCollectionRemoveHint =>
+      'Its films stay in the catalogue, without a collection.';
+
+  @override
+  String filmCollectionsEmpty(String name) {
+    return '$name has no collections yet. Press + to add one.';
+  }
+
+  @override
+  String filmLooseDropAsk(String name) {
+    return 'Remove the colour “$name”?';
+  }
+
+  @override
+  String get filmLooseDropHint => 'Orders that name it stay as written.';
 
   @override
   String get filmTabSources => 'Suppliers';
