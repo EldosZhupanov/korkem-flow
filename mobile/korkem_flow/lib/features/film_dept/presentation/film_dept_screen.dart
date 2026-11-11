@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -9,6 +10,7 @@ import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_scre
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_team_tab.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
@@ -25,7 +27,7 @@ class FilmDeptScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.filmDeptTitle),
@@ -62,6 +64,10 @@ class FilmDeptScreen extends ConsumerWidget {
                 key: const ValueKey('filmTab:sources'),
                 text: l10n.filmTabSources,
               ),
+              Tab(
+                key: const ValueKey('filmTab:team'),
+                text: l10n.filmTabTeam,
+              ),
             ],
           ),
         ),
@@ -71,11 +77,32 @@ class FilmDeptScreen extends ConsumerWidget {
             _SalesTab(),
             _CustomersTab(),
             FilmSourcesTab(),
+            FilmTeamTab(),
           ],
         ),
       ),
     );
   }
+}
+
+/// How a receipt came and who took it in, or who sold: «Такси · Алматы ·
+/// 5 000 ₸ (100 ₸/м) · срочно · принял Айбек»; null when nothing is known.
+String? _about(FilmMove m, AppLocalizations l10n, NumberFormat money) {
+  final d = m.delivery;
+  final parts = [
+    if (d != null) ...[
+      ?d.transport,
+      ?d.city,
+      if ((d.cost ?? 0) > 0)
+        d.perM == null
+            ? money.format(d.cost)
+            : '${money.format(d.cost)} (${money.format(d.perM)}/м)',
+      if (d.urgent) l10n.filmUrgent.toLowerCase(),
+      if (d.receivedBy case final who?) l10n.filmTakenBy(who),
+    ],
+    if (m.seller case final who?) l10n.filmSoldBy(who),
+  ];
+  return parts.isEmpty ? null : parts.join(' · ');
 }
 
 void _refresh(WidgetRef ref, [String? item]) {
@@ -338,7 +365,9 @@ class FilmPage extends ConsumerWidget {
             error: (e, _) => [Text('$e')],
             data: (rows) => [
               if (rows.isEmpty) Text(l10n.filmHistoryEmpty),
-              for (final (i, m) in rows.indexed)
+              for (final (i, (m, about)) in [
+                for (final m in rows) (m, _about(m, l10n, money)),
+              ].indexed)
                 ListTile(
                   key: ValueKey('filmMove:$i'),
                   dense: true,
@@ -371,14 +400,22 @@ class FilmPage extends ConsumerWidget {
                           )
                         : null,
                   ),
-                  subtitle: m.fixed
-                      ? Text(
-                          l10n.filmCorrected(
-                            mdfDay(m.fixAt!.split(' ').first),
-                            m.fixBy ?? '',
-                            m.fixReason ?? '',
-                          ),
-                          key: ValueKey('filmMoveFixed:$i'),
+                  subtitle: m.fixed || about != null
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (about != null)
+                              Text(about, key: ValueKey('filmMoveAbout:$i')),
+                            if (m.fixed)
+                              Text(
+                                l10n.filmCorrected(
+                                  mdfDay(m.fixAt!.split(' ').first),
+                                  m.fixBy ?? '',
+                                  m.fixReason ?? '',
+                                ),
+                                key: ValueKey('filmMoveFixed:$i'),
+                              ),
+                          ],
                         )
                       : null,
                   trailing: Text(

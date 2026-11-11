@@ -47,7 +47,9 @@ LISTS = ("Толщина МДФ", "Производитель", "Цвет плё
 		 "Тип плёнки",
 		 # ALDA, Solid Color, Древесные… — a maker's own collections, kept as
 		 # «Maker · Collection» (`film_catalog`, owner, 11.11.2026).
-		 "Коллекция плёнки")
+		 "Коллекция плёнки",
+		 # How a roll came and from where (owner, 11.11.2026): lists he keeps.
+		 "Способ доставки", "Город доставки")
 #: Units a material is counted in. Created in ERPNext if missing.
 UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False}
 MAX_QTY = Decimal("100000")
@@ -617,7 +619,7 @@ def receive(
 		# Imported here: logistics reads this module's kinds and editors.
 		from korkem_manufacturing.services import logistics
 
-		allowed = ("amount", "from_city", "transport", "carrier", "urgent", "ordered_on")
+		allowed = ("amount", "from_city", "transport", "carrier", "urgent", "ordered_on", "note")
 		result["delivery"] = logistics.record(
 			**{k: delivery.get(k) for k in allowed},
 			delivered_on=str(day),

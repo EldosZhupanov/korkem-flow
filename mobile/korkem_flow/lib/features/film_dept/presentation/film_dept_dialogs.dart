@@ -13,6 +13,7 @@ import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -76,6 +77,49 @@ Widget _metresField(
   decoration: InputDecoration(labelText: label),
 );
 
+/// A field with its list's own ✎: the list opens to be added to, renamed,
+/// cleaned (owner, 11.11.2026: «чтобы редактировался и мог бы удалить»).
+Widget _withList(
+  BuildContext context, {
+  required String key,
+  required Widget child,
+  required VoidCallback onEdit,
+}) => Row(
+  children: [
+    Expanded(child: child),
+    IconButton(
+      key: ValueKey(key),
+      tooltip: AppLocalizations.of(context).mdfDictOpen,
+      onPressed: onEdit,
+      icon: const Icon(AppIcons.edit),
+    ),
+  ],
+);
+
+/// Who works here, to pick who took a roll in or who sold — the one
+/// signed in first.
+Widget _personField({
+  required String key,
+  required String label,
+  required FilmDeliveryOptions? opts,
+  required String? value,
+  required ValueChanged<String?> onChanged,
+}) {
+  final staff = opts?.staff ?? const [];
+  final chosen = value ?? opts?.me;
+  return DropdownButtonFormField<String>(
+    key: ValueKey('$key:${staff.length}'),
+    initialValue: staff.any((p) => p.user == chosen) ? chosen : null,
+    isExpanded: true,
+    items: [
+      for (final p in staff)
+        DropdownMenuItem(value: p.user, child: Text(p.name)),
+    ],
+    onChanged: onChanged,
+    decoration: InputDecoration(labelText: label),
+  );
+}
+
 /// «Приход»: a roll or a cut from a wholesaler — metres at a price a metre.
 Future<bool?> showFilmReceive(BuildContext context, Film film, FilmCatalog c) =>
     showDialog<bool>(
@@ -109,10 +153,45 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   /// for a one-off discount (owner, 11.11.2026).
   bool _updatePrice = true;
 
+  // How it came (owner, 11.11.2026): by default as this supplier's last
+  // roll came, from the city on its card; nothing paid; taken in by me.
+  final _cost = TextEditingController();
+  String? _transport;
+  String? _city;
+  String? _taker;
+  bool _urgent = false;
+
+  String? _transportOf(FilmDeliveryOptions? o) =>
+      _transport ?? o?.last[_supplier]?.transport ?? o?.transports.firstOrNull;
+
+  String? _cityOf(FilmDeliveryOptions? o) =>
+      _city ?? o?.last[_supplier]?.city ?? o?.supplierCities[_supplier];
+
+  Future<void> _editList(MdfDictKind kind, String title, String? now) async {
+    final picked = await showMdfDictionary(
+      context,
+      kind,
+      title: title,
+      current: now,
+    );
+    if (!mounted) return;
+    ref.invalidate(filmDeliveryOptionsProvider);
+    if (picked != null) {
+      setState(() {
+        if (kind == MdfDictKind.transport) {
+          _transport = picked;
+        } else {
+          _city = picked;
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
     _metres.dispose();
     _price.dispose();
+    _cost.dispose();
     super.dispose();
   }
 
@@ -121,50 +200,139 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     final l10n = AppLocalizations.of(context);
     final metres = _number(_metres.text) ?? 0;
     final price = _number(_price.text) ?? 0;
+    final cost = _number(_cost.text) ?? 0;
+    final opts = ref.watch(filmDeliveryOptionsProvider).value;
+    final transport = _transportOf(opts);
+    final city = _cityOf(opts);
+    final cities = {...?opts?.cities, ?city}.toList();
+    final money = mdfMoney(context);
     return AlertDialog(
       title: Text('${l10n.filmReceive} · ${filmName(widget.film)}'),
       content: SizedBox(
         width: AppSpacing.xxxl * 8,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _metresField(_metres, l10n.filmMetresLabel, () => setState(() {})),
-            TextField(
-              key: const ValueKey('filmPrice'),
-              controller: _price,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(labelText: l10n.filmPriceM),
-            ),
-            DropdownButtonFormField<String>(
-              key: const ValueKey('filmSupplier'),
-              initialValue: _supplier,
-              items: [
-                for (final s in _sources)
-                  DropdownMenuItem(value: s.id, child: Text(s.name)),
-              ],
-              onChanged: (v) => setState(() => _supplier = v),
-              decoration: InputDecoration(labelText: l10n.filmReceiveFrom),
-            ),
-            if (price > 0 && price != widget.film.priceM)
-              CheckboxListTile(
-                key: const ValueKey('filmReceiveUpdatePrice'),
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                value: _updatePrice,
-                onChanged: (v) => setState(() => _updatePrice = v ?? false),
-                title: Text(
-                  widget.film.priceM == null
-                      ? l10n.filmReceiveSetPrice(price.toStringAsFixed(0))
-                      : l10n.filmReceiveUpdatePrice(
-                          widget.film.priceM!.toStringAsFixed(0),
-                          price.toStringAsFixed(0),
-                        ),
-                ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _metresField(
+                _metres,
+                l10n.filmMetresLabel,
+                () => setState(() {}),
               ),
-            errorLine(context),
-          ],
+              TextField(
+                key: const ValueKey('filmPrice'),
+                controller: _price,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(labelText: l10n.filmPriceM),
+              ),
+              DropdownButtonFormField<String>(
+                key: const ValueKey('filmSupplier'),
+                initialValue: _supplier,
+                items: [
+                  for (final s in _sources)
+                    DropdownMenuItem(value: s.id, child: Text(s.name)),
+                ],
+                onChanged: (v) => setState(() => _supplier = v),
+                decoration: InputDecoration(labelText: l10n.filmReceiveFrom),
+              ),
+              if (price > 0 && price != widget.film.priceM)
+                CheckboxListTile(
+                  key: const ValueKey('filmReceiveUpdatePrice'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: _updatePrice,
+                  onChanged: (v) => setState(() => _updatePrice = v ?? false),
+                  title: Text(
+                    widget.film.priceM == null
+                        ? l10n.filmReceiveSetPrice(price.toStringAsFixed(0))
+                        : l10n.filmReceiveUpdatePrice(
+                            widget.film.priceM!.toStringAsFixed(0),
+                            price.toStringAsFixed(0),
+                          ),
+                  ),
+                ),
+              if (opts != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  l10n.filmDelivery,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                _withList(
+                  context,
+                  key: 'filmDelivery:transport:edit',
+                  onEdit: () => _editList(
+                    MdfDictKind.transport,
+                    l10n.filmTransport,
+                    transport,
+                  ),
+                  child: Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      for (final t in opts.transports)
+                        ChoiceChip(
+                          key: ValueKey('filmDelivery:transport:$t'),
+                          label: Text(t),
+                          selected: t == transport,
+                          onSelected: (_) => setState(() => _transport = t),
+                        ),
+                    ],
+                  ),
+                ),
+                _withList(
+                  context,
+                  key: 'filmDelivery:city:edit',
+                  onEdit: () =>
+                      _editList(MdfDictKind.city, l10n.filmCity, city),
+                  child: DropdownButtonFormField<String?>(
+                    key: ValueKey('filmDelivery:city:$city:${cities.length}'),
+                    initialValue: city,
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem(child: Text(l10n.mdfNone)),
+                      for (final c in cities)
+                        DropdownMenuItem(value: c, child: Text(c)),
+                    ],
+                    onChanged: (v) => setState(() => _city = v),
+                    decoration: InputDecoration(labelText: l10n.filmCity),
+                  ),
+                ),
+                TextField(
+                  key: const ValueKey('filmDelivery:cost'),
+                  controller: _cost,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    labelText: l10n.filmDeliveryCost,
+                    // What bringing it added to each metre.
+                    helperText: cost > 0 && metres > 0
+                        ? l10n.filmDeliveryPerM(money.format(cost / metres))
+                        : null,
+                  ),
+                ),
+                _personField(
+                  key: 'filmDelivery:taker',
+                  label: l10n.filmReceivedBy,
+                  opts: opts,
+                  value: _taker,
+                  onChanged: (v) => setState(() => _taker = v),
+                ),
+                CheckboxListTile(
+                  key: const ValueKey('filmDelivery:urgent'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: _urgent,
+                  onChanged: (v) => setState(() => _urgent = v ?? false),
+                  title: Text(l10n.filmUrgent),
+                ),
+              ],
+              errorLine(context),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -185,6 +353,15 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                         priceM: price,
                         supplier: _supplier!,
                         updatePrice: _updatePrice,
+                        delivery: opts == null
+                            ? null
+                            : {
+                                'transport': transport,
+                                'city': city ?? '',
+                                'amount': cost,
+                                'urgent': _urgent,
+                              },
+                        receivedBy: opts == null ? null : _taker ?? opts.me,
                       ),
                 ),
           child: Text(l10n.filmReceive),
@@ -383,6 +560,10 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   final _parts = [_PayPart()];
   late String? _customer = widget.customer;
 
+  /// Who sold it — the one signed in unless said otherwise; the team's
+  /// bonus is counted by seller (owner, 11.11.2026).
+  String? _seller;
+
   /// Whether the seller touched a sum: until then the one part follows the
   /// sale's total, «paid in full».
   bool _paidTouched = false;
@@ -471,6 +652,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
     final banks =
         (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
             .values(MdfDictKind.bank);
+    final sellers = ref.watch(filmDeliveryOptionsProvider).value;
     final paid = _paid;
     final ok =
         _customer != null &&
@@ -511,6 +693,14 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 },
                 decoration: InputDecoration(labelText: l10n.mdfCustomer),
               ),
+              if (sellers != null && sellers.staff.isNotEmpty)
+                _personField(
+                  key: 'filmSaleSeller',
+                  label: l10n.filmSeller,
+                  opts: sellers,
+                  value: _seller,
+                  onChanged: (v) => setState(() => _seller = v),
+                ),
               const SizedBox(height: AppSpacing.sm),
               for (final (i, line) in _lines.indexed) ...[
                 Padding(
@@ -766,6 +956,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                                 bank: p.method != filmCash ? p.bank : null,
                               ),
                         ],
+                        seller: _seller ?? sellers?.me,
                       ),
                 ),
           child: Text(l10n.filmSell),

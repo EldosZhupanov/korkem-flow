@@ -23,20 +23,23 @@ def history(item: str, limit: int | str = 100) -> list[dict]:
 
 @frappe.whitelist(methods=["POST"])
 def receive(item: str, metres: float | str, price_m: float | str, supplier: str,
-			received_on: str | None = None, note: str | None = None, update_price: str | bool = True) -> dict:
-	"""Приход: рулон или отрез от оптовика, метры и цена за метр; закуп в карточке обновляется."""
+			received_on: str | None = None, note: str | None = None, update_price: str | bool = True,
+			delivery: str | dict | None = None, received_by: str | None = None) -> dict:
+	"""Приход: метры и цена за метр; как пришла, за сколько привезли, кто принял."""
 	return service.receive(
-		item, metres, price_m, supplier, received_on=received_on, note=note, update_price=update_price
+		item, metres, price_m, supplier, received_on=received_on, note=note, update_price=update_price,
+		delivery=delivery, received_by=received_by,
 	)
 
 
 @frappe.whitelist(methods=["POST"])
 def sell(customer: str, lines: str | list, paid: float | str = 0, method: str | None = None,
 		 bank: str | None = None, sold_on: str | None = None, note: str | None = None,
-		 payments: str | list | None = None) -> dict:
-	"""Продажа плёнки клиенту: одна или несколько плёнок, оплата одним или несколькими способами, или долг."""
+		 payments: str | list | None = None, seller: str | None = None) -> dict:
+	"""Продажа плёнки клиенту: плёнки, оплата одним или несколькими способами, продавец."""
 	return service.sell(
-		customer, lines, paid=paid, method=method, bank=bank, sold_on=sold_on, note=note, payments=payments
+		customer, lines, paid=paid, method=method, bank=bank, sold_on=sold_on, note=note, payments=payments,
+		seller=seller,
 	)
 
 
@@ -57,6 +60,21 @@ def pay(entry: str, amount: float | str | None = None, method: str | None = None
 		payments: str | list | None = None) -> dict:
 	"""Доплата по продаже, оставшейся в долг: одним способом или несколькими."""
 	return service.pay(entry, amount, method=method, bank=bank, payments=payments)
+
+
+@frappe.whitelist(methods=["GET"])
+def delivery_options() -> dict:
+	"""Как пришла, из какого города, кто принял; сотрудники для продавца."""
+	return service.delivery_options()
+
+
+@frappe.whitelist(methods=["POST"])
+def correct(entry: str, item: str, reason: str, metres: float | str | None = None,
+			price_m: float | str | None = None, supplier: str | None = None, order: str | None = None,
+			why: str | None = None) -> dict:
+	"""Исправить запись: старая зачёркивается, новая вносится тем же днём, с причиной."""
+	return service.correct(entry, item, reason, metres=metres, price_m=price_m, supplier=supplier,
+						   order=order, why=why)
 
 
 @frappe.whitelist(methods=["POST"])

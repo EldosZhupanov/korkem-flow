@@ -6043,4 +6043,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmClose => 'Close';
+
+  @override
+  String get filmDelivery => 'Delivery';
+
+  @override
+  String get filmTransport => 'How it came';
+
+  @override
+  String get filmCity => 'From (city)';
+
+  @override
+  String get filmDeliveryCost => 'Delivery cost, ₸';
+
+  @override
+  String filmDeliveryPerM(String per) {
+    return '≈ $per a metre';
+  }
+
+  @override
+  String get filmReceivedBy => 'Taken in by';
+
+  @override
+  String get filmUrgent => 'Urgent';
+
+  @override
+  String get filmSeller => 'Seller';
+
+  @override
+  String filmTakenBy(String name) {
+    return 'taken in by $name';
+  }
+
+  @override
+  String filmSoldBy(String name) {
+    return 'sold by $name';
+  }
+
+  @override
+  String get filmTabTeam => 'Team';
+
+  @override
+  String filmTeamTotals(
+    String metres,
+    String sales,
+    String paid,
+    String margin,
+  ) {
+    return '$metres m · $sales sales · paid $paid · margin $margin';
+  }
+
+  @override
+  String filmTeamPlan(String done, String plan) {
+    return 'Plan: $done% of $plan m';
+  }
+
+  @override
+  String get filmTeamNoPlan => 'No plan set for the month';
+
+  @override
+  String filmTeamPot(String pct, String pot) {
+    return 'Pot: $pct% of margin = $pot';
+  }
+
+  @override
+  String filmTeamShare(String share, String bonus) {
+    return 'share $share% · bonus $bonus';
+  }
+
+  @override
+  String get filmTeamEmpty => 'No sales this month';
+
+  @override
+  String get filmTeamHint =>
+      'The bonus is counted on margin — only money paid, in the month it was paid.';
+
+  @override
+  String get filmTeamSettings => 'Plan and bonus';
+
+  @override
+  String get filmTeamPlanM => 'Plan for the month, m';
+
+  @override
+  String get filmTeamPct => 'Pot when the plan is met, %';
+
+  @override
+  String get filmTeamPctBelow => 'Pot when the plan is missed, %';
+
+  @override
+  String get filmTeamSave => 'Save';
 }
