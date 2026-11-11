@@ -94,8 +94,44 @@ class _Fake implements FilmDeptRepository {
     return const FilmSale(entry: 'STE-9', date: '2026-11-10');
   }
 
+  final paid = <(String, double, String)>[];
+  final cancelled = <(String, String)>[];
+
   @override
-  Future<List<FilmSale>> sales() async => const [];
+  Future<List<FilmSale>> sales() async => const [
+    FilmSale(
+      entry: 'STE-7',
+      date: '2026-11-09',
+      customer: 'CUST-1',
+      customerName: 'Мебель-ЮГ',
+      amount: 46800,
+      paid: 20000,
+      debt: 26800,
+      lines: [
+        FilmSaleLine(
+          item: 'MAT-1',
+          title: 'KIRA · Белый Матовый',
+          metres: 12,
+          priceM: 3900,
+        ),
+      ],
+    ),
+  ];
+
+  @override
+  Future<FilmSale> pay(
+    String entry, {
+    required double amount,
+    required String method,
+    String? bank,
+  }) async {
+    paid.add((entry, amount, method));
+    return const FilmSale(entry: 'STE-7', date: '2026-11-09');
+  }
+
+  @override
+  Future<void> cancel(String entry, String reason) async =>
+      cancelled.add((entry, reason));
 
   @override
   Future<List<FilmCustomer>> customers() async => const [
@@ -258,5 +294,52 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmTermsSave')));
     await tester.pumpAndSettle();
     expect(repo.terms.single, ('CUST-2', true, 5.0));
+  });
+
+  testWidgets('a sale in debt is paid off from its card, no more than owed', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmTab:sales')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleRow:0')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmSaleCardDebt')), findsOneWidget);
+    final pay = find.byKey(const ValueKey('filmPaySave'));
+    // The whole debt is offered; more than is owed is refused.
+    await tester.enterText(
+      find.byKey(const ValueKey('filmPayAmount')),
+      '30000',
+    );
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(pay).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmPayAmount')),
+      '26800',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(pay);
+    await tester.pumpAndSettle();
+    expect(repo.paid.single, ('STE-7', 26800.0, 'Наличные'));
+  });
+
+  testWidgets('a sale entered by mistake is cancelled with a reason', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmTab:sales')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleRow:0')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleCancel')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmCancelReason')),
+      'Не тот клиент',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Done').last);
+    await tester.pumpAndSettle();
+    expect(repo.cancelled.single, ('STE-7', 'Не тот клиент'));
   });
 }

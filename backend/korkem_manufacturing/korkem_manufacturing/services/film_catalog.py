@@ -116,9 +116,17 @@ def catalog() -> dict:
 		"unassigned": loose,
 		"makers": sorted(material_stock.enabled_values(MAKERS, company), key=str.casefold),
 		"types": sorted(material_stock.enabled_values(TYPES, company), key=str.casefold),
-		"suppliers": material_stock.suppliers(),
+		"suppliers": [s for s in material_stock.suppliers() if s["enabled"]],
+		# Maker → the sources that sell it (`film_sources`): a receipt offers those first.
+		"sources_by_maker": _by_maker(),
 		"can_edit": material_stock.can_edit(),
 	}
+
+
+def _by_maker() -> dict:
+	from korkem_manufacturing.services import film_sources
+
+	return film_sources.by_maker()
 
 
 def add(maker: str, colour: str, thickness: str | None = None, width: str | None = None) -> dict:

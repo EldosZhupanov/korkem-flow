@@ -8,7 +8,9 @@
   "company",
   "kind",
   "value",
-  "enabled"
+  "enabled",
+  "site",
+  "note"
  ],
  "fields": [
   {
@@ -39,11 +41,21 @@
    "fieldname": "enabled",
    "fieldtype": "Check",
    "label": "In use"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Note"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-10 15:20:00.000000",
+ "modified": "2026-11-11 01:40:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Material Option",

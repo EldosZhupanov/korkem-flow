@@ -114,6 +114,7 @@ class FilmCatalog {
     this.makers = const [],
     this.types = const [],
     this.suppliers = const [],
+    this.sourcesByMaker = const {},
     this.canEdit = false,
   });
 
@@ -132,6 +133,11 @@ class FilmCatalog {
         if (s is Map<String, dynamic> && s['enabled'] != false)
           (id: '${s['supplier']}', name: '${s['name'] ?? s['supplier']}'),
     ],
+    sourcesByMaker: {
+      if (json['sources_by_maker'] case final Map<String, dynamic> by)
+        for (final e in by.entries)
+          e.key: [for (final s in e.value as List? ?? const []) '$s'],
+    },
     canEdit: json['can_edit'] == true,
   );
 
@@ -142,7 +148,22 @@ class FilmCatalog {
   final List<String> makers;
   final List<String> types;
   final List<({String id, String name})> suppliers;
+
+  /// Maker → the suppliers that sell its film (owner, 11.11.2026: the same
+  /// maker is bought in Astana and in Almaty).
+  final Map<String, List<String>> sourcesByMaker;
   final bool canEdit;
+
+  /// Where a film of [maker] may have come from: the maker's own sources,
+  /// or every supplier while none is named for it.
+  List<({String id, String name})> suppliersFor(String maker) {
+    final ids = sourcesByMaker[maker] ?? const <String>[];
+    final own = [
+      for (final s in suppliers)
+        if (ids.contains(s.id)) s,
+    ];
+    return own.isEmpty ? suppliers : own;
+  }
 
   /// The makers to show as tabs: the list's, then any a film names that the
   /// list has lost — a film is never hidden for want of its maker.

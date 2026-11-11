@@ -10071,12 +10071,6 @@ abstract class AppLocalizations {
   /// **'Code'**
   String get filmCode;
 
-  /// No description provided for @filmSample.
-  ///
-  /// In en, this message translates to:
-  /// **'Sample colour (#F4F3EE)'**
-  String get filmSample;
-
   /// No description provided for @filmRal.
   ///
   /// In en, this message translates to:
@@ -10166,6 +10160,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Customers'**
   String get filmTabCustomers;
+
+  /// No description provided for @filmTabSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Suppliers'**
+  String get filmTabSources;
+
+  /// No description provided for @filmSourceAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get filmSourceAdd;
+
+  /// No description provided for @filmSourcesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No suppliers yet. Add where film is bought: a maker\'s branch in a city or a wholesaler.'**
+  String get filmSourcesEmpty;
+
+  /// No description provided for @filmSourceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (e.g. Adilet · Almaty)'**
+  String get filmSourceName;
+
+  /// No description provided for @filmSrcKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Who it is (branch, wholesaler)'**
+  String get filmSrcKind;
+
+  /// No description provided for @filmSrcCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get filmSrcCity;
+
+  /// No description provided for @filmSrcContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact person'**
+  String get filmSrcContact;
+
+  /// No description provided for @filmSrcPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get filmSrcPhone;
+
+  /// No description provided for @filmSrcPhone2.
+  ///
+  /// In en, this message translates to:
+  /// **'Second phone'**
+  String get filmSrcPhone2;
+
+  /// No description provided for @filmSrcWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get filmSrcWhatsapp;
+
+  /// No description provided for @filmSrcAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse address'**
+  String get filmSrcAddress;
+
+  /// No description provided for @filmSrcLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery time'**
+  String get filmSrcLead;
+
+  /// No description provided for @filmSrcMinOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest order'**
+  String get filmSrcMinOrder;
+
+  /// No description provided for @filmSrcNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get filmSrcNote;
+
+  /// No description provided for @filmSrcMakers.
+  ///
+  /// In en, this message translates to:
+  /// **'Whose films it sells'**
+  String get filmSrcMakers;
+
+  /// No description provided for @filmSourceRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the list'**
+  String get filmSourceRemove;
+
+  /// No description provided for @filmSourceRemoveAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove supplier “{name}”?'**
+  String filmSourceRemoveAsk(String name);
+
+  /// No description provided for @filmSourceRemoveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Its receipts stay in the history.'**
+  String get filmSourceRemoveHint;
+
+  /// No description provided for @filmMakerCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Maker\'s card'**
+  String get filmMakerCard;
+
+  /// No description provided for @filmMakerSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Site'**
+  String get filmMakerSite;
+
+  /// No description provided for @filmMakerSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Where this film is bought'**
+  String get filmMakerSources;
+
+  /// No description provided for @filmMakerNoSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Nowhere to buy it is named yet. Add a source.'**
+  String get filmMakerNoSources;
+
+  /// No description provided for @filmSourceNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a source'**
+  String get filmSourceNew;
+
+  /// No description provided for @filmReceiveFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it came from'**
+  String get filmReceiveFrom;
 
   /// No description provided for @filmSell.
   ///
@@ -10388,6 +10526,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Film stock, sales by the metre, customers'**
   String get filmDeptHint;
+
+  /// No description provided for @filmPayDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay off, ₸'**
+  String get filmPayDebt;
+
+  /// No description provided for @filmCancelMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the sale'**
+  String get filmCancelMove;
+
+  /// No description provided for @filmCancelReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why cancel'**
+  String get filmCancelReason;
+
+  /// No description provided for @filmClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get filmClose;
 }
 
 class _AppLocalizationsDelegate

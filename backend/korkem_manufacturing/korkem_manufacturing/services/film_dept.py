@@ -188,7 +188,12 @@ def stock() -> dict:
 		f["free"] = free
 		f["low"] = bool(f["min_stock"]) and free < flt(f["min_stock"])
 	films.sort(key=lambda f: (not f["low"], f["maker"].casefold(), f["colour"].casefold()))
-	return {"films": films, "suppliers": catalog["suppliers"], "can_edit": catalog["can_edit"]}
+	return {
+		"films": films,
+		"suppliers": catalog["suppliers"],
+		"sources_by_maker": catalog["sources_by_maker"],
+		"can_edit": catalog["can_edit"],
+	}
 
 
 def history(item: str, limit: int = 100) -> list[dict]:
