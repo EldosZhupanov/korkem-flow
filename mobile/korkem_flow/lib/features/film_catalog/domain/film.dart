@@ -185,6 +185,26 @@ class FilmCatalog {
   final Map<String, List<String>> collections;
   final bool canEdit;
 
+  /// Every thickness of the film [f] is one of — itself too — thinnest
+  /// first (owner, 11.11.2026: one film, several rolls).
+  List<Film> variantsOf(Film f) => [
+    for (final v in films)
+      if (v.maker == f.maker && v.colour == f.colour) v,
+  ]..sort((a, b) => (a.thicknessMm ?? 0).compareTo(b.thicknessMm ?? 0));
+
+  /// [list] as films: the thicknesses of one film together, in the order
+  /// the first of them comes, thinnest first within.
+  static List<List<Film>> grouped(List<Film> list) {
+    final out = <String, List<Film>>{};
+    for (final f in list) {
+      out.putIfAbsent('${f.maker}\u0000${f.colour}', () => []).add(f);
+    }
+    return [
+      for (final g in out.values)
+        g..sort((a, b) => (a.thicknessMm ?? 0).compareTo(b.thicknessMm ?? 0)),
+    ];
+  }
+
   /// The collections of [maker], by name.
   List<String> collectionsOf(String maker) =>
       collections[maker] ?? const <String>[];
