@@ -6541,4 +6541,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmReceiptSignIssued => 'Handed out';
+
+  @override
+  String filmHeldShort(String metres) {
+    return '$metres m put by';
+  }
+
+  @override
+  String filmOnWayShort(String metres) {
+    return '$metres m on its way';
+  }
+
+  @override
+  String get filmReceivePick => 'Receipt — which film?';
 }

@@ -6564,4 +6564,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmReceiptSignIssued => 'Выдал';
+
+  @override
+  String filmHeldShort(String metres) {
+    return 'отложено $metres м';
+  }
+
+  @override
+  String filmOnWayShort(String metres) {
+    return 'в пути $metres м';
+  }
+
+  @override
+  String get filmReceivePick => 'Приход — какая плёнка?';
 }

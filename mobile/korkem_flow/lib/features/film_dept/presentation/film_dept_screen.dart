@@ -359,6 +359,34 @@ class _StockTabState extends ConsumerState<_StockTab> {
                     icon: const Icon(AppIcons.add),
                     label: Text(l10n.filmSell),
                   ),
+                // A receipt straight from the stock list: pick the film,
+                // then the usual window (owner, 12.11.2026).
+                if (c.canEdit)
+                  OutlinedButton.icon(
+                    key: const ValueKey('filmDept:receive'),
+                    onPressed: () async {
+                      final film = await showDialog<Film>(
+                        context: context,
+                        builder: (context) => SimpleDialog(
+                          title: Text(l10n.filmReceivePick),
+                          children: [
+                            for (final f in c.films)
+                              if (f.enabled)
+                                SimpleDialogOption(
+                                  key: ValueKey('filmReceivePick:${f.item}'),
+                                  onPressed: () => Navigator.of(context).pop(f),
+                                  child: Text(filmName(f)),
+                                ),
+                          ],
+                        ),
+                      );
+                      if (film == null || !context.mounted) return;
+                      final done = await showFilmReceive(context, film, c);
+                      if (done ?? false) _refresh(ref);
+                    },
+                    icon: const Icon(AppIcons.moveIn),
+                    label: Text(l10n.filmReceive),
+                  ),
                 FilterChip(
                   key: const ValueKey('filmDept:low'),
                   label: Text(l10n.filmLowCount(low.length)),
@@ -425,7 +453,15 @@ class _StockTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final f = film;
-    final (text, color) = f.free <= 0
+    // «заказать» only when nothing is free, nothing put by and nothing on
+    // its way (owner, 12.11.2026: all four read «заказать»).
+    final held = f.holds.fold<double>(0, (s, h) => s + h.metres);
+    final onWay = f.coming.fold<double>(0, (s, c) => s + c.metres);
+    final (text, color) = f.free <= 0 && held > 0
+        ? (l10n.filmHeldShort(filmMetres(held)), theme.colorScheme.tertiary)
+        : f.free <= 0 && onWay > 0
+        ? (l10n.filmOnWayShort(filmMetres(onWay)), theme.colorScheme.primary)
+        : f.free <= 0
         ? (l10n.filmToOrder, theme.colorScheme.outline)
         : f.low
         ? (l10n.filmLow(filmMetres(f.free)), theme.colorScheme.error)
