@@ -6516,4 +6516,85 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmReceivePick => 'Кіріс — қай пленка?';
+
+  @override
+  String searchSectionFilms(int count) {
+    return 'Пленка ($count)';
+  }
+
+  @override
+  String searchSectionFilmCustomers(int count) {
+    return 'Пленка клиенттері ($count)';
+  }
+
+  @override
+  String filmDebtLine(String sum) {
+    return 'қарыз $sum ₸';
+  }
+
+  @override
+  String get filmTeamSold => 'Сатылды';
+
+  @override
+  String get filmTeamPaid => 'Төленді';
+
+  @override
+  String get filmTeamMargin => 'Маржа';
+
+  @override
+  String get filmTeamPotLabel => 'Қазан';
+
+  @override
+  String filmTeamPotNote(String pct) {
+    return 'маржаның $pct%';
+  }
+
+  @override
+  String get filmTeamVsLastMonth => 'өткен аймен';
+
+  @override
+  String filmTeamMarginShare(String pct) {
+    return 'төленгеннің $pct%';
+  }
+
+  @override
+  String get filmTeamSellers => 'Сатушылар';
+
+  @override
+  String filmTeamSellerLine(String name, String sales, String metres) {
+    return '$name · сату $sales · $metres м';
+  }
+
+  @override
+  String filmTeamBonus(String sum) {
+    return 'бонус $sum';
+  }
+
+  @override
+  String filmTeamShareLine(String share, String margin, String paid) {
+    return 'үлесі $share% · маржа $margin · төленді $paid';
+  }
+
+  @override
+  String get filmReportMarginLegend =>
+      'Жасыл — маржа жақсы, сары — метріне 300 ₸-ден аз, қызыл — сатып алудан арзан сатылды.';
+
+  @override
+  String get filmCashWeek => 'Апта';
+
+  @override
+  String filmCashSales(int count) {
+    return 'сату: $count';
+  }
+
+  @override
+  String filmCashSpent(int count) {
+    return 'шығын: $count';
+  }
+
+  @override
+  String get filmCashWhere => 'Ақша қайда';
+
+  @override
+  String get filmCashMoves => 'Қозғалыстар';
 }

@@ -84,11 +84,13 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 	company = current_company()
 	start, end = _period(since, until)
 	ins: dict[str, float] = {}
+	moves: list[dict] = []
+	sales = set()
 	for s in frappe.get_all(
 		"Stock Entry",
 		filters={"company": company, "docstatus": 1, "korkem_film_kind": SALE},
 		fields=["name", "posting_date", "korkem_film_payments", "korkem_film_paid", "korkem_film_pay_method",
-				"korkem_film_pay_bank"],
+				"korkem_film_pay_bank", "korkem_film_customer", "creation"],
 		limit_page_length=0,
 	):
 		for p in _payments(s):
@@ -96,6 +98,14 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 			if start <= on <= end and flt(p.get("amount")) > 0:
 				way = _way(p.get("method"), p.get("bank"))
 				ins[way] = ins.get(way, 0.0) + flt(p.get("amount"))
+				sales.add(s.name)
+				# Each payment its own line (owner, 12.11.2026).
+				moves.append({
+					"date": str(on), "in": True, "amount": flt(p.get("amount")), "way": way,
+					"what": frappe.db.get_value("Customer", s.korkem_film_customer, "customer_name")
+					or s.korkem_film_customer, "entry": s.name,
+					"at": str(s.creation)[11:16] if str(on) == str(getdate(s.creation)) else None,
+				})
 	outs: list[dict] = []
 	logistics, logistics_m = 0.0, 0.0
 	for d in _deliveries(company):
@@ -118,6 +128,18 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 				"amount": cost, "way": d.korkem_delivery_settled_method, "receipt": d.name,
 			})
 	outs.sort(key=lambda o: (o["date"], o["receipt"]))
+	for o in outs:
+		moves.append({"date": o["date"], "in": False, "amount": o["amount"], "way": o.get("way") or "Наличные",
+					  "what": o["what"], "entry": o["receipt"], "at": None})
+	moves.sort(key=lambda m: (m["date"], m["at"] or ""), reverse=True)
+	# Where the money is: cash in the drawer, each bank apart — in less out
+	# by the way it went (owner, 12.11.2026).
+	where: dict[str, float] = {}
+	for way, amount in ins.items():
+		where[way] = where.get(way, 0.0) + amount
+	for o in outs:
+		way = _way(o.get("way"), None)
+		where[way] = where.get(way, 0.0) - o["amount"]
 	total_in = round(sum(ins.values()), 2)
 	total_out = round(sum(o["amount"] for o in outs), 2)
 	return {
@@ -128,6 +150,10 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 		"out": outs,
 		"out_total": total_out,
 		"balance": round(total_in - total_out, 2),
+		"sales": len(sales),
+		"spent": len(outs),
+		"where": [{"way": k, "amount": round(v, 2)} for k, v in sorted(where.items(), key=lambda kv: -kv[1])],
+		"moves": moves[:200],
 		# For the owner's eye only — the bonus does not count it.
 		"logistics": round(logistics, 2),
 		"logistics_per_m": round(logistics / logistics_m, 2) if logistics_m else None,

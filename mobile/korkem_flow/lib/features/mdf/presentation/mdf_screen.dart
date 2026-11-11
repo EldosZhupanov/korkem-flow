@@ -194,7 +194,19 @@ class MdfScreen extends StatelessWidget {
       }
     }
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navMdf)),
+      appBar: AppBar(
+        title: Text(l10n.navMdf),
+        // Search across everything — orders, film, customers (owner,
+        // 12.11.2026).
+        actions: [
+          IconButton(
+            key: const ValueKey('mdf:search'),
+            tooltip: l10n.searchTitle,
+            icon: const Icon(AppIcons.search),
+            onPressed: () => context.push(Routes.search),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: children,

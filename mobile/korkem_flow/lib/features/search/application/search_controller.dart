@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
@@ -75,10 +78,51 @@ final globalSearchResultsProvider = FutureProvider.autoDispose
         }
       }
 
+      // Film and its customers: matched here, from what the department
+      // already lists. Somebody without the film department simply gets
+      // none — not an error card.
+      final needle = clean.toLowerCase();
+      bool hit(Iterable<String?> fields) =>
+          fields.any((f) => f != null && f.toLowerCase().contains(needle));
+
+      Future<SearchResultSection<Film>> fetchFilms() async {
+        try {
+          final catalog = await ref.watch(filmDeptRepositoryProvider).stock();
+          final found = [
+            for (final f in catalog.films)
+              if (hit([f.label, f.maker, f.colour, f.code, f.type])) f,
+          ];
+          return SearchResultSection(
+            items: found.take(5).toList(),
+            total: found.length,
+          );
+        } on Object {
+          return const SearchResultSection<Film>.empty();
+        }
+      }
+
+      Future<SearchResultSection<FilmCustomer>> fetchFilmCustomers() async {
+        try {
+          final all = await ref.watch(filmDeptRepositoryProvider).customers();
+          final found = [
+            for (final c in all)
+              if (hit([c.name, c.phone])) c,
+          ];
+          return SearchResultSection(
+            items: found.take(5).toList(),
+            total: found.length,
+          );
+        } on Object {
+          return const SearchResultSection<FilmCustomer>.empty();
+        }
+      }
+
       final results = await Future.wait<dynamic>([
         fetchOrders(),
         fetchWorkOrders(),
         fetchStock(),
+        fetchFilms(),
+        fetchFilmCustomers(),
       ]);
 
       return GlobalSearchResults(
@@ -86,5 +130,7 @@ final globalSearchResultsProvider = FutureProvider.autoDispose
         orders: results[0] as SearchResultSection<SalesOrder>,
         workOrders: results[1] as SearchResultSection<WorkOrder>,
         stock: results[2] as SearchResultSection<StockPosition>,
+        films: results[3] as SearchResultSection<Film>,
+        filmCustomers: results[4] as SearchResultSection<FilmCustomer>,
       );
     });

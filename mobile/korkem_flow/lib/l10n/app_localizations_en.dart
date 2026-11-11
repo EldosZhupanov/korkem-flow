@@ -6554,4 +6554,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmReceivePick => 'Receipt — which film?';
+
+  @override
+  String searchSectionFilms(int count) {
+    return 'Film ($count)';
+  }
+
+  @override
+  String searchSectionFilmCustomers(int count) {
+    return 'Film customers ($count)';
+  }
+
+  @override
+  String filmDebtLine(String sum) {
+    return 'owes $sum ₸';
+  }
+
+  @override
+  String get filmTeamSold => 'Sold';
+
+  @override
+  String get filmTeamPaid => 'Paid';
+
+  @override
+  String get filmTeamMargin => 'Margin';
+
+  @override
+  String get filmTeamPotLabel => 'Pot';
+
+  @override
+  String filmTeamPotNote(String pct) {
+    return '$pct% of margin';
+  }
+
+  @override
+  String get filmTeamVsLastMonth => 'vs last month';
+
+  @override
+  String filmTeamMarginShare(String pct) {
+    return '$pct% of what was paid';
+  }
+
+  @override
+  String get filmTeamSellers => 'Sellers';
+
+  @override
+  String filmTeamSellerLine(String name, String sales, String metres) {
+    return '$name · $sales sales · $metres m';
+  }
+
+  @override
+  String filmTeamBonus(String sum) {
+    return 'bonus $sum';
+  }
+
+  @override
+  String filmTeamShareLine(String share, String margin, String paid) {
+    return 'share $share% · margin $margin · paid $paid';
+  }
+
+  @override
+  String get filmReportMarginLegend =>
+      'Green — a good margin, amber — under 300 ₸ a metre, red — sold under cost.';
+
+  @override
+  String get filmCashWeek => 'Week';
+
+  @override
+  String filmCashSales(int count) {
+    return '$count sales';
+  }
+
+  @override
+  String filmCashSpent(int count) {
+    return '$count paid out';
+  }
+
+  @override
+  String get filmCashWhere => 'Where the money is';
+
+  @override
+  String get filmCashMoves => 'Movements';
 }
