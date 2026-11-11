@@ -6154,4 +6154,29 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmOnWay => 'Жолда';
+
+  @override
+  String filmOnlyHave(String metres) {
+    return 'тек $metres м бар';
+  }
+
+  @override
+  String filmLeft(String metres) {
+    return '$metres м қалады';
+  }
+
+  @override
+  String filmLeftLow(String metres) {
+    return '$metres м қалады — аз';
+  }
+
+  @override
+  String filmTakeAll(String metres) {
+    return 'Барлығын алу $metres м';
+  }
+
+  @override
+  String filmMoreComing(String metres, String day) {
+    return '+$metres м жолда, $day келеді';
+  }
 }

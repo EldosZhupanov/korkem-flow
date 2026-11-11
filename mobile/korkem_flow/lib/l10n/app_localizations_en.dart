@@ -6192,4 +6192,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmOnWay => 'On its way';
+
+  @override
+  String filmOnlyHave(String metres) {
+    return 'only $metres m in stock';
+  }
+
+  @override
+  String filmLeft(String metres) {
+    return '$metres m left';
+  }
+
+  @override
+  String filmLeftLow(String metres) {
+    return '$metres m left — low';
+  }
+
+  @override
+  String filmTakeAll(String metres) {
+    return 'Take all $metres m';
+  }
+
+  @override
+  String filmMoreComing(String metres, String day) {
+    return '+$metres m on its way, arrives $day';
+  }
 }

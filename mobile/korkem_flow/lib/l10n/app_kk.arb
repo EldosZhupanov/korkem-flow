@@ -2026,5 +2026,10 @@
   "filmComingDropReason": "Неге келмейді",
   "filmComingMetres": "Қанша келді, м",
   "filmOnShelf": "Қоймада",
-  "filmOnWay": "Жолда"
+  "filmOnWay": "Жолда",
+  "filmOnlyHave": "тек {metres} м бар",
+  "filmLeft": "{metres} м қалады",
+  "filmLeftLow": "{metres} м қалады — аз",
+  "filmTakeAll": "Барлығын алу {metres} м",
+  "filmMoreComing": "+{metres} м жолда, {day} келеді"
 }

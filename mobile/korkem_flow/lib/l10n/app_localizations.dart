@@ -10993,6 +10993,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On its way'**
   String get filmOnWay;
+
+  /// No description provided for @filmOnlyHave.
+  ///
+  /// In en, this message translates to:
+  /// **'only {metres} m in stock'**
+  String filmOnlyHave(String metres);
+
+  /// No description provided for @filmLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m left'**
+  String filmLeft(String metres);
+
+  /// No description provided for @filmLeftLow.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m left — low'**
+  String filmLeftLow(String metres);
+
+  /// No description provided for @filmTakeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Take all {metres} m'**
+  String filmTakeAll(String metres);
+
+  /// No description provided for @filmMoreComing.
+  ///
+  /// In en, this message translates to:
+  /// **'+{metres} m on its way, arrives {day}'**
+  String filmMoreComing(String metres, String day);
 }
 
 class _AppLocalizationsDelegate

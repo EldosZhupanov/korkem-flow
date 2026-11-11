@@ -6649,5 +6649,48 @@
   "filmComingDropReason": "Why it won't come",
   "filmComingMetres": "Metres that came",
   "filmOnShelf": "In stock",
-  "filmOnWay": "On its way"
+  "filmOnWay": "On its way",
+  "filmOnlyHave": "only {metres} m in stock",
+  "@filmOnlyHave": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmLeft": "{metres} m left",
+  "@filmLeft": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmLeftLow": "{metres} m left — low",
+  "@filmLeftLow": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTakeAll": "Take all {metres} m",
+  "@filmTakeAll": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmMoreComing": "+{metres} m on its way, arrives {day}",
+  "@filmMoreComing": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  }
 }
