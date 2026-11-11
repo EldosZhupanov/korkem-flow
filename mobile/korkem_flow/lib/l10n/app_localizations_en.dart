@@ -1954,6 +1954,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatHistory => 'History';
 
   @override
+  String get chatHistoryEmpty => 'No conversations yet.';
+
+  @override
   String get chatToday => 'Today';
 
   @override

@@ -588,6 +588,7 @@
   "chatCardTasks": "Мои задачи",
   "chatCardProduction": "В производстве",
   "chatHistory": "История",
+  "chatHistoryEmpty": "Разговоров пока нет.",
   "chatToday": "Сегодня",
   "chatYesterday": "Вчера",
   "chatEarlier": "Ранее",

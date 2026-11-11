@@ -1959,6 +1959,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatHistory => 'История';
 
   @override
+  String get chatHistoryEmpty => 'Разговоров пока нет.';
+
+  @override
   String get chatToday => 'Сегодня';
 
   @override

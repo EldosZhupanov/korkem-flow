@@ -588,6 +588,7 @@
   "chatCardTasks": "Менің тапсырмаларым",
   "chatCardProduction": "Өндірісте",
   "chatHistory": "Тарих",
+  "chatHistoryEmpty": "Әзірге әңгіме жоқ.",
   "chatToday": "Бүгін",
   "chatYesterday": "Кеше",
   "chatEarlier": "Бұрынырақ",
