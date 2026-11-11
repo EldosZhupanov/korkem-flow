@@ -2104,5 +2104,11 @@
   "mdfGroupStock": "Қойма және сатып алу",
   "mdfGroupSettings": "Анықтамалықтар мен бағалар",
   "filmDriver": "Жүргізуші",
-  "filmDriverPhone": "Жүргізуші телефоны"
+  "filmDriverPhone": "Жүргізуші телефоны",
+  "filmFree": "Бос",
+  "filmHeld": "Бөлінген",
+  "filmReceiptPayment": "Төлем",
+  "filmReceiptServedBy": "Сізге қызмет көрсеткен: {name}",
+  "filmReceiptThanks": "Бізді таңдағаныңыз үшін рахмет!",
+  "filmReceiptWish": "Тамаша таңдау — қасбеттеріңіз ұзақ жылдар қуантсын. Сізді қайта күтеміз!"
 }

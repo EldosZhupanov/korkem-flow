@@ -6440,4 +6440,25 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmDriverPhone => 'Жүргізуші телефоны';
+
+  @override
+  String get filmFree => 'Бос';
+
+  @override
+  String get filmHeld => 'Бөлінген';
+
+  @override
+  String get filmReceiptPayment => 'Төлем';
+
+  @override
+  String filmReceiptServedBy(String name) {
+    return 'Сізге қызмет көрсеткен: $name';
+  }
+
+  @override
+  String get filmReceiptThanks => 'Бізді таңдағаныңыз үшін рахмет!';
+
+  @override
+  String get filmReceiptWish =>
+      'Тамаша таңдау — қасбеттеріңіз ұзақ жылдар қуантсын. Сізді қайта күтеміз!';
 }

@@ -18,6 +18,20 @@ typedef FilmReceiptWords = ({
   String total,
   String paid,
   String debt,
+
+  /// «Оплата» — how it was paid, part by part (owner, 12.11.2026).
+  String payment,
+
+  /// A payment's way in the reader's words: «Наличные», «Перевод».
+  String Function(String method) method,
+
+  /// «Вас обслуживал(а): …».
+  String Function(String name) servedBy,
+
+  /// A warm word at the foot (owner, 12.11.2026: «отзыв очень приятный
+  /// или комплимент»).
+  String thanks,
+  String wish,
 });
 
 /// A film sale's receipt for the customer (owner, 11.11.2026): the films,
@@ -105,6 +119,49 @@ Future<Uint8List> buildFilmReceiptPdf(
                     style: bold,
                   ),
               ],
+            ),
+          ),
+          // How it was paid, part by part: cash, Kaspi …
+          if (sale.payments.isNotEmpty) ...[
+            pw.SizedBox(height: 10),
+            pw.Text(words.payment, style: bold),
+            for (final p in sale.payments)
+              pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      [
+                        words.method(p.method),
+                        ?p.bank,
+                        if (p.date != sale.date) mdfDay(p.date),
+                      ].join(' · '),
+                    ),
+                  ),
+                  pw.Text(money.format(p.amount)),
+                ],
+              ),
+          ],
+          if (sale.seller != null) ...[
+            pw.SizedBox(height: 10),
+            pw.Text(words.servedBy(sale.seller!)),
+          ],
+          pw.Spacer(),
+          pw.Divider(color: PdfColors.grey600, thickness: 0.5),
+          pw.Center(
+            child: pw.Text(
+              words.thanks,
+              style: const pw.TextStyle(
+                fontSize: 13,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+          pw.SizedBox(height: 4),
+          pw.Center(
+            child: pw.Text(
+              words.wish,
+              textAlign: pw.TextAlign.center,
+              style: const pw.TextStyle(color: PdfColors.grey700),
             ),
           ),
         ],

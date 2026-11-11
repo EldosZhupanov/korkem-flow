@@ -6501,4 +6501,25 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmDriverPhone => 'Телефон водителя';
+
+  @override
+  String get filmFree => 'Свободно';
+
+  @override
+  String get filmHeld => 'Отложено';
+
+  @override
+  String get filmReceiptPayment => 'Оплата';
+
+  @override
+  String filmReceiptServedBy(String name) {
+    return 'Вас обслуживал(а): $name';
+  }
+
+  @override
+  String get filmReceiptThanks => 'Спасибо, что выбрали нас!';
+
+  @override
+  String get filmReceiptWish =>
+      'Отличный выбор — пусть ваши фасады радуют вас долгие годы. Будем рады видеть вас снова!';
 }
