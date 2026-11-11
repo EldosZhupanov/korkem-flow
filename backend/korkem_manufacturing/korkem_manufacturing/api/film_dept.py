@@ -24,12 +24,32 @@ def history(item: str, limit: int | str = 100) -> list[dict]:
 @frappe.whitelist(methods=["POST"])
 def receive(item: str, metres: float | str, price_m: float | str, supplier: str,
 			received_on: str | None = None, note: str | None = None, update_price: str | bool = True,
-			delivery: str | dict | None = None, received_by: str | None = None) -> dict:
-	"""Приход: метры и цена за метр; как пришла, за сколько привезли, кто принял."""
+			delivery: str | dict | None = None, received_by: str | None = None,
+			arrives_on: str | None = None) -> dict:
+	"""Приход: метры и цена за метр; как пришла, за сколько привезли, кто принял;
+	когда прибудет — если ещё в пути."""
 	return service.receive(
 		item, metres, price_m, supplier, received_on=received_on, note=note, update_price=update_price,
-		delivery=delivery, received_by=received_by,
+		delivery=delivery, received_by=received_by, arrives_on=arrives_on,
 	)
+
+
+@frappe.whitelist(methods=["POST"])
+def arrived(entry: str, metres: float | str | None = None) -> dict:
+	"""Плёнка в пути пришла: на склад сегодня; метры — если пришло не столько."""
+	return service.arrived(entry, metres=metres)
+
+
+@frappe.whitelist(methods=["POST"])
+def reschedule(entry: str, arrives_on: str) -> dict:
+	"""Плёнка в пути задерживается: новая дата прибытия."""
+	return service.reschedule(entry, arrives_on)
+
+
+@frappe.whitelist(methods=["POST"])
+def drop_coming(entry: str, reason: str) -> dict:
+	"""Плёнка в пути не придёт — с причиной."""
+	return service.drop_coming(entry, reason)
 
 
 @frappe.whitelist(methods=["POST"])

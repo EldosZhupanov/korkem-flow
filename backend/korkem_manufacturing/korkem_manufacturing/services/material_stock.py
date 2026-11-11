@@ -548,8 +548,12 @@ def receive(
 	received_on: str | None = None,
 	note: str | None = None,
 	delivery: dict | None = None,
+	post: bool = True,
 ) -> dict:
 	"""Bought `qty` of `item` from `supplier` at `price_per_unit` each.
+
+	`post=False` writes it and leaves it unposted — bought, on its way, in
+	nobody's stock until it comes (film, owner 11.11.2026).
 
 	`delivery` — what bringing it cost (`amount`, `from_city`, `transport`,
 	optionally `carrier`, `urgent`, `ordered_on`) — is written as its own
@@ -607,9 +611,10 @@ def receive(
 	# Who may receive is decided above, by role; the warehouse clerk role is
 	# not required to be a stock accountant in ERPNext.
 	entry.insert(ignore_permissions=True)
-	entry.submit()
+	if post:
+		entry.submit()
 	audit.record_audit(
-		action="stock.material_received",
+		action="stock.material_received" if post else "stock.material_ordered",
 		entity_type="Stock Entry",
 		entity_id=entry.name,
 		diff={"item": item, "qty": float(quantity), "price": float(price), "supplier": supplier, "warehouse": target},

@@ -116,13 +116,18 @@ def _person(user: str | None) -> str | None:
 
 
 def receive(item: str, metres, price_m, supplier: str, received_on: str | None = None,
-			note: str | None = None, update_price=True, delivery=None, received_by: str | None = None) -> dict:
+			note: str | None = None, update_price=True, delivery=None, received_by: str | None = None,
+			arrives_on: str | None = None) -> dict:
 	"""A roll or a cut bought from a wholesaler: so many metres at so much a metre.
+
+	`arrives_on` after today: bought, on its way — not on the shelf and not
+	for sale until it comes (owner, 11.11.2026); see `arrived`.
 
 	The price paid becomes the card's purchase price (owner, 11.11.2026:
 	prices change) — unless `update_price` is off, for a one-off discount.
 	"""
 	_film(item)
+	due = _due(arrives_on)
 	# How it came (owner, 11.11.2026). Left out: as the last roll of this
 	# supplier came, else «привёз поставщик»; from the supplier's city; free;
 	# taken in by whoever enters it.
@@ -151,14 +156,123 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 		# What the bringing cost goes to logistics, apart from the price.
 		delivery={"amount": cost, "from_city": city or "не указан", "transport": transport, "urgent": urgent}
 		if cost > 0 else None,
+		post=due is None,
 	)
 	frappe.db.set_value("Stock Entry", result["receipt"], {
 		"korkem_received_by": taker, "korkem_delivery_transport": transport, "korkem_delivery_city": city or None,
 		"korkem_delivery_cost": float(cost), "korkem_delivery_urgent": 1 if urgent else 0,
+		"korkem_film_due": str(due) if due else None,
 	}, update_modified=False)
 	if _yes(update_price) and flt(price_m) > 0:
 		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
 	return {"receipt": result["receipt"], "film": film_catalog.film(item)}
+
+
+#: How far ahead a roll may be expected.
+MAX_DUE_DAYS = 180
+
+
+def _due(arrives_on) -> object | None:
+	"""The day a roll is expected; None when it is here already."""
+	if not arrives_on or not str(arrives_on).strip():
+		return None
+	day = getdate(arrives_on)
+	today = getdate(nowdate())
+	if day <= today:
+		return None
+	if day > getdate(add_days(today, MAX_DUE_DAYS)):
+		frappe.throw("Дата прибытия — не дальше чем через полгода.")
+	return day
+
+
+def _coming(entry: str):
+	"""A roll on its way: an unposted film receipt of this company."""
+	material_stock._ensure_editor()
+	doc = frappe.get_doc("Stock Entry", entry) if frappe.db.exists("Stock Entry", entry) else None
+	if (not doc or doc.company != current_company() or not doc.korkem_material_receipt
+			or doc.docstatus != 0 or not doc.get("korkem_film_due")):
+		frappe.throw("Такой плёнки в пути нет.", frappe.DoesNotExistError)
+	return doc
+
+
+def arrived(entry: str, metres=None) -> dict:
+	"""The roll on its way is here: on the shelf today. `metres` — when
+	fewer (or more) came than were ordered."""
+	doc = _coming(entry)
+	line = doc.items[0]
+	if metres not in (None, ""):
+		qty = flt(metres)
+		if qty <= 0 or qty > material_stock.MAX_QTY:
+			frappe.throw("Метры должны быть больше нуля.")
+		line.qty = qty
+	today = nowdate()
+	doc.posting_date = today
+	doc.set_posting_time = 1
+	doc.flags.ignore_permissions = True
+	doc.save()
+	doc.submit()
+	audit.record_audit(action="film.arrived", entity_type="Stock Entry", entity_id=entry,
+					   diff={"item": line.item_code, "metres": flt(line.qty), "due": str(doc.korkem_film_due)})
+	return {"receipt": entry, "film": film_catalog.film(line.item_code)}
+
+
+def reschedule(entry: str, arrives_on: str) -> dict:
+	"""The supplier is late: the roll is now expected another day."""
+	doc = _coming(entry)
+	day = _due(arrives_on)
+	if day is None:
+		frappe.throw("Новая дата — позже сегодняшней. Если плёнка уже пришла — «Пришла».")
+	old = doc.korkem_film_due
+	frappe.db.set_value("Stock Entry", entry, "korkem_film_due", str(day), update_modified=False)
+	audit.record_audit(action="film.rescheduled", entity_type="Stock Entry", entity_id=entry,
+					   diff={"from": str(old), "to": str(day)})
+	return {"receipt": entry, "due": str(day)}
+
+
+def drop_coming(entry: str, reason: str) -> dict:
+	"""The roll on its way will not come: the order is struck off, with why."""
+	doc = _coming(entry)
+	reason = " ".join(str(reason or "").split())[:140]
+	if not reason:
+		frappe.throw("Скажите, почему плёнка не придёт.")
+	item = doc.items[0].item_code
+	audit.record_audit(action="film.order_dropped", entity_type="Stock Entry", entity_id=entry,
+					   diff={"item": item, "metres": flt(doc.items[0].qty), "reason": reason})
+	for delivery in frappe.get_all("Logistics Delivery", filters={"receipt": entry, "cancelled": 0}, pluck="name"):
+		frappe.db.set_value("Logistics Delivery", delivery, {
+			"cancelled": 1, "cancelled_by": frappe.session.user, "cancel_reason": f"Плёнка не придёт: {reason}",
+		})
+	# Kept unposted, no longer due: the order stays on record, out of every
+	# count (a draft is in nobody's stock).
+	frappe.db.set_value("Stock Entry", entry, {"remarks": f"Не придёт: {reason}", "korkem_film_due": None},
+						update_modified=False)
+	return {"receipt": entry, "status": "dropped"}
+
+
+def coming(company: str | None = None) -> dict[str, list[dict]]:
+	"""Film by film, what is on its way and when it is due."""
+	today = getdate(nowdate())
+	out: dict[str, list[dict]] = {}
+	for e in frappe.get_all(
+		"Stock Entry",
+		filters={"company": company or current_company(), "docstatus": 0, "korkem_material_receipt": 1,
+				 "korkem_film_due": ["is", "set"]},
+		fields=["name", "korkem_film_due", "korkem_supplier"],
+		order_by="korkem_film_due asc",
+		limit_page_length=500,
+	):
+		line = frappe.db.get_value("Stock Entry Detail", {"parent": e.name}, ["item_code", "qty"], as_dict=True)
+		if not line:
+			continue
+		late = date_diff(today, e.korkem_film_due)
+		out.setdefault(line.item_code, []).append({
+			"entry": e.name,
+			"metres": flt(line.qty),
+			"due": str(e.korkem_film_due),
+			"late_days": max(late, 0),
+			"supplier": frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier,
+		})
+	return out
 
 
 def _yes(value) -> bool:
@@ -469,8 +583,11 @@ def stock() -> dict:
 	catalog = film_catalog.catalog()
 	# A film in the archive is shown while metres of it are left: they can
 	# still be sold or written off (owner, 11.11.2026).
-	films = [f for f in catalog["films"] if f["enabled"] or f["on_hand"] > 0]
+	on_way = coming()
+	films = [f for f in catalog["films"] if f["enabled"] or f["on_hand"] > 0 or f["item"] in on_way]
 	for f in films:
+		# On its way, owner 11.11.2026: shown, not counted as free.
+		f["coming"] = on_way.get(f["item"], [])
 		free = flt(f["on_hand"]) - flt(f["held"])
 		f["free"] = free
 		f["low"] = bool(f["min_stock"]) and free < flt(f["min_stock"])

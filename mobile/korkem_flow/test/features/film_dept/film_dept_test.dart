@@ -32,6 +32,15 @@ const _stock = <String, dynamic>{
       'on_hand': 6,
       'held': 0,
       'low': true,
+      'coming': [
+        {
+          'entry': 'STE-30',
+          'metres': 30,
+          'due': '2026-11-13',
+          'late_days': 1,
+          'supplier': 'МС-Груп',
+        },
+      ],
     },
   ],
   'suppliers': [
@@ -49,6 +58,12 @@ class _Fake implements FilmDeptRepository {
   final parts = <List<({double amount, String method, String? bank})>>[];
   final received = <(String, double, double, bool)>[];
   final deliveries = <(Map<String, Object?>?, String?)>[];
+  final arrivals = <String?>[];
+  final came = <(String, double?)>[];
+
+  @override
+  Future<void> arrived(String entry, {double? metres}) async =>
+      came.add((entry, metres));
   final sellers = <String?>[];
   final teamSet = <(double, double, double)>[];
 
@@ -130,7 +145,9 @@ class _Fake implements FilmDeptRepository {
     bool updatePrice = true,
     Map<String, Object?>? delivery,
     String? receivedBy,
+    String? arrivesOn,
   }) async {
+    arrivals.add(arrivesOn);
     received.add((item, metres, priceM, updatePrice));
     deliveries.add((delivery, receivedBy));
   }
@@ -389,6 +406,52 @@ void main() {
       'urgent': false,
     });
     expect(repo.deliveries.single.$2, 'a@k.kz');
+    // On its way, due in two days unless said.
+    final now = DateTime.now();
+    expect(
+      repo.arrivals.single,
+      DateTime(
+        now.year,
+        now.month,
+        now.day + 2,
+      ).toIso8601String().substring(0, 10),
+    );
+  });
+
+  testWidgets('a roll already here goes on the shelf at once', (tester) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmStock:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmPage:receive')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
+    await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3500');
+    expect(find.byKey(const ValueKey('filmArrival:day')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmArrival:0')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmArrival:day')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('filmReceiveSave')));
+    await tester.pumpAndSettle();
+    expect(repo.arrivals.single, isNull);
+  });
+
+  testWidgets('a roll on its way is late; when it comes, fewer metres', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmStock:MAT-2')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmComing:0')), findsOneWidget);
+    // Beside the name: what is on the shelf and what is on its way.
+    expect(find.text('6 м'), findsOneWidget);
+    expect(find.text('30 м'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmComing:arrived')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '28');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmArrivedSave')));
+    await tester.pumpAndSettle();
+    expect(repo.came.single, ('STE-30', 28.0));
   });
 
   testWidgets('a receipt says how it came, what that cost, who took it in', (

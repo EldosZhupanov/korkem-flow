@@ -6094,4 +6094,64 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmTeamSave => 'Сақтау';
+
+  @override
+  String get filmArrival => 'Қашан келеді';
+
+  @override
+  String get filmArrivalHere => 'Қоймада бар';
+
+  @override
+  String get filmArrivalTomorrow => 'Ертең';
+
+  @override
+  String get filmArrivalTwo => '2 күннен кейін';
+
+  @override
+  String get filmArrivalThree => '3 күн';
+
+  @override
+  String get filmArrivalWeek => 'Бір апта';
+
+  @override
+  String get filmArrivalPick => 'Күні…';
+
+  @override
+  String filmArrivesOn(String day) {
+    return 'Келеді: $day';
+  }
+
+  @override
+  String get filmArrivalOrder => 'Рәсімдеу';
+
+  @override
+  String filmComing(String metres, String day) {
+    return 'жолда $metres м · $day келеді';
+  }
+
+  @override
+  String filmComingLate(String metres, String days) {
+    return 'жолда $metres м · $days күн кешігуде';
+  }
+
+  @override
+  String get filmComingArrived => 'Келді';
+
+  @override
+  String get filmComingMove => 'Басқа күн';
+
+  @override
+  String get filmComingDrop => 'Келмейді';
+
+  @override
+  String get filmComingDropReason => 'Неге келмейді';
+
+  @override
+  String get filmComingMetres => 'Қанша келді, м';
+
+  @override
+  String get filmOnShelf => 'Қоймада';
+
+  @override
+  String get filmOnWay => 'Жолда';
 }

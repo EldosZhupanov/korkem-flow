@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
@@ -96,6 +97,11 @@ Widget _withList(
   ],
 );
 
+/// «пятница, 13.11» — the day a roll is due, as the shop says it.
+String _dayName(BuildContext context, DateTime day) =>
+    '${DateFormat.EEEE(Localizations.localeOf(context).toString()).format(day)}'
+    ', ${mdfDay(mdfIso(day), year: false)}';
+
 /// Who works here, to pick who took a roll in or who sold — the one
 /// signed in first.
 Widget _personField({
@@ -156,6 +162,35 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   // How it came (owner, 11.11.2026): by default as this supplier's last
   // roll came, from the city on its card; nothing paid; taken in by me.
   final _cost = TextEditingController();
+
+  /// When it arrives (owner, 11.11.2026): in two days unless said; 0 — it
+  /// is here already. A day picked on the calendar wins.
+  int _inDays = 2;
+  DateTime? _picked;
+
+  DateTime? get _due {
+    if (_picked != null) return _picked;
+    if (_inDays == 0) return null;
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day + _inDays);
+  }
+
+  Future<void> _pickDay() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _due ?? now.add(const Duration(days: 2)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 180)),
+    );
+    if (picked == null || !mounted) return;
+    final today = DateTime(now.year, now.month, now.day);
+    setState(() {
+      _picked = picked.isAfter(today) ? picked : null;
+      if (_picked == null) _inDays = 0;
+    });
+  }
+
   String? _transport;
   String? _city;
   String? _taker;
@@ -252,6 +287,51 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                             widget.film.priceM!.toStringAsFixed(0),
                             price.toStringAsFixed(0),
                           ),
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                l10n.filmArrival,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  for (final (days, label) in [
+                    (0, l10n.filmArrivalHere),
+                    (1, l10n.filmArrivalTomorrow),
+                    (2, l10n.filmArrivalTwo),
+                    (3, l10n.filmArrivalThree),
+                    (7, l10n.filmArrivalWeek),
+                  ])
+                    ChoiceChip(
+                      key: ValueKey('filmArrival:$days'),
+                      label: Text(label),
+                      selected: _picked == null && _inDays == days,
+                      onSelected: (_) => setState(() {
+                        _picked = null;
+                        _inDays = days;
+                      }),
+                    ),
+                  ActionChip(
+                    key: const ValueKey('filmArrival:pick'),
+                    avatar: const Icon(AppIcons.calendar),
+                    label: Text(
+                      _picked == null
+                          ? l10n.filmArrivalPick
+                          : mdfDayOf(_picked!),
+                    ),
+                    onPressed: _pickDay,
+                  ),
+                ],
+              ),
+              if (_due case final due?)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  child: Text(
+                    l10n.filmArrivesOn(_dayName(context, due)),
+                    key: const ValueKey('filmArrival:day'),
                   ),
                 ),
               if (opts != null) ...[
@@ -362,9 +442,13 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                                 'urgent': _urgent,
                               },
                         receivedBy: opts == null ? null : _taker ?? opts.me,
+                        arrivesOn: _due == null ? null : mdfIso(_due!),
                       ),
                 ),
-          child: Text(l10n.filmReceive),
+          // On its way: ordered, not taken in yet.
+          child: Text(
+            _due == null ? l10n.filmReceive : l10n.filmArrivalOrder,
+          ),
         ),
       ],
     );
@@ -1415,6 +1499,65 @@ class _CorrectDialogState extends ConsumerState<_CorrectDialog> with _Saving {
                   ),
                 ),
           child: Text(l10n.filmCorrectSave),
+        ),
+      ],
+    );
+  }
+}
+
+/// «Пришла»: the roll on its way is here — as many metres as were ordered
+/// unless fewer (or more) came. Returns the metres, or null if not saved.
+Future<double?> showFilmArrived(BuildContext context, FilmComing coming) =>
+    showDialog<double>(
+      context: context,
+      builder: (_) => _ArrivedDialog(coming: coming),
+    );
+
+class _ArrivedDialog extends StatefulWidget {
+  const _ArrivedDialog({required this.coming});
+
+  final FilmComing coming;
+
+  @override
+  State<_ArrivedDialog> createState() => _ArrivedDialogState();
+}
+
+class _ArrivedDialogState extends State<_ArrivedDialog> {
+  late final _metres = TextEditingController(
+    text: filmMetres(widget.coming.metres),
+  );
+
+  @override
+  void dispose() {
+    _metres.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final metres = _number(_metres.text) ?? 0;
+    return AlertDialog(
+      title: Text(l10n.filmComingArrived),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 6,
+        child: _metresField(
+          _metres,
+          l10n.filmComingMetres,
+          () => setState(() {}),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmArrivedSave'),
+          onPressed: metres <= 0
+              ? null
+              : () => Navigator.of(context).pop(metres),
+          child: Text(l10n.filmComingArrived),
         ),
       ],
     );

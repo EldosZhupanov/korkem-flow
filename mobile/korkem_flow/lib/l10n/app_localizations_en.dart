@@ -6132,4 +6132,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmTeamSave => 'Save';
+
+  @override
+  String get filmArrival => 'When it arrives';
+
+  @override
+  String get filmArrivalHere => 'Already in stock';
+
+  @override
+  String get filmArrivalTomorrow => 'Tomorrow';
+
+  @override
+  String get filmArrivalTwo => 'In 2 days';
+
+  @override
+  String get filmArrivalThree => '3 days';
+
+  @override
+  String get filmArrivalWeek => 'A week';
+
+  @override
+  String get filmArrivalPick => 'Date…';
+
+  @override
+  String filmArrivesOn(String day) {
+    return 'Arrives: $day';
+  }
+
+  @override
+  String get filmArrivalOrder => 'Place';
+
+  @override
+  String filmComing(String metres, String day) {
+    return 'on its way $metres m · arrives $day';
+  }
+
+  @override
+  String filmComingLate(String metres, String days) {
+    return 'on its way $metres m · $days d late';
+  }
+
+  @override
+  String get filmComingArrived => 'Arrived';
+
+  @override
+  String get filmComingMove => 'Another date';
+
+  @override
+  String get filmComingDrop => 'Won\'t come';
+
+  @override
+  String get filmComingDropReason => 'Why it won\'t come';
+
+  @override
+  String get filmComingMetres => 'Metres that came';
+
+  @override
+  String get filmOnShelf => 'In stock';
+
+  @override
+  String get filmOnWay => 'On its way';
 }

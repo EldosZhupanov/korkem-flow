@@ -75,6 +75,7 @@ class FilmDeptRepository {
     bool updatePrice = true,
     Map<String, Object?>? delivery,
     String? receivedBy,
+    String? arrivesOn,
   }) => _client.callMethod(
     '$_base.receive',
     post: true,
@@ -87,7 +88,30 @@ class FilmDeptRepository {
       // How it came, what that cost, who took it in (owner, 11.11.2026).
       if (delivery != null) 'delivery': jsonEncode(delivery),
       'received_by': ?receivedBy,
+      // After today: on its way, not on the shelf until it comes.
+      'arrives_on': ?arrivesOn,
     },
+  );
+
+  /// The roll on its way came: on the shelf today; [metres] if not as many.
+  Future<void> arrived(String entry, {double? metres}) => _client.callMethod(
+    '$_base.arrived',
+    post: true,
+    params: {'entry': entry, 'metres': ?metres},
+  );
+
+  /// The supplier is late: the roll is due another day.
+  Future<void> reschedule(String entry, String arrivesOn) => _client.callMethod(
+    '$_base.reschedule',
+    post: true,
+    params: {'entry': entry, 'arrives_on': arrivesOn},
+  );
+
+  /// The roll on its way will not come.
+  Future<void> dropComing(String entry, String reason) => _client.callMethod(
+    '$_base.drop_coming',
+    post: true,
+    params: {'entry': entry, 'reason': reason},
   );
 
   Future<FilmDeliveryOptions> deliveryOptions() async =>
