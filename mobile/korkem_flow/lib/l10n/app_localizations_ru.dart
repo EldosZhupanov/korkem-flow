@@ -5641,9 +5641,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmCode => 'Код';
 
   @override
-  String get filmSample => 'Образец цвета (#F4F3EE)';
-
-  @override
   String get filmRal => 'Близкий RAL';
 
   @override
@@ -5689,6 +5686,82 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmTabCustomers => 'Клиенты';
+
+  @override
+  String get filmTabSources => 'Поставщики';
+
+  @override
+  String get filmSourceAdd => 'Поставщик';
+
+  @override
+  String get filmSourcesEmpty =>
+      'Поставщиков пока нет. Добавьте, где берёте плёнку: филиал производителя в городе или оптовика.';
+
+  @override
+  String get filmSourceName => 'Название (например, Adilet · Алматы)';
+
+  @override
+  String get filmSrcKind => 'Кто это (филиал, оптовик)';
+
+  @override
+  String get filmSrcCity => 'Город';
+
+  @override
+  String get filmSrcContact => 'Контактное лицо';
+
+  @override
+  String get filmSrcPhone => 'Телефон';
+
+  @override
+  String get filmSrcPhone2 => 'Второй телефон';
+
+  @override
+  String get filmSrcWhatsapp => 'WhatsApp';
+
+  @override
+  String get filmSrcAddress => 'Адрес склада';
+
+  @override
+  String get filmSrcLead => 'Срок доставки';
+
+  @override
+  String get filmSrcMinOrder => 'Минимальная партия';
+
+  @override
+  String get filmSrcNote => 'Заметка';
+
+  @override
+  String get filmSrcMakers => 'Чьи плёнки продаёт';
+
+  @override
+  String get filmSourceRemove => 'Убрать из списка';
+
+  @override
+  String filmSourceRemoveAsk(String name) {
+    return 'Убрать поставщика «$name»?';
+  }
+
+  @override
+  String get filmSourceRemoveHint => 'Приходы от него останутся в истории.';
+
+  @override
+  String get filmMakerCard => 'Карточка производителя';
+
+  @override
+  String get filmMakerSite => 'Сайт';
+
+  @override
+  String get filmMakerSources => 'Где берём эту плёнку';
+
+  @override
+  String get filmMakerNoSources =>
+      'Пока не указано, где брать. Добавьте источник.';
+
+  @override
+  String get filmSourceNew => 'Добавить источник';
+
+  @override
+  String get filmReceiveFrom => 'Откуда пришла';
 
   @override
   String get filmSell => 'Продать';
@@ -5813,4 +5886,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmDeptHint => 'Склад плёнки, продажа на метраж, клиенты';
+
+  @override
+  String get filmPayDebt => 'Доплатить, ₸';
+
+  @override
+  String get filmCancelMove => 'Отменить продажу';
+
+  @override
+  String get filmCancelReason => 'Почему отменяете';
+
+  @override
+  String get filmClose => 'Закрыть';
 }

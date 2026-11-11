@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// «Плёнки ПВХ» (owner, 10.11.2026): a tab per maker, never one list of all
@@ -109,16 +110,27 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
         const SizedBox(height: AppSpacing.sm),
         // A film is added here, at its maker (owner, 10.11.2026) — and its
         // card opens at once to be filled in.
-        if (c.canEdit)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FilledButton.icon(
-              key: ValueKey('filmAdd:$maker'),
-              onPressed: () => _add(c, maker),
-              icon: const Icon(AppIcons.add),
-              label: Text(l10n.filmAdd),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.xs,
+          children: [
+            if (c.canEdit)
+              FilledButton.icon(
+                key: ValueKey('filmAdd:$maker'),
+                onPressed: () => _add(c, maker),
+                icon: const Icon(AppIcons.add),
+                label: Text(l10n.filmAdd),
+              ),
+            // Where this maker's film is bought, and whom to ring (owner,
+            // 11.11.2026).
+            OutlinedButton.icon(
+              key: ValueKey('filmMakerCard:$maker'),
+              onPressed: () => showFilmMakerCard(context, maker),
+              icon: const Icon(AppIcons.call),
+              label: Text(l10n.filmMakerCard),
             ),
-          ),
+          ],
+        ),
         if (films.isEmpty)
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
@@ -266,7 +278,7 @@ class FilmTile extends StatelessWidget {
       child: ListTile(
         key: ValueKey('film:${f.item}'),
         onTap: onTap,
-        leading: FilmSample(argb: f.argb),
+        leading: f.argb == null ? null : FilmSample(argb: f.argb),
         title: Text(
           [f.colour, ?f.code].join(' · '),
           style: const TextStyle(fontWeight: FontWeight.w600),
@@ -292,7 +304,8 @@ class FilmTile extends StatelessWidget {
   }
 }
 
-/// A film's sample square; an empty frame when no colour is set.
+/// A film's sample square — shown only for a film that was given a colour
+/// (the makers publish RAL, not a colour code, so the card no longer asks).
 class FilmSample extends StatelessWidget {
   const FilmSample({required this.argb, this.size = AppSpacing.xl, super.key});
 
@@ -330,7 +343,6 @@ class _Unassigned extends StatelessWidget {
         for (final c in colours)
           ListTile(
             key: ValueKey('filmLoose:$c'),
-            leading: const FilmSample(argb: null),
             title: Text(c),
           ),
       ],
@@ -357,7 +369,6 @@ class _FilmCardDialog extends ConsumerStatefulWidget {
 
 class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
   late final _code = TextEditingController(text: widget.film.code);
-  late final _hex = TextEditingController(text: widget.film.hex);
   late final _ral = TextEditingController(text: widget.film.ral);
   late final _price = TextEditingController(
     text: widget.film.priceM?.toStringAsFixed(0),
@@ -376,7 +387,7 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
 
   @override
   void dispose() {
-    for (final c in [_code, _hex, _ral, _price, _url, _retail, _wholesale]) {
+    for (final c in [_code, _ral, _price, _url, _retail, _wholesale]) {
       c.dispose();
     }
     super.dispose();
@@ -391,7 +402,6 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
       await ref.read(filmCatalogRepositoryProvider).setCard(widget.film.item, {
         'code': _code.text.trim(),
         'type': _type,
-        'hex': _hex.text.trim(),
         'ral': _ral.text.trim(),
         'supplier': _supplier,
         'price_m': _price.text.trim(),
@@ -421,13 +431,7 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
           decoration: InputDecoration(labelText: label),
         );
     return AlertDialog(
-      title: Row(
-        children: [
-          FilmSample(argb: f.argb, size: AppSpacing.xxl),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(child: Text('${f.colour}\n${f.maker}')),
-        ],
-      ),
+      title: Text('${f.colour}\n${f.maker}'),
       content: SizedBox(
         width: AppSpacing.xxxl * 10,
         child: SingleChildScrollView(
@@ -450,16 +454,16 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog> {
                 onChanged: (v) => setState(() => _type = v),
                 decoration: InputDecoration(labelText: l10n.filmType),
               ),
-              field('hex', _hex, l10n.filmSample),
               field('ral', _ral, l10n.filmRal),
               DropdownButtonFormField<String?>(
                 key: const ValueKey('filmCard:supplier'),
-                initialValue: c.suppliers.any((s) => s.id == _supplier)
+                initialValue:
+                    c.suppliersFor(f.maker).any((s) => s.id == _supplier)
                     ? _supplier
                     : null,
                 items: [
                   DropdownMenuItem(child: Text(l10n.mdfNone)),
-                  for (final s in c.suppliers)
+                  for (final s in c.suppliersFor(f.maker))
                     DropdownMenuItem(value: s.id, child: Text(s.name)),
                 ],
                 onChanged: (v) => setState(() => _supplier = v),

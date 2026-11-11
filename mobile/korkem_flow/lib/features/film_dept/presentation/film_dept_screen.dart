@@ -9,6 +9,7 @@ import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_scre
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
+import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -24,7 +25,7 @@ class FilmDeptScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.filmDeptTitle),
@@ -57,11 +58,20 @@ class FilmDeptScreen extends ConsumerWidget {
                 key: const ValueKey('filmTab:customers'),
                 text: l10n.filmTabCustomers,
               ),
+              Tab(
+                key: const ValueKey('filmTab:sources'),
+                text: l10n.filmTabSources,
+              ),
             ],
           ),
         ),
         body: const TabBarView(
-          children: [_StockTab(), _SalesTab(), _CustomersTab()],
+          children: [
+            _StockTab(),
+            _SalesTab(),
+            _CustomersTab(),
+            FilmSourcesTab(),
+          ],
         ),
       ),
     );
@@ -171,7 +181,7 @@ class _StockTile extends StatelessWidget {
     return ListTile(
       key: ValueKey('filmStock:${f.item}'),
       onTap: onTap,
-      leading: FilmSample(argb: f.argb),
+      leading: f.argb == null ? null : FilmSample(argb: f.argb),
       title: Text(
         filmName(f),
         style: const TextStyle(fontWeight: FontWeight.w600),
@@ -231,8 +241,10 @@ class FilmPage extends ConsumerWidget {
         children: [
           Row(
             children: [
-              FilmSample(argb: film.argb, size: AppSpacing.xxxl),
-              const SizedBox(width: AppSpacing.md),
+              if (film.argb != null) ...[
+                FilmSample(argb: film.argb, size: AppSpacing.xxxl),
+                const SizedBox(width: AppSpacing.md),
+              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,6 +397,11 @@ class _SalesTab extends ConsumerWidget {
           for (final (i, s) in rows.indexed)
             ListTile(
               key: ValueKey('filmSaleRow:$i'),
+              // The sale's own card: a debt paid off, a mistake cancelled.
+              onTap: () async {
+                final done = await showFilmSaleCard(context, s);
+                if (done ?? false) _refresh(ref);
+              },
               title: Text(
                 '${mdfDay(s.date)} · ${s.customerName ?? '—'}',
                 style: const TextStyle(fontWeight: FontWeight.w600),

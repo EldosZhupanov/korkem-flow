@@ -6208,7 +6208,6 @@
   "filmUnassigned": "no maker",
   "filmUnassignedHint": "Colours with no maker. Add the film in materials stock with its maker — old orders stay as they are.",
   "filmCode": "Code",
-  "filmSample": "Sample colour (#F4F3EE)",
   "filmRal": "Nearest RAL",
   "filmSupplier": "Supplier",
   "filmPriceM": "Supplier price, ₸/m",
@@ -6231,6 +6230,37 @@
   "filmTabStock": "Stock",
   "filmTabSales": "Sales",
   "filmTabCustomers": "Customers",
+  "filmTabSources": "Suppliers",
+  "filmSourceAdd": "Supplier",
+  "filmSourcesEmpty": "No suppliers yet. Add where film is bought: a maker's branch in a city or a wholesaler.",
+  "filmSourceName": "Name (e.g. Adilet · Almaty)",
+  "filmSrcKind": "Who it is (branch, wholesaler)",
+  "filmSrcCity": "City",
+  "filmSrcContact": "Contact person",
+  "filmSrcPhone": "Phone",
+  "filmSrcPhone2": "Second phone",
+  "filmSrcWhatsapp": "WhatsApp",
+  "filmSrcAddress": "Warehouse address",
+  "filmSrcLead": "Delivery time",
+  "filmSrcMinOrder": "Smallest order",
+  "filmSrcNote": "Note",
+  "filmSrcMakers": "Whose films it sells",
+  "filmSourceRemove": "Remove from the list",
+  "filmSourceRemoveAsk": "Remove supplier “{name}”?",
+  "@filmSourceRemoveAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSourceRemoveHint": "Its receipts stay in the history.",
+  "filmMakerCard": "Maker's card",
+  "filmMakerSite": "Site",
+  "filmMakerSources": "Where this film is bought",
+  "filmMakerNoSources": "Nowhere to buy it is named yet. Add a source.",
+  "filmSourceNew": "Add a source",
+  "filmReceiveFrom": "Where it came from",
   "filmSell": "Sell",
   "filmReceive": "Receipt",
   "filmToShop": "To the shop",
@@ -6309,5 +6339,9 @@
   "filmMoveShop": "to the shop",
   "filmMoveWriteOff": "write-off",
   "filmMoveOther": "issue",
-  "filmDeptHint": "Film stock, sales by the metre, customers"
+  "filmDeptHint": "Film stock, sales by the metre, customers",
+  "filmPayDebt": "Pay off, ₸",
+  "filmCancelMove": "Cancel the sale",
+  "filmCancelReason": "Why cancel",
+  "filmClose": "Close"
 }
