@@ -6222,7 +6222,7 @@
   "filmCode": "Code",
   "filmRal": "Nearest RAL",
   "filmSupplier": "Supplier",
-  "filmPriceM": "Supplier price, ₸/m",
+  "filmPriceM": "Purchase, ₸/m",
   "filmUrl": "Web page",
   "filmSave": "Save",
   "filmAdd": "Film",

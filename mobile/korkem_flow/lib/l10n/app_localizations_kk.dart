@@ -5622,7 +5622,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmSupplier => 'Жеткізуші';
 
   @override
-  String get filmPriceM => 'Жеткізуші бағасы, ₸/м';
+  String get filmPriceM => 'Сатып алу, ₸/м';
 
   @override
   String get filmUrl => 'Сайтқа сілтеме';

@@ -5683,7 +5683,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmSupplier => 'Поставщик';
 
   @override
-  String get filmPriceM => 'Цена у поставщика, ₸/м';
+  String get filmPriceM => 'Закуп, ₸/м';
 
   @override
   String get filmUrl => 'Ссылка на сайт';

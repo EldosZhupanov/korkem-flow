@@ -24,10 +24,16 @@ enum MdfDictKind {
   maker,
 
   /// A PVC film's type — матовая, софт, древесная, глянец … (10.11.2026).
-  filmType;
+  filmType,
+
+  /// A roll's thickness and width — 0,3 · 0,35; 1400 · 1200 (11.11.2026).
+  filmThickness,
+  filmWidth;
 
   String get wire => switch (this) {
     MdfDictKind.filmType => 'film_type',
+    MdfDictKind.filmThickness => 'film_thickness',
+    MdfDictKind.filmWidth => 'film_width',
     _ => name,
   };
 }
