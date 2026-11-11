@@ -30,6 +30,7 @@ class Film {
     this.priceSince = const {},
     this.low = false,
     this.url,
+    this.coming = const [],
   });
 
   factory Film.fromJson(Map<String, dynamic> json) => Film(
@@ -62,6 +63,17 @@ class Film {
     },
     low: json['low'] == true,
     url: _s(json['url']),
+    coming: [
+      for (final c in json['coming'] as List? ?? const [])
+        if (c is Map<String, dynamic>)
+          (
+            entry: '${c['entry']}',
+            metres: _d(c['metres']) ?? 0,
+            due: '${c['due'] ?? ''}',
+            lateDays: (c['late_days'] as num?)?.toInt() ?? 0,
+            supplier: _s(c['supplier']),
+          ),
+    ],
   );
 
   final String item;
@@ -116,6 +128,10 @@ class Film {
 
   /// What is free: on hand and not promised.
   double get free => onHand - held;
+
+  /// Bought and on its way — not on the shelf, not for sale until it comes
+  /// (owner, 11.11.2026).
+  final List<FilmComing> coming;
 
   /// The sample as a colour, or null when none is set.
   int? get argb {
@@ -309,3 +325,12 @@ class FilmChange {
           : '$what: ${before ?? '—'} → ${after ?? '—'}') +
       (via == null ? '' : ' ($via)');
 }
+
+/// A roll on its way: so many metres, due on a day, late by so many days.
+typedef FilmComing = ({
+  String entry,
+  double metres,
+  String due,
+  int lateDays,
+  String? supplier,
+});

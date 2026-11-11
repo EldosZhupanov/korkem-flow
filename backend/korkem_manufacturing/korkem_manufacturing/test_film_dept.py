@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import frappe
 from frappe.tests import IntegrationTestCase
-from frappe.utils import add_days, flt, nowdate
+from frappe.utils import add_days, flt, getdate, nowdate
 
 from korkem_manufacturing.services import film_catalog, film_dept as service
 from korkem_manufacturing.services import material_stock, price_visibility
@@ -185,6 +185,40 @@ class TestFilmDept(IntegrationTestCase):
 		options = self._as(MANAGER, service.delivery_options)
 		self.assertIn("Такси", options["transports"])
 		self.assertIn("Привёз поставщик", options["transports"])
+
+	def test_a_roll_on_its_way_is_not_on_the_shelf_until_it_comes(self):
+		def row() -> dict:
+			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
+
+		got = self._as(MANAGER, service.receive, self.film, 30, 3200, self.supplier,
+					   arrives_on=add_days(nowdate(), 2), delivery={"amount": 6000})
+		# Bought, on its way: shown as coming, not free, not in the history.
+		self.assertEqual(self._free(), 50)
+		coming = row()["coming"]
+		self.assertEqual([(c["entry"], c["metres"], c["late_days"]) for c in coming], [(got["receipt"], 30, 0)])
+		self.assertNotIn(got["receipt"], [m["entry"] for m in self._as(MANAGER, service.history, self.film)])
+		# The supplier is late: another day; a day gone by is refused.
+		self._as(MANAGER, service.reschedule, got["receipt"], add_days(nowdate(), 5))
+		self.assertEqual(row()["coming"][0]["due"], str(add_days(nowdate(), 5)))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.reschedule, got["receipt"], add_days(nowdate(), -1))
+		# It came, 28 m of the 30: on the shelf today.
+		self._as(MANAGER, service.arrived, got["receipt"], metres=28)
+		self.assertEqual(self._free(), 78)
+		self.assertEqual(row()["coming"], [])
+		self.assertEqual(frappe.db.get_value("Stock Entry", got["receipt"], "posting_date"), getdate(nowdate()))
+		with self.assertRaises(frappe.DoesNotExistError):
+			self._as(MANAGER, service.arrived, got["receipt"])
+		# One that will not come is struck off with why; the floor may do none of it.
+		other = self._as(MANAGER, service.receive, self.film, 10, 3200, self.supplier,
+						 arrives_on=add_days(nowdate(), 1))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.drop_coming, other["receipt"], " ")
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, service.arrived, other["receipt"])
+		self._as(MANAGER, service.drop_coming, other["receipt"], "поставщик отказал")
+		self.assertEqual(row()["coming"], [])
+		self.assertEqual(self._free(), 78)
 
 	def test_the_team_month_counts_the_paid_margin_by_seller(self):
 		from korkem_manufacturing.services import film_team

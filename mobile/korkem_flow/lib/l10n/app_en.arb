@@ -6604,5 +6604,50 @@
   "filmTeamPlanM": "Plan for the month, m",
   "filmTeamPct": "Pot when the plan is met, %",
   "filmTeamPctBelow": "Pot when the plan is missed, %",
-  "filmTeamSave": "Save"
+  "filmTeamSave": "Save",
+  "filmArrival": "When it arrives",
+  "filmArrivalHere": "Already in stock",
+  "filmArrivalTomorrow": "Tomorrow",
+  "filmArrivalTwo": "In 2 days",
+  "filmArrivalThree": "3 days",
+  "filmArrivalWeek": "A week",
+  "filmArrivalPick": "Date…",
+  "filmArrivesOn": "Arrives: {day}",
+  "@filmArrivesOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmArrivalOrder": "Place",
+  "filmComing": "on its way {metres} m · arrives {day}",
+  "@filmComing": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmComingLate": "on its way {metres} m · {days} d late",
+  "@filmComingLate": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "filmComingArrived": "Arrived",
+  "filmComingMove": "Another date",
+  "filmComingDrop": "Won't come",
+  "filmComingDropReason": "Why it won't come",
+  "filmComingMetres": "Metres that came",
+  "filmOnShelf": "In stock",
+  "filmOnWay": "On its way"
 }
