@@ -8,6 +8,7 @@ import 'package:korkem_flow/features/assistant/data/thread_store.dart';
 import 'package:korkem_flow/features/assistant/domain/assistant_event.dart';
 import 'package:korkem_flow/features/assistant/domain/chat_message.dart';
 import 'package:korkem_flow/features/assistant/domain/chat_thread.dart';
+import 'package:korkem_flow/features/assistant/presentation/chat_history.dart';
 import 'package:korkem_flow/features/assistant/presentation/chat_screen.dart';
 import 'package:korkem_flow/features/assistant/presentation/widgets/chat_empty_view.dart';
 
@@ -160,5 +161,82 @@ void main() {
 
     expect(find.byType(ChatEmptyView), findsOneWidget);
     expect(find.text('No conversations yet'), findsNothing);
+  });
+
+  // История — под кнопкой экрана чата (владелец, 11.11.2026): в боковой
+  // панели она выталкивала разделы вниз. Пустое «привет» в ней не видно.
+  testWidgets('the history opens from the chat, without lone greetings', (
+    tester,
+  ) async {
+    final deals = sampleThread(
+      't1',
+      prompt: 'Покажи мои сделки',
+      reply: 'Вот сделки',
+      updatedAt: now,
+    );
+    final overdue = sampleThread(
+      't2',
+      prompt: 'Что просрочено?',
+      reply: 'Ничего',
+      updatedAt: now.subtract(const Duration(days: 3)),
+    );
+    final hello = sampleThread(
+      't3',
+      prompt: 'привет!',
+      reply: 'Здравствуйте',
+      updatedAt: now,
+    );
+
+    await pumpScreen(
+      tester,
+      threads: [deals, overdue, hello],
+      activeThread: deals,
+      size: const Size(1200, 800),
+    );
+    expect(find.text('Что просрочено?'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('chat:history')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('chatThread:t2')), findsOneWidget);
+    expect(find.byKey(const ValueKey('chatThread:t1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('chatThread:t3')), findsNothing);
+
+    // A conversation picked there is the one on screen.
+    await tester.tap(find.byKey(const ValueKey('chatThread:t2')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('chatThread:t2')), findsNothing);
+    expect(find.text('Ничего'), findsOneWidget);
+  });
+
+  test('a lone greeting is small talk; a question or a named one is not', () {
+    final t = sampleThread(
+      'x',
+      prompt: 'Привет',
+      reply: 'Здравствуйте',
+      updatedAt: now,
+    );
+    expect(isSmallTalk(t), isTrue);
+    expect(
+      isSmallTalk(
+        sampleThread(
+          'y',
+          prompt: 'привет, что с заказом 12?',
+          reply: '…',
+          updatedAt: now,
+        ),
+      ),
+      isFalse,
+    );
+    expect(
+      isSmallTalk(
+        sampleThread(
+          'z',
+          prompt: 'привет',
+          reply: '…',
+          updatedAt: now,
+          name: 'Важное',
+        ),
+      ),
+      isFalse,
+    );
   });
 }

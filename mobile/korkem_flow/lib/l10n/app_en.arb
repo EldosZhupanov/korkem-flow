@@ -2061,6 +2061,7 @@
   "chatCardTasks": "My tasks",
   "chatCardProduction": "In production",
   "chatHistory": "History",
+  "chatHistoryEmpty": "No conversations yet.",
   "chatToday": "Today",
   "chatYesterday": "Yesterday",
   "chatEarlier": "Earlier",

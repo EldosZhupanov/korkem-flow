@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
+import 'package:korkem_flow/features/assistant/presentation/chat_history.dart';
 import 'package:korkem_flow/features/assistant/presentation/widgets/chat_composer.dart';
 import 'package:korkem_flow/features/assistant/presentation/widgets/chat_empty_view.dart';
 import 'package:korkem_flow/features/assistant/presentation/widgets/chat_message_view.dart';
@@ -17,8 +18,8 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// The assistant, and the app's home.
 ///
 /// One conversation column on every window size. The history of conversations
-/// lives in the shell's sidebar (permanent on wide windows, a drawer on narrow
-/// ones), not here.
+/// opens from this screen's own button — no longer from the sidebar, where it
+/// pushed the sections out of view (owner, 11.11.2026).
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
@@ -97,11 +98,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final l10n = AppLocalizations.of(context);
     final isRemote = ref.watch(assistantIsRemoteProvider);
 
-    // История чатов — только в боковой панели. Раньше на широком окне экран
-    // рисовал ещё и свой список рядом с ней: те же чаты дважды, в двух
-    // колонках подряд (владелец, 07.11.2026). Панель умеет то же самое —
-    // открыть, переименовать, удалить, начать новый, — поэтому список здесь
-    // был вторым ответом на один вопрос.
+    // История чатов — одна, под кнопкой этого экрана (владелец, 11.11.2026).
+    // В боковой панели она занимала всё место и выталкивала разделы вниз.
     final conversation = _ChatConversationView(
       scroll: _scroll,
       dictation: _dictation,
@@ -113,6 +111,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return AppScreen(
       title: assistantName,
       subtitle: isRemote ? null : l10n.chatLocalMode,
+      // The history opens here, not in the sidebar (owner, 11.11.2026).
+      actions: [
+        IconButton(
+          key: const ValueKey('chat:history'),
+          tooltip: l10n.chatHistory,
+          onPressed: () => showChatHistory(context),
+          icon: const Icon(AppIcons.schedule),
+        ),
+      ],
       body: conversation,
     );
   }

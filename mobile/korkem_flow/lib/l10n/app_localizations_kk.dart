@@ -1938,6 +1938,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get chatHistory => 'Тарих';
 
   @override
+  String get chatHistoryEmpty => 'Әзірге әңгіме жоқ.';
+
+  @override
   String get chatToday => 'Бүгін';
 
   @override

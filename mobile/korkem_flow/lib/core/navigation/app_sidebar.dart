@@ -7,14 +7,10 @@ import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_logo.dart';
-import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_destinations.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/navigation/sidebar_entries.dart';
-import 'package:korkem_flow/core/time/clock.dart';
 import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
-import 'package:korkem_flow/features/assistant/domain/chat_thread.dart';
-import 'package:korkem_flow/features/assistant/domain/thread_groups.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The app's navigation, as a panel rather than a bar.
@@ -24,6 +20,10 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// product; here the product is a conversation and the sections are tools it
 /// reaches, so spending a permanent band of a phone screen on five places
 /// people visit occasionally was the wrong trade.
+///
+/// The history of conversations is not here (owner, 11.11.2026): it took the
+/// whole panel and pushed the sections out of view on every screen. It opens
+/// from the assistant's own screen (`showChatHistory`).
 ///
 /// One widget serves both layouts — inside a `Drawer` on a phone, in a `Row` on
 /// a wide screen — because two implementations of a navigation panel is how the
@@ -52,11 +52,6 @@ class AppSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final groups = groupThreads(
-      ref.watch(threadsControllerProvider),
-      ref.watch(clockProvider)(),
-    );
-    final activeId = ref.watch(activeThreadProvider)?.id;
 
     return SafeArea(
       child: Column(
@@ -102,48 +97,6 @@ class AppSidebar extends ConsumerWidget {
                     onTap: () => _go(context, ref, entry),
                   ),
 
-                // History sits directly under the assistant, above the ERP
-                // sections rather than below them. What someone asked this
-                // morning is more likely to be what they want than the
-                // Warehouse screen is.
-                if (groups.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.lg),
-                  Padding(
-                    padding: const EdgeInsets.only(left: AppSpacing.md),
-                    child: SectionLabel(l10n.chatHistory),
-                  ),
-                  for (final group in groups) ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.md,
-                        AppSpacing.sm,
-                        AppSpacing.md,
-                        AppSpacing.xxs,
-                      ),
-                      child: Text(
-                        _bandLabel(group.band, l10n),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                    for (final thread in group.threads)
-                      _ThreadTile(
-                        title: thread.title,
-                        selected: thread.id == activeId,
-                        onTap: () {
-                          ref
-                              .read(threadsControllerProvider.notifier)
-                              .open(thread.id);
-                          _toBranch(context, Routes.chat);
-                          onNavigate();
-                        },
-                        onRename: () => _rename(context, ref, thread),
-                        onDelete: () => _delete(context, ref, thread),
-                      ),
-                  ],
-                ],
-
                 const SizedBox(height: AppSpacing.lg),
                 const Divider(height: AppStroke.hairline),
                 const SizedBox(height: AppSpacing.sm),
@@ -179,55 +132,6 @@ class AppSidebar extends ConsumerWidget {
       ),
     );
   }
-
-  Future<void> _rename(
-    BuildContext context,
-    WidgetRef ref,
-    ChatThread thread,
-  ) async {
-    final name = await showDialog<String>(
-      context: context,
-      builder: (context) => _RenameDialog(initial: thread.title),
-    );
-    if (name == null) return;
-    ref.read(threadsControllerProvider.notifier).rename(thread.id, name);
-  }
-
-  Future<void> _delete(
-    BuildContext context,
-    WidgetRef ref,
-    ChatThread thread,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    // Confirmed, because this is the one control in the panel that destroys
-    // something, and it sits a few points from the row that merely opens it.
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.chatDeleteTitle),
-        content: Text(l10n.chatDeleteBody(thread.title)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.actionCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.chatDelete),
-          ),
-        ],
-      ),
-    );
-    if (confirmed ?? false) {
-      ref.read(threadsControllerProvider.notifier).delete(thread.id);
-    }
-  }
-
-  String _bandLabel(ThreadBand band, AppLocalizations l10n) => switch (band) {
-    ThreadBand.today => l10n.chatToday,
-    ThreadBand.yesterday => l10n.chatYesterday,
-    ThreadBand.earlier => l10n.chatEarlier,
-  };
 
   bool _isSelected(SidebarEntry entry) =>
       entry is SidebarBranch && branchIndexOf(entry.path) == shell.currentIndex;
@@ -321,184 +225,6 @@ class _EntryTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ThreadTile extends StatelessWidget {
-  const _ThreadTile({
-    required this.title,
-    required this.selected,
-    required this.onTap,
-    required this.onRename,
-    required this.onDelete,
-  });
-
-  final String title;
-
-  /// The conversation currently open. Marked, because with history this close
-  /// to the top it is otherwise impossible to tell which row you are reading.
-  final bool selected;
-
-  final VoidCallback onTap;
-  final VoidCallback onRename;
-  final VoidCallback onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Material(
-      color: selected
-          ? theme.colorScheme.primary.withValues(alpha: AppTint.surfaceFaint)
-          : Colors.transparent,
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.md,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: selected
-                        ? theme.colorScheme.onSurface
-                        : theme.colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              // A menu rather than a swipe or a long press: both of those are
-              // invisible, and a conversation someone cannot find how to
-              // delete is a conversation they cannot delete.
-              _ThreadMenu(
-                title: title,
-                onRename: onRename,
-                onDelete: onDelete,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Rename and delete, behind one discreet button per row.
-///
-/// `PopupMenuButton` rather than a `Dismissible` or a long press: a swipe is
-/// undiscoverable and a long press is worse on a panel people are scanning, and
-/// a conversation nobody can work out how to delete is a conversation they
-/// cannot delete.
-class _ThreadMenu extends StatelessWidget {
-  const _ThreadMenu({
-    required this.title,
-    required this.onRename,
-    required this.onDelete,
-  });
-
-  final String title;
-  final VoidCallback onRename;
-  final VoidCallback onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-
-    return PopupMenuButton<VoidCallback>(
-      onSelected: (action) => action(),
-      tooltip: title,
-      icon: Icon(
-        AppIcons.more,
-        size: AppIconSize.small,
-        color: theme.colorScheme.onSurfaceVariant,
-      ),
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: onRename,
-          child: Row(
-            children: [
-              const Icon(AppIcons.edit, size: AppIconSize.small),
-              const SizedBox(width: AppSpacing.md),
-              Text(l10n.chatRename),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: onDelete,
-          child: Row(
-            children: [
-              Icon(
-                AppIcons.delete,
-                size: AppIconSize.small,
-                color: theme.colorScheme.error,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Text(
-                l10n.chatDelete,
-                style: TextStyle(color: theme.colorScheme.error),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Asks for a new name, pre-filled with the current one and fully selected, so
-/// typing replaces it and the common case is one gesture.
-class _RenameDialog extends StatefulWidget {
-  const _RenameDialog({required this.initial});
-
-  final String initial;
-
-  @override
-  State<_RenameDialog> createState() => _RenameDialogState();
-}
-
-class _RenameDialogState extends State<_RenameDialog> {
-  late final _controller = TextEditingController(text: widget.initial)
-    ..selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: widget.initial.length,
-    );
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _submit() => Navigator.of(context).pop(_controller.text);
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return AlertDialog(
-      title: Text(l10n.chatRenameTitle),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        textInputAction: TextInputAction.done,
-        onSubmitted: (_) => _submit(),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.actionCancel),
-        ),
-        FilledButton(onPressed: _submit, child: Text(l10n.chatRename)),
-      ],
     );
   }
 }

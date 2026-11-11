@@ -302,9 +302,8 @@ Future<void> _pumpApp(
     ProviderScope(
       overrides: [
         clockProvider.overrideWithValue(() => _now),
-        // The sidebar reads chat history through this, so it is no longer only
-        // the settings screen that needs it. An empty store, so "Recent" is
-        // absent — which is the honest state for a fresh install.
+        // Chat history is read through this — by the chat screen's history
+        // button now, no longer by the sidebar (11.11.2026).
         threadsControllerProvider.overrideWith(_StubThreads.new),
         // No gateway in a golden. Left live, `sendMessage` would await a real
         // `chat.info` call, which a test binding answers with 400 and the API
@@ -445,10 +444,9 @@ class _StubThreads extends ThreadsController {
   void save(ChatThread thread) {}
 }
 
-/// Three conversations, one per band, dated against the frozen [_now] so the
-/// Today / Yesterday / Earlier headings are what the golden actually proves.
-/// Empty history would render the sidebar with no history section at all — the
-/// state this list exists to stop being the only one ever seen.
+/// Three conversations, one per band, dated against the frozen [_now]. The
+/// sidebar no longer lists them (11.11.2026): its golden proves exactly that —
+/// sections only, whatever history there is.
 final List<ChatThread> _threads = [
   _thread('t1', 'Что просрочено?', _now.subtract(const Duration(hours: 2))),
   _thread('t2', 'Покажи мои сделки', _now.subtract(const Duration(days: 1))),
