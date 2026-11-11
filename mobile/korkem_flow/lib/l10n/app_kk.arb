@@ -2108,7 +2108,18 @@
   "filmFree": "Бос",
   "filmHeld": "Бөлінген",
   "filmReceiptPayment": "Төлем",
-  "filmReceiptServedBy": "Сізге қызмет көрсеткен: {name}",
+  "filmReceiptServedBy": "Сатушы (жауапты): {name}",
   "filmReceiptThanks": "Бізді таңдағаныңыз үшін рахмет!",
-  "filmReceiptWish": "Тамаша таңдау — қасбеттеріңіз ұзақ жылдар қуантсын. Сізді қайта күтеміз!"
+  "filmReceiptWish": "Тамаша таңдау — қасбеттеріңіз ұзақ жылдар қуантсын. Сізді қайта күтеміз!",
+  "filmReceiptCode": "коды {code}",
+  "filmReceiptThickness": "{mm} мм",
+  "filmReceiptPhone": "Тел.: {phone}",
+  "filmReceiptSignSold": "Сатты",
+  "filmReceiptSignGot": "Алды",
+  "facadePricesAddVariant": "Нұсқа",
+  "facadePricesVariant": "Фрезер нұсқасы",
+  "facadePricesVariantHint": "Бағасы — түрі сияқты. Тапсырыста «түр нұсқа» болып шығады.",
+  "filmIssuedBy": "Қоймадан берген",
+  "filmReceiptIssuedBy": "Қоймадан берген: {name}",
+  "filmReceiptSignIssued": "Берді"
 }

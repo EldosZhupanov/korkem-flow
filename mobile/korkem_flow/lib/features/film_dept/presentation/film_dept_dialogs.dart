@@ -776,6 +776,10 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   /// bonus is counted by seller (owner, 11.11.2026).
   String? _seller;
 
+  /// Who cuts and hands it out — the seller unless said (owner,
+  /// 12.11.2026).
+  String? _issuer;
+
   /// Whether the seller touched a sum: until then the one part follows the
   /// sale's total, «paid in full».
   bool _paidTouched = false;
@@ -909,12 +913,28 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 decoration: InputDecoration(labelText: l10n.mdfCustomer),
               ),
               if (sellers != null && sellers.staff.isNotEmpty)
-                _personField(
-                  key: 'filmSaleSeller',
-                  label: l10n.filmSeller,
-                  opts: sellers,
-                  value: _seller,
-                  onChanged: (v) => setState(() => _seller = v),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _personField(
+                        key: 'filmSaleSeller',
+                        label: l10n.filmSeller,
+                        opts: sellers,
+                        value: _seller,
+                        onChanged: (v) => setState(() => _seller = v),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: _personField(
+                        key: 'filmSaleIssuer',
+                        label: l10n.filmIssuedBy,
+                        opts: sellers,
+                        value: _issuer ?? _seller,
+                        onChanged: (v) => setState(() => _issuer = v),
+                      ),
+                    ),
+                  ],
                 ),
               const SizedBox(height: AppSpacing.sm),
               for (final (i, line) in _lines.indexed) ...[
@@ -1230,6 +1250,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                               ),
                         ],
                         seller: _seller ?? sellers?.me,
+                        issuedBy: _issuer ?? _seller ?? sellers?.me,
                       ),
                 ),
           child: Text(l10n.filmSell),
@@ -1514,6 +1535,13 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
                 _ => m,
               },
               servedBy: l10n.filmReceiptServedBy,
+              phone: l10n.filmReceiptPhone,
+              signedSold: l10n.filmReceiptSignSold,
+              issuedBy: l10n.filmReceiptIssuedBy,
+              signedIssued: l10n.filmReceiptSignIssued,
+              signedGot: l10n.filmReceiptSignGot,
+              code: l10n.filmReceiptCode,
+              thickness: (mm) => l10n.filmReceiptThickness(filmMetres(mm)),
               thanks: l10n.filmReceiptThanks,
               wish: l10n.filmReceiptWish,
             ), locale: locale);

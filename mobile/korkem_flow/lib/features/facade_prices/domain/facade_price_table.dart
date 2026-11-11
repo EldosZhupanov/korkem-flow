@@ -41,6 +41,7 @@ class FacadePriceTable {
     required this.finishes,
     required this.prices,
     required this.canEdit,
+    this.variants = const {},
   });
 
   factory FacadePriceTable.fromJson(Map<String, dynamic> json) {
@@ -56,12 +57,23 @@ class FacadePriceTable {
           if (raw is Map) FacadePrice.fromJson(Map<String, dynamic>.from(raw)),
       ],
       canEdit: json['can_edit'] == true,
+      variants: {
+        if (json['variants'] case final Map<String, dynamic> by)
+          for (final e in by.entries)
+            e.key: [
+              for (final v in e.value as List? ?? const []) '$v',
+            ],
+      },
     );
   }
 
   final List<String> finishes;
   final List<FacadePrice> prices;
   final bool canEdit;
+
+  /// Kind by kind, its variants — «Рифлёный»: «Рифлёный 16-14» … — each
+  /// priced as its kind (owner, 12.11.2026).
+  final Map<String, List<String>> variants;
 
   /// Millings in the order the server sent them, each once.
   List<String> get millings => {for (final p in prices) p.milling}.toList();

@@ -36,6 +36,24 @@ class _FakeRepository implements FacadePriceRepository {
   @override
   Future<FacadePriceTable> fetch() async => table;
 
+  final variantsAdded = <(String, String)>[];
+
+  @override
+  Future<FacadePriceTable> addVariant(String kind, String variant) async {
+    variantsAdded.add((kind, variant));
+    return table = FacadePriceTable(
+      finishes: table.finishes,
+      prices: table.prices,
+      canEdit: table.canEdit,
+      variants: {
+        kind: ['$kind $variant'],
+      },
+    );
+  }
+
+  @override
+  Future<FacadePriceTable> removeVariant(String value) async => table;
+
   @override
   Future<FacadePriceTable> save({
     required String milling,
@@ -213,6 +231,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.byKey(const ValueKey('facadePrice:Тегіс:$_enamel')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("a milling's variant is added under it", (tester) async {
+    final repo = await pump(tester, _table());
+    await tester.tap(find.byKey(const ValueKey('facadeVariant:add:Квадро')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('facadeVariantName')),
+      '10',
+    );
+    await tester.tap(find.text('Save').last);
+    await tester.pumpAndSettle();
+    expect(repo.variantsAdded.single, ('Квадро', '10'));
+    expect(
+      find.byKey(const ValueKey('facadeVariant:Квадро 10')),
       findsOneWidget,
     );
   });

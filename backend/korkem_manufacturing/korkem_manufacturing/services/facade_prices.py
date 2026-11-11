@@ -61,9 +61,12 @@ def millings(company: str | None = None) -> list[str]:
 	own = frappe.get_all(
 		"Material Option",
 		filters={"company": company, "kind": MILLING_LIST, "enabled": 1},
-		pluck="value",
+		fields=["value", "note"],
 		order_by="creation asc",
 	)
+	# A variant («Рифлёный 16-14») is not a row of the matrix: it is priced
+	# as its kind (owner, 12.11.2026).
+	own = [o.value for o in own if not _parent(o.note)]
 	listed = set(frappe.get_all(
 		"Material Option", filters={"company": company, "kind": MILLING_LIST}, pluck="value"
 	))
@@ -143,6 +146,7 @@ def table() -> dict:
 		"company": company,
 		"finishes": finishes(company),
 		"millings": millings(company),
+		"variants": variants(company),
 		"prices": [
 			{
 				"milling": row.milling,
@@ -196,10 +200,105 @@ def set_price(milling: str, finish: str, price_per_m2, enabled: bool | int | str
 
 
 def price_for(milling: str, finish: str, company: str | None = None) -> Decimal | None:
-	"""₸ per m² for one cell, or None when the factory does not sell it."""
+	"""₸ per m² for one cell, or None when the factory does not sell it.
+
+	A variant of a milling with no price of its own is priced as its kind
+	(owner, 12.11.2026: «Рифлёный 16-14» costs what «Рифлёный» costs)."""
+	company = company or current_company()
 	value = frappe.db.get_value(
 		"Facade Price",
-		{"company": company or current_company(), "milling": milling, "finish": finish, "enabled": 1},
+		{"company": company, "milling": milling, "finish": finish, "enabled": 1},
 		"price_per_m2",
 	)
+	if not value:
+		kind = kind_of(milling, company)
+		if kind and kind != milling:
+			value = frappe.db.get_value(
+				"Facade Price",
+				{"company": company, "milling": kind, "finish": finish, "enabled": 1},
+				"price_per_m2",
+			)
 	return Decimal(str(value)) if value else None
+
+
+# --------------------------------------------------------------------------
+# A milling's variants (owner, 12.11.2026): «Рифлёный» — 16-14, 10-8, 20-10.
+# A variant is an entry of the «Фрезеровка» list of its own, so the order
+# form offers it as it is; its note names its kind.
+# --------------------------------------------------------------------------
+
+_PARENT = "вид:"
+
+
+def _parent(note: str | None) -> str | None:
+	note = (note or "").strip()
+	if not note.startswith(_PARENT):
+		return None
+	return note[len(_PARENT):].strip() or None
+
+
+def kind_of(milling: str | None, company: str | None = None) -> str | None:
+	"""The kind a variant belongs to; None for a kind or an unknown name."""
+	if not milling:
+		return None
+	note = frappe.db.get_value(
+		"Material Option",
+		{"company": company or current_company(), "kind": MILLING_LIST, "value": milling},
+		"note",
+	)
+	return _parent(note)
+
+
+def variants(company: str | None = None) -> dict[str, list[str]]:
+	"""Kind by kind, its variants, oldest first."""
+	out: dict[str, list[str]] = {}
+	for o in frappe.get_all(
+		"Material Option",
+		filters={"company": company or current_company(), "kind": MILLING_LIST, "enabled": 1},
+		fields=["value", "note"],
+		order_by="creation asc",
+	):
+		kind = _parent(o.note)
+		if kind:
+			out.setdefault(kind, []).append(o.value)
+	return out
+
+
+def add_variant(kind: str, variant: str) -> dict:
+	"""«16-14» under «Рифлёный»: the order form gets «Рифлёный 16-14»."""
+	ensure_editor()
+	company = current_company()
+	kind = " ".join((kind or "").split())
+	variant = " ".join((variant or "").split())
+	if not kind or not variant:
+		frappe.throw("Укажите вид фрезеровки и вариант.")
+	if kind not in millings(company):
+		frappe.throw("Такого вида фрезеровки нет.")
+	value = variant if variant.casefold().startswith(kind.casefold()) else f"{kind} {variant}"
+	name = frappe.db.get_value(
+		"Material Option", {"company": company, "kind": MILLING_LIST, "value": value}, "name"
+	)
+	if name:
+		frappe.db.set_value("Material Option", name, {"enabled": 1, "note": f"{_PARENT} {kind}"})
+	else:
+		frappe.get_doc({
+			"doctype": "Material Option", "company": company, "kind": MILLING_LIST, "value": value,
+			"enabled": 1, "note": f"{_PARENT} {kind}",
+		}).insert(ignore_permissions=True)
+	audit.record_audit(action="settings.milling_variant_added", entity_type="Material Option",
+					   entity_id=value, diff={"kind": kind})
+	return table()
+
+
+def remove_variant(value: str) -> dict:
+	"""Off the order form; orders that used it keep it."""
+	ensure_editor()
+	name = frappe.db.get_value(
+		"Material Option", {"company": current_company(), "kind": MILLING_LIST, "value": value}, ["name", "note"],
+		as_dict=True,
+	)
+	if not name or not _parent(name.note):
+		frappe.throw("Такого варианта нет.", frappe.DoesNotExistError)
+	frappe.db.set_value("Material Option", name.name, "enabled", 0)
+	audit.record_audit(action="settings.milling_variant_removed", entity_type="Material Option", entity_id=value)
+	return table()

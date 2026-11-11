@@ -6513,7 +6513,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String filmReceiptServedBy(String name) {
-    return 'Вас обслуживал(а): $name';
+    return 'Продавец (ответственный): $name';
   }
 
   @override
@@ -6522,4 +6522,46 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get filmReceiptWish =>
       'Отличный выбор — пусть ваши фасады радуют вас долгие годы. Будем рады видеть вас снова!';
+
+  @override
+  String filmReceiptCode(String code) {
+    return 'код $code';
+  }
+
+  @override
+  String filmReceiptThickness(String mm) {
+    return '$mm мм';
+  }
+
+  @override
+  String filmReceiptPhone(String phone) {
+    return 'Тел.: $phone';
+  }
+
+  @override
+  String get filmReceiptSignSold => 'Продал';
+
+  @override
+  String get filmReceiptSignGot => 'Получил';
+
+  @override
+  String get facadePricesAddVariant => 'Вариант';
+
+  @override
+  String get facadePricesVariant => 'Вариант фрезеровки';
+
+  @override
+  String get facadePricesVariantHint =>
+      'Цена — как у вида. В заказе появится как «вид вариант».';
+
+  @override
+  String get filmIssuedBy => 'Выдал со склада';
+
+  @override
+  String filmReceiptIssuedBy(String name) {
+    return 'Выдал со склада: $name';
+  }
+
+  @override
+  String get filmReceiptSignIssued => 'Выдал';
 }

@@ -111,3 +111,15 @@ def customers(search: str | None = None, limit: int = 20) -> list[dict]:
 
 	return facade_order.customers(search=search, limit=limit)
 
+
+
+@frappe.whitelist(methods=["POST"])
+def add_variant(kind: str, variant: str) -> dict:
+	"""Вариант вида фрезеровки («Рифлёный» → «16-14»): цена — от вида."""
+	return service.add_variant(kind, variant)
+
+
+@frappe.whitelist(methods=["POST"])
+def remove_variant(value: str) -> dict:
+	"""Убрать вариант из бланка заказа; старые заказы его сохраняют."""
+	return service.remove_variant(value)

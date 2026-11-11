@@ -2108,7 +2108,18 @@
   "filmFree": "Свободно",
   "filmHeld": "Отложено",
   "filmReceiptPayment": "Оплата",
-  "filmReceiptServedBy": "Вас обслуживал(а): {name}",
+  "filmReceiptServedBy": "Продавец (ответственный): {name}",
   "filmReceiptThanks": "Спасибо, что выбрали нас!",
-  "filmReceiptWish": "Отличный выбор — пусть ваши фасады радуют вас долгие годы. Будем рады видеть вас снова!"
+  "filmReceiptWish": "Отличный выбор — пусть ваши фасады радуют вас долгие годы. Будем рады видеть вас снова!",
+  "filmReceiptCode": "код {code}",
+  "filmReceiptThickness": "{mm} мм",
+  "filmReceiptPhone": "Тел.: {phone}",
+  "filmReceiptSignSold": "Продал",
+  "filmReceiptSignGot": "Получил",
+  "facadePricesAddVariant": "Вариант",
+  "facadePricesVariant": "Вариант фрезеровки",
+  "facadePricesVariantHint": "Цена — как у вида. В заказе появится как «вид вариант».",
+  "filmIssuedBy": "Выдал со склада",
+  "filmReceiptIssuedBy": "Выдал со склада: {name}",
+  "filmReceiptSignIssued": "Выдал"
 }

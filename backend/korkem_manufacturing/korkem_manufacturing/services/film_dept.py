@@ -417,7 +417,8 @@ def _yes(value) -> bool:
 
 
 def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | None = None,
-		 sold_on: str | None = None, note: str | None = None, payments=None, seller: str | None = None) -> dict:
+		 sold_on: str | None = None, note: str | None = None, payments=None, seller: str | None = None,
+		 issued_by: str | None = None) -> dict:
 	"""Film sold to a customer: one sale, one film or several.
 
 	`lines` — `[{"item", "metres", "price_m"?, "remember"?}]`; a line without
@@ -466,6 +467,9 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 			"korkem_film_payments": _dump(parts, sold_on),
 			# Who sold it — whoever enters it unless said (owner, 11.11.2026).
 			"korkem_film_seller": _person(seller) or frappe.session.user,
+			# Who handed it out of the stock — the seller unless said
+			# (owner, 12.11.2026).
+			"korkem_film_issued_by": _person(issued_by) or _person(seller) or frappe.session.user,
 		},
 		customer=buyer.name,
 	)
@@ -692,7 +696,7 @@ def correct(entry: str, item: str, reason: str, metres=None, price_m=None, suppl
 		made = sell(
 			doc.korkem_film_customer, lines, sold_on=day, note=doc.get("remarks"),
 			payments=[{"amount": p["amount"], "method": p["method"], "bank": p.get("bank")} for p in paid],
-			seller=doc.get("korkem_film_seller"),
+			seller=doc.get("korkem_film_seller"), issued_by=doc.get("korkem_film_issued_by"),
 		)
 		new = made["entry"]
 		# The payments keep the days they were made on.
@@ -868,7 +872,17 @@ def movement(entry: str) -> dict:
 		"lines": _lines(doc, money),
 		# Who served the customer — on the receipt (owner, 12.11.2026).
 		"seller": get_fullname(doc.get("korkem_film_seller") or doc.owner),
+		# The seller answers for the sale: his phone goes on the receipt.
+		"seller_phone": _phone(doc.get("korkem_film_seller") or doc.owner),
+		"issued_by": get_fullname(doc.get("korkem_film_issued_by")) if doc.get("korkem_film_issued_by") else None,
 	}
+
+
+def _phone(user: str | None) -> str | None:
+	if not user:
+		return None
+	row = frappe.db.get_value("User", user, ["mobile_no", "phone"], as_dict=True) or {}
+	return row.get("mobile_no") or row.get("phone") or None
 
 
 def sales(since: str | None = None, until: str | None = None, customer: str | None = None,
@@ -1109,11 +1123,24 @@ def _title(item: str, fallback: str) -> str:
 def _lines(doc, money: bool) -> list[dict]:
 	out = []
 	for r in doc.items:
+		# What the film is, for the customer's receipt (owner, 12.11.2026):
+		# maker, colour, code, surface, thickness — not where it was bought.
+		card = frappe.db.get_value(
+			"Item", r.item_code,
+			["korkem_manufacturer", "korkem_color", "korkem_film_code", "korkem_film_type",
+			 "korkem_film_thickness_mm"],
+			as_dict=True,
+		) or {}
 		out.append({
 			"item": r.item_code,
 			"title": _title(r.item_code, r.item_name),
 			"metres": flt(r.qty),
 			"price_m": (flt(r.get("korkem_film_price_m")) or None) if money else None,
+			"maker": card.get("korkem_manufacturer"),
+			"colour": card.get("korkem_color"),
+			"code": card.get("korkem_film_code"),
+			"type": card.get("korkem_film_type"),
+			"thickness_mm": flt(card.get("korkem_film_thickness_mm")) or None,
 		})
 	return out
 
