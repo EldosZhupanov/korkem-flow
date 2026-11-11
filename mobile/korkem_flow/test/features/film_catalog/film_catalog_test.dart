@@ -403,4 +403,45 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.dropped, ['Палома']);
   });
+
+  testWidgets('a film window picks from a list it keeps itself', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _Fake();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const FilmCatalogScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmMaker:KIRA')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmAdd:KIRA')));
+    await tester.pumpAndSettle();
+    // Every list has its own button beside it.
+    for (final key in [
+      'filmAdd:type:edit',
+      'filmAdd:collection:edit',
+      'filmAdd:supplier:edit',
+      'filmAdd:thickness:edit',
+      'filmAdd:width:edit',
+    ]) {
+      expect(find.byKey(ValueKey(key)), findsOneWidget);
+    }
+    // The collections open; one tapped there is chosen here.
+    await tester.tap(find.byKey(const ValueKey('filmAdd:collection:edit')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCollection:Solid')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmAdd:name')), 'Лён');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmAdd:save')));
+    await tester.pumpAndSettle();
+    expect(repo.addedTo.single, 'Solid');
+  });
 }

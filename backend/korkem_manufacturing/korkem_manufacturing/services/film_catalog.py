@@ -441,6 +441,26 @@ def _shape(item: str, card: dict, company: str) -> dict:
 	return {**{SHAPE[key]: now[key] for key in SHAPE}, "item_name": title, "description": title}
 
 
+def retitle(company: str) -> None:
+	"""Each film's title made again from what it is now — after a list value
+	it is made of (a thickness, a width, a maker) was renamed."""
+	for r in frappe.get_all(
+		"Item",
+		filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM},
+		fields=["name", "item_name", "korkem_manufacturer", *SHAPE.values()],
+		limit_page_length=5000,
+	):
+		title = material_stock._title(
+			material_stock.FILM,
+			{
+				"color": r.korkem_color, "width": r.korkem_film_width_mm,
+				"film_thickness": r.korkem_film_thickness_mm, "manufacturer": r.korkem_manufacturer,
+			},
+		)[:140]
+		if title != r.item_name:
+			frappe.db.set_value("Item", r.name, {"item_name": title, "description": title})
+
+
 def archive(item: str) -> dict:
 	"""Off the maker's list and the order's pick; history and metres stay."""
 	return _set_archived(item, True)

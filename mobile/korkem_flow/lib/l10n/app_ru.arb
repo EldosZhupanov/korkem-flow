@@ -1864,7 +1864,7 @@
   "filmCode": "Код",
   "filmRal": "Близкий RAL",
   "filmSupplier": "Поставщик",
-  "filmPriceM": "Цена у поставщика, ₸/м",
+  "filmPriceM": "Закуп, ₸/м",
   "filmUrl": "Ссылка на сайт",
   "filmSave": "Сохранить",
   "filmAdd": "Плёнка",

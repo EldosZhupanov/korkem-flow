@@ -23,6 +23,8 @@ String mdfDictLabel(MdfDictKind kind, AppLocalizations l10n) => switch (kind) {
   MdfDictKind.paint => l10n.mdfDictPaint,
   MdfDictKind.maker => l10n.filmMaker,
   MdfDictKind.filmType => l10n.filmType,
+  MdfDictKind.filmThickness => l10n.filmThickness,
+  MdfDictKind.filmWidth => l10n.filmWidth,
 };
 
 /// «Справочники»: every list of the order form in one place.

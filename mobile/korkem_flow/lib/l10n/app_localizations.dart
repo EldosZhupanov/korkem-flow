@@ -10014,7 +10014,7 @@ abstract class AppLocalizations {
   /// No description provided for @filmPriceM.
   ///
   /// In en, this message translates to:
-  /// **'Supplier price, ₸/m'**
+  /// **'Purchase, ₸/m'**
   String get filmPriceM;
 
   /// No description provided for @filmUrl.

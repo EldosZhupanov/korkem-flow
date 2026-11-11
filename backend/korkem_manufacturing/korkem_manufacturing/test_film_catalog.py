@@ -250,3 +250,24 @@ class TestFilmCatalog(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, service.archive, used["item"])
 
+	def test_a_film_list_renamed_from_the_window_follows_into_the_films(self):
+		from korkem_manufacturing.services import mdf_dictionaries
+
+		material_stock.add_option("Толщина плёнки", "0,41")
+		material_stock.add_option("Тип плёнки", "Софт Тест")
+		made = self._as(MANAGER, service.add, "KIRA", "Список Следует", thickness="0,41", type="Софт Тест")
+		lists = mdf_dictionaries.dictionaries()
+		self.assertIn("0,41", {e["value"] for e in lists["film_thickness"]})
+		self.assertIn("1400", {e["value"] for e in lists["film_width"]})
+		thickness = next(e["id"] for e in lists["film_thickness"] if e["value"] == "0,41")
+		surface = next(e["id"] for e in lists["film_type"] if e["value"] == "Софт Тест")
+		mdf_dictionaries.rename("film_thickness", thickness, "0,42")
+		mdf_dictionaries.rename("film_type", surface, "Софт-Тач Тест")
+		card = self._as(MANAGER, service.film, made["item"])
+		self.assertEqual((card["thickness_mm"], card["type"]), (0.42, "Софт-Тач Тест"))
+		self.assertIn("0,42", card["title"])
+		# A value a film carries is only switched off, the film keeps it.
+		mdf_dictionaries.remove("film_type", surface)
+		self.assertEqual(self._as(MANAGER, service.film, made["item"])["type"], "Софт-Тач Тест")
+		self.assertNotIn("Софт-Тач Тест", self._as(MANAGER, service.catalog)["types"])
+
