@@ -5688,6 +5688,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmTabCustomers => 'Клиенты';
 
   @override
+  String filmReceiveSetPrice(String price) {
+    return 'Записать закуп в карточку: $price ₸';
+  }
+
+  @override
+  String filmReceiveUpdatePrice(String before, String after) {
+    return 'Обновить закуп в карточке: $before → $after ₸';
+  }
+
+  @override
+  String filmSaleRememberRetail(String price) {
+    return 'Запомнить $price ₸ как розничную цену';
+  }
+
+  @override
+  String filmSaleRememberWholesale(String price) {
+    return 'Запомнить $price ₸ как оптовую цену';
+  }
+
+  @override
+  String filmPriceSince(String date, String via) {
+    return 'с $date · $via';
+  }
+
+  @override
+  String get filmPriceByHand => 'вручную';
+
+  @override
+  String filmMargin(String amount, String percent) {
+    return 'Наценка: +$amount ₸/м · $percent%';
+  }
+
+  @override
   String get filmSaveMore => 'Сохранить и ещё';
 
   @override

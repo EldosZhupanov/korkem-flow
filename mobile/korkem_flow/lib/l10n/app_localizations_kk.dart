@@ -5627,6 +5627,39 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmTabCustomers => 'Клиенттер';
 
   @override
+  String filmReceiveSetPrice(String price) {
+    return 'Карточкаға сатып алу бағасын жазу: $price ₸';
+  }
+
+  @override
+  String filmReceiveUpdatePrice(String before, String after) {
+    return 'Карточкадағы сатып алу бағасын жаңарту: $before → $after ₸';
+  }
+
+  @override
+  String filmSaleRememberRetail(String price) {
+    return '$price ₸ бөлшек баға ретінде есте сақтау';
+  }
+
+  @override
+  String filmSaleRememberWholesale(String price) {
+    return '$price ₸ көтерме баға ретінде есте сақтау';
+  }
+
+  @override
+  String filmPriceSince(String date, String via) {
+    return '$date бастап · $via';
+  }
+
+  @override
+  String get filmPriceByHand => 'қолмен';
+
+  @override
+  String filmMargin(String amount, String percent) {
+    return 'Үстеме: +$amount ₸/м · $percent%';
+  }
+
+  @override
   String get filmSaveMore => 'Сақтап, тағы қосу';
 
   @override

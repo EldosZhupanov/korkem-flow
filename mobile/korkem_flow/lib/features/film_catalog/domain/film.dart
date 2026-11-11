@@ -27,6 +27,7 @@ class Film {
     this.priceM,
     this.retailM,
     this.wholesaleM,
+    this.priceSince = const {},
     this.low = false,
     this.url,
   });
@@ -53,6 +54,12 @@ class Film {
     priceM: _d(json['price_m']),
     retailM: _d(json['retail_m']),
     wholesaleM: _d(json['wholesale_m']),
+    priceSince: {
+      if (json['price_since'] case final Map<String, dynamic> since)
+        for (final e in since.entries)
+          if (e.value case final Map<String, dynamic> v)
+            e.key: (date: '${v['date'] ?? ''}', via: _s(v['via'])),
+    },
     low: json['low'] == true,
     url: _s(json['url']),
   );
@@ -93,6 +100,15 @@ class Film {
   /// What the department sells a metre at: over the counter, to the trade.
   final double? retailM;
   final double? wholesaleM;
+
+  /// Since when each price stands and where it came from — «приход»,
+  /// «продажа», or the card (null) — by `price_m`, `retail_m`,
+  /// `wholesale_m` (owner, 11.11.2026: prices change).
+  final Map<String, ({String date, String? via})> priceSince;
+
+  /// What a metre earns over what it cost, when both are known.
+  double? get marginM =>
+      retailM != null && priceM != null ? retailM! - priceM! : null;
 
   /// Less on hand than the film's minimum: time to order.
   final bool low;
@@ -245,6 +261,7 @@ class FilmChange {
     required this.what,
     this.before,
     this.after,
+    this.via,
   });
 
   factory FilmChange.fromJson(Map<String, dynamic> json) => FilmChange(
@@ -253,6 +270,7 @@ class FilmChange {
     what: '${json['what'] ?? ''}',
     before: _s(json['before']),
     after: _s(json['after']),
+    via: _s(json['via']),
   );
 
   final String when;
@@ -261,8 +279,13 @@ class FilmChange {
   final String? before;
   final String? after;
 
+  /// Where the change came from when not the card: «приход», «продажа».
+  final String? via;
+
   /// «название: Альда бел → Альда белый», or just «в архив».
-  String get line => before == null && after == null
-      ? what
-      : '$what: ${before ?? '—'} → ${after ?? '—'}';
+  String get line =>
+      (before == null && after == null
+          ? what
+          : '$what: ${before ?? '—'} → ${after ?? '—'}') +
+      (via == null ? '' : ' ($via)');
 }

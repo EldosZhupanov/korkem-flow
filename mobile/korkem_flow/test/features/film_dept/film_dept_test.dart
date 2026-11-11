@@ -45,6 +45,17 @@ class _Fake implements FilmDeptRepository {
   final sold =
       <(String, List<({String item, double metres, double priceM})>, double)>[];
   final terms = <(String, bool, double)>[];
+  final remembered = <String>{};
+  final received = <(String, double, double, bool)>[];
+
+  @override
+  Future<void> receive({
+    required String item,
+    required double metres,
+    required double priceM,
+    required String supplier,
+    bool updatePrice = true,
+  }) async => received.add((item, metres, priceM, updatePrice));
 
   @override
   Future<FilmCatalog> stock() async => FilmCatalog.fromJson(_stock);
@@ -89,7 +100,9 @@ class _Fake implements FilmDeptRepository {
     double paid = 0,
     String? method,
     String? bank,
+    Set<String> remember = const {},
   }) async {
+    remembered.addAll(remember);
     sold.add((customer, lines, paid));
     return const FilmSale(entry: 'STE-9', date: '2026-11-10');
   }
@@ -243,6 +256,27 @@ void main() {
     await tester.tap(save);
     await tester.pumpAndSettle();
     expect(repo.writeOffs.single, ('MAT-1', 1.5, 'Sample for a customer'));
+  });
+
+  testWidgets('a receipt puts its price on the card unless unticked', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmStock:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmPage:receive')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
+    await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3500');
+    await tester.pumpAndSettle();
+    // The card has no purchase price yet: the receipt offers to put it.
+    final tick = find.byKey(const ValueKey('filmReceiveUpdatePrice'));
+    expect(tick, findsOneWidget);
+    await tester.tap(tick);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceiveSave')));
+    await tester.pumpAndSettle();
+    expect(repo.received.single, ('MAT-1', 10.0, 3500.0, false));
   });
 
   testWidgets("a sale takes the customer's price and no more than is there", (

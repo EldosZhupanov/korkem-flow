@@ -52,19 +52,33 @@ MAX_METRES = Decimal("100000")
 
 
 def receive(item: str, metres, price_m, supplier: str, received_on: str | None = None,
-			note: str | None = None) -> dict:
-	"""A roll or a cut bought from a wholesaler: so many metres at so much a metre."""
+			note: str | None = None, update_price=True) -> dict:
+	"""A roll or a cut bought from a wholesaler: so many metres at so much a metre.
+
+	The price paid becomes the card's purchase price (owner, 11.11.2026:
+	prices change) — unless `update_price` is off, for a one-off discount.
+	"""
 	_film(item)
 	result = material_stock.receive(item, metres, price_m, supplier, received_on=received_on, note=note)
+	if _yes(update_price) and flt(price_m) > 0:
+		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
 	return {"receipt": result["receipt"], "film": film_catalog.film(item)}
+
+
+def _yes(value) -> bool:
+	if isinstance(value, str):
+		return value.strip().lower() not in ("", "0", "false", "no")
+	return bool(value)
 
 
 def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | None = None,
 		 sold_on: str | None = None, note: str | None = None) -> dict:
 	"""Film sold to a customer: one sale, one film or several.
 
-	`lines` — `[{"item", "metres", "price_m"?}]`; a line without a price takes
-	the customer's (`price_for`). `paid` less than the sum leaves a debt.
+	`lines` — `[{"item", "metres", "price_m"?, "remember"?}]`; a line without
+	a price takes the customer's (`price_for`). `paid` less than the sum
+	leaves a debt. A typed price with `remember` becomes the card's price for
+	the customer's tier, where the card had none (owner, 11.11.2026).
 	"""
 	material_stock._ensure_editor()
 	company = current_company()
@@ -73,7 +87,7 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 		lines = frappe.parse_json(lines)
 	if not isinstance(lines, list) or not lines:
 		frappe.throw("Добавьте в продажу хотя бы одну плёнку.")
-	rows, amount = [], Decimal(0)
+	rows, amount, remember = [], Decimal(0), []
 	for n, raw in enumerate(lines, start=1):
 		item = (raw or {}).get("item")
 		_film(item)
@@ -85,6 +99,8 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 		if price <= 0:
 			frappe.throw(f"Строка {n}: у плёнки нет цены продажи — укажите цену за метр.")
 		rows.append((item, metres, price))
+		if _yes(raw.get("remember")) and raw.get("price_m") not in (None, ""):
+			remember.append((item, price))
 		amount += (metres * price).quantize(Decimal("1"))
 	paid = _money(paid or 0, "Оплачено")
 	if paid > amount:
@@ -101,6 +117,11 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 			"korkem_film_pay_bank": bank,
 		},
 	)
+	tier = buyer.get("korkem_film_tier") if buyer.get("korkem_film_tier") in TIERS else RETAIL
+	key = "wholesale_m" if tier == WHOLESALE else "retail_m"
+	for item, price in remember:
+		if not flt(frappe.db.get_value("Item", item, film_catalog.CARD[key])):
+			film_catalog.set_card(item, via="продажа", **{key: float(price)})
 	if not buyer.get("korkem_film_customer"):
 		# A facade customer who buys film is a film customer from now on.
 		frappe.db.set_value("Customer", buyer.name, "korkem_film_customer", 1)
