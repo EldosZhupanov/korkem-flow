@@ -1,7 +1,7 @@
 name: Windows release
 on:
   push:
-    branches: [release/windows-0.7.0-build41]
+    branches: [release/windows-0.7.1-build42]
 permissions:
   contents: read
 jobs:
@@ -29,17 +29,17 @@ jobs:
             if (-not (Test-Path (Join-Path $release $file))) { throw "Missing $file" }
           }
           New-Item -ItemType Directory -Force -Path ../../windows-artifact | Out-Null
-          Compress-Archive -Path "$release/*" -DestinationPath ../../windows-artifact/korkem-flow-0.7.0-windows-x64.zip -CompressionLevel Optimal
-          Get-FileHash ../../windows-artifact/korkem-flow-0.7.0-windows-x64.zip -Algorithm SHA256 | Format-List
+          Compress-Archive -Path "$release/*" -DestinationPath ../../windows-artifact/korkem-flow-0.7.1-windows-x64.zip -CompressionLevel Optimal
+          Get-FileHash ../../windows-artifact/korkem-flow-0.7.1-windows-x64.zip -Algorithm SHA256 | Format-List
       - name: Verify the extracted application starts
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          Expand-Archive windows-artifact/korkem-flow-0.7.0-windows-x64.zip windows-smoke
+          Expand-Archive windows-artifact/korkem-flow-0.7.1-windows-x64.zip windows-smoke
           $bundle = (Resolve-Path windows-smoke).Path
           $exe = Join-Path $bundle 'korkem_flow.exe'
           $version = (Get-Item $exe).VersionInfo
-          if ($version.ProductVersion -ne '0.7.0+41') { throw "Wrong version: $($version.ProductVersion)" }
+          if ($version.ProductVersion -ne '0.7.1+42') { throw "Wrong version: $($version.ProductVersion)" }
           $p = Start-Process $exe -WorkingDirectory $bundle -PassThru -RedirectStandardOutput windows-artifact/stdout.log -RedirectStandardError windows-artifact/stderr.log
           try {
             Start-Sleep -Seconds 15
@@ -54,6 +54,6 @@ jobs:
           }
       - uses: actions/upload-artifact@v4
         with:
-          name: korkem-windows-0.7.0-build41
+          name: korkem-windows-0.7.1-build42
           path: windows-artifact/
           retention-days: 30
