@@ -539,6 +539,39 @@ void main() {
     expect(paid, 32980);
   });
 
+  testWidgets('a sale says what stays; too much offers all that is there', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmStock:MAT-2')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmPage:sell')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSaleMetres:0')),
+      '4',
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('2 m left'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSaleMetres:0')),
+      '9',
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('only 6 m in stock'), findsOneWidget);
+    // The roll on its way is said, so the customer can be told when.
+    expect(
+      find.byKey(const ValueKey('filmSaleComing:0:STE-30')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('filmSaleAll:0')));
+    await tester.pumpAndSettle();
+    final field = tester.widget<TextField>(
+      find.byKey(const ValueKey('filmSaleMetres:0')),
+    );
+    expect(field.controller!.text, '6');
+  });
+
   testWidgets('a sale is paid several ways at once, the rest a debt', (
     tester,
   ) async {

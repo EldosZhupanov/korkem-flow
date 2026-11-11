@@ -2026,5 +2026,10 @@
   "filmComingDropReason": "Почему не придёт",
   "filmComingMetres": "Сколько пришло, м",
   "filmOnShelf": "На складе",
-  "filmOnWay": "В пути"
+  "filmOnWay": "В пути",
+  "filmOnlyHave": "есть только {metres} м",
+  "filmLeft": "останется {metres} м",
+  "filmLeftLow": "останется {metres} м — мало",
+  "filmTakeAll": "Взять всё {metres} м",
+  "filmMoreComing": "+{metres} м в пути, придёт {day}"
 }

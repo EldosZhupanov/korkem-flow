@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
@@ -609,6 +610,16 @@ class _SaleLine {
   double get p => _number(price.text) ?? 0;
   double get sum => (m * p).roundToDouble();
 
+  /// More typed than is free on the shelf.
+  bool get over => m > film.free + 0.0001;
+
+  /// What stays on the shelf after this sale.
+  double get left => film.free - m;
+
+  /// What stays is under the film's minimum: time to order.
+  bool get low =>
+      m > 0 && !over && film.minStock != null && left < film.minStock!;
+
   void dispose() {
     metres.dispose();
     price.dispose();
@@ -837,9 +848,21 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                           onChanged: (_) => setState(_fillPaid),
                           decoration: InputDecoration(
                             labelText: l10n.filmMetresLabel,
-                            errorText: line.m > line.film.free + 0.0001
-                                ? l10n.filmNotEnough
+                            // What stays on the shelf, as it is typed
+                            // (owner, 11.11.2026).
+                            errorText: line.over
+                                ? l10n.filmOnlyHave(filmMetres(line.film.free))
                                 : null,
+                            helperText: line.m > 0 && !line.over
+                                ? line.low
+                                      ? l10n.filmLeftLow(filmMetres(line.left))
+                                      : l10n.filmLeft(filmMetres(line.left))
+                                : null,
+                            helperStyle: TextStyle(
+                              color: line.low
+                                  ? context.statusColors.warning
+                                  : context.statusColors.success,
+                            ),
                           ),
                         ),
                       ),
@@ -871,6 +894,38 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                     ],
                   ),
                 ),
+                if (line.over || line.low)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                    child: Wrap(
+                      spacing: AppSpacing.xs,
+                      runSpacing: AppSpacing.xs,
+                      children: [
+                        if (line.over && line.film.free > 0)
+                          ActionChip(
+                            key: ValueKey('filmSaleAll:$i'),
+                            label: Text(
+                              l10n.filmTakeAll(filmMetres(line.film.free)),
+                            ),
+                            onPressed: () => setState(() {
+                              line.metres.text = filmMetres(line.film.free);
+                              _fillPaid();
+                            }),
+                          ),
+                        for (final c in line.film.coming)
+                          Chip(
+                            key: ValueKey('filmSaleComing:$i:${c.entry}'),
+                            avatar: const Icon(AppIcons.delivery),
+                            label: Text(
+                              l10n.filmMoreComing(
+                                filmMetres(c.metres),
+                                mdfDay(c.due, year: false),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 if (line.cardless && line.p > 0)
                   CheckboxListTile(
                     key: ValueKey('filmSaleRemember:$i'),

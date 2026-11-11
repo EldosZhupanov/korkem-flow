@@ -6215,4 +6215,29 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmOnWay => 'В пути';
+
+  @override
+  String filmOnlyHave(String metres) {
+    return 'есть только $metres м';
+  }
+
+  @override
+  String filmLeft(String metres) {
+    return 'останется $metres м';
+  }
+
+  @override
+  String filmLeftLow(String metres) {
+    return 'останется $metres м — мало';
+  }
+
+  @override
+  String filmTakeAll(String metres) {
+    return 'Взять всё $metres м';
+  }
+
+  @override
+  String filmMoreComing(String metres, String day) {
+    return '+$metres м в пути, придёт $day';
+  }
 }
