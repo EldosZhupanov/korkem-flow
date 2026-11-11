@@ -104,6 +104,7 @@ abstract final class AppIcons {
   static const IconData email = Symbols.mail_rounded;
   static const IconData whatsApp = Symbols.chat_rounded;
   static const IconData schedule = Symbols.schedule_rounded;
+  static const IconData calendar = Symbols.calendar_month_rounded;
   static const IconData visible = Symbols.visibility_rounded;
   static const IconData hidden = Symbols.visibility_off_rounded;
   static const IconData logout = Symbols.logout_rounded;

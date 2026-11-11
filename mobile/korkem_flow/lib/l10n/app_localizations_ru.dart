@@ -6191,4 +6191,64 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmTeamSave => 'Сохранить';
+
+  @override
+  String get filmArrival => 'Когда прибудет';
+
+  @override
+  String get filmArrivalHere => 'Уже на складе';
+
+  @override
+  String get filmArrivalTomorrow => 'Завтра';
+
+  @override
+  String get filmArrivalTwo => 'Через 2 дня';
+
+  @override
+  String get filmArrivalThree => '3 дня';
+
+  @override
+  String get filmArrivalWeek => 'Неделя';
+
+  @override
+  String get filmArrivalPick => 'Дата…';
+
+  @override
+  String filmArrivesOn(String day) {
+    return 'Прибудет: $day';
+  }
+
+  @override
+  String get filmArrivalOrder => 'Оформить';
+
+  @override
+  String filmComing(String metres, String day) {
+    return 'в пути $metres м · прибудет $day';
+  }
+
+  @override
+  String filmComingLate(String metres, String days) {
+    return 'в пути $metres м · опаздывает на $days дн.';
+  }
+
+  @override
+  String get filmComingArrived => 'Пришла';
+
+  @override
+  String get filmComingMove => 'Другая дата';
+
+  @override
+  String get filmComingDrop => 'Не придёт';
+
+  @override
+  String get filmComingDropReason => 'Почему не придёт';
+
+  @override
+  String get filmComingMetres => 'Сколько пришло, м';
+
+  @override
+  String get filmOnShelf => 'На складе';
+
+  @override
+  String get filmOnWay => 'В пути';
 }

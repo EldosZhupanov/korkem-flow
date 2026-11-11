@@ -10957,6 +10957,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get filmTeamSave;
+
+  /// No description provided for @filmArrival.
+  ///
+  /// In en, this message translates to:
+  /// **'When it arrives'**
+  String get filmArrival;
+
+  /// No description provided for @filmArrivalHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in stock'**
+  String get filmArrivalHere;
+
+  /// No description provided for @filmArrivalTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get filmArrivalTomorrow;
+
+  /// No description provided for @filmArrivalTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'In 2 days'**
+  String get filmArrivalTwo;
+
+  /// No description provided for @filmArrivalThree.
+  ///
+  /// In en, this message translates to:
+  /// **'3 days'**
+  String get filmArrivalThree;
+
+  /// No description provided for @filmArrivalWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'A week'**
+  String get filmArrivalWeek;
+
+  /// No description provided for @filmArrivalPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Date…'**
+  String get filmArrivalPick;
+
+  /// No description provided for @filmArrivesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives: {day}'**
+  String filmArrivesOn(String day);
+
+  /// No description provided for @filmArrivalOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Place'**
+  String get filmArrivalOrder;
+
+  /// No description provided for @filmComing.
+  ///
+  /// In en, this message translates to:
+  /// **'on its way {metres} m · arrives {day}'**
+  String filmComing(String metres, String day);
+
+  /// No description provided for @filmComingLate.
+  ///
+  /// In en, this message translates to:
+  /// **'on its way {metres} m · {days} d late'**
+  String filmComingLate(String metres, String days);
+
+  /// No description provided for @filmComingArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get filmComingArrived;
+
+  /// No description provided for @filmComingMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Another date'**
+  String get filmComingMove;
+
+  /// No description provided for @filmComingDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Won\'t come'**
+  String get filmComingDrop;
+
+  /// No description provided for @filmComingDropReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why it won\'t come'**
+  String get filmComingDropReason;
+
+  /// No description provided for @filmComingMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'Metres that came'**
+  String get filmComingMetres;
+
+  /// No description provided for @filmOnShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock'**
+  String get filmOnShelf;
+
+  /// No description provided for @filmOnWay.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way'**
+  String get filmOnWay;
 }
 
 class _AppLocalizationsDelegate

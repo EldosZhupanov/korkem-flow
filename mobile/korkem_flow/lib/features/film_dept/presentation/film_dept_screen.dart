@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
@@ -78,6 +79,187 @@ class FilmDeptScreen extends ConsumerWidget {
             _CustomersTab(),
             FilmSourcesTab(),
             FilmTeamTab(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// «На складе 50 м» — a labelled figure beside the film's name.
+class _StockBadge extends StatelessWidget {
+  const _StockBadge({
+    required this.label,
+    required this.value,
+    required this.valueKey,
+    required this.background,
+    required this.foreground,
+  });
+
+  final String label;
+  final String value;
+  final Key valueKey;
+  final Color background;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.xs,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(color: foreground),
+            ),
+            Text(
+              value,
+              key: valueKey,
+              style: theme.textTheme.titleLarge?.copyWith(color: foreground),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// «в пути 50 м · прибудет 13.11», or how late it is.
+String filmComingLine(FilmComing c, AppLocalizations l10n) => c.lateDays > 0
+    ? l10n.filmComingLate(filmMetres(c.metres), '${c.lateDays}')
+    : l10n.filmComing(filmMetres(c.metres), mdfDay(c.due, year: false));
+
+/// A roll on its way, with what can be done when it comes — or does not.
+class _ComingRow extends ConsumerWidget {
+  const _ComingRow({
+    required this.coming,
+    required this.canEdit,
+    required this.onDone,
+    super.key,
+  });
+
+  final FilmComing coming;
+  final bool canEdit;
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final late = coming.lateDays > 0;
+    final repo = ref.read(filmDeptRepositoryProvider);
+    final messenger = ScaffoldMessenger.of(context);
+
+    Future<void> run(Future<void> Function() action) async {
+      try {
+        await action();
+        onDone();
+      } on Object catch (e) {
+        messenger.showSnackBar(SnackBar(content: Text('$e')));
+      }
+    }
+
+    Future<void> arrived() async {
+      final metres = await showFilmArrived(context, coming);
+      if (metres != null) {
+        await run(() => repo.arrived(coming.entry, metres: metres));
+      }
+    }
+
+    Future<void> move() async {
+      final now = DateTime.now();
+      final due = DateTime.tryParse(coming.due);
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: due != null && due.isAfter(now)
+            ? due
+            : now.add(const Duration(days: 1)),
+        firstDate: now.add(const Duration(days: 1)),
+        lastDate: now.add(const Duration(days: 180)),
+      );
+      if (picked != null) {
+        await run(() => repo.reschedule(coming.entry, mdfIso(picked)));
+      }
+    }
+
+    Future<void> drop() async {
+      final reason = await showReasonDialog(
+        context,
+        title: l10n.filmComingDrop,
+        label: l10n.filmComingDropReason,
+        confirm: l10n.mdfConfirm,
+        cancel: l10n.mdfCancel,
+        fieldKey: const ValueKey('filmComing:reason'),
+      );
+      if (reason != null) {
+        await run(() => repo.dropComing(coming.entry, reason));
+      }
+    }
+
+    return Card(
+      color: late ? theme.colorScheme.errorContainer : null,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  late ? AppIcons.warning : AppIcons.delivery,
+                  color: late
+                      ? theme.colorScheme.onErrorContainer
+                      : theme.colorScheme.primary,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    [
+                      filmComingLine(coming, l10n),
+                      ?coming.supplier,
+                    ].join(' · '),
+                    style: TextStyle(
+                      color: late ? theme.colorScheme.onErrorContainer : null,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (canEdit) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  FilledButton(
+                    key: const ValueKey('filmComing:arrived'),
+                    onPressed: arrived,
+                    child: Text(l10n.filmComingArrived),
+                  ),
+                  OutlinedButton(
+                    key: const ValueKey('filmComing:move'),
+                    onPressed: move,
+                    child: Text(l10n.filmComingMove),
+                  ),
+                  TextButton(
+                    key: const ValueKey('filmComing:drop'),
+                    onPressed: drop,
+                    child: Text(l10n.filmComingDrop),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -213,7 +395,24 @@ class _StockTile extends StatelessWidget {
         filmName(f),
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
-      subtitle: Text([?f.code, ?f.type].join(' · ')),
+      subtitle: f.coming.isEmpty
+          ? Text([?f.code, ?f.type].join(' · '))
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (f.code != null || f.type != null)
+                  Text([?f.code, ?f.type].join(' · ')),
+                for (final c in f.coming)
+                  Text(
+                    filmComingLine(c, l10n),
+                    style: TextStyle(
+                      color: c.lateDays > 0
+                          ? theme.colorScheme.error
+                          : theme.colorScheme.primary,
+                    ),
+                  ),
+              ],
+            ),
       trailing: Text(
         text,
         style: TextStyle(color: color, fontWeight: FontWeight.w700),
@@ -261,6 +460,7 @@ class FilmPage extends ConsumerWidget {
         ],
       ),
     );
+    final onWay = film.coming.fold<double>(0, (s, c) => s + c.metres);
     return Scaffold(
       appBar: AppBar(title: Text(filmName(film))),
       body: ListView(
@@ -272,7 +472,7 @@ class FilmPage extends ConsumerWidget {
                 FilmSample(argb: film.argb, size: AppSpacing.xxxl),
                 const SizedBox(width: AppSpacing.md),
               ],
-              Expanded(
+              Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -281,17 +481,46 @@ class FilmPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              Text(
-                film.free > 0 ? '${filmMetres(film.free)} м' : l10n.filmToOrder,
-                key: const ValueKey('filmPage:free'),
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: film.free > 0
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.outline,
-                ),
+              // Beside the name, where the eye is (owner, 11.11.2026):
+              // what is on the shelf, and what is on its way.
+              const SizedBox(width: AppSpacing.lg),
+              _StockBadge(
+                label: l10n.filmOnShelf,
+                value: film.free > 0
+                    ? '${filmMetres(film.free)} м'
+                    : l10n.filmToOrder,
+                valueKey: const ValueKey('filmPage:free'),
+                background: film.free > 0
+                    ? theme.colorScheme.primaryContainer
+                    : theme.colorScheme.surfaceContainerHighest,
+                foreground: film.free > 0
+                    ? theme.colorScheme.onPrimaryContainer
+                    : theme.colorScheme.outline,
               ),
+              if (film.coming.isNotEmpty) ...[
+                const SizedBox(width: AppSpacing.sm),
+                _StockBadge(
+                  label: l10n.filmOnWay,
+                  value: '${filmMetres(onWay)} м',
+                  valueKey: const ValueKey('filmPage:coming'),
+                  background: film.coming.any((c) => c.lateDays > 0)
+                      ? theme.colorScheme.errorContainer
+                      : theme.colorScheme.secondaryContainer,
+                  foreground: film.coming.any((c) => c.lateDays > 0)
+                      ? theme.colorScheme.onErrorContainer
+                      : theme.colorScheme.onSecondaryContainer,
+                ),
+              ],
             ],
           ),
+          // On its way (owner, 11.11.2026): came, late, or will not come.
+          for (final (i, c) in film.coming.indexed)
+            _ComingRow(
+              key: ValueKey('filmComing:$i'),
+              coming: c,
+              canEdit: stock.canEdit,
+              onDone: () => _refresh(ref, item),
+            ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             children: [
