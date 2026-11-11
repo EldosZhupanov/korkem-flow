@@ -5630,6 +5630,28 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmTabCustomers => 'Клиенттер';
 
   @override
+  String get filmSaleAddPart => 'тағы бір тәсіл';
+
+  @override
+  String get filmSalePaidFull => 'Толық төленді';
+
+  @override
+  String filmSaleOverpaid(String amount) {
+    return 'Сомадан $amount артық — болмайды';
+  }
+
+  @override
+  String get filmThicknessUnknown => 'қалыңдығы көрсетілмеген';
+
+  @override
+  String get filmThicknessHint => 'Білмесеңіз — бос қалдырыңыз, кейін жазасыз';
+
+  @override
+  String filmNoThickness(String count) {
+    return 'Қалыңдығы жоқ · $count';
+  }
+
+  @override
   String get filmVariants => 'Қалыңдықтар';
 
   @override

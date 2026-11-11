@@ -72,13 +72,13 @@ class FilmDeptRepository {
     },
   );
 
-  /// [lines] — the films, their metres and what a metre is charged at.
+  /// [lines] — the films, their metres and what a metre is charged at;
+  /// [payments] — what is paid now, one way or several (owner, 11.11.2026);
+  /// the rest is the customer's debt.
   Future<FilmSale> sell({
     required String customer,
     required List<({String item, double metres, double priceM})> lines,
-    double paid = 0,
-    String? method,
-    String? bank,
+    List<({double amount, String method, String? bank})> payments = const [],
     Set<String> remember = const {},
   }) async => FilmSale.fromJson(
     _map(
@@ -97,9 +97,11 @@ class FilmDeptRepository {
                 if (remember.contains(l.item)) 'remember': true,
               },
           ]),
-          'paid': paid,
-          'method': ?method,
-          'bank': ?bank,
+          'payments': jsonEncode([
+            for (final p in payments)
+              if (p.amount > 0)
+                {'amount': p.amount, 'method': p.method, 'bank': ?p.bank},
+          ]),
         },
       ),
     ),

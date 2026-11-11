@@ -46,6 +46,7 @@ class _Fake implements FilmDeptRepository {
       <(String, List<({String item, double metres, double priceM})>, double)>[];
   final terms = <(String, bool, double)>[];
   final remembered = <String>{};
+  final parts = <List<({double amount, String method, String? bank})>>[];
   final received = <(String, double, double, bool)>[];
 
   @override
@@ -97,13 +98,12 @@ class _Fake implements FilmDeptRepository {
   Future<FilmSale> sell({
     required String customer,
     required List<({String item, double metres, double priceM})> lines,
-    double paid = 0,
-    String? method,
-    String? bank,
+    List<({double amount, String method, String? bank})> payments = const [],
     Set<String> remember = const {},
   }) async {
     remembered.addAll(remember);
-    sold.add((customer, lines, paid));
+    parts.add(payments);
+    sold.add((customer, lines, payments.fold(0, (s, p) => s + p.amount)));
     return const FilmSale(entry: 'STE-9', date: '2026-11-10');
   }
 
@@ -310,6 +310,48 @@ void main() {
     expect(customer, 'CUST-1');
     expect(lines.single, (item: 'MAT-1', metres: 10.0, priceM: 3298.0));
     expect(paid, 32980);
+  });
+
+  testWidgets('a sale is paid several ways at once, the rest a debt', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmDept:sell')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleCustomer:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Мебель-ЮГ').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSaleMetres:0')),
+      '10',
+    );
+    await tester.pumpAndSettle();
+    // 32 980 in all: 10 000 cash, the rest — offered — by transfer.
+    await tester.enterText(find.byKey(const ValueKey('filmSalePaid')), '10000');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleAddPart')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('filmSalePaid:1')))
+          .controller!
+          .text,
+      '22980',
+    );
+    // Less is paid by transfer: the rest stays a debt.
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSalePaid:1')),
+      '20000',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleSave')));
+    await tester.pumpAndSettle();
+    expect(repo.parts.single, [
+      (amount: 10000.0, method: 'Наличные', bank: null),
+      (amount: 20000.0, method: 'Перевод', bank: null),
+    ]);
+    expect(repo.sold.single.$3, 30000);
   });
 
   testWidgets('customers: who buys most first, and who fell asleep', (

@@ -72,7 +72,7 @@ def _yes(value) -> bool:
 
 
 def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | None = None,
-		 sold_on: str | None = None, note: str | None = None) -> dict:
+		 sold_on: str | None = None, note: str | None = None, payments=None) -> dict:
 	"""Film sold to a customer: one sale, one film or several.
 
 	`lines` — `[{"item", "metres", "price_m"?, "remember"?}]`; a line without
@@ -102,10 +102,13 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 		if _yes(raw.get("remember")) and raw.get("price_m") not in (None, ""):
 			remember.append((item, price))
 		amount += (metres * price).quantize(Decimal("1"))
-	paid = _money(paid or 0, "Оплачено")
+	# Several ways at once (owner, 11.11.2026): `payments` — `[{"amount",
+	# "method", "bank"?}]`; or one, by `paid`, `method`, `bank`, as before.
+	parts = _parts(payments, paid, method, bank)
+	paid = sum((p["amount"] for p in parts), Decimal(0))
 	if paid > amount:
 		frappe.throw(f"Оплачено больше суммы продажи ({amount:,.0f} ₸).".replace(",", " "))
-	method, bank = _method(method, bank, paid)
+	method, bank = (parts[0]["method"], parts[0]["bank"]) if parts else (None, None)
 	entry = _issue(
 		company, [(item, metres, price) for item, metres, price in rows], SALE, posted_on=sold_on,
 		remarks=note,
@@ -115,6 +118,7 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 			"korkem_film_paid": float(paid),
 			"korkem_film_pay_method": method,
 			"korkem_film_pay_bank": bank,
+			"korkem_film_payments": _dump(parts, sold_on),
 		},
 	)
 	tier = buyer.get("korkem_film_tier") if buyer.get("korkem_film_tier") in TIERS else RETAIL
@@ -126,7 +130,8 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 		# A facade customer who buys film is a film customer from now on.
 		frappe.db.set_value("Customer", buyer.name, "korkem_film_customer", 1)
 	audit.record_audit(action="film.sold", entity_type="Stock Entry", entity_id=entry.name,
-					   diff={"customer": buyer.name, "amount": float(amount), "paid": float(paid)})
+					   diff={"customer": buyer.name, "amount": float(amount), "paid": float(paid),
+							 "payments": [{**p, "amount": float(p["amount"])} for p in parts]})
 	return movement(entry.name)
 
 
@@ -156,22 +161,81 @@ def write_off(item: str, metres, reason: str) -> dict:
 	return movement(entry.name)
 
 
-def pay(entry: str, amount, method: str | None = None, bank: str | None = None) -> dict:
-	"""More money against a sale left in debt."""
+def pay(entry: str, amount=None, method: str | None = None, bank: str | None = None,
+		payments=None) -> dict:
+	"""More money against a sale left in debt — one way, or several at once."""
 	material_stock._ensure_editor()
 	doc = _movement(entry, SALE)
-	amount = _money(amount, "Сумма")
+	parts = _parts(payments, amount, method, bank)
+	amount = sum((p["amount"] for p in parts), Decimal(0))
 	if amount <= 0:
 		frappe.throw("Сумма оплаты больше нуля.")
 	owed = Decimal(str(flt(doc.korkem_film_amount))) - Decimal(str(flt(doc.korkem_film_paid)))
 	if amount > owed:
 		frappe.throw(f"Долг по этой продаже — {owed:,.0f} ₸.".replace(",", " "))
-	method, bank = _method(method, bank, amount)
-	doc.db_set({"korkem_film_paid": flt(doc.korkem_film_paid) + float(amount),
-				"korkem_film_pay_method": method, "korkem_film_pay_bank": bank}, update_modified=True)
+	method, bank = parts[0]["method"], parts[0]["bank"]
+	before = _payments(doc)
+	doc.db_set({
+		"korkem_film_paid": flt(doc.korkem_film_paid) + float(amount),
+		"korkem_film_pay_method": method, "korkem_film_pay_bank": bank,
+		"korkem_film_payments": frappe.as_json(before + _rows(parts, nowdate())),
+	}, update_modified=True)
 	audit.record_audit(action="film.sale_paid", entity_type="Stock Entry", entity_id=entry,
-					   diff={"amount": float(amount), "method": method, "bank": bank})
+					   diff={"amount": float(amount), "payments": [{**p, "amount": float(p["amount"])} for p in parts]})
 	return movement(entry)
+
+
+def _parts(payments, paid, method, bank) -> list[dict]:
+	"""The ways a sum came, each checked: `payments` when given, else the one."""
+	if isinstance(payments, str):
+		payments = frappe.parse_json(payments) if payments.strip() else None
+	if payments is None:
+		paid = _money(paid or 0, "Оплачено")
+		if paid <= 0:
+			return []
+		method, bank = _method(method, bank, paid)
+		return [{"amount": paid, "method": method, "bank": bank}]
+	if not isinstance(payments, list):
+		frappe.throw("Оплата — список частей: сумма, способ, банк.")
+	parts = []
+	for n, raw in enumerate(payments, start=1):
+		raw = raw or {}
+		amount = _money(raw.get("amount") or 0, f"Оплата {n}: сумма")
+		if amount <= 0:
+			continue
+		method, bank = _method(raw.get("method"), raw.get("bank"), amount)
+		parts.append({"amount": amount, "method": method, "bank": bank})
+	return parts
+
+
+def _rows(parts: list[dict], on: str | None) -> list[dict]:
+	return [
+		{"date": str(on or nowdate()), "amount": float(p["amount"]), "method": p["method"], "bank": p["bank"]}
+		for p in parts
+	]
+
+
+def _dump(parts: list[dict], on: str | None) -> str | None:
+	return frappe.as_json(_rows(parts, on)) if parts else None
+
+
+def _payments(doc) -> list[dict]:
+	"""Every payment of a sale. One paid before parts were kept is read from
+	the sale's own figures."""
+	raw = doc.get("korkem_film_payments")
+	if raw:
+		try:
+			rows = frappe.parse_json(raw)
+			if isinstance(rows, list):
+				return rows
+		except ValueError:
+			pass
+	if flt(doc.get("korkem_film_paid")) > 0:
+		return [{
+			"date": str(doc.get("posting_date") or ""), "amount": flt(doc.get("korkem_film_paid")),
+			"method": doc.get("korkem_film_pay_method"), "bank": doc.get("korkem_film_pay_bank"),
+		}]
+	return []
 
 
 def cancel(entry: str, reason: str) -> dict:
@@ -278,6 +342,7 @@ def movement(entry: str) -> dict:
 		"debt": (flt(doc.get("korkem_film_amount")) - flt(doc.get("korkem_film_paid"))) if money else None,
 		"method": doc.get("korkem_film_pay_method"),
 		"bank": doc.get("korkem_film_pay_bank"),
+		"payments": _payments(doc) if money else [],
 		"lines": _lines(doc, money),
 	}
 
@@ -501,7 +566,9 @@ def _title(item: str, fallback: str) -> str:
 	row = frappe.db.get_value(
 		"Item", item, ["korkem_manufacturer", "korkem_color", "korkem_film_thickness_mm"], as_dict=True
 	) or {}
-	thickness = row.get("korkem_film_thickness_mm") if len(film_catalog.siblings(item)) > 1 else None
+	thickness = (
+		(row.get("korkem_film_thickness_mm") or film_catalog.UNKNOWN) if len(film_catalog.siblings(item)) > 1 else None
+	)
 	return film_catalog.label(row.get("korkem_manufacturer") or "", row.get("korkem_color") or fallback, thickness)
 
 

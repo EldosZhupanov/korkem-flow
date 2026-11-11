@@ -313,3 +313,24 @@ class TestFilmCatalog(IntegrationTestCase):
 		left = self._as(MANAGER, service.film, thick["item"])
 		self.assertEqual(left["label"], "KIRA · Белое Дерево Тест Два")
 
+	def test_a_thickness_not_known_yet_is_left_empty_and_filled_in_later(self):
+		from korkem_manufacturing.services import facade_materials
+
+		made = self._as(MANAGER, service.add, "KIRA", "Сиена Тест", thickness="")
+		self.assertIsNone(made["thickness_mm"])
+		self.assertIn("×?", made["title"])
+		# Added again empty, it is the same film, not a second one.
+		self.assertEqual(self._as(MANAGER, service.add, "KIRA", "Сиена Тест", thickness="")["item"], made["item"])
+		# With a known thickness beside it, an order names it «?».
+		known = self._as(MANAGER, service.add, "KIRA", "Сиена Тест", thickness="0,3")
+		unknown = self._as(MANAGER, service.film, made["item"])
+		self.assertEqual(unknown["label"], "KIRA · Сиена Тест · ?")
+		self.assertIn("KIRA · Сиена Тест · ?", service.labels(COMPANY))
+		picked = facade_materials._pick_item(material_stock.FILM, "KIRA · Сиена Тест · ?", COMPANY, {})
+		self.assertEqual(picked.name, made["item"])
+		# Known now: written on the card.
+		self._as(MANAGER, service.delete, known["item"])
+		card = self._as(MANAGER, service.set_card, made["item"], thickness="0,25")
+		self.assertEqual((card["thickness_mm"], card["label"]), (0.25, "KIRA · Сиена Тест"))
+		self.assertIn("×0,25", card["title"])
+

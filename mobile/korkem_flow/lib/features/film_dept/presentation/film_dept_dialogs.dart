@@ -315,6 +315,21 @@ class _IssueDialogState extends ConsumerState<_IssueDialog> with _Saving {
   }
 }
 
+/// One way a sale is paid (owner, 11.11.2026): the method, its bank, the
+/// sum — cash and a transfer at once, as on an order's payment.
+class _PayPart {
+  _PayPart({this.method = filmCash, String amount = ''})
+    : amount = TextEditingController(text: amount);
+
+  String method;
+  String? bank;
+  final TextEditingController amount;
+
+  double get value => _number(amount.text) ?? 0;
+
+  void dispose() => amount.dispose();
+}
+
 class _SaleLine {
   _SaleLine(this.film);
 
@@ -364,10 +379,11 @@ class _SaleDialog extends ConsumerStatefulWidget {
 
 class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   final _lines = <_SaleLine>[];
-  final _paid = TextEditingController();
+  final _parts = [_PayPart()];
   late String? _customer = widget.customer;
-  String _method = filmCash;
-  String? _bank;
+
+  /// Whether the seller touched a sum: until then the one part follows the
+  /// sale's total, «paid in full».
   bool _paidTouched = false;
 
   /// What can be sold: named, and with metres on the shelf — a film in
@@ -389,7 +405,9 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
     for (final l in _lines) {
       l.dispose();
     }
-    _paid.dispose();
+    for (final p in _parts) {
+      p.dispose();
+    }
     super.dispose();
   }
 
@@ -423,8 +441,24 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   double get _sum => _lines.fold(0, (s, l) => s + l.sum);
 
   void _fillPaid() {
-    if (!_paidTouched) _paid.text = _sum.toStringAsFixed(0);
+    if (!_paidTouched && _parts.length == 1) {
+      _parts.single.amount.text = _sum.toStringAsFixed(0);
+    }
   }
+
+  double get _paid => _parts.fold(0, (s, p) => s + p.value);
+
+  /// «+ ещё способ»: a new part takes what is left to pay.
+  void _addPart() => setState(() {
+    _paidTouched = true;
+    final left = _sum - _paid;
+    _parts.add(
+      _PayPart(
+        method: filmTransfer,
+        amount: left > 0 ? left.toStringAsFixed(0) : '',
+      ),
+    );
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -436,7 +470,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
     final banks =
         (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
             .values(MdfDictKind.bank);
-    final paid = _number(_paid.text) ?? 0;
+    final paid = _paid;
     final ok =
         _customer != null &&
         _lines.isNotEmpty &&
@@ -598,51 +632,103 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: AppSpacing.sm),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      key: const ValueKey('filmSalePaid'),
-                      controller: _paid,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: (_) => setState(() => _paidTouched = true),
-                      decoration: InputDecoration(
-                        labelText: l10n.filmSalePaid,
-                        helperText: paid < _sum
-                            ? l10n.filmSaleDebt(money.format(_sum - paid))
-                            : null,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Wrap(
-                    spacing: AppSpacing.xs,
+              // How it is paid — one way or several (owner, 11.11.2026).
+              for (final (i, p) in _parts.indexed)
+                Padding(
+                  key: ValueKey('filmSalePart:$i'),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      for (final m in const [filmCash, filmTransfer, filmCard])
-                        ChoiceChip(
-                          key: ValueKey('filmSaleMethod:$m'),
-                          label: Text(label(m)),
-                          selected: _method == m,
-                          onSelected: (_) => setState(() => _method = m),
+                      Wrap(
+                        spacing: AppSpacing.xs,
+                        children: [
+                          for (final m in const [
+                            filmCash,
+                            filmTransfer,
+                            filmCard,
+                          ])
+                            ChoiceChip(
+                              key: ValueKey(
+                                i == 0
+                                    ? 'filmSaleMethod:$m'
+                                    : 'filmSaleMethod:$i:$m',
+                              ),
+                              label: Text(label(m)),
+                              selected: p.method == m,
+                              onSelected: (_) => setState(() => p.method = m),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      if (p.method != filmCash)
+                        Expanded(
+                          child: DropdownButtonFormField<String?>(
+                            key: ValueKey('filmSaleBank:$i:${banks.length}'),
+                            initialValue: banks.contains(p.bank)
+                                ? p.bank
+                                : null,
+                            isExpanded: true,
+                            items: [
+                              DropdownMenuItem(child: Text(l10n.mdfNone)),
+                              for (final b in banks)
+                                DropdownMenuItem(value: b, child: Text(b)),
+                            ],
+                            onChanged: (v) => setState(() => p.bank = v),
+                            decoration: InputDecoration(
+                              labelText: l10n.mdfPayBank,
+                            ),
+                          ),
+                        )
+                      else
+                        const Spacer(),
+                      const SizedBox(width: AppSpacing.sm),
+                      SizedBox(
+                        width: AppSpacing.xxxl * 3,
+                        child: TextField(
+                          key: ValueKey(
+                            i == 0 ? 'filmSalePaid' : 'filmSalePaid:$i',
+                          ),
+                          controller: p.amount,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          onChanged: (_) => setState(() => _paidTouched = true),
+                          decoration: InputDecoration(
+                            labelText: l10n.filmSalePaid,
+                          ),
+                        ),
+                      ),
+                      if (_parts.length > 1)
+                        IconButton(
+                          key: ValueKey('filmSalePartRemove:$i'),
+                          icon: const Icon(AppIcons.close),
+                          onPressed: () => setState(() {
+                            _parts.removeAt(i).dispose();
+                          }),
                         ),
                     ],
                   ),
-                ],
-              ),
-              if (_method != filmCash)
-                DropdownButtonFormField<String?>(
-                  key: ValueKey('filmSaleBank:${banks.length}'),
-                  initialValue: banks.contains(_bank) ? _bank : null,
-                  items: [
-                    DropdownMenuItem(child: Text(l10n.mdfNone)),
-                    for (final b in banks)
-                      DropdownMenuItem(value: b, child: Text(b)),
-                  ],
-                  onChanged: (v) => setState(() => _bank = v),
-                  decoration: InputDecoration(labelText: l10n.mdfPayBank),
                 ),
+              if (_parts.length < 4)
+                TextButton.icon(
+                  key: const ValueKey('filmSaleAddPart'),
+                  onPressed: _addPart,
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.filmSaleAddPart),
+                ),
+              Text(
+                paid > _sum + 0.5
+                    ? l10n.filmSaleOverpaid(money.format(paid - _sum))
+                    : paid < _sum
+                    ? l10n.filmSaleDebt(money.format(_sum - paid))
+                    : l10n.filmSalePaidFull,
+                key: const ValueKey('filmSaleBalance'),
+                style: TextStyle(
+                  color: paid > _sum + 0.5 ? theme.colorScheme.error : null,
+                ),
+              ),
               errorLine(context),
             ],
           ),
@@ -670,9 +756,15 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                           for (final l in _lines)
                             if (l.cardless && l.remember) l.film.item,
                         },
-                        paid: paid,
-                        method: paid > 0 ? _method : null,
-                        bank: paid > 0 && _method != filmCash ? _bank : null,
+                        payments: [
+                          for (final p in _parts)
+                            if (p.value > 0)
+                              (
+                                amount: p.value,
+                                method: p.method,
+                                bank: p.method != filmCash ? p.bank : null,
+                              ),
+                        ],
                       ),
                 ),
           child: Text(l10n.filmSell),
@@ -870,6 +962,17 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
                 Text(
                   l10n.filmSaleTotal(money.format(s.amount)),
                   style: theme.textTheme.titleMedium,
+                ),
+              // Every payment, each its way (owner, 11.11.2026).
+              for (final (i, p) in s.payments.indexed)
+                Text(
+                  [
+                    if (p.date.isNotEmpty) p.date,
+                    p.method,
+                    ?p.bank,
+                    money.format(p.amount),
+                  ].join(' · '),
+                  key: ValueKey('filmSaleCardPayment:$i'),
                 ),
               if (debt > 0) ...[
                 Text(

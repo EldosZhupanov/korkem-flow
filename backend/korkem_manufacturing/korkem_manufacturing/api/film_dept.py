@@ -32,9 +32,12 @@ def receive(item: str, metres: float | str, price_m: float | str, supplier: str,
 
 @frappe.whitelist(methods=["POST"])
 def sell(customer: str, lines: str | list, paid: float | str = 0, method: str | None = None,
-		 bank: str | None = None, sold_on: str | None = None, note: str | None = None) -> dict:
-	"""Продажа плёнки клиенту: одна или несколько плёнок, оплата или долг."""
-	return service.sell(customer, lines, paid=paid, method=method, bank=bank, sold_on=sold_on, note=note)
+		 bank: str | None = None, sold_on: str | None = None, note: str | None = None,
+		 payments: str | list | None = None) -> dict:
+	"""Продажа плёнки клиенту: одна или несколько плёнок, оплата одним или несколькими способами, или долг."""
+	return service.sell(
+		customer, lines, paid=paid, method=method, bank=bank, sold_on=sold_on, note=note, payments=payments
+	)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -50,9 +53,10 @@ def write_off(item: str, metres: float | str, reason: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def pay(entry: str, amount: float | str, method: str | None = None, bank: str | None = None) -> dict:
-	"""Доплата по продаже, оставшейся в долг."""
-	return service.pay(entry, amount, method=method, bank=bank)
+def pay(entry: str, amount: float | str | None = None, method: str | None = None, bank: str | None = None,
+		payments: str | list | None = None) -> dict:
+	"""Доплата по продаже, оставшейся в долг: одним способом или несколькими."""
+	return service.pay(entry, amount, method=method, bank=bank, payments=payments)
 
 
 @frappe.whitelist(methods=["POST"])
