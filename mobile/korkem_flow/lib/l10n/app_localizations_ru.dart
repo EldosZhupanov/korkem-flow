@@ -5727,6 +5727,49 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmTabCustomers => 'Клиенты';
 
   @override
+  String get filmCorrectTitle => 'Исправить';
+
+  @override
+  String get filmCorrectReason => 'Почему исправляете';
+
+  @override
+  String get filmCorrectHint =>
+      'Старая запись останется зачёркнутой — видно, кто и почему исправил.';
+
+  @override
+  String get filmCorrectSave => 'Исправить';
+
+  @override
+  String get filmCorrectCancel => 'Отменить запись';
+
+  @override
+  String filmCorrected(String date, String who, String reason) {
+    return 'исправлено $date · $who · «$reason»';
+  }
+
+  @override
+  String get filmSaleAddPart => 'ещё способ';
+
+  @override
+  String get filmSalePaidFull => 'Оплачено полностью';
+
+  @override
+  String filmSaleOverpaid(String amount) {
+    return 'Больше суммы на $amount — так нельзя';
+  }
+
+  @override
+  String get filmThicknessUnknown => 'толщина не указана';
+
+  @override
+  String get filmThicknessHint => 'Не знаете — оставьте пустым, впишете позже';
+
+  @override
+  String filmNoThickness(String count) {
+    return 'Без толщины · $count';
+  }
+
+  @override
   String get filmVariants => 'Толщины';
 
   @override
@@ -6059,4 +6102,93 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmClose => 'Закрыть';
+
+  @override
+  String get filmDelivery => 'Доставка';
+
+  @override
+  String get filmTransport => 'Как привезли';
+
+  @override
+  String get filmCity => 'Откуда (город)';
+
+  @override
+  String get filmDeliveryCost => 'За доставку, ₸';
+
+  @override
+  String filmDeliveryPerM(String per) {
+    return '≈ $per на метр';
+  }
+
+  @override
+  String get filmReceivedBy => 'Кто принял';
+
+  @override
+  String get filmUrgent => 'Срочно';
+
+  @override
+  String get filmSeller => 'Продавец';
+
+  @override
+  String filmTakenBy(String name) {
+    return 'принял $name';
+  }
+
+  @override
+  String filmSoldBy(String name) {
+    return 'продал $name';
+  }
+
+  @override
+  String get filmTabTeam => 'Команда';
+
+  @override
+  String filmTeamTotals(
+    String metres,
+    String sales,
+    String paid,
+    String margin,
+  ) {
+    return '$metres м · продаж $sales · оплачено $paid · маржа $margin';
+  }
+
+  @override
+  String filmTeamPlan(String done, String plan) {
+    return 'План: $done% из $plan м';
+  }
+
+  @override
+  String get filmTeamNoPlan => 'План на месяц не задан';
+
+  @override
+  String filmTeamPot(String pct, String pot) {
+    return 'Котёл: $pct% маржи = $pot';
+  }
+
+  @override
+  String filmTeamShare(String share, String bonus) {
+    return 'доля $share% · бонус $bonus';
+  }
+
+  @override
+  String get filmTeamEmpty => 'В этом месяце продаж нет';
+
+  @override
+  String get filmTeamHint =>
+      'Бонус считается с маржи — только с оплаченных денег, в месяц оплаты.';
+
+  @override
+  String get filmTeamSettings => 'План и бонус';
+
+  @override
+  String get filmTeamPlanM => 'План на месяц, м';
+
+  @override
+  String get filmTeamPct => 'Котёл при выполнении плана, %';
+
+  @override
+  String get filmTeamPctBelow => 'Котёл, если план не выполнен, %';
+
+  @override
+  String get filmTeamSave => 'Сохранить';
 }

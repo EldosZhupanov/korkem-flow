@@ -12,6 +12,8 @@ import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -75,6 +77,49 @@ Widget _metresField(
   decoration: InputDecoration(labelText: label),
 );
 
+/// A field with its list's own ✎: the list opens to be added to, renamed,
+/// cleaned (owner, 11.11.2026: «чтобы редактировался и мог бы удалить»).
+Widget _withList(
+  BuildContext context, {
+  required String key,
+  required Widget child,
+  required VoidCallback onEdit,
+}) => Row(
+  children: [
+    Expanded(child: child),
+    IconButton(
+      key: ValueKey(key),
+      tooltip: AppLocalizations.of(context).mdfDictOpen,
+      onPressed: onEdit,
+      icon: const Icon(AppIcons.edit),
+    ),
+  ],
+);
+
+/// Who works here, to pick who took a roll in or who sold — the one
+/// signed in first.
+Widget _personField({
+  required String key,
+  required String label,
+  required FilmDeliveryOptions? opts,
+  required String? value,
+  required ValueChanged<String?> onChanged,
+}) {
+  final staff = opts?.staff ?? const [];
+  final chosen = value ?? opts?.me;
+  return DropdownButtonFormField<String>(
+    key: ValueKey('$key:${staff.length}'),
+    initialValue: staff.any((p) => p.user == chosen) ? chosen : null,
+    isExpanded: true,
+    items: [
+      for (final p in staff)
+        DropdownMenuItem(value: p.user, child: Text(p.name)),
+    ],
+    onChanged: onChanged,
+    decoration: InputDecoration(labelText: label),
+  );
+}
+
 /// «Приход»: a roll or a cut from a wholesaler — metres at a price a metre.
 Future<bool?> showFilmReceive(BuildContext context, Film film, FilmCatalog c) =>
     showDialog<bool>(
@@ -108,10 +153,45 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   /// for a one-off discount (owner, 11.11.2026).
   bool _updatePrice = true;
 
+  // How it came (owner, 11.11.2026): by default as this supplier's last
+  // roll came, from the city on its card; nothing paid; taken in by me.
+  final _cost = TextEditingController();
+  String? _transport;
+  String? _city;
+  String? _taker;
+  bool _urgent = false;
+
+  String? _transportOf(FilmDeliveryOptions? o) =>
+      _transport ?? o?.last[_supplier]?.transport ?? o?.transports.firstOrNull;
+
+  String? _cityOf(FilmDeliveryOptions? o) =>
+      _city ?? o?.last[_supplier]?.city ?? o?.supplierCities[_supplier];
+
+  Future<void> _editList(MdfDictKind kind, String title, String? now) async {
+    final picked = await showMdfDictionary(
+      context,
+      kind,
+      title: title,
+      current: now,
+    );
+    if (!mounted) return;
+    ref.invalidate(filmDeliveryOptionsProvider);
+    if (picked != null) {
+      setState(() {
+        if (kind == MdfDictKind.transport) {
+          _transport = picked;
+        } else {
+          _city = picked;
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
     _metres.dispose();
     _price.dispose();
+    _cost.dispose();
     super.dispose();
   }
 
@@ -120,50 +200,139 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     final l10n = AppLocalizations.of(context);
     final metres = _number(_metres.text) ?? 0;
     final price = _number(_price.text) ?? 0;
+    final cost = _number(_cost.text) ?? 0;
+    final opts = ref.watch(filmDeliveryOptionsProvider).value;
+    final transport = _transportOf(opts);
+    final city = _cityOf(opts);
+    final cities = {...?opts?.cities, ?city}.toList();
+    final money = mdfMoney(context);
     return AlertDialog(
       title: Text('${l10n.filmReceive} · ${filmName(widget.film)}'),
       content: SizedBox(
         width: AppSpacing.xxxl * 8,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _metresField(_metres, l10n.filmMetresLabel, () => setState(() {})),
-            TextField(
-              key: const ValueKey('filmPrice'),
-              controller: _price,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(labelText: l10n.filmPriceM),
-            ),
-            DropdownButtonFormField<String>(
-              key: const ValueKey('filmSupplier'),
-              initialValue: _supplier,
-              items: [
-                for (final s in _sources)
-                  DropdownMenuItem(value: s.id, child: Text(s.name)),
-              ],
-              onChanged: (v) => setState(() => _supplier = v),
-              decoration: InputDecoration(labelText: l10n.filmReceiveFrom),
-            ),
-            if (price > 0 && price != widget.film.priceM)
-              CheckboxListTile(
-                key: const ValueKey('filmReceiveUpdatePrice'),
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                value: _updatePrice,
-                onChanged: (v) => setState(() => _updatePrice = v ?? false),
-                title: Text(
-                  widget.film.priceM == null
-                      ? l10n.filmReceiveSetPrice(price.toStringAsFixed(0))
-                      : l10n.filmReceiveUpdatePrice(
-                          widget.film.priceM!.toStringAsFixed(0),
-                          price.toStringAsFixed(0),
-                        ),
-                ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _metresField(
+                _metres,
+                l10n.filmMetresLabel,
+                () => setState(() {}),
               ),
-            errorLine(context),
-          ],
+              TextField(
+                key: const ValueKey('filmPrice'),
+                controller: _price,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(labelText: l10n.filmPriceM),
+              ),
+              DropdownButtonFormField<String>(
+                key: const ValueKey('filmSupplier'),
+                initialValue: _supplier,
+                items: [
+                  for (final s in _sources)
+                    DropdownMenuItem(value: s.id, child: Text(s.name)),
+                ],
+                onChanged: (v) => setState(() => _supplier = v),
+                decoration: InputDecoration(labelText: l10n.filmReceiveFrom),
+              ),
+              if (price > 0 && price != widget.film.priceM)
+                CheckboxListTile(
+                  key: const ValueKey('filmReceiveUpdatePrice'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: _updatePrice,
+                  onChanged: (v) => setState(() => _updatePrice = v ?? false),
+                  title: Text(
+                    widget.film.priceM == null
+                        ? l10n.filmReceiveSetPrice(price.toStringAsFixed(0))
+                        : l10n.filmReceiveUpdatePrice(
+                            widget.film.priceM!.toStringAsFixed(0),
+                            price.toStringAsFixed(0),
+                          ),
+                  ),
+                ),
+              if (opts != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  l10n.filmDelivery,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                _withList(
+                  context,
+                  key: 'filmDelivery:transport:edit',
+                  onEdit: () => _editList(
+                    MdfDictKind.transport,
+                    l10n.filmTransport,
+                    transport,
+                  ),
+                  child: Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      for (final t in opts.transports)
+                        ChoiceChip(
+                          key: ValueKey('filmDelivery:transport:$t'),
+                          label: Text(t),
+                          selected: t == transport,
+                          onSelected: (_) => setState(() => _transport = t),
+                        ),
+                    ],
+                  ),
+                ),
+                _withList(
+                  context,
+                  key: 'filmDelivery:city:edit',
+                  onEdit: () =>
+                      _editList(MdfDictKind.city, l10n.filmCity, city),
+                  child: DropdownButtonFormField<String?>(
+                    key: ValueKey('filmDelivery:city:$city:${cities.length}'),
+                    initialValue: city,
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem(child: Text(l10n.mdfNone)),
+                      for (final c in cities)
+                        DropdownMenuItem(value: c, child: Text(c)),
+                    ],
+                    onChanged: (v) => setState(() => _city = v),
+                    decoration: InputDecoration(labelText: l10n.filmCity),
+                  ),
+                ),
+                TextField(
+                  key: const ValueKey('filmDelivery:cost'),
+                  controller: _cost,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    labelText: l10n.filmDeliveryCost,
+                    // What bringing it added to each metre.
+                    helperText: cost > 0 && metres > 0
+                        ? l10n.filmDeliveryPerM(money.format(cost / metres))
+                        : null,
+                  ),
+                ),
+                _personField(
+                  key: 'filmDelivery:taker',
+                  label: l10n.filmReceivedBy,
+                  opts: opts,
+                  value: _taker,
+                  onChanged: (v) => setState(() => _taker = v),
+                ),
+                CheckboxListTile(
+                  key: const ValueKey('filmDelivery:urgent'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: _urgent,
+                  onChanged: (v) => setState(() => _urgent = v ?? false),
+                  title: Text(l10n.filmUrgent),
+                ),
+              ],
+              errorLine(context),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -184,6 +353,15 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                         priceM: price,
                         supplier: _supplier!,
                         updatePrice: _updatePrice,
+                        delivery: opts == null
+                            ? null
+                            : {
+                                'transport': transport,
+                                'city': city ?? '',
+                                'amount': cost,
+                                'urgent': _urgent,
+                              },
+                        receivedBy: opts == null ? null : _taker ?? opts.me,
                       ),
                 ),
           child: Text(l10n.filmReceive),
@@ -315,6 +493,21 @@ class _IssueDialogState extends ConsumerState<_IssueDialog> with _Saving {
   }
 }
 
+/// One way a sale is paid (owner, 11.11.2026): the method, its bank, the
+/// sum — cash and a transfer at once, as on an order's payment.
+class _PayPart {
+  _PayPart({this.method = filmCash, String amount = ''})
+    : amount = TextEditingController(text: amount);
+
+  String method;
+  String? bank;
+  final TextEditingController amount;
+
+  double get value => _number(amount.text) ?? 0;
+
+  void dispose() => amount.dispose();
+}
+
 class _SaleLine {
   _SaleLine(this.film);
 
@@ -364,10 +557,15 @@ class _SaleDialog extends ConsumerStatefulWidget {
 
 class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   final _lines = <_SaleLine>[];
-  final _paid = TextEditingController();
+  final _parts = [_PayPart()];
   late String? _customer = widget.customer;
-  String _method = filmCash;
-  String? _bank;
+
+  /// Who sold it — the one signed in unless said otherwise; the team's
+  /// bonus is counted by seller (owner, 11.11.2026).
+  String? _seller;
+
+  /// Whether the seller touched a sum: until then the one part follows the
+  /// sale's total, «paid in full».
   bool _paidTouched = false;
 
   /// What can be sold: named, and with metres on the shelf — a film in
@@ -389,7 +587,9 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
     for (final l in _lines) {
       l.dispose();
     }
-    _paid.dispose();
+    for (final p in _parts) {
+      p.dispose();
+    }
     super.dispose();
   }
 
@@ -423,8 +623,24 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   double get _sum => _lines.fold(0, (s, l) => s + l.sum);
 
   void _fillPaid() {
-    if (!_paidTouched) _paid.text = _sum.toStringAsFixed(0);
+    if (!_paidTouched && _parts.length == 1) {
+      _parts.single.amount.text = _sum.toStringAsFixed(0);
+    }
   }
+
+  double get _paid => _parts.fold(0, (s, p) => s + p.value);
+
+  /// «+ ещё способ»: a new part takes what is left to pay.
+  void _addPart() => setState(() {
+    _paidTouched = true;
+    final left = _sum - _paid;
+    _parts.add(
+      _PayPart(
+        method: filmTransfer,
+        amount: left > 0 ? left.toStringAsFixed(0) : '',
+      ),
+    );
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -436,7 +652,8 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
     final banks =
         (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
             .values(MdfDictKind.bank);
-    final paid = _number(_paid.text) ?? 0;
+    final sellers = ref.watch(filmDeliveryOptionsProvider).value;
+    final paid = _paid;
     final ok =
         _customer != null &&
         _lines.isNotEmpty &&
@@ -476,6 +693,14 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 },
                 decoration: InputDecoration(labelText: l10n.mdfCustomer),
               ),
+              if (sellers != null && sellers.staff.isNotEmpty)
+                _personField(
+                  key: 'filmSaleSeller',
+                  label: l10n.filmSeller,
+                  opts: sellers,
+                  value: _seller,
+                  onChanged: (v) => setState(() => _seller = v),
+                ),
               const SizedBox(height: AppSpacing.sm),
               for (final (i, line) in _lines.indexed) ...[
                 Padding(
@@ -598,51 +823,103 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: AppSpacing.sm),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      key: const ValueKey('filmSalePaid'),
-                      controller: _paid,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: (_) => setState(() => _paidTouched = true),
-                      decoration: InputDecoration(
-                        labelText: l10n.filmSalePaid,
-                        helperText: paid < _sum
-                            ? l10n.filmSaleDebt(money.format(_sum - paid))
-                            : null,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Wrap(
-                    spacing: AppSpacing.xs,
+              // How it is paid — one way or several (owner, 11.11.2026).
+              for (final (i, p) in _parts.indexed)
+                Padding(
+                  key: ValueKey('filmSalePart:$i'),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      for (final m in const [filmCash, filmTransfer, filmCard])
-                        ChoiceChip(
-                          key: ValueKey('filmSaleMethod:$m'),
-                          label: Text(label(m)),
-                          selected: _method == m,
-                          onSelected: (_) => setState(() => _method = m),
+                      Wrap(
+                        spacing: AppSpacing.xs,
+                        children: [
+                          for (final m in const [
+                            filmCash,
+                            filmTransfer,
+                            filmCard,
+                          ])
+                            ChoiceChip(
+                              key: ValueKey(
+                                i == 0
+                                    ? 'filmSaleMethod:$m'
+                                    : 'filmSaleMethod:$i:$m',
+                              ),
+                              label: Text(label(m)),
+                              selected: p.method == m,
+                              onSelected: (_) => setState(() => p.method = m),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      if (p.method != filmCash)
+                        Expanded(
+                          child: DropdownButtonFormField<String?>(
+                            key: ValueKey('filmSaleBank:$i:${banks.length}'),
+                            initialValue: banks.contains(p.bank)
+                                ? p.bank
+                                : null,
+                            isExpanded: true,
+                            items: [
+                              DropdownMenuItem(child: Text(l10n.mdfNone)),
+                              for (final b in banks)
+                                DropdownMenuItem(value: b, child: Text(b)),
+                            ],
+                            onChanged: (v) => setState(() => p.bank = v),
+                            decoration: InputDecoration(
+                              labelText: l10n.mdfPayBank,
+                            ),
+                          ),
+                        )
+                      else
+                        const Spacer(),
+                      const SizedBox(width: AppSpacing.sm),
+                      SizedBox(
+                        width: AppSpacing.xxxl * 3,
+                        child: TextField(
+                          key: ValueKey(
+                            i == 0 ? 'filmSalePaid' : 'filmSalePaid:$i',
+                          ),
+                          controller: p.amount,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          onChanged: (_) => setState(() => _paidTouched = true),
+                          decoration: InputDecoration(
+                            labelText: l10n.filmSalePaid,
+                          ),
+                        ),
+                      ),
+                      if (_parts.length > 1)
+                        IconButton(
+                          key: ValueKey('filmSalePartRemove:$i'),
+                          icon: const Icon(AppIcons.close),
+                          onPressed: () => setState(() {
+                            _parts.removeAt(i).dispose();
+                          }),
                         ),
                     ],
                   ),
-                ],
-              ),
-              if (_method != filmCash)
-                DropdownButtonFormField<String?>(
-                  key: ValueKey('filmSaleBank:${banks.length}'),
-                  initialValue: banks.contains(_bank) ? _bank : null,
-                  items: [
-                    DropdownMenuItem(child: Text(l10n.mdfNone)),
-                    for (final b in banks)
-                      DropdownMenuItem(value: b, child: Text(b)),
-                  ],
-                  onChanged: (v) => setState(() => _bank = v),
-                  decoration: InputDecoration(labelText: l10n.mdfPayBank),
                 ),
+              if (_parts.length < 4)
+                TextButton.icon(
+                  key: const ValueKey('filmSaleAddPart'),
+                  onPressed: _addPart,
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.filmSaleAddPart),
+                ),
+              Text(
+                paid > _sum + 0.5
+                    ? l10n.filmSaleOverpaid(money.format(paid - _sum))
+                    : paid < _sum
+                    ? l10n.filmSaleDebt(money.format(_sum - paid))
+                    : l10n.filmSalePaidFull,
+                key: const ValueKey('filmSaleBalance'),
+                style: TextStyle(
+                  color: paid > _sum + 0.5 ? theme.colorScheme.error : null,
+                ),
+              ),
               errorLine(context),
             ],
           ),
@@ -670,9 +947,16 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                           for (final l in _lines)
                             if (l.cardless && l.remember) l.film.item,
                         },
-                        paid: paid,
-                        method: paid > 0 ? _method : null,
-                        bank: paid > 0 && _method != filmCash ? _bank : null,
+                        payments: [
+                          for (final p in _parts)
+                            if (p.value > 0)
+                              (
+                                amount: p.value,
+                                method: p.method,
+                                bank: p.method != filmCash ? p.bank : null,
+                              ),
+                        ],
+                        seller: _seller ?? sellers?.me,
                       ),
                 ),
           child: Text(l10n.filmSell),
@@ -871,6 +1155,17 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
                   l10n.filmSaleTotal(money.format(s.amount)),
                   style: theme.textTheme.titleMedium,
                 ),
+              // Every payment, each its way (owner, 11.11.2026).
+              for (final (i, p) in s.payments.indexed)
+                Text(
+                  [
+                    if (p.date.isNotEmpty) p.date,
+                    p.method,
+                    ?p.bank,
+                    money.format(p.amount),
+                  ].join(' · '),
+                  key: ValueKey('filmSaleCardPayment:$i'),
+                ),
               if (debt > 0) ...[
                 Text(
                   l10n.filmSaleDebt(money.format(debt)),
@@ -943,6 +1238,184 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
                   ),
             child: Text(l10n.filmPayDebt),
           ),
+      ],
+    );
+  }
+}
+
+/// A movement of the film's history opened to be put right (owner,
+/// 11.11.2026: «менеджер может затупить»): the same figures to change, why
+/// — a must — and, for one that should not be there at all, a cancel.
+Future<bool?> showFilmCorrect(
+  BuildContext context, {
+  required FilmMove move,
+  required Film film,
+  required FilmCatalog stock,
+}) => showDialog<bool>(
+  context: context,
+  builder: (_) => _CorrectDialog(move: move, film: film, stock: stock),
+);
+
+class _CorrectDialog extends ConsumerStatefulWidget {
+  const _CorrectDialog({
+    required this.move,
+    required this.film,
+    required this.stock,
+  });
+
+  final FilmMove move;
+  final Film film;
+  final FilmCatalog stock;
+
+  @override
+  ConsumerState<_CorrectDialog> createState() => _CorrectDialogState();
+}
+
+class _CorrectDialogState extends ConsumerState<_CorrectDialog> with _Saving {
+  late final _metres = TextEditingController(
+    text: filmMetres(widget.move.metres.abs()),
+  );
+  late final _price = TextEditingController(
+    text: widget.move.priceM?.toStringAsFixed(0),
+  );
+  late final _order = TextEditingController(text: widget.move.party);
+  late final _why = TextEditingController(text: widget.move.reason);
+  final _reason = TextEditingController();
+
+  /// A receipt's supplier: null keeps the one it has.
+  String? _supplier;
+
+  FilmMoveKind get _kind => widget.move.kind;
+
+  @override
+  void dispose() {
+    for (final c in [_metres, _price, _order, _why, _reason]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final m = widget.move;
+    final metres = _number(_metres.text) ?? 0;
+    final reason = _reason.text.trim();
+    final repo = ref.read(filmDeptRepositoryProvider);
+    final priced = _kind == FilmMoveKind.receipt || _kind == FilmMoveKind.sale;
+    return AlertDialog(
+      title: Text(
+        '${l10n.filmCorrectTitle} · ${mdfDay(m.date)} · '
+        '${filmName(widget.film)}',
+      ),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 9,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _metresField(
+                _metres,
+                l10n.filmMetresLabel,
+                () => setState(() {}),
+              ),
+              if (priced && m.priceM != null)
+                TextField(
+                  key: const ValueKey('filmCorrect:price'),
+                  controller: _price,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(labelText: l10n.filmSalePriceM),
+                ),
+              if (_kind == FilmMoveKind.receipt)
+                DropdownButtonFormField<String?>(
+                  key: const ValueKey('filmCorrect:supplier'),
+                  initialValue: _supplier,
+                  isExpanded: true,
+                  items: [
+                    DropdownMenuItem(
+                      child: Text(m.party ?? l10n.mdfNone),
+                    ),
+                    for (final s in widget.stock.suppliersFor(
+                      widget.film.maker,
+                    ))
+                      DropdownMenuItem(value: s.id, child: Text(s.name)),
+                  ],
+                  onChanged: (v) => setState(() => _supplier = v),
+                  decoration: InputDecoration(
+                    labelText: l10n.filmReceiveFrom,
+                  ),
+                ),
+              if (_kind == FilmMoveKind.shop)
+                TextField(
+                  key: const ValueKey('filmCorrect:order'),
+                  controller: _order,
+                  decoration: InputDecoration(labelText: l10n.filmForOrder),
+                ),
+              if (_kind == FilmMoveKind.writeOff)
+                TextField(
+                  key: const ValueKey('filmCorrect:why'),
+                  controller: _why,
+                  decoration: InputDecoration(
+                    labelText: l10n.filmReason,
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.sm),
+              TextField(
+                key: const ValueKey('filmCorrect:reason'),
+                controller: _reason,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  labelText: l10n.filmCorrectReason,
+                  helperText: l10n.filmCorrectHint,
+                  helperMaxLines: 2,
+                ),
+              ),
+              errorLine(context),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        // A receipt is put right, never cancelled here: its metres may be
+        // sold already.
+        if (_kind != FilmMoveKind.receipt)
+          TextButton(
+            key: const ValueKey('filmCorrect:cancel'),
+            onPressed: busy || reason.length < 3
+                ? null
+                : () => save(() => repo.cancel(m.entry, reason)),
+            child: Text(l10n.filmCorrectCancel),
+          ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmCorrect:save'),
+          onPressed: busy || reason.length < 3 || metres <= 0
+              ? null
+              : () => save(
+                  () => repo.correct(
+                    entry: m.entry,
+                    item: widget.film.item,
+                    reason: reason,
+                    metres: metres,
+                    priceM: priced && m.priceM != null
+                        ? _number(_price.text)
+                        : null,
+                    supplier: _supplier,
+                    order: _kind == FilmMoveKind.shop
+                        ? _order.text.trim()
+                        : null,
+                    why: _kind == FilmMoveKind.writeOff
+                        ? _why.text.trim()
+                        : null,
+                  ),
+                ),
+          child: Text(l10n.filmCorrectSave),
+        ),
       ],
     );
   }

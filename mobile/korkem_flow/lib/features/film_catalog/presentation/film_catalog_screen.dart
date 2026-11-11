@@ -30,6 +30,9 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
   /// Whether the archive is shown instead of the films in use.
   bool _archive = false;
 
+  /// Only films with a thickness not known yet — to fill them in.
+  bool _noThickness = false;
+
   /// The collection open at each maker — every maker has its own.
   final _collection = <String, String>{};
 
@@ -92,13 +95,23 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
         : null;
     final archived = c.of(maker, archived: true);
     final archive = _archive && archived.isNotEmpty;
-    final films = c.of(
+    final all = c.of(
       maker,
       type: _type,
       collection: collection,
       search: _search,
       archived: archive,
     );
+    bool unknown(Film f) => f.thicknessMm == null;
+    final blank = FilmCatalog.grouped(all).where((g) => g.any(unknown)).length;
+    final noThickness = _noThickness && blank > 0;
+    // A film shows whole, all its thicknesses, when one of them is unknown.
+    final films = noThickness
+        ? [
+            for (final g in FilmCatalog.grouped(all))
+              if (g.any(unknown)) ...g,
+          ]
+        : all;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.md),
       children: [
@@ -196,6 +209,15 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
             ),
             // Films taken off the list, each with its history (owner,
             // 11.11.2026); shown in place of the films in use.
+            // Films whose thickness is not known yet, to be filled in
+            // (owner, 11.11.2026).
+            if (blank > 0)
+              FilterChip(
+                key: ValueKey('filmNoThickness:$maker'),
+                label: Text(l10n.filmNoThickness('$blank')),
+                selected: noThickness,
+                onSelected: (on) => setState(() => _noThickness = on),
+              ),
             if (archived.isNotEmpty)
               FilterChip(
                 key: ValueKey('filmArchive:$maker'),
@@ -591,6 +613,9 @@ class _FilmAddDialogState extends ConsumerState<_FilmAddDialog>
                     controller: _thickness,
                     decoration: InputDecoration(
                       labelText: l10n.filmThickness,
+                      // Empty: not known yet — better than a made-up 0,3.
+                      helperText: l10n.filmThicknessHint,
+                      helperMaxLines: 2,
                     ),
                   ),
                 ),
@@ -712,6 +737,8 @@ class FilmTile extends StatelessWidget {
             ?f.type,
             ?supplier,
             if (thick.isNotEmpty) '${thick.join(' / ')} мм',
+            if (all.any((v) => v.thicknessMm == null))
+              l10n.filmThicknessUnknown,
             if (widths.isNotEmpty) '${widths.join(' / ')} мм',
           ].join(' · '),
         ),
@@ -1088,6 +1115,9 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
         : f.free > 0
         ? l10n.filmHave(_metres(f.free))
         : l10n.filmToOrder;
+    final thickLabel = f.thicknessMm == null
+        ? l10n.filmThicknessUnknown
+        : '${v.thickness.text} мм';
     return Padding(
       key: ValueKey('filmVariant:${f.item}'),
       padding: const EdgeInsets.only(top: AppSpacing.sm),
@@ -1099,7 +1129,7 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
               children: [
                 Expanded(
                   child: Text(
-                    '${v.thickness.text} мм · $stock',
+                    '$thickLabel · $stock',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
@@ -1756,7 +1786,10 @@ Future<Film?> _pickThickness(BuildContext context, List<Film> variants) =>
                 onPressed: () => Navigator.of(context).pop(v),
                 child: Text(
                   [
-                    if (v.thicknessMm != null) '${_metres(v.thicknessMm!)} мм',
+                    if (v.thicknessMm != null)
+                      '${_metres(v.thicknessMm!)} мм'
+                    else
+                      l10n.filmThicknessUnknown,
                     if (v.free > 0)
                       l10n.filmHave(_metres(v.free))
                     else

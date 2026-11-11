@@ -5704,6 +5704,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTabCustomers => 'Customers';
 
   @override
+  String get filmCorrectTitle => 'Correct';
+
+  @override
+  String get filmCorrectReason => 'Why it is corrected';
+
+  @override
+  String get filmCorrectHint =>
+      'The old entry stays, struck through — who corrected it and why is seen.';
+
+  @override
+  String get filmCorrectSave => 'Correct';
+
+  @override
+  String get filmCorrectCancel => 'Cancel the entry';
+
+  @override
+  String filmCorrected(String date, String who, String reason) {
+    return 'corrected $date · $who · “$reason”';
+  }
+
+  @override
+  String get filmSaleAddPart => 'another way';
+
+  @override
+  String get filmSalePaidFull => 'Paid in full';
+
+  @override
+  String filmSaleOverpaid(String amount) {
+    return '$amount over the total — not allowed';
+  }
+
+  @override
+  String get filmThicknessUnknown => 'thickness not given';
+
+  @override
+  String get filmThicknessHint =>
+      'Not known? Leave it empty and fill it in later';
+
+  @override
+  String filmNoThickness(String count) {
+    return 'No thickness · $count';
+  }
+
+  @override
   String get filmVariants => 'Thicknesses';
 
   @override
@@ -6035,4 +6079,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmClose => 'Close';
+
+  @override
+  String get filmDelivery => 'Delivery';
+
+  @override
+  String get filmTransport => 'How it came';
+
+  @override
+  String get filmCity => 'From (city)';
+
+  @override
+  String get filmDeliveryCost => 'Delivery cost, ₸';
+
+  @override
+  String filmDeliveryPerM(String per) {
+    return '≈ $per a metre';
+  }
+
+  @override
+  String get filmReceivedBy => 'Taken in by';
+
+  @override
+  String get filmUrgent => 'Urgent';
+
+  @override
+  String get filmSeller => 'Seller';
+
+  @override
+  String filmTakenBy(String name) {
+    return 'taken in by $name';
+  }
+
+  @override
+  String filmSoldBy(String name) {
+    return 'sold by $name';
+  }
+
+  @override
+  String get filmTabTeam => 'Team';
+
+  @override
+  String filmTeamTotals(
+    String metres,
+    String sales,
+    String paid,
+    String margin,
+  ) {
+    return '$metres m · $sales sales · paid $paid · margin $margin';
+  }
+
+  @override
+  String filmTeamPlan(String done, String plan) {
+    return 'Plan: $done% of $plan m';
+  }
+
+  @override
+  String get filmTeamNoPlan => 'No plan set for the month';
+
+  @override
+  String filmTeamPot(String pct, String pot) {
+    return 'Pot: $pct% of margin = $pot';
+  }
+
+  @override
+  String filmTeamShare(String share, String bonus) {
+    return 'share $share% · bonus $bonus';
+  }
+
+  @override
+  String get filmTeamEmpty => 'No sales this month';
+
+  @override
+  String get filmTeamHint =>
+      'The bonus is counted on margin — only money paid, in the month it was paid.';
+
+  @override
+  String get filmTeamSettings => 'Plan and bonus';
+
+  @override
+  String get filmTeamPlanM => 'Plan for the month, m';
+
+  @override
+  String get filmTeamPct => 'Pot when the plan is met, %';
+
+  @override
+  String get filmTeamPctBelow => 'Pot when the plan is missed, %';
+
+  @override
+  String get filmTeamSave => 'Save';
 }

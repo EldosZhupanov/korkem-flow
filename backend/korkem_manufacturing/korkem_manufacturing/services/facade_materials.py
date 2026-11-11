@@ -230,7 +230,9 @@ def _pick_item(kind: str, key, company: str, held: dict):
 			filters["korkem_manufacturer"], filters["korkem_color"] = named
 			# «Adilet · Белое дерево · 0,25»: that thickness's roll.
 			if thickness := film_catalog.thickness_in(key):
-				filters["korkem_film_thickness_mm"] = thickness
+				filters["korkem_film_thickness_mm"] = (
+					["is", "not set"] if thickness == film_catalog.UNKNOWN else thickness
+				)
 		else:
 			filters["korkem_color"] = key
 	items = frappe.get_all(

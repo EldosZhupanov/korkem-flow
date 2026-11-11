@@ -60,6 +60,9 @@ KINDS: dict[str, str] = {
 	# (owner, 11.11.2026: «чтобы все окошки редактировались»).
 	"film_thickness": "Толщина плёнки",
 	"film_width": "Ширина плёнки",
+	# How a roll came and from which city (owner, 11.11.2026).
+	"transport": "Способ доставки",
+	"city": "Город доставки",
 }
 
 #: Lists a film's title is made of: renamed, the films' titles follow.

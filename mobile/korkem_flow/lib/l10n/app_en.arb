@@ -6243,6 +6243,45 @@
   "filmTabStock": "Stock",
   "filmTabSales": "Sales",
   "filmTabCustomers": "Customers",
+  "filmCorrectTitle": "Correct",
+  "filmCorrectReason": "Why it is corrected",
+  "filmCorrectHint": "The old entry stays, struck through — who corrected it and why is seen.",
+  "filmCorrectSave": "Correct",
+  "filmCorrectCancel": "Cancel the entry",
+  "filmCorrected": "corrected {date} · {who} · “{reason}”",
+  "@filmCorrected": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSaleAddPart": "another way",
+  "filmSalePaidFull": "Paid in full",
+  "filmSaleOverpaid": "{amount} over the total — not allowed",
+  "@filmSaleOverpaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmThicknessUnknown": "thickness not given",
+  "filmThicknessHint": "Not known? Leave it empty and fill it in later",
+  "filmNoThickness": "No thickness · {count}",
+  "@filmNoThickness": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "filmVariants": "Thicknesses",
   "filmVariantAdd": "Thickness",
   "filmVariantDeleteAsk": "Remove the {thickness} mm thickness?",
@@ -6487,5 +6526,95 @@
   "filmPayDebt": "Pay off, ₸",
   "filmCancelMove": "Cancel the sale",
   "filmCancelReason": "Why cancel",
-  "filmClose": "Close"
+  "filmClose": "Close",
+  "filmDelivery": "Delivery",
+  "filmTransport": "How it came",
+  "filmCity": "From (city)",
+  "filmDeliveryCost": "Delivery cost, ₸",
+  "filmDeliveryPerM": "≈ {per} a metre",
+  "@filmDeliveryPerM": {
+    "placeholders": {
+      "per": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceivedBy": "Taken in by",
+  "filmUrgent": "Urgent",
+  "filmSeller": "Seller",
+  "filmTakenBy": "taken in by {name}",
+  "@filmTakenBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSoldBy": "sold by {name}",
+  "@filmSoldBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTabTeam": "Team",
+  "filmTeamTotals": "{metres} m · {sales} sales · paid {paid} · margin {margin}",
+  "@filmTeamTotals": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "String"
+      },
+      "paid": {
+        "type": "String"
+      },
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamPlan": "Plan: {done}% of {plan} m",
+  "@filmTeamPlan": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamNoPlan": "No plan set for the month",
+  "filmTeamPot": "Pot: {pct}% of margin = {pot}",
+  "@filmTeamPot": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "pot": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamShare": "share {share}% · bonus {bonus}",
+  "@filmTeamShare": {
+    "placeholders": {
+      "share": {
+        "type": "String"
+      },
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamEmpty": "No sales this month",
+  "filmTeamHint": "The bonus is counted on margin — only money paid, in the month it was paid.",
+  "filmTeamSettings": "Plan and bonus",
+  "filmTeamPlanM": "Plan for the month, m",
+  "filmTeamPct": "Pot when the plan is met, %",
+  "filmTeamPctBelow": "Pot when the plan is missed, %",
+  "filmTeamSave": "Save"
 }

@@ -585,4 +585,44 @@ void main() {
     // The card stays open on the rest of the film.
     expect(find.byKey(const ValueKey('filmCard:save')), findsOneWidget);
   });
+
+  testWidgets('a film whose thickness is not known says so, and is found', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const json = <String, dynamic>{
+      'films': [
+        {'item': 'S-1', 'maker': 'M', 'colour': 'Сиена'},
+        {'item': 'L-1', 'maker': 'M', 'colour': 'Лён', 'thickness_mm': 0.3},
+      ],
+      'makers': ['M'],
+      'can_edit': true,
+    };
+    final repo = _Fake(json);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const FilmCatalogScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('thickness not given'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmNoThickness:M')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:S-1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:L-1')), findsNothing);
+
+    // Added with the thickness left empty: sent empty, not as 0,3.
+    await tester.tap(find.byKey(const ValueKey('filmAdd:M')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmAdd:name')), 'Охра');
+    await tester.enterText(find.byKey(const ValueKey('filmAdd:thickness')), '');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmAdd:save')));
+    await tester.pumpAndSettle();
+    expect(repo.added.single, ('M', 'Охра', '', '1400'));
+  });
 }

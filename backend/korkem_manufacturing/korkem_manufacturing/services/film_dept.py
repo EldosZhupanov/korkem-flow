@@ -29,7 +29,7 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 
 import frappe
-from frappe.utils import add_days, date_diff, flt, getdate, nowdate
+from frappe.utils import add_days, date_diff, flt, get_fullname, getdate, nowdate
 
 from korkem_manufacturing.services import audit, film_catalog, material_stock, price_visibility
 from korkem_manufacturing.services.scope import current_company
@@ -51,15 +51,111 @@ MAX_METRES = Decimal("100000")
 # --------------------------------------------------------------------------
 
 
+#: Offered while the lists are empty; then they are the owner's own.
+TRANSPORTS = ("Привёз поставщик", "Такси", "Газель", "КАМАЗ", "Транспортная компания", "Своя машина")
+CITIES = ("Астана", "Алматы", "Караганда", "Семей", "Шымкент")
+TRANSPORT_LIST, CITY_LIST = "Способ доставки", "Город доставки"
+
+
+def delivery_options() -> dict:
+	"""What a receipt asks about its delivery, and what a sale asks of its
+	seller: the lists, the staff, and — by supplier — how the last roll came."""
+	material_stock._ensure_staff()
+	company = current_company()
+	for kind, start in ((TRANSPORT_LIST, TRANSPORTS), (CITY_LIST, CITIES)):
+		if not frappe.db.exists("Material Option", {"company": company, "kind": kind}) and material_stock.can_edit():
+			for value in start:
+				material_stock.put_option(kind, value)
+	last = {}
+	for r in frappe.get_all(
+		"Stock Entry",
+		filters={"company": company, "docstatus": 1, "korkem_material_receipt": 1,
+				 "korkem_delivery_transport": ["is", "set"]},
+		fields=["korkem_supplier", "korkem_delivery_transport", "korkem_delivery_city"],
+		order_by="creation desc",
+		limit_page_length=500,
+	):
+		last.setdefault(r.korkem_supplier, {"transport": r.korkem_delivery_transport, "city": r.korkem_delivery_city})
+	cities = {
+		s.name: s.korkem_src_city
+		for s in frappe.get_all("Supplier", filters={"disabled": 0}, fields=["name", "korkem_src_city"])
+		if s.get("korkem_src_city")
+	}
+	return {
+		"transports": sorted(material_stock.enabled_values(TRANSPORT_LIST, company), key=_first(TRANSPORTS)),
+		"cities": sorted(material_stock.enabled_values(CITY_LIST, company), key=str.casefold),
+		"last": last,
+		"supplier_cities": cities,
+		"staff": staff(),
+		"me": frappe.session.user,
+	}
+
+
+def _first(order: tuple):
+	return lambda v: (order.index(v) if v in order else len(order), v.casefold())
+
+
+def staff() -> list[dict]:
+	"""Who works here: who may take a roll in, who may sell."""
+	return [
+		{"user": u.name, "name": u.full_name or u.name}
+		for u in frappe.get_all(
+			"User", filters={"enabled": 1, "user_type": "System User", "name": ["not in", ["Administrator", "Guest"]]},
+			fields=["name", "full_name"], order_by="full_name asc", limit_page_length=500,
+		)
+	]
+
+
+def _person(user: str | None) -> str | None:
+	user = (user or "").strip()
+	if not user:
+		return None
+	if not frappe.db.exists("User", {"name": user, "enabled": 1}):
+		frappe.throw("Такого сотрудника нет.")
+	return user
+
+
 def receive(item: str, metres, price_m, supplier: str, received_on: str | None = None,
-			note: str | None = None, update_price=True) -> dict:
+			note: str | None = None, update_price=True, delivery=None, received_by: str | None = None) -> dict:
 	"""A roll or a cut bought from a wholesaler: so many metres at so much a metre.
 
 	The price paid becomes the card's purchase price (owner, 11.11.2026:
 	prices change) — unless `update_price` is off, for a one-off discount.
 	"""
 	_film(item)
-	result = material_stock.receive(item, metres, price_m, supplier, received_on=received_on, note=note)
+	# How it came (owner, 11.11.2026). Left out: as the last roll of this
+	# supplier came, else «привёз поставщик»; from the supplier's city; free;
+	# taken in by whoever enters it.
+	if isinstance(delivery, str):
+		delivery = frappe.parse_json(delivery) if delivery.strip() else None
+	delivery = delivery or {}
+	company = current_company()
+	last = frappe.db.get_value(
+		"Stock Entry",
+		{"company": company, "docstatus": 1, "korkem_material_receipt": 1, "korkem_supplier": supplier,
+		 "korkem_delivery_transport": ["is", "set"]},
+		["korkem_delivery_transport", "korkem_delivery_city"], as_dict=True, order_by="creation desc",
+	) or {}
+	transport = " ".join(str(delivery.get("transport") or last.get("korkem_delivery_transport")
+							 or TRANSPORTS[0]).split())[:140]
+	city = " ".join(str(delivery.get("from_city") or delivery.get("city") or last.get("korkem_delivery_city")
+						or frappe.db.get_value("Supplier", supplier, "korkem_src_city") or "").split())[:140]
+	cost = _money(delivery.get("amount") or 0, "За доставку")
+	urgent = _yes(delivery.get("urgent"))
+	taker = _person(received_by) or frappe.session.user
+	for kind, value in ((TRANSPORT_LIST, transport), (CITY_LIST, city)):
+		if value and value not in material_stock.enabled_values(kind, company):
+			material_stock.put_option(kind, value)
+	result = material_stock.receive(
+		item, metres, price_m, supplier, received_on=received_on, note=note,
+		# What the bringing cost goes to logistics, apart from the price.
+		delivery={"amount": cost, "from_city": city or "не указан", "transport": transport, "urgent": urgent}
+		if cost > 0 else None,
+	)
+	frappe.db.set_value("Stock Entry", result["receipt"], {
+		"korkem_received_by": taker, "korkem_delivery_transport": transport, "korkem_delivery_city": city or None,
+		"korkem_delivery_cost": float(cost), "korkem_delivery_urgent": 1 if urgent else 0,
+	}, update_modified=False)
 	if _yes(update_price) and flt(price_m) > 0:
 		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
 	return {"receipt": result["receipt"], "film": film_catalog.film(item)}
@@ -72,7 +168,7 @@ def _yes(value) -> bool:
 
 
 def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | None = None,
-		 sold_on: str | None = None, note: str | None = None) -> dict:
+		 sold_on: str | None = None, note: str | None = None, payments=None, seller: str | None = None) -> dict:
 	"""Film sold to a customer: one sale, one film or several.
 
 	`lines` — `[{"item", "metres", "price_m"?, "remember"?}]`; a line without
@@ -102,10 +198,13 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 		if _yes(raw.get("remember")) and raw.get("price_m") not in (None, ""):
 			remember.append((item, price))
 		amount += (metres * price).quantize(Decimal("1"))
-	paid = _money(paid or 0, "Оплачено")
+	# Several ways at once (owner, 11.11.2026): `payments` — `[{"amount",
+	# "method", "bank"?}]`; or one, by `paid`, `method`, `bank`, as before.
+	parts = _parts(payments, paid, method, bank)
+	paid = sum((p["amount"] for p in parts), Decimal(0))
 	if paid > amount:
 		frappe.throw(f"Оплачено больше суммы продажи ({amount:,.0f} ₸).".replace(",", " "))
-	method, bank = _method(method, bank, paid)
+	method, bank = (parts[0]["method"], parts[0]["bank"]) if parts else (None, None)
 	entry = _issue(
 		company, [(item, metres, price) for item, metres, price in rows], SALE, posted_on=sold_on,
 		remarks=note,
@@ -115,6 +214,9 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 			"korkem_film_paid": float(paid),
 			"korkem_film_pay_method": method,
 			"korkem_film_pay_bank": bank,
+			"korkem_film_payments": _dump(parts, sold_on),
+			# Who sold it — whoever enters it unless said (owner, 11.11.2026).
+			"korkem_film_seller": _person(seller) or frappe.session.user,
 		},
 	)
 	tier = buyer.get("korkem_film_tier") if buyer.get("korkem_film_tier") in TIERS else RETAIL
@@ -126,23 +228,25 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 		# A facade customer who buys film is a film customer from now on.
 		frappe.db.set_value("Customer", buyer.name, "korkem_film_customer", 1)
 	audit.record_audit(action="film.sold", entity_type="Stock Entry", entity_id=entry.name,
-					   diff={"customer": buyer.name, "amount": float(amount), "paid": float(paid)})
+					   diff={"customer": buyer.name, "amount": float(amount), "paid": float(paid),
+							 "payments": [{**p, "amount": float(p["amount"])} for p in parts]})
 	return movement(entry.name)
 
 
-def to_shop(item: str, metres, order: str | None = None, note: str | None = None) -> dict:
+def to_shop(item: str, metres, order: str | None = None, note: str | None = None,
+			posted_on: str | None = None) -> dict:
 	"""Film handed to our own shop — for an order of facades when one is named."""
 	material_stock._ensure_editor()
 	_film(item)
 	order = " ".join((order or "").split())[:140] or None
 	entry = _issue(current_company(), [(item, _metres(metres, "Метров"), None)], SHOP, remarks=note,
-				   header={"korkem_film_order": order})
+				   header={"korkem_film_order": order}, posted_on=posted_on)
 	audit.record_audit(action="film.to_shop", entity_type="Stock Entry", entity_id=entry.name,
 					   diff={"item": item, "metres": flt(metres), "order": order})
 	return movement(entry.name)
 
 
-def write_off(item: str, metres, reason: str) -> dict:
+def write_off(item: str, metres, reason: str, posted_on: str | None = None) -> dict:
 	"""Metres that left neither to a customer nor to the shop, and why."""
 	material_stock._ensure_editor()
 	_film(item)
@@ -150,28 +254,87 @@ def write_off(item: str, metres, reason: str) -> dict:
 	if len(reason) < 3:
 		frappe.throw("Укажите причину списания.")
 	entry = _issue(current_company(), [(item, _metres(metres, "Метров"), None)], WRITE_OFF,
-				   header={"korkem_film_reason": reason})
+				   header={"korkem_film_reason": reason}, posted_on=posted_on)
 	audit.record_audit(action="film.written_off", entity_type="Stock Entry", entity_id=entry.name,
 					   diff={"item": item, "metres": flt(metres), "reason": reason})
 	return movement(entry.name)
 
 
-def pay(entry: str, amount, method: str | None = None, bank: str | None = None) -> dict:
-	"""More money against a sale left in debt."""
+def pay(entry: str, amount=None, method: str | None = None, bank: str | None = None,
+		payments=None) -> dict:
+	"""More money against a sale left in debt — one way, or several at once."""
 	material_stock._ensure_editor()
 	doc = _movement(entry, SALE)
-	amount = _money(amount, "Сумма")
+	parts = _parts(payments, amount, method, bank)
+	amount = sum((p["amount"] for p in parts), Decimal(0))
 	if amount <= 0:
 		frappe.throw("Сумма оплаты больше нуля.")
 	owed = Decimal(str(flt(doc.korkem_film_amount))) - Decimal(str(flt(doc.korkem_film_paid)))
 	if amount > owed:
 		frappe.throw(f"Долг по этой продаже — {owed:,.0f} ₸.".replace(",", " "))
-	method, bank = _method(method, bank, amount)
-	doc.db_set({"korkem_film_paid": flt(doc.korkem_film_paid) + float(amount),
-				"korkem_film_pay_method": method, "korkem_film_pay_bank": bank}, update_modified=True)
+	method, bank = parts[0]["method"], parts[0]["bank"]
+	before = _payments(doc)
+	doc.db_set({
+		"korkem_film_paid": flt(doc.korkem_film_paid) + float(amount),
+		"korkem_film_pay_method": method, "korkem_film_pay_bank": bank,
+		"korkem_film_payments": frappe.as_json(before + _rows(parts, nowdate())),
+	}, update_modified=True)
 	audit.record_audit(action="film.sale_paid", entity_type="Stock Entry", entity_id=entry,
-					   diff={"amount": float(amount), "method": method, "bank": bank})
+					   diff={"amount": float(amount), "payments": [{**p, "amount": float(p["amount"])} for p in parts]})
 	return movement(entry)
+
+
+def _parts(payments, paid, method, bank) -> list[dict]:
+	"""The ways a sum came, each checked: `payments` when given, else the one."""
+	if isinstance(payments, str):
+		payments = frappe.parse_json(payments) if payments.strip() else None
+	if payments is None:
+		paid = _money(paid or 0, "Оплачено")
+		if paid <= 0:
+			return []
+		method, bank = _method(method, bank, paid)
+		return [{"amount": paid, "method": method, "bank": bank}]
+	if not isinstance(payments, list):
+		frappe.throw("Оплата — список частей: сумма, способ, банк.")
+	parts = []
+	for n, raw in enumerate(payments, start=1):
+		raw = raw or {}
+		amount = _money(raw.get("amount") or 0, f"Оплата {n}: сумма")
+		if amount <= 0:
+			continue
+		method, bank = _method(raw.get("method"), raw.get("bank"), amount)
+		parts.append({"amount": amount, "method": method, "bank": bank})
+	return parts
+
+
+def _rows(parts: list[dict], on: str | None) -> list[dict]:
+	return [
+		{"date": str(on or nowdate()), "amount": float(p["amount"]), "method": p["method"], "bank": p["bank"]}
+		for p in parts
+	]
+
+
+def _dump(parts: list[dict], on: str | None) -> str | None:
+	return frappe.as_json(_rows(parts, on)) if parts else None
+
+
+def _payments(doc) -> list[dict]:
+	"""Every payment of a sale. One paid before parts were kept is read from
+	the sale's own figures."""
+	raw = doc.get("korkem_film_payments")
+	if raw:
+		try:
+			rows = frappe.parse_json(raw)
+			if isinstance(rows, list):
+				return rows
+		except ValueError:
+			pass
+	if flt(doc.get("korkem_film_paid")) > 0:
+		return [{
+			"date": str(doc.get("posting_date") or ""), "amount": flt(doc.get("korkem_film_paid")),
+			"method": doc.get("korkem_film_pay_method"), "bank": doc.get("korkem_film_pay_bank"),
+		}]
+	return []
 
 
 def cancel(entry: str, reason: str) -> dict:
@@ -185,14 +348,115 @@ def cancel(entry: str, reason: str) -> dict:
 	reason = " ".join((reason or "").split())[:500]
 	if len(reason) < 3:
 		frappe.throw("Укажите, почему запись отменяется.")
-	if getdate(doc.creation) != getdate(nowdate()) and "System Manager" not in frappe.get_roles():
-		frappe.throw("Запись внесена не сегодня — отменить её может только владелец.")
+	_may_change(doc, "отменить")
 	doc.flags.ignore_permissions = True
 	doc.cancel()
 	doc.add_comment("Comment", f"Отменено: {reason}")
 	audit.record_audit(action="film.movement_cancelled", entity_type="Stock Entry", entity_id=entry,
 					   diff={"kind": doc.korkem_film_kind, "reason": reason})
 	return {"cancelled": entry}
+
+
+def _may_change(doc, what: str) -> None:
+	"""The manager on the day it was entered; later, only the owner — the
+	day's count is closed by then."""
+	if getdate(doc.creation) != getdate(nowdate()) and "System Manager" not in frappe.get_roles():
+		frappe.throw(f"Запись внесена не сегодня — {what} её может только владелец.")
+
+
+def correct(entry: str, item: str, reason: str, metres=None, price_m=None, supplier: str | None = None,
+			order: str | None = None, why: str | None = None) -> dict:
+	"""A movement entered wrong, made again right (owner, 11.11.2026: «менеджер
+	может затупить»).
+
+	The wrong one is cancelled — not deleted — and points to the right one,
+	which is entered on the same day with what was changed: the metres, the
+	price, the supplier of a receipt, the order of a hand-over to the shop,
+	why a write-off. A sale keeps its customer, its other films and every
+	payment made on it. Who may: as for a cancel.
+	"""
+	material_stock._ensure_editor()
+	reason = " ".join((reason or "").split())[:500]
+	if len(reason) < 3:
+		frappe.throw("Укажите, почему исправляете.")
+	if not entry or not frappe.db.exists("Stock Entry", entry):
+		frappe.throw("Такой записи нет.", frappe.DoesNotExistError)
+	doc = frappe.get_doc("Stock Entry", entry)
+	kind = "receipt" if doc.get("korkem_material_receipt") else doc.get("korkem_film_kind")
+	if doc.company != current_company() or kind not in ("receipt", *KINDS):
+		frappe.throw("Такой записи нет.", frappe.DoesNotExistError)
+	if doc.docstatus != 1:
+		frappe.throw("Эта запись уже отменена.")
+	_may_change(doc, "исправить")
+	row = next((r for r in doc.items if r.item_code == item), None)
+	if not row:
+		frappe.throw("В этой записи нет такой плёнки.")
+	day = str(doc.posting_date)
+	metres = row.qty if metres in (None, "") else metres
+
+	def cancel_old():
+		doc.flags.ignore_permissions = True
+		doc.cancel()
+
+	if kind == "receipt":
+		price = row.basic_rate if price_m in (None, "") else price_m
+		card = flt(frappe.db.get_value("Item", item, film_catalog.CARD["price_m"]))
+		# The new receipt first: the metres of the wrong one may be sold
+		# already, and the shelf must not go below nothing between the two.
+		made = receive(
+			item, metres, price, supplier or doc.get("korkem_supplier"), received_on=day,
+			note=doc.get("remarks"), received_by=doc.get("korkem_received_by"),
+			delivery={"transport": doc.get("korkem_delivery_transport"), "from_city": doc.get("korkem_delivery_city"),
+					  "urgent": doc.get("korkem_delivery_urgent")},
+			# The card follows a corrected price only if it came from the wrong one.
+			update_price=flt(price) != flt(row.basic_rate) and card == flt(row.basic_rate),
+		)
+		new = made["receipt"]
+		# What the old one cost to bring is the new one's: the logistics
+		# record moves over, not paid twice.
+		frappe.db.set_value("Stock Entry", new, "korkem_delivery_cost", flt(doc.get("korkem_delivery_cost")),
+							update_modified=False)
+		for d in frappe.get_all("Logistics Delivery", filters={"receipt": entry}, pluck="name"):
+			frappe.db.set_value("Logistics Delivery", d, "receipt", new, update_modified=False)
+		cancel_old()
+	elif kind == SALE:
+		lines = [
+			{"item": r.item_code, "metres": flt(r.qty), "price_m": flt(r.get("korkem_film_price_m")) or None}
+			for r in doc.items
+		]
+		for line in lines:
+			if line["item"] == item:
+				line["metres"] = metres
+				if price_m not in (None, ""):
+					line["price_m"] = price_m
+		paid = _payments(doc)
+		cancel_old()
+		made = sell(
+			doc.korkem_film_customer, lines, sold_on=day, note=doc.get("remarks"),
+			payments=[{"amount": p["amount"], "method": p["method"], "bank": p.get("bank")} for p in paid],
+			seller=doc.get("korkem_film_seller"),
+		)
+		new = made["entry"]
+		# The payments keep the days they were made on.
+		if paid:
+			frappe.db.set_value("Stock Entry", new, "korkem_film_payments", frappe.as_json(paid))
+	elif kind == SHOP:
+		cancel_old()
+		new = to_shop(
+			item, metres, order=doc.get("korkem_film_order") if order is None else order,
+			note=doc.get("remarks"), posted_on=day,
+		)["entry"]
+	else:
+		cancel_old()
+		new = write_off(item, metres, why or doc.get("korkem_film_reason"), posted_on=day)["entry"]
+	frappe.db.set_value(
+		"Stock Entry", entry, {"korkem_film_replaced_by": new, "korkem_film_fix_reason": reason},
+		update_modified=False,
+	)
+	frappe.db.set_value("Stock Entry", new, "korkem_film_replaces", entry, update_modified=False)
+	audit.record_audit(action="film.corrected", entity_type="Stock Entry", entity_id=new,
+					   diff={"replaces": entry, "kind": kind, "item": item}, reason=reason)
+	return {"entry": new, "replaces": entry}
 
 
 # --------------------------------------------------------------------------
@@ -225,7 +489,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 	_film(item)
 	rows = frappe.get_all(
 		"Stock Entry Detail",
-		filters={"item_code": item, "docstatus": 1},
+		# A movement made again right shows struck through under the right one.
+		filters={"item_code": item, "docstatus": ["in", [1, 2]]},
 		fields=["parent", "qty", "basic_rate", "korkem_film_price_m", "t_warehouse", "s_warehouse"],
 		order_by="creation desc",
 		limit_page_length=min(int(limit or 100), 500),
@@ -236,10 +501,19 @@ def history(item: str, limit: int = 100) -> list[dict]:
 		head = frappe.db.get_value(
 			"Stock Entry", r.parent,
 			["posting_date", "posting_time", "creation", "purpose", "korkem_supplier", "korkem_film_kind",
-			 "korkem_film_customer", "korkem_film_order", "korkem_film_reason", "owner"], as_dict=True,
+			 "korkem_film_customer", "korkem_film_order", "korkem_film_reason", "owner", "docstatus",
+			 "korkem_film_replaced_by", "korkem_film_replaces", "korkem_received_by", "korkem_delivery_transport",
+			 "korkem_delivery_city", "korkem_delivery_cost", "korkem_delivery_urgent", "korkem_film_seller"],
+			as_dict=True,
 		)
-		if not head:
+		if not head or (head.docstatus == 2 and not head.korkem_film_replaced_by):
 			continue
+		fix = None
+		if head.korkem_film_replaces:
+			old = frappe.db.get_value(
+				"Stock Entry", head.korkem_film_replaces, "korkem_film_fix_reason"
+			)
+			fix = {"reason": old, "by": get_fullname(head.owner) or head.owner, "at": str(head.creation)[:16]}
 		coming = bool(r.t_warehouse) and not r.s_warehouse
 		kind = "receipt" if coming else (head.korkem_film_kind or "other")
 		out.append({
@@ -251,6 +525,16 @@ def history(item: str, limit: int = 100) -> list[dict]:
 			"party": _party(head, kind),
 			"reason": head.korkem_film_reason,
 			"by": head.owner,
+			"struck": head.docstatus == 2,
+			"fix": fix,
+			"delivery": {
+				"transport": head.korkem_delivery_transport, "city": head.korkem_delivery_city,
+				"cost": flt(head.korkem_delivery_cost) if money else None,
+				"per_m": (flt(head.korkem_delivery_cost) / flt(r.qty)) if money and flt(r.qty) else None,
+				"urgent": bool(head.korkem_delivery_urgent),
+				"received_by": get_fullname(head.korkem_received_by) if head.korkem_received_by else None,
+			} if coming and head.korkem_delivery_transport else None,
+			"seller": get_fullname(head.korkem_film_seller) if head.korkem_film_seller else None,
 			"_at": (str(head.posting_date), str(head.posting_time), str(head.creation), r.parent),
 		})
 	# Newest first by when it was posted, then entered — and by the entry's
@@ -278,6 +562,7 @@ def movement(entry: str) -> dict:
 		"debt": (flt(doc.get("korkem_film_amount")) - flt(doc.get("korkem_film_paid"))) if money else None,
 		"method": doc.get("korkem_film_pay_method"),
 		"bank": doc.get("korkem_film_pay_bank"),
+		"payments": _payments(doc) if money else [],
 		"lines": _lines(doc, money),
 	}
 
@@ -501,7 +786,9 @@ def _title(item: str, fallback: str) -> str:
 	row = frappe.db.get_value(
 		"Item", item, ["korkem_manufacturer", "korkem_color", "korkem_film_thickness_mm"], as_dict=True
 	) or {}
-	thickness = row.get("korkem_film_thickness_mm") if len(film_catalog.siblings(item)) > 1 else None
+	thickness = (
+		(row.get("korkem_film_thickness_mm") or film_catalog.UNKNOWN) if len(film_catalog.siblings(item)) > 1 else None
+	)
 	return film_catalog.label(row.get("korkem_manufacturer") or "", row.get("korkem_color") or fallback, thickness)
 
 
