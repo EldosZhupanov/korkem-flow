@@ -5701,6 +5701,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTabCustomers => 'Customers';
 
   @override
+  String get filmVariants => 'Thicknesses';
+
+  @override
+  String get filmVariantAdd => 'Thickness';
+
+  @override
+  String filmVariantDeleteAsk(String thickness) {
+    return 'Remove the $thickness mm thickness?';
+  }
+
+  @override
+  String filmReceiveSetPrice(String price) {
+    return 'Put the purchase price on the card: $price ₸';
+  }
+
+  @override
+  String filmReceiveUpdatePrice(String before, String after) {
+    return 'Update the card\'s purchase price: $before → $after ₸';
+  }
+
+  @override
+  String filmSaleRememberRetail(String price) {
+    return 'Remember $price ₸ as the retail price';
+  }
+
+  @override
+  String filmSaleRememberWholesale(String price) {
+    return 'Remember $price ₸ as the trade price';
+  }
+
+  @override
+  String filmPriceSince(String date, String via) {
+    return 'since $date · $via';
+  }
+
+  @override
+  String get filmPriceByHand => 'by hand';
+
+  @override
+  String filmMargin(String amount, String percent) {
+    return 'Margin: +$amount ₸/m · $percent%';
+  }
+
+  @override
   String get filmSaveMore => 'Save and add another';
 
   @override

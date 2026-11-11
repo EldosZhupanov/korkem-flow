@@ -27,6 +27,7 @@ class Film {
     this.priceM,
     this.retailM,
     this.wholesaleM,
+    this.priceSince = const {},
     this.low = false,
     this.url,
   });
@@ -53,6 +54,12 @@ class Film {
     priceM: _d(json['price_m']),
     retailM: _d(json['retail_m']),
     wholesaleM: _d(json['wholesale_m']),
+    priceSince: {
+      if (json['price_since'] case final Map<String, dynamic> since)
+        for (final e in since.entries)
+          if (e.value case final Map<String, dynamic> v)
+            e.key: (date: '${v['date'] ?? ''}', via: _s(v['via'])),
+    },
     low: json['low'] == true,
     url: _s(json['url']),
   );
@@ -93,6 +100,15 @@ class Film {
   /// What the department sells a metre at: over the counter, to the trade.
   final double? retailM;
   final double? wholesaleM;
+
+  /// Since when each price stands and where it came from — «приход»,
+  /// «продажа», or the card (null) — by `price_m`, `retail_m`,
+  /// `wholesale_m` (owner, 11.11.2026: prices change).
+  final Map<String, ({String date, String? via})> priceSince;
+
+  /// What a metre earns over what it cost, when both are known.
+  double? get marginM =>
+      retailM != null && priceM != null ? retailM! - priceM! : null;
 
   /// Less on hand than the film's minimum: time to order.
   final bool low;
@@ -168,6 +184,26 @@ class FilmCatalog {
   /// films its own way.
   final Map<String, List<String>> collections;
   final bool canEdit;
+
+  /// Every thickness of the film [f] is one of — itself too — thinnest
+  /// first (owner, 11.11.2026: one film, several rolls).
+  List<Film> variantsOf(Film f) => [
+    for (final v in films)
+      if (v.maker == f.maker && v.colour == f.colour) v,
+  ]..sort((a, b) => (a.thicknessMm ?? 0).compareTo(b.thicknessMm ?? 0));
+
+  /// [list] as films: the thicknesses of one film together, in the order
+  /// the first of them comes, thinnest first within.
+  static List<List<Film>> grouped(List<Film> list) {
+    final out = <String, List<Film>>{};
+    for (final f in list) {
+      out.putIfAbsent('${f.maker}\u0000${f.colour}', () => []).add(f);
+    }
+    return [
+      for (final g in out.values)
+        g..sort((a, b) => (a.thicknessMm ?? 0).compareTo(b.thicknessMm ?? 0)),
+    ];
+  }
 
   /// The collections of [maker], by name.
   List<String> collectionsOf(String maker) =>
@@ -245,6 +281,7 @@ class FilmChange {
     required this.what,
     this.before,
     this.after,
+    this.via,
   });
 
   factory FilmChange.fromJson(Map<String, dynamic> json) => FilmChange(
@@ -253,6 +290,7 @@ class FilmChange {
     what: '${json['what'] ?? ''}',
     before: _s(json['before']),
     after: _s(json['after']),
+    via: _s(json['via']),
   );
 
   final String when;
@@ -261,8 +299,13 @@ class FilmChange {
   final String? before;
   final String? after;
 
+  /// Where the change came from when not the card: «приход», «продажа».
+  final String? via;
+
   /// «название: Альда бел → Альда белый», or just «в архив».
-  String get line => before == null && after == null
-      ? what
-      : '$what: ${before ?? '—'} → ${after ?? '—'}';
+  String get line =>
+      (before == null && after == null
+          ? what
+          : '$what: ${before ?? '—'} → ${after ?? '—'}') +
+      (via == null ? '' : ' ($via)');
 }

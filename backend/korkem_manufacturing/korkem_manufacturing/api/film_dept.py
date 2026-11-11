@@ -23,9 +23,11 @@ def history(item: str, limit: int | str = 100) -> list[dict]:
 
 @frappe.whitelist(methods=["POST"])
 def receive(item: str, metres: float | str, price_m: float | str, supplier: str,
-			received_on: str | None = None, note: str | None = None) -> dict:
-	"""Приход: рулон или отрез от оптовика, метры и цена за метр."""
-	return service.receive(item, metres, price_m, supplier, received_on=received_on, note=note)
+			received_on: str | None = None, note: str | None = None, update_price: str | bool = True) -> dict:
+	"""Приход: рулон или отрез от оптовика, метры и цена за метр; закуп в карточке обновляется."""
+	return service.receive(
+		item, metres, price_m, supplier, received_on=received_on, note=note, update_price=update_price
+	)
 
 
 @frappe.whitelist(methods=["POST"])

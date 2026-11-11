@@ -59,6 +59,7 @@ class FilmDeptRepository {
     required double metres,
     required double priceM,
     required String supplier,
+    bool updatePrice = true,
   }) => _client.callMethod(
     '$_base.receive',
     post: true,
@@ -67,6 +68,7 @@ class FilmDeptRepository {
       'metres': metres,
       'price_m': priceM,
       'supplier': supplier,
+      'update_price': updatePrice ? 1 : 0,
     },
   );
 
@@ -77,6 +79,7 @@ class FilmDeptRepository {
     double paid = 0,
     String? method,
     String? bank,
+    Set<String> remember = const {},
   }) async => FilmSale.fromJson(
     _map(
       await _client.callMethod(
@@ -86,7 +89,13 @@ class FilmDeptRepository {
           'customer': customer,
           'lines': jsonEncode([
             for (final l in lines)
-              {'item': l.item, 'metres': l.metres, 'price_m': l.priceM},
+              {
+                'item': l.item,
+                'metres': l.metres,
+                'price_m': l.priceM,
+                // Typed where the card had none: remembered on the card.
+                if (remember.contains(l.item)) 'remember': true,
+              },
           ]),
           'paid': paid,
           'method': ?method,

@@ -87,6 +87,31 @@ class TestFilmDept(IntegrationTestCase):
 		paid = self._as(MANAGER, service.pay, sale["entry"], 26800, "Перевод", "Kaspi")
 		self.assertEqual((paid["debt"], paid["method"], paid["bank"]), (0, "Перевод", "Kaspi"))
 
+	def test_a_receipt_updates_the_purchase_price_unless_told_not_to(self):
+		card = film_catalog.film(self.film)
+		self.assertEqual(card["price_m"], 3200)
+		self.assertEqual(card["price_since"]["price_m"]["via"], "приход")
+		self._as(MANAGER, service.receive, self.film, 10, 3400, self.supplier)
+		self.assertEqual(film_catalog.film(self.film)["price_m"], 3400)
+		# A one-off discount leaves the card as it was.
+		self._as(MANAGER, service.receive, self.film, 10, 2900, self.supplier, update_price="0")
+		self.assertEqual(film_catalog.film(self.film)["price_m"], 3400)
+		log = self._as(MANAGER, film_catalog.changes, self.film)
+		self.assertIn(("цена поставщика", "3200", "3400", "приход"), {(c["what"], c["before"], c["after"], c["via"]) for c in log})
+
+	def test_a_price_typed_at_a_sale_is_remembered_where_the_card_had_none(self):
+		bare = self._as(MANAGER, film_catalog.add, "KIRA", f"Без Цены {frappe.generate_hash(length=6)}")["item"]
+		self._as(MANAGER, service.receive, bare, 20, 3000, self.supplier)
+		self.assertIsNone(film_catalog.film(bare)["retail_m"])
+		self._as(MANAGER, service.sell, self.buyer, [{"item": bare, "metres": 2, "price_m": 4200, "remember": True}],
+				 paid=8400, method="Наличные")
+		card = film_catalog.film(bare)
+		self.assertEqual((card["retail_m"], card["price_since"]["retail_m"]["via"]), (4200, "продажа"))
+		# A price the card already has is not overwritten by a sale.
+		self._as(MANAGER, service.sell, self.buyer, [{"item": bare, "metres": 1, "price_m": 3900, "remember": True}],
+				 paid=3900, method="Наличные")
+		self.assertEqual(film_catalog.film(bare)["retail_m"], 4200)
+
 	def test_the_customers_card_sets_the_price(self):
 		self.assertEqual(self._as(MANAGER, service.price_for, self.film, self.buyer)["price_m"], 3900)
 		self._as(MANAGER, service.set_customer, self.buyer, tier="wholesale", discount=5)
