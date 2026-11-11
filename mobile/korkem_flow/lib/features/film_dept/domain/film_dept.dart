@@ -33,6 +33,8 @@ class FilmMove {
     this.fixReason,
     this.fixBy,
     this.fixAt,
+    this.delivery,
+    this.seller,
   });
 
   factory FilmMove.fromJson(Map<String, dynamic> json) => FilmMove(
@@ -56,6 +58,18 @@ class FilmMove {
       final Map<String, dynamic> f => _s(f['at']),
       _ => null,
     },
+    delivery: switch (json['delivery']) {
+      final Map<String, dynamic> d => (
+        transport: _s(d['transport']),
+        city: _s(d['city']),
+        cost: _d(d['cost']),
+        perM: _d(d['per_m']),
+        urgent: d['urgent'] == true,
+        receivedBy: _s(d['received_by']),
+      ),
+      _ => null,
+    },
+    seller: _s(json['seller']),
   );
 
   final String entry;
@@ -80,7 +94,159 @@ class FilmMove {
   final String? fixAt;
 
   bool get fixed => fixAt != null;
+
+  /// How a receipt came, what bringing it cost, who took it in (owner,
+  /// 11.11.2026); null for any other movement.
+  final FilmDelivery? delivery;
+
+  /// Who sold it, on a sale.
+  final String? seller;
 }
+
+typedef FilmDelivery = ({
+  String? transport,
+  String? city,
+  double? cost,
+  double? perM,
+  bool urgent,
+  String? receivedBy,
+});
+
+/// What a receipt asks about its delivery and a sale about its seller.
+@immutable
+class FilmDeliveryOptions {
+  const FilmDeliveryOptions({
+    this.transports = const [],
+    this.cities = const [],
+    this.last = const {},
+    this.supplierCities = const {},
+    this.staff = const [],
+    this.me,
+  });
+
+  factory FilmDeliveryOptions.fromJson(Map<String, dynamic> json) =>
+      FilmDeliveryOptions(
+        transports: [for (final t in json['transports'] as List? ?? []) '$t'],
+        cities: [for (final c in json['cities'] as List? ?? []) '$c'],
+        last: {
+          if (json['last'] case final Map<String, dynamic> last)
+            for (final e in last.entries)
+              if (e.value case final Map<String, dynamic> v)
+                e.key: (
+                  transport: _s(v['transport']),
+                  city: _s(v['city']),
+                ),
+        },
+        supplierCities: {
+          if (json['supplier_cities'] case final Map<String, dynamic> by)
+            for (final e in by.entries) e.key: '${e.value}',
+        },
+        staff: [
+          for (final p in json['staff'] as List? ?? [])
+            if (p is Map<String, dynamic>)
+              (user: '${p['user']}', name: '${p['name'] ?? p['user']}'),
+        ],
+        me: _s(json['me']),
+      );
+
+  final List<String> transports;
+  final List<String> cities;
+
+  /// Supplier → how its last roll came.
+  final Map<String, ({String? transport, String? city})> last;
+
+  /// Supplier → its city, from its card.
+  final Map<String, String> supplierCities;
+  final List<({String user, String name})> staff;
+  final String? me;
+}
+
+/// The film department's month by seller, and the team's bonus.
+@immutable
+class FilmTeam {
+  const FilmTeam({
+    required this.month,
+    this.rows = const [],
+    this.metres = 0,
+    this.sales = 0,
+    this.paid = 0,
+    this.margin = 0,
+    this.planM = 0,
+    this.done,
+    this.pct = 0,
+    this.pot = 0,
+    this.settings,
+    this.canSet = false,
+  });
+
+  factory FilmTeam.fromJson(Map<String, dynamic> json) {
+    final team = json['team'] as Map<String, dynamic>? ?? const {};
+    final conf = json['settings'];
+    return FilmTeam(
+      month: '${json['month'] ?? ''}',
+      rows: [
+        for (final r in json['rows'] as List? ?? [])
+          if (r is Map<String, dynamic>)
+            (
+              seller: '${r['seller']}',
+              name: '${r['name'] ?? r['seller']}',
+              metres: _d(r['metres']) ?? 0,
+              sales: (r['sales'] as num?)?.toInt() ?? 0,
+              paid: _d(r['paid']) ?? 0,
+              margin: _d(r['margin']) ?? 0,
+              share: _d(r['share']) ?? 0,
+              bonus: _d(r['bonus']) ?? 0,
+            ),
+      ],
+      metres: _d(team['metres']) ?? 0,
+      sales: (team['sales'] as num?)?.toInt() ?? 0,
+      paid: _d(team['paid']) ?? 0,
+      margin: _d(team['margin']) ?? 0,
+      planM: _d(json['plan_m']) ?? 0,
+      done: _d(json['done']),
+      pct: _d(json['pct']) ?? 0,
+      pot: _d(json['pot']) ?? 0,
+      settings: conf is Map<String, dynamic>
+          ? (
+              planM: _d(conf['plan_m']) ?? 0,
+              pct: _d(conf['pct']) ?? 0,
+              pctBelow: _d(conf['pct_below']) ?? 0,
+            )
+          : null,
+      canSet: json['can_set'] == true,
+    );
+  }
+
+  final String month;
+  final List<FilmTeamRow> rows;
+  final double metres;
+  final int sales;
+  final double paid;
+  final double margin;
+  final double planM;
+
+  /// Per cent of the plan made; null with no plan.
+  final double? done;
+
+  /// The pot's share this month — the plan's, or the lower one.
+  final double pct;
+  final double pot;
+
+  /// The owner's own: the plan and the two shares.
+  final ({double planM, double pct, double pctBelow})? settings;
+  final bool canSet;
+}
+
+typedef FilmTeamRow = ({
+  String seller,
+  String name,
+  double metres,
+  int sales,
+  double paid,
+  double margin,
+  double share,
+  double bonus,
+});
 
 /// A film in a sale: so many metres at so much a metre.
 @immutable

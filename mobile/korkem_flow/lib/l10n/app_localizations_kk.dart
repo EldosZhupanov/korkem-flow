@@ -6005,4 +6005,93 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmClose => 'Жабу';
+
+  @override
+  String get filmDelivery => 'Жеткізу';
+
+  @override
+  String get filmTransport => 'Қалай әкелді';
+
+  @override
+  String get filmCity => 'Қай қаладан';
+
+  @override
+  String get filmDeliveryCost => 'Жеткізу үшін, ₸';
+
+  @override
+  String filmDeliveryPerM(String per) {
+    return '≈ метріне $per';
+  }
+
+  @override
+  String get filmReceivedBy => 'Кім қабылдады';
+
+  @override
+  String get filmUrgent => 'Шұғыл';
+
+  @override
+  String get filmSeller => 'Сатушы';
+
+  @override
+  String filmTakenBy(String name) {
+    return 'қабылдаған $name';
+  }
+
+  @override
+  String filmSoldBy(String name) {
+    return 'сатқан $name';
+  }
+
+  @override
+  String get filmTabTeam => 'Команда';
+
+  @override
+  String filmTeamTotals(
+    String metres,
+    String sales,
+    String paid,
+    String margin,
+  ) {
+    return '$metres м · сату $sales · төленді $paid · маржа $margin';
+  }
+
+  @override
+  String filmTeamPlan(String done, String plan) {
+    return 'Жоспар: $plan м-ден $done%';
+  }
+
+  @override
+  String get filmTeamNoPlan => 'Айлық жоспар қойылмаған';
+
+  @override
+  String filmTeamPot(String pct, String pot) {
+    return 'Қазан: маржаның $pct% = $pot';
+  }
+
+  @override
+  String filmTeamShare(String share, String bonus) {
+    return 'үлесі $share% · бонус $bonus';
+  }
+
+  @override
+  String get filmTeamEmpty => 'Бұл айда сату жоқ';
+
+  @override
+  String get filmTeamHint =>
+      'Бонус маржадан есептеледі — тек төленген ақшадан, төленген айда.';
+
+  @override
+  String get filmTeamSettings => 'Жоспар мен бонус';
+
+  @override
+  String get filmTeamPlanM => 'Айлық жоспар, м';
+
+  @override
+  String get filmTeamPct => 'Жоспар орындалса қазан, %';
+
+  @override
+  String get filmTeamPctBelow => 'Жоспар орындалмаса қазан, %';
+
+  @override
+  String get filmTeamSave => 'Сақтау';
 }

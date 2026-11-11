@@ -28,7 +28,12 @@ enum MdfDictKind {
 
   /// A roll's thickness and width — 0,3 · 0,35; 1400 · 1200 (11.11.2026).
   filmThickness,
-  filmWidth;
+  filmWidth,
+
+  /// How a film roll came — такси, Газель, КАМАЗ … — and from which city
+  /// (owner, 11.11.2026).
+  transport,
+  city;
 
   String get wire => switch (this) {
     MdfDictKind.filmType => 'film_type',

@@ -6066,4 +6066,93 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmClose => 'Закрыть';
+
+  @override
+  String get filmDelivery => 'Доставка';
+
+  @override
+  String get filmTransport => 'Как привезли';
+
+  @override
+  String get filmCity => 'Откуда (город)';
+
+  @override
+  String get filmDeliveryCost => 'За доставку, ₸';
+
+  @override
+  String filmDeliveryPerM(String per) {
+    return '≈ $per на метр';
+  }
+
+  @override
+  String get filmReceivedBy => 'Кто принял';
+
+  @override
+  String get filmUrgent => 'Срочно';
+
+  @override
+  String get filmSeller => 'Продавец';
+
+  @override
+  String filmTakenBy(String name) {
+    return 'принял $name';
+  }
+
+  @override
+  String filmSoldBy(String name) {
+    return 'продал $name';
+  }
+
+  @override
+  String get filmTabTeam => 'Команда';
+
+  @override
+  String filmTeamTotals(
+    String metres,
+    String sales,
+    String paid,
+    String margin,
+  ) {
+    return '$metres м · продаж $sales · оплачено $paid · маржа $margin';
+  }
+
+  @override
+  String filmTeamPlan(String done, String plan) {
+    return 'План: $done% из $plan м';
+  }
+
+  @override
+  String get filmTeamNoPlan => 'План на месяц не задан';
+
+  @override
+  String filmTeamPot(String pct, String pot) {
+    return 'Котёл: $pct% маржи = $pot';
+  }
+
+  @override
+  String filmTeamShare(String share, String bonus) {
+    return 'доля $share% · бонус $bonus';
+  }
+
+  @override
+  String get filmTeamEmpty => 'В этом месяце продаж нет';
+
+  @override
+  String get filmTeamHint =>
+      'Бонус считается с маржи — только с оплаченных денег, в месяц оплаты.';
+
+  @override
+  String get filmTeamSettings => 'План и бонус';
+
+  @override
+  String get filmTeamPlanM => 'План на месяц, м';
+
+  @override
+  String get filmTeamPct => 'Котёл при выполнении плана, %';
+
+  @override
+  String get filmTeamPctBelow => 'Котёл, если план не выполнен, %';
+
+  @override
+  String get filmTeamSave => 'Сохранить';
 }

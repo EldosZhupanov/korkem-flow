@@ -90,6 +90,7 @@ abstract final class AppIcons {
   static const IconData close = Symbols.close_rounded;
   static const IconData back = Symbols.arrow_back_rounded;
   static const IconData forward = Symbols.chevron_right_rounded;
+  static const IconData previous = Symbols.chevron_left_rounded;
 
   /// Back down to the newest thing. The mirror of [send], which points up.
   static const IconData down = Symbols.arrow_downward_rounded;

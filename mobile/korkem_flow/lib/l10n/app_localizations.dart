@@ -10742,6 +10742,149 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get filmClose;
+
+  /// No description provided for @filmDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get filmDelivery;
+
+  /// No description provided for @filmTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'How it came'**
+  String get filmTransport;
+
+  /// No description provided for @filmCity.
+  ///
+  /// In en, this message translates to:
+  /// **'From (city)'**
+  String get filmCity;
+
+  /// No description provided for @filmDeliveryCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery cost, ₸'**
+  String get filmDeliveryCost;
+
+  /// No description provided for @filmDeliveryPerM.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {per} a metre'**
+  String filmDeliveryPerM(String per);
+
+  /// No description provided for @filmReceivedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken in by'**
+  String get filmReceivedBy;
+
+  /// No description provided for @filmUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get filmUrgent;
+
+  /// No description provided for @filmSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller'**
+  String get filmSeller;
+
+  /// No description provided for @filmTakenBy.
+  ///
+  /// In en, this message translates to:
+  /// **'taken in by {name}'**
+  String filmTakenBy(String name);
+
+  /// No description provided for @filmSoldBy.
+  ///
+  /// In en, this message translates to:
+  /// **'sold by {name}'**
+  String filmSoldBy(String name);
+
+  /// No description provided for @filmTabTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get filmTabTeam;
+
+  /// No description provided for @filmTeamTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m · {sales} sales · paid {paid} · margin {margin}'**
+  String filmTeamTotals(
+    String metres,
+    String sales,
+    String paid,
+    String margin,
+  );
+
+  /// No description provided for @filmTeamPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan: {done}% of {plan} m'**
+  String filmTeamPlan(String done, String plan);
+
+  /// No description provided for @filmTeamNoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'No plan set for the month'**
+  String get filmTeamNoPlan;
+
+  /// No description provided for @filmTeamPot.
+  ///
+  /// In en, this message translates to:
+  /// **'Pot: {pct}% of margin = {pot}'**
+  String filmTeamPot(String pct, String pot);
+
+  /// No description provided for @filmTeamShare.
+  ///
+  /// In en, this message translates to:
+  /// **'share {share}% · bonus {bonus}'**
+  String filmTeamShare(String share, String bonus);
+
+  /// No description provided for @filmTeamEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales this month'**
+  String get filmTeamEmpty;
+
+  /// No description provided for @filmTeamHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The bonus is counted on margin — only money paid, in the month it was paid.'**
+  String get filmTeamHint;
+
+  /// No description provided for @filmTeamSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan and bonus'**
+  String get filmTeamSettings;
+
+  /// No description provided for @filmTeamPlanM.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan for the month, m'**
+  String get filmTeamPlanM;
+
+  /// No description provided for @filmTeamPct.
+  ///
+  /// In en, this message translates to:
+  /// **'Pot when the plan is met, %'**
+  String get filmTeamPct;
+
+  /// No description provided for @filmTeamPctBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pot when the plan is missed, %'**
+  String get filmTeamPctBelow;
+
+  /// No description provided for @filmTeamSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get filmTeamSave;
 }
 
 class _AppLocalizationsDelegate
