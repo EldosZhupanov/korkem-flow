@@ -10,6 +10,7 @@ import 'package:korkem_flow/features/film_dept/presentation/film_dept_screen.dar
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 
 import '../../support/widget_harness.dart';
 
@@ -109,6 +110,8 @@ class _Fake implements FilmDeptRepository {
               'date': '2026-11-11',
               'amount': 2000,
               'transport': 'КАМАЗ',
+              'driver': 'Ерлан',
+              'phone': '+7 701 555 12 34',
             },
           ],
         },
@@ -146,6 +149,13 @@ class _Fake implements FilmDeptRepository {
           {'user': 'b@k.kz', 'name': 'Бауыржан'},
         ],
         'me': 'a@k.kz',
+        'drivers': [
+          {
+            'driver': 'Ерлан',
+            'phone': '+7 701 555 12 34',
+            'transport': 'Такси',
+          },
+        ],
       });
 
   @override
@@ -289,6 +299,7 @@ class _Fake implements FilmDeptRepository {
     List<({double amount, String method, String? bank})> payments = const [],
     Set<String> remember = const {},
     String? seller,
+    String? issuedBy,
   }) async {
     sellers.add(seller);
     remembered.addAll(remember);
@@ -496,12 +507,24 @@ void main() {
         amount: 46800,
         paid: 20000,
         debt: 26800,
+        seller: 'Olzhas',
+        sellerPhone: '+7 701 555 12 34',
+        issuedBy: 'Айбек',
+        payments: [
+          (date: '2026-11-09', amount: 15000, method: 'Наличные', bank: null),
+          (date: '2026-11-09', amount: 5000, method: 'Перевод', bank: 'Kaspi'),
+        ],
         lines: [
           FilmSaleLine(
             item: 'MAT-1',
             title: 'KIRA · Белый Матовый',
             metres: 12,
             priceM: 3900,
+            maker: 'KIRA',
+            colour: 'Белый Матовый',
+            code: 'KR-101',
+            type: 'Супер матовое',
+            thicknessMm: 0.3,
           ),
         ],
       ),
@@ -516,6 +539,18 @@ void main() {
         total: 'Итого',
         paid: 'Оплачено',
         debt: 'Долг',
+        payment: 'Оплата',
+        method: (m) => m,
+        servedBy: (n) => 'Продавец: $n',
+        phone: (p) => 'Тел.: $p',
+        signedSold: 'Продал',
+        signedGot: 'Получил',
+        issuedBy: (n) => 'Выдал со склада: $n',
+        signedIssued: 'Выдал',
+        code: (c) => 'код $c',
+        thickness: (mm) => '$mm мм',
+        thanks: 'Спасибо!',
+        wish: 'Хорошего дня',
       ),
     );
     expect(String.fromCharCodes(bytes.sublist(0, 5)), '%PDF-');
@@ -580,16 +615,8 @@ void main() {
       'urgent': false,
     });
     expect(repo.deliveries.single.$2, 'a@k.kz');
-    // On its way, due in two days unless said.
-    final now = DateTime.now();
-    expect(
-      repo.arrivals.single,
-      DateTime(
-        now.year,
-        now.month,
-        now.day + 2,
-      ).toIso8601String().substring(0, 10),
-    );
+    // On its way, due in two days unless said — a Sunday moves to Monday.
+    expect(repo.arrivals.single, mdfIso(mdfDueIn(DateTime.now(), days: 2)));
   });
 
   testWidgets('what ran low is ordered as last time, on its way', (
@@ -685,6 +712,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmDelivery:method:Перевод')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDelivery:driver:Ерлан')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmDelivery:urgent')));
     await tester.tap(find.byKey(const ValueKey('filmDelivery:taker:2')));
     await tester.pumpAndSettle();
@@ -701,6 +730,9 @@ void main() {
       'payer': 'employee',
       'paid_by': 'a@k.kz',
       'method': 'Перевод',
+      // The driver picked from those who came before.
+      'driver': 'Ерлан',
+      'phone': '+7 701 555 12 34',
     });
     expect(repo.deliveries.single.$2, 'b@k.kz');
   });
@@ -720,6 +752,7 @@ void main() {
       find.byKey(const ValueKey('filmCash:carrier:STE-4')),
       findsOneWidget,
     );
+    expect(find.byKey(const ValueKey('filmCash:wa:STE-4')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('filmCash:settle:STE-3')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmCash:settle:Перевод')));

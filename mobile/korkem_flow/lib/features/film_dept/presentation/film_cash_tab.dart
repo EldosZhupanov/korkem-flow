@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
@@ -79,6 +81,26 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                         subtitle: Text(
                           [mdfDay(o.date), ?o.supplier].join(' · '),
                         ),
+                        // The carrier owed, a tap away (owner, 12.11.2026).
+                        leading: o.phone == null || key != 'carrier'
+                            ? null
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    key: ValueKey('filmCash:call:${o.receipt}'),
+                                    icon: const Icon(AppIcons.call),
+                                    onPressed: () =>
+                                        ContactActions.call(o.phone),
+                                  ),
+                                  IconButton(
+                                    key: ValueKey('filmCash:wa:${o.receipt}'),
+                                    icon: const Icon(AppIcons.whatsApp),
+                                    onPressed: () =>
+                                        ContactActions.whatsApp(o.phone),
+                                  ),
+                                ],
+                              ),
                         trailing: PopupMenuButton<String>(
                           key: ValueKey('filmCash:settle:${o.receipt}'),
                           onSelected: (m) => _settle(o, m),

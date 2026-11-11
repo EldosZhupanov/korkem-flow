@@ -289,6 +289,7 @@ String? _about(FilmMove m, AppLocalizations l10n, NumberFormat money) {
             ? money.format(d.cost)
             : '${money.format(d.cost)} (${money.format(d.perM)}/м)',
       if (d.urgent) l10n.filmUrgent.toLowerCase(),
+      if (d.driver != null || d.phone != null) [?d.driver, ?d.phone].join(' '),
       ?switch (d.payer) {
         FilmPayer.cash => l10n.filmPaidCash,
         FilmPayer.employee =>
@@ -512,6 +513,7 @@ class FilmPage extends ConsumerWidget {
       ),
     );
     final onWay = film.coming.fold<double>(0, (s, c) => s + c.metres);
+    final held = film.holds.fold<double>(0, (s, h) => s + h.metres);
     return Scaffold(
       appBar: AppBar(title: Text(filmName(film))),
       body: ListView(
@@ -535,10 +537,13 @@ class FilmPage extends ConsumerWidget {
               // Beside the name, where the eye is (owner, 11.11.2026):
               // what is on the shelf, and what is on its way.
               const SizedBox(width: AppSpacing.lg),
+              // With metres put by, the first figure is what is still free
+              // — «заказать» only when the shelf is truly empty (owner,
+              // 12.11.2026: all 6,8 m put by read as «заказать»).
               _StockBadge(
-                label: l10n.filmOnShelf,
-                value: film.free > 0
-                    ? '${filmMetres(film.free)} м'
+                label: film.holds.isEmpty ? l10n.filmOnShelf : l10n.filmFree,
+                value: film.free > 0 || film.holds.isNotEmpty
+                    ? '${filmMetres(film.free < 0 ? 0 : film.free)} м'
                     : l10n.filmToOrder,
                 valueKey: const ValueKey('filmPage:free'),
                 background: film.free > 0
@@ -548,6 +553,16 @@ class FilmPage extends ConsumerWidget {
                     ? theme.colorScheme.onPrimaryContainer
                     : theme.colorScheme.outline,
               ),
+              if (film.holds.isNotEmpty) ...[
+                const SizedBox(width: AppSpacing.sm),
+                _StockBadge(
+                  label: l10n.filmHeld,
+                  value: '${filmMetres(held)} м',
+                  valueKey: const ValueKey('filmPage:held'),
+                  background: theme.colorScheme.tertiaryContainer,
+                  foreground: theme.colorScheme.onTertiaryContainer,
+                ),
+              ],
               if (film.coming.isNotEmpty) ...[
                 const SizedBox(width: AppSpacing.sm),
                 _StockBadge(

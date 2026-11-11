@@ -69,6 +69,8 @@ class FilmMove {
         payer: _s(d['payer']),
         paidBy: _s(d['paid_by']),
         settled: d['settled'] == true,
+        driver: _s(d['driver']),
+        phone: _s(d['phone']),
       ),
       _ => null,
     },
@@ -116,6 +118,8 @@ typedef FilmDelivery = ({
   String? payer,
   String? paidBy,
   bool settled,
+  String? driver,
+  String? phone,
 });
 
 /// Who paid for bringing a roll (owner, 11.11.2026) — the server's words.
@@ -149,8 +153,9 @@ class FilmCashBook {
       receipt: '${r['receipt']}',
       date: '${r['date'] ?? ''}',
       amount: _d(r['amount']) ?? 0,
-      who: _s(r['name']) ?? _s(r['transport']),
+      who: _s(r['name']) ?? _s(r['driver']) ?? _s(r['transport']),
       supplier: _s(r['supplier']),
+      phone: _s(r['phone']),
     );
     return FilmCashBook(
       since: '${json['since'] ?? ''}',
@@ -211,6 +216,7 @@ typedef FilmOwed = ({
   double amount,
   String? who,
   String? supplier,
+  String? phone,
 });
 
 /// What a receipt asks about its delivery and a sale about its seller.
@@ -223,6 +229,7 @@ class FilmDeliveryOptions {
     this.supplierCities = const {},
     this.staff = const [],
     this.me,
+    this.drivers = const [],
   });
 
   factory FilmDeliveryOptions.fromJson(Map<String, dynamic> json) =>
@@ -248,6 +255,15 @@ class FilmDeliveryOptions {
               (user: '${p['user']}', name: '${p['name'] ?? p['user']}'),
         ],
         me: _s(json['me']),
+        drivers: [
+          for (final d in json['drivers'] as List? ?? [])
+            if (d is Map<String, dynamic>)
+              (
+                driver: '${d['driver']}',
+                phone: _s(d['phone']),
+                transport: _s(d['transport']),
+              ),
+        ],
       );
 
   final List<String> transports;
@@ -260,6 +276,9 @@ class FilmDeliveryOptions {
   final Map<String, String> supplierCities;
   final List<({String user, String name})> staff;
   final String? me;
+
+  /// Drivers who brought film before, newest first (owner, 12.11.2026).
+  final List<({String driver, String? phone, String? transport})> drivers;
 }
 
 /// The film department's month by seller, and the team's bonus.
@@ -357,6 +376,11 @@ class FilmSaleLine {
     required this.title,
     required this.metres,
     this.priceM,
+    this.maker,
+    this.colour,
+    this.code,
+    this.type,
+    this.thicknessMm,
   });
 
   factory FilmSaleLine.fromJson(Map<String, dynamic> json) => FilmSaleLine(
@@ -364,12 +388,24 @@ class FilmSaleLine {
     title: '${json['title'] ?? ''}',
     metres: _d(json['metres']) ?? 0,
     priceM: _d(json['price_m']),
+    maker: _s(json['maker']),
+    colour: _s(json['colour']),
+    code: _s(json['code']),
+    type: _s(json['type']),
+    thicknessMm: _d(json['thickness_mm']),
   );
 
   final String item;
   final String title;
   final double metres;
   final double? priceM;
+
+  /// What the film is, for the customer's receipt (owner, 12.11.2026).
+  final String? maker;
+  final String? colour;
+  final String? code;
+  final String? type;
+  final double? thicknessMm;
 }
 
 /// A sale of film to a customer — paid, or partly, the rest a debt.
@@ -387,6 +423,9 @@ class FilmSale {
     this.bank,
     this.lines = const [],
     this.payments = const [],
+    this.seller,
+    this.sellerPhone,
+    this.issuedBy,
   });
 
   factory FilmSale.fromJson(Map<String, dynamic> json) => FilmSale(
@@ -413,6 +452,9 @@ class FilmSale {
             bank: _s(p['bank']),
           ),
     ],
+    seller: _s(json['seller']),
+    sellerPhone: _s(json['seller_phone']),
+    issuedBy: _s(json['issued_by']),
   );
 
   final String entry;
@@ -429,6 +471,13 @@ class FilmSale {
   /// Every payment of the sale — at the sale and against its debt, each
   /// way of its own (owner, 11.11.2026: cash and a transfer at once).
   final List<FilmPayment> payments;
+
+  /// Who served the customer — and answers for the sale.
+  final String? seller;
+  final String? sellerPhone;
+
+  /// Who handed the film out of the stock.
+  final String? issuedBy;
 
   double get metres => lines.fold(0, (sum, l) => sum + l.metres);
 }

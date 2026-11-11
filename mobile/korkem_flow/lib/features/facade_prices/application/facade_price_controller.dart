@@ -30,4 +30,16 @@ class FacadePriceController extends AsyncNotifier<FacadePriceTable> {
         );
     state = AsyncValue.data(table);
   }
+
+  Future<void> addVariant(String kind, String variant) async {
+    state = AsyncValue.data(
+      await ref.read(facadePriceRepositoryProvider).addVariant(kind, variant),
+    );
+  }
+
+  Future<void> removeVariant(String value) async {
+    state = AsyncValue.data(
+      await ref.read(facadePriceRepositoryProvider).removeVariant(value),
+    );
+  }
 }

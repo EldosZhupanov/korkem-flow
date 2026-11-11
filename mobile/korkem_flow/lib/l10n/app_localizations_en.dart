@@ -6496,4 +6496,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get facadePricesHideUnsold => 'Hide the unsold';
+
+  @override
+  String get mdfGroupSales => 'Sales';
+
+  @override
+  String get mdfGroupShop => 'Shop floor';
+
+  @override
+  String get mdfGroupStock => 'Stock and buying';
+
+  @override
+  String get mdfGroupSettings => 'Lists and prices';
+
+  @override
+  String get filmDriver => 'Driver';
+
+  @override
+  String get filmDriverPhone => 'Driver\'s phone';
+
+  @override
+  String get filmFree => 'Free';
+
+  @override
+  String get filmHeld => 'Put by';
+
+  @override
+  String get filmReceiptPayment => 'Payment';
+
+  @override
+  String filmReceiptServedBy(String name) {
+    return 'Seller (responsible): $name';
+  }
+
+  @override
+  String get filmReceiptThanks => 'Thank you for choosing us!';
+
+  @override
+  String get filmReceiptWish =>
+      'A fine choice — may your facades bring you joy for years. We look forward to seeing you again!';
+
+  @override
+  String filmReceiptCode(String code) {
+    return 'code $code';
+  }
+
+  @override
+  String filmReceiptThickness(String mm) {
+    return '$mm mm';
+  }
+
+  @override
+  String filmReceiptPhone(String phone) {
+    return 'Phone: $phone';
+  }
+
+  @override
+  String get filmReceiptSignSold => 'Sold by';
+
+  @override
+  String get filmReceiptSignGot => 'Received by';
+
+  @override
+  String get facadePricesAddVariant => 'Variant';
+
+  @override
+  String get facadePricesVariant => 'Milling variant';
+
+  @override
+  String get facadePricesVariantHint =>
+      'Priced as its kind. In an order it shows as «kind variant».';
+
+  @override
+  String get filmIssuedBy => 'Handed out by';
+
+  @override
+  String filmReceiptIssuedBy(String name) {
+    return 'Handed out by: $name';
+  }
+
+  @override
+  String get filmReceiptSignIssued => 'Handed out';
 }

@@ -11497,6 +11497,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide the unsold'**
   String get facadePricesHideUnsold;
+
+  /// No description provided for @mdfGroupSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get mdfGroupSales;
+
+  /// No description provided for @mdfGroupShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop floor'**
+  String get mdfGroupShop;
+
+  /// No description provided for @mdfGroupStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock and buying'**
+  String get mdfGroupStock;
+
+  /// No description provided for @mdfGroupSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Lists and prices'**
+  String get mdfGroupSettings;
+
+  /// No description provided for @filmDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get filmDriver;
+
+  /// No description provided for @filmDriverPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver\'s phone'**
+  String get filmDriverPhone;
+
+  /// No description provided for @filmFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get filmFree;
+
+  /// No description provided for @filmHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Put by'**
+  String get filmHeld;
+
+  /// No description provided for @filmReceiptPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get filmReceiptPayment;
+
+  /// No description provided for @filmReceiptServedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller (responsible): {name}'**
+  String filmReceiptServedBy(String name);
+
+  /// No description provided for @filmReceiptThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for choosing us!'**
+  String get filmReceiptThanks;
+
+  /// No description provided for @filmReceiptWish.
+  ///
+  /// In en, this message translates to:
+  /// **'A fine choice — may your facades bring you joy for years. We look forward to seeing you again!'**
+  String get filmReceiptWish;
+
+  /// No description provided for @filmReceiptCode.
+  ///
+  /// In en, this message translates to:
+  /// **'code {code}'**
+  String filmReceiptCode(String code);
+
+  /// No description provided for @filmReceiptThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'{mm} mm'**
+  String filmReceiptThickness(String mm);
+
+  /// No description provided for @filmReceiptPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone: {phone}'**
+  String filmReceiptPhone(String phone);
+
+  /// No description provided for @filmReceiptSignSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold by'**
+  String get filmReceiptSignSold;
+
+  /// No description provided for @filmReceiptSignGot.
+  ///
+  /// In en, this message translates to:
+  /// **'Received by'**
+  String get filmReceiptSignGot;
+
+  /// No description provided for @facadePricesAddVariant.
+  ///
+  /// In en, this message translates to:
+  /// **'Variant'**
+  String get facadePricesAddVariant;
+
+  /// No description provided for @facadePricesVariant.
+  ///
+  /// In en, this message translates to:
+  /// **'Milling variant'**
+  String get facadePricesVariant;
+
+  /// No description provided for @facadePricesVariantHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Priced as its kind. In an order it shows as «kind variant».'**
+  String get facadePricesVariantHint;
+
+  /// No description provided for @filmIssuedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed out by'**
+  String get filmIssuedBy;
+
+  /// No description provided for @filmReceiptIssuedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed out by: {name}'**
+  String filmReceiptIssuedBy(String name);
+
+  /// No description provided for @filmReceiptSignIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed out'**
+  String get filmReceiptSignIssued;
 }
 
 class _AppLocalizationsDelegate

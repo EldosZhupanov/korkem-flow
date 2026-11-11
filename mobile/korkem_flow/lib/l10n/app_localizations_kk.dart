@@ -6458,4 +6458,85 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get facadePricesHideUnsold => 'Сатылмайтындарды жасыру';
+
+  @override
+  String get mdfGroupSales => 'Сату';
+
+  @override
+  String get mdfGroupShop => 'Цех';
+
+  @override
+  String get mdfGroupStock => 'Қойма және сатып алу';
+
+  @override
+  String get mdfGroupSettings => 'Анықтамалықтар мен бағалар';
+
+  @override
+  String get filmDriver => 'Жүргізуші';
+
+  @override
+  String get filmDriverPhone => 'Жүргізуші телефоны';
+
+  @override
+  String get filmFree => 'Бос';
+
+  @override
+  String get filmHeld => 'Бөлінген';
+
+  @override
+  String get filmReceiptPayment => 'Төлем';
+
+  @override
+  String filmReceiptServedBy(String name) {
+    return 'Сатушы (жауапты): $name';
+  }
+
+  @override
+  String get filmReceiptThanks => 'Бізді таңдағаныңыз үшін рахмет!';
+
+  @override
+  String get filmReceiptWish =>
+      'Тамаша таңдау — қасбеттеріңіз ұзақ жылдар қуантсын. Сізді қайта күтеміз!';
+
+  @override
+  String filmReceiptCode(String code) {
+    return 'коды $code';
+  }
+
+  @override
+  String filmReceiptThickness(String mm) {
+    return '$mm мм';
+  }
+
+  @override
+  String filmReceiptPhone(String phone) {
+    return 'Тел.: $phone';
+  }
+
+  @override
+  String get filmReceiptSignSold => 'Сатты';
+
+  @override
+  String get filmReceiptSignGot => 'Алды';
+
+  @override
+  String get facadePricesAddVariant => 'Нұсқа';
+
+  @override
+  String get facadePricesVariant => 'Фрезер нұсқасы';
+
+  @override
+  String get facadePricesVariantHint =>
+      'Бағасы — түрі сияқты. Тапсырыста «түр нұсқа» болып шығады.';
+
+  @override
+  String get filmIssuedBy => 'Қоймадан берген';
+
+  @override
+  String filmReceiptIssuedBy(String name) {
+    return 'Қоймадан берген: $name';
+  }
+
+  @override
+  String get filmReceiptSignIssued => 'Берді';
 }

@@ -215,6 +215,7 @@ class FilmDeptRepository {
     List<({double amount, String method, String? bank})> payments = const [],
     Set<String> remember = const {},
     String? seller,
+    String? issuedBy,
   }) async => FilmSale.fromJson(
     _map(
       await _client.callMethod(
@@ -239,6 +240,7 @@ class FilmDeptRepository {
           ]),
           // Who sold it — the team's bonus is counted by seller.
           'seller': ?seller,
+          'issued_by': ?issuedBy,
         },
       ),
     ),

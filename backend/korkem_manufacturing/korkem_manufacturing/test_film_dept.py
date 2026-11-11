@@ -242,7 +242,7 @@ class TestFilmDept(IntegrationTestCase):
 
 		by_cash = got(transport="Такси", amount=5000)
 		by_me = got(transport="Такси", amount=3000, payer="employee", paid_by=MANAGER)
-		owed = got(transport="КАМАЗ", amount=2000, payer="unpaid")
+		owed = got(transport="КАМАЗ", amount=2000, payer="unpaid", driver="Ерлан", phone="+7 701 555 12 34")
 		free = got(transport="Привёз поставщик", amount=900, payer="supplier")
 		with self.assertRaises(frappe.ValidationError):
 			got(amount=100, payer="кто-то")
@@ -255,7 +255,10 @@ class TestFilmDept(IntegrationTestCase):
 		# Out of the department's cash: only what the cash paid.
 		self.assertEqual([o["amount"] for o in book["out"] if o["receipt"] in (by_cash, by_me, owed, free)], [5000])
 		self.assertIn(by_me, [e["receipt"] for e in book["owed"]["employees"]])
-		self.assertIn(owed, [c["receipt"] for c in book["owed"]["carriers"]])
+		carrier = next(c for c in book["owed"]["carriers"] if c["receipt"] == owed)
+		self.assertEqual((carrier["driver"], carrier["phone"]), ("Ерлан", "+7 701 555 12 34"))
+		self.assertIn({"driver": "Ерлан", "phone": "+7 701 555 12 34", "transport": "КАМАЗ"},
+					  self._as(MANAGER, service.delivery_options)["drivers"])
 		# Given back: out of the cash today, off the list; twice is refused.
 		self._as(MANAGER, film_cash.settle, by_me, "Перевод")
 		book = self._as(MANAGER, film_cash.book)
@@ -282,6 +285,8 @@ class TestFilmDept(IntegrationTestCase):
 		sale = self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 10, "price_m": 4200}],
 						payments=[{"amount": 21000, "method": "Наличные"}])
 		self.assertEqual(frappe.db.get_value("Stock Entry", sale["entry"], "korkem_film_seller"), MANAGER)
+		# Handed out by the seller unless said (owner, 12.11.2026).
+		self.assertEqual(frappe.db.get_value("Stock Entry", sale["entry"], "korkem_film_issued_by"), MANAGER)
 		month = film_team.team()
 		mine = mine_now()
 		# Bought at 3 200, sold at 4 200: 10 000 margin; half paid — 5 000 counted.

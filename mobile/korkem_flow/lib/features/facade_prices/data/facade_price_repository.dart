@@ -36,6 +36,24 @@ class FacadePriceRepository {
   Future<FacadePriceTable> fetch() async =>
       _parsed(await _client.callMethod(readEndpoint));
 
+  /// «16-14» under «Рифлёный» — priced as its kind (owner, 12.11.2026).
+  Future<FacadePriceTable> addVariant(String kind, String variant) async =>
+      _parsed(
+        await _client.callMethod(
+          '$_base.add_variant',
+          post: true,
+          params: {'kind': kind, 'variant': variant},
+        ),
+      );
+
+  Future<FacadePriceTable> removeVariant(String value) async => _parsed(
+    await _client.callMethod(
+      '$_base.remove_variant',
+      post: true,
+      params: {'value': value},
+    ),
+  );
+
   /// Saves one cell; the answer is the whole table as the server now has it.
   Future<FacadePriceTable> save({
     required String milling,

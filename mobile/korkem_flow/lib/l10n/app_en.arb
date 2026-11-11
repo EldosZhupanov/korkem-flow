@@ -6942,5 +6942,63 @@
       }
     }
   },
-  "facadePricesHideUnsold": "Hide the unsold"
+  "facadePricesHideUnsold": "Hide the unsold",
+  "mdfGroupSales": "Sales",
+  "mdfGroupShop": "Shop floor",
+  "mdfGroupStock": "Stock and buying",
+  "mdfGroupSettings": "Lists and prices",
+  "filmDriver": "Driver",
+  "filmDriverPhone": "Driver's phone",
+  "filmFree": "Free",
+  "filmHeld": "Put by",
+  "filmReceiptPayment": "Payment",
+  "filmReceiptServedBy": "Seller (responsible): {name}",
+  "@filmReceiptServedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiptThanks": "Thank you for choosing us!",
+  "filmReceiptWish": "A fine choice — may your facades bring you joy for years. We look forward to seeing you again!",
+  "filmReceiptCode": "code {code}",
+  "@filmReceiptCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiptThickness": "{mm} mm",
+  "@filmReceiptThickness": {
+    "placeholders": {
+      "mm": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiptPhone": "Phone: {phone}",
+  "filmReceiptSignSold": "Sold by",
+  "filmReceiptSignGot": "Received by",
+  "@filmReceiptPhone": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "facadePricesAddVariant": "Variant",
+  "facadePricesVariant": "Milling variant",
+  "facadePricesVariantHint": "Priced as its kind. In an order it shows as «kind variant».",
+  "filmIssuedBy": "Handed out by",
+  "filmReceiptIssuedBy": "Handed out by: {name}",
+  "@filmReceiptIssuedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiptSignIssued": "Handed out"
 }

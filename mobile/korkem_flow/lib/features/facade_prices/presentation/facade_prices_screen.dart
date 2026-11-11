@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
+import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
@@ -81,6 +84,16 @@ class _FacadePricesState extends ConsumerState<FacadePricesScreen> {
               key: ValueKey('facadeMilling:$milling'),
               milling: milling,
               table: table,
+              onAddVariant: (v) => _guard(
+                () => ref
+                    .read(facadePriceControllerProvider.notifier)
+                    .addVariant(milling, v),
+              ),
+              onRemoveVariant: (v) => _guard(
+                () => ref
+                    .read(facadePriceControllerProvider.notifier)
+                    .removeVariant(v),
+              ),
               onEdit: (finish) => _edit(
                 context,
                 ref,
@@ -113,6 +126,16 @@ class _FacadePricesState extends ConsumerState<FacadePricesScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _guard(Future<void> Function() action) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    try {
+      await action();
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    }
   }
 
   Future<void> _edit(
@@ -160,12 +183,16 @@ class _MillingCard extends StatefulWidget {
     required this.milling,
     required this.table,
     required this.onEdit,
+    required this.onAddVariant,
+    required this.onRemoveVariant,
     super.key,
   });
 
   final String milling;
   final FacadePriceTable table;
   final void Function(String finish) onEdit;
+  final Future<void> Function(String variant) onAddVariant;
+  final Future<void> Function(String value) onRemoveVariant;
 
   @override
   State<_MillingCard> createState() => _MillingCardState();
@@ -178,6 +205,25 @@ class _MillingCardState extends State<_MillingCard> {
   bool _all = false;
 
   String get milling => widget.milling;
+
+  /// «Рифлёный 16-14» shown under «Рифлёный» as «16-14».
+  static String _short(String kind, String value) =>
+      value.toLowerCase().startsWith(kind.toLowerCase())
+      ? value.substring(kind.length).trim()
+      : value;
+
+  Future<void> _addVariant(BuildContext context, AppLocalizations l10n) async {
+    final variant = await showReasonDialog(
+      context,
+      title: '${l10n.facadePricesAddVariant} · $milling',
+      label: l10n.facadePricesVariant,
+      confirm: l10n.facadePricesSave,
+      cancel: l10n.actionCancel,
+      fieldKey: const ValueKey('facadeVariantName'),
+    );
+    if (variant != null) await widget.onAddVariant(variant);
+  }
+
   FacadePriceTable get table => widget.table;
   void Function(String finish) get onEdit => widget.onEdit;
 
@@ -199,6 +245,33 @@ class _MillingCardState extends State<_MillingCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SectionLabel(milling),
+            // Its variants — «16-14», «10-8» — priced as the kind
+            // (owner, 12.11.2026).
+            if (table.canEdit || (table.variants[milling]?.isNotEmpty ?? false))
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    for (final v in table.variants[milling] ?? const <String>[])
+                      InputChip(
+                        key: ValueKey('facadeVariant:$v'),
+                        label: Text(_short(milling, v)),
+                        onDeleted: table.canEdit
+                            ? () => unawaited(widget.onRemoveVariant(v))
+                            : null,
+                      ),
+                    if (table.canEdit)
+                      ActionChip(
+                        key: ValueKey('facadeVariant:add:$milling'),
+                        avatar: const Icon(AppIcons.add),
+                        label: Text(l10n.facadePricesAddVariant),
+                        onPressed: () => unawaited(_addVariant(context, l10n)),
+                      ),
+                  ],
+                ),
+              ),
             for (final finish in table.finishes)
               if (_all || (table.cell(milling, finish)?.enabled ?? false))
                 _priceRow(context, l10n, money, finish),
