@@ -91,6 +91,7 @@ class FilmSale {
     this.method,
     this.bank,
     this.lines = const [],
+    this.payments = const [],
   });
 
   factory FilmSale.fromJson(Map<String, dynamic> json) => FilmSale(
@@ -107,6 +108,16 @@ class FilmSale {
       for (final l in json['lines'] as List? ?? const [])
         if (l is Map<String, dynamic>) FilmSaleLine.fromJson(l),
     ],
+    payments: [
+      for (final p in json['payments'] as List? ?? const [])
+        if (p is Map<String, dynamic>)
+          (
+            date: '${p['date'] ?? ''}',
+            amount: _d(p['amount']) ?? 0,
+            method: '${p['method'] ?? ''}',
+            bank: _s(p['bank']),
+          ),
+    ],
   );
 
   final String entry;
@@ -119,6 +130,10 @@ class FilmSale {
   final String? method;
   final String? bank;
   final List<FilmSaleLine> lines;
+
+  /// Every payment of the sale — at the sale and against its debt, each
+  /// way of its own (owner, 11.11.2026: cash and a transfer at once).
+  final List<FilmPayment> payments;
 
   double get metres => lines.fold(0, (sum, l) => sum + l.metres);
 }
@@ -215,3 +230,12 @@ String? _s(Object? v) {
   final s = v?.toString().trim();
   return s == null || s.isEmpty ? null : s;
 }
+
+/// One part of a payment: how much, how, and the bank of a transfer or a
+/// card.
+typedef FilmPayment = ({
+  String date,
+  double amount,
+  String method,
+  String? bank,
+});

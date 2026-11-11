@@ -5691,6 +5691,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmTabCustomers => 'Клиенты';
 
   @override
+  String get filmSaleAddPart => 'ещё способ';
+
+  @override
+  String get filmSalePaidFull => 'Оплачено полностью';
+
+  @override
+  String filmSaleOverpaid(String amount) {
+    return 'Больше суммы на $amount — так нельзя';
+  }
+
+  @override
+  String get filmThicknessUnknown => 'толщина не указана';
+
+  @override
+  String get filmThicknessHint => 'Не знаете — оставьте пустым, впишете позже';
+
+  @override
+  String filmNoThickness(String count) {
+    return 'Без толщины · $count';
+  }
+
+  @override
   String get filmVariants => 'Толщины';
 
   @override

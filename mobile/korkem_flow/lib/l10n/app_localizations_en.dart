@@ -5668,6 +5668,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTabCustomers => 'Customers';
 
   @override
+  String get filmSaleAddPart => 'another way';
+
+  @override
+  String get filmSalePaidFull => 'Paid in full';
+
+  @override
+  String filmSaleOverpaid(String amount) {
+    return '$amount over the total — not allowed';
+  }
+
+  @override
+  String get filmThicknessUnknown => 'thickness not given';
+
+  @override
+  String get filmThicknessHint =>
+      'Not known? Leave it empty and fill it in later';
+
+  @override
+  String filmNoThickness(String count) {
+    return 'No thickness · $count';
+  }
+
+  @override
   String get filmVariants => 'Thicknesses';
 
   @override

@@ -10095,6 +10095,42 @@ abstract class AppLocalizations {
   /// **'Customers'**
   String get filmTabCustomers;
 
+  /// No description provided for @filmSaleAddPart.
+  ///
+  /// In en, this message translates to:
+  /// **'another way'**
+  String get filmSaleAddPart;
+
+  /// No description provided for @filmSalePaidFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid in full'**
+  String get filmSalePaidFull;
+
+  /// No description provided for @filmSaleOverpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over the total — not allowed'**
+  String filmSaleOverpaid(String amount);
+
+  /// No description provided for @filmThicknessUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'thickness not given'**
+  String get filmThicknessUnknown;
+
+  /// No description provided for @filmThicknessHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Not known? Leave it empty and fill it in later'**
+  String get filmThicknessHint;
+
+  /// No description provided for @filmNoThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'No thickness · {count}'**
+  String filmNoThickness(String count);
+
   /// No description provided for @filmVariants.
   ///
   /// In en, this message translates to:

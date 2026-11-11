@@ -262,7 +262,8 @@ def _title(kind: str, attrs: dict) -> str:
 		return f"МДФ {attrs['thickness']} мм {attrs['manufacturer']}"
 	if kind == FILM:
 		return (
-			f"Плёнка ПВХ {attrs['color']} {attrs['width']}×{attrs['film_thickness']} "
+			# A thickness not known yet is «?» (owner, 11.11.2026).
+			f"Плёнка ПВХ {attrs['color']} {attrs['width']}×{attrs['film_thickness'] or '?'} "
 			f"{attrs['manufacturer']}"
 		)
 	return attrs["name"]
@@ -288,7 +289,9 @@ def define_material(kind: str, unit: str, **attrs) -> dict:
 	elif kind == FILM:
 		require("Цвет плёнки", "color")
 		require("Ширина плёнки", "width")
-		require("Толщина плёнки", "film_thickness")
+		# A film's thickness may be not known yet (owner, 11.11.2026): empty.
+		if attrs.get("film_thickness"):
+			require("Толщина плёнки", "film_thickness")
 		require("Производитель", "manufacturer")
 	elif len(attrs.get("name", "")) < 2:
 		frappe.throw("Назовите материал.")
@@ -321,7 +324,7 @@ def define_material(kind: str, unit: str, **attrs) -> dict:
 			"korkem_manufacturer": attrs.get("manufacturer") if kind in (MDF, FILM) else None,
 			"korkem_color": attrs.get("color") if kind == FILM else None,
 			"korkem_film_width_mm": attrs.get("width") if kind == FILM else None,
-			"korkem_film_thickness_mm": attrs.get("film_thickness") if kind == FILM else None,
+			"korkem_film_thickness_mm": (attrs.get("film_thickness") or None) if kind == FILM else None,
 		}
 	)
 	item.insert(ignore_permissions=True)

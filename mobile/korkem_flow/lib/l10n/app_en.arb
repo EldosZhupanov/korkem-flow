@@ -6231,6 +6231,26 @@
   "filmTabStock": "Stock",
   "filmTabSales": "Sales",
   "filmTabCustomers": "Customers",
+  "filmSaleAddPart": "another way",
+  "filmSalePaidFull": "Paid in full",
+  "filmSaleOverpaid": "{amount} over the total — not allowed",
+  "@filmSaleOverpaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmThicknessUnknown": "thickness not given",
+  "filmThicknessHint": "Not known? Leave it empty and fill it in later",
+  "filmNoThickness": "No thickness · {count}",
+  "@filmNoThickness": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "filmVariants": "Thicknesses",
   "filmVariantAdd": "Thickness",
   "filmVariantDeleteAsk": "Remove the {thickness} mm thickness?",

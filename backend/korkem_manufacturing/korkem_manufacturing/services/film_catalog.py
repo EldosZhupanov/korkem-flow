@@ -117,6 +117,9 @@ def thickness_in(name: str | None) -> str | None:
 	return parts[2] if len(parts) == 3 and parts[2] else None
 
 
+#: How an order names the thickness of a film not known yet.
+UNKNOWN = "?"
+
 #: What one thickness of a film has of its own; the rest is the film's,
 #: the same on every thickness (owner, 11.11.2026).
 OWN = ("thickness", "width", *PRICES)
@@ -171,7 +174,7 @@ def labels(company: str) -> set[str]:
 		if r.korkem_manufacturer and r.korkem_color:
 			# The film's name, and each thickness's — an order names either.
 			names.add(label(r.korkem_manufacturer, r.korkem_color))
-			names.add(label(r.korkem_manufacturer, r.korkem_color, r.korkem_film_thickness_mm))
+			names.add(label(r.korkem_manufacturer, r.korkem_color, r.korkem_film_thickness_mm or UNKNOWN))
 			group.setdefault((r.korkem_manufacturer, r.korkem_color), []).append(r.korkem_film_thickness_mm)
 	now = {r.name: (r.korkem_manufacturer, r.korkem_color) for r in items if r.korkem_manufacturer}
 	makers = {name: pair[0] for name, pair in now.items()}
@@ -390,7 +393,9 @@ def add(
 	maker = " ".join((maker or "").split())
 	colour = " ".join((colour or "").split())[:100]
 	width = " ".join(str(width or "1400").split())
-	thickness = " ".join(str(thickness or "0,3").split())
+	# Not sent: 0,3, the usual. Sent empty: not known yet (owner,
+	# 11.11.2026) — better than a made-up 0,3, and filled in when known.
+	thickness = "0,3" if thickness is None else " ".join(str(thickness).split())
 	if maker not in material_stock.enabled_values(MAKERS, company):
 		frappe.throw(f"Производителя «{maker or '—'}» нет в справочнике «{MAKERS}».")
 	if len(colour) < 2:
@@ -398,7 +403,7 @@ def add(
 	if SEP in colour:
 		frappe.throw(f"В названии плёнки не должно быть «{SEP.strip()}».")
 	for kind, value in ((COLOURS, colour), ("Ширина плёнки", width), ("Толщина плёнки", thickness)):
-		if value not in material_stock.enabled_values(kind, company):
+		if value and value not in material_stock.enabled_values(kind, company):
 			material_stock.put_option(kind, value)
 	others = frappe.get_all(
 		"Item",
@@ -522,6 +527,8 @@ def _shape(item: str, card: dict, company: str, group: list[str] | None = None) 
 				frappe.throw("Назовите плёнку.")
 			if SEP in value:
 				frappe.throw(f"В названии плёнки не должно быть «{SEP.strip()}».")
+		elif key == "thickness" and not value:
+			pass  # not known yet (owner, 11.11.2026)
 		elif _number(value) is None:
 			frappe.throw("Толщина и ширина — числа, например 0,3 и 1400.")
 		now[key] = value
@@ -547,11 +554,13 @@ def _shape(item: str, card: dict, company: str, group: list[str] | None = None) 
 	if any(t not in group for t in twins):
 		frappe.throw(f"Плёнка «{now['colour']}» у {row.korkem_manufacturer} уже есть.")
 	if twin and twin != item:
-		frappe.throw(f"У плёнки «{now['colour']}» толщина {now['thickness']} уже есть.")
+		frappe.throw(f"У плёнки «{now['colour']}» толщина {now['thickness'] or 'не указана'} уже есть.")
 	for key in SHAPE:
-		if now[key] not in material_stock.enabled_values(_SHAPE_LIST[key], company):
+		if now[key] and now[key] not in material_stock.enabled_values(_SHAPE_LIST[key], company):
 			material_stock.put_option(_SHAPE_LIST[key], now[key])
-	return {**{SHAPE[key]: now[key] for key in SHAPE}, "item_name": title, "description": title}
+	return {
+		**{SHAPE[key]: now[key] or None for key in SHAPE}, "item_name": title, "description": title,
+	}
 
 
 def retitle(company: str) -> None:
@@ -682,7 +691,7 @@ def changes(item: str) -> list[dict]:
 		limit_page_length=200,
 	):
 		base = {"when": str(e.creation)[:16], "who": get_fullname(e.actor) or e.actor, "via": e.reason or None}
-		mark = f" · {thick.get(e.entity_id)}" if many and thick.get(e.entity_id) else ""
+		mark = f" · {thick.get(e.entity_id) or UNKNOWN}" if many else ""
 		if e.action != "film.changed":
 			out.append({**base, "what": {
 				"film.archived": "в архив", "film.restored": "из архива", "stock.material_defined": "добавлена",
@@ -806,7 +815,9 @@ def _film(i, on_hand: float, held: float, many: bool = False) -> dict:
 		"title": i.item_name,
 		"maker": i.korkem_manufacturer or "",
 		"colour": i.korkem_color or "",
-		"label": label(i.korkem_manufacturer, i.korkem_color, i.korkem_film_thickness_mm if many else None)
+		"label": label(
+			i.korkem_manufacturer, i.korkem_color, (i.korkem_film_thickness_mm or UNKNOWN) if many else None
+		)
 		if i.korkem_manufacturer and i.korkem_color else None,
 		"width_mm": _number(i.korkem_film_width_mm),
 		"thickness_mm": _number(i.korkem_film_thickness_mm),

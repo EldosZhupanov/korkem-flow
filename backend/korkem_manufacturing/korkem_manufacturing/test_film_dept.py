@@ -112,6 +112,30 @@ class TestFilmDept(IntegrationTestCase):
 				 paid=3900, method="Наличные")
 		self.assertEqual(film_catalog.film(bare)["retail_m"], 4200)
 
+	def test_a_sale_is_paid_several_ways_at_once_and_the_rest_is_a_debt(self):
+		sale = self._as(
+			MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 10}],
+			payments=[
+				{"amount": 10000, "method": "Наличные"},
+				{"amount": 15000, "method": "Перевод", "bank": "Kaspi"},
+				{"amount": 5000, "method": "Карта", "bank": "Halyk"},
+			],
+		)
+		# 10 m × 3 900 = 39 000; 30 000 paid three ways, 9 000 owed.
+		self.assertEqual((sale["amount"], sale["paid"], sale["debt"]), (39000, 30000, 9000))
+		self.assertEqual(
+			[(p["amount"], p["method"], p["bank"]) for p in sale["payments"]],
+			[(10000, "Наличные", None), (15000, "Перевод", "Kaspi"), (5000, "Карта", "Halyk")],
+		)
+		# More than the sum is refused, however it is split.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 1}],
+					 payments=[{"amount": 3000, "method": "Наличные"}, {"amount": 1000, "method": "Карта"}])
+		# The debt is paid off in parts too; every payment is kept.
+		paid = self._as(MANAGER, service.pay, sale["entry"],
+						payments=[{"amount": 4000, "method": "Наличные"}, {"amount": 5000, "method": "Перевод"}])
+		self.assertEqual((paid["paid"], paid["debt"], len(paid["payments"])), (39000, 0, 5))
+
 	def test_the_customers_card_sets_the_price(self):
 		self.assertEqual(self._as(MANAGER, service.price_for, self.film, self.buyer)["price_m"], 3900)
 		self._as(MANAGER, service.set_customer, self.buyer, tier="wholesale", discount=5)
