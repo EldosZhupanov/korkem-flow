@@ -12,6 +12,7 @@ import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
@@ -196,6 +197,12 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   String? _city;
   String? _taker;
   bool _urgent = false;
+
+  // Who paid for the bringing (owner, 11.11.2026): the film department's
+  // cash, in cash, unless said.
+  String _payer = FilmPayer.cash;
+  String? _paidBy;
+  String _payMethod = filmCash;
 
   String? _transportOf(FilmDeliveryOptions? o) =>
       _transport ?? o?.last[_supplier]?.transport ?? o?.transports.firstOrNull;
@@ -395,6 +402,52 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                         : null,
                   ),
                 ),
+                if (cost > 0) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(l10n.filmDeliveryPayer),
+                  Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      for (final (p, label) in [
+                        (FilmPayer.cash, l10n.filmPayerCash),
+                        (FilmPayer.employee, l10n.filmPayerEmployee),
+                        (FilmPayer.unpaid, l10n.filmPayerUnpaid),
+                      ])
+                        ChoiceChip(
+                          key: ValueKey('filmDelivery:payer:$p'),
+                          label: Text(label),
+                          selected: _payer == p,
+                          onSelected: (_) => setState(() => _payer = p),
+                        ),
+                    ],
+                  ),
+                  if (_payer == FilmPayer.employee)
+                    _personField(
+                      key: 'filmDelivery:paidBy',
+                      label: l10n.filmPaidBy,
+                      opts: opts,
+                      value: _paidBy,
+                      onChanged: (v) => setState(() => _paidBy = v),
+                    ),
+                  if (_payer != FilmPayer.unpaid)
+                    Wrap(
+                      spacing: AppSpacing.xs,
+                      children: [
+                        for (final (m, label) in [
+                          (filmCash, l10n.mdfPayCash),
+                          (filmTransfer, l10n.mdfPayTransfer),
+                          (filmCard, l10n.mdfPayCard),
+                        ])
+                          ChoiceChip(
+                            key: ValueKey('filmDelivery:method:$m'),
+                            label: Text(label),
+                            selected: _payMethod == m,
+                            onSelected: (_) => setState(() => _payMethod = m),
+                          ),
+                      ],
+                    ),
+                ],
                 _personField(
                   key: 'filmDelivery:taker',
                   label: l10n.filmReceivedBy,
@@ -441,6 +494,13 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                                 'city': city ?? '',
                                 'amount': cost,
                                 'urgent': _urgent,
+                                if (cost > 0) ...{
+                                  'payer': _payer,
+                                  if (_payer == FilmPayer.employee)
+                                    'paid_by': _paidBy ?? opts.me,
+                                  if (_payer != FilmPayer.unpaid)
+                                    'method': _payMethod,
+                                },
                               },
                         receivedBy: opts == null ? null : _taker ?? opts.me,
                         arrivesOn: _due == null ? null : mdfIso(_due!),
@@ -610,11 +670,17 @@ class _SaleLine {
   double get p => _number(price.text) ?? 0;
   double get sum => (m * p).roundToDouble();
 
+  /// Put by for this sale's customer: his to take besides what is free.
+  double mine = 0;
+
+  /// What this customer may take: what is free and what is put by for him.
+  double get have => film.free + mine;
+
   /// More typed than is free on the shelf.
-  bool get over => m > film.free + 0.0001;
+  bool get over => m > have + 0.0001;
 
   /// What stays on the shelf after this sale.
-  double get left => film.free - m;
+  double get left => film.free + mine - m;
 
   /// What stays is under the film's minimum: time to order.
   bool get low =>
@@ -667,7 +733,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   /// the archive too, until its metres are sold out (11.11.2026).
   late final List<Film> _films = [
     for (final f in widget.stock.films)
-      if (f.label != null && f.free > 0) f,
+      if (f.label != null && (f.free > 0 || f.holds.isNotEmpty)) f,
   ];
 
   @override
@@ -748,12 +814,15 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
         (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
             .values(MdfDictKind.bank);
     final sellers = ref.watch(filmDeliveryOptionsProvider).value;
+    for (final l in _lines) {
+      l.mine = l.film.heldFor(_customer);
+    }
     final paid = _paid;
     final ok =
         _customer != null &&
         _lines.isNotEmpty &&
         _lines.every(
-          (l) => l.m > 0 && l.p > 0 && l.m <= l.film.free + 0.0001,
+          (l) => l.m > 0 && l.p > 0 && !l.over,
         ) &&
         paid <= _sum + 0.5;
     String label(String m) => switch (m) {
@@ -851,7 +920,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                             // What stays on the shelf, as it is typed
                             // (owner, 11.11.2026).
                             errorText: line.over
-                                ? l10n.filmOnlyHave(filmMetres(line.film.free))
+                                ? l10n.filmOnlyHave(filmMetres(line.have))
                                 : null,
                             helperText: line.m > 0 && !line.over
                                 ? line.low
@@ -901,14 +970,14 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                       spacing: AppSpacing.xs,
                       runSpacing: AppSpacing.xs,
                       children: [
-                        if (line.over && line.film.free > 0)
+                        if (line.over && line.have > 0)
                           ActionChip(
                             key: ValueKey('filmSaleAll:$i'),
                             label: Text(
-                              l10n.filmTakeAll(filmMetres(line.film.free)),
+                              l10n.filmTakeAll(filmMetres(line.have)),
                             ),
                             onPressed: () => setState(() {
-                              line.metres.text = filmMetres(line.film.free);
+                              line.metres.text = filmMetres(line.have);
                               _fillPaid();
                             }),
                           ),
@@ -1356,6 +1425,28 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
           onPressed: busy ? null : _cancel,
           child: Text(l10n.filmCancelMove),
         ),
+        // The customer's receipt, to send or print (owner, 11.11.2026).
+        TextButton.icon(
+          key: const ValueKey('filmSaleReceipt'),
+          onPressed: () async {
+            final locale = Localizations.localeOf(context).toString();
+            final bytes = await buildFilmReceiptPdf(widget.sale, (
+              title: l10n.filmReceipt,
+              date: l10n.filmReceiptDate,
+              customer: l10n.filmReceiptCustomer,
+              film: l10n.filmReceiptFilm,
+              metres: l10n.filmReceiptMetres,
+              price: l10n.filmReceiptPrice,
+              amount: l10n.filmReceiptAmount,
+              total: l10n.filmReceiptTotal,
+              paid: l10n.filmReceiptPaid,
+              debt: l10n.filmReceiptDebt,
+            ), locale: locale);
+            await shareFilmReceipt(widget.sale, bytes);
+          },
+          icon: const Icon(AppIcons.share),
+          label: Text(l10n.filmReceipt),
+        ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.filmClose),
@@ -1613,6 +1704,307 @@ class _ArrivedDialogState extends State<_ArrivedDialog> {
               ? null
               : () => Navigator.of(context).pop(metres),
           child: Text(l10n.filmComingArrived),
+        ),
+      ],
+    );
+  }
+}
+
+/// «Заказать»: every film that ran low, as last time — metres, from whom,
+/// at what — each can be changed or left out; all go on their way at once,
+/// due in two days (owner, 11.11.2026).
+Future<bool?> showFilmReorder(BuildContext context, FilmCatalog stock) =>
+    showDialog<bool>(
+      context: context,
+      builder: (_) => _ReorderDialog(stock: stock),
+    );
+
+class _ReorderLine {
+  _ReorderLine(this.film)
+    : metres = TextEditingController(text: filmMetres(film.reorder!.metres)),
+      price = TextEditingController(
+        text: film.reorder!.priceM?.toStringAsFixed(0) ?? '',
+      );
+
+  final Film film;
+  final TextEditingController metres;
+  final TextEditingController price;
+  bool on = true;
+
+  double get m => _number(metres.text) ?? 0;
+  double get p => _number(price.text) ?? 0;
+  bool get ready => m > 0 && p > 0 && film.reorder!.supplier != null;
+
+  void dispose() {
+    metres.dispose();
+    price.dispose();
+  }
+}
+
+class _ReorderDialog extends ConsumerStatefulWidget {
+  const _ReorderDialog({required this.stock});
+
+  final FilmCatalog stock;
+
+  @override
+  ConsumerState<_ReorderDialog> createState() => _ReorderDialogState();
+}
+
+class _ReorderDialogState extends ConsumerState<_ReorderDialog> with _Saving {
+  late final List<_ReorderLine> _lines = [
+    for (final f in widget.stock.films)
+      if (f.reorder != null) _ReorderLine(f),
+  ];
+
+  @override
+  void dispose() {
+    for (final l in _lines) {
+      l.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final money = mdfMoney(context);
+    final chosen = [
+      for (final l in _lines)
+        if (l.on && l.ready) l,
+    ];
+    final total = chosen.fold<double>(0, (s, l) => s + l.m * l.p);
+    final now = DateTime.now();
+    final due = DateTime(now.year, now.month, now.day + 2);
+    return AlertDialog(
+      title: Text(l10n.filmReorderTitle),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 12,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final (i, l) in _lines.indexed)
+                Padding(
+                  key: ValueKey('filmReorder:$i'),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        key: ValueKey('filmReorder:on:$i'),
+                        value: l.on,
+                        onChanged: (v) => setState(() => l.on = v ?? false),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(filmName(l.film)),
+                            Text(
+                              [
+                                l10n.filmReorderLeft(filmMetres(l.film.free)),
+                                ?l.film.reorder!.supplierName,
+                              ].join(' · '),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        flex: 2,
+                        child: TextField(
+                          key: ValueKey('filmReorder:metres:$i'),
+                          controller: l.metres,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp('[0-9.,]'),
+                            ),
+                          ],
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            labelText: l10n.filmMetresLabel,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        flex: 2,
+                        child: TextField(
+                          key: ValueKey('filmReorder:price:$i'),
+                          controller: l.price,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            labelText: l10n.filmPriceM,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Text(
+                l10n.filmReorderTotal(
+                  money.format(total),
+                  _dayName(context, due),
+                ),
+                key: const ValueKey('filmReorder:total'),
+              ),
+              errorLine(context),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmReorder:save'),
+          onPressed: busy || chosen.isEmpty
+              ? null
+              : () => save(() async {
+                  final repo = ref.read(filmDeptRepositoryProvider);
+                  for (final l in chosen) {
+                    await repo.receive(
+                      item: l.film.item,
+                      metres: l.m,
+                      priceM: l.p,
+                      supplier: l.film.reorder!.supplier!,
+                      arrivesOn: mdfIso(due),
+                    );
+                  }
+                }),
+          child: Text(l10n.filmReorderSave(chosen.length)),
+        ),
+      ],
+    );
+  }
+}
+
+/// «Отложить»: metres of this film put by for a customer — three days
+/// unless said (owner, 11.11.2026).
+Future<bool?> showFilmHold(BuildContext context, Film film) => showDialog<bool>(
+  context: context,
+  builder: (_) => _HoldDialog(film: film),
+);
+
+class _HoldDialog extends ConsumerStatefulWidget {
+  const _HoldDialog({required this.film});
+
+  final Film film;
+
+  @override
+  ConsumerState<_HoldDialog> createState() => _HoldDialogState();
+}
+
+class _HoldDialogState extends ConsumerState<_HoldDialog> with _Saving {
+  final _metres = TextEditingController();
+  String? _customer;
+  int _days = 3;
+
+  @override
+  void dispose() {
+    _metres.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final customers =
+        ref.watch(mdfCustomersProvider).value ?? const <FacadeCustomer>[];
+    final metres = _number(_metres.text) ?? 0;
+    final now = DateTime.now();
+    final until = DateTime(now.year, now.month, now.day + _days);
+    final over = metres > widget.film.free + 0.0001;
+    return AlertDialog(
+      title: Text('${l10n.filmHold} · ${filmName(widget.film)}'),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 8,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownButtonFormField<String>(
+              key: ValueKey('filmHoldCustomer:${customers.length}'),
+              initialValue: _customer,
+              isExpanded: true,
+              items: [
+                for (final c in customers)
+                  DropdownMenuItem(value: c.name, child: Text(c.title)),
+              ],
+              onChanged: (v) => setState(() => _customer = v),
+              decoration: InputDecoration(labelText: l10n.mdfCustomer),
+            ),
+            TextField(
+              key: const ValueKey('filmMetres'),
+              controller: _metres,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+              ],
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: l10n.filmMetresLabel,
+                errorText: over
+                    ? l10n.filmOnlyHave(filmMetres(widget.film.free))
+                    : null,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(l10n.filmHoldUntil),
+            Wrap(
+              spacing: AppSpacing.xs,
+              children: [
+                for (final (d, label) in [
+                  (1, l10n.filmArrivalTomorrow),
+                  (3, l10n.filmArrivalThree),
+                  (7, l10n.filmArrivalWeek),
+                ])
+                  ChoiceChip(
+                    key: ValueKey('filmHoldDays:$d'),
+                    label: Text(label),
+                    selected: _days == d,
+                    onSelected: (_) => setState(() => _days = d),
+                  ),
+              ],
+            ),
+            Text(_dayName(context, until)),
+            errorLine(context),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmHoldSave'),
+          onPressed: busy || _customer == null || metres <= 0 || over
+              ? null
+              : () => save(
+                  () => ref
+                      .read(filmDeptRepositoryProvider)
+                      .hold(
+                        item: widget.film.item,
+                        customer: _customer!,
+                        metres: metres,
+                        until: mdfIso(until),
+                      ),
+                ),
+          child: Text(l10n.filmHold),
         ),
       ],
     );

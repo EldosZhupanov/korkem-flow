@@ -31,6 +31,8 @@ class Film {
     this.low = false,
     this.url,
     this.coming = const [],
+    this.reorder,
+    this.holds = const [],
   });
 
   factory Film.fromJson(Map<String, dynamic> json) => Film(
@@ -74,6 +76,27 @@ class Film {
             supplier: _s(c['supplier']),
           ),
     ],
+    holds: [
+      for (final h in json['holds'] as List? ?? const [])
+        if (h is Map<String, dynamic>)
+          (
+            hold: '${h['hold']}',
+            customer: '${h['customer']}',
+            customerName: '${h['customer_name'] ?? h['customer']}',
+            metres: _d(h['metres']) ?? 0,
+            until: _s(h['until']),
+            late: h['late'] == true,
+          ),
+    ],
+    reorder: switch (json['reorder']) {
+      final Map<String, dynamic> r => (
+        metres: _d(r['metres']) ?? 0,
+        supplier: _s(r['supplier']),
+        supplierName: _s(r['supplier_name']),
+        priceM: _d(r['price_m']),
+      ),
+      _ => null,
+    },
   );
 
   final String item;
@@ -126,12 +149,26 @@ class Film {
   final bool low;
   final String? url;
 
-  /// What is free: on hand and not promised.
-  double get free => onHand - held;
+  /// What is free: on hand, not promised, not put by for a customer.
+  double get free =>
+      onHand - held - holds.fold<double>(0, (s, h) => s + h.metres);
 
   /// Bought and on its way — not on the shelf, not for sale until it comes
   /// (owner, 11.11.2026).
   final List<FilmComing> coming;
+
+  /// Ran low with not enough on its way: what to order — as last time
+  /// (owner, 11.11.2026). Null when nothing is needed.
+  final FilmReorder? reorder;
+
+  /// Put by for customers — not free, not for anyone else (owner,
+  /// 11.11.2026).
+  final List<FilmHold> holds;
+
+  /// What is put by for [customer].
+  double heldFor(String? customer) => holds
+      .where((h) => h.customer == customer)
+      .fold<double>(0, (s, h) => s + h.metres);
 
   /// The sample as a colour, or null when none is set.
   int? get argb {
@@ -333,4 +370,22 @@ typedef FilmComing = ({
   String due,
   int lateDays,
   String? supplier,
+});
+
+/// What to order of a film that ran low.
+typedef FilmReorder = ({
+  double metres,
+  String? supplier,
+  String? supplierName,
+  double? priceM,
+});
+
+/// Metres of a film put by for a customer, until a day.
+typedef FilmHold = ({
+  String hold,
+  String customer,
+  String customerName,
+  double metres,
+  String? until,
+  bool late,
 });

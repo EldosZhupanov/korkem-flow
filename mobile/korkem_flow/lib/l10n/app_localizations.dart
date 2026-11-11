@@ -11023,6 +11023,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'+{metres} m on its way, arrives {day}'**
   String filmMoreComing(String metres, String day);
+
+  /// No description provided for @filmDeliveryPayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid'**
+  String get filmDeliveryPayer;
+
+  /// No description provided for @filmPayerCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Film cash'**
+  String get filmPayerCash;
+
+  /// No description provided for @filmPayerEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee, own money'**
+  String get filmPayerEmployee;
+
+  /// No description provided for @filmPayerUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get filmPayerUnpaid;
+
+  /// No description provided for @filmPaidBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid out of pocket by'**
+  String get filmPaidBy;
+
+  /// No description provided for @filmPaidCash.
+  ///
+  /// In en, this message translates to:
+  /// **'from the cash'**
+  String get filmPaidCash;
+
+  /// No description provided for @filmPaidByBack.
+  ///
+  /// In en, this message translates to:
+  /// **'paid by {who}, given back'**
+  String filmPaidByBack(String who);
+
+  /// No description provided for @filmPaidByOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'paid by {who} — to give back'**
+  String filmPaidByOwed(String who);
+
+  /// No description provided for @filmCarrierPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'carrier paid'**
+  String get filmCarrierPaid;
+
+  /// No description provided for @filmCarrierOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'carrier not paid'**
+  String get filmCarrierOwed;
+
+  /// No description provided for @filmPaidSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'on the supplier'**
+  String get filmPaidSupplier;
+
+  /// No description provided for @filmTabCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get filmTabCash;
+
+  /// No description provided for @filmSettleBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid: {how}'**
+  String filmSettleBy(String how);
+
+  /// No description provided for @filmGaveBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Gave back'**
+  String get filmGaveBack;
+
+  /// No description provided for @filmPaidCarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get filmPaidCarrier;
+
+  /// No description provided for @filmCashToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get filmCashToday;
+
+  /// No description provided for @filmCashMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get filmCashMonth;
+
+  /// No description provided for @filmCashIn.
+  ///
+  /// In en, this message translates to:
+  /// **'In'**
+  String get filmCashIn;
+
+  /// No description provided for @filmCashOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Out'**
+  String get filmCashOut;
+
+  /// No description provided for @filmCashNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get filmCashNothing;
+
+  /// No description provided for @filmCashTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get filmCashTotal;
+
+  /// No description provided for @filmCashBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get filmCashBalance;
+
+  /// No description provided for @filmCashLogistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Logistics in the period: {sum} — not in the bonus'**
+  String filmCashLogistics(String sum);
+
+  /// No description provided for @filmCashLogisticsPerM.
+  ///
+  /// In en, this message translates to:
+  /// **'Logistics in the period: {sum} (≈ {per} a metre) — not in the bonus'**
+  String filmCashLogisticsPerM(String sum, String per);
+
+  /// No description provided for @filmOwedEmployees.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed to employees'**
+  String get filmOwedEmployees;
+
+  /// No description provided for @filmOwedCarriers.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed to carriers'**
+  String get filmOwedCarriers;
+
+  /// No description provided for @filmToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get filmToday;
+
+  /// No description provided for @filmYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get filmYesterday;
+
+  /// No description provided for @filmHistoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filmHistoryAll;
+
+  /// No description provided for @filmHistoryReceipts.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts'**
+  String get filmHistoryReceipts;
+
+  /// No description provided for @filmHistorySales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get filmHistorySales;
+
+  /// No description provided for @filmHistoryShop.
+  ///
+  /// In en, this message translates to:
+  /// **'To the shop'**
+  String get filmHistoryShop;
+
+  /// No description provided for @filmHistoryWriteOffs.
+  ///
+  /// In en, this message translates to:
+  /// **'Write-offs'**
+  String get filmHistoryWriteOffs;
+
+  /// No description provided for @filmAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'then {metres} m'**
+  String filmAfter(String metres);
+
+  /// No description provided for @filmReorderBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to order — films running low: {count}'**
+  String filmReorderBanner(int count);
+
+  /// No description provided for @filmReorderOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get filmReorderOpen;
+
+  /// No description provided for @filmReorderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order film'**
+  String get filmReorderTitle;
+
+  /// No description provided for @filmReorderLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m left'**
+  String filmReorderLeft(String metres);
+
+  /// No description provided for @filmReorderTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {sum} · arrives {day}'**
+  String filmReorderTotal(String sum, String day);
+
+  /// No description provided for @filmReorderSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Place ({count})'**
+  String filmReorderSave(int count);
+
+  /// No description provided for @filmDebtors.
+  ///
+  /// In en, this message translates to:
+  /// **'Owing: {count} · {sum}'**
+  String filmDebtors(int count, String sum);
+
+  /// No description provided for @filmRemind.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind in WhatsApp'**
+  String get filmRemind;
+
+  /// No description provided for @filmRemindText.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}! A reminder about the film payment: {sum} left. Thank you!'**
+  String filmRemindText(String name, String sum);
+
+  /// No description provided for @filmDebtDays.
+  ///
+  /// In en, this message translates to:
+  /// **'owing {days} d'**
+  String filmDebtDays(int days);
+
+  /// No description provided for @filmReportTop.
+  ///
+  /// In en, this message translates to:
+  /// **'What sold this month'**
+  String get filmReportTop;
+
+  /// No description provided for @filmReportTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m · takings {amount} · margin {margin}'**
+  String filmReportTotals(String metres, String amount, String margin);
+
+  /// No description provided for @filmReportMarginM.
+  ///
+  /// In en, this message translates to:
+  /// **'margin {sum}/m'**
+  String filmReportMarginM(String sum);
+
+  /// No description provided for @filmReportIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmoved for over {days} d'**
+  String filmReportIdle(int days);
+
+  /// No description provided for @filmReportIdleDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d unmoved'**
+  String filmReportIdleDays(int days);
+
+  /// No description provided for @filmReportFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'{sum} tied up'**
+  String filmReportFrozen(String sum);
+
+  /// No description provided for @filmReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get filmReceipt;
+
+  /// No description provided for @filmReceiptDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get filmReceiptDate;
+
+  /// No description provided for @filmReceiptCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get filmReceiptCustomer;
+
+  /// No description provided for @filmReceiptFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film'**
+  String get filmReceiptFilm;
+
+  /// No description provided for @filmReceiptMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'Metres'**
+  String get filmReceiptMetres;
+
+  /// No description provided for @filmReceiptPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price a metre'**
+  String get filmReceiptPrice;
+
+  /// No description provided for @filmReceiptAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get filmReceiptAmount;
+
+  /// No description provided for @filmReceiptTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get filmReceiptTotal;
+
+  /// No description provided for @filmReceiptPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get filmReceiptPaid;
+
+  /// No description provided for @filmReceiptDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Owing'**
+  String get filmReceiptDebt;
+
+  /// No description provided for @filmHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Put by'**
+  String get filmHold;
+
+  /// No description provided for @filmHoldRelease.
+  ///
+  /// In en, this message translates to:
+  /// **'Release'**
+  String get filmHoldRelease;
+
+  /// No description provided for @filmHoldUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Until'**
+  String get filmHoldUntil;
+
+  /// No description provided for @filmHeldFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m put by for {customer} until {day}'**
+  String filmHeldFor(String metres, String customer, String day);
+
+  /// No description provided for @facadePricesUnsoldMillings.
+  ///
+  /// In en, this message translates to:
+  /// **'Millings with no price: {count}'**
+  String facadePricesUnsoldMillings(int count);
+
+  /// No description provided for @facadePricesShowUnsold.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sold: {count} — show'**
+  String facadePricesShowUnsold(int count);
+
+  /// No description provided for @facadePricesHideUnsold.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the unsold'**
+  String get facadePricesHideUnsold;
 }
 
 class _AppLocalizationsDelegate

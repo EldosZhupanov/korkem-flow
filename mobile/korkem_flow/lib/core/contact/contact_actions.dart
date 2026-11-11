@@ -29,6 +29,21 @@ abstract final class ContactActions {
     return digits == null ? null : Uri.parse('https://wa.me/$digits');
   }
 
+  /// A WhatsApp chat opened with [text] already typed — a reminder the
+  /// manager reads over and sends (owner, 11.11.2026). A Kazakh number
+  /// written the local way, 8 7xx…, is put in the international form.
+  static Uri? whatsAppMessageUri(String? phone, String text) {
+    var digits = normaliseNumber(phone)?.replaceAll('+', '');
+    if (digits == null) return null;
+    if (digits.length == 11 && digits.startsWith('8')) {
+      digits = '7${digits.substring(1)}';
+    }
+    return Uri.https('wa.me', '/$digits', {'text': text});
+  }
+
+  static Future<bool> whatsAppMessage(String? phone, String text) =>
+      _launch(whatsAppMessageUri(phone, text));
+
   /// Frappe stores company websites without a scheme as often as with one, and
   /// a bare host parses as a relative path that launches nothing.
   static Uri? websiteUri(String? url) {

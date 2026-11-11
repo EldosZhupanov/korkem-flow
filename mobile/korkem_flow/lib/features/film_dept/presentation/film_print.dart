@@ -1,0 +1,119 @@
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+
+/// Words on a film sale's receipt, in the reader's language.
+typedef FilmReceiptWords = ({
+  String title,
+  String date,
+  String customer,
+  String film,
+  String metres,
+  String price,
+  String amount,
+  String total,
+  String paid,
+  String debt,
+});
+
+/// A film sale's receipt for the customer (owner, 11.11.2026): the films,
+/// metres, a metre's price and the sum; what was paid and what is left.
+/// Black on white, half an A4 — sent in WhatsApp or printed.
+Future<Uint8List> buildFilmReceiptPdf(
+  FilmSale sale,
+  FilmReceiptWords words, {
+  String locale = 'ru',
+}) async {
+  final font = pw.Font.ttf(
+    await rootBundle.load('assets/fonts/Inter-Variable.ttf'),
+  );
+  final money = NumberFormat.currency(
+    locale: locale,
+    symbol: '₸',
+    decimalDigits: 0,
+  );
+  String metres(double v) => v == v.roundToDouble()
+      ? v.toStringAsFixed(0)
+      : v.toStringAsFixed(2).replaceAll('.', ',');
+  final doc = pw.Document(
+    theme: pw.ThemeData.withFont(
+      base: font,
+      bold: font,
+      italic: font,
+      boldItalic: font,
+    ),
+  );
+  const bold = pw.TextStyle(fontWeight: pw.FontWeight.bold);
+  doc.addPage(
+    pw.Page(
+      pageFormat: PdfPageFormat.a5,
+      margin: const pw.EdgeInsets.all(28),
+      build: (_) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            '${words.title} ${sale.entry}',
+            style: const pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          pw.SizedBox(height: 6),
+          pw.Text('${words.date}: ${mdfDay(sale.date)}'),
+          if (sale.customerName != null)
+            pw.Text('${words.customer}: ${sale.customerName}'),
+          pw.SizedBox(height: 12),
+          pw.TableHelper.fromTextArray(
+            headers: [words.film, words.metres, words.price, words.amount],
+            headerStyle: bold,
+            cellAlignments: {
+              1: pw.Alignment.centerRight,
+              2: pw.Alignment.centerRight,
+              3: pw.Alignment.centerRight,
+            },
+            data: [
+              for (final l in sale.lines)
+                [
+                  l.title,
+                  metres(l.metres),
+                  money.format(l.priceM ?? 0),
+                  money.format(l.metres * (l.priceM ?? 0)),
+                ],
+            ],
+          ),
+          pw.SizedBox(height: 12),
+          pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
+              children: [
+                pw.Text(
+                  '${words.total}: ${money.format(sale.amount ?? 0)}',
+                  style: const pw.TextStyle(
+                    fontSize: 13,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text('${words.paid}: ${money.format(sale.paid ?? 0)}'),
+                if ((sale.debt ?? 0) > 0)
+                  pw.Text(
+                    '${words.debt}: ${money.format(sale.debt)}',
+                    style: bold,
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+  return doc.save();
+}
+
+/// Handed on — to WhatsApp, a printer, a file — the way the device does it.
+Future<void> shareFilmReceipt(FilmSale sale, Uint8List bytes) =>
+    Printing.sharePdf(bytes: bytes, filename: 'chek-${sale.entry}.pdf');

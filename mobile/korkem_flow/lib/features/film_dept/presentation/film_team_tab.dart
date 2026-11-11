@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -142,8 +143,88 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                 style: theme.textTheme.titleSmall,
               ),
             ),
+          // The month on one page (owner, 11.11.2026).
+          _ReportSection(month: t.month),
         ],
       ),
+    );
+  }
+}
+
+/// What sold most this month and what each film earned over its cost;
+/// what lies on the shelf unmoved.
+class _ReportSection extends ConsumerWidget {
+  const _ReportSection({required this.month});
+
+  final String month;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final money = mdfMoney(context);
+    final report = ref.watch(filmReportProvider(month)).value;
+    if (report == null) return const SizedBox.shrink();
+    return Column(
+      key: const ValueKey('filmReport'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: AppSpacing.lg),
+        Text(l10n.filmReportTop, style: theme.textTheme.titleMedium),
+        Text(
+          l10n.filmReportTotals(
+            _n(report.metres),
+            money.format(report.amount),
+            money.format(report.margin),
+          ),
+          style: theme.textTheme.bodySmall,
+        ),
+        if (report.top.isEmpty) Text(l10n.filmTeamEmpty),
+        for (final (i, r) in report.top.indexed)
+          ListTile(
+            key: ValueKey('filmReport:top:${r.item}'),
+            dense: true,
+            leading: Text('${i + 1}', style: theme.textTheme.titleMedium),
+            title: Text(r.title),
+            subtitle: Text(
+              [
+                '${_n(r.metres)} м',
+                money.format(r.amount),
+                if (r.marginM != null)
+                  l10n.filmReportMarginM(money.format(r.marginM)),
+              ].join(' · '),
+            ),
+            trailing: Text(
+              money.format(r.margin),
+              style: theme.textTheme.titleSmall,
+            ),
+          ),
+        if (report.idle.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.lg),
+          Text(
+            l10n.filmReportIdle(report.idleDays),
+            style: theme.textTheme.titleMedium,
+          ),
+          for (final r in report.idle)
+            ListTile(
+              key: ValueKey('filmReport:idle:${r.item}'),
+              dense: true,
+              leading: Icon(
+                AppIcons.schedule,
+                color: context.statusColors.warning,
+              ),
+              title: Text(r.title),
+              subtitle: Text(
+                [
+                  '${_n(r.onHand)} м',
+                  l10n.filmReportIdleDays(r.days),
+                  if (r.value != null)
+                    l10n.filmReportFrozen(money.format(r.value)),
+                ].join(' · '),
+              ),
+            ),
+        ],
+      ],
     );
   }
 }

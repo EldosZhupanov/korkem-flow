@@ -6692,5 +6692,243 @@
         "type": "String"
       }
     }
-  }
+  },
+  "filmDeliveryPayer": "Who paid",
+  "filmPayerCash": "Film cash",
+  "filmPayerEmployee": "Employee, own money",
+  "filmPayerUnpaid": "Not paid yet",
+  "filmPaidBy": "Paid out of pocket by",
+  "filmPaidCash": "from the cash",
+  "filmPaidByBack": "paid by {who}, given back",
+  "@filmPaidByBack": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "filmPaidByOwed": "paid by {who} — to give back",
+  "@filmPaidByOwed": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCarrierPaid": "carrier paid",
+  "filmCarrierOwed": "carrier not paid",
+  "filmPaidSupplier": "on the supplier",
+  "filmTabCash": "Cash",
+  "filmSettleBy": "Paid: {how}",
+  "@filmSettleBy": {
+    "placeholders": {
+      "how": {
+        "type": "String"
+      }
+    }
+  },
+  "filmGaveBack": "Gave back",
+  "filmPaidCarrier": "Paid",
+  "filmCashToday": "Today",
+  "filmCashMonth": "Month",
+  "filmCashIn": "In",
+  "filmCashOut": "Out",
+  "filmCashNothing": "—",
+  "filmCashTotal": "Total",
+  "filmCashBalance": "Balance",
+  "filmCashLogistics": "Logistics in the period: {sum} — not in the bonus",
+  "@filmCashLogistics": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCashLogisticsPerM": "Logistics in the period: {sum} (≈ {per} a metre) — not in the bonus",
+  "@filmCashLogisticsPerM": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "per": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOwedEmployees": "Owed to employees",
+  "filmOwedCarriers": "Owed to carriers",
+  "filmToday": "Today",
+  "filmYesterday": "Yesterday",
+  "filmHistoryAll": "All",
+  "filmHistoryReceipts": "Receipts",
+  "filmHistorySales": "Sales",
+  "filmHistoryShop": "To the shop",
+  "filmHistoryWriteOffs": "Write-offs",
+  "filmAfter": "then {metres} m",
+  "@filmAfter": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReorderBanner": "Time to order — films running low: {count}",
+  "@filmReorderBanner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReorderOpen": "Order",
+  "filmReorderTitle": "Order film",
+  "filmReorderLeft": "{metres} m left",
+  "@filmReorderLeft": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReorderTotal": "Total {sum} · arrives {day}",
+  "@filmReorderTotal": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReorderSave": "Place ({count})",
+  "@filmReorderSave": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmDebtors": "Owing: {count} · {sum}",
+  "@filmDebtors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmRemind": "Remind in WhatsApp",
+  "filmRemindText": "Hello, {name}! A reminder about the film payment: {sum} left. Thank you!",
+  "@filmRemindText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmDebtDays": "owing {days} d",
+  "@filmDebtDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReportTop": "What sold this month",
+  "filmReportTotals": "{metres} m · takings {amount} · margin {margin}",
+  "@filmReportTotals": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReportMarginM": "margin {sum}/m",
+  "@filmReportMarginM": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReportIdle": "Unmoved for over {days} d",
+  "@filmReportIdle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReportIdleDays": "{days} d unmoved",
+  "@filmReportIdleDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReportFrozen": "{sum} tied up",
+  "@filmReportFrozen": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceipt": "Receipt",
+  "filmReceiptDate": "Date",
+  "filmReceiptCustomer": "Customer",
+  "filmReceiptFilm": "Film",
+  "filmReceiptMetres": "Metres",
+  "filmReceiptPrice": "Price a metre",
+  "filmReceiptAmount": "Amount",
+  "filmReceiptTotal": "Total",
+  "filmReceiptPaid": "Paid",
+  "filmReceiptDebt": "Owing",
+  "filmHold": "Put by",
+  "filmHoldRelease": "Release",
+  "filmHoldUntil": "Until",
+  "filmHeldFor": "{metres} m put by for {customer} until {day}",
+  "@filmHeldFor": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "customer": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "facadePricesUnsoldMillings": "Millings with no price: {count}",
+  "@facadePricesUnsoldMillings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "facadePricesShowUnsold": "Not sold: {count} — show",
+  "@facadePricesShowUnsold": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "facadePricesHideUnsold": "Hide the unsold"
 }

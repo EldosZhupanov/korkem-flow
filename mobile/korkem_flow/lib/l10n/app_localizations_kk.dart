@@ -6179,4 +6179,247 @@ class AppLocalizationsKk extends AppLocalizations {
   String filmMoreComing(String metres, String day) {
     return '+$metres м жолда, $day келеді';
   }
+
+  @override
+  String get filmDeliveryPayer => 'Кім төледі';
+
+  @override
+  String get filmPayerCash => 'Пленка кассасы';
+
+  @override
+  String get filmPayerEmployee => 'Қызметкер өз қалтасынан';
+
+  @override
+  String get filmPayerUnpaid => 'Төленбеген';
+
+  @override
+  String get filmPaidBy => 'Өз ақшасынан кім төледі';
+
+  @override
+  String get filmPaidCash => 'кассадан';
+
+  @override
+  String filmPaidByBack(String who) {
+    return '$who төледі, қайтарылды';
+  }
+
+  @override
+  String filmPaidByOwed(String who) {
+    return '$who төледі — қайтару керек';
+  }
+
+  @override
+  String get filmCarrierPaid => 'тасымалдаушыға төленді';
+
+  @override
+  String get filmCarrierOwed => 'тасымалдаушыға төленбеген';
+
+  @override
+  String get filmPaidSupplier => 'жеткізуші есебінен';
+
+  @override
+  String get filmTabCash => 'Касса';
+
+  @override
+  String filmSettleBy(String how) {
+    return 'Төленді: $how';
+  }
+
+  @override
+  String get filmGaveBack => 'Қайтардым';
+
+  @override
+  String get filmPaidCarrier => 'Төледім';
+
+  @override
+  String get filmCashToday => 'Бүгін';
+
+  @override
+  String get filmCashMonth => 'Ай';
+
+  @override
+  String get filmCashIn => 'Кірді';
+
+  @override
+  String get filmCashOut => 'Шықты';
+
+  @override
+  String get filmCashNothing => '—';
+
+  @override
+  String get filmCashTotal => 'Барлығы';
+
+  @override
+  String get filmCashBalance => 'Қалдық';
+
+  @override
+  String filmCashLogistics(String sum) {
+    return 'Кезеңдегі логистика: $sum — бонусқа кірмейді';
+  }
+
+  @override
+  String filmCashLogisticsPerM(String sum, String per) {
+    return 'Кезеңдегі логистика: $sum (метріне ≈ $per) — бонусқа кірмейді';
+  }
+
+  @override
+  String get filmOwedEmployees => 'Қызметкерлерге қайтару';
+
+  @override
+  String get filmOwedCarriers => 'Тасымалдаушыларға қарыз';
+
+  @override
+  String get filmToday => 'Бүгін';
+
+  @override
+  String get filmYesterday => 'Кеше';
+
+  @override
+  String get filmHistoryAll => 'Барлығы';
+
+  @override
+  String get filmHistoryReceipts => 'Кірістер';
+
+  @override
+  String get filmHistorySales => 'Сатулар';
+
+  @override
+  String get filmHistoryShop => 'Цехқа';
+
+  @override
+  String get filmHistoryWriteOffs => 'Есептен шығару';
+
+  @override
+  String filmAfter(String metres) {
+    return '$metres м болды';
+  }
+
+  @override
+  String filmReorderBanner(int count) {
+    return 'Тапсырыс беру керек — пленка аз: $count';
+  }
+
+  @override
+  String get filmReorderOpen => 'Тапсырыс беру';
+
+  @override
+  String get filmReorderTitle => 'Пленкаға тапсырыс';
+
+  @override
+  String filmReorderLeft(String metres) {
+    return '$metres м қалды';
+  }
+
+  @override
+  String filmReorderTotal(String sum, String day) {
+    return 'Барлығы $sum · $day келеді';
+  }
+
+  @override
+  String filmReorderSave(int count) {
+    return 'Рәсімдеу ($count)';
+  }
+
+  @override
+  String filmDebtors(int count, String sum) {
+    return 'Қарыздарлар: $count · $sum';
+  }
+
+  @override
+  String get filmRemind => 'WhatsApp-та еске салу';
+
+  @override
+  String filmRemindText(String name, String sum) {
+    return 'Сәлеметсіз бе, $name! Пленка үшін төлемді еске саламыз: қалдығы $sum. Рахмет!';
+  }
+
+  @override
+  String filmDebtDays(int days) {
+    return 'қарыз $days күн';
+  }
+
+  @override
+  String get filmReportTop => 'Айда не сатылды';
+
+  @override
+  String filmReportTotals(String metres, String amount, String margin) {
+    return '$metres м · түсім $amount · маржа $margin';
+  }
+
+  @override
+  String filmReportMarginM(String sum) {
+    return 'маржа $sum/м';
+  }
+
+  @override
+  String filmReportIdle(int days) {
+    return '$days күннен астам қозғалыссыз жатыр';
+  }
+
+  @override
+  String filmReportIdleDays(int days) {
+    return '$days күн қозғалыссыз';
+  }
+
+  @override
+  String filmReportFrozen(String sum) {
+    return 'тоқтап тұр $sum';
+  }
+
+  @override
+  String get filmReceipt => 'Чек';
+
+  @override
+  String get filmReceiptDate => 'Күні';
+
+  @override
+  String get filmReceiptCustomer => 'Клиент';
+
+  @override
+  String get filmReceiptFilm => 'Пленка';
+
+  @override
+  String get filmReceiptMetres => 'Метр';
+
+  @override
+  String get filmReceiptPrice => '1 м бағасы';
+
+  @override
+  String get filmReceiptAmount => 'Сома';
+
+  @override
+  String get filmReceiptTotal => 'Барлығы';
+
+  @override
+  String get filmReceiptPaid => 'Төленді';
+
+  @override
+  String get filmReceiptDebt => 'Қарыз';
+
+  @override
+  String get filmHold => 'Бөліп қою';
+
+  @override
+  String get filmHoldRelease => 'Алып тастау';
+
+  @override
+  String get filmHoldUntil => 'Қай күнге дейін';
+
+  @override
+  String filmHeldFor(String metres, String customer, String day) {
+    return '$customer үшін $metres м $day дейін бөлінген';
+  }
+
+  @override
+  String facadePricesUnsoldMillings(int count) {
+    return 'Бағасыз фрезерлер: $count';
+  }
+
+  @override
+  String facadePricesShowUnsold(int count) {
+    return 'Сатылмайды: $count — көрсету';
+  }
+
+  @override
+  String get facadePricesHideUnsold => 'Сатылмайтындарды жасыру';
 }

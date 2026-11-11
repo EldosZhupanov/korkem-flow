@@ -148,6 +148,11 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 	cost = _money(delivery.get("amount") or 0, "За доставку")
 	urgent = _yes(delivery.get("urgent"))
 	taker = _person(received_by) or frappe.session.user
+	# Who paid for the bringing (owner, 11.11.2026): the film department's
+	# cash; an employee out of his pocket; nobody yet; or the supplier.
+	payer, paid_by, pay_method = _delivery_payer(delivery, cost)
+	if payer == PAYER_SUPPLIER:
+		cost = Decimal(0)
 	for kind, value in ((TRANSPORT_LIST, transport), (CITY_LIST, city)):
 		if value and value not in material_stock.enabled_values(kind, company):
 			material_stock.put_option(kind, value)
@@ -162,10 +167,38 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 		"korkem_received_by": taker, "korkem_delivery_transport": transport, "korkem_delivery_city": city or None,
 		"korkem_delivery_cost": float(cost), "korkem_delivery_urgent": 1 if urgent else 0,
 		"korkem_film_due": str(due) if due else None,
+		"korkem_delivery_payer": payer, "korkem_delivery_paid_by": paid_by, "korkem_delivery_method": pay_method,
 	}, update_modified=False)
 	if _yes(update_price) and flt(price_m) > 0:
 		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
 	return {"receipt": result["receipt"], "film": film_catalog.film(item)}
+
+
+#: Who paid for bringing a roll.
+PAYER_CASH, PAYER_EMPLOYEE, PAYER_UNPAID, PAYER_SUPPLIER = "cash", "employee", "unpaid", "supplier"
+PAYERS = (PAYER_CASH, PAYER_EMPLOYEE, PAYER_UNPAID, PAYER_SUPPLIER)
+#: How money is paid: the cash book's own words.
+METHODS = ("Наличные", "Перевод", "Карта")
+
+
+def _delivery_payer(delivery: dict, cost) -> tuple[str | None, str | None, str | None]:
+	"""(payer, who, how) of a delivery; nothing when it cost nothing."""
+	payer = str(delivery.get("payer") or "").strip() or PAYER_CASH
+	if payer not in PAYERS:
+		frappe.throw("Кто заплатил за доставку — касса, сотрудник, не оплачено или поставщик.")
+	if payer == PAYER_SUPPLIER:
+		return payer, None, None
+	if not cost:
+		return None, None, None
+	who = None
+	if payer == PAYER_EMPLOYEE:
+		who = _person(delivery.get("paid_by")) or frappe.session.user
+	how = None
+	if payer in (PAYER_CASH, PAYER_EMPLOYEE):
+		how = str(delivery.get("method") or "").strip() or METHODS[0]
+		if how not in METHODS:
+			frappe.throw("Как платили — наличные, перевод или карта.")
+	return payer, who, how
 
 
 #: How far ahead a roll may be expected.
@@ -275,6 +308,83 @@ def coming(company: str | None = None) -> dict[str, list[dict]]:
 	return out
 
 
+#: A hold lasts this many days unless said.
+HOLD_DAYS = 3
+
+
+def _holds(items: list[str], company: str | None = None) -> dict[str, list[dict]]:
+	"""Film by film, the active holds: who, how much, until when."""
+	if not items:
+		return {}
+	today = getdate(nowdate())
+	out: dict[str, list[dict]] = {}
+	for h in frappe.get_all(
+		"Film Hold",
+		filters={"company": company or current_company(), "status": "Active", "item": ["in", items]},
+		fields=["name", "item", "customer", "metres", "until", "note"],
+		order_by="until asc",
+		limit_page_length=0,
+	):
+		out.setdefault(h.item, []).append({
+			"hold": h.name, "customer": h.customer,
+			"customer_name": frappe.db.get_value("Customer", h.customer, "customer_name") or h.customer,
+			"metres": flt(h.metres), "until": str(h.until) if h.until else None,
+			"late": bool(h.until and getdate(h.until) < today), "note": h.note,
+		})
+	return out
+
+
+def hold(item: str, customer: str, metres, until: str | None = None, note: str | None = None) -> dict:
+	"""Put metres of a film by for a customer (owner, 11.11.2026): nobody else
+	sells them, the press does not take them, until the day — or the sale."""
+	material_stock._ensure_editor()
+	_film(item)
+	company = current_company()
+	if not frappe.db.exists("Customer", {"name": customer, "disabled": 0}):
+		frappe.throw("Такого клиента нет.", frappe.DoesNotExistError)
+	qty = float(_metres(metres, "Метров"))
+	film = film_catalog.film(item)
+	held = sum(h["metres"] for h in _holds([item], company).get(item, []))
+	free = flt(film.get("on_hand")) - flt(film.get("held")) - held
+	if qty > free + 1e-6:
+		frappe.throw(f"Свободно только {free:g} м — больше не отложить.")
+	day = getdate(until) if until else getdate(add_days(nowdate(), HOLD_DAYS))
+	if day < getdate(nowdate()):
+		frappe.throw("До какого дня — не раньше сегодняшнего.")
+	doc = frappe.get_doc({
+		"doctype": "Film Hold", "company": company, "item": item, "customer": customer, "metres": qty,
+		"until": str(day), "status": "Active", "note": " ".join(str(note or "").split())[:140] or None,
+	}).insert(ignore_permissions=True)
+	audit.record_audit(action="film.held", entity_type="Film Hold", entity_id=doc.name,
+					   diff={"item": item, "customer": customer, "metres": qty, "until": str(day)})
+	return {"hold": doc.name, "until": str(day)}
+
+
+def release_hold(hold_name: str) -> dict:
+	"""The customer will not take it: the metres are free again."""
+	material_stock._ensure_editor()
+	row = frappe.db.get_value("Film Hold", hold_name, ["company", "status"], as_dict=True)
+	if not row or row.company != current_company() or row.status != "Active":
+		frappe.throw("Такой брони нет.", frappe.DoesNotExistError)
+	frappe.db.set_value("Film Hold", hold_name, "status", "Released")
+	audit.record_audit(action="film.hold_released", entity_type="Film Hold", entity_id=hold_name)
+	return {"hold": hold_name, "status": "Released"}
+
+
+def _use_holds(item: str, customer: str, metres: float, company: str) -> None:
+	"""A sale to the customer uses up what was put by for him, oldest first."""
+	left = metres
+	for h in _holds([item], company).get(item, []):
+		if left <= 1e-6:
+			break
+		if h["customer"] != customer:
+			continue
+		take = min(left, h["metres"])
+		rest = h["metres"] - take
+		frappe.db.set_value("Film Hold", h["hold"], {"metres": rest} if rest > 1e-6 else {"status": "Sold"})
+		left -= take
+
+
 def _yes(value) -> bool:
 	if isinstance(value, str):
 		return value.strip().lower() not in ("", "0", "false", "no")
@@ -332,7 +442,11 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 			# Who sold it — whoever enters it unless said (owner, 11.11.2026).
 			"korkem_film_seller": _person(seller) or frappe.session.user,
 		},
+		customer=buyer.name,
 	)
+	# What was put by for this customer is sold now: the hold is used up.
+	for item, metres, _price in rows:
+		_use_holds(item, buyer.name, float(metres), company)
 	tier = buyer.get("korkem_film_tier") if buyer.get("korkem_film_tier") in TIERS else RETAIL
 	key = "wholesale_m" if tier == WHOLESALE else "retail_m"
 	for item, price in remember:
@@ -528,8 +642,12 @@ def correct(entry: str, item: str, reason: str, metres=None, price_m=None, suppl
 		new = made["receipt"]
 		# What the old one cost to bring is the new one's: the logistics
 		# record moves over, not paid twice.
-		frappe.db.set_value("Stock Entry", new, "korkem_delivery_cost", flt(doc.get("korkem_delivery_cost")),
-							update_modified=False)
+		frappe.db.set_value("Stock Entry", new, {
+			"korkem_delivery_cost": flt(doc.get("korkem_delivery_cost")),
+			# Who paid, and whether it was given back, stay with it.
+			**{f: doc.get(f) for f in ("korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_method",
+									   "korkem_delivery_settled_on", "korkem_delivery_settled_method")},
+		}, update_modified=False)
 		for d in frappe.get_all("Logistics Delivery", filters={"receipt": entry}, pluck="name"):
 			frappe.db.set_value("Logistics Delivery", d, "receipt", new, update_modified=False)
 		cancel_old()
@@ -584,19 +702,52 @@ def stock() -> dict:
 	# A film in the archive is shown while metres of it are left: they can
 	# still be sold or written off (owner, 11.11.2026).
 	on_way = coming()
+	holds = _holds([f["item"] for f in catalog["films"]])
 	films = [f for f in catalog["films"] if f["enabled"] or f["on_hand"] > 0 or f["item"] in on_way]
 	for f in films:
 		# On its way, owner 11.11.2026: shown, not counted as free.
 		f["coming"] = on_way.get(f["item"], [])
-		free = flt(f["on_hand"]) - flt(f["held"])
+		# Put by for a customer (owner, 11.11.2026): shown, not free.
+		f["holds"] = holds.get(f["item"], [])
+		free = flt(f["on_hand"]) - flt(f["held"]) - sum(h["metres"] for h in f["holds"])
 		f["free"] = free
 		f["low"] = bool(f["min_stock"]) and free < flt(f["min_stock"])
+		# Time to order (owner, 11.11.2026): low, and not enough on its way.
+		f["reorder"] = _reorder(f) if f["enabled"] else None
 	films.sort(key=lambda f: (not f["low"], f["maker"].casefold(), f["colour"].casefold()))
 	return {
 		"films": films,
 		"suppliers": catalog["suppliers"],
 		"sources_by_maker": catalog["sources_by_maker"],
 		"can_edit": catalog["can_edit"],
+	}
+
+
+def _reorder(f: dict) -> dict | None:
+	"""What to order of a film that ran low: as many metres as were bought
+	last time (else twice the minimum, less what is left), from whom it was
+	bought last, at the card's purchase price. None when nothing is needed."""
+	minimum = flt(f.get("min_stock"))
+	if not minimum:
+		return None
+	on_way = sum(flt(c["metres"]) for c in f.get("coming") or [])
+	if f["free"] + on_way >= minimum:
+		return None
+	last = frappe.db.sql(
+		"""select d.qty, d.basic_rate, e.korkem_supplier
+		from `tabStock Entry Detail` d join `tabStock Entry` e on e.name = d.parent
+		where d.item_code = %s and e.docstatus = 1 and e.korkem_material_receipt = 1
+		order by e.posting_date desc, e.creation desc limit 1""",
+		(f["item"],), as_dict=True,
+	)
+	last = last[0] if last else None
+	metres = flt(last.qty) if last else max(2 * minimum - f["free"] - on_way, minimum)
+	supplier = (last.korkem_supplier if last else None) or f.get("supplier")
+	return {
+		"metres": round(metres, 2),
+		"supplier": supplier,
+		"supplier_name": frappe.db.get_value("Supplier", supplier, "supplier_name") if supplier else None,
+		"price_m": flt(f.get("price_m")) or (flt(last.basic_rate) if last else None) or None,
 	}
 
 
@@ -620,7 +771,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 			["posting_date", "posting_time", "creation", "purpose", "korkem_supplier", "korkem_film_kind",
 			 "korkem_film_customer", "korkem_film_order", "korkem_film_reason", "owner", "docstatus",
 			 "korkem_film_replaced_by", "korkem_film_replaces", "korkem_received_by", "korkem_delivery_transport",
-			 "korkem_delivery_city", "korkem_delivery_cost", "korkem_delivery_urgent", "korkem_film_seller"],
+			 "korkem_delivery_city", "korkem_delivery_cost", "korkem_delivery_urgent", "korkem_film_seller",
+			 "korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_settled_on"],
 			as_dict=True,
 		)
 		if not head or (head.docstatus == 2 and not head.korkem_film_replaced_by):
@@ -650,6 +802,10 @@ def history(item: str, limit: int = 100) -> list[dict]:
 				"per_m": (flt(head.korkem_delivery_cost) / flt(r.qty)) if money and flt(r.qty) else None,
 				"urgent": bool(head.korkem_delivery_urgent),
 				"received_by": get_fullname(head.korkem_received_by) if head.korkem_received_by else None,
+				# Who paid, and whether it is settled (owner, 11.11.2026).
+				"payer": head.korkem_delivery_payer,
+				"paid_by": get_fullname(head.korkem_delivery_paid_by) if head.korkem_delivery_paid_by else None,
+				"settled": bool(head.korkem_delivery_settled_on),
 			} if coming and head.korkem_delivery_transport else None,
 			"seller": get_fullname(head.korkem_film_seller) if head.korkem_film_seller else None,
 			"_at": (str(head.posting_date), str(head.posting_time), str(head.creation), r.parent),
@@ -747,10 +903,15 @@ def customers() -> list[dict]:
 				metres[r.parent] = metres.get(r.parent, 0.0) + flt(r.qty)
 		last = max((getdate(e.posting_date) for e in entries), default=None)
 		idle = date_diff(nowdate(), last) if last else None
+		# How long the oldest unpaid sale has waited (owner, 11.11.2026).
+		owing = [getdate(e.posting_date) for e in entries
+				 if flt(e.korkem_film_amount) - flt(e.korkem_film_paid) > 0.5]
+		debt_days = date_diff(nowdate(), min(owing)) if owing else None
 		out.append({
 			"customer": c.name,
 			"name": c.customer_name or c.name,
 			"phone": c.mobile_no,
+			"debt_days": debt_days,
 			"tier": c.korkem_film_tier if c.korkem_film_tier in TIERS else RETAIL,
 			"discount": flt(c.korkem_film_discount),
 			"month_m": sum(metres.get(e.name, 0.0) for e in entries if getdate(e.posting_date) >= month_start),
@@ -790,7 +951,7 @@ def set_customer(customer: str, tier: str | None = None, discount=None, buys_fil
 
 
 def _issue(company: str, rows, kind: str, header: dict | None = None, posted_on: str | None = None,
-		   remarks: str | None = None):
+		   remarks: str | None = None, customer: str | None = None):
 	"""One Material Issue for `rows` of (item, metres, price or None), off the shelves that hold them."""
 	from korkem_manufacturing.services import facade_materials
 
@@ -806,6 +967,11 @@ def _issue(company: str, rows, kind: str, header: dict | None = None, posted_on:
 		if have + 1e-6 < float(metres):
 			title = frappe.db.get_value("Item", item, "item_name") or item
 			frappe.throw(f"«{title}»: на складе {have:g} м, нужно {float(metres):g} м.")
+		# Put by for other customers (owner, 11.11.2026): not theirs to take.
+		others = sum(h["metres"] for h in _holds([item], company).get(item, []) if h["customer"] != customer)
+		if have - others + 1e-6 < float(metres):
+			title = frappe.db.get_value("Item", item, "item_name") or item
+			frappe.throw(f"«{title}»: {others:g} м отложено за другими клиентами — свободно {have - others:g} м.")
 		left = float(metres)
 		unit = frappe.db.get_value("Item", item, "stock_uom")
 		for warehouse, qty in sorted(free.items(), key=lambda kv: -kv[1]):

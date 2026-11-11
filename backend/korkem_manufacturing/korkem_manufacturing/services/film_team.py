@@ -160,3 +160,82 @@ def _payments(s) -> list[dict]:
 	if flt(s.korkem_film_paid) > 0:
 		return [{"date": str(s.posting_date), "amount": flt(s.korkem_film_paid)}]
 	return []
+
+
+#: A film on the shelf that has not left it for this long is lying idle.
+IDLE_DAYS = 60
+
+
+def report(month: str | None = None) -> dict:
+	"""The month on one page (owner, 11.11.2026): what sold most, and what each
+	film earned over its cost — and which films lie on the shelf unmoved."""
+	material_stock._ensure_editor()
+	company = current_company()
+	start, end, key = _month(month)
+	by_item: dict[str, dict] = {}
+	for s in frappe.get_all(
+		"Stock Entry",
+		filters={"company": company, "docstatus": 1, "korkem_film_kind": SALE,
+				 "posting_date": ["between", [str(start), str(end)]]},
+		pluck="name",
+		limit_page_length=0,
+	):
+		for line in frappe.get_all(
+			"Stock Entry Detail", filters={"parent": s},
+			fields=["item_code", "qty", "basic_rate", "korkem_film_price_m"],
+		):
+			row = by_item.setdefault(line.item_code, {"item": line.item_code, "metres": 0.0, "amount": 0.0,
+													   "margin": 0.0, "sales": 0})
+			row["metres"] += flt(line.qty)
+			row["amount"] += flt(line.korkem_film_price_m) * flt(line.qty)
+			row["margin"] += (flt(line.korkem_film_price_m) - flt(line.basic_rate)) * flt(line.qty)
+			row["sales"] += 1
+	from korkem_manufacturing.services import film_catalog
+
+	names = {f["item"]: f for f in film_catalog.catalog()["films"]}
+
+	def title(item: str) -> str:
+		f = names.get(item)
+		return (f.get("label") or f"{f['maker']} · {f['colour']}") if f else item
+
+	top = sorted(by_item.values(), key=lambda r: -r["metres"])
+	for r in top:
+		r["title"] = title(r["item"])
+		r["margin_m"] = round(r["margin"] / r["metres"], 2) if r["metres"] else None
+		for k in ("metres", "amount", "margin"):
+			r[k] = round(r[k], 2)
+	# Lying idle: on the shelf, and nothing has left it for IDLE_DAYS.
+	since = getdate(nowdate()).toordinal() - IDLE_DAYS
+	idle = []
+	for item, f in names.items():
+		if flt(f.get("on_hand")) <= 0:
+			continue
+		last_out = frappe.db.sql(
+			"""select max(e.posting_date) from `tabStock Entry Detail` d
+			join `tabStock Entry` e on e.name = d.parent
+			where d.item_code = %s and e.docstatus = 1 and d.s_warehouse is not null and d.s_warehouse != ''""",
+			(item,),
+		)[0][0]
+		last_in = frappe.db.sql(
+			"""select min(e.posting_date) from `tabStock Entry Detail` d
+			join `tabStock Entry` e on e.name = d.parent
+			where d.item_code = %s and e.docstatus = 1 and d.t_warehouse is not null and d.t_warehouse != ''""",
+			(item,),
+		)[0][0]
+		moved = last_out or last_in
+		if moved and getdate(moved).toordinal() <= since:
+			idle.append({
+				"item": item, "title": title(item), "on_hand": flt(f["on_hand"]),
+				"days": getdate(nowdate()).toordinal() - getdate(moved).toordinal(),
+				"value": round(flt(f["on_hand"]) * flt(f.get("price_m")), 2) if f.get("price_m") else None,
+			})
+	idle.sort(key=lambda r: -r["days"])
+	return {
+		"month": key,
+		"metres": round(sum(r["metres"] for r in top), 2),
+		"amount": round(sum(r["amount"] for r in top), 2),
+		"margin": round(sum(r["margin"] for r in top), 2),
+		"top": top,
+		"idle": idle,
+		"idle_days": IDLE_DAYS,
+	}
