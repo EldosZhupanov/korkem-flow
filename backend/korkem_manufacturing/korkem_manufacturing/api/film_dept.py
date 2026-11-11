@@ -55,11 +55,11 @@ def drop_coming(entry: str, reason: str) -> dict:
 @frappe.whitelist(methods=["POST"])
 def sell(customer: str, lines: str | list, paid: float | str = 0, method: str | None = None,
 		 bank: str | None = None, sold_on: str | None = None, note: str | None = None,
-		 payments: str | list | None = None, seller: str | None = None) -> dict:
+		 payments: str | list | None = None, seller: str | None = None, issued_by: str | None = None) -> dict:
 	"""Продажа плёнки клиенту: плёнки, оплата одним или несколькими способами, продавец."""
 	return service.sell(
 		customer, lines, paid=paid, method=method, bank=bank, sold_on=sold_on, note=note, payments=payments,
-		seller=seller,
+		seller=seller, issued_by=issued_by,
 	)
 
 

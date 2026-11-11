@@ -376,6 +376,11 @@ class FilmSaleLine {
     required this.title,
     required this.metres,
     this.priceM,
+    this.maker,
+    this.colour,
+    this.code,
+    this.type,
+    this.thicknessMm,
   });
 
   factory FilmSaleLine.fromJson(Map<String, dynamic> json) => FilmSaleLine(
@@ -383,12 +388,24 @@ class FilmSaleLine {
     title: '${json['title'] ?? ''}',
     metres: _d(json['metres']) ?? 0,
     priceM: _d(json['price_m']),
+    maker: _s(json['maker']),
+    colour: _s(json['colour']),
+    code: _s(json['code']),
+    type: _s(json['type']),
+    thicknessMm: _d(json['thickness_mm']),
   );
 
   final String item;
   final String title;
   final double metres;
   final double? priceM;
+
+  /// What the film is, for the customer's receipt (owner, 12.11.2026).
+  final String? maker;
+  final String? colour;
+  final String? code;
+  final String? type;
+  final double? thicknessMm;
 }
 
 /// A sale of film to a customer — paid, or partly, the rest a debt.
@@ -407,6 +424,8 @@ class FilmSale {
     this.lines = const [],
     this.payments = const [],
     this.seller,
+    this.sellerPhone,
+    this.issuedBy,
   });
 
   factory FilmSale.fromJson(Map<String, dynamic> json) => FilmSale(
@@ -434,6 +453,8 @@ class FilmSale {
           ),
     ],
     seller: _s(json['seller']),
+    sellerPhone: _s(json['seller_phone']),
+    issuedBy: _s(json['issued_by']),
   );
 
   final String entry;
@@ -451,8 +472,12 @@ class FilmSale {
   /// way of its own (owner, 11.11.2026: cash and a transfer at once).
   final List<FilmPayment> payments;
 
-  /// Who served the customer.
+  /// Who served the customer — and answers for the sale.
   final String? seller;
+  final String? sellerPhone;
+
+  /// Who handed the film out of the stock.
+  final String? issuedBy;
 
   double get metres => lines.fold(0, (sum, l) => sum + l.metres);
 }

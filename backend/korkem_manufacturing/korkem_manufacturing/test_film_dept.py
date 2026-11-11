@@ -285,6 +285,8 @@ class TestFilmDept(IntegrationTestCase):
 		sale = self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 10, "price_m": 4200}],
 						payments=[{"amount": 21000, "method": "Наличные"}])
 		self.assertEqual(frappe.db.get_value("Stock Entry", sale["entry"], "korkem_film_seller"), MANAGER)
+		# Handed out by the seller unless said (owner, 12.11.2026).
+		self.assertEqual(frappe.db.get_value("Stock Entry", sale["entry"], "korkem_film_issued_by"), MANAGER)
 		month = film_team.team()
 		mine = mine_now()
 		# Bought at 3 200, sold at 4 200: 10 000 margin; half paid — 5 000 counted.

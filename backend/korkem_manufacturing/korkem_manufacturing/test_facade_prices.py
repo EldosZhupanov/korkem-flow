@@ -108,6 +108,25 @@ class TestFacadePrices(IntegrationTestCase):
 				}
 			).insert()
 
+	def test_a_variant_of_a_milling_is_priced_as_its_kind(self):
+		# «Рифлёный 16-14» costs what «Рифлёный» costs (owner, 12.11.2026).
+		frappe.set_user(SELLER)
+		table = service.add_variant("Рифлёный", "16-14")
+		self.assertIn("Рифлёный 16-14", table["variants"]["Рифлёный"])
+		self.assertNotIn("Рифлёный 16-14", table["millings"])
+		self.assertEqual(service.price_for("Рифлёный 16-14", service.PVC, COMPANY),
+						 service.price_for("Рифлёный", service.PVC, COMPANY))
+		# Its own price, once set, wins.
+		service.set_price("Рифлёный 16-14", service.PVC, 20_500)
+		self.assertEqual(service.price_for("Рифлёный 16-14", service.PVC, COMPANY), Decimal("20500"))
+		service.remove_variant("Рифлёный 16-14")
+		self.assertNotIn("Рифлёный 16-14", service.table()["variants"].get("Рифлёный", []))
+		with self.assertRaises(frappe.ValidationError):
+			service.add_variant("Нет такого", "1")
+		frappe.set_user(CUTTER)
+		with self.assertRaises(frappe.PermissionError):
+			service.add_variant("Рифлёный", "10-8")
+
 	def test_a_price_is_never_deleted(self):
 		name = frappe.db.get_value("Facade Price", {"company": COMPANY, "milling": "Квадро"}, "name")
 		with self.assertRaises(frappe.ValidationError):
