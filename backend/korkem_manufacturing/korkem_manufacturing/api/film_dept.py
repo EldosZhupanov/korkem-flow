@@ -135,3 +135,15 @@ def set_customer(customer: str, tier: str | None = None, discount: float | str |
 				 buys_film: bool | int | str = 1) -> dict:
 	"""Условия клиента по плёнке: розница или опт, скидка."""
 	return service.set_customer(customer, tier=tier, discount=discount, buys_film=buys_film)
+
+
+@frappe.whitelist(methods=["POST"])
+def hold(item: str, customer: str, metres: float | str, until: str | None = None, note: str | None = None) -> dict:
+	"""Отложить метры плёнки за клиентом до дня: другим не продаются."""
+	return service.hold(item, customer, metres, until=until, note=note)
+
+
+@frappe.whitelist(methods=["POST"])
+def release_hold(hold: str) -> dict:
+	"""Снять бронь: метры снова свободны."""
+	return service.release_hold(hold)

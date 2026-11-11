@@ -20,3 +20,9 @@ def set_settings(plan_m: float | str | None = None, pct: float | str | None = No
 				 pct_below: float | str | None = None) -> dict:
 	"""План команды на месяц (метры) и доли котла — задаёт владелец."""
 	return service.set_settings(plan_m=plan_m, pct=pct, pct_below=pct_below)
+
+
+@frappe.whitelist(methods=["GET"])
+def report(month: str | None = None) -> dict:
+	"""Месяц отдела плёнки одной страницей: что продали, маржа по плёнкам, что лежит без движения."""
+	return service.report(month)

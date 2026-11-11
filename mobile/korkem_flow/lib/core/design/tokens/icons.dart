@@ -91,6 +91,8 @@ abstract final class AppIcons {
   static const IconData back = Symbols.arrow_back_rounded;
   static const IconData forward = Symbols.chevron_right_rounded;
   static const IconData previous = Symbols.chevron_left_rounded;
+  static const IconData expand = Symbols.expand_more_rounded;
+  static const IconData collapse = Symbols.expand_less_rounded;
 
   /// Back down to the newest thing. The mirror of [send], which points up.
   static const IconData down = Symbols.arrow_downward_rounded;
@@ -105,6 +107,13 @@ abstract final class AppIcons {
   static const IconData whatsApp = Symbols.chat_rounded;
   static const IconData schedule = Symbols.schedule_rounded;
   static const IconData calendar = Symbols.calendar_month_rounded;
+
+  /// A film's history: what came in, what went out (owner, 11.11.2026).
+  static const IconData moveIn = Symbols.south_west_rounded;
+  static const IconData moveOut = Symbols.north_east_rounded;
+
+  /// Put by for a customer.
+  static const IconData hold = Symbols.bookmark_rounded;
   static const IconData visible = Symbols.visibility_rounded;
   static const IconData hidden = Symbols.visibility_off_rounded;
   static const IconData logout = Symbols.logout_rounded;
