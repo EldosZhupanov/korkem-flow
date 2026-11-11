@@ -28,6 +28,15 @@ behind it goes to the archive — off the maker's list and the order's pick,
 its history and its metres intact — and comes back with one button. Every
 change is written down with who made it and when (`changes`).
 
+**One film, several thicknesses** (owner, 11.11.2026: «Белое дерево» is
+made 0,18 / 0,25 / 0,3). Each thickness is a roll of its own — its own
+metres and its own three prices — so it is an Item of its own; the Items of
+one maker and one name are one film. What tells the film apart (its name,
+code, collection, surface, RAL, supplier, link) is the same on all of them
+and is written to all at once; the thickness, the width and the prices are
+each one's own. An order names one thickness when the film has several:
+«Adilet · Белое дерево · 0,25».
+
 A colour of the order form's old list that no film carries yet is shown
 under «не указан» — the orders that name it stay as they are, and the owner
 gives it a maker when there is time.
@@ -90,16 +99,61 @@ _HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 SEP = " · "
 
 
-def label(maker: str, colour: str) -> str:
-	return f"{maker}{SEP}{colour}"
+def label(maker: str, colour: str, thickness: str | None = None) -> str:
+	return f"{maker}{SEP}{colour}" + (f"{SEP}{thickness}" if thickness else "")
 
 
 def split(name: str | None) -> tuple[str, str] | None:
 	"""A film's maker and colour from its name in an order; None for a plain colour."""
 	if not name or SEP not in name:
 		return None
-	maker, colour = name.split(SEP, 1)
+	maker, colour, *_ = name.split(SEP)
 	return (maker, colour) if maker and colour else None
+
+
+def thickness_in(name: str | None) -> str | None:
+	"""The thickness an order names — «Adilet · Белое дерево · 0,25» — or None."""
+	parts = (name or "").split(SEP)
+	return parts[2] if len(parts) == 3 and parts[2] else None
+
+
+#: What one thickness of a film has of its own; the rest is the film's,
+#: the same on every thickness (owner, 11.11.2026).
+OWN = ("thickness", "width", *PRICES)
+
+
+def siblings(item: str) -> list[str]:
+	"""Every thickness of the film this Item is one of — itself too."""
+	row = frappe.db.get_value(
+		"Item", item, ["korkem_manufacturer", "korkem_color", "korkem_material_company"], as_dict=True
+	)
+	if not row or not row.korkem_manufacturer or not row.korkem_color:
+		return [item]
+	return frappe.get_all(
+		"Item",
+		filters={
+			"korkem_material_company": row.korkem_material_company,
+			"korkem_material_kind": material_stock.FILM,
+			"korkem_manufacturer": row.korkem_manufacturer,
+			"korkem_color": row.korkem_color,
+		},
+		pluck="name",
+		order_by="name",
+	) or [item]
+
+
+def _counts(company: str) -> dict[tuple[str, str], int]:
+	"""(maker, name) → how many thicknesses the film has."""
+	out: dict[tuple[str, str], int] = {}
+	for r in frappe.get_all(
+		"Item",
+		filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM},
+		fields=["korkem_manufacturer", "korkem_color"],
+		limit_page_length=0,
+	):
+		key = (r.korkem_manufacturer, r.korkem_color)
+		out[key] = out.get(key, 0) + 1
+	return out
 
 
 def labels(company: str) -> set[str]:
@@ -108,13 +162,19 @@ def labels(company: str) -> set[str]:
 	items = frappe.get_all(
 		"Item",
 		filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM},
-		fields=["name", "korkem_manufacturer", "korkem_color"],
+		fields=["name", "korkem_manufacturer", "korkem_color", "korkem_film_thickness_mm"],
 		limit_page_length=5000,
 	)
-	names = {
-		label(r.korkem_manufacturer, r.korkem_color) for r in items if r.korkem_manufacturer and r.korkem_color
-	}
-	makers = {r.name: r.korkem_manufacturer for r in items if r.korkem_manufacturer}
+	names = set()
+	group: dict[tuple, list[str]] = {}
+	for r in items:
+		if r.korkem_manufacturer and r.korkem_color:
+			# The film's name, and each thickness's — an order names either.
+			names.add(label(r.korkem_manufacturer, r.korkem_color))
+			names.add(label(r.korkem_manufacturer, r.korkem_color, r.korkem_film_thickness_mm))
+			group.setdefault((r.korkem_manufacturer, r.korkem_color), []).append(r.korkem_film_thickness_mm)
+	now = {r.name: (r.korkem_manufacturer, r.korkem_color) for r in items if r.korkem_manufacturer}
+	makers = {name: pair[0] for name, pair in now.items()}
 	for e in frappe.get_all(
 		"Domain Audit Event",
 		filters={
@@ -131,6 +191,8 @@ def labels(company: str) -> set[str]:
 			continue
 		if maker and before:
 			names.add(label(maker, before))
+			for thickness in group.get(now[e.entity_id], []):
+				names.add(label(maker, before, thickness))
 	return names
 
 
@@ -148,8 +210,15 @@ def catalog() -> dict:
 	stock = material_stock._stock([i.name for i in items], company)
 	held = material_stock._reserved([i.name for i in items], company)
 	since = _price_since([i.name for i in items], company)
+	counts = _counts(company)
 	films = [
-		{**_film(i, stock.get(i.name, (0.0, 0.0))[0], held.get(i.name, 0.0)), "price_since": since.get(i.name, {})}
+		{
+			**_film(
+				i, stock.get(i.name, (0.0, 0.0))[0], held.get(i.name, 0.0),
+				counts.get((i.korkem_manufacturer, i.korkem_color), 1) > 1,
+			),
+			"price_since": since.get(i.name, {}),
+		}
 		for i in items
 	]
 	carried = {f["colour"] for f in films}
@@ -331,9 +400,24 @@ def add(
 	for kind, value in ((COLOURS, colour), ("Ширина плёнки", width), ("Толщина плёнки", thickness)):
 		if value not in material_stock.enabled_values(kind, company):
 			material_stock.put_option(kind, value)
+	others = frappe.get_all(
+		"Item",
+		filters={
+			"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
+			"korkem_manufacturer": maker, "korkem_color": colour,
+		},
+		pluck="name",
+		order_by="name",
+	)
 	made = material_stock.define_material(
 		material_stock.FILM, "м", color=colour, width=width, film_thickness=thickness, manufacturer=maker
 	)
+	if others and made["item"] not in others:
+		# Another thickness of a film there is: it is that film — the same
+		# code, collection, surface, supplier, link (owner, 11.11.2026).
+		shared = [CARD[key] for key in CARD if key not in PRICES]
+		values = frappe.db.get_value("Item", others[0], shared, as_dict=True) or {}
+		frappe.db.set_value("Item", made["item"], {k: v for k, v in values.items() if v not in (None, "")})
 	collection = " ".join((collection or "").split())
 	given = {k: v for k, v in card.items() if k in CARD and str(v or "").strip()}
 	if collection:
@@ -346,13 +430,29 @@ def add(
 def set_card(item: str, via: str | None = None, **card) -> dict:
 	"""Write a film's card. A field left out stays as it is; an empty one is cleared.
 
-	`via` says where a change came from when it is not the card itself —
-	«приход», «продажа» — and is kept with it in the film's history.
+	What is the film's — its name, code, collection, surface, RAL, supplier,
+	link — is written to every thickness of it; the thickness, the width and
+	the prices only to this one. `via` says where a change came from when it
+	is not the card itself — «приход», «продажа» — and is kept with it in the
+	film's history.
 	"""
 	material_stock._ensure_editor()
 	material_stock._own_item(item)
 	if frappe.db.get_value("Item", item, "korkem_material_kind") != material_stock.FILM:
 		frappe.throw("Это не плёнка.")
+	group = siblings(item)
+	shared = {key: value for key, value in card.items() if key not in OWN}
+	if shared:
+		for other in group:
+			if other != item:
+				_write(other, shared, via, group, record=False)
+	_write(item, card, via, group)
+	return film(item)
+
+
+def _write(item: str, card: dict, via: str | None, group: list[str], record: bool = True) -> None:
+	"""One Item's share of a card. A film's change is written down once, on
+	the thickness it was made on."""
 	company = current_company()
 	values = {}
 	for key, field in CARD.items():
@@ -363,7 +463,7 @@ def set_card(item: str, via: str | None = None, **card) -> dict:
 		maker = frappe.db.get_value("Item", item, "korkem_manufacturer")
 		if values[CARD["collection"]] not in collections(company).get(maker, []):
 			frappe.throw(f"Коллекции «{values[CARD['collection']]}» у {maker or '—'} нет. Добавьте её.")
-	values.update(_shape(item, card, company))
+	values.update(_shape(item, card, company, group))
 	before = frappe.db.get_value("Item", item, list(values), as_dict=True) if values else {}
 	changed = {
 		field: {"before": before.get(field), "after": value}
@@ -372,10 +472,12 @@ def set_card(item: str, via: str | None = None, **card) -> dict:
 	}
 	if changed:
 		frappe.db.set_value("Item", item, {field: c["after"] for field, c in changed.items()})
-		audit.record_audit(action="film.changed", entity_type="Item", entity_id=item, diff=changed, reason=via)
+		if record:
+			audit.record_audit(
+				action="film.changed", entity_type="Item", entity_id=item, diff=changed, reason=via
+			)
 		if SHAPE["colour"] in changed:
 			_drop_loose_colour(changed[SHAPE["colour"]]["before"], company)
-	return film(item)
 
 
 def _drop_loose_colour(colour: str | None, company: str) -> None:
@@ -403,7 +505,7 @@ def _same(value):
 		return str(value)
 
 
-def _shape(item: str, card: dict, company: str) -> dict:
+def _shape(item: str, card: dict, company: str, group: list[str] | None = None) -> dict:
 	"""A new name, thickness or width: the values for the Item, its title too."""
 	if not any(key in card for key in SHAPE):
 		return {}
@@ -430,8 +532,9 @@ def _shape(item: str, card: dict, company: str) -> dict:
 			"manufacturer": row.korkem_manufacturer,
 		},
 	)[:140]
-	# An order names a film by its maker and name alone («KIRA · Белый»), so
-	# one name is one film of a maker, whatever its roll.
+	# One name is one film of a maker: another film may not take it — its
+	# own thicknesses (the group) carry it, each a roll of its own.
+	group = group or [item]
 	twins = frappe.get_all(
 		"Item",
 		filters={
@@ -441,8 +544,10 @@ def _shape(item: str, card: dict, company: str) -> dict:
 		pluck="name",
 	)
 	twin = frappe.db.get_value("Item", {"korkem_material_company": company, "item_name": title}, "name")
-	if any(t != item for t in twins) or (twin and twin != item):
+	if any(t not in group for t in twins):
 		frappe.throw(f"Плёнка «{now['colour']}» у {row.korkem_manufacturer} уже есть.")
+	if twin and twin != item:
+		frappe.throw(f"У плёнки «{now['colour']}» толщина {now['thickness']} уже есть.")
 	for key in SHAPE:
 		if now[key] not in material_stock.enabled_values(_SHAPE_LIST[key], company):
 			material_stock.put_option(_SHAPE_LIST[key], now[key])
@@ -498,13 +603,20 @@ def in_use(item: str) -> bool:
 	company = current_company()
 	if frappe.db.exists("Stock Ledger Entry", {"item_code": item}):
 		return True
-	row = frappe.db.get_value("Item", item, ["korkem_manufacturer", "korkem_color"], as_dict=True)
+	row = frappe.db.get_value(
+		"Item", item, ["korkem_manufacturer", "korkem_color", "korkem_film_thickness_mm"], as_dict=True
+	)
 	if row and row.korkem_manufacturer and row.korkem_color:
-		name = label(row.korkem_manufacturer, row.korkem_color)
-		for field in material_stock._ORDER_FIELDS[COLOURS]:
-			for doctype in ("Sales Order Item", "Sales Order"):
-				if frappe.db.has_column(doctype, field) and frappe.db.exists(doctype, {field: name}):
-					return True
+		# An order names this thickness; the film's plain name counts while
+		# it is the only thickness the film has.
+		names = [label(row.korkem_manufacturer, row.korkem_color, row.korkem_film_thickness_mm)]
+		if len(siblings(item)) == 1:
+			names.append(label(row.korkem_manufacturer, row.korkem_color))
+		for name in names:
+			for field in material_stock._ORDER_FIELDS[COLOURS]:
+				for doctype in ("Sales Order Item", "Sales Order"):
+					if frappe.db.has_column(doctype, field) and frappe.db.exists(doctype, {field: name}):
+						return True
 	return bool(frappe.db.exists("Stock Entry Detail", {"item_code": item}))
 
 
@@ -541,10 +653,20 @@ _MONEY = ("korkem_film_price_m", "korkem_film_retail_m", "korkem_film_wholesale_
 
 
 def changes(item: str) -> list[dict]:
-	"""Who changed what on the film, and when — the newest first."""
+	"""Who changed what on the film, and when — the newest first. Every
+	thickness of it: what is one thickness's own says which (0,25)."""
 	material_stock._ensure_staff()
 	material_stock._own_item(item)
 	from frappe.utils import get_fullname
+
+	group = siblings(item)
+	many = len(group) > 1
+	thick = dict(
+		frappe.get_all(
+			"Item", filters={"name": ["in", group]}, fields=["name", "korkem_film_thickness_mm"], as_list=True
+		)
+	)
+	own_fields = {CARD[key] for key in PRICES} | {SHAPE["thickness"], SHAPE["width"]}
 
 	sees_money = price_visibility.can_see_prices()
 	suppliers = {}
@@ -552,18 +674,19 @@ def changes(item: str) -> list[dict]:
 	for e in frappe.get_all(
 		"Domain Audit Event",
 		filters={
-			"entity_type": "Item", "entity_id": item,
+			"entity_type": "Item", "entity_id": ["in", group],
 			"action": ["in", ["film.changed", "film.archived", "film.restored", "stock.material_defined"]],
 		},
-		fields=["action", "actor", "creation", "diff_json", "reason"],
+		fields=["action", "actor", "creation", "diff_json", "reason", "entity_id"],
 		order_by="creation desc",
 		limit_page_length=200,
 	):
 		base = {"when": str(e.creation)[:16], "who": get_fullname(e.actor) or e.actor, "via": e.reason or None}
+		mark = f" · {thick.get(e.entity_id)}" if many and thick.get(e.entity_id) else ""
 		if e.action != "film.changed":
 			out.append({**base, "what": {
 				"film.archived": "в архив", "film.restored": "из архива", "stock.material_defined": "добавлена",
-			}[e.action], "before": None, "after": None})
+			}[e.action] + mark, "before": None, "after": None})
 			continue
 		try:
 			diff = json.loads(e.diff_json or "{}")
@@ -581,7 +704,8 @@ def changes(item: str) -> list[dict]:
 					if s and s not in suppliers:
 						suppliers[s] = frappe.db.get_value("Supplier", s, "supplier_name") or s
 				before, after = suppliers.get(before, before), suppliers.get(after, after)
-			out.append({**base, "what": _NAMES[field], "before": _text(before), "after": _text(after)})
+			what = _NAMES[field] + (mark if field in own_fields and field != SHAPE["thickness"] else "")
+			out.append({**base, "what": what, "before": _text(before), "after": _text(after)})
 	return out
 
 
@@ -603,6 +727,7 @@ def film(item: str) -> dict:
 			row,
 			material_stock._stock([item], company).get(item, (0.0, 0.0))[0],
 			material_stock._reserved([item], company).get(item, 0.0),
+			len(siblings(item)) > 1,
 		),
 		"price_since": _price_since([item], company).get(item, {}),
 	}
@@ -673,13 +798,15 @@ def _number(text) -> float | None:
 		return None
 
 
-def _film(i, on_hand: float, held: float) -> dict:
+def _film(i, on_hand: float, held: float, many: bool = False) -> dict:
+	"""One Item — one thickness of a film. `many`: the film has more than
+	one, and an order names this one by its thickness."""
 	return {
 		"item": i.name,
 		"title": i.item_name,
 		"maker": i.korkem_manufacturer or "",
 		"colour": i.korkem_color or "",
-		"label": label(i.korkem_manufacturer, i.korkem_color)
+		"label": label(i.korkem_manufacturer, i.korkem_color, i.korkem_film_thickness_mm if many else None)
 		if i.korkem_manufacturer and i.korkem_color else None,
 		"width_mm": _number(i.korkem_film_width_mm),
 		"thickness_mm": _number(i.korkem_film_thickness_mm),

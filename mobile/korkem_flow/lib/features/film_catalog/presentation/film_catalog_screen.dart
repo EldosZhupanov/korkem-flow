@@ -63,7 +63,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
                   for (final m in tabs)
                     Tab(
                       key: ValueKey('filmMaker:$m'),
-                      text: '$m · ${c.of(m).length}',
+                      text: '$m · ${FilmCatalog.grouped(c.of(m)).length}',
                     ),
                   Tab(
                     key: const ValueKey('filmMaker:none'),
@@ -210,14 +210,16 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Text(l10n.filmEmpty(maker)),
           ),
-        for (final f in films)
+        // One row a film, its thicknesses together (owner, 11.11.2026).
+        for (final g in FilmCatalog.grouped(films))
           FilmTile(
-            film: f,
+            film: g.first,
+            variants: g,
             supplier: c.suppliers
-                .where((s) => s.id == f.supplier)
+                .where((s) => s.id == g.first.supplier)
                 .map((s) => s.name)
                 .firstOrNull,
-            onTap: c.canEdit ? () => showFilmCard(context, f, c) : null,
+            onTap: c.canEdit ? () => showFilmCard(context, g.first, c) : null,
           ),
       ],
     );
@@ -655,9 +657,19 @@ class _FilmAddDialogState extends ConsumerState<_FilmAddDialog>
 /// One film's row: its sample, name and code, type and thickness, and what
 /// is on hand — «есть · 84 м» or «заказать».
 class FilmTile extends StatelessWidget {
-  const FilmTile({required this.film, this.supplier, this.onTap, super.key});
+  const FilmTile({
+    required this.film,
+    this.variants = const [],
+    this.supplier,
+    this.onTap,
+    super.key,
+  });
 
   final Film film;
+
+  /// The film's thicknesses shown with it — «0,18 · 0,25 · 0,3 мм» — and
+  /// what is on hand of them all; empty for [film] alone.
+  final List<Film> variants;
 
   /// Where it is bought, by name — under the film's name with its
   /// collection and surface, so the card need not be opened to see them.
@@ -669,10 +681,20 @@ class FilmTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final f = film;
+    final all = variants.isEmpty ? [f] : variants;
+    final free = all.fold<double>(0, (s, v) => s + (v.enabled ? v.free : 0));
+    final thick = [
+      for (final v in all)
+        if (v.thicknessMm != null) _metres(v.thicknessMm!),
+    ];
+    final widths = {
+      for (final v in all)
+        if (v.widthMm != null) v.widthMm!.toStringAsFixed(0),
+    };
     final stock = !f.enabled
         ? l10n.filmOff
-        : f.free > 0
-        ? l10n.filmHave(_metres(f.free))
+        : free > 0
+        ? l10n.filmHave(_metres(free))
         : l10n.filmToOrder;
     return Opacity(
       opacity: f.enabled ? 1 : 0.5,
@@ -689,14 +711,14 @@ class FilmTile extends StatelessWidget {
             ?f.collection,
             ?f.type,
             ?supplier,
-            if (f.thicknessMm != null) '${_metres(f.thicknessMm!)} мм',
-            if (f.widthMm != null) '${f.widthMm!.toStringAsFixed(0)} мм',
+            if (thick.isNotEmpty) '${thick.join(' / ')} мм',
+            if (widths.isNotEmpty) '${widths.join(' / ')} мм',
           ].join(' · '),
         ),
         trailing: Text(
           stock,
           style: TextStyle(
-            color: f.enabled && f.free > 0
+            color: f.enabled && free > 0
                 ? theme.colorScheme.primary
                 : theme.colorScheme.outline,
             fontWeight: FontWeight.w600,
@@ -798,6 +820,54 @@ Future<bool?> showFilmCard(BuildContext context, Film film, FilmCatalog c) =>
       builder: (_) => _FilmCardDialog(film: film, catalog: c),
     );
 
+/// One thickness of a film on its card (owner, 11.11.2026): its roll and
+/// its three prices, each changed here.
+class _Variant {
+  _Variant(this.film)
+    : thickness = TextEditingController(
+        text: film.thicknessMm == null ? '' : _metres(film.thicknessMm!),
+      ),
+      width = TextEditingController(text: film.widthMm?.toStringAsFixed(0)),
+      price = TextEditingController(text: film.priceM?.toStringAsFixed(0)),
+      retail = TextEditingController(text: film.retailM?.toStringAsFixed(0)),
+      wholesale = TextEditingController(
+        text: film.wholesaleM?.toStringAsFixed(0),
+      );
+
+  final Film film;
+  final TextEditingController thickness;
+  final TextEditingController width;
+  final TextEditingController price;
+  final TextEditingController retail;
+  final TextEditingController wholesale;
+
+  /// What is this thickness's own, as the server names it.
+  Map<String, String> get own => {
+    if (thickness.text.trim().isNotEmpty) 'thickness': thickness.text.trim(),
+    if (width.text.trim().isNotEmpty) 'width': width.text.trim(),
+    'price_m': price.text.trim(),
+    'retail_m': retail.text.trim(),
+    'wholesale_m': wholesale.text.trim(),
+  };
+
+  /// Whether anything of its own was changed on the card.
+  bool get touched {
+    String n(double? v) => v == null ? '' : v.toStringAsFixed(0);
+    return thickness.text.trim() !=
+            (film.thicknessMm == null ? '' : _metres(film.thicknessMm!)) ||
+        width.text.trim() != n(film.widthMm) ||
+        price.text.trim() != n(film.priceM) ||
+        retail.text.trim() != n(film.retailM) ||
+        wholesale.text.trim() != n(film.wholesaleM);
+  }
+
+  void dispose() {
+    for (final c in [thickness, width, price, retail, wholesale]) {
+      c.dispose();
+    }
+  }
+}
+
 class _FilmCardDialog extends ConsumerStatefulWidget {
   const _FilmCardDialog({required this.film, required this.catalog});
 
@@ -811,94 +881,64 @@ class _FilmCardDialog extends ConsumerStatefulWidget {
 class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
     with _FilmLists<_FilmCardDialog> {
   late final _name = TextEditingController(text: widget.film.colour);
-  late final _thickness = TextEditingController(
-    text: widget.film.thicknessMm == null
-        ? ''
-        : _metres(widget.film.thicknessMm!),
-  );
-  late final _width = TextEditingController(
-    text: widget.film.widthMm?.toStringAsFixed(0),
-  );
   bool _history = false;
   late final _code = TextEditingController(text: widget.film.code);
   late final _ral = TextEditingController(text: widget.film.ral);
-  late final _price = TextEditingController(
-    text: widget.film.priceM?.toStringAsFixed(0),
-  );
   late final _url = TextEditingController(text: widget.film.url);
-  late final _retail = TextEditingController(
-    text: widget.film.retailM?.toStringAsFixed(0),
-  );
-  late final _wholesale = TextEditingController(
-    text: widget.film.wholesaleM?.toStringAsFixed(0),
-  );
   late String? _type = widget.film.type;
   late String? _collection = widget.film.collection;
   late String? _supplier = widget.film.supplier;
   bool _busy = false;
   String? _error;
 
+  /// Each thickness's fields, by its Item — made as the thicknesses show
+  /// up, so one added from here appears at once.
+  final _variants = <String, _Variant>{};
+
+  _Variant _variant(Film f) => _variants.putIfAbsent(f.item, () => _Variant(f));
+
+  /// Every thickness of the film, thinnest first.
+  List<Film> _films(FilmCatalog c) {
+    final group = c.variantsOf(widget.film);
+    return group.isEmpty ? [widget.film] : group;
+  }
+
   @override
   void dispose() {
-    for (final c in [
-      _name,
-      _thickness,
-      _width,
-      _code,
-      _ral,
-      _price,
-      _url,
-      _retail,
-      _wholesale,
-    ]) {
+    for (final c in [_name, _code, _ral, _url]) {
       c.dispose();
+    }
+    for (final v in _variants.values) {
+      v.dispose();
     }
     super.dispose();
   }
 
-  Future<void> _save() async {
+  Future<void> _save(List<Film> films) async {
     setState(() {
       _busy = true;
       _error = null;
     });
+    final repo = ref.read(filmCatalogRepositoryProvider);
     try {
-      await ref.read(filmCatalogRepositoryProvider).setCard(widget.film.item, {
-        // What the film is: its name and its roll (owner, 11.11.2026).
+      // What is the film's goes once — the server writes it to every
+      // thickness — with the first thickness's own.
+      await repo.setCard(films.first.item, {
         'colour': _name.text.trim(),
-        if (_thickness.text.trim().isNotEmpty)
-          'thickness': _thickness.text.trim(),
-        if (_width.text.trim().isNotEmpty) 'width': _width.text.trim(),
         'code': _code.text.trim(),
         'type': _type,
         'collection': _collection,
         'ral': _ral.text.trim(),
         'supplier': _supplier,
-        'price_m': _price.text.trim(),
-        'retail_m': _retail.text.trim(),
-        'wholesale_m': _wholesale.text.trim(),
         'url': _url.text.trim(),
+        ..._variant(films.first).own,
       });
+      for (final f in films.skip(1)) {
+        final v = _variant(f);
+        if (v.touched) await repo.setCard(f.item, v.own);
+      }
       ref.invalidate(filmCatalogProvider);
       if (mounted) Navigator.of(context).pop();
-    } on Object catch (e) {
-      setState(() {
-        _busy = false;
-        _error = '$e';
-      });
-    }
-  }
-
-  /// Runs [action], then closes the card with [result]; a refusal — a
-  /// film with history cannot be deleted — stays on the card.
-  Future<void> _act(Future<void> Function() action, {bool? result}) async {
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      await action();
-      ref.invalidate(filmCatalogProvider);
-      if (mounted) Navigator.of(context).pop(result);
     } on Object catch (e) {
       if (mounted) {
         setState(() {
@@ -909,15 +949,48 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
     }
   }
 
-  Future<void> _toggleArchive() {
-    final repo = ref.read(filmCatalogRepositoryProvider);
-    final item = widget.film.item;
-    return _act(
-      () => widget.film.enabled ? repo.archive(item) : repo.restore(item),
-    );
+  /// Runs [action]; [close] closes the card with [result] after it, else
+  /// it stays open on what is left. A refusal stays on the card.
+  Future<void> _act(
+    Future<void> Function() action, {
+    bool close = true,
+    bool? result,
+  }) async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await action();
+      ref.invalidate(filmCatalogProvider);
+      if (!mounted) return;
+      if (close) {
+        Navigator.of(context).pop(result);
+      } else {
+        setState(() => _busy = false);
+      }
+    } on Object catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = '$e';
+        });
+      }
+    }
   }
 
-  Future<void> _delete() async {
+  /// The whole film — every thickness — into the archive, or back.
+  Future<void> _toggleArchive(List<Film> films) {
+    final repo = ref.read(filmCatalogRepositoryProvider);
+    final off = films.any((x) => x.enabled);
+    return _act(() async {
+      for (final x in films) {
+        await (off ? repo.archive(x.item) : repo.restore(x.item));
+      }
+    });
+  }
+
+  Future<void> _delete(List<Film> films) async {
     final l10n = AppLocalizations.of(context);
     final yes = await showConfirmDialog(
       context: context,
@@ -927,9 +1000,192 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
       isDestructive: true,
     );
     if (!yes) return;
+    final repo = ref.read(filmCatalogRepositoryProvider);
+    await _act(() async {
+      for (final x in films) {
+        await repo.delete(x.item);
+      }
+    }, result: true);
+  }
+
+  /// One thickness off the film: deleted when nothing was done with it,
+  /// else into the archive — the film and its other thicknesses stay.
+  Future<void> _dropVariant(Film f) async {
+    final l10n = AppLocalizations.of(context);
+    final thick = f.thicknessMm == null ? '' : _metres(f.thicknessMm!);
+    final yes = await showConfirmDialog(
+      context: context,
+      title: l10n.filmVariantDeleteAsk(thick),
+      message: l10n.filmDeleteHint,
+      confirmLabel: l10n.filmDelete,
+      isDestructive: true,
+    );
+    if (!yes) return;
     await _act(
-      () => ref.read(filmCatalogRepositoryProvider).delete(widget.film.item),
-      result: true,
+      () => ref.read(filmCatalogRepositoryProvider).delete(f.item),
+      close: false,
+    );
+  }
+
+  Future<void> _toggleVariant(Film f) {
+    final repo = ref.read(filmCatalogRepositoryProvider);
+    return _act(
+      () => f.enabled ? repo.archive(f.item) : repo.restore(f.item),
+      close: false,
+    );
+  }
+
+  /// «+ Толщина»: another roll of the same film, with its own prices.
+  Future<void> _addVariant(Film first) async {
+    final added = await showDialog<bool>(
+      context: context,
+      builder: (_) => _VariantDialog(film: first),
+    );
+    if (added ?? false) ref.invalidate(filmCatalogProvider);
+  }
+
+  Widget _variantFields(
+    BuildContext context,
+    Film f,
+    int i, {
+    required bool many,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    final v = _variant(f);
+    // The first thickness keeps the card's own keys; the others say which.
+    String k(String name) => i == 0 ? 'filmCard:$name' : 'filmCard:$name:$i';
+    Widget text(String key, TextEditingController ctl, String label) =>
+        TextField(
+          key: ValueKey(k(key)),
+          controller: ctl,
+          decoration: InputDecoration(labelText: label),
+        );
+    Widget money(
+      String key,
+      String wire,
+      TextEditingController ctl,
+      String l,
+    ) => Expanded(
+      child: TextField(
+        key: ValueKey(k(key)),
+        controller: ctl,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: InputDecoration(
+          labelText: l,
+          helperText: switch (f.priceSince[wire]) {
+            final s? when ctl.text.isNotEmpty => l10n.filmPriceSince(
+              _day(s.date),
+              s.via ?? l10n.filmPriceByHand,
+            ),
+            _ => null,
+          },
+        ),
+      ),
+    );
+    final stock = !f.enabled
+        ? l10n.filmOff
+        : f.free > 0
+        ? l10n.filmHave(_metres(f.free))
+        : l10n.filmToOrder;
+    return Padding(
+      key: ValueKey('filmVariant:${f.item}'),
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (many)
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${v.thickness.text} мм · $stock',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+                IconButton(
+                  key: ValueKey('filmVariant:archive:${f.item}'),
+                  tooltip: f.enabled ? l10n.filmArchive : l10n.filmRestore,
+                  onPressed: _busy ? null : () => _toggleVariant(f),
+                  icon: Icon(f.enabled ? AppIcons.hidden : AppIcons.undo),
+                ),
+                IconButton(
+                  key: ValueKey('filmVariant:delete:${f.item}'),
+                  tooltip: l10n.filmDelete,
+                  onPressed: _busy ? null : () => _dropVariant(f),
+                  icon: const Icon(AppIcons.delete),
+                ),
+              ],
+            ),
+          Row(
+            children: [
+              Expanded(
+                child: _withList(
+                  context,
+                  key: k('thickness:edit'),
+                  onEdit: () async {
+                    final t = await _fromDictionary(
+                      MdfDictKind.filmThickness,
+                      l10n.filmThickness,
+                      v.thickness.text.trim(),
+                    );
+                    if (t != null && mounted) {
+                      setState(() => v.thickness.text = t);
+                    }
+                  },
+                  child: text('thickness', v.thickness, l10n.filmThickness),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: _withList(
+                  context,
+                  key: k('width:edit'),
+                  onEdit: () async {
+                    final w = await _fromDictionary(
+                      MdfDictKind.filmWidth,
+                      l10n.filmWidth,
+                      v.width.text.trim(),
+                    );
+                    if (w != null) v.width.text = w;
+                  },
+                  child: text('width', v.width, l10n.filmWidth),
+                ),
+              ),
+            ],
+          ),
+          // What it costs us and what the department sells a metre at
+          // (10.11.2026), each with since when it stands (11.11.2026).
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              money('price', 'price_m', v.price, l10n.filmPriceM),
+              const SizedBox(width: AppSpacing.sm),
+              money('retail', 'retail_m', v.retail, l10n.filmRetailM),
+              const SizedBox(width: AppSpacing.sm),
+              money(
+                'wholesale',
+                'wholesale_m',
+                v.wholesale,
+                l10n.filmWholesaleM,
+              ),
+            ],
+          ),
+          if (f.marginM case final margin?)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                l10n.filmMargin(
+                  margin.toStringAsFixed(0),
+                  f.priceM! > 0
+                      ? (margin / f.priceM! * 100).toStringAsFixed(0)
+                      : '—',
+                ),
+                key: ValueKey(k('margin')),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -938,8 +1194,12 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
     final l10n = AppLocalizations.of(context);
     final f = widget.film;
     final c = ref.watch(filmCatalogProvider).value ?? widget.catalog;
+    final films = _films(c);
+    final many = films.length > 1;
     final collections = c.collectionsOf(f.maker);
     final suppliers = _suppliersOf(c, f.maker, _supplier);
+    final enabled = films.any((x) => x.enabled);
+    final free = films.fold<double>(0, (s, x) => s + (x.enabled ? x.free : 0));
     Widget field(String key, TextEditingController ctl, String label) =>
         TextField(
           key: ValueKey('filmCard:$key'),
@@ -949,59 +1209,20 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
     return AlertDialog(
       title: Text('${f.colour}\n${f.maker}'),
       content: SizedBox(
-        width: AppSpacing.xxxl * 10,
+        width: AppSpacing.xxxl * 11,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                !f.enabled
+                !enabled
                     ? l10n.filmOff
-                    : f.free > 0
-                    ? l10n.filmHave(_metres(f.free))
+                    : free > 0
+                    ? l10n.filmHave(_metres(free))
                     : l10n.filmToOrder,
               ),
               field('name', _name, l10n.filmName),
-              Row(
-                children: [
-                  Expanded(
-                    child: _withList(
-                      context,
-                      key: 'filmCard:thickness:edit',
-                      onEdit: () async {
-                        final v = await _fromDictionary(
-                          MdfDictKind.filmThickness,
-                          l10n.filmThickness,
-                          _thickness.text.trim(),
-                        );
-                        if (v != null) _thickness.text = v;
-                      },
-                      child: field(
-                        'thickness',
-                        _thickness,
-                        l10n.filmThickness,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: _withList(
-                      context,
-                      key: 'filmCard:width:edit',
-                      onEdit: () async {
-                        final v = await _fromDictionary(
-                          MdfDictKind.filmWidth,
-                          l10n.filmWidth,
-                          _width.text.trim(),
-                        );
-                        if (v != null) _width.text = v;
-                      },
-                      child: field('width', _width, l10n.filmWidth),
-                    ),
-                  ),
-                ],
-              ),
               field('code', _code, l10n.filmCode),
               _withList(
                 context,
@@ -1076,43 +1297,26 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
                   decoration: InputDecoration(labelText: l10n.filmSupplier),
                 ),
               ),
-              // What it costs us and what the department sells a metre at
-              // (10.11.2026), each with since when it stands (11.11.2026).
-              for (final (key, wire, ctl, label) in [
-                ('price', 'price_m', _price, l10n.filmPriceM),
-                ('retail', 'retail_m', _retail, l10n.filmRetailM),
-                ('wholesale', 'wholesale_m', _wholesale, l10n.filmWholesaleM),
-              ])
-                TextField(
-                  key: ValueKey('filmCard:$key'),
-                  controller: ctl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: label,
-                    helperText: switch (f.priceSince[wire]) {
-                      final s? when ctl.text.isNotEmpty => l10n.filmPriceSince(
-                        _day(s.date),
-                        s.via ?? l10n.filmPriceByHand,
-                      ),
-                      _ => null,
-                    },
-                  ),
-                ),
-              if (f.marginM case final margin?)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.xs),
-                  child: Text(
-                    l10n.filmMargin(
-                      margin.toStringAsFixed(0),
-                      f.priceM! > 0
-                          ? (margin / f.priceM! * 100).toStringAsFixed(0)
-                          : '—',
-                    ),
-                    key: const ValueKey('filmCard:margin'),
-                  ),
-                ),
               field('url', _url, l10n.filmUrl),
+              // The film's thicknesses, each its own roll and prices
+              // (owner, 11.11.2026: «Белое дерево» 0,18 / 0,25 / 0,3).
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                l10n.filmVariants,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              for (final (i, v) in films.indexed)
+                _variantFields(context, v, i, many: many),
+              if (c.canEdit)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    key: const ValueKey('filmCard:addThickness'),
+                    onPressed: _busy ? null : () => _addVariant(films.first),
+                    icon: const Icon(AppIcons.add),
+                    label: Text(l10n.filmVariantAdd),
+                  ),
+                ),
               // Who changed what, and when — asked for, not loaded with
               // every card.
               Align(
@@ -1137,13 +1341,13 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
       actions: [
         TextButton(
           key: const ValueKey('filmCard:delete'),
-          onPressed: _busy ? null : _delete,
+          onPressed: _busy ? null : () => _delete(films),
           child: Text(l10n.filmDelete),
         ),
         TextButton(
           key: const ValueKey('filmCard:archive'),
-          onPressed: _busy ? null : _toggleArchive,
-          child: Text(f.enabled ? l10n.filmArchive : l10n.filmRestore),
+          onPressed: _busy ? null : () => _toggleArchive(films),
+          child: Text(enabled ? l10n.filmArchive : l10n.filmRestore),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -1151,7 +1355,162 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
         ),
         FilledButton(
           key: const ValueKey('filmCard:save'),
-          onPressed: _busy || _name.text.trim().length < 2 ? null : _save,
+          onPressed: _busy || _name.text.trim().length < 2
+              ? null
+              : () => _save(films),
+          child: Text(l10n.filmSave),
+        ),
+      ],
+    );
+  }
+}
+
+/// «+ Толщина»: the film once more, in another thickness — its own roll
+/// and its own three prices; the rest is the film's.
+class _VariantDialog extends ConsumerStatefulWidget {
+  const _VariantDialog({required this.film});
+
+  final Film film;
+
+  @override
+  ConsumerState<_VariantDialog> createState() => _VariantDialogState();
+}
+
+class _VariantDialogState extends ConsumerState<_VariantDialog>
+    with _FilmLists<_VariantDialog> {
+  final _thickness = TextEditingController();
+  late final _width = TextEditingController(
+    text: widget.film.widthMm?.toStringAsFixed(0) ?? '1400',
+  );
+  final _price = TextEditingController();
+  final _retail = TextEditingController();
+  final _wholesale = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    for (final c in [_thickness, _width, _price, _retail, _wholesale]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref
+          .read(filmCatalogRepositoryProvider)
+          .add(
+            maker: widget.film.maker,
+            colour: widget.film.colour,
+            thickness: _thickness.text.trim(),
+            width: _width.text.trim(),
+            card: {
+              'price_m': _price.text.trim(),
+              'retail_m': _retail.text.trim(),
+              'wholesale_m': _wholesale.text.trim(),
+            },
+          );
+      if (mounted) Navigator.of(context).pop(true);
+    } on Object catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = '$e';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    Widget money(String key, TextEditingController ctl, String label) =>
+        Expanded(
+          child: TextField(
+            key: ValueKey('filmVariantAdd:$key'),
+            controller: ctl,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(labelText: label),
+          ),
+        );
+    return AlertDialog(
+      title: Text('${l10n.filmVariantAdd} · ${widget.film.colour}'),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 9,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _withList(
+                    context,
+                    key: 'filmVariantAdd:thickness:edit',
+                    onEdit: () async {
+                      final t = await _fromDictionary(
+                        MdfDictKind.filmThickness,
+                        l10n.filmThickness,
+                        _thickness.text.trim(),
+                      );
+                      if (t != null && mounted) {
+                        setState(() => _thickness.text = t);
+                      }
+                    },
+                    child: TextField(
+                      key: const ValueKey('filmVariantAdd:thickness'),
+                      controller: _thickness,
+                      autofocus: true,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        labelText: l10n.filmThickness,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: TextField(
+                    key: const ValueKey('filmVariantAdd:width'),
+                    controller: _width,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(labelText: l10n.filmWidth),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                money('price', _price, l10n.filmPriceM),
+                const SizedBox(width: AppSpacing.sm),
+                money('retail', _retail, l10n.filmRetailM),
+                const SizedBox(width: AppSpacing.sm),
+                money('wholesale', _wholesale, l10n.filmWholesaleM),
+              ],
+            ),
+            if (_error != null)
+              Text(
+                _error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmVariantAdd:save'),
+          onPressed: _busy || _thickness.text.trim().isEmpty ? null : _save,
           child: Text(l10n.filmSave),
         ),
       ],
@@ -1351,10 +1710,20 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
                   Expanded(
                     child: ListView(
                       children: [
-                        for (final f in films)
+                        for (final g in FilmCatalog.grouped(films))
                           FilmTile(
-                            film: f,
-                            onTap: () => Navigator.of(context).pop(f.label),
+                            film: g.first,
+                            variants: g,
+                            onTap: () async {
+                              // A film of several thicknesses: which one
+                              // (owner, 11.11.2026).
+                              final picked = g.length == 1
+                                  ? g.single
+                                  : await _pickThickness(context, g);
+                              if (picked != null && context.mounted) {
+                                Navigator.of(context).pop(picked.label);
+                              }
+                            },
                           ),
                       ],
                     ),
@@ -1371,3 +1740,31 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
     );
   }
 }
+
+/// Which thickness of a film an order takes, with what is on hand of each.
+Future<Film?> _pickThickness(BuildContext context, List<Film> variants) =>
+    showDialog<Film>(
+      context: context,
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return SimpleDialog(
+          title: Text('${variants.first.colour} · ${l10n.filmThickness}'),
+          children: [
+            for (final v in variants)
+              SimpleDialogOption(
+                key: ValueKey('pickThick:${v.item}'),
+                onPressed: () => Navigator.of(context).pop(v),
+                child: Text(
+                  [
+                    if (v.thicknessMm != null) '${_metres(v.thicknessMm!)} мм',
+                    if (v.free > 0)
+                      l10n.filmHave(_metres(v.free))
+                    else
+                      l10n.filmToOrder,
+                  ].join(' · '),
+                ),
+              ),
+          ],
+        );
+      },
+    );

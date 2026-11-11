@@ -5627,6 +5627,17 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmTabCustomers => 'Клиенттер';
 
   @override
+  String get filmVariants => 'Қалыңдықтар';
+
+  @override
+  String get filmVariantAdd => 'Қалыңдық';
+
+  @override
+  String filmVariantDeleteAsk(String thickness) {
+    return '$thickness мм қалыңдығын алып тастау керек пе?';
+  }
+
+  @override
   String filmReceiveSetPrice(String price) {
     return 'Карточкаға сатып алу бағасын жазу: $price ₸';
   }

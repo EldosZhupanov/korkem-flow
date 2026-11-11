@@ -5665,6 +5665,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTabCustomers => 'Customers';
 
   @override
+  String get filmVariants => 'Thicknesses';
+
+  @override
+  String get filmVariantAdd => 'Thickness';
+
+  @override
+  String filmVariantDeleteAsk(String thickness) {
+    return 'Remove the $thickness mm thickness?';
+  }
+
+  @override
   String filmReceiveSetPrice(String price) {
     return 'Put the purchase price on the card: $price ₸';
   }

@@ -58,10 +58,13 @@ const _json = <String, dynamic>{
 };
 
 class _Fake implements FilmCatalogRepository {
+  _Fake([this.json = _json]);
+
+  final Map<String, dynamic> json;
   final cards = <(String, Map<String, Object?>)>[];
 
   @override
-  Future<FilmCatalog> catalog() async => FilmCatalog.fromJson(_json);
+  Future<FilmCatalog> catalog() async => FilmCatalog.fromJson(json);
 
   final added = <(String, String, String?, String?)>[];
   final addedTo = <String?>[];
@@ -443,5 +446,143 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmAdd:save')));
     await tester.pumpAndSettle();
     expect(repo.addedTo.single, 'Solid');
+  });
+
+  testWidgets('one film of several thicknesses: one row, a roll each', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const json = <String, dynamic>{
+      'films': [
+        {
+          'item': 'BD-30',
+          'maker': 'Adilet',
+          'colour': 'Белое дерево',
+          'label': 'Adilet · Белое дерево · 0,3',
+          'code': '1155-BD',
+          'thickness_mm': 0.3,
+          'width_mm': 1400,
+          'on_hand': 40,
+          'retail_m': 4200,
+        },
+        {
+          'item': 'BD-18',
+          'maker': 'Adilet',
+          'colour': 'Белое дерево',
+          'label': 'Adilet · Белое дерево · 0,18',
+          'code': '1155-BD',
+          'thickness_mm': 0.18,
+          'width_mm': 1400,
+          'on_hand': 0,
+          'retail_m': 3500,
+        },
+      ],
+      'makers': ['Adilet'],
+      'can_edit': true,
+    };
+    final repo = _Fake(json);
+    final c = FilmCatalog.fromJson(json);
+    expect(
+      [for (final v in c.variantsOf(c.films.first)) v.item],
+      [
+        'BD-18',
+        'BD-30',
+      ],
+    );
+    expect(FilmCatalog.grouped(c.films).length, 1);
+
+    String? picked;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(repo)],
+        child: harness(
+          Builder(
+            builder: (context) => Column(
+              children: [
+                TextButton(
+                  onPressed: () async => picked = await showFilmPicker(context),
+                  child: const Text('pick'),
+                ),
+                TextButton(
+                  onPressed: () => showFilmCard(context, c.films.first, c),
+                  child: const Text('card'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    // An order picks the film, then its thickness.
+    await tester.tap(find.text('pick'));
+    await tester.pumpAndSettle();
+    // One row, its thicknesses together.
+    expect(find.textContaining('0,18 / 0,3 мм'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('film:BD-18')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('pickThick:BD-30')));
+    await tester.pumpAndSettle();
+    expect(picked, 'Adilet · Белое дерево · 0,3');
+
+    // The card: the film once, each thickness with its own prices.
+    await tester.tap(find.text('card'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmVariant:BD-18')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmVariant:BD-30')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCard:addThickness')), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmCard:retail:1')),
+      '4300',
+    );
+    await tester.tap(find.byKey(const ValueKey('filmCard:save')));
+    await tester.pumpAndSettle();
+    // The film's own once with the thinnest; the other only its prices.
+    expect([for (final c in repo.cards) c.$1], ['BD-18', 'BD-30']);
+    expect(repo.cards.first.$2['code'], '1155-BD');
+    expect(repo.cards.last.$2['retail_m'], '4300');
+    expect(repo.cards.last.$2.containsKey('code'), isFalse);
+  });
+
+  testWidgets('a thickness is taken off a film after a yes', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const json = <String, dynamic>{
+      'films': [
+        {'item': 'A', 'maker': 'M', 'colour': 'Лён', 'thickness_mm': 0.3},
+        {'item': 'B', 'maker': 'M', 'colour': 'Лён', 'thickness_mm': 0.25},
+      ],
+      'makers': ['M'],
+      'can_edit': true,
+    };
+    final repo = _Fake(json);
+    final c = FilmCatalog.fromJson(json);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(repo)],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showFilmCard(context, c.films.first, c),
+              child: const Text('card'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('card'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmVariant:delete:B')));
+    await tester.pumpAndSettle();
+    expect(repo.acts, isEmpty);
+    await tester.tap(find.text('Delete').last);
+    await tester.pumpAndSettle();
+    expect(repo.acts, ['delete B']);
+    // The card stays open on the rest of the film.
+    expect(find.byKey(const ValueKey('filmCard:save')), findsOneWidget);
   });
 }

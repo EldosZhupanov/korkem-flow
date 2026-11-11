@@ -496,15 +496,21 @@ def _method(method: str | None, bank: str | None, paid: Decimal) -> tuple[str | 
 	return method, bank if method in WITH_BANK else None
 
 
+def _title(item: str, fallback: str) -> str:
+	"""«KIRA · Белый», with the thickness when the film has several."""
+	row = frappe.db.get_value(
+		"Item", item, ["korkem_manufacturer", "korkem_color", "korkem_film_thickness_mm"], as_dict=True
+	) or {}
+	thickness = row.get("korkem_film_thickness_mm") if len(film_catalog.siblings(item)) > 1 else None
+	return film_catalog.label(row.get("korkem_manufacturer") or "", row.get("korkem_color") or fallback, thickness)
+
+
 def _lines(doc, money: bool) -> list[dict]:
 	out = []
 	for r in doc.items:
 		out.append({
 			"item": r.item_code,
-			"title": film_catalog.label(
-				frappe.db.get_value("Item", r.item_code, "korkem_manufacturer") or "",
-				frappe.db.get_value("Item", r.item_code, "korkem_color") or r.item_name,
-			),
+			"title": _title(r.item_code, r.item_name),
 			"metres": flt(r.qty),
 			"price_m": (flt(r.get("korkem_film_price_m")) or None) if money else None,
 		})

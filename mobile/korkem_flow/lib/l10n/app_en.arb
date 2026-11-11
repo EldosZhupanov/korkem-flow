@@ -6230,6 +6230,16 @@
   "filmTabStock": "Stock",
   "filmTabSales": "Sales",
   "filmTabCustomers": "Customers",
+  "filmVariants": "Thicknesses",
+  "filmVariantAdd": "Thickness",
+  "filmVariantDeleteAsk": "Remove the {thickness} mm thickness?",
+  "@filmVariantDeleteAsk": {
+    "placeholders": {
+      "thickness": {
+        "type": "String"
+      }
+    }
+  },
   "filmReceiveSetPrice": "Put the purchase price on the card: {price} ₸",
   "@filmReceiveSetPrice": {
     "placeholders": {

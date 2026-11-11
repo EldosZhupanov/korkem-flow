@@ -275,3 +275,41 @@ class TestFilmCatalog(IntegrationTestCase):
 		self.assertEqual(self._as(MANAGER, service.film, made["item"])["type"], "Софт-Тач Тест")
 		self.assertNotIn("Софт-Тач Тест", self._as(MANAGER, service.catalog)["types"])
 
+	def test_one_film_has_several_thicknesses_each_its_own_roll_and_prices(self):
+		from korkem_manufacturing.services import facade_materials
+
+		material_stock.add_option("Толщина плёнки", "0,18")
+		thin = self._as(
+			MANAGER, service.add, "KIRA", "Белое Дерево Тест", thickness="0,18", code="BD-1", type="Матовая",
+			retail_m="3500",
+		)
+		self.assertEqual(thin["label"], "KIRA · Белое Дерево Тест")
+		thick = self._as(MANAGER, service.add, "KIRA", "Белое Дерево Тест", thickness="0,3", retail_m="4200")
+		self.assertNotEqual(thin["item"], thick["item"])
+		# The second thickness is the same film: its code and surface.
+		self.assertEqual((thick["code"], thick["type"], thick["retail_m"]), ("BD-1", "Матовая", 4200))
+		# With two, an order names the thickness.
+		self.assertEqual(self._as(MANAGER, service.film, thin["item"])["label"], "KIRA · Белое Дерево Тест · 0,18")
+		names = service.labels(COMPANY)
+		self.assertTrue({"KIRA · Белое Дерево Тест · 0,3", "KIRA · Белое Дерево Тест"} <= names)
+		picked = facade_materials._pick_item(material_stock.FILM, "KIRA · Белое Дерево Тест · 0,3", COMPANY, {})
+		self.assertEqual(picked.name, thick["item"])
+		# What is the film's goes to every thickness; prices stay each one's.
+		self._as(MANAGER, service.set_card, thin["item"], code="BD-2", retail_m="3600")
+		self.assertEqual(self._as(MANAGER, service.film, thick["item"])["code"], "BD-2")
+		self.assertEqual(self._as(MANAGER, service.film, thick["item"])["retail_m"], 4200)
+		# Renamed, the film is renamed whole.
+		self._as(MANAGER, service.set_card, thick["item"], colour="Белое Дерево Тест Два")
+		self.assertEqual(self._as(MANAGER, service.film, thin["item"])["colour"], "Белое Дерево Тест Два")
+		# A thickness the film already has is refused.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.set_card, thin["item"], thickness="0,3")
+		# The history says which thickness a price is.
+		whats = {c["what"] for c in self._as(MANAGER, service.changes, thin["item"])}
+		self.assertIn("розница · 0,18", whats)
+		self.assertIn("код", whats)
+		# An unused thickness is deleted alone; the film stays.
+		self._as(MANAGER, service.delete, thin["item"])
+		left = self._as(MANAGER, service.film, thick["item"])
+		self.assertEqual(left["label"], "KIRA · Белое Дерево Тест Два")
+

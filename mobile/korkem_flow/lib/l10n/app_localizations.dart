@@ -10089,6 +10089,24 @@ abstract class AppLocalizations {
   /// **'Customers'**
   String get filmTabCustomers;
 
+  /// No description provided for @filmVariants.
+  ///
+  /// In en, this message translates to:
+  /// **'Thicknesses'**
+  String get filmVariants;
+
+  /// No description provided for @filmVariantAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness'**
+  String get filmVariantAdd;
+
+  /// No description provided for @filmVariantDeleteAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the {thickness} mm thickness?'**
+  String filmVariantDeleteAsk(String thickness);
+
   /// No description provided for @filmReceiveSetPrice.
   ///
   /// In en, this message translates to:

@@ -5688,6 +5688,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmTabCustomers => 'Клиенты';
 
   @override
+  String get filmVariants => 'Толщины';
+
+  @override
+  String get filmVariantAdd => 'Толщина';
+
+  @override
+  String filmVariantDeleteAsk(String thickness) {
+    return 'Убрать толщину $thickness мм?';
+  }
+
+  @override
   String filmReceiveSetPrice(String price) {
     return 'Записать закуп в карточку: $price ₸';
   }
