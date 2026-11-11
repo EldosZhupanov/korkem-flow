@@ -195,18 +195,21 @@ class FilmCatalog {
   }
 
   /// One maker's films — of one collection and of one type when given,
-  /// found by a search when given; switched-off ones last.
+  /// found by a search when given; the archive's last. With [archived]
+  /// only those in the archive, or (false) only those out of it.
   List<Film> of(
     String maker, {
     String? type,
     String? collection,
     String search = '',
+    bool? archived,
   }) {
     final q = search.trim().toLowerCase();
     final out =
         [
           for (final f in films)
             if (f.maker == maker &&
+                (archived == null || f.enabled != archived) &&
                 (type == null || f.type == type) &&
                 (collection == null || f.collection == collection) &&
                 (q.isEmpty ||
@@ -230,4 +233,36 @@ double? _d(Object? v) => switch (v) {
 String? _s(Object? v) {
   final s = v?.toString().trim();
   return s == null || s.isEmpty ? null : s;
+}
+
+/// One line of a film's history of changes (owner, 11.11.2026): who
+/// changed what, and when.
+@immutable
+class FilmChange {
+  const FilmChange({
+    required this.when,
+    required this.who,
+    required this.what,
+    this.before,
+    this.after,
+  });
+
+  factory FilmChange.fromJson(Map<String, dynamic> json) => FilmChange(
+    when: '${json['when'] ?? ''}',
+    who: '${json['who'] ?? ''}',
+    what: '${json['what'] ?? ''}',
+    before: _s(json['before']),
+    after: _s(json['after']),
+  );
+
+  final String when;
+  final String who;
+  final String what;
+  final String? before;
+  final String? after;
+
+  /// «название: Альда бел → Альда белый», or just «в архив».
+  String get line => before == null && after == null
+      ? what
+      : '$what: ${before ?? '—'} → ${after ?? '—'}';
 }

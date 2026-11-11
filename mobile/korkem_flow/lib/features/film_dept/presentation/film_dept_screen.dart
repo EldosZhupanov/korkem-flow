@@ -320,8 +320,12 @@ class FilmPage extends ConsumerWidget {
                 TextButton(
                   key: const ValueKey('filmPage:card'),
                   onPressed: () async {
-                    await showFilmCard(context, film, stock);
+                    final gone = await showFilmCard(context, film, stock);
                     _refresh(ref, item);
+                    // A deleted film has no page to stay on.
+                    if ((gone ?? false) && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
                   },
                   child: Text(l10n.filmEditCard),
                 ),

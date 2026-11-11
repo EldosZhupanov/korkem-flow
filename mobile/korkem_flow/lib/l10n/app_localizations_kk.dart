@@ -5603,7 +5603,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmToOrder => 'тапсырыс беру';
 
   @override
-  String get filmOff => 'шығарылмайды';
+  String get filmOff => 'мұрағатта';
 
   @override
   String get filmUnassigned => 'көрсетілмеген';
@@ -5661,6 +5661,43 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmTabCustomers => 'Клиенттер';
+
+  @override
+  String get filmSaveMore => 'Сақтап, тағы қосу';
+
+  @override
+  String filmAddedOne(String name) {
+    return 'Қосылды: $name';
+  }
+
+  @override
+  String get filmArchive => 'Мұрағатқа';
+
+  @override
+  String get filmRestore => 'Мұрағаттан қайтару';
+
+  @override
+  String filmArchiveChip(String name) {
+    return 'Мұрағат · $name';
+  }
+
+  @override
+  String get filmDelete => 'Жою';
+
+  @override
+  String filmDeleteAsk(String name) {
+    return '«$name» пленкасын жою керек пе?';
+  }
+
+  @override
+  String get filmDeleteHint =>
+      'Тек ешқандай жазбасы жоқ пленканы жоюға болады. Кіріс, сату немесе тапсырыс болса — оны мұрағатқа жіберіңіз.';
+
+  @override
+  String get filmChanges => 'Өзгерістер тарихы';
+
+  @override
+  String get filmChangesEmpty => 'Өзгерістер әзірге жоқ.';
 
   @override
   String get filmCollection => 'Топтама';

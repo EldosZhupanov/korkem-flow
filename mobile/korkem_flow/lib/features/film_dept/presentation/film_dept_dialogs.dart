@@ -343,10 +343,11 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   String? _bank;
   bool _paidTouched = false;
 
-  /// What can be sold: still made, named, and with metres on the shelf.
+  /// What can be sold: named, and with metres on the shelf — a film in
+  /// the archive too, until its metres are sold out (11.11.2026).
   late final List<Film> _films = [
     for (final f in widget.stock.films)
-      if (f.enabled && f.label != null && f.free > 0) f,
+      if (f.label != null && f.free > 0) f,
   ];
 
   @override
