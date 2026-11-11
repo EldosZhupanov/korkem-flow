@@ -165,6 +165,10 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   // roll came, from the city on its card; nothing paid; taken in by me.
   final _cost = TextEditingController();
 
+  // Who brought it and how to reach him — optional (owner, 12.11.2026).
+  final _driver = TextEditingController();
+  final _phone = TextEditingController();
+
   /// When it arrives (owner, 11.11.2026): in two days unless said; 0 — it
   /// is here already. A day picked on the calendar wins.
   int _inDays = 2;
@@ -235,6 +239,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     _metres.dispose();
     _price.dispose();
     _cost.dispose();
+    _driver.dispose();
+    _phone.dispose();
     super.dispose();
   }
 
@@ -448,6 +454,47 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                       ],
                     ),
                 ],
+                // Drivers who brought film before: a tap fills both.
+                if (opts.drivers.isNotEmpty)
+                  Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      for (final d in opts.drivers.take(6))
+                        ActionChip(
+                          key: ValueKey('filmDelivery:driver:${d.driver}'),
+                          label: Text([d.driver, ?d.phone].join(' · ')),
+                          onPressed: () => setState(() {
+                            _driver.text = d.driver;
+                            _phone.text = d.phone ?? '';
+                          }),
+                        ),
+                    ],
+                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        key: const ValueKey('filmDelivery:driver'),
+                        controller: _driver,
+                        decoration: InputDecoration(
+                          labelText: l10n.filmDriver,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: TextField(
+                        key: const ValueKey('filmDelivery:phone'),
+                        controller: _phone,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: l10n.filmDriverPhone,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 _personField(
                   key: 'filmDelivery:taker',
                   label: l10n.filmReceivedBy,
@@ -494,6 +541,10 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                                 'city': city ?? '',
                                 'amount': cost,
                                 'urgent': _urgent,
+                                if (_driver.text.trim().isNotEmpty)
+                                  'driver': _driver.text.trim(),
+                                if (_phone.text.trim().isNotEmpty)
+                                  'phone': _phone.text.trim(),
                                 if (cost > 0) ...{
                                   'payer': _payer,
                                   if (_payer == FilmPayer.employee)
@@ -927,6 +978,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                                       ? l10n.filmLeftLow(filmMetres(line.left))
                                       : l10n.filmLeft(filmMetres(line.left))
                                 : null,
+                            helperMaxLines: 2,
                             helperStyle: TextStyle(
                               color: line.low
                                   ? context.statusColors.warning
@@ -1036,76 +1088,80 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 Padding(
                   key: ValueKey('filmSalePart:$i'),
                   padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Wrap(
-                        spacing: AppSpacing.xs,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          for (final m in const [
-                            filmCash,
-                            filmTransfer,
-                            filmCard,
-                          ])
-                            ChoiceChip(
+                          Wrap(
+                            spacing: AppSpacing.xs,
+                            children: [
+                              for (final m in const [
+                                filmCash,
+                                filmTransfer,
+                                filmCard,
+                              ])
+                                ChoiceChip(
+                                  key: ValueKey(
+                                    i == 0
+                                        ? 'filmSaleMethod:$m'
+                                        : 'filmSaleMethod:$i:$m',
+                                  ),
+                                  label: Text(label(m)),
+                                  selected: p.method == m,
+                                  onSelected: (_) =>
+                                      setState(() => p.method = m),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          const Spacer(),
+                          const SizedBox(width: AppSpacing.sm),
+                          SizedBox(
+                            width: AppSpacing.xxxl * 3,
+                            child: TextField(
                               key: ValueKey(
-                                i == 0
-                                    ? 'filmSaleMethod:$m'
-                                    : 'filmSaleMethod:$i:$m',
+                                i == 0 ? 'filmSalePaid' : 'filmSalePaid:$i',
                               ),
-                              label: Text(label(m)),
-                              selected: p.method == m,
-                              onSelected: (_) => setState(() => p.method = m),
+                              controller: p.amount,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              onChanged: (_) =>
+                                  setState(() => _paidTouched = true),
+                              decoration: InputDecoration(
+                                labelText: l10n.filmSalePaid,
+                              ),
+                            ),
+                          ),
+                          if (_parts.length > 1)
+                            IconButton(
+                              key: ValueKey('filmSalePartRemove:$i'),
+                              icon: const Icon(AppIcons.close),
+                              onPressed: () => setState(() {
+                                _parts.removeAt(i).dispose();
+                              }),
                             ),
                         ],
                       ),
-                      const SizedBox(width: AppSpacing.sm),
+                      // The bank on a line of its own: beside the chips
+                      // its name did not fit (owner, 12.11.2026).
                       if (p.method != filmCash)
-                        Expanded(
-                          child: DropdownButtonFormField<String?>(
-                            key: ValueKey('filmSaleBank:$i:${banks.length}'),
-                            initialValue: banks.contains(p.bank)
-                                ? p.bank
-                                : null,
-                            isExpanded: true,
-                            items: [
-                              DropdownMenuItem(child: Text(l10n.mdfNone)),
-                              for (final b in banks)
-                                DropdownMenuItem(value: b, child: Text(b)),
-                            ],
-                            onChanged: (v) => setState(() => p.bank = v),
-                            decoration: InputDecoration(
-                              labelText: l10n.mdfPayBank,
-                            ),
-                          ),
-                        )
-                      else
-                        const Spacer(),
-                      const SizedBox(width: AppSpacing.sm),
-                      SizedBox(
-                        width: AppSpacing.xxxl * 3,
-                        child: TextField(
-                          key: ValueKey(
-                            i == 0 ? 'filmSalePaid' : 'filmSalePaid:$i',
-                          ),
-                          controller: p.amount,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
+                        DropdownButtonFormField<String?>(
+                          key: ValueKey('filmSaleBank:$i:${banks.length}'),
+                          initialValue: banks.contains(p.bank) ? p.bank : null,
+                          isExpanded: true,
+                          items: [
+                            DropdownMenuItem(child: Text(l10n.mdfNone)),
+                            for (final b in banks)
+                              DropdownMenuItem(value: b, child: Text(b)),
                           ],
-                          onChanged: (_) => setState(() => _paidTouched = true),
+                          onChanged: (v) => setState(() => p.bank = v),
                           decoration: InputDecoration(
-                            labelText: l10n.filmSalePaid,
+                            labelText: l10n.mdfPayBank,
                           ),
-                        ),
-                      ),
-                      if (_parts.length > 1)
-                        IconButton(
-                          key: ValueKey('filmSalePartRemove:$i'),
-                          icon: const Icon(AppIcons.close),
-                          onPressed: () => setState(() {
-                            _parts.removeAt(i).dispose();
-                          }),
                         ),
                     ],
                   ),

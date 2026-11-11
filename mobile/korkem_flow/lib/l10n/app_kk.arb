@@ -2098,5 +2098,11 @@
   "filmHeldFor": "{customer} үшін {metres} м {day} дейін бөлінген",
   "facadePricesUnsoldMillings": "Бағасыз фрезерлер: {count}",
   "facadePricesShowUnsold": "Сатылмайды: {count} — көрсету",
-  "facadePricesHideUnsold": "Сатылмайтындарды жасыру"
+  "facadePricesHideUnsold": "Сатылмайтындарды жасыру",
+  "mdfGroupSales": "Сату",
+  "mdfGroupShop": "Цех",
+  "mdfGroupStock": "Қойма және сатып алу",
+  "mdfGroupSettings": "Анықтамалықтар мен бағалар",
+  "filmDriver": "Жүргізуші",
+  "filmDriverPhone": "Жүргізуші телефоны"
 }

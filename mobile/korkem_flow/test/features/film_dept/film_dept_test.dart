@@ -109,6 +109,8 @@ class _Fake implements FilmDeptRepository {
               'date': '2026-11-11',
               'amount': 2000,
               'transport': 'КАМАЗ',
+              'driver': 'Ерлан',
+              'phone': '+7 701 555 12 34',
             },
           ],
         },
@@ -146,6 +148,13 @@ class _Fake implements FilmDeptRepository {
           {'user': 'b@k.kz', 'name': 'Бауыржан'},
         ],
         'me': 'a@k.kz',
+        'drivers': [
+          {
+            'driver': 'Ерлан',
+            'phone': '+7 701 555 12 34',
+            'transport': 'Такси',
+          },
+        ],
       });
 
   @override
@@ -685,6 +694,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmDelivery:method:Перевод')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDelivery:driver:Ерлан')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmDelivery:urgent')));
     await tester.tap(find.byKey(const ValueKey('filmDelivery:taker:2')));
     await tester.pumpAndSettle();
@@ -701,6 +712,9 @@ void main() {
       'payer': 'employee',
       'paid_by': 'a@k.kz',
       'method': 'Перевод',
+      // The driver picked from those who came before.
+      'driver': 'Ерлан',
+      'phone': '+7 701 555 12 34',
     });
     expect(repo.deliveries.single.$2, 'b@k.kz');
   });
@@ -720,6 +734,7 @@ void main() {
       find.byKey(const ValueKey('filmCash:carrier:STE-4')),
       findsOneWidget,
     );
+    expect(find.byKey(const ValueKey('filmCash:wa:STE-4')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('filmCash:settle:STE-3')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmCash:settle:Перевод')));

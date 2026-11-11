@@ -11425,6 +11425,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide the unsold'**
   String get facadePricesHideUnsold;
+
+  /// No description provided for @mdfGroupSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get mdfGroupSales;
+
+  /// No description provided for @mdfGroupShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop floor'**
+  String get mdfGroupShop;
+
+  /// No description provided for @mdfGroupStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock and buying'**
+  String get mdfGroupStock;
+
+  /// No description provided for @mdfGroupSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Lists and prices'**
+  String get mdfGroupSettings;
+
+  /// No description provided for @filmDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get filmDriver;
+
+  /// No description provided for @filmDriverPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver\'s phone'**
+  String get filmDriverPhone;
 }
 
 class _AppLocalizationsDelegate

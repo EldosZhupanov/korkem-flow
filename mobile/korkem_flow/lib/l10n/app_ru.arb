@@ -2098,5 +2098,11 @@
   "filmHeldFor": "отложено {metres} м за {customer} до {day}",
   "facadePricesUnsoldMillings": "Фрезеровки без цен: {count}",
   "facadePricesShowUnsold": "Не продаётся: {count} — показать",
-  "facadePricesHideUnsold": "Скрыть непродаваемые"
+  "facadePricesHideUnsold": "Скрыть непродаваемые",
+  "mdfGroupSales": "Продажи",
+  "mdfGroupShop": "Цех",
+  "mdfGroupStock": "Склад и закупки",
+  "mdfGroupSettings": "Справочники и цены",
+  "filmDriver": "Водитель",
+  "filmDriverPhone": "Телефон водителя"
 }

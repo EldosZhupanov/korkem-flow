@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
+import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -143,28 +144,76 @@ class MdfScreen extends StatelessWidget {
         Routes.facadePrices,
       ),
     ];
+    // In groups (owner, 12.11.2026): seventeen rows in one list were too
+    // long to find anything in.
+    const groups = {
+      'orders': 0,
+      'quote': 0,
+      'filmDept': 0,
+      'cash': 0,
+      'debts': 0,
+      'report': 0,
+      'volume': 0,
+      'jobs': 1,
+      'plan': 1,
+      'press': 1,
+      'tv': 1,
+      'batch': 1,
+      'stock': 2,
+      'film': 2,
+      'logistics': 2,
+      'dictionaries': 3,
+      'prices': 3,
+    };
+    final titles = [
+      l10n.mdfGroupSales,
+      l10n.mdfGroupShop,
+      l10n.mdfGroupStock,
+      l10n.mdfGroupSettings,
+    ];
+    final children = <Widget>[];
+    for (var g = 0; g < titles.length; g++) {
+      final inGroup = [
+        for (final row in rows)
+          if ((groups[row.id] ?? 3) == g) row,
+      ];
+      if (inGroup.isEmpty) continue;
+      children.add(
+        ReadableWidth(
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: AppSpacing.md,
+              bottom: AppSpacing.xs,
+            ),
+            child: SectionLabel(titles[g]),
+          ),
+        ),
+      );
+      for (final row in inGroup) {
+        children.add(_tile(context, row));
+      }
+    }
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navMdf)),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
-          for (final row in rows)
-            ReadableWidth(
-              child: Card(
-                child: ListTile(
-                  key: ValueKey('mdf:${row.id}'),
-                  leading: Icon(row.icon),
-                  title: Text(row.title),
-                  subtitle: Text(row.hint),
-                  trailing: const Icon(AppIcons.forward),
-                  onTap: () => context.push(row.path),
-                ),
-              ),
-            ),
-        ],
+        children: children,
       ),
     );
   }
+
+  Widget _tile(BuildContext context, _MdfRow row) => ReadableWidth(
+    child: Card(
+      child: ListTile(
+        key: ValueKey('mdf:${row.id}'),
+        leading: Icon(row.icon),
+        title: Text(row.title),
+        subtitle: Text(row.hint),
+        trailing: const Icon(AppIcons.forward),
+        onTap: () => context.push(row.path),
+      ),
+    ),
+  );
 }
 
 class _MdfRow {

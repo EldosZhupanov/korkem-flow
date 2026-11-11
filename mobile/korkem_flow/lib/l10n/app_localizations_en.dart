@@ -6460,4 +6460,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get facadePricesHideUnsold => 'Hide the unsold';
+
+  @override
+  String get mdfGroupSales => 'Sales';
+
+  @override
+  String get mdfGroupShop => 'Shop floor';
+
+  @override
+  String get mdfGroupStock => 'Stock and buying';
+
+  @override
+  String get mdfGroupSettings => 'Lists and prices';
+
+  @override
+  String get filmDriver => 'Driver';
+
+  @override
+  String get filmDriverPhone => 'Driver\'s phone';
 }
