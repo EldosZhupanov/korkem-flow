@@ -10089,6 +10089,48 @@ abstract class AppLocalizations {
   /// **'Customers'**
   String get filmTabCustomers;
 
+  /// No description provided for @filmReceiveSetPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Put the purchase price on the card: {price} ₸'**
+  String filmReceiveSetPrice(String price);
+
+  /// No description provided for @filmReceiveUpdatePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the card\'s purchase price: {before} → {after} ₸'**
+  String filmReceiveUpdatePrice(String before, String after);
+
+  /// No description provided for @filmSaleRememberRetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember {price} ₸ as the retail price'**
+  String filmSaleRememberRetail(String price);
+
+  /// No description provided for @filmSaleRememberWholesale.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember {price} ₸ as the trade price'**
+  String filmSaleRememberWholesale(String price);
+
+  /// No description provided for @filmPriceSince.
+  ///
+  /// In en, this message translates to:
+  /// **'since {date} · {via}'**
+  String filmPriceSince(String date, String via);
+
+  /// No description provided for @filmPriceByHand.
+  ///
+  /// In en, this message translates to:
+  /// **'by hand'**
+  String get filmPriceByHand;
+
+  /// No description provided for @filmMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin: +{amount} ₸/m · {percent}%'**
+  String filmMargin(String amount, String percent);
+
   /// No description provided for @filmSaveMore.
   ///
   /// In en, this message translates to:

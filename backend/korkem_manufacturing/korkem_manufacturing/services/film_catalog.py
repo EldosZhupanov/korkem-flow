@@ -147,7 +147,11 @@ def catalog() -> dict:
 	)
 	stock = material_stock._stock([i.name for i in items], company)
 	held = material_stock._reserved([i.name for i in items], company)
-	films = [_film(i, stock.get(i.name, (0.0, 0.0))[0], held.get(i.name, 0.0)) for i in items]
+	since = _price_since([i.name for i in items], company)
+	films = [
+		{**_film(i, stock.get(i.name, (0.0, 0.0))[0], held.get(i.name, 0.0)), "price_since": since.get(i.name, {})}
+		for i in items
+	]
 	carried = {f["colour"] for f in films}
 	# The old list's colours no film carries yet: «не указан».
 	loose = sorted(
@@ -339,8 +343,12 @@ def add(
 	return film(made["item"])
 
 
-def set_card(item: str, **card) -> dict:
-	"""Write a film's card. A field left out stays as it is; an empty one is cleared."""
+def set_card(item: str, via: str | None = None, **card) -> dict:
+	"""Write a film's card. A field left out stays as it is; an empty one is cleared.
+
+	`via` says where a change came from when it is not the card itself —
+	«приход», «продажа» — and is kept with it in the film's history.
+	"""
 	material_stock._ensure_editor()
 	material_stock._own_item(item)
 	if frappe.db.get_value("Item", item, "korkem_material_kind") != material_stock.FILM:
@@ -364,7 +372,7 @@ def set_card(item: str, **card) -> dict:
 	}
 	if changed:
 		frappe.db.set_value("Item", item, {field: c["after"] for field, c in changed.items()})
-		audit.record_audit(action="film.changed", entity_type="Item", entity_id=item, diff=changed)
+		audit.record_audit(action="film.changed", entity_type="Item", entity_id=item, diff=changed, reason=via)
 		if SHAPE["colour"] in changed:
 			_drop_loose_colour(changed[SHAPE["colour"]]["before"], company)
 	return film(item)
@@ -547,11 +555,11 @@ def changes(item: str) -> list[dict]:
 			"entity_type": "Item", "entity_id": item,
 			"action": ["in", ["film.changed", "film.archived", "film.restored", "stock.material_defined"]],
 		},
-		fields=["action", "actor", "creation", "diff_json"],
+		fields=["action", "actor", "creation", "diff_json", "reason"],
 		order_by="creation desc",
 		limit_page_length=200,
 	):
-		base = {"when": str(e.creation)[:16], "who": get_fullname(e.actor) or e.actor}
+		base = {"when": str(e.creation)[:16], "who": get_fullname(e.actor) or e.actor, "via": e.reason or None}
 		if e.action != "film.changed":
 			out.append({**base, "what": {
 				"film.archived": "в архив", "film.restored": "из архива", "stock.material_defined": "добавлена",
@@ -590,11 +598,42 @@ def film(item: str) -> dict:
 	row = frappe.db.get_value("Item", item, _FIELDS, as_dict=True)
 	if not row:
 		frappe.throw("Такой плёнки нет.", frappe.DoesNotExistError)
-	return _film(
-		row,
-		material_stock._stock([item], company).get(item, (0.0, 0.0))[0],
-		material_stock._reserved([item], company).get(item, 0.0),
-	)
+	return {
+		**_film(
+			row,
+			material_stock._stock([item], company).get(item, (0.0, 0.0))[0],
+			material_stock._reserved([item], company).get(item, 0.0),
+		),
+		"price_since": _price_since([item], company).get(item, {}),
+	}
+
+
+def _price_since(items: list[str], company: str) -> dict[str, dict]:
+	"""Since when each price of a film stands, and where it came from — a
+	receipt, a sale, or the card (owner, 11.11.2026: prices change).
+	Nothing for one who does not see money."""
+	if not items or not price_visibility.can_see_prices():
+		return {}
+	fields = {CARD[key]: key for key in PRICES}
+	out: dict[str, dict] = {}
+	for e in frappe.get_all(
+		"Domain Audit Event",
+		filters={
+			"company": company, "entity_type": "Item", "action": "film.changed",
+			"entity_id": ["in", items],
+		},
+		fields=["entity_id", "creation", "diff_json", "reason"],
+		order_by="creation asc",
+		limit_page_length=0,
+	):
+		try:
+			diff = json.loads(e.diff_json or "{}")
+		except ValueError:
+			continue
+		for field, key in fields.items():
+			if field in diff:
+				out.setdefault(e.entity_id, {})[key] = {"date": str(e.creation)[:10], "via": e.reason or None}
+	return out
 
 
 def _clean(key: str, value, company: str):

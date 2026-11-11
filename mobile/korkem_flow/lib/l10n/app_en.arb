@@ -6230,6 +6230,64 @@
   "filmTabStock": "Stock",
   "filmTabSales": "Sales",
   "filmTabCustomers": "Customers",
+  "filmReceiveSetPrice": "Put the purchase price on the card: {price} ₸",
+  "@filmReceiveSetPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveUpdatePrice": "Update the card's purchase price: {before} → {after} ₸",
+  "@filmReceiveUpdatePrice": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSaleRememberRetail": "Remember {price} ₸ as the retail price",
+  "@filmSaleRememberRetail": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSaleRememberWholesale": "Remember {price} ₸ as the trade price",
+  "@filmSaleRememberWholesale": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "filmPriceSince": "since {date} · {via}",
+  "@filmPriceSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "via": {
+        "type": "String"
+      }
+    }
+  },
+  "filmPriceByHand": "by hand",
+  "filmMargin": "Margin: +{amount} ₸/m · {percent}%",
+  "@filmMargin": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "filmSaveMore": "Save and add another",
   "filmAddedOne": "Added: {name}",
   "@filmAddedOne": {

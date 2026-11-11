@@ -727,6 +727,12 @@ class FilmSample extends StatelessWidget {
   );
 }
 
+/// «2026-11-11» → «11.11».
+String _day(String iso) {
+  final p = iso.split('-');
+  return p.length == 3 ? '${p[2]}.${p[1]}' : iso;
+}
+
 String _metres(double v) =>
     v == v.roundToDouble() ? v.toStringAsFixed(0) : '$v'.replaceAll('.', ',');
 
@@ -1070,24 +1076,41 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
                   decoration: InputDecoration(labelText: l10n.filmSupplier),
                 ),
               ),
-              TextField(
-                key: const ValueKey('filmCard:price'),
-                controller: _price,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(labelText: l10n.filmPriceM),
-              ),
-              // What the department sells a metre at (10.11.2026).
-              for (final (key, ctl, label) in [
-                ('retail', _retail, l10n.filmRetailM),
-                ('wholesale', _wholesale, l10n.filmWholesaleM),
+              // What it costs us and what the department sells a metre at
+              // (10.11.2026), each with since when it stands (11.11.2026).
+              for (final (key, wire, ctl, label) in [
+                ('price', 'price_m', _price, l10n.filmPriceM),
+                ('retail', 'retail_m', _retail, l10n.filmRetailM),
+                ('wholesale', 'wholesale_m', _wholesale, l10n.filmWholesaleM),
               ])
                 TextField(
                   key: ValueKey('filmCard:$key'),
                   controller: ctl,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(labelText: label),
+                  decoration: InputDecoration(
+                    labelText: label,
+                    helperText: switch (f.priceSince[wire]) {
+                      final s? when ctl.text.isNotEmpty => l10n.filmPriceSince(
+                        _day(s.date),
+                        s.via ?? l10n.filmPriceByHand,
+                      ),
+                      _ => null,
+                    },
+                  ),
+                ),
+              if (f.marginM case final margin?)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  child: Text(
+                    l10n.filmMargin(
+                      margin.toStringAsFixed(0),
+                      f.priceM! > 0
+                          ? (margin / f.priceM! * 100).toStringAsFixed(0)
+                          : '—',
+                    ),
+                    key: const ValueKey('filmCard:margin'),
+                  ),
                 ),
               field('url', _url, l10n.filmUrl),
               // Who changed what, and when — asked for, not loaded with

@@ -104,6 +104,10 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
       ? widget.film.supplier
       : _sources.firstOrNull?.id;
 
+  /// The price paid becomes the card's purchase price — unless unticked,
+  /// for a one-off discount (owner, 11.11.2026).
+  bool _updatePrice = true;
+
   @override
   void dispose() {
     _metres.dispose();
@@ -142,6 +146,22 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
               onChanged: (v) => setState(() => _supplier = v),
               decoration: InputDecoration(labelText: l10n.filmReceiveFrom),
             ),
+            if (price > 0 && price != widget.film.priceM)
+              CheckboxListTile(
+                key: const ValueKey('filmReceiveUpdatePrice'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: _updatePrice,
+                onChanged: (v) => setState(() => _updatePrice = v ?? false),
+                title: Text(
+                  widget.film.priceM == null
+                      ? l10n.filmReceiveSetPrice(price.toStringAsFixed(0))
+                      : l10n.filmReceiveUpdatePrice(
+                          widget.film.priceM!.toStringAsFixed(0),
+                          price.toStringAsFixed(0),
+                        ),
+                ),
+              ),
             errorLine(context),
           ],
         ),
@@ -163,6 +183,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                         metres: metres,
                         priceM: price,
                         supplier: _supplier!,
+                        updatePrice: _updatePrice,
                       ),
                 ),
           child: Text(l10n.filmReceive),
@@ -301,6 +322,12 @@ class _SaleLine {
   final metres = TextEditingController();
   final price = TextEditingController();
 
+  /// The card has no price for this customer's tier: the seller types one,
+  /// and it is remembered on the card unless unticked (11.11.2026).
+  bool cardless = false;
+  bool wholesale = false;
+  bool remember = true;
+
   double get m => _number(metres.text) ?? 0;
   double get p => _number(price.text) ?? 0;
   double get sum => (m * p).roundToDouble();
@@ -378,8 +405,15 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
       final price = await ref
           .read(filmDeptRepositoryProvider)
           .priceFor(line.film.item, customer: _customer);
-      if (!mounted || price.priceM == null) return;
-      setState(() => line.price.text = price.priceM!.toStringAsFixed(0));
+      if (!mounted) return;
+      setState(() {
+        line
+          ..cardless = price.priceM == null
+          ..wholesale = price.wholesale;
+        if (price.priceM != null) {
+          line.price.text = price.priceM!.toStringAsFixed(0);
+        }
+      });
       _fillPaid();
     } on Object {
       // No price on the card yet: the seller types it.
@@ -443,7 +477,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 decoration: InputDecoration(labelText: l10n.mdfCustomer),
               ),
               const SizedBox(height: AppSpacing.sm),
-              for (final (i, line) in _lines.indexed)
+              for (final (i, line) in _lines.indexed) ...[
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   child: Row(
@@ -528,6 +562,26 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                     ],
                   ),
                 ),
+                if (line.cardless && line.p > 0)
+                  CheckboxListTile(
+                    key: ValueKey('filmSaleRemember:$i'),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: line.remember,
+                    onChanged: (v) =>
+                        setState(() => line.remember = v ?? false),
+                    title: Text(
+                      line.wholesale
+                          ? l10n.filmSaleRememberWholesale(
+                              line.p.toStringAsFixed(0),
+                            )
+                          : l10n.filmSaleRememberRetail(
+                              line.p.toStringAsFixed(0),
+                            ),
+                    ),
+                  ),
+              ],
               if (_films.length > _lines.length)
                 TextButton.icon(
                   key: const ValueKey('filmSaleAddLine'),
@@ -612,6 +666,10 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                           for (final l in _lines)
                             (item: l.film.item, metres: l.m, priceM: l.p),
                         ],
+                        remember: {
+                          for (final l in _lines)
+                            if (l.cardless && l.remember) l.film.item,
+                        },
                         paid: paid,
                         method: paid > 0 ? _method : null,
                         bank: paid > 0 && _method != filmCash ? _bank : null,
