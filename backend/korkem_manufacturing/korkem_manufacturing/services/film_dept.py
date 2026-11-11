@@ -182,7 +182,9 @@ def cancel(entry: str, reason: str) -> dict:
 def stock() -> dict:
 	"""Every film with what is on hand; the ones that ran low first."""
 	catalog = film_catalog.catalog()
-	films = [f for f in catalog["films"] if f["enabled"]]
+	# A film in the archive is shown while metres of it are left: they can
+	# still be sold or written off (owner, 11.11.2026).
+	films = [f for f in catalog["films"] if f["enabled"] or f["on_hand"] > 0]
 	for f in films:
 		free = flt(f["on_hand"]) - flt(f["held"])
 		f["free"] = free

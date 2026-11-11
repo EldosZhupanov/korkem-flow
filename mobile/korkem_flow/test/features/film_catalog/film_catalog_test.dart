@@ -67,6 +67,28 @@ class _Fake implements FilmCatalogRepository {
   final addedTo = <String?>[];
   final collectionCalls = <String>[];
   final dropped = <String>[];
+  final addedCards = <Map<String, String>>[];
+  final acts = <String>[];
+
+  @override
+  Future<void> archive(String item) async => acts.add('archive $item');
+
+  @override
+  Future<void> restore(String item) async => acts.add('restore $item');
+
+  @override
+  Future<void> delete(String item) async => acts.add('delete $item');
+
+  @override
+  Future<List<FilmChange>> changes(String item) async => const [
+    FilmChange(
+      when: '2026-11-11 15:40',
+      who: 'Olzhas',
+      what: 'розница',
+      before: '3900',
+      after: '4100',
+    ),
+  ];
 
   @override
   Future<void> addCollection(String maker, String name) async =>
@@ -93,8 +115,10 @@ class _Fake implements FilmCatalogRepository {
     String? thickness,
     String? width,
     String? collection,
+    Map<String, String> card = const {},
   }) async {
     addedTo.add(collection);
+    addedCards.add(card);
     added.add((maker, colour, thickness, width));
     return Film(item: 'MAT-9', maker: maker, colour: colour);
   }
@@ -161,9 +185,60 @@ void main() {
     expect(repo.cards.single.$1, 'MAT-1');
     expect(repo.cards.single.$2['ral'], '9003');
     expect(repo.cards.single.$2['code'], 'KR-101');
+    // The name and the roll are on the card too.
+    expect(repo.cards.single.$2['colour'], 'Белый Матовый');
+    expect(repo.cards.single.$2['thickness'], '0,3');
   });
 
-  testWidgets('a film is added at its maker, and its card opens', (
+  testWidgets('a film card shows its history, archives and deletes', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _Fake();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [filmCatalogRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const FilmCatalogScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmMaker:KIRA')));
+    await tester.pumpAndSettle();
+    // A film in the archive is not among the films in use, but behind
+    // its own chip.
+    expect(find.byKey(const ValueKey('film:MAT-4')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('filmArchive:KIRA')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-4')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('filmArchive:KIRA')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('film:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCard:history')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('розница: 3900 → 4100'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmCard:archive')));
+    await tester.pumpAndSettle();
+    expect(repo.acts, ['archive MAT-1']);
+
+    // Delete asks first.
+    await tester.tap(find.byKey(const ValueKey('film:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCard:delete')));
+    await tester.pumpAndSettle();
+    expect(repo.acts, ['archive MAT-1']);
+    await tester.tap(find.text('Delete').last);
+    await tester.pumpAndSettle();
+    expect(repo.acts, ['archive MAT-1', 'delete MAT-1']);
+    expect(find.byKey(const ValueKey('filmCard:save')), findsNothing);
+  });
+
+  testWidgets('a film is added with all it has, and «save and more» stays', (
     tester,
   ) async {
     final repo = _Fake();
@@ -183,12 +258,37 @@ void main() {
       'Молочный',
     );
     await tester.pumpAndSettle();
-    await tester.tap(save);
+    await tester.enterText(find.byKey(const ValueKey('filmAdd:code')), 'JS-1');
+    await tester.enterText(
+      find.byKey(const ValueKey('filmAdd:retail')),
+      '3900',
+    );
+    await tester.tap(find.byKey(const ValueKey('filmAdd:more')));
     await tester.pumpAndSettle();
     // A roll is 1400 wide and 0,3 thick unless said otherwise.
     expect(repo.added.single, ('JS Group', 'Молочный', '0,3', '1400'));
-    // Its card is open, to be filled in.
-    expect(find.byKey(const ValueKey('filmCard:save')), findsOneWidget);
+    expect(repo.addedCards.single['code'], 'JS-1');
+    expect(repo.addedCards.single['retail_m'], '3900');
+    // The window stays for the next film, its name and code cleared.
+    expect(find.byKey(const ValueKey('filmAdd:added')), findsOneWidget);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('filmAdd:name')))
+          .controller!
+          .text,
+      '',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('filmAdd:name')),
+      'Сливочный',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repo.added.length, 2);
+    // Saved, the window closes; no card opens after it.
+    expect(save, findsNothing);
+    expect(find.byKey(const ValueKey('filmCard:save')), findsNothing);
   });
 
   testWidgets('a film for an order: the maker, then its film by name', (
@@ -255,8 +355,6 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmAdd:save')));
     await tester.pumpAndSettle();
     expect(repo.addedTo.single, 'Wood');
-    await tester.tap(find.text('Cancel').last);
-    await tester.pumpAndSettle();
 
     // The list of collections is the owner's: add, rename, remove.
     await tester.tap(find.byKey(const ValueKey('filmCollections:KIRA')));

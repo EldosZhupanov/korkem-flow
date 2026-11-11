@@ -15,16 +15,42 @@ def catalog() -> dict:
 	return service.catalog()
 
 
+_CARD_KEYS = (*service.CARD, *service.SHAPE)
+
+
+def _sent(keys) -> dict:
+	sent = frappe.form_dict
+	return {key: sent.get(key) for key in keys if key in sent}
+
+
 @frappe.whitelist(methods=["POST"])
-def add(
-	maker: str,
-	colour: str,
-	thickness: str | None = None,
-	width: str | None = None,
-	collection: str | None = None,
-) -> dict:
-	"""Новая плёнка производителя — прямо из каталога, сразу в коллекцию."""
-	return service.add(maker, colour, thickness=thickness, width=width, collection=collection)
+def add(maker: str, colour: str, thickness: str | None = None, width: str | None = None) -> dict:
+	"""Новая плёнка производителя — сразу с кодом, поверхностью, поставщиком и ценами."""
+	return service.add(maker, colour, thickness=thickness, width=width, **_sent(service.CARD))
+
+
+@frappe.whitelist(methods=["POST"])
+def archive(item: str) -> dict:
+	"""Плёнку в архив: из списков уходит, история и остаток остаются."""
+	return service.archive(item)
+
+
+@frappe.whitelist(methods=["POST"])
+def restore(item: str) -> dict:
+	"""Вернуть плёнку из архива."""
+	return service.restore(item)
+
+
+@frappe.whitelist(methods=["POST"])
+def delete(item: str) -> dict:
+	"""Удалить плёнку, по которой ничего не было; иначе — только архив."""
+	return service.delete(item)
+
+
+@frappe.whitelist(methods=["GET"])
+def changes(item: str) -> list:
+	"""История изменений плёнки: кто, когда и что поменял."""
+	return service.changes(item)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -52,28 +78,6 @@ def remove_collection(maker: str, name: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def set_card(
-	item: str,
-	code: str | None = None,
-	type: str | None = None,  # noqa: A002 — the client's own name for it
-	hex: str | None = None,  # noqa: A002
-	ral: str | None = None,
-	supplier: str | None = None,
-	price_m: float | str | None = None,
-	url: str | None = None,
-	retail_m: float | str | None = None,
-	wholesale_m: float | str | None = None,
-	collection: str | None = None,
-) -> dict:
-	"""Карточка плёнки: код, тип, образец, RAL, поставщик, цена за метр, ссылка."""
-	sent = frappe.form_dict
-	card = {
-		key: value
-		for key, value in {
-			"code": code, "type": type, "hex": hex, "ral": ral,
-			"supplier": supplier, "price_m": price_m, "url": url,
-			"retail_m": retail_m, "wholesale_m": wholesale_m, "collection": collection,
-		}.items()
-		if key in sent
-	}
-	return service.set_card(item, **card)
+def set_card(item: str) -> dict:
+	"""Карточка плёнки: название, толщина, ширина, код, поверхность, коллекция, поставщик, цены, ссылка."""
+	return service.set_card(item, **_sent(_CARD_KEYS))

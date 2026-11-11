@@ -5628,7 +5628,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmToOrder => 'заказать';
 
   @override
-  String get filmOff => 'не выпускается';
+  String get filmOff => 'в архиве';
 
   @override
   String get filmUnassigned => 'не указан';
@@ -5686,6 +5686,43 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmTabCustomers => 'Клиенты';
+
+  @override
+  String get filmSaveMore => 'Сохранить и ещё';
+
+  @override
+  String filmAddedOne(String name) {
+    return 'Добавлена: $name';
+  }
+
+  @override
+  String get filmArchive => 'В архив';
+
+  @override
+  String get filmRestore => 'Вернуть из архива';
+
+  @override
+  String filmArchiveChip(String name) {
+    return 'Архив · $name';
+  }
+
+  @override
+  String get filmDelete => 'Удалить';
+
+  @override
+  String filmDeleteAsk(String name) {
+    return 'Удалить плёнку «$name»?';
+  }
+
+  @override
+  String get filmDeleteHint =>
+      'Удалить можно только плёнку, по которой ничего не было. Если по ней есть приходы, продажи или заказы — отправьте её в архив.';
+
+  @override
+  String get filmChanges => 'История изменений';
+
+  @override
+  String get filmChangesEmpty => 'Изменений пока нет.';
 
   @override
   String get filmCollection => 'Коллекция';

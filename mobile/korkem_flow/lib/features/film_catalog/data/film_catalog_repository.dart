@@ -13,6 +13,13 @@ final filmCatalogProvider = FutureProvider.autoDispose<FilmCatalog>(
   (ref) => ref.watch(filmCatalogRepositoryProvider).catalog(),
 );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmChangesProvider = FutureProvider.autoDispose
+    .family<List<FilmChange>, String>(
+      (ref, item) => ref.watch(filmCatalogRepositoryProvider).changes(item),
+    );
+
 /// The PVC film catalogue — `korkem_manufacturing.api.film_catalog`.
 class FilmCatalogRepository {
   const FilmCatalogRepository(this._client);
@@ -31,6 +38,7 @@ class FilmCatalogRepository {
     String? thickness,
     String? width,
     String? collection,
+    Map<String, String> card = const {},
   }) async => Film.fromJson(
     _map(
       await _client.callMethod(
@@ -42,6 +50,9 @@ class FilmCatalogRepository {
           'thickness': ?thickness,
           'width': ?width,
           'collection': ?collection,
+          // Code, surface, supplier, prices — taken at once (11.11.2026).
+          for (final e in card.entries)
+            if (e.value.isNotEmpty) e.key: e.value,
         },
       ),
     ),
@@ -83,6 +94,29 @@ class FilmCatalogRepository {
         post: true,
         params: {'maker': maker, 'name': name},
       );
+
+  /// Into the archive: off the lists, history and metres kept.
+  Future<void> archive(String item) =>
+      _client.callMethod('$_base.archive', post: true, params: {'item': item});
+
+  Future<void> restore(String item) =>
+      _client.callMethod('$_base.restore', post: true, params: {'item': item});
+
+  /// Deletes a film nothing was done with; the server refuses any other.
+  Future<void> delete(String item) =>
+      _client.callMethod('$_base.delete', post: true, params: {'item': item});
+
+  /// Who changed what on the film, the newest first.
+  Future<List<FilmChange>> changes(String item) async {
+    final response = await _client.callMethod(
+      '$_base.changes',
+      params: {'item': item},
+    );
+    return [
+      for (final c in response['message'] as List? ?? const [])
+        if (c is Map<String, dynamic>) FilmChange.fromJson(c),
+    ];
+  }
 
   /// Takes a colour of the old list off «не указан».
   Future<void> dropUnassigned(String colour) => _client.callMethod(
