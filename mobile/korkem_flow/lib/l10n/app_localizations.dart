@@ -9948,13 +9948,13 @@ abstract class AppLocalizations {
   /// No description provided for @filmType.
   ///
   /// In en, this message translates to:
-  /// **'Film type'**
+  /// **'Film surface'**
   String get filmType;
 
   /// No description provided for @filmAllTypes.
   ///
   /// In en, this message translates to:
-  /// **'All types'**
+  /// **'Any surface'**
   String get filmAllTypes;
 
   /// No description provided for @filmSearchIn.
@@ -9990,7 +9990,7 @@ abstract class AppLocalizations {
   /// No description provided for @filmUnassignedHint.
   ///
   /// In en, this message translates to:
-  /// **'Colours with no maker. Add the film in materials stock with its maker — old orders stay as they are.'**
+  /// **'Colours of the old list, without a maker. If such a film is needed, add it at its maker with “Film” and remove it here. Old orders stay as they are.'**
   String get filmUnassignedHint;
 
   /// No description provided for @filmCode.
@@ -10088,6 +10088,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Customers'**
   String get filmTabCustomers;
+
+  /// No description provided for @filmCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection'**
+  String get filmCollection;
+
+  /// No description provided for @filmCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections'**
+  String get filmCollections;
+
+  /// No description provided for @filmAllCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'All collections'**
+  String get filmAllCollections;
+
+  /// No description provided for @filmCollectionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'New collection'**
+  String get filmCollectionAdd;
+
+  /// No description provided for @filmCollectionRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename the collection'**
+  String get filmCollectionRename;
+
+  /// No description provided for @filmCollectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection name'**
+  String get filmCollectionName;
+
+  /// No description provided for @filmCollectionRemoveAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the collection “{name}”?'**
+  String filmCollectionRemoveAsk(String name);
+
+  /// No description provided for @filmCollectionRemoveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Its films stay in the catalogue, without a collection.'**
+  String get filmCollectionRemoveHint;
+
+  /// No description provided for @filmCollectionsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has no collections yet. Press + to add one.'**
+  String filmCollectionsEmpty(String name);
+
+  /// No description provided for @filmLooseDropAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the colour “{name}”?'**
+  String filmLooseDropAsk(String name);
+
+  /// No description provided for @filmLooseDropHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders that name it stay as written.'**
+  String get filmLooseDropHint;
 
   /// No description provided for @filmTabSources.
   ///

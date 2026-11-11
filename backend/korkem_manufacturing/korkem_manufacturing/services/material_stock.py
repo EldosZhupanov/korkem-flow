@@ -44,7 +44,10 @@ LISTS = ("Толщина МДФ", "Производитель", "Цвет плё
 		 # The MDF order form's own lists (08.11.2026); the stock screen does not show them.
 		 "Покрытие", "Патина", "Фрезеровка", "Материал", "Банк", "Краска",
 		 # Матовая, софт, древесная… — a film card's type (owner, 10.11.2026).
-		 "Тип плёнки")
+		 "Тип плёнки",
+		 # ALDA, Solid Color, Древесные… — a maker's own collections, kept as
+		 # «Maker · Collection» (`film_catalog`, owner, 11.11.2026).
+		 "Коллекция плёнки")
 #: Units a material is counted in. Created in ERPNext if missing.
 UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False}
 MAX_QTY = Decimal("100000")

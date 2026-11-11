@@ -5609,10 +5609,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmMaker => 'Производитель';
 
   @override
-  String get filmType => 'Тип плёнки';
+  String get filmType => 'Поверхность плёнки';
 
   @override
-  String get filmAllTypes => 'Все типы';
+  String get filmAllTypes => 'Любая поверхность';
 
   @override
   String filmSearchIn(String maker) {
@@ -5635,7 +5635,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmUnassignedHint =>
-      'Цвета без производителя. Заведите плёнку на складе материалов и укажите производителя — старые заказы останутся как есть.';
+      'Цвета из старого списка, без производителя. Если такая плёнка нужна — добавьте её у производителя кнопкой «Плёнка», а здесь уберите. Старые заказы останутся как есть.';
 
   @override
   String get filmCode => 'Код';
@@ -5686,6 +5686,47 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmTabCustomers => 'Клиенты';
+
+  @override
+  String get filmCollection => 'Коллекция';
+
+  @override
+  String get filmCollections => 'Коллекции';
+
+  @override
+  String get filmAllCollections => 'Все коллекции';
+
+  @override
+  String get filmCollectionAdd => 'Новая коллекция';
+
+  @override
+  String get filmCollectionRename => 'Переименовать коллекцию';
+
+  @override
+  String get filmCollectionName => 'Название коллекции';
+
+  @override
+  String filmCollectionRemoveAsk(String name) {
+    return 'Убрать коллекцию «$name»?';
+  }
+
+  @override
+  String get filmCollectionRemoveHint =>
+      'Её плёнки останутся в каталоге, без коллекции.';
+
+  @override
+  String filmCollectionsEmpty(String name) {
+    return 'У $name пока нет коллекций. Нажмите +, чтобы добавить.';
+  }
+
+  @override
+  String filmLooseDropAsk(String name) {
+    return 'Убрать цвет «$name»?';
+  }
+
+  @override
+  String get filmLooseDropHint =>
+      'Заказы, где он указан, останутся как записаны.';
 
   @override
   String get filmTabSources => 'Поставщики';

@@ -382,8 +382,9 @@ void main() {
           ),
         )
         .initialValue;
-    // Each film group opens its own list from the header.
-    expect(find.byKey(const ValueKey('dict:group:0')), findsOneWidget);
+    // A film group picks from the catalogue, not from the old colour list.
+    expect(find.byKey(const ValueKey('filmPick:0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('dict:group:0')), findsNothing);
     expect(edgeOf(0), 'R3'); // nobody said otherwise
     expect(edgeOf(1), 'R0'); // a sharp corner
     // Position 2 has its back side and its patina, each a chip with ✕.

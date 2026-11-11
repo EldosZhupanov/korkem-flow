@@ -137,3 +137,53 @@ class TestFilmCatalog(IntegrationTestCase):
 		self.assertNotIn("Белый Матовый", catalog["unassigned"])
 		self.assertIn("Матовая", catalog["types"])
 		self.assertIn("KIRA", catalog["makers"])
+		# The old colour is taken off by hand; a catalogue film's colour is not.
+		left = self._as(MANAGER, service.drop_unassigned, "Лён Без Плёнки")
+		self.assertNotIn("Лён Без Плёнки", left["unassigned"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.drop_unassigned, "Белый Матовый")
+
+	def test_a_maker_keeps_its_own_collections(self):
+		self._as(MANAGER, service.add_collection, "KIRA", "Древесные")
+		catalog = self._as(MANAGER, service.add_collection, "JS Group", "Древесные")
+		# The same name under two makers is two collections.
+		self.assertIn("Древесные", catalog["collections"]["KIRA"])
+		self.assertIn("Древесные", catalog["collections"]["JS Group"])
+		made = self._as(MANAGER, service.add, "KIRA", "Дуб Коллекционный", collection="Древесные")
+		self.assertEqual(made["collection"], "Древесные")
+		# A film takes only a collection of its own maker.
+		self._as(MANAGER, service.add_collection, "JS Group", "Только JS")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.set_card, made["item"], collection="Только JS")
+		# Renamed, the collection keeps its films; the other maker's is untouched.
+		catalog = self._as(MANAGER, service.rename_collection, "KIRA", "Древесные", "Wood")
+		self.assertIn("Wood", catalog["collections"]["KIRA"])
+		self.assertNotIn("Древесные", catalog["collections"]["KIRA"])
+		self.assertIn("Древесные", catalog["collections"]["JS Group"])
+		self.assertEqual(self._as(MANAGER, service.film, made["item"])["collection"], "Wood")
+		# Removed, its films stay — without a collection.
+		catalog = self._as(MANAGER, service.remove_collection, "KIRA", "Wood")
+		self.assertNotIn("Wood", catalog["collections"].get("KIRA", []))
+		self.assertIsNone(self._as(MANAGER, service.film, made["item"])["collection"])
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, service.add_collection, "KIRA", "Чужая")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.add_collection, "Никто", "Коллекция")
+
+	def test_a_thickness_written_with_a_comma_is_read_as_it_is(self):
+		made = self._as(MANAGER, service.add, "KIRA", "Тонкая Запятая")
+		self.assertEqual((made["thickness_mm"], made["width_mm"]), (0.3, 1400))
+
+	def test_a_name_is_renamed_to_itself_in_another_case(self):
+		from korkem_manufacturing.services import mdf_dictionaries
+
+		material_stock.add_option("Банк", "КАСПИЙТЕСТ")
+		option = frappe.db.get_value(
+			"Material Option", {"company": COMPANY, "kind": "Банк", "value": "КАСПИЙТЕСТ"}, "name"
+		)
+		mdf_dictionaries.rename("bank", option, "Каспийтест")
+		self.assertEqual(frappe.db.get_value("Material Option", option, "value"), "Каспийтест")
+		material_stock.add_option("Банк", "Другой Банк Тест")
+		with self.assertRaises(frappe.ValidationError):
+			mdf_dictionaries.rename("bank", option, "другой банк тест")
+

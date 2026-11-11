@@ -16,9 +16,39 @@ def catalog() -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def add(maker: str, colour: str, thickness: str | None = None, width: str | None = None) -> dict:
-	"""Новая плёнка производителя — прямо из каталога."""
-	return service.add(maker, colour, thickness=thickness, width=width)
+def add(
+	maker: str,
+	colour: str,
+	thickness: str | None = None,
+	width: str | None = None,
+	collection: str | None = None,
+) -> dict:
+	"""Новая плёнка производителя — прямо из каталога, сразу в коллекцию."""
+	return service.add(maker, colour, thickness=thickness, width=width, collection=collection)
+
+
+@frappe.whitelist(methods=["POST"])
+def drop_unassigned(colour: str) -> dict:
+	"""Убрать старый цвет без производителя; заказы с ним остаются как записаны."""
+	return service.drop_unassigned(colour)
+
+
+@frappe.whitelist(methods=["POST"])
+def add_collection(maker: str, name: str) -> dict:
+	"""Новая коллекция производителя."""
+	return service.add_collection(maker, name)
+
+
+@frappe.whitelist(methods=["POST"])
+def rename_collection(maker: str, name: str, new_name: str) -> dict:
+	"""Переименовать коллекцию; её плёнки переходят следом."""
+	return service.rename_collection(maker, name, new_name)
+
+
+@frappe.whitelist(methods=["POST"])
+def remove_collection(maker: str, name: str) -> dict:
+	"""Убрать коллекцию; её плёнки остаются в каталоге без коллекции."""
+	return service.remove_collection(maker, name)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -33,6 +63,7 @@ def set_card(
 	url: str | None = None,
 	retail_m: float | str | None = None,
 	wholesale_m: float | str | None = None,
+	collection: str | None = None,
 ) -> dict:
 	"""Карточка плёнки: код, тип, образец, RAL, поставщик, цена за метр, ссылка."""
 	sent = frappe.form_dict
@@ -41,7 +72,7 @@ def set_card(
 		for key, value in {
 			"code": code, "type": type, "hex": hex, "ral": ral,
 			"supplier": supplier, "price_m": price_m, "url": url,
-			"retail_m": retail_m, "wholesale_m": wholesale_m,
+			"retail_m": retail_m, "wholesale_m": wholesale_m, "collection": collection,
 		}.items()
 		if key in sent
 	}

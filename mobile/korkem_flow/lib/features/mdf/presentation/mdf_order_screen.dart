@@ -604,7 +604,12 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     if (coating == null || !mounted) return;
     final kind = mdfCoatingList(coating);
     String? film;
-    if (kind != null) {
+    if (coating == MdfCoating.pvc) {
+      // A film comes from the catalogue: maker, collection, film (owner,
+      // 11.11.2026 — the old colour list is no longer picked from).
+      film = await showFilmPicker(context);
+      if (film == null || !mounted) return;
+    } else if (kind != null) {
       film = await showMdfDictionary(
         context,
         kind,
@@ -1189,7 +1194,10 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                     final group = _films[g];
                     final film = group.film;
                     final kind = mdfCoatingList(group.coating);
-                    final colors = kind == null
+                    // A film is picked in the catalogue, so its drop-down
+                    // holds only what the order already names (11.11.2026).
+                    final colors =
+                        kind == null || group.coating == MdfCoating.pvc
                         ? const <String>[]
                         : dicts.values(kind);
                     final mates = [
@@ -1528,7 +1536,8 @@ class _FilmGroup extends StatelessWidget {
                     ),
                   // The type's own list, here: add, rename, delete a film
                   // or a paint without leaving the order (09.11.2026).
-                  if (mdfCoatingList(coating) case final kind?)
+                  if (mdfCoatingList(coating) case final kind?
+                      when coating != MdfCoating.pvc)
                     IconButton(
                       key: ValueKey('dict:group:$index'),
                       tooltip: l10n.mdfDictOpen,
@@ -1766,12 +1775,16 @@ class _LineRow extends StatelessWidget {
       tooltip: l10n.mdfDictOpen,
       icon: const Icon(AppIcons.dictionary),
       onPressed: () async {
-        final picked = await showMdfDictionary(
-          context,
-          kind,
-          title: title,
-          current: current,
-        );
+        // A film — the back side of a PVC position — is from the catalogue.
+        final picked =
+            kind == MdfDictKind.decor && line.coating == MdfCoating.pvc
+            ? await showFilmPicker(context, current: current)
+            : await showMdfDictionary(
+                context,
+                kind,
+                title: title,
+                current: current,
+              );
         if (picked != null) {
           set(picked);
           onChanged();
