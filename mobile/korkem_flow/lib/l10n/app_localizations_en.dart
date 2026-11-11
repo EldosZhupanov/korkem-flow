@@ -5605,7 +5605,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmToOrder => 'to order';
 
   @override
-  String get filmOff => 'discontinued';
+  String get filmOff => 'in the archive';
 
   @override
   String get filmUnassigned => 'no maker';
@@ -5663,6 +5663,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmTabCustomers => 'Customers';
+
+  @override
+  String get filmSaveMore => 'Save and add another';
+
+  @override
+  String filmAddedOne(String name) {
+    return 'Added: $name';
+  }
+
+  @override
+  String get filmArchive => 'To the archive';
+
+  @override
+  String get filmRestore => 'Bring back from the archive';
+
+  @override
+  String filmArchiveChip(String name) {
+    return 'Archive · $name';
+  }
+
+  @override
+  String get filmDelete => 'Delete';
+
+  @override
+  String filmDeleteAsk(String name) {
+    return 'Delete the film “$name”?';
+  }
+
+  @override
+  String get filmDeleteHint =>
+      'Only a film nothing was done with can be deleted. If it has receipts, sales or orders, send it to the archive.';
+
+  @override
+  String get filmChanges => 'History of changes';
+
+  @override
+  String get filmChangesEmpty => 'No changes yet.';
 
   @override
   String get filmCollection => 'Collection';

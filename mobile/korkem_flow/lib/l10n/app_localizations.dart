@@ -9978,7 +9978,7 @@ abstract class AppLocalizations {
   /// No description provided for @filmOff.
   ///
   /// In en, this message translates to:
-  /// **'discontinued'**
+  /// **'in the archive'**
   String get filmOff;
 
   /// No description provided for @filmUnassigned.
@@ -10088,6 +10088,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Customers'**
   String get filmTabCustomers;
+
+  /// No description provided for @filmSaveMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and add another'**
+  String get filmSaveMore;
+
+  /// No description provided for @filmAddedOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Added: {name}'**
+  String filmAddedOne(String name);
+
+  /// No description provided for @filmArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'To the archive'**
+  String get filmArchive;
+
+  /// No description provided for @filmRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring back from the archive'**
+  String get filmRestore;
+
+  /// No description provided for @filmArchiveChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive · {name}'**
+  String filmArchiveChip(String name);
+
+  /// No description provided for @filmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get filmDelete;
+
+  /// No description provided for @filmDeleteAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the film “{name}”?'**
+  String filmDeleteAsk(String name);
+
+  /// No description provided for @filmDeleteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a film nothing was done with can be deleted. If it has receipts, sales or orders, send it to the archive.'**
+  String get filmDeleteHint;
+
+  /// No description provided for @filmChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'History of changes'**
+  String get filmChanges;
+
+  /// No description provided for @filmChangesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes yet.'**
+  String get filmChangesEmpty;
 
   /// No description provided for @filmCollection.
   ///

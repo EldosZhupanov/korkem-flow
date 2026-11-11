@@ -57,6 +57,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_film_collection_field
 
 	add_film_collection_field.execute()
+	from korkem_manufacturing.patches.v0_0 import add_film_archived_field
+
+	add_film_archived_field.execute()
 	from korkem_manufacturing.patches.v0_0 import add_stock_count_field
 
 	add_stock_count_field.execute()

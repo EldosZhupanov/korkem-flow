@@ -6204,7 +6204,7 @@
     }
   },
   "filmToOrder": "to order",
-  "filmOff": "discontinued",
+  "filmOff": "in the archive",
   "filmUnassigned": "no maker",
   "filmUnassignedHint": "Colours of the old list, without a maker. If such a film is needed, add it at its maker with “Film” and remove it here. Old orders stay as they are.",
   "filmCode": "Code",
@@ -6230,6 +6230,37 @@
   "filmTabStock": "Stock",
   "filmTabSales": "Sales",
   "filmTabCustomers": "Customers",
+  "filmSaveMore": "Save and add another",
+  "filmAddedOne": "Added: {name}",
+  "@filmAddedOne": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmArchive": "To the archive",
+  "filmRestore": "Bring back from the archive",
+  "filmArchiveChip": "Archive · {name}",
+  "@filmArchiveChip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmDelete": "Delete",
+  "filmDeleteAsk": "Delete the film “{name}”?",
+  "@filmDeleteAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmDeleteHint": "Only a film nothing was done with can be deleted. If it has receipts, sales or orders, send it to the archive.",
+  "filmChanges": "History of changes",
+  "filmChangesEmpty": "No changes yet.",
   "filmCollection": "Collection",
   "filmCollections": "Collections",
   "filmAllCollections": "All collections",
