@@ -5630,6 +5630,27 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmTabCustomers => 'Клиенттер';
 
   @override
+  String get filmCorrectTitle => 'Түзету';
+
+  @override
+  String get filmCorrectReason => 'Неге түзетесіз';
+
+  @override
+  String get filmCorrectHint =>
+      'Ескі жазба сызылып қалады — кім және неге түзеткені көрінеді.';
+
+  @override
+  String get filmCorrectSave => 'Түзету';
+
+  @override
+  String get filmCorrectCancel => 'Жазбаны болдырмау';
+
+  @override
+  String filmCorrected(String date, String who, String reason) {
+    return 'түзетілді $date · $who · «$reason»';
+  }
+
+  @override
   String get filmSaleAddPart => 'тағы бір тәсіл';
 
   @override

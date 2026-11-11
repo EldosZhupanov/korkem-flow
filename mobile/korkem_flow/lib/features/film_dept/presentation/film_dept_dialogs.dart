@@ -12,6 +12,7 @@ import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -1046,6 +1047,184 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
                   ),
             child: Text(l10n.filmPayDebt),
           ),
+      ],
+    );
+  }
+}
+
+/// A movement of the film's history opened to be put right (owner,
+/// 11.11.2026: «менеджер может затупить»): the same figures to change, why
+/// — a must — and, for one that should not be there at all, a cancel.
+Future<bool?> showFilmCorrect(
+  BuildContext context, {
+  required FilmMove move,
+  required Film film,
+  required FilmCatalog stock,
+}) => showDialog<bool>(
+  context: context,
+  builder: (_) => _CorrectDialog(move: move, film: film, stock: stock),
+);
+
+class _CorrectDialog extends ConsumerStatefulWidget {
+  const _CorrectDialog({
+    required this.move,
+    required this.film,
+    required this.stock,
+  });
+
+  final FilmMove move;
+  final Film film;
+  final FilmCatalog stock;
+
+  @override
+  ConsumerState<_CorrectDialog> createState() => _CorrectDialogState();
+}
+
+class _CorrectDialogState extends ConsumerState<_CorrectDialog> with _Saving {
+  late final _metres = TextEditingController(
+    text: filmMetres(widget.move.metres.abs()),
+  );
+  late final _price = TextEditingController(
+    text: widget.move.priceM?.toStringAsFixed(0),
+  );
+  late final _order = TextEditingController(text: widget.move.party);
+  late final _why = TextEditingController(text: widget.move.reason);
+  final _reason = TextEditingController();
+
+  /// A receipt's supplier: null keeps the one it has.
+  String? _supplier;
+
+  FilmMoveKind get _kind => widget.move.kind;
+
+  @override
+  void dispose() {
+    for (final c in [_metres, _price, _order, _why, _reason]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final m = widget.move;
+    final metres = _number(_metres.text) ?? 0;
+    final reason = _reason.text.trim();
+    final repo = ref.read(filmDeptRepositoryProvider);
+    final priced = _kind == FilmMoveKind.receipt || _kind == FilmMoveKind.sale;
+    return AlertDialog(
+      title: Text(
+        '${l10n.filmCorrectTitle} · ${mdfDay(m.date)} · '
+        '${filmName(widget.film)}',
+      ),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 9,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _metresField(
+                _metres,
+                l10n.filmMetresLabel,
+                () => setState(() {}),
+              ),
+              if (priced && m.priceM != null)
+                TextField(
+                  key: const ValueKey('filmCorrect:price'),
+                  controller: _price,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(labelText: l10n.filmSalePriceM),
+                ),
+              if (_kind == FilmMoveKind.receipt)
+                DropdownButtonFormField<String?>(
+                  key: const ValueKey('filmCorrect:supplier'),
+                  initialValue: _supplier,
+                  isExpanded: true,
+                  items: [
+                    DropdownMenuItem(
+                      child: Text(m.party ?? l10n.mdfNone),
+                    ),
+                    for (final s in widget.stock.suppliersFor(
+                      widget.film.maker,
+                    ))
+                      DropdownMenuItem(value: s.id, child: Text(s.name)),
+                  ],
+                  onChanged: (v) => setState(() => _supplier = v),
+                  decoration: InputDecoration(
+                    labelText: l10n.filmReceiveFrom,
+                  ),
+                ),
+              if (_kind == FilmMoveKind.shop)
+                TextField(
+                  key: const ValueKey('filmCorrect:order'),
+                  controller: _order,
+                  decoration: InputDecoration(labelText: l10n.filmForOrder),
+                ),
+              if (_kind == FilmMoveKind.writeOff)
+                TextField(
+                  key: const ValueKey('filmCorrect:why'),
+                  controller: _why,
+                  decoration: InputDecoration(
+                    labelText: l10n.filmReason,
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.sm),
+              TextField(
+                key: const ValueKey('filmCorrect:reason'),
+                controller: _reason,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  labelText: l10n.filmCorrectReason,
+                  helperText: l10n.filmCorrectHint,
+                  helperMaxLines: 2,
+                ),
+              ),
+              errorLine(context),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        // A receipt is put right, never cancelled here: its metres may be
+        // sold already.
+        if (_kind != FilmMoveKind.receipt)
+          TextButton(
+            key: const ValueKey('filmCorrect:cancel'),
+            onPressed: busy || reason.length < 3
+                ? null
+                : () => save(() => repo.cancel(m.entry, reason)),
+            child: Text(l10n.filmCorrectCancel),
+          ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmCorrect:save'),
+          onPressed: busy || reason.length < 3 || metres <= 0
+              ? null
+              : () => save(
+                  () => repo.correct(
+                    entry: m.entry,
+                    item: widget.film.item,
+                    reason: reason,
+                    metres: metres,
+                    priceM: priced && m.priceM != null
+                        ? _number(_price.text)
+                        : null,
+                    supplier: _supplier,
+                    order: _kind == FilmMoveKind.shop
+                        ? _order.text.trim()
+                        : null,
+                    why: _kind == FilmMoveKind.writeOff
+                        ? _why.text.trim()
+                        : null,
+                  ),
+                ),
+          child: Text(l10n.filmCorrectSave),
+        ),
       ],
     );
   }

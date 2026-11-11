@@ -29,6 +29,10 @@ class FilmMove {
     this.priceM,
     this.party,
     this.reason,
+    this.struck = false,
+    this.fixReason,
+    this.fixBy,
+    this.fixAt,
   });
 
   factory FilmMove.fromJson(Map<String, dynamic> json) => FilmMove(
@@ -39,6 +43,19 @@ class FilmMove {
     priceM: _d(json['price_m']),
     party: _s(json['party']),
     reason: _s(json['reason']),
+    struck: json['struck'] == true,
+    fixReason: switch (json['fix']) {
+      final Map<String, dynamic> f => _s(f['reason']),
+      _ => null,
+    },
+    fixBy: switch (json['fix']) {
+      final Map<String, dynamic> f => _s(f['by']),
+      _ => null,
+    },
+    fixAt: switch (json['fix']) {
+      final Map<String, dynamic> f => _s(f['at']),
+      _ => null,
+    },
   );
 
   final String entry;
@@ -52,6 +69,17 @@ class FilmMove {
   /// The supplier, the customer, or the order it went to the shop for.
   final String? party;
   final String? reason;
+
+  /// Entered wrong and made again right: shown struck through (owner,
+  /// 11.11.2026).
+  final bool struck;
+
+  /// On the movement that made a wrong one right: why, who, when.
+  final String? fixReason;
+  final String? fixBy;
+  final String? fixAt;
+
+  bool get fixed => fixAt != null;
 }
 
 /// A film in a sale: so many metres at so much a metre.

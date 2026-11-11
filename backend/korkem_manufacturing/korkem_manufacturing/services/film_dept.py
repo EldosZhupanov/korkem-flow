@@ -29,7 +29,7 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 
 import frappe
-from frappe.utils import add_days, date_diff, flt, getdate, nowdate
+from frappe.utils import add_days, date_diff, flt, get_fullname, getdate, nowdate
 
 from korkem_manufacturing.services import audit, film_catalog, material_stock, price_visibility
 from korkem_manufacturing.services.scope import current_company
@@ -135,19 +135,20 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 	return movement(entry.name)
 
 
-def to_shop(item: str, metres, order: str | None = None, note: str | None = None) -> dict:
+def to_shop(item: str, metres, order: str | None = None, note: str | None = None,
+			posted_on: str | None = None) -> dict:
 	"""Film handed to our own shop — for an order of facades when one is named."""
 	material_stock._ensure_editor()
 	_film(item)
 	order = " ".join((order or "").split())[:140] or None
 	entry = _issue(current_company(), [(item, _metres(metres, "Метров"), None)], SHOP, remarks=note,
-				   header={"korkem_film_order": order})
+				   header={"korkem_film_order": order}, posted_on=posted_on)
 	audit.record_audit(action="film.to_shop", entity_type="Stock Entry", entity_id=entry.name,
 					   diff={"item": item, "metres": flt(metres), "order": order})
 	return movement(entry.name)
 
 
-def write_off(item: str, metres, reason: str) -> dict:
+def write_off(item: str, metres, reason: str, posted_on: str | None = None) -> dict:
 	"""Metres that left neither to a customer nor to the shop, and why."""
 	material_stock._ensure_editor()
 	_film(item)
@@ -155,7 +156,7 @@ def write_off(item: str, metres, reason: str) -> dict:
 	if len(reason) < 3:
 		frappe.throw("Укажите причину списания.")
 	entry = _issue(current_company(), [(item, _metres(metres, "Метров"), None)], WRITE_OFF,
-				   header={"korkem_film_reason": reason})
+				   header={"korkem_film_reason": reason}, posted_on=posted_on)
 	audit.record_audit(action="film.written_off", entity_type="Stock Entry", entity_id=entry.name,
 					   diff={"item": item, "metres": flt(metres), "reason": reason})
 	return movement(entry.name)
@@ -249,14 +250,106 @@ def cancel(entry: str, reason: str) -> dict:
 	reason = " ".join((reason or "").split())[:500]
 	if len(reason) < 3:
 		frappe.throw("Укажите, почему запись отменяется.")
-	if getdate(doc.creation) != getdate(nowdate()) and "System Manager" not in frappe.get_roles():
-		frappe.throw("Запись внесена не сегодня — отменить её может только владелец.")
+	_may_change(doc, "отменить")
 	doc.flags.ignore_permissions = True
 	doc.cancel()
 	doc.add_comment("Comment", f"Отменено: {reason}")
 	audit.record_audit(action="film.movement_cancelled", entity_type="Stock Entry", entity_id=entry,
 					   diff={"kind": doc.korkem_film_kind, "reason": reason})
 	return {"cancelled": entry}
+
+
+def _may_change(doc, what: str) -> None:
+	"""The manager on the day it was entered; later, only the owner — the
+	day's count is closed by then."""
+	if getdate(doc.creation) != getdate(nowdate()) and "System Manager" not in frappe.get_roles():
+		frappe.throw(f"Запись внесена не сегодня — {what} её может только владелец.")
+
+
+def correct(entry: str, item: str, reason: str, metres=None, price_m=None, supplier: str | None = None,
+			order: str | None = None, why: str | None = None) -> dict:
+	"""A movement entered wrong, made again right (owner, 11.11.2026: «менеджер
+	может затупить»).
+
+	The wrong one is cancelled — not deleted — and points to the right one,
+	which is entered on the same day with what was changed: the metres, the
+	price, the supplier of a receipt, the order of a hand-over to the shop,
+	why a write-off. A sale keeps its customer, its other films and every
+	payment made on it. Who may: as for a cancel.
+	"""
+	material_stock._ensure_editor()
+	reason = " ".join((reason or "").split())[:500]
+	if len(reason) < 3:
+		frappe.throw("Укажите, почему исправляете.")
+	if not entry or not frappe.db.exists("Stock Entry", entry):
+		frappe.throw("Такой записи нет.", frappe.DoesNotExistError)
+	doc = frappe.get_doc("Stock Entry", entry)
+	kind = "receipt" if doc.get("korkem_material_receipt") else doc.get("korkem_film_kind")
+	if doc.company != current_company() or kind not in ("receipt", *KINDS):
+		frappe.throw("Такой записи нет.", frappe.DoesNotExistError)
+	if doc.docstatus != 1:
+		frappe.throw("Эта запись уже отменена.")
+	_may_change(doc, "исправить")
+	row = next((r for r in doc.items if r.item_code == item), None)
+	if not row:
+		frappe.throw("В этой записи нет такой плёнки.")
+	day = str(doc.posting_date)
+	metres = row.qty if metres in (None, "") else metres
+
+	def cancel_old():
+		doc.flags.ignore_permissions = True
+		doc.cancel()
+
+	if kind == "receipt":
+		price = row.basic_rate if price_m in (None, "") else price_m
+		card = flt(frappe.db.get_value("Item", item, film_catalog.CARD["price_m"]))
+		# The new receipt first: the metres of the wrong one may be sold
+		# already, and the shelf must not go below nothing between the two.
+		made = receive(
+			item, metres, price, supplier or doc.get("korkem_supplier"), received_on=day,
+			note=doc.get("remarks"),
+			# The card follows a corrected price only if it came from the wrong one.
+			update_price=flt(price) != flt(row.basic_rate) and card == flt(row.basic_rate),
+		)
+		new = made["receipt"]
+		cancel_old()
+	elif kind == SALE:
+		lines = [
+			{"item": r.item_code, "metres": flt(r.qty), "price_m": flt(r.get("korkem_film_price_m")) or None}
+			for r in doc.items
+		]
+		for line in lines:
+			if line["item"] == item:
+				line["metres"] = metres
+				if price_m not in (None, ""):
+					line["price_m"] = price_m
+		paid = _payments(doc)
+		cancel_old()
+		made = sell(
+			doc.korkem_film_customer, lines, sold_on=day, note=doc.get("remarks"),
+			payments=[{"amount": p["amount"], "method": p["method"], "bank": p.get("bank")} for p in paid],
+		)
+		new = made["entry"]
+		# The payments keep the days they were made on.
+		if paid:
+			frappe.db.set_value("Stock Entry", new, "korkem_film_payments", frappe.as_json(paid))
+	elif kind == SHOP:
+		cancel_old()
+		new = to_shop(
+			item, metres, order=doc.get("korkem_film_order") if order is None else order,
+			note=doc.get("remarks"), posted_on=day,
+		)["entry"]
+	else:
+		cancel_old()
+		new = write_off(item, metres, why or doc.get("korkem_film_reason"), posted_on=day)["entry"]
+	frappe.db.set_value(
+		"Stock Entry", entry, {"korkem_film_replaced_by": new, "korkem_film_fix_reason": reason},
+		update_modified=False,
+	)
+	frappe.db.set_value("Stock Entry", new, "korkem_film_replaces", entry, update_modified=False)
+	audit.record_audit(action="film.corrected", entity_type="Stock Entry", entity_id=new,
+					   diff={"replaces": entry, "kind": kind, "item": item}, reason=reason)
+	return {"entry": new, "replaces": entry}
 
 
 # --------------------------------------------------------------------------
@@ -289,7 +382,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 	_film(item)
 	rows = frappe.get_all(
 		"Stock Entry Detail",
-		filters={"item_code": item, "docstatus": 1},
+		# A movement made again right shows struck through under the right one.
+		filters={"item_code": item, "docstatus": ["in", [1, 2]]},
 		fields=["parent", "qty", "basic_rate", "korkem_film_price_m", "t_warehouse", "s_warehouse"],
 		order_by="creation desc",
 		limit_page_length=min(int(limit or 100), 500),
@@ -300,10 +394,17 @@ def history(item: str, limit: int = 100) -> list[dict]:
 		head = frappe.db.get_value(
 			"Stock Entry", r.parent,
 			["posting_date", "posting_time", "creation", "purpose", "korkem_supplier", "korkem_film_kind",
-			 "korkem_film_customer", "korkem_film_order", "korkem_film_reason", "owner"], as_dict=True,
+			 "korkem_film_customer", "korkem_film_order", "korkem_film_reason", "owner", "docstatus",
+			 "korkem_film_replaced_by", "korkem_film_replaces"], as_dict=True,
 		)
-		if not head:
+		if not head or (head.docstatus == 2 and not head.korkem_film_replaced_by):
 			continue
+		fix = None
+		if head.korkem_film_replaces:
+			old = frappe.db.get_value(
+				"Stock Entry", head.korkem_film_replaces, "korkem_film_fix_reason"
+			)
+			fix = {"reason": old, "by": get_fullname(head.owner) or head.owner, "at": str(head.creation)[:16]}
 		coming = bool(r.t_warehouse) and not r.s_warehouse
 		kind = "receipt" if coming else (head.korkem_film_kind or "other")
 		out.append({
@@ -315,6 +416,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 			"party": _party(head, kind),
 			"reason": head.korkem_film_reason,
 			"by": head.owner,
+			"struck": head.docstatus == 2,
+			"fix": fix,
 			"_at": (str(head.posting_date), str(head.posting_time), str(head.creation), r.parent),
 		})
 	# Newest first by when it was posted, then entered — and by the entry's

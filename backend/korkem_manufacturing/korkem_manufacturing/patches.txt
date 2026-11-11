@@ -31,6 +31,7 @@ korkem_manufacturing.patches.v0_0.add_film_source_fields
 korkem_manufacturing.patches.v0_0.add_film_collection_field
 korkem_manufacturing.patches.v0_0.add_film_archived_field
 korkem_manufacturing.patches.v0_0.add_film_payments_field
+korkem_manufacturing.patches.v0_0.add_film_fix_fields
 korkem_manufacturing.patches.v0_0.add_stock_count_field
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-07 who did each stage

@@ -60,6 +60,15 @@ def pay(entry: str, amount: float | str | None = None, method: str | None = None
 
 
 @frappe.whitelist(methods=["POST"])
+def correct(entry: str, item: str, reason: str, metres: float | str | None = None,
+			price_m: float | str | None = None, supplier: str | None = None, order: str | None = None,
+			why: str | None = None) -> dict:
+	"""Исправить запись: старая зачёркивается, новая вносится тем же днём, с причиной."""
+	return service.correct(entry, item, reason, metres=metres, price_m=price_m, supplier=supplier,
+						   order=order, why=why)
+
+
+@frappe.whitelist(methods=["POST"])
 def cancel(entry: str, reason: str) -> dict:
 	"""Отменить запись, внесённую по ошибке: метры возвращаются на склад."""
 	return service.cancel(entry, reason)

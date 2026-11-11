@@ -48,6 +48,19 @@ class _Fake implements FilmDeptRepository {
   final remembered = <String>{};
   final parts = <List<({double amount, String method, String? bank})>>[];
   final received = <(String, double, double, bool)>[];
+  final corrected = <(String, String, String, double?)>[];
+
+  @override
+  Future<void> correct({
+    required String entry,
+    required String item,
+    required String reason,
+    double? metres,
+    double? priceM,
+    String? supplier,
+    String? order,
+    String? why,
+  }) async => corrected.add((entry, item, reason, metres));
 
   @override
   Future<void> receive({
@@ -234,6 +247,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmStock:MAT-1')), findsNothing);
     expect(find.byKey(const ValueKey('filmStock:MAT-2')), findsOneWidget);
+  });
+
+  testWidgets('a movement entered wrong is put right with a reason', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmStock:MAT-1')));
+    await tester.pumpAndSettle();
+    // The sale of 12 m was really 10.
+    await tester.tap(find.byKey(const ValueKey('filmMove:1')));
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('filmCorrect:save'));
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
+    await tester.pumpAndSettle();
+    // Why must be said.
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmCorrect:reason')),
+      'ошибся в метраже',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repo.corrected.single, ('STE-2', 'MAT-1', 'ошибся в метраже', 10.0));
   });
 
   testWidgets('a write-off needs metres and a reason', (tester) async {

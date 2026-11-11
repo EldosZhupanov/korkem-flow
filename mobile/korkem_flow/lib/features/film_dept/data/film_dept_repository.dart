@@ -147,6 +147,32 @@ class FilmDeptRepository {
     ),
   );
 
+  /// A movement entered wrong, made again right: the wrong one is struck
+  /// through, the right one entered the same day — with [reason].
+  Future<void> correct({
+    required String entry,
+    required String item,
+    required String reason,
+    double? metres,
+    double? priceM,
+    String? supplier,
+    String? order,
+    String? why,
+  }) => _client.callMethod(
+    '$_base.correct',
+    post: true,
+    params: {
+      'entry': entry,
+      'item': item,
+      'reason': reason,
+      'metres': ?metres,
+      'price_m': ?priceM,
+      'supplier': ?supplier,
+      'order': ?order,
+      'why': ?why,
+    },
+  );
+
   Future<void> cancel(String entry, String reason) => _client.callMethod(
     '$_base.cancel',
     post: true,
