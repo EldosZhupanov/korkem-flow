@@ -88,7 +88,29 @@ def delivery_options() -> dict:
 		"supplier_cities": cities,
 		"staff": staff(),
 		"me": frappe.session.user,
+		"drivers": drivers(company),
 	}
+
+
+def drivers(company: str | None = None) -> list[dict]:
+	"""The drivers who brought film before, newest first, each once: to be
+	picked again rather than typed."""
+	seen, out = set(), []
+	for r in frappe.get_all(
+		"Stock Entry",
+		filters={"company": company or current_company(), "korkem_material_receipt": 1, "docstatus": ["!=", 2],
+				 "korkem_delivery_driver": ["is", "set"]},
+		fields=["korkem_delivery_driver", "korkem_delivery_phone", "korkem_delivery_transport"],
+		order_by="creation desc",
+		limit_page_length=300,
+	):
+		key = (r.korkem_delivery_driver.casefold(), r.korkem_delivery_phone or "")
+		if key in seen:
+			continue
+		seen.add(key)
+		out.append({"driver": r.korkem_delivery_driver, "phone": r.korkem_delivery_phone,
+					"transport": r.korkem_delivery_transport})
+	return out[:50]
 
 
 def _first(order: tuple):
@@ -168,6 +190,9 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 		"korkem_delivery_cost": float(cost), "korkem_delivery_urgent": 1 if urgent else 0,
 		"korkem_film_due": str(due) if due else None,
 		"korkem_delivery_payer": payer, "korkem_delivery_paid_by": paid_by, "korkem_delivery_method": pay_method,
+		# Who brought it and how to reach him (owner, 12.11.2026) — optional.
+		"korkem_delivery_driver": " ".join(str(delivery.get("driver") or "").split())[:80] or None,
+		"korkem_delivery_phone": " ".join(str(delivery.get("phone") or "").split())[:40] or None,
 	}, update_modified=False)
 	if _yes(update_price) and flt(price_m) > 0:
 		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
@@ -646,7 +671,8 @@ def correct(entry: str, item: str, reason: str, metres=None, price_m=None, suppl
 			"korkem_delivery_cost": flt(doc.get("korkem_delivery_cost")),
 			# Who paid, and whether it was given back, stay with it.
 			**{f: doc.get(f) for f in ("korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_method",
-									   "korkem_delivery_settled_on", "korkem_delivery_settled_method")},
+									   "korkem_delivery_settled_on", "korkem_delivery_settled_method",
+									   "korkem_delivery_driver", "korkem_delivery_phone")},
 		}, update_modified=False)
 		for d in frappe.get_all("Logistics Delivery", filters={"receipt": entry}, pluck="name"):
 			frappe.db.set_value("Logistics Delivery", d, "receipt", new, update_modified=False)
@@ -772,7 +798,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 			 "korkem_film_customer", "korkem_film_order", "korkem_film_reason", "owner", "docstatus",
 			 "korkem_film_replaced_by", "korkem_film_replaces", "korkem_received_by", "korkem_delivery_transport",
 			 "korkem_delivery_city", "korkem_delivery_cost", "korkem_delivery_urgent", "korkem_film_seller",
-			 "korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_settled_on"],
+			 "korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_settled_on",
+			 "korkem_delivery_driver", "korkem_delivery_phone"],
 			as_dict=True,
 		)
 		if not head or (head.docstatus == 2 and not head.korkem_film_replaced_by):
@@ -806,6 +833,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 				"payer": head.korkem_delivery_payer,
 				"paid_by": get_fullname(head.korkem_delivery_paid_by) if head.korkem_delivery_paid_by else None,
 				"settled": bool(head.korkem_delivery_settled_on),
+				"driver": head.korkem_delivery_driver,
+				"phone": head.korkem_delivery_phone,
 			} if coming and head.korkem_delivery_transport else None,
 			"seller": get_fullname(head.korkem_film_seller) if head.korkem_film_seller else None,
 			"_at": (str(head.posting_date), str(head.posting_time), str(head.creation), r.parent),

@@ -69,6 +69,8 @@ class FilmMove {
         payer: _s(d['payer']),
         paidBy: _s(d['paid_by']),
         settled: d['settled'] == true,
+        driver: _s(d['driver']),
+        phone: _s(d['phone']),
       ),
       _ => null,
     },
@@ -116,6 +118,8 @@ typedef FilmDelivery = ({
   String? payer,
   String? paidBy,
   bool settled,
+  String? driver,
+  String? phone,
 });
 
 /// Who paid for bringing a roll (owner, 11.11.2026) — the server's words.
@@ -149,8 +153,9 @@ class FilmCashBook {
       receipt: '${r['receipt']}',
       date: '${r['date'] ?? ''}',
       amount: _d(r['amount']) ?? 0,
-      who: _s(r['name']) ?? _s(r['transport']),
+      who: _s(r['name']) ?? _s(r['driver']) ?? _s(r['transport']),
       supplier: _s(r['supplier']),
+      phone: _s(r['phone']),
     );
     return FilmCashBook(
       since: '${json['since'] ?? ''}',
@@ -211,6 +216,7 @@ typedef FilmOwed = ({
   double amount,
   String? who,
   String? supplier,
+  String? phone,
 });
 
 /// What a receipt asks about its delivery and a sale about its seller.
@@ -223,6 +229,7 @@ class FilmDeliveryOptions {
     this.supplierCities = const {},
     this.staff = const [],
     this.me,
+    this.drivers = const [],
   });
 
   factory FilmDeliveryOptions.fromJson(Map<String, dynamic> json) =>
@@ -248,6 +255,15 @@ class FilmDeliveryOptions {
               (user: '${p['user']}', name: '${p['name'] ?? p['user']}'),
         ],
         me: _s(json['me']),
+        drivers: [
+          for (final d in json['drivers'] as List? ?? [])
+            if (d is Map<String, dynamic>)
+              (
+                driver: '${d['driver']}',
+                phone: _s(d['phone']),
+                transport: _s(d['transport']),
+              ),
+        ],
       );
 
   final List<String> transports;
@@ -260,6 +276,9 @@ class FilmDeliveryOptions {
   final Map<String, String> supplierCities;
   final List<({String user, String name})> staff;
   final String? me;
+
+  /// Drivers who brought film before, newest first (owner, 12.11.2026).
+  final List<({String driver, String? phone, String? transport})> drivers;
 }
 
 /// The film department's month by seller, and the team's bonus.

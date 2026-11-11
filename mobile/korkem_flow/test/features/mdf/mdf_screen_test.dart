@@ -8,20 +8,22 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Every row of «МДФ» opens the screen that already lives at its route.
 void main() {
+  // In the order they stand on the screen, group by group (12.11.2026):
+  // the test scrolls down to each in turn.
   const rows = {
     'orders': Routes.mdfOrders,
-    'quote': Routes.facadeQuote,
     'filmDept': Routes.filmDept,
-    'jobs': Routes.facadeJobs,
-    'press': Routes.pressSettings,
-    'stock': Routes.materialStock,
-    'plan': Routes.mdfPlan,
-    'tv': Routes.mdfTv,
-    'batch': Routes.mdfBatch,
+    'quote': Routes.facadeQuote,
     'cash': Routes.mdfCash,
     'report': Routes.mdfReport,
     'volume': Routes.mdfVolume,
     'debts': Routes.mdfDebts,
+    'jobs': Routes.facadeJobs,
+    'press': Routes.pressSettings,
+    'plan': Routes.mdfPlan,
+    'tv': Routes.mdfTv,
+    'batch': Routes.mdfBatch,
+    'stock': Routes.materialStock,
     'film': Routes.mdfFilm,
     'logistics': Routes.logistics,
     'dictionaries': Routes.mdfDictionaries,

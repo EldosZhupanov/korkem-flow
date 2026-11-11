@@ -39,6 +39,7 @@ _FIELDS = [
 	"name", "creation", "posting_date", "docstatus", "korkem_supplier", "korkem_delivery_transport",
 	"korkem_delivery_cost", "korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_method",
 	"korkem_delivery_settled_on", "korkem_delivery_settled_method", "korkem_film_due",
+	"korkem_delivery_driver", "korkem_delivery_phone",
 ]
 
 
@@ -145,6 +146,9 @@ def owed(company: str | None = None) -> dict:
 			"date": str(getdate(d.creation)),
 			"amount": flt(d.korkem_delivery_cost),
 			"transport": d.korkem_delivery_transport,
+			# How to reach the carrier who is owed (owner, 12.11.2026).
+			"driver": d.korkem_delivery_driver,
+			"phone": d.korkem_delivery_phone,
 			"supplier": frappe.db.get_value("Supplier", d.korkem_supplier, "supplier_name") or d.korkem_supplier,
 		}
 		if d.korkem_delivery_payer == PAYER_EMPLOYEE:

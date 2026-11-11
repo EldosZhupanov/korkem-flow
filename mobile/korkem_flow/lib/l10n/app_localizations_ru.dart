@@ -6483,4 +6483,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get facadePricesHideUnsold => 'Скрыть непродаваемые';
+
+  @override
+  String get mdfGroupSales => 'Продажи';
+
+  @override
+  String get mdfGroupShop => 'Цех';
+
+  @override
+  String get mdfGroupStock => 'Склад и закупки';
+
+  @override
+  String get mdfGroupSettings => 'Справочники и цены';
+
+  @override
+  String get filmDriver => 'Водитель';
+
+  @override
+  String get filmDriverPhone => 'Телефон водителя';
 }

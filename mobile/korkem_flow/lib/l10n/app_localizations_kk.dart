@@ -6422,4 +6422,22 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get facadePricesHideUnsold => 'Сатылмайтындарды жасыру';
+
+  @override
+  String get mdfGroupSales => 'Сату';
+
+  @override
+  String get mdfGroupShop => 'Цех';
+
+  @override
+  String get mdfGroupStock => 'Қойма және сатып алу';
+
+  @override
+  String get mdfGroupSettings => 'Анықтамалықтар мен бағалар';
+
+  @override
+  String get filmDriver => 'Жүргізуші';
+
+  @override
+  String get filmDriverPhone => 'Жүргізуші телефоны';
 }

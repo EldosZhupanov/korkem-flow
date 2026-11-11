@@ -6930,5 +6930,11 @@
       }
     }
   },
-  "facadePricesHideUnsold": "Hide the unsold"
+  "facadePricesHideUnsold": "Hide the unsold",
+  "mdfGroupSales": "Sales",
+  "mdfGroupShop": "Shop floor",
+  "mdfGroupStock": "Stock and buying",
+  "mdfGroupSettings": "Lists and prices",
+  "filmDriver": "Driver",
+  "filmDriverPhone": "Driver's phone"
 }

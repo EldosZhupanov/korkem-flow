@@ -289,6 +289,7 @@ String? _about(FilmMove m, AppLocalizations l10n, NumberFormat money) {
             ? money.format(d.cost)
             : '${money.format(d.cost)} (${money.format(d.perM)}/м)',
       if (d.urgent) l10n.filmUrgent.toLowerCase(),
+      if (d.driver != null || d.phone != null) [?d.driver, ?d.phone].join(' '),
       ?switch (d.payer) {
         FilmPayer.cash => l10n.filmPaidCash,
         FilmPayer.employee =>
