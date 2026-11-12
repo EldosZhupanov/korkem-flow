@@ -7244,4 +7244,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfOrdersSummary => 'Summary';
+
+  @override
+  String get mdfPressOpen => 'Press layout';
+
+  @override
+  String mdfPressFilm(String metres, int loads) {
+    return 'Film $metres m · $loads loads';
+  }
+
+  @override
+  String get mdfPressCorrected => 'corrected by hand';
+
+  @override
+  String mdfPressSaved(String metres) {
+    return 'smart layout −$metres m';
+  }
+
+  @override
+  String mdfPressTooBig(int count) {
+    return 'too big for the press: $count';
+  }
+
+  @override
+  String pressSmartSaved(String plain, String saved) {
+    return 'Smart layout: the plain one would take $plain m — $saved m saved.';
+  }
 }

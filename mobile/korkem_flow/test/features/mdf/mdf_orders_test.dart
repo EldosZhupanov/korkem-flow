@@ -6,6 +6,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
+import 'package:korkem_flow/l10n/app_localizations.dart';
 
 import '../../support/widget_harness.dart';
 
@@ -801,6 +802,47 @@ void main() {
     expect(find.byKey(const ValueKey('mdfGroupHeadText:0')), findsOneWidget);
     expect(find.byKey(const ValueKey('mdfGroupHeadText:1')), findsOneWidget);
     expect(find.textContaining('Продолжение узора'), findsOneWidget);
+  });
+
+  testWidgets('a film group says how much film it takes on the press', (
+    tester,
+  ) async {
+    await _pumpCard(
+      tester,
+      _Rich(
+        extra: {
+          'press': {
+            'Белый Матовый': {
+              'film_m': 8.3,
+              'layout_m': 8.3,
+              'plain_m': 9.3,
+              'loads': [3.1, 3.1, 2.1],
+            },
+          },
+        },
+      ),
+    );
+    expect(
+      tester
+          .widget<Text>(
+            find.descendant(
+              of: find.byKey(const ValueKey('mdfGroupFilm:0')),
+              matching: find.byType(Text),
+            ),
+          )
+          .data,
+      'Film 8,3 m · 3 loads · smart layout −1,0 m',
+    );
+    // Палома has no layout yet: no metres, no map button.
+    expect(find.byKey(const ValueKey('mdfGroupFilm:1')), findsNothing);
+    expect(find.byKey(const ValueKey('mdfGroupPress:0')), findsOneWidget);
+    expect(
+      mdfFilmPressText(
+        const MdfFilmPress(filmM: 9, loads: [3.1, 3.1, 3.1], corrected: true),
+        await AppLocalizations.delegate.load(const Locale('ru')),
+      ),
+      'Плёнка 9,0 м · загрузок 3 · поправлено вручную',
+    );
   });
 
   testWidgets('a payment is fixed with a reason; a cancelled one has no menu', (

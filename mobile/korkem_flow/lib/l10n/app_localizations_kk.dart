@@ -7206,4 +7206,30 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfOrdersSummary => 'Қорытынды';
+
+  @override
+  String get mdfPressOpen => 'Престегі орналасу';
+
+  @override
+  String mdfPressFilm(String metres, int loads) {
+    return 'Пленка $metres м · жүктеме $loads';
+  }
+
+  @override
+  String get mdfPressCorrected => 'қолмен түзетілді';
+
+  @override
+  String mdfPressSaved(String metres) {
+    return 'ақылды орналасу −$metres м';
+  }
+
+  @override
+  String mdfPressTooBig(int count) {
+    return 'преске сыймайды: $count';
+  }
+
+  @override
+  String pressSmartSaved(String plain, String saved) {
+    return 'Ақылды орналасу: әдеттегісі $plain м алар еді — үнем $saved м.';
+  }
 }

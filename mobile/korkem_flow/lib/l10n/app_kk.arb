@@ -2298,5 +2298,11 @@
   "mdfSumTextChange": "Алдыңғы кезеңге көлем: {percent}%",
   "mdfSumTextForecast": "Ай болжамы: {area} м²",
   "mdfSumTextAsleep": "Ұйықтаған клиенттер: {count}",
-  "mdfOrdersSummary": "Қорытынды"
+  "mdfOrdersSummary": "Қорытынды",
+  "mdfPressOpen": "Престегі орналасу",
+  "mdfPressFilm": "Пленка {metres} м · жүктеме {loads}",
+  "mdfPressCorrected": "қолмен түзетілді",
+  "mdfPressSaved": "ақылды орналасу −{metres} м",
+  "mdfPressTooBig": "преске сыймайды: {count}",
+  "pressSmartSaved": "Ақылды орналасу: әдеттегісі {plain} м алар еді — үнем {saved} м."
 }

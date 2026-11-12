@@ -12625,6 +12625,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Summary'**
   String get mdfOrdersSummary;
+
+  /// No description provided for @mdfPressOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Press layout'**
+  String get mdfPressOpen;
+
+  /// No description provided for @mdfPressFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film {metres} m · {loads} loads'**
+  String mdfPressFilm(String metres, int loads);
+
+  /// No description provided for @mdfPressCorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'corrected by hand'**
+  String get mdfPressCorrected;
+
+  /// No description provided for @mdfPressSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'smart layout −{metres} m'**
+  String mdfPressSaved(String metres);
+
+  /// No description provided for @mdfPressTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'too big for the press: {count}'**
+  String mdfPressTooBig(int count);
+
+  /// No description provided for @pressSmartSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart layout: the plain one would take {plain} m — {saved} m saved.'**
+  String pressSmartSaved(String plain, String saved);
 }
 
 class _AppLocalizationsDelegate

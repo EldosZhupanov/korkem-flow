@@ -77,6 +77,8 @@ Future<Uint8List> buildMdfOrderPdf(
   MdfPrintWords words, {
   required bool withPrices,
   String locale = 'ru',
+  Map<String, String> filmNotes = const {},
+  void Function(pw.Document doc)? more,
 }) async {
   final font = pw.Font.ttf(
     await rootBundle.load('assets/fonts/Inter-Variable.ttf'),
@@ -339,7 +341,11 @@ Future<Uint8List> buildMdfOrderPdf(
         ),
       ),
       child: text(
-        _groupName(words, group.coating, group.film),
+        [
+          _groupName(words, group.coating, group.film),
+          // The film it takes on the press (owner, 12.11.2026).
+          ?filmNotes[group.film],
+        ].join('   ·   '),
         style: pw.TextStyle(fontSize: size + 1, fontWeight: pw.FontWeight.bold),
       ),
     );
@@ -547,6 +553,7 @@ Future<Uint8List> buildMdfOrderPdf(
       ],
     ),
   );
+  more?.call(doc);
   return doc.save();
 }
 

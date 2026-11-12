@@ -410,6 +410,11 @@ class TestMdfOrders(IntegrationTestCase):
 		before = self._as(MANAGER, mdf_summary.summary, since=nowdate(), until=nowdate())
 		card = self._draft(decor_top=self.decor)
 		self.addCleanup(self._drop, card["name"])
+		# The card says how much film the order takes, as the press lays it out.
+		press = card["press"][self.decor]
+		self.assertGreater(press["film_m"], 0)
+		self.assertEqual(round(sum(press["loads"]), 2), press["layout_m"])
+		self.assertLessEqual(press["layout_m"], press["plain_m"])
 		self._as(MANAGER, mdf_orders.accept, card["name"])
 		after = self._as(MANAGER, mdf_summary.summary, since=nowdate(), until=nowdate())
 		self.assertEqual(after["orders"] - before["orders"], 1)

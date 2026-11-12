@@ -7268,4 +7268,30 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfOrdersSummary => 'Итоги';
+
+  @override
+  String get mdfPressOpen => 'Раскладка на прессе';
+
+  @override
+  String mdfPressFilm(String metres, int loads) {
+    return 'Плёнка $metres м · загрузок $loads';
+  }
+
+  @override
+  String get mdfPressCorrected => 'поправлено вручную';
+
+  @override
+  String mdfPressSaved(String metres) {
+    return 'умная раскладка −$metres м';
+  }
+
+  @override
+  String mdfPressTooBig(int count) {
+    return 'не влезает на пресс: $count';
+  }
+
+  @override
+  String pressSmartSaved(String plain, String saved) {
+    return 'Умная раскладка: обычная заняла бы $plain м — экономия $saved м.';
+  }
 }

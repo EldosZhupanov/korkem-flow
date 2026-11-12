@@ -7863,5 +7863,45 @@
       }
     }
   },
-  "mdfOrdersSummary": "Summary"
+  "mdfOrdersSummary": "Summary",
+  "mdfPressOpen": "Press layout",
+  "mdfPressFilm": "Film {metres} m · {loads} loads",
+  "@mdfPressFilm": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "loads": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfPressCorrected": "corrected by hand",
+  "mdfPressSaved": "smart layout −{metres} m",
+  "@mdfPressSaved": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPressTooBig": "too big for the press: {count}",
+  "@mdfPressTooBig": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressSmartSaved": "Smart layout: the plain one would take {plain} m — {saved} m saved.",
+  "@pressSmartSaved": {
+    "placeholders": {
+      "plain": {
+        "type": "String"
+      },
+      "saved": {
+        "type": "String"
+      }
+    }
+  }
 }
