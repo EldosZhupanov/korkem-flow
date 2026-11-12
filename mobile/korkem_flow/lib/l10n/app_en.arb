@@ -7204,5 +7204,140 @@
     }
   },
   "filmCashMatches": "It matches",
-  "filmCashWhy": "Why it is off"
+  "filmCashWhy": "Why it is off",
+  "filmSupSoldMonth": "Sold this month",
+  "filmSupSoldAll": "Sold in all",
+  "filmSupOnHand": "On the shelf",
+  "filmSupComing": "On its way",
+  "filmSupReorder": "To order",
+  "filmSupM": "{metres} m",
+  "@filmSupM": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupComingRolls": "rolls: {count}",
+  "@filmSupComingRolls": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupReorderFilms": "films: {count}",
+  "@filmSupReorderFilms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupShare": "{share}% of sales",
+  "@filmSupShare": {
+    "placeholders": {
+      "share": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupRevenue": "revenue {sum}",
+  "@filmSupRevenue": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupShelf": "{metres} m on the shelf",
+  "@filmSupShelf": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupLead": "brings in {days} d (promised {promised})",
+  "@filmSupLead": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "promised": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipReorder": "To order: {count}",
+  "@filmSupChipReorder": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipComing": "{metres} m on its way · {day}",
+  "@filmSupChipComing": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupChipComingLate": "{metres} m on its way · {days} d late",
+  "@filmSupChipComingLate": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipLate": "Late by {days} d on average",
+  "@filmSupChipLate": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipIdle": "Lying idle: {count} · {metres} m",
+  "@filmSupChipIdle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupChipOk": "All is well",
+  "filmSupOrder": "Order by WhatsApp",
+  "filmSupOrderText": "Hello! We need film:\n{list}\nWhen can you bring it?",
+  "@filmSupOrderText": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupOrderLine": "— {title} — {metres} m",
+  "@filmSupOrderLine": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupLegend": "Top — whose film sells best. A film of two sources is shared by what each brought."
 }

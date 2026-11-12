@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_sources/data/film_sources_repository.dart';
 import 'package:korkem_flow/features/film_sources/domain/film_source.dart';
+import 'package:korkem_flow/features/film_sources/domain/film_supplier_board.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
 
 import '../../support/widget_harness.dart';
@@ -26,8 +27,58 @@ const _almaty = <String, dynamic>{
   'lead': '5 дней',
 };
 
+// Astana's film sold three times Almaty's; a film of its ran low and it
+// comes late. Almaty has a roll on its way and two films lying idle.
+const _board = <String, dynamic>{
+  'period': 'month',
+  'sold_m': 40,
+  'amount': 156000,
+  'on_hand_m': 160,
+  'coming_m': 20,
+  'coming_count': 1,
+  'reorder_films': 1,
+  'suppliers': [
+    {
+      'supplier': 'SUP-1',
+      'name': 'Adilet · Астана',
+      'phone': '+7 701 000 00 01',
+      'sold_m': 30,
+      'amount': 117000,
+      'share': 75,
+      'on_hand_m': 120,
+      'lead_days': 6,
+      'promised_days': 2,
+      'late_days': 4,
+      'reorder': [
+        {'item': 'F-1', 'title': 'Adilet · Белый', 'metres': 150, 'free': 20},
+      ],
+    },
+    {
+      'supplier': 'SUP-2',
+      'name': 'Adilet · Алматы',
+      'phone': '+7 702 000 00 02',
+      'sold_m': 10,
+      'amount': 39000,
+      'share': 25,
+      'on_hand_m': 40,
+      'coming': {'metres': 20, 'count': 1, 'due': '2026-11-14'},
+      'idle': {'films': 2, 'metres': 48},
+    },
+  ],
+};
+
 class _Fake implements FilmSourcesRepository {
   final saved = <(String?, String, Map<String, String>, List<String>)>[];
+
+  /// Each asking of the board: for all time, or this month.
+  final boards = <bool>[];
+
+  @override
+  Future<FilmSupplierBoard> board({bool allTime = false}) async {
+    boards.add(allTime);
+    return FilmSupplierBoard.fromJson(_board);
+  }
+
   final removed = <String>[];
   final makerCards = <(String, String?, String?)>[];
 
@@ -121,6 +172,62 @@ void main() {
     expect(find.text('Adilet · Астана'), findsOneWidget);
     expect(find.textContaining('+7 701 000 00 01'), findsOneWidget);
     expect(find.textContaining('Adilet, MC Group'), findsOneWidget);
+  });
+
+  test('the board reads whose film sold, and what to do about each', () {
+    final b = FilmSupplierBoard.fromJson(_board);
+    expect((b.allTime, b.soldM, b.amount, b.topM), (false, 40, 156000, 30));
+    final astana = b.row('SUP-1')!;
+    expect((astana.leadDays, astana.promisedDays, astana.lateDays), (6, 2, 4));
+    expect(astana.reorder.single.metres, 150);
+    // No WhatsApp of its own: an order is written to its telephone.
+    expect(astana.writeTo, '+7 701 000 00 01');
+    expect(astana.fine, isFalse);
+    final almaty = b.row('SUP-2')!;
+    expect(
+      (almaty.coming?.metres, almaty.idleFilms, almaty.idleM),
+      (
+        20,
+        2,
+        48,
+      ),
+    );
+    expect(b.row('SUP-9'), isNull);
+    // Someone who does not see money gets metres only.
+    expect(FilmSupplierBoard.fromJson(const {'sold_m': 5}).amount, isNull);
+  });
+
+  testWidgets('the board ranks the sources and says what to do', (
+    tester,
+  ) async {
+    final repo = await _pump(tester, const FilmSourcesTab());
+    String text(String key) =>
+        tester.widget<Text>(find.byKey(ValueKey(key))).data!;
+    expect(text('filmSup:sold'), '40 m');
+    expect(text('filmSup:coming'), '20 m');
+    expect(text('filmSup:reorder'), 'films: 1');
+    // The best seller first, with a medal.
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('filmSource:SUP-1'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('filmSource:SUP-2'))).dy,
+      ),
+    );
+    expect(find.text('🥇'), findsOneWidget);
+    expect(text('filmSup:sold:SUP-1'), '30 m');
+    expect(find.text('75% of sales'), findsOneWidget);
+    // Astana: a film ran low and it comes late — nothing says «all is well».
+    expect(find.text('To order: 1'), findsOneWidget);
+    expect(find.text('Late by 4 d on average'), findsOneWidget);
+    expect(find.textContaining('brings in 6 d (promised 2)'), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmSup:ok:SUP-1')), findsNothing);
+    // Almaty: a roll on its way, and film lying idle.
+    expect(find.text('20 m on its way · 14.11'), findsOneWidget);
+    expect(find.text('Lying idle: 2 · 48 m'), findsOneWidget);
+    // All time is asked for apart.
+    await tester.tap(find.text('All time'));
+    await tester.pumpAndSettle();
+    expect(repo.boards, [false, true]);
   });
 
   testWidgets('a new source is saved with its card and its makers', (

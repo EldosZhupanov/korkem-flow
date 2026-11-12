@@ -11869,6 +11869,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Why it is off'**
   String get filmCashWhy;
+
+  /// No description provided for @filmSupSoldMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold this month'**
+  String get filmSupSoldMonth;
+
+  /// No description provided for @filmSupSoldAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold in all'**
+  String get filmSupSoldAll;
+
+  /// No description provided for @filmSupOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'On the shelf'**
+  String get filmSupOnHand;
+
+  /// No description provided for @filmSupComing.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way'**
+  String get filmSupComing;
+
+  /// No description provided for @filmSupReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'To order'**
+  String get filmSupReorder;
+
+  /// No description provided for @filmSupM.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m'**
+  String filmSupM(String metres);
+
+  /// No description provided for @filmSupComingRolls.
+  ///
+  /// In en, this message translates to:
+  /// **'rolls: {count}'**
+  String filmSupComingRolls(int count);
+
+  /// No description provided for @filmSupReorderFilms.
+  ///
+  /// In en, this message translates to:
+  /// **'films: {count}'**
+  String filmSupReorderFilms(int count);
+
+  /// No description provided for @filmSupShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{share}% of sales'**
+  String filmSupShare(String share);
+
+  /// No description provided for @filmSupRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'revenue {sum}'**
+  String filmSupRevenue(String sum);
+
+  /// No description provided for @filmSupShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m on the shelf'**
+  String filmSupShelf(String metres);
+
+  /// No description provided for @filmSupLead.
+  ///
+  /// In en, this message translates to:
+  /// **'brings in {days} d (promised {promised})'**
+  String filmSupLead(int days, int promised);
+
+  /// No description provided for @filmSupChipReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'To order: {count}'**
+  String filmSupChipReorder(int count);
+
+  /// No description provided for @filmSupChipComing.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m on its way · {day}'**
+  String filmSupChipComing(String metres, String day);
+
+  /// No description provided for @filmSupChipComingLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m on its way · {days} d late'**
+  String filmSupChipComingLate(String metres, int days);
+
+  /// No description provided for @filmSupChipLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late by {days} d on average'**
+  String filmSupChipLate(int days);
+
+  /// No description provided for @filmSupChipIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lying idle: {count} · {metres} m'**
+  String filmSupChipIdle(int count, String metres);
+
+  /// No description provided for @filmSupChipOk.
+  ///
+  /// In en, this message translates to:
+  /// **'All is well'**
+  String get filmSupChipOk;
+
+  /// No description provided for @filmSupOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order by WhatsApp'**
+  String get filmSupOrder;
+
+  /// No description provided for @filmSupOrderText.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! We need film:\n{list}\nWhen can you bring it?'**
+  String filmSupOrderText(String list);
+
+  /// No description provided for @filmSupOrderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'— {title} — {metres} m'**
+  String filmSupOrderLine(String title, String metres);
+
+  /// No description provided for @filmSupLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Top — whose film sells best. A film of two sources is shared by what each brought.'**
+  String get filmSupLegend;
 }
 
 class _AppLocalizationsDelegate

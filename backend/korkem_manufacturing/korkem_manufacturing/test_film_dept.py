@@ -9,6 +9,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, flt, getdate, nowdate
 
 from korkem_manufacturing.services import film_catalog, film_dept as service
+from korkem_manufacturing.services import film_supplier_board
 from korkem_manufacturing.services import material_stock, price_visibility
 
 COMPANY = "KORKEM"
@@ -350,6 +351,61 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertEqual(self._free(), 20)
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, service.hold, self.film, other, 1)
+
+	def test_the_suppliers_board_ranks_sources_by_what_their_film_sold(self):
+		def board(user=MANAGER) -> tuple[dict, dict]:
+			b = self._as(user, film_supplier_board.board)
+			return b, {r["supplier"]: r for r in b["suppliers"]}
+
+		# A source of its own, so its numbers are this test's alone.
+		name = f"Film Board {frappe.generate_hash(length=6)}"
+		material_stock.add_supplier(name)
+		second = frappe.db.get_value("Supplier", {"supplier_name": name}, "name")
+		# 50 m of the film came from the first source, 150 m from the second.
+		self._as(MANAGER, service.receive, self.film, 150, 3200, second)
+		before, was = board()
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 40}], paid=156000,
+				 method="Наличные")
+		after, now = board()
+		# A sale of 40 m is ten of the first and thirty of the second.
+		self.assertAlmostEqual(after["sold_m"] - before["sold_m"], 40)
+		self.assertAlmostEqual(now[self.supplier]["sold_m"] - was[self.supplier]["sold_m"], 10)
+		row = now[second]
+		self.assertEqual((row["sold_m"], row["amount"], row["on_hand_m"]), (30, 117000, 120))
+		self.assertGreater(row["share"], 0)
+		self.assertLessEqual(row["share"], 100)
+		# The best seller is first.
+		order = [r["sold_m"] for r in after["suppliers"]]
+		self.assertEqual(order, sorted(order, reverse=True))
+		# Ran low: to be ordered from whom it was bought last, as much as then.
+		material_stock.set_min_stock(self.film, 200)
+		asked = board()[1][second]["reorder"]
+		self.assertEqual([(o["item"], o["metres"]) for o in asked], [(self.film, 150)])
+		self.assertIn("KIRA", asked[0]["title"])
+		# A roll on its way is the source's, with the day it is due.
+		got = self._as(MANAGER, service.receive, self.film, 20, 3200, second, arrives_on=add_days(nowdate(), 2))
+		coming = board()[1][second]["coming"]
+		self.assertEqual((coming["metres"], coming["count"], coming["late_days"]), (20, 1, 0))
+		# Ordered six days ago for two days' time; the date was moved, and it
+		# came today: six days against the two first promised — four late.
+		frappe.db.set_value("Stock Entry", got["receipt"], {
+			"creation": f"{add_days(nowdate(), -6)} 10:00:00", "korkem_film_due": add_days(nowdate(), -4),
+		}, update_modified=False)
+		self._as(MANAGER, service.reschedule, got["receipt"], add_days(nowdate(), 1))
+		self._as(MANAGER, service.arrived, got["receipt"])
+		row = board()[1][second]
+		self.assertIsNone(row["coming"])
+		self.assertEqual((row["lead_days"], row["promised_days"], row["late_days"]), (6, 2, 4))
+		# The roll that came makes the second source's share of the film
+		# bigger (170 m of 220): the same 40 m sold are now more of its.
+		self.assertGreater(row["sold_m"], 30)
+		self.assertAlmostEqual(row["sold_m"] + board()[1][self.supplier]["sold_m"]
+							   - was[self.supplier]["sold_m"], 40, places=1)
+		# The floor sees the same metres, not the money.
+		floor, rows = board(CUTTER)
+		self.assertIsNone(floor["amount"])
+		self.assertIsNone(rows[second]["amount"])
+		self.assertEqual(rows[second]["sold_m"], row["sold_m"])
 
 	def test_a_customer_in_debt_says_how_long(self):
 		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 1, "price_m": 4000}],

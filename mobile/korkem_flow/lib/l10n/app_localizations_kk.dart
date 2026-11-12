@@ -6700,4 +6700,99 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmCashWhy => 'Неге сәйкес емес';
+
+  @override
+  String get filmSupSoldMonth => 'Осы айда сатылды';
+
+  @override
+  String get filmSupSoldAll => 'Барлық уақытта сатылды';
+
+  @override
+  String get filmSupOnHand => 'Қоймада жатыр';
+
+  @override
+  String get filmSupComing => 'Жолда';
+
+  @override
+  String get filmSupReorder => 'Тапсырыс беру керек';
+
+  @override
+  String filmSupM(String metres) {
+    return '$metres м';
+  }
+
+  @override
+  String filmSupComingRolls(int count) {
+    return 'жеткізілім: $count';
+  }
+
+  @override
+  String filmSupReorderFilms(int count) {
+    return 'пленка: $count';
+  }
+
+  @override
+  String filmSupShare(String share) {
+    return 'сатылымның $share%';
+  }
+
+  @override
+  String filmSupRevenue(String sum) {
+    return 'түсім $sum';
+  }
+
+  @override
+  String filmSupShelf(String metres) {
+    return 'қоймада $metres м';
+  }
+
+  @override
+  String filmSupLead(int days, int promised) {
+    return '$days күнде жеткізеді (уәдесі $promised)';
+  }
+
+  @override
+  String filmSupChipReorder(int count) {
+    return 'Тапсырыс беру керек: $count';
+  }
+
+  @override
+  String filmSupChipComing(String metres, String day) {
+    return 'Жолда $metres м · $day';
+  }
+
+  @override
+  String filmSupChipComingLate(String metres, int days) {
+    return 'Жолда $metres м · $days күнге кешігуде';
+  }
+
+  @override
+  String filmSupChipLate(int days) {
+    return 'Орта есеппен $days күнге кешігеді';
+  }
+
+  @override
+  String filmSupChipIdle(int count, String metres) {
+    return 'Қозғалыссыз жатыр: $count · $metres м';
+  }
+
+  @override
+  String get filmSupChipOk => 'Бәрі дұрыс';
+
+  @override
+  String get filmSupOrder => 'WhatsApp арқылы тапсырыс беру';
+
+  @override
+  String filmSupOrderText(String list) {
+    return 'Сәлеметсіз бе! Пленка керек:\n$list\nҚашан жеткізе аласыз?';
+  }
+
+  @override
+  String filmSupOrderLine(String title, String metres) {
+    return '— $title — $metres м';
+  }
+
+  @override
+  String get filmSupLegend =>
+      'Жоғарыда — кімнің пленкасы жақсы сатылады. Екі фирмадан келген пленка әрқайсысы әкелген мөлшерге қарай бөлінеді.';
 }
