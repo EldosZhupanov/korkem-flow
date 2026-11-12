@@ -11701,6 +11701,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Movements'**
   String get filmCashMoves;
+
+  /// No description provided for @filmCustomersAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count}'**
+  String filmCustomersAll(int count);
+
+  /// No description provided for @filmCustomersRegular.
+  ///
+  /// In en, this message translates to:
+  /// **'⭐ Regular {count}'**
+  String filmCustomersRegular(int count);
+
+  /// No description provided for @filmCustomersAsleep.
+  ///
+  /// In en, this message translates to:
+  /// **'😴 Gone quiet {count}'**
+  String filmCustomersAsleep(int count);
+
+  /// No description provided for @filmCustomersByMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get filmCustomersByMonth;
+
+  /// No description provided for @filmCustomersByAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get filmCustomersByAll;
+
+  /// No description provided for @filmCustomersLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Top — who buys most. Stripe: green — paid up, red — owes, grey — gone quiet.'**
+  String get filmCustomersLegend;
+
+  /// No description provided for @filmRegularBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'⭐ regular'**
+  String get filmRegularBadge;
+
+  /// No description provided for @filmNoDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'nothing owed'**
+  String get filmNoDebt;
+
+  /// No description provided for @filmCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get filmCall;
+
+  /// No description provided for @filmWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write in WhatsApp'**
+  String get filmWrite;
+
+  /// No description provided for @filmCustomerLast.
+  ///
+  /// In en, this message translates to:
+  /// **'last bought {day}'**
+  String filmCustomerLast(String day);
+
+  /// No description provided for @filmCustomerBought.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought in all'**
+  String get filmCustomerBought;
+
+  /// No description provided for @filmCustomerSum.
+  ///
+  /// In en, this message translates to:
+  /// **'For'**
+  String get filmCustomerSum;
+
+  /// No description provided for @filmCustomerDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Owes'**
+  String get filmCustomerDebt;
+
+  /// No description provided for @filmCustomerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get filmCustomerMonth;
+
+  /// No description provided for @filmCustomerFavourite.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes most'**
+  String get filmCustomerFavourite;
+
+  /// No description provided for @filmCustomerTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms: retail / trade, discount'**
+  String get filmCustomerTerms;
+
+  /// No description provided for @filmCustomerHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get filmCustomerHistory;
+
+  /// No description provided for @filmCashShould.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash in the drawer should be: {sum}'**
+  String filmCashShould(String sum);
+
+  /// No description provided for @filmCashClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Day closed: counted {sum} · {who}'**
+  String filmCashClosed(String sum, String who);
+
+  /// No description provided for @filmCashGap.
+  ///
+  /// In en, this message translates to:
+  /// **'off by {sum}: {why}'**
+  String filmCashGap(String sum, String why);
+
+  /// No description provided for @filmCashCloseDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the day'**
+  String get filmCashCloseDay;
+
+  /// No description provided for @filmCashRecount.
+  ///
+  /// In en, this message translates to:
+  /// **'Count again'**
+  String get filmCashRecount;
+
+  /// No description provided for @filmCashCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash counted'**
+  String get filmCashCounted;
+
+  /// No description provided for @filmCashShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short by {sum}'**
+  String filmCashShort(String sum);
+
+  /// No description provided for @filmCashOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over by {sum}'**
+  String filmCashOver(String sum);
+
+  /// No description provided for @filmCashMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'It matches'**
+  String get filmCashMatches;
+
+  /// No description provided for @filmCashWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why it is off'**
+  String get filmCashWhy;
 }
 
 class _AppLocalizationsDelegate

@@ -149,6 +149,7 @@ class FilmCashBook {
     this.spent = 0,
     this.where = const [],
     this.moves = const [],
+    this.closed,
   });
 
   factory FilmCashBook.fromJson(Map<String, dynamic> json) {
@@ -193,6 +194,16 @@ class FilmCashBook {
           if (r is Map<String, dynamic>) row(r),
       ],
       sales: (json['sales'] as num?)?.toInt() ?? 0,
+      closed: switch (json['closed']) {
+        final Map<String, dynamic> c => (
+          expected: _d(c['expected']) ?? 0,
+          counted: _d(c['counted']) ?? 0,
+          gap: _d(c['gap']) ?? 0,
+          reason: _s(c['reason']),
+          by: _s(c['by']),
+        ),
+        _ => null,
+      },
       spent: (json['spent'] as num?)?.toInt() ?? 0,
       where: [
         for (final r in json['where'] as List? ?? const [])
@@ -231,6 +242,16 @@ class FilmCashBook {
 
   /// Owed to carriers not paid yet.
   final List<FilmOwed> carriers;
+
+  /// The day closed: the cash counted against what should be there.
+  final ({
+    double expected,
+    double counted,
+    double gap,
+    String? reason,
+    String? by,
+  })?
+  closed;
 
   /// How many sales paid in, how many things paid out (12.11.2026).
   final int sales;
@@ -566,6 +587,8 @@ class FilmCustomer {
     this.idleDays,
     this.debtDays,
     this.asleep = false,
+    this.sales = 0,
+    this.favourite,
   });
 
   factory FilmCustomer.fromJson(Map<String, dynamic> json) => FilmCustomer(
@@ -582,6 +605,8 @@ class FilmCustomer {
     idleDays: (json['idle_days'] as num?)?.toInt(),
     debtDays: (json['debt_days'] as num?)?.toInt(),
     asleep: json['asleep'] == true,
+    sales: (json['sales'] as num?)?.toInt() ?? 0,
+    favourite: _s(json['favourite']),
   );
 
   final String customer;
@@ -601,6 +626,10 @@ class FilmCustomer {
 
   /// Bought before and has not for two months: worth a call.
   final bool asleep;
+
+  /// How many sales, and the film bought most (owner, 12.11.2026).
+  final int sales;
+  final String? favourite;
 }
 
 /// Metres as the shop says them: «84», «1,5».

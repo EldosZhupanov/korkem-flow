@@ -16,6 +16,7 @@ import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_scre
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_cash_tab.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_customer_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_team_tab.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
@@ -1162,16 +1163,23 @@ class _CustomersTab extends ConsumerStatefulWidget {
   ConsumerState<_CustomersTab> createState() => _CustomersTabState();
 }
 
-/// Who buys film — and, a tap away, who owes: how much, how long, and a
-/// reminder in WhatsApp already written (owner, 11.11.2026).
+enum _CustomerFilter { all, regular, debtors, asleep }
+
+/// Who buys film (owner, 12.11.2026): who buys most first, with a medal;
+/// a stripe for each — paid up, owing, gone quiet; who is regular; a call
+/// or a WhatsApp a tap away. A tap opens the customer's card.
 class _CustomersTabState extends ConsumerState<_CustomersTab> {
-  bool _debtors = false;
+  _CustomerFilter _filter = _CustomerFilter.all;
+
+  /// Ranked by this month, or by all time.
+  bool _allTime = false;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final money = mdfMoney(context);
+    final status = context.statusColors;
     final customers = ref.watch(filmCustomersProvider);
     return customers.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -1180,89 +1188,278 @@ class _CustomersTabState extends ConsumerState<_CustomersTab> {
         onRetry: () => ref.invalidate(filmCustomersProvider),
       ),
       data: (all) {
-        final owing = [
-          for (final c in all)
-            if (c.debt > 0.5) c,
-        ]..sort((a, b) => (b.debtDays ?? 0).compareTo(a.debtDays ?? 0));
-        final rows = _debtors ? owing : all;
-        final owed = owing.fold<double>(0, (s, c) => s + c.debt);
+        double rank(FilmCustomer c) => _allTime ? c.total : c.monthM;
+        final ranked = [...all]..sort((a, b) => rank(b).compareTo(rank(a)));
+        final counts = {
+          for (final f in _CustomerFilter.values)
+            f: ranked.where((c) => _matches(c, f)).length,
+        };
+        final rows = [
+          for (final c in ranked)
+            if (_matches(c, _filter)) c,
+        ];
+        final owed = all
+            .where((c) => c.debt > 0.5)
+            .fold<double>(0, (s, c) => s + c.debt);
         return ListView(
           padding: const EdgeInsets.all(AppSpacing.md),
           children: [
-            if (owing.isNotEmpty)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: FilterChip(
-                  key: const ValueKey('filmCustomers:debtors'),
-                  label: Text(
-                    l10n.filmDebtors(owing.length, money.format(owed)),
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                for (final f in _CustomerFilter.values)
+                  ChoiceChip(
+                    key: ValueKey(
+                      f == _CustomerFilter.debtors
+                          ? 'filmCustomers:debtors'
+                          : 'filmCustomers:${f.name}',
+                    ),
+                    label: Text(switch (f) {
+                      _CustomerFilter.all => l10n.filmCustomersAll(counts[f]!),
+                      _CustomerFilter.regular => l10n.filmCustomersRegular(
+                        counts[f]!,
+                      ),
+                      _CustomerFilter.debtors => l10n.filmDebtors(
+                        counts[f]!,
+                        money.format(owed),
+                      ),
+                      _CustomerFilter.asleep => l10n.filmCustomersAsleep(
+                        counts[f]!,
+                      ),
+                    }),
+                    selected: _filter == f,
+                    onSelected: (_) => setState(() => _filter = f),
                   ),
-                  selected: _debtors,
-                  onSelected: (on) => setState(() => _debtors = on),
+                const SizedBox(width: AppSpacing.sm),
+                // Who buys most — this month or all time.
+                SegmentedButton<bool>(
+                  key: const ValueKey('filmCustomers:rank'),
+                  segments: [
+                    ButtonSegment(
+                      value: false,
+                      label: Text(l10n.filmCustomersByMonth),
+                    ),
+                    ButtonSegment(
+                      value: true,
+                      label: Text(l10n.filmCustomersByAll),
+                    ),
+                  ],
+                  selected: {_allTime},
+                  onSelectionChanged: (v) => setState(() => _allTime = v.first),
                 ),
-              ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
             if (rows.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Text(l10n.filmCustomersEmpty),
               ),
             for (final c in rows)
-              ListTile(
-                leading: c.debt > 0.5 && c.phone != null
-                    ? IconButton(
-                        key: ValueKey('filmCustomer:remind:${c.customer}'),
-                        tooltip: l10n.filmRemind,
-                        icon: const Icon(AppIcons.whatsApp),
-                        onPressed: () => ContactActions.whatsAppMessage(
-                          c.phone,
-                          l10n.filmRemindText(c.name, money.format(c.debt)),
-                        ),
-                      )
-                    : null,
-                key: ValueKey('filmCustomer:${c.customer}'),
+              _CustomerTile(
+                customer: c,
+                place: rank(c) > 0 ? ranked.indexOf(c) : null,
+                allTime: _allTime,
                 onTap: () async {
-                  final done = await showFilmCustomerTerms(context, c);
-                  if (done ?? false) ref.invalidate(filmCustomersProvider);
+                  await Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => FilmCustomerPage(customer: c),
+                    ),
+                  );
+                  _refresh(ref);
                 },
-                title: Text(
-                  c.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  [
-                    if (c.wholesale) l10n.filmWholesale else l10n.filmRetail,
-                    if (c.discount > 0) '−${filmMetres(c.discount)}%',
-                    if (c.last != null) mdfDay(c.last),
-                    if (c.asleep) l10n.filmAsleep(c.idleDays ?? 0),
-                    if (c.debt > 0.5 && c.debtDays != null)
-                      l10n.filmDebtDays(c.debtDays!),
-                  ].join(' · '),
-                  style: c.asleep
-                      ? TextStyle(color: theme.colorScheme.error)
-                      : null,
-                ),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      l10n.filmMonthMetres(filmMetres(c.monthM)),
-                      style: theme.textTheme.titleSmall,
-                    ),
-                    Text(
-                      c.debt > 0
-                          ? l10n.filmSaleDebt(money.format(c.debt))
-                          : money.format(c.total),
-                      style: c.debt > 0
-                          ? TextStyle(color: theme.colorScheme.error)
-                          : null,
-                    ),
-                  ],
+              ),
+            if (rows.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.sm),
+                child: Text(
+                  l10n.filmCustomersLegend,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: status.neutral,
+                  ),
                 ),
               ),
           ],
         );
       },
+    );
+  }
+
+  static bool _matches(FilmCustomer c, _CustomerFilter f) => switch (f) {
+    _CustomerFilter.all => true,
+    _CustomerFilter.regular => filmRegular(c),
+    _CustomerFilter.debtors => c.debt > 0.5,
+    _CustomerFilter.asleep => c.asleep,
+  };
+}
+
+/// Bought this month and before it, and not gone quiet: a regular.
+bool filmRegular(FilmCustomer c) =>
+    !c.asleep && c.monthM > 0 && c.totalM > c.monthM;
+
+const _medals = ['🥇', '🥈', '🥉'];
+
+class _CustomerTile extends StatelessWidget {
+  const _CustomerTile({
+    required this.customer,
+    required this.place,
+    required this.allTime,
+    required this.onTap,
+  });
+
+  final FilmCustomer customer;
+  final int? place;
+  final bool allTime;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final money = mdfMoney(context);
+    final status = context.statusColors;
+    final c = customer;
+    final owing = c.debt > 0.5;
+    // Owing red, gone quiet grey, paid up green.
+    final stripe = owing
+        ? status.danger
+        : c.asleep
+        ? status.neutral
+        : status.success;
+    final initials = [
+      for (final w in c.name.split(' '))
+        if (w.isNotEmpty) w.characters.first.toUpperCase(),
+    ].take(2).join();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Material(
+        color: theme.colorScheme.surfaceContainerLow,
+        child: InkWell(
+          key: ValueKey('filmCustomer:${c.customer}'),
+          onTap: onTap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(color: stripe, width: AppSpacing.xs),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: AppSpacing.xl,
+                    child: Text(
+                      place == null
+                          ? ''
+                          : place! < _medals.length
+                          ? _medals[place!]
+                          : '${place! + 1}',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                  CircleAvatar(
+                    backgroundColor: stripe.withValues(alpha: AppTint.surface),
+                    foregroundColor: stripe,
+                    child: Text(initials),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: AppSpacing.xs,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              c.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (filmRegular(c))
+                              Text(
+                                l10n.filmRegularBadge,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: status.warning,
+                                ),
+                              ),
+                          ],
+                        ),
+                        Text(
+                          [
+                            if (c.wholesale)
+                              l10n.filmWholesale
+                            else
+                              l10n.filmRetail,
+                            if (c.discount > 0) '−${filmMetres(c.discount)}%',
+                            if (c.last != null) mdfDay(c.last),
+                            if (c.asleep) l10n.filmAsleep(c.idleDays ?? 0),
+                            ?c.phone,
+                          ].join(' · '),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: c.asleep ? status.neutral : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        allTime
+                            ? '${filmMetres(c.totalM)} м'
+                            : l10n.filmMonthMetres(filmMetres(c.monthM)),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      Text(
+                        money.format(c.total),
+                        style: theme.textTheme.labelSmall,
+                      ),
+                      Text(
+                        owing
+                            ? [
+                                l10n.filmSaleDebt(money.format(c.debt)),
+                                if (c.debtDays != null)
+                                  l10n.filmDebtDays(c.debtDays!),
+                              ].join(' · ')
+                            : l10n.filmNoDebt,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: owing ? status.danger : status.success,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (c.phone != null) ...[
+                    IconButton(
+                      key: ValueKey('filmCustomer:call:${c.customer}'),
+                      tooltip: l10n.filmCall,
+                      icon: const Icon(AppIcons.call),
+                      onPressed: () => ContactActions.call(c.phone),
+                    ),
+                    IconButton(
+                      key: ValueKey('filmCustomer:remind:${c.customer}'),
+                      tooltip: owing ? l10n.filmRemind : l10n.filmWrite,
+                      icon: const Icon(AppIcons.whatsApp),
+                      onPressed: () => owing
+                          ? ContactActions.whatsAppMessage(
+                              c.phone,
+                              l10n.filmRemindText(c.name, money.format(c.debt)),
+                            )
+                          : ContactActions.whatsApp(c.phone),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

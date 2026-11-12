@@ -6635,4 +6635,107 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmCashMoves => 'Movements';
+
+  @override
+  String filmCustomersAll(int count) {
+    return 'All $count';
+  }
+
+  @override
+  String filmCustomersRegular(int count) {
+    return '⭐ Regular $count';
+  }
+
+  @override
+  String filmCustomersAsleep(int count) {
+    return '😴 Gone quiet $count';
+  }
+
+  @override
+  String get filmCustomersByMonth => 'This month';
+
+  @override
+  String get filmCustomersByAll => 'All time';
+
+  @override
+  String get filmCustomersLegend =>
+      'Top — who buys most. Stripe: green — paid up, red — owes, grey — gone quiet.';
+
+  @override
+  String get filmRegularBadge => '⭐ regular';
+
+  @override
+  String get filmNoDebt => 'nothing owed';
+
+  @override
+  String get filmCall => 'Call';
+
+  @override
+  String get filmWrite => 'Write in WhatsApp';
+
+  @override
+  String filmCustomerLast(String day) {
+    return 'last bought $day';
+  }
+
+  @override
+  String get filmCustomerBought => 'Bought in all';
+
+  @override
+  String get filmCustomerSum => 'For';
+
+  @override
+  String get filmCustomerDebt => 'Owes';
+
+  @override
+  String get filmCustomerMonth => 'This month';
+
+  @override
+  String get filmCustomerFavourite => 'Takes most';
+
+  @override
+  String get filmCustomerTerms => 'Terms: retail / trade, discount';
+
+  @override
+  String get filmCustomerHistory => 'Purchases';
+
+  @override
+  String filmCashShould(String sum) {
+    return 'Cash in the drawer should be: $sum';
+  }
+
+  @override
+  String filmCashClosed(String sum, String who) {
+    return 'Day closed: counted $sum · $who';
+  }
+
+  @override
+  String filmCashGap(String sum, String why) {
+    return 'off by $sum: $why';
+  }
+
+  @override
+  String get filmCashCloseDay => 'Close the day';
+
+  @override
+  String get filmCashRecount => 'Count again';
+
+  @override
+  String get filmCashCounted => 'Cash counted';
+
+  @override
+  String filmCashShort(String sum) {
+    return 'Short by $sum';
+  }
+
+  @override
+  String filmCashOver(String sum) {
+    return 'Over by $sum';
+  }
+
+  @override
+  String get filmCashMatches => 'It matches';
+
+  @override
+  String get filmCashWhy => 'Why it is off';
 }

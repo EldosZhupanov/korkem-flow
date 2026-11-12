@@ -942,10 +942,16 @@ def customers() -> list[dict]:
 		)
 		# Added up here, not in SQL: this Frappe refuses a function in `fields`.
 		metres: dict[str, float] = {}
+		# The film this customer takes most, by metres (owner, 12.11.2026).
+		films: dict[str, float] = {}
+		names: dict[str, str] = {}
 		if entries:
 			for r in frappe.get_all("Stock Entry Detail", filters={"parent": ["in", [e.name for e in entries]]},
-									fields=["parent", "qty"], limit_page_length=0):
+									fields=["parent", "qty", "item_code", "item_name"], limit_page_length=0):
 				metres[r.parent] = metres.get(r.parent, 0.0) + flt(r.qty)
+				films[r.item_code] = films.get(r.item_code, 0.0) + flt(r.qty)
+				names[r.item_code] = r.item_name
+		top = max(films, key=lambda i: (films[i], i)) if films else None
 		last = max((getdate(e.posting_date) for e in entries), default=None)
 		idle = date_diff(nowdate(), last) if last else None
 		# How long the oldest unpaid sale has waited (owner, 11.11.2026).
@@ -966,6 +972,8 @@ def customers() -> list[dict]:
 			"last": str(last) if last else None,
 			"idle_days": idle,
 			"asleep": idle is not None and idle >= ASLEEP_DAYS,
+			"sales": len(entries),
+			"favourite": _title(top, names.get(top) or top) if top else None,
 		})
 	out.sort(key=lambda r: (-r["month_m"], -r["total"], r["name"].casefold()))
 	return out

@@ -215,6 +215,16 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                     ),
                   ],
                 ),
+                // «Закрыть день» — one day at a time (owner, 12.11.2026).
+                if (period.since == period.until)
+                  _CloseDay(
+                    day: period.since!,
+                    cash: b.where
+                        .where((w) => w.way == filmCash)
+                        .fold<double>(0, (s, w) => s + w.amount),
+                    closed: b.closed,
+                    onClosed: () => ref.invalidate(filmCashProvider),
+                  ),
                 if (b.where.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.md),
                   Text(l10n.filmCashWhere, style: theme.textTheme.titleMedium),
@@ -357,6 +367,190 @@ class _CashCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CloseDay extends ConsumerWidget {
+  const _CloseDay({
+    required this.day,
+    required this.cash,
+    required this.closed,
+    required this.onClosed,
+  });
+
+  final String day;
+  final double cash;
+  final ({
+    double expected,
+    double counted,
+    double gap,
+    String? reason,
+    String? by,
+  })?
+  closed;
+  final VoidCallback onClosed;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final money = mdfMoney(context);
+    final status = context.statusColors;
+    final c = closed;
+    return Card(
+      key: const ValueKey('filmCash:close'),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            Expanded(
+              child: c == null
+                  ? Text(l10n.filmCashShould(money.format(cash)))
+                  : Text(
+                      [
+                        l10n.filmCashClosed(
+                          money.format(c.counted),
+                          c.by ?? '',
+                        ),
+                        if (c.gap.abs() >= 1)
+                          l10n.filmCashGap(
+                            '${c.gap > 0 ? '+' : '−'}'
+                            '${money.format(c.gap.abs())}',
+                            c.reason ?? '',
+                          ),
+                      ].join(' · '),
+                      style: TextStyle(
+                        color: c.gap.abs() >= 1
+                            ? status.danger
+                            : status.success,
+                      ),
+                    ),
+            ),
+            FilledButton.tonal(
+              key: const ValueKey('filmCash:closeDay'),
+              onPressed: () async {
+                final done = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => _CloseDayDialog(day: day, expected: cash),
+                );
+                if (done ?? false) onClosed();
+              },
+              child: Text(
+                c == null ? l10n.filmCashCloseDay : l10n.filmCashRecount,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CloseDayDialog extends ConsumerStatefulWidget {
+  const _CloseDayDialog({required this.day, required this.expected});
+
+  final String day;
+  final double expected;
+
+  @override
+  ConsumerState<_CloseDayDialog> createState() => _CloseDayDialogState();
+}
+
+class _CloseDayDialogState extends ConsumerState<_CloseDayDialog> {
+  final _counted = TextEditingController();
+  final _reason = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _counted.dispose();
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final money = mdfMoney(context);
+    final status = context.statusColors;
+    final counted = double.tryParse(_counted.text.trim().replaceAll(' ', ''));
+    final gap = counted == null ? null : counted - widget.expected;
+    final off = gap != null && gap.abs() >= 1;
+    return AlertDialog(
+      title: Text('${l10n.filmCashCloseDay} · ${mdfDay(widget.day)}'),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 7,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.filmCashShould(money.format(widget.expected))),
+            TextField(
+              key: const ValueKey('filmCash:counted'),
+              controller: _counted,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(labelText: l10n.filmCashCounted),
+            ),
+            if (gap != null)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  off
+                      ? (gap < 0
+                            ? l10n.filmCashShort(money.format(-gap))
+                            : l10n.filmCashOver(money.format(gap)))
+                      : l10n.filmCashMatches,
+                  style: TextStyle(
+                    color: off ? status.danger : status.success,
+                  ),
+                ),
+              ),
+            if (off)
+              TextField(
+                key: const ValueKey('filmCash:reason'),
+                controller: _reason,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(labelText: l10n.filmCashWhy),
+              ),
+            if (_error != null)
+              Text(_error!, style: TextStyle(color: status.danger)),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmCash:closeSave'),
+          onPressed:
+              _busy || counted == null || (off && _reason.text.trim().isEmpty)
+              ? null
+              : () async {
+                  setState(() => _busy = true);
+                  try {
+                    await ref
+                        .read(filmDeptRepositoryProvider)
+                        .closeDay(
+                          widget.day,
+                          counted,
+                          reason: off ? _reason.text.trim() : null,
+                        );
+                    if (context.mounted) Navigator.of(context).pop(true);
+                  } on Object catch (e) {
+                    setState(() {
+                      _busy = false;
+                      _error = '$e';
+                    });
+                  }
+                },
+          child: Text(l10n.filmCashCloseDay),
+        ),
+      ],
     );
   }
 }
