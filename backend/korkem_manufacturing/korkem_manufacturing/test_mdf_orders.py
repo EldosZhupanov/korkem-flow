@@ -404,6 +404,57 @@ class TestMdfOrders(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, mdf_report.report)
 
+	def test_the_summary_compares_says_who_ordered_and_who_fell_asleep(self):
+		from korkem_manufacturing.services import mdf_summary
+
+		before = self._as(MANAGER, mdf_summary.summary, since=nowdate(), until=nowdate())
+		card = self._draft(decor_top=self.decor)
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		after = self._as(MANAGER, mdf_summary.summary, since=nowdate(), until=nowdate())
+		self.assertEqual(after["orders"] - before["orders"], 1)
+		self.assertAlmostEqual(after["area_m2"] - before["area_m2"], 3.04, places=2)
+		self.assertEqual(after["total"] - before["total"], 58_680)
+		# Against yesterday, the period of the same length before.
+		self.assertEqual(after["before"]["since"], str(add_days(nowdate(), -1)))
+		self.assertAlmostEqual(after["plan"]["done_m2"] - before["plan"]["done_m2"], 3.04, places=2)
+		self.assertIn(self.customer, [c["customer"] for c in after["top_customers"]])
+		manager = next(m for m in after["managers"] if m["user"] == MANAGER)
+		self.assertGreaterEqual(manager["orders"], 1)
+		self.assertGreaterEqual(after["shop"]["in_work_orders"], 1)
+		venge = next(f for f in after["films"] if f["decor"] == self.decor)
+		self.assertGreaterEqual(venge["area_m2"], 3.04)
+		# The month's goal: set once, the progress follows.
+		self._as(MANAGER, mdf_summary.set_target, 1000)
+		plan = self._as(MANAGER, mdf_summary.summary, since=nowdate(), until=nowdate())["plan"]
+		self.assertEqual(plan["target_m2"], 1000)
+		self.assertAlmostEqual(plan["progress"], round(plan["done_m2"] / 1000, 3), places=3)
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, mdf_summary.summary)
+
+	def test_a_customer_is_asleep_by_his_own_rhythm(self):
+		from korkem_manufacturing.services import mdf_summary
+
+		def order(customer: str, days_ago: int) -> None:
+			card = self._as(MANAGER, mdf_orders.save_draft, customer=customer,
+							delivery_date=add_days(nowdate(), 7), head={"finish": PVC, "thickness_mm": 16},
+							lines=ORDER_1129)
+			self.addCleanup(self._drop, card["name"])
+			self._as(MANAGER, mdf_orders.accept, card["name"])
+			frappe.db.set_value("Sales Order", card["name"], "transaction_date", add_days(nowdate(), -days_ago))
+
+		tag = frappe.generate_hash(length=6)
+		often = self._as(MANAGER, mdf_orders.new_customer, f"Ритм {tag}")["name"]
+		once = self._as(MANAGER, mdf_orders.new_customer, f"Один {tag}")["name"]
+		# Every ten days, and not for fifty: gone. One order a month ago: not yet.
+		order(often, 60)
+		order(often, 50)
+		order(once, 30)
+		asleep = {c["customer"]: c for c in self._as(MANAGER, mdf_summary.summary)["asleep"]}
+		self.assertEqual((asleep[often]["rhythm_days"], asleep[often]["idle_days"], asleep[often]["gone"]),
+						 (10, 50, True))
+		self.assertNotIn(once, asleep)
+
 	def test_a_stage_ticked_with_a_worker_counts_to_their_work_volume(self):
 		from korkem_manufacturing.services import mdf_volume
 

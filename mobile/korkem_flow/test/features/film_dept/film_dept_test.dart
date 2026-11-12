@@ -5,12 +5,16 @@ import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_orders.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_screen.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/l10n/app_localizations.dart';
 
 import '../../support/widget_harness.dart';
 
@@ -56,7 +60,110 @@ const _stock = <String, dynamic>{
     {'supplier': 'SUP-1', 'name': 'МС-Груп', 'enabled': true},
   ],
   'can_edit': true,
+  'wanted': 2,
+  'waiting': 1,
 };
+
+// The day's list: МС-Груп is to be sent Графит that ran out and Белый
+// Матовый for a customer and the shelf; Kira was sent a list at 10:20.
+const _wanted = <String, dynamic>{
+  'count': 2,
+  'metres': 100,
+  'waiting': 1,
+  'can_edit': true,
+  'suppliers': [
+    {
+      'supplier': 'SUP-1',
+      'name': 'МС-Груп',
+      'phone': '+7 701 000 00 01',
+      'order_until': '16:00',
+      'open': [
+        {
+          'id': 'FORD-1',
+          'item': 'MAT-1',
+          'title': 'KIRA · Белый Матовый',
+          'metres': 20,
+          'customer': 'CUST-1',
+          'customer_name': 'Мебель-ЮГ',
+          'at': '09:10',
+        },
+        {
+          'id': 'FORD-2',
+          'item': 'MAT-1',
+          'title': 'KIRA · Белый Матовый',
+          'metres': 30,
+          'at': '14:55',
+        },
+        {
+          'item': 'MAT-2',
+          'title': 'JS Group · Графит',
+          'metres': 50,
+          'auto': true,
+        },
+      ],
+      'sent': <Object>[],
+    },
+    {
+      'supplier': 'SUP-2',
+      'name': 'Kira',
+      'open': <Object>[],
+      'sent': [
+        {
+          'id': 'FORD-7',
+          'item': 'MAT-1',
+          'title': 'KIRA · Белый Матовый',
+          'metres': 15,
+          'customer': 'CUST-2',
+          'customer_name': 'ИП Ахметов',
+        },
+      ],
+      'sent_at': '2026-11-12 10:20',
+    },
+  ],
+};
+
+class _Orders implements FilmOrdersRepository {
+  final added = <(String, double, String?)>[];
+  final dropped = <(String?, String?)>[];
+  final sentTo = <String?>[];
+  final deliveries = <(String, List<FilmDeliveryLine>, String?)>[];
+
+  @override
+  Future<FilmWanted> wanted() async => FilmWanted.fromJson(_wanted);
+
+  @override
+  Future<void> add({
+    required String item,
+    required double metres,
+    String? customer,
+    String? supplier,
+  }) async => added.add((item, metres, customer));
+
+  @override
+  Future<void> update(String line, {required double metres}) async {}
+
+  @override
+  Future<void> drop({String? line, String? item}) async =>
+      dropped.add((line, item));
+
+  @override
+  Future<void> sent(String? supplier) async => sentTo.add(supplier);
+
+  @override
+  Future<void> receiveMany({
+    required String supplier,
+    required List<FilmDeliveryLine> lines,
+    Map<String, Object?>? delivery,
+    String? receivedBy,
+    String? arrivesOn,
+  }) async => deliveries.add((supplier, lines, arrivesOn));
+
+  @override
+  Future<void> arrivedBatch(String batch) async {}
+}
+
+/// The last pump's list of what is to be ordered.
+late _Orders _orders;
 
 class _Fake implements FilmDeptRepository {
   final writeOffs = <(String, double, String)>[];
@@ -412,6 +519,7 @@ Future<_Fake> _pump(WidgetTester tester) async {
     ProviderScope(
       overrides: [
         filmDeptRepositoryProvider.overrideWithValue(repo),
+        filmOrdersRepositoryProvider.overrideWithValue(_orders = _Orders()),
         mdfCustomersProvider.overrideWith(
           (ref) async => const [
             FacadeCustomer(name: 'CUST-1', title: 'Мебель-ЮГ'),
@@ -672,6 +780,144 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmHoldSave')));
     await tester.pumpAndSettle();
     expect(repo.holds.single, ('MAT-1', 'CUST-1', 30.0));
+  });
+
+  test('a supplier gets one message: each film once, in all', () async {
+    final l10n = await AppLocalizations.delegate.load(const Locale('ru'));
+    final g = FilmWanted.fromJson(_wanted).groups.first;
+    expect(FilmWantGroup.byFilm(g.open).map((f) => f.length), [2, 1]);
+    final text = filmOrderText(l10n, g, DateTime(2026, 11, 12));
+    expect(text, contains('Заказ на 12.11.2026'));
+    expect(text, contains('1. KIRA · Белый Матовый — 50 м'));
+    expect(text, contains('2. JS Group · Графит — 50 м'));
+    expect(text, contains('позиций 2, 100 м'));
+  });
+
+  testWidgets('the film to take in is found by a word of its name', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmPick:search')),
+      'граф',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmReceivePick:MAT-2')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmReceivePick:MAT-1')), findsNothing);
+    // By its code too.
+    await tester.enterText(
+      find.byKey(const ValueKey('filmPick:search')),
+      'kr-1',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmReceivePick:MAT-1')), findsOneWidget);
+  });
+
+  testWidgets('one delivery brings several films, one for a customer', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
+    await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3500');
+    // What ran low at this supplier comes in with it, as much as last time.
+    await tester.tap(find.byKey(const ValueKey('filmReceive:low')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('filmMetres:1')))
+          .controller!
+          .text,
+      '50',
+    );
+    await tester.enterText(find.byKey(const ValueKey('filmPrice:1')), '3100');
+    await tester.pumpAndSettle();
+    // The second film is bought for a customer.
+    await tester.tap(find.byKey(const ValueKey('filmReceiveFor:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceiveFor:CUST-1')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmReceive:total')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmReceiveSave')));
+    await tester.pumpAndSettle();
+    // Several films: one delivery, not a receipt each.
+    expect(repo.received, isEmpty);
+    final (supplier, lines, _) = _orders.deliveries.single;
+    expect(supplier, 'SUP-1');
+    expect(
+      [for (final l in lines) (l.item, l.metres, l.priceM, l.customer)],
+      [('MAT-1', 10.0, 3500.0, null), ('MAT-2', 50.0, 3100.0, 'CUST-1')],
+    );
+  });
+
+  testWidgets('the day’s list goes to the supplier and comes back a delivery', (
+    tester,
+  ) async {
+    await _pump(tester);
+    expect(find.text('To order · 2 · waiting: 1'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmDept:orders')));
+    await tester.pumpAndSettle();
+    // One film wanted twice is one row: 20 m for a customer, 30 for the shelf.
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('filmOrders:metres:MAT-1')))
+          .data,
+      '50 m',
+    );
+    expect(find.text('Мебель-ЮГ 20 m · 09:10'), findsOneWidget);
+    expect(find.text('ran out · 50 m'), findsOneWidget);
+    expect(find.text('takes orders until 16:00'), findsOneWidget);
+    // The supplier's part goes out; it waits for his answer.
+    await tester.tap(find.byKey(const ValueKey('filmOrders:send:SUP-1')));
+    await tester.pumpAndSettle();
+    expect(_orders.sentTo, ['SUP-1']);
+    // Struck off: by its line, or — offered by itself — by its film.
+    await tester.tap(find.byKey(const ValueKey('filmOrders:drop:MAT-2')));
+    await tester.pumpAndSettle();
+    expect(_orders.dropped, [(null, 'MAT-2')]);
+    // Kira confirmed: the delivery window opens with its film and lines.
+    expect(find.text('Sent at 10:20 · waiting for an answer'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmOrders:confirmed:SUP-2')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('filmMetres')))
+          .controller!
+          .text,
+      '15',
+    );
+    expect(find.text('For: ИП Ахметов 15 m'), findsOneWidget);
+    await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3300');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceiveSave')));
+    await tester.pumpAndSettle();
+    final (supplier, lines, _) = _orders.deliveries.single;
+    expect(supplier, 'SUP-2');
+    expect(lines.single.orders, ['FORD-7']);
+    expect(lines.single.customer, isNull);
+  });
+
+  testWidgets('a film is put on the list for a customer', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmDept:orders')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmOrders:add')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmWant:metres')), '12');
+    await tester.tap(find.byKey(const ValueKey('filmWant:customer:2')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Мебель-ЮГ').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmWant:save')));
+    await tester.pumpAndSettle();
+    expect(_orders.added.single, ('MAT-1', 12.0, 'CUST-1'));
   });
 
   testWidgets('a receipt starts from the stock list: pick the film first', (

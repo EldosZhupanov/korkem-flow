@@ -14,10 +14,13 @@ import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.d
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_cash_tab.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_customer_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_team_tab.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
@@ -320,6 +323,7 @@ String? _about(FilmMove m, AppLocalizations l10n, NumberFormat money) {
 void _refresh(WidgetRef ref, [String? item]) {
   ref
     ..invalidate(filmStockProvider)
+    ..invalidate(filmWantedProvider)
     ..invalidate(filmSalesProvider)
     ..invalidate(filmCustomersProvider)
     ..invalidate(filmCatalogProvider);
@@ -374,20 +378,11 @@ class _StockTabState extends ConsumerState<_StockTab> {
                   OutlinedButton.icon(
                     key: const ValueKey('filmDept:receive'),
                     onPressed: () async {
-                      final film = await showDialog<Film>(
-                        context: context,
-                        builder: (context) => SimpleDialog(
-                          title: Text(l10n.filmReceivePick),
-                          children: [
-                            for (final f in c.films)
-                              if (f.enabled)
-                                SimpleDialogOption(
-                                  key: ValueKey('filmReceivePick:${f.item}'),
-                                  onPressed: () => Navigator.of(context).pop(f),
-                                  child: Text(filmName(f)),
-                                ),
-                          ],
-                        ),
+                      // With a search (owner, 12.11.2026).
+                      final film = await showFilmChoice(
+                        context,
+                        c.films,
+                        title: l10n.filmReceivePick,
                       );
                       if (film == null || !context.mounted) return;
                       final done = await showFilmReceive(context, film, c);
@@ -396,6 +391,8 @@ class _StockTabState extends ConsumerState<_StockTab> {
                     icon: const Icon(AppIcons.moveIn),
                     label: Text(l10n.filmReceive),
                   ),
+                // «К заказу» (owner, 12.11.2026): the day's list.
+                if (c.canEdit) FilmOrdersButton(stock: c),
                 FilterChip(
                   key: const ValueKey('filmDept:low'),
                   label: Text(l10n.filmLowCount(low.length)),

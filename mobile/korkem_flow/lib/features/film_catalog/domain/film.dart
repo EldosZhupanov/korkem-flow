@@ -191,6 +191,8 @@ class FilmCatalog {
     this.sourcesByMaker = const {},
     this.collections = const {},
     this.canEdit = false,
+    this.wanted = 0,
+    this.waiting = 0,
   });
 
   factory FilmCatalog.fromJson(Map<String, dynamic> json) => FilmCatalog(
@@ -219,6 +221,8 @@ class FilmCatalog {
           e.key: [for (final s in e.value as List? ?? const []) '$s'],
     },
     canEdit: json['can_edit'] == true,
+    wanted: (json['wanted'] as num?)?.toInt() ?? 0,
+    waiting: (json['waiting'] as num?)?.toInt() ?? 0,
   );
 
   final List<Film> films;
@@ -237,6 +241,19 @@ class FilmCatalog {
   /// films its own way.
   final Map<String, List<String>> collections;
   final bool canEdit;
+
+  /// «К заказу» (owner, 12.11.2026): films on the list to be ordered, and
+  /// suppliers the list went to who have not answered yet.
+  final int wanted;
+  final int waiting;
+
+  /// The film [item], if the list has it.
+  Film? film(String item) {
+    for (final f in films) {
+      if (f.item == item) return f;
+    }
+    return null;
+  }
 
   /// Every thickness of the film [f] is one of — itself too — thinnest
   /// first (owner, 11.11.2026: one film, several rolls).

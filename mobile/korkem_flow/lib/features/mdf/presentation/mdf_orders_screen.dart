@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_summary_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -87,6 +88,20 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
       appBar: AppBar(
         title: Text(l10n.mdfOrdersTitle),
         actions: [
+          // «Итоги МДФ» (owner, 12.11.2026).
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: OutlinedButton.icon(
+              key: const ValueKey('mdfSummary'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const MdfSummaryScreen(),
+                ),
+              ),
+              icon: const Icon(AppIcons.dashboard),
+              label: Text(l10n.mdfOrdersSummary),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.sm),
             child: FilledButton.icon(
