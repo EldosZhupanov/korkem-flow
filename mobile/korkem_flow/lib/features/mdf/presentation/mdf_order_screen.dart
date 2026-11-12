@@ -32,6 +32,10 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_hand_over.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
+import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
+import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_print.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// One MDF order, as one window — OnayBaza's card, compact.
@@ -2296,6 +2300,19 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     final messenger = ScaffoldMessenger.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final words = mdfPrintWords(l10n);
+    // The shop's copy carries the press map after the order (owner,
+    // 12.11.2026): the film each group takes, and a page per press load.
+    OrderPressLayout? found;
+    if (!withPrices && o.press.isNotEmpty) {
+      try {
+        found = await ref.read(pressLayoutRepositoryProvider).layout(o.name);
+      } on Object {
+        // No map is no reason not to print the order.
+        found = null;
+      }
+    }
+    final layout = found;
+    final pressWords = pressPrintWordsOf(l10n);
     try {
       await printMdfOrder(
         name: o.name,
@@ -2304,6 +2321,22 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
           words,
           withPrices: withPrices,
           locale: locale,
+          filmNotes: withPrices
+              ? const {}
+              : {
+                  for (final e in o.press.entries)
+                    e.key: mdfFilmPressText(e.value, l10n),
+                },
+          more: layout == null
+              ? null
+              : (doc) => addPressPages(
+                  doc,
+                  layout.films,
+                  layout.press,
+                  pressWords,
+                  locale: locale,
+                  footer: pressPrintFooter(l10n, layout),
+                ),
         ),
       );
     } on Object catch (error) {
@@ -2528,7 +2561,30 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
-                    for (var i = 1; i < 12; i++) const DataCell(Text('')),
+                    for (var i = 1; i < 8; i++) const DataCell(Text('')),
+                    // How much film the group takes, as the press lays it
+                    // out, and the map (owner, 12.11.2026).
+                    if (o.press[group.film] case final press?) ...[
+                      DataCell(
+                        _Spanning(
+                          mdfFilmPressText(press, l10n),
+                          key: ValueKey('mdfGroupFilm:$g'),
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      const DataCell(Text('')),
+                      const DataCell(Text('')),
+                      DataCell(
+                        IconButton(
+                          key: ValueKey('mdfGroupPress:$g'),
+                          tooltip: l10n.mdfPressOpen,
+                          icon: const Icon(AppIcons.pressLayout),
+                          onPressed: () =>
+                              context.push(Routes.pressLayoutOf(o.name)),
+                        ),
+                      ),
+                    ] else
+                      for (var i = 8; i < 12; i++) const DataCell(Text('')),
                   ],
                 ),
                 for (final (n, line) in group.lines) ...[
@@ -2786,6 +2842,22 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
 
 /// Text that runs on across the empty cells to its right, so one row of a
 /// table can carry a line as wide as the table without widening a column.
+/// «Плёнка 8,3 м · 3 загрузки · −1 м» — a film group's metres on the press.
+String mdfFilmPressText(MdfFilmPress p, AppLocalizations l10n) {
+  String m(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
+  return [
+    l10n.mdfPressFilm(m(p.filmM), p.loads.length),
+    if (p.manual)
+      l10n.mdfPressManual
+    else if (p.corrected)
+      l10n.mdfPressCorrected
+    else if (p.saved > 0)
+      l10n.mdfPressSaved(m(p.saved)),
+    if (p.approvedBy != null) l10n.mdfPressApproved,
+    if (p.tooBig > 0) l10n.mdfPressTooBig(p.tooBig),
+  ].join(' · ');
+}
+
 class _Spanning extends StatelessWidget {
   const _Spanning(this.text, {this.style, super.key});
 

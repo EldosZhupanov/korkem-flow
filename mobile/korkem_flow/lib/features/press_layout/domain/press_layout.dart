@@ -69,6 +69,8 @@ class FilmLayout {
     this.corrected = false,
     this.reason,
     this.tooBig = const [],
+    this.plainM,
+    this.manual = false,
   });
 
   factory FilmLayout.fromJson(Map<String, dynamic> json) => FilmLayout(
@@ -76,8 +78,10 @@ class FilmLayout {
     title: '${json['title'] ?? ''}',
     textured: json['textured'] == true,
     layoutM: (json['layout_m'] as num?)?.toDouble() ?? 0,
+    plainM: (json['plain_m'] as num?)?.toDouble(),
     filmM: (json['film_m'] as num?)?.toDouble() ?? 0,
     corrected: json['corrected'] == true,
+    manual: json['manual'] == true,
     reason: json['reason'] as String?,
     loads: [
       for (final l in json['loads'] as List? ?? const [])
@@ -98,7 +102,18 @@ class FilmLayout {
   /// Metres the layout takes, and the metres in use (a manager's correction).
   final double layoutM;
   final double filmM;
+
+  /// What the plain layout would take: the smart one tried other orders of
+  /// the parts and kept the shortest (owner, 12.11.2026).
+  final double? plainM;
+
+  /// Metres the smart layout saved.
+  double get saved =>
+      plainM == null || plainM! <= layoutM ? 0 : plainM! - layoutM;
   final bool corrected;
+
+  /// Laid out by a person, not by the press's own rule (owner, 12.11.2026).
+  final bool manual;
   final String? reason;
   final List<PressLoad> loads;
 
@@ -152,6 +167,9 @@ class OrderPressLayout {
     required this.press,
     required this.films,
     this.canCorrect = false,
+    this.approvedBy,
+    this.approvedAt,
+    this.short = const [],
   });
 
   factory OrderPressLayout.fromJson(Map<String, dynamic> json) =>
@@ -167,10 +185,33 @@ class OrderPressLayout {
             if (f is Map) FilmLayout.fromJson(Map<String, dynamic>.from(f)),
         ],
         canCorrect: json['can_correct'] == true,
+        approvedBy: json['approved'] is Map
+            ? (json['approved'] as Map)['by']?.toString()
+            : null,
+        approvedAt: json['approved'] is Map
+            ? (json['approved'] as Map)['at']?.toString()
+            : null,
+        short: [
+          for (final s in json['short'] as List? ?? const [])
+            if (s is Map)
+              (
+                decor: '${s['decor'] ?? ''}',
+                metres: (s['short_m'] as num?)?.toDouble() ?? 0,
+              ),
+        ],
       );
 
   final String salesOrder;
   final PressSettings press;
   final List<FilmLayout> films;
   final bool canCorrect;
+
+  /// «Раскрой проверен»: who looked at the map and when — null until then,
+  /// and again once the order's parts change.
+  final String? approvedBy;
+  final String? approvedAt;
+
+  /// Right after the check: the film the shelf lacks for the order — it
+  /// went on «К заказу».
+  final List<({String decor, double metres})> short;
 }

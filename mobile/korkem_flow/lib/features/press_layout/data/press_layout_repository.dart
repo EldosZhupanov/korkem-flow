@@ -65,6 +65,54 @@ class PressLayoutRepository {
     ),
   );
 
+  /// A layout made by hand for one film; `null` — back to the press's own.
+  Future<OrderPressLayout> saveLayout(
+    String salesOrder,
+    String decor,
+    List<PressLoad>? loads,
+  ) async => OrderPressLayout.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.save_layout',
+        post: true,
+        params: {
+          'sales_order': salesOrder,
+          'decor': decor,
+          if (loads != null)
+            'loads': jsonEncode([
+              for (final l in loads)
+                {
+                  'length_mm': l.lengthMm.round(),
+                  'placed': [
+                    for (final p in l.placed)
+                      {
+                        'pos': p.pos,
+                        'x': p.x.round(),
+                        'y': p.y.round(),
+                        'rotated': p.rotated,
+                      },
+                  ],
+                },
+            ]),
+        },
+      ),
+    ),
+  );
+
+  /// «Раскрой проверен» — or the mark taken off.
+  Future<OrderPressLayout> approve(
+    String salesOrder, {
+    bool approved = true,
+  }) async => OrderPressLayout.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.approve',
+        post: true,
+        params: {'sales_order': salesOrder, 'approved': approved ? 1 : 0},
+      ),
+    ),
+  );
+
   Future<PressSettings> settings() async =>
       PressSettings.fromJson(_map(await _client.callMethod('$_base.settings')));
 

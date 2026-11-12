@@ -495,6 +495,7 @@ class MdfOrder {
     this.stageWorkers = const {},
     this.customerTags = const [],
     this.extraStages = const {},
+    this.press = const {},
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -555,6 +556,14 @@ class MdfOrder {
             MdfStage.parse(s['stage']) != null)
           MdfStage.parse(s['stage'])!,
     },
+    press: {
+      if (json['press'] case final Map<String, dynamic> p)
+        for (final e in p.entries)
+          if (e.value is Map)
+            e.key: MdfFilmPress.fromJson(
+              Map<String, dynamic>.from(e.value as Map),
+            ),
+    },
   );
 
   final String name;
@@ -598,7 +607,54 @@ class MdfOrder {
   /// The stages «+ этап» added for a rework.
   final Set<MdfStage> extraStages;
 
+  /// Film by decor as the press lays it out (owner, 12.11.2026).
+  final Map<String, MdfFilmPress> press;
+
   List<MdfOrderTag> get tags => head.tags;
 
   bool get isDraft => status == MdfStatus.draft;
+}
+
+/// How much of one film an order takes on the press: metres, the loads,
+/// what the plain layout would take, whether a person corrected it.
+@immutable
+class MdfFilmPress {
+  const MdfFilmPress({
+    required this.filmM,
+    this.layoutM = 0,
+    this.plainM,
+    this.loads = const [],
+    this.corrected = false,
+    this.tooBig = 0,
+    this.manual = false,
+    this.approvedBy,
+  });
+
+  factory MdfFilmPress.fromJson(Map<String, dynamic> json) => MdfFilmPress(
+    filmM: _d(json['film_m']),
+    layoutM: _d(json['layout_m']),
+    plainM: json['plain_m'] == null ? null : _d(json['plain_m']),
+    loads: [for (final l in json['loads'] as List? ?? const []) _d(l)],
+    corrected: json['corrected'] == true,
+    tooBig: _i(json['too_big']),
+    manual: json['manual'] == true,
+    approvedBy: json['approved'] is Map
+        ? (json['approved'] as Map)['by']?.toString()
+        : null,
+  );
+
+  final double filmM;
+  final double layoutM;
+  final double? plainM;
+  final List<double> loads;
+  final bool corrected;
+  final int tooBig;
+
+  /// Laid out by hand; and who checked the order's layout, if anyone.
+  final bool manual;
+  final String? approvedBy;
+
+  /// Metres the smart layout saved on the plain one.
+  double get saved =>
+      plainM == null || plainM! <= layoutM ? 0 : plainM! - layoutM;
 }

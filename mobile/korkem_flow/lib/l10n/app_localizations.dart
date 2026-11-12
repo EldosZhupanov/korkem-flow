@@ -12697,6 +12697,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Summary'**
   String get mdfOrdersSummary;
+
+  /// No description provided for @mdfPressOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Press layout'**
+  String get mdfPressOpen;
+
+  /// No description provided for @mdfPressFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film {metres} m · {loads} loads'**
+  String mdfPressFilm(String metres, int loads);
+
+  /// No description provided for @mdfPressCorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'corrected by hand'**
+  String get mdfPressCorrected;
+
+  /// No description provided for @mdfPressSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'smart layout −{metres} m'**
+  String mdfPressSaved(String metres);
+
+  /// No description provided for @mdfPressTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'too big for the press: {count}'**
+  String mdfPressTooBig(int count);
+
+  /// No description provided for @pressSmartSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart layout: the plain one would take {plain} m — {saved} m saved.'**
+  String pressSmartSaved(String plain, String saved);
+
+  /// No description provided for @pressEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the layout'**
+  String get pressEdit;
+
+  /// No description provided for @pressEditReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Lay out again'**
+  String get pressEditReset;
+
+  /// No description provided for @pressEditSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my layout'**
+  String get pressEditSave;
+
+  /// No description provided for @pressEditTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {metres} m · the system laid out {auto} m'**
+  String pressEditTotal(String metres, String auto);
+
+  /// No description provided for @pressEditClash.
+  ///
+  /// In en, this message translates to:
+  /// **'Red parts lie too close to each other or off the table — move them.'**
+  String get pressEditClash;
+
+  /// No description provided for @pressEditHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Press a part and drag it. Let go and it lines up by itself.'**
+  String get pressEditHint;
+
+  /// No description provided for @pressEditPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Position {pos} · {size}'**
+  String pressEditPart(int pos, String size);
+
+  /// No description provided for @pressEditRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn'**
+  String get pressEditRotate;
+
+  /// No description provided for @pressEditMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To load {count}'**
+  String pressEditMoveTo(int count);
+
+  /// No description provided for @pressEditMoveNew.
+  ///
+  /// In en, this message translates to:
+  /// **'To a new load'**
+  String get pressEditMoveNew;
+
+  /// No description provided for @pressEditSectionAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Section: auto'**
+  String get pressEditSectionAuto;
+
+  /// No description provided for @pressEditSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Section {metres} m'**
+  String pressEditSection(String metres);
+
+  /// No description provided for @pressManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Own layout — the parts were placed by hand.'**
+  String get pressManual;
+
+  /// No description provided for @pressApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout checked — start'**
+  String get pressApprove;
+
+  /// No description provided for @pressApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout checked: {by}, {at}'**
+  String pressApproved(String by, String at);
+
+  /// No description provided for @pressUnapprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the mark off'**
+  String get pressUnapprove;
+
+  /// No description provided for @pressShortAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Film is short, added to the order list: {films} m'**
+  String pressShortAdded(String films);
+
+  /// No description provided for @pressPrintApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout approved: {by}, {at}'**
+  String pressPrintApproved(String by, String at);
+
+  /// No description provided for @pressPrintSigns.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator ____________   Foreman ____________'**
+  String get pressPrintSigns;
+
+  /// No description provided for @mdfPressManual.
+  ///
+  /// In en, this message translates to:
+  /// **'own layout'**
+  String get mdfPressManual;
+
+  /// No description provided for @mdfPressApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'layout checked'**
+  String get mdfPressApproved;
 }
 
 class _AppLocalizationsDelegate

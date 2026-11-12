@@ -11,7 +11,14 @@ from frappe.utils import add_days, nowdate
 
 from korkem_manufacturing import testing
 from korkem_manufacturing.services import facade_materials, facade_order, facade_prices, material_stock, press_layout
-from korkem_manufacturing.services.press_layout import DEFAULT_PRESS, Part, plan
+from korkem_manufacturing.services.press_layout import (
+	DEFAULT_PRESS,
+	Part,
+	best_plan,
+	check_layout,
+	parts_key,
+	plan,
+)
 
 COMPANY = "KORKEM"
 MANAGER = "pl.manager@example.com"
@@ -50,10 +57,61 @@ class TestThePacking(IntegrationTestCase):
 		loads, _ = plan(CACAO + AVORI, _press(), rotate=False)
 		self.assertFalse(any(p.rotated for load in loads for p in load.placed))
 
+	def test_the_smart_layout_tries_orders_and_keeps_the_shortest(self):
+		# Order 00016's positions 4–6 (owner, 12.11.2026): the plain layout
+		# takes four loads, the last one 2.1 m; the squares 498×498 go into the
+		# empty corners of the first two, and the fourth needs only 1.1 m.
+		parts = [Part(4, 2000, 498)] * 5 + [Part(5, 498, 498)] * 5 + [Part(6, 800, 498)] * 5
+		plain = [load.film_m for load in plan(parts, _press(), rotate=True)[0]]
+		smart = [load.film_m for load in best_plan(parts, _press(), rotate=True)[0]]
+		self.assertEqual((round(sum(plain), 2), round(sum(smart), 2)), (11.4, 10.4))
+		# The same parts, the same layout — the map does not change on its own.
+		again = best_plan(parts, _press(), rotate=True)[0]
+		self.assertEqual([[vars(p) for p in load.placed] for load in again],
+						 [[vars(p) for p in load.placed] for load in best_plan(parts, _press(), rotate=True)[0]])
+		# Never worse than the plain one; the pilot order stays what the shop ordered.
+		self.assertEqual([load.film_m for load in best_plan(AVORI, _press(), rotate=True)[0]], [3.1])
+		self.assertEqual([load.film_m for load in best_plan(CACAO, _press(), rotate=False)[0]], [2.1])
+		self.assertFalse(any(p.rotated for load in best_plan(CACAO + AVORI, _press(), rotate=False)[0]
+							 for p in load.placed))
+
+	def test_a_layout_made_by_hand_is_checked_before_it_is_kept(self):
+		press = _press()
+		parts = [Part(1, 500, 718)] * 2 + [Part(3, 498, 550)]
+		gap = press["press_gap_mm"]
+
+		def lay(*placed, length=0):
+			return check_layout(parts, [{"length_mm": length, "placed": [
+				{"pos": pos, "x": x, "y": y, "rotated": turned} for pos, x, y, turned in placed]}], press, rotate=True)
+
+		# Three in a row, the third turned: the shortest section that holds them.
+		row = lay((1, 0, 0, False), (1, 500 + gap, 0, False), (3, 2 * (500 + gap), 0, True))
+		self.assertEqual([(load.film_m, len(load.placed)) for load in row], [(2.1, 3)])
+		self.assertEqual((row[0].placed[2].width, row[0].placed[2].height), (550, 498))
+		# A longer section named by hand is kept.
+		self.assertEqual(lay((1, 0, 0, False), (1, 560, 0, False), (3, 1120, 0, True), length=2750)[0].film_m, 3.1)
+		for bad in (
+			[(1, 0, 0, False), (1, 500 + gap - 1, 0, False), (3, 1200, 0, False)],  # nearer than the gap
+			[(1, 0, 0, False), (1, 560, 600, False), (3, 1200, 0, False)],  # off the table's side
+			[(1, 0, 0, False), (1, 560, 0, False)],  # one not laid out
+			[(1, 0, 0, False), (1, 560, 0, False), (3, 1120, 0, False), (3, 1700, 0, False)],  # one too many
+			[(1, 0, 0, False), (1, 560, 0, False), (3, 2500, 0, False)],  # past the table's end
+		):
+			with self.assertRaises(frappe.ValidationError):
+				lay(*bad)
+		# A textured film is never turned.
+		with self.assertRaises(frappe.ValidationError):
+			check_layout(parts, [{"placed": [{"pos": 1, "x": 0, "y": 0, "rotated": True}]}], press, rotate=False)
+		self.assertEqual(parts_key(parts), parts_key(list(reversed(parts))))
+		self.assertNotEqual(parts_key(parts), parts_key(parts[:2]))
+
 	def test_every_part_is_placed_once_inside_the_working_area_with_its_gap(self):
 		press = _press()
 		parts = [Part(i % 4 + 1, 500 + 37 * (i % 5), 300 + 41 * (i % 3)) for i in range(30)]
-		loads, too_big = plan(parts, press, rotate=True)
+		self._check(press, *plan(parts, press, rotate=True))
+		self._check(press, *best_plan(parts, press, rotate=True))
+
+	def _check(self, press, loads, too_big):
 		self.assertEqual(sum(len(load.placed) for load in loads), 30)
 		self.assertEqual(too_big, [])
 		margin, gap = press["press_margin_mm"], press["press_gap_mm"]
@@ -172,6 +230,38 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 			self._as(CUTTER, press_layout.set_film_metres, order, PLAIN, 2.1, "так")
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, press_layout.save_press_settings, press_gap_mm=10)
+
+	def test_a_hand_made_layout_is_the_order_s_and_the_manager_checks_it(self):
+		order = self._order()
+		own = next(f for f in self._as(MANAGER, press_layout.order_layout, order)["films"] if f["decor"] == PLAIN)
+		self.assertFalse(own["manual"])
+		# The press's own layout, on the whole table by the manager's hand.
+		loads = [{"length_mm": 2750, "placed": load["placed"]} for load in own["loads"]]
+		kept = self._as(MANAGER, press_layout.save_layout, order, PLAIN, loads)
+		film = next(f for f in kept["films"] if f["decor"] == PLAIN)
+		self.assertTrue(film["manual"])
+		self.assertEqual(film["film_m"], round(3.1 * len(own["loads"]), 2))
+		self.assertEqual([len(load["placed"]) for load in film["loads"]], [len(load["placed"]) for load in own["loads"]])
+		# Checked: who and when.
+		self.assertIsNone(kept["approved"])
+		checked = self._as(MANAGER, press_layout.approve, order)
+		self.assertEqual(checked["approved"]["by"], frappe.utils.get_fullname(MANAGER))
+		# The film still lacking is on «К заказу» for the customer — once.
+		note = f"заказ {order}"
+		for row in checked["short"]:
+			self.assertEqual(frappe.db.count("Film Order Line", {"item": row["item"], "note": note}), 1)
+		self.assertIsNone(self._as(MANAGER, press_layout.approve, order, approved=False)["approved"])
+		again = self._as(MANAGER, press_layout.approve, order)
+		for row in again["short"]:
+			self.assertEqual(frappe.db.count("Film Order Line", {"item": row["item"], "note": note}), 1)
+		self._as(MANAGER, press_layout.approve, order, approved=False)
+		# Back to the press's own.
+		back = self._as(MANAGER, press_layout.save_layout, order, PLAIN, None)
+		self.assertFalse(next(f for f in back["films"] if f["decor"] == PLAIN)["manual"])
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, press_layout.save_layout, order, PLAIN, loads)
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, press_layout.approve, order)
 
 	def test_the_press_settings_are_checked_and_kept(self):
 		saved = self._as(MANAGER, press_layout.save_press_settings, press_gap_mm=40)

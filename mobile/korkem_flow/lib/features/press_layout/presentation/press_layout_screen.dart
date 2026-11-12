@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_editor.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_map.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_print.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -21,38 +22,56 @@ String _metres(BuildContext context, double value) => NumberFormat(
   Localizations.localeOf(context).toLanguageTag(),
 ).format(value);
 
+/// The foot of every printed map: who checked the layout, and where the
+/// operator and the foreman sign.
+String pressPrintFooter(AppLocalizations l10n, OrderPressLayout layout) => [
+  if (layout.approvedBy != null)
+    l10n.pressPrintApproved(layout.approvedBy!, layout.approvedAt ?? ''),
+  l10n.pressPrintSigns,
+].join('     ');
+
 /// The films on paper, through the system print dialog.
+/// The printed map's words in the reader's language.
+PressPrintWords pressPrintWordsOf(AppLocalizations l10n) => (
+  textured: l10n.pressTextured,
+  plain: l10n.pressPlain,
+  total: l10n.pressFilmTotal,
+  sheet: l10n.pressPrintSheet,
+  copies: l10n.pressPrintCopies,
+  size: l10n.pressPrintSize,
+  section: l10n.pressPrintSection,
+  area: l10n.pressPrintArea,
+  parts: l10n.pressPrintParts,
+  waste: l10n.pressPrintWaste,
+  count: l10n.pressPrintCount,
+  perimeter: l10n.pressPrintPerimeter,
+  gap: l10n.pressPrintGap,
+  details: l10n.pressPrintDetails,
+  tooBig: l10n.pressTooBig,
+  page: l10n.pressPrintPage,
+);
+
 Future<void> _print(
   BuildContext context,
   String salesOrder,
   List<FilmLayout> films,
-  PressSettings press,
-) async {
+  PressSettings press, {
+  String? footer,
+}) async {
   final messenger = ScaffoldMessenger.of(context);
   final l10n = AppLocalizations.of(context);
   final locale = Localizations.localeOf(context).toLanguageTag();
-  final words = (
-    textured: l10n.pressTextured,
-    plain: l10n.pressPlain,
-    total: l10n.pressFilmTotal,
-    sheet: l10n.pressPrintSheet,
-    copies: l10n.pressPrintCopies,
-    size: l10n.pressPrintSize,
-    section: l10n.pressPrintSection,
-    area: l10n.pressPrintArea,
-    parts: l10n.pressPrintParts,
-    waste: l10n.pressPrintWaste,
-    count: l10n.pressPrintCount,
-    perimeter: l10n.pressPrintPerimeter,
-    gap: l10n.pressPrintGap,
-    details: l10n.pressPrintDetails,
-    tooBig: l10n.pressTooBig,
-    page: l10n.pressPrintPage,
-  );
+  final words = pressPrintWordsOf(l10n);
   try {
     await printPressLayout(
       name: salesOrder,
-      build: () => buildPressPdf(films, press, words, locale: locale),
+      build: () => buildPressPdf(
+        films,
+        press,
+        words,
+        locale: locale,
+        footer: footer,
+      ),
     );
   } on Object catch (error) {
     messenger.showFailure(error, l10n);
@@ -85,6 +104,7 @@ class PressLayoutScreen extends ConsumerWidget {
                   salesOrder,
                   films,
                   layout.requireValue.press,
+                  footer: pressPrintFooter(l10n, layout.requireValue),
                 ),
         ),
       ],
@@ -103,6 +123,9 @@ class PressLayoutScreen extends ConsumerWidget {
             : ListView(
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 children: [
+                  ReadableWidth(
+                    child: _Approval(layout: data, salesOrder: salesOrder),
+                  ),
                   for (final film in data.films)
                     ReadableWidth(
                       child: _FilmCard(
@@ -227,6 +250,23 @@ class _FilmCard extends ConsumerWidget {
                   icon: const Icon(AppIcons.print),
                   onPressed: () => _print(context, salesOrder, [film], press),
                 ),
+                if (canCorrect && film.loads.isNotEmpty)
+                  IconButton(
+                    key: ValueKey('pressEdit:${film.decor}'),
+                    tooltip: l10n.pressEdit,
+                    icon: const Icon(AppIcons.edit),
+                    onPressed: () async {
+                      final kept = await showPressEditor(
+                        context,
+                        salesOrder: salesOrder,
+                        film: film,
+                        press: press,
+                      );
+                      if (kept) {
+                        ref.invalidate(orderPressLayoutProvider(salesOrder));
+                      }
+                    },
+                  ),
                 if (canCorrect)
                   TextButton.icon(
                     key: ValueKey('pressCorrect:${film.decor}'),
@@ -236,7 +276,24 @@ class _FilmCard extends ConsumerWidget {
                   ),
               ],
             ),
-            if (film.corrected)
+            if (film.saved > 0)
+              Text(
+                l10n.pressSmartSaved(
+                  _metres(context, film.plainM!),
+                  _metres(context, film.saved),
+                ),
+                key: ValueKey('pressSaved:${film.decor}'),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: context.statusColors.success,
+                ),
+              ),
+            if (film.manual)
+              Text(
+                l10n.pressManual,
+                key: ValueKey('pressManual:${film.decor}'),
+                style: theme.textTheme.bodySmall?.copyWith(color: warning),
+              )
+            else if (film.corrected)
               Text(
                 l10n.pressCorrected(
                   film.reason ?? '',
@@ -268,6 +325,90 @@ class _FilmCard extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// «Раскрой проверен — запустить»: the manager looked at the maps and the
+/// metres. What the shelf lacks goes on «К заказу» with the mark.
+class _Approval extends ConsumerWidget {
+  const _Approval({required this.layout, required this.salesOrder});
+
+  final OrderPressLayout layout;
+  final String salesOrder;
+
+  Future<void> _set(
+    BuildContext context,
+    WidgetRef ref, {
+    required bool approved,
+  }) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    final number = NumberFormat(
+      '0.##',
+      Localizations.localeOf(context).toLanguageTag(),
+    );
+    try {
+      final result = await ref
+          .read(pressLayoutRepositoryProvider)
+          .approve(salesOrder, approved: approved);
+      ref.invalidate(orderPressLayoutProvider(salesOrder));
+      if (result.short.isNotEmpty) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.pressShortAdded(
+                [
+                  for (final s in result.short)
+                    '${s.decor} — ${number.format(s.metres)}',
+                ].join('; '),
+              ),
+            ),
+          ),
+        );
+      }
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final by = layout.approvedBy;
+    if (by == null && !layout.canCorrect) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: by == null
+          ? Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.icon(
+                key: const ValueKey('pressApprove'),
+                onPressed: () => _set(context, ref, approved: true),
+                icon: const Icon(AppIcons.check),
+                label: Text(l10n.pressApprove),
+              ),
+            )
+          : Row(
+              children: [
+                Icon(AppIcons.success, color: context.statusColors.success),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.pressApproved(by, layout.approvedAt ?? ''),
+                    key: const ValueKey('pressApproved'),
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                if (layout.canCorrect)
+                  TextButton(
+                    key: const ValueKey('pressUnapprove'),
+                    onPressed: () => _set(context, ref, approved: false),
+                    child: Text(l10n.pressUnapprove),
+                  ),
+              ],
+            ),
     );
   }
 }
