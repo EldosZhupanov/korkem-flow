@@ -13,6 +13,8 @@ import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_dept_screen.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/orders/presentation/sales_order_status_label.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
@@ -202,6 +204,58 @@ class _ResultsList extends StatelessWidget {
           SectionLabel(l10n.searchSectionStock(results.stock.total)),
           for (final position in results.stock.items)
             _StockResultCard(position: position),
+          const SizedBox(height: AppSpacing.md),
+        ],
+        // Film and its customers (owner, 12.11.2026).
+        if (results.films.isNotEmpty) ...[
+          SectionLabel(l10n.searchSectionFilms(results.films.total)),
+          for (final f in results.films.items)
+            Card(
+              child: ListTile(
+                key: ValueKey('searchFilm:${f.item}'),
+                leading: const Icon(AppIcons.material),
+                title: Text(f.label ?? '${f.maker} · ${f.colour}'),
+                subtitle: Text(
+                  [
+                    ?f.code,
+                    ?f.type,
+                    if (f.free > 0) '${filmMetres(f.free)} м',
+                  ].join(' · '),
+                ),
+                trailing: const Icon(AppIcons.forward),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => FilmPage(item: f.item),
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(height: AppSpacing.md),
+        ],
+        if (results.filmCustomers.isNotEmpty) ...[
+          SectionLabel(
+            l10n.searchSectionFilmCustomers(results.filmCustomers.total),
+          ),
+          for (final c in results.filmCustomers.items)
+            Card(
+              child: ListTile(
+                key: ValueKey('searchFilmCustomer:${c.customer}'),
+                leading: const Icon(AppIcons.profile),
+                title: Text(c.name),
+                subtitle: Text(
+                  [
+                    ?c.phone,
+                    if (c.debt > 0.5) l10n.filmDebtLine(filmMetres(c.debt)),
+                  ].join(' · '),
+                ),
+                trailing: const Icon(AppIcons.forward),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const FilmDeptScreen(),
+                  ),
+                ),
+              ),
+            ),
           const SizedBox(height: AppSpacing.md),
         ],
       ],

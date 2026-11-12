@@ -1,3 +1,5 @@
+import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/production/domain/work_order.dart';
 import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
@@ -36,19 +38,37 @@ class GlobalSearchResults {
     required this.orders,
     required this.workOrders,
     required this.stock,
+    this.films = const SearchResultSection.empty(),
+    this.filmCustomers = const SearchResultSection.empty(),
   });
 
   const GlobalSearchResults.empty({this.query = ''})
     : orders = const SearchResultSection.empty(),
       workOrders = const SearchResultSection.empty(),
-      stock = const SearchResultSection.empty();
+      stock = const SearchResultSection.empty(),
+      films = const SearchResultSection.empty(),
+      filmCustomers = const SearchResultSection.empty();
 
   final String query;
   final SearchResultSection<SalesOrder> orders;
   final SearchResultSection<WorkOrder> workOrders;
   final SearchResultSection<StockPosition> stock;
 
-  bool get isEmpty => orders.isEmpty && workOrders.isEmpty && stock.isEmpty;
+  /// Films by name, code, maker, surface — and the film department's
+  /// customers by name or phone (owner, 12.11.2026).
+  final SearchResultSection<Film> films;
+  final SearchResultSection<FilmCustomer> filmCustomers;
+
+  bool get isEmpty =>
+      orders.isEmpty &&
+      workOrders.isEmpty &&
+      stock.isEmpty &&
+      films.isEmpty &&
+      filmCustomers.isEmpty;
   bool get hasAnyResults =>
-      orders.isNotEmpty || workOrders.isNotEmpty || stock.isNotEmpty;
+      orders.isNotEmpty ||
+      workOrders.isNotEmpty ||
+      stock.isNotEmpty ||
+      films.isNotEmpty ||
+      filmCustomers.isNotEmpty;
 }

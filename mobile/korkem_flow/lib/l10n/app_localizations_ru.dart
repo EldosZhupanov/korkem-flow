@@ -6577,4 +6577,85 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmReceivePick => 'Приход — какая плёнка?';
+
+  @override
+  String searchSectionFilms(int count) {
+    return 'Плёнка ($count)';
+  }
+
+  @override
+  String searchSectionFilmCustomers(int count) {
+    return 'Клиенты плёнки ($count)';
+  }
+
+  @override
+  String filmDebtLine(String sum) {
+    return 'долг $sum ₸';
+  }
+
+  @override
+  String get filmTeamSold => 'Продано';
+
+  @override
+  String get filmTeamPaid => 'Оплачено';
+
+  @override
+  String get filmTeamMargin => 'Маржа';
+
+  @override
+  String get filmTeamPotLabel => 'Котёл';
+
+  @override
+  String filmTeamPotNote(String pct) {
+    return '$pct% маржи';
+  }
+
+  @override
+  String get filmTeamVsLastMonth => 'к прошлому месяцу';
+
+  @override
+  String filmTeamMarginShare(String pct) {
+    return '$pct% от оплаченного';
+  }
+
+  @override
+  String get filmTeamSellers => 'Продавцы';
+
+  @override
+  String filmTeamSellerLine(String name, String sales, String metres) {
+    return '$name · продаж $sales · $metres м';
+  }
+
+  @override
+  String filmTeamBonus(String sum) {
+    return 'бонус $sum';
+  }
+
+  @override
+  String filmTeamShareLine(String share, String margin, String paid) {
+    return 'доля $share% · маржа $margin · оплачено $paid';
+  }
+
+  @override
+  String get filmReportMarginLegend =>
+      'Зелёный — маржа хорошая, жёлтый — меньше 300 ₸ на метр, красный — продали дешевле закупа.';
+
+  @override
+  String get filmCashWeek => 'Неделя';
+
+  @override
+  String filmCashSales(int count) {
+    return 'продаж: $count';
+  }
+
+  @override
+  String filmCashSpent(int count) {
+    return 'расходов: $count';
+  }
+
+  @override
+  String get filmCashWhere => 'Где деньги';
+
+  @override
+  String get filmCashMoves => 'Движения';
 }

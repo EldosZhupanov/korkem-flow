@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
@@ -8,6 +9,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
@@ -37,6 +39,12 @@ class FilmDeptScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(l10n.filmDeptTitle),
           actions: [
+            IconButton(
+              key: const ValueKey('filmDept:search'),
+              tooltip: l10n.searchTitle,
+              icon: const Icon(AppIcons.search),
+              onPressed: () => context.push(Routes.search),
+            ),
             TextButton.icon(
               key: const ValueKey('filmDept:catalog'),
               onPressed: () async {

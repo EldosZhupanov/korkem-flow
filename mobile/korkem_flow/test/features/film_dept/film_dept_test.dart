@@ -92,6 +92,20 @@ class _Fake implements FilmDeptRepository {
         ],
         'out_total': 5000,
         'balance': 3000,
+        'sales': 1,
+        'spent': 1,
+        'where': [
+          {'way': 'Наличные', 'amount': 3000},
+        ],
+        'moves': [
+          {
+            'date': '2026-11-11',
+            'in': true,
+            'amount': 8000,
+            'way': 'Наличные',
+            'what': 'Мебель-ЮГ',
+          },
+        ],
         'logistics': 10000,
         'logistics_per_m': 200,
         'owed': {
@@ -760,6 +774,11 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmTab:cash')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmCash:logistics')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCash:in')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('filmCash:where:Наличные')),
+      findsOneWidget,
+    );
     expect(
       find.byKey(const ValueKey('filmCash:employee:STE-3')),
       findsOneWidget,

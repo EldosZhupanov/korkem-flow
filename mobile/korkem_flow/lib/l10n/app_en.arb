@@ -7005,5 +7005,107 @@
       }
     }
   },
-  "filmReceivePick": "Receipt — which film?"
+  "filmReceivePick": "Receipt — which film?",
+  "searchSectionFilms": "Film ({count})",
+  "@searchSectionFilms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchSectionFilmCustomers": "Film customers ({count})",
+  "@searchSectionFilmCustomers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmDebtLine": "owes {sum} ₸",
+  "@filmDebtLine": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamSold": "Sold",
+  "filmTeamPaid": "Paid",
+  "filmTeamMargin": "Margin",
+  "filmTeamPotLabel": "Pot",
+  "filmTeamPotNote": "{pct}% of margin",
+  "@filmTeamPotNote": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamVsLastMonth": "vs last month",
+  "filmTeamMarginShare": "{pct}% of what was paid",
+  "@filmTeamMarginShare": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamSellers": "Sellers",
+  "filmTeamSellerLine": "{name} · {sales} sales · {metres} m",
+  "@filmTeamSellerLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamBonus": "bonus {sum}",
+  "@filmTeamBonus": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamShareLine": "share {share}% · margin {margin} · paid {paid}",
+  "@filmTeamShareLine": {
+    "placeholders": {
+      "share": {
+        "type": "String"
+      },
+      "margin": {
+        "type": "String"
+      },
+      "paid": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReportMarginLegend": "Green — a good margin, amber — under 300 ₸ a metre, red — sold under cost.",
+  "filmCashWeek": "Week",
+  "filmCashSales": "{count} sales",
+  "@filmCashSales": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCashSpent": "{count} paid out",
+  "@filmCashSpent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCashWhere": "Where the money is",
+  "filmCashMoves": "Movements"
 }

@@ -40,112 +40,241 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
     final theme = Theme.of(context);
     final money = mdfMoney(context);
     final async = ref.watch(filmTeamProvider(_month));
+    final status = context.statusColors;
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => ErrorView(
         error: e,
         onRetry: () => ref.invalidate(filmTeamProvider(_month)),
       ),
-      data: (t) => ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
-          Row(
-            children: [
-              IconButton(
-                key: const ValueKey('filmTeam:prev'),
-                onPressed: () => setState(() => _month = _shift(t.month, -1)),
-                icon: const Icon(AppIcons.previous),
-              ),
+      data: (t) {
+        // Against last month, when last month sold anything.
+        final before = ref
+            .watch(filmTeamProvider(_shift(t.month, -1)))
+            .value
+            ?.metres;
+        final change = before == null || before <= 0
+            ? null
+            : (t.metres - before) / before * 100;
+        return ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  key: const ValueKey('filmTeam:prev'),
+                  onPressed: () => setState(() => _month = _shift(t.month, -1)),
+                  icon: const Icon(AppIcons.previous),
+                ),
+                Text(
+                  t.month,
+                  key: const ValueKey('filmTeam:month'),
+                  style: theme.textTheme.titleMedium,
+                ),
+                IconButton(
+                  key: const ValueKey('filmTeam:next'),
+                  onPressed: () => setState(() => _month = _shift(t.month, 1)),
+                  icon: const Icon(AppIcons.forward),
+                ),
+                const Spacer(),
+                if (t.canSet)
+                  TextButton.icon(
+                    key: const ValueKey('filmTeam:settings'),
+                    onPressed: () async {
+                      final saved = await showDialog<bool>(
+                        context: context,
+                        builder: (_) => _SettingsDialog(team: t),
+                      );
+                      if (saved ?? false) ref.invalidate(filmTeamProvider);
+                    },
+                    icon: const Icon(AppIcons.edit),
+                    label: Text(l10n.filmTeamSettings),
+                  ),
+              ],
+            ),
+            // At a glance (owner, 12.11.2026): four figures, the plan in
+            // colour, sellers with medals and their share.
+            Wrap(
+              key: const ValueKey('filmTeam:totals'),
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                _Metric(
+                  label: l10n.filmTeamSold,
+                  value: '${_n(t.metres)} м',
+                  note: change == null
+                      ? null
+                      : '${change >= 0 ? '▲' : '▼'} ${_n(change.abs())}% '
+                            '${l10n.filmTeamVsLastMonth}',
+                  noteColor: change == null
+                      ? null
+                      : change >= 0
+                      ? status.success
+                      : status.danger,
+                ),
+                _Metric(label: l10n.filmTeamPaid, value: money.format(t.paid)),
+                _Metric(
+                  label: l10n.filmTeamMargin,
+                  value: money.format(t.margin),
+                  valueColor: t.margin >= 0 ? status.success : status.danger,
+                  note: t.paid > 0
+                      ? l10n.filmTeamMarginShare(_n(t.margin / t.paid * 100))
+                      : null,
+                ),
+                _Metric(
+                  key: const ValueKey('filmTeam:pot'),
+                  label: l10n.filmTeamPotLabel,
+                  value: money.format(t.pot),
+                  note: l10n.filmTeamPotNote(_n(t.pct)),
+                  valueColor: status.warning,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            if (t.planM > 0) ...[
               Text(
-                t.month,
-                key: const ValueKey('filmTeam:month'),
-                style: theme.textTheme.titleMedium,
+                l10n.filmTeamPlan(_n(t.done ?? 0), _n(t.planM)),
+                key: const ValueKey('filmTeam:plan'),
               ),
-              IconButton(
-                key: const ValueKey('filmTeam:next'),
-                onPressed: () => setState(() => _month = _shift(t.month, 1)),
-                icon: const Icon(AppIcons.forward),
+              const SizedBox(height: AppSpacing.xs),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.xs),
+                child: LinearProgressIndicator(
+                  minHeight: AppSpacing.sm,
+                  value: ((t.done ?? 0) / 100).clamp(0, 1).toDouble(),
+                  // Red under half, amber on the way, green when made.
+                  color: (t.done ?? 0) >= 100
+                      ? status.success
+                      : (t.done ?? 0) >= 50
+                      ? status.warning
+                      : status.danger,
+                ),
               ),
-              const Spacer(),
-              if (t.canSet)
-                TextButton.icon(
-                  key: const ValueKey('filmTeam:settings'),
-                  onPressed: () async {
-                    final saved = await showDialog<bool>(
-                      context: context,
-                      builder: (_) => _SettingsDialog(team: t),
-                    );
-                    if (saved ?? false) ref.invalidate(filmTeamProvider);
-                  },
-                  icon: const Icon(AppIcons.edit),
-                  label: Text(l10n.filmTeamSettings),
+            ] else
+              Text(l10n.filmTeamNoPlan),
+            Text(l10n.filmTeamHint, style: theme.textTheme.bodySmall),
+            const SizedBox(height: AppSpacing.md),
+            if (t.rows.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Text(l10n.filmTeamEmpty),
+              ),
+            if (t.rows.isNotEmpty)
+              Text(l10n.filmTeamSellers, style: theme.textTheme.titleMedium),
+            for (final (i, r) in t.rows.indexed)
+              Card(
+                key: ValueKey('filmTeam:row:${r.seller}'),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            i < _medals.length ? _medals[i] : '${i + 1}.',
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              l10n.filmTeamSellerLine(
+                                r.name,
+                                '${r.sales}',
+                                _n(r.metres),
+                              ),
+                              style: theme.textTheme.titleSmall,
+                            ),
+                          ),
+                          Text(
+                            l10n.filmTeamBonus(money.format(r.bonus)),
+                            style: theme.textTheme.titleSmall,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadius.xs),
+                        child: LinearProgressIndicator(
+                          minHeight: AppSpacing.xs,
+                          value: (r.share / 100).clamp(0, 1).toDouble(),
+                          color: i == 0
+                              ? status.success
+                              : i == 1
+                              ? status.info
+                              : status.neutral,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        l10n.filmTeamShareLine(
+                          _n(r.share),
+                          money.format(r.margin),
+                          money.format(r.paid),
+                        ),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            // The month on one page (owner, 11.11.2026).
+            _ReportSection(month: t.month),
+          ],
+        );
+      },
+    );
+  }
+}
+
+const _medals = ['🥇', '🥈', '🥉'];
+
+/// Below this a metre earns too little — amber (owner, 12.11.2026).
+const _lowMarginM = 300.0;
+
+/// One figure of the month on a card of its own.
+class _Metric extends StatelessWidget {
+  const _Metric({
+    required this.label,
+    required this.value,
+    this.note,
+    this.valueColor,
+    this.noteColor,
+    super.key,
+  });
+
+  final String label;
+  final String value;
+  final String? note;
+  final Color? valueColor;
+  final Color? noteColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      width: AppSpacing.xxxl * 4,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: theme.textTheme.labelSmall),
+              Text(
+                value,
+                style: theme.textTheme.titleLarge?.copyWith(color: valueColor),
+              ),
+              if (note != null)
+                Text(
+                  note!,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: noteColor,
+                  ),
                 ),
             ],
           ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.filmTeamTotals(
-                      _n(t.metres),
-                      '${t.sales}',
-                      money.format(t.paid),
-                      money.format(t.margin),
-                    ),
-                    key: const ValueKey('filmTeam:totals'),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  if (t.planM > 0) ...[
-                    Text(
-                      l10n.filmTeamPlan(_n(t.done ?? 0), _n(t.planM)),
-                      key: const ValueKey('filmTeam:plan'),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    LinearProgressIndicator(
-                      value: ((t.done ?? 0) / 100).clamp(0, 1).toDouble(),
-                    ),
-                  ] else
-                    Text(l10n.filmTeamNoPlan),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    l10n.filmTeamPot(_n(t.pct), money.format(t.pot)),
-                    key: const ValueKey('filmTeam:pot'),
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  Text(l10n.filmTeamHint, style: theme.textTheme.bodySmall),
-                ],
-              ),
-            ),
-          ),
-          if (t.rows.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Text(l10n.filmTeamEmpty),
-            ),
-          for (final r in t.rows)
-            ListTile(
-              key: ValueKey('filmTeam:row:${r.seller}'),
-              leading: const Icon(AppIcons.profile),
-              title: Text(r.name),
-              subtitle: Text(
-                l10n.filmTeamTotals(
-                  _n(r.metres),
-                  '${r.sales}',
-                  money.format(r.paid),
-                  money.format(r.margin),
-                ),
-              ),
-              trailing: Text(
-                l10n.filmTeamShare(_n(r.share), money.format(r.bonus)),
-                style: theme.textTheme.titleSmall,
-              ),
-            ),
-          // The month on one page (owner, 11.11.2026).
-          _ReportSection(month: t.month),
-        ],
+        ),
       ),
     );
   }
@@ -165,6 +294,19 @@ class _ReportSection extends ConsumerWidget {
     final money = mdfMoney(context);
     final report = ref.watch(filmReportProvider(month)).value;
     if (report == null) return const SizedBox.shrink();
+    final status = context.statusColors;
+    final maxM = report.top.fold<double>(
+      0,
+      (m, r) => r.metres > m ? r.metres : m,
+    );
+    // Green — a good margin; amber — too little; red — sold under cost.
+    Color marginColor(double? m) => m == null
+        ? theme.colorScheme.outline
+        : m < 0
+        ? status.danger
+        : m < _lowMarginM
+        ? status.warning
+        : status.success;
     return Column(
       key: const ValueKey('filmReport'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,24 +323,47 @@ class _ReportSection extends ConsumerWidget {
         ),
         if (report.top.isEmpty) Text(l10n.filmTeamEmpty),
         for (final (i, r) in report.top.indexed)
-          ListTile(
+          Padding(
             key: ValueKey('filmReport:top:${r.item}'),
-            dense: true,
-            leading: Text('${i + 1}', style: theme.textTheme.titleMedium),
-            title: Text(r.title),
-            subtitle: Text(
-              [
-                '${_n(r.metres)} м',
-                money.format(r.amount),
-                if (r.marginM != null)
-                  l10n.filmReportMarginM(money.format(r.marginM)),
-              ].join(' · '),
-            ),
-            trailing: Text(
-              money.format(r.margin),
-              style: theme.textTheme.titleSmall,
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: AppSpacing.xxxl * 5,
+                  child: Text(
+                    '${i + 1}. ${r.title}',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                // Metres as a bar, against the best seller of the month.
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.xs),
+                    child: LinearProgressIndicator(
+                      minHeight: AppSpacing.sm,
+                      value: maxM <= 0 ? 0 : r.metres / maxM,
+                      color: marginColor(r.marginM),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                SizedBox(
+                  width: AppSpacing.xxxl * 4,
+                  child: Text(
+                    [
+                      '${_n(r.metres)} м',
+                      if (r.marginM != null)
+                        l10n.filmReportMarginM(money.format(r.marginM)),
+                    ].join(' · '),
+                    textAlign: TextAlign.end,
+                    style: TextStyle(color: marginColor(r.marginM)),
+                  ),
+                ),
+              ],
             ),
           ),
+        if (report.top.isNotEmpty)
+          Text(l10n.filmReportMarginLegend, style: theme.textTheme.bodySmall),
         if (report.idle.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
           Text(

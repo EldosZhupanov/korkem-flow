@@ -11581,6 +11581,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Receipt — which film?'**
   String get filmReceivePick;
+
+  /// No description provided for @searchSectionFilms.
+  ///
+  /// In en, this message translates to:
+  /// **'Film ({count})'**
+  String searchSectionFilms(int count);
+
+  /// No description provided for @searchSectionFilmCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Film customers ({count})'**
+  String searchSectionFilmCustomers(int count);
+
+  /// No description provided for @filmDebtLine.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {sum} ₸'**
+  String filmDebtLine(String sum);
+
+  /// No description provided for @filmTeamSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get filmTeamSold;
+
+  /// No description provided for @filmTeamPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get filmTeamPaid;
+
+  /// No description provided for @filmTeamMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin'**
+  String get filmTeamMargin;
+
+  /// No description provided for @filmTeamPotLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pot'**
+  String get filmTeamPotLabel;
+
+  /// No description provided for @filmTeamPotNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% of margin'**
+  String filmTeamPotNote(String pct);
+
+  /// No description provided for @filmTeamVsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'vs last month'**
+  String get filmTeamVsLastMonth;
+
+  /// No description provided for @filmTeamMarginShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% of what was paid'**
+  String filmTeamMarginShare(String pct);
+
+  /// No description provided for @filmTeamSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sellers'**
+  String get filmTeamSellers;
+
+  /// No description provided for @filmTeamSellerLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {sales} sales · {metres} m'**
+  String filmTeamSellerLine(String name, String sales, String metres);
+
+  /// No description provided for @filmTeamBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'bonus {sum}'**
+  String filmTeamBonus(String sum);
+
+  /// No description provided for @filmTeamShareLine.
+  ///
+  /// In en, this message translates to:
+  /// **'share {share}% · margin {margin} · paid {paid}'**
+  String filmTeamShareLine(String share, String margin, String paid);
+
+  /// No description provided for @filmReportMarginLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Green — a good margin, amber — under 300 ₸ a metre, red — sold under cost.'**
+  String get filmReportMarginLegend;
+
+  /// No description provided for @filmCashWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get filmCashWeek;
+
+  /// No description provided for @filmCashSales.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sales'**
+  String filmCashSales(int count);
+
+  /// No description provided for @filmCashSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} paid out'**
+  String filmCashSpent(int count);
+
+  /// No description provided for @filmCashWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the money is'**
+  String get filmCashWhere;
+
+  /// No description provided for @filmCashMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Movements'**
+  String get filmCashMoves;
 }
 
 class _AppLocalizationsDelegate

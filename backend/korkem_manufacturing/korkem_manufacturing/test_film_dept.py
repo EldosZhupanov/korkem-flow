@@ -252,6 +252,10 @@ class TestFilmDept(IntegrationTestCase):
 				 payments=[{"amount": 8000, "method": "Наличные"}])
 		book = self._as(MANAGER, film_cash.book)
 		self.assertEqual(book["in_total"] - before_in, 8000)
+		# Where the money is: the cash paid in, less the taxi paid from it.
+		cash = next(w["amount"] for w in book["where"] if w["way"] == "Наличные")
+		self.assertGreaterEqual(cash, 8000 - 5000 - 1)
+		self.assertTrue(any(m["entry"] == by_cash and not m["in"] for m in book["moves"]))
 		# Out of the department's cash: only what the cash paid.
 		self.assertEqual([o["amount"] for o in book["out"] if o["receipt"] in (by_cash, by_me, owed, free)], [5000])
 		self.assertIn(by_me, [e["receipt"] for e in book["owed"]["employees"]])
