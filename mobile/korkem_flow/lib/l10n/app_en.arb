@@ -7216,5 +7216,664 @@
     }
   },
   "filmCashMatches": "It matches",
-  "filmCashWhy": "Why it is off"
+  "filmCashWhy": "Why it is off",
+  "filmSupSoldMonth": "Sold this month",
+  "filmSupSoldAll": "Sold in all",
+  "filmSupOnHand": "On the shelf",
+  "filmSupComing": "On its way",
+  "filmSupReorder": "To order",
+  "filmSupM": "{metres} m",
+  "@filmSupM": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupComingRolls": "rolls: {count}",
+  "@filmSupComingRolls": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupReorderFilms": "films: {count}",
+  "@filmSupReorderFilms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupShare": "{share}% of sales",
+  "@filmSupShare": {
+    "placeholders": {
+      "share": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupRevenue": "revenue {sum}",
+  "@filmSupRevenue": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupShelf": "{metres} m on the shelf",
+  "@filmSupShelf": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupLead": "brings in {days} d (promised {promised})",
+  "@filmSupLead": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "promised": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipReorder": "To order: {count}",
+  "@filmSupChipReorder": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipComing": "{metres} m on its way · {day}",
+  "@filmSupChipComing": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupChipComingLate": "{metres} m on its way · {days} d late",
+  "@filmSupChipComingLate": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipLate": "Late by {days} d on average",
+  "@filmSupChipLate": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipIdle": "Lying idle: {count} · {metres} m",
+  "@filmSupChipIdle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupChipOk": "All is well",
+  "filmSupOrder": "Order by WhatsApp",
+  "filmSupOrderText": "Hello! We need film:\n{list}\nWhen can you bring it?",
+  "@filmSupOrderText": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupOrderLine": "— {title} — {metres} m",
+  "@filmSupOrderLine": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupLegend": "Top — whose film sells best. A film of two sources is shared by what each brought.",
+  "filmSrcOrderUntil": "Takes orders until (e.g. 16:00)",
+  "filmReceiveAddFilm": "Another film",
+  "filmReceiveAddLow": "Add all that ran low ({count})",
+  "@filmReceiveAddLow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReceiveForWhom": "For whom",
+  "filmReceiveForShelf": "For the shelf",
+  "filmReceiveForCustomer": "For: {name}",
+  "@filmReceiveForCustomer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveRemove": "Remove",
+  "filmReceiveSum": "comes to {sum}",
+  "@filmReceiveSum": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveSumWithDelivery": "comes to {sum} · {perM} a metre delivered",
+  "@filmReceiveSumWithDelivery": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "perM": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveMany": "Delivery · films: {count}",
+  "@filmReceiveMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReceiveTotal": "In all: {count} films · {metres} m · {sum} delivered",
+  "@filmReceiveTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      },
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmPickSearch": "Maker, colour or code",
+  "filmPickNone": "Nothing found",
+  "filmPickFree": "{metres} m",
+  "@filmPickFree": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmPickReorder": "to order",
+  "filmOrdersTitle": "To order",
+  "filmOrdersSendAll": "Send to all ({count})",
+  "@filmOrdersSendAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmOrdersSummary": "Films: {count} · {metres} m · suppliers: {suppliers}",
+  "@filmOrdersSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      },
+      "suppliers": {
+        "type": "int"
+      }
+    }
+  },
+  "filmOrdersAdd": "Add a film",
+  "filmOrdersAddSave": "Add to the order",
+  "filmOrdersEmpty": "Nothing to order yet. Add a film when a customer wants more than there is — films that run low show up here by themselves.",
+  "filmOrdersLegend": "Red — ran out, blue — for a customer, grey — for the shelf. Tap to change the metres; × — remove.",
+  "filmOrderLine": "{n}. {title} — {metres} m",
+  "@filmOrderLine": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrderText": "Hello! Order for {date}:\n{lines}\nIn all: {count} items, {metres} m.\nPlease confirm what you have and when you will bring it.",
+  "@filmOrderText": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "lines": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrderCopied": "The order for «{name}» is copied — paste it into a message.",
+  "@filmOrderCopied": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrdersNoSupplier": "No supplier named",
+  "filmOrdersGroupTotal": "{count} films · {metres} m",
+  "@filmOrdersGroupTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrdersUntil": "takes orders until {time}",
+  "@filmOrdersUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrdersSend": "Send by WhatsApp",
+  "filmOrdersCopy": "Copy the order",
+  "filmOrdersSentAt": "Sent at {time} · waiting for an answer",
+  "@filmOrdersSentAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrdersConfirmed": "Confirmed — enter the delivery",
+  "filmOrdersForShelf": "shelf {metres} m",
+  "@filmOrdersForShelf": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrdersForCustomer": "{name} {metres} m",
+  "@filmOrdersForCustomer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrdersRanOut": "ran out · {metres} m",
+  "@filmOrdersRanOut": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOrdersButton": "To order · {count}",
+  "@filmOrdersButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmOrdersButtonWaiting": "To order · {count} · waiting: {waiting}",
+  "@filmOrdersButtonWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "waiting": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumTitle": "MDF summary",
+  "mdfSumWeek": "Week",
+  "mdfSumShare": "Copy the summary",
+  "mdfSumCopied": "The summary is copied — paste it into WhatsApp.",
+  "mdfSumUp": "▲ {percent}% on the last",
+  "@mdfSumUp": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumDown": "▼ {percent}% on the last",
+  "@mdfSumDown": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumAvg": "Average order",
+  "mdfSumAvgNote": "{area} m² · {rate}/m²",
+  "@mdfSumAvgNote": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumCustomers": "Customers",
+  "mdfSumNewCustomers": "new: {count}",
+  "@mdfSumNewCustomers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumPlan": "The month: plan and forecast",
+  "mdfSumPlanDone": "Done this month",
+  "mdfSumGoal": "Goal",
+  "mdfSumGoalOf": "{goal} m² · {percent}%",
+  "@mdfSumGoalOf": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumGoalNone": "No goal for the month — tap ✎ to set one.",
+  "mdfSumGoalSet": "The month’s goal",
+  "mdfSumGoalM2": "m² this month",
+  "mdfSumForecast": "At this pace by the month’s end ({days} d left)",
+  "@mdfSumForecast": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumShop": "The shop’s load",
+  "mdfSumInWork": "In work",
+  "mdfSumInWorkValue": "{area} m² · {count} orders",
+  "@mdfSumInWorkValue": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumPace": "The shop finishes",
+  "mdfSumPaceValue": "{area} m² a day",
+  "@mdfSumPaceValue": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumPaceUnknown": "The shop’s pace is not known yet: a few finished orders are needed.",
+  "mdfSumNewReady": "A new order would be ready",
+  "mdfSumNewReadyValue": "in {days} d · {day}",
+  "@mdfSumNewReadyValue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumOverdueNow": "Overdue now",
+  "mdfSumTop": "Who orders most",
+  "mdfSumTopValue": "{count} orders · {area} m²",
+  "@mdfSumTopValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumMaker": "furniture maker",
+  "mdfSumNew": "new",
+  "mdfSumNothing": "Nothing in this period.",
+  "mdfSumAsleep": "Gone quiet — time to get in touch",
+  "mdfSumAsleepNone": "Every customer orders in his usual rhythm.",
+  "mdfSumAsleepRhythm": "usually every {rhythm} d · none for {days} d",
+  "@mdfSumAsleepRhythm": {
+    "placeholders": {
+      "rhythm": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumAsleepOnce": "one order · none for {days} d",
+  "@mdfSumAsleepOnce": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumGone": "gone",
+  "mdfSumDozing": "dozing",
+  "mdfSumWakeText": "Hello, {name}! It has been a while — how are your orders? We can take facades in now, the lead times are good.",
+  "@mdfSumWakeText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumMore": "and {count} more",
+  "@mdfSumMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumFilms": "What is ordered · is there film enough",
+  "mdfSumFilmShort": "{metres} m short",
+  "@mdfSumFilmShort": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumFilmEnough": "enough",
+  "mdfSumToOrder": "To order",
+  "mdfSumOrdered": "«{decor}» is on the order list.",
+  "@mdfSumOrdered": {
+    "placeholders": {
+      "decor": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumDeadlines": "Deadlines and quality",
+  "mdfSumOnTime": "Handed over on time (of {count})",
+  "@mdfSumOnTime": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumNoHandedOver": "Nothing handed over in the period.",
+  "mdfSumLateAvg": "Late on average",
+  "mdfSumDays": "{days} d",
+  "@mdfSumDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumRework": "Reworks and warranty",
+  "mdfSumReworkValue": "{count} · {area} m² · {percent}%",
+  "@mdfSumReworkValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "area": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumReasons": "Why they came back: {list}",
+  "@mdfSumReasons": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumDebts": "Debts by age",
+  "mdfSumDebtWeek": "up to 7 days",
+  "mdfSumDebtMonth": "8–30 days",
+  "mdfSumDebtOlder": "over 30 days",
+  "mdfSumDebtor": "{name} · {days} d",
+  "@mdfSumDebtor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfSumManagers": "Who took the orders",
+  "mdfSumManagerValue": "{count} · {area} m² · {sum}",
+  "@mdfSumManagerValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "area": {
+        "type": "String"
+      },
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumTextHead": "MDF summary {since} — {until}",
+  "@mdfSumTextHead": {
+    "placeholders": {
+      "since": {
+        "type": "String"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumTextOrders": "Orders: {count} · {area} m² · {sum}",
+  "@mdfSumTextOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "area": {
+        "type": "String"
+      },
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumTextMoney": "Received: {paid} · owed: {debt}",
+  "@mdfSumTextMoney": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "debt": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumTextChange": "Volume on the last period: {percent}%",
+  "@mdfSumTextChange": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumTextForecast": "Month forecast: {area} m²",
+  "@mdfSumTextForecast": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumTextAsleep": "Customers gone quiet: {count}",
+  "@mdfSumTextAsleep": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfOrdersSummary": "Summary"
 }

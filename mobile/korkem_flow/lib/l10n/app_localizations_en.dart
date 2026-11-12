@@ -6774,4 +6774,510 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmCashWhy => 'Why it is off';
+
+  @override
+  String get filmSupSoldMonth => 'Sold this month';
+
+  @override
+  String get filmSupSoldAll => 'Sold in all';
+
+  @override
+  String get filmSupOnHand => 'On the shelf';
+
+  @override
+  String get filmSupComing => 'On its way';
+
+  @override
+  String get filmSupReorder => 'To order';
+
+  @override
+  String filmSupM(String metres) {
+    return '$metres m';
+  }
+
+  @override
+  String filmSupComingRolls(int count) {
+    return 'rolls: $count';
+  }
+
+  @override
+  String filmSupReorderFilms(int count) {
+    return 'films: $count';
+  }
+
+  @override
+  String filmSupShare(String share) {
+    return '$share% of sales';
+  }
+
+  @override
+  String filmSupRevenue(String sum) {
+    return 'revenue $sum';
+  }
+
+  @override
+  String filmSupShelf(String metres) {
+    return '$metres m on the shelf';
+  }
+
+  @override
+  String filmSupLead(int days, int promised) {
+    return 'brings in $days d (promised $promised)';
+  }
+
+  @override
+  String filmSupChipReorder(int count) {
+    return 'To order: $count';
+  }
+
+  @override
+  String filmSupChipComing(String metres, String day) {
+    return '$metres m on its way · $day';
+  }
+
+  @override
+  String filmSupChipComingLate(String metres, int days) {
+    return '$metres m on its way · $days d late';
+  }
+
+  @override
+  String filmSupChipLate(int days) {
+    return 'Late by $days d on average';
+  }
+
+  @override
+  String filmSupChipIdle(int count, String metres) {
+    return 'Lying idle: $count · $metres m';
+  }
+
+  @override
+  String get filmSupChipOk => 'All is well';
+
+  @override
+  String get filmSupOrder => 'Order by WhatsApp';
+
+  @override
+  String filmSupOrderText(String list) {
+    return 'Hello! We need film:\n$list\nWhen can you bring it?';
+  }
+
+  @override
+  String filmSupOrderLine(String title, String metres) {
+    return '— $title — $metres m';
+  }
+
+  @override
+  String get filmSupLegend =>
+      'Top — whose film sells best. A film of two sources is shared by what each brought.';
+
+  @override
+  String get filmSrcOrderUntil => 'Takes orders until (e.g. 16:00)';
+
+  @override
+  String get filmReceiveAddFilm => 'Another film';
+
+  @override
+  String filmReceiveAddLow(int count) {
+    return 'Add all that ran low ($count)';
+  }
+
+  @override
+  String get filmReceiveForWhom => 'For whom';
+
+  @override
+  String get filmReceiveForShelf => 'For the shelf';
+
+  @override
+  String filmReceiveForCustomer(String name) {
+    return 'For: $name';
+  }
+
+  @override
+  String get filmReceiveRemove => 'Remove';
+
+  @override
+  String filmReceiveSum(String sum) {
+    return 'comes to $sum';
+  }
+
+  @override
+  String filmReceiveSumWithDelivery(String sum, String perM) {
+    return 'comes to $sum · $perM a metre delivered';
+  }
+
+  @override
+  String filmReceiveMany(int count) {
+    return 'Delivery · films: $count';
+  }
+
+  @override
+  String filmReceiveTotal(int count, String metres, String sum) {
+    return 'In all: $count films · $metres m · $sum delivered';
+  }
+
+  @override
+  String get filmPickSearch => 'Maker, colour or code';
+
+  @override
+  String get filmPickNone => 'Nothing found';
+
+  @override
+  String filmPickFree(String metres) {
+    return '$metres m';
+  }
+
+  @override
+  String get filmPickReorder => 'to order';
+
+  @override
+  String get filmOrdersTitle => 'To order';
+
+  @override
+  String filmOrdersSendAll(int count) {
+    return 'Send to all ($count)';
+  }
+
+  @override
+  String filmOrdersSummary(int count, String metres, int suppliers) {
+    return 'Films: $count · $metres m · suppliers: $suppliers';
+  }
+
+  @override
+  String get filmOrdersAdd => 'Add a film';
+
+  @override
+  String get filmOrdersAddSave => 'Add to the order';
+
+  @override
+  String get filmOrdersEmpty =>
+      'Nothing to order yet. Add a film when a customer wants more than there is — films that run low show up here by themselves.';
+
+  @override
+  String get filmOrdersLegend =>
+      'Red — ran out, blue — for a customer, grey — for the shelf. Tap to change the metres; × — remove.';
+
+  @override
+  String filmOrderLine(int n, String title, String metres) {
+    return '$n. $title — $metres m';
+  }
+
+  @override
+  String filmOrderText(String date, String lines, int count, String metres) {
+    return 'Hello! Order for $date:\n$lines\nIn all: $count items, $metres m.\nPlease confirm what you have and when you will bring it.';
+  }
+
+  @override
+  String filmOrderCopied(String name) {
+    return 'The order for «$name» is copied — paste it into a message.';
+  }
+
+  @override
+  String get filmOrdersNoSupplier => 'No supplier named';
+
+  @override
+  String filmOrdersGroupTotal(int count, String metres) {
+    return '$count films · $metres m';
+  }
+
+  @override
+  String filmOrdersUntil(String time) {
+    return 'takes orders until $time';
+  }
+
+  @override
+  String get filmOrdersSend => 'Send by WhatsApp';
+
+  @override
+  String get filmOrdersCopy => 'Copy the order';
+
+  @override
+  String filmOrdersSentAt(String time) {
+    return 'Sent at $time · waiting for an answer';
+  }
+
+  @override
+  String get filmOrdersConfirmed => 'Confirmed — enter the delivery';
+
+  @override
+  String filmOrdersForShelf(String metres) {
+    return 'shelf $metres m';
+  }
+
+  @override
+  String filmOrdersForCustomer(String name, String metres) {
+    return '$name $metres m';
+  }
+
+  @override
+  String filmOrdersRanOut(String metres) {
+    return 'ran out · $metres m';
+  }
+
+  @override
+  String filmOrdersButton(int count) {
+    return 'To order · $count';
+  }
+
+  @override
+  String filmOrdersButtonWaiting(int count, int waiting) {
+    return 'To order · $count · waiting: $waiting';
+  }
+
+  @override
+  String get mdfSumTitle => 'MDF summary';
+
+  @override
+  String get mdfSumWeek => 'Week';
+
+  @override
+  String get mdfSumShare => 'Copy the summary';
+
+  @override
+  String get mdfSumCopied => 'The summary is copied — paste it into WhatsApp.';
+
+  @override
+  String mdfSumUp(int percent) {
+    return '▲ $percent% on the last';
+  }
+
+  @override
+  String mdfSumDown(int percent) {
+    return '▼ $percent% on the last';
+  }
+
+  @override
+  String get mdfSumAvg => 'Average order';
+
+  @override
+  String mdfSumAvgNote(String area, String rate) {
+    return '$area m² · $rate/m²';
+  }
+
+  @override
+  String get mdfSumCustomers => 'Customers';
+
+  @override
+  String mdfSumNewCustomers(int count) {
+    return 'new: $count';
+  }
+
+  @override
+  String get mdfSumPlan => 'The month: plan and forecast';
+
+  @override
+  String get mdfSumPlanDone => 'Done this month';
+
+  @override
+  String get mdfSumGoal => 'Goal';
+
+  @override
+  String mdfSumGoalOf(String goal, int percent) {
+    return '$goal m² · $percent%';
+  }
+
+  @override
+  String get mdfSumGoalNone => 'No goal for the month — tap ✎ to set one.';
+
+  @override
+  String get mdfSumGoalSet => 'The month’s goal';
+
+  @override
+  String get mdfSumGoalM2 => 'm² this month';
+
+  @override
+  String mdfSumForecast(int days) {
+    return 'At this pace by the month’s end ($days d left)';
+  }
+
+  @override
+  String get mdfSumShop => 'The shop’s load';
+
+  @override
+  String get mdfSumInWork => 'In work';
+
+  @override
+  String mdfSumInWorkValue(String area, int count) {
+    return '$area m² · $count orders';
+  }
+
+  @override
+  String get mdfSumPace => 'The shop finishes';
+
+  @override
+  String mdfSumPaceValue(String area) {
+    return '$area m² a day';
+  }
+
+  @override
+  String get mdfSumPaceUnknown =>
+      'The shop’s pace is not known yet: a few finished orders are needed.';
+
+  @override
+  String get mdfSumNewReady => 'A new order would be ready';
+
+  @override
+  String mdfSumNewReadyValue(int days, String day) {
+    return 'in $days d · $day';
+  }
+
+  @override
+  String get mdfSumOverdueNow => 'Overdue now';
+
+  @override
+  String get mdfSumTop => 'Who orders most';
+
+  @override
+  String mdfSumTopValue(int count, String area) {
+    return '$count orders · $area m²';
+  }
+
+  @override
+  String get mdfSumMaker => 'furniture maker';
+
+  @override
+  String get mdfSumNew => 'new';
+
+  @override
+  String get mdfSumNothing => 'Nothing in this period.';
+
+  @override
+  String get mdfSumAsleep => 'Gone quiet — time to get in touch';
+
+  @override
+  String get mdfSumAsleepNone => 'Every customer orders in his usual rhythm.';
+
+  @override
+  String mdfSumAsleepRhythm(int rhythm, int days) {
+    return 'usually every $rhythm d · none for $days d';
+  }
+
+  @override
+  String mdfSumAsleepOnce(int days) {
+    return 'one order · none for $days d';
+  }
+
+  @override
+  String get mdfSumGone => 'gone';
+
+  @override
+  String get mdfSumDozing => 'dozing';
+
+  @override
+  String mdfSumWakeText(String name) {
+    return 'Hello, $name! It has been a while — how are your orders? We can take facades in now, the lead times are good.';
+  }
+
+  @override
+  String mdfSumMore(int count) {
+    return 'and $count more';
+  }
+
+  @override
+  String get mdfSumFilms => 'What is ordered · is there film enough';
+
+  @override
+  String mdfSumFilmShort(String metres) {
+    return '$metres m short';
+  }
+
+  @override
+  String get mdfSumFilmEnough => 'enough';
+
+  @override
+  String get mdfSumToOrder => 'To order';
+
+  @override
+  String mdfSumOrdered(String decor) {
+    return '«$decor» is on the order list.';
+  }
+
+  @override
+  String get mdfSumDeadlines => 'Deadlines and quality';
+
+  @override
+  String mdfSumOnTime(int count) {
+    return 'Handed over on time (of $count)';
+  }
+
+  @override
+  String get mdfSumNoHandedOver => 'Nothing handed over in the period.';
+
+  @override
+  String get mdfSumLateAvg => 'Late on average';
+
+  @override
+  String mdfSumDays(String days) {
+    return '$days d';
+  }
+
+  @override
+  String get mdfSumRework => 'Reworks and warranty';
+
+  @override
+  String mdfSumReworkValue(int count, String area, int percent) {
+    return '$count · $area m² · $percent%';
+  }
+
+  @override
+  String mdfSumReasons(String list) {
+    return 'Why they came back: $list';
+  }
+
+  @override
+  String get mdfSumDebts => 'Debts by age';
+
+  @override
+  String get mdfSumDebtWeek => 'up to 7 days';
+
+  @override
+  String get mdfSumDebtMonth => '8–30 days';
+
+  @override
+  String get mdfSumDebtOlder => 'over 30 days';
+
+  @override
+  String mdfSumDebtor(String name, int days) {
+    return '$name · $days d';
+  }
+
+  @override
+  String get mdfSumManagers => 'Who took the orders';
+
+  @override
+  String mdfSumManagerValue(int count, String area, String sum) {
+    return '$count · $area m² · $sum';
+  }
+
+  @override
+  String mdfSumTextHead(String since, String until) {
+    return 'MDF summary $since — $until';
+  }
+
+  @override
+  String mdfSumTextOrders(int count, String area, String sum) {
+    return 'Orders: $count · $area m² · $sum';
+  }
+
+  @override
+  String mdfSumTextMoney(String paid, String debt) {
+    return 'Received: $paid · owed: $debt';
+  }
+
+  @override
+  String mdfSumTextChange(String percent) {
+    return 'Volume on the last period: $percent%';
+  }
+
+  @override
+  String mdfSumTextForecast(String area) {
+    return 'Month forecast: $area m²';
+  }
+
+  @override
+  String mdfSumTextAsleep(int count) {
+    return 'Customers gone quiet: $count';
+  }
+
+  @override
+  String get mdfOrdersSummary => 'Summary';
 }

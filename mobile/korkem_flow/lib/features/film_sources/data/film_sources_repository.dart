@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/features/film_sources/domain/film_source.dart';
+import 'package:korkem_flow/features/film_sources/domain/film_supplier_board.dart';
 
 final filmSourcesRepositoryProvider = Provider<FilmSourcesRepository>(
   (ref) => FilmSourcesRepository(ref.watch(frappeClientProvider)),
@@ -21,6 +22,15 @@ final filmMakerProvider = FutureProvider.autoDispose.family<FilmMaker, String>(
   (ref, name) => ref.watch(filmSourcesRepositoryProvider).maker(name),
 );
 
+/// The suppliers' board — this month's (`false`) or all time's (`true`).
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmSupplierBoardProvider = FutureProvider.autoDispose
+    .family<FilmSupplierBoard, bool>(
+      (ref, allTime) =>
+          ref.watch(filmSourcesRepositoryProvider).board(allTime: allTime),
+    );
+
 /// Where film is bought — `korkem_manufacturing.api.film_sources`.
 class FilmSourcesRepository {
   const FilmSourcesRepository(this._client);
@@ -31,6 +41,17 @@ class FilmSourcesRepository {
 
   Future<FilmSources> sources() async =>
       FilmSources.fromJson(_map(await _client.callMethod('$_base.sources')));
+
+  /// Whose film sells best, what lies, what is on its way, what to order.
+  Future<FilmSupplierBoard> board({bool allTime = false}) async =>
+      FilmSupplierBoard.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.board',
+            params: {'period': allTime ? 'all' : 'month'},
+          ),
+        ),
+      );
 
   /// A new source, or — with [id] — the card of one there is. Every field
   /// of [card] is written; an empty one is cleared.

@@ -6736,4 +6736,510 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmCashWhy => 'Неге сәйкес емес';
+
+  @override
+  String get filmSupSoldMonth => 'Осы айда сатылды';
+
+  @override
+  String get filmSupSoldAll => 'Барлық уақытта сатылды';
+
+  @override
+  String get filmSupOnHand => 'Қоймада жатыр';
+
+  @override
+  String get filmSupComing => 'Жолда';
+
+  @override
+  String get filmSupReorder => 'Тапсырыс беру керек';
+
+  @override
+  String filmSupM(String metres) {
+    return '$metres м';
+  }
+
+  @override
+  String filmSupComingRolls(int count) {
+    return 'жеткізілім: $count';
+  }
+
+  @override
+  String filmSupReorderFilms(int count) {
+    return 'пленка: $count';
+  }
+
+  @override
+  String filmSupShare(String share) {
+    return 'сатылымның $share%';
+  }
+
+  @override
+  String filmSupRevenue(String sum) {
+    return 'түсім $sum';
+  }
+
+  @override
+  String filmSupShelf(String metres) {
+    return 'қоймада $metres м';
+  }
+
+  @override
+  String filmSupLead(int days, int promised) {
+    return '$days күнде жеткізеді (уәдесі $promised)';
+  }
+
+  @override
+  String filmSupChipReorder(int count) {
+    return 'Тапсырыс беру керек: $count';
+  }
+
+  @override
+  String filmSupChipComing(String metres, String day) {
+    return 'Жолда $metres м · $day';
+  }
+
+  @override
+  String filmSupChipComingLate(String metres, int days) {
+    return 'Жолда $metres м · $days күнге кешігуде';
+  }
+
+  @override
+  String filmSupChipLate(int days) {
+    return 'Орта есеппен $days күнге кешігеді';
+  }
+
+  @override
+  String filmSupChipIdle(int count, String metres) {
+    return 'Қозғалыссыз жатыр: $count · $metres м';
+  }
+
+  @override
+  String get filmSupChipOk => 'Бәрі дұрыс';
+
+  @override
+  String get filmSupOrder => 'WhatsApp арқылы тапсырыс беру';
+
+  @override
+  String filmSupOrderText(String list) {
+    return 'Сәлеметсіз бе! Пленка керек:\n$list\nҚашан жеткізе аласыз?';
+  }
+
+  @override
+  String filmSupOrderLine(String title, String metres) {
+    return '— $title — $metres м';
+  }
+
+  @override
+  String get filmSupLegend =>
+      'Жоғарыда — кімнің пленкасы жақсы сатылады. Екі фирмадан келген пленка әрқайсысы әкелген мөлшерге қарай бөлінеді.';
+
+  @override
+  String get filmSrcOrderUntil => 'Тапсырысты қабылдайды (мысалы, 16:00 дейін)';
+
+  @override
+  String get filmReceiveAddFilm => 'Тағы пленка';
+
+  @override
+  String filmReceiveAddLow(int count) {
+    return 'Тапсырыс беру керектің бәрін қосу ($count)';
+  }
+
+  @override
+  String get filmReceiveForWhom => 'Кім үшін';
+
+  @override
+  String get filmReceiveForShelf => 'Қоймаға';
+
+  @override
+  String filmReceiveForCustomer(String name) {
+    return 'Тапсырыспен: $name';
+  }
+
+  @override
+  String get filmReceiveRemove => 'Алып тастау';
+
+  @override
+  String filmReceiveSum(String sum) {
+    return 'сомасы $sum';
+  }
+
+  @override
+  String filmReceiveSumWithDelivery(String sum, String perM) {
+    return 'сомасы $sum · жеткізумен метрі $perM';
+  }
+
+  @override
+  String filmReceiveMany(int count) {
+    return 'Кіріс · пленка: $count';
+  }
+
+  @override
+  String filmReceiveTotal(int count, String metres, String sum) {
+    return 'Барлығы: пленка $count · $metres м · жеткізумен $sum';
+  }
+
+  @override
+  String get filmPickSearch => 'Фирма, түс немесе код';
+
+  @override
+  String get filmPickNone => 'Ештеңе табылмады';
+
+  @override
+  String filmPickFree(String metres) {
+    return '$metres м';
+  }
+
+  @override
+  String get filmPickReorder => 'тапсырыс беру керек';
+
+  @override
+  String get filmOrdersTitle => 'Тапсырысқа';
+
+  @override
+  String filmOrdersSendAll(int count) {
+    return 'Барлығына жіберу ($count)';
+  }
+
+  @override
+  String filmOrdersSummary(int count, String metres, int suppliers) {
+    return 'Пленка: $count · $metres м · жеткізуші: $suppliers';
+  }
+
+  @override
+  String get filmOrdersAdd => 'Пленка қосу';
+
+  @override
+  String get filmOrdersAddSave => 'Тапсырысқа';
+
+  @override
+  String get filmOrdersEmpty =>
+      'Әзірге тапсырыс беретін ештеңе жоқ. Клиентке бардан көп керек болса, пленка қосыңыз — таусылып жатқан пленкалар мұнда өздігінен шығады.';
+
+  @override
+  String get filmOrdersLegend =>
+      'Қызыл — таусылды, көк — клиентке, сұр — қоймаға. Метрді өзгерту үшін басыңыз; × — алып тастау.';
+
+  @override
+  String filmOrderLine(int n, String title, String metres) {
+    return '$n. $title — $metres м';
+  }
+
+  @override
+  String filmOrderText(String date, String lines, int count, String metres) {
+    return 'Сәлеметсіз бе! $date тапсырысы:\n$lines\nБарлығы: $count позиция, $metres м.\nБар екенін және қашан жеткізетініңізді растаңызшы.';
+  }
+
+  @override
+  String filmOrderCopied(String name) {
+    return '«$name» тапсырысының мәтіні көшірілді — хабарламаға қойыңыз.';
+  }
+
+  @override
+  String get filmOrdersNoSupplier => 'Жеткізуші көрсетілмеген';
+
+  @override
+  String filmOrdersGroupTotal(int count, String metres) {
+    return 'пленка $count · $metres м';
+  }
+
+  @override
+  String filmOrdersUntil(String time) {
+    return 'тапсырысты $time дейін қабылдайды';
+  }
+
+  @override
+  String get filmOrdersSend => 'WhatsApp-қа жіберу';
+
+  @override
+  String get filmOrdersCopy => 'Тапсырысты көшіру';
+
+  @override
+  String filmOrdersSentAt(String time) {
+    return '$time жіберілді · жауап күтеміз';
+  }
+
+  @override
+  String get filmOrdersConfirmed => 'Растады — кірісті рәсімдеу';
+
+  @override
+  String filmOrdersForShelf(String metres) {
+    return 'қоймаға $metres м';
+  }
+
+  @override
+  String filmOrdersForCustomer(String name, String metres) {
+    return '$name $metres м';
+  }
+
+  @override
+  String filmOrdersRanOut(String metres) {
+    return 'таусылды · $metres м';
+  }
+
+  @override
+  String filmOrdersButton(int count) {
+    return 'Тапсырысқа · $count';
+  }
+
+  @override
+  String filmOrdersButtonWaiting(int count, int waiting) {
+    return 'Тапсырысқа · $count · жауап күтеміз: $waiting';
+  }
+
+  @override
+  String get mdfSumTitle => 'МДФ қорытындысы';
+
+  @override
+  String get mdfSumWeek => 'Апта';
+
+  @override
+  String get mdfSumShare => 'Қорытындыны көшіру';
+
+  @override
+  String get mdfSumCopied => 'Қорытынды көшірілді — WhatsApp-қа қойыңыз.';
+
+  @override
+  String mdfSumUp(int percent) {
+    return '▲ алдыңғыдан $percent%';
+  }
+
+  @override
+  String mdfSumDown(int percent) {
+    return '▼ алдыңғыдан $percent%';
+  }
+
+  @override
+  String get mdfSumAvg => 'Орташа чек';
+
+  @override
+  String mdfSumAvgNote(String area, String rate) {
+    return '$area м² · $rate/м²';
+  }
+
+  @override
+  String get mdfSumCustomers => 'Клиенттер';
+
+  @override
+  String mdfSumNewCustomers(int count) {
+    return 'жаңа: $count';
+  }
+
+  @override
+  String get mdfSumPlan => 'Ай жоспары және болжам';
+
+  @override
+  String get mdfSumPlanDone => 'Айда жасалды';
+
+  @override
+  String get mdfSumGoal => 'Мақсат';
+
+  @override
+  String mdfSumGoalOf(String goal, int percent) {
+    return '$goal м² · $percent%';
+  }
+
+  @override
+  String get mdfSumGoalNone => 'Ай мақсаты қойылмаған — қою үшін ✎ басыңыз.';
+
+  @override
+  String get mdfSumGoalSet => 'Ай мақсаты';
+
+  @override
+  String get mdfSumGoalM2 => 'Айына неше м²';
+
+  @override
+  String mdfSumForecast(int days) {
+    return 'Осы қарқынмен ай соңына ($days күн қалды)';
+  }
+
+  @override
+  String get mdfSumShop => 'Цехтің жүктемесі';
+
+  @override
+  String get mdfSumInWork => 'Жұмыста';
+
+  @override
+  String mdfSumInWorkValue(String area, int count) {
+    return '$area м² · тапсырыс $count';
+  }
+
+  @override
+  String get mdfSumPace => 'Цех орта есеппен жасайды';
+
+  @override
+  String mdfSumPaceValue(String area) {
+    return 'күніне $area м²';
+  }
+
+  @override
+  String get mdfSumPaceUnknown =>
+      'Цех қарқыны әзірге белгісіз: бірнеше дайын тапсырыс керек.';
+
+  @override
+  String get mdfSumNewReady => 'Жаңа тапсырыс шынында шығады';
+
+  @override
+  String mdfSumNewReadyValue(int days, String day) {
+    return '$days күннен кейін · $day';
+  }
+
+  @override
+  String get mdfSumOverdueNow => 'Қазір мерзімі өткен';
+
+  @override
+  String get mdfSumTop => 'Кім көп тапсырыс береді';
+
+  @override
+  String mdfSumTopValue(int count, String area) {
+    return 'тапсырыс $count · $area м²';
+  }
+
+  @override
+  String get mdfSumMaker => 'жиһазшы';
+
+  @override
+  String get mdfSumNew => 'жаңа';
+
+  @override
+  String get mdfSumNothing => 'Бұл кезеңде бос.';
+
+  @override
+  String get mdfSumAsleep => 'Ұйықтап қалды — еске салатын уақыт';
+
+  @override
+  String get mdfSumAsleepNone => 'Барлық клиент өз ырғағымен тапсырыс береді.';
+
+  @override
+  String mdfSumAsleepRhythm(int rhythm, int days) {
+    return 'әдетте $rhythm күнде бір · $days күн болмады';
+  }
+
+  @override
+  String mdfSumAsleepOnce(int days) {
+    return 'бір тапсырыс · $days күн болмады';
+  }
+
+  @override
+  String get mdfSumGone => 'жоғалды';
+
+  @override
+  String get mdfSumDozing => 'ұйықтап барады';
+
+  @override
+  String mdfSumWakeText(String name) {
+    return 'Сәлеметсіз бе, $name! Көптен көрмедік — тапсырыстарыңыз қалай? Фасадтарды жұмысқа ала аламыз, мерзімдер қазір жақсы.';
+  }
+
+  @override
+  String mdfSumMore(int count) {
+    return 'тағы $count';
+  }
+
+  @override
+  String get mdfSumFilms => 'Не тапсырыс береді · пленка жете ме';
+
+  @override
+  String mdfSumFilmShort(String metres) {
+    return '$metres м жетпейді';
+  }
+
+  @override
+  String get mdfSumFilmEnough => 'жетеді';
+
+  @override
+  String get mdfSumToOrder => '«Тапсырысқа»';
+
+  @override
+  String mdfSumOrdered(String decor) {
+    return '«$decor» «Тапсырысқа» қосылды.';
+  }
+
+  @override
+  String get mdfSumDeadlines => 'Мерзім және сапа';
+
+  @override
+  String mdfSumOnTime(int count) {
+    return 'Уақытында берілді ($count ішінен)';
+  }
+
+  @override
+  String get mdfSumNoHandedOver => 'Кезеңде ештеңе берілмеді.';
+
+  @override
+  String get mdfSumLateAvg => 'Орташа кешігу';
+
+  @override
+  String mdfSumDays(String days) {
+    return '$days күн';
+  }
+
+  @override
+  String get mdfSumRework => 'Қайта жасау және кепілдік';
+
+  @override
+  String mdfSumReworkValue(int count, String area, int percent) {
+    return '$count · $area м² · $percent%';
+  }
+
+  @override
+  String mdfSumReasons(String list) {
+    return 'Неге қайтарды: $list';
+  }
+
+  @override
+  String get mdfSumDebts => 'Қарыз мерзімі бойынша';
+
+  @override
+  String get mdfSumDebtWeek => '7 күнге дейін';
+
+  @override
+  String get mdfSumDebtMonth => '8–30 күн';
+
+  @override
+  String get mdfSumDebtOlder => '30 күннен көп';
+
+  @override
+  String mdfSumDebtor(String name, int days) {
+    return '$name · $days күн';
+  }
+
+  @override
+  String get mdfSumManagers => 'Тапсырысты кім қабылдады';
+
+  @override
+  String mdfSumManagerValue(int count, String area, String sum) {
+    return '$count · $area м² · $sum';
+  }
+
+  @override
+  String mdfSumTextHead(String since, String until) {
+    return 'МДФ қорытындысы $since — $until';
+  }
+
+  @override
+  String mdfSumTextOrders(int count, String area, String sum) {
+    return 'Тапсырыс: $count · $area м² · $sum';
+  }
+
+  @override
+  String mdfSumTextMoney(String paid, String debt) {
+    return 'Алынды: $paid · қарыз: $debt';
+  }
+
+  @override
+  String mdfSumTextChange(String percent) {
+    return 'Алдыңғы кезеңге көлем: $percent%';
+  }
+
+  @override
+  String mdfSumTextForecast(String area) {
+    return 'Ай болжамы: $area м²';
+  }
+
+  @override
+  String mdfSumTextAsleep(int count) {
+    return 'Ұйықтаған клиенттер: $count';
+  }
+
+  @override
+  String get mdfOrdersSummary => 'Қорытынды';
 }

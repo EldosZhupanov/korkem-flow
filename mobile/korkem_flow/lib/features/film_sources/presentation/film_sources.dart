@@ -8,6 +8,8 @@ import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.d
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_sources/data/film_sources_repository.dart';
 import 'package:korkem_flow/features/film_sources/domain/film_source.dart';
+import 'package:korkem_flow/features/film_sources/domain/film_supplier_board.dart';
+import 'package:korkem_flow/features/film_sources/presentation/film_supplier_board_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// What a field of a source's card is called.
@@ -21,12 +23,14 @@ String filmSourceLabel(AppLocalizations l10n, String key) => switch (key) {
   'address' => l10n.filmSrcAddress,
   'lead' => l10n.filmSrcLead,
   'min_order' => l10n.filmSrcMinOrder,
+  'order_until' => l10n.filmSrcOrderUntil,
   _ => l10n.filmSrcNote,
 };
 
 void _refresh(WidgetRef ref, [String? maker]) {
   ref
     ..invalidate(filmSourcesProvider)
+    ..invalidate(filmSupplierBoardProvider)
     ..invalidate(filmStockProvider)
     ..invalidate(filmCatalogProvider);
   if (maker != null) ref.invalidate(filmMakerProvider(maker));
@@ -34,49 +38,112 @@ void _refresh(WidgetRef ref, [String? maker]) {
 
 /// «Поставщики» (owner, 11.11.2026): where film is bought — a maker's
 /// branch in each city, a wholesaler — each with its own telephone.
-class FilmSourcesTab extends ConsumerWidget {
+///
+/// A board since 12.11.2026 (owner: «какая фирма лучше покупается»): the
+/// source whose film sells best first, with what lies on the shelf, what
+/// is on its way, and what to order from it.
+class FilmSourcesTab extends ConsumerStatefulWidget {
   const FilmSourcesTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FilmSourcesTab> createState() => _FilmSourcesTabState();
+}
+
+class _FilmSourcesTabState extends ConsumerState<FilmSourcesTab> {
+  /// Ranked by this month, or by all time.
+  bool _allTime = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final sources = ref.watch(filmSourcesProvider);
+    final board = ref.watch(filmSupplierBoardProvider(_allTime));
+    void retry() => ref
+      ..invalidate(filmSourcesProvider)
+      ..invalidate(filmSupplierBoardProvider(_allTime));
     return sources.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => ErrorView(
-        error: e,
-        onRetry: () => ref.invalidate(filmSourcesProvider),
-      ),
-      data: (s) => ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          if (s.canEdit)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: FilledButton.icon(
-                key: const ValueKey('filmSource:add'),
-                onPressed: () => showFilmSourceCard(context, makers: s.makers),
-                icon: const Icon(AppIcons.add),
-                label: Text(l10n.filmSourceAdd),
+      error: (e, _) => ErrorView(error: e, onRetry: retry),
+      data: (s) => board.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => ErrorView(error: e, onRetry: retry),
+        data: (b) {
+          final cards = {for (final src in s.sources) src.id: src};
+          // The board's order; a source it does not know yet goes last.
+          final rows = [
+            ...b.rows,
+            for (final src in s.sources)
+              if (b.row(src.id) == null)
+                FilmSupplierRow(id: src.id, name: src.name, phone: src.phone),
+          ];
+          return ListView(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            children: [
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  SegmentedButton<bool>(
+                    key: const ValueKey('filmSup:period'),
+                    segments: [
+                      ButtonSegment(
+                        value: false,
+                        label: Text(l10n.filmCustomersByMonth),
+                      ),
+                      ButtonSegment(
+                        value: true,
+                        label: Text(l10n.filmCustomersByAll),
+                      ),
+                    ],
+                    selected: {_allTime},
+                    onSelectionChanged: (v) =>
+                        setState(() => _allTime = v.first),
+                  ),
+                  if (s.canEdit)
+                    FilledButton.icon(
+                      key: const ValueKey('filmSource:add'),
+                      onPressed: () =>
+                          showFilmSourceCard(context, makers: s.makers),
+                      icon: const Icon(AppIcons.add),
+                      label: Text(l10n.filmSourceAdd),
+                    ),
+                ],
               ),
-            ),
-          if (s.sources.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Text(l10n.filmSourcesEmpty),
-            ),
-          for (final src in s.sources)
-            FilmSourceTile(
-              source: src,
-              onTap: s.canEdit
-                  ? () => showFilmSourceCard(
-                      context,
-                      source: src,
-                      makers: s.makers,
-                    )
-                  : null,
-            ),
-        ],
+              const SizedBox(height: AppSpacing.sm),
+              FilmSupplierSummary(board: b),
+              const SizedBox(height: AppSpacing.sm),
+              if (rows.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Text(l10n.filmSourcesEmpty),
+                ),
+              for (final (i, r) in rows.indexed)
+                FilmSupplierTile(
+                  row: r,
+                  place: r.soldM > 0 ? i : null,
+                  topM: b.topM,
+                  source: cards[r.id],
+                  onTap: s.canEdit && cards[r.id] != null
+                      ? () => showFilmSourceCard(
+                          context,
+                          source: cards[r.id],
+                          makers: s.makers,
+                        )
+                      : null,
+                ),
+              if (rows.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: Text(
+                    l10n.filmSupLegend,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }

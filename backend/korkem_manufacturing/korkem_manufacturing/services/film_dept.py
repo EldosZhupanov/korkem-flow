@@ -26,10 +26,11 @@ seller may still type another price; the sale records what was charged.
 
 from __future__ import annotations
 
+from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 import frappe
-from frappe.utils import add_days, date_diff, flt, get_fullname, getdate, nowdate
+from frappe.utils import add_days, date_diff, flt, get_fullname, getdate, now_datetime, nowdate
 
 from korkem_manufacturing.services import audit, film_catalog, material_stock, price_visibility
 from korkem_manufacturing.services.scope import current_company
@@ -271,7 +272,11 @@ def arrived(entry: str, metres=None) -> dict:
 	doc.submit()
 	audit.record_audit(action="film.arrived", entity_type="Stock Entry", entity_id=entry,
 					   diff={"item": line.item_code, "metres": flt(line.qty), "due": str(doc.korkem_film_due)})
-	return {"receipt": entry, "film": film_catalog.film(line.item_code)}
+	# Wanted for a customer: put by for him now that it is here.
+	from korkem_manufacturing.services import film_orders
+
+	holds = film_orders.fulfil(entry)
+	return {"receipt": entry, "film": film_catalog.film(line.item_code), "holds": holds}
 
 
 def reschedule(entry: str, arrives_on: str) -> dict:
@@ -304,6 +309,9 @@ def drop_coming(entry: str, reason: str) -> dict:
 	# count (a draft is in nobody's stock).
 	frappe.db.set_value("Stock Entry", entry, {"remarks": f"Не придёт: {reason}", "korkem_film_due": None},
 						update_modified=False)
+	# What it was ordered for is to be ordered again — back on the list.
+	for line in frappe.get_all("Film Order Line", filters={"receipt": entry, "status": "Ordered"}, pluck="name"):
+		frappe.db.set_value("Film Order Line", line, {"status": "Open", "receipt": None, "sent_at": None})
 	return {"receipt": entry, "status": "dropped"}
 
 
@@ -315,7 +323,7 @@ def coming(company: str | None = None) -> dict[str, list[dict]]:
 		"Stock Entry",
 		filters={"company": company or current_company(), "docstatus": 0, "korkem_material_receipt": 1,
 				 "korkem_film_due": ["is", "set"]},
-		fields=["name", "korkem_film_due", "korkem_supplier"],
+		fields=["name", "korkem_film_due", "korkem_supplier", "korkem_film_batch"],
 		order_by="korkem_film_due asc",
 		limit_page_length=500,
 	):
@@ -329,6 +337,8 @@ def coming(company: str | None = None) -> dict[str, list[dict]]:
 			"due": str(e.korkem_film_due),
 			"late_days": max(late, 0),
 			"supplier": frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier,
+			# The delivery it came in with others (owner, 12.11.2026).
+			"batch": e.korkem_film_batch or None,
 		})
 	return out
 
@@ -745,11 +755,17 @@ def stock() -> dict:
 		# Time to order (owner, 11.11.2026): low, and not enough on its way.
 		f["reorder"] = _reorder(f) if f["enabled"] else None
 	films.sort(key=lambda f: (not f["low"], f["maker"].casefold(), f["colour"].casefold()))
+	# «К заказу» (owner, 12.11.2026): how many films are on the list.
+	from korkem_manufacturing.services import film_orders
+
+	wanted, waiting = film_orders.counts(films)
 	return {
 		"films": films,
 		"suppliers": catalog["suppliers"],
 		"sources_by_maker": catalog["sources_by_maker"],
 		"can_edit": catalog["can_edit"],
+		"wanted": wanted,
+		"waiting": waiting,
 	}
 
 
@@ -1003,6 +1019,30 @@ def set_customer(customer: str, tier: str | None = None, discount=None, buys_fil
 # --------------------------------------------------------------------------
 
 
+def _not_before_last(items: list[str]) -> str:
+	"""The time for a movement off the shelf today: now, but never before the
+	films' latest movement. Set here, not left to the stock ledger — the clock
+	may step back between this check and the ledger's own «now».
+
+	The laptop's clock steps back now and then (WSL, 12.11.2026: a receipt at
+	13:42:41.97 and the sale made after it at 13:42:40.53): the stock ledger
+	would then see the sale before the roll it takes from and refuse it as
+	«не хватает». A millisecond after the latest movement keeps the order the
+	shop made them in.
+	"""
+	now = now_datetime()
+	latest = None if not items else frappe.db.sql(
+		"""select max(posting_datetime) from `tabStock Ledger Entry`
+		where item_code in %(items)s and is_cancelled = 0""",
+		{"items": tuple(items)},
+	)
+	latest = latest[0][0] if latest and latest[0][0] else None
+	at = now
+	if latest and latest >= now and getdate(latest) == getdate(now):
+		at = latest + timedelta(milliseconds=1)
+	return at.strftime("%H:%M:%S.%f")
+
+
 def _issue(company: str, rows, kind: str, header: dict | None = None, posted_on: str | None = None,
 		   remarks: str | None = None, customer: str | None = None):
 	"""One Material Issue for `rows` of (item, metres, price or None), off the shelves that hold them."""
@@ -1036,13 +1076,15 @@ def _issue(company: str, rows, kind: str, header: dict | None = None, posted_on:
 				"s_warehouse": warehouse, "korkem_film_price_m": float(price) if price is not None else None,
 			})
 			left -= take
+	at = None if posted_on else _not_before_last([row[0] for row in rows])
 	entry = frappe.get_doc({
 		"doctype": "Stock Entry",
 		"stock_entry_type": "Material Issue",
 		"purpose": "Material Issue",
 		"company": company,
 		"posting_date": str(day),
-		"set_posting_time": 1 if posted_on else 0,
+		"set_posting_time": 1 if posted_on or at else 0,
+		**({"posting_time": at} if at else {}),
 		"korkem_film_kind": kind,
 		"remarks": (remarks or "").strip()[:500] or None,
 		**(header or {}),
