@@ -19,3 +19,9 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 def settle(receipt: str, method: str | None = None) -> dict:
 	"""Вернули сотруднику или оплатили перевозчику — из кассы отдела, сегодня."""
 	return service.settle(receipt, method)
+
+
+@frappe.whitelist(methods=["POST"])
+def close_day(counted: float | str, reason: str | None = None, day: str | None = None) -> dict:
+	"""Закрыть день: сколько наличных насчитали; расхождение — с причиной."""
+	return service.close_day(counted, reason=reason, day=day)

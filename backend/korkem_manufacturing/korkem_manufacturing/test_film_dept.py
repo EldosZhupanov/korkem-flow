@@ -272,6 +272,13 @@ class TestFilmDept(IntegrationTestCase):
 			self._as(MANAGER, film_cash.settle, by_me)
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, film_cash.book)
+		# The day closed: the cash counted against what should be there.
+		should = film_cash._expected_cash(frappe.utils.getdate())
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, film_cash.close_day, should - 2000)
+		close = self._as(MANAGER, film_cash.close_day, should - 2000, "такси без чека")
+		self.assertEqual(close["gap"], -2000)
+		self.assertEqual(self._as(MANAGER, film_cash.book)["closed"]["counted"], should - 2000)
 		row = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == by_me)
 		self.assertEqual((row["delivery"]["payer"], row["delivery"]["settled"]), ("employee", True))
 
@@ -350,6 +357,9 @@ class TestFilmDept(IntegrationTestCase):
 		row = next(c for c in self._as(MANAGER, service.customers) if c["customer"] == self.buyer)
 		self.assertGreater(row["debt"], 0)
 		self.assertIsNotNone(row["debt_days"])
+		# The film this customer buys most, and how many sales.
+		self.assertIn("KIRA", row["favourite"])
+		self.assertGreaterEqual(row["sales"], 1)
 		self.assertGreaterEqual(row["debt_days"], 0)
 
 	def test_the_customers_card_sets_the_price(self):

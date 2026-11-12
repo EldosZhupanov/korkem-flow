@@ -131,6 +131,12 @@ class _Fake implements FilmDeptRepository {
         },
       });
 
+  final closes = <(String, double, String?)>[];
+
+  @override
+  Future<void> closeDay(String day, double counted, {String? reason}) async =>
+      closes.add((day, counted, reason));
+
   @override
   Future<void> settleDelivery(String receipt, String method) async =>
       settled.add((receipt, method));
@@ -326,7 +332,7 @@ class _Fake implements FilmDeptRepository {
   final cancelled = <(String, String)>[];
 
   @override
-  Future<List<FilmSale>> sales() async => const [
+  Future<List<FilmSale>> sales({String? customer}) async => const [
     FilmSale(
       entry: 'STE-7',
       date: '2026-11-09',
@@ -775,6 +781,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmCash:logistics')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmCash:in')), findsOneWidget);
+    // The day closed: 2 000 short — not without why.
+    await tester.tap(find.byKey(const ValueKey('filmCash:closeDay')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmCash:counted')),
+      '1000',
+    );
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('filmCash:closeSave'));
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmCash:reason')),
+      'такси',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repo.closes.single.$2, 1000);
     expect(
       find.byKey(const ValueKey('filmCash:where:Наличные')),
       findsOneWidget,
@@ -934,7 +958,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('120 m this month'), findsOneWidget);
     expect(find.textContaining('asleep · 74 d'), findsOneWidget);
+    // The customer's card: his terms from there (owner, 12.11.2026).
     await tester.tap(find.byKey(const ValueKey('filmCustomer:CUST-2')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCustomerPage:terms')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmTier:wholesale')));
     await tester.enterText(find.byKey(const ValueKey('filmDiscount')), '5');

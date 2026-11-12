@@ -154,6 +154,8 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 		"spent": len(outs),
 		"where": [{"way": k, "amount": round(v, 2)} for k, v in sorted(where.items(), key=lambda kv: -kv[1])],
 		"moves": moves[:200],
+		# A day's close, when the period is one day (owner, 12.11.2026).
+		"closed": closed(str(start), company) if start == end else None,
 		# For the owner's eye only — the bonus does not count it.
 		"logistics": round(logistics, 2),
 		"logistics_per_m": round(logistics / logistics_m, 2) if logistics_m else None,
@@ -209,3 +211,48 @@ def settle(receipt: str, method: str | None = None) -> dict:
 	audit.record_audit(action="film.delivery_settled", entity_type="Stock Entry", entity_id=receipt,
 					   diff={"amount": flt(row.korkem_delivery_cost), "payer": row.korkem_delivery_payer, "method": how})
 	return {"receipt": receipt, "settled_on": nowdate(), "method": how}
+
+
+# --------------------------------------------------------------------------
+# «Закрыть день» (owner, 12.11.2026): the cash counted in the evening against
+# what the book says should be there; a gap is said with why, for the owner.
+# --------------------------------------------------------------------------
+
+_CLOSE = "korkem_film_cash_close"
+
+
+def _expected_cash(day) -> float:
+	book_day = book(str(day), str(day))
+	return next((w["amount"] for w in book_day["where"] if w["way"] == METHODS[0]), 0.0)
+
+
+def closed(day: str | None = None, company: str | None = None) -> dict | None:
+	raw = frappe.db.get_default(f"{_CLOSE}:{company or current_company()}:{getdate(day or nowdate())}")
+	if not raw:
+		return None
+	try:
+		return frappe.parse_json(raw)
+	except ValueError:
+		return None
+
+
+def close_day(counted, reason: str | None = None, day: str | None = None) -> dict:
+	"""The cash in the drawer is counted: what is there, against what should be."""
+	material_stock._ensure_editor()
+	company = current_company()
+	on = getdate(day or nowdate())
+	if on > getdate(nowdate()):
+		frappe.throw("Закрыть можно только сегодняшний или прошедший день.")
+	counted = flt(counted)
+	if counted < 0:
+		frappe.throw("Сколько насчитали — число от нуля.")
+	expected = round(_expected_cash(on), 2)
+	gap = round(counted - expected, 2)
+	reason = " ".join(str(reason or "").split())[:200]
+	if abs(gap) >= 1 and not reason:
+		frappe.throw(f"Не сходится на {gap:+,.0f} ₸ — скажите почему.".replace(",", " "))
+	row = {"day": str(on), "expected": expected, "counted": counted, "gap": gap, "reason": reason or None,
+		   "by": get_fullname(frappe.session.user), "at": str(frappe.utils.now_datetime())[:16]}
+	frappe.db.set_default(f"{_CLOSE}:{company}:{on}", frappe.as_json(row))
+	audit.record_audit(action="film.cash_closed", entity_type="Company", entity_id=company, diff=row)
+	return row
