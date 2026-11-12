@@ -7270,4 +7270,83 @@ class AppLocalizationsEn extends AppLocalizations {
   String pressSmartSaved(String plain, String saved) {
     return 'Smart layout: the plain one would take $plain m — $saved m saved.';
   }
+
+  @override
+  String get pressEdit => 'Edit the layout';
+
+  @override
+  String get pressEditReset => 'Lay out again';
+
+  @override
+  String get pressEditSave => 'Keep my layout';
+
+  @override
+  String pressEditTotal(String metres, String auto) {
+    return 'Total $metres m · the system laid out $auto m';
+  }
+
+  @override
+  String get pressEditClash =>
+      'Red parts lie too close to each other or off the table — move them.';
+
+  @override
+  String get pressEditHint =>
+      'Press a part and drag it. Let go and it lines up by itself.';
+
+  @override
+  String pressEditPart(int pos, String size) {
+    return 'Position $pos · $size';
+  }
+
+  @override
+  String get pressEditRotate => 'Turn';
+
+  @override
+  String pressEditMoveTo(int count) {
+    return 'To load $count';
+  }
+
+  @override
+  String get pressEditMoveNew => 'To a new load';
+
+  @override
+  String get pressEditSectionAuto => 'Section: auto';
+
+  @override
+  String pressEditSection(String metres) {
+    return 'Section $metres m';
+  }
+
+  @override
+  String get pressManual => 'Own layout — the parts were placed by hand.';
+
+  @override
+  String get pressApprove => 'Layout checked — start';
+
+  @override
+  String pressApproved(String by, String at) {
+    return 'Layout checked: $by, $at';
+  }
+
+  @override
+  String get pressUnapprove => 'Take the mark off';
+
+  @override
+  String pressShortAdded(String films) {
+    return 'Film is short, added to the order list: $films m';
+  }
+
+  @override
+  String pressPrintApproved(String by, String at) {
+    return 'Layout approved: $by, $at';
+  }
+
+  @override
+  String get pressPrintSigns => 'Operator ____________   Foreman ____________';
+
+  @override
+  String get mdfPressManual => 'own layout';
+
+  @override
+  String get mdfPressApproved => 'layout checked';
 }

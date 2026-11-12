@@ -30,12 +30,13 @@ Who may change the settings: the people who keep the material norms.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import random
 from dataclasses import dataclass, field
 
 import frappe
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, get_fullname, now_datetime
 
 from korkem_manufacturing.services import audit, facade_prices, material_stock
 from korkem_manufacturing.services.scope import current_company, ensure_company
@@ -357,7 +358,8 @@ def order_layout(sales_order: str) -> dict:
 	groups = _parts_by_decor(sales_order)
 	corrections = {
 		r.decor: r
-		for r in frappe.get_all(OVERRIDE, filters={"sales_order": sales_order}, fields=["decor", "film_m", "reason", "modified_by"])
+		for r in frappe.get_all(OVERRIDE, filters={"sales_order": sales_order},
+								fields=["decor", "film_m", "reason", "modified_by", "layout_json", "parts_key"])
 	}
 	films = []
 	for decor, parts in groups.items():
@@ -367,6 +369,15 @@ def order_layout(sales_order: str) -> dict:
 		# What the plain layout would take — the smart one's saving is shown.
 		plain_m = round(sum(load.film_m for load in plan(parts, press, rotate=not textured)[0]), 2)
 		fix = corrections.get(decor)
+		# A layout a person made (owner, 12.11.2026) holds while the parts are
+		# the ones it was made for; the order changed — it is the press's again.
+		manual = None
+		if fix and fix.layout_json:
+			manual = _stored_loads(fix.layout_json) if fix.parts_key == parts_key(parts) else None
+			if manual is None:
+				fix = None
+			else:
+				loads = manual
 		films.append(
 			{
 				"decor": decor,
@@ -376,6 +387,7 @@ def order_layout(sales_order: str) -> dict:
 				"plain_m": plain_m,
 				"film_m": flt(fix.film_m) if fix else layout_m,
 				"corrected": bool(fix),
+				"manual": manual is not None,
 				"reason": fix.reason if fix else None,
 				"loads": [
 					{
@@ -393,7 +405,177 @@ def order_layout(sales_order: str) -> dict:
 		"press": {k: press[k] for k in DEFAULT_PRESS},
 		"films": films,
 		"can_correct": material_stock.can_edit(),
+		"approved": approval(sales_order, groups),
 	}
+
+
+# --------------------------------------------------------------------------
+# A layout made by hand, and the manager's «проверено» (owner, 12.11.2026)
+# --------------------------------------------------------------------------
+
+_APPROVED = "korkem_press_approved"
+
+
+def parts_key(parts: list[Part]) -> str:
+	"""What the parts are — a layout made for them holds only while it is so."""
+	return _digest(";".join(sorted(f"{p.pos}:{p.width}x{p.height}" for p in parts)))
+
+
+def _order_key(groups: dict[str, list[Part]]) -> str:
+	return _digest("|".join(f"{d}={parts_key(ps)}" for d, ps in sorted(groups.items())))
+
+
+def _digest(text: str) -> str:
+	return hashlib.sha1(text.encode()).hexdigest()[:16]
+
+
+def _stored_loads(raw: str) -> list[Load] | None:
+	try:
+		rows = json.loads(raw)
+		return [
+			Load(film_m=flt(r["film_m"]), length_mm=cint(r["length_mm"]),
+				 placed=[Placed(cint(p["pos"]), cint(p["x"]), cint(p["y"]), cint(p["width"]), cint(p["height"]),
+								bool(p.get("rotated"))) for p in r["placed"]])
+			for r in rows
+		]
+	except (ValueError, KeyError, TypeError):
+		return None
+
+
+def check_layout(parts: list[Part], loads, press: dict, rotate: bool) -> list[Load]:
+	"""A layout a person made, checked: every part once, each on the table of
+	its load's section, none nearer another than the gap, none turned when
+	the film is textured. The section of a load is the shortest that holds it
+	unless a longer one is named."""
+	if isinstance(loads, str):
+		loads = json.loads(loads)
+	if not isinstance(loads, list) or not loads:
+		frappe.throw("Раскладка пустая.")
+	sections = sorted(press["press_sections"], key=lambda s: flt(s["length_mm"]))
+	margin, gap, width = cint(press["press_margin_mm"]), cint(press["press_gap_mm"]), cint(press["press_width_mm"])
+	left: dict[int, list[Part]] = {}
+	for p in parts:
+		left.setdefault(p.pos, []).append(p)
+	result: list[Load] = []
+	for n, row in enumerate(loads, 1):
+		placed: list[Placed] = []
+		for item in (row or {}).get("placed") or []:
+			pos = cint(item.get("pos"))
+			if not left.get(pos):
+				frappe.throw(f"Загрузка {n}: позиции {pos} в заказе нет или она уже разложена.")
+			part = left[pos].pop()
+			rotated = bool(item.get("rotated"))
+			if rotated and not rotate:
+				frappe.throw(f"Загрузка {n}: текстурную плёнку не поворачивают (позиция {pos}).")
+			w, h = (part.height, part.width) if rotated else (part.width, part.height)
+			x, y = cint(item.get("x")), cint(item.get("y"))
+			if x < margin or y < margin or y + h > width - margin:
+				frappe.throw(f"Загрузка {n}: позиция {pos} выходит за край стола.")
+			for o in placed:
+				apart_x = x >= o.x + o.width + gap or o.x >= x + w + gap
+				apart_y = y >= o.y + o.height + gap or o.y >= y + h + gap
+				if not (apart_x or apart_y):
+					frappe.throw(f"Загрузка {n}: позиции {pos} и {o.pos} ближе {gap} мм друг к другу.")
+			placed.append(Placed(pos, x, y, w, h, rotated))
+		if not placed:
+			continue
+		reach = max(p.x + p.width for p in placed) + margin
+		asked = cint((row or {}).get("length_mm"))
+		section = next((s for s in sections if cint(s["length_mm"]) >= max(reach, asked)), None)
+		if section is None:
+			frappe.throw(f"Загрузка {n}: детали выходят за край стола.")
+		result.append(Load(film_m=flt(section["film_m"]), length_mm=cint(section["length_mm"]), placed=placed))
+	missing = sorted(pos for pos, ps in left.items() if ps)
+	if missing:
+		frappe.throw("Не разложены позиции: " + ", ".join(str(m) for m in missing) + ".")
+	if not result:
+		frappe.throw("Раскладка пустая.")
+	return result
+
+
+def save_layout(sales_order: str, decor: str, loads=None) -> dict:
+	"""Keep a layout a person made for one film of an order — its metres are
+	the order's from now on; empty — back to the press's own layout."""
+	if not material_stock.can_edit():
+		frappe.throw("Раскладку меняют администратор и менеджеры.", frappe.PermissionError)
+	ensure_company("Sales Order", sales_order)
+	decor = (decor or "").strip()
+	parts = _parts_by_decor(sales_order).get(decor)
+	if not parts:
+		frappe.throw(f"В заказе нет плёнки «{decor}».")
+	existing = frappe.db.get_value(OVERRIDE, {"sales_order": sales_order, "decor": decor}, "name")
+	if loads in (None, "", []):
+		if existing:
+			frappe.delete_doc(OVERRIDE, existing, ignore_permissions=True)
+		audit.record_audit(action="stock.press_layout_cleared", entity_type="Sales Order", entity_id=sales_order,
+						   diff={"decor": decor})
+		return order_layout(sales_order)
+	company = frappe.db.get_value("Sales Order", sales_order, "company")
+	checked = check_layout(parts, loads, press_settings(company), rotate=not is_textured(decor, company))
+	metres = round(sum(load.film_m for load in checked), 2)
+	doc = frappe.get_doc(OVERRIDE, existing) if existing else frappe.new_doc(OVERRIDE)
+	doc.update({
+		"sales_order": sales_order, "decor": decor, "film_m": metres, "reason": "своя раскладка",
+		"parts_key": parts_key(parts),
+		"layout_json": json.dumps([{"film_m": load.film_m, "length_mm": load.length_mm,
+									"placed": [vars(p) for p in load.placed]} for load in checked]),
+	})
+	doc.save(ignore_permissions=True)
+	audit.record_audit(action="stock.press_layout_saved", entity_type="Sales Order", entity_id=sales_order,
+					   diff={"decor": decor, "film_m": metres, "loads": len(checked)})
+	return order_layout(sales_order)
+
+
+def approval(sales_order: str, groups: dict[str, list[Part]] | None = None) -> dict | None:
+	"""Who checked the order's layout and when — while the order's parts are
+	the ones checked."""
+	raw = frappe.db.get_default(f"{_APPROVED}:{sales_order}")
+	if not raw:
+		return None
+	try:
+		row = json.loads(raw)
+	except ValueError:
+		return None
+	groups = _parts_by_decor(sales_order) if groups is None else groups
+	return {"by": row.get("by"), "at": row.get("at")} if row.get("key") == _order_key(groups) else None
+
+
+def approve(sales_order: str, approved: bool = True) -> dict:
+	"""«Раскрой проверен»: the manager looked at the map and the metres."""
+	if not material_stock.can_edit():
+		frappe.throw("Раскрой проверяют администратор и менеджеры.", frappe.PermissionError)
+	ensure_company("Sales Order", sales_order)
+	groups = _parts_by_decor(sales_order)
+	if not groups:
+		frappe.throw("В заказе нет плёнки — проверять нечего.")
+	row = {"by": get_fullname(frappe.session.user), "at": str(now_datetime())[:16], "key": _order_key(groups)}
+	frappe.db.set_default(f"{_APPROVED}:{sales_order}", json.dumps(row, ensure_ascii=False) if approved else "")
+	audit.record_audit(action="stock.press_layout_approved" if approved else "stock.press_layout_unapproved",
+					   entity_type="Sales Order", entity_id=sales_order)
+	short = _supply(sales_order) if approved else []
+	result = order_layout(sales_order)
+	result["short"] = short
+	return result
+
+
+def _supply(sales_order: str) -> list[dict]:
+	"""The checked layout's film: what is free is held for the order, what
+	is still lacking goes on «К заказу» for its customer — once."""
+	from korkem_manufacturing.services import facade_materials, film_orders
+
+	customer = frappe.db.get_value("Sales Order", sales_order, "customer")
+	note = f"заказ {sales_order}"
+	short = []
+	for row in facade_materials.reserve(sales_order)["materials"]:
+		if row["kind"] != material_stock.FILM or not row["item"] or not row["short"]:
+			continue
+		listed = frappe.db.exists(
+			"Film Order Line", {"item": row["item"], "note": note, "status": ["in", list(film_orders.WANTED)]}
+		)
+		if not listed:
+			film_orders.add(row["item"], row["short"], customer=customer, note=note)
+		short.append({"decor": row["key"], "item": row["item"], "short_m": row["short"]})
+	return short
 
 
 def film_metres(sales_order: str) -> dict[str, float]:

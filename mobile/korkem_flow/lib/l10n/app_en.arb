@@ -7903,5 +7903,87 @@
         "type": "String"
       }
     }
-  }
+  },
+  "pressEdit": "Edit the layout",
+  "pressEditReset": "Lay out again",
+  "pressEditSave": "Keep my layout",
+  "pressEditTotal": "Total {metres} m · the system laid out {auto} m",
+  "@pressEditTotal": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      },
+      "auto": {
+        "type": "String"
+      }
+    }
+  },
+  "pressEditClash": "Red parts lie too close to each other or off the table — move them.",
+  "pressEditHint": "Press a part and drag it. Let go and it lines up by itself.",
+  "pressEditPart": "Position {pos} · {size}",
+  "@pressEditPart": {
+    "placeholders": {
+      "pos": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "pressEditRotate": "Turn",
+  "pressEditMoveTo": "To load {count}",
+  "@pressEditMoveTo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressEditMoveNew": "To a new load",
+  "pressEditSectionAuto": "Section: auto",
+  "pressEditSection": "Section {metres} m",
+  "@pressEditSection": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressManual": "Own layout — the parts were placed by hand.",
+  "pressApprove": "Layout checked — start",
+  "pressApproved": "Layout checked: {by}, {at}",
+  "@pressApproved": {
+    "placeholders": {
+      "by": {
+        "type": "String"
+      },
+      "at": {
+        "type": "String"
+      }
+    }
+  },
+  "pressUnapprove": "Take the mark off",
+  "pressShortAdded": "Film is short, added to the order list: {films} m",
+  "@pressShortAdded": {
+    "placeholders": {
+      "films": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintApproved": "Layout approved: {by}, {at}",
+  "@pressPrintApproved": {
+    "placeholders": {
+      "by": {
+        "type": "String"
+      },
+      "at": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPrintSigns": "Operator ____________   Foreman ____________",
+  "mdfPressManual": "own layout",
+  "mdfPressApproved": "layout checked"
 }

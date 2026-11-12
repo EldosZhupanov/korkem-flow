@@ -2335,6 +2335,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                   layout.press,
                   pressWords,
                   locale: locale,
+                  footer: pressPrintFooter(l10n, layout),
                 ),
         ),
       );
@@ -2846,8 +2847,13 @@ String mdfFilmPressText(MdfFilmPress p, AppLocalizations l10n) {
   String m(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
   return [
     l10n.mdfPressFilm(m(p.filmM), p.loads.length),
-    if (p.corrected) l10n.mdfPressCorrected,
-    if (!p.corrected && p.saved > 0) l10n.mdfPressSaved(m(p.saved)),
+    if (p.manual)
+      l10n.mdfPressManual
+    else if (p.corrected)
+      l10n.mdfPressCorrected
+    else if (p.saved > 0)
+      l10n.mdfPressSaved(m(p.saved)),
+    if (p.approvedBy != null) l10n.mdfPressApproved,
     if (p.tooBig > 0) l10n.mdfPressTooBig(p.tooBig),
   ].join(' · ');
 }

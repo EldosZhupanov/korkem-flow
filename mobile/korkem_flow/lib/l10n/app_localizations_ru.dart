@@ -7294,4 +7294,83 @@ class AppLocalizationsRu extends AppLocalizations {
   String pressSmartSaved(String plain, String saved) {
     return 'Умная раскладка: обычная заняла бы $plain м — экономия $saved м.';
   }
+
+  @override
+  String get pressEdit => 'Изменить раскладку';
+
+  @override
+  String get pressEditReset => 'Разложить заново';
+
+  @override
+  String get pressEditSave => 'Сохранить мою раскладку';
+
+  @override
+  String pressEditTotal(String metres, String auto) {
+    return 'Итого $metres м · система раскладывала на $auto м';
+  }
+
+  @override
+  String get pressEditClash =>
+      'Красные детали лежат слишком близко друг к другу или за краем стола — подвиньте их.';
+
+  @override
+  String get pressEditHint =>
+      'Нажмите на деталь и тащите её. Отпустите — она сама встанет ровно.';
+
+  @override
+  String pressEditPart(int pos, String size) {
+    return 'Позиция $pos · $size';
+  }
+
+  @override
+  String get pressEditRotate => 'Повернуть';
+
+  @override
+  String pressEditMoveTo(int count) {
+    return 'В загрузку $count';
+  }
+
+  @override
+  String get pressEditMoveNew => 'В новую загрузку';
+
+  @override
+  String get pressEditSectionAuto => 'Секция: сама';
+
+  @override
+  String pressEditSection(String metres) {
+    return 'Секция $metres м';
+  }
+
+  @override
+  String get pressManual => 'Своя раскладка — детали разложены вручную.';
+
+  @override
+  String get pressApprove => 'Раскрой проверен — запустить';
+
+  @override
+  String pressApproved(String by, String at) {
+    return 'Раскрой проверен: $by, $at';
+  }
+
+  @override
+  String get pressUnapprove => 'Снять отметку';
+
+  @override
+  String pressShortAdded(String films) {
+    return 'Не хватает плёнки, добавлено в «К заказу»: $films м';
+  }
+
+  @override
+  String pressPrintApproved(String by, String at) {
+    return 'Раскладка утверждена: $by, $at';
+  }
+
+  @override
+  String get pressPrintSigns => 'Оператор ____________   Мастер ____________';
+
+  @override
+  String get mdfPressManual => 'своя раскладка';
+
+  @override
+  String get mdfPressApproved => 'раскрой проверен';
 }

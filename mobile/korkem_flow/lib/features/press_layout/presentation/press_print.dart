@@ -56,6 +56,7 @@ Future<Uint8List> buildPressPdf(
   PressSettings press,
   PressPrintWords words, {
   String locale = 'ru',
+  String? footer,
 }) async {
   final font = pw.Font.ttf(
     await rootBundle.load('assets/fonts/Inter-Variable.ttf'),
@@ -63,7 +64,7 @@ Future<Uint8List> buildPressPdf(
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: font, bold: font),
   );
-  addPressPages(doc, films, press, words, locale: locale);
+  addPressPages(doc, films, press, words, locale: locale, footer: footer);
   return doc.save();
 }
 
@@ -76,6 +77,7 @@ void addPressPages(
   PressSettings press,
   PressPrintWords words, {
   String locale = 'ru',
+  String? footer,
 }) {
   final number = NumberFormat('0.##', locale);
   var page = 0;
@@ -128,6 +130,14 @@ void addPressPages(
                   ),
                 ),
               if (onPage.length == 1) pw.Expanded(child: pw.SizedBox()),
+              if (footer != null)
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(top: 6),
+                  child: pw.Text(
+                    footer,
+                    style: const pw.TextStyle(fontSize: 9),
+                  ),
+                ),
             ],
           ),
         ),

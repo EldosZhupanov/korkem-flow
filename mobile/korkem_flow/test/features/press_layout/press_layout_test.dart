@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
+import 'package:korkem_flow/features/press_layout/domain/press_edit.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_map.dart';
@@ -76,7 +77,35 @@ Map<String, dynamic> _layout({bool corrected = false}) => {
 class _FakeRepository implements PressLayoutRepository {
   final corrections = <(String, double?, String?)>[];
   final saved = <PressSettings>[];
+  final layouts = <(String, List<PressLoad>?)>[];
+  final checks = <bool>[];
   bool corrected = false;
+
+  @override
+  Future<OrderPressLayout> saveLayout(
+    String salesOrder,
+    String decor,
+    List<PressLoad>? loads,
+  ) async {
+    layouts.add((decor, loads));
+    return layout(salesOrder);
+  }
+
+  @override
+  Future<OrderPressLayout> approve(
+    String salesOrder, {
+    bool approved = true,
+  }) async {
+    checks.add(approved);
+    return OrderPressLayout.fromJson({
+      ..._layout(),
+      if (approved) 'approved': {'by': 'Олжас', 'at': '2026-11-12 15:40'},
+      if (approved)
+        'short': [
+          {'decor': 'ZB 852-2 Авори', 'item': 'F-1', 'short_m': 3.1},
+        ],
+    });
+  }
 
   @override
   Future<OrderPressLayout> layout(String salesOrder) async =>
@@ -142,6 +171,10 @@ void main() {
   testWidgets('each film says its title, whether it turns, and its metres', (
     tester,
   ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await pump(tester, const PressLayoutScreen(salesOrder: 'SO-1110'));
 
     expect(
@@ -181,6 +214,74 @@ void main() {
     expect(repo.corrections.single.$2, 2.1);
     expect(repo.corrections.single.$3, 'плотнее вручную');
     expect(find.textContaining('плотнее вручную'), findsOneWidget);
+  });
+
+  test('a layout made by hand keeps to the table, the gap, a section', () {
+    final press = PressSettings.fromJson(_press);
+    const a = PlacedPart(pos: 1, x: 50, y: 50, width: 598, height: 298);
+    const b = PlacedPart(pos: 2, x: 700, y: 50, width: 598, height: 298);
+    // 52 mm apart where the press wants 60: both are wrong.
+    expect(pressClashes([a, b], press), {0, 1});
+    // Let go near the line, the part jumps to exactly the gap.
+    final snapped = pressSnapped(b, [a], press);
+    expect((snapped.x, snapped.y), (708, 50));
+    expect(pressClashes([a, snapped], press), isEmpty);
+    // Off the table's edge is wrong too, and is pulled back on it.
+    final off = pressMoved(a, 50, 1000);
+    expect(pressClashes([off], press), {0});
+    expect(pressSnapped(off, const [], press).y, 1210 - 50 - 298);
+    // Turned, the sides swap.
+    final turned = pressTurned(a);
+    expect((turned.width, turned.height, turned.rotated), (298, 598, true));
+    // The section is the shortest that holds the load, or a longer one named.
+    expect(pressSection([a], press)?.filmM, 1.1);
+    expect(pressSection([a, snapped], press)?.filmM, 2.1);
+    expect(pressSection([a], press, asked: 2850)?.filmM, 3.1);
+    expect(pressSection([pressMoved(a, 2400, 50)], press), isNull);
+    // A part moved to another load takes the first free place.
+    final placed = pressFreeSpot(b, [a], press);
+    expect(pressClashes([a, placed], press), isEmpty);
+    expect(pressLongest(press), 2850);
+  });
+
+  testWidgets('a part is turned by hand and the layout is kept', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = await pump(
+      tester,
+      const PressLayoutScreen(salesOrder: 'SO-1110'),
+    );
+    await tester.tap(find.byKey(const ValueKey('pressEdit:ZB 852-2 Авори')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pressEdit:turn')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('pressEdit:part:0:0')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('pressEdit:turn')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('pressEdit:save')));
+    await tester.pumpAndSettle();
+
+    final (decor, loads) = repo.layouts.single;
+    expect(decor, 'ZB 852-2 Авори');
+    final part = loads!.single.placed.single;
+    expect((part.width, part.height, part.rotated), (298, 598, true));
+    expect(loads.single.lengthMm, 850);
+    expect(find.byKey(const ValueKey('pressEdit:save')), findsNothing);
+  });
+
+  testWidgets('the manager marks the layout checked', (tester) async {
+    final repo = await pump(
+      tester,
+      const PressLayoutScreen(salesOrder: 'SO-1110'),
+    );
+    await tester.tap(find.byKey(const ValueKey('pressApprove')));
+    await tester.pumpAndSettle();
+    expect(repo.checks, [true]);
+    expect(find.textContaining('ZB 852-2 Авори — 3.1'), findsOneWidget);
   });
 
   testWidgets('the press settings are saved as typed', (tester) async {
