@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
@@ -13,6 +16,18 @@ import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../support/widget_harness.dart';
+
+/// The film department has nothing to find here.
+class _NoFilm implements FilmDeptRepository {
+  @override
+  Future<FilmCatalog> stock() async => FilmCatalog.fromJson(const {});
+
+  @override
+  Future<List<FilmCustomer>> customers() async => const [];
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class _MockSalesOrderRepository extends Mock implements SalesOrderRepository {}
 
@@ -38,6 +53,7 @@ void main() {
         salesOrderRepositoryProvider.overrideWithValue(orders),
         workOrderRepositoryProvider.overrideWithValue(workOrders),
         stockRepositoryProvider.overrideWithValue(stock),
+        filmDeptRepositoryProvider.overrideWithValue(_NoFilm()),
       ],
       child: harness(const SearchScreen()),
     );

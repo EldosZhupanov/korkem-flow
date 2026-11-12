@@ -6539,4 +6539,201 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmReceiptSignIssued => 'Берді';
+
+  @override
+  String filmHeldShort(String metres) {
+    return '$metres м бөлінген';
+  }
+
+  @override
+  String filmOnWayShort(String metres) {
+    return 'жолда $metres м';
+  }
+
+  @override
+  String get filmReceivePick => 'Кіріс — қай пленка?';
+
+  @override
+  String searchSectionFilms(int count) {
+    return 'Пленка ($count)';
+  }
+
+  @override
+  String searchSectionFilmCustomers(int count) {
+    return 'Пленка клиенттері ($count)';
+  }
+
+  @override
+  String filmDebtLine(String sum) {
+    return 'қарыз $sum ₸';
+  }
+
+  @override
+  String get filmTeamSold => 'Сатылды';
+
+  @override
+  String get filmTeamPaid => 'Төленді';
+
+  @override
+  String get filmTeamMargin => 'Маржа';
+
+  @override
+  String get filmTeamPotLabel => 'Қазан';
+
+  @override
+  String filmTeamPotNote(String pct) {
+    return 'маржаның $pct%';
+  }
+
+  @override
+  String get filmTeamVsLastMonth => 'өткен аймен';
+
+  @override
+  String filmTeamMarginShare(String pct) {
+    return 'төленгеннің $pct%';
+  }
+
+  @override
+  String get filmTeamSellers => 'Сатушылар';
+
+  @override
+  String filmTeamSellerLine(String name, String sales, String metres) {
+    return '$name · сату $sales · $metres м';
+  }
+
+  @override
+  String filmTeamBonus(String sum) {
+    return 'бонус $sum';
+  }
+
+  @override
+  String filmTeamShareLine(String share, String margin, String paid) {
+    return 'үлесі $share% · маржа $margin · төленді $paid';
+  }
+
+  @override
+  String get filmReportMarginLegend =>
+      'Жасыл — маржа жақсы, сары — метріне 300 ₸-ден аз, қызыл — сатып алудан арзан сатылды.';
+
+  @override
+  String get filmCashWeek => 'Апта';
+
+  @override
+  String filmCashSales(int count) {
+    return 'сату: $count';
+  }
+
+  @override
+  String filmCashSpent(int count) {
+    return 'шығын: $count';
+  }
+
+  @override
+  String get filmCashWhere => 'Ақша қайда';
+
+  @override
+  String get filmCashMoves => 'Қозғалыстар';
+
+  @override
+  String filmCustomersAll(int count) {
+    return 'Барлығы $count';
+  }
+
+  @override
+  String filmCustomersRegular(int count) {
+    return '⭐ Тұрақты $count';
+  }
+
+  @override
+  String filmCustomersAsleep(int count) {
+    return '😴 Жоғалғандар $count';
+  }
+
+  @override
+  String get filmCustomersByMonth => 'Айға';
+
+  @override
+  String get filmCustomersByAll => 'Барлық уақыт';
+
+  @override
+  String get filmCustomersLegend =>
+      'Жоғарыда — кім көп сатып алады. Жолақ: жасыл — бәрі төленген, қызыл — қарызы бар, сұр — көптен бері алмаған.';
+
+  @override
+  String get filmRegularBadge => '⭐ тұрақты';
+
+  @override
+  String get filmNoDebt => 'қарызы жоқ';
+
+  @override
+  String get filmCall => 'Қоңырау шалу';
+
+  @override
+  String get filmWrite => 'WhatsApp-қа жазу';
+
+  @override
+  String filmCustomerLast(String day) {
+    return 'соңғы сатып алу $day';
+  }
+
+  @override
+  String get filmCustomerBought => 'Барлығы алды';
+
+  @override
+  String get filmCustomerSum => 'Сомасы';
+
+  @override
+  String get filmCustomerDebt => 'Қарыз';
+
+  @override
+  String get filmCustomerMonth => 'Айға';
+
+  @override
+  String get filmCustomerFavourite => 'Жиі алады';
+
+  @override
+  String get filmCustomerTerms => 'Шарттар: бөлшек / көтерме, жеңілдік';
+
+  @override
+  String get filmCustomerHistory => 'Сатып алулар';
+
+  @override
+  String filmCashShould(String sum) {
+    return 'Кассада қолма-қол болуы керек: $sum';
+  }
+
+  @override
+  String filmCashClosed(String sum, String who) {
+    return 'Күн жабылды: санады $sum · $who';
+  }
+
+  @override
+  String filmCashGap(String sum, String why) {
+    return 'айырма $sum: $why';
+  }
+
+  @override
+  String get filmCashCloseDay => 'Күнді жабу';
+
+  @override
+  String get filmCashRecount => 'Қайта санау';
+
+  @override
+  String get filmCashCounted => 'Қанша қолма-қол санадыңыз';
+
+  @override
+  String filmCashShort(String sum) {
+    return '$sum жетпейді';
+  }
+
+  @override
+  String filmCashOver(String sum) {
+    return 'Артық $sum';
+  }
+
+  @override
+  String get filmCashMatches => 'Сәйкес';
+
+  @override
+  String get filmCashWhy => 'Неге сәйкес емес';
 }

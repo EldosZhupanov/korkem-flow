@@ -62,6 +62,14 @@ final filmReportProvider = FutureProvider.autoDispose
       (ref, month) => ref.watch(filmDeptRepositoryProvider).report(month),
     );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmCustomerSalesProvider = FutureProvider.autoDispose
+    .family<List<FilmSale>, String>(
+      (ref, customer) =>
+          ref.watch(filmDeptRepositoryProvider).sales(customer: customer),
+    );
+
 /// The film department — `korkem_manufacturing.api.film_dept`.
 class FilmDeptRepository {
   const FilmDeptRepository(this._client);
@@ -165,6 +173,14 @@ class FilmDeptRepository {
             params: {'since': ?since, 'until': ?until},
           ),
         ),
+      );
+
+  /// «Закрыть день»: the cash counted; a gap needs a reason.
+  Future<void> closeDay(String day, double counted, {String? reason}) =>
+      _client.callMethod(
+        'korkem_manufacturing.api.film_cash.close_day',
+        post: true,
+        params: {'day': day, 'counted': counted, 'reason': ?reason},
       );
 
   /// Given back to the employee, or paid to the carrier, today.
@@ -318,8 +334,14 @@ class FilmDeptRepository {
     params: {'entry': entry, 'reason': reason},
   );
 
-  Future<List<FilmSale>> sales() async => [
-    for (final r in _list(await _client.callMethod('$_base.sales')))
+  /// One customer's purchases, newest first — his card (12.11.2026).
+  Future<List<FilmSale>> sales({String? customer}) async => [
+    for (final r in _list(
+      await _client.callMethod(
+        '$_base.sales',
+        params: {'customer': ?customer},
+      ),
+    ))
       FilmSale.fromJson(r),
   ];
 

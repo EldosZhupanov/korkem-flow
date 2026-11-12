@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/orders/data/sales_order_repository.dart';
 import 'package:korkem_flow/features/orders/domain/sales_order.dart';
 import 'package:korkem_flow/features/production/application/production_controller.dart';
@@ -10,6 +13,41 @@ import 'package:korkem_flow/features/search/application/search_controller.dart';
 import 'package:korkem_flow/features/warehouse/application/warehouse_controller.dart';
 import 'package:korkem_flow/features/warehouse/data/stock_repository.dart';
 import 'package:mocktail/mocktail.dart';
+
+/// One film and one customer to be found.
+class _SomeFilm implements FilmDeptRepository {
+  @override
+  Future<FilmCatalog> stock() async => FilmCatalog.fromJson(const {
+    'films': [
+      {
+        'item': 'MAT-7',
+        'maker': 'JS Group',
+        'colour': 'Графит',
+        'code': 'GR-1',
+      },
+    ],
+  });
+
+  @override
+  Future<List<FilmCustomer>> customers() async => const [
+    FilmCustomer(customer: 'CUST-1', name: 'Мебель-ЮГ', phone: '+7 701 555'),
+  ];
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// The film department has nothing to find here.
+class _NoFilm implements FilmDeptRepository {
+  @override
+  Future<FilmCatalog> stock() async => FilmCatalog.fromJson(const {});
+
+  @override
+  Future<List<FilmCustomer>> customers() async => const [];
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class _MockSalesOrderRepository extends Mock implements SalesOrderRepository {}
 
@@ -33,11 +71,31 @@ void main() {
         salesOrderRepositoryProvider.overrideWithValue(orders),
         workOrderRepositoryProvider.overrideWithValue(workOrders),
         stockRepositoryProvider.overrideWithValue(stock),
+        filmDeptRepositoryProvider.overrideWithValue(_NoFilm()),
       ],
     );
   });
 
   tearDown(() => container.dispose());
+
+  test('film and its customers are found by code, name or phone', () async {
+    final films = ProviderContainer(
+      overrides: [
+        salesOrderRepositoryProvider.overrideWithValue(orders),
+        workOrderRepositoryProvider.overrideWithValue(workOrders),
+        stockRepositoryProvider.overrideWithValue(stock),
+        filmDeptRepositoryProvider.overrideWithValue(_SomeFilm()),
+      ],
+    );
+    addTearDown(films.dispose);
+    final byCode = await films.read(globalSearchResultsProvider('gr-1').future);
+    expect([for (final f in byCode.films.items) f.item], ['MAT-7']);
+    final byPhone = await films.read(globalSearchResultsProvider('701').future);
+    expect(
+      [for (final c in byPhone.filmCustomers.items) c.customer],
+      ['CUST-1'],
+    );
+  });
 
   test(
     'empty or whitespace query yields empty results without calling '

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/contact/contact_actions.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -22,14 +24,41 @@ class FilmCashTab extends ConsumerStatefulWidget {
 }
 
 class _FilmCashTabState extends ConsumerState<FilmCashTab> {
-  bool _month = false;
+  /// 0 today, 1 yesterday, 7 the week, 30 the month; a picked day wins
+  /// (owner, 12.11.2026).
+  int _span = 0;
+  DateTime? _day;
 
   ({String? since, String? until}) get _period {
     final now = DateTime.now();
-    final today = mdfIso(now);
-    return _month
-        ? (since: mdfIso(DateTime(now.year, now.month)), until: today)
-        : (since: today, until: today);
+    final today = DateTime(now.year, now.month, now.day);
+    if (_day != null) return (since: mdfIso(_day!), until: mdfIso(_day!));
+    return switch (_span) {
+      1 => (
+        since: mdfIso(today.subtract(const Duration(days: 1))),
+        until: mdfIso(today.subtract(const Duration(days: 1))),
+      ),
+      7 => (
+        since: mdfIso(today.subtract(const Duration(days: 6))),
+        until: mdfIso(today),
+      ),
+      30 => (
+        since: mdfIso(DateTime(now.year, now.month)),
+        until: mdfIso(today),
+      ),
+      _ => (since: mdfIso(today), until: mdfIso(today)),
+    };
+  }
+
+  Future<void> _pickDay() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _day ?? now,
+      firstDate: now.subtract(const Duration(days: 365)),
+      lastDate: now,
+    );
+    if (picked != null && mounted) setState(() => _day = picked);
   }
 
   Future<void> _settle(FilmOwed o, String method) async {
@@ -50,6 +79,7 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
     final theme = Theme.of(context);
     final money = mdfMoney(context);
     final period = _period;
+    final status = context.statusColors;
     return ref
         .watch(filmCashProvider(period))
         .when(
@@ -59,12 +89,6 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
             onRetry: () => ref.invalidate(filmCashProvider(period)),
           ),
           data: (b) {
-            Widget line(String label, double v, {TextStyle? style}) => Row(
-              children: [
-                Expanded(child: Text(label, style: style)),
-                Text(money.format(v), style: style),
-              ],
-            );
             Widget owedList(String title, List<FilmOwed> rows, String key) =>
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,49 +159,133 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
             return ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                SegmentedButton<bool>(
-                  segments: [
-                    ButtonSegment(
-                      value: false,
-                      label: Text(l10n.filmCashToday),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    for (final (d, label) in [
+                      (0, l10n.filmCashToday),
+                      (1, l10n.filmYesterday),
+                      (7, l10n.filmCashWeek),
+                      (30, l10n.filmCashMonth),
+                    ])
+                      ChoiceChip(
+                        key: ValueKey('filmCash:span:$d'),
+                        label: Text(label),
+                        selected: _day == null && _span == d,
+                        onSelected: (_) => setState(() {
+                          _day = null;
+                          _span = d;
+                        }),
+                      ),
+                    ActionChip(
+                      key: const ValueKey('filmCash:day'),
+                      avatar: const Icon(AppIcons.calendar),
+                      label: Text(
+                        _day == null ? l10n.filmArrivalPick : mdfDayOf(_day!),
+                      ),
+                      onPressed: _pickDay,
                     ),
-                    ButtonSegment(value: true, label: Text(l10n.filmCashMonth)),
                   ],
-                  selected: {_month},
-                  onSelectionChanged: (v) => setState(() => _month = v.first),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Text(l10n.filmCashIn, style: theme.textTheme.titleMedium),
-                if (b.ins.isEmpty) Text(l10n.filmCashNothing),
-                for (final r in b.ins) line(r.way, r.amount),
-                line(
-                  l10n.filmCashTotal,
-                  b.inTotal,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                // In green, out in red, what is left (owner, 12.11.2026).
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    _CashCard(
+                      key: const ValueKey('filmCash:in'),
+                      label: l10n.filmCashIn,
+                      value: '+${money.format(b.inTotal)}',
+                      note: l10n.filmCashSales(b.sales),
+                      color: status.success,
+                    ),
+                    _CashCard(
+                      key: const ValueKey('filmCash:out'),
+                      label: l10n.filmCashOut,
+                      value: '−${money.format(b.outTotal)}',
+                      note: l10n.filmCashSpent(b.spent),
+                      color: status.danger,
+                    ),
+                    _CashCard(
+                      key: const ValueKey('filmCash:balance'),
+                      label: l10n.filmCashBalance,
+                      value: money.format(b.balance),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.md),
-                Text(l10n.filmCashOut, style: theme.textTheme.titleMedium),
-                if (b.outs.isEmpty) Text(l10n.filmCashNothing),
-                for (final o in b.outs)
-                  line(
-                    [
-                      mdfDay(o.date, year: false),
-                      o.what,
-                      ?o.way,
-                    ].join(' · '),
-                    o.amount,
+                // «Закрыть день» — one day at a time (owner, 12.11.2026).
+                if (period.since == period.until)
+                  _CloseDay(
+                    day: period.since!,
+                    cash: b.where
+                        .where((w) => w.way == filmCash)
+                        .fold<double>(0, (s, w) => s + w.amount),
+                    closed: b.closed,
+                    onClosed: () => ref.invalidate(filmCashProvider),
                   ),
-                line(
-                  l10n.filmCashTotal,
-                  b.outTotal,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const Divider(),
-                line(
-                  l10n.filmCashBalance,
-                  b.balance,
-                  style: theme.textTheme.titleLarge,
-                ),
+                if (b.where.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(l10n.filmCashWhere, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: AppSpacing.xs),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      for (final w in b.where)
+                        _CashCard(
+                          key: ValueKey('filmCash:where:${w.way}'),
+                          label: w.way,
+                          value: money.format(w.amount),
+                          icon: w.way == filmCash
+                              ? AppIcons.payroll
+                              : AppIcons.bank,
+                        ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.md),
+                Text(l10n.filmCashMoves, style: theme.textTheme.titleMedium),
+                if (b.moves.isEmpty) Text(l10n.filmCashNothing),
+                for (final m in b.moves)
+                  Container(
+                    margin: const EdgeInsets.only(top: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerLow,
+                      border: Border(
+                        left: BorderSide(
+                          color: m.incoming ? status.success : status.danger,
+                          width: AppSpacing.xs,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            [
+                              mdfDay(m.date, year: false),
+                              ?m.at,
+                              m.what,
+                              ?m.way,
+                            ].join(' · '),
+                          ),
+                        ),
+                        Text(
+                          '${m.incoming ? '+' : '−'}${money.format(m.amount)}',
+                          style: TextStyle(
+                            color: m.incoming ? status.success : status.danger,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 const SizedBox(height: AppSpacing.sm),
                 // For the owner's eye: what logistics costs — not in the
                 // bonus (owner, 11.11.2026).
@@ -199,5 +307,250 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
             );
           },
         );
+  }
+}
+
+/// One figure of the cash on a card of its own — tinted when it is money
+/// in or out.
+class _CashCard extends StatelessWidget {
+  const _CashCard({
+    required this.label,
+    required this.value,
+    this.note,
+    this.color,
+    this.icon,
+    super.key,
+  });
+
+  final String label;
+  final String value;
+  final String? note;
+  final Color? color;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      width: AppSpacing.xxxl * 4,
+      child: Card(
+        color: color?.withValues(alpha: AppTint.surface),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: AppIconSize.dense),
+                    const SizedBox(width: AppSpacing.xs),
+                  ],
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: theme.textTheme.labelSmall?.copyWith(color: color),
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                value,
+                style: theme.textTheme.titleLarge?.copyWith(color: color),
+              ),
+              if (note != null)
+                Text(
+                  note!,
+                  style: theme.textTheme.labelSmall?.copyWith(color: color),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CloseDay extends ConsumerWidget {
+  const _CloseDay({
+    required this.day,
+    required this.cash,
+    required this.closed,
+    required this.onClosed,
+  });
+
+  final String day;
+  final double cash;
+  final ({
+    double expected,
+    double counted,
+    double gap,
+    String? reason,
+    String? by,
+  })?
+  closed;
+  final VoidCallback onClosed;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final money = mdfMoney(context);
+    final status = context.statusColors;
+    final c = closed;
+    return Card(
+      key: const ValueKey('filmCash:close'),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            Expanded(
+              child: c == null
+                  ? Text(l10n.filmCashShould(money.format(cash)))
+                  : Text(
+                      [
+                        l10n.filmCashClosed(
+                          money.format(c.counted),
+                          c.by ?? '',
+                        ),
+                        if (c.gap.abs() >= 1)
+                          l10n.filmCashGap(
+                            '${c.gap > 0 ? '+' : '−'}'
+                            '${money.format(c.gap.abs())}',
+                            c.reason ?? '',
+                          ),
+                      ].join(' · '),
+                      style: TextStyle(
+                        color: c.gap.abs() >= 1
+                            ? status.danger
+                            : status.success,
+                      ),
+                    ),
+            ),
+            FilledButton.tonal(
+              key: const ValueKey('filmCash:closeDay'),
+              onPressed: () async {
+                final done = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => _CloseDayDialog(day: day, expected: cash),
+                );
+                if (done ?? false) onClosed();
+              },
+              child: Text(
+                c == null ? l10n.filmCashCloseDay : l10n.filmCashRecount,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CloseDayDialog extends ConsumerStatefulWidget {
+  const _CloseDayDialog({required this.day, required this.expected});
+
+  final String day;
+  final double expected;
+
+  @override
+  ConsumerState<_CloseDayDialog> createState() => _CloseDayDialogState();
+}
+
+class _CloseDayDialogState extends ConsumerState<_CloseDayDialog> {
+  final _counted = TextEditingController();
+  final _reason = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _counted.dispose();
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final money = mdfMoney(context);
+    final status = context.statusColors;
+    final counted = double.tryParse(_counted.text.trim().replaceAll(' ', ''));
+    final gap = counted == null ? null : counted - widget.expected;
+    final off = gap != null && gap.abs() >= 1;
+    return AlertDialog(
+      title: Text('${l10n.filmCashCloseDay} · ${mdfDay(widget.day)}'),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 7,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.filmCashShould(money.format(widget.expected))),
+            TextField(
+              key: const ValueKey('filmCash:counted'),
+              controller: _counted,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(labelText: l10n.filmCashCounted),
+            ),
+            if (gap != null)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  off
+                      ? (gap < 0
+                            ? l10n.filmCashShort(money.format(-gap))
+                            : l10n.filmCashOver(money.format(gap)))
+                      : l10n.filmCashMatches,
+                  style: TextStyle(
+                    color: off ? status.danger : status.success,
+                  ),
+                ),
+              ),
+            if (off)
+              TextField(
+                key: const ValueKey('filmCash:reason'),
+                controller: _reason,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(labelText: l10n.filmCashWhy),
+              ),
+            if (_error != null)
+              Text(_error!, style: TextStyle(color: status.danger)),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmCash:closeSave'),
+          onPressed:
+              _busy || counted == null || (off && _reason.text.trim().isEmpty)
+              ? null
+              : () async {
+                  setState(() => _busy = true);
+                  try {
+                    await ref
+                        .read(filmDeptRepositoryProvider)
+                        .closeDay(
+                          widget.day,
+                          counted,
+                          reason: off ? _reason.text.trim() : null,
+                        );
+                    if (context.mounted) Navigator.of(context).pop(true);
+                  } on Object catch (e) {
+                    setState(() {
+                      _busy = false;
+                      _error = '$e';
+                    });
+                  }
+                },
+          child: Text(l10n.filmCashCloseDay),
+        ),
+      ],
+    );
   }
 }

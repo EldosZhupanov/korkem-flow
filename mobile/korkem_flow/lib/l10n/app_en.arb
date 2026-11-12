@@ -7000,5 +7000,221 @@
       }
     }
   },
-  "filmReceiptSignIssued": "Handed out"
+  "filmReceiptSignIssued": "Handed out",
+  "filmHeldShort": "{metres} m put by",
+  "@filmHeldShort": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmOnWayShort": "{metres} m on its way",
+  "@filmOnWayShort": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceivePick": "Receipt — which film?",
+  "searchSectionFilms": "Film ({count})",
+  "@searchSectionFilms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchSectionFilmCustomers": "Film customers ({count})",
+  "@searchSectionFilmCustomers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmDebtLine": "owes {sum} ₸",
+  "@filmDebtLine": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamSold": "Sold",
+  "filmTeamPaid": "Paid",
+  "filmTeamMargin": "Margin",
+  "filmTeamPotLabel": "Pot",
+  "filmTeamPotNote": "{pct}% of margin",
+  "@filmTeamPotNote": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamVsLastMonth": "vs last month",
+  "filmTeamMarginShare": "{pct}% of what was paid",
+  "@filmTeamMarginShare": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamSellers": "Sellers",
+  "filmTeamSellerLine": "{name} · {sales} sales · {metres} m",
+  "@filmTeamSellerLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamBonus": "bonus {sum}",
+  "@filmTeamBonus": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamShareLine": "share {share}% · margin {margin} · paid {paid}",
+  "@filmTeamShareLine": {
+    "placeholders": {
+      "share": {
+        "type": "String"
+      },
+      "margin": {
+        "type": "String"
+      },
+      "paid": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReportMarginLegend": "Green — a good margin, amber — under 300 ₸ a metre, red — sold under cost.",
+  "filmCashWeek": "Week",
+  "filmCashSales": "{count} sales",
+  "@filmCashSales": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCashSpent": "{count} paid out",
+  "@filmCashSpent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCashWhere": "Where the money is",
+  "filmCashMoves": "Movements",
+  "filmCustomersAll": "All {count}",
+  "@filmCustomersAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCustomersRegular": "⭐ Regular {count}",
+  "@filmCustomersRegular": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCustomersAsleep": "😴 Gone quiet {count}",
+  "@filmCustomersAsleep": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCustomersByMonth": "This month",
+  "filmCustomersByAll": "All time",
+  "filmCustomersLegend": "Top — who buys most. Stripe: green — paid up, red — owes, grey — gone quiet.",
+  "filmRegularBadge": "⭐ regular",
+  "filmNoDebt": "nothing owed",
+  "filmCall": "Call",
+  "filmWrite": "Write in WhatsApp",
+  "filmCustomerLast": "last bought {day}",
+  "@filmCustomerLast": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCustomerBought": "Bought in all",
+  "filmCustomerSum": "For",
+  "filmCustomerDebt": "Owes",
+  "filmCustomerMonth": "This month",
+  "filmCustomerFavourite": "Takes most",
+  "filmCustomerTerms": "Terms: retail / trade, discount",
+  "filmCustomerHistory": "Purchases",
+  "filmCashShould": "Cash in the drawer should be: {sum}",
+  "@filmCashShould": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCashClosed": "Day closed: counted {sum} · {who}",
+  "@filmCashClosed": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCashGap": "off by {sum}: {why}",
+  "@filmCashGap": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "why": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCashCloseDay": "Close the day",
+  "filmCashRecount": "Count again",
+  "filmCashCounted": "Cash counted",
+  "filmCashShort": "Short by {sum}",
+  "@filmCashShort": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCashOver": "Over by {sum}",
+  "@filmCashOver": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCashMatches": "It matches",
+  "filmCashWhy": "Why it is off"
 }

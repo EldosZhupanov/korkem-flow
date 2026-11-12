@@ -145,6 +145,11 @@ class FilmCashBook {
     this.logisticsPerM,
     this.employees = const [],
     this.carriers = const [],
+    this.sales = 0,
+    this.spent = 0,
+    this.where = const [],
+    this.moves = const [],
+    this.closed,
   });
 
   factory FilmCashBook.fromJson(Map<String, dynamic> json) {
@@ -188,6 +193,35 @@ class FilmCashBook {
         for (final r in owed['carriers'] as List? ?? const [])
           if (r is Map<String, dynamic>) row(r),
       ],
+      sales: (json['sales'] as num?)?.toInt() ?? 0,
+      closed: switch (json['closed']) {
+        final Map<String, dynamic> c => (
+          expected: _d(c['expected']) ?? 0,
+          counted: _d(c['counted']) ?? 0,
+          gap: _d(c['gap']) ?? 0,
+          reason: _s(c['reason']),
+          by: _s(c['by']),
+        ),
+        _ => null,
+      },
+      spent: (json['spent'] as num?)?.toInt() ?? 0,
+      where: [
+        for (final r in json['where'] as List? ?? const [])
+          if (r is Map<String, dynamic>)
+            (way: '${r['way']}', amount: _d(r['amount']) ?? 0),
+      ],
+      moves: [
+        for (final r in json['moves'] as List? ?? const [])
+          if (r is Map<String, dynamic>)
+            (
+              date: '${r['date'] ?? ''}',
+              at: _s(r['at']),
+              incoming: r['in'] == true,
+              amount: _d(r['amount']) ?? 0,
+              way: _s(r['way']),
+              what: '${r['what'] ?? ''}',
+            ),
+      ],
     );
   }
 
@@ -208,6 +242,36 @@ class FilmCashBook {
 
   /// Owed to carriers not paid yet.
   final List<FilmOwed> carriers;
+
+  /// The day closed: the cash counted against what should be there.
+  final ({
+    double expected,
+    double counted,
+    double gap,
+    String? reason,
+    String? by,
+  })?
+  closed;
+
+  /// How many sales paid in, how many things paid out (12.11.2026).
+  final int sales;
+  final int spent;
+
+  /// Where the money is now: cash in the drawer, each bank apart.
+  final List<({String way, double amount})> where;
+
+  /// Every payment in and out, newest first.
+  final List<
+    ({
+      String date,
+      String? at,
+      bool incoming,
+      double amount,
+      String? way,
+      String what,
+    })
+  >
+  moves;
 }
 
 typedef FilmOwed = ({
@@ -523,6 +587,8 @@ class FilmCustomer {
     this.idleDays,
     this.debtDays,
     this.asleep = false,
+    this.sales = 0,
+    this.favourite,
   });
 
   factory FilmCustomer.fromJson(Map<String, dynamic> json) => FilmCustomer(
@@ -539,6 +605,8 @@ class FilmCustomer {
     idleDays: (json['idle_days'] as num?)?.toInt(),
     debtDays: (json['debt_days'] as num?)?.toInt(),
     asleep: json['asleep'] == true,
+    sales: (json['sales'] as num?)?.toInt() ?? 0,
+    favourite: _s(json['favourite']),
   );
 
   final String customer;
@@ -558,6 +626,10 @@ class FilmCustomer {
 
   /// Bought before and has not for two months: worth a call.
   final bool asleep;
+
+  /// How many sales, and the film bought most (owner, 12.11.2026).
+  final int sales;
+  final String? favourite;
 }
 
 /// Metres as the shop says them: «84», «1,5».
