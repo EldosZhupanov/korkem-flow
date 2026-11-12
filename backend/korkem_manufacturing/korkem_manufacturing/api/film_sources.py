@@ -7,6 +7,7 @@ from __future__ import annotations
 import frappe
 
 from korkem_manufacturing.services import film_sources as service
+from korkem_manufacturing.services import film_supplier_board
 
 _KEYS = ("name", "makers", *service.CARD)
 
@@ -20,6 +21,12 @@ def _card() -> dict:
 def sources() -> dict:
 	"""Все поставщики с карточками; производители для отметки."""
 	return service.sources()
+
+
+@frappe.whitelist(methods=["GET"])
+def board(period: str | None = None) -> dict:
+	"""Доска поставщиков: чья плёнка лучше продаётся, что лежит, что в пути, что заказать."""
+	return film_supplier_board.board(period)
 
 
 @frappe.whitelist(methods=["POST"])

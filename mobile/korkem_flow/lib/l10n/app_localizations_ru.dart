@@ -6761,4 +6761,99 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmCashWhy => 'Почему не сходится';
+
+  @override
+  String get filmSupSoldMonth => 'Продано за месяц';
+
+  @override
+  String get filmSupSoldAll => 'Продано за всё время';
+
+  @override
+  String get filmSupOnHand => 'Лежит на складе';
+
+  @override
+  String get filmSupComing => 'В пути';
+
+  @override
+  String get filmSupReorder => 'Пора заказать';
+
+  @override
+  String filmSupM(String metres) {
+    return '$metres м';
+  }
+
+  @override
+  String filmSupComingRolls(int count) {
+    return 'поставок: $count';
+  }
+
+  @override
+  String filmSupReorderFilms(int count) {
+    return 'плёнок: $count';
+  }
+
+  @override
+  String filmSupShare(String share) {
+    return '$share% продаж';
+  }
+
+  @override
+  String filmSupRevenue(String sum) {
+    return 'выручка $sum';
+  }
+
+  @override
+  String filmSupShelf(String metres) {
+    return 'на складе $metres м';
+  }
+
+  @override
+  String filmSupLead(int days, int promised) {
+    return 'везёт $days дн. (обещал $promised)';
+  }
+
+  @override
+  String filmSupChipReorder(int count) {
+    return 'Пора заказать: $count';
+  }
+
+  @override
+  String filmSupChipComing(String metres, String day) {
+    return 'В пути $metres м · $day';
+  }
+
+  @override
+  String filmSupChipComingLate(String metres, int days) {
+    return 'В пути $metres м · опаздывает на $days дн.';
+  }
+
+  @override
+  String filmSupChipLate(int days) {
+    return 'Опаздывает в среднем на $days дн.';
+  }
+
+  @override
+  String filmSupChipIdle(int count, String metres) {
+    return 'Лежит без движения: $count · $metres м';
+  }
+
+  @override
+  String get filmSupChipOk => 'Всё в порядке';
+
+  @override
+  String get filmSupOrder => 'Заказать в WhatsApp';
+
+  @override
+  String filmSupOrderText(String list) {
+    return 'Здравствуйте! Нужна плёнка:\n$list\nКогда сможете привезти?';
+  }
+
+  @override
+  String filmSupOrderLine(String title, String metres) {
+    return '— $title — $metres м';
+  }
+
+  @override
+  String get filmSupLegend =>
+      'Сверху — чья плёнка продаётся лучше. Плёнку от двух фирм делим по тому, сколько от кого пришло.';
 }

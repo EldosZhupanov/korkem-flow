@@ -6738,4 +6738,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmCashWhy => 'Why it is off';
+
+  @override
+  String get filmSupSoldMonth => 'Sold this month';
+
+  @override
+  String get filmSupSoldAll => 'Sold in all';
+
+  @override
+  String get filmSupOnHand => 'On the shelf';
+
+  @override
+  String get filmSupComing => 'On its way';
+
+  @override
+  String get filmSupReorder => 'To order';
+
+  @override
+  String filmSupM(String metres) {
+    return '$metres m';
+  }
+
+  @override
+  String filmSupComingRolls(int count) {
+    return 'rolls: $count';
+  }
+
+  @override
+  String filmSupReorderFilms(int count) {
+    return 'films: $count';
+  }
+
+  @override
+  String filmSupShare(String share) {
+    return '$share% of sales';
+  }
+
+  @override
+  String filmSupRevenue(String sum) {
+    return 'revenue $sum';
+  }
+
+  @override
+  String filmSupShelf(String metres) {
+    return '$metres m on the shelf';
+  }
+
+  @override
+  String filmSupLead(int days, int promised) {
+    return 'brings in $days d (promised $promised)';
+  }
+
+  @override
+  String filmSupChipReorder(int count) {
+    return 'To order: $count';
+  }
+
+  @override
+  String filmSupChipComing(String metres, String day) {
+    return '$metres m on its way · $day';
+  }
+
+  @override
+  String filmSupChipComingLate(String metres, int days) {
+    return '$metres m on its way · $days d late';
+  }
+
+  @override
+  String filmSupChipLate(int days) {
+    return 'Late by $days d on average';
+  }
+
+  @override
+  String filmSupChipIdle(int count, String metres) {
+    return 'Lying idle: $count · $metres m';
+  }
+
+  @override
+  String get filmSupChipOk => 'All is well';
+
+  @override
+  String get filmSupOrder => 'Order by WhatsApp';
+
+  @override
+  String filmSupOrderText(String list) {
+    return 'Hello! We need film:\n$list\nWhen can you bring it?';
+  }
+
+  @override
+  String filmSupOrderLine(String title, String metres) {
+    return '— $title — $metres m';
+  }
+
+  @override
+  String get filmSupLegend =>
+      'Top — whose film sells best. A film of two sources is shared by what each brought.';
 }
