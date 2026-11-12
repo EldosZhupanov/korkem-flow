@@ -626,6 +626,8 @@ class MdfFilmPress {
     this.loads = const [],
     this.corrected = false,
     this.tooBig = 0,
+    this.manual = false,
+    this.approvedBy,
   });
 
   factory MdfFilmPress.fromJson(Map<String, dynamic> json) => MdfFilmPress(
@@ -635,6 +637,10 @@ class MdfFilmPress {
     loads: [for (final l in json['loads'] as List? ?? const []) _d(l)],
     corrected: json['corrected'] == true,
     tooBig: _i(json['too_big']),
+    manual: json['manual'] == true,
+    approvedBy: json['approved'] is Map
+        ? (json['approved'] as Map)['by']?.toString()
+        : null,
   );
 
   final double filmM;
@@ -643,6 +649,10 @@ class MdfFilmPress {
   final List<double> loads;
   final bool corrected;
   final int tooBig;
+
+  /// Laid out by hand; and who checked the order's layout, if anyone.
+  final bool manual;
+  final String? approvedBy;
 
   /// Metres the smart layout saved on the plain one.
   double get saved =>

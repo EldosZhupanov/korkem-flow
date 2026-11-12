@@ -7232,4 +7232,83 @@ class AppLocalizationsKk extends AppLocalizations {
   String pressSmartSaved(String plain, String saved) {
     return 'Ақылды орналасу: әдеттегісі $plain м алар еді — үнем $saved м.';
   }
+
+  @override
+  String get pressEdit => 'Орналасуды өзгерту';
+
+  @override
+  String get pressEditReset => 'Қайта орналастыру';
+
+  @override
+  String get pressEditSave => 'Менің орналасуымды сақтау';
+
+  @override
+  String pressEditTotal(String metres, String auto) {
+    return 'Барлығы $metres м · жүйе $auto м-ге орналастырған';
+  }
+
+  @override
+  String get pressEditClash =>
+      'Қызыл бөлшектер тым жақын немесе үстелден шығып тұр — жылжытыңыз.';
+
+  @override
+  String get pressEditHint =>
+      'Бөлшекті басып, сүйреңіз. Жібергенде өзі түзу тұрады.';
+
+  @override
+  String pressEditPart(int pos, String size) {
+    return 'Позиция $pos · $size';
+  }
+
+  @override
+  String get pressEditRotate => 'Бұру';
+
+  @override
+  String pressEditMoveTo(int count) {
+    return '$count-жүктемеге';
+  }
+
+  @override
+  String get pressEditMoveNew => 'Жаңа жүктемеге';
+
+  @override
+  String get pressEditSectionAuto => 'Секция: өзі';
+
+  @override
+  String pressEditSection(String metres) {
+    return 'Секция $metres м';
+  }
+
+  @override
+  String get pressManual => 'Өз орналасуы — бөлшектер қолмен қойылған.';
+
+  @override
+  String get pressApprove => 'Пішім тексерілді — іске қосу';
+
+  @override
+  String pressApproved(String by, String at) {
+    return 'Пішім тексерілді: $by, $at';
+  }
+
+  @override
+  String get pressUnapprove => 'Белгіні алу';
+
+  @override
+  String pressShortAdded(String films) {
+    return 'Пленка жетпейді, «Тапсырысқа» қосылды: $films м';
+  }
+
+  @override
+  String pressPrintApproved(String by, String at) {
+    return 'Орналасу бекітілді: $by, $at';
+  }
+
+  @override
+  String get pressPrintSigns => 'Оператор ____________   Шебер ____________';
+
+  @override
+  String get mdfPressManual => 'өз орналасуы';
+
+  @override
+  String get mdfPressApproved => 'пішім тексерілді';
 }

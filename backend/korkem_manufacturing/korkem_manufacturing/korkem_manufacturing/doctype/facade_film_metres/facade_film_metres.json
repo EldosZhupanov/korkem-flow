@@ -8,7 +8,9 @@
   "sales_order",
   "decor",
   "film_m",
-  "reason"
+  "reason",
+  "layout_json",
+  "parts_key"
  ],
  "fields": [
   {
@@ -39,11 +41,21 @@
    "fieldtype": "Small Text",
    "label": "Why not as laid out",
    "reqd": 1
+  },
+  {
+   "fieldname": "layout_json",
+   "fieldtype": "Long Text",
+   "label": "Manual layout"
+  },
+  {
+   "fieldname": "parts_key",
+   "fieldtype": "Data",
+   "label": "Parts the layout was made for"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-28 00:00:00.000000",
+ "modified": "2026-11-12 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Facade Film Metres",

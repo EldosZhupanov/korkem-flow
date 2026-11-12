@@ -786,11 +786,14 @@ def _press(order: str) -> dict:
 	from korkem_manufacturing.services import press_layout
 
 	try:
-		films = press_layout.order_layout(order)["films"]
+		layout = press_layout.order_layout(order)
 	except frappe.ValidationError:
 		return {}
+	films = layout["films"]
 	return {
 		f["decor"]: {
+			"manual": f.get("manual", False),
+			"approved": layout.get("approved"),
 			"film_m": f["film_m"],
 			"layout_m": f["layout_m"],
 			"plain_m": f.get("plain_m"),

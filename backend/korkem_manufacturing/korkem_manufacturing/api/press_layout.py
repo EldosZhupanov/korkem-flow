@@ -43,3 +43,15 @@ def order_layout(sales_order: str) -> dict:
 def set_film_metres(sales_order: str, decor: str, film_m: float | str | None = None, reason: str | None = None) -> dict:
 	"""Поправить метраж плёнки по заказу вручную — с причиной; пусто — вернуть к раскладке."""
 	return service.set_film_metres(sales_order, decor, film_m=film_m, reason=reason)
+
+
+@frappe.whitelist(methods=["POST"])
+def save_layout(sales_order: str, decor: str, loads: str | list | None = None) -> dict:
+	"""Сохранить раскладку, сделанную вручную; пусто — вернуть раскладку пресса."""
+	return service.save_layout(sales_order, decor, loads)
+
+
+@frappe.whitelist(methods=["POST"])
+def approve(sales_order: str, approved: bool | int | str = True) -> dict:
+	"""«Раскрой проверен» — или снять отметку."""
+	return service.approve(sales_order, approved=str(approved).lower() not in ("0", "false", ""))
