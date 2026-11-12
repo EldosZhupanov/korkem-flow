@@ -6856,4 +6856,416 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get filmSupLegend =>
       'Сверху — чья плёнка продаётся лучше. Плёнку от двух фирм делим по тому, сколько от кого пришло.';
+
+  @override
+  String get filmSrcOrderUntil => 'Принимает заказы до (например, 16:00)';
+
+  @override
+  String get filmReceiveAddFilm => 'Ещё плёнка';
+
+  @override
+  String filmReceiveAddLow(int count) {
+    return 'Добавить всё, что пора заказать ($count)';
+  }
+
+  @override
+  String get filmReceiveForWhom => 'Для кого';
+
+  @override
+  String get filmReceiveForShelf => 'На склад';
+
+  @override
+  String filmReceiveForCustomer(String name) {
+    return 'Под заказ: $name';
+  }
+
+  @override
+  String get filmReceiveRemove => 'Убрать';
+
+  @override
+  String filmReceiveSum(String sum) {
+    return 'сумма $sum';
+  }
+
+  @override
+  String filmReceiveSumWithDelivery(String sum, String perM) {
+    return 'сумма $sum · метр с доставкой $perM';
+  }
+
+  @override
+  String filmReceiveMany(int count) {
+    return 'Приход · плёнок: $count';
+  }
+
+  @override
+  String filmReceiveTotal(int count, String metres, String sum) {
+    return 'Итого: плёнок $count · $metres м · $sum с доставкой';
+  }
+
+  @override
+  String get filmPickSearch => 'Фирма, цвет или код';
+
+  @override
+  String get filmPickNone => 'Ничего не нашлось';
+
+  @override
+  String filmPickFree(String metres) {
+    return '$metres м';
+  }
+
+  @override
+  String get filmPickReorder => 'пора заказать';
+
+  @override
+  String get filmOrdersTitle => 'К заказу';
+
+  @override
+  String filmOrdersSendAll(int count) {
+    return 'Отправить всем ($count)';
+  }
+
+  @override
+  String filmOrdersSummary(int count, String metres, int suppliers) {
+    return 'Плёнок: $count · $metres м · поставщиков: $suppliers';
+  }
+
+  @override
+  String get filmOrdersAdd => 'Добавить плёнку';
+
+  @override
+  String get filmOrdersAddSave => 'В заказ';
+
+  @override
+  String get filmOrdersEmpty =>
+      'Заказывать пока нечего. Добавьте плёнку, когда клиенту нужно больше, чем есть, — плёнки, которые кончаются, появятся здесь сами.';
+
+  @override
+  String get filmOrdersLegend =>
+      'Красное — кончилась, синее — под клиента, серое — на склад. Нажмите, чтобы поменять метры; × — убрать.';
+
+  @override
+  String filmOrderLine(int n, String title, String metres) {
+    return '$n. $title — $metres м';
+  }
+
+  @override
+  String filmOrderText(String date, String lines, int count, String metres) {
+    return 'Здравствуйте! Заказ на $date:\n$lines\nВсего: позиций $count, $metres м.\nПодтвердите, пожалуйста, наличие и когда привезёте.';
+  }
+
+  @override
+  String filmOrderCopied(String name) {
+    return 'Текст заказа для «$name» скопирован — вставьте его в сообщение.';
+  }
+
+  @override
+  String get filmOrdersNoSupplier => 'Поставщик не указан';
+
+  @override
+  String filmOrdersGroupTotal(int count, String metres) {
+    return 'плёнок $count · $metres м';
+  }
+
+  @override
+  String filmOrdersUntil(String time) {
+    return 'принимает заказы до $time';
+  }
+
+  @override
+  String get filmOrdersSend => 'Отправить в WhatsApp';
+
+  @override
+  String get filmOrdersCopy => 'Скопировать заказ';
+
+  @override
+  String filmOrdersSentAt(String time) {
+    return 'Отправлено в $time · ждём ответ';
+  }
+
+  @override
+  String get filmOrdersConfirmed => 'Подтвердили — оформить приход';
+
+  @override
+  String filmOrdersForShelf(String metres) {
+    return 'на склад $metres м';
+  }
+
+  @override
+  String filmOrdersForCustomer(String name, String metres) {
+    return '$name $metres м';
+  }
+
+  @override
+  String filmOrdersRanOut(String metres) {
+    return 'кончилась · $metres м';
+  }
+
+  @override
+  String filmOrdersButton(int count) {
+    return 'К заказу · $count';
+  }
+
+  @override
+  String filmOrdersButtonWaiting(int count, int waiting) {
+    return 'К заказу · $count · ждём ответ: $waiting';
+  }
+
+  @override
+  String get mdfSumTitle => 'Итоги МДФ';
+
+  @override
+  String get mdfSumWeek => 'Неделя';
+
+  @override
+  String get mdfSumShare => 'Скопировать итоги';
+
+  @override
+  String get mdfSumCopied => 'Итоги скопированы — вставьте в WhatsApp.';
+
+  @override
+  String mdfSumUp(int percent) {
+    return '▲ $percent% к прошлому';
+  }
+
+  @override
+  String mdfSumDown(int percent) {
+    return '▼ $percent% к прошлому';
+  }
+
+  @override
+  String get mdfSumAvg => 'Средний чек';
+
+  @override
+  String mdfSumAvgNote(String area, String rate) {
+    return '$area м² · $rate/м²';
+  }
+
+  @override
+  String get mdfSumCustomers => 'Клиентов';
+
+  @override
+  String mdfSumNewCustomers(int count) {
+    return 'новых: $count';
+  }
+
+  @override
+  String get mdfSumPlan => 'План месяца и прогноз';
+
+  @override
+  String get mdfSumPlanDone => 'Сделано за месяц';
+
+  @override
+  String get mdfSumGoal => 'Цель';
+
+  @override
+  String mdfSumGoalOf(String goal, int percent) {
+    return '$goal м² · $percent%';
+  }
+
+  @override
+  String get mdfSumGoalNone =>
+      'Цель месяца не задана — нажмите ✎, чтобы задать.';
+
+  @override
+  String get mdfSumGoalSet => 'Цель месяца';
+
+  @override
+  String get mdfSumGoalM2 => 'Сколько м² за месяц';
+
+  @override
+  String mdfSumForecast(int days) {
+    return 'При таком темпе к концу месяца (осталось $days дн.)';
+  }
+
+  @override
+  String get mdfSumShop => 'Загрузка цеха';
+
+  @override
+  String get mdfSumInWork => 'В работе';
+
+  @override
+  String mdfSumInWorkValue(String area, int count) {
+    return '$area м² · заказов $count';
+  }
+
+  @override
+  String get mdfSumPace => 'Цех делает в среднем';
+
+  @override
+  String mdfSumPaceValue(String area) {
+    return '$area м² в день';
+  }
+
+  @override
+  String get mdfSumPaceUnknown =>
+      'Темп цеха пока не известен: нужно несколько готовых заказов.';
+
+  @override
+  String get mdfSumNewReady => 'Новый заказ реально выйдет';
+
+  @override
+  String mdfSumNewReadyValue(int days, String day) {
+    return 'через $days дн. · $day';
+  }
+
+  @override
+  String get mdfSumOverdueNow => 'Просрочено сейчас';
+
+  @override
+  String get mdfSumTop => 'Кто больше заказывает';
+
+  @override
+  String mdfSumTopValue(int count, String area) {
+    return 'заказов $count · $area м²';
+  }
+
+  @override
+  String get mdfSumMaker => 'мебельщик';
+
+  @override
+  String get mdfSumNew => 'новый';
+
+  @override
+  String get mdfSumNothing => 'За этот период пусто.';
+
+  @override
+  String get mdfSumAsleep => 'Уснули — пора напомнить о себе';
+
+  @override
+  String get mdfSumAsleepNone => 'Все клиенты заказывают в своём ритме.';
+
+  @override
+  String mdfSumAsleepRhythm(int rhythm, int days) {
+    return 'обычно раз в $rhythm дн. · не было $days дн.';
+  }
+
+  @override
+  String mdfSumAsleepOnce(int days) {
+    return 'один заказ · не было $days дн.';
+  }
+
+  @override
+  String get mdfSumGone => 'пропал';
+
+  @override
+  String get mdfSumDozing => 'засыпает';
+
+  @override
+  String mdfSumWakeText(String name) {
+    return 'Здравствуйте, $name! Давно не виделись — как у вас дела с заказами? Можем принять фасады в работу, сроки сейчас хорошие.';
+  }
+
+  @override
+  String mdfSumMore(int count) {
+    return 'и ещё $count';
+  }
+
+  @override
+  String get mdfSumFilms => 'Что заказывают · хватит ли плёнки';
+
+  @override
+  String mdfSumFilmShort(String metres) {
+    return 'не хватает $metres м';
+  }
+
+  @override
+  String get mdfSumFilmEnough => 'хватит';
+
+  @override
+  String get mdfSumToOrder => 'В «К заказу»';
+
+  @override
+  String mdfSumOrdered(String decor) {
+    return '«$decor» добавлена в «К заказу».';
+  }
+
+  @override
+  String get mdfSumDeadlines => 'Сроки и качество';
+
+  @override
+  String mdfSumOnTime(int count) {
+    return 'Сдано вовремя (из $count)';
+  }
+
+  @override
+  String get mdfSumNoHandedOver => 'За период ничего не выдано.';
+
+  @override
+  String get mdfSumLateAvg => 'Опоздание в среднем';
+
+  @override
+  String mdfSumDays(String days) {
+    return '$days дн.';
+  }
+
+  @override
+  String get mdfSumRework => 'Переделки и гарантия';
+
+  @override
+  String mdfSumReworkValue(int count, String area, int percent) {
+    return '$count · $area м² · $percent%';
+  }
+
+  @override
+  String mdfSumReasons(String list) {
+    return 'Почему возвращали: $list';
+  }
+
+  @override
+  String get mdfSumDebts => 'Долги по давности';
+
+  @override
+  String get mdfSumDebtWeek => 'до 7 дней';
+
+  @override
+  String get mdfSumDebtMonth => '8–30 дней';
+
+  @override
+  String get mdfSumDebtOlder => 'больше 30 дней';
+
+  @override
+  String mdfSumDebtor(String name, int days) {
+    return '$name · $days дн.';
+  }
+
+  @override
+  String get mdfSumManagers => 'Кто принимал заказы';
+
+  @override
+  String mdfSumManagerValue(int count, String area, String sum) {
+    return '$count · $area м² · $sum';
+  }
+
+  @override
+  String mdfSumTextHead(String since, String until) {
+    return 'Итоги МДФ $since — $until';
+  }
+
+  @override
+  String mdfSumTextOrders(int count, String area, String sum) {
+    return 'Заказов: $count · $area м² · $sum';
+  }
+
+  @override
+  String mdfSumTextMoney(String paid, String debt) {
+    return 'Получено: $paid · долг: $debt';
+  }
+
+  @override
+  String mdfSumTextChange(String percent) {
+    return 'Объём к прошлому периоду: $percent%';
+  }
+
+  @override
+  String mdfSumTextForecast(String area) {
+    return 'Прогноз месяца: $area м²';
+  }
+
+  @override
+  String mdfSumTextAsleep(int count) {
+    return 'Уснувших клиентов: $count';
+  }
+
+  @override
+  String get mdfOrdersSummary => 'Итоги';
 }

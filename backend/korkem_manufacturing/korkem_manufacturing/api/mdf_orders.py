@@ -135,6 +135,22 @@ def cash(since: str | None = None, until: str | None = None) -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
+def summary(since: str | None = None, until: str | None = None) -> dict:
+	"""Итоги МДФ: период против прошлого, план, загрузка цеха, клиенты, уснувшие, плёнка, сроки, долги."""
+	from korkem_manufacturing.services import mdf_summary
+
+	return mdf_summary.summary(since=since, until=until)
+
+
+@frappe.whitelist(methods=["POST"])
+def set_target(m2: float | str | None = None) -> dict:
+	"""Цель месяца в м²."""
+	from korkem_manufacturing.services import mdf_summary
+
+	return mdf_summary.set_target(m2)
+
+
+@frappe.whitelist(methods=["GET"])
 def report(since: str | None = None, until: str | None = None) -> dict:
 	"""Отчёт по заказам за период: сколько, м², сумма, оплачено, долг; по статусам, плёнкам, клиентам."""
 	from korkem_manufacturing.services import mdf_report

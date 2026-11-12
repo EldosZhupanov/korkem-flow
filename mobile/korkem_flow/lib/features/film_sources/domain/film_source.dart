@@ -34,6 +34,8 @@ class FilmSource {
     'address',
     'lead',
     'min_order',
+    // The hour the day's orders are taken until (owner, 12.11.2026).
+    'order_until',
     'note',
   ];
 

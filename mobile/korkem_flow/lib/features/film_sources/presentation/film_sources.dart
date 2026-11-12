@@ -23,6 +23,7 @@ String filmSourceLabel(AppLocalizations l10n, String key) => switch (key) {
   'address' => l10n.filmSrcAddress,
   'lead' => l10n.filmSrcLead,
   'min_order' => l10n.filmSrcMinOrder,
+  'order_until' => l10n.filmSrcOrderUntil,
   _ => l10n.filmSrcNote,
 };
 

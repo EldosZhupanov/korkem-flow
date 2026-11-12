@@ -12001,6 +12001,630 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Top — whose film sells best. A film of two sources is shared by what each brought.'**
   String get filmSupLegend;
+
+  /// No description provided for @filmSrcOrderUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes orders until (e.g. 16:00)'**
+  String get filmSrcOrderUntil;
+
+  /// No description provided for @filmReceiveAddFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Another film'**
+  String get filmReceiveAddFilm;
+
+  /// No description provided for @filmReceiveAddLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add all that ran low ({count})'**
+  String filmReceiveAddLow(int count);
+
+  /// No description provided for @filmReceiveForWhom.
+  ///
+  /// In en, this message translates to:
+  /// **'For whom'**
+  String get filmReceiveForWhom;
+
+  /// No description provided for @filmReceiveForShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'For the shelf'**
+  String get filmReceiveForShelf;
+
+  /// No description provided for @filmReceiveForCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'For: {name}'**
+  String filmReceiveForCustomer(String name);
+
+  /// No description provided for @filmReceiveRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get filmReceiveRemove;
+
+  /// No description provided for @filmReceiveSum.
+  ///
+  /// In en, this message translates to:
+  /// **'comes to {sum}'**
+  String filmReceiveSum(String sum);
+
+  /// No description provided for @filmReceiveSumWithDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'comes to {sum} · {perM} a metre delivered'**
+  String filmReceiveSumWithDelivery(String sum, String perM);
+
+  /// No description provided for @filmReceiveMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery · films: {count}'**
+  String filmReceiveMany(int count);
+
+  /// No description provided for @filmReceiveTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'In all: {count} films · {metres} m · {sum} delivered'**
+  String filmReceiveTotal(int count, String metres, String sum);
+
+  /// No description provided for @filmPickSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Maker, colour or code'**
+  String get filmPickSearch;
+
+  /// No description provided for @filmPickNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get filmPickNone;
+
+  /// No description provided for @filmPickFree.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m'**
+  String filmPickFree(String metres);
+
+  /// No description provided for @filmPickReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'to order'**
+  String get filmPickReorder;
+
+  /// No description provided for @filmOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To order'**
+  String get filmOrdersTitle;
+
+  /// No description provided for @filmOrdersSendAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to all ({count})'**
+  String filmOrdersSendAll(int count);
+
+  /// No description provided for @filmOrdersSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Films: {count} · {metres} m · suppliers: {suppliers}'**
+  String filmOrdersSummary(int count, String metres, int suppliers);
+
+  /// No description provided for @filmOrdersAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a film'**
+  String get filmOrdersAdd;
+
+  /// No description provided for @filmOrdersAddSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to the order'**
+  String get filmOrdersAddSave;
+
+  /// No description provided for @filmOrdersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to order yet. Add a film when a customer wants more than there is — films that run low show up here by themselves.'**
+  String get filmOrdersEmpty;
+
+  /// No description provided for @filmOrdersLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Red — ran out, blue — for a customer, grey — for the shelf. Tap to change the metres; × — remove.'**
+  String get filmOrdersLegend;
+
+  /// No description provided for @filmOrderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{n}. {title} — {metres} m'**
+  String filmOrderLine(int n, String title, String metres);
+
+  /// No description provided for @filmOrderText.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! Order for {date}:\n{lines}\nIn all: {count} items, {metres} m.\nPlease confirm what you have and when you will bring it.'**
+  String filmOrderText(String date, String lines, int count, String metres);
+
+  /// No description provided for @filmOrderCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'The order for «{name}» is copied — paste it into a message.'**
+  String filmOrderCopied(String name);
+
+  /// No description provided for @filmOrdersNoSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'No supplier named'**
+  String get filmOrdersNoSupplier;
+
+  /// No description provided for @filmOrdersGroupTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} films · {metres} m'**
+  String filmOrdersGroupTotal(int count, String metres);
+
+  /// No description provided for @filmOrdersUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'takes orders until {time}'**
+  String filmOrdersUntil(String time);
+
+  /// No description provided for @filmOrdersSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send by WhatsApp'**
+  String get filmOrdersSend;
+
+  /// No description provided for @filmOrdersCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the order'**
+  String get filmOrdersCopy;
+
+  /// No description provided for @filmOrdersSentAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent at {time} · waiting for an answer'**
+  String filmOrdersSentAt(String time);
+
+  /// No description provided for @filmOrdersConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed — enter the delivery'**
+  String get filmOrdersConfirmed;
+
+  /// No description provided for @filmOrdersForShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'shelf {metres} m'**
+  String filmOrdersForShelf(String metres);
+
+  /// No description provided for @filmOrdersForCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} {metres} m'**
+  String filmOrdersForCustomer(String name, String metres);
+
+  /// No description provided for @filmOrdersRanOut.
+  ///
+  /// In en, this message translates to:
+  /// **'ran out · {metres} m'**
+  String filmOrdersRanOut(String metres);
+
+  /// No description provided for @filmOrdersButton.
+  ///
+  /// In en, this message translates to:
+  /// **'To order · {count}'**
+  String filmOrdersButton(int count);
+
+  /// No description provided for @filmOrdersButtonWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'To order · {count} · waiting: {waiting}'**
+  String filmOrdersButtonWaiting(int count, int waiting);
+
+  /// No description provided for @mdfSumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MDF summary'**
+  String get mdfSumTitle;
+
+  /// No description provided for @mdfSumWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get mdfSumWeek;
+
+  /// No description provided for @mdfSumShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the summary'**
+  String get mdfSumShare;
+
+  /// No description provided for @mdfSumCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'The summary is copied — paste it into WhatsApp.'**
+  String get mdfSumCopied;
+
+  /// No description provided for @mdfSumUp.
+  ///
+  /// In en, this message translates to:
+  /// **'▲ {percent}% on the last'**
+  String mdfSumUp(int percent);
+
+  /// No description provided for @mdfSumDown.
+  ///
+  /// In en, this message translates to:
+  /// **'▼ {percent}% on the last'**
+  String mdfSumDown(int percent);
+
+  /// No description provided for @mdfSumAvg.
+  ///
+  /// In en, this message translates to:
+  /// **'Average order'**
+  String get mdfSumAvg;
+
+  /// No description provided for @mdfSumAvgNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{area} m² · {rate}/m²'**
+  String mdfSumAvgNote(String area, String rate);
+
+  /// No description provided for @mdfSumCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get mdfSumCustomers;
+
+  /// No description provided for @mdfSumNewCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'new: {count}'**
+  String mdfSumNewCustomers(int count);
+
+  /// No description provided for @mdfSumPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'The month: plan and forecast'**
+  String get mdfSumPlan;
+
+  /// No description provided for @mdfSumPlanDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done this month'**
+  String get mdfSumPlanDone;
+
+  /// No description provided for @mdfSumGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get mdfSumGoal;
+
+  /// No description provided for @mdfSumGoalOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{goal} m² · {percent}%'**
+  String mdfSumGoalOf(String goal, int percent);
+
+  /// No description provided for @mdfSumGoalNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No goal for the month — tap ✎ to set one.'**
+  String get mdfSumGoalNone;
+
+  /// No description provided for @mdfSumGoalSet.
+  ///
+  /// In en, this message translates to:
+  /// **'The month’s goal'**
+  String get mdfSumGoalSet;
+
+  /// No description provided for @mdfSumGoalM2.
+  ///
+  /// In en, this message translates to:
+  /// **'m² this month'**
+  String get mdfSumGoalM2;
+
+  /// No description provided for @mdfSumForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'At this pace by the month’s end ({days} d left)'**
+  String mdfSumForecast(int days);
+
+  /// No description provided for @mdfSumShop.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop’s load'**
+  String get mdfSumShop;
+
+  /// No description provided for @mdfSumInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'In work'**
+  String get mdfSumInWork;
+
+  /// No description provided for @mdfSumInWorkValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{area} m² · {count} orders'**
+  String mdfSumInWorkValue(String area, int count);
+
+  /// No description provided for @mdfSumPace.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop finishes'**
+  String get mdfSumPace;
+
+  /// No description provided for @mdfSumPaceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{area} m² a day'**
+  String mdfSumPaceValue(String area);
+
+  /// No description provided for @mdfSumPaceUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop’s pace is not known yet: a few finished orders are needed.'**
+  String get mdfSumPaceUnknown;
+
+  /// No description provided for @mdfSumNewReady.
+  ///
+  /// In en, this message translates to:
+  /// **'A new order would be ready'**
+  String get mdfSumNewReady;
+
+  /// No description provided for @mdfSumNewReadyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'in {days} d · {day}'**
+  String mdfSumNewReadyValue(int days, String day);
+
+  /// No description provided for @mdfSumOverdueNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue now'**
+  String get mdfSumOverdueNow;
+
+  /// No description provided for @mdfSumTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Who orders most'**
+  String get mdfSumTop;
+
+  /// No description provided for @mdfSumTopValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} orders · {area} m²'**
+  String mdfSumTopValue(int count, String area);
+
+  /// No description provided for @mdfSumMaker.
+  ///
+  /// In en, this message translates to:
+  /// **'furniture maker'**
+  String get mdfSumMaker;
+
+  /// No description provided for @mdfSumNew.
+  ///
+  /// In en, this message translates to:
+  /// **'new'**
+  String get mdfSumNew;
+
+  /// No description provided for @mdfSumNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period.'**
+  String get mdfSumNothing;
+
+  /// No description provided for @mdfSumAsleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Gone quiet — time to get in touch'**
+  String get mdfSumAsleep;
+
+  /// No description provided for @mdfSumAsleepNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Every customer orders in his usual rhythm.'**
+  String get mdfSumAsleepNone;
+
+  /// No description provided for @mdfSumAsleepRhythm.
+  ///
+  /// In en, this message translates to:
+  /// **'usually every {rhythm} d · none for {days} d'**
+  String mdfSumAsleepRhythm(int rhythm, int days);
+
+  /// No description provided for @mdfSumAsleepOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'one order · none for {days} d'**
+  String mdfSumAsleepOnce(int days);
+
+  /// No description provided for @mdfSumGone.
+  ///
+  /// In en, this message translates to:
+  /// **'gone'**
+  String get mdfSumGone;
+
+  /// No description provided for @mdfSumDozing.
+  ///
+  /// In en, this message translates to:
+  /// **'dozing'**
+  String get mdfSumDozing;
+
+  /// No description provided for @mdfSumWakeText.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}! It has been a while — how are your orders? We can take facades in now, the lead times are good.'**
+  String mdfSumWakeText(String name);
+
+  /// No description provided for @mdfSumMore.
+  ///
+  /// In en, this message translates to:
+  /// **'and {count} more'**
+  String mdfSumMore(int count);
+
+  /// No description provided for @mdfSumFilms.
+  ///
+  /// In en, this message translates to:
+  /// **'What is ordered · is there film enough'**
+  String get mdfSumFilms;
+
+  /// No description provided for @mdfSumFilmShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m short'**
+  String mdfSumFilmShort(String metres);
+
+  /// No description provided for @mdfSumFilmEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'enough'**
+  String get mdfSumFilmEnough;
+
+  /// No description provided for @mdfSumToOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'To order'**
+  String get mdfSumToOrder;
+
+  /// No description provided for @mdfSumOrdered.
+  ///
+  /// In en, this message translates to:
+  /// **'«{decor}» is on the order list.'**
+  String mdfSumOrdered(String decor);
+
+  /// No description provided for @mdfSumDeadlines.
+  ///
+  /// In en, this message translates to:
+  /// **'Deadlines and quality'**
+  String get mdfSumDeadlines;
+
+  /// No description provided for @mdfSumOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over on time (of {count})'**
+  String mdfSumOnTime(int count);
+
+  /// No description provided for @mdfSumNoHandedOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing handed over in the period.'**
+  String get mdfSumNoHandedOver;
+
+  /// No description provided for @mdfSumLateAvg.
+  ///
+  /// In en, this message translates to:
+  /// **'Late on average'**
+  String get mdfSumLateAvg;
+
+  /// No description provided for @mdfSumDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d'**
+  String mdfSumDays(String days);
+
+  /// No description provided for @mdfSumRework.
+  ///
+  /// In en, this message translates to:
+  /// **'Reworks and warranty'**
+  String get mdfSumRework;
+
+  /// No description provided for @mdfSumReworkValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} · {area} m² · {percent}%'**
+  String mdfSumReworkValue(int count, String area, int percent);
+
+  /// No description provided for @mdfSumReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Why they came back: {list}'**
+  String mdfSumReasons(String list);
+
+  /// No description provided for @mdfSumDebts.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts by age'**
+  String get mdfSumDebts;
+
+  /// No description provided for @mdfSumDebtWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'up to 7 days'**
+  String get mdfSumDebtWeek;
+
+  /// No description provided for @mdfSumDebtMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'8–30 days'**
+  String get mdfSumDebtMonth;
+
+  /// No description provided for @mdfSumDebtOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'over 30 days'**
+  String get mdfSumDebtOlder;
+
+  /// No description provided for @mdfSumDebtor.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {days} d'**
+  String mdfSumDebtor(String name, int days);
+
+  /// No description provided for @mdfSumManagers.
+  ///
+  /// In en, this message translates to:
+  /// **'Who took the orders'**
+  String get mdfSumManagers;
+
+  /// No description provided for @mdfSumManagerValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} · {area} m² · {sum}'**
+  String mdfSumManagerValue(int count, String area, String sum);
+
+  /// No description provided for @mdfSumTextHead.
+  ///
+  /// In en, this message translates to:
+  /// **'MDF summary {since} — {until}'**
+  String mdfSumTextHead(String since, String until);
+
+  /// No description provided for @mdfSumTextOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders: {count} · {area} m² · {sum}'**
+  String mdfSumTextOrders(int count, String area, String sum);
+
+  /// No description provided for @mdfSumTextMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Received: {paid} · owed: {debt}'**
+  String mdfSumTextMoney(String paid, String debt);
+
+  /// No description provided for @mdfSumTextChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume on the last period: {percent}%'**
+  String mdfSumTextChange(String percent);
+
+  /// No description provided for @mdfSumTextForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Month forecast: {area} m²'**
+  String mdfSumTextForecast(String area);
+
+  /// No description provided for @mdfSumTextAsleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers gone quiet: {count}'**
+  String mdfSumTextAsleep(int count);
+
+  /// No description provided for @mdfOrdersSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get mdfOrdersSummary;
 }
 
 class _AppLocalizationsDelegate

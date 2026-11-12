@@ -49,7 +49,8 @@ def rows(order: str) -> list[dict]:
 			"cancelled": ref.docstatus == 2,
 			"_at": entry.creation,
 		})
-	out.sort(key=lambda r: (r["date"], str(r["_at"])))
+	# Two payments in the same instant come in the order they were numbered.
+	out.sort(key=lambda r: (r["date"], str(r["_at"]), r["entry"]))
 	for r in out:
 		del r["_at"]
 	return out

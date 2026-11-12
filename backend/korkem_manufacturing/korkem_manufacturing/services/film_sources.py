@@ -36,6 +36,8 @@ CARD = {
 	"address": "korkem_src_address",
 	"lead": "korkem_src_lead",
 	"min_order": "korkem_src_min_order",
+	# The hour the day's orders are taken until (owner, 12.11.2026).
+	"order_until": "korkem_src_order_until",
 	"note": "korkem_src_note",
 }
 _MAKERS_FIELD = "korkem_src_makers"
