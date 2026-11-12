@@ -31,6 +31,7 @@ Who may change the settings: the people who keep the material norms.
 from __future__ import annotations
 
 import json
+import random
 from dataclasses import dataclass, field
 
 import frappe
@@ -90,11 +91,103 @@ class Load:
 	placed: list[Placed] = field(default_factory=list)
 
 
+#: The orders the smart layout tries the parts in first, before shuffles.
+_ORDERS = (
+	lambda p: (p.width * p.height, max(p.width, p.height)),
+	lambda p: max(p.width, p.height),
+	lambda p: p.width,
+	lambda p: p.height,
+	lambda p: p.width + p.height,
+)
+#: How many orders of the parts the smart layout tries, at most: fewer for a
+#: big order, so a card of 200 facades still opens at once.
+SEARCH_WORK = 6000
+SEARCH_TRIES = 300
+
+
 def plan(parts: list[Part], press: dict, rotate: bool) -> tuple[list[Load], list[Part]]:
 	"""Loads for `parts`, shortest section each time; and the parts no load can take."""
+	left = sorted(parts, key=_ORDERS[0], reverse=True)
+	return _plan_in_order(left, press, rotate)
+
+
+def best_plan(parts: list[Part], press: dict, rotate: bool) -> tuple[list[Load], list[Part]]:
+	"""The plain layout, and then the parts in other orders — by size, by length,
+	by width, then shuffled — keeping the layout that takes the least film,
+	then the fewest loads (owner, 12.11.2026: «умный перебор»). The same parts
+	always give the same layout: the shuffles are seeded by the parts."""
+	best, too_big = plan(parts, press, rotate)
+	fit = [p for p in parts if p not in too_big]
+	if len(fit) < 2:
+		return best, too_big
+	cost = _cost(best)
+	tries = max(len(_ORDERS), min(SEARCH_TRIES, SEARCH_WORK // len(fit)))
+	shuffle = random.Random(";".join(f"{p.pos}:{p.width}x{p.height}" for p in sorted(fit, key=_key)))
+	for t in range(1, tries):
+		if t < len(_ORDERS):
+			order = sorted(fit, key=_ORDERS[t], reverse=True)
+		else:
+			order = shuffle.sample(fit, len(fit))
+		loads, _ = _plan_in_order(order, press, rotate)
+		if _cost(loads) < cost:
+			best, cost = loads, _cost(loads)
+	# Load by load: of a few orders of what is left, the one that fills the
+	# table most — and the last load in the shortest section any order fits.
+	loads = _plan_filling(fit, press, rotate, shuffle, max(3, min(30, SEARCH_WORK // 2 // len(fit))))
+	if _cost(loads) < cost:
+		best = loads
+	return best, too_big
+
+
+def _plan_filling(fit: list[Part], press: dict, rotate: bool, shuffle: random.Random, k: int) -> list[Load]:
 	sections = sorted(press["press_sections"], key=lambda s: flt(s["length_mm"]))
 	margin, gap, width = cint(press["press_margin_mm"]), cint(press["press_gap_mm"]), cint(press["press_width_mm"])
-	left = sorted(parts, key=lambda p: (p.width * p.height, max(p.width, p.height)), reverse=True)
+	whole = sections[-1]
+	left = list(fit)
+	loads: list[Load] = []
+	while left:
+		orders = [sorted(left, key=o, reverse=True) for o in _ORDERS] + [shuffle.sample(left, len(left)) for _ in range(k)]
+		chosen = None
+		for section in sections:
+			for order in orders:
+				placed, rest = _pack(order, cint(section["length_mm"]) - 2 * margin, width - 2 * margin, gap, rotate)
+				if not rest:
+					chosen = (section, placed, rest)
+					break
+			if chosen:
+				break
+		if chosen is None:
+			most = None
+			for order in orders:
+				placed, rest = _pack(order, cint(whole["length_mm"]) - 2 * margin, width - 2 * margin, gap, rotate)
+				area = sum(p.width * p.height for p in placed)
+				if most is None or area > most[0]:
+					most = (area, placed, rest)
+			chosen = (whole, most[1], most[2])
+		section, placed, rest = chosen
+		if not placed:
+			break
+		loads.append(Load(
+			film_m=flt(section["film_m"]),
+			length_mm=cint(section["length_mm"]),
+			placed=[Placed(p.pos, p.x + margin, p.y + margin, p.width, p.height, p.rotated) for p in placed],
+		))
+		left = rest
+	return loads if not left else [Load(film_m=1e9, length_mm=0, placed=[])]
+
+
+def _key(p: Part) -> tuple:
+	return (p.pos, p.width, p.height)
+
+
+def _cost(loads: list[Load]) -> tuple:
+	return (round(sum(load.film_m for load in loads), 2), len(loads))
+
+
+def _plan_in_order(left: list[Part], press: dict, rotate: bool) -> tuple[list[Load], list[Part]]:
+	"""Loads for `left`, packed in the order given."""
+	sections = sorted(press["press_sections"], key=lambda s: flt(s["length_mm"]))
+	margin, gap, width = cint(press["press_margin_mm"]), cint(press["press_gap_mm"]), cint(press["press_width_mm"])
 	whole = sections[-1]
 	too_big = [p for p in left if not _fits(p, cint(whole["length_mm"]) - 2 * margin, width - 2 * margin, rotate)]
 	left = [p for p in left if p not in too_big]
@@ -269,8 +362,10 @@ def order_layout(sales_order: str) -> dict:
 	films = []
 	for decor, parts in groups.items():
 		textured = is_textured(decor, order.company)
-		loads, too_big = plan(parts, press, rotate=not textured)
+		loads, too_big = best_plan(parts, press, rotate=not textured)
 		layout_m = round(sum(load.film_m for load in loads), 2)
+		# What the plain layout would take — the smart one's saving is shown.
+		plain_m = round(sum(load.film_m for load in plan(parts, press, rotate=not textured)[0]), 2)
 		fix = corrections.get(decor)
 		films.append(
 			{
@@ -278,6 +373,7 @@ def order_layout(sales_order: str) -> dict:
 				"title": f"№{sales_order} {order.customer_name or order.customer} {decor}",
 				"textured": textured,
 				"layout_m": layout_m,
+				"plain_m": plain_m,
 				"film_m": flt(fix.film_m) if fix else layout_m,
 				"corrected": bool(fix),
 				"reason": fix.reason if fix else None,

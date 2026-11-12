@@ -775,6 +775,30 @@ def card(order: str) -> dict:
 		"hold_reason": doc.korkem_hold_reason,
 		"notes": doc.terms,
 		"history": history(doc.name),
+		"press": _press(doc.name),
+	}
+
+
+def _press(order: str) -> dict:
+	"""Film by decor, as the press layout counts it (owner, 12.11.2026:
+	«сколько плёнок уйдёт… система считала сама») — metres, loads, what the
+	plain layout would take, and whether a person corrected it."""
+	from korkem_manufacturing.services import press_layout
+
+	try:
+		films = press_layout.order_layout(order)["films"]
+	except frappe.ValidationError:
+		return {}
+	return {
+		f["decor"]: {
+			"film_m": f["film_m"],
+			"layout_m": f["layout_m"],
+			"plain_m": f.get("plain_m"),
+			"loads": [load["film_m"] for load in f["loads"]],
+			"corrected": f["corrected"],
+			"too_big": len(f["too_big"]),
+		}
+		for f in films
 	}
 
 

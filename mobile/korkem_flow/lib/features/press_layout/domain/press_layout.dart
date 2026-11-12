@@ -69,6 +69,7 @@ class FilmLayout {
     this.corrected = false,
     this.reason,
     this.tooBig = const [],
+    this.plainM,
   });
 
   factory FilmLayout.fromJson(Map<String, dynamic> json) => FilmLayout(
@@ -76,6 +77,7 @@ class FilmLayout {
     title: '${json['title'] ?? ''}',
     textured: json['textured'] == true,
     layoutM: (json['layout_m'] as num?)?.toDouble() ?? 0,
+    plainM: (json['plain_m'] as num?)?.toDouble(),
     filmM: (json['film_m'] as num?)?.toDouble() ?? 0,
     corrected: json['corrected'] == true,
     reason: json['reason'] as String?,
@@ -98,6 +100,14 @@ class FilmLayout {
   /// Metres the layout takes, and the metres in use (a manager's correction).
   final double layoutM;
   final double filmM;
+
+  /// What the plain layout would take: the smart one tried other orders of
+  /// the parts and kept the shortest (owner, 12.11.2026).
+  final double? plainM;
+
+  /// Metres the smart layout saved.
+  double get saved =>
+      plainM == null || plainM! <= layoutM ? 0 : plainM! - layoutM;
   final bool corrected;
   final String? reason;
   final List<PressLoad> loads;

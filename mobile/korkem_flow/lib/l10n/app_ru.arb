@@ -2298,5 +2298,11 @@
   "mdfSumTextChange": "Объём к прошлому периоду: {percent}%",
   "mdfSumTextForecast": "Прогноз месяца: {area} м²",
   "mdfSumTextAsleep": "Уснувших клиентов: {count}",
-  "mdfOrdersSummary": "Итоги"
+  "mdfOrdersSummary": "Итоги",
+  "mdfPressOpen": "Раскладка на прессе",
+  "mdfPressFilm": "Плёнка {metres} м · загрузок {loads}",
+  "mdfPressCorrected": "поправлено вручную",
+  "mdfPressSaved": "умная раскладка −{metres} м",
+  "mdfPressTooBig": "не влезает на пресс: {count}",
+  "pressSmartSaved": "Умная раскладка: обычная заняла бы {plain} м — экономия {saved} м."
 }

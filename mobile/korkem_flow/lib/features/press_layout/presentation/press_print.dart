@@ -63,6 +63,20 @@ Future<Uint8List> buildPressPdf(
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: font, bold: font),
   );
+  addPressPages(doc, films, press, words, locale: locale);
+  return doc.save();
+}
+
+/// The press map's pages, added to [doc] — the press layout's own printout,
+/// and the shop's copy of an order after its own pages (owner, 12.11.2026:
+/// «при отправке на наряд должна печататься раскладка»).
+void addPressPages(
+  pw.Document doc,
+  List<FilmLayout> films,
+  PressSettings press,
+  PressPrintWords words, {
+  String locale = 'ru',
+}) {
   final number = NumberFormat('0.##', locale);
   var page = 0;
   for (final film in films) {
@@ -120,7 +134,6 @@ Future<Uint8List> buildPressPdf(
       );
     }
   }
-  return doc.save();
 }
 
 pw.Widget _kind(FilmLayout film, PressPrintWords words) => film.textured

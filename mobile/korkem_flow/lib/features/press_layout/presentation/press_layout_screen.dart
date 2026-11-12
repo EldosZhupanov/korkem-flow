@@ -22,6 +22,26 @@ String _metres(BuildContext context, double value) => NumberFormat(
 ).format(value);
 
 /// The films on paper, through the system print dialog.
+/// The printed map's words in the reader's language.
+PressPrintWords pressPrintWordsOf(AppLocalizations l10n) => (
+  textured: l10n.pressTextured,
+  plain: l10n.pressPlain,
+  total: l10n.pressFilmTotal,
+  sheet: l10n.pressPrintSheet,
+  copies: l10n.pressPrintCopies,
+  size: l10n.pressPrintSize,
+  section: l10n.pressPrintSection,
+  area: l10n.pressPrintArea,
+  parts: l10n.pressPrintParts,
+  waste: l10n.pressPrintWaste,
+  count: l10n.pressPrintCount,
+  perimeter: l10n.pressPrintPerimeter,
+  gap: l10n.pressPrintGap,
+  details: l10n.pressPrintDetails,
+  tooBig: l10n.pressTooBig,
+  page: l10n.pressPrintPage,
+);
+
 Future<void> _print(
   BuildContext context,
   String salesOrder,
@@ -31,24 +51,7 @@ Future<void> _print(
   final messenger = ScaffoldMessenger.of(context);
   final l10n = AppLocalizations.of(context);
   final locale = Localizations.localeOf(context).toLanguageTag();
-  final words = (
-    textured: l10n.pressTextured,
-    plain: l10n.pressPlain,
-    total: l10n.pressFilmTotal,
-    sheet: l10n.pressPrintSheet,
-    copies: l10n.pressPrintCopies,
-    size: l10n.pressPrintSize,
-    section: l10n.pressPrintSection,
-    area: l10n.pressPrintArea,
-    parts: l10n.pressPrintParts,
-    waste: l10n.pressPrintWaste,
-    count: l10n.pressPrintCount,
-    perimeter: l10n.pressPrintPerimeter,
-    gap: l10n.pressPrintGap,
-    details: l10n.pressPrintDetails,
-    tooBig: l10n.pressTooBig,
-    page: l10n.pressPrintPage,
-  );
+  final words = pressPrintWordsOf(l10n);
   try {
     await printPressLayout(
       name: salesOrder,
@@ -236,6 +239,17 @@ class _FilmCard extends ConsumerWidget {
                   ),
               ],
             ),
+            if (film.saved > 0)
+              Text(
+                l10n.pressSmartSaved(
+                  _metres(context, film.plainM!),
+                  _metres(context, film.saved),
+                ),
+                key: ValueKey('pressSaved:${film.decor}'),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: context.statusColors.success,
+                ),
+              ),
             if (film.corrected)
               Text(
                 l10n.pressCorrected(
