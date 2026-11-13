@@ -444,7 +444,9 @@ class _Fake implements FilmDeptRepository {
     Set<String> remember = const {},
     String? seller,
     String? issuedBy,
+    String? belowReason,
   }) async {
+    belowReasons.add(belowReason);
     sellers.add(seller);
     remembered.addAll(remember);
     parts.add(payments);
@@ -454,9 +456,14 @@ class _Fake implements FilmDeptRepository {
 
   final paid = <(String, double, String)>[];
   final cancelled = <(String, String)>[];
+  final belowReasons = <String?>[];
 
   @override
-  Future<List<FilmSale>> sales({String? customer}) async => const [
+  Future<List<FilmSale>> sales({
+    String? customer,
+    String? since,
+    String? until,
+  }) async => const [
     FilmSale(
       entry: 'STE-7',
       date: '2026-11-09',
@@ -1345,6 +1352,76 @@ void main() {
     await tester.tap(pay);
     await tester.pumpAndSettle();
     expect(repo.paid.single, ('STE-7', 26800.0, 'Наличные'));
+  });
+
+  testWidgets('the sales say the period, who paid, who owes', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmTab:sales')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmSales:kpi:amount')), findsOneWidget);
+    // Paid in part: an orange mark with what is owed.
+    expect(find.byKey(const ValueKey('filmSales:state:STE-7')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmSales:filter:paid')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmSaleRow:0')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('filmSales:filter:debt')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmSaleRow:0')), findsOneWidget);
+    // Who owes, the oldest first — a reminder a tap away.
+    await tester.tap(find.byKey(const ValueKey('filmSales:kpi:debt')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmDebtors')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('filmDebtor:remind:CUST-1')),
+      findsOneWidget,
+    );
+  });
+
+  test('how often a customer buys, from three sales on', () {
+    FilmSale on(String d) => FilmSale(entry: d, date: d);
+    expect(filmRhythmDays([on('2026-11-01'), on('2026-11-08')]), isNull);
+    expect(
+      filmRhythmDays([on('2026-11-15'), on('2026-11-08'), on('2026-11-01')]),
+      7,
+    );
+  });
+
+  testWidgets('below cost asks why; the customer is known at once', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmStock:MAT-2')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmPage:sell')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleCustomer:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Мебель-ЮГ').last);
+    await tester.pumpAndSettle();
+    // What he owes, and his last sale to sell again.
+    expect(find.byKey(const ValueKey('filmSaleHint')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmSaleLikeLast')), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSaleMetres:0')),
+      '2',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSalePrice:0')),
+      '3000',
+    );
+    await tester.pumpAndSettle();
+    // Bought at 3 100: below cost — not sold until it is said why.
+    expect(find.byKey(const ValueKey('filmSaleBelow:0')), findsOneWidget);
+    final save = find.byKey(const ValueKey('filmSaleSave'));
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('filmSaleBelowWhy:rest')),
+    );
+    await tester.tap(find.byKey(const ValueKey('filmSaleBelowWhy:rest')));
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repo.belowReasons.single, 'end of a roll');
   });
 
   testWidgets('a sale entered by mistake is cancelled with a reason', (
