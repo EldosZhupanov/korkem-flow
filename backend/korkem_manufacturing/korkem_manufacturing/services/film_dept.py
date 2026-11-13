@@ -744,6 +744,7 @@ def stock() -> dict:
 	on_way = coming()
 	holds = _holds([f["item"] for f in catalog["films"]])
 	films = [f for f in catalog["films"] if f["enabled"] or f["on_hand"] > 0 or f["item"] in on_way]
+	pace = _pace([f["item"] for f in films])
 	for f in films:
 		# On its way, owner 11.11.2026: shown, not counted as free.
 		f["coming"] = on_way.get(f["item"], [])
@@ -754,6 +755,10 @@ def stock() -> dict:
 		f["low"] = bool(f["min_stock"]) and free < flt(f["min_stock"])
 		# Time to order (owner, 11.11.2026): low, and not enough on its way.
 		f["reorder"] = _reorder(f) if f["enabled"] else None
+		# «Хватит на N дней» (owner, 13.11.2026): at the pace of the last
+		# weeks — sold and given to the shop.
+		f["daily_m"] = round(pace.get(f["item"], 0.0), 2)
+		f["days_left"] = int(free // f["daily_m"]) if f["daily_m"] > 0 and free > 0 else None
 	films.sort(key=lambda f: (not f["low"], f["maker"].casefold(), f["colour"].casefold()))
 	# «К заказу» (owner, 12.11.2026): how many films are on the list.
 	from korkem_manufacturing.services import film_orders
@@ -766,6 +771,28 @@ def stock() -> dict:
 		"can_edit": catalog["can_edit"],
 		"wanted": wanted,
 		"waiting": waiting,
+	}
+
+
+PACE_DAYS = 30
+
+
+def _pace(items: list[str]) -> dict[str, float]:
+	"""Film → metres a day that left the shelf (sold or to the shop) over the
+	last PACE_DAYS days."""
+	if not items:
+		return {}
+	since = add_days(nowdate(), -PACE_DAYS)
+	return {
+		r.item_code: flt(r.metres) / PACE_DAYS
+		for r in frappe.db.sql(
+			"""select d.item_code, sum(d.qty) as metres
+			from `tabStock Entry Detail` d join `tabStock Entry` e on e.name = d.parent
+			where e.company = %s and e.docstatus = 1 and e.korkem_film_kind in %s and e.posting_date >= %s
+			and d.item_code in %s
+			group by d.item_code""",
+			(current_company(), (SALE, SHOP), since, tuple(items)), as_dict=True,
+		)
 	}
 
 

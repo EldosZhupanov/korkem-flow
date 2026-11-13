@@ -20,6 +20,12 @@ for a customer are put by for him (`fulfil`).
 one car: a roll per film, tied by a batch. What the bringing cost is carried
 by the first roll — one payment, one debt to the carrier — and every roll
 says who paid, so logistics per metre counts all of their metres.
+
+Each roll says where its metres go (owner, 13.11.2026): so many to a
+customer who buys film, so many **into production** — an MDF order whose
+facades take this film — and the rest to the shelf, free. When the roll is
+on the shelf, the customer's metres are put by for him and the order's are
+reserved for it.
 """
 
 from __future__ import annotations
@@ -27,7 +33,14 @@ from __future__ import annotations
 import frappe
 from frappe.utils import flt, get_fullname, getdate, now_datetime, nowdate
 
-from korkem_manufacturing.services import audit, film_catalog, film_dept, material_stock, price_visibility
+from korkem_manufacturing.services import (
+	audit,
+	directions,
+	film_catalog,
+	film_dept,
+	material_stock,
+	price_visibility,
+)
 from korkem_manufacturing.services.scope import current_company
 
 OPEN, SENT, ORDERED, RECEIVED, DROPPED = "Open", "Sent", "Ordered", "Received", "Dropped"
@@ -36,7 +49,7 @@ WANTED = (OPEN, SENT)
 #: A delivery of more films than this is two deliveries.
 MAX_LINES = 60
 _DOC = "Film Order Line"
-_FIELDS = ["name", "item", "supplier", "metres", "customer", "status", "added_by", "sent_at", "creation", "note",
+_FIELDS = ["name", "item", "supplier", "metres", "customer", "sales_order", "status", "added_by", "sent_at", "creation", "note",
 		   "receipt"]
 
 
@@ -134,6 +147,7 @@ def _line(r, films: dict, money: bool) -> dict:
 		"supplier": r.supplier,
 		"customer": r.customer,
 		"customer_name": frappe.db.get_value("Customer", r.customer, "customer_name") if r.customer else None,
+		"sales_order": r.get("sales_order"),
 		"status": r.status,
 		"auto": False,
 		"at": str(r.creation)[11:16] if str(getdate(r.creation)) == nowdate() else str(getdate(r.creation)),
@@ -276,8 +290,11 @@ def receive_many(supplier: str, lines, arrives_on: str | None = None, delivery=N
 				 received_by: str | None = None, note: str | None = None) -> dict:
 	"""One supplier, several films: a roll each, one delivery, one day.
 
-	A line: `item`, `metres`, `price_m`; `customer` — bought for him; `orders`
-	— the «К заказу» lines it answers; `update_price` off for a one-off price.
+	A line: `item`, `metres`, `price_m`; `orders` — the «К заказу» lines it
+	answers; `update_price` off for a one-off price. Where its metres go:
+	`customers` — [{customer, metres}], bought for them; `production` —
+	[{order, metres}], MDF orders whose facades take it; the rest is the
+	shelf's. `customer` alone is the whole roll for him, as before.
 	"""
 	material_stock._ensure_editor()
 	supplier = _supplier(supplier)
@@ -314,6 +331,11 @@ def receive_many(supplier: str, lines, arrives_on: str | None = None, delivery=N
 		checked.append({
 			"item": item, "metres": metres, "price": price, "customer": _customer(line.get("customer")),
 			"orders": list(orders), "update_price": line.get("update_price", True),
+			"customers": [(_customer(c.get("customer")), film_dept._metres(c.get("metres"), f"Строка {n}: клиенту"))
+						  for c in _parts(line.get("customers"), n)],
+			"production": [(_production_order(c.get("order"), n), film_dept._metres(c.get("metres"),
+																					f"Строка {n}: в производство"))
+						   for c in _parts(line.get("production"), n)],
 		})
 	batch = f"FB-{frappe.generate_hash(length=10)}"
 	receipts = []
@@ -346,6 +368,12 @@ def receive_many(supplier: str, lines, arrives_on: str | None = None, delivery=N
 				"customer": line["customer"], "supplier": supplier, "status": SENT,
 				"added_by": frappe.session.user,
 			}).insert(ignore_permissions=True).name)
+		# Where its metres go: customers who buy film, MDF orders.
+		for customer, metres in line["customers"]:
+			ids.append(_ordered(company, line["item"], metres, supplier, customer=customer))
+		for order, metres in line["production"]:
+			ids.append(_ordered(company, line["item"], metres, supplier, sales_order=order,
+								note=f"в производство №{order}"))
 		for o in ids:
 			frappe.db.set_value(_DOC, o, {"status": ORDERED, "receipt": entry, "supplier": supplier})
 		if frappe.db.get_value("Stock Entry", entry, "docstatus") == 1:
@@ -355,14 +383,69 @@ def receive_many(supplier: str, lines, arrives_on: str | None = None, delivery=N
 	return {"batch": batch, "receipts": receipts}
 
 
+def _parts(raw, n: int) -> list[dict]:
+	if isinstance(raw, str):
+		raw = frappe.parse_json(raw) if raw.strip() else []
+	if not raw:
+		return []
+	if not isinstance(raw, list) or not all(isinstance(x, dict) for x in raw):
+		frappe.throw(f"Строка {n}: куда уходит плёнка — список.")
+	return raw
+
+
+def _production_order(order: str | None, n: int) -> str:
+	"""An MDF order of ours that is still being made."""
+	row = frappe.db.get_value("Sales Order", order, ["company", "korkem_direction", "docstatus"], as_dict=True) \
+		if order else None
+	if not row or row.company != current_company() or row.korkem_direction != directions.FACADES \
+			or row.docstatus != 1:
+		frappe.throw(f"Строка {n}: такого заказа на фасады нет.", frappe.DoesNotExistError)
+	return order
+
+
+def _ordered(company: str, item: str, metres, supplier: str, customer: str | None = None,
+			 sales_order: str | None = None, note: str | None = None) -> str:
+	return frappe.get_doc({
+		"doctype": _DOC, "company": company, "item": item, "metres": float(metres), "customer": customer,
+		"sales_order": sales_order, "supplier": supplier, "status": SENT, "added_by": frappe.session.user,
+		"note": note,
+	}).insert(ignore_permissions=True).name
+
+
+def for_production(item: str) -> list[dict]:
+	"""MDF orders whose facades take this film and lack it — offered when a
+	roll of it comes in (owner, 13.11.2026)."""
+	material_stock._ensure_editor()
+	film_dept._film(item)
+	decor = frappe.db.get_value("Item", item, "korkem_color")
+	if not decor:
+		return []
+	from korkem_manufacturing.services import film_shortage
+
+	try:
+		rows = film_shortage.shortage()["orders"]
+	except frappe.PermissionError:
+		return []
+	return [
+		{"order": r["order"], "customer_name": r["customer_name"], "delivery_date": r["delivery_date"],
+		 "needed": r["needed"], "short": r["short"]}
+		for r in rows if r["decor"] == decor and r["short"] > 0
+	]
+
+
 def fulfil(entry: str) -> list[str]:
 	"""A roll is on the shelf: what was wanted of it for a customer is put by
 	for him — as much as came. The lines it answered are done."""
 	holds = []
 	item = frappe.db.get_value("Stock Entry Detail", {"parent": entry}, "item_code")
 	for r in frappe.get_all(_DOC, filters={"receipt": entry, "status": ORDERED},
-							fields=["name", "customer", "metres"], order_by="creation asc"):
-		if r.customer:
+							fields=["name", "customer", "sales_order", "metres"], order_by="creation asc"):
+		if r.sales_order:
+			# Into production: the order holds what it still lacks.
+			from korkem_manufacturing.services import facade_materials
+
+			facade_materials.reserve(r.sales_order)
+		elif r.customer:
 			film = film_catalog.film(item)
 			put_by = sum(h["metres"] for h in film_dept._holds([item]).get(item, []))
 			free = flt(film.get("on_hand")) - flt(film.get("held")) - put_by

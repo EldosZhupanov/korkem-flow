@@ -10,7 +10,8 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
 
 from korkem_manufacturing import testing
-from korkem_manufacturing.services import facade_materials, facade_order, facade_prices, material_stock, press_layout
+from korkem_manufacturing.services import facade_materials, facade_order, facade_prices, film_orders, material_stock
+from korkem_manufacturing.services import press_layout
 from korkem_manufacturing.services.press_layout import (
 	DEFAULT_PRESS,
 	Part,
@@ -210,6 +211,33 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 		# The warehouse's need follows the press, not the square metre.
 		need = {m["item"]: m for m in facade_materials.need(order)["materials"]}
 		self.assertEqual((need[self.plain]["needed"], need[self.textured]["needed"]), (3.1, 2.1))
+
+	def test_a_roll_bought_for_an_order_goes_into_its_production(self):
+		order = self._order()
+		material_stock.add_supplier("PL Test Supplier")
+		supplier = frappe.db.get_value("Supplier", {"supplier_name": "PL Test Supplier"}, "name")
+		before = {m["item"]: m for m in facade_materials.need(order)["materials"]}[self.plain]
+		if before["short"]:
+			# The order lacks its film: offered when a roll of it comes in.
+			wants = self._as(MANAGER, film_orders.for_production, self.plain)
+			self.assertIn(order, [w["order"] for w in wants])
+		# 10 m: 3.1 into the order's production, the rest to the shelf.
+		got = self._as(MANAGER, film_orders.receive_many, supplier, [
+			{"item": self.plain, "metres": 10, "price_m": 2000, "update_price": False,
+			 "production": [{"order": order, "metres": 3.1}]},
+		])
+		line = frappe.db.get_value("Film Order Line", {"receipt": got["receipts"][0]},
+								   ["sales_order", "metres", "status"], as_dict=True)
+		self.assertEqual((line.sales_order, line.metres, line.status), (order, 3.1, "Received"))
+		after = {m["item"]: m for m in facade_materials.need(order)["materials"]}[self.plain]
+		self.assertEqual(after["short"], 0)
+		# Only an MDF order of ours takes film into production.
+		with self.assertRaises(frappe.DoesNotExistError):
+			self._as(MANAGER, film_orders.receive_many, supplier, [
+				{"item": self.plain, "metres": 1, "price_m": 2000, "production": [{"order": "SO-NONE", "metres": 1}]},
+			])
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, film_orders.for_production, self.plain)
 
 	def test_metres_set_by_hand_need_a_reason_and_win(self):
 		order = self._order()

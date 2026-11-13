@@ -12859,6 +12859,197 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'layout checked'**
   String get mdfPressApproved;
+
+  /// No description provided for @filmFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All · {n}'**
+  String filmFilterAll(int n);
+
+  /// No description provided for @filmFilterHave.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock · {n}'**
+  String filmFilterHave(int n);
+
+  /// No description provided for @filmFilterOnWay.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way · {n}'**
+  String filmFilterOnWay(int n);
+
+  /// No description provided for @filmFilterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock · {n}'**
+  String filmFilterNone(int n);
+
+  /// No description provided for @filmStockSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a film'**
+  String get filmStockSearch;
+
+  /// No description provided for @filmComingRolls.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} rolls on the way · {metres} m · due {day}'**
+  String filmComingRolls(int count, String metres, String day);
+
+  /// No description provided for @filmDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'lasts ≈ {days} d'**
+  String filmDaysLeft(int days);
+
+  /// No description provided for @filmWantShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get filmWantShort;
+
+  /// No description provided for @filmM.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get filmM;
+
+  /// No description provided for @filmReceiveLineSum.
+  ///
+  /// In en, this message translates to:
+  /// **'Sum'**
+  String get filmReceiveLineSum;
+
+  /// No description provided for @filmReceivePerMWithDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'a metre with delivery {perM}'**
+  String filmReceivePerMWithDelivery(String perM);
+
+  /// No description provided for @filmPriceUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Dearer than last time: it was {old}/m{since} · {change}'**
+  String filmPriceUp(String old, String since, String change);
+
+  /// No description provided for @filmPriceDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheaper than last time: it was {old}/m{since} · {change}'**
+  String filmPriceDown(String old, String since, String change);
+
+  /// No description provided for @filmReceiveWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it goes'**
+  String get filmReceiveWhere;
+
+  /// No description provided for @filmReceiveIntoProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Into production · №{order} · {name} {due}'**
+  String filmReceiveIntoProduction(String order, String name, String due);
+
+  /// No description provided for @filmReceiveToCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale · {name}'**
+  String filmReceiveToCustomer(String name);
+
+  /// No description provided for @filmReceiveToShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'To the shelf · free to sell'**
+  String get filmReceiveToShelf;
+
+  /// No description provided for @filmReceiveShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m short'**
+  String filmReceiveShort(String metres);
+
+  /// No description provided for @filmReceiveShortToList.
+  ///
+  /// In en, this message translates to:
+  /// **'To the order list'**
+  String get filmReceiveShortToList;
+
+  /// No description provided for @filmReceiveShortListed.
+  ///
+  /// In en, this message translates to:
+  /// **'on the order list'**
+  String get filmReceiveShortListed;
+
+  /// No description provided for @filmReceiveToProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Into production'**
+  String get filmReceiveToProduction;
+
+  /// No description provided for @filmReceiveToSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale to a customer'**
+  String get filmReceiveToSale;
+
+  /// No description provided for @filmReceiveNoOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No facade orders lack this film right now.'**
+  String get filmReceiveNoOrders;
+
+  /// No description provided for @filmReceiveOrderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'№{order} · {name} · needs {metres} m · due {due}'**
+  String filmReceiveOrderLine(
+    String order,
+    String name,
+    String metres,
+    String due,
+  );
+
+  /// No description provided for @filmReceiveOrdersWait.
+  ///
+  /// In en, this message translates to:
+  /// **'facade orders waiting: {count}'**
+  String filmReceiveOrdersWait(int count);
+
+  /// No description provided for @filmReceiveFilmTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Film · {count} rolls · {metres} m'**
+  String filmReceiveFilmTotal(int count, String metres);
+
+  /// No description provided for @filmReceiveGrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Total bought'**
+  String get filmReceiveGrand;
+
+  /// No description provided for @filmReceivePerM.
+  ///
+  /// In en, this message translates to:
+  /// **'A metre with delivery: {films}'**
+  String filmReceivePerM(String films);
+
+  /// No description provided for @filmReceiveSumProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'into production {metres} m'**
+  String filmReceiveSumProduction(String metres);
+
+  /// No description provided for @filmReceiveSumSale.
+  ///
+  /// In en, this message translates to:
+  /// **'sale {metres} m'**
+  String filmReceiveSumSale(String metres);
+
+  /// No description provided for @filmReceiveSumShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'shelf {metres} m'**
+  String filmReceiveSumShelf(String metres);
 }
 
 class _AppLocalizationsDelegate

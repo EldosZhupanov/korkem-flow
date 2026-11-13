@@ -187,6 +187,16 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertIn("Такси", options["transports"])
 		self.assertIn("Привёз поставщик", options["transports"])
 
+	def test_the_stock_says_how_many_days_a_film_lasts(self):
+		def row() -> dict:
+			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
+
+		self.assertIsNone(row()["days_left"])
+		# 15 m gone in a month: half a metre a day, 35 m left — 70 days.
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 15}], paid=0)
+		self.assertEqual(row()["daily_m"], 0.5)
+		self.assertEqual(row()["days_left"], 70)
+
 	def test_a_film_that_ran_low_says_what_to_order(self):
 		def row() -> dict:
 			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
@@ -485,6 +495,20 @@ class TestFilmDept(IntegrationTestCase):
 		# The floor may look, not order.
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, film_orders.add, self.film, 5)
+
+	def test_a_roll_shared_between_customers_puts_by_each_his_own(self):
+		other = frappe.get_doc({"doctype": "Customer", "customer_name": f"Тест {frappe.generate_hash(length=6)}",
+								"customer_type": "Company"}).insert(ignore_permissions=True).name
+		got = self._as(MANAGER, film_orders.receive_many, self.supplier, [
+			{"item": self.film, "metres": 30, "price_m": 3200,
+			 "customers": [{"customer": self.buyer, "metres": 10}, {"customer": other, "metres": 5}]},
+		])
+		row = next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
+		self.assertEqual(sorted((h["customer"], h["metres"]) for h in row["holds"]),
+						 sorted([(self.buyer, 10), (other, 5)]))
+		# 50 + 30 on the shelf, 15 of them put by.
+		self.assertEqual(row["free"], 65)
+		self.assertEqual(frappe.db.count("Film Order Line", {"receipt": got["receipts"][0], "status": "Received"}), 2)
 
 	def test_a_delivery_that_will_not_come_puts_its_wants_back_on_the_list(self):
 		line = self._as(MANAGER, film_orders.add, self.film, 15, customer=self.buyer)["id"]

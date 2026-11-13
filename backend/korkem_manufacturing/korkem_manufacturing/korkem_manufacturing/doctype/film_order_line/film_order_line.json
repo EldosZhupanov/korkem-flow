@@ -10,6 +10,7 @@
   "supplier",
   "metres",
   "customer",
+  "sales_order",
   "status",
   "added_by",
   "sent_at",
@@ -55,6 +56,12 @@
    "options": "Customer"
   },
   {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "For MDF order",
+   "options": "Sales Order"
+  },
+  {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
@@ -89,7 +96,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-12 00:00:00.000000",
+ "modified": "2026-11-13 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Film Order Line",

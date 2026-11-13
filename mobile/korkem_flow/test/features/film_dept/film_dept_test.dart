@@ -26,6 +26,8 @@ const _stock = <String, dynamic>{
       'colour': 'Белый Матовый',
       'label': 'KIRA · Белый Матовый',
       'code': 'KR-101',
+      'daily_m': 2,
+      'days_left': 42,
       'on_hand': 84,
       'held': 0,
       'retail_m': 3900,
@@ -36,6 +38,10 @@ const _stock = <String, dynamic>{
       'maker': 'JS Group',
       'colour': 'Графит',
       'label': 'JS Group · Графит',
+      'price_m': 3100,
+      'price_since': {
+        'price_m': {'date': '2026-10-10', 'via': 'приход'},
+      },
       'on_hand': 6,
       'held': 0,
       'low': true,
@@ -160,6 +166,17 @@ class _Orders implements FilmOrdersRepository {
 
   @override
   Future<void> arrivedBatch(String batch) async {}
+
+  @override
+  Future<List<FilmForProduction>> forProduction(String item) async => [
+    (
+      order: 'SO-998',
+      customerName: 'Дастан',
+      deliveryDate: '2026-11-18',
+      needed: 6.2,
+      short: 6.2,
+    ),
+  ];
 }
 
 /// The last pump's list of what is to be ordered.
@@ -570,6 +587,43 @@ void main() {
     expect(find.byKey(const ValueKey('filmStock:MAT-2')), findsOneWidget);
   });
 
+  testWidgets('the stock: receipt first, filters, a search, days left', (
+    tester,
+  ) async {
+    await _pump(tester);
+    // Goods in comes first, then the sale (owner, 13.11.2026).
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('filmDept:receive'))).dx,
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('filmDept:sell'))).dx,
+      ),
+    );
+    expect(find.text('KR-101 · lasts ≈ 42 d'), findsOneWidget);
+    expect(find.text('On the way · 1'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmDept:filter:onWay')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmStock:MAT-1')), findsNothing);
+    expect(find.byKey(const ValueKey('filmStock:MAT-2')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmDept:filter:all')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmDept:search')),
+      'граф',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmStock:MAT-1')), findsNothing);
+    expect(find.byKey(const ValueKey('filmStock:MAT-2')), findsOneWidget);
+    // Each row has its own buttons.
+    expect(
+      find.byKey(const ValueKey('filmStock:sell:MAT-2')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('filmStock:receive:MAT-2')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('a movement entered wrong is put right with a reason', (
     tester,
   ) async {
@@ -853,6 +907,55 @@ void main() {
       [for (final l in lines) (l.item, l.metres, l.priceM, l.customer)],
       [('MAT-1', 10.0, 3500.0, null), ('MAT-2', 50.0, 3100.0, 'CUST-1')],
     );
+  });
+
+  testWidgets('a roll goes into production, to a customer and the shelf', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-2')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
+    await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3410');
+    await tester.pumpAndSettle();
+    // Dearer than the card's 3 100: said, with by how much.
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('filmReceivePriceMoved')))
+          .data,
+      contains('+10%'),
+    );
+    // An MDF order lacks this film: it takes what it lacks.
+    await tester.ensureVisible(find.byKey(const ValueKey('filmReceiveProd')));
+    await tester.tap(find.byKey(const ValueKey('filmReceiveProd')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceiveProd:SO-998')));
+    await tester.pumpAndSettle();
+    // A customer takes what is left; then 2 m of it go back to the shelf.
+    await tester.ensureVisible(find.byKey(const ValueKey('filmReceiveFor')));
+    await tester.tap(find.byKey(const ValueKey('filmReceiveFor')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmReceiveFor:CUST-1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(const ValueKey('filmReceiveDest:1')),
+        matching: find.byType(TextField),
+      ),
+      '1,8',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmReceiveShelf')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmReceive:total')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmReceiveSave')));
+    await tester.pumpAndSettle();
+    final (_, lines, _) = _orders.deliveries.single;
+    final line = lines.single;
+    expect(line.production, [(order: 'SO-998', metres: 6.2)]);
+    expect(line.sales, [(customer: 'CUST-1', metres: 1.8)]);
+    expect(line.customer, isNull);
   });
 
   testWidgets('the day’s list goes to the supplier and comes back a delivery', (

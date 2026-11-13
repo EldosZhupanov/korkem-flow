@@ -337,75 +337,179 @@ class _StockTab extends ConsumerStatefulWidget {
   ConsumerState<_StockTab> createState() => _StockTabState();
 }
 
+/// Which films the stock shows (owner, 13.11.2026).
+enum _StockFilter { all, have, low, onWay, none }
+
+bool _shows(Film f, _StockFilter filter) => switch (filter) {
+  _StockFilter.all => true,
+  _StockFilter.have => f.free > 0,
+  _StockFilter.low => f.low,
+  _StockFilter.onWay => f.coming.isNotEmpty,
+  _StockFilter.none => f.free <= 0,
+};
+
+bool _found(Film f, String query) {
+  if (query.isEmpty) return true;
+  final q = query.toLowerCase();
+  return [
+    filmName(f),
+    ?f.code,
+    ?f.type,
+    ?f.supplier,
+    f.maker,
+    f.colour,
+  ].any((t) => t.toLowerCase().contains(q));
+}
+
 class _StockTabState extends ConsumerState<_StockTab> {
-  bool _lowOnly = false;
+  _StockFilter _filter = _StockFilter.all;
+  String _query = '';
+
+  Future<void> _receive(FilmCatalog c, [Film? film]) async {
+    final l10n = AppLocalizations.of(context);
+    // With a search (owner, 12.11.2026).
+    final picked =
+        film ??
+        await showFilmChoice(context, c.films, title: l10n.filmReceivePick);
+    if (picked == null || !mounted) return;
+    final done = await showFilmReceive(context, picked, c);
+    if (done ?? false) _refresh(ref);
+  }
+
+  Future<void> _sell(FilmCatalog c, [Film? film]) async {
+    final done = await showFilmSale(context, c, film: film);
+    if (done ?? false) _refresh(ref);
+  }
+
+  Future<void> _want(Film film) async {
+    final done = await showFilmWant(context, film);
+    if (done ?? false) _refresh(ref);
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final status = context.statusColors;
     final stock = ref.watch(filmStockProvider);
     return stock.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) =>
           ErrorView(error: e, onRetry: () => ref.invalidate(filmStockProvider)),
       data: (c) {
-        final low = [
+        int count(_StockFilter f) => c.films.where((x) => _shows(x, f)).length;
+        final films = [
           for (final f in c.films)
-            if (f.low) f,
+            if (_shows(f, _filter) && _found(f, _query)) f,
         ];
-        final films = _lowOnly ? low : c.films;
+        // The bar's full length: three minimums, or the fullest film.
+        final fullest = c.films.fold<double>(
+          1,
+          (m, f) => f.free > m ? f.free : m,
+        );
+        // Two colours (owner, 13.11.2026): goods in — green, a sale —
+        // blue; the receipt first.
+        final light = theme.brightness == Brightness.light
+            ? theme.colorScheme.surface
+            : theme.colorScheme.onSurface;
+        final dark = theme.brightness == Brightness.light
+            ? theme.colorScheme.onSurface
+            : theme.colorScheme.surface;
+        Color on(Color fill) =>
+            ThemeData.estimateBrightnessForColor(fill) == Brightness.dark
+            ? light
+            : dark;
+        final lowCount = count(_StockFilter.low);
+        String label(_StockFilter f) => switch (f) {
+          _StockFilter.all => l10n.filmFilterAll(count(f)),
+          _StockFilter.have => l10n.filmFilterHave(count(f)),
+          _StockFilter.low => l10n.filmLowCount(count(f)),
+          _StockFilter.onWay => l10n.filmFilterOnWay(count(f)),
+          _StockFilter.none => l10n.filmFilterNone(count(f)),
+        };
         return ListView(
           padding: const EdgeInsets.all(AppSpacing.md),
           children: [
             Wrap(
               spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.xs,
+              runSpacing: AppSpacing.sm,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                if (c.canEdit)
-                  FilledButton.icon(
-                    key: const ValueKey('filmDept:sell'),
-                    onPressed: () async {
-                      final done = await showFilmSale(context, c);
-                      if (done ?? false) _refresh(ref);
-                    },
-                    icon: const Icon(AppIcons.add),
-                    label: Text(l10n.filmSell),
-                  ),
                 // A receipt straight from the stock list: pick the film,
                 // then the usual window (owner, 12.11.2026).
                 if (c.canEdit)
-                  OutlinedButton.icon(
+                  FilledButton.icon(
                     key: const ValueKey('filmDept:receive'),
-                    onPressed: () async {
-                      // With a search (owner, 12.11.2026).
-                      final film = await showFilmChoice(
-                        context,
-                        c.films,
-                        title: l10n.filmReceivePick,
-                      );
-                      if (film == null || !context.mounted) return;
-                      final done = await showFilmReceive(context, film, c);
-                      if (done ?? false) _refresh(ref);
-                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: status.success,
+                      foregroundColor: on(status.success),
+                    ),
+                    onPressed: () => _receive(c),
                     icon: const Icon(AppIcons.moveIn),
                     label: Text(l10n.filmReceive),
                   ),
+                if (c.canEdit)
+                  FilledButton.icon(
+                    key: const ValueKey('filmDept:sell'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: status.info,
+                      foregroundColor: on(status.info),
+                    ),
+                    onPressed: () => _sell(c),
+                    icon: const Icon(AppIcons.add),
+                    label: Text(l10n.filmSell),
+                  ),
                 // «К заказу» (owner, 12.11.2026): the day's list.
                 if (c.canEdit) FilmOrdersButton(stock: c),
-                FilterChip(
-                  key: const ValueKey('filmDept:low'),
-                  label: Text(l10n.filmLowCount(low.length)),
-                  selected: _lowOnly,
-                  onSelected: (on) => setState(() => _lowOnly = on),
+                SizedBox(
+                  width: AppSpacing.xxxl * 6,
+                  child: TextField(
+                    key: const ValueKey('filmDept:search'),
+                    onChanged: (v) => setState(() => _query = v.trim()),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      prefixIcon: const Icon(AppIcons.search),
+                      hintText: l10n.filmStockSearch,
+                    ),
+                  ),
                 ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
+              children: [
+                for (final f in _StockFilter.values)
+                  ChoiceChip(
+                    key: ValueKey(
+                      f == _StockFilter.low
+                          ? 'filmDept:low'
+                          : 'filmDept:filter:${f.name}',
+                    ),
+                    label: Text(label(f)),
+                    // «Мало» lights up while something runs low.
+                    backgroundColor: f == _StockFilter.low && lowCount > 0
+                        ? status.danger.withValues(alpha: AppTint.surface)
+                        : null,
+                    side: f == _StockFilter.low && lowCount > 0
+                        ? BorderSide(color: status.danger)
+                        : null,
+                    labelStyle: f == _StockFilter.low && lowCount > 0
+                        ? TextStyle(color: status.danger)
+                        : null,
+                    selected: _filter == f,
+                    onSelected: (on) => setState(
+                      () => _filter = on && _filter != f ? f : _StockFilter.all,
+                    ),
+                  ),
               ],
             ),
             // Time to order (owner, 11.11.2026): what ran low, as last time.
             if (c.canEdit && c.films.any((f) => f.reorder != null))
               Card(
                 key: const ValueKey('filmReorder:banner'),
-                color: Theme.of(context).colorScheme.tertiaryContainer,
+                color: theme.colorScheme.tertiaryContainer,
                 child: ListTile(
                   leading: const Icon(AppIcons.delivery),
                   title: Text(
@@ -432,6 +536,11 @@ class _StockTabState extends ConsumerState<_StockTab> {
             for (final f in films)
               _StockTile(
                 film: f,
+                full: (f.minStock ?? 0) > 0 ? f.minStock! * 3 : fullest,
+                canEdit: c.canEdit,
+                onSell: () => _sell(c, f),
+                onReceive: () => _receive(c, f),
+                onWant: () => _want(f),
                 onTap: () async {
                   await Navigator.of(context).push(
                     MaterialPageRoute<void>(
@@ -448,16 +557,35 @@ class _StockTabState extends ConsumerState<_StockTab> {
   }
 }
 
+/// One film on the stock list: its colour, what is left with a bar, how
+/// many days that lasts, what is put by and on its way — and the buttons
+/// for it right in the row (owner, 13.11.2026).
 class _StockTile extends StatelessWidget {
-  const _StockTile({required this.film, required this.onTap});
+  const _StockTile({
+    required this.film,
+    required this.full,
+    required this.canEdit,
+    required this.onTap,
+    required this.onSell,
+    required this.onReceive,
+    required this.onWant,
+  });
 
   final Film film;
+
+  /// The metres that fill the bar.
+  final double full;
+  final bool canEdit;
   final VoidCallback onTap;
+  final VoidCallback onSell;
+  final VoidCallback onReceive;
+  final VoidCallback onWant;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final status = context.statusColors;
     final f = film;
     // «заказать» only when nothing is free, nothing put by and nothing on
     // its way (owner, 12.11.2026: all four read «заказать»).
@@ -468,48 +596,176 @@ class _StockTile extends StatelessWidget {
         : f.free <= 0 && onWay > 0
         ? (l10n.filmOnWayShort(filmMetres(onWay)), theme.colorScheme.primary)
         : f.free <= 0
-        ? (l10n.filmToOrder, theme.colorScheme.outline)
+        ? (l10n.filmToOrder, theme.colorScheme.error)
         : f.low
-        ? (l10n.filmLow(filmMetres(f.free)), theme.colorScheme.error)
-        : ('${filmMetres(f.free)} м', theme.colorScheme.primary);
-    return ListTile(
+        ? (l10n.filmLow(filmMetres(f.free)), status.warning)
+        : ('${filmMetres(f.free)} м', status.success);
+    // Rolls on time are one line; a late one stands alone.
+    final onTime = [
+      for (final c in f.coming)
+        if (c.lateDays <= 0) c,
+    ];
+    final late = [
+      for (final c in f.coming)
+        if (c.lateDays > 0) c,
+    ];
+    final days = f.daysLeft;
+    final lines = <Widget>[
+      if (f.code != null || f.type != null || days != null)
+        Text(
+          [
+            ?f.code,
+            ?f.type,
+            if (days != null) l10n.filmDaysLeft(days),
+          ].join(' · '),
+          style: days != null && days < 7
+              ? TextStyle(color: status.warning)
+              : null,
+        ),
+      for (final h in f.holds)
+        Text(
+          l10n.filmHeldFor(
+            filmMetres(h.metres),
+            h.customerName,
+            mdfDay(h.until, year: false),
+          ),
+          style: TextStyle(color: theme.colorScheme.tertiary),
+        ),
+      if (onTime.length > 1)
+        Text(
+          l10n.filmComingRolls(
+            onTime.length,
+            filmMetres(onTime.fold<double>(0, (s, c) => s + c.metres)),
+            mdfDay(onTime.first.due, year: false),
+          ),
+          style: TextStyle(color: theme.colorScheme.primary),
+        )
+      else
+        for (final c in onTime)
+          Text(
+            filmComingLine(c, l10n),
+            style: TextStyle(color: theme.colorScheme.primary),
+          ),
+      for (final c in late)
+        Text(
+          filmComingLine(c, l10n),
+          style: TextStyle(color: theme.colorScheme.error),
+        ),
+    ];
+    // In the row too: goods in green and first, a sale blue, «заказать»
+    // orange (owner, 13.11.2026).
+    ButtonStyle tint(Color c) => OutlinedButton.styleFrom(
+      foregroundColor: c,
+      side: BorderSide(color: c),
+    );
+    final actions = canEdit
+        ? Wrap(
+            spacing: AppSpacing.xs,
+            children: [
+              OutlinedButton(
+                key: ValueKey('filmStock:receive:${f.item}'),
+                style: tint(status.success),
+                onPressed: onReceive,
+                child: Text(l10n.filmReceive),
+              ),
+              if (f.free > 0)
+                OutlinedButton(
+                  key: ValueKey('filmStock:sell:${f.item}'),
+                  style: tint(status.info),
+                  onPressed: onSell,
+                  child: Text(l10n.filmSell),
+                )
+              else if (onWay <= 0)
+                OutlinedButton.icon(
+                  key: ValueKey('filmStock:want:${f.item}'),
+                  style: tint(status.warning),
+                  onPressed: onWant,
+                  icon: const Icon(AppIcons.delivery),
+                  label: Text(l10n.filmWantShort),
+                ),
+            ],
+          )
+        : null;
+    final metres = SizedBox(
+      width: AppSpacing.xxxl * 3,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            text,
+            textAlign: TextAlign.end,
+            style: TextStyle(color: color, fontWeight: FontWeight.w700),
+          ),
+          if (f.free > 0) ...[
+            const SizedBox(height: AppSpacing.xs),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              child: LinearProgressIndicator(
+                value: full > 0 ? (f.free / full).clamp(0.05, 1.0) : 0,
+                minHeight: AppSpacing.xs,
+                color: f.low ? status.warning : status.success,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+    return InkWell(
       key: ValueKey('filmStock:${f.item}'),
       onTap: onTap,
-      leading: f.argb == null ? null : FilmSample(argb: f.argb),
-      title: Text(
-        filmName(f),
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-      subtitle: f.coming.isEmpty && f.holds.isEmpty
-          ? Text([?f.code, ?f.type].join(' · '))
-          : Column(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.sm,
+        ),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final wide = box.maxWidth >= 720;
+            return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (f.code != null || f.type != null)
-                  Text([?f.code, ?f.type].join(' · ')),
-                for (final h in f.holds)
-                  Text(
-                    l10n.filmHeldFor(
-                      filmMetres(h.metres),
-                      h.customerName,
-                      mdfDay(h.until, year: false),
-                    ),
-                    style: TextStyle(color: theme.colorScheme.tertiary),
+                SizedBox(
+                  width: AppSpacing.xl,
+                  child: f.argb == null ? null : FilmSample(argb: f.argb),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        filmName(f),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      DefaultTextStyle.merge(
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: lines,
+                        ),
+                      ),
+                      if (!wide && actions != null) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        actions,
+                      ],
+                    ],
                   ),
-                for (final c in f.coming)
-                  Text(
-                    filmComingLine(c, l10n),
-                    style: TextStyle(
-                      color: c.lateDays > 0
-                          ? theme.colorScheme.error
-                          : theme.colorScheme.primary,
-                    ),
-                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                metres,
+                if (wide && actions != null) ...[
+                  const SizedBox(width: AppSpacing.md),
+                  actions,
+                ],
               ],
-            ),
-      trailing: Text(
-        text,
-        style: TextStyle(color: color, fontWeight: FontWeight.w700),
+            );
+          },
+        ),
       ),
     );
   }

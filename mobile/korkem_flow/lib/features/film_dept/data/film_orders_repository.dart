@@ -15,8 +15,18 @@ final filmWantedProvider = FutureProvider.autoDispose<FilmWanted>(
   (ref) => ref.watch(filmOrdersRepositoryProvider).wanted(),
 );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmForProductionProvider = FutureProvider.autoDispose
+    .family<List<FilmForProduction>, String>(
+      (ref, item) =>
+          ref.watch(filmOrdersRepositoryProvider).forProduction(item),
+    );
+
 /// A film of a delivery: so many metres at so much a metre; for a
-/// customer; answering lines of the list.
+/// customer; answering lines of the list. Where its metres go (owner,
+/// 13.11.2026): `sales` — to customers who buy film, `production` — into
+/// MDF orders; the rest is the shelf's.
 typedef FilmDeliveryLine = ({
   String item,
   double metres,
@@ -24,6 +34,8 @@ typedef FilmDeliveryLine = ({
   bool updatePrice,
   String? customer,
   List<String> orders,
+  List<({String customer, double metres})> sales,
+  List<({String order, double metres})> production,
 });
 
 /// «К заказу» and a delivery of several films —
@@ -99,6 +111,16 @@ class FilmOrdersRepository {
             'update_price': l.updatePrice,
             'customer': ?l.customer,
             if (l.orders.isNotEmpty) 'orders': l.orders,
+            if (l.sales.isNotEmpty)
+              'customers': [
+                for (final c in l.sales)
+                  {'customer': c.customer, 'metres': c.metres},
+              ],
+            if (l.production.isNotEmpty)
+              'production': [
+                for (final o in l.production)
+                  {'order': o.order, 'metres': o.metres},
+              ],
           },
       ]),
       if (delivery != null) 'delivery': jsonEncode(delivery),
@@ -106,6 +128,19 @@ class FilmOrdersRepository {
       'arrives_on': ?arrivesOn,
     },
   );
+
+  /// MDF orders whose facades take this film and lack it.
+  Future<List<FilmForProduction>> forProduction(String item) async {
+    final response = await _client.callMethod(
+      '$_base.for_production',
+      params: {'item': item},
+    );
+    final raw = response['message'];
+    return [
+      for (final r in raw is List ? raw : const <Object>[])
+        if (r is Map<String, dynamic>) filmForProductionOf(r),
+    ];
+  }
 
   /// The whole delivery is here.
   Future<void> arrivedBatch(String batch) => _client.callMethod(
