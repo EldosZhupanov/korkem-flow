@@ -140,11 +140,15 @@ def _person(user: str | None) -> str | None:
 
 def receive(item: str, metres, price_m, supplier: str, received_on: str | None = None,
 			note: str | None = None, update_price=True, delivery=None, received_by: str | None = None,
-			arrives_on: str | None = None) -> dict:
+			arrives_on: str | None = None, supplier_paid=None) -> dict:
 	"""A roll or a cut bought from a wholesaler: so many metres at so much a metre.
 
 	`arrives_on` after today: bought, on its way — not on the shelf and not
 	for sale until it comes (owner, 11.11.2026); see `arrived`.
+
+	`supplier_paid` off: taken on credit — owed to the supplier until
+	`film_cash.pay_supplier`. Left out, the film was paid for, as every
+	receipt was before this was asked.
 
 	The price paid becomes the card's purchase price (owner, 11.11.2026:
 	prices change) — unless `update_price` is off, for a one-off discount.
@@ -194,6 +198,7 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 		# Who brought it and how to reach him (owner, 12.11.2026) — optional.
 		"korkem_delivery_driver": " ".join(str(delivery.get("driver") or "").split())[:80] or None,
 		"korkem_delivery_phone": " ".join(str(delivery.get("phone") or "").split())[:40] or None,
+		"korkem_supplier_owed": 0 if _paid(supplier_paid) else 1,
 	}, update_modified=False)
 	if _yes(update_price) and flt(price_m) > 0:
 		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
@@ -424,6 +429,13 @@ def _yes(value) -> bool:
 	if isinstance(value, str):
 		return value.strip().lower() not in ("", "0", "false", "no")
 	return bool(value)
+
+
+def _paid(value) -> bool:
+	"""Was the film paid for: yes unless said otherwise."""
+	if value is None or (isinstance(value, str) and not value.strip()):
+		return True
+	return _yes(value)
 
 
 def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | None = None,
@@ -692,7 +704,10 @@ def correct(entry: str, item: str, reason: str, metres=None, price_m=None, suppl
 			# Who paid, and whether it was given back, stay with it.
 			**{f: doc.get(f) for f in ("korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_method",
 									   "korkem_delivery_settled_on", "korkem_delivery_settled_method",
-									   "korkem_delivery_driver", "korkem_delivery_phone")},
+									   "korkem_delivery_driver", "korkem_delivery_phone",
+									   # A debt to the supplier stays one debt, paid or not.
+									   "korkem_supplier_owed", "korkem_supplier_paid_on",
+									   "korkem_supplier_paid_method", "korkem_supplier_paid_from")},
 		}, update_modified=False)
 		for d in frappe.get_all("Logistics Delivery", filters={"receipt": entry}, pluck="name"):
 			frappe.db.set_value("Logistics Delivery", d, "receipt", new, update_modified=False)
@@ -852,7 +867,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 			 "korkem_film_replaced_by", "korkem_film_replaces", "korkem_received_by", "korkem_delivery_transport",
 			 "korkem_delivery_city", "korkem_delivery_cost", "korkem_delivery_urgent", "korkem_film_seller",
 			 "korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_settled_on",
-			 "korkem_delivery_driver", "korkem_delivery_phone"],
+			 "korkem_delivery_driver", "korkem_delivery_phone", "korkem_supplier_owed",
+			 "korkem_supplier_paid_on"],
 			as_dict=True,
 		)
 		if not head or (head.docstatus == 2 and not head.korkem_film_replaced_by):
@@ -890,6 +906,8 @@ def history(item: str, limit: int = 100) -> list[dict]:
 				"phone": head.korkem_delivery_phone,
 			} if coming and head.korkem_delivery_transport else None,
 			"seller": get_fullname(head.korkem_film_seller) if head.korkem_film_seller else None,
+			# Taken on credit: still owed to the supplier until paid.
+			"supplier_owed": bool(coming and head.korkem_supplier_owed and not head.korkem_supplier_paid_on),
 			"_at": (str(head.posting_date), str(head.posting_time), str(head.creation), r.parent),
 		})
 	# Newest first by when it was posted, then entered — and by the entry's

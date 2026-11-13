@@ -490,6 +490,9 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   // cash, in cash, unless said.
   String _payer = FilmPayer.cash;
   String? _paidBy;
+
+  // The film itself: paid for, unless taken from the supplier on credit.
+  bool _supplierPaid = true;
   String _payMethod = filmCash;
 
   String? _transportOf(FilmDeliveryOptions? o) =>
@@ -1053,6 +1056,29 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                     key: const ValueKey('filmArrival:day'),
                   ),
                 ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                l10n.filmSupplierPay,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  for (final (paid, label) in [
+                    (true, l10n.filmSupplierPaidNow),
+                    (false, l10n.filmSupplierOnCredit),
+                  ])
+                    ChoiceChip(
+                      key: ValueKey(
+                        'filmSupplierPay:${paid ? 'paid' : 'credit'}',
+                      ),
+                      label: Text(label),
+                      selected: _supplierPaid == paid,
+                      onSelected: (_) => setState(() => _supplierPaid = paid),
+                    ),
+                ],
+              ),
               if (opts != null) ...[
                 const SizedBox(height: AppSpacing.md),
                 Text(
@@ -1270,6 +1296,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                           delivery: delivery,
                           receivedBy: taker,
                           arrivesOn: due,
+                          supplierPaid: _supplierPaid,
                         );
                   }
                   return ref
@@ -1282,6 +1309,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                         delivery: delivery,
                         receivedBy: taker,
                         arrivesOn: due,
+                        supplierPaid: _supplierPaid,
                       );
                 }),
           // On its way: ordered, not taken in yet — with what it comes to.

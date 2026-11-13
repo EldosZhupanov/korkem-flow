@@ -35,6 +35,7 @@ class FilmMove {
     this.fixAt,
     this.delivery,
     this.seller,
+    this.supplierOwed = false,
   });
 
   factory FilmMove.fromJson(Map<String, dynamic> json) => FilmMove(
@@ -75,7 +76,11 @@ class FilmMove {
       _ => null,
     },
     seller: _s(json['seller']),
+    supplierOwed: json['supplier_owed'] == true,
   );
+
+  /// Taken from the supplier on credit and not paid for yet.
+  final bool supplierOwed;
 
   final String entry;
   final String date;
@@ -123,6 +128,15 @@ typedef FilmDelivery = ({
 });
 
 /// Who paid for bringing a roll (owner, 11.11.2026) — the server's words.
+/// Where the money paying a supplier came from (owner, 14.11.2026).
+abstract final class FilmPaySource {
+  /// The film department's own money: out of its cash book.
+  static const dept = 'dept';
+
+  /// The owner's, the MDF side's: the film cash is not touched.
+  static const elsewhere = 'elsewhere';
+}
+
 abstract final class FilmPayer {
   static const cash = 'cash';
   static const employee = 'employee';
@@ -145,11 +159,14 @@ class FilmCashBook {
     this.logisticsPerM,
     this.employees = const [],
     this.carriers = const [],
+    this.suppliers = const [],
     this.sales = 0,
     this.spent = 0,
     this.where = const [],
     this.moves = const [],
     this.closed,
+    this.days = const [],
+    this.previous,
   });
 
   factory FilmCashBook.fromJson(Map<String, dynamic> json) {
@@ -193,6 +210,19 @@ class FilmCashBook {
         for (final r in owed['carriers'] as List? ?? const [])
           if (r is Map<String, dynamic>) row(r),
       ],
+      // Film taken on credit: the supplier, and what film.
+      suppliers: [
+        for (final r in owed['suppliers'] as List? ?? const [])
+          if (r is Map<String, dynamic>)
+            (
+              receipt: '${r['receipt']}',
+              date: '${r['date'] ?? ''}',
+              amount: _d(r['amount']) ?? 0,
+              who: _s(r['supplier']),
+              supplier: _s(r['film']),
+              phone: null,
+            ),
+      ],
       sales: (json['sales'] as num?)?.toInt() ?? 0,
       closed: switch (json['closed']) {
         final Map<String, dynamic> c => (
@@ -210,6 +240,22 @@ class FilmCashBook {
           if (r is Map<String, dynamic>)
             (way: '${r['way']}', amount: _d(r['amount']) ?? 0),
       ],
+      days: [
+        for (final r in json['days'] as List? ?? const [])
+          if (r is Map<String, dynamic>)
+            (
+              date: '${r['date'] ?? ''}',
+              incoming: _d(r['in']) ?? 0,
+              outgoing: _d(r['out']) ?? 0,
+            ),
+      ],
+      previous: switch (json['previous']) {
+        final Map<String, dynamic> p => (
+          inTotal: _d(p['in_total']) ?? 0,
+          outTotal: _d(p['out_total']) ?? 0,
+        ),
+        _ => null,
+      },
       moves: [
         for (final r in json['moves'] as List? ?? const [])
           if (r is Map<String, dynamic>)
@@ -242,6 +288,16 @@ class FilmCashBook {
 
   /// Owed to carriers not paid yet.
   final List<FilmOwed> carriers;
+
+  /// In and out day by day, every day of the period — for the chart.
+  final List<({String date, double incoming, double outgoing})> days;
+
+  /// The period of the same length just before, to compare with.
+  final ({double inTotal, double outTotal})? previous;
+
+  /// Film taken from suppliers on credit, not paid for yet: `who` is the
+  /// supplier, `supplier` the film.
+  final List<FilmOwed> suppliers;
 
   /// The day closed: the cash counted against what should be there.
   final ({

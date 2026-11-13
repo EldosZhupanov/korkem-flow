@@ -6343,6 +6343,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmOwedCarriers => 'Owed to carriers';
 
   @override
+  String get filmOwedSuppliers => 'Owed to suppliers';
+
+  @override
+  String get filmPaidToSupplier => 'Paid';
+
+  @override
+  String get filmSupplierPay => 'Paying the supplier';
+
+  @override
+  String get filmSupplierPaidNow => 'Paid';
+
+  @override
+  String get filmSupplierOnCredit => 'On credit';
+
+  @override
+  String get filmSupplierOwedNote => 'owed to the supplier';
+
+  @override
+  String filmCashChartA11y(String incoming, String outgoing) {
+    return 'In $incoming, out $outgoing';
+  }
+
+  @override
+  String filmCashVersus(String arrow, String pct) {
+    return '$arrow $pct% on the period before';
+  }
+
+  @override
+  String filmPayFromCash(String how) {
+    return 'From the film cash: $how';
+  }
+
+  @override
+  String get filmPayElsewhere => 'Not from the film cash';
+
+  @override
   String get filmToday => 'Today';
 
   @override

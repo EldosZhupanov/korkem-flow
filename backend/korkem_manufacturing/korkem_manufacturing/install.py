@@ -78,6 +78,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_film_delivery_driver_fields
 
 	add_film_delivery_driver_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_film_supplier_pay_fields
+
+	add_film_supplier_pay_fields.execute()
 	from korkem_manufacturing.patches.v0_0 import add_film_issued_by_field
 
 	add_film_issued_by_field.execute()

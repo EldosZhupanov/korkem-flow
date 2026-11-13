@@ -48,3 +48,5 @@ korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-09 stage ready, 
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-09 coating of a group
 korkem_manufacturing.patches.v0_0.add_mdf_order_fields #2026-11-09 who took the order
 korkem_manufacturing.patches.v0_0.add_film_dept_fields #2026-11-13 debt limit
+korkem_manufacturing.patches.v0_0.add_film_supplier_pay_fields
+korkem_manufacturing.patches.v0_0.add_film_supplier_pay_fields #2026-11-14 paid from

@@ -1,20 +1,19 @@
 import Link from "next/link";
-import { Layers, ShieldCheck, Heart } from "lucide-react";
+import { ShieldCheck, Heart } from "lucide-react";
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-border/60 bg-muted/30">
+    <footer className="border-t border-[#3D4A3B] bg-[#0D120C] text-[#E6E3D9]">
       <div className="container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Col */}
           <div className="space-y-4 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-                <Layers className="h-4 w-4" />
-              </div>
-              <span className="text-lg font-bold tracking-tight text-foreground">
-                KORKEM
-              </span>
+            <Link href="/" className="inline-block transition-opacity hover:opacity-90">
+              <img
+                src="/brand/korkem_lockup.png"
+                alt="KӨRKEM — Since 2021"
+                className="h-11 w-auto object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+              />
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Единая операционная система для мебельных производств: от расчета спецификации и раскроя до управления цехом, складом и отгрузкой.

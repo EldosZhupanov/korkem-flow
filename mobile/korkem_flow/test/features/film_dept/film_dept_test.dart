@@ -133,6 +133,7 @@ class _Orders implements FilmOrdersRepository {
   final dropped = <(String?, String?)>[];
   final sentTo = <String?>[];
   final deliveries = <(String, List<FilmDeliveryLine>, String?)>[];
+  final deliveriesPaid = <bool>[];
 
   @override
   Future<FilmWanted> wanted() async => FilmWanted.fromJson(_wanted);
@@ -162,7 +163,11 @@ class _Orders implements FilmOrdersRepository {
     Map<String, Object?>? delivery,
     String? receivedBy,
     String? arrivesOn,
-  }) async => deliveries.add((supplier, lines, arrivesOn));
+    bool supplierPaid = true,
+  }) async {
+    deliveries.add((supplier, lines, arrivesOn));
+    deliveriesPaid.add(supplierPaid);
+  }
 
   @override
   Future<void> arrivedBatch(String batch) async {}
@@ -195,6 +200,8 @@ class _Fake implements FilmDeptRepository {
   final came = <(String, double?)>[];
 
   final settled = <(String, String)>[];
+  final supplierPaidFor = <(String, String, String)>[];
+  final receivedPaid = <bool>[];
 
   @override
   Future<FilmCashBook> cash(String? since, String? until) async =>
@@ -230,6 +237,11 @@ class _Fake implements FilmDeptRepository {
             'what': 'Мебель-ЮГ',
           },
         ],
+        'days': [
+          {'date': '2026-11-10', 'in': 0, 'out': 0},
+          {'date': '2026-11-11', 'in': 8000, 'out': 5000},
+        ],
+        'previous': {'in_total': 4000, 'out_total': 5000, 'balance': -1000},
         'logistics': 10000,
         'logistics_per_m': 200,
         'owed': {
@@ -252,6 +264,17 @@ class _Fake implements FilmDeptRepository {
               'phone': '+7 701 555 12 34',
             },
           ],
+          'suppliers': [
+            {
+              'receipt': 'STE-5',
+              'date': '2026-11-10',
+              'amount': 96000,
+              'metres': 30,
+              'film': 'KIRA Дуб',
+              'supplier': 'МС-Груп',
+              'coming': false,
+            },
+          ],
         },
       });
 
@@ -264,6 +287,13 @@ class _Fake implements FilmDeptRepository {
   @override
   Future<void> settleDelivery(String receipt, String method) async =>
       settled.add((receipt, method));
+
+  @override
+  Future<void> paySupplier(
+    String receipt,
+    String method, {
+    String source = FilmPaySource.dept,
+  }) async => supplierPaidFor.add((receipt, method, source));
 
   @override
   Future<void> arrived(String entry, {double? metres}) async =>
@@ -394,7 +424,9 @@ class _Fake implements FilmDeptRepository {
     Map<String, Object?>? delivery,
     String? receivedBy,
     String? arrivesOn,
+    bool supplierPaid = true,
   }) async {
+    receivedPaid.add(supplierPaid);
     arrivals.add(arrivesOn);
     received.add((item, metres, priceM, updatePrice));
     deliveries.add((delivery, receivedBy));
@@ -814,8 +846,32 @@ void main() {
       'urgent': false,
     });
     expect(repo.deliveries.single.$2, 'a@k.kz');
+    // The film itself paid for, unless said otherwise.
+    expect(repo.receivedPaid.single, isTrue);
     // On its way, due in two days unless said — a Sunday moves to Monday.
     expect(repo.arrivals.single, mdfIso(mdfDueIn(DateTime.now(), days: 2)));
+  });
+
+  testWidgets('a receipt taken from the supplier on credit says so', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmStock:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmPage:receive')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
+    await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3500');
+    await tester.pumpAndSettle();
+    final credit = find.byKey(const ValueKey('filmSupplierPay:credit'));
+    await tester.ensureVisible(credit);
+    await tester.tap(credit);
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('filmReceiveSave'));
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repo.receivedPaid.single, isFalse);
   });
 
   testWidgets('what ran low is ordered as last time, on its way', (
@@ -1147,6 +1203,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmCash:logistics')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmCash:in')), findsOneWidget);
+    // One day: a waterfall down to what is left, not a single bar.
+    expect(find.byKey(const ValueKey('filmCash:waterfall')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCash:chart')), findsNothing);
+    // Against the period before: in doubled.
+    expect(find.textContaining('▲ 100%'), findsOneWidget);
     // The day closed: 2 000 short — not without why.
     await tester.tap(find.byKey(const ValueKey('filmCash:closeDay')));
     await tester.pumpAndSettle();
@@ -1183,6 +1244,56 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmCash:settle:Перевод')));
     await tester.pumpAndSettle();
     expect(repo.settled.single, ('STE-3', 'Перевод'));
+    // Film taken on credit: paid to the supplier, not settled as a delivery.
+    expect(
+      find.byKey(const ValueKey('filmCash:supplier:STE-5')),
+      findsOneWidget,
+    );
+    final pay = find.byKey(const ValueKey('filmCash:settle:STE-5'));
+    await tester.ensureVisible(pay);
+    await tester.pumpAndSettle();
+    await tester.tap(pay);
+    await tester.pumpAndSettle();
+    // Asked where the money came from: from elsewhere, the cash not touched.
+    expect(
+      find.byKey(const ValueKey('filmCash:settle:elsewhere')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('filmCash:settle:elsewhere')));
+    await tester.pumpAndSettle();
+    expect(repo.supplierPaidFor.single, (
+      'STE-5',
+      'Наличные',
+      FilmPaySource.elsewhere,
+    ));
+    expect(repo.settled.single, ('STE-3', 'Перевод'));
+  });
+
+  testWidgets('the week is a bar a day, and a tapped day filters the moves', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmTab:cash')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCash:span:7')));
+    await tester.pumpAndSettle();
+    final chart = find.byKey(const ValueKey('filmCash:chart'));
+    expect(chart, findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCash:waterfall')), findsNothing);
+    expect(find.textContaining('Мебель-ЮГ'), findsOneWidget);
+    final box = tester.getRect(chart);
+    // The first day had no moves: picked, the list empties.
+    await tester.tapAt(box.topLeft + Offset(box.width * 0.25, 40));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmCash:picked')), findsOneWidget);
+    expect(find.textContaining('Мебель-ЮГ'), findsNothing);
+    // The second day had the sale; tapping it again lets it go.
+    await tester.tapAt(box.topLeft + Offset(box.width * 0.75, 40));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Мебель-ЮГ'), findsOneWidget);
+    await tester.tapAt(box.topLeft + Offset(box.width * 0.75, 40));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmCash:picked')), findsNothing);
   });
 
   testWidgets('the team: the month by seller, the pot, the owner sets it', (

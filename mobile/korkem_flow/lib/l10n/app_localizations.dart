@@ -11252,6 +11252,66 @@ abstract class AppLocalizations {
   /// **'Owed to carriers'**
   String get filmOwedCarriers;
 
+  /// No description provided for @filmOwedSuppliers.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed to suppliers'**
+  String get filmOwedSuppliers;
+
+  /// No description provided for @filmPaidToSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get filmPaidToSupplier;
+
+  /// No description provided for @filmSupplierPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying the supplier'**
+  String get filmSupplierPay;
+
+  /// No description provided for @filmSupplierPaidNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get filmSupplierPaidNow;
+
+  /// No description provided for @filmSupplierOnCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'On credit'**
+  String get filmSupplierOnCredit;
+
+  /// No description provided for @filmSupplierOwedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'owed to the supplier'**
+  String get filmSupplierOwedNote;
+
+  /// No description provided for @filmCashChartA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'In {incoming}, out {outgoing}'**
+  String filmCashChartA11y(String incoming, String outgoing);
+
+  /// No description provided for @filmCashVersus.
+  ///
+  /// In en, this message translates to:
+  /// **'{arrow} {pct}% on the period before'**
+  String filmCashVersus(String arrow, String pct);
+
+  /// No description provided for @filmPayFromCash.
+  ///
+  /// In en, this message translates to:
+  /// **'From the film cash: {how}'**
+  String filmPayFromCash(String how);
+
+  /// No description provided for @filmPayElsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Not from the film cash'**
+  String get filmPayElsewhere;
+
   /// No description provided for @filmToday.
   ///
   /// In en, this message translates to:
