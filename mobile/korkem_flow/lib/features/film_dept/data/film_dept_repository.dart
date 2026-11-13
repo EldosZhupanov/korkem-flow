@@ -206,12 +206,11 @@ class FilmDeptRepository {
       );
 
   /// Film taken on credit is paid for, today.
-  Future<void> paySupplier(String receipt, String method) =>
-      _client.callMethod(
-        'korkem_manufacturing.api.film_cash.pay_supplier',
-        post: true,
-        params: {'receipt': receipt, 'method': method},
-      );
+  Future<void> paySupplier(String receipt, String method) => _client.callMethod(
+    'korkem_manufacturing.api.film_cash.pay_supplier',
+    post: true,
+    params: {'receipt': receipt, 'method': method},
+  );
 
   /// The month by seller and the team's bonus — `api.film_team`.
   Future<FilmTeam> team(String? month) async => FilmTeam.fromJson(

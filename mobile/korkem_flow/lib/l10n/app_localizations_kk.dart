@@ -6269,6 +6269,24 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmOwedCarriers => 'Тасымалдаушыларға қарыз';
 
   @override
+  String get filmOwedSuppliers => 'Жеткізушілерге қарыз';
+
+  @override
+  String get filmPaidToSupplier => 'Төледік';
+
+  @override
+  String get filmSupplierPay => 'Жеткізушіге төлем';
+
+  @override
+  String get filmSupplierPaidNow => 'Төленді';
+
+  @override
+  String get filmSupplierOnCredit => 'Қарызға';
+
+  @override
+  String get filmSupplierOwedNote => 'жеткізушіге қарыз';
+
+  @override
   String get filmToday => 'Бүгін';
 
   @override
