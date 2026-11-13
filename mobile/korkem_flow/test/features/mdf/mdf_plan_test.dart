@@ -96,6 +96,20 @@ void main() {
     );
     expect(find.byKey(const ValueKey('atRisk:SAL-ORD-40')), findsOneWidget);
     expect(find.byKey(const ValueKey('atRisk:SAL-ORD-36')), findsNothing);
+    // The stages as bars; an empty stage has none. Tap one: its orders alone.
+    expect(find.byKey(const ValueKey('barRow:cut')), findsOneWidget);
+    expect(find.byKey(const ValueKey('barRow:mill')), findsNothing);
+    expect(find.byKey(const ValueKey('planIntakeChart')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('barRow:vacuum')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('plan:cut:SAL-ORD-1129')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('plan:vacuum:SAL-ORD-36')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('barRow:vacuum')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('plan:cut:SAL-ORD-1129')), findsOneWidget);
   });
 
   test('a day count is a traffic light', () {

@@ -5,10 +5,11 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/core/design/widgets/charts/bar_rows.dart';
+import 'package:korkem_flow/core/design/widgets/charts/flow_bars.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
-import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
@@ -33,6 +34,10 @@ class MdfPlanScreen extends ConsumerStatefulWidget {
 
 class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
   String? _busy;
+
+  /// The stage tapped on the chart: its orders alone below (owner,
+  /// 14.11.2026).
+  String? _stage;
 
   Future<void> _tick(PlanStage stage, PlanOrder order) async {
     final l10n = AppLocalizations.of(context);
@@ -99,22 +104,28 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  for (final s in p.stages)
-                    if (s.orders.isNotEmpty)
-                      StatusChip(
-                        label:
-                            '${mdfStageLabel(s.stage, l10n)}: '
-                            '${s.orders.length} · ${_m2(s.areaM2)} м²',
-                        intent: StatusIntent.info,
-                      ),
-                ],
+              // Where the shop's work waits, stage by stage, by m²: the
+              // longest bar is where it jams. Tap one for its orders alone.
+              ReadableWidth(
+                child: BarRows(
+                  key: const ValueKey('planStages'),
+                  rows: [
+                    for (final s in p.stages)
+                      if (s.orders.isNotEmpty)
+                        BarRow(
+                          id: s.stage.name,
+                          label: mdfStageLabel(s.stage, l10n),
+                          value: s.areaM2,
+                          note: '${s.orders.length} · ${_m2(s.areaM2)} м²',
+                        ),
+                  ],
+                  selected: _stage,
+                  onSelect: (id) => setState(() => _stage = id),
+                ),
               ),
               for (final s in p.stages)
-                if (s.orders.isNotEmpty) ...[
+                if (s.orders.isNotEmpty &&
+                    (_stage == null || s.stage.name == _stage)) ...[
                   const SizedBox(height: AppSpacing.lg),
                   ReadableWidth(
                     child: SectionLabel(
@@ -176,6 +187,21 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
               if (p.intake.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.xl),
                 ReadableWidth(child: SectionLabel(l10n.mdfPlanIntake)),
+                // What came in, day by day, oldest on the left.
+                ReadableWidth(
+                  child: FlowBars(
+                    key: const ValueKey('planIntakeChart'),
+                    bars: [
+                      for (final d in p.intake.reversed)
+                        FlowBar(
+                          label: mdfDay(d.date, year: false),
+                          up: d.areaM2,
+                        ),
+                    ],
+                    semanticLabel: l10n.mdfPlanIntake,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
                 for (final d in p.intake)
                   ReadableWidth(
                     child: ListTile(
