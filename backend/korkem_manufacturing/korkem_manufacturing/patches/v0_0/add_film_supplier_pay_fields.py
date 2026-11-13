@@ -15,6 +15,9 @@ FIELDS = (
 	{"fieldname": "korkem_supplier_owed", "label": "Film taken on credit", "fieldtype": "Check"},
 	{"fieldname": "korkem_supplier_paid_on", "label": "Supplier paid on", "fieldtype": "Date"},
 	{"fieldname": "korkem_supplier_paid_method", "label": "Supplier paid in", "fieldtype": "Data"},
+	# Out of the film department's own money, or from elsewhere (owner,
+	# 14.11.2026: asked at every payment).
+	{"fieldname": "korkem_supplier_paid_from", "label": "Supplier paid from", "fieldtype": "Data"},
 )
 
 

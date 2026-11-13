@@ -205,11 +205,16 @@ class FilmDeptRepository {
         params: {'receipt': receipt, 'method': method},
       );
 
-  /// Film taken on credit is paid for, today.
-  Future<void> paySupplier(String receipt, String method) => _client.callMethod(
+  /// Film taken on credit is paid for, today — out of the department's
+  /// own money ([FilmPaySource.dept]) or from elsewhere.
+  Future<void> paySupplier(
+    String receipt,
+    String method, {
+    String source = FilmPaySource.dept,
+  }) => _client.callMethod(
     'korkem_manufacturing.api.film_cash.pay_supplier',
     post: true,
-    params: {'receipt': receipt, 'method': method},
+    params: {'receipt': receipt, 'method': method, 'source': source},
   );
 
   /// The month by seller and the team's bonus — `api.film_team`.

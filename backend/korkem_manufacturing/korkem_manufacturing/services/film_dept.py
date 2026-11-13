@@ -707,7 +707,7 @@ def correct(entry: str, item: str, reason: str, metres=None, price_m=None, suppl
 									   "korkem_delivery_driver", "korkem_delivery_phone",
 									   # A debt to the supplier stays one debt, paid or not.
 									   "korkem_supplier_owed", "korkem_supplier_paid_on",
-									   "korkem_supplier_paid_method")},
+									   "korkem_supplier_paid_method", "korkem_supplier_paid_from")},
 		}, update_modified=False)
 		for d in frappe.get_all("Logistics Delivery", filters={"receipt": entry}, pluck="name"):
 			frappe.db.set_value("Logistics Delivery", d, "receipt", new, update_modified=False)

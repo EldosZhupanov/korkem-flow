@@ -6348,6 +6348,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmSupplierOwedNote => 'в долг поставщику';
 
   @override
+  String filmCashChartA11y(String incoming, String outgoing) {
+    return 'Пришло $incoming, ушло $outgoing';
+  }
+
+  @override
+  String filmCashVersus(String arrow, String pct) {
+    return '$arrow $pct% к прошлому периоду';
+  }
+
+  @override
+  String filmPayFromCash(String how) {
+    return 'Из кассы плёнки: $how';
+  }
+
+  @override
+  String get filmPayElsewhere => 'Не из кассы плёнки';
+
+  @override
   String get filmToday => 'Сегодня';
 
   @override

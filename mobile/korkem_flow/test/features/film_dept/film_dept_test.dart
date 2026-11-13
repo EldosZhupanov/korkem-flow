@@ -200,7 +200,7 @@ class _Fake implements FilmDeptRepository {
   final came = <(String, double?)>[];
 
   final settled = <(String, String)>[];
-  final supplierPaidFor = <(String, String)>[];
+  final supplierPaidFor = <(String, String, String)>[];
   final receivedPaid = <bool>[];
 
   @override
@@ -237,6 +237,11 @@ class _Fake implements FilmDeptRepository {
             'what': 'Мебель-ЮГ',
           },
         ],
+        'days': [
+          {'date': '2026-11-10', 'in': 0, 'out': 0},
+          {'date': '2026-11-11', 'in': 8000, 'out': 5000},
+        ],
+        'previous': {'in_total': 4000, 'out_total': 5000, 'balance': -1000},
         'logistics': 10000,
         'logistics_per_m': 200,
         'owed': {
@@ -284,8 +289,11 @@ class _Fake implements FilmDeptRepository {
       settled.add((receipt, method));
 
   @override
-  Future<void> paySupplier(String receipt, String method) async =>
-      supplierPaidFor.add((receipt, method));
+  Future<void> paySupplier(
+    String receipt,
+    String method, {
+    String source = FilmPaySource.dept,
+  }) async => supplierPaidFor.add((receipt, method, source));
 
   @override
   Future<void> arrived(String entry, {double? metres}) async =>
@@ -1195,6 +1203,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmCash:logistics')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmCash:in')), findsOneWidget);
+    // One day: a waterfall down to what is left, not a single bar.
+    expect(find.byKey(const ValueKey('filmCash:waterfall')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCash:chart')), findsNothing);
+    // Against the period before: in doubled.
+    expect(find.textContaining('▲ 100%'), findsOneWidget);
     // The day closed: 2 000 short — not without why.
     await tester.tap(find.byKey(const ValueKey('filmCash:closeDay')));
     await tester.pumpAndSettle();
@@ -1241,10 +1254,46 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(pay);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('filmCash:settle:Наличные')));
+    // Asked where the money came from: from elsewhere, the cash not touched.
+    expect(
+      find.byKey(const ValueKey('filmCash:settle:elsewhere')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('filmCash:settle:elsewhere')));
     await tester.pumpAndSettle();
-    expect(repo.supplierPaidFor.single, ('STE-5', 'Наличные'));
+    expect(repo.supplierPaidFor.single, (
+      'STE-5',
+      'Наличные',
+      FilmPaySource.elsewhere,
+    ));
     expect(repo.settled.single, ('STE-3', 'Перевод'));
+  });
+
+  testWidgets('the week is a bar a day, and a tapped day filters the moves', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmTab:cash')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmCash:span:7')));
+    await tester.pumpAndSettle();
+    final chart = find.byKey(const ValueKey('filmCash:chart'));
+    expect(chart, findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCash:waterfall')), findsNothing);
+    expect(find.textContaining('Мебель-ЮГ'), findsOneWidget);
+    final box = tester.getRect(chart);
+    // The first day had no moves: picked, the list empties.
+    await tester.tapAt(box.topLeft + Offset(box.width * 0.25, 40));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmCash:picked')), findsOneWidget);
+    expect(find.textContaining('Мебель-ЮГ'), findsNothing);
+    // The second day had the sale; tapping it again lets it go.
+    await tester.tapAt(box.topLeft + Offset(box.width * 0.75, 40));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Мебель-ЮГ'), findsOneWidget);
+    await tester.tapAt(box.topLeft + Offset(box.width * 0.75, 40));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmCash:picked')), findsNothing);
   });
 
   testWidgets('the team: the month by seller, the pot, the owner sets it', (

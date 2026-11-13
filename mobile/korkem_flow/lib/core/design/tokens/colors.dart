@@ -209,4 +209,8 @@ abstract final class AppTint {
   /// hard competes with the content it is standing in for.
   static const double shimmerRest = 0.4;
   static const double shimmerTravel = 0.3;
+
+  /// A chart's bars that are not the one picked: still read, plainly
+  /// behind it (owner, 14.11.2026: tap a day and the list follows).
+  static const double chartFaded = 0.3;
 }

@@ -267,6 +267,14 @@ class TestFilmDept(IntegrationTestCase):
 		cash = next(w["amount"] for w in book["where"] if w["way"] == "Наличные")
 		self.assertGreaterEqual(cash, 8000 - 5000 - 1)
 		self.assertTrue(any(m["entry"] == by_cash and not m["in"] for m in book["moves"]))
+		# Day by day for the chart, and the period before to compare with.
+		self.assertEqual([d["date"] for d in book["days"]], [nowdate()])
+		self.assertEqual(book["days"][0]["in"], book["in_total"])
+		self.assertEqual(book["days"][0]["out"], book["out_total"])
+		week = self._as(MANAGER, film_cash.book, add_days(nowdate(), -6), nowdate())
+		self.assertEqual(len(week["days"]), 7)
+		self.assertEqual(week["previous"]["since"], str(getdate(add_days(nowdate(), -13))))
+		self.assertEqual(week["previous"]["until"], str(getdate(add_days(nowdate(), -7))))
 		# Out of the department's cash: only what the cash paid.
 		self.assertEqual([o["amount"] for o in book["out"] if o["receipt"] in (by_cash, by_me, owed, free)], [5000])
 		self.assertIn(by_me, [e["receipt"] for e in book["owed"]["employees"]])
@@ -336,6 +344,15 @@ class TestFilmDept(IntegrationTestCase):
 			self._as(CUTTER, film_cash.pay_supplier, many[0])
 		move = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == fixed)
 		self.assertFalse(move["supplier_owed"])
+		# Out of the department's money: out of its book, by the way it went.
+		out = next(o for o in self._as(MANAGER, film_cash.book)["out"] if o["receipt"] == fixed)
+		self.assertEqual((out["amount"], out["way"]), (27000, "Перевод"))
+		# From elsewhere: paid, off the list, and the book is not touched.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, film_cash.pay_supplier, many[0], "Наличные", "из кармана")
+		self._as(MANAGER, film_cash.pay_supplier, many[0], "Наличные", "elsewhere")
+		self.assertNotIn(many[0], owed())
+		self.assertNotIn(many[0], [o["receipt"] for o in self._as(MANAGER, film_cash.book)["out"]])
 
 	def test_the_team_month_counts_the_paid_margin_by_seller(self):
 		from korkem_manufacturing.services import film_team
