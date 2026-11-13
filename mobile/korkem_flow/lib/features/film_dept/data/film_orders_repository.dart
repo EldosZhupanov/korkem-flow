@@ -97,6 +97,7 @@ class FilmOrdersRepository {
     Map<String, Object?>? delivery,
     String? receivedBy,
     String? arrivesOn,
+    bool supplierPaid = true,
   }) => _client.callMethod(
     '$_base.receive_many',
     post: true,
@@ -126,6 +127,8 @@ class FilmOrdersRepository {
       if (delivery != null) 'delivery': jsonEncode(delivery),
       'received_by': ?receivedBy,
       'arrives_on': ?arrivesOn,
+      // The whole delivery taken on credit: owed until paid.
+      'supplier_paid': supplierPaid ? 1 : 0,
     },
   );
 

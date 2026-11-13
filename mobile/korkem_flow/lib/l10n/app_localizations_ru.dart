@@ -6330,6 +6330,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmOwedCarriers => 'Долг перевозчикам';
 
   @override
+  String get filmOwedSuppliers => 'Долг поставщикам';
+
+  @override
+  String get filmPaidToSupplier => 'Оплатили';
+
+  @override
+  String get filmSupplierPay => 'Оплата поставщику';
+
+  @override
+  String get filmSupplierPaidNow => 'Оплачено';
+
+  @override
+  String get filmSupplierOnCredit => 'В долг';
+
+  @override
+  String get filmSupplierOwedNote => 'в долг поставщику';
+
+  @override
   String get filmToday => 'Сегодня';
 
   @override

@@ -6307,6 +6307,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmOwedCarriers => 'Owed to carriers';
 
   @override
+  String get filmOwedSuppliers => 'Owed to suppliers';
+
+  @override
+  String get filmPaidToSupplier => 'Paid';
+
+  @override
+  String get filmSupplierPay => 'Paying the supplier';
+
+  @override
+  String get filmSupplierPaidNow => 'Paid';
+
+  @override
+  String get filmSupplierOnCredit => 'On credit';
+
+  @override
+  String get filmSupplierOwedNote => 'owed to the supplier';
+
+  @override
   String get filmToday => 'Today';
 
   @override

@@ -8,8 +8,10 @@ Kaspi, a transfer, a card. Out: what bringing film cost when the
 department's cash paid it, money given back to an employee who paid out of
 his pocket, and what was paid to a carrier later. The balance is in less out.
 
-Two lists stay open until settled: what is owed back to employees, and what
-is owed to carriers. Logistics is shown apart, for the owner's eye; the
+Three lists stay open until settled: what is owed back to employees, what
+is owed to carriers, and film taken from a supplier on credit. Paying a
+supplier is not counted out of this cash book: what film costs to buy never
+was — the book keeps the department's running money, not its purchases. Logistics is shown apart, for the owner's eye; the
 team's bonus does not count it (owner, 11.11.2026).
 
 The MDF cash book is not touched: the two departments keep their own money.
@@ -184,7 +186,62 @@ def owed(company: str | None = None) -> dict:
 							  "name": get_fullname(d.korkem_delivery_paid_by) or d.korkem_delivery_paid_by})
 		elif d.korkem_delivery_payer == PAYER_UNPAID:
 			carriers.append(row)
-	return {"employees": employees, "carriers": carriers}
+	return {"employees": employees, "carriers": carriers, "suppliers": _suppliers_owed(company or current_company())}
+
+
+def _suppliers_owed(company: str) -> list[dict]:
+	"""Film taken on credit and not paid for yet, oldest first. A roll still
+	on its way counts — it was bought; one struck off as not coming does not."""
+	out = []
+	for e in frappe.get_all(
+		"Stock Entry",
+		filters={"company": company, "korkem_material_receipt": 1, "docstatus": ["in", [0, 1]],
+				 "korkem_supplier_owed": 1, "korkem_supplier_paid_on": ["is", "not set"]},
+		fields=["name", "creation", "docstatus", "korkem_film_due", "korkem_supplier"],
+		order_by="creation asc",
+		limit_page_length=0,
+	):
+		if e.docstatus == 0 and not e.korkem_film_due:
+			continue
+		line = frappe.db.get_value("Stock Entry Detail", {"parent": e.name}, ["item_code", "qty", "basic_rate"],
+								   as_dict=True)
+		if not line:
+			continue
+		out.append({
+			"receipt": e.name,
+			"date": str(getdate(e.creation)),
+			"amount": round(flt(line.qty) * flt(line.basic_rate), 2),
+			"metres": flt(line.qty),
+			"film": frappe.db.get_value("Item", line.item_code, "item_name") or line.item_code,
+			"supplier": frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier,
+			"coming": e.docstatus == 0,
+		})
+	return out
+
+
+def pay_supplier(receipt: str, method: str | None = None) -> dict:
+	"""Film taken on credit is paid for — today."""
+	material_stock._ensure_editor()
+	row = frappe.db.get_value(
+		"Stock Entry", receipt,
+		["company", "korkem_material_receipt", "docstatus", "korkem_supplier_owed", "korkem_supplier_paid_on"],
+		as_dict=True,
+	)
+	if (not row or row.company != current_company() or not row.korkem_material_receipt
+			or not row.korkem_supplier_owed or row.docstatus == 2):
+		frappe.throw("Такого долга поставщику нет.", frappe.DoesNotExistError)
+	if row.korkem_supplier_paid_on:
+		frappe.throw("Уже оплатили.")
+	how = (method or "").strip() or METHODS[0]
+	if how not in METHODS:
+		frappe.throw("Как платили — наличные, перевод или карта.")
+	frappe.db.set_value("Stock Entry", receipt, {
+		"korkem_supplier_paid_on": nowdate(), "korkem_supplier_paid_method": how,
+	}, update_modified=False)
+	line = frappe.db.get_value("Stock Entry Detail", {"parent": receipt}, ["qty", "basic_rate"], as_dict=True) or {}
+	audit.record_audit(action="film.supplier_paid", entity_type="Stock Entry", entity_id=receipt,
+					   diff={"amount": round(flt(line.get("qty")) * flt(line.get("basic_rate")), 2), "method": how})
+	return {"receipt": receipt, "paid_on": nowdate(), "method": how}
 
 
 def settle(receipt: str, method: str | None = None) -> dict:

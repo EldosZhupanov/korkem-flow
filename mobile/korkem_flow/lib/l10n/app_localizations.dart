@@ -11180,6 +11180,42 @@ abstract class AppLocalizations {
   /// **'Owed to carriers'**
   String get filmOwedCarriers;
 
+  /// No description provided for @filmOwedSuppliers.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed to suppliers'**
+  String get filmOwedSuppliers;
+
+  /// No description provided for @filmPaidToSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get filmPaidToSupplier;
+
+  /// No description provided for @filmSupplierPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying the supplier'**
+  String get filmSupplierPay;
+
+  /// No description provided for @filmSupplierPaidNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get filmSupplierPaidNow;
+
+  /// No description provided for @filmSupplierOnCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'On credit'**
+  String get filmSupplierOnCredit;
+
+  /// No description provided for @filmSupplierOwedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'owed to the supplier'**
+  String get filmSupplierOwedNote;
+
   /// No description provided for @filmToday.
   ///
   /// In en, this message translates to:

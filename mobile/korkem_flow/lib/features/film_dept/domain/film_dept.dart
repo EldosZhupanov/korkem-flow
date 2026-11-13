@@ -35,6 +35,7 @@ class FilmMove {
     this.fixAt,
     this.delivery,
     this.seller,
+    this.supplierOwed = false,
   });
 
   factory FilmMove.fromJson(Map<String, dynamic> json) => FilmMove(
@@ -75,7 +76,11 @@ class FilmMove {
       _ => null,
     },
     seller: _s(json['seller']),
+    supplierOwed: json['supplier_owed'] == true,
   );
+
+  /// Taken from the supplier on credit and not paid for yet.
+  final bool supplierOwed;
 
   final String entry;
   final String date;
@@ -145,6 +150,7 @@ class FilmCashBook {
     this.logisticsPerM,
     this.employees = const [],
     this.carriers = const [],
+    this.suppliers = const [],
     this.sales = 0,
     this.spent = 0,
     this.where = const [],
@@ -192,6 +198,19 @@ class FilmCashBook {
       carriers: [
         for (final r in owed['carriers'] as List? ?? const [])
           if (r is Map<String, dynamic>) row(r),
+      ],
+      // Film taken on credit: the supplier, and what film.
+      suppliers: [
+        for (final r in owed['suppliers'] as List? ?? const [])
+          if (r is Map<String, dynamic>)
+            (
+              receipt: '${r['receipt']}',
+              date: '${r['date'] ?? ''}',
+              amount: _d(r['amount']) ?? 0,
+              who: _s(r['supplier']),
+              supplier: _s(r['film']),
+              phone: null,
+            ),
       ],
       sales: (json['sales'] as num?)?.toInt() ?? 0,
       closed: switch (json['closed']) {
@@ -242,6 +261,10 @@ class FilmCashBook {
 
   /// Owed to carriers not paid yet.
   final List<FilmOwed> carriers;
+
+  /// Film taken from suppliers on credit, not paid for yet: `who` is the
+  /// supplier, `supplier` the film.
+  final List<FilmOwed> suppliers;
 
   /// The day closed: the cash counted against what should be there.
   final ({

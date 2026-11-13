@@ -61,12 +61,15 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
     if (picked != null && mounted) setState(() => _day = picked);
   }
 
-  Future<void> _settle(FilmOwed o, String method) async {
+  Future<void> _settle(FilmOwed o, String method, String key) async {
     final messenger = ScaffoldMessenger.of(context);
+    final repo = ref.read(filmDeptRepositoryProvider);
     try {
-      await ref
-          .read(filmDeptRepositoryProvider)
-          .settleDelivery(o.receipt, method);
+      // Film taken on credit is paid to the supplier; a delivery is
+      // settled with the employee or the carrier.
+      await (key == 'supplier'
+          ? repo.paySupplier(o.receipt, method)
+          : repo.settleDelivery(o.receipt, method));
       ref.invalidate(filmCashProvider);
     } on Object catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('$e')));
@@ -127,7 +130,7 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                               ),
                         trailing: PopupMenuButton<String>(
                           key: ValueKey('filmCash:settle:${o.receipt}'),
-                          onSelected: (m) => _settle(o, m),
+                          onSelected: (m) => _settle(o, m, key),
                           itemBuilder: (_) => [
                             for (final (m, label) in [
                               (filmCash, l10n.mdfPayCash),
@@ -143,9 +146,11 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                           child: Padding(
                             padding: const EdgeInsets.all(AppSpacing.sm),
                             child: Text(
-                              key == 'employee'
-                                  ? l10n.filmGaveBack
-                                  : l10n.filmPaidCarrier,
+                              switch (key) {
+                                'employee' => l10n.filmGaveBack,
+                                'supplier' => l10n.filmPaidToSupplier,
+                                _ => l10n.filmPaidCarrier,
+                              },
                               style: TextStyle(
                                 color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.w600,
@@ -303,6 +308,8 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                   owedList(l10n.filmOwedEmployees, b.employees, 'employee'),
                 if (b.carriers.isNotEmpty)
                   owedList(l10n.filmOwedCarriers, b.carriers, 'carrier'),
+                if (b.suppliers.isNotEmpty)
+                  owedList(l10n.filmOwedSuppliers, b.suppliers, 'supplier'),
               ],
             );
           },

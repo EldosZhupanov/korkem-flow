@@ -25,12 +25,12 @@ def history(item: str, limit: int | str = 100) -> list[dict]:
 def receive(item: str, metres: float | str, price_m: float | str, supplier: str,
 			received_on: str | None = None, note: str | None = None, update_price: str | bool = True,
 			delivery: str | dict | None = None, received_by: str | None = None,
-			arrives_on: str | None = None) -> dict:
+			arrives_on: str | None = None, supplier_paid: str | bool | None = None) -> dict:
 	"""Приход: метры и цена за метр; как пришла, за сколько привезли, кто принял;
-	когда прибудет — если ещё в пути."""
+	когда прибудет — если ещё в пути; `supplier_paid` = 0 — взяли в долг у поставщика."""
 	return service.receive(
 		item, metres, price_m, supplier, received_on=received_on, note=note, update_price=update_price,
-		delivery=delivery, received_by=received_by, arrives_on=arrives_on,
+		delivery=delivery, received_by=received_by, arrives_on=arrives_on, supplier_paid=supplier_paid,
 	)
 
 

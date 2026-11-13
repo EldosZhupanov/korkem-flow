@@ -109,6 +109,7 @@ class FilmDeptRepository {
     Map<String, Object?>? delivery,
     String? receivedBy,
     String? arrivesOn,
+    bool supplierPaid = true,
   }) => _client.callMethod(
     '$_base.receive',
     post: true,
@@ -123,6 +124,8 @@ class FilmDeptRepository {
       'received_by': ?receivedBy,
       // After today: on its way, not on the shelf until it comes.
       'arrives_on': ?arrivesOn,
+      // Taken from the supplier on credit: owed until paid.
+      'supplier_paid': supplierPaid ? 1 : 0,
     },
   );
 
@@ -201,6 +204,13 @@ class FilmDeptRepository {
         post: true,
         params: {'receipt': receipt, 'method': method},
       );
+
+  /// Film taken on credit is paid for, today.
+  Future<void> paySupplier(String receipt, String method) => _client.callMethod(
+    'korkem_manufacturing.api.film_cash.pay_supplier',
+    post: true,
+    params: {'receipt': receipt, 'method': method},
+  );
 
   /// The month by seller and the team's bonus — `api.film_team`.
   Future<FilmTeam> team(String? month) async => FilmTeam.fromJson(
