@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+.env*
+*.log
+*.tsbuildinfo
+public/files/*.zip
+public/files/*.apk
+public/files/*.exe
+public/files/*.msi

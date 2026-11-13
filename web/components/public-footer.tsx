@@ -8,11 +8,11 @@ export function PublicFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Col */}
           <div className="space-y-4 md:col-span-1">
-            <Link href="/" className="inline-block">
+            <Link href="/" className="inline-block transition-opacity hover:opacity-90">
               <img
                 src="/brand/korkem_lockup.png"
                 alt="KӨRKEM — Since 2021"
-                className="h-10 w-auto rounded-md border border-[#3D4A3B] bg-[#070B07] px-2 py-1 object-contain"
+                className="h-11 w-auto object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
               />
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">

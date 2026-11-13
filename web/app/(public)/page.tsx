@@ -11,7 +11,8 @@ import {
   Tablet,
 } from "lucide-react";
 import { InteractivePressDemo } from "@/components/interactive-press-demo";
-import { Brand3DMedallion, Reveal3D, Tilt3DStage } from "@/components/motion-3d";
+import { Brand3DModel } from "@/components/brand-3d-model";
+import { Reveal3D, Tilt3DStage } from "@/components/motion-3d";
 import { SpotlightCard } from "@/components/spotlight-card";
 
 const PIPELINE = [
@@ -53,8 +54,15 @@ export default function HomePage() {
         />
 
         <div className="container relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
-          {/* Official 3D Shanyrak Medallion */}
-          <Brand3DMedallion />
+          {/* Official 3D Shanyrak Model (360° rotatable) */}
+          <Brand3DModel
+            src="/brand/korkem_mark.png"
+            alt="KӨRKEM — Шанрак"
+            variant="mark"
+            layers={20}
+            depthPx={26}
+            hint="3D-логотип · крутите в любую сторону"
+          />
 
           <div className="mt-7">
             <Link
@@ -68,11 +76,9 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-semibold tracking-[-0.035em] text-[#DEDAD0] sm:text-6xl lg:text-[66px] lg:leading-[1.04]">
+          <h1 className="font-display mx-auto mt-7 max-w-4xl text-4xl font-bold tracking-[-0.025em] text-[#DEDAD0] sm:text-6xl lg:text-[64px] lg:leading-[1.06]">
             Цифровая архитектура{" "}
-            <span className="font-serif italic font-medium text-[#F7F5EE]">
-              мебельного
-            </span>{" "}
+            <span className="text-[#7FD36B]">мебельного</span>{" "}
             производства
           </h1>
 
@@ -115,9 +121,9 @@ export default function HomePage() {
                 <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#5C5F5A]">
                   Философия KӨRKEM
                 </div>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#1E2A1E] sm:text-4xl leading-[1.12]">
+                <h2 className="font-display mt-3 text-3xl font-bold tracking-[-0.02em] text-[#1E2A1E] sm:text-4xl leading-[1.14]">
                   Владелец больше не работает{" "}
-                  <span className="font-serif italic font-medium text-[#2B382A]">
+                  <span className="text-[#2B382A] underline decoration-[#7FD36B] decoration-2 underline-offset-4">
                     администратором
                   </span>{" "}
                   за станком
@@ -194,11 +200,9 @@ export default function HomePage() {
               <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#A8ADA4]">
                 Модули производства
               </div>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#DEDAD0] sm:text-4xl">
+              <h2 className="font-display mt-3 text-3xl font-bold tracking-[-0.02em] text-[#DEDAD0] sm:text-4xl leading-[1.14]">
                 Построено на реальных заказах{" "}
-                <span className="font-serif italic font-medium text-[#F7F5EE]">
-                  и бланках цеха
-                </span>
+                <span className="text-[#F7F5EE]">и бланках цеха</span>
               </h2>
             </div>
             <Link
@@ -317,7 +321,7 @@ export default function HomePage() {
             <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#5C5F5A]">
               4 интерфейса · 1 ядро
             </div>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+            <h2 className="font-display mt-3 text-3xl font-bold tracking-[-0.02em] sm:text-4xl leading-[1.14]">
               Один поток данных от офиса до станка
             </h2>
           </div>
@@ -384,11 +388,9 @@ export default function HomePage() {
               <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#A8ADA4]">
                 Вопросы и ответы
               </div>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#DEDAD0]">
+              <h2 className="font-display mt-3 text-3xl font-bold tracking-[-0.02em] text-[#DEDAD0] leading-[1.16]">
                 Всё, что важно перед{" "}
-                <span className="font-serif italic font-medium text-[#F7F5EE]">
-                  запуском
-                </span>
+                <span className="text-[#7FD36B]">запуском</span>
               </h2>
               <div className="mt-6 space-y-2.5 text-xs text-[#A8ADA4]">
                 <div className="flex items-center gap-2">
@@ -416,19 +418,20 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Closing CTA with Official Brand Lockup */}
+          {/* Closing CTA with Interactive 3D Brand Lockup (transparent PNG, no box) */}
           <Reveal3D delayMs={100}>
             <div className="mt-24 rounded-3xl border border-[#3D4A3B] bg-[#2B382A] px-6 py-14 text-center sm:px-12 sm:py-16 shadow-2xl">
-              <img
+              <Brand3DModel
                 src="/brand/korkem_lockup.png"
                 alt="KӨRKEM — Since 2021"
-                className="mx-auto h-12 w-auto rounded-lg border border-[#3D4A3B] bg-[#070B07] px-3 py-1.5 object-contain"
+                variant="lockup"
+                layers={16}
+                depthPx={18}
+                hint="3D-модель · потяните, чтобы повернуть"
               />
-              <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-semibold tracking-[-0.03em] text-[#DEDAD0] sm:text-5xl">
+              <h2 className="font-display mx-auto mt-8 max-w-2xl text-3xl font-bold tracking-[-0.02em] text-[#DEDAD0] sm:text-5xl leading-[1.12]">
                 Наведите порядок в цеху за{" "}
-                <span className="font-serif italic font-medium text-[#F7F5EE]">
-                  один день
-                </span>
+                <span className="text-[#7FD36B]">один день</span>
               </h2>
               <p className="mx-auto mt-4 max-w-lg text-sm text-[#E6E3D9]/80">
                 Создайте пространство компании, пригласите сотрудников по ссылке и

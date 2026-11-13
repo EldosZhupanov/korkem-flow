@@ -21,15 +21,13 @@ export function PublicNav() {
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Official KORKEM Brand Logo */}
         <Link href="/" className="group flex items-center gap-3 transition">
-          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#DEDAD0]/30 bg-[#070B07] transition-transform group-hover:scale-105">
-            <img
-              src="/brand/korkem_mark.png"
-              alt="KORKEM"
-              className="h-8 w-8 object-contain"
-            />
-          </div>
+          <img
+            src="/brand/korkem_mark.png"
+            alt="KORKEM"
+            className="h-9 w-9 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
+          />
           <div className="flex items-baseline gap-2">
-            <span className="text-[15px] font-semibold tracking-tight text-[#E6E3D9]">
+            <span className="font-display text-[15px] font-bold tracking-tight text-[#E6E3D9]">
               KӨRKEM
             </span>
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A8ADA4]">
