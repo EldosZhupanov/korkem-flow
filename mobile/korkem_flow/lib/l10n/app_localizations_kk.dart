@@ -7311,4 +7311,141 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPressApproved => 'пішім тексерілді';
+
+  @override
+  String filmFilterAll(int n) {
+    return 'Барлығы · $n';
+  }
+
+  @override
+  String filmFilterHave(int n) {
+    return 'Бар · $n';
+  }
+
+  @override
+  String filmFilterOnWay(int n) {
+    return 'Жолда · $n';
+  }
+
+  @override
+  String filmFilterNone(int n) {
+    return 'Қоймада жоқ · $n';
+  }
+
+  @override
+  String get filmStockSearch => 'Пленканы табу';
+
+  @override
+  String filmComingRolls(int count, String metres, String day) {
+    return 'жолда $count орам · $metres м · $day келеді';
+  }
+
+  @override
+  String filmDaysLeft(int days) {
+    return '≈ $days күнге жетеді';
+  }
+
+  @override
+  String get filmWantShort => 'Тапсырыс беру';
+
+  @override
+  String get filmM => 'м';
+
+  @override
+  String get filmReceiveLineSum => 'Сома';
+
+  @override
+  String filmReceivePerMWithDelivery(String perM) {
+    return 'жеткізумен метрі $perM';
+  }
+
+  @override
+  String filmPriceUp(String old, String since, String change) {
+    return 'Бұрынғыдан қымбат: $old/м болған$since · $change';
+  }
+
+  @override
+  String filmPriceDown(String old, String since, String change) {
+    return 'Бұрынғыдан арзан: $old/м болған$since · $change';
+  }
+
+  @override
+  String get filmReceiveWhere => 'Қайда кетеді';
+
+  @override
+  String filmReceiveIntoProduction(String order, String name, String due) {
+    return 'Өндіріске · №$order · $name $due';
+  }
+
+  @override
+  String filmReceiveToCustomer(String name) {
+    return 'Сату · $name';
+  }
+
+  @override
+  String get filmReceiveToShelf => 'Қоймаға · сатуға бос';
+
+  @override
+  String filmReceiveShort(String metres) {
+    return '$metres м жетпейді';
+  }
+
+  @override
+  String get filmReceiveShortToList => '«Тапсырысқа»';
+
+  @override
+  String get filmReceiveShortListed => '«Тапсырысқа» қосылды';
+
+  @override
+  String get filmReceiveToProduction => 'Өндіріске';
+
+  @override
+  String get filmReceiveToSale => 'Клиентке сату';
+
+  @override
+  String get filmReceiveNoOrders =>
+      'Қазір бұл пленка жетпейтін фасад тапсырыстары жоқ.';
+
+  @override
+  String filmReceiveOrderLine(
+    String order,
+    String name,
+    String metres,
+    String due,
+  ) {
+    return '№$order · $name · керек $metres м · тапсыру $due';
+  }
+
+  @override
+  String filmReceiveOrdersWait(int count) {
+    return 'фасад тапсырыстары күтеді: $count';
+  }
+
+  @override
+  String filmReceiveFilmTotal(int count, String metres) {
+    return 'Пленка · $count орам · $metres м';
+  }
+
+  @override
+  String get filmReceiveGrand => 'Барлық сатып алу';
+
+  @override
+  String filmReceivePerM(String films) {
+    return 'Жеткізумен метр: $films';
+  }
+
+  @override
+  String filmReceiveSumProduction(String metres) {
+    return 'өндіріске $metres м';
+  }
+
+  @override
+  String filmReceiveSumSale(String metres) {
+    return 'сату $metres м';
+  }
+
+  @override
+  String filmReceiveSumShelf(String metres) {
+    return 'қойма $metres м';
+  }
 }

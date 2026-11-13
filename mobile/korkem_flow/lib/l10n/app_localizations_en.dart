@@ -7349,4 +7349,141 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPressApproved => 'layout checked';
+
+  @override
+  String filmFilterAll(int n) {
+    return 'All · $n';
+  }
+
+  @override
+  String filmFilterHave(int n) {
+    return 'In stock · $n';
+  }
+
+  @override
+  String filmFilterOnWay(int n) {
+    return 'On the way · $n';
+  }
+
+  @override
+  String filmFilterNone(int n) {
+    return 'Out of stock · $n';
+  }
+
+  @override
+  String get filmStockSearch => 'Find a film';
+
+  @override
+  String filmComingRolls(int count, String metres, String day) {
+    return '$count rolls on the way · $metres m · due $day';
+  }
+
+  @override
+  String filmDaysLeft(int days) {
+    return 'lasts ≈ $days d';
+  }
+
+  @override
+  String get filmWantShort => 'Order';
+
+  @override
+  String get filmM => 'm';
+
+  @override
+  String get filmReceiveLineSum => 'Sum';
+
+  @override
+  String filmReceivePerMWithDelivery(String perM) {
+    return 'a metre with delivery $perM';
+  }
+
+  @override
+  String filmPriceUp(String old, String since, String change) {
+    return 'Dearer than last time: it was $old/m$since · $change';
+  }
+
+  @override
+  String filmPriceDown(String old, String since, String change) {
+    return 'Cheaper than last time: it was $old/m$since · $change';
+  }
+
+  @override
+  String get filmReceiveWhere => 'Where it goes';
+
+  @override
+  String filmReceiveIntoProduction(String order, String name, String due) {
+    return 'Into production · №$order · $name $due';
+  }
+
+  @override
+  String filmReceiveToCustomer(String name) {
+    return 'Sale · $name';
+  }
+
+  @override
+  String get filmReceiveToShelf => 'To the shelf · free to sell';
+
+  @override
+  String filmReceiveShort(String metres) {
+    return '$metres m short';
+  }
+
+  @override
+  String get filmReceiveShortToList => 'To the order list';
+
+  @override
+  String get filmReceiveShortListed => 'on the order list';
+
+  @override
+  String get filmReceiveToProduction => 'Into production';
+
+  @override
+  String get filmReceiveToSale => 'Sale to a customer';
+
+  @override
+  String get filmReceiveNoOrders =>
+      'No facade orders lack this film right now.';
+
+  @override
+  String filmReceiveOrderLine(
+    String order,
+    String name,
+    String metres,
+    String due,
+  ) {
+    return '№$order · $name · needs $metres m · due $due';
+  }
+
+  @override
+  String filmReceiveOrdersWait(int count) {
+    return 'facade orders waiting: $count';
+  }
+
+  @override
+  String filmReceiveFilmTotal(int count, String metres) {
+    return 'Film · $count rolls · $metres m';
+  }
+
+  @override
+  String get filmReceiveGrand => 'Total bought';
+
+  @override
+  String filmReceivePerM(String films) {
+    return 'A metre with delivery: $films';
+  }
+
+  @override
+  String filmReceiveSumProduction(String metres) {
+    return 'into production $metres m';
+  }
+
+  @override
+  String filmReceiveSumSale(String metres) {
+    return 'sale $metres m';
+  }
+
+  @override
+  String filmReceiveSumShelf(String metres) {
+    return 'shelf $metres m';
+  }
 }

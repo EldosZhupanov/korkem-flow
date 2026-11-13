@@ -7985,5 +7985,205 @@
   },
   "pressPrintSigns": "Operator ____________   Foreman ____________",
   "mdfPressManual": "own layout",
-  "mdfPressApproved": "layout checked"
+  "mdfPressApproved": "layout checked",
+  "filmFilterAll": "All · {n}",
+  "@filmFilterAll": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFilterHave": "In stock · {n}",
+  "@filmFilterHave": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFilterOnWay": "On the way · {n}",
+  "@filmFilterOnWay": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFilterNone": "Out of stock · {n}",
+  "@filmFilterNone": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmStockSearch": "Find a film",
+  "filmComingRolls": "{count} rolls on the way · {metres} m · due {day}",
+  "@filmComingRolls": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmDaysLeft": "lasts ≈ {days} d",
+  "@filmDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmWantShort": "Order",
+  "filmM": "m",
+  "filmReceiveLineSum": "Sum",
+  "filmReceivePerMWithDelivery": "a metre with delivery {perM}",
+  "@filmReceivePerMWithDelivery": {
+    "placeholders": {
+      "perM": {
+        "type": "String"
+      }
+    }
+  },
+  "filmPriceUp": "Dearer than last time: it was {old}/m{since} · {change}",
+  "@filmPriceUp": {
+    "placeholders": {
+      "old": {
+        "type": "String"
+      },
+      "since": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "filmPriceDown": "Cheaper than last time: it was {old}/m{since} · {change}",
+  "@filmPriceDown": {
+    "placeholders": {
+      "old": {
+        "type": "String"
+      },
+      "since": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveWhere": "Where it goes",
+  "filmReceiveIntoProduction": "Into production · №{order} · {name} {due}",
+  "@filmReceiveIntoProduction": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "due": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveToCustomer": "Sale · {name}",
+  "@filmReceiveToCustomer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveToShelf": "To the shelf · free to sell",
+  "filmReceiveShort": "{metres} m short",
+  "@filmReceiveShort": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveShortToList": "To the order list",
+  "filmReceiveShortListed": "on the order list",
+  "filmReceiveToProduction": "Into production",
+  "filmReceiveToSale": "Sale to a customer",
+  "filmReceiveNoOrders": "No facade orders lack this film right now.",
+  "filmReceiveOrderLine": "№{order} · {name} · needs {metres} m · due {due}",
+  "@filmReceiveOrderLine": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      },
+      "due": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveOrdersWait": "facade orders waiting: {count}",
+  "@filmReceiveOrdersWait": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReceiveFilmTotal": "Film · {count} rolls · {metres} m",
+  "@filmReceiveFilmTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveGrand": "Total bought",
+  "filmReceivePerM": "A metre with delivery: {films}",
+  "@filmReceivePerM": {
+    "placeholders": {
+      "films": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveSumProduction": "into production {metres} m",
+  "@filmReceiveSumProduction": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveSumSale": "sale {metres} m",
+  "@filmReceiveSumSale": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmReceiveSumShelf": "shelf {metres} m",
+  "@filmReceiveSumShelf": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  }
 }

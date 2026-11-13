@@ -2561,30 +2561,35 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
-                    for (var i = 1; i < 8; i++) const DataCell(Text('')),
+                    for (var i = 1; i < 7; i++) const DataCell(Text('')),
                     // How much film the group takes, as the press lays it
-                    // out, and the map (owner, 12.11.2026).
+                    // out, and the map (owner, 12.11.2026). The map's button
+                    // stands before the metres, where a narrow window still
+                    // shows it, and the metres open it too (13.11.2026).
                     if (o.press[group.film] case final press?) ...[
+                      DataCell(
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: IconButton(
+                            key: ValueKey('mdfGroupPress:$g'),
+                            tooltip: l10n.mdfPressOpen,
+                            icon: const Icon(AppIcons.pressLayout),
+                            onPressed: () =>
+                                context.push(Routes.pressLayoutOf(o.name)),
+                          ),
+                        ),
+                      ),
                       DataCell(
                         _Spanning(
                           mdfFilmPressText(press, l10n),
                           key: ValueKey('mdfGroupFilm:$g'),
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
+                        onTap: () => context.push(Routes.pressLayoutOf(o.name)),
                       ),
-                      const DataCell(Text('')),
-                      const DataCell(Text('')),
-                      DataCell(
-                        IconButton(
-                          key: ValueKey('mdfGroupPress:$g'),
-                          tooltip: l10n.mdfPressOpen,
-                          icon: const Icon(AppIcons.pressLayout),
-                          onPressed: () =>
-                              context.push(Routes.pressLayoutOf(o.name)),
-                        ),
-                      ),
+                      for (var i = 9; i < 12; i++) const DataCell(Text('')),
                     ] else
-                      for (var i = 8; i < 12; i++) const DataCell(Text('')),
+                      for (var i = 7; i < 12; i++) const DataCell(Text('')),
                   ],
                 ),
                 for (final (n, line) in group.lines) ...[

@@ -170,6 +170,24 @@ typedef FilmReceiveWant = ({
   List<String> orders,
 });
 
+/// An MDF order whose facades take a film and lack it — where a roll of
+/// it may go «в производство» (owner, 13.11.2026).
+typedef FilmForProduction = ({
+  String order,
+  String customerName,
+  String? deliveryDate,
+  double needed,
+  double short,
+});
+
+FilmForProduction filmForProductionOf(Map<String, dynamic> json) => (
+  order: '${json['order'] ?? ''}',
+  customerName: '${json['customer_name'] ?? ''}',
+  deliveryDate: json['delivery_date'] as String?,
+  needed: _d(json['needed']) ?? 0,
+  short: _d(json['short']) ?? 0,
+);
+
 double? _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v');
 
 String? _s(Object? v) {

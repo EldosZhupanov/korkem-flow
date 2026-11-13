@@ -55,3 +55,9 @@ def receive_many(supplier: str, lines: str | list, arrives_on: str | None = None
 def arrived_batch(batch: str) -> dict:
 	"""Вся поставка пришла."""
 	return service.arrived_batch(batch)
+
+
+@frappe.whitelist(methods=["GET"])
+def for_production(item: str) -> list[dict]:
+	"""Заказы на фасады, которым не хватает этой плёнки."""
+	return service.for_production(item)
