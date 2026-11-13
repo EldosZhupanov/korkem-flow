@@ -7777,4 +7777,97 @@ class AppLocalizationsRu extends AppLocalizations {
   String filmSaleLikeLast(String films) {
     return 'Как в прошлый раз: $films';
   }
+
+  @override
+  String get filmDebtLimit => 'Лимит долга, ₸';
+
+  @override
+  String get filmDebtLimitDays => 'Долг не дольше, дн.';
+
+  @override
+  String filmLimitDays(int days) {
+    return 'до $days дн.';
+  }
+
+  @override
+  String filmSaleOverLimit(String sum, String limit) {
+    return 'Долг станет $sum — больше лимита $limit';
+  }
+
+  @override
+  String filmSaleOverDays(int days, int limit) {
+    return 'должен уже $days дн. — дольше $limit дн.';
+  }
+
+  @override
+  String filmCallTitle(int count) {
+    return 'Пора позвонить · $count';
+  }
+
+  @override
+  String filmCallDebt(String name, String sum, int days) {
+    return '$name — долг $sum, $days дн.';
+  }
+
+  @override
+  String filmCallRhythm(String name, int every, int idle) {
+    return '$name — берёт раз в $every дн., не было $idle дн.';
+  }
+
+  @override
+  String get filmCustomerAverage => 'Средний чек';
+
+  @override
+  String get filmCustomerRhythm => 'Покупает';
+
+  @override
+  String get filmCustomerLimit => 'Лимит долга';
+
+  @override
+  String get filmStatement => 'Акт сверки';
+
+  @override
+  String filmStatementCustomer(String name) {
+    return 'Клиент: $name';
+  }
+
+  @override
+  String filmStatementOn(String day) {
+    return 'на $day';
+  }
+
+  @override
+  String get filmStatementDate => 'Дата';
+
+  @override
+  String get filmStatementWhat => 'Операция';
+
+  @override
+  String get filmStatementSold => 'Отгружено';
+
+  @override
+  String get filmStatementPaid => 'Оплачено';
+
+  @override
+  String get filmStatementBalance => 'Долг';
+
+  @override
+  String filmStatementSale(String films) {
+    return 'Плёнка: $films';
+  }
+
+  @override
+  String get filmStatementPayment => 'Оплата';
+
+  @override
+  String filmStatementOwes(String sum) {
+    return 'Долг клиента: $sum';
+  }
+
+  @override
+  String get filmStatementSettled => 'Расчёты закрыты, долга нет.';
+
+  @override
+  String get filmStatementSigns =>
+      'Продавец ____________     Клиент ____________';
 }

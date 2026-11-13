@@ -7,9 +7,11 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
+import 'package:printing/printing.dart';
 
 /// One customer of the film department on a page (owner, 12.11.2026): what
 /// he bought in all, what he owes, the film he takes most; his purchases;
@@ -42,9 +44,18 @@ class FilmCustomerPage extends ConsumerWidget {
         byFilm[l.title] = (byFilm[l.title] ?? 0) + l.metres;
       }
     }
-    final favourite = byFilm.entries.isEmpty
-        ? null
-        : byFilm.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+    // His three films, most first (owner, 13.11.2026).
+    final favourites =
+        (byFilm.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+            .take(3)
+            .toList();
+    final favourite = favourites.firstOrNull?.key;
+    final rows = sales.value ?? const <FilmSale>[];
+    final profits = [
+      for (final s in rows)
+        if (s.profit != null) s.profit!,
+    ];
+    final average = c.sales > 0 ? c.total / c.sales : null;
 
     void refresh() => ref
       ..invalidate(filmCustomersProvider)
@@ -97,8 +108,36 @@ class FilmCustomerPage extends ConsumerWidget {
                 color: c.debt > 0.5 ? status.danger : status.success,
               ),
               fact(l10n.filmCustomerMonth, '${filmMetres(c.monthM)} м'),
+              if (average != null)
+                fact(l10n.filmCustomerAverage, money.format(average)),
+              if (c.rhythmDays != null)
+                fact(
+                  l10n.filmCustomerRhythm,
+                  l10n.filmSaleEvery(c.rhythmDays!),
+                ),
+              if (profits.isNotEmpty)
+                fact(
+                  l10n.filmSalesProfit,
+                  '≈ ${money.format(profits.fold<double>(0, (a, p) => a + p))}',
+                  color: status.success,
+                ),
+              if (c.debtLimit != null || c.debtLimitDays != null)
+                fact(
+                  l10n.filmCustomerLimit,
+                  [
+                    if (c.debtLimit case final l?) money.format(l),
+                    if (c.debtLimitDays case final d?) l10n.filmLimitDays(d),
+                  ].join(' ').trim(),
+                  color: c.overLimit(0) != null ? status.danger : null,
+                ),
               if (favourite != null)
-                fact(l10n.filmCustomerFavourite, favourite),
+                fact(
+                  l10n.filmCustomerFavourite,
+                  [
+                    for (final f in favourites)
+                      '${f.key} ${filmMetres(f.value)} м',
+                  ].join('\n'),
+                ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -120,6 +159,45 @@ class FilmCustomerPage extends ConsumerWidget {
                   icon: const Icon(AppIcons.add),
                   label: Text(l10n.filmSell),
                 ),
+              // «Акт сверки» (owner, 13.11.2026): every sale and payment,
+              // the balance after each — to print or send.
+              OutlinedButton.icon(
+                key: const ValueKey('filmCustomerPage:statement'),
+                onPressed: rows.isEmpty
+                    ? null
+                    : () async {
+                        final locale = Localizations.localeOf(
+                          context,
+                        ).toString();
+                        final bytes = await buildFilmStatementPdf(
+                          c.name,
+                          [...rows].reversed.toList(),
+                          (
+                            title: l10n.filmStatement,
+                            customer: l10n.filmStatementCustomer,
+                            onDay: l10n.filmStatementOn,
+                            date: l10n.filmStatementDate,
+                            what: l10n.filmStatementWhat,
+                            sold: l10n.filmStatementSold,
+                            paid: l10n.filmStatementPaid,
+                            balance: l10n.filmStatementBalance,
+                            sale: l10n.filmStatementSale,
+                            payment: l10n.filmStatementPayment,
+                            owes: l10n.filmStatementOwes,
+                            settled: l10n.filmStatementSettled,
+                            signs: l10n.filmStatementSigns,
+                          ),
+                          today: mdfIso(DateTime.now()),
+                          locale: locale,
+                        );
+                        await Printing.sharePdf(
+                          bytes: bytes,
+                          filename: 'akt-${c.customer}.pdf',
+                        );
+                      },
+                icon: const Icon(AppIcons.print),
+                label: Text(l10n.filmStatement),
+              ),
               OutlinedButton(
                 key: const ValueKey('filmCustomerPage:terms'),
                 onPressed: () async {

@@ -382,6 +382,8 @@ class FilmDeptRepository {
     String customer, {
     required bool wholesale,
     required double discount,
+    double? debtLimit,
+    int? debtDays,
   }) => _client.callMethod(
     '$_base.set_customer',
     post: true,
@@ -389,6 +391,8 @@ class FilmDeptRepository {
       'customer': customer,
       'tier': wholesale ? 'wholesale' : 'retail',
       'discount': discount,
+      'debt_limit': ?debtLimit,
+      'debt_days': ?debtDays,
     },
   );
 

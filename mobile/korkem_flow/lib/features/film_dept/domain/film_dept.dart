@@ -611,6 +611,10 @@ class FilmCustomer {
     this.asleep = false,
     this.sales = 0,
     this.favourite,
+    this.rhythmDays,
+    this.call,
+    this.debtLimit,
+    this.debtLimitDays,
   });
 
   factory FilmCustomer.fromJson(Map<String, dynamic> json) => FilmCustomer(
@@ -629,9 +633,35 @@ class FilmCustomer {
     asleep: json['asleep'] == true,
     sales: (json['sales'] as num?)?.toInt() ?? 0,
     favourite: _s(json['favourite']),
+    rhythmDays: (json['rhythm_days'] as num?)?.toInt(),
+    call: _s(json['call']),
+    debtLimit: _d(json['debt_limit']),
+    debtLimitDays: (json['debt_limit_days'] as num?)?.toInt(),
   );
 
   final String customer;
+
+  /// How often he buys, in days (owner, 13.11.2026).
+  final int? rhythmDays;
+
+  /// «Пора позвонить»: `debt` — owing too long, `rhythm` — silent past
+  /// his own rhythm; null — nothing to call about.
+  final String? call;
+
+  /// How far he may owe for film, and for how many days; null — no limit.
+  final double? debtLimit;
+  final int? debtLimitDays;
+
+  /// What a sale of [more] owing would break: the sum, the days — or null.
+  ({bool sum, bool days})? overLimit(double more) {
+    final sum = debtLimit != null && debtLimit! > 0 && debt + more > debtLimit!;
+    final days =
+        debtLimitDays != null &&
+        debtLimitDays! > 0 &&
+        (debtDays ?? 0) > debtLimitDays!;
+    return sum || days ? (sum: sum, days: days) : null;
+  }
+
   final String name;
   final String? phone;
   final bool wholesale;

@@ -1445,6 +1445,73 @@ class _CustomersTabState extends ConsumerState<_CustomersTab> {
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
+            // «Пора позвонить» (owner, 13.11.2026): silent past his own
+            // rhythm, or owing too long — with the call or the reminder.
+            if (all.any((c) => c.call != null))
+              Card(
+                key: const ValueKey('filmCustomers:call'),
+                color: status.warning.withValues(alpha: AppTint.surface),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.filmCallTitle(
+                          all.where((c) => c.call != null).length,
+                        ),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      for (final c in all)
+                        if (c.call != null)
+                          Row(
+                            key: ValueKey('filmCall:${c.customer}'),
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  c.call == 'debt'
+                                      ? l10n.filmCallDebt(
+                                          c.name,
+                                          money.format(c.debt),
+                                          c.debtDays ?? 0,
+                                        )
+                                      : l10n.filmCallRhythm(
+                                          c.name,
+                                          c.rhythmDays ?? 0,
+                                          c.idleDays ?? 0,
+                                        ),
+                                ),
+                              ),
+                              if (c.phone != null) ...[
+                                IconButton(
+                                  tooltip: l10n.filmCall,
+                                  icon: const Icon(AppIcons.call),
+                                  onPressed: () => ContactActions.call(c.phone),
+                                ),
+                                IconButton(
+                                  key: ValueKey('filmCall:wa:${c.customer}'),
+                                  tooltip: l10n.filmRemind,
+                                  icon: Icon(
+                                    AppIcons.whatsApp,
+                                    color: status.success,
+                                  ),
+                                  onPressed: () => c.call == 'debt'
+                                      ? ContactActions.whatsAppMessage(
+                                          c.phone,
+                                          l10n.filmRemindText(
+                                            c.name,
+                                            money.format(c.debt),
+                                          ),
+                                        )
+                                      : ContactActions.whatsApp(c.phone),
+                                ),
+                              ],
+                            ],
+                          ),
+                    ],
+                  ),
+                ),
+              ),
             if (rows.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),

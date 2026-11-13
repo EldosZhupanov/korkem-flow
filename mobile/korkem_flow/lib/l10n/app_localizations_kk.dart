@@ -7715,4 +7715,97 @@ class AppLocalizationsKk extends AppLocalizations {
   String filmSaleLikeLast(String films) {
     return 'Өткендегідей: $films';
   }
+
+  @override
+  String get filmDebtLimit => 'Қарыз шегі, ₸';
+
+  @override
+  String get filmDebtLimitDays => 'Қарыз ұзақтығы, күн';
+
+  @override
+  String filmLimitDays(int days) {
+    return '$days күнге дейін';
+  }
+
+  @override
+  String filmSaleOverLimit(String sum, String limit) {
+    return 'Қарыз $sum болады — шектен $limit асады';
+  }
+
+  @override
+  String filmSaleOverDays(int days, int limit) {
+    return '$days күн қарыз — $limit күннен ұзақ';
+  }
+
+  @override
+  String filmCallTitle(int count) {
+    return 'Қоңырау шалатын уақыт · $count';
+  }
+
+  @override
+  String filmCallDebt(String name, String sum, int days) {
+    return '$name — қарыз $sum, $days күн';
+  }
+
+  @override
+  String filmCallRhythm(String name, int every, int idle) {
+    return '$name — $every күнде алады, $idle күн болмады';
+  }
+
+  @override
+  String get filmCustomerAverage => 'Орташа чек';
+
+  @override
+  String get filmCustomerRhythm => 'Сатып алады';
+
+  @override
+  String get filmCustomerLimit => 'Қарыз шегі';
+
+  @override
+  String get filmStatement => 'Салыстыру актісі';
+
+  @override
+  String filmStatementCustomer(String name) {
+    return 'Клиент: $name';
+  }
+
+  @override
+  String filmStatementOn(String day) {
+    return '$day күнге';
+  }
+
+  @override
+  String get filmStatementDate => 'Күні';
+
+  @override
+  String get filmStatementWhat => 'Операция';
+
+  @override
+  String get filmStatementSold => 'Жөнелтілді';
+
+  @override
+  String get filmStatementPaid => 'Төленді';
+
+  @override
+  String get filmStatementBalance => 'Қарыз';
+
+  @override
+  String filmStatementSale(String films) {
+    return 'Пленка: $films';
+  }
+
+  @override
+  String get filmStatementPayment => 'Төлем';
+
+  @override
+  String filmStatementOwes(String sum) {
+    return 'Клиент қарызы: $sum';
+  }
+
+  @override
+  String get filmStatementSettled => 'Есеп жабылды, қарыз жоқ.';
+
+  @override
+  String get filmStatementSigns =>
+      'Сатушы ____________     Клиент ____________';
 }
