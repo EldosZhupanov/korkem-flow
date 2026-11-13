@@ -18,7 +18,10 @@ and what is coming:
   is on the shelf (`film_shortage`), so it goes on «К заказу» in time;
 - **deadlines and quality** — handed over on time, overdue now, reworks and
   warranty jobs and why they came back;
-- **debts** by age, and **managers** — who took how much.
+- **debts** by age, and **managers** — who took how much;
+- **stages** — where the open orders wait now, and how many will not make
+  their date at the shop's pace; **days** — what came in, day by day, for
+  the chart (owner, 14.11.2026: a dashboard on every department).
 
 Nothing is stored but the goal: every number is counted from the orders.
 """
@@ -54,7 +57,8 @@ TOP = 10
 _TARGET = "korkem_mdf_target_m2"
 _FIELDS = ["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name", "owner",
 		   "grand_total", "advance_paid", "korkem_decor_top", "korkem_milling", "korkem_ready_on",
-		   "korkem_handed_over_on", "korkem_hold_reason", "korkem_tags", *mdf_orders.STAGES.values()]
+		   "korkem_handed_over_on", "korkem_hold_reason", "korkem_tags", "korkem_finish", "korkem_extra_stages",
+		   "korkem_coatings", *mdf_orders.STAGES.values()]
 
 
 def _orders(company: str, since=None, until=None, **extra) -> list:
@@ -132,7 +136,57 @@ def summary(since: str | None = None, until: str | None = None) -> dict:
 		"quality": _quality(company, now_rows, areas, start, end),
 		"debts": _debts(everything),
 		"managers": _managers(now_rows, areas),
+		**_stages(everything, areas),
+		"days": _days(now_rows, areas, start, end),
 	}
+
+
+def _stages(rows: list, areas: dict) -> dict:
+	"""Where each open order waits — the first stage of its own not ticked,
+	as «Жоспар» counts it — and how many will miss their date."""
+	today = getdate(nowdate())
+	by = {s: {"stage": s, "orders": 0, "area_m2": 0.0} for s in mdf_orders.STAGES}
+	at_risk = 0
+	for r in rows:
+		if mdf_orders.status_of(r) not in ("accepted", "in_shop"):
+			continue
+		needed = mdf_orders.stages_of(r)
+		waiting = next((s for s in needed if not r.get(mdf_orders.STAGES[s])), None)
+		if waiting is None:
+			continue
+		by[waiting]["orders"] += 1
+		by[waiting]["area_m2"] += areas.get(r.name, 0)
+		if r.delivery_date:
+			left = len(needed) - needed.index(waiting)
+			if mdf_orders._at_risk(left, (getdate(r.delivery_date) - today).days):
+				at_risk += 1
+	return {
+		"stages": [{**s, "area_m2": round(s["area_m2"], 2)} for s in by.values()],
+		"at_risk": at_risk,
+	}
+
+
+def _days(rows: list, areas: dict, start, end) -> list[dict]:
+	"""Every day of the period: orders taken in, their m² and sum. A year
+	is twelve months, not 365 bars: past 62 days, by month."""
+	monthly = date_diff(end, start) > 62
+	by: dict[str, dict] = {}
+	for r in rows:
+		day = getdate(r.transaction_date)
+		key = str(day)[:7] if monthly else str(day)
+		d = by.setdefault(key, {"date": key, "orders": 0, "area_m2": 0.0, "total": 0.0})
+		d["orders"] += 1
+		d["area_m2"] += areas.get(r.name, 0)
+		d["total"] += flt(r.grand_total)
+	out = []
+	day = getdate(start)
+	while day <= getdate(end):
+		key = str(day)[:7] if monthly else str(day)
+		if not out or out[-1]["date"] != key:
+			d = by.get(key) or {"date": key, "orders": 0, "area_m2": 0.0, "total": 0.0}
+			out.append({**d, "area_m2": round(d["area_m2"], 2), "total": round(d["total"], 2)})
+		day = getdate(add_days(day, 1))
+	return out
 
 
 def _plan(rows: list, areas: dict) -> dict:
