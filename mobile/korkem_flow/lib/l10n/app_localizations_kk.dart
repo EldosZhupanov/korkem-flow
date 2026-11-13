@@ -7448,4 +7448,126 @@ class AppLocalizationsKk extends AppLocalizations {
   String filmReceiveSumShelf(String metres) {
     return 'қойма $metres м';
   }
+
+  @override
+  String pressFill(int percent, String waste) {
+    return 'толтырылды $percent% · қалдық $waste м²';
+  }
+
+  @override
+  String get pressPositionsHint =>
+      'Бөлшекке апарыңыз немесе позицияны басыңыз — ол барлық жүктемеде жанады.';
+
+  @override
+  String pressPositionInfo(int pos, String size, int count, String loads) {
+    return 'Позиция $pos · $size · барлығы $count дана · жүктемелерде $loads';
+  }
+
+  @override
+  String pressPositionCount(int count) {
+    return '$count дана';
+  }
+
+  @override
+  String mdfPressCheckedBy(String by) {
+    return '✓ пішімді $by тексерді';
+  }
+
+  @override
+  String get mdfPressNotChecked => 'пішім тексерілмеген';
+
+  @override
+  String get pressPanelTitle => 'Пресс';
+
+  @override
+  String get pressSectionRemove => 'Секцияны алу';
+
+  @override
+  String get pressLevel => 'Есептеу деңгейі';
+
+  @override
+  String get pressLevelFast => 'Жылдам';
+
+  @override
+  String get pressLevelSmart => 'Ақылды';
+
+  @override
+  String get pressLevelMax => 'Барынша';
+
+  @override
+  String get pressDirection => 'Төсеу';
+
+  @override
+  String get pressDirectionAny => 'Тиімдісі';
+
+  @override
+  String get pressDirectionAlong => 'Бойымен';
+
+  @override
+  String get pressDirectionAcross => 'Көлденең';
+
+  @override
+  String get pressRotate => 'Бөлшектерді бұру';
+
+  @override
+  String get pressRotateYes => 'Болады';
+
+  @override
+  String get pressRotateNo => 'Болмайды';
+
+  @override
+  String get pressRotateTextured => 'Текстуралы пленка — әрқашан «болмайды».';
+
+  @override
+  String get pressKeepForOrder => 'Тек осы тапсырысқа';
+
+  @override
+  String get pressKeepForPress => 'Пресс үшін сақтау';
+
+  @override
+  String get pressKeepForPressHint =>
+      '«Пресс үшін» барлық жаңа орналасуларды өзгертеді.';
+
+  @override
+  String get pressTuneReset => 'Пресстегідей қайтару';
+
+  @override
+  String get pressTuneKept => 'Орналасу осы тапсырысқа сақталды';
+
+  @override
+  String get pressTuneSaved => 'Пресс баптаулары сақталды';
+
+  @override
+  String pressWas(String metres) {
+    return 'Болды $metres м';
+  }
+
+  @override
+  String pressWillBe(String metres) {
+    return 'Болады $metres м';
+  }
+
+  @override
+  String pressSaves(String metres) {
+    return 'үнем $metres м';
+  }
+
+  @override
+  String pressCostsMore(String metres) {
+    return '$metres м көп';
+  }
+
+  @override
+  String get pressSame => 'сонша';
+
+  @override
+  String get pressUnitM => 'м';
+
+  @override
+  String get pressUnitMm => 'мм';
+
+  @override
+  String pressMm(int value) {
+    return '$value мм';
+  }
 }

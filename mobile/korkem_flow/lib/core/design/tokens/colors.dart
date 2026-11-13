@@ -185,6 +185,11 @@ abstract final class AppTint {
   /// than the rows' [surface] so the group is seen to begin there.
   static const double groupHead = 0.28;
 
+  /// A part on the press map in its position's colour, and the same part
+  /// faded while another position is lit up (owner, 13.11.2026).
+  static const double pressPart = 0.45;
+  static const double pressPartFaded = 0.1;
+
   /// Light falling behind a shape rather than a shape of its own.
   static const double glow = 0.07;
 

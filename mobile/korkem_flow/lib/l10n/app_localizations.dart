@@ -12978,6 +12978,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'shelf {metres} m'**
   String filmReceiveSumShelf(String metres);
+
+  /// No description provided for @pressFill.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% full · {waste} m² waste'**
+  String pressFill(int percent, String waste);
+
+  /// No description provided for @pressPositionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point at a part or tap a position — it lights up on every load.'**
+  String get pressPositionsHint;
+
+  /// No description provided for @pressPositionInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Position {pos} · {size} · {count} in all · on loads {loads}'**
+  String pressPositionInfo(int pos, String size, int count, String loads);
+
+  /// No description provided for @pressPositionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pcs'**
+  String pressPositionCount(int count);
+
+  /// No description provided for @mdfPressCheckedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ layout checked by {by}'**
+  String mdfPressCheckedBy(String by);
+
+  /// No description provided for @mdfPressNotChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'layout not checked'**
+  String get mdfPressNotChecked;
+
+  /// No description provided for @pressPanelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Press'**
+  String get pressPanelTitle;
+
+  /// No description provided for @pressSectionRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the section'**
+  String get pressSectionRemove;
+
+  /// No description provided for @pressLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'How hard to look'**
+  String get pressLevel;
+
+  /// No description provided for @pressLevelFast.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast'**
+  String get pressLevelFast;
+
+  /// No description provided for @pressLevelSmart.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart'**
+  String get pressLevelSmart;
+
+  /// No description provided for @pressLevelMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum'**
+  String get pressLevelMax;
+
+  /// No description provided for @pressDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Laying'**
+  String get pressDirection;
+
+  /// No description provided for @pressDirectionAny.
+  ///
+  /// In en, this message translates to:
+  /// **'As is best'**
+  String get pressDirectionAny;
+
+  /// No description provided for @pressDirectionAlong.
+  ///
+  /// In en, this message translates to:
+  /// **'Along'**
+  String get pressDirectionAlong;
+
+  /// No description provided for @pressDirectionAcross.
+  ///
+  /// In en, this message translates to:
+  /// **'Across'**
+  String get pressDirectionAcross;
+
+  /// No description provided for @pressRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn parts'**
+  String get pressRotate;
+
+  /// No description provided for @pressRotateYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get pressRotateYes;
+
+  /// No description provided for @pressRotateNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed'**
+  String get pressRotateNo;
+
+  /// No description provided for @pressRotateTextured.
+  ///
+  /// In en, this message translates to:
+  /// **'A textured film — never turned.'**
+  String get pressRotateTextured;
+
+  /// No description provided for @pressKeepForOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'For this order only'**
+  String get pressKeepForOrder;
+
+  /// No description provided for @pressKeepForPress.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep for the press'**
+  String get pressKeepForPress;
+
+  /// No description provided for @pressKeepForPressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'«For the press» changes every new layout.'**
+  String get pressKeepForPressHint;
+
+  /// No description provided for @pressTuneReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the press\'s own'**
+  String get pressTuneReset;
+
+  /// No description provided for @pressTuneKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout kept for this order'**
+  String get pressTuneKept;
+
+  /// No description provided for @pressTuneSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Press settings saved'**
+  String get pressTuneSaved;
+
+  /// No description provided for @pressWas.
+  ///
+  /// In en, this message translates to:
+  /// **'Was {metres} m'**
+  String pressWas(String metres);
+
+  /// No description provided for @pressWillBe.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be {metres} m'**
+  String pressWillBe(String metres);
+
+  /// No description provided for @pressSaves.
+  ///
+  /// In en, this message translates to:
+  /// **'saves {metres} m'**
+  String pressSaves(String metres);
+
+  /// No description provided for @pressCostsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m more'**
+  String pressCostsMore(String metres);
+
+  /// No description provided for @pressSame.
+  ///
+  /// In en, this message translates to:
+  /// **'the same'**
+  String get pressSame;
+
+  /// No description provided for @pressUnitM.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get pressUnitM;
+
+  /// No description provided for @pressUnitMm.
+  ///
+  /// In en, this message translates to:
+  /// **'mm'**
+  String get pressUnitMm;
+
+  /// No description provided for @pressMm.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} mm'**
+  String pressMm(int value);
 }
 
 class _AppLocalizationsDelegate

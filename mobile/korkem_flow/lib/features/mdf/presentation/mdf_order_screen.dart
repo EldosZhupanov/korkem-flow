@@ -2525,182 +2525,16 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         ),
         const SizedBox(height: AppSpacing.lg),
         SectionLabel(l10n.mdfLinesSection),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            key: const ValueKey('mdfLinesTable'),
-            // A coating with a back side and a patina is three lines high.
-            dataRowMaxHeight: double.infinity,
-            columns: [
-              const DataColumn(label: Text('№')),
-              DataColumn(label: Text(l10n.mdfHeight), numeric: true),
-              DataColumn(label: Text(l10n.mdfWidth), numeric: true),
-              DataColumn(label: Text(l10n.mdfQty), numeric: true),
-              DataColumn(label: Text(l10n.mdfMilling)),
-              DataColumn(label: Text(l10n.mdfColEdge)),
-              DataColumn(label: Text(l10n.mdfColCoating)),
-              DataColumn(label: Text(l10n.mdfThicknessShort), numeric: true),
-              DataColumn(label: Text(l10n.mdfMaterial)),
-              DataColumn(label: Text(l10n.mdfArea), numeric: true),
-              DataColumn(label: Text(l10n.mdfRate), numeric: true),
-              DataColumn(label: Text(l10n.mdfAmount), numeric: true),
-            ],
-            rows: [
-              for (final (g, group) in mdfFilmGroups(o.lines).indexed) ...[
-                // The coating's name over its positions (owner, 10.11.2026).
-                DataRow(
-                  key: ValueKey('mdfGroupHead:$g'),
-                  color: WidgetStatePropertyAll(
-                    AppColors.filmGroup(g).withValues(alpha: AppTint.groupHead),
-                  ),
-                  cells: [
-                    DataCell(
-                      _Spanning(
-                        mdfGroupName(group.coating, group.film, l10n),
-                        key: ValueKey('mdfGroupHeadText:$g'),
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    for (var i = 1; i < 7; i++) const DataCell(Text('')),
-                    // How much film the group takes, as the press lays it
-                    // out, and the map (owner, 12.11.2026). The map's button
-                    // stands before the metres, where a narrow window still
-                    // shows it, and the metres open it too (13.11.2026).
-                    if (o.press[group.film] case final press?) ...[
-                      DataCell(
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: IconButton(
-                            key: ValueKey('mdfGroupPress:$g'),
-                            tooltip: l10n.mdfPressOpen,
-                            icon: const Icon(AppIcons.pressLayout),
-                            onPressed: () =>
-                                context.push(Routes.pressLayoutOf(o.name)),
-                          ),
-                        ),
-                      ),
-                      DataCell(
-                        _Spanning(
-                          mdfFilmPressText(press, l10n),
-                          key: ValueKey('mdfGroupFilm:$g'),
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        onTap: () => context.push(Routes.pressLayoutOf(o.name)),
-                      ),
-                      for (var i = 9; i < 12; i++) const DataCell(Text('')),
-                    ] else
-                      for (var i = 7; i < 12; i++) const DataCell(Text('')),
-                  ],
-                ),
-                for (final (n, line) in group.lines) ...[
-                  DataRow(
-                    color: WidgetStatePropertyAll(
-                      AppColors.filmGroup(g).withValues(alpha: AppTint.surface),
-                    ),
-                    cells: [
-                      DataCell(Text('$n')),
-                      DataCell(Text('${line.heightMm}')),
-                      DataCell(Text('${line.widthMm}')),
-                      DataCell(Text('${line.qty}')),
-                      DataCell(Text(line.milling ?? '')),
-                      DataCell(
-                        Text(
-                          line.edge ?? '',
-                          key: ValueKey('mdfLineEdgeShown:$n'),
-                          // Not the usual R3: the shop must see it.
-                          style:
-                              line.edge != null && line.edge != mdfDefaultEdge
-                              ? const TextStyle(fontWeight: FontWeight.w700)
-                              : null,
-                        ),
-                      ),
-                      // The back side and a patina under the coating
-                      // (owner, 10.11.2026, variant А).
-                      DataCell(
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              mdfGroupName(line.coating, line.film, l10n),
-                              style: TextStyle(
-                                color: AppColors.filmGroup(g),
-                              ),
-                            ),
-                            for (final x in mdfCoatingExtras(
-                              line,
-                              back: l10n.mdfBackSideShort,
-                              patina: l10n.mdfPatina,
-                            ))
-                              Text(x, style: theme.textTheme.bodySmall),
-                          ],
-                        ),
-                      ),
-                      DataCell(
-                        Text(
-                          line.thicknessMm == null
-                              ? ''
-                              : '${line.thicknessMm} мм',
-                        ),
-                      ),
-                      DataCell(Text(line.material ?? '')),
-                      DataCell(Text(line.areaM2.toStringAsFixed(2))),
-                      DataCell(
-                        Text(
-                          line.noPrice
-                              ? l10n.mdfNoPrice
-                              : money.format(line.rateM2),
-                        ),
-                      ),
-                      DataCell(Text(money.format(line.amount))),
-                    ],
-                  ),
-                  // The note on a row of its own under the position, from
-                  // «Выс.» on (owner, 10.11.2026).
-                  if (mdfLineNote(line) case final note?)
-                    DataRow(
-                      key: ValueKey('mdfLineExtras:$n'),
-                      color: WidgetStatePropertyAll(
-                        AppColors.filmGroup(
-                          g,
-                        ).withValues(alpha: AppTint.surface),
-                      ),
-                      cells: [
-                        const DataCell(Text('')),
-                        DataCell(
-                          _Spanning(
-                            '${l10n.mdfNoteShort}: $note',
-                            key: ValueKey('mdfLineExtras:$n'),
-                          ),
-                        ),
-                        for (var i = 2; i < 12; i++) const DataCell(Text('')),
-                      ],
-                    ),
-                ],
-                DataRow(
-                  key: ValueKey('mdfFilmSubtotal:$g'),
-                  cells: [
-                    const DataCell(Text('')),
-                    DataCell(Text(l10n.mdfFilmSubtotal)),
-                    const DataCell(Text('')),
-                    DataCell(Text('${group.pieces}')),
-                    const DataCell(Text('')),
-                    const DataCell(Text('')),
-                    DataCell(
-                      Text(
-                        mdfGroupName(group.coating, group.film, l10n),
-                        style: TextStyle(color: AppColors.filmGroup(g)),
-                      ),
-                    ),
-                    const DataCell(Text('')),
-                    const DataCell(Text('')),
-                    DataCell(Text(group.areaM2.toStringAsFixed(2))),
-                    const DataCell(Text('')),
-                    DataCell(Text(money.format(group.amount))),
-                  ],
-                ),
-              ],
-            ],
+        // The table is at least as wide as the window, so a group's head
+        // reaches its right edge — where the layout's button stands, in
+        // sight in any window (owner, 13.11.2026).
+        LayoutBuilder(
+          builder: (context, box) => SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: box.maxWidth),
+              child: _linesTable(context, o, money, box.maxWidth),
+            ),
           ),
         ),
         if (open)
@@ -2848,7 +2682,270 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
 /// Text that runs on across the empty cells to its right, so one row of a
 /// table can carry a line as wide as the table without widening a column.
 /// «Плёнка 8,3 м · 3 загрузки · −1 м» — a film group's metres on the press.
-String mdfFilmPressText(MdfFilmPress p, AppLocalizations l10n) {
+/// The order's positions, by coating group: each group headed by its
+/// name and — for a film — the press layout's button at the window's
+/// right edge (owner, 13.11.2026).
+Widget _linesTable(
+  BuildContext context,
+  MdfOrder o,
+  NumberFormat money,
+  double width,
+) {
+  final l10n = AppLocalizations.of(context);
+  final theme = Theme.of(context);
+  return DataTable(
+    key: const ValueKey('mdfLinesTable'),
+    // A coating with a back side and a patina is three lines high.
+    dataRowMaxHeight: double.infinity,
+    columns: [
+      const DataColumn(label: Text('№')),
+      DataColumn(label: Text(l10n.mdfHeight), numeric: true),
+      DataColumn(label: Text(l10n.mdfWidth), numeric: true),
+      DataColumn(label: Text(l10n.mdfQty), numeric: true),
+      DataColumn(label: Text(l10n.mdfMilling)),
+      DataColumn(label: Text(l10n.mdfColEdge)),
+      DataColumn(label: Text(l10n.mdfColCoating)),
+      DataColumn(label: Text(l10n.mdfThicknessShort), numeric: true),
+      DataColumn(label: Text(l10n.mdfMaterial)),
+      DataColumn(label: Text(l10n.mdfArea), numeric: true),
+      DataColumn(label: Text(l10n.mdfRate), numeric: true),
+      DataColumn(label: Text(l10n.mdfAmount), numeric: true),
+    ],
+    rows: [
+      for (final (g, group) in mdfFilmGroups(o.lines).indexed) ...[
+        // The coating's name over its positions (owner, 10.11.2026).
+        DataRow(
+          key: ValueKey('mdfGroupHead:$g'),
+          color: WidgetStatePropertyAll(
+            AppColors.filmGroup(g).withValues(alpha: AppTint.groupHead),
+          ),
+          cells: [
+            DataCell(
+              _GroupHead(
+                index: g,
+                name: mdfGroupName(group.coating, group.film, l10n),
+                press: o.press[group.film],
+                // From the first cell's start to the window's edge.
+                width: width - AppSpacing.xl * 2,
+                onOpen: () => context.push(Routes.pressLayoutOf(o.name)),
+              ),
+            ),
+            for (var i = 1; i < 12; i++) const DataCell(Text('')),
+          ],
+        ),
+        for (final (n, line) in group.lines) ...[
+          DataRow(
+            color: WidgetStatePropertyAll(
+              AppColors.filmGroup(g).withValues(alpha: AppTint.surface),
+            ),
+            cells: [
+              DataCell(Text('$n')),
+              DataCell(Text('${line.heightMm}')),
+              DataCell(Text('${line.widthMm}')),
+              DataCell(Text('${line.qty}')),
+              DataCell(Text(line.milling ?? '')),
+              DataCell(
+                Text(
+                  line.edge ?? '',
+                  key: ValueKey('mdfLineEdgeShown:$n'),
+                  // Not the usual R3: the shop must see it.
+                  style: line.edge != null && line.edge != mdfDefaultEdge
+                      ? const TextStyle(fontWeight: FontWeight.w700)
+                      : null,
+                ),
+              ),
+              // The back side and a patina under the coating
+              // (owner, 10.11.2026, variant А).
+              DataCell(
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      mdfGroupName(line.coating, line.film, l10n),
+                      style: TextStyle(
+                        color: AppColors.filmGroup(g),
+                      ),
+                    ),
+                    for (final x in mdfCoatingExtras(
+                      line,
+                      back: l10n.mdfBackSideShort,
+                      patina: l10n.mdfPatina,
+                    ))
+                      Text(x, style: theme.textTheme.bodySmall),
+                  ],
+                ),
+              ),
+              DataCell(
+                Text(
+                  line.thicknessMm == null ? '' : '${line.thicknessMm} мм',
+                ),
+              ),
+              DataCell(Text(line.material ?? '')),
+              DataCell(Text(line.areaM2.toStringAsFixed(2))),
+              DataCell(
+                Text(
+                  line.noPrice ? l10n.mdfNoPrice : money.format(line.rateM2),
+                ),
+              ),
+              DataCell(Text(money.format(line.amount))),
+            ],
+          ),
+          // The note on a row of its own under the position, from
+          // «Выс.» on (owner, 10.11.2026).
+          if (mdfLineNote(line) case final note?)
+            DataRow(
+              key: ValueKey('mdfLineExtras:$n'),
+              color: WidgetStatePropertyAll(
+                AppColors.filmGroup(
+                  g,
+                ).withValues(alpha: AppTint.surface),
+              ),
+              cells: [
+                const DataCell(Text('')),
+                DataCell(
+                  _Spanning(
+                    '${l10n.mdfNoteShort}: $note',
+                    key: ValueKey('mdfLineExtras:$n'),
+                  ),
+                ),
+                for (var i = 2; i < 12; i++) const DataCell(Text('')),
+              ],
+            ),
+        ],
+        DataRow(
+          key: ValueKey('mdfFilmSubtotal:$g'),
+          cells: [
+            const DataCell(Text('')),
+            DataCell(Text(l10n.mdfFilmSubtotal)),
+            const DataCell(Text('')),
+            DataCell(Text('${group.pieces}')),
+            const DataCell(Text('')),
+            const DataCell(Text('')),
+            DataCell(
+              Text(
+                mdfGroupName(group.coating, group.film, l10n),
+                style: TextStyle(color: AppColors.filmGroup(g)),
+              ),
+            ),
+            const DataCell(Text('')),
+            const DataCell(Text('')),
+            DataCell(Text(group.areaM2.toStringAsFixed(2))),
+            const DataCell(Text('')),
+            DataCell(Text(money.format(group.amount))),
+          ],
+        ),
+      ],
+    ],
+  );
+}
+
+/// A group's head: its name and the state of its layout on the left, the
+/// layout's button on the right — grey until checked, green once checked,
+/// blue when laid out by hand, red when something does not fit.
+class _GroupHead extends StatelessWidget {
+  const _GroupHead({
+    required this.index,
+    required this.name,
+    required this.press,
+    required this.width,
+    required this.onOpen,
+  });
+
+  final int index;
+  final String name;
+  final MdfFilmPress? press;
+  final double width;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final status = context.statusColors;
+    final p = press;
+    final colour = p == null
+        ? null
+        : p.tooBig > 0
+        ? status.danger
+        : p.approvedBy != null
+        ? status.success
+        : p.manual
+        ? status.info
+        : theme.colorScheme.outline;
+    final state = p == null
+        ? null
+        : p.tooBig > 0
+        ? l10n.mdfPressTooBig(p.tooBig)
+        : p.approvedBy != null
+        ? l10n.mdfPressCheckedBy(p.approvedBy!)
+        : l10n.mdfPressNotChecked;
+    final head = Row(
+      children: [
+        Text(
+          name,
+          key: ValueKey('mdfGroupHeadText:$index'),
+          softWrap: false,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        if (state != null) ...[
+          const SizedBox(width: AppSpacing.md),
+          Flexible(
+            child: Text(
+              state,
+              key: ValueKey('mdfGroupState:$index'),
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colour == theme.colorScheme.outline
+                    ? theme.colorScheme.onSurfaceVariant
+                    : colour,
+              ),
+            ),
+          ),
+        ],
+        const Spacer(),
+        if (p != null && colour != null)
+          OutlinedButton.icon(
+            key: ValueKey('mdfGroupPress:$index'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: colour == theme.colorScheme.outline
+                  ? theme.colorScheme.onSurface
+                  : colour,
+              backgroundColor: colour.withValues(alpha: AppTint.surface),
+              side: BorderSide(color: colour),
+              visualDensity: VisualDensity.compact,
+            ),
+            onPressed: onOpen,
+            icon: Icon(
+              p.approvedBy != null ? AppIcons.check : AppIcons.pressLayout,
+              size: AppIconSize.small,
+            ),
+            label: KeyedSubtree(
+              key: ValueKey('mdfGroupFilm:$index'),
+              child: Text(mdfFilmPressText(p, l10n, checked: false)),
+            ),
+          ),
+      ],
+    );
+    // As wide as the window from the first cell on; the row grows to it.
+    return SizedBox(
+      width: 0,
+      height: AppTouchTarget.min,
+      child: OverflowBox(
+        alignment: Alignment.centerLeft,
+        minWidth: width,
+        maxWidth: width,
+        child: head,
+      ),
+    );
+  }
+}
+
+String mdfFilmPressText(
+  MdfFilmPress p,
+  AppLocalizations l10n, {
+  bool checked = true,
+}) {
   String m(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
   return [
     l10n.mdfPressFilm(m(p.filmM), p.loads.length),
@@ -2858,24 +2955,21 @@ String mdfFilmPressText(MdfFilmPress p, AppLocalizations l10n) {
       l10n.mdfPressCorrected
     else if (p.saved > 0)
       l10n.mdfPressSaved(m(p.saved)),
-    if (p.approvedBy != null) l10n.mdfPressApproved,
+    if (checked && p.approvedBy != null) l10n.mdfPressApproved,
     if (p.tooBig > 0) l10n.mdfPressTooBig(p.tooBig),
   ].join(' · ');
 }
 
 class _Spanning extends StatelessWidget {
-  const _Spanning(this.text, {this.style, super.key});
+  const _Spanning(this.text, {super.key});
 
   final String text;
-
-  /// Italic by default — a note; a group's name passes its own.
-  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
     final shown = DefaultTextStyle.of(
       context,
-    ).style.merge(style ?? const TextStyle(fontStyle: FontStyle.italic));
+    ).style.merge(const TextStyle(fontStyle: FontStyle.italic));
     // The row grows with its tallest cell, so no height comes from above:
     // the box is as tall as its one line of text, measured.
     final line = TextPainter(
