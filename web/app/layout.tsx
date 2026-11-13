@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
+import { Inter, Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const sans = Plus_Jakarta_Sans({
-  subsets: ['cyrillic-ext', 'latin'],
-  weight: ['400', '500', '600', '700', '800'],
+const sans = Inter({
+  subsets: ['cyrillic', 'latin'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-sans',
+  display: 'swap',
+});
+
+const serif = Playfair_Display({
+  subsets: ['cyrillic', 'latin'],
+  weight: ['500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-serif',
   display: 'swap',
 });
 
@@ -30,7 +38,6 @@ export const metadata: Metadata = {
     'заказы МДФ',
     'плёнка ПВХ',
     'БАЗИС-Мебельщик',
-    'управление складом',
     'KORKEM Flow',
   ],
 };
@@ -41,8 +48,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className={`h-full scroll-smooth ${sans.variable} ${mono.variable}`}>
-      <body className="min-h-full bg-background text-foreground antialiased flex flex-col font-sans">
+    <html lang="ru" className={`h-full scroll-smooth ${sans.variable} ${serif.variable} ${mono.variable}`}>
+      <body className="min-h-full bg-background text-foreground antialiased flex flex-col font-sans selection:bg-amber-500/20 selection:text-amber-200">
         {children}
       </body>
     </html>

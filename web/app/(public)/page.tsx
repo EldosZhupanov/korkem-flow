@@ -1,255 +1,173 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Bot,
-  Boxes,
-  CheckCircle2,
-  Cpu,
+  ArrowUpRight,
+  Check,
   Download,
-  FileSpreadsheet,
-  Globe,
   Laptop,
-  Layers,
   Lock,
-  Scissors,
-  ShieldCheck,
   Smartphone,
-  Sparkles,
   Tablet,
-  Users,
-  Wallet,
-  XCircle,
+  Globe,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { LandingHeroCockpit } from "@/components/landing-hero-cockpit";
+import { InteractivePressDemo } from "@/components/interactive-press-demo";
+import { SpotlightCard } from "@/components/spotlight-card";
 
-const LIFECYCLE_STEPS = [
-  { num: "01", title: "Заявка и замер", desc: "Фото, адреса и размеры с телефона" },
-  { num: "02", title: "КП и Заказ МДФ", desc: "Авто-прайс фрезеровка × отделка" },
-  { num: "03", title: "БАЗИС и Пресс", desc: "XML-спецификация и раскладка MaxRects" },
-  { num: "04", title: "Склад и Обрезки", desc: "Резерв плёнки, ЛДСП и деловой остаток" },
-  { num: "05", title: "Цех и PIN", desc: "Сдельная оплата по факту этапа" },
-  { num: "06", title: "Выдача и 1С", desc: "Касса, долги, монтаж и гарантия" },
+const PIPELINE = [
+  { n: "01", name: "Замер и фото", note: "С телефона замерщика сразу в заявку" },
+  { n: "02", name: "КП и Заказ МДФ", note: "Прайс фрезеровка × отделка без ручного счёта" },
+  { n: "03", name: "БАЗИС и Пресс", note: "XML-выгрузка 10.1/10.4 + раскладка MaxRects" },
+  { n: "04", name: "Склад и Плёнка", note: "Свободно, отложено, в пути и деловые обрезки" },
+  { n: "05", name: "PIN-терминал", note: "Мастера отмечают этапы, сдельная считается сама" },
+  { n: "06", name: "Касса и 1С", note: "Оплаты, лимит долга, акт сверки, гарантия" },
 ];
 
-const FAQ_ITEMS = [
+const FAQ = [
   {
-    q: "Нужно ли переучивать технологов, если мы работаем в БАЗИС-Мебельщик?",
-    a: "Нет. Технологи продолжают проектировать в БАЗИС 10.1 / 10.4 как привыкли. KORKEM рекурсивно читает выгрузку XML (блоки, ящики, детали, кромку) и сам переносит состав в заказ и склад.",
+    q: "Нужно ли переучивать технологов с БАЗИС-Мебельщик?",
+    a: "Нет. Технологи работают в БАЗИС 10.1 / 10.4 как обычно. KORKEM рекурсивно читает XML-выгрузку и переносит детали, кромку и материалы в заказ.",
   },
   {
     q: "Что будет, если в цеху пропадёт интернет или отключат ИИ?",
-    a: "Система спроектирована по принципу Local-First и правилу R7: все заказы, склад, раскладка на пресс и PIN-терминал цеха работают без LLM и без облачной зависимости. ИИ ускоряет работу, но не является точкой отказа.",
+    a: "Ядро работает без LLM (правило R7) и переживает перебои связи. Заказы, раскладка пресса, склад и PIN-терминал цеха не зависят от облачного ИИ.",
   },
   {
-    q: "Где хранятся наши базы клиентов, цены и чертежи?",
-    a: "Данные каждой компании строго изолированы (R6). Вы можете развернуть узел на своём мини-ПК/сервере в цеху или использовать выделенный изолированный контур на api.korkem.asia.",
+    q: "Где хранятся наши базы, клиенты и закупочные цены?",
+    a: "Данные каждой фабрики строго изолированы (R6). Возможен выделенный контур на api.korkem.asia или локальный узел на вашем сервере в цеху.",
   },
   {
-    q: "Сколько времени занимает запуск в реальном цеху?",
-    a: "Базовый запуск — за один день: заводите компанию, загружаете прайс МДФ/плёнки, раздаёте сотрудникам ссылки-приглашения и запускаете Windows-клиент или Android APK.",
+    q: "Сколько времени занимает запуск в реальном производстве?",
+    a: "Базовый запуск — один день: регистрируете компанию, загружаете прайс МДФ и плёнки, раздаёте ссылки-приглашения команде и ставите Windows-клиент.",
   },
 ];
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col bg-[#060911] text-slate-100">
-      {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden border-b border-white/10 bg-grid-slate pt-16 pb-20 md:pt-24 md:pb-28">
-        {/* Radial spotlights */}
+    <div className="flex flex-col">
+      {/* 1. HERO — Obsidian Dark (#09090B) */}
+      <section className="relative overflow-hidden bg-[#09090B] bg-arch-grid pt-16 pb-24 md:pt-24 md:pb-32 text-[#F5F5F0]">
+        {/* Warm subtle architectural spotlight */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-sky-500/15 blur-[140px]"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-40 right-1/4 h-[300px] w-[420px] rounded-full bg-amber-500/10 blur-[130px]"
+          className="pointer-events-none absolute -top-48 left-1/2 h-[540px] w-[820px] -translate-x-1/2 rounded-full bg-amber-500/[0.08] blur-[160px]"
         />
 
-        <div className="container relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/25 bg-sky-500/10 px-4 py-1.5 text-xs font-medium text-sky-300 backdrop-blur-md">
-            <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-            <span>KORKEM Flow OS · v0.7.8 · Local-First &amp; AI-Native</span>
-          </div>
+        <div className="container relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
+          <Link
+            href="/download"
+            className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.12] bg-white/[0.03] px-3.5 py-1 text-xs text-zinc-300 transition hover:border-white/25 hover:text-white"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="font-mono text-[11px] text-zinc-400">v0.7.8</span>
+            <span>Вышел модуль «Отдел плёнки» и редактор пресса</span>
+            <ArrowUpRight className="h-3.5 w-3.5 text-zinc-500" />
+          </Link>
 
-          <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[64px] lg:leading-[1.08]">
-            Операционная система мебельного цеха{" "}
-            <span className="bg-gradient-to-r from-sky-400 via-cyan-300 to-amber-300 bg-clip-text text-transparent">
-              от звонка до монтажа
-            </span>
+          <h1 className="mx-auto mt-8 max-w-4xl text-4xl font-semibold tracking-[-0.035em] text-[#F5F5F0] sm:text-6xl lg:text-[68px] lg:leading-[1.04]">
+            Цифровая архитектура{" "}
+            <span className="font-serif italic font-medium text-amber-200/95">
+              мебельного
+            </span>{" "}
+            производства
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
-            Заказы МДФ, умная раскладка на вакуумный пресс, отдел плёнки ПВХ,
-            импорт из БАЗИС-Мебельщик, склад с обрезками и AI-администратор —
-            в одном быстром окне, без хаоса таблиц и блокнотов.
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
+            Единая операционная система для фабрик и цехов: заказы МДФ,
+            раскладка на вакуумный пресс, отдел плёнки ПВХ, импорт из БАЗИС и
+            AI-администратор — в одном точном интерфейсе.
           </p>
 
-          {/* Primary CTAs */}
-          <div className="mt-9 flex flex-col items-center justify-center gap-3.5 sm:flex-row">
-            <Button
-              size="lg"
-              className="h-12 w-full sm:w-auto gap-2 rounded-xl bg-sky-500 px-8 text-base font-semibold text-slate-950 shadow-[0_0_32px_-6px_rgba(14,165,233,0.75)] hover:bg-sky-400"
-              asChild
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href="/register"
+              className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#F5F5F0] px-7 text-sm font-semibold text-[#09090B] transition hover:bg-white"
             >
-              <Link href="/register">
-                <span>Создать пространство цеха</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-12 w-full sm:w-auto gap-2 rounded-xl border-white/15 bg-white/[0.03] px-8 text-base text-white hover:bg-white/10"
-              asChild
+              <span>Создать пространство цеха</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/download"
+              className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/15 bg-transparent px-7 text-sm font-medium text-zinc-200 transition hover:border-white/30 hover:bg-white/[0.04]"
             >
-              <Link href="/download">
-                <Download className="h-4 w-4 text-sky-400" />
-                <span>Скачать Windows / Android</span>
-              </Link>
-            </Button>
+              <Download className="h-4 w-4 text-zinc-400" />
+              <span>Скачать Windows / Android</span>
+            </Link>
           </div>
 
-          {/* Trust Pills */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-xs text-slate-400">
-            <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              Windows Desktop &amp; Android APK
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              Раскладка пресса MaxRects + текстура
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              Импорт из БАЗИС 10.1 / 10.4
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              Изолированная база компании
-            </span>
-          </div>
-
-          {/* Interactive Product Cockpit */}
-          <LandingHeroCockpit />
+          {/* Interactive Product Simulator */}
+          <InteractivePressDemo />
         </div>
       </section>
 
-      {/* 2. METRICS STRIP */}
-      <section className="border-b border-white/10 bg-[#080D1A]">
-        <div className="container mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-            {[
-              { value: "12 этапов", label: "Единый цикл от лида до гарантии" },
-              { value: "30 сек", label: "На раскладку фасадов на стол пресса" },
-              { value: "0 потерь", label: "Контроль обрезков, рулонов и долгов" },
-              { value: "100%", label: "Работает без LLM и без потери данных" },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="rounded-xl border border-white/10 bg-white/[0.02] px-5 py-4"
-              >
-                <div className="font-mono text-2xl font-bold text-white sm:text-3xl">
-                  {item.value}
-                </div>
-                <div className="mt-1 text-xs text-slate-400 leading-snug">
-                  {item.label}
-                </div>
+      {/* 2. EDITORIAL MANIFESTO — Warm Limestone (#F7F6F2) */}
+      <section className="bg-[#F7F6F2] text-[#09090B] border-y border-neutral-200 py-20 md:py-28">
+        <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start">
+            <div className="lg:col-span-5">
+              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500">
+                Философия KORKEM
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. BEFORE vs AFTER */}
-      <section className="py-20 md:py-24 border-b border-white/10">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center mb-14">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
-              Зачем цехи уходят от таблиц и блокнотов
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Владелец больше не работает «администратором за станком»
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Before */}
-            <div className="rounded-2xl border border-rose-500/20 bg-rose-500/[0.03] p-7">
-              <div className="inline-flex items-center gap-2 rounded-full bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-300">
-                <XCircle className="h-3.5 w-3.5" />
-                Обычный день без системы
-              </div>
-              <ul className="mt-5 space-y-3.5 text-sm text-slate-300">
-                {[
-                  "Клиент звонит, пока вы у ЧПУ — размер пишется в блокнот и теряется до вечера.",
-                  "Заказы МДФ в одной программе, остатки плёнки в тетради, оплаты в WhatsApp.",
-                  "Плёнка закончилась внезапно — пресс и цех стоят в ожидании поставки.",
-                  "В конце месяца споры с мастерами по сдельной оплате и неясные долги клиентов.",
-                ].map((text) => (
-                  <li key={text} className="flex items-start gap-3">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />
-                    <span>{text}</span>
-                  </li>
-                ))}
-              </ul>
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#09090B] sm:text-4xl leading-[1.12]">
+                Владелец больше не работает{" "}
+                <span className="font-serif italic font-medium">
+                  администратором
+                </span>{" "}
+                за станком
+              </h2>
             </div>
 
-            {/* After */}
-            <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.04] p-7">
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                С KORKEM Flow
+            <div className="lg:col-span-7 grid grid-cols-1 gap-8 sm:grid-cols-3 border-t border-neutral-300 pt-8 lg:border-t-0 lg:pt-0">
+              <div>
+                <div className="font-mono text-2xl font-semibold text-[#09090B]">
+                  0 мин
+                </div>
+                <div className="mt-2 text-sm font-semibold text-[#09090B]">
+                  Потерь между отделами
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-neutral-600">
+                  Замер, КП, фасадный заказ, плёнка, цех и касса связаны с
+                  одним производственным заказом.
+                </p>
               </div>
-              <ul className="mt-5 space-y-3.5 text-sm text-slate-200">
-                {[
-                  "Сказали голосом AI-администратору — заявка, замерщик и напоминание созданы за 5 секунд.",
-                  "Весь цикл МДФ, раскрой пресса и отдел плёнки ПВХ живут в одном окне и одной базе.",
-                  "Система заранее предупреждает «мало листов» и показывает плёнку «в пути» с датой.",
-                  "Каждый этап отмечается в цеху по PIN-коду — сдельная зарплата и касса сходятся до тенге.",
-                ].map((text) => (
-                  <li key={text} className="flex items-start gap-3">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                    <span>{text}</span>
-                  </li>
-                ))}
-              </ul>
+              <div>
+                <div className="font-mono text-2xl font-semibold text-[#09090B]">
+                  MaxRects
+                </div>
+                <div className="mt-2 text-sm font-semibold text-[#09090B]">
+                  Точный метраж плёнки
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-neutral-600">
+                  Учитывает секции 1.1 / 2.1 / 3.1 м, зазоры и запрет поворота
+                  для текстурных декоров.
+                </p>
+              </div>
+              <div>
+                <div className="font-mono text-2xl font-semibold text-[#09090B]">
+                  R6 · R7
+                </div>
+                <div className="mt-2 text-sm font-semibold text-[#09090B]">
+                  Автономность и приватность
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-neutral-600">
+                  База компании изолирована, а весь цех работает даже без
+                  интернета и без ИИ.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* 4. PRODUCTION PIPELINE */}
-      <section className="py-20 md:py-24 border-b border-white/10 bg-[#080D1A]">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center mb-14">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">
-              Сквозная архитектура
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ни один заказ не пропадает между отделами
-            </h2>
-            <p className="mt-3 text-sm text-slate-400">
-              Центральная сущность — Производственный заказ. Всё, от замера до
-              гарантии, привязано к нему и доступно в один клик.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
-            {LIFECYCLE_STEPS.map((step) => (
-              <div
-                key={step.num}
-                className="group relative rounded-xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-sky-400/40 hover:bg-white/[0.04]"
-              >
-                <div className="font-mono text-xs font-bold text-sky-400">
-                  {step.num}
+          {/* 6-Stage Architectural Lifecycle */}
+          <div className="mt-16 grid grid-cols-1 divide-y divide-neutral-200 border border-neutral-200 rounded-2xl bg-white sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-6 lg:divide-x">
+            {PIPELINE.map((step) => (
+              <div key={step.n} className="p-5">
+                <div className="font-mono text-[11px] font-medium text-neutral-400">
+                  {step.n}
                 </div>
-                <h3 className="mt-2 text-sm font-bold text-white">
-                  {step.title}
-                </h3>
-                <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
-                  {step.desc}
+                <div className="mt-2 text-sm font-semibold text-[#09090B]">
+                  {step.name}
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-neutral-600">
+                  {step.note}
                 </p>
               </div>
             ))}
@@ -257,205 +175,179 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. BENTO GRID: CORE MODULES */}
-      <section className="py-20 md:py-28 border-b border-white/10">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center mb-16">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
-              Боевые модули производства
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Сделано вместе с реальными мебельными цехами
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-            {/* Big Card 1: MDF + Press */}
-            <div className="md:col-span-7 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent p-7 hover:border-sky-400/35 transition">
-              <div className="flex items-center justify-between">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 text-sky-400 ring-1 ring-sky-400/30">
-                  <Cpu className="h-5 w-5" />
-                </div>
-                <Badge className="bg-sky-500/15 text-sky-300 border-sky-400/30 font-mono text-[11px]">
-                  MaxRects + Ручной редактор
-                </Badge>
+      {/* 3. BENTO CAPABILITIES — Obsidian Dark (#09090B) */}
+      <section className="bg-[#09090B] text-[#F5F5F0] py-20 md:py-28 border-b border-white/[0.08]">
+        <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end mb-14">
+            <div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                Модули производства
               </div>
-              <h3 className="mt-5 text-xl font-bold text-white">
-                Заказы МДФ и умная раскладка на вакуумный пресс
-              </h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-slate-300">
-                Матрица цен «фрезеровка × отделка», автоматический расчёт м² и
-                погонных метров плёнки по секциям стола пресса (1.1 / 2.1 / 3.1 м).
-                Учитывает зазоры и запрещает поворот на 90° для текстурных
-                плёнок — с возможностью ручной правки «Раскрой проверен».
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {["Бланк клиенту и цеху", "Светофор сроков", "Двусторонние фасады"].map(
-                  (tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs text-slate-300"
-                    >
-                      {tag}
-                    </span>
-                  )
-                )}
-              </div>
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+                Построено на реальных заказах{" "}
+                <span className="font-serif italic font-medium text-amber-200">
+                  и бланках цеха
+                </span>
+              </h2>
             </div>
-
-            {/* Big Card 2: Film Dept */}
-            <div className="md:col-span-5 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent p-7 hover:border-amber-400/35 transition">
-              <div className="flex items-center justify-between">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/15 text-amber-300 ring-1 ring-amber-400/30">
-                  <Layers className="h-5 w-5" />
-                </div>
-                <Badge className="bg-amber-500/15 text-amber-300 border-amber-400/30 font-mono text-[11px]">
-                  Склад · Продажа · Касса
-                </Badge>
-              </div>
-              <h3 className="mt-5 text-xl font-bold text-white">
-                Отдел плёнки ПВХ
-              </h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-slate-300">
-                Каталог по производителям и коллекциям, учёт нескольких толщин у
-                одной плёнки, статусы «Свободно / Отложено / В пути», чеки со
-                смешанной оплатой, закрытие кассы и рейтинг клиентов с лимитом
-                долга.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {["Доска поставщиков", "Командный бонус", "Акт сверки"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs text-slate-300"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Card 3: BAZIS + Offcuts */}
-            <div className="md:col-span-4 rounded-2xl border border-white/10 bg-white/[0.02] p-7 hover:border-white/20 transition">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/15 text-purple-300 ring-1 ring-purple-400/30">
-                <Scissors className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 text-lg font-bold text-white">
-                БАЗИС-Мебельщик и обрезки
-              </h3>
-              <p className="mt-2 text-sm text-slate-400 leading-relaxed">
-                Рекурсивный импорт XML из БАЗИС 10.1 / 10.4, учёт делового
-                обрезка на складе, инвентаризация месяца и авто-алерты «мало
-                листов».
-              </p>
-            </div>
-
-            {/* Card 4: Piecework & 1C */}
-            <div className="md:col-span-4 rounded-2xl border border-white/10 bg-white/[0.02] p-7 hover:border-white/20 transition">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30">
-                <Wallet className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 text-lg font-bold text-white">
-                Сдельная оплата и экспорт в 1С
-              </h3>
-              <p className="mt-2 text-sm text-slate-400 leading-relaxed">
-                Мастера отмечают выполнение на планшете цеха, начисления
-                считаются по тарифам, а бухгалтерия выгружает проводки в 1С.
-              </p>
-            </div>
-
-            {/* Card 5: AI Agent */}
-            <div className="md:col-span-4 rounded-2xl border border-white/10 bg-white/[0.02] p-7 hover:border-white/20 transition">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/30">
-                <Bot className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 text-lg font-bold text-white">
-                Цифровой администратор (AI)
-              </h3>
-              <p className="mt-2 text-sm text-slate-400 leading-relaxed">
-                Отвечает по реальным данным заказов и склада в приложении,
-                Telegram и WhatsApp. Любая запись подтверждается человеком (R10).
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-10 text-center">
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-white/15 bg-white/[0.02] text-white hover:bg-white/10"
-              asChild
+            <Link
+              href="/features"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-300 transition hover:text-white"
             >
-              <Link href="/features" className="gap-2">
-                <span>Смотреть все модули подробно</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+              <span>Все возможности</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+            {/* Large 1 */}
+            <SpotlightCard className="md:col-span-7 p-7 sm:p-8">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-amber-400">
+                01 · Фасады МДФ и Пресс
+              </div>
+              <h3 className="mt-3 text-xl font-semibold text-[#F5F5F0]">
+                Единое окно заказа МДФ и раскладка на вакуумный пресс
+              </h3>
+              <p className="mt-2.5 text-sm leading-relaxed text-zinc-400">
+                Прайс-матрица фрезеровка × отделка подставляет цены сама. После
+                принятия цены фиксируются в заказе. Оператор пресса видит
+                оптимальную карту укладки на стол и может поправить её вручную.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2 font-mono text-[11px] text-zinc-300">
+                <span className="rounded-full border border-white/10 px-3 py-1">
+                  Печать клиенту и цеху
+                </span>
+                <span className="rounded-full border border-white/10 px-3 py-1">
+                  Двусторонние фасады
+                </span>
+                <span className="rounded-full border border-white/10 px-3 py-1">
+                  Светофор сроков
+                </span>
+              </div>
+            </SpotlightCard>
+
+            {/* Large 2 */}
+            <SpotlightCard className="md:col-span-5 p-7 sm:p-8">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-amber-400">
+                02 · Отдел плёнки ПВХ
+              </div>
+              <h3 className="mt-3 text-xl font-semibold text-[#F5F5F0]">
+                Рулоны, толщины, касса и клиенты
+              </h3>
+              <p className="mt-2.5 text-sm leading-relaxed text-zinc-400">
+                Несколько толщин у одной плёнки, статусы «Свободно / Отложено /
+                В пути», чеки со смешанной оплатой, закрытие дня, доска
+                поставщиков и контроль лимита долга клиента.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2 font-mono text-[11px] text-zinc-300">
+                <span className="rounded-full border border-white/10 px-3 py-1">
+                  Акт сверки
+                </span>
+                <span className="rounded-full border border-white/10 px-3 py-1">
+                  Командный бонус
+                </span>
+              </div>
+            </SpotlightCard>
+
+            {/* Row 2: 3 equal cards */}
+            <SpotlightCard className="md:col-span-4 p-7">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+                03 · БАЗИС и Склад
+              </div>
+              <h3 className="mt-3 text-lg font-semibold text-[#F5F5F0]">
+                Импорт БАЗИС 10.1 / 10.4
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                Рекурсивный разбор блоков и деталей, учёт деловых обрезков,
+                инвентаризация месяца и алерты «мало листов».
+              </p>
+            </SpotlightCard>
+
+            <SpotlightCard className="md:col-span-4 p-7">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+                04 · Люди и 1С
+              </div>
+              <h3 className="mt-3 text-lg font-semibold text-[#F5F5F0]">
+                Сдельная оплата и выгрузка
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                Мастера отмечают этап на планшете по PIN-коду — зарплата
+                начисляется прозрачно, а бухгалтерия выгружает данные в 1С.
+              </p>
+            </SpotlightCard>
+
+            <SpotlightCard className="md:col-span-4 p-7">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
+                05 · AI-Ассистент
+              </div>
+              <h3 className="mt-3 text-lg font-semibold text-[#F5F5F0]">
+                Помощник без самодеятельности
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                Отвечает по фактам из БД в приложении, Telegram и WhatsApp.
+                Любая запись требует подтверждения человеком (R10).
+              </p>
+            </SpotlightCard>
           </div>
         </div>
       </section>
 
-      {/* 6. ECOSYSTEM PLATFORMS */}
-      <section className="py-20 md:py-24 border-b border-white/10 bg-[#080D1A]">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center mb-14">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
-              Единое ядро — 4 интерфейса
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Удобный инструмент на каждом участке
+      {/* 4. FOUR SURFACES — Warm Limestone (#F7F6F2) */}
+      <section className="bg-[#F7F6F2] text-[#09090B] py-20 md:py-24 border-b border-neutral-200">
+        <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center mb-14">
+            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500">
+              4 интерфейса · 1 ядро
+            </div>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+              Один поток данных от офиса до станка
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: Laptop,
-                color: "text-sky-400 bg-sky-500/10 border-sky-400/20",
                 title: "Windows Desktop",
-                sub: "Менеджеры и технологи",
-                desc: "Быстрое оформление заказов МДФ, раскладка на пресс, печать бланков и касса.",
+                role: "Офис и технолог",
+                desc: "Заказы МДФ, редактор пресса, печать бланков, отдел плёнки и касса.",
               },
               {
                 icon: Smartphone,
-                color: "text-emerald-400 bg-emerald-500/10 border-emerald-400/20",
                 title: "Android / iOS",
-                sub: "Владелец и замерщики",
-                desc: "Контроль просрочек, фото с замера, AI-чат и уведомления в кармане.",
+                role: "Директор и замерщик",
+                desc: "Замеры с фото, просрочки, аналитика и AI-чат с подтверждением.",
               },
               {
                 icon: Tablet,
-                color: "text-amber-400 bg-amber-500/10 border-amber-400/20",
                 title: "Терминал цеха",
-                sub: "Мастера по PIN-коду",
-                desc: "Очередь заданий, отметка этапов, сдельная выработка и регистрация брака.",
+                role: "Мастера по PIN-коду",
+                desc: "Очередь сменных заданий, отметка операций и фиксация брака.",
               },
               {
                 icon: Globe,
-                color: "text-purple-400 bg-purple-500/10 border-purple-400/20",
                 title: "Веб-портал",
-                sub: "Доступ из браузера",
-                desc: "Управление компанией, складами, командой и приглашениями сотрудников.",
+                role: "Администрирование",
+                desc: "Регистрация фабрики, приглашения сотрудников и управление складами.",
               },
-            ].map((p) => {
-              const Icon = p.icon;
+            ].map((item) => {
+              const Icon = item.icon;
               return (
                 <div
-                  key={p.title}
-                  className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 hover:border-white/20 transition"
+                  key={item.title}
+                  className="rounded-2xl border border-neutral-200 bg-white p-6 transition hover:border-neutral-400"
                 >
-                  <div
-                    className={`inline-flex h-11 w-11 items-center justify-center rounded-xl border ${p.color}`}
-                  >
-                    <Icon className="h-5 w-5" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 bg-[#F7F6F2] text-[#09090B]">
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <h3 className="mt-4 text-lg font-bold text-white">
-                    {p.title}
+                  <div className="mt-5 font-mono text-[11px] text-neutral-500">
+                    {item.role}
+                  </div>
+                  <h3 className="mt-1 text-base font-semibold text-[#09090B]">
+                    {item.title}
                   </h3>
-                  <div className="font-mono text-[11px] text-slate-400">
-                    {p.sub}
-                  </div>
-                  <p className="mt-2.5 text-sm text-slate-300 leading-relaxed">
-                    {p.desc}
+                  <p className="mt-2 text-xs leading-relaxed text-neutral-600">
+                    {item.desc}
                   </p>
                 </div>
               );
@@ -464,127 +356,73 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. SECURITY & ARCHITECTURAL GUARANTEES */}
-      <section className="py-16 md:py-20 border-b border-white/10">
+      {/* 5. FAQ + FINAL CTA — Obsidian Dark (#09090B) */}
+      <section className="bg-[#09090B] text-[#F5F5F0] py-20 md:py-28">
         <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 items-center gap-8 rounded-3xl border border-white/10 bg-gradient-to-r from-white/[0.03] to-sky-500/[0.04] p-8 md:grid-cols-12 md:p-10">
-            <div className="md:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">
-                <ShieldCheck className="h-4 w-4" />
-                Инженерные гарантии KORKEM
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                Вопросы и ответы
               </div>
-              <h2 className="mt-4 text-2xl font-bold text-white sm:text-3xl">
-                Ваши цены, клиенты и чертежи принадлежат только вам
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">
+                Всё, что важно перед{" "}
+                <span className="font-serif italic font-medium text-amber-200">
+                  запуском
+                </span>
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-slate-300">
-                Данные каждой фабрики изолированы на уровне базы. Система
-                продолжает работать при сбоях интернета и без подключённой LLM,
-                а все действия сотрудников и AI фиксируются в неизменяемом
-                журнале аудита.
-              </p>
-            </div>
-            <div className="md:col-span-5 grid grid-cols-1 gap-3">
-              {[
-                {
-                  icon: Lock,
-                  title: "Изоляция компании (R4 / R6)",
-                  desc: "Никакого смешивания остатков и клиентов между цехами.",
-                },
-                {
-                  icon: Boxes,
-                  title: "Работа без LLM (R7)",
-                  desc: "Вся операционка работает детерминированно даже без ИИ.",
-                },
-                {
-                  icon: Users,
-                  title: "Подтверждение человеком (R10)",
-                  desc: "AI предлагает, но решение о записи всегда за вами.",
-                },
-              ].map((g) => {
-                const Icon = g.icon;
-                return (
-                  <div
-                    key={g.title}
-                    className="flex items-start gap-3 rounded-xl border border-white/10 bg-[#060911]/70 p-3.5"
-                  >
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" />
-                    <div>
-                      <div className="text-xs font-semibold text-white">
-                        {g.title}
-                      </div>
-                      <div className="text-xs text-slate-400 mt-0.5">
-                        {g.desc}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 8. FAQ */}
-      <section className="py-20 border-b border-white/10 bg-[#080D1A]">
-        <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
-              Частые вопросы
-            </p>
-            <h2 className="mt-2 text-3xl font-bold text-white">
-              Перед запуском в цеху
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            {FAQ_ITEMS.map((item) => (
-              <div
-                key={item.q}
-                className="rounded-2xl border border-white/10 bg-white/[0.02] p-6"
-              >
-                <h3 className="text-base font-bold text-white">{item.q}</h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-slate-400">
-                  {item.a}
-                </p>
+              <div className="mt-6 space-y-2.5 text-xs text-zinc-400">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Изоляция данных на уровне компании</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Аудит каждого изменения</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
 
-      {/* 9. FINAL CTA */}
-      <section className="py-20">
-        <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl border border-sky-400/30 bg-gradient-to-br from-sky-500/20 via-[#0B1426] to-amber-500/15 p-8 text-center shadow-2xl sm:p-14">
-            <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-              Наведите порядок в цеху и фасадах уже сегодня
+            <div className="lg:col-span-8 divide-y divide-white/[0.08] border-y border-white/[0.08]">
+              {FAQ.map((item) => (
+                <div key={item.q} className="py-6">
+                  <h3 className="text-base font-medium text-[#F5F5F0]">
+                    {item.q}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                    {item.a}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Minimal High-Contrast Closing CTA */}
+          <div className="mt-24 rounded-3xl border border-white/[0.12] bg-[#111114] px-6 py-14 text-center sm:px-12 sm:py-16">
+            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-amber-300">
+              KORKEM Flow · 2026
+            </div>
+            <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-semibold tracking-[-0.03em] text-[#F5F5F0] sm:text-5xl">
+              Наведите порядок в цеху за{" "}
+              <span className="font-serif italic font-medium">один день</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base text-slate-300">
-              Зарегистрируйте компанию за 2 минуты, пригласите команду по ссылке
-              и скачайте KORKEM Flow Desktop v0.7.8.
+            <p className="mx-auto mt-4 max-w-lg text-sm text-zinc-400">
+              Создайте пространство компании, пригласите сотрудников по ссылке и
+              скачайте актуальную версию для Windows или Android.
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button
-                size="lg"
-                className="h-12 w-full sm:w-auto gap-2 rounded-xl bg-sky-500 px-8 text-base font-semibold text-slate-950 hover:bg-sky-400"
-                asChild
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/register"
+                className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#F5F5F0] px-8 text-sm font-semibold text-[#09090B] transition hover:bg-white"
               >
-                <Link href="/register">
-                  <span>Создать компанию</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 w-full sm:w-auto gap-2 rounded-xl border-white/20 bg-white/5 px-8 text-base text-white hover:bg-white/10"
-                asChild
+                <span>Создать компанию</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/download"
+                className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/15 px-8 text-sm font-medium text-zinc-200 transition hover:border-white/30 hover:bg-white/[0.04]"
               >
-                <Link href="/download">
-                  <FileSpreadsheet className="h-4 w-4 text-amber-300" />
-                  <span>Страница загрузок</span>
-                </Link>
-              </Button>
+                <span>Страница загрузок</span>
+              </Link>
             </div>
           </div>
         </div>

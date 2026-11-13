@@ -17,39 +17,38 @@ export function PublicNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#060911]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#09090B]/85 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
         <Link href="/" className="group flex items-center gap-3 transition">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 text-slate-950 shadow-[0_0_20px_-4px_rgba(14,165,233,0.6)] transition-transform group-hover:scale-105">
-            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-[#F5F5F0] text-[#09090B] transition-transform group-hover:scale-105">
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 4v16" />
               <path d="M18 4L9 12l9 8" />
-              <circle cx="18" cy="4" r="1.4" className="fill-current stroke-none" />
             </svg>
           </div>
-          <div className="flex flex-col leading-none">
-            <span className="text-base font-extrabold tracking-tight text-white">
-              KORKEM <span className="text-sky-400 font-semibold">Flow</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-[15px] font-semibold tracking-tight text-[#F5F5F0]">
+              KORKEM
             </span>
-            <span className="mt-0.5 font-mono text-[9px] font-medium uppercase tracking-[0.18em] text-slate-400">
-              Manufacturing OS
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+              Flow
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-1 text-[13px] font-medium">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-md px-3.5 py-2 transition-colors ${
+                className={`rounded-full px-3.5 py-1.5 transition-colors ${
                   isActive
-                    ? "text-primary bg-primary/5 font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "bg-white/10 text-[#F5F5F0]"
+                    : "text-zinc-400 hover:text-[#F5F5F0]"
                 }`}
               >
                 {link.label}
@@ -59,16 +58,20 @@ export function PublicNav() {
         </nav>
 
         {/* Desktop CTA actions */}
-        <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/login">Войти</Link>
-          </Button>
-          <Button size="sm" className="gap-1.5 shadow-sm" asChild>
-            <Link href="/register">
-              <span>Регистрация</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </Button>
+        <div className="hidden md:flex items-center gap-2.5">
+          <Link
+            href="/login"
+            className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-zinc-300 transition hover:text-white"
+          >
+            Войти
+          </Link>
+          <Link
+            href="/register"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#F5F5F0] px-4 py-1.5 text-[13px] font-semibold text-[#09090B] transition hover:bg-white"
+          >
+            <span>Начать</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
         {/* Mobile menu trigger */}
