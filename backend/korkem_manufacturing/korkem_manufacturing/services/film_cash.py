@@ -20,7 +20,7 @@ The MDF cash book is not touched: the two departments keep their own money.
 from __future__ import annotations
 
 import frappe
-from frappe.utils import flt, get_fullname, getdate, nowdate
+from frappe.utils import add_days, flt, get_fullname, getdate, nowdate
 
 from korkem_manufacturing.services import audit, material_stock
 from korkem_manufacturing.services.film_dept import (
@@ -80,8 +80,13 @@ def _metres(entry: str) -> float:
 	return flt(frappe.db.get_value("Stock Entry Detail", {"parent": entry}, "qty"))
 
 
-def book(since: str | None = None, until: str | None = None) -> dict:
-	"""The department's money in and out over a period, and what is owed."""
+def book(since: str | None = None, until: str | None = None, compare: bool = True) -> dict:
+	"""The department's money in and out over a period, and what is owed.
+
+	`days` — in and out day by day, every day of the period, for the chart;
+	`previous` — the period of the same length just before, to say whether
+	this one is better (owner, 14.11.2026: a chart on every department).
+	"""
 	material_stock._ensure_editor()
 	company = current_company()
 	start, end = _period(since, until)
@@ -144,6 +149,21 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 		where[way] = where.get(way, 0.0) - o["amount"]
 	total_in = round(sum(ins.values()), 2)
 	total_out = round(sum(o["amount"] for o in outs), 2)
+	daily: dict[str, list[float]] = {}
+	for m in moves:
+		row = daily.setdefault(m["date"], [0.0, 0.0])
+		row[0 if m["in"] else 1] += m["amount"]
+	days = []
+	day = start
+	while day <= end:
+		got, spent = daily.get(str(day), (0.0, 0.0))
+		days.append({"date": str(day), "in": round(got, 2), "out": round(spent, 2)})
+		day = add_days(day, 1)
+	previous = None
+	if compare:
+		length = (end - start).days + 1
+		before = book(str(add_days(start, -length)), str(add_days(start, -1)), compare=False)
+		previous = {k: before[k] for k in ("since", "until", "in_total", "out_total", "balance")}
 	return {
 		"since": str(start),
 		"until": str(end),
@@ -156,6 +176,8 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 		"spent": len(outs),
 		"where": [{"way": k, "amount": round(v, 2)} for k, v in sorted(where.items(), key=lambda kv: -kv[1])],
 		"moves": moves[:200],
+		"days": days,
+		"previous": previous,
 		# A day's close, when the period is one day (owner, 12.11.2026).
 		"closed": closed(str(start), company) if start == end else None,
 		# For the owner's eye only — the bonus does not count it.
@@ -279,7 +301,7 @@ _CLOSE = "korkem_film_cash_close"
 
 
 def _expected_cash(day) -> float:
-	book_day = book(str(day), str(day))
+	book_day = book(str(day), str(day), compare=False)
 	return next((w["amount"] for w in book_day["where"] if w["way"] == METHODS[0]), 0.0)
 
 

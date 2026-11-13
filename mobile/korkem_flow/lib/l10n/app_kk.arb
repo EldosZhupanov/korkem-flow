@@ -2064,6 +2064,8 @@
   "filmSupplierPaidNow": "Төленді",
   "filmSupplierOnCredit": "Қарызға",
   "filmSupplierOwedNote": "жеткізушіге қарыз",
+  "filmCashChartA11y": "Кірді {incoming}, шықты {outgoing}",
+  "filmCashVersus": "{arrow} {pct}% алдыңғы кезеңге",
   "filmToday": "Бүгін",
   "filmYesterday": "Кеше",
   "filmHistoryAll": "Барлығы",

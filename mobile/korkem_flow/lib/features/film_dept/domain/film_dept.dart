@@ -156,6 +156,8 @@ class FilmCashBook {
     this.where = const [],
     this.moves = const [],
     this.closed,
+    this.days = const [],
+    this.previous,
   });
 
   factory FilmCashBook.fromJson(Map<String, dynamic> json) {
@@ -229,6 +231,22 @@ class FilmCashBook {
           if (r is Map<String, dynamic>)
             (way: '${r['way']}', amount: _d(r['amount']) ?? 0),
       ],
+      days: [
+        for (final r in json['days'] as List? ?? const [])
+          if (r is Map<String, dynamic>)
+            (
+              date: '${r['date'] ?? ''}',
+              incoming: _d(r['in']) ?? 0,
+              outgoing: _d(r['out']) ?? 0,
+            ),
+      ],
+      previous: switch (json['previous']) {
+        final Map<String, dynamic> p => (
+          inTotal: _d(p['in_total']) ?? 0,
+          outTotal: _d(p['out_total']) ?? 0,
+        ),
+        _ => null,
+      },
       moves: [
         for (final r in json['moves'] as List? ?? const [])
           if (r is Map<String, dynamic>)
@@ -261,6 +279,12 @@ class FilmCashBook {
 
   /// Owed to carriers not paid yet.
   final List<FilmOwed> carriers;
+
+  /// In and out day by day, every day of the period — for the chart.
+  final List<({String date, double incoming, double outgoing})> days;
+
+  /// The period of the same length just before, to compare with.
+  final ({double inTotal, double outTotal})? previous;
 
   /// Film taken from suppliers on credit, not paid for yet: `who` is the
   /// supplier, `supplier` the film.

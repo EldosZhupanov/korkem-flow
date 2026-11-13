@@ -185,3 +185,19 @@ abstract final class AppScrollExtent {
   /// viewport, so the page is usually there before the user arrives.
   static const double prefetch = 400;
 }
+
+/// The department dashboards' charts (owner, 14.11.2026).
+abstract final class AppChart {
+  /// A chart's drawing area, above its labels.
+  static const double height = 160;
+
+  /// A bar is never wider than this, however few there are: a fat bar reads
+  /// as a bigger number.
+  static const double maxBar = 24;
+
+  /// A horizontal bar's row: the bar and its label beside it.
+  static const double row = 28;
+
+  /// The share of a slot a bar takes; the rest is the gap between bars.
+  static const double barShare = 0.62;
+}

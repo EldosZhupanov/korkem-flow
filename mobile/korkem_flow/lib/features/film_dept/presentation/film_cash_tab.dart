@@ -5,6 +5,8 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/charts/day_waterfall.dart';
+import 'package:korkem_flow/core/design/widgets/charts/flow_bars.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
@@ -28,6 +30,9 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
   /// (owner, 12.11.2026).
   int _span = 0;
   DateTime? _day;
+
+  /// The day tapped on the chart: the moves below are that day's alone.
+  String? _picked;
 
   ({String? since, String? until}) get _period {
     final now = DateTime.now();
@@ -92,6 +97,14 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
             onRetry: () => ref.invalidate(filmCashProvider(period)),
           ),
           data: (b) {
+            // A day picked under another period is not this one's.
+            final picked = b.days.any((d) => d.date == _picked)
+                ? _picked
+                : null;
+            final moves = [
+              for (final m in b.moves)
+                if (picked == null || m.date == picked) m,
+            ];
             Widget owedList(String title, List<FilmOwed> rows, String key) =>
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,6 +218,7 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                       value: '+${money.format(b.inTotal)}',
                       note: l10n.filmCashSales(b.sales),
                       color: status.success,
+                      delta: _versus(l10n, b.inTotal, b.previous?.inTotal),
                     ),
                     _CashCard(
                       key: const ValueKey('filmCash:out'),
@@ -212,6 +226,7 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                       value: '−${money.format(b.outTotal)}',
                       note: l10n.filmCashSpent(b.spent),
                       color: status.danger,
+                      delta: _versus(l10n, b.outTotal, b.previous?.outTotal),
                     ),
                     _CashCard(
                       key: const ValueKey('filmCash:balance'),
@@ -220,6 +235,49 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                     ),
                   ],
                 ),
+                // The period as a chart (owner, 14.11.2026): one day as a
+                // waterfall down to what is left; longer, a bar a day —
+                // tap one and the moves below are that day's.
+                const SizedBox(height: AppSpacing.md),
+                if (period.since == period.until)
+                  DayWaterfall(
+                    key: const ValueKey('filmCash:waterfall'),
+                    incoming: b.inTotal,
+                    outgoing: b.outTotal,
+                    labels: (
+                      l10n.filmCashIn,
+                      l10n.filmCashOut,
+                      l10n.filmCashBalance,
+                    ),
+                    semanticLabel: l10n.filmCashChartA11y(
+                      money.format(b.inTotal),
+                      money.format(b.outTotal),
+                    ),
+                  )
+                else if (b.days.isNotEmpty)
+                  FlowBars(
+                    key: const ValueKey('filmCash:chart'),
+                    bars: [
+                      for (final d in b.days)
+                        FlowBar(
+                          label: b.days.length <= 7
+                              ? mdfDay(d.date, year: false)
+                              : d.date.substring(8),
+                          up: d.incoming,
+                          down: d.outgoing,
+                        ),
+                    ],
+                    selected: picked == null
+                        ? null
+                        : b.days.indexWhere((d) => d.date == picked),
+                    onSelect: (i) => setState(
+                      () => _picked = i == null ? null : b.days[i].date,
+                    ),
+                    semanticLabel: l10n.filmCashChartA11y(
+                      money.format(b.inTotal),
+                      money.format(b.outTotal),
+                    ),
+                  ),
                 // «Закрыть день» — one day at a time (owner, 12.11.2026).
                 if (period.since == period.until)
                   _CloseDay(
@@ -251,9 +309,24 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                   ),
                 ],
                 const SizedBox(height: AppSpacing.md),
-                Text(l10n.filmCashMoves, style: theme.textTheme.titleMedium),
-                if (b.moves.isEmpty) Text(l10n.filmCashNothing),
-                for (final m in b.moves)
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l10n.filmCashMoves,
+                        style: theme.textTheme.titleMedium,
+                      ),
+                    ),
+                    if (picked != null)
+                      InputChip(
+                        key: const ValueKey('filmCash:picked'),
+                        label: Text(mdfDay(picked, year: false)),
+                        onDeleted: () => setState(() => _picked = null),
+                      ),
+                  ],
+                ),
+                if (moves.isEmpty) Text(l10n.filmCashNothing),
+                for (final m in moves)
                   Container(
                     margin: const EdgeInsets.only(top: AppSpacing.xs),
                     padding: const EdgeInsets.symmetric(
@@ -319,6 +392,17 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
 
 /// One figure of the cash on a card of its own — tinted when it is money
 /// in or out.
+/// «▲ 18% к прошлому периоду»: this period against the one before it;
+/// nothing when there is nothing to compare with.
+String? _versus(AppLocalizations l10n, double now, double? before) {
+  if (before == null || before <= 0) return null;
+  final change = (now - before) / before * 100;
+  return l10n.filmCashVersus(
+    change >= 0 ? '▲' : '▼',
+    change.abs().round().toString(),
+  );
+}
+
 class _CashCard extends StatelessWidget {
   const _CashCard({
     required this.label,
@@ -326,6 +410,7 @@ class _CashCard extends StatelessWidget {
     this.note,
     this.color,
     this.icon,
+    this.delta,
     super.key,
   });
 
@@ -334,6 +419,9 @@ class _CashCard extends StatelessWidget {
   final String? note;
   final Color? color;
   final IconData? icon;
+
+  /// Against the period before: «▲ 18% к прошлому периоду».
+  final String? delta;
 
   @override
   Widget build(BuildContext context) {
@@ -369,6 +457,13 @@ class _CashCard extends StatelessWidget {
                 Text(
                   note!,
                   style: theme.textTheme.labelSmall?.copyWith(color: color),
+                ),
+              if (delta != null)
+                Text(
+                  delta!,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
             ],
           ),

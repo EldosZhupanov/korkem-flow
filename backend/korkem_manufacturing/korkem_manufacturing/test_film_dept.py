@@ -267,6 +267,14 @@ class TestFilmDept(IntegrationTestCase):
 		cash = next(w["amount"] for w in book["where"] if w["way"] == "Наличные")
 		self.assertGreaterEqual(cash, 8000 - 5000 - 1)
 		self.assertTrue(any(m["entry"] == by_cash and not m["in"] for m in book["moves"]))
+		# Day by day for the chart, and the period before to compare with.
+		self.assertEqual([d["date"] for d in book["days"]], [nowdate()])
+		self.assertEqual(book["days"][0]["in"], book["in_total"])
+		self.assertEqual(book["days"][0]["out"], book["out_total"])
+		week = self._as(MANAGER, film_cash.book, add_days(nowdate(), -6), nowdate())
+		self.assertEqual(len(week["days"]), 7)
+		self.assertEqual(week["previous"]["since"], str(getdate(add_days(nowdate(), -13))))
+		self.assertEqual(week["previous"]["until"], str(getdate(add_days(nowdate(), -7))))
 		# Out of the department's cash: only what the cash paid.
 		self.assertEqual([o["amount"] for o in book["out"] if o["receipt"] in (by_cash, by_me, owed, free)], [5000])
 		self.assertIn(by_me, [e["receipt"] for e in book["owed"]["employees"]])
