@@ -112,17 +112,18 @@ def plan(parts: list[Part], press: dict, rotate: bool) -> tuple[list[Load], list
 	return _plan_in_order(left, press, rotate)
 
 
-def best_plan(parts: list[Part], press: dict, rotate: bool) -> tuple[list[Load], list[Part]]:
+def best_plan(parts: list[Part], press: dict, rotate: bool, effort: int = 1) -> tuple[list[Load], list[Part]]:
 	"""The plain layout, and then the parts in other orders — by size, by length,
 	by width, then shuffled — keeping the layout that takes the least film,
 	then the fewest loads (owner, 12.11.2026: «умный перебор»). The same parts
-	always give the same layout: the shuffles are seeded by the parts."""
+	always give the same layout: the shuffles are seeded by the parts.
+	`effort` multiplies the tries — «Максимум» on the press panel."""
 	best, too_big = plan(parts, press, rotate)
 	fit = [p for p in parts if p not in too_big]
 	if len(fit) < 2:
 		return best, too_big
 	cost = _cost(best)
-	tries = max(len(_ORDERS), min(SEARCH_TRIES, SEARCH_WORK // len(fit)))
+	tries = max(len(_ORDERS), min(SEARCH_TRIES * effort, SEARCH_WORK * effort // len(fit)))
 	shuffle = random.Random(";".join(f"{p.pos}:{p.width}x{p.height}" for p in sorted(fit, key=_key)))
 	for t in range(1, tries):
 		if t < len(_ORDERS):
@@ -134,7 +135,7 @@ def best_plan(parts: list[Part], press: dict, rotate: bool) -> tuple[list[Load],
 			best, cost = loads, _cost(loads)
 	# Load by load: of a few orders of what is left, the one that fills the
 	# table most — and the last load in the shortest section any order fits.
-	loads = _plan_filling(fit, press, rotate, shuffle, max(3, min(30, SEARCH_WORK // 2 // len(fit))))
+	loads = _plan_filling(fit, press, rotate, shuffle, max(3, min(30 * effort, SEARCH_WORK * effort // 2 // len(fit))))
 	if _cost(loads) < cost:
 		best = loads
 	return best, too_big
@@ -493,9 +494,11 @@ def check_layout(parts: list[Part], loads, press: dict, rotate: bool) -> list[Lo
 	return result
 
 
-def save_layout(sales_order: str, decor: str, loads=None) -> dict:
+def save_layout(sales_order: str, decor: str, loads=None, press=None) -> dict:
 	"""Keep a layout a person made for one film of an order — its metres are
-	the order's from now on; empty — back to the press's own layout."""
+	the order's from now on; empty — back to the press's own layout. `press`
+	— the press panel's own figures for this order alone (a wider gap for
+	thick facades): the layout is checked against them, not the press's."""
 	if not material_stock.can_edit():
 		frappe.throw("Раскладку меняют администратор и менеджеры.", frappe.PermissionError)
 	ensure_company("Sales Order", sales_order)
@@ -511,7 +514,8 @@ def save_layout(sales_order: str, decor: str, loads=None) -> dict:
 						   diff={"decor": decor})
 		return order_layout(sales_order)
 	company = frappe.db.get_value("Sales Order", sales_order, "company")
-	checked = check_layout(parts, loads, press_settings(company), rotate=not is_textured(decor, company))
+	checked = check_layout(parts, loads, tuned_press(press_settings(company), press),
+						   rotate=not is_textured(decor, company))
 	metres = round(sum(load.film_m for load in checked), 2)
 	doc = frappe.get_doc(OVERRIDE, existing) if existing else frappe.new_doc(OVERRIDE)
 	doc.update({
@@ -524,6 +528,98 @@ def save_layout(sales_order: str, decor: str, loads=None) -> dict:
 	audit.record_audit(action="stock.press_layout_saved", entity_type="Sales Order", entity_id=sales_order,
 					   diff={"decor": decor, "film_m": metres, "loads": len(checked)})
 	return order_layout(sales_order)
+
+
+# --------------------------------------------------------------------------
+# The press panel: what-if, before anything is kept (owner, 13.11.2026)
+# --------------------------------------------------------------------------
+
+#: How hard the layout looks: one order of the parts; the smart search; five
+#: times the smart search.
+LEVELS = {"fast": 0, "smart": 1, "max": 5}
+#: How parts lie: as the layout finds best; the long side along the table;
+#: the long side across it.
+DIRECTIONS = ("any", "along", "across")
+
+
+def tuned_press(base: dict, tuned) -> dict:
+	"""The press with the panel's figures over it, checked as the press's
+	own settings are — nothing is kept."""
+	if isinstance(tuned, str):
+		tuned = json.loads(tuned) if tuned.strip() else None
+	if not tuned:
+		return base
+	if not isinstance(tuned, dict):
+		frappe.throw("Настройки пресса — не те.")
+	result = dict(base)
+	for key in ("press_length_mm", "press_width_mm", "press_margin_mm", "press_gap_mm"):
+		if tuned.get(key) not in (None, ""):
+			number = cint(tuned[key])
+			if number < 0 or (key in ("press_length_mm", "press_width_mm") and number < 100):
+				frappe.throw("Размеры пресса — в миллиметрах, больше 100; зазор и отступ — не меньше нуля.")
+			result[key] = number
+	if tuned.get("press_sections") not in (None, ""):
+		sections = _sections(tuned["press_sections"])
+		if not sections:
+			frappe.throw("Секции — список «метров плёнки : рабочая длина, мм», хотя бы одна.")
+		result["press_sections"] = sections
+	if any(s["length_mm"] > result["press_length_mm"] for s in result["press_sections"]):
+		frappe.throw("Рабочая длина секции не может быть больше стола.")
+	return result
+
+
+def preview(sales_order: str, decor: str, press=None, level: str = "smart", direction: str = "any",
+			rotate=True) -> dict:
+	"""One film of an order laid out with the panel's figures: the loads, the
+	metres, and the metres it takes now — to compare. Nothing is kept."""
+	ensure_company("Sales Order", sales_order)
+	company = frappe.db.get_value("Sales Order", sales_order, "company")
+	decor = (decor or "").strip()
+	parts = _parts_by_decor(sales_order).get(decor)
+	if not parts:
+		frappe.throw(f"В заказе нет плёнки «{decor}».")
+	if level not in LEVELS:
+		frappe.throw("Уровень расчёта — быстрый, умный или максимум.")
+	if direction not in DIRECTIONS:
+		frappe.throw("Укладка — как выгоднее, вдоль или поперёк.")
+	tuned = tuned_press(press_settings(company), press)
+	textured = is_textured(decor, company)
+	turn = not textured and str(rotate).lower() not in ("0", "false", "")
+	# Laid one way: each part turned so its long side runs as asked, and
+	# then not turned again. A textured film keeps the order's way always.
+	swapped: set[int] = set()
+	if direction != "any" and not textured:
+		laid = []
+		for p in parts:
+			long_first = p.width >= p.height
+			if long_first != (direction == "along"):
+				swapped.add(p.pos)
+				laid.append(Part(p.pos, p.height, p.width))
+			else:
+				laid.append(p)
+		parts, turn = laid, False
+	if LEVELS[level]:
+		loads, too_big = best_plan(parts, tuned, rotate=turn, effort=LEVELS[level])
+	else:
+		loads, too_big = plan(parts, tuned, rotate=turn)
+	for load in loads:
+		for p in load.placed:
+			if p.pos in swapped:
+				# Turned against the order's way, as the map and the check read it.
+				p.rotated = not p.rotated
+	now = next((f for f in order_layout(sales_order)["films"] if f["decor"] == decor), None)
+	return {
+		"decor": decor,
+		"textured": textured,
+		"press": {k: tuned[k] for k in DEFAULT_PRESS},
+		"film_m": round(sum(load.film_m for load in loads), 2),
+		"now_m": now["film_m"] if now else None,
+		"loads": [
+			{"film_m": load.film_m, "length_mm": load.length_mm, "placed": [vars(p) for p in load.placed]}
+			for load in loads
+		],
+		"too_big": [p.pos for p in too_big],
+	}
 
 
 def approval(sales_order: str, groups: dict[str, list[Part]] | None = None) -> dict | None:

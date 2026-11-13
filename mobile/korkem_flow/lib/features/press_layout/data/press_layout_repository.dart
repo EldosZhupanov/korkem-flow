@@ -65,12 +65,44 @@ class PressLayoutRepository {
     ),
   );
 
+  /// One film laid out with the press panel's figures — nothing is kept.
+  Future<PressPreview> preview(
+    String salesOrder,
+    FilmLayout film,
+    PressTune tune,
+  ) async {
+    final json = _map(
+      await _client.callMethod(
+        '$_base.preview',
+        post: true,
+        params: {
+          'sales_order': salesOrder,
+          'decor': film.decor,
+          'press': jsonEncode(tune.press),
+          'level': tune.level.name,
+          'direction': tune.direction.name,
+          'rotate': tune.rotate ? 1 : 0,
+        },
+      ),
+    );
+    return (
+      film: FilmLayout.fromJson({
+        ...json,
+        'title': film.title,
+        'layout_m': json['film_m'],
+      }),
+      nowM: (json['now_m'] as num?)?.toDouble(),
+    );
+  }
+
   /// A layout made by hand for one film; `null` — back to the press's own.
+  /// [press] — the panel's own figures, for this order alone.
   Future<OrderPressLayout> saveLayout(
     String salesOrder,
     String decor,
-    List<PressLoad>? loads,
-  ) async => OrderPressLayout.fromJson(
+    List<PressLoad>? loads, {
+    Map<String, Object>? press,
+  }) async => OrderPressLayout.fromJson(
     _map(
       await _client.callMethod(
         '$_base.save_layout',
@@ -78,6 +110,7 @@ class PressLayoutRepository {
         params: {
           'sales_order': salesOrder,
           'decor': decor,
+          if (press != null) 'press': jsonEncode(press),
           if (loads != null)
             'loads': jsonEncode([
               for (final l in loads)

@@ -215,3 +215,94 @@ class OrderPressLayout {
   /// went on «К заказу».
   final List<({String decor, double metres})> short;
 }
+
+/// The press panel's figures (owner, 13.11.2026: «как в Cutting»): the table,
+/// the margin, the gap, the sections — and how hard and which way to lay
+/// the parts. Tried on an order before anything is kept.
+@immutable
+class PressTune {
+  const PressTune({
+    required this.lengthMm,
+    required this.widthMm,
+    required this.marginMm,
+    required this.gapMm,
+    required this.sections,
+    this.level = PressLevel.smart,
+    this.direction = PressDirection.any,
+    this.rotate = true,
+  });
+
+  factory PressTune.of(PressSettings s) => PressTune(
+    lengthMm: s.lengthMm,
+    widthMm: s.widthMm,
+    marginMm: s.marginMm,
+    gapMm: s.gapMm,
+    sections: s.sections,
+  );
+
+  final double lengthMm;
+  final double widthMm;
+  final double marginMm;
+  final double gapMm;
+  final List<({double filmM, double lengthMm})> sections;
+  final PressLevel level;
+  final PressDirection direction;
+  final bool rotate;
+
+  PressTune copyWith({
+    double? lengthMm,
+    double? widthMm,
+    double? marginMm,
+    double? gapMm,
+    List<({double filmM, double lengthMm})>? sections,
+    PressLevel? level,
+    PressDirection? direction,
+    bool? rotate,
+  }) => PressTune(
+    lengthMm: lengthMm ?? this.lengthMm,
+    widthMm: widthMm ?? this.widthMm,
+    marginMm: marginMm ?? this.marginMm,
+    gapMm: gapMm ?? this.gapMm,
+    sections: sections ?? this.sections,
+    level: level ?? this.level,
+    direction: direction ?? this.direction,
+    rotate: rotate ?? this.rotate,
+  );
+
+  /// The press's own figures, as the server takes them.
+  Map<String, Object> get press => {
+    'press_length_mm': lengthMm.round(),
+    'press_width_mm': widthMm.round(),
+    'press_margin_mm': marginMm.round(),
+    'press_gap_mm': gapMm.round(),
+    'press_sections': [
+      for (final s in sections)
+        {'film_m': s.filmM, 'length_mm': s.lengthMm.round()},
+    ],
+  };
+
+  /// What the panel says against the press's own: anything to try.
+  bool differsFrom(PressSettings s) =>
+      lengthMm != s.lengthMm ||
+      widthMm != s.widthMm ||
+      marginMm != s.marginMm ||
+      gapMm != s.gapMm ||
+      level != PressLevel.smart ||
+      direction != PressDirection.any ||
+      !rotate ||
+      sections.length != s.sections.length ||
+      [
+        for (final (i, x) in sections.indexed)
+          x.filmM != s.sections[i].filmM ||
+              x.lengthMm != s.sections[i].lengthMm,
+      ].any((d) => d);
+}
+
+/// How hard the layout looks — «Лёгкий / Штатный / Сложный» in Cutting.
+enum PressLevel { fast, smart, max }
+
+/// Which way the parts lie: as is best, long side along, long side across.
+enum PressDirection { any, along, across }
+
+/// One film laid out with the panel's figures, and what it takes now.
+typedef PressPreview = ({FilmLayout film, double? nowM});

@@ -239,6 +239,38 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, film_orders.for_production, self.plain)
 
+	def test_the_press_panel_tries_figures_before_anything_is_kept(self):
+		order = self._order()
+		now = self._as(MANAGER, press_layout.preview, order, PLAIN)
+		self.assertEqual((now["film_m"], now["now_m"]), (3.1, 3.1))
+		# A wider gap: the same parts may need more film — never less.
+		wide = self._as(MANAGER, press_layout.preview, order, PLAIN, press={"press_gap_mm": 300}, level="fast")
+		self.assertGreaterEqual(wide["film_m"], now["film_m"])
+		self.assertEqual(wide["press"]["press_gap_mm"], 300)
+		# Laid one way: the long side along the table, or across it.
+		along = self._as(MANAGER, press_layout.preview, order, PLAIN, direction="along")
+		self.assertTrue(all(p["width"] >= p["height"] for load in along["loads"] for p in load["placed"]))
+		across = self._as(MANAGER, press_layout.preview, order, PLAIN, direction="across")
+		placed = [p for load in across["loads"] for p in load["placed"]]
+		self.assertTrue(all(p["width"] <= p["height"] and p["rotated"] for p in placed))
+		# A textured film is never turned, whatever is asked.
+		textured = self._as(MANAGER, press_layout.preview, order, TEXTURED, direction="across")
+		self.assertFalse(any(p["rotated"] for load in textured["loads"] for p in load["placed"]))
+		# Nothing was kept: the order and the press are as they were.
+		self.assertEqual(next(f for f in press_layout.order_layout(order)["films"] if f["decor"] == PLAIN)["film_m"], 3.1)
+		self.assertEqual(press_layout.press_settings()["press_gap_mm"], DEFAULT_PRESS["press_gap_mm"])
+		# «Только для этого заказа»: kept as the order's own, checked by its gap.
+		tight = self._as(MANAGER, press_layout.preview, order, PLAIN, press={"press_gap_mm": 20})
+		kept = self._as(MANAGER, press_layout.save_layout, order, PLAIN,
+						[{"length_mm": load["length_mm"], "placed": load["placed"]} for load in tight["loads"]],
+						press={"press_gap_mm": 20})
+		film = next(f for f in kept["films"] if f["decor"] == PLAIN)
+		self.assertEqual((film["manual"], film["film_m"]), (True, tight["film_m"]))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, press_layout.preview, order, PLAIN, press={"press_width_mm": 50})
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, press_layout.preview, order, PLAIN, level="очень")
+
 	def test_metres_set_by_hand_need_a_reason_and_win(self):
 		order = self._order()
 		with self.assertRaises(frappe.ValidationError):

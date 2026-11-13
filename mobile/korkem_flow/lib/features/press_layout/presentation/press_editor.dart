@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -9,6 +8,7 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_edit.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_map.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// A film's layout changed by hand: parts dragged over the table, turned,
@@ -309,7 +309,6 @@ class _PressEditorState extends ConsumerState<PressEditor> {
   Widget _table(BuildContext context, int i, List<PlacedPart> load) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final warning = context.statusColors.warning;
     final longest = pressLongest(_press);
     final clashes = pressClashes(load, _press);
     final section = pressSection(load, _press, asked: _asked[i]);
@@ -360,17 +359,16 @@ class _PressEditorState extends ConsumerState<PressEditor> {
                     onPointerCancel: (_) => _drop(i, k),
                     child: DecoratedBox(
                       decoration: BoxDecoration(
+                        // Each position its own colour, as on the map.
                         color: clashes.contains(k)
                             ? scheme.errorContainer
-                            : widget.film.textured
-                            ? warning.withValues(alpha: AppTint.warningBand)
-                            : scheme.primaryContainer,
+                            : PressMap.colourOf(
+                                p.pos,
+                              ).withValues(alpha: AppTint.pressPart),
                         border: Border.all(
                           color: clashes.contains(k)
                               ? scheme.error
-                              : widget.film.textured
-                              ? warning
-                              : scheme.primary,
+                              : PressMap.colourOf(p.pos),
                           width: _picked == (load: i, part: k)
                               ? AppStroke.focus * 2
                               : AppStroke.hairline,
