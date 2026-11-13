@@ -6,6 +6,7 @@ import 'package:korkem_flow/features/press_layout/domain/press_edit.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_map.dart';
+import 'package:korkem_flow/features/press_layout/presentation/press_panel.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_settings_screen.dart';
 
 import '../../support/widget_harness.dart';
@@ -85,10 +86,37 @@ class _FakeRepository implements PressLayoutRepository {
   Future<OrderPressLayout> saveLayout(
     String salesOrder,
     String decor,
-    List<PressLoad>? loads,
-  ) async {
+    List<PressLoad>? loads, {
+    Map<String, Object>? press,
+  }) async {
     layouts.add((decor, loads));
+    pressFor.add(press);
     return layout(salesOrder);
+  }
+
+  final pressFor = <Map<String, Object>?>[];
+  final tried = <PressTune>[];
+
+  @override
+  Future<PressPreview> preview(
+    String salesOrder,
+    FilmLayout film,
+    PressTune tune,
+  ) async {
+    tried.add(tune);
+    // A wider gap: a longer section — 3,1 m instead of 2,1.
+    final longer = tune.gapMm > 60;
+    return (
+      film: FilmLayout(
+        decor: film.decor,
+        title: film.title,
+        textured: film.textured,
+        layoutM: longer ? film.filmM + 1 : film.filmM,
+        filmM: longer ? film.filmM + 1 : film.filmM,
+        loads: film.loads,
+      ),
+      nowM: film.filmM,
+    );
   }
 
   @override
@@ -175,10 +203,15 @@ void main() {
       ..physicalSize = const Size(1600, 2400)
       ..devicePixelRatio = 1;
     addTearDown(tester.view.reset);
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await pump(tester, const PressLayoutScreen(salesOrder: 'SO-1110'));
 
+    // The order's own number, not the system's long one (13.11.2026).
     expect(
-      find.text('№SO-1110 Дастан Жақсылықов ZB 852-2 Авори'),
+      find.text('№1110 · Дастан Жақсылықов · ZB 852-2 Авори'),
       findsOneWidget,
     );
     expect(
@@ -191,6 +224,83 @@ void main() {
     );
     expect(find.text('Film: 3.1 m'), findsOneWidget);
     expect(find.byType(PressMap), findsNWidgets(2));
+  });
+
+  testWidgets('a position lights up on every load, the loads say how full', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pump(tester, const PressLayoutScreen(salesOrder: 'SO-1110'));
+    // 598×298 on 2850×1210: 5% of the table.
+    expect(
+      tester
+          .widget<Text>(
+            find.byKey(const ValueKey('pressFill:ZB 852-2 Авори:0')),
+          )
+          .data,
+      startsWith('5% full'),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('pressPosition:AS 1804-SFT Какао нубук:4')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<Text>(
+            find.byKey(
+              const ValueKey('pressPositionInfo:AS 1804-SFT Какао нубук'),
+            ),
+          )
+          .data,
+      'Position 4 · 598×283 · 1 in all · on loads 1',
+    );
+    final map = tester.widget<PressMap>(
+      find.byKey(const ValueKey('pressMap:AS 1804-SFT Какао нубук:0')),
+    );
+    expect(map.highlight, 4);
+    expect(
+      pressPositions(
+        OrderPressLayout.fromJson(_layout()).films.last,
+      ).map((p) => (p.pos, p.count)),
+      [(3, 1), (4, 1)],
+    );
+  });
+
+  testWidgets('the press panel tries a gap and keeps it for the order', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = await pump(
+      tester,
+      const PressLayoutScreen(salesOrder: 'SO-1110'),
+    );
+    // Beside the map, as in Cutting: the press's own figures to start.
+    expect(find.byType(PressPanel), findsOneWidget);
+    expect(find.byKey(const ValueKey('pressCompare')), findsNothing);
+    await tester.enterText(find.byKey(const ValueKey('pressTune:gap')), '80');
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+    // Tried at once: each film laid out again; was and will be.
+    expect(repo.tried.last.gapMm, 80);
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('pressWillBe'))).data,
+      'Will be 7.2 m',
+    );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('pressTune:keepOrder')),
+    );
+    await tester.tap(find.byKey(const ValueKey('pressTune:keepOrder')));
+    await tester.pumpAndSettle();
+    // Kept for this order alone: each film, checked by the panel's gap.
+    expect(repo.layouts, hasLength(2));
+    expect(repo.pressFor.first!['press_gap_mm'], 80);
+    expect(repo.saved, isEmpty);
   });
 
   testWidgets('a manager corrects the metres with a reason', (tester) async {

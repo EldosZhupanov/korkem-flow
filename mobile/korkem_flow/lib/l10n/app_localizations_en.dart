@@ -7522,4 +7522,126 @@ class AppLocalizationsEn extends AppLocalizations {
   String filmReceiveSumShelf(String metres) {
     return 'shelf $metres m';
   }
+
+  @override
+  String pressFill(int percent, String waste) {
+    return '$percent% full · $waste m² waste';
+  }
+
+  @override
+  String get pressPositionsHint =>
+      'Point at a part or tap a position — it lights up on every load.';
+
+  @override
+  String pressPositionInfo(int pos, String size, int count, String loads) {
+    return 'Position $pos · $size · $count in all · on loads $loads';
+  }
+
+  @override
+  String pressPositionCount(int count) {
+    return '$count pcs';
+  }
+
+  @override
+  String mdfPressCheckedBy(String by) {
+    return '✓ layout checked by $by';
+  }
+
+  @override
+  String get mdfPressNotChecked => 'layout not checked';
+
+  @override
+  String get pressPanelTitle => 'Press';
+
+  @override
+  String get pressSectionRemove => 'Remove the section';
+
+  @override
+  String get pressLevel => 'How hard to look';
+
+  @override
+  String get pressLevelFast => 'Fast';
+
+  @override
+  String get pressLevelSmart => 'Smart';
+
+  @override
+  String get pressLevelMax => 'Maximum';
+
+  @override
+  String get pressDirection => 'Laying';
+
+  @override
+  String get pressDirectionAny => 'As is best';
+
+  @override
+  String get pressDirectionAlong => 'Along';
+
+  @override
+  String get pressDirectionAcross => 'Across';
+
+  @override
+  String get pressRotate => 'Turn parts';
+
+  @override
+  String get pressRotateYes => 'Allowed';
+
+  @override
+  String get pressRotateNo => 'Not allowed';
+
+  @override
+  String get pressRotateTextured => 'A textured film — never turned.';
+
+  @override
+  String get pressKeepForOrder => 'For this order only';
+
+  @override
+  String get pressKeepForPress => 'Keep for the press';
+
+  @override
+  String get pressKeepForPressHint =>
+      '«For the press» changes every new layout.';
+
+  @override
+  String get pressTuneReset => 'Back to the press\'s own';
+
+  @override
+  String get pressTuneKept => 'Layout kept for this order';
+
+  @override
+  String get pressTuneSaved => 'Press settings saved';
+
+  @override
+  String pressWas(String metres) {
+    return 'Was $metres m';
+  }
+
+  @override
+  String pressWillBe(String metres) {
+    return 'Will be $metres m';
+  }
+
+  @override
+  String pressSaves(String metres) {
+    return 'saves $metres m';
+  }
+
+  @override
+  String pressCostsMore(String metres) {
+    return '$metres m more';
+  }
+
+  @override
+  String get pressSame => 'the same';
+
+  @override
+  String get pressUnitM => 'm';
+
+  @override
+  String get pressUnitMm => 'mm';
+
+  @override
+  String pressMm(int value) {
+    return '$value mm';
+  }
 }

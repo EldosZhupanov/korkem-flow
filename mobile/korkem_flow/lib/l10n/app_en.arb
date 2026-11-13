@@ -8197,5 +8197,114 @@
         "type": "String"
       }
     }
+  },
+  "pressFill": "{percent}% full · {waste} m² waste",
+  "@pressFill": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "waste": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPositionsHint": "Point at a part or tap a position — it lights up on every load.",
+  "pressPositionInfo": "Position {pos} · {size} · {count} in all · on loads {loads}",
+  "@pressPositionInfo": {
+    "placeholders": {
+      "pos": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "loads": {
+        "type": "String"
+      }
+    }
+  },
+  "pressPositionCount": "{count} pcs",
+  "@pressPositionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfPressCheckedBy": "✓ layout checked by {by}",
+  "@mdfPressCheckedBy": {
+    "placeholders": {
+      "by": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPressNotChecked": "layout not checked",
+  "pressPanelTitle": "Press",
+  "pressSectionRemove": "Remove the section",
+  "pressLevel": "How hard to look",
+  "pressLevelFast": "Fast",
+  "pressLevelSmart": "Smart",
+  "pressLevelMax": "Maximum",
+  "pressDirection": "Laying",
+  "pressDirectionAny": "As is best",
+  "pressDirectionAlong": "Along",
+  "pressDirectionAcross": "Across",
+  "pressRotate": "Turn parts",
+  "pressRotateYes": "Allowed",
+  "pressRotateNo": "Not allowed",
+  "pressRotateTextured": "A textured film — never turned.",
+  "pressKeepForOrder": "For this order only",
+  "pressKeepForPress": "Keep for the press",
+  "pressKeepForPressHint": "«For the press» changes every new layout.",
+  "pressTuneReset": "Back to the press's own",
+  "pressTuneKept": "Layout kept for this order",
+  "pressTuneSaved": "Press settings saved",
+  "pressWas": "Was {metres} m",
+  "@pressWas": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressWillBe": "Will be {metres} m",
+  "@pressWillBe": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressSaves": "saves {metres} m",
+  "@pressSaves": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressCostsMore": "{metres} m more",
+  "@pressCostsMore": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressSame": "the same",
+  "pressUnitM": "m",
+  "pressUnitMm": "mm",
+  "pressMm": "{value} mm",
+  "@pressMm": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
   }
 }
