@@ -1624,6 +1624,36 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
 
   double get _paid => _parts.fold(0, (s, p) => s + p.value);
 
+  /// Past the customer's debt limit — by the sum, or owing too long: said
+  /// before the sale, not refused (owner, 13.11.2026).
+  Widget? _overLimit(double paid) {
+    final l10n = AppLocalizations.of(context);
+    final money = mdfMoney(context);
+    final card = (ref.watch(filmCustomersProvider).value ?? const [])
+        .where((c) => c.customer == _customer)
+        .firstOrNull;
+    final more = _sum - paid > 0 ? _sum - paid : 0.0;
+    final over = card?.overLimit(more);
+    if (card == null || over == null) return null;
+    final danger = Theme.of(context).colorScheme.error;
+    return Padding(
+      key: const ValueKey('filmSaleOverLimit'),
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      child: Text(
+        [
+          if (over.sum)
+            l10n.filmSaleOverLimit(
+              money.format(card.debt + more),
+              money.format(card.debtLimit),
+            ),
+          if (over.days)
+            l10n.filmSaleOverDays(card.debtDays ?? 0, card.debtLimitDays ?? 0),
+        ].join(' · '),
+        style: TextStyle(color: danger),
+      ),
+    );
+  }
+
   /// What the seller should know of this customer (owner, 13.11.2026):
   /// what he usually takes and how often, his price, his debt — and his
   /// last sale, to sell again at a tap.
@@ -1759,6 +1789,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 decoration: InputDecoration(labelText: l10n.mdfCustomer),
               ),
               if (_customer case final who?) _hint(who),
+              ?_overLimit(paid),
               if (sellers != null && sellers.staff.isNotEmpty)
                 Row(
                   children: [
@@ -2175,9 +2206,19 @@ class _TermsDialogState extends ConsumerState<_TermsDialog> with _Saving {
     text: filmMetres(widget.customer.discount),
   );
 
+  // How far he may owe (owner, 13.11.2026): empty — no limit.
+  late final _limit = TextEditingController(
+    text: widget.customer.debtLimit?.toStringAsFixed(0) ?? '',
+  );
+  late final _days = TextEditingController(
+    text: widget.customer.debtLimitDays?.toString() ?? '',
+  );
+
   @override
   void dispose() {
     _discount.dispose();
+    _limit.dispose();
+    _days.dispose();
     super.dispose();
   }
 
@@ -2222,6 +2263,33 @@ class _TermsDialogState extends ConsumerState<_TermsDialog> with _Saving {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(labelText: l10n.filmDiscount),
             ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    key: const ValueKey('filmDebtLimit'),
+                    controller: _limit,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: l10n.filmDebtLimit,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: TextField(
+                    key: const ValueKey('filmDebtDays'),
+                    controller: _days,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: l10n.filmDebtLimitDays,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             errorLine(context),
           ],
         ),
@@ -2242,6 +2310,8 @@ class _TermsDialogState extends ConsumerState<_TermsDialog> with _Saving {
                         widget.customer.customer,
                         wholesale: _wholesale,
                         discount: discount,
+                        debtLimit: _number(_limit.text) ?? 0,
+                        debtDays: int.tryParse(_days.text.trim()) ?? 0,
                       ),
                 ),
           child: Text(l10n.filmSave),

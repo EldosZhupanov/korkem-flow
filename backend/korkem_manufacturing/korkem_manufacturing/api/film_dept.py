@@ -134,9 +134,11 @@ def customers() -> list[dict]:
 
 @frappe.whitelist(methods=["POST"])
 def set_customer(customer: str, tier: str | None = None, discount: float | str | None = None,
-				 buys_film: bool | int | str = 1) -> dict:
-	"""Условия клиента по плёнке: розница или опт, скидка."""
-	return service.set_customer(customer, tier=tier, discount=discount, buys_film=buys_film)
+				 buys_film: bool | int | str = 1, debt_limit: float | str | None = None,
+				 debt_days: int | str | None = None) -> dict:
+	"""Условия клиента по плёнке: розница или опт, скидка, лимит долга."""
+	return service.set_customer(customer, tier=tier, discount=discount, buys_film=buys_film,
+								debt_limit=debt_limit, debt_days=debt_days)
 
 
 @frappe.whitelist(methods=["POST"])

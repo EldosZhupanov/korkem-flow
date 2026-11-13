@@ -13404,6 +13404,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Like last time: {films}'**
   String filmSaleLikeLast(String films);
+
+  /// No description provided for @filmDebtLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt limit, ₸'**
+  String get filmDebtLimit;
+
+  /// No description provided for @filmDebtLimitDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Owing no longer, days'**
+  String get filmDebtLimitDays;
+
+  /// No description provided for @filmLimitDays.
+  ///
+  /// In en, this message translates to:
+  /// **'up to {days} d'**
+  String filmLimitDays(int days);
+
+  /// No description provided for @filmSaleOverLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The debt becomes {sum} — over the limit {limit}'**
+  String filmSaleOverLimit(String sum, String limit);
+
+  /// No description provided for @filmSaleOverDays.
+  ///
+  /// In en, this message translates to:
+  /// **'owing {days} d — longer than {limit} d'**
+  String filmSaleOverDays(int days, int limit);
+
+  /// No description provided for @filmCallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to call · {count}'**
+  String filmCallTitle(int count);
+
+  /// No description provided for @filmCallDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — owes {sum}, {days} d'**
+  String filmCallDebt(String name, String sum, int days);
+
+  /// No description provided for @filmCallRhythm.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — buys every {every} d, none for {idle} d'**
+  String filmCallRhythm(String name, int every, int idle);
+
+  /// No description provided for @filmCustomerAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average sale'**
+  String get filmCustomerAverage;
+
+  /// No description provided for @filmCustomerRhythm.
+  ///
+  /// In en, this message translates to:
+  /// **'Buys'**
+  String get filmCustomerRhythm;
+
+  /// No description provided for @filmCustomerLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt limit'**
+  String get filmCustomerLimit;
+
+  /// No description provided for @filmStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement'**
+  String get filmStatement;
+
+  /// No description provided for @filmStatementCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer: {name}'**
+  String filmStatementCustomer(String name);
+
+  /// No description provided for @filmStatementOn.
+  ///
+  /// In en, this message translates to:
+  /// **'as of {day}'**
+  String filmStatementOn(String day);
+
+  /// No description provided for @filmStatementDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get filmStatementDate;
+
+  /// No description provided for @filmStatementWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry'**
+  String get filmStatementWhat;
+
+  /// No description provided for @filmStatementSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get filmStatementSold;
+
+  /// No description provided for @filmStatementPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get filmStatementPaid;
+
+  /// No description provided for @filmStatementBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Owing'**
+  String get filmStatementBalance;
+
+  /// No description provided for @filmStatementSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Film: {films}'**
+  String filmStatementSale(String films);
+
+  /// No description provided for @filmStatementPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get filmStatementPayment;
+
+  /// No description provided for @filmStatementOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer owes {sum}'**
+  String filmStatementOwes(String sum);
+
+  /// No description provided for @filmStatementSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled, nothing owed.'**
+  String get filmStatementSettled;
+
+  /// No description provided for @filmStatementSigns.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller ____________     Customer ____________'**
+  String get filmStatementSigns;
 }
 
 class _AppLocalizationsDelegate

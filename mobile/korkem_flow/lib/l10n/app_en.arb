@@ -8456,5 +8456,117 @@
         "type": "String"
       }
     }
-  }
+  },
+  "filmDebtLimit": "Debt limit, ₸",
+  "filmDebtLimitDays": "Owing no longer, days",
+  "filmLimitDays": "up to {days} d",
+  "@filmLimitDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSaleOverLimit": "The debt becomes {sum} — over the limit {limit}",
+  "@filmSaleOverLimit": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSaleOverDays": "owing {days} d — longer than {limit} d",
+  "@filmSaleOverDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCallTitle": "Time to call · {count}",
+  "@filmCallTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCallDebt": "{name} — owes {sum}, {days} d",
+  "@filmCallDebt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "sum": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCallRhythm": "{name} — buys every {every} d, none for {idle} d",
+  "@filmCallRhythm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "every": {
+        "type": "int"
+      },
+      "idle": {
+        "type": "int"
+      }
+    }
+  },
+  "filmCustomerAverage": "Average sale",
+  "filmCustomerRhythm": "Buys",
+  "filmCustomerLimit": "Debt limit",
+  "filmStatement": "Statement",
+  "filmStatementCustomer": "Customer: {name}",
+  "@filmStatementCustomer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filmStatementOn": "as of {day}",
+  "@filmStatementOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmStatementDate": "Date",
+  "filmStatementWhat": "Entry",
+  "filmStatementSold": "Sold",
+  "filmStatementPaid": "Paid",
+  "filmStatementBalance": "Owing",
+  "filmStatementSale": "Film: {films}",
+  "@filmStatementSale": {
+    "placeholders": {
+      "films": {
+        "type": "String"
+      }
+    }
+  },
+  "filmStatementPayment": "Payment",
+  "filmStatementOwes": "The customer owes {sum}",
+  "@filmStatementOwes": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmStatementSettled": "Settled, nothing owed.",
+  "filmStatementSigns": "Seller ____________     Customer ____________"
 }

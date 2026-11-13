@@ -508,6 +508,9 @@ class _Fake implements FilmDeptRepository {
       discount: 3,
       debt: 26800,
       debtDays: 12,
+      debtLimit: 30000,
+      rhythmDays: 7,
+      call: 'debt',
       monthM: 120,
       total: 468000,
       last: '2026-11-05',
@@ -527,7 +530,14 @@ class _Fake implements FilmDeptRepository {
     String customer, {
     required bool wholesale,
     required double discount,
-  }) async => terms.add((customer, wholesale, discount));
+    double? debtLimit,
+    int? debtDays,
+  }) async {
+    terms.add((customer, wholesale, discount));
+    limits.add((debtLimit, debtDays));
+  }
+
+  final limits = <(double?, int?)>[];
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -1422,6 +1432,62 @@ void main() {
     await tester.tap(save);
     await tester.pumpAndSettle();
     expect(repo.belowReasons.single, 'end of a roll');
+  });
+
+  test('a debt limit is broken by the sum or the days', () {
+    const c = FilmCustomer(
+      customer: 'C',
+      name: 'C',
+      debt: 20000,
+      debtDays: 5,
+      debtLimit: 30000,
+      debtLimitDays: 14,
+    );
+    expect(c.overLimit(5000), isNull);
+    expect(c.overLimit(15000), (sum: true, days: false));
+    const late = FilmCustomer(
+      customer: 'L',
+      name: 'L',
+      debt: 100,
+      debtDays: 20,
+      debtLimitDays: 14,
+    );
+    expect(late.overLimit(0), (sum: false, days: true));
+  });
+
+  test('a statement: every sale and payment, the balance after each', () {
+    final lines = filmStatement(const [
+      FilmSale(
+        entry: 'S1',
+        date: '2026-11-01',
+        amount: 30000,
+        payments: [
+          (date: '2026-11-01', amount: 10000, method: 'Наличные', bank: null),
+          (date: '2026-11-05', amount: 5000, method: 'Перевод', bank: null),
+        ],
+      ),
+      FilmSale(entry: 'S2', date: '2026-11-03', amount: 12000),
+    ]);
+    expect(
+      [for (final l in lines) (l.date, l.balance)],
+      [
+        ('2026-11-01', 30000.0),
+        ('2026-11-01', 20000.0),
+        ('2026-11-03', 32000.0),
+        ('2026-11-05', 27000.0),
+      ],
+    );
+  });
+
+  testWidgets('who to call: owing too long, silent past his rhythm', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmTab:customers')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmCustomers:call')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCall:CUST-1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCall:CUST-2')), findsNothing);
   });
 
   testWidgets('a sale entered by mistake is cancelled with a reason', (
