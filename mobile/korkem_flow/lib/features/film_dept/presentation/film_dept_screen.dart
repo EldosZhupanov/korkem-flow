@@ -317,6 +317,7 @@ String? _about(FilmMove m, AppLocalizations l10n, NumberFormat money) {
       if (d.receivedBy case final who?) l10n.filmTakenBy(who),
     ],
     if (m.seller case final who?) l10n.filmSoldBy(who),
+    if (m.supplierOwed) l10n.filmSupplierOwedNote,
   ];
   return parts.isEmpty ? null : parts.join(' · ');
 }

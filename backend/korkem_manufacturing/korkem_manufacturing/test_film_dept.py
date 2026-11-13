@@ -293,6 +293,50 @@ class TestFilmDept(IntegrationTestCase):
 		row = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == by_me)
 		self.assertEqual((row["delivery"]["payer"], row["delivery"]["settled"]), ("employee", True))
 
+	def test_film_taken_on_credit_is_owed_to_the_supplier_until_paid(self):
+		from korkem_manufacturing.services import film_cash
+
+		def owed() -> dict:
+			return {s["receipt"]: s for s in self._as(MANAGER, film_cash.book)["owed"]["suppliers"]}
+
+		# Said nothing: paid on the spot, as every receipt was before.
+		paid = self._as(MANAGER, service.receive, self.film, 5, 3200, self.supplier)["receipt"]
+		self.assertNotIn(paid, owed())
+		# On credit, by the plain receipt and by a delivery of several films.
+		credit = self._as(MANAGER, service.receive, self.film, 10, 3000, self.supplier,
+						  supplier_paid="0")["receipt"]
+		row = owed()[credit]
+		self.assertEqual((row["amount"], row["metres"], row["coming"]), (30000, 10, False))
+		self.assertEqual(row["supplier"], SUPPLIER)
+		many = self._as(MANAGER, film_orders.receive_many, self.supplier,
+						[{"item": self.film, "metres": 4, "price_m": 3100}], supplier_paid=False)["receipts"]
+		self.assertEqual(owed()[many[0]]["amount"], 12400)
+		# A roll on its way is owed already; one struck off as not coming is not.
+		coming = self._as(MANAGER, service.receive, self.film, 6, 3000, self.supplier,
+						  arrives_on=add_days(nowdate(), 3), supplier_paid=0)["receipt"]
+		self.assertTrue(owed()[coming]["coming"])
+		self._as(MANAGER, service.drop_coming, coming, "поставщик отказал")
+		self.assertNotIn(coming, owed())
+		# The history says it is owed.
+		move = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == credit)
+		self.assertTrue(move["supplier_owed"])
+		# A receipt made again right is still one debt.
+		fixed = self._as(MANAGER, service.correct, credit, self.film, "не те метры", metres=9)["entry"]
+		self.assertNotIn(credit, owed())
+		self.assertEqual(owed()[fixed]["amount"], 27000)
+		# Paid: off the list, once; nobody else's, and not by the shop floor.
+		self._as(MANAGER, film_cash.pay_supplier, fixed, "Перевод")
+		self.assertNotIn(fixed, owed())
+		self.assertEqual(frappe.db.get_value("Stock Entry", fixed, "korkem_supplier_paid_method"), "Перевод")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, film_cash.pay_supplier, fixed)
+		with self.assertRaises(frappe.DoesNotExistError):
+			self._as(MANAGER, film_cash.pay_supplier, paid)
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, film_cash.pay_supplier, many[0])
+		move = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == fixed)
+		self.assertFalse(move["supplier_owed"])
+
 	def test_the_team_month_counts_the_paid_margin_by_seller(self):
 		from korkem_manufacturing.services import film_team
 

@@ -22,6 +22,12 @@ def settle(receipt: str, method: str | None = None) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
+def pay_supplier(receipt: str, method: str | None = None) -> dict:
+	"""Плёнка, взятая в долг, оплачена поставщику — сегодня."""
+	return service.pay_supplier(receipt, method)
+
+
+@frappe.whitelist(methods=["POST"])
 def close_day(counted: float | str, reason: str | None = None, day: str | None = None) -> dict:
 	"""Закрыть день: сколько наличных насчитали; расхождение — с причиной."""
 	return service.close_day(counted, reason=reason, day=day)
