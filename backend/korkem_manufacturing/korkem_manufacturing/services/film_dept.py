@@ -428,13 +428,15 @@ def _yes(value) -> bool:
 
 def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | None = None,
 		 sold_on: str | None = None, note: str | None = None, payments=None, seller: str | None = None,
-		 issued_by: str | None = None) -> dict:
+		 issued_by: str | None = None, below_reason: str | None = None) -> dict:
 	"""Film sold to a customer: one sale, one film or several.
 
 	`lines` — `[{"item", "metres", "price_m"?, "remember"?}]`; a line without
 	a price takes the customer's (`price_for`). `paid` less than the sum
 	leaves a debt. A typed price with `remember` becomes the card's price for
 	the customer's tier, where the card had none (owner, 11.11.2026).
+	`below_reason` — why a film goes for less than it cost (owner,
+	13.11.2026): kept on the sale, so a sale at a loss is never silent.
 	"""
 	material_stock._ensure_editor()
 	company = current_company()
@@ -465,6 +467,9 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 	if paid > amount:
 		frappe.throw(f"Оплачено больше суммы продажи ({amount:,.0f} ₸).".replace(",", " "))
 	method, bank = (parts[0]["method"], parts[0]["bank"]) if parts else (None, None)
+	below = " ".join(str(below_reason or "").split())[:140]
+	if below:
+		note = " · ".join(x for x in ((note or "").strip(), f"ниже закупа: {below}") if x)
 	entry = _issue(
 		company, [(item, metres, price) for item, metres, price in rows], SALE, posted_on=sold_on,
 		remarks=note,
@@ -496,7 +501,8 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 		frappe.db.set_value("Customer", buyer.name, "korkem_film_customer", 1)
 	audit.record_audit(action="film.sold", entity_type="Stock Entry", entity_id=entry.name,
 					   diff={"customer": buyer.name, "amount": float(amount), "paid": float(paid),
-							 "payments": [{**p, "amount": float(p["amount"])} for p in parts]})
+							 "payments": [{**p, "amount": float(p["amount"])} for p in parts],
+							 "below_reason": below or None})
 	return movement(entry.name)
 
 
@@ -902,6 +908,13 @@ def movement(entry: str) -> dict:
 		"entry": doc.name,
 		"kind": doc.korkem_film_kind,
 		"date": str(doc.posting_date),
+		# The hour of a sale, for the day's list (owner, 13.11.2026).
+		"time": str(doc.creation)[11:16],
+		"wholesale": bool(doc.get("korkem_film_customer"))
+		and frappe.db.get_value("Customer", doc.get("korkem_film_customer"), "korkem_film_tier") == WHOLESALE,
+		# What the film cost at the shelf: the sale's profit is the rest.
+		"cost": round(sum(flt(r.qty) * flt(r.valuation_rate) for r in doc.items), 2) if money else None,
+		"note": doc.remarks,
 		"customer": doc.get("korkem_film_customer"),
 		"customer_name": _name(doc.get("korkem_film_customer")),
 		"order": doc.get("korkem_film_order"),

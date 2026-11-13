@@ -490,6 +490,10 @@ class FilmSale {
     this.seller,
     this.sellerPhone,
     this.issuedBy,
+    this.time,
+    this.wholesale = false,
+    this.cost,
+    this.note,
   });
 
   factory FilmSale.fromJson(Map<String, dynamic> json) => FilmSale(
@@ -519,10 +523,28 @@ class FilmSale {
     seller: _s(json['seller']),
     sellerPhone: _s(json['seller_phone']),
     issuedBy: _s(json['issued_by']),
+    time: _s(json['time']),
+    wholesale: json['wholesale'] == true,
+    cost: _d(json['cost']),
+    note: _s(json['note']),
   );
 
   final String entry;
   final String date;
+
+  /// «14:20» — the hour of the sale (owner, 13.11.2026).
+  final String? time;
+
+  /// The customer buys at the trade price.
+  final bool wholesale;
+
+  /// What the film cost at the shelf — for those who see prices.
+  final double? cost;
+  final String? note;
+
+  /// What the sale earned over the film's cost.
+  double? get profit =>
+      amount != null && cost != null && cost! > 0 ? amount! - cost! : null;
   final String? customer;
   final String? customerName;
   final double? amount;
@@ -726,4 +748,14 @@ class FilmReport {
   >
   idle;
   final int idleDays;
+}
+
+/// How often a customer buys, in days — from three sales on; null before
+/// (owner, 13.11.2026: «раз в неделю»).
+int? filmRhythmDays(List<FilmSale> sales) {
+  final days = {for (final s in sales) ?DateTime.tryParse(s.date)}.toList()
+    ..sort();
+  if (days.length < 3) return null;
+  final span = days.last.difference(days.first).inDays;
+  return (span / (days.length - 1)).round().clamp(1, 365);
 }

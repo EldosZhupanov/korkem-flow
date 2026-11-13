@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/film_dept/presentation/film_customer_page.d
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_sales_tab.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_team_tab.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
@@ -95,7 +96,7 @@ class FilmDeptScreen extends ConsumerWidget {
         body: const TabBarView(
           children: [
             _StockTab(),
-            _SalesTab(),
+            FilmSalesTab(),
             _CustomersTab(),
             FilmSourcesTab(),
             FilmTeamTab(),
@@ -325,6 +326,7 @@ void _refresh(WidgetRef ref, [String? item]) {
     ..invalidate(filmStockProvider)
     ..invalidate(filmWantedProvider)
     ..invalidate(filmSalesProvider)
+    ..invalidate(filmSalesPeriodProvider)
     ..invalidate(filmCustomersProvider)
     ..invalidate(filmCatalogProvider);
   if (item != null) ref.invalidate(filmHistoryProvider(item));
@@ -1346,68 +1348,6 @@ String filmMoveLabel(FilmMoveKind kind, AppLocalizations l10n) =>
       FilmMoveKind.writeOff => l10n.filmMoveWriteOff,
       FilmMoveKind.other => l10n.filmMoveOther,
     };
-
-class _SalesTab extends ConsumerWidget {
-  const _SalesTab();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final money = mdfMoney(context);
-    final sales = ref.watch(filmSalesProvider);
-    return sales.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) =>
-          ErrorView(error: e, onRetry: () => ref.invalidate(filmSalesProvider)),
-      data: (rows) => ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          if (rows.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Text(l10n.filmSalesEmpty),
-            ),
-          for (final (i, s) in rows.indexed)
-            ListTile(
-              key: ValueKey('filmSaleRow:$i'),
-              // The sale's own card: a debt paid off, a mistake cancelled.
-              onTap: () async {
-                final done = await showFilmSaleCard(context, s);
-                if (done ?? false) _refresh(ref);
-              },
-              title: Text(
-                '${mdfDay(s.date)} · ${s.customerName ?? '—'}',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text(
-                [
-                  for (final l in s.lines)
-                    '${l.title} — ${filmMetres(l.metres)} м',
-                ].join('; '),
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (s.amount != null)
-                    Text(
-                      money.format(s.amount),
-                      style: theme.textTheme.titleSmall,
-                    ),
-                  if ((s.debt ?? 0) > 0)
-                    Text(
-                      l10n.filmSaleDebt(money.format(s.debt)),
-                      style: TextStyle(color: theme.colorScheme.error),
-                    ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 class _CustomersTab extends ConsumerStatefulWidget {
   const _CustomersTab();

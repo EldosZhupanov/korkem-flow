@@ -496,6 +496,17 @@ class TestFilmDept(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, film_orders.add, self.film, 5)
 
+	def test_a_sale_says_its_hour_its_cost_and_why_it_went_cheap(self):
+		sale = self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 2, "price_m": 3000}],
+						paid=0, below_reason="остаток рулона")
+		# Received at 3 200 a metre: the shelf's cost, the profit is the rest.
+		self.assertEqual(sale["cost"], 6400)
+		self.assertRegex(sale["time"], r"^\d\d:\d\d$")
+		self.assertFalse(sale["wholesale"])
+		self.assertIn("ниже закупа: остаток рулона", sale["note"])
+		# The floor does not see what film cost.
+		self.assertIsNone(self._as(CUTTER, service.movement, sale["entry"])["cost"])
+
 	def test_a_roll_shared_between_customers_puts_by_each_his_own(self):
 		other = frappe.get_doc({"doctype": "Customer", "customer_name": f"Тест {frappe.generate_hash(length=6)}",
 								"customer_type": "Company"}).insert(ignore_permissions=True).name

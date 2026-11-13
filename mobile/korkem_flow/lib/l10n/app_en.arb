@@ -8294,5 +8294,167 @@
         "type": "int"
       }
     }
+  },
+  "filmSalesToday": "Today",
+  "filmSalesWeek": "Week",
+  "filmSalesMonth": "Month",
+  "filmSalesPeriod": "Period",
+  "filmSalesAll": "All · {count}",
+  "@filmSalesAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSalesPaid": "Paid · {count}",
+  "@filmSalesPaid": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSalesDebt": "Owing · {count}",
+  "@filmSalesDebt": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSalesWholesale": "Trade · {count}",
+  "@filmSalesWholesale": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSalesSearch": "customer, film",
+  "filmSalesSold": "Sold",
+  "filmSalesCount": "{count} sales",
+  "@filmSalesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSalesMetres": "Metres",
+  "filmSalesAmount": "Revenue",
+  "filmSalesChange": "{change}% on the last",
+  "@filmSalesChange": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesProfit": "Profit",
+  "filmSalesUnpaid": "Unpaid",
+  "filmSalesDebtors": "customers: {count}",
+  "@filmSalesDebtors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSalesTodayOn": "Today, {day}",
+  "@filmSalesTodayOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesYesterdayOn": "Yesterday, {day}",
+  "@filmSalesYesterdayOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesWholesaleMark": "trade",
+  "filmSalesPaidMark": "✓ paid",
+  "filmSalesPartly": "part · owing {sum}",
+  "@filmSalesPartly": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesPerM": "{price}/m",
+  "@filmSalesPerM": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "filmDebtorsTitle": "Owing · {sum}",
+  "@filmDebtorsTitle": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmDebtorsShowSales": "Show their sales",
+  "filmDebtorLine": "{sum} · {days} d",
+  "@filmDebtorLine": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSaleRepeat": "Again",
+  "filmSaleBelow": "Below cost: bought at {cost}/m — a loss of ≈ {loss}",
+  "@filmSaleBelow": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "loss": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSaleBelowWhy": "Why below cost?",
+  "filmSaleBelowRest": "end of a roll",
+  "filmSaleBelowDefect": "defect",
+  "filmSaleBelowAgreed": "agreed",
+  "filmSaleToOrders": "To the order list",
+  "filmSaleUsually": "usually takes {film}",
+  "@filmSaleUsually": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSaleEvery": "every {days} d",
+  "@filmSaleEvery": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSaleNoDebt": "no debt",
+  "filmSaleLikeLast": "Like last time: {films}",
+  "@filmSaleLikeLast": {
+    "placeholders": {
+      "films": {
+        "type": "String"
+      }
+    }
   }
 }
