@@ -650,18 +650,27 @@ class FilmOrdersButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final status = context.statusColors;
+    // Grey while the list is empty, orange once there is something to
+    // order (owner, 13.11.2026).
+    final busy = stock.wanted > 0;
     return OutlinedButton.icon(
       key: const ValueKey('filmDept:orders'),
+      style: busy
+          ? OutlinedButton.styleFrom(
+              foregroundColor: status.warning,
+              backgroundColor: status.warning.withValues(
+                alpha: AppTint.surface,
+              ),
+              side: BorderSide(color: status.warning),
+            )
+          : null,
       onPressed: () async {
         await Navigator.of(context).push(
           MaterialPageRoute<void>(builder: (_) => const FilmOrdersPage()),
         );
         ref.invalidate(filmStockProvider);
       },
-      icon: Icon(
-        AppIcons.delivery,
-        color: stock.wanted > 0 ? status.danger : null,
-      ),
+      icon: const Icon(AppIcons.delivery),
       label: Text(
         stock.waiting > 0
             ? l10n.filmOrdersButtonWaiting(stock.wanted, stock.waiting)

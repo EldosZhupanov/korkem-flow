@@ -5,11 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
@@ -191,13 +194,64 @@ class _ReceiveLine {
   /// The lines of «К заказу» it answers.
   final List<String> orders;
 
+  /// Where its metres go (owner, 13.11.2026): to customers who buy film,
+  /// into MDF orders; what is left is the shelf's.
+  final List<_Dest> dests = [];
+
+  /// The shortfall went on «К заказу» already.
+  bool shortListed = false;
+
   double get m => _number(metres.text) ?? 0;
   double get p => _number(price.text) ?? 0;
+
+  /// Metres given out to customers and orders.
+  double get given => dests.fold<double>(0, (s, d) => s + d.m);
+
+  double get production =>
+      dests.where((d) => d.production).fold<double>(0, (s, d) => s + d.m);
+
+  double get sold =>
+      dests.where((d) => !d.production).fold<double>(0, (s, d) => s + d.m);
+
+  /// What is left for the shelf, and what the roll lacks.
+  double get shelf => m - given > 0 ? m - given : 0;
+  double get short => given - m > 0.005 ? given - m : 0;
 
   void dispose() {
     metres.dispose();
     price.dispose();
+    for (final d in dests) {
+      d.metres.dispose();
+    }
   }
+}
+
+/// Part of a roll: so many metres to a customer, or into an MDF order.
+class _Dest {
+  _Dest({
+    required this.production,
+    required this.id,
+    required this.name,
+    required double metres,
+    this.due,
+  }) : metres = TextEditingController(
+         text: metres > 0 ? filmMetres(metres) : '',
+       );
+
+  /// Into production (an MDF order), else a sale to a customer.
+  final bool production;
+
+  /// The order's number, or the customer's id.
+  final String id;
+
+  /// The customer's name — of the order, or the buyer.
+  final String name;
+
+  /// When the order is to be handed over.
+  final String? due;
+  final TextEditingController metres;
+
+  double get m => _number(metres.text) ?? 0;
 }
 
 class _ReceiveDialog extends ConsumerStatefulWidget {
@@ -279,6 +333,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     }
   });
 
+  /// «+ Продажа клиенту»: a customer takes part of the roll — what is
+  /// left of it unless changed.
   Future<void> _pickCustomer(_ReceiveLine line) async {
     final l10n = AppLocalizations.of(context);
     final customers = await ref.read(filmCustomersProvider.future);
@@ -286,15 +342,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     final picked = await showDialog<FilmCustomer?>(
       context: context,
       builder: (context) => SimpleDialog(
-        title: Text(l10n.filmReceiveForWhom),
+        title: Text(l10n.filmReceiveToSale),
         children: [
-          SimpleDialogOption(
-            key: const ValueKey('filmReceiveFor:shelf'),
-            onPressed: () => Navigator.of(context).pop(
-              const FilmCustomer(customer: '', name: ''),
-            ),
-            child: Text(l10n.filmReceiveForShelf),
-          ),
           for (final c in customers)
             SimpleDialogOption(
               key: ValueKey('filmReceiveFor:${c.customer}'),
@@ -306,10 +355,93 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     );
     if (picked == null || !mounted) return;
     setState(() {
-      line
-        ..customer = picked.customer.isEmpty ? null : picked.customer
-        ..customerName = picked.customer.isEmpty ? null : picked.name;
+      line.dests.add(
+        _Dest(
+          production: false,
+          id: picked.customer,
+          name: picked.name,
+          metres: line.shelf,
+        ),
+      );
     });
+  }
+
+  /// «+ В производство»: an MDF order that lacks this film takes what it
+  /// lacks.
+  Future<void> _pickOrder(_ReceiveLine line) async {
+    final l10n = AppLocalizations.of(context);
+    final List<FilmForProduction> wants;
+    try {
+      wants = await ref.read(
+        filmForProductionProvider(line.film.item).future,
+      );
+    } on Object {
+      return;
+    }
+    if (!mounted) return;
+    final taken = {
+      for (final d in line.dests)
+        if (d.production) d.id,
+    };
+    final picked = await showDialog<FilmForProduction?>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(l10n.filmReceiveToProduction),
+        children: [
+          if (wants.every((w) => taken.contains(w.order)))
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Text(l10n.filmReceiveNoOrders),
+            ),
+          for (final w in wants)
+            if (!taken.contains(w.order))
+              SimpleDialogOption(
+                key: ValueKey('filmReceiveProd:${w.order}'),
+                onPressed: () => Navigator.of(context).pop(w),
+                child: Text(
+                  l10n.filmReceiveOrderLine(
+                    w.order,
+                    w.customerName,
+                    filmMetres(w.short),
+                    w.deliveryDate == null
+                        ? '—'
+                        : mdfDay(w.deliveryDate, year: false),
+                  ),
+                ),
+              ),
+        ],
+      ),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      line.dests.add(
+        _Dest(
+          production: true,
+          id: picked.order,
+          name: picked.customerName,
+          metres: picked.short,
+          due: picked.deliveryDate,
+        ),
+      );
+    });
+  }
+
+  /// The roll lacks metres: the rest goes on «К заказу».
+  Future<void> _listShort(_ReceiveLine line) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    try {
+      await ref
+          .read(filmOrdersRepositoryProvider)
+          .add(
+            item: line.film.item,
+            metres: double.parse(line.short.toStringAsFixed(2)),
+            supplier: _supplier,
+          );
+      if (mounted) setState(() => line.shortListed = true);
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    }
   }
 
   // How it came (owner, 11.11.2026): by default as this supplier's last
@@ -396,113 +528,421 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     super.dispose();
   }
 
-  /// One film's own part: its name and for whom, its metres and price,
-  /// what it comes to — with the bringing, a metre.
+  /// One film's own part: its name, its metres, price and sum, whether
+  /// the price moved, and where its metres go.
   Widget _lineView(_ReceiveLine line, int i, double perM) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final status = context.statusColors;
     final money = mdfMoney(context);
     final card = line.film.priceM;
     final k = i == 0 ? '' : ':$i';
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final since = line.film.priceSince['price_m']?.date;
+    // The price against the last one (owner, 13.11.2026).
+    final moved = card != null && card > 0 && line.p > 0 && line.p != card
+        ? ((line.p - card) / card * 100).round()
+        : null;
+    final wants = ref.watch(filmForProductionProvider(line.film.item)).value;
+    final waiting = [
+      for (final w in wants ?? const <FilmForProduction>[])
+        if (!line.dests.any((d) => d.production && d.id == w.order)) w,
+    ];
+    Widget part({
+      required Color colour,
+      required IconData icon,
+      required String text,
+      TextEditingController? metres,
+      String? metresText,
+      VoidCallback? onRemove,
+      Key? key,
+    }) => Container(
+      key: key,
+      margin: const EdgeInsets.only(top: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: colour.withValues(alpha: AppTint.surface),
+        border: Border.all(color: colour),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _lines.length > 1
-                    ? Text(
-                        filmName(line.film),
-                        style: theme.textTheme.titleSmall,
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              TextButton.icon(
-                key: ValueKey('filmReceiveFor$k'),
-                onPressed: () => _pickCustomer(line),
-                icon: const Icon(AppIcons.hold),
-                label: Text(
-                  line.customerName == null
-                      ? l10n.filmReceiveForShelf
-                      : l10n.filmReceiveForCustomer(line.customerName!),
-                ),
-              ),
-              if (_lines.length > 1)
-                IconButton(
-                  key: ValueKey('filmReceiveRemove$k'),
-                  tooltip: l10n.filmReceiveRemove,
-                  icon: const Icon(AppIcons.close),
-                  onPressed: () {
-                    final gone = _lines[i];
-                    setState(() => _lines.removeAt(i));
-                    // Its fields let go of it first.
-                    WidgetsBinding.instance.addPostFrameCallback(
-                      (_) => gone.dispose(),
-                    );
-                  },
-                ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  key: ValueKey('filmMetres$k'),
-                  controller: line.metres,
-                  autofocus: i == 0,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+          SizedBox(
+            width: AppSpacing.xxxl * 1.5,
+            child: metres == null
+                ? Text(
+                    metresText ?? '',
+                    style: TextStyle(
+                      color: colour,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  )
+                : TextField(
+                    controller: metres,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+                    ],
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      suffixText: l10n.filmM,
+                    ),
                   ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
-                  ],
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(labelText: l10n.filmMetresLabel),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: TextField(
-                  key: ValueKey('filmPrice$k'),
-                  controller: line.price,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    labelText: l10n.filmPriceM,
-                    helperText: line.m > 0 && line.p > 0
-                        ? perM > 0
-                              ? l10n.filmReceiveSumWithDelivery(
-                                  money.format(line.m * line.p),
-                                  money.format(line.p + perM),
-                                )
-                              : l10n.filmReceiveSum(
-                                  money.format(line.m * line.p),
-                                )
-                        : null,
-                  ),
-                ),
-              ),
-            ],
           ),
-          if (line.p > 0 && line.p != card)
-            CheckboxListTile(
-              key: ValueKey('filmReceiveUpdatePrice$k'),
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              value: line.updatePrice,
-              onChanged: (v) => setState(() => line.updatePrice = v ?? false),
-              title: Text(
-                card == null
-                    ? l10n.filmReceiveSetPrice(line.p.toStringAsFixed(0))
-                    : l10n.filmReceiveUpdatePrice(
-                        card.toStringAsFixed(0),
-                        line.p.toStringAsFixed(0),
-                      ),
-              ),
+          const SizedBox(width: AppSpacing.sm),
+          Icon(icon, color: colour, size: AppIconSize.dense),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(child: Text(text)),
+          if (onRemove != null)
+            IconButton(
+              tooltip: l10n.filmReceiveRemove,
+              icon: const Icon(AppIcons.close, size: AppIconSize.dense),
+              onPressed: onRemove,
             ),
+        ],
+      ),
+    );
+    return Card(
+      key: ValueKey('filmReceiveLine$k'),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (line.film.argb != null) ...[
+                  FilmSample(argb: line.film.argb),
+                  const SizedBox(width: AppSpacing.sm),
+                ],
+                Expanded(
+                  child: Text(
+                    filmName(line.film),
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+                if (_lines.length > 1)
+                  IconButton(
+                    key: ValueKey('filmReceiveRemove$k'),
+                    tooltip: l10n.filmReceiveRemove,
+                    icon: const Icon(AppIcons.close),
+                    onPressed: () {
+                      final gone = _lines[i];
+                      setState(() => _lines.removeAt(i));
+                      // Its fields let go of it first.
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) => gone.dispose(),
+                      );
+                    },
+                  ),
+              ],
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextField(
+                    key: ValueKey('filmMetres$k'),
+                    controller: line.metres,
+                    autofocus: i == 0,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+                    ],
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      labelText: l10n.filmMetresLabel,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: TextField(
+                    key: ValueKey('filmPrice$k'),
+                    controller: line.price,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(labelText: l10n.filmPriceM),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: l10n.filmReceiveLineSum,
+                      helperText: perM > 0 && line.p > 0
+                          ? l10n.filmReceivePerMWithDelivery(
+                              money.format(line.p + perM),
+                            )
+                          : null,
+                    ),
+                    child: Text(
+                      line.m > 0 && line.p > 0
+                          ? money.format(line.m * line.p)
+                          : '—',
+                      key: ValueKey('filmReceiveSum$k'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (moved != null)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  (moved > 0 ? l10n.filmPriceUp : l10n.filmPriceDown)(
+                    money.format(card ?? 0),
+                    since == null ? '' : ' (${mdfDay(since, year: false)})',
+                    '${moved > 0 ? '+' : '−'}${moved.abs()}%',
+                  ),
+                  key: ValueKey('filmReceivePriceMoved$k'),
+                  style: TextStyle(
+                    color: moved > 0 ? status.warning : status.success,
+                  ),
+                ),
+              ),
+            if (line.p > 0 && line.p != card)
+              CheckboxListTile(
+                key: ValueKey('filmReceiveUpdatePrice$k'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: line.updatePrice,
+                onChanged: (v) => setState(() => line.updatePrice = v ?? false),
+                title: Text(
+                  card == null
+                      ? l10n.filmReceiveSetPrice(line.p.toStringAsFixed(0))
+                      : l10n.filmReceiveUpdatePrice(
+                          card.toStringAsFixed(0),
+                          line.p.toStringAsFixed(0),
+                        ),
+                ),
+              ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(l10n.filmReceiveWhere, style: theme.textTheme.labelMedium),
+            // Wanted on the list for someone: comes with it.
+            if (line.customerName != null)
+              part(
+                colour: status.warning,
+                icon: AppIcons.deal,
+                text: l10n.filmReceiveForCustomer(line.customerName!),
+              ),
+            for (final (n, d) in line.dests.indexed)
+              part(
+                key: ValueKey('filmReceiveDest$k:$n'),
+                colour: d.production ? status.info : status.warning,
+                icon: d.production ? AppIcons.workOrder : AppIcons.deal,
+                metres: d.metres,
+                text: d.production
+                    ? l10n.filmReceiveIntoProduction(
+                        d.id,
+                        d.name,
+                        d.due == null ? '' : mdfDay(d.due, year: false),
+                      )
+                    : l10n.filmReceiveToCustomer(d.name),
+                onRemove: () {
+                  setState(() => line.dests.removeAt(n));
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) => d.metres.dispose(),
+                  );
+                },
+              ),
+            if (line.shelf > 0)
+              part(
+                key: ValueKey('filmReceiveShelf$k'),
+                colour: status.success,
+                icon: AppIcons.warehouse,
+                metresText: '${filmMetres(line.shelf)} ${l10n.filmM}',
+                text: l10n.filmReceiveToShelf,
+              ),
+            if (line.short > 0)
+              Container(
+                key: ValueKey('filmReceiveShort$k'),
+                margin: const EdgeInsets.only(top: AppSpacing.xs),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                ),
+                decoration: BoxDecoration(
+                  color: status.danger.withValues(alpha: AppTint.surface),
+                  border: Border.all(color: status.danger),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Row(
+                  children: [
+                    Icon(AppIcons.danger, color: status.danger),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        l10n.filmReceiveShort(filmMetres(line.short)),
+                        style: TextStyle(color: status.danger),
+                      ),
+                    ),
+                    if (line.shortListed)
+                      Text(l10n.filmReceiveShortListed)
+                    else
+                      TextButton(
+                        key: ValueKey('filmReceiveShortList$k'),
+                        onPressed: () => _listShort(line),
+                        child: Text(l10n.filmReceiveShortToList),
+                      ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: AppSpacing.xs),
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  key: ValueKey('filmReceiveProd$k'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: status.info,
+                  ),
+                  onPressed: () => _pickOrder(line),
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.filmReceiveToProduction),
+                ),
+                OutlinedButton.icon(
+                  key: ValueKey('filmReceiveFor$k'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: status.warning,
+                  ),
+                  onPressed: () => _pickCustomer(line),
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.filmReceiveToSale),
+                ),
+                if (waiting.isNotEmpty)
+                  Text(
+                    l10n.filmReceiveOrdersWait(waiting.length),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: status.info,
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A film of the delivery as the server takes it. A single customer
+  /// taking the whole roll is the roll for him, as before.
+  FilmDeliveryLine _deliveryLine(_ReceiveLine l) {
+    final sales = [
+      for (final d in l.dests)
+        if (!d.production && d.m > 0) (customer: d.id, metres: d.m),
+    ];
+    final production = [
+      for (final d in l.dests)
+        if (d.production && d.m > 0) (order: d.id, metres: d.m),
+    ];
+    final whole =
+        l.customer == null &&
+        production.isEmpty &&
+        sales.length == 1 &&
+        (sales.single.metres - l.m).abs() < 0.005;
+    return (
+      item: l.film.item,
+      metres: l.m,
+      priceM: l.p,
+      updatePrice: l.updatePrice,
+      customer: whole ? sales.single.customer : l.customer,
+      orders: l.orders,
+      sales: whole ? const [] : sales,
+      production: production,
+    );
+  }
+
+  /// The delivery in figures: the film, the bringing, the total, a metre
+  /// with the bringing, where the metres went (owner, 13.11.2026).
+  Widget _summary(double metres, double total, double cost, double perM) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final status = context.statusColors;
+    final money = mdfMoney(context);
+    double sum(double Function(_ReceiveLine) f) =>
+        _lines.fold<double>(0, (s, l) => s + f(l));
+    Widget row(String a, String b, {TextStyle? style, Key? key}) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
+      child: Row(
+        children: [
+          Expanded(child: Text(a, style: style)),
+          Text(b, key: key, style: style),
+        ],
+      ),
+    );
+    final production = sum((l) => l.production);
+    final sold = sum((l) => l.sold);
+    final shelf = sum((l) => l.shelf);
+    return Container(
+      margin: const EdgeInsets.only(top: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          row(
+            l10n.filmReceiveFilmTotal(_lines.length, filmMetres(metres)),
+            money.format(total),
+          ),
+          if (cost > 0) row(l10n.filmDeliveryCost, money.format(cost)),
+          const Divider(),
+          row(
+            l10n.filmReceiveGrand,
+            money.format(total + cost),
+            key: const ValueKey('filmReceive:total'),
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          if (perM > 0)
+            Text(
+              l10n.filmReceivePerM(
+                [
+                  for (final l in _lines)
+                    if (l.p > 0) '${l.film.colour} ${money.format(l.p + perM)}',
+                ].join(' · '),
+              ),
+              style: theme.textTheme.bodySmall,
+            ),
+          Text.rich(
+            TextSpan(
+              children: [
+                if (production > 0)
+                  TextSpan(
+                    text:
+                        '${l10n.filmReceiveSumProduction(
+                          filmMetres(production),
+                        )}  ',
+                    style: TextStyle(color: status.info),
+                  ),
+                if (sold > 0)
+                  TextSpan(
+                    text: '${l10n.filmReceiveSumSale(filmMetres(sold))}  ',
+                    style: TextStyle(color: status.warning),
+                  ),
+                if (shelf > 0)
+                  TextSpan(
+                    text: l10n.filmReceiveSumShelf(filmMetres(shelf)),
+                    style: TextStyle(color: status.success),
+                  ),
+              ],
+            ),
+            style: theme.textTheme.bodySmall,
+          ),
         ],
       ),
     );
@@ -566,19 +1006,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                     ),
                 ],
               ),
-              if (_lines.length > 1 && total > 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: Text(
-                    l10n.filmReceiveTotal(
-                      _lines.length,
-                      filmMetres(metres),
-                      mdfMoney(context).format(total + cost),
-                    ),
-                    key: const ValueKey('filmReceive:total'),
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ),
+
               const SizedBox(height: AppSpacing.md),
               Text(
                 l10n.filmArrival,
@@ -787,6 +1215,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                   title: Text(l10n.filmUrgent),
                 ),
               ],
+              if (total > 0) _summary(metres, total, cost, perM),
               errorLine(context),
             ],
           ),
@@ -827,7 +1256,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                   // One film for the shelf: the receipt it always was.
                   if (only != null &&
                       only.customer == null &&
-                      only.orders.isEmpty) {
+                      only.orders.isEmpty &&
+                      only.dests.isEmpty) {
                     return ref
                         .read(filmDeptRepositoryProvider)
                         .receive(
@@ -846,24 +1276,19 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                       .receiveMany(
                         supplier: _supplier!,
                         lines: [
-                          for (final l in _lines)
-                            (
-                              item: l.film.item,
-                              metres: l.m,
-                              priceM: l.p,
-                              updatePrice: l.updatePrice,
-                              customer: l.customer,
-                              orders: l.orders,
-                            ),
+                          for (final l in _lines) _deliveryLine(l),
                         ],
                         delivery: delivery,
                         receivedBy: taker,
                         arrivesOn: due,
                       );
                 }),
-          // On its way: ordered, not taken in yet.
+          // On its way: ordered, not taken in yet — with what it comes to.
           child: Text(
-            _due == null ? l10n.filmReceive : l10n.filmArrivalOrder,
+            [
+              if (_due == null) l10n.filmReceive else l10n.filmArrivalOrder,
+              if (total > 0) money.format(total + cost),
+            ].join(' · '),
           ),
         ),
       ],

@@ -407,19 +407,19 @@ class _StockTabState extends ConsumerState<_StockTab> {
           1,
           (m, f) => f.free > m ? f.free : m,
         );
-        // Two colours (owner, 13.11.2026): goods in — green, a sale — the
-        // app's own; the receipt first.
+        // Two colours (owner, 13.11.2026): goods in — green, a sale —
+        // blue; the receipt first.
         final light = theme.brightness == Brightness.light
             ? theme.colorScheme.surface
             : theme.colorScheme.onSurface;
         final dark = theme.brightness == Brightness.light
             ? theme.colorScheme.onSurface
             : theme.colorScheme.surface;
-        final onGreen =
-            ThemeData.estimateBrightnessForColor(status.success) ==
-                Brightness.dark
+        Color on(Color fill) =>
+            ThemeData.estimateBrightnessForColor(fill) == Brightness.dark
             ? light
             : dark;
+        final lowCount = count(_StockFilter.low);
         String label(_StockFilter f) => switch (f) {
           _StockFilter.all => l10n.filmFilterAll(count(f)),
           _StockFilter.have => l10n.filmFilterHave(count(f)),
@@ -442,7 +442,7 @@ class _StockTabState extends ConsumerState<_StockTab> {
                     key: const ValueKey('filmDept:receive'),
                     style: FilledButton.styleFrom(
                       backgroundColor: status.success,
-                      foregroundColor: onGreen,
+                      foregroundColor: on(status.success),
                     ),
                     onPressed: () => _receive(c),
                     icon: const Icon(AppIcons.moveIn),
@@ -451,6 +451,10 @@ class _StockTabState extends ConsumerState<_StockTab> {
                 if (c.canEdit)
                   FilledButton.icon(
                     key: const ValueKey('filmDept:sell'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: status.info,
+                      foregroundColor: on(status.info),
+                    ),
                     onPressed: () => _sell(c),
                     icon: const Icon(AppIcons.add),
                     label: Text(l10n.filmSell),
@@ -484,6 +488,16 @@ class _StockTabState extends ConsumerState<_StockTab> {
                           : 'filmDept:filter:${f.name}',
                     ),
                     label: Text(label(f)),
+                    // «Мало» lights up while something runs low.
+                    backgroundColor: f == _StockFilter.low && lowCount > 0
+                        ? status.danger.withValues(alpha: AppTint.surface)
+                        : null,
+                    side: f == _StockFilter.low && lowCount > 0
+                        ? BorderSide(color: status.danger)
+                        : null,
+                    labelStyle: f == _StockFilter.low && lowCount > 0
+                        ? TextStyle(color: status.danger)
+                        : null,
                     selected: _filter == f,
                     onSelected: (on) => setState(
                       () => _filter = on && _filter != f ? f : _StockFilter.all,
@@ -638,28 +652,37 @@ class _StockTile extends StatelessWidget {
           style: TextStyle(color: theme.colorScheme.error),
         ),
     ];
+    // In the row too: goods in green and first, a sale blue, «заказать»
+    // orange (owner, 13.11.2026).
+    ButtonStyle tint(Color c) => OutlinedButton.styleFrom(
+      foregroundColor: c,
+      side: BorderSide(color: c),
+    );
     final actions = canEdit
         ? Wrap(
             spacing: AppSpacing.xs,
             children: [
+              OutlinedButton(
+                key: ValueKey('filmStock:receive:${f.item}'),
+                style: tint(status.success),
+                onPressed: onReceive,
+                child: Text(l10n.filmReceive),
+              ),
               if (f.free > 0)
                 OutlinedButton(
                   key: ValueKey('filmStock:sell:${f.item}'),
+                  style: tint(status.info),
                   onPressed: onSell,
                   child: Text(l10n.filmSell),
                 )
               else if (onWay <= 0)
                 OutlinedButton.icon(
                   key: ValueKey('filmStock:want:${f.item}'),
+                  style: tint(status.warning),
                   onPressed: onWant,
                   icon: const Icon(AppIcons.delivery),
                   label: Text(l10n.filmWantShort),
                 ),
-              OutlinedButton(
-                key: ValueKey('filmStock:receive:${f.item}'),
-                onPressed: onReceive,
-                child: Text(l10n.filmReceive),
-              ),
             ],
           )
         : null;
