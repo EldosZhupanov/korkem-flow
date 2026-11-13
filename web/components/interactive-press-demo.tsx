@@ -72,7 +72,6 @@ export function InteractivePressDemo() {
     );
   };
 
-  // Live calculations mirroring domain rules
   const totalArea = facades.reduce(
     (sum, f) => sum + Math.round(((f.h * f.w * f.qty) / 1_000_000) * 100) / 100,
     0
@@ -83,7 +82,6 @@ export function InteractivePressDemo() {
   }, 0);
   const totalPieces = facades.reduce((sum, f) => sum + f.qty, 0);
 
-  // Press section estimation (1.1 / 2.1 / 3.1m)
   const effectiveArea = textured ? totalArea * 1.12 : totalArea;
   const pressSection =
     effectiveArea <= 1.25 ? 1.1 : effectiveArea <= 2.45 ? 2.1 : 3.1;
@@ -97,344 +95,339 @@ export function InteractivePressDemo() {
   const currentAi = AI_PROMPTS[aiIdx];
 
   return (
-    <div className="relative mx-auto mt-14 max-w-5xl text-left">
-      <div className="overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0E0E11] shadow-[0_32px_100px_-20px_rgba(0,0,0,0.9)]">
-        {/* Top Chrome */}
-        <div className="flex flex-col gap-3 border-b border-white/[0.08] bg-[#141418] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-              <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-              <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-            </div>
-            <span className="font-mono text-[11px] text-zinc-400">
-              korkem-flow · live simulator
-            </span>
+    <div className="overflow-hidden rounded-2xl border border-[#3D4A3B] bg-[#2B382A] shadow-[0_32px_90px_-20px_rgba(0,0,0,0.8)]">
+      {/* Top Chrome */}
+      <div className="flex flex-col gap-3 border-b border-[#3D4A3B] bg-[#232F22] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#3D4A3B]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#3D4A3B]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#7FD36B]/70" />
           </div>
-
-          <div className="inline-flex rounded-lg border border-white/[0.08] bg-[#09090B] p-1">
-            {[
-              { id: "press" as Mode, label: "1. Пресс и Заказ МДФ" },
-              { id: "film" as Mode, label: "2. Склад плёнки" },
-              { id: "ai" as Mode, label: "3. AI-администратор" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setMode(tab.id)}
-                className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                  mode === tab.id
-                    ? "bg-[#F5F5F0] text-[#09090B]"
-                    : "text-zinc-400 hover:text-zinc-200"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <span className="font-mono text-[11px] text-[#A8ADA4]">
+            korkem-flow · live simulator
+          </span>
         </div>
 
-        {/* Interactive Body */}
-        <div className="p-5 sm:p-7">
-          {mode === "press" && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-              {/* Left Controls: Real Interactive Facade Qty */}
-              <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] uppercase tracking-wider text-amber-400">
-                      Интерактивный заказ #1129
-                    </span>
-                    <span className="font-mono text-[11px] text-zinc-500">
-                      {totalPieces} дет.
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs text-zinc-400">
-                    Измените количество фасадов или тип плёнки — раскладка на
-                    столе и итог пересчитаются сразу:
-                  </p>
+        <div className="inline-flex rounded-lg border border-[#3D4A3B] bg-[#1B241A] p-1">
+          {[
+            { id: "press" as Mode, label: "1. Пресс и Заказ МДФ" },
+            { id: "film" as Mode, label: "2. Склад плёнки" },
+            { id: "ai" as Mode, label: "3. AI-администратор" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setMode(tab.id)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                mode === tab.id
+                  ? "bg-[#DEDAD0] text-[#1B241A] font-semibold"
+                  : "text-[#A8ADA4] hover:text-[#E6E3D9]"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-                  <div className="mt-4 space-y-2">
-                    {facades.map((f) => (
-                      <div
-                        key={f.id}
-                        className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#141418] px-3.5 py-2.5"
-                      >
-                        <div>
-                          <div className="text-xs font-medium text-[#F5F5F0]">
-                            {f.label}
-                          </div>
-                          <div className="font-mono text-[10px] text-zinc-500">
-                            {f.milling} · {f.pricePerM2.toLocaleString("ru-RU")} ₸/м²
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => updateQty(f.id, -1)}
-                            aria-label="Уменьшить"
-                            className="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 text-zinc-300 hover:bg-white/10"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </button>
-                          <span className="w-5 text-center font-mono text-xs font-semibold text-white tabular-nums">
-                            {f.qty}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => updateQty(f.id, 1)}
-                            aria-label="Увеличить"
-                            className="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 text-zinc-300 hover:bg-white/10"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Texture toggle */}
-                  <button
-                    type="button"
-                    onClick={() => setTextured((t) => !t)}
-                    className="mt-3 flex w-full items-center justify-between rounded-xl border border-white/[0.08] bg-[#141418] px-3.5 py-2.5 text-left transition hover:border-white/20"
-                  >
-                    <div className="flex items-center gap-2 text-xs text-zinc-200">
-                      {textured ? (
-                        <Lock className="h-3.5 w-3.5 text-amber-400" />
-                      ) : (
-                        <RotateCw className="h-3.5 w-3.5 text-emerald-400" />
-                      )}
-                      <span>
-                        {textured
-                          ? "Текстурная плёнка (поворот 90° запрещён)"
-                          : "Однотонная плёнка (свободный поворот)"}
-                      </span>
-                    </div>
-                    <span className="font-mono text-[10px] text-zinc-400">
-                      перекл.
-                    </span>
-                  </button>
-                </div>
-
-                {/* Live Totals */}
-                <div className="grid grid-cols-3 gap-3 border-t border-white/[0.08] pt-4 font-mono">
-                  <div>
-                    <div className="text-[10px] text-zinc-500">Площадь</div>
-                    <div className="text-sm font-semibold text-[#F5F5F0] tabular-nums">
-                      {totalArea.toFixed(2)} м²
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-zinc-500">
-                      Плёнка ({loadsCount} загр.)
-                    </div>
-                    <div className="text-sm font-semibold text-amber-300 tabular-nums">
-                      {totalFilmMetres} м.п.
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-zinc-500">Сумма заказа</div>
-                    <div className="text-sm font-semibold text-emerald-400 tabular-nums">
-                      {totalSum.toLocaleString("ru-RU")} ₸
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right: Live Press Bed */}
-              <div className="lg:col-span-7 flex flex-col justify-between rounded-xl border border-white/[0.08] bg-[#09090B] p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <div className="font-mono text-xs text-zinc-300">
-                    Пресс Yellow 3013 · Секция{" "}
-                    <span className="text-amber-300 font-semibold">
-                      {pressSection.toFixed(1)} м
-                    </span>
-                  </div>
-                  <span className="font-mono text-[10px] text-zinc-500">
-                    Зазор 40 мм · MaxRects
+      {/* Interactive Body */}
+      <div className="p-5 sm:p-7 text-left">
+        {mode === "press" && (
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-[#FFC14D]">
+                    Интерактивный заказ #1129
+                  </span>
+                  <span className="font-mono text-[11px] text-[#A8ADA4]">
+                    {totalPieces} дет.
                   </span>
                 </div>
+                <p className="mt-1 text-xs text-[#A8ADA4]">
+                  Измените количество фасадов или тип плёнки — раскладка и
+                  стоимость пересчитаются мгновенно:
+                </p>
 
-                <div className="relative min-h-[220px] rounded-lg border border-dashed border-white/15 bg-arch-grid p-3">
-                  {totalPieces === 0 ? (
-                    <div className="flex h-48 items-center justify-center font-mono text-xs text-zinc-500">
-                      Добавьте хотя бы один фасад слева
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap content-start gap-2">
-                      {facades.flatMap((f) =>
-                        Array.from({ length: f.qty }).map((_, idx) => {
-                          const wClass =
-                            f.w >= 550
-                              ? textured
-                                ? "w-[116px] h-[74px]"
-                                : "w-[96px] h-[82px]"
-                              : "w-[82px] h-[74px]";
-                          const tone =
-                            f.id === "f1"
-                              ? "border-amber-400/40 bg-amber-500/15 text-amber-100"
-                              : f.id === "f2"
-                              ? "border-white/25 bg-white/[0.07] text-zinc-100"
-                              : "border-emerald-400/35 bg-emerald-500/10 text-emerald-100";
-                          return (
-                            <div
-                              key={`${f.id}-${idx}`}
-                              className={`${wClass} ${tone} flex flex-col justify-between rounded border p-2 font-mono text-[10px] transition-all duration-200`}
-                            >
-                              <span>
-                                {f.h}×{f.w}
-                              </span>
-                              <span className="text-[9px] opacity-70">
-                                {textured ? "↑ волокно" : "↻ 90° ок"}
-                              </span>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-3 flex items-center justify-between font-mono text-[11px] text-zinc-500">
-                  <span>Статус: Раскрой проверен</span>
-                  <span>Бланк цеха: Без цен</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {mode === "film" && (
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <div className="font-mono text-xs text-amber-400">
-                    ОТДЕЛ ПЛЁНКИ ПВХ · ПАРТИИ ПО ТОЛЩИНАМ
-                  </div>
-                  <div className="text-xs text-zinc-400 mt-0.5">
-                    Одна плёнка — несколько толщин со своими метрами, ценой
-                    закупа и резервом
-                  </div>
-                </div>
-                <div className="flex gap-1.5">
-                  {["Все", "0.35 мм", "0.50 мм"].map((th) => (
-                    <button
-                      key={th}
-                      type="button"
-                      onClick={() => setThickFilter(th)}
-                      className={`rounded-md px-2.5 py-1 font-mono text-[11px] transition ${
-                        thickFilter === th
-                          ? "bg-[#F5F5F0] text-[#09090B] font-semibold"
-                          : "border border-white/10 text-zinc-400 hover:text-white"
-                      }`}
+                <div className="mt-4 space-y-2">
+                  {facades.map((f) => (
+                    <div
+                      key={f.id}
+                      className="flex items-center justify-between rounded-xl border border-[#3D4A3B] bg-[#1B241A] px-3.5 py-2.5"
                     >
-                      {th}
-                    </button>
+                      <div>
+                        <div className="text-xs font-medium text-[#E6E3D9]">
+                          {f.label}
+                        </div>
+                        <div className="font-mono text-[10px] text-[#A8ADA4]">
+                          {f.milling} · {f.pricePerM2.toLocaleString("ru-RU")} ₸/м²
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => updateQty(f.id, -1)}
+                          aria-label="Уменьшить"
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[#3D4A3B] text-[#E6E3D9] hover:bg-[#3B4C39]"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <span className="w-5 text-center font-mono text-xs font-semibold text-[#DEDAD0] tabular-nums">
+                          {f.qty}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQty(f.id, 1)}
+                          aria-label="Увеличить"
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[#3D4A3B] text-[#E6E3D9] hover:bg-[#3B4C39]"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setTextured((t) => !t)}
+                  className="mt-3 flex w-full items-center justify-between rounded-xl border border-[#3D4A3B] bg-[#1B241A] px-3.5 py-2.5 text-left transition hover:border-[#7D8277]"
+                >
+                  <div className="flex items-center gap-2 text-xs text-[#E6E3D9]">
+                    {textured ? (
+                      <Lock className="h-3.5 w-3.5 text-[#FFC14D]" />
+                    ) : (
+                      <RotateCw className="h-3.5 w-3.5 text-[#7FD36B]" />
+                    )}
+                    <span>
+                      {textured
+                        ? "Текстурная плёнка (поворот 90° запрещён)"
+                        : "Однотонная плёнка (свободный поворот)"}
+                    </span>
+                  </div>
+                  <span className="font-mono text-[10px] text-[#A8ADA4]">
+                    перекл.
+                  </span>
+                </button>
               </div>
 
-              <div className="overflow-hidden rounded-xl border border-white/[0.08]">
-                <table className="w-full text-left text-xs">
-                  <thead className="border-b border-white/[0.08] bg-[#141418] font-mono text-[11px] text-zinc-400">
-                    <tr>
-                      <th className="px-4 py-2.5 font-medium">Плёнка</th>
-                      <th className="px-4 py-2.5 font-medium">Толщина</th>
-                      <th className="px-4 py-2.5 font-medium">Свободно</th>
-                      <th className="px-4 py-2.5 font-medium">Отложено</th>
-                      <th className="px-4 py-2.5 font-medium">Поставка</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/[0.06] font-mono">
-                    {visibleRolls.map((r) => (
-                      <tr key={r.name} className="bg-[#09090B]">
-                        <td className="px-4 py-3 font-sans">
-                          <div className="font-medium text-[#F5F5F0]">
-                            {r.name}
-                          </div>
-                          <div className="text-[11px] text-zinc-500">
-                            {r.maker} · {r.textured ? "Текстурная" : "Гладкая"}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-zinc-300">{r.thick}</td>
-                        <td className="px-4 py-3 text-emerald-400">{r.free}</td>
-                        <td className="px-4 py-3 text-amber-300">{r.reserved}</td>
-                        <td
-                          className={`px-4 py-3 ${
-                            r.low ? "text-rose-400 font-semibold" : "text-zinc-400"
-                          }`}
-                        >
-                          {r.transit}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-3 gap-3 border-t border-[#3D4A3B] pt-4 font-mono">
+                <div>
+                  <div className="text-[10px] text-[#A8ADA4]">Площадь</div>
+                  <div className="text-sm font-semibold text-[#DEDAD0] tabular-nums">
+                    {totalArea.toFixed(2)} м²
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-[#A8ADA4]">
+                    Плёнка ({loadsCount} загр.)
+                  </div>
+                  <div className="text-sm font-semibold text-[#FFC14D] tabular-nums">
+                    {totalFilmMetres} м.п.
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-[#A8ADA4]">Сумма заказа</div>
+                  <div className="text-sm font-semibold text-[#7FD36B] tabular-nums">
+                    {totalSum.toLocaleString("ru-RU")} ₸
+                  </div>
+                </div>
               </div>
             </div>
-          )}
 
-          {mode === "ai" && (
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-              <div className="lg:col-span-5 space-y-2">
-                <div className="font-mono text-[11px] uppercase tracking-wider text-zinc-500 mb-2">
-                  Выберите вопрос из цеха
+            {/* Right: 3D Tactile Press Bed */}
+            <div className="lg:col-span-7 flex flex-col justify-between rounded-xl border border-[#3D4A3B] bg-[#1B241A] p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div className="font-mono text-xs text-[#E6E3D9]">
+                  Пресс Yellow 3013 · Секция{" "}
+                  <span className="text-[#FFC14D] font-semibold">
+                    {pressSection.toFixed(1)} м
+                  </span>
                 </div>
-                {AI_PROMPTS.map((item, idx) => (
+                <span className="font-mono text-[10px] text-[#A8ADA4]">
+                  Зазор 40 мм · MaxRects
+                </span>
+              </div>
+
+              <div className="relative min-h-[225px] rounded-lg border border-dashed border-[#7D8277]/60 bg-arch-grid p-3">
+                {totalPieces === 0 ? (
+                  <div className="flex h-48 items-center justify-center font-mono text-xs text-[#A8ADA4]">
+                    Добавьте хотя бы один фасад слева
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap content-start gap-2">
+                    {facades.flatMap((f) =>
+                      Array.from({ length: f.qty }).map((_, idx) => {
+                        const wClass =
+                          f.w >= 550
+                            ? textured
+                              ? "w-[116px] h-[74px]"
+                              : "w-[96px] h-[82px]"
+                            : "w-[82px] h-[74px]";
+                        const tone =
+                          f.id === "f1"
+                            ? "border-[#D85A30]/60 bg-[#D85A30]/15 text-[#DEDAD0]"
+                            : f.id === "f2"
+                            ? "border-[#DEDAD0]/35 bg-[#3B4C39]/70 text-[#DEDAD0]"
+                            : "border-[#1D9E75]/60 bg-[#1D9E75]/15 text-[#DEDAD0]";
+                        return (
+                          <div
+                            key={`${f.id}-${idx}`}
+                            className={`${wClass} ${tone} flex flex-col justify-between rounded-md border p-2 font-mono text-[10px] shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.65)]`}
+                          >
+                            <span>
+                              {f.h}×{f.w}
+                            </span>
+                            <span className="text-[9px] opacity-80">
+                              {textured ? "↑ волокно" : "↻ 90° ок"}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-3 flex items-center justify-between font-mono text-[11px] text-[#A8ADA4]">
+                <span>Статус: Раскрой проверен</span>
+                <span>Бланк цеха: Без цен</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {mode === "film" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="font-mono text-xs text-[#FFC14D]">
+                  ОТДЕЛ ПЛЁНКИ ПВХ · ПАРТИИ ПО ТОЛЩИНАМ
+                </div>
+                <div className="text-xs text-[#A8ADA4] mt-0.5">
+                  Одна плёнка — несколько толщин со своими метрами, ценой
+                  закупа и резервом
+                </div>
+              </div>
+              <div className="flex gap-1.5">
+                {["Все", "0.35 мм", "0.50 мм"].map((th) => (
                   <button
-                    key={item.cmd}
+                    key={th}
                     type="button"
-                    onClick={() => {
-                      setAiIdx(idx);
-                      setConfirmed(false);
-                    }}
-                    className={`w-full rounded-xl border p-3 text-left text-xs transition ${
-                      aiIdx === idx
-                        ? "border-amber-400/50 bg-amber-500/10 text-[#F5F5F0]"
-                        : "border-white/[0.08] bg-[#141418] text-zinc-400 hover:text-zinc-200"
+                    onClick={() => setThickFilter(th)}
+                    className={`rounded-md px-2.5 py-1 font-mono text-[11px] transition ${
+                      thickFilter === th
+                        ? "bg-[#DEDAD0] text-[#1B241A] font-semibold"
+                        : "border border-[#3D4A3B] text-[#A8ADA4] hover:text-[#E6E3D9]"
                     }`}
                   >
-                    «{item.cmd}»
+                    {th}
                   </button>
                 ))}
               </div>
+            </div>
 
-              <div className="lg:col-span-7 flex flex-col justify-between rounded-xl border border-white/[0.08] bg-[#09090B] p-4">
-                <div>
-                  <div className="flex items-center gap-2 font-mono text-[11px] text-amber-400">
-                    <Terminal className="h-3.5 w-3.5" />
-                    <span>{currentAi.tool}</span>
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-[#F5F5F0]">
-                    {currentAi.answer}
-                  </p>
-                </div>
+            <div className="overflow-hidden rounded-xl border border-[#3D4A3B]">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-[#3D4A3B] bg-[#232F22] font-mono text-[11px] text-[#A8ADA4]">
+                  <tr>
+                    <th className="px-4 py-2.5 font-medium">Плёнка</th>
+                    <th className="px-4 py-2.5 font-medium">Толщина</th>
+                    <th className="px-4 py-2.5 font-medium">Свободно</th>
+                    <th className="px-4 py-2.5 font-medium">Отложено</th>
+                    <th className="px-4 py-2.5 font-medium">Поставка</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#3D4A3B]/60 font-mono">
+                  {visibleRolls.map((r) => (
+                    <tr key={r.name} className="bg-[#1B241A]">
+                      <td className="px-4 py-3 font-sans">
+                        <div className="font-medium text-[#E6E3D9]">
+                          {r.name}
+                        </div>
+                        <div className="text-[11px] text-[#A8ADA4]">
+                          {r.maker} · {r.textured ? "Текстурная" : "Гладкая"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-[#E6E3D9]">{r.thick}</td>
+                      <td className="px-4 py-3 text-[#7FD36B]">{r.free}</td>
+                      <td className="px-4 py-3 text-[#FFC14D]">{r.reserved}</td>
+                      <td
+                        className={`px-4 py-3 ${
+                          r.low ? "text-[#FF897D] font-semibold" : "text-[#A8ADA4]"
+                        }`}
+                      >
+                        {r.transit}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-                <div className="mt-5 rounded-xl border border-white/[0.08] bg-[#141418] p-3.5">
-                  <div className="flex items-center gap-2 text-[11px] font-medium text-zinc-300">
-                    <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                    <span>R10: подтверждение записи человеком</span>
-                  </div>
-                  <div className="mt-1.5 font-mono text-xs text-zinc-400">
-                    {currentAi.action}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmed((c) => !c)}
-                    className={`mt-3 inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition ${
-                      confirmed
-                        ? "bg-emerald-500 text-slate-950"
-                        : "bg-[#F5F5F0] text-[#09090B] hover:bg-white"
-                    }`}
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    {confirmed ? "Записано в аудит" : "Подтвердить действие"}
-                  </button>
+        {mode === "ai" && (
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-5 space-y-2">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-[#A8ADA4] mb-2">
+                Выберите вопрос из цеха
+              </div>
+              {AI_PROMPTS.map((item, idx) => (
+                <button
+                  key={item.cmd}
+                  type="button"
+                  onClick={() => {
+                    setAiIdx(idx);
+                    setConfirmed(false);
+                  }}
+                  className={`w-full rounded-xl border p-3 text-left text-xs transition ${
+                    aiIdx === idx
+                      ? "border-[#DEDAD0]/50 bg-[#3B4C39] text-[#E6E3D9]"
+                      : "border-[#3D4A3B] bg-[#1B241A] text-[#A8ADA4] hover:text-[#E6E3D9]"
+                  }`}
+                >
+                  «{item.cmd}»
+                </button>
+              ))}
+            </div>
+
+            <div className="lg:col-span-7 flex flex-col justify-between rounded-xl border border-[#3D4A3B] bg-[#1B241A] p-4">
+              <div>
+                <div className="flex items-center gap-2 font-mono text-[11px] text-[#FFC14D]">
+                  <Terminal className="h-3.5 w-3.5" />
+                  <span>{currentAi.tool}</span>
                 </div>
+                <p className="mt-3 text-sm leading-relaxed text-[#E6E3D9]">
+                  {currentAi.answer}
+                </p>
+              </div>
+
+              <div className="mt-5 rounded-xl border border-[#3D4A3B] bg-[#2B382A] p-3.5">
+                <div className="flex items-center gap-2 text-[11px] font-medium text-[#E6E3D9]">
+                  <ShieldCheck className="h-4 w-4 text-[#7FD36B]" />
+                  <span>R10: подтверждение записи человеком</span>
+                </div>
+                <div className="mt-1.5 font-mono text-xs text-[#A8ADA4]">
+                  {currentAi.action}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setConfirmed((c) => !c)}
+                  className={`mt-3 inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition ${
+                    confirmed
+                      ? "bg-[#7FD36B] text-[#1B241A]"
+                      : "bg-[#DEDAD0] text-[#1B241A] hover:bg-[#F7F5EE]"
+                  }`}
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  {confirmed ? "Записано в аудит" : "Подтвердить действие"}
+                </button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

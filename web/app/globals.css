@@ -4,65 +4,66 @@
 
 @layer base {
   :root {
-    --background: 240 10% 4%;
-    --foreground: 40 14% 96%;
+    /* Official KORKEM Brand Palette (from mobile/korkem_flow/lib/core/design/tokens/colors.dart) */
+    --background: 114 16% 12%;       /* #1B241A surfaceDark */
+    --foreground: 45 20% 88%;        /* #E6E3D9 onSurfaceDark */
 
-    --card: 240 8% 7%;
-    --card-foreground: 40 14% 96%;
+    --card: 116 14% 19%;             /* #2B382A forest */
+    --card-foreground: 45 20% 88%;   /* #E6E3D9 */
 
-    --popover: 240 8% 7%;
-    --popover-foreground: 40 14% 96%;
+    --popover: 116 14% 19%;
+    --popover-foreground: 45 20% 88%;
 
-    --primary: 38 92% 50%;
-    --primary-foreground: 240 10% 4%;
+    --primary: 43 16% 84%;           /* #DEDAD0 cream */
+    --primary-foreground: 116 14% 19%;
 
-    --secondary: 240 6% 12%;
-    --secondary-foreground: 40 14% 96%;
+    --secondary: 113 13% 26%;        /* #3B4C39 brandContainerDark */
+    --secondary-foreground: 45 20% 88%;
 
-    --muted: 240 6% 12%;
-    --muted-foreground: 240 5% 62%;
+    --muted: 114 14% 16%;
+    --muted-foreground: 96 6% 66%;   /* #A8ADA4 neutralDark */
 
-    --accent: 240 6% 14%;
-    --accent-foreground: 40 14% 96%;
+    --accent: 113 13% 26%;
+    --accent-foreground: 45 20% 88%;
 
     --destructive: 0 63% 31%;
-    --destructive-foreground: 40 14% 96%;
+    --destructive-foreground: 45 20% 88%;
 
-    --border: 240 6% 15%;
-    --input: 240 6% 15%;
-    --ring: 38 92% 50%;
+    --border: 112 11% 26%;           /* #3D4A3B outlineDark */
+    --input: 112 11% 26%;
+    --ring: 43 16% 84%;
 
     --radius: 0.75rem;
   }
 
   .light {
-    --background: 40 20% 97%;
-    --foreground: 240 10% 6%;
+    --background: 47 36% 95%;        /* #F7F5EE surfaceLight */
+    --foreground: 120 16% 14%;       /* #1E2A1E onSurfaceLight */
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 6%;
+    --card: 45 27% 90%;              /* #EDEAE0 surfaceContainerLight */
+    --card-foreground: 120 16% 14%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 6%;
+    --popover: 47 36% 95%;
+    --popover-foreground: 120 16% 14%;
 
-    --primary: 240 10% 6%;
-    --primary-foreground: 40 20% 97%;
+    --primary: 116 14% 19%;          /* #2B382A forest */
+    --primary-foreground: 43 16% 84%;/* #DEDAD0 cream */
 
-    --secondary: 40 14% 92%;
-    --secondary-foreground: 240 10% 6%;
+    --secondary: 93 11% 85%;
+    --secondary-foreground: 120 16% 14%;
 
-    --muted: 40 14% 93%;
-    --muted-foreground: 240 4% 42%;
+    --muted: 45 27% 90%;
+    --muted-foreground: 96 3% 36%;
 
-    --accent: 40 14% 92%;
-    --accent-foreground: 240 10% 6%;
+    --accent: 45 27% 90%;
+    --accent-foreground: 120 16% 14%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 40 20% 97%;
+    --destructive: 0 72% 41%;
+    --destructive-foreground: 47 36% 95%;
 
-    --border: 40 10% 86%;
-    --input: 40 10% 86%;
-    --ring: 240 10% 6%;
+    --border: 48 18% 82%;            /* #DAD7CA outlineLight */
+    --input: 48 18% 82%;
+    --ring: 116 14% 19%;
   }
 }
 
@@ -76,17 +77,61 @@
   }
 }
 
+@keyframes orbit-spin {
+  from {
+    transform: rotateX(68deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateX(68deg) rotateZ(360deg);
+  }
+}
+
+@keyframes orbit-spin-reverse {
+  from {
+    transform: rotateX(72deg) rotateY(14deg) rotateZ(360deg);
+  }
+  to {
+    transform: rotateX(72deg) rotateY(14deg) rotateZ(0deg);
+  }
+}
+
+@keyframes float-3d {
+  0%, 100% {
+    transform: translateY(0px) translateZ(24px);
+  }
+  50% {
+    transform: translateY(-7px) translateZ(36px);
+  }
+}
+
 @layer utilities {
   .bg-arch-grid {
     background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      linear-gradient(to right, rgba(222, 218, 208, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(222, 218, 208, 0.045) 1px, transparent 1px);
     background-size: 64px 64px;
   }
   .bg-arch-grid-light {
     background-image:
-      linear-gradient(to right, rgba(9, 9, 11, 0.045) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(9, 9, 11, 0.045) 1px, transparent 1px);
+      linear-gradient(to right, rgba(43, 56, 42, 0.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(43, 56, 42, 0.055) 1px, transparent 1px);
     background-size: 64px 64px;
+  }
+  .animate-orbit-slow {
+    animation: orbit-spin 22s linear infinite;
+  }
+  .animate-orbit-reverse {
+    animation: orbit-spin-reverse 30s linear infinite;
+  }
+  .animate-float-3d {
+    animation: float-3d 6s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-orbit-slow,
+  .animate-orbit-reverse,
+  .animate-float-3d {
+    animation: none !important;
   }
 }

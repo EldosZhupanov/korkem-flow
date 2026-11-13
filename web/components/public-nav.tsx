@@ -17,21 +17,22 @@ export function PublicNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#09090B]/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-[#3D4A3B] bg-[#1B241A]/90 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Brand Logo */}
+        {/* Official KORKEM Brand Logo */}
         <Link href="/" className="group flex items-center gap-3 transition">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-[#F5F5F0] text-[#09090B] transition-transform group-hover:scale-105">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 4v16" />
-              <path d="M18 4L9 12l9 8" />
-            </svg>
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#DEDAD0]/30 bg-[#070B07] transition-transform group-hover:scale-105">
+            <img
+              src="/brand/korkem_mark.png"
+              alt="KORKEM"
+              className="h-8 w-8 object-contain"
+            />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-[15px] font-semibold tracking-tight text-[#F5F5F0]">
-              KORKEM
+            <span className="text-[15px] font-semibold tracking-tight text-[#E6E3D9]">
+              KӨRKEM
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A8ADA4]">
               Flow
             </span>
           </div>
@@ -47,8 +48,8 @@ export function PublicNav() {
                 href={link.href}
                 className={`rounded-full px-3.5 py-1.5 transition-colors ${
                   isActive
-                    ? "bg-white/10 text-[#F5F5F0]"
-                    : "text-zinc-400 hover:text-[#F5F5F0]"
+                    ? "bg-[#2B382A] text-[#DEDAD0] ring-1 ring-[#3D4A3B]"
+                    : "text-[#A8ADA4] hover:text-[#E6E3D9]"
                 }`}
               >
                 {link.label}
@@ -61,13 +62,13 @@ export function PublicNav() {
         <div className="hidden md:flex items-center gap-2.5">
           <Link
             href="/login"
-            className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-zinc-300 transition hover:text-white"
+            className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-[#E6E3D9] transition hover:text-white"
           >
             Войти
           </Link>
           <Link
             href="/register"
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#F5F5F0] px-4 py-1.5 text-[13px] font-semibold text-[#09090B] transition hover:bg-white"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#DEDAD0] px-4 py-1.5 text-[13px] font-semibold text-[#1B241A] transition hover:bg-[#F7F5EE]"
           >
             <span>Начать</span>
             <ArrowRight className="h-3.5 w-3.5" />
