@@ -6287,6 +6287,24 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmSupplierOwedNote => 'жеткізушіге қарыз';
 
   @override
+  String filmCashChartA11y(String incoming, String outgoing) {
+    return 'Кірді $incoming, шықты $outgoing';
+  }
+
+  @override
+  String filmCashVersus(String arrow, String pct) {
+    return '$arrow $pct% алдыңғы кезеңге';
+  }
+
+  @override
+  String filmPayFromCash(String how) {
+    return 'Пленка кассасынан: $how';
+  }
+
+  @override
+  String get filmPayElsewhere => 'Пленка кассасынан емес';
+
+  @override
   String get filmToday => 'Бүгін';
 
   @override

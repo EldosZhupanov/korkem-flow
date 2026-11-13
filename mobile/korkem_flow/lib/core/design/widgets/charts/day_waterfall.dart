@@ -101,7 +101,12 @@ class _WaterfallPainter extends CustomPainter {
       final x = slot * i + (slot - width) / 2;
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTRB(x, y(math.max(from, to)), x + width, y(math.min(from, to))),
+          Rect.fromLTRB(
+            x,
+            y(math.max(from, to)),
+            x + width,
+            y(math.min(from, to)),
+          ),
           radius,
         ),
         Paint()..color = color,

@@ -164,9 +164,7 @@ class _FlowPainter extends CustomPainter {
             bottomRight: radius,
           ),
           Paint()
-            ..color = faded
-                ? down.withValues(alpha: AppTint.chartFaded)
-                : down,
+            ..color = faded ? down.withValues(alpha: AppTint.chartFaded) : down,
         );
       }
     }
