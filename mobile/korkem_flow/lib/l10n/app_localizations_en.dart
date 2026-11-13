@@ -7789,4 +7789,97 @@ class AppLocalizationsEn extends AppLocalizations {
   String filmSaleLikeLast(String films) {
     return 'Like last time: $films';
   }
+
+  @override
+  String get filmDebtLimit => 'Debt limit, ₸';
+
+  @override
+  String get filmDebtLimitDays => 'Owing no longer, days';
+
+  @override
+  String filmLimitDays(int days) {
+    return 'up to $days d';
+  }
+
+  @override
+  String filmSaleOverLimit(String sum, String limit) {
+    return 'The debt becomes $sum — over the limit $limit';
+  }
+
+  @override
+  String filmSaleOverDays(int days, int limit) {
+    return 'owing $days d — longer than $limit d';
+  }
+
+  @override
+  String filmCallTitle(int count) {
+    return 'Time to call · $count';
+  }
+
+  @override
+  String filmCallDebt(String name, String sum, int days) {
+    return '$name — owes $sum, $days d';
+  }
+
+  @override
+  String filmCallRhythm(String name, int every, int idle) {
+    return '$name — buys every $every d, none for $idle d';
+  }
+
+  @override
+  String get filmCustomerAverage => 'Average sale';
+
+  @override
+  String get filmCustomerRhythm => 'Buys';
+
+  @override
+  String get filmCustomerLimit => 'Debt limit';
+
+  @override
+  String get filmStatement => 'Statement';
+
+  @override
+  String filmStatementCustomer(String name) {
+    return 'Customer: $name';
+  }
+
+  @override
+  String filmStatementOn(String day) {
+    return 'as of $day';
+  }
+
+  @override
+  String get filmStatementDate => 'Date';
+
+  @override
+  String get filmStatementWhat => 'Entry';
+
+  @override
+  String get filmStatementSold => 'Sold';
+
+  @override
+  String get filmStatementPaid => 'Paid';
+
+  @override
+  String get filmStatementBalance => 'Owing';
+
+  @override
+  String filmStatementSale(String films) {
+    return 'Film: $films';
+  }
+
+  @override
+  String get filmStatementPayment => 'Payment';
+
+  @override
+  String filmStatementOwes(String sum) {
+    return 'The customer owes $sum';
+  }
+
+  @override
+  String get filmStatementSettled => 'Settled, nothing owed.';
+
+  @override
+  String get filmStatementSigns =>
+      'Seller ____________     Customer ____________';
 }

@@ -46,6 +46,12 @@ FIELDS = {
 		 "insert_after": "korkem_film_customer"},
 		{"fieldname": "korkem_film_discount", "label": "Film discount, %", "fieldtype": "Float",
 		 "insert_after": "korkem_film_tier"},
+		# How far a customer may owe for film (owner, 13.11.2026): so much,
+		# for so many days; the sale warns past either.
+		{"fieldname": "korkem_film_debt_limit", "label": "Film debt limit", "fieldtype": "Currency",
+		 "insert_after": "korkem_film_discount"},
+		{"fieldname": "korkem_film_debt_days", "label": "Film debt days", "fieldtype": "Int",
+		 "insert_after": "korkem_film_debt_limit"},
 	),
 }
 

@@ -507,6 +507,27 @@ class TestFilmDept(IntegrationTestCase):
 		# The floor does not see what film cost.
 		self.assertIsNone(self._as(CUTTER, service.movement, sale["entry"])["cost"])
 
+	def test_a_customer_has_a_rhythm_a_limit_and_a_call_when_owing_long(self):
+		def card() -> dict:
+			return next(c for c in self._as(MANAGER, service.customers) if c["customer"] == self.buyer)
+
+		# Film on the shelf a month ago, so sales of past days have it.
+		self._as(MANAGER, service.receive, self.film, 10, 3200, self.supplier, received_on=add_days(nowdate(), -30))
+		# Bought on three days a week apart: every 7 days.
+		for days in (-21, -14, -7):
+			self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 1}], paid=3900,
+					 method="Наличные", sold_on=add_days(nowdate(), days))
+		self.assertEqual(card()["rhythm_days"], 7)
+		self.assertIsNone(card()["call"])
+		# Owing for twenty days: time to call.
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 1}], paid=0,
+				 sold_on=add_days(nowdate(), -20))
+		self.assertEqual(card()["call"], "debt")
+		self._as(MANAGER, service.set_customer, self.buyer, debt_limit=50000, debt_days=14)
+		self.assertEqual((card()["debt_limit"], card()["debt_limit_days"]), (50000, 14))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.set_customer, self.buyer, debt_limit=-1)
+
 	def test_a_roll_shared_between_customers_puts_by_each_his_own(self):
 		other = frappe.get_doc({"doctype": "Customer", "customer_name": f"Тест {frappe.generate_hash(length=6)}",
 								"customer_type": "Company"}).insert(ignore_permissions=True).name

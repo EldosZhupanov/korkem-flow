@@ -251,3 +251,146 @@ String? _about(FilmSaleLine l, FilmReceiptWords words) {
 /// Handed on — to WhatsApp, a printer, a file — the way the device does it.
 Future<void> shareFilmReceipt(FilmSale sale, Uint8List bytes) =>
     Printing.sharePdf(bytes: bytes, filename: 'chek-${sale.entry}.pdf');
+
+/// Words on a customer's statement, in the reader's language.
+typedef FilmStatementWords = ({
+  String title,
+  String Function(String name) customer,
+  String Function(String day) onDay,
+  String date,
+  String what,
+  String sold,
+  String paid,
+  String balance,
+  String Function(String films) sale,
+  String payment,
+  String Function(String sum) owes,
+  String settled,
+  String signs,
+});
+
+/// One line of a statement: a sale (what he took) or a payment.
+typedef FilmStatementLine = ({
+  String date,
+  String what,
+  double sold,
+  double paid,
+  double balance,
+});
+
+/// A customer's statement (owner, 13.11.2026: «акт сверки»): every sale and
+/// every payment in order, the balance after each — what he owes at the end.
+List<FilmStatementLine> filmStatement(List<FilmSale> sales) {
+  final events = <({String date, String what, double sold, double paid})>[
+    for (final s in sales) ...[
+      (
+        date: s.date,
+        what: s.lines
+            .map((l) => '${l.title} ${l.metres.toStringAsFixed(1)}')
+            .join(', '),
+        sold: s.amount ?? 0,
+        paid: 0,
+      ),
+      for (final p in s.payments)
+        (
+          date: p.date.isEmpty ? s.date : p.date,
+          what: '',
+          sold: 0,
+          paid: p.amount,
+        ),
+    ],
+  ]..sort((a, b) => a.date.compareTo(b.date));
+  var balance = 0.0;
+  return [
+    for (final e in events)
+      (
+        date: e.date,
+        what: e.what,
+        sold: e.sold,
+        paid: e.paid,
+        balance: balance += e.sold - e.paid,
+      ),
+  ];
+}
+
+/// The statement on paper: black on white, A4.
+Future<Uint8List> buildFilmStatementPdf(
+  String customer,
+  List<FilmSale> sales,
+  FilmStatementWords words, {
+  required String today,
+  String locale = 'ru',
+}) async {
+  final font = pw.Font.ttf(
+    await rootBundle.load('assets/fonts/Inter-Variable.ttf'),
+  );
+  final money = NumberFormat.currency(
+    locale: locale,
+    symbol: '₸',
+    decimalDigits: 0,
+  );
+  final lines = filmStatement(sales);
+  final owes = lines.isEmpty ? 0.0 : lines.last.balance;
+  const small = pw.TextStyle(fontSize: 9);
+  pw.Widget cell(String text, {bool right = false}) => pw.Padding(
+    padding: const pw.EdgeInsets.all(3),
+    child: pw.Text(
+      text,
+      style: small,
+      textAlign: right ? pw.TextAlign.right : pw.TextAlign.left,
+    ),
+  );
+  final doc =
+      pw.Document(
+        theme: pw.ThemeData.withFont(base: font, bold: font),
+      )..addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          build: (context) => [
+            pw.Text(words.title, style: const pw.TextStyle(fontSize: 16)),
+            pw.Text(words.customer(customer)),
+            pw.Text(words.onDay(mdfDay(today)), style: small),
+            pw.SizedBox(height: 8),
+            pw.Table(
+              border: pw.TableBorder.all(width: 0.5),
+              columnWidths: const {
+                0: pw.FixedColumnWidth(60),
+                1: pw.FlexColumnWidth(),
+                2: pw.FixedColumnWidth(70),
+                3: pw.FixedColumnWidth(70),
+                4: pw.FixedColumnWidth(70),
+              },
+              children: [
+                pw.TableRow(
+                  children: [
+                    cell(words.date),
+                    cell(words.what),
+                    cell(words.sold, right: true),
+                    cell(words.paid, right: true),
+                    cell(words.balance, right: true),
+                  ],
+                ),
+                for (final l in lines)
+                  pw.TableRow(
+                    children: [
+                      cell(mdfDay(l.date)),
+                      cell(l.sold > 0 ? words.sale(l.what) : words.payment),
+                      cell(l.sold > 0 ? money.format(l.sold) : '', right: true),
+                      cell(l.paid > 0 ? money.format(l.paid) : '', right: true),
+                      cell(money.format(l.balance), right: true),
+                    ],
+                  ),
+              ],
+            ),
+            pw.SizedBox(height: 8),
+            pw.Text(
+              owes > 0.5 ? words.owes(money.format(owes)) : words.settled,
+              style: const pw.TextStyle(fontSize: 12),
+            ),
+            pw.SizedBox(height: 24),
+            pw.Text(words.signs, style: small),
+          ],
+        ),
+      );
+  return doc.save();
+}

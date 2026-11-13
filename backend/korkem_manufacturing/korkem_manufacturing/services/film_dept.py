@@ -30,7 +30,7 @@ from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 import frappe
-from frappe.utils import add_days, date_diff, flt, get_fullname, getdate, now_datetime, nowdate
+from frappe.utils import add_days, cint, date_diff, flt, get_fullname, getdate, now_datetime, nowdate
 
 from korkem_manufacturing.services import audit, film_catalog, material_stock, price_visibility
 from korkem_manufacturing.services.scope import current_company
@@ -979,13 +979,18 @@ def price_for(item: str, customer: str | None = None) -> dict:
 	return {"tier": tier, "discount": discount, "base_m": base or None, "price_m": price}
 
 
+#: A debt older than this puts the customer on «Пора позвонить».
+CALL_DEBT_DAYS = 14
+
+
 def customers() -> list[dict]:
 	"""Who buys film: what this month, what in all, when last — and who fell asleep."""
 	material_stock._ensure_staff()
 	company = current_company()
 	rows = frappe.get_all(
 		"Customer", filters={"korkem_film_customer": 1, "disabled": 0},
-		fields=["name", "customer_name", "mobile_no", "korkem_film_tier", "korkem_film_discount"],
+		fields=["name", "customer_name", "mobile_no", "korkem_film_tier", "korkem_film_discount",
+				"korkem_film_debt_limit", "korkem_film_debt_days"],
 		order_by="customer_name asc", limit_page_length=2000,
 	)
 	month_start = getdate(nowdate()).replace(day=1)
@@ -1014,6 +1019,16 @@ def customers() -> list[dict]:
 		owing = [getdate(e.posting_date) for e in entries
 				 if flt(e.korkem_film_amount) - flt(e.korkem_film_paid) > 0.5]
 		debt_days = date_diff(nowdate(), min(owing)) if owing else None
+		# How often he buys (owner, 13.11.2026): from three days of buying.
+		days = sorted({getdate(e.posting_date) for e in entries})
+		rhythm = round(date_diff(days[-1], days[0]) / (len(days) - 1)) if len(days) >= 3 else None
+		debt = sum(flt(e.korkem_film_amount) - flt(e.korkem_film_paid) for e in entries)
+		# «Пора позвонить»: silent past his own rhythm, or owing too long.
+		call = None
+		if debt > 0.5 and debt_days is not None and debt_days > CALL_DEBT_DAYS:
+			call = "debt"
+		elif rhythm and idle is not None and idle > max(rhythm * 1.4, rhythm + 2):
+			call = "rhythm"
 		out.append({
 			"customer": c.name,
 			"name": c.customer_name or c.name,
@@ -1024,7 +1039,11 @@ def customers() -> list[dict]:
 			"month_m": sum(metres.get(e.name, 0.0) for e in entries if getdate(e.posting_date) >= month_start),
 			"total_m": sum(metres.values()),
 			"total": sum(flt(e.korkem_film_amount) for e in entries),
-			"debt": sum(flt(e.korkem_film_amount) - flt(e.korkem_film_paid) for e in entries),
+			"debt": debt,
+			"rhythm_days": max(1, rhythm) if rhythm is not None else None,
+			"call": call,
+			"debt_limit": flt(c.korkem_film_debt_limit) or None,
+			"debt_limit_days": cint(c.korkem_film_debt_days) or None,
 			"last": str(last) if last else None,
 			"idle_days": idle,
 			"asleep": idle is not None and idle >= ASLEEP_DAYS,
@@ -1035,7 +1054,8 @@ def customers() -> list[dict]:
 	return out
 
 
-def set_customer(customer: str, tier: str | None = None, discount=None, buys_film: bool | int | str = 1) -> dict:
+def set_customer(customer: str, tier: str | None = None, discount=None, buys_film: bool | int | str = 1,
+				 debt_limit=None, debt_days=None) -> dict:
 	"""The customer's film terms, on the customer's own card: the price and the discount."""
 	material_stock._ensure_editor()
 	doc = _customer(customer)
@@ -1049,6 +1069,17 @@ def set_customer(customer: str, tier: str | None = None, discount=None, buys_fil
 		if value < 0 or value > 50:
 			frappe.throw("Скидка — от 0 до 50 %.")
 		values["korkem_film_discount"] = value
+	# How far he may owe: 0 or empty — no limit.
+	if debt_limit is not None:
+		limit = flt(debt_limit)
+		if limit < 0:
+			frappe.throw("Лимит долга — не меньше нуля.")
+		values["korkem_film_debt_limit"] = limit
+	if debt_days is not None:
+		days = cint(debt_days)
+		if days < 0 or days > 365:
+			frappe.throw("Срок долга — от 0 до 365 дней.")
+		values["korkem_film_debt_days"] = days
 	frappe.db.set_value("Customer", doc.name, values)
 	audit.record_audit(action="film.customer_terms", entity_type="Customer", entity_id=doc.name, diff=values)
 	return next((c for c in customers() if c["customer"] == doc.name), {"customer": doc.name})
