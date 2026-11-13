@@ -10,8 +10,10 @@ his pocket, and what was paid to a carrier later. The balance is in less out.
 
 Three lists stay open until settled: what is owed back to employees, what
 is owed to carriers, and film taken from a supplier on credit. Paying a
-supplier is not counted out of this cash book: what film costs to buy never
-was — the book keeps the department's running money, not its purchases. Logistics is shown apart, for the owner's eye; the
+supplier says where the money came from (owner, 14.11.2026): out of the
+department's own money — then it is out of this book, by the way it went —
+or from elsewhere, the owner's or the MDF side's, and the book is not
+touched. Logistics is shown apart, for the owner's eye; the
 team's bonus does not count it (owner, 11.11.2026).
 
 The MDF cash book is not touched: the two departments keep their own money.
@@ -134,6 +136,7 @@ def book(since: str | None = None, until: str | None = None, compare: bool = Tru
 				"what": f"Вернули: {who}" if d.korkem_delivery_payer == PAYER_EMPLOYEE else f"Перевозчику: {who}",
 				"amount": cost, "way": d.korkem_delivery_settled_method, "receipt": d.name,
 			})
+	outs.extend(_supplier_payments(company, start, end))
 	outs.sort(key=lambda o: (o["date"], o["receipt"]))
 	for o in outs:
 		moves.append({"date": o["date"], "in": False, "amount": o["amount"], "way": o.get("way") or "Наличные",
@@ -241,8 +244,36 @@ def _suppliers_owed(company: str) -> list[dict]:
 	return out
 
 
-def pay_supplier(receipt: str, method: str | None = None) -> dict:
-	"""Film taken on credit is paid for — today."""
+#: Paid out of the film department's own money, or from elsewhere.
+FROM_DEPT, FROM_ELSEWHERE = "dept", "elsewhere"
+
+
+def _supplier_payments(company: str, start, end) -> list[dict]:
+	"""Suppliers paid out of the department's own money within the period."""
+	out = []
+	for e in frappe.get_all(
+		"Stock Entry",
+		filters={"company": company, "korkem_material_receipt": 1, "korkem_supplier_owed": 1,
+				 # A receipt made again right is paid once: the struck one is out.
+				 "docstatus": ["in", [0, 1]], "korkem_supplier_paid_from": FROM_DEPT, "korkem_supplier_paid_on": ["between", [start, end]]},
+		fields=["name", "korkem_supplier", "korkem_supplier_paid_on", "korkem_supplier_paid_method"],
+		limit_page_length=0,
+	):
+		line = frappe.db.get_value("Stock Entry Detail", {"parent": e.name}, ["qty", "basic_rate"], as_dict=True)
+		if not line:
+			continue
+		who = frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier
+		out.append({
+			"date": str(getdate(e.korkem_supplier_paid_on)), "what": f"Поставщику: {who}",
+			"amount": round(flt(line.qty) * flt(line.basic_rate), 2), "way": e.korkem_supplier_paid_method,
+			"receipt": e.name,
+		})
+	return out
+
+
+def pay_supplier(receipt: str, method: str | None = None, source: str | None = None) -> dict:
+	"""Film taken on credit is paid for — today; `source` says from where:
+	`dept`, the department's own money (out of this book), or `elsewhere`."""
 	material_stock._ensure_editor()
 	row = frappe.db.get_value(
 		"Stock Entry", receipt,
@@ -257,13 +288,18 @@ def pay_supplier(receipt: str, method: str | None = None) -> dict:
 	how = (method or "").strip() or METHODS[0]
 	if how not in METHODS:
 		frappe.throw("Как платили — наличные, перевод или карта.")
+	source = (source or "").strip() or FROM_DEPT
+	if source not in (FROM_DEPT, FROM_ELSEWHERE):
+		frappe.throw("Откуда деньги — из кассы плёнки или не из неё.")
 	frappe.db.set_value("Stock Entry", receipt, {
 		"korkem_supplier_paid_on": nowdate(), "korkem_supplier_paid_method": how,
+		"korkem_supplier_paid_from": source,
 	}, update_modified=False)
 	line = frappe.db.get_value("Stock Entry Detail", {"parent": receipt}, ["qty", "basic_rate"], as_dict=True) or {}
 	audit.record_audit(action="film.supplier_paid", entity_type="Stock Entry", entity_id=receipt,
-					   diff={"amount": round(flt(line.get("qty")) * flt(line.get("basic_rate")), 2), "method": how})
-	return {"receipt": receipt, "paid_on": nowdate(), "method": how}
+					   diff={"amount": round(flt(line.get("qty")) * flt(line.get("basic_rate")), 2), "method": how,
+						 "source": source})
+	return {"receipt": receipt, "paid_on": nowdate(), "method": how, "source": source}
 
 
 def settle(receipt: str, method: str | None = None) -> dict:

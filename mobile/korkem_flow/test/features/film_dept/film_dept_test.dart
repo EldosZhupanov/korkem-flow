@@ -200,7 +200,7 @@ class _Fake implements FilmDeptRepository {
   final came = <(String, double?)>[];
 
   final settled = <(String, String)>[];
-  final supplierPaidFor = <(String, String)>[];
+  final supplierPaidFor = <(String, String, String)>[];
   final receivedPaid = <bool>[];
 
   @override
@@ -289,8 +289,11 @@ class _Fake implements FilmDeptRepository {
       settled.add((receipt, method));
 
   @override
-  Future<void> paySupplier(String receipt, String method) async =>
-      supplierPaidFor.add((receipt, method));
+  Future<void> paySupplier(
+    String receipt,
+    String method, {
+    String source = FilmPaySource.dept,
+  }) async => supplierPaidFor.add((receipt, method, source));
 
   @override
   Future<void> arrived(String entry, {double? metres}) async =>
@@ -1251,9 +1254,18 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(pay);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('filmCash:settle:Наличные')));
+    // Asked where the money came from: from elsewhere, the cash not touched.
+    expect(
+      find.byKey(const ValueKey('filmCash:settle:elsewhere')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('filmCash:settle:elsewhere')));
     await tester.pumpAndSettle();
-    expect(repo.supplierPaidFor.single, ('STE-5', 'Наличные'));
+    expect(repo.supplierPaidFor.single, (
+      'STE-5',
+      'Наличные',
+      FilmPaySource.elsewhere,
+    ));
     expect(repo.settled.single, ('STE-3', 'Перевод'));
   });
 

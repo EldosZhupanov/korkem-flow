@@ -70,10 +70,16 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
     final messenger = ScaffoldMessenger.of(context);
     final repo = ref.read(filmDeptRepositoryProvider);
     try {
-      // Film taken on credit is paid to the supplier; a delivery is
-      // settled with the employee or the carrier.
+      // Film taken on credit is paid to the supplier — the menu's value says
+      // from where; a delivery is settled with the employee or the carrier.
       await (key == 'supplier'
-          ? repo.paySupplier(o.receipt, method)
+          ? (method == FilmPaySource.elsewhere
+                ? repo.paySupplier(
+                    o.receipt,
+                    filmCash,
+                    source: FilmPaySource.elsewhere,
+                  )
+                : repo.paySupplier(o.receipt, method))
           : repo.settleDelivery(o.receipt, method));
       ref.invalidate(filmCashProvider);
     } on Object catch (e) {
@@ -153,7 +159,21 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                               PopupMenuItem(
                                 key: ValueKey('filmCash:settle:$m'),
                                 value: m,
-                                child: Text(l10n.filmSettleBy(label)),
+                                // A supplier: out of the film cash, said so.
+                                child: Text(
+                                  key == 'supplier'
+                                      ? l10n.filmPayFromCash(label)
+                                      : l10n.filmSettleBy(label),
+                                ),
+                              ),
+                            // Or from elsewhere: the film cash not touched.
+                            if (key == 'supplier')
+                              PopupMenuItem(
+                                key: const ValueKey(
+                                  'filmCash:settle:elsewhere',
+                                ),
+                                value: FilmPaySource.elsewhere,
+                                child: Text(l10n.filmPayElsewhere),
                               ),
                           ],
                           child: Padding(

@@ -344,6 +344,15 @@ class TestFilmDept(IntegrationTestCase):
 			self._as(CUTTER, film_cash.pay_supplier, many[0])
 		move = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == fixed)
 		self.assertFalse(move["supplier_owed"])
+		# Out of the department's money: out of its book, by the way it went.
+		out = next(o for o in self._as(MANAGER, film_cash.book)["out"] if o["receipt"] == fixed)
+		self.assertEqual((out["amount"], out["way"]), (27000, "Перевод"))
+		# From elsewhere: paid, off the list, and the book is not touched.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, film_cash.pay_supplier, many[0], "Наличные", "из кармана")
+		self._as(MANAGER, film_cash.pay_supplier, many[0], "Наличные", "elsewhere")
+		self.assertNotIn(many[0], owed())
+		self.assertNotIn(many[0], [o["receipt"] for o in self._as(MANAGER, film_cash.book)["out"]])
 
 	def test_the_team_month_counts_the_paid_margin_by_seller(self):
 		from korkem_manufacturing.services import film_team

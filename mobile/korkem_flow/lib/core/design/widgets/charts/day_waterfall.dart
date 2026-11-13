@@ -86,8 +86,8 @@ class _WaterfallPainter extends CustomPainter {
     final left = incoming - outgoing;
     // The highest point the bars reach and the lowest: a day that paid out
     // more than it took in ends below the line.
-    final high = math.max(incoming, 0.0);
-    final low = math.min(left, 0.0);
+    final high = math.max(incoming, 0);
+    final low = math.min(left, 0);
     final range = high - low;
     final scale = range == 0 ? 0.0 : size.height / range;
     double y(double v) =>
@@ -108,12 +108,12 @@ class _WaterfallPainter extends CustomPainter {
       );
     }
 
-    bar(0, 0.0, incoming, up);
+    bar(0, 0, incoming, up);
     bar(1, incoming, left, down);
-    bar(2, 0.0, left, total);
+    bar(2, 0, left, total);
     canvas.drawLine(
-      Offset(0, y(0.0)),
-      Offset(size.width, y(0.0)),
+      Offset(0, y(0)),
+      Offset(size.width, y(0)),
       Paint()
         ..color = line
         ..strokeWidth = AppStroke.hairline,

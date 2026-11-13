@@ -128,6 +128,15 @@ typedef FilmDelivery = ({
 });
 
 /// Who paid for bringing a roll (owner, 11.11.2026) — the server's words.
+/// Where the money paying a supplier came from (owner, 14.11.2026).
+abstract final class FilmPaySource {
+  /// The film department's own money: out of its cash book.
+  static const dept = 'dept';
+
+  /// The owner's, the MDF side's: the film cash is not touched.
+  static const elsewhere = 'elsewhere';
+}
+
 abstract final class FilmPayer {
   static const cash = 'cash';
   static const employee = 'employee';
