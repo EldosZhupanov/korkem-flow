@@ -26,6 +26,8 @@ const _stock = <String, dynamic>{
       'colour': 'Белый Матовый',
       'label': 'KIRA · Белый Матовый',
       'code': 'KR-101',
+      'daily_m': 2,
+      'days_left': 42,
       'on_hand': 84,
       'held': 0,
       'retail_m': 3900,
@@ -568,6 +570,43 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmStock:MAT-1')), findsNothing);
     expect(find.byKey(const ValueKey('filmStock:MAT-2')), findsOneWidget);
+  });
+
+  testWidgets('the stock: receipt first, filters, a search, days left', (
+    tester,
+  ) async {
+    await _pump(tester);
+    // Goods in comes first, then the sale (owner, 13.11.2026).
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('filmDept:receive'))).dx,
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('filmDept:sell'))).dx,
+      ),
+    );
+    expect(find.text('KR-101 · lasts ≈ 42 d'), findsOneWidget);
+    expect(find.text('On the way · 1'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmDept:filter:onWay')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmStock:MAT-1')), findsNothing);
+    expect(find.byKey(const ValueKey('filmStock:MAT-2')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmDept:filter:all')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmDept:search')),
+      'граф',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmStock:MAT-1')), findsNothing);
+    expect(find.byKey(const ValueKey('filmStock:MAT-2')), findsOneWidget);
+    // Each row has its own buttons.
+    expect(
+      find.byKey(const ValueKey('filmStock:sell:MAT-2')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('filmStock:receive:MAT-2')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('a movement entered wrong is put right with a reason', (

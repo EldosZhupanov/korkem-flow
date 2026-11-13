@@ -2325,5 +2325,13 @@
   "pressPrintApproved": "Орналасу бекітілді: {by}, {at}",
   "pressPrintSigns": "Оператор ____________   Шебер ____________",
   "mdfPressManual": "өз орналасуы",
-  "mdfPressApproved": "пішім тексерілді"
+  "mdfPressApproved": "пішім тексерілді",
+  "filmFilterAll": "Барлығы · {n}",
+  "filmFilterHave": "Бар · {n}",
+  "filmFilterOnWay": "Жолда · {n}",
+  "filmFilterNone": "Қоймада жоқ · {n}",
+  "filmStockSearch": "Пленканы табу",
+  "filmComingRolls": "жолда {count} орам · {metres} м · {day} келеді",
+  "filmDaysLeft": "≈ {days} күнге жетеді",
+  "filmWantShort": "Тапсырыс беру"
 }

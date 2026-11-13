@@ -7373,4 +7373,40 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPressApproved => 'раскрой проверен';
+
+  @override
+  String filmFilterAll(int n) {
+    return 'Все · $n';
+  }
+
+  @override
+  String filmFilterHave(int n) {
+    return 'Есть · $n';
+  }
+
+  @override
+  String filmFilterOnWay(int n) {
+    return 'В пути · $n';
+  }
+
+  @override
+  String filmFilterNone(int n) {
+    return 'Нет на складе · $n';
+  }
+
+  @override
+  String get filmStockSearch => 'Найти плёнку';
+
+  @override
+  String filmComingRolls(int count, String metres, String day) {
+    return 'в пути $count рул. · $metres м · прибудет $day';
+  }
+
+  @override
+  String filmDaysLeft(int days) {
+    return 'хватит ≈ на $days дн.';
+  }
+
+  @override
+  String get filmWantShort => 'Заказать';
 }

@@ -2325,5 +2325,13 @@
   "pressPrintApproved": "Раскладка утверждена: {by}, {at}",
   "pressPrintSigns": "Оператор ____________   Мастер ____________",
   "mdfPressManual": "своя раскладка",
-  "mdfPressApproved": "раскрой проверен"
+  "mdfPressApproved": "раскрой проверен",
+  "filmFilterAll": "Все · {n}",
+  "filmFilterHave": "Есть · {n}",
+  "filmFilterOnWay": "В пути · {n}",
+  "filmFilterNone": "Нет на складе · {n}",
+  "filmStockSearch": "Найти плёнку",
+  "filmComingRolls": "в пути {count} рул. · {metres} м · прибудет {day}",
+  "filmDaysLeft": "хватит ≈ на {days} дн.",
+  "filmWantShort": "Заказать"
 }

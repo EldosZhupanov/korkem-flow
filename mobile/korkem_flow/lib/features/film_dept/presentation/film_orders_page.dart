@@ -526,6 +526,12 @@ class _MetresDialogState extends State<_MetresDialog> {
   }
 }
 
+/// One film put on «К заказу» straight from the stock (owner, 13.11.2026).
+Future<bool?> showFilmWant(BuildContext context, Film film) => showDialog<bool>(
+  context: context,
+  builder: (_) => _AddWantDialog(film: film),
+);
+
 /// A film put on the list: so many metres, for a customer or the shelf.
 class _AddWantDialog extends ConsumerStatefulWidget {
   const _AddWantDialog({required this.film});

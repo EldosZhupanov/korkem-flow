@@ -33,6 +33,8 @@ class Film {
     this.coming = const [],
     this.reorder,
     this.holds = const [],
+    this.dailyM,
+    this.daysLeft,
   });
 
   factory Film.fromJson(Map<String, dynamic> json) => Film(
@@ -64,6 +66,8 @@ class Film {
             e.key: (date: '${v['date'] ?? ''}', via: _s(v['via'])),
     },
     low: json['low'] == true,
+    dailyM: (json['daily_m'] as num?)?.toDouble(),
+    daysLeft: (json['days_left'] as num?)?.toInt(),
     url: _s(json['url']),
     coming: [
       for (final c in json['coming'] as List? ?? const [])
@@ -147,6 +151,11 @@ class Film {
 
   /// Less on hand than the film's minimum: time to order.
   final bool low;
+
+  /// Metres a day that left the shelf over the last month, and how many
+  /// days the free metres last at that pace (owner, 13.11.2026).
+  final double? dailyM;
+  final int? daysLeft;
   final String? url;
 
   /// What is free: on hand, not promised, not put by for a customer.

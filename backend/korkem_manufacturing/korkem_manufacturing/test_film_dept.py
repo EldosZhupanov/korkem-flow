@@ -187,6 +187,16 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertIn("Такси", options["transports"])
 		self.assertIn("Привёз поставщик", options["transports"])
 
+	def test_the_stock_says_how_many_days_a_film_lasts(self):
+		def row() -> dict:
+			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
+
+		self.assertIsNone(row()["days_left"])
+		# 15 m gone in a month: half a metre a day, 35 m left — 70 days.
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 15}], paid=0)
+		self.assertEqual(row()["daily_m"], 0.5)
+		self.assertEqual(row()["days_left"], 70)
+
 	def test_a_film_that_ran_low_says_what_to_order(self):
 		def row() -> dict:
 			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)

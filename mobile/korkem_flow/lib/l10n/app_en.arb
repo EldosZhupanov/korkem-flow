@@ -7985,5 +7985,61 @@
   },
   "pressPrintSigns": "Operator ____________   Foreman ____________",
   "mdfPressManual": "own layout",
-  "mdfPressApproved": "layout checked"
+  "mdfPressApproved": "layout checked",
+  "filmFilterAll": "All · {n}",
+  "@filmFilterAll": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFilterHave": "In stock · {n}",
+  "@filmFilterHave": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFilterOnWay": "On the way · {n}",
+  "@filmFilterOnWay": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFilterNone": "Out of stock · {n}",
+  "@filmFilterNone": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filmStockSearch": "Find a film",
+  "filmComingRolls": "{count} rolls on the way · {metres} m · due {day}",
+  "@filmComingRolls": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmDaysLeft": "lasts ≈ {days} d",
+  "@filmDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmWantShort": "Order"
 }

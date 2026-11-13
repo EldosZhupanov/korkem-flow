@@ -7349,4 +7349,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPressApproved => 'layout checked';
+
+  @override
+  String filmFilterAll(int n) {
+    return 'All · $n';
+  }
+
+  @override
+  String filmFilterHave(int n) {
+    return 'In stock · $n';
+  }
+
+  @override
+  String filmFilterOnWay(int n) {
+    return 'On the way · $n';
+  }
+
+  @override
+  String filmFilterNone(int n) {
+    return 'Out of stock · $n';
+  }
+
+  @override
+  String get filmStockSearch => 'Find a film';
+
+  @override
+  String filmComingRolls(int count, String metres, String day) {
+    return '$count rolls on the way · $metres m · due $day';
+  }
+
+  @override
+  String filmDaysLeft(int days) {
+    return 'lasts ≈ $days d';
+  }
+
+  @override
+  String get filmWantShort => 'Order';
 }

@@ -7311,4 +7311,40 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPressApproved => 'пішім тексерілді';
+
+  @override
+  String filmFilterAll(int n) {
+    return 'Барлығы · $n';
+  }
+
+  @override
+  String filmFilterHave(int n) {
+    return 'Бар · $n';
+  }
+
+  @override
+  String filmFilterOnWay(int n) {
+    return 'Жолда · $n';
+  }
+
+  @override
+  String filmFilterNone(int n) {
+    return 'Қоймада жоқ · $n';
+  }
+
+  @override
+  String get filmStockSearch => 'Пленканы табу';
+
+  @override
+  String filmComingRolls(int count, String metres, String day) {
+    return 'жолда $count орам · $metres м · $day келеді';
+  }
+
+  @override
+  String filmDaysLeft(int days) {
+    return '≈ $days күнге жетеді';
+  }
+
+  @override
+  String get filmWantShort => 'Тапсырыс беру';
 }

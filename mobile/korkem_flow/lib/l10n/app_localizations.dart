@@ -12787,6 +12787,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'layout checked'**
   String get mdfPressApproved;
+
+  /// No description provided for @filmFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All · {n}'**
+  String filmFilterAll(int n);
+
+  /// No description provided for @filmFilterHave.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock · {n}'**
+  String filmFilterHave(int n);
+
+  /// No description provided for @filmFilterOnWay.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way · {n}'**
+  String filmFilterOnWay(int n);
+
+  /// No description provided for @filmFilterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock · {n}'**
+  String filmFilterNone(int n);
+
+  /// No description provided for @filmStockSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a film'**
+  String get filmStockSearch;
+
+  /// No description provided for @filmComingRolls.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} rolls on the way · {metres} m · due {day}'**
+  String filmComingRolls(int count, String metres, String day);
+
+  /// No description provided for @filmDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'lasts ≈ {days} d'**
+  String filmDaysLeft(int days);
+
+  /// No description provided for @filmWantShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get filmWantShort;
 }
 
 class _AppLocalizationsDelegate
