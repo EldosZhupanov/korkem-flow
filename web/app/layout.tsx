@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { Onest, Golos_Text, JetBrains_Mono } from 'next/font/google';
+import { Manrope, Golos_Text, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const display = Onest({
+const display = Manrope({
   subsets: ['cyrillic', 'latin'],
   weight: ['500', '600', '700', '800'],
   variable: '--font-display',
@@ -48,7 +48,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" className={`h-full scroll-smooth ${display.variable} ${sans.variable} ${mono.variable}`}>
-      <body className="min-h-full bg-background text-foreground antialiased flex flex-col font-sans selection:bg-[#7FD36B]/25 selection:text-[#DEDAD0]">
+      <body className="min-h-full bg-background text-foreground antialiased flex flex-col font-sans selection:bg-[#C9A25B]/30 selection:text-[#F7F5EE]">
         {children}
       </body>
     </html>

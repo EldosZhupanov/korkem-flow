@@ -3,7 +3,7 @@ import { ShieldCheck, Heart } from "lucide-react";
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-[#3D4A3B] bg-[#161E15] text-[#E6E3D9]">
+    <footer className="border-t border-[#3D4A3B] bg-[#0D120C] text-[#E6E3D9]">
       <div className="container mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Col */}

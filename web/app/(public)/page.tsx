@@ -2,32 +2,119 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  Check,
+  Bot,
+  Boxes,
   Download,
   Globe,
   Laptop,
+  Layers,
   Lock,
+  Plus,
+  ScrollText,
   Smartphone,
   Tablet,
+  Users,
 } from "lucide-react";
 import { InteractivePressDemo } from "@/components/interactive-press-demo";
 import { Brand3DModel } from "@/components/brand-3d-model";
 import { Reveal3D, Tilt3DStage } from "@/components/motion-3d";
 import { SpotlightCard } from "@/components/spotlight-card";
 
+/* ------------------------------------------------------------------ */
+/*  Content                                                            */
+/* ------------------------------------------------------------------ */
+
+const MARQUEE = [
+  "БАЗИС-Мебельщик 10.1 / 10.4",
+  "Вакуумный пресс",
+  "Плёнка ПВХ",
+  "Фрезеровка МДФ",
+  "Kaspi и наличные",
+  "Выгрузка в 1С",
+  "PIN-терминал цеха",
+  "Сдельная оплата",
+  "Деловые обрезки",
+  "Telegram и WhatsApp",
+];
+
+const STATS = [
+  {
+    value: "0 мин",
+    label: "Потерь между отделами",
+    note: "Замер, КП, фасадный заказ, плёнка, цех и касса связаны одним производственным заказом.",
+  },
+  {
+    value: "MaxRects",
+    label: "Точный метраж плёнки",
+    note: "Секции пресса 1.1 / 2.1 / 3.1 м, зазоры и запрет поворота для текстурных декоров.",
+  },
+  {
+    value: "R6 · R7",
+    label: "Приватность и автономность",
+    note: "База каждой фабрики изолирована, а цех работает даже без интернета и без ИИ.",
+  },
+];
+
 const PIPELINE = [
-  { n: "01", name: "Замер и фото", note: "С телефона замерщика сразу в заявку" },
-  { n: "02", name: "КП и Заказ МДФ", note: "Прайс фрезеровка × отделка без ручного счёта" },
-  { n: "03", name: "БАЗИС и Пресс", note: "XML-выгрузка 10.1/10.4 + раскладка MaxRects" },
-  { n: "04", name: "Склад и Плёнка", note: "Свободно, отложено, в пути и деловые обрезки" },
-  { n: "05", name: "PIN-терминал", note: "Мастера отмечают этапы, сдельная считается сама" },
+  { n: "01", name: "Замер и фото", note: "С телефона замерщика — сразу в заявку" },
+  { n: "02", name: "КП и заказ МДФ", note: "Прайс фрезеровка × отделка без ручного счёта" },
+  { n: "03", name: "БАЗИС и пресс", note: "XML 10.1 / 10.4 и раскладка MaxRects" },
+  { n: "04", name: "Склад и плёнка", note: "Свободно, отложено, в пути, обрезки" },
+  { n: "05", name: "PIN-терминал", note: "Мастера отмечают этапы — сдельная считается сама" },
   { n: "06", name: "Касса и 1С", note: "Оплаты, лимит долга, акт сверки, гарантия" },
+];
+
+const FEATURES = [
+  {
+    span: "md:col-span-7",
+    icon: Layers,
+    tag: "Фасады МДФ и пресс",
+    title: "Единое окно заказа МДФ и раскладка на вакуумный пресс",
+    body: "Прайс-матрица фрезеровка × отделка подставляет цены сама и фиксирует их после принятия. Оператор пресса видит оптимальную карту укладки и может поправить её вручную.",
+    chips: ["Печать клиенту и цеху", "Двусторонние фасады", "Светофор сроков"],
+  },
+  {
+    span: "md:col-span-5",
+    icon: ScrollText,
+    tag: "Отдел плёнки ПВХ",
+    title: "Рулоны, толщины, касса и клиенты",
+    body: "Несколько толщин у одной плёнки, статусы «Свободно / Отложено / В пути», чеки со смешанной оплатой, закрытие дня и контроль лимита долга.",
+    chips: ["Акт сверки", "Командный бонус"],
+  },
+  {
+    span: "md:col-span-4",
+    icon: Boxes,
+    tag: "БАЗИС и склад",
+    title: "Импорт БАЗИС 10.1 / 10.4",
+    body: "Рекурсивный разбор блоков и деталей, учёт деловых обрезков, инвентаризация месяца и алерты «мало листов».",
+  },
+  {
+    span: "md:col-span-4",
+    icon: Users,
+    tag: "Люди и 1С",
+    title: "Сдельная оплата и выгрузка",
+    body: "Мастера отмечают этап на планшете по PIN-коду — зарплата начисляется прозрачно, бухгалтерия выгружает данные в 1С.",
+  },
+  {
+    span: "md:col-span-4",
+    icon: Bot,
+    tag: "AI-ассистент",
+    title: "Помощник без самодеятельности",
+    body: "Отвечает по фактам из базы в приложении, Telegram и WhatsApp. Любая запись требует подтверждения человеком (R10).",
+  },
+];
+
+const SURFACES = [
+  { icon: Laptop, title: "Windows Desktop", role: "Офис и технолог", desc: "Заказы МДФ, редактор пресса, печать бланков, отдел плёнки и касса." },
+  { icon: Smartphone, title: "Android / iOS", role: "Директор и замерщик", desc: "Замеры с фото, просрочки, аналитика и AI-чат с подтверждением." },
+  { icon: Tablet, title: "Терминал цеха", role: "Мастера по PIN-коду", desc: "Очередь сменных заданий, отметка операций и фиксация брака." },
+  { icon: Globe, title: "Веб-портал", role: "Администрирование", desc: "Регистрация фабрики, приглашения сотрудников и управление складами." },
 ];
 
 const FAQ = [
   {
     q: "Нужно ли переучивать технологов с БАЗИС-Мебельщик?",
-    a: "Нет. Технологи работают в БАЗИС 10.1 / 10.4 как обычно. KORKEM рекурсивно читает XML-выгрузку и переносит детали, кромку и материалы в заказ.",
+    a: "Нет. Технологи работают в БАЗИС 10.1 / 10.4 как обычно. KӨRKEM рекурсивно читает XML-выгрузку и переносит детали, кромку и материалы в заказ.",
   },
   {
     q: "Что будет, если в цеху пропадёт интернет или отключат ИИ?",
@@ -43,418 +130,363 @@ const FAQ = [
   },
 ];
 
+/* ------------------------------------------------------------------ */
+/*  Small building blocks                                              */
+/* ------------------------------------------------------------------ */
+
+function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <div
+      className={`inline-flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] ${
+        light ? "text-[#7A6A45]" : "text-[#C9A25B]"
+      }`}
+    >
+      <span className={`h-px w-8 ${light ? "bg-[#B08D4F]/60" : "bg-[#C9A25B]/60"}`} />
+      {children}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Page                                                               */
+/* ------------------------------------------------------------------ */
+
 export default function HomePage() {
   return (
     <div className="flex flex-col">
-      {/* 1. HERO — Official KORKEM Forest Dark (#1B241A) + 3D Stage */}
-      <section className="relative overflow-hidden bg-[#1B241A] bg-arch-grid pt-14 pb-24 md:pt-20 md:pb-32 text-[#E6E3D9]">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-44 left-1/2 h-[540px] w-[820px] -translate-x-1/2 rounded-full bg-[#DEDAD0]/[0.08] blur-[150px]"
-        />
-
-        <div className="container relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
-          {/* Official 3D Shanyrak Model (360° rotatable) */}
-          <Brand3DModel
-            src="/brand/korkem_mark.png"
-            alt="KӨRKEM — Шанрак"
-            variant="mark"
-            layers={20}
-            depthPx={26}
-            hint="3D-логотип · крутите в любую сторону"
-          />
-
-          <div className="mt-7">
-            <Link
-              href="/download"
-              className="inline-flex items-center gap-2.5 rounded-full border border-[#3D4A3B] bg-[#2B382A]/80 px-3.5 py-1 text-xs text-[#E6E3D9] transition hover:border-[#7D8277]"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-[#7FD36B]" />
-              <span className="font-mono text-[11px] text-[#DEDAD0]">v0.7.8</span>
-              <span>Отдел плёнки ПВХ и редактор пресса</span>
-              <ArrowUpRight className="h-3.5 w-3.5 text-[#A8ADA4]" />
-            </Link>
-          </div>
-
-          <h1 className="font-display mx-auto mt-7 max-w-4xl text-4xl font-bold tracking-[-0.025em] text-[#DEDAD0] sm:text-6xl lg:text-[64px] lg:leading-[1.06]">
-            Цифровая архитектура{" "}
-            <span className="text-[#7FD36B]">мебельного</span>{" "}
-            производства
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-[#A8ADA4] sm:text-lg">
-            Операционная система для фабрик и цехов: заказы МДФ, раскладка на
-            вакуумный пресс, отдел плёнки ПВХ, импорт из БАЗИС и AI-администратор
-            в едином пространстве.
-          </p>
-
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/register"
-              className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#DEDAD0] px-7 text-sm font-semibold text-[#1B241A] shadow-lg transition hover:bg-[#F7F5EE]"
-            >
-              <span>Создать пространство цеха</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/download"
-              className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-[#7D8277]/60 bg-[#2B382A]/60 px-7 text-sm font-medium text-[#E6E3D9] transition hover:border-[#DEDAD0] hover:bg-[#2B382A]"
-            >
-              <Download className="h-4 w-4 text-[#DEDAD0]" />
-              <span>Скачать Windows / Android</span>
-            </Link>
-          </div>
-
-          {/* 3D Tilt Interactive Product Simulator */}
-          <Tilt3DStage intensity={5} className="mx-auto mt-14 max-w-5xl">
-            <InteractivePressDemo />
-          </Tilt3DStage>
+      {/* ============================ HERO ============================ */}
+      <section className="bg-grain relative -mt-20 overflow-hidden bg-[#10160F] text-[#E6E3D9] sm:-mt-24">
+        {/* lighting */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute -right-40 -top-40 h-[720px] w-[720px] rounded-full bg-[#C9A25B]/[0.10] blur-[140px]" />
+          <div className="absolute -left-52 top-1/3 h-[620px] w-[620px] rounded-full bg-[#2B382A]/70 blur-[130px]" />
+          <div className="bg-arch-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_70%_40%,black_10%,transparent_65%)]" />
         </div>
-      </section>
 
-      {/* 2. EDITORIAL MANIFESTO — Official Cream Paper (#F7F5EE) */}
-      <section className="bg-[#F7F5EE] text-[#1E2A1E] border-y border-[#DAD7CA] py-20 md:py-28">
-        <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <Reveal3D>
-            <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start">
-              <div className="lg:col-span-5">
-                <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#5C5F5A]">
-                  Философия KӨRKEM
-                </div>
-                <h2 className="font-display mt-3 text-3xl font-bold tracking-[-0.02em] text-[#1E2A1E] sm:text-4xl leading-[1.14]">
-                  Владелец больше не работает{" "}
-                  <span className="text-[#2B382A] underline decoration-[#7FD36B] decoration-2 underline-offset-4">
-                    администратором
-                  </span>{" "}
-                  за станком
-                </h2>
-              </div>
+        <div className="relative mx-auto grid min-h-[100svh] max-w-6xl grid-cols-1 items-center gap-6 px-5 pb-16 pt-32 sm:px-8 lg:grid-cols-12 lg:gap-4 lg:pb-24 lg:pt-36">
+          {/* copy */}
+          <div className="order-2 lg:order-1 lg:col-span-7">
+            <Link
+              href="/download"
+              className="group inline-flex items-center gap-2.5 rounded-full border border-[#C9A25B]/25 bg-white/[0.03] py-1 pl-1 pr-3.5 text-[12px] text-[#CFCBBF] backdrop-blur transition hover:border-[#C9A25B]/50"
+            >
+              <span className="rounded-full bg-[#C9A25B]/15 px-2 py-0.5 font-mono text-[10.5px] font-medium text-[#E2C68C]">
+                v0.7.8
+              </span>
+              Отдел плёнки ПВХ и редактор пресса
+              <ArrowUpRight className="h-3.5 w-3.5 text-[#C9A25B] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </Link>
 
-              <div className="lg:col-span-7 grid grid-cols-1 gap-8 sm:grid-cols-3 border-t border-[#DAD7CA] pt-8 lg:border-t-0 lg:pt-0">
-                <div>
-                  <div className="font-mono text-2xl font-semibold text-[#2B382A]">
-                    0 мин
-                  </div>
-                  <div className="mt-2 text-sm font-semibold text-[#1E2A1E]">
-                    Потерь между отделами
-                  </div>
-                  <p className="mt-1.5 text-xs leading-relaxed text-[#5C5F5A]">
-                    Замер, КП, фасадный заказ, плёнка, цех и касса связаны с
-                    одним производственным заказом.
-                  </p>
-                </div>
-                <div>
-                  <div className="font-mono text-2xl font-semibold text-[#2B382A]">
-                    MaxRects
-                  </div>
-                  <div className="mt-2 text-sm font-semibold text-[#1E2A1E]">
-                    Точный метраж плёнки
-                  </div>
-                  <p className="mt-1.5 text-xs leading-relaxed text-[#5C5F5A]">
-                    Учитывает секции 1.1 / 2.1 / 3.1 м, зазоры и запрет поворота
-                    для текстурных декоров.
-                  </p>
-                </div>
-                <div>
-                  <div className="font-mono text-2xl font-semibold text-[#2B382A]">
-                    R6 · R7
-                  </div>
-                  <div className="mt-2 text-sm font-semibold text-[#1E2A1E]">
-                    Автономность и приватность
-                  </div>
-                  <p className="mt-1.5 text-xs leading-relaxed text-[#5C5F5A]">
-                    База компании изолирована, а весь цех работает даже без
-                    интернета и без ИИ.
-                  </p>
-                </div>
-              </div>
+            <h1 className="font-display mt-7 text-[44px] font-extrabold leading-[0.98] tracking-[-0.045em] text-[#F2EEE3] sm:text-[64px] lg:text-[78px]">
+              Мебельный цех
+              <br />
+              под полным <span className="text-brass">контролем</span>
+            </h1>
+
+            <p className="mt-7 max-w-xl text-[17px] leading-[1.65] text-[#A9AEA4] sm:text-lg">
+              KӨRKEM Flow — операционная система для фабрик и цехов: заказы МДФ,
+              раскладка на вакуумный пресс, плёнка ПВХ, импорт из БАЗИС и
+              AI-администратор. В одном окне.
+            </p>
+
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/register"
+                className="group inline-flex h-[52px] items-center justify-center gap-2 rounded-full bg-[#ECE5D3] px-7 text-[15px] font-semibold text-[#141B13] shadow-[0_10px_40px_-10px_rgba(236,229,211,0.45)] transition hover:bg-white"
+              >
+                Создать компанию
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+              <Link
+                href="/download"
+                className="inline-flex h-[52px] items-center justify-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.03] px-7 text-[15px] font-medium text-[#E6E3D9] backdrop-blur transition hover:border-[#C9A25B]/50 hover:bg-white/[0.06]"
+              >
+                <Download className="h-4 w-4 text-[#C9A25B]" />
+                Скачать Windows / Android
+              </Link>
             </div>
-          </Reveal3D>
 
-          {/* 6-Stage Architectural Lifecycle */}
-          <Reveal3D delayMs={100}>
-            <div className="mt-16 grid grid-cols-1 divide-y divide-[#DAD7CA] border border-[#DAD7CA] rounded-2xl bg-[#EDEAE0]/60 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-6 lg:divide-x">
-              {PIPELINE.map((step) => (
-                <div key={step.n} className="p-5 transition hover:bg-[#F7F5EE]">
-                  <div className="font-mono text-[11px] font-medium text-[#5C5F5A]">
-                    {step.n}
-                  </div>
-                  <div className="mt-2 text-sm font-semibold text-[#1E2A1E]">
-                    {step.name}
-                  </div>
-                  <p className="mt-1.5 text-xs leading-relaxed text-[#5C5F5A]">
-                    {step.note}
-                  </p>
+            <dl className="mt-14 grid max-w-lg grid-cols-3 gap-6 border-t border-white/[0.07] pt-7">
+              {[
+                ["1 день", "до запуска"],
+                ["4", "платформы"],
+                ["R7", "ядро без ИИ"],
+              ].map(([v, l]) => (
+                <div key={l}>
+                  <dt className="font-display text-2xl font-bold tracking-tight text-[#F2EEE3] sm:text-[28px]">{v}</dt>
+                  <dd className="mt-1 text-[12.5px] text-[#8E9488]">{l}</dd>
                 </div>
               ))}
+            </dl>
+          </div>
+
+          {/* 3D stage */}
+          <div className="order-1 lg:order-2 lg:col-span-5">
+            <div className="relative mx-auto aspect-square w-full max-w-[300px] sm:max-w-[420px] lg:max-w-none">
+              {/* concentric hairline rings */}
+              <div aria-hidden className="pointer-events-none absolute inset-0">
+                <div className="absolute inset-[2%] rounded-full border border-[#C9A25B]/[0.14]" />
+                <div className="animate-spin-slower absolute inset-[10%] rounded-full border border-dashed border-[#C9A25B]/[0.18]" />
+                <div className="absolute inset-[18%] rounded-full border border-white/[0.05]" />
+                <div className="absolute inset-[22%] rounded-full bg-[radial-gradient(circle,rgba(233,207,150,0.16),transparent_65%)] blur-2xl" />
+                {/* floor shadow */}
+                <div className="absolute bottom-[6%] left-1/2 h-6 w-1/2 -translate-x-1/2 rounded-[50%] bg-black/60 blur-xl" />
+              </div>
+              <Brand3DModel
+                modelJson="/brand/korkem_mark_3d.json"
+                fallbackSrc="/brand/korkem_mark.png"
+                alt="KӨRKEM — официальный знак, 3D"
+                variant="mark"
+                className="absolute inset-0"
+              />
             </div>
+            <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-[0.24em] text-[#6F766B]">
+              Потяните знак — он вращается в 3D
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================== MARQUEE ========================== */}
+      <section aria-label="Интеграции" className="relative overflow-hidden border-y border-[#C9A25B]/15 bg-[#0D120C] py-5">
+        <div className="flex w-max animate-marquee items-center gap-10 whitespace-nowrap [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
+          {[...MARQUEE, ...MARQUEE].map((m, i) => (
+            <span key={i} className="flex items-center gap-10 text-[13px] font-medium uppercase tracking-[0.18em] text-[#9BA196]">
+              {m}
+              <span className="text-[#C9A25B]">✦</span>
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================== MANIFESTO ========================= */}
+      <section className="bg-[#F4F1E8] py-24 text-[#1E2A1E] md:py-32">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <Reveal3D>
+            <Eyebrow light>Философия KӨRKEM</Eyebrow>
+            <p className="font-display mt-8 max-w-5xl text-[30px] font-bold leading-[1.18] tracking-[-0.03em] sm:text-[44px] lg:text-[54px]">
+              Владелец больше не работает администратором за станком.{" "}
+              <span className="text-[#1E2A1E]/35">
+                Система ведёт заказ от замера до выдачи — а вы управляете ростом.
+              </span>
+            </p>
+          </Reveal3D>
+
+          <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-[#DCD6C6] bg-[#DCD6C6] sm:grid-cols-3">
+            {STATS.map((s, i) => (
+              <Reveal3D key={s.label} delayMs={i * 90}>
+                <div className="h-full bg-[#F8F6EF] p-8 transition-colors hover:bg-white">
+                  <div className="font-display text-[34px] font-extrabold tracking-[-0.03em] text-[#2B382A]">{s.value}</div>
+                  <div className="mt-3 text-[15px] font-semibold">{s.label}</div>
+                  <p className="mt-2 text-[14px] leading-relaxed text-[#5C5F5A]">{s.note}</p>
+                </div>
+              </Reveal3D>
+            ))}
+          </div>
+
+          {/* pipeline */}
+          <div className="mt-28">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+              <div>
+                <Eyebrow light>Жизненный цикл заказа</Eyebrow>
+                <h2 className="font-display mt-5 text-[32px] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-[44px]">
+                  Шесть этапов — одна нить
+                </h2>
+              </div>
+              <p className="max-w-sm text-[15px] leading-relaxed text-[#5C5F5A]">
+                Каждый отдел видит ровно свой участок работы, а владелец — весь путь заказа целиком.
+              </p>
+            </div>
+
+            <ol className="relative mt-14 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-6 lg:gap-6">
+              <span aria-hidden className="absolute left-0 right-0 top-[22px] hidden h-px bg-gradient-to-r from-[#B08D4F]/0 via-[#B08D4F]/50 to-[#B08D4F]/0 lg:block" />
+              {PIPELINE.map((s, i) => (
+                <Reveal3D key={s.n} delayMs={i * 70}>
+                  <li className="relative">
+                    <div className="relative z-10 flex h-11 w-11 items-center justify-center rounded-full border border-[#B08D4F]/50 bg-[#F4F1E8] font-mono text-[12px] font-semibold text-[#8A6C34]">
+                      {s.n}
+                    </div>
+                    <div className="mt-5 text-[16px] font-semibold">{s.name}</div>
+                    <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#5C5F5A]">{s.note}</p>
+                  </li>
+                </Reveal3D>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================ DEMO ============================ */}
+      <section className="bg-grain relative overflow-hidden bg-[#10160F] py-24 text-[#E6E3D9] md:py-32">
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-[#C9A25B]/[0.07] blur-[140px]" />
+        <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <Eyebrow>Живая демонстрация</Eyebrow>
+            <h2 className="font-display mt-5 text-[34px] font-extrabold leading-[1.04] tracking-[-0.04em] text-[#F2EEE3] sm:text-[52px]">
+              Попробуйте прямо здесь
+            </h2>
+            <p className="mt-5 text-[16px] leading-relaxed text-[#A9AEA4]">
+              Раскладка фасадов на пресс, склад плёнки и AI-администратор — тот же интерфейс, что у вас в цеху.
+            </p>
+          </div>
+          <Reveal3D delayMs={100}>
+            <Tilt3DStage intensity={3} className="mx-auto mt-14 max-w-5xl">
+              <div className="ring-brass rounded-[22px] p-1.5">
+                <InteractivePressDemo />
+              </div>
+            </Tilt3DStage>
           </Reveal3D>
         </div>
       </section>
 
-      {/* 3. BENTO CAPABILITIES — Official Forest Dark (#1B241A / #2B382A) */}
-      <section className="bg-[#1B241A] text-[#E6E3D9] py-20 md:py-28 border-b border-[#3D4A3B]">
-        <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end mb-14">
+      {/* =========================== BENTO ============================ */}
+      <section className="border-t border-white/[0.05] bg-[#141B13] py-24 text-[#E6E3D9] md:py-32">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#A8ADA4]">
-                Модули производства
-              </div>
-              <h2 className="font-display mt-3 text-3xl font-bold tracking-[-0.02em] text-[#DEDAD0] sm:text-4xl leading-[1.14]">
-                Построено на реальных заказах{" "}
-                <span className="text-[#F7F5EE]">и бланках цеха</span>
+              <Eyebrow>Модули производства</Eyebrow>
+              <h2 className="font-display mt-5 max-w-2xl text-[32px] font-extrabold leading-[1.05] tracking-[-0.035em] text-[#F2EEE3] sm:text-[46px]">
+                Построено на реальных заказах и бланках цеха
               </h2>
             </div>
-            <Link
-              href="/features"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#DEDAD0] transition hover:text-white"
-            >
-              <span>Все возможности</span>
-              <ArrowRight className="h-4 w-4" />
+            <Link href="/features" className="group inline-flex items-center gap-2 text-[14px] font-medium text-[#E2C68C] hover:text-[#F3E2B8]">
+              Все возможности
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-            <Reveal3D className="md:col-span-7" delayMs={0}>
-              <SpotlightCard className="h-full p-7 sm:p-8">
-                <div className="font-mono text-[11px] uppercase tracking-wider text-[#FFC14D]">
-                  01 · Фасады МДФ и Пресс
-                </div>
-                <h3 className="mt-3 text-xl font-semibold text-[#DEDAD0]">
-                  Единое окно заказа МДФ и раскладка на вакуумный пресс
-                </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-[#E6E3D9]/80">
-                  Прайс-матрица фрезеровка × отделка подставляет цены сама. После
-                  принятия цены фиксируются в заказе. Оператор пресса видит
-                  оптимальную карту укладки на стол и может поправить её вручную.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-2 font-mono text-[11px] text-[#DEDAD0]">
-                  <span className="rounded-full border border-[#3D4A3B] bg-[#1B241A]/60 px-3 py-1">
-                    Печать клиенту и цеху
-                  </span>
-                  <span className="rounded-full border border-[#3D4A3B] bg-[#1B241A]/60 px-3 py-1">
-                    Двусторонние фасады
-                  </span>
-                  <span className="rounded-full border border-[#3D4A3B] bg-[#1B241A]/60 px-3 py-1">
-                    Светофор сроков
-                  </span>
-                </div>
-              </SpotlightCard>
-            </Reveal3D>
-
-            <Reveal3D className="md:col-span-5" delayMs={80}>
-              <SpotlightCard className="h-full p-7 sm:p-8">
-                <div className="font-mono text-[11px] uppercase tracking-wider text-[#7FD36B]">
-                  02 · Отдел плёнки ПВХ
-                </div>
-                <h3 className="mt-3 text-xl font-semibold text-[#DEDAD0]">
-                  Рулоны, толщины, касса и клиенты
-                </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-[#E6E3D9]/80">
-                  Несколько толщин у одной плёнки, статусы «Свободно / Отложено /
-                  В пути», чеки со смешанной оплатой, закрытие дня, доска
-                  поставщиков и контроль лимита долга клиента.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-2 font-mono text-[11px] text-[#DEDAD0]">
-                  <span className="rounded-full border border-[#3D4A3B] bg-[#1B241A]/60 px-3 py-1">
-                    Акт сверки
-                  </span>
-                  <span className="rounded-full border border-[#3D4A3B] bg-[#1B241A]/60 px-3 py-1">
-                    Командный бонус
-                  </span>
-                </div>
-              </SpotlightCard>
-            </Reveal3D>
-
-            <Reveal3D className="md:col-span-4" delayMs={120}>
-              <SpotlightCard className="h-full p-7">
-                <div className="font-mono text-[11px] uppercase tracking-wider text-[#A8ADA4]">
-                  03 · БАЗИС и Склад
-                </div>
-                <h3 className="mt-3 text-lg font-semibold text-[#DEDAD0]">
-                  Импорт БАЗИС 10.1 / 10.4
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#E6E3D9]/75">
-                  Рекурсивный разбор блоков и деталей, учёт деловых обрезков,
-                  инвентаризация месяца и алерты «мало листов».
-                </p>
-              </SpotlightCard>
-            </Reveal3D>
-
-            <Reveal3D className="md:col-span-4" delayMs={160}>
-              <SpotlightCard className="h-full p-7">
-                <div className="font-mono text-[11px] uppercase tracking-wider text-[#A8ADA4]">
-                  04 · Люди и 1С
-                </div>
-                <h3 className="mt-3 text-lg font-semibold text-[#DEDAD0]">
-                  Сдельная оплата и выгрузка
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#E6E3D9]/75">
-                  Мастера отмечают этап на планшете по PIN-коду — зарплата
-                  начисляется прозрачно, а бухгалтерия выгружает данные в 1С.
-                </p>
-              </SpotlightCard>
-            </Reveal3D>
-
-            <Reveal3D className="md:col-span-4" delayMs={200}>
-              <SpotlightCard className="h-full p-7">
-                <div className="font-mono text-[11px] uppercase tracking-wider text-[#A8ADA4]">
-                  05 · AI-Ассистент
-                </div>
-                <h3 className="mt-3 text-lg font-semibold text-[#DEDAD0]">
-                  Помощник без самодеятельности
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#E6E3D9]/75">
-                  Отвечает по фактам из БД в приложении, Telegram и WhatsApp.
-                  Любая запись требует подтверждения человеком (R10).
-                </p>
-              </SpotlightCard>
-            </Reveal3D>
+          <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-12">
+            {FEATURES.map((f, i) => {
+              const Icon = f.icon;
+              return (
+                <Reveal3D key={f.title} className={f.span} delayMs={i * 70}>
+                  <SpotlightCard className="h-full border-white/[0.07] bg-[#1A2219] p-7 sm:p-8">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#C9A25B]/25 bg-[#C9A25B]/[0.08] text-[#E2C68C]">
+                        <Icon className="h-[18px] w-[18px]" />
+                      </span>
+                      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8E9488]">{f.tag}</span>
+                    </div>
+                    <h3 className="font-display mt-6 text-[21px] font-bold leading-snug tracking-[-0.02em] text-[#F2EEE3]">{f.title}</h3>
+                    <p className="mt-3 text-[14.5px] leading-relaxed text-[#A9AEA4]">{f.body}</p>
+                    {f.chips && (
+                      <div className="mt-6 flex flex-wrap gap-2">
+                        {f.chips.map((c) => (
+                          <span key={c} className="rounded-full border border-white/[0.08] bg-black/20 px-3 py-1 text-[12px] text-[#CFCBBF]">
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </SpotlightCard>
+                </Reveal3D>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 4. FOUR SURFACES — Cream Paper (#F7F5EE) */}
-      <section className="bg-[#F7F5EE] text-[#1E2A1E] py-20 md:py-24 border-b border-[#DAD7CA]">
-        <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center mb-14">
-            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#5C5F5A]">
-              4 интерфейса · 1 ядро
-            </div>
-            <h2 className="font-display mt-3 text-3xl font-bold tracking-[-0.02em] sm:text-4xl leading-[1.14]">
+      {/* ========================= SURFACES =========================== */}
+      <section className="bg-[#F4F1E8] py-24 text-[#1E2A1E] md:py-32">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <Eyebrow light>4 интерфейса · 1 ядро</Eyebrow>
+            <h2 className="font-display mt-5 text-[32px] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-[46px]">
               Один поток данных от офиса до станка
             </h2>
           </div>
-
-          <Reveal3D>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                {
-                  icon: Laptop,
-                  title: "Windows Desktop",
-                  role: "Офис и технолог",
-                  desc: "Заказы МДФ, редактор пресса, печать бланков, отдел плёнки и касса.",
-                },
-                {
-                  icon: Smartphone,
-                  title: "Android / iOS",
-                  role: "Директор и замерщик",
-                  desc: "Замеры с фото, просрочки, аналитика и AI-чат с подтверждением.",
-                },
-                {
-                  icon: Tablet,
-                  title: "Терминал цеха",
-                  role: "Мастера по PIN-коду",
-                  desc: "Очередь сменных заданий, отметка операций и фиксация брака.",
-                },
-                {
-                  icon: Globe,
-                  title: "Веб-портал",
-                  role: "Администрирование",
-                  desc: "Регистрация фабрики, приглашения сотрудников и управление складами.",
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={item.title}
-                    className="rounded-2xl border border-[#DAD7CA] bg-[#EDEAE0]/50 p-6 transition duration-300 hover:-translate-y-1 hover:border-[#2B382A] hover:bg-white"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#DAD7CA] bg-[#2B382A] text-[#DEDAD0]">
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div className="mt-5 font-mono text-[11px] text-[#5C5F5A]">
-                      {item.role}
-                    </div>
-                    <h3 className="mt-1 text-base font-semibold text-[#1E2A1E]">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-xs leading-relaxed text-[#5C5F5A]">
-                      {item.desc}
-                    </p>
+          <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {SURFACES.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <Reveal3D key={s.title} delayMs={i * 80}>
+                  <div className="group h-full rounded-3xl border border-[#DCD6C6] bg-[#F8F6EF] p-7 transition duration-300 hover:-translate-y-1 hover:border-[#B08D4F]/50 hover:bg-white hover:shadow-[0_30px_60px_-30px_rgba(43,56,42,0.35)]">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1E2A1E] text-[#E2C68C] transition-transform group-hover:scale-105">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <div className="mt-7 font-mono text-[11px] uppercase tracking-[0.16em] text-[#8A6C34]">{s.role}</div>
+                    <h3 className="font-display mt-1.5 text-[19px] font-bold tracking-[-0.02em]">{s.title}</h3>
+                    <p className="mt-2.5 text-[14px] leading-relaxed text-[#5C5F5A]">{s.desc}</p>
                   </div>
-                );
-              })}
-            </div>
-          </Reveal3D>
+                </Reveal3D>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* 5. FAQ + FINAL CTA — Forest Dark (#1B241A) */}
-      <section className="bg-[#1B241A] text-[#E6E3D9] py-20 md:py-28">
-        <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
-            <div className="lg:col-span-4">
-              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#A8ADA4]">
-                Вопросы и ответы
-              </div>
-              <h2 className="font-display mt-3 text-3xl font-bold tracking-[-0.02em] text-[#DEDAD0] leading-[1.16]">
-                Всё, что важно перед{" "}
-                <span className="text-[#7FD36B]">запуском</span>
-              </h2>
-              <div className="mt-6 space-y-2.5 text-xs text-[#A8ADA4]">
-                <div className="flex items-center gap-2">
-                  <Lock className="h-3.5 w-3.5 text-[#7FD36B]" />
-                  <span>Изоляция данных на уровне компании</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="h-3.5 w-3.5 text-[#7FD36B]" />
-                  <span>Аудит каждого изменения</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-8 divide-y divide-[#3D4A3B] border-y border-[#3D4A3B]">
-              {FAQ.map((item) => (
-                <div key={item.q} className="py-6">
-                  <h3 className="text-base font-medium text-[#DEDAD0]">
-                    {item.q}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[#A8ADA4]">
-                    {item.a}
-                  </p>
-                </div>
-              ))}
+      {/* ============================ FAQ ============================= */}
+      <section className="bg-[#10160F] py-24 text-[#E6E3D9] md:py-32">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-5 sm:px-8 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <Eyebrow>Вопросы и ответы</Eyebrow>
+            <h2 className="font-display mt-5 text-[32px] font-extrabold leading-[1.05] tracking-[-0.035em] text-[#F2EEE3] sm:text-[44px]">
+              Всё, что важно перед запуском
+            </h2>
+            <div className="mt-8 flex items-center gap-2.5 text-[13.5px] text-[#A9AEA4]">
+              <Lock className="h-4 w-4 text-[#C9A25B]" />
+              Изоляция данных и аудит каждого изменения
             </div>
           </div>
-
-          {/* Closing CTA with Interactive 3D Brand Lockup (transparent PNG, no box) */}
-          <Reveal3D delayMs={100}>
-            <div className="mt-24 rounded-3xl border border-[#3D4A3B] bg-[#2B382A] px-6 py-14 text-center sm:px-12 sm:py-16 shadow-2xl">
-              <Brand3DModel
-                src="/brand/korkem_lockup.png"
-                alt="KӨRKEM — Since 2021"
-                variant="lockup"
-                layers={16}
-                depthPx={18}
-                hint="3D-модель · потяните, чтобы повернуть"
-              />
-              <h2 className="font-display mx-auto mt-8 max-w-2xl text-3xl font-bold tracking-[-0.02em] text-[#DEDAD0] sm:text-5xl leading-[1.12]">
-                Наведите порядок в цеху за{" "}
-                <span className="text-[#7FD36B]">один день</span>
-              </h2>
-              <p className="mx-auto mt-4 max-w-lg text-sm text-[#E6E3D9]/80">
-                Создайте пространство компании, пригласите сотрудников по ссылке и
-                скачайте актуальную версию для Windows или Android.
-              </p>
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link
-                  href="/register"
-                  className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#DEDAD0] px-8 text-sm font-semibold text-[#1B241A] transition hover:bg-[#F7F5EE]"
-                >
-                  <span>Создать компанию</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/download"
-                  className="inline-flex h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-[#7D8277] px-8 text-sm font-medium text-[#DEDAD0] transition hover:border-[#DEDAD0] hover:bg-[#3B4C39]"
-                >
-                  <span>Страница загрузок</span>
-                </Link>
-              </div>
-            </div>
-          </Reveal3D>
+          <div className="divide-y divide-white/[0.07] border-y border-white/[0.07] lg:col-span-7">
+            {FAQ.map((f, i) => (
+              <details key={f.q} className="group py-6 [&_summary::-webkit-details-marker]:hidden" open={i === 0}>
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-6">
+                  <span className="font-display text-[17px] font-semibold leading-snug text-[#F2EEE3]">{f.q}</span>
+                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#C9A25B]/30 text-[#E2C68C] transition-transform duration-300 group-open:rotate-45">
+                    <Plus className="h-3.5 w-3.5" />
+                  </span>
+                </summary>
+                <p className="mt-4 max-w-xl pr-10 text-[15px] leading-relaxed text-[#A9AEA4]">{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
+      </section>
+
+      {/* ======================== FINAL CTA =========================== */}
+      <section className="bg-[#10160F] px-3 pb-24 sm:px-6 md:pb-32">
+        <Reveal3D>
+          <div className="bg-grain relative mx-auto max-w-6xl overflow-hidden rounded-[36px] border border-[#C9A25B]/20 bg-[#18211A] px-6 pb-16 pt-10 text-center sm:px-12 sm:pb-20">
+            <div aria-hidden className="pointer-events-none absolute inset-0">
+              <div className="absolute left-1/2 top-[-30%] h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[#C9A25B]/[0.12] blur-[120px]" />
+              <div className="hairline-brass absolute inset-x-0 top-0 h-px" />
+            </div>
+
+            <div className="relative mx-auto h-[150px] max-w-3xl sm:h-[230px]">
+              <Brand3DModel
+                modelJson="/brand/korkem_lockup_3d.json"
+                fallbackSrc="/brand/korkem_lockup.png"
+                alt="KӨRKEM — Since 2021, 3D"
+                variant="lockup"
+                className="absolute inset-0"
+              />
+            </div>
+
+            <h2 className="font-display relative mx-auto mt-10 max-w-3xl text-[34px] font-extrabold leading-[1.04] tracking-[-0.04em] text-[#F2EEE3] sm:text-[56px]">
+              Наведите порядок в цеху <span className="text-brass">за один день</span>
+            </h2>
+            <p className="relative mx-auto mt-5 max-w-lg text-[16px] leading-relaxed text-[#A9AEA4]">
+              Создайте пространство компании, пригласите сотрудников по ссылке и скачайте актуальную версию для Windows или Android.
+            </p>
+            <div className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/register"
+                className="group inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#ECE5D3] px-8 text-[15px] font-semibold text-[#141B13] transition hover:bg-white sm:w-auto"
+              >
+                Создать компанию
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+              <Link
+                href="/download"
+                className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-full border border-white/[0.12] px-8 text-[15px] font-medium text-[#E6E3D9] transition hover:border-[#C9A25B]/50 sm:w-auto"
+              >
+                <Download className="h-4 w-4 text-[#C9A25B]" />
+                Загрузки
+              </Link>
+            </div>
+          </div>
+        </Reveal3D>
       </section>
     </div>
   );
