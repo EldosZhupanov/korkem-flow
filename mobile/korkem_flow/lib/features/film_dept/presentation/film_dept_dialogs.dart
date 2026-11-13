@@ -17,6 +17,7 @@ import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_orders.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
@@ -1462,6 +1463,10 @@ class _SaleLine {
   /// What stays on the shelf after this sale.
   double get left => film.free + mine - m;
 
+  /// Sold for less than the film cost (its purchase price).
+  bool get below =>
+      p > 0 && film.priceM != null && film.priceM! > 0 && p < film.priceM!;
+
   /// What stays is under the film's minimum: time to order.
   bool get low =>
       m > 0 && !over && film.minStock != null && left < film.minStock!;
@@ -1475,22 +1480,35 @@ class _SaleLine {
 /// «Продажа»: a customer, one film or several by the metre, what is paid
 /// now — the rest is the customer's debt. A metre's price comes from the
 /// customer's card (retail or trade, less the discount) and may be retyped.
+/// [repeat] — a sale's films and metres, to sell again (13.11.2026).
 Future<bool?> showFilmSale(
   BuildContext context,
   FilmCatalog stock, {
   Film? film,
   String? customer,
+  List<FilmSaleLine>? repeat,
 }) => showDialog<bool>(
   context: context,
-  builder: (_) => _SaleDialog(stock: stock, film: film, customer: customer),
+  builder: (_) => _SaleDialog(
+    stock: stock,
+    film: film,
+    customer: customer,
+    repeat: repeat,
+  ),
 );
 
 class _SaleDialog extends ConsumerStatefulWidget {
-  const _SaleDialog({required this.stock, this.film, this.customer});
+  const _SaleDialog({
+    required this.stock,
+    this.film,
+    this.customer,
+    this.repeat,
+  });
 
   final FilmCatalog stock;
   final Film? film;
   final String? customer;
+  final List<FilmSaleLine>? repeat;
 
   @override
   ConsumerState<_SaleDialog> createState() => _SaleDialogState();
@@ -1520,12 +1538,43 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
       if (f.label != null && (f.free > 0 || f.holds.isNotEmpty)) f,
   ];
 
+  /// Why a film goes for less than it cost — asked when one does
+  /// (owner, 13.11.2026: a sale at a loss is never silent).
+  String? _below;
+
   @override
   void initState() {
     super.initState();
+    if (widget.repeat case final again? when _again(again)) return;
     final first = widget.film ?? _films.firstOrNull;
     if (first != null) _add(first);
   }
+
+  /// The lines of an earlier sale, as far as the shelf has their films.
+  bool _again(List<FilmSaleLine> lines) {
+    var any = false;
+    for (final l in lines) {
+      final film = _films.where((f) => f.item == l.item).firstOrNull;
+      if (film == null || _lines.any((x) => x.film.item == l.item)) continue;
+      _add(film);
+      _lines.last.metres.text = filmMetres(l.metres);
+      any = true;
+    }
+    return any;
+  }
+
+  /// «Как в прошлый раз»: the last sale's films and metres instead.
+  void _likeLastTime(FilmSale last) => setState(() {
+    for (final l in _lines) {
+      l.dispose();
+    }
+    _lines.clear();
+    if (!_again(last.lines)) {
+      final first = _films.firstOrNull;
+      if (first != null) _add(first);
+    }
+    _fillPaid();
+  });
 
   @override
   void dispose() {
@@ -1575,6 +1624,73 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
 
   double get _paid => _parts.fold(0, (s, p) => s + p.value);
 
+  /// What the seller should know of this customer (owner, 13.11.2026):
+  /// what he usually takes and how often, his price, his debt — and his
+  /// last sale, to sell again at a tap.
+  Widget _hint(String customer) {
+    final l10n = AppLocalizations.of(context);
+    final status = context.statusColors;
+    final money = mdfMoney(context);
+    final card = (ref.watch(filmCustomersProvider).value ?? const [])
+        .where((c) => c.customer == customer)
+        .firstOrNull;
+    final sales = ref.watch(filmCustomerSalesProvider(customer)).value;
+    if (card == null && (sales == null || sales.isEmpty)) {
+      return const SizedBox.shrink();
+    }
+    final last = sales?.firstOrNull;
+    final every = filmRhythmDays(sales ?? const []);
+    final owes = (card?.debt ?? 0) > 0.5;
+    final colour = owes ? status.warning : status.info;
+    return Container(
+      key: const ValueKey('filmSaleHint'),
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: colour.withValues(alpha: AppTint.surface),
+        border: Border.all(color: colour),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            [
+              if (card?.favourite case final f?) l10n.filmSaleUsually(f),
+              if (every != null) l10n.filmSaleEvery(every),
+              if (card != null)
+                card.wholesale ? l10n.filmWholesale : l10n.filmRetail,
+              if (card != null && card.discount > 0)
+                '−${card.discount.toStringAsFixed(0)}%',
+              if (owes)
+                l10n.filmSaleDebt(money.format(card!.debt))
+              else
+                l10n.filmSaleNoDebt,
+            ].join(' · '),
+          ),
+          if (last != null && last.lines.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: ActionChip(
+                key: const ValueKey('filmSaleLikeLast'),
+                avatar: const Icon(AppIcons.refresh),
+                label: Text(
+                  l10n.filmSaleLikeLast(
+                    [
+                      for (final l in last.lines)
+                        '${l.colour ?? l.title} ${filmMetres(l.metres)} м',
+                    ].join(', '),
+                  ),
+                ),
+                onPressed: () => _likeLastTime(last),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   /// «+ ещё способ»: a new part takes what is left to pay.
   void _addPart() => setState(() {
     _paidTouched = true;
@@ -1608,6 +1724,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
         _lines.every(
           (l) => l.m > 0 && l.p > 0 && !l.over,
         ) &&
+        (_below != null || !_lines.any((l) => l.below)) &&
         paid <= _sum + 0.5;
     String label(String m) => switch (m) {
       filmTransfer => l10n.mdfPayTransfer,
@@ -1641,6 +1758,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 },
                 decoration: InputDecoration(labelText: l10n.mdfCustomer),
               ),
+              if (_customer case final who?) _hint(who),
               if (sellers != null && sellers.staff.isNotEmpty)
                 Row(
                   children: [
@@ -1773,6 +1891,18 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                       ),
                     ),
                   ),
+                if (line.below)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                    child: Text(
+                      l10n.filmSaleBelow(
+                        money.format(line.film.priceM),
+                        money.format((line.film.priceM! - line.p) * line.m),
+                      ),
+                      key: ValueKey('filmSaleBelow:$i'),
+                      style: TextStyle(color: theme.colorScheme.error),
+                    ),
+                  ),
                 if (line.over || line.low)
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.xs),
@@ -1780,6 +1910,14 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                       spacing: AppSpacing.xs,
                       runSpacing: AppSpacing.xs,
                       children: [
+                        // Runs low after this sale: on «К заказу» at once.
+                        if (line.low)
+                          ActionChip(
+                            key: ValueKey('filmSaleWant:$i'),
+                            avatar: const Icon(AppIcons.delivery),
+                            label: Text(l10n.filmSaleToOrders),
+                            onPressed: () => showFilmWant(context, line.film),
+                          ),
                         if (line.over && line.have > 0)
                           ActionChip(
                             key: ValueKey('filmSaleAll:$i'),
@@ -1835,6 +1973,30 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                   icon: const Icon(AppIcons.add),
                   label: Text(l10n.filmSaleAddLine),
                 ),
+              if (_lines.any((l) => l.below)) ...[
+                Text(
+                  l10n.filmSaleBelowWhy,
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    for (final (k, why) in [
+                      ('rest', l10n.filmSaleBelowRest),
+                      ('defect', l10n.filmSaleBelowDefect),
+                      ('agreed', l10n.filmSaleBelowAgreed),
+                    ])
+                      ChoiceChip(
+                        key: ValueKey('filmSaleBelowWhy:$k'),
+                        label: Text(why),
+                        selected: _below == why,
+                        onSelected: (_) => setState(() => _below = why),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
               Text(
                 l10n.filmSaleTotal(money.format(_sum)),
                 key: const ValueKey('filmSaleTotal'),
@@ -1980,6 +2142,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                         ],
                         seller: _seller ?? sellers?.me,
                         issuedBy: _issuer ?? _seller ?? sellers?.me,
+                        belowReason: _lines.any((l) => l.below) ? _below : null,
                       ),
                 ),
           child: Text(l10n.filmSell),
@@ -2240,6 +2403,26 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
           onPressed: busy ? null : _cancel,
           child: Text(l10n.filmCancelMove),
         ),
+        // The same again (owner, 13.11.2026): the customer and his films,
+        // at today's prices.
+        if (widget.sale.customer != null)
+          TextButton.icon(
+            key: const ValueKey('filmSaleRepeat'),
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              final stock = await ref.read(filmStockProvider.future);
+              if (!context.mounted) return;
+              final done = await showFilmSale(
+                context,
+                stock,
+                customer: widget.sale.customer,
+                repeat: widget.sale.lines,
+              );
+              if (done ?? false) navigator.pop(true);
+            },
+            icon: const Icon(AppIcons.refresh),
+            label: Text(l10n.filmSaleRepeat),
+          ),
         // The customer's receipt, to send or print (owner, 11.11.2026).
         TextButton.icon(
           key: const ValueKey('filmSaleReceipt'),

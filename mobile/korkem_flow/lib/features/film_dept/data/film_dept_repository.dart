@@ -28,6 +28,17 @@ final filmSalesProvider = FutureProvider.autoDispose<List<FilmSale>>(
   (ref) => ref.watch(filmDeptRepositoryProvider).sales(),
 );
 
+/// The sales of a period, and of the period as long before it — to say
+/// whether it went up (owner, 13.11.2026).
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmSalesPeriodProvider = FutureProvider.autoDispose
+    .family<List<FilmSale>, ({String? since, String? until})>(
+      (ref, p) => ref
+          .watch(filmDeptRepositoryProvider)
+          .sales(since: p.since, until: p.until),
+    );
+
 // AutoDisposeFutureProviderFamily is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final filmHistoryProvider = FutureProvider.autoDispose
@@ -232,6 +243,7 @@ class FilmDeptRepository {
     Set<String> remember = const {},
     String? seller,
     String? issuedBy,
+    String? belowReason,
   }) async => FilmSale.fromJson(
     _map(
       await _client.callMethod(
@@ -256,6 +268,8 @@ class FilmDeptRepository {
           ]),
           // Who sold it — the team's bonus is counted by seller.
           'seller': ?seller,
+          // Why for less than it cost (owner, 13.11.2026).
+          'below_reason': ?belowReason,
           'issued_by': ?issuedBy,
         },
       ),
@@ -335,11 +349,15 @@ class FilmDeptRepository {
   );
 
   /// One customer's purchases, newest first — his card (12.11.2026).
-  Future<List<FilmSale>> sales({String? customer}) async => [
+  Future<List<FilmSale>> sales({
+    String? customer,
+    String? since,
+    String? until,
+  }) async => [
     for (final r in _list(
       await _client.callMethod(
         '$_base.sales',
-        params: {'customer': ?customer},
+        params: {'customer': ?customer, 'since': ?since, 'until': ?until},
       ),
     ))
       FilmSale.fromJson(r),

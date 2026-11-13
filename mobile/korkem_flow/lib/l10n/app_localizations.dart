@@ -13254,6 +13254,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{value} mm'**
   String pressMm(int value);
+
+  /// No description provided for @filmSalesToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get filmSalesToday;
+
+  /// No description provided for @filmSalesWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get filmSalesWeek;
+
+  /// No description provided for @filmSalesMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get filmSalesMonth;
+
+  /// No description provided for @filmSalesPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get filmSalesPeriod;
+
+  /// No description provided for @filmSalesAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All · {count}'**
+  String filmSalesAll(int count);
+
+  /// No description provided for @filmSalesPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid · {count}'**
+  String filmSalesPaid(int count);
+
+  /// No description provided for @filmSalesDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Owing · {count}'**
+  String filmSalesDebt(int count);
+
+  /// No description provided for @filmSalesWholesale.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade · {count}'**
+  String filmSalesWholesale(int count);
+
+  /// No description provided for @filmSalesSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'customer, film'**
+  String get filmSalesSearch;
+
+  /// No description provided for @filmSalesSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get filmSalesSold;
+
+  /// No description provided for @filmSalesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sales'**
+  String filmSalesCount(int count);
+
+  /// No description provided for @filmSalesMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'Metres'**
+  String get filmSalesMetres;
+
+  /// No description provided for @filmSalesAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get filmSalesAmount;
+
+  /// No description provided for @filmSalesChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{change}% on the last'**
+  String filmSalesChange(String change);
+
+  /// No description provided for @filmSalesProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get filmSalesProfit;
+
+  /// No description provided for @filmSalesUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get filmSalesUnpaid;
+
+  /// No description provided for @filmSalesDebtors.
+  ///
+  /// In en, this message translates to:
+  /// **'customers: {count}'**
+  String filmSalesDebtors(int count);
+
+  /// No description provided for @filmSalesTodayOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {day}'**
+  String filmSalesTodayOn(String day);
+
+  /// No description provided for @filmSalesYesterdayOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday, {day}'**
+  String filmSalesYesterdayOn(String day);
+
+  /// No description provided for @filmSalesWholesaleMark.
+  ///
+  /// In en, this message translates to:
+  /// **'trade'**
+  String get filmSalesWholesaleMark;
+
+  /// No description provided for @filmSalesPaidMark.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ paid'**
+  String get filmSalesPaidMark;
+
+  /// No description provided for @filmSalesPartly.
+  ///
+  /// In en, this message translates to:
+  /// **'part · owing {sum}'**
+  String filmSalesPartly(String sum);
+
+  /// No description provided for @filmSalesPerM.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/m'**
+  String filmSalesPerM(String price);
+
+  /// No description provided for @filmDebtorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owing · {sum}'**
+  String filmDebtorsTitle(String sum);
+
+  /// No description provided for @filmDebtorsShowSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Show their sales'**
+  String get filmDebtorsShowSales;
+
+  /// No description provided for @filmDebtorLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{sum} · {days} d'**
+  String filmDebtorLine(String sum, int days);
+
+  /// No description provided for @filmSaleRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Again'**
+  String get filmSaleRepeat;
+
+  /// No description provided for @filmSaleBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Below cost: bought at {cost}/m — a loss of ≈ {loss}'**
+  String filmSaleBelow(String cost, String loss);
+
+  /// No description provided for @filmSaleBelowWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why below cost?'**
+  String get filmSaleBelowWhy;
+
+  /// No description provided for @filmSaleBelowRest.
+  ///
+  /// In en, this message translates to:
+  /// **'end of a roll'**
+  String get filmSaleBelowRest;
+
+  /// No description provided for @filmSaleBelowDefect.
+  ///
+  /// In en, this message translates to:
+  /// **'defect'**
+  String get filmSaleBelowDefect;
+
+  /// No description provided for @filmSaleBelowAgreed.
+  ///
+  /// In en, this message translates to:
+  /// **'agreed'**
+  String get filmSaleBelowAgreed;
+
+  /// No description provided for @filmSaleToOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'To the order list'**
+  String get filmSaleToOrders;
+
+  /// No description provided for @filmSaleUsually.
+  ///
+  /// In en, this message translates to:
+  /// **'usually takes {film}'**
+  String filmSaleUsually(String film);
+
+  /// No description provided for @filmSaleEvery.
+  ///
+  /// In en, this message translates to:
+  /// **'every {days} d'**
+  String filmSaleEvery(int days);
+
+  /// No description provided for @filmSaleNoDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'no debt'**
+  String get filmSaleNoDebt;
+
+  /// No description provided for @filmSaleLikeLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Like last time: {films}'**
+  String filmSaleLikeLast(String films);
 }
 
 class _AppLocalizationsDelegate

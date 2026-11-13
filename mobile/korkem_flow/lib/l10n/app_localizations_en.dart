@@ -7644,4 +7644,149 @@ class AppLocalizationsEn extends AppLocalizations {
   String pressMm(int value) {
     return '$value mm';
   }
+
+  @override
+  String get filmSalesToday => 'Today';
+
+  @override
+  String get filmSalesWeek => 'Week';
+
+  @override
+  String get filmSalesMonth => 'Month';
+
+  @override
+  String get filmSalesPeriod => 'Period';
+
+  @override
+  String filmSalesAll(int count) {
+    return 'All · $count';
+  }
+
+  @override
+  String filmSalesPaid(int count) {
+    return 'Paid · $count';
+  }
+
+  @override
+  String filmSalesDebt(int count) {
+    return 'Owing · $count';
+  }
+
+  @override
+  String filmSalesWholesale(int count) {
+    return 'Trade · $count';
+  }
+
+  @override
+  String get filmSalesSearch => 'customer, film';
+
+  @override
+  String get filmSalesSold => 'Sold';
+
+  @override
+  String filmSalesCount(int count) {
+    return '$count sales';
+  }
+
+  @override
+  String get filmSalesMetres => 'Metres';
+
+  @override
+  String get filmSalesAmount => 'Revenue';
+
+  @override
+  String filmSalesChange(String change) {
+    return '$change% on the last';
+  }
+
+  @override
+  String get filmSalesProfit => 'Profit';
+
+  @override
+  String get filmSalesUnpaid => 'Unpaid';
+
+  @override
+  String filmSalesDebtors(int count) {
+    return 'customers: $count';
+  }
+
+  @override
+  String filmSalesTodayOn(String day) {
+    return 'Today, $day';
+  }
+
+  @override
+  String filmSalesYesterdayOn(String day) {
+    return 'Yesterday, $day';
+  }
+
+  @override
+  String get filmSalesWholesaleMark => 'trade';
+
+  @override
+  String get filmSalesPaidMark => '✓ paid';
+
+  @override
+  String filmSalesPartly(String sum) {
+    return 'part · owing $sum';
+  }
+
+  @override
+  String filmSalesPerM(String price) {
+    return '$price/m';
+  }
+
+  @override
+  String filmDebtorsTitle(String sum) {
+    return 'Owing · $sum';
+  }
+
+  @override
+  String get filmDebtorsShowSales => 'Show their sales';
+
+  @override
+  String filmDebtorLine(String sum, int days) {
+    return '$sum · $days d';
+  }
+
+  @override
+  String get filmSaleRepeat => 'Again';
+
+  @override
+  String filmSaleBelow(String cost, String loss) {
+    return 'Below cost: bought at $cost/m — a loss of ≈ $loss';
+  }
+
+  @override
+  String get filmSaleBelowWhy => 'Why below cost?';
+
+  @override
+  String get filmSaleBelowRest => 'end of a roll';
+
+  @override
+  String get filmSaleBelowDefect => 'defect';
+
+  @override
+  String get filmSaleBelowAgreed => 'agreed';
+
+  @override
+  String get filmSaleToOrders => 'To the order list';
+
+  @override
+  String filmSaleUsually(String film) {
+    return 'usually takes $film';
+  }
+
+  @override
+  String filmSaleEvery(int days) {
+    return 'every $days d';
+  }
+
+  @override
+  String get filmSaleNoDebt => 'no debt';
+
+  @override
+  String filmSaleLikeLast(String films) {
+    return 'Like last time: $films';
+  }
 }
