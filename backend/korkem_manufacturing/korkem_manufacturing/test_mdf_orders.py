@@ -855,24 +855,31 @@ class TestMdfOrders(IntegrationTestCase):
 		self.addCleanup(lambda: frappe.db.set_default(f"{mdf_orders._PAINT_DISCOUNT}:{COMPANY}", ""))
 		line = {"height_mm": 1000, "width_mm": 500, "qty": 1, "milling": "Нет такой", "coating": "paint",
 				"film": colour}
-		# His paint: the m² costs the discount less; a price typed by hand stands.
-		plain = self._as(MANAGER, mdf_orders.price, [line], finish=None, default_rate=20_000)
-		own = self._as(MANAGER, mdf_orders.price, [line, {**line, "rate": 25_000}], finish=None,
-					   default_rate=20_000, tags=["client_paint"])
-		self.assertEqual(plain["total"], 10_000)
-		self.assertEqual([l["amount"] for l in own["lines"]], [7_000, 12_500])
+		# His paint is a group's: its m² costs the discount less; a price typed by hand stands.
+		own = {**line, "client_paint": 1, "client_mdf": 1}
+		priced = self._as(MANAGER, mdf_orders.price, [line, own, {**own, "rate": 25_000}], finish=None,
+						  default_rate=20_000)
+		self.assertEqual([l["amount"] for l in priced["lines"]], [10_000, 7_000, 12_500])
 
+		# His film, on his facades, is pressed here; a film is no paint, so the
+		# discount is the paint's alone.
+		film = {**ORDER_1129[0], "coating": "pvc", "film": self.decor, "rate": 17_000, "client_film": 1,
+				"client_mdf": 1, "client_paint": 1}
 		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
-						head={"thickness_mm": 16, "default_rate": 20_000, "tags": ["client_paint", "client_parts"]},
-						lines=[line])
+						head={"thickness_mm": 16, "default_rate": 20_000}, lines=[own, film])
+		# The order carries them as tags, from its positions; the card's positions keep their flags.
+		self.assertEqual(set(card["tags"]), {"client_paint", "client_film", "client_parts"})
+		self.assertEqual([(l["client_paint"], l["client_film"], l["client_mdf"]) for l in card["lines"]],
+						 [(True, False, True), (False, True, True)])
+		self.assertEqual(card["total"], 7_000 + 2_380)
 		self.addCleanup(self._drop, card["name"])
 		name = card["name"]
-		self.assertEqual(card["total"], 7_000)
 		card = self._as(MANAGER, mdf_orders.accept, name)
-		# His facades: nothing to cut or mill, but sanded here — and no MDF from our shelf.
-		self.assertEqual([s["stage"] for s in card["stages"]], ["sand", "paint", "ready"])
+		# His facades: nothing to cut or mill, but sanded here — and neither
+		# MDF nor film from our shelf.
+		self.assertEqual([s["stage"] for s in card["stages"]], ["sand", "paint", "vacuum", "ready"])
 		self.assertEqual(card["client_paint"], {"note": None, "in": False})
-		self.assertFalse([m for m in facade_materials.need(name)["materials"] if m["kind"] == "МДФ"])
+		self.assertEqual(facade_materials.need(name)["materials"], [])
 
 		def mine(board):
 			return next(o for g in board["by_colour"] if g["colour"] == colour for o in g["orders"] if o["name"] == name)

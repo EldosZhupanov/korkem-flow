@@ -134,6 +134,9 @@ class _FakeRepository implements MdfOrderRepository {
 
   /// The server's arithmetic, in short: the area rounded, times the price
   /// typed or the film's.
+  /// What each repricing was asked for.
+  final pricedLines = <List<MdfLineInput>>[];
+
   @override
   Future<MdfPricing> price({
     required List<MdfLineInput> lines,
@@ -141,6 +144,7 @@ class _FakeRepository implements MdfOrderRepository {
     double? defaultRate,
     Map<String, double> filmRates = const {},
   }) async {
+    pricedLines.add(lines);
     final priced = [
       for (final l in lines)
         () {
@@ -337,6 +341,45 @@ class _TwoFilms extends _FakeRepository {
 }
 
 void main() {
+  testWidgets('the customer\'s own film and LMDF are marked on their group', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _TwoFilms();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // A film group has no «paint» mark; the head has neither mark.
+    expect(
+      find.byKey(const ValueKey('mdfGroupTag:0:client_paint')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const ValueKey('mdfOrderTag:client_film')),
+      findsNothing,
+    );
+    await tester.tap(find.byKey(const ValueKey('mdfGroupTag:0:client_film')));
+    await tester.tap(find.byKey(const ValueKey('mdfGroupTag:0:client_parts')));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    final sent = repo.pricedLines.last;
+    expect(
+      [for (final l in sent) (l.film, l.clientFilm, l.clientMdf)],
+      [
+        ('Белый Матовый', true, true),
+        ('Палома', false, false),
+        ('Палома', false, false),
+      ],
+    );
+  });
+
   testWidgets('a draft of two films shows a group for each, with its totals', (
     tester,
   ) async {

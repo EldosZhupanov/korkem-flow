@@ -15,12 +15,14 @@ from __future__ import annotations
 
 import frappe
 
-ORDER = ("urgent", "rework", "warranty", "client_paint", "client_parts")
+ORDER = ("urgent", "rework", "warranty", "client_paint", "client_film", "client_parts")
 CUSTOMER = ("vip", "furniture_maker", "new", "prepay_only")
 
 #: The customer brings his own paint: the paint is cheaper by the factory's
 #: discount, and the painter waits for it (owner, 14.11.2026).
 CLIENT_PAINT = "client_paint"
+#: The customer brings his own PVC film: pressed here, none from our shelf.
+CLIENT_FILM = "client_film"
 #: The customer brings his own facades: sanded and painted or pressed here —
 #: no cutting or milling, and no MDF from our shelf.
 CLIENT_PARTS = "client_parts"

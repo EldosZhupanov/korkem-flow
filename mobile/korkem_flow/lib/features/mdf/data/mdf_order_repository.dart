@@ -159,7 +159,6 @@ class MdfOrderRepository {
     String? finish,
     double? defaultRate,
     Map<String, double> filmRates = const {},
-    List<MdfOrderTag> tags = const [],
   }) async => MdfPricing.fromJson(
     _map(
       await _client.callMethod(
@@ -170,8 +169,6 @@ class MdfOrderRepository {
           'finish': ?finish,
           'default_rate': ?defaultRate,
           if (filmRates.isNotEmpty) 'film_rates': jsonEncode(filmRates),
-          if (tags.isNotEmpty)
-            'tags': jsonEncode([for (final t in tags) t.wire]),
         },
       ),
     ),

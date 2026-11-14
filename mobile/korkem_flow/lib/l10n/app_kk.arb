@@ -2512,5 +2512,6 @@
   "mdfPaintDiscountHint": "«Клиенттің бояуы» кезінде м² бағасынан шегеріледі",
   "mdfPaintComing": "Жақында сізге",
   "mdfPaintNowAt": "қазір: {stage}",
-  "mdfPaintTwoSided": "2 жағы"
+  "mdfPaintTwoSided": "2 жағы",
+  "mdfTagClientFilm": "Клиенттің үлдірі"
 }

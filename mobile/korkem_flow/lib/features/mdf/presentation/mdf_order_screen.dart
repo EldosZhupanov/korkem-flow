@@ -107,6 +107,9 @@ class _LineFields {
     this.patina,
     this.thicknessMm,
     this.coating,
+    this.clientPaint = false,
+    this.clientFilm = false,
+    this.clientMdf = false,
     Set<_Extra>? extras,
   }) : height = TextEditingController(text: h),
        width = TextEditingController(text: w),
@@ -134,6 +137,11 @@ class _LineFields {
   String? film;
 
   _Group get group => (coating: coating, film: film);
+
+  /// Its group's marks: the customer's own paint or film, his own LMDF.
+  bool clientPaint;
+  bool clientFilm;
+  bool clientMdf;
 
   /// Its back film; null — one-sided.
   String? filmBack;
@@ -185,6 +193,9 @@ class _LineFields {
       patina: patina,
       thicknessMm: thicknessMm,
       coating: coating,
+      clientPaint: clientPaint && coating == MdfCoating.paint,
+      clientFilm: clientFilm && coating == MdfCoating.pvc,
+      clientMdf: clientMdf,
     );
   }
 
@@ -202,6 +213,9 @@ class _LineFields {
     patina: patina,
     thicknessMm: thicknessMm,
     coating: coating,
+    clientPaint: clientPaint,
+    clientFilm: clientFilm,
+    clientMdf: clientMdf,
     extras: {...extras},
   );
 
@@ -299,6 +313,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 : l.thicknessMm,
             edge: l.edge ?? o.head.edgeProfile ?? mdfDefaultEdge,
             patina: l.patina,
+            clientPaint: l.clientPaint,
+            clientFilm: l.clientFilm,
+            clientMdf: l.clientMdf,
           ),
         );
       }
@@ -433,6 +450,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             film: _films.last.film,
             coating: _films.last.coating,
             edge: _defaultEdge,
+            clientPaint: _owns(_films.last).paint,
+            clientFilm: _owns(_films.last).film,
+            clientMdf: _owns(_films.last).mdf,
           ),
         );
       }
@@ -461,7 +481,43 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     film: group.film,
     coating: group.coating,
     edge: _defaultEdge,
+    clientPaint: _owns(group).paint,
+    clientFilm: _owns(group).film,
+    clientMdf: _owns(group).mdf,
   );
+
+  /// A group's marks — the customer's own paint or film, his own LMDF — as
+  /// its lines carry them.
+  ({bool paint, bool film, bool mdf}) _owns(_Group group) {
+    final mates = _lines.where((l) => l.group == group);
+    return (
+      paint: mates.any((l) => l.clientPaint),
+      film: mates.any((l) => l.clientFilm),
+      mdf: mates.any((l) => l.clientMdf),
+    );
+  }
+
+  /// Marks or unmarks a group: every line of it, and the total follows —
+  /// his own paint is cheaper.
+  void _setOwn(_Group group, MdfOrderTag mark, {required bool on}) {
+    setState(() {
+      for (final l in _lines.where((l) => l.group == group)) {
+        switch (mark) {
+          case MdfOrderTag.clientPaint:
+            l.clientPaint = on;
+          case MdfOrderTag.clientFilm:
+            l.clientFilm = on;
+          case MdfOrderTag.clientParts:
+            l.clientMdf = on;
+          case MdfOrderTag.urgent ||
+              MdfOrderTag.rework ||
+              MdfOrderTag.warranty:
+            break;
+        }
+      }
+    });
+    _reprice();
+  }
 
   TextEditingController _rateOf(String? film) =>
       _filmRates[film] ??= TextEditingController();
@@ -559,7 +615,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
               finish: head.finish,
               defaultRate: head.defaultRate,
               filmRates: head.filmRates,
-              tags: head.tags,
             );
         if (mounted) setState(() => _pricing = pricing);
       } on Object {
@@ -1244,8 +1299,12 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       onRateChanged: _reprice,
                       onRemove: () => _removeFilm(group),
                       onAddLine: () => _addLine(group: group),
-                      tags: _head.tags,
-                      onTag: (t, on) => _setTag(t, on: on),
+                      tags: [
+                        if (_owns(group).paint) MdfOrderTag.clientPaint,
+                        if (_owns(group).film) MdfOrderTag.clientFilm,
+                        if (_owns(group).mdf) MdfOrderTag.clientParts,
+                      ],
+                      onTag: (t, on) => _setOwn(group, t, on: on),
                       children: [
                         for (var i = 0; i < mates.length; i++)
                           _LineRow(
@@ -1435,8 +1494,8 @@ class _FilmGroup extends StatelessWidget {
   final VoidCallback onAddLine;
   final List<Widget> children;
 
-  /// The order's tags; this group shows the customer's own paint (a paint
-  /// group) and his own facades (any group).
+  /// This group's marks: the customer's own paint (a paint group) or film
+  /// (a PVC group), and his own LMDF (any group).
   final List<MdfOrderTag> tags;
   final void Function(MdfOrderTag tag, bool on)? onTag;
 
@@ -1546,6 +1605,7 @@ class _FilmGroup extends StatelessWidget {
                     ),
                   for (final t in [
                     if (coating == MdfCoating.paint) MdfOrderTag.clientPaint,
+                    if (coating == MdfCoating.pvc) MdfOrderTag.clientFilm,
                     if (coating != null) MdfOrderTag.clientParts,
                   ])
                     FilterChip(

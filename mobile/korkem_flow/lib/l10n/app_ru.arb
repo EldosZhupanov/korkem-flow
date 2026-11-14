@@ -2512,5 +2512,6 @@
   "mdfPaintDiscountHint": "Вычитается из цены м² при «Краска клиента»",
   "mdfPaintComing": "Скоро к вам",
   "mdfPaintNowAt": "сейчас: {stage}",
-  "mdfPaintTwoSided": "2 стороны"
+  "mdfPaintTwoSided": "2 стороны",
+  "mdfTagClientFilm": "Плёнка клиента"
 }

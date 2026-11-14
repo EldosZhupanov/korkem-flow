@@ -10,6 +10,9 @@ enum MdfOrderTag {
   /// The customer brings his own paint (owner, 14.11.2026).
   clientPaint('client_paint'),
 
+  /// The customer brings his own PVC film: pressed here, none from our shelf.
+  clientFilm('client_film'),
+
   /// The customer brings his own facades: sanded and painted here, not cut.
   clientParts('client_parts');
 
@@ -17,7 +20,8 @@ enum MdfOrderTag {
   final String wire;
 
   /// Set from a coating group's head rather than the order's.
-  bool get byGroup => this == clientPaint || this == clientParts;
+  bool get byGroup =>
+      this == clientPaint || this == clientFilm || this == clientParts;
 
   static List<MdfOrderTag> parse(Object? raw) => [
     for (final t in values)
