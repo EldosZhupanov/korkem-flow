@@ -2484,5 +2484,21 @@
   "mdfSumMargin": "Берілген тапсырыстардың маржасы",
   "mdfSumMarginOrders": "Берілген тапсырыстар: {count}",
   "mdfSumMarginEstimated": "Бағалау бойынша, есептен шығарусыз: {count}",
-  "mdfSumMarginLowest": "Ең аз тапқандар"
+  "mdfSumMarginLowest": "Ең аз тапқандар",
+  "mdfPaintTitle": "Бояу бөлімі",
+  "mdfPaintHint": "Түс бойынша не бояу керек, не кебуде",
+  "mdfPaintDryHours": "Кептіру, сағат",
+  "mdfPaintEmpty": "Бояйтын ештеңе жоқ",
+  "mdfPaintSummary": "Бояу {waiting} · кебуде {drying} · келе жатыр {coming}",
+  "mdfPaintDrying": "Кебуде ({hours} сағ)",
+  "mdfPaintDry": "Кепті",
+  "mdfPaintLeft": "Тағы {hours} сағ {minutes} мин · {day} {time} кебеді",
+  "mdfPaintMarkPainted": "«Бояу» белгілеу",
+  "mdfPaintUndo": "Болдырмау",
+  "mdfPaintByColour": "Бояу — түстер бойынша",
+  "mdfPaintByColourHint": "Алдымен ең үлкен түс: бір рет араластырылады, пистолет бір рет жуылады.",
+  "mdfPaintColourNote": "{area} · тапсырыс: {orders}",
+  "mdfPaintStartDrying": "Боялды — кептіру",
+  "mdfPaintPopular": "90 күндегі танымал түстер",
+  "mdfPaintSave": "Сақтау"
 }

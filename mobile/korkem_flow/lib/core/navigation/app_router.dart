@@ -40,6 +40,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_debts_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionaries_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_paint_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_plan_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_report_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_screen.dart';
@@ -173,6 +174,7 @@ abstract final class Routes {
   static const mdfCash = '/mdf/cash';
   static const mdfReport = '/mdf/report';
   static const mdfVolume = '/mdf/volume';
+  static const mdfPaint = '/mdf/paint';
   static const mdfDictionaries = '/mdf/dictionaries';
 
   /// «Отдел плёнки» — a department of its own (owner, 10.11.2026).
@@ -352,6 +354,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.mdfVolume,
         builder: (context, state) => const MdfVolumeScreen(),
+      ),
+      GoRoute(
+        path: Routes.mdfPaint,
+        builder: (context, state) => const MdfPaintScreen(),
       ),
       GoRoute(
         path: Routes.mdfReport,

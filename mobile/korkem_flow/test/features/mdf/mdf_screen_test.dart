@@ -16,6 +16,7 @@ void main() {
     'quote': Routes.facadeQuote,
     'cash': Routes.mdfCash,
     'report': Routes.mdfReport,
+    'paint': Routes.mdfPaint,
     'volume': Routes.mdfVolume,
     'debts': Routes.mdfDebts,
     'jobs': Routes.facadeJobs,
