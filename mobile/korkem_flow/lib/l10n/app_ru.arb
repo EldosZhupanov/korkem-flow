@@ -1600,7 +1600,7 @@
   "mdfPatina": "Патина",
   "mdfMilling": "Фрезеровка",
   "mdfEdge": "Кромка",
-  "mdfExtraName": "Доп. название",
+  "mdfExtraName": "Объект (кухня, адрес)",
   "mdfDefaultRate": "Цена за м² по умолчанию",
   "mdfNone": "—",
   "mdfLinesSection": "Позиции",
@@ -2561,5 +2561,7 @@
   "filmTeamNoPlanHint": "Задайте план месяца: от него зависит доля бонуса.",
   "filmTeamSetPlan": "Задать план",
   "filmTeamMarginM": "{margin}/м",
-  "filmTeamOwed": "долги его клиентов {amount}"
+  "filmTeamOwed": "долги его клиентов {amount}",
+  "filmSaleMargin": "закуп {cost} → продажа {price}: +{perM}/м · {total} ({pct}%)",
+  "filmSaleLikeLastShort": "Как в прошлый раз"
 }

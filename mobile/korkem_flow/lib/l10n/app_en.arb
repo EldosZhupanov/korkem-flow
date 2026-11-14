@@ -5636,7 +5636,7 @@
   "mdfPatina": "Patina",
   "mdfMilling": "Milling",
   "mdfEdge": "Edge",
-  "mdfExtraName": "Extra name",
+  "mdfExtraName": "Project (kitchen, address)",
   "mdfDefaultRate": "Default price per m²",
   "mdfNone": "—",
   "mdfLinesSection": "Lines",
@@ -8982,5 +8982,26 @@
         "type": "String"
       }
     }
-  }
+  },
+  "filmSaleMargin": "bought {cost} → sold {price}: +{perM}/m · {total} ({pct}%)",
+  "@filmSaleMargin": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "perM": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSaleLikeLastShort": "As last time"
 }

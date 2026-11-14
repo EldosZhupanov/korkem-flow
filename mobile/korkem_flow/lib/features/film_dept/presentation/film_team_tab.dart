@@ -266,8 +266,6 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
 
 const _medals = ['🥇', '🥈', '🥉'];
 
-/// Below this a metre earns too little — amber (owner, 12.11.2026).
-const _lowMarginM = 300.0;
 
 /// One figure of the month on a card of its own.
 class _Metric extends StatelessWidget {
@@ -341,7 +339,7 @@ class _ReportSection extends ConsumerWidget {
         ? theme.colorScheme.outline
         : m < 0
         ? status.danger
-        : m < _lowMarginM
+        : m < filmThinMarginM
         ? status.warning
         : status.success;
     return Column(

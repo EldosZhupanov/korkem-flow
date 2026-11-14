@@ -1600,7 +1600,7 @@
   "mdfPatina": "Зеңжар",
   "mdfMilling": "Беткі нақыш",
   "mdfEdge": "Шеткі нақыш",
-  "mdfExtraName": "Қосымша атауы",
+  "mdfExtraName": "Нысан (ас үй, мекенжай)",
   "mdfDefaultRate": "1 м² бағасы (әдепкі)",
   "mdfNone": "—",
   "mdfLinesSection": "Позициялар",
@@ -2561,5 +2561,7 @@
   "filmTeamNoPlanHint": "Ай жоспарын қойыңыз: бонус үлесі соған байланысты.",
   "filmTeamSetPlan": "Жоспар қою",
   "filmTeamMarginM": "{margin}/м",
-  "filmTeamOwed": "клиенттерінің қарызы {amount}"
+  "filmTeamOwed": "клиенттерінің қарызы {amount}",
+  "filmSaleMargin": "сатып алу {cost} → сату {price}: +{perM}/м · {total} ({pct}%)",
+  "filmSaleLikeLastShort": "Өткендегідей"
 }

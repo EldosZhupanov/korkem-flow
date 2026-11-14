@@ -870,3 +870,6 @@ int? filmRhythmDays(List<FilmSale> sales) {
   final span = days.last.difference(days.first).inDays;
   return (span / (days.length - 1)).round().clamp(1, 365);
 }
+
+/// Below this a metre earns too little — amber (owner, 12.11.2026).
+const filmThinMarginM = 300.0;

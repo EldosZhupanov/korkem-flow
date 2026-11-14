@@ -573,8 +573,9 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
       ),
       child: Row(
         children: [
+          // Wide enough for «9999 м» (owner, 14.11.2026: «10(м» was cut).
           SizedBox(
-            width: AppSpacing.xxxl * 1.5,
+            width: AppSpacing.xxxl * 3,
             child: metres == null
                 ? Text(
                     metresText ?? '',
@@ -1700,47 +1701,56 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
     final every = filmRhythmDays(sales ?? const []);
     final owes = (card?.debt ?? 0) > 0.5;
     final colour = owes ? status.warning : status.info;
-    return Container(
+    // One quiet line (owner, 14.11.2026: the box was too big), and the
+    // repeat as a small button at its end.
+    final theme = Theme.of(context);
+    return Padding(
       key: const ValueKey('filmSaleHint'),
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: colour.withValues(alpha: AppTint.surface),
-        border: Border.all(color: colour),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      child: Row(
         children: [
-          Text(
-            [
-              if (card?.favourite case final f?) l10n.filmSaleUsually(f),
-              if (every != null) l10n.filmSaleEvery(every),
-              if (card != null)
-                card.wholesale ? l10n.filmWholesale : l10n.filmRetail,
-              if (card != null && card.discount > 0)
-                '−${card.discount.toStringAsFixed(0)}%',
-              if (owes)
-                l10n.filmSaleDebt(money.format(card!.debt))
-              else
-                l10n.filmSaleNoDebt,
-            ].join(' · '),
+          Icon(
+            owes ? AppIcons.danger : AppIcons.info,
+            size: AppIconSize.dense,
+            color: colour,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              [
+                if (card?.favourite case final f?) l10n.filmSaleUsually(f),
+                if (every != null) l10n.filmSaleEvery(every),
+                if (card != null)
+                  card.wholesale ? l10n.filmWholesale : l10n.filmRetail,
+                if (card != null && card.discount > 0)
+                  '−${card.discount.toStringAsFixed(0)}%',
+                if (owes)
+                  l10n.filmSaleDebt(money.format(card!.debt))
+                else
+                  l10n.filmSaleNoDebt,
+              ].join(' · '),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: owes ? colour : null,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           if (last != null && last.lines.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xs),
-              child: ActionChip(
+            Tooltip(
+              message: l10n.filmSaleLikeLast(
+                [
+                  for (final l in last.lines)
+                    '${l.colour ?? l.title} ${filmMetres(l.metres)} м',
+                ].join(', '),
+              ),
+              child: TextButton.icon(
                 key: const ValueKey('filmSaleLikeLast'),
-                avatar: const Icon(AppIcons.refresh),
-                label: Text(
-                  l10n.filmSaleLikeLast(
-                    [
-                      for (final l in last.lines)
-                        '${l.colour ?? l.title} ${filmMetres(l.metres)} м',
-                    ].join(', '),
-                  ),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
                 ),
+                icon: const Icon(AppIcons.refresh, size: AppIconSize.dense),
+                label: Text(l10n.filmSaleLikeLastShort),
                 onPressed: () => _likeLastTime(last),
               ),
             ),
@@ -1945,6 +1955,32 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                         color: line.over
                             ? Theme.of(context).colorScheme.error
                             : line.low
+                            ? context.statusColors.warning
+                            : context.statusColors.success,
+                      ),
+                    ),
+                  ),
+                // What this line earns, as it is typed (owner, 14.11.2026):
+                // only for who sees the purchase price.
+                if (!line.below &&
+                    line.m > 0 &&
+                    line.p > 0 &&
+                    line.film.priceM != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                    child: Text(
+                      l10n.filmSaleMargin(
+                        money.format(line.film.priceM),
+                        money.format(line.p),
+                        money.format(line.p - line.film.priceM!),
+                        money.format((line.p - line.film.priceM!) * line.m),
+                        ((line.p - line.film.priceM!) / line.p * 100)
+                            .round()
+                            .toString(),
+                      ),
+                      key: ValueKey('filmSaleMargin:$i'),
+                      style: TextStyle(
+                        color: line.p - line.film.priceM! < filmThinMarginM
                             ? context.statusColors.warning
                             : context.statusColors.success,
                       ),
