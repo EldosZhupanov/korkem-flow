@@ -274,10 +274,10 @@ class TestFacadeMaterials(IntegrationTestCase):
 		self.assertEqual(result["missing"], [])
 
 	def test_after_the_write_off_the_margin_is_what_the_shelf_gave(self):
-		self._stock(mdf=3, film=10)
+		self._stock(mdf=2, film=10)
 		order = self._order()["sales_order"]
-		facade_materials.reserve(order)
-		facade_materials.write_off(order)
+		line = frappe.db.get_value("Sales Order Item", {"parent": order, "korkem_width_mm": [">", 0]}, "name")
+		self._as(CUTTER, facade_jobs.set_status, line, facade_jobs.IN_WORK)  # the write-off
 		result = self._as(SELLER, mdf_margin.of_order, order)
 		self.assertFalse(result["estimate"])
 		# A whole sheet left the shelf, and the press's 3.1 m of film.
