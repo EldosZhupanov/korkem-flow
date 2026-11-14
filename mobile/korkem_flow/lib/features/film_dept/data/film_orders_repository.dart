@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_orders.dart';
 
 final filmOrdersRepositoryProvider = Provider<FilmOrdersRepository>(
@@ -98,6 +99,7 @@ class FilmOrdersRepository {
     String? receivedBy,
     String? arrivesOn,
     bool supplierPaid = true,
+    FilmSupplierPay? supplierPay,
   }) => _client.callMethod(
     '$_base.receive_many',
     post: true,
@@ -129,6 +131,8 @@ class FilmOrdersRepository {
       'arrives_on': ?arrivesOn,
       // The whole delivery taken on credit: owed until paid.
       'supplier_paid': supplierPaid ? 1 : 0,
+      // How it was paid, in full (owner, 14.11.2026).
+      if (supplierPay != null) 'supplier_pay': jsonEncode(supplierPay.toJson()),
     },
   );
 

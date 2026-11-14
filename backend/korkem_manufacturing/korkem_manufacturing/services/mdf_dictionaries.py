@@ -25,6 +25,12 @@ Two rules keep what is already written true:
 * **Deleting** a value an order or a material already uses only switches it
   off (it leaves the drop-down, the records stay as written); an unused one is
   deleted. Its prices are switched off either way — prices are never deleted.
+
+The milling list has two levels (owner, 14.11.2026): a group — «Рифлёный»,
+«Классика» — and its variants — «Рифлёный 16-14», «Классика 2». A variant's
+`group` names its group; it is priced as its group unless it has a price of
+its own (`facade_prices.price_for`). Renaming a group carries its name to its
+variants; deleting it takes its variants off the list with it.
 """
 
 from __future__ import annotations
@@ -109,22 +115,41 @@ def dictionaries() -> dict:
 	rows = frappe.get_all(
 		"Material Option",
 		filters={"company": company, "kind": ["in", list(KINDS.values())], "enabled": 1},
-		fields=["name", "kind", "value"],
+		fields=["name", "kind", "value", "note"],
 		order_by="creation asc",
 		limit_page_length=0,
 	)
 	by_kind = {kind: [] for kind in KINDS.values()}
 	for r in rows:
-		by_kind[r.kind].append({"id": r.name, "value": r.value})
+		entry = {"id": r.name, "value": r.value}
+		if r.kind == facade_prices.MILLING_LIST:
+			entry["group"] = facade_prices._parent(r.note)
+		by_kind[r.kind].append(entry)
 	return {key: by_kind[kind] for key, kind in KINDS.items()}
 
 
-def add(key: str, value: str) -> dict:
+def add(key: str, value: str, group: str | None = None) -> dict:
+	"""A value; on the milling list, under `group` it is a variant of it —
+	«16-14» under «Рифлёный» is «Рифлёный 16-14»."""
 	facade_prices.ensure_editor()
 	kind = _kind(key)
 	value = _clean(value)
+	if group and key == "milling":
+		facade_prices.add_variant(_clean(group), value)
+		return dictionaries()
 	material_stock.put_option(kind, value)  # adding back a switched-off value switches it on
 	return dictionaries()
+
+
+def _variants_of(company: str, group: str) -> list[dict]:
+	return [
+		o for o in frappe.get_all(
+			"Material Option",
+			filters={"company": company, "kind": facade_prices.MILLING_LIST},
+			fields=["name", "value", "note", "enabled"],
+		)
+		if facade_prices._parent(o.note) == group
+	]
 
 
 def rename(key: str, option: str, value: str) -> dict:
@@ -166,6 +191,13 @@ def rename(key: str, option: str, value: str) -> dict:
 		film_catalog.maker_renamed(row.value, value)
 	audit.record_audit(action="mdf.dictionary_renamed", entity_type="Material Option", entity_id=option,
 					   diff={"list": kind, "before": row.value, "after": value})
+	if key == "milling":
+		# A group renamed: its variants follow — «Рифленый 16-14» becomes
+		# «Рифлёный 16-14», and they are filed under the new name.
+		for v in _variants_of(row.company, row.value):
+			frappe.db.set_value("Material Option", v.name, "note", f"{facade_prices._PARENT} {value}")
+			if v.value.casefold().startswith(f"{row.value} ".casefold()):
+				rename(key, v.name, f"{value}{v.value[len(row.value):]}")
 	return dictionaries()
 
 
@@ -174,6 +206,11 @@ def remove(key: str, option: str) -> dict:
 	row = _row(key, option)
 	_unlocked(key, row.value)
 	outcome = material_stock.drop_option(option)
+	if key == "milling":
+		# A group goes with its variants (orders that used them keep them).
+		for v in _variants_of(row.company, row.value):
+			if v.enabled:
+				material_stock.drop_option(v.name)
 	field = _PRICE_FIELD.get(key)
 	if field:
 		# A price is never deleted (`Facade Price.on_trash`: old orders show what

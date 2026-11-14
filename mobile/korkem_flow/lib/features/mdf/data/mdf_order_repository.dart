@@ -296,8 +296,16 @@ class MdfOrderRepository {
     _map(await _client.callMethod('$_base.dictionaries')),
   );
 
-  Future<MdfDictionaries> dictionaryAdd(MdfDictKind kind, String value) =>
-      _dict('dictionary_add', {'kind': kind.wire, 'value': value});
+  /// [group]: a milling variant goes under it — «16-14» under «Рифлёный».
+  Future<MdfDictionaries> dictionaryAdd(
+    MdfDictKind kind,
+    String value, {
+    String? group,
+  }) => _dict('dictionary_add', {
+    'kind': kind.wire,
+    'value': value,
+    'group': ?group,
+  });
 
   Future<MdfDictionaries> dictionaryRename(
     MdfDictKind kind,

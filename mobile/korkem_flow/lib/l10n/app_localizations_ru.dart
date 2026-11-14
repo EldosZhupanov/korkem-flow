@@ -4804,7 +4804,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfEdge => 'Кромка';
 
   @override
-  String get mdfExtraName => 'Доп. название';
+  String get mdfExtraName => 'Объект (кухня, адрес)';
 
   @override
   String get mdfDefaultRate => 'Цена за м² по умолчанию';
@@ -8316,4 +8316,154 @@ class AppLocalizationsRu extends AppLocalizations {
   String filmTeamOwed(String amount) {
     return 'долги его клиентов $amount';
   }
+
+  @override
+  String filmSaleMargin(
+    String cost,
+    String price,
+    String perM,
+    String total,
+    String pct,
+  ) {
+    return 'закуп $cost → продажа $price: +$perM/м · $total ($pct%)';
+  }
+
+  @override
+  String get filmSaleLikeLastShort => 'Как в прошлый раз';
+
+  @override
+  String get mdfDictAddGroup => 'Добавить группу';
+
+  @override
+  String mdfDictAddVariant(String group) {
+    return 'Вариант для «$group»';
+  }
+
+  @override
+  String get filmSupplierByInvoice => 'По счёту';
+
+  @override
+  String get filmInvoiceNo => '№ счёта';
+
+  @override
+  String filmInvoiceOn(String day) {
+    return 'от $day';
+  }
+
+  @override
+  String filmInvoiceDue(String day) {
+    return 'оплатить до $day';
+  }
+
+  @override
+  String get filmInvoiceNoDue => 'Без срока';
+
+  @override
+  String get filmInvoiceHint =>
+      'Висит долгом до «Оплатили»; после срока — просрочен.';
+
+  @override
+  String filmByInvoiceNo(String no) {
+    return 'по счёту № $no';
+  }
+
+  @override
+  String get filmFromDeptCash => 'из кассы';
+
+  @override
+  String get filmSupplierFromDept => 'Из кассы отдела плёнки';
+
+  @override
+  String get filmInvoice => 'Счёт на оплату';
+
+  @override
+  String filmInvoiceTitle(String no, String day) {
+    return 'Счёт на оплату № $no от $day';
+  }
+
+  @override
+  String get filmInvoiceBeneficiary => 'Бенефициар';
+
+  @override
+  String get filmInvoiceSupplier => 'Поставщик:';
+
+  @override
+  String get filmInvoiceBuyer => 'Покупатель:';
+
+  @override
+  String get filmInvoiceNumber => '№';
+
+  @override
+  String get filmInvoiceItem => 'Наименование';
+
+  @override
+  String get filmInvoiceQty => 'Кол-во';
+
+  @override
+  String get filmInvoiceUnit => 'Ед.';
+
+  @override
+  String get filmInvoiceMetre => 'м';
+
+  @override
+  String filmInvoiceSummary(int count, String sum) {
+    return 'Всего наименований $count, на сумму $sum';
+  }
+
+  @override
+  String filmInvoicePayBy(String day) {
+    return 'Оплатить до $day';
+  }
+
+  @override
+  String get filmInvoiceDueHelp => 'Оплатить до';
+
+  @override
+  String get filmInvoiceSigned => 'Исполнитель';
+
+  @override
+  String get filmInvoiceMake => 'Счёт PDF';
+
+  @override
+  String get filmInvoiceNoRequisites =>
+      'Для счёта нужны реквизиты вашей компании — заполните их один раз, дальше они будут в каждом счёте.';
+
+  @override
+  String get filmReqTitle => 'Реквизиты компании';
+
+  @override
+  String get filmReqFill => 'Заполнить реквизиты';
+
+  @override
+  String get filmReqEdit => 'Изменить реквизиты';
+
+  @override
+  String get filmReqSave => 'Сохранить';
+
+  @override
+  String get filmReqName => 'Название (как в документах)';
+
+  @override
+  String get filmReqBin => 'БИН/ИИН';
+
+  @override
+  String get filmReqAddress => 'Адрес';
+
+  @override
+  String get filmReqPhone => 'Телефон';
+
+  @override
+  String get filmReqBank => 'Банк';
+
+  @override
+  String get filmReqIik => 'ИИК (счёт)';
+
+  @override
+  String get filmReqBik => 'БИК';
+
+  @override
+  String get filmReqKbe => 'Кбе';
+
+  @override
+  String get filmReqDirector => 'Подписывает (директор)';
 }

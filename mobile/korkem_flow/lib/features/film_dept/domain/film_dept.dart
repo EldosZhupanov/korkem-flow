@@ -144,6 +144,59 @@ abstract final class FilmPayer {
   static const supplier = 'supplier';
 }
 
+/// How the film itself was paid for at the receipt (owner, 14.11.2026):
+/// paid now — how, and whether out of the department's own cash; taken on
+/// credit; or owed by the supplier's invoice, with its number and the day to
+/// pay it by.
+@immutable
+class FilmSupplierPay {
+  const FilmSupplierPay.paid({required this.method, this.fromDept = true})
+    : mode = modePaid,
+      invoiceNo = null,
+      invoiceOn = null,
+      dueOn = null;
+
+  const FilmSupplierPay.credit()
+    : mode = modeCredit,
+      method = null,
+      fromDept = true,
+      invoiceNo = null,
+      invoiceOn = null,
+      dueOn = null;
+
+  const FilmSupplierPay.invoice({
+    required String this.invoiceNo,
+    required String this.invoiceOn,
+    this.dueOn,
+  }) : mode = modeInvoice,
+       method = null,
+       fromDept = true;
+
+  static const modePaid = 'paid';
+  static const modeCredit = 'credit';
+  static const modeInvoice = 'invoice';
+
+  final String mode;
+
+  /// «Наличные», «Перевод», «Карта» — when paid now.
+  final String? method;
+
+  /// Out of the film department's own cash (and so out of its book).
+  final bool fromDept;
+  final String? invoiceNo;
+  final String? invoiceOn;
+  final String? dueOn;
+
+  Map<String, Object?> toJson() => {
+    'mode': mode,
+    'method': ?method,
+    if (mode == modePaid) 'from': fromDept ? 'dept' : 'elsewhere',
+    'invoice_no': ?invoiceNo,
+    'invoice_on': ?invoiceOn,
+    'due_on': ?dueOn,
+  };
+}
+
 /// The film department's own cash book over a period, and what is owed.
 @immutable
 class FilmCashBook {
@@ -179,6 +232,9 @@ class FilmCashBook {
       who: _s(r['name']) ?? _s(r['driver']) ?? _s(r['transport']),
       supplier: _s(r['supplier']),
       phone: _s(r['phone']),
+      invoiceNo: null,
+      dueOn: null,
+      overdue: false,
     );
     return FilmCashBook(
       since: '${json['since'] ?? ''}',
@@ -222,6 +278,9 @@ class FilmCashBook {
               who: _s(r['supplier']),
               supplier: _s(r['film']),
               phone: null,
+              invoiceNo: _s(r['invoice_no']),
+              dueOn: _s(r['due_on']),
+              overdue: r['overdue'] == true,
             ),
       ],
       sales: (json['sales'] as num?)?.toInt() ?? 0,
@@ -349,6 +408,12 @@ typedef FilmOwed = ({
   String? who,
   String? supplier,
   String? phone,
+
+  /// A supplier's invoice (owner, 14.11.2026): its number, the day to pay
+  /// it by, and whether that day has passed.
+  String? invoiceNo,
+  String? dueOn,
+  bool overdue,
 });
 
 /// What a receipt asks about its delivery and a sale about its seller.
@@ -869,4 +934,66 @@ int? filmRhythmDays(List<FilmSale> sales) {
   if (days.length < 3) return null;
   final span = days.last.difference(days.first).inDays;
   return (span / (days.length - 1)).round().clamp(1, 365);
+}
+
+/// Below this a metre earns too little — amber (owner, 12.11.2026).
+const filmThinMarginM = 300.0;
+
+/// The company's requisites, in the order an invoice prints them (owner,
+/// 14.11.2026): the name it trades under, БИН, address, phone, the bank,
+/// ИИК, БИК, Кбе, and who signs.
+const filmRequisiteKeys = [
+  'name',
+  'bin',
+  'address',
+  'phone',
+  'bank',
+  'iik',
+  'bik',
+  'kbe',
+  'director',
+];
+
+/// «Счёт на оплату» for a sale: its number within the year, the day it was
+/// made and the day to pay by, the factory's requisites and the buyer's.
+@immutable
+class FilmInvoice {
+  const FilmInvoice({
+    required this.no,
+    required this.on,
+    required this.dueOn,
+    required this.requisites,
+    required this.buyerName,
+    this.buyerBin = '',
+    this.buyerPhone = '',
+  });
+
+  factory FilmInvoice.fromJson(Map<String, Object?> json) {
+    final buyer = json['buyer'] is Map
+        ? (json['buyer']! as Map).cast<String, Object?>()
+        : const <String, Object?>{};
+    return FilmInvoice(
+      no: '${json['no'] ?? ''}',
+      on: '${json['on'] ?? ''}',
+      dueOn: '${json['due_on'] ?? ''}',
+      requisites: filmRequisitesOf(json['requisites']),
+      buyerName: '${buyer['name'] ?? ''}',
+      buyerBin: '${buyer['bin'] ?? ''}',
+      buyerPhone: '${buyer['phone'] ?? ''}',
+    );
+  }
+
+  final String no;
+  final String on;
+  final String dueOn;
+  final Map<String, String> requisites;
+  final String buyerName;
+  final String buyerBin;
+  final String buyerPhone;
+}
+
+/// Requisites off the wire: every key present, empty where none was kept.
+Map<String, String> filmRequisitesOf(Object? json) {
+  final raw = json is Map ? json : const <Object?, Object?>{};
+  return {for (final k in filmRequisiteKeys) k: '${raw[k] ?? ''}'.trim()};
 }

@@ -53,3 +53,5 @@ korkem_manufacturing.patches.v0_0.add_film_supplier_pay_fields #2026-11-14 paid 
 korkem_manufacturing.patches.v0_0.add_mdf_paint_fields
 korkem_manufacturing.patches.v0_0.add_mdf_paint_fields #2026-11-14 customer paint
 korkem_manufacturing.patches.v0_0.add_mdf_paint_fields #2026-11-14 customer's paint, film and facades by position
+korkem_manufacturing.patches.v0_0.add_film_supplier_pay_fields #2026-11-15 supplier invoice
+korkem_manufacturing.patches.v0_0.add_film_invoice_fields

@@ -4744,7 +4744,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfEdge => 'Шеткі нақыш';
 
   @override
-  String get mdfExtraName => 'Қосымша атауы';
+  String get mdfExtraName => 'Нысан (ас үй, мекенжай)';
 
   @override
   String get mdfDefaultRate => '1 м² бағасы (әдепкі)';
@@ -8254,4 +8254,154 @@ class AppLocalizationsKk extends AppLocalizations {
   String filmTeamOwed(String amount) {
     return 'клиенттерінің қарызы $amount';
   }
+
+  @override
+  String filmSaleMargin(
+    String cost,
+    String price,
+    String perM,
+    String total,
+    String pct,
+  ) {
+    return 'сатып алу $cost → сату $price: +$perM/м · $total ($pct%)';
+  }
+
+  @override
+  String get filmSaleLikeLastShort => 'Өткендегідей';
+
+  @override
+  String get mdfDictAddGroup => 'Топ қосу';
+
+  @override
+  String mdfDictAddVariant(String group) {
+    return '«$group» нұсқасы';
+  }
+
+  @override
+  String get filmSupplierByInvoice => 'Шот бойынша';
+
+  @override
+  String get filmInvoiceNo => 'Шот №';
+
+  @override
+  String filmInvoiceOn(String day) {
+    return '$day күнгі';
+  }
+
+  @override
+  String filmInvoiceDue(String day) {
+    return '$day дейін төлеу';
+  }
+
+  @override
+  String get filmInvoiceNoDue => 'Мерзімсіз';
+
+  @override
+  String get filmInvoiceHint =>
+      '«Төледік» дейін қарыз; мерзімнен кейін — кешіктірілген.';
+
+  @override
+  String filmByInvoiceNo(String no) {
+    return '№ $no шот бойынша';
+  }
+
+  @override
+  String get filmFromDeptCash => 'кассадан';
+
+  @override
+  String get filmSupplierFromDept => 'Үлдір бөлімінің кассасынан';
+
+  @override
+  String get filmInvoice => 'Төлемге шот';
+
+  @override
+  String filmInvoiceTitle(String no, String day) {
+    return '$day күнгі № $no төлемге шот';
+  }
+
+  @override
+  String get filmInvoiceBeneficiary => 'Бенефициар';
+
+  @override
+  String get filmInvoiceSupplier => 'Жеткізуші:';
+
+  @override
+  String get filmInvoiceBuyer => 'Сатып алушы:';
+
+  @override
+  String get filmInvoiceNumber => '№';
+
+  @override
+  String get filmInvoiceItem => 'Атауы';
+
+  @override
+  String get filmInvoiceQty => 'Саны';
+
+  @override
+  String get filmInvoiceUnit => 'Бірл.';
+
+  @override
+  String get filmInvoiceMetre => 'м';
+
+  @override
+  String filmInvoiceSummary(int count, String sum) {
+    return 'Барлығы $count атау, $sum сомаға';
+  }
+
+  @override
+  String filmInvoicePayBy(String day) {
+    return '$day дейін төлеу';
+  }
+
+  @override
+  String get filmInvoiceDueHelp => 'Төлеу мерзімі';
+
+  @override
+  String get filmInvoiceSigned => 'Орындаушы';
+
+  @override
+  String get filmInvoiceMake => 'Шот PDF';
+
+  @override
+  String get filmInvoiceNoRequisites =>
+      'Шот үшін компанияңыздың деректемелері керек — бір рет толтырыңыз, кейін әр шотта болады.';
+
+  @override
+  String get filmReqTitle => 'Компания деректемелері';
+
+  @override
+  String get filmReqFill => 'Деректемелерді толтыру';
+
+  @override
+  String get filmReqEdit => 'Деректемелерді өзгерту';
+
+  @override
+  String get filmReqSave => 'Сақтау';
+
+  @override
+  String get filmReqName => 'Атауы (құжаттағыдай)';
+
+  @override
+  String get filmReqBin => 'БСН/ЖСН';
+
+  @override
+  String get filmReqAddress => 'Мекенжай';
+
+  @override
+  String get filmReqPhone => 'Телефон';
+
+  @override
+  String get filmReqBank => 'Банк';
+
+  @override
+  String get filmReqIik => 'ЖСК (шот)';
+
+  @override
+  String get filmReqBik => 'БСК';
+
+  @override
+  String get filmReqKbe => 'Кбе';
+
+  @override
+  String get filmReqDirector => 'Қол қояды (директор)';
 }

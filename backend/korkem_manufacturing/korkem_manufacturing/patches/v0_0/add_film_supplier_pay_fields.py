@@ -18,6 +18,11 @@ FIELDS = (
 	# Out of the film department's own money, or from elsewhere (owner,
 	# 14.11.2026: asked at every payment).
 	{"fieldname": "korkem_supplier_paid_from", "label": "Supplier paid from", "fieldtype": "Data"},
+	# The supplier's invoice (owner, 14.11.2026): its number, its date, and
+	# the day it is to be paid by — a debt with a document and a deadline.
+	{"fieldname": "korkem_supplier_invoice_no", "label": "Supplier invoice no.", "fieldtype": "Data"},
+	{"fieldname": "korkem_supplier_invoice_on", "label": "Supplier invoice date", "fieldtype": "Date"},
+	{"fieldname": "korkem_supplier_due_on", "label": "Supplier to be paid by", "fieldtype": "Date"},
 )
 
 
