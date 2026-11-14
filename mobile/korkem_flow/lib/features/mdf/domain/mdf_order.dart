@@ -234,6 +234,9 @@ class MdfLineInput {
     this.patina,
     this.thicknessMm,
     this.coating,
+    this.clientPaint = false,
+    this.clientFilm = false,
+    this.clientMdf = false,
   });
 
   final int heightMm;
@@ -241,6 +244,13 @@ class MdfLineInput {
   final int qty;
   final String? milling;
   final String? note;
+
+  /// Its group is coated with the customer's own paint or film, or made of
+  /// his own LMDF (owner, 14.11.2026) — marked on the group, carried by each
+  /// line.
+  final bool clientPaint;
+  final bool clientFilm;
+  final bool clientMdf;
 
   /// Its group's coating; [film] is a colour from that coating's list.
   final MdfCoating? coating;
@@ -278,6 +288,9 @@ class MdfLineInput {
     'patina': ?patina,
     'thickness_mm': ?thicknessMm,
     'coating': ?coating?.name,
+    if (clientPaint) 'client_paint': 1,
+    if (clientFilm) 'client_film': 1,
+    if (clientMdf) 'client_mdf': 1,
   };
 }
 
@@ -302,6 +315,9 @@ class MdfLine {
     this.edge,
     this.patina,
     this.coating,
+    this.clientPaint = false,
+    this.clientFilm = false,
+    this.clientMdf = false,
   });
 
   factory MdfLine.fromJson(Map<String, dynamic> json) => MdfLine(
@@ -322,6 +338,9 @@ class MdfLine {
     edge: _s(json['edge']),
     patina: _s(json['patina']),
     coating: MdfCoating.parse(json['coating']),
+    clientPaint: json['client_paint'] == true,
+    clientFilm: json['client_film'] == true,
+    clientMdf: json['client_mdf'] == true,
   );
 
   final int heightMm;
@@ -341,6 +360,11 @@ class MdfLine {
   final String? edge;
   final String? patina;
   final MdfCoating? coating;
+
+  /// The customer's own paint or film, his own LMDF — its group's marks.
+  final bool clientPaint;
+  final bool clientFilm;
+  final bool clientMdf;
 }
 
 /// One film's positions, in the order the films first appear; positions keep
@@ -496,6 +520,7 @@ class MdfOrder {
     this.customerTags = const [],
     this.extraStages = const {},
     this.press = const {},
+    this.clientPaint,
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -564,6 +589,13 @@ class MdfOrder {
               Map<String, dynamic>.from(e.value as Map),
             ),
     },
+    clientPaint: switch (json['client_paint']) {
+      final Map<String, dynamic> p => (
+        note: p['note'] == null ? null : '${p['note']}',
+        received: p['in'] == true,
+      ),
+      _ => null,
+    },
   );
 
   final String name;
@@ -609,6 +641,10 @@ class MdfOrder {
 
   /// Film by decor as the press lays it out (owner, 12.11.2026).
   final Map<String, MdfFilmPress> press;
+
+  /// The customer's own paint: what he brought and whether it is here;
+  /// null when the order is not tagged «Краска клиента».
+  final ({String? note, bool received})? clientPaint;
 
   List<MdfOrderTag> get tags => head.tags;
 
@@ -658,3 +694,13 @@ class MdfFilmPress {
   double get saved =>
       plainM == null || plainM! <= layoutM ? 0 : plainM! - layoutM;
 }
+
+/// Whether a position's colour is the customer's own: his paint on a paint
+/// group, his film on a PVC one.
+bool mdfLineIsClients(
+  MdfCoating? coating, {
+  required bool paint,
+  required bool film,
+}) =>
+    (coating == MdfCoating.paint && paint) ||
+    (coating == MdfCoating.pvc && film);

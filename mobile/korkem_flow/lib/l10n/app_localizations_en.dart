@@ -7970,4 +7970,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfSumMarginLowest => 'Earned least';
+
+  @override
+  String get mdfPaintTitle => 'Paint shop';
+
+  @override
+  String get mdfPaintHint => 'What to paint by colour, what is drying';
+
+  @override
+  String get mdfPaintDryHours => 'Drying time, hours';
+
+  @override
+  String get mdfPaintEmpty => 'Nothing to paint';
+
+  @override
+  String mdfPaintSummary(String waiting, String drying, String coming) {
+    return 'To paint $waiting · drying $drying · on the way $coming';
+  }
+
+  @override
+  String mdfPaintDrying(int hours) {
+    return 'Drying ($hours h)';
+  }
+
+  @override
+  String get mdfPaintDry => 'Dry';
+
+  @override
+  String mdfPaintLeft(String hours, String minutes, String day, String time) {
+    return '$hours h $minutes min left · dry $day at $time';
+  }
+
+  @override
+  String get mdfPaintMarkPainted => 'Mark painted';
+
+  @override
+  String get mdfPaintUndo => 'Not drying';
+
+  @override
+  String get mdfPaintByColour => 'To paint, by colour';
+
+  @override
+  String get mdfPaintByColourHint =>
+      'The biggest colour first: mixed once, the gun cleaned once.';
+
+  @override
+  String mdfPaintColourNote(String area, String orders) {
+    return '$area · orders: $orders';
+  }
+
+  @override
+  String get mdfPaintStartDrying => 'Painted — dry';
+
+  @override
+  String get mdfPaintPopular => 'Most painted colours, 90 days';
+
+  @override
+  String get mdfPaintSave => 'Save';
+
+  @override
+  String get mdfTagClientPaint => 'Customer\'s paint';
+
+  @override
+  String get mdfTagClientParts => 'Customer\'s LMDF';
+
+  @override
+  String get mdfClientPaintBrought => 'Paint brought';
+
+  @override
+  String get mdfClientPaintWhat => 'What was brought (e.g. 2 cans × 3 l)';
+
+  @override
+  String get mdfClientPaintHere => 'here';
+
+  @override
+  String get mdfClientPaintWaiting => 'Waiting for paint';
+
+  @override
+  String get mdfPaintSettings => 'Paint settings';
+
+  @override
+  String get mdfPaintDiscount => 'Discount for own paint, ₸/m²';
+
+  @override
+  String get mdfPaintDiscountHint =>
+      'Taken off the m² price when «Customer\'s paint» is on';
+
+  @override
+  String get mdfPaintComing => 'On their way to you';
+
+  @override
+  String mdfPaintNowAt(String stage) {
+    return 'now: $stage';
+  }
+
+  @override
+  String get mdfPaintTwoSided => '2 sides';
+
+  @override
+  String get mdfTagClientFilm => 'Customer\'s film';
+
+  @override
+  String get mdfClientShort => 'customer\'s';
 }

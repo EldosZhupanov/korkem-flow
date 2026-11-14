@@ -42,13 +42,30 @@ class MdfPaintRepository {
     ),
   );
 
-  Future<void> setDryHours(int hours) async {
+  /// «Краска клиента принесена» — with what he brought.
+  Future<MdfPaintBoard> clientPaintIn(String order, {String? note}) async =>
+      _board(
+        await _client.callMethod(
+          '$_base.client_paint_in',
+          post: true,
+          params: {'order': order, 'note': ?note},
+        ),
+      );
+
+  /// The drying hours and the discount for the customer's own paint.
+  Future<MdfPaintBoard> settings({
+    int? dryHours,
+    double? clientPaintDiscount,
+  }) async => _board(
     await _client.callMethod(
-      '$_base.set_dry_hours',
+      '$_base.settings',
       post: true,
-      params: {'hours': hours},
-    );
-  }
+      params: {
+        'dry_hours': ?dryHours,
+        'client_paint_discount': ?clientPaintDiscount,
+      },
+    ),
+  );
 
   static MdfPaintBoard _board(Map<String, dynamic> response) {
     final raw = response['message'] ?? response;

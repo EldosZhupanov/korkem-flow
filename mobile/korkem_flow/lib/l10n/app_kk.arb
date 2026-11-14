@@ -2500,5 +2500,19 @@
   "mdfPaintColourNote": "{area} · тапсырыс: {orders}",
   "mdfPaintStartDrying": "Боялды — кептіру",
   "mdfPaintPopular": "90 күндегі танымал түстер",
-  "mdfPaintSave": "Сақтау"
+  "mdfPaintSave": "Сақтау",
+  "mdfTagClientPaint": "Клиенттің бояуы",
+  "mdfTagClientParts": "Клиенттің ЛМДФ-ы",
+  "mdfClientPaintBrought": "Бояу әкелінді",
+  "mdfClientPaintWhat": "Не әкелді (мысалы, 2 банка × 3 л)",
+  "mdfClientPaintHere": "әкелінді",
+  "mdfClientPaintWaiting": "Бояуды күтудеміз",
+  "mdfPaintSettings": "Бояу баптаулары",
+  "mdfPaintDiscount": "Өз бояуына жеңілдік, ₸/м²",
+  "mdfPaintDiscountHint": "«Клиенттің бояуы» кезінде м² бағасынан шегеріледі",
+  "mdfPaintComing": "Жақында сізге",
+  "mdfPaintNowAt": "қазір: {stage}",
+  "mdfPaintTwoSided": "2 жағы",
+  "mdfTagClientFilm": "Клиенттің үлдірі",
+  "mdfClientShort": "клиенттікі"
 }

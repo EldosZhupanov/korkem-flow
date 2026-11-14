@@ -8765,5 +8765,26 @@
   },
   "mdfPaintStartDrying": "Painted — dry",
   "mdfPaintPopular": "Most painted colours, 90 days",
-  "mdfPaintSave": "Save"
+  "mdfPaintSave": "Save",
+  "mdfTagClientPaint": "Customer's paint",
+  "mdfTagClientParts": "Customer's LMDF",
+  "mdfClientPaintBrought": "Paint brought",
+  "mdfClientPaintWhat": "What was brought (e.g. 2 cans × 3 l)",
+  "mdfClientPaintHere": "here",
+  "mdfClientPaintWaiting": "Waiting for paint",
+  "mdfPaintSettings": "Paint settings",
+  "mdfPaintDiscount": "Discount for own paint, ₸/m²",
+  "mdfPaintDiscountHint": "Taken off the m² price when «Customer's paint» is on",
+  "mdfPaintComing": "On their way to you",
+  "mdfPaintNowAt": "now: {stage}",
+  "@mdfPaintNowAt": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPaintTwoSided": "2 sides",
+  "mdfTagClientFilm": "Customer's film",
+  "mdfClientShort": "customer's"
 }

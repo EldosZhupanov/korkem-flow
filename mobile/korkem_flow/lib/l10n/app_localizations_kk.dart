@@ -7934,4 +7934,106 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfSumMarginLowest => 'Ең аз тапқандар';
+
+  @override
+  String get mdfPaintTitle => 'Бояу бөлімі';
+
+  @override
+  String get mdfPaintHint => 'Түс бойынша не бояу керек, не кебуде';
+
+  @override
+  String get mdfPaintDryHours => 'Кептіру, сағат';
+
+  @override
+  String get mdfPaintEmpty => 'Бояйтын ештеңе жоқ';
+
+  @override
+  String mdfPaintSummary(String waiting, String drying, String coming) {
+    return 'Бояу $waiting · кебуде $drying · келе жатыр $coming';
+  }
+
+  @override
+  String mdfPaintDrying(int hours) {
+    return 'Кебуде ($hours сағ)';
+  }
+
+  @override
+  String get mdfPaintDry => 'Кепті';
+
+  @override
+  String mdfPaintLeft(String hours, String minutes, String day, String time) {
+    return 'Тағы $hours сағ $minutes мин · $day $time кебеді';
+  }
+
+  @override
+  String get mdfPaintMarkPainted => '«Бояу» белгілеу';
+
+  @override
+  String get mdfPaintUndo => 'Болдырмау';
+
+  @override
+  String get mdfPaintByColour => 'Бояу — түстер бойынша';
+
+  @override
+  String get mdfPaintByColourHint =>
+      'Алдымен ең үлкен түс: бір рет араластырылады, пистолет бір рет жуылады.';
+
+  @override
+  String mdfPaintColourNote(String area, String orders) {
+    return '$area · тапсырыс: $orders';
+  }
+
+  @override
+  String get mdfPaintStartDrying => 'Боялды — кептіру';
+
+  @override
+  String get mdfPaintPopular => '90 күндегі танымал түстер';
+
+  @override
+  String get mdfPaintSave => 'Сақтау';
+
+  @override
+  String get mdfTagClientPaint => 'Клиенттің бояуы';
+
+  @override
+  String get mdfTagClientParts => 'Клиенттің ЛМДФ-ы';
+
+  @override
+  String get mdfClientPaintBrought => 'Бояу әкелінді';
+
+  @override
+  String get mdfClientPaintWhat => 'Не әкелді (мысалы, 2 банка × 3 л)';
+
+  @override
+  String get mdfClientPaintHere => 'әкелінді';
+
+  @override
+  String get mdfClientPaintWaiting => 'Бояуды күтудеміз';
+
+  @override
+  String get mdfPaintSettings => 'Бояу баптаулары';
+
+  @override
+  String get mdfPaintDiscount => 'Өз бояуына жеңілдік, ₸/м²';
+
+  @override
+  String get mdfPaintDiscountHint =>
+      '«Клиенттің бояуы» кезінде м² бағасынан шегеріледі';
+
+  @override
+  String get mdfPaintComing => 'Жақында сізге';
+
+  @override
+  String mdfPaintNowAt(String stage) {
+    return 'қазір: $stage';
+  }
+
+  @override
+  String get mdfPaintTwoSided => '2 жағы';
+
+  @override
+  String get mdfTagClientFilm => 'Клиенттің үлдірі';
+
+  @override
+  String get mdfClientShort => 'клиенттікі';
 }

@@ -31,3 +31,15 @@ def stop_drying(order: str) -> dict:
 def set_dry_hours(hours: int | str) -> dict:
 	"""Сколько часов сохнет краска на этом заводе."""
 	return service.set_dry_hours(hours)
+
+
+@frappe.whitelist(methods=["POST"])
+def client_paint_in(order: str, note: str | None = None) -> dict:
+	"""«Краска клиента принесена»."""
+	return service.client_paint_in(order, note)
+
+
+@frappe.whitelist(methods=["POST"])
+def settings(dry_hours: int | str | None = None, client_paint_discount: float | str | None = None) -> dict:
+	"""Сушка в часах и скидка за м² при краске клиента."""
+	return service.settings(dry_hours, client_paint_discount)

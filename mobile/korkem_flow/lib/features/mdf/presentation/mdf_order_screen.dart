@@ -24,6 +24,7 @@ import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_client_paint.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_coating.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
@@ -106,6 +107,9 @@ class _LineFields {
     this.patina,
     this.thicknessMm,
     this.coating,
+    this.clientPaint = false,
+    this.clientFilm = false,
+    this.clientMdf = false,
     Set<_Extra>? extras,
   }) : height = TextEditingController(text: h),
        width = TextEditingController(text: w),
@@ -133,6 +137,11 @@ class _LineFields {
   String? film;
 
   _Group get group => (coating: coating, film: film);
+
+  /// Its group's marks: the customer's own paint or film, his own LMDF.
+  bool clientPaint;
+  bool clientFilm;
+  bool clientMdf;
 
   /// Its back film; null — one-sided.
   String? filmBack;
@@ -184,6 +193,9 @@ class _LineFields {
       patina: patina,
       thicknessMm: thicknessMm,
       coating: coating,
+      clientPaint: clientPaint && coating == MdfCoating.paint,
+      clientFilm: clientFilm && coating == MdfCoating.pvc,
+      clientMdf: clientMdf,
     );
   }
 
@@ -201,6 +213,9 @@ class _LineFields {
     patina: patina,
     thicknessMm: thicknessMm,
     coating: coating,
+    clientPaint: clientPaint,
+    clientFilm: clientFilm,
+    clientMdf: clientMdf,
     extras: {...extras},
   );
 
@@ -298,6 +313,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 : l.thicknessMm,
             edge: l.edge ?? o.head.edgeProfile ?? mdfDefaultEdge,
             patina: l.patina,
+            clientPaint: l.clientPaint,
+            clientFilm: l.clientFilm,
+            clientMdf: l.clientMdf,
           ),
         );
       }
@@ -385,20 +403,26 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   };
 
   /// A new order starts with the head of the last one this manager wrote:
-  /// the same finish, thickness and edge more often than not.
+  /// the same finish, thickness and edge more often than not — and, where
+  /// that says nothing, our 16 mm LMDF (owner, 14.11.2026).
   Future<void> _startFromLastHead() async {
     try {
-      final head = await ref.read(mdfOrderRepositoryProvider).lastHead();
-      if (!mounted || head == null) return;
+      final repo = ref.read(mdfOrderRepositoryProvider);
+      final head = await repo.lastHead();
+      final materials = await repo
+          .dictionaries()
+          .then((d) => d.values(MdfDictKind.material))
+          .catchError((Object _) => const <String>[]);
+      if (!mounted) return;
       setState(() {
         // Milling is a position's and the price a film group's now: the
         // head brings neither.
         _head = MdfHead(
-          thicknessMm: head.thicknessMm,
-          decorTop: head.decorTop,
-          decorBottom: head.decorBottom,
-          edgeProfile: head.edgeProfile,
-          material: head.material,
+          thicknessMm: head?.thicknessMm ?? mdfDefaultThicknessMm,
+          decorTop: head?.decorTop,
+          decorBottom: head?.decorBottom,
+          edgeProfile: head?.edgeProfile,
+          material: head?.material ?? mdfDefaultMaterialIn(materials),
         );
         for (final l in _lines) {
           if (l.input() == null) l.edge = _defaultEdge;
@@ -432,6 +456,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             film: _films.last.film,
             coating: _films.last.coating,
             edge: _defaultEdge,
+            clientPaint: _owns(_films.last).paint,
+            clientFilm: _owns(_films.last).film,
+            clientMdf: _owns(_films.last).mdf,
           ),
         );
       }
@@ -460,7 +487,41 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     film: group.film,
     coating: group.coating,
     edge: _defaultEdge,
+    clientPaint: _owns(group).paint,
+    clientFilm: _owns(group).film,
+    clientMdf: _owns(group).mdf,
   );
+
+  /// A group's marks — the customer's own paint or film, his own LMDF — as
+  /// its lines carry them.
+  ({bool paint, bool film, bool mdf}) _owns(_Group group) {
+    final mates = _lines.where((l) => l.group == group);
+    return (
+      paint: mates.any((l) => l.clientPaint),
+      film: mates.any((l) => l.clientFilm),
+      mdf: mates.any((l) => l.clientMdf),
+    );
+  }
+
+  /// Marks or unmarks a group: every line of it, and the total follows —
+  /// his own paint is cheaper.
+  void _setOwn(_Group group, MdfOrderTag mark, {required bool on}) {
+    setState(() {
+      for (final l in _lines.where((l) => l.group == group)) {
+        switch (mark) {
+          case MdfOrderTag.clientPaint:
+            l.clientPaint = on;
+          case MdfOrderTag.clientFilm:
+            l.clientFilm = on;
+          case MdfOrderTag.clientParts:
+            l.clientMdf = on;
+          case MdfOrderTag.urgent || MdfOrderTag.rework || MdfOrderTag.warranty:
+            break;
+        }
+      }
+    });
+    _reprice();
+  }
 
   TextEditingController _rateOf(String? film) =>
       _filmRates[film] ??= TextEditingController();
@@ -525,6 +586,19 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       if (l.input() != null) out[l] = i++;
     }
     return out;
+  }
+
+  void _setTag(MdfOrderTag tag, {required bool on}) {
+    setState(
+      () => _head = _copyHead(
+        tags: [
+          for (final x in MdfOrderTag.values)
+            if (x == tag ? on : _head.tags.contains(x)) x,
+        ],
+      ),
+    );
+    // His own paint is cheaper: the total follows.
+    _reprice();
   }
 
   /// Instant arithmetic: the server prices, the screen shows.
@@ -1166,20 +1240,16 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 Wrap(
                   spacing: AppSpacing.sm,
                   children: [
+                    // His own paint and his own facades sit with the
+                    // coating group they are about (owner, 14.11.2026).
                     for (final t in MdfOrderTag.values)
-                      FilterChip(
-                        key: ValueKey('mdfOrderTag:${t.wire}'),
-                        label: Text(mdfOrderTagLabel(t, l10n)),
-                        selected: _head.tags.contains(t),
-                        onSelected: (on) => setState(
-                          () => _head = _copyHead(
-                            tags: [
-                              for (final x in MdfOrderTag.values)
-                                if (x == t ? on : _head.tags.contains(x)) x,
-                            ],
-                          ),
+                      if (!t.byGroup)
+                        FilterChip(
+                          key: ValueKey('mdfOrderTag:${t.wire}'),
+                          label: Text(mdfOrderTagLabel(t, l10n)),
+                          selected: _head.tags.contains(t),
+                          onSelected: (on) => _setTag(t, on: on),
                         ),
-                      ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -1233,6 +1303,12 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       onRateChanged: _reprice,
                       onRemove: () => _removeFilm(group),
                       onAddLine: () => _addLine(group: group),
+                      tags: [
+                        if (_owns(group).paint) MdfOrderTag.clientPaint,
+                        if (_owns(group).film) MdfOrderTag.clientFilm,
+                        if (_owns(group).mdf) MdfOrderTag.clientParts,
+                      ],
+                      onTag: (t, {required on}) => _setOwn(group, t, on: on),
                       children: [
                         for (var i = 0; i < mates.length; i++)
                           _LineRow(
@@ -1398,6 +1474,8 @@ class _FilmGroup extends StatelessWidget {
     required this.onRemove,
     required this.onAddLine,
     required this.children,
+    this.tags = const [],
+    this.onTag,
     super.key,
   });
 
@@ -1419,6 +1497,11 @@ class _FilmGroup extends StatelessWidget {
   final VoidCallback onRemove;
   final VoidCallback onAddLine;
   final List<Widget> children;
+
+  /// This group's marks: the customer's own paint (a paint group) or film
+  /// (a PVC group), and his own LMDF (any group).
+  final List<MdfOrderTag> tags;
+  final void Function(MdfOrderTag tag, {required bool on})? onTag;
 
   @override
   Widget build(BuildContext context) {
@@ -1523,6 +1606,19 @@ class _FilmGroup extends StatelessWidget {
                           isDense: true,
                         ),
                       ),
+                    ),
+                  for (final t in [
+                    if (coating == MdfCoating.paint) MdfOrderTag.clientPaint,
+                    if (coating == MdfCoating.pvc) MdfOrderTag.clientFilm,
+                    if (coating != null) MdfOrderTag.clientParts,
+                  ])
+                    FilterChip(
+                      key: ValueKey('mdfGroupTag:$index:${t.wire}'),
+                      label: Text(mdfOrderTagLabel(t, l10n)),
+                      selected: tags.contains(t),
+                      onSelected: onTag == null
+                          ? null
+                          : (on) => onTag!(t, on: on),
                     ),
                   // A film from the catalogue: the maker, the type, then that
                   // maker's film (owner, 10.11.2026).
@@ -1721,6 +1817,9 @@ class _LineRow extends StatelessWidget {
             .copyWith(labelText: label, hintText: hint),
       ),
     );
+
+    // «ЛМДФ · клиента»: the customer's own board, in the material's list.
+    final clients = ' · ${l10n.mdfClientShort}';
 
     Widget drop(
       String key,
@@ -1928,12 +2027,30 @@ class _LineRow extends StatelessWidget {
               SizedBox(
                 width: 140,
                 child: Text(
-                  line.coating == MdfCoating.raw
-                      ? mdfCoatingLabel(MdfCoating.raw, l10n)
-                      : line.film ?? mdfCoatingNone(line.coating, l10n),
+                  [
+                    if (line.coating == MdfCoating.raw)
+                      mdfCoatingLabel(MdfCoating.raw, l10n)
+                    else
+                      line.film ?? mdfCoatingNone(line.coating, l10n),
+                    if (mdfLineIsClients(
+                      line.coating,
+                      paint: line.clientPaint,
+                      film: line.clientFilm,
+                    ))
+                      l10n.mdfClientShort,
+                  ].join(' · '),
                   key: ValueKey('mdfLineFilm:$index'),
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color:
+                        mdfLineIsClients(
+                          line.coating,
+                          paint: line.clientPaint,
+                          film: line.clientFilm,
+                        )
+                        ? context.statusColors.warning
+                        : null,
+                  ),
                 ),
               ),
               drop(
@@ -1949,15 +2066,31 @@ class _LineRow extends StatelessWidget {
                 none: mdfThicknessLabel(thicknesses, headThickness),
                 highlight: line.thicknessMm != null,
               ),
+              // Ours by default — the order's LMDF; his own is picked right
+              // here, position by position (owner, 14.11.2026): a customer
+              // may bring some of the facades, or 16 and 18 mm.
               drop(
                 'mdfLineMaterial',
                 l10n.mdfMaterial,
-                line.material,
-                materials,
-                130,
-                (v) => line.material = v == headMaterial ? null : v,
+                line.clientMdf
+                    ? '${line.material ?? headMaterial ?? ''}$clients'
+                    : line.material,
+                [
+                  ...materials,
+                  for (final m in materials) '$m$clients',
+                ],
+                160,
+                (v) {
+                  final his = v != null && v.endsWith(clients);
+                  final base = his
+                      ? v.substring(0, v.length - clients.length)
+                      : v;
+                  line
+                    ..clientMdf = his
+                    ..material = base == headMaterial ? null : base;
+                },
                 none: headMaterial ?? l10n.mdfNone,
-                highlight: line.material != null,
+                highlight: line.material != null || line.clientMdf,
               ),
               figure(
                 'mdfLineArea',
@@ -2434,6 +2567,8 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             fontWeight: FontWeight.w600,
           ),
         ),
+        // The customer's own paint: what he brought, whether it is here.
+        MdfClientPaintView(order: o),
         // What the order earned (owner, 14.11.2026).
         MdfMarginView(order: o.name),
         const SizedBox(height: AppSpacing.sm),
@@ -3353,6 +3488,7 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   coating: (c) => mdfCoatingLabel(c, l10n),
   thicknessColumn: l10n.mdfPrintThickShort,
   materialColumn: l10n.mdfPrintMaterialShort,
+  client: l10n.mdfClientShort,
   pieces: l10n.mdfPrintPieces,
   tags: l10n.mdfTagsTitle,
   tag: (t) => mdfOrderTagLabel(t, l10n),

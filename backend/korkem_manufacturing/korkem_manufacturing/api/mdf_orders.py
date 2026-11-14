@@ -88,6 +88,12 @@ def card(order: str) -> dict:
 	return service.card(order)
 
 
+@frappe.whitelist(methods=["POST"])
+def set_client_paint(order: str, note: str | None = None, received: bool | int | str | None = None) -> dict:
+	"""Краска клиента: что принёс и принёс ли."""
+	return service.set_client_paint(order, note=note, received=received)
+
+
 @frappe.whitelist(methods=["GET"])
 def margin(order: str) -> dict:
 	"""Маржа заказа: сумма минус материал и работа (без краски, клея, доставки)."""

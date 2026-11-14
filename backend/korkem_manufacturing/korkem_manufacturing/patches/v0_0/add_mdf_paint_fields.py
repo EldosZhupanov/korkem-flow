@@ -11,6 +11,18 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_field
 
 FIELDS = (
 	{"fieldname": "korkem_paint_drying_since", "label": "Drying since", "fieldtype": "Datetime"},
+	# The customer's own paint (owner, 14.11.2026): what he brought, and whether it is here.
+	{"fieldname": "korkem_client_paint_note", "label": "Customer's paint", "fieldtype": "Data"},
+	{"fieldname": "korkem_client_paint_in", "label": "Customer's paint is here", "fieldtype": "Check"},
+)
+
+
+#: A position of the customer's own paint, film, or facades (owner,
+#: 14.11.2026) — set on its group, carried by each of its positions.
+ITEM_FIELDS = (
+	{"fieldname": "korkem_client_paint", "label": "Customer's paint", "fieldtype": "Check"},
+	{"fieldname": "korkem_client_mdf", "label": "Customer's MDF", "fieldtype": "Check"},
+	{"fieldname": "korkem_client_film", "label": "Customer's film", "fieldtype": "Check"},
 )
 
 
@@ -24,3 +36,11 @@ def execute():
 			)
 		after = field["fieldname"]
 	frappe.clear_cache(doctype="Sales Order")
+	after = "korkem_line_coating"
+	for field in ITEM_FIELDS:
+		if not frappe.db.exists("Custom Field", {"dt": "Sales Order Item", "fieldname": field["fieldname"]}):
+			create_custom_field(
+				"Sales Order Item", {**field, "insert_after": after, "allow_on_submit": 1, "no_copy": 0}
+			)
+		after = field["fieldname"]
+	frappe.clear_cache(doctype="Sales Order Item")

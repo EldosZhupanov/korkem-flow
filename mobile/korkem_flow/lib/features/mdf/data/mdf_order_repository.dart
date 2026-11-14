@@ -430,6 +430,17 @@ class MdfOrderRepository {
     ),
   );
 
+  /// The customer's own paint: what he brought, and whether it is here.
+  Future<MdfOrder> setClientPaint(
+    String order, {
+    String? note,
+    bool? received,
+  }) => _post('set_client_paint', {
+    'order': order,
+    'note': ?note,
+    if (received != null) 'received': received ? 1 : 0,
+  });
+
   /// A reason puts it on hold; none takes it off.
   Future<MdfOrder> hold(String order, String? reason) =>
       _post('hold', {'order': order, 'reason': ?reason});
