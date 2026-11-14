@@ -674,7 +674,32 @@ def set_stage(order: str, stage: str, done=True, worker: str | None = None) -> d
 	doc.db_set("korkem_ready_on", (doc.korkem_ready_on or nowdate()) if ready else None, update_modified=False)
 	audit.record_audit(action="mdf.stage", entity_type="Sales Order", entity_id=doc.name,
 					   diff={"stage": stage, "done": done, "ready": ready, "worker": worker if done else None})
+	if stage == "paint":
+		_paint_used(doc.name, done)
 	return card(doc.name)
+
+
+def _paint_used(order: str, done: bool) -> None:
+	"""«Покрашено» takes the order's paint off the store, by the shop's
+	figure; unticked, puts it back (`paint_stock`). The paint was put on
+	whatever the store says: a write-off that fails is logged, never a
+	reason to refuse the tick."""
+	from korkem_manufacturing.services import paint_stock
+
+	savepoint = "korkem_paint_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(savepoint)
+	try:
+		if done:
+			paint_stock.use_for_order(order)
+		else:
+			paint_stock.return_for_order(order)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		frappe.log_error(title=f"Списание краски: {order}")
+		audit.record_audit(action="paint.use_failed", entity_type="Sales Order", entity_id=order,
+						   diff={"done": done})
+	else:
+		frappe.db.release_savepoint(savepoint)
 
 
 STAGE_NAMES = {"cut": "раскрой", "mill": "фреза", "sand": "шлифовка", "paint": "краска", "vacuum": "вакуум",

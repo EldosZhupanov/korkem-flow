@@ -162,9 +162,29 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 	"""
 	_film(item)
 	due = _due(arrives_on)
-	# How it came (owner, 11.11.2026). Left out: as the last roll of this
-	# supplier came, else «привёз поставщик»; from the supplier's city; free;
-	# taken in by whoever enters it.
+	logistics, fields = receipt_terms(supplier, delivery, received_by, supplier_pay, supplier_paid)
+	result = material_stock.receive(
+		item, metres, price_m, supplier, received_on=received_on, note=note, delivery=logistics,
+		post=due is None,
+	)
+	frappe.db.set_value("Stock Entry", result["receipt"], {**fields, "korkem_film_due": str(due) if due else None},
+						update_modified=False)
+	if _yes(update_price) and flt(price_m) > 0:
+		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
+	return {"receipt": result["receipt"], "film": film_catalog.film(item)}
+
+
+def receipt_terms(supplier: str, delivery=None, received_by: str | None = None, supplier_pay=None,
+				  supplier_paid=None) -> tuple[dict | None, dict]:
+	"""How a bought thing came and how it was paid for — a roll of film or a
+	can of paint alike (owner, 15.11.2026: «как в разделе плёнок»):
+	(what the bringing cost, for `material_stock.receive`'s logistics; the
+	receipt's own fields, to set once it is written).
+
+	Left out: brought as the last delivery of this supplier, else «привёз
+	поставщик»; from the supplier's city; free; taken in by whoever enters
+	it; paid for at once.
+	"""
 	if isinstance(delivery, str):
 		delivery = frappe.parse_json(delivery) if delivery.strip() else None
 	delivery = delivery or {}
@@ -182,34 +202,27 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 	cost = _money(delivery.get("amount") or 0, "За доставку")
 	urgent = _yes(delivery.get("urgent"))
 	taker = _person(received_by) or frappe.session.user
-	# Who paid for the bringing (owner, 11.11.2026): the film department's
-	# cash; an employee out of his pocket; nobody yet; or the supplier.
+	# Who paid for the bringing (owner, 11.11.2026): the department's cash;
+	# an employee out of his pocket; nobody yet; or the supplier.
 	payer, paid_by, pay_method = _delivery_payer(delivery, cost)
 	if payer == PAYER_SUPPLIER:
 		cost = Decimal(0)
 	for kind, value in ((TRANSPORT_LIST, transport), (CITY_LIST, city)):
 		if value and value not in material_stock.enabled_values(kind, company):
 			material_stock.put_option(kind, value)
-	result = material_stock.receive(
-		item, metres, price_m, supplier, received_on=received_on, note=note,
-		# What the bringing cost goes to logistics, apart from the price.
-		delivery={"amount": cost, "from_city": city or "не указан", "transport": transport, "urgent": urgent}
-		if cost > 0 else None,
-		post=due is None,
-	)
-	frappe.db.set_value("Stock Entry", result["receipt"], {
+	# What the bringing cost goes to logistics, apart from the price.
+	logistics = ({"amount": cost, "from_city": city or "не указан", "transport": transport, "urgent": urgent}
+				 if cost > 0 else None)
+	fields = {
 		"korkem_received_by": taker, "korkem_delivery_transport": transport, "korkem_delivery_city": city or None,
 		"korkem_delivery_cost": float(cost), "korkem_delivery_urgent": 1 if urgent else 0,
-		"korkem_film_due": str(due) if due else None,
 		"korkem_delivery_payer": payer, "korkem_delivery_paid_by": paid_by, "korkem_delivery_method": pay_method,
 		# Who brought it and how to reach him (owner, 12.11.2026) — optional.
 		"korkem_delivery_driver": " ".join(str(delivery.get("driver") or "").split())[:80] or None,
 		"korkem_delivery_phone": " ".join(str(delivery.get("phone") or "").split())[:40] or None,
 		**supplier_pay_fields(supplier_pay, supplier_paid),
-	}, update_modified=False)
-	if _yes(update_price) and flt(price_m) > 0:
-		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
-	return {"receipt": result["receipt"], "film": film_catalog.film(item)}
+	}
+	return logistics, fields
 
 
 #: Who paid for bringing a roll.

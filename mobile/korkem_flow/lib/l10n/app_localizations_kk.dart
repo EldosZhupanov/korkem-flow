@@ -8382,4 +8382,167 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPaintNoSystem => 'Жүйесіз';
+
+  @override
+  String get paintStock => 'Бояу қоймасы';
+
+  @override
+  String get paintReceive => 'Бояу кірісі';
+
+  @override
+  String get paintReceiveSave => 'Кіріске алу';
+
+  @override
+  String get paintReceiveShort => 'Сатып алу';
+
+  @override
+  String get paintColour => 'Түс';
+
+  @override
+  String get paintBase => 'Бұл не (эмаль, грунт, лак…)';
+
+  @override
+  String get paintBaseEnamelMatt => 'ПУ эмаль, күңгірт';
+
+  @override
+  String get paintBaseEnamelGloss => 'ПУ эмаль, жылтыр';
+
+  @override
+  String get paintBasePrimer => 'Грунт';
+
+  @override
+  String get paintBaseLacquer => 'Лак';
+
+  @override
+  String get paintKg => 'Кг';
+
+  @override
+  String paintKgShort(String kg) {
+    return '$kg кг';
+  }
+
+  @override
+  String get paintCans => 'Банкамен';
+
+  @override
+  String get paintCanCount => 'Банка';
+
+  @override
+  String get paintCanKg => 'Банкадағы кг';
+
+  @override
+  String get paintPriceKg => 'Кг бағасы';
+
+  @override
+  String paintPerKg(String price) {
+    return '$price/кг';
+  }
+
+  @override
+  String paintPriceUp(String pct, String was, String who) {
+    return 'Өткеннен $pct % қымбат ($who: $was)';
+  }
+
+  @override
+  String paintPriceDown(String pct, String was, String who) {
+    return 'Өткеннен $pct % арзан ($who: $was)';
+  }
+
+  @override
+  String paintPriceSame(String was, String who) {
+    return 'Өткендегідей: $who: $was';
+  }
+
+  @override
+  String get paintSupplier => 'Жеткізуші';
+
+  @override
+  String get paintNewSupplier => 'Жаңа жеткізуші';
+
+  @override
+  String paintToSupplier(String kg) {
+    return 'Бояу $kg кг';
+  }
+
+  @override
+  String paintLanded(String price) {
+    return 'Жеткізумен 1 кг: $price';
+  }
+
+  @override
+  String paintDeliveryPerKg(String price) {
+    return '1 кг-ға +$price';
+  }
+
+  @override
+  String paintKgPerM2(String kg) {
+    return 'Шығын: $kg кг/м²';
+  }
+
+  @override
+  String get paintKgPerM2Title => 'Бояу шығыны, м²-ге кг';
+
+  @override
+  String get paintKgPerM2Hint =>
+      'Грунт пен барлық қабат бірге. Кезекке бояу жете ме — осымен есептеледі.';
+
+  @override
+  String paintNeed(String m2, String need, String have) {
+    return 'кезек $m2 м² · керек $need кг · бар $have кг';
+  }
+
+  @override
+  String paintShort(String kg) {
+    return '$kg кг жетпейді';
+  }
+
+  @override
+  String get paintEnough => 'жетеді';
+
+  @override
+  String paintOnHand(String kg) {
+    return '$kg кг';
+  }
+
+  @override
+  String get paintNone =>
+      'Қоймада бояу әзірге жоқ — «Бояу кірісі» батырмасын басыңыз.';
+
+  @override
+  String get paintOwed => 'Бояу үшін қарыз';
+
+  @override
+  String get paintPaid => 'Төледік';
+
+  @override
+  String paintHistory(String title) {
+    return 'Кірістер: $title';
+  }
+
+  @override
+  String paintTakenBy(String who) {
+    return 'қабылдаған $who';
+  }
+
+  @override
+  String paintUsage(String days, String m2, String kg) {
+    return '$days күнде: $m2 м² боялды, $kg кг кетті';
+  }
+
+  @override
+  String paintUsageFact(String fact, String norm) {
+    return 'нақты $fact кг/м² (норма $norm)';
+  }
+
+  @override
+  String get paintCount => 'Қалдықты қайта санау';
+
+  @override
+  String paintCountTitle(String title) {
+    return 'Шын мәнінде қанша: $title?';
+  }
+
+  @override
+  String get paintCountHint =>
+      'Қалдықты өлшеңіз. Бағдарламамен айырмасы шығын болып жазылады.';
 }

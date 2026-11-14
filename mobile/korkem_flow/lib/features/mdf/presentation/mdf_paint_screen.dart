@@ -19,6 +19,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_paint.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_client_paint.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/paint_stock_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 String _m2(double v) => '${v.toStringAsFixed(2)} м²';
@@ -138,7 +139,14 @@ class _BoardState extends ConsumerState<_Board> {
         b.drying.isEmpty &&
         b.coming.isEmpty &&
         b.popular.isEmpty) {
-      return Center(child: Text(l10n.mdfPaintEmpty));
+      // Nothing to paint — the store is still kept (owner, 15.11.2026).
+      return ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          ReadableWidth(child: Text(l10n.mdfPaintEmpty)),
+          const PaintStockSection(),
+        ],
+      );
     }
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -217,6 +225,8 @@ class _BoardState extends ConsumerState<_Board> {
                 ),
               ),
         ],
+        // The store: what is short for the queue, what is here, «Приход».
+        const PaintStockSection(),
         if (b.drying.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
           ReadableWidth(child: SectionLabel(l10n.mdfPaintDrying(b.dryHours))),
