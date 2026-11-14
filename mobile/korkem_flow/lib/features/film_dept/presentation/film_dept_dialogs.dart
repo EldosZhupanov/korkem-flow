@@ -1033,11 +1033,12 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     double sum(double Function(_ReceiveLine) f) =>
         _lines.fold<double>(0, (s, l) => s + f(l));
     Widget row(String a, String b, {TextStyle? style, Key? key}) => Padding(
+      key: key,
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
       child: Row(
         children: [
           Expanded(child: Text(a, style: style)),
-          Text(b, key: key, style: style),
+          Text(b, style: style),
         ],
       ),
     );
