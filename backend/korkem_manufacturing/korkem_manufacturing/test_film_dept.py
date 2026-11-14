@@ -301,6 +301,24 @@ class TestFilmDept(IntegrationTestCase):
 		row = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == by_me)
 		self.assertEqual((row["delivery"]["payer"], row["delivery"]["settled"]), ("employee", True))
 
+	def test_the_cash_counted_at_a_close_is_what_the_next_day_starts_with(self):
+		from korkem_manufacturing.services import film_cash
+
+		today = frappe.utils.getdate()
+		yesterday = frappe.utils.add_days(today, -1)
+		key = f"{film_cash._CLOSE}:{COMPANY}:{yesterday}"
+		before = frappe.db.get_default(key)
+		self.addCleanup(lambda: frappe.db.set_default(key, before or ""))
+		today_cash = film_cash._cash_of(self._as(MANAGER, film_cash.book, str(today), str(today)))
+		self._as(MANAGER, film_cash.close_day, 12_345, "тест переноса", str(yesterday))
+		book = self._as(MANAGER, film_cash.book, str(today), str(today))
+		self.assertEqual(book["opening"], {"cash": 12_345, "closed_on": str(yesterday)})
+		# …and what the drawer should hold tonight starts from it.
+		self.assertAlmostEqual(film_cash._expected_cash(today), 12_345 + today_cash, places=2)
+		# The day closed itself starts from the close before it, not from its own.
+		opening = self._as(MANAGER, film_cash.book, str(yesterday), str(yesterday))["opening"]
+		self.assertNotEqual((opening or {}).get("closed_on"), str(yesterday))
+
 	def test_film_taken_on_credit_is_owed_to_the_supplier_until_paid(self):
 		from korkem_manufacturing.services import film_cash
 

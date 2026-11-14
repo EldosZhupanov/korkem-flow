@@ -2532,5 +2532,8 @@
   "mdfRowToday": "бүгін тапсыру",
   "mdfRowReadyFor": "{days} күн дайын",
   "mdfRowPaid": "төленген",
-  "mdfFilterDueSoon": "Жақында"
+  "mdfFilterDueSoon": "Жақында",
+  "filmCashOpening": "Басындағы қолма-қол",
+  "filmCashOpeningNote": "{day} саналған",
+  "filmCashQuiet": "Бұл кезеңде қозғалыс жоқ."
 }

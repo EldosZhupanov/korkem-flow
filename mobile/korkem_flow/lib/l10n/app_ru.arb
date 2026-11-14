@@ -2532,5 +2532,8 @@
   "mdfRowToday": "сдать сегодня",
   "mdfRowReadyFor": "готов {days} дн.",
   "mdfRowPaid": "оплачен",
-  "mdfFilterDueSoon": "Сдать скоро"
+  "mdfFilterDueSoon": "Сдать скоро",
+  "filmCashOpening": "Наличных на начало",
+  "filmCashOpeningNote": "пересчитано {day}",
+  "filmCashQuiet": "За этот период движений нет."
 }

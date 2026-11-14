@@ -228,6 +228,8 @@ class _Fake implements FilmDeptRepository {
         'where': [
           {'way': 'Наличные', 'amount': 3000},
         ],
+        // Counted at yesterday's close: what the drawer started with.
+        'opening': {'cash': 45000, 'closed_on': '2026-11-10'},
         'moves': [
           {
             'date': '2026-11-11',
@@ -1208,7 +1210,10 @@ void main() {
     expect(find.byKey(const ValueKey('filmCash:chart')), findsNothing);
     // Against the period before: in doubled.
     expect(find.textContaining('▲ 100%'), findsOneWidget);
-    // The day closed: 2 000 short — not without why.
+    // The drawer started with what was counted at the last close.
+    expect(find.byKey(const ValueKey('filmCash:opening')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCash:quiet')), findsNothing);
+    // The day closed: short of what the drawer should hold — not without why.
     await tester.tap(find.byKey(const ValueKey('filmCash:closeDay')));
     await tester.pumpAndSettle();
     await tester.enterText(

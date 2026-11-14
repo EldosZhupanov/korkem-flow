@@ -8839,5 +8839,15 @@
     }
   },
   "mdfRowPaid": "paid",
-  "mdfFilterDueSoon": "Due soon"
+  "mdfFilterDueSoon": "Due soon",
+  "filmCashOpening": "Cash at the start",
+  "filmCashOpeningNote": "counted {day}",
+  "@filmCashOpeningNote": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCashQuiet": "No money moved in this period."
 }

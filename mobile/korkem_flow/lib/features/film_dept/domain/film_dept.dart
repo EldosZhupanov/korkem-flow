@@ -167,6 +167,7 @@ class FilmCashBook {
     this.closed,
     this.days = const [],
     this.previous,
+    this.opening,
   });
 
   factory FilmCashBook.fromJson(Map<String, dynamic> json) {
@@ -249,6 +250,13 @@ class FilmCashBook {
               outgoing: _d(r['out']) ?? 0,
             ),
       ],
+      opening: switch (json['opening']) {
+        final Map<String, dynamic> o => (
+          cash: _d(o['cash']) ?? 0,
+          closedOn: '${o['closed_on'] ?? ''}',
+        ),
+        _ => null,
+      },
       previous: switch (json['previous']) {
         final Map<String, dynamic> p => (
           inTotal: _d(p['in_total']) ?? 0,
@@ -294,6 +302,10 @@ class FilmCashBook {
 
   /// The period of the same length just before, to compare with.
   final ({double inTotal, double outTotal})? previous;
+
+  /// The cash the period starts with, carried over from the last counted
+  /// close; null until a day has been closed.
+  final ({double cash, String closedOn})? opening;
 
   /// Film taken from suppliers on credit, not paid for yet: `who` is the
   /// supplier, `supplier` the film.
