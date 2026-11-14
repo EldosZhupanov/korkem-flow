@@ -180,9 +180,7 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
     );
     if (sure != true) return;
     await _run(
-      () => ref
-          .read(mdfOrderRepositoryProvider)
-          .dictionaryRemove(kind, e.id),
+      () => ref.read(mdfOrderRepositoryProvider).dictionaryRemove(kind, e.id),
     );
   }
 

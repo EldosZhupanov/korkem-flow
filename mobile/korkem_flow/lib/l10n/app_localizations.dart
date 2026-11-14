@@ -14466,6 +14466,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signs (director)'**
   String get filmReqDirector;
+
+  /// No description provided for @mdfPaintSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour system'**
+  String get mdfPaintSystem;
+
+  /// No description provided for @mdfPaintAddSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a colour system'**
+  String get mdfPaintAddSystem;
+
+  /// No description provided for @mdfPaintAddColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a colour to {group}'**
+  String mdfPaintAddColour(String group);
+
+  /// No description provided for @mdfPaintNoSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'No system'**
+  String get mdfPaintNoSystem;
 }
 
 class _AppLocalizationsDelegate

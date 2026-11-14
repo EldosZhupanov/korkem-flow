@@ -148,7 +148,8 @@ class MdfDictionaries {
     ];
     final loose = under(null);
     return [
-      for (final s in systems) (head: s, name: s.value, colours: under(s.value)),
+      for (final s in systems)
+        (head: s, name: s.value, colours: under(s.value)),
       for (final o in orphans) (head: null, name: o, colours: under(o)),
       if (loose.isNotEmpty) (head: null, name: '', colours: loose),
     ];

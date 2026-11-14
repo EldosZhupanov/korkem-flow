@@ -8368,4 +8368,18 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmReqDirector => 'Қол қояды (директор)';
+
+  @override
+  String get mdfPaintSystem => 'Түс жүйесі';
+
+  @override
+  String get mdfPaintAddSystem => 'Түс жүйесін қосу';
+
+  @override
+  String mdfPaintAddColour(String group) {
+    return '$group ішіне түс қосу';
+  }
+
+  @override
+  String get mdfPaintNoSystem => 'Жүйесіз';
 }

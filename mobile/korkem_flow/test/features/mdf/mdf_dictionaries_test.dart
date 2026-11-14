@@ -328,7 +328,10 @@ void main() {
     await tester.pumpAndSettle();
     double top(String key) => tester.getTopLeft(find.byKey(ValueKey(key))).dy;
     // Each system, its colours under it; the unfiled ones last.
-    expect(top('dictEntry:system:RAL Classic'), lessThan(top('dictEntry:RAL 9010')));
+    expect(
+      top('dictEntry:system:RAL Classic'),
+      lessThan(top('dictEntry:RAL 9010')),
+    );
     expect(find.text('No system'), findsOne);
     expect(top('dictEntry:RAL 9010'), lessThan(top('dictEntry:Мой цвет')));
 
@@ -348,7 +351,10 @@ void main() {
     // The title's «+» adds a system, not a colour.
     await tester.tap(find.byKey(const ValueKey('dictAdd')));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const ValueKey('dictValue')), 'RAL Effect');
+    await tester.enterText(
+      find.byKey(const ValueKey('dictValue')),
+      'RAL Effect',
+    );
     await tester.tap(find.byKey(const ValueKey('dictSave')));
     await tester.pumpAndSettle();
     expect(repo.lists[MdfDictKind.paintSystem]!.last.value, 'RAL Effect');
