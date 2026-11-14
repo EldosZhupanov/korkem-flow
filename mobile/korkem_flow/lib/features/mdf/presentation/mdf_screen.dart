@@ -166,6 +166,7 @@ class MdfScreen extends StatelessWidget {
       'press': 1,
       'tv': 1,
       'batch': 1,
+      'paint': 1,
       'stock': 2,
       'film': 2,
       'logistics': 2,
