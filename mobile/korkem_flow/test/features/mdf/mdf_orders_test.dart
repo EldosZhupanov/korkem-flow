@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
@@ -210,6 +211,21 @@ class _FakeRepository implements MdfOrderRepository {
     returned.add(reason);
     return card(order);
   }
+
+  /// №1129: 58 680 ₸, 20 000 of material by estimate, 5 000 of work.
+  @override
+  Future<MdfMargin> margin(String order) async => MdfMargin.fromJson(const {
+    'order': 'SAL-ORD-1129',
+    'revenue': 58680,
+    'material': 20000,
+    'work': 5000,
+    'margin': 33680,
+    'share': 0.574,
+    'estimate': true,
+    'material_rows': [
+      {'title': 'МДФ 16 мм', 'unit': 'лист', 'qty': 0.6, 'cost': 12600},
+    ],
+  });
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -1050,5 +1066,19 @@ void main() {
     await tester.tap(save);
     await tester.pumpAndSettle();
     expect(repo.paid, [(68330.0, 'Перевод', null)]);
+  });
+
+  testWidgets('the card shows what the order earned, and what it leaves out', (
+    tester,
+  ) async {
+    await _pumpCard(tester, _Rich());
+    final value = find.byKey(const ValueKey('mdfMarginValue'));
+    expect(tester.widget<Text>(value).data, contains('57%'));
+    expect(find.byKey(const ValueKey('mdfMarginEstimate')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfMarginNotCounted')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('mdfMargin')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfMarginNotCounted')), findsOneWidget);
+    expect(find.textContaining('МДФ 16 мм'), findsOneWidget);
   });
 }

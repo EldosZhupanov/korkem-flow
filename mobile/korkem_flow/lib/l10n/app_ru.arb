@@ -2473,5 +2473,16 @@
   "filmStatementPayment": "Оплата",
   "filmStatementOwes": "Долг клиента: {sum}",
   "filmStatementSettled": "Расчёты закрыты, долга нет.",
-  "filmStatementSigns": "Продавец ____________     Клиент ____________"
+  "filmStatementSigns": "Продавец ____________     Клиент ____________",
+  "mdfMarginTitle": "Маржа",
+  "mdfMarginRevenue": "Сумма заказа",
+  "mdfMarginMaterial": "Материал",
+  "mdfMarginWork": "Работа",
+  "mdfMarginEstimate": "Оценка по сегодняшним ценам: материал ещё не списан",
+  "mdfMarginMissing": "Без цены: {names}",
+  "mdfMarginNotCounted": "Не учтены: краска, клей, электричество, доставка",
+  "mdfSumMargin": "Маржа выданных заказов",
+  "mdfSumMarginOrders": "Выдано заказов: {count}",
+  "mdfSumMarginEstimated": "По оценке, без списания: {count}",
+  "mdfSumMarginLowest": "Меньше всего заработали"
 }
