@@ -2535,5 +2535,14 @@
   "mdfFilterDueSoon": "Жақында",
   "filmCashOpening": "Басындағы қолма-қол",
   "filmCashOpeningNote": "{day} саналған",
-  "filmCashQuiet": "Бұл кезеңде қозғалыс жоқ."
+  "filmCashQuiet": "Бұл кезеңде қозғалыс жоқ.",
+  "filmFigOnHand": "Қоймада",
+  "filmFigOnWay": "Жолда",
+  "filmFigRolls": "жеткізілім: {count}",
+  "filmFigRunsOut": "Таусылып барады",
+  "filmFigRunsOutNote": "{days} күннен аз жетеді",
+  "filmFigToOrder": "Тапсырыс беру керек",
+  "filmFigToOrderNote": "≈ {metres} м",
+  "filmStockBought": "сатып алу {price}/м",
+  "filmStockOrder": "{metres} м тапсырыс беру"
 }

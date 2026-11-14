@@ -2535,5 +2535,14 @@
   "mdfFilterDueSoon": "Сдать скоро",
   "filmCashOpening": "Наличных на начало",
   "filmCashOpeningNote": "пересчитано {day}",
-  "filmCashQuiet": "За этот период движений нет."
+  "filmCashQuiet": "За этот период движений нет.",
+  "filmFigOnHand": "На складе",
+  "filmFigOnWay": "В пути",
+  "filmFigRolls": "поставок: {count}",
+  "filmFigRunsOut": "Кончается",
+  "filmFigRunsOutNote": "хватит меньше {days} дн.",
+  "filmFigToOrder": "Пора заказать",
+  "filmFigToOrderNote": "≈ {metres} м",
+  "filmStockBought": "закуп {price}/м",
+  "filmStockOrder": "заказать {metres} м"
 }

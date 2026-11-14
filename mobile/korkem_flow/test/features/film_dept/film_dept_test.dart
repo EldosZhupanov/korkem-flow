@@ -632,6 +632,22 @@ void main() {
     expect(find.text('KIRA · Белый Матовый'), findsOneWidget);
     expect(find.text('84 м'), findsOneWidget);
     expect(find.text('6 m · low'), findsOneWidget);
+    // The shelf at a glance: 90 m, 30 m on its way, one running out, one
+    // to order — and what burns is first on the list.
+    String figure(String id) => tester
+        .widget<Text>(find.byKey(ValueKey('figure:filmStock:$id:value')))
+        .data!;
+    expect(
+      [for (final id in ['onHand', 'onWay', 'runsOut', 'toOrder']) figure(id)],
+      ['90 м', '30 м', '1', '1'],
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('filmStock:MAT-2'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('filmStock:MAT-1'))).dy,
+      ),
+    );
+    expect(find.byKey(const ValueKey('filmStock:order:MAT-2')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('filmDept:low')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmStock:MAT-1')), findsNothing);

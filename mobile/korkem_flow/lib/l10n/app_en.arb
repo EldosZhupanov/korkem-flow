@@ -8849,5 +8849,49 @@
       }
     }
   },
-  "filmCashQuiet": "No money moved in this period."
+  "filmCashQuiet": "No money moved in this period.",
+  "filmFigOnHand": "On the shelf",
+  "filmFigOnWay": "On its way",
+  "filmFigRolls": "deliveries: {count}",
+  "@filmFigRolls": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFigRunsOut": "Running out",
+  "filmFigRunsOutNote": "under {days} days left",
+  "@filmFigRunsOutNote": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFigToOrder": "To order",
+  "filmFigToOrderNote": "≈ {metres} m",
+  "@filmFigToOrderNote": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmStockBought": "bought at {price}/m",
+  "@filmStockBought": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "filmStockOrder": "order {metres} m",
+  "@filmStockOrder": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  }
 }

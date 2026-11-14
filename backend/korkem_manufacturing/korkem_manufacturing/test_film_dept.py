@@ -211,6 +211,16 @@ class TestFilmDept(IntegrationTestCase):
 				 arrives_on=add_days(nowdate(), 2))
 		self.assertIsNone(row()["reorder"])
 
+	def test_a_film_that_sells_is_ordered_in_time_without_a_minimum(self):
+		def row() -> dict:
+			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
+
+		self.assertIsNone(row()["reorder"])
+		# 45 m gone in a month — 1.5 m a day; the 5 m left last under a week.
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 45}], paid=0)
+		order = row()["reorder"]
+		self.assertEqual((order["metres"], order["supplier"]), (50, self.supplier))
+
 	def test_a_roll_on_its_way_is_not_on_the_shelf_until_it_comes(self):
 		def row() -> dict:
 			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
