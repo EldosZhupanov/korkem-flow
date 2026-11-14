@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_orders.dart';
 
 final filmOrdersRepositoryProvider = Provider<FilmOrdersRepository>(

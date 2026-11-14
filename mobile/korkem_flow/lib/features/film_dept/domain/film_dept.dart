@@ -151,13 +151,13 @@ abstract final class FilmPayer {
 @immutable
 class FilmSupplierPay {
   const FilmSupplierPay.paid({required this.method, this.fromDept = true})
-    : mode = paid,
+    : mode = modePaid,
       invoiceNo = null,
       invoiceOn = null,
       dueOn = null;
 
   const FilmSupplierPay.credit()
-    : mode = credit,
+    : mode = modeCredit,
       method = null,
       fromDept = true,
       invoiceNo = null,
@@ -168,13 +168,13 @@ class FilmSupplierPay {
     required String this.invoiceNo,
     required String this.invoiceOn,
     this.dueOn,
-  }) : mode = invoice,
+  }) : mode = modeInvoice,
        method = null,
        fromDept = true;
 
-  static const paid = 'paid';
-  static const credit = 'credit';
-  static const invoice = 'invoice';
+  static const modePaid = 'paid';
+  static const modeCredit = 'credit';
+  static const modeInvoice = 'invoice';
 
   final String mode;
 
@@ -190,7 +190,7 @@ class FilmSupplierPay {
   Map<String, Object?> toJson() => {
     'mode': mode,
     'method': ?method,
-    if (mode == paid) 'from': fromDept ? 'dept' : 'elsewhere',
+    if (mode == modePaid) 'from': fromDept ? 'dept' : 'elsewhere',
     'invoice_no': ?invoiceNo,
     'invoice_on': ?invoiceOn,
     'due_on': ?dueOn,

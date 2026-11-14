@@ -1060,11 +1060,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
 
     var number = 0;
 
-    void choose(ValueChanged<String?> set, String? v) {
-      setState(() => set(v));
-      _reprice();
-    }
-
     Widget text(
       String key,
       String label,
@@ -1671,7 +1666,6 @@ class _LineRow extends StatelessWidget {
     required this.line,
     required this.priced,
     required this.millings,
-    this.variants = const {},
     required this.materials,
     required this.films,
     required this.edges,
@@ -1688,6 +1682,7 @@ class _LineRow extends StatelessWidget {
     required this.onDelete,
     required this.onUp,
     required this.onDown,
+    this.variants = const {},
     super.key,
   });
 

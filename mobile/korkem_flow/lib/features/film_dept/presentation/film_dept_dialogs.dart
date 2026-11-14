@@ -17,9 +17,9 @@ import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_orders.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_invoice_dialog.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
-import 'package:korkem_flow/features/film_dept/presentation/film_invoice_dialog.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
@@ -494,7 +494,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
 
   // The film itself (owner, 14.11.2026): paid now — how, and from whose
   // money; on credit; or by the supplier's invoice, with its day to pay.
-  String _supplierMode = FilmSupplierPay.paid;
+  String _supplierMode = FilmSupplierPay.modePaid;
   String _supplierHow = filmCash;
   bool _supplierFromDept = true;
   final _invoiceNo = TextEditingController();
@@ -502,11 +502,11 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   DateTime? _invoiceDue = DateTime.now().add(const Duration(days: 7));
   String _payMethod = filmCash;
 
-  bool get _supplierPaid => _supplierMode == FilmSupplierPay.paid;
+  bool get _supplierPaid => _supplierMode == FilmSupplierPay.modePaid;
 
   FilmSupplierPay get _supplierPay => switch (_supplierMode) {
-    FilmSupplierPay.credit => const FilmSupplierPay.credit(),
-    FilmSupplierPay.invoice => FilmSupplierPay.invoice(
+    FilmSupplierPay.modeCredit => const FilmSupplierPay.credit(),
+    FilmSupplierPay.modeInvoice => FilmSupplierPay.invoice(
       invoiceNo: _invoiceNo.text.trim(),
       invoiceOn: mdfIso(_invoiceOn),
       dueOn: _invoiceDue == null ? null : mdfIso(_invoiceDue!),
@@ -537,9 +537,9 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
           runSpacing: AppSpacing.xs,
           children: [
             for (final (mode, label) in [
-              (FilmSupplierPay.paid, l10n.filmSupplierPaidNow),
-              (FilmSupplierPay.credit, l10n.filmSupplierOnCredit),
-              (FilmSupplierPay.invoice, l10n.filmSupplierByInvoice),
+              (FilmSupplierPay.modePaid, l10n.filmSupplierPaidNow),
+              (FilmSupplierPay.modeCredit, l10n.filmSupplierOnCredit),
+              (FilmSupplierPay.modeInvoice, l10n.filmSupplierByInvoice),
             ])
               ChoiceChip(
                 key: ValueKey('filmSupplierPay:$mode'),
@@ -549,7 +549,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
               ),
           ],
         ),
-        if (_supplierMode == FilmSupplierPay.paid) ...[
+        if (_supplierMode == FilmSupplierPay.modePaid) ...[
           const SizedBox(height: AppSpacing.xs),
           Wrap(
             spacing: AppSpacing.xs,
@@ -578,7 +578,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
             title: Text(l10n.filmSupplierFromDept),
           ),
         ],
-        if (_supplierMode == FilmSupplierPay.invoice) ...[
+        if (_supplierMode == FilmSupplierPay.modeInvoice) ...[
           const SizedBox(height: AppSpacing.xs),
           Wrap(
             spacing: AppSpacing.sm,
@@ -1002,8 +1002,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   /// The delivery in figures: the film, the bringing, the total, a metre
   /// with the bringing, where the metres went (owner, 13.11.2026).
   String _supplierLabel(AppLocalizations l10n) => switch (_supplierMode) {
-    FilmSupplierPay.credit => l10n.filmSupplierOnCredit,
-    FilmSupplierPay.invoice => l10n.filmByInvoiceNo(_invoiceNo.text.trim()),
+    FilmSupplierPay.modeCredit => l10n.filmSupplierOnCredit,
+    FilmSupplierPay.modeInvoice => l10n.filmByInvoiceNo(_invoiceNo.text.trim()),
     _ => [
       _methodLabel(l10n, _supplierHow),
       if (_supplierFromDept) l10n.filmFromDeptCash,
@@ -1405,7 +1405,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
               busy ||
                   !ready ||
                   _supplier == null ||
-                  (_supplierMode == FilmSupplierPay.invoice &&
+                  (_supplierMode == FilmSupplierPay.modeInvoice &&
                       _invoiceNo.text.trim().isEmpty)
               ? null
               : () => save(() {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -37,7 +39,7 @@ class _InvoiceDialogState extends ConsumerState<_InvoiceDialog> {
     super.initState();
     final now = DateTime.now();
     _due = DateTime(now.year, now.month, now.day + 5);
-    _load();
+    unawaited(_load());
   }
 
   Future<void> _load() async {

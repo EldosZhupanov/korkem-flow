@@ -132,7 +132,7 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                             if (o.invoiceNo != null)
                               l10n.filmByInvoiceNo(o.invoiceNo!),
                             if (o.dueOn != null)
-                              l10n.filmInvoiceDue(mdfDay(o.dueOn!)),
+                              l10n.filmInvoiceDue(mdfDay(o.dueOn)),
                           ].join(' · '),
                           style: o.overdue
                               ? TextStyle(color: context.statusColors.danger)

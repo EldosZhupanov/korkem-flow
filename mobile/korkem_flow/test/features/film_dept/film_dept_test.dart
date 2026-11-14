@@ -901,7 +901,7 @@ void main() {
     expect(repo.receivedPaid.single, isFalse);
   });
 
-  testWidgets('a receipt by the supplier\'s invoice carries its number '
+  testWidgets("a receipt by the supplier's invoice carries its number "
       'and its day', (tester) async {
     final repo = await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmStock:MAT-1')));
