@@ -80,7 +80,7 @@ class _FakeRepository implements MdfOrderRepository {
 
   @override
   Future<MdfOverview> overview() async =>
-      (overdue: 1, dueSoon: 2, ready: 3, debt: 58680, debtors: 1);
+      (overdue: 1, dueSoon: 2, ready: 3, debt: 58680.0, debtors: 1);
 
   static final _rows = [
     MdfOrderRow.fromJson(const {

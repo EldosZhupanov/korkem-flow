@@ -77,8 +77,6 @@ double _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
 int _i(Object? v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
 String? _s(Object? v) => v == null || '$v'.isEmpty ? null : '$v';
 
-/// One row of the list.
-@immutable
 /// The list's sections, in the order they are shown.
 enum MdfListSection { overdue, soon, shop, ready, draft, closed }
 
@@ -92,6 +90,8 @@ typedef MdfOverview = ({
   int debtors,
 });
 
+/// One row of the list.
+@immutable
 class MdfOrderRow {
   const MdfOrderRow({
     required this.name,
