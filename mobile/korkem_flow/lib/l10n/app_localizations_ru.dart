@@ -8466,4 +8466,181 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmReqDirector => 'Подписывает (директор)';
+
+  @override
+  String get mdfPaintSystem => 'Система цвета';
+
+  @override
+  String get mdfPaintAddSystem => 'Добавить систему цвета';
+
+  @override
+  String mdfPaintAddColour(String group) {
+    return 'Добавить цвет в $group';
+  }
+
+  @override
+  String get mdfPaintNoSystem => 'Без системы';
+
+  @override
+  String get paintStock => 'Склад краски';
+
+  @override
+  String get paintReceive => 'Приход краски';
+
+  @override
+  String get paintReceiveSave => 'Оприходовать';
+
+  @override
+  String get paintReceiveShort => 'Докупить';
+
+  @override
+  String get paintColour => 'Цвет';
+
+  @override
+  String get paintBase => 'Что это (эмаль, грунт, лак…)';
+
+  @override
+  String get paintBaseEnamelMatt => 'Эмаль ПУ матовая';
+
+  @override
+  String get paintBaseEnamelGloss => 'Эмаль ПУ глянцевая';
+
+  @override
+  String get paintBasePrimer => 'Грунт';
+
+  @override
+  String get paintBaseLacquer => 'Лак';
+
+  @override
+  String get paintKg => 'Кг';
+
+  @override
+  String paintKgShort(String kg) {
+    return '$kg кг';
+  }
+
+  @override
+  String get paintCans => 'Банками';
+
+  @override
+  String get paintCanCount => 'Банок';
+
+  @override
+  String get paintCanKg => 'Кг в банке';
+
+  @override
+  String get paintPriceKg => 'Цена за кг';
+
+  @override
+  String paintPerKg(String price) {
+    return '$price/кг';
+  }
+
+  @override
+  String paintPriceUp(String pct, String was, String who) {
+    return 'Дороже прошлого на $pct % (было $was у $who)';
+  }
+
+  @override
+  String paintPriceDown(String pct, String was, String who) {
+    return 'Дешевле прошлого на $pct % (было $was у $who)';
+  }
+
+  @override
+  String paintPriceSame(String was, String who) {
+    return 'Как в прошлый раз: $was у $who';
+  }
+
+  @override
+  String get paintSupplier => 'Поставщик';
+
+  @override
+  String get paintNewSupplier => 'Новый поставщик';
+
+  @override
+  String paintToSupplier(String kg) {
+    return 'Краска $kg кг';
+  }
+
+  @override
+  String paintLanded(String price) {
+    return 'Кг с доставкой: $price';
+  }
+
+  @override
+  String paintDeliveryPerKg(String price) {
+    return '+$price на кг';
+  }
+
+  @override
+  String paintKgPerM2(String kg) {
+    return 'Расход: $kg кг/м²';
+  }
+
+  @override
+  String get paintKgPerM2Title => 'Расход краски, кг на м²';
+
+  @override
+  String get paintKgPerM2Hint =>
+      'Грунт и все слои вместе. По нему считается, хватит ли краски на очередь.';
+
+  @override
+  String paintNeed(String m2, String need, String have) {
+    return 'очередь $m2 м² · нужно $need кг · есть $have кг';
+  }
+
+  @override
+  String paintShort(String kg) {
+    return 'не хватит $kg кг';
+  }
+
+  @override
+  String get paintEnough => 'хватает';
+
+  @override
+  String paintOnHand(String kg) {
+    return '$kg кг';
+  }
+
+  @override
+  String get paintNone =>
+      'Краски на складе пока нет — нажмите «Приход краски».';
+
+  @override
+  String get paintOwed => 'Должны за краску';
+
+  @override
+  String get paintPaid => 'Оплатили';
+
+  @override
+  String paintHistory(String title) {
+    return 'Приходы: $title';
+  }
+
+  @override
+  String paintTakenBy(String who) {
+    return 'принял $who';
+  }
+
+  @override
+  String paintUsage(String days, String m2, String kg) {
+    return 'За $days дн.: покрашено $m2 м², ушло $kg кг';
+  }
+
+  @override
+  String paintUsageFact(String fact, String norm) {
+    return 'по факту $fact кг/м² (норма $norm)';
+  }
+
+  @override
+  String get paintCount => 'Пересчитать остаток';
+
+  @override
+  String paintCountTitle(String title) {
+    return 'Сколько на самом деле: $title?';
+  }
+
+  @override
+  String get paintCountHint =>
+      'Взвесьте остаток. Разница с программой запишется как расход.';
 }

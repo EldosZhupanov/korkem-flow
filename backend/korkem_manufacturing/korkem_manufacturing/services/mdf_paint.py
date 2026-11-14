@@ -69,18 +69,7 @@ def board() -> dict:
 	company = current_company()
 	hours = dry_hours(company)
 	now = now_datetime()
-	rows = frappe.get_all(
-		"Sales Order",
-		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
-				 "korkem_ready_on": ["is", "not set"], "korkem_handed_over_on": ["is", "not set"],
-				 "korkem_hold_reason": ["is", "not set"]},
-		fields=["name", "customer_name", "delivery_date", "korkem_finish", "korkem_extra_stages",
-				"korkem_coatings", "korkem_tags", DRYING, "korkem_client_paint_note", "korkem_client_paint_in",
-				*mdf_orders.STAGES.values()],
-		order_by="delivery_date asc, name asc",
-		limit_page_length=1000,
-	)
-	painting = [r for r in rows if PAINT in mdf_orders.stages_of(r) and not r.get(mdf_orders.STAGES[PAINT])]
+	painting = _painting(company)
 	colours, two_sided = _colours([r.name for r in painting])
 	by_colour: dict[str, dict] = {}
 	drying, coming = [], []
@@ -117,6 +106,36 @@ def board() -> dict:
 		"client_paint_discount": mdf_orders.client_paint_discount(company),
 		"popular": popular(company),
 	}
+
+
+def _painting(company: str) -> list:
+	"""The orders still to be painted: «краска» among their stages, not ticked."""
+	rows = frappe.get_all(
+		"Sales Order",
+		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
+				 "korkem_ready_on": ["is", "not set"], "korkem_handed_over_on": ["is", "not set"],
+				 "korkem_hold_reason": ["is", "not set"]},
+		fields=["name", "customer_name", "delivery_date", "korkem_finish", "korkem_extra_stages",
+				"korkem_coatings", "korkem_tags", DRYING, "korkem_client_paint_note", "korkem_client_paint_in",
+				*mdf_orders.STAGES.values()],
+		order_by="delivery_date asc, name asc",
+		limit_page_length=1000,
+	)
+	return [r for r in rows if PAINT in mdf_orders.stages_of(r) and not r.get(mdf_orders.STAGES[PAINT])]
+
+
+def queue_by_colour(company: str | None = None) -> dict[str, float]:
+	"""m² still to be painted with our own paint, by colour: waiting at the
+	paint or on their way to it; not what is drying (painted already), not an
+	order the customer brings his own paint for."""
+	company = company or current_company()
+	ours = [r.name for r in _painting(company)
+			if not r.get(DRYING) and mdf_tags.CLIENT_PAINT not in mdf_tags.parse(r.get("korkem_tags"))]
+	total: dict[str, Decimal] = defaultdict(Decimal)
+	for colours in _colours(ours)[0].values():
+		for colour, m2 in colours.items():
+			total[colour] += m2
+	return {colour: float(m2) for colour, m2 in total.items()}
 
 
 def _marks(row, two_sided: bool) -> dict:

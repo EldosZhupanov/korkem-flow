@@ -1221,6 +1221,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       coating: group.coating,
                       film: film,
                       films: colors,
+                      paintGroups: group.coating == MdfCoating.paint
+                          ? dicts.paintGroups()
+                          : const [],
                       rate: _rateOf(film),
                       pieces: priced.fold(0, (sum, p) => sum + p.qty),
                       areaM2: priced.fold<double>(
@@ -1410,10 +1413,15 @@ class _FilmGroup extends StatelessWidget {
     required this.children,
     this.tags = const [],
     this.onTag,
+    this.paintGroups = const [],
     super.key,
   });
 
   final int index;
+
+  /// A paint group's colours by colour system (owner, 15.11.2026): the
+  /// drop-down shows each system as a heading over its colours.
+  final List<MdfPaintGroup> paintGroups;
 
   /// Null on a new order's first group until the manager picks one.
   final MdfCoating? coating;
@@ -1436,6 +1444,46 @@ class _FilmGroup extends StatelessWidget {
   /// (a PVC group), and his own LMDF (any group).
   final List<MdfOrderTag> tags;
   final void Function(MdfOrderTag tag, {required bool on})? onTag;
+
+  /// Each colour system a heading that cannot be picked, its colours under
+  /// it; a colour the order names that has left the list stays, last.
+  List<DropdownMenuItem<String?>> _paintItems(
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
+    final listed = {
+      for (final g in paintGroups)
+        for (final c in g.colours) c.value,
+    };
+    return [
+      for (final g in paintGroups)
+        if (g.colours.isNotEmpty) ...[
+          DropdownMenuItem<String?>(
+            key: ValueKey('mdfPaintSystem:${g.name}'),
+            enabled: false,
+            value: '\u0000${g.name}',
+            child: Text(
+              g.name.isEmpty ? l10n.mdfPaintNoSystem : g.name,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          for (final c in g.colours)
+            DropdownMenuItem<String?>(
+              value: c.value,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  start: AppSpacing.md,
+                ),
+                child: Text(c.value),
+              ),
+            ),
+        ],
+      if (film case final f? when f.isNotEmpty && !listed.contains(f))
+        DropdownMenuItem<String?>(value: f, child: Text(f)),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1528,8 +1576,11 @@ class _FilmGroup extends StatelessWidget {
                           DropdownMenuItem(
                             child: Text(mdfCoatingNone(coating, l10n)),
                           ),
-                          for (final f in mdfChoices(films, film))
-                            DropdownMenuItem(value: f, child: Text(f)),
+                          if (paintGroups.any((g) => g.colours.isNotEmpty))
+                            ..._paintItems(theme, l10n)
+                          else
+                            for (final f in mdfChoices(films, film))
+                              DropdownMenuItem(value: f, child: Text(f)),
                         ],
                         onChanged: onFilm,
                         style: theme.textTheme.titleSmall?.copyWith(

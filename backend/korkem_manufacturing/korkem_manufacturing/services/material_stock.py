@@ -39,7 +39,9 @@ EDITORS = frozenset(
 	{"System Manager", "Sales Manager", "Purchase Manager", "Purchase User", "Stock Manager"}
 )
 MDF, FILM, OTHER = "МДФ", "Плёнка ПВХ", "Прочее"
-KINDS = (MDF, FILM, OTHER)
+#: Paint, kept by colour and bought by the kilo (owner, 15.11.2026).
+PAINT = "Краска"
+KINDS = (MDF, FILM, OTHER, PAINT)
 LISTS = ("Толщина МДФ", "Производитель", "Цвет плёнки", "Ширина плёнки", "Толщина плёнки", "Профиль кромки",
 		 # The MDF order form's own lists (08.11.2026); the stock screen does not show them.
 		 "Покрытие", "Патина", "Фрезеровка", "Материал", "Банк", "Краска",
@@ -49,9 +51,11 @@ LISTS = ("Толщина МДФ", "Производитель", "Цвет плё
 		 # «Maker · Collection» (`film_catalog`, owner, 11.11.2026).
 		 "Коллекция плёнки",
 		 # How a roll came and from where (owner, 11.11.2026): lists he keeps.
-		 "Способ доставки", "Город доставки")
+		 "Способ доставки", "Город доставки",
+		 # RAL Classic, NCS, «По образцу» — a paint's colour system (15.11.2026).
+		 "Система цвета")
 #: Units a material is counted in. Created in ERPNext if missing.
-UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False}
+UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False, "кг": False}
 MAX_QTY = Decimal("100000")
 
 

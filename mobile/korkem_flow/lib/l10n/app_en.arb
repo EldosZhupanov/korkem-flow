@@ -9110,5 +9110,207 @@
   "filmReqIik": "IIK (account)",
   "filmReqBik": "BIK",
   "filmReqKbe": "Kbe",
-  "filmReqDirector": "Signs (director)"
+  "filmReqDirector": "Signs (director)",
+  "mdfPaintSystem": "Colour system",
+  "mdfPaintAddSystem": "Add a colour system",
+  "mdfPaintAddColour": "Add a colour to {group}",
+  "@mdfPaintAddColour": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPaintNoSystem": "No system",
+  "paintStock": "Paint store",
+  "paintReceive": "Paint received",
+  "paintReceiveSave": "Take in",
+  "paintReceiveShort": "Buy",
+  "paintColour": "Colour",
+  "paintBase": "What it is (enamel, primer, lacquer…)",
+  "paintBaseEnamelMatt": "PU enamel, matt",
+  "paintBaseEnamelGloss": "PU enamel, gloss",
+  "paintBasePrimer": "Primer",
+  "paintBaseLacquer": "Lacquer",
+  "paintKg": "Kg",
+  "paintKgShort": "{kg} kg",
+  "@paintKgShort": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "paintCans": "In cans",
+  "paintCanCount": "Cans",
+  "paintCanKg": "Kg a can",
+  "paintPriceKg": "Price a kg",
+  "paintPerKg": "{price}/kg",
+  "@paintPerKg": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paintPriceUp": "{pct}% dearer than last time ({was} from {who})",
+  "@paintPriceUp": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "was": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "paintPriceDown": "{pct}% cheaper than last time ({was} from {who})",
+  "@paintPriceDown": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "was": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "paintPriceSame": "As last time: {was} from {who}",
+  "@paintPriceSame": {
+    "placeholders": {
+      "was": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "paintSupplier": "Supplier",
+  "paintNewSupplier": "New supplier",
+  "paintToSupplier": "Paint {kg} kg",
+  "@paintToSupplier": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "paintLanded": "A kg with the delivery: {price}",
+  "@paintLanded": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paintDeliveryPerKg": "+{price} a kg",
+  "@paintDeliveryPerKg": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paintKgPerM2": "Use: {kg} kg/m²",
+  "@paintKgPerM2": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "paintKgPerM2Title": "Paint used, kg a m²",
+  "paintKgPerM2Hint": "Primer and every coat together. It says whether the paint is enough for the queue.",
+  "paintNeed": "queue {m2} m² · needs {need} kg · {have} kg here",
+  "@paintNeed": {
+    "placeholders": {
+      "m2": {
+        "type": "String"
+      },
+      "need": {
+        "type": "String"
+      },
+      "have": {
+        "type": "String"
+      }
+    }
+  },
+  "paintShort": "{kg} kg short",
+  "@paintShort": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "paintEnough": "enough",
+  "paintOnHand": "{kg} kg",
+  "@paintOnHand": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "paintNone": "No paint in the store yet — press «Paint received».",
+  "paintOwed": "Owed for paint",
+  "paintPaid": "Paid",
+  "paintHistory": "Received: {title}",
+  "@paintHistory": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "paintTakenBy": "taken in by {who}",
+  "@paintTakenBy": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "paintUsage": "{days} days: {m2} m² painted, {kg} kg used",
+  "@paintUsage": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "m2": {
+        "type": "String"
+      },
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "paintUsageFact": "really {fact} kg/m² (figure {norm})",
+  "@paintUsageFact": {
+    "placeholders": {
+      "fact": {
+        "type": "String"
+      },
+      "norm": {
+        "type": "String"
+      }
+    }
+  },
+  "paintCount": "Count what is left",
+  "paintCountTitle": "How many kg of {title} are really here?",
+  "@paintCountTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "paintCountHint": "Weigh what is left. The difference from the program counts as used."
 }

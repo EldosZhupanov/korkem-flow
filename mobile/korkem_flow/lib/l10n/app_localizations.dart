@@ -14538,6 +14538,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signs (director)'**
   String get filmReqDirector;
+
+  /// No description provided for @mdfPaintSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour system'**
+  String get mdfPaintSystem;
+
+  /// No description provided for @mdfPaintAddSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a colour system'**
+  String get mdfPaintAddSystem;
+
+  /// No description provided for @mdfPaintAddColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a colour to {group}'**
+  String mdfPaintAddColour(String group);
+
+  /// No description provided for @mdfPaintNoSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'No system'**
+  String get mdfPaintNoSystem;
+
+  /// No description provided for @paintStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint store'**
+  String get paintStock;
+
+  /// No description provided for @paintReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint received'**
+  String get paintReceive;
+
+  /// No description provided for @paintReceiveSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Take in'**
+  String get paintReceiveSave;
+
+  /// No description provided for @paintReceiveShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get paintReceiveShort;
+
+  /// No description provided for @paintColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get paintColour;
+
+  /// No description provided for @paintBase.
+  ///
+  /// In en, this message translates to:
+  /// **'What it is (enamel, primer, lacquer…)'**
+  String get paintBase;
+
+  /// No description provided for @paintBaseEnamelMatt.
+  ///
+  /// In en, this message translates to:
+  /// **'PU enamel, matt'**
+  String get paintBaseEnamelMatt;
+
+  /// No description provided for @paintBaseEnamelGloss.
+  ///
+  /// In en, this message translates to:
+  /// **'PU enamel, gloss'**
+  String get paintBaseEnamelGloss;
+
+  /// No description provided for @paintBasePrimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Primer'**
+  String get paintBasePrimer;
+
+  /// No description provided for @paintBaseLacquer.
+  ///
+  /// In en, this message translates to:
+  /// **'Lacquer'**
+  String get paintBaseLacquer;
+
+  /// No description provided for @paintKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Kg'**
+  String get paintKg;
+
+  /// No description provided for @paintKgShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg'**
+  String paintKgShort(String kg);
+
+  /// No description provided for @paintCans.
+  ///
+  /// In en, this message translates to:
+  /// **'In cans'**
+  String get paintCans;
+
+  /// No description provided for @paintCanCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Cans'**
+  String get paintCanCount;
+
+  /// No description provided for @paintCanKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Kg a can'**
+  String get paintCanKg;
+
+  /// No description provided for @paintPriceKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Price a kg'**
+  String get paintPriceKg;
+
+  /// No description provided for @paintPerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/kg'**
+  String paintPerKg(String price);
+
+  /// No description provided for @paintPriceUp.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% dearer than last time ({was} from {who})'**
+  String paintPriceUp(String pct, String was, String who);
+
+  /// No description provided for @paintPriceDown.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% cheaper than last time ({was} from {who})'**
+  String paintPriceDown(String pct, String was, String who);
+
+  /// No description provided for @paintPriceSame.
+  ///
+  /// In en, this message translates to:
+  /// **'As last time: {was} from {who}'**
+  String paintPriceSame(String was, String who);
+
+  /// No description provided for @paintSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get paintSupplier;
+
+  /// No description provided for @paintNewSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'New supplier'**
+  String get paintNewSupplier;
+
+  /// No description provided for @paintToSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint {kg} kg'**
+  String paintToSupplier(String kg);
+
+  /// No description provided for @paintLanded.
+  ///
+  /// In en, this message translates to:
+  /// **'A kg with the delivery: {price}'**
+  String paintLanded(String price);
+
+  /// No description provided for @paintDeliveryPerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'+{price} a kg'**
+  String paintDeliveryPerKg(String price);
+
+  /// No description provided for @paintKgPerM2.
+  ///
+  /// In en, this message translates to:
+  /// **'Use: {kg} kg/m²'**
+  String paintKgPerM2(String kg);
+
+  /// No description provided for @paintKgPerM2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint used, kg a m²'**
+  String get paintKgPerM2Title;
+
+  /// No description provided for @paintKgPerM2Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Primer and every coat together. It says whether the paint is enough for the queue.'**
+  String get paintKgPerM2Hint;
+
+  /// No description provided for @paintNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'queue {m2} m² · needs {need} kg · {have} kg here'**
+  String paintNeed(String m2, String need, String have);
+
+  /// No description provided for @paintShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg short'**
+  String paintShort(String kg);
+
+  /// No description provided for @paintEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'enough'**
+  String get paintEnough;
+
+  /// No description provided for @paintOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg'**
+  String paintOnHand(String kg);
+
+  /// No description provided for @paintNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No paint in the store yet — press «Paint received».'**
+  String get paintNone;
+
+  /// No description provided for @paintOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed for paint'**
+  String get paintOwed;
+
+  /// No description provided for @paintPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paintPaid;
+
+  /// No description provided for @paintHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Received: {title}'**
+  String paintHistory(String title);
+
+  /// No description provided for @paintTakenBy.
+  ///
+  /// In en, this message translates to:
+  /// **'taken in by {who}'**
+  String paintTakenBy(String who);
+
+  /// No description provided for @paintUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days: {m2} m² painted, {kg} kg used'**
+  String paintUsage(String days, String m2, String kg);
+
+  /// No description provided for @paintUsageFact.
+  ///
+  /// In en, this message translates to:
+  /// **'really {fact} kg/m² (figure {norm})'**
+  String paintUsageFact(String fact, String norm);
+
+  /// No description provided for @paintCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Count what is left'**
+  String get paintCount;
+
+  /// No description provided for @paintCountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How many kg of {title} are really here?'**
+  String paintCountTitle(String title);
+
+  /// No description provided for @paintCountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Weigh what is left. The difference from the program counts as used.'**
+  String get paintCountHint;
 }
 
 class _AppLocalizationsDelegate

@@ -21,20 +21,16 @@ import 'package:korkem_flow/features/film_dept/presentation/film_invoice_dialog.
 import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
-import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-/// The server's words for how money came (the cash book's own).
-const filmTransfer = 'Перевод';
-const filmCash = 'Наличные';
-const filmCard = 'Карта';
+export 'film_receipt_terms.dart' show filmCard, filmCash, filmTransfer;
 
-double? _number(String text) =>
-    double.tryParse(text.trim().replaceAll(',', '.').replaceAll(' ', ''));
+double? _number(String text) => filmNumber(text);
 
 /// The name an order and a sale call a film by: «KIRA · Белый Матовый».
 String filmName(Film f) => f.label ?? '${f.maker} · ${f.colour}';
@@ -88,53 +84,10 @@ Widget _metresField(
   decoration: InputDecoration(labelText: label),
 );
 
-/// A field with its list's own ✎: the list opens to be added to, renamed,
-/// cleaned (owner, 11.11.2026: «чтобы редактировался и мог бы удалить»).
-Widget _withList(
-  BuildContext context, {
-  required String key,
-  required Widget child,
-  required VoidCallback onEdit,
-}) => Row(
-  children: [
-    Expanded(child: child),
-    IconButton(
-      key: ValueKey(key),
-      tooltip: AppLocalizations.of(context).mdfDictOpen,
-      onPressed: onEdit,
-      icon: const Icon(AppIcons.edit),
-    ),
-  ],
-);
-
 /// «пятница, 13.11» — the day a roll is due, as the shop says it.
 String _dayName(BuildContext context, DateTime day) =>
     '${DateFormat.EEEE(Localizations.localeOf(context).toString()).format(day)}'
     ', ${mdfDay(mdfIso(day), year: false)}';
-
-/// Who works here, to pick who took a roll in or who sold — the one
-/// signed in first.
-Widget _personField({
-  required String key,
-  required String label,
-  required FilmDeliveryOptions? opts,
-  required String? value,
-  required ValueChanged<String?> onChanged,
-}) {
-  final staff = opts?.staff ?? const [];
-  final chosen = value ?? opts?.me;
-  return DropdownButtonFormField<String>(
-    key: ValueKey('$key:${staff.length}'),
-    initialValue: staff.any((p) => p.user == chosen) ? chosen : null,
-    isExpanded: true,
-    items: [
-      for (final p in staff)
-        DropdownMenuItem(value: p.user, child: Text(p.name)),
-    ],
-    onChanged: onChanged,
-    decoration: InputDecoration(labelText: label),
-  );
-}
 
 /// «Приход»: a roll or a cut from a wholesaler — metres at a price a metre.
 /// Several films of one supplier come in one delivery (owner, 12.11.2026:
@@ -446,13 +399,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     }
   }
 
-  // How it came (owner, 11.11.2026): by default as this supplier's last
-  // roll came, from the city on its card; nothing paid; taken in by me.
-  final _cost = TextEditingController();
-
-  // Who brought it and how to reach him — optional (owner, 12.11.2026).
-  final _driver = TextEditingController();
-  final _phone = TextEditingController();
+  final _terms = FilmReceiptTerms();
 
   /// When it arrives (owner, 11.11.2026): in two days unless said; 0 — it
   /// is here already. A day picked on the calendar wins.
@@ -482,184 +429,12 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     });
   }
 
-  String? _transport;
-  String? _city;
-  String? _taker;
-  bool _urgent = false;
-
-  // Who paid for the bringing (owner, 11.11.2026): the film department's
-  // cash, in cash, unless said.
-  String _payer = FilmPayer.cash;
-  String? _paidBy;
-
-  // The film itself (owner, 14.11.2026): paid now — how, and from whose
-  // money; on credit; or by the supplier's invoice, with its day to pay.
-  String _supplierMode = FilmSupplierPay.modePaid;
-  String _supplierHow = filmCash;
-  bool _supplierFromDept = true;
-  final _invoiceNo = TextEditingController();
-  DateTime _invoiceOn = DateTime.now();
-  DateTime? _invoiceDue = DateTime.now().add(const Duration(days: 7));
-  String _payMethod = filmCash;
-
-  bool get _supplierPaid => _supplierMode == FilmSupplierPay.modePaid;
-
-  FilmSupplierPay get _supplierPay => switch (_supplierMode) {
-    FilmSupplierPay.modeCredit => const FilmSupplierPay.credit(),
-    FilmSupplierPay.modeInvoice => FilmSupplierPay.invoice(
-      invoiceNo: _invoiceNo.text.trim(),
-      invoiceOn: mdfIso(_invoiceOn),
-      dueOn: _invoiceDue == null ? null : mdfIso(_invoiceDue!),
-    ),
-    _ => FilmSupplierPay.paid(
-      method: _supplierHow,
-      fromDept: _supplierFromDept,
-    ),
-  };
-
-  Future<DateTime?> _pickDate(DateTime initial) => showDatePicker(
-    context: context,
-    initialDate: initial,
-    firstDate: DateTime.now().subtract(const Duration(days: 365)),
-    lastDate: DateTime.now().add(const Duration(days: 365)),
-  );
-
-  /// «Оплачено», «В долг», «По счёту» — and what each asks.
-  Widget _supplierPayField(AppLocalizations l10n) {
-    final theme = Theme.of(context);
-    String day(DateTime d) => mdfDay(mdfIso(d));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l10n.filmSupplierPay, style: theme.textTheme.titleSmall),
-        Wrap(
-          spacing: AppSpacing.xs,
-          runSpacing: AppSpacing.xs,
-          children: [
-            for (final (mode, label) in [
-              (FilmSupplierPay.modePaid, l10n.filmSupplierPaidNow),
-              (FilmSupplierPay.modeCredit, l10n.filmSupplierOnCredit),
-              (FilmSupplierPay.modeInvoice, l10n.filmSupplierByInvoice),
-            ])
-              ChoiceChip(
-                key: ValueKey('filmSupplierPay:$mode'),
-                label: Text(label),
-                selected: _supplierMode == mode,
-                onSelected: (_) => setState(() => _supplierMode = mode),
-              ),
-          ],
-        ),
-        if (_supplierMode == FilmSupplierPay.modePaid) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
-            children: [
-              for (final (m, label) in [
-                (filmCash, l10n.mdfPayCash),
-                (filmTransfer, l10n.mdfPayTransfer),
-                (filmCard, l10n.mdfPayCard),
-              ])
-                ChoiceChip(
-                  key: ValueKey('filmSupplierHow:$m'),
-                  label: Text(label),
-                  selected: _supplierHow == m,
-                  onSelected: (_) => setState(() => _supplierHow = m),
-                ),
-            ],
-          ),
-          CheckboxListTile(
-            key: const ValueKey('filmSupplierFromDept'),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            controlAffinity: ListTileControlAffinity.leading,
-            value: _supplierFromDept,
-            onChanged: (v) => setState(() => _supplierFromDept = v ?? true),
-            title: Text(l10n.filmSupplierFromDept),
-          ),
-        ],
-        if (_supplierMode == FilmSupplierPay.modeInvoice) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.xs,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              SizedBox(
-                width: AppSpacing.xxxl * 3,
-                child: TextField(
-                  key: const ValueKey('filmSupplierInvoiceNo'),
-                  controller: _invoiceNo,
-                  decoration: InputDecoration(
-                    labelText: l10n.filmInvoiceNo,
-                    isDense: true,
-                  ),
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              OutlinedButton(
-                key: const ValueKey('filmSupplierInvoiceOn'),
-                onPressed: () async {
-                  final d = await _pickDate(_invoiceOn);
-                  if (d != null && mounted) setState(() => _invoiceOn = d);
-                },
-                child: Text(l10n.filmInvoiceOn(day(_invoiceOn))),
-              ),
-              OutlinedButton(
-                key: const ValueKey('filmSupplierInvoiceDue'),
-                onPressed: () async {
-                  final d = await _pickDate(_invoiceDue ?? _invoiceOn);
-                  if (d != null && mounted) setState(() => _invoiceDue = d);
-                },
-                child: Text(
-                  _invoiceDue == null
-                      ? l10n.filmInvoiceNoDue
-                      : l10n.filmInvoiceDue(day(_invoiceDue!)),
-                ),
-              ),
-            ],
-          ),
-          Text(l10n.filmInvoiceHint, style: theme.textTheme.bodySmall),
-        ],
-      ],
-    );
-  }
-
-  String? _transportOf(FilmDeliveryOptions? o) =>
-      _transport ?? o?.last[_supplier]?.transport ?? o?.transports.firstOrNull;
-
-  String? _cityOf(FilmDeliveryOptions? o) =>
-      _city ?? o?.last[_supplier]?.city ?? o?.supplierCities[_supplier];
-
-  Future<void> _editList(MdfDictKind kind, String title, String? now) async {
-    final picked = await showMdfDictionary(
-      context,
-      kind,
-      title: title,
-      current: now,
-    );
-    if (!mounted) return;
-    ref.invalidate(filmDeliveryOptionsProvider);
-    if (picked != null) {
-      setState(() {
-        if (kind == MdfDictKind.transport) {
-          _transport = picked;
-        } else {
-          _city = picked;
-        }
-      });
-    }
-  }
-
   @override
   void dispose() {
     for (final l in _lines) {
       l.dispose();
     }
-    _cost.dispose();
-    _driver.dispose();
-    _invoiceNo.dispose();
-    _phone.dispose();
+    _terms.dispose();
     super.dispose();
   }
 
@@ -1001,30 +776,6 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
 
   /// The delivery in figures: the film, the bringing, the total, a metre
   /// with the bringing, where the metres went (owner, 13.11.2026).
-  String _supplierLabel(AppLocalizations l10n) => switch (_supplierMode) {
-    FilmSupplierPay.modeCredit => l10n.filmSupplierOnCredit,
-    FilmSupplierPay.modeInvoice => l10n.filmByInvoiceNo(_invoiceNo.text.trim()),
-    _ => [
-      _methodLabel(l10n, _supplierHow),
-      if (_supplierFromDept) l10n.filmFromDeptCash,
-    ].join(', '),
-  };
-
-  String _driverLabel(AppLocalizations l10n) => switch (_payer) {
-    FilmPayer.employee => l10n.filmPayerEmployee,
-    FilmPayer.unpaid => l10n.filmPayerUnpaid,
-    _ => [
-      _methodLabel(l10n, _payMethod),
-      l10n.filmFromDeptCash,
-    ].join(', '),
-  };
-
-  String _methodLabel(AppLocalizations l10n, String m) => switch (m) {
-    filmTransfer => l10n.mdfPayTransfer,
-    filmCard => l10n.mdfPayCard,
-    _ => l10n.mdfPayCash,
-  };
-
   Widget _summary(double metres, double total, double cost, double perM) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
@@ -1060,14 +811,14 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
           row(
             [
               l10n.filmReceiveFilmTotal(_lines.length, filmMetres(metres)),
-              _supplierLabel(l10n),
+              _terms.supplierLabel(l10n),
             ].join(' · '),
             money.format(total),
             key: const ValueKey('filmReceive:supplierLine'),
           ),
           if (cost > 0)
             row(
-              [l10n.filmDeliveryCost, _driverLabel(l10n)].join(' · '),
+              [l10n.filmDeliveryCost, _terms.driverLabel(l10n)].join(' · '),
               money.format(cost),
               key: const ValueKey('filmReceive:driverLine'),
             ),
@@ -1126,13 +877,10 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     final metres = _lines.fold<double>(0, (s, l) => s + l.m);
     final total = _lines.fold<double>(0, (s, l) => s + l.m * l.p);
     final ready = _lines.every((l) => l.m > 0 && l.p > 0);
-    final cost = _number(_cost.text) ?? 0;
+    final cost = _terms.costAmount;
     final perM = cost > 0 && metres > 0 ? cost / metres : 0.0;
     final low = _lowHere;
     final opts = ref.watch(filmDeliveryOptionsProvider).value;
-    final transport = _transportOf(opts);
-    final city = _cityOf(opts);
-    final cities = {...?opts?.cities, ?city}.toList();
     final money = mdfMoney(context);
     return AlertDialog(
       title: Text(
@@ -1225,168 +973,18 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                   ),
                 ),
               const SizedBox(height: AppSpacing.md),
-              _supplierPayField(l10n),
+              FilmSupplierPayField(terms: _terms, update: setState),
               if (opts != null) ...[
                 const SizedBox(height: AppSpacing.md),
-                Text(
-                  l10n.filmDelivery,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                _withList(
-                  context,
-                  key: 'filmDelivery:transport:edit',
-                  onEdit: () => _editList(
-                    MdfDictKind.transport,
-                    l10n.filmTransport,
-                    transport,
-                  ),
-                  child: Wrap(
-                    spacing: AppSpacing.xs,
-                    runSpacing: AppSpacing.xs,
-                    children: [
-                      for (final t in opts.transports)
-                        ChoiceChip(
-                          key: ValueKey('filmDelivery:transport:$t'),
-                          label: Text(t),
-                          selected: t == transport,
-                          onSelected: (_) => setState(() => _transport = t),
-                        ),
-                    ],
-                  ),
-                ),
-                _withList(
-                  context,
-                  key: 'filmDelivery:city:edit',
-                  onEdit: () =>
-                      _editList(MdfDictKind.city, l10n.filmCity, city),
-                  child: DropdownButtonFormField<String?>(
-                    key: ValueKey('filmDelivery:city:$city:${cities.length}'),
-                    initialValue: city,
-                    isExpanded: true,
-                    items: [
-                      DropdownMenuItem(child: Text(l10n.mdfNone)),
-                      for (final c in cities)
-                        DropdownMenuItem(value: c, child: Text(c)),
-                    ],
-                    onChanged: (v) => setState(() => _city = v),
-                    decoration: InputDecoration(labelText: l10n.filmCity),
-                  ),
-                ),
-                TextField(
-                  key: const ValueKey('filmDelivery:cost'),
-                  controller: _cost,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    labelText: l10n.filmDeliveryCost,
-                    // What bringing it added to each metre.
-                    helperText: cost > 0 && metres > 0
-                        ? l10n.filmDeliveryPerM(money.format(cost / metres))
-                        : null,
-                  ),
-                ),
-                if (cost > 0) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(l10n.filmDeliveryPayer),
-                  Wrap(
-                    spacing: AppSpacing.xs,
-                    runSpacing: AppSpacing.xs,
-                    children: [
-                      for (final (p, label) in [
-                        (FilmPayer.cash, l10n.filmPayerCash),
-                        (FilmPayer.employee, l10n.filmPayerEmployee),
-                        (FilmPayer.unpaid, l10n.filmPayerUnpaid),
-                      ])
-                        ChoiceChip(
-                          key: ValueKey('filmDelivery:payer:$p'),
-                          label: Text(label),
-                          selected: _payer == p,
-                          onSelected: (_) => setState(() => _payer = p),
-                        ),
-                    ],
-                  ),
-                  if (_payer == FilmPayer.employee)
-                    _personField(
-                      key: 'filmDelivery:paidBy',
-                      label: l10n.filmPaidBy,
-                      opts: opts,
-                      value: _paidBy,
-                      onChanged: (v) => setState(() => _paidBy = v),
-                    ),
-                  if (_payer != FilmPayer.unpaid)
-                    Wrap(
-                      spacing: AppSpacing.xs,
-                      children: [
-                        for (final (m, label) in [
-                          (filmCash, l10n.mdfPayCash),
-                          (filmTransfer, l10n.mdfPayTransfer),
-                          (filmCard, l10n.mdfPayCard),
-                        ])
-                          ChoiceChip(
-                            key: ValueKey('filmDelivery:method:$m'),
-                            label: Text(label),
-                            selected: _payMethod == m,
-                            onSelected: (_) => setState(() => _payMethod = m),
-                          ),
-                      ],
-                    ),
-                ],
-                // Drivers who brought film before: a tap fills both.
-                if (opts.drivers.isNotEmpty)
-                  Wrap(
-                    spacing: AppSpacing.xs,
-                    runSpacing: AppSpacing.xs,
-                    children: [
-                      for (final d in opts.drivers.take(6))
-                        ActionChip(
-                          key: ValueKey('filmDelivery:driver:${d.driver}'),
-                          label: Text([d.driver, ?d.phone].join(' · ')),
-                          onPressed: () => setState(() {
-                            _driver.text = d.driver;
-                            _phone.text = d.phone ?? '';
-                          }),
-                        ),
-                    ],
-                  ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        key: const ValueKey('filmDelivery:driver'),
-                        controller: _driver,
-                        decoration: InputDecoration(
-                          labelText: l10n.filmDriver,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: TextField(
-                        key: const ValueKey('filmDelivery:phone'),
-                        controller: _phone,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: l10n.filmDriverPhone,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                _personField(
-                  key: 'filmDelivery:taker',
-                  label: l10n.filmReceivedBy,
+                FilmDeliveryField(
+                  terms: _terms,
                   opts: opts,
-                  value: _taker,
-                  onChanged: (v) => setState(() => _taker = v),
-                ),
-                CheckboxListTile(
-                  key: const ValueKey('filmDelivery:urgent'),
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  value: _urgent,
-                  onChanged: (v) => setState(() => _urgent = v ?? false),
-                  title: Text(l10n.filmUrgent),
+                  supplier: _supplier,
+                  update: setState,
+                  // What bringing it added to each metre.
+                  costHelper: metres > 0
+                      ? l10n.filmDeliveryPerM(money.format(cost / metres))
+                      : null,
                 ),
               ],
               if (total > 0) _summary(metres, total, cost, perM),
@@ -1402,34 +1000,11 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
         ),
         FilledButton(
           key: const ValueKey('filmReceiveSave'),
-          onPressed:
-              busy ||
-                  !ready ||
-                  _supplier == null ||
-                  (_supplierMode == FilmSupplierPay.modeInvoice &&
-                      _invoiceNo.text.trim().isEmpty)
+          onPressed: busy || !ready || _supplier == null || _terms.incomplete
               ? null
               : () => save(() {
-                  final delivery = opts == null
-                      ? null
-                      : <String, Object?>{
-                          'transport': transport,
-                          'city': city ?? '',
-                          'amount': cost,
-                          'urgent': _urgent,
-                          if (_driver.text.trim().isNotEmpty)
-                            'driver': _driver.text.trim(),
-                          if (_phone.text.trim().isNotEmpty)
-                            'phone': _phone.text.trim(),
-                          if (cost > 0) ...{
-                            'payer': _payer,
-                            if (_payer == FilmPayer.employee)
-                              'paid_by': _paidBy ?? opts.me,
-                            if (_payer != FilmPayer.unpaid)
-                              'method': _payMethod,
-                          },
-                        };
-                  final taker = opts == null ? null : _taker ?? opts.me;
+                  final delivery = _terms.delivery(opts, _supplier);
+                  final taker = _terms.takerOf(opts);
                   final due = _due == null ? null : mdfIso(_due!);
                   final only = _lines.length == 1 ? _lines.single : null;
                   // One film for the shelf: the receipt it always was.
@@ -1448,8 +1023,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                           delivery: delivery,
                           receivedBy: taker,
                           arrivesOn: due,
-                          supplierPaid: _supplierPaid,
-                          supplierPay: _supplierPay,
+                          supplierPaid: _terms.supplierPaid,
+                          supplierPay: _terms.supplierPay,
                         );
                   }
                   return ref
@@ -1462,8 +1037,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                         delivery: delivery,
                         receivedBy: taker,
                         arrivesOn: due,
-                        supplierPaid: _supplierPaid,
-                        supplierPay: _supplierPay,
+                        supplierPaid: _terms.supplierPaid,
+                        supplierPay: _terms.supplierPay,
                       );
                 }),
           // On its way: ordered, not taken in yet — with what it comes to.
@@ -1985,7 +1560,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                 Row(
                   children: [
                     Expanded(
-                      child: _personField(
+                      child: filmPersonField(
                         key: 'filmSaleSeller',
                         label: l10n.filmSeller,
                         opts: sellers,
@@ -1995,7 +1570,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
-                      child: _personField(
+                      child: filmPersonField(
                         key: 'filmSaleIssuer',
                         label: l10n.filmIssuedBy,
                         opts: sellers,

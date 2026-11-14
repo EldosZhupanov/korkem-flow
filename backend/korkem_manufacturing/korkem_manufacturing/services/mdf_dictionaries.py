@@ -31,13 +31,18 @@ The milling list has two levels (owner, 14.11.2026): a group — «Рифлён�
 `group` names its group; it is priced as its group unless it has a price of
 its own (`facade_prices.price_for`). Renaming a group carries its name to its
 variants; deleting it takes its variants off the list with it.
+
+Paints have two levels too (owner, 15.11.2026), kept apart from the milling
+way: the colour systems are a list of their own — RAL Classic, NCS, «По
+образцу» — and a colour's `group` is its system (`mdf_paints`). Renaming a
+system refiles its colours; deleting one leaves them on the list unfiled.
 """
 
 from __future__ import annotations
 
 import frappe
 
-from korkem_manufacturing.services import audit, facade_prices, material_stock
+from korkem_manufacturing.services import audit, facade_prices, material_stock, mdf_paints
 from korkem_manufacturing.services.scope import current_company
 
 #: МДФ, ЛМДФ, ХДФ — the board a position is made of; its thickness is a list
@@ -57,7 +62,9 @@ KINDS: dict[str, str] = {
 	"bank": "Банк",
 	# RAL 9010, NCS S 3040-Y60R, MPC 9010 — a paint group's colours, apart from
 	# the films (owner, 09.11.2026: «не будут смешиваться краски и плёнки»).
-	"paint": "Краска",
+	"paint": mdf_paints.PAINT_LIST,
+	# RAL Classic, RAL Effect, NCS, «По образцу» — a colour's group (15.11.2026).
+	"paint_system": mdf_paints.SYSTEM_LIST,
 	# A film's maker and its type, each a list the owner keeps (10.11.2026):
 	# KIRA, JS Group, МС-Груп …; матовая, софт, древесная …
 	"maker": "Производитель",
@@ -124,6 +131,8 @@ def dictionaries() -> dict:
 		entry = {"id": r.name, "value": r.value}
 		if r.kind == facade_prices.MILLING_LIST:
 			entry["group"] = facade_prices._parent(r.note)
+		elif r.kind == mdf_paints.PAINT_LIST:
+			entry["group"] = mdf_paints.system_of(r.note)
 		by_kind[r.kind].append(entry)
 	return {key: by_kind[kind] for key, kind in KINDS.items()}
 
@@ -136,6 +145,9 @@ def add(key: str, value: str, group: str | None = None) -> dict:
 	value = _clean(value)
 	if group and key == "milling":
 		facade_prices.add_variant(_clean(group), value)
+		return dictionaries()
+	if group and key == "paint":
+		mdf_paints.add_paint(value, _clean(group))
 		return dictionaries()
 	material_stock.put_option(kind, value)  # adding back a switched-off value switches it on
 	return dictionaries()
@@ -198,6 +210,8 @@ def rename(key: str, option: str, value: str) -> dict:
 			frappe.db.set_value("Material Option", v.name, "note", f"{facade_prices._PARENT} {value}")
 			if v.value.casefold().startswith(f"{row.value} ".casefold()):
 				rename(key, v.name, f"{value}{v.value[len(row.value):]}")
+	if key == "paint_system":
+		mdf_paints.system_renamed(row.company, row.value, value)
 	return dictionaries()
 
 
@@ -211,6 +225,8 @@ def remove(key: str, option: str) -> dict:
 		for v in _variants_of(row.company, row.value):
 			if v.enabled:
 				material_stock.drop_option(v.name)
+	if key == "paint_system":
+		mdf_paints.system_removed(row.company, row.value)
 	field = _PRICE_FIELD.get(key)
 	if field:
 		# A price is never deleted (`Facade Price.on_trash`: old orders show what
