@@ -2484,5 +2484,21 @@
   "mdfSumMargin": "Маржа выданных заказов",
   "mdfSumMarginOrders": "Выдано заказов: {count}",
   "mdfSumMarginEstimated": "По оценке, без списания: {count}",
-  "mdfSumMarginLowest": "Меньше всего заработали"
+  "mdfSumMarginLowest": "Меньше всего заработали",
+  "mdfPaintTitle": "Отдел краски",
+  "mdfPaintHint": "Что красить по цветам, что сохнет",
+  "mdfPaintDryHours": "Сушка, часов",
+  "mdfPaintEmpty": "Красить нечего",
+  "mdfPaintSummary": "Красить {waiting} · сохнет {drying} · едет {coming}",
+  "mdfPaintDrying": "Сохнет ({hours} ч)",
+  "mdfPaintDry": "Высохло",
+  "mdfPaintLeft": "Ещё {hours} ч {minutes} мин · высохнет {day} в {time}",
+  "mdfPaintMarkPainted": "Отметить «краска»",
+  "mdfPaintUndo": "Отменить",
+  "mdfPaintByColour": "Красить — по цветам",
+  "mdfPaintByColourHint": "Сначала самый большой цвет: замес один, пистолет моется один раз.",
+  "mdfPaintColourNote": "{area} · заказов: {orders}",
+  "mdfPaintStartDrying": "Покрасил — сушить",
+  "mdfPaintPopular": "Популярные цвета за 90 дней",
+  "mdfPaintSave": "Сохранить"
 }

@@ -8703,5 +8703,67 @@
       }
     }
   },
-  "mdfSumMarginLowest": "Earned least"
+  "mdfSumMarginLowest": "Earned least",
+  "mdfPaintTitle": "Paint shop",
+  "mdfPaintHint": "What to paint by colour, what is drying",
+  "mdfPaintDryHours": "Drying time, hours",
+  "mdfPaintEmpty": "Nothing to paint",
+  "mdfPaintSummary": "To paint {waiting} · drying {drying} · on the way {coming}",
+  "@mdfPaintSummary": {
+    "placeholders": {
+      "waiting": {
+        "type": "String"
+      },
+      "drying": {
+        "type": "String"
+      },
+      "coming": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPaintDrying": "Drying ({hours} h)",
+  "@mdfPaintDrying": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfPaintDry": "Dry",
+  "mdfPaintLeft": "{hours} h {minutes} min left · dry {day} at {time}",
+  "@mdfPaintLeft": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPaintMarkPainted": "Mark painted",
+  "mdfPaintUndo": "Not drying",
+  "mdfPaintByColour": "To paint, by colour",
+  "mdfPaintByColourHint": "The biggest colour first: mixed once, the gun cleaned once.",
+  "mdfPaintColourNote": "{area} · orders: {orders}",
+  "@mdfPaintColourNote": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "orders": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPaintStartDrying": "Painted — dry",
+  "mdfPaintPopular": "Most painted colours, 90 days",
+  "mdfPaintSave": "Save"
 }

@@ -102,6 +102,13 @@ class MdfScreen extends StatelessWidget {
         Routes.mdfReport,
       ),
       _MdfRow(
+        'paint',
+        AppIcons.colour,
+        l10n.mdfPaintTitle,
+        l10n.mdfPaintHint,
+        Routes.mdfPaint,
+      ),
+      _MdfRow(
         'volume',
         AppIcons.team,
         l10n.mdfVolumeTitle,
@@ -159,6 +166,7 @@ class MdfScreen extends StatelessWidget {
       'press': 1,
       'tv': 1,
       'batch': 1,
+      'paint': 1,
       'stock': 2,
       'film': 2,
       'logistics': 2,

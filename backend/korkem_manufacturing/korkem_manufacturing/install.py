@@ -93,6 +93,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_mdf_order_fields
 
 	add_mdf_order_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_mdf_paint_fields
+
+	add_mdf_paint_fields.execute()
 	from korkem_manufacturing.patches.v0_0 import grant_sales_manager_account_read
 
 	grant_sales_manager_account_read.execute()
