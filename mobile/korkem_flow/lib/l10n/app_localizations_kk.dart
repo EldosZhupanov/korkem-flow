@@ -7893,4 +7893,45 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get filmStatementSigns =>
       'Сатушы ____________     Клиент ____________';
+
+  @override
+  String get mdfMarginTitle => 'Маржа';
+
+  @override
+  String get mdfMarginRevenue => 'Тапсырыс сомасы';
+
+  @override
+  String get mdfMarginMaterial => 'Материал';
+
+  @override
+  String get mdfMarginWork => 'Жұмыс';
+
+  @override
+  String get mdfMarginEstimate =>
+      'Бүгінгі баға бойынша бағалау: материал әлі есептен шығарылмаған';
+
+  @override
+  String mdfMarginMissing(String names) {
+    return 'Бағасы жоқ: $names';
+  }
+
+  @override
+  String get mdfMarginNotCounted =>
+      'Есепке алынбаған: бояу, желім, электр, жеткізу';
+
+  @override
+  String get mdfSumMargin => 'Берілген тапсырыстардың маржасы';
+
+  @override
+  String mdfSumMarginOrders(String count) {
+    return 'Берілген тапсырыстар: $count';
+  }
+
+  @override
+  String mdfSumMarginEstimated(String count) {
+    return 'Бағалау бойынша, есептен шығарусыз: $count';
+  }
+
+  @override
+  String get mdfSumMarginLowest => 'Ең аз тапқандар';
 }
