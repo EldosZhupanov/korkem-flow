@@ -5943,7 +5943,16 @@
     }
   },
   "mdfVolumeVersus": "{arrow} {pct}% on the period before",
-  "@mdfVolumeVersus": {"placeholders": {"arrow": {"type": "String"}, "pct": {"type": "int"}}},
+  "@mdfVolumeVersus": {
+    "placeholders": {
+      "arrow": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
   "mdfVolumeDone": "Done by stage",
   "mdfVolumeQueue": "Waiting now — where it jams",
   "mdfVolumeTitle": "Shop — work volume",
@@ -6768,12 +6777,36 @@
   "filmSupplierOnCredit": "On credit",
   "filmSupplierOwedNote": "owed to the supplier",
   "filmCashChartA11y": "In {incoming}, out {outgoing}",
-  "@filmCashChartA11y": {"placeholders": {"incoming": {"type": "String"}, "outgoing": {"type": "String"}}},
+  "@filmCashChartA11y": {
+    "placeholders": {
+      "incoming": {
+        "type": "String"
+      },
+      "outgoing": {
+        "type": "String"
+      }
+    }
+  },
   "filmCashVersus": "{arrow} {pct}% on the period before",
   "filmPayFromCash": "From the film cash: {how}",
-  "@filmPayFromCash": {"placeholders": {"how": {"type": "String"}}},
+  "@filmPayFromCash": {
+    "placeholders": {
+      "how": {
+        "type": "String"
+      }
+    }
+  },
   "filmPayElsewhere": "Not from the film cash",
-  "@filmCashVersus": {"placeholders": {"arrow": {"type": "String"}, "pct": {"type": "String"}}},
+  "@filmCashVersus": {
+    "placeholders": {
+      "arrow": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "filmToday": "Today",
   "filmYesterday": "Yesterday",
   "filmHistoryAll": "All",
@@ -7807,19 +7840,58 @@
   },
   "mdfSumManagers": "Who took the orders",
   "mdfSumAlertOverdue": "{count} overdue",
-  "@mdfSumAlertOverdue": {"placeholders": {"count": {"type": "int"}}},
+  "@mdfSumAlertOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "mdfSumAlertAtRisk": "{count} will miss their date",
-  "@mdfSumAlertAtRisk": {"placeholders": {"count": {"type": "int"}}},
+  "@mdfSumAlertAtRisk": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "mdfSumAlertDebt": "Owed over a month: {sum}",
-  "@mdfSumAlertDebt": {"placeholders": {"sum": {"type": "String"}}},
+  "@mdfSumAlertDebt": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
   "mdfSumAlertFilm": "Film short: {count}",
-  "@mdfSumAlertFilm": {"placeholders": {"count": {"type": "int"}}},
+  "@mdfSumAlertFilm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "mdfSumStages": "Where the orders are now",
   "mdfSumIntake": "Taken in by day",
   "mdfSumIntakeMonthly": "Taken in by month",
   "mdfSumIntakeHint": "Tap a bar for that day's orders.",
   "mdfSumIntakeDay": "{day}: {count} orders · {area} m² · {sum}",
-  "@mdfSumIntakeDay": {"placeholders": {"day": {"type": "String"}, "count": {"type": "int"}, "area": {"type": "String"}, "sum": {"type": "String"}}},
+  "@mdfSumIntakeDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "area": {
+        "type": "String"
+      },
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
   "mdfSumManagerValue": "{count} · {area} m² · {sum}",
   "@mdfSumManagerValue": {
     "placeholders": {
@@ -8599,5 +8671,37 @@
     }
   },
   "filmStatementSettled": "Settled, nothing owed.",
-  "filmStatementSigns": "Seller ____________     Customer ____________"
+  "filmStatementSigns": "Seller ____________     Customer ____________",
+  "mdfMarginTitle": "Margin",
+  "mdfMarginRevenue": "Order total",
+  "mdfMarginMaterial": "Material",
+  "mdfMarginWork": "Work",
+  "mdfMarginEstimate": "An estimate at today's prices: nothing written off yet",
+  "mdfMarginMissing": "No price: {names}",
+  "@mdfMarginMissing": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfMarginNotCounted": "Not counted: paint, glue, power, delivery",
+  "mdfSumMargin": "Margin of orders handed over",
+  "mdfSumMarginOrders": "Handed over: {count}",
+  "@mdfSumMarginOrders": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumMarginEstimated": "By estimate, nothing written off: {count}",
+  "@mdfSumMarginEstimated": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSumMarginLowest": "Earned least"
 }

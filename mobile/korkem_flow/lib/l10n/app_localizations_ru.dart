@@ -7955,4 +7955,45 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get filmStatementSigns =>
       'Продавец ____________     Клиент ____________';
+
+  @override
+  String get mdfMarginTitle => 'Маржа';
+
+  @override
+  String get mdfMarginRevenue => 'Сумма заказа';
+
+  @override
+  String get mdfMarginMaterial => 'Материал';
+
+  @override
+  String get mdfMarginWork => 'Работа';
+
+  @override
+  String get mdfMarginEstimate =>
+      'Оценка по сегодняшним ценам: материал ещё не списан';
+
+  @override
+  String mdfMarginMissing(String names) {
+    return 'Без цены: $names';
+  }
+
+  @override
+  String get mdfMarginNotCounted =>
+      'Не учтены: краска, клей, электричество, доставка';
+
+  @override
+  String get mdfSumMargin => 'Маржа выданных заказов';
+
+  @override
+  String mdfSumMarginOrders(String count) {
+    return 'Выдано заказов: $count';
+  }
+
+  @override
+  String mdfSumMarginEstimated(String count) {
+    return 'По оценке, без списания: $count';
+  }
+
+  @override
+  String get mdfSumMarginLowest => 'Меньше всего заработали';
 }

@@ -125,6 +125,24 @@ const _json = <String, dynamic>{
       'total': 9600000,
     },
   ],
+  'margin': {
+    'orders': 12,
+    'revenue': 2000000,
+    'material': 900000,
+    'work': 300000,
+    'margin': 800000,
+    'share': 0.4,
+    'estimated': 3,
+    'lowest': [
+      {
+        'name': 'SO-7',
+        'customer_name': 'Ерлан',
+        'revenue': 20000,
+        'margin': -4000,
+        'share': -0.2,
+      },
+    ],
+  },
 };
 
 class _Repo implements MdfSummaryRepository {
@@ -244,6 +262,15 @@ void main() {
     expect(find.byKey(const ValueKey('barRow:paint')), findsOneWidget);
     expect(find.byKey(const ValueKey('barRow:mill')), findsNothing);
     expect(find.byKey(const ValueKey('mdfSum:debtBars')), findsOneWidget);
+    // What the handed-over orders earned, and the one that lost money.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('mdfSum:margin')),
+        matching: find.textContaining('40%'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('mdfSum:lowest:SO-7')), findsOneWidget);
     final chart = find.byKey(const ValueKey('mdfSum:intakeChart'));
     await tester.ensureVisible(chart);
     await tester.pumpAndSettle();

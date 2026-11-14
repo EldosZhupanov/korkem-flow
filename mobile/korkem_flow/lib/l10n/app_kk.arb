@@ -2473,5 +2473,16 @@
   "filmStatementPayment": "Төлем",
   "filmStatementOwes": "Клиент қарызы: {sum}",
   "filmStatementSettled": "Есеп жабылды, қарыз жоқ.",
-  "filmStatementSigns": "Сатушы ____________     Клиент ____________"
+  "filmStatementSigns": "Сатушы ____________     Клиент ____________",
+  "mdfMarginTitle": "Маржа",
+  "mdfMarginRevenue": "Тапсырыс сомасы",
+  "mdfMarginMaterial": "Материал",
+  "mdfMarginWork": "Жұмыс",
+  "mdfMarginEstimate": "Бүгінгі баға бойынша бағалау: материал әлі есептен шығарылмаған",
+  "mdfMarginMissing": "Бағасы жоқ: {names}",
+  "mdfMarginNotCounted": "Есепке алынбаған: бояу, желім, электр, жеткізу",
+  "mdfSumMargin": "Берілген тапсырыстардың маржасы",
+  "mdfSumMarginOrders": "Берілген тапсырыстар: {count}",
+  "mdfSumMarginEstimated": "Бағалау бойынша, есептен шығарусыз: {count}",
+  "mdfSumMarginLowest": "Ең аз тапқандар"
 }

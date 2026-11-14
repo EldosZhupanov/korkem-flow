@@ -7930,4 +7930,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get filmStatementSigns =>
       'Seller ____________     Customer ____________';
+
+  @override
+  String get mdfMarginTitle => 'Margin';
+
+  @override
+  String get mdfMarginRevenue => 'Order total';
+
+  @override
+  String get mdfMarginMaterial => 'Material';
+
+  @override
+  String get mdfMarginWork => 'Work';
+
+  @override
+  String get mdfMarginEstimate =>
+      'An estimate at today\'s prices: nothing written off yet';
+
+  @override
+  String mdfMarginMissing(String names) {
+    return 'No price: $names';
+  }
+
+  @override
+  String get mdfMarginNotCounted => 'Not counted: paint, glue, power, delivery';
+
+  @override
+  String get mdfSumMargin => 'Margin of orders handed over';
+
+  @override
+  String mdfSumMarginOrders(String count) {
+    return 'Handed over: $count';
+  }
+
+  @override
+  String mdfSumMarginEstimated(String count) {
+    return 'By estimate, nothing written off: $count';
+  }
+
+  @override
+  String get mdfSumMarginLowest => 'Earned least';
 }

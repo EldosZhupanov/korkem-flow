@@ -16,6 +16,8 @@ from korkem_manufacturing.services import (
 	facade_prices,
 	facade_quote,
 	material_stock,
+	mdf_margin,
+	piece_work,
 )
 
 COMPANY = "KORKEM"
@@ -247,3 +249,56 @@ class TestFacadeMaterials(IntegrationTestCase):
 		self.assertEqual(after["on_hand"], before["on_hand"])
 		self.assertEqual(after["reserved"], before["reserved"] + 1)
 		self.assertEqual(after["free"], before["free"] - 1)
+
+	# --- margin (mdf_margin) ------------------------------------------------------------
+
+	def _work(self, order: str, amount_m2: float = 2, rate: float = 500) -> None:
+		piece_work.record_piece_work(
+			company=COMPANY, employee="EMP-FM-MARGIN", operation="Фасад", rate_type="KZT_PER_M2",
+			quantity=amount_m2, rate=rate, unit="m2", sales_order=order,
+		)
+
+	def test_before_the_write_off_the_margin_is_an_estimate_at_today_s_price(self):
+		self._stock(mdf=3, film=10)  # 21 000 ₸ a sheet, 900 ₸ a metre
+		order = self._order()["sales_order"]
+		self._work(order)  # 2 m² × 500 ₸
+		result = self._as(SELLER, mdf_margin.of_order, order)
+		revenue = flt(frappe.db.get_value("Sales Order", order, "grand_total"))
+		rows = {r["item"]: r for r in result["material_rows"]}
+		self.assertTrue(result["estimate"])
+		# 2.3 m² of a 5.796 m² sheet — not the whole sheet the warehouse issues.
+		self.assertAlmostEqual(rows[self.mdf]["cost"], round(2.3 / 5.796 * 21_000, 2), delta=0.02)
+		self.assertAlmostEqual(rows[self.film]["cost"], 3.1 * 900, delta=0.02)
+		self.assertEqual(result["work"], 1000)
+		self.assertAlmostEqual(result["margin"], revenue - result["material"] - 1000, delta=0.02)
+		self.assertEqual(result["missing"], [])
+
+	def test_after_the_write_off_the_margin_is_what_the_shelf_gave(self):
+		self._stock(mdf=2, film=10)
+		order = self._order()["sales_order"]
+		line = frappe.db.get_value("Sales Order Item", {"parent": order, "korkem_width_mm": [">", 0]}, "name")
+		self._as(CUTTER, facade_jobs.set_status, line, facade_jobs.IN_WORK)  # the write-off
+		result = self._as(SELLER, mdf_margin.of_order, order)
+		self.assertFalse(result["estimate"])
+		# A whole sheet left the shelf, and the press's 3.1 m of film.
+		self.assertAlmostEqual(result["material"], 21_000 + 3.1 * 900, delta=0.02)
+		self.assertEqual(result["work"], 0)
+
+	def test_the_floor_does_not_read_margins(self):
+		order = self._order()["sales_order"]
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, mdf_margin.of_order, order)
+
+	def test_the_period_names_the_order_that_earned_least(self):
+		self._stock(mdf=3, film=10)
+		order = self._order()["sales_order"]
+		self._work(order, rate=1_000_000)  # a loss, whatever the price
+		today = frappe.utils.getdate(nowdate())
+		frappe.db.set_value("Sales Order", order, "korkem_handed_over_on", today)
+		rows = frappe.get_all("Sales Order", filters={"name": order},
+							  fields=["name", "modified", "grand_total", "customer_name", "korkem_handed_over_on"])
+		result = mdf_margin.period(rows, today, today)
+		self.assertEqual(result["orders"], 1)
+		self.assertEqual(result["lowest"][0]["name"], order)
+		self.assertLess(result["margin"], 0)
+		self.assertEqual(result["estimated"], 1)

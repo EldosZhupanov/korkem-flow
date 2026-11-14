@@ -21,7 +21,9 @@ and what is coming:
 - **debts** by age, and **managers** — who took how much;
 - **stages** — where the open orders wait now, and how many will not make
   their date at the shop's pace; **days** — what came in, day by day, for
-  the chart (owner, 14.11.2026: a dashboard on every department).
+  the chart (owner, 14.11.2026: a dashboard on every department);
+- **margin** — what the orders handed over in the period earned over
+  material and work, and the five that earned least (`mdf_margin`).
 
 Nothing is stored but the goal: every number is counted from the orders.
 """
@@ -39,6 +41,7 @@ from korkem_manufacturing.services import (
 	directions,
 	facade_prices,
 	film_shortage,
+	mdf_margin,
 	mdf_orders,
 	mdf_report,
 	mdf_tags,
@@ -55,7 +58,7 @@ MIN_ASLEEP_DAYS = 14
 PACE_DAYS = 30
 TOP = 10
 _TARGET = "korkem_mdf_target_m2"
-_FIELDS = ["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name", "owner",
+_FIELDS = ["name", "modified", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name", "owner",
 		   "grand_total", "advance_paid", "korkem_decor_top", "korkem_milling", "korkem_ready_on",
 		   "korkem_handed_over_on", "korkem_hold_reason", "korkem_tags", "korkem_finish", "korkem_extra_stages",
 		   "korkem_coatings", *mdf_orders.STAGES.values()]
@@ -138,6 +141,7 @@ def summary(since: str | None = None, until: str | None = None) -> dict:
 		"managers": _managers(now_rows, areas),
 		**_stages(everything, areas),
 		"days": _days(now_rows, areas, start, end),
+		"margin": mdf_margin.period(everything, start, end),
 	}
 
 

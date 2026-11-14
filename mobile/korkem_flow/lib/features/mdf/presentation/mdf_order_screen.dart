@@ -29,6 +29,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart'
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_hand_over.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_margin_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
@@ -2433,6 +2434,8 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             fontWeight: FontWeight.w600,
           ),
         ),
+        // What the order earned (owner, 14.11.2026).
+        MdfMarginView(order: o.name),
         const SizedBox(height: AppSpacing.sm),
         Wrap(
           spacing: AppSpacing.sm,
