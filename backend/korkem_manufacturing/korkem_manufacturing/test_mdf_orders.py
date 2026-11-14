@@ -854,16 +854,19 @@ class TestMdfOrders(IntegrationTestCase):
 	def test_painted_takes_the_paint_off_the_store_by_the_figure(self):
 		from korkem_manufacturing.services import material_stock, mdf_dictionaries, paint_stock
 
+		# The store is kept by whoever buys (material_stock's editors); the
+		# write-off happens for whoever ticks «Покрашено».
+		BUYER = "Administrator"
 		colour = f"RAL {frappe.generate_hash(length=4)} Тест"
 		self._as(MANAGER, mdf_dictionaries.add, "paint", colour)
 		self._as("Administrator", material_stock.add_supplier, "МДФ Тест Краски")
 		supplier = frappe.db.get_value("Supplier", {"supplier_name": "МДФ Тест Краски"}, "name")
-		self._as(MANAGER, paint_stock.set_kg_per_m2, 0.3)
-		got = self._as(MANAGER, paint_stock.receive, colour, 10, 4000, supplier, base="Эмаль")
+		self._as(BUYER, paint_stock.set_kg_per_m2, 0.3)
+		got = self._as(BUYER, paint_stock.receive, colour, 10, 4000, supplier, base="Эмаль")
 		item = next(p["item"] for p in got["paints"] if p["colour"] == colour)
 
 		def on_hand() -> float:
-			return next(p["on_hand_kg"] for p in self._as(MANAGER, paint_stock.stock)["paints"] if p["item"] == item)
+			return next(p["on_hand_kg"] for p in self._as(BUYER, paint_stock.stock)["paints"] if p["item"] == item)
 
 		lines = [{**ORDER_1129[1], "coating": "paint", "film": colour, "rate": 24_000}]  # 1,63 m²
 		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
@@ -871,7 +874,7 @@ class TestMdfOrders(IntegrationTestCase):
 		self.addCleanup(self._drop, card["name"])
 		self._as(MANAGER, mdf_orders.accept, card["name"])
 		# The queue knows what it needs: 1,63 m² × 0,3.
-		need = next(n for n in self._as(MANAGER, paint_stock.stock)["queue"] if n["colour"] == colour)
+		need = next(n for n in self._as(BUYER, paint_stock.stock)["queue"] if n["colour"] == colour)
 		self.assertAlmostEqual(need["need_kg"], 0.49, places=2)
 		for stage in ("cut", "mill", "sand", "paint"):
 			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
@@ -879,14 +882,14 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertAlmostEqual(on_hand(), 10 - 0.489, places=3)
 		self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint")
 		self.assertAlmostEqual(on_hand(), 10 - 0.489, places=3)
-		usage = self._as(MANAGER, paint_stock.stock)["usage"]
+		usage = self._as(BUYER, paint_stock.stock)["usage"]
 		self.assertGreaterEqual(usage["m2"], 1.63)
 		# Unticked: put back.
 		self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint", 0)
 		self.assertAlmostEqual(on_hand(), 10, places=3)
 
 		# The painter weighs 9 kg: a kilo is found missing, and counts as used.
-		after = self._as(MANAGER, paint_stock.count, item, "9")
+		after = self._as(BUYER, paint_stock.count, item, "9")
 		self.assertEqual(next(p["on_hand_kg"] for p in after["paints"] if p["item"] == item), 9)
 		self.assertGreaterEqual(after["usage"]["kg_counted"], 1)
 
