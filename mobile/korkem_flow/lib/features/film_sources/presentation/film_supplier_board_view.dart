@@ -85,9 +85,7 @@ class FilmSupplierSummary extends StatelessWidget {
             'owed',
             l10n.filmSupOwed,
             money.format(b.owed),
-            b.owedSuppliers > 0
-                ? l10n.filmSupOwedTo(b.owedSuppliers)
-                : null,
+            b.owedSuppliers > 0 ? l10n.filmSupOwedTo(b.owedSuppliers) : null,
             (b.owed ?? 0) > 0 ? status.danger : null,
           ),
         fact(

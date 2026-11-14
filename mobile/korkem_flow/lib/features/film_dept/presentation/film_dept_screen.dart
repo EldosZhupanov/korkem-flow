@@ -424,13 +424,14 @@ class _StockTabState extends ConsumerState<_StockTab> {
       data: (c) {
         int count(_StockFilter f) => c.films.where((x) => _shows(x, f)).length;
         // What burns first on top; the server's order among equals.
-        final shown = [
-          for (final (i, f) in c.films.indexed)
-            if (_shows(f, _filter) && _found(f, _query)) (i, f),
-        ]..sort((a, b) {
-          final byUrgency = _urgency(a.$2).compareTo(_urgency(b.$2));
-          return byUrgency != 0 ? byUrgency : a.$1.compareTo(b.$1);
-        });
+        final shown =
+            [
+              for (final (i, f) in c.films.indexed)
+                if (_shows(f, _filter) && _found(f, _query)) (i, f),
+            ]..sort((a, b) {
+              final byUrgency = _urgency(a.$2).compareTo(_urgency(b.$2));
+              return byUrgency != 0 ? byUrgency : a.$1.compareTo(b.$1);
+            });
         final films = [for (final (_, f) in shown) f];
         final money = mdfMoney(context);
         final onHand = c.films.fold<double>(0, (m, f) => m + f.onHand);
@@ -704,10 +705,7 @@ class _StockTile extends StatelessWidget {
     ];
     final days = f.daysLeft;
     final lines = <Widget>[
-      if (f.code != null ||
-          f.type != null ||
-          days != null ||
-          f.priceM != null)
+      if (f.code != null || f.type != null || days != null || f.priceM != null)
         Text(
           [
             ?f.code,

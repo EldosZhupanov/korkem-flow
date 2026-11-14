@@ -8072,4 +8072,186 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfClientShort => 'customer\'s';
+
+  @override
+  String get mdfKpiOverdue => 'Overdue';
+
+  @override
+  String get mdfKpiDueSoon => 'Due today or tomorrow';
+
+  @override
+  String get mdfKpiReady => 'Ready to hand over';
+
+  @override
+  String get mdfKpiDebt => 'Customers owe';
+
+  @override
+  String mdfKpiDebtors(String count) {
+    return 'customers: $count';
+  }
+
+  @override
+  String get mdfSectionOverdue => 'Overdue';
+
+  @override
+  String get mdfSectionSoon => 'Due soon';
+
+  @override
+  String get mdfSectionShop => 'In the shop';
+
+  @override
+  String get mdfSectionReady => 'Ready — waiting for the customer';
+
+  @override
+  String get mdfSectionDraft => 'Drafts';
+
+  @override
+  String get mdfSectionClosed => 'Handed over';
+
+  @override
+  String mdfRowNowAt(String stage) {
+    return 'now: $stage';
+  }
+
+  @override
+  String mdfRowLate(String days) {
+    return '$days d late';
+  }
+
+  @override
+  String mdfRowDaysLeft(String days) {
+    return 'in $days d';
+  }
+
+  @override
+  String get mdfRowToday => 'due today';
+
+  @override
+  String mdfRowReadyFor(String days) {
+    return 'ready $days d';
+  }
+
+  @override
+  String get mdfRowPaid => 'paid';
+
+  @override
+  String get mdfFilterDueSoon => 'Due soon';
+
+  @override
+  String get filmCashOpening => 'Cash at the start';
+
+  @override
+  String filmCashOpeningNote(String day) {
+    return 'counted $day';
+  }
+
+  @override
+  String get filmCashQuiet => 'No money moved in this period.';
+
+  @override
+  String get filmFigOnHand => 'On the shelf';
+
+  @override
+  String get filmFigOnWay => 'On its way';
+
+  @override
+  String filmFigRolls(int count) {
+    return 'deliveries: $count';
+  }
+
+  @override
+  String get filmFigRunsOut => 'Running out';
+
+  @override
+  String filmFigRunsOutNote(int days) {
+    return 'under $days days left';
+  }
+
+  @override
+  String get filmFigToOrder => 'To order';
+
+  @override
+  String filmFigToOrderNote(String metres) {
+    return '≈ $metres m';
+  }
+
+  @override
+  String filmStockBought(String price) {
+    return 'bought at $price/m';
+  }
+
+  @override
+  String filmStockOrder(String metres) {
+    return 'order $metres m';
+  }
+
+  @override
+  String get filmSalesAverage => 'Average sale';
+
+  @override
+  String get filmSalesQuietToday => 'No sales yet today';
+
+  @override
+  String filmSalesYesterdayWas(String count, String metres) {
+    return 'yesterday: $count, $metres m';
+  }
+
+  @override
+  String get filmSalesByDay => 'Sold by day, m';
+
+  @override
+  String filmSalesChartA11y(String metres) {
+    return 'Metres sold by day; $metres m in all';
+  }
+
+  @override
+  String get filmSalesTopFilms => 'Films that sold most';
+
+  @override
+  String get filmSalesTopCustomers => 'Who bought most';
+
+  @override
+  String get filmSupOwed => 'We owe';
+
+  @override
+  String filmSupOwedTo(int count) {
+    return 'suppliers: $count';
+  }
+
+  @override
+  String filmSupChipOwed(String amount) {
+    return 'we owe $amount';
+  }
+
+  @override
+  String filmSupChipOnTime(int onTime, int rolls) {
+    return 'on time $onTime of $rolls';
+  }
+
+  @override
+  String filmSupChipPrice(String change) {
+    return 'price $change%';
+  }
+
+  @override
+  String filmTeamPlanNeed(int days, String metres) {
+    return '$days days left — $metres m a day';
+  }
+
+  @override
+  String get filmTeamNoPlanHint =>
+      'Set the month\'s plan: the bonus share depends on it.';
+
+  @override
+  String get filmTeamSetPlan => 'Set the plan';
+
+  @override
+  String filmTeamMarginM(String margin) {
+    return '$margin/m';
+  }
+
+  @override
+  String filmTeamOwed(String amount) {
+    return 'his customers owe $amount';
+  }
 }

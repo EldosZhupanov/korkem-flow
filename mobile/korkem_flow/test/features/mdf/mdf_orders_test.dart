@@ -773,10 +773,13 @@ void main() {
     expect(find.byKey(const ValueKey('mdfSection:overdue')), findsNothing);
     await tester.tap(find.byKey(const ValueKey('mdfKpi:dueSoon')));
     await tester.pumpAndSettle();
-    expect((repo.queries.last.overdue, repo.queries.last.dueSoon), (
-      false,
-      true,
-    ));
+    expect(
+      (repo.queries.last.overdue, repo.queries.last.dueSoon),
+      (
+        false,
+        true,
+      ),
+    );
     await tester.tap(find.byKey(const ValueKey('mdfKpi:dueSoon')));
     await tester.pumpAndSettle();
     expect(repo.queries.last.dueSoon, isFalse);

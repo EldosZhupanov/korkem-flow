@@ -641,7 +641,9 @@ void main() {
         .widget<Text>(find.byKey(ValueKey('figure:filmStock:$id:value')))
         .data!;
     expect(
-      [for (final id in ['onHand', 'onWay', 'runsOut', 'toOrder']) figure(id)],
+      [
+        for (final id in ['onHand', 'onWay', 'runsOut', 'toOrder']) figure(id),
+      ],
       ['90 м', '30 м', '1', '1'],
     );
     expect(

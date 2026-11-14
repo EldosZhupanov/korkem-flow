@@ -164,37 +164,36 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
               ),
               child: Row(
                 children: [
-                  for (final (i, (f, title, value, note, colour))
-                      in [
-                        (
-                          _Filter.overdue,
-                          l10n.mdfKpiOverdue,
-                          '${overview.overdue}',
-                          null,
-                          overview.overdue > 0 ? status.danger : null,
-                        ),
-                        (
-                          _Filter.dueSoon,
-                          l10n.mdfKpiDueSoon,
-                          '${overview.dueSoon}',
-                          null,
-                          overview.dueSoon > 0 ? status.warning : null,
-                        ),
-                        (
-                          _Filter.ready,
-                          l10n.mdfKpiReady,
-                          '${overview.ready}',
-                          null,
-                          overview.ready > 0 ? status.success : null,
-                        ),
-                        (
-                          _Filter.debt,
-                          l10n.mdfKpiDebt,
-                          money.format(overview.debt),
-                          l10n.mdfKpiDebtors('${overview.debtors}'),
-                          null,
-                        ),
-                      ].indexed) ...[
+                  for (final (i, (f, title, value, note, colour)) in [
+                    (
+                      _Filter.overdue,
+                      l10n.mdfKpiOverdue,
+                      '${overview.overdue}',
+                      null,
+                      overview.overdue > 0 ? status.danger : null,
+                    ),
+                    (
+                      _Filter.dueSoon,
+                      l10n.mdfKpiDueSoon,
+                      '${overview.dueSoon}',
+                      null,
+                      overview.dueSoon > 0 ? status.warning : null,
+                    ),
+                    (
+                      _Filter.ready,
+                      l10n.mdfKpiReady,
+                      '${overview.ready}',
+                      null,
+                      overview.ready > 0 ? status.success : null,
+                    ),
+                    (
+                      _Filter.debt,
+                      l10n.mdfKpiDebt,
+                      money.format(overview.debt),
+                      l10n.mdfKpiDebtors('${overview.debtors}'),
+                      null,
+                    ),
+                  ].indexed) ...[
                     if (i > 0) const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: _Kpi(
@@ -375,8 +374,7 @@ class _Kpi extends StatelessWidget {
                 style: theme.textTheme.titleLarge?.copyWith(color: colour),
                 overflow: TextOverflow.ellipsis,
               ),
-              if (note != null)
-                Text(note!, style: theme.textTheme.labelSmall),
+              if (note != null) Text(note!, style: theme.textTheme.labelSmall),
             ],
           ),
         ),
