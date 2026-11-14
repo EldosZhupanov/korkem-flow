@@ -13,6 +13,13 @@ import '../../support/widget_harness.dart';
 
 final _stock = PaintStock.fromJson(const {
   'kg_per_m2': 0.3,
+  'usage': {
+    'days': 30,
+    'm2': 100,
+    'kg_by_norm': 30,
+    'kg_counted': 6,
+    'fact_kg_m2': 0.36,
+  },
   'paints': [
     {
       'item': 'MAT-P1',
@@ -87,6 +94,14 @@ class _Repo implements PaintStockRepository {
       'pay': supplierPay?.toJson(),
       'note': note,
     });
+    return _stock;
+  }
+
+  final counted = <(String, double)>[];
+
+  @override
+  Future<PaintStock> count(String item, double kg) async {
+    counted.add((item, kg));
     return _stock;
   }
 
@@ -206,5 +221,23 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('paintPayHow:Перевод')).last);
     await tester.pumpAndSettle();
     expect(repo.paid, [('STE-5', 'Перевод')]);
+  });
+
+  testWidgets('what a m² really took is said; a weighed paint puts the store '
+      'right', (tester) async {
+    final repo = await _pump(tester);
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('paintUsage'))).data,
+      contains('really 0.36 kg/m²'),
+    );
+    await tester.tap(find.byKey(const ValueKey('paintCount:MAT-P1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('paintCountValue')),
+      '1,5',
+    );
+    await tester.tap(find.byKey(const ValueKey('paintCountSave')));
+    await tester.pumpAndSettle();
+    expect(repo.counted, [('MAT-P1', 1.5)]);
   });
 }

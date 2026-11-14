@@ -2644,5 +2644,10 @@
   "paintOwed": "Бояу үшін қарыз",
   "paintPaid": "Төледік",
   "paintHistory": "Кірістер: {title}",
-  "paintTakenBy": "қабылдаған {who}"
+  "paintTakenBy": "қабылдаған {who}",
+  "paintUsage": "{days} күнде: {m2} м² боялды, {kg} кг кетті",
+  "paintUsageFact": "нақты {fact} кг/м² (норма {norm})",
+  "paintCount": "Қалдықты қайта санау",
+  "paintCountTitle": "Шын мәнінде қанша: {title}?",
+  "paintCountHint": "Қалдықты өлшеңіз. Бағдарламамен айырмасы шығын болып жазылады."
 }

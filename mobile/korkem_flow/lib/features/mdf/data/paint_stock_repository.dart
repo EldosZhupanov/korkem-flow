@@ -85,6 +85,15 @@ class PaintStockRepository {
         ),
       );
 
+  /// The painter weighed what is left of a paint.
+  Future<PaintStock> count(String item, double kg) async => _stock(
+    await _client.callMethod(
+      '$_base.count',
+      post: true,
+      params: {'item': item, 'kg': kg},
+    ),
+  );
+
   Future<PaintStock> addSupplier(String name) async => _stock(
     await _client.callMethod(
       '$_base.add_supplier',

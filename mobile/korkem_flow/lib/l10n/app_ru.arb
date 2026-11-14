@@ -2644,5 +2644,10 @@
   "paintOwed": "Должны за краску",
   "paintPaid": "Оплатили",
   "paintHistory": "Приходы: {title}",
-  "paintTakenBy": "принял {who}"
+  "paintTakenBy": "принял {who}",
+  "paintUsage": "За {days} дн.: покрашено {m2} м², ушло {kg} кг",
+  "paintUsageFact": "по факту {fact} кг/м² (норма {norm})",
+  "paintCount": "Пересчитать остаток",
+  "paintCountTitle": "Сколько на самом деле: {title}?",
+  "paintCountHint": "Взвесьте остаток. Разница с программой запишется как расход."
 }

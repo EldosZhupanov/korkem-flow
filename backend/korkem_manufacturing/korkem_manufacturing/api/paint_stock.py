@@ -46,3 +46,9 @@ def pay_supplier(receipt: str, method: str | None = None) -> dict:
 def add_supplier(name: str) -> dict:
 	"""Новый поставщик краски."""
 	return service.add_supplier(name)
+
+
+@frappe.whitelist(methods=["POST"])
+def count(item: str, kg: float | str) -> dict:
+	"""Пересчёт: сколько кг этой краски на самом деле."""
+	return service.count(item, kg)

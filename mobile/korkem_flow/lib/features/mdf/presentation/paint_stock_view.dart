@@ -65,6 +65,27 @@ class PaintStockSection extends ConsumerWidget {
             ],
           ),
         ),
+        // What a m² really took this month, against the figure.
+        if (stock.usage case final u? when u.m2 > 0)
+          ReadableWidth(
+            child: Text(
+              [
+                l10n.paintUsage(
+                  '${u.days}',
+                  filmMetres(u.m2),
+                  _kgText(u.kgByNorm + u.kgCounted),
+                ),
+                if (u.factKgM2 case final fact?)
+                  l10n.paintUsageFact(_kgText(fact), _kgText(stock.kgPerM2)),
+              ].join(' · '),
+              key: const ValueKey('paintUsage'),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: (u.factKgM2 ?? 0) > stock.kgPerM2 * 1.1
+                    ? status.warning
+                    : null,
+              ),
+            ),
+          ),
         // Enough for the queue? The short ones first, in red, with a
         // receipt one tap away.
         for (final n in [
@@ -132,9 +153,21 @@ class PaintStockSection extends ConsumerWidget {
                   ],
                 ].join(' · '),
               ),
-              trailing: Text(
-                l10n.paintOnHand(_kgText(p.onHandKg)),
-                style: theme.textTheme.titleSmall,
+              trailing: Wrap(
+                spacing: AppSpacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    l10n.paintOnHand(_kgText(p.onHandKg)),
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  IconButton(
+                    key: ValueKey('paintCount:${p.item}'),
+                    tooltip: l10n.paintCount,
+                    icon: const Icon(AppIcons.edit),
+                    onPressed: () => _count(context, ref, p),
+                  ),
+                ],
               ),
               onTap: () => showPaintHistory(context, p),
             ),
@@ -201,6 +234,62 @@ class PaintStockSection extends ConsumerWidget {
         ],
       ],
     );
+  }
+
+  /// «Пересчитать»: the painter weighed what is left.
+  Future<void> _count(BuildContext context, WidgetRef ref, PaintItem p) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final controller = TextEditingController(text: _kgText(p.onHandKg));
+    final value = await showDialog<double>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.paintCountTitle(p.title)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              key: const ValueKey('paintCountValue'),
+              controller: controller,
+              autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+              ],
+              decoration: InputDecoration(labelText: l10n.paintKg),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l10n.paintCountHint,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.mdfCancel),
+          ),
+          FilledButton(
+            key: const ValueKey('paintCountSave'),
+            onPressed: () =>
+                Navigator.of(context).pop(filmNumber(controller.text)),
+            child: Text(l10n.filmReqSave),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (value == null) return;
+    try {
+      await ref.read(paintStockRepositoryProvider).count(p.item, value);
+      ref.invalidate(paintStockProvider);
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    }
   }
 
   Future<void> _setKgPerM2(

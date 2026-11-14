@@ -9265,5 +9265,40 @@
         "type": "String"
       }
     }
-  }
+  },
+  "paintUsage": "{days} days: {m2} m² painted, {kg} kg used",
+  "@paintUsage": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "m2": {
+        "type": "String"
+      },
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "paintUsageFact": "really {fact} kg/m² (figure {norm})",
+  "@paintUsageFact": {
+    "placeholders": {
+      "fact": {
+        "type": "String"
+      },
+      "norm": {
+        "type": "String"
+      }
+    }
+  },
+  "paintCount": "Count what is left",
+  "paintCountTitle": "How many kg of {title} are really here?",
+  "@paintCountTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "paintCountHint": "Weigh what is left. The difference from the program counts as used."
 }

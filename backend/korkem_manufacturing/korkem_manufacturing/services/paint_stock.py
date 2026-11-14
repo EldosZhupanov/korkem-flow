@@ -19,6 +19,14 @@ paint shop's, so it is not counted in the film department's cash.
 each colour (`mdf_paint.queue_by_colour`, the customer's own paint left
 out); at so many kilograms a square metre — the shop's own figure — each
 colour says what it needs and what is short.
+
+**Taken off by itself** (owner, 15.11.2026: «водишь м² — система сама
+определяет, сколько уходит краски»). «Покрашено» on an order issues its m²
+times that figure, colour by colour, from the paint of that colour that has
+most; unticked, it is put back. Never more than is there: what was short is
+said in the log, and a count (`count`) puts the store right — the painter
+weighs what is left. Over a month, what was taken and what the counts found
+missing against the m² painted is what a m² **really** takes.
 """
 
 from __future__ import annotations
@@ -47,6 +55,9 @@ DEFAULT_KG_M2 = 0.3
 MAX_KG_M2 = 5
 _KG_KEY = "korkem_paint_kg_m2"
 MAX_BASE = 60
+#: Why paint left the store: painted an order, or a count found less.
+USE_ORDER, USE_COUNT = "order", "count"
+USAGE_DAYS = 30
 
 
 def kg_per_m2(company: str | None = None) -> float:
@@ -169,6 +180,7 @@ def stock() -> dict:
 		# Whom paint can be bought from — the same suppliers as film's and the
 		# warehouse's — the ones paint came from first.
 		"suppliers": _suppliers(company),
+		"usage": usage(company),
 	}
 
 
@@ -293,3 +305,129 @@ def pay_supplier(receipt: str, method: str | None = None) -> dict:
 		frappe.throw("Такого долга за краску нет.", frappe.DoesNotExistError)
 	film_cash.pay_supplier(receipt, method, film_cash.FROM_ELSEWHERE)
 	return stock()
+
+
+def _paints_of(company: str, colour: str) -> list[tuple[str, float]]:
+	"""The paints of a colour, with what is on hand — the fullest first."""
+	items = [i.name for i in frappe.get_all(
+		"Item", filters={"korkem_material_company": company, "korkem_material_kind": material_stock.PAINT},
+		fields=["name", "korkem_color"], limit_page_length=0) if i.korkem_color and _same(i.korkem_color, colour)]
+	on_hand = material_stock._stock(items, company)
+	return sorted(((i, on_hand.get(i, (0.0, 0.0))[0]) for i in items), key=lambda x: -x[1])
+
+
+def _entry(company: str, purpose: str, item: str, kg: float, use: str, order: str | None = None,
+		   m2: float | None = None, rate: float | None = None) -> str:
+	warehouse = material_stock._receiving_warehouse(company, None)
+	unit = frappe.db.get_value("Item", item, "stock_uom")
+	line = {"item_code": item, "qty": kg, "uom": unit, "stock_uom": unit, "conversion_factor": 1}
+	if purpose == "Material Issue":
+		line["s_warehouse"] = warehouse
+	else:
+		line.update({"t_warehouse": warehouse, "basic_rate": rate or 0, "allow_zero_valuation_rate": 0 if rate else 1})
+	entry = frappe.get_doc({
+		"doctype": "Stock Entry", "stock_entry_type": purpose, "purpose": purpose, "company": company,
+		"korkem_receipt_dept": DEPT, "korkem_paint_use": use, "korkem_paint_order": order,
+		"korkem_paint_m2": m2 or 0, "remarks": f"Краска: {order}" if order else "Краска: пересчёт",
+		"items": [line],
+	})
+	entry.insert(ignore_permissions=True)
+	entry.submit()
+	return entry.name
+
+
+def use_for_order(order: str) -> dict:
+	"""«Покрашено»: the order's m² times the shop's figure, colour by colour,
+	off the store — once; not for an order painted with the customer's own
+	paint. Returns what was taken and what was short."""
+	from korkem_manufacturing.services import mdf_tags
+
+	row = frappe.db.get_value("Sales Order", order, ["company", "korkem_tags"], as_dict=True)
+	if not row or frappe.db.exists("Stock Entry", {"korkem_paint_order": order, "korkem_paint_use": USE_ORDER,
+													"docstatus": 1}):
+		return {"taken": [], "short": []}
+	if mdf_tags.CLIENT_PAINT in mdf_tags.parse(row.korkem_tags):
+		return {"taken": [], "short": []}
+	rate = kg_per_m2(row.company)
+	taken, short = [], []
+	for colour, m2 in mdf_paint._colours([order])[0].get(order, {}).items():
+		if colour == mdf_paint.NO_COLOUR:
+			continue
+		need = round(float(m2) * rate, 3)
+		left = need
+		for item, have in _paints_of(row.company, colour):
+			take = round(min(left, have), 3)
+			if take <= 0:
+				continue
+			_entry(row.company, "Material Issue", item, take, USE_ORDER, order, round(float(m2) * take / need, 3))
+			taken.append({"colour": colour, "item": item, "kg": take})
+			left = round(left - take, 3)
+			if left <= 0:
+				break
+		if left > 0:
+			short.append({"colour": colour, "kg": left, "m2": float(m2)})
+	audit.record_audit(action="paint.used", entity_type="Sales Order", entity_id=order,
+					   diff={"taken": taken, "short": short, "kg_per_m2": rate})
+	return {"taken": taken, "short": short}
+
+
+def return_for_order(order: str) -> None:
+	"""«Покрашено» taken back: what it took goes back on the shelf."""
+	for name in frappe.get_all("Stock Entry", filters={"korkem_paint_order": order, "korkem_paint_use": USE_ORDER,
+													   "docstatus": 1}, pluck="name"):
+		entry = frappe.get_doc("Stock Entry", name)
+		entry.flags.ignore_permissions = True
+		entry.cancel()
+	audit.record_audit(action="paint.returned", entity_type="Sales Order", entity_id=order, diff={})
+
+
+def count(item: str, kg) -> dict:
+	"""The painter weighed what is left: the store is put right to it, and
+	the difference counts towards what a m² really takes."""
+	material_stock._ensure_editor()
+	company = current_company()
+	if frappe.db.get_value("Item", item, ["korkem_material_company", "korkem_material_kind"]) != (
+			company, material_stock.PAINT):
+		frappe.throw("Такой краски нет.", frappe.DoesNotExistError)
+	try:
+		actual = Decimal(str(kg).replace(",", "."))
+	except (InvalidOperation, ValueError):
+		frappe.throw("Остаток — число, в кг.")
+	if not actual.is_finite() or actual < 0 or actual > material_stock.MAX_QTY:
+		frappe.throw("Остаток — от нуля, в кг.")
+	have, average = material_stock._stock([item], company).get(item, (0.0, 0.0))
+	diff = round(float(actual) - have, 3)
+	if diff < 0:
+		_entry(company, "Material Issue", item, -diff, USE_COUNT)
+	elif diff > 0:
+		last = _last_receipts([item], company).get(item)
+		_entry(company, "Material Receipt", item, diff, USE_COUNT, rate=average or (flt(last.basic_rate) if last else 0))
+	audit.record_audit(action="paint.counted", entity_type="Item", entity_id=item,
+					   diff={"was": have, "now": float(actual)})
+	return stock()
+
+
+def usage(company: str | None = None, days: int = USAGE_DAYS) -> dict:
+	"""The last month: m² painted, kilograms taken for them by the figure,
+	what counts found missing (or over) — and so what a m² really took."""
+	from frappe.utils import add_days, nowdate
+
+	company = company or current_company()
+	m2 = kg_orders = kg_counted = 0.0
+	for e in frappe.db.sql(
+		"""select se.korkem_paint_use, se.korkem_paint_m2, se.purpose, sum(sed.qty) as qty
+		from `tabStock Entry` se join `tabStock Entry Detail` sed on sed.parent = se.name
+		where se.company = %(company)s and se.docstatus = 1 and se.korkem_receipt_dept = %(dept)s
+			and se.korkem_paint_use in %(uses)s and se.posting_date >= %(since)s
+		group by se.name""",
+		{"company": company, "dept": DEPT, "uses": (USE_ORDER, USE_COUNT), "since": add_days(nowdate(), -days)},
+		as_dict=True,
+	):
+		if e.korkem_paint_use == USE_ORDER:
+			m2 += flt(e.korkem_paint_m2)
+			kg_orders += flt(e.qty)
+		else:
+			kg_counted += flt(e.qty) if e.purpose == "Material Issue" else -flt(e.qty)
+	fact = round((kg_orders + kg_counted) / m2, 3) if m2 else None
+	return {"days": days, "m2": round(m2, 2), "kg_by_norm": round(kg_orders, 2), "kg_counted": round(kg_counted, 2),
+			"fact_kg_m2": fact}

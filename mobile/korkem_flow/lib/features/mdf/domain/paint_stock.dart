@@ -140,6 +140,16 @@ class PaintOwed {
 
 typedef PaintSupplier = ({String id, String name, String? city, bool paint});
 
+/// The last month: m² painted, kilograms the figure took for them, what
+/// counts found missing — and what a m² really took (owner, 15.11.2026).
+typedef PaintUsage = ({
+  int days,
+  double m2,
+  double kgByNorm,
+  double kgCounted,
+  double? factKgM2,
+});
+
 /// «Склад краски» (owner, 15.11.2026).
 @immutable
 class PaintStock {
@@ -149,6 +159,7 @@ class PaintStock {
     this.kgPerM2 = 0.3,
     this.owed = const [],
     this.suppliers = const [],
+    this.usage,
   });
 
   factory PaintStock.fromJson(Map<String, dynamic> j) => PaintStock(
@@ -165,6 +176,17 @@ class PaintStock {
           paint: r['paint'] == true,
         ),
     ],
+    usage: j['usage'] is Map
+        ? (
+            days: (j['usage'] as Map)['days'] is num
+                ? ((j['usage'] as Map)['days'] as num).toInt()
+                : 30,
+            m2: _d((j['usage'] as Map)['m2']),
+            kgByNorm: _d((j['usage'] as Map)['kg_by_norm']),
+            kgCounted: _d((j['usage'] as Map)['kg_counted']),
+            factKgM2: _dn((j['usage'] as Map)['fact_kg_m2']),
+          )
+        : null,
   );
 
   final List<PaintItem> paints;
@@ -172,6 +194,7 @@ class PaintStock {
   final double kgPerM2;
   final List<PaintOwed> owed;
   final List<PaintSupplier> suppliers;
+  final PaintUsage? usage;
 
   /// The last receipt of a colour, of any kind of it — what to start from.
   PaintLast? lastOf(String colour, {String? base}) {
