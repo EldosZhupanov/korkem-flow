@@ -1814,6 +1814,9 @@ class _LineRow extends StatelessWidget {
       ),
     );
 
+    // «ЛМДФ · клиента»: the customer's own board, in the material's list.
+    final clients = ' · ${l10n.mdfClientShort}';
+
     Widget drop(
       String key,
       String label,
@@ -2059,28 +2062,31 @@ class _LineRow extends StatelessWidget {
                 none: mdfThicknessLabel(thicknesses, headThickness),
                 highlight: line.thicknessMm != null,
               ),
+              // Ours by default — the order's LMDF; his own is picked right
+              // here, position by position (owner, 14.11.2026): a customer
+              // may bring some of the facades, or 16 and 18 mm.
               drop(
                 'mdfLineMaterial',
                 l10n.mdfMaterial,
-                line.material,
-                materials,
-                130,
-                (v) => line.material = v == headMaterial ? null : v,
-                none: headMaterial ?? l10n.mdfNone,
-                highlight: line.material != null,
-              ),
-              // His own LMDF, position by position (owner, 14.11.2026): a
-              // customer may bring some of the facades, or 16 and 18 mm.
-              FilterChip(
-                key: ValueKey('mdfLineClientMdf:$index'),
-                label: Text(l10n.mdfClientShort),
-                tooltip: l10n.mdfTagClientParts,
-                visualDensity: VisualDensity.compact,
-                selected: line.clientMdf,
-                onSelected: (on) {
-                  line.clientMdf = on;
-                  onChanged();
+                line.clientMdf
+                    ? '${line.material ?? headMaterial ?? ''}$clients'
+                    : line.material,
+                [
+                  ...materials,
+                  for (final m in materials) '$m$clients',
+                ],
+                160,
+                (v) {
+                  final his = v != null && v.endsWith(clients);
+                  final base = his
+                      ? v.substring(0, v.length - clients.length)
+                      : v;
+                  line
+                    ..clientMdf = his
+                    ..material = base == headMaterial ? null : base;
                 },
+                none: headMaterial ?? l10n.mdfNone,
+                highlight: line.material != null || line.clientMdf,
               ),
               figure(
                 'mdfLineArea',
