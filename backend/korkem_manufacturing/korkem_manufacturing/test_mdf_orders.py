@@ -521,7 +521,7 @@ class TestMdfOrders(IntegrationTestCase):
 		from korkem_manufacturing.services import mdf_dictionaries as dicts
 
 		lists = self._as(MANAGER, dicts.dictionaries)
-		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge", "bank", "paint", "maker", "film_type", "film_thickness", "film_width", "transport", "city"})
+		self.assertEqual(set(lists), {"material", "thickness", "finish", "decor", "patina", "milling", "edge", "bank", "paint", "paint_system", "maker", "film_type", "film_thickness", "film_width", "transport", "city"})
 		self.assertNotIn(PVC, [v["value"] for v in lists["finish"]])  # nothing is filled in for the owner
 
 		lists = self._as(MANAGER, dicts.add, "patina", "  Алтын/Золотой ")
@@ -574,6 +574,36 @@ class TestMdfOrders(IntegrationTestCase):
 		# The group deleted: its variants leave the list with it.
 		lists = self._as(MANAGER, dicts.remove, "milling", mine[renamed]["id"])
 		self.assertFalse([v for v in lists["milling"] if v["value"].startswith(renamed)])
+
+	def test_paints_are_filed_by_colour_system(self):
+		from korkem_manufacturing.services import mdf_dictionaries as dicts
+		from korkem_manufacturing.services import mdf_paints
+
+		mdf_paints.seed_company(COMPANY)  # once: a second time changes nothing
+		lists = self._as(MANAGER, dicts.dictionaries)
+		self.assertTrue({"RAL Classic", "NCS", "По образцу"} <= {v["value"] for v in lists["paint_system"]})
+		self.assertEqual(mdf_paints.guess_system("RAL 9010"), "RAL Classic")
+		self.assertEqual(mdf_paints.guess_system("RAL 110-M"), "RAL Effect")
+		self.assertEqual(mdf_paints.guess_system("RAL 210 50 20"), "RAL Design")
+		self.assertEqual(mdf_paints.guess_system("NCS S 0502-Y"), "NCS")
+
+		h = frappe.generate_hash(length=4)
+		system = f"RAL Тест {h}"
+		self._as(MANAGER, dicts.add, "paint_system", system)
+		# A bare number under a RAL system is written as RAL does.
+		lists = self._as(MANAGER, dicts.add, "paint", f"{h} Белый", group=system)
+		paint = next(v for v in lists["paint"] if v["value"] == f"RAL {h} Белый")
+		self.assertEqual(paint["group"], system)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, dicts.add, "paint", "x", group=f"Нет такой {h}")
+
+		# The system renamed: its colours are filed under the new name.
+		system_id = next(v["id"] for v in lists["paint_system"] if v["value"] == system)
+		lists = self._as(MANAGER, dicts.rename, "paint_system", system_id, f"{system} 2")
+		self.assertEqual(next(v for v in lists["paint"] if v["id"] == paint["id"])["group"], f"{system} 2")
+		# Deleted: the colour stays, filed under none.
+		lists = self._as(MANAGER, dicts.remove, "paint_system", system_id)
+		self.assertIsNone(next(v for v in lists["paint"] if v["id"] == paint["id"])["group"])
 
 	def test_a_value_an_order_uses_is_switched_off_not_deleted_and_names_stay_unique(self):
 		from korkem_manufacturing.services import mdf_dictionaries as dicts

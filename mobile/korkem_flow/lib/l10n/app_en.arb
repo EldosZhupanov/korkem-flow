@@ -9098,5 +9098,16 @@
   "filmReqIik": "IIK (account)",
   "filmReqBik": "BIK",
   "filmReqKbe": "Kbe",
-  "filmReqDirector": "Signs (director)"
+  "filmReqDirector": "Signs (director)",
+  "mdfPaintSystem": "Colour system",
+  "mdfPaintAddSystem": "Add a colour system",
+  "mdfPaintAddColour": "Add a colour to {group}",
+  "@mdfPaintAddColour": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPaintNoSystem": "No system"
 }

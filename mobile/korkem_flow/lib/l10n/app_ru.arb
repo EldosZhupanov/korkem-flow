@@ -2603,5 +2603,9 @@
   "filmReqIik": "ИИК (счёт)",
   "filmReqBik": "БИК",
   "filmReqKbe": "Кбе",
-  "filmReqDirector": "Подписывает (директор)"
+  "filmReqDirector": "Подписывает (директор)",
+  "mdfPaintSystem": "Система цвета",
+  "mdfPaintAddSystem": "Добавить систему цвета",
+  "mdfPaintAddColour": "Добавить цвет в {group}",
+  "mdfPaintNoSystem": "Без системы"
 }

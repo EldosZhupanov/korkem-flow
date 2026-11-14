@@ -49,7 +49,9 @@ LISTS = ("Толщина МДФ", "Производитель", "Цвет плё
 		 # «Maker · Collection» (`film_catalog`, owner, 11.11.2026).
 		 "Коллекция плёнки",
 		 # How a roll came and from where (owner, 11.11.2026): lists he keeps.
-		 "Способ доставки", "Город доставки")
+		 "Способ доставки", "Город доставки",
+		 # RAL Classic, NCS, «По образцу» — a paint's colour system (15.11.2026).
+		 "Система цвета")
 #: Units a material is counted in. Created in ERPNext if missing.
 UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False}
 MAX_QTY = Decimal("100000")

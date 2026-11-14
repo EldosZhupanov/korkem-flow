@@ -21,6 +21,7 @@ String mdfDictLabel(MdfDictKind kind, AppLocalizations l10n) => switch (kind) {
   MdfDictKind.edge => l10n.mdfColEdge,
   MdfDictKind.bank => l10n.mdfDictBank,
   MdfDictKind.paint => l10n.mdfDictPaint,
+  MdfDictKind.paintSystem => l10n.mdfPaintSystem,
   MdfDictKind.maker => l10n.filmMaker,
   MdfDictKind.filmType => l10n.filmType,
   MdfDictKind.filmThickness => l10n.filmThickness,
@@ -68,7 +69,8 @@ class MdfDictionariesScreen extends ConsumerWidget {
           // The old «Цвет плёнки» list is not shown (owner, 11.11.2026): films
           // are kept in the catalogue, maker by maker.
           for (final kind in MdfDictKind.values)
-            if (kind != MdfDictKind.decor)
+            // The colour systems are kept inside the paint list.
+            if (kind != MdfDictKind.decor && kind != MdfDictKind.paintSystem)
               ReadableWidth(
                 child: ListTile(
                   key: ValueKey('dictList:${kind.name}'),

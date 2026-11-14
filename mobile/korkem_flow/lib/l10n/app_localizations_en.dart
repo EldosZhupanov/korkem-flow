@@ -8403,4 +8403,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmReqDirector => 'Signs (director)';
+
+  @override
+  String get mdfPaintSystem => 'Colour system';
+
+  @override
+  String get mdfPaintAddSystem => 'Add a colour system';
+
+  @override
+  String mdfPaintAddColour(String group) {
+    return 'Add a colour to $group';
+  }
+
+  @override
+  String get mdfPaintNoSystem => 'No system';
 }

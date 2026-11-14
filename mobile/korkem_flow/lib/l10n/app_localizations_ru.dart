@@ -8430,4 +8430,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmReqDirector => 'Подписывает (директор)';
+
+  @override
+  String get mdfPaintSystem => 'Система цвета';
+
+  @override
+  String get mdfPaintAddSystem => 'Добавить систему цвета';
+
+  @override
+  String mdfPaintAddColour(String group) {
+    return 'Добавить цвет в $group';
+  }
+
+  @override
+  String get mdfPaintNoSystem => 'Без системы';
 }
