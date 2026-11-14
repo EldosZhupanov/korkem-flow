@@ -451,6 +451,26 @@ class TestFilmDept(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, service.hold, self.film, other, 1)
 
+	def test_the_suppliers_board_says_what_we_owe_a_source_and_how_its_price_moved(self):
+		def board() -> tuple[dict, dict]:
+			b = self._as(MANAGER, film_supplier_board.board)
+			return b, {r["supplier"]: r for r in b["suppliers"]}
+
+		# A source of its own, so its numbers are this test's alone.
+		name = f"Film Price {frappe.generate_hash(length=6)}"
+		material_stock.add_supplier(name)
+		second = frappe.db.get_value("Supplier", {"supplier_name": name}, "name")
+		self._as(MANAGER, service.receive, self.film, 20, 3000, second)
+		before, was = board()
+		self.assertEqual((was[second]["owed"], was[second]["owed_count"], was[second]["price_change"]),
+						 (None, 0, None))
+		# 10 m at 3 300 ₸ taken on credit: owed — and 10% dearer than before.
+		self._as(MANAGER, service.receive, self.film, 10, 3300, second, supplier_paid="0")
+		after, now = board()
+		row = now[second]
+		self.assertEqual((row["owed"], row["owed_count"], row["price_change"]), (33_000, 1, 10.0))
+		self.assertAlmostEqual(after["owed"] - before["owed"], 33_000)
+
 	def test_the_suppliers_board_ranks_sources_by_what_their_film_sold(self):
 		def board(user=MANAGER) -> tuple[dict, dict]:
 			b = self._as(user, film_supplier_board.board)

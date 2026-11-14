@@ -242,6 +242,7 @@ def _suppliers_owed(company: str) -> list[dict]:
 			"metres": flt(line.qty),
 			"film": frappe.db.get_value("Item", line.item_code, "item_name") or line.item_code,
 			"supplier": frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier,
+			"supplier_id": e.korkem_supplier,
 			"coming": e.docstatus == 0,
 		})
 	return out

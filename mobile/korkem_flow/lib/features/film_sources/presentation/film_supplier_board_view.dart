@@ -79,6 +79,17 @@ class FilmSupplierSummary extends StatelessWidget {
           b.comingCount > 0 ? l10n.filmSupComingRolls(b.comingCount) : null,
           b.comingM > 0 ? status.info : null,
         ),
+        // What we owe for film taken on credit (owner, 14.11.2026).
+        if (b.owed != null)
+          fact(
+            'owed',
+            l10n.filmSupOwed,
+            money.format(b.owed),
+            b.owedSuppliers > 0
+                ? l10n.filmSupOwedTo(b.owedSuppliers)
+                : null,
+            (b.owed ?? 0) > 0 ? status.danger : null,
+          ),
         fact(
           'reorder',
           l10n.filmSupReorder,
@@ -292,6 +303,31 @@ class FilmSupplierTile extends StatelessWidget {
                                   mdfDay(coming.due, year: false),
                                 ),
                           coming.lateDays > 0 ? status.warning : status.info,
+                        ),
+                      // The money side (owner, 14.11.2026): what we owe
+                      // it, how it keeps its word, how its price moved.
+                      if ((r.owed ?? 0) > 0)
+                        chip(
+                          'owed',
+                          l10n.filmSupChipOwed(money.format(r.owed)),
+                          status.danger,
+                        ),
+                      if (r.onTime != null && r.rolls > 0)
+                        chip(
+                          'onTime',
+                          l10n.filmSupChipOnTime(r.onTime!, r.rolls),
+                          r.onTime! >= r.rolls * FilmSupplierRow.reliable
+                              ? status.success
+                              : status.warning,
+                        ),
+                      if (r.priceChange != null && r.priceChange!.abs() >= 1)
+                        chip(
+                          'price',
+                          l10n.filmSupChipPrice(
+                            '${r.priceChange! > 0 ? '▲' : '▼'} '
+                            '${r.priceChange!.abs().round()}',
+                          ),
+                          r.priceChange! > 0 ? status.warning : status.success,
                         ),
                       if (r.lateDays > 0)
                         chip(

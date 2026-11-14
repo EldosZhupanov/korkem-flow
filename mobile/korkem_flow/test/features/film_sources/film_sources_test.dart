@@ -37,6 +37,8 @@ const _board = <String, dynamic>{
   'coming_m': 20,
   'coming_count': 1,
   'reorder_films': 1,
+  'owed': 180000,
+  'owed_suppliers': 1,
   'suppliers': [
     {
       'supplier': 'SUP-1',
@@ -49,6 +51,11 @@ const _board = <String, dynamic>{
       'lead_days': 6,
       'promised_days': 2,
       'late_days': 4,
+      // Owed for film on credit; six rolls of ten on time; 4% dearer.
+      'owed': 180000,
+      'on_time': 6,
+      'rolls': 10,
+      'price_change': 4.2,
       'reorder': [
         {'item': 'F-1', 'title': 'Adilet · Белый', 'metres': 150, 'free': 20},
       ],
@@ -221,6 +228,12 @@ void main() {
     expect(find.text('Late by 4 d on average'), findsOneWidget);
     expect(find.textContaining('brings in 6 d (promised 2)'), findsOneWidget);
     expect(find.byKey(const ValueKey('filmSup:ok:SUP-1')), findsNothing);
+    // The money side: what we owe it, how it keeps its word, its price.
+    expect(text('filmSup:owed'), contains('180'));
+    expect(find.byKey(const ValueKey('filmSup:owed:SUP-1')), findsOneWidget);
+    expect(find.text('on time 6 of 10'), findsOneWidget);
+    expect(find.text('price ▲ 4%'), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmSup:owed:SUP-2')), findsNothing);
     // Almaty: a roll on its way, and film lying idle.
     expect(find.text('20 m on its way · 14.11'), findsOneWidget);
     expect(find.text('Lying idle: 2 · 48 m'), findsOneWidget);

@@ -8917,5 +8917,41 @@
     }
   },
   "filmSalesTopFilms": "Films that sold most",
-  "filmSalesTopCustomers": "Who bought most"
+  "filmSalesTopCustomers": "Who bought most",
+  "filmSupOwed": "We owe",
+  "filmSupOwedTo": "suppliers: {count}",
+  "@filmSupOwedTo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipOwed": "we owe {amount}",
+  "@filmSupChipOwed": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupChipOnTime": "on time {onTime} of {rolls}",
+  "@filmSupChipOnTime": {
+    "placeholders": {
+      "onTime": {
+        "type": "int"
+      },
+      "rolls": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipPrice": "price {change}%",
+  "@filmSupChipPrice": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -2551,5 +2551,10 @@
   "filmSalesByDay": "Продано по дням, м",
   "filmSalesChartA11y": "Метры по дням; всего {metres} м",
   "filmSalesTopFilms": "Топ плёнок",
-  "filmSalesTopCustomers": "Топ клиентов"
+  "filmSalesTopCustomers": "Топ клиентов",
+  "filmSupOwed": "Мы должны",
+  "filmSupOwedTo": "поставщикам: {count}",
+  "filmSupChipOwed": "должны {amount}",
+  "filmSupChipOnTime": "вовремя {onTime} из {rolls}",
+  "filmSupChipPrice": "цена {change}%"
 }

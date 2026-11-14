@@ -2551,5 +2551,10 @@
   "filmSalesByDay": "Күндер бойынша сатылды, м",
   "filmSalesChartA11y": "Күндер бойынша метр; барлығы {metres} м",
   "filmSalesTopFilms": "Үздік үлдірлер",
-  "filmSalesTopCustomers": "Үздік клиенттер"
+  "filmSalesTopCustomers": "Үздік клиенттер",
+  "filmSupOwed": "Біз қарызбыз",
+  "filmSupOwedTo": "жеткізушілер: {count}",
+  "filmSupChipOwed": "қарыз {amount}",
+  "filmSupChipOnTime": "уақытында {rolls}-ден {onTime}",
+  "filmSupChipPrice": "баға {change}%"
 }
