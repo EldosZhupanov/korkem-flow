@@ -2513,5 +2513,6 @@
   "mdfPaintComing": "Скоро к вам",
   "mdfPaintNowAt": "сейчас: {stage}",
   "mdfPaintTwoSided": "2 стороны",
-  "mdfTagClientFilm": "Плёнка клиента"
+  "mdfTagClientFilm": "Плёнка клиента",
+  "mdfClientShort": "клиента"
 }

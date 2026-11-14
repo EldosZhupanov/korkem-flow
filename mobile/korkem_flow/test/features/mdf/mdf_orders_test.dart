@@ -341,7 +341,7 @@ class _TwoFilms extends _FakeRepository {
 }
 
 void main() {
-  testWidgets('the customer\'s own film and LMDF are marked on their group', (
+  testWidgets("the customer's own film and LMDF are marked on their group", (
     tester,
   ) async {
     tester.view

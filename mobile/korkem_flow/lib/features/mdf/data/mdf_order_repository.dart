@@ -15,7 +15,6 @@ import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
-import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_volume.dart';
 
 final mdfOrderRepositoryProvider = Provider<MdfOrderRepository>(

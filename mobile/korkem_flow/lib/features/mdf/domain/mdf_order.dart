@@ -694,3 +694,9 @@ class MdfFilmPress {
   double get saved =>
       plainM == null || plainM! <= layoutM ? 0 : plainM! - layoutM;
 }
+
+/// Whether a position's colour is the customer's own: his paint on a paint
+/// group, his film on a PVC one.
+bool mdfLineIsClients(MdfCoating? coating, bool paint, bool film) =>
+    (coating == MdfCoating.paint && paint) ||
+    (coating == MdfCoating.pvc && film);

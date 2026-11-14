@@ -1304,7 +1304,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                         if (_owns(group).film) MdfOrderTag.clientFilm,
                         if (_owns(group).mdf) MdfOrderTag.clientParts,
                       ],
-                      onTag: (t, on) => _setOwn(group, t, on: on),
+                      onTag: (t, {required on}) => _setOwn(group, t, on: on),
                       children: [
                         for (var i = 0; i < mates.length; i++)
                           _LineRow(
@@ -1497,7 +1497,7 @@ class _FilmGroup extends StatelessWidget {
   /// This group's marks: the customer's own paint (a paint group) or film
   /// (a PVC group), and his own LMDF (any group).
   final List<MdfOrderTag> tags;
-  final void Function(MdfOrderTag tag, bool on)? onTag;
+  final void Function(MdfOrderTag tag, {required bool on})? onTag;
 
   @override
   Widget build(BuildContext context) {
@@ -1612,7 +1612,9 @@ class _FilmGroup extends StatelessWidget {
                       key: ValueKey('mdfGroupTag:$index:${t.wire}'),
                       label: Text(mdfOrderTagLabel(t, l10n)),
                       selected: tags.contains(t),
-                      onSelected: onTag == null ? null : (on) => onTag!(t, on),
+                      onSelected: onTag == null
+                          ? null
+                          : (on) => onTag!(t, on: on),
                     ),
                   // A film from the catalogue: the maker, the type, then that
                   // maker's film (owner, 10.11.2026).
@@ -2018,12 +2020,30 @@ class _LineRow extends StatelessWidget {
               SizedBox(
                 width: 140,
                 child: Text(
-                  line.coating == MdfCoating.raw
-                      ? mdfCoatingLabel(MdfCoating.raw, l10n)
-                      : line.film ?? mdfCoatingNone(line.coating, l10n),
+                  [
+                    if (line.coating == MdfCoating.raw)
+                      mdfCoatingLabel(MdfCoating.raw, l10n)
+                    else
+                      line.film ?? mdfCoatingNone(line.coating, l10n),
+                    if (mdfLineIsClients(
+                      line.coating,
+                      line.clientPaint,
+                      line.clientFilm,
+                    ))
+                      l10n.mdfClientShort,
+                  ].join(' · '),
                   key: ValueKey('mdfLineFilm:$index'),
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color:
+                        mdfLineIsClients(
+                          line.coating,
+                          line.clientPaint,
+                          line.clientFilm,
+                        )
+                        ? context.statusColors.warning
+                        : null,
+                  ),
                 ),
               ),
               drop(
@@ -2048,6 +2068,19 @@ class _LineRow extends StatelessWidget {
                 (v) => line.material = v == headMaterial ? null : v,
                 none: headMaterial ?? l10n.mdfNone,
                 highlight: line.material != null,
+              ),
+              // His own LMDF, position by position (owner, 14.11.2026): a
+              // customer may bring some of the facades, or 16 and 18 mm.
+              FilterChip(
+                key: ValueKey('mdfLineClientMdf:$index'),
+                label: Text(l10n.mdfClientShort),
+                tooltip: l10n.mdfTagClientParts,
+                visualDensity: VisualDensity.compact,
+                selected: line.clientMdf,
+                onSelected: (on) {
+                  line.clientMdf = on;
+                  onChanged();
+                },
               ),
               figure(
                 'mdfLineArea',
@@ -3445,6 +3478,7 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   coating: (c) => mdfCoatingLabel(c, l10n),
   thicknessColumn: l10n.mdfPrintThickShort,
   materialColumn: l10n.mdfPrintMaterialShort,
+  client: l10n.mdfClientShort,
   pieces: l10n.mdfPrintPieces,
   tags: l10n.mdfTagsTitle,
   tag: (t) => mdfOrderTagLabel(t, l10n),

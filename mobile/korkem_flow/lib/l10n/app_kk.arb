@@ -2513,5 +2513,6 @@
   "mdfPaintComing": "Жақында сізге",
   "mdfPaintNowAt": "қазір: {stage}",
   "mdfPaintTwoSided": "2 жағы",
-  "mdfTagClientFilm": "Клиенттің үлдірі"
+  "mdfTagClientFilm": "Клиенттің үлдірі",
+  "mdfClientShort": "клиенттікі"
 }

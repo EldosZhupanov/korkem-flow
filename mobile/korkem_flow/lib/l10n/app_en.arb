@@ -8785,5 +8785,6 @@
     }
   },
   "mdfPaintTwoSided": "2 sides",
-  "mdfTagClientFilm": "Customer's film"
+  "mdfTagClientFilm": "Customer's film",
+  "mdfClientShort": "customer's"
 }
