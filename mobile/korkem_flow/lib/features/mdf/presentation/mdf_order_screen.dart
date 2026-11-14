@@ -515,9 +515,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             l.clientFilm = on;
           case MdfOrderTag.clientParts:
             l.clientMdf = on;
-          case MdfOrderTag.urgent ||
-              MdfOrderTag.rework ||
-              MdfOrderTag.warranty:
+          case MdfOrderTag.urgent || MdfOrderTag.rework || MdfOrderTag.warranty:
             break;
         }
       }

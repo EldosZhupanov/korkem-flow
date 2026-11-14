@@ -110,6 +110,7 @@ String? mdfDefaultMaterialIn(List<String> materials) {
   }
   return null;
 }
+
 const List<String> mdfStandardEdges = ['R0', mdfDefaultEdge];
 
 /// The radii to choose from: the two standard ones, then the list's.

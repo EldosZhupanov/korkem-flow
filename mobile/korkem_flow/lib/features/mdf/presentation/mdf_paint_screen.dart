@@ -117,9 +117,8 @@ class _BoardState extends ConsumerState<_Board> {
     final note = await askClientPaint(context);
     if (note == null || !mounted) return;
     await _run(
-      () => ref
-          .read(mdfPaintRepositoryProvider)
-          .clientPaintIn(order, note: note),
+      () =>
+          ref.read(mdfPaintRepositoryProvider).clientPaintIn(order, note: note),
     );
   }
 

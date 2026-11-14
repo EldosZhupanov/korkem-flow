@@ -13746,6 +13746,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Earned least'**
   String get mdfSumMarginLowest;
+
+  /// No description provided for @mdfPaintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint shop'**
+  String get mdfPaintTitle;
+
+  /// No description provided for @mdfPaintHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What to paint by colour, what is drying'**
+  String get mdfPaintHint;
+
+  /// No description provided for @mdfPaintDryHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Drying time, hours'**
+  String get mdfPaintDryHours;
+
+  /// No description provided for @mdfPaintEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to paint'**
+  String get mdfPaintEmpty;
+
+  /// No description provided for @mdfPaintSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'To paint {waiting} · drying {drying} · on the way {coming}'**
+  String mdfPaintSummary(String waiting, String drying, String coming);
+
+  /// No description provided for @mdfPaintDrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Drying ({hours} h)'**
+  String mdfPaintDrying(int hours);
+
+  /// No description provided for @mdfPaintDry.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry'**
+  String get mdfPaintDry;
+
+  /// No description provided for @mdfPaintLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min left · dry {day} at {time}'**
+  String mdfPaintLeft(String hours, String minutes, String day, String time);
+
+  /// No description provided for @mdfPaintMarkPainted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark painted'**
+  String get mdfPaintMarkPainted;
+
+  /// No description provided for @mdfPaintUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not drying'**
+  String get mdfPaintUndo;
+
+  /// No description provided for @mdfPaintByColour.
+  ///
+  /// In en, this message translates to:
+  /// **'To paint, by colour'**
+  String get mdfPaintByColour;
+
+  /// No description provided for @mdfPaintByColourHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The biggest colour first: mixed once, the gun cleaned once.'**
+  String get mdfPaintByColourHint;
+
+  /// No description provided for @mdfPaintColourNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{area} · orders: {orders}'**
+  String mdfPaintColourNote(String area, String orders);
+
+  /// No description provided for @mdfPaintStartDrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Painted — dry'**
+  String get mdfPaintStartDrying;
+
+  /// No description provided for @mdfPaintPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Most painted colours, 90 days'**
+  String get mdfPaintPopular;
+
+  /// No description provided for @mdfPaintSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get mdfPaintSave;
+
+  /// No description provided for @mdfTagClientPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s paint'**
+  String get mdfTagClientPaint;
+
+  /// No description provided for @mdfTagClientParts.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s LMDF'**
+  String get mdfTagClientParts;
+
+  /// No description provided for @mdfClientPaintBrought.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint brought'**
+  String get mdfClientPaintBrought;
+
+  /// No description provided for @mdfClientPaintWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What was brought (e.g. 2 cans × 3 l)'**
+  String get mdfClientPaintWhat;
+
+  /// No description provided for @mdfClientPaintHere.
+  ///
+  /// In en, this message translates to:
+  /// **'here'**
+  String get mdfClientPaintHere;
+
+  /// No description provided for @mdfClientPaintWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for paint'**
+  String get mdfClientPaintWaiting;
+
+  /// No description provided for @mdfPaintSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint settings'**
+  String get mdfPaintSettings;
+
+  /// No description provided for @mdfPaintDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount for own paint, ₸/m²'**
+  String get mdfPaintDiscount;
+
+  /// No description provided for @mdfPaintDiscountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken off the m² price when «Customer\'s paint» is on'**
+  String get mdfPaintDiscountHint;
+
+  /// No description provided for @mdfPaintComing.
+  ///
+  /// In en, this message translates to:
+  /// **'On their way to you'**
+  String get mdfPaintComing;
+
+  /// No description provided for @mdfPaintNowAt.
+  ///
+  /// In en, this message translates to:
+  /// **'now: {stage}'**
+  String mdfPaintNowAt(String stage);
+
+  /// No description provided for @mdfPaintTwoSided.
+  ///
+  /// In en, this message translates to:
+  /// **'2 sides'**
+  String get mdfPaintTwoSided;
+
+  /// No description provided for @mdfTagClientFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s film'**
+  String get mdfTagClientFilm;
+
+  /// No description provided for @mdfClientShort.
+  ///
+  /// In en, this message translates to:
+  /// **'customer\'s'**
+  String get mdfClientShort;
 }
 
 class _AppLocalizationsDelegate
