@@ -19,6 +19,7 @@ import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_orders.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_invoice_dialog.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
@@ -2746,6 +2747,15 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
           },
           icon: const Icon(AppIcons.share),
           label: Text(l10n.filmReceipt),
+        ),
+        // «Счёт на оплату» — for a customer who pays by transfer: the
+        // factory's requisites, a number, the day to pay by (owner,
+        // 14.11.2026).
+        TextButton.icon(
+          key: const ValueKey('filmSaleInvoice'),
+          onPressed: () => showFilmInvoice(context, widget.sale),
+          icon: const Icon(AppIcons.bank),
+          label: Text(l10n.filmInvoice),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),

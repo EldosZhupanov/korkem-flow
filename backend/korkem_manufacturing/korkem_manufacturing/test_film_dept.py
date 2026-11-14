@@ -329,6 +329,30 @@ class TestFilmDept(IntegrationTestCase):
 		opening = self._as(MANAGER, film_cash.book, str(yesterday), str(yesterday))["opening"]
 		self.assertNotEqual((opening or {}).get("closed_on"), str(yesterday))
 
+	def test_a_sale_gets_an_invoice_numbered_in_its_year_with_the_requisites(self):
+		from korkem_manufacturing.services import film_invoice
+
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, film_invoice.set_requisites, {"name": "ТОО Көркем", "bin": "123"})
+		kept = self._as(MANAGER, film_invoice.set_requisites, {
+			"name": "ТОО «Көркем»", "bin": "123456789012", "bank": "АО Kaspi Bank", "iik": "KZ00722S000000000000"})
+		self.addCleanup(lambda: frappe.db.set_default(f"{film_invoice._KEY}:{COMPANY}", ""))
+		self.assertEqual(kept["bin"], "123456789012")
+		sale = self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 2}], paid=0)["entry"]
+		other = self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 1}], paid=0)["entry"]
+		first = self._as(MANAGER, film_invoice.invoice, sale)
+		second = self._as(MANAGER, film_invoice.invoice, other, add_days(nowdate(), 10))
+		# One after another; the same number when asked again, its day moved.
+		self.assertEqual(int(second["no"]), int(first["no"]) + 1)
+		again = self._as(MANAGER, film_invoice.invoice, sale, add_days(nowdate(), 3))
+		self.assertEqual((again["no"], again["due_on"]), (first["no"], str(getdate(add_days(nowdate(), 3)))))
+		self.assertEqual(first["requisites"]["name"], "ТОО «Көркем»")
+		self.assertEqual(first["sale"]["entry"], sale)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, film_invoice.invoice, sale, add_days(nowdate(), -1))
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, film_invoice.invoice, sale)
+
 	def test_paid_at_once_says_how_and_an_invoice_is_owed_by_its_day(self):
 		from korkem_manufacturing.services import film_cash
 

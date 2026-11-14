@@ -220,6 +220,39 @@ class FilmDeptRepository {
     params: {'receipt': receipt, 'method': method, 'source': source},
   );
 
+  /// The company's requisites for an invoice — `api.film_invoice`.
+  Future<Map<String, String>> requisites() async => filmRequisitesOf(
+    _map(
+      await _client.callMethod(
+        'korkem_manufacturing.api.film_invoice.requisites',
+      ),
+    ),
+  );
+
+  Future<Map<String, String>> setRequisites(Map<String, String> values) async =>
+      filmRequisitesOf(
+        _map(
+          await _client.callMethod(
+            'korkem_manufacturing.api.film_invoice.set_requisites',
+            post: true,
+            params: {'values': jsonEncode(values)},
+          ),
+        ),
+      );
+
+  /// The sale's «Счёт на оплату»: numbered the first time, the same after;
+  /// [dueOn] moves the day to pay by.
+  Future<FilmInvoice> invoice(String sale, {String? dueOn}) async =>
+      FilmInvoice.fromJson(
+        _map(
+          await _client.callMethod(
+            'korkem_manufacturing.api.film_invoice.invoice',
+            post: true,
+            params: {'sale': sale, 'due_on': ?dueOn},
+          ),
+        ),
+      );
+
   /// The month by seller and the team's bonus — `api.film_team`.
   Future<FilmTeam> team(String? month) async => FilmTeam.fromJson(
     _map(

@@ -938,3 +938,62 @@ int? filmRhythmDays(List<FilmSale> sales) {
 
 /// Below this a metre earns too little — amber (owner, 12.11.2026).
 const filmThinMarginM = 300.0;
+
+/// The company's requisites, in the order an invoice prints them (owner,
+/// 14.11.2026): the name it trades under, БИН, address, phone, the bank,
+/// ИИК, БИК, Кбе, and who signs.
+const filmRequisiteKeys = [
+  'name',
+  'bin',
+  'address',
+  'phone',
+  'bank',
+  'iik',
+  'bik',
+  'kbe',
+  'director',
+];
+
+/// «Счёт на оплату» for a sale: its number within the year, the day it was
+/// made and the day to pay by, the factory's requisites and the buyer's.
+@immutable
+class FilmInvoice {
+  const FilmInvoice({
+    required this.no,
+    required this.on,
+    required this.dueOn,
+    required this.requisites,
+    required this.buyerName,
+    this.buyerBin = '',
+    this.buyerPhone = '',
+  });
+
+  factory FilmInvoice.fromJson(Map<String, Object?> json) {
+    final buyer = json['buyer'] is Map
+        ? (json['buyer']! as Map).cast<String, Object?>()
+        : const <String, Object?>{};
+    return FilmInvoice(
+      no: '${json['no'] ?? ''}',
+      on: '${json['on'] ?? ''}',
+      dueOn: '${json['due_on'] ?? ''}',
+      requisites: filmRequisitesOf(json['requisites']),
+      buyerName: '${buyer['name'] ?? ''}',
+      buyerBin: '${buyer['bin'] ?? ''}',
+      buyerPhone: '${buyer['phone'] ?? ''}',
+    );
+  }
+
+  final String no;
+  final String on;
+  final String dueOn;
+  final Map<String, String> requisites;
+  final String buyerName;
+  final String buyerBin;
+  final String buyerPhone;
+}
+
+/// Requisites off the wire: every key present, empty where none was kept.
+Map<String, String> filmRequisitesOf(Object? json) {
+  final raw = json is Map ? json : const <Object?, Object?>{};
+  return {for (final k in filmRequisiteKeys) k: '${raw[k] ?? ''}'.trim()};
+}
