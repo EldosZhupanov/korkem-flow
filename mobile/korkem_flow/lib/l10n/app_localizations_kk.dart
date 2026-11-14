@@ -7242,6 +7242,44 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfSumManagers => 'Тапсырысты кім қабылдады';
 
   @override
+  String mdfSumAlertOverdue(int count) {
+    return '$count мерзімі өтті';
+  }
+
+  @override
+  String mdfSumAlertAtRisk(int count) {
+    return '$count мерзімге үлгермейді';
+  }
+
+  @override
+  String mdfSumAlertDebt(String sum) {
+    return 'Бір айдан асқан қарыз: $sum';
+  }
+
+  @override
+  String mdfSumAlertFilm(int count) {
+    return 'Пленка жетпейді: $count';
+  }
+
+  @override
+  String get mdfSumStages => 'Тапсырыстар қазір қай жерде';
+
+  @override
+  String get mdfSumIntake => 'Күн бойынша қабылданды';
+
+  @override
+  String get mdfSumIntakeMonthly => 'Ай бойынша қабылданды';
+
+  @override
+  String get mdfSumIntakeHint =>
+      'Бағанды басыңыз — сол күннің тапсырыстарын көрсетемін.';
+
+  @override
+  String mdfSumIntakeDay(String day, int count, String area, String sum) {
+    return '$day: тапсырыс $count · $area м² · $sum';
+  }
+
+  @override
   String mdfSumManagerValue(int count, String area, String sum) {
     return '$count · $area м² · $sum';
   }

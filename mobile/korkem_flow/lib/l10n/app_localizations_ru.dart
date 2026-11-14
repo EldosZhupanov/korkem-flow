@@ -7304,6 +7304,44 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfSumManagers => 'Кто принимал заказы';
 
   @override
+  String mdfSumAlertOverdue(int count) {
+    return '$count просрочено';
+  }
+
+  @override
+  String mdfSumAlertAtRisk(int count) {
+    return '$count не успевают к сроку';
+  }
+
+  @override
+  String mdfSumAlertDebt(String sum) {
+    return 'Долг старше месяца: $sum';
+  }
+
+  @override
+  String mdfSumAlertFilm(int count) {
+    return 'Не хватает плёнки: $count';
+  }
+
+  @override
+  String get mdfSumStages => 'Где сейчас заказы';
+
+  @override
+  String get mdfSumIntake => 'Принято по дням';
+
+  @override
+  String get mdfSumIntakeMonthly => 'Принято по месяцам';
+
+  @override
+  String get mdfSumIntakeHint =>
+      'Нажмите на столбик — покажу заказы этого дня.';
+
+  @override
+  String mdfSumIntakeDay(String day, int count, String area, String sum) {
+    return '$day: заказов $count · $area м² · $sum';
+  }
+
+  @override
   String mdfSumManagerValue(int count, String area, String sum) {
     return '$count · $area м² · $sum';
   }

@@ -7280,6 +7280,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfSumManagers => 'Who took the orders';
 
   @override
+  String mdfSumAlertOverdue(int count) {
+    return '$count overdue';
+  }
+
+  @override
+  String mdfSumAlertAtRisk(int count) {
+    return '$count will miss their date';
+  }
+
+  @override
+  String mdfSumAlertDebt(String sum) {
+    return 'Owed over a month: $sum';
+  }
+
+  @override
+  String mdfSumAlertFilm(int count) {
+    return 'Film short: $count';
+  }
+
+  @override
+  String get mdfSumStages => 'Where the orders are now';
+
+  @override
+  String get mdfSumIntake => 'Taken in by day';
+
+  @override
+  String get mdfSumIntakeMonthly => 'Taken in by month';
+
+  @override
+  String get mdfSumIntakeHint => 'Tap a bar for that day\'s orders.';
+
+  @override
+  String mdfSumIntakeDay(String day, int count, String area, String sum) {
+    return '$day: $count orders · $area m² · $sum';
+  }
+
+  @override
   String mdfSumManagerValue(int count, String area, String sum) {
     return '$count · $area m² · $sum';
   }

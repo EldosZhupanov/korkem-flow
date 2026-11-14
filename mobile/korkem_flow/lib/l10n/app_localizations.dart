@@ -12710,6 +12710,60 @@ abstract class AppLocalizations {
   /// **'Who took the orders'**
   String get mdfSumManagers;
 
+  /// No description provided for @mdfSumAlertOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} overdue'**
+  String mdfSumAlertOverdue(int count);
+
+  /// No description provided for @mdfSumAlertAtRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} will miss their date'**
+  String mdfSumAlertAtRisk(int count);
+
+  /// No description provided for @mdfSumAlertDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed over a month: {sum}'**
+  String mdfSumAlertDebt(String sum);
+
+  /// No description provided for @mdfSumAlertFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film short: {count}'**
+  String mdfSumAlertFilm(int count);
+
+  /// No description provided for @mdfSumStages.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the orders are now'**
+  String get mdfSumStages;
+
+  /// No description provided for @mdfSumIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken in by day'**
+  String get mdfSumIntake;
+
+  /// No description provided for @mdfSumIntakeMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken in by month'**
+  String get mdfSumIntakeMonthly;
+
+  /// No description provided for @mdfSumIntakeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a bar for that day\'s orders.'**
+  String get mdfSumIntakeHint;
+
+  /// No description provided for @mdfSumIntakeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: {count} orders · {area} m² · {sum}'**
+  String mdfSumIntakeDay(String day, int count, String area, String sum);
+
   /// No description provided for @mdfSumManagerValue.
   ///
   /// In en, this message translates to:

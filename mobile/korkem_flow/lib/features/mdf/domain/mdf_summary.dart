@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 
 /// «Итоги МДФ» (owner, 12.11.2026): the period against the one before it,
 /// and what is coming — the month's plan, the shop's queue, who fell asleep,
@@ -22,6 +23,9 @@ class MdfSummary {
     this.quality = const MdfQuality(),
     this.debts = const MdfDebts(),
     this.managers = const [],
+    this.stages = const [],
+    this.atRisk = 0,
+    this.days = const [],
   });
 
   factory MdfSummary.fromJson(Map<String, dynamic> json) => MdfSummary(
@@ -58,6 +62,21 @@ class MdfSummary {
           total: _d(m['total']),
         ),
     ],
+    stages: [
+      for (final s in _l(json['stages']))
+        if (MdfStage.parse(s['stage']) case final stage?)
+          (stage: stage, orders: _i(s['orders']), areaM2: _d(s['area_m2'])),
+    ],
+    atRisk: _i(json['at_risk']),
+    days: [
+      for (final d in _l(json['days']))
+        (
+          date: '${d['date'] ?? ''}',
+          orders: _i(d['orders']),
+          areaM2: _d(d['area_m2']),
+          total: _d(d['total']),
+        ),
+    ],
   );
 
   final String since;
@@ -78,6 +97,15 @@ class MdfSummary {
   final MdfQuality quality;
   final MdfDebts debts;
   final List<({String name, int orders, double areaM2, double total})> managers;
+
+  /// Where the open orders wait now, stage by stage (owner, 14.11.2026).
+  final List<({MdfStage stage, int orders, double areaM2})> stages;
+
+  /// Open orders that will not make their date at the shop's pace.
+  final int atRisk;
+
+  /// What came in, day by day — month by month over a year.
+  final List<({String date, int orders, double areaM2, double total})> days;
 }
 
 /// How much a period brought.
