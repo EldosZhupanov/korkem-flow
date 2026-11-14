@@ -9012,5 +9012,35 @@
         "type": "String"
       }
     }
-  }
+  },
+  "filmSupplierByInvoice": "By invoice",
+  "filmInvoiceNo": "Invoice no.",
+  "filmInvoiceOn": "dated {day}",
+  "@filmInvoiceOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmInvoiceDue": "pay by {day}",
+  "@filmInvoiceDue": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmInvoiceNoDue": "No due date",
+  "filmInvoiceHint": "Owed until «Оплатили»; overdue past its day.",
+  "filmByInvoiceNo": "invoice № {no}",
+  "@filmByInvoiceNo": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "filmFromDeptCash": "from the cash",
+  "filmSupplierFromDept": "Out of the film department's cash"
 }

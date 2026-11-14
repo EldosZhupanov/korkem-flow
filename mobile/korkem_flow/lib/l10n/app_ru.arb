@@ -2565,5 +2565,14 @@
   "filmSaleMargin": "закуп {cost} → продажа {price}: +{perM}/м · {total} ({pct}%)",
   "filmSaleLikeLastShort": "Как в прошлый раз",
   "mdfDictAddGroup": "Добавить группу",
-  "mdfDictAddVariant": "Вариант для «{group}»"
+  "mdfDictAddVariant": "Вариант для «{group}»",
+  "filmSupplierByInvoice": "По счёту",
+  "filmInvoiceNo": "№ счёта",
+  "filmInvoiceOn": "от {day}",
+  "filmInvoiceDue": "оплатить до {day}",
+  "filmInvoiceNoDue": "Без срока",
+  "filmInvoiceHint": "Висит долгом до «Оплатили»; после срока — просрочен.",
+  "filmByInvoiceNo": "по счёту № {no}",
+  "filmFromDeptCash": "из кассы",
+  "filmSupplierFromDept": "Из кассы отдела плёнки"
 }

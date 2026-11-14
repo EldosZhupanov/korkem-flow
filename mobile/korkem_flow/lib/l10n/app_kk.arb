@@ -2565,5 +2565,14 @@
   "filmSaleMargin": "сатып алу {cost} → сату {price}: +{perM}/м · {total} ({pct}%)",
   "filmSaleLikeLastShort": "Өткендегідей",
   "mdfDictAddGroup": "Топ қосу",
-  "mdfDictAddVariant": "«{group}» нұсқасы"
+  "mdfDictAddVariant": "«{group}» нұсқасы",
+  "filmSupplierByInvoice": "Шот бойынша",
+  "filmInvoiceNo": "Шот №",
+  "filmInvoiceOn": "{day} күнгі",
+  "filmInvoiceDue": "{day} дейін төлеу",
+  "filmInvoiceNoDue": "Мерзімсіз",
+  "filmInvoiceHint": "«Төледік» дейін қарыз; мерзімнен кейін — кешіктірілген.",
+  "filmByInvoiceNo": "№ {no} шот бойынша",
+  "filmFromDeptCash": "кассадан",
+  "filmSupplierFromDept": "Үлдір бөлімінің кассасынан"
 }

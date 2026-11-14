@@ -491,9 +491,138 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
   String _payer = FilmPayer.cash;
   String? _paidBy;
 
-  // The film itself: paid for, unless taken from the supplier on credit.
-  bool _supplierPaid = true;
+  // The film itself (owner, 14.11.2026): paid now — how, and from whose
+  // money; on credit; or by the supplier's invoice, with its day to pay.
+  String _supplierMode = FilmSupplierPay.paid;
+  String _supplierHow = filmCash;
+  bool _supplierFromDept = true;
+  final _invoiceNo = TextEditingController();
+  DateTime _invoiceOn = DateTime.now();
+  DateTime? _invoiceDue = DateTime.now().add(const Duration(days: 7));
   String _payMethod = filmCash;
+
+  bool get _supplierPaid => _supplierMode == FilmSupplierPay.paid;
+
+  FilmSupplierPay get _supplierPay => switch (_supplierMode) {
+    FilmSupplierPay.credit => const FilmSupplierPay.credit(),
+    FilmSupplierPay.invoice => FilmSupplierPay.invoice(
+      invoiceNo: _invoiceNo.text.trim(),
+      invoiceOn: mdfIso(_invoiceOn),
+      dueOn: _invoiceDue == null ? null : mdfIso(_invoiceDue!),
+    ),
+    _ => FilmSupplierPay.paid(
+      method: _supplierHow,
+      fromDept: _supplierFromDept,
+    ),
+  };
+
+  Future<DateTime?> _pickDate(DateTime initial) => showDatePicker(
+    context: context,
+    initialDate: initial,
+    firstDate: DateTime.now().subtract(const Duration(days: 365)),
+    lastDate: DateTime.now().add(const Duration(days: 365)),
+  );
+
+  /// «Оплачено», «В долг», «По счёту» — and what each asks.
+  Widget _supplierPayField(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    String day(DateTime d) => mdfDay(mdfIso(d));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.filmSupplierPay, style: theme.textTheme.titleSmall),
+        Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
+          children: [
+            for (final (mode, label) in [
+              (FilmSupplierPay.paid, l10n.filmSupplierPaidNow),
+              (FilmSupplierPay.credit, l10n.filmSupplierOnCredit),
+              (FilmSupplierPay.invoice, l10n.filmSupplierByInvoice),
+            ])
+              ChoiceChip(
+                key: ValueKey('filmSupplierPay:$mode'),
+                label: Text(label),
+                selected: _supplierMode == mode,
+                onSelected: (_) => setState(() => _supplierMode = mode),
+              ),
+          ],
+        ),
+        if (_supplierMode == FilmSupplierPay.paid) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: [
+              for (final (m, label) in [
+                (filmCash, l10n.mdfPayCash),
+                (filmTransfer, l10n.mdfPayTransfer),
+                (filmCard, l10n.mdfPayCard),
+              ])
+                ChoiceChip(
+                  key: ValueKey('filmSupplierHow:$m'),
+                  label: Text(label),
+                  selected: _supplierHow == m,
+                  onSelected: (_) => setState(() => _supplierHow = m),
+                ),
+            ],
+          ),
+          CheckboxListTile(
+            key: const ValueKey('filmSupplierFromDept'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            controlAffinity: ListTileControlAffinity.leading,
+            value: _supplierFromDept,
+            onChanged: (v) => setState(() => _supplierFromDept = v ?? true),
+            title: Text(l10n.filmSupplierFromDept),
+          ),
+        ],
+        if (_supplierMode == FilmSupplierPay.invoice) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              SizedBox(
+                width: AppSpacing.xxxl * 3,
+                child: TextField(
+                  key: const ValueKey('filmSupplierInvoiceNo'),
+                  controller: _invoiceNo,
+                  decoration: InputDecoration(
+                    labelText: l10n.filmInvoiceNo,
+                    isDense: true,
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              OutlinedButton(
+                key: const ValueKey('filmSupplierInvoiceOn'),
+                onPressed: () async {
+                  final d = await _pickDate(_invoiceOn);
+                  if (d != null && mounted) setState(() => _invoiceOn = d);
+                },
+                child: Text(l10n.filmInvoiceOn(day(_invoiceOn))),
+              ),
+              OutlinedButton(
+                key: const ValueKey('filmSupplierInvoiceDue'),
+                onPressed: () async {
+                  final d = await _pickDate(_invoiceDue ?? _invoiceOn);
+                  if (d != null && mounted) setState(() => _invoiceDue = d);
+                },
+                child: Text(
+                  _invoiceDue == null
+                      ? l10n.filmInvoiceNoDue
+                      : l10n.filmInvoiceDue(day(_invoiceDue!)),
+                ),
+              ),
+            ],
+          ),
+          Text(l10n.filmInvoiceHint, style: theme.textTheme.bodySmall),
+        ],
+      ],
+    );
+  }
 
   String? _transportOf(FilmDeliveryOptions? o) =>
       _transport ?? o?.last[_supplier]?.transport ?? o?.transports.firstOrNull;
@@ -528,6 +657,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
     }
     _cost.dispose();
     _driver.dispose();
+    _invoiceNo.dispose();
     _phone.dispose();
     super.dispose();
   }
@@ -870,6 +1000,30 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
 
   /// The delivery in figures: the film, the bringing, the total, a metre
   /// with the bringing, where the metres went (owner, 13.11.2026).
+  String _supplierLabel(AppLocalizations l10n) => switch (_supplierMode) {
+    FilmSupplierPay.credit => l10n.filmSupplierOnCredit,
+    FilmSupplierPay.invoice => l10n.filmByInvoiceNo(_invoiceNo.text.trim()),
+    _ => [
+      _methodLabel(l10n, _supplierHow),
+      if (_supplierFromDept) l10n.filmFromDeptCash,
+    ].join(', '),
+  };
+
+  String _driverLabel(AppLocalizations l10n) => switch (_payer) {
+    FilmPayer.employee => l10n.filmPayerEmployee,
+    FilmPayer.unpaid => l10n.filmPayerUnpaid,
+    _ => [
+      _methodLabel(l10n, _payMethod),
+      l10n.filmFromDeptCash,
+    ].join(', '),
+  };
+
+  String _methodLabel(AppLocalizations l10n, String m) => switch (m) {
+    filmTransfer => l10n.mdfPayTransfer,
+    filmCard => l10n.mdfPayCard,
+    _ => l10n.mdfPayCash,
+  };
+
   Widget _summary(double metres, double total, double cost, double perM) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
@@ -899,11 +1053,22 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Who gets what (owner, 14.11.2026): the supplier and the driver
+          // are different people, paid differently.
           row(
-            l10n.filmReceiveFilmTotal(_lines.length, filmMetres(metres)),
+            [
+              l10n.filmReceiveFilmTotal(_lines.length, filmMetres(metres)),
+              _supplierLabel(l10n),
+            ].join(' · '),
             money.format(total),
+            key: const ValueKey('filmReceive:supplierLine'),
           ),
-          if (cost > 0) row(l10n.filmDeliveryCost, money.format(cost)),
+          if (cost > 0)
+            row(
+              [l10n.filmDeliveryCost, _driverLabel(l10n)].join(' · '),
+              money.format(cost),
+              key: const ValueKey('filmReceive:driverLine'),
+            ),
           const Divider(),
           row(
             l10n.filmReceiveGrand,
@@ -1058,28 +1223,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                   ),
                 ),
               const SizedBox(height: AppSpacing.md),
-              Text(
-                l10n.filmSupplierPay,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              Wrap(
-                spacing: AppSpacing.xs,
-                runSpacing: AppSpacing.xs,
-                children: [
-                  for (final (paid, label) in [
-                    (true, l10n.filmSupplierPaidNow),
-                    (false, l10n.filmSupplierOnCredit),
-                  ])
-                    ChoiceChip(
-                      key: ValueKey(
-                        'filmSupplierPay:${paid ? 'paid' : 'credit'}',
-                      ),
-                      label: Text(label),
-                      selected: _supplierPaid == paid,
-                      onSelected: (_) => setState(() => _supplierPaid = paid),
-                    ),
-                ],
-              ),
+              _supplierPayField(l10n),
               if (opts != null) ...[
                 const SizedBox(height: AppSpacing.md),
                 Text(
@@ -1256,7 +1400,12 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
         ),
         FilledButton(
           key: const ValueKey('filmReceiveSave'),
-          onPressed: busy || !ready || _supplier == null
+          onPressed:
+              busy ||
+                  !ready ||
+                  _supplier == null ||
+                  (_supplierMode == FilmSupplierPay.invoice &&
+                      _invoiceNo.text.trim().isEmpty)
               ? null
               : () => save(() {
                   final delivery = opts == null
@@ -1298,6 +1447,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                           receivedBy: taker,
                           arrivesOn: due,
                           supplierPaid: _supplierPaid,
+                          supplierPay: _supplierPay,
                         );
                   }
                   return ref
@@ -1311,6 +1461,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                         receivedBy: taker,
                         arrivesOn: due,
                         supplierPaid: _supplierPaid,
+                        supplierPay: _supplierPay,
                       );
                 }),
           // On its way: ordered, not taken in yet — with what it comes to.

@@ -141,7 +141,7 @@ def _person(user: str | None) -> str | None:
 
 def receive(item: str, metres, price_m, supplier: str, received_on: str | None = None,
 			note: str | None = None, update_price=True, delivery=None, received_by: str | None = None,
-			arrives_on: str | None = None, supplier_paid=None) -> dict:
+			arrives_on: str | None = None, supplier_paid=None, supplier_pay=None) -> dict:
 	"""A roll or a cut bought from a wholesaler: so many metres at so much a metre.
 
 	`arrives_on` after today: bought, on its way — not on the shelf and not
@@ -150,6 +150,12 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 	`supplier_paid` off: taken on credit — owed to the supplier until
 	`film_cash.pay_supplier`. Left out, the film was paid for, as every
 	receipt was before this was asked.
+
+	`supplier_pay` says it in full (owner, 14.11.2026), and wins over
+	`supplier_paid`: `mode` «paid» — with `method` and `from` (the
+	department's cash or elsewhere), out of the cash book today if from it;
+	«credit»; or «invoice» — owed, with the invoice's `invoice_no`,
+	`invoice_on` and `due_on`.
 
 	The price paid becomes the card's purchase price (owner, 11.11.2026:
 	prices change) — unless `update_price` is off, for a one-off discount.
@@ -199,7 +205,7 @@ def receive(item: str, metres, price_m, supplier: str, received_on: str | None =
 		# Who brought it and how to reach him (owner, 12.11.2026) — optional.
 		"korkem_delivery_driver": " ".join(str(delivery.get("driver") or "").split())[:80] or None,
 		"korkem_delivery_phone": " ".join(str(delivery.get("phone") or "").split())[:40] or None,
-		"korkem_supplier_owed": 0 if _paid(supplier_paid) else 1,
+		**supplier_pay_fields(supplier_pay, supplier_paid),
 	}, update_modified=False)
 	if _yes(update_price) and flt(price_m) > 0:
 		film_catalog.set_card(item, via="приход", price_m=flt(price_m))
@@ -430,6 +436,47 @@ def _yes(value) -> bool:
 	if isinstance(value, str):
 		return value.strip().lower() not in ("", "0", "false", "no")
 	return bool(value)
+
+
+#: How the film itself is paid for (owner, 14.11.2026).
+PAY_PAID, PAY_CREDIT, PAY_INVOICE = "paid", "credit", "invoice"
+#: Paid out of the film department's own money, or from elsewhere — the
+#: cash book's own words (`film_cash.FROM_DEPT`, `FROM_ELSEWHERE`).
+_FROM_DEPT, _FROM_ELSEWHERE = "dept", "elsewhere"
+
+
+def supplier_pay_fields(pay=None, paid=None) -> dict:
+	"""The receipt's supplier-payment fields from `supplier_pay` (or, as
+	before, `supplier_paid`)."""
+	if isinstance(pay, str):
+		pay = frappe.parse_json(pay) if pay.strip() else None
+	if not pay:
+		return {"korkem_supplier_owed": 0 if _paid(paid) else 1}
+	mode = (pay.get("mode") or PAY_PAID).strip()
+	if mode not in (PAY_PAID, PAY_CREDIT, PAY_INVOICE):
+		frappe.throw("Оплата поставщику — оплачено, в долг или по счёту.")
+	if mode == PAY_PAID:
+		how = (pay.get("method") or METHODS[0]).strip()
+		if how not in METHODS:
+			frappe.throw("Как платили — наличные, перевод или карта.")
+		source = (pay.get("from") or _FROM_DEPT).strip()
+		if source not in (_FROM_DEPT, _FROM_ELSEWHERE):
+			frappe.throw("Откуда деньги — из кассы плёнки или не из неё.")
+		# Paid now: today's money — out of the cash book if from it.
+		return {"korkem_supplier_owed": 0, "korkem_supplier_paid_on": nowdate(),
+				"korkem_supplier_paid_method": how, "korkem_supplier_paid_from": source}
+	fields = {"korkem_supplier_owed": 1}
+	if mode == PAY_INVOICE:
+		number = " ".join(str(pay.get("invoice_no") or "").split())[:60]
+		if not number:
+			frappe.throw("Номер счёта поставщика.")
+		on = getdate(pay.get("invoice_on") or nowdate())
+		due = getdate(pay.get("due_on")) if pay.get("due_on") else None
+		if due and due < on:
+			frappe.throw("Срок оплаты — не раньше даты счёта.")
+		fields.update({"korkem_supplier_invoice_no": number, "korkem_supplier_invoice_on": str(on),
+					   "korkem_supplier_due_on": str(due) if due else None})
+	return fields
 
 
 def _paid(value) -> bool:
@@ -708,7 +755,9 @@ def correct(entry: str, item: str, reason: str, metres=None, price_m=None, suppl
 									   "korkem_delivery_driver", "korkem_delivery_phone",
 									   # A debt to the supplier stays one debt, paid or not.
 									   "korkem_supplier_owed", "korkem_supplier_paid_on",
-									   "korkem_supplier_paid_method", "korkem_supplier_paid_from")},
+									   "korkem_supplier_paid_method", "korkem_supplier_paid_from",
+									   "korkem_supplier_invoice_no", "korkem_supplier_invoice_on",
+									   "korkem_supplier_due_on")},
 		}, update_modified=False)
 		for d in frappe.get_all("Logistics Delivery", filters={"receipt": entry}, pluck="name"):
 			frappe.db.set_value("Logistics Delivery", d, "receipt", new, update_modified=False)

@@ -110,6 +110,7 @@ class FilmDeptRepository {
     String? receivedBy,
     String? arrivesOn,
     bool supplierPaid = true,
+    FilmSupplierPay? supplierPay,
   }) => _client.callMethod(
     '$_base.receive',
     post: true,
@@ -126,6 +127,8 @@ class FilmDeptRepository {
       'arrives_on': ?arrivesOn,
       // Taken from the supplier on credit: owed until paid.
       'supplier_paid': supplierPaid ? 1 : 0,
+      // How it was paid, in full (owner, 14.11.2026).
+      if (supplierPay != null) 'supplier_pay': jsonEncode(supplierPay.toJson()),
     },
   );
 

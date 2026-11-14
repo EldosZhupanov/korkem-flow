@@ -164,6 +164,7 @@ class _Orders implements FilmOrdersRepository {
     String? receivedBy,
     String? arrivesOn,
     bool supplierPaid = true,
+    FilmSupplierPay? supplierPay,
   }) async {
     deliveries.add((supplier, lines, arrivesOn));
     deliveriesPaid.add(supplierPaid);
@@ -202,6 +203,7 @@ class _Fake implements FilmDeptRepository {
   final settled = <(String, String)>[];
   final supplierPaidFor = <(String, String, String)>[];
   final receivedPaid = <bool>[];
+  final supplierPays = <FilmSupplierPay?>[];
 
   @override
   Future<FilmCashBook> cash(String? since, String? until) async =>
@@ -430,8 +432,10 @@ class _Fake implements FilmDeptRepository {
     String? receivedBy,
     String? arrivesOn,
     bool supplierPaid = true,
+    FilmSupplierPay? supplierPay,
   }) async {
     receivedPaid.add(supplierPaid);
+    supplierPays.add(supplierPay);
     arrivals.add(arrivesOn);
     received.add((item, metres, priceM, updatePrice));
     deliveries.add((delivery, receivedBy));
@@ -895,6 +899,44 @@ void main() {
     await tester.tap(save);
     await tester.pumpAndSettle();
     expect(repo.receivedPaid.single, isFalse);
+  });
+
+  testWidgets('a receipt by the supplier\'s invoice carries its number '
+      'and its day', (tester) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmStock:MAT-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmPage:receive')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
+    await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3500');
+    await tester.pumpAndSettle();
+    final invoice = find.byKey(const ValueKey('filmSupplierPay:invoice'));
+    await tester.ensureVisible(invoice);
+    await tester.tap(invoice);
+    await tester.pumpAndSettle();
+    // No number, no save.
+    final save = find.byKey(const ValueKey('filmReceiveSave'));
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSupplierInvoiceNo')),
+      '123',
+    );
+    await tester.pumpAndSettle();
+    // The summary says who gets what.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('filmReceive:supplierLine')),
+        matching: find.textContaining('123'),
+      ),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    final pay = repo.supplierPays.single!.toJson();
+    expect((pay['mode'], pay['invoice_no']), ('invoice', '123'));
+    expect(pay['due_on'], isNotNull);
   });
 
   testWidgets('what ran low is ordered as last time, on its way', (

@@ -144,6 +144,59 @@ abstract final class FilmPayer {
   static const supplier = 'supplier';
 }
 
+/// How the film itself was paid for at the receipt (owner, 14.11.2026):
+/// paid now — how, and whether out of the department's own cash; taken on
+/// credit; or owed by the supplier's invoice, with its number and the day to
+/// pay it by.
+@immutable
+class FilmSupplierPay {
+  const FilmSupplierPay.paid({required this.method, this.fromDept = true})
+    : mode = paid,
+      invoiceNo = null,
+      invoiceOn = null,
+      dueOn = null;
+
+  const FilmSupplierPay.credit()
+    : mode = credit,
+      method = null,
+      fromDept = true,
+      invoiceNo = null,
+      invoiceOn = null,
+      dueOn = null;
+
+  const FilmSupplierPay.invoice({
+    required String this.invoiceNo,
+    required String this.invoiceOn,
+    this.dueOn,
+  }) : mode = invoice,
+       method = null,
+       fromDept = true;
+
+  static const paid = 'paid';
+  static const credit = 'credit';
+  static const invoice = 'invoice';
+
+  final String mode;
+
+  /// «Наличные», «Перевод», «Карта» — when paid now.
+  final String? method;
+
+  /// Out of the film department's own cash (and so out of its book).
+  final bool fromDept;
+  final String? invoiceNo;
+  final String? invoiceOn;
+  final String? dueOn;
+
+  Map<String, Object?> toJson() => {
+    'mode': mode,
+    'method': ?method,
+    if (mode == paid) 'from': fromDept ? 'dept' : 'elsewhere',
+    'invoice_no': ?invoiceNo,
+    'invoice_on': ?invoiceOn,
+    'due_on': ?dueOn,
+  };
+}
+
 /// The film department's own cash book over a period, and what is owed.
 @immutable
 class FilmCashBook {
@@ -179,6 +232,9 @@ class FilmCashBook {
       who: _s(r['name']) ?? _s(r['driver']) ?? _s(r['transport']),
       supplier: _s(r['supplier']),
       phone: _s(r['phone']),
+      invoiceNo: null,
+      dueOn: null,
+      overdue: false,
     );
     return FilmCashBook(
       since: '${json['since'] ?? ''}',
@@ -222,6 +278,9 @@ class FilmCashBook {
               who: _s(r['supplier']),
               supplier: _s(r['film']),
               phone: null,
+              invoiceNo: _s(r['invoice_no']),
+              dueOn: _s(r['due_on']),
+              overdue: r['overdue'] == true,
             ),
       ],
       sales: (json['sales'] as num?)?.toInt() ?? 0,
@@ -349,6 +408,12 @@ typedef FilmOwed = ({
   String? who,
   String? supplier,
   String? phone,
+
+  /// A supplier's invoice (owner, 14.11.2026): its number, the day to pay
+  /// it by, and whether that day has passed.
+  String? invoiceNo,
+  String? dueOn,
+  bool overdue,
 });
 
 /// What a receipt asks about its delivery and a sale about its seller.

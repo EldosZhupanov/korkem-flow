@@ -45,11 +45,13 @@ def sent(supplier: str | None = None) -> dict:
 @frappe.whitelist(methods=["POST"])
 def receive_many(supplier: str, lines: str | list, arrives_on: str | None = None,
 				 delivery: str | dict | None = None, received_by: str | None = None,
-				 note: str | None = None, supplier_paid: str | bool | None = None) -> dict:
+				 note: str | None = None, supplier_paid: str | bool | None = None,
+				 supplier_pay: str | dict | None = None) -> dict:
 	"""Приход от одного поставщика: несколько плёнок, одна доставка.
 	`supplier_paid` = 0 — взяли в долг у поставщика."""
 	return service.receive_many(supplier, lines, arrives_on=arrives_on, delivery=delivery,
-								received_by=received_by, note=note, supplier_paid=supplier_paid)
+								received_by=received_by, note=note, supplier_paid=supplier_paid,
+								supplier_pay=supplier_pay)
 
 
 @frappe.whitelist(methods=["POST"])

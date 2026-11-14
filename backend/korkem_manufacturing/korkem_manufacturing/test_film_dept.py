@@ -329,6 +329,31 @@ class TestFilmDept(IntegrationTestCase):
 		opening = self._as(MANAGER, film_cash.book, str(yesterday), str(yesterday))["opening"]
 		self.assertNotEqual((opening or {}).get("closed_on"), str(yesterday))
 
+	def test_paid_at_once_says_how_and_an_invoice_is_owed_by_its_day(self):
+		from korkem_manufacturing.services import film_cash
+
+		def book() -> dict:
+			return self._as(MANAGER, film_cash.book)
+
+		# Paid now, in cash, out of the department's cash: out of its book today.
+		paid = self._as(MANAGER, service.receive, self.film, 5, 3000, self.supplier,
+						supplier_pay={"mode": "paid", "method": "Наличные", "from": "dept"})["receipt"]
+		out = next(o for o in book()["out"] if o["receipt"] == paid)
+		self.assertEqual((out["amount"], out["way"]), (15000, "Наличные"))
+		self.assertNotIn(paid, [s["receipt"] for s in book()["owed"]["suppliers"]])
+		# Paid from elsewhere: paid, and the book is not touched.
+		elsewhere = self._as(MANAGER, service.receive, self.film, 2, 3000, self.supplier,
+							 supplier_pay={"mode": "paid", "method": "Перевод", "from": "elsewhere"})["receipt"]
+		self.assertNotIn(elsewhere, [o.get("receipt") for o in book()["out"]])
+		# By invoice: owed, with its number and the day to pay by — overdue past it.
+		invoice = self._as(MANAGER, service.receive, self.film, 10, 3000, self.supplier, supplier_pay={
+			"mode": "invoice", "invoice_no": "123", "invoice_on": add_days(nowdate(), -10),
+			"due_on": add_days(nowdate(), -1)})["receipt"]
+		row = next(s for s in book()["owed"]["suppliers"] if s["receipt"] == invoice)
+		self.assertEqual((row["amount"], row["invoice_no"], row["overdue"]), (30000, "123", True))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.receive, self.film, 1, 3000, self.supplier, supplier_pay={"mode": "invoice"})
+
 	def test_film_taken_on_credit_is_owed_to_the_supplier_until_paid(self):
 		from korkem_manufacturing.services import film_cash
 

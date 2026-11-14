@@ -125,7 +125,18 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                           [o.who ?? '', money.format(o.amount)].join(' · '),
                         ),
                         subtitle: Text(
-                          [mdfDay(o.date), ?o.supplier].join(' · '),
+                          [
+                            mdfDay(o.date),
+                            ?o.supplier,
+                            // By invoice: its number and the day to pay by.
+                            if (o.invoiceNo != null)
+                              l10n.filmByInvoiceNo(o.invoiceNo!),
+                            if (o.dueOn != null)
+                              l10n.filmInvoiceDue(mdfDay(o.dueOn!)),
+                          ].join(' · '),
+                          style: o.overdue
+                              ? TextStyle(color: context.statusColors.danger)
+                              : null,
                         ),
                         // The carrier owed, a tap away (owner, 12.11.2026).
                         leading: o.phone == null || key != 'carrier'
