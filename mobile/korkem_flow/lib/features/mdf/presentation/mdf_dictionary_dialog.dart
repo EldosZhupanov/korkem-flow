@@ -60,14 +60,67 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
     builder: (_) => _ValueDialog(title: title, initial: initial),
   );
 
-  Future<void> _add() async {
+  /// [group]: a milling variant under it (owner, 14.11.2026).
+  Future<void> _add({String? group}) async {
     final l10n = AppLocalizations.of(context);
-    final value = await _ask(l10n.mdfDictAdd);
+    final value = await _ask(
+      group == null
+          ? (_millings ? l10n.mdfDictAddGroup : l10n.mdfDictAdd)
+          : l10n.mdfDictAddVariant(group),
+    );
     if (value == null || value.trim().isEmpty) return;
     await _run(
       () => ref
           .read(mdfOrderRepositoryProvider)
-          .dictionaryAdd(widget.kind, value.trim()),
+          .dictionaryAdd(widget.kind, value.trim(), group: group),
+    );
+  }
+
+  bool get _millings => widget.kind == MdfDictKind.milling;
+
+  /// One value: tap chooses it; edit and delete beside it.
+  Widget _entry(MdfDictEntry e, {bool variant = false, String? group}) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return ListTile(
+      key: ValueKey('dictEntry:${e.value}'),
+      dense: true,
+      contentPadding: EdgeInsetsDirectional.only(
+        start: variant ? AppSpacing.xl : AppSpacing.md,
+        end: AppSpacing.sm,
+      ),
+      selected: e.value == widget.current,
+      title: Text(
+        e.value,
+        style: variant || !_millings
+            ? null
+            : theme.textTheme.titleSmall,
+      ),
+      onTap: () => Navigator.of(context).pop(e.value),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (group != null)
+            IconButton(
+              key: ValueKey('dictAddVariant:${e.value}'),
+              tooltip: l10n.mdfDictAddVariant(group),
+              onPressed: _busy ? null : () => _add(group: group),
+              icon: const Icon(AppIcons.add),
+            ),
+          IconButton(
+            key: ValueKey('dictEdit:${e.value}'),
+            tooltip: l10n.mdfDictRename,
+            onPressed: _busy ? null : () => _rename(e),
+            icon: const Icon(AppIcons.edit),
+          ),
+          IconButton(
+            key: ValueKey('dictDelete:${e.value}'),
+            tooltip: l10n.mdfDictDelete,
+            onPressed: _busy ? null : () => _delete(e),
+            icon: const Icon(AppIcons.delete),
+          ),
+        ],
+      ),
     );
   }
 
@@ -121,7 +174,7 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
           Expanded(child: Text(widget.title)),
           IconButton(
             key: const ValueKey('dictAdd'),
-            tooltip: l10n.mdfDictAdd,
+            tooltip: _millings ? l10n.mdfDictAddGroup : l10n.mdfDictAdd,
             onPressed: _busy ? null : _add,
             icon: const Icon(AppIcons.add),
           ),
@@ -172,37 +225,32 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
                 ),
               ),
             );
+            // Millings by group, each with its variants under it
+            // (owner, 14.11.2026: «Рифлёный — 16-14, 6-14, 6-11»).
+            if (_millings) {
+              return ListView(
+                children: [
+                  for (final g in d.millingGroups()) ...[
+                    if (g.head case final head?)
+                      _entry(head, group: g.name)
+                    else
+                      ListTile(
+                        dense: true,
+                        title: Text(
+                          g.name,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                    for (final v in g.variants) _entry(v, variant: true),
+                  ],
+                ],
+              );
+            }
             return ListView(
               children: [
                 for (final v in standing) lock(v),
                 for (final e in entries)
-                  if (locked.contains(e.value))
-                    lock(e.value)
-                  else
-                    ListTile(
-                      key: ValueKey('dictEntry:${e.value}'),
-                      dense: true,
-                      selected: e.value == widget.current,
-                      title: Text(e.value),
-                      onTap: () => Navigator.of(context).pop(e.value),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            key: ValueKey('dictEdit:${e.value}'),
-                            tooltip: l10n.mdfDictRename,
-                            onPressed: _busy ? null : () => _rename(e),
-                            icon: const Icon(AppIcons.edit),
-                          ),
-                          IconButton(
-                            key: ValueKey('dictDelete:${e.value}'),
-                            tooltip: l10n.mdfDictDelete,
-                            onPressed: _busy ? null : () => _delete(e),
-                            icon: const Icon(AppIcons.delete),
-                          ),
-                        ],
-                      ),
-                    ),
+                  if (locked.contains(e.value)) lock(e.value) else _entry(e),
               ],
             );
           },

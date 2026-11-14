@@ -9003,5 +9003,14 @@
       }
     }
   },
-  "filmSaleLikeLastShort": "As last time"
+  "filmSaleLikeLastShort": "As last time",
+  "mdfDictAddGroup": "Add a group",
+  "mdfDictAddVariant": "A variant of {group}",
+  "@mdfDictAddVariant": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  }
 }

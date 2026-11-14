@@ -2563,5 +2563,7 @@
   "filmTeamMarginM": "{margin}/м",
   "filmTeamOwed": "долги его клиентов {amount}",
   "filmSaleMargin": "закуп {cost} → продажа {price}: +{perM}/м · {total} ({pct}%)",
-  "filmSaleLikeLastShort": "Как в прошлый раз"
+  "filmSaleLikeLastShort": "Как в прошлый раз",
+  "mdfDictAddGroup": "Добавить группу",
+  "mdfDictAddVariant": "Вариант для «{group}»"
 }

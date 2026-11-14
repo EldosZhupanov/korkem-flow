@@ -1035,7 +1035,19 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     final money = mdfMoney(context);
     final dicts =
         ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty;
-    final millings = dicts.values(MdfDictKind.milling);
+    // Millings group by group, each group's variants under it (owner,
+    // 14.11.2026: «Рифлёный — 16-14, 6-14, 6-11»).
+    final millingGroups = dicts.millingGroups();
+    final millings = [
+      for (final g in millingGroups) ...[
+        if (g.head != null) g.name,
+        for (final v in g.variants) v.value,
+      ],
+    ];
+    final variants = {
+      for (final g in millingGroups)
+        for (final v in g.variants) v.value,
+    };
     final materials = dicts.values(MdfDictKind.material);
     final edges = mdfEdges(dicts.values(MdfDictKind.edge));
     final thicknesses = dicts.values(MdfDictKind.thickness);
@@ -1243,6 +1255,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                             line: mates[i],
                             priced: pricedOf(mates[i]),
                             millings: millings,
+                            variants: variants,
                             materials: materials,
                             films: colors,
                             edges: edges,
@@ -1656,6 +1669,7 @@ class _LineRow extends StatelessWidget {
     required this.line,
     required this.priced,
     required this.millings,
+    this.variants = const {},
     required this.materials,
     required this.films,
     required this.edges,
@@ -1679,6 +1693,9 @@ class _LineRow extends StatelessWidget {
   final _LineFields line;
   final MdfLine? priced;
   final List<String> millings;
+
+  /// The millings that are a group's variants: set in under their group.
+  final Set<String> variants;
   final List<String> materials;
   final List<String> films;
   final List<String> edges;
@@ -1754,6 +1771,7 @@ class _LineRow extends StatelessWidget {
       String? none,
       bool highlight = false,
       bool required = false,
+      Set<String> indented = const {},
     }) => SizedBox(
       width: width,
       child: DropdownButtonFormField<String?>(
@@ -1763,7 +1781,23 @@ class _LineRow extends StatelessWidget {
         items: [
           if (!required) DropdownMenuItem(child: Text(none ?? l10n.mdfNone)),
           for (final m in mdfChoices(choices, value))
-            DropdownMenuItem(value: m, child: Text(m)),
+            DropdownMenuItem(
+              value: m,
+              child: indented.isEmpty
+                  ? Text(m)
+                  : Padding(
+                      padding: EdgeInsetsDirectional.only(
+                        start: indented.contains(m) ? AppSpacing.md : 0,
+                      ),
+                      child: Text(
+                        m,
+                        overflow: TextOverflow.ellipsis,
+                        style: indented.contains(m)
+                            ? null
+                            : theme.textTheme.titleSmall,
+                      ),
+                    ),
+            ),
         ],
         onChanged: (v) {
           set(v);
@@ -1918,6 +1952,7 @@ class _LineRow extends StatelessWidget {
                 millings,
                 160,
                 (v) => line.milling = v,
+                indented: variants,
               ),
               // The milling list is here now, not in the head (09.11.2026).
               IconButton(
