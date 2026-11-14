@@ -69,7 +69,7 @@ def _deliveries(company: str) -> list[dict]:
 	rows = frappe.get_all(
 		"Stock Entry",
 		filters={"company": company, "korkem_material_receipt": 1, "docstatus": ["in", [0, 1]],
-				 "korkem_delivery_payer": ["is", "set"]},
+				 "korkem_delivery_payer": ["is", "set"], **FILM_ONLY},
 		fields=_FIELDS,
 		limit_page_length=0,
 	)
@@ -224,7 +224,7 @@ def _suppliers_owed(company: str) -> list[dict]:
 	for e in frappe.get_all(
 		"Stock Entry",
 		filters={"company": company, "korkem_material_receipt": 1, "docstatus": ["in", [0, 1]],
-				 "korkem_supplier_owed": 1, "korkem_supplier_paid_on": ["is", "not set"]},
+				 "korkem_supplier_owed": 1, "korkem_supplier_paid_on": ["is", "not set"], **FILM_ONLY},
 		fields=["name", "creation", "docstatus", "korkem_film_due", "korkem_supplier",
 				"korkem_supplier_invoice_no", "korkem_supplier_invoice_on", "korkem_supplier_due_on"],
 		order_by="creation asc",
@@ -254,6 +254,9 @@ def _suppliers_owed(company: str) -> list[dict]:
 	return out
 
 
+#: The film department's own receipts: paint bought for the paint shop is
+#: another department's money (owner, 15.11.2026).
+FILM_ONLY = {"korkem_receipt_dept": ["is", "not set"]}
 #: Paid out of the film department's own money, or from elsewhere.
 FROM_DEPT, FROM_ELSEWHERE = "dept", "elsewhere"
 
@@ -267,7 +270,8 @@ def _supplier_payments(company: str, start, end) -> list[dict]:
 		# (owner, 14.11.2026) — a receipt from before that has no day paid.
 		filters={"company": company, "korkem_material_receipt": 1,
 				 # A receipt made again right is paid once: the struck one is out.
-				 "docstatus": ["in", [0, 1]], "korkem_supplier_paid_from": FROM_DEPT, "korkem_supplier_paid_on": ["between", [start, end]]},
+				 "docstatus": ["in", [0, 1]], "korkem_supplier_paid_from": FROM_DEPT, "korkem_supplier_paid_on": ["between", [start, end]],
+				 **FILM_ONLY},
 		fields=["name", "korkem_supplier", "korkem_supplier_paid_on", "korkem_supplier_paid_method"],
 		limit_page_length=0,
 	):

@@ -378,6 +378,47 @@ class TestFilmDept(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, service.receive, self.film, 1, 3000, self.supplier, supplier_pay={"mode": "invoice"})
 
+	def test_paint_is_received_like_film_and_kept_out_of_the_film_cash(self):
+		from korkem_manufacturing.services import film_cash, mdf_paints, paint_stock
+
+		colour = f"RAL {frappe.generate_hash(length=4)} Тест"
+		frappe.set_user(MANAGER)
+		try:
+			material_stock.put_option(mdf_paints.PAINT_LIST, colour)
+		finally:
+			frappe.set_user("Administrator")
+		# 20 kg at 4 000 by invoice, brought by taxi for 3 000 paid from the cash.
+		got = self._as(MANAGER, paint_stock.receive, colour, 20, 4000, self.supplier, base="Эмаль ПУ матовая",
+					   delivery={"transport": "Такси", "city": "Алматы", "amount": 3000, "payer": "cash",
+								 "method": "Наличные"},
+					   supplier_pay={"mode": "invoice", "invoice_no": "К-7", "invoice_on": nowdate(),
+									 "due_on": add_days(nowdate(), 5)})
+		paint = next(p for p in got["paints"] if p["colour"] == colour)
+		self.assertEqual((paint["on_hand_kg"], paint["base"], paint["last"]["city"]), (20, "Эмаль ПУ матовая", "Алматы"))
+		# The same colour and kind again is the same paint.
+		self._as(MANAGER, paint_stock.receive, colour, 5, 4200, self.supplier, base="Эмаль ПУ матовая")
+		again = next(p for p in self._as(MANAGER, paint_stock.stock)["paints"] if p["colour"] == colour)
+		self.assertEqual((again["item"], again["on_hand_kg"]), (paint["item"], 25))
+		first = self._as(MANAGER, paint_stock.history, paint["item"])["receipts"][-1]
+		# A kilo with the taxi shared out over it: 4 000 + 3 000 / 20.
+		self.assertEqual((first["kg"], first["landed_kg"], first["transport"]), (20, 4150, "Такси"))
+
+		# Owed to the supplier for the paint — on the paint store, not in the film cash.
+		owed = self._as(MANAGER, paint_stock.stock)["owed"]
+		self.assertIn(got["receipt"], [o["receipt"] for o in owed])
+		book = self._as(MANAGER, film_cash.book)
+		self.assertNotIn(got["receipt"], [s["receipt"] for s in book["owed"]["suppliers"]])
+		self.assertNotIn(got["receipt"], [o.get("receipt") for o in book["out"]])
+		paid = self._as(MANAGER, paint_stock.pay_supplier, got["receipt"], "Перевод")
+		self.assertNotIn(got["receipt"], [o["receipt"] for o in paid["owed"]])
+
+		# A colour that is not on the list is not received.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, paint_stock.receive, f"Нет {colour}", 1, 100, self.supplier)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, paint_stock.set_kg_per_m2, 0)
+		self.assertEqual(self._as(MANAGER, paint_stock.set_kg_per_m2, "0,35")["kg_per_m2"], 0.35)
+
 	def test_film_taken_on_credit_is_owed_to_the_supplier_until_paid(self):
 		from korkem_manufacturing.services import film_cash
 

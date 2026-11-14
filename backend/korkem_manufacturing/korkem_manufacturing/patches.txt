@@ -56,3 +56,4 @@ korkem_manufacturing.patches.v0_0.add_mdf_paint_fields #2026-11-14 customer's pa
 korkem_manufacturing.patches.v0_0.add_film_supplier_pay_fields #2026-11-15 supplier invoice
 korkem_manufacturing.patches.v0_0.add_film_invoice_fields
 korkem_manufacturing.patches.v0_0.seed_paint_systems
+korkem_manufacturing.patches.v0_0.add_paint_stock_fields

@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_paint_repository.dart';
+import 'package:korkem_flow/features/mdf/data/paint_stock_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_paint.dart';
+import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_paint_screen.dart';
 
 import '../../support/widget_harness.dart';
@@ -150,6 +152,7 @@ void main() {
         overrides: [
           mdfPaintRepositoryProvider.overrideWithValue(paint),
           mdfOrderRepositoryProvider.overrideWithValue(orders),
+          paintStockProvider.overrideWith((ref) async => const PaintStock()),
         ],
         child: harness(const MdfPaintScreen()),
       ),
