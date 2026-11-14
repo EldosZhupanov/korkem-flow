@@ -240,49 +240,17 @@ class PaintStockSection extends ConsumerWidget {
   Future<void> _count(BuildContext context, WidgetRef ref, PaintItem p) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final controller = TextEditingController(text: _kgText(p.onHandKg));
-    final value = await showDialog<double>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.paintCountTitle(p.title)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              key: const ValueKey('paintCountValue'),
-              controller: controller,
-              autofocus: true,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
-              ],
-              decoration: InputDecoration(labelText: l10n.paintKg),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              l10n.paintCountHint,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.mdfCancel),
-          ),
-          FilledButton(
-            key: const ValueKey('paintCountSave'),
-            onPressed: () =>
-                Navigator.of(context).pop(filmNumber(controller.text)),
-            child: Text(l10n.filmReqSave),
-          ),
-        ],
-      ),
+    final text = await _ask(
+      context,
+      title: l10n.paintCountTitle(p.title),
+      initial: _kgText(p.onHandKg),
+      label: l10n.paintKg,
+      hint: l10n.paintCountHint,
+      fieldKey: 'paintCountValue',
+      saveKey: 'paintCountSave',
+      number: true,
     );
-    controller.dispose();
+    final value = text == null ? null : filmNumber(text);
     if (value == null) return;
     try {
       await ref.read(paintStockRepositoryProvider).count(p.item, value);
@@ -299,48 +267,16 @@ class PaintStockSection extends ConsumerWidget {
   ) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final controller = TextEditingController(text: _kgText(now));
-    final value = await showDialog<double>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.paintKgPerM2Title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              key: const ValueKey('paintKgM2Value'),
-              controller: controller,
-              autofocus: true,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              l10n.paintKgPerM2Hint,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.mdfCancel),
-          ),
-          FilledButton(
-            key: const ValueKey('paintKgM2Save'),
-            onPressed: () =>
-                Navigator.of(context).pop(filmNumber(controller.text)),
-            child: Text(l10n.filmReqSave),
-          ),
-        ],
-      ),
+    final text = await _ask(
+      context,
+      title: l10n.paintKgPerM2Title,
+      initial: _kgText(now),
+      hint: l10n.paintKgPerM2Hint,
+      fieldKey: 'paintKgM2Value',
+      saveKey: 'paintKgM2Save',
+      number: true,
     );
-    controller.dispose();
+    final value = text == null ? null : filmNumber(text);
     if (value == null) return;
     try {
       await ref.read(paintStockRepositoryProvider).setKgPerM2(value);
@@ -348,6 +284,105 @@ class PaintStockSection extends ConsumerWidget {
     } on Object catch (e) {
       messenger.showFailure(e, l10n);
     }
+  }
+}
+
+/// One line asked for — a number or a name — in a dialog that owns its
+/// field, so closing it never touches a field already let go.
+Future<String?> _ask(
+  BuildContext context, {
+  required String title,
+  required String fieldKey,
+  required String saveKey,
+  String initial = '',
+  String? label,
+  String? hint,
+  bool number = false,
+}) => showDialog<String>(
+  context: context,
+  builder: (_) => _AskDialog(
+    title: title,
+    initial: initial,
+    label: label,
+    hint: hint,
+    fieldKey: fieldKey,
+    saveKey: saveKey,
+    number: number,
+  ),
+);
+
+class _AskDialog extends StatefulWidget {
+  const _AskDialog({
+    required this.title,
+    required this.initial,
+    required this.fieldKey,
+    required this.saveKey,
+    required this.number,
+    this.label,
+    this.hint,
+  });
+
+  final String title;
+  final String initial;
+  final String? label;
+  final String? hint;
+  final String fieldKey;
+  final String saveKey;
+  final bool number;
+
+  @override
+  State<_AskDialog> createState() => _AskDialogState();
+}
+
+class _AskDialogState extends State<_AskDialog> {
+  late final _c = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(widget.title),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            key: ValueKey(widget.fieldKey),
+            controller: _c,
+            autofocus: true,
+            keyboardType: widget.number
+                ? const TextInputType.numberWithOptions(decimal: true)
+                : null,
+            inputFormatters: widget.number
+                ? [FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))]
+                : null,
+            decoration: InputDecoration(labelText: widget.label),
+            onSubmitted: (v) => Navigator.of(context).pop(v),
+          ),
+          if (widget.hint case final hint?) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(hint, style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: ValueKey(widget.saveKey),
+          onPressed: () => Navigator.of(context).pop(_c.text),
+          child: Text(l10n.filmReqSave),
+        ),
+      ],
+    );
   }
 }
 
@@ -507,31 +542,12 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
 
   Future<void> _addSupplier() async {
     final l10n = AppLocalizations.of(context);
-    final controller = TextEditingController();
-    final name = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.paintNewSupplier),
-        content: TextField(
-          key: const ValueKey('paintNewSupplierName'),
-          controller: controller,
-          autofocus: true,
-          onSubmitted: (v) => Navigator.of(context).pop(v),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.mdfCancel),
-          ),
-          FilledButton(
-            key: const ValueKey('paintNewSupplierSave'),
-            onPressed: () => Navigator.of(context).pop(controller.text),
-            child: Text(l10n.filmReqSave),
-          ),
-        ],
-      ),
+    final name = await _ask(
+      context,
+      title: l10n.paintNewSupplier,
+      fieldKey: 'paintNewSupplierName',
+      saveKey: 'paintNewSupplierSave',
     );
-    controller.dispose();
     if (name == null || name.trim().length < 2 || !mounted) return;
     try {
       final now = await ref
