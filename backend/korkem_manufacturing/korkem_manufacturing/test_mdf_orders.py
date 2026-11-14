@@ -846,6 +846,36 @@ class TestMdfOrders(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):  # the board is the managers' screen for now
 			self._as(CUTTER, mdf_paint.board)
 
+	def test_the_list_says_where_each_order_is_and_the_overview_counts_what_burns(self):
+		before = self._as(MANAGER, mdf_orders.overview)
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		name = card["name"]
+		self._as(MANAGER, mdf_orders.accept, name)
+		self._as(MANAGER, mdf_orders.set_stage, name, "cut")
+
+		def row():
+			return next(o for o in self._as(MANAGER, mdf_orders.listing, search=name)["orders"] if o["name"] == name)
+
+		r = row()
+		self.assertEqual([(s["stage"], s["done"]) for s in r["stages"]],
+						 [("cut", True), ("mill", False), ("sand", False), ("vacuum", False), ("ready", False)])
+		self.assertEqual((r["waiting"], r["days_left"], r["ready_days"]), ("mill", 7, None))
+		# Its debt is in the overview; made late, it is counted as late, and found by «сдать скоро» no more.
+		after = self._as(MANAGER, mdf_orders.overview)
+		self.assertAlmostEqual(after["debt"] - before["debt"], 58_680, places=0)
+		frappe.db.set_value("Sales Order", name, "delivery_date", add_days(nowdate(), 1), update_modified=False)
+		self.assertEqual(self._as(MANAGER, mdf_orders.overview)["due_soon"], before["due_soon"] + 1)
+		self.assertIn(name, [o["name"] for o in self._as(MANAGER, mdf_orders.listing, due_soon=1, limit=200)["orders"]])
+		frappe.db.set_value("Sales Order", name, "delivery_date", add_days(nowdate(), -2), update_modified=False)
+		self.assertEqual(self._as(MANAGER, mdf_orders.overview)["overdue"], before["overdue"] + 1)
+		self.assertEqual(row()["days_left"], -2)
+		# Ready and waiting for its customer.
+		for stage in ("mill", "sand", "vacuum", "ready"):
+			self._as(MANAGER, mdf_orders.set_stage, name, stage)
+		self.assertEqual(self._as(MANAGER, mdf_orders.overview)["ready"], before["ready"] + 1)
+		self.assertEqual((row()["waiting"], row()["ready_days"]), (None, 0))
+
 	def test_the_customer_s_own_paint_and_facades(self):
 		from korkem_manufacturing.services import facade_materials, mdf_dictionaries, mdf_paint
 

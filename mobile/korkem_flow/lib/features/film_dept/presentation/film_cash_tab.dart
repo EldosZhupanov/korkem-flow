@@ -232,6 +232,17 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
                   children: [
+                    // What the drawer started with — the last counted close
+                    // carried over (owner, 14.11.2026).
+                    if (b.opening case final o?)
+                      _CashCard(
+                        key: const ValueKey('filmCash:opening'),
+                        label: l10n.filmCashOpening,
+                        value: money.format(o.cash),
+                        note: l10n.filmCashOpeningNote(
+                          mdfDay(o.closedOn, year: false),
+                        ),
+                      ),
                     _CashCard(
                       key: const ValueKey('filmCash:in'),
                       label: l10n.filmCashIn,
@@ -259,7 +270,21 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                 // waterfall down to what is left; longer, a bar a day —
                 // tap one and the moves below are that day's.
                 const SizedBox(height: AppSpacing.md),
-                if (period.since == period.until)
+                if (b.inTotal == 0 && b.outTotal == 0)
+                  // A chart of nothing reads as a fault: say it instead.
+                  Padding(
+                    key: const ValueKey('filmCash:quiet'),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.md,
+                    ),
+                    child: Text(
+                      l10n.filmCashQuiet,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  )
+                else if (period.since == period.until)
                   DayWaterfall(
                     key: const ValueKey('filmCash:waterfall'),
                     incoming: b.inTotal,
@@ -302,9 +327,13 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                 if (period.since == period.until)
                   _CloseDay(
                     day: period.since!,
+                    // What it started with, and the day's own cash.
                     cash: b.where
                         .where((w) => w.way == filmCash)
-                        .fold<double>(0, (s, w) => s + w.amount),
+                        .fold<double>(
+                          b.opening?.cash ?? 0,
+                          (s, w) => s + w.amount,
+                        ),
                     closed: b.closed,
                     onClosed: () => ref.invalidate(filmCashProvider),
                   ),

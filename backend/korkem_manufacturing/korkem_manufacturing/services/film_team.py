@@ -94,6 +94,10 @@ def team(month: str | None = None) -> dict:
 	def row(user: str) -> dict:
 		return rows.setdefault(user, {"seller": user, "metres": 0.0, "sales": 0, "paid": 0.0, "margin": 0.0})
 
+	# What his customers still owe, whenever sold (owner, 14.11.2026): a
+	# sale on credit is the seller's to collect.
+	owed: dict[str, float] = {}
+
 	for s in sales:
 		seller = s.korkem_film_seller or s.owner
 		lines = frappe.get_all(
@@ -101,6 +105,9 @@ def team(month: str | None = None) -> dict:
 			fields=["qty", "basic_rate", "korkem_film_price_m"],
 		)
 		amount = flt(s.korkem_film_amount)
+		debt = amount - flt(s.korkem_film_paid)
+		if debt > 0.5:
+			owed[seller] = owed.get(seller, 0.0) + debt
 		margin = sum((flt(l.korkem_film_price_m) - flt(l.basic_rate)) * flt(l.qty) for l in lines)
 		if start <= getdate(s.posting_date) <= end:
 			r = row(seller)
@@ -130,7 +137,13 @@ def team(month: str | None = None) -> dict:
 			"name": get_fullname(r["seller"]) or r["seller"],
 			"share": round(share * 100, 1),
 			"bonus": round(pot * share),
+			"owed": round(owed.get(r["seller"], 0.0), 2),
 		})
+	# How the plan stands today: the days left in the month, and the metres
+	# a day it still takes. None for a month that is over or not begun.
+	today = getdate(nowdate())
+	days_left = (end - today).days + 1 if start <= today <= end else None
+	left_m = conf["plan_m"] - metres
 	me = frappe.session.user
 	owner = _owner()
 	return {
@@ -142,6 +155,8 @@ def team(month: str | None = None) -> dict:
 		},
 		"plan_m": conf["plan_m"],
 		"done": round(metres / conf["plan_m"] * 100) if conf["plan_m"] else None,
+		"days_left": days_left,
+		"need_m_day": round(left_m / days_left, 1) if days_left and conf["plan_m"] and left_m > 0 else None,
 		"pct": pct,
 		"pot": pot,
 		"settings": conf if owner else None,

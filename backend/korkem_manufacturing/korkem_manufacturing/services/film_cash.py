@@ -82,7 +82,7 @@ def _metres(entry: str) -> float:
 	return flt(frappe.db.get_value("Stock Entry Detail", {"parent": entry}, "qty"))
 
 
-def book(since: str | None = None, until: str | None = None, compare: bool = True) -> dict:
+def book(since: str | None = None, until: str | None = None, compare: bool = True, carry: bool = True) -> dict:
 	"""The department's money in and out over a period, and what is owed.
 
 	`days` — in and out day by day, every day of the period, for the chart;
@@ -165,7 +165,7 @@ def book(since: str | None = None, until: str | None = None, compare: bool = Tru
 	previous = None
 	if compare:
 		length = (end - start).days + 1
-		before = book(str(add_days(start, -length)), str(add_days(start, -1)), compare=False)
+		before = book(str(add_days(start, -length)), str(add_days(start, -1)), compare=False, carry=False)
 		previous = {k: before[k] for k in ("since", "until", "in_total", "out_total", "balance")}
 	return {
 		"since": str(start),
@@ -183,6 +183,9 @@ def book(since: str | None = None, until: str | None = None, compare: bool = Tru
 		"previous": previous,
 		# A day's close, when the period is one day (owner, 12.11.2026).
 		"closed": closed(str(start), company) if start == end else None,
+		# The cash the period starts with, carried over from the last counted
+		# close (owner, 14.11.2026); none until a day has been closed.
+		"opening": opening(start, company) if carry else None,
 		# For the owner's eye only — the bonus does not count it.
 		"logistics": round(logistics, 2),
 		"logistics_per_m": round(logistics / logistics_m, 2) if logistics_m else None,
@@ -239,6 +242,7 @@ def _suppliers_owed(company: str) -> list[dict]:
 			"metres": flt(line.qty),
 			"film": frappe.db.get_value("Item", line.item_code, "item_name") or line.item_code,
 			"supplier": frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier,
+			"supplier_id": e.korkem_supplier,
 			"coming": e.docstatus == 0,
 		})
 	return out
@@ -336,9 +340,42 @@ def settle(receipt: str, method: str | None = None) -> dict:
 _CLOSE = "korkem_film_cash_close"
 
 
+def _cash_of(book_: dict) -> float:
+	return next((w["amount"] for w in book_["where"] if w["way"] == METHODS[0]), 0.0)
+
+
+def opening(day, company: str | None = None) -> dict | None:
+	"""The cash a day starts with: what was counted at the last close before
+	it, and the cash that came and went on the days since. The counted drawer
+	is the truth; before the first close there is nothing to carry."""
+	company = company or current_company()
+	on = getdate(day)
+	prefix = f"{_CLOSE}:{company}:"
+	last = None
+	for key, raw in frappe.db.sql(
+		"select defkey, defvalue from `tabDefaultValue` where parent = '__default' and defkey like %s",
+		(prefix.replace("%", "") + "%",),
+	):
+		try:
+			closed_on = getdate(key[len(prefix):])
+			counted = flt(frappe.parse_json(raw).get("counted"))
+		except (ValueError, TypeError, AttributeError):
+			continue
+		if closed_on < on and (last is None or closed_on > last[0]):
+			last = (closed_on, counted)
+	if not last:
+		return None
+	since = add_days(last[0], 1)
+	if (on - since).days >= MAX_DAYS:
+		return None
+	moved = _cash_of(book(str(since), str(add_days(on, -1)), compare=False, carry=False)) if since < on else 0.0
+	return {"cash": round(last[1] + moved, 2), "closed_on": str(last[0])}
+
+
 def _expected_cash(day) -> float:
+	"""What the drawer should hold at the day's end: what it started with, and the day's cash."""
 	book_day = book(str(day), str(day), compare=False)
-	return next((w["amount"] for w in book_day["where"] if w["way"] == METHODS[0]), 0.0)
+	return flt((book_day["opening"] or {}).get("cash")) + _cash_of(book_day)
 
 
 def closed(day: str | None = None, company: str | None = None) -> dict | None:

@@ -1137,11 +1137,36 @@ def status_of(doc) -> str:
 	return "accepted"
 
 
+def overview() -> dict:
+	"""The four figures over the list of orders (owner, 14.11.2026): what is
+	late, what is due today or tomorrow, what waits for its customer, and
+	what the customers owe — counted over every order, not the page shown."""
+	facade_prices.ensure_editor()
+	rows = frappe.get_all(
+		"Sales Order",
+		filters={"company": current_company(), "korkem_direction": directions.FACADES, "docstatus": 1,
+				 "korkem_handed_over_on": ["is", "not set"]},
+		fields=["name", "docstatus", "delivery_date", "korkem_ready_on", "korkem_handed_over_on",
+				"korkem_hold_reason", *STAGES.values()],
+		limit_page_length=0,
+	)
+	owed = debts()
+	return {
+		"overdue": sum(1 for r in rows if _overdue(r)),
+		"due_soon": sum(1 for r in rows if _due_soon(r)),
+		"ready": sum(1 for r in rows if status_of(r) == "ready"),
+		"debt": owed["total"],
+		"debtors": len(owed["customers"]),
+	}
+
+
 def listing(search: str | None = None, status: str | None = None, overdue=False, with_debt=False,
-			start: int = 0, limit: int = 50, tag: str | None = None) -> dict:
+			start: int = 0, limit: int = 50, tag: str | None = None, due_soon=False) -> dict:
 	"""The list of MDF orders, newest first, a page at a time; urgent open ones first.
 
 	`tag` narrows to one tag — an order's (urgent, rework, …) or its customer's (vip, …).
+	Each row says where the order is: its stages with what is done, the stage
+	it waits at, the days left to its date, and the days it has stood ready.
 	"""
 	facade_prices.ensure_editor()
 	company = current_company()
@@ -1171,7 +1196,7 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 		filters["customer"] = ["in", tagged or [""]]
 	rows = frappe.get_all("Sales Order", filters=filters, or_filters=or_filters, fields=fields,
 						  order_by="creation desc", limit_start=start, limit_page_length=limit * 3 if (
-							  status or overdue or with_debt) else limit)
+							  status or overdue or with_debt or due_soon) else limit)
 	customer_tags = {
 		c.name: mdf_tags.parse(c.korkem_tags)
 		for c in frappe.get_all("Customer", filters={"name": ["in", list({r.customer for r in rows}) or [""]]},
@@ -1184,10 +1209,14 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 			continue
 		if directions.flag(overdue) and not _overdue(row):
 			continue
+		if directions.flag(due_soon) and not _due_soon(row):
+			continue
 		debt = _debt(row)
 		if directions.flag(with_debt) and debt <= 0:
 			continue
-		done = [s for s in stages_of(row) if row.get(STAGES[s])]
+		needed = stages_of(row)
+		done = [s for s in needed if row.get(STAGES[s])]
+		open_ = row.docstatus == 1 and not row.korkem_handed_over_on
 		out.append(
 			{
 				"name": row.name,
@@ -1207,6 +1236,11 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 				"paid": flt(row.advance_paid),
 				"debt": float(debt),
 				"stage": done[-1] if done else None,
+				"stages": [{"stage": s, "done": bool(row.get(STAGES[s]))} for s in needed],
+				"waiting": next((s for s in needed if not row.get(STAGES[s])), None) if open_ else None,
+				"days_left": (getdate(row.delivery_date) - getdate(nowdate())).days if open_ else None,
+				"ready_days": (getdate(nowdate()) - getdate(row.korkem_ready_on)).days
+				if open_ and row.korkem_ready_on else None,
 				"tags": mdf_tags.parse(row.korkem_tags),
 				"customer_tags": customer_tags.get(row.customer, []),
 			}

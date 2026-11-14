@@ -34,6 +34,14 @@ class FilmTeamTab extends ConsumerStatefulWidget {
 class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
   String? _month;
 
+  Future<void> _settings(FilmTeam t) async {
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (_) => _SettingsDialog(team: t),
+    );
+    if (saved ?? false) ref.invalidate(filmTeamProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -80,13 +88,7 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                 if (t.canSet)
                   TextButton.icon(
                     key: const ValueKey('filmTeam:settings'),
-                    onPressed: () async {
-                      final saved = await showDialog<bool>(
-                        context: context,
-                        builder: (_) => _SettingsDialog(team: t),
-                      );
-                      if (saved ?? false) ref.invalidate(filmTeamProvider);
-                    },
+                    onPressed: () => _settings(t),
                     icon: const Icon(AppIcons.edit),
                     label: Text(l10n.filmTeamSettings),
                   ),
@@ -133,7 +135,12 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
             const SizedBox(height: AppSpacing.md),
             if (t.planM > 0) ...[
               Text(
-                l10n.filmTeamPlan(_n(t.done ?? 0), _n(t.planM)),
+                [
+                  l10n.filmTeamPlan(_n(t.done ?? 0), _n(t.planM)),
+                  // What it still takes (owner, 14.11.2026).
+                  if (t.needPerDay != null && t.daysLeft != null)
+                    l10n.filmTeamPlanNeed(t.daysLeft!, _n(t.needPerDay!)),
+                ].join(' · '),
                 key: const ValueKey('filmTeam:plan'),
               ),
               const SizedBox(height: AppSpacing.xs),
@@ -150,7 +157,22 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                       : status.danger,
                 ),
               ),
-            ] else
+            ] else if (t.canSet)
+              // No plan, no bonus worth the name: say so where it is set.
+              Card(
+                key: const ValueKey('filmTeam:noPlan'),
+                color: theme.colorScheme.tertiaryContainer,
+                child: ListTile(
+                  title: Text(l10n.filmTeamNoPlan),
+                  subtitle: Text(l10n.filmTeamNoPlanHint),
+                  trailing: FilledButton(
+                    key: const ValueKey('filmTeam:setPlan'),
+                    onPressed: () => _settings(t),
+                    child: Text(l10n.filmTeamSetPlan),
+                  ),
+                ),
+              )
+            else
               Text(l10n.filmTeamNoPlan),
             Text(l10n.filmTeamHint, style: theme.textTheme.bodySmall),
             const SizedBox(height: AppSpacing.md),
@@ -207,13 +229,28 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        l10n.filmTeamShareLine(
-                          _n(r.share),
-                          money.format(r.margin),
-                          money.format(r.paid),
-                        ),
+                        [
+                          l10n.filmTeamShareLine(
+                            _n(r.share),
+                            money.format(r.margin),
+                            money.format(r.paid),
+                          ),
+                          if (r.metres > 0)
+                            l10n.filmTeamMarginM(
+                              money.format(r.margin / r.metres),
+                            ),
+                        ].join(' · '),
                         style: theme.textTheme.bodySmall,
                       ),
+                      // Sold on credit is his to collect (owner, 14.11.2026).
+                      if (r.owed > 0.5)
+                        Text(
+                          l10n.filmTeamOwed(money.format(r.owed)),
+                          key: ValueKey('filmTeam:owed:${r.seller}'),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: status.danger,
+                          ),
+                        ),
                     ],
                   ),
                 ),

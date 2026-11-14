@@ -8786,5 +8786,201 @@
   },
   "mdfPaintTwoSided": "2 sides",
   "mdfTagClientFilm": "Customer's film",
-  "mdfClientShort": "customer's"
+  "mdfClientShort": "customer's",
+  "mdfKpiOverdue": "Overdue",
+  "mdfKpiDueSoon": "Due today or tomorrow",
+  "mdfKpiReady": "Ready to hand over",
+  "mdfKpiDebt": "Customers owe",
+  "mdfKpiDebtors": "customers: {count}",
+  "@mdfKpiDebtors": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSectionOverdue": "Overdue",
+  "mdfSectionSoon": "Due soon",
+  "mdfSectionShop": "In the shop",
+  "mdfSectionReady": "Ready — waiting for the customer",
+  "mdfSectionDraft": "Drafts",
+  "mdfSectionClosed": "Handed over",
+  "mdfRowNowAt": "now: {stage}",
+  "@mdfRowNowAt": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowLate": "{days} d late",
+  "@mdfRowLate": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowDaysLeft": "in {days} d",
+  "@mdfRowDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowToday": "due today",
+  "mdfRowReadyFor": "ready {days} d",
+  "@mdfRowReadyFor": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowPaid": "paid",
+  "mdfFilterDueSoon": "Due soon",
+  "filmCashOpening": "Cash at the start",
+  "filmCashOpeningNote": "counted {day}",
+  "@filmCashOpeningNote": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmCashQuiet": "No money moved in this period.",
+  "filmFigOnHand": "On the shelf",
+  "filmFigOnWay": "On its way",
+  "filmFigRolls": "deliveries: {count}",
+  "@filmFigRolls": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFigRunsOut": "Running out",
+  "filmFigRunsOutNote": "under {days} days left",
+  "@filmFigRunsOutNote": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmFigToOrder": "To order",
+  "filmFigToOrderNote": "≈ {metres} m",
+  "@filmFigToOrderNote": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmStockBought": "bought at {price}/m",
+  "@filmStockBought": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "filmStockOrder": "order {metres} m",
+  "@filmStockOrder": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesAverage": "Average sale",
+  "filmSalesQuietToday": "No sales yet today",
+  "filmSalesYesterdayWas": "yesterday: {count}, {metres} m",
+  "@filmSalesYesterdayWas": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesByDay": "Sold by day, m",
+  "filmSalesChartA11y": "Metres sold by day; {metres} m in all",
+  "@filmSalesChartA11y": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesTopFilms": "Films that sold most",
+  "filmSalesTopCustomers": "Who bought most",
+  "filmSupOwed": "We owe",
+  "filmSupOwedTo": "suppliers: {count}",
+  "@filmSupOwedTo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipOwed": "we owe {amount}",
+  "@filmSupChipOwed": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupChipOnTime": "on time {onTime} of {rolls}",
+  "@filmSupChipOnTime": {
+    "placeholders": {
+      "onTime": {
+        "type": "int"
+      },
+      "rolls": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupChipPrice": "price {change}%",
+  "@filmSupChipPrice": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamPlanNeed": "{days} days left — {metres} m a day",
+  "@filmTeamPlanNeed": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamNoPlanHint": "Set the month's plan: the bonus share depends on it.",
+  "filmTeamSetPlan": "Set the plan",
+  "filmTeamMarginM": "{margin}/m",
+  "@filmTeamMarginM": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamOwed": "his customers owe {amount}",
+  "@filmTeamOwed": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

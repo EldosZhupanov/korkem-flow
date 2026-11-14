@@ -211,6 +211,16 @@ class TestFilmDept(IntegrationTestCase):
 				 arrives_on=add_days(nowdate(), 2))
 		self.assertIsNone(row()["reorder"])
 
+	def test_a_film_that_sells_is_ordered_in_time_without_a_minimum(self):
+		def row() -> dict:
+			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
+
+		self.assertIsNone(row()["reorder"])
+		# 45 m gone in a month — 1.5 m a day; the 5 m left last under a week.
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 45}], paid=0)
+		order = row()["reorder"]
+		self.assertEqual((order["metres"], order["supplier"]), (50, self.supplier))
+
 	def test_a_roll_on_its_way_is_not_on_the_shelf_until_it_comes(self):
 		def row() -> dict:
 			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
@@ -301,6 +311,24 @@ class TestFilmDept(IntegrationTestCase):
 		row = next(m for m in self._as(MANAGER, service.history, self.film) if m["entry"] == by_me)
 		self.assertEqual((row["delivery"]["payer"], row["delivery"]["settled"]), ("employee", True))
 
+	def test_the_cash_counted_at_a_close_is_what_the_next_day_starts_with(self):
+		from korkem_manufacturing.services import film_cash
+
+		today = frappe.utils.getdate()
+		yesterday = frappe.utils.add_days(today, -1)
+		key = f"{film_cash._CLOSE}:{COMPANY}:{yesterday}"
+		before = frappe.db.get_default(key)
+		self.addCleanup(lambda: frappe.db.set_default(key, before or ""))
+		today_cash = film_cash._cash_of(self._as(MANAGER, film_cash.book, str(today), str(today)))
+		self._as(MANAGER, film_cash.close_day, 12_345, "тест переноса", str(yesterday))
+		book = self._as(MANAGER, film_cash.book, str(today), str(today))
+		self.assertEqual(book["opening"], {"cash": 12_345, "closed_on": str(yesterday)})
+		# …and what the drawer should hold tonight starts from it.
+		self.assertAlmostEqual(film_cash._expected_cash(today), 12_345 + today_cash, places=2)
+		# The day closed itself starts from the close before it, not from its own.
+		opening = self._as(MANAGER, film_cash.book, str(yesterday), str(yesterday))["opening"]
+		self.assertNotEqual((opening or {}).get("closed_on"), str(yesterday))
+
 	def test_film_taken_on_credit_is_owed_to_the_supplier_until_paid(self):
 		from korkem_manufacturing.services import film_cash
 
@@ -361,7 +389,7 @@ class TestFilmDept(IntegrationTestCase):
 
 		def mine_now() -> dict:
 			rows = [r for r in film_team.team()["rows"] if r["seller"] == MANAGER]
-			return rows[0] if rows else {"metres": 0.0, "margin": 0.0}
+			return rows[0] if rows else {"metres": 0.0, "margin": 0.0, "owed": 0.0}
 
 		# Other tests sell this month too: count what this sale adds.
 		before = mine_now()
@@ -375,6 +403,9 @@ class TestFilmDept(IntegrationTestCase):
 		# Bought at 3 200, sold at 4 200: 10 000 margin; half paid — 5 000 counted.
 		self.assertAlmostEqual(mine["metres"] - before["metres"], 10, delta=0.01)
 		self.assertAlmostEqual(mine["margin"] - before["margin"], 5000, delta=1)
+		# The half not paid is his customers' debt, his to collect.
+		self.assertAlmostEqual(mine["owed"] - before["owed"], 21000, delta=1)
+		self.assertGreater(month["days_left"], 0)
 		self.assertGreaterEqual(month["pot"], 500)
 		# A manager sees only his own row; the floor sees nothing.
 		seen = self._as(MANAGER, film_team.team)
@@ -422,6 +453,26 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertEqual(self._free(), 20)
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, service.hold, self.film, other, 1)
+
+	def test_the_suppliers_board_says_what_we_owe_a_source_and_how_its_price_moved(self):
+		def board() -> tuple[dict, dict]:
+			b = self._as(MANAGER, film_supplier_board.board)
+			return b, {r["supplier"]: r for r in b["suppliers"]}
+
+		# A source of its own, so its numbers are this test's alone.
+		name = f"Film Price {frappe.generate_hash(length=6)}"
+		material_stock.add_supplier(name)
+		second = frappe.db.get_value("Supplier", {"supplier_name": name}, "name")
+		self._as(MANAGER, service.receive, self.film, 20, 3000, second)
+		before, was = board()
+		self.assertEqual((was[second]["owed"], was[second]["owed_count"], was[second]["price_change"]),
+						 (None, 0, None))
+		# 10 m at 3 300 ₸ taken on credit: owed — and 10% dearer than before.
+		self._as(MANAGER, service.receive, self.film, 10, 3300, second, supplier_paid="0")
+		after, now = board()
+		row = now[second]
+		self.assertEqual((row["owed"], row["owed_count"], row["price_change"]), (33_000, 1, 10.0))
+		self.assertAlmostEqual(after["owed"] - before["owed"], 33_000)
 
 	def test_the_suppliers_board_ranks_sources_by_what_their_film_sold(self):
 		def board(user=MANAGER) -> tuple[dict, dict]:
