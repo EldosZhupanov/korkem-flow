@@ -6,7 +6,9 @@ Each source of film on one line, the best seller first: how many metres of
 its film were sold this month (or in all), what that brought, how much of it
 lies on the shelf, what is on its way, how long it takes to bring a roll
 against what it promised — and what to do about it: which of its films ran
-low and are to be ordered, which lie on the shelf unmoved.
+low and are to be ordered, which lie on the shelf unmoved. And the money
+side of it (owner, 14.11.2026): what we owe it for film taken on credit,
+how many of its last rolls came on time, and whether its price moved.
 
 **Whose metres a sale is.** A film bought from two sources is shared between
 them by what each brought: 60 m from one and 40 m from the other make a
@@ -24,7 +26,7 @@ import json
 import frappe
 from frappe.utils import date_diff, flt, getdate, nowdate
 
-from korkem_manufacturing.services import film_dept, material_stock, price_visibility
+from korkem_manufacturing.services import film_cash, film_dept, material_stock, price_visibility
 from korkem_manufacturing.services.film_team import IDLE_DAYS
 from korkem_manufacturing.services.scope import current_company
 
@@ -50,6 +52,8 @@ def board(period: str | None = None) -> dict:
 	coming = _coming(company)
 	lead = _lead(company)
 	idle = _idle(company, films, brought)
+	owed = _owed(company) if money else {}
+	prices = _price_change(company, known) if money else {}
 
 	rows: dict[str, dict] = {}
 	for s in frappe.get_all(
@@ -69,7 +73,13 @@ def board(period: str | None = None) -> dict:
 			"amount": 0.0,
 			"on_hand_m": 0.0,
 			"coming": coming.get(s.name),
-			**lead.get(s.name, {"lead_days": None, "promised_days": None, "late_days": None}),
+			**{"lead_days": None, "promised_days": None, "late_days": None, "on_time": None, "rolls": 0,
+			   **lead.get(s.name, {})},
+			# Film taken on credit and not paid for yet — for who sees money.
+			"owed": owed.get(s.name, {}).get("amount") if money else None,
+			"owed_count": owed.get(s.name, {}).get("count", 0),
+			# Its last price for a metre against the one before, in percent.
+			"price_change": prices.get(s.name),
 			"reorder": [],
 			"idle": idle.get(s.name),
 		}
@@ -122,6 +132,8 @@ def board(period: str | None = None) -> dict:
 		"coming_count": sum(c["count"] for c in coming.values()),
 		"reorder_films": sum(len(r["reorder"]) for r in result),
 		"reorder_suppliers": sum(1 for r in result if r["reorder"]),
+		"owed": round(sum(o["amount"] for o in owed.values()), 2) if money else None,
+		"owed_suppliers": len(owed),
 		"idle_days": IDLE_DAYS,
 		"suppliers": result,
 	}
@@ -227,8 +239,46 @@ def _lead(company: str) -> dict[str, dict]:
 			"lead_days": round(days),
 			"promised_days": round(promised),
 			"late_days": max(round(days) - round(promised), 0),
+			# «Вовремя 9 из 10»: the rolls that took no longer than promised.
+			"on_time": sum(1 for took_days, promised_days in rolls if took_days <= promised_days),
+			"rolls": len(rolls),
 		}
 	return out
+
+
+def _owed(company: str) -> dict[str, dict]:
+	"""Source → what we owe it for film taken on credit, and for how many rolls."""
+	out: dict[str, dict] = {}
+	for row in film_cash._suppliers_owed(company):
+		mine = out.setdefault(row["supplier_id"], {"amount": 0.0, "count": 0})
+		mine["amount"] = round(mine["amount"] + flt(row["amount"]), 2)
+		mine["count"] += 1
+	return out
+
+
+def _price_change(company: str, known: set[str]) -> dict[str, float]:
+	"""Source → how its price for a metre moved, in percent: each film's last
+	receipt against the one before it, averaged over its films. A film it
+	brought once says nothing."""
+	last_two: dict[tuple[str, str], list[float]] = {}
+	for r in frappe.db.sql(
+		"""select d.item_code, e.korkem_supplier, d.basic_rate
+		from `tabStock Entry Detail` d join `tabStock Entry` e on e.name = d.parent
+		where e.company = %s and e.docstatus = 1 and e.korkem_material_receipt = 1
+			and e.korkem_supplier is not null and e.korkem_supplier != '' and d.basic_rate > 0
+		order by e.posting_date desc, e.creation desc""",
+		(company,), as_dict=True,
+	):
+		if r.item_code not in known:
+			continue
+		rates = last_two.setdefault((r.korkem_supplier, r.item_code), [])
+		if len(rates) < 2:
+			rates.append(flt(r.basic_rate))
+	moved: dict[str, list[float]] = {}
+	for (supplier, _item), rates in last_two.items():
+		if len(rates) == 2 and rates[1] > 0:
+			moved.setdefault(supplier, []).append((rates[0] - rates[1]) / rates[1] * 100)
+	return {supplier: round(sum(m) / len(m), 1) for supplier, m in moved.items()}
 
 
 def _idle(company: str, films: dict[str, dict], brought: dict[str, dict[str, float]]) -> dict[str, dict]:

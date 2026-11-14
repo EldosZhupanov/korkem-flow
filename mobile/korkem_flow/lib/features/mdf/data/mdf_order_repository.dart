@@ -31,6 +31,9 @@ typedef MdfListQuery = ({
   bool overdue,
   bool withDebt,
 
+  /// Due today or tomorrow, and not ready.
+  bool dueSoon,
+
   /// An order's tag code (urgent, rework) or a customer's (vip …).
   String? tag,
 });
@@ -41,6 +44,12 @@ final mdfOrdersProvider = FutureProvider.autoDispose
     .family<List<MdfOrderRow>, MdfListQuery>(
       (ref, query) => ref.watch(mdfOrderRepositoryProvider).listing(query),
     );
+
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfOverviewProvider = FutureProvider.autoDispose<MdfOverview>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).overview(),
+);
 
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
@@ -129,6 +138,19 @@ class MdfOrderRepository {
   final FrappeClient _client;
   final MutationOutbox _outbox;
 
+  /// The four figures over the list, counted over every order.
+  Future<MdfOverview> overview() async {
+    final data = _map(await _client.callMethod('$_base.overview'));
+    num n(String key) => data[key] is num ? data[key] as num : 0;
+    return (
+      overdue: n('overdue').toInt(),
+      dueSoon: n('due_soon').toInt(),
+      ready: n('ready').toInt(),
+      debt: n('debt').toDouble(),
+      debtors: n('debtors').toInt(),
+    );
+  }
+
   Future<List<MdfOrderRow>> listing(MdfListQuery query) async {
     final data = _map(
       await _client.callMethod(
@@ -138,6 +160,7 @@ class MdfOrderRepository {
           if (query.status != null) 'status': query.status!.wire,
           if (query.overdue) 'overdue': 1,
           if (query.withDebt) 'with_debt': 1,
+          if (query.dueSoon) 'due_soon': 1,
           'tag': ?query.tag,
         },
       ),
@@ -429,6 +452,17 @@ class MdfOrderRepository {
       ),
     ),
   );
+
+  /// The customer's own paint: what he brought, and whether it is here.
+  Future<MdfOrder> setClientPaint(
+    String order, {
+    String? note,
+    bool? received,
+  }) => _post('set_client_paint', {
+    'order': order,
+    'note': ?note,
+    if (received != null) 'received': received ? 1 : 0,
+  });
 
   /// A reason puts it on hold; none takes it off.
   Future<MdfOrder> hold(String order, String? reason) =>

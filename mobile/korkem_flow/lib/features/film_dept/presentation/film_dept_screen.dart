@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/figure_tile.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
@@ -343,10 +344,31 @@ class _StockTab extends ConsumerStatefulWidget {
 /// Which films the stock shows (owner, 13.11.2026).
 enum _StockFilter { all, have, low, onWay, none }
 
+/// Fewer days of film left than this is «кончается».
+const _fewDays = 7;
+
+/// Runs out: under its minimum, or — at the pace it sells — within days.
+bool _runsOut(Film f) =>
+    f.low || (f.free > 0 && f.daysLeft != null && f.daysLeft! < _fewDays);
+
+/// «Заказать»: none free, none put by, none on its way — or it ran low
+/// with not enough coming.
+bool _toOrder(Film f) =>
+    f.reorder != null ||
+    (f.enabled && f.free <= 0 && f.coming.isEmpty && f.holds.isEmpty);
+
+/// What burns first (owner, 14.11.2026): a film that sells and has none
+/// left, then by the days it lasts; a film nobody buys goes last.
+int _urgency(Film f) {
+  final sells = (f.dailyM ?? 0) > 0;
+  if (f.free <= 0) return sells ? -1 : (_toOrder(f) ? 9000 : 9999);
+  return f.daysLeft ?? (f.low ? _fewDays : 8000);
+}
+
 bool _shows(Film f, _StockFilter filter) => switch (filter) {
   _StockFilter.all => true,
   _StockFilter.have => f.free > 0,
-  _StockFilter.low => f.low,
+  _StockFilter.low => _runsOut(f),
   _StockFilter.onWay => f.coming.isNotEmpty,
   _StockFilter.none => f.free <= 0,
 };
@@ -401,10 +423,32 @@ class _StockTabState extends ConsumerState<_StockTab> {
           ErrorView(error: e, onRetry: () => ref.invalidate(filmStockProvider)),
       data: (c) {
         int count(_StockFilter f) => c.films.where((x) => _shows(x, f)).length;
-        final films = [
-          for (final f in c.films)
-            if (_shows(f, _filter) && _found(f, _query)) f,
-        ];
+        // What burns first on top; the server's order among equals.
+        final shown =
+            [
+              for (final (i, f) in c.films.indexed)
+                if (_shows(f, _filter) && _found(f, _query)) (i, f),
+            ]..sort((a, b) {
+              final byUrgency = _urgency(a.$2).compareTo(_urgency(b.$2));
+              return byUrgency != 0 ? byUrgency : a.$1.compareTo(b.$1);
+            });
+        final films = [for (final (_, f) in shown) f];
+        final money = mdfMoney(context);
+        final onHand = c.films.fold<double>(0, (m, f) => m + f.onHand);
+        final worth = c.films.fold<double>(
+          0,
+          (m, f) => m + f.onHand * (f.priceM ?? 0),
+        );
+        final rolls = c.films.fold<int>(0, (n, f) => n + f.coming.length);
+        final onWayM = c.films.fold<double>(
+          0,
+          (m, f) => f.coming.fold(m, (x, r) => x + r.metres),
+        );
+        final toOrder = c.films.where(_toOrder).toList();
+        final toOrderM = toOrder.fold<double>(
+          0,
+          (m, f) => m + (f.reorder?.metres ?? 0),
+        );
         // The bar's full length: three minimums, or the fullest film.
         final fullest = c.films.fold<double>(
           1,
@@ -430,9 +474,56 @@ class _StockTabState extends ConsumerState<_StockTab> {
           _StockFilter.onWay => l10n.filmFilterOnWay(count(f)),
           _StockFilter.none => l10n.filmFilterNone(count(f)),
         };
+        void narrow(_StockFilter f) => setState(
+          () => _filter = _filter == f ? _StockFilter.all : f,
+        );
         return ListView(
           padding: const EdgeInsets.all(AppSpacing.md),
           children: [
+            // The shelf at a glance (owner, 14.11.2026); a tap narrows
+            // the list to what the figure counts.
+            FigureRow(
+              tiles: [
+                FigureTile(
+                  id: 'filmStock:onHand',
+                  title: l10n.filmFigOnHand,
+                  value: '${filmMetres(onHand)} м',
+                  note: worth > 0 ? money.format(worth) : null,
+                  selected: _filter == _StockFilter.have,
+                  onTap: () => narrow(_StockFilter.have),
+                ),
+                FigureTile(
+                  id: 'filmStock:onWay',
+                  title: l10n.filmFigOnWay,
+                  value: '${filmMetres(onWayM)} м',
+                  note: l10n.filmFigRolls(rolls),
+                  colour: onWayM > 0 ? status.info : null,
+                  selected: _filter == _StockFilter.onWay,
+                  onTap: () => narrow(_StockFilter.onWay),
+                ),
+                FigureTile(
+                  id: 'filmStock:runsOut',
+                  title: l10n.filmFigRunsOut,
+                  value: '$lowCount',
+                  note: l10n.filmFigRunsOutNote(_fewDays),
+                  colour: lowCount > 0 ? status.warning : null,
+                  selected: _filter == _StockFilter.low,
+                  onTap: () => narrow(_StockFilter.low),
+                ),
+                FigureTile(
+                  id: 'filmStock:toOrder',
+                  title: l10n.filmFigToOrder,
+                  value: '${toOrder.length}',
+                  note: toOrderM > 0
+                      ? l10n.filmFigToOrderNote(filmMetres(toOrderM))
+                      : null,
+                  colour: toOrder.isNotEmpty ? status.danger : null,
+                  selected: _filter == _StockFilter.none,
+                  onTap: () => narrow(_StockFilter.none),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
             Wrap(
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
@@ -614,16 +705,29 @@ class _StockTile extends StatelessWidget {
     ];
     final days = f.daysLeft;
     final lines = <Widget>[
-      if (f.code != null || f.type != null || days != null)
+      if (f.code != null || f.type != null || days != null || f.priceM != null)
         Text(
           [
             ?f.code,
             ?f.type,
             if (days != null) l10n.filmDaysLeft(days),
+            // What a metre cost us last (owner, 14.11.2026).
+            if (f.priceM != null)
+              l10n.filmStockBought(mdfMoney(context).format(f.priceM)),
           ].join(' · '),
-          style: days != null && days < 7
+          style: days != null && days < _fewDays
               ? TextStyle(color: status.warning)
               : null,
+        ),
+      // Ran low: what to order, as last time.
+      if (f.reorder case final r?)
+        Text(
+          [
+            l10n.filmStockOrder(filmMetres(r.metres)),
+            ?r.supplierName,
+          ].join(' · '),
+          key: ValueKey('filmStock:order:${f.item}'),
+          style: TextStyle(color: theme.colorScheme.error),
         ),
       for (final h in f.holds)
         Text(

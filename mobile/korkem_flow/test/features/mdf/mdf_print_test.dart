@@ -81,6 +81,7 @@ final MdfPrintWords _words = (
   subtotal: 'Барлығы',
   coating: (c) => c.name,
   materialColumn: 'Матер.',
+  client: 'клиента',
   pieces: 'дана',
   radius: 'R',
   thicknessColumn: 'Қалыңдығы',

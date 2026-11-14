@@ -818,6 +818,8 @@ class TestMdfOrders(IntegrationTestCase):
 		board = self._as(MANAGER, mdf_paint.board)
 		self.assertIsNone(group(board))
 		self.assertAlmostEqual(board["coming_m2"] - before["coming_m2"], 1.63, places=2)
+		# …and the painter sees which order it is, and where it is now.
+		self.assertEqual(next(c for c in board["coming"] if c["name"] == name)["stage"], "cut")
 		for stage in ("cut", "mill", "sand"):
 			self._as(MANAGER, mdf_orders.set_stage, name, stage)
 		board = self._as(MANAGER, mdf_paint.board)
@@ -843,6 +845,85 @@ class TestMdfOrders(IntegrationTestCase):
 			self._as(MANAGER, mdf_paint.start_drying, name)
 		with self.assertRaises(frappe.PermissionError):  # the board is the managers' screen for now
 			self._as(CUTTER, mdf_paint.board)
+
+	def test_the_list_says_where_each_order_is_and_the_overview_counts_what_burns(self):
+		before = self._as(MANAGER, mdf_orders.overview)
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		name = card["name"]
+		self._as(MANAGER, mdf_orders.accept, name)
+		self._as(MANAGER, mdf_orders.set_stage, name, "cut")
+
+		def row():
+			return next(o for o in self._as(MANAGER, mdf_orders.listing, search=name)["orders"] if o["name"] == name)
+
+		r = row()
+		self.assertEqual([(s["stage"], s["done"]) for s in r["stages"]],
+						 [("cut", True), ("mill", False), ("sand", False), ("vacuum", False), ("ready", False)])
+		self.assertEqual((r["waiting"], r["days_left"], r["ready_days"]), ("mill", 7, None))
+		# Its debt is in the overview; made late, it is counted as late, and found by «сдать скоро» no more.
+		after = self._as(MANAGER, mdf_orders.overview)
+		self.assertAlmostEqual(after["debt"] - before["debt"], 58_680, places=0)
+		frappe.db.set_value("Sales Order", name, "delivery_date", add_days(nowdate(), 1), update_modified=False)
+		self.assertEqual(self._as(MANAGER, mdf_orders.overview)["due_soon"], before["due_soon"] + 1)
+		self.assertIn(name, [o["name"] for o in self._as(MANAGER, mdf_orders.listing, due_soon=1, limit=200)["orders"]])
+		frappe.db.set_value("Sales Order", name, "delivery_date", add_days(nowdate(), -2), update_modified=False)
+		self.assertEqual(self._as(MANAGER, mdf_orders.overview)["overdue"], before["overdue"] + 1)
+		self.assertEqual(row()["days_left"], -2)
+		# Ready and waiting for its customer.
+		for stage in ("mill", "sand", "vacuum", "ready"):
+			self._as(MANAGER, mdf_orders.set_stage, name, stage)
+		self.assertEqual(self._as(MANAGER, mdf_orders.overview)["ready"], before["ready"] + 1)
+		self.assertEqual((row()["waiting"], row()["ready_days"]), (None, 0))
+
+	def test_the_customer_s_own_paint_and_facades(self):
+		from korkem_manufacturing.services import facade_materials, mdf_dictionaries, mdf_paint
+
+		colour = "МДФ Тест RAL 9005"
+		self._as(MANAGER, mdf_dictionaries.add, "paint", colour)
+		self._as(MANAGER, mdf_orders.set_client_paint_discount, 6_000)
+		self.addCleanup(lambda: frappe.db.set_default(f"{mdf_orders._PAINT_DISCOUNT}:{COMPANY}", ""))
+		line = {"height_mm": 1000, "width_mm": 500, "qty": 1, "milling": "Нет такой", "coating": "paint",
+				"film": colour}
+		# His paint is a group's: its m² costs the discount less; a price typed by hand stands.
+		own = {**line, "client_paint": 1, "client_mdf": 1}
+		priced = self._as(MANAGER, mdf_orders.price, [line, own, {**own, "rate": 25_000}], finish=None,
+						  default_rate=20_000)
+		self.assertEqual([l["amount"] for l in priced["lines"]], [10_000, 7_000, 12_500])
+
+		# His film, on his facades, is pressed here; a film is no paint, so the
+		# discount is the paint's alone.
+		film = {**ORDER_1129[0], "coating": "pvc", "film": self.decor, "rate": 17_000, "client_film": 1,
+				"client_mdf": 1, "client_paint": 1}
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
+						head={"thickness_mm": 16, "default_rate": 20_000}, lines=[own, film])
+		# The order carries them as tags, from its positions; the card's positions keep their flags.
+		self.assertEqual(set(card["tags"]), {"client_paint", "client_film", "client_parts"})
+		self.assertEqual([(l["client_paint"], l["client_film"], l["client_mdf"]) for l in card["lines"]],
+						 [(True, False, True), (False, True, True)])
+		self.assertEqual(card["total"], 7_000 + 2_380)
+		self.addCleanup(self._drop, card["name"])
+		name = card["name"]
+		card = self._as(MANAGER, mdf_orders.accept, name)
+		# His facades: nothing to cut or mill, but sanded here — and neither
+		# MDF nor film from our shelf.
+		self.assertEqual([s["stage"] for s in card["stages"]], ["sand", "paint", "vacuum", "ready"])
+		self.assertEqual(card["client_paint"], {"note": None, "in": False})
+		self.assertEqual(facade_materials.need(name)["materials"], [])
+
+		def mine(board):
+			return next(o for g in board["by_colour"] if g["colour"] == colour for o in g["orders"] if o["name"] == name)
+
+		# At sanding, the painter already sees it coming — and that the paint is not here.
+		coming = next(c for c in self._as(MANAGER, mdf_paint.board)["coming"] if c["name"] == name)
+		self.assertEqual((coming["stage"], coming["waiting_paint"], coming["client_parts"]), ("sand", True, True))
+		self._as(MANAGER, mdf_orders.set_stage, name, "sand")
+		order = mine(self._as(MANAGER, mdf_paint.board))
+		self.assertEqual((order["client_paint"], order["waiting_paint"]), (True, True))
+		card = self._as(MANAGER, mdf_orders.set_client_paint, name, note="2 банки × 3 л", received=1)
+		self.assertEqual(card["client_paint"], {"note": "2 банки × 3 л", "in": True})
+		order = mine(self._as(MANAGER, mdf_paint.board))
+		self.assertEqual((order["waiting_paint"], order["client_paint_note"]), (False, "2 банки × 3 л"))
 
 	def test_a_payment_is_fixed_or_taken_back_the_same_day_and_an_old_one_only_by_the_owner(self):
 		from korkem_manufacturing.api import mdf_orders as api

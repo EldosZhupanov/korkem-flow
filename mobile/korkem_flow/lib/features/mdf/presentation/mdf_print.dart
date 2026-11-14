@@ -54,6 +54,10 @@ typedef MdfPrintWords = ({
   /// «шт» in a group's and the order's total line.
   String pieces,
 
+  /// «клиента» — beside the customer's own LMDF, paint or film (owner,
+  /// 14.11.2026), so the shop never takes his for ours.
+  String client,
+
   /// «Метки» — the head's row of the order's tags, and a tag by name.
   String tags,
   String Function(MdfOrderTag tag) tag,
@@ -231,7 +235,18 @@ Future<Uint8List> buildMdfOrderPdf(
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(_groupName(words, l.coating, l.film), style: cell),
+            pw.Text(
+              [
+                _groupName(words, l.coating, l.film),
+                if (mdfLineIsClients(
+                  l.coating,
+                  paint: l.clientPaint,
+                  film: l.clientFilm,
+                ))
+                  '(${words.client})',
+              ].join(' '),
+              style: cell,
+            ),
             for (final x in mdfCoatingExtras(
               l,
               back: words.back,
@@ -242,7 +257,12 @@ Future<Uint8List> buildMdfOrderPdf(
         ),
       ),
       text(l.thicknessMm == null ? '' : '${l.thicknessMm} мм', right: true),
-      text(l.material ?? ''),
+      text(
+        [
+          l.material ?? '',
+          if (l.clientMdf) '(${words.client})',
+        ].join(' ').trim(),
+      ),
       text(area.format(l.areaM2), right: true),
       if (withPrices) text(money.format(l.rateM2), right: true),
       if (withPrices) text(money.format(l.amount), right: true),

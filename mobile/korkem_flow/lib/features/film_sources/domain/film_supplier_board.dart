@@ -13,6 +13,8 @@ class FilmSupplierBoard {
     this.comingM = 0,
     this.comingCount = 0,
     this.reorderFilms = 0,
+    this.owed,
+    this.owedSuppliers = 0,
     this.rows = const [],
   });
 
@@ -25,6 +27,8 @@ class FilmSupplierBoard {
         comingM: _d(json['coming_m']) ?? 0,
         comingCount: (json['coming_count'] as num?)?.toInt() ?? 0,
         reorderFilms: (json['reorder_films'] as num?)?.toInt() ?? 0,
+        owed: _d(json['owed']),
+        owedSuppliers: (json['owed_suppliers'] as num?)?.toInt() ?? 0,
         rows: [
           for (final r in json['suppliers'] as List? ?? const [])
             if (r is Map<String, dynamic>) FilmSupplierRow.fromJson(r),
@@ -44,6 +48,11 @@ class FilmSupplierBoard {
 
   /// How many films ran low and are to be ordered.
   final int reorderFilms;
+
+  /// What we owe the sources for film taken on credit, and how many of
+  /// them — null for someone who does not see money.
+  final double? owed;
+  final int owedSuppliers;
   final List<FilmSupplierRow> rows;
 
   /// The best seller's metres: the length of a full bar.
@@ -76,6 +85,10 @@ class FilmSupplierRow {
     this.reorder = const [],
     this.idleFilms = 0,
     this.idleM = 0,
+    this.owed,
+    this.onTime,
+    this.rolls = 0,
+    this.priceChange,
   });
 
   factory FilmSupplierRow.fromJson(Map<String, dynamic> json) {
@@ -102,6 +115,10 @@ class FilmSupplierRow {
       ],
       idleFilms: idle is Map ? (idle['films'] as num?)?.toInt() ?? 0 : 0,
       idleM: idle is Map ? _d(idle['metres']) ?? 0 : 0,
+      owed: _d(json['owed']),
+      onTime: (json['on_time'] as num?)?.toInt(),
+      rolls: (json['rolls'] as num?)?.toInt() ?? 0,
+      priceChange: _d(json['price_change']),
     );
   }
 
@@ -132,6 +149,21 @@ class FilmSupplierRow {
   /// Its films lying on the shelf unmoved, and their metres.
   final int idleFilms;
   final double idleM;
+
+  /// What we owe it for film taken on credit; null when nothing, or for
+  /// someone who does not see money.
+  final double? owed;
+
+  /// How many of its last [rolls] rolls came no later than promised; null
+  /// while none was ordered ahead.
+  final int? onTime;
+  final int rolls;
+
+  /// Its last price for a metre against the one before, in percent.
+  final double? priceChange;
+
+  /// Under this share of rolls on time, the source is not to be relied on.
+  static const double reliable = 0.8;
 
   /// Where an order is written to: its WhatsApp, else its telephone.
   String? get writeTo => whatsapp ?? phone;

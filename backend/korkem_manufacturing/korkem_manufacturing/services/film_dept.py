@@ -26,6 +26,7 @@ seller may still type another price; the sale records what was charged.
 
 from __future__ import annotations
 
+import math
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
@@ -774,12 +775,12 @@ def stock() -> dict:
 		free = flt(f["on_hand"]) - flt(f["held"]) - sum(h["metres"] for h in f["holds"])
 		f["free"] = free
 		f["low"] = bool(f["min_stock"]) and free < flt(f["min_stock"])
-		# Time to order (owner, 11.11.2026): low, and not enough on its way.
-		f["reorder"] = _reorder(f) if f["enabled"] else None
 		# «Хватит на N дней» (owner, 13.11.2026): at the pace of the last
 		# weeks — sold and given to the shop.
 		f["daily_m"] = round(pace.get(f["item"], 0.0), 2)
 		f["days_left"] = int(free // f["daily_m"]) if f["daily_m"] > 0 and free > 0 else None
+		# Time to order (owner, 11.11.2026): low, and not enough on its way.
+		f["reorder"] = _reorder(f) if f["enabled"] else None
 	films.sort(key=lambda f: (not f["low"], f["maker"].casefold(), f["colour"].casefold()))
 	# «К заказу» (owner, 12.11.2026): how many films are on the list.
 	from korkem_manufacturing.services import film_orders
@@ -796,6 +797,8 @@ def stock() -> dict:
 
 
 PACE_DAYS = 30
+#: A film with no minimum is ordered when it lasts under this many days.
+REORDER_DAYS = 7
 
 
 def _pace(items: list[str]) -> dict[str, float]:
@@ -819,13 +822,18 @@ def _pace(items: list[str]) -> dict[str, float]:
 
 def _reorder(f: dict) -> dict | None:
 	"""What to order of a film that ran low: as many metres as were bought
-	last time (else twice the minimum, less what is left), from whom it was
-	bought last, at the card's purchase price. None when nothing is needed."""
+	last time (else twice the minimum, less what is left — or, with no
+	minimum, a month at its pace), from whom it was bought last, at the
+	card's purchase price. None when nothing is needed."""
 	minimum = flt(f.get("min_stock"))
-	if not minimum:
-		return None
+	pace = flt(f.get("daily_m"))
 	on_way = sum(flt(c["metres"]) for c in f.get("coming") or [])
-	if f["free"] + on_way >= minimum:
+	if minimum:
+		if f["free"] + on_way >= minimum:
+			return None
+	elif not (pace > 0 and f["free"] + on_way < pace * REORDER_DAYS):
+		# No minimum set (owner, 14.11.2026): a film that sells is still
+		# ordered in time — when what is left and coming lasts under a week.
 		return None
 	last = frappe.db.sql(
 		"""select d.qty, d.basic_rate, e.korkem_supplier
@@ -835,7 +843,12 @@ def _reorder(f: dict) -> dict | None:
 		(f["item"],), as_dict=True,
 	)
 	last = last[0] if last else None
-	metres = flt(last.qty) if last else max(2 * minimum - f["free"] - on_way, minimum)
+	if last:
+		metres = flt(last.qty)
+	elif minimum:
+		metres = max(2 * minimum - f["free"] - on_way, minimum)
+	else:
+		metres = math.ceil(pace * PACE_DAYS / 10) * 10  # a month of it, in whole tens
 	supplier = (last.korkem_supplier if last else None) or f.get("supplier")
 	return {
 		"metres": round(metres, 2),

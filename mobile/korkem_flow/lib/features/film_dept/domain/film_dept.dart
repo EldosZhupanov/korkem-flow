@@ -167,6 +167,7 @@ class FilmCashBook {
     this.closed,
     this.days = const [],
     this.previous,
+    this.opening,
   });
 
   factory FilmCashBook.fromJson(Map<String, dynamic> json) {
@@ -249,6 +250,13 @@ class FilmCashBook {
               outgoing: _d(r['out']) ?? 0,
             ),
       ],
+      opening: switch (json['opening']) {
+        final Map<String, dynamic> o => (
+          cash: _d(o['cash']) ?? 0,
+          closedOn: '${o['closed_on'] ?? ''}',
+        ),
+        _ => null,
+      },
       previous: switch (json['previous']) {
         final Map<String, dynamic> p => (
           inTotal: _d(p['in_total']) ?? 0,
@@ -294,6 +302,10 @@ class FilmCashBook {
 
   /// The period of the same length just before, to compare with.
   final ({double inTotal, double outTotal})? previous;
+
+  /// The cash the period starts with, carried over from the last counted
+  /// close; null until a day has been closed.
+  final ({double cash, String closedOn})? opening;
 
   /// Film taken from suppliers on credit, not paid for yet: `who` is the
   /// supplier, `supplier` the film.
@@ -413,6 +425,8 @@ class FilmTeam {
     this.margin = 0,
     this.planM = 0,
     this.done,
+    this.daysLeft,
+    this.needPerDay,
     this.pct = 0,
     this.pot = 0,
     this.settings,
@@ -436,6 +450,7 @@ class FilmTeam {
               margin: _d(r['margin']) ?? 0,
               share: _d(r['share']) ?? 0,
               bonus: _d(r['bonus']) ?? 0,
+              owed: _d(r['owed']) ?? 0,
             ),
       ],
       metres: _d(team['metres']) ?? 0,
@@ -444,6 +459,8 @@ class FilmTeam {
       margin: _d(team['margin']) ?? 0,
       planM: _d(json['plan_m']) ?? 0,
       done: _d(json['done']),
+      daysLeft: (json['days_left'] as num?)?.toInt(),
+      needPerDay: _d(json['need_m_day']),
       pct: _d(json['pct']) ?? 0,
       pot: _d(json['pot']) ?? 0,
       settings: conf is Map<String, dynamic>
@@ -468,6 +485,11 @@ class FilmTeam {
   /// Per cent of the plan made; null with no plan.
   final double? done;
 
+  /// The days left in the month and the metres a day the plan still
+  /// takes; null for a month that is over, or a plan made.
+  final int? daysLeft;
+  final double? needPerDay;
+
   /// The pot's share this month — the plan's, or the lower one.
   final double pct;
   final double pot;
@@ -486,6 +508,9 @@ typedef FilmTeamRow = ({
   double margin,
   double share,
   double bonus,
+
+  /// What his customers still owe for sales on credit.
+  double owed,
 });
 
 /// A film in a sale: so many metres at so much a metre.

@@ -6,6 +6,8 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/charts/bar_rows.dart';
+import 'package:korkem_flow/core/design/widgets/charts/flow_bars.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
@@ -197,12 +199,20 @@ class _FilmSalesTabState extends ConsumerState<FilmSalesTab> {
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
+            // A quiet today is not an empty page (owner, 14.11.2026):
+            // what yesterday brought stands in its place.
+            if (_period == FilmSalesPeriod.today &&
+                sales.isEmpty &&
+                (before?.isNotEmpty ?? false))
+              _Yesterday(sales: before!),
             _Figures(
               sales: sales,
               before: before,
               customers: customers,
               onDebt: () => setState(() => _filter = FilmSalesFilter.debt),
             ),
+            if (sales.isNotEmpty && range.since != range.until)
+              _Insight(sales: sales, since: range.since, until: range.until),
             const SizedBox(height: AppSpacing.sm),
             Wrap(
               spacing: AppSpacing.xs,
@@ -361,6 +371,14 @@ class _Figures extends StatelessWidget {
                 ? status.success
                 : status.danger,
           ),
+        // What one sale brings, on average.
+        if (sees && sales.length > 1)
+          tile(
+            'average',
+            l10n.filmSalesAverage,
+            money.format(amount / sales.length),
+            under: '${filmMetres(metres / sales.length)} м',
+          ),
         if (profits.isNotEmpty)
           tile(
             'profit',
@@ -384,6 +402,170 @@ class _Figures extends StatelessWidget {
                 : null,
           ),
       ],
+    );
+  }
+}
+
+/// «Сегодня продаж ещё нет» — and what yesterday brought.
+class _Yesterday extends StatelessWidget {
+  const _Yesterday({required this.sales});
+
+  final List<FilmSale> sales;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final metres = sales.fold<double>(0, (s, x) => s + x.metres);
+    final amount = sales.fold<double>(0, (s, x) => s + (x.amount ?? 0));
+    return Card(
+      key: const ValueKey('filmSales:yesterday'),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      color: theme.colorScheme.tertiaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Text(
+          [
+            l10n.filmSalesQuietToday,
+            l10n.filmSalesYesterdayWas(
+              l10n.filmSalesCount(sales.length),
+              filmMetres(metres),
+            ),
+            if (sales.any((x) => x.amount != null))
+              mdfMoney(context).format(amount),
+          ].join(' · '),
+        ),
+      ),
+    );
+  }
+}
+
+/// How many of the best are named.
+const _top = 5;
+
+/// From this width the chart and the two tops stand side by side.
+const double _wide = 900;
+
+/// A period of several days at a glance (owner, 14.11.2026): the metres
+/// sold day by day, the films that sold most and who bought most.
+class _Insight extends StatelessWidget {
+  const _Insight({
+    required this.sales,
+    required this.since,
+    required this.until,
+  });
+
+  final List<FilmSale> sales;
+  final String since;
+  final String until;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final status = context.statusColors;
+    final byDay = <String, double>{};
+    final byFilm = <String, double>{};
+    final byCustomer = <String, double>{};
+    for (final s in sales) {
+      byDay[s.date] = (byDay[s.date] ?? 0) + s.metres;
+      final who = s.customerName ?? s.customer ?? '—';
+      byCustomer[who] = (byCustomer[who] ?? 0) + s.metres;
+      for (final l in s.lines) {
+        byFilm[l.title] = (byFilm[l.title] ?? 0) + l.metres;
+      }
+    }
+    // Every day of the period, the quiet ones too.
+    final from = DateTime.tryParse(since);
+    final to = DateTime.tryParse(until);
+    final days = [
+      if (from != null && to != null)
+        for (
+          var d = from;
+          !d.isAfter(to);
+          d = DateTime(d.year, d.month, d.day + 1)
+        )
+          mdfIso(d),
+    ];
+    List<BarRow> top(Map<String, double> by, String prefix, Color? colour) {
+      final rows = by.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      return [
+        for (final e in rows.take(_top))
+          BarRow(
+            id: '$prefix:${e.key}',
+            label: e.key,
+            value: e.value,
+            note: '${filmMetres(e.value)} м',
+            color: colour,
+          ),
+      ];
+    }
+
+    final total = sales.fold<double>(0, (s, x) => s + x.metres);
+    Widget block(String title, Widget child) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: theme.textTheme.titleSmall),
+        const SizedBox(height: AppSpacing.xs),
+        child,
+      ],
+    );
+    final chart = block(
+      l10n.filmSalesByDay,
+      FlowBars(
+        key: const ValueKey('filmSales:chart'),
+        bars: [
+          for (final d in days)
+            FlowBar(
+              label: days.length <= 7 ? mdfDay(d, year: false) : d.substring(8),
+              up: byDay[d] ?? 0,
+            ),
+        ],
+        semanticLabel: l10n.filmSalesChartA11y(filmMetres(total)),
+      ),
+    );
+    final films = block(
+      l10n.filmSalesTopFilms,
+      BarRows(
+        key: const ValueKey('filmSales:topFilms'),
+        rows: top(byFilm, 'film', null),
+      ),
+    );
+    final customers = block(
+      l10n.filmSalesTopCustomers,
+      BarRows(
+        key: const ValueKey('filmSales:topCustomers'),
+        rows: top(byCustomer, 'customer', status.info),
+      ),
+    );
+    return Padding(
+      key: const ValueKey('filmSales:insight'),
+      padding: const EdgeInsets.only(top: AppSpacing.md),
+      child: LayoutBuilder(
+        // Side by side where there is room, so the list stays in sight.
+        builder: (context, box) => box.maxWidth >= _wide
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 2, child: chart),
+                  const SizedBox(width: AppSpacing.lg),
+                  Expanded(child: films),
+                  const SizedBox(width: AppSpacing.lg),
+                  Expanded(child: customers),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  chart,
+                  const SizedBox(height: AppSpacing.md),
+                  films,
+                  const SizedBox(height: AppSpacing.md),
+                  customers,
+                ],
+              ),
+      ),
     );
   }
 }

@@ -228,6 +228,8 @@ class _Fake implements FilmDeptRepository {
         'where': [
           {'way': 'Наличные', 'amount': 3000},
         ],
+        // Counted at yesterday's close: what the drawer started with.
+        'opening': {'cash': 45000, 'closed_on': '2026-11-10'},
         'moves': [
           {
             'date': '2026-11-11',
@@ -345,6 +347,7 @@ class _Fake implements FilmDeptRepository {
         'margin': 60000,
         'share': 75,
         'bonus': 4500,
+        'owed': 26800,
       },
       {
         'seller': 'b@k.kz',
@@ -360,6 +363,8 @@ class _Fake implements FilmDeptRepository {
     'team': {'metres': 160, 'sales': 5, 'paid': 530000, 'margin': 80000},
     'plan_m': 200,
     'done': 80,
+    'days_left': 16,
+    'need_m_day': 2.5,
     'pct': 7.5,
     'pot': 6000,
     'settings': {'plan_m': 200, 'pct': 10, 'pct_below': 7.5},
@@ -630,6 +635,24 @@ void main() {
     expect(find.text('KIRA · Белый Матовый'), findsOneWidget);
     expect(find.text('84 м'), findsOneWidget);
     expect(find.text('6 m · low'), findsOneWidget);
+    // The shelf at a glance: 90 m, 30 m on its way, one running out, one
+    // to order — and what burns is first on the list.
+    String figure(String id) => tester
+        .widget<Text>(find.byKey(ValueKey('figure:filmStock:$id:value')))
+        .data!;
+    expect(
+      [
+        for (final id in ['onHand', 'onWay', 'runsOut', 'toOrder']) figure(id),
+      ],
+      ['90 м', '30 м', '1', '1'],
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('filmStock:MAT-2'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('filmStock:MAT-1'))).dy,
+      ),
+    );
+    expect(find.byKey(const ValueKey('filmStock:order:MAT-2')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('filmDept:low')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmStock:MAT-1')), findsNothing);
@@ -1208,7 +1231,10 @@ void main() {
     expect(find.byKey(const ValueKey('filmCash:chart')), findsNothing);
     // Against the period before: in doubled.
     expect(find.textContaining('▲ 100%'), findsOneWidget);
-    // The day closed: 2 000 short — not without why.
+    // The drawer started with what was counted at the last close.
+    expect(find.byKey(const ValueKey('filmCash:opening')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmCash:quiet')), findsNothing);
+    // The day closed: short of what the drawer should hold — not without why.
     await tester.tap(find.byKey(const ValueKey('filmCash:closeDay')));
     await tester.pumpAndSettle();
     await tester.enterText(
@@ -1306,6 +1332,13 @@ void main() {
     expect(find.byKey(const ValueKey('filmTeam:row:b@k.kz')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmTeam:pot')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmTeam:plan')), findsOneWidget);
+    // What the plan still takes, and what his customers owe.
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('filmTeam:plan'))).data,
+      contains('2.5'),
+    );
+    expect(find.byKey(const ValueKey('filmTeam:owed:a@k.kz')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmTeam:owed:b@k.kz')), findsNothing);
     // The month on one page: what sold, and what lies unmoved.
     expect(find.byKey(const ValueKey('filmReport:top:MAT-1')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmReport:idle:MAT-2')), findsOneWidget);
@@ -1480,6 +1513,21 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmTab:sales')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmSales:kpi:amount')), findsOneWidget);
+    // A week: the days as a chart, the best films and who bought most.
+    expect(find.byKey(const ValueKey('filmSales:insight')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('filmSales:period:week')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmSales:chart')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('barRow:film:KIRA · Белый Матовый')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('barRow:customer:Мебель-ЮГ')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('filmSales:period:today')));
+    await tester.pumpAndSettle();
     // Paid in part: an orange mark with what is owed.
     expect(find.byKey(const ValueKey('filmSales:state:STE-7')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('filmSales:filter:paid')));

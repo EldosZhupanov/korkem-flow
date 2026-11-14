@@ -77,6 +77,19 @@ double _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
 int _i(Object? v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
 String? _s(Object? v) => v == null || '$v'.isEmpty ? null : '$v';
 
+/// The list's sections, in the order they are shown.
+enum MdfListSection { overdue, soon, shop, ready, draft, closed }
+
+/// The four figures over the list: late, due today or tomorrow, ready and
+/// waiting for the customer, and what the customers owe.
+typedef MdfOverview = ({
+  int overdue,
+  int dueSoon,
+  int ready,
+  double debt,
+  int debtors,
+});
+
 /// One row of the list.
 @immutable
 class MdfOrderRow {
@@ -97,6 +110,10 @@ class MdfOrderRow {
     this.milling,
     this.edgeProfile,
     this.stage,
+    this.stages = const [],
+    this.waiting,
+    this.daysLeft,
+    this.readyDays,
     this.tags = const [],
     this.customerTags = const [],
   });
@@ -118,6 +135,19 @@ class MdfOrderRow {
     paid: _d(json['paid']),
     debt: _d(json['debt']),
     stage: MdfStage.parse(json['stage']),
+    stages: [
+      for (final s in json['stages'] as List? ?? const [])
+        if (s is Map)
+          if (MdfStage.parse(s['stage']) case final stage?)
+            (stage: stage, done: s['done'] == true),
+    ],
+    waiting: MdfStage.parse(json['waiting']),
+    daysLeft: json['days_left'] is num
+        ? (json['days_left'] as num).toInt()
+        : null,
+    readyDays: json['ready_days'] is num
+        ? (json['ready_days'] as num).toInt()
+        : null,
     tags: MdfOrderTag.parse(json['tags']),
     customerTags: MdfCustomerTag.parse(json['customer_tags']),
   );
@@ -126,6 +156,29 @@ class MdfOrderRow {
   final MdfStatus status;
   final bool overdue;
   final bool dueSoon;
+
+  /// Its stages in the shop's order, with what is done — the row's bar.
+  final List<({MdfStage stage, bool done})> stages;
+
+  /// The stage it waits at now; null when not in the shop.
+  final MdfStage? waiting;
+
+  /// Days to its date (negative — late); null once handed over or a draft.
+  final int? daysLeft;
+
+  /// Days it has stood ready, waiting for its customer.
+  final int? readyDays;
+
+  /// Where it belongs in the list read top-down (owner, 14.11.2026): what
+  /// burns first, what is done last.
+  MdfListSection get section => switch (status) {
+    MdfStatus.draft => MdfListSection.draft,
+    MdfStatus.ready => MdfListSection.ready,
+    MdfStatus.handedOver || MdfStatus.cancelled => MdfListSection.closed,
+    _ when overdue => MdfListSection.overdue,
+    _ when dueSoon => MdfListSection.soon,
+    _ => MdfListSection.shop,
+  };
   final List<MdfOrderTag> tags;
   final List<MdfCustomerTag> customerTags;
 
@@ -234,6 +287,9 @@ class MdfLineInput {
     this.patina,
     this.thicknessMm,
     this.coating,
+    this.clientPaint = false,
+    this.clientFilm = false,
+    this.clientMdf = false,
   });
 
   final int heightMm;
@@ -241,6 +297,13 @@ class MdfLineInput {
   final int qty;
   final String? milling;
   final String? note;
+
+  /// Its group is coated with the customer's own paint or film, or made of
+  /// his own LMDF (owner, 14.11.2026) — marked on the group, carried by each
+  /// line.
+  final bool clientPaint;
+  final bool clientFilm;
+  final bool clientMdf;
 
   /// Its group's coating; [film] is a colour from that coating's list.
   final MdfCoating? coating;
@@ -278,6 +341,9 @@ class MdfLineInput {
     'patina': ?patina,
     'thickness_mm': ?thicknessMm,
     'coating': ?coating?.name,
+    if (clientPaint) 'client_paint': 1,
+    if (clientFilm) 'client_film': 1,
+    if (clientMdf) 'client_mdf': 1,
   };
 }
 
@@ -302,6 +368,9 @@ class MdfLine {
     this.edge,
     this.patina,
     this.coating,
+    this.clientPaint = false,
+    this.clientFilm = false,
+    this.clientMdf = false,
   });
 
   factory MdfLine.fromJson(Map<String, dynamic> json) => MdfLine(
@@ -322,6 +391,9 @@ class MdfLine {
     edge: _s(json['edge']),
     patina: _s(json['patina']),
     coating: MdfCoating.parse(json['coating']),
+    clientPaint: json['client_paint'] == true,
+    clientFilm: json['client_film'] == true,
+    clientMdf: json['client_mdf'] == true,
   );
 
   final int heightMm;
@@ -341,6 +413,11 @@ class MdfLine {
   final String? edge;
   final String? patina;
   final MdfCoating? coating;
+
+  /// The customer's own paint or film, his own LMDF — its group's marks.
+  final bool clientPaint;
+  final bool clientFilm;
+  final bool clientMdf;
 }
 
 /// One film's positions, in the order the films first appear; positions keep
@@ -496,6 +573,7 @@ class MdfOrder {
     this.customerTags = const [],
     this.extraStages = const {},
     this.press = const {},
+    this.clientPaint,
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -564,6 +642,13 @@ class MdfOrder {
               Map<String, dynamic>.from(e.value as Map),
             ),
     },
+    clientPaint: switch (json['client_paint']) {
+      final Map<String, dynamic> p => (
+        note: p['note'] == null ? null : '${p['note']}',
+        received: p['in'] == true,
+      ),
+      _ => null,
+    },
   );
 
   final String name;
@@ -609,6 +694,10 @@ class MdfOrder {
 
   /// Film by decor as the press lays it out (owner, 12.11.2026).
   final Map<String, MdfFilmPress> press;
+
+  /// The customer's own paint: what he brought and whether it is here;
+  /// null when the order is not tagged «Краска клиента».
+  final ({String? note, bool received})? clientPaint;
 
   List<MdfOrderTag> get tags => head.tags;
 
@@ -658,3 +747,13 @@ class MdfFilmPress {
   double get saved =>
       plainM == null || plainM! <= layoutM ? 0 : plainM! - layoutM;
 }
+
+/// Whether a position's colour is the customer's own: his paint on a paint
+/// group, his film on a PVC one.
+bool mdfLineIsClients(
+  MdfCoating? coating, {
+  required bool paint,
+  required bool film,
+}) =>
+    (coating == MdfCoating.paint && paint) ||
+    (coating == MdfCoating.pvc && film);

@@ -7970,4 +7970,288 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfSumMarginLowest => 'Ең аз тапқандар';
+
+  @override
+  String get mdfPaintTitle => 'Бояу бөлімі';
+
+  @override
+  String get mdfPaintHint => 'Түс бойынша не бояу керек, не кебуде';
+
+  @override
+  String get mdfPaintDryHours => 'Кептіру, сағат';
+
+  @override
+  String get mdfPaintEmpty => 'Бояйтын ештеңе жоқ';
+
+  @override
+  String mdfPaintSummary(String waiting, String drying, String coming) {
+    return 'Бояу $waiting · кебуде $drying · келе жатыр $coming';
+  }
+
+  @override
+  String mdfPaintDrying(int hours) {
+    return 'Кебуде ($hours сағ)';
+  }
+
+  @override
+  String get mdfPaintDry => 'Кепті';
+
+  @override
+  String mdfPaintLeft(String hours, String minutes, String day, String time) {
+    return 'Тағы $hours сағ $minutes мин · $day $time кебеді';
+  }
+
+  @override
+  String get mdfPaintMarkPainted => '«Бояу» белгілеу';
+
+  @override
+  String get mdfPaintUndo => 'Болдырмау';
+
+  @override
+  String get mdfPaintByColour => 'Бояу — түстер бойынша';
+
+  @override
+  String get mdfPaintByColourHint =>
+      'Алдымен ең үлкен түс: бір рет араластырылады, пистолет бір рет жуылады.';
+
+  @override
+  String mdfPaintColourNote(String area, String orders) {
+    return '$area · тапсырыс: $orders';
+  }
+
+  @override
+  String get mdfPaintStartDrying => 'Боялды — кептіру';
+
+  @override
+  String get mdfPaintPopular => '90 күндегі танымал түстер';
+
+  @override
+  String get mdfPaintSave => 'Сақтау';
+
+  @override
+  String get mdfTagClientPaint => 'Клиенттің бояуы';
+
+  @override
+  String get mdfTagClientParts => 'Клиенттің ЛМДФ-ы';
+
+  @override
+  String get mdfClientPaintBrought => 'Бояу әкелінді';
+
+  @override
+  String get mdfClientPaintWhat => 'Не әкелді (мысалы, 2 банка × 3 л)';
+
+  @override
+  String get mdfClientPaintHere => 'әкелінді';
+
+  @override
+  String get mdfClientPaintWaiting => 'Бояуды күтудеміз';
+
+  @override
+  String get mdfPaintSettings => 'Бояу баптаулары';
+
+  @override
+  String get mdfPaintDiscount => 'Өз бояуына жеңілдік, ₸/м²';
+
+  @override
+  String get mdfPaintDiscountHint =>
+      '«Клиенттің бояуы» кезінде м² бағасынан шегеріледі';
+
+  @override
+  String get mdfPaintComing => 'Жақында сізге';
+
+  @override
+  String mdfPaintNowAt(String stage) {
+    return 'қазір: $stage';
+  }
+
+  @override
+  String get mdfPaintTwoSided => '2 жағы';
+
+  @override
+  String get mdfTagClientFilm => 'Клиенттің үлдірі';
+
+  @override
+  String get mdfClientShort => 'клиенттікі';
+
+  @override
+  String get mdfKpiOverdue => 'Мерзімі өткен';
+
+  @override
+  String get mdfKpiDueSoon => 'Бүгін-ертең тапсыру';
+
+  @override
+  String get mdfKpiReady => 'Беруге дайын';
+
+  @override
+  String get mdfKpiDebt => 'Клиенттер қарызы';
+
+  @override
+  String mdfKpiDebtors(String count) {
+    return 'клиент: $count';
+  }
+
+  @override
+  String get mdfSectionOverdue => 'Мерзімі өткен';
+
+  @override
+  String get mdfSectionSoon => 'Жақында тапсыру';
+
+  @override
+  String get mdfSectionShop => 'Цехта';
+
+  @override
+  String get mdfSectionReady => 'Дайын — клиентті күтуде';
+
+  @override
+  String get mdfSectionDraft => 'Қолжазбалар';
+
+  @override
+  String get mdfSectionClosed => 'Берілген';
+
+  @override
+  String mdfRowNowAt(String stage) {
+    return 'қазір: $stage';
+  }
+
+  @override
+  String mdfRowLate(String days) {
+    return '$days күн кешікті';
+  }
+
+  @override
+  String mdfRowDaysLeft(String days) {
+    return '$days күннен кейін';
+  }
+
+  @override
+  String get mdfRowToday => 'бүгін тапсыру';
+
+  @override
+  String mdfRowReadyFor(String days) {
+    return '$days күн дайын';
+  }
+
+  @override
+  String get mdfRowPaid => 'төленген';
+
+  @override
+  String get mdfFilterDueSoon => 'Жақында';
+
+  @override
+  String get filmCashOpening => 'Басындағы қолма-қол';
+
+  @override
+  String filmCashOpeningNote(String day) {
+    return '$day саналған';
+  }
+
+  @override
+  String get filmCashQuiet => 'Бұл кезеңде қозғалыс жоқ.';
+
+  @override
+  String get filmFigOnHand => 'Қоймада';
+
+  @override
+  String get filmFigOnWay => 'Жолда';
+
+  @override
+  String filmFigRolls(int count) {
+    return 'жеткізілім: $count';
+  }
+
+  @override
+  String get filmFigRunsOut => 'Таусылып барады';
+
+  @override
+  String filmFigRunsOutNote(int days) {
+    return '$days күннен аз жетеді';
+  }
+
+  @override
+  String get filmFigToOrder => 'Тапсырыс беру керек';
+
+  @override
+  String filmFigToOrderNote(String metres) {
+    return '≈ $metres м';
+  }
+
+  @override
+  String filmStockBought(String price) {
+    return 'сатып алу $price/м';
+  }
+
+  @override
+  String filmStockOrder(String metres) {
+    return '$metres м тапсырыс беру';
+  }
+
+  @override
+  String get filmSalesAverage => 'Орташа чек';
+
+  @override
+  String get filmSalesQuietToday => 'Бүгін әзірге сатылым жоқ';
+
+  @override
+  String filmSalesYesterdayWas(String count, String metres) {
+    return 'кеше: $count, $metres м';
+  }
+
+  @override
+  String get filmSalesByDay => 'Күндер бойынша сатылды, м';
+
+  @override
+  String filmSalesChartA11y(String metres) {
+    return 'Күндер бойынша метр; барлығы $metres м';
+  }
+
+  @override
+  String get filmSalesTopFilms => 'Үздік үлдірлер';
+
+  @override
+  String get filmSalesTopCustomers => 'Үздік клиенттер';
+
+  @override
+  String get filmSupOwed => 'Біз қарызбыз';
+
+  @override
+  String filmSupOwedTo(int count) {
+    return 'жеткізушілер: $count';
+  }
+
+  @override
+  String filmSupChipOwed(String amount) {
+    return 'қарыз $amount';
+  }
+
+  @override
+  String filmSupChipOnTime(int onTime, int rolls) {
+    return 'уақытында $rolls-ден $onTime';
+  }
+
+  @override
+  String filmSupChipPrice(String change) {
+    return 'баға $change%';
+  }
+
+  @override
+  String filmTeamPlanNeed(int days, String metres) {
+    return '$days күн қалды — күніне $metres м керек';
+  }
+
+  @override
+  String get filmTeamNoPlanHint =>
+      'Ай жоспарын қойыңыз: бонус үлесі соған байланысты.';
+
+  @override
+  String get filmTeamSetPlan => 'Жоспар қою';
+
+  @override
+  String filmTeamMarginM(String margin) {
+    return '$margin/м';
+  }
+
+  @override
+  String filmTeamOwed(String amount) {
+    return 'клиенттерінің қарызы $amount';
+  }
 }

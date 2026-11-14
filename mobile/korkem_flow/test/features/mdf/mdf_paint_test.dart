@@ -28,6 +28,8 @@ Map<String, Object?> _board() => {
           'delivery_date': '2026-11-18',
           'area_m2': 2,
           'overdue': true,
+          'client_paint': true,
+          'waiting_paint': true,
         },
       ],
     },
@@ -66,6 +68,18 @@ Map<String, Object?> _board() => {
     },
   ],
   'coming_m2': 4,
+  'coming': [
+    {
+      'name': 'SO-6',
+      'customer_name': 'Сәуле',
+      'delivery_date': '2026-11-21',
+      'stage': 'mill',
+      'colours': ['RAL 9010'],
+      'area_m2': 4,
+      'client_parts': true,
+      'two_sided': true,
+    },
+  ],
   'popular': [
     {'colour': 'RAL 9010', 'area_m2': 40, 'orders': 12},
   ],
@@ -74,6 +88,7 @@ Map<String, Object?> _board() => {
 class _Paint implements MdfPaintRepository {
   final drying = <String>[];
   final undone = <String>[];
+  final brought = <(String, String?)>[];
 
   @override
   Future<MdfPaintBoard> board() async => MdfPaintBoard.fromJson(_board());
@@ -91,7 +106,16 @@ class _Paint implements MdfPaintRepository {
   }
 
   @override
-  Future<void> setDryHours(int hours) async {}
+  Future<MdfPaintBoard> clientPaintIn(String order, {String? note}) async {
+    brought.add((order, note));
+    return board();
+  }
+
+  @override
+  Future<MdfPaintBoard> settings({
+    int? dryHours,
+    double? clientPaintDiscount,
+  }) => board();
 }
 
 class _Orders implements MdfOrderRepository {
@@ -145,6 +169,27 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('paintDry:SO-3')));
     await tester.pumpAndSettle();
     expect(paint.drying, ['SO-3']);
+
+    // His paint is not here: «принесена» instead of «сушить».
+    await tester.tap(find.byKey(const ValueKey('barRow:RAL 9010')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintDry:SO-2')), findsNothing);
+    expect(find.text('Waiting for paint'), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('paintIn:SO-2')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfClientPaintNote')),
+      '2 банки × 3 л',
+    );
+    await tester.tap(find.text('Save').last);
+    await tester.pumpAndSettle();
+    expect(paint.brought, [('SO-2', '2 банки × 3 л')]);
+
+    // On its way: which order, where it is now, its marks.
+    expect(find.byKey(const ValueKey('paintComing:SO-6')), findsOneWidget);
+    expect(find.text('now: Milling'), findsOneWidget);
+    expect(find.text("Customer's LMDF"), findsOneWidget);
+    expect(find.text('2 sides'), findsOneWidget);
 
     // Still wet: how long, and a way back; dry: «краска» is ticked.
     expect(find.textContaining('5 h 30 min left'), findsOneWidget);

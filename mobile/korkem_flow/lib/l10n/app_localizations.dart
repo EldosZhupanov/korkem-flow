@@ -13818,6 +13818,468 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Earned least'**
   String get mdfSumMarginLowest;
+
+  /// No description provided for @mdfPaintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint shop'**
+  String get mdfPaintTitle;
+
+  /// No description provided for @mdfPaintHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What to paint by colour, what is drying'**
+  String get mdfPaintHint;
+
+  /// No description provided for @mdfPaintDryHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Drying time, hours'**
+  String get mdfPaintDryHours;
+
+  /// No description provided for @mdfPaintEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to paint'**
+  String get mdfPaintEmpty;
+
+  /// No description provided for @mdfPaintSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'To paint {waiting} · drying {drying} · on the way {coming}'**
+  String mdfPaintSummary(String waiting, String drying, String coming);
+
+  /// No description provided for @mdfPaintDrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Drying ({hours} h)'**
+  String mdfPaintDrying(int hours);
+
+  /// No description provided for @mdfPaintDry.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry'**
+  String get mdfPaintDry;
+
+  /// No description provided for @mdfPaintLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min left · dry {day} at {time}'**
+  String mdfPaintLeft(String hours, String minutes, String day, String time);
+
+  /// No description provided for @mdfPaintMarkPainted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark painted'**
+  String get mdfPaintMarkPainted;
+
+  /// No description provided for @mdfPaintUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not drying'**
+  String get mdfPaintUndo;
+
+  /// No description provided for @mdfPaintByColour.
+  ///
+  /// In en, this message translates to:
+  /// **'To paint, by colour'**
+  String get mdfPaintByColour;
+
+  /// No description provided for @mdfPaintByColourHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The biggest colour first: mixed once, the gun cleaned once.'**
+  String get mdfPaintByColourHint;
+
+  /// No description provided for @mdfPaintColourNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{area} · orders: {orders}'**
+  String mdfPaintColourNote(String area, String orders);
+
+  /// No description provided for @mdfPaintStartDrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Painted — dry'**
+  String get mdfPaintStartDrying;
+
+  /// No description provided for @mdfPaintPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Most painted colours, 90 days'**
+  String get mdfPaintPopular;
+
+  /// No description provided for @mdfPaintSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get mdfPaintSave;
+
+  /// No description provided for @mdfTagClientPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s paint'**
+  String get mdfTagClientPaint;
+
+  /// No description provided for @mdfTagClientParts.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s LMDF'**
+  String get mdfTagClientParts;
+
+  /// No description provided for @mdfClientPaintBrought.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint brought'**
+  String get mdfClientPaintBrought;
+
+  /// No description provided for @mdfClientPaintWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What was brought (e.g. 2 cans × 3 l)'**
+  String get mdfClientPaintWhat;
+
+  /// No description provided for @mdfClientPaintHere.
+  ///
+  /// In en, this message translates to:
+  /// **'here'**
+  String get mdfClientPaintHere;
+
+  /// No description provided for @mdfClientPaintWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for paint'**
+  String get mdfClientPaintWaiting;
+
+  /// No description provided for @mdfPaintSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint settings'**
+  String get mdfPaintSettings;
+
+  /// No description provided for @mdfPaintDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount for own paint, ₸/m²'**
+  String get mdfPaintDiscount;
+
+  /// No description provided for @mdfPaintDiscountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken off the m² price when «Customer\'s paint» is on'**
+  String get mdfPaintDiscountHint;
+
+  /// No description provided for @mdfPaintComing.
+  ///
+  /// In en, this message translates to:
+  /// **'On their way to you'**
+  String get mdfPaintComing;
+
+  /// No description provided for @mdfPaintNowAt.
+  ///
+  /// In en, this message translates to:
+  /// **'now: {stage}'**
+  String mdfPaintNowAt(String stage);
+
+  /// No description provided for @mdfPaintTwoSided.
+  ///
+  /// In en, this message translates to:
+  /// **'2 sides'**
+  String get mdfPaintTwoSided;
+
+  /// No description provided for @mdfTagClientFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s film'**
+  String get mdfTagClientFilm;
+
+  /// No description provided for @mdfClientShort.
+  ///
+  /// In en, this message translates to:
+  /// **'customer\'s'**
+  String get mdfClientShort;
+
+  /// No description provided for @mdfKpiOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get mdfKpiOverdue;
+
+  /// No description provided for @mdfKpiDueSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today or tomorrow'**
+  String get mdfKpiDueSoon;
+
+  /// No description provided for @mdfKpiReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to hand over'**
+  String get mdfKpiReady;
+
+  /// No description provided for @mdfKpiDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers owe'**
+  String get mdfKpiDebt;
+
+  /// No description provided for @mdfKpiDebtors.
+  ///
+  /// In en, this message translates to:
+  /// **'customers: {count}'**
+  String mdfKpiDebtors(String count);
+
+  /// No description provided for @mdfSectionOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get mdfSectionOverdue;
+
+  /// No description provided for @mdfSectionSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Due soon'**
+  String get mdfSectionSoon;
+
+  /// No description provided for @mdfSectionShop.
+  ///
+  /// In en, this message translates to:
+  /// **'In the shop'**
+  String get mdfSectionShop;
+
+  /// No description provided for @mdfSectionReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready — waiting for the customer'**
+  String get mdfSectionReady;
+
+  /// No description provided for @mdfSectionDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts'**
+  String get mdfSectionDraft;
+
+  /// No description provided for @mdfSectionClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over'**
+  String get mdfSectionClosed;
+
+  /// No description provided for @mdfRowNowAt.
+  ///
+  /// In en, this message translates to:
+  /// **'now: {stage}'**
+  String mdfRowNowAt(String stage);
+
+  /// No description provided for @mdfRowLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d late'**
+  String mdfRowLate(String days);
+
+  /// No description provided for @mdfRowDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'in {days} d'**
+  String mdfRowDaysLeft(String days);
+
+  /// No description provided for @mdfRowToday.
+  ///
+  /// In en, this message translates to:
+  /// **'due today'**
+  String get mdfRowToday;
+
+  /// No description provided for @mdfRowReadyFor.
+  ///
+  /// In en, this message translates to:
+  /// **'ready {days} d'**
+  String mdfRowReadyFor(String days);
+
+  /// No description provided for @mdfRowPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'paid'**
+  String get mdfRowPaid;
+
+  /// No description provided for @mdfFilterDueSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Due soon'**
+  String get mdfFilterDueSoon;
+
+  /// No description provided for @filmCashOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash at the start'**
+  String get filmCashOpening;
+
+  /// No description provided for @filmCashOpeningNote.
+  ///
+  /// In en, this message translates to:
+  /// **'counted {day}'**
+  String filmCashOpeningNote(String day);
+
+  /// No description provided for @filmCashQuiet.
+  ///
+  /// In en, this message translates to:
+  /// **'No money moved in this period.'**
+  String get filmCashQuiet;
+
+  /// No description provided for @filmFigOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'On the shelf'**
+  String get filmFigOnHand;
+
+  /// No description provided for @filmFigOnWay.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way'**
+  String get filmFigOnWay;
+
+  /// No description provided for @filmFigRolls.
+  ///
+  /// In en, this message translates to:
+  /// **'deliveries: {count}'**
+  String filmFigRolls(int count);
+
+  /// No description provided for @filmFigRunsOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Running out'**
+  String get filmFigRunsOut;
+
+  /// No description provided for @filmFigRunsOutNote.
+  ///
+  /// In en, this message translates to:
+  /// **'under {days} days left'**
+  String filmFigRunsOutNote(int days);
+
+  /// No description provided for @filmFigToOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'To order'**
+  String get filmFigToOrder;
+
+  /// No description provided for @filmFigToOrderNote.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {metres} m'**
+  String filmFigToOrderNote(String metres);
+
+  /// No description provided for @filmStockBought.
+  ///
+  /// In en, this message translates to:
+  /// **'bought at {price}/m'**
+  String filmStockBought(String price);
+
+  /// No description provided for @filmStockOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'order {metres} m'**
+  String filmStockOrder(String metres);
+
+  /// No description provided for @filmSalesAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average sale'**
+  String get filmSalesAverage;
+
+  /// No description provided for @filmSalesQuietToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales yet today'**
+  String get filmSalesQuietToday;
+
+  /// No description provided for @filmSalesYesterdayWas.
+  ///
+  /// In en, this message translates to:
+  /// **'yesterday: {count}, {metres} m'**
+  String filmSalesYesterdayWas(String count, String metres);
+
+  /// No description provided for @filmSalesByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold by day, m'**
+  String get filmSalesByDay;
+
+  /// No description provided for @filmSalesChartA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Metres sold by day; {metres} m in all'**
+  String filmSalesChartA11y(String metres);
+
+  /// No description provided for @filmSalesTopFilms.
+  ///
+  /// In en, this message translates to:
+  /// **'Films that sold most'**
+  String get filmSalesTopFilms;
+
+  /// No description provided for @filmSalesTopCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Who bought most'**
+  String get filmSalesTopCustomers;
+
+  /// No description provided for @filmSupOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'We owe'**
+  String get filmSupOwed;
+
+  /// No description provided for @filmSupOwedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'suppliers: {count}'**
+  String filmSupOwedTo(int count);
+
+  /// No description provided for @filmSupChipOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'we owe {amount}'**
+  String filmSupChipOwed(String amount);
+
+  /// No description provided for @filmSupChipOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'on time {onTime} of {rolls}'**
+  String filmSupChipOnTime(int onTime, int rolls);
+
+  /// No description provided for @filmSupChipPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'price {change}%'**
+  String filmSupChipPrice(String change);
+
+  /// No description provided for @filmTeamPlanNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days left — {metres} m a day'**
+  String filmTeamPlanNeed(int days, String metres);
+
+  /// No description provided for @filmTeamNoPlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the month\'s plan: the bonus share depends on it.'**
+  String get filmTeamNoPlanHint;
+
+  /// No description provided for @filmTeamSetPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the plan'**
+  String get filmTeamSetPlan;
+
+  /// No description provided for @filmTeamMarginM.
+  ///
+  /// In en, this message translates to:
+  /// **'{margin}/m'**
+  String filmTeamMarginM(String margin);
+
+  /// No description provided for @filmTeamOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'his customers owe {amount}'**
+  String filmTeamOwed(String amount);
 }
 
 class _AppLocalizationsDelegate

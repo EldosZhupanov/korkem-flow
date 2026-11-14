@@ -173,18 +173,23 @@ def _demand(sales_order: str, rules: dict) -> tuple[dict, list[str]]:
 		filters={"parent": sales_order, "parenttype": "Sales Order", "korkem_width_mm": [">", 0]},
 		fields=[
 			"idx", "korkem_area_m2", "korkem_finish", "korkem_double_sided", "korkem_customer_material",
-			"korkem_thickness_mm", "korkem_decor_top", "korkem_decor_bottom",
+			"korkem_thickness_mm", "korkem_decor_top", "korkem_decor_bottom", "korkem_client_mdf",
+			"korkem_client_film",
 		],
 		order_by="idx",
 	):
 		if line.korkem_customer_material:
 			continue
 		area = Decimal(str(flt(line.korkem_area_m2)))
-		if line.korkem_thickness_mm:
+		if line.korkem_client_mdf:
+			pass  # the customer's own facades (owner, 14.11.2026): our film or paint only
+		elif line.korkem_thickness_mm:
 			key = (material_stock.MDF, cint(line.korkem_thickness_mm))
 			groups[key] = groups.get(key, Decimal(0)) + area * mdf_factor
 		else:
 			unresolved.append(f"Позиция {line.idx}: не указана толщина МДФ.")
+		if line.korkem_client_film:
+			continue  # the customer's own film: pressed here, none from our shelf
 		if not facade_prices.is_film(line.korkem_finish) and not (not line.korkem_finish and line.korkem_decor_top):
 			# A position with a film and no finish named is film (an order of
 			# several films, 08.11.2026).
