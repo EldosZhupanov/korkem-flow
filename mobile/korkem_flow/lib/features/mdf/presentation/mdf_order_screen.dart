@@ -2695,6 +2695,9 @@ Widget _linesTable(
   final theme = Theme.of(context);
   return DataTable(
     key: const ValueKey('mdfLinesTable'),
+    // A group's head opens its layout by a tap on the row (below); no
+    // checkboxes come with that.
+    showCheckboxColumn: false,
     // A coating with a back side and a patina is three lines high.
     dataRowMaxHeight: double.infinity,
     columns: [
@@ -2719,6 +2722,14 @@ Widget _linesTable(
           color: WidgetStatePropertyAll(
             AppColors.filmGroup(g).withValues(alpha: AppTint.groupHead),
           ),
+          // The layout's button is drawn past its cell, out to the window's
+          // edge, and a tap there never reached it: a widget is hit only
+          // inside its own box, and the cell's is narrow (owner,
+          // 14.11.2026: «окно раскладки не открывается»). The whole row
+          // takes the tap instead — the button included.
+          onSelectChanged: o.press[group.film] == null
+              ? null
+              : (_) => context.push(Routes.pressLayoutOf(o.name)),
           cells: [
             DataCell(
               _GroupHead(
