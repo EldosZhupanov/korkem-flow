@@ -20,6 +20,10 @@ enum MdfDictKind {
   /// A paint group's colours: RAL 9010, NCS S 3040-Y60R … (09.11.2026).
   paint,
 
+  /// The colour systems paints are filed under — RAL Classic, RAL Effect,
+  /// NCS, «По образцу» (owner, 15.11.2026).
+  paintSystem,
+
   /// A PVC film's maker — KIRA, JS Group, МС-Груп … (10.11.2026).
   maker,
 
@@ -39,6 +43,7 @@ enum MdfDictKind {
     MdfDictKind.filmType => 'film_type',
     MdfDictKind.filmThickness => 'film_thickness',
     MdfDictKind.filmWidth => 'film_width',
+    MdfDictKind.paintSystem => 'paint_system',
     _ => name,
   };
 }
@@ -51,7 +56,9 @@ class MdfDictEntry {
   final String value;
 
   /// A milling variant's group — «Рифлёный» for «Рифлёный 16-14»
-  /// (owner, 14.11.2026); null for a group, and for every other list.
+  /// (owner, 14.11.2026); a paint's colour system — «RAL Classic» for
+  /// «RAL 9010» (15.11.2026); null for a group, an unfiled paint, and for
+  /// every other list.
   final String? group;
 }
 
@@ -60,6 +67,15 @@ typedef MdfMillingGroup = ({
   MdfDictEntry? head,
   String name,
   List<MdfDictEntry> variants,
+});
+
+/// A colour system and its colours (owner, 15.11.2026). [head] is the
+/// system's own entry; null for one that has left the list, and for the
+/// colours filed under none, whose [name] is empty.
+typedef MdfPaintGroup = ({
+  MdfDictEntry? head,
+  String name,
+  List<MdfDictEntry> colours,
 });
 
 @immutable
@@ -114,6 +130,28 @@ class MdfDictionaries {
       for (final h in heads) (head: h, name: h.value, variants: under(h.value)),
       for (final o in orphans) (head: null, name: o, variants: under(o)),
     ]..sort((a, b) => mdfNaturalCompare(a.name, b.name));
+  }
+
+  /// The paints by colour system, in the systems' order; the colours filed
+  /// under none come last.
+  List<MdfPaintGroup> paintGroups() {
+    final systems = entries(MdfDictKind.paintSystem);
+    final paints = entries(MdfDictKind.paint);
+    final names = {for (final s in systems) s.value};
+    final orphans = <String>{
+      for (final p in paints)
+        if (p.group != null && !names.contains(p.group)) p.group!,
+    };
+    List<MdfDictEntry> under(String? name) => [
+      for (final p in paints)
+        if (p.group == name) p,
+    ];
+    final loose = under(null);
+    return [
+      for (final s in systems) (head: s, name: s.value, colours: under(s.value)),
+      for (final o in orphans) (head: null, name: o, colours: under(o)),
+      if (loose.isNotEmpty) (head: null, name: '', colours: loose),
+    ];
   }
 }
 

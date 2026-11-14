@@ -60,61 +60,85 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
     builder: (_) => _ValueDialog(title: title, initial: initial),
   );
 
-  /// [group]: a milling variant under it (owner, 14.11.2026).
+  /// [group]: a milling variant under it (owner, 14.11.2026), or a colour
+  /// under its system (15.11.2026). On the paint list without a group, the
+  /// title's «+» adds a colour system.
   Future<void> _add({String? group}) async {
     final l10n = AppLocalizations.of(context);
     final value = await _ask(
       group == null
-          ? (_millings ? l10n.mdfDictAddGroup : l10n.mdfDictAdd)
-          : l10n.mdfDictAddVariant(group),
+          ? (_millings
+                ? l10n.mdfDictAddGroup
+                : _paints
+                ? l10n.mdfPaintAddSystem
+                : l10n.mdfDictAdd)
+          : (_paints
+                ? l10n.mdfPaintAddColour(group)
+                : l10n.mdfDictAddVariant(group)),
     );
     if (value == null || value.trim().isEmpty) return;
+    final kind = _paints && group == null
+        ? MdfDictKind.paintSystem
+        : widget.kind;
     await _run(
       () => ref
           .read(mdfOrderRepositoryProvider)
-          .dictionaryAdd(widget.kind, value.trim(), group: group),
+          .dictionaryAdd(kind, value.trim(), group: group),
     );
   }
 
   bool get _millings => widget.kind == MdfDictKind.milling;
+  bool get _paints => widget.kind == MdfDictKind.paint;
 
-  /// One value: tap chooses it; edit and delete beside it.
-  Widget _entry(MdfDictEntry e, {bool variant = false, String? group}) {
+  /// One value: tap chooses it; edit and delete beside it. A colour
+  /// system ([system]) is a heading: it is not chosen, its own list is the
+  /// one renamed and deleted from.
+  Widget _entry(
+    MdfDictEntry e, {
+    bool variant = false,
+    String? group,
+    bool system = false,
+  }) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final kind = system ? MdfDictKind.paintSystem : widget.kind;
     return ListTile(
-      key: ValueKey('dictEntry:${e.value}'),
+      key: ValueKey('dictEntry:${system ? 'system:' : ''}${e.value}'),
       dense: true,
       contentPadding: EdgeInsetsDirectional.only(
         start: variant ? AppSpacing.xl : AppSpacing.md,
         end: AppSpacing.sm,
       ),
-      selected: e.value == widget.current,
+      selected: !system && e.value == widget.current,
       title: Text(
         e.value,
-        style: variant || !_millings ? null : theme.textTheme.titleSmall,
+        style: variant || !(_millings || system)
+            ? null
+            : theme.textTheme.titleSmall,
       ),
-      onTap: () => Navigator.of(context).pop(e.value),
+      onTap: system ? null : () => Navigator.of(context).pop(e.value),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (group != null)
             IconButton(
               key: ValueKey('dictAddVariant:${e.value}'),
-              tooltip: l10n.mdfDictAddVariant(group),
+              tooltip: system
+                  ? l10n.mdfPaintAddColour(group)
+                  : l10n.mdfDictAddVariant(group),
               onPressed: _busy ? null : () => _add(group: group),
               icon: const Icon(AppIcons.add),
             ),
           IconButton(
             key: ValueKey('dictEdit:${e.value}'),
             tooltip: l10n.mdfDictRename,
-            onPressed: _busy ? null : () => _rename(e),
+            onPressed: _busy ? null : () => _rename(e, kind),
             icon: const Icon(AppIcons.edit),
           ),
           IconButton(
             key: ValueKey('dictDelete:${e.value}'),
             tooltip: l10n.mdfDictDelete,
-            onPressed: _busy ? null : () => _delete(e),
+            onPressed: _busy ? null : () => _delete(e, kind),
             icon: const Icon(AppIcons.delete),
           ),
         ],
@@ -122,7 +146,7 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
     );
   }
 
-  Future<void> _rename(MdfDictEntry e) async {
+  Future<void> _rename(MdfDictEntry e, MdfDictKind kind) async {
     final l10n = AppLocalizations.of(context);
     final value = await _ask(l10n.mdfDictRename, initial: e.value);
     if (value == null || value.trim().isEmpty || value.trim() == e.value) {
@@ -131,11 +155,11 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
     await _run(
       () => ref
           .read(mdfOrderRepositoryProvider)
-          .dictionaryRename(widget.kind, e.id, value.trim()),
+          .dictionaryRename(kind, e.id, value.trim()),
     );
   }
 
-  Future<void> _delete(MdfDictEntry e) async {
+  Future<void> _delete(MdfDictEntry e, MdfDictKind kind) async {
     final l10n = AppLocalizations.of(context);
     final sure = await showDialog<bool>(
       context: context,
@@ -158,7 +182,7 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
     await _run(
       () => ref
           .read(mdfOrderRepositoryProvider)
-          .dictionaryRemove(widget.kind, e.id),
+          .dictionaryRemove(kind, e.id),
     );
   }
 
@@ -172,7 +196,11 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
           Expanded(child: Text(widget.title)),
           IconButton(
             key: const ValueKey('dictAdd'),
-            tooltip: _millings ? l10n.mdfDictAddGroup : l10n.mdfDictAdd,
+            tooltip: _millings
+                ? l10n.mdfDictAddGroup
+                : _paints
+                ? l10n.mdfPaintAddSystem
+                : l10n.mdfDictAdd,
             onPressed: _busy ? null : _add,
             icon: const Icon(AppIcons.add),
           ),
@@ -198,6 +226,27 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
               for (final v in locked)
                 if (!entries.any((e) => e.value == v)) v,
             ];
+            // Paints by colour system (owner, 15.11.2026): RAL Classic —
+            // RAL 9010, RAL 7016 …; NCS — …; the unfiled ones last.
+            if (_paints && d.entries(MdfDictKind.paintSystem).isNotEmpty) {
+              return ListView(
+                children: [
+                  for (final g in d.paintGroups()) ...[
+                    if (g.head case final head?)
+                      _entry(head, group: g.name, system: true)
+                    else
+                      ListTile(
+                        dense: true,
+                        title: Text(
+                          g.name.isEmpty ? l10n.mdfPaintNoSystem : g.name,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                    for (final c in g.colours) _entry(c, variant: true),
+                  ],
+                ],
+              );
+            }
             if (entries.isEmpty && standing.isEmpty) {
               return Center(
                 child: Padding(

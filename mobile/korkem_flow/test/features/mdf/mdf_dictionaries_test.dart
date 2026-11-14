@@ -295,6 +295,71 @@ void main() {
     expect(chosen, 'Рифлёный 6-11');
   });
 
+  testWidgets('paints stand under their colour system; a system is added '
+      'from the title, a colour under its system', (tester) async {
+    final repo = _FakeRepository()
+      ..lists[MdfDictKind.paintSystem] = [
+        const MdfDictEntry(id: 's1', value: 'RAL Classic'),
+        const MdfDictEntry(id: 's2', value: 'NCS'),
+      ]
+      ..lists[MdfDictKind.paint] = [
+        const MdfDictEntry(id: 'c1', value: 'RAL 9010', group: 'RAL Classic'),
+        const MdfDictEntry(id: 'c2', value: 'Мой цвет'),
+      ];
+    String? chosen;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () async => chosen = await showMdfDictionary(
+                context,
+                MdfDictKind.paint,
+                title: 'Paint',
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    double top(String key) => tester.getTopLeft(find.byKey(ValueKey(key))).dy;
+    // Each system, its colours under it; the unfiled ones last.
+    expect(top('dictEntry:system:NCS'), lessThan(top('dictEntry:system:RAL Classic')));
+    expect(top('dictEntry:system:RAL Classic'), lessThan(top('dictEntry:RAL 9010')));
+    expect(find.text('No system'), findsOne);
+    expect(top('dictEntry:RAL 9010'), lessThan(top('dictEntry:Мой цвет')));
+
+    // A system is a heading: tapping it chooses nothing.
+    await tester.tap(find.byKey(const ValueKey('dictEntry:system:NCS')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('dictEntry:system:NCS')), findsOne);
+
+    // A colour under RAL Classic.
+    await tester.tap(find.byKey(const ValueKey('dictAddVariant:RAL Classic')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('dictValue')), '9016');
+    await tester.tap(find.byKey(const ValueKey('dictSave')));
+    await tester.pumpAndSettle();
+    expect(repo.lists[MdfDictKind.paint]!.last.group, 'RAL Classic');
+
+    // The title's «+» adds a system, not a colour.
+    await tester.tap(find.byKey(const ValueKey('dictAdd')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('dictValue')), 'RAL Effect');
+    await tester.tap(find.byKey(const ValueKey('dictSave')));
+    await tester.pumpAndSettle();
+    expect(repo.lists[MdfDictKind.paintSystem]!.last.value, 'RAL Effect');
+    expect(find.byKey(const ValueKey('dictEntry:system:RAL Effect')), findsOne);
+
+    await tester.tap(find.byKey(const ValueKey('dictEntry:RAL 9010')));
+    await tester.pumpAndSettle();
+    expect(chosen, 'RAL 9010');
+  });
+
   testWidgets('the customer list adds, edits, deletes, searches, chooses', (
     tester,
   ) async {

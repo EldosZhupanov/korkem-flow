@@ -2603,5 +2603,9 @@
   "filmReqIik": "ЖСК (шот)",
   "filmReqBik": "БСК",
   "filmReqKbe": "Кбе",
-  "filmReqDirector": "Қол қояды (директор)"
+  "filmReqDirector": "Қол қояды (директор)",
+  "mdfPaintSystem": "Түс жүйесі",
+  "mdfPaintAddSystem": "Түс жүйесін қосу",
+  "mdfPaintAddColour": "{group} ішіне түс қосу",
+  "mdfPaintNoSystem": "Жүйесіз"
 }

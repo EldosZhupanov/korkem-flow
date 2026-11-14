@@ -111,6 +111,9 @@ def after_install():
 	from korkem_manufacturing.services import facade_prices
 
 	facade_prices.seed_all_companies()
+	from korkem_manufacturing.services import mdf_paints
+
+	mdf_paints.seed_all_companies()
 	from korkem_manufacturing.services import crm_currency
 
 	crm_currency.align()
