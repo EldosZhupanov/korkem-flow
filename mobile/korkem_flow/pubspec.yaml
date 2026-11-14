@@ -1,7 +1,7 @@
 name: korkem_flow
 description: "KORKEM Flow — mobile client for the KORKEM furniture manufacturing OS."
 publish_to: 'none'
-version: 0.8.4+55
+version: 0.8.5+56
 
 environment:
   sdk: ^3.12.2
