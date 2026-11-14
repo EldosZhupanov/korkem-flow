@@ -24,6 +24,16 @@ const _json = <String, dynamic>{
   'avg_area': 12.7,
   'rate_m2': 24200,
   'before': {'orders': 40, 'area_m2': 680, 'total': 12800000},
+  'stages': [
+    {'stage': 'cut', 'orders': 5, 'area_m2': 21},
+    {'stage': 'mill', 'orders': 0, 'area_m2': 0},
+    {'stage': 'paint', 'orders': 8, 'area_m2': 46},
+  ],
+  'at_risk': 2,
+  'days': [
+    {'date': '2026-11-11', 'orders': 3, 'area_m2': 14, 'total': 340000},
+    {'date': '2026-11-12', 'orders': 1, 'area_m2': 4.5, 'total': 98000},
+  ],
   'customers_count': 21,
   'new_customers': 7,
   'plan': {
@@ -226,5 +236,23 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('mdfSum:goalSave')));
     await tester.pumpAndSettle();
     expect(repo.goals.single, 900);
+    // The dashboard (14.11.2026): what burns, where the orders wait, a bar a
+    // day — a tapped one says what came in that day.
+    expect(find.byKey(const ValueKey('mdfSum:alert:overdue')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfSum:alert:atRisk')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfSum:alert:film')), findsOneWidget);
+    expect(find.byKey(const ValueKey('barRow:paint')), findsOneWidget);
+    expect(find.byKey(const ValueKey('barRow:mill')), findsNothing);
+    expect(find.byKey(const ValueKey('mdfSum:debtBars')), findsOneWidget);
+    final chart = find.byKey(const ValueKey('mdfSum:intakeChart'));
+    await tester.ensureVisible(chart);
+    await tester.pumpAndSettle();
+    final box = tester.getRect(chart);
+    await tester.tapAt(box.topLeft + Offset(box.width * 0.25, 40));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('mdfSum:intakeDay'))).data,
+      contains('3 orders'),
+    );
   });
 }

@@ -7802,6 +7802,20 @@
     }
   },
   "mdfSumManagers": "Who took the orders",
+  "mdfSumAlertOverdue": "{count} overdue",
+  "@mdfSumAlertOverdue": {"placeholders": {"count": {"type": "int"}}},
+  "mdfSumAlertAtRisk": "{count} will miss their date",
+  "@mdfSumAlertAtRisk": {"placeholders": {"count": {"type": "int"}}},
+  "mdfSumAlertDebt": "Owed over a month: {sum}",
+  "@mdfSumAlertDebt": {"placeholders": {"sum": {"type": "String"}}},
+  "mdfSumAlertFilm": "Film short: {count}",
+  "@mdfSumAlertFilm": {"placeholders": {"count": {"type": "int"}}},
+  "mdfSumStages": "Where the orders are now",
+  "mdfSumIntake": "Taken in by day",
+  "mdfSumIntakeMonthly": "Taken in by month",
+  "mdfSumIntakeHint": "Tap a bar for that day's orders.",
+  "mdfSumIntakeDay": "{day}: {count} orders · {area} m² · {sum}",
+  "@mdfSumIntakeDay": {"placeholders": {"day": {"type": "String"}, "count": {"type": "int"}, "area": {"type": "String"}, "sum": {"type": "String"}}},
   "mdfSumManagerValue": "{count} · {area} m² · {sum}",
   "@mdfSumManagerValue": {
     "placeholders": {

@@ -429,6 +429,15 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertGreaterEqual(after["shop"]["in_work_orders"], 1)
 		venge = next(f for f in after["films"] if f["decor"] == self.decor)
 		self.assertGreaterEqual(venge["area_m2"], 3.04)
+		# The dashboard: the order waits at its first stage, and today's bar
+		# carries it.
+		cut = lambda s: next(x for x in s["stages"] if x["stage"] == "cut")  # noqa: E731
+		self.assertEqual(cut(after)["orders"] - cut(before)["orders"], 1)
+		self.assertEqual([d["date"] for d in after["days"]], [nowdate()])
+		self.assertAlmostEqual(after["days"][0]["area_m2"] - before["days"][0]["area_m2"], 3.04, places=2)
+		self.assertIsInstance(after["at_risk"], int)
+		year = self._as(MANAGER, mdf_summary.summary, since=add_days(nowdate(), -300), until=nowdate())
+		self.assertLessEqual(len(year["days"]), 12)
 		# The month's goal: set once, the progress follows.
 		self._as(MANAGER, mdf_summary.set_target, 1000)
 		plan = self._as(MANAGER, mdf_summary.summary, since=nowdate(), until=nowdate())["plan"]

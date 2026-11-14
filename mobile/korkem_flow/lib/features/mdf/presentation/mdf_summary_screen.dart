@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/charts/bar_rows.dart';
+import 'package:korkem_flow/core/design/widgets/charts/flow_bars.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_summary_repository.dart';
@@ -211,6 +215,7 @@ class _Body extends ConsumerWidget {
                 ),
               ],
             ),
+            _Alerts(summary: s),
             const SizedBox(height: AppSpacing.md),
             Wrap(
               spacing: AppSpacing.md,
@@ -218,6 +223,8 @@ class _Body extends ConsumerWidget {
               children: [
                 for (final card in [
                   _PlanCard(plan: s.plan, period: period),
+                  _StagesCard(summary: s),
+                  _IntakeCard(summary: s),
                   _ShopCard(shop: s.shop),
                   _TopCard(top: s.top),
                   _AsleepCard(asleep: s.asleep),
@@ -356,6 +363,176 @@ class _Line extends StatelessWidget {
           ?trailing,
         ],
       ),
+    );
+  }
+}
+
+/// «Что горит» (owner, 14.11.2026): what needs a hand today, on one line —
+/// overdue, will not make it, old debts, film the open orders lack. Nothing
+/// burning, nothing shown.
+class _Alerts extends StatelessWidget {
+  const _Alerts({required this.summary});
+
+  final MdfSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final status = context.statusColors;
+    final money = mdfMoney(context);
+    final s = summary;
+    final short = s.films.where((f) => f.toBuyM > 0).length;
+    final alerts = [
+      // Each opens where it is dealt with: late and at-risk orders in
+      // «Жоспар», debts in «Долги», the film in «Плёнка для заказов».
+      if (s.shop.overdue > 0)
+        (
+          'overdue',
+          l10n.mdfSumAlertOverdue(s.shop.overdue),
+          status.danger,
+          Routes.mdfPlan,
+        ),
+      if (s.atRisk > 0)
+        (
+          'atRisk',
+          l10n.mdfSumAlertAtRisk(s.atRisk),
+          status.warning,
+          Routes.mdfPlan,
+        ),
+      if (s.debts.older > 0)
+        (
+          'debt',
+          l10n.mdfSumAlertDebt(money.format(s.debts.older)),
+          status.warning,
+          Routes.mdfDebts,
+        ),
+      if (short > 0)
+        ('film', l10n.mdfSumAlertFilm(short), status.danger, Routes.mdfFilm),
+    ];
+    if (alerts.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.md),
+      child: Wrap(
+        spacing: AppSpacing.xs,
+        runSpacing: AppSpacing.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Icon(AppIcons.warning, size: AppIconSize.small, color: status.danger),
+          for (final (k, label, colour, route) in alerts)
+            ActionChip(
+              key: ValueKey('mdfSum:alert:$k'),
+              label: Text(label, style: TextStyle(color: colour)),
+              backgroundColor: colour.withValues(alpha: AppTint.surface),
+              side: BorderSide.none,
+              onPressed: () => context.push(route),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Where the open orders wait now, by m² — the longest bar is where the
+/// shop jams. A tap opens «Жоспар».
+class _StagesCard extends StatelessWidget {
+  const _StagesCard({required this.summary});
+
+  final MdfSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final rows = [
+      for (final s in summary.stages)
+        if (s.orders > 0)
+          BarRow(
+            id: s.stage.name,
+            label: mdfStageLabel(s.stage, l10n),
+            value: s.areaM2,
+            note: '${s.orders} · ${s.areaM2.toStringAsFixed(1)} м²',
+          ),
+    ];
+    return _Section(
+      k: 'stages',
+      icon: AppIcons.schedule,
+      title: l10n.mdfSumStages,
+      children: [
+        if (rows.isEmpty)
+          Text(l10n.mdfSumNothing)
+        else
+          BarRows(
+            rows: rows,
+            onSelect: (_) => context.push(Routes.mdfPlan),
+          ),
+      ],
+    );
+  }
+}
+
+/// What came in, a bar a day (a month over a year); tap a bar for its
+/// orders, m² and sum.
+class _IntakeCard extends StatefulWidget {
+  const _IntakeCard({required this.summary});
+
+  final MdfSummary summary;
+
+  @override
+  State<_IntakeCard> createState() => _IntakeCardState();
+}
+
+class _IntakeCardState extends State<_IntakeCard> {
+  int? _picked;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final money = mdfMoney(context);
+    final days = widget.summary.days;
+    final monthly = days.isNotEmpty && days.first.date.length == 7;
+    final picked = _picked != null && _picked! < days.length ? _picked : null;
+    final day = picked == null ? null : days[picked];
+    return _Section(
+      k: 'intake',
+      icon: AppIcons.calendar,
+      title: monthly ? l10n.mdfSumIntakeMonthly : l10n.mdfSumIntake,
+      children: [
+        if (days.isEmpty)
+          Text(l10n.mdfSumNothing)
+        else
+          FlowBars(
+            key: const ValueKey('mdfSum:intakeChart'),
+            bars: [
+              for (final d in days)
+                FlowBar(
+                  label: monthly
+                      ? d.date.substring(5)
+                      : days.length <= 7
+                      ? mdfDay(d.date, year: false)
+                      : d.date.substring(8),
+                  up: d.areaM2,
+                ),
+            ],
+            selected: picked,
+            onSelect: (i) => setState(() => _picked = i),
+            semanticLabel: monthly
+                ? l10n.mdfSumIntakeMonthly
+                : l10n.mdfSumIntake,
+          ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          day == null
+              ? l10n.mdfSumIntakeHint
+              : l10n.mdfSumIntakeDay(
+                  monthly ? day.date : mdfDay(day.date),
+                  day.orders,
+                  day.areaM2.toStringAsFixed(1),
+                  money.format(day.total),
+                ),
+          key: const ValueKey('mdfSum:intakeDay'),
+          style: theme.textTheme.bodySmall,
+        ),
+      ],
     );
   }
 }
@@ -725,13 +902,18 @@ class _FilmsCard extends ConsumerWidget {
           ),
         if (s.millings.isNotEmpty) ...[
           const Divider(),
-          Text(
-            [
-              for (final m in s.millings)
-                '${m.milling} ${(m.share * 100).round()}%',
-            ].join(' · '),
+          // Which milling is ordered most, by m² (owner, 14.11.2026).
+          BarRows(
             key: const ValueKey('mdfSum:millings'),
-            style: theme.textTheme.bodySmall,
+            rows: [
+              for (final m in s.millings)
+                BarRow(
+                  id: m.milling,
+                  label: m.milling,
+                  value: m.areaM2,
+                  note: '${(m.share * 100).round()}%',
+                ),
+            ],
           ),
         ],
       ],
@@ -806,6 +988,25 @@ class _DebtsCard extends StatelessWidget {
       icon: AppIcons.bank,
       title: l10n.mdfSumDebts,
       children: [
+        // The older the debt, the redder its bar (owner, 14.11.2026).
+        BarRows(
+          key: const ValueKey('mdfSum:debtBars'),
+          rows: [
+            for (final (id, label, sum, colour) in [
+              ('week', l10n.mdfSumDebtWeek, d.week, status.success),
+              ('month', l10n.mdfSumDebtMonth, d.month, status.warning),
+              ('older', l10n.mdfSumDebtOlder, d.older, status.danger),
+            ])
+              BarRow(
+                id: id,
+                label: label,
+                value: sum,
+                note: money.format(sum),
+                color: colour,
+              ),
+          ],
+        ),
+        const Divider(),
         _Line(l10n.mdfSumDebtWeek, money.format(d.week)),
         _Line(
           l10n.mdfSumDebtMonth,

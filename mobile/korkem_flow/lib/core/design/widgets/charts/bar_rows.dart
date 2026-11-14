@@ -12,7 +12,11 @@ class BarRow {
     required this.label,
     required this.value,
     required this.note,
+    this.color,
   });
+
+  /// The bar's own colour — a debt's age, say; the theme's primary if none.
+  final Color? color;
 
   /// What [BarRows.onSelect] is told when this row is tapped.
   final String id;
@@ -49,11 +53,12 @@ class BarRows extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colour = theme.colorScheme.primary;
     final longest = rows.map((r) => r.value).fold<double>(0, math.max);
     return Column(
       children: [
-        for (final r in rows)
+        for (final (r, colour) in [
+          for (final r in rows) (r, r.color ?? theme.colorScheme.primary),
+        ])
           InkWell(
             key: ValueKey('barRow:${r.id}'),
             borderRadius: BorderRadius.circular(AppRadius.xs),
