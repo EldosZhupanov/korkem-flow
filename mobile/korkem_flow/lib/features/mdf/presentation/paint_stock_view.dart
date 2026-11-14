@@ -195,8 +195,7 @@ class PaintStockSection extends ConsumerWidget {
                   spacing: AppSpacing.sm,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    if (o.amount case final amount?)
-                      Text(money.format(amount)),
+                    if (o.amount case final amount?) Text(money.format(amount)),
                     PopupMenuButton<String>(
                       key: ValueKey('paintPay:${o.receipt}'),
                       tooltip: l10n.paintPaid,
@@ -914,18 +913,17 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     );
   }
 
-  Widget _number(TextEditingController c, String label, String key) =>
-      SizedBox(
-        width: AppSpacing.xxxl * 2,
-        child: TextField(
-          key: ValueKey(key),
-          controller: c,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
-          ],
-          onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(labelText: label, isDense: true),
-        ),
-      );
+  Widget _number(TextEditingController c, String label, String key) => SizedBox(
+    width: AppSpacing.xxxl * 2,
+    child: TextField(
+      key: ValueKey(key),
+      controller: c,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+      ],
+      onChanged: (_) => setState(() {}),
+      decoration: InputDecoration(labelText: label, isDense: true),
+    ),
+  );
 }

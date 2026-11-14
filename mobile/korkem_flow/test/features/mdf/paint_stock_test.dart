@@ -61,7 +61,12 @@ final _stock = PaintStock.fromJson(const {
   ],
   'suppliers': [
     {'supplier': 'SUP-2', 'name': 'Другой', 'paint': false},
-    {'supplier': 'SUP-1', 'name': 'Колор-Маркет', 'city': 'Алматы', 'paint': true},
+    {
+      'supplier': 'SUP-1',
+      'name': 'Колор-Маркет',
+      'city': 'Алматы',
+      'paint': true,
+    },
   ],
 });
 
@@ -191,8 +196,13 @@ void main() {
       find.byKey(const ValueKey('filmSupplierInvoiceNo')),
       'К-9',
     );
-    await tester.tap(find.byKey(const ValueKey('filmDelivery:transport:Такси')));
-    await tester.enterText(find.byKey(const ValueKey('filmDelivery:cost')), '3000');
+    await tester.tap(
+      find.byKey(const ValueKey('filmDelivery:transport:Такси')),
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('filmDelivery:cost')),
+      '3000',
+    );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('paintSum:delivery')), findsOne);
     expect(find.byKey(const ValueKey('paintSum:landed')), findsOne);

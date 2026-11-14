@@ -76,14 +76,13 @@ class PaintStockRepository {
     ),
   );
 
-  Future<PaintStock> paySupplier(String receipt, String method) async =>
-      _stock(
-        await _client.callMethod(
-          '$_base.pay_supplier',
-          post: true,
-          params: {'receipt': receipt, 'method': method},
-        ),
-      );
+  Future<PaintStock> paySupplier(String receipt, String method) async => _stock(
+    await _client.callMethod(
+      '$_base.pay_supplier',
+      post: true,
+      params: {'receipt': receipt, 'method': method},
+    ),
+  );
 
   /// The painter weighed what is left of a paint.
   Future<PaintStock> count(String item, double kg) async => _stock(

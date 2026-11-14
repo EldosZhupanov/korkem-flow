@@ -8417,4 +8417,166 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPaintNoSystem => 'No system';
+
+  @override
+  String get paintStock => 'Paint store';
+
+  @override
+  String get paintReceive => 'Paint received';
+
+  @override
+  String get paintReceiveSave => 'Take in';
+
+  @override
+  String get paintReceiveShort => 'Buy';
+
+  @override
+  String get paintColour => 'Colour';
+
+  @override
+  String get paintBase => 'What it is (enamel, primer, lacquer…)';
+
+  @override
+  String get paintBaseEnamelMatt => 'PU enamel, matt';
+
+  @override
+  String get paintBaseEnamelGloss => 'PU enamel, gloss';
+
+  @override
+  String get paintBasePrimer => 'Primer';
+
+  @override
+  String get paintBaseLacquer => 'Lacquer';
+
+  @override
+  String get paintKg => 'Kg';
+
+  @override
+  String paintKgShort(String kg) {
+    return '$kg kg';
+  }
+
+  @override
+  String get paintCans => 'In cans';
+
+  @override
+  String get paintCanCount => 'Cans';
+
+  @override
+  String get paintCanKg => 'Kg a can';
+
+  @override
+  String get paintPriceKg => 'Price a kg';
+
+  @override
+  String paintPerKg(String price) {
+    return '$price/kg';
+  }
+
+  @override
+  String paintPriceUp(String pct, String was, String who) {
+    return '$pct% dearer than last time ($was from $who)';
+  }
+
+  @override
+  String paintPriceDown(String pct, String was, String who) {
+    return '$pct% cheaper than last time ($was from $who)';
+  }
+
+  @override
+  String paintPriceSame(String was, String who) {
+    return 'As last time: $was from $who';
+  }
+
+  @override
+  String get paintSupplier => 'Supplier';
+
+  @override
+  String get paintNewSupplier => 'New supplier';
+
+  @override
+  String paintToSupplier(String kg) {
+    return 'Paint $kg kg';
+  }
+
+  @override
+  String paintLanded(String price) {
+    return 'A kg with the delivery: $price';
+  }
+
+  @override
+  String paintDeliveryPerKg(String price) {
+    return '+$price a kg';
+  }
+
+  @override
+  String paintKgPerM2(String kg) {
+    return 'Use: $kg kg/m²';
+  }
+
+  @override
+  String get paintKgPerM2Title => 'Paint used, kg a m²';
+
+  @override
+  String get paintKgPerM2Hint =>
+      'Primer and every coat together. It says whether the paint is enough for the queue.';
+
+  @override
+  String paintNeed(String m2, String need, String have) {
+    return 'queue $m2 m² · needs $need kg · $have kg here';
+  }
+
+  @override
+  String paintShort(String kg) {
+    return '$kg kg short';
+  }
+
+  @override
+  String get paintEnough => 'enough';
+
+  @override
+  String paintOnHand(String kg) {
+    return '$kg kg';
+  }
+
+  @override
+  String get paintNone => 'No paint in the store yet — press «Paint received».';
+
+  @override
+  String get paintOwed => 'Owed for paint';
+
+  @override
+  String get paintPaid => 'Paid';
+
+  @override
+  String paintHistory(String title) {
+    return 'Received: $title';
+  }
+
+  @override
+  String paintTakenBy(String who) {
+    return 'taken in by $who';
+  }
+
+  @override
+  String paintUsage(String days, String m2, String kg) {
+    return '$days days: $m2 m² painted, $kg kg used';
+  }
+
+  @override
+  String paintUsageFact(String fact, String norm) {
+    return 'really $fact kg/m² (figure $norm)';
+  }
+
+  @override
+  String get paintCount => 'Count what is left';
+
+  @override
+  String paintCountTitle(String title) {
+    return 'How many kg of $title are really here?';
+  }
+
+  @override
+  String get paintCountHint =>
+      'Weigh what is left. The difference from the program counts as used.';
 }

@@ -1000,11 +1000,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
         ),
         FilledButton(
           key: const ValueKey('filmReceiveSave'),
-          onPressed:
-              busy ||
-                  !ready ||
-                  _supplier == null ||
-                  _terms.incomplete
+          onPressed: busy || !ready || _supplier == null || _terms.incomplete
               ? null
               : () => save(() {
                   final delivery = _terms.delivery(opts, _supplier);
