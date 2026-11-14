@@ -2027,8 +2027,8 @@ class _LineRow extends StatelessWidget {
                       line.film ?? mdfCoatingNone(line.coating, l10n),
                     if (mdfLineIsClients(
                       line.coating,
-                      line.clientPaint,
-                      line.clientFilm,
+                      paint: line.clientPaint,
+                      film: line.clientFilm,
                     ))
                       l10n.mdfClientShort,
                   ].join(' · '),
@@ -2038,8 +2038,8 @@ class _LineRow extends StatelessWidget {
                     color:
                         mdfLineIsClients(
                           line.coating,
-                          line.clientPaint,
-                          line.clientFilm,
+                          paint: line.clientPaint,
+                          film: line.clientFilm,
                         )
                         ? context.statusColors.warning
                         : null,

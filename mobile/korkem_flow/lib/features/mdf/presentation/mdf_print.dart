@@ -238,7 +238,11 @@ Future<Uint8List> buildMdfOrderPdf(
             pw.Text(
               [
                 _groupName(words, l.coating, l.film),
-                if (mdfLineIsClients(l.coating, l.clientPaint, l.clientFilm))
+                if (mdfLineIsClients(
+                  l.coating,
+                  paint: l.clientPaint,
+                  film: l.clientFilm,
+                ))
                   '(${words.client})',
               ].join(' '),
               style: cell,

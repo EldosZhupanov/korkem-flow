@@ -697,6 +697,10 @@ class MdfFilmPress {
 
 /// Whether a position's colour is the customer's own: his paint on a paint
 /// group, his film on a PVC one.
-bool mdfLineIsClients(MdfCoating? coating, bool paint, bool film) =>
+bool mdfLineIsClients(
+  MdfCoating? coating, {
+  required bool paint,
+  required bool film,
+}) =>
     (coating == MdfCoating.paint && paint) ||
     (coating == MdfCoating.pvc && film);
