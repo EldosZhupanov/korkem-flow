@@ -28,8 +28,19 @@ class _FakeRepository implements MdfOrderRepository {
   Future<MdfDictionaries> dictionaries() async => _now;
 
   @override
-  Future<MdfDictionaries> dictionaryAdd(MdfDictKind kind, String value) async {
-    (lists[kind] ??= []).add(MdfDictEntry(id: 'n${_next++}', value: value));
+  Future<MdfDictionaries> dictionaryAdd(
+    MdfDictKind kind,
+    String value, {
+    String? group,
+  }) async {
+    (lists[kind] ??= []).add(
+      MdfDictEntry(
+        id: 'n${_next++}',
+        // As the server files a variant: «16-14» under «Рифлёный».
+        value: group == null ? value : '$group $value',
+        group: group,
+      ),
+    );
     return _now;
   }
 
@@ -226,6 +237,62 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('dictEntry:Күміс')));
     await tester.pumpAndSettle();
     expect(chosen, 'Күміс');
+  });
+
+  testWidgets('millings stand as groups, a variant added under its group', (
+    tester,
+  ) async {
+    final repo = _FakeRepository()
+      ..lists[MdfDictKind.milling] = [
+        const MdfDictEntry(id: 'm1', value: 'Рифлёный'),
+        const MdfDictEntry(
+          id: 'm2',
+          value: 'Рифлёный 16-14',
+          group: 'Рифлёный',
+        ),
+        const MdfDictEntry(id: 'm3', value: 'Классика'),
+      ];
+    String? chosen;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () async => chosen = await showMdfDictionary(
+                context,
+                MdfDictKind.milling,
+                title: 'Milling',
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    // Each group, its variants right under it.
+    double top(String v) =>
+        tester.getTopLeft(find.byKey(ValueKey('dictEntry:$v'))).dy;
+    expect(top('Классика'), lessThan(top('Рифлёный')));
+    expect(top('Рифлёный'), lessThan(top('Рифлёный 16-14')));
+    expect(
+      find.byKey(const ValueKey('dictAddVariant:Рифлёный 16-14')),
+      findsNothing,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('dictAddVariant:Рифлёный')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('dictValue')), '6-11');
+    await tester.tap(find.byKey(const ValueKey('dictSave')));
+    await tester.pumpAndSettle();
+    expect(top('Рифлёный 16-14'), lessThan(top('Рифлёный 6-11')));
+    expect(top('Рифлёный 6-11'), greaterThan(top('Классика')));
+
+    await tester.tap(find.byKey(const ValueKey('dictEntry:Рифлёный 6-11')));
+    await tester.pumpAndSettle();
+    expect(chosen, 'Рифлёный 6-11');
   });
 
   testWidgets('the customer list adds, edits, deletes, searches, chooses', (

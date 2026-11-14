@@ -225,7 +225,8 @@ def _suppliers_owed(company: str) -> list[dict]:
 		"Stock Entry",
 		filters={"company": company, "korkem_material_receipt": 1, "docstatus": ["in", [0, 1]],
 				 "korkem_supplier_owed": 1, "korkem_supplier_paid_on": ["is", "not set"]},
-		fields=["name", "creation", "docstatus", "korkem_film_due", "korkem_supplier"],
+		fields=["name", "creation", "docstatus", "korkem_film_due", "korkem_supplier",
+				"korkem_supplier_invoice_no", "korkem_supplier_invoice_on", "korkem_supplier_due_on"],
 		order_by="creation asc",
 		limit_page_length=0,
 	):
@@ -244,6 +245,11 @@ def _suppliers_owed(company: str) -> list[dict]:
 			"supplier": frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier,
 			"supplier_id": e.korkem_supplier,
 			"coming": e.docstatus == 0,
+			# Owed by invoice: its number and the day to pay by — overdue past it.
+			"invoice_no": e.korkem_supplier_invoice_no,
+			"invoice_on": str(e.korkem_supplier_invoice_on) if e.korkem_supplier_invoice_on else None,
+			"due_on": str(e.korkem_supplier_due_on) if e.korkem_supplier_due_on else None,
+			"overdue": bool(e.korkem_supplier_due_on and getdate(e.korkem_supplier_due_on) < getdate(nowdate())),
 		})
 	return out
 
@@ -257,7 +263,9 @@ def _supplier_payments(company: str, start, end) -> list[dict]:
 	out = []
 	for e in frappe.get_all(
 		"Stock Entry",
-		filters={"company": company, "korkem_material_receipt": 1, "korkem_supplier_owed": 1,
+		# Paid on credit later, or paid on the spot with the money's way said
+		# (owner, 14.11.2026) — a receipt from before that has no day paid.
+		filters={"company": company, "korkem_material_receipt": 1,
 				 # A receipt made again right is paid once: the struck one is out.
 				 "docstatus": ["in", [0, 1]], "korkem_supplier_paid_from": FROM_DEPT, "korkem_supplier_paid_on": ["between", [start, end]]},
 		fields=["name", "korkem_supplier", "korkem_supplier_paid_on", "korkem_supplier_paid_method"],

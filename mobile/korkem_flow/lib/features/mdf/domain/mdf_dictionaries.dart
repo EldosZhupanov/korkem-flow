@@ -45,11 +45,22 @@ enum MdfDictKind {
 
 @immutable
 class MdfDictEntry {
-  const MdfDictEntry({required this.id, required this.value});
+  const MdfDictEntry({required this.id, required this.value, this.group});
 
   final String id;
   final String value;
+
+  /// A milling variant's group — «Рифлёный» for «Рифлёный 16-14»
+  /// (owner, 14.11.2026); null for a group, and for every other list.
+  final String? group;
 }
+
+/// A milling group and its variants, in the list's order.
+typedef MdfMillingGroup = ({
+  MdfDictEntry? head,
+  String name,
+  List<MdfDictEntry> variants,
+});
 
 @immutable
 class MdfDictionaries {
@@ -61,7 +72,11 @@ class MdfDictionaries {
           kind: [
             for (final e in json[kind.wire] as List? ?? const [])
               if (e is Map)
-                MdfDictEntry(id: '${e['id']}', value: '${e['value']}'),
+                MdfDictEntry(
+                  id: '${e['id']}',
+                  value: '${e['value']}',
+                  group: e['group'] == null ? null : '${e['group']}',
+                ),
           ]..sort((a, b) => mdfNaturalCompare(a.value, b.value)),
       });
 
@@ -76,6 +91,30 @@ class MdfDictionaries {
   List<String> values(MdfDictKind kind) => [
     for (final e in entries(kind)) e.value,
   ];
+
+  /// The milling list as groups (owner, 14.11.2026): each group, then its
+  /// variants; a variant whose group has left the list keeps a group of
+  /// its own name, without a head.
+  List<MdfMillingGroup> millingGroups() {
+    final all = entries(MdfDictKind.milling);
+    final heads = [
+      for (final e in all)
+        if (e.group == null) e,
+    ];
+    final names = {for (final h in heads) h.value};
+    final orphans = <String>{
+      for (final e in all)
+        if (e.group != null && !names.contains(e.group)) e.group!,
+    };
+    List<MdfDictEntry> under(String name) => [
+      for (final e in all)
+        if (e.group == name) e,
+    ];
+    return [
+      for (final h in heads) (head: h, name: h.value, variants: under(h.value)),
+      for (final o in orphans) (head: null, name: o, variants: under(o)),
+    ]..sort((a, b) => mdfNaturalCompare(a.name, b.name));
+  }
 }
 
 /// «16 мм ЛМДФ» → 16: the thickness a material's name starts with; the

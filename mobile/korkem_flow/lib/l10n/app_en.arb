@@ -5636,7 +5636,7 @@
   "mdfPatina": "Patina",
   "mdfMilling": "Milling",
   "mdfEdge": "Edge",
-  "mdfExtraName": "Extra name",
+  "mdfExtraName": "Project (kitchen, address)",
   "mdfDefaultRate": "Default price per m²",
   "mdfNone": "—",
   "mdfLinesSection": "Lines",
@@ -8982,5 +8982,121 @@
         "type": "String"
       }
     }
-  }
+  },
+  "filmSaleMargin": "bought {cost} → sold {price}: +{perM}/m · {total} ({pct}%)",
+  "@filmSaleMargin": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "perM": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSaleLikeLastShort": "As last time",
+  "mdfDictAddGroup": "Add a group",
+  "mdfDictAddVariant": "A variant of {group}",
+  "@mdfDictAddVariant": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupplierByInvoice": "By invoice",
+  "filmInvoiceNo": "Invoice no.",
+  "filmInvoiceOn": "dated {day}",
+  "@filmInvoiceOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmInvoiceDue": "pay by {day}",
+  "@filmInvoiceDue": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmInvoiceNoDue": "No due date",
+  "filmInvoiceHint": "Owed until «Оплатили»; overdue past its day.",
+  "filmByInvoiceNo": "invoice № {no}",
+  "@filmByInvoiceNo": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "filmFromDeptCash": "from the cash",
+  "filmSupplierFromDept": "Out of the film department's cash",
+  "filmInvoice": "Invoice",
+  "filmInvoiceTitle": "Invoice No. {no} of {day}",
+  "@filmInvoiceTitle": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmInvoiceBeneficiary": "Beneficiary",
+  "filmInvoiceSupplier": "Supplier:",
+  "filmInvoiceBuyer": "Buyer:",
+  "filmInvoiceNumber": "No.",
+  "filmInvoiceItem": "Item",
+  "filmInvoiceQty": "Qty",
+  "filmInvoiceUnit": "Unit",
+  "filmInvoiceMetre": "m",
+  "filmInvoiceSummary": "Items in total: {count}, for {sum}",
+  "@filmInvoiceSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "filmInvoicePayBy": "Pay by {day}",
+  "@filmInvoicePayBy": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "filmInvoiceDueHelp": "Pay by",
+  "filmInvoiceSigned": "Issued by",
+  "filmInvoiceMake": "Invoice PDF",
+  "filmInvoiceNoRequisites": "The invoice needs your company's requisites — fill them in once, and every invoice after carries them.",
+  "filmReqTitle": "Company requisites",
+  "filmReqFill": "Fill in requisites",
+  "filmReqEdit": "Change requisites",
+  "filmReqSave": "Save",
+  "filmReqName": "Company name (as in documents)",
+  "filmReqBin": "BIN/IIN",
+  "filmReqAddress": "Address",
+  "filmReqPhone": "Phone",
+  "filmReqBank": "Bank",
+  "filmReqIik": "IIK (account)",
+  "filmReqBik": "BIK",
+  "filmReqKbe": "Kbe",
+  "filmReqDirector": "Signs (director)"
 }

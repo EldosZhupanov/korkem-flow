@@ -549,6 +549,32 @@ class TestMdfOrders(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, dicts.dictionaries)
 
+	def test_millings_are_groups_with_variants(self):
+		from korkem_manufacturing.services import mdf_dictionaries as dicts
+
+		group = f"МДФ Тест Рифленый {frappe.generate_hash(length=4)}"
+		lists = self._as(MANAGER, dicts.add, "milling", group)
+		self._as(MANAGER, facade_prices.set_price, group, PVC, 18_000)
+		# «16-14» under the group is «<group> 16-14», filed under it.
+		for variant in ("16-14", "6-11"):
+			lists = self._as(MANAGER, dicts.add, "milling", variant, group=group)
+		mine = {v["value"]: v for v in lists["milling"] if v["value"].startswith(group)}
+		self.assertEqual({v: e["group"] for v, e in mine.items()},
+						 {group: None, f"{group} 16-14": group, f"{group} 6-11": group})
+		self.assertEqual(facade_prices.price_for(f"{group} 16-14", PVC, COMPANY), 18_000)  # priced as its group
+
+		# The group renamed: its variants follow, price and all.
+		renamed = group.replace("Рифленый", "Рифлёный")
+		lists = self._as(MANAGER, dicts.rename, "milling", mine[group]["id"], renamed)
+		mine = {v["value"]: v for v in lists["milling"] if v["value"].startswith(renamed)}
+		self.assertEqual({v: e["group"] for v, e in mine.items()},
+						 {renamed: None, f"{renamed} 16-14": renamed, f"{renamed} 6-11": renamed})
+		self.assertEqual(facade_prices.price_for(f"{renamed} 6-11", PVC, COMPANY), 18_000)
+
+		# The group deleted: its variants leave the list with it.
+		lists = self._as(MANAGER, dicts.remove, "milling", mine[renamed]["id"])
+		self.assertFalse([v for v in lists["milling"] if v["value"].startswith(renamed)])
+
 	def test_a_value_an_order_uses_is_switched_off_not_deleted_and_names_stay_unique(self):
 		from korkem_manufacturing.services import mdf_dictionaries as dicts
 

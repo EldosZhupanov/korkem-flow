@@ -475,10 +475,23 @@ class _OrderRow extends StatelessWidget {
                 children: [
                   // One red thing per row — its lateness — not the whole
                   // title: a list of red titles says nothing (14.11.2026).
-                  Text(
-                    '${row.name} · ${row.customerName}',
-                    style: theme.textTheme.titleSmall,
-                    overflow: TextOverflow.ellipsis,
+                  // Who the customer is, right by his name (owner,
+                  // 15.11.2026): VIP, мебельщик — whom not to keep waiting.
+                  Wrap(
+                    spacing: AppSpacing.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        '${row.name} · ${row.customerName}',
+                        style: theme.textTheme.titleSmall,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (row.customerTags.isNotEmpty)
+                        MdfTagBadges(
+                          key: ValueKey('mdfRowCustomer:${row.name}'),
+                          customerTags: row.customerTags,
+                        ),
+                    ],
                   ),
                   Text(
                     [
@@ -531,10 +544,7 @@ class _OrderRow extends StatelessWidget {
                           intent: StatusIntent.warning,
                           compact: true,
                         ),
-                      MdfTagBadges(
-                        orderTags: row.tags,
-                        customerTags: row.customerTags,
-                      ),
+                      MdfTagBadges(orderTags: row.tags),
                     ],
                   ),
                 ],

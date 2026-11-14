@@ -204,10 +204,10 @@ def dictionaries() -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def dictionary_add(kind: str, value: str) -> dict:
+def dictionary_add(kind: str, value: str, group: str | None = None) -> dict:
 	from korkem_manufacturing.services import mdf_dictionaries
 
-	return mdf_dictionaries.add(kind, value)
+	return mdf_dictionaries.add(kind, value, group=group)
 
 
 @frappe.whitelist(methods=["POST"])

@@ -482,15 +482,26 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     return above?.milling ?? _head.milling;
   }
 
-  _LineFields _blank(_Group group) => _LineFields(
-    milling: _lastMilling(group),
-    film: group.film,
-    coating: group.coating,
-    edge: _defaultEdge,
-    clientPaint: _owns(group).paint,
-    clientFilm: _owns(group).film,
-    clientMdf: _owns(group).mdf,
-  );
+  /// A new row copies the row above it (owner, 14.11.2026): thickness,
+  /// material, edge and milling run on more often than not.
+  _LineFields _blank(_Group group) {
+    final mates = [
+      for (final l in _lines)
+        if (l.group == group) l,
+    ];
+    final above = mates.isNotEmpty ? mates.last : _lines.lastOrNull;
+    return _LineFields(
+      milling: _lastMilling(group),
+      film: group.film,
+      coating: group.coating,
+      edge: above?.edge ?? _defaultEdge,
+      thicknessMm: above?.thicknessMm,
+      material: above?.material,
+      clientPaint: _owns(group).paint,
+      clientFilm: _owns(group).film,
+      clientMdf: _owns(group).mdf || (above?.clientMdf ?? false),
+    );
+  }
 
   /// A group's marks — the customer's own paint or film, his own LMDF — as
   /// its lines carry them.
@@ -1024,7 +1035,19 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     final money = mdfMoney(context);
     final dicts =
         ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty;
-    final millings = dicts.values(MdfDictKind.milling);
+    // Millings group by group, each group's variants under it (owner,
+    // 14.11.2026: «Рифлёный — 16-14, 6-14, 6-11»).
+    final millingGroups = dicts.millingGroups();
+    final millings = [
+      for (final g in millingGroups) ...[
+        if (g.head != null) g.name,
+        for (final v in g.variants) v.value,
+      ],
+    ];
+    final variants = {
+      for (final g in millingGroups)
+        for (final v in g.variants) v.value,
+    };
     final materials = dicts.values(MdfDictKind.material);
     final edges = mdfEdges(dicts.values(MdfDictKind.edge));
     final thicknesses = dicts.values(MdfDictKind.thickness);
@@ -1036,59 +1059,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     }
 
     var number = 0;
-
-    void choose(ValueChanged<String?> set, String? v) {
-      setState(() => set(v));
-      _reprice();
-    }
-
-    Widget pick(
-      String key,
-      String label,
-      MdfDictKind kind,
-      String? current,
-      ValueChanged<String?> set, {
-      double width = AppSpacing.xxxl * 5,
-      List<String>? values,
-      bool required = false,
-    }) {
-      final choices = mdfChoices(values ?? dicts.values(kind), current);
-      return SizedBox(
-        width: width,
-        child: Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<String?>(
-                key: ValueKey('$key:${choices.length}:$current'),
-                initialValue: current,
-                isExpanded: true,
-                items: [
-                  if (!required) DropdownMenuItem(child: Text(l10n.mdfNone)),
-                  for (final v in choices)
-                    DropdownMenuItem(value: v, child: Text(v)),
-                ],
-                onChanged: (v) => choose(set, v),
-                decoration: InputDecoration(labelText: label, isDense: true),
-              ),
-            ),
-            IconButton(
-              key: ValueKey('dict:${kind.name}'),
-              tooltip: l10n.mdfDictOpen,
-              icon: const Icon(AppIcons.dictionary),
-              onPressed: () async {
-                final picked = await showMdfDictionary(
-                  context,
-                  kind,
-                  title: label,
-                  current: current,
-                );
-                if (picked != null && mounted) choose(set, picked);
-              },
-            ),
-          ],
-        ),
-      );
-    }
 
     Widget text(
       String key,
@@ -1179,6 +1149,14 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       MdfTagBadges(
                         customerTags: MdfCustomerTag.parse(_customer!.tags),
                       ),
+                    // «Объект» (owner, 14.11.2026): which kitchen, which
+                    // address — five orders of one furniture maker apart.
+                    text(
+                      'mdfExtra',
+                      l10n.mdfExtraName,
+                      _extra,
+                      width: AppSpacing.xxxl * 7,
+                    ),
                     OutlinedButton.icon(
                       key: const ValueKey('mdfDue'),
                       onPressed: _pickDue,
@@ -1189,51 +1167,6 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                             : '${l10n.mdfDue}: ${mdfDayOf(_due!)}',
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                SectionLabel(l10n.mdfHeadSection),
-                Wrap(
-                  spacing: AppSpacing.md,
-                  runSpacing: AppSpacing.md,
-                  children: [
-                    // Thickness and material apart (owner, 09.11.2026).
-                    pick(
-                      'mdfThickness',
-                      l10n.mdfThicknessShort,
-                      MdfDictKind.thickness,
-                      mdfThicknessLabel(thicknesses, _head.thicknessMm),
-                      (v) => _head = _copyHead(thicknessMm: thicknessOf(v)),
-                      width: AppSpacing.xxxl * 4,
-                    ),
-                    pick(
-                      'mdfMaterial',
-                      l10n.mdfMaterial,
-                      MdfDictKind.material,
-                      _head.material,
-                      (v) => _head = _copyHead(material: v),
-                      width: AppSpacing.xxxl * 4,
-                    ),
-                    // No «Покрытие» here (09.11.2026): each group has its own.
-                    // No milling and no price here (owner, 09.11.2026): each
-                    // position has its own milling, each film group its price.
-                    pick(
-                      'mdfEdge',
-                      l10n.mdfEdgeDefault,
-                      MdfDictKind.edge,
-                      _defaultEdge,
-                      (next) {
-                        final was = _defaultEdge;
-                        _head = _copyHead(edgeProfile: next);
-                        // Rows on the old default follow; changed ones stay.
-                        for (final l in _lines) {
-                          if (l.edge == was) l.edge = _defaultEdge;
-                        }
-                      },
-                      values: edges,
-                      required: true,
-                    ),
-                    text('mdfExtra', l10n.mdfExtraName, _extra),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -1317,6 +1250,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                             line: mates[i],
                             priced: pricedOf(mates[i]),
                             millings: millings,
+                            variants: variants,
                             materials: materials,
                             films: colors,
                             edges: edges,
@@ -1607,19 +1541,6 @@ class _FilmGroup extends StatelessWidget {
                         ),
                       ),
                     ),
-                  for (final t in [
-                    if (coating == MdfCoating.paint) MdfOrderTag.clientPaint,
-                    if (coating == MdfCoating.pvc) MdfOrderTag.clientFilm,
-                    if (coating != null) MdfOrderTag.clientParts,
-                  ])
-                    FilterChip(
-                      key: ValueKey('mdfGroupTag:$index:${t.wire}'),
-                      label: Text(mdfOrderTagLabel(t, l10n)),
-                      selected: tags.contains(t),
-                      onSelected: onTag == null
-                          ? null
-                          : (on) => onTag!(t, on: on),
-                    ),
                   // A film from the catalogue: the maker, the type, then that
                   // maker's film (owner, 10.11.2026).
                   if (coating == MdfCoating.pvc)
@@ -1635,8 +1556,10 @@ class _FilmGroup extends StatelessWidget {
                         if (picked != null) onFilm(picked);
                       },
                     ),
-                  // The type's own list, here: add, rename, delete a film
-                  // or a paint without leaving the order (09.11.2026).
+                  // The type's own list, right beside its drop like every
+                  // other field's: add, rename, delete a film or a paint
+                  // without leaving the order (09.11.2026; moved beside the
+                  // drop 15.11.2026 — behind the chips nobody found it).
                   if (mdfCoatingList(coating) case final kind?
                       when coating != MdfCoating.pvc)
                     IconButton(
@@ -1652,6 +1575,19 @@ class _FilmGroup extends StatelessWidget {
                         );
                         if (picked != null) onFilm(picked);
                       },
+                    ),
+                  for (final t in [
+                    if (coating == MdfCoating.paint) MdfOrderTag.clientPaint,
+                    if (coating == MdfCoating.pvc) MdfOrderTag.clientFilm,
+                    if (coating != null) MdfOrderTag.clientParts,
+                  ])
+                    FilterChip(
+                      key: ValueKey('mdfGroupTag:$index:${t.wire}'),
+                      label: Text(mdfOrderTagLabel(t, l10n)),
+                      selected: tags.contains(t),
+                      onSelected: onTag == null
+                          ? null
+                          : (on) => onTag!(t, on: on),
                     ),
                   SizedBox(
                     width: 130,
@@ -1746,6 +1682,7 @@ class _LineRow extends StatelessWidget {
     required this.onDelete,
     required this.onUp,
     required this.onDown,
+    this.variants = const {},
     super.key,
   });
 
@@ -1753,6 +1690,9 @@ class _LineRow extends StatelessWidget {
   final _LineFields line;
   final MdfLine? priced;
   final List<String> millings;
+
+  /// The millings that are a group's variants: set in under their group.
+  final Set<String> variants;
   final List<String> materials;
   final List<String> films;
   final List<String> edges;
@@ -1818,9 +1758,6 @@ class _LineRow extends StatelessWidget {
       ),
     );
 
-    // «ЛМДФ · клиента»: the customer's own board, in the material's list.
-    final clients = ' · ${l10n.mdfClientShort}';
-
     Widget drop(
       String key,
       String label,
@@ -1831,6 +1768,7 @@ class _LineRow extends StatelessWidget {
       String? none,
       bool highlight = false,
       bool required = false,
+      Set<String> indented = const {},
     }) => SizedBox(
       width: width,
       child: DropdownButtonFormField<String?>(
@@ -1840,7 +1778,23 @@ class _LineRow extends StatelessWidget {
         items: [
           if (!required) DropdownMenuItem(child: Text(none ?? l10n.mdfNone)),
           for (final m in mdfChoices(choices, value))
-            DropdownMenuItem(value: m, child: Text(m)),
+            DropdownMenuItem(
+              value: m,
+              child: indented.isEmpty
+                  ? Text(m)
+                  : Padding(
+                      padding: EdgeInsetsDirectional.only(
+                        start: indented.contains(m) ? AppSpacing.md : 0,
+                      ),
+                      child: Text(
+                        m,
+                        overflow: TextOverflow.ellipsis,
+                        style: indented.contains(m)
+                            ? null
+                            : theme.textTheme.titleSmall,
+                      ),
+                    ),
+            ),
         ],
         onChanged: (v) {
           set(v);
@@ -1995,6 +1949,7 @@ class _LineRow extends StatelessWidget {
                 millings,
                 160,
                 (v) => line.milling = v,
+                indented: variants,
               ),
               // The milling list is here now, not in the head (09.11.2026).
               IconButton(
@@ -2053,44 +2008,47 @@ class _LineRow extends StatelessWidget {
                   ),
                 ),
               ),
+              // One list, the row's own value in it (owner, 14.11.2026: the
+              // order's own used to stand in it twice).
               drop(
                 'mdfLineThickness',
                 l10n.mdfThicknessShort,
-                mdfThicknessLabel(thicknesses, line.thicknessMm),
+                mdfThicknessLabel(
+                  thicknesses,
+                  line.thicknessMm ?? headThickness,
+                ),
                 thicknesses,
                 100,
                 (v) {
                   final mm = thicknessOf(v);
                   line.thicknessMm = mm == headThickness ? null : mm;
                 },
-                none: mdfThicknessLabel(thicknesses, headThickness),
-                highlight: line.thicknessMm != null,
+                required: true,
               ),
-              // Ours by default — the order's LMDF; his own is picked right
-              // here, position by position (owner, 14.11.2026): a customer
-              // may bring some of the facades, or 16 and 18 mm.
               drop(
                 'mdfLineMaterial',
                 l10n.mdfMaterial,
-                line.clientMdf
-                    ? '${line.material ?? headMaterial ?? ''}$clients'
-                    : line.material,
-                [
-                  ...materials,
-                  for (final m in materials) '$m$clients',
-                ],
-                160,
-                (v) {
-                  final his = v != null && v.endsWith(clients);
-                  final base = his
-                      ? v.substring(0, v.length - clients.length)
-                      : v;
-                  line
-                    ..clientMdf = his
-                    ..material = base == headMaterial ? null : base;
-                },
-                none: headMaterial ?? l10n.mdfNone,
-                highlight: line.material != null || line.clientMdf,
+                line.material ?? headMaterial,
+                materials,
+                130,
+                (v) => line.material = v == headMaterial ? null : v,
+                required: true,
+                highlight: line.clientMdf,
+              ),
+              // His own board, position by position (owner, 14.11.2026): a
+              // tick beside the material, not a second list.
+              Tooltip(
+                message: l10n.mdfTagClientParts,
+                child: FilterChip(
+                  key: ValueKey('mdfLineClientMdf:$index'),
+                  label: Text(l10n.mdfClientShort),
+                  visualDensity: VisualDensity.compact,
+                  selected: line.clientMdf,
+                  onSelected: (on) {
+                    line.clientMdf = on;
+                    onChanged();
+                  },
+                ),
               ),
               figure(
                 'mdfLineArea',

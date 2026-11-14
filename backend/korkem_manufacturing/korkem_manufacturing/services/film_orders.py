@@ -287,7 +287,8 @@ def sent(supplier: str | None) -> dict:
 
 
 def receive_many(supplier: str, lines, arrives_on: str | None = None, delivery=None,
-				 received_by: str | None = None, note: str | None = None, supplier_paid=None) -> dict:
+				 received_by: str | None = None, note: str | None = None, supplier_paid=None,
+				 supplier_pay=None) -> dict:
 	"""One supplier, several films: a roll each, one delivery, one day.
 
 	A line: `item`, `metres`, `price_m`; `orders` — the «К заказу» lines it
@@ -349,7 +350,7 @@ def receive_many(supplier: str, lines, arrives_on: str | None = None, delivery=N
 			update_price=line["update_price"],
 			# The bringing is paid once: the first roll carries it.
 			delivery=delivery if n == 0 else {**delivery, "amount": 0},
-			received_by=received_by, arrives_on=arrives_on, supplier_paid=supplier_paid,
+			received_by=received_by, arrives_on=arrives_on, supplier_paid=supplier_paid, supplier_pay=supplier_pay,
 		)
 		entry = got["receipt"]
 		receipts.append(entry)
