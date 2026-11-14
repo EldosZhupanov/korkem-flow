@@ -4745,7 +4745,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfEdge => 'Edge';
 
   @override
-  String get mdfExtraName => 'Extra name';
+  String get mdfExtraName => 'Project (kitchen, address)';
 
   @override
   String get mdfDefaultRate => 'Default price per m²';
@@ -8254,4 +8254,153 @@ class AppLocalizationsEn extends AppLocalizations {
   String filmTeamOwed(String amount) {
     return 'his customers owe $amount';
   }
+
+  @override
+  String filmSaleMargin(
+    String cost,
+    String price,
+    String perM,
+    String total,
+    String pct,
+  ) {
+    return 'bought $cost → sold $price: +$perM/m · $total ($pct%)';
+  }
+
+  @override
+  String get filmSaleLikeLastShort => 'As last time';
+
+  @override
+  String get mdfDictAddGroup => 'Add a group';
+
+  @override
+  String mdfDictAddVariant(String group) {
+    return 'A variant of $group';
+  }
+
+  @override
+  String get filmSupplierByInvoice => 'By invoice';
+
+  @override
+  String get filmInvoiceNo => 'Invoice no.';
+
+  @override
+  String filmInvoiceOn(String day) {
+    return 'dated $day';
+  }
+
+  @override
+  String filmInvoiceDue(String day) {
+    return 'pay by $day';
+  }
+
+  @override
+  String get filmInvoiceNoDue => 'No due date';
+
+  @override
+  String get filmInvoiceHint => 'Owed until «Оплатили»; overdue past its day.';
+
+  @override
+  String filmByInvoiceNo(String no) {
+    return 'invoice № $no';
+  }
+
+  @override
+  String get filmFromDeptCash => 'from the cash';
+
+  @override
+  String get filmSupplierFromDept => 'Out of the film department\'s cash';
+
+  @override
+  String get filmInvoice => 'Invoice';
+
+  @override
+  String filmInvoiceTitle(String no, String day) {
+    return 'Invoice No. $no of $day';
+  }
+
+  @override
+  String get filmInvoiceBeneficiary => 'Beneficiary';
+
+  @override
+  String get filmInvoiceSupplier => 'Supplier:';
+
+  @override
+  String get filmInvoiceBuyer => 'Buyer:';
+
+  @override
+  String get filmInvoiceNumber => 'No.';
+
+  @override
+  String get filmInvoiceItem => 'Item';
+
+  @override
+  String get filmInvoiceQty => 'Qty';
+
+  @override
+  String get filmInvoiceUnit => 'Unit';
+
+  @override
+  String get filmInvoiceMetre => 'm';
+
+  @override
+  String filmInvoiceSummary(int count, String sum) {
+    return 'Items in total: $count, for $sum';
+  }
+
+  @override
+  String filmInvoicePayBy(String day) {
+    return 'Pay by $day';
+  }
+
+  @override
+  String get filmInvoiceDueHelp => 'Pay by';
+
+  @override
+  String get filmInvoiceSigned => 'Issued by';
+
+  @override
+  String get filmInvoiceMake => 'Invoice PDF';
+
+  @override
+  String get filmInvoiceNoRequisites =>
+      'The invoice needs your company\'s requisites — fill them in once, and every invoice after carries them.';
+
+  @override
+  String get filmReqTitle => 'Company requisites';
+
+  @override
+  String get filmReqFill => 'Fill in requisites';
+
+  @override
+  String get filmReqEdit => 'Change requisites';
+
+  @override
+  String get filmReqSave => 'Save';
+
+  @override
+  String get filmReqName => 'Company name (as in documents)';
+
+  @override
+  String get filmReqBin => 'BIN/IIN';
+
+  @override
+  String get filmReqAddress => 'Address';
+
+  @override
+  String get filmReqPhone => 'Phone';
+
+  @override
+  String get filmReqBank => 'Bank';
+
+  @override
+  String get filmReqIik => 'IIK (account)';
+
+  @override
+  String get filmReqBik => 'BIK';
+
+  @override
+  String get filmReqKbe => 'Kbe';
+
+  @override
+  String get filmReqDirector => 'Signs (director)';
 }

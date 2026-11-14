@@ -56,7 +56,11 @@ class MdfDictEntry {
 }
 
 /// A milling group and its variants, in the list's order.
-typedef MdfMillingGroup = ({MdfDictEntry? head, String name, List<MdfDictEntry> variants});
+typedef MdfMillingGroup = ({
+  MdfDictEntry? head,
+  String name,
+  List<MdfDictEntry> variants,
+});
 
 @immutable
 class MdfDictionaries {

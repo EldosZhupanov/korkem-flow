@@ -92,9 +92,7 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
       selected: e.value == widget.current,
       title: Text(
         e.value,
-        style: variant || !_millings
-            ? null
-            : theme.textTheme.titleSmall,
+        style: variant || !_millings ? null : theme.textTheme.titleSmall,
       ),
       onTap: () => Navigator.of(context).pop(e.value),
       trailing: Row(

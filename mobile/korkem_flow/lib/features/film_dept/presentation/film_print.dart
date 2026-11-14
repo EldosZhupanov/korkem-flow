@@ -599,8 +599,7 @@ Future<Uint8List> buildFilmInvoicePdf(
                     cell(
                       [
                         l.colour ?? l.title,
-                        if (l.code case final code? when code.isNotEmpty)
-                          code,
+                        if (l.code case final code? when code.isNotEmpty) code,
                       ].join(' · '),
                     ),
                     cell(metres(l.metres), right: true),

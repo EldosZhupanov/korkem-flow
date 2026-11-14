@@ -266,7 +266,6 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
 
 const _medals = ['🥇', '🥈', '🥉'];
 
-
 /// One figure of the month on a card of its own.
 class _Metric extends StatelessWidget {
   const _Metric({

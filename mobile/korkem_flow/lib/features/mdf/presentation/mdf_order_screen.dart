@@ -2013,7 +2013,10 @@ class _LineRow extends StatelessWidget {
               drop(
                 'mdfLineThickness',
                 l10n.mdfThicknessShort,
-                mdfThicknessLabel(thicknesses, line.thicknessMm ?? headThickness),
+                mdfThicknessLabel(
+                  thicknesses,
+                  line.thicknessMm ?? headThickness,
+                ),
                 thicknesses,
                 100,
                 (v) {

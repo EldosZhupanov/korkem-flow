@@ -8424,7 +8424,7 @@ abstract class AppLocalizations {
   /// No description provided for @mdfExtraName.
   ///
   /// In en, this message translates to:
-  /// **'Extra name'**
+  /// **'Project (kitchen, address)'**
   String get mdfExtraName;
 
   /// No description provided for @mdfDefaultRate.
@@ -14208,6 +14208,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'his customers owe {amount}'**
   String filmTeamOwed(String amount);
+
+  /// No description provided for @filmSaleMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'bought {cost} → sold {price}: +{perM}/m · {total} ({pct}%)'**
+  String filmSaleMargin(
+    String cost,
+    String price,
+    String perM,
+    String total,
+    String pct,
+  );
+
+  /// No description provided for @filmSaleLikeLastShort.
+  ///
+  /// In en, this message translates to:
+  /// **'As last time'**
+  String get filmSaleLikeLastShort;
+
+  /// No description provided for @mdfDictAddGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a group'**
+  String get mdfDictAddGroup;
+
+  /// No description provided for @mdfDictAddVariant.
+  ///
+  /// In en, this message translates to:
+  /// **'A variant of {group}'**
+  String mdfDictAddVariant(String group);
+
+  /// No description provided for @filmSupplierByInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'By invoice'**
+  String get filmSupplierByInvoice;
+
+  /// No description provided for @filmInvoiceNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice no.'**
+  String get filmInvoiceNo;
+
+  /// No description provided for @filmInvoiceOn.
+  ///
+  /// In en, this message translates to:
+  /// **'dated {day}'**
+  String filmInvoiceOn(String day);
+
+  /// No description provided for @filmInvoiceDue.
+  ///
+  /// In en, this message translates to:
+  /// **'pay by {day}'**
+  String filmInvoiceDue(String day);
+
+  /// No description provided for @filmInvoiceNoDue.
+  ///
+  /// In en, this message translates to:
+  /// **'No due date'**
+  String get filmInvoiceNoDue;
+
+  /// No description provided for @filmInvoiceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed until «Оплатили»; overdue past its day.'**
+  String get filmInvoiceHint;
+
+  /// No description provided for @filmByInvoiceNo.
+  ///
+  /// In en, this message translates to:
+  /// **'invoice № {no}'**
+  String filmByInvoiceNo(String no);
+
+  /// No description provided for @filmFromDeptCash.
+  ///
+  /// In en, this message translates to:
+  /// **'from the cash'**
+  String get filmFromDeptCash;
+
+  /// No description provided for @filmSupplierFromDept.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of the film department\'s cash'**
+  String get filmSupplierFromDept;
+
+  /// No description provided for @filmInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice'**
+  String get filmInvoice;
+
+  /// No description provided for @filmInvoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice No. {no} of {day}'**
+  String filmInvoiceTitle(String no, String day);
+
+  /// No description provided for @filmInvoiceBeneficiary.
+  ///
+  /// In en, this message translates to:
+  /// **'Beneficiary'**
+  String get filmInvoiceBeneficiary;
+
+  /// No description provided for @filmInvoiceSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier:'**
+  String get filmInvoiceSupplier;
+
+  /// No description provided for @filmInvoiceBuyer.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer:'**
+  String get filmInvoiceBuyer;
+
+  /// No description provided for @filmInvoiceNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'No.'**
+  String get filmInvoiceNumber;
+
+  /// No description provided for @filmInvoiceItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get filmInvoiceItem;
+
+  /// No description provided for @filmInvoiceQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get filmInvoiceQty;
+
+  /// No description provided for @filmInvoiceUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get filmInvoiceUnit;
+
+  /// No description provided for @filmInvoiceMetre.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get filmInvoiceMetre;
+
+  /// No description provided for @filmInvoiceSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Items in total: {count}, for {sum}'**
+  String filmInvoiceSummary(int count, String sum);
+
+  /// No description provided for @filmInvoicePayBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay by {day}'**
+  String filmInvoicePayBy(String day);
+
+  /// No description provided for @filmInvoiceDueHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay by'**
+  String get filmInvoiceDueHelp;
+
+  /// No description provided for @filmInvoiceSigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued by'**
+  String get filmInvoiceSigned;
+
+  /// No description provided for @filmInvoiceMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice PDF'**
+  String get filmInvoiceMake;
+
+  /// No description provided for @filmInvoiceNoRequisites.
+  ///
+  /// In en, this message translates to:
+  /// **'The invoice needs your company\'s requisites — fill them in once, and every invoice after carries them.'**
+  String get filmInvoiceNoRequisites;
+
+  /// No description provided for @filmReqTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company requisites'**
+  String get filmReqTitle;
+
+  /// No description provided for @filmReqFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in requisites'**
+  String get filmReqFill;
+
+  /// No description provided for @filmReqEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change requisites'**
+  String get filmReqEdit;
+
+  /// No description provided for @filmReqSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get filmReqSave;
+
+  /// No description provided for @filmReqName.
+  ///
+  /// In en, this message translates to:
+  /// **'Company name (as in documents)'**
+  String get filmReqName;
+
+  /// No description provided for @filmReqBin.
+  ///
+  /// In en, this message translates to:
+  /// **'BIN/IIN'**
+  String get filmReqBin;
+
+  /// No description provided for @filmReqAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get filmReqAddress;
+
+  /// No description provided for @filmReqPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get filmReqPhone;
+
+  /// No description provided for @filmReqBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get filmReqBank;
+
+  /// No description provided for @filmReqIik.
+  ///
+  /// In en, this message translates to:
+  /// **'IIK (account)'**
+  String get filmReqIik;
+
+  /// No description provided for @filmReqBik.
+  ///
+  /// In en, this message translates to:
+  /// **'BIK'**
+  String get filmReqBik;
+
+  /// No description provided for @filmReqKbe.
+  ///
+  /// In en, this message translates to:
+  /// **'Kbe'**
+  String get filmReqKbe;
+
+  /// No description provided for @filmReqDirector.
+  ///
+  /// In en, this message translates to:
+  /// **'Signs (director)'**
+  String get filmReqDirector;
 }
 
 class _AppLocalizationsDelegate
