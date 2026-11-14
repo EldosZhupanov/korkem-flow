@@ -97,6 +97,19 @@ List<String> mdfChoices(List<String> values, String? current) => [
 /// 08.11.2026); R0 is a sharp corner. Both need no list and cannot be
 /// renamed or deleted.
 const mdfDefaultEdge = 'R3';
+
+/// A new order's board when nothing says otherwise (owner, 14.11.2026):
+/// our 16 mm LMDF. Each position may still pick another, or the customer's.
+const mdfDefaultThicknessMm = 16;
+const mdfDefaultMaterial = 'ЛМДФ';
+
+/// [mdfDefaultMaterial] as the factory's list spells it, if it is there.
+String? mdfDefaultMaterialIn(List<String> materials) {
+  for (final m in materials) {
+    if (m.trim().toLowerCase() == mdfDefaultMaterial.toLowerCase()) return m;
+  }
+  return null;
+}
 const List<String> mdfStandardEdges = ['R0', mdfDefaultEdge];
 
 /// The radii to choose from: the two standard ones, then the list's.

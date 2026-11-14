@@ -403,20 +403,26 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   };
 
   /// A new order starts with the head of the last one this manager wrote:
-  /// the same finish, thickness and edge more often than not.
+  /// the same finish, thickness and edge more often than not — and, where
+  /// that says nothing, our 16 mm LMDF (owner, 14.11.2026).
   Future<void> _startFromLastHead() async {
     try {
-      final head = await ref.read(mdfOrderRepositoryProvider).lastHead();
-      if (!mounted || head == null) return;
+      final repo = ref.read(mdfOrderRepositoryProvider);
+      final head = await repo.lastHead();
+      final materials = await repo
+          .dictionaries()
+          .then((d) => d.values(MdfDictKind.material))
+          .catchError((Object _) => const <String>[]);
+      if (!mounted) return;
       setState(() {
         // Milling is a position's and the price a film group's now: the
         // head brings neither.
         _head = MdfHead(
-          thicknessMm: head.thicknessMm,
-          decorTop: head.decorTop,
-          decorBottom: head.decorBottom,
-          edgeProfile: head.edgeProfile,
-          material: head.material,
+          thicknessMm: head?.thicknessMm ?? mdfDefaultThicknessMm,
+          decorTop: head?.decorTop,
+          decorBottom: head?.decorBottom,
+          edgeProfile: head?.edgeProfile,
+          material: head?.material ?? mdfDefaultMaterialIn(materials),
         );
         for (final l in _lines) {
           if (l.input() == null) l.edge = _defaultEdge;
