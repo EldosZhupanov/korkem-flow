@@ -2544,5 +2544,12 @@
   "filmFigToOrder": "Пора заказать",
   "filmFigToOrderNote": "≈ {metres} м",
   "filmStockBought": "закуп {price}/м",
-  "filmStockOrder": "заказать {metres} м"
+  "filmStockOrder": "заказать {metres} м",
+  "filmSalesAverage": "Средний чек",
+  "filmSalesQuietToday": "Сегодня продаж ещё нет",
+  "filmSalesYesterdayWas": "вчера: {count}, {metres} м",
+  "filmSalesByDay": "Продано по дням, м",
+  "filmSalesChartA11y": "Метры по дням; всего {metres} м",
+  "filmSalesTopFilms": "Топ плёнок",
+  "filmSalesTopCustomers": "Топ клиентов"
 }

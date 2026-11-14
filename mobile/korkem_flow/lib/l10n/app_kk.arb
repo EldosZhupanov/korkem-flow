@@ -2544,5 +2544,12 @@
   "filmFigToOrder": "Тапсырыс беру керек",
   "filmFigToOrderNote": "≈ {metres} м",
   "filmStockBought": "сатып алу {price}/м",
-  "filmStockOrder": "{metres} м тапсырыс беру"
+  "filmStockOrder": "{metres} м тапсырыс беру",
+  "filmSalesAverage": "Орташа чек",
+  "filmSalesQuietToday": "Бүгін әзірге сатылым жоқ",
+  "filmSalesYesterdayWas": "кеше: {count}, {metres} м",
+  "filmSalesByDay": "Күндер бойынша сатылды, м",
+  "filmSalesChartA11y": "Күндер бойынша метр; барлығы {metres} м",
+  "filmSalesTopFilms": "Үздік үлдірлер",
+  "filmSalesTopCustomers": "Үздік клиенттер"
 }

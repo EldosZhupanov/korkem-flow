@@ -8893,5 +8893,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "filmSalesAverage": "Average sale",
+  "filmSalesQuietToday": "No sales yet today",
+  "filmSalesYesterdayWas": "yesterday: {count}, {metres} m",
+  "@filmSalesYesterdayWas": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesByDay": "Sold by day, m",
+  "filmSalesChartA11y": "Metres sold by day; {metres} m in all",
+  "@filmSalesChartA11y": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSalesTopFilms": "Films that sold most",
+  "filmSalesTopCustomers": "Who bought most"
 }

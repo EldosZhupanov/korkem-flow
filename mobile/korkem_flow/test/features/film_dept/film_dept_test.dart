@@ -1501,6 +1501,21 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmTab:sales')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('filmSales:kpi:amount')), findsOneWidget);
+    // A week: the days as a chart, the best films and who bought most.
+    expect(find.byKey(const ValueKey('filmSales:insight')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('filmSales:period:week')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmSales:chart')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('barRow:film:KIRA · Белый Матовый')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('barRow:customer:Мебель-ЮГ')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('filmSales:period:today')));
+    await tester.pumpAndSettle();
     // Paid in part: an orange mark with what is owed.
     expect(find.byKey(const ValueKey('filmSales:state:STE-7')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('filmSales:filter:paid')));
