@@ -878,10 +878,10 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertAlmostEqual(need["need_kg"], 0.49, places=2)
 		for stage in ("cut", "mill", "sand", "paint"):
 			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
-		# «Покрашено»: 0,489 kg off the shelf; ticked twice, taken once.
-		self.assertAlmostEqual(on_hand(), 10 - 0.489, places=3)
+		# «Покрашено»: 0,49 kg off the shelf; ticked twice, taken once.
+		self.assertAlmostEqual(on_hand(), 10 - 0.49, places=3)
 		self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint")
-		self.assertAlmostEqual(on_hand(), 10 - 0.489, places=3)
+		self.assertAlmostEqual(on_hand(), 10 - 0.49, places=3)
 		usage = self._as(BUYER, paint_stock.stock)["usage"]
 		self.assertGreaterEqual(usage["m2"], 1.63)
 		# Unticked: put back.

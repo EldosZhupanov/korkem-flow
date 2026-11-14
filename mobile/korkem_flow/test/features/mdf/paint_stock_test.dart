@@ -159,7 +159,7 @@ void main() {
   ) async {
     final repo = await _pump(tester);
     expect(find.byKey(const ValueKey('paintNeed:RAL 9016')), findsOne);
-    expect(find.textContaining('2.2 kg short'), findsOne);
+    expect(find.textContaining('2,2 kg short'), findsOne);
     expect(find.byKey(const ValueKey('paintOwed:STE-5')), findsOne);
 
     await tester.tap(find.byKey(const ValueKey('paintNeedBuy:RAL 9016')));
@@ -228,7 +228,7 @@ void main() {
     final repo = await _pump(tester);
     expect(
       tester.widget<Text>(find.byKey(const ValueKey('paintUsage'))).data,
-      contains('really 0.36 kg/m²'),
+      contains('really 0,36 kg/m²'),
     );
     await tester.tap(find.byKey(const ValueKey('paintCount:MAT-P1')));
     await tester.pumpAndSettle();

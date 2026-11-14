@@ -353,15 +353,16 @@ def use_for_order(order: str) -> dict:
 	for colour, m2 in mdf_paint._colours([order])[0].get(order, {}).items():
 		if colour == mdf_paint.NO_COLOUR:
 			continue
-		need = round(float(m2) * rate, 3)
+		# Kilograms to the hundredth, as the stock ledger keeps them.
+		need = round(float(m2) * rate, 2)
 		left = need
 		for item, have in _paints_of(row.company, colour):
-			take = round(min(left, have), 3)
+			take = round(min(left, have), 2)
 			if take <= 0:
 				continue
 			_entry(row.company, "Material Issue", item, take, USE_ORDER, order, round(float(m2) * take / need, 3))
 			taken.append({"colour": colour, "item": item, "kg": take})
-			left = round(left - take, 3)
+			left = round(left - take, 2)
 			if left <= 0:
 				break
 		if left > 0:
@@ -396,7 +397,7 @@ def count(item: str, kg) -> dict:
 	if not actual.is_finite() or actual < 0 or actual > material_stock.MAX_QTY:
 		frappe.throw("Остаток — от нуля, в кг.")
 	have, average = material_stock._stock([item], company).get(item, (0.0, 0.0))
-	diff = round(float(actual) - have, 3)
+	diff = round(float(actual) - have, 2)
 	if diff < 0:
 		_entry(company, "Material Issue", item, -diff, USE_COUNT)
 	elif diff > 0:
