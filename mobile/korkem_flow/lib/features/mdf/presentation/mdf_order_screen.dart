@@ -1546,19 +1546,6 @@ class _FilmGroup extends StatelessWidget {
                         ),
                       ),
                     ),
-                  for (final t in [
-                    if (coating == MdfCoating.paint) MdfOrderTag.clientPaint,
-                    if (coating == MdfCoating.pvc) MdfOrderTag.clientFilm,
-                    if (coating != null) MdfOrderTag.clientParts,
-                  ])
-                    FilterChip(
-                      key: ValueKey('mdfGroupTag:$index:${t.wire}'),
-                      label: Text(mdfOrderTagLabel(t, l10n)),
-                      selected: tags.contains(t),
-                      onSelected: onTag == null
-                          ? null
-                          : (on) => onTag!(t, on: on),
-                    ),
                   // A film from the catalogue: the maker, the type, then that
                   // maker's film (owner, 10.11.2026).
                   if (coating == MdfCoating.pvc)
@@ -1574,8 +1561,10 @@ class _FilmGroup extends StatelessWidget {
                         if (picked != null) onFilm(picked);
                       },
                     ),
-                  // The type's own list, here: add, rename, delete a film
-                  // or a paint without leaving the order (09.11.2026).
+                  // The type's own list, right beside its drop like every
+                  // other field's: add, rename, delete a film or a paint
+                  // without leaving the order (09.11.2026; moved beside the
+                  // drop 15.11.2026 — behind the chips nobody found it).
                   if (mdfCoatingList(coating) case final kind?
                       when coating != MdfCoating.pvc)
                     IconButton(
@@ -1591,6 +1580,19 @@ class _FilmGroup extends StatelessWidget {
                         );
                         if (picked != null) onFilm(picked);
                       },
+                    ),
+                  for (final t in [
+                    if (coating == MdfCoating.paint) MdfOrderTag.clientPaint,
+                    if (coating == MdfCoating.pvc) MdfOrderTag.clientFilm,
+                    if (coating != null) MdfOrderTag.clientParts,
+                  ])
+                    FilterChip(
+                      key: ValueKey('mdfGroupTag:$index:${t.wire}'),
+                      label: Text(mdfOrderTagLabel(t, l10n)),
+                      selected: tags.contains(t),
+                      onSelected: onTag == null
+                          ? null
+                          : (on) => onTag!(t, on: on),
                     ),
                   SizedBox(
                     width: 130,
