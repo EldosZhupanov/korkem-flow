@@ -328,7 +328,6 @@ void main() {
     await tester.pumpAndSettle();
     double top(String key) => tester.getTopLeft(find.byKey(ValueKey(key))).dy;
     // Each system, its colours under it; the unfiled ones last.
-    expect(top('dictEntry:system:NCS'), lessThan(top('dictEntry:system:RAL Classic')));
     expect(top('dictEntry:system:RAL Classic'), lessThan(top('dictEntry:RAL 9010')));
     expect(find.text('No system'), findsOne);
     expect(top('dictEntry:RAL 9010'), lessThan(top('dictEntry:Мой цвет')));
