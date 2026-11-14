@@ -113,7 +113,8 @@ class _BoardState extends ConsumerState<_Board> {
     final orders = ref.read(mdfOrderRepositoryProvider);
     final colours = {for (final g in b.byColour) g.colour: g};
     // The biggest batch is the one to mix next, unless another is picked.
-    final picked = colours[_colour] ?? (b.byColour.isEmpty ? null : b.byColour.first);
+    final picked =
+        colours[_colour] ?? (b.byColour.isEmpty ? null : b.byColour.first);
     if (b.byColour.isEmpty && b.drying.isEmpty && b.popular.isEmpty) {
       return Center(child: Text(l10n.mdfPaintEmpty));
     }
@@ -192,7 +193,10 @@ class _BoardState extends ConsumerState<_Board> {
           const SizedBox(height: AppSpacing.md),
           ReadableWidth(child: SectionLabel(l10n.mdfPaintByColour)),
           ReadableWidth(
-            child: Text(l10n.mdfPaintByColourHint, style: theme.textTheme.bodySmall),
+            child: Text(
+              l10n.mdfPaintByColourHint,
+              style: theme.textTheme.bodySmall,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           ReadableWidth(

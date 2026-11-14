@@ -99,7 +99,6 @@ List<Map<String, dynamic>> _maps(Object? v) => [
     if (e is Map) Map<String, dynamic>.from(e),
 ];
 
-double _d(Object? v) =>
-    v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
+double _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
 
 int _i(Object? v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
