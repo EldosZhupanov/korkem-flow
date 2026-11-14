@@ -5177,7 +5177,18 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
-  String get mdfVolumeTitle => 'Жұмыс көлемі';
+  String mdfVolumeVersus(String arrow, int pct) {
+    return '$arrow $pct% алдыңғы кезеңге';
+  }
+
+  @override
+  String get mdfVolumeDone => 'Кезеңдер бойынша жасалды';
+
+  @override
+  String get mdfVolumeQueue => 'Қазір күтуде — кептеліс қайда';
+
+  @override
+  String get mdfVolumeTitle => 'Цех — жұмыс көлемі';
 
   @override
   String get mdfVolumeHint => 'Әркім кезеңдер бойынша неше м² жасады';
@@ -7918,4 +7929,45 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get filmStatementSigns =>
       'Сатушы ____________     Клиент ____________';
+
+  @override
+  String get mdfMarginTitle => 'Маржа';
+
+  @override
+  String get mdfMarginRevenue => 'Тапсырыс сомасы';
+
+  @override
+  String get mdfMarginMaterial => 'Материал';
+
+  @override
+  String get mdfMarginWork => 'Жұмыс';
+
+  @override
+  String get mdfMarginEstimate =>
+      'Бүгінгі баға бойынша бағалау: материал әлі есептен шығарылмаған';
+
+  @override
+  String mdfMarginMissing(String names) {
+    return 'Бағасы жоқ: $names';
+  }
+
+  @override
+  String get mdfMarginNotCounted =>
+      'Есепке алынбаған: бояу, желім, электр, жеткізу';
+
+  @override
+  String get mdfSumMargin => 'Берілген тапсырыстардың маржасы';
+
+  @override
+  String mdfSumMarginOrders(String count) {
+    return 'Берілген тапсырыстар: $count';
+  }
+
+  @override
+  String mdfSumMarginEstimated(String count) {
+    return 'Бағалау бойынша, есептен шығарусыз: $count';
+  }
+
+  @override
+  String get mdfSumMarginLowest => 'Ең аз тапқандар';
 }

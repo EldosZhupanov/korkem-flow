@@ -489,6 +489,14 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertAlmostEqual(area(after, worker) - area(before, worker), 3.04, places=2)
 		self.assertAlmostEqual(after["unassigned_m2"] - before["unassigned_m2"], 3.04, places=2)
 		self.assertIn(worker, [w["employee"] for w in self._as(MANAGER, mdf_volume.workers)])
+		# The shop's dashboard: today's bar carries both stages; the queue
+		# has the order waiting at sanding next; the period before is a number.
+		self.assertEqual([d["date"] for d in after["days"]], [nowdate()])
+		self.assertAlmostEqual(after["days"][0]["area_m2"] - before["days"][0]["area_m2"], 6.08, places=2)
+		self.assertIsInstance(after["previous_m2"], float)
+		waiting = {q["stage"]: q["orders"] for q in after["queue"]}
+		before_waiting = {q["stage"]: q["orders"] for q in before["queue"]}
+		self.assertEqual(sum(waiting.values()), sum(before_waiting.values()))
 
 		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "cut", done=False)
 		self.assertIsNone(card["stages"][0]["worker"])  # unticking forgets who
@@ -786,6 +794,55 @@ class TestMdfOrders(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):  # a raw facade has no colour
 			self._as(MANAGER, mdf_orders.price, [{**lines[2], "film": self.decor}], finish=None)
 		self.assertEqual(mdf_orders.stages_for(None, coatings="raw"), ["cut", "mill", "sand", "ready"])
+
+	def test_the_paint_board_groups_by_colour_and_counts_the_drying_down(self):
+		from korkem_manufacturing.services import mdf_dictionaries, mdf_paint
+
+		colour = "МДФ Тест RAL 7035"
+		self._as(MANAGER, mdf_dictionaries.add, "paint", colour)
+		lines = [
+			{**ORDER_1129[0], "coating": "pvc", "film": self.decor, "rate": 17_000},
+			{**ORDER_1129[1], "coating": "paint", "film": colour, "rate": 24_000},  # 1,63 m²
+		]
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
+						head={"thickness_mm": 16}, lines=lines)
+		self.addCleanup(self._drop, card["name"])
+		name = card["name"]
+		before = self._as(MANAGER, mdf_paint.board)
+		self._as(MANAGER, mdf_orders.accept, name)
+
+		def group(board):
+			return next((g for g in board["by_colour"] if g["colour"] == colour), None)
+
+		# Still at the saw: on its way to the paint, not at it — and only its painted m².
+		board = self._as(MANAGER, mdf_paint.board)
+		self.assertIsNone(group(board))
+		self.assertAlmostEqual(board["coming_m2"] - before["coming_m2"], 1.63, places=2)
+		for stage in ("cut", "mill", "sand"):
+			self._as(MANAGER, mdf_orders.set_stage, name, stage)
+		board = self._as(MANAGER, mdf_paint.board)
+		self.assertEqual([o["name"] for o in group(board)["orders"]], [name])
+		self.assertAlmostEqual(group(board)["area_m2"], 1.63, places=2)
+
+		# Put to dry: off the colour list, counting down from the factory's hours.
+		self._as(MANAGER, mdf_paint.set_dry_hours, 12)
+		self.addCleanup(lambda: frappe.db.set_default(f"{mdf_paint._DRY_KEY}:{COMPANY}", ""))
+		board = self._as(MANAGER, mdf_paint.start_drying, name)
+		self.assertIsNone(group(board))
+		drying = next(d for d in board["drying"] if d["name"] == name)
+		self.assertEqual((drying["dry"], drying["colours"], board["dry_hours"]), (False, [colour], 12))
+		self.assertGreater(drying["minutes_left"], 11 * 60)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_paint.set_dry_hours, 0)
+		# Dry: «краска» is ticked and it leaves the board.
+		self._as(MANAGER, mdf_orders.set_stage, name, "paint")
+		board = self._as(MANAGER, mdf_paint.board)
+		self.assertNotIn(name, [d["name"] for d in board["drying"]])
+		self.assertIn(colour, [p["colour"] for p in board["popular"]])
+		with self.assertRaises(frappe.ValidationError):  # painted already
+			self._as(MANAGER, mdf_paint.start_drying, name)
+		with self.assertRaises(frappe.PermissionError):  # the board is the managers' screen for now
+			self._as(CUTTER, mdf_paint.board)
 
 	def test_a_payment_is_fixed_or_taken_back_the_same_day_and_an_old_one_only_by_the_owner(self):
 		from korkem_manufacturing.api import mdf_orders as api

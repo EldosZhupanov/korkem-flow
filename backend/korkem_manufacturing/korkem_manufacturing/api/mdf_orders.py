@@ -89,6 +89,14 @@ def card(order: str) -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
+def margin(order: str) -> dict:
+	"""Маржа заказа: сумма минус материал и работа (без краски, клея, доставки)."""
+	from korkem_manufacturing.services import mdf_margin
+
+	return mdf_margin.of_order(order)
+
+
+@frappe.whitelist(methods=["GET"])
 def listing(search: str | None = None, status: str | None = None, overdue: bool | int | str = 0,
 			with_debt: bool | int | str = 0, start: int = 0, limit: int = 50, tag: str | None = None) -> dict:
 	return service.listing(search=search, status=status, overdue=overdue, with_debt=with_debt,

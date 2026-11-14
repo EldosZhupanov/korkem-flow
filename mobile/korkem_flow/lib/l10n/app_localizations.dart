@@ -9267,10 +9267,28 @@ abstract class AppLocalizations {
   /// **'owes {amount}'**
   String mdfReportOwes(String amount);
 
+  /// No description provided for @mdfVolumeVersus.
+  ///
+  /// In en, this message translates to:
+  /// **'{arrow} {pct}% on the period before'**
+  String mdfVolumeVersus(String arrow, int pct);
+
+  /// No description provided for @mdfVolumeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done by stage'**
+  String get mdfVolumeDone;
+
+  /// No description provided for @mdfVolumeQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting now — where it jams'**
+  String get mdfVolumeQueue;
+
   /// No description provided for @mdfVolumeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Work volume'**
+  /// **'Shop — work volume'**
   String get mdfVolumeTitle;
 
   /// No description provided for @mdfVolumeHint.
@@ -13734,6 +13752,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Seller ____________     Customer ____________'**
   String get filmStatementSigns;
+
+  /// No description provided for @mdfMarginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin'**
+  String get mdfMarginTitle;
+
+  /// No description provided for @mdfMarginRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Order total'**
+  String get mdfMarginRevenue;
+
+  /// No description provided for @mdfMarginMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get mdfMarginMaterial;
+
+  /// No description provided for @mdfMarginWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get mdfMarginWork;
+
+  /// No description provided for @mdfMarginEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'An estimate at today\'s prices: nothing written off yet'**
+  String get mdfMarginEstimate;
+
+  /// No description provided for @mdfMarginMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No price: {names}'**
+  String mdfMarginMissing(String names);
+
+  /// No description provided for @mdfMarginNotCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not counted: paint, glue, power, delivery'**
+  String get mdfMarginNotCounted;
+
+  /// No description provided for @mdfSumMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin of orders handed over'**
+  String get mdfSumMargin;
+
+  /// No description provided for @mdfSumMarginOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over: {count}'**
+  String mdfSumMarginOrders(String count);
+
+  /// No description provided for @mdfSumMarginEstimated.
+  ///
+  /// In en, this message translates to:
+  /// **'By estimate, nothing written off: {count}'**
+  String mdfSumMarginEstimated(String count);
+
+  /// No description provided for @mdfSumMarginLowest.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned least'**
+  String get mdfSumMarginLowest;
 }
 
 class _AppLocalizationsDelegate

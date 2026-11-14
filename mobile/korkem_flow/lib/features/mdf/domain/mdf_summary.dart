@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 
 /// «Итоги МДФ» (owner, 12.11.2026): the period against the one before it,
@@ -26,6 +27,7 @@ class MdfSummary {
     this.stages = const [],
     this.atRisk = 0,
     this.days = const [],
+    this.margin = const MdfMarginPeriod(),
   });
 
   factory MdfSummary.fromJson(Map<String, dynamic> json) => MdfSummary(
@@ -77,6 +79,7 @@ class MdfSummary {
           total: _d(d['total']),
         ),
     ],
+    margin: MdfMarginPeriod.fromJson(_m(json['margin'])),
   );
 
   final String since;
@@ -106,6 +109,9 @@ class MdfSummary {
 
   /// What came in, day by day — month by month over a year.
   final List<({String date, int orders, double areaM2, double total})> days;
+
+  /// What the orders handed over in the period earned (`mdf_margin`).
+  final MdfMarginPeriod margin;
 }
 
 /// How much a period brought.

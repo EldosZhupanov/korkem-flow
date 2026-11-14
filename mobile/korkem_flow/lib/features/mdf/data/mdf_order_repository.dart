@@ -11,6 +11,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_batch.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_cash.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_debts.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
@@ -110,6 +111,12 @@ final filmShortageProvider = FutureProvider.autoDispose<FilmShortage>(
 // ignore: specify_nonobvious_property_types
 final mdfOrderProvider = FutureProvider.autoDispose.family<MdfOrder, String>(
   (ref, name) => ref.watch(mdfOrderRepositoryProvider).card(name),
+);
+
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfMarginProvider = FutureProvider.autoDispose.family<MdfMargin, String>(
+  (ref, name) => ref.watch(mdfOrderRepositoryProvider).margin(name),
 );
 
 /// «Заказы МДФ» (`korkem_manufacturing.api.mdf_orders`).
@@ -404,6 +411,11 @@ class MdfOrderRepository {
         if (w is Map) MdfWorker.fromJson(Map<String, dynamic>.from(w)),
     ];
   }
+
+  /// What the order earned: its total less material and work.
+  Future<MdfMargin> margin(String order) async => MdfMargin.fromJson(
+    _map(await _client.callMethod('$_base.margin', params: {'order': order})),
+  );
 
   /// «Объём работ» for the stages ticked in [since, until].
   Future<MdfVolume> volume({

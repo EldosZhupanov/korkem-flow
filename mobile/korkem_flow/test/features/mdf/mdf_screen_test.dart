@@ -23,6 +23,7 @@ void main() {
     'plan': Routes.mdfPlan,
     'tv': Routes.mdfTv,
     'batch': Routes.mdfBatch,
+    'paint': Routes.mdfPaint,
     'stock': Routes.materialStock,
     'film': Routes.mdfFilm,
     'logistics': Routes.logistics,

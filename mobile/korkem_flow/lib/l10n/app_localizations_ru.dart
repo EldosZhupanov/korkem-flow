@@ -5237,7 +5237,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get mdfVolumeTitle => 'Объём работ';
+  String mdfVolumeVersus(String arrow, int pct) {
+    return '$arrow $pct% к прошлому периоду';
+  }
+
+  @override
+  String get mdfVolumeDone => 'Сделано по этапам';
+
+  @override
+  String get mdfVolumeQueue => 'Ждут сейчас — где пробка';
+
+  @override
+  String get mdfVolumeTitle => 'Цех — объём работ';
 
   @override
   String get mdfVolumeHint => 'Сколько м² сделал каждый по этапам';
@@ -7980,4 +7991,45 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get filmStatementSigns =>
       'Продавец ____________     Клиент ____________';
+
+  @override
+  String get mdfMarginTitle => 'Маржа';
+
+  @override
+  String get mdfMarginRevenue => 'Сумма заказа';
+
+  @override
+  String get mdfMarginMaterial => 'Материал';
+
+  @override
+  String get mdfMarginWork => 'Работа';
+
+  @override
+  String get mdfMarginEstimate =>
+      'Оценка по сегодняшним ценам: материал ещё не списан';
+
+  @override
+  String mdfMarginMissing(String names) {
+    return 'Без цены: $names';
+  }
+
+  @override
+  String get mdfMarginNotCounted =>
+      'Не учтены: краска, клей, электричество, доставка';
+
+  @override
+  String get mdfSumMargin => 'Маржа выданных заказов';
+
+  @override
+  String mdfSumMarginOrders(String count) {
+    return 'Выдано заказов: $count';
+  }
+
+  @override
+  String mdfSumMarginEstimated(String count) {
+    return 'По оценке, без списания: $count';
+  }
+
+  @override
+  String get mdfSumMarginLowest => 'Меньше всего заработали';
 }

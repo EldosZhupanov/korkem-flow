@@ -15,8 +15,10 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_summary_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_summary.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_margin_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_report_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -230,6 +232,7 @@ class _Body extends ConsumerWidget {
                   _AsleepCard(asleep: s.asleep),
                   _FilmsCard(summary: s),
                   _DeadlinesCard(summary: s),
+                  _MarginCard(margin: s.margin),
                   _DebtsCard(debts: s.debts),
                   _ManagersCard(summary: s),
                 ])
@@ -967,6 +970,74 @@ class _DeadlinesCard extends StatelessWidget {
             ),
             style: Theme.of(context).textTheme.bodySmall,
           ),
+      ],
+    );
+  }
+}
+
+/// What the orders handed over in the period earned over material and work
+/// (owner, 14.11.2026), and the ones that earned least — tap one to open it.
+class _MarginCard extends StatelessWidget {
+  const _MarginCard({required this.margin});
+
+  final MdfMarginPeriod margin;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final status = context.statusColors;
+    final money = mdfMoney(context);
+    final m = margin;
+    return _Section(
+      k: 'margin',
+      icon: AppIcons.payroll,
+      title: l10n.mdfSumMargin,
+      children: [
+        if (m.orders == 0)
+          Text(l10n.mdfSumNothing)
+        else ...[
+          _Line(
+            l10n.mdfMarginTitle,
+            '${money.format(m.margin)}${mdfShare(m.share)}',
+            key: const ValueKey('mdfSum:margin'),
+            color: mdfMarginColor(context, m.margin, m.share),
+          ),
+          _Line(l10n.mdfMarginRevenue, money.format(m.revenue)),
+          _Line(l10n.mdfMarginMaterial, money.format(m.material)),
+          _Line(l10n.mdfMarginWork, money.format(m.work)),
+          Text(
+            l10n.mdfSumMarginOrders('${m.orders}'),
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+          if (m.estimated > 0)
+            Text(
+              l10n.mdfSumMarginEstimated('${m.estimated}'),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: status.warning),
+            ),
+          Text(
+            l10n.mdfMarginNotCounted,
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+          if (m.lowest.isNotEmpty) ...[
+            const Divider(),
+            Text(
+              l10n.mdfSumMarginLowest,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+            for (final o in m.lowest)
+              InkWell(
+                key: ValueKey('mdfSum:lowest:${o.name}'),
+                onTap: () => context.push(Routes.mdfOrder(o.name)),
+                child: _Line(
+                  '${o.name} · ${o.customer}',
+                  '${money.format(o.margin)}${mdfShare(o.share)}',
+                  color: mdfMarginColor(context, o.margin, o.share),
+                ),
+              ),
+          ],
+        ],
       ],
     );
   }
