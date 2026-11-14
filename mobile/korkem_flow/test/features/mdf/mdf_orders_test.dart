@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:korkem_flow/core/design/theme/app_theme.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
@@ -843,6 +846,63 @@ void main() {
       ),
       'Плёнка 9,0 м · загрузок 3 · поправлено вручную',
     );
+  });
+
+  testWidgets('the layout button opens the press layout (14.11.2026)', (
+    tester,
+  ) async {
+    // The button is drawn past its narrow cell; a tap on it once went
+    // nowhere. The group's row takes it now.
+    tester.view
+      ..physicalSize = const Size(2400, 4000)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) =>
+              const Scaffold(body: MdfOrderScreen(name: 'SAL-ORD-1129')),
+        ),
+        GoRoute(
+          path: Routes.pressLayout,
+          builder: (_, state) =>
+              Text('layout of ${state.pathParameters['order']}'),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfOrderRepositoryProvider.overrideWithValue(
+            _Rich(
+              extra: {
+                'press': {
+                  'Белый Матовый': {
+                    'film_m': 8.3,
+                    'layout_m': 8.3,
+                    'plain_m': 9.3,
+                    'loads': [3.1, 3.1, 2.1],
+                  },
+                },
+              },
+            ),
+          ),
+        ],
+        child: MaterialApp.router(
+          theme: AppTheme.light(),
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfGroupPress:0')));
+    await tester.pumpAndSettle();
+    expect(find.text('layout of SAL-ORD-1129'), findsOneWidget);
   });
 
   testWidgets('a payment is fixed with a reason; a cancelled one has no menu', (
