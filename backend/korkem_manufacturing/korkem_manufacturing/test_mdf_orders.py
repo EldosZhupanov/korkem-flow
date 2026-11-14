@@ -489,6 +489,14 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertAlmostEqual(area(after, worker) - area(before, worker), 3.04, places=2)
 		self.assertAlmostEqual(after["unassigned_m2"] - before["unassigned_m2"], 3.04, places=2)
 		self.assertIn(worker, [w["employee"] for w in self._as(MANAGER, mdf_volume.workers)])
+		# The shop's dashboard: today's bar carries both stages; the queue
+		# has the order waiting at sanding next; the period before is a number.
+		self.assertEqual([d["date"] for d in after["days"]], [nowdate()])
+		self.assertAlmostEqual(after["days"][0]["area_m2"] - before["days"][0]["area_m2"], 6.08, places=2)
+		self.assertIsInstance(after["previous_m2"], float)
+		waiting = {q["stage"]: q["orders"] for q in after["queue"]}
+		before_waiting = {q["stage"]: q["orders"] for q in before["queue"]}
+		self.assertEqual(sum(waiting.values()), sum(before_waiting.values()))
 
 		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "cut", done=False)
 		self.assertIsNone(card["stages"][0]["worker"])  # unticking forgets who

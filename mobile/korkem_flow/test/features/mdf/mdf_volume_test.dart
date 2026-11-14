@@ -29,6 +29,15 @@ final _volume = MdfVolume.fromJson(const {
     {'stage': 'vacuum', 'orders': 1, 'area_m2': 9.6},
   ],
   'unassigned_m2': 3.04,
+  'days': [
+    {'date': '2026-11-13', 'area_m2': 6.08},
+    {'date': '2026-11-14', 'area_m2': 9.6},
+  ],
+  'previous_m2': 7.84,
+  'queue': [
+    {'stage': 'paint', 'orders': 3, 'area_m2': 12.5},
+    {'stage': 'vacuum', 'orders': 1, 'area_m2': 2},
+  ],
 });
 
 void main() {
@@ -48,5 +57,21 @@ void main() {
     expect(find.text('Ерлан'), findsOneWidget);
     expect(find.byKey(const ValueKey('volume:-')), findsOneWidget);
     expect(find.byKey(const ValueKey('volumeUnassigned')), findsOneWidget);
+    // The shop's dashboard: 15,68 m² against 7,84 before — doubled; a bar a
+    // day, a tapped one says its m²; done and waiting by stage.
+    expect(find.text('15.68 м²'), findsOneWidget);
+    expect(find.textContaining('▲ 100%'), findsOneWidget);
+    expect(find.byKey(const ValueKey('barRow:done:vacuum')), findsOneWidget);
+    expect(find.byKey(const ValueKey('barRow:queue:paint')), findsOneWidget);
+    final chart = find.byKey(const ValueKey('volumeChart'));
+    await tester.ensureVisible(chart);
+    await tester.pumpAndSettle();
+    final box = tester.getRect(chart);
+    await tester.tapAt(box.topLeft + Offset(box.width * 0.75, 40));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('volumeDay'))).data,
+      '14.11.2026: 9.60 м²',
+    );
   });
 }

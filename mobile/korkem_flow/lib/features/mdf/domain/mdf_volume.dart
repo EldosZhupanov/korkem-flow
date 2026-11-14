@@ -58,6 +58,9 @@ class MdfVolume {
     required this.workers,
     required this.byStage,
     required this.unassignedM2,
+    this.days = const [],
+    this.previousM2 = 0,
+    this.queue = const [],
   });
 
   factory MdfVolume.fromJson(Map<String, dynamic> json) => MdfVolume(
@@ -71,10 +74,33 @@ class MdfVolume {
           MdfStage.parse(s['stage'])!: _d(s['area_m2']),
     },
     unassignedM2: _d(json['unassigned_m2']),
+    days: [
+      for (final d in json['days'] as List? ?? const [])
+        if (d is Map) (date: '${d['date'] ?? ''}', areaM2: _d(d['area_m2'])),
+    ],
+    previousM2: _d(json['previous_m2']),
+    queue: [
+      for (final q in json['queue'] as List? ?? const [])
+        if (q is Map)
+          if (MdfStage.parse(q['stage']) case final stage?)
+            (stage: stage, orders: _i(q['orders']), areaM2: _d(q['area_m2'])),
+    ],
   );
+
+  /// All the m² done in the period, every stage counted.
+  double get totalM2 => byStage.values.fold(0, (a, b) => a + b);
 
   /// Most m² first; «не указано» last.
   final List<VolumeRow> workers;
   final Map<MdfStage, double> byStage;
   final double unassignedM2;
+
+  /// m² done day by day — a month each over a year (owner, 14.11.2026).
+  final List<({String date, double areaM2})> days;
+
+  /// The period of the same length before, to compare with.
+  final double previousM2;
+
+  /// What waits at each stage now; the longest is where the shop jams.
+  final List<({MdfStage stage, int orders, double areaM2})> queue;
 }
