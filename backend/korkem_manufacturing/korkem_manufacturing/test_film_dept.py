@@ -389,7 +389,7 @@ class TestFilmDept(IntegrationTestCase):
 
 		def mine_now() -> dict:
 			rows = [r for r in film_team.team()["rows"] if r["seller"] == MANAGER]
-			return rows[0] if rows else {"metres": 0.0, "margin": 0.0}
+			return rows[0] if rows else {"metres": 0.0, "margin": 0.0, "owed": 0.0}
 
 		# Other tests sell this month too: count what this sale adds.
 		before = mine_now()
@@ -403,6 +403,9 @@ class TestFilmDept(IntegrationTestCase):
 		# Bought at 3 200, sold at 4 200: 10 000 margin; half paid — 5 000 counted.
 		self.assertAlmostEqual(mine["metres"] - before["metres"], 10, delta=0.01)
 		self.assertAlmostEqual(mine["margin"] - before["margin"], 5000, delta=1)
+		# The half not paid is his customers' debt, his to collect.
+		self.assertAlmostEqual(mine["owed"] - before["owed"], 21000, delta=1)
+		self.assertGreater(month["days_left"], 0)
 		self.assertGreaterEqual(month["pot"], 500)
 		# A manager sees only his own row; the floor sees nothing.
 		seen = self._as(MANAGER, film_team.team)

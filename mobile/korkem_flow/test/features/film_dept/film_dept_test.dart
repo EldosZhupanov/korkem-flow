@@ -347,6 +347,7 @@ class _Fake implements FilmDeptRepository {
         'margin': 60000,
         'share': 75,
         'bonus': 4500,
+        'owed': 26800,
       },
       {
         'seller': 'b@k.kz',
@@ -362,6 +363,8 @@ class _Fake implements FilmDeptRepository {
     'team': {'metres': 160, 'sales': 5, 'paid': 530000, 'margin': 80000},
     'plan_m': 200,
     'done': 80,
+    'days_left': 16,
+    'need_m_day': 2.5,
     'pct': 7.5,
     'pot': 6000,
     'settings': {'plan_m': 200, 'pct': 10, 'pct_below': 7.5},
@@ -1327,6 +1330,13 @@ void main() {
     expect(find.byKey(const ValueKey('filmTeam:row:b@k.kz')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmTeam:pot')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmTeam:plan')), findsOneWidget);
+    // What the plan still takes, and what his customers owe.
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('filmTeam:plan'))).data,
+      contains('2.5'),
+    );
+    expect(find.byKey(const ValueKey('filmTeam:owed:a@k.kz')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmTeam:owed:b@k.kz')), findsNothing);
     // The month on one page: what sold, and what lies unmoved.
     expect(find.byKey(const ValueKey('filmReport:top:MAT-1')), findsOneWidget);
     expect(find.byKey(const ValueKey('filmReport:idle:MAT-2')), findsOneWidget);

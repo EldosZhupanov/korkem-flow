@@ -2556,5 +2556,10 @@
   "filmSupOwedTo": "поставщикам: {count}",
   "filmSupChipOwed": "должны {amount}",
   "filmSupChipOnTime": "вовремя {onTime} из {rolls}",
-  "filmSupChipPrice": "цена {change}%"
+  "filmSupChipPrice": "цена {change}%",
+  "filmTeamPlanNeed": "осталось {days} дн. — нужно {metres} м в день",
+  "filmTeamNoPlanHint": "Задайте план месяца: от него зависит доля бонуса.",
+  "filmTeamSetPlan": "Задать план",
+  "filmTeamMarginM": "{margin}/м",
+  "filmTeamOwed": "долги его клиентов {amount}"
 }

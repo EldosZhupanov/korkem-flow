@@ -2556,5 +2556,10 @@
   "filmSupOwedTo": "жеткізушілер: {count}",
   "filmSupChipOwed": "қарыз {amount}",
   "filmSupChipOnTime": "уақытында {rolls}-ден {onTime}",
-  "filmSupChipPrice": "баға {change}%"
+  "filmSupChipPrice": "баға {change}%",
+  "filmTeamPlanNeed": "{days} күн қалды — күніне {metres} м керек",
+  "filmTeamNoPlanHint": "Ай жоспарын қойыңыз: бонус үлесі соған байланысты.",
+  "filmTeamSetPlan": "Жоспар қою",
+  "filmTeamMarginM": "{margin}/м",
+  "filmTeamOwed": "клиенттерінің қарызы {amount}"
 }

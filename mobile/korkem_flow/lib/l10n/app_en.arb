@@ -8953,5 +8953,34 @@
         "type": "String"
       }
     }
+  },
+  "filmTeamPlanNeed": "{days} days left — {metres} m a day",
+  "@filmTeamPlanNeed": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamNoPlanHint": "Set the month's plan: the bonus share depends on it.",
+  "filmTeamSetPlan": "Set the plan",
+  "filmTeamMarginM": "{margin}/m",
+  "@filmTeamMarginM": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamOwed": "his customers owe {amount}",
+  "@filmTeamOwed": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }
