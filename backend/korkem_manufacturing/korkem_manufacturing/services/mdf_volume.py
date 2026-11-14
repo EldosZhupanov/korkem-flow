@@ -9,6 +9,10 @@ manager sees what is missing.
 
 This is the volume, not the pay: piece rates and approval stay with
 `piece_work` and the owner.
+
+It is also the shop's dashboard (owner, 14.11.2026): `days` — m² done day by
+day; `previous_m2` — the period of the same length before, to compare with;
+`queue` — what waits at each stage now, the longest where the shop jams.
 """
 
 from __future__ import annotations
@@ -16,7 +20,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import frappe
-from frappe.utils import flt, getdate, nowdate
+from frappe.utils import add_days, flt, getdate, nowdate
 
 from korkem_manufacturing.services import directions, facade_order, facade_prices, mdf_orders
 from korkem_manufacturing.services.scope import current_company
@@ -45,30 +49,42 @@ def _period(since: str | None, until: str | None) -> tuple:
 	return since_d, until_d
 
 
-def volume(since: str | None = None, until: str | None = None) -> dict:
-	"""m² and orders per worker and stage, for stages ticked in [since, until]."""
-	facade_prices.ensure_editor()
-	company = current_company()
-	since_d, until_d = _period(since, until)
-	done: list[tuple[str, str, str | None]] = []  # (order, stage, worker)
+def _ticked(company: str, since_d, until_d) -> list[tuple[str, str, str | None, str]]:
+	"""(order, stage, worker, day) for every stage ticked in the period."""
+	done = []
 	for stage, field in mdf_orders.STAGES.items():
 		by = mdf_orders.STAGE_BY[stage]
 		for row in frappe.get_all(
 			"Sales Order",
 			filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
 					 field: ["between", [since_d, until_d]]},
-			fields=["name", by],
+			fields=["name", by, field],
 			limit_page_length=0,
 		):
-			done.append((row.name, stage, row.get(by)))
+			done.append((row.name, stage, row.get(by), str(getdate(row.get(field)))))
+	return done
 
-	names = sorted({order for order, _, _ in done})
+
+def _areas(names) -> dict[str, Decimal]:
 	areas: dict[str, Decimal] = {}
 	if names:
 		for r in frappe.get_all("Sales Order Item",
-								filters={"parent": ["in", names], "item_code": facade_order.FACADE_ITEM},
+								filters={"parent": ["in", sorted(names)], "item_code": facade_order.FACADE_ITEM},
 								fields=["parent", "korkem_area_m2"], limit_page_length=0):
 			areas[r.parent] = areas.get(r.parent, Decimal(0)) + Decimal(str(flt(r.korkem_area_m2)))
+	return areas
+
+
+def volume(since: str | None = None, until: str | None = None) -> dict:
+	"""m² and orders per worker and stage, for stages ticked in [since, until]."""
+	facade_prices.ensure_editor()
+	company = current_company()
+	since_d, until_d = _period(since, until)
+	ticked = _ticked(company, since_d, until_d)
+	done = [(order, stage, worker) for order, stage, worker, _ in ticked]
+
+	names = sorted({order for order, _, _ in done})
+	areas = _areas(names)
 	people = {}
 	ids = sorted({w for _, _, w in done if w})
 	if ids:
@@ -99,4 +115,38 @@ def volume(since: str | None = None, until: str | None = None) -> dict:
 		],
 		"stages": [{**b, "area_m2": flt(b["area_m2"], 2)} for b in by_stage.values() if b["orders"]],
 		"unassigned_m2": flt(by_worker.get("", {}).get("area_m2", 0), 2),
+		"days": _days(ticked, areas, since_d, until_d),
+		"previous_m2": _previous(company, since_d, until_d),
+		"queue": _queue(),
 	}
+
+
+def _days(ticked, areas, since_d, until_d) -> list[dict]:
+	"""m² done each day of the period — a month each over more than 62 days."""
+	monthly = (until_d - since_d).days > 62
+	by: dict[str, Decimal] = {}
+	for order, _, _, day in ticked:
+		key = day[:7] if monthly else day
+		by[key] = by.get(key, Decimal(0)) + areas.get(order, Decimal(0))
+	out = []
+	day = since_d
+	while day <= until_d:
+		key = str(day)[:7] if monthly else str(day)
+		if not out or out[-1]["date"] != key:
+			out.append({"date": key, "area_m2": flt(by.get(key, 0), 2)})
+		day = getdate(add_days(day, 1))
+	return out
+
+
+def _previous(company: str, since_d, until_d) -> float:
+	"""m² done in the period of the same length just before."""
+	length = (until_d - since_d).days + 1
+	ticked = _ticked(company, getdate(add_days(since_d, -length)), getdate(add_days(since_d, -1)))
+	areas = _areas({order for order, *_ in ticked})
+	return flt(sum((areas.get(order, Decimal(0)) for order, *_ in ticked), Decimal(0)), 2)
+
+
+def _queue() -> list[dict]:
+	"""What waits at each stage now, as «Жоспар» counts it."""
+	return [{"stage": s["stage"], "orders": len(s["orders"]), "area_m2": flt(s["area_m2"], 2)}
+			for s in mdf_orders.plan()["stages"] if s["orders"]]

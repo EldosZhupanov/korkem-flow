@@ -5942,7 +5942,11 @@
       }
     }
   },
-  "mdfVolumeTitle": "Work volume",
+  "mdfVolumeVersus": "{arrow} {pct}% on the period before",
+  "@mdfVolumeVersus": {"placeholders": {"arrow": {"type": "String"}, "pct": {"type": "int"}}},
+  "mdfVolumeDone": "Done by stage",
+  "mdfVolumeQueue": "Waiting now — where it jams",
+  "mdfVolumeTitle": "Shop — work volume",
   "mdfVolumeHint": "m² per worker and stage",
   "mdfVolumeByWorker": "By worker",
   "mdfVolumeEmpty": "No stages ticked in this period",

@@ -5141,7 +5141,18 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
-  String get mdfVolumeTitle => 'Жұмыс көлемі';
+  String mdfVolumeVersus(String arrow, int pct) {
+    return '$arrow $pct% алдыңғы кезеңге';
+  }
+
+  @override
+  String get mdfVolumeDone => 'Кезеңдер бойынша жасалды';
+
+  @override
+  String get mdfVolumeQueue => 'Қазір күтуде — кептеліс қайда';
+
+  @override
+  String get mdfVolumeTitle => 'Цех — жұмыс көлемі';
 
   @override
   String get mdfVolumeHint => 'Әркім кезеңдер бойынша неше м² жасады';

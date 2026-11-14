@@ -5178,7 +5178,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get mdfVolumeTitle => 'Work volume';
+  String mdfVolumeVersus(String arrow, int pct) {
+    return '$arrow $pct% on the period before';
+  }
+
+  @override
+  String get mdfVolumeDone => 'Done by stage';
+
+  @override
+  String get mdfVolumeQueue => 'Waiting now — where it jams';
+
+  @override
+  String get mdfVolumeTitle => 'Shop — work volume';
 
   @override
   String get mdfVolumeHint => 'm² per worker and stage';

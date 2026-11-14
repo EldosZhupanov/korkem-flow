@@ -9195,10 +9195,28 @@ abstract class AppLocalizations {
   /// **'owes {amount}'**
   String mdfReportOwes(String amount);
 
+  /// No description provided for @mdfVolumeVersus.
+  ///
+  /// In en, this message translates to:
+  /// **'{arrow} {pct}% on the period before'**
+  String mdfVolumeVersus(String arrow, int pct);
+
+  /// No description provided for @mdfVolumeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done by stage'**
+  String get mdfVolumeDone;
+
+  /// No description provided for @mdfVolumeQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting now — where it jams'**
+  String get mdfVolumeQueue;
+
   /// No description provided for @mdfVolumeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Work volume'**
+  /// **'Shop — work volume'**
   String get mdfVolumeTitle;
 
   /// No description provided for @mdfVolumeHint.
