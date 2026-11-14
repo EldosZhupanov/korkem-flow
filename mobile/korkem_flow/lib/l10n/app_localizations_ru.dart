@@ -5201,7 +5201,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get mdfVolumeTitle => 'Объём работ';
+  String mdfVolumeVersus(String arrow, int pct) {
+    return '$arrow $pct% к прошлому периоду';
+  }
+
+  @override
+  String get mdfVolumeDone => 'Сделано по этапам';
+
+  @override
+  String get mdfVolumeQueue => 'Ждут сейчас — где пробка';
+
+  @override
+  String get mdfVolumeTitle => 'Цех — объём работ';
 
   @override
   String get mdfVolumeHint => 'Сколько м² сделал каждый по этапам';
