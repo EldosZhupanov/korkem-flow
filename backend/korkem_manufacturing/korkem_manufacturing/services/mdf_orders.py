@@ -95,7 +95,8 @@ STANDARD_EDGES = ("R0", DEFAULT_EDGE)
 DUE_SOON_DAYS = 2
 
 
-def stages_for(finish: str | None, extra: str | list | None = None, coatings: str | list | None = None) -> list[str]:
+def stages_for(finish: str | None, extra: str | list | None = None, coatings: str | list | None = None,
+			   tags: str | list | None = None) -> list[str]:
 	"""The stages an order with this finish goes through, «готово» last.
 
 	Film is pressed and never painted; enamel is painted and never pressed;
@@ -120,6 +121,11 @@ def stages_for(finish: str | None, extra: str | list | None = None, coatings: st
 	else:
 		base = set(STAGES)
 	base |= set(_extra(extra)) | {"ready"}
+	tagged = tags if isinstance(tags, (list, tuple)) else mdf_tags.parse(tags)
+	if mdf_tags.CLIENT_PARTS in tagged:
+		# His own facades (owner, 14.11.2026): nothing to cut or mill; we
+		# still sand them, as its own stage, before the paint or the press.
+		base -= {"cut", "mill"}
 	return [s for s in STAGES if s in base]
 
 
@@ -130,7 +136,8 @@ def _extra(raw) -> list[str]:
 
 def stages_of(row) -> list[str]:
 	"""An order's stages: its finish's, with what was added to it."""
-	return stages_for(row.get("korkem_finish"), row.get("korkem_extra_stages"), row.get("korkem_coatings"))
+	return stages_for(row.get("korkem_finish"), row.get("korkem_extra_stages"), row.get("korkem_coatings"),
+					  row.get("korkem_tags"))
 
 
 def coating_of(finish: str | None) -> str | None:
@@ -158,7 +165,8 @@ def _finish_for(coating: str | None, company: str) -> str | None:
 # --- the arithmetic --------------------------------------------------------
 
 
-def price(lines, *, finish: str | None, default_rate=None, company: str | None = None, film_rates=None) -> dict:
+def price(lines, *, finish: str | None, default_rate=None, company: str | None = None, film_rates=None,
+		  tags=None) -> dict:
 	"""Price lines the owner's way. Pure arithmetic and price lookups; saves nothing.
 
 	Each line: `height_mm`, `width_mm`, `qty`, and optionally `milling`,
@@ -168,7 +176,10 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 
 	The price of a line, first found: typed on the line; its film's price in
 	`film_rates` (an order of several films, 08.11.2026); the price list for
-	its milling and the finish; the order's default.
+	its milling and the finish; the order's default. With the customer's own
+	paint (`tags` has «client_paint»), a painted line found in the price list
+	or the default costs the factory's discount less — a price typed by hand
+	or set for the colour stands as it is.
 	"""
 	if isinstance(lines, str):
 		lines = frappe.parse_json(lines)
@@ -181,6 +192,8 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 	if isinstance(film_rates, str):
 		film_rates = frappe.parse_json(film_rates) if film_rates.strip() else {}
 	by_film = {k: _money(v, f"Цена за м² плёнки «{k}»") for k, v in (film_rates or {}).items() if v not in (None, "")}
+	tagged = tags if isinstance(tags, (list, tuple)) else mdf_tags.parse(mdf_tags.clean(tags, mdf_tags.ORDER, "Заказ"))
+	paint_discount = Decimal(str(client_paint_discount(company))) if mdf_tags.CLIENT_PAINT in tagged else Decimal(0)
 
 	priced, pieces, area_total, total = [], 0, Decimal("0"), Decimal("0")
 	for index, raw in enumerate(lines, start=1):
@@ -212,6 +225,8 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		else:
 			found = facade_prices.price_for(milling, line_finish or "", company) if milling and line_finish else None
 			rate = found if found is not None else fallback
+			if rate is not None and coating == "paint" and paint_discount:
+				rate = max(Decimal(0), rate - paint_discount)
 		no_price = rate is None
 		rate = rate or Decimal("0")
 
@@ -251,6 +266,45 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		"total": float(total),
 		"no_price_lines": [line["line"] for line in priced if line["no_price"]],
 	}
+
+
+_PAINT_DISCOUNT = "korkem_client_paint_discount_m2"
+
+
+def client_paint_discount(company: str | None = None) -> float:
+	"""How much less a m² of paint costs when the customer brings the paint."""
+	return max(0.0, flt(frappe.db.get_default(f"{_PAINT_DISCOUNT}:{company or current_company()}")))
+
+
+def set_client_paint_discount(m2) -> dict:
+	"""The discount, in ₸ per m², for the customer's own paint; empty — none."""
+	facade_prices.ensure_editor()
+	value = flt(m2) if m2 not in (None, "") else 0
+	if value < 0 or value > 1_000_000:
+		frappe.throw("Скидка — сумма за м² от нуля.")
+	company = current_company()
+	frappe.db.set_default(f"{_PAINT_DISCOUNT}:{company}", str(value) if value else "")
+	audit.record_audit(action="mdf.client_paint_discount", entity_type="Company", entity_id=company,
+					   diff={"m2": value or None})
+	return {"client_paint_discount": value}
+
+
+def set_client_paint(order: str, note: str | None = None, received=None) -> dict:
+	"""What the customer brought of his own paint — «2 банки × 3 л» — and
+	whether it is here. Until it is, the painter sees «ждём краску»."""
+	facade_prices.ensure_editor()
+	doc = _order(order)
+	if mdf_tags.CLIENT_PAINT not in mdf_tags.parse(doc.get("korkem_tags")):
+		frappe.throw("В заказе нет метки «Краска клиента».")
+	values = {}
+	if note is not None:
+		values["korkem_client_paint_note"] = " ".join(str(note).split())[:140] or None
+	if received is not None:
+		values["korkem_client_paint_in"] = 1 if directions.flag(received) else 0
+	if values:
+		doc.db_set(values, update_modified=True)
+		audit.record_audit(action="mdf.client_paint", entity_type="Sales Order", entity_id=doc.name, diff=values)
+	return card(doc.name)
 
 
 def thickness_of(material: str | None) -> int | None:
@@ -401,7 +455,7 @@ def save_draft(*, customer: str, delivery_date: str, head=None, lines=None, orde
 	_put_standard_edges(head, lines, company)
 	values = _head(head, company)
 	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=company,
-				  film_rates=values["film_rates"])
+				  film_rates=values["film_rates"], tags=values["tags"])
 	_coatings_into(values, quote["lines"])
 	if not quote["lines"]:
 		frappe.throw("Добавьте хотя бы одну позицию.")
@@ -478,7 +532,7 @@ def change_order(order: str, *, lines, reason: str, head=None, delivery_date: st
 	values = _head(head, doc.company) if head else {key: doc.get(field) for key, field in HEAD.items()}
 	wanted = _due(delivery_date) if delivery_date else getdate(doc.delivery_date)
 	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=doc.company,
-				  film_rates=values["film_rates"])
+				  film_rates=values["film_rates"], tags=values["tags"])
 	_coatings_into(values, quote["lines"])
 	if not quote["lines"]:
 		frappe.throw("В заказе должна остаться хотя бы одна позиция.")
@@ -776,6 +830,8 @@ def card(order: str) -> dict:
 		"notes": doc.terms,
 		"history": history(doc.name),
 		"press": _press(doc.name),
+		"client_paint": {"note": doc.get("korkem_client_paint_note"), "in": bool(doc.get("korkem_client_paint_in"))}
+		if mdf_tags.CLIENT_PAINT in mdf_tags.parse(doc.get("korkem_tags")) else None,
 	}
 
 

@@ -38,7 +38,8 @@ def shortage() -> dict:
 			"korkem_handed_over_on": ["is", "not set"],
 			"korkem_stage_vacuum": ["is", "not set"],
 		},
-		fields=["name", "customer_name", "delivery_date", "korkem_finish", "korkem_extra_stages", "korkem_coatings"],
+		fields=["name", "customer_name", "delivery_date", "korkem_finish", "korkem_extra_stages", "korkem_coatings",
+				"korkem_tags"],
 		order_by="delivery_date asc, name asc",
 		limit_page_length=500,
 	)

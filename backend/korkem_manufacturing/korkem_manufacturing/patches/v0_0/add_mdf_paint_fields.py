@@ -11,6 +11,9 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_field
 
 FIELDS = (
 	{"fieldname": "korkem_paint_drying_since", "label": "Drying since", "fieldtype": "Datetime"},
+	# The customer's own paint (owner, 14.11.2026): what he brought, and whether it is here.
+	{"fieldname": "korkem_client_paint_note", "label": "Customer's paint", "fieldtype": "Data"},
+	{"fieldname": "korkem_client_paint_in", "label": "Customer's paint is here", "fieldtype": "Check"},
 )
 
 

@@ -24,6 +24,7 @@ import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_client_paint.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_coating.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
@@ -527,6 +528,19 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     return out;
   }
 
+  void _setTag(MdfOrderTag tag, {required bool on}) {
+    setState(
+      () => _head = _copyHead(
+        tags: [
+          for (final x in MdfOrderTag.values)
+            if (x == tag ? on : _head.tags.contains(x)) x,
+        ],
+      ),
+    );
+    // His own paint is cheaper: the total follows.
+    _reprice();
+  }
+
   /// Instant arithmetic: the server prices, the screen shows.
   void _reprice() {
     _debounce?.cancel();
@@ -545,6 +559,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
               finish: head.finish,
               defaultRate: head.defaultRate,
               filmRates: head.filmRates,
+              tags: head.tags,
             );
         if (mounted) setState(() => _pricing = pricing);
       } on Object {
@@ -1166,20 +1181,16 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                 Wrap(
                   spacing: AppSpacing.sm,
                   children: [
+                    // His own paint and his own facades sit with the
+                    // coating group they are about (owner, 14.11.2026).
                     for (final t in MdfOrderTag.values)
-                      FilterChip(
-                        key: ValueKey('mdfOrderTag:${t.wire}'),
-                        label: Text(mdfOrderTagLabel(t, l10n)),
-                        selected: _head.tags.contains(t),
-                        onSelected: (on) => setState(
-                          () => _head = _copyHead(
-                            tags: [
-                              for (final x in MdfOrderTag.values)
-                                if (x == t ? on : _head.tags.contains(x)) x,
-                            ],
-                          ),
+                      if (!t.byGroup)
+                        FilterChip(
+                          key: ValueKey('mdfOrderTag:${t.wire}'),
+                          label: Text(mdfOrderTagLabel(t, l10n)),
+                          selected: _head.tags.contains(t),
+                          onSelected: (on) => _setTag(t, on: on),
                         ),
-                      ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -1233,6 +1244,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       onRateChanged: _reprice,
                       onRemove: () => _removeFilm(group),
                       onAddLine: () => _addLine(group: group),
+                      tags: _head.tags,
+                      onTag: (t, on) => _setTag(t, on: on),
                       children: [
                         for (var i = 0; i < mates.length; i++)
                           _LineRow(
@@ -1398,6 +1411,8 @@ class _FilmGroup extends StatelessWidget {
     required this.onRemove,
     required this.onAddLine,
     required this.children,
+    this.tags = const [],
+    this.onTag,
     super.key,
   });
 
@@ -1419,6 +1434,11 @@ class _FilmGroup extends StatelessWidget {
   final VoidCallback onRemove;
   final VoidCallback onAddLine;
   final List<Widget> children;
+
+  /// The order's tags; this group shows the customer's own paint (a paint
+  /// group) and his own facades (any group).
+  final List<MdfOrderTag> tags;
+  final void Function(MdfOrderTag tag, bool on)? onTag;
 
   @override
   Widget build(BuildContext context) {
@@ -1523,6 +1543,16 @@ class _FilmGroup extends StatelessWidget {
                           isDense: true,
                         ),
                       ),
+                    ),
+                  for (final t in [
+                    if (coating == MdfCoating.paint) MdfOrderTag.clientPaint,
+                    if (coating != null) MdfOrderTag.clientParts,
+                  ])
+                    FilterChip(
+                      key: ValueKey('mdfGroupTag:$index:${t.wire}'),
+                      label: Text(mdfOrderTagLabel(t, l10n)),
+                      selected: tags.contains(t),
+                      onSelected: onTag == null ? null : (on) => onTag!(t, on),
                     ),
                   // A film from the catalogue: the maker, the type, then that
                   // maker's film (owner, 10.11.2026).
@@ -2434,6 +2464,8 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             fontWeight: FontWeight.w600,
           ),
         ),
+        // The customer's own paint: what he brought, whether it is here.
+        MdfClientPaintView(order: o),
         // What the order earned (owner, 14.11.2026).
         MdfMarginView(order: o.name),
         const SizedBox(height: AppSpacing.sm),

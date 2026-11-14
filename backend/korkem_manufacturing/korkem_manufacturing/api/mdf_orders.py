@@ -18,12 +18,12 @@ LEGACY_METHODS = {"Kaspi": ("Перевод", "Kaspi")}
 
 @frappe.whitelist(methods=["POST"])
 def price(lines: str | list, finish: str | None = None, default_rate: float | str | None = None,
-		  film_rates: str | dict | None = None) -> dict:
+		  film_rates: str | dict | None = None, tags: str | list | None = None) -> dict:
 	"""Посчитать позиции, ничего не сохраняя — для мгновенного пересчёта на экране."""
 	from korkem_manufacturing.services import facade_prices
 
 	facade_prices.ensure_editor()
-	return service.price(lines, finish=finish, default_rate=default_rate, film_rates=film_rates)
+	return service.price(lines, finish=finish, default_rate=default_rate, film_rates=film_rates, tags=tags)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -86,6 +86,12 @@ def return_to_work(order: str, reason: str) -> dict:
 @frappe.whitelist(methods=["GET"])
 def card(order: str) -> dict:
 	return service.card(order)
+
+
+@frappe.whitelist(methods=["POST"])
+def set_client_paint(order: str, note: str | None = None, received: bool | int | str | None = None) -> dict:
+	"""Краска клиента: что принёс и принёс ли."""
+	return service.set_client_paint(order, note=note, received=received)
 
 
 @frappe.whitelist(methods=["GET"])

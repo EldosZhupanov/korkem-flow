@@ -1,5 +1,28 @@
 import 'package:flutter/foundation.dart';
 
+/// What sets an order apart at the paint (owner, 14.11.2026): urgent, the
+/// customer's own paint (and whether it is here yet), his own facades, both
+/// sides painted.
+typedef MdfPaintMarks = ({
+  bool urgent,
+  bool clientPaint,
+  String? clientPaintNote,
+  bool waitingPaint,
+  bool clientParts,
+  bool twoSided,
+});
+
+MdfPaintMarks _marks(Map<String, dynamic> o) => (
+  urgent: o['urgent'] == true,
+  clientPaint: o['client_paint'] == true,
+  clientPaintNote: o['client_paint_note'] == null
+      ? null
+      : '${o['client_paint_note']}',
+  waitingPaint: o['waiting_paint'] == true,
+  clientParts: o['client_parts'] == true,
+  twoSided: o['two_sided'] == true,
+);
+
 /// One order waiting to be painted in a colour.
 typedef MdfPaintOrder = ({
   String name,
@@ -7,7 +30,7 @@ typedef MdfPaintOrder = ({
   String deliveryDate,
   double areaM2,
   bool overdue,
-  bool urgent,
+  MdfPaintMarks marks,
 });
 
 /// An order put to dry, and when it will be.
@@ -19,7 +42,23 @@ typedef MdfDrying = ({
   int minutesLeft,
   List<String> colours,
   double areaM2,
+  MdfPaintMarks marks,
 });
+
+/// An order on its way to the paint, and the stage it is at now.
+typedef MdfComing = ({
+  String name,
+  String customer,
+  String deliveryDate,
+  String stage,
+  List<String> colours,
+  double areaM2,
+  MdfPaintMarks marks,
+});
+
+List<String> _strings(Object? v) => [
+  for (final c in v is List ? v : const <Object?>[]) '$c',
+];
 
 /// The paint department's board (owner, 14.11.2026): what to paint, by
 /// colour, the biggest batch first; what is drying; what is on its way; the
@@ -32,7 +71,9 @@ class MdfPaintBoard {
     this.waitingM2 = 0,
     this.drying = const [],
     this.comingM2 = 0,
+    this.coming = const [],
     this.popular = const [],
+    this.clientPaintDiscount = 0,
   });
 
   factory MdfPaintBoard.fromJson(Map<String, dynamic> json) => MdfPaintBoard(
@@ -50,7 +91,7 @@ class MdfPaintBoard {
                 deliveryDate: '${o['delivery_date'] ?? ''}',
                 areaM2: _d(o['area_m2']),
                 overdue: o['overdue'] == true,
-                urgent: o['urgent'] == true,
+                marks: _marks(o),
               ),
           ],
         ),
@@ -64,14 +105,25 @@ class MdfPaintBoard {
           dryAt: '${d['dry_at'] ?? ''}',
           dry: d['dry'] == true,
           minutesLeft: _i(d['minutes_left']),
-          colours: [
-            for (final c in d['colours'] is List ? d['colours'] as List : [])
-              '$c',
-          ],
+          colours: _strings(d['colours']),
           areaM2: _d(d['area_m2']),
+          marks: _marks(d),
         ),
     ],
     comingM2: _d(json['coming_m2']),
+    coming: [
+      for (final c in _maps(json['coming']))
+        (
+          name: '${c['name'] ?? ''}',
+          customer: '${c['customer_name'] ?? ''}',
+          deliveryDate: '${c['delivery_date'] ?? ''}',
+          stage: '${c['stage'] ?? ''}',
+          colours: _strings(c['colours']),
+          areaM2: _d(c['area_m2']),
+          marks: _marks(c),
+        ),
+    ],
+    clientPaintDiscount: _d(json['client_paint_discount']),
     popular: [
       for (final p in _maps(json['popular']))
         (
@@ -91,6 +143,12 @@ class MdfPaintBoard {
 
   /// m² of paint still at the stages before it.
   final double comingM2;
+
+  /// The orders still at the stages before it, each with its stage.
+  final List<MdfComing> coming;
+
+  /// How much less a m² costs with the customer's own paint.
+  final double clientPaintDiscount;
   final List<({String colour, double areaM2, int orders})> popular;
 }
 

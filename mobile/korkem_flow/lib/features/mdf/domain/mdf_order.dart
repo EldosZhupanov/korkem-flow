@@ -496,6 +496,7 @@ class MdfOrder {
     this.customerTags = const [],
     this.extraStages = const {},
     this.press = const {},
+    this.clientPaint,
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -564,6 +565,13 @@ class MdfOrder {
               Map<String, dynamic>.from(e.value as Map),
             ),
     },
+    clientPaint: switch (json['client_paint']) {
+      final Map<String, dynamic> p => (
+        note: p['note'] == null ? null : '${p['note']}',
+        received: p['in'] == true,
+      ),
+      _ => null,
+    },
   );
 
   final String name;
@@ -609,6 +617,10 @@ class MdfOrder {
 
   /// Film by decor as the press lays it out (owner, 12.11.2026).
   final Map<String, MdfFilmPress> press;
+
+  /// The customer's own paint: what he brought and whether it is here;
+  /// null when the order is not tagged «Краска клиента».
+  final ({String? note, bool received})? clientPaint;
 
   List<MdfOrderTag> get tags => head.tags;
 

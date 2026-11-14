@@ -15,6 +15,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_volume.dart';
 
 final mdfOrderRepositoryProvider = Provider<MdfOrderRepository>(
@@ -158,6 +159,7 @@ class MdfOrderRepository {
     String? finish,
     double? defaultRate,
     Map<String, double> filmRates = const {},
+    List<MdfOrderTag> tags = const [],
   }) async => MdfPricing.fromJson(
     _map(
       await _client.callMethod(
@@ -168,6 +170,8 @@ class MdfOrderRepository {
           'finish': ?finish,
           'default_rate': ?defaultRate,
           if (filmRates.isNotEmpty) 'film_rates': jsonEncode(filmRates),
+          if (tags.isNotEmpty)
+            'tags': jsonEncode([for (final t in tags) t.wire]),
         },
       ),
     ),
@@ -429,6 +433,14 @@ class MdfOrderRepository {
       ),
     ),
   );
+
+  /// The customer's own paint: what he brought, and whether it is here.
+  Future<MdfOrder> setClientPaint(String order, {String? note, bool? received}) =>
+      _post('set_client_paint', {
+        'order': order,
+        'note': ?note,
+        if (received != null) 'received': received ? 1 : 0,
+      });
 
   /// A reason puts it on hold; none takes it off.
   Future<MdfOrder> hold(String order, String? reason) =>

@@ -2500,5 +2500,17 @@
   "mdfPaintColourNote": "{area} · заказов: {orders}",
   "mdfPaintStartDrying": "Покрасил — сушить",
   "mdfPaintPopular": "Популярные цвета за 90 дней",
-  "mdfPaintSave": "Сохранить"
+  "mdfPaintSave": "Сохранить",
+  "mdfTagClientPaint": "Краска клиента",
+  "mdfTagClientParts": "ЛМДФ клиента",
+  "mdfClientPaintBrought": "Краска принесена",
+  "mdfClientPaintWhat": "Что принёс (например, 2 банки × 3 л)",
+  "mdfClientPaintHere": "принесена",
+  "mdfClientPaintWaiting": "Ждём краску",
+  "mdfPaintSettings": "Настройки покраски",
+  "mdfPaintDiscount": "Скидка за свою краску, ₸/м²",
+  "mdfPaintDiscountHint": "Вычитается из цены м² при «Краска клиента»",
+  "mdfPaintComing": "Скоро к вам",
+  "mdfPaintNowAt": "сейчас: {stage}",
+  "mdfPaintTwoSided": "2 стороны"
 }

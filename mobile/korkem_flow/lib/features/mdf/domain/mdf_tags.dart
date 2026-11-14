@@ -5,10 +5,19 @@
 enum MdfOrderTag {
   urgent('urgent'),
   rework('rework'),
-  warranty('warranty');
+  warranty('warranty'),
+
+  /// The customer brings his own paint (owner, 14.11.2026).
+  clientPaint('client_paint'),
+
+  /// The customer brings his own facades: sanded and painted here, not cut.
+  clientParts('client_parts');
 
   const MdfOrderTag(this.wire);
   final String wire;
+
+  /// Set from a coating group's head rather than the order's.
+  bool get byGroup => this == clientPaint || this == clientParts;
 
   static List<MdfOrderTag> parse(Object? raw) => [
     for (final t in values)

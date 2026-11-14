@@ -10,6 +10,8 @@ String mdfOrderTagLabel(MdfOrderTag tag, AppLocalizations l10n) =>
       MdfOrderTag.urgent => l10n.mdfTagUrgent,
       MdfOrderTag.rework => l10n.mdfTagRework,
       MdfOrderTag.warranty => l10n.mdfTagWarranty,
+      MdfOrderTag.clientPaint => l10n.mdfTagClientPaint,
+      MdfOrderTag.clientParts => l10n.mdfTagClientParts,
     };
 
 String mdfCustomerTagLabel(MdfCustomerTag tag, AppLocalizations l10n) =>
@@ -23,6 +25,7 @@ String mdfCustomerTagLabel(MdfCustomerTag tag, AppLocalizations l10n) =>
 StatusIntent _orderIntent(MdfOrderTag tag) => switch (tag) {
   MdfOrderTag.urgent => StatusIntent.danger,
   MdfOrderTag.rework || MdfOrderTag.warranty => StatusIntent.warning,
+  MdfOrderTag.clientPaint || MdfOrderTag.clientParts => StatusIntent.info,
 };
 
 StatusIntent _customerIntent(MdfCustomerTag tag) => switch (tag) {
