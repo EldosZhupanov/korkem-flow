@@ -400,8 +400,10 @@ Future<void> showPaintHistory(BuildContext context, PaintItem paint) =>
                               ?r.city,
                               ?r.transport,
                               if ((r.deliveryCost ?? 0) > 0)
-                                '${l10n.filmDeliveryCost} '
-                                    '${money.format(r.deliveryCost)}',
+                                [
+                                  l10n.filmDeliveryCost,
+                                  money.format(r.deliveryCost),
+                                ].join(' '),
                               if (r.landedKg case final l?)
                                 l10n.paintLanded(money.format(l)),
                               if (r.receivedBy case final who?)
@@ -548,6 +550,10 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     }
   }
 
+  /// «4 × 5 кг» — how it came, on the receipt.
+  String _cansNote(AppLocalizations l10n) =>
+      '${_cans.text.trim()} × ${l10n.paintKgShort(_canKg.text.trim())}';
+
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
     final opts = ref.read(filmDeliveryOptionsProvider).value;
@@ -567,9 +573,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
             delivery: _terms.delivery(opts, _supplier),
             receivedBy: _terms.takerOf(opts),
             supplierPay: _terms.supplierPay,
-            note: _byCans
-                ? '${_cans.text.trim()} × ${l10n.paintKgShort(_canKg.text.trim())}'
-                : null,
+            note: _byCans ? _cansNote(l10n) : null,
           );
       if (mounted) Navigator.of(context).pop(true);
     } on Object catch (e) {

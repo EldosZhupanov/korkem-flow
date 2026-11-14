@@ -209,8 +209,7 @@ class PaintStock {
 
   /// What a colour has been bought as — «эмаль ПУ матовая», «грунт».
   List<String> get bases => {
-    for (final p in paints)
-      if (p.base case final b?) b,
+    for (final p in paints) ?p.base,
   }.toList();
 }
 
