@@ -44,6 +44,11 @@ void main() {
   testWidgets('each worker with their m², and what nobody was named on', (
     tester,
   ) async {
+    // The dashboard comes first; the workers are below it.
+    tester.view
+      ..physicalSize = const Size(1200, 3000)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
