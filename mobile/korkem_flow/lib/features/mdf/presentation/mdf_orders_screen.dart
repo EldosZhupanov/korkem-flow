@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_search_field.dart';
+import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
@@ -31,6 +32,7 @@ enum _Filter {
   inShop,
   ready,
   overdue,
+  dueSoon,
   debt,
   urgent,
   vip,
@@ -52,6 +54,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     },
     overdue: _filter == _Filter.overdue,
     withDebt: _filter == _Filter.debt,
+    dueSoon: _filter == _Filter.dueSoon,
     tag: switch (_filter) {
       _Filter.urgent => MdfOrderTag.urgent.wire,
       _Filter.vip => MdfCustomerTag.vip.wire,
@@ -65,19 +68,39 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     await context.push(
       name == null ? Routes.mdfOrderNew : Routes.mdfOrder(name),
     );
-    ref.invalidate(mdfOrdersProvider);
+    ref
+      ..invalidate(mdfOrdersProvider)
+      ..invalidate(mdfOverviewProvider);
   }
+
+  /// A figure tapped narrows the list to it; tapped again, back to all.
+  void _toggle(_Filter f) =>
+      setState(() => _filter = _filter == f ? _Filter.all : f);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final orders = ref.watch(mdfOrdersProvider(_query));
+    final overview = ref.watch(mdfOverviewProvider).value;
+    final money = mdfMoney(context);
+    final status = context.statusColors;
+    // Read top-down by what burns, when nothing narrows the list.
+    final sectioned = _filter == _Filter.all && _search.trim().isEmpty;
+    String sectionTitle(MdfListSection section) => switch (section) {
+      MdfListSection.overdue => l10n.mdfSectionOverdue,
+      MdfListSection.soon => l10n.mdfSectionSoon,
+      MdfListSection.shop => l10n.mdfSectionShop,
+      MdfListSection.ready => l10n.mdfSectionReady,
+      MdfListSection.draft => l10n.mdfSectionDraft,
+      MdfListSection.closed => l10n.mdfSectionClosed,
+    };
     String label(_Filter f) => switch (f) {
       _Filter.all => l10n.mdfFilterAll,
       _Filter.draft => l10n.mdfStatusDraft,
       _Filter.inShop => l10n.mdfStatusInShop,
       _Filter.ready => l10n.mdfStatusReady,
       _Filter.overdue => l10n.mdfFilterOverdue,
+      _Filter.dueSoon => l10n.mdfFilterDueSoon,
       _Filter.debt => l10n.mdfFilterDebt,
       _Filter.urgent => l10n.mdfFilterUrgent,
       _Filter.vip => l10n.mdfTagVip,
@@ -128,6 +151,66 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
               onChanged: (v) => setState(() => _search = v),
             ),
           ),
+          // The four figures (owner, 14.11.2026): what is late, what is due,
+          // what waits for its customer, what is owed — a tap narrows the
+          // list to it.
+          if (overview != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                0,
+              ),
+              child: Row(
+                children: [
+                  for (final (i, (f, title, value, note, colour))
+                      in [
+                        (
+                          _Filter.overdue,
+                          l10n.mdfKpiOverdue,
+                          '${overview.overdue}',
+                          null,
+                          overview.overdue > 0 ? status.danger : null,
+                        ),
+                        (
+                          _Filter.dueSoon,
+                          l10n.mdfKpiDueSoon,
+                          '${overview.dueSoon}',
+                          null,
+                          overview.dueSoon > 0 ? status.warning : null,
+                        ),
+                        (
+                          _Filter.ready,
+                          l10n.mdfKpiReady,
+                          '${overview.ready}',
+                          null,
+                          overview.ready > 0 ? status.success : null,
+                        ),
+                        (
+                          _Filter.debt,
+                          l10n.mdfKpiDebt,
+                          money.format(overview.debt),
+                          l10n.mdfKpiDebtors('${overview.debtors}'),
+                          null,
+                        ),
+                      ].indexed) ...[
+                    if (i > 0) const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: _Kpi(
+                        k: f.name,
+                        title: title,
+                        value: value,
+                        note: note,
+                        colour: colour,
+                        selected: _filter == f,
+                        onTap: () => _toggle(f),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           SizedBox(
             height: AppSpacing.xxxl,
             child: ListView(
@@ -162,14 +245,42 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
                   : RefreshIndicator(
                       onRefresh: () =>
                           ref.refresh(mdfOrdersProvider(_query).future),
-                      child: ListView.separated(
+                      child: ListView(
                         padding: const EdgeInsets.all(AppSpacing.lg),
-                        itemCount: rows.length,
-                        separatorBuilder: (_, _) => const Divider(height: 1),
-                        itemBuilder: (context, i) => _OrderRow(
-                          row: rows[i],
-                          onTap: () => _open(rows[i].name),
-                        ),
+                        children: [
+                          for (final section in MdfListSection.values)
+                            if (sectioned)
+                              for (final (i, row)
+                                  in rows
+                                      .where((r) => r.section == section)
+                                      .indexed) ...[
+                                if (i == 0)
+                                  Padding(
+                                    key: ValueKey(
+                                      'mdfSection:${section.name}',
+                                    ),
+                                    padding: const EdgeInsets.only(
+                                      top: AppSpacing.md,
+                                    ),
+                                    child: SectionLabel(sectionTitle(section)),
+                                  )
+                                else
+                                  const Divider(height: AppStroke.hairline),
+                                _OrderRow(
+                                  row: row,
+                                  onTap: () => _open(row.name),
+                                ),
+                              ],
+                          if (!sectioned)
+                            for (final (i, row) in rows.indexed) ...[
+                              if (i > 0)
+                                const Divider(height: AppStroke.hairline),
+                              _OrderRow(
+                                row: row,
+                                onTap: () => _open(row.name),
+                              ),
+                            ],
+                        ],
                       ),
                     ),
             ),
@@ -207,6 +318,129 @@ NumberFormat mdfMoney(BuildContext context) => NumberFormat.currency(
   decimalDigits: 0,
 );
 
+/// One of the four figures over the list; a tap narrows the list to it.
+class _Kpi extends StatelessWidget {
+  const _Kpi({
+    required this.k,
+    required this.title,
+    required this.value,
+    required this.selected,
+    required this.onTap,
+    this.note,
+    this.colour,
+  });
+
+  final String k;
+  final String title;
+  final String value;
+  final String? note;
+  final Color? colour;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        side: selected
+            ? BorderSide(
+                color: theme.colorScheme.primary,
+                width: AppStroke.focus,
+              )
+            : BorderSide.none,
+      ),
+      child: InkWell(
+        key: ValueKey('mdfKpi:$k'),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.labelSmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                value,
+                key: ValueKey('mdfKpi:$k:value'),
+                style: theme.textTheme.titleLarge?.copyWith(color: colour),
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (note != null)
+                Text(note!, style: theme.textTheme.labelSmall),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The order's stages as a bar: done, the one it waits at, what is ahead.
+class _StageBar extends StatelessWidget {
+  const _StageBar({required this.row});
+
+  final MdfOrderRow row;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final status = context.statusColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            for (final (i, s) in row.stages.indexed) ...[
+              if (i > 0) const SizedBox(width: AppSpacing.xxs),
+              Expanded(
+                child: Tooltip(
+                  message: mdfStageLabel(s.stage, l10n),
+                  child: Container(
+                    height: AppSpacing.sm,
+                    decoration: BoxDecoration(
+                      color: s.done
+                          ? status.success
+                          : s.stage == row.waiting
+                          ? status.info
+                          : theme.colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          switch (row.status) {
+            MdfStatus.ready => l10n.mdfSectionReady,
+            MdfStatus.onHold => l10n.mdfStatusOnHold,
+            _ when row.waiting != null => l10n.mdfRowNowAt(
+              mdfStageLabel(row.waiting!, l10n),
+            ),
+            _ => mdfStatusChip(row.status, l10n).$1,
+          },
+          key: ValueKey('mdfNowAt:${row.name}'),
+          style: theme.textTheme.bodySmall,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
 class _OrderRow extends StatelessWidget {
   const _OrderRow({required this.row, required this.onTap});
 
@@ -225,6 +459,10 @@ class _OrderRow extends StatelessWidget {
       row.edgeProfile,
       if (row.areaM2 > 0) '${row.areaM2.toStringAsFixed(2)} м²',
     ].whereType<String>().join(' · ');
+    final left = row.daysLeft;
+    final wide =
+        MediaQuery.sizeOf(context).width >= AppBreakpoints.compact &&
+        row.stages.isNotEmpty;
     return InkWell(
       key: ValueKey('mdfRow:${row.name}'),
       onTap: onTap,
@@ -237,15 +475,11 @@ class _OrderRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // One red thing per row — its lateness — not the whole
+                  // title: a list of red titles says nothing (14.11.2026).
                   Text(
                     '${row.name} · ${row.customerName}',
-                    // Urgent and still in work: red, and first in the list.
-                    style: row.urgent && _inWork(row.status)
-                        ? theme.textTheme.titleSmall?.copyWith(
-                            color: theme.colorScheme.error,
-                            fontWeight: FontWeight.w700,
-                          )
-                        : theme.textTheme.titleSmall,
+                    style: theme.textTheme.titleSmall,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
@@ -262,18 +496,35 @@ class _OrderRow extends StatelessWidget {
                     spacing: AppSpacing.xs,
                     runSpacing: AppSpacing.xs,
                     children: [
-                      StatusChip(label: status, intent: intent, compact: true),
-                      if (row.stage != null)
+                      if (!wide)
                         StatusChip(
-                          label: mdfStageLabel(row.stage!, l10n),
-                          intent: StatusIntent.neutral,
+                          label: status,
+                          intent: intent,
                           compact: true,
                         ),
                       if (row.overdue)
                         StatusChip(
                           key: ValueKey('mdfOverdue:${row.name}'),
-                          label: l10n.mdfOverdue,
+                          label: left != null && left < 0
+                              ? l10n.mdfRowLate('${-left}')
+                              : l10n.mdfOverdue,
                           intent: StatusIntent.danger,
+                          compact: true,
+                        )
+                      else if (row.readyDays != null)
+                        StatusChip(
+                          label: l10n.mdfRowReadyFor('${row.readyDays}'),
+                          intent: StatusIntent.success,
+                          compact: true,
+                        )
+                      else if (left != null && _inWork(row.status))
+                        StatusChip(
+                          label: left == 0
+                              ? l10n.mdfRowToday
+                              : l10n.mdfRowDaysLeft('$left'),
+                          intent: row.dueSoon
+                              ? StatusIntent.warning
+                              : StatusIntent.neutral,
                           compact: true,
                         )
                       else if (row.dueSoon)
@@ -291,6 +542,16 @@ class _OrderRow extends StatelessWidget {
                 ],
               ),
             ),
+            if (wide) ...[
+              const SizedBox(width: AppSpacing.md),
+              SizedBox(
+                width: AppSpacing.xxxl * 4,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  child: _StageBar(row: row),
+                ),
+              ),
+            ],
             const SizedBox(width: AppSpacing.md),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -307,7 +568,9 @@ class _OrderRow extends StatelessWidget {
                       color: theme.colorScheme.error,
                       fontWeight: FontWeight.w700,
                     ),
-                  ),
+                  )
+                else if (row.status != MdfStatus.draft && row.total > 0)
+                  Text(l10n.mdfRowPaid, style: theme.textTheme.bodySmall),
               ],
             ),
           ],

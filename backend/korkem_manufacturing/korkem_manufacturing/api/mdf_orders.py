@@ -104,9 +104,16 @@ def margin(order: str) -> dict:
 
 @frappe.whitelist(methods=["GET"])
 def listing(search: str | None = None, status: str | None = None, overdue: bool | int | str = 0,
-			with_debt: bool | int | str = 0, start: int = 0, limit: int = 50, tag: str | None = None) -> dict:
+			with_debt: bool | int | str = 0, start: int = 0, limit: int = 50, tag: str | None = None,
+			due_soon: bool | int | str = 0) -> dict:
 	return service.listing(search=search, status=status, overdue=overdue, with_debt=with_debt,
-						   start=start, limit=limit, tag=tag)
+						   start=start, limit=limit, tag=tag, due_soon=due_soon)
+
+
+@frappe.whitelist(methods=["GET"])
+def overview() -> dict:
+	"""Четыре цифры над списком: просрочено, сдать скоро, готовы, долг клиентов."""
+	return service.overview()
 
 
 @frappe.whitelist(methods=["POST"])

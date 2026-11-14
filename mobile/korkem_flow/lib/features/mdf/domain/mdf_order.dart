@@ -79,6 +79,19 @@ String? _s(Object? v) => v == null || '$v'.isEmpty ? null : '$v';
 
 /// One row of the list.
 @immutable
+/// The list's sections, in the order they are shown.
+enum MdfListSection { overdue, soon, shop, ready, draft, closed }
+
+/// The four figures over the list: late, due today or tomorrow, ready and
+/// waiting for the customer, and what the customers owe.
+typedef MdfOverview = ({
+  int overdue,
+  int dueSoon,
+  int ready,
+  double debt,
+  int debtors,
+});
+
 class MdfOrderRow {
   const MdfOrderRow({
     required this.name,
@@ -97,6 +110,10 @@ class MdfOrderRow {
     this.milling,
     this.edgeProfile,
     this.stage,
+    this.stages = const [],
+    this.waiting,
+    this.daysLeft,
+    this.readyDays,
     this.tags = const [],
     this.customerTags = const [],
   });
@@ -118,6 +135,19 @@ class MdfOrderRow {
     paid: _d(json['paid']),
     debt: _d(json['debt']),
     stage: MdfStage.parse(json['stage']),
+    stages: [
+      for (final s in json['stages'] as List? ?? const [])
+        if (s is Map)
+          if (MdfStage.parse(s['stage']) case final stage?)
+            (stage: stage, done: s['done'] == true),
+    ],
+    waiting: MdfStage.parse(json['waiting']),
+    daysLeft: json['days_left'] is num
+        ? (json['days_left'] as num).toInt()
+        : null,
+    readyDays: json['ready_days'] is num
+        ? (json['ready_days'] as num).toInt()
+        : null,
     tags: MdfOrderTag.parse(json['tags']),
     customerTags: MdfCustomerTag.parse(json['customer_tags']),
   );
@@ -126,6 +156,29 @@ class MdfOrderRow {
   final MdfStatus status;
   final bool overdue;
   final bool dueSoon;
+
+  /// Its stages in the shop's order, with what is done — the row's bar.
+  final List<({MdfStage stage, bool done})> stages;
+
+  /// The stage it waits at now; null when not in the shop.
+  final MdfStage? waiting;
+
+  /// Days to its date (negative — late); null once handed over or a draft.
+  final int? daysLeft;
+
+  /// Days it has stood ready, waiting for its customer.
+  final int? readyDays;
+
+  /// Where it belongs in the list read top-down (owner, 14.11.2026): what
+  /// burns first, what is done last.
+  MdfListSection get section => switch (status) {
+    MdfStatus.draft => MdfListSection.draft,
+    MdfStatus.ready => MdfListSection.ready,
+    MdfStatus.handedOver || MdfStatus.cancelled => MdfListSection.closed,
+    _ when overdue => MdfListSection.overdue,
+    _ when dueSoon => MdfListSection.soon,
+    _ => MdfListSection.shop,
+  };
   final List<MdfOrderTag> tags;
   final List<MdfCustomerTag> customerTags;
 

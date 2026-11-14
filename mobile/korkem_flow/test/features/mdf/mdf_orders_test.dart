@@ -78,7 +78,27 @@ class _FakeRepository implements MdfOrderRepository {
     return _rows;
   }
 
+  @override
+  Future<MdfOverview> overview() async =>
+      (overdue: 1, dueSoon: 2, ready: 3, debt: 58680, debtors: 1);
+
   static final _rows = [
+    MdfOrderRow.fromJson(const {
+      'name': 'SAL-ORD-7',
+      'status': 'ready',
+      'created_on': '2026-10-20',
+      'delivery_date': '2026-10-28',
+      'customer_name': 'Ерлан',
+      'area_m2': 2,
+      'total': 34000,
+      'paid': 34000,
+      'debt': 0,
+      'ready_days': 2,
+      'stages': [
+        {'stage': 'cut', 'done': true},
+        {'stage': 'ready', 'done': true},
+      ],
+    }),
     MdfOrderRow.fromJson(const {
       'name': 'SAL-ORD-1129',
       'status': 'in_shop',
@@ -93,6 +113,15 @@ class _FakeRepository implements MdfOrderRepository {
       'paid': 0,
       'debt': 58680,
       'stage': 'mill',
+      'stages': [
+        {'stage': 'cut', 'done': true},
+        {'stage': 'mill', 'done': true},
+        {'stage': 'sand', 'done': false},
+        {'stage': 'vacuum', 'done': false},
+        {'stage': 'ready', 'done': false},
+      ],
+      'waiting': 'sand',
+      'days_left': -3,
       'tags': ['urgent'],
       'customer_tags': ['vip'],
     }),
@@ -697,6 +726,60 @@ void main() {
     expect(find.byKey(const ValueKey('mdfDebt:SAL-ORD-1129')), findsOneWidget);
     expect(find.byKey(const ValueKey('mdfTag:urgent')), findsOneWidget);
     expect(find.byKey(const ValueKey('mdfCustomerTag:vip')), findsOneWidget);
+  });
+
+  testWidgets('the list reads top-down by what burns; a figure narrows it', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 1200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrdersScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // The late order stands above the ready one, whatever the server's order.
+    final late = tester.getTopLeft(
+      find.byKey(const ValueKey('mdfSection:overdue')),
+    );
+    final ready = tester.getTopLeft(
+      find.byKey(const ValueKey('mdfSection:ready')),
+    );
+    expect(late.dy, lessThan(ready.dy));
+    // Where it is, and how late.
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('mdfNowAt:SAL-ORD-1129')))
+          .data,
+      'now: Sanding',
+    );
+    expect(find.text('3 d late'), findsOneWidget);
+    expect(find.text('ready 2 d'), findsOneWidget);
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('mdfKpi:ready:value')))
+          .data,
+      '3',
+    );
+    // A figure tapped asks the server for those orders; tapped again, all.
+    await tester.tap(find.byKey(const ValueKey('mdfKpi:overdue')));
+    await tester.pumpAndSettle();
+    expect(repo.queries.last.overdue, isTrue);
+    expect(find.byKey(const ValueKey('mdfSection:overdue')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('mdfKpi:dueSoon')));
+    await tester.pumpAndSettle();
+    expect((repo.queries.last.overdue, repo.queries.last.dueSoon), (
+      false,
+      true,
+    ));
+    await tester.tap(find.byKey(const ValueKey('mdfKpi:dueSoon')));
+    await tester.pumpAndSettle();
+    expect(repo.queries.last.dueSoon, isFalse);
   });
 
   testWidgets('a tag filter asks the server for that tag', (tester) async {

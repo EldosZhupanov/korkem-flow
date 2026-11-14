@@ -8786,5 +8786,58 @@
   },
   "mdfPaintTwoSided": "2 sides",
   "mdfTagClientFilm": "Customer's film",
-  "mdfClientShort": "customer's"
+  "mdfClientShort": "customer's",
+  "mdfKpiOverdue": "Overdue",
+  "mdfKpiDueSoon": "Due today or tomorrow",
+  "mdfKpiReady": "Ready to hand over",
+  "mdfKpiDebt": "Customers owe",
+  "mdfKpiDebtors": "customers: {count}",
+  "@mdfKpiDebtors": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfSectionOverdue": "Overdue",
+  "mdfSectionSoon": "Due soon",
+  "mdfSectionShop": "In the shop",
+  "mdfSectionReady": "Ready — waiting for the customer",
+  "mdfSectionDraft": "Drafts",
+  "mdfSectionClosed": "Handed over",
+  "mdfRowNowAt": "now: {stage}",
+  "@mdfRowNowAt": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowLate": "{days} d late",
+  "@mdfRowLate": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowDaysLeft": "in {days} d",
+  "@mdfRowDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowToday": "due today",
+  "mdfRowReadyFor": "ready {days} d",
+  "@mdfRowReadyFor": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowPaid": "paid",
+  "mdfFilterDueSoon": "Due soon"
 }
