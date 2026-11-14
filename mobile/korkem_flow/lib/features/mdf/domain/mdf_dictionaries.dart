@@ -69,9 +69,9 @@ typedef MdfMillingGroup = ({
   List<MdfDictEntry> variants,
 });
 
-/// A colour system and its colours (owner, 15.11.2026). [head] is the
+/// A colour system and its colours (owner, 15.11.2026). `head` is the
 /// system's own entry; null for one that has left the list, and for the
-/// colours filed under none, whose [name] is empty.
+/// colours filed under none, whose `name` is empty.
 typedef MdfPaintGroup = ({
   MdfDictEntry? head,
   String name,
