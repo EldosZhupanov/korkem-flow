@@ -412,6 +412,19 @@ class TestFilmDept(IntegrationTestCase):
 		paid = self._as(MANAGER, paint_stock.pay_supplier, got["receipt"], "Перевод")
 		self.assertNotIn(got["receipt"], [o["receipt"] for o in paid["owed"]])
 
+		# A taxi an employee paid for out of his pocket: owed to him, on the
+		# paint store — and not in the film cash; given back, it is gone.
+		pocket = self._as(MANAGER, paint_stock.receive, colour, 2, 4000, self.supplier, base="Эмаль ПУ матовая",
+						  delivery={"transport": "Такси", "amount": 2500, "payer": "employee",
+									"paid_by": MANAGER, "method": "Наличные"})
+		owed_delivery = {d["receipt"]: d for d in pocket["delivery_owed"]}
+		self.assertEqual(owed_delivery[pocket["receipt"]]["amount"], 2500)
+		self.assertTrue(owed_delivery[pocket["receipt"]]["employee"])
+		self.assertNotIn(pocket["receipt"],
+						 [e["receipt"] for e in self._as(MANAGER, film_cash.owed)["employees"]])
+		after = self._as(MANAGER, paint_stock.settle_delivery, pocket["receipt"], "Наличные")
+		self.assertNotIn(pocket["receipt"], [d["receipt"] for d in after["delivery_owed"]])
+
 		# A colour that is not on the list is not received.
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, paint_stock.receive, f"Нет {colour}", 1, 100, self.supplier)

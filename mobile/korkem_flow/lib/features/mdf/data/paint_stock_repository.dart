@@ -84,6 +84,16 @@ class PaintStockRepository {
     ),
   );
 
+  /// Bringing paint given back to the employee, or paid to the carrier.
+  Future<PaintStock> settleDelivery(String receipt, String method) async =>
+      _stock(
+        await _client.callMethod(
+          '$_base.settle_delivery',
+          post: true,
+          params: {'receipt': receipt, 'method': method},
+        ),
+      );
+
   /// The painter weighed what is left of a paint.
   Future<PaintStock> count(String item, double kg) async => _stock(
     await _client.callMethod(

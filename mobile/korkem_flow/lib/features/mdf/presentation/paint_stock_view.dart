@@ -172,6 +172,76 @@ class PaintStockSection extends ConsumerWidget {
               onTap: () => showPaintHistory(context, p),
             ),
           ),
+        if (stock.deliveryOwed.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.sm),
+          ReadableWidth(child: SectionLabel(l10n.paintDeliveryOwed)),
+          for (final d in stock.deliveryOwed)
+            ReadableWidth(
+              child: ListTile(
+                key: ValueKey('paintDeliveryOwed:${d.receipt}'),
+                dense: true,
+                title: Text(
+                  [
+                    if (d.employee case final who?)
+                      l10n.paintDeliveryToEmployee(who)
+                    else
+                      l10n.paintDeliveryToCarrier,
+                    ?d.transport,
+                  ].join(' · '),
+                ),
+                subtitle: Text(
+                  [
+                    mdfDay(d.date, year: false),
+                    ?d.supplier,
+                    ?d.driver,
+                    ?d.phone,
+                  ].join(' · '),
+                ),
+                trailing: Wrap(
+                  spacing: AppSpacing.sm,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (d.amount case final amount?)
+                      Text(money.format(amount)),
+                    PopupMenuButton<String>(
+                      key: ValueKey('paintDeliverySettle:${d.receipt}'),
+                      tooltip: d.employee != null
+                          ? l10n.paintDeliveryBack
+                          : l10n.paintDeliveryPaid,
+                      onSelected: (method) async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        try {
+                          await ref
+                              .read(paintStockRepositoryProvider)
+                              .settleDelivery(d.receipt, method);
+                          ref.invalidate(paintStockProvider);
+                        } on Object catch (e) {
+                          messenger.showFailure(e, l10n);
+                        }
+                      },
+                      itemBuilder: (_) => [
+                        for (final m in [filmCash, filmTransfer, filmCard])
+                          PopupMenuItem(
+                            key: ValueKey('paintDeliveryHow:$m'),
+                            value: m,
+                            child: Text(filmMethodLabel(l10n, m)),
+                          ),
+                      ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.xs),
+                        child: Text(
+                          d.employee != null
+                              ? l10n.paintDeliveryBack
+                              : l10n.paintDeliveryPaid,
+                          style: TextStyle(color: theme.colorScheme.primary),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
         if (stock.owed.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.sm),
           ReadableWidth(child: SectionLabel(l10n.paintOwed)),

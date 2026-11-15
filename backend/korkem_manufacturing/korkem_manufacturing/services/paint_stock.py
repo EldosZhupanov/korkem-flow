@@ -134,7 +134,7 @@ def receive(colour: str, kg, price_kg, supplier: str, base: str | None = None, r
 
 def _same(a: str, b: str) -> bool:
 	"""«RAL 9016» on an order and «RAL 9016 Транспортный белый» in the store."""
-	return mdf_paints._number(a) == mdf_paints._number(b)
+	return mdf_paints._number(mdf_paint.colour_only(a)) == mdf_paints._number(mdf_paint.colour_only(b))
 
 
 def stock() -> dict:
@@ -181,7 +181,43 @@ def stock() -> dict:
 		# warehouse's — the ones paint came from first.
 		"suppliers": _suppliers(company),
 		"usage": usage(company),
+		"delivery_owed": _delivery_owed(company, allowed),
 	}
+
+
+def _delivery_owed(company: str, allowed: bool) -> list[dict]:
+	"""Bringing paint that an employee paid out of his pocket, or nobody has
+	paid yet — to be given back, or paid to the carrier (owner, 15.11.2026)."""
+	out = []
+	for d in frappe.get_all(
+		"Stock Entry",
+		filters={"company": company, "korkem_material_receipt": 1, "docstatus": 1, "korkem_receipt_dept": DEPT,
+				 "korkem_delivery_payer": ["in", [film_dept.PAYER_EMPLOYEE, film_dept.PAYER_UNPAID]],
+				 "korkem_delivery_settled_on": ["is", "not set"], "korkem_delivery_cost": [">", 0]},
+		fields=["name", "posting_date", "korkem_supplier", "korkem_delivery_payer", "korkem_delivery_paid_by",
+				"korkem_delivery_cost", "korkem_delivery_transport", "korkem_delivery_driver",
+				"korkem_delivery_phone"],
+		order_by="posting_date asc",
+		limit_page_length=0,
+	):
+		employee = d.korkem_delivery_payer == film_dept.PAYER_EMPLOYEE
+		out.append({
+			"receipt": d.name, "date": str(d.posting_date),
+			"amount": price_visibility.money(d.korkem_delivery_cost, allowed=allowed),
+			"employee": get_fullname(d.korkem_delivery_paid_by) if employee and d.korkem_delivery_paid_by else None,
+			"transport": d.korkem_delivery_transport, "driver": d.korkem_delivery_driver,
+			"phone": d.korkem_delivery_phone,
+			"supplier": frappe.db.get_value("Supplier", d.korkem_supplier, "supplier_name") or d.korkem_supplier,
+		})
+	return out
+
+
+def settle_delivery(receipt: str, method: str | None = None) -> dict:
+	"""Given back to the employee, or paid to the carrier, today."""
+	if frappe.db.get_value("Stock Entry", receipt, "korkem_receipt_dept") != DEPT:
+		frappe.throw("Такого долга за доставку краски нет.", frappe.DoesNotExistError)
+	film_cash.settle(receipt, method)
+	return stock()
 
 
 def _suppliers(company: str) -> list[dict]:

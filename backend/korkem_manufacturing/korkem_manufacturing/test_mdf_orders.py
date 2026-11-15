@@ -868,13 +868,17 @@ class TestMdfOrders(IntegrationTestCase):
 		def on_hand() -> float:
 			return next(p["on_hand_kg"] for p in self._as(BUYER, paint_stock.stock)["paints"] if p["item"] == item)
 
-		lines = [{**ORDER_1129[1], "coating": "paint", "film": colour, "rate": 24_000}]  # 1,63 m²
+		# A gloss is the paint shop's mark: its own batch, the same paint.
+		lines = [{**ORDER_1129[1], "coating": "paint", "film": colour, "rate": 24_000, "gloss": "gloss"}]  # 1,63 m²
 		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
 						head={"thickness_mm": 16}, lines=lines)
+		self.assertEqual(card["lines"][0]["gloss"], "gloss")
+		with self.assertRaises(frappe.ValidationError):
+			mdf_orders.price([{**lines[0], "gloss": "шершавая"}], finish=None, company=COMPANY)
 		self.addCleanup(self._drop, card["name"])
 		self._as(MANAGER, mdf_orders.accept, card["name"])
 		# The queue knows what it needs: 1,63 m² × 0,3.
-		need = next(n for n in self._as(BUYER, paint_stock.stock)["queue"] if n["colour"] == colour)
+		need = next(n for n in self._as(BUYER, paint_stock.stock)["queue"] if n["colour"] == f"{colour} · глянец")
 		self.assertAlmostEqual(need["need_kg"], 0.49, places=2)
 		for stage in ("cut", "mill", "sand", "paint"):
 			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)

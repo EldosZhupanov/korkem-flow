@@ -604,6 +604,12 @@ void main() {
       find.byKey(const ValueKey('mdfGroupCoating:0:paint')),
       findsOneWidget,
     );
+    // A paint block says its finish, for the paint shop (15.11.2026).
+    await tester.tap(find.byKey(const ValueKey('mdfGroupGloss:0:null')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('gloss').last);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfGroupGloss:0:gloss')), findsOne);
     // And changed from the header: no colour yet, so no question.
     await tester.tap(find.byKey(const ValueKey('mdfGroupCoating:0:paint')));
     await tester.pumpAndSettle();
@@ -1209,5 +1215,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('mdfMarginNotCounted')), findsOneWidget);
     expect(find.textContaining('МДФ 16 мм'), findsOneWidget);
+  });
+
+  test('a finish goes to the server for a paint line only', () {
+    const paint = MdfLineInput(
+      heightMm: 700,
+      widthMm: 400,
+      qty: 1,
+      coating: MdfCoating.paint,
+      gloss: MdfGloss.metallic,
+    );
+    expect(paint.toJson()['gloss'], 'metallic');
+    const film = MdfLineInput(
+      heightMm: 700,
+      widthMm: 400,
+      qty: 1,
+      coating: MdfCoating.pvc,
+      gloss: MdfGloss.metallic,
+    );
+    expect(film.toJson().containsKey('gloss'), isFalse);
   });
 }

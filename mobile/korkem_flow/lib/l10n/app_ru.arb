@@ -2649,5 +2649,17 @@
   "paintUsageFact": "по факту {fact} кг/м² (норма {norm})",
   "paintCount": "Пересчитать остаток",
   "paintCountTitle": "Сколько на самом деле: {title}?",
-  "paintCountHint": "Взвесьте остаток. Разница с программой запишется как расход."
+  "paintCountHint": "Взвесьте остаток. Разница с программой запишется как расход.",
+  "mdfGloss": "Вид",
+  "mdfGlossNone": "—",
+  "mdfGlossMatt": "матовая",
+  "mdfGlossSemi": "полуматовая",
+  "mdfGlossGloss": "глянец",
+  "mdfGlossMetallic": "металлик",
+  "mdfGlossPearl": "перламутр",
+  "paintDeliveryOwed": "Должны за доставку краски",
+  "paintDeliveryBack": "Вернули",
+  "paintDeliveryPaid": "Оплатили",
+  "paintDeliveryToEmployee": "платил {name}",
+  "paintDeliveryToCarrier": "перевозчику не оплачено"
 }
