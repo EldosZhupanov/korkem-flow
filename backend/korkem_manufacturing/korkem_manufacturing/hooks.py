@@ -176,6 +176,7 @@ doc_events = {
 		"after_insert": [
 			"korkem_manufacturing.services.facade_prices.on_company_created",
 			"korkem_manufacturing.services.mdf_paints.on_company_created",
+			"korkem_manufacturing.services.cnc_orders.on_company_created",
 			"korkem_manufacturing.services.crm_currency.on_company_created",
 		],
 	},

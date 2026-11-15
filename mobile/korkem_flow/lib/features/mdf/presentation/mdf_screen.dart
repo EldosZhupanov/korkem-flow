@@ -29,6 +29,14 @@ class MdfScreen extends StatelessWidget {
         l10n.mdfOrdersHint,
         Routes.mdfOrders,
       ),
+      // «Услуги ЧПУ» — the machine for hire (owner, 15.11.2026).
+      _MdfRow(
+        'cnc',
+        AppIcons.workOrder,
+        l10n.cncTitle,
+        l10n.cncHint,
+        Routes.cncOrders,
+      ),
       // «Отдел плёнки» — a department of its own (owner, 10.11.2026): it buys
       // film from wholesalers and sells it by the metre.
       _MdfRow(
@@ -155,6 +163,7 @@ class MdfScreen extends StatelessWidget {
     // long to find anything in.
     const groups = {
       'orders': 0,
+      'cnc': 0,
       'quote': 0,
       'filmDept': 0,
       'cash': 0,

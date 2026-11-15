@@ -9319,5 +9319,239 @@
       }
     }
   },
-  "paintDeliveryToCarrier": "carrier not paid"
+  "paintDeliveryToCarrier": "carrier not paid",
+  "cncAccept": "Accept",
+  "cncAddCustom": "Work of its own",
+  "cncAddMaterial": "Our material",
+  "cncAddService": "Work from the price list",
+  "cncAhead": "{time} before it",
+  "@cncAhead": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cncAmount": "Amount",
+  "cncByAgreement": "by agreement",
+  "cncCancel": "Cancel the order",
+  "cncCancelTitle": "Why is it cancelled?",
+  "cncCost": "cost {price}",
+  "@cncCost": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cncCustomWork": "What work",
+  "cncDayMinutes": "machine {minutes} min a day",
+  "@cncDayMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cncDayMinutesLabel": "Machine working minutes a day",
+  "cncDebtComment": "Owes {amount} — why hand it over?",
+  "@cncDebtComment": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncDebtLabel": "Owed",
+  "cncDefects": "defects: {text}",
+  "@cncDefects": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "cncDue": "due {day}",
+  "@cncDue": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "cncEmpty": "No CNC orders yet — press «New order».",
+  "cncEta": "ready {day}",
+  "@cncEta": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "cncHandOver": "Hand over",
+  "cncHandedOverOn": "Handed over {day}: {who}",
+  "@cncHandedOverOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "cncHint": "The machine for hire: worktops, sheets, lattices",
+  "cncHistory": "History",
+  "cncHold": "Waiting…",
+  "cncHoldTitle": "What are we waiting for?",
+  "cncHolding": "waiting: {reason}",
+  "@cncHolding": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "cncHours": "h",
+  "cncIntake": "The customer's material",
+  "cncIntakeAdd": "Add what he brought",
+  "cncIntakeDefects": "Defects (chip, scratch)",
+  "cncIntakeWhat": "What (worktop 3000×600, LDSP sheet)",
+  "cncLineNote": "Note",
+  "cncMachineTime": "Machine time: {time}",
+  "@cncMachineTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cncMakerPrices": "Furniture maker's prices",
+  "cncMinOrder": "minimum {amount}",
+  "@cncMinOrder": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncMinOrderLabel": "Minimum order, ₸",
+  "cncMinutesShort": "min",
+  "cncNewOrder": "New order",
+  "cncNoGroup": "Other",
+  "cncNoMaterials": "The warehouse has no sheets yet.",
+  "cncNoPhone": "The customer has no phone on his card.",
+  "cncNoPrice": "no price",
+  "cncNotReady": "Not ready after all",
+  "cncNotes": "Notes",
+  "cncOk": "OK",
+  "cncOwes": "owes {amount}",
+  "@cncOwes": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncPaid": "paid {amount}",
+  "@cncPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncPay": "Payment",
+  "cncPayments": "Payments",
+  "cncPerUnitMinutes": "{minutes} min a unit",
+  "@cncPerUnitMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cncPickCustomer": "Choose the customer",
+  "cncPricesTitle": "CNC price list",
+  "cncQty": "Qty",
+  "cncQueueLabel": "Machine queue",
+  "cncQueueOrders": "{count} orders",
+  "@cncQueueOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cncRate": "Price",
+  "cncReadyAction": "Ready",
+  "cncReadyLabel": "Ready to hand over",
+  "cncReadyMessage": "Hello! Your order {name} is ready, you can collect it.",
+  "@cncReadyMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cncReadyMessageDebt": "Hello! Your order {name} is ready. To pay: {amount}.",
+  "@cncReadyMessageDebt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncRemove": "Remove",
+  "cncSaveDraft": "Save",
+  "cncSaved": "Saved",
+  "cncSearchHint": "Number or customer",
+  "cncServiceAdd": "Add a service",
+  "cncServiceEdit": "Service",
+  "cncServiceGroup": "Group (Cutting, Worktops…)",
+  "cncServiceMinutes": "Machine minutes a unit",
+  "cncServiceOff": "switched off",
+  "cncServiceOn": "In the price list",
+  "cncServicePrice": "Price a unit, ₸",
+  "cncServiceTitle": "Name",
+  "cncServiceTrade": "Price for furniture makers, ₸",
+  "cncSettingsTitle": "Urgency, minimum, machine day",
+  "cncStart": "On the machine",
+  "cncStatusAll": "All",
+  "cncStatusCancelled": "Cancelled",
+  "cncStatusDraft": "Draft",
+  "cncStatusHandedOver": "Handed over",
+  "cncStatusOnMachine": "On the machine",
+  "cncStatusQueued": "In the queue",
+  "cncStatusReady": "Ready",
+  "cncTakenBy": "Taken by (if not the customer)",
+  "cncTakenPhone": "His phone",
+  "cncTell": "Tell the customer",
+  "cncTerms": "The customer agrees: hidden defects of his material are his",
+  "cncTermsAgreed": "The customer agreed: hidden defects are his.",
+  "cncTitle": "CNC services",
+  "cncTotal": "Total",
+  "cncTradePrice": "makers {price}",
+  "@cncTradePrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cncUnhold": "No longer waiting",
+  "cncUrgent": "Urgent",
+  "cncUrgentPct": "urgent +{pct}%",
+  "@cncUrgentPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cncUrgentPctLabel": "Urgency surcharge, %",
+  "cncWork": "Work"
 }

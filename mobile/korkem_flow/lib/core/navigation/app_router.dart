@@ -15,6 +15,9 @@ import 'package:korkem_flow/features/auth/presentation/register_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
 import 'package:korkem_flow/features/bazis/presentation/bazis_import_screen.dart';
 import 'package:korkem_flow/features/channel_settings/presentation/channel_settings_screen.dart';
+import 'package:korkem_flow/features/cnc/presentation/cnc_order_screen.dart';
+import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
+import 'package:korkem_flow/features/cnc/presentation/cnc_prices_screen.dart';
 import 'package:korkem_flow/features/company_details/presentation/company_details_screen.dart';
 import 'package:korkem_flow/features/customers/presentation/customer_detail_screen.dart';
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
@@ -176,6 +179,14 @@ abstract final class Routes {
   static const mdfVolume = '/mdf/volume';
   static const mdfPaint = '/mdf/paint';
   static const mdfDictionaries = '/mdf/dictionaries';
+
+  /// «Услуги ЧПУ» — the machine for hire (owner, 15.11.2026).
+  static const cncOrders = '/cnc';
+  static const cncOrderNew = '/cnc/new';
+  static const cncOrderPattern = '/cnc/orders/:name';
+  static const cncPrices = '/cnc/prices';
+  static String cncOrder(String name) =>
+      '/cnc/orders/${Uri.encodeComponent(name)}';
 
   /// «Отдел плёнки» — a department of its own (owner, 10.11.2026).
   static const filmDept = '/film';
@@ -392,6 +403,23 @@ GoRouter createRouter(Ref ref) {
         builder: (context, state) => MdfOrderScreen(
           template: state.extra is MdfOrder ? state.extra! as MdfOrder : null,
         ),
+      ),
+      GoRoute(
+        path: Routes.cncOrders,
+        builder: (context, state) => const CncOrdersScreen(),
+      ),
+      GoRoute(
+        path: Routes.cncOrderNew,
+        builder: (context, state) => const CncOrderScreen(),
+      ),
+      GoRoute(
+        path: Routes.cncOrderPattern,
+        builder: (context, state) =>
+            CncOrderScreen(name: state.pathParameters['name']),
+      ),
+      GoRoute(
+        path: Routes.cncPrices,
+        builder: (context, state) => const CncPricesScreen(),
       ),
       GoRoute(
         path: Routes.mdfOrderPattern,
