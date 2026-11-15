@@ -263,7 +263,7 @@ void main() {
     tester,
   ) async {
     final repo = await _pump(tester, const CncPricesScreen());
-    expect(find.text('Столешницы'), findsOne);
+    expect(find.text('СТОЛЕШНИЦЫ'), findsOne);
     expect(find.text('by agreement'), findsOne);
     await tester.tap(find.byKey(const ValueKey('cncServiceRow:Еврозапил')));
     await tester.pumpAndSettle();

@@ -8,6 +8,7 @@ import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
@@ -247,7 +248,7 @@ class _CncFormState extends ConsumerState<_CncForm> {
 
   void _reprice() {
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 350), () async {
+    _debounce = Timer(AppDebounce.search, () async {
       final inputs = _inputs;
       if (inputs.isEmpty) {
         if (mounted) setState(() => _quote = null);
