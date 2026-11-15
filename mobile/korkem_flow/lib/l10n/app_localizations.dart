@@ -14742,6 +14742,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Weigh what is left. The difference from the program counts as used.'**
   String get paintCountHint;
+
+  /// No description provided for @mdfGloss.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get mdfGloss;
+
+  /// No description provided for @mdfGlossNone.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get mdfGlossNone;
+
+  /// No description provided for @mdfGlossMatt.
+  ///
+  /// In en, this message translates to:
+  /// **'matt'**
+  String get mdfGlossMatt;
+
+  /// No description provided for @mdfGlossSemi.
+  ///
+  /// In en, this message translates to:
+  /// **'semi-matt'**
+  String get mdfGlossSemi;
+
+  /// No description provided for @mdfGlossGloss.
+  ///
+  /// In en, this message translates to:
+  /// **'gloss'**
+  String get mdfGlossGloss;
+
+  /// No description provided for @mdfGlossMetallic.
+  ///
+  /// In en, this message translates to:
+  /// **'metallic'**
+  String get mdfGlossMetallic;
+
+  /// No description provided for @mdfGlossPearl.
+  ///
+  /// In en, this message translates to:
+  /// **'pearl'**
+  String get mdfGlossPearl;
+
+  /// No description provided for @paintDeliveryOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed for bringing paint'**
+  String get paintDeliveryOwed;
+
+  /// No description provided for @paintDeliveryBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Given back'**
+  String get paintDeliveryBack;
+
+  /// No description provided for @paintDeliveryPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paintDeliveryPaid;
+
+  /// No description provided for @paintDeliveryToEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} paid'**
+  String paintDeliveryToEmployee(String name);
+
+  /// No description provided for @paintDeliveryToCarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'carrier not paid'**
+  String get paintDeliveryToCarrier;
 }
 
 class _AppLocalizationsDelegate

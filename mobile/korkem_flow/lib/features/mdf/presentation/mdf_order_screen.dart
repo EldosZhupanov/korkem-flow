@@ -513,8 +513,11 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   }
 
   /// A paint group's finish, as its lines carry it.
-  MdfGloss? _glossOf(_Group group) =>
-      _lines.where((l) => l.group == group).map((l) => l.gloss).nonNulls.firstOrNull;
+  MdfGloss? _glossOf(_Group group) => _lines
+      .where((l) => l.group == group)
+      .map((l) => l.gloss)
+      .nonNulls
+      .firstOrNull;
 
   void _setGloss(_Group group, MdfGloss? gloss) {
     setState(() {
@@ -3817,7 +3820,6 @@ class _ChangeReasonDialogState extends State<_ChangeReasonDialog> {
     );
   }
 }
-
 
 String mdfGlossLabel(MdfGloss g, AppLocalizations l10n) => switch (g) {
   MdfGloss.matt => l10n.mdfGlossMatt,

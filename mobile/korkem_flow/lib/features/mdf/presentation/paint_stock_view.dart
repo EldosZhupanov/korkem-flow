@@ -201,8 +201,7 @@ class PaintStockSection extends ConsumerWidget {
                   spacing: AppSpacing.sm,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    if (d.amount case final amount?)
-                      Text(money.format(amount)),
+                    if (d.amount case final amount?) Text(money.format(amount)),
                     PopupMenuButton<String>(
                       key: ValueKey('paintDeliverySettle:${d.receipt}'),
                       tooltip: d.employee != null

@@ -8545,4 +8545,42 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get paintCountHint =>
       'Қалдықты өлшеңіз. Бағдарламамен айырмасы шығын болып жазылады.';
+
+  @override
+  String get mdfGloss => 'Түрі';
+
+  @override
+  String get mdfGlossNone => '—';
+
+  @override
+  String get mdfGlossMatt => 'күңгірт';
+
+  @override
+  String get mdfGlossSemi => 'жартылай күңгірт';
+
+  @override
+  String get mdfGlossGloss => 'жылтыр';
+
+  @override
+  String get mdfGlossMetallic => 'металлик';
+
+  @override
+  String get mdfGlossPearl => 'інжу';
+
+  @override
+  String get paintDeliveryOwed => 'Бояу жеткізу үшін қарыз';
+
+  @override
+  String get paintDeliveryBack => 'Қайтардық';
+
+  @override
+  String get paintDeliveryPaid => 'Төледік';
+
+  @override
+  String paintDeliveryToEmployee(String name) {
+    return '$name төледі';
+  }
+
+  @override
+  String get paintDeliveryToCarrier => 'тасымалдаушыға төленбеді';
 }
