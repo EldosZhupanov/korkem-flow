@@ -2649,5 +2649,17 @@
   "paintUsageFact": "нақты {fact} кг/м² (норма {norm})",
   "paintCount": "Қалдықты қайта санау",
   "paintCountTitle": "Шын мәнінде қанша: {title}?",
-  "paintCountHint": "Қалдықты өлшеңіз. Бағдарламамен айырмасы шығын болып жазылады."
+  "paintCountHint": "Қалдықты өлшеңіз. Бағдарламамен айырмасы шығын болып жазылады.",
+  "mdfGloss": "Түрі",
+  "mdfGlossNone": "—",
+  "mdfGlossMatt": "күңгірт",
+  "mdfGlossSemi": "жартылай күңгірт",
+  "mdfGlossGloss": "жылтыр",
+  "mdfGlossMetallic": "металлик",
+  "mdfGlossPearl": "інжу",
+  "paintDeliveryOwed": "Бояу жеткізу үшін қарыз",
+  "paintDeliveryBack": "Қайтардық",
+  "paintDeliveryPaid": "Төледік",
+  "paintDeliveryToEmployee": "{name} төледі",
+  "paintDeliveryToCarrier": "тасымалдаушыға төленбеді"
 }

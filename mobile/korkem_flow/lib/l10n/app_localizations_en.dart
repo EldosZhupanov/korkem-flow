@@ -8579,4 +8579,42 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paintCountHint =>
       'Weigh what is left. The difference from the program counts as used.';
+
+  @override
+  String get mdfGloss => 'Finish';
+
+  @override
+  String get mdfGlossNone => '—';
+
+  @override
+  String get mdfGlossMatt => 'matt';
+
+  @override
+  String get mdfGlossSemi => 'semi-matt';
+
+  @override
+  String get mdfGlossGloss => 'gloss';
+
+  @override
+  String get mdfGlossMetallic => 'metallic';
+
+  @override
+  String get mdfGlossPearl => 'pearl';
+
+  @override
+  String get paintDeliveryOwed => 'Owed for bringing paint';
+
+  @override
+  String get paintDeliveryBack => 'Given back';
+
+  @override
+  String get paintDeliveryPaid => 'Paid';
+
+  @override
+  String paintDeliveryToEmployee(String name) {
+    return '$name paid';
+  }
+
+  @override
+  String get paintDeliveryToCarrier => 'carrier not paid';
 }

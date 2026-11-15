@@ -69,6 +69,10 @@ EXTRA_STAGES = ("paint", "vacuum")
 COATINGS = ("pvc", "paint", "raw")
 COATING_LIST = {"pvc": facade_spec.DECOR, "paint": "Краска", "raw": None}
 COATING_STAGE = {"pvc": "vacuum", "paint": "paint", "raw": None}
+#: A paint group's finish (owner, 15.11.2026: «вид покрытия») — a mark for
+#: the paint shop, which paints a gloss as a batch of its own; not a price.
+GLOSSES = {"matt": "матовая", "semi": "полуматовая", "gloss": "глянец", "metallic": "металлик",
+		   "pearl": "перламутр"}
 #: Who did the stage: an Employee, written with the tick (OnayBaza «Жұмыс көлемі»).
 STAGE_BY = {stage: f"{field}_by" for stage, field in STAGES.items()}
 HEAD = {
@@ -219,6 +223,9 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		own_paint = coating == "paint" and directions.flag(raw.get("client_paint"))
 		own_mdf = directions.flag(raw.get("client_mdf"))
 		own_film = coating == "pvc" and directions.flag(raw.get("client_film"))
+		gloss = (raw.get("gloss") or None) if coating == "paint" else None
+		if gloss is not None and gloss not in GLOSSES:
+			frappe.throw(f"{label}: вид покрытия — один из: {', '.join(GLOSSES.values())}.")
 		manual = raw.get("rate") not in (None, "")
 		if manual:
 			rate = _money(raw.get("rate"), f"{label}, цена")
@@ -262,6 +269,7 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 				"client_paint": own_paint,
 				"client_film": own_film,
 				"client_mdf": own_mdf,
+				"gloss": gloss,
 			}
 		)
 	return {
@@ -829,6 +837,7 @@ def card(order: str) -> dict:
 			"client_paint": bool(item.get("korkem_client_paint")),
 			"client_mdf": bool(item.get("korkem_client_mdf")),
 			"client_film": bool(item.get("korkem_client_film")),
+			"gloss": item.get("korkem_paint_gloss"),
 		}
 		for item in doc.items
 		if item.item_code == facade_order.FACADE_ITEM
@@ -1327,6 +1336,7 @@ def _item(line: dict, head: dict, wanted) -> dict:
 		"korkem_milling": milling,
 		"korkem_finish": line.get("finish") or head["finish"],
 		"korkem_line_coating": line.get("coating"),
+		"korkem_paint_gloss": line.get("gloss"),
 		"korkem_client_paint": 1 if line.get("client_paint") else 0,
 		"korkem_client_mdf": 1 if line.get("client_mdf") else 0,
 		"korkem_client_film": 1 if line.get("client_film") else 0,

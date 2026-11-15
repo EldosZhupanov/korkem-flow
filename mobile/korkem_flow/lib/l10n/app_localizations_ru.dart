@@ -8607,4 +8607,42 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get paintCountHint =>
       'Взвесьте остаток. Разница с программой запишется как расход.';
+
+  @override
+  String get mdfGloss => 'Вид';
+
+  @override
+  String get mdfGlossNone => '—';
+
+  @override
+  String get mdfGlossMatt => 'матовая';
+
+  @override
+  String get mdfGlossSemi => 'полуматовая';
+
+  @override
+  String get mdfGlossGloss => 'глянец';
+
+  @override
+  String get mdfGlossMetallic => 'металлик';
+
+  @override
+  String get mdfGlossPearl => 'перламутр';
+
+  @override
+  String get paintDeliveryOwed => 'Должны за доставку краски';
+
+  @override
+  String get paintDeliveryBack => 'Вернули';
+
+  @override
+  String get paintDeliveryPaid => 'Оплатили';
+
+  @override
+  String paintDeliveryToEmployee(String name) {
+    return 'платил $name';
+  }
+
+  @override
+  String get paintDeliveryToCarrier => 'перевозчику не оплачено';
 }

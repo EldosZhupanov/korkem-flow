@@ -138,6 +138,18 @@ class PaintOwed {
   final bool overdue;
 }
 
+/// Bringing paint someone paid out of his pocket, or nobody yet.
+typedef PaintDeliveryOwed = ({
+  String receipt,
+  String date,
+  double? amount,
+  String? employee,
+  String? transport,
+  String? driver,
+  String? phone,
+  String? supplier,
+});
+
 typedef PaintSupplier = ({String id, String name, String? city, bool paint});
 
 /// The last month: m² painted, kilograms the figure took for them, what
@@ -160,6 +172,7 @@ class PaintStock {
     this.owed = const [],
     this.suppliers = const [],
     this.usage,
+    this.deliveryOwed = const [],
   });
 
   factory PaintStock.fromJson(Map<String, dynamic> j) => PaintStock(
@@ -187,6 +200,19 @@ class PaintStock {
             factKgM2: _dn((j['usage'] as Map)['fact_kg_m2']),
           )
         : null,
+    deliveryOwed: [
+      for (final r in _rows(j['delivery_owed']))
+        (
+          receipt: '${r['receipt']}',
+          date: '${r['date'] ?? ''}',
+          amount: _dn(r['amount']),
+          employee: _s(r['employee']),
+          transport: _s(r['transport']),
+          driver: _s(r['driver']),
+          phone: _s(r['phone']),
+          supplier: _s(r['supplier']),
+        ),
+    ],
   );
 
   final List<PaintItem> paints;
@@ -195,6 +221,7 @@ class PaintStock {
   final List<PaintOwed> owed;
   final List<PaintSupplier> suppliers;
   final PaintUsage? usage;
+  final List<PaintDeliveryOwed> deliveryOwed;
 
   /// The last receipt of a colour, of any kind of it — what to start from.
   PaintLast? lastOf(String colour, {String? base}) {

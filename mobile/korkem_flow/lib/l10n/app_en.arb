@@ -9300,5 +9300,24 @@
       }
     }
   },
-  "paintCountHint": "Weigh what is left. The difference from the program counts as used."
+  "paintCountHint": "Weigh what is left. The difference from the program counts as used.",
+  "mdfGloss": "Finish",
+  "mdfGlossNone": "—",
+  "mdfGlossMatt": "matt",
+  "mdfGlossSemi": "semi-matt",
+  "mdfGlossGloss": "gloss",
+  "mdfGlossMetallic": "metallic",
+  "mdfGlossPearl": "pearl",
+  "paintDeliveryOwed": "Owed for bringing paint",
+  "paintDeliveryBack": "Given back",
+  "paintDeliveryPaid": "Paid",
+  "paintDeliveryToEmployee": "{name} paid",
+  "@paintDeliveryToEmployee": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "paintDeliveryToCarrier": "carrier not paid"
 }

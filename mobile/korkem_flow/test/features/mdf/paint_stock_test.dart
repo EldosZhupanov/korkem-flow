@@ -46,6 +46,15 @@ final _stock = PaintStock.fromJson(const {
       'short_kg': 2.2,
     },
   ],
+  'delivery_owed': [
+    {
+      'receipt': 'STE-8',
+      'date': '2026-11-14',
+      'amount': 2500,
+      'employee': 'Асет',
+      'transport': 'Такси',
+    },
+  ],
   'owed': [
     {
       'receipt': 'STE-5',
@@ -103,6 +112,13 @@ class _Repo implements PaintStockRepository {
   }
 
   final counted = <(String, double)>[];
+  final settled = <(String, String)>[];
+
+  @override
+  Future<PaintStock> settleDelivery(String receipt, String method) async {
+    settled.add((receipt, method));
+    return _stock;
+  }
 
   @override
   Future<PaintStock> count(String item, double kg) async {
@@ -249,5 +265,19 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('paintCountSave')));
     await tester.pumpAndSettle();
     expect(repo.counted, [('MAT-P1', 1.5)]);
+  });
+
+  testWidgets('a taxi an employee paid for is owed to him, and given back', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    expect(find.text('Асет paid · Такси'), findsOne);
+    await tester.tap(find.byKey(const ValueKey('paintDeliverySettle:STE-8')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('paintDeliveryHow:Наличные')).last,
+    );
+    await tester.pumpAndSettle();
+    expect(repo.settled, [('STE-8', 'Наличные')]);
   });
 }
