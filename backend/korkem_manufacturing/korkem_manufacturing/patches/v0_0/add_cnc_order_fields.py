@@ -21,6 +21,9 @@ ITEM = (
 	{"fieldname": "korkem_cnc_unit", "label": "CNC unit", "fieldtype": "Data"},
 	{"fieldname": "korkem_cnc_minutes", "label": "CNC machine minutes", "fieldtype": "Float"},
 	{"fieldname": "korkem_cnc_kind", "label": "CNC line kind", "fieldtype": "Data"},
+	# The shop's own sheet sold with the job: the line is the service item,
+	# the warehouse Item it takes off is here (not a sales item of its own).
+	{"fieldname": "korkem_cnc_material", "label": "CNC material taken", "fieldtype": "Data"},
 )
 
 

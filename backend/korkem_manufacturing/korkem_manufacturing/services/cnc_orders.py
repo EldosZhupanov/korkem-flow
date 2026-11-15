@@ -358,13 +358,12 @@ def save_draft(*, customer: str, delivery_date: str | None = None, lines=None, i
 def _row(line: dict, due) -> dict:
 	qty = Decimal(str(line["qty"]))
 	amount = Decimal(str(line.get("amount", 0)))
-	material = line.get("material")
 	return {
-		"item_code": material or CNC_ITEM,
+		"item_code": CNC_ITEM,
 		"item_name": line["title"][:140],
 		"description": line["title"],
 		"qty": float(qty),
-		"uom": frappe.db.get_value("Item", material, "stock_uom") if material else "Nos",
+		"uom": "Nos",
 		"rate": float((amount / qty).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)) if qty else 0,
 		"delivery_date": str(due),
 		"korkem_line_note": line.get("note"),
@@ -372,7 +371,7 @@ def _row(line: dict, due) -> dict:
 		"korkem_cnc_unit": line.get("unit"),
 		"korkem_cnc_minutes": line.get("minutes") or 0,
 		"korkem_cnc_kind": line["kind"],
-		"warehouse": material_stock._receiving_warehouse(current_company(), None) if material else None,
+		"korkem_cnc_material": line.get("material"),
 	}
 
 
@@ -402,15 +401,21 @@ def _issue_material(doc) -> None:
 	if not rows:
 		return
 	warehouse = material_stock._receiving_warehouse(doc.company, None)
-	have = material_stock._stock([i.item_code for i in rows], doc.company)
+	items = [i.korkem_cnc_material for i in rows]
+	have = material_stock._stock(items, doc.company)
 	for i in rows:
-		if have.get(i.item_code, (0.0, 0.0))[0] + 1e-6 < flt(i.qty):
-			frappe.throw(f"«{i.item_name}»: на складе {have.get(i.item_code, (0.0, 0.0))[0]:g}, нужно {flt(i.qty):g}.")
+		if have.get(i.korkem_cnc_material, (0.0, 0.0))[0] + 1e-6 < flt(i.qty):
+			frappe.throw(f"«{i.item_name}»: на складе {have.get(i.korkem_cnc_material, (0.0, 0.0))[0]:g}, "
+						 f"нужно {flt(i.qty):g}.")
+	lines = []
+	for i in rows:
+		unit = frappe.db.get_value("Item", i.korkem_cnc_material, "stock_uom")
+		lines.append({"item_code": i.korkem_cnc_material, "qty": flt(i.qty), "uom": unit, "stock_uom": unit,
+					  "conversion_factor": 1, "s_warehouse": warehouse})
 	entry = frappe.get_doc({
 		"doctype": "Stock Entry", "stock_entry_type": "Material Issue", "purpose": "Material Issue",
 		"company": doc.company, "korkem_cnc_order": doc.name, "remarks": f"ЧПУ: материал для {doc.name}",
-		"items": [{"item_code": i.item_code, "qty": flt(i.qty), "uom": i.uom, "stock_uom": i.uom,
-				   "conversion_factor": 1, "s_warehouse": warehouse} for i in rows],
+		"items": lines,
 	})
 	entry.insert(ignore_permissions=True)
 	entry.submit()
@@ -577,7 +582,7 @@ def card(order: str) -> dict:
 	facade_prices.ensure_editor()
 	doc = _order(order)
 	lines = [{"name": i.name, "kind": i.get("korkem_cnc_kind") or SERVICE, "service": i.get("korkem_cnc_service"),
-			  "material": i.item_code if i.get("korkem_cnc_kind") == MATERIAL else None, "title": i.item_name,
+			  "material": i.get("korkem_cnc_material"), "title": i.item_name,
 			  "unit": i.get("korkem_cnc_unit"), "qty": flt(i.qty), "rate": flt(i.rate), "amount": flt(i.amount),
 			  "minutes": flt(i.get("korkem_cnc_minutes")), "note": i.get("korkem_line_note")} for i in doc.items]
 	place = next((q for q in queue(doc.company) if q["name"] == doc.name), None) if doc.docstatus == 1 else None
