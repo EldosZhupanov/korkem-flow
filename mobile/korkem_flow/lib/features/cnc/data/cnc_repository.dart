@@ -182,7 +182,9 @@ class CncRepository {
 
   /// A draft is deleted (null comes back); an accepted order is cancelled.
   Future<CncCard?> cancel(String order, String reason) async {
-    final body = _map(await _post('cancel', {'order': order, 'reason': reason}));
+    final body = _map(
+      await _post('cancel', {'order': order, 'reason': reason}),
+    );
     return body['deleted'] == true ? null : CncCard.fromJson(body);
   }
 

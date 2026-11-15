@@ -8645,4 +8645,329 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get paintDeliveryToCarrier => 'перевозчику не оплачено';
+
+  @override
+  String get cncAccept => 'Принять в работу';
+
+  @override
+  String get cncAddCustom => 'Своя работа';
+
+  @override
+  String get cncAddMaterial => 'Наш материал';
+
+  @override
+  String get cncAddService => 'Работа из прайса';
+
+  @override
+  String cncAhead(String time) {
+    return 'до него $time';
+  }
+
+  @override
+  String get cncAmount => 'Сумма';
+
+  @override
+  String get cncByAgreement => 'договорная';
+
+  @override
+  String get cncCancel => 'Отменить заказ';
+
+  @override
+  String get cncCancelTitle => 'Почему отменяем?';
+
+  @override
+  String cncCost(String price) {
+    return 'себестоимость $price';
+  }
+
+  @override
+  String get cncCustomWork => 'Что за работа';
+
+  @override
+  String cncDayMinutes(String minutes) {
+    return 'станок $minutes мин в день';
+  }
+
+  @override
+  String get cncDayMinutesLabel => 'Минут работы станка в день';
+
+  @override
+  String cncDebtComment(String amount) {
+    return 'Долг $amount — почему выдаём?';
+  }
+
+  @override
+  String get cncDebtLabel => 'Должны';
+
+  @override
+  String cncDefects(String text) {
+    return 'дефекты: $text';
+  }
+
+  @override
+  String cncDue(String day) {
+    return 'срок $day';
+  }
+
+  @override
+  String get cncEmpty => 'Заказов ЧПУ пока нет — нажмите «Новый заказ».';
+
+  @override
+  String cncEta(String day) {
+    return 'готово $day';
+  }
+
+  @override
+  String get cncHandOver => 'Выдать';
+
+  @override
+  String cncHandedOverOn(String day, String who) {
+    return 'Выдан $day: $who';
+  }
+
+  @override
+  String get cncHint => 'Станок на заказ: столешницы, распил, решётки';
+
+  @override
+  String get cncHistory => 'История';
+
+  @override
+  String get cncHold => 'Ждём…';
+
+  @override
+  String get cncHoldTitle => 'Чего ждём?';
+
+  @override
+  String cncHolding(String reason) {
+    return 'ждём: $reason';
+  }
+
+  @override
+  String get cncHours => 'ч';
+
+  @override
+  String get cncIntake => 'Материал клиента';
+
+  @override
+  String get cncIntakeAdd => 'Добавить, что привёз';
+
+  @override
+  String get cncIntakeDefects => 'Дефекты (скол, царапина)';
+
+  @override
+  String get cncIntakeWhat => 'Что (столешница 3000×600, лист ЛДСП)';
+
+  @override
+  String get cncLineNote => 'Примечание';
+
+  @override
+  String cncMachineTime(String time) {
+    return 'Время станка: $time';
+  }
+
+  @override
+  String get cncMakerPrices => 'Цены для мебельщика';
+
+  @override
+  String cncMinOrder(String amount) {
+    return 'минималка $amount';
+  }
+
+  @override
+  String get cncMinOrderLabel => 'Минимальный заказ, ₸';
+
+  @override
+  String get cncMinutesShort => 'мин';
+
+  @override
+  String get cncNewOrder => 'Новый заказ';
+
+  @override
+  String get cncNoGroup => 'Прочее';
+
+  @override
+  String get cncNoMaterials => 'На складе пока нет листов.';
+
+  @override
+  String get cncNoPhone => 'У клиента нет телефона в карточке.';
+
+  @override
+  String get cncNoPrice => 'нет цены';
+
+  @override
+  String get cncNotReady => 'Снять «готово»';
+
+  @override
+  String get cncNotes => 'Примечание к заказу';
+
+  @override
+  String get cncOk => 'Готово';
+
+  @override
+  String cncOwes(String amount) {
+    return 'долг $amount';
+  }
+
+  @override
+  String cncPaid(String amount) {
+    return 'оплачено $amount';
+  }
+
+  @override
+  String get cncPay => 'Оплата';
+
+  @override
+  String get cncPayments => 'Оплаты';
+
+  @override
+  String cncPerUnitMinutes(String minutes) {
+    return '$minutes мин на ед.';
+  }
+
+  @override
+  String get cncPickCustomer => 'Выберите клиента';
+
+  @override
+  String get cncPricesTitle => 'Прайс услуг ЧПУ';
+
+  @override
+  String get cncQty => 'Кол-во';
+
+  @override
+  String get cncQueueLabel => 'Очередь станка';
+
+  @override
+  String cncQueueOrders(int count) {
+    return 'заказов: $count';
+  }
+
+  @override
+  String get cncRate => 'Цена';
+
+  @override
+  String get cncReadyAction => 'Готово';
+
+  @override
+  String get cncReadyLabel => 'Готово к выдаче';
+
+  @override
+  String cncReadyMessage(String name) {
+    return 'Здравствуйте! Ваш заказ $name готов, можно забирать.';
+  }
+
+  @override
+  String cncReadyMessageDebt(String name, String amount) {
+    return 'Здравствуйте! Ваш заказ $name готов. К оплате: $amount.';
+  }
+
+  @override
+  String get cncRemove => 'Убрать';
+
+  @override
+  String get cncSaveDraft => 'Сохранить';
+
+  @override
+  String get cncSaved => 'Сохранено';
+
+  @override
+  String get cncSearchHint => 'Номер или клиент';
+
+  @override
+  String get cncServiceAdd => 'Добавить услугу';
+
+  @override
+  String get cncServiceEdit => 'Услуга';
+
+  @override
+  String get cncServiceGroup => 'Группа (Распил, Столешницы…)';
+
+  @override
+  String get cncServiceMinutes => 'Минут станка на единицу';
+
+  @override
+  String get cncServiceOff => 'выключена';
+
+  @override
+  String get cncServiceOn => 'В прайсе';
+
+  @override
+  String get cncServicePrice => 'Цена за единицу, ₸';
+
+  @override
+  String get cncServiceTitle => 'Название';
+
+  @override
+  String get cncServiceTrade => 'Цена мебельщикам, ₸';
+
+  @override
+  String get cncSettingsTitle => 'Срочность, минималка, день станка';
+
+  @override
+  String get cncStart => 'На станок';
+
+  @override
+  String get cncStatusAll => 'Все';
+
+  @override
+  String get cncStatusCancelled => 'Отменён';
+
+  @override
+  String get cncStatusDraft => 'Черновик';
+
+  @override
+  String get cncStatusHandedOver => 'Выдан';
+
+  @override
+  String get cncStatusOnMachine => 'На станке';
+
+  @override
+  String get cncStatusQueued => 'В очереди';
+
+  @override
+  String get cncStatusReady => 'Готов';
+
+  @override
+  String get cncTakenBy => 'Забрал (если не клиент)';
+
+  @override
+  String get cncTakenPhone => 'Его телефон';
+
+  @override
+  String get cncTell => 'Написать клиенту';
+
+  @override
+  String get cncTerms =>
+      'Клиент согласен: за скрытые дефекты своего материала отвечает сам';
+
+  @override
+  String get cncTermsAgreed =>
+      'Клиент согласен: за скрытые дефекты отвечает сам.';
+
+  @override
+  String get cncTitle => 'Услуги ЧПУ';
+
+  @override
+  String get cncTotal => 'Итого';
+
+  @override
+  String cncTradePrice(String price) {
+    return 'мебельщикам $price';
+  }
+
+  @override
+  String get cncUnhold => 'Больше не ждём';
+
+  @override
+  String get cncUrgent => 'Срочно';
+
+  @override
+  String cncUrgentPct(String pct) {
+    return 'срочность +$pct%';
+  }
+
+  @override
+  String get cncUrgentPctLabel => 'Наценка за срочность, %';
+
+  @override
+  String get cncWork => 'Работы';
 }

@@ -162,13 +162,19 @@ class _ServiceDialogState extends ConsumerState<_ServiceDialog> {
   late final _title = TextEditingController(text: widget.service?.title);
   late final _group = TextEditingController(text: widget.service?.group);
   late final _price = TextEditingController(
-    text: (widget.service?.price ?? 0) > 0 ? filmMetres(widget.service!.price) : '',
+    text: (widget.service?.price ?? 0) > 0
+        ? filmMetres(widget.service!.price)
+        : '',
   );
   late final _trade = TextEditingController(
-    text: widget.service?.priceTrade == null ? '' : filmMetres(widget.service!.priceTrade!),
+    text: widget.service?.priceTrade == null
+        ? ''
+        : filmMetres(widget.service!.priceTrade!),
   );
   late final _minutes = TextEditingController(
-    text: (widget.service?.minutes ?? 0) > 0 ? filmMetres(widget.service!.minutes) : '',
+    text: (widget.service?.minutes ?? 0) > 0
+        ? filmMetres(widget.service!.minutes)
+        : '',
   );
   late String _unit = widget.service?.unit ?? cncUnits.first;
   late bool _enabled = widget.service?.enabled ?? true;
@@ -189,16 +195,18 @@ class _ServiceDialogState extends ConsumerState<_ServiceDialog> {
       _error = null;
     });
     try {
-      await ref.read(cncRepositoryProvider).saveService(
-        title: _title.text.trim(),
-        unit: _unit,
-        group: _group.text.trim().isEmpty ? null : _group.text.trim(),
-        price: filmNumber(_price.text) ?? 0,
-        priceTrade: filmNumber(_trade.text) ?? 0,
-        minutes: filmNumber(_minutes.text) ?? 0,
-        id: widget.service?.id,
-        enabled: _enabled,
-      );
+      await ref
+          .read(cncRepositoryProvider)
+          .saveService(
+            title: _title.text.trim(),
+            unit: _unit,
+            group: _group.text.trim().isEmpty ? null : _group.text.trim(),
+            price: filmNumber(_price.text) ?? 0,
+            priceTrade: filmNumber(_trade.text) ?? 0,
+            minutes: filmNumber(_minutes.text) ?? 0,
+            id: widget.service?.id,
+            enabled: _enabled,
+          );
       if (mounted) Navigator.of(context).pop(true);
     } on Object catch (e) {
       if (mounted) {
@@ -214,7 +222,9 @@ class _ServiceDialogState extends ConsumerState<_ServiceDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(widget.service == null ? l10n.cncServiceAdd : l10n.cncServiceEdit),
+      title: Text(
+        widget.service == null ? l10n.cncServiceAdd : l10n.cncServiceEdit,
+      ),
       content: SizedBox(
         width: AppSpacing.xxxl * 8,
         child: SingleChildScrollView(
@@ -297,9 +307,15 @@ class _SettingsDialog extends ConsumerStatefulWidget {
 }
 
 class _SettingsDialogState extends ConsumerState<_SettingsDialog> {
-  late final _urgent = TextEditingController(text: filmMetres(widget.now.urgentPct));
-  late final _min = TextEditingController(text: filmMetres(widget.now.minOrder));
-  late final _day = TextEditingController(text: filmMetres(widget.now.dayMinutes));
+  late final _urgent = TextEditingController(
+    text: filmMetres(widget.now.urgentPct),
+  );
+  late final _min = TextEditingController(
+    text: filmMetres(widget.now.minOrder),
+  );
+  late final _day = TextEditingController(
+    text: filmMetres(widget.now.dayMinutes),
+  );
   String? _error;
 
   @override
@@ -337,11 +353,13 @@ class _SettingsDialogState extends ConsumerState<_SettingsDialog> {
           key: const ValueKey('cncSettingsSave'),
           onPressed: () async {
             try {
-              await ref.read(cncRepositoryProvider).setSettings(
-                urgentPct: filmNumber(_urgent.text),
-                minOrder: filmNumber(_min.text),
-                dayMinutes: filmNumber(_day.text),
-              );
+              await ref
+                  .read(cncRepositoryProvider)
+                  .setSettings(
+                    urgentPct: filmNumber(_urgent.text),
+                    minOrder: filmNumber(_min.text),
+                    dayMinutes: filmNumber(_day.text),
+                  );
               if (context.mounted) Navigator.of(context).pop(true);
             } on Object catch (e) {
               if (context.mounted) {

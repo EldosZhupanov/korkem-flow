@@ -53,7 +53,11 @@ CncCard _card(CncStatus status, {double debt = 18000}) => CncCard.fromJson({
   'total': 7200,
   'paid': 7200 - debt,
   'debt': debt,
-  'queue': const {'minutes_ahead': 90, 'eta': '2026-11-17', 'on_machine': false},
+  'queue': const {
+    'minutes_ahead': 90,
+    'eta': '2026-11-17',
+    'on_machine': false,
+  },
 });
 
 class _Repo implements CncRepository {
@@ -248,7 +252,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('cncHandOver')));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const ValueKey('cncTakenBy')), 'Водитель');
+    await tester.enterText(
+      find.byKey(const ValueKey('cncTakenBy')),
+      'Водитель',
+    );
     await tester.tap(find.byKey(const ValueKey('cncHandOverSave')));
     await tester.pumpAndSettle();
     expect(repo.calls, [

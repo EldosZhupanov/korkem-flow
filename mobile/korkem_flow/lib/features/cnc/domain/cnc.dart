@@ -12,7 +12,14 @@ List<Map<String, dynamic>> _rows(Object? v) => [
 const cncByAgreement = 'договорная';
 
 /// The units a service is sold in (`services/cnc_orders.UNITS`).
-const List<String> cncUnits = ['шт', 'лист', 'пог.м', 'м²', 'мин', cncByAgreement];
+const List<String> cncUnits = [
+  'шт',
+  'лист',
+  'пог.м',
+  'м²',
+  'мин',
+  cncByAgreement,
+];
 
 /// Where a CNC order is (owner, 15.11.2026).
 enum CncStatus {
@@ -181,7 +188,8 @@ class CncLine {
 typedef CncExtra = ({String title, double amount});
 
 List<CncExtra> _extras(Object? v) => [
-  for (final r in _rows(v)) (title: '${r['title'] ?? ''}', amount: _d(r['amount'])),
+  for (final r in _rows(v))
+    (title: '${r['title'] ?? ''}', amount: _d(r['amount'])),
 ];
 
 /// What `price` answers: the lines, urgency and the minimum, the total.

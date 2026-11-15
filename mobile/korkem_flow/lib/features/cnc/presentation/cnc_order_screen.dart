@@ -74,7 +74,11 @@ class _CncOrderScreenState extends ConsumerState<CncOrderScreen> {
     final card = _card;
     return Scaffold(
       appBar: AppBar(
-        title: Text(card == null ? l10n.cncNewOrder : '${card.name} · ${card.customerName}'),
+        title: Text(
+          card == null
+              ? l10n.cncNewOrder
+              : '${card.name} · ${card.customerName}',
+        ),
       ),
       body: _error != null
           ? ErrorView(error: _error!, onRetry: () => _load(widget.name!))
@@ -85,7 +89,10 @@ class _CncOrderScreenState extends ConsumerState<CncOrderScreen> {
               card: card,
               onSaved: (c) => setState(() => _card = c),
             )
-          : _CncCardView(card: card, onChanged: (c) => setState(() => _card = c)),
+          : _CncCardView(
+              card: card,
+              onChanged: (c) => setState(() => _card = c),
+            ),
     );
   }
 }
@@ -93,11 +100,17 @@ class _CncOrderScreenState extends ConsumerState<CncOrderScreen> {
 // ---------------------------------------------------------------- the form --
 
 class _Line {
-  _Line({this.service, this.material, String? title, String? qty, String? rate, String? note})
-    : title = TextEditingController(text: title),
-      qty = TextEditingController(text: qty ?? '1'),
-      rate = TextEditingController(text: rate),
-      note = TextEditingController(text: note);
+  _Line({
+    this.service,
+    this.material,
+    String? title,
+    String? qty,
+    String? rate,
+    String? note,
+  }) : title = TextEditingController(text: title),
+       qty = TextEditingController(text: qty ?? '1'),
+       rate = TextEditingController(text: rate),
+       note = TextEditingController(text: note);
 
   final CncService? service;
   final CncMaterial? material;
@@ -209,14 +222,20 @@ class _CncFormState extends ConsumerState<_CncForm> {
     setState(() {
       for (final l in c.lines) {
         final service = services.where((s) => s.id == l.service).firstOrNull;
-        final material = materials.where((m) => m.item == l.material).firstOrNull;
+        final material = materials
+            .where((m) => m.item == l.material)
+            .firstOrNull;
         _lines.add(
           _Line(
             service: service,
             material: material,
             title: service == null && material == null ? l.title : null,
             qty: filmMetres(l.qty),
-            rate: l.manualRate || material != null || service == null || service.byAgreement
+            rate:
+                l.manualRate ||
+                    material != null ||
+                    service == null ||
+                    service.byAgreement
                 ? filmMetres(l.rate)
                 : null,
             note: l.note,
@@ -465,7 +484,8 @@ class _CncFormState extends ConsumerState<_CncForm> {
                 IconButton(
                   tooltip: l10n.cncRemove,
                   icon: const Icon(AppIcons.delete),
-                  onPressed: () => setState(() => _intake.removeAt(i).dispose()),
+                  onPressed: () =>
+                      setState(() => _intake.removeAt(i).dispose()),
                 ),
               ],
             ),
@@ -658,24 +678,29 @@ class _LineEditor extends StatelessWidget {
     final listed = service == null || service.byAgreement
         ? null
         : money.format(service.price);
-    Widget number(TextEditingController c, String label, String key, {double width = 1.5, String? hint}) =>
-        SizedBox(
-          width: AppSpacing.xxxl * width,
-          child: TextField(
-            key: ValueKey(key),
-            controller: c,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
-            ],
-            onChanged: (_) => onChanged(),
-            decoration: InputDecoration(
-              labelText: label,
-              hintText: hint,
-              isDense: true,
-            ),
-          ),
-        );
+    Widget number(
+      TextEditingController c,
+      String label,
+      String key, {
+      double width = 1.5,
+      String? hint,
+    }) => SizedBox(
+      width: AppSpacing.xxxl * width,
+      child: TextField(
+        key: ValueKey(key),
+        controller: c,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+        ],
+        onChanged: (_) => onChanged(),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          isDense: true,
+        ),
+      ),
+    );
     return Padding(
       key: ValueKey('cncLine:$index'),
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
@@ -850,10 +875,11 @@ class _CncCardViewState extends ConsumerState<_CncCardView> {
 
   Future<void> _handOver() async {
     final card = widget.card;
-    final got = await showDialog<({String? by, String? phone, String? comment})>(
-      context: context,
-      builder: (_) => _HandOverDialog(debt: card.debt),
-    );
+    final got =
+        await showDialog<({String? by, String? phone, String? comment})>(
+          context: context,
+          builder: (_) => _HandOverDialog(debt: card.debt),
+        );
     if (got == null) return;
     await _do(
       (r) => r.handOver(
@@ -885,7 +911,8 @@ class _CncCardViewState extends ConsumerState<_CncCardView> {
     final theme = Theme.of(context);
     final money = mdfMoney(context);
     final c = widget.card;
-    final open = c.status != CncStatus.cancelled && c.status != CncStatus.handedOver;
+    final open =
+        c.status != CncStatus.cancelled && c.status != CncStatus.handedOver;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -934,7 +961,10 @@ class _CncCardViewState extends ConsumerState<_CncCardView> {
             ),
           if (c.terms)
             ReadableWidth(
-              child: Text(l10n.cncTermsAgreed, style: theme.textTheme.bodySmall),
+              child: Text(
+                l10n.cncTermsAgreed,
+                style: theme.textTheme.bodySmall,
+              ),
             ),
         ],
         const SizedBox(height: AppSpacing.md),
@@ -972,7 +1002,9 @@ class _CncCardViewState extends ConsumerState<_CncCardView> {
         ReadableWidth(
           child: Row(
             children: [
-              Expanded(child: Text(l10n.cncTotal, style: theme.textTheme.titleMedium)),
+              Expanded(
+                child: Text(l10n.cncTotal, style: theme.textTheme.titleMedium),
+              ),
               Text(money.format(c.total), style: theme.textTheme.titleMedium),
             ],
           ),
@@ -1003,7 +1035,8 @@ class _CncCardViewState extends ConsumerState<_CncCardView> {
                     icon: const Icon(AppIcons.moveIn),
                     label: Text(l10n.cncStart),
                   ),
-                if (c.status == CncStatus.queued || c.status == CncStatus.onMachine)
+                if (c.status == CncStatus.queued ||
+                    c.status == CncStatus.onMachine)
                   FilledButton.icon(
                     key: const ValueKey('cncReady'),
                     onPressed: _busy ? null : () => _do((r) => r.ready(c.name)),
@@ -1055,7 +1088,9 @@ class _CncCardViewState extends ConsumerState<_CncCardView> {
                               await _do((r) => r.hold(c.name, why.trim()));
                             }
                           },
-                    child: Text(c.holdReason != null ? l10n.cncUnhold : l10n.cncHold),
+                    child: Text(
+                      c.holdReason != null ? l10n.cncUnhold : l10n.cncHold,
+                    ),
                   ),
                 TextButton(
                   key: const ValueKey('cncCancel'),
@@ -1105,7 +1140,10 @@ class _CncCardViewState extends ConsumerState<_CncCardView> {
           ReadableWidth(child: SectionLabel(l10n.cncHistory)),
           for (final h in c.history)
             ReadableWidth(
-              child: Text('${h.at} · ${h.text}', style: theme.textTheme.bodySmall),
+              child: Text(
+                '${h.at} · ${h.text}',
+                style: theme.textTheme.bodySmall,
+              ),
             ),
         ],
         const SizedBox(height: AppSpacing.xxxl),
