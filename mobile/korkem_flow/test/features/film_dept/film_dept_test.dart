@@ -289,14 +289,18 @@ class _Fake implements FilmDeptRepository {
       closes.add((day, counted, reason));
 
   @override
-  Future<void> settleDelivery(String receipt, String method) async =>
-      settled.add((receipt, method));
+  Future<void> settleDelivery(
+    String receipt,
+    String method, {
+    String? bank,
+  }) async => settled.add((receipt, method));
 
   @override
   Future<void> paySupplier(
     String receipt,
     String method, {
     String source = FilmPaySource.dept,
+    String? bank,
   }) async => supplierPaidFor.add((receipt, method, source));
 
   @override

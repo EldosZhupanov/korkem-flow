@@ -150,8 +150,11 @@ abstract final class FilmPayer {
 /// pay it by.
 @immutable
 class FilmSupplierPay {
-  const FilmSupplierPay.paid({required this.method, this.fromDept = true})
-    : mode = modePaid,
+  const FilmSupplierPay.paid({
+    required this.method,
+    this.fromDept = true,
+    this.bank,
+  }) : mode = modePaid,
       invoiceNo = null,
       invoiceOn = null,
       dueOn = null;
@@ -159,6 +162,7 @@ class FilmSupplierPay {
   const FilmSupplierPay.credit()
     : mode = modeCredit,
       method = null,
+      bank = null,
       fromDept = true,
       invoiceNo = null,
       invoiceOn = null,
@@ -170,6 +174,7 @@ class FilmSupplierPay {
     this.dueOn,
   }) : mode = modeInvoice,
        method = null,
+       bank = null,
        fromDept = true;
 
   static const modePaid = 'paid';
@@ -181,6 +186,9 @@ class FilmSupplierPay {
   /// «Наличные», «Перевод», «Карта» — when paid now.
   final String? method;
 
+  /// The bank of a transfer or a card: Kaspi, Halyk … (owner, 15.11.2026).
+  final String? bank;
+
   /// Out of the film department's own cash (and so out of its book).
   final bool fromDept;
   final String? invoiceNo;
@@ -190,6 +198,7 @@ class FilmSupplierPay {
   Map<String, Object?> toJson() => {
     'mode': mode,
     'method': ?method,
+    'bank': ?bank,
     if (mode == modePaid) 'from': fromDept ? 'dept' : 'elsewhere',
     'invoice_no': ?invoiceNo,
     'invoice_on': ?invoiceOn,

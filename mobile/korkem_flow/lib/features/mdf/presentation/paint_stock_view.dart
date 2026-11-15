@@ -209,10 +209,16 @@ class PaintStockSection extends ConsumerWidget {
                           : l10n.paintDeliveryPaid,
                       onSelected: (method) async {
                         final messenger = ScaffoldMessenger.of(context);
+                        final bank = await filmAskBank(context, ref, method);
+                        if (bank == null) return;
                         try {
                           await ref
                               .read(paintStockRepositoryProvider)
-                              .settleDelivery(d.receipt, method);
+                              .settleDelivery(
+                                d.receipt,
+                                method,
+                                bank: bank.isEmpty ? null : bank,
+                              );
                           ref.invalidate(paintStockProvider);
                         } on Object catch (e) {
                           messenger.showFailure(e, l10n);
@@ -270,10 +276,16 @@ class PaintStockSection extends ConsumerWidget {
                       tooltip: l10n.paintPaid,
                       onSelected: (method) async {
                         final messenger = ScaffoldMessenger.of(context);
+                        final bank = await filmAskBank(context, ref, method);
+                        if (bank == null) return;
                         try {
                           await ref
                               .read(paintStockRepositoryProvider)
-                              .paySupplier(o.receipt, method);
+                              .paySupplier(
+                                o.receipt,
+                                method,
+                                bank: bank.isEmpty ? null : bank,
+                              );
                           ref.invalidate(paintStockProvider);
                         } on Object catch (e) {
                           messenger.showFailure(e, l10n);

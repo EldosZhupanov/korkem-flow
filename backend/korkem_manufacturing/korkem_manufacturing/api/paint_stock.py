@@ -37,9 +37,9 @@ def set_kg_per_m2(value: float | str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def pay_supplier(receipt: str, method: str | None = None) -> dict:
-	"""Оплатили долг за краску — сегодня."""
-	return service.pay_supplier(receipt, method)
+def pay_supplier(receipt: str, method: str | None = None, bank: str | None = None) -> dict:
+	"""Оплатили долг за краску — сегодня; `bank` — банк перевода или карты."""
+	return service.pay_supplier(receipt, method, bank)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -55,6 +55,7 @@ def count(item: str, kg: float | str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def settle_delivery(receipt: str, method: str | None = None) -> dict:
-	"""Доставку краски вернули сотруднику или оплатили перевозчику — сегодня."""
-	return service.settle_delivery(receipt, method)
+def settle_delivery(receipt: str, method: str | None = None, bank: str | None = None) -> dict:
+	"""Доставку краски вернули сотруднику или оплатили перевозчику — сегодня; `bank` — банк
+	перевода или карты."""
+	return service.settle_delivery(receipt, method, bank)

@@ -327,18 +327,37 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
     double top(String key) => tester.getTopLeft(find.byKey(ValueKey(key))).dy;
-    // Each system, its colours under it; the unfiled ones last.
+    // Each system folded, with how many colours it has (owner, 15.11.2026).
+    expect(find.text('RAL Classic · 1'), findsOne);
+    expect(find.text('No system · 1'), findsOne);
+    expect(find.byKey(const ValueKey('dictEntry:RAL 9010')), findsNothing);
+
+    // A system is a heading: tapping it opens it and chooses nothing.
+    await tester.tap(find.byKey(const ValueKey('dictEntry:system:NCS')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('dictEntry:system:NCS')), findsOne);
+    await tester.tap(
+      find.byKey(const ValueKey('dictEntry:system:RAL Classic')),
+    );
+    await tester.tap(find.byKey(const ValueKey('dictEntry:system:')));
+    await tester.pumpAndSettle();
+    // Its colours under it; the unfiled ones last.
     expect(
       top('dictEntry:system:RAL Classic'),
       lessThan(top('dictEntry:RAL 9010')),
     );
-    expect(find.text('No system'), findsOne);
     expect(top('dictEntry:RAL 9010'), lessThan(top('dictEntry:Мой цвет')));
-
-    // A system is a heading: tapping it chooses nothing.
-    await tester.tap(find.byKey(const ValueKey('dictEntry:system:NCS')));
+    // Folded again: gone.
+    await tester.tap(find.byKey(const ValueKey('dictEntry:system:')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('dictEntry:system:NCS')), findsOne);
+    expect(find.byKey(const ValueKey('dictEntry:Мой цвет')), findsNothing);
+    // A search finds a colour in a folded system.
+    await tester.enterText(find.byKey(const ValueKey('dictSearch')), 'мой');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('dictEntry:Мой цвет')), findsOne);
+    expect(find.byKey(const ValueKey('dictEntry:RAL 9010')), findsNothing);
+    await tester.enterText(find.byKey(const ValueKey('dictSearch')), '');
+    await tester.pumpAndSettle();
 
     // A colour under RAL Classic.
     await tester.tap(find.byKey(const ValueKey('dictAddVariant:RAL Classic')));

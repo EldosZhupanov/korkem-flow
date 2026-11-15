@@ -16,16 +16,18 @@ def book(since: str | None = None, until: str | None = None) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def settle(receipt: str, method: str | None = None) -> dict:
-	"""Вернули сотруднику или оплатили перевозчику — из кассы отдела, сегодня."""
-	return service.settle(receipt, method)
+def settle(receipt: str, method: str | None = None, bank: str | None = None) -> dict:
+	"""Вернули сотруднику или оплатили перевозчику — из кассы отдела, сегодня; `bank` —
+	банк перевода или карты."""
+	return service.settle(receipt, method, bank)
 
 
 @frappe.whitelist(methods=["POST"])
-def pay_supplier(receipt: str, method: str | None = None, source: str | None = None) -> dict:
+def pay_supplier(receipt: str, method: str | None = None, source: str | None = None,
+				 bank: str | None = None) -> dict:
 	"""Плёнка, взятая в долг, оплачена поставщику — сегодня; `source`: `dept` — из кассы
 	отдела плёнки (уходит из кассы), `elsewhere` — не из неё."""
-	return service.pay_supplier(receipt, method, source)
+	return service.pay_supplier(receipt, method, source, bank)
 
 
 @frappe.whitelist(methods=["POST"])
