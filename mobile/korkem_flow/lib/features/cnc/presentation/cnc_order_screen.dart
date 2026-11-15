@@ -17,6 +17,7 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/cnc/data/cnc_repository.dart';
 import 'package:korkem_flow/features/cnc/domain/cnc.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
@@ -604,7 +605,7 @@ class _CncFormState extends ConsumerState<_CncForm> {
                     ? null
                     : () async {
                         final card = await _save();
-                        if (card != null && mounted) {
+                        if (card != null && context.mounted) {
                           ref.invalidate(cncListingProvider);
                           if (widget.card == null) {
                             context.replace(Routes.cncOrder(card.name));
@@ -945,7 +946,12 @@ class _CncCardViewState extends ConsumerState<_CncCardView> {
               title: Text(l.title),
               subtitle: Text(
                 [
-                  '${filmMetres(l.qty)} ${l.unit ?? ''} × ${money.format(l.rate)}',
+                  [
+                    filmMetres(l.qty),
+                    l.unit ?? '',
+                    '×',
+                    money.format(l.rate),
+                  ].join(' '),
                   if (l.minutes > 0) cncMinutes(l.minutes, l10n),
                   ?l.note,
                 ].join(' · '),

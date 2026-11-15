@@ -12,7 +12,7 @@ List<Map<String, dynamic>> _rows(Object? v) => [
 const cncByAgreement = 'договорная';
 
 /// The units a service is sold in (`services/cnc_orders.UNITS`).
-const cncUnits = ['шт', 'лист', 'пог.м', 'м²', 'мин', cncByAgreement];
+const List<String> cncUnits = ['шт', 'лист', 'пог.м', 'м²', 'мин', cncByAgreement];
 
 /// Where a CNC order is (owner, 15.11.2026).
 enum CncStatus {

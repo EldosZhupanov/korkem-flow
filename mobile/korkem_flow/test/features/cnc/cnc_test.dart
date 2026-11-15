@@ -31,12 +31,12 @@ CncCard _card(CncStatus status, {double debt = 18000}) => CncCard.fromJson({
   'customer_name': 'Ерлан',
   'phone': '+77010000000',
   'delivery_date': '2026-11-19',
-  'tags': ['urgent'],
-  'intake': [
+  'tags': const ['urgent'],
+  'intake': const [
     {'what': 'Столешница 3000×600', 'qty': 1, 'unit': 'шт', 'defects': 'скол'},
   ],
   'terms': true,
-  'lines': [
+  'lines': const [
     {
       'kind': 'service',
       'title': 'Еврозапил',
@@ -47,13 +47,13 @@ CncCard _card(CncStatus status, {double debt = 18000}) => CncCard.fromJson({
       'minutes': 30,
     },
   ],
-  'extras': [
+  'extras': const [
     {'title': 'Срочность +20%', 'amount': 1200},
   ],
   'total': 7200,
   'paid': 7200 - debt,
   'debt': debt,
-  'queue': {'minutes_ahead': 90, 'eta': '2026-11-17', 'on_machine': false},
+  'queue': const {'minutes_ahead': 90, 'eta': '2026-11-17', 'on_machine': false},
 });
 
 class _Repo implements CncRepository {
@@ -98,7 +98,7 @@ class _Repo implements CncRepository {
           ? [
               {'title': 'Срочность +20%', 'amount': amount * 0.2},
             ]
-          : [],
+          : <Map<String, Object>>[],
       'total': tags.contains('urgent') ? amount * 1.2 : amount,
       'minutes': 30,
     });
@@ -152,7 +152,7 @@ class _Repo implements CncRepository {
   }
 
   @override
-  Future<CncListing> listing(CncQuery q) async => CncListing.fromJson({
+  Future<CncListing> listing(CncQuery q) async => CncListing.fromJson(const {
     'orders': [
       {
         'name': 'SAL-ORD-7',
