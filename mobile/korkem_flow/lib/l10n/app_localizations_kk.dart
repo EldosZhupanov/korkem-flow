@@ -8384,6 +8384,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfPaintNoSystem => 'Жүйесіз';
 
   @override
+  String get mdfPaintSearch => 'Түсті табу: 9016, ақ…';
+
+  @override
   String get paintStock => 'Бояу қоймасы';
 
   @override

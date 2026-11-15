@@ -155,9 +155,9 @@ class FilmSupplierPay {
     this.fromDept = true,
     this.bank,
   }) : mode = modePaid,
-      invoiceNo = null,
-      invoiceOn = null,
-      dueOn = null;
+       invoiceNo = null,
+       invoiceOn = null,
+       dueOn = null;
 
   const FilmSupplierPay.credit()
     : mode = modeCredit,

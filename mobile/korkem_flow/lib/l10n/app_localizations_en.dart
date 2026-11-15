@@ -8419,6 +8419,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfPaintNoSystem => 'No system';
 
   @override
+  String get mdfPaintSearch => 'Find a colour: 9016, white…';
+
+  @override
   String get paintStock => 'Paint store';
 
   @override
