@@ -4,7 +4,11 @@ import 'package:flutter/foundation.dart';
 /// [stages] — the order stages it does (sand), none for the film seller.
 @immutable
 class TeamPost {
-  const TeamPost({required this.key, required this.title, this.stages = const []});
+  const TeamPost({
+    required this.key,
+    required this.title,
+    this.stages = const [],
+  });
 
   factory TeamPost.fromJson(Map<String, dynamic> json) => TeamPost(
     key: '${json['key']}',

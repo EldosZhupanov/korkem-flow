@@ -9125,4 +9125,198 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cncWork => 'Work';
+
+  @override
+  String get mdfGiveStageTo => 'Who gets this stage?';
+
+  @override
+  String get mdfStageTakeBack => 'Take it back — nobody';
+
+  @override
+  String get mdfStagePostPeople => 'On this post';
+
+  @override
+  String get mdfAllWorkers => 'Everyone';
+
+  @override
+  String mdfStageGiven(String stage, String name) {
+    return '$stage: $name';
+  }
+
+  @override
+  String get mdfStageNobody => 'not given';
+
+  @override
+  String get teamDeptIntake => 'Order intake';
+
+  @override
+  String get teamDeptCut => 'Cutting';
+
+  @override
+  String get teamDeptCnc => 'CNC';
+
+  @override
+  String get teamDeptPvc => 'PVC film';
+
+  @override
+  String get teamDeptPaint => 'Painting';
+
+  @override
+  String get teamDeptPack => 'Packing and hand-over';
+
+  @override
+  String get teamDeptFilmSales => 'Film sales';
+
+  @override
+  String get teamDeptWarehouse => 'Warehouse and delivery';
+
+  @override
+  String get teamPostManager => 'Intake manager';
+
+  @override
+  String get teamPostCutter => 'Cutter';
+
+  @override
+  String get teamPostCncOperator => 'CNC operator';
+
+  @override
+  String get teamPostSander => 'Sander';
+
+  @override
+  String get teamPostVacuum => 'Vacuum press operator';
+
+  @override
+  String get teamPostPainter => 'Painter';
+
+  @override
+  String get teamPostPacker => 'Packer';
+
+  @override
+  String get teamPostSeller => 'Seller';
+
+  @override
+  String get teamPostLoader => 'Loader';
+
+  @override
+  String get teamPostStorekeeper => 'Storekeeper';
+
+  @override
+  String get teamPostDriver => 'Driver';
+
+  @override
+  String get teamDepartmentsSection => 'Departments and people';
+
+  @override
+  String get teamDepartmentsHint =>
+      'An order\'s stage goes to the people of its post. A phone icon: they tick it themselves; without one, the manager does.';
+
+  @override
+  String get teamAddPerson => 'Person';
+
+  @override
+  String get teamAddPersonShort => 'More';
+
+  @override
+  String get teamUnplaced => 'No post yet';
+
+  @override
+  String get teamPostEmpty => 'nobody';
+
+  @override
+  String get teamPostEmptyAdd => 'Add';
+
+  @override
+  String teamPersonSaved(String name) {
+    return '$name saved';
+  }
+
+  @override
+  String teamPersonLeftTitle(String name) {
+    return 'Has $name left?';
+  }
+
+  @override
+  String get teamPersonLeftMessage =>
+      'They leave the lists; the work they did stays theirs.';
+
+  @override
+  String get teamPersonLeft => 'Left';
+
+  @override
+  String get teamPersonName => 'Name';
+
+  @override
+  String get teamPersonPhone => 'Phone';
+
+  @override
+  String get teamPersonPosts => 'Posts — any number';
+
+  @override
+  String get teamPersonLogin => 'App login';
+
+  @override
+  String get teamPersonLoginHint =>
+      'With a login they see «My orders» on their phone and tick themselves; without one the manager ticks for them.';
+
+  @override
+  String get teamPersonNoLogin => 'No login';
+
+  @override
+  String get teamPersonSave => 'Save';
+
+  @override
+  String get teamLoginsSection => 'App logins';
+
+  @override
+  String get myWorkTitle => 'My orders';
+
+  @override
+  String myWorkDone(String order, String stage) {
+    return '$order: «$stage» done';
+  }
+
+  @override
+  String get myWorkUndo => 'Undo';
+
+  @override
+  String get myWorkNotLinkedTitle => 'You are not on the team yet';
+
+  @override
+  String get myWorkNotLinked =>
+      'Ask the manager to tie your login to a person in «Team» and give you a post.';
+
+  @override
+  String get myWorkReady => 'Ready for you';
+
+  @override
+  String get myWorkNothingReady => 'Nothing is waiting for you now.';
+
+  @override
+  String get myWorkComing => 'Coming to you';
+
+  @override
+  String get myWorkMonth => 'My volume this month';
+
+  @override
+  String myWorkMonthTotal(String area, int orders) {
+    return '$area m² · orders: $orders';
+  }
+
+  @override
+  String myWorkDue(String date) {
+    return 'due $date';
+  }
+
+  @override
+  String myWorkWaiting(String stages) {
+    return 'waiting for: $stages';
+  }
+
+  @override
+  String get myWorkDoneButton => 'Done';
+
+  @override
+  String myWorkStageM2(String stage, String area) {
+    return '$stage $area m²';
+  }
 }

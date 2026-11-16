@@ -62,7 +62,11 @@ class TeamStructureRepository {
   Future<TeamPeople> _post(String method, Map<String, dynamic> params) async =>
       TeamPeople.fromJson(
         _map(
-          await _client.callMethod('$_base.$method', post: true, params: params),
+          await _client.callMethod(
+            '$_base.$method',
+            post: true,
+            params: params,
+          ),
         ),
       );
 

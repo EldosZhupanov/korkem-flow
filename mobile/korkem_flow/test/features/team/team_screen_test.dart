@@ -202,8 +202,7 @@ class _FakeStructure implements TeamStructureRepository {
   }
 
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      super.noSuchMethod(invocation);
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 void main() {
@@ -1084,5 +1083,4 @@ class _TestSessionController extends SessionController {
 
   @override
   Future<Session> build() async => _initial;
-
 }

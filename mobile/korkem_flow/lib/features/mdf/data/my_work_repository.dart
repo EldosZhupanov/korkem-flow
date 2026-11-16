@@ -27,16 +27,19 @@ class MyWorkRepository {
       MyWork.fromJson(_map(await _client.callMethod('$_base.work')));
 
   /// «Сделал» — or, [undo], taken back the same day.
-  Future<MyWork> done(String order, MdfStage stage, {bool undo = false}) async =>
-      MyWork.fromJson(
-        _map(
-          await _client.callMethod(
-            '$_base.done',
-            post: true,
-            params: {'order': order, 'stage': stage.name, 'undo': undo ? 1 : 0},
-          ),
-        ),
-      );
+  Future<MyWork> done(
+    String order,
+    MdfStage stage, {
+    bool undo = false,
+  }) async => MyWork.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.done',
+        post: true,
+        params: {'order': order, 'stage': stage.name, 'undo': undo ? 1 : 0},
+      ),
+    ),
+  );
 
   Map<String, dynamic> _map(Map<String, dynamic> response) {
     final raw = response['message'] ?? response['data'];
