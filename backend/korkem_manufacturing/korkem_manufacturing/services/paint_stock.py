@@ -116,6 +116,9 @@ def receive(colour: str, kg, price_kg, supplier: str, base: str | None = None, r
 	and how it came and was paid, as a film receipt says it. Primer,
 	hardener, thinner, lacquer (`component`) come with no colour."""
 	material_stock._ensure_editor()
+	# Paint's own suppliers only — checked before anything is made.
+	if frappe.db.get_value("Supplier", supplier, SUPPLIER_DEPT) != DEPT:
+		frappe.throw("Это не поставщик краски — выберите из своих или добавьте нового.")
 	colour = _clean(colour, 140)
 	base = _clean(base, MAX_BASE)
 	company = current_company()
@@ -126,8 +129,6 @@ def receive(colour: str, kg, price_kg, supplier: str, base: str | None = None, r
 	elif colour not in material_stock.enabled_values(mdf_paints.PAINT_LIST, company):
 		frappe.throw(f"«{colour}» нет в справочнике красок. Добавьте его.")
 	item = _item(colour, base)
-	if frappe.db.get_value("Supplier", supplier, SUPPLIER_DEPT) != DEPT:
-		frappe.throw("Это не поставщик краски — выберите из своих или добавьте нового.")
 	logistics, fields = film_dept.receipt_terms(supplier, delivery, received_by, supplier_pay)
 	if fields.get("korkem_supplier_paid_from") == film_cash.FROM_DEPT:
 		# The film department's cash does not pay for paint.
