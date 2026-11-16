@@ -157,7 +157,10 @@ class _Month extends StatelessWidget {
             Text(
               [
                 for (final e in work.monthByStage.entries)
-                  '${mdfStageLabel(e.key, l10n)} ${e.value.toStringAsFixed(2)} м²',
+                  l10n.myWorkStageM2(
+                    mdfStageLabel(e.key, l10n),
+                    e.value.toStringAsFixed(2),
+                  ),
               ].join(' · '),
               style: theme.textTheme.bodySmall,
             ),

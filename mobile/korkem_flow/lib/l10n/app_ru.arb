@@ -2865,5 +2865,6 @@
   "myWorkMonthTotal": "{area} м² · заказов: {orders}",
   "myWorkDue": "срок {date}",
   "myWorkWaiting": "ждёт: {stages}",
-  "myWorkDoneButton": "Сделал"
+  "myWorkDoneButton": "Сделал",
+  "myWorkStageM2": "{stage} {area} м²"
 }

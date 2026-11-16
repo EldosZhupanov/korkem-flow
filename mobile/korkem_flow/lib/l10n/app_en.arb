@@ -9838,5 +9838,16 @@
       }
     }
   },
-  "myWorkDoneButton": "Done"
+  "myWorkDoneButton": "Done",
+  "myWorkStageM2": "{stage} {area} m²",
+  "@myWorkStageM2": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  }
 }

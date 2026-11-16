@@ -2865,5 +2865,6 @@
   "myWorkMonthTotal": "{area} м² · тапсырыс: {orders}",
   "myWorkDue": "мерзімі {date}",
   "myWorkWaiting": "күтуде: {stages}",
-  "myWorkDoneButton": "Жасадым"
+  "myWorkDoneButton": "Жасадым",
+  "myWorkStageM2": "{stage} {area} м²"
 }
