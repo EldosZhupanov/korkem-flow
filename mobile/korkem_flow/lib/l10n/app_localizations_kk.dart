@@ -8583,4 +8583,329 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get paintDeliveryToCarrier => 'тасымалдаушыға төленбеді';
+
+  @override
+  String get cncAccept => 'Жұмысқа қабылдау';
+
+  @override
+  String get cncAddCustom => 'Өз жұмысы';
+
+  @override
+  String get cncAddMaterial => 'Біздің материал';
+
+  @override
+  String get cncAddService => 'Прайстан жұмыс';
+
+  @override
+  String cncAhead(String time) {
+    return 'алдында $time';
+  }
+
+  @override
+  String get cncAmount => 'Сома';
+
+  @override
+  String get cncByAgreement => 'келісім бойынша';
+
+  @override
+  String get cncCancel => 'Тапсырысты болдырмау';
+
+  @override
+  String get cncCancelTitle => 'Неге болдырмаймыз?';
+
+  @override
+  String cncCost(String price) {
+    return 'өзіндік құны $price';
+  }
+
+  @override
+  String get cncCustomWork => 'Қандай жұмыс';
+
+  @override
+  String cncDayMinutes(String minutes) {
+    return 'станок күніне $minutes мин';
+  }
+
+  @override
+  String get cncDayMinutesLabel => 'Станоктың күндік жұмыс минуты';
+
+  @override
+  String cncDebtComment(String amount) {
+    return 'Қарыз $amount — неге береміз?';
+  }
+
+  @override
+  String get cncDebtLabel => 'Қарыз';
+
+  @override
+  String cncDefects(String text) {
+    return 'ақаулар: $text';
+  }
+
+  @override
+  String cncDue(String day) {
+    return 'мерзімі $day';
+  }
+
+  @override
+  String get cncEmpty =>
+      'ЧПУ тапсырыстары әзірге жоқ — «Жаңа тапсырыс» басыңыз.';
+
+  @override
+  String cncEta(String day) {
+    return 'дайын $day';
+  }
+
+  @override
+  String get cncHandOver => 'Беру';
+
+  @override
+  String cncHandedOverOn(String day, String who) {
+    return '$day берілді: $who';
+  }
+
+  @override
+  String get cncHint => 'Тапсырыспен станок: үстелшелер, кесу, торлар';
+
+  @override
+  String get cncHistory => 'Тарих';
+
+  @override
+  String get cncHold => 'Күтеміз…';
+
+  @override
+  String get cncHoldTitle => 'Нені күтеміз?';
+
+  @override
+  String cncHolding(String reason) {
+    return 'күтеміз: $reason';
+  }
+
+  @override
+  String get cncHours => 'сағ';
+
+  @override
+  String get cncIntake => 'Клиенттің материалы';
+
+  @override
+  String get cncIntakeAdd => 'Әкелгенін қосу';
+
+  @override
+  String get cncIntakeDefects => 'Ақаулар (жарық, сызат)';
+
+  @override
+  String get cncIntakeWhat => 'Не (үстелше 3000×600, ЛДСП парағы)';
+
+  @override
+  String get cncLineNote => 'Ескертпе';
+
+  @override
+  String cncMachineTime(String time) {
+    return 'Станок уақыты: $time';
+  }
+
+  @override
+  String get cncMakerPrices => 'Жиһазшы бағалары';
+
+  @override
+  String cncMinOrder(String amount) {
+    return 'ең аз тапсырыс $amount';
+  }
+
+  @override
+  String get cncMinOrderLabel => 'Ең аз тапсырыс, ₸';
+
+  @override
+  String get cncMinutesShort => 'мин';
+
+  @override
+  String get cncNewOrder => 'Жаңа тапсырыс';
+
+  @override
+  String get cncNoGroup => 'Басқа';
+
+  @override
+  String get cncNoMaterials => 'Қоймада әзірге парақ жоқ.';
+
+  @override
+  String get cncNoPhone => 'Клиент карточкасында телефон жоқ.';
+
+  @override
+  String get cncNoPrice => 'бағасы жоқ';
+
+  @override
+  String get cncNotReady => '«Дайын» белгісін алу';
+
+  @override
+  String get cncNotes => 'Тапсырысқа ескертпе';
+
+  @override
+  String get cncOk => 'Дайын';
+
+  @override
+  String cncOwes(String amount) {
+    return 'қарыз $amount';
+  }
+
+  @override
+  String cncPaid(String amount) {
+    return 'төленді $amount';
+  }
+
+  @override
+  String get cncPay => 'Төлем';
+
+  @override
+  String get cncPayments => 'Төлемдер';
+
+  @override
+  String cncPerUnitMinutes(String minutes) {
+    return 'бірлікке $minutes мин';
+  }
+
+  @override
+  String get cncPickCustomer => 'Клиентті таңдаңыз';
+
+  @override
+  String get cncPricesTitle => 'ЧПУ қызметтерінің прайсы';
+
+  @override
+  String get cncQty => 'Саны';
+
+  @override
+  String get cncQueueLabel => 'Станок кезегі';
+
+  @override
+  String cncQueueOrders(int count) {
+    return 'тапсырыс: $count';
+  }
+
+  @override
+  String get cncRate => 'Баға';
+
+  @override
+  String get cncReadyAction => 'Дайын';
+
+  @override
+  String get cncReadyLabel => 'Беруге дайын';
+
+  @override
+  String cncReadyMessage(String name) {
+    return 'Сәлеметсіз бе! $name тапсырысыңыз дайын, алып кетуге болады.';
+  }
+
+  @override
+  String cncReadyMessageDebt(String name, String amount) {
+    return 'Сәлеметсіз бе! $name тапсырысыңыз дайын. Төлеуге: $amount.';
+  }
+
+  @override
+  String get cncRemove => 'Алып тастау';
+
+  @override
+  String get cncSaveDraft => 'Сақтау';
+
+  @override
+  String get cncSaved => 'Сақталды';
+
+  @override
+  String get cncSearchHint => 'Нөмір немесе клиент';
+
+  @override
+  String get cncServiceAdd => 'Қызмет қосу';
+
+  @override
+  String get cncServiceEdit => 'Қызмет';
+
+  @override
+  String get cncServiceGroup => 'Топ (Кесу, Үстелшелер…)';
+
+  @override
+  String get cncServiceMinutes => 'Бірлікке станок минуты';
+
+  @override
+  String get cncServiceOff => 'өшірулі';
+
+  @override
+  String get cncServiceOn => 'Прайста';
+
+  @override
+  String get cncServicePrice => 'Бірлік бағасы, ₸';
+
+  @override
+  String get cncServiceTitle => 'Атауы';
+
+  @override
+  String get cncServiceTrade => 'Жиһазшыларға баға, ₸';
+
+  @override
+  String get cncSettingsTitle => 'Шұғылдық, ең аз, станок күні';
+
+  @override
+  String get cncStart => 'Станокқа';
+
+  @override
+  String get cncStatusAll => 'Барлығы';
+
+  @override
+  String get cncStatusCancelled => 'Болдырылмады';
+
+  @override
+  String get cncStatusDraft => 'Жоба';
+
+  @override
+  String get cncStatusHandedOver => 'Берілді';
+
+  @override
+  String get cncStatusOnMachine => 'Станокта';
+
+  @override
+  String get cncStatusQueued => 'Кезекте';
+
+  @override
+  String get cncStatusReady => 'Дайын';
+
+  @override
+  String get cncTakenBy => 'Алып кеткен (клиент болмаса)';
+
+  @override
+  String get cncTakenPhone => 'Оның телефоны';
+
+  @override
+  String get cncTell => 'Клиентке жазу';
+
+  @override
+  String get cncTerms =>
+      'Клиент келіседі: өз материалының жасырын ақаулары үшін өзі жауапты';
+
+  @override
+  String get cncTermsAgreed => 'Клиент келісті: жасырын ақауларға өзі жауапты.';
+
+  @override
+  String get cncTitle => 'ЧПУ қызметтері';
+
+  @override
+  String get cncTotal => 'Барлығы';
+
+  @override
+  String cncTradePrice(String price) {
+    return 'жиһазшыларға $price';
+  }
+
+  @override
+  String get cncUnhold => 'Енді күтпейміз';
+
+  @override
+  String get cncUrgent => 'Шұғыл';
+
+  @override
+  String cncUrgentPct(String pct) {
+    return 'шұғыл +$pct%';
+  }
+
+  @override
+  String get cncUrgentPctLabel => 'Шұғылдық үстемесі, %';
+
+  @override
+  String get cncWork => 'Жұмыстар';
 }

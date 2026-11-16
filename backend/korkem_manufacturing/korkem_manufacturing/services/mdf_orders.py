@@ -611,10 +611,14 @@ def change_order(order: str, *, lines, reason: str, head=None, delivery_date: st
 def history(order: str) -> list[dict]:
 	"""What happened to the order, newest first: comments and the audit trail."""
 	facade_prices.ensure_editor()
-	doc = _order(order)
+	return comments(_order(order).name)
+
+
+def comments(order: str) -> list[dict]:
+	"""An order's comments, newest first — any line of business's."""
 	rows = frappe.get_all(
 		"Comment",
-		filters={"reference_doctype": "Sales Order", "reference_name": doc.name, "comment_type": "Comment"},
+		filters={"reference_doctype": "Sales Order", "reference_name": order, "comment_type": "Comment"},
 		fields=["creation", "owner", "content"],
 		order_by="creation desc",
 		limit_page_length=100,

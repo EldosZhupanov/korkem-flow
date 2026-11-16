@@ -105,17 +105,22 @@ class SalesOrder {
   }
 }
 
-/// The two lines of business on one floor (`services/directions.py`).
+/// The lines of business on one floor (`services/directions.py`); CNC
+/// services for hire since 15.11.2026.
 enum OrderDirection {
   furniture('Furniture'),
-  facades('Facades');
+  facades('Facades'),
+  cnc('CNC');
 
   const OrderDirection(this.wireValue);
 
   final String wireValue;
 
-  static OrderDirection fromWire(String? value) =>
-      value == facades.wireValue ? facades : furniture;
+  static OrderDirection fromWire(String? value) => switch (value) {
+    'Facades' => facades,
+    'CNC' => cnc,
+    _ => furniture,
+  };
 }
 
 /// A customer's tier: new, regular or VIP (`Customer.korkem_tier`).

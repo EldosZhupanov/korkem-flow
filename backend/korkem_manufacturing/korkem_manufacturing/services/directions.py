@@ -26,7 +26,9 @@ from korkem_manufacturing.services.scope import ensure_company
 
 FURNITURE = "Furniture"
 FACADES = "Facades"
-DIRECTIONS = (FURNITURE, FACADES)
+#: The machine for hire (owner, 15.11.2026): `services/cnc_orders.py`.
+CNC = "CNC"
+DIRECTIONS = (FURNITURE, FACADES, CNC)
 
 NEW, REGULAR, VIP = "New", "Regular", "VIP"
 TIERS = (NEW, REGULAR, VIP)
