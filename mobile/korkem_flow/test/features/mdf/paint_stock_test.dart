@@ -115,8 +115,12 @@ class _Repo implements PaintStockRepository {
   final settled = <(String, String)>[];
 
   @override
-  Future<PaintStock> settleDelivery(String receipt, String method) async {
-    settled.add((receipt, method));
+  Future<PaintStock> settleDelivery(
+    String receipt,
+    String method, {
+    String? bank,
+  }) async {
+    settled.add((receipt, [method, ?bank].join(' · ')));
     return _stock;
   }
 
@@ -127,8 +131,12 @@ class _Repo implements PaintStockRepository {
   }
 
   @override
-  Future<PaintStock> paySupplier(String receipt, String method) async {
-    paid.add((receipt, method));
+  Future<PaintStock> paySupplier(
+    String receipt,
+    String method, {
+    String? bank,
+  }) async {
+    paid.add((receipt, [method, ?bank].join(' · ')));
     return _stock;
   }
 
@@ -148,6 +156,7 @@ Future<_Repo> _pump(WidgetTester tester) async {
         paintStockRepositoryProvider.overrideWithValue(repo),
         mdfDictionariesProvider.overrideWith(
           (ref) async => const MdfDictionaries({
+            MdfDictKind.bank: [MdfDictEntry(id: 'b1', value: 'Kaspi')],
             MdfDictKind.paintSystem: [
               MdfDictEntry(id: 's1', value: 'RAL Classic'),
             ],
@@ -220,6 +229,13 @@ void main() {
       '3000',
     );
     await tester.pumpAndSettle();
+    // The taxi paid by card, through a bank (owner, 15.11.2026).
+    final card = find.byKey(const ValueKey('filmDelivery:method:Карта'));
+    await tester.ensureVisible(card);
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDelivery:bank:Kaspi')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('paintSum:delivery')), findsOne);
     expect(find.byKey(const ValueKey('paintSum:landed')), findsOne);
 
@@ -235,6 +251,7 @@ void main() {
     expect((got['pay']! as Map)['mode'], 'invoice');
     final delivery = got['delivery']! as Map;
     expect((delivery['transport'], delivery['amount']), ('Такси', 3000.0));
+    expect((delivery['method'], delivery['bank']), ('Карта', 'Kaspi'));
     expect(got['note'], contains('4 × 5'));
   });
 
@@ -246,7 +263,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('paintPayHow:Перевод')).last);
     await tester.pumpAndSettle();
-    expect(repo.paid, [('STE-5', 'Перевод')]);
+    // A transfer asks through which bank (owner, 15.11.2026).
+    await tester.tap(find.byKey(const ValueKey('filmAskBank:Kaspi')));
+    await tester.pumpAndSettle();
+    expect(repo.paid, [('STE-5', 'Перевод · Kaspi')]);
   });
 
   testWidgets('what a m² really took is said; a weighed paint puts the store '

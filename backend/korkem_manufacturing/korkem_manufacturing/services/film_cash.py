@@ -33,6 +33,7 @@ from korkem_manufacturing.services.film_dept import (
 	PAYER_UNPAID,
 	SALE,
 	_payments,
+	bank_of,
 )
 from korkem_manufacturing.services.scope import current_company
 
@@ -43,7 +44,7 @@ _FIELDS = [
 	"name", "creation", "posting_date", "docstatus", "korkem_supplier", "korkem_delivery_transport",
 	"korkem_delivery_cost", "korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_method",
 	"korkem_delivery_settled_on", "korkem_delivery_settled_method", "korkem_film_due",
-	"korkem_delivery_driver", "korkem_delivery_phone",
+	"korkem_delivery_driver", "korkem_delivery_phone", "korkem_delivery_bank", "korkem_delivery_settled_bank",
 ]
 
 
@@ -125,8 +126,8 @@ def book(since: str | None = None, until: str | None = None, compare: bool = Tru
 			logistics += cost
 			logistics_m += _metres(d.name)
 		if d.korkem_delivery_payer == PAYER_CASH and start <= paid_on <= end and cost:
-			outs.append({"date": str(paid_on), "what": label, "amount": cost, "way": d.korkem_delivery_method,
-						 "receipt": d.name})
+			outs.append({"date": str(paid_on), "what": label, "amount": cost,
+						 "way": _way(d.korkem_delivery_method, d.korkem_delivery_bank), "receipt": d.name})
 		settled = getdate(d.korkem_delivery_settled_on) if d.korkem_delivery_settled_on else None
 		if settled and start <= settled <= end and cost:
 			who = (get_fullname(d.korkem_delivery_paid_by) if d.korkem_delivery_payer == PAYER_EMPLOYEE
@@ -134,7 +135,8 @@ def book(since: str | None = None, until: str | None = None, compare: bool = Tru
 			outs.append({
 				"date": str(settled),
 				"what": f"Вернули: {who}" if d.korkem_delivery_payer == PAYER_EMPLOYEE else f"Перевозчику: {who}",
-				"amount": cost, "way": d.korkem_delivery_settled_method, "receipt": d.name,
+				"amount": cost, "way": _way(d.korkem_delivery_settled_method, d.korkem_delivery_settled_bank),
+				"receipt": d.name,
 			})
 	outs.extend(_supplier_payments(company, start, end))
 	outs.sort(key=lambda o: (o["date"], o["receipt"]))
@@ -148,7 +150,7 @@ def book(since: str | None = None, until: str | None = None, compare: bool = Tru
 	for way, amount in ins.items():
 		where[way] = where.get(way, 0.0) + amount
 	for o in outs:
-		way = _way(o.get("way"), None)
+		way = o.get("way") or METHODS[0]
 		where[way] = where.get(way, 0.0) - o["amount"]
 	total_in = round(sum(ins.values()), 2)
 	total_out = round(sum(o["amount"] for o in outs), 2)
@@ -272,7 +274,8 @@ def _supplier_payments(company: str, start, end) -> list[dict]:
 				 # A receipt made again right is paid once: the struck one is out.
 				 "docstatus": ["in", [0, 1]], "korkem_supplier_paid_from": FROM_DEPT, "korkem_supplier_paid_on": ["between", [start, end]],
 				 **FILM_ONLY},
-		fields=["name", "korkem_supplier", "korkem_supplier_paid_on", "korkem_supplier_paid_method"],
+		fields=["name", "korkem_supplier", "korkem_supplier_paid_on", "korkem_supplier_paid_method",
+				"korkem_supplier_paid_bank"],
 		limit_page_length=0,
 	):
 		line = frappe.db.get_value("Stock Entry Detail", {"parent": e.name}, ["qty", "basic_rate"], as_dict=True)
@@ -281,13 +284,15 @@ def _supplier_payments(company: str, start, end) -> list[dict]:
 		who = frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier
 		out.append({
 			"date": str(getdate(e.korkem_supplier_paid_on)), "what": f"Поставщику: {who}",
-			"amount": round(flt(line.qty) * flt(line.basic_rate), 2), "way": e.korkem_supplier_paid_method,
+			"amount": round(flt(line.qty) * flt(line.basic_rate), 2),
+			"way": _way(e.korkem_supplier_paid_method, e.korkem_supplier_paid_bank),
 			"receipt": e.name,
 		})
 	return out
 
 
-def pay_supplier(receipt: str, method: str | None = None, source: str | None = None) -> dict:
+def pay_supplier(receipt: str, method: str | None = None, source: str | None = None,
+				 bank: str | None = None) -> dict:
 	"""Film taken on credit is paid for — today; `source` says from where:
 	`dept`, the department's own money (out of this book), or `elsewhere`."""
 	material_stock._ensure_editor()
@@ -307,18 +312,19 @@ def pay_supplier(receipt: str, method: str | None = None, source: str | None = N
 	source = (source or "").strip() or FROM_DEPT
 	if source not in (FROM_DEPT, FROM_ELSEWHERE):
 		frappe.throw("Откуда деньги — из кассы плёнки или не из неё.")
+	bank = bank_of(how, bank)
 	frappe.db.set_value("Stock Entry", receipt, {
 		"korkem_supplier_paid_on": nowdate(), "korkem_supplier_paid_method": how,
-		"korkem_supplier_paid_from": source,
+		"korkem_supplier_paid_bank": bank, "korkem_supplier_paid_from": source,
 	}, update_modified=False)
 	line = frappe.db.get_value("Stock Entry Detail", {"parent": receipt}, ["qty", "basic_rate"], as_dict=True) or {}
 	audit.record_audit(action="film.supplier_paid", entity_type="Stock Entry", entity_id=receipt,
 					   diff={"amount": round(flt(line.get("qty")) * flt(line.get("basic_rate")), 2), "method": how,
-						 "source": source})
-	return {"receipt": receipt, "paid_on": nowdate(), "method": how, "source": source}
+						 "bank": bank, "source": source})
+	return {"receipt": receipt, "paid_on": nowdate(), "method": how, "bank": bank, "source": source}
 
 
-def settle(receipt: str, method: str | None = None) -> dict:
+def settle(receipt: str, method: str | None = None, bank: str | None = None) -> dict:
 	"""Given back to the employee, or paid to the carrier — from the
 	department's cash, today."""
 	material_stock._ensure_editor()
@@ -336,12 +342,15 @@ def settle(receipt: str, method: str | None = None) -> dict:
 	how = (method or "").strip() or METHODS[0]
 	if how not in METHODS:
 		frappe.throw("Как платили — наличные, перевод или карта.")
+	bank = bank_of(how, bank)
 	frappe.db.set_value("Stock Entry", receipt, {
 		"korkem_delivery_settled_on": nowdate(), "korkem_delivery_settled_method": how,
+		"korkem_delivery_settled_bank": bank,
 	}, update_modified=False)
 	audit.record_audit(action="film.delivery_settled", entity_type="Stock Entry", entity_id=receipt,
-					   diff={"amount": flt(row.korkem_delivery_cost), "payer": row.korkem_delivery_payer, "method": how})
-	return {"receipt": receipt, "settled_on": nowdate(), "method": how}
+					   diff={"amount": flt(row.korkem_delivery_cost), "payer": row.korkem_delivery_payer, "method": how,
+						 "bank": bank})
+	return {"receipt": receipt, "settled_on": nowdate(), "method": how, "bank": bank}
 
 
 # --------------------------------------------------------------------------

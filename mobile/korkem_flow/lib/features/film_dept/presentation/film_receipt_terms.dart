@@ -5,6 +5,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
+import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
@@ -29,6 +30,9 @@ class FilmReceiptTerms {
   // money; on credit; or by the supplier's invoice, with its day to pay.
   String supplierMode = FilmSupplierPay.modePaid;
   String supplierHow = filmCash;
+
+  /// Through which bank, when by transfer or card (owner, 15.11.2026).
+  String? supplierBank;
   bool supplierFromDept = true;
   final invoiceNo = TextEditingController();
   DateTime invoiceOn = DateTime.now();
@@ -51,6 +55,7 @@ class FilmReceiptTerms {
   String payer = FilmPayer.cash;
   String? paidBy;
   String payMethod = filmCash;
+  String? payBank;
 
   void dispose() {
     invoiceNo.dispose();
@@ -75,7 +80,11 @@ class FilmReceiptTerms {
       invoiceOn: mdfIso(invoiceOn),
       dueOn: invoiceDue == null ? null : mdfIso(invoiceDue!),
     ),
-    _ => FilmSupplierPay.paid(method: supplierHow, fromDept: supplierFromDept),
+    _ => FilmSupplierPay.paid(
+      method: supplierHow,
+      fromDept: supplierFromDept,
+      bank: supplierHow == filmCash ? null : supplierBank,
+    ),
   };
 
   String? transportOf(FilmDeliveryOptions? o, String? supplier) =>
@@ -102,6 +111,8 @@ class FilmReceiptTerms {
         'payer': payer,
         if (payer == FilmPayer.employee) 'paid_by': paidBy ?? o.me,
         if (payer != FilmPayer.unpaid) 'method': payMethod,
+        if (payer != FilmPayer.unpaid && payMethod != filmCash)
+          'bank': ?payBank,
       },
     };
   }
@@ -115,6 +126,7 @@ class FilmReceiptTerms {
         ),
         _ => [
           filmMethodLabel(l10n, supplierHow),
+          if (supplierHow != filmCash) ?supplierBank,
           if (deptCash && supplierFromDept) l10n.filmFromDeptCash,
         ].join(', '),
       };
@@ -125,6 +137,7 @@ class FilmReceiptTerms {
         FilmPayer.unpaid => l10n.filmPayerUnpaid,
         _ => [
           filmMethodLabel(l10n, payMethod),
+          if (payMethod != filmCash) ?payBank,
           if (deptCash) l10n.filmFromDeptCash,
         ].join(', '),
       };
@@ -135,6 +148,106 @@ String filmMethodLabel(AppLocalizations l10n, String m) => switch (m) {
   filmCard => l10n.mdfPayCard,
   _ => l10n.mdfPayCash,
 };
+
+/// Through which bank a transfer or a card went — Kaspi, Halyk, Forte …
+/// (owner, 15.11.2026: «Перевод — Каспи, Форте, Халык и т.д., и ещё должен
+/// регулироваться»): the MDF bank list, with its own ✎.
+class FilmBankChips extends ConsumerWidget {
+  const FilmBankChips({
+    required this.keyPrefix,
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
+
+  final String keyPrefix;
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final banks =
+        (ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty)
+            .values(MdfDictKind.bank);
+    return filmWithList(
+      context,
+      key: '$keyPrefix:edit',
+      onEdit: () async {
+        final picked = await showMdfDictionary(
+          context,
+          MdfDictKind.bank,
+          title: l10n.mdfPayBank,
+          current: value,
+        );
+        ref.invalidate(mdfDictionariesProvider);
+        if (picked != null) onChanged(picked);
+      },
+      child: Wrap(
+        spacing: AppSpacing.xs,
+        runSpacing: AppSpacing.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(l10n.mdfPayBank),
+          for (final b in banks)
+            ChoiceChip(
+              key: ValueKey('$keyPrefix:$b'),
+              label: Text(b),
+              selected: value == b,
+              onSelected: (on) => onChanged(on ? b : null),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// After «Перевод» or «Карта» picked from a menu: through which bank.
+/// `''` for none (cash, an empty list, «—»); null when the person closed
+/// the question — nothing is paid then.
+Future<String?> filmAskBank(
+  BuildContext context,
+  WidgetRef ref,
+  String method,
+) async {
+  if (method == filmCash) return '';
+  // Kept alive while it loads: the list is auto-disposed.
+  final keep = ref.listenManual(mdfDictionariesProvider, (_, _) {});
+  var banks = const <String>[];
+  try {
+    banks = (await ref.read(
+      mdfDictionariesProvider.future,
+    )).values(MdfDictKind.bank);
+  } on Object {
+    // No list to hand: paid without a bank rather than not at all.
+  } finally {
+    keep.close();
+  }
+  if (!context.mounted) return null;
+  if (banks.isEmpty) return '';
+  return showDialog<String>(
+    context: context,
+    builder: (context) {
+      final l10n = AppLocalizations.of(context);
+      return SimpleDialog(
+        title: Text(l10n.mdfPayBank),
+        children: [
+          for (final b in banks)
+            SimpleDialogOption(
+              key: ValueKey('filmAskBank:$b'),
+              onPressed: () => Navigator.pop(context, b),
+              child: Text(b),
+            ),
+          SimpleDialogOption(
+            key: const ValueKey('filmAskBank:none'),
+            onPressed: () => Navigator.pop(context, ''),
+            child: Text(l10n.mdfNone),
+          ),
+        ],
+      );
+    },
+  );
+}
 
 /// A field with its list's own ✎: the list opens to be added to, renamed,
 /// cleaned (owner, 11.11.2026: «чтобы редактировался и мог бы удалить»).
@@ -248,6 +361,12 @@ class FilmSupplierPayField extends StatelessWidget {
                 ),
             ],
           ),
+          if (t.supplierHow != filmCash)
+            FilmBankChips(
+              keyPrefix: 'filmSupplierBank',
+              value: t.supplierBank,
+              onChanged: (b) => update(() => t.supplierBank = b),
+            ),
           if (deptCash)
             CheckboxListTile(
               key: const ValueKey('filmSupplierFromDept'),
@@ -448,6 +567,12 @@ class FilmDeliveryField extends ConsumerWidget {
                     onSelected: (_) => update(() => t.payMethod = m),
                   ),
               ],
+            ),
+          if (t.payer != FilmPayer.unpaid && t.payMethod != filmCash)
+            FilmBankChips(
+              keyPrefix: 'filmDelivery:bank',
+              value: t.payBank,
+              onChanged: (b) => update(() => t.payBank = b),
             ),
         ],
         // Drivers who brought something before: a tap fills both.

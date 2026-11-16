@@ -369,6 +369,19 @@ class TestFilmDept(IntegrationTestCase):
 		elsewhere = self._as(MANAGER, service.receive, self.film, 2, 3000, self.supplier,
 							 supplier_pay={"mode": "paid", "method": "Перевод", "from": "elsewhere"})["receipt"]
 		self.assertNotIn(elsewhere, [o.get("receipt") for o in book()["out"]])
+		# By card, through a bank (owner, 15.11.2026): the book keeps that bank
+		# apart; the carrier, paid by transfer, through his; cash has none.
+		card = self._as(MANAGER, service.receive, self.film, 1, 3000, self.supplier,
+						supplier_pay={"mode": "paid", "method": "Карта", "from": "dept", "bank": " Halyk  "},
+						delivery={"transport": "Такси", "amount": 1000, "payer": "cash", "method": "Перевод",
+								  "bank": "Kaspi"})["receipt"]
+		ways = {(o["what"].startswith("Поставщику"), o["way"]) for o in book()["out"] if o["receipt"] == card}
+		self.assertEqual(ways, {(True, "Карта · Halyk"), (False, "Перевод · Kaspi")})
+		where = {w["way"] for w in book()["where"]}
+		self.assertTrue({"Карта · Halyk", "Перевод · Kaspi"} <= where)
+		cash = self._as(MANAGER, service.receive, self.film, 1, 3000, self.supplier,
+						supplier_pay={"mode": "paid", "method": "Наличные", "bank": "Kaspi"})["receipt"]
+		self.assertIsNone(frappe.db.get_value("Stock Entry", cash, "korkem_supplier_paid_bank"))
 		# By invoice: owed, with its number and the day to pay by — overdue past it.
 		invoice = self._as(MANAGER, service.receive, self.film, 10, 3000, self.supplier, supplier_pay={
 			"mode": "invoice", "invoice_no": "123", "invoice_on": add_days(nowdate(), -10),
@@ -464,7 +477,7 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertNotIn(credit, owed())
 		self.assertEqual(owed()[fixed]["amount"], 27000)
 		# Paid: off the list, once; nobody else's, and not by the shop floor.
-		self._as(MANAGER, film_cash.pay_supplier, fixed, "Перевод")
+		self._as(MANAGER, film_cash.pay_supplier, fixed, "Перевод", bank="Forte")
 		self.assertNotIn(fixed, owed())
 		self.assertEqual(frappe.db.get_value("Stock Entry", fixed, "korkem_supplier_paid_method"), "Перевод")
 		with self.assertRaises(frappe.ValidationError):
@@ -477,7 +490,7 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertFalse(move["supplier_owed"])
 		# Out of the department's money: out of its book, by the way it went.
 		out = next(o for o in self._as(MANAGER, film_cash.book)["out"] if o["receipt"] == fixed)
-		self.assertEqual((out["amount"], out["way"]), (27000, "Перевод"))
+		self.assertEqual((out["amount"], out["way"]), (27000, "Перевод · Forte"))
 		# From elsewhere: paid, off the list, and the book is not touched.
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, film_cash.pay_supplier, many[0], "Наличные", "из кармана")

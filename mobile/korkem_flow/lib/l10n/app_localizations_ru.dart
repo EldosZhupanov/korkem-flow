@@ -8446,6 +8446,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfPaintNoSystem => 'Без системы';
 
   @override
+  String get mdfPaintSearch => 'Найти цвет: 9016, белый…';
+
+  @override
   String get paintStock => 'Склад краски';
 
   @override

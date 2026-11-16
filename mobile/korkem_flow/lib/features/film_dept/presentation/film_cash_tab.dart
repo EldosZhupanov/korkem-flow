@@ -10,7 +10,7 @@ import 'package:korkem_flow/core/design/widgets/charts/flow_bars.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
-import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -69,6 +69,12 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
   Future<void> _settle(FilmOwed o, String method, String key) async {
     final messenger = ScaffoldMessenger.of(context);
     final repo = ref.read(filmDeptRepositoryProvider);
+    // A transfer or a card: through which bank (owner, 15.11.2026).
+    final asked = method == FilmPaySource.elsewhere
+        ? ''
+        : await filmAskBank(context, ref, method);
+    if (asked == null) return;
+    final bank = asked.isEmpty ? null : asked;
     try {
       // Film taken on credit is paid to the supplier — the menu's value says
       // from where; a delivery is settled with the employee or the carrier.
@@ -79,8 +85,8 @@ class _FilmCashTabState extends ConsumerState<FilmCashTab> {
                     filmCash,
                     source: FilmPaySource.elsewhere,
                   )
-                : repo.paySupplier(o.receipt, method))
-          : repo.settleDelivery(o.receipt, method));
+                : repo.paySupplier(o.receipt, method, bank: bank))
+          : repo.settleDelivery(o.receipt, method, bank: bank));
       ref.invalidate(filmCashProvider);
     } on Object catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('$e')));

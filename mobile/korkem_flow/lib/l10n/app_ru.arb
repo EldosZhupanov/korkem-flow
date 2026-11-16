@@ -2608,6 +2608,7 @@
   "mdfPaintAddSystem": "Добавить систему цвета",
   "mdfPaintAddColour": "Добавить цвет в {group}",
   "mdfPaintNoSystem": "Без системы",
+  "mdfPaintSearch": "Найти цвет: 9016, белый…",
   "paintStock": "Склад краски",
   "paintReceive": "Приход краски",
   "paintReceiveSave": "Оприходовать",

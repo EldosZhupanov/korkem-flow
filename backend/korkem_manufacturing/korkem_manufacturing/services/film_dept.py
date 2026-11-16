@@ -217,6 +217,7 @@ def receipt_terms(supplier: str, delivery=None, received_by: str | None = None, 
 		"korkem_received_by": taker, "korkem_delivery_transport": transport, "korkem_delivery_city": city or None,
 		"korkem_delivery_cost": float(cost), "korkem_delivery_urgent": 1 if urgent else 0,
 		"korkem_delivery_payer": payer, "korkem_delivery_paid_by": paid_by, "korkem_delivery_method": pay_method,
+		"korkem_delivery_bank": bank_of(pay_method, delivery.get("bank")),
 		# Who brought it and how to reach him (owner, 12.11.2026) — optional.
 		"korkem_delivery_driver": " ".join(str(delivery.get("driver") or "").split())[:80] or None,
 		"korkem_delivery_phone": " ".join(str(delivery.get("phone") or "").split())[:40] or None,
@@ -230,6 +231,13 @@ PAYER_CASH, PAYER_EMPLOYEE, PAYER_UNPAID, PAYER_SUPPLIER = "cash", "employee", "
 PAYERS = (PAYER_CASH, PAYER_EMPLOYEE, PAYER_UNPAID, PAYER_SUPPLIER)
 #: How money is paid: the cash book's own words.
 METHODS = ("Наличные", "Перевод", "Карта")
+
+
+def bank_of(method: str | None, bank) -> str | None:
+	"""The bank of a transfer or a card (owner, 15.11.2026); none for cash."""
+	if method not in WITH_BANK:
+		return None
+	return " ".join(str(bank or "").split())[:140] or None
 
 
 def _delivery_payer(delivery: dict, cost) -> tuple[str | None, str | None, str | None]:
@@ -477,7 +485,8 @@ def supplier_pay_fields(pay=None, paid=None) -> dict:
 			frappe.throw("Откуда деньги — из кассы плёнки или не из неё.")
 		# Paid now: today's money — out of the cash book if from it.
 		return {"korkem_supplier_owed": 0, "korkem_supplier_paid_on": nowdate(),
-				"korkem_supplier_paid_method": how, "korkem_supplier_paid_from": source}
+				"korkem_supplier_paid_method": how, "korkem_supplier_paid_bank": bank_of(how, pay.get("bank")),
+				"korkem_supplier_paid_from": source}
 	fields = {"korkem_supplier_owed": 1}
 	if mode == PAY_INVOICE:
 		number = " ".join(str(pay.get("invoice_no") or "").split())[:60]
@@ -765,10 +774,12 @@ def correct(entry: str, item: str, reason: str, metres=None, price_m=None, suppl
 			# Who paid, and whether it was given back, stay with it.
 			**{f: doc.get(f) for f in ("korkem_delivery_payer", "korkem_delivery_paid_by", "korkem_delivery_method",
 									   "korkem_delivery_settled_on", "korkem_delivery_settled_method",
+									   "korkem_delivery_bank", "korkem_delivery_settled_bank",
 									   "korkem_delivery_driver", "korkem_delivery_phone",
 									   # A debt to the supplier stays one debt, paid or not.
 									   "korkem_supplier_owed", "korkem_supplier_paid_on",
-									   "korkem_supplier_paid_method", "korkem_supplier_paid_from",
+									   "korkem_supplier_paid_method", "korkem_supplier_paid_bank",
+									   "korkem_supplier_paid_from",
 									   "korkem_supplier_invoice_no", "korkem_supplier_invoice_on",
 									   "korkem_supplier_due_on")},
 		}, update_modified=False)

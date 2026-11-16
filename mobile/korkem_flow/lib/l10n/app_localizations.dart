@@ -14491,6 +14491,12 @@ abstract class AppLocalizations {
   /// **'No system'**
   String get mdfPaintNoSystem;
 
+  /// No description provided for @mdfPaintSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a colour: 9016, white…'**
+  String get mdfPaintSearch;
+
   /// No description provided for @paintStock.
   ///
   /// In en, this message translates to:

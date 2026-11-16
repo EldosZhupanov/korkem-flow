@@ -212,11 +212,11 @@ def _delivery_owed(company: str, allowed: bool) -> list[dict]:
 	return out
 
 
-def settle_delivery(receipt: str, method: str | None = None) -> dict:
+def settle_delivery(receipt: str, method: str | None = None, bank: str | None = None) -> dict:
 	"""Given back to the employee, or paid to the carrier, today."""
 	if frappe.db.get_value("Stock Entry", receipt, "korkem_receipt_dept") != DEPT:
 		frappe.throw("Такого долга за доставку краски нет.", frappe.DoesNotExistError)
-	film_cash.settle(receipt, method)
+	film_cash.settle(receipt, method, bank)
 	return stock()
 
 
@@ -282,7 +282,7 @@ def history(item: str) -> dict:
 		"""select se.name, se.posting_date, se.docstatus, se.korkem_supplier, se.korkem_delivery_city,
 			se.korkem_delivery_transport, se.korkem_delivery_cost, se.korkem_received_by,
 			se.korkem_supplier_owed, se.korkem_supplier_paid_on, se.korkem_supplier_paid_method,
-			se.korkem_supplier_invoice_no, sed.qty, sed.basic_rate
+			se.korkem_supplier_paid_bank, se.korkem_supplier_invoice_no, sed.qty, sed.basic_rate
 		from `tabStock Entry Detail` sed join `tabStock Entry` se on se.name = sed.parent
 		where se.company = %(company)s and se.korkem_material_receipt = 1 and sed.item_code = %(item)s
 			and se.docstatus != 0
@@ -304,7 +304,8 @@ def history(item: str) -> dict:
 			"city": r.korkem_delivery_city, "transport": r.korkem_delivery_transport,
 			"received_by": get_fullname(r.korkem_received_by) if r.korkem_received_by else None,
 			"owed": bool(r.korkem_supplier_owed and not r.korkem_supplier_paid_on),
-			"paid_method": r.korkem_supplier_paid_method, "invoice_no": r.korkem_supplier_invoice_no,
+			"paid_method": " · ".join(x for x in (r.korkem_supplier_paid_method, r.korkem_supplier_paid_bank) if x)
+			or None, "invoice_no": r.korkem_supplier_invoice_no,
 		})
 	return {"receipts": out}
 
@@ -335,11 +336,11 @@ def _owed(company: str, allowed: bool) -> list[dict]:
 	return out
 
 
-def pay_supplier(receipt: str, method: str | None = None) -> dict:
+def pay_supplier(receipt: str, method: str | None = None, bank: str | None = None) -> dict:
 	"""Paint bought on credit is paid for today — not out of the film cash."""
 	if frappe.db.get_value("Stock Entry", receipt, "korkem_receipt_dept") != DEPT:
 		frappe.throw("Такого долга за краску нет.", frappe.DoesNotExistError)
-	film_cash.pay_supplier(receipt, method, film_cash.FROM_ELSEWHERE)
+	film_cash.pay_supplier(receipt, method, film_cash.FROM_ELSEWHERE, bank)
 	return stock()
 
 
