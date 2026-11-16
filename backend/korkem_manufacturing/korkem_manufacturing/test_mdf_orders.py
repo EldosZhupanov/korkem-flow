@@ -561,7 +561,7 @@ class TestMdfOrders(IntegrationTestCase):
 		listing = self._as(MANAGER, team.people)["people"]
 		self.assertEqual([p["employee"] for p in listing if p["user"] == MANAGER], [taker])
 		frappe.db.set_value("Employee", taker, "user_id", None)
-		self._as(MANAGER, team.set_person, None, posts=["intake.manager"], user=MANAGER)  # given a post, becomes one
+		self._as(MANAGER, lambda: team.set_person(None, posts=["intake.manager"], user=MANAGER))  # given a post, becomes one
 		mine = [p for p in self._as(MANAGER, team.people)["people"] if p["user"] == MANAGER]
 		self.assertEqual((len(mine), mine[0]["posts"], bool(mine[0]["employee"])), (1, ["intake.manager"], True))
 		frappe.db.set_value("Employee", mine[0]["employee"], {"user_id": None, "status": "Left"})

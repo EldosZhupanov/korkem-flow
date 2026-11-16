@@ -321,11 +321,8 @@ void main() {
     // A login's access is shown on its person.
     await _open(tester, 'Dana Manager');
     expect(
-      find.descendant(
-        of: find.byKey(const ValueKey('teamPersonAccess')),
-        matching: find.text('Менеджер'),
-      ),
-      findsOneWidget,
+      tester.widget<Text>(find.byKey(const ValueKey('teamPersonAccess'))).data,
+      'Менеджер',
     );
   });
 
