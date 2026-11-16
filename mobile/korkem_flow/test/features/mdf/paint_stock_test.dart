@@ -187,7 +187,7 @@ class _Repo implements PaintStockRepository {
       'm2': m2,
       'colour': colour,
       'lines': [
-        {'name': 'Грунт', 'kg': 2.1, 'price_kg': 2000, 'cost': 4200},
+        const {'name': 'Грунт', 'kg': 2.1, 'price_kg': 2000, 'cost': 4200},
         {'name': 'Эмаль', 'colour': colour, 'kg': 3.36, 'cost': null},
       ],
       'kg': 5.46,
