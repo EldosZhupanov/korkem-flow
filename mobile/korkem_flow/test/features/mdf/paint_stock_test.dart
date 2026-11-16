@@ -13,6 +13,23 @@ import '../../support/widget_harness.dart';
 
 final _stock = PaintStock.fromJson(const {
   'kg_per_m2': 0.3,
+  'recipe': {
+    'layers': [
+      {
+        'name': 'Грунт',
+        'g_m2': 150,
+        'coats': 1,
+        'parts': [
+          {'name': 'Отвердитель', 'per_kg': 0.5},
+        ],
+      },
+      {'name': 'Эмаль', 'colour': true, 'g_m2': 120, 'coats': 2},
+    ],
+  },
+  'materials': [
+    {'name': 'Грунт', 'need_kg': 2.1, 'on_hand_kg': 0, 'short_kg': 2.1},
+    {'name': 'Отвердитель', 'need_kg': 1.05, 'on_hand_kg': 5, 'short_kg': 0},
+  ],
   'usage': {
     'days': 30,
     'm2': 100,
@@ -138,6 +155,47 @@ class _Repo implements PaintStockRepository {
   }) async {
     paid.add((receipt, [method, ?bank].join(' · ')));
     return _stock;
+  }
+
+  final recipes = <Map<String, Object?>>[];
+  final cards = <(String?, String, String?)>[];
+
+  @override
+  Future<PaintStock> addSupplier(PaintSupplierCard card) async {
+    cards.add((null, card.name, card.minOrder));
+    return _stock;
+  }
+
+  @override
+  Future<PaintStock> setSupplier(String id, PaintSupplierCard card) async {
+    cards.add((id, card.name, card.minOrder));
+    return _stock;
+  }
+
+  @override
+  Future<PaintStock> setRecipe(PaintRecipe recipe) async {
+    recipes.add(recipe.toJson());
+    return _stock;
+  }
+
+  final plans = <(double, String?)>[];
+
+  @override
+  Future<PaintPlan> plan(double m2, {String? colour}) async {
+    plans.add((m2, colour));
+    return PaintPlan.fromJson({
+      'm2': m2,
+      'colour': colour,
+      'lines': [
+        const {'name': 'Грунт', 'kg': 2.1, 'price_kg': 2000, 'cost': 4200},
+        {'name': 'Эмаль', 'colour': colour, 'kg': 3.36, 'cost': null},
+      ],
+      'kg': 5.46,
+      'cost': 4200,
+      'cost_m2': 300,
+      'priced': false,
+      'text': 'RAL 9016 — 14 м²: Грунт 2,1 кг; Эмаль 3,36 кг',
+    });
   }
 
   @override
@@ -299,5 +357,110 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(repo.settled, [('STE-8', 'Наличные')]);
+  });
+
+  testWidgets('the recipe is the shop’s own: a coat more, a thinner into '
+      'the enamel', (tester) async {
+    final repo = await _pump(tester);
+    expect(find.textContaining('Recipe: 0,3 kg/m²'), findsOne);
+    await tester.tap(find.byKey(const ValueKey('paintRecipe')));
+    await tester.pumpAndSettle();
+    // Two coats of primer, and a thinner into the enamel.
+    await tester.enterText(
+      find.byKey(const ValueKey('paintLayerCoats:0')),
+      '2',
+    );
+    await tester.tap(find.byKey(const ValueKey('paintPartAdd:1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('paintPartName:1:0')),
+      'Разбавитель',
+    );
+    // As painters say it: 20 % of the weight.
+    await tester.enterText(
+      find.byKey(const ValueKey('paintPartPerKg:1:0')),
+      '20',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('paintRecipeSave')));
+    await tester.pumpAndSettle();
+    final layers = repo.recipes.single['layers']! as List;
+    final primer = layers.first as Map;
+    final enamel = layers.last as Map;
+    expect(primer['coats'], 2);
+    expect(enamel['colour'], true);
+    expect(enamel['parts'], [
+      {'name': 'Разбавитель', 'per_kg': 0.2, 'price_kg': 0.0},
+    ]);
+  });
+
+  testWidgets('a colour of the queue says what it takes and what it costs, '
+      'ready to send', (tester) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('paintNeed:RAL 9016')));
+    await tester.pumpAndSettle();
+    expect(repo.plans.single, (14.0, 'RAL 9016'));
+    expect(find.byKey(const ValueKey('paintPlanLine:Грунт')), findsOne);
+    expect(find.byKey(const ValueKey('paintPlanUnpriced')), findsOne);
+    expect(find.byKey(const ValueKey('paintShare:wa')), findsOne);
+    // The shop's price a m² beside the cost: what is left, and remembered.
+    expect(find.byKey(const ValueKey('paintPlanLeftM2')), findsNothing);
+    await tester.enterText(
+      find.byKey(const ValueKey('paintPlanPriceM2')),
+      '1000',
+    );
+    await tester.enterText(find.byKey(const ValueKey('paintPlanMarkup')), '50');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintPlanLeftM2')), findsOne);
+    expect(find.byKey(const ValueKey('paintPlanByMarkup')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('paintPlanRemember')));
+    await tester.pumpAndSettle();
+    final saved = repo.recipes.single;
+    expect((saved['price_m2'], saved['markup_pct']), (1000.0, 50.0));
+  });
+
+  testWidgets('a paint supplier is a card of its own: who, the number, the '
+      'smallest batch; more than the queue needs is said', (tester) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('paintNeedBuy:RAL 9016')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('paintSupplierAdd')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('paintSupplierCard:name')),
+      'Ерлан краски',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('paintSupplierCard:min')),
+      '5 кг',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('paintSupplierCard:save')));
+    await tester.pumpAndSettle();
+    expect(repo.cards.single, (null, 'Ерлан краски', '5 кг'));
+    // 5 kg of a batch for 4,2 kg of queue: the rest goes on the shelf.
+    await tester.enterText(find.byKey(const ValueKey('paintKgValue')), '5');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintBatchLeft')), findsOne);
+  });
+
+  testWidgets('primer for the queue is bought with no colour', (tester) async {
+    final repo = await _pump(tester);
+    expect(find.byKey(const ValueKey('paintMaterial:Грунт')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('paintMaterialBuy:Грунт')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintColourDict')), findsNothing);
+    await tester.enterText(find.byKey(const ValueKey('paintKgValue')), '20');
+    await tester.enterText(
+      find.byKey(const ValueKey('paintPriceKgValue')),
+      '2000',
+    );
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('paintReceiveSave'));
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    final got = repo.received.single;
+    expect((got['colour'], got['base'], got['kg']), ('', 'Грунт', 20.0));
   });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
+import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 
 export 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 
@@ -603,6 +604,7 @@ class MdfOrder {
     this.extraStages = const {},
     this.press = const {},
     this.clientPaint,
+    this.paint = const [],
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -678,6 +680,10 @@ class MdfOrder {
       ),
       _ => null,
     },
+    paint: [
+      for (final p in json['paint'] as List? ?? const [])
+        if (p is Map) PaintPlan.fromJson(Map<String, dynamic>.from(p)),
+    ],
   );
 
   final String name;
@@ -727,6 +733,10 @@ class MdfOrder {
   /// The customer's own paint: what he brought and whether it is here;
   /// null when the order is not tagged «Краска клиента».
   final ({String? note, bool received})? clientPaint;
+
+  /// What its paint takes by the shop's recipe, colour by colour, and what
+  /// it costs (owner, 15.11.2026).
+  final List<PaintPlan> paint;
 
   List<MdfOrderTag> get tags => head.tags;
 
