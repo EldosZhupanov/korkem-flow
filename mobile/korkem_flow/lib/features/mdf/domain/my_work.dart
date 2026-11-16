@@ -74,7 +74,7 @@ class MyWork {
       monthByStage: {
         if (month is Map && month['stages'] is Map)
           for (final e in (month['stages'] as Map).entries)
-            if (MdfStage.parse(e.key) case final stage?) stage: _d(e.value),
+            ?MdfStage.parse(e.key): _d(e.value),
       },
     );
   }

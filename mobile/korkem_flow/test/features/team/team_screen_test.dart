@@ -1039,14 +1039,6 @@ void main() {
     });
     expect(member.trades, ['Раскройщик', 'Кромщик']);
   });
-}
-
-class _TestSessionController extends SessionController {
-  _TestSessionController(this._initial);
-  final Session _initial;
-
-  @override
-  Future<Session> build() async => _initial;
 
   testWidgets('departments show their posts and people, and a person is '
       'added on a post with no login', (tester) async {
@@ -1084,4 +1076,13 @@ class _TestSessionController extends SessionController {
     expect(structure.added.single.$1, 'Бек Вакуумов');
     expect(structure.added.single.$2, ['pvc.vacuum']);
   });
+}
+
+class _TestSessionController extends SessionController {
+  _TestSessionController(this._initial);
+  final Session _initial;
+
+  @override
+  Future<Session> build() async => _initial;
+
 }
