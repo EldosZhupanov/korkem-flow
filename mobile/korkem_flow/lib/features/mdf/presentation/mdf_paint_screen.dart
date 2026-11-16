@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_paint_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
@@ -196,6 +197,41 @@ class _BoardState extends ConsumerState<_Board> {
               onSelect: (id) => setState(() => _colour = id),
             ),
           ),
+          // The norm for the colour, and a batch bigger than it.
+          if (picked?.norm case final norm? when norm.use.isNotEmpty)
+            ReadableWidth(
+              child: Padding(
+                key: const ValueKey('paintNorm'),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.mdfPaintNorm(
+                        [
+                          for (final u in norm.use)
+                            '${u.name} ${l10n.paintKgShort(filmMetres(u.kg))}',
+                        ].join(' · '),
+                      ),
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    if (norm.leftKg > 0)
+                      Text(
+                        l10n.mdfPaintBatch(
+                          filmMetres(norm.onHandKg),
+                          filmMetres(norm.batchKg ?? norm.onHandKg),
+                          filmMetres(norm.enamelKg),
+                          filmMetres(norm.leftKg),
+                        ),
+                        key: const ValueKey('paintNormLeft'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: status.warning,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           if (picked != null)
             for (final o in picked.orders)
               ReadableWidth(

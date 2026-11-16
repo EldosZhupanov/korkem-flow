@@ -68,11 +68,22 @@ class PaintStockRepository {
     ),
   );
 
-  Future<PaintStock> setKgPerM2(double value) async => _stock(
+  /// The shop's recipe: layers, grams a m², coats, what goes into each.
+  Future<PaintStock> setRecipe(PaintRecipe recipe) async => _stock(
     await _client.callMethod(
-      '$_base.set_kg_per_m2',
+      '$_base.set_recipe',
       post: true,
-      params: {'value': value},
+      params: {'recipe': jsonEncode(recipe.toJson())},
+    ),
+  );
+
+  /// What so many m² take by the recipe, in a colour or none.
+  Future<PaintPlan> plan(double m2, {String? colour}) async => PaintPlan.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.plan',
+        params: {'m2': m2, 'colour': ?colour},
+      ),
     ),
   );
 
@@ -110,13 +121,33 @@ class PaintStockRepository {
     ),
   );
 
-  Future<PaintStock> addSupplier(String name) async => _stock(
+  /// A paint supplier with its card — paint's own, apart from film.
+  Future<PaintStock> addSupplier(PaintSupplierCard card) async => _stock(
     await _client.callMethod(
       '$_base.add_supplier',
       post: true,
-      params: {'name': name},
+      params: _card(card),
     ),
   );
+
+  Future<PaintStock> setSupplier(String id, PaintSupplierCard card) async =>
+      _stock(
+        await _client.callMethod(
+          '$_base.set_supplier',
+          post: true,
+          params: {'supplier': id, ..._card(card)},
+        ),
+      );
+
+  static Map<String, Object?> _card(PaintSupplierCard c) => {
+    'name': c.name,
+    'city': c.city ?? '',
+    'contact': c.contact ?? '',
+    'phone': c.phone ?? '',
+    'whatsapp': c.whatsapp ?? '',
+    'min_order': c.minOrder ?? '',
+    'note': c.note ?? '',
+  };
 
   static PaintStock _stock(Map<String, dynamic> response) =>
       PaintStock.fromJson(_map(response));

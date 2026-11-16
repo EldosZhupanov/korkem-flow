@@ -95,6 +95,13 @@ def board() -> dict:
 			group["area_m2"] += m2
 			group["orders"].append({**head, "area_m2": float(m2), "overdue": mdf_orders._overdue(r)})
 	groups = sorted(by_colour.values(), key=lambda g: (-g["area_m2"], g["colour"]))
+	# The norm a colour's m² take, against the batch on the shelf.
+	from korkem_manufacturing.services import paint_recipe, paint_stock
+
+	rec = paint_recipe.recipe(company)
+	for g in groups:
+		if g["colour"] != NO_COLOUR:
+			g["norm"] = paint_stock.norm(company, g["colour"], float(g["area_m2"]), rec)
 	drying.sort(key=lambda d: d["dry_at"])
 	return {
 		"dry_hours": hours,

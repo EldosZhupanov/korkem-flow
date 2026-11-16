@@ -392,7 +392,7 @@ class TestFilmDept(IntegrationTestCase):
 			self._as(MANAGER, service.receive, self.film, 1, 3000, self.supplier, supplier_pay={"mode": "invoice"})
 
 	def test_paint_is_received_like_film_and_kept_out_of_the_film_cash(self):
-		from korkem_manufacturing.services import film_cash, mdf_paints, paint_stock
+		from korkem_manufacturing.services import film_cash, film_sources, mdf_paints, paint_stock
 
 		colour = f"RAL {frappe.generate_hash(length=4)} Тест"
 		frappe.set_user(MANAGER)
@@ -400,6 +400,24 @@ class TestFilmDept(IntegrationTestCase):
 			material_stock.put_option(mdf_paints.PAINT_LIST, colour)
 		finally:
 			frappe.set_user("Administrator")
+		# Paint's suppliers are its own (owner, 15.11.2026): film's is refused,
+		# and its name not taken over; paint's is not among film's.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, paint_stock.receive, colour, 1, 100, self.supplier)
+		film_name = frappe.db.get_value("Supplier", self.supplier, "supplier_name")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, paint_stock.add_supplier, film_name)
+		name = f"Колор {frappe.generate_hash(length=4)}"
+		got = self._as(MANAGER, paint_stock.add_supplier, name, contact="Ерлан", whatsapp="+7 701 000 00 00",
+					   min_order="3 кг")
+		card = next(s for s in got["suppliers"] if s["name"] == name)
+		self.assertEqual((card["contact"], card["min_order"]), ("Ерлан", "3 кг"))
+		paint_supplier = card["supplier"]
+		self.assertNotIn(paint_supplier, [s["supplier"] for s in material_stock.suppliers()])
+		self.assertNotIn(paint_supplier, [s["supplier"] for s in self._as(MANAGER, film_sources.sources)["sources"]])
+		self.assertNotIn(self.supplier, [s["supplier"] for s in got["suppliers"]])
+		self._as(MANAGER, paint_stock.set_supplier, paint_supplier, city="Астана")
+		self.supplier = paint_supplier
 		# 20 kg at 4 000 by invoice, brought by taxi for 3 000 paid from the cash.
 		got = self._as(MANAGER, paint_stock.receive, colour, 20, 4000, self.supplier, base="Эмаль ПУ матовая",
 					   delivery={"transport": "Такси", "city": "Алматы", "amount": 3000, "payer": "cash",
@@ -441,9 +459,6 @@ class TestFilmDept(IntegrationTestCase):
 		# A colour that is not on the list is not received.
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, paint_stock.receive, f"Нет {colour}", 1, 100, self.supplier)
-		with self.assertRaises(frappe.ValidationError):
-			self._as(MANAGER, paint_stock.set_kg_per_m2, 0)
-		self.assertEqual(self._as(MANAGER, paint_stock.set_kg_per_m2, "0,35")["kg_per_m2"], 0.35)
 
 	def test_film_taken_on_credit_is_owed_to_the_supplier_until_paid(self):
 		from korkem_manufacturing.services import film_cash

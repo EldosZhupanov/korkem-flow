@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import frappe
 
+from korkem_manufacturing.services import material_stock
+from korkem_manufacturing.services import paint_recipe as recipe_service
 from korkem_manufacturing.services import paint_stock as service
 
 
@@ -31,9 +33,18 @@ def receive(colour: str, kg: float | str, price_kg: float | str, supplier: str, 
 
 
 @frappe.whitelist(methods=["POST"])
-def set_kg_per_m2(value: float | str) -> dict:
-	"""Расход краски, кг на м²."""
-	return service.set_kg_per_m2(value)
+def set_recipe(recipe: str | dict) -> dict:
+	"""Рецепт покраски: слои (грунт, эмаль, лак) — г/м², сколько слоёв, цена; в каждом —
+	отвердитель, разбавитель на 1 кг."""
+	return service.set_recipe(recipe)
+
+
+@frappe.whitelist(methods=["GET"])
+def plan(m2: float | str, colour: str | None = None) -> dict:
+	"""Сколько уйдёт на столько м²: каждый материал в кг, по цене; итого и за м²."""
+	material_stock._ensure_staff()
+	p = recipe_service.plan(m2, colour)
+	return {**p, "text": recipe_service.text_of(p)}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -43,9 +54,29 @@ def pay_supplier(receipt: str, method: str | None = None, bank: str | None = Non
 
 
 @frappe.whitelist(methods=["POST"])
-def add_supplier(name: str) -> dict:
-	"""Новый поставщик краски."""
-	return service.add_supplier(name)
+def add_supplier(name: str, city: str | None = None, contact: str | None = None, phone: str | None = None,
+				 whatsapp: str | None = None, min_order: str | None = None, note: str | None = None) -> dict:
+	"""Новый поставщик краски — компания или человек, со своей карточкой; отдельно от плёнки."""
+	return service.add_supplier(name, **_card(city, contact, phone, whatsapp, min_order, note))
+
+
+@frappe.whitelist(methods=["POST"])
+def set_supplier(supplier: str, name: str | None = None, city: str | None = None, contact: str | None = None,
+				 phone: str | None = None, whatsapp: str | None = None, min_order: str | None = None,
+				 note: str | None = None) -> dict:
+	"""Карточка поставщика краски: город, контакт, телефоны, минимальная партия, заметка."""
+	card = _card(city, contact, phone, whatsapp, min_order, note)
+	if name:
+		card["name"] = name
+	return service.set_supplier(supplier, **card)
+
+
+def _card(city, contact, phone, whatsapp, min_order, note) -> dict:
+	"""Only what was sent — a field left out stays as it is."""
+	sent = frappe.form_dict
+	values = {"city": city, "contact": contact, "phone": phone, "whatsapp": whatsapp, "min_order": min_order,
+			  "note": note}
+	return {k: v for k, v in values.items() if k in sent or v is not None}
 
 
 @frappe.whitelist(methods=["POST"])

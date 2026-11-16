@@ -890,7 +890,24 @@ def card(order: str) -> dict:
 		"press": _press(doc.name),
 		"client_paint": {"note": doc.get("korkem_client_paint_note"), "in": bool(doc.get("korkem_client_paint_in"))}
 		if mdf_tags.CLIENT_PAINT in mdf_tags.parse(doc.get("korkem_tags")) else None,
+		"paint": _paint_plan(doc.name),
 	}
+
+
+def _paint_plan(order: str) -> list[dict]:
+	"""What the order's paint takes by the shop's recipe, colour by colour,
+	and what it costs (owner, 15.11.2026: «вели м² — сколько кг, цена и
+	окончательная цена»); with it the text for the supplier who tints, or the
+	customer who brings his own. None without a painted line."""
+	from korkem_manufacturing.services import mdf_paint, paint_recipe
+
+	out = []
+	for colour, m2 in mdf_paint._colours([order])[0].get(order, {}).items():
+		if colour == mdf_paint.NO_COLOUR or not m2:
+			continue
+		p = paint_recipe.plan(float(m2), colour)
+		out.append({**p, "text": paint_recipe.text_of(p)})
+	return out
 
 
 def _press(order: str) -> dict:

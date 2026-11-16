@@ -17,6 +17,7 @@ import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/paint_recipe_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 String _kgText(double v) => filmMetres(v);
@@ -35,8 +36,13 @@ class PaintStockSection extends ConsumerWidget {
     final money = mdfMoney(context);
     final stock = ref.watch(paintStockProvider).value;
     if (stock == null) return const SizedBox.shrink();
-    Future<void> receive({String? colour}) async {
-      final done = await showPaintReceive(context, stock, colour: colour);
+    Future<void> receive({String? colour, String? base}) async {
+      final done = await showPaintReceive(
+        context,
+        stock,
+        colour: colour,
+        base: base,
+      );
       if (done ?? false) ref.invalidate(paintStockProvider);
     }
 
@@ -57,10 +63,19 @@ class PaintStockSection extends ConsumerWidget {
                 icon: const Icon(AppIcons.moveIn),
                 label: Text(l10n.paintReceive),
               ),
-              TextButton(
-                key: const ValueKey('paintKgM2'),
-                onPressed: () => _setKgPerM2(context, ref, stock.kgPerM2),
-                child: Text(l10n.paintKgPerM2(_kgText(stock.kgPerM2))),
+              // The shop's recipe (owner, 15.11.2026): primer, enamel,
+              // lacquer, and what goes into each.
+              TextButton.icon(
+                key: const ValueKey('paintRecipe'),
+                onPressed: () => showPaintRecipe(context, stock.recipe),
+                icon: const Icon(AppIcons.recipe),
+                label: Text(l10n.paintRecipe(_kgText(stock.kgPerM2))),
+              ),
+              TextButton.icon(
+                key: const ValueKey('paintCalc'),
+                onPressed: () => showPaintPlan(context, stock),
+                icon: const Icon(AppIcons.calculate),
+                label: Text(l10n.paintCalc),
               ),
             ],
           ),
@@ -101,6 +116,9 @@ class PaintStockSection extends ConsumerWidget {
                 color: n.shortKg > 0 ? status.danger : status.success,
               ),
               title: Text(n.colour),
+              // What the colour's queue takes, to send to the supplier.
+              onTap: () =>
+                  showPaintPlan(context, stock, m2: n.queueM2, colour: n.colour),
               subtitle: Text(
                 [
                   l10n.paintNeed(
@@ -126,6 +144,46 @@ class PaintStockSection extends ConsumerWidget {
                   : null,
             ),
           ),
+        // Primer, hardener, thinner — for the whole queue.
+        if (stock.materials.isNotEmpty)
+          ReadableWidth(
+            child: Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(l10n.paintForQueue, style: theme.textTheme.labelLarge),
+            ),
+          ),
+        for (final m in stock.materials)
+          ReadableWidth(
+            child: ListTile(
+              key: ValueKey('paintMaterial:${m.name}'),
+              dense: true,
+              leading: Icon(
+                m.shortKg > 0 ? AppIcons.warning : AppIcons.success,
+                color: m.shortKg > 0 ? status.danger : status.success,
+              ),
+              title: Text(m.name),
+              subtitle: Text(
+                [
+                  l10n.paintMaterialNeed(
+                    _kgText(m.needKg),
+                    _kgText(m.onHandKg),
+                  ),
+                  if (m.shortKg > 0)
+                    l10n.paintShort(_kgText(m.shortKg))
+                  else
+                    l10n.paintEnough,
+                ].join(' · '),
+                style: TextStyle(color: m.shortKg > 0 ? status.danger : null),
+              ),
+              trailing: m.shortKg > 0
+                  ? TextButton(
+                      key: ValueKey('paintMaterialBuy:${m.name}'),
+                      onPressed: () => receive(base: m.name),
+                      child: Text(l10n.paintReceiveShort),
+                    )
+                  : null,
+            ),
+          ),
         if (stock.paints.isEmpty)
           ReadableWidth(
             child: Padding(
@@ -139,7 +197,10 @@ class PaintStockSection extends ConsumerWidget {
               key: ValueKey('paintItem:${p.item}'),
               dense: true,
               title: Text(
-                [p.colour, ?p.base].join(' · '),
+                [
+                  if (p.colour.isNotEmpty) p.colour,
+                  ?p.base,
+                ].join(' · '),
                 style: theme.textTheme.titleSmall,
               ),
               subtitle: Text(
@@ -339,32 +400,6 @@ class PaintStockSection extends ConsumerWidget {
       messenger.showFailure(e, l10n);
     }
   }
-
-  Future<void> _setKgPerM2(
-    BuildContext context,
-    WidgetRef ref,
-    double now,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final text = await _ask(
-      context,
-      title: l10n.paintKgPerM2Title,
-      initial: _kgText(now),
-      hint: l10n.paintKgPerM2Hint,
-      fieldKey: 'paintKgM2Value',
-      saveKey: 'paintKgM2Save',
-      number: true,
-    );
-    final value = text == null ? null : filmNumber(text);
-    if (value == null) return;
-    try {
-      await ref.read(paintStockRepositoryProvider).setKgPerM2(value);
-      ref.invalidate(paintStockProvider);
-    } on Object catch (e) {
-      messenger.showFailure(e, l10n);
-    }
-  }
 }
 
 /// One line asked for — a number or a name — in a dialog that owns its
@@ -554,16 +589,20 @@ Future<bool?> showPaintReceive(
   BuildContext context,
   PaintStock stock, {
   String? colour,
+  String? base,
 }) => showDialog<bool>(
   context: context,
-  builder: (_) => _ReceiveDialog(stock: stock, colour: colour),
+  builder: (_) => _ReceiveDialog(stock: stock, colour: colour, base: base),
 );
 
 class _ReceiveDialog extends ConsumerStatefulWidget {
-  const _ReceiveDialog({required this.stock, this.colour});
+  const _ReceiveDialog({required this.stock, this.colour, this.base});
 
   final PaintStock stock;
   final String? colour;
+
+  /// A material of the recipe with no colour — «Грунт», «Отвердитель».
+  final String? base;
 
   @override
   ConsumerState<_ReceiveDialog> createState() => _ReceiveDialogState();
@@ -572,7 +611,7 @@ class _ReceiveDialog extends ConsumerStatefulWidget {
 class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
   late PaintStock _stock = widget.stock;
   late String? _colour = widget.colour;
-  final _base = TextEditingController();
+  late final _base = TextEditingController(text: widget.base ?? '');
   final _kgField = TextEditingController();
   final _cans = TextEditingController();
   final _canKg = TextEditingController();
@@ -589,10 +628,26 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     _fromLast();
   }
 
+  /// Primer, hardener, thinner, lacquer: kept by name, with no colour
+  /// (owner, 15.11.2026: «грунт мы покупаем вёдрами»).
+  bool get _component {
+    final base = _base.text.trim().toLowerCase();
+    if (base.isEmpty) return false;
+    return _stock.recipe.materials.any((m) {
+      final name = m.toLowerCase();
+      return base == name || base.startsWith('$name ');
+    });
+  }
+
   /// What last time says: the supplier, what the paint was, its price.
   void _fromLast() {
-    final colour = _colour;
-    final last = colour == null ? null : _stock.lastOf(colour);
+    final colour = _component ? '' : _colour;
+    final last = colour == null
+        ? null
+        : _stock.lastOf(
+            colour,
+            base: _component ? _base.text.trim() : null,
+          );
     _supplier =
         last?.supplier ??
         _supplier ??
@@ -620,30 +675,48 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
 
   double get _priceKg => filmNumber(_price.text) ?? 0;
 
-  Future<void> _addSupplier() async {
-    final l10n = AppLocalizations.of(context);
-    final name = await _ask(
-      context,
-      title: l10n.paintNewSupplier,
-      fieldKey: 'paintNewSupplierName',
-      saveKey: 'paintNewSupplierSave',
-    );
-    if (name == null || name.trim().length < 2 || !mounted) return;
+  /// A new paint supplier with its card, or the chosen one's card put
+  /// right — paint's own, apart from film (owner, 15.11.2026).
+  Future<void> _editSupplier({PaintSupplier? current}) async {
+    final card = await showPaintSupplierCard(context, current: current);
+    if (card == null || !mounted) return;
     try {
-      final now = await ref
-          .read(paintStockRepositoryProvider)
-          .addSupplier(name.trim());
+      final repo = ref.read(paintStockRepositoryProvider);
+      final now = current == null
+          ? await repo.addSupplier(card)
+          : await repo.setSupplier(current.id, card);
       if (!mounted) return;
       setState(() {
         _stock = now;
-        _supplier = now.suppliers
-            .where((s) => s.name == name.trim())
-            .firstOrNull
-            ?.id;
+        _supplier =
+            current?.id ??
+            now.suppliers.where((s) => s.name == card.name).firstOrNull?.id;
       });
     } on Object catch (e) {
       if (mounted) setState(() => _error = '$e');
     }
+  }
+
+  /// What the queue needs of what is being received: the colour's enamel,
+  /// or the material by its name.
+  double? get _queueNeed {
+    if (_component) {
+      final base = _base.text.trim().toLowerCase();
+      final m = _stock.materials
+          .where((m) {
+            final name = m.name.toLowerCase();
+            return base == name || base.startsWith('$name ');
+          })
+          .firstOrNull;
+      return m?.needKg;
+    }
+    final colour = _colour;
+    if (colour == null) return null;
+    final rows = _stock.queue.where(
+      (n) => n.colour == colour || n.colour.startsWith('$colour · '),
+    );
+    if (rows.isEmpty) return null;
+    return rows.fold<double>(0, (a, n) => a + n.needKg);
   }
 
   /// «4 × 5 кг» — how it came, on the receipt.
@@ -661,7 +734,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
       await ref
           .read(paintStockRepositoryProvider)
           .receive(
-            colour: _colour!,
+            colour: _component ? '' : _colour!,
             kg: double.parse(_kg.toStringAsFixed(3)),
             priceKg: _priceKg,
             supplier: _supplier!,
@@ -733,15 +806,23 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     final price = _priceKg;
     final total = kg * price;
     final cost = _terms.costAmount;
-    final last = _colour == null
+    final component = _component;
+    final last = component
+        ? _stock.lastOf('', base: _base.text.trim())
+        : _colour == null
         ? null
         : _stock.lastOf(
             _colour!,
             base: _base.text.trim().isEmpty ? null : _base.text.trim(),
           );
     final lastPrice = last?.priceKg;
+    final chosen = _stock.suppliers.where((s) => s.id == _supplier).firstOrNull;
+    // The supplier's smallest batch is more than the queue takes: the rest
+    // goes on the shelf, and the painter is told the norm (owner, 15.11.2026).
+    final need = _queueNeed;
+    final left = need == null || need <= 0 ? 0.0 : kg - need;
     final ready =
-        _colour != null &&
+        (component || _colour != null) &&
         _supplier != null &&
         kg > 0 &&
         price > 0 &&
@@ -752,6 +833,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
       l10n.paintBaseEnamelGloss,
       l10n.paintBasePrimer,
       l10n.paintBaseLacquer,
+      // Whatever the recipe uses — hardener, thinner (owner, 15.11.2026).
+      ..._stock.recipe.materials,
     };
     Widget row(String a, String b, {Key? key, TextStyle? style}) => Padding(
       key: key,
@@ -772,6 +855,8 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // No colour for primer, hardener, thinner.
+              if (!component)
               Row(
                 children: [
                   Expanded(
@@ -821,7 +906,10 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                     ActionChip(
                       key: ValueKey('paintBase:$b'),
                       label: Text(b),
-                      onPressed: () => setState(() => _base.text = b),
+                      onPressed: () => setState(() {
+                        _base.text = b;
+                        _fromLast();
+                      }),
                     ),
                 ],
               ),
@@ -847,6 +935,17 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                   _number(_price, l10n.paintPriceKg, 'paintPriceKgValue'),
                 ],
               ),
+              if (left > 0.005)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  child: Text(
+                    l10n.paintBatchLeft(_kgText(need!), _kgText(left)),
+                    key: const ValueKey('paintBatchLeft'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: status.warning,
+                    ),
+                  ),
+                ),
               // Dearer or cheaper than last time — and from whom it was.
               if (lastPrice != null && price > 0 && lastPrice > 0)
                 Padding(
@@ -894,14 +993,42 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                       ),
                     ),
                   ),
+                  if (chosen != null)
+                    IconButton(
+                      key: const ValueKey('paintSupplierEdit'),
+                      tooltip: l10n.paintSupplierEdit,
+                      icon: const Icon(AppIcons.edit),
+                      onPressed: () => _editSupplier(current: chosen),
+                    ),
                   IconButton(
                     key: const ValueKey('paintSupplierAdd'),
                     tooltip: l10n.paintNewSupplier,
                     icon: const Icon(AppIcons.add),
-                    onPressed: _addSupplier,
+                    onPressed: _editSupplier,
                   ),
                 ],
               ),
+              // Who to ring, and the smallest batch it sells.
+              if (chosen != null)
+                Builder(
+                  builder: (context) {
+                    final about = [
+                      ?chosen.contact,
+                      ?(chosen.whatsapp ?? chosen.phone),
+                      if (chosen.minOrder case final min?)
+                        l10n.paintSupplierMin(min),
+                    ];
+                    if (about.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      key: const ValueKey('paintSupplierAbout'),
+                      padding: const EdgeInsets.only(top: AppSpacing.xxs),
+                      child: Text(
+                        about.join(' · '),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    );
+                  },
+                ),
               const SizedBox(height: AppSpacing.md),
               FilmSupplierPayField(
                 terms: _terms,
@@ -1007,4 +1134,131 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
       decoration: InputDecoration(labelText: label, isDense: true),
     ),
   );
+}
+
+/// A paint supplier's card: the company or the person, city, contact,
+/// phones, the smallest batch it sells, a note.
+Future<PaintSupplierCard?> showPaintSupplierCard(
+  BuildContext context, {
+  PaintSupplier? current,
+}) => showDialog<PaintSupplierCard>(
+  context: context,
+  builder: (_) => _SupplierCardDialog(current: current),
+);
+
+class _SupplierCardDialog extends StatefulWidget {
+  const _SupplierCardDialog({this.current});
+
+  final PaintSupplier? current;
+
+  @override
+  State<_SupplierCardDialog> createState() => _SupplierCardDialogState();
+}
+
+class _SupplierCardDialogState extends State<_SupplierCardDialog> {
+  late final _name = TextEditingController(text: widget.current?.name);
+  late final _city = TextEditingController(text: widget.current?.city);
+  late final _contact = TextEditingController(text: widget.current?.contact);
+  late final _phone = TextEditingController(text: widget.current?.phone);
+  late final _whatsapp = TextEditingController(
+    text: widget.current?.whatsapp,
+  );
+  late final _min = TextEditingController(text: widget.current?.minOrder);
+  late final _note = TextEditingController(text: widget.current?.note);
+
+  @override
+  void dispose() {
+    for (final c in [_name, _city, _contact, _phone, _whatsapp, _min, _note]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  String? _of(TextEditingController c) {
+    final t = c.text.trim();
+    return t.isEmpty ? null : t;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    Widget field(
+      TextEditingController c,
+      String label,
+      String key, {
+      String? hint,
+      TextInputType? type,
+    }) => Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: TextField(
+        key: ValueKey(key),
+        controller: c,
+        keyboardType: type,
+        onChanged: (_) => setState(() {}),
+        decoration: InputDecoration(labelText: label, hintText: hint),
+      ),
+    );
+    return AlertDialog(
+      title: Text(
+        widget.current == null ? l10n.paintSupplierCard : l10n.paintSupplierEdit,
+      ),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 8,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              field(_name, l10n.paintSupplierName, 'paintSupplierCard:name'),
+              field(_city, l10n.paintSupplierCity, 'paintSupplierCard:city'),
+              field(
+                _contact,
+                l10n.paintSupplierContact,
+                'paintSupplierCard:contact',
+              ),
+              field(
+                _phone,
+                l10n.paintSupplierPhone,
+                'paintSupplierCard:phone',
+                type: TextInputType.phone,
+              ),
+              field(
+                _whatsapp,
+                l10n.paintSupplierWhatsApp,
+                'paintSupplierCard:whatsapp',
+                type: TextInputType.phone,
+              ),
+              field(
+                _min,
+                l10n.paintSupplierMinOrder,
+                'paintSupplierCard:min',
+                hint: l10n.paintSupplierMinHint,
+              ),
+              field(_note, l10n.paintSupplierNote, 'paintSupplierCard:note'),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('paintSupplierCard:save'),
+          onPressed: _name.text.trim().length < 2
+              ? null
+              : () => Navigator.of(context).pop((
+                  name: _name.text.trim(),
+                  city: _of(_city),
+                  contact: _of(_contact),
+                  phone: _of(_phone),
+                  whatsapp: _of(_whatsapp),
+                  minOrder: _of(_min),
+                  note: _of(_note),
+                )),
+          child: Text(l10n.filmReqSave),
+        ),
+      ],
+    );
+  }
 }
