@@ -515,6 +515,78 @@ class TestMdfOrders(IntegrationTestCase):
 			 "date_of_joining": "2024-01-01"}
 		).insert(ignore_permissions=True).name
 
+	# --- the team: departments, posts, each stage's people (owner, 17.11.2026) ---
+
+	def _person(self, name, posts):
+		from korkem_manufacturing.services import team
+
+		self._as(MANAGER, team.add_person, name, posts)
+		return frappe.db.get_value("Employee", {"employee_name": name, "company": COMPANY}, "name",
+								   order_by="creation desc")
+
+	def test_the_team_gives_each_stage_its_people_and_a_worker_ticks_his_own(self):
+		from korkem_manufacturing.services import my_work, team
+
+		# This test's posts only; the cutter's login is free to be linked.
+		frappe.db.sql("update `tabEmployee` set korkem_team_roles = null where company = %s", COMPANY)
+		frappe.db.sql("update `tabEmployee` set user_id = null where user_id = %s", CUTTER)
+
+		with self.assertRaises(frappe.PermissionError):  # a shop worker does not hire
+			self._as(CUTTER, team.add_person, "Кто-то Новый", ["cut.cutter"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, team.add_person, "Кто-то Новый", ["pvc.boss"])
+		cutter = self._person("Ерлан Раскройщиков", ["cut.cutter"])
+		cnc = self._person("Асет Фрезеров", ["cnc.operator"])
+		sander = self._person("Нурлан Шкурщиков", ["paint.sander", "pvc.sander"])
+		press_1 = self._person("Бек Вакуумов", ["pvc.vacuum"])
+		press_2 = self._person("Дана Вакуумова", ["pvc.vacuum"])
+
+		listing = self._as(MANAGER, team.people)
+		nurlan = next(p for p in listing["people"] if p["employee"] == sander)
+		self.assertEqual((nurlan["posts"], nurlan["user"]), (["pvc.sander", "paint.sander"], None))  # both departments
+		self.assertEqual([d["key"] for d in listing["departments"]][:3], ["intake", "cut", "cnc"])
+		self._as(MANAGER, team.link_user, cutter, CUTTER)
+		with self.assertRaises(frappe.ValidationError):  # one login, one person
+			self._as(MANAGER, team.link_user, cnc, CUTTER)
+
+		# Accepted: a post with one person gets the stage, one with two waits for the manager.
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		card = self._as(MANAGER, mdf_orders.accept, card["name"])
+		given = {s["stage"]: s["given_to"] for s in card["stages"]}
+		self.assertEqual(given, {"cut": cutter, "mill": cnc, "sand": sander, "vacuum": None, "ready": None})
+		pressers = self._as(MANAGER, mdf_orders.stage_people, card["name"], "vacuum")["people"]
+		self.assertEqual(sorted(p["employee"] for p in pressers), sorted([press_1, press_2]))
+		card = self._as(MANAGER, mdf_orders.assign, card["name"], "vacuum", press_2)
+		self.assertEqual(next(s for s in card["stages"] if s["stage"] == "vacuum")["given_to_name"],
+						 "Дана Вакуумова")
+
+		# From his phone: his stage, ticked with his name, his m².
+		work = self._as(CUTTER, my_work.work)
+		self.assertEqual(work["me"]["employee"], cutter)
+		self.assertEqual([r["stage"] for r in work["ready"] if r["order"] == card["name"]], ["cut"])
+		with self.assertRaises(frappe.PermissionError):  # milling is not his
+			self._as(CUTTER, my_work.done, card["name"], "mill")
+		before = work["month"]["area_m2"]
+		work = self._as(CUTTER, my_work.done, card["name"], "cut")
+		self.assertFalse([r for r in work["ready"] if r["order"] == card["name"]])
+		self.assertEqual(flt(work["month"]["area_m2"] - before, 2), 3.04)
+		self.assertEqual(frappe.db.get_value("Sales Order", card["name"], mdf_orders.STAGE_BY["cut"]), cutter)
+
+		# The CNC operator has no phone: the manager ticks, the stage's person gets it.
+		card = self._as(MANAGER, mdf_orders.set_stage, card["name"], "mill")
+		self.assertEqual(next(s for s in card["stages"] if s["stage"] == "mill")["worker"], cnc)
+
+		# His own tick, taken back the same day.
+		self._as(CUTTER, my_work.done, card["name"], "cut", 1)
+		self.assertIsNone(frappe.db.get_value("Sales Order", card["name"], mdf_orders.STAGES["cut"]))
+		with self.assertRaises(frappe.PermissionError):  # the manager's tick is not his to take back
+			self._as(CUTTER, my_work.done, card["name"], "mill", 1)
+
+		# Left the company: off the list, his work still his.
+		self._as(MANAGER, team.set_active, press_1, 0)
+		self.assertNotIn(press_1, [p["employee"] for p in self._as(MANAGER, team.people)["people"]])
+
 	# --- the order form's dictionaries (OnayBaza's blue button) ---
 
 	def test_a_dictionary_value_is_added_renamed_with_its_price_and_deleted(self):

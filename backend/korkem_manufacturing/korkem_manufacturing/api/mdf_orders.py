@@ -62,6 +62,18 @@ def set_stage(order: str, stage: str, done: bool | int | str = 1, worker: str | 
 
 
 @frappe.whitelist(methods=["POST"])
+def assign(order: str, stage: str, worker: str | None = None) -> dict:
+	"""Отдать этап заказа сотруднику (пусто — снять)."""
+	return service.assign(order, stage, worker or None)
+
+
+@frappe.whitelist(methods=["GET"])
+def stage_people(order: str, stage: str) -> dict:
+	"""Кому можно отдать этап: люди его должности."""
+	return service.stage_people(order, stage)
+
+
+@frappe.whitelist(methods=["POST"])
 def extra_stage(order: str, stage: str, on: bool | int | str = 1) -> dict:
 	"""«+ этап» для переделки: краска или вакуум, которых нет у покрытия заказа."""
 	return service.extra_stage(order, stage, on)

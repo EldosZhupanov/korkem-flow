@@ -11,7 +11,9 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
+import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
+import 'package:korkem_flow/features/team/domain/team_structure.dart';
 import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -157,12 +159,61 @@ class _FakeTeamRepository extends TeamRepository {
   }
 }
 
+/// Departments and people as the server sends them (owner, 17.11.2026).
+const _structure = TeamPeople(
+  canEdit: true,
+  departments: [
+    TeamDepartment(
+      key: 'cut',
+      title: 'Раскрой',
+      posts: [TeamPost(key: 'cut.cutter', title: 'Раскройщик')],
+    ),
+    TeamDepartment(
+      key: 'pvc',
+      title: 'ПВХ плёнка',
+      posts: [
+        TeamPost(key: 'pvc.sander', title: 'Шкурщик'),
+        TeamPost(key: 'pvc.vacuum', title: 'Вакуумщик'),
+      ],
+    ),
+  ],
+  people: [
+    TeamPerson(employee: 'HR-EMP-1', name: 'Ерлан', posts: ['cut.cutter']),
+    TeamPerson(
+      employee: 'HR-EMP-2',
+      name: 'Нурлан',
+      user: 'nurlan@korkem.kz',
+      posts: ['pvc.sander'],
+    ),
+  ],
+);
+
+class _FakeStructure implements TeamStructureRepository {
+  final added = <(String, List<String>)>[];
+
+  @override
+  Future<TeamPeople> add({
+    required String name,
+    required List<String> posts,
+    String? phone,
+  }) async {
+    added.add((name, posts));
+    return _structure;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      super.noSuchMethod(invocation);
+}
+
 void main() {
   Widget buildHarness(
     WidgetTester tester, {
     required TeamRepository repository,
     String currentUser = 'owner@korkem.kz',
     bool isOwner = true,
+    TeamPeople people = const TeamPeople(departments: [], people: []),
+    TeamStructureRepository? structure,
   }) {
     tester.view.physicalSize = const Size(1200, 2400);
     addTearDown(() => tester.view.resetPhysicalSize());
@@ -182,6 +233,9 @@ void main() {
           ),
         ),
         canInviteProvider.overrideWith((ref) => isOwner),
+        teamPeopleProvider.overrideWith((ref) async => people),
+        if (structure != null)
+          teamStructureRepositoryProvider.overrideWithValue(structure),
       ],
       child: MaterialApp(
         theme: AppTheme.light(),
@@ -993,4 +1047,41 @@ class _TestSessionController extends SessionController {
 
   @override
   Future<Session> build() async => _initial;
+
+  testWidgets('departments show their posts and people, and a person is '
+      'added on a post with no login', (tester) async {
+    final structure = _FakeStructure();
+    await tester.pumpWidget(
+      buildHarness(
+        tester,
+        repository: _FakeTeamRepository(fetchMembersHandler: () async => []),
+        people: _structure,
+        structure: structure,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Раскрой'), findsOneWidget);
+    expect(find.text('ПВХ плёнка'), findsOneWidget);
+    expect(find.text('Ерлан'), findsOneWidget);
+    expect(find.text('Нурлан'), findsOneWidget);
+    // Nobody presses yet: the post offers to add someone.
+    expect(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')));
+    await tester.pumpAndSettle();
+    final vacuum = tester.widget<FilterChip>(
+      find.byKey(const ValueKey('teamPost:pvc.vacuum')),
+    );
+    expect(vacuum.selected, isTrue);
+    await tester.enterText(
+      find.byKey(const ValueKey('teamPersonName')),
+      'Бек Вакуумов',
+    );
+    await tester.tap(find.byKey(const ValueKey('teamPersonSave')));
+    await tester.pumpAndSettle();
+
+    expect(structure.added.single.$1, 'Бек Вакуумов');
+    expect(structure.added.single.$2, ['pvc.vacuum']);
+  });
 }

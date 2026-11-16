@@ -600,6 +600,7 @@ class MdfOrder {
     this.notes,
     this.history = const [],
     this.stageWorkers = const {},
+    this.stageGiven = const {},
     this.customerTags = const [],
     this.extraStages = const {},
     this.press = const {},
@@ -656,6 +657,16 @@ class MdfOrder {
             MdfStage.parse(s['stage']) != null &&
             _s(s['worker_name']) != null)
           MdfStage.parse(s['stage'])!: _s(s['worker_name'])!,
+    },
+    stageGiven: {
+      for (final s in json['stages'] as List? ?? const [])
+        if (s is Map &&
+            MdfStage.parse(s['stage']) != null &&
+            _s(s['given_to']) != null)
+          MdfStage.parse(s['stage'])!: (
+            employee: _s(s['given_to'])!,
+            name: _s(s['given_to_name']) ?? _s(s['given_to'])!,
+          ),
     },
     customerTags: MdfCustomerTag.parse(json['customer_tags']),
     extraStages: {
@@ -720,6 +731,10 @@ class MdfOrder {
 
   /// Who did a ticked stage, when the manager said.
   final Map<MdfStage, String> stageWorkers;
+
+  /// Who each stage is given to (owner, 17.11.2026: «у заказа всегда свои
+  /// люди») — set when the order is accepted, changed by the manager.
+  final Map<MdfStage, ({String employee, String name})> stageGiven;
 
   /// The customer's tags (VIP, prepay only …), from the customer list.
   final List<MdfCustomerTag> customerTags;

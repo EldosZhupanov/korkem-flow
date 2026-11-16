@@ -18,7 +18,9 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
+import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
+import 'package:korkem_flow/features/team/presentation/team_departments_view.dart';
 import 'package:korkem_flow/features/team/presentation/trades_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -54,12 +56,16 @@ class TeamScreen extends ConsumerWidget {
         IconButton(
           tooltip: l10n.adminStatsRetry,
           icon: const Icon(AppIcons.refresh),
-          onPressed: () => ref.invalidate(teamMembersProvider),
+          onPressed: () => ref
+            ..invalidate(teamMembersProvider)
+            ..invalidate(teamPeopleProvider),
         ),
       ],
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.invalidate(teamMembersProvider);
+          ref
+            ..invalidate(teamMembersProvider)
+            ..invalidate(teamPeopleProvider);
           await ref.read(teamMembersProvider.future);
         },
         child: SingleChildScrollView(
@@ -76,6 +82,11 @@ class TeamScreen extends ConsumerWidget {
                   _ForbiddenNoticeBanner(),
                   const SizedBox(height: AppSpacing.lg),
                 ],
+                // Departments, posts and the people on them — with or
+                // without a login (owner, 17.11.2026).
+                const TeamDepartmentsView(),
+                SectionLabel(l10n.teamLoginsSection),
+                const SizedBox(height: AppSpacing.xs),
                 membersAsync.when(
                   data: (members) => _TeamContent(
                     members: members,

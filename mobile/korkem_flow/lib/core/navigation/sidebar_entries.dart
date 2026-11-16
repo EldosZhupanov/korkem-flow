@@ -116,6 +116,8 @@ const sidebarSectionEntries = <SidebarEntry>[
   // расчёт, цех, пресс, склад, логистика, цены. Раньше это лежало в
   // настройках и внутри других экранов.
   SidebarPage(path: Routes.mdf, icon: AppIcons.board, labelOf: _mdf),
+  // «Мои заказы» — этапы сотрудника с его телефона (владелец, 17.11.2026).
+  SidebarPage(path: Routes.myWork, icon: AppIcons.check, labelOf: _myWork),
   SidebarBranch(path: Routes.tasks, icon: AppIcons.task, labelOf: _tasks),
   SidebarLink(
     path: Routes.production,
@@ -171,6 +173,7 @@ String _assistant(AppLocalizations l10n) => l10n.navAssistant;
 String _home(AppLocalizations l10n) => l10n.navDashboard;
 String _sales(AppLocalizations l10n) => l10n.navSales;
 String _mdf(AppLocalizations l10n) => l10n.navMdf;
+String _myWork(AppLocalizations l10n) => l10n.myWorkTitle;
 String _tasks(AppLocalizations l10n) => l10n.navTasks;
 String _production(AppLocalizations l10n) => l10n.navOperations;
 String _team(AppLocalizations l10n) => l10n.teamTitle;
