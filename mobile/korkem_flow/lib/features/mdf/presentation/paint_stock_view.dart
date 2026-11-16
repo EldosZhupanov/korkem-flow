@@ -117,8 +117,12 @@ class PaintStockSection extends ConsumerWidget {
               ),
               title: Text(n.colour),
               // What the colour's queue takes, to send to the supplier.
-              onTap: () =>
-                  showPaintPlan(context, stock, m2: n.queueM2, colour: n.colour),
+              onTap: () => showPaintPlan(
+                context,
+                stock,
+                m2: n.queueM2,
+                colour: n.colour,
+              ),
               subtitle: Text(
                 [
                   l10n.paintNeed(
@@ -149,7 +153,10 @@ class PaintStockSection extends ConsumerWidget {
           ReadableWidth(
             child: Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),
-              child: Text(l10n.paintForQueue, style: theme.textTheme.labelLarge),
+              child: Text(
+                l10n.paintForQueue,
+                style: theme.textTheme.labelLarge,
+              ),
             ),
           ),
         for (final m in stock.materials)
@@ -702,12 +709,10 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
   double? get _queueNeed {
     if (_component) {
       final base = _base.text.trim().toLowerCase();
-      final m = _stock.materials
-          .where((m) {
-            final name = m.name.toLowerCase();
-            return base == name || base.startsWith('$name ');
-          })
-          .firstOrNull;
+      final m = _stock.materials.where((m) {
+        final name = m.name.toLowerCase();
+        return base == name || base.startsWith('$name ');
+      }).firstOrNull;
       return m?.needKg;
     }
     final colour = _colour;
@@ -857,42 +862,44 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
             children: [
               // No colour for primer, hardener, thinner.
               if (!component)
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      key: ValueKey('paintColour:$_colour'),
-                      initialValue: _colour,
-                      isExpanded: true,
-                      items: _colourItems(dicts, theme, l10n),
-                      onChanged: (v) => setState(() {
-                        _colour = v;
-                        _fromLast();
-                      }),
-                      decoration: InputDecoration(labelText: l10n.paintColour),
-                    ),
-                  ),
-                  IconButton(
-                    key: const ValueKey('paintColourDict'),
-                    tooltip: l10n.mdfDictOpen,
-                    icon: const Icon(AppIcons.dictionary),
-                    onPressed: () async {
-                      final picked = await showMdfDictionary(
-                        context,
-                        MdfDictKind.paint,
-                        title: l10n.mdfDictPaint,
-                        current: _colour,
-                      );
-                      if (picked != null && mounted) {
-                        setState(() {
-                          _colour = picked;
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        key: ValueKey('paintColour:$_colour'),
+                        initialValue: _colour,
+                        isExpanded: true,
+                        items: _colourItems(dicts, theme, l10n),
+                        onChanged: (v) => setState(() {
+                          _colour = v;
                           _fromLast();
-                        });
-                      }
-                    },
-                  ),
-                ],
-              ),
+                        }),
+                        decoration: InputDecoration(
+                          labelText: l10n.paintColour,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      key: const ValueKey('paintColourDict'),
+                      tooltip: l10n.mdfDictOpen,
+                      icon: const Icon(AppIcons.dictionary),
+                      onPressed: () async {
+                        final picked = await showMdfDictionary(
+                          context,
+                          MdfDictKind.paint,
+                          title: l10n.mdfDictPaint,
+                          current: _colour,
+                        );
+                        if (picked != null && mounted) {
+                          setState(() {
+                            _colour = picked;
+                            _fromLast();
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
               TextField(
                 key: const ValueKey('paintBase'),
                 controller: _base,
@@ -1200,7 +1207,9 @@ class _SupplierCardDialogState extends State<_SupplierCardDialog> {
     );
     return AlertDialog(
       title: Text(
-        widget.current == null ? l10n.paintSupplierCard : l10n.paintSupplierEdit,
+        widget.current == null
+            ? l10n.paintSupplierCard
+            : l10n.paintSupplierEdit,
       ),
       content: SizedBox(
         width: AppSpacing.xxxl * 8,

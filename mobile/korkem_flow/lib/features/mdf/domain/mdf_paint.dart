@@ -72,7 +72,8 @@ MdfPaintNorm? _norm(Object? v) {
   final n = Map<String, dynamic>.from(v);
   return (
     use: [
-      for (final u in _maps(n['use'])) (name: '${u['name'] ?? ''}', kg: _d(u['kg'])),
+      for (final u in _maps(n['use']))
+        (name: '${u['name'] ?? ''}', kg: _d(u['kg'])),
     ],
     enamelKg: _d(n['enamel_kg']),
     onHandKg: _d(n['on_hand_kg']),

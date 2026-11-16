@@ -8600,6 +8600,187 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String paintRecipe(String kg) {
+    return 'Рецепт: $kg кг/м²';
+  }
+
+  @override
+  String get paintRecipeTitle => 'Рецепт покраски';
+
+  @override
+  String get paintRecipeHint =>
+      'Каждый слой: граммы на м² за один слой и сколько слоёв (0 — не красим); что добавляется на каждый килограмм. Эмаль — цвета заказа. Цена здесь — только пока материал ещё не покупали.';
+
+  @override
+  String get paintLayerName => 'Слой';
+
+  @override
+  String get paintLayerColour => 'Цвет заказа';
+
+  @override
+  String get paintLayerGM2 => 'г/м² за слой';
+
+  @override
+  String get paintLayerCoats => 'Слоёв';
+
+  @override
+  String paintLayerKg(String kg) {
+    return '$kg кг/м² вместе с добавками';
+  }
+
+  @override
+  String get paintPartName => 'Добавка';
+
+  @override
+  String get paintPartPerKg => 'кг на 1 кг';
+
+  @override
+  String get paintPartAdd => 'Отвердитель, разбавитель…';
+
+  @override
+  String get paintLayerAdd => 'Добавить слой';
+
+  @override
+  String get paintRemove => 'Убрать';
+
+  @override
+  String get paintCalc => 'Сколько краски';
+
+  @override
+  String get paintCalcM2 => 'м²';
+
+  @override
+  String get paintCalcNoColour => 'Любой цвет';
+
+  @override
+  String paintCalcTotal(String kg, String cost) {
+    return 'Всего $kg кг · $cost';
+  }
+
+  @override
+  String paintCalcPerM2(String cost) {
+    return 'краска на 1 м² — $cost';
+  }
+
+  @override
+  String get paintCalcUnpriced =>
+      'Не у всех материалов есть цена — себестоимость неполная. Впишите цену в рецепт.';
+
+  @override
+  String get paintSendWhatsApp => 'Отправить в WhatsApp';
+
+  @override
+  String get paintCopy => 'Копировать';
+
+  @override
+  String get paintCopied => 'Скопировано';
+
+  @override
+  String get paintForQueue => 'На всю очередь';
+
+  @override
+  String paintMaterialNeed(String need, String have) {
+    return 'нужно $need кг · есть $have кг';
+  }
+
+  @override
+  String mdfPaintPlan(String colour, String kg) {
+    return 'Краска $colour: $kg кг';
+  }
+
+  @override
+  String get mdfPaintAskSupplier => 'Заявка поставщику';
+
+  @override
+  String get mdfPaintAskClient => 'Клиенту: сколько принести';
+
+  @override
+  String get paintSupplierCard => 'Поставщик краски';
+
+  @override
+  String get paintSupplierEdit => 'Карточка поставщика';
+
+  @override
+  String get paintSupplierName => 'Компания или человек';
+
+  @override
+  String get paintSupplierCity => 'Город';
+
+  @override
+  String get paintSupplierContact => 'Контактное лицо';
+
+  @override
+  String get paintSupplierPhone => 'Телефон';
+
+  @override
+  String get paintSupplierWhatsApp => 'WhatsApp';
+
+  @override
+  String get paintSupplierMinOrder => 'Минимальная партия';
+
+  @override
+  String get paintSupplierMinHint => 'например, 3 кг';
+
+  @override
+  String get paintSupplierNote => 'Заметка';
+
+  @override
+  String paintSupplierMin(String min) {
+    return 'минималка $min';
+  }
+
+  @override
+  String paintBatchLeft(String need, String left) {
+    return 'На очередь нужно $need кг — остаток $left кг уйдёт на склад';
+  }
+
+  @override
+  String get paintPriceM2 => 'Ваша цена за м²';
+
+  @override
+  String get paintMarkup => 'Наценка, %';
+
+  @override
+  String paintLeftM2(String left) {
+    return 'остаётся с 1 м²: $left';
+  }
+
+  @override
+  String paintLeftOrder(String left, String m2) {
+    return 'остаётся с $m2 м²: $left';
+  }
+
+  @override
+  String paintByMarkup(String price, String total) {
+    return 'по наценке: $price за м², всего $total';
+  }
+
+  @override
+  String get paintRemember => 'Запомнить цену и наценку';
+
+  @override
+  String get paintRecipeEdit => 'Рецепт и цены';
+
+  @override
+  String get paintSendTo => 'Кому';
+
+  @override
+  String get paintSendToAnyone => 'Выбрать в WhatsApp';
+
+  @override
+  String get paintPartPct => '% к весу';
+
+  @override
+  String mdfPaintNorm(String list) {
+    return 'По норме использовать: $list';
+  }
+
+  @override
+  String mdfPaintBatch(String have, String batch, String use, String left) {
+    return 'На складе $have кг (последняя партия $batch кг) — использовать $use кг, остаток $left кг оставить на складе';
+  }
+
+  @override
   String get paintCount => 'Пересчитать остаток';
 
   @override

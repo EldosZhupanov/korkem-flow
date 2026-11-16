@@ -78,14 +78,15 @@ class PaintStockRepository {
   );
 
   /// What so many m² take by the recipe, in a colour or none.
-  Future<PaintPlan> plan(double m2, {String? colour}) async => PaintPlan.fromJson(
-    _map(
-      await _client.callMethod(
-        '$_base.plan',
-        params: {'m2': m2, 'colour': ?colour},
-      ),
-    ),
-  );
+  Future<PaintPlan> plan(double m2, {String? colour}) async =>
+      PaintPlan.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.plan',
+            params: {'m2': m2, 'colour': ?colour},
+          ),
+        ),
+      );
 
   Future<PaintStock> paySupplier(
     String receipt,

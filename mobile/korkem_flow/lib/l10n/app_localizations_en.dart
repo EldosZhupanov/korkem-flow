@@ -8572,6 +8572,187 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String paintRecipe(String kg) {
+    return 'Recipe: $kg kg/m²';
+  }
+
+  @override
+  String get paintRecipeTitle => 'Paint recipe';
+
+  @override
+  String get paintRecipeHint =>
+      'Each layer: grams a m² a coat and how many coats (0 — not painted); what goes into each kilo of it. The enamel is the order\'s colour. A price here counts only until the material is bought.';
+
+  @override
+  String get paintLayerName => 'Layer';
+
+  @override
+  String get paintLayerColour => 'In the order\'s colour';
+
+  @override
+  String get paintLayerGM2 => 'g/m² a coat';
+
+  @override
+  String get paintLayerCoats => 'Coats';
+
+  @override
+  String paintLayerKg(String kg) {
+    return '$kg kg/m² with what goes in';
+  }
+
+  @override
+  String get paintPartName => 'Goes in';
+
+  @override
+  String get paintPartPerKg => 'kg per 1 kg';
+
+  @override
+  String get paintPartAdd => 'Hardener, thinner…';
+
+  @override
+  String get paintLayerAdd => 'Add a layer';
+
+  @override
+  String get paintRemove => 'Remove';
+
+  @override
+  String get paintCalc => 'How much paint';
+
+  @override
+  String get paintCalcM2 => 'm²';
+
+  @override
+  String get paintCalcNoColour => 'Any colour';
+
+  @override
+  String paintCalcTotal(String kg, String cost) {
+    return 'All together $kg kg · $cost';
+  }
+
+  @override
+  String paintCalcPerM2(String cost) {
+    return 'the paint of a m² costs $cost';
+  }
+
+  @override
+  String get paintCalcUnpriced =>
+      'Not every material has a price, so the cost is short — put it in the recipe.';
+
+  @override
+  String get paintSendWhatsApp => 'Send in WhatsApp';
+
+  @override
+  String get paintCopy => 'Copy';
+
+  @override
+  String get paintCopied => 'Copied';
+
+  @override
+  String get paintForQueue => 'For the whole queue';
+
+  @override
+  String paintMaterialNeed(String need, String have) {
+    return 'needs $need kg · $have kg here';
+  }
+
+  @override
+  String mdfPaintPlan(String colour, String kg) {
+    return 'Paint $colour: $kg kg';
+  }
+
+  @override
+  String get mdfPaintAskSupplier => 'Ask the supplier to tint';
+
+  @override
+  String get mdfPaintAskClient => 'Tell the customer what to bring';
+
+  @override
+  String get paintSupplierCard => 'Paint supplier';
+
+  @override
+  String get paintSupplierEdit => 'The supplier’s card';
+
+  @override
+  String get paintSupplierName => 'Company or person';
+
+  @override
+  String get paintSupplierCity => 'City';
+
+  @override
+  String get paintSupplierContact => 'Contact person';
+
+  @override
+  String get paintSupplierPhone => 'Phone';
+
+  @override
+  String get paintSupplierWhatsApp => 'WhatsApp';
+
+  @override
+  String get paintSupplierMinOrder => 'Smallest batch';
+
+  @override
+  String get paintSupplierMinHint => 'e.g. 3 kg';
+
+  @override
+  String get paintSupplierNote => 'Note';
+
+  @override
+  String paintSupplierMin(String min) {
+    return 'smallest batch $min';
+  }
+
+  @override
+  String paintBatchLeft(String need, String left) {
+    return 'The queue needs $need kg — $left kg will stay on the shelf';
+  }
+
+  @override
+  String get paintPriceM2 => 'Your price a m²';
+
+  @override
+  String get paintMarkup => 'Markup, %';
+
+  @override
+  String paintLeftM2(String left) {
+    return '$left left of a m²';
+  }
+
+  @override
+  String paintLeftOrder(String left, String m2) {
+    return '$left left of $m2 m²';
+  }
+
+  @override
+  String paintByMarkup(String price, String total) {
+    return 'by the markup: $price a m², $total in all';
+  }
+
+  @override
+  String get paintRemember => 'Remember the price and markup';
+
+  @override
+  String get paintRecipeEdit => 'Recipe and prices';
+
+  @override
+  String get paintSendTo => 'To';
+
+  @override
+  String get paintSendToAnyone => 'Choose in WhatsApp';
+
+  @override
+  String get paintPartPct => '% of its weight';
+
+  @override
+  String mdfPaintNorm(String list) {
+    return 'Use by the norm: $list';
+  }
+
+  @override
+  String mdfPaintBatch(String have, String batch, String use, String left) {
+    return '$have kg on the shelf (the last batch $batch kg) — use $use kg; $left kg stays on the shelf';
+  }
+
+  @override
   String get paintCount => 'Count what is left';
 
   @override

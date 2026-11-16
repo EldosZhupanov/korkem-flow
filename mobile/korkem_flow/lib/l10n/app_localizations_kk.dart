@@ -8538,6 +8538,187 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String paintRecipe(String kg) {
+    return 'Рецепт: $kg кг/м²';
+  }
+
+  @override
+  String get paintRecipeTitle => 'Бояу рецепті';
+
+  @override
+  String get paintRecipeHint =>
+      'Әр қабат: бір қабатқа м²-ге грамм және неше қабат (0 — боямаймыз); әр килограммына не қосылады. Эмаль — тапсырыс түсі. Мұндағы баға — материал әлі сатып алынбаған кезде ғана.';
+
+  @override
+  String get paintLayerName => 'Қабат';
+
+  @override
+  String get paintLayerColour => 'Тапсырыс түсі';
+
+  @override
+  String get paintLayerGM2 => 'қабатқа г/м²';
+
+  @override
+  String get paintLayerCoats => 'Қабат саны';
+
+  @override
+  String paintLayerKg(String kg) {
+    return 'қоспаларымен $kg кг/м²';
+  }
+
+  @override
+  String get paintPartName => 'Қоспа';
+
+  @override
+  String get paintPartPerKg => '1 кг-ға кг';
+
+  @override
+  String get paintPartAdd => 'Қатайтқыш, сұйылтқыш…';
+
+  @override
+  String get paintLayerAdd => 'Қабат қосу';
+
+  @override
+  String get paintRemove => 'Алып тастау';
+
+  @override
+  String get paintCalc => 'Қанша бояу';
+
+  @override
+  String get paintCalcM2 => 'м²';
+
+  @override
+  String get paintCalcNoColour => 'Кез келген түс';
+
+  @override
+  String paintCalcTotal(String kg, String cost) {
+    return 'Барлығы $kg кг · $cost';
+  }
+
+  @override
+  String paintCalcPerM2(String cost) {
+    return '1 м² бояуы — $cost';
+  }
+
+  @override
+  String get paintCalcUnpriced =>
+      'Барлық материалдың бағасы жоқ — өзіндік құн толық емес. Бағаны рецептке жазыңыз.';
+
+  @override
+  String get paintSendWhatsApp => 'WhatsApp-қа жіберу';
+
+  @override
+  String get paintCopy => 'Көшіру';
+
+  @override
+  String get paintCopied => 'Көшірілді';
+
+  @override
+  String get paintForQueue => 'Бүкіл кезекке';
+
+  @override
+  String paintMaterialNeed(String need, String have) {
+    return 'керек $need кг · бар $have кг';
+  }
+
+  @override
+  String mdfPaintPlan(String colour, String kg) {
+    return 'Бояу $colour: $kg кг';
+  }
+
+  @override
+  String get mdfPaintAskSupplier => 'Жеткізушіге өтінім';
+
+  @override
+  String get mdfPaintAskClient => 'Клиентке: қанша әкелу керек';
+
+  @override
+  String get paintSupplierCard => 'Бояу жеткізушісі';
+
+  @override
+  String get paintSupplierEdit => 'Жеткізуші карточкасы';
+
+  @override
+  String get paintSupplierName => 'Компания немесе адам';
+
+  @override
+  String get paintSupplierCity => 'Қала';
+
+  @override
+  String get paintSupplierContact => 'Байланыс тұлғасы';
+
+  @override
+  String get paintSupplierPhone => 'Телефон';
+
+  @override
+  String get paintSupplierWhatsApp => 'WhatsApp';
+
+  @override
+  String get paintSupplierMinOrder => 'Ең аз партия';
+
+  @override
+  String get paintSupplierMinHint => 'мысалы, 3 кг';
+
+  @override
+  String get paintSupplierNote => 'Ескертпе';
+
+  @override
+  String paintSupplierMin(String min) {
+    return 'ең аз партия $min';
+  }
+
+  @override
+  String paintBatchLeft(String need, String left) {
+    return 'Кезекке $need кг керек — қалған $left кг қоймаға кетеді';
+  }
+
+  @override
+  String get paintPriceM2 => 'Сіздің 1 м² бағаңыз';
+
+  @override
+  String get paintMarkup => 'Үстеме, %';
+
+  @override
+  String paintLeftM2(String left) {
+    return '1 м²-ден қалады: $left';
+  }
+
+  @override
+  String paintLeftOrder(String left, String m2) {
+    return '$m2 м²-ден қалады: $left';
+  }
+
+  @override
+  String paintByMarkup(String price, String total) {
+    return 'үстеме бойынша: 1 м² $price, барлығы $total';
+  }
+
+  @override
+  String get paintRemember => 'Баға мен үстемені сақтау';
+
+  @override
+  String get paintRecipeEdit => 'Рецепт және бағалар';
+
+  @override
+  String get paintSendTo => 'Кімге';
+
+  @override
+  String get paintSendToAnyone => 'WhatsApp-та таңдау';
+
+  @override
+  String get paintPartPct => 'салмағына %';
+
+  @override
+  String mdfPaintNorm(String list) {
+    return 'Норма бойынша қолдану: $list';
+  }
+
+  @override
+  String mdfPaintBatch(String have, String batch, String use, String left) {
+    return 'Қоймада $have кг (соңғы партия $batch кг) — $use кг қолдану, қалған $left кг қоймада қалады';
+  }
+
+  @override
   String get paintCount => 'Қалдықты қайта санау';
 
   @override

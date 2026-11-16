@@ -14731,6 +14731,312 @@ abstract class AppLocalizations {
   /// **'really {fact} kg/m² (figure {norm})'**
   String paintUsageFact(String fact, String norm);
 
+  /// No description provided for @paintRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe: {kg} kg/m²'**
+  String paintRecipe(String kg);
+
+  /// No description provided for @paintRecipeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint recipe'**
+  String get paintRecipeTitle;
+
+  /// No description provided for @paintRecipeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each layer: grams a m² a coat and how many coats (0 — not painted); what goes into each kilo of it. The enamel is the order\'s colour. A price here counts only until the material is bought.'**
+  String get paintRecipeHint;
+
+  /// No description provided for @paintLayerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Layer'**
+  String get paintLayerName;
+
+  /// No description provided for @paintLayerColour.
+  ///
+  /// In en, this message translates to:
+  /// **'In the order\'s colour'**
+  String get paintLayerColour;
+
+  /// No description provided for @paintLayerGM2.
+  ///
+  /// In en, this message translates to:
+  /// **'g/m² a coat'**
+  String get paintLayerGM2;
+
+  /// No description provided for @paintLayerCoats.
+  ///
+  /// In en, this message translates to:
+  /// **'Coats'**
+  String get paintLayerCoats;
+
+  /// No description provided for @paintLayerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg/m² with what goes in'**
+  String paintLayerKg(String kg);
+
+  /// No description provided for @paintPartName.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes in'**
+  String get paintPartName;
+
+  /// No description provided for @paintPartPerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'kg per 1 kg'**
+  String get paintPartPerKg;
+
+  /// No description provided for @paintPartAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardener, thinner…'**
+  String get paintPartAdd;
+
+  /// No description provided for @paintLayerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a layer'**
+  String get paintLayerAdd;
+
+  /// No description provided for @paintRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get paintRemove;
+
+  /// No description provided for @paintCalc.
+  ///
+  /// In en, this message translates to:
+  /// **'How much paint'**
+  String get paintCalc;
+
+  /// No description provided for @paintCalcM2.
+  ///
+  /// In en, this message translates to:
+  /// **'m²'**
+  String get paintCalcM2;
+
+  /// No description provided for @paintCalcNoColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Any colour'**
+  String get paintCalcNoColour;
+
+  /// No description provided for @paintCalcTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'All together {kg} kg · {cost}'**
+  String paintCalcTotal(String kg, String cost);
+
+  /// No description provided for @paintCalcPerM2.
+  ///
+  /// In en, this message translates to:
+  /// **'the paint of a m² costs {cost}'**
+  String paintCalcPerM2(String cost);
+
+  /// No description provided for @paintCalcUnpriced.
+  ///
+  /// In en, this message translates to:
+  /// **'Not every material has a price, so the cost is short — put it in the recipe.'**
+  String get paintCalcUnpriced;
+
+  /// No description provided for @paintSendWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send in WhatsApp'**
+  String get paintSendWhatsApp;
+
+  /// No description provided for @paintCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get paintCopy;
+
+  /// No description provided for @paintCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get paintCopied;
+
+  /// No description provided for @paintForQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'For the whole queue'**
+  String get paintForQueue;
+
+  /// No description provided for @paintMaterialNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'needs {need} kg · {have} kg here'**
+  String paintMaterialNeed(String need, String have);
+
+  /// No description provided for @mdfPaintPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint {colour}: {kg} kg'**
+  String mdfPaintPlan(String colour, String kg);
+
+  /// No description provided for @mdfPaintAskSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the supplier to tint'**
+  String get mdfPaintAskSupplier;
+
+  /// No description provided for @mdfPaintAskClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the customer what to bring'**
+  String get mdfPaintAskClient;
+
+  /// No description provided for @paintSupplierCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint supplier'**
+  String get paintSupplierCard;
+
+  /// No description provided for @paintSupplierEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'The supplier’s card'**
+  String get paintSupplierEdit;
+
+  /// No description provided for @paintSupplierName.
+  ///
+  /// In en, this message translates to:
+  /// **'Company or person'**
+  String get paintSupplierName;
+
+  /// No description provided for @paintSupplierCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get paintSupplierCity;
+
+  /// No description provided for @paintSupplierContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact person'**
+  String get paintSupplierContact;
+
+  /// No description provided for @paintSupplierPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get paintSupplierPhone;
+
+  /// No description provided for @paintSupplierWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get paintSupplierWhatsApp;
+
+  /// No description provided for @paintSupplierMinOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest batch'**
+  String get paintSupplierMinOrder;
+
+  /// No description provided for @paintSupplierMinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 3 kg'**
+  String get paintSupplierMinHint;
+
+  /// No description provided for @paintSupplierNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get paintSupplierNote;
+
+  /// No description provided for @paintSupplierMin.
+  ///
+  /// In en, this message translates to:
+  /// **'smallest batch {min}'**
+  String paintSupplierMin(String min);
+
+  /// No description provided for @paintBatchLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'The queue needs {need} kg — {left} kg will stay on the shelf'**
+  String paintBatchLeft(String need, String left);
+
+  /// No description provided for @paintPriceM2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your price a m²'**
+  String get paintPriceM2;
+
+  /// No description provided for @paintMarkup.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup, %'**
+  String get paintMarkup;
+
+  /// No description provided for @paintLeftM2.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left of a m²'**
+  String paintLeftM2(String left);
+
+  /// No description provided for @paintLeftOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left of {m2} m²'**
+  String paintLeftOrder(String left, String m2);
+
+  /// No description provided for @paintByMarkup.
+  ///
+  /// In en, this message translates to:
+  /// **'by the markup: {price} a m², {total} in all'**
+  String paintByMarkup(String price, String total);
+
+  /// No description provided for @paintRemember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember the price and markup'**
+  String get paintRemember;
+
+  /// No description provided for @paintRecipeEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe and prices'**
+  String get paintRecipeEdit;
+
+  /// No description provided for @paintSendTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get paintSendTo;
+
+  /// No description provided for @paintSendToAnyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose in WhatsApp'**
+  String get paintSendToAnyone;
+
+  /// No description provided for @paintPartPct.
+  ///
+  /// In en, this message translates to:
+  /// **'% of its weight'**
+  String get paintPartPct;
+
+  /// No description provided for @mdfPaintNorm.
+  ///
+  /// In en, this message translates to:
+  /// **'Use by the norm: {list}'**
+  String mdfPaintNorm(String list);
+
+  /// No description provided for @mdfPaintBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'{have} kg on the shelf (the last batch {batch} kg) — use {use} kg; {left} kg stays on the shelf'**
+  String mdfPaintBatch(String have, String batch, String use, String left);
+
   /// No description provided for @paintCount.
   ///
   /// In en, this message translates to:
