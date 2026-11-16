@@ -41,6 +41,19 @@ class MdfDictionaryDialog extends ConsumerStatefulWidget {
 class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
   bool _busy = false;
 
+  /// The colour systems opened (owner, 15.11.2026: «NCS, RAL должны
+  /// свернуться, и дальше нам должен открываться список»). The one the
+  /// current colour is in opens by itself; a search opens all it finds.
+  final _open = <String>{};
+  bool _seeded = false;
+  final _search = TextEditingController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
   Future<void> _run(Future<MdfDictionaries> Function() call) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -80,6 +93,8 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
     final kind = _paints && group == null
         ? MdfDictKind.paintSystem
         : widget.kind;
+    // The new colour is seen where it went.
+    if (_paints && group != null) setState(() => _open.add(group));
     await _run(
       () => ref
           .read(mdfOrderRepositoryProvider)
@@ -98,6 +113,7 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
     bool variant = false,
     String? group,
     bool system = false,
+    int? count,
   }) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
@@ -110,13 +126,16 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
         end: AppSpacing.sm,
       ),
       selected: !system && e.value == widget.current,
+      leading: system ? _chevron(e.value) : null,
       title: Text(
-        e.value,
+        system && count != null ? '${e.value} · $count' : e.value,
         style: variant || !(_millings || system)
             ? null
             : theme.textTheme.titleSmall,
       ),
-      onTap: system ? null : () => Navigator.of(context).pop(e.value),
+      onTap: system
+          ? () => _toggle(e.value)
+          : () => Navigator.of(context).pop(e.value),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -143,6 +162,82 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _chevron(String group) => Icon(
+    _open.contains(group) ? AppIcons.collapse : AppIcons.expand,
+    key: ValueKey('dictFold:$group'),
+  );
+
+  void _toggle(String group) => setState(
+    () => _open.contains(group) ? _open.remove(group) : _open.add(group),
+  );
+
+  /// Colour systems, each folded until opened; a search shows every colour
+  /// it finds, under its system.
+  Widget _paintList(MdfDictionaries d) {
+    final l10n = AppLocalizations.of(context);
+    final groups = d.paintGroups();
+    if (!_seeded) {
+      _seeded = true;
+      for (final g in groups) {
+        if (g.colours.any((c) => c.value == widget.current)) _open.add(g.name);
+      }
+    }
+    final query = _search.text.trim().toLowerCase();
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: TextField(
+            key: const ValueKey('dictSearch'),
+            controller: _search,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              isDense: true,
+              prefixIcon: const Icon(AppIcons.search),
+              hintText: l10n.mdfPaintSearch,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            children: [
+              for (final g in groups)
+                if (query.isEmpty ||
+                    g.colours.any(
+                      (c) => c.value.toLowerCase().contains(query),
+                    )) ...[
+                  if (g.head case final head?)
+                    _entry(
+                      head,
+                      group: g.name,
+                      system: true,
+                      count: g.colours.length,
+                    )
+                  else
+                    ListTile(
+                      key: ValueKey('dictEntry:system:${g.name}'),
+                      dense: true,
+                      leading: _chevron(g.name),
+                      onTap: () => _toggle(g.name),
+                      title: Text(
+                        '${g.name.isEmpty ? l10n.mdfPaintNoSystem : g.name}'
+                        ' · ${g.colours.length}',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                  if (query.isNotEmpty || _open.contains(g.name))
+                    for (final c in g.colours)
+                      if (query.isEmpty ||
+                          c.value.toLowerCase().contains(query))
+                        _entry(c, variant: true),
+                ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -227,23 +322,7 @@ class _MdfDictionaryDialogState extends ConsumerState<MdfDictionaryDialog> {
             // Paints by colour system (owner, 15.11.2026): RAL Classic —
             // RAL 9010, RAL 7016 …; NCS — …; the unfiled ones last.
             if (_paints && d.entries(MdfDictKind.paintSystem).isNotEmpty) {
-              return ListView(
-                children: [
-                  for (final g in d.paintGroups()) ...[
-                    if (g.head case final head?)
-                      _entry(head, group: g.name, system: true)
-                    else
-                      ListTile(
-                        dense: true,
-                        title: Text(
-                          g.name.isEmpty ? l10n.mdfPaintNoSystem : g.name,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ),
-                    for (final c in g.colours) _entry(c, variant: true),
-                  ],
-                ],
-              );
+              return _paintList(d);
             }
             if (entries.isEmpty && standing.isEmpty) {
               return Center(

@@ -14563,6 +14563,12 @@ abstract class AppLocalizations {
   /// **'No system'**
   String get mdfPaintNoSystem;
 
+  /// No description provided for @mdfPaintSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a colour: 9016, white…'**
+  String get mdfPaintSearch;
+
   /// No description provided for @paintStock.
   ///
   /// In en, this message translates to:
@@ -14797,6 +14803,312 @@ abstract class AppLocalizations {
   /// **'really {fact} kg/m² (figure {norm})'**
   String paintUsageFact(String fact, String norm);
 
+  /// No description provided for @paintRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe: {kg} kg/m²'**
+  String paintRecipe(String kg);
+
+  /// No description provided for @paintRecipeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint recipe'**
+  String get paintRecipeTitle;
+
+  /// No description provided for @paintRecipeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each layer: grams a m² a coat and how many coats (0 — not painted); what goes into each kilo of it. The enamel is the order\'s colour. A price here counts only until the material is bought.'**
+  String get paintRecipeHint;
+
+  /// No description provided for @paintLayerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Layer'**
+  String get paintLayerName;
+
+  /// No description provided for @paintLayerColour.
+  ///
+  /// In en, this message translates to:
+  /// **'In the order\'s colour'**
+  String get paintLayerColour;
+
+  /// No description provided for @paintLayerGM2.
+  ///
+  /// In en, this message translates to:
+  /// **'g/m² a coat'**
+  String get paintLayerGM2;
+
+  /// No description provided for @paintLayerCoats.
+  ///
+  /// In en, this message translates to:
+  /// **'Coats'**
+  String get paintLayerCoats;
+
+  /// No description provided for @paintLayerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg/m² with what goes in'**
+  String paintLayerKg(String kg);
+
+  /// No description provided for @paintPartName.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes in'**
+  String get paintPartName;
+
+  /// No description provided for @paintPartPerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'kg per 1 kg'**
+  String get paintPartPerKg;
+
+  /// No description provided for @paintPartAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardener, thinner…'**
+  String get paintPartAdd;
+
+  /// No description provided for @paintLayerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a layer'**
+  String get paintLayerAdd;
+
+  /// No description provided for @paintRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get paintRemove;
+
+  /// No description provided for @paintCalc.
+  ///
+  /// In en, this message translates to:
+  /// **'How much paint'**
+  String get paintCalc;
+
+  /// No description provided for @paintCalcM2.
+  ///
+  /// In en, this message translates to:
+  /// **'m²'**
+  String get paintCalcM2;
+
+  /// No description provided for @paintCalcNoColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Any colour'**
+  String get paintCalcNoColour;
+
+  /// No description provided for @paintCalcTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'All together {kg} kg · {cost}'**
+  String paintCalcTotal(String kg, String cost);
+
+  /// No description provided for @paintCalcPerM2.
+  ///
+  /// In en, this message translates to:
+  /// **'the paint of a m² costs {cost}'**
+  String paintCalcPerM2(String cost);
+
+  /// No description provided for @paintCalcUnpriced.
+  ///
+  /// In en, this message translates to:
+  /// **'Not every material has a price, so the cost is short — put it in the recipe.'**
+  String get paintCalcUnpriced;
+
+  /// No description provided for @paintSendWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send in WhatsApp'**
+  String get paintSendWhatsApp;
+
+  /// No description provided for @paintCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get paintCopy;
+
+  /// No description provided for @paintCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get paintCopied;
+
+  /// No description provided for @paintForQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'For the whole queue'**
+  String get paintForQueue;
+
+  /// No description provided for @paintMaterialNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'needs {need} kg · {have} kg here'**
+  String paintMaterialNeed(String need, String have);
+
+  /// No description provided for @mdfPaintPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint {colour}: {kg} kg'**
+  String mdfPaintPlan(String colour, String kg);
+
+  /// No description provided for @mdfPaintAskSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the supplier to tint'**
+  String get mdfPaintAskSupplier;
+
+  /// No description provided for @mdfPaintAskClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the customer what to bring'**
+  String get mdfPaintAskClient;
+
+  /// No description provided for @paintSupplierCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint supplier'**
+  String get paintSupplierCard;
+
+  /// No description provided for @paintSupplierEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'The supplier’s card'**
+  String get paintSupplierEdit;
+
+  /// No description provided for @paintSupplierName.
+  ///
+  /// In en, this message translates to:
+  /// **'Company or person'**
+  String get paintSupplierName;
+
+  /// No description provided for @paintSupplierCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get paintSupplierCity;
+
+  /// No description provided for @paintSupplierContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact person'**
+  String get paintSupplierContact;
+
+  /// No description provided for @paintSupplierPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get paintSupplierPhone;
+
+  /// No description provided for @paintSupplierWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get paintSupplierWhatsApp;
+
+  /// No description provided for @paintSupplierMinOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest batch'**
+  String get paintSupplierMinOrder;
+
+  /// No description provided for @paintSupplierMinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 3 kg'**
+  String get paintSupplierMinHint;
+
+  /// No description provided for @paintSupplierNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get paintSupplierNote;
+
+  /// No description provided for @paintSupplierMin.
+  ///
+  /// In en, this message translates to:
+  /// **'smallest batch {min}'**
+  String paintSupplierMin(String min);
+
+  /// No description provided for @paintBatchLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'The queue needs {need} kg — {left} kg will stay on the shelf'**
+  String paintBatchLeft(String need, String left);
+
+  /// No description provided for @paintPriceM2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your price a m²'**
+  String get paintPriceM2;
+
+  /// No description provided for @paintMarkup.
+  ///
+  /// In en, this message translates to:
+  /// **'Markup, %'**
+  String get paintMarkup;
+
+  /// No description provided for @paintLeftM2.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left of a m²'**
+  String paintLeftM2(String left);
+
+  /// No description provided for @paintLeftOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left of {m2} m²'**
+  String paintLeftOrder(String left, String m2);
+
+  /// No description provided for @paintByMarkup.
+  ///
+  /// In en, this message translates to:
+  /// **'by the markup: {price} a m², {total} in all'**
+  String paintByMarkup(String price, String total);
+
+  /// No description provided for @paintRemember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember the price and markup'**
+  String get paintRemember;
+
+  /// No description provided for @paintRecipeEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe and prices'**
+  String get paintRecipeEdit;
+
+  /// No description provided for @paintSendTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get paintSendTo;
+
+  /// No description provided for @paintSendToAnyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose in WhatsApp'**
+  String get paintSendToAnyone;
+
+  /// No description provided for @paintPartPct.
+  ///
+  /// In en, this message translates to:
+  /// **'% of its weight'**
+  String get paintPartPct;
+
+  /// No description provided for @mdfPaintNorm.
+  ///
+  /// In en, this message translates to:
+  /// **'Use by the norm: {list}'**
+  String mdfPaintNorm(String list);
+
+  /// No description provided for @mdfPaintBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'{have} kg on the shelf (the last batch {batch} kg) — use {use} kg; {left} kg stays on the shelf'**
+  String mdfPaintBatch(String have, String batch, String use, String left);
+
   /// No description provided for @paintCount.
   ///
   /// In en, this message translates to:
@@ -14814,6 +15126,648 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Weigh what is left. The difference from the program counts as used.'**
   String get paintCountHint;
+
+  /// No description provided for @mdfGloss.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get mdfGloss;
+
+  /// No description provided for @mdfGlossNone.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get mdfGlossNone;
+
+  /// No description provided for @mdfGlossMatt.
+  ///
+  /// In en, this message translates to:
+  /// **'matt'**
+  String get mdfGlossMatt;
+
+  /// No description provided for @mdfGlossSemi.
+  ///
+  /// In en, this message translates to:
+  /// **'semi-matt'**
+  String get mdfGlossSemi;
+
+  /// No description provided for @mdfGlossGloss.
+  ///
+  /// In en, this message translates to:
+  /// **'gloss'**
+  String get mdfGlossGloss;
+
+  /// No description provided for @mdfGlossMetallic.
+  ///
+  /// In en, this message translates to:
+  /// **'metallic'**
+  String get mdfGlossMetallic;
+
+  /// No description provided for @mdfGlossPearl.
+  ///
+  /// In en, this message translates to:
+  /// **'pearl'**
+  String get mdfGlossPearl;
+
+  /// No description provided for @paintDeliveryOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed for bringing paint'**
+  String get paintDeliveryOwed;
+
+  /// No description provided for @paintDeliveryBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Given back'**
+  String get paintDeliveryBack;
+
+  /// No description provided for @paintDeliveryPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paintDeliveryPaid;
+
+  /// No description provided for @paintDeliveryToEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} paid'**
+  String paintDeliveryToEmployee(String name);
+
+  /// No description provided for @paintDeliveryToCarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'carrier not paid'**
+  String get paintDeliveryToCarrier;
+
+  /// No description provided for @cncAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get cncAccept;
+
+  /// No description provided for @cncAddCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Work of its own'**
+  String get cncAddCustom;
+
+  /// No description provided for @cncAddMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Our material'**
+  String get cncAddMaterial;
+
+  /// No description provided for @cncAddService.
+  ///
+  /// In en, this message translates to:
+  /// **'Work from the price list'**
+  String get cncAddService;
+
+  /// No description provided for @cncAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} before it'**
+  String cncAhead(String time);
+
+  /// No description provided for @cncAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get cncAmount;
+
+  /// No description provided for @cncByAgreement.
+  ///
+  /// In en, this message translates to:
+  /// **'by agreement'**
+  String get cncByAgreement;
+
+  /// No description provided for @cncCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the order'**
+  String get cncCancel;
+
+  /// No description provided for @cncCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is it cancelled?'**
+  String get cncCancelTitle;
+
+  /// No description provided for @cncCost.
+  ///
+  /// In en, this message translates to:
+  /// **'cost {price}'**
+  String cncCost(String price);
+
+  /// No description provided for @cncCustomWork.
+  ///
+  /// In en, this message translates to:
+  /// **'What work'**
+  String get cncCustomWork;
+
+  /// No description provided for @cncDayMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'machine {minutes} min a day'**
+  String cncDayMinutes(String minutes);
+
+  /// No description provided for @cncDayMinutesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine working minutes a day'**
+  String get cncDayMinutesLabel;
+
+  /// No description provided for @cncDebtComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Owes {amount} — why hand it over?'**
+  String cncDebtComment(String amount);
+
+  /// No description provided for @cncDebtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed'**
+  String get cncDebtLabel;
+
+  /// No description provided for @cncDefects.
+  ///
+  /// In en, this message translates to:
+  /// **'defects: {text}'**
+  String cncDefects(String text);
+
+  /// No description provided for @cncDue.
+  ///
+  /// In en, this message translates to:
+  /// **'due {day}'**
+  String cncDue(String day);
+
+  /// No description provided for @cncEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No CNC orders yet — press «New order».'**
+  String get cncEmpty;
+
+  /// No description provided for @cncEta.
+  ///
+  /// In en, this message translates to:
+  /// **'ready {day}'**
+  String cncEta(String day);
+
+  /// No description provided for @cncHandOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand over'**
+  String get cncHandOver;
+
+  /// No description provided for @cncHandedOverOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over {day}: {who}'**
+  String cncHandedOverOn(String day, String who);
+
+  /// No description provided for @cncHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The machine for hire: worktops, sheets, lattices'**
+  String get cncHint;
+
+  /// No description provided for @cncHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get cncHistory;
+
+  /// No description provided for @cncHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting…'**
+  String get cncHold;
+
+  /// No description provided for @cncHoldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What are we waiting for?'**
+  String get cncHoldTitle;
+
+  /// No description provided for @cncHolding.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting: {reason}'**
+  String cncHolding(String reason);
+
+  /// No description provided for @cncHours.
+  ///
+  /// In en, this message translates to:
+  /// **'h'**
+  String get cncHours;
+
+  /// No description provided for @cncIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s material'**
+  String get cncIntake;
+
+  /// No description provided for @cncIntakeAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add what he brought'**
+  String get cncIntakeAdd;
+
+  /// No description provided for @cncIntakeDefects.
+  ///
+  /// In en, this message translates to:
+  /// **'Defects (chip, scratch)'**
+  String get cncIntakeDefects;
+
+  /// No description provided for @cncIntakeWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What (worktop 3000×600, LDSP sheet)'**
+  String get cncIntakeWhat;
+
+  /// No description provided for @cncLineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get cncLineNote;
+
+  /// No description provided for @cncMachineTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine time: {time}'**
+  String cncMachineTime(String time);
+
+  /// No description provided for @cncMakerPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture maker\'s prices'**
+  String get cncMakerPrices;
+
+  /// No description provided for @cncMinOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'minimum {amount}'**
+  String cncMinOrder(String amount);
+
+  /// No description provided for @cncMinOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum order, ₸'**
+  String get cncMinOrderLabel;
+
+  /// No description provided for @cncMinutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get cncMinutesShort;
+
+  /// No description provided for @cncNewOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get cncNewOrder;
+
+  /// No description provided for @cncNoGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get cncNoGroup;
+
+  /// No description provided for @cncNoMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'The warehouse has no sheets yet.'**
+  String get cncNoMaterials;
+
+  /// No description provided for @cncNoPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer has no phone on his card.'**
+  String get cncNoPhone;
+
+  /// No description provided for @cncNoPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'no price'**
+  String get cncNoPrice;
+
+  /// No description provided for @cncNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Not ready after all'**
+  String get cncNotReady;
+
+  /// No description provided for @cncNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get cncNotes;
+
+  /// No description provided for @cncOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get cncOk;
+
+  /// No description provided for @cncOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {amount}'**
+  String cncOwes(String amount);
+
+  /// No description provided for @cncPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'paid {amount}'**
+  String cncPaid(String amount);
+
+  /// No description provided for @cncPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get cncPay;
+
+  /// No description provided for @cncPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get cncPayments;
+
+  /// No description provided for @cncPerUnitMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min a unit'**
+  String cncPerUnitMinutes(String minutes);
+
+  /// No description provided for @cncPickCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the customer'**
+  String get cncPickCustomer;
+
+  /// No description provided for @cncPricesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC price list'**
+  String get cncPricesTitle;
+
+  /// No description provided for @cncQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get cncQty;
+
+  /// No description provided for @cncQueueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine queue'**
+  String get cncQueueLabel;
+
+  /// No description provided for @cncQueueOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} orders'**
+  String cncQueueOrders(int count);
+
+  /// No description provided for @cncRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get cncRate;
+
+  /// No description provided for @cncReadyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get cncReadyAction;
+
+  /// No description provided for @cncReadyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to hand over'**
+  String get cncReadyLabel;
+
+  /// No description provided for @cncReadyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! Your order {name} is ready, you can collect it.'**
+  String cncReadyMessage(String name);
+
+  /// No description provided for @cncReadyMessageDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! Your order {name} is ready. To pay: {amount}.'**
+  String cncReadyMessageDebt(String name, String amount);
+
+  /// No description provided for @cncRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get cncRemove;
+
+  /// No description provided for @cncSaveDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get cncSaveDraft;
+
+  /// No description provided for @cncSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get cncSaved;
+
+  /// No description provided for @cncSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Number or customer'**
+  String get cncSearchHint;
+
+  /// No description provided for @cncServiceAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a service'**
+  String get cncServiceAdd;
+
+  /// No description provided for @cncServiceEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get cncServiceEdit;
+
+  /// No description provided for @cncServiceGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group (Cutting, Worktops…)'**
+  String get cncServiceGroup;
+
+  /// No description provided for @cncServiceMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine minutes a unit'**
+  String get cncServiceMinutes;
+
+  /// No description provided for @cncServiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'switched off'**
+  String get cncServiceOff;
+
+  /// No description provided for @cncServiceOn.
+  ///
+  /// In en, this message translates to:
+  /// **'In the price list'**
+  String get cncServiceOn;
+
+  /// No description provided for @cncServicePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price a unit, ₸'**
+  String get cncServicePrice;
+
+  /// No description provided for @cncServiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get cncServiceTitle;
+
+  /// No description provided for @cncServiceTrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Price for furniture makers, ₸'**
+  String get cncServiceTrade;
+
+  /// No description provided for @cncSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgency, minimum, machine day'**
+  String get cncSettingsTitle;
+
+  /// No description provided for @cncStart.
+  ///
+  /// In en, this message translates to:
+  /// **'On the machine'**
+  String get cncStart;
+
+  /// No description provided for @cncStatusAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get cncStatusAll;
+
+  /// No description provided for @cncStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get cncStatusCancelled;
+
+  /// No description provided for @cncStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get cncStatusDraft;
+
+  /// No description provided for @cncStatusHandedOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over'**
+  String get cncStatusHandedOver;
+
+  /// No description provided for @cncStatusOnMachine.
+  ///
+  /// In en, this message translates to:
+  /// **'On the machine'**
+  String get cncStatusOnMachine;
+
+  /// No description provided for @cncStatusQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'In the queue'**
+  String get cncStatusQueued;
+
+  /// No description provided for @cncStatusReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get cncStatusReady;
+
+  /// No description provided for @cncTakenBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken by (if not the customer)'**
+  String get cncTakenBy;
+
+  /// No description provided for @cncTakenPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'His phone'**
+  String get cncTakenPhone;
+
+  /// No description provided for @cncTell.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the customer'**
+  String get cncTell;
+
+  /// No description provided for @cncTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer agrees: hidden defects of his material are his'**
+  String get cncTerms;
+
+  /// No description provided for @cncTermsAgreed.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer agreed: hidden defects are his.'**
+  String get cncTermsAgreed;
+
+  /// No description provided for @cncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC services'**
+  String get cncTitle;
+
+  /// No description provided for @cncTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get cncTotal;
+
+  /// No description provided for @cncTradePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'makers {price}'**
+  String cncTradePrice(String price);
+
+  /// No description provided for @cncUnhold.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer waiting'**
+  String get cncUnhold;
+
+  /// No description provided for @cncUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get cncUrgent;
+
+  /// No description provided for @cncUrgentPct.
+  ///
+  /// In en, this message translates to:
+  /// **'urgent +{pct}%'**
+  String cncUrgentPct(String pct);
+
+  /// No description provided for @cncUrgentPctLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgency surcharge, %'**
+  String get cncUrgentPctLabel;
+
+  /// No description provided for @cncWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get cncWork;
 }
 
 class _AppLocalizationsDelegate

@@ -9122,6 +9122,7 @@
     }
   },
   "mdfPaintNoSystem": "No system",
+  "mdfPaintSearch": "Find a colour: 9016, white…",
   "paintStock": "Paint store",
   "paintReceive": "Paint received",
   "paintReceiveSave": "Take in",
@@ -9303,6 +9304,70 @@
       }
     }
   },
+  "paintRecipe": "Recipe: {kg} kg/m²",
+  "@paintRecipe": {"placeholders": {"kg": {"type": "String"}}},
+  "paintRecipeTitle": "Paint recipe",
+  "paintRecipeHint": "Each layer: grams a m² a coat and how many coats (0 — not painted); what goes into each kilo of it. The enamel is the order's colour. A price here counts only until the material is bought.",
+  "paintLayerName": "Layer",
+  "paintLayerColour": "In the order's colour",
+  "paintLayerGM2": "g/m² a coat",
+  "paintLayerCoats": "Coats",
+  "paintLayerKg": "{kg} kg/m² with what goes in",
+  "@paintLayerKg": {"placeholders": {"kg": {"type": "String"}}},
+  "paintPartName": "Goes in",
+  "paintPartPerKg": "kg per 1 kg",
+  "paintPartAdd": "Hardener, thinner…",
+  "paintLayerAdd": "Add a layer",
+  "paintRemove": "Remove",
+  "paintCalc": "How much paint",
+  "paintCalcM2": "m²",
+  "paintCalcNoColour": "Any colour",
+  "paintCalcTotal": "All together {kg} kg · {cost}",
+  "@paintCalcTotal": {"placeholders": {"kg": {"type": "String"}, "cost": {"type": "String"}}},
+  "paintCalcPerM2": "the paint of a m² costs {cost}",
+  "@paintCalcPerM2": {"placeholders": {"cost": {"type": "String"}}},
+  "paintCalcUnpriced": "Not every material has a price, so the cost is short — put it in the recipe.",
+  "paintSendWhatsApp": "Send in WhatsApp",
+  "paintCopy": "Copy",
+  "paintCopied": "Copied",
+  "paintForQueue": "For the whole queue",
+  "paintMaterialNeed": "needs {need} kg · {have} kg here",
+  "@paintMaterialNeed": {"placeholders": {"need": {"type": "String"}, "have": {"type": "String"}}},
+  "mdfPaintPlan": "Paint {colour}: {kg} kg",
+  "@mdfPaintPlan": {"placeholders": {"colour": {"type": "String"}, "kg": {"type": "String"}}},
+  "mdfPaintAskSupplier": "Ask the supplier to tint",
+  "mdfPaintAskClient": "Tell the customer what to bring",
+  "paintSupplierCard": "Paint supplier",
+  "paintSupplierEdit": "The supplier’s card",
+  "paintSupplierName": "Company or person",
+  "paintSupplierCity": "City",
+  "paintSupplierContact": "Contact person",
+  "paintSupplierPhone": "Phone",
+  "paintSupplierWhatsApp": "WhatsApp",
+  "paintSupplierMinOrder": "Smallest batch",
+  "paintSupplierMinHint": "e.g. 3 kg",
+  "paintSupplierNote": "Note",
+  "paintSupplierMin": "smallest batch {min}",
+  "@paintSupplierMin": {"placeholders": {"min": {"type": "String"}}},
+  "paintBatchLeft": "The queue needs {need} kg — {left} kg will stay on the shelf",
+  "@paintBatchLeft": {"placeholders": {"need": {"type": "String"}, "left": {"type": "String"}}},
+  "paintPriceM2": "Your price a m²",
+  "paintMarkup": "Markup, %",
+  "paintLeftM2": "{left} left of a m²",
+  "@paintLeftM2": {"placeholders": {"left": {"type": "String"}}},
+  "paintLeftOrder": "{left} left of {m2} m²",
+  "@paintLeftOrder": {"placeholders": {"left": {"type": "String"}, "m2": {"type": "String"}}},
+  "paintByMarkup": "by the markup: {price} a m², {total} in all",
+  "@paintByMarkup": {"placeholders": {"price": {"type": "String"}, "total": {"type": "String"}}},
+  "paintRemember": "Remember the price and markup",
+  "paintRecipeEdit": "Recipe and prices",
+  "paintSendTo": "To",
+  "paintSendToAnyone": "Choose in WhatsApp",
+  "paintPartPct": "% of its weight",
+  "mdfPaintNorm": "Use by the norm: {list}",
+  "@mdfPaintNorm": {"placeholders": {"list": {"type": "String"}}},
+  "mdfPaintBatch": "{have} kg on the shelf (the last batch {batch} kg) — use {use} kg; {left} kg stays on the shelf",
+  "@mdfPaintBatch": {"placeholders": {"have": {"type": "String"}, "batch": {"type": "String"}, "use": {"type": "String"}, "left": {"type": "String"}}},
   "paintCount": "Count what is left",
   "paintCountTitle": "How many kg of {title} are really here?",
   "@paintCountTitle": {
@@ -9312,5 +9377,258 @@
       }
     }
   },
-  "paintCountHint": "Weigh what is left. The difference from the program counts as used."
+  "paintCountHint": "Weigh what is left. The difference from the program counts as used.",
+  "mdfGloss": "Finish",
+  "mdfGlossNone": "—",
+  "mdfGlossMatt": "matt",
+  "mdfGlossSemi": "semi-matt",
+  "mdfGlossGloss": "gloss",
+  "mdfGlossMetallic": "metallic",
+  "mdfGlossPearl": "pearl",
+  "paintDeliveryOwed": "Owed for bringing paint",
+  "paintDeliveryBack": "Given back",
+  "paintDeliveryPaid": "Paid",
+  "paintDeliveryToEmployee": "{name} paid",
+  "@paintDeliveryToEmployee": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "paintDeliveryToCarrier": "carrier not paid",
+  "cncAccept": "Accept",
+  "cncAddCustom": "Work of its own",
+  "cncAddMaterial": "Our material",
+  "cncAddService": "Work from the price list",
+  "cncAhead": "{time} before it",
+  "@cncAhead": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cncAmount": "Amount",
+  "cncByAgreement": "by agreement",
+  "cncCancel": "Cancel the order",
+  "cncCancelTitle": "Why is it cancelled?",
+  "cncCost": "cost {price}",
+  "@cncCost": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cncCustomWork": "What work",
+  "cncDayMinutes": "machine {minutes} min a day",
+  "@cncDayMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cncDayMinutesLabel": "Machine working minutes a day",
+  "cncDebtComment": "Owes {amount} — why hand it over?",
+  "@cncDebtComment": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncDebtLabel": "Owed",
+  "cncDefects": "defects: {text}",
+  "@cncDefects": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "cncDue": "due {day}",
+  "@cncDue": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "cncEmpty": "No CNC orders yet — press «New order».",
+  "cncEta": "ready {day}",
+  "@cncEta": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "cncHandOver": "Hand over",
+  "cncHandedOverOn": "Handed over {day}: {who}",
+  "@cncHandedOverOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "cncHint": "The machine for hire: worktops, sheets, lattices",
+  "cncHistory": "History",
+  "cncHold": "Waiting…",
+  "cncHoldTitle": "What are we waiting for?",
+  "cncHolding": "waiting: {reason}",
+  "@cncHolding": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "cncHours": "h",
+  "cncIntake": "The customer's material",
+  "cncIntakeAdd": "Add what he brought",
+  "cncIntakeDefects": "Defects (chip, scratch)",
+  "cncIntakeWhat": "What (worktop 3000×600, LDSP sheet)",
+  "cncLineNote": "Note",
+  "cncMachineTime": "Machine time: {time}",
+  "@cncMachineTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cncMakerPrices": "Furniture maker's prices",
+  "cncMinOrder": "minimum {amount}",
+  "@cncMinOrder": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncMinOrderLabel": "Minimum order, ₸",
+  "cncMinutesShort": "min",
+  "cncNewOrder": "New order",
+  "cncNoGroup": "Other",
+  "cncNoMaterials": "The warehouse has no sheets yet.",
+  "cncNoPhone": "The customer has no phone on his card.",
+  "cncNoPrice": "no price",
+  "cncNotReady": "Not ready after all",
+  "cncNotes": "Notes",
+  "cncOk": "OK",
+  "cncOwes": "owes {amount}",
+  "@cncOwes": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncPaid": "paid {amount}",
+  "@cncPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncPay": "Payment",
+  "cncPayments": "Payments",
+  "cncPerUnitMinutes": "{minutes} min a unit",
+  "@cncPerUnitMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cncPickCustomer": "Choose the customer",
+  "cncPricesTitle": "CNC price list",
+  "cncQty": "Qty",
+  "cncQueueLabel": "Machine queue",
+  "cncQueueOrders": "{count} orders",
+  "@cncQueueOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cncRate": "Price",
+  "cncReadyAction": "Ready",
+  "cncReadyLabel": "Ready to hand over",
+  "cncReadyMessage": "Hello! Your order {name} is ready, you can collect it.",
+  "@cncReadyMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cncReadyMessageDebt": "Hello! Your order {name} is ready. To pay: {amount}.",
+  "@cncReadyMessageDebt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cncRemove": "Remove",
+  "cncSaveDraft": "Save",
+  "cncSaved": "Saved",
+  "cncSearchHint": "Number or customer",
+  "cncServiceAdd": "Add a service",
+  "cncServiceEdit": "Service",
+  "cncServiceGroup": "Group (Cutting, Worktops…)",
+  "cncServiceMinutes": "Machine minutes a unit",
+  "cncServiceOff": "switched off",
+  "cncServiceOn": "In the price list",
+  "cncServicePrice": "Price a unit, ₸",
+  "cncServiceTitle": "Name",
+  "cncServiceTrade": "Price for furniture makers, ₸",
+  "cncSettingsTitle": "Urgency, minimum, machine day",
+  "cncStart": "On the machine",
+  "cncStatusAll": "All",
+  "cncStatusCancelled": "Cancelled",
+  "cncStatusDraft": "Draft",
+  "cncStatusHandedOver": "Handed over",
+  "cncStatusOnMachine": "On the machine",
+  "cncStatusQueued": "In the queue",
+  "cncStatusReady": "Ready",
+  "cncTakenBy": "Taken by (if not the customer)",
+  "cncTakenPhone": "His phone",
+  "cncTell": "Tell the customer",
+  "cncTerms": "The customer agrees: hidden defects of his material are his",
+  "cncTermsAgreed": "The customer agreed: hidden defects are his.",
+  "cncTitle": "CNC services",
+  "cncTotal": "Total",
+  "cncTradePrice": "makers {price}",
+  "@cncTradePrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cncUnhold": "No longer waiting",
+  "cncUrgent": "Urgent",
+  "cncUrgentPct": "urgent +{pct}%",
+  "@cncUrgentPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cncUrgentPctLabel": "Urgency surcharge, %",
+  "cncWork": "Work"
 }

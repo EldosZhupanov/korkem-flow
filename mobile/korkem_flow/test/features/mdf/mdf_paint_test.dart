@@ -17,6 +17,16 @@ Map<String, Object?> _board() => {
     {
       'colour': 'RAL 9010',
       'area_m2': 5.2,
+      'norm': {
+        'use': [
+          {'name': 'Эмаль', 'kg': 1.25},
+          {'name': 'Отвердитель', 'kg': 0.62},
+        ],
+        'enamel_kg': 1.25,
+        'on_hand_kg': 5,
+        'batch_kg': 5,
+        'left_kg': 3.75,
+      },
       'orders': [
         {
           'name': 'SO-1',
@@ -165,6 +175,9 @@ void main() {
     );
     // The biggest batch is picked: its orders are listed, the other's not.
     expect(find.byKey(const ValueKey('paintOrder:SO-1')), findsOneWidget);
+    // The painter is told the norm; the batch's rest stays on the shelf.
+    expect(find.textContaining('Эмаль 1,25'), findsOneWidget);
+    expect(find.byKey(const ValueKey('paintNormLeft')), findsOneWidget);
     expect(find.byKey(const ValueKey('paintOrder:SO-3')), findsNothing);
     await tester.tap(find.byKey(const ValueKey('barRow:RAL 7035')));
     await tester.pumpAndSettle();

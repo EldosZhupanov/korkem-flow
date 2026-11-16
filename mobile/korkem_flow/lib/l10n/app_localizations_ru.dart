@@ -8482,6 +8482,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfPaintNoSystem => 'Без системы';
 
   @override
+  String get mdfPaintSearch => 'Найти цвет: 9016, белый…';
+
+  @override
   String get paintStock => 'Склад краски';
 
   @override
@@ -8633,6 +8636,187 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String paintRecipe(String kg) {
+    return 'Рецепт: $kg кг/м²';
+  }
+
+  @override
+  String get paintRecipeTitle => 'Рецепт покраски';
+
+  @override
+  String get paintRecipeHint =>
+      'Каждый слой: граммы на м² за один слой и сколько слоёв (0 — не красим); что добавляется на каждый килограмм. Эмаль — цвета заказа. Цена здесь — только пока материал ещё не покупали.';
+
+  @override
+  String get paintLayerName => 'Слой';
+
+  @override
+  String get paintLayerColour => 'Цвет заказа';
+
+  @override
+  String get paintLayerGM2 => 'г/м² за слой';
+
+  @override
+  String get paintLayerCoats => 'Слоёв';
+
+  @override
+  String paintLayerKg(String kg) {
+    return '$kg кг/м² вместе с добавками';
+  }
+
+  @override
+  String get paintPartName => 'Добавка';
+
+  @override
+  String get paintPartPerKg => 'кг на 1 кг';
+
+  @override
+  String get paintPartAdd => 'Отвердитель, разбавитель…';
+
+  @override
+  String get paintLayerAdd => 'Добавить слой';
+
+  @override
+  String get paintRemove => 'Убрать';
+
+  @override
+  String get paintCalc => 'Сколько краски';
+
+  @override
+  String get paintCalcM2 => 'м²';
+
+  @override
+  String get paintCalcNoColour => 'Любой цвет';
+
+  @override
+  String paintCalcTotal(String kg, String cost) {
+    return 'Всего $kg кг · $cost';
+  }
+
+  @override
+  String paintCalcPerM2(String cost) {
+    return 'краска на 1 м² — $cost';
+  }
+
+  @override
+  String get paintCalcUnpriced =>
+      'Не у всех материалов есть цена — себестоимость неполная. Впишите цену в рецепт.';
+
+  @override
+  String get paintSendWhatsApp => 'Отправить в WhatsApp';
+
+  @override
+  String get paintCopy => 'Копировать';
+
+  @override
+  String get paintCopied => 'Скопировано';
+
+  @override
+  String get paintForQueue => 'На всю очередь';
+
+  @override
+  String paintMaterialNeed(String need, String have) {
+    return 'нужно $need кг · есть $have кг';
+  }
+
+  @override
+  String mdfPaintPlan(String colour, String kg) {
+    return 'Краска $colour: $kg кг';
+  }
+
+  @override
+  String get mdfPaintAskSupplier => 'Заявка поставщику';
+
+  @override
+  String get mdfPaintAskClient => 'Клиенту: сколько принести';
+
+  @override
+  String get paintSupplierCard => 'Поставщик краски';
+
+  @override
+  String get paintSupplierEdit => 'Карточка поставщика';
+
+  @override
+  String get paintSupplierName => 'Компания или человек';
+
+  @override
+  String get paintSupplierCity => 'Город';
+
+  @override
+  String get paintSupplierContact => 'Контактное лицо';
+
+  @override
+  String get paintSupplierPhone => 'Телефон';
+
+  @override
+  String get paintSupplierWhatsApp => 'WhatsApp';
+
+  @override
+  String get paintSupplierMinOrder => 'Минимальная партия';
+
+  @override
+  String get paintSupplierMinHint => 'например, 3 кг';
+
+  @override
+  String get paintSupplierNote => 'Заметка';
+
+  @override
+  String paintSupplierMin(String min) {
+    return 'минималка $min';
+  }
+
+  @override
+  String paintBatchLeft(String need, String left) {
+    return 'На очередь нужно $need кг — остаток $left кг уйдёт на склад';
+  }
+
+  @override
+  String get paintPriceM2 => 'Ваша цена за м²';
+
+  @override
+  String get paintMarkup => 'Наценка, %';
+
+  @override
+  String paintLeftM2(String left) {
+    return 'остаётся с 1 м²: $left';
+  }
+
+  @override
+  String paintLeftOrder(String left, String m2) {
+    return 'остаётся с $m2 м²: $left';
+  }
+
+  @override
+  String paintByMarkup(String price, String total) {
+    return 'по наценке: $price за м², всего $total';
+  }
+
+  @override
+  String get paintRemember => 'Запомнить цену и наценку';
+
+  @override
+  String get paintRecipeEdit => 'Рецепт и цены';
+
+  @override
+  String get paintSendTo => 'Кому';
+
+  @override
+  String get paintSendToAnyone => 'Выбрать в WhatsApp';
+
+  @override
+  String get paintPartPct => '% к весу';
+
+  @override
+  String mdfPaintNorm(String list) {
+    return 'По норме использовать: $list';
+  }
+
+  @override
+  String mdfPaintBatch(String have, String batch, String use, String left) {
+    return 'На складе $have кг (последняя партия $batch кг) — использовать $use кг, остаток $left кг оставить на складе';
+  }
+
+  @override
   String get paintCount => 'Пересчитать остаток';
 
   @override
@@ -8643,4 +8827,367 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get paintCountHint =>
       'Взвесьте остаток. Разница с программой запишется как расход.';
+
+  @override
+  String get mdfGloss => 'Вид';
+
+  @override
+  String get mdfGlossNone => '—';
+
+  @override
+  String get mdfGlossMatt => 'матовая';
+
+  @override
+  String get mdfGlossSemi => 'полуматовая';
+
+  @override
+  String get mdfGlossGloss => 'глянец';
+
+  @override
+  String get mdfGlossMetallic => 'металлик';
+
+  @override
+  String get mdfGlossPearl => 'перламутр';
+
+  @override
+  String get paintDeliveryOwed => 'Должны за доставку краски';
+
+  @override
+  String get paintDeliveryBack => 'Вернули';
+
+  @override
+  String get paintDeliveryPaid => 'Оплатили';
+
+  @override
+  String paintDeliveryToEmployee(String name) {
+    return 'платил $name';
+  }
+
+  @override
+  String get paintDeliveryToCarrier => 'перевозчику не оплачено';
+
+  @override
+  String get cncAccept => 'Принять в работу';
+
+  @override
+  String get cncAddCustom => 'Своя работа';
+
+  @override
+  String get cncAddMaterial => 'Наш материал';
+
+  @override
+  String get cncAddService => 'Работа из прайса';
+
+  @override
+  String cncAhead(String time) {
+    return 'до него $time';
+  }
+
+  @override
+  String get cncAmount => 'Сумма';
+
+  @override
+  String get cncByAgreement => 'договорная';
+
+  @override
+  String get cncCancel => 'Отменить заказ';
+
+  @override
+  String get cncCancelTitle => 'Почему отменяем?';
+
+  @override
+  String cncCost(String price) {
+    return 'себестоимость $price';
+  }
+
+  @override
+  String get cncCustomWork => 'Что за работа';
+
+  @override
+  String cncDayMinutes(String minutes) {
+    return 'станок $minutes мин в день';
+  }
+
+  @override
+  String get cncDayMinutesLabel => 'Минут работы станка в день';
+
+  @override
+  String cncDebtComment(String amount) {
+    return 'Долг $amount — почему выдаём?';
+  }
+
+  @override
+  String get cncDebtLabel => 'Должны';
+
+  @override
+  String cncDefects(String text) {
+    return 'дефекты: $text';
+  }
+
+  @override
+  String cncDue(String day) {
+    return 'срок $day';
+  }
+
+  @override
+  String get cncEmpty => 'Заказов ЧПУ пока нет — нажмите «Новый заказ».';
+
+  @override
+  String cncEta(String day) {
+    return 'готово $day';
+  }
+
+  @override
+  String get cncHandOver => 'Выдать';
+
+  @override
+  String cncHandedOverOn(String day, String who) {
+    return 'Выдан $day: $who';
+  }
+
+  @override
+  String get cncHint => 'Станок на заказ: столешницы, распил, решётки';
+
+  @override
+  String get cncHistory => 'История';
+
+  @override
+  String get cncHold => 'Ждём…';
+
+  @override
+  String get cncHoldTitle => 'Чего ждём?';
+
+  @override
+  String cncHolding(String reason) {
+    return 'ждём: $reason';
+  }
+
+  @override
+  String get cncHours => 'ч';
+
+  @override
+  String get cncIntake => 'Материал клиента';
+
+  @override
+  String get cncIntakeAdd => 'Добавить, что привёз';
+
+  @override
+  String get cncIntakeDefects => 'Дефекты (скол, царапина)';
+
+  @override
+  String get cncIntakeWhat => 'Что (столешница 3000×600, лист ЛДСП)';
+
+  @override
+  String get cncLineNote => 'Примечание';
+
+  @override
+  String cncMachineTime(String time) {
+    return 'Время станка: $time';
+  }
+
+  @override
+  String get cncMakerPrices => 'Цены для мебельщика';
+
+  @override
+  String cncMinOrder(String amount) {
+    return 'минималка $amount';
+  }
+
+  @override
+  String get cncMinOrderLabel => 'Минимальный заказ, ₸';
+
+  @override
+  String get cncMinutesShort => 'мин';
+
+  @override
+  String get cncNewOrder => 'Новый заказ';
+
+  @override
+  String get cncNoGroup => 'Прочее';
+
+  @override
+  String get cncNoMaterials => 'На складе пока нет листов.';
+
+  @override
+  String get cncNoPhone => 'У клиента нет телефона в карточке.';
+
+  @override
+  String get cncNoPrice => 'нет цены';
+
+  @override
+  String get cncNotReady => 'Снять «готово»';
+
+  @override
+  String get cncNotes => 'Примечание к заказу';
+
+  @override
+  String get cncOk => 'Готово';
+
+  @override
+  String cncOwes(String amount) {
+    return 'долг $amount';
+  }
+
+  @override
+  String cncPaid(String amount) {
+    return 'оплачено $amount';
+  }
+
+  @override
+  String get cncPay => 'Оплата';
+
+  @override
+  String get cncPayments => 'Оплаты';
+
+  @override
+  String cncPerUnitMinutes(String minutes) {
+    return '$minutes мин на ед.';
+  }
+
+  @override
+  String get cncPickCustomer => 'Выберите клиента';
+
+  @override
+  String get cncPricesTitle => 'Прайс услуг ЧПУ';
+
+  @override
+  String get cncQty => 'Кол-во';
+
+  @override
+  String get cncQueueLabel => 'Очередь станка';
+
+  @override
+  String cncQueueOrders(int count) {
+    return 'заказов: $count';
+  }
+
+  @override
+  String get cncRate => 'Цена';
+
+  @override
+  String get cncReadyAction => 'Готово';
+
+  @override
+  String get cncReadyLabel => 'Готово к выдаче';
+
+  @override
+  String cncReadyMessage(String name) {
+    return 'Здравствуйте! Ваш заказ $name готов, можно забирать.';
+  }
+
+  @override
+  String cncReadyMessageDebt(String name, String amount) {
+    return 'Здравствуйте! Ваш заказ $name готов. К оплате: $amount.';
+  }
+
+  @override
+  String get cncRemove => 'Убрать';
+
+  @override
+  String get cncSaveDraft => 'Сохранить';
+
+  @override
+  String get cncSaved => 'Сохранено';
+
+  @override
+  String get cncSearchHint => 'Номер или клиент';
+
+  @override
+  String get cncServiceAdd => 'Добавить услугу';
+
+  @override
+  String get cncServiceEdit => 'Услуга';
+
+  @override
+  String get cncServiceGroup => 'Группа (Распил, Столешницы…)';
+
+  @override
+  String get cncServiceMinutes => 'Минут станка на единицу';
+
+  @override
+  String get cncServiceOff => 'выключена';
+
+  @override
+  String get cncServiceOn => 'В прайсе';
+
+  @override
+  String get cncServicePrice => 'Цена за единицу, ₸';
+
+  @override
+  String get cncServiceTitle => 'Название';
+
+  @override
+  String get cncServiceTrade => 'Цена мебельщикам, ₸';
+
+  @override
+  String get cncSettingsTitle => 'Срочность, минималка, день станка';
+
+  @override
+  String get cncStart => 'На станок';
+
+  @override
+  String get cncStatusAll => 'Все';
+
+  @override
+  String get cncStatusCancelled => 'Отменён';
+
+  @override
+  String get cncStatusDraft => 'Черновик';
+
+  @override
+  String get cncStatusHandedOver => 'Выдан';
+
+  @override
+  String get cncStatusOnMachine => 'На станке';
+
+  @override
+  String get cncStatusQueued => 'В очереди';
+
+  @override
+  String get cncStatusReady => 'Готов';
+
+  @override
+  String get cncTakenBy => 'Забрал (если не клиент)';
+
+  @override
+  String get cncTakenPhone => 'Его телефон';
+
+  @override
+  String get cncTell => 'Написать клиенту';
+
+  @override
+  String get cncTerms =>
+      'Клиент согласен: за скрытые дефекты своего материала отвечает сам';
+
+  @override
+  String get cncTermsAgreed =>
+      'Клиент согласен: за скрытые дефекты отвечает сам.';
+
+  @override
+  String get cncTitle => 'Услуги ЧПУ';
+
+  @override
+  String get cncTotal => 'Итого';
+
+  @override
+  String cncTradePrice(String price) {
+    return 'мебельщикам $price';
+  }
+
+  @override
+  String get cncUnhold => 'Больше не ждём';
+
+  @override
+  String get cncUrgent => 'Срочно';
+
+  @override
+  String cncUrgentPct(String pct) {
+    return 'срочность +$pct%';
+  }
+
+  @override
+  String get cncUrgentPctLabel => 'Наценка за срочность, %';
+
+  @override
+  String get cncWork => 'Работы';
 }

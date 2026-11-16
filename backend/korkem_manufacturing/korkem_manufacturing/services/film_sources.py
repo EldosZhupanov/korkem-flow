@@ -41,6 +41,8 @@ CARD = {
 	"note": "korkem_src_note",
 }
 _MAKERS_FIELD = "korkem_src_makers"
+#: Paint's suppliers are its own (owner, 15.11.2026): not film's sources.
+NOT_PAINT = {"korkem_supplier_dept": ["is", "not set"]}
 _FIELDS = ["name", "supplier_name", "disabled", _MAKERS_FIELD, *CARD.values()]
 
 
@@ -49,7 +51,8 @@ def sources() -> dict:
 	material_stock._ensure_staff()
 	known = _known_makers()
 	rows = frappe.get_all(
-		"Supplier", filters={"disabled": 0}, fields=_FIELDS, order_by="supplier_name asc", limit_page_length=500
+		"Supplier", filters={"disabled": 0, **NOT_PAINT}, fields=_FIELDS, order_by="supplier_name asc",
+		limit_page_length=500,
 	)
 	return {
 		"sources": [_source(r, known) for r in rows],
@@ -63,7 +66,7 @@ def by_maker() -> dict[str, list[str]]:
 	known = _known_makers()
 	result: dict[str, list[str]] = {}
 	for r in frappe.get_all(
-		"Supplier", filters={"disabled": 0}, fields=["name", _MAKERS_FIELD], order_by="supplier_name asc",
+		"Supplier", filters={"disabled": 0, **NOT_PAINT}, fields=["name", _MAKERS_FIELD], order_by="supplier_name asc",
 		limit_page_length=500,
 	):
 		for maker in _split(r.get(_MAKERS_FIELD), known):

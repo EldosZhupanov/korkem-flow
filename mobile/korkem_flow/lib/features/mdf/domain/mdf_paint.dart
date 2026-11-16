@@ -56,6 +56,32 @@ typedef MdfComing = ({
   MdfPaintMarks marks,
 });
 
+/// What the painter is to use for a colour's m², by the shop's recipe,
+/// against the batch on the shelf (owner, 15.11.2026: «пришла партия 5 кг,
+/// а по факту нужно меньше — остаток на склад, маляру сказать сколько»).
+typedef MdfPaintNorm = ({
+  List<({String name, double kg})> use,
+  double enamelKg,
+  double onHandKg,
+  double? batchKg,
+  double leftKg,
+});
+
+MdfPaintNorm? _norm(Object? v) {
+  if (v is! Map) return null;
+  final n = Map<String, dynamic>.from(v);
+  return (
+    use: [
+      for (final u in _maps(n['use']))
+        (name: '${u['name'] ?? ''}', kg: _d(u['kg'])),
+    ],
+    enamelKg: _d(n['enamel_kg']),
+    onHandKg: _d(n['on_hand_kg']),
+    batchKg: n['batch_kg'] == null ? null : _d(n['batch_kg']),
+    leftKg: _d(n['left_kg']),
+  );
+}
+
 List<String> _strings(Object? v) => [
   for (final c in v is List ? v : const <Object?>[]) '$c',
 ];
@@ -83,6 +109,7 @@ class MdfPaintBoard {
         (
           colour: '${g['colour'] ?? '—'}',
           areaM2: _d(g['area_m2']),
+          norm: _norm(g['norm']),
           orders: [
             for (final o in _maps(g['orders']))
               (
@@ -136,7 +163,14 @@ class MdfPaintBoard {
 
   /// How long a coat dries here, in hours.
   final int dryHours;
-  final List<({String colour, double areaM2, List<MdfPaintOrder> orders})>
+  final List<
+    ({
+      String colour,
+      double areaM2,
+      MdfPaintNorm? norm,
+      List<MdfPaintOrder> orders,
+    })
+  >
   byColour;
   final double waitingM2;
   final List<MdfDrying> drying;

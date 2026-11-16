@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
+import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 
 export 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 
@@ -290,6 +291,7 @@ class MdfLineInput {
     this.clientPaint = false,
     this.clientFilm = false,
     this.clientMdf = false,
+    this.gloss,
   });
 
   final int heightMm;
@@ -297,6 +299,10 @@ class MdfLineInput {
   final int qty;
   final String? milling;
   final String? note;
+
+  /// Its paint group's finish — matt, gloss… (owner, 15.11.2026): the paint
+  /// shop's mark, not a price.
+  final MdfGloss? gloss;
 
   /// Its group is coated with the customer's own paint or film, or made of
   /// his own LMDF (owner, 14.11.2026) — marked on the group, carried by each
@@ -344,6 +350,7 @@ class MdfLineInput {
     if (clientPaint) 'client_paint': 1,
     if (clientFilm) 'client_film': 1,
     if (clientMdf) 'client_mdf': 1,
+    if (coating == MdfCoating.paint) 'gloss': ?gloss?.wire,
   };
 }
 
@@ -371,6 +378,7 @@ class MdfLine {
     this.clientPaint = false,
     this.clientFilm = false,
     this.clientMdf = false,
+    this.gloss,
   });
 
   factory MdfLine.fromJson(Map<String, dynamic> json) => MdfLine(
@@ -394,6 +402,7 @@ class MdfLine {
     clientPaint: json['client_paint'] == true,
     clientFilm: json['client_film'] == true,
     clientMdf: json['client_mdf'] == true,
+    gloss: MdfGloss.parse(json['gloss']),
   );
 
   final int heightMm;
@@ -418,6 +427,27 @@ class MdfLine {
   final bool clientPaint;
   final bool clientFilm;
   final bool clientMdf;
+  final MdfGloss? gloss;
+}
+
+/// A paint group's finish (owner, 15.11.2026: «вид покрытия»).
+enum MdfGloss {
+  matt('matt'),
+  semi('semi'),
+  gloss('gloss'),
+  metallic('metallic'),
+  pearl('pearl');
+
+  const MdfGloss(this.wire);
+
+  final String wire;
+
+  static MdfGloss? parse(Object? value) {
+    for (final g in values) {
+      if (g.wire == value) return g;
+    }
+    return null;
+  }
 }
 
 /// One film's positions, in the order the films first appear; positions keep
@@ -574,6 +604,7 @@ class MdfOrder {
     this.extraStages = const {},
     this.press = const {},
     this.clientPaint,
+    this.paint = const [],
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -649,6 +680,10 @@ class MdfOrder {
       ),
       _ => null,
     },
+    paint: [
+      for (final p in json['paint'] as List? ?? const [])
+        if (p is Map) PaintPlan.fromJson(Map<String, dynamic>.from(p)),
+    ],
   );
 
   final String name;
@@ -698,6 +733,10 @@ class MdfOrder {
   /// The customer's own paint: what he brought and whether it is here;
   /// null when the order is not tagged «Краска клиента».
   final ({String? note, bool received})? clientPaint;
+
+  /// What its paint takes by the shop's recipe, colour by colour, and what
+  /// it costs (owner, 15.11.2026).
+  final List<PaintPlan> paint;
 
   List<MdfOrderTag> get tags => head.tags;
 

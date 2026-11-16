@@ -95,6 +95,13 @@ def board() -> dict:
 			group["area_m2"] += m2
 			group["orders"].append({**head, "area_m2": float(m2), "overdue": mdf_orders._overdue(r)})
 	groups = sorted(by_colour.values(), key=lambda g: (-g["area_m2"], g["colour"]))
+	# The norm a colour's m² take, against the batch on the shelf.
+	from korkem_manufacturing.services import paint_recipe, paint_stock
+
+	rec = paint_recipe.recipe(company)
+	for g in groups:
+		if g["colour"] != NO_COLOUR:
+			g["norm"] = paint_stock.norm(company, g["colour"], float(g["area_m2"]), rec)
 	drying.sort(key=lambda d: d["dry_at"])
 	return {
 		"dry_hours": hours,
@@ -165,20 +172,34 @@ def _colours(orders: list[str]) -> tuple[dict[str, dict[str, Decimal]], set[str]
 		"Sales Order Item",
 		filters={"parent": ["in", orders], "item_code": facade_order.FACADE_ITEM},
 		fields=["parent", "korkem_decor_top", "korkem_decor_bottom", "korkem_double_sided", "korkem_line_coating",
-				"korkem_finish", "korkem_area_m2"],
+				"korkem_finish", "korkem_area_m2", "korkem_paint_gloss"],
 		limit_page_length=0,
 	):
 		coating = line.korkem_line_coating or mdf_orders.coating_of(line.korkem_finish or heads.get(line.parent))
 		if coating != PAINT:
 			continue
 		area = Decimal(str(flt(line.korkem_area_m2)))
+		# A gloss is another batch for the painter (15.11.2026): «RAL 9016 · глянец».
+		gloss = mdf_orders.GLOSSES.get(line.get("korkem_paint_gloss") or "")
 		front = (line.korkem_decor_top or "").strip() or NO_COLOUR
-		result[line.parent][front] += area
+		result[line.parent][_with(front, gloss)] += area
 		if line.korkem_double_sided:
 			two_sided.add(line.parent)
 			back = (line.korkem_decor_bottom or "").strip() or front
-			result[line.parent][back] += area
+			result[line.parent][_with(back, gloss)] += area
 	return {order: dict(c) for order, c in result.items()}, two_sided
+
+
+GLOSS_SEP = " · "
+
+
+def _with(colour: str, gloss: str | None) -> str:
+	return f"{colour}{GLOSS_SEP}{gloss}" if gloss and colour != NO_COLOUR else colour
+
+
+def colour_only(key: str) -> str:
+	"""«RAL 9016 · глянец» → «RAL 9016»: the paint it takes."""
+	return key.split(GLOSS_SEP)[0]
 
 
 def popular(company: str | None = None) -> list[dict]:

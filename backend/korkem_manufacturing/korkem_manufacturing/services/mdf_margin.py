@@ -16,8 +16,13 @@ named in `missing`, and counted as nothing.
 **Work.** Piece work booked to the order (`piece_work`), reversals included,
 so a cancelled accrual nets to nothing.
 
-**Not counted**, and the screen says so: paint, glue, power, delivery —
-nobody records them per order. The margin is therefore an upper bound.
+**Paint** (owner, 15.11.2026) is material too: what «Покрашено» took off
+the paint store for the order, at its valuation; before that, the shop's
+recipe for its m² at today's prices (`paint_recipe`), as an estimate. The
+customer's own paint costs the shop nothing.
+
+**Not counted**, and the screen says so: glue, power, delivery — nobody
+records them per order. The margin is therefore an upper bound.
 
 A rework or a warranty job has no price: its «margin» is what the mistake
 cost, which is the point of showing it.
@@ -56,6 +61,10 @@ def _margin(order: str, revenue: float) -> dict:
 	if not rows:
 		rows, missing = _estimated(order)
 		estimate = bool(rows)
+	paint_rows, paint_estimate, paint_missing = _paint(order)
+	rows = rows + paint_rows
+	estimate = estimate or paint_estimate
+	missing = missing + paint_missing
 	material = round(sum(r["cost"] for r in rows), 2)
 	work = _work([order]).get(order, 0.0)
 	cost = round(material + work, 2)
@@ -112,6 +121,40 @@ def _estimated(order: str) -> tuple[list[dict], list[str]]:
 		rows.append({"item": m["item"], "title": m["title"], "unit": m["unit"], "qty": round(flt(qty), 3),
 					 "price": price, "cost": round(flt(qty) * flt(price), 2)})
 	return rows, missing
+
+
+def _paint(order: str) -> tuple[list[dict], bool, list[str]]:
+	"""The order's paint: as taken off the store, else by the recipe."""
+	from korkem_manufacturing.services import mdf_paint, mdf_tags, paint_recipe, paint_stock
+
+	taken = frappe.db.sql(
+		"""select d.item_code, d.item_name, d.stock_uom as uom, sum(d.transfer_qty) as qty, sum(d.amount) as amount
+		from `tabStock Entry Detail` d join `tabStock Entry` e on e.name = d.parent
+		where e.korkem_paint_order = %s and e.korkem_paint_use = %s and e.docstatus = 1
+		group by d.item_code, d.item_name, d.stock_uom""",
+		(order, paint_stock.USE_ORDER),
+		as_dict=True,
+	)
+	if taken:
+		return [{"item": t.item_code, "title": t.item_name, "unit": t.uom, "qty": round(flt(t.qty), 3),
+				 "price": round(flt(t.amount) / flt(t.qty), 2) if flt(t.qty) else None,
+				 "cost": round(flt(t.amount), 2)} for t in taken], False, []
+	if mdf_tags.CLIENT_PAINT in mdf_tags.parse(frappe.db.get_value("Sales Order", order, "korkem_tags")):
+		return [], False, []
+	rows: dict[str, dict] = {}
+	missing: list[str] = []
+	for colour, m2 in mdf_paint._colours([order])[0].get(order, {}).items():
+		if colour == mdf_paint.NO_COLOUR or not m2:
+			continue
+		for line in paint_recipe.plan(float(m2), colour)["lines"]:
+			title = f"{line['name']} · {mdf_paint.colour_only(colour)}" if line["colour"] else line["name"]
+			row = rows.setdefault(title, {"item": None, "title": title, "unit": paint_stock.UNIT, "qty": 0.0,
+										  "price": line["price_kg"], "cost": 0.0})
+			row["qty"] = round(row["qty"] + flt(line["kg"]), 3)
+			row["cost"] = round(row["cost"] + flt(line["cost"]), 2)
+			if line["cost"] is None and line["name"] not in missing:
+				missing.append(line["name"])
+	return list(rows.values()), bool(rows), missing
 
 
 def unit_cost(item: str) -> float | None:

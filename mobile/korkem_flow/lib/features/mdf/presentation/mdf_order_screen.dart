@@ -34,6 +34,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_margin_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
+import 'package:korkem_flow/features/mdf/presentation/paint_recipe_view.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
@@ -110,6 +111,7 @@ class _LineFields {
     this.clientPaint = false,
     this.clientFilm = false,
     this.clientMdf = false,
+    this.gloss,
     Set<_Extra>? extras,
   }) : height = TextEditingController(text: h),
        width = TextEditingController(text: w),
@@ -142,6 +144,9 @@ class _LineFields {
   bool clientPaint;
   bool clientFilm;
   bool clientMdf;
+
+  /// Its paint group's finish — matt, gloss… (owner, 15.11.2026).
+  MdfGloss? gloss;
 
   /// Its back film; null — one-sided.
   String? filmBack;
@@ -196,6 +201,7 @@ class _LineFields {
       clientPaint: clientPaint && coating == MdfCoating.paint,
       clientFilm: clientFilm && coating == MdfCoating.pvc,
       clientMdf: clientMdf,
+      gloss: coating == MdfCoating.paint ? gloss : null,
     );
   }
 
@@ -216,6 +222,7 @@ class _LineFields {
     clientPaint: clientPaint,
     clientFilm: clientFilm,
     clientMdf: clientMdf,
+    gloss: gloss,
     extras: {...extras},
   );
 
@@ -316,6 +323,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             clientPaint: l.clientPaint,
             clientFilm: l.clientFilm,
             clientMdf: l.clientMdf,
+            gloss: l.gloss,
           ),
         );
       }
@@ -459,6 +467,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             clientPaint: _owns(_films.last).paint,
             clientFilm: _owns(_films.last).film,
             clientMdf: _owns(_films.last).mdf,
+            gloss: _glossOf(_films.last),
           ),
         );
       }
@@ -500,7 +509,23 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       clientPaint: _owns(group).paint,
       clientFilm: _owns(group).film,
       clientMdf: _owns(group).mdf || (above?.clientMdf ?? false),
+      gloss: _glossOf(group),
     );
+  }
+
+  /// A paint group's finish, as its lines carry it.
+  MdfGloss? _glossOf(_Group group) => _lines
+      .where((l) => l.group == group)
+      .map((l) => l.gloss)
+      .nonNulls
+      .firstOrNull;
+
+  void _setGloss(_Group group, MdfGloss? gloss) {
+    setState(() {
+      for (final l in _lines.where((l) => l.group == group)) {
+        l.gloss = gloss;
+      }
+    });
   }
 
   /// A group's marks — the customer's own paint or film, his own LMDF — as
@@ -1245,6 +1270,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                         if (_owns(group).mdf) MdfOrderTag.clientParts,
                       ],
                       onTag: (t, {required on}) => _setOwn(group, t, on: on),
+                      gloss: _glossOf(group),
+                      onGloss: (g) => _setGloss(group, g),
                       children: [
                         for (var i = 0; i < mates.length; i++)
                           _LineRow(
@@ -1413,6 +1440,8 @@ class _FilmGroup extends StatelessWidget {
     required this.children,
     this.tags = const [],
     this.onTag,
+    this.gloss,
+    this.onGloss,
     this.paintGroups = const [],
     super.key,
   });
@@ -1444,6 +1473,10 @@ class _FilmGroup extends StatelessWidget {
   /// (a PVC group), and his own LMDF (any group).
   final List<MdfOrderTag> tags;
   final void Function(MdfOrderTag tag, {required bool on})? onTag;
+
+  /// A paint group's finish (owner, 15.11.2026) — for the paint shop.
+  final MdfGloss? gloss;
+  final ValueChanged<MdfGloss?>? onGloss;
 
   /// Each colour system a heading that cannot be picked, its colours under
   /// it; a colour the order names that has left the list stays, last.
@@ -1626,6 +1659,28 @@ class _FilmGroup extends StatelessWidget {
                         );
                         if (picked != null) onFilm(picked);
                       },
+                    ),
+                  if (coating == MdfCoating.paint && onGloss != null)
+                    SizedBox(
+                      width: AppSpacing.xxxl * 3,
+                      child: DropdownButtonFormField<MdfGloss?>(
+                        key: ValueKey('mdfGroupGloss:$index:${gloss?.wire}'),
+                        initialValue: gloss,
+                        isExpanded: true,
+                        items: [
+                          DropdownMenuItem(child: Text(l10n.mdfGlossNone)),
+                          for (final g in MdfGloss.values)
+                            DropdownMenuItem(
+                              value: g,
+                              child: Text(mdfGlossLabel(g, l10n)),
+                            ),
+                        ],
+                        onChanged: onGloss,
+                        decoration: InputDecoration(
+                          labelText: l10n.mdfGloss,
+                          isDense: true,
+                        ),
+                      ),
                     ),
                   for (final t in [
                     if (coating == MdfCoating.paint) MdfOrderTag.clientPaint,
@@ -2578,6 +2633,8 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         ),
         // The customer's own paint: what he brought, whether it is here.
         MdfClientPaintView(order: o),
+        // What its paint takes and costs, by the shop's recipe.
+        MdfOrderPaintView(order: o),
         // What the order earned (owner, 14.11.2026).
         MdfMarginView(order: o.name),
         const SizedBox(height: AppSpacing.sm),
@@ -3766,3 +3823,11 @@ class _ChangeReasonDialogState extends State<_ChangeReasonDialog> {
     );
   }
 }
+
+String mdfGlossLabel(MdfGloss g, AppLocalizations l10n) => switch (g) {
+  MdfGloss.matt => l10n.mdfGlossMatt,
+  MdfGloss.semi => l10n.mdfGlossSemi,
+  MdfGloss.gloss => l10n.mdfGlossGloss,
+  MdfGloss.metallic => l10n.mdfGlossMetallic,
+  MdfGloss.pearl => l10n.mdfGlossPearl,
+};

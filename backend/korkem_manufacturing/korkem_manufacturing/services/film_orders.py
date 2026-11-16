@@ -357,12 +357,14 @@ def receive_many(supplier: str, lines, arrives_on: str | None = None, delivery=N
 		values = {"korkem_film_batch": batch}
 		if n == 0:
 			first = frappe.db.get_value("Stock Entry", entry, ["korkem_delivery_payer", "korkem_delivery_paid_by",
-															   "korkem_delivery_method"], as_dict=True)
+															   "korkem_delivery_method", "korkem_delivery_bank"],
+										  as_dict=True)
 		elif first and first.korkem_delivery_payer:
 			# Who paid — on every roll, so logistics per metre counts them all.
 			values.update({"korkem_delivery_payer": first.korkem_delivery_payer,
 						   "korkem_delivery_paid_by": first.korkem_delivery_paid_by,
-						   "korkem_delivery_method": first.korkem_delivery_method})
+						   "korkem_delivery_method": first.korkem_delivery_method,
+						   "korkem_delivery_bank": first.korkem_delivery_bank})
 		frappe.db.set_value("Stock Entry", entry, values, update_modified=False)
 		# What it answers on the list, and a customer of the delivery's own.
 		ids = list(line["orders"])

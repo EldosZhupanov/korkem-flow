@@ -90,6 +90,18 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_paint_usage_fields
 
 	add_paint_usage_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_paint_gloss_field
+
+	add_paint_gloss_field.execute()
+	from korkem_manufacturing.patches.v0_0 import add_cnc_order_fields
+
+	add_cnc_order_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_payment_bank_fields
+
+	add_payment_bank_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_paint_supplier_field
+
+	add_paint_supplier_field.execute()
 	from korkem_manufacturing.patches.v0_0 import add_film_issued_by_field
 
 	add_film_issued_by_field.execute()

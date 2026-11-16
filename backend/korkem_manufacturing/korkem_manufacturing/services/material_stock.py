@@ -221,10 +221,13 @@ def _enabled_values(kind: str, company: str) -> set[str]:
 
 
 def suppliers() -> list[dict]:
+	"""Every supplier but paint's own (owner, 15.11.2026: «поставщиков краски
+	не смешивать с поставщиками плёнки») — those live in the paint store."""
 	return [
 		{"supplier": r.name, "name": r.supplier_name or r.name, "enabled": not r.disabled}
 		for r in frappe.get_all(
-			"Supplier", fields=["name", "supplier_name", "disabled"], order_by="supplier_name asc", limit_page_length=500
+			"Supplier", filters={"korkem_supplier_dept": ["is", "not set"]},
+			fields=["name", "supplier_name", "disabled"], order_by="supplier_name asc", limit_page_length=500
 		)
 	]
 

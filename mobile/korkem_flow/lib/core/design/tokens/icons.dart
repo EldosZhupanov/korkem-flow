@@ -63,6 +63,9 @@ abstract final class AppIcons {
   static const IconData sort = Symbols.sort_rounded;
   static const IconData add = Symbols.add_rounded;
   static const IconData paste = Symbols.content_paste_rounded;
+  static const IconData copy = Symbols.content_copy_rounded;
+  static const IconData calculate = Symbols.calculate_rounded;
+  static const IconData recipe = Symbols.format_paint_rounded;
   static const IconData edit = Symbols.edit_rounded;
   static const IconData dictionary = Symbols.list_alt_rounded;
   static const IconData delete = Symbols.delete_rounded;

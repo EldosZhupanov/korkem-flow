@@ -44,6 +44,14 @@ abstract final class ContactActions {
   static Future<bool> whatsAppMessage(String? phone, String text) =>
       _launch(whatsAppMessageUri(phone, text));
 
+  /// WhatsApp with [text] typed and the chat left to choose — a paint order
+  /// for whichever supplier tints this time (owner, 15.11.2026).
+  static Uri whatsAppTextUri(String text) =>
+      Uri.https('wa.me', '/', {'text': text});
+
+  static Future<bool> whatsAppText(String text) =>
+      _launch(whatsAppTextUri(text));
+
   /// Frappe stores company websites without a scheme as often as with one, and
   /// a bare host parses as a relative path that launches nothing.
   static Uri? websiteUri(String? url) {

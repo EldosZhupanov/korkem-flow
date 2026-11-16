@@ -851,47 +851,126 @@ class TestMdfOrders(IntegrationTestCase):
 			self._as(MANAGER, mdf_orders.price, [{**lines[2], "film": self.decor}], finish=None)
 		self.assertEqual(mdf_orders.stages_for(None, coatings="raw"), ["cut", "mill", "sand", "ready"])
 
-	def test_painted_takes_the_paint_off_the_store_by_the_figure(self):
-		from korkem_manufacturing.services import material_stock, mdf_dictionaries, paint_stock
+	def test_painted_takes_the_paint_off_the_store_by_the_recipe(self):
+		from korkem_manufacturing.services import (
+			material_stock,
+			mdf_dictionaries,
+			mdf_margin,
+			mdf_paint,
+			paint_recipe,
+			paint_stock,
+		)
 
 		# The store is kept by whoever buys (material_stock's editors); the
 		# write-off happens for whoever ticks «Покрашено».
 		BUYER = "Administrator"
 		colour = f"RAL {frappe.generate_hash(length=4)} Тест"
 		self._as(MANAGER, mdf_dictionaries.add, "paint", colour)
-		self._as("Administrator", material_stock.add_supplier, "МДФ Тест Краски")
-		supplier = frappe.db.get_value("Supplier", {"supplier_name": "МДФ Тест Краски"}, "name")
-		self._as(BUYER, paint_stock.set_kg_per_m2, 0.3)
+		supplier_name = f"МДФ Тест Краски {frappe.generate_hash(length=4)}"
+		self._as("Administrator", paint_stock.add_supplier, supplier_name)
+		supplier = frappe.db.get_value("Supplier", {"supplier_name": supplier_name}, "name")
+		# The shop's recipe (owner, 15.11.2026): a coat of primer, two of
+		# enamel, a hardener in both; no lacquer.
+		hardener = f"Отвердитель {frappe.generate_hash(length=4)}"
+		primer = f"Грунт {frappe.generate_hash(length=4)}"
+		recipe = {"layers": [
+			{"name": primer, "g_m2": 100, "coats": 1, "parts": [{"name": hardener, "per_kg": 0.5}]},
+			{"name": "Эмаль", "colour": True, "g_m2": 150, "coats": 2, "parts": [{"name": hardener, "per_kg": 0.5}]},
+			{"name": "Лак", "g_m2": 100, "coats": 0},
+		]}
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BUYER, paint_stock.set_recipe, {"layers": [{"name": "А", "colour": 1}, {"name": "Б", "colour": 1}]})
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BUYER, paint_stock.set_recipe, {"layers": [{"name": "А", "g_m2": -1}]})
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, paint_stock.set_recipe, recipe)
+		got = self._as(BUYER, paint_stock.set_recipe, recipe)
+		# 0,1 × 1,5 + 0,3 × 1,5 kg a m², every material together.
+		self.assertAlmostEqual(got["kg_per_m2"], 0.6, places=3)
 		got = self._as(BUYER, paint_stock.receive, colour, 10, 4000, supplier, base="Эмаль")
 		item = next(p["item"] for p in got["paints"] if p["colour"] == colour)
+		# Primer and hardener come with no colour, whatever was picked.
+		got = self._as(BUYER, paint_stock.receive, colour, 5, 2000, supplier, base=primer)
+		primer_item = next(p["item"] for p in got["paints"] if p["base"] == primer)
+		self.assertIsNone(next(p for p in got["paints"] if p["item"] == primer_item)["colour"])
+		got = self._as(BUYER, paint_stock.receive, "", 5, 3000, supplier, base=hardener)
+		hardener_item = next(p["item"] for p in got["paints"] if p["base"] == hardener)
 
-		def on_hand() -> float:
-			return next(p["on_hand_kg"] for p in self._as(BUYER, paint_stock.stock)["paints"] if p["item"] == item)
+		def on_hand(of: str = item) -> float:
+			return next(p["on_hand_kg"] for p in self._as(BUYER, paint_stock.stock)["paints"] if p["item"] == of)
 
-		lines = [{**ORDER_1129[1], "coating": "paint", "film": colour, "rate": 24_000}]  # 1,63 m²
+		# A gloss is the paint shop's mark: its own batch, the same paint.
+		lines = [{**ORDER_1129[1], "coating": "paint", "film": colour, "rate": 24_000, "gloss": "gloss"}]  # 1,63 m²
 		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
 						head={"thickness_mm": 16}, lines=lines)
+		self.assertEqual(card["lines"][0]["gloss"], "gloss")
+		with self.assertRaises(frappe.ValidationError):
+			mdf_orders.price([{**lines[0], "gloss": "шершавая"}], finish=None, company=COMPANY)
 		self.addCleanup(self._drop, card["name"])
 		self._as(MANAGER, mdf_orders.accept, card["name"])
-		# The queue knows what it needs: 1,63 m² × 0,3.
-		need = next(n for n in self._as(BUYER, paint_stock.stock)["queue"] if n["colour"] == colour)
+		# The queue knows what it needs: the enamel by its colour, 1,63 × 0,3;
+		# the primer and the hardener for the queue as a whole.
+		board = self._as(BUYER, paint_stock.stock)
+		need = next(n for n in board["queue"] if n["colour"] == f"{colour} · глянец")
 		self.assertAlmostEqual(need["need_kg"], 0.49, places=2)
-		for stage in ("cut", "mill", "sand", "paint"):
+		names = {m["name"] for m in board["materials"]}
+		self.assertTrue({primer, hardener} <= names)
+		# A plan: each material, its kilograms and price; the total and a m².
+		plan = self._as(BUYER, paint_recipe.plan, 1.63, colour)
+		kg = {line["name"]: line["kg"] for line in plan["lines"]}
+		self.assertEqual(kg, {primer: 0.16, hardener: 0.33, "Эмаль": 0.49})
+		self.assertAlmostEqual(plan["cost"], 0.16 * 2000 + 0.33 * 3000 + 0.49 * 4000, places=0)
+		self.assertTrue(plan["priced"])
+		self.assertIn("Эмаль 0,49 кг", paint_recipe.request_text(1.63, colour))
+		# The order's card says it too, by its colour, ready to send.
+		paint = self._as(MANAGER, mdf_orders.card, card["name"])["paint"]
+		self.assertEqual([p["colour"] for p in paint], [f"{colour} · глянец"])
+		self.assertIn("Эмаль 0,49 кг", paint[0]["text"])
+		# The margin counts the paint now: by the recipe until it is taken.
+		margin = self._as(MANAGER, mdf_margin.of_order, card["name"])
+		rows = {r["title"]: r for r in margin["material_rows"]}
+		self.assertAlmostEqual(rows[f"Эмаль · {colour}"]["cost"], 0.49 * 4000, places=0)
+		self.assertIn(primer, rows)
+		before = {i: on_hand(i) for i in (item, primer_item, hardener_item)}
+		for stage in ("cut", "mill", "sand"):
 			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
-		# «Покрашено»: 0,49 kg off the shelf; ticked twice, taken once.
-		self.assertAlmostEqual(on_hand(), 10 - 0.49, places=3)
+		# At the paint: the painter is told the norm — 0,49 kg of a 10 kg
+		# batch; the rest stays on the shelf (owner, 15.11.2026).
+		group = next(g for g in self._as(MANAGER, mdf_paint.board)["by_colour"]
+					 if g["colour"] == f"{colour} · глянец")
+		self.assertEqual((group["norm"]["enamel_kg"], group["norm"]["batch_kg"]), (0.49, 10))
+		self.assertAlmostEqual(group["norm"]["left_kg"], before[item] - 0.49, places=2)
 		self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint")
-		self.assertAlmostEqual(on_hand(), 10 - 0.49, places=3)
+		# «Покрашено»: each material off its shelf; ticked twice, taken once.
+		self.assertAlmostEqual(on_hand(), before[item] - 0.49, places=3)
+		self.assertAlmostEqual(on_hand(primer_item), before[primer_item] - 0.16, places=3)
+		self.assertAlmostEqual(on_hand(hardener_item), before[hardener_item] - 0.33, places=3)
+		# … and what was taken, once taken.
+		margin = self._as(MANAGER, mdf_margin.of_order, card["name"])
+		taken = {r["item"]: r for r in margin["material_rows"] if r["item"]}
+		self.assertAlmostEqual(taken[item]["cost"], 0.49 * 4000, places=0)
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint")
+		self.assertAlmostEqual(on_hand(), before[item] - 0.49, places=3)
 		usage = self._as(BUYER, paint_stock.stock)["usage"]
 		self.assertGreaterEqual(usage["m2"], 1.63)
 		# Unticked: put back.
 		self._as(MANAGER, mdf_orders.set_stage, card["name"], "paint", 0)
-		self.assertAlmostEqual(on_hand(), 10, places=3)
+		self.assertAlmostEqual(on_hand(), before[item], places=3)
+		self.assertAlmostEqual(on_hand(hardener_item), before[hardener_item], places=3)
 
 		# The painter weighs 9 kg: a kilo is found missing, and counts as used.
 		after = self._as(BUYER, paint_stock.count, item, "9")
 		self.assertEqual(next(p["on_hand_kg"] for p in after["paints"] if p["item"] == item), 9)
 		self.assertGreaterEqual(after["usage"]["kg_counted"], 1)
+		# A price written in the recipe is the price (owner: «цены — в
+		# настройках»); the shop's price a m² and markup come back with a plan.
+		priced = {**recipe, "price_m2": 9000, "markup_pct": 40}
+		priced["layers"] = [{**recipe["layers"][0], "price_kg": 2500}, *recipe["layers"][1:]]
+		self._as(BUYER, paint_stock.set_recipe, priced)
+		plan = self._as(BUYER, paint_recipe.plan, 1.63, colour)
+		line = next(line for line in plan["lines"] if line["name"] == primer)
+		self.assertEqual((line["price_kg"], plan["price_m2"], plan["markup_pct"]), (2500, 9000, 40))
+		self._as(BUYER, paint_stock.set_recipe, paint_recipe.DEFAULT)
 
 	def test_the_paint_board_groups_by_colour_and_counts_the_drying_down(self):
 		from korkem_manufacturing.services import mdf_dictionaries, mdf_paint

@@ -8455,6 +8455,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfPaintNoSystem => 'No system';
 
   @override
+  String get mdfPaintSearch => 'Find a colour: 9016, white…';
+
+  @override
   String get paintStock => 'Paint store';
 
   @override
@@ -8605,6 +8608,187 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String paintRecipe(String kg) {
+    return 'Recipe: $kg kg/m²';
+  }
+
+  @override
+  String get paintRecipeTitle => 'Paint recipe';
+
+  @override
+  String get paintRecipeHint =>
+      'Each layer: grams a m² a coat and how many coats (0 — not painted); what goes into each kilo of it. The enamel is the order\'s colour. A price here counts only until the material is bought.';
+
+  @override
+  String get paintLayerName => 'Layer';
+
+  @override
+  String get paintLayerColour => 'In the order\'s colour';
+
+  @override
+  String get paintLayerGM2 => 'g/m² a coat';
+
+  @override
+  String get paintLayerCoats => 'Coats';
+
+  @override
+  String paintLayerKg(String kg) {
+    return '$kg kg/m² with what goes in';
+  }
+
+  @override
+  String get paintPartName => 'Goes in';
+
+  @override
+  String get paintPartPerKg => 'kg per 1 kg';
+
+  @override
+  String get paintPartAdd => 'Hardener, thinner…';
+
+  @override
+  String get paintLayerAdd => 'Add a layer';
+
+  @override
+  String get paintRemove => 'Remove';
+
+  @override
+  String get paintCalc => 'How much paint';
+
+  @override
+  String get paintCalcM2 => 'm²';
+
+  @override
+  String get paintCalcNoColour => 'Any colour';
+
+  @override
+  String paintCalcTotal(String kg, String cost) {
+    return 'All together $kg kg · $cost';
+  }
+
+  @override
+  String paintCalcPerM2(String cost) {
+    return 'the paint of a m² costs $cost';
+  }
+
+  @override
+  String get paintCalcUnpriced =>
+      'Not every material has a price, so the cost is short — put it in the recipe.';
+
+  @override
+  String get paintSendWhatsApp => 'Send in WhatsApp';
+
+  @override
+  String get paintCopy => 'Copy';
+
+  @override
+  String get paintCopied => 'Copied';
+
+  @override
+  String get paintForQueue => 'For the whole queue';
+
+  @override
+  String paintMaterialNeed(String need, String have) {
+    return 'needs $need kg · $have kg here';
+  }
+
+  @override
+  String mdfPaintPlan(String colour, String kg) {
+    return 'Paint $colour: $kg kg';
+  }
+
+  @override
+  String get mdfPaintAskSupplier => 'Ask the supplier to tint';
+
+  @override
+  String get mdfPaintAskClient => 'Tell the customer what to bring';
+
+  @override
+  String get paintSupplierCard => 'Paint supplier';
+
+  @override
+  String get paintSupplierEdit => 'The supplier’s card';
+
+  @override
+  String get paintSupplierName => 'Company or person';
+
+  @override
+  String get paintSupplierCity => 'City';
+
+  @override
+  String get paintSupplierContact => 'Contact person';
+
+  @override
+  String get paintSupplierPhone => 'Phone';
+
+  @override
+  String get paintSupplierWhatsApp => 'WhatsApp';
+
+  @override
+  String get paintSupplierMinOrder => 'Smallest batch';
+
+  @override
+  String get paintSupplierMinHint => 'e.g. 3 kg';
+
+  @override
+  String get paintSupplierNote => 'Note';
+
+  @override
+  String paintSupplierMin(String min) {
+    return 'smallest batch $min';
+  }
+
+  @override
+  String paintBatchLeft(String need, String left) {
+    return 'The queue needs $need kg — $left kg will stay on the shelf';
+  }
+
+  @override
+  String get paintPriceM2 => 'Your price a m²';
+
+  @override
+  String get paintMarkup => 'Markup, %';
+
+  @override
+  String paintLeftM2(String left) {
+    return '$left left of a m²';
+  }
+
+  @override
+  String paintLeftOrder(String left, String m2) {
+    return '$left left of $m2 m²';
+  }
+
+  @override
+  String paintByMarkup(String price, String total) {
+    return 'by the markup: $price a m², $total in all';
+  }
+
+  @override
+  String get paintRemember => 'Remember the price and markup';
+
+  @override
+  String get paintRecipeEdit => 'Recipe and prices';
+
+  @override
+  String get paintSendTo => 'To';
+
+  @override
+  String get paintSendToAnyone => 'Choose in WhatsApp';
+
+  @override
+  String get paintPartPct => '% of its weight';
+
+  @override
+  String mdfPaintNorm(String list) {
+    return 'Use by the norm: $list';
+  }
+
+  @override
+  String mdfPaintBatch(String have, String batch, String use, String left) {
+    return '$have kg on the shelf (the last batch $batch kg) — use $use kg; $left kg stays on the shelf';
+  }
+
+  @override
   String get paintCount => 'Count what is left';
 
   @override
@@ -8615,4 +8799,366 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paintCountHint =>
       'Weigh what is left. The difference from the program counts as used.';
+
+  @override
+  String get mdfGloss => 'Finish';
+
+  @override
+  String get mdfGlossNone => '—';
+
+  @override
+  String get mdfGlossMatt => 'matt';
+
+  @override
+  String get mdfGlossSemi => 'semi-matt';
+
+  @override
+  String get mdfGlossGloss => 'gloss';
+
+  @override
+  String get mdfGlossMetallic => 'metallic';
+
+  @override
+  String get mdfGlossPearl => 'pearl';
+
+  @override
+  String get paintDeliveryOwed => 'Owed for bringing paint';
+
+  @override
+  String get paintDeliveryBack => 'Given back';
+
+  @override
+  String get paintDeliveryPaid => 'Paid';
+
+  @override
+  String paintDeliveryToEmployee(String name) {
+    return '$name paid';
+  }
+
+  @override
+  String get paintDeliveryToCarrier => 'carrier not paid';
+
+  @override
+  String get cncAccept => 'Accept';
+
+  @override
+  String get cncAddCustom => 'Work of its own';
+
+  @override
+  String get cncAddMaterial => 'Our material';
+
+  @override
+  String get cncAddService => 'Work from the price list';
+
+  @override
+  String cncAhead(String time) {
+    return '$time before it';
+  }
+
+  @override
+  String get cncAmount => 'Amount';
+
+  @override
+  String get cncByAgreement => 'by agreement';
+
+  @override
+  String get cncCancel => 'Cancel the order';
+
+  @override
+  String get cncCancelTitle => 'Why is it cancelled?';
+
+  @override
+  String cncCost(String price) {
+    return 'cost $price';
+  }
+
+  @override
+  String get cncCustomWork => 'What work';
+
+  @override
+  String cncDayMinutes(String minutes) {
+    return 'machine $minutes min a day';
+  }
+
+  @override
+  String get cncDayMinutesLabel => 'Machine working minutes a day';
+
+  @override
+  String cncDebtComment(String amount) {
+    return 'Owes $amount — why hand it over?';
+  }
+
+  @override
+  String get cncDebtLabel => 'Owed';
+
+  @override
+  String cncDefects(String text) {
+    return 'defects: $text';
+  }
+
+  @override
+  String cncDue(String day) {
+    return 'due $day';
+  }
+
+  @override
+  String get cncEmpty => 'No CNC orders yet — press «New order».';
+
+  @override
+  String cncEta(String day) {
+    return 'ready $day';
+  }
+
+  @override
+  String get cncHandOver => 'Hand over';
+
+  @override
+  String cncHandedOverOn(String day, String who) {
+    return 'Handed over $day: $who';
+  }
+
+  @override
+  String get cncHint => 'The machine for hire: worktops, sheets, lattices';
+
+  @override
+  String get cncHistory => 'History';
+
+  @override
+  String get cncHold => 'Waiting…';
+
+  @override
+  String get cncHoldTitle => 'What are we waiting for?';
+
+  @override
+  String cncHolding(String reason) {
+    return 'waiting: $reason';
+  }
+
+  @override
+  String get cncHours => 'h';
+
+  @override
+  String get cncIntake => 'The customer\'s material';
+
+  @override
+  String get cncIntakeAdd => 'Add what he brought';
+
+  @override
+  String get cncIntakeDefects => 'Defects (chip, scratch)';
+
+  @override
+  String get cncIntakeWhat => 'What (worktop 3000×600, LDSP sheet)';
+
+  @override
+  String get cncLineNote => 'Note';
+
+  @override
+  String cncMachineTime(String time) {
+    return 'Machine time: $time';
+  }
+
+  @override
+  String get cncMakerPrices => 'Furniture maker\'s prices';
+
+  @override
+  String cncMinOrder(String amount) {
+    return 'minimum $amount';
+  }
+
+  @override
+  String get cncMinOrderLabel => 'Minimum order, ₸';
+
+  @override
+  String get cncMinutesShort => 'min';
+
+  @override
+  String get cncNewOrder => 'New order';
+
+  @override
+  String get cncNoGroup => 'Other';
+
+  @override
+  String get cncNoMaterials => 'The warehouse has no sheets yet.';
+
+  @override
+  String get cncNoPhone => 'The customer has no phone on his card.';
+
+  @override
+  String get cncNoPrice => 'no price';
+
+  @override
+  String get cncNotReady => 'Not ready after all';
+
+  @override
+  String get cncNotes => 'Notes';
+
+  @override
+  String get cncOk => 'OK';
+
+  @override
+  String cncOwes(String amount) {
+    return 'owes $amount';
+  }
+
+  @override
+  String cncPaid(String amount) {
+    return 'paid $amount';
+  }
+
+  @override
+  String get cncPay => 'Payment';
+
+  @override
+  String get cncPayments => 'Payments';
+
+  @override
+  String cncPerUnitMinutes(String minutes) {
+    return '$minutes min a unit';
+  }
+
+  @override
+  String get cncPickCustomer => 'Choose the customer';
+
+  @override
+  String get cncPricesTitle => 'CNC price list';
+
+  @override
+  String get cncQty => 'Qty';
+
+  @override
+  String get cncQueueLabel => 'Machine queue';
+
+  @override
+  String cncQueueOrders(int count) {
+    return '$count orders';
+  }
+
+  @override
+  String get cncRate => 'Price';
+
+  @override
+  String get cncReadyAction => 'Ready';
+
+  @override
+  String get cncReadyLabel => 'Ready to hand over';
+
+  @override
+  String cncReadyMessage(String name) {
+    return 'Hello! Your order $name is ready, you can collect it.';
+  }
+
+  @override
+  String cncReadyMessageDebt(String name, String amount) {
+    return 'Hello! Your order $name is ready. To pay: $amount.';
+  }
+
+  @override
+  String get cncRemove => 'Remove';
+
+  @override
+  String get cncSaveDraft => 'Save';
+
+  @override
+  String get cncSaved => 'Saved';
+
+  @override
+  String get cncSearchHint => 'Number or customer';
+
+  @override
+  String get cncServiceAdd => 'Add a service';
+
+  @override
+  String get cncServiceEdit => 'Service';
+
+  @override
+  String get cncServiceGroup => 'Group (Cutting, Worktops…)';
+
+  @override
+  String get cncServiceMinutes => 'Machine minutes a unit';
+
+  @override
+  String get cncServiceOff => 'switched off';
+
+  @override
+  String get cncServiceOn => 'In the price list';
+
+  @override
+  String get cncServicePrice => 'Price a unit, ₸';
+
+  @override
+  String get cncServiceTitle => 'Name';
+
+  @override
+  String get cncServiceTrade => 'Price for furniture makers, ₸';
+
+  @override
+  String get cncSettingsTitle => 'Urgency, minimum, machine day';
+
+  @override
+  String get cncStart => 'On the machine';
+
+  @override
+  String get cncStatusAll => 'All';
+
+  @override
+  String get cncStatusCancelled => 'Cancelled';
+
+  @override
+  String get cncStatusDraft => 'Draft';
+
+  @override
+  String get cncStatusHandedOver => 'Handed over';
+
+  @override
+  String get cncStatusOnMachine => 'On the machine';
+
+  @override
+  String get cncStatusQueued => 'In the queue';
+
+  @override
+  String get cncStatusReady => 'Ready';
+
+  @override
+  String get cncTakenBy => 'Taken by (if not the customer)';
+
+  @override
+  String get cncTakenPhone => 'His phone';
+
+  @override
+  String get cncTell => 'Tell the customer';
+
+  @override
+  String get cncTerms =>
+      'The customer agrees: hidden defects of his material are his';
+
+  @override
+  String get cncTermsAgreed => 'The customer agreed: hidden defects are his.';
+
+  @override
+  String get cncTitle => 'CNC services';
+
+  @override
+  String get cncTotal => 'Total';
+
+  @override
+  String cncTradePrice(String price) {
+    return 'makers $price';
+  }
+
+  @override
+  String get cncUnhold => 'No longer waiting';
+
+  @override
+  String get cncUrgent => 'Urgent';
+
+  @override
+  String cncUrgentPct(String pct) {
+    return 'urgent +$pct%';
+  }
+
+  @override
+  String get cncUrgentPctLabel => 'Urgency surcharge, %';
+
+  @override
+  String get cncWork => 'Work';
 }

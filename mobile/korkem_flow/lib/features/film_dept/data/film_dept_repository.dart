@@ -201,12 +201,15 @@ class FilmDeptRepository {
       );
 
   /// Given back to the employee, or paid to the carrier, today.
-  Future<void> settleDelivery(String receipt, String method) =>
-      _client.callMethod(
-        'korkem_manufacturing.api.film_cash.settle',
-        post: true,
-        params: {'receipt': receipt, 'method': method},
-      );
+  Future<void> settleDelivery(
+    String receipt,
+    String method, {
+    String? bank,
+  }) => _client.callMethod(
+    'korkem_manufacturing.api.film_cash.settle',
+    post: true,
+    params: {'receipt': receipt, 'method': method, 'bank': ?bank},
+  );
 
   /// Film taken on credit is paid for, today — out of the department's
   /// own money ([FilmPaySource.dept]) or from elsewhere.
@@ -214,10 +217,16 @@ class FilmDeptRepository {
     String receipt,
     String method, {
     String source = FilmPaySource.dept,
+    String? bank,
   }) => _client.callMethod(
     'korkem_manufacturing.api.film_cash.pay_supplier',
     post: true,
-    params: {'receipt': receipt, 'method': method, 'source': source},
+    params: {
+      'receipt': receipt,
+      'method': method,
+      'source': source,
+      'bank': ?bank,
+    },
   );
 
   /// The company's requisites for an invoice — `api.film_invoice`.
