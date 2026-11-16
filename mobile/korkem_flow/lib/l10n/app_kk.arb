@@ -2838,6 +2838,8 @@
   "teamDepartmentsHint": "Тапсырыс кезеңі өз лауазымының адамдарына беріледі. Телефон белгісі — өзі белгілейді, белгісіз — менеджер белгілейді.",
   "teamAddPerson": "Қызметкер",
   "teamAddPersonShort": "Тағы",
+  "teamLeft": "Компаниядан кеткендер",
+  "teamPersonBack": "Командаға қайтару",
   "teamUnplaced": "Лауазымсыз",
   "teamPostEmpty": "ешкім жоқ",
   "teamPostEmptyAdd": "Қосу",

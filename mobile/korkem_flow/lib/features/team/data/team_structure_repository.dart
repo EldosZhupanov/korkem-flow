@@ -10,11 +10,14 @@ final teamStructureRepositoryProvider = Provider<TeamStructureRepository>(
   (ref) => TeamStructureRepository(ref.watch(frappeClientProvider)),
 );
 
+/// Everyone at the company in one list, the departed too — «Команда» and its
+/// people are one thing (owner, 17.11.2026).
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final teamPeopleProvider = FutureProvider.autoDispose<TeamPeople>(
   (ref) => ref.watch(teamStructureRepositoryProvider).people(),
 );
+
 
 /// Departments, posts and the people on them (owner, 17.11.2026).
 class TeamStructureRepository {
@@ -24,8 +27,14 @@ class TeamStructureRepository {
 
   static const _base = 'korkem_manufacturing.api.team';
 
-  Future<TeamPeople> people() async =>
-      TeamPeople.fromJson(_map(await _client.callMethod('$_base.people')));
+  Future<TeamPeople> people() async => TeamPeople.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.people',
+        params: {'include_left': 1},
+      ),
+    ),
+  );
 
   /// A person with no login: the manager ticks for him.
   Future<TeamPeople> add({
@@ -38,22 +47,27 @@ class TeamStructureRepository {
     'phone': ?phone,
   });
 
-  /// What is sent changes.
+  /// What is sent changes. A login with no person yet becomes one.
   Future<TeamPeople> change(
-    String employee, {
+    TeamPerson person, {
     String? name,
     List<String>? posts,
     String? phone,
   }) => _post('set_person', {
-    'employee': employee,
+    'employee': ?person.employee,
+    if (person.employee == null) 'user': ?person.user,
     'name': ?name,
     if (posts != null) 'posts': jsonEncode(posts),
     'phone': ?phone,
   });
 
-  /// Left the company: off the list, his work stays his.
-  Future<TeamPeople> setActive(String employee, {required bool active}) =>
-      _post('set_active', {'employee': employee, 'active': active ? 1 : 0});
+  /// Left the company: off the list, his work stays his; back again.
+  Future<TeamPeople> setActive(TeamPerson person, {required bool active}) =>
+      _post('set_active', {
+        'employee': ?person.employee,
+        if (person.employee == null) 'user': ?person.user,
+        'active': active ? 1 : 0,
+      });
 
   /// His login, so he sees his own orders from his phone; null unlinks.
   Future<TeamPeople> linkUser(String employee, String? user) =>

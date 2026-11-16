@@ -542,6 +542,12 @@ def accept_invitation(
 				}
 			).insert(ignore_permissions=True)
 
+		# «Команда» and its people are one list: the login joins the person
+		# with this phone, or becomes one (`team.join`).
+		from korkem_manufacturing.services import team
+
+		team.join(user_email, full_name, clean_phone, invite.company)
+
 		# Update invitation status atomically
 		new_uses = invite.uses_count + 1
 		new_status = "ACCEPTED" if new_uses >= invite.max_uses else "ACTIVE"

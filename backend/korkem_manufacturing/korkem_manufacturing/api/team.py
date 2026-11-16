@@ -22,16 +22,17 @@ def add_person(name: str, posts: str | list | None = None, phone: str | None = N
 
 
 @frappe.whitelist(methods=["POST"])
-def set_person(employee: str, name: str | None = None, posts: str | list | None = None,
-			   phone: str | None = None) -> dict:
-	"""Имя, телефон или должности — меняется то, что прислано."""
-	return service.set_person(employee, name=name, posts=posts, phone=phone)
+def set_person(employee: str | None = None, name: str | None = None, posts: str | list | None = None,
+			   phone: str | None = None, user: str | None = None) -> dict:
+	"""Имя, телефон или должности — меняется то, что прислано. Вход без
+	сотрудника (`user`) становится сотрудником здесь же."""
+	return service.set_person(employee or None, name=name, posts=posts, phone=phone, user=user or None)
 
 
 @frappe.whitelist(methods=["POST"])
-def set_active(employee: str, active: bool | int | str) -> dict:
-	"""Уволен — выключен, не удалён: его работа остаётся за ним."""
-	return service.set_active(employee, active)
+def set_active(active: bool | int | str, employee: str | None = None, user: str | None = None) -> dict:
+	"""Уволен — выключен, не удалён: его работа остаётся за ним; вход — вместе с ним."""
+	return service.set_active(employee or None, active, user=user or None)
 
 
 @frappe.whitelist(methods=["POST"])

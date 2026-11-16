@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
@@ -9,7 +12,9 @@ import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
+import 'package:korkem_flow/features/team/domain/team_models.dart';
 import 'package:korkem_flow/features/team/domain/team_structure.dart';
+import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// A department's name in the reader's language; the server's own word for
@@ -46,9 +51,12 @@ String teamPostLabel(String key, AppLocalizations l10n, [String? fallback]) =>
 
 /// «Отделы и люди» (owner, 17.11.2026): every department with its posts and
 /// the people on each — with or without a login. An order's stage goes to
-/// the people of its post.
+/// the people of its post. It is the whole team: a login is opened from its
+/// person ([canManageLogins] — the owner), not kept in a list of its own.
 class TeamDepartmentsView extends ConsumerWidget {
-  const TeamDepartmentsView({super.key});
+  const TeamDepartmentsView({super.key, this.canManageLogins = false});
+
+  final bool canManageLogins;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -76,7 +84,11 @@ class TeamDepartmentsView extends ConsumerWidget {
                   if (team.canEdit)
                     TextButton.icon(
                       key: const ValueKey('teamAddPerson'),
-                      onPressed: () => showTeamPersonDialog(context, team),
+                      onPressed: () => showTeamPersonDialog(
+                        context,
+                        team,
+                        canManageLogins: canManageLogins,
+                      ),
                       icon: const Icon(AppIcons.add, size: AppIconSize.small),
                       label: Text(l10n.teamAddPerson),
                     ),
@@ -90,30 +102,41 @@ class TeamDepartmentsView extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               for (final d in team.departments) ...[
-                _DepartmentCard(team: team, department: d),
+                _DepartmentCard(
+                  team: team,
+                  department: d,
+                  canManageLogins: canManageLogins,
+                ),
                 const SizedBox(height: AppSpacing.sm),
               ],
-              if (team.unplaced.isNotEmpty)
-                AppCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.teamUnplaced,
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Wrap(
-                        spacing: AppSpacing.xs,
-                        runSpacing: AppSpacing.xs,
-                        children: [
-                          for (final p in team.unplaced)
-                            _PersonChip(team: team, person: p),
-                        ],
-                      ),
-                    ],
+              for (final (title, people) in [
+                (l10n.teamUnplaced, team.unplaced),
+                (l10n.teamLeft, team.left),
+              ])
+                if (people.isNotEmpty) ...[
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: theme.textTheme.titleSmall),
+                        const SizedBox(height: AppSpacing.xs),
+                        Wrap(
+                          spacing: AppSpacing.xs,
+                          runSpacing: AppSpacing.xs,
+                          children: [
+                            for (final p in people)
+                              _PersonChip(
+                                team: team,
+                                person: p,
+                                canManageLogins: canManageLogins,
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
               const SizedBox(height: AppSpacing.lg),
             ],
           ),
@@ -122,10 +145,15 @@ class TeamDepartmentsView extends ConsumerWidget {
 }
 
 class _DepartmentCard extends StatelessWidget {
-  const _DepartmentCard({required this.team, required this.department});
+  const _DepartmentCard({
+    required this.team,
+    required this.department,
+    required this.canManageLogins,
+  });
 
   final TeamPeople team;
   final TeamDepartment department;
+  final bool canManageLogins;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +182,11 @@ class _DepartmentCard extends StatelessWidget {
               runSpacing: AppSpacing.xs,
               children: [
                 for (final p in team.on(post.key))
-                  _PersonChip(team: team, person: p),
+                  _PersonChip(
+                    team: team,
+                    person: p,
+                    canManageLogins: canManageLogins,
+                  ),
                 if (team.on(post.key).isEmpty && !team.canEdit)
                   Text(l10n.teamPostEmpty, style: theme.textTheme.bodySmall),
                 if (team.canEdit)
@@ -166,8 +198,12 @@ class _DepartmentCard extends StatelessWidget {
                           ? l10n.teamPostEmptyAdd
                           : l10n.teamAddPersonShort,
                     ),
-                    onPressed: () =>
-                        showTeamPersonDialog(context, team, post: post.key),
+                    onPressed: () => showTeamPersonDialog(
+                      context,
+                      team,
+                      post: post.key,
+                      canManageLogins: canManageLogins,
+                    ),
                   ),
               ],
             ),
@@ -179,19 +215,29 @@ class _DepartmentCard extends StatelessWidget {
 }
 
 class _PersonChip extends StatelessWidget {
-  const _PersonChip({required this.team, required this.person});
+  const _PersonChip({
+    required this.team,
+    required this.person,
+    required this.canManageLogins,
+  });
 
   final TeamPeople team;
   final TeamPerson person;
+  final bool canManageLogins;
 
   @override
   Widget build(BuildContext context) => InputChip(
-    key: ValueKey('teamPerson:${person.employee}'),
+    key: ValueKey('teamPerson:${person.id}'),
     // A phone icon: he ticks his own stages; none: the manager ticks for him.
     avatar: Icon(person.user == null ? AppIcons.profile : AppIcons.call),
     label: Text(person.name),
-    onPressed: team.canEdit
-        ? () => showTeamPersonDialog(context, team, person: person)
+    onPressed: team.canEdit || canManageLogins
+        ? () => showTeamPersonDialog(
+            context,
+            team,
+            person: person,
+            canManageLogins: canManageLogins,
+          )
         : null,
   );
 }
@@ -202,17 +248,29 @@ Future<void> showTeamPersonDialog(
   TeamPeople team, {
   TeamPerson? person,
   String? post,
+  bool canManageLogins = false,
 }) => showDialog<void>(
   context: context,
-  builder: (_) => _PersonDialog(team: team, person: person, post: post),
+  builder: (_) => _PersonDialog(
+    team: team,
+    person: person,
+    post: post,
+    canManageLogins: canManageLogins,
+  ),
 );
 
 class _PersonDialog extends ConsumerStatefulWidget {
-  const _PersonDialog({required this.team, this.person, this.post});
+  const _PersonDialog({
+    required this.team,
+    this.person,
+    this.post,
+    this.canManageLogins = false,
+  });
 
   final TeamPeople team;
   final TeamPerson? person;
   final String? post;
+  final bool canManageLogins;
 
   @override
   ConsumerState<_PersonDialog> createState() => _PersonDialogState();
@@ -259,13 +317,23 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
           phone: _phone.text.trim(),
         );
       } else {
-        await repo.change(
-          person.employee,
+        final saved = await repo.change(
+          person,
           name: name,
           posts: _ordered,
           phone: _phone.text.trim(),
         );
-        if (_user != person.user) await repo.linkUser(person.employee, _user);
+        // A login with no person yet is one now; find him to link.
+        final employee =
+            person.employee ??
+            saved.people
+                .where((p) => p.user == person.user)
+                .map((p) => p.employee)
+                .nonNulls
+                .firstOrNull;
+        if (_user != person.user && employee != null) {
+          await repo.linkUser(employee, _user);
+        }
       }
       ref.invalidate(teamPeopleProvider);
       navigator.pop();
@@ -274,6 +342,57 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
       messenger.showFailure(error, l10n);
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// Back at the company — and his login with him, when the owner asks.
+  Future<void> _return() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    setState(() => _busy = true);
+    try {
+      await ref
+          .read(teamStructureRepositoryProvider)
+          .setActive(widget.person!, active: true);
+      ref
+        ..invalidate(teamPeopleProvider)
+        ..invalidate(teamMembersProvider);
+      navigator.pop();
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// The login's own dialogs (invite, access, trades, close, open) — this
+  /// one shut first, the lists read again after.
+  Future<void> _login(TeamLoginAction? action) async {
+    final navigator = Navigator.of(context);
+    final host = navigator.context;
+    final container = ProviderScope.containerOf(context);
+    final person = widget.person!;
+    final login = person.login;
+    final members = ref.read(teamMembersProvider).value ?? const [];
+    navigator.pop();
+    if (action == null || login == null) {
+      await showTeamInviteDialog(host);
+    } else {
+      final member =
+          members.where((m) => m.email == login.user).firstOrNull ??
+          TeamMember(
+            email: login.user,
+            firstName: person.name.split(' ').first,
+            fullName: person.name,
+            position: EmployeePosition.fromId(login.position),
+            roles: const [],
+            enabled: login.enabled,
+            ownerByServer: login.isOwner,
+          );
+      await showTeamLoginAction(host, member, action);
+    }
+    container
+      ..invalidate(teamPeopleProvider)
+      ..invalidate(teamMembersProvider);
   }
 
   Future<void> _dismiss() async {
@@ -293,8 +412,10 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
     try {
       await ref
           .read(teamStructureRepositoryProvider)
-          .setActive(person.employee, active: false);
-      ref.invalidate(teamPeopleProvider);
+          .setActive(person, active: false);
+      ref
+        ..invalidate(teamPeopleProvider)
+        ..invalidate(teamMembersProvider);
       navigator.pop();
     } on Object catch (error) {
       messenger.showFailure(error, l10n);
@@ -307,9 +428,13 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final logins = ref.watch(teamMembersProvider).value ?? const [];
+    final person = widget.person;
+    final login = person?.login;
+    final self = ref.watch(sessionProvider).value?.user?.trim().toLowerCase();
+    final isSelf = login != null && login.user.toLowerCase() == self;
     final taken = {
       for (final p in widget.team.people)
-        if (p.user != null && p.employee != widget.person?.employee) p.user!,
+        if (p.user != null && p.id != person?.id) p.user!,
     };
     final free = [
       for (final m in logins)
@@ -365,7 +490,22 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
                   ],
                 ),
               ],
-              if (widget.person != null) ...[
+              if (person != null && widget.canManageLogins) ...[
+                const SizedBox(height: AppSpacing.md),
+                _LoginBlock(
+                  login: login,
+                  isSelf: isSelf,
+                  busy: _busy,
+                  onAction: (action) => unawaited(_login(action)),
+                ),
+              ],
+              // Tie an existing login to him — the owner sees the login above.
+              if (person != null &&
+                  person.employee != null &&
+                  widget.team.canEdit &&
+                  (person.user == null
+                      ? free.isNotEmpty
+                      : !widget.canManageLogins)) ...[
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<String>(
                   key: const ValueKey('teamPersonLogin'),
@@ -399,24 +539,137 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
         ),
       ),
       actions: [
-        if (widget.person != null)
-          TextButton(
-            key: const ValueKey('teamPersonLeft'),
-            onPressed: _busy ? null : _dismiss,
-            child: Text(
-              l10n.teamPersonLeft,
-              style: TextStyle(color: theme.colorScheme.error),
+        if (person != null && widget.team.canEdit && !isSelf)
+          if (person.active)
+            TextButton(
+              key: const ValueKey('teamPersonLeft'),
+              onPressed: _busy ? null : _dismiss,
+              child: Text(
+                l10n.teamPersonLeft,
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            )
+          else
+            TextButton(
+              key: const ValueKey('teamPersonBack'),
+              onPressed: _busy ? null : _return,
+              child: Text(l10n.teamPersonBack),
             ),
-          ),
         TextButton(
           onPressed: _busy ? null : () => Navigator.of(context).pop(),
           child: Text(l10n.mdfCancel),
         ),
-        FilledButton(
-          key: const ValueKey('teamPersonSave'),
-          onPressed: _busy ? null : _save,
-          child: Text(l10n.teamPersonSave),
-        ),
+        if (widget.team.canEdit)
+          FilledButton(
+            key: const ValueKey('teamPersonSave'),
+            onPressed: _busy ? null : _save,
+            child: Text(l10n.teamPersonSave),
+          ),
+      ],
+    );
+  }
+}
+
+/// A person's login inside his card: what it allows and what can be done
+/// with it — or, with none, an invitation into the program.
+class _LoginBlock extends StatelessWidget {
+  const _LoginBlock({
+    required this.login,
+    required this.isSelf,
+    required this.busy,
+    required this.onAction,
+  });
+
+  final TeamLogin? login;
+  final bool isSelf;
+  final bool busy;
+
+  /// Null invites.
+  final ValueChanged<TeamLoginAction?> onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final login = this.login;
+    return Column(
+      key: const ValueKey('teamPersonLoginBlock'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l10n.teamLoginsSection, style: theme.textTheme.labelLarge),
+        const SizedBox(height: AppSpacing.xxs),
+        if (login == null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: OutlinedButton.icon(
+              key: const ValueKey('teamPersonInvite'),
+              onPressed: busy ? null : () => onAction(null),
+              icon: const Icon(AppIcons.add, size: AppIconSize.small),
+              label: Text(l10n.teamInviteButton),
+            ),
+          )
+        else ...[
+          Text(
+            login.enabled
+                ? EmployeePosition.fromId(login.position).localizedName(l10n)
+                : l10n.teamStatusDisabled,
+            key: const ValueKey('teamPersonAccess'),
+            style: theme.textTheme.bodyMedium,
+          ),
+          Text(
+            login.user,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          if (!isSelf) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              children: login.enabled
+                  ? [
+                      ActionChip(
+                        key: const ValueKey('teamLoginPosition'),
+                        avatar: const Icon(AppIcons.edit),
+                        label: Text(l10n.teamChangePositionAction),
+                        onPressed: busy
+                            ? null
+                            : () => onAction(TeamLoginAction.position),
+                      ),
+                      ActionChip(
+                        key: const ValueKey('teamLoginTrades'),
+                        avatar: const Icon(AppIcons.team),
+                        label: Text(l10n.tradesAction),
+                        onPressed: busy
+                            ? null
+                            : () => onAction(TeamLoginAction.trades),
+                      ),
+                      ActionChip(
+                        key: const ValueKey('teamLoginClose'),
+                        avatar: Icon(
+                          AppIcons.noAccess,
+                          color: theme.colorScheme.error,
+                        ),
+                        label: Text(l10n.teamDeactivateAction),
+                        onPressed: busy
+                            ? null
+                            : () => onAction(TeamLoginAction.close),
+                      ),
+                    ]
+                  : [
+                      ActionChip(
+                        key: const ValueKey('teamLoginOpen'),
+                        avatar: const Icon(AppIcons.refresh),
+                        label: Text(l10n.teamReactivateAction),
+                        onPressed: busy
+                            ? null
+                            : () => onAction(TeamLoginAction.open),
+                      ),
+                    ],
+            ),
+          ],
+        ],
       ],
     );
   }

@@ -9763,6 +9763,8 @@
   "teamDepartmentsHint": "An order's stage goes to the people of its post. A phone icon: they tick it themselves; without one, the manager does.",
   "teamAddPerson": "Person",
   "teamAddPersonShort": "More",
+  "teamLeft": "Left the company",
+  "teamPersonBack": "Bring back",
   "teamUnplaced": "No post yet",
   "teamPostEmpty": "nobody",
   "teamPostEmptyAdd": "Add",

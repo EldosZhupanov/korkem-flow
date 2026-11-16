@@ -529,7 +529,7 @@ class TestMdfOrders(IntegrationTestCase):
 
 		# This test's posts only; the cutter's login is free to be linked.
 		frappe.db.sql("update `tabEmployee` set korkem_team_roles = null where company = %s", COMPANY)
-		frappe.db.sql("update `tabEmployee` set user_id = null where user_id = %s", CUTTER)
+		frappe.db.sql("update `tabEmployee` set user_id = null where user_id in %s", [(CUTTER, MANAGER)])
 
 		with self.assertRaises(frappe.PermissionError):  # a shop worker does not hire
 			self._as(CUTTER, team.add_person, "Кто-то Новый", ["cut.cutter"])
@@ -548,6 +548,24 @@ class TestMdfOrders(IntegrationTestCase):
 		self._as(MANAGER, team.link_user, cutter, CUTTER)
 		with self.assertRaises(frappe.ValidationError):  # one login, one person
 			self._as(MANAGER, team.link_user, cnc, CUTTER)
+
+		# «Команда» and its people are one list (owner, 17.11.2026): a login
+		# is a mark on a person, never a second entry.
+		listing = self._as(MANAGER, team.people)["people"]
+		self.assertEqual([p["employee"] for p in listing if p["user"] == CUTTER], [cutter])
+		self.assertTrue(next(p for p in listing if p["employee"] == cutter)["login"])
+		self.assertEqual([p["employee"] for p in listing if p["user"] == MANAGER], [None])  # a login with no person yet
+		taker = self._person("Айгерим Приёмова", ["intake.manager"])
+		frappe.db.set_value("Employee", taker, "cell_number", "8 701 555 12 34")
+		self.assertEqual(team.join(MANAGER, "Айгерим", "+77015551234", COMPANY), taker)  # the invited phone joins her
+		listing = self._as(MANAGER, team.people)["people"]
+		self.assertEqual([p["employee"] for p in listing if p["user"] == MANAGER], [taker])
+		frappe.db.set_value("Employee", taker, "user_id", None)
+		self._as(MANAGER, team.set_person, None, posts=["intake.manager"], user=MANAGER)  # given a post, becomes one
+		mine = [p for p in self._as(MANAGER, team.people)["people"] if p["user"] == MANAGER]
+		self.assertEqual((len(mine), mine[0]["posts"], bool(mine[0]["employee"])), (1, ["intake.manager"], True))
+		frappe.db.set_value("Employee", mine[0]["employee"], {"user_id": None, "status": "Left"})
+		self._as(MANAGER, team.set_active, taker, 0)
 
 		# Accepted: a post with one person gets the stage, one with two waits for the manager.
 		card = self._draft()
@@ -586,6 +604,8 @@ class TestMdfOrders(IntegrationTestCase):
 		# Left the company: off the list, his work still his.
 		self._as(MANAGER, team.set_active, press_1, 0)
 		self.assertNotIn(press_1, [p["employee"] for p in self._as(MANAGER, team.people)["people"]])
+		left = next(p for p in self._as(MANAGER, team.people, True)["people"] if p["employee"] == press_1)
+		self.assertFalse(left["active"])
 
 	# --- the order form's dictionaries (OnayBaza's blue button) ---
 

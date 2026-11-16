@@ -2838,6 +2838,8 @@
   "teamDepartmentsHint": "Этап заказа уходит людям своей должности. Значок телефона — отмечает сам, без него — отмечает менеджер.",
   "teamAddPerson": "Сотрудник",
   "teamAddPersonShort": "Ещё",
+  "teamLeft": "Ушли из компании",
+  "teamPersonBack": "Вернуть в команду",
   "teamUnplaced": "Без должности",
   "teamPostEmpty": "никого",
   "teamPostEmptyAdd": "Добавить",

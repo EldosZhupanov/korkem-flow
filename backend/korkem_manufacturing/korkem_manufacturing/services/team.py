@@ -5,9 +5,13 @@
 ЧПУшник; ПВХ — шкурщик, вакуумщик; краска — шкурщик, маляр; продажа плёнки —
 продажник, грузчик… довести каждый отдел до логики, как экосистема»).
 
-**A person is an ERPNext `Employee`** — the record a ticked stage already
-names (`mdf_orders.STAGE_BY`) — so a worker exists without a login. Whoever
-gets one is linked through the employee's own `user_id`; nothing else changes.
+**«Команда» and «люди» are one list** (owner, 17.11.2026: «команда и люди
+одно и то же»). A person is an ERPNext `Employee` — the record a ticked stage
+already names (`mdf_orders.STAGE_BY`) — so a worker exists without a login.
+A login is a mark on the person (`user_id`), not a second list: accepting an
+invitation joins the person with the same phone, or makes one (`join`); a
+login from before this has no person yet and is shown beside the rest, and
+becomes one the first time he is given a post.
 
 **A post is fixed in code** because each one is a stage of the order:
 the cutter cuts, the CNC operator mills, the PVC sander and the paint sander
@@ -104,9 +108,11 @@ def _clean_posts(posts) -> list[str]:
 
 
 def people(include_left: bool = False) -> dict:
-	"""Everyone at the company with their posts, phone, and login if any."""
+	"""Everyone at the company, once each: posts, phone, and the login if any."""
 	if not is_staff():
 		frappe.throw("Команду видят сотрудники компании.", frappe.PermissionError)
+	from korkem_manufacturing.services import staff
+
 	company = current_company()
 	filters = {"company": company}
 	if not include_left:
@@ -119,21 +125,54 @@ def people(include_left: bool = False) -> dict:
 		order_by="employee_name asc",
 		limit_page_length=1000,
 	)
+	try:
+		logins = {m["email"]: m for m in staff.members()}
+	except frappe.PermissionError:
+		# Someone who may not read the logins still sees the people.
+		frappe.clear_last_message()
+		logins = {}
+	out = [_person(r, logins.get(r.user_id)) for r in rows]
+	linked = set(frappe.get_all("Employee", filters={"user_id": ["is", "set"]}, pluck="user_id"))
+	for email, member in logins.items():
+		if email not in linked and (include_left or member["enabled"]):
+			out.append(_login_only(member))
+	out.sort(key=lambda p: (not p["active"], (p["name"] or "").lower()))
 	return {
-		"people": [_person(r) for r in rows],
+		"people": out,
 		"can_edit": can_edit(),
 		**structure(),
 	}
 
 
-def _person(r) -> dict:
+def _login(member: dict | None) -> dict | None:
+	if not member:
+		return None
+	return {"user": member["email"], "position": member["position"], "enabled": member["enabled"],
+			"is_owner": member["is_owner"]}
+
+
+def _person(r, member: dict | None = None) -> dict:
 	return {
 		"employee": r.name,
 		"name": r.employee_name or " ".join(x for x in (r.first_name, r.last_name) if x) or r.name,
 		"phone": r.cell_number,
 		"user": r.user_id,
+		"login": _login(member) if r.user_id else None,
 		"active": r.status == "Active",
 		"posts": parse(r.get(ROLES_FIELD)),
+	}
+
+
+def _login_only(member: dict) -> dict:
+	"""A login with no person yet — from before «команда» had people."""
+	return {
+		"employee": None,
+		"name": member["full_name"],
+		"phone": frappe.db.get_value("User", member["email"], "mobile_no"),
+		"user": member["email"],
+		"login": _login(member),
+		"active": member["enabled"],
+		"posts": [],
 	}
 
 
@@ -158,19 +197,59 @@ def _phone(value) -> str | None:
 	return phone or None
 
 
+def _new_employee(full: str, company: str, phone=None, posts=None, user: str | None = None) -> str:
+	first, _, last = full.partition(" ")
+	doc = frappe.get_doc({
+		"doctype": "Employee", "first_name": first, "last_name": last or None, "company": company,
+		"status": "Active", "gender": _gender(), "date_of_birth": "1990-01-01", "date_of_joining": nowdate(),
+		"cell_number": _phone(phone), "user_id": user or None,
+		ROLES_FIELD: "\n".join(_clean_posts(posts or [])) or None,
+	}).insert(ignore_permissions=True)
+	return doc.name
+
+
 def add_person(name: str, posts=None, phone: str | None = None) -> dict:
 	"""A person at the company — no login needed; the manager ticks for him."""
 	_ensure_editor()
 	full = _name(name)
-	first, _, last = full.partition(" ")
-	doc = frappe.get_doc({
-		"doctype": "Employee", "first_name": first, "last_name": last or None, "company": current_company(),
-		"status": "Active", "gender": _gender(), "date_of_birth": "1990-01-01", "date_of_joining": nowdate(),
-		"cell_number": _phone(phone), ROLES_FIELD: "\n".join(_clean_posts(posts or [])) or None,
-	}).insert(ignore_permissions=True)
-	audit.record_audit(action="team.person_added", entity_type="Employee", entity_id=doc.name,
-					   diff={"name": full, "posts": parse(doc.get(ROLES_FIELD))})
-	return people()
+	employee = _new_employee(full, current_company(), phone, posts)
+	audit.record_audit(action="team.person_added", entity_type="Employee", entity_id=employee,
+					   diff={"name": full, "posts": _clean_posts(posts or [])})
+	return people(include_left=True)
+
+
+def _same_phone(a, b) -> bool:
+	from korkem_manufacturing.services import auth_otp
+
+	a, b = auth_otp.normalize_phone(a or ""), auth_otp.normalize_phone(b or "")
+	return bool(a) and a == b
+
+
+def join(user: str, full_name: str, phone: str | None, company: str) -> str:
+	"""A login accepted at a company joins its person: the one with this phone
+	who has no login yet, or a new one. One person, never two."""
+	have = frappe.db.get_value("Employee", {"user_id": user, "company": company}, "name")
+	if have:
+		return have
+	for row in frappe.get_all("Employee", filters={"company": company, "user_id": ["is", "not set"],
+												   "status": "Active"},
+							  fields=["name", "cell_number"], limit_page_length=1000):
+		if phone and _same_phone(row.cell_number, phone):
+			frappe.db.set_value("Employee", row.name, "user_id", user)
+			return row.name
+	return _new_employee(_name(full_name or user), company, phone, user=user)
+
+
+def person_of(user: str) -> str:
+	"""The person a login is — made now for a login from before people."""
+	company = current_company()
+	have = frappe.db.get_value("Employee", {"user_id": user, "company": company}, "name")
+	if have:
+		return have
+	if not frappe.db.exists("User", user):
+		frappe.throw("Такого входа нет.", frappe.DoesNotExistError)
+	full, phone = frappe.db.get_value("User", user, ["full_name", "mobile_no"])
+	return join(user, full or user, phone, company)
 
 
 def _employee(employee: str):
@@ -180,9 +259,15 @@ def _employee(employee: str):
 	return row
 
 
-def set_person(employee: str, name: str | None = None, posts=None, phone: str | None = None) -> dict:
-	"""Rename, change the phone or the posts — what is sent changes."""
+def set_person(employee: str | None = None, name: str | None = None, posts=None, phone: str | None = None,
+			   user: str | None = None) -> dict:
+	"""Rename, change the phone or the posts — what is sent changes. A login
+	with no person yet (`user`, no `employee`) becomes one here."""
 	_ensure_editor()
+	if not employee:
+		if not user:
+			frappe.throw("Кого меняем?")
+		employee = person_of(user)
 	_employee(employee)
 	values = {}
 	if name is not None:
@@ -197,18 +282,36 @@ def set_person(employee: str, name: str | None = None, posts=None, phone: str | 
 		frappe.db.set_value("Employee", employee, values)
 		audit.record_audit(action="team.person_changed", entity_type="Employee", entity_id=employee,
 						   diff={k: v for k, v in values.items()})
-	return people()
+	return people(include_left=True)
 
 
-def set_active(employee: str, active) -> dict:
-	"""Left the company: switched off, never deleted — his work stays his."""
+def set_active(employee: str | None = None, active=True, user: str | None = None) -> dict:
+	"""Left the company: switched off, never deleted — his work stays his.
+
+	His login goes with him, and comes back with him, when the one asking
+	may close logins (the owner, `staff`); otherwise the login is left to the
+	owner. A login with no person yet (`user`) becomes one first.
+	"""
+	from korkem_manufacturing.services import staff
+
 	_ensure_editor()
+	if not employee:
+		if not user:
+			frappe.throw("Кого меняем?")
+		employee = person_of(user)
 	_employee(employee)
 	on = str(active).lower() in ("1", "true", "yes")
 	frappe.db.set_value("Employee", employee, {"status": "Active" if on else "Left",
 											   "relieving_date": None if on else nowdate()})
+	login = frappe.db.get_value("Employee", employee, "user_id")
+	if login and login != frappe.session.user and staff.can_invite():
+		enabled = bool(frappe.db.get_value("User", login, "enabled"))
+		if on and not enabled:
+			staff.reactivate(email=login)
+		elif not on and enabled:
+			staff.deactivate(email=login)
 	audit.record_audit(action="team.person_active", entity_type="Employee", entity_id=employee, diff={"active": on})
-	return people()
+	return people(include_left=True)
 
 
 def link_user(employee: str, user: str | None) -> dict:
@@ -223,7 +326,7 @@ def link_user(employee: str, user: str | None) -> dict:
 			frappe.throw(f"Этот вход уже у сотрудника «{other}».")
 	frappe.db.set_value("Employee", employee, "user_id", user or None)
 	audit.record_audit(action="team.person_login", entity_type="Employee", entity_id=employee, diff={"user": user})
-	return people()
+	return people(include_left=True)
 
 
 def posts_for_stage(stage: str, coatings=None) -> list[str]:

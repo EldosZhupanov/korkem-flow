@@ -44,7 +44,34 @@ class TeamDepartment {
   final List<TeamPost> posts;
 }
 
-/// A person at the company — with or without a login ([user]).
+/// A person's login: what the program lets him do ([position]), and whether
+/// it is open. A mark on the person, not a second list (owner, 17.11.2026:
+/// «команда и люди одно и то же»).
+@immutable
+class TeamLogin {
+  const TeamLogin({
+    required this.user,
+    required this.position,
+    this.enabled = true,
+    this.isOwner = false,
+  });
+
+  factory TeamLogin.fromJson(Map<String, dynamic> json) => TeamLogin(
+    user: '${json['user']}',
+    position: '${json['position'] ?? ''}',
+    enabled: json['enabled'] != false,
+    isOwner: json['is_owner'] == true,
+  );
+
+  final String user;
+  final String position;
+  final bool enabled;
+  final bool isOwner;
+}
+
+/// A person at the company — with or without a login ([user]). [employee]
+/// is null for a login from before the team had people: he becomes one the
+/// first time he is changed.
 @immutable
 class TeamPerson {
   const TeamPerson({
@@ -52,29 +79,39 @@ class TeamPerson {
     required this.name,
     this.phone,
     this.user,
+    this.login,
     this.active = true,
     this.posts = const [],
   });
 
   factory TeamPerson.fromJson(Map<String, dynamic> json) => TeamPerson(
-    employee: '${json['employee']}',
-    name: '${json['name'] ?? json['employee']}',
+    employee: json['employee'] == null || '${json['employee']}'.isEmpty
+        ? null
+        : '${json['employee']}',
+    name: '${json['name'] ?? json['employee'] ?? json['user']}',
     phone: json['phone'] == null || '${json['phone']}'.isEmpty
         ? null
         : '${json['phone']}',
     user: json['user'] == null || '${json['user']}'.isEmpty
         ? null
         : '${json['user']}',
+    login: json['login'] is Map
+        ? TeamLogin.fromJson(Map<String, dynamic>.from(json['login'] as Map))
+        : null,
     active: json['active'] != false,
     posts: [for (final p in json['posts'] as List? ?? const []) '$p'],
   );
 
-  final String employee;
+  final String? employee;
   final String name;
   final String? phone;
   final String? user;
+  final TeamLogin? login;
   final bool active;
   final List<String> posts;
+
+  /// One key per person, with or without an employee record.
+  String get id => employee ?? 'user:$user';
 }
 
 /// The departments, their posts and the people on them.
@@ -105,12 +142,18 @@ class TeamPeople {
   /// The people on a post, by name.
   List<TeamPerson> on(String post) => [
     for (final p in people)
-      if (p.posts.contains(post)) p,
+      if (p.active && p.posts.contains(post)) p,
   ];
 
   /// Nobody on any post yet — hired, not yet placed.
   List<TeamPerson> get unplaced => [
     for (final p in people)
-      if (p.posts.isEmpty) p,
+      if (p.active && p.posts.isEmpty) p,
+  ];
+
+  /// Left the company, or the login closed: kept, and can come back.
+  List<TeamPerson> get left => [
+    for (final p in people)
+      if (!p.active) p,
   ];
 }
