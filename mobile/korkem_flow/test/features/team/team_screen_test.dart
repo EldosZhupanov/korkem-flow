@@ -813,7 +813,10 @@ void main() {
 
       // On his own card the owner cannot close his own login.
       await _open(tester, 'Aidos Owner');
-      expect(find.byKey(const ValueKey('teamPersonLoginBlock')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('teamPersonLoginBlock')),
+        findsOneWidget,
+      );
       expect(find.byKey(const ValueKey('teamLoginClose')), findsNothing);
       expect(find.byKey(const ValueKey('teamPersonLeft')), findsNothing);
     },

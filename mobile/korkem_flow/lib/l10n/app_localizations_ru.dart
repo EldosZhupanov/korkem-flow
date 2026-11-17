@@ -9246,6 +9246,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teamAddPersonShort => 'Ещё';
 
   @override
+  String get teamLeft => 'Ушли из компании';
+
+  @override
+  String get teamPersonBack => 'Вернуть в команду';
+
+  @override
   String get teamUnplaced => 'Без должности';
 
   @override

@@ -9184,6 +9184,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get teamAddPersonShort => 'Тағы';
 
   @override
+  String get teamLeft => 'Компаниядан кеткендер';
+
+  @override
+  String get teamPersonBack => 'Командаға қайтару';
+
+  @override
   String get teamUnplaced => 'Лауазымсыз';
 
   @override

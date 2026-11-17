@@ -18,7 +18,6 @@ final teamPeopleProvider = FutureProvider.autoDispose<TeamPeople>(
   (ref) => ref.watch(teamStructureRepositoryProvider).people(),
 );
 
-
 /// Departments, posts and the people on them (owner, 17.11.2026).
 class TeamStructureRepository {
   TeamStructureRepository(this._client);

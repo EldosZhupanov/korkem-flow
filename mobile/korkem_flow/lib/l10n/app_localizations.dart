@@ -15871,6 +15871,18 @@ abstract class AppLocalizations {
   /// **'More'**
   String get teamAddPersonShort;
 
+  /// No description provided for @teamLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left the company'**
+  String get teamLeft;
+
+  /// No description provided for @teamPersonBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring back'**
+  String get teamPersonBack;
+
   /// No description provided for @teamUnplaced.
   ///
   /// In en, this message translates to:

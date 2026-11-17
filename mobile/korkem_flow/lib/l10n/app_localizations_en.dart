@@ -9217,6 +9217,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamAddPersonShort => 'More';
 
   @override
+  String get teamLeft => 'Left the company';
+
+  @override
+  String get teamPersonBack => 'Bring back';
+
+  @override
   String get teamUnplaced => 'No post yet';
 
   @override

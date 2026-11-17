@@ -118,7 +118,6 @@ Future<void> showTeamLoginAction(
   ),
 };
 
-
 class _ForbiddenNoticeBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
