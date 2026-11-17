@@ -4613,6 +4613,35 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get navFacades => 'Custom facades';
+
+  @override
+  String get navFilmSale => 'PVC film sales';
+
+  @override
+  String get navWorkshop => 'Production floor';
+
+  @override
+  String get navGroupSell => 'What we sell';
+
+  @override
+  String get navGroupMoney => 'Money';
+
+  @override
+  String get navGroupCompany => 'Company';
+
+  @override
+  String get facadesHint => 'MDF facades: from the quote to handing over';
+
+  @override
+  String get facadesPath => 'Order path — tap a stage to open the shop plan';
+
+  @override
+  String facadesStageM2(String area) {
+    return '$area m²';
+  }
+
+  @override
   String get navMdf => 'MDF';
 
   @override

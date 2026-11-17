@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_logo.dart';
+import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_destinations.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/navigation/sidebar_entries.dart';
@@ -101,12 +102,27 @@ class AppSidebar extends ConsumerWidget {
                 const Divider(height: AppStroke.hairline),
                 const SizedBox(height: AppSpacing.sm),
 
-                for (final entry in sidebarSectionEntries)
-                  _EntryTile(
-                    entry: entry,
-                    selected: _isSelected(entry),
-                    onTap: () => _go(context, ref, entry),
-                  ),
+                // In groups, each under its heading (owner, 17.11.2026,
+                // variant A): what the company sells, the shop, the money, the
+                // company — the menu reads like the business.
+                for (final group in sidebarSectionGroups) ...[
+                  if (group.labelOf case final labelOf?)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        0,
+                      ),
+                      child: SectionLabel(labelOf(l10n)),
+                    ),
+                  for (final entry in group.entries)
+                    _EntryTile(
+                      entry: entry,
+                      selected: _isSelected(entry),
+                      onTap: () => _go(context, ref, entry),
+                    ),
+                ],
               ],
             ),
           ),

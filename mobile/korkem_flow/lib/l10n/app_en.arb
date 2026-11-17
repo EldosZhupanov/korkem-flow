@@ -5586,6 +5586,22 @@
       }
     }
   },
+  "navFacades": "Custom facades",
+  "navFilmSale": "PVC film sales",
+  "navWorkshop": "Production floor",
+  "navGroupSell": "What we sell",
+  "navGroupMoney": "Money",
+  "navGroupCompany": "Company",
+  "facadesHint": "MDF facades: from the quote to handing over",
+  "facadesPath": "Order path — tap a stage to open the shop plan",
+  "facadesStageM2": "{area} m²",
+  "@facadesStageM2": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
   "navMdf": "MDF",
   "mdfOrders": "Orders",
   "mdfOrdersHint": "All orders: due dates, payments, debt",

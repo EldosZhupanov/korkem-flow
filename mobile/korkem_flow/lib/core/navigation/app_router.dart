@@ -167,6 +167,13 @@ abstract final class Routes {
   /// «МДФ»: one door to every facade-shop screen.
   static const mdf = '/mdf';
 
+  /// The facade shop's parts, each a menu row of its own (owner, 17.11.2026,
+  /// variant A): `MdfScreen` with one `MdfSection`.
+  static const facades = '/facades';
+  static const workshop = '/workshop';
+  static const supplies = '/supplies';
+  static const references = '/references';
+
   /// «Заказы МДФ»: the list, a new order, one order.
   static const mdfOrders = '/mdf/orders';
   static const mdfOrderNew = '/mdf/orders/new';
@@ -353,6 +360,26 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.mdf,
         builder: (context, state) => const MdfScreen(),
+      ),
+      GoRoute(
+        path: Routes.facades,
+        builder: (context, state) =>
+            const MdfScreen(section: MdfSection.facades),
+      ),
+      GoRoute(
+        path: Routes.workshop,
+        builder: (context, state) =>
+            const MdfScreen(section: MdfSection.workshop),
+      ),
+      GoRoute(
+        path: Routes.supplies,
+        builder: (context, state) =>
+            const MdfScreen(section: MdfSection.supplies),
+      ),
+      GoRoute(
+        path: Routes.references,
+        builder: (context, state) =>
+            const MdfScreen(section: MdfSection.references),
       ),
       GoRoute(
         path: Routes.mdfOrders,
