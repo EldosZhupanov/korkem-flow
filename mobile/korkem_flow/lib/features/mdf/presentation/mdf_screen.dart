@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// One door in the sidebar for everything the facade shop does.
@@ -15,8 +18,17 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// туда в отдельный блок»). This screen moves nothing: every row opens the
 /// screen that already exists, at the route it already has, and the old
 /// entry points keep working.
+///
+/// The sidebar no longer opens it whole (owner, 17.11.2026, variant A: «МДФ —
+/// непонятно, что это»): it opens one [section] at a time — «Фасады на
+/// заказ», «Производство», «Склад и закупки», «Справочники и цены» — each
+/// under its own name in its own group of the menu. With no [section] it is
+/// still every row in its groups, at `/mdf`, so nothing that links there
+/// breaks.
 class MdfScreen extends StatelessWidget {
-  const MdfScreen({super.key});
+  const MdfScreen({super.key, this.section});
+
+  final MdfSection? section;
 
   @override
   Widget build(BuildContext context) {
@@ -189,6 +201,38 @@ class MdfScreen extends StatelessWidget {
       l10n.mdfGroupSettings,
     ];
     final children = <Widget>[];
+    final section = this.section;
+    if (section != null) {
+      final byId = {for (final row in rows) row.id: row};
+      if (section == MdfSection.facades) {
+        children
+          ..add(
+            ReadableWidth(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: Text(
+                  l10n.facadesHint,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+          )
+          ..add(const _OrderPath());
+      }
+      for (final id in section.rows) {
+        final row = byId[id];
+        if (row != null) children.add(_tile(context, row));
+      }
+      return Scaffold(
+        appBar: AppBar(title: Text(section.title(l10n))),
+        body: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: children,
+        ),
+      );
+    }
     for (var g = 0; g < titles.length; g++) {
       final inGroup = [
         for (final row in rows)
@@ -243,6 +287,75 @@ class MdfScreen extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// One part of the facade shop with a menu row of its own (variant A).
+enum MdfSection {
+  /// What the client orders: from the quote to the finished order.
+  facades(['orders', 'quote', 'jobs', 'batch']),
+
+  /// The shop floor: what waits on each stage and who did what.
+  workshop(['plan', 'jobs', 'press', 'batch', 'tv', 'paint', 'volume']),
+
+  /// Materials: what is on the shelf, what to buy, what was delivered.
+  supplies(['stock', 'film', 'logistics']),
+
+  /// Set once, used everywhere: the dictionaries and the m² prices.
+  references(['dictionaries', 'prices']);
+
+  const MdfSection(this.rows);
+
+  /// The rows, by id, in the order they stand.
+  final List<String> rows;
+
+  String title(AppLocalizations l10n) => switch (this) {
+    MdfSection.facades => l10n.navFacades,
+    MdfSection.workshop => l10n.navWorkshop,
+    MdfSection.supplies => l10n.mdfGroupStock,
+    MdfSection.references => l10n.mdfGroupSettings,
+  };
+}
+
+/// «Путь заказа»: each stage of the shop with its m² — where the work stands
+/// at a glance; a tap opens the plan.
+class _OrderPath extends ConsumerWidget {
+  const _OrderPath();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final stages = ref.watch(mdfPlanProvider).value?.stages;
+    if (stages == null || stages.isEmpty) return const SizedBox.shrink();
+    return ReadableWidth(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionLabel(l10n.facadesPath),
+            Wrap(
+              key: const ValueKey('facades:path'),
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              children: [
+                for (final s in stages)
+                  ActionChip(
+                    key: ValueKey('facades:stage:${s.stage.name}'),
+                    label: Text(
+                      '${mdfStageLabel(s.stage, l10n)} · '
+                      '${l10n.facadesStageM2(s.areaM2.toStringAsFixed(1))}',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    onPressed: () => context.push(Routes.mdfPlan),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _MdfRow {

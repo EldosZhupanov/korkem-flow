@@ -8163,6 +8163,60 @@ abstract class AppLocalizations {
   /// **'Unaccounted: {qty}{money}'**
   String stockUsageLoss(String qty, String money);
 
+  /// No description provided for @navFacades.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom facades'**
+  String get navFacades;
+
+  /// No description provided for @navFilmSale.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC film sales'**
+  String get navFilmSale;
+
+  /// No description provided for @navWorkshop.
+  ///
+  /// In en, this message translates to:
+  /// **'Production floor'**
+  String get navWorkshop;
+
+  /// No description provided for @navGroupSell.
+  ///
+  /// In en, this message translates to:
+  /// **'What we sell'**
+  String get navGroupSell;
+
+  /// No description provided for @navGroupMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get navGroupMoney;
+
+  /// No description provided for @navGroupCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Company'**
+  String get navGroupCompany;
+
+  /// No description provided for @facadesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'MDF facades: from the quote to handing over'**
+  String get facadesHint;
+
+  /// No description provided for @facadesPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Order path — tap a stage to open the shop plan'**
+  String get facadesPath;
+
+  /// No description provided for @facadesStageM2.
+  ///
+  /// In en, this message translates to:
+  /// **'{area} m²'**
+  String facadesStageM2(String area);
+
   /// No description provided for @navMdf.
   ///
   /// In en, this message translates to:

@@ -4637,6 +4637,36 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get navFacades => 'Фасады на заказ';
+
+  @override
+  String get navFilmSale => 'Плёнка ПВХ — продажа';
+
+  @override
+  String get navWorkshop => 'Производство';
+
+  @override
+  String get navGroupSell => 'Что продаём';
+
+  @override
+  String get navGroupMoney => 'Деньги';
+
+  @override
+  String get navGroupCompany => 'Компания';
+
+  @override
+  String get facadesHint => 'МДФ-фасады: от расчёта до выдачи клиенту';
+
+  @override
+  String get facadesPath =>
+      'Путь заказа — нажмите этап, чтобы открыть план цеха';
+
+  @override
+  String facadesStageM2(String area) {
+    return '$area м²';
+  }
+
+  @override
   String get navMdf => 'МДФ';
 
   @override

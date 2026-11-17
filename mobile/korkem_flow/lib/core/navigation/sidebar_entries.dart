@@ -94,67 +94,147 @@ const sidebarWorkspaceEntries = <SidebarEntry>[
   SidebarAction(icon: AppIcons.add, labelOf: _newChat),
 ];
 
+/// A heading over some rows of the menu, or none.
+class SidebarGroup {
+  const SidebarGroup({required this.entries, this.labelOf});
+
+  /// Null for the rows that need no heading — home and one's own work.
+  final String Function(AppLocalizations l10n)? labelOf;
+  final List<SidebarEntry> entries;
+}
+
 /// The systems the assistant reaches, and which a person can also open
-/// directly. Below the history, under a rule.
-const sidebarSectionEntries = <SidebarEntry>[
-  SidebarBranch(
-    path: Routes.dashboard,
-    icon: AppIcons.dashboard,
-    labelOf: _home,
+/// directly. Below the history, under a rule — in groups by what the company
+/// does (owner, 17.11.2026, variant A): one «МДФ» row hid nineteen screens
+/// behind a word that says nothing to a new hand. Now the menu reads like the
+/// business: what it sells, the shop, the money, the company.
+const sidebarSectionGroups = <SidebarGroup>[
+  SidebarGroup(
+    entries: [
+      SidebarBranch(
+        path: Routes.dashboard,
+        icon: AppIcons.dashboard,
+        labelOf: _home,
+      ),
+      // «Мои заказы» — этапы сотрудника с его телефона (владелец, 17.11.2026).
+      SidebarPage(path: Routes.myWork, icon: AppIcons.check, labelOf: _myWork),
+      SidebarBranch(path: Routes.tasks, icon: AppIcons.task, labelOf: _tasks),
+    ],
   ),
-  SidebarBranch(path: Routes.sales, icon: AppIcons.deal, labelOf: _sales),
-  // «Клиенты» здесь больше нет. Это была вторая дверь в ту же комнату:
-  // «Продажи» открываются вкладками Сделки · Лиды · Клиенты · Счета, и строка
-  // в меню вела на ту же вкладку. Владелец нажимал «Клиенты» и попадал в
-  // «Продажи» — то есть меню обещало раздел, а показывало другой.
-  SidebarPage(
-    path: Routes.enquiryFlow,
-    icon: AppIcons.enquiryFlow,
-    labelOf: _enquiryFlow,
+  SidebarGroup(
+    labelOf: _groupSell,
+    entries: [
+      SidebarPage(
+        path: Routes.facades,
+        icon: AppIcons.board,
+        labelOf: _facades,
+      ),
+      // «Отдел плёнки» — свой отдел (владелец, 10.11.2026): покупает плёнку
+      // у оптовиков и продаёт на метраж.
+      SidebarPage(
+        path: Routes.filmDept,
+        icon: AppIcons.warehouse,
+        labelOf: _filmSale,
+      ),
+      SidebarPage(
+        path: Routes.cncOrders,
+        icon: AppIcons.workOrder,
+        labelOf: _cnc,
+      ),
+      // «Клиенты» здесь больше нет. Это была вторая дверь в ту же комнату:
+      // «Продажи» открываются вкладками Сделки · Лиды · Клиенты · Счета, и
+      // строка в меню вела на ту же вкладку.
+      SidebarBranch(path: Routes.sales, icon: AppIcons.deal, labelOf: _sales),
+      SidebarPage(
+        path: Routes.enquiryFlow,
+        icon: AppIcons.enquiryFlow,
+        labelOf: _enquiryFlow,
+      ),
+    ],
   ),
-  // «МДФ» — всё по фасадам в одном месте (владелец, 31.10.2026): заказы,
-  // расчёт, цех, пресс, склад, логистика, цены. Раньше это лежало в
-  // настройках и внутри других экранов.
-  SidebarPage(path: Routes.mdf, icon: AppIcons.board, labelOf: _mdf),
-  // «Мои заказы» — этапы сотрудника с его телефона (владелец, 17.11.2026).
-  SidebarPage(path: Routes.myWork, icon: AppIcons.check, labelOf: _myWork),
-  SidebarBranch(path: Routes.tasks, icon: AppIcons.task, labelOf: _tasks),
-  SidebarLink(
-    path: Routes.production,
-    icon: AppIcons.workOrder,
-    labelOf: _production,
+  SidebarGroup(
+    labelOf: _groupShop,
+    entries: [
+      SidebarPage(
+        path: Routes.workshop,
+        icon: AppIcons.task,
+        labelOf: _workshop,
+      ),
+      SidebarPage(
+        path: Routes.mdfPaint,
+        icon: AppIcons.colour,
+        labelOf: _paint,
+      ),
+      SidebarPage(path: Routes.mdfTv, icon: AppIcons.tv, labelOf: _tv),
+      SidebarLink(
+        path: Routes.production,
+        icon: AppIcons.workOrder,
+        labelOf: _production,
+      ),
+    ],
   ),
+  SidebarGroup(
+    labelOf: _groupMoney,
+    entries: [
+      SidebarPage(
+        path: Routes.mdfCash,
+        icon: AppIcons.payroll,
+        labelOf: _cash,
+      ),
+      SidebarPage(
+        path: Routes.mdfDebts,
+        icon: AppIcons.payroll,
+        labelOf: _debts,
+      ),
+      SidebarPage(
+        path: Routes.mdfReport,
+        icon: AppIcons.report,
+        labelOf: _report,
+      ),
+    ],
+  ),
+  SidebarGroup(
+    labelOf: _groupCompany,
+    entries: [
+      SidebarPage(
+        path: Routes.supplies,
+        icon: AppIcons.material,
+        labelOf: _supplies,
+      ),
+      SidebarPage(path: Routes.items, icon: AppIcons.item, labelOf: _items),
+      SidebarPage(
+        path: Routes.materials,
+        icon: AppIcons.material,
+        labelOf: _materials,
+      ),
+      SidebarPage(
+        path: Routes.hardware,
+        icon: AppIcons.hardware,
+        labelOf: _hardware,
+      ),
+      // Команда — ежедневная работа владельца, а не настройка.
+      SidebarPage(path: Routes.team, icon: AppIcons.team, labelOf: _team),
+      SidebarPage(
+        path: Routes.references,
+        icon: AppIcons.dictionary,
+        labelOf: _references,
+      ),
+    ],
+  ),
+];
+
+/// Every section row, in menu order.
+final sidebarSectionEntries = <SidebarEntry>[
+  for (final group in sidebarSectionGroups) ...group.entries,
+];
+
+/// Pinned to the bottom, where every application has taught people to look.
+const sidebarFooterEntries = <SidebarEntry>[
   SidebarBranch(
     path: Routes.profile,
     icon: AppIcons.profile,
     labelOf: _profile,
   ),
-  SidebarPage(
-    path: Routes.items,
-    icon: AppIcons.item,
-    labelOf: _items,
-  ),
-  SidebarPage(
-    path: Routes.materials,
-    icon: AppIcons.material,
-    labelOf: _materials,
-  ),
-  SidebarPage(
-    path: Routes.hardware,
-    icon: AppIcons.hardware,
-    labelOf: _hardware,
-  ),
-  // Команда — ежедневная работа владельца, а не настройка. В настройках она
-  // лежала рядом с выбором темы, то есть рядом с тем, что трогают раз в жизни.
-  SidebarPage(
-    path: Routes.team,
-    icon: AppIcons.team,
-    labelOf: _team,
-  ),
-];
-
-/// Pinned to the bottom, where every application has taught people to look.
-const sidebarFooterEntries = <SidebarEntry>[
   SidebarPage(
     path: Routes.settings,
     icon: AppIcons.settings,
@@ -163,7 +243,7 @@ const sidebarFooterEntries = <SidebarEntry>[
 ];
 
 /// Every row, for the tests that check each one against the router.
-const sidebarEntries = <SidebarEntry>[
+final sidebarEntries = <SidebarEntry>[
   ...sidebarWorkspaceEntries,
   ...sidebarSectionEntries,
 ];
@@ -172,7 +252,21 @@ String _newChat(AppLocalizations l10n) => l10n.chatNew;
 String _assistant(AppLocalizations l10n) => l10n.navAssistant;
 String _home(AppLocalizations l10n) => l10n.navDashboard;
 String _sales(AppLocalizations l10n) => l10n.navSales;
-String _mdf(AppLocalizations l10n) => l10n.navMdf;
+String _facades(AppLocalizations l10n) => l10n.navFacades;
+String _filmSale(AppLocalizations l10n) => l10n.navFilmSale;
+String _cnc(AppLocalizations l10n) => l10n.cncTitle;
+String _workshop(AppLocalizations l10n) => l10n.navWorkshop;
+String _paint(AppLocalizations l10n) => l10n.mdfPaintTitle;
+String _tv(AppLocalizations l10n) => l10n.mdfTvTitle;
+String _cash(AppLocalizations l10n) => l10n.mdfCashTitle;
+String _debts(AppLocalizations l10n) => l10n.mdfDebtsTitle;
+String _report(AppLocalizations l10n) => l10n.mdfReportTitle;
+String _supplies(AppLocalizations l10n) => l10n.mdfGroupStock;
+String _references(AppLocalizations l10n) => l10n.mdfGroupSettings;
+String _groupSell(AppLocalizations l10n) => l10n.navGroupSell;
+String _groupShop(AppLocalizations l10n) => l10n.mdfGroupShop;
+String _groupMoney(AppLocalizations l10n) => l10n.navGroupMoney;
+String _groupCompany(AppLocalizations l10n) => l10n.navGroupCompany;
 String _myWork(AppLocalizations l10n) => l10n.myWorkTitle;
 String _tasks(AppLocalizations l10n) => l10n.navTasks;
 String _production(AppLocalizations l10n) => l10n.navOperations;
