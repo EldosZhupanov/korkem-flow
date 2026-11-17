@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +28,9 @@ import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_sales_tab.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_team_tab.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
+import 'package:korkem_flow/features/mdf/data/glue_stock_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/glue_stock.dart';
+import 'package:korkem_flow/features/mdf/presentation/glue_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -408,6 +412,37 @@ class _StockTabState extends ConsumerState<_StockTab> {
     if (done ?? false) _refresh(ref);
   }
 
+  /// «Клей ПВХ»: what is on the store, in buckets, and how long it lasts
+  /// at the last month's pace; a tap opens the glue screen.
+  FigureTile _glueTile(AppLocalizations l10n, GlueStock glue) {
+    final kg = glue.glues.fold<double>(0, (s, g) => s + g.onHandKg);
+    final used = glue.glues.fold<double>(
+      0,
+      (s, g) =>
+          s + (g.fact?.kgByNorm ?? 0.0) + max(g.fact?.kgCounted ?? 0.0, 0.0),
+    );
+    final bucket = (glue.working ?? glue.glues.firstOrNull)?.bucketKg;
+    final days = used > 0
+        ? (kg / (used / max(glue.usageDays, 1))).floor()
+        : null;
+    return FigureTile(
+      id: 'filmStock:glue',
+      title: l10n.filmFigGlue,
+      value: glue.glues.isEmpty ? '—' : l10n.filmFigGlueKg(filmMetres(kg)),
+      note: glue.glues.isEmpty
+          ? l10n.filmFigGlueNone
+          : switch ([
+              if (bucket != null && bucket > 0)
+                l10n.filmFigGlueBuckets(filmMetres(kg / bucket)),
+              if (days != null) l10n.filmFigGlueDays('$days'),
+            ]) {
+              [] => null,
+              final parts => parts.join(' · '),
+            },
+      onTap: () => unawaited(context.push(Routes.glue)),
+    );
+  }
+
   Future<void> _want(Film film) async {
     final done = await showFilmWant(context, film);
     if (done ?? false) _refresh(ref);
@@ -419,6 +454,9 @@ class _StockTabState extends ConsumerState<_StockTab> {
     final theme = Theme.of(context);
     final status = context.statusColors;
     final stock = ref.watch(filmStockProvider);
+    // The glue sold with the film, at a glance (owner, 17.11.2026,
+    // variant А); a glue screen the user may not open shows nothing here.
+    final glue = ref.watch(glueStockProvider).value;
     return stock.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) =>
@@ -523,48 +561,78 @@ class _StockTabState extends ConsumerState<_StockTab> {
                   selected: _filter == _StockFilter.none,
                   onTap: () => narrow(_StockFilter.none),
                 ),
+                if (glue != null) _glueTile(l10n, glue),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            // What we do, then what we look at, the search on the right
+            // (owner, 17.11.2026, variant А): «Приход ▾» takes in the film
+            // or the glue; «Продать» sells both.
+            Row(
               children: [
-                // A receipt straight from the stock list: pick the film,
-                // then the usual window (owner, 12.11.2026).
-                if (c.canEdit)
-                  FilledButton.icon(
-                    key: const ValueKey('filmDept:receive'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: status.success,
-                      foregroundColor: on(status.success),
-                    ),
-                    onPressed: () => _receive(c),
-                    icon: const Icon(AppIcons.moveIn),
-                    label: Text(l10n.filmReceive),
+                Expanded(
+                  child: Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (c.canEdit)
+                        MenuAnchor(
+                          menuChildren: [
+                            MenuItemButton(
+                              key: const ValueKey('filmDept:receiveFilm'),
+                              leadingIcon: const Icon(AppIcons.moveIn),
+                              onPressed: () => unawaited(_receive(c)),
+                              child: Text(l10n.filmReceiveFilm),
+                            ),
+                            MenuItemButton(
+                              key: const ValueKey('filmDept:receiveGlue'),
+                              leadingIcon: const Icon(AppIcons.textured),
+                              onPressed: () =>
+                                  unawaited(openGlueReceipt(context, ref)),
+                              child: Text(l10n.filmReceiveGlue),
+                            ),
+                          ],
+                          builder: (context, menu, _) => FilledButton.icon(
+                            key: const ValueKey('filmDept:receive'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: status.success,
+                              foregroundColor: on(status.success),
+                            ),
+                            onPressed: () =>
+                                menu.isOpen ? menu.close() : menu.open(),
+                            icon: const Icon(AppIcons.moveIn),
+                            label: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(l10n.filmReceive),
+                                const Icon(AppIcons.expand),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (c.canEdit)
+                        FilledButton.icon(
+                          key: const ValueKey('filmDept:sell'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: status.info,
+                            foregroundColor: on(status.info),
+                          ),
+                          onPressed: () => _sell(c),
+                          icon: const Icon(AppIcons.add),
+                          label: Text(l10n.filmSell),
+                        ),
+                      if (c.canEdit)
+                        const SizedBox(
+                          height: AppSpacing.xl,
+                          child: VerticalDivider(width: AppSpacing.md),
+                        ),
+                      // «К заказу» (owner, 12.11.2026): the day's list.
+                      if (c.canEdit) FilmOrdersButton(stock: c),
+                    ],
                   ),
-                if (c.canEdit)
-                  FilledButton.icon(
-                    key: const ValueKey('filmDept:sell'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: status.info,
-                      foregroundColor: on(status.info),
-                    ),
-                    onPressed: () => _sell(c),
-                    icon: const Icon(AppIcons.add),
-                    label: Text(l10n.filmSell),
-                  ),
-                // «К заказу» (owner, 12.11.2026): the day's list.
-                if (c.canEdit) FilmOrdersButton(stock: c),
-                // The glue sold with the film is kept in its own store
-                // (owner, 17.11.2026: «а где вообще приход клея?»).
-                OutlinedButton.icon(
-                  key: const ValueKey('filmDept:glue'),
-                  onPressed: () => unawaited(context.push(Routes.glue)),
-                  icon: const Icon(AppIcons.textured),
-                  label: Text(l10n.filmGlueOpen),
                 ),
+                const SizedBox(width: AppSpacing.sm),
                 SizedBox(
                   width: AppSpacing.xxxl * 6,
                   child: TextField(
