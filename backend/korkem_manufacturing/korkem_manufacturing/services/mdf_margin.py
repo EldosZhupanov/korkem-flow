@@ -179,10 +179,11 @@ def _glue(order: str) -> tuple[list[dict], bool, list[str]]:
 				 "price": round(flt(t.amount) / flt(t.qty), 2) if flt(t.qty) else None,
 				 "cost": round(flt(t.amount), 2)} for t in taken], False, []
 	glue = glue_stock.order_glue(order)
-	if not glue["kg"]:
+	# A shop that keeps no glue on the store yet has nothing to count it at.
+	if not glue["kg"] or not glue["item"]:
 		return [], False, []
-	title = glue["title"] or "Клей ПВХ"
-	price = unit_cost(glue["item"]) if glue["item"] else None
+	title = glue["title"] or glue["item"]
+	price = unit_cost(glue["item"])
 	return ([{"item": glue["item"], "title": title, "unit": glue_stock.UNIT, "qty": glue["kg"], "price": price,
 			  "cost": round(glue["kg"] * flt(price), 2)}], True, [] if price is not None else [title])
 
