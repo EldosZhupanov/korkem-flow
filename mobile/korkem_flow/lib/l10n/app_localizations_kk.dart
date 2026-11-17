@@ -4575,6 +4575,36 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String get navFacades => 'Тапсырыспен фасадтар';
+
+  @override
+  String get navFilmSale => 'ПВХ үлдірі — сату';
+
+  @override
+  String get navWorkshop => 'Өндіріс';
+
+  @override
+  String get navGroupSell => 'Не сатамыз';
+
+  @override
+  String get navGroupMoney => 'Ақша';
+
+  @override
+  String get navGroupCompany => 'Компания';
+
+  @override
+  String get facadesHint => 'МДФ фасадтар: есептен клиентке беруге дейін';
+
+  @override
+  String get facadesPath =>
+      'Тапсырыс жолы — цех жоспарын ашу үшін кезеңді басыңыз';
+
+  @override
+  String facadesStageM2(String area) {
+    return '$area м²';
+  }
+
+  @override
   String get navMdf => 'МДФ';
 
   @override
