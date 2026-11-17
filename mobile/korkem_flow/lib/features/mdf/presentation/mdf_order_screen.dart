@@ -2655,6 +2655,17 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         MdfClientPaintView(order: o),
         // What its paint takes and costs, by the shop's recipe.
         MdfOrderPaintView(order: o),
+        // Its PVC positions' glue, by the glue in work (owner, 17.11.2026).
+        if (o.glue case final glue?)
+          Text(
+            l10n.glueOrderPlan(
+              glue.kg.toStringAsFixed(2),
+              glue.title ?? l10n.glueTitle,
+              glue.normGM2.round().toString(),
+            ),
+            key: const ValueKey('mdfOrderGlue'),
+            style: theme.textTheme.bodyMedium,
+          ),
         // What the order earned (owner, 14.11.2026).
         MdfMarginView(order: o.name),
         const SizedBox(height: AppSpacing.sm),
@@ -3035,6 +3046,12 @@ Widget _linesTable(
                       patina: l10n.mdfPatina,
                     ))
                       Text(x, style: theme.textTheme.bodySmall),
+                    // Its glue, by the glue in work (owner, 17.11.2026).
+                    if (line.glueKg case final kg?)
+                      Text(
+                        l10n.glueLineKg(kg.toStringAsFixed(3)),
+                        style: theme.textTheme.bodySmall,
+                      ),
                   ],
                 ),
               ),

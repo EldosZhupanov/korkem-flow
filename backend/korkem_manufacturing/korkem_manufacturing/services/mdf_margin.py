@@ -21,8 +21,11 @@ the paint store for the order, at its valuation; before that, the shop's
 recipe for its m² at today's prices (`paint_recipe`), as an estimate. The
 customer's own paint costs the shop nothing.
 
-**Not counted**, and the screen says so: glue, power, delivery — nobody
-records them per order. The margin is therefore an upper bound.
+**Glue** (owner, 17.11.2026) the same way: what «Вакуум» took off the store,
+else its positions by the glue in work's norm (`glue_stock`).
+
+**Not counted**, and the screen says so: power, delivery — nobody records
+them per order. The margin is therefore an upper bound.
 
 A rework or a warranty job has no price: its «margin» is what the mistake
 cost, which is the point of showing it.
@@ -62,9 +65,10 @@ def _margin(order: str, revenue: float) -> dict:
 		rows, missing = _estimated(order)
 		estimate = bool(rows)
 	paint_rows, paint_estimate, paint_missing = _paint(order)
-	rows = rows + paint_rows
-	estimate = estimate or paint_estimate
-	missing = missing + paint_missing
+	glue_rows, glue_estimate, glue_missing = _glue(order)
+	rows = rows + paint_rows + glue_rows
+	estimate = estimate or paint_estimate or glue_estimate
+	missing = missing + paint_missing + glue_missing
 	material = round(sum(r["cost"] for r in rows), 2)
 	work = _work([order]).get(order, 0.0)
 	cost = round(material + work, 2)
@@ -155,6 +159,32 @@ def _paint(order: str) -> tuple[list[dict], bool, list[str]]:
 			if line["cost"] is None and line["name"] not in missing:
 				missing.append(line["name"])
 	return list(rows.values()), bool(rows), missing
+
+
+def _glue(order: str) -> tuple[list[dict], bool, list[str]]:
+	"""The order's PVC glue (owner, 17.11.2026): as taken off the store when
+	«Вакуум» was ticked, else by its positions at the glue in work's price."""
+	from korkem_manufacturing.services import glue_stock
+
+	taken = frappe.db.sql(
+		"""select d.item_code, d.item_name, sum(d.transfer_qty) as qty, sum(d.amount) as amount
+		from `tabStock Entry Detail` d join `tabStock Entry` e on e.name = d.parent
+		where e.korkem_glue_order = %s and e.korkem_glue_use = %s and e.docstatus = 1
+		group by d.item_code, d.item_name""",
+		(order, glue_stock.USE_ORDER),
+		as_dict=True,
+	)
+	if taken:
+		return [{"item": t.item_code, "title": t.item_name, "unit": glue_stock.UNIT, "qty": round(flt(t.qty), 3),
+				 "price": round(flt(t.amount) / flt(t.qty), 2) if flt(t.qty) else None,
+				 "cost": round(flt(t.amount), 2)} for t in taken], False, []
+	glue = glue_stock.order_glue(order)
+	if not glue["kg"]:
+		return [], False, []
+	title = glue["title"] or "Клей ПВХ"
+	price = unit_cost(glue["item"]) if glue["item"] else None
+	return ([{"item": glue["item"], "title": title, "unit": glue_stock.UNIT, "qty": glue["kg"], "price": price,
+			  "cost": round(glue["kg"] * flt(price), 2)}], True, [] if price is not None else [title])
 
 
 def unit_cost(item: str) -> float | None:

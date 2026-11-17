@@ -1145,18 +1145,22 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
 
 /// A paint supplier's card: the company or the person, city, contact,
 /// phones, the smallest batch it sells, a note.
+///
+/// [title] for another department's supplier — the glue's (17.11.2026).
 Future<PaintSupplierCard?> showPaintSupplierCard(
   BuildContext context, {
   PaintSupplier? current,
+  String? title,
 }) => showDialog<PaintSupplierCard>(
   context: context,
-  builder: (_) => _SupplierCardDialog(current: current),
+  builder: (_) => _SupplierCardDialog(current: current, title: title),
 );
 
 class _SupplierCardDialog extends StatefulWidget {
-  const _SupplierCardDialog({this.current});
+  const _SupplierCardDialog({this.current, this.title});
 
   final PaintSupplier? current;
+  final String? title;
 
   @override
   State<_SupplierCardDialog> createState() => _SupplierCardDialogState();
@@ -1208,7 +1212,7 @@ class _SupplierCardDialogState extends State<_SupplierCardDialog> {
     return AlertDialog(
       title: Text(
         widget.current == null
-            ? l10n.paintSupplierCard
+            ? widget.title ?? l10n.paintSupplierCard
             : l10n.paintSupplierEdit,
       ),
       content: SizedBox(

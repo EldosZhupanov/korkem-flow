@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/features/mdf/domain/glue_stock.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 
@@ -379,6 +380,7 @@ class MdfLine {
     this.clientFilm = false,
     this.clientMdf = false,
     this.gloss,
+    this.glueKg,
   });
 
   factory MdfLine.fromJson(Map<String, dynamic> json) => MdfLine(
@@ -403,6 +405,7 @@ class MdfLine {
     clientFilm: json['client_film'] == true,
     clientMdf: json['client_mdf'] == true,
     gloss: MdfGloss.parse(json['gloss']),
+    glueKg: json['glue_kg'] == null ? null : _d(json['glue_kg']),
   );
 
   final int heightMm;
@@ -428,6 +431,9 @@ class MdfLine {
   final bool clientFilm;
   final bool clientMdf;
   final MdfGloss? gloss;
+
+  /// The PVC glue this position takes, by the glue in work (17.11.2026).
+  final double? glueKg;
 }
 
 /// A paint group's finish (owner, 15.11.2026: «вид покрытия»).
@@ -606,6 +612,7 @@ class MdfOrder {
     this.press = const {},
     this.clientPaint,
     this.paint = const [],
+    this.glue,
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -695,6 +702,9 @@ class MdfOrder {
       for (final p in json['paint'] as List? ?? const [])
         if (p is Map) PaintPlan.fromJson(Map<String, dynamic>.from(p)),
     ],
+    glue: json['glue'] is Map
+        ? OrderGlue.fromJson(Map<String, dynamic>.from(json['glue'] as Map))
+        : null,
   );
 
   final String name;
@@ -752,6 +762,9 @@ class MdfOrder {
   /// What its paint takes by the shop's recipe, colour by colour, and what
   /// it costs (owner, 15.11.2026).
   final List<PaintPlan> paint;
+
+  /// Its PVC positions' glue, by the glue in work (owner, 17.11.2026).
+  final OrderGlue? glue;
 
   List<MdfOrderTag> get tags => head.tags;
 

@@ -163,6 +163,15 @@ class MdfScreen extends StatelessWidget {
         l10n.mdfDictHint,
         Routes.mdfDictionaries,
       ),
+      // «Клей для ПВХ» (owner, 17.11.2026): each glue, who sells it, the
+      // norm a m², the millings' factors.
+      _MdfRow(
+        'glue',
+        AppIcons.textured,
+        l10n.glueTitle,
+        l10n.glueRowHint,
+        Routes.glue,
+      ),
       _MdfRow(
         'prices',
         AppIcons.payroll,
@@ -192,6 +201,7 @@ class MdfScreen extends StatelessWidget {
       'film': 2,
       'logistics': 2,
       'dictionaries': 3,
+      'glue': 3,
       'prices': 3,
     };
     final titles = [
@@ -298,10 +308,10 @@ enum MdfSection {
   workshop(['plan', 'jobs', 'press', 'batch', 'tv', 'paint', 'volume']),
 
   /// Materials: what is on the shelf, what to buy, what was delivered.
-  supplies(['stock', 'film', 'logistics']),
+  supplies(['stock', 'film', 'glue', 'logistics']),
 
   /// Set once, used everywhere: the dictionaries and the m² prices.
-  references(['dictionaries', 'prices']);
+  references(['dictionaries', 'glue', 'prices']);
 
   const MdfSection(this.rows);
 
