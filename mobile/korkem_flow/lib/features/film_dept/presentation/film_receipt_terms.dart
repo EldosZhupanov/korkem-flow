@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/glue_stock.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
@@ -631,3 +632,11 @@ class FilmDeliveryField extends ConsumerWidget {
     );
   }
 }
+
+/// A sale line's quantity as said: «12 м» for film, glue's «2 ведра» or «5 л»
+/// (owner, 17.11.2026).
+String filmLineQty(AppLocalizations l10n, FilmSaleLine l) => l.unit == null
+    ? '${filmMetres(l.metres)} м'
+    : l.unit == GlueUnit.litre.wire
+    ? l10n.filmGlueLitres(filmMetres(l.qty))
+    : l10n.filmGlueBuckets(filmMetres(l.qty));

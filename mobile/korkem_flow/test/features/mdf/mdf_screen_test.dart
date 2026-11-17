@@ -32,6 +32,7 @@ void main() {
     'film': Routes.mdfFilm,
     'logistics': Routes.logistics,
     'dictionaries': Routes.mdfDictionaries,
+    'glue': Routes.glue,
     'prices': Routes.facadePrices,
   };
 

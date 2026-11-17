@@ -37,6 +37,8 @@ import 'package:korkem_flow/features/material_stock/presentation/material_stock_
 import 'package:korkem_flow/features/materials/presentation/materials_screen.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/film_shortage_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/glue_month_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/glue_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_batch_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_cash_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_debts_screen.dart';
@@ -173,6 +175,10 @@ abstract final class Routes {
   static const workshop = '/workshop';
   static const supplies = '/supplies';
   static const references = '/references';
+
+  /// «Клей для ПВХ» (owner, 17.11.2026).
+  static const glue = '/glue';
+  static const glueMonth = '/glue/month';
 
   /// «Заказы МДФ»: the list, a new order, one order.
   static const mdfOrders = '/mdf/orders';
@@ -375,6 +381,14 @@ GoRouter createRouter(Ref ref) {
         path: Routes.supplies,
         builder: (context, state) =>
             const MdfScreen(section: MdfSection.supplies),
+      ),
+      GoRoute(
+        path: Routes.glue,
+        builder: (context, state) => const GlueScreen(),
+      ),
+      GoRoute(
+        path: Routes.glueMonth,
+        builder: (context, state) => const GlueMonthScreen(),
       ),
       GoRoute(
         path: Routes.references,

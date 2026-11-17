@@ -139,12 +139,9 @@ Future<Uint8List> buildFilmReceiptPdf(
                         ],
                       ),
                     ),
-                    cell(metres(l.metres), right: true),
-                    cell(money.format(l.priceM ?? 0), right: true),
-                    cell(
-                      money.format(l.metres * (l.priceM ?? 0)),
-                      right: true,
-                    ),
+                    cell(metres(l.qty), right: true),
+                    cell(money.format(l.price ?? 0), right: true),
+                    cell(money.format(l.lineAmount), right: true),
                   ],
                 ),
             ],
@@ -486,7 +483,7 @@ Future<Uint8List> buildFilmInvoicePdf(
   ].join(', ');
   final total = sale.lines.fold<double>(
     0,
-    (s, l) => s + l.metres * (l.priceM ?? 0),
+    (s, l) => s + l.lineAmount,
   );
   final sum = sale.amount ?? total;
   doc.addPage(
@@ -602,13 +599,10 @@ Future<Uint8List> buildFilmInvoicePdf(
                         if (l.code case final code? when code.isNotEmpty) code,
                       ].join(' · '),
                     ),
-                    cell(metres(l.metres), right: true),
-                    cell(words.metreUnit),
-                    cell(money.format(l.priceM ?? 0), right: true),
-                    cell(
-                      money.format(l.metres * (l.priceM ?? 0)),
-                      right: true,
-                    ),
+                    cell(metres(l.qty), right: true),
+                    cell(l.unit ?? words.metreUnit),
+                    cell(money.format(l.price ?? 0), right: true),
+                    cell(money.format(l.lineAmount), right: true),
                   ],
                 ),
             ],

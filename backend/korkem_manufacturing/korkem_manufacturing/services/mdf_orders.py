@@ -744,6 +744,8 @@ def _tick(order: str, stage: str, done=True, worker: str | None = None) -> None:
 					   diff={"stage": stage, "done": done, "ready": ready, "worker": worker if done else None})
 	if stage == "paint":
 		_paint_used(doc.name, done)
+	if stage == "vacuum":
+		_glue_used(doc.name, done)
 
 
 def _paint_used(order: str, done: bool) -> None:
@@ -764,6 +766,28 @@ def _paint_used(order: str, done: bool) -> None:
 		frappe.db.rollback(save_point=savepoint)
 		frappe.log_error(title=f"Списание краски: {order}")
 		audit.record_audit(action="paint.use_failed", entity_type="Sales Order", entity_id=order,
+						   diff={"done": done})
+	else:
+		frappe.db.release_savepoint(savepoint)
+
+
+def _glue_used(order: str, done: bool) -> None:
+	"""«Вакуум» takes the order's glue off the store, by its positions;
+	unticked, puts it back (`glue_stock`). As with paint, a write-off that
+	fails is logged, never a reason to refuse the tick."""
+	from korkem_manufacturing.services import glue_stock
+
+	savepoint = "korkem_glue_" + frappe.generate_hash(length=8)
+	frappe.db.savepoint(savepoint)
+	try:
+		if done:
+			glue_stock.use_for_order(order)
+		else:
+			glue_stock.return_for_order(order)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		frappe.log_error(title=f"Списание клея: {order}")
+		audit.record_audit(action="glue.use_failed", entity_type="Sales Order", entity_id=order,
 						   diff={"done": done})
 	else:
 		frappe.db.release_savepoint(savepoint)
@@ -873,6 +897,7 @@ def card(order: str) -> dict:
 	facade_prices.ensure_editor()
 	doc = _order(order)
 	needed = stages_of(doc)
+	glue = _glue_plan(doc.name)
 	lines = [
 		{
 			"name": item.name,
@@ -897,6 +922,8 @@ def card(order: str) -> dict:
 			"client_mdf": bool(item.get("korkem_client_mdf")),
 			"client_film": bool(item.get("korkem_client_film")),
 			"gloss": item.get("korkem_paint_gloss"),
+			# The PVC glue this position takes (owner, 17.11.2026).
+			"glue_kg": glue["lines"].get(item.name) if glue else None,
 		}
 		for item in doc.items
 		if item.item_code == facade_order.FACADE_ITEM
@@ -949,7 +976,16 @@ def card(order: str) -> dict:
 		"client_paint": {"note": doc.get("korkem_client_paint_note"), "in": bool(doc.get("korkem_client_paint_in"))}
 		if mdf_tags.CLIENT_PAINT in mdf_tags.parse(doc.get("korkem_tags")) else None,
 		"paint": _paint_plan(doc.name),
+		# Each PVC position's glue, by the glue in work (owner, 17.11.2026).
+		"glue": glue,
 	}
+
+
+def _glue_plan(order: str) -> dict | None:
+	from korkem_manufacturing.services import glue_stock
+
+	glue = glue_stock.order_glue(order)
+	return glue if glue["kg"] else None
 
 
 def _paint_plan(order: str) -> list[dict]:

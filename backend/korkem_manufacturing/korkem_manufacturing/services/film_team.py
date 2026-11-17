@@ -102,7 +102,7 @@ def team(month: str | None = None) -> dict:
 		seller = s.korkem_film_seller or s.owner
 		lines = frappe.get_all(
 			"Stock Entry Detail", filters={"parent": s.name},
-			fields=["qty", "basic_rate", "korkem_film_price_m"],
+			fields=["qty", "basic_rate", "korkem_film_price_m", "korkem_sale_unit"],
 		)
 		amount = flt(s.korkem_film_amount)
 		debt = amount - flt(s.korkem_film_paid)
@@ -111,7 +111,8 @@ def team(month: str | None = None) -> dict:
 		margin = sum((flt(l.korkem_film_price_m) - flt(l.basic_rate)) * flt(l.qty) for l in lines)
 		if start <= getdate(s.posting_date) <= end:
 			r = row(seller)
-			r["metres"] += sum(flt(l.qty) for l in lines)
+			# Glue sold with the film counts in the margin, not the metres.
+			r["metres"] += sum(flt(l.qty) for l in lines if not l.korkem_sale_unit)
 			r["sales"] += 1
 		# What was paid this month, and the margin it carries.
 		paid = 0.0
@@ -197,8 +198,10 @@ def report(month: str | None = None) -> dict:
 	):
 		for line in frappe.get_all(
 			"Stock Entry Detail", filters={"parent": s},
-			fields=["item_code", "qty", "basic_rate", "korkem_film_price_m"],
+			fields=["item_code", "qty", "basic_rate", "korkem_film_price_m", "korkem_sale_unit"],
 		):
+			if line.korkem_sale_unit:  # glue: the film report is the film's
+				continue
 			row = by_item.setdefault(line.item_code, {"item": line.item_code, "metres": 0.0, "amount": 0.0,
 													   "margin": 0.0, "sales": 0})
 			row["metres"] += flt(line.qty)

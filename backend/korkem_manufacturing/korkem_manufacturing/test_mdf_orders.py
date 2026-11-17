@@ -1064,6 +1064,142 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertEqual((line["price_kg"], plan["price_m2"], plan["markup_pct"]), (2500, 9000, 40))
 		self._as(BUYER, paint_stock.set_recipe, paint_recipe.DEFAULT)
 
+	def test_vacuum_takes_the_glue_off_the_store_by_its_positions(self):
+		from korkem_manufacturing.services import glue_stock, material_stock, mdf_margin
+
+		# Owner, 17.11.2026: glue is bought in Almaty, Astana, Semey from
+		# companies that may sell film too; one barrel, glue and hardener
+		# together; sold on by the bucket and the litre with a mark-up.
+		BUYER = "Administrator"
+		tag = frappe.generate_hash(length=4)
+		supplier_name = f"МДФ Тест Клей {tag}"
+		frappe.set_user("Administrator")
+		material_stock.add_supplier(supplier_name)  # known already — sells film
+		got = self._as(BUYER, glue_stock.add_supplier, supplier_name, city="Алматы")
+		self.assertEqual(frappe.db.count("Supplier", {"supplier_name": supplier_name}), 1)  # one company, one supplier
+		supplier = frappe.db.get_value("Supplier", {"supplier_name": supplier_name}, "name")
+		self.assertEqual(next(s for s in got["suppliers"] if s["supplier"] == supplier)["city"], "Алматы")
+		frappe.set_user("Administrator")
+		material_stock.add_supplier(f"МДФ Тест Не клей {tag}")
+		stranger = frappe.db.get_value("Supplier", {"supplier_name": f"МДФ Тест Не клей {tag}"}, "name")
+
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, glue_stock.add_glue, f"Клей {tag}")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BUYER, glue_stock.add_glue, f"Клей {tag} густой", kg_per_litre=5)
+		got = self._as(BUYER, glue_stock.add_glue, f"Клей {tag}", origin="Китай", bucket_kg=20, kg_per_litre="1,04",
+					   norm_g_m2=100, markup_bucket=20, markup_litre=50)
+		item = next(g["item"] for g in got["glues"] if g["title"] == f"Клей {tag}")
+		self._as(BUYER, glue_stock.set_in_work, item)
+		with self.assertRaises(frappe.ValidationError):  # not a glue supplier
+			self._as(BUYER, glue_stock.receive, item, 1, "ведро", 40_000, "ведро", stranger)
+		# Two buckets at 40 000 a bucket — 2 000 a kilo — brought for 4 000:
+		# 2 100 a kilo landed, 210 a m² at 100 g/m².
+		got = self._as(BUYER, glue_stock.receive, item, 2, "ведро", 40_000, "ведро", supplier,
+					   delivery={"amount": 4000})
+		glue = next(g for g in got["glues"] if g["item"] == item)
+		self.assertEqual(glue["on_hand_kg"], 40)
+		self.assertTrue(glue["in_work"])
+		self.assertAlmostEqual(glue["cost_kg"], 2100, places=0)
+		self.assertAlmostEqual(glue["cost_m2"], 210, places=0)
+		self.assertEqual(glue["sell"], {"bucket": round(2100 * 20 * 1.2), "litre": round(2100 * 1.04 * 1.5)})
+		bought = next(s for s in got["suppliers"] if s["supplier"] == supplier)["bought"]
+		self.assertAlmostEqual(bought[0]["landed_kg"], 2100, places=0)
+		# Ten litres at 2 080 a litre: 10,4 kg at 2 000 a kilo.
+		got = self._as(BUYER, glue_stock.receive, item, 10, "л", 2080, "л", supplier)
+		self.assertAlmostEqual(next(g for g in got["glues"] if g["item"] == item)["on_hand_kg"], 50.4, places=2)
+
+		def on_hand() -> float:
+			return next(g["on_hand_kg"] for g in self._as(BUYER, glue_stock.stock)["glues"] if g["item"] == item)
+
+		# 1577×517 ×2, 16 mm: face 1,63 m², edges 2·(1,577+0,517)·0,016·2 =
+		# 0,134 m² twice — (1,63 + 0,268) × 0,1 = 0,19 kg.
+		lines = [{**ORDER_1129[1], "coating": "pvc", "film": self.decor, "rate": 17_000}]
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=self.customer, delivery_date=add_days(nowdate(), 7),
+						head={"thickness_mm": 16}, lines=lines)
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		glue = self._as(MANAGER, mdf_orders.card, card["name"])["glue"]
+		self.assertAlmostEqual(glue["kg"], 0.19, places=2)
+		self.assertEqual((glue["item"], len(glue["lines"])), (item, 1))
+		# A patterned milling takes half as much again: (2,445 + 0,268) × 0,1.
+		frappe.set_user("Administrator")
+		material_stock.put_option(glue_stock.MILLING_LIST, PATTERN)
+		self._as(BUYER, glue_stock.set_milling, {PATTERN: "1,5"})
+		self.assertAlmostEqual(self._as(MANAGER, mdf_orders.card, card["name"])["glue"]["kg"], 0.27, places=2)
+		self.assertGreaterEqual(self._as(BUYER, glue_stock.stock)["queue"]["kg"], 0.27)
+		# The margin counts it: by the positions until it is taken.
+		rows = {r["title"]: r for r in self._as(MANAGER, mdf_margin.of_order, card["name"])["material_rows"]}
+		self.assertAlmostEqual(rows[f"Клей {tag}"]["qty"], 0.27, places=2)
+		before = on_hand()
+		for stage in ("cut", "mill", "sand"):
+			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
+		self.assertAlmostEqual(on_hand(), before, places=3)
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum")
+		self.assertAlmostEqual(on_hand(), before - 0.27, places=3)
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum")  # ticked twice, taken once
+		self.assertAlmostEqual(on_hand(), before - 0.27, places=3)
+		taken = {r["item"]: r for r in self._as(MANAGER, mdf_margin.of_order, card["name"])["material_rows"]
+				 if r["item"]}
+		self.assertAlmostEqual(taken[item]["qty"], 0.27, places=3)
+		month = self._as(BUYER, glue_stock.stock)["usage"]["glues"][item]
+		self.assertGreaterEqual(month["m2"], 1.63)
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum", 0)  # unticked: put back
+		self.assertAlmostEqual(on_hand(), before, places=3)
+		# The storekeeper weighs 50 kg: 0,4 kg found missing, counted as used.
+		after = self._as(BUYER, glue_stock.count, item, "50")
+		self.assertEqual(next(g["on_hand_kg"] for g in after["glues"] if g["item"] == item), 50)
+		self.assertGreater(after["usage"]["glues"][item]["kg_counted"], 0.3)
+		# The month's reconciliation: the count makes the fact, and what the
+		# difference cost (owner: «сверка за месяц»).
+		# Weighed, but nothing glued in the month: no fact to show.
+		month = self._as(BUYER, glue_stock.reconcile)
+		row = next(r for r in month["glues"] if r["item"] == item)
+		self.assertGreaterEqual(row["counts"], 1)
+		self.assertEqual((row["fact_g_m2"], row["deviation_pct"]), (None, None))
+		self.assertGreater(row["money_counted"], 0)
+		self.assertEqual(month["month"], nowdate()[:7])
+		# The order glued again: the norm's kilograms and the missing ones
+		# over its m² — more than the norm, and a dearer m².
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum")
+		row = next(r for r in self._as(BUYER, glue_stock.reconcile)["glues"] if r["item"] == item)
+		self.assertGreaterEqual(row["m2"], 1.63)
+		self.assertAlmostEqual(row["fact_g_m2"], (row["kg_by_norm"] + row["kg_counted"]) * 1000 / row["m2"], delta=2)
+		self.assertGreater(row["deviation_pct"], 0)
+		self.assertGreater(row["cost_m2_fact"], row["cost_m2_norm"])
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum", 0)
+		self.assertAlmostEqual(on_hand(), 50, places=3)
+		earlier = self._as(BUYER, glue_stock.reconcile, "2001-01")
+		self.assertEqual((earlier["glues"], earlier["to"]), ([], "2001-01-31"))
+		for wrong in ("2026-13", "2999-01", "ноябрь"):
+			with self.assertRaises(frappe.ValidationError):
+				self._as(BUYER, glue_stock.reconcile, wrong)
+
+		# Sold on with the film (owner: «ведром и литром», with a mark-up): a
+		# bucket at a typed price, the store gives 20 kg.
+		from korkem_manufacturing.services import film_dept
+
+		sale = self._as(BUYER, film_dept.sell, self.customer,
+						[{"item": item, "units": 1, "unit": "ведро", "price_unit": 52_000}],
+						paid=52_000, method="Наличные")
+		line = sale["lines"][0]
+		self.assertEqual((line["unit"], line["units"], line["unit_price"]), ("ведро", 1, 52_000))
+		self.assertEqual(sale["amount"], 52_000)
+		self.assertAlmostEqual(on_hand(), 30, places=3)
+		# Litres at the glue's own litre price; the shop's 25 kg kept back is
+		# not sold without saying so.
+		self._as(BUYER, glue_stock.set_glue, item, reserve_kg=25)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 6, "unit": "л"}])
+		sale = self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 6, "unit": "л"}],
+						glue_reserve_ok=1)
+		self.assertEqual(sale["lines"][0]["unit"], "л")
+		self.assertGreater(sale["lines"][0]["unit_price"], 0)
+		self.assertAlmostEqual(on_hand(), 30 - 6 * 1.04, places=2)
+		with self.assertRaises(frappe.ValidationError):  # a glue is sold by the bucket or the litre
+			self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 1, "unit": "кг"}],
+					 glue_reserve_ok=1)
+
 	def test_the_paint_board_groups_by_colour_and_counts_the_drying_down(self):
 		from korkem_manufacturing.services import mdf_dictionaries, mdf_paint
 

@@ -13846,7 +13846,7 @@ abstract class AppLocalizations {
   /// No description provided for @mdfMarginNotCounted.
   ///
   /// In en, this message translates to:
-  /// **'Not counted: paint, glue, power, delivery'**
+  /// **'Not counted: power, delivery'**
   String get mdfMarginNotCounted;
 
   /// No description provided for @mdfSumMargin.
@@ -16182,6 +16182,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{stage} {area} m²'**
   String myWorkStageM2(String stage, String area);
+
+  /// No description provided for @glueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC glue'**
+  String get glueTitle;
+
+  /// No description provided for @glueRowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Glues, suppliers, norm per m², millings'**
+  String get glueRowHint;
+
+  /// No description provided for @glueHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A glue is the product: what it is and how much a m² takes. A supplier is where it is bought. «Vacuum» takes off the glue in work.'**
+  String get glueHint;
+
+  /// No description provided for @glueReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Glue received'**
+  String get glueReceive;
+
+  /// No description provided for @glueAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'New glue'**
+  String get glueAdd;
+
+  /// No description provided for @glueEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Glue card'**
+  String get glueEdit;
+
+  /// No description provided for @glueName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get glueName;
+
+  /// No description provided for @glueOrigin.
+  ///
+  /// In en, this message translates to:
+  /// **'Made in'**
+  String get glueOrigin;
+
+  /// No description provided for @glueOriginHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. China'**
+  String get glueOriginHint;
+
+  /// No description provided for @glueBucketKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Bucket, kg'**
+  String get glueBucketKg;
+
+  /// No description provided for @glueKgPerLitre.
+  ///
+  /// In en, this message translates to:
+  /// **'Kg per litre'**
+  String get glueKgPerLitre;
+
+  /// No description provided for @glueKgPerLitreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'from the glue sheet, usually about 1'**
+  String get glueKgPerLitreHint;
+
+  /// No description provided for @glueNorm.
+  ///
+  /// In en, this message translates to:
+  /// **'Norm, g/m²'**
+  String get glueNorm;
+
+  /// No description provided for @glueReserve.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep for the shop, kg'**
+  String get glueReserve;
+
+  /// No description provided for @glueMarkupBucket.
+  ///
+  /// In en, this message translates to:
+  /// **'Bucket mark-up, %'**
+  String get glueMarkupBucket;
+
+  /// No description provided for @glueMarkupLitre.
+  ///
+  /// In en, this message translates to:
+  /// **'Litre mark-up, %'**
+  String get glueMarkupLitre;
+
+  /// No description provided for @glueInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'In work'**
+  String get glueInWork;
+
+  /// No description provided for @glueTakeInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Take into work'**
+  String get glueTakeInWork;
+
+  /// No description provided for @glueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get glueCount;
+
+  /// No description provided for @glueCountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: how many kg really'**
+  String glueCountTitle(String title);
+
+  /// No description provided for @glueOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'On hand {kg} kg'**
+  String glueOnHand(String kg);
+
+  /// No description provided for @glueNormLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Norm {g} g/m²'**
+  String glueNormLine(String g);
+
+  /// No description provided for @glueCostKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{money}/kg landed'**
+  String glueCostKg(String money);
+
+  /// No description provided for @glueCostM2.
+  ///
+  /// In en, this message translates to:
+  /// **'{money} a m²'**
+  String glueCostM2(String money);
+
+  /// No description provided for @glueSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sells: bucket {bucket} · litre {litre}'**
+  String glueSell(String bucket, String litre);
+
+  /// No description provided for @glueFact.
+  ///
+  /// In en, this message translates to:
+  /// **'This month really: {g} g/m²'**
+  String glueFact(String g);
+
+  /// No description provided for @glueQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Vacuum queue: {orders} orders, {m2} m² — needs {kg} kg of glue'**
+  String glueQueue(String orders, String m2, String kg);
+
+  /// No description provided for @glueQueueShort.
+  ///
+  /// In en, this message translates to:
+  /// **'The glue in work is short by {kg} kg'**
+  String glueQueueShort(String kg);
+
+  /// No description provided for @glueNoInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'No glue is in work — pick the open barrel'**
+  String get glueNoInWork;
+
+  /// No description provided for @glueGlues.
+  ///
+  /// In en, this message translates to:
+  /// **'Glues'**
+  String get glueGlues;
+
+  /// No description provided for @glueEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No glues yet — add the first'**
+  String get glueEmpty;
+
+  /// No description provided for @glueSuppliers.
+  ///
+  /// In en, this message translates to:
+  /// **'Where we buy'**
+  String get glueSuppliers;
+
+  /// No description provided for @glueSupplierAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Glue supplier'**
+  String get glueSupplierAdd;
+
+  /// No description provided for @glueBought.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {price} + delivery {delivery} = {landed} a kg'**
+  String glueBought(String title, String price, String delivery, String landed);
+
+  /// No description provided for @glueCheapest.
+  ///
+  /// In en, this message translates to:
+  /// **'cheaper'**
+  String get glueCheapest;
+
+  /// No description provided for @glueMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Milling factor'**
+  String get glueMilling;
+
+  /// No description provided for @glueMillingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How many times the glue of a smooth face; 1.00 is the same. Edges take {coats} coats.'**
+  String glueMillingHint(String coats);
+
+  /// No description provided for @glueMillingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: factor'**
+  String glueMillingTitle(String name);
+
+  /// No description provided for @glueOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed for glue'**
+  String get glueOwed;
+
+  /// No description provided for @glueGlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Glue'**
+  String get glueGlue;
+
+  /// No description provided for @glueSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get glueSupplier;
+
+  /// No description provided for @glueQty.
+  ///
+  /// In en, this message translates to:
+  /// **'How much'**
+  String get glueQty;
+
+  /// No description provided for @gluePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get gluePrice;
+
+  /// No description provided for @gluePer.
+  ///
+  /// In en, this message translates to:
+  /// **'per'**
+  String get gluePer;
+
+  /// No description provided for @glueUnitKg.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get glueUnitKg;
+
+  /// No description provided for @glueUnitLitre.
+  ///
+  /// In en, this message translates to:
+  /// **'litre'**
+  String get glueUnitLitre;
+
+  /// No description provided for @glueUnitBucket.
+  ///
+  /// In en, this message translates to:
+  /// **'bucket'**
+  String get glueUnitBucket;
+
+  /// No description provided for @glueReceiveSum.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg at {price} a kg'**
+  String glueReceiveSum(String kg, String price);
+
+  /// No description provided for @glueLanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Landed: {money} a kg'**
+  String glueLanded(String money);
+
+  /// No description provided for @glueSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get glueSave;
+
+  /// No description provided for @glueOrderPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC glue: {kg} kg · {title} · {norm} g/m²'**
+  String glueOrderPlan(String kg, String title, String norm);
+
+  /// No description provided for @glueLineKg.
+  ///
+  /// In en, this message translates to:
+  /// **'glue {kg} kg'**
+  String glueLineKg(String kg);
+
+  /// No description provided for @filmSaleAddGlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Glue'**
+  String get filmSaleAddGlue;
+
+  /// No description provided for @filmGlueNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No glues — add them in «PVC glue»'**
+  String get filmGlueNone;
+
+  /// No description provided for @filmGlueBuckets.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} bucket(s)'**
+  String filmGlueBuckets(String n);
+
+  /// No description provided for @filmGlueLitres.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} l'**
+  String filmGlueLitres(String n);
+
+  /// No description provided for @filmGlueReserve.
+  ///
+  /// In en, this message translates to:
+  /// **'«{title}»: {left} kg will be left — the shop needs {keep} kg'**
+  String filmGlueReserve(String title, String left, String keep);
+
+  /// No description provided for @filmGlueReserveOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell from the shop\'s stock'**
+  String get filmGlueReserveOk;
+
+  /// No description provided for @filmGlueOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {have} kg on hand'**
+  String filmGlueOver(String have);
+
+  /// No description provided for @filmGlueLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {kg} kg off the store · {left} kg left'**
+  String filmGlueLeft(String kg, String left);
+
+  /// No description provided for @filmGlueBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Below cost: {cost} a kg landed'**
+  String filmGlueBelow(String cost);
+
+  /// No description provided for @glueMonthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Glue reconciliation'**
+  String get glueMonthTitle;
+
+  /// No description provided for @glueMonthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How many m² went through the vacuum, how much glue the norm took for them, and what weighing the rest found. The fact shows only once the store was weighed in the month.'**
+  String get glueMonthHint;
+
+  /// No description provided for @glueMonthEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No glue went into orders this month.'**
+  String get glueMonthEmpty;
+
+  /// No description provided for @glueMonthLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m² through the vacuum · {kg} kg by the norm'**
+  String glueMonthLine(String m2, String kg);
+
+  /// No description provided for @glueMonthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short by {kg} kg — {money}'**
+  String glueMonthShort(String kg, String money);
+
+  /// No description provided for @glueMonthOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over by {kg} kg — {money}'**
+  String glueMonthOver(String kg, String money);
+
+  /// No description provided for @glueMonthEven.
+  ///
+  /// In en, this message translates to:
+  /// **'The weighing matched the norm'**
+  String get glueMonthEven;
+
+  /// No description provided for @glueMonthNotCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not weighed this month — no fact yet. Weigh the rest («Recount») at the month\'s end.'**
+  String get glueMonthNotCounted;
+
+  /// No description provided for @glueMonthWeighed.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighed {count} times, last on {date}'**
+  String glueMonthWeighed(String count, String date);
+
+  /// No description provided for @glueMonthFact.
+  ///
+  /// In en, this message translates to:
+  /// **'Fact {fact} g/m² against a norm of {norm} ({pct}%)'**
+  String glueMonthFact(String fact, String norm, String pct);
+
+  /// No description provided for @glueMonthCostM2.
+  ///
+  /// In en, this message translates to:
+  /// **'A m² costs {norm} by the norm, {fact} by the fact'**
+  String glueMonthCostM2(String norm, String fact);
+
+  /// No description provided for @glueMonthFixNorm.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the norm to {g} g/m²'**
+  String glueMonthFixNorm(String g);
+
+  /// No description provided for @glueMonthNormSet.
+  ///
+  /// In en, this message translates to:
+  /// **'The norm is now {g} g/m²'**
+  String glueMonthNormSet(String g);
 }
 
 class _AppLocalizationsDelegate
