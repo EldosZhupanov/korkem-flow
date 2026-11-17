@@ -1152,14 +1152,23 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertGreater(after["usage"]["glues"][item]["kg_counted"], 0.3)
 		# The month's reconciliation: the count makes the fact, and what the
 		# difference cost (owner: «сверка за месяц»).
+		# Weighed, but nothing glued in the month: no fact to show.
 		month = self._as(BUYER, glue_stock.reconcile)
 		row = next(r for r in month["glues"] if r["item"] == item)
 		self.assertGreaterEqual(row["counts"], 1)
-		self.assertEqual(row["fact_g_m2"], after["usage"]["glues"][item]["fact_g_m2"])
-		self.assertGreater(row["deviation_pct"], 0)
+		self.assertEqual((row["fact_g_m2"], row["deviation_pct"]), (None, None))
 		self.assertGreater(row["money_counted"], 0)
-		self.assertGreater(row["cost_m2_fact"], row["cost_m2_norm"])
 		self.assertEqual(month["month"], nowdate()[:7])
+		# The order glued again: the norm's kilograms and the missing ones
+		# over its m² — more than the norm, and a dearer m².
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum")
+		row = next(r for r in self._as(BUYER, glue_stock.reconcile)["glues"] if r["item"] == item)
+		self.assertGreaterEqual(row["m2"], 1.63)
+		self.assertAlmostEqual(row["fact_g_m2"], (row["kg_by_norm"] + row["kg_counted"]) * 1000 / row["m2"], delta=2)
+		self.assertGreater(row["deviation_pct"], 0)
+		self.assertGreater(row["cost_m2_fact"], row["cost_m2_norm"])
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum", 0)
+		self.assertAlmostEqual(on_hand(), 50, places=3)
 		earlier = self._as(BUYER, glue_stock.reconcile, "2001-01")
 		self.assertEqual((earlier["glues"], earlier["to"]), ([], "2001-01-31"))
 		for wrong in ("2026-13", "2999-01", "ноябрь"):
