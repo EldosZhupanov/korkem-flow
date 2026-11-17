@@ -9612,4 +9612,37 @@ class AppLocalizationsKk extends AppLocalizations {
   String glueMonthNormSet(String g) {
     return 'Норма енді $g г/м²';
   }
+
+  @override
+  String get filmGlueOpen => 'ПВХ желімі';
+
+  @override
+  String get glueAddFirst => 'Бірінші желімді қосу';
+
+  @override
+  String get filmReceiveFilm => 'Пленка';
+
+  @override
+  String get filmReceiveGlue => 'ПВХ желімі';
+
+  @override
+  String get filmFigGlue => 'ПВХ желімі';
+
+  @override
+  String get filmFigGlueNone => 'енгізілмеген — басыңыз';
+
+  @override
+  String filmFigGlueKg(String kg) {
+    return '$kg кг';
+  }
+
+  @override
+  String filmFigGlueBuckets(String buckets) {
+    return '≈ $buckets шелек';
+  }
+
+  @override
+  String filmFigGlueDays(String days) {
+    return '$days күнге жетеді';
+  }
 }

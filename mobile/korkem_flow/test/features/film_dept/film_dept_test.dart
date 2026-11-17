@@ -1022,11 +1022,35 @@ void main() {
     expect(text, contains('позиций 2, 100 м'));
   });
 
+  testWidgets('«Приход ▾» takes in the film or the glue; the glue is a '
+      'tile beside the film figures', (tester) async {
+    await _pump(tester);
+    // 50 kg in buckets of 20; no month's use yet, so no days.
+    expect(
+      find.byKey(const ValueKey('figure:filmStock:glue:value')),
+      findsOne,
+    );
+    expect(find.text('≈ 2,5 buckets'), findsOne);
+    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmDept:receiveFilm')), findsOne);
+    expect(find.byKey(const ValueKey('filmDept:receiveGlue')), findsOne);
+    // The search stands right of «К заказу».
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('filmDept:search')).last).dx,
+      greaterThan(
+        tester.getTopLeft(find.byKey(const ValueKey('filmDept:sell'))).dx,
+      ),
+    );
+  });
+
   testWidgets('the film to take in is found by a word of its name', (
     tester,
   ) async {
     await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const ValueKey('filmPick:search')),
@@ -1049,6 +1073,8 @@ void main() {
   ) async {
     final repo = await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-1')));
     await tester.pumpAndSettle();
@@ -1089,6 +1115,8 @@ void main() {
   ) async {
     await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-2')));
     await tester.pumpAndSettle();
@@ -1203,6 +1231,8 @@ void main() {
   ) async {
     final repo = await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-1')));
     await tester.pumpAndSettle();

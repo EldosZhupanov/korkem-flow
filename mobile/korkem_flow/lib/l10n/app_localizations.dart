@@ -16554,6 +16554,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The norm is now {g} g/m²'**
   String glueMonthNormSet(String g);
+
+  /// No description provided for @filmGlueOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC glue'**
+  String get filmGlueOpen;
+
+  /// No description provided for @glueAddFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the first glue'**
+  String get glueAddFirst;
+
+  /// No description provided for @filmReceiveFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film'**
+  String get filmReceiveFilm;
+
+  /// No description provided for @filmReceiveGlue.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC glue'**
+  String get filmReceiveGlue;
+
+  /// No description provided for @filmFigGlue.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC glue'**
+  String get filmFigGlue;
+
+  /// No description provided for @filmFigGlueNone.
+  ///
+  /// In en, this message translates to:
+  /// **'not set up — tap'**
+  String get filmFigGlueNone;
+
+  /// No description provided for @filmFigGlueKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg'**
+  String filmFigGlueKg(String kg);
+
+  /// No description provided for @filmFigGlueBuckets.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {buckets} buckets'**
+  String filmFigGlueBuckets(String buckets);
+
+  /// No description provided for @filmFigGlueDays.
+  ///
+  /// In en, this message translates to:
+  /// **'lasts {days} d.'**
+  String filmFigGlueDays(String days);
 }
 
 class _AppLocalizationsDelegate
