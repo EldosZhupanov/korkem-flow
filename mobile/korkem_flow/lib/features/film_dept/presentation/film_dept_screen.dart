@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -555,6 +557,14 @@ class _StockTabState extends ConsumerState<_StockTab> {
                   ),
                 // «К заказу» (owner, 12.11.2026): the day's list.
                 if (c.canEdit) FilmOrdersButton(stock: c),
+                // The glue sold with the film is kept in its own store
+                // (owner, 17.11.2026: «а где вообще приход клея?»).
+                OutlinedButton.icon(
+                  key: const ValueKey('filmDept:glue'),
+                  onPressed: () => unawaited(context.push(Routes.glue)),
+                  icon: const Icon(AppIcons.textured),
+                  label: Text(l10n.filmGlueOpen),
+                ),
                 SizedBox(
                   width: AppSpacing.xxxl * 6,
                   child: TextField(

@@ -1022,6 +1022,13 @@ void main() {
     expect(text, contains('позиций 2, 100 м'));
   });
 
+  testWidgets('the glue is a button away from the film stock', (
+    tester,
+  ) async {
+    await _pump(tester);
+    expect(find.byKey(const ValueKey('filmDept:glue')), findsOne);
+  });
+
   testWidgets('the film to take in is found by a word of its name', (
     tester,
   ) async {

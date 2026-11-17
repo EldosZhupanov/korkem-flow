@@ -176,7 +176,24 @@ class _Body extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         SectionLabel(l10n.glueGlues),
-        if (s.glues.isEmpty) Text(l10n.glueEmpty, style: muted),
+        // The first glue first: a receipt needs a glue to come in as
+        // (owner, 17.11.2026: «а где вообще приход клея?»).
+        if (s.glues.isEmpty) ...[
+          Text(l10n.glueEmpty, style: muted),
+          if (s.canEdit)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FilledButton.icon(
+                  key: const ValueKey('glueAddFirst'),
+                  onPressed: () => unawaited(_addGlue(context, ref)),
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.glueAddFirst),
+                ),
+              ),
+            ),
+        ],
         for (final g in s.glues)
           Card(
             key: ValueKey('glue:${g.item}'),

@@ -2951,5 +2951,7 @@
   "glueMonthFact": "Факт {fact} г/м² при норме {norm} ({pct}%)",
   "glueMonthCostM2": "м² по норме {norm}, по факту {fact}",
   "glueMonthFixNorm": "Поправить норму на {g} г/м²",
-  "glueMonthNormSet": "Норма теперь {g} г/м²"
+  "glueMonthNormSet": "Норма теперь {g} г/м²",
+  "filmGlueOpen": "Клей для ПВХ",
+  "glueAddFirst": "Завести первый клей"
 }
