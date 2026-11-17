@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -89,4 +93,78 @@ void main() {
       expect(find.text('at $path'), findsOneWidget);
     });
   }
+
+  // Variant A (owner, 17.11.2026): the menu opens one part at a time, each
+  // under its own name — and each holds its rows, no others.
+  group('a section of the menu', () {
+    Future<void> pumpSection(WidgetTester tester, MdfSection section) async {
+      final router = GoRouter(
+        initialLocation: '/section',
+        routes: [
+          GoRoute(
+            path: '/section',
+            builder: (_, _) => MdfScreen(section: section),
+          ),
+          for (final path in {...rows.values, Routes.mdfPlan})
+            GoRoute(path: path, builder: (_, _) => Text('at $path')),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          retry: (_, _) => null,
+          overrides: [
+            mdfPlanProvider.overrideWith(
+              (ref) async => const MdfPlan(
+                stages: [
+                  PlanStage(stage: MdfStage.cut, orders: [], areaM2: 12.5),
+                  PlanStage(stage: MdfStage.paint, orders: [], areaM2: 4),
+                ],
+                intake: [],
+                inWorkM2: 16.5,
+              ),
+            ),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            locale: const Locale('ru'),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    for (final section in MdfSection.values) {
+      testWidgets('«${section.name}» lists its rows and only them', (
+        tester,
+      ) async {
+        await pumpSection(tester, section);
+        for (final id in rows.keys) {
+          expect(
+            find.byKey(ValueKey('mdf:$id'), skipOffstage: false),
+            section.rows.contains(id) ? findsOneWidget : findsNothing,
+            reason: '$id in ${section.name}',
+          );
+        }
+      });
+    }
+
+    testWidgets('«Фасады на заказ» shows the order path; a stage opens the '
+        'plan', (tester) async {
+      await pumpSection(tester, MdfSection.facades);
+      expect(find.text('Фасады на заказ'), findsOneWidget);
+      expect(find.byKey(const ValueKey('facades:path')), findsOneWidget);
+      expect(find.text('Раскрой · 12.5 м²'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('facades:stage:paint')));
+      await tester.pumpAndSettle();
+      expect(find.text('at ${Routes.mdfPlan}'), findsOneWidget);
+    });
+  });
 }
