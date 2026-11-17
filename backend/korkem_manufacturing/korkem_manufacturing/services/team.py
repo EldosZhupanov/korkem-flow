@@ -202,9 +202,13 @@ def _new_employee(full: str, company: str, phone=None, posts=None, user: str | N
 	doc = frappe.get_doc({
 		"doctype": "Employee", "first_name": first, "last_name": last or None, "company": company,
 		"status": "Active", "gender": _gender(), "date_of_birth": "1990-01-01", "date_of_joining": nowdate(),
-		"cell_number": _phone(phone), "user_id": user or None,
-		ROLES_FIELD: "\n".join(_clean_posts(posts or [])) or None,
+		"cell_number": _phone(phone), ROLES_FIELD: "\n".join(_clean_posts(posts or [])) or None,
 	}).insert(ignore_permissions=True)
+	if user:
+		# Written apart: ERPNext's own Employee.on_update rewrites a linked
+		# User — its name, gender, an «Employee» role — and a login's rights
+		# are the owner's to give (`staff`), never a side effect.
+		frappe.db.set_value("Employee", doc.name, "user_id", user)
 	return doc.name
 
 
