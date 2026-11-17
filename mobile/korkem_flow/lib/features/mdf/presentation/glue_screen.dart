@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -11,6 +12,7 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
@@ -39,6 +41,12 @@ class GlueScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.glueTitle),
         actions: [
+          IconButton(
+            key: const ValueKey('glueMonth'),
+            tooltip: l10n.glueMonthTitle,
+            icon: const Icon(AppIcons.report),
+            onPressed: () => unawaited(context.push(Routes.glueMonth)),
+          ),
           if (canEdit)
             IconButton(
               key: const ValueKey('glueAdd'),

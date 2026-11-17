@@ -1150,6 +1150,21 @@ class TestMdfOrders(IntegrationTestCase):
 		after = self._as(BUYER, glue_stock.count, item, "50")
 		self.assertEqual(next(g["on_hand_kg"] for g in after["glues"] if g["item"] == item), 50)
 		self.assertGreater(after["usage"]["glues"][item]["kg_counted"], 0.3)
+		# The month's reconciliation: the count makes the fact, and what the
+		# difference cost (owner: «сверка за месяц»).
+		month = self._as(BUYER, glue_stock.reconcile)
+		row = next(r for r in month["glues"] if r["item"] == item)
+		self.assertGreaterEqual(row["counts"], 1)
+		self.assertEqual(row["fact_g_m2"], after["usage"]["glues"][item]["fact_g_m2"])
+		self.assertGreater(row["deviation_pct"], 0)
+		self.assertGreater(row["money_counted"], 0)
+		self.assertGreater(row["cost_m2_fact"], row["cost_m2_norm"])
+		self.assertEqual(month["month"], nowdate()[:7])
+		earlier = self._as(BUYER, glue_stock.reconcile, "2001-01")
+		self.assertEqual((earlier["glues"], earlier["to"]), ([], "2001-01-31"))
+		for wrong in ("2026-13", "2999-01", "ноябрь"):
+			with self.assertRaises(frappe.ValidationError):
+				self._as(BUYER, glue_stock.reconcile, wrong)
 
 		# Sold on with the film (owner: «ведром и литром», with a mark-up): a
 		# bucket at a typed price, the store gives 20 kg.
