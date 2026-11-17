@@ -62,3 +62,4 @@ korkem_manufacturing.patches.v0_0.add_paint_gloss_field
 korkem_manufacturing.patches.v0_0.add_cnc_order_fields #2026-11-15 material field
 korkem_manufacturing.patches.v0_0.add_payment_bank_fields
 korkem_manufacturing.patches.v0_0.add_paint_supplier_field
+korkem_manufacturing.patches.v0_0.add_team_fields

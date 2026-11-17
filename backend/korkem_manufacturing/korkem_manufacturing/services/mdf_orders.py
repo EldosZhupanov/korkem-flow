@@ -75,6 +75,10 @@ GLOSSES = {"matt": "матовая", "semi": "полуматовая", "gloss": 
 		   "pearl": "перламутр"}
 #: Who did the stage: an Employee, written with the tick (OnayBaza «Жұмыс көлемі»).
 STAGE_BY = {stage: f"{field}_by" for stage, field in STAGES.items()}
+#: Who the stage is given to (owner, 17.11.2026: «у заказа всегда свои
+#: люди»): set when the order is accepted, changed by the manager; the
+#: tick falls to him unless someone else is said (`team`).
+STAGE_TO = {stage: f"{field}_to" for stage, field in STAGES.items()}
 HEAD = {
 	"thickness_mm": "korkem_thickness_mm",
 	"finish": "korkem_finish",
@@ -529,9 +533,51 @@ def accept(order: str) -> dict:
 		frappe.throw("Заказ уже принят.")
 	doc.submit()
 	facade_materials.reserve(doc.name)
+	_give_out(doc)
 	audit.record_audit(action="mdf.order_accepted", entity_type="Sales Order", entity_id=doc.name,
 					   diff={"total": flt(doc.grand_total)})
 	return card(doc.name)
+
+
+def _give_out(doc) -> None:
+	"""Each stage to the one person on its post, when there is just one; the
+	manager picks among several (`assign`)."""
+	from korkem_manufacturing.services import team
+
+	values = {}
+	for stage in stages_of(doc):
+		if doc.get(STAGE_TO[stage]):
+			continue
+		people = team.holders(team.posts_for_stage(stage, doc.get("korkem_coatings")), doc.company)
+		if len(people) == 1:
+			values[STAGE_TO[stage]] = people[0]["employee"]
+	if values:
+		doc.db_set(values, update_modified=False)
+
+
+def assign(order: str, stage: str, worker: str | None = None) -> dict:
+	"""Give a stage to a person, or take it back (`worker` empty)."""
+	facade_prices.ensure_editor()
+	doc = _accepted(order)
+	if stage not in STAGES or stage not in stages_of(doc):
+		frappe.throw("У этого заказа такого этапа нет.")
+	if worker and frappe.db.get_value("Employee", worker, "company") != doc.company:
+		frappe.throw("Такого сотрудника в компании нет.")
+	doc.db_set(STAGE_TO[stage], worker or None, update_modified=True)
+	audit.record_audit(action="mdf.stage_given", entity_type="Sales Order", entity_id=doc.name,
+					   diff={"stage": stage, "worker": worker})
+	return card(doc.name)
+
+
+def stage_people(order: str, stage: str) -> dict:
+	"""Who may be given this stage of this order: its post's people first."""
+	from korkem_manufacturing.services import team
+
+	facade_prices.ensure_editor()
+	doc = _order(order)
+	posts = team.posts_for_stage(stage, doc.get("korkem_coatings"))
+	return {"posts": [{"key": p, "title": team.POSTS[p]} for p in posts],
+			"people": team.holders(posts, doc.company)}
 
 
 def change_order(order: str, *, lines, reason: str, head=None, delivery_date: str | None = None) -> dict:
@@ -662,6 +708,13 @@ def set_stage(order: str, stage: str, done=True, worker: str | None = None) -> d
 	since the manager ticks and may not know. Unticking forgets them.
 	"""
 	facade_prices.ensure_editor()
+	_tick(order, stage, done, worker)
+	return card(order)
+
+
+def _tick(order: str, stage: str, done=True, worker: str | None = None) -> None:
+	"""The tick itself — whoever may make it has been asked already: the
+	manager (`set_stage`) or the worker, for his own stage (`my_work`)."""
 	doc = _accepted(order)
 	if stage not in STAGES:
 		frappe.throw(f"Этап «{stage}» не знаю.")
@@ -671,6 +724,9 @@ def set_stage(order: str, stage: str, done=True, worker: str | None = None) -> d
 	if worker:
 		if frappe.db.get_value("Employee", worker, "company") != doc.company:
 			frappe.throw("Такого сотрудника в компании нет.")
+	elif done:
+		# Not said who: the one it was given to did it.
+		worker = doc.get(STAGE_TO[stage]) or None
 	needed = stages_of(doc)
 	if stage not in needed:
 		frappe.throw("У этого заказа такого этапа нет — добавьте его кнопкой «+ этап».")
@@ -688,7 +744,6 @@ def set_stage(order: str, stage: str, done=True, worker: str | None = None) -> d
 					   diff={"stage": stage, "done": done, "ready": ready, "worker": worker if done else None})
 	if stage == "paint":
 		_paint_used(doc.name, done)
-	return card(doc.name)
 
 
 def _paint_used(order: str, done: bool) -> None:
@@ -876,7 +931,10 @@ def card(order: str) -> dict:
 			 "extra": s in _extra(doc.get("korkem_extra_stages")),
 			 "worker": doc.get(STAGE_BY[s]),
 			 "worker_name": frappe.db.get_value("Employee", doc.get(STAGE_BY[s]), "employee_name")
-			 if doc.get(STAGE_BY[s]) else None}
+			 if doc.get(STAGE_BY[s]) else None,
+			 "given_to": doc.get(STAGE_TO[s]),
+			 "given_to_name": frappe.db.get_value("Employee", doc.get(STAGE_TO[s]), "employee_name")
+			 if doc.get(STAGE_TO[s]) else None}
 			for s in needed
 		],
 		"ready_on": str(doc.korkem_ready_on) if doc.korkem_ready_on else None,

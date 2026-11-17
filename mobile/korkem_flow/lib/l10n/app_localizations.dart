@@ -15768,6 +15768,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Work'**
   String get cncWork;
+
+  /// No description provided for @mdfGiveStageTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Who gets this stage?'**
+  String get mdfGiveStageTo;
+
+  /// No description provided for @mdfStageTakeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Take it back — nobody'**
+  String get mdfStageTakeBack;
+
+  /// No description provided for @mdfStagePostPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'On this post'**
+  String get mdfStagePostPeople;
+
+  /// No description provided for @mdfAllWorkers.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get mdfAllWorkers;
+
+  /// No description provided for @mdfStageGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage}: {name}'**
+  String mdfStageGiven(String stage, String name);
+
+  /// No description provided for @mdfStageNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'not given'**
+  String get mdfStageNobody;
+
+  /// No description provided for @teamDeptIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Order intake'**
+  String get teamDeptIntake;
+
+  /// No description provided for @teamDeptCut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutting'**
+  String get teamDeptCut;
+
+  /// No description provided for @teamDeptCnc.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC'**
+  String get teamDeptCnc;
+
+  /// No description provided for @teamDeptPvc.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC film'**
+  String get teamDeptPvc;
+
+  /// No description provided for @teamDeptPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Painting'**
+  String get teamDeptPaint;
+
+  /// No description provided for @teamDeptPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Packing and hand-over'**
+  String get teamDeptPack;
+
+  /// No description provided for @teamDeptFilmSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Film sales'**
+  String get teamDeptFilmSales;
+
+  /// No description provided for @teamDeptWarehouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse and delivery'**
+  String get teamDeptWarehouse;
+
+  /// No description provided for @teamPostManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Intake manager'**
+  String get teamPostManager;
+
+  /// No description provided for @teamPostCutter.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutter'**
+  String get teamPostCutter;
+
+  /// No description provided for @teamPostCncOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC operator'**
+  String get teamPostCncOperator;
+
+  /// No description provided for @teamPostSander.
+  ///
+  /// In en, this message translates to:
+  /// **'Sander'**
+  String get teamPostSander;
+
+  /// No description provided for @teamPostVacuum.
+  ///
+  /// In en, this message translates to:
+  /// **'Vacuum press operator'**
+  String get teamPostVacuum;
+
+  /// No description provided for @teamPostPainter.
+  ///
+  /// In en, this message translates to:
+  /// **'Painter'**
+  String get teamPostPainter;
+
+  /// No description provided for @teamPostPacker.
+  ///
+  /// In en, this message translates to:
+  /// **'Packer'**
+  String get teamPostPacker;
+
+  /// No description provided for @teamPostSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller'**
+  String get teamPostSeller;
+
+  /// No description provided for @teamPostLoader.
+  ///
+  /// In en, this message translates to:
+  /// **'Loader'**
+  String get teamPostLoader;
+
+  /// No description provided for @teamPostStorekeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Storekeeper'**
+  String get teamPostStorekeeper;
+
+  /// No description provided for @teamPostDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get teamPostDriver;
+
+  /// No description provided for @teamDepartmentsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Departments and people'**
+  String get teamDepartmentsSection;
+
+  /// No description provided for @teamDepartmentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'An order\'s stage goes to the people of its post. A phone icon: they tick it themselves; without one, the manager does.'**
+  String get teamDepartmentsHint;
+
+  /// No description provided for @teamAddPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Person'**
+  String get teamAddPerson;
+
+  /// No description provided for @teamAddPersonShort.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get teamAddPersonShort;
+
+  /// No description provided for @teamLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left the company'**
+  String get teamLeft;
+
+  /// No description provided for @teamPersonBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring back'**
+  String get teamPersonBack;
+
+  /// No description provided for @teamUnplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'No post yet'**
+  String get teamUnplaced;
+
+  /// No description provided for @teamPostEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'nobody'**
+  String get teamPostEmpty;
+
+  /// No description provided for @teamPostEmptyAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get teamPostEmptyAdd;
+
+  /// No description provided for @teamPersonSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} saved'**
+  String teamPersonSaved(String name);
+
+  /// No description provided for @teamPersonLeftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Has {name} left?'**
+  String teamPersonLeftTitle(String name);
+
+  /// No description provided for @teamPersonLeftMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They leave the lists; the work they did stays theirs.'**
+  String get teamPersonLeftMessage;
+
+  /// No description provided for @teamPersonLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get teamPersonLeft;
+
+  /// No description provided for @teamPersonName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get teamPersonName;
+
+  /// No description provided for @teamPersonPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get teamPersonPhone;
+
+  /// No description provided for @teamPersonPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts — any number'**
+  String get teamPersonPosts;
+
+  /// No description provided for @teamPersonLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'App login'**
+  String get teamPersonLogin;
+
+  /// No description provided for @teamPersonLoginHint.
+  ///
+  /// In en, this message translates to:
+  /// **'With a login they see «My orders» on their phone and tick themselves; without one the manager ticks for them.'**
+  String get teamPersonLoginHint;
+
+  /// No description provided for @teamPersonNoLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'No login'**
+  String get teamPersonNoLogin;
+
+  /// No description provided for @teamPersonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get teamPersonSave;
+
+  /// No description provided for @teamLoginsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'App logins'**
+  String get teamLoginsSection;
+
+  /// No description provided for @myWorkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get myWorkTitle;
+
+  /// No description provided for @myWorkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: «{stage}» done'**
+  String myWorkDone(String order, String stage);
+
+  /// No description provided for @myWorkUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get myWorkUndo;
+
+  /// No description provided for @myWorkNotLinkedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not on the team yet'**
+  String get myWorkNotLinkedTitle;
+
+  /// No description provided for @myWorkNotLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the manager to tie your login to a person in «Team» and give you a post.'**
+  String get myWorkNotLinked;
+
+  /// No description provided for @myWorkReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for you'**
+  String get myWorkReady;
+
+  /// No description provided for @myWorkNothingReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is waiting for you now.'**
+  String get myWorkNothingReady;
+
+  /// No description provided for @myWorkComing.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming to you'**
+  String get myWorkComing;
+
+  /// No description provided for @myWorkMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'My volume this month'**
+  String get myWorkMonth;
+
+  /// No description provided for @myWorkMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{area} m² · orders: {orders}'**
+  String myWorkMonthTotal(String area, int orders);
+
+  /// No description provided for @myWorkDue.
+  ///
+  /// In en, this message translates to:
+  /// **'due {date}'**
+  String myWorkDue(String date);
+
+  /// No description provided for @myWorkWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for: {stages}'**
+  String myWorkWaiting(String stages);
+
+  /// No description provided for @myWorkDoneButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get myWorkDoneButton;
+
+  /// No description provided for @myWorkStageM2.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage} {area} m²'**
+  String myWorkStageM2(String stage, String area);
 }
 
 class _AppLocalizationsDelegate

@@ -8,10 +8,11 @@ import 'package:korkem_flow/core/auth/auth_credentials.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
-import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
+import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
+import 'package:korkem_flow/features/team/domain/team_structure.dart';
 import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -157,12 +158,85 @@ class _FakeTeamRepository extends TeamRepository {
   }
 }
 
+/// Departments and people as the server sends them (owner, 17.11.2026).
+const _structure = TeamPeople(
+  canEdit: true,
+  departments: [
+    TeamDepartment(
+      key: 'cut',
+      title: 'Раскрой',
+      posts: [TeamPost(key: 'cut.cutter', title: 'Раскройщик')],
+    ),
+    TeamDepartment(
+      key: 'pvc',
+      title: 'ПВХ плёнка',
+      posts: [
+        TeamPost(key: 'pvc.sander', title: 'Шкурщик'),
+        TeamPost(key: 'pvc.vacuum', title: 'Вакуумщик'),
+      ],
+    ),
+  ],
+  people: [
+    TeamPerson(employee: 'HR-EMP-1', name: 'Ерлан', posts: ['cut.cutter']),
+    TeamPerson(
+      employee: 'HR-EMP-2',
+      name: 'Нурлан',
+      user: 'nurlan@korkem.kz',
+      posts: ['pvc.sander'],
+    ),
+  ],
+);
+
+class _FakeStructure implements TeamStructureRepository {
+  final added = <(String, List<String>)>[];
+
+  @override
+  Future<TeamPeople> add({
+    required String name,
+    required List<String> posts,
+    String? phone,
+  }) async {
+    added.add((name, posts));
+    return _structure;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+TeamPeople _peopleOf(List<TeamMember> members) => TeamPeople(
+  departments: const [],
+  people: [
+    for (final m in members)
+      TeamPerson(
+        employee: null,
+        name: m.fullName,
+        user: m.email,
+        login: TeamLogin(
+          user: m.email,
+          position: m.position.id,
+          enabled: m.enabled,
+          isOwner: m.isOwner,
+        ),
+        active: m.enabled,
+      ),
+  ],
+);
+
+/// Opens a person's card from the one list.
+Future<void> _open(WidgetTester tester, String name) async {
+  await tester.tap(find.widgetWithText(InputChip, name));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   Widget buildHarness(
     WidgetTester tester, {
     required TeamRepository repository,
     String currentUser = 'owner@korkem.kz',
     bool isOwner = true,
+    TeamPeople? people,
+    TeamStructureRepository? structure,
   }) {
     tester.view.physicalSize = const Size(1200, 2400);
     addTearDown(() => tester.view.resetPhysicalSize());
@@ -182,6 +256,17 @@ void main() {
           ),
         ),
         canInviteProvider.overrideWith((ref) => isOwner),
+        // «Команда» and its people are one list: with none given, the
+        // logins as the server would send them — a login with no person.
+        teamPeopleProvider.overrideWith(
+          (ref) async =>
+              people ??
+              _peopleOf(
+                await ref.watch(teamRepositoryProvider).fetchTeamMembers(),
+              ),
+        ),
+        if (structure != null)
+          teamStructureRepositoryProvider.overrideWithValue(structure),
       ],
       child: MaterialApp(
         theme: AppTheme.light(),
@@ -230,43 +315,53 @@ void main() {
 
     expect(find.text('Команда'), findsOneWidget);
     expect(find.text('Aidos Owner'), findsOneWidget);
-    expect(find.text('Владелец'), findsOneWidget);
-
     expect(find.text('Dana Manager'), findsOneWidget);
-    expect(find.text('Менеджер'), findsOneWidget);
-
     expect(find.text('Berik Worker'), findsOneWidget);
-    expect(find.text('Рабочий цеха'), findsOneWidget);
+
+    // A login's access is shown on its person.
+    await _open(tester, 'Dana Manager');
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('teamPersonAccess'))).data,
+      'Менеджер',
+    );
   });
 
-  testWidgets('renders empty state when only owner or nobody is present', (
+  testWidgets('a person with a login is one entry, not a second list', (
     tester,
   ) async {
-    final repo = _FakeTeamRepository(
-      fetchMembersHandler: () async => [
-        const TeamMember(
-          email: 'owner@korkem.kz',
-          firstName: 'Aidos',
-          fullName: 'Aidos Owner',
-          position: EmployeePosition.owner,
-          roles: ['System Manager'],
-          enabled: true,
+    final repo = _FakeTeamRepository(fetchMembersHandler: () async => []);
+    await tester.pumpWidget(
+      buildHarness(
+        tester,
+        repository: repo,
+        people: const TeamPeople(
+          canEdit: true,
+          departments: [
+            TeamDepartment(
+              key: 'cut',
+              title: 'Раскрой',
+              posts: [TeamPost(key: 'cut.cutter', title: 'Раскройщик')],
+            ),
+          ],
+          people: [
+            TeamPerson(
+              employee: 'HR-EMP-1',
+              name: 'Ерлан',
+              user: 'erlan@korkem.kz',
+              login: TeamLogin(user: 'erlan@korkem.kz', position: 'cutter'),
+              posts: ['cut.cutter'],
+            ),
+          ],
         ),
-      ],
+      ),
     );
-
-    await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
 
-    expect(find.text('Пока вы один'), findsOneWidget);
-    expect(
-      find.text(
-        'Пригласите сотрудников цеха, склада или отдела продаж, '
-        'чтобы распределять задачи и контролировать производство.',
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Пригласить сотрудника'), findsWidgets);
+    expect(find.text('Ерлан'), findsOneWidget);
+    expect(find.text('ВХОД В ПРОГРАММУ'), findsNothing);
+    await _open(tester, 'Ерлан');
+    expect(find.byKey(const ValueKey('teamPersonLoginBlock')), findsOneWidget);
+    expect(find.byKey(const ValueKey('teamLoginClose')), findsOneWidget);
   });
 
   testWidgets(
@@ -343,7 +438,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap invite button
-    await tester.tap(find.text('Пригласить сотрудника').first);
+    await tester.tap(find.byTooltip('Пригласить сотрудника'));
     await tester.pumpAndSettle();
 
     expect(find.text('Пригласить сотрудника'), findsWidgets);
@@ -415,7 +510,7 @@ void main() {
     await tester.tap(find.text('Повторить'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Пока вы один'), findsOneWidget);
+    expect(find.text('Aidos Owner'), findsOneWidget);
   });
 
   testWidgets(
@@ -447,7 +542,7 @@ void main() {
       await tester.pumpWidget(buildHarness(tester, repository: repo));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Пригласить сотрудника').first);
+      await tester.tap(find.byTooltip('Пригласить сотрудника'));
       await tester.pumpAndSettle();
 
       // Tap the dropdown
@@ -494,7 +589,7 @@ void main() {
     await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Пригласить сотрудника').first);
+    await tester.tap(find.byTooltip('Пригласить сотрудника'));
     await tester.pumpAndSettle();
 
     await tester.enterText(
@@ -553,7 +648,7 @@ void main() {
     await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Пригласить сотрудника').first);
+    await tester.tap(find.byTooltip('Пригласить сотрудника'));
     await tester.pumpAndSettle();
 
     await tester.enterText(
@@ -612,12 +707,9 @@ void main() {
     await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
 
-    // Open popup menu on employee card
-    await tester.tap(find.byIcon(AppIcons.more));
-    await tester.pumpAndSettle();
-
-    // Tap "Закрыть доступ"
-    await tester.tap(find.text('Закрыть доступ'));
+    // His card, then his login's «Закрыть доступ».
+    await _open(tester, 'Кайрат Мастеров');
+    await tester.tap(find.byKey(const ValueKey('teamLoginClose')));
     await tester.pumpAndSettle();
 
     // Verify confirmation dialog includes person's name
@@ -678,9 +770,8 @@ void main() {
     await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(AppIcons.more));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Закрыть доступ'));
+    await _open(tester, 'Кайрат');
+    await tester.tap(find.byKey(const ValueKey('teamLoginClose')));
     await tester.pumpAndSettle();
 
     await tester.tap(
@@ -720,8 +811,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // On own card, AppIcons.more popup menu is NOT shown
-      expect(find.byIcon(AppIcons.more), findsNothing);
+      // On his own card the owner cannot close his own login.
+      await _open(tester, 'Aidos Owner');
+      expect(
+        find.byKey(const ValueKey('teamPersonLoginBlock')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('teamLoginClose')), findsNothing);
+      expect(find.byKey(const ValueKey('teamPersonLeft')), findsNothing);
     },
   );
 
@@ -764,9 +861,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(AppIcons.more));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Закрыть доступ'));
+      await _open(tester, 'Baurzhan Owner');
+      await tester.tap(find.byKey(const ValueKey('teamLoginClose')));
       await tester.pumpAndSettle();
 
       await tester.tap(
@@ -827,10 +923,8 @@ void main() {
     await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(AppIcons.more));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Сменить должность'));
+    await _open(tester, 'Кайрат Мастеров');
+    await tester.tap(find.byKey(const ValueKey('teamLoginPosition')));
     await tester.pumpAndSettle();
 
     expect(find.text('Сменить должность'), findsWidgets);
@@ -899,16 +993,13 @@ void main() {
       await tester.pumpWidget(buildHarness(tester, repository: repo));
       await tester.pumpAndSettle();
 
-      // Verify deactivated employee is visible in the disabled section
-      expect(
-        find.widgetWithText(SectionLabel, 'ОТКЛЮЧЁННЫЕ СОТРУДНИКИ'),
-        findsOneWidget,
-      );
+      // A closed login stays on the list, among those who left.
+      expect(find.text('Ушли из компании'), findsOneWidget);
       expect(find.text('Серик Бывший'), findsOneWidget);
-      expect(find.text('Доступ закрыт'), findsOneWidget);
 
-      // Tap reactivate icon button on the deactivated card
-      await tester.tap(find.byTooltip('Вернуть доступ'));
+      await _open(tester, 'Серик Бывший');
+      expect(find.text('Доступ закрыт'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('teamLoginOpen')));
       await tester.pumpAndSettle();
 
       // Verify confirmation dialog includes employee name
@@ -955,14 +1046,8 @@ void main() {
     );
     await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
-    expect(
-      find.byKey(const ValueKey('memberTrades:cutter@korkem.kz')),
-      findsOneWidget,
-    );
-
-    await tester.tap(find.byIcon(AppIcons.more));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('memberTradesAction')));
+    await _open(tester, 'Ержан Раскрой');
+    await tester.tap(find.byKey(const ValueKey('teamLoginTrades')));
     await tester.pumpAndSettle();
     // A switched-off trade is not offered.
     expect(find.byKey(const ValueKey('trade:Маляр')), findsNothing);
@@ -984,6 +1069,43 @@ void main() {
       'trades': ['Раскройщик', 'Кромщик'],
     });
     expect(member.trades, ['Раскройщик', 'Кромщик']);
+  });
+
+  testWidgets('departments show their posts and people, and a person is '
+      'added on a post with no login', (tester) async {
+    final structure = _FakeStructure();
+    await tester.pumpWidget(
+      buildHarness(
+        tester,
+        repository: _FakeTeamRepository(fetchMembersHandler: () async => []),
+        people: _structure,
+        structure: structure,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Раскрой'), findsOneWidget);
+    expect(find.text('ПВХ плёнка'), findsOneWidget);
+    expect(find.text('Ерлан'), findsOneWidget);
+    expect(find.text('Нурлан'), findsOneWidget);
+    // Nobody presses yet: the post offers to add someone.
+    expect(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')));
+    await tester.pumpAndSettle();
+    final vacuum = tester.widget<FilterChip>(
+      find.byKey(const ValueKey('teamPost:pvc.vacuum')),
+    );
+    expect(vacuum.selected, isTrue);
+    await tester.enterText(
+      find.byKey(const ValueKey('teamPersonName')),
+      'Бек Вакуумов',
+    );
+    await tester.tap(find.byKey(const ValueKey('teamPersonSave')));
+    await tester.pumpAndSettle();
+
+    expect(structure.added.single.$1, 'Бек Вакуумов');
+    expect(structure.added.single.$2, ['pvc.vacuum']);
   });
 }
 
