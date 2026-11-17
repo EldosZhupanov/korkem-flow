@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
@@ -10,6 +11,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
@@ -1435,7 +1437,18 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
           _glueStock ?? await ref.read(glueStockRepositoryProvider).stock();
       if (!mounted) return;
       if (stock.glues.isEmpty) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.filmGlueNone)));
+        final router = GoRouter.maybeOf(context);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.filmGlueNone),
+            action: router == null
+                ? null
+                : SnackBarAction(
+                    label: l10n.filmGlueOpen,
+                    onPressed: () => unawaited(router.push(Routes.glue)),
+                  ),
+          ),
+        );
         return;
       }
       setState(() {

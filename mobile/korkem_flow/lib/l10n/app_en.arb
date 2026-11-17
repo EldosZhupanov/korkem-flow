@@ -9983,5 +9983,17 @@
   "glueMonthFixNorm": "Set the norm to {g} g/m²",
   "@glueMonthFixNorm": {"placeholders": {"g": {"type": "String"}}},
   "glueMonthNormSet": "The norm is now {g} g/m²",
-  "@glueMonthNormSet": {"placeholders": {"g": {"type": "String"}}}
+  "@glueMonthNormSet": {"placeholders": {"g": {"type": "String"}}},
+  "filmGlueOpen": "PVC glue",
+  "glueAddFirst": "Add the first glue",
+  "filmReceiveFilm": "Film",
+  "filmReceiveGlue": "PVC glue",
+  "filmFigGlue": "PVC glue",
+  "filmFigGlueNone": "not set up — tap",
+  "filmFigGlueKg": "{kg} kg",
+  "@filmFigGlueKg": {"placeholders": {"kg": {"type": "String"}}},
+  "filmFigGlueBuckets": "≈ {buckets} buckets",
+  "@filmFigGlueBuckets": {"placeholders": {"buckets": {"type": "String"}}},
+  "filmFigGlueDays": "lasts {days} d.",
+  "@filmFigGlueDays": {"placeholders": {"days": {"type": "String"}}}
 }

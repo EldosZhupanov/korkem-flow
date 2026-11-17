@@ -2963,5 +2963,14 @@
   "glueMonthFact": "Нақты {fact} г/м², норма {norm} ({pct}%)",
   "glueMonthCostM2": "м² норма бойынша {norm}, нақты {fact}",
   "glueMonthFixNorm": "Норманы {g} г/м² етіп түзету",
-  "glueMonthNormSet": "Норма енді {g} г/м²"
+  "glueMonthNormSet": "Норма енді {g} г/м²",
+  "filmGlueOpen": "ПВХ желімі",
+  "glueAddFirst": "Бірінші желімді қосу",
+  "filmReceiveFilm": "Пленка",
+  "filmReceiveGlue": "ПВХ желімі",
+  "filmFigGlue": "ПВХ желімі",
+  "filmFigGlueNone": "енгізілмеген — басыңыз",
+  "filmFigGlueKg": "{kg} кг",
+  "filmFigGlueBuckets": "≈ {buckets} шелек",
+  "filmFigGlueDays": "{days} күнге жетеді"
 }

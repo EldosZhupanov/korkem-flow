@@ -98,9 +98,28 @@ Future<void> _addGlue(BuildContext context, WidgetRef ref) async {
   }
 }
 
-Future<void> _receive(BuildContext context, WidgetRef ref) async {
-  final stock = ref.read(glueStockProvider).value;
-  if (stock == null) return;
+Future<void> _receive(BuildContext context, WidgetRef ref) =>
+    openGlueReceipt(context, ref);
+
+/// «Приход клея» from anywhere — the film department's «Приход ▾» too
+/// (owner, 17.11.2026, variant А). With no glue yet, or no right to take one
+/// in, the glue screen opens instead: a receipt needs a glue to come in as.
+Future<void> openGlueReceipt(BuildContext context, WidgetRef ref) async {
+  final l10n = AppLocalizations.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  final GlueStock stock;
+  try {
+    stock = await ref.read(glueStockProvider.future);
+  } on Object catch (e) {
+    messenger.showFailure(e, l10n);
+    return;
+  }
+  if (!context.mounted) return;
+  if (stock.glues.isEmpty || !stock.canEdit) {
+    final router = GoRouter.maybeOf(context);
+    if (router != null) unawaited(router.push(Routes.glue));
+    return;
+  }
   final done = await showDialog<bool>(
     context: context,
     builder: (_) => _ReceiveDialog(stock: stock),
@@ -176,7 +195,24 @@ class _Body extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         SectionLabel(l10n.glueGlues),
-        if (s.glues.isEmpty) Text(l10n.glueEmpty, style: muted),
+        // The first glue first: a receipt needs a glue to come in as
+        // (owner, 17.11.2026: «а где вообще приход клея?»).
+        if (s.glues.isEmpty) ...[
+          Text(l10n.glueEmpty, style: muted),
+          if (s.canEdit)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FilledButton.icon(
+                  key: const ValueKey('glueAddFirst'),
+                  onPressed: () => unawaited(_addGlue(context, ref)),
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.glueAddFirst),
+                ),
+              ),
+            ),
+        ],
         for (final g in s.glues)
           Card(
             key: ValueKey('glue:${g.item}'),

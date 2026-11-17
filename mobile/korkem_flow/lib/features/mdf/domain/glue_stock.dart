@@ -225,6 +225,7 @@ class GlueStock {
     this.owed = const [],
     this.pricesVisible = false,
     this.canEdit = false,
+    this.usageDays = 30,
   });
 
   factory GlueStock.fromJson(Map<String, dynamic> j) {
@@ -243,6 +244,9 @@ class GlueStock {
           '${m['name']}': _d(m['factor'] ?? 1),
       },
       edgeCoats: _d(j['edge_coats'] ?? 2).round(),
+      usageDays: j['usage'] is Map
+          ? _d((j['usage'] as Map)['days'] ?? 30).round()
+          : 30,
       suppliers: [
         for (final s in _rows(j['suppliers'])) GlueSupplier.fromJson(s),
       ],
@@ -278,6 +282,9 @@ class GlueStock {
   final List<GlueSupplier> suppliers;
   final List<GlueOwed> owed;
   final bool pricesVisible;
+
+  /// The days [GlueItem.fact] counts over.
+  final int usageDays;
   final bool canEdit;
 
   GlueItem? get working => glues.where((g) => g.inWork).firstOrNull;

@@ -9680,4 +9680,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String glueMonthNormSet(String g) {
     return 'The norm is now $g g/m²';
   }
+
+  @override
+  String get filmGlueOpen => 'PVC glue';
+
+  @override
+  String get glueAddFirst => 'Add the first glue';
+
+  @override
+  String get filmReceiveFilm => 'Film';
+
+  @override
+  String get filmReceiveGlue => 'PVC glue';
+
+  @override
+  String get filmFigGlue => 'PVC glue';
+
+  @override
+  String get filmFigGlueNone => 'not set up — tap';
+
+  @override
+  String filmFigGlueKg(String kg) {
+    return '$kg kg';
+  }
+
+  @override
+  String filmFigGlueBuckets(String buckets) {
+    return '≈ $buckets buckets';
+  }
+
+  @override
+  String filmFigGlueDays(String days) {
+    return 'lasts $days d.';
+  }
 }
