@@ -2929,5 +2929,14 @@
   "glueLanded": "С доставкой: {money} за кг",
   "glueSave": "Сохранить",
   "glueOrderPlan": "Клей ПВХ: {kg} кг · {title} · {norm} г/м²",
-  "glueLineKg": "клей {kg} кг"
+  "glueLineKg": "клей {kg} кг",
+  "filmSaleAddGlue": "Клей",
+  "filmGlueNone": "Клеев нет — добавьте в «Клей для ПВХ»",
+  "filmGlueBuckets": "{n} вед.",
+  "filmGlueLitres": "{n} л",
+  "filmGlueReserve": "Клея «{title}» останется {left} кг — цеху нужно {keep} кг",
+  "filmGlueReserveOk": "Продать из запаса цеха",
+  "filmGlueOver": "На складе только {have} кг",
+  "filmGlueLeft": "≈ {kg} кг со склада · останется {left} кг",
+  "filmGlueBelow": "Дешевле себестоимости: {cost} за кг с доставкой"
 }

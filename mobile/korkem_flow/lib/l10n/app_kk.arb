@@ -2929,5 +2929,14 @@
   "glueLanded": "Жеткізумен: кг үшін {money}",
   "glueSave": "Сақтау",
   "glueOrderPlan": "ПВХ желімі: {kg} кг · {title} · {norm} г/м²",
-  "glueLineKg": "желім {kg} кг"
+  "glueLineKg": "желім {kg} кг",
+  "filmSaleAddGlue": "Желім",
+  "filmGlueNone": "Желім жоқ — «ПВХ желіміне» қосыңыз",
+  "filmGlueBuckets": "{n} шел.",
+  "filmGlueLitres": "{n} л",
+  "filmGlueReserve": "«{title}» желімі {left} кг қалады — цехке {keep} кг керек",
+  "filmGlueReserveOk": "Цех қорынан сату",
+  "filmGlueOver": "Қоймада тек {have} кг",
+  "filmGlueLeft": "≈ қоймадан {kg} кг · {left} кг қалады",
+  "filmGlueBelow": "Өзіндік құнынан арзан: жеткізумен кг үшін {cost}"
 }

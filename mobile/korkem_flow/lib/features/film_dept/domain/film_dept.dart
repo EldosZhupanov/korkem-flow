@@ -600,6 +600,9 @@ class FilmSaleLine {
     this.code,
     this.type,
     this.thicknessMm,
+    this.unit,
+    this.units,
+    this.unitPrice,
   });
 
   factory FilmSaleLine.fromJson(Map<String, dynamic> json) => FilmSaleLine(
@@ -612,12 +615,29 @@ class FilmSaleLine {
     code: _s(json['code']),
     type: _s(json['type']),
     thicknessMm: _d(json['thickness_mm']),
+    unit: _s(json['unit']),
+    units: _d(json['units']),
+    unitPrice: _d(json['unit_price']),
   );
 
   final String item;
   final String title;
   final double metres;
   final double? priceM;
+
+  /// A glue line (owner, 17.11.2026): sold by the bucket or the litre —
+  /// [unit] is the wire word, «ведро» or «л» — at [unitPrice] one; [metres]
+  /// is then the kilograms the store gave.
+  final String? unit;
+  final double? units;
+  final double? unitPrice;
+
+  bool get glue => unit != null;
+
+  /// What the receipt counts: buckets or litres for glue, metres for film.
+  double get qty => units ?? metres;
+  double? get price => unitPrice ?? priceM;
+  double get lineAmount => qty * (price ?? 0);
 
   /// What the film is, for the customer's receipt (owner, 12.11.2026).
   final String? maker;
@@ -720,7 +740,9 @@ class FilmSale {
   /// Who handed the film out of the stock.
   final String? issuedBy;
 
-  double get metres => lines.fold(0, (sum, l) => sum + l.metres);
+  /// Film's metres — glue sold with it counts in kilograms, not here.
+  double get metres =>
+      lines.fold(0, (sum, l) => l.glue ? sum : sum + l.metres);
 }
 
 /// What a metre of a film costs a customer: the tier's price less the

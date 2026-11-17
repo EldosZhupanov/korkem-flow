@@ -22,7 +22,9 @@ import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dar
 import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
+import 'package:korkem_flow/features/mdf/data/glue_stock_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/glue_stock.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
@@ -1234,6 +1236,44 @@ class _SaleLine {
   }
 }
 
+/// A glue line of a sale (owner, 17.11.2026: «продаётся ведром и литром»):
+/// so many buckets or litres at so much one — by the glue's mark-up unless
+/// retyped; the store gives kilograms.
+class _GlueLine {
+  _GlueLine(this.glue)
+    : unit = glue.bucketKg != null ? GlueUnit.bucket : GlueUnit.litre {
+    prefill();
+  }
+
+  GlueItem glue;
+  GlueUnit unit;
+  final units = TextEditingController(text: '1');
+  final price = TextEditingController();
+
+  /// The glue's own price for one — a bucket or a litre.
+  void prefill() {
+    final own = unit == GlueUnit.bucket ? glue.sellBucket : glue.sellLitre;
+    price.text = own == null ? '' : own.toStringAsFixed(0);
+  }
+
+  double get n => _number(units.text) ?? 0;
+  double get p => _number(price.text) ?? 0;
+  double get sum => (n * p).roundToDouble();
+
+  /// Kilograms off the store.
+  double get kg =>
+      n * (unit == GlueUnit.bucket ? (glue.bucketKg ?? 0) : glue.kgPerLitre);
+
+  /// Sold for less a kilo than it cost with its bringing.
+  bool get below =>
+      p > 0 && kg > 0 && glue.costKg != null && n * p / kg < glue.costKg!;
+
+  void dispose() {
+    units.dispose();
+    price.dispose();
+  }
+}
+
 /// «Продажа»: a customer, one film or several by the metre, what is paid
 /// now — the rest is the customer's debt. A metre's price comes from the
 /// customer's card (retail or trade, less the discount) and may be retyped.
@@ -1273,6 +1313,14 @@ class _SaleDialog extends ConsumerStatefulWidget {
 
 class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   final _lines = <_SaleLine>[];
+
+  /// PVC glue sold with the film (owner, 17.11.2026); the glues read when
+  /// the first glue line is added.
+  final _glue = <_GlueLine>[];
+  GlueStock? _glueStock;
+
+  /// The seller was told it is the shop's own glue, and sells it anyway.
+  bool _reserveOk = false;
   final _parts = [_PayPart()];
   late String? _customer = widget.customer;
 
@@ -1338,6 +1386,9 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
     for (final l in _lines) {
       l.dispose();
     }
+    for (final g in _glue) {
+      g.dispose();
+    }
     for (final p in _parts) {
       p.dispose();
     }
@@ -1371,7 +1422,61 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
     }
   }
 
-  double get _sum => _lines.fold(0, (s, l) => s + l.sum);
+  double get _sum =>
+      _lines.fold<double>(0, (s, l) => s + l.sum) +
+      _glue.fold<double>(0, (s, g) => s + g.sum);
+
+  /// «+ Клей»: the glue in work first.
+  Future<void> _addGlue() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final stock =
+          _glueStock ?? await ref.read(glueStockRepositoryProvider).stock();
+      if (!mounted) return;
+      if (stock.glues.isEmpty) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.filmGlueNone)));
+        return;
+      }
+      setState(() {
+        _glueStock = stock;
+        _glue.add(_GlueLine(stock.working ?? stock.glues.first));
+        _fillPaid();
+      });
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    }
+  }
+
+  /// Kilograms of each glue this sale takes.
+  Map<String, double> get _glueKg {
+    final out = <String, double>{};
+    for (final g in _glue) {
+      out[g.glue.item] = (out[g.glue.item] ?? 0) + g.kg;
+    }
+    return out;
+  }
+
+  /// A glue this sale would take from what the shop needs: what its card
+  /// keeps back, and — for the glue in work — the vacuum queue's need.
+  ({String title, double left, double keep})? get _shopGlue {
+    final stock = _glueStock;
+    if (stock == null) return null;
+    for (final MapEntry(key: item, value: kg) in _glueKg.entries) {
+      final g = stock.glues.where((x) => x.item == item).firstOrNull;
+      if (g == null) continue;
+      final need = stock.inWork == item ? stock.queueKg : 0.0;
+      final keep = g.reserveKg > need ? g.reserveKg : need;
+      final left = g.onHandKg - kg;
+      if (keep > 0 && left < keep) {
+        return (title: g.title, left: left < 0 ? 0.0 : left, keep: keep);
+      }
+    }
+    return null;
+  }
+
+  bool _glueOver(_GlueLine g) =>
+      (_glueKg[g.glue.item] ?? 0) > g.glue.onHandKg + 0.0001;
 
   void _fillPaid() {
     if (!_paidTouched && _parts.length == 1) {
@@ -1469,7 +1574,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
               message: l10n.filmSaleLikeLast(
                 [
                   for (final l in last.lines)
-                    '${l.colour ?? l.title} ${filmMetres(l.metres)} м',
+                    '${l.colour ?? l.title} ${filmLineQty(l10n, l)}',
                 ].join(', '),
               ),
               child: TextButton.icon(
@@ -1485,6 +1590,136 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
         ],
       ),
     );
+  }
+
+  /// The glue lines: which glue, buckets or litres, how many, the price of
+  /// one; what the store gives and what stays.
+  List<Widget> _glueLines(AppLocalizations l10n, ThemeData theme) {
+    final stock = _glueStock;
+    if (stock == null) return const [];
+    return [
+      for (final (i, g) in _glue.indexed) ...[
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                flex: 4,
+                child: DropdownButtonFormField<String>(
+                  key: ValueKey('filmSaleGlue:$i'),
+                  initialValue: g.glue.item,
+                  isExpanded: true,
+                  items: [
+                    for (final x in stock.glues)
+                      DropdownMenuItem(
+                        value: x.item,
+                        child: Text(
+                          '${x.title} · ${filmMetres(x.onHandKg)} кг',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                  onChanged: (v) => setState(() {
+                    g
+                      ..glue = stock.glues.firstWhere((x) => x.item == v)
+                      ..unit = g.glue.bucketKg != null
+                          ? g.unit
+                          : GlueUnit.litre
+                      ..prefill();
+                    _fillPaid();
+                  }),
+                  decoration: InputDecoration(labelText: l10n.glueGlue),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  key: ValueKey('filmSaleGlueUnits:$i'),
+                  controller: g.units,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+                  ],
+                  onChanged: (_) => setState(_fillPaid),
+                  decoration: InputDecoration(labelText: l10n.glueQty),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  key: ValueKey('filmSaleGluePrice:$i'),
+                  controller: g.price,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (_) => setState(_fillPaid),
+                  decoration: InputDecoration(labelText: l10n.gluePrice),
+                ),
+              ),
+              IconButton(
+                key: ValueKey('filmSaleGlueRemove:$i'),
+                icon: const Icon(AppIcons.close),
+                onPressed: _lines.isEmpty && _glue.length == 1
+                    ? null
+                    : () => setState(() {
+                        _glue.removeAt(i).dispose();
+                        _fillPaid();
+                      }),
+              ),
+            ],
+          ),
+        ),
+        Wrap(
+          spacing: AppSpacing.xs,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            for (final (u, label) in [
+              (GlueUnit.bucket, l10n.glueUnitBucket),
+              (GlueUnit.litre, l10n.glueUnitLitre),
+            ])
+              ChoiceChip(
+                key: ValueKey('filmSaleGlueUnit:$i:${u.name}'),
+                label: Text(label),
+                selected: g.unit == u,
+                onSelected: u == GlueUnit.bucket && g.glue.bucketKg == null
+                    ? null
+                    : (_) => setState(() {
+                        g
+                          ..unit = u
+                          ..prefill();
+                        _fillPaid();
+                      }),
+              ),
+            if (g.kg > 0)
+              Text(
+                _glueOver(g)
+                    ? l10n.filmGlueOver(filmMetres(g.glue.onHandKg))
+                    : l10n.filmGlueLeft(
+                        filmMetres(g.kg),
+                        filmMetres(
+                          g.glue.onHandKg - (_glueKg[g.glue.item] ?? 0),
+                        ),
+                      ),
+                key: ValueKey('filmSaleGlueLeft:$i'),
+                style: TextStyle(
+                  color: _glueOver(g) ? theme.colorScheme.error : null,
+                ),
+              ),
+          ],
+        ),
+        if (g.below)
+          Text(
+            l10n.filmGlueBelow(mdfMoney(context).format(g.glue.costKg)),
+            key: ValueKey('filmSaleGlueBelow:$i'),
+            style: TextStyle(color: theme.colorScheme.error),
+          ),
+        const SizedBox(height: AppSpacing.sm),
+      ],
+    ];
   }
 
   /// «+ ещё способ»: a new part takes what is left to pay.
@@ -1514,13 +1749,17 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
       l.mine = l.film.heldFor(_customer);
     }
     final paid = _paid;
+    final anyBelow = _lines.any((l) => l.below) || _glue.any((g) => g.below);
+    final shopGlue = _shopGlue;
     final ok =
         _customer != null &&
-        _lines.isNotEmpty &&
+        (_lines.isNotEmpty || _glue.isNotEmpty) &&
         _lines.every(
           (l) => l.m > 0 && l.p > 0 && !l.over,
         ) &&
-        (_below != null || !_lines.any((l) => l.below)) &&
+        _glue.every((g) => g.n > 0 && g.p > 0 && !_glueOver(g)) &&
+        (shopGlue == null || _reserveOk) &&
+        (_below != null || !anyBelow) &&
         paid <= _sum + 0.5;
     String label(String m) => switch (m) {
       filmTransfer => l10n.mdfPayTransfer,
@@ -1655,7 +1894,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                           ),
                         ),
                       ),
-                      if (_lines.length > 1)
+                      if (_lines.length > 1 || _glue.isNotEmpty)
                         IconButton(
                           key: ValueKey('filmSaleRemove:$i'),
                           icon: const Icon(AppIcons.close),
@@ -1796,7 +2035,34 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                   icon: const Icon(AppIcons.add),
                   label: Text(l10n.filmSaleAddLine),
                 ),
-              if (_lines.any((l) => l.below)) ...[
+              ..._glueLines(l10n, theme),
+              TextButton.icon(
+                key: const ValueKey('filmSaleAddGlue'),
+                onPressed: _addGlue,
+                icon: const Icon(AppIcons.add),
+                label: Text(l10n.filmSaleAddGlue),
+              ),
+              if (shopGlue != null) ...[
+                Text(
+                  l10n.filmGlueReserve(
+                    shopGlue.title,
+                    filmMetres(shopGlue.left),
+                    filmMetres(shopGlue.keep),
+                  ),
+                  key: const ValueKey('filmSaleGlueReserve'),
+                  style: TextStyle(color: context.statusColors.warning),
+                ),
+                CheckboxListTile(
+                  key: const ValueKey('filmSaleGlueReserveOk'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: _reserveOk,
+                  onChanged: (v) => setState(() => _reserveOk = v ?? false),
+                  title: Text(l10n.filmGlueReserveOk),
+                ),
+              ],
+              if (anyBelow) ...[
                 Text(
                   l10n.filmSaleBelowWhy,
                   style: TextStyle(color: theme.colorScheme.error),
@@ -1965,7 +2231,17 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                         ],
                         seller: _seller ?? sellers?.me,
                         issuedBy: _issuer ?? _seller ?? sellers?.me,
-                        belowReason: _lines.any((l) => l.below) ? _below : null,
+                        belowReason: anyBelow ? _below : null,
+                        glue: [
+                          for (final g in _glue)
+                            (
+                              item: g.glue.item,
+                              units: g.n,
+                              unit: g.unit.wire,
+                              priceUnit: g.p,
+                            ),
+                        ],
+                        glueReserveOk: _reserveOk,
                       ),
                 ),
           child: Text(l10n.filmSell),
@@ -2193,8 +2469,11 @@ class _SaleCardDialogState extends ConsumerState<_SaleCardDialog> with _Saving {
                 Text(
                   [
                     l.title,
-                    '${filmMetres(l.metres)} м',
-                    if (l.priceM != null) '${money.format(l.priceM)}/м',
+                    filmLineQty(l10n, l),
+                    if (l.glue && l.unitPrice != null)
+                      money.format(l.unitPrice)
+                    else if (l.priceM != null)
+                      '${money.format(l.priceM)}/м',
                   ].join(' · '),
                 ),
               const SizedBox(height: AppSpacing.sm),

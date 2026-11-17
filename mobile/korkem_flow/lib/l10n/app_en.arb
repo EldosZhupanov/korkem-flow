@@ -9935,5 +9935,20 @@
   "glueOrderPlan": "PVC glue: {kg} kg · {title} · {norm} g/m²",
   "@glueOrderPlan": {"placeholders": {"kg": {"type": "String"}, "title": {"type": "String"}, "norm": {"type": "String"}}},
   "glueLineKg": "glue {kg} kg",
-  "@glueLineKg": {"placeholders": {"kg": {"type": "String"}}}
+  "@glueLineKg": {"placeholders": {"kg": {"type": "String"}}},
+  "filmSaleAddGlue": "Glue",
+  "filmGlueNone": "No glues — add them in «PVC glue»",
+  "filmGlueBuckets": "{n} bucket(s)",
+  "@filmGlueBuckets": {"placeholders": {"n": {"type": "String"}}},
+  "filmGlueLitres": "{n} l",
+  "@filmGlueLitres": {"placeholders": {"n": {"type": "String"}}},
+  "filmGlueReserve": "«{title}»: {left} kg will be left — the shop needs {keep} kg",
+  "@filmGlueReserve": {"placeholders": {"title": {"type": "String"}, "left": {"type": "String"}, "keep": {"type": "String"}}},
+  "filmGlueReserveOk": "Sell from the shop's stock",
+  "filmGlueOver": "Only {have} kg on hand",
+  "@filmGlueOver": {"placeholders": {"have": {"type": "String"}}},
+  "filmGlueLeft": "≈ {kg} kg off the store · {left} kg left",
+  "@filmGlueLeft": {"placeholders": {"kg": {"type": "String"}, "left": {"type": "String"}}},
+  "filmGlueBelow": "Below cost: {cost} a kg landed",
+  "@filmGlueBelow": {"placeholders": {"cost": {"type": "String"}}}
 }

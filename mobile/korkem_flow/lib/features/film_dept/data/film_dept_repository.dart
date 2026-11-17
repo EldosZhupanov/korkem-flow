@@ -304,6 +304,9 @@ class FilmDeptRepository {
     String? seller,
     String? issuedBy,
     String? belowReason,
+    List<({String item, double units, String unit, double priceUnit})> glue =
+        const [],
+    bool glueReserveOk = false,
   }) async => FilmSale.fromJson(
     _map(
       await _client.callMethod(
@@ -320,6 +323,14 @@ class FilmDeptRepository {
                 // Typed where the card had none: remembered on the card.
                 if (remember.contains(l.item)) 'remember': true,
               },
+            // PVC glue by the bucket or the litre (owner, 17.11.2026).
+            for (final g in glue)
+              {
+                'item': g.item,
+                'units': g.units,
+                'unit': g.unit,
+                'price_unit': g.priceUnit,
+              },
           ]),
           'payments': jsonEncode([
             for (final p in payments)
@@ -331,6 +342,7 @@ class FilmDeptRepository {
           // Why for less than it cost (owner, 13.11.2026).
           'below_reason': ?belowReason,
           'issued_by': ?issuedBy,
+          if (glueReserveOk) 'glue_reserve_ok': 1,
         },
       ),
     ),

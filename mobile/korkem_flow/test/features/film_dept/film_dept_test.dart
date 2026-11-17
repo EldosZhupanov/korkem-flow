@@ -11,7 +11,9 @@ import 'package:korkem_flow/features/film_dept/domain/film_orders.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_screen.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_print.dart';
+import 'package:korkem_flow/features/mdf/data/glue_stock_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/glue_stock.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -490,7 +492,11 @@ class _Fake implements FilmDeptRepository {
     String? seller,
     String? issuedBy,
     String? belowReason,
+    List<({String item, double units, String unit, double priceUnit})> glue =
+        const [],
+    bool glueReserveOk = false,
   }) async {
+    glueSold.add(glue);
     belowReasons.add(belowReason);
     sellers.add(seller);
     remembered.addAll(remember);
@@ -502,6 +508,8 @@ class _Fake implements FilmDeptRepository {
   final paid = <(String, double, String)>[];
   final cancelled = <(String, String)>[];
   final belowReasons = <String?>[];
+  final glueSold =
+      <List<({String item, double units, String unit, double priceUnit})>>[];
 
   @override
   Future<List<FilmSale>> sales({
@@ -588,6 +596,30 @@ class _Fake implements FilmDeptRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// PVC glue sold with the film (owner, 17.11.2026).
+class _Glue implements GlueStockRepository {
+  @override
+  Future<GlueStock> stock() async => GlueStock.fromJson(const {
+    'in_work': 'GL-A',
+    'glues': [
+      {
+        'item': 'GL-A',
+        'title': 'Клей А',
+        'bucket_kg': 20,
+        'kg_per_litre': 1.04,
+        'norm_g_m2': 100,
+        'in_work': true,
+        'on_hand_kg': 50,
+        'cost_kg': 2100,
+        'sell': {'bucket': 50400, 'litre': 3276},
+      },
+    ],
+  });
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 Future<_Fake> _pump(WidgetTester tester) async {
   tester.view
     ..physicalSize = const Size(1600, 2400)
@@ -599,6 +631,7 @@ Future<_Fake> _pump(WidgetTester tester) async {
       overrides: [
         filmDeptRepositoryProvider.overrideWithValue(repo),
         filmOrdersRepositoryProvider.overrideWithValue(_orders = _Orders()),
+        glueStockRepositoryProvider.overrideWithValue(_Glue()),
         mdfCustomersProvider.overrideWith(
           (ref) async => const [
             FacadeCustomer(name: 'CUST-1', title: 'Мебель-ЮГ'),
@@ -1504,6 +1537,37 @@ void main() {
     expect(repo.sold.single.$3, 30000);
     // Sold by whoever is signed in, unless another seller is picked.
     expect(repo.sellers.single, 'a@k.kz');
+  });
+
+  testWidgets('glue is sold with the film: a bucket at the glue\'s price, '
+      'a glue-only sale with no film line', (tester) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmDept:sell')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleCustomer:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Мебель-ЮГ').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmSaleAddGlue')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('filmSaleGluePrice:0')))
+          .controller!
+          .text,
+      '50400',
+    );
+    expect(find.byKey(const ValueKey('filmSaleGlueLeft:0')), findsOne);
+    // The film line goes: glue alone is a sale.
+    await tester.tap(find.byKey(const ValueKey('filmSaleRemove:0')));
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('filmSaleSave'));
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repo.glueSold.single, [
+      (item: 'GL-A', units: 1.0, unit: 'ведро', priceUnit: 50400.0),
+    ]);
   });
 
   testWidgets('customers: who buys most first, and who fell asleep', (

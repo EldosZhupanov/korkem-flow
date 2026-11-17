@@ -1151,6 +1151,30 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertEqual(next(g["on_hand_kg"] for g in after["glues"] if g["item"] == item), 50)
 		self.assertGreater(after["usage"]["glues"][item]["kg_counted"], 0.3)
 
+		# Sold on with the film (owner: «ведром и литром», with a mark-up): a
+		# bucket at a typed price, the store gives 20 kg.
+		from korkem_manufacturing.services import film_dept
+
+		sale = self._as(BUYER, film_dept.sell, self.customer,
+						[{"item": item, "units": 1, "unit": "ведро", "price_unit": 52_000}], paid=52_000)
+		line = sale["lines"][0]
+		self.assertEqual((line["unit"], line["units"], line["unit_price"]), ("ведро", 1, 52_000))
+		self.assertEqual(sale["amount"], 52_000)
+		self.assertAlmostEqual(on_hand(), 30, places=3)
+		# Litres at the glue's own litre price; the shop's 25 kg kept back is
+		# not sold without saying so.
+		self._as(BUYER, glue_stock.set_glue, item, reserve_kg=25)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 6, "unit": "л"}])
+		sale = self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 6, "unit": "л"}],
+						glue_reserve_ok=1)
+		self.assertEqual(sale["lines"][0]["unit"], "л")
+		self.assertGreater(sale["lines"][0]["unit_price"], 0)
+		self.assertAlmostEqual(on_hand(), 30 - 6 * 1.04, places=2)
+		with self.assertRaises(frappe.ValidationError):  # a glue is sold by the bucket or the litre
+			self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 1, "unit": "кг"}],
+					 glue_reserve_ok=1)
+
 	def test_the_paint_board_groups_by_colour_and_counts_the_drying_down(self):
 		from korkem_manufacturing.services import mdf_dictionaries, mdf_paint
 
