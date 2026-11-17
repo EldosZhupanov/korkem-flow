@@ -14,6 +14,7 @@ import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_scre
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -707,7 +708,7 @@ class _SaleRow extends StatelessWidget {
                         ],
                         Flexible(
                           child: Text(
-                            '${line.title} — ${filmMetres(line.metres)} м',
+                            '${line.title} — ${filmLineQty(l10n, line)}',
                             style: theme.textTheme.bodySmall,
                             overflow: TextOverflow.ellipsis,
                           ),

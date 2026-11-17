@@ -678,29 +678,113 @@ def count(item: str, kg) -> dict:
 	return stock()
 
 
-def usage(company: str | None = None, days: int = USAGE_DAYS) -> dict:
-	"""The last month, glue by glue: m² through the vacuum, kilograms by the
-	norm, what counts found missing (or over) — so what a m² really took."""
-	company = company or current_company()
-	by: dict[str, dict] = defaultdict(lambda: {"m2": 0.0, "kg_by_norm": 0.0, "kg_counted": 0.0})
+def _movements(company: str, since: str, until: str | None = None) -> dict[str, dict]:
+	"""Glue by glue over a period: m² through the vacuum and the kilograms the
+	norm took for them, what the counts found missing (+) or over (−), and
+	what each cost on the store."""
+	by: dict[str, dict] = defaultdict(lambda: {"m2": 0.0, "kg_by_norm": 0.0, "kg_counted": 0.0, "counts": 0,
+												"last_count": None, "money_by_norm": 0.0, "money_counted": 0.0})
 	for e in frappe.db.sql(
-		"""select sed.item_code, se.korkem_glue_use, se.korkem_glue_m2, se.purpose, sum(sed.qty) as qty
+		"""select se.name, sed.item_code, se.korkem_glue_use, se.korkem_glue_m2, se.purpose, se.posting_date,
+			sum(sed.qty) as qty, sum(sed.amount) as amount
 		from `tabStock Entry` se join `tabStock Entry Detail` sed on sed.parent = se.name
 		where se.company = %(company)s and se.docstatus = 1 and se.korkem_receipt_dept = %(dept)s
-			and se.korkem_glue_use in %(uses)s and se.posting_date >= %(since)s
+			and se.korkem_glue_use in %(uses)s and se.posting_date >= %(since)s and se.posting_date <= %(until)s
 		group by se.name, sed.item_code""",
-		{"company": company, "dept": DEPT, "uses": (USE_ORDER, USE_COUNT), "since": add_days(nowdate(), -days)},
+		{"company": company, "dept": DEPT, "uses": (USE_ORDER, USE_COUNT), "since": since,
+		 "until": until or nowdate()},
 		as_dict=True,
 	):
 		row = by[e.item_code]
 		if e.korkem_glue_use == USE_ORDER:
 			row["m2"] += flt(e.korkem_glue_m2)
 			row["kg_by_norm"] += flt(e.qty)
+			row["money_by_norm"] += flt(e.amount)
 		else:
-			row["kg_counted"] += flt(e.qty) if e.purpose == "Material Issue" else -flt(e.qty)
+			sign = 1 if e.purpose == "Material Issue" else -1
+			row["kg_counted"] += sign * flt(e.qty)
+			row["money_counted"] += sign * flt(e.amount)
+			row["counts"] += 1
+			day = str(e.posting_date)
+			row["last_count"] = max(row["last_count"] or day, day)
+	return by
+
+
+def _fact(row: dict) -> int | None:
+	"""Grams a m² really took: the norm's kilograms and what the counts found."""
+	return round((row["kg_by_norm"] + row["kg_counted"]) * 1000 / row["m2"]) if row["m2"] else None
+
+
+def usage(company: str | None = None, days: int = USAGE_DAYS) -> dict:
+	"""The last month, glue by glue: m² through the vacuum, kilograms by the
+	norm, what counts found missing (or over) — so what a m² really took."""
+	company = company or current_company()
 	glues = {}
-	for item, row in by.items():
-		fact = round((row["kg_by_norm"] + row["kg_counted"]) * 1000 / row["m2"]) if row["m2"] else None
+	for item, row in _movements(company, add_days(nowdate(), -days)).items():
 		glues[item] = {"m2": round(row["m2"], 2), "kg_by_norm": round(row["kg_by_norm"], 2),
-					   "kg_counted": round(row["kg_counted"], 2), "fact_g_m2": fact}
+					   "kg_counted": round(row["kg_counted"], 2), "fact_g_m2": _fact(row)}
 	return {"days": days, "glues": glues}
+
+
+def _month(month: str | None) -> tuple[str, str, str]:
+	"""«2026-11» → the month, its first and its last day; today's by default."""
+	month = (month or nowdate()[:7]).strip()
+	try:
+		first = getdate(f"{month}-01")
+	except Exception:
+		frappe.throw("Месяц — в виде ГГГГ-ММ.")
+	if first.year < 2000 or first > getdate(nowdate()):
+		frappe.throw("Месяц — в виде ГГГГ-ММ, не позже текущего.")
+	last = add_days(first.replace(year=first.year + (first.month == 12), month=first.month % 12 + 1), -1)
+	return first.strftime("%Y-%m"), str(first), str(last)
+
+
+def reconcile(month: str | None = None) -> dict:
+	"""The month's glue reconciliation (owner, 17.11.2026): glue by glue, how
+	many m² went through the vacuum, what the norm took for them, what the
+	storekeeper's weighing found missing or over, so what a m² really took
+	and what that difference cost. Without a count in the month the fact is
+	unknown — the norm is all there is."""
+	material_stock._ensure_staff()
+	company = current_company()
+	allowed = price_visibility.can_see_prices()
+	month, first, last = _month(month)
+	moved = _movements(company, first, last)
+	titles = dict(frappe.get_all(
+		"Item",
+		filters={"korkem_material_company": company, "korkem_material_kind": material_stock.GLUE},
+		fields=["name", "item_name"], as_list=True, limit_page_length=0,
+	))
+	glues, total = [], {"m2": 0.0, "kg_by_norm": 0.0, "kg_counted": 0.0, "money_counted": 0.0}
+	for item in sorted(moved, key=lambda i: titles.get(i) or i):
+		if item not in titles:
+			continue
+		row = moved[item]
+		norm = flt(card(item, company)["norm_g_m2"])
+		fact = _fact(row) if row["counts"] else None
+		cost_kg = (row["money_by_norm"] / row["kg_by_norm"]) if row["kg_by_norm"] else None
+		glues.append({
+			"item": item, "title": titles[item], "m2": round(row["m2"], 2),
+			"kg_by_norm": round(row["kg_by_norm"], 2), "kg_counted": round(row["kg_counted"], 2),
+			"counts": row["counts"], "last_count": row["last_count"],
+			"norm_g_m2": norm, "fact_g_m2": fact,
+			"deviation_pct": round((fact - norm) * 100 / norm, 1) if fact is not None and norm else None,
+			"money_by_norm": _money(round(row["money_by_norm"], 2), allowed),
+			"money_counted": _money(round(row["money_counted"], 2), allowed),
+			"cost_m2_norm": _money(round(cost_kg * norm / 1000, 2) if cost_kg else None, allowed),
+			"cost_m2_fact": _money(round(cost_kg * fact / 1000, 2) if cost_kg and fact is not None else None,
+								   allowed),
+		})
+		for k in total:
+			total[k] += row[k]
+	return {
+		"month": month,
+		"from": first,
+		"to": last,
+		"glues": glues,
+		"total": {"m2": round(total["m2"], 2), "kg_by_norm": round(total["kg_by_norm"], 2),
+				  "kg_counted": round(total["kg_counted"], 2),
+				  "money_counted": _money(round(total["money_counted"], 2), allowed)},
+		"prices_visible": allowed,
+		"can_edit": material_stock.can_edit(),
+	}

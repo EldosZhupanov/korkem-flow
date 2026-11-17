@@ -316,3 +316,100 @@ enum GlueUnit {
 
   final String wire;
 }
+
+/// One glue in a month's reconciliation (owner, 17.11.2026): the m² through
+/// the vacuum, what the norm took, what the weighing found, what that cost.
+@immutable
+class GlueMonthRow {
+  const GlueMonthRow({
+    required this.item,
+    required this.title,
+    required this.m2,
+    required this.kgByNorm,
+    required this.kgCounted,
+    required this.counts,
+    required this.normGM2,
+    this.lastCount,
+    this.factGM2,
+    this.deviationPct,
+    this.moneyByNorm,
+    this.moneyCounted,
+    this.costM2Norm,
+    this.costM2Fact,
+  });
+
+  factory GlueMonthRow.fromJson(Map<String, dynamic> j) => GlueMonthRow(
+    item: '${j['item']}',
+    title: '${j['title'] ?? ''}',
+    m2: _d(j['m2']),
+    kgByNorm: _d(j['kg_by_norm']),
+    kgCounted: _d(j['kg_counted']),
+    counts: _d(j['counts']).round(),
+    lastCount: _s(j['last_count']),
+    normGM2: _d(j['norm_g_m2']),
+    factGM2: _dn(j['fact_g_m2']),
+    deviationPct: _dn(j['deviation_pct']),
+    moneyByNorm: _dn(j['money_by_norm']),
+    moneyCounted: _dn(j['money_counted']),
+    costM2Norm: _dn(j['cost_m2_norm']),
+    costM2Fact: _dn(j['cost_m2_fact']),
+  );
+
+  final String item;
+  final String title;
+  final double m2;
+  final double kgByNorm;
+
+  /// Missing at the weighing (+) or over (−), in kg.
+  final double kgCounted;
+  final int counts;
+  final String? lastCount;
+  final double normGM2;
+
+  /// Null until the store was weighed in the month.
+  final double? factGM2;
+  final double? deviationPct;
+  final double? moneyByNorm;
+  final double? moneyCounted;
+  final double? costM2Norm;
+  final double? costM2Fact;
+
+  bool get counted => counts > 0;
+}
+
+/// A month's glue reconciliation.
+@immutable
+class GlueMonth {
+  const GlueMonth({
+    required this.month,
+    required this.glues,
+    required this.m2,
+    required this.kgByNorm,
+    required this.kgCounted,
+    this.moneyCounted,
+    this.canEdit = false,
+  });
+
+  factory GlueMonth.fromJson(Map<String, dynamic> j) {
+    final total = j['total'] is Map
+        ? Map<String, dynamic>.from(j['total'] as Map)
+        : const <String, dynamic>{};
+    return GlueMonth(
+      month: '${j['month'] ?? ''}',
+      glues: [for (final r in _rows(j['glues'])) GlueMonthRow.fromJson(r)],
+      m2: _d(total['m2']),
+      kgByNorm: _d(total['kg_by_norm']),
+      kgCounted: _d(total['kg_counted']),
+      moneyCounted: _dn(total['money_counted']),
+      canEdit: j['can_edit'] == true,
+    );
+  }
+
+  final String month;
+  final List<GlueMonthRow> glues;
+  final double m2;
+  final double kgByNorm;
+  final double kgCounted;
+  final double? moneyCounted;
+  final bool canEdit;
+}

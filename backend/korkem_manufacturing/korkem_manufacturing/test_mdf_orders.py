@@ -1150,6 +1150,55 @@ class TestMdfOrders(IntegrationTestCase):
 		after = self._as(BUYER, glue_stock.count, item, "50")
 		self.assertEqual(next(g["on_hand_kg"] for g in after["glues"] if g["item"] == item), 50)
 		self.assertGreater(after["usage"]["glues"][item]["kg_counted"], 0.3)
+		# The month's reconciliation: the count makes the fact, and what the
+		# difference cost (owner: «сверка за месяц»).
+		# Weighed, but nothing glued in the month: no fact to show.
+		month = self._as(BUYER, glue_stock.reconcile)
+		row = next(r for r in month["glues"] if r["item"] == item)
+		self.assertGreaterEqual(row["counts"], 1)
+		self.assertEqual((row["fact_g_m2"], row["deviation_pct"]), (None, None))
+		self.assertGreater(row["money_counted"], 0)
+		self.assertEqual(month["month"], nowdate()[:7])
+		# The order glued again: the norm's kilograms and the missing ones
+		# over its m² — more than the norm, and a dearer m².
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum")
+		row = next(r for r in self._as(BUYER, glue_stock.reconcile)["glues"] if r["item"] == item)
+		self.assertGreaterEqual(row["m2"], 1.63)
+		self.assertAlmostEqual(row["fact_g_m2"], (row["kg_by_norm"] + row["kg_counted"]) * 1000 / row["m2"], delta=2)
+		self.assertGreater(row["deviation_pct"], 0)
+		self.assertGreater(row["cost_m2_fact"], row["cost_m2_norm"])
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "vacuum", 0)
+		self.assertAlmostEqual(on_hand(), 50, places=3)
+		earlier = self._as(BUYER, glue_stock.reconcile, "2001-01")
+		self.assertEqual((earlier["glues"], earlier["to"]), ([], "2001-01-31"))
+		for wrong in ("2026-13", "2999-01", "ноябрь"):
+			with self.assertRaises(frappe.ValidationError):
+				self._as(BUYER, glue_stock.reconcile, wrong)
+
+		# Sold on with the film (owner: «ведром и литром», with a mark-up): a
+		# bucket at a typed price, the store gives 20 kg.
+		from korkem_manufacturing.services import film_dept
+
+		sale = self._as(BUYER, film_dept.sell, self.customer,
+						[{"item": item, "units": 1, "unit": "ведро", "price_unit": 52_000}],
+						paid=52_000, method="Наличные")
+		line = sale["lines"][0]
+		self.assertEqual((line["unit"], line["units"], line["unit_price"]), ("ведро", 1, 52_000))
+		self.assertEqual(sale["amount"], 52_000)
+		self.assertAlmostEqual(on_hand(), 30, places=3)
+		# Litres at the glue's own litre price; the shop's 25 kg kept back is
+		# not sold without saying so.
+		self._as(BUYER, glue_stock.set_glue, item, reserve_kg=25)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 6, "unit": "л"}])
+		sale = self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 6, "unit": "л"}],
+						glue_reserve_ok=1)
+		self.assertEqual(sale["lines"][0]["unit"], "л")
+		self.assertGreater(sale["lines"][0]["unit_price"], 0)
+		self.assertAlmostEqual(on_hand(), 30 - 6 * 1.04, places=2)
+		with self.assertRaises(frappe.ValidationError):  # a glue is sold by the bucket or the litre
+			self._as(BUYER, film_dept.sell, self.customer, [{"item": item, "units": 1, "unit": "кг"}],
+					 glue_reserve_ok=1)
 
 	def test_the_paint_board_groups_by_colour_and_counts_the_drying_down(self):
 		from korkem_manufacturing.services import mdf_dictionaries, mdf_paint

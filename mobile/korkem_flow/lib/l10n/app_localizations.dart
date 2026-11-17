@@ -16422,6 +16422,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'glue {kg} kg'**
   String glueLineKg(String kg);
+
+  /// No description provided for @filmSaleAddGlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Glue'**
+  String get filmSaleAddGlue;
+
+  /// No description provided for @filmGlueNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No glues — add them in «PVC glue»'**
+  String get filmGlueNone;
+
+  /// No description provided for @filmGlueBuckets.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} bucket(s)'**
+  String filmGlueBuckets(String n);
+
+  /// No description provided for @filmGlueLitres.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} l'**
+  String filmGlueLitres(String n);
+
+  /// No description provided for @filmGlueReserve.
+  ///
+  /// In en, this message translates to:
+  /// **'«{title}»: {left} kg will be left — the shop needs {keep} kg'**
+  String filmGlueReserve(String title, String left, String keep);
+
+  /// No description provided for @filmGlueReserveOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell from the shop\'s stock'**
+  String get filmGlueReserveOk;
+
+  /// No description provided for @filmGlueOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {have} kg on hand'**
+  String filmGlueOver(String have);
+
+  /// No description provided for @filmGlueLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {kg} kg off the store · {left} kg left'**
+  String filmGlueLeft(String kg, String left);
+
+  /// No description provided for @filmGlueBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Below cost: {cost} a kg landed'**
+  String filmGlueBelow(String cost);
+
+  /// No description provided for @glueMonthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Glue reconciliation'**
+  String get glueMonthTitle;
+
+  /// No description provided for @glueMonthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How many m² went through the vacuum, how much glue the norm took for them, and what weighing the rest found. The fact shows only once the store was weighed in the month.'**
+  String get glueMonthHint;
+
+  /// No description provided for @glueMonthEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No glue went into orders this month.'**
+  String get glueMonthEmpty;
+
+  /// No description provided for @glueMonthLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m² through the vacuum · {kg} kg by the norm'**
+  String glueMonthLine(String m2, String kg);
+
+  /// No description provided for @glueMonthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short by {kg} kg — {money}'**
+  String glueMonthShort(String kg, String money);
+
+  /// No description provided for @glueMonthOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over by {kg} kg — {money}'**
+  String glueMonthOver(String kg, String money);
+
+  /// No description provided for @glueMonthEven.
+  ///
+  /// In en, this message translates to:
+  /// **'The weighing matched the norm'**
+  String get glueMonthEven;
+
+  /// No description provided for @glueMonthNotCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not weighed this month — no fact yet. Weigh the rest («Recount») at the month\'s end.'**
+  String get glueMonthNotCounted;
+
+  /// No description provided for @glueMonthWeighed.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighed {count} times, last on {date}'**
+  String glueMonthWeighed(String count, String date);
+
+  /// No description provided for @glueMonthFact.
+  ///
+  /// In en, this message translates to:
+  /// **'Fact {fact} g/m² against a norm of {norm} ({pct}%)'**
+  String glueMonthFact(String fact, String norm, String pct);
+
+  /// No description provided for @glueMonthCostM2.
+  ///
+  /// In en, this message translates to:
+  /// **'A m² costs {norm} by the norm, {fact} by the fact'**
+  String glueMonthCostM2(String norm, String fact);
+
+  /// No description provided for @glueMonthFixNorm.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the norm to {g} g/m²'**
+  String glueMonthFixNorm(String g);
+
+  /// No description provided for @glueMonthNormSet.
+  ///
+  /// In en, this message translates to:
+  /// **'The norm is now {g} g/m²'**
+  String glueMonthNormSet(String g);
 }
 
 class _AppLocalizationsDelegate

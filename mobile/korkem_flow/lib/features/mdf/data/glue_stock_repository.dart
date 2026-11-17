@@ -17,6 +17,13 @@ final glueStockProvider = FutureProvider.autoDispose<GlueStock>(
   (ref) => ref.watch(glueStockRepositoryProvider).stock(),
 );
 
+/// A month's glue reconciliation, by «2026-11».
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final glueMonthProvider = FutureProvider.autoDispose.family<GlueMonth, String>(
+  (ref, month) => ref.watch(glueStockRepositoryProvider).reconcile(month),
+);
+
 /// «Клей для ПВХ» — `korkem_manufacturing.api.glue_stock`.
 class GlueStockRepository {
   const GlueStockRepository(this._client);
@@ -27,6 +34,21 @@ class GlueStockRepository {
 
   Future<GlueStock> stock() async =>
       _stock(await _client.callMethod('$_base.stock'));
+
+  Future<GlueMonth> reconcile(String month) async => GlueMonth.fromJson(
+    _map(
+      await _client.callMethod('$_base.reconcile', params: {'month': month}),
+    ),
+  );
+
+  /// The norm put right to what a m² really took.
+  Future<GlueStock> setNorm(String item, double gM2) async => _stock(
+    await _client.callMethod(
+      '$_base.set_glue',
+      post: true,
+      params: {'item': item, 'norm_g_m2': gM2},
+    ),
+  );
 
   /// A new glue with its card; the first one is the one in work.
   Future<GlueStock> addGlue(GlueCard card) async => _stock(

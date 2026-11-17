@@ -23,6 +23,12 @@ def stock() -> dict:
 	return service.stock()
 
 
+@frappe.whitelist(methods=["GET"])
+def reconcile(month: str | None = None) -> dict:
+	"""Сверка за месяц: м² через вакуум, кг по норме, что нашёл пересчёт, факт г/м² и его цена."""
+	return service.reconcile(month)
+
+
 @frappe.whitelist(methods=["POST"])
 def add_glue(name: str) -> dict:
 	"""Новый клей: название, производство, ведро кг, кг в литре, норма г/м², запас себе, наценки."""

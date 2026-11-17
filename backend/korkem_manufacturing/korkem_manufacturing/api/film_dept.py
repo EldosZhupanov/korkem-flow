@@ -58,12 +58,12 @@ def drop_coming(entry: str, reason: str) -> dict:
 def sell(customer: str, lines: str | list, paid: float | str = 0, method: str | None = None,
 		 bank: str | None = None, sold_on: str | None = None, note: str | None = None,
 		 payments: str | list | None = None, seller: str | None = None, issued_by: str | None = None,
-		 below_reason: str | None = None) -> dict:
-	"""Продажа плёнки клиенту: плёнки, оплата одним или несколькими способами, продавец;
-	почему ниже закупа, если так."""
+		 below_reason: str | None = None, glue_reserve_ok: bool | int | str = 0) -> dict:
+	"""Продажа плёнки клиенту: плёнки (и клей вёдрами или литрами), оплата одним или несколькими
+	способами, продавец; почему ниже закупа, если так; `glue_reserve_ok` — продаём клей из запаса цеха."""
 	return service.sell(
 		customer, lines, paid=paid, method=method, bank=bank, sold_on=sold_on, note=note, payments=payments,
-		seller=seller, issued_by=issued_by, below_reason=below_reason,
+		seller=seller, issued_by=issued_by, below_reason=below_reason, glue_reserve_ok=glue_reserve_ok,
 	)
 
 

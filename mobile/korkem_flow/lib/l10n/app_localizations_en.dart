@@ -9548,4 +9548,100 @@ class AppLocalizationsEn extends AppLocalizations {
   String glueLineKg(String kg) {
     return 'glue $kg kg';
   }
+
+  @override
+  String get filmSaleAddGlue => 'Glue';
+
+  @override
+  String get filmGlueNone => 'No glues — add them in «PVC glue»';
+
+  @override
+  String filmGlueBuckets(String n) {
+    return '$n bucket(s)';
+  }
+
+  @override
+  String filmGlueLitres(String n) {
+    return '$n l';
+  }
+
+  @override
+  String filmGlueReserve(String title, String left, String keep) {
+    return '«$title»: $left kg will be left — the shop needs $keep kg';
+  }
+
+  @override
+  String get filmGlueReserveOk => 'Sell from the shop\'s stock';
+
+  @override
+  String filmGlueOver(String have) {
+    return 'Only $have kg on hand';
+  }
+
+  @override
+  String filmGlueLeft(String kg, String left) {
+    return '≈ $kg kg off the store · $left kg left';
+  }
+
+  @override
+  String filmGlueBelow(String cost) {
+    return 'Below cost: $cost a kg landed';
+  }
+
+  @override
+  String get glueMonthTitle => 'Glue reconciliation';
+
+  @override
+  String get glueMonthHint =>
+      'How many m² went through the vacuum, how much glue the norm took for them, and what weighing the rest found. The fact shows only once the store was weighed in the month.';
+
+  @override
+  String get glueMonthEmpty => 'No glue went into orders this month.';
+
+  @override
+  String glueMonthLine(String m2, String kg) {
+    return '$m2 m² through the vacuum · $kg kg by the norm';
+  }
+
+  @override
+  String glueMonthShort(String kg, String money) {
+    return 'Short by $kg kg — $money';
+  }
+
+  @override
+  String glueMonthOver(String kg, String money) {
+    return 'Over by $kg kg — $money';
+  }
+
+  @override
+  String get glueMonthEven => 'The weighing matched the norm';
+
+  @override
+  String get glueMonthNotCounted =>
+      'Not weighed this month — no fact yet. Weigh the rest («Recount») at the month\'s end.';
+
+  @override
+  String glueMonthWeighed(String count, String date) {
+    return 'Weighed $count times, last on $date';
+  }
+
+  @override
+  String glueMonthFact(String fact, String norm, String pct) {
+    return 'Fact $fact g/m² against a norm of $norm ($pct%)';
+  }
+
+  @override
+  String glueMonthCostM2(String norm, String fact) {
+    return 'A m² costs $norm by the norm, $fact by the fact';
+  }
+
+  @override
+  String glueMonthFixNorm(String g) {
+    return 'Set the norm to $g g/m²';
+  }
+
+  @override
+  String glueMonthNormSet(String g) {
+    return 'The norm is now $g g/m²';
+  }
 }

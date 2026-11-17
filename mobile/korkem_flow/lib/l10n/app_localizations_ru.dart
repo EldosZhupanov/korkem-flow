@@ -9578,4 +9578,100 @@ class AppLocalizationsRu extends AppLocalizations {
   String glueLineKg(String kg) {
     return 'клей $kg кг';
   }
+
+  @override
+  String get filmSaleAddGlue => 'Клей';
+
+  @override
+  String get filmGlueNone => 'Клеев нет — добавьте в «Клей для ПВХ»';
+
+  @override
+  String filmGlueBuckets(String n) {
+    return '$n вед.';
+  }
+
+  @override
+  String filmGlueLitres(String n) {
+    return '$n л';
+  }
+
+  @override
+  String filmGlueReserve(String title, String left, String keep) {
+    return 'Клея «$title» останется $left кг — цеху нужно $keep кг';
+  }
+
+  @override
+  String get filmGlueReserveOk => 'Продать из запаса цеха';
+
+  @override
+  String filmGlueOver(String have) {
+    return 'На складе только $have кг';
+  }
+
+  @override
+  String filmGlueLeft(String kg, String left) {
+    return '≈ $kg кг со склада · останется $left кг';
+  }
+
+  @override
+  String filmGlueBelow(String cost) {
+    return 'Дешевле себестоимости: $cost за кг с доставкой';
+  }
+
+  @override
+  String get glueMonthTitle => 'Сверка клея за месяц';
+
+  @override
+  String get glueMonthHint =>
+      'Сколько м² прошло через вакуум, сколько клея на них ушло по норме и что показало взвешивание остатка. Факт виден, только если в месяце взвешивали.';
+
+  @override
+  String get glueMonthEmpty => 'В этом месяце клей на заказы не списывали.';
+
+  @override
+  String glueMonthLine(String m2, String kg) {
+    return '$m2 м² через вакуум · по норме $kg кг';
+  }
+
+  @override
+  String glueMonthShort(String kg, String money) {
+    return 'Недостача $kg кг — $money';
+  }
+
+  @override
+  String glueMonthOver(String kg, String money) {
+    return 'Излишек $kg кг — $money';
+  }
+
+  @override
+  String get glueMonthEven => 'Взвешивание сошлось с нормой';
+
+  @override
+  String get glueMonthNotCounted =>
+      'В этом месяце не взвешивали — факта нет. Взвесьте остаток («Пересчитать») в конце месяца.';
+
+  @override
+  String glueMonthWeighed(String count, String date) {
+    return 'Взвешивали раз: $count, последний — $date';
+  }
+
+  @override
+  String glueMonthFact(String fact, String norm, String pct) {
+    return 'Факт $fact г/м² при норме $norm ($pct%)';
+  }
+
+  @override
+  String glueMonthCostM2(String norm, String fact) {
+    return 'м² по норме $norm, по факту $fact';
+  }
+
+  @override
+  String glueMonthFixNorm(String g) {
+    return 'Поправить норму на $g г/м²';
+  }
+
+  @override
+  String glueMonthNormSet(String g) {
+    return 'Норма теперь $g г/м²';
+  }
 }

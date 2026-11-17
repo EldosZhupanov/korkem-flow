@@ -22,6 +22,14 @@ leaves without a word.
 **Prices are per metre**: over the counter («розница») or to the trade
 («опт»), as the customer's card says, less the customer's own discount. The
 seller may still type another price; the sale records what was charged.
+
+**PVC glue is sold here too** (owner, 17.11.2026: «можем перепродавать с
+наценкой… продаётся ведром и литром»): a line of a glue by the bucket or the
+litre, at its price with the glue's mark-up (`glue_stock.prices`), in the
+same sale and on the same receipt as the film. The store counts it in
+kilograms; the line keeps how it was sold. The glue the shop needs — the
+kilograms kept back on its card, the vacuum queue's need of the glue in work
+— is not sold without saying so.
 """
 
 from __future__ import annotations
@@ -510,7 +518,7 @@ def _paid(value) -> bool:
 
 def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | None = None,
 		 sold_on: str | None = None, note: str | None = None, payments=None, seller: str | None = None,
-		 issued_by: str | None = None, below_reason: str | None = None) -> dict:
+		 issued_by: str | None = None, below_reason: str | None = None, glue_reserve_ok=False) -> dict:
 	"""Film sold to a customer: one sale, one film or several.
 
 	`lines` — `[{"item", "metres", "price_m"?, "remember"?}]`; a line without
@@ -519,6 +527,10 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 	the customer's tier, where the card had none (owner, 11.11.2026).
 	`below_reason` — why a film goes for less than it cost (owner,
 	13.11.2026): kept on the sale, so a sale at a loss is never silent.
+
+	A glue line — `{"item", "units", "unit": "ведро" | "л", "price_unit"?}` —
+	takes its price by the glue's mark-up unless one is typed;
+	`glue_reserve_ok` says the seller was told it is the shop's glue.
 	"""
 	material_stock._ensure_editor()
 	company = current_company()
@@ -528,8 +540,20 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 	if not isinstance(lines, list) or not lines:
 		frappe.throw("Добавьте в продажу хотя бы одну плёнку.")
 	rows, amount, remember = [], Decimal(0), []
+	glue: dict[str, dict] = {}
 	for n, raw in enumerate(lines, start=1):
 		item = (raw or {}).get("item")
+		if _is_glue(item):
+			line = _glue_line(item, raw, n)
+			rows.append((item, line["kg"], line["price_kg"]))
+			amount += (line["units"] * line["unit_price"]).quantize(Decimal("1"))
+			got = glue.setdefault(item, {"unit": line["unit"], "units": Decimal(0), "kg": Decimal(0),
+										 "unit_price": line["unit_price"]})
+			if got["unit"] != line["unit"]:
+				frappe.throw(f"Строка {n}: один клей в продаже — либо вёдрами, либо литрами.")
+			got["units"] += line["units"]
+			got["kg"] += line["kg"]
+			continue
 		_film(item)
 		metres = _metres(raw.get("metres"), f"Строка {n}")
 		price = raw.get("price_m")
@@ -552,6 +576,8 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 	below = " ".join(str(below_reason or "").split())[:140]
 	if below:
 		note = " · ".join(x for x in ((note or "").strip(), f"ниже закупа: {below}") if x)
+	if glue:
+		_glue_kept(glue, company, _yes(glue_reserve_ok))
 	entry = _issue(
 		company, [(item, metres, price) for item, metres, price in rows], SALE, posted_on=sold_on,
 		remarks=note,
@@ -570,9 +596,20 @@ def sell(customer: str, lines, paid=0, method: str | None = None, bank: str | No
 		},
 		customer=buyer.name,
 	)
+	# How the glue was sold — buckets or litres, and the price of one —
+	# beside the kilograms the store counts.
+	for d in entry.items:
+		if d.item_code in glue:
+			g = glue[d.item_code]
+			share = Decimal(str(d.qty)) / g["kg"] if g["kg"] else Decimal(1)
+			frappe.db.set_value("Stock Entry Detail", d.name, {
+				"korkem_sale_unit": g["unit"], "korkem_sale_units": float(round(g["units"] * share, 3)),
+				"korkem_sale_unit_price": float(g["unit_price"]),
+			}, update_modified=False)
 	# What was put by for this customer is sold now: the hold is used up.
 	for item, metres, _price in rows:
-		_use_holds(item, buyer.name, float(metres), company)
+		if item not in glue:
+			_use_holds(item, buyer.name, float(metres), company)
 	tier = buyer.get("korkem_film_tier") if buyer.get("korkem_film_tier") in TIERS else RETAIL
 	key = "wholesale_m" if tier == WHOLESALE else "retail_m"
 	for item, price in remember:
@@ -1112,7 +1149,10 @@ def customers() -> list[dict]:
 		names: dict[str, str] = {}
 		if entries:
 			for r in frappe.get_all("Stock Entry Detail", filters={"parent": ["in", [e.name for e in entries]]},
-									fields=["parent", "qty", "item_code", "item_name"], limit_page_length=0):
+									fields=["parent", "qty", "item_code", "item_name", "korkem_sale_unit"],
+									limit_page_length=0):
+				if r.korkem_sale_unit:  # glue: kilograms, not metres
+					continue
 				metres[r.parent] = metres.get(r.parent, 0.0) + flt(r.qty)
 				films[r.item_code] = films.get(r.item_code, 0.0) + flt(r.qty)
 				names[r.item_code] = r.item_name
@@ -1234,7 +1274,8 @@ def _issue(company: str, rows, kind: str, header: dict | None = None, posted_on:
 		have = sum(free.values())
 		if have + 1e-6 < float(metres):
 			title = frappe.db.get_value("Item", item, "item_name") or item
-			frappe.throw(f"«{title}»: на складе {have:g} м, нужно {float(metres):g} м.")
+			unit = frappe.db.get_value("Item", item, "stock_uom") or "м"
+			frappe.throw(f"«{title}»: на складе {have:g} {unit}, нужно {float(metres):g} {unit}.")
 		# Put by for other customers (owner, 11.11.2026): not theirs to take.
 		others = sum(h["metres"] for h in _holds([item], company).get(item, []) if h["customer"] != customer)
 		if have - others + 1e-6 < float(metres):
@@ -1281,6 +1322,56 @@ def _film(item: str | None) -> None:
 	material_stock._own_item(item)
 	if frappe.db.get_value("Item", item, "korkem_material_kind") != material_stock.FILM:
 		frappe.throw("Это не плёнка.")
+
+
+def _is_glue(item: str | None) -> bool:
+	return bool(item) and frappe.db.get_value("Item", item, "korkem_material_kind") == material_stock.GLUE
+
+
+GLUE_UNITS = ("ведро", "л")
+
+
+def _glue_line(item: str, raw: dict, n: int) -> dict:
+	"""A glue line: so many buckets or litres at so much one — its price by
+	the glue's mark-up unless typed — and the kilograms the store gives."""
+	from korkem_manufacturing.services import glue_stock
+
+	material_stock._own_item(item)
+	unit = str(raw.get("unit") or "").strip()
+	if unit not in GLUE_UNITS:
+		frappe.throw(f"Строка {n}: клей продаётся вёдрами или литрами.")
+	units = _metres(raw.get("units"), f"Строка {n}: сколько")
+	kg = Decimal(str(glue_stock.to_kg(item, units, unit)))
+	price = raw.get("price_unit")
+	if price in (None, ""):
+		have, avg = material_stock._stock([item], current_company()).get(item, (0.0, 0.0))
+		cost = glue_stock._landed([item], current_company()).get(item) or avg or None
+		price = glue_stock.prices(item, cost)["bucket" if unit == "ведро" else "litre"]
+		if not price:
+			frappe.throw(f"Строка {n}: у клея нет цены продажи — укажите цену.")
+	unit_price = _money(price, f"Строка {n}: цена")
+	if unit_price <= 0:
+		frappe.throw(f"Строка {n}: цена должна быть больше нуля.")
+	per_kg = (unit_price * units / kg) if kg else Decimal(0)
+	return {"unit": unit, "units": units, "unit_price": unit_price, "kg": kg, "price_kg": per_kg}
+
+
+def _glue_kept(glue: dict, company: str, confirmed: bool) -> None:
+	"""The shop's own glue is not sold without saying so: what is kept back
+	on the glue's card, and — for the glue in work — what the vacuum queue
+	needs."""
+	from korkem_manufacturing.services import glue_stock
+
+	work = glue_stock.in_work(company)
+	need = glue_stock.queue_need(company)["kg"] if work in glue else 0.0
+	for item, g in glue.items():
+		have = material_stock._stock([item], company).get(item, (0.0, 0.0))[0]
+		keep = max(flt(glue_stock.card(item, company)["reserve_kg"]), need if item == work else 0.0)
+		left = have - float(g["kg"])
+		if keep and left < keep and not confirmed:
+			title = frappe.db.get_value("Item", item, "item_name") or item
+			frappe.throw(f"«{title}»: после продажи останется {max(left, 0):g} кг, а цеху нужно {keep:g} кг. "
+						 "Подтвердите продажу из запаса цеха.", title="glue_reserve")
 
 
 def _movement(entry: str, kind: str | None = None):
@@ -1366,6 +1457,10 @@ def _lines(doc, money: bool) -> list[dict]:
 			"code": card.get("korkem_film_code"),
 			"type": card.get("korkem_film_type"),
 			"thickness_mm": flt(card.get("korkem_film_thickness_mm")) or None,
+			# A glue line: how it was sold (owner, 17.11.2026).
+			"unit": r.get("korkem_sale_unit") or None,
+			"units": flt(r.get("korkem_sale_units")) or None,
+			"unit_price": (flt(r.get("korkem_sale_unit_price")) or None) if money else None,
 		})
 	return out
 
