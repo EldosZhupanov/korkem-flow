@@ -1539,7 +1539,7 @@ void main() {
     expect(repo.sellers.single, 'a@k.kz');
   });
 
-  testWidgets('glue is sold with the film: a bucket at the glue\'s price, '
+  testWidgets("glue is sold with the film: a bucket at the glue's price, "
       'a glue-only sale with no film line', (tester) async {
     final repo = await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmDept:sell')));

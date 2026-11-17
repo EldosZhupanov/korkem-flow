@@ -1156,7 +1156,8 @@ class TestMdfOrders(IntegrationTestCase):
 		from korkem_manufacturing.services import film_dept
 
 		sale = self._as(BUYER, film_dept.sell, self.customer,
-						[{"item": item, "units": 1, "unit": "ведро", "price_unit": 52_000}], paid=52_000)
+						[{"item": item, "units": 1, "unit": "ведро", "price_unit": 52_000}],
+						paid=52_000, method="Наличные")
 		line = sale["lines"][0]
 		self.assertEqual((line["unit"], line["units"], line["unit_price"]), ("ведро", 1, 52_000))
 		self.assertEqual(sale["amount"], 52_000)
