@@ -9293,7 +9293,13 @@
     }
   },
   "paintRecipe": "Recipe: {kg} kg/m²",
-  "@paintRecipe": {"placeholders": {"kg": {"type": "String"}}},
+  "@paintRecipe": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
   "paintRecipeTitle": "Paint recipe",
   "paintRecipeHint": "Each layer: grams a m² a coat and how many coats (0 — not painted); what goes into each kilo of it. The enamel is the order's colour. A price here counts only until the material is bought.",
   "paintLayerName": "Layer",
@@ -9301,7 +9307,13 @@
   "paintLayerGM2": "g/m² a coat",
   "paintLayerCoats": "Coats",
   "paintLayerKg": "{kg} kg/m² with what goes in",
-  "@paintLayerKg": {"placeholders": {"kg": {"type": "String"}}},
+  "@paintLayerKg": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
   "paintPartName": "Goes in",
   "paintPartPerKg": "kg per 1 kg",
   "paintPartAdd": "Hardener, thinner…",
@@ -9311,18 +9323,51 @@
   "paintCalcM2": "m²",
   "paintCalcNoColour": "Any colour",
   "paintCalcTotal": "All together {kg} kg · {cost}",
-  "@paintCalcTotal": {"placeholders": {"kg": {"type": "String"}, "cost": {"type": "String"}}},
+  "@paintCalcTotal": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
   "paintCalcPerM2": "the paint of a m² costs {cost}",
-  "@paintCalcPerM2": {"placeholders": {"cost": {"type": "String"}}},
+  "@paintCalcPerM2": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
   "paintCalcUnpriced": "Not every material has a price, so the cost is short — put it in the recipe.",
   "paintSendWhatsApp": "Send in WhatsApp",
   "paintCopy": "Copy",
   "paintCopied": "Copied",
   "paintForQueue": "For the whole queue",
   "paintMaterialNeed": "needs {need} kg · {have} kg here",
-  "@paintMaterialNeed": {"placeholders": {"need": {"type": "String"}, "have": {"type": "String"}}},
+  "@paintMaterialNeed": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      },
+      "have": {
+        "type": "String"
+      }
+    }
+  },
   "mdfPaintPlan": "Paint {colour}: {kg} kg",
-  "@mdfPaintPlan": {"placeholders": {"colour": {"type": "String"}, "kg": {"type": "String"}}},
+  "@mdfPaintPlan": {
+    "placeholders": {
+      "colour": {
+        "type": "String"
+      },
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
   "mdfPaintAskSupplier": "Ask the supplier to tint",
   "mdfPaintAskClient": "Tell the customer what to bring",
   "paintSupplierCard": "Paint supplier",
@@ -9336,26 +9381,86 @@
   "paintSupplierMinHint": "e.g. 3 kg",
   "paintSupplierNote": "Note",
   "paintSupplierMin": "smallest batch {min}",
-  "@paintSupplierMin": {"placeholders": {"min": {"type": "String"}}},
+  "@paintSupplierMin": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
   "paintBatchLeft": "The queue needs {need} kg — {left} kg will stay on the shelf",
-  "@paintBatchLeft": {"placeholders": {"need": {"type": "String"}, "left": {"type": "String"}}},
+  "@paintBatchLeft": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
   "paintPriceM2": "Your price a m²",
   "paintMarkup": "Markup, %",
   "paintLeftM2": "{left} left of a m²",
-  "@paintLeftM2": {"placeholders": {"left": {"type": "String"}}},
+  "@paintLeftM2": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
   "paintLeftOrder": "{left} left of {m2} m²",
-  "@paintLeftOrder": {"placeholders": {"left": {"type": "String"}, "m2": {"type": "String"}}},
+  "@paintLeftOrder": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "m2": {
+        "type": "String"
+      }
+    }
+  },
   "paintByMarkup": "by the markup: {price} a m², {total} in all",
-  "@paintByMarkup": {"placeholders": {"price": {"type": "String"}, "total": {"type": "String"}}},
+  "@paintByMarkup": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "paintRemember": "Remember the price and markup",
   "paintRecipeEdit": "Recipe and prices",
   "paintSendTo": "To",
   "paintSendToAnyone": "Choose in WhatsApp",
   "paintPartPct": "% of its weight",
   "mdfPaintNorm": "Use by the norm: {list}",
-  "@mdfPaintNorm": {"placeholders": {"list": {"type": "String"}}},
+  "@mdfPaintNorm": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
   "mdfPaintBatch": "{have} kg on the shelf (the last batch {batch} kg) — use {use} kg; {left} kg stays on the shelf",
-  "@mdfPaintBatch": {"placeholders": {"have": {"type": "String"}, "batch": {"type": "String"}, "use": {"type": "String"}, "left": {"type": "String"}}},
+  "@mdfPaintBatch": {
+    "placeholders": {
+      "have": {
+        "type": "String"
+      },
+      "batch": {
+        "type": "String"
+      },
+      "use": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
   "paintCount": "Count what is left",
   "paintCountTitle": "How many kg of {title} are really here?",
   "@paintCountTitle": {
@@ -9618,5 +9723,133 @@
     }
   },
   "cncUrgentPctLabel": "Urgency surcharge, %",
-  "cncWork": "Work"
+  "cncWork": "Work",
+  "mdfGiveStageTo": "Who gets this stage?",
+  "mdfStageTakeBack": "Take it back — nobody",
+  "mdfStagePostPeople": "On this post",
+  "mdfAllWorkers": "Everyone",
+  "mdfStageGiven": "{stage}: {name}",
+  "@mdfStageGiven": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfStageNobody": "not given",
+  "teamDeptIntake": "Order intake",
+  "teamDeptCut": "Cutting",
+  "teamDeptCnc": "CNC",
+  "teamDeptPvc": "PVC film",
+  "teamDeptPaint": "Painting",
+  "teamDeptPack": "Packing and hand-over",
+  "teamDeptFilmSales": "Film sales",
+  "teamDeptWarehouse": "Warehouse and delivery",
+  "teamPostManager": "Intake manager",
+  "teamPostCutter": "Cutter",
+  "teamPostCncOperator": "CNC operator",
+  "teamPostSander": "Sander",
+  "teamPostVacuum": "Vacuum press operator",
+  "teamPostPainter": "Painter",
+  "teamPostPacker": "Packer",
+  "teamPostSeller": "Seller",
+  "teamPostLoader": "Loader",
+  "teamPostStorekeeper": "Storekeeper",
+  "teamPostDriver": "Driver",
+  "teamDepartmentsSection": "Departments and people",
+  "teamDepartmentsHint": "An order's stage goes to the people of its post. A phone icon: they tick it themselves; without one, the manager does.",
+  "teamAddPerson": "Person",
+  "teamAddPersonShort": "More",
+  "teamLeft": "Left the company",
+  "teamPersonBack": "Bring back",
+  "teamUnplaced": "No post yet",
+  "teamPostEmpty": "nobody",
+  "teamPostEmptyAdd": "Add",
+  "teamPersonSaved": "{name} saved",
+  "@teamPersonSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teamPersonLeftTitle": "Has {name} left?",
+  "@teamPersonLeftTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teamPersonLeftMessage": "They leave the lists; the work they did stays theirs.",
+  "teamPersonLeft": "Left",
+  "teamPersonName": "Name",
+  "teamPersonPhone": "Phone",
+  "teamPersonPosts": "Posts — any number",
+  "teamPersonLogin": "App login",
+  "teamPersonLoginHint": "With a login they see «My orders» on their phone and tick themselves; without one the manager ticks for them.",
+  "teamPersonNoLogin": "No login",
+  "teamPersonSave": "Save",
+  "teamLoginsSection": "App logins",
+  "myWorkTitle": "My orders",
+  "myWorkDone": "{order}: «{stage}» done",
+  "@myWorkDone": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "myWorkUndo": "Undo",
+  "myWorkNotLinkedTitle": "You are not on the team yet",
+  "myWorkNotLinked": "Ask the manager to tie your login to a person in «Team» and give you a post.",
+  "myWorkReady": "Ready for you",
+  "myWorkNothingReady": "Nothing is waiting for you now.",
+  "myWorkComing": "Coming to you",
+  "myWorkMonth": "My volume this month",
+  "myWorkMonthTotal": "{area} m² · orders: {orders}",
+  "@myWorkMonthTotal": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "orders": {
+        "type": "int"
+      }
+    }
+  },
+  "myWorkDue": "due {date}",
+  "@myWorkDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "myWorkWaiting": "waiting for: {stages}",
+  "@myWorkWaiting": {
+    "placeholders": {
+      "stages": {
+        "type": "String"
+      }
+    }
+  },
+  "myWorkDoneButton": "Done",
+  "myWorkStageM2": "{stage} {area} m²",
+  "@myWorkStageM2": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  }
 }

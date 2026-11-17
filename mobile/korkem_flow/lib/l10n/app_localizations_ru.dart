@@ -9154,4 +9154,204 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cncWork => 'Работы';
+
+  @override
+  String get mdfGiveStageTo => 'Кому отдать этот этап?';
+
+  @override
+  String get mdfStageTakeBack => 'Снять — никому';
+
+  @override
+  String get mdfStagePostPeople => 'По должности';
+
+  @override
+  String get mdfAllWorkers => 'Все сотрудники';
+
+  @override
+  String mdfStageGiven(String stage, String name) {
+    return '$stage: $name';
+  }
+
+  @override
+  String get mdfStageNobody => 'не назначен';
+
+  @override
+  String get teamDeptIntake => 'Приём заказов';
+
+  @override
+  String get teamDeptCut => 'Раскрой';
+
+  @override
+  String get teamDeptCnc => 'ЧПУ';
+
+  @override
+  String get teamDeptPvc => 'ПВХ плёнка';
+
+  @override
+  String get teamDeptPaint => 'Покраска';
+
+  @override
+  String get teamDeptPack => 'Упаковка и выдача';
+
+  @override
+  String get teamDeptFilmSales => 'Продажа плёнки';
+
+  @override
+  String get teamDeptWarehouse => 'Склад и доставка';
+
+  @override
+  String get teamPostManager => 'Менеджер по приёму';
+
+  @override
+  String get teamPostCutter => 'Раскройщик';
+
+  @override
+  String get teamPostCncOperator => 'ЧПУшник';
+
+  @override
+  String get teamPostSander => 'Шкурщик';
+
+  @override
+  String get teamPostVacuum => 'Вакуумщик';
+
+  @override
+  String get teamPostPainter => 'Маляр';
+
+  @override
+  String get teamPostPacker => 'Упаковщик';
+
+  @override
+  String get teamPostSeller => 'Продажник';
+
+  @override
+  String get teamPostLoader => 'Грузчик';
+
+  @override
+  String get teamPostStorekeeper => 'Кладовщик';
+
+  @override
+  String get teamPostDriver => 'Водитель';
+
+  @override
+  String get teamDepartmentsSection => 'Отделы и люди';
+
+  @override
+  String get teamDepartmentsHint =>
+      'Этап заказа уходит людям своей должности. Значок телефона — отмечает сам, без него — отмечает менеджер.';
+
+  @override
+  String get teamAddPerson => 'Сотрудник';
+
+  @override
+  String get teamAddPersonShort => 'Ещё';
+
+  @override
+  String get teamLeft => 'Ушли из компании';
+
+  @override
+  String get teamPersonBack => 'Вернуть в команду';
+
+  @override
+  String get teamUnplaced => 'Без должности';
+
+  @override
+  String get teamPostEmpty => 'никого';
+
+  @override
+  String get teamPostEmptyAdd => 'Добавить';
+
+  @override
+  String teamPersonSaved(String name) {
+    return '$name — сохранено';
+  }
+
+  @override
+  String teamPersonLeftTitle(String name) {
+    return '$name уволен?';
+  }
+
+  @override
+  String get teamPersonLeftMessage =>
+      'Он пропадёт из списков и с этапов, а сделанная им работа останется за ним.';
+
+  @override
+  String get teamPersonLeft => 'Уволен';
+
+  @override
+  String get teamPersonName => 'Имя и фамилия';
+
+  @override
+  String get teamPersonPhone => 'Телефон';
+
+  @override
+  String get teamPersonPosts => 'Должности — можно несколько';
+
+  @override
+  String get teamPersonLogin => 'Вход в программу';
+
+  @override
+  String get teamPersonLoginHint =>
+      'С входом он видит «Мои заказы» на телефоне и отмечает сам. Без входа за него отмечает менеджер.';
+
+  @override
+  String get teamPersonNoLogin => 'Без входа';
+
+  @override
+  String get teamPersonSave => 'Сохранить';
+
+  @override
+  String get teamLoginsSection => 'Вход в программу';
+
+  @override
+  String get myWorkTitle => 'Мои заказы';
+
+  @override
+  String myWorkDone(String order, String stage) {
+    return '$order: «$stage» — сделано';
+  }
+
+  @override
+  String get myWorkUndo => 'Отменить';
+
+  @override
+  String get myWorkNotLinkedTitle => 'Вы ещё не в команде';
+
+  @override
+  String get myWorkNotLinked =>
+      'Попросите менеджера в «Команде» привязать ваш вход к сотруднику и указать должность.';
+
+  @override
+  String get myWorkReady => 'Можно делать';
+
+  @override
+  String get myWorkNothingReady => 'Сейчас ничего не ждёт вас.';
+
+  @override
+  String get myWorkComing => 'Скоро дойдёт';
+
+  @override
+  String get myWorkMonth => 'Мой объём за месяц';
+
+  @override
+  String myWorkMonthTotal(String area, int orders) {
+    return '$area м² · заказов: $orders';
+  }
+
+  @override
+  String myWorkDue(String date) {
+    return 'срок $date';
+  }
+
+  @override
+  String myWorkWaiting(String stages) {
+    return 'ждёт: $stages';
+  }
+
+  @override
+  String get myWorkDoneButton => 'Сделал';
+
+  @override
+  String myWorkStageM2(String stage, String area) {
+    return '$stage $area м²';
+  }
 }

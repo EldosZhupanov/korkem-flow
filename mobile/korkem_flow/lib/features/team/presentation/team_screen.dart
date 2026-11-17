@@ -3,27 +3,22 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
-import 'package:korkem_flow/core/auth/session_controller.dart';
-import 'package:korkem_flow/core/design/motion/entrance.dart';
-import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
-import 'package:korkem_flow/core/design/widgets/app_card.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
-import 'package:korkem_flow/core/design/widgets/section_label.dart';
-import 'package:korkem_flow/core/design/widgets/state_illustration.dart';
-import 'package:korkem_flow/core/design/widgets/state_views.dart';
-import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
+import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
+import 'package:korkem_flow/features/team/presentation/team_departments_view.dart';
 import 'package:korkem_flow/features/team/presentation/trades_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-/// Screen displaying the company team members, invitations, position changes,
-/// and access deactivation/reactivation.
+/// «Команда»: everyone at the company in one list — by department and post,
+/// with or without a login — and, from a person, his login: invitation,
+/// access, closing and reopening.
 ///
 /// Only the factory owner has permission to invite employees and manage
 /// positions. Positions are selected strictly from pre-mapped ERPNext
@@ -34,12 +29,10 @@ class TeamScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final membersAsync = ref.watch(teamMembersProvider);
     final canInviteAsync = ref.watch(canInviteProvider);
     final canInvite = canInviteAsync.value ?? false;
-
-    final session = ref.watch(sessionProvider).value;
-    final currentUser = session?.user?.trim().toLowerCase();
+    // The logins' access and trades, read when a person's login is opened.
+    ref.watch(teamMembersProvider);
 
     return AppScreen(
       title: l10n.teamTitle,
@@ -49,18 +42,22 @@ class TeamScreen extends ConsumerWidget {
           IconButton(
             tooltip: l10n.teamInviteButton,
             icon: const Icon(AppIcons.add),
-            onPressed: () => _openInviteDialog(context),
+            onPressed: () => unawaited(showTeamInviteDialog(context)),
           ),
         IconButton(
           tooltip: l10n.adminStatsRetry,
           icon: const Icon(AppIcons.refresh),
-          onPressed: () => ref.invalidate(teamMembersProvider),
+          onPressed: () => ref
+            ..invalidate(teamMembersProvider)
+            ..invalidate(teamPeopleProvider),
         ),
       ],
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.invalidate(teamMembersProvider);
-          await ref.read(teamMembersProvider.future);
+          ref
+            ..invalidate(teamMembersProvider)
+            ..invalidate(teamPeopleProvider);
+          await ref.read(teamPeopleProvider.future);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -76,19 +73,10 @@ class TeamScreen extends ConsumerWidget {
                   _ForbiddenNoticeBanner(),
                   const SizedBox(height: AppSpacing.lg),
                 ],
-                membersAsync.when(
-                  data: (members) => _TeamContent(
-                    members: members,
-                    canInvite: canInvite,
-                    currentUser: currentUser,
-                    onInviteTap: () => _openInviteDialog(context),
-                  ),
-                  loading: () => const _TeamLoading(),
-                  error: (error, _) => ErrorView(
-                    error: error,
-                    onRetry: () => ref.invalidate(teamMembersProvider),
-                  ),
-                ),
+                // One list (owner, 17.11.2026: «команда и люди одно и то
+                // же»): the departments, their posts and the people on them;
+                // a login is a mark on a person, opened from his card.
+                TeamDepartmentsView(canManageLogins: canInvite),
               ],
             ),
           ),
@@ -96,16 +84,39 @@ class TeamScreen extends ConsumerWidget {
       ),
     );
   }
-
-  void _openInviteDialog(BuildContext context) {
-    unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (context) => const _InviteEmployeeDialog(),
-      ),
-    );
-  }
 }
+
+/// What can be done to a person's login from «Команда».
+enum TeamLoginAction { position, trades, close, open }
+
+/// Invite someone into the program; accepting joins the person with the
+/// same phone, or makes one (`services/team.join`).
+Future<void> showTeamInviteDialog(BuildContext context) => showDialog<void>(
+  context: context,
+  builder: (context) => const _InviteEmployeeDialog(),
+);
+
+/// A login's access, trades, closing or opening — the dialogs the logins'
+/// own list had, now reached from the person.
+Future<void> showTeamLoginAction(
+  BuildContext context,
+  TeamMember member,
+  TeamLoginAction action,
+) => switch (action) {
+  TeamLoginAction.trades => showTradesDialog(context, member),
+  TeamLoginAction.position => showDialog<void>(
+    context: context,
+    builder: (context) => _ChangePositionDialog(member: member),
+  ),
+  TeamLoginAction.close => showDialog<void>(
+    context: context,
+    builder: (context) => _ConfirmDeactivateDialog(member: member),
+  ),
+  TeamLoginAction.open => showDialog<void>(
+    context: context,
+    builder: (context) => _ConfirmReactivateDialog(member: member),
+  ),
+};
 
 class _ForbiddenNoticeBanner extends StatelessWidget {
   @override
@@ -151,390 +162,6 @@ class _ForbiddenNoticeBanner extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TeamContent extends StatelessWidget {
-  const _TeamContent({
-    required this.members,
-    required this.canInvite,
-    required this.currentUser,
-    required this.onInviteTap,
-  });
-
-  final List<TeamMember> members;
-  final bool canInvite;
-  final String? currentUser;
-  final VoidCallback onInviteTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    final activeMembers = members.where((m) => m.enabled).toList();
-    final disabledMembers = members.where((m) => !m.enabled).toList();
-
-    // Empty state: either completely empty or only the owner is present
-    final nonOwnerCount = members.where((m) => !m.isOwner).length;
-    if ((members.isEmpty || (members.length <= 1 && nonOwnerCount == 0)) &&
-        disabledMembers.isEmpty) {
-      return Entrance(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const StateIllustration(
-                  icon: AppIcons.empty,
-                  dense: true,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text(
-                  l10n.teamEmptyTitle,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  l10n.teamEmptyMessage,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                if (canInvite) ...[
-                  const SizedBox(height: AppSpacing.xl),
-                  FilledButton.icon(
-                    onPressed: onInviteTap,
-                    icon: const Icon(AppIcons.add),
-                    label: Text(l10n.teamInviteButton),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Entrance(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (activeMembers.isNotEmpty) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SectionLabel(l10n.teamSectionMembers),
-                if (canInvite)
-                  TextButton.icon(
-                    onPressed: onInviteTap,
-                    icon: const Icon(AppIcons.add, size: AppIconSize.small),
-                    label: Text(l10n.teamInviteButton),
-                  ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: activeMembers.length,
-              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-              itemBuilder: (context, index) {
-                final member = activeMembers[index];
-                final isSelf =
-                    currentUser != null &&
-                    member.email.trim().toLowerCase() == currentUser;
-                return _TeamMemberCard(
-                  member: member,
-                  isSelf: isSelf,
-                  canManage: canInvite,
-                  onEditTrades: () =>
-                      unawaited(showTradesDialog(context, member)),
-                  onChangePosition: () => _openChangePositionDialog(
-                    context,
-                    member,
-                  ),
-                  onDeactivate: () => _openDeactivateDialog(
-                    context,
-                    member,
-                  ),
-                  onReactivate: () => _openReactivateDialog(
-                    context,
-                    member,
-                  ),
-                );
-              },
-            ),
-          ],
-          if (disabledMembers.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.xl),
-            SectionLabel(l10n.teamSectionDisabled),
-            const SizedBox(height: AppSpacing.xs),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: disabledMembers.length,
-              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-              itemBuilder: (context, index) {
-                final member = disabledMembers[index];
-                final isSelf =
-                    currentUser != null &&
-                    member.email.trim().toLowerCase() == currentUser;
-                return _TeamMemberCard(
-                  member: member,
-                  isSelf: isSelf,
-                  canManage: canInvite,
-                  onChangePosition: () => _openChangePositionDialog(
-                    context,
-                    member,
-                  ),
-                  onDeactivate: () => _openDeactivateDialog(
-                    context,
-                    member,
-                  ),
-                  onReactivate: () => _openReactivateDialog(
-                    context,
-                    member,
-                  ),
-                );
-              },
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  void _openChangePositionDialog(BuildContext context, TeamMember member) {
-    unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (context) => _ChangePositionDialog(member: member),
-      ),
-    );
-  }
-
-  void _openDeactivateDialog(BuildContext context, TeamMember member) {
-    unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (context) => _ConfirmDeactivateDialog(member: member),
-      ),
-    );
-  }
-
-  void _openReactivateDialog(BuildContext context, TeamMember member) {
-    unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (context) => _ConfirmReactivateDialog(member: member),
-      ),
-    );
-  }
-}
-
-class _TeamMemberCard extends StatelessWidget {
-  const _TeamMemberCard({
-    required this.member,
-    required this.isSelf,
-    required this.canManage,
-    required this.onChangePosition,
-    required this.onDeactivate,
-    required this.onReactivate,
-    this.onEditTrades,
-  });
-
-  final TeamMember member;
-  final bool isSelf;
-  final bool canManage;
-
-  /// «Профессии в цехе»: what the person does. A trade gives no rights.
-  final VoidCallback? onEditTrades;
-  final VoidCallback onChangePosition;
-  final VoidCallback onDeactivate;
-  final VoidCallback onReactivate;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-
-    final statusIntent = !member.enabled
-        ? StatusIntent.neutral
-        // Цвет говорит про участок завода, а не про конкретный станок.
-        // Тринадцать должностей и тринадцать оттенков означали бы, что цвет не
-        // значит ничего: список стал бы гирляндой. Четыре области —
-        // продажи, цех, склад, деньги — это то, что человек и правда различает
-        // взглядом.
-        : switch (member.position) {
-            EmployeePosition.owner => StatusIntent.danger,
-            EmployeePosition.manager ||
-            EmployeePosition.measurer ||
-            EmployeePosition.designer => StatusIntent.info,
-            EmployeePosition.accountant => StatusIntent.success,
-            EmployeePosition.warehouse ||
-            EmployeePosition.installer => StatusIntent.warning,
-            EmployeePosition.shopManager ||
-            EmployeePosition.cutter ||
-            EmployeePosition.edgeBanding ||
-            EmployeePosition.cnc ||
-            EmployeePosition.painter ||
-            EmployeePosition.assembler ||
-            EmployeePosition.shopFloor => StatusIntent.neutral,
-          };
-
-    final positionLabel = member.position.localizedName(l10n);
-
-    return AppCard(
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: member.enabled
-                ? theme.colorScheme.primaryContainer
-                : theme.colorScheme.surfaceContainerHighest,
-            foregroundColor: member.enabled
-                ? theme.colorScheme.onPrimaryContainer
-                : theme.colorScheme.onSurfaceVariant,
-            child: Text(
-              member.firstName.isNotEmpty
-                  ? member.firstName.characters.first.toUpperCase()
-                  : '?',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  member.fullName,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: member.enabled
-                        ? theme.colorScheme.onSurface
-                        : theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xxs),
-                Text(
-                  member.email,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                if (member.trades.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(
-                    member.trades.join(' · '),
-                    key: ValueKey('memberTrades:${member.email}'),
-                    style: theme.textTheme.labelSmall,
-                  ),
-                ],
-                if (!member.enabled) ...[
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(
-                    positionLabel,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          StatusChip(
-            label: member.enabled ? positionLabel : l10n.teamStatusDisabled,
-            intent: statusIntent,
-          ),
-          if (canManage && !isSelf) ...[
-            const SizedBox(width: AppSpacing.xs),
-            if (member.enabled)
-              PopupMenuButton<String>(
-                icon: const Icon(
-                  AppIcons.more,
-                  size: AppIconSize.small,
-                ),
-                tooltip: l10n.teamSectionMembers,
-                onSelected: (action) {
-                  if (action == 'position') {
-                    onChangePosition();
-                  } else if (action == 'trades') {
-                    onEditTrades?.call();
-                  } else if (action == 'deactivate') {
-                    onDeactivate();
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'position',
-                    child: Row(
-                      children: [
-                        const Icon(
-                          AppIcons.edit,
-                          size: AppIconSize.small,
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Text(l10n.teamChangePositionAction),
-                      ],
-                    ),
-                  ),
-                  if (onEditTrades != null)
-                    PopupMenuItem(
-                      key: const ValueKey('memberTradesAction'),
-                      value: 'trades',
-                      child: Row(
-                        children: [
-                          const Icon(
-                            AppIcons.team,
-                            size: AppIconSize.small,
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Text(l10n.tradesAction),
-                        ],
-                      ),
-                    ),
-                  PopupMenuItem(
-                    value: 'deactivate',
-                    child: Row(
-                      children: [
-                        Icon(
-                          AppIcons.noAccess,
-                          size: AppIconSize.small,
-                          color: theme.colorScheme.error,
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Text(
-                          l10n.teamDeactivateAction,
-                          style: TextStyle(
-                            color: theme.colorScheme.error,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              )
-            else
-              IconButton(
-                tooltip: l10n.teamReactivateAction,
-                icon: const Icon(
-                  AppIcons.refresh,
-                  size: AppIconSize.small,
-                ),
-                onPressed: onReactivate,
-              ),
-          ],
         ],
       ),
     );
@@ -1418,14 +1045,5 @@ class _InviteSuccessDialog extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _TeamLoading extends StatelessWidget {
-  const _TeamLoading();
-
-  @override
-  Widget build(BuildContext context) {
-    return const ListSkeleton(rows: 4);
   }
 }

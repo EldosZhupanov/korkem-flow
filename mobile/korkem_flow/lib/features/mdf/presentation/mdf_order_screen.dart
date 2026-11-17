@@ -34,6 +34,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_margin_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_recipe_view.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
@@ -2389,6 +2390,25 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     }
   }
 
+  /// «Кто делает»: give a stage to a person of its post, or take it back.
+  Future<void> _give(MdfStage stage) async {
+    final l10n = AppLocalizations.of(context);
+    final worker = await pickMdfWorker(
+      context,
+      '${o.name} · ${mdfStageLabel(stage, l10n)}',
+      order: o.name,
+      stage: stage,
+      given: o.stageGiven[stage]?.employee,
+      assigning: true,
+    );
+    if (worker == null || !mounted) return;
+    await _run(
+      () => ref
+          .read(mdfOrderRepositoryProvider)
+          .assign(o.name, stage, worker.isEmpty ? null : worker),
+    );
+  }
+
   Future<String?> _ask(String title, String label, AppLocalizations l10n) =>
       showReasonDialog(
         context,
@@ -2727,6 +2747,33 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               ),
           ],
         ),
+        // Who does each stage still to do (owner, 17.11.2026: «у заказа
+        // всегда свои люди»): given when accepted, changed here.
+        if (open &&
+            o.status != MdfStatus.draft &&
+            o.stages.values.any((d) => d == null)) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final MapEntry(key: stage, value: doneOn)
+                  in o.stages.entries)
+                if (doneOn == null)
+                  ActionChip(
+                    key: ValueKey('mdfGiven:${stage.name}'),
+                    avatar: const Icon(AppIcons.profile),
+                    label: Text(
+                      l10n.mdfStageGiven(
+                        mdfStageLabel(stage, l10n),
+                        o.stageGiven[stage]?.name ?? l10n.mdfStageNobody,
+                      ),
+                    ),
+                    onPressed: _busy ? null : () => _give(stage),
+                  ),
+            ],
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         SectionLabel(l10n.mdfLinesSection),
         // The table is at least as wide as the window, so a group's head

@@ -92,6 +92,15 @@ final mdfWorkersProvider = FutureProvider.autoDispose<List<MdfWorker>>(
   (ref) => ref.watch(mdfOrderRepositoryProvider).workers(),
 );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfStagePeopleProvider = FutureProvider.autoDispose
+    .family<List<MdfWorker>, ({String order, MdfStage stage})>(
+      (ref, key) => ref
+          .watch(mdfOrderRepositoryProvider)
+          .stagePeople(key.order, key.stage),
+    );
+
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final mdfDictionariesProvider = FutureProvider.autoDispose<MdfDictionaries>(
@@ -432,6 +441,27 @@ class MdfOrderRepository {
     'stage': stage.name,
     'on': on ? 1 : 0,
   });
+
+  /// Give a stage to a person; [worker] null takes it back.
+  Future<MdfOrder> assign(String order, MdfStage stage, String? worker) =>
+      _post('assign', {
+        'order': order,
+        'stage': stage.name,
+        'worker': worker ?? '',
+      });
+
+  /// Who may be given this stage of this order: its post's people.
+  Future<List<MdfWorker>> stagePeople(String order, MdfStage stage) async {
+    final response = await _client.callMethod(
+      '$_base.stage_people',
+      params: {'order': order, 'stage': stage.name},
+    );
+    final raw = _map(response)['people'];
+    return [
+      for (final w in raw is List ? raw : const <Object>[])
+        if (w is Map) MdfWorker.fromJson(Map<String, dynamic>.from(w)),
+    ];
+  }
 
   /// Who can be named on a stage: the company's active employees.
   Future<List<MdfWorker>> workers() async {

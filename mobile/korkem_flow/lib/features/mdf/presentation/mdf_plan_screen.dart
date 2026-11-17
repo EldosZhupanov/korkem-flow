@@ -45,6 +45,8 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
     final worker = await pickMdfWorker(
       context,
       '${order.name} · ${mdfStageLabel(stage.stage, l10n)}',
+      order: order.name,
+      stage: stage.stage,
     );
     if (worker == null || !mounted) return;
     setState(() => _busy = order.name);

@@ -49,6 +49,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_report_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tv_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_volume_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/my_work_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
 import 'package:korkem_flow/features/one_c/presentation/one_c_screen.dart';
@@ -116,6 +117,9 @@ abstract final class Routes {
   static const claim = '/claim';
   static const adminStats = '/admin-stats';
   static const team = '/team';
+
+  /// «Мои заказы» — a worker's own stages, from his phone.
+  static const myWork = '/my-work';
   static const items = '/items';
   static const materials = '/materials';
   static const hardware = '/hardware';
@@ -511,6 +515,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.team,
         builder: (context, state) => const TeamScreen(),
+      ),
+      GoRoute(
+        path: Routes.myWork,
+        builder: (context, state) => const MyWorkScreen(),
       ),
       GoRoute(
         path: Routes.items,
