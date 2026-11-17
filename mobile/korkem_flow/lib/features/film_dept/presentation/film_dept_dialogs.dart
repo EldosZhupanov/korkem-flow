@@ -1623,9 +1623,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                   onChanged: (v) => setState(() {
                     g
                       ..glue = stock.glues.firstWhere((x) => x.item == v)
-                      ..unit = g.glue.bucketKg != null
-                          ? g.unit
-                          : GlueUnit.litre
+                      ..unit = g.glue.bucketKg != null ? g.unit : GlueUnit.litre
                       ..prefill();
                     _fillPaid();
                   }),

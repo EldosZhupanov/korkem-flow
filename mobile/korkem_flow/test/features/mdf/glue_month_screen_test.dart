@@ -12,7 +12,12 @@ import '../../support/widget_harness.dart';
 final _month = GlueMonth.fromJson(const {
   'month': '2026-11',
   'can_edit': true,
-  'total': {'m2': 120, 'kg_by_norm': 12, 'kg_counted': 3, 'money_counted': 6300},
+  'total': {
+    'm2': 120,
+    'kg_by_norm': 12,
+    'kg_counted': 3,
+    'money_counted': 6300,
+  },
   'glues': [
     {
       'item': 'GL-A',

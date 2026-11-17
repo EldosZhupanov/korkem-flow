@@ -741,8 +741,7 @@ class FilmSale {
   final String? issuedBy;
 
   /// Film's metres — glue sold with it counts in kilograms, not here.
-  double get metres =>
-      lines.fold(0, (sum, l) => l.glue ? sum : sum + l.metres);
+  double get metres => lines.fold(0, (sum, l) => l.glue ? sum : sum + l.metres);
 }
 
 /// What a metre of a film costs a customer: the tier's price less the

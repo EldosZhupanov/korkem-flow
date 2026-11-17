@@ -635,8 +635,7 @@ class FilmDeliveryField extends ConsumerWidget {
 
 /// A sale line's quantity as said: «12 м» for film, glue's «2 ведра» or «5 л»
 /// (owner, 17.11.2026).
-String filmLineQty(AppLocalizations l10n, FilmSaleLine l) =>
-    l.unit == null
+String filmLineQty(AppLocalizations l10n, FilmSaleLine l) => l.unit == null
     ? '${filmMetres(l.metres)} м'
     : l.unit == GlueUnit.litre.wire
     ? l10n.filmGlueLitres(filmMetres(l.qty))
