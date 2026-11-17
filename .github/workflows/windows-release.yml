@@ -1,7 +1,7 @@
 name: Windows release
 on:
   push:
-    branches: [release/windows-0.8.9-build60]
+    branches: [release/windows-0.8.9-build61]
 permissions:
   contents: read
 jobs:
@@ -39,7 +39,7 @@ jobs:
           $bundle = (Resolve-Path windows-smoke).Path
           $exe = Join-Path $bundle 'korkem_flow.exe'
           $version = (Get-Item $exe).VersionInfo
-          if ($version.ProductVersion -ne '0.8.9+60') { throw "Wrong version: $($version.ProductVersion)" }
+          if ($version.ProductVersion -ne '0.8.9+61') { throw "Wrong version: $($version.ProductVersion)" }
           $p = Start-Process $exe -WorkingDirectory $bundle -PassThru -RedirectStandardOutput windows-artifact/stdout.log -RedirectStandardError windows-artifact/stderr.log
           try {
             Start-Sleep -Seconds 15
@@ -54,6 +54,6 @@ jobs:
           }
       - uses: actions/upload-artifact@v4
         with:
-          name: korkem-windows-0.8.9-build60
+          name: korkem-windows-0.8.9-build61
           path: windows-artifact/
           retention-days: 30
