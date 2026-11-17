@@ -17,7 +17,13 @@ final _stock = GlueStock.fromJson(const {
   'can_edit': true,
   'prices_visible': true,
   'edge_coats': 2,
-  'queue': {'kg': 12.5, 'm2': 100, 'orders': 4, 'on_hand_kg': 10, 'short_kg': 2.5},
+  'queue': {
+    'kg': 12.5,
+    'm2': 100,
+    'orders': 4,
+    'on_hand_kg': 10,
+    'short_kg': 2.5,
+  },
   'milling': [
     {'name': 'Классика', 'factor': 1},
     {'name': 'Рифлёный', 'factor': 1.3},

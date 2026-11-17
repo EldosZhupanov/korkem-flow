@@ -227,9 +227,7 @@ class _Body extends ConsumerWidget {
                   if (g.sellBucket != null || g.sellLitre != null)
                     Text(
                       l10n.glueSell(
-                        g.sellBucket == null
-                            ? '—'
-                            : money.format(g.sellBucket),
+                        g.sellBucket == null ? '—' : money.format(g.sellBucket),
                         g.sellLitre == null ? '—' : money.format(g.sellLitre),
                       ),
                       style: muted,
@@ -345,10 +343,12 @@ class _Body extends ConsumerWidget {
                     ],
                   ),
                   if ([
-                    ?sup.contact,
-                    ?(sup.whatsapp ?? sup.phone),
-                    if (sup.minOrder case final m?) l10n.paintSupplierMin(m),
-                  ].join(' · ') case final about when about.isNotEmpty)
+                        ?sup.contact,
+                        ?(sup.whatsapp ?? sup.phone),
+                        if (sup.minOrder case final m?)
+                          l10n.paintSupplierMin(m),
+                      ].join(' · ')
+                      case final about when about.isNotEmpty)
                     Text(about, style: muted),
                   for (final b in sup.bought)
                     if (b.landedKg != null)
@@ -468,7 +468,8 @@ Future<double?> _askNumber(
   String initial = '',
 }) => showDialog<double>(
   context: context,
-  builder: (_) => _NumberDialog(title: title, initial: initial, fieldKey: fieldKey),
+  builder: (_) =>
+      _NumberDialog(title: title, initial: initial, fieldKey: fieldKey),
 );
 
 class _NumberDialog extends StatefulWidget {
@@ -516,7 +517,9 @@ class _NumberDialogState extends State<_NumberDialog> {
         ),
         FilledButton(
           key: const ValueKey('glueNumberSave'),
-          onPressed: value == null ? null : () => Navigator.of(context).pop(value),
+          onPressed: value == null
+              ? null
+              : () => Navigator.of(context).pop(value),
           child: Text(l10n.glueSave),
         ),
       ],
@@ -693,14 +696,11 @@ class _ReceiveDialog extends ConsumerStatefulWidget {
 
 class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
   late GlueStock _stock = widget.stock;
-  late String? _item =
-      _stock.working?.item ?? _stock.glues.firstOrNull?.item;
+  late String? _item = _stock.working?.item ?? _stock.glues.firstOrNull?.item;
   late String? _supplier = _stock.suppliers.firstOrNull?.id;
   final _qty = TextEditingController();
   final _price = TextEditingController();
-  late GlueUnit _unit = _glue?.bucketKg == null
-      ? GlueUnit.kg
-      : GlueUnit.bucket;
+  late GlueUnit _unit = _glue?.bucketKg == null ? GlueUnit.kg : GlueUnit.bucket;
   late GlueUnit _per = _unit;
   final _terms = FilmReceiptTerms();
   bool _busy = false;

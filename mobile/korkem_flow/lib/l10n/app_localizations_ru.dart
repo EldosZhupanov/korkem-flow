@@ -8008,8 +8008,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get mdfMarginNotCounted =>
-      'Не учтены: краска, клей, электричество, доставка';
+  String get mdfMarginNotCounted => 'Не учтены: электричество, доставка';
 
   @override
   String get mdfSumMargin => 'Маржа выданных заказов';
@@ -9383,5 +9382,200 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String myWorkStageM2(String stage, String area) {
     return '$stage $area м²';
+  }
+
+  @override
+  String get glueTitle => 'Клей для ПВХ';
+
+  @override
+  String get glueRowHint => 'Клеи, поставщики, норма на м², фрезеровки';
+
+  @override
+  String get glueHint =>
+      'Клей — товар: что за клей и сколько уходит на м². Поставщик — где покупаем. При «Вакууме» списывается клей «в работе».';
+
+  @override
+  String get glueReceive => 'Приход клея';
+
+  @override
+  String get glueAdd => 'Новый клей';
+
+  @override
+  String get glueEdit => 'Карточка клея';
+
+  @override
+  String get glueName => 'Название';
+
+  @override
+  String get glueOrigin => 'Производство';
+
+  @override
+  String get glueOriginHint => 'например, Китай';
+
+  @override
+  String get glueBucketKg => 'Ведро, кг';
+
+  @override
+  String get glueKgPerLitre => 'Кг в литре';
+
+  @override
+  String get glueKgPerLitreHint => 'из паспорта клея, обычно около 1';
+
+  @override
+  String get glueNorm => 'Норма, г/м²';
+
+  @override
+  String get glueReserve => 'Не продавать ниже, кг (себе)';
+
+  @override
+  String get glueMarkupBucket => 'Наценка на ведро, %';
+
+  @override
+  String get glueMarkupLitre => 'Наценка на литр, %';
+
+  @override
+  String get glueInWork => 'В работе';
+
+  @override
+  String get glueTakeInWork => 'Взять в работу';
+
+  @override
+  String get glueCount => 'Пересчитать';
+
+  @override
+  String glueCountTitle(String title) {
+    return '$title: сколько кг на самом деле';
+  }
+
+  @override
+  String glueOnHand(String kg) {
+    return 'На складе $kg кг';
+  }
+
+  @override
+  String glueNormLine(String g) {
+    return 'Норма $g г/м²';
+  }
+
+  @override
+  String glueCostKg(String money) {
+    return '$money/кг с доставкой';
+  }
+
+  @override
+  String glueCostM2(String money) {
+    return '$money на 1 м²';
+  }
+
+  @override
+  String glueSell(String bucket, String litre) {
+    return 'Продажа: ведро $bucket · литр $litre';
+  }
+
+  @override
+  String glueFact(String g) {
+    return 'Факт за месяц: $g г/м²';
+  }
+
+  @override
+  String glueQueue(String orders, String m2, String kg) {
+    return 'Очередь вакуума: $orders зак., $m2 м² — нужно $kg кг клея';
+  }
+
+  @override
+  String glueQueueShort(String kg) {
+    return 'Клея в работе не хватает: $kg кг';
+  }
+
+  @override
+  String get glueNoInWork =>
+      'Ни один клей не в работе — выберите открытую бочку';
+
+  @override
+  String get glueGlues => 'Клеи';
+
+  @override
+  String get glueEmpty => 'Клеев пока нет — добавьте первый';
+
+  @override
+  String get glueSuppliers => 'Где покупаем';
+
+  @override
+  String get glueSupplierAdd => 'Поставщик клея';
+
+  @override
+  String glueBought(
+    String title,
+    String price,
+    String delivery,
+    String landed,
+  ) {
+    return '$title: $price + доставка $delivery = $landed за кг';
+  }
+
+  @override
+  String get glueCheapest => 'дешевле';
+
+  @override
+  String get glueMilling => 'Поправка фрезеровки';
+
+  @override
+  String glueMillingHint(String coats) {
+    return 'Во сколько раз больше клея, чем на гладкое лицо; 1,00 — так же. Кромки — $coats слоя.';
+  }
+
+  @override
+  String glueMillingTitle(String name) {
+    return '$name: поправка';
+  }
+
+  @override
+  String get glueOwed => 'Должны за клей';
+
+  @override
+  String get glueGlue => 'Клей';
+
+  @override
+  String get glueSupplier => 'Поставщик';
+
+  @override
+  String get glueQty => 'Сколько';
+
+  @override
+  String get gluePrice => 'Цена';
+
+  @override
+  String get gluePer => 'за';
+
+  @override
+  String get glueUnitKg => 'кг';
+
+  @override
+  String get glueUnitLitre => 'литр';
+
+  @override
+  String get glueUnitBucket => 'ведро';
+
+  @override
+  String glueReceiveSum(String kg, String price) {
+    return '$kg кг по $price за кг';
+  }
+
+  @override
+  String glueLanded(String money) {
+    return 'С доставкой: $money за кг';
+  }
+
+  @override
+  String get glueSave => 'Сохранить';
+
+  @override
+  String glueOrderPlan(String kg, String title, String norm) {
+    return 'Клей ПВХ: $kg кг · $title · $norm г/м²';
+  }
+
+  @override
+  String glueLineKg(String kg) {
+    return 'клей $kg кг';
   }
 }
