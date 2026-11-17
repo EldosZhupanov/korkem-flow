@@ -9674,4 +9674,37 @@ class AppLocalizationsRu extends AppLocalizations {
   String glueMonthNormSet(String g) {
     return 'Норма теперь $g г/м²';
   }
+
+  @override
+  String get filmGlueOpen => 'Клей для ПВХ';
+
+  @override
+  String get glueAddFirst => 'Завести первый клей';
+
+  @override
+  String get filmReceiveFilm => 'Плёнка';
+
+  @override
+  String get filmReceiveGlue => 'Клей для ПВХ';
+
+  @override
+  String get filmFigGlue => 'Клей ПВХ';
+
+  @override
+  String get filmFigGlueNone => 'не заведён — нажмите';
+
+  @override
+  String filmFigGlueKg(String kg) {
+    return '$kg кг';
+  }
+
+  @override
+  String filmFigGlueBuckets(String buckets) {
+    return '≈ $buckets ведра';
+  }
+
+  @override
+  String filmFigGlueDays(String days) {
+    return 'хватит на $days дн.';
+  }
 }

@@ -282,6 +282,7 @@ class GlueStock {
   final List<GlueSupplier> suppliers;
   final List<GlueOwed> owed;
   final bool pricesVisible;
+
   /// The days [GlueItem.fact] counts over.
   final int usageDays;
   final bool canEdit;
