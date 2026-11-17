@@ -7982,7 +7982,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get mdfMarginNotCounted => 'Not counted: paint, glue, power, delivery';
+  String get mdfMarginNotCounted => 'Not counted: power, delivery';
 
   @override
   String get mdfSumMargin => 'Margin of orders handed over';
@@ -9353,5 +9353,199 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String myWorkStageM2(String stage, String area) {
     return '$stage $area m²';
+  }
+
+  @override
+  String get glueTitle => 'PVC glue';
+
+  @override
+  String get glueRowHint => 'Glues, suppliers, norm per m², millings';
+
+  @override
+  String get glueHint =>
+      'A glue is the product: what it is and how much a m² takes. A supplier is where it is bought. «Vacuum» takes off the glue in work.';
+
+  @override
+  String get glueReceive => 'Glue received';
+
+  @override
+  String get glueAdd => 'New glue';
+
+  @override
+  String get glueEdit => 'Glue card';
+
+  @override
+  String get glueName => 'Name';
+
+  @override
+  String get glueOrigin => 'Made in';
+
+  @override
+  String get glueOriginHint => 'e.g. China';
+
+  @override
+  String get glueBucketKg => 'Bucket, kg';
+
+  @override
+  String get glueKgPerLitre => 'Kg per litre';
+
+  @override
+  String get glueKgPerLitreHint => 'from the glue sheet, usually about 1';
+
+  @override
+  String get glueNorm => 'Norm, g/m²';
+
+  @override
+  String get glueReserve => 'Keep for the shop, kg';
+
+  @override
+  String get glueMarkupBucket => 'Bucket mark-up, %';
+
+  @override
+  String get glueMarkupLitre => 'Litre mark-up, %';
+
+  @override
+  String get glueInWork => 'In work';
+
+  @override
+  String get glueTakeInWork => 'Take into work';
+
+  @override
+  String get glueCount => 'Count';
+
+  @override
+  String glueCountTitle(String title) {
+    return '$title: how many kg really';
+  }
+
+  @override
+  String glueOnHand(String kg) {
+    return 'On hand $kg kg';
+  }
+
+  @override
+  String glueNormLine(String g) {
+    return 'Norm $g g/m²';
+  }
+
+  @override
+  String glueCostKg(String money) {
+    return '$money/kg landed';
+  }
+
+  @override
+  String glueCostM2(String money) {
+    return '$money a m²';
+  }
+
+  @override
+  String glueSell(String bucket, String litre) {
+    return 'Sells: bucket $bucket · litre $litre';
+  }
+
+  @override
+  String glueFact(String g) {
+    return 'This month really: $g g/m²';
+  }
+
+  @override
+  String glueQueue(String orders, String m2, String kg) {
+    return 'Vacuum queue: $orders orders, $m2 m² — needs $kg kg of glue';
+  }
+
+  @override
+  String glueQueueShort(String kg) {
+    return 'The glue in work is short by $kg kg';
+  }
+
+  @override
+  String get glueNoInWork => 'No glue is in work — pick the open barrel';
+
+  @override
+  String get glueGlues => 'Glues';
+
+  @override
+  String get glueEmpty => 'No glues yet — add the first';
+
+  @override
+  String get glueSuppliers => 'Where we buy';
+
+  @override
+  String get glueSupplierAdd => 'Glue supplier';
+
+  @override
+  String glueBought(
+    String title,
+    String price,
+    String delivery,
+    String landed,
+  ) {
+    return '$title: $price + delivery $delivery = $landed a kg';
+  }
+
+  @override
+  String get glueCheapest => 'cheaper';
+
+  @override
+  String get glueMilling => 'Milling factor';
+
+  @override
+  String glueMillingHint(String coats) {
+    return 'How many times the glue of a smooth face; 1.00 is the same. Edges take $coats coats.';
+  }
+
+  @override
+  String glueMillingTitle(String name) {
+    return '$name: factor';
+  }
+
+  @override
+  String get glueOwed => 'Owed for glue';
+
+  @override
+  String get glueGlue => 'Glue';
+
+  @override
+  String get glueSupplier => 'Supplier';
+
+  @override
+  String get glueQty => 'How much';
+
+  @override
+  String get gluePrice => 'Price';
+
+  @override
+  String get gluePer => 'per';
+
+  @override
+  String get glueUnitKg => 'kg';
+
+  @override
+  String get glueUnitLitre => 'litre';
+
+  @override
+  String get glueUnitBucket => 'bucket';
+
+  @override
+  String glueReceiveSum(String kg, String price) {
+    return '$kg kg at $price a kg';
+  }
+
+  @override
+  String glueLanded(String money) {
+    return 'Landed: $money a kg';
+  }
+
+  @override
+  String get glueSave => 'Save';
+
+  @override
+  String glueOrderPlan(String kg, String title, String norm) {
+    return 'PVC glue: $kg kg · $title · $norm g/m²';
+  }
+
+  @override
+  String glueLineKg(String kg) {
+    return 'glue $kg kg';
   }
 }

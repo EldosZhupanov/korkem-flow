@@ -41,7 +41,10 @@ EDITORS = frozenset(
 MDF, FILM, OTHER = "МДФ", "Плёнка ПВХ", "Прочее"
 #: Paint, kept by colour and bought by the kilo (owner, 15.11.2026).
 PAINT = "Краска"
-KINDS = (MDF, FILM, OTHER, PAINT)
+#: PVC glue, bought by the kilo, sold by the bucket and the litre (owner,
+#: 17.11.2026; `glue_stock`).
+GLUE = "Клей"
+KINDS = (MDF, FILM, OTHER, PAINT, GLUE)
 LISTS = ("Толщина МДФ", "Производитель", "Цвет плёнки", "Ширина плёнки", "Толщина плёнки", "Профиль кромки",
 		 # The MDF order form's own lists (08.11.2026); the stock screen does not show them.
 		 "Покрытие", "Патина", "Фрезеровка", "Материал", "Банк", "Краска",
