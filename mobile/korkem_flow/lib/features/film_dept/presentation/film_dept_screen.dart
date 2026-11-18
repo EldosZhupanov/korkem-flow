@@ -16,6 +16,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_catalog/presentation/decor_match.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
@@ -51,6 +52,8 @@ class FilmDeptScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(l10n.filmDeptTitle),
           actions: [
+            // «Подобрать по фото» (owner, 18.11.2026).
+            const PhotoMatchButton(),
             IconButton(
               key: const ValueKey('filmDept:search'),
               tooltip: l10n.searchTitle,
@@ -1025,7 +1028,20 @@ class FilmPage extends ConsumerWidget {
     final onWay = film.coming.fold<double>(0, (s, c) => s + c.metres);
     final held = film.holds.fold<double>(0, (s, h) => s + h.metres);
     return Scaffold(
-      appBar: AppBar(title: Text(filmName(film))),
+      appBar: AppBar(
+        title: Text(filmName(film)),
+        actions: [
+          // «Аналоги» (owner, 18.11.2026): the look-alikes at other makers.
+          IconButton(
+            key: const ValueKey('filmPage:analogues'),
+            tooltip: l10n.fdcAnalogues,
+            icon: const Icon(AppIcons.colour),
+            onPressed: () => unawaited(
+              showAnalogues(context, ref, title: filmName(film), item: item),
+            ),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [

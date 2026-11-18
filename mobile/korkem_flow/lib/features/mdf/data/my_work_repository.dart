@@ -4,6 +4,7 @@ import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/my_work.dart';
+import 'package:korkem_flow/features/mdf/domain/order_scan.dart';
 
 final myWorkRepositoryProvider = Provider<MyWorkRepository>(
   (ref) => MyWorkRepository(ref.watch(frappeClientProvider)),
@@ -35,6 +36,28 @@ class MyWorkRepository {
     _map(
       await _client.callMethod(
         '$_base.done',
+        post: true,
+        params: {'order': order, 'stage': stage.name, 'undo': undo ? 1 : 0},
+      ),
+    ),
+  );
+
+  /// A sticker scanned, or a number typed: the order and its stages.
+  Future<OrderScan> scan(String code) async => OrderScan.fromJson(
+    _map(
+      await _client.callMethod('$_base.scan', params: {'code': code}),
+    ),
+  );
+
+  /// «Сделал» from a scan — or, [undo], taken back; answers the scan again.
+  Future<OrderScan> tick(
+    String order,
+    MdfStage stage, {
+    bool undo = false,
+  }) async => OrderScan.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.tick',
         post: true,
         params: {'order': order, 'stage': stage.name, 'undo': undo ? 1 : 0},
       ),

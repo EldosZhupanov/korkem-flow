@@ -106,6 +106,13 @@ abstract final class AppIcons {
   static const IconData more = Symbols.more_vert_rounded;
   static const IconData undo = Symbols.undo_rounded;
   static const IconData check = Symbols.check_rounded;
+
+  /// An order's sticker, and reading one (owner, 18.11.2026).
+  static const IconData qrCode = Symbols.qr_code_2_rounded;
+  static const IconData qrScan = Symbols.qr_code_scanner_rounded;
+
+  /// A piece of a sheet put by for later (owner, 18.11.2026).
+  static const IconData offcut = Symbols.crop_rounded;
   static const IconData call = Symbols.call_rounded;
   static const IconData email = Symbols.mail_rounded;
   static const IconData whatsApp = Symbols.chat_rounded;

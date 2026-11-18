@@ -68,6 +68,8 @@ STALE_CAPTURE = "reminder.capture_stale"
 MEASUREMENT_TASK = "reminder.measurement_task"
 # «Мало листов» (korkem_manufacturing.services.stock_alerts).
 STOCK_LOW = "stock.low"
+DAILY_SUMMARY = "summary.daily"
+REORDER_MORNING = "reorder.morning"
 # «Посчитайте склад» (korkem_manufacturing.services.stock_count).
 STOCK_COUNT_DUE = "stock.count_due"
 # «Привезли, а доставку не записали» (korkem_manufacturing.services.logistics).
@@ -165,6 +167,37 @@ def stock_low(
 		),
 		reference_doctype="Item",
 		reference_name=item,
+		company=company,
+		key_suffix=str(day),
+	)
+
+
+def daily_summary(company: str, day: str, body: str) -> list[str]:
+	"""«Итоги дня» to the owner, once a day: the day is the key suffix, so the
+	hourly scheduler waking again the same evening says nothing twice."""
+	if not frappe.db.exists("Company", company):
+		return []
+	return service.emit(
+		DAILY_SUMMARY,
+		recipients=recipients.owners_for_company(company),
+		body=body,
+		reference_doctype="Company",
+		reference_name=company,
+		company=company,
+		key_suffix=str(day),
+	)
+
+
+def reorder_morning(company: str, day: str, body: str) -> list[str]:
+	"""«Пора заказать» to the owner, once a morning (the day is the key)."""
+	if not frappe.db.exists("Company", company):
+		return []
+	return service.emit(
+		REORDER_MORNING,
+		recipients=recipients.owners_for_company(company),
+		body=body,
+		reference_doctype="Company",
+		reference_name=company,
 		company=company,
 		key_suffix=str(day),
 	)

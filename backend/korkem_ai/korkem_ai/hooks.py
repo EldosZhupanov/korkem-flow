@@ -229,6 +229,8 @@ korkem_domain_events = {
 	"stock.low": ["korkem_ai.korkem_ai.notifications.events.stock_low"],
 	"stock.count_due": ["korkem_ai.korkem_ai.notifications.events.stock_count_due"],
 	"logistics.delivery_missing": ["korkem_ai.korkem_ai.notifications.events.delivery_missing"],
+	"summary.daily": ["korkem_ai.korkem_ai.notifications.events.daily_summary"],
+	"reorder.morning": ["korkem_ai.korkem_ai.notifications.events.reorder_morning"],
 }
 
 

@@ -21,7 +21,7 @@ from decimal import Decimal
 import frappe
 from frappe.utils import flt, getdate, nowdate
 
-from korkem_manufacturing.services import directions, mdf_orders, mdf_volume, team
+from korkem_manufacturing.services import directions, facade_prices, mdf_orders, mdf_volume, search_text, team
 from korkem_manufacturing.services.scope import current_company
 
 
@@ -108,3 +108,80 @@ def done(order: str, stage: str, undo=False) -> dict:
 	else:
 		mdf_orders._tick(order, stage, True, worker=person["employee"])
 	return work()
+
+
+#: What a sticker's QR says: the order's name, behind this prefix so a
+#: scanner's text is never mistaken for something typed.
+QR_PREFIX = "KORKEM:ORDER:"
+
+
+def _order_by_code(code: str, company: str) -> str:
+	"""The order a scanned (or typed) code names: «KORKEM:ORDER:SAL-ORD-…»,
+	the name itself, or its number («245», «№245»)."""
+	text = (code or "").strip()
+	if text.upper().startswith(QR_PREFIX):
+		text = text[len(QR_PREFIX):].strip()
+	base = {"company": company, "korkem_direction": directions.FACADES, "docstatus": 1}
+	if frappe.db.exists("Sales Order", {**base, "name": text}):
+		return text
+	number = search_text.number_of(text)
+	if number:
+		for name in frappe.get_all("Sales Order", filters={**base, "name": ["like", f"%{number}"]},
+								   pluck="name", order_by="creation desc", limit_page_length=50):
+			if search_text.number_in(name) == number:
+				return name
+	frappe.throw(f"Заказ «{code}» не найден.", frappe.DoesNotExistError)
+
+
+def scan(code: str) -> dict:
+	"""A sticker scanned on the shop floor (owner, 18.11.2026): the order, and
+	its stages — which are this worker's to tick now. A manager (who ticks
+	anything) gets the same, every stage his."""
+	company = current_company()
+	person = team.me()
+	manager = facade_prices.can_edit()
+	if not person and not manager:
+		frappe.throw("Ваш вход не привязан к сотруднику — попросите менеджера в «Команде».",
+					 frappe.PermissionError)
+	order = _order_by_code(code, company)
+	doc = frappe.get_doc("Sales Order", order)
+	needed = mdf_orders.stages_of(doc)
+	stages = []
+	for i, stage in enumerate(needed):
+		done_on = doc.get(mdf_orders.STAGES[stage])
+		given = doc.get(mdf_orders.STAGE_TO[stage])
+		mine = manager or bool(person and _mine(stage, doc.get("korkem_coatings"), person["posts"])
+							   and (not given or given == person["employee"]))
+		waiting = [s for s in needed[:i] if not doc.get(mdf_orders.STAGES[s])]
+		stages.append({
+			"stage": stage, "name": mdf_orders.STAGE_NAMES.get(stage, stage),
+			"done_on": str(done_on) if done_on else None, "mine": mine, "waiting_for": waiting,
+			"by_me": bool(person and doc.get(mdf_orders.STAGE_BY[stage]) == person["employee"]),
+		})
+	areas = mdf_volume._areas([order])
+	return {
+		"order": order,
+		"number": search_text.number_in(order),
+		"customer": doc.customer_name,
+		"decor": doc.get("korkem_decor_top"),
+		"delivery_date": str(doc.delivery_date) if doc.delivery_date else None,
+		"area_m2": flt(areas.get(order, Decimal(0)), 2),
+		"handed_over": bool(doc.korkem_handed_over_on),
+		"on_hold": bool(doc.get("korkem_hold_reason")),
+		"manager": manager,
+		"stages": stages,
+	}
+
+
+def tick(order: str, stage: str, undo=False) -> dict:
+	"""«Сделал» from a scan: his own stage as in «Мои заказы»; a manager's
+	tick as on the order's card. Answers the scan again."""
+	person = team.me()
+	doc = frappe.get_doc("Sales Order", order)
+	own = bool(person and stage in mdf_orders.STAGES
+			   and _mine(stage, doc.get("korkem_coatings"), person["posts"]))
+	if own or not facade_prices.can_edit():
+		done(order, stage, undo)
+	else:
+		mdf_orders.set_stage(order, stage, not directions.flag(undo))
+	return scan(order)

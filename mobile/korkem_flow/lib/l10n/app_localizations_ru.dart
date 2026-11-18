@@ -10361,4 +10361,363 @@ class AppLocalizationsRu extends AppLocalizations {
   String gsrPaid(String amount) {
     return 'оплата $amount';
   }
+
+  @override
+  String get navToWrite => 'Кому написать';
+
+  @override
+  String get clcTitle => 'Карточка клиента';
+
+  @override
+  String get clcOrders => 'Заказов';
+
+  @override
+  String get clcTotal => 'Сумма заказов';
+
+  @override
+  String get clcPaid => 'Оплачено';
+
+  @override
+  String get clcDebt => 'Долг';
+
+  @override
+  String get clcAverage => 'Средний чек';
+
+  @override
+  String get clcLast => 'Последний заказ';
+
+  @override
+  String clcSince(String date) {
+    return 'клиент с $date';
+  }
+
+  @override
+  String get clcNewOrder => 'Новый заказ';
+
+  @override
+  String get clcSellFilm => 'Продать плёнку';
+
+  @override
+  String get clcAllOrders => 'Все заказы';
+
+  @override
+  String get clcOrdersSection => 'Заказы';
+
+  @override
+  String get clcPaymentsSection => 'Оплаты';
+
+  @override
+  String get clcFilmSection => 'Плёнка';
+
+  @override
+  String clcFilmLine(String metres, String sum, String debt) {
+    return 'куплено $metres м на $sum · долг $debt';
+  }
+
+  @override
+  String get clcFilmOpen => 'Покупки плёнки';
+
+  @override
+  String get clcNoOrders => 'Заказов пока нет';
+
+  @override
+  String get clcCnc => 'ЧПУ';
+
+  @override
+  String get clcWhatsApp => 'Написать в WhatsApp';
+
+  @override
+  String twReady(int count) {
+    return 'Готовы — сообщить клиенту ($count)';
+  }
+
+  @override
+  String twDebts(int count) {
+    return 'Напомнить о долге ($count)';
+  }
+
+  @override
+  String twFilm(int count) {
+    return 'Плёнка — долги ($count)';
+  }
+
+  @override
+  String get twEmpty => 'Сегодня писать некому';
+
+  @override
+  String get twEmptyHint =>
+      'Здесь появятся готовые заказы, о которых клиент ещё не знает, и долги, о которых пора напомнить.';
+
+  @override
+  String twReadyLine(String date) {
+    return 'готов $date';
+  }
+
+  @override
+  String twDebtLine(String sum) {
+    return 'к оплате $sum';
+  }
+
+  @override
+  String twHandedLine(String date) {
+    return 'выдан $date';
+  }
+
+  @override
+  String twRemindedLine(int count, String date) {
+    return 'напоминали: $count, последний раз $date';
+  }
+
+  @override
+  String twFilmDays(int days) {
+    return 'долгу $days дн.';
+  }
+
+  @override
+  String get twSend => 'Написать в WhatsApp';
+
+  @override
+  String get twMark => 'Отправил';
+
+  @override
+  String get twMarked => 'Отмечено — больше не спрошу';
+
+  @override
+  String get twSentQ => 'Отправили сообщение?';
+
+  @override
+  String get twNoPhone => 'У клиента нет телефона';
+
+  @override
+  String get twTemplates => 'Тексты сообщений';
+
+  @override
+  String get twTemplateReady => 'Заказ готов';
+
+  @override
+  String get twTemplateDebt => 'Долг по заказу';
+
+  @override
+  String get twTemplateFilm => 'Долг за плёнку';
+
+  @override
+  String get twTemplateHint => 'Можно вставить:';
+
+  @override
+  String get twTemplateReset => 'Вернуть исходный';
+
+  @override
+  String get twTemplateSave => 'Сохранить';
+
+  @override
+  String get dsmTitle => 'Итоги дня';
+
+  @override
+  String dsmSwitch(String hour) {
+    return 'Присылать мне каждый день в $hour:00';
+  }
+
+  @override
+  String get dsmHint =>
+      'Придёт в Telegram или WhatsApp, если он подключён в «Настройки → Каналы».';
+
+  @override
+  String get dsmCopy => 'Скопировать';
+
+  @override
+  String get dsmCopied => 'Итоги скопированы';
+
+  @override
+  String get dsmSendMe => 'Отправить себе в WhatsApp';
+
+  @override
+  String get dsmHour => 'Час';
+
+  @override
+  String get orderTell => 'Сообщить клиенту';
+
+  @override
+  String orderTold(String date) {
+    return 'Клиенту сообщили $date';
+  }
+
+  @override
+  String get fdcMatchPhoto => 'Подобрать по фото образца';
+
+  @override
+  String get fdcMatchTitle => 'Похожие на образец';
+
+  @override
+  String get fdcMatchHint =>
+      'Фото при дневном свете, без тени; читается середина снимка. Это подсказка — сверяйте с образцом глазами.';
+
+  @override
+  String get fdcAnalogues => 'Аналоги';
+
+  @override
+  String fdcAnaloguesTitle(String name) {
+    return 'Аналоги: $name';
+  }
+
+  @override
+  String get fdcLikeClose => 'очень похож';
+
+  @override
+  String get fdcLikeNear => 'похож';
+
+  @override
+  String get fdcLikeFar => 'отдалённо';
+
+  @override
+  String fdcOnShelf(String metres) {
+    return 'на складе $metres м';
+  }
+
+  @override
+  String get fdcNotOnShelf => 'нет на складе';
+
+  @override
+  String get fdcNoMatches => 'Ничего похожего не нашлось';
+
+  @override
+  String get dsmMorning => 'Утром в 9:00 — что пора заказать';
+
+  @override
+  String get dsmMorningTitle => 'Пора заказать';
+
+  @override
+  String get scanEntryTitle => 'Номер заказа';
+
+  @override
+  String get scanEntryHint => '245 или код с наклейки';
+
+  @override
+  String get scanEntryOpen => 'Открыть';
+
+  @override
+  String scanTitle(String number, String customer) {
+    return '№ $number · $customer';
+  }
+
+  @override
+  String get scanHandedOver => 'Уже отдан клиенту';
+
+  @override
+  String get scanOnHold => 'Заказ на паузе';
+
+  @override
+  String scanDoneOn(String date) {
+    return 'сделано $date';
+  }
+
+  @override
+  String get scanYours => 'ваш — можно делать';
+
+  @override
+  String get scanNotYours => 'не ваш';
+
+  @override
+  String get scanOpenOrder => 'Открыть заказ';
+
+  @override
+  String get mdfPrintSticker => 'Наклейка';
+
+  @override
+  String get navOffcuts => 'Обрезки';
+
+  @override
+  String get offcutsTitle => 'Обрезки МДФ';
+
+  @override
+  String offcutsSummary(int count, String area) {
+    return '$count шт · $area м²';
+  }
+
+  @override
+  String get offcutsAdd => 'Положить';
+
+  @override
+  String get offcutsAll => 'Все';
+
+  @override
+  String offcutsMm(int mm) {
+    return '$mm мм';
+  }
+
+  @override
+  String get offcutsEmptyTitle => 'Обрезков нет';
+
+  @override
+  String get offcutsEmpty =>
+      'Кусок, оставшийся от листа, кладите на полку с размером — мелкие детали новых заказов сначала выкроим из него.';
+
+  @override
+  String offcutsCell(String cell) {
+    return 'ячейка $cell';
+  }
+
+  @override
+  String offcutsFrom(String number) {
+    return 'от № $number';
+  }
+
+  @override
+  String offcutsFor(String number) {
+    return 'под № $number';
+  }
+
+  @override
+  String get offcutsUse => 'Взят в работу';
+
+  @override
+  String get offcutsScrap => 'В утиль';
+
+  @override
+  String get offcutsAddTitle => 'Обрезок на полку';
+
+  @override
+  String get offcutsThickness => 'Толщина';
+
+  @override
+  String get offcutsLength => 'Длина, мм';
+
+  @override
+  String get offcutsWidth => 'Ширина, мм';
+
+  @override
+  String get offcutsCellLabel => 'Где лежит';
+
+  @override
+  String get offcutsCellHint => 'А-3';
+
+  @override
+  String get offcutsNote => 'Заметка';
+
+  @override
+  String get offcutsPut => 'Положить';
+
+  @override
+  String offcutsSuggestTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count деталей',
+      few: '$count детали',
+      one: '$count деталь',
+    );
+    return 'Из обрезков: $_temp0';
+  }
+
+  @override
+  String offcutsSuggestLine(
+    int position,
+    String part,
+    String offcut,
+    String cell,
+  ) {
+    return 'Поз. $position: $part — из $offcut, $cell';
+  }
+
+  @override
+  String get offcutsTake => 'Взять';
 }

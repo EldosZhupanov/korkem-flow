@@ -49,6 +49,10 @@ abstract final class AppDuration {
   /// One pass of light across the logo when the assistant's screen opens
   /// (owner, 18.11.2026) — once, then still.
   static const shine = Duration(milliseconds: 1600);
+
+  /// The longest pause between two keys of a handheld scanner's burst: a
+  /// person does not type an order's sticker this fast (owner, 18.11.2026).
+  static const scanKeyGap = Duration(milliseconds: 60);
 }
 
 /// How long the app waits on a person before acting.
