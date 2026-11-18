@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/design/motion/entrance.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_logo.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -109,50 +113,152 @@ class _Suggestion extends StatelessWidget {
   }
 }
 
-/// The mark, given a little air on a screen with room for it.
+/// The company's full lockup — rules, KÖRKEM, SINCE 2021 — raised off the
+/// field, with one pass of light when the screen opens (owner, 18.11.2026:
+/// «полное название вместо значка… как в 3д»). It used to be the ornamented
+/// Ö alone, which named nothing on the screen people open first.
 ///
-/// The depth is one layer and nothing else — no blur filter, no gradient stack,
-/// no animation that keeps running. On a phone it is omitted: at that size it
-/// crowds the mark rather than lifting it, and compositing an extra layer on
-/// every frame of the screen people open forty times a shift is the cheap way
-/// to make an app feel slow.
+/// The relief is three still layers of the same mask: a soft shadow below, a
+/// thin lit edge above, and the face itself in a gradient lighter at the top
+/// and deeper at the foot, as if lit from above. The light is one pass and
+/// then the animation stops — nothing keeps running on a screen opened forty
+/// times a shift, and with reduced motion there is no pass at all.
 ///
-/// It is a radial gradient and not a `BoxShadow`, which was the first attempt
-/// and was visibly wrong on a device: the mark's artwork is taller than it is
-/// wide (452 × 591), so a circular shadow behind that box does not cover it and
-/// left a bright rectangle around the logo. A gradient that ends at full
-/// transparency has no edge to notice, whatever shape the child is.
-///
-/// [AppTint.glow] is the palette's own name for this — "light falling behind a
-/// shape rather than a shape of its own".
-class _BrandMark extends StatelessWidget {
+/// The glow behind stays a radial gradient that ends at full transparency, as
+/// before: it has no edge to notice, whatever shape it lies behind.
+class _BrandMark extends StatefulWidget {
   const _BrandMark({required this.wide});
 
   final bool wide;
 
-  /// How far the light reaches past the mark. Generous, because a halo that
-  /// stops close to the artwork reads as a plate behind it.
-  static const double _haloSize = AppLogoSize.standard * 2.4;
+  @override
+  State<_BrandMark> createState() => _BrandMarkState();
+}
+
+class _BrandMarkState extends State<_BrandMark>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _shine = AnimationController(vsync: this);
+  bool _started = false;
+
+  /// How much lighter the top of the face is, and how much deeper its foot.
+  static const double _lift = 0.12;
+  static const double _sink = 0.1;
+
+  /// The width of the band of light, as a share of the logo.
+  static const double _band = 0.12;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    final duration = motionOf(context, AppDuration.shine);
+    if (duration == Duration.zero) return;
+    // The wait is part of the animation rather than a timer: the light passes
+    // once the entrance has settled, and nothing is left pending behind it.
+    _shine.duration = AppDuration.deliberate + duration;
+    unawaited(_shine.forward());
+  }
+
+  /// The share of [_shine] spent waiting for the entrance to settle.
+  double get _wait =>
+      AppDuration.deliberate.inMilliseconds /
+      (_shine.duration?.inMilliseconds ?? 1);
+
+  @override
+  void dispose() {
+    _shine.dispose();
+    super.dispose();
+  }
+
+  Color _lightness(Color c, double by) {
+    final hsl = HSLColor.fromColor(c);
+    return hsl.withLightness((hsl.lightness + by).clamp(0.0, 1.0)).toColor();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!wide) return const AppLogo();
-
     final theme = Theme.of(context);
+    final tint = theme.colorScheme.primary;
+    final width = widget.wide ? AppLogoSize.lockup : AppLogoSize.lockupCompact;
+    final top = _lightness(tint, _lift);
+    final foot = _lightness(tint, -_sink);
+    final light = _lightness(tint, _lift * 3);
 
-    return SizedBox.square(
-      dimension: _haloSize,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              theme.colorScheme.primary.withValues(alpha: AppTint.glow),
-              theme.colorScheme.primary.withValues(alpha: 0),
-            ],
+    Widget logo(Color color) =>
+        AppLogo(layout: LogoLayout.lockup, size: width, color: color);
+
+    final raised = Stack(
+      children: [
+        Transform.translate(
+          offset: const Offset(0, AppSpacing.xs),
+          child: ImageFiltered(
+            imageFilter: ImageFilter.blur(
+              sigmaX: AppSpacing.xs,
+              sigmaY: AppSpacing.xs,
+            ),
+            child: logo(
+              theme.colorScheme.shadow.withValues(alpha: AppTint.relief),
+            ),
           ),
         ),
-        child: const Center(child: AppLogo()),
+        Transform.translate(
+          offset: const Offset(0, -AppStroke.hairline),
+          child: logo(light),
+        ),
+        ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (bounds) => LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [top, tint, foot],
+          ).createShader(bounds),
+          child: logo(tint),
+        ),
+        AnimatedBuilder(
+          animation: _shine,
+          builder: (context, child) {
+            final t = Interval(_wait.clamp(0.0, 1.0), 1).transform(_shine.value);
+            if (t == 0 || t == 1) return const SizedBox.shrink();
+            final at = -_band + t * (1 + _band * 2);
+            return ShaderMask(
+              blendMode: BlendMode.srcIn,
+              shaderCallback: (bounds) => LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  light.withValues(alpha: 0),
+                  light,
+                  light.withValues(alpha: 0),
+                ],
+                stops: [
+                  for (final stop in [at - _band, at, at + _band])
+                    stop.clamp(0.0, 1.0),
+                ],
+              ).createShader(bounds),
+              child: child,
+            );
+          },
+          child: logo(light),
+        ),
+      ],
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          colors: [
+            tint.withValues(alpha: AppTint.glow),
+            tint.withValues(alpha: 0),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xl,
+          vertical: AppSpacing.xxl,
+        ),
+        child: raised,
       ),
     );
   }

@@ -159,6 +159,13 @@ abstract final class AppLogoSize {
 
   /// The splash, where the mark is the only thing on screen.
   static const double hero = 132;
+
+  /// The full lockup's width greeting a person on the assistant's screen
+  /// (owner, 18.11.2026): the company named, not hinted at.
+  static const double lockup = 420;
+
+  /// The same on a phone, where the screen is narrower than [lockup].
+  static const double lockupCompact = 260;
 }
 
 /// The app's own chrome.
