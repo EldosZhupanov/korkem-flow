@@ -10,6 +10,7 @@ import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
@@ -278,7 +279,9 @@ class _PersonDialog extends ConsumerStatefulWidget {
 
 class _PersonDialogState extends ConsumerState<_PersonDialog> {
   late final _name = TextEditingController(text: widget.person?.name);
-  late final _phone = TextEditingController(text: widget.person?.phone);
+  late final _phone = TextEditingController(
+    text: Phone.prettyOrNull(widget.person?.phone),
+  );
   late final Set<String> _posts = {
     ...?widget.person?.posts,
     ?widget.post,
@@ -463,6 +466,7 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
                 key: const ValueKey('teamPersonPhone'),
                 controller: _phone,
                 keyboardType: TextInputType.phone,
+                inputFormatters: const [PhoneMaskFormatter()],
                 decoration: InputDecoration(labelText: l10n.teamPersonPhone),
               ),
               const SizedBox(height: AppSpacing.md),

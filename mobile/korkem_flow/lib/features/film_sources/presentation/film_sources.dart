@@ -4,6 +4,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_sources/data/film_sources_repository.dart';
@@ -200,7 +201,11 @@ class _SourceDialogState extends ConsumerState<_SourceDialog> {
   late final _name = TextEditingController(text: widget.source?.name);
   late final Map<String, TextEditingController> _fields = {
     for (final key in FilmSource.cardKeys)
-      key: TextEditingController(text: widget.source?.card[key]),
+      key: TextEditingController(
+        text: key.startsWith('phone') || key == 'whatsapp'
+            ? Phone.prettyOrNull(widget.source?.card[key])
+            : widget.source?.card[key],
+      ),
   };
   late final _makers = <String>{...?widget.source?.makers, ?widget.maker};
   bool _busy = false;
@@ -289,6 +294,10 @@ class _SourceDialogState extends ConsumerState<_SourceDialog> {
                   keyboardType: e.key.startsWith('phone') || e.key == 'whatsapp'
                       ? TextInputType.phone
                       : TextInputType.text,
+                  inputFormatters: [
+                    if (e.key.startsWith('phone') || e.key == 'whatsapp')
+                      const PhoneMaskFormatter(),
+                  ],
                   maxLines: e.key == 'note' ? null : 1,
                   decoration: InputDecoration(
                     labelText: filmSourceLabel(l10n, e.key),

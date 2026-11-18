@@ -65,3 +65,4 @@ korkem_manufacturing.patches.v0_0.add_paint_supplier_field
 korkem_manufacturing.patches.v0_0.add_team_fields
 korkem_manufacturing.patches.v0_0.add_glue_fields
 korkem_manufacturing.patches.v0_0.add_glue_sale_fields
+korkem_manufacturing.patches.v0_0.canonical_phones

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 
 /// The suppliers' board (owner, 12.11.2026): each source with what its film
 /// sold, what lies on the shelf, what is on its way and what to order —
@@ -97,8 +98,8 @@ class FilmSupplierRow {
     return FilmSupplierRow(
       id: '${json['supplier']}',
       name: '${json['name'] ?? json['supplier']}',
-      phone: _s(json['phone']),
-      whatsapp: _s(json['whatsapp']),
+      phone: Phone.prettyOrNull(_s(json['phone'])),
+      whatsapp: Phone.prettyOrNull(_s(json['whatsapp'])),
       soldM: _d(json['sold_m']) ?? 0,
       amount: _d(json['amount']),
       share: _d(json['share']) ?? 0,

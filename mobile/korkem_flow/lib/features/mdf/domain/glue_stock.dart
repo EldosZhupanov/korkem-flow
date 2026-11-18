@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 
 double _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
@@ -164,8 +165,8 @@ class GlueSupplier {
     name: '${j['name'] ?? j['supplier']}',
     city: _s(j['city']),
     contact: _s(j['contact']),
-    phone: _s(j['phone']),
-    whatsapp: _s(j['whatsapp']),
+    phone: Phone.prettyOrNull(_s(j['phone'])),
+    whatsapp: Phone.prettyOrNull(_s(j['whatsapp'])),
     minOrder: _s(j['min_order']),
     note: _s(j['note']),
     bought: [for (final b in _rows(j['bought'])) GlueBought.fromJson(b)],

@@ -1122,7 +1122,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(yes);
     await tester.pumpAndSettle();
-    expect(repo.handed.single, (null, 'Ерлан', '87011234567'));
+    // Typed any way, it reads one way (owner, 18.11.2026).
+    expect(repo.handed.single, (null, 'Ерлан', '+7 (701) 123-45-67'));
     expect(find.text('Order handed over'), findsOneWidget);
   });
 

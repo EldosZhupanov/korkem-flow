@@ -88,7 +88,7 @@ class TestCompanyDetails(IntegrationTestCase):
 		service.save(phone="+7 775 267 33 39")
 
 		details = service.read()
-		self.assertEqual(details["phone"], "+7 775 267 33 39")
+		self.assertEqual(details["phone"], "+77752673339")  # one spelling (`phones`)
 
 	def test_an_empty_field_does_not_erase_what_was_written(self):
 		service.save(bin="123456789012", phone="+7 700 000 00 00")
@@ -96,7 +96,7 @@ class TestCompanyDetails(IntegrationTestCase):
 
 		details = service.read()
 		self.assertEqual(details["bin"], "123456789012")
-		self.assertEqual(details["phone"], "+7 701 111 11 11")
+		self.assertEqual(details["phone"], "+77011111111")
 
 	def test_an_employee_cannot_rewrite_the_company_details(self):
 		"""Реквизиты уходят в договор. Их меняет владелец, а не замерщик."""

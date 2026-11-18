@@ -42,6 +42,7 @@ from korkem_manufacturing.services import (
 	facade_spec,
 	material_stock,
 	mdf_tags,
+	phones,
 )
 from korkem_manufacturing.services.scope import current_company, enforce_tenant_scope
 
@@ -853,7 +854,7 @@ def hand_over(order: str, comment: str | None = None, taken_by: str | None = Non
 		_reason(comment, "Укажите, почему заказ выдан с долгом.")
 		doc.add_comment("Comment", f"Выдан с долгом {debt:,.0f} ₸: {comment.strip()}".replace(",", " "))
 	taken_by = (taken_by or "").strip()[:140] or None
-	taken_phone = (taken_phone or "").strip()[:40] or None
+	taken_phone = phones.lenient(taken_phone)
 	doc.db_set({"korkem_handed_over_on": nowdate(), "korkem_taken_by": taken_by,
 				"korkem_taken_phone": taken_phone if taken_by else None,
 				"korkem_handed_over_by": frappe.session.user}, update_modified=True)
@@ -1062,13 +1063,11 @@ def new_customer(name: str, phone: str | None = None) -> dict:
 	name = " ".join((name or "").split())[:140]
 	if len(name) < 2:
 		frappe.throw("Укажите имя клиента.")
-	digits = "".join(ch for ch in (phone or "") if ch.isdigit())
-	if phone and not 10 <= len(digits) <= 12:
-		frappe.throw("Телефон — 10–12 цифр, например 8 777 123 45 67.")
-	if digits:
+	phone = phones.clean(phone)
+	if phone:
 		for row in frappe.get_all("Customer", filters={"disabled": 0, "mobile_no": ["is", "set"]},
 								  fields=["name", "customer_name", "mobile_no"]):
-			if "".join(ch for ch in row.mobile_no if ch.isdigit())[-10:] == digits[-10:]:
+			if phones.same(row.mobile_no, phone):
 				return {"name": row.name, "customer_name": row.customer_name, "phone": row.mobile_no,
 						"existing": True}
 	doc = frappe.get_doc(
@@ -1076,7 +1075,7 @@ def new_customer(name: str, phone: str | None = None) -> dict:
 			"doctype": "Customer",
 			"customer_name": name,
 			"customer_type": "Individual",
-			"mobile_no": (phone or "").strip() or None,
+			"mobile_no": phone,
 		}
 	)
 	doc.insert()
@@ -1342,9 +1341,18 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 		like = f"%{text}%"
 		or_filters = {"name": ["like", like], "customer_name": ["like", like], "korkem_decor_top": ["like", like],
 					  "contact_mobile": ["like", like]}
-		phones = frappe.get_all("Customer", filters={"mobile_no": ["like", like]}, pluck="name", limit_page_length=50)
-		if phones:
-			or_filters["customer"] = ["in", phones]
+		# A phone is found by its digits, however it was typed or stored.
+		from korkem_manufacturing.services import search_text
+
+		typed = search_text.phone_of(text)
+		by_phone = [
+			c.name for c in frappe.get_all("Customer", filters={"mobile_no": ["is", "set"]},
+										   fields=["name", "mobile_no"], limit_page_length=0)
+			if typed in phones.digits(c.mobile_no)
+		] if typed else frappe.get_all("Customer", filters={"mobile_no": ["like", like]}, pluck="name",
+									   limit_page_length=50)
+		if by_phone:
+			or_filters["customer"] = ["in", by_phone[:200]]
 	fields = ["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name",
 			  "grand_total", "advance_paid", "korkem_finish", "korkem_decor_top", "korkem_milling",
 			  "korkem_edge_profile", "korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason",

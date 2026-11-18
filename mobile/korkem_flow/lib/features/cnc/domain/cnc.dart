@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 
 double _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
 double? _dn(Object? v) => v == null ? null : _d(v);
@@ -267,7 +268,7 @@ class CncCard {
       customer: '${j['customer'] ?? ''}',
       customerName: '${j['customer_name'] ?? ''}',
       deliveryDate: '${j['delivery_date'] ?? ''}',
-      phone: _s(j['phone']),
+      phone: Phone.prettyOrNull(_s(j['phone'])),
       customerTags: [for (final t in j['customer_tags'] as List? ?? []) '$t'],
       tags: [for (final t in j['tags'] as List? ?? []) '$t'],
       intake: _intake(j['intake']),

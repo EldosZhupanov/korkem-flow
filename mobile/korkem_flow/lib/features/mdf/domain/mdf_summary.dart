@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 
@@ -262,7 +263,7 @@ class MdfAsleep {
   factory MdfAsleep.fromJson(Map<String, dynamic> json) => MdfAsleep(
     customer: '${json['customer']}',
     name: '${json['customer_name'] ?? json['customer']}',
-    phone: _s(json['phone']),
+    phone: Phone.prettyOrNull(_s(json['phone'])),
     orders: _i(json['orders']),
     rhythmDays: (json['rhythm_days'] as num?)?.toInt(),
     idleDays: _i(json['idle_days']),
@@ -388,7 +389,7 @@ class MdfDebts {
           name: '${d['customer_name'] ?? d['customer']}',
           debt: _d(d['debt']),
           days: _i(d['days']),
-          phone: _s(d['phone']),
+          phone: Phone.prettyOrNull(_s(d['phone'])),
         ),
     ],
   );

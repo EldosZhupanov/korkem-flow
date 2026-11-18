@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 
 /// «К заказу» (owner, 12.11.2026): what is to be ordered from the suppliers,
 /// filled up over the day and sent to each in one message.
@@ -61,8 +62,8 @@ class FilmWantGroup {
     name: '${json['name'] ?? ''}',
     city: _s(json['city']),
     contact: _s(json['contact']),
-    phone: _s(json['phone']),
-    whatsapp: _s(json['whatsapp']),
+    phone: Phone.prettyOrNull(_s(json['phone'])),
+    whatsapp: Phone.prettyOrNull(_s(json['whatsapp'])),
     orderUntil: _s(json['order_until']),
     open: [
       for (final l in json['open'] as List? ?? const [])

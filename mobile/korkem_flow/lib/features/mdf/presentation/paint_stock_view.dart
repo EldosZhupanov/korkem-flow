@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
@@ -1205,6 +1206,9 @@ class _SupplierCardDialogState extends State<_SupplierCardDialog> {
         key: ValueKey(key),
         controller: c,
         keyboardType: type,
+        inputFormatters: [
+          if (type == TextInputType.phone) const PhoneMaskFormatter(),
+        ],
         onChanged: (_) => setState(() {}),
         decoration: InputDecoration(labelText: label, hintText: hint),
       ),

@@ -55,7 +55,7 @@ class TestFilmSources(IntegrationTestCase):
 			MANAGER, service.add, ALMATY, city="Алматы", phone="+7 702 000 00 02", lead="5 дней",
 			makers=[MAKER, OTHER],
 		)
-		self.assertEqual((astana["city"], astana["contact"], astana["phone"]), ("Астана", "Айгуль", "+7 701 000 00 01"))
+		self.assertEqual((astana["city"], astana["contact"], astana["phone"]), ("Астана", "Айгуль", "+77010000001"))
 		self.assertEqual((almaty["lead"], almaty["makers"]), ("5 дней", [MAKER, OTHER]))
 		card = self._as(MANAGER, service.maker, MAKER)
 		self.assertEqual({s["supplier"] for s in card["sources"]}, {astana["supplier"], almaty["supplier"]})

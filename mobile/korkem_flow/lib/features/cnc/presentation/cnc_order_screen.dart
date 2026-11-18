@@ -15,6 +15,7 @@ import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/cnc/data/cnc_repository.dart';
 import 'package:korkem_flow/features/cnc/domain/cnc.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
@@ -1313,6 +1314,7 @@ class _HandOverDialogState extends State<_HandOverDialog> {
             key: const ValueKey('cncTakenPhone'),
             controller: _phone,
             keyboardType: TextInputType.phone,
+            inputFormatters: const [PhoneMaskFormatter()],
             decoration: InputDecoration(labelText: l10n.cncTakenPhone),
           ),
           if (widget.debt > 0)

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 
 /// What moved a film's metres: a receipt, a sale, a hand-over to our own
 /// shop, a write-off (owner, 10.11.2026 — the film department).
@@ -71,7 +72,7 @@ class FilmMove {
         paidBy: _s(d['paid_by']),
         settled: d['settled'] == true,
         driver: _s(d['driver']),
-        phone: _s(d['phone']),
+        phone: Phone.prettyOrNull(_s(d['phone'])),
       ),
       _ => null,
     },
@@ -240,7 +241,7 @@ class FilmCashBook {
       amount: _d(r['amount']) ?? 0,
       who: _s(r['name']) ?? _s(r['driver']) ?? _s(r['transport']),
       supplier: _s(r['supplier']),
-      phone: _s(r['phone']),
+      phone: Phone.prettyOrNull(_s(r['phone'])),
       invoiceNo: null,
       dueOn: null,
       overdue: false,
@@ -466,7 +467,7 @@ class FilmDeliveryOptions {
             if (d is Map<String, dynamic>)
               (
                 driver: '${d['driver']}',
-                phone: _s(d['phone']),
+                phone: Phone.prettyOrNull(_s(d['phone'])),
                 transport: _s(d['transport']),
               ),
         ],
@@ -696,7 +697,7 @@ class FilmSale {
           ),
     ],
     seller: _s(json['seller']),
-    sellerPhone: _s(json['seller_phone']),
+    sellerPhone: Phone.prettyOrNull(_s(json['seller_phone'])),
     issuedBy: _s(json['issued_by']),
     time: _s(json['time']),
     wholesale: json['wholesale'] == true,
@@ -796,7 +797,7 @@ class FilmCustomer {
   factory FilmCustomer.fromJson(Map<String, dynamic> json) => FilmCustomer(
     customer: '${json['customer'] ?? ''}',
     name: '${json['name'] ?? json['customer'] ?? ''}',
-    phone: _s(json['phone']),
+    phone: Phone.prettyOrNull(_s(json['phone'])),
     wholesale: json['tier'] == 'wholesale',
     discount: _d(json['discount']) ?? 0,
     monthM: _d(json['month_m']) ?? 0,

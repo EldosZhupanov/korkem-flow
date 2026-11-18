@@ -93,7 +93,9 @@ def save(
 	if bin:
 		company.tax_id = _checked_bin(bin)
 	if phone:
-		company.phone_no = phone.strip()
+		from korkem_manufacturing.services import phones
+
+		company.phone_no = phones.lenient(phone)
 	if email:
 		company.email = email.strip()
 	if website:
