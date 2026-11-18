@@ -3181,5 +3181,18 @@
   "dsmSendMe": "Өзіме WhatsApp-қа жіберу",
   "dsmHour": "Сағат",
   "orderTell": "Клиентке хабарлау",
-  "orderTold": "Клиентке {date} хабарланды"
+  "orderTold": "Клиентке {date} хабарланды",
+  "fdcMatchPhoto": "Үлгі фотосы бойынша таңдау",
+  "fdcMatchTitle": "Үлгіге ұқсастар",
+  "fdcMatchHint": "Күндізгі жарықта, көлеңкесіз түсіріңіз; суреттің ортасы оқылады. Бұл кеңес — үлгімен көзбен салыстырыңыз.",
+  "fdcAnalogues": "Баламалар",
+  "fdcAnaloguesTitle": "Баламалар: {name}",
+  "fdcLikeClose": "өте ұқсас",
+  "fdcLikeNear": "ұқсас",
+  "fdcLikeFar": "алыс",
+  "fdcOnShelf": "қоймада {metres} м",
+  "fdcNotOnShelf": "қоймада жоқ",
+  "fdcNoMatches": "Ұқсас ештеңе табылмады",
+  "dsmMorning": "Таңертең 9:00-де — нені тапсырыс беру керек",
+  "dsmMorningTitle": "Тапсырыс беру уақыты"
 }

@@ -53,16 +53,22 @@ def settings(company: str | None = None) -> dict:
 		saved = json.loads(raw) if raw else {}
 	except ValueError:
 		saved = {}
-	return {"enabled": bool(saved.get("enabled")), "hour": int(saved.get("hour") or HOUR)}
+	hour = saved.get("hour")
+	return {"enabled": bool(saved.get("enabled")), "hour": int(HOUR if hour in (None, "") else hour),
+			# «Пора заказать» in the morning (`reorder_watch`), switched apart.
+			"morning": bool(saved.get("morning"))}
 
 
-def set_settings(enabled=None, hour=None) -> dict:
-	"""The owner switches it on or off and picks the hour."""
+def set_settings(enabled=None, hour=None, morning=None) -> dict:
+	"""The owner switches it on or off and picks the hour; `morning` — the
+	morning list of what to order."""
 	facade_prices.ensure_editor()
 	company = current_company()
 	now = settings(company)
 	if enabled is not None:
 		now["enabled"] = str(enabled).lower() in ("1", "true", "yes")
+	if morning is not None:
+		now["morning"] = str(morning).lower() in ("1", "true", "yes")
 	if hour not in (None, ""):
 		hour = int(hour)
 		if not 0 <= hour <= 23:
@@ -155,8 +161,11 @@ def preview(day: str | None = None) -> dict:
 	facade_prices.ensure_editor()
 	company = current_company()
 	figures = collect(company, day)
+	from korkem_manufacturing.services import material_stock, reorder_watch
+
+	morning = reorder_watch.text(reorder_watch.report(), company) if material_stock.is_staff() else None
 	return {**figures, "text": text(figures, company), "settings": settings(company),
-			"sent_on": frappe.db.get_default(_SENT.format(company=company))}
+			"sent_on": frappe.db.get_default(_SENT.format(company=company)), "morning_text": morning}
 
 
 def run() -> dict:

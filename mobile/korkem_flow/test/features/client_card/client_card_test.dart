@@ -8,7 +8,7 @@ import 'package:korkem_flow/features/client_card/presentation/to_write_screen.da
 
 import '../../support/widget_harness.dart';
 
-const _ready = {
+const Map<String, Object> _ready = {
   'kind': 'ready',
   'order': 'SAL-ORD-2026-00245',
   'number': 245,
@@ -21,7 +21,7 @@ const _ready = {
   'text': 'Здравствуйте, Ерлан Абенов! Ваш заказ № 245 готов, можно забирать.',
 };
 
-const _debt = {
+const Map<String, Object> _debt = {
   'kind': 'debt',
   'order': 'SAL-ORD-2026-00231',
   'number': 231,
@@ -43,8 +43,8 @@ class _Fake implements ClientCardRepository {
   @override
   Future<ToWrite> todo() async => ToWrite.fromJson({
     'ready': [if (!toldReady) _ready],
-    'debts': [_debt],
-    'film': <Object>[],
+    'debts': const [_debt],
+    'film': const <Object>[],
   });
 
   @override

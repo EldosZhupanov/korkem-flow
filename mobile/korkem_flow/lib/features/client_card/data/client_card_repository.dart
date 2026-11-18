@@ -89,7 +89,7 @@ class ClientCardRepository {
   Future<DailySummary> summary() async =>
       DailySummary.fromJson(_map(await _client.callMethod('$_base.summary_preview')));
 
-  Future<DailySummary> setSummary({bool? enabled, int? hour}) async =>
+  Future<DailySummary> setSummary({bool? enabled, int? hour, bool? morning}) async =>
       DailySummary.fromJson(
         _map(
           await _client.callMethod(
@@ -98,6 +98,7 @@ class ClientCardRepository {
             params: {
               if (enabled != null) 'enabled': enabled ? '1' : '0',
               if (hour != null) 'hour': '$hour',
+              if (morning != null) 'morning': morning ? '1' : '0',
             },
           ),
         ),

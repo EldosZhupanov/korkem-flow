@@ -188,8 +188,12 @@ def import_pack(content: bytes, maker: str | None = None, source: str | None = N
 			added += 1
 		picture = files.get(os.path.basename(str(row.get("image") or "")))
 		if picture:
-			_attach(DOCTYPE, name, "image", os.path.basename(picture), z.read(picture))
+			content = z.read(picture)
+			_attach(DOCTYPE, name, "image", os.path.basename(picture), content)
+			_remember_tone(name, content)
 			pictures += 1
+		elif values["hex"]:
+			_remember_tone(name, None, values["hex"])
 	for who in makers:
 		if who not in material_stock.enabled_values(film_catalog.MAKERS, company):
 			material_stock.put_option(film_catalog.MAKERS, who)
@@ -272,8 +276,21 @@ def set_decor_image(decor: str, file_name: str, content_b64: str) -> dict:
 	material_stock._ensure_editor()
 	if frappe.db.get_value(DOCTYPE, decor, "company") != current_company():
 		frappe.throw("Такого декора нет.", frappe.DoesNotExistError)
-	_attach(DOCTYPE, decor, "image", file_name, _decode(content_b64))
+	content = _decode(content_b64)
+	_attach(DOCTYPE, decor, "image", file_name, content)
+	_remember_tone(decor, content)
 	return {"decor": decor, "image": frappe.db.get_value(DOCTYPE, decor, "image")}
+
+
+def _remember_tone(decor: str, content: bytes | None, code: str | None = None) -> None:
+	"""The decor's colour for «подбор по фото» and its analogues (`decor_colors`)."""
+	from korkem_manufacturing.services import decor_colors
+
+	if content:
+		decor_colors.remember(decor, content)
+	elif sig := decor_colors.from_hex(code):
+		frappe.db.set_value(DOCTYPE, decor, {"tone_l": sig["l"], "tone_a": sig["a"], "tone_b": sig["b"],
+											 "texture": 0}, update_modified=False)
 
 
 def delete_maker(maker: str) -> dict:

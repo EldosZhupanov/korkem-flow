@@ -53,6 +53,6 @@ def summary_preview(day: str | None = None) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def summary_settings(enabled: str | None = None, hour: str | None = None) -> dict:
-	"""Включить или выключить вечернюю сводку и выбрать час."""
-	return daily_summary.set_settings(enabled, hour)
+def summary_settings(enabled: str | None = None, hour: str | None = None, morning: str | None = None) -> dict:
+	"""Включить или выключить вечернюю сводку, выбрать час; утренний список «Пора заказать»."""
+	return daily_summary.set_settings(enabled, hour, morning)

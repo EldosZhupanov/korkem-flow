@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_catalog/presentation/decor_match.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_decors_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
@@ -985,6 +986,12 @@ class _Rows {
       ),
       choose: _page(() => FilmPage(item: f.item)),
       extras: [
+        (
+          icon: AppIcons.colour,
+          label: l10n.fdcAnalogues,
+          choose: (context, ref) =>
+              showAnalogues(context, ref, title: title, item: f.item),
+        ),
         if (allowed.film)
           (
             icon: AppIcons.moveOut,

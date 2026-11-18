@@ -3181,5 +3181,18 @@
   "dsmSendMe": "Отправить себе в WhatsApp",
   "dsmHour": "Час",
   "orderTell": "Сообщить клиенту",
-  "orderTold": "Клиенту сообщили {date}"
+  "orderTold": "Клиенту сообщили {date}",
+  "fdcMatchPhoto": "Подобрать по фото образца",
+  "fdcMatchTitle": "Похожие на образец",
+  "fdcMatchHint": "Фото при дневном свете, без тени; читается середина снимка. Это подсказка — сверяйте с образцом глазами.",
+  "fdcAnalogues": "Аналоги",
+  "fdcAnaloguesTitle": "Аналоги: {name}",
+  "fdcLikeClose": "очень похож",
+  "fdcLikeNear": "похож",
+  "fdcLikeFar": "отдалённо",
+  "fdcOnShelf": "на складе {metres} м",
+  "fdcNotOnShelf": "нет на складе",
+  "fdcNoMatches": "Ничего похожего не нашлось",
+  "dsmMorning": "Утром в 9:00 — что пора заказать",
+  "dsmMorningTitle": "Пора заказать"
 }

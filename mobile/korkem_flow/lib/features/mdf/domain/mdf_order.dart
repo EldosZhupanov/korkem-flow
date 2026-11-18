@@ -734,7 +734,8 @@ class MdfOrder {
   final String? readyOn;
   final String? handedOverOn;
 
-  /// When the customer was told it is ready (owner, 18.11.2026); null — not yet.
+  /// When the customer was told it is ready (owner, 18.11.2026);
+  /// null — not yet.
   final String? toldOn;
 
   /// Who came for it, when not the customer — with a phone; and who gave it.

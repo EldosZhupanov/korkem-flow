@@ -48,9 +48,9 @@ class ToWriteScreen extends ConsumerWidget {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
+        onRefresh: () {
           ref.invalidate(dailySummaryProvider);
-          await ref.refresh(toWriteProvider.future);
+          return ref.refresh(toWriteProvider.future);
         },
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -254,13 +254,14 @@ class _SummaryCard extends ConsumerWidget {
     WidgetRef ref, {
     bool? enabled,
     int? hour,
+    bool? morning,
   }) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     try {
       await ref
           .read(clientCardRepositoryProvider)
-          .setSummary(enabled: enabled, hour: hour);
+          .setSummary(enabled: enabled, hour: hour, morning: morning);
       ref.invalidate(dailySummaryProvider);
     } on Object catch (e) {
       messenger.showFailure(e, l10n);
@@ -323,6 +324,22 @@ class _SummaryCard extends ConsumerWidget {
                   ),
                 ],
               ),
+              SwitchListTile(
+                key: const ValueKey('dsm:morning'),
+                contentPadding: EdgeInsets.zero,
+                value: s.morning,
+                title: Text(l10n.dsmMorning),
+                onChanged: (v) => unawaited(_set(context, ref, morning: v)),
+              ),
+              if (s.morningText case final morning?) ...[
+                Text(l10n.dsmMorningTitle, style: theme.textTheme.labelLarge),
+                SelectableText(
+                  morning,
+                  key: const ValueKey('dsm:morningText'),
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
               Wrap(
                 spacing: AppSpacing.sm,
                 children: [

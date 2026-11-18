@@ -279,6 +279,8 @@ class DailySummary {
     this.enabled = false,
     this.hour = 20,
     this.sentOn,
+    this.morning = false,
+    this.morningText,
   });
 
   factory DailySummary.fromJson(Map<String, dynamic> j) {
@@ -290,6 +292,8 @@ class DailySummary {
       enabled: settings['enabled'] == true,
       hour: _i(settings['hour']) ?? 20,
       sentOn: _s(j['sent_on']),
+      morning: settings['morning'] == true,
+      morningText: _s(j['morning_text']),
     );
   }
 
@@ -297,6 +301,11 @@ class DailySummary {
   final bool enabled;
   final int hour;
   final String? sentOn;
+
+  /// «Пора заказать» each morning (owner, 18.11.2026), and today's list —
+  /// null when there is nothing to order or it is not this person's to see.
+  final bool morning;
+  final String? morningText;
 }
 
 /// A message's text: the owner's own and the default beside it.

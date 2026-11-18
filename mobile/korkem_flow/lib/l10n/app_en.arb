@@ -10249,5 +10249,20 @@
   "dsmHour": "Hour",
   "orderTell": "Tell the customer",
   "orderTold": "Customer told {date}",
-  "@orderTold": {"placeholders": {"date": {"type": "String"}}}
+  "@orderTold": {"placeholders": {"date": {"type": "String"}}},
+  "fdcMatchPhoto": "Match a sample photo",
+  "fdcMatchTitle": "Like the sample",
+  "fdcMatchHint": "Daylight, no shadow; the middle of the photo is read. A hint — check it against the sample by eye.",
+  "fdcAnalogues": "Look-alikes",
+  "fdcAnaloguesTitle": "Look-alikes: {name}",
+  "@fdcAnaloguesTitle": {"placeholders": {"name": {"type": "String"}}},
+  "fdcLikeClose": "very close",
+  "fdcLikeNear": "close",
+  "fdcLikeFar": "distant",
+  "fdcOnShelf": "{metres} m in stock",
+  "@fdcOnShelf": {"placeholders": {"metres": {"type": "String"}}},
+  "fdcNotOnShelf": "not in stock",
+  "fdcNoMatches": "Nothing alike found",
+  "dsmMorning": "At 9:00 — what to order",
+  "dsmMorningTitle": "Time to order"
 }

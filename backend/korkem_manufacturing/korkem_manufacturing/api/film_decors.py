@@ -58,3 +58,19 @@ def set_decor_image(decor: str, file_name: str, content_b64: str) -> dict:
 def delete_maker(maker: str) -> dict:
 	"""Убрать весь каталог производителя; плёнки остаются."""
 	return service.delete_maker(maker)
+
+
+@frappe.whitelist(methods=["POST"])
+def match_photo(content_b64: str) -> dict:
+	"""Подбор по фото образца: самые похожие декоры всех каталогов, что есть на складе — отмечено."""
+	from korkem_manufacturing.services import decor_colors
+
+	return decor_colors.match_photo(content_b64)
+
+
+@frappe.whitelist(methods=["GET"])
+def analogues(decor: str | None = None, item: str | None = None) -> dict:
+	"""Аналоги декора или плёнки у других производителей, ближайшие по цвету и рисунку."""
+	from korkem_manufacturing.services import decor_colors
+
+	return decor_colors.analogues(decor, item)
