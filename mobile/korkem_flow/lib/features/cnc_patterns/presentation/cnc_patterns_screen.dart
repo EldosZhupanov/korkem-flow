@@ -819,8 +819,32 @@ class _ArtcamDialog extends StatefulWidget {
 }
 
 class _ArtcamDialogState extends State<_ArtcamDialog> {
-  Set<int>? _picked;
+  List<ArtcamTool>? _all;
+  Object? _error;
+  Set<int> _picked = {};
   String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_read());
+  }
+
+  Future<void> _read() async {
+    try {
+      final all = await widget.tools;
+      if (!mounted) return;
+      setState(() {
+        _all = all;
+        _picked = {
+          for (final t in all)
+            if (t.ready && _wood(t)) t.index,
+        };
+      });
+    } on Object catch (e) {
+      if (mounted) setState(() => _error = e);
+    }
+  }
 
   static bool _wood(ArtcamTool t) {
     final g = t.group.toLowerCase();
@@ -841,18 +865,14 @@ class _ArtcamDialogState extends State<_ArtcamDialog> {
       content: SizedBox(
         width: math.min(AppSpacing.xxxl * 15, screen.width * 0.8),
         height: math.min(AppSpacing.xxxl * 14, screen.height * 0.65),
-        child: FutureBuilder<List<ArtcamTool>>(
-          future: widget.tools,
-          builder: (context, snap) {
-            if (snap.hasError) return ErrorView(error: snap.error!);
-            final all = snap.data;
+        child: Builder(
+          builder: (context) {
+            if (_error != null) return ErrorView(error: _error!);
+            final all = _all;
             if (all == null) {
               return const Center(child: CircularProgressIndicator());
             }
-            final picked = _picked ??= {
-              for (final t in all)
-                if (t.ready && _wood(t)) t.index,
-            };
+            final picked = _picked;
             final q = _query.trim().toLowerCase();
             final shown = [
               for (final t in all)
@@ -968,10 +988,10 @@ class _ArtcamDialogState extends State<_ArtcamDialog> {
         ),
         FilledButton(
           key: const ValueKey('cncArtcamAdd'),
-          onPressed: (_picked ?? const {}).isEmpty
+          onPressed: _picked.isEmpty
               ? null
-              : () => Navigator.of(context).pop(_picked!.toList()),
-          child: Text(l10n.cncpArtcamAdd((_picked ?? const {}).length)),
+              : () => Navigator.of(context).pop(_picked.toList()),
+          child: Text(l10n.cncpArtcamAdd(_picked.length)),
         ),
       ],
     );
