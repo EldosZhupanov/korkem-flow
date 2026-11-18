@@ -56,8 +56,9 @@ class PhoneMaskFormatter extends TextInputFormatter {
     final national = switch (digits) {
       _ when typed.startsWith('+7') => digits.substring(1),
       _ when digits.startsWith('8') => digits.substring(1),
-      _ when digits.length == 11 && digits.startsWith('7') =>
-        digits.substring(1),
+      _ when digits.length == 11 && digits.startsWith('7') => digits.substring(
+        1,
+      ),
       _ => digits,
     };
     return _at(_mask(national));
