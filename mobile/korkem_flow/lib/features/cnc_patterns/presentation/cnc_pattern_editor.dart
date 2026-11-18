@@ -203,15 +203,14 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
     final files = _preview?.files ?? const <CncFile>[];
     if (files.isEmpty) return;
     final ext = _preview!.ext;
-    final base = '${_p.name.isEmpty ? 'pattern' : _p.name}'
+    final base =
+        '${_p.name.isEmpty ? 'pattern' : _p.name}'
         '-${cncFmt(_h)}x${cncFmt(_w)}';
     final saver = ref.read(cncFileSaverProvider);
     try {
       final dir = await saver.save(l10n.cncpTrialsFolder, {
         for (final (i, f) in files.indexed)
-          files.length > 1
-                  ? '$base-${i + 1}-${f.tool}.$ext'
-                  : '$base.$ext':
+          files.length > 1 ? '$base-${i + 1}-${f.tool}.$ext' : '$base.$ext':
               f.text,
       });
       messenger.showSnackBar(
@@ -464,7 +463,10 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
             ),
           if (p != null && p.error == null) ...[
             if (p.example)
-              Text(l10n.cncpExampleWarning, style: TextStyle(color: status.warning)),
+              Text(
+                l10n.cncpExampleWarning,
+                style: TextStyle(color: status.warning),
+              ),
             for (final w in p.warnings)
               Text(w, style: TextStyle(color: status.warning)),
             Text(
@@ -560,15 +562,20 @@ class _ElementCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final e = element;
     final k = 'cncEl$index';
-    Widget field(String key, String label, double value, CncElement Function(double) set, {String? helper}) =>
-        _NumField(
-          keyName: '$k:$key',
-          label: label,
-          value: value,
-          enabled: enabled,
-          helper: helper,
-          onChanged: (v) => onChanged(set(v)),
-        );
+    Widget field(
+      String key,
+      String label,
+      double value,
+      CncElement Function(double) set, {
+      String? helper,
+    }) => _NumField(
+      keyName: '$k:$key',
+      label: label,
+      value: value,
+      enabled: enabled,
+      helper: helper,
+      onChanged: (v) => onChanged(set(v)),
+    );
     final toolNames = [for (final t in tools) t.name];
     return Card(
       child: Padding(
@@ -702,7 +709,12 @@ class _ElementCard extends StatelessWidget {
                   helper: l10n.cncpOffsetHint,
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                field('rise', l10n.cncpRise, e.rise, (v) => e.copyWith(rise: v)),
+                field(
+                  'rise',
+                  l10n.cncpRise,
+                  e.rise,
+                  (v) => e.copyWith(rise: v),
+                ),
               ],
               CncElementKind.grooves => [
                 SegmentedButton<bool>(
@@ -723,7 +735,12 @@ class _ElementCard extends StatelessWidget {
                       : null,
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                field('step', l10n.cncpStep, e.step, (v) => e.copyWith(step: v)),
+                field(
+                  'step',
+                  l10n.cncpStep,
+                  e.step,
+                  (v) => e.copyWith(step: v),
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 field(
                   'side',

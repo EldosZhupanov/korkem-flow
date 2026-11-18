@@ -16608,6 +16608,677 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'lasts {days} d.'**
   String filmFigGlueDays(String days);
+
+  /// No description provided for @cncpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC patterns (β)'**
+  String get cncpTitle;
+
+  /// No description provided for @cncpRowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A trial: a facade pattern to a G-code program'**
+  String get cncpRowHint;
+
+  /// No description provided for @cncpOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC patterns — a trial (β)'**
+  String get cncpOffTitle;
+
+  /// No description provided for @cncpOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A pattern library (frames, arches, grooves) and the cutters; for any facade size it draws the cut and writes the G-code program for your router.\n\nWhile it is off it takes no part in the work. When on, it only reads an order\'s sizes: it changes no order, stock, money or stage, and sends nothing to the machine by itself — it saves a file for the operator to check on an offcut.'**
+  String get cncpOffBody;
+
+  /// No description provided for @cncpEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on in this base'**
+  String get cncpEnable;
+
+  /// No description provided for @cncpEnabledDone.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC patterns are on in this base'**
+  String get cncpEnabledDone;
+
+  /// No description provided for @cncpOwnerTurnsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'The company owner turns it on.'**
+  String get cncpOwnerTurnsOn;
+
+  /// No description provided for @cncpNotYours.
+  ///
+  /// In en, this message translates to:
+  /// **'It is on, but not opened for you. Ask the owner.'**
+  String get cncpNotYours;
+
+  /// No description provided for @cncpBetaBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'A trial: cut every new program on an MDF offcut first. Nothing goes to the machine by itself.'**
+  String get cncpBetaBanner;
+
+  /// No description provided for @cncpTabPatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns'**
+  String get cncpTabPatterns;
+
+  /// No description provided for @cncpTabTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutters'**
+  String get cncpTabTools;
+
+  /// No description provided for @cncpTabMachine.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine'**
+  String get cncpTabMachine;
+
+  /// No description provided for @cncpTabAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Access'**
+  String get cncpTabAccess;
+
+  /// No description provided for @cncpPatternsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A pattern is drawn once, measured from the facade\'s edges, and fits any size. Link it to a milling and an order\'s positions get their programs.'**
+  String get cncpPatternsHint;
+
+  /// No description provided for @cncpPatternsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No patterns yet.'**
+  String get cncpPatternsEmpty;
+
+  /// No description provided for @cncpPatternNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New pattern'**
+  String get cncpPatternNew;
+
+  /// No description provided for @cncpExample.
+  ///
+  /// In en, this message translates to:
+  /// **'example'**
+  String get cncpExample;
+
+  /// No description provided for @cncpExampleWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'An example pattern: check the sizes and cut it on an offcut before a facade.'**
+  String get cncpExampleWarning;
+
+  /// No description provided for @cncpNoMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Not linked to a milling'**
+  String get cncpNoMilling;
+
+  /// No description provided for @cncpForMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Milling: {milling}'**
+  String cncpForMilling(String milling);
+
+  /// No description provided for @cncpMinSize.
+  ///
+  /// In en, this message translates to:
+  /// **'From {w}×{h} mm'**
+  String cncpMinSize(String w, String h);
+
+  /// No description provided for @cncpMinSizeFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'From {w}×{h} mm; smaller — «{fallback}»'**
+  String cncpMinSizeFallback(String w, String h, String fallback);
+
+  /// No description provided for @cncpLineFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame {offset} mm in'**
+  String cncpLineFrame(String offset);
+
+  /// No description provided for @cncpLineFrameRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame {offset} mm in, round corners R{radius}'**
+  String cncpLineFrameRound(String offset, String radius);
+
+  /// No description provided for @cncpLineFrameCove.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame {offset} mm in, cove corners R{radius}'**
+  String cncpLineFrameCove(String offset, String radius);
+
+  /// No description provided for @cncpLineArch.
+  ///
+  /// In en, this message translates to:
+  /// **'Arch {offset} mm in, rising {rise} mm'**
+  String cncpLineArch(String offset, String rise);
+
+  /// No description provided for @cncpLineGroovesV.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical grooves every {step} mm'**
+  String cncpLineGroovesV(String step);
+
+  /// No description provided for @cncpLineGroovesH.
+  ///
+  /// In en, this message translates to:
+  /// **'Horizontal grooves every {step} mm'**
+  String cncpLineGroovesH(String step);
+
+  /// No description provided for @cncpLineTool.
+  ///
+  /// In en, this message translates to:
+  /// **'{shape} · {tool} · {depth} mm deep'**
+  String cncpLineTool(String shape, String tool, String depth);
+
+  /// No description provided for @cncpPatternName.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern name'**
+  String get cncpPatternName;
+
+  /// No description provided for @cncpPatternMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Milling'**
+  String get cncpPatternMilling;
+
+  /// No description provided for @cncpPatternMillingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions with this milling are cut by this pattern'**
+  String get cncpPatternMillingHint;
+
+  /// No description provided for @cncpPatternMinW.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest side, mm'**
+  String get cncpPatternMinW;
+
+  /// No description provided for @cncpPatternMinH.
+  ///
+  /// In en, this message translates to:
+  /// **'Larger side, mm'**
+  String get cncpPatternMinH;
+
+  /// No description provided for @cncpPatternFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'For smaller facades'**
+  String get cncpPatternFallback;
+
+  /// No description provided for @cncpPatternFallbackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This pattern is cut when the facade is smaller than the sizes above'**
+  String get cncpPatternFallbackHint;
+
+  /// No description provided for @cncpNone.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get cncpNone;
+
+  /// No description provided for @cncpElements.
+  ///
+  /// In en, this message translates to:
+  /// **'Elements'**
+  String get cncpElements;
+
+  /// No description provided for @cncpElementAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an element'**
+  String get cncpElementAdd;
+
+  /// No description provided for @cncpKindFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame'**
+  String get cncpKindFrame;
+
+  /// No description provided for @cncpKindArch.
+  ///
+  /// In en, this message translates to:
+  /// **'Arch'**
+  String get cncpKindArch;
+
+  /// No description provided for @cncpKindGrooves.
+  ///
+  /// In en, this message translates to:
+  /// **'Grooves'**
+  String get cncpKindGrooves;
+
+  /// No description provided for @cncpTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutter'**
+  String get cncpTool;
+
+  /// No description provided for @cncpDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth, mm'**
+  String get cncpDepth;
+
+  /// No description provided for @cncpOffset.
+  ///
+  /// In en, this message translates to:
+  /// **'In from the edge, mm'**
+  String get cncpOffset;
+
+  /// No description provided for @cncpOffsetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To the cutter\'s centre line'**
+  String get cncpOffsetHint;
+
+  /// No description provided for @cncpCornerSquare.
+  ///
+  /// In en, this message translates to:
+  /// **'Square'**
+  String get cncpCornerSquare;
+
+  /// No description provided for @cncpCornerRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Round'**
+  String get cncpCornerRound;
+
+  /// No description provided for @cncpCornerCove.
+  ///
+  /// In en, this message translates to:
+  /// **'Cove'**
+  String get cncpCornerCove;
+
+  /// No description provided for @cncpRadius.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner radius, mm'**
+  String get cncpRadius;
+
+  /// No description provided for @cncpRise.
+  ///
+  /// In en, this message translates to:
+  /// **'Arch rise, mm'**
+  String get cncpRise;
+
+  /// No description provided for @cncpVertical.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical'**
+  String get cncpVertical;
+
+  /// No description provided for @cncpHorizontal.
+  ///
+  /// In en, this message translates to:
+  /// **'Horizontal'**
+  String get cncpHorizontal;
+
+  /// No description provided for @cncpStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step, mm'**
+  String get cncpStep;
+
+  /// No description provided for @cncpSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep off the sides, mm'**
+  String get cncpSide;
+
+  /// No description provided for @cncpSideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0 — across the whole facade'**
+  String get cncpSideHint;
+
+  /// No description provided for @cncpEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop short of the ends, mm'**
+  String get cncpEnds;
+
+  /// No description provided for @cncpEndsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0 — through, edge to edge'**
+  String get cncpEndsHint;
+
+  /// No description provided for @cncpTryWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Try on width, mm'**
+  String get cncpTryWidth;
+
+  /// No description provided for @cncpTryHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'and height, mm'**
+  String get cncpTryHeight;
+
+  /// No description provided for @cncpPreviewFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection to draw the pattern.'**
+  String get cncpPreviewFailed;
+
+  /// No description provided for @cncpPreviewStats.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {minutes} min on the machine · programs: {files}'**
+  String cncpPreviewStats(String minutes, String files);
+
+  /// No description provided for @cncpFileLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{tool}: {metres} m of cut, passes {passes}, ≈ {minutes} min'**
+  String cncpFileLine(
+    String tool,
+    String metres,
+    String passes,
+    String minutes,
+  );
+
+  /// No description provided for @cncpDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Save G-code'**
+  String get cncpDownload;
+
+  /// No description provided for @cncpCheckOnOffcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut it on an offcut first; the zero is the facade\'s bottom-left corner, Z0 its face.'**
+  String get cncpCheckOnOffcut;
+
+  /// No description provided for @cncpTrialsFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Trials'**
+  String get cncpTrialsFolder;
+
+  /// No description provided for @cncpSavedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved: {dir}'**
+  String cncpSavedTo(String dir);
+
+  /// No description provided for @cncpSavedFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Programs saved: {count} — {dir}'**
+  String cncpSavedFiles(String count, String dir);
+
+  /// No description provided for @cncpOpenFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Open folder'**
+  String get cncpOpenFolder;
+
+  /// No description provided for @cncpSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get cncpSave;
+
+  /// No description provided for @cncpDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get cncpDelete;
+
+  /// No description provided for @cncpPatternSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern «{name}» saved'**
+  String cncpPatternSaved(String name);
+
+  /// No description provided for @cncpPatternDeleteAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the pattern «{name}»?'**
+  String cncpPatternDeleteAsk(String name);
+
+  /// No description provided for @cncpToolsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The cutters and the speeds they cut MDF at. A pattern names its cutter; two cutters are two programs, run one after the other.'**
+  String get cncpToolsHint;
+
+  /// No description provided for @cncpToolNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New cutter'**
+  String get cncpToolNew;
+
+  /// No description provided for @cncpToolName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get cncpToolName;
+
+  /// No description provided for @cncpToolV.
+  ///
+  /// In en, this message translates to:
+  /// **'V-shaped'**
+  String get cncpToolV;
+
+  /// No description provided for @cncpToolBall.
+  ///
+  /// In en, this message translates to:
+  /// **'Round-nosed'**
+  String get cncpToolBall;
+
+  /// No description provided for @cncpToolFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight'**
+  String get cncpToolFlat;
+
+  /// No description provided for @cncpToolLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · ⌀{diameter} mm · feed {feed} mm/min · {rpm} rpm · {pass} mm a pass'**
+  String cncpToolLine(
+    String kind,
+    String diameter,
+    String feed,
+    String rpm,
+    String pass,
+  );
+
+  /// No description provided for @cncpDiameter.
+  ///
+  /// In en, this message translates to:
+  /// **'Diameter, mm'**
+  String get cncpDiameter;
+
+  /// No description provided for @cncpAngle.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle, °'**
+  String get cncpAngle;
+
+  /// No description provided for @cncpFeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed, mm/min'**
+  String get cncpFeed;
+
+  /// No description provided for @cncpPlunge.
+  ///
+  /// In en, this message translates to:
+  /// **'Plunge feed, mm/min'**
+  String get cncpPlunge;
+
+  /// No description provided for @cncpRpm.
+  ///
+  /// In en, this message translates to:
+  /// **'Spindle, rpm'**
+  String get cncpRpm;
+
+  /// No description provided for @cncpPassDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth a pass, mm'**
+  String get cncpPassDepth;
+
+  /// No description provided for @cncpMachineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How your router reads a program. NcStudio, DSP and Mach3 read plain G-code; if the controller refuses arcs or Cyrillic, turn arcs off — comments are always written in Latin.'**
+  String get cncpMachineHint;
+
+  /// No description provided for @cncpExt.
+  ///
+  /// In en, this message translates to:
+  /// **'File extension'**
+  String get cncpExt;
+
+  /// No description provided for @cncpArcs.
+  ///
+  /// In en, this message translates to:
+  /// **'Arcs as G2/G3 (off — short lines)'**
+  String get cncpArcs;
+
+  /// No description provided for @cncpComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments in the program'**
+  String get cncpComments;
+
+  /// No description provided for @cncpLineNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Line numbers N10, N20…'**
+  String get cncpLineNumbers;
+
+  /// No description provided for @cncpSwapXy.
+  ///
+  /// In en, this message translates to:
+  /// **'Facade height along X'**
+  String get cncpSwapXy;
+
+  /// No description provided for @cncpSafeZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe height, mm'**
+  String get cncpSafeZ;
+
+  /// No description provided for @cncpClearZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Approach height, mm'**
+  String get cncpClearZ;
+
+  /// No description provided for @cncpRapid.
+  ///
+  /// In en, this message translates to:
+  /// **'Rapid speed, mm/min (for the time)'**
+  String get cncpRapid;
+
+  /// No description provided for @cncpDwell.
+  ///
+  /// In en, this message translates to:
+  /// **'Spindle spin-up pause, s (0 — none)'**
+  String get cncpDwell;
+
+  /// No description provided for @cncpOriginNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The program\'s zero is the facade\'s bottom-left corner; Z0 is its face, cuts go below.'**
+  String get cncpOriginNote;
+
+  /// No description provided for @cncpMachineSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine settings saved'**
+  String get cncpMachineSaved;
+
+  /// No description provided for @cncpAccessHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Besides you, who sees CNC patterns in this base.'**
+  String get cncpAccessHint;
+
+  /// No description provided for @cncpAccessSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Access saved'**
+  String get cncpAccessSaved;
+
+  /// No description provided for @cncpDisable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get cncpDisable;
+
+  /// No description provided for @cncpDisabledDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned off. The library is kept.'**
+  String get cncpDisabledDone;
+
+  /// No description provided for @cncpOrderButton.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC (β)'**
+  String get cncpOrderButton;
+
+  /// No description provided for @cncpOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Router programs (β)'**
+  String get cncpOrderTitle;
+
+  /// No description provided for @cncpOrderMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {minutes} min of router time for the order'**
+  String cncpOrderMinutes(String minutes);
+
+  /// No description provided for @cncpOrderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'№{no} · {height}×{width} · {qty} pcs · {milling}'**
+  String cncpOrderLine(
+    String no,
+    String height,
+    String width,
+    String qty,
+    String milling,
+  );
+
+  /// No description provided for @cncpOrderNoPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'No pattern for this milling'**
+  String get cncpOrderNoPattern;
+
+  /// No description provided for @cncpOrderPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'{pattern} · ≈ {minutes} min each'**
+  String cncpOrderPattern(String pattern, String minutes);
+
+  /// No description provided for @cncpOrderSaveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save programs ({count})'**
+  String cncpOrderSaveAll(String count);
 }
 
 class _AppLocalizationsDelegate

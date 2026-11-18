@@ -36,7 +36,11 @@ class CncPatternsRepository {
   Future<CncStatus> _post(String method, Map<String, dynamic> params) async =>
       CncStatus.fromJson(
         _map(
-          await _client.callMethod('$_base.$method', post: true, params: params),
+          await _client.callMethod(
+            '$_base.$method',
+            post: true,
+            params: params,
+          ),
         ),
       );
 

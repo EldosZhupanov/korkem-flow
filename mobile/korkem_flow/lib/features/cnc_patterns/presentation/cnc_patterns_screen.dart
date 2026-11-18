@@ -380,17 +380,21 @@ class _ToolDialogState extends State<_ToolDialog> {
     passDepth: passDepth ?? _t.passDepth,
   );
 
-  Widget _num(String key, String label, double value, CncTool Function(double) set) =>
-      TextFormField(
-        key: ValueKey('cncToolField:$key'),
-        initialValue: cncFmt(value),
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(labelText: label, isDense: true),
-        onChanged: (t) {
-          final v = cncNumber(t);
-          if (v != null) setState(() => _t = set(v));
-        },
-      );
+  Widget _num(
+    String key,
+    String label,
+    double value,
+    CncTool Function(double) set,
+  ) => TextFormField(
+    key: ValueKey('cncToolField:$key'),
+    initialValue: cncFmt(value),
+    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+    decoration: InputDecoration(labelText: label, isDense: true),
+    onChanged: (t) {
+      final v = cncNumber(t);
+      if (v != null) setState(() => _t = set(v));
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -422,16 +426,28 @@ class _ToolDialogState extends State<_ToolDialog> {
                     setState(() => _t = _with(kind: s.first)),
               ),
               const SizedBox(height: AppSpacing.sm),
-              _num('diameter', l10n.cncpDiameter, _t.diameter,
-                  (v) => _with(diameter: v)),
+              _num(
+                'diameter',
+                l10n.cncpDiameter,
+                _t.diameter,
+                (v) => _with(diameter: v),
+              ),
               if (_t.kind == CncToolKind.v)
                 _num('angle', l10n.cncpAngle, _t.angle, (v) => _with(angle: v)),
               _num('feed', l10n.cncpFeed, _t.feed, (v) => _with(feed: v)),
-              _num('plunge', l10n.cncpPlunge, _t.plunge,
-                  (v) => _with(plunge: v)),
+              _num(
+                'plunge',
+                l10n.cncpPlunge,
+                _t.plunge,
+                (v) => _with(plunge: v),
+              ),
               _num('rpm', l10n.cncpRpm, _t.rpm, (v) => _with(rpm: v)),
-              _num('pass', l10n.cncpPassDepth, _t.passDepth,
-                  (v) => _with(passDepth: v)),
+              _num(
+                'pass',
+                l10n.cncpPassDepth,
+                _t.passDepth,
+                (v) => _with(passDepth: v),
+              ),
             ],
           ),
         ),
@@ -493,22 +509,25 @@ class _MachineTabState extends ConsumerState<_MachineTab> {
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
-    Widget number(String key, String label, double value,
-            CncMachine Function(double) set) =>
-        Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-          child: TextFormField(
-            key: ValueKey('cncMachine:$key'),
-            initialValue: cncFmt(value),
-            enabled: manage,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: label, isDense: true),
-            onChanged: (t) {
-              final v = cncNumber(t);
-              if (v != null) setState(() => _m = set(v));
-            },
-          ),
-        );
+    Widget number(
+      String key,
+      String label,
+      double value,
+      CncMachine Function(double) set,
+    ) => Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: TextFormField(
+        key: ValueKey('cncMachine:$key'),
+        initialValue: cncFmt(value),
+        enabled: manage,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(labelText: label, isDense: true),
+        onChanged: (t) {
+          final v = cncNumber(t);
+          if (v != null) setState(() => _m = set(v));
+        },
+      ),
+    );
     Widget flag(
       String key,
       String label,
@@ -568,8 +587,12 @@ class _MachineTabState extends ConsumerState<_MachineTab> {
               ),
               const SizedBox(height: AppSpacing.sm),
               number('safe', l10n.cncpSafeZ, _m.safeZ, (v) => _with(safeZ: v)),
-              number('clear', l10n.cncpClearZ, _m.clearZ,
-                  (v) => _with(clearZ: v)),
+              number(
+                'clear',
+                l10n.cncpClearZ,
+                _m.clearZ,
+                (v) => _with(clearZ: v),
+              ),
               number('rapid', l10n.cncpRapid, _m.rapid, (v) => _with(rapid: v)),
               number('dwell', l10n.cncpDwell, _m.dwell, (v) => _with(dwell: v)),
               Text(l10n.cncpOriginNote, style: muted),
