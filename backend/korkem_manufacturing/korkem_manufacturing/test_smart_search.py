@@ -115,7 +115,7 @@ class TestSmartSearch(IntegrationTestCase):
 		self.assertEqual(got["parts"]["facade_orders"][0]["debt"], 6800)
 
 	def test_the_wrong_layout_a_typo_and_latin_letters_find_him_too(self):
-		english = f"ерлан {self.surname}".translate(str.maketrans(
+		english = f"ерлан {self.surname}".lower().translate(str.maketrans(
 			"йцукенгшщзхъфывапролджэячсмитьбю", "qwertyuiop[]asdfghjkl;'zxcvbnm,."))
 		typo = f"ерлан {self.surname[:-2]}э{self.surname[-1]}"
 		for query in (english, typo):
@@ -135,10 +135,13 @@ class TestSmartSearch(IntegrationTestCase):
 		self.assertEqual(got["kind"], "number")
 		self.assertEqual(got["parts"]["facade_orders"][0]["name"], self.order)
 
-	def test_a_shop_hand_sees_no_customers_orders_or_money(self):
+	def test_a_shop_hand_sees_no_facade_customers_orders_or_money(self):
+		# The film department's customers he may see (as in that department);
+		# a facade customer, the orders and the payments — not.
 		got = self._find(f"ерлан {self.surname}", user=CUTTER)
 		self.assertFalse(got["allowed"]["facades"])
-		for part in ("customers", "facade_orders", "cnc_orders", "payments"):
+		self.assertNotIn(self.customer, [c["customer"] for c in got["parts"].get("customers", [])])
+		for part in ("facade_orders", "cnc_orders", "payments"):
 			self.assertNotIn(part, got["parts"])
 
 	def test_a_makers_decor_is_found_by_its_code(self):
