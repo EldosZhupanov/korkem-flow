@@ -3019,8 +3019,8 @@
   "cncpSideHint": "0 — бүкіл ені бойынша",
   "cncpEnds": "Шеттерге жетпеу, мм",
   "cncpEndsHint": "0 — шеттен шетке дейін",
-  "cncpTryWidth": "Енімен тексеру, мм",
-  "cncpTryHeight": "және биіктігімен, мм",
+  "cncpTryWidth": "және енімен, мм",
+  "cncpTryHeight": "Биіктігімен тексеру, мм",
   "cncpPreviewFailed": "Байланыс жоқ — өрнекті салу мүмкін емес.",
   "cncpPreviewStats": "≈ {minutes} мин станок · бағдарлама: {files}",
   "cncpFileLine": "{tool}: кесу {metres} м, өту {passes}, ≈ {minutes} мин",
@@ -3243,5 +3243,11 @@
   "fpkFound": "Табылды {count} · алдымен қоймадағылар",
   "fpkCatalogOnly": "тек каталогта",
   "fpkNothing": "Ештеңе табылмады",
-  "fpkNone": "Үлдірсіз"
+  "fpkNone": "Үлдірсіз",
+  "cncpArtcam": "ArtCAM-нан",
+  "cncpArtcamTitle": "ArtCAM фрезалары",
+  "cncpArtcamHint": "Файлда {all}, қосуға болады {ready}. Ағаш пен МДФ фрезалары белгіленген.",
+  "cncpArtcamAdd": "{count} қосу",
+  "cncpArtcamAdded": "Қосылған фрезалар: {count}",
+  "cncpToolsSearch": "Фрезаны табу: атауы, диаметрі, бұрышы"
 }

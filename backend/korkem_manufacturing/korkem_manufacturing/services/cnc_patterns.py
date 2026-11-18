@@ -188,11 +188,8 @@ def _limited(value, key: str, limits: dict, what: str) -> float:
 	return number
 
 
-def save_tool(name: str, kind: str, diameter, angle=None, feed=None, plunge=None, rpm=None, pass_depth=None,
-			  old_name: str | None = None) -> dict:
-	"""A cutter: its shape, size and the speeds it cuts MDF at."""
-	company, settings = _ensure_manage()
-	name = _name(name, "фрезы")
+def _tool_card(name: str, kind: str, diameter, angle=None, feed=None, plunge=None, rpm=None,
+			   pass_depth=None) -> dict:
 	if kind not in cnc_geometry.TOOL_KINDS:
 		frappe.throw("Фреза — V-образная, радиусная или прямая.")
 	base = Tool(name=name, kind=kind)
@@ -204,6 +201,15 @@ def save_tool(name: str, kind: str, diameter, angle=None, feed=None, plunge=None
 			continue
 		card[key] = _limited(getattr(base, key) if value in (None, "") else value, key,
 							 cnc_geometry.TOOL_LIMITS, "Фреза")
+	return card
+
+
+def save_tool(name: str, kind: str, diameter, angle=None, feed=None, plunge=None, rpm=None, pass_depth=None,
+			  old_name: str | None = None) -> dict:
+	"""A cutter: its shape, size and the speeds it cuts MDF at."""
+	company, settings = _ensure_manage()
+	name = _name(name, "фрезы")
+	card = _tool_card(name, kind, diameter, angle, feed, plunge, rpm, pass_depth)
 	if old_name and old_name != name:
 		_rename(settings, "tools", old_name, name)
 		for pattern in settings["patterns"].values():
@@ -217,6 +223,84 @@ def save_tool(name: str, kind: str, diameter, angle=None, feed=None, plunge=None
 	audit.record_audit(action="cnc_patterns.tool", entity_type="Company", entity_id=company,
 					   diff={"tool": name, **card}, company=company)
 	return status()
+
+
+# --- ArtCAM's tool database (owner, 19.11.2026) ---------------------------
+
+#: What a tool of the file cannot be here, in words.
+_WHY = {
+	"profile": "фасонная фреза — узоры её пока не режут",
+	"have": "такая фреза уже есть",
+}
+
+
+def _artcam_rows(content_b64: str, settings: dict) -> list[dict]:
+	import base64
+
+	from korkem_manufacturing.services import artcam_tools
+
+	try:
+		content = base64.b64decode(content_b64 or "", validate=False)
+	except ValueError:
+		frappe.throw("Файл не прочитался.")
+	try:
+		tools = artcam_tools.read(content)
+	except ValueError as e:
+		frappe.throw(str(e))
+	rows = []
+	for index, t in enumerate(tools):
+		row = {**{k: t[k] for k in ("group", "name", "artcam_type", "kind", "diameter", "angle", "pass_depth",
+									 "rpm", "feed", "plunge")}, "index": index, "card": None, "why": None}
+		if not t["kind"]:
+			row["why"] = _WHY["profile"]
+		elif t["name"] in settings["tools"]:
+			row["why"] = _WHY["have"]
+		else:
+			try:
+				row["card"] = _tool_card(t["name"][:NAME_MAX], t["kind"], t["diameter"], t["angle"], t["feed"],
+										 t["plunge"], t["rpm"], t["pass_depth"])
+			except frappe.ValidationError as e:
+				row["why"] = _artcam_limit(str(e))
+			frappe.clear_messages()
+		rows.append(row)
+	return rows
+
+
+def _artcam_limit(message: str) -> str:
+	words = {"diameter": "диаметр", "angle": "угол", "feed": "подача", "plunge": "врезание",
+			 "rpm": "обороты", "pass_depth": "глубина за проход"}
+	for key, word in words.items():
+		if f"«{key}»" in message:
+			low, high = cnc_geometry.TOOL_LIMITS[key]
+			return f"{word} вне {low:g}–{high:g} — проверьте в ArtCAM"
+	return message
+
+
+def artcam_preview(content_b64: str) -> dict:
+	"""A tool database from ArtCAM, read: each tool, what it would be here
+	— or why it cannot be. Nothing is written."""
+	_company, settings = _ensure_manage()
+	rows = _artcam_rows(content_b64, settings)
+	return {"tools": rows, "ready": sum(1 for r in rows if r["card"])}
+
+
+def artcam_add(content_b64: str, picked) -> dict:
+	"""The tools picked from the file, added. The file is read again: the
+	server takes its own reading, not the window's."""
+	company, settings = _ensure_manage()
+	if isinstance(picked, str):
+		picked = json.loads(picked or "[]")
+	wanted = {cint(i) for i in picked or []}
+	added = []
+	for row in _artcam_rows(content_b64, settings):
+		if row["index"] in wanted and row["card"] and row["name"][:NAME_MAX] not in settings["tools"]:
+			settings["tools"][row["name"][:NAME_MAX]] = row["card"]
+			added.append(row["name"][:NAME_MAX])
+	if added:
+		_save(company, settings)
+		audit.record_audit(action="cnc_patterns.tools_imported", entity_type="Company", entity_id=company,
+						   diff={"from": "ArtCAM", "tools": added}, company=company)
+	return status() | {"added": added}
 
 
 def delete_tool(name: str) -> dict:

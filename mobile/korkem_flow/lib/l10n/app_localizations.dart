@@ -16960,13 +16960,13 @@ abstract class AppLocalizations {
   /// No description provided for @cncpTryWidth.
   ///
   /// In en, this message translates to:
-  /// **'Try on width, mm'**
+  /// **'and width, mm'**
   String get cncpTryWidth;
 
   /// No description provided for @cncpTryHeight.
   ///
   /// In en, this message translates to:
-  /// **'and height, mm'**
+  /// **'Try on height, mm'**
   String get cncpTryHeight;
 
   /// No description provided for @cncpPreviewFailed.
@@ -18328,6 +18328,41 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No film'**
   String get fpkNone;
+  /// No description provided for @cncpArtcam.
+  ///
+  /// In en, this message translates to:
+  /// **'From ArtCAM'**
+  String get cncpArtcam;
+
+  /// No description provided for @cncpArtcamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutters from ArtCAM'**
+  String get cncpArtcamTitle;
+
+  /// No description provided for @cncpArtcamHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{all} in the file, {ready} can be added. The wood and MDF ones are ticked.'**
+  String cncpArtcamHint(int all, int ready);
+
+  /// No description provided for @cncpArtcamAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {count}'**
+  String cncpArtcamAdd(int count);
+
+  /// No description provided for @cncpArtcamAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Cutters added: {count}'**
+  String cncpArtcamAdded(int count);
+
+  /// No description provided for @cncpToolsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a cutter: name, diameter, angle'**
+  String get cncpToolsSearch;
 }
 
 class _AppLocalizationsDelegate

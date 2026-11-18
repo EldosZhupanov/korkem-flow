@@ -9879,10 +9879,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cncpEndsHint => '0 — through, edge to edge';
 
   @override
-  String get cncpTryWidth => 'Try on width, mm';
+  String get cncpTryWidth => 'and width, mm';
 
   @override
-  String get cncpTryHeight => 'and height, mm';
+  String get cncpTryHeight => 'Try on height, mm';
 
   @override
   String get cncpPreviewFailed => 'No connection to draw the pattern.';
@@ -10701,4 +10701,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fpkNone => 'No film';
+  String get cncpArtcam => 'From ArtCAM';
+
+  @override
+  String get cncpArtcamTitle => 'Cutters from ArtCAM';
+
+  @override
+  String cncpArtcamHint(int all, int ready) {
+    return '$all in the file, $ready can be added. The wood and MDF ones are ticked.';
+  }
+
+  @override
+  String cncpArtcamAdd(int count) {
+    return 'Add $count';
+  }
+
+  @override
+  String cncpArtcamAdded(int count) {
+    return 'Cutters added: $count';
+  }
+
+  @override
+  String get cncpToolsSearch => 'Find a cutter: name, diameter, angle';
 }

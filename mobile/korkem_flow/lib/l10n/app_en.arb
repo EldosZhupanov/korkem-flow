@@ -10052,8 +10052,8 @@
   "cncpSideHint": "0 — across the whole facade",
   "cncpEnds": "Stop short of the ends, mm",
   "cncpEndsHint": "0 — through, edge to edge",
-  "cncpTryWidth": "Try on width, mm",
-  "cncpTryHeight": "and height, mm",
+  "cncpTryWidth": "and width, mm",
+  "cncpTryHeight": "Try on height, mm",
   "cncpPreviewFailed": "No connection to draw the pattern.",
   "cncpPreviewStats": "≈ {minutes} min on the machine · programs: {files}",
   "@cncpPreviewStats": {"placeholders": {"minutes": {"type": "String"}, "files": {"type": "String"}}},
@@ -10327,5 +10327,14 @@
   "@fpkFound": {"placeholders": {"count": {"type": "int"}}},
   "fpkCatalogOnly": "catalogue only",
   "fpkNothing": "Nothing found",
-  "fpkNone": "No film"
+  "fpkNone": "No film",
+  "cncpArtcam": "From ArtCAM",
+  "cncpArtcamTitle": "Cutters from ArtCAM",
+  "cncpArtcamHint": "{all} in the file, {ready} can be added. The wood and MDF ones are ticked.",
+  "@cncpArtcamHint": {"placeholders": {"all": {"type": "int"}, "ready": {"type": "int"}}},
+  "cncpArtcamAdd": "Add {count}",
+  "@cncpArtcamAdd": {"placeholders": {"count": {"type": "int"}}},
+  "cncpArtcamAdded": "Cutters added: {count}",
+  "@cncpArtcamAdded": {"placeholders": {"count": {"type": "int"}}},
+  "cncpToolsSearch": "Find a cutter: name, diameter, angle"
 }
