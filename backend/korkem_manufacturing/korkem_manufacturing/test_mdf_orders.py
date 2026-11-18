@@ -742,7 +742,8 @@ class TestMdfOrders(IntegrationTestCase):
 			"Customer", added["name"], force=True, ignore_permissions=True))
 		self.assertEqual(added["organization"], "ИП Куат")
 		listed = {c["name"]: c for c in self._as(MANAGER, mdf_customers.customers)}
-		self.assertEqual(listed[added["name"]]["phone"], phone)
+		# Kept in one spelling (owner, 18.11.2026): «8 701 …» is +7701….
+		self.assertEqual(listed[added["name"]]["phone"], "+7" + phone.replace(" ", "")[1:])
 
 		with self.assertRaises(frappe.ValidationError):  # the same phone is the same person
 			self._as(MANAGER, mdf_customers.add, "МДФ Тест Куат второй", phone)
@@ -1367,7 +1368,7 @@ class TestMdfOrders(IntegrationTestCase):
 			self._as(MANAGER, mdf_orders.set_stage, card["name"], stage)
 		card = mdf_orders.hand_over(card["name"], comment="Доплатит", taken_by="Ерлан, водитель",
 									taken_phone="87011234567")
-		self.assertEqual((card["taken_by"], card["taken_phone"]), ("Ерлан, водитель", "87011234567"))
+		self.assertEqual((card["taken_by"], card["taken_phone"]), ("Ерлан, водитель", "+77011234567"))
 		self.assertTrue(any("Забрал: Ерлан, водитель" in h["text"] for h in card["history"]))
 		with self.assertRaises(frappe.ValidationError):  # twice
 			mdf_orders.hand_over(card["name"], comment="Ещё раз")

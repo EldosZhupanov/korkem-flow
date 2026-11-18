@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 
 /// One post in a department: «Шкурщик» in «Покраска», key `paint.sander`.
 /// [stages] — the order stages it does (sand), none for the film seller.
@@ -91,7 +92,7 @@ class TeamPerson {
     name: '${json['name'] ?? json['employee'] ?? json['user']}',
     phone: json['phone'] == null || '${json['phone']}'.isEmpty
         ? null
-        : '${json['phone']}',
+        : Phone.pretty('${json['phone']}'),
     user: json['user'] == null || '${json['user']}'.isEmpty
         ? null
         : '${json['user']}',

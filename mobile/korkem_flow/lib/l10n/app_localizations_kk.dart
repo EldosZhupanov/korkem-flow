@@ -10153,4 +10153,141 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get fdcNoPicture => 'Әзірге сурет жоқ';
+
+  @override
+  String get gsrFind => 'Іздеу…';
+
+  @override
+  String get gsrHotkey => 'Ctrl+K';
+
+  @override
+  String get gsrHint => 'Клиент, телефон, тапсырыс №, үлдір, бөлім…';
+
+  @override
+  String get gsrTabAll => 'Барлығы';
+
+  @override
+  String get gsrTabCustomers => 'Клиенттер';
+
+  @override
+  String get gsrTabOrders => 'Тапсырыстар';
+
+  @override
+  String get gsrTabMoney => 'Ақша';
+
+  @override
+  String get gsrTabFilm => 'Үлдір';
+
+  @override
+  String get gsrTabStock => 'Қойма';
+
+  @override
+  String get gsrTabGo => 'Бөлімдер';
+
+  @override
+  String get gsrGroupRecent => 'Соңғылары';
+
+  @override
+  String get gsrGroupActions => 'Әрекеттер';
+
+  @override
+  String get gsrGroupSections => 'Бөлімдер';
+
+  @override
+  String get gsrGroupCustomers => 'Клиенттер';
+
+  @override
+  String get gsrGroupFacadeOrders => 'Фасад тапсырыстары';
+
+  @override
+  String get gsrGroupCncOrders => 'ЧПУ тапсырыстары';
+
+  @override
+  String get gsrGroupPayments => 'Төлемдер';
+
+  @override
+  String get gsrGroupFilms => 'Қоймадағы үлдірлер';
+
+  @override
+  String get gsrGroupDecors => 'Жеткізушілер каталогтары';
+
+  @override
+  String get gsrGroupOrders => 'Басқа тапсырыстар';
+
+  @override
+  String get gsrGroupWorkOrders => 'Өндіріс';
+
+  @override
+  String get gsrGroupStock => 'Қойма';
+
+  @override
+  String gsrOrders(int count) {
+    return '$count тапсырыс';
+  }
+
+  @override
+  String gsrDebt(String amount) {
+    return 'қарыз $amount';
+  }
+
+  @override
+  String get gsrFilmCustomer => 'үлдір алады';
+
+  @override
+  String get gsrActOrders => 'Тапсырыстар';
+
+  @override
+  String get gsrActNewOrder => 'Жаңа тапсырыс';
+
+  @override
+  String get gsrActSell => 'Сату';
+
+  @override
+  String get gsrActCopyPhone => 'Телефонды көшіру';
+
+  @override
+  String get gsrPhoneCopied => 'Телефон көшірілді';
+
+  @override
+  String get gsrDoNewFacadeOrder => 'Жаңа фасад тапсырысы';
+
+  @override
+  String get gsrDoNewCncOrder => 'Жаңа ЧПУ тапсырысы';
+
+  @override
+  String get gsrDoSellFilm => 'Үлдір сату';
+
+  @override
+  String get gsrDoSellGlue => 'Желім сату';
+
+  @override
+  String get gsrDoReceiveFilm => 'Үлдір кірісі';
+
+  @override
+  String get gsrDoReceiveGlue => 'Желім кірісі';
+
+  @override
+  String get gsrStart =>
+      'Жаза бастаңыз — клиентті, тапсырысты, үлдірді немесе бөлімді табамын. Пернетақта тілі мен қатені кешіремін.';
+
+  @override
+  String gsrNothing(String query) {
+    return '«$query» бойынша ештеңе табылмады';
+  }
+
+  @override
+  String get gsrByPhone => 'Телефон бойынша іздеймін';
+
+  @override
+  String gsrByNumber(String number) {
+    return '№ $number тапсырысты іздеймін';
+  }
+
+  @override
+  String get gsrKeys => '↑↓ таңдау · Enter ашу · Esc жабу';
+
+  @override
+  String gsrPaid(String amount) {
+    return 'төлем $amount';
+  }
 }

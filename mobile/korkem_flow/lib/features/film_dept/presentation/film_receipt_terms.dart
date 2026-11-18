@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
@@ -608,6 +609,7 @@ class FilmDeliveryField extends ConsumerWidget {
                 key: const ValueKey('filmDelivery:phone'),
                 controller: t.phone,
                 keyboardType: TextInputType.phone,
+                inputFormatters: const [PhoneMaskFormatter()],
                 decoration: InputDecoration(labelText: l10n.filmDriverPhone),
               ),
             ),

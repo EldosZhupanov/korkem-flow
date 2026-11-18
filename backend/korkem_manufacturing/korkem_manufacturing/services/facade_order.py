@@ -189,14 +189,25 @@ def customers(search: str | None = None, limit: int = 20) -> list[dict]:
 		# By name or by phone: the manager types whichever the customer gave.
 		like = f"%{search.strip()}%"
 		or_filters = {"customer_name": ["like", like], "mobile_no": ["like", like]}
-	rows = frappe.get_all(
-		"Customer",
-		filters=filters,
-		or_filters=or_filters,
-		fields=["name", "customer_name", "mobile_no"],
-		order_by="modified desc",
-		limit_page_length=limit * 3,
-	)
+	from korkem_manufacturing.services import phones, search_text
+
+	if typed := search_text.phone_of(search):
+		# A phone by its digits, however it was typed and however it is kept
+		# (+77015551234 since 18.11.2026): «990-11» still finds it.
+		rows = [
+			r for r in frappe.get_all("Customer", filters=filters, fields=["name", "customer_name", "mobile_no"],
+									  order_by="modified desc", limit_page_length=0)
+			if typed in phones.digits(r.mobile_no)
+		][: limit * 3]
+	else:
+		rows = frappe.get_all(
+			"Customer",
+			filters=filters,
+			or_filters=or_filters,
+			fields=["name", "customer_name", "mobile_no"],
+			order_by="modified desc",
+			limit_page_length=limit * 3,
+		)
 	allowed_for: dict[str, set] = {}
 	if rows:
 		for row in frappe.get_all(

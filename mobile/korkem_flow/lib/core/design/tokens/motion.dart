@@ -45,6 +45,10 @@ abstract final class AppDuration {
   /// The threshold for admitting to a delay: below it, an explanation arrives
   /// before anyone wondered, and the app looks slower than it is.
   static const deliberate = Duration(milliseconds: 600);
+
+  /// One pass of light across the logo when the assistant's screen opens
+  /// (owner, 18.11.2026) — once, then still.
+  static const shine = Duration(milliseconds: 1600);
 }
 
 /// How long the app waits on a person before acting.

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/mdf/domain/glue_stock.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
@@ -128,7 +129,7 @@ class MdfOrderRow {
     createdOn: '${json['created_on'] ?? ''}',
     deliveryDate: '${json['delivery_date'] ?? ''}',
     customerName: '${json['customer_name'] ?? ''}',
-    phone: _s(json['phone']),
+    phone: Phone.prettyOrNull(_s(json['phone'])),
     decorTop: _s(json['decor_top']),
     milling: _s(json['milling']),
     edgeProfile: _s(json['edge_profile']),
@@ -622,7 +623,7 @@ class MdfOrder {
     overdue: json['overdue'] == true,
     customer: '${json['customer'] ?? ''}',
     customerName: '${json['customer_name'] ?? ''}',
-    phone: _s(json['phone']),
+    phone: Phone.prettyOrNull(_s(json['phone'])),
     createdOn: '${json['created_on'] ?? ''}',
     deliveryDate: '${json['delivery_date'] ?? ''}',
     head: MdfHead.fromJson(
@@ -651,7 +652,7 @@ class MdfOrder {
     readyOn: _s(json['ready_on']),
     handedOverOn: _s(json['handed_over_on']),
     takenBy: _s(json['taken_by']),
-    takenPhone: _s(json['taken_phone']),
+    takenPhone: Phone.prettyOrNull(_s(json['taken_phone'])),
     handedOverBy: _s(json['handed_over_by']),
     holdReason: _s(json['hold_reason']),
     notes: _s(json['notes']),

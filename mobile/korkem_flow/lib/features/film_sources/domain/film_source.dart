@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 
 /// Where film is bought (owner, 11.11.2026): a maker's branch in a city or
 /// a wholesaler — its own person, its own telephones, and whose films it
@@ -49,7 +50,7 @@ class FilmSource {
   final Map<String, String> card;
 
   String? get city => card['city'];
-  String? get phone => card['phone'];
+  String? get phone => Phone.prettyOrNull(card['phone']);
   String? get contact => card['contact'];
 
   /// «Астана · Айгуль · +7 701 …» — whom to ring, in one line.

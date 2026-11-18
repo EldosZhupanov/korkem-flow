@@ -45,6 +45,7 @@ from korkem_manufacturing.services import (
 	facade_prices,
 	material_stock,
 	mdf_tags,
+	phones,
 )
 from korkem_manufacturing.services.scope import current_company, enforce_tenant_scope
 
@@ -484,7 +485,7 @@ def hand_over(order: str, comment: str | None = None, taken_by: str | None = Non
 		doc.add_comment("Comment", f"Выдан с долгом {debt:,.0f} ₸: {comment}".replace(",", " "))
 	taken_by = (taken_by or "").strip()[:140] or None
 	doc.db_set({"korkem_handed_over_on": nowdate(), "korkem_taken_by": taken_by,
-				"korkem_taken_phone": (taken_phone or "").strip()[:40] or None if taken_by else None,
+				"korkem_taken_phone": phones.lenient(taken_phone) if taken_by else None,
 				"korkem_handed_over_by": frappe.session.user}, update_modified=True)
 	doc.add_comment("Comment", f"Выдан. Забрал: {taken_by or 'клиент'}.")
 	audit.record_audit(action="cnc.handed_over", entity_type="Sales Order", entity_id=doc.name,

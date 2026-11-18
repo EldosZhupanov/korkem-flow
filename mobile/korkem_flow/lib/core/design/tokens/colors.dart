@@ -193,6 +193,10 @@ abstract final class AppTint {
   /// Light falling behind a shape rather than a shape of its own.
   static const double glow = 0.07;
 
+  /// The shadow under the raised logo: deep enough to lift it, soft enough
+  /// not to read as a second, darker logo.
+  static const double relief = 0.45;
+
   /// The brand ornament laid in as texture behind an empty-state glyph.
   ///
   /// Two values, and not because dark mode was eyeballed. Light ink on a dark
