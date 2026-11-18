@@ -266,7 +266,7 @@ def _price_change(company: str, known: set[str]) -> dict[str, float]:
 		from `tabStock Entry Detail` d join `tabStock Entry` e on e.name = d.parent
 		where e.company = %s and e.docstatus = 1 and e.korkem_material_receipt = 1
 			and e.korkem_supplier is not null and e.korkem_supplier != '' and d.basic_rate > 0
-		order by e.posting_date desc, e.creation desc""",
+		order by e.posting_date desc, e.creation desc, e.name desc""",
 		(company,), as_dict=True,
 	):
 		if r.item_code not in known:

@@ -1073,7 +1073,7 @@ class _Rows {
   /// A recent row, opened again the way it was opened the first time.
   _Item recent(SearchRecent r) {
     final data = r.data ?? const {};
-    final SearchChoice choose = switch (r.kind) {
+    final choose = switch (r.kind) {
       'customer' when data['orders'] == 0 && data['film'] == true =>
         _filmCustomer(
           FilmCustomer.fromJson({

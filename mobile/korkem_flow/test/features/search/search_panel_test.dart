@@ -23,7 +23,7 @@ const _allowed = {
 };
 
 /// What the server answers for «ерлан» typed in the English layout.
-final _erlan = SmartSearch.fromJson({
+final _erlan = SmartSearch.fromJson(const {
   'query': 'thkfy',
   'kind': 'text',
   'allowed': _allowed,

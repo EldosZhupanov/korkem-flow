@@ -143,7 +143,6 @@ class SearchRecent {
   };
 }
 
-// ignore: specify_nonobvious_property_types — the generics are right there.
 final searchRecentsProvider =
     NotifierProvider<SearchRecentsNotifier, List<SearchRecent>>(
       SearchRecentsNotifier.new,
