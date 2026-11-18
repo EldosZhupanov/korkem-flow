@@ -90,8 +90,8 @@ class TestFilmDecors(IntegrationTestCase):
 	def test_a_film_shows_its_decor_until_it_has_its_own_photo(self):
 		film_decors.import_pack(_pack(self.maker, self.rows))
 		decor = next(d for d in film_decors.decors(self.maker)["decors"] if d["name"] == "сиена верде")
-		# The shop's film, written its own way, is the same decor.
-		item = film_catalog.add(self.maker, "Сиена  Верде", thickness="0,3")["item"]
+		# The shop's film, typed with a space too many, is the same decor.
+		item = film_catalog.add(self.maker, "сиена  верде", thickness="0,3")["item"]
 		self.assertEqual(film_catalog.film(item)["image"], decor["image"])
 		self.assertFalse(film_catalog.film(item)["image_own"])
 		listed = next(f for f in film_catalog.catalog()["films"] if f["item"] == item)
@@ -99,7 +99,7 @@ class TestFilmDecors(IntegrationTestCase):
 		linked = next(d for d in film_decors.decors(self.maker)["decors"] if d["name"] == "сиена верде")
 		self.assertEqual([f["item"] for f in linked["films"]], [item])
 		# Its own photo, on every thickness of it.
-		other = film_catalog.add(self.maker, "Сиена  Верде", thickness="0,45")["item"]
+		other = film_catalog.add(self.maker, "сиена верде", thickness="0,45")["item"]
 		own = film_decors.set_film_image(item, "sample.png", base64.b64encode(PNG + b"own photo").decode())
 		self.assertTrue(own["image_own"])
 		self.assertNotEqual(own["image"], decor["image"])

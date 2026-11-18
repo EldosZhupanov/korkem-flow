@@ -131,10 +131,10 @@ class FilmFilePicker {
     final files = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: extensions,
-      allowMultiple: many,
     );
     return [
-      for (final f in files) (name: f.name, bytes: await f.readAsBytes()),
+      for (final f in many ? files : files.take(1))
+        (name: f.name, bytes: await f.readAsBytes()),
     ];
   }
 }
