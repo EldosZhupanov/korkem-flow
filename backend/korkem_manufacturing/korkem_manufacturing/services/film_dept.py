@@ -1124,78 +1124,89 @@ def price_for(item: str, customer: str | None = None) -> dict:
 CALL_DEBT_DAYS = 14
 
 
+CUSTOMER_FIELDS = ["name", "customer_name", "mobile_no", "korkem_film_tier", "korkem_film_discount",
+		  "korkem_film_debt_limit", "korkem_film_debt_days"]
+
+
 def customers() -> list[dict]:
 	"""Who buys film: what this month, what in all, when last — and who fell asleep."""
 	material_stock._ensure_staff()
-	company = current_company()
 	rows = frappe.get_all(
 		"Customer", filters={"korkem_film_customer": 1, "disabled": 0},
-		fields=["name", "customer_name", "mobile_no", "korkem_film_tier", "korkem_film_discount",
-				"korkem_film_debt_limit", "korkem_film_debt_days"],
-		order_by="customer_name asc", limit_page_length=2000,
+		fields=CUSTOMER_FIELDS, order_by="customer_name asc", limit_page_length=2000,
 	)
-	month_start = getdate(nowdate()).replace(day=1)
-	out = []
-	for c in rows:
-		entries = frappe.get_all(
-			"Stock Entry",
-			filters={"company": company, "docstatus": 1, "korkem_film_kind": SALE, "korkem_film_customer": c.name},
-			fields=["name", "posting_date", "korkem_film_amount", "korkem_film_paid"],
-		)
-		# Added up here, not in SQL: this Frappe refuses a function in `fields`.
-		metres: dict[str, float] = {}
-		# The film this customer takes most, by metres (owner, 12.11.2026).
-		films: dict[str, float] = {}
-		names: dict[str, str] = {}
-		if entries:
-			for r in frappe.get_all("Stock Entry Detail", filters={"parent": ["in", [e.name for e in entries]]},
-									fields=["parent", "qty", "item_code", "item_name", "korkem_sale_unit"],
-									limit_page_length=0):
-				if r.korkem_sale_unit:  # glue: kilograms, not metres
-					continue
-				metres[r.parent] = metres.get(r.parent, 0.0) + flt(r.qty)
-				films[r.item_code] = films.get(r.item_code, 0.0) + flt(r.qty)
-				names[r.item_code] = r.item_name
-		top = max(films, key=lambda i: (films[i], i)) if films else None
-		last = max((getdate(e.posting_date) for e in entries), default=None)
-		idle = date_diff(nowdate(), last) if last else None
-		# How long the oldest unpaid sale has waited (owner, 11.11.2026).
-		owing = [getdate(e.posting_date) for e in entries
-				 if flt(e.korkem_film_amount) - flt(e.korkem_film_paid) > 0.5]
-		debt_days = date_diff(nowdate(), min(owing)) if owing else None
-		# How often he buys (owner, 13.11.2026): from three days of buying.
-		days = sorted({getdate(e.posting_date) for e in entries})
-		rhythm = round(date_diff(days[-1], days[0]) / (len(days) - 1)) if len(days) >= 3 else None
-		debt = sum(flt(e.korkem_film_amount) - flt(e.korkem_film_paid) for e in entries)
-		# «Пора позвонить»: silent past his own rhythm, or owing too long.
-		call = None
-		if debt > 0.5 and debt_days is not None and debt_days > CALL_DEBT_DAYS:
-			call = "debt"
-		elif rhythm and idle is not None and idle > max(rhythm * 1.4, rhythm + 2):
-			call = "rhythm"
-		out.append({
-			"customer": c.name,
-			"name": c.customer_name or c.name,
-			"phone": c.mobile_no,
-			"debt_days": debt_days,
-			"tier": c.korkem_film_tier if c.korkem_film_tier in TIERS else RETAIL,
-			"discount": flt(c.korkem_film_discount),
-			"month_m": sum(metres.get(e.name, 0.0) for e in entries if getdate(e.posting_date) >= month_start),
-			"total_m": sum(metres.values()),
-			"total": sum(flt(e.korkem_film_amount) for e in entries),
-			"debt": debt,
-			"rhythm_days": max(1, rhythm) if rhythm is not None else None,
-			"call": call,
-			"debt_limit": flt(c.korkem_film_debt_limit) or None,
-			"debt_limit_days": cint(c.korkem_film_debt_days) or None,
-			"last": str(last) if last else None,
-			"idle_days": idle,
-			"asleep": idle is not None and idle >= ASLEEP_DAYS,
-			"sales": len(entries),
-			"favourite": _title(top, names.get(top) or top) if top else None,
-		})
+	out = customers_of(rows)
 	out.sort(key=lambda r: (-r["month_m"], -r["total"], r["name"].casefold()))
 	return out
+
+
+def customers_of(rows) -> list[dict]:
+	"""The card of each of these Customer rows (`CUSTOMER_FIELDS`) — the general
+	search builds it for the few it found, not for every customer."""
+	material_stock._ensure_staff()
+	company = current_company()
+	month_start = getdate(nowdate()).replace(day=1)
+	return [_customer_card(c, company, month_start) for c in rows]
+
+
+def _customer_card(c, company: str, month_start) -> dict:
+	entries = frappe.get_all(
+		"Stock Entry",
+		filters={"company": company, "docstatus": 1, "korkem_film_kind": SALE, "korkem_film_customer": c.name},
+		fields=["name", "posting_date", "korkem_film_amount", "korkem_film_paid"],
+	)
+	# Added up here, not in SQL: this Frappe refuses a function in `fields`.
+	metres: dict[str, float] = {}
+	# The film this customer takes most, by metres (owner, 12.11.2026).
+	films: dict[str, float] = {}
+	names: dict[str, str] = {}
+	if entries:
+		for r in frappe.get_all("Stock Entry Detail", filters={"parent": ["in", [e.name for e in entries]]},
+								fields=["parent", "qty", "item_code", "item_name", "korkem_sale_unit"],
+								limit_page_length=0):
+			if r.korkem_sale_unit:  # glue: kilograms, not metres
+				continue
+			metres[r.parent] = metres.get(r.parent, 0.0) + flt(r.qty)
+			films[r.item_code] = films.get(r.item_code, 0.0) + flt(r.qty)
+			names[r.item_code] = r.item_name
+	top = max(films, key=lambda i: (films[i], i)) if films else None
+	last = max((getdate(e.posting_date) for e in entries), default=None)
+	idle = date_diff(nowdate(), last) if last else None
+	# How long the oldest unpaid sale has waited (owner, 11.11.2026).
+	owing = [getdate(e.posting_date) for e in entries
+			 if flt(e.korkem_film_amount) - flt(e.korkem_film_paid) > 0.5]
+	debt_days = date_diff(nowdate(), min(owing)) if owing else None
+	# How often he buys (owner, 13.11.2026): from three days of buying.
+	days = sorted({getdate(e.posting_date) for e in entries})
+	rhythm = round(date_diff(days[-1], days[0]) / (len(days) - 1)) if len(days) >= 3 else None
+	debt = sum(flt(e.korkem_film_amount) - flt(e.korkem_film_paid) for e in entries)
+	# «Пора позвонить»: silent past his own rhythm, or owing too long.
+	call = None
+	if debt > 0.5 and debt_days is not None and debt_days > CALL_DEBT_DAYS:
+		call = "debt"
+	elif rhythm and idle is not None and idle > max(rhythm * 1.4, rhythm + 2):
+		call = "rhythm"
+	return {
+		"customer": c.name,
+		"name": c.customer_name or c.name,
+		"phone": c.mobile_no,
+		"debt_days": debt_days,
+		"tier": c.korkem_film_tier if c.korkem_film_tier in TIERS else RETAIL,
+		"discount": flt(c.korkem_film_discount),
+		"month_m": sum(metres.get(e.name, 0.0) for e in entries if getdate(e.posting_date) >= month_start),
+		"total_m": sum(metres.values()),
+		"total": sum(flt(e.korkem_film_amount) for e in entries),
+		"debt": debt,
+		"rhythm_days": max(1, rhythm) if rhythm is not None else None,
+		"call": call,
+		"debt_limit": flt(c.korkem_film_debt_limit) or None,
+		"debt_limit_days": cint(c.korkem_film_debt_days) or None,
+		"last": str(last) if last else None,
+		"idle_days": idle,
+		"asleep": idle is not None and idle >= ASLEEP_DAYS,
+		"sales": len(entries),
+		"favourite": _title(top, names.get(top) or top) if top else None,
+	}
 
 
 def set_customer(customer: str, tier: str | None = None, discount=None, buys_film: bool | int | str = 1,

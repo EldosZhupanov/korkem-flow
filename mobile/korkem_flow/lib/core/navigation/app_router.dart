@@ -26,6 +26,7 @@ import 'package:korkem_flow/features/deals/presentation/deal_detail_screen.dart'
 import 'package:korkem_flow/features/enquiry_flow/presentation/enquiry_flow_screen.dart';
 import 'package:korkem_flow/features/expenses/presentation/expenses_screen.dart';
 import 'package:korkem_flow/features/facade_jobs/presentation/facade_jobs_screen.dart';
+import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/facade_prices/presentation/facade_prices_screen.dart';
 import 'package:korkem_flow/features/facade_prices/presentation/facade_quote_screen.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_screen.dart';
@@ -186,6 +187,10 @@ abstract final class Routes {
   static const mdfOrders = '/mdf/orders';
   static const mdfOrderNew = '/mdf/orders/new';
   static const mdfOrderPattern = '/mdf/orders/:name';
+
+  /// The list narrowed to what was searched — one customer's orders.
+  static String mdfOrdersOf(String search) =>
+      '$mdfOrders?search=${Uri.encodeQueryComponent(search)}';
   static const mdfFilm = '/mdf/film';
   static const mdfDebts = '/mdf/debts';
   static const mdfBatch = '/mdf/batch';
@@ -403,7 +408,8 @@ GoRouter createRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.mdfOrders,
-        builder: (context, state) => const MdfOrdersScreen(),
+        builder: (context, state) =>
+            MdfOrdersScreen(search: state.uri.queryParameters['search']),
       ),
       GoRoute(
         path: Routes.mdfDictionaries,
@@ -453,6 +459,9 @@ GoRouter createRouter(Ref ref) {
         path: Routes.mdfOrderNew,
         builder: (context, state) => MdfOrderScreen(
           template: state.extra is MdfOrder ? state.extra! as MdfOrder : null,
+          customer: state.extra is FacadeCustomer
+              ? state.extra! as FacadeCustomer
+              : null,
         ),
       ),
       GoRoute(

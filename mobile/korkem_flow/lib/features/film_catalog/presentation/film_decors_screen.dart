@@ -17,10 +17,13 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// their swatches — a reference, not stock. A decor becomes a film with one
 /// button; a film of the same name shows its decor's picture by itself.
 class FilmDecorsScreen extends ConsumerStatefulWidget {
-  const FilmDecorsScreen({this.maker, super.key});
+  const FilmDecorsScreen({this.maker, this.search, super.key});
 
   /// The maker to open at; the first one else.
   final String? maker;
+
+  /// What to look for at once — the general search opens a decor this way.
+  final String? search;
 
   @override
   ConsumerState<FilmDecorsScreen> createState() => _FilmDecorsScreenState();
@@ -29,7 +32,7 @@ class FilmDecorsScreen extends ConsumerStatefulWidget {
 class _FilmDecorsScreenState extends ConsumerState<FilmDecorsScreen> {
   late String? _maker = widget.maker;
   String? _collection;
-  String _search = '';
+  late String _search = widget.search ?? '';
   bool _busy = false;
 
   Future<void> _importPack() async {
@@ -218,8 +221,9 @@ class _FilmDecorsScreenState extends ConsumerState<FilmDecorsScreen> {
                 ),
               SizedBox(
                 width: AppSpacing.xxxl * 6,
-                child: TextField(
+                child: TextFormField(
                   key: const ValueKey('fdcSearch'),
+                  initialValue: widget.search,
                   onChanged: (v) => setState(() => _search = v),
                   decoration: InputDecoration(
                     isDense: true,

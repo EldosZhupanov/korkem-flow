@@ -6,6 +6,7 @@ import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/push/push_registration.dart';
 import 'package:korkem_flow/core/settings/settings_controller.dart';
+import 'package:korkem_flow/features/search/presentation/search_panel.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The router is a provider so it survives rebuilds — recreating a GoRouter on
@@ -51,7 +52,11 @@ class KorkemFlowApp extends ConsumerWidget {
               maxScaleFactor: 1.6,
             ),
           ),
-          child: child ?? const SizedBox.shrink(),
+          // Ctrl+K: the general search from any screen (owner, 18.11.2026).
+          child: SearchHotkey(
+            navigatorKey: ref.read(routerProvider).routerDelegate.navigatorKey,
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );

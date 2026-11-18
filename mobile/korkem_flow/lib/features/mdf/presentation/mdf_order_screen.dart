@@ -49,7 +49,7 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// with the stages ticked by the manager, the payments, and on hold /
 /// cancel / hand over.
 class MdfOrderScreen extends ConsumerWidget {
-  const MdfOrderScreen({this.name, this.template, super.key});
+  const MdfOrderScreen({this.name, this.template, this.customer, super.key});
 
   /// Null for a new order.
   final String? name;
@@ -57,13 +57,16 @@ class MdfOrderScreen extends ConsumerWidget {
   /// «Повторить заказ»: a new draft that starts as a copy of this one.
   final MdfOrder? template;
 
+  /// A new order for this customer — «Новый заказ» from the general search.
+  final FacadeCustomer? customer;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     if (name == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.mdfOrderNew)),
-        body: _DraftForm(template: template),
+        body: _DraftForm(template: template, customer: customer),
       );
     }
     final order = ref.watch(mdfOrderProvider(name!));
@@ -256,6 +259,7 @@ class _DraftForm extends ConsumerStatefulWidget {
   const _DraftForm({
     this.order,
     this.template,
+    this.customer,
     this.onChanged,
     super.key,
   });
@@ -265,6 +269,9 @@ class _DraftForm extends ConsumerStatefulWidget {
 
   /// For a new draft: the order it repeats (customer, head and lines).
   final MdfOrder? template;
+
+  /// For a new draft: its customer, chosen already.
+  final FacadeCustomer? customer;
 
   /// Set when [order] is accepted and being changed: Save asks for the
   /// reason and changes the order in place; called with the changed card.
@@ -346,6 +353,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         );
       }
     }
+    if (o == null) _customer = widget.customer;
     if (_films.isEmpty) _films.add(_noGroup);
     if (_lines.isEmpty) _lines.add(_blank(_films.first));
     if (o == null) unawaited(_startFromLastHead());
