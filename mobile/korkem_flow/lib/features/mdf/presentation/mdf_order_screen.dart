@@ -17,6 +17,7 @@ import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_order_sheet.dart';
 import 'package:korkem_flow/features/facade_prices/data/facade_price_repository.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
@@ -3799,6 +3800,7 @@ class _NewCustomerDialogState extends ConsumerState<_NewCustomerDialog> {
             controller: _phone,
             autofocus: _typedPhone,
             keyboardType: TextInputType.phone,
+            inputFormatters: const [PhoneMaskFormatter()],
             decoration: InputDecoration(labelText: l10n.mdfPrintPhone),
           ),
         ],

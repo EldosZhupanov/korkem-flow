@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 
 double _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
 double? _dn(Object? v) => v == null ? null : _d(v);
@@ -414,8 +415,8 @@ class PaintStock {
           city: _s(r['city']),
           paint: r['paint'] == true,
           contact: _s(r['contact']),
-          phone: _s(r['phone']),
-          whatsapp: _s(r['whatsapp']),
+          phone: Phone.prettyOrNull(_s(r['phone'])),
+          whatsapp: Phone.prettyOrNull(_s(r['whatsapp'])),
           minOrder: _s(r['min_order']),
           note: _s(r['note']),
         ),
@@ -440,7 +441,7 @@ class PaintStock {
           employee: _s(r['employee']),
           transport: _s(r['transport']),
           driver: _s(r['driver']),
-          phone: _s(r['phone']),
+          phone: Phone.prettyOrNull(_s(r['phone'])),
           supplier: _s(r['supplier']),
         ),
     ],

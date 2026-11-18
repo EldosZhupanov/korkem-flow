@@ -10,6 +10,7 @@ import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/company_details/application/company_details_controller.dart';
 import 'package:korkem_flow/features/company_details/domain/company_details.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -98,7 +99,7 @@ class _CompanyDetailsFormState extends ConsumerState<_CompanyDetailsForm> {
     _binController = TextEditingController(text: d.bin);
     _cityController = TextEditingController(text: d.city);
     _addressController = TextEditingController(text: d.address);
-    _phoneController = TextEditingController(text: d.phone);
+    _phoneController = TextEditingController(text: Phone.pretty(d.phone));
     _emailController = TextEditingController(text: d.email);
     _websiteController = TextEditingController(text: d.website);
     _bankNameController = TextEditingController(text: d.bankName);
@@ -281,6 +282,7 @@ class _CompanyDetailsFormState extends ConsumerState<_CompanyDetailsForm> {
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  inputFormatters: const [PhoneMaskFormatter()],
                   decoration: InputDecoration(
                     labelText: l10n.companyDetailsPhoneLabel,
                     hintText: l10n.companyDetailsPhoneHint,

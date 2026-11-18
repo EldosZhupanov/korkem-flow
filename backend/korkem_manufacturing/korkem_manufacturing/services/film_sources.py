@@ -20,10 +20,13 @@ from __future__ import annotations
 
 import frappe
 
-from korkem_manufacturing.services import audit, material_stock
+from korkem_manufacturing.services import audit, material_stock, phones
 from korkem_manufacturing.services.scope import current_company
 
 MAKERS = "Производитель"
+
+#: The card's phones: kept as +77015551234 where they read as one.
+PHONES = ("phone", "phone2", "whatsapp")
 
 #: The card's fields, as the client names them.
 CARD = {
@@ -99,6 +102,9 @@ def set_card(supplier: str, **card) -> dict:
 		if key in card:
 			limit = 500 if key == "note" else 140
 			values[field] = " ".join(str(card[key] or "").split())[:limit] or None
+			if key in PHONES:
+				# One spelling per phone where it reads as one (`phones`).
+				values[field] = phones.lenient(values[field])
 	if "makers" in card:
 		makers = card["makers"]
 		if isinstance(makers, str):

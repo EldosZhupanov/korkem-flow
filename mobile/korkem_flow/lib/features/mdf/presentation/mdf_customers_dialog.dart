@@ -4,6 +4,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
@@ -307,6 +308,7 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
               key: const ValueKey('customerPhone'),
               controller: _phone,
               keyboardType: TextInputType.phone,
+              inputFormatters: const [PhoneMaskFormatter()],
               decoration: InputDecoration(labelText: l10n.mdfCustomerPhone),
             ),
             TextField(

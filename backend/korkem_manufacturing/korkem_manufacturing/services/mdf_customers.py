@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import frappe
 
-from korkem_manufacturing.services import audit, facade_prices, mdf_tags
+from korkem_manufacturing.services import audit, facade_prices, mdf_tags, phones
 from korkem_manufacturing.services.scope import current_company
 
 MAX = 2000
@@ -32,9 +32,8 @@ def _clean(name: str | None, phone: str | None, organization: str | None) -> tup
 	name = " ".join((name or "").split())[:140]
 	if len(name) < 2:
 		frappe.throw("Укажите имя клиента.")
-	phone = (phone or "").strip() or None
-	if phone and not 10 <= len(_digits(phone)) <= 12:
-		frappe.throw("Телефон — 10–12 цифр, например 8 777 123 45 67.")
+	# One spelling per phone: +77015551234 (owner, 18.11.2026, `phones`).
+	phone = phones.clean(phone)
 	organization = " ".join((organization or "").split())[:140] or None
 	return name, phone, organization
 

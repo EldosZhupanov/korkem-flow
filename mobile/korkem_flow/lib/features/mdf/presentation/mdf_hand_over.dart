@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
@@ -265,6 +266,7 @@ class _HandOverDialogState extends State<_HandOverDialog> {
                   key: const ValueKey('mdfTakenPhone'),
                   controller: _phone,
                   keyboardType: TextInputType.phone,
+                  inputFormatters: const [PhoneMaskFormatter()],
                   decoration: InputDecoration(
                     labelText: l10n.mdfTakenByPhone,
                   ),

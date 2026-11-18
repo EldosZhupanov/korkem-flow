@@ -257,7 +257,10 @@ void main() {
       find.byKey(const ValueKey('filmSrc:city')),
       'Астана',
     );
-    await tester.enterText(find.byKey(const ValueKey('filmSrc:phone')), '777');
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSrc:phone')),
+      '87017770000',
+    );
     await tester.tap(find.byKey(const ValueKey('filmSrc:maker:MC Group')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmSrc:save')));
@@ -265,7 +268,10 @@ void main() {
     final (id, name, card, makers) = repo.saved.single;
     expect((id, name), (null, 'Kira · Астана'));
     expect(makers, ['MC Group']);
-    expect((card['city'], card['phone'], card['note']), ('Астана', '777', ''));
+    expect(
+      (card['city'], card['phone'], card['note']),
+      ('Астана', '+7 (701) 777-00-00', ''),
+    );
     expect(find.byKey(const ValueKey('filmSrc:save')), findsNothing);
   });
 
@@ -275,11 +281,14 @@ void main() {
     final repo = await _pump(tester, const FilmSourcesTab());
     await tester.tap(find.byKey(const ValueKey('filmSource:SUP-1')));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const ValueKey('filmSrc:phone')), '555');
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSrc:phone')),
+      '7025550000',
+    );
     await tester.tap(find.byKey(const ValueKey('filmSrc:save')));
     await tester.pumpAndSettle();
     expect(repo.saved.single.$1, 'SUP-1');
-    expect(repo.saved.single.$3['phone'], '555');
+    expect(repo.saved.single.$3['phone'], '+7 (702) 555-00-00');
     expect(repo.saved.single.$4, ['Adilet']);
 
     await tester.tap(find.byKey(const ValueKey('filmSource:SUP-1')));

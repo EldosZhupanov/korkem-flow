@@ -1,3 +1,4 @@
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
@@ -60,7 +61,7 @@ class SearchCustomer {
   factory SearchCustomer.fromJson(Map<String, dynamic> j) => SearchCustomer(
     customer: '${j['customer']}',
     name: '${j['name'] ?? j['customer']}',
-    phone: _s(j['phone']),
+    phone: Phone.prettyOrNull(_s(j['phone'])),
     organization: _s(j['organization']),
     orders: j['orders'] is num ? (j['orders'] as num).toInt() : 0,
     debt: _d(j['debt']),

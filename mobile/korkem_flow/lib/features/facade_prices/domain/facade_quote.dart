@@ -1,3 +1,4 @@
+import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:meta/meta.dart';
 
 /// The company's rules for a facade order. `null` means "not offered":
@@ -148,7 +149,7 @@ class FacadeCustomer {
     return FacadeCustomer(
       name: name,
       title: json['customer_name'] as String? ?? name,
-      phone: json['phone'] as String?,
+      phone: Phone.prettyOrNull(json['phone'] as String?),
       organization: json['organization'] as String?,
       tags: [
         for (final t in json['tags'] as List? ?? const []) '$t',

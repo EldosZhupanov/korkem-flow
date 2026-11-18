@@ -193,8 +193,10 @@ def _name(value) -> str:
 
 
 def _phone(value) -> str | None:
-	phone = " ".join(str(value or "").split())[:40]
-	return phone or None
+	"""+77015551234 where it reads as a phone (owner, 18.11.2026, `phones`)."""
+	from korkem_manufacturing.services import phones
+
+	return phones.lenient(value)
 
 
 def _new_employee(full: str, company: str, phone=None, posts=None, user: str | None = None) -> str:
