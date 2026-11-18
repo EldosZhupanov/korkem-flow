@@ -207,7 +207,8 @@ void main() {
       // Validation passes, save is invoked, success SnackBar is shown
       expect(savedPayload, isNotNull);
       expect(savedPayload!.city, 'г. Шымкент');
-      expect(savedPayload!.phone, '+7 701 555 0199');
+      // The mask writes it one way (owner, 18.11.2026).
+      expect(savedPayload!.phone, '+7 (701) 555-01-99');
       expect(savedPayload!.bin, isEmpty);
       expect(savedPayload!.bankAccount, isEmpty);
 
