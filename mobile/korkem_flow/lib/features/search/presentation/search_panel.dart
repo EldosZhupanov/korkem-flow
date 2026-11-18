@@ -808,7 +808,6 @@ class _Rows {
     }
   };
 
-
   // --- rows ---------------------------------------------------------------
 
   String actionLabel(SearchAction a) => switch (a) {

@@ -132,8 +132,7 @@ class _Body extends ConsumerWidget {
             [
               ?card.phone,
               ?card.organization,
-              if (figures?.first case final first?)
-                l10n.clcSince(_date(first)),
+              if (figures?.first case final first?) l10n.clcSince(_date(first)),
             ].join(' · '),
             style: muted,
           ),

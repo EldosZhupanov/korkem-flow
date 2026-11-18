@@ -10291,4 +10291,362 @@ class AppLocalizationsEn extends AppLocalizations {
   String gsrPaid(String amount) {
     return 'paid $amount';
   }
+
+  @override
+  String get navToWrite => 'Who to write to';
+
+  @override
+  String get clcTitle => 'Customer card';
+
+  @override
+  String get clcOrders => 'Orders';
+
+  @override
+  String get clcTotal => 'Ordered for';
+
+  @override
+  String get clcPaid => 'Paid';
+
+  @override
+  String get clcDebt => 'Owes';
+
+  @override
+  String get clcAverage => 'Average order';
+
+  @override
+  String get clcLast => 'Last order';
+
+  @override
+  String clcSince(String date) {
+    return 'customer since $date';
+  }
+
+  @override
+  String get clcNewOrder => 'New order';
+
+  @override
+  String get clcSellFilm => 'Sell film';
+
+  @override
+  String get clcAllOrders => 'All orders';
+
+  @override
+  String get clcOrdersSection => 'Orders';
+
+  @override
+  String get clcPaymentsSection => 'Payments';
+
+  @override
+  String get clcFilmSection => 'Film';
+
+  @override
+  String clcFilmLine(String metres, String sum, String debt) {
+    return 'bought $metres m for $sum · owes $debt';
+  }
+
+  @override
+  String get clcFilmOpen => 'Film purchases';
+
+  @override
+  String get clcNoOrders => 'No orders yet';
+
+  @override
+  String get clcCnc => 'CNC';
+
+  @override
+  String get clcWhatsApp => 'Write on WhatsApp';
+
+  @override
+  String twReady(int count) {
+    return 'Ready — tell the customer ($count)';
+  }
+
+  @override
+  String twDebts(int count) {
+    return 'Remind of a debt ($count)';
+  }
+
+  @override
+  String twFilm(int count) {
+    return 'Film — debts ($count)';
+  }
+
+  @override
+  String get twEmpty => 'Nobody to write to today';
+
+  @override
+  String get twEmptyHint =>
+      'Ready orders the customer has not been told about, and debts due a reminder, appear here.';
+
+  @override
+  String twReadyLine(String date) {
+    return 'ready $date';
+  }
+
+  @override
+  String twDebtLine(String sum) {
+    return 'to pay $sum';
+  }
+
+  @override
+  String twHandedLine(String date) {
+    return 'handed over $date';
+  }
+
+  @override
+  String twRemindedLine(int count, String date) {
+    return 'reminded: $count, last $date';
+  }
+
+  @override
+  String twFilmDays(int days) {
+    return 'owed for $days days';
+  }
+
+  @override
+  String get twSend => 'Write on WhatsApp';
+
+  @override
+  String get twMark => 'Sent';
+
+  @override
+  String get twMarked => 'Marked — won\'t ask again';
+
+  @override
+  String get twSentQ => 'Did you send it?';
+
+  @override
+  String get twNoPhone => 'The customer has no phone';
+
+  @override
+  String get twTemplates => 'Message texts';
+
+  @override
+  String get twTemplateReady => 'Order ready';
+
+  @override
+  String get twTemplateDebt => 'Order debt';
+
+  @override
+  String get twTemplateFilm => 'Film debt';
+
+  @override
+  String get twTemplateHint => 'You can insert:';
+
+  @override
+  String get twTemplateReset => 'Back to the default';
+
+  @override
+  String get twTemplateSave => 'Save';
+
+  @override
+  String get dsmTitle => 'Day summary';
+
+  @override
+  String dsmSwitch(String hour) {
+    return 'Send to me every day at $hour:00';
+  }
+
+  @override
+  String get dsmHint =>
+      'Arrives in Telegram or WhatsApp if connected in Settings → Channels.';
+
+  @override
+  String get dsmCopy => 'Copy';
+
+  @override
+  String get dsmCopied => 'Summary copied';
+
+  @override
+  String get dsmSendMe => 'Send to my WhatsApp';
+
+  @override
+  String get dsmHour => 'Hour';
+
+  @override
+  String get orderTell => 'Tell the customer';
+
+  @override
+  String orderTold(String date) {
+    return 'Customer told $date';
+  }
+
+  @override
+  String get fdcMatchPhoto => 'Match a sample photo';
+
+  @override
+  String get fdcMatchTitle => 'Like the sample';
+
+  @override
+  String get fdcMatchHint =>
+      'Daylight, no shadow; the middle of the photo is read. A hint — check it against the sample by eye.';
+
+  @override
+  String get fdcAnalogues => 'Look-alikes';
+
+  @override
+  String fdcAnaloguesTitle(String name) {
+    return 'Look-alikes: $name';
+  }
+
+  @override
+  String get fdcLikeClose => 'very close';
+
+  @override
+  String get fdcLikeNear => 'close';
+
+  @override
+  String get fdcLikeFar => 'distant';
+
+  @override
+  String fdcOnShelf(String metres) {
+    return '$metres m in stock';
+  }
+
+  @override
+  String get fdcNotOnShelf => 'not in stock';
+
+  @override
+  String get fdcNoMatches => 'Nothing alike found';
+
+  @override
+  String get dsmMorning => 'At 9:00 — what to order';
+
+  @override
+  String get dsmMorningTitle => 'Time to order';
+
+  @override
+  String get scanEntryTitle => 'Order number';
+
+  @override
+  String get scanEntryHint => '245 or a sticker\'s code';
+
+  @override
+  String get scanEntryOpen => 'Open';
+
+  @override
+  String scanTitle(String number, String customer) {
+    return 'No. $number · $customer';
+  }
+
+  @override
+  String get scanHandedOver => 'Already handed over';
+
+  @override
+  String get scanOnHold => 'On hold';
+
+  @override
+  String scanDoneOn(String date) {
+    return 'done $date';
+  }
+
+  @override
+  String get scanYours => 'yours — can be done now';
+
+  @override
+  String get scanNotYours => 'not yours';
+
+  @override
+  String get scanOpenOrder => 'Open the order';
+
+  @override
+  String get mdfPrintSticker => 'Sticker';
+
+  @override
+  String get navOffcuts => 'Offcuts';
+
+  @override
+  String get offcutsTitle => 'MDF offcuts';
+
+  @override
+  String offcutsSummary(int count, String area) {
+    return '$count pcs · $area m²';
+  }
+
+  @override
+  String get offcutsAdd => 'Put on the shelf';
+
+  @override
+  String get offcutsAll => 'All';
+
+  @override
+  String offcutsMm(int mm) {
+    return '$mm mm';
+  }
+
+  @override
+  String get offcutsEmptyTitle => 'No offcuts';
+
+  @override
+  String get offcutsEmpty =>
+      'A piece left from a sheet goes on the shelf with its size — a new order\'s small parts are cut from it first.';
+
+  @override
+  String offcutsCell(String cell) {
+    return 'place $cell';
+  }
+
+  @override
+  String offcutsFrom(String number) {
+    return 'from No. $number';
+  }
+
+  @override
+  String offcutsFor(String number) {
+    return 'for No. $number';
+  }
+
+  @override
+  String get offcutsUse => 'Taken into work';
+
+  @override
+  String get offcutsScrap => 'Throw away';
+
+  @override
+  String get offcutsAddTitle => 'An offcut on the shelf';
+
+  @override
+  String get offcutsThickness => 'Thickness';
+
+  @override
+  String get offcutsLength => 'Length, mm';
+
+  @override
+  String get offcutsWidth => 'Width, mm';
+
+  @override
+  String get offcutsCellLabel => 'Where it lies';
+
+  @override
+  String get offcutsCellHint => 'A-3';
+
+  @override
+  String get offcutsNote => 'Note';
+
+  @override
+  String get offcutsPut => 'Put';
+
+  @override
+  String offcutsSuggestTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count parts',
+      one: '1 part',
+    );
+    return 'From offcuts: $_temp0';
+  }
+
+  @override
+  String offcutsSuggestLine(
+    int position,
+    String part,
+    String offcut,
+    String cell,
+  ) {
+    return 'Item $position: $part — from $offcut, $cell';
+  }
+
+  @override
+  String get offcutsTake => 'Take';
 }

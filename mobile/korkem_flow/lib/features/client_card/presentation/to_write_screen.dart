@@ -90,7 +90,9 @@ class ToWriteScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.md),
                 ],
                 if (t.film.isNotEmpty) ...[
-                  ReadableWidth(child: SectionLabel(l10n.twFilm(t.film.length))),
+                  ReadableWidth(
+                    child: SectionLabel(l10n.twFilm(t.film.length)),
+                  ),
                   for (final r in t.film) _Row(row: r),
                 ],
               ],

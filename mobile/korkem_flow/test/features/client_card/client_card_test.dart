@@ -32,7 +32,8 @@ const Map<String, Object> _debt = {
   'handed_over_on': '2026-11-10',
   'reminded_on': '2026-11-12',
   'reminders': 1,
-  'text': 'Здравствуйте, Айгуль Сапарова! Напоминаем об оплате по заказу № 231.',
+  'text':
+      'Здравствуйте, Айгуль Сапарова! Напоминаем об оплате по заказу № 231.',
 };
 
 class _Fake implements ClientCardRepository {
@@ -69,15 +70,15 @@ class _Fake implements ClientCardRepository {
     bool? enabled,
     int? hour,
     bool? morning,
-  }) async =>
-      DailySummary.fromJson({
-        'text': 'Итоги дня',
-        'settings': {'enabled': enabled ?? false, 'hour': hour ?? 20},
-      });
+  }) async => DailySummary.fromJson({
+    'text': 'Итоги дня',
+    'settings': {'enabled': enabled ?? false, 'hour': hour ?? 20},
+  });
 
   @override
   Future<Map<ToWriteKind, MessageTemplate>> templates() async => {
-    for (final k in ToWriteKind.values) k: (text: 'Здравствуйте, {имя}!', byDefault: ''),
+    for (final k in ToWriteKind.values)
+      k: (text: 'Здравствуйте, {имя}!', byDefault: ''),
   };
 
   @override

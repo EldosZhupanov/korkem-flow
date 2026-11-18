@@ -179,9 +179,7 @@ class _OrderScanDialogState extends ConsumerState<_OrderScanDialog> {
     return AlertDialog(
       key: const ValueKey('orderScan'),
       title: Text(
-        scan == null
-            ? widget.code
-            : l10n.scanTitle(scan.number, scan.customer),
+        scan == null ? widget.code : l10n.scanTitle(scan.number, scan.customer),
       ),
       content: SizedBox(
         width: AppBreakpoints.listPaneWidth,

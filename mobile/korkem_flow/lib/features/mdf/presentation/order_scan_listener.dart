@@ -24,7 +24,11 @@ class ScanBurst {
 
   /// One key pressed at [at]. Returns what was scanned when Enter closes a
   /// burst that reads as an order's sticker; null otherwise.
-  String? key(PhysicalKeyboardKey key, {required bool shift, required Duration at}) {
+  String? key(
+    PhysicalKeyboardKey key, {
+    required bool shift,
+    required Duration at,
+  }) {
     final last = _last;
     _last = at;
     if (last != null && at - last > gap) _buffer.clear();
@@ -49,32 +53,55 @@ class ScanBurst {
   }
 
   static final Map<PhysicalKeyboardKey, String> _letters = {
-    PhysicalKeyboardKey.keyA: 'A', PhysicalKeyboardKey.keyB: 'B',
-    PhysicalKeyboardKey.keyC: 'C', PhysicalKeyboardKey.keyD: 'D',
-    PhysicalKeyboardKey.keyE: 'E', PhysicalKeyboardKey.keyF: 'F',
-    PhysicalKeyboardKey.keyG: 'G', PhysicalKeyboardKey.keyH: 'H',
-    PhysicalKeyboardKey.keyI: 'I', PhysicalKeyboardKey.keyJ: 'J',
-    PhysicalKeyboardKey.keyK: 'K', PhysicalKeyboardKey.keyL: 'L',
-    PhysicalKeyboardKey.keyM: 'M', PhysicalKeyboardKey.keyN: 'N',
-    PhysicalKeyboardKey.keyO: 'O', PhysicalKeyboardKey.keyP: 'P',
-    PhysicalKeyboardKey.keyQ: 'Q', PhysicalKeyboardKey.keyR: 'R',
-    PhysicalKeyboardKey.keyS: 'S', PhysicalKeyboardKey.keyT: 'T',
-    PhysicalKeyboardKey.keyU: 'U', PhysicalKeyboardKey.keyV: 'V',
-    PhysicalKeyboardKey.keyW: 'W', PhysicalKeyboardKey.keyX: 'X',
-    PhysicalKeyboardKey.keyY: 'Y', PhysicalKeyboardKey.keyZ: 'Z',
+    PhysicalKeyboardKey.keyA: 'A',
+    PhysicalKeyboardKey.keyB: 'B',
+    PhysicalKeyboardKey.keyC: 'C',
+    PhysicalKeyboardKey.keyD: 'D',
+    PhysicalKeyboardKey.keyE: 'E',
+    PhysicalKeyboardKey.keyF: 'F',
+    PhysicalKeyboardKey.keyG: 'G',
+    PhysicalKeyboardKey.keyH: 'H',
+    PhysicalKeyboardKey.keyI: 'I',
+    PhysicalKeyboardKey.keyJ: 'J',
+    PhysicalKeyboardKey.keyK: 'K',
+    PhysicalKeyboardKey.keyL: 'L',
+    PhysicalKeyboardKey.keyM: 'M',
+    PhysicalKeyboardKey.keyN: 'N',
+    PhysicalKeyboardKey.keyO: 'O',
+    PhysicalKeyboardKey.keyP: 'P',
+    PhysicalKeyboardKey.keyQ: 'Q',
+    PhysicalKeyboardKey.keyR: 'R',
+    PhysicalKeyboardKey.keyS: 'S',
+    PhysicalKeyboardKey.keyT: 'T',
+    PhysicalKeyboardKey.keyU: 'U',
+    PhysicalKeyboardKey.keyV: 'V',
+    PhysicalKeyboardKey.keyW: 'W',
+    PhysicalKeyboardKey.keyX: 'X',
+    PhysicalKeyboardKey.keyY: 'Y',
+    PhysicalKeyboardKey.keyZ: 'Z',
   };
 
   static final Map<PhysicalKeyboardKey, String> _digits = {
-    PhysicalKeyboardKey.digit0: '0', PhysicalKeyboardKey.digit1: '1',
-    PhysicalKeyboardKey.digit2: '2', PhysicalKeyboardKey.digit3: '3',
-    PhysicalKeyboardKey.digit4: '4', PhysicalKeyboardKey.digit5: '5',
-    PhysicalKeyboardKey.digit6: '6', PhysicalKeyboardKey.digit7: '7',
-    PhysicalKeyboardKey.digit8: '8', PhysicalKeyboardKey.digit9: '9',
-    PhysicalKeyboardKey.numpad0: '0', PhysicalKeyboardKey.numpad1: '1',
-    PhysicalKeyboardKey.numpad2: '2', PhysicalKeyboardKey.numpad3: '3',
-    PhysicalKeyboardKey.numpad4: '4', PhysicalKeyboardKey.numpad5: '5',
-    PhysicalKeyboardKey.numpad6: '6', PhysicalKeyboardKey.numpad7: '7',
-    PhysicalKeyboardKey.numpad8: '8', PhysicalKeyboardKey.numpad9: '9',
+    PhysicalKeyboardKey.digit0: '0',
+    PhysicalKeyboardKey.digit1: '1',
+    PhysicalKeyboardKey.digit2: '2',
+    PhysicalKeyboardKey.digit3: '3',
+    PhysicalKeyboardKey.digit4: '4',
+    PhysicalKeyboardKey.digit5: '5',
+    PhysicalKeyboardKey.digit6: '6',
+    PhysicalKeyboardKey.digit7: '7',
+    PhysicalKeyboardKey.digit8: '8',
+    PhysicalKeyboardKey.digit9: '9',
+    PhysicalKeyboardKey.numpad0: '0',
+    PhysicalKeyboardKey.numpad1: '1',
+    PhysicalKeyboardKey.numpad2: '2',
+    PhysicalKeyboardKey.numpad3: '3',
+    PhysicalKeyboardKey.numpad4: '4',
+    PhysicalKeyboardKey.numpad5: '5',
+    PhysicalKeyboardKey.numpad6: '6',
+    PhysicalKeyboardKey.numpad7: '7',
+    PhysicalKeyboardKey.numpad8: '8',
+    PhysicalKeyboardKey.numpad9: '9',
   };
 
   static final _shifts = <PhysicalKeyboardKey>{

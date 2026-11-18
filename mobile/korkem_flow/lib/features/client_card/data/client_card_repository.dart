@@ -9,9 +9,10 @@ final clientCardRepositoryProvider = Provider<ClientCardRepository>(
 
 // AutoDisposeFutureProviderFamily is not exported as a public type.
 // ignore: specify_nonobvious_property_types
-final clientCardProvider = FutureProvider.autoDispose.family<ClientCard, String>(
-  (ref, customer) => ref.watch(clientCardRepositoryProvider).card(customer),
-);
+final clientCardProvider = FutureProvider.autoDispose
+    .family<ClientCard, String>(
+      (ref, customer) => ref.watch(clientCardRepositoryProvider).card(customer),
+    );
 
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
@@ -44,31 +45,36 @@ class ClientCardRepository {
       ToWrite.fromJson(_map(await _client.callMethod('$_base.todo')));
 
   /// The manager has sent it: the server remembers the day.
-  Future<ToWrite> mark(ToWriteKind kind, {String? order, String? customer}) async =>
-      ToWrite.fromJson(
-        _map(
-          await _client.callMethod(
-            '$_base.mark',
-            post: true,
-            params: {
-              'kind': kind.wire,
-              'order': ?order,
-              'customer': ?customer,
-            },
-          ),
-        ),
-      );
+  Future<ToWrite> mark(
+    ToWriteKind kind, {
+    String? order,
+    String? customer,
+  }) async => ToWrite.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.mark',
+        post: true,
+        params: {
+          'kind': kind.wire,
+          'order': ?order,
+          'customer': ?customer,
+        },
+      ),
+    ),
+  );
 
   /// One order's message: its customer's phone and the words.
-  Future<ToWriteRow> textFor(String order, {ToWriteKind kind = ToWriteKind.ready}) async =>
-      ToWriteRow.fromJson(
-        _map(
-          await _client.callMethod(
-            '$_base.text_for',
-            params: {'order': order, 'kind': kind.wire},
-          ),
-        ),
-      );
+  Future<ToWriteRow> textFor(
+    String order, {
+    ToWriteKind kind = ToWriteKind.ready,
+  }) async => ToWriteRow.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.text_for',
+        params: {'order': order, 'kind': kind.wire},
+      ),
+    ),
+  );
 
   Future<Map<ToWriteKind, MessageTemplate>> templates() async =>
       _templates(_map(await _client.callMethod('$_base.templates')));
@@ -86,32 +92,37 @@ class ClientCardRepository {
     ),
   );
 
-  Future<DailySummary> summary() async =>
-      DailySummary.fromJson(_map(await _client.callMethod('$_base.summary_preview')));
+  Future<DailySummary> summary() async => DailySummary.fromJson(
+    _map(await _client.callMethod('$_base.summary_preview')),
+  );
 
-  Future<DailySummary> setSummary({bool? enabled, int? hour, bool? morning}) async =>
-      DailySummary.fromJson(
-        _map(
-          await _client.callMethod(
-            '$_base.summary_settings',
-            post: true,
-            params: {
-              if (enabled != null) 'enabled': enabled ? '1' : '0',
-              if (hour != null) 'hour': '$hour',
-              if (morning != null) 'morning': morning ? '1' : '0',
-            },
-          ),
-        ),
-      );
+  Future<DailySummary> setSummary({
+    bool? enabled,
+    int? hour,
+    bool? morning,
+  }) async => DailySummary.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.summary_settings',
+        post: true,
+        params: {
+          if (enabled != null) 'enabled': enabled ? '1' : '0',
+          if (hour != null) 'hour': '$hour',
+          if (morning != null) 'morning': morning ? '1' : '0',
+        },
+      ),
+    ),
+  );
 
-  static Map<ToWriteKind, MessageTemplate> _templates(Map<String, dynamic> j) => {
-    for (final kind in ToWriteKind.values)
-      if (j[kind.wire] is Map)
-        kind: (
-          text: '${(j[kind.wire] as Map)['text'] ?? ''}',
-          byDefault: '${(j[kind.wire] as Map)['default'] ?? ''}',
-        ),
-  };
+  static Map<ToWriteKind, MessageTemplate> _templates(Map<String, dynamic> j) =>
+      {
+        for (final kind in ToWriteKind.values)
+          if (j[kind.wire] is Map)
+            kind: (
+              text: '${(j[kind.wire] as Map)['text'] ?? ''}',
+              byDefault: '${(j[kind.wire] as Map)['default'] ?? ''}',
+            ),
+      };
 
   static Map<String, dynamic> _map(Map<String, dynamic> response) {
     final raw = response['message'] ?? response;

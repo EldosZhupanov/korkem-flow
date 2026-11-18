@@ -140,7 +140,9 @@ class ClientCard {
       orders: j['orders'] is List
           ? [for (final o in _l(j['orders'])) ClientOrder.fromJson(_m(o))]
           : null,
-      payments: [for (final p in _l(j['payments'])) ClientPayment.fromJson(_m(p))],
+      payments: [
+        for (final p in _l(j['payments'])) ClientPayment.fromJson(_m(p)),
+      ],
       figures: j['figures'] is Map
           ? ClientFigures.fromJson(_m(j['figures']))
           : null,

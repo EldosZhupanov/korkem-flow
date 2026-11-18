@@ -142,7 +142,10 @@ class _MatchTile extends StatelessWidget {
     final (likeness, colour) = switch (m.likeness) {
       DecorLikeness.close => (l10n.fdcLikeClose, status.success),
       DecorLikeness.near => (l10n.fdcLikeNear, status.warning),
-      DecorLikeness.far => (l10n.fdcLikeFar, theme.colorScheme.onSurfaceVariant),
+      DecorLikeness.far => (
+        l10n.fdcLikeFar,
+        theme.colorScheme.onSurfaceVariant,
+      ),
     };
     final shelf = m.films.where((f) => f.free > 0).firstOrNull;
     return Card(

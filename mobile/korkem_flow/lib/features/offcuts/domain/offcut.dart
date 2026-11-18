@@ -66,8 +66,7 @@ class OffcutShelf {
         if (o is Map) Offcut.fromJson(Map<String, dynamic>.from(o)),
     ],
     thicknesses: [
-      for (final t in json['thicknesses'] as List? ?? const [])
-        _d(t).round(),
+      for (final t in json['thicknesses'] as List? ?? const []) _d(t).round(),
     ],
     areaM2: _d(json['area_m2']),
   );

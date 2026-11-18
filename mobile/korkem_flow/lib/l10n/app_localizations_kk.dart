@@ -10254,4 +10254,356 @@ class AppLocalizationsKk extends AppLocalizations {
   String gsrPaid(String amount) {
     return 'төлем $amount';
   }
+
+  @override
+  String get navToWrite => 'Кімге жазу керек';
+
+  @override
+  String get clcTitle => 'Клиент картасы';
+
+  @override
+  String get clcOrders => 'Тапсырыс';
+
+  @override
+  String get clcTotal => 'Тапсырыстар сомасы';
+
+  @override
+  String get clcPaid => 'Төленді';
+
+  @override
+  String get clcDebt => 'Қарыз';
+
+  @override
+  String get clcAverage => 'Орташа чек';
+
+  @override
+  String get clcLast => 'Соңғы тапсырыс';
+
+  @override
+  String clcSince(String date) {
+    return '$date бастап клиент';
+  }
+
+  @override
+  String get clcNewOrder => 'Жаңа тапсырыс';
+
+  @override
+  String get clcSellFilm => 'Үлдір сату';
+
+  @override
+  String get clcAllOrders => 'Барлық тапсырыстар';
+
+  @override
+  String get clcOrdersSection => 'Тапсырыстар';
+
+  @override
+  String get clcPaymentsSection => 'Төлемдер';
+
+  @override
+  String get clcFilmSection => 'Үлдір';
+
+  @override
+  String clcFilmLine(String metres, String sum, String debt) {
+    return '$metres м $sum сомаға алынды · қарыз $debt';
+  }
+
+  @override
+  String get clcFilmOpen => 'Үлдір сатып алулары';
+
+  @override
+  String get clcNoOrders => 'Әзірге тапсырыс жоқ';
+
+  @override
+  String get clcCnc => 'ЧПУ';
+
+  @override
+  String get clcWhatsApp => 'WhatsApp-қа жазу';
+
+  @override
+  String twReady(int count) {
+    return 'Дайын — клиентке хабарлау ($count)';
+  }
+
+  @override
+  String twDebts(int count) {
+    return 'Қарызды еске салу ($count)';
+  }
+
+  @override
+  String twFilm(int count) {
+    return 'Үлдір — қарыздар ($count)';
+  }
+
+  @override
+  String get twEmpty => 'Бүгін ешкімге жазудың қажеті жоқ';
+
+  @override
+  String get twEmptyHint =>
+      'Мұнда клиент әлі білмейтін дайын тапсырыстар мен еске салатын қарыздар шығады.';
+
+  @override
+  String twReadyLine(String date) {
+    return '$date дайын';
+  }
+
+  @override
+  String twDebtLine(String sum) {
+    return 'төлеуге $sum';
+  }
+
+  @override
+  String twHandedLine(String date) {
+    return '$date берілді';
+  }
+
+  @override
+  String twRemindedLine(int count, String date) {
+    return 'еске салынды: $count, соңғысы $date';
+  }
+
+  @override
+  String twFilmDays(int days) {
+    return 'қарызға $days күн';
+  }
+
+  @override
+  String get twSend => 'WhatsApp-қа жазу';
+
+  @override
+  String get twMark => 'Жібердім';
+
+  @override
+  String get twMarked => 'Белгіленді — енді сұрамаймын';
+
+  @override
+  String get twSentQ => 'Хабарлама жіберілді ме?';
+
+  @override
+  String get twNoPhone => 'Клиенттің телефоны жоқ';
+
+  @override
+  String get twTemplates => 'Хабарлама мәтіндері';
+
+  @override
+  String get twTemplateReady => 'Тапсырыс дайын';
+
+  @override
+  String get twTemplateDebt => 'Тапсырыс бойынша қарыз';
+
+  @override
+  String get twTemplateFilm => 'Үлдір үшін қарыз';
+
+  @override
+  String get twTemplateHint => 'Қоюға болады:';
+
+  @override
+  String get twTemplateReset => 'Бастапқыны қайтару';
+
+  @override
+  String get twTemplateSave => 'Сақтау';
+
+  @override
+  String get dsmTitle => 'Күн қорытындысы';
+
+  @override
+  String dsmSwitch(String hour) {
+    return 'Күн сайын $hour:00-де маған жіберу';
+  }
+
+  @override
+  String get dsmHint =>
+      '«Баптаулар → Арналар» бөлімінде қосылған болса, Telegram не WhatsApp-қа келеді.';
+
+  @override
+  String get dsmCopy => 'Көшіру';
+
+  @override
+  String get dsmCopied => 'Қорытынды көшірілді';
+
+  @override
+  String get dsmSendMe => 'Өзіме WhatsApp-қа жіберу';
+
+  @override
+  String get dsmHour => 'Сағат';
+
+  @override
+  String get orderTell => 'Клиентке хабарлау';
+
+  @override
+  String orderTold(String date) {
+    return 'Клиентке $date хабарланды';
+  }
+
+  @override
+  String get fdcMatchPhoto => 'Үлгі фотосы бойынша таңдау';
+
+  @override
+  String get fdcMatchTitle => 'Үлгіге ұқсастар';
+
+  @override
+  String get fdcMatchHint =>
+      'Күндізгі жарықта, көлеңкесіз түсіріңіз; суреттің ортасы оқылады. Бұл кеңес — үлгімен көзбен салыстырыңыз.';
+
+  @override
+  String get fdcAnalogues => 'Баламалар';
+
+  @override
+  String fdcAnaloguesTitle(String name) {
+    return 'Баламалар: $name';
+  }
+
+  @override
+  String get fdcLikeClose => 'өте ұқсас';
+
+  @override
+  String get fdcLikeNear => 'ұқсас';
+
+  @override
+  String get fdcLikeFar => 'алыс';
+
+  @override
+  String fdcOnShelf(String metres) {
+    return 'қоймада $metres м';
+  }
+
+  @override
+  String get fdcNotOnShelf => 'қоймада жоқ';
+
+  @override
+  String get fdcNoMatches => 'Ұқсас ештеңе табылмады';
+
+  @override
+  String get dsmMorning => 'Таңертең 9:00-де — нені тапсырыс беру керек';
+
+  @override
+  String get dsmMorningTitle => 'Тапсырыс беру уақыты';
+
+  @override
+  String get scanEntryTitle => 'Тапсырыс нөмірі';
+
+  @override
+  String get scanEntryHint => '245 немесе жапсырма коды';
+
+  @override
+  String get scanEntryOpen => 'Ашу';
+
+  @override
+  String scanTitle(String number, String customer) {
+    return '№ $number · $customer';
+  }
+
+  @override
+  String get scanHandedOver => 'Клиентке берілген';
+
+  @override
+  String get scanOnHold => 'Тапсырыс тоқтатылған';
+
+  @override
+  String scanDoneOn(String date) {
+    return 'жасалды $date';
+  }
+
+  @override
+  String get scanYours => 'сіздікі — жасауға болады';
+
+  @override
+  String get scanNotYours => 'сіздікі емес';
+
+  @override
+  String get scanOpenOrder => 'Тапсырысты ашу';
+
+  @override
+  String get mdfPrintSticker => 'Жапсырма';
+
+  @override
+  String get navOffcuts => 'Қиындылар';
+
+  @override
+  String get offcutsTitle => 'МДФ қиындылары';
+
+  @override
+  String offcutsSummary(int count, String area) {
+    return '$count дана · $area м²';
+  }
+
+  @override
+  String get offcutsAdd => 'Сөреге қою';
+
+  @override
+  String get offcutsAll => 'Барлығы';
+
+  @override
+  String offcutsMm(int mm) {
+    return '$mm мм';
+  }
+
+  @override
+  String get offcutsEmptyTitle => 'Қиындылар жоқ';
+
+  @override
+  String get offcutsEmpty =>
+      'Парақтан қалған кесекті өлшемімен сөреге қойыңыз — жаңа тапсырыстардың ұсақ бөлшектері алдымен содан пішіледі.';
+
+  @override
+  String offcutsCell(String cell) {
+    return 'ұяшық $cell';
+  }
+
+  @override
+  String offcutsFrom(String number) {
+    return '№ $number қалдығы';
+  }
+
+  @override
+  String offcutsFor(String number) {
+    return '№ $number үшін';
+  }
+
+  @override
+  String get offcutsUse => 'Жұмысқа алынды';
+
+  @override
+  String get offcutsScrap => 'Утильге';
+
+  @override
+  String get offcutsAddTitle => 'Қиынды сөреге';
+
+  @override
+  String get offcutsThickness => 'Қалыңдығы';
+
+  @override
+  String get offcutsLength => 'Ұзындығы, мм';
+
+  @override
+  String get offcutsWidth => 'Ені, мм';
+
+  @override
+  String get offcutsCellLabel => 'Қай жерде';
+
+  @override
+  String get offcutsCellHint => 'А-3';
+
+  @override
+  String get offcutsNote => 'Ескертпе';
+
+  @override
+  String get offcutsPut => 'Қою';
+
+  @override
+  String offcutsSuggestTitle(int count) {
+    return 'Қиындылардан: $count бөлшек';
+  }
+
+  @override
+  String offcutsSuggestLine(
+    int position,
+    String part,
+    String offcut,
+    String cell,
+  ) {
+    return '$position-орын: $part — $offcut қиындысынан, $cell';
+  }
+
+  @override
+  String get offcutsTake => 'Алу';
 }

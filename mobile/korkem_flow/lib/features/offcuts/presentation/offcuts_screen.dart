@@ -452,4 +452,3 @@ class _OffcutSuggestionViewState extends ConsumerState<OffcutSuggestionView> {
     );
   }
 }
-
