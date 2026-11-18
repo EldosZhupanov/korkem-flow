@@ -39,6 +39,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_recipe_view.dart';
+import 'package:korkem_flow/features/offcuts/presentation/offcuts_screen.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
@@ -2544,6 +2545,25 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     );
   }
 
+  Future<void> _printSticker() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final area = NumberFormat('0.00', locale).format(o.areaM2);
+    try {
+      await printMdfOrder(
+        name: '${o.name}-sticker',
+        build: () => buildMdfStickerPdf(
+          o,
+          due: l10n.myWorkDue(mdfDay(o.deliveryDate, year: false)),
+          area: '$area м²',
+        ),
+      );
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    }
+  }
+
   Future<void> _print({required bool withPrices}) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -2699,6 +2719,8 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
           ),
         // What the order earned (owner, 14.11.2026).
         MdfMarginView(order: o.name),
+        // Small parts an offcut on the shelf holds (owner, 18.11.2026).
+        if (open && o.offcutParts > 0) OffcutSuggestionView(order: o.name),
         const SizedBox(height: AppSpacing.sm),
         Wrap(
           spacing: AppSpacing.sm,
@@ -2714,6 +2736,13 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
               onPressed: () => _print(withPrices: false),
               icon: const Icon(AppIcons.print),
               label: Text(l10n.mdfPrintShop),
+            ),
+            // The QR a worker scans to tick his stage (owner, 18.11.2026).
+            OutlinedButton.icon(
+              key: const ValueKey('mdfPrintSticker'),
+              onPressed: _printSticker,
+              icon: const Icon(AppIcons.qrCode),
+              label: Text(l10n.mdfPrintSticker),
             ),
             // Rarely needed (owner, 09.11.2026): out of the way, in «⋮».
             PopupMenuButton<String>(

@@ -58,6 +58,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_volume_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/my_work_screen.dart';
 import 'package:korkem_flow/features/memory/presentation/memory_screen.dart';
 import 'package:korkem_flow/features/notifications/presentation/notifications_screen.dart';
+import 'package:korkem_flow/features/offcuts/presentation/offcuts_screen.dart';
 import 'package:korkem_flow/features/one_c/presentation/one_c_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/delivery_centre_screen.dart';
 import 'package:korkem_flow/features/operations/presentation/operations_screen.dart';
@@ -204,6 +205,7 @@ abstract final class Routes {
 
   /// «Кому написать» and one customer's card (owner, 18.11.2026).
   static const toWrite = '/to-write';
+  static const offcuts = '/offcuts';
   static const clientCardPattern = '/clients/:customer';
   static String clientCard(String customer) =>
       '/clients/${Uri.encodeComponent(customer)}';
@@ -462,6 +464,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.toWrite,
         builder: (context, state) => const ToWriteScreen(),
+      ),
+      GoRoute(
+        path: Routes.offcuts,
+        builder: (context, state) => const OffcutsScreen(),
       ),
       GoRoute(
         path: Routes.clientCardPattern,

@@ -165,6 +165,12 @@ const sidebarSectionGroups = <SidebarGroup>[
         icon: AppIcons.colour,
         labelOf: _paint,
       ),
+      // «Обрезки» (owner, 18.11.2026): pieces of sheets for small parts.
+      SidebarPage(
+        path: Routes.offcuts,
+        icon: AppIcons.offcut,
+        labelOf: _offcuts,
+      ),
       SidebarPage(path: Routes.mdfTv, icon: AppIcons.tv, labelOf: _tv),
       SidebarLink(
         path: Routes.production,
@@ -268,6 +274,7 @@ String _tv(AppLocalizations l10n) => l10n.mdfTvTitle;
 String _cash(AppLocalizations l10n) => l10n.mdfCashTitle;
 String _debts(AppLocalizations l10n) => l10n.mdfDebtsTitle;
 String _toWrite(AppLocalizations l10n) => l10n.navToWrite;
+String _offcuts(AppLocalizations l10n) => l10n.navOffcuts;
 String _report(AppLocalizations l10n) => l10n.mdfReportTitle;
 String _supplies(AppLocalizations l10n) => l10n.mdfGroupStock;
 String _references(AppLocalizations l10n) => l10n.mdfGroupSettings;

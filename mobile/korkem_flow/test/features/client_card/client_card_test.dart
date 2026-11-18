@@ -65,7 +65,11 @@ class _Fake implements ClientCardRepository {
   });
 
   @override
-  Future<DailySummary> setSummary({bool? enabled, int? hour}) async =>
+  Future<DailySummary> setSummary({
+    bool? enabled,
+    int? hour,
+    bool? morning,
+  }) async =>
       DailySummary.fromJson({
         'text': 'Итоги дня',
         'settings': {'enabled': enabled ?? false, 'hour': hour ?? 20},

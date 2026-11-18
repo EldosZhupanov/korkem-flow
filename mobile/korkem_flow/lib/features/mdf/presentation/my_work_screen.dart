@@ -12,6 +12,7 @@ import 'package:korkem_flow/features/mdf/data/my_work_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/my_work.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/order_scan_sheet.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// «Мои заказы» — a worker's own stages, from his own phone (owner,
@@ -64,6 +65,13 @@ class _MyWorkScreenState extends ConsumerState<MyWorkScreen> {
       title: l10n.myWorkTitle,
       subtitle: work.value?.name,
       actions: [
+        // A sticker that will not read, or no scanner: its number.
+        IconButton(
+          key: const ValueKey('myWorkScanEntry'),
+          tooltip: l10n.scanEntryTitle,
+          icon: const Icon(AppIcons.qrScan),
+          onPressed: () => showScanEntry(context),
+        ),
         IconButton(
           tooltip: l10n.adminStatsRetry,
           icon: const Icon(AppIcons.refresh),
