@@ -2777,9 +2777,13 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         ),
         // Who does each stage still to do (owner, 17.11.2026: «у заказа
         // всегда свои люди»): given when accepted, changed here.
+        // «Готово» is a mark, not anybody's work (owner, 18.11.2026): only
+        // the working stages carry who does them.
         if (open &&
             o.status != MdfStatus.draft &&
-            o.stages.values.any((d) => d == null)) ...[
+            o.stages.entries.any(
+              (e) => e.value == null && e.key != MdfStage.ready,
+            )) ...[
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
@@ -2787,7 +2791,7 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             children: [
               for (final MapEntry(key: stage, value: doneOn)
                   in o.stages.entries)
-                if (doneOn == null)
+                if (doneOn == null && stage != MdfStage.ready)
                   ActionChip(
                     key: ValueKey('mdfGiven:${stage.name}'),
                     avatar: const Icon(AppIcons.profile),

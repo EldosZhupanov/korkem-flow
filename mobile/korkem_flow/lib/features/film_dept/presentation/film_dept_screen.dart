@@ -407,8 +407,8 @@ class _StockTabState extends ConsumerState<_StockTab> {
     if (done ?? false) _refresh(ref);
   }
 
-  Future<void> _sell(FilmCatalog c, [Film? film]) async {
-    final done = await showFilmSale(context, c, film: film);
+  Future<void> _sell(FilmCatalog c, {Film? film, bool glue = false}) async {
+    final done = await showFilmSale(context, c, film: film, glue: glue);
     if (done ?? false) _refresh(ref);
   }
 
@@ -611,16 +611,41 @@ class _StockTabState extends ConsumerState<_StockTab> {
                             ),
                           ),
                         ),
+                      // «Продать ▾» like «Приход ▾» (owner, 18.11.2026):
+                      // the film, or the glue alone.
                       if (c.canEdit)
-                        FilledButton.icon(
-                          key: const ValueKey('filmDept:sell'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: status.info,
-                            foregroundColor: on(status.info),
+                        MenuAnchor(
+                          menuChildren: [
+                            MenuItemButton(
+                              key: const ValueKey('filmDept:sellFilm'),
+                              leadingIcon: const Icon(AppIcons.material),
+                              onPressed: () => unawaited(_sell(c)),
+                              child: Text(l10n.filmReceiveFilm),
+                            ),
+                            MenuItemButton(
+                              key: const ValueKey('filmDept:sellGlue'),
+                              leadingIcon: const Icon(AppIcons.textured),
+                              onPressed: () => unawaited(_sell(c, glue: true)),
+                              child: Text(l10n.filmReceiveGlue),
+                            ),
+                          ],
+                          builder: (context, menu, _) => FilledButton.icon(
+                            key: const ValueKey('filmDept:sell'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: status.info,
+                              foregroundColor: on(status.info),
+                            ),
+                            onPressed: () =>
+                                menu.isOpen ? menu.close() : menu.open(),
+                            icon: const Icon(AppIcons.add),
+                            label: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(l10n.filmSell),
+                                const Icon(AppIcons.expand),
+                              ],
+                            ),
                           ),
-                          onPressed: () => _sell(c),
-                          icon: const Icon(AppIcons.add),
-                          label: Text(l10n.filmSell),
                         ),
                       if (c.canEdit)
                         const SizedBox(
@@ -710,7 +735,7 @@ class _StockTabState extends ConsumerState<_StockTab> {
                 film: f,
                 full: (f.minStock ?? 0) > 0 ? f.minStock! * 3 : fullest,
                 canEdit: c.canEdit,
-                onSell: () => _sell(c, f),
+                onSell: () => _sell(c, film: f),
                 onReceive: () => _receive(c, f),
                 onWant: () => _want(f),
                 onTap: () async {
@@ -912,7 +937,9 @@ class _StockTile extends StatelessWidget {
               children: [
                 SizedBox(
                   width: AppSpacing.xl,
-                  child: f.argb == null ? null : FilmSample(argb: f.argb),
+                  child: f.argb == null && f.image == null
+                      ? null
+                      : FilmSample(argb: f.argb, image: f.image),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -1005,7 +1032,11 @@ class FilmPage extends ConsumerWidget {
           Row(
             children: [
               if (film.argb != null) ...[
-                FilmSample(argb: film.argb, size: AppSpacing.xxxl),
+                FilmSample(
+                  argb: film.argb,
+                  image: film.image,
+                  size: AppSpacing.xxxl,
+                ),
                 const SizedBox(width: AppSpacing.md),
               ],
               Flexible(

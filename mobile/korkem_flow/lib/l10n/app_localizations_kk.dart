@@ -10079,4 +10079,78 @@ class AppLocalizationsKk extends AppLocalizations {
   String cncpOrderSaveAll(String count) {
     return 'Бағдарламаларды сақтау ($count)';
   }
+
+  @override
+  String get fdcTitle => 'Жеткізушілер каталогтары';
+
+  @override
+  String get fdcPictures => 'Код не атау бойынша суреттер (бірнеше файл)';
+
+  @override
+  String get fdcImport => 'Каталог жүктеу (zip)';
+
+  @override
+  String fdcImported(String added, String updated) {
+    return 'Каталог жүктелді: жаңа $added, жаңартылды $updated';
+  }
+
+  @override
+  String fdcPicturesDone(String count) {
+    return 'Пленкаларға сурет қосылды: $count';
+  }
+
+  @override
+  String fdcPicturesMissed(String count, String names) {
+    return 'Қосылды: $count. Пленка табылмады: $names';
+  }
+
+  @override
+  String get fdcEmpty =>
+      'Әзірге каталог жоқ. Жеткізуші каталогынан жасалған zip жүктеңіз немесе жеткізушінің PDF-ін жіберіңіз.';
+
+  @override
+  String get fdcSearch => 'Атауы не коды';
+
+  @override
+  String get fdcHint =>
+      'Өндірушінің декорлар анықтамалығы, қойма емес. Декорды бассаңыз — пленка енгізесіз; аттас пленкаларыңыз суретті өздері көрсетеді.';
+
+  @override
+  String fdcYouHave(String metres) {
+    return 'Сізде бар · $metres м';
+  }
+
+  @override
+  String fdcThicknesses(String value) {
+    return 'Қалыңдықтары: $value';
+  }
+
+  @override
+  String get fdcYourFilms => 'Осы декордағы пленкаларыңыз';
+
+  @override
+  String fdcFilmLine(String label, String metres) {
+    return '$label · $metres м';
+  }
+
+  @override
+  String get fdcMakeHint =>
+      'Сізде мұндай пленка әлі жоқ. Атауы, коллекциясы, коды мен түсі жеткізуші каталогынан алынады; бағалар — пленка карточкасында.';
+
+  @override
+  String get fdcMake => 'Пленка енгізу';
+
+  @override
+  String fdcMade(String label) {
+    return 'Пленка енгізілді: $label';
+  }
+
+  @override
+  String get fdcPhoto => 'Үлгі суреті';
+
+  @override
+  String get fdcPhotoClear => 'Каталог суретін қайтару';
+
+  @override
+  String get fdcNoPicture => 'Әзірге сурет жоқ';
 }

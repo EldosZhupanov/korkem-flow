@@ -17351,6 +17351,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save programs ({count})'**
   String cncpOrderSaveAll(String count);
+
+  /// No description provided for @fdcTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier catalogues'**
+  String get fdcTitle;
+
+  /// No description provided for @fdcPictures.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures by code or name (several files)'**
+  String get fdcPictures;
+
+  /// No description provided for @fdcImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Load a catalogue (zip)'**
+  String get fdcImport;
+
+  /// No description provided for @fdcImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalogue loaded: {added} new, {updated} updated'**
+  String fdcImported(String added, String updated);
+
+  /// No description provided for @fdcPicturesDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures put on films: {count}'**
+  String fdcPicturesDone(String count);
+
+  /// No description provided for @fdcPicturesMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Put on: {count}. No film for: {names}'**
+  String fdcPicturesMissed(String count, String names);
+
+  /// No description provided for @fdcEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No catalogues yet. Load a zip prepared from a supplier\'s catalogue, or send the supplier\'s PDF to have one made.'**
+  String get fdcEmpty;
+
+  /// No description provided for @fdcSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or code'**
+  String get fdcSearch;
+
+  /// No description provided for @fdcHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A reference of the maker\'s decors, not the store. Tap a decor to take it in as a film; your films of the same name show its picture by themselves.'**
+  String get fdcHint;
+
+  /// No description provided for @fdcYouHave.
+  ///
+  /// In en, this message translates to:
+  /// **'You have it · {metres} m'**
+  String fdcYouHave(String metres);
+
+  /// No description provided for @fdcThicknesses.
+  ///
+  /// In en, this message translates to:
+  /// **'Thicknesses: {value}'**
+  String fdcThicknesses(String value);
+
+  /// No description provided for @fdcYourFilms.
+  ///
+  /// In en, this message translates to:
+  /// **'Your films of this decor'**
+  String get fdcYourFilms;
+
+  /// No description provided for @fdcFilmLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} · {metres} m'**
+  String fdcFilmLine(String label, String metres);
+
+  /// No description provided for @fdcMakeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in your catalogue yet. The name, collection, code and colour come from the supplier\'s catalogue; the prices go on the film\'s card.'**
+  String get fdcMakeHint;
+
+  /// No description provided for @fdcMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take in as a film'**
+  String get fdcMake;
+
+  /// No description provided for @fdcMade.
+  ///
+  /// In en, this message translates to:
+  /// **'Film added: {label}'**
+  String fdcMade(String label);
+
+  /// No description provided for @fdcPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample photo'**
+  String get fdcPhoto;
+
+  /// No description provided for @fdcPhotoClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the catalogue picture'**
+  String get fdcPhotoClear;
+
+  /// No description provided for @fdcNoPicture.
+  ///
+  /// In en, this message translates to:
+  /// **'No picture yet'**
+  String get fdcNoPicture;
 }
 
 class _AppLocalizationsDelegate

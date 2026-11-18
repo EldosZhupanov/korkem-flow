@@ -10110,4 +10110,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String cncpOrderSaveAll(String count) {
     return 'Save programs ($count)';
   }
+
+  @override
+  String get fdcTitle => 'Supplier catalogues';
+
+  @override
+  String get fdcPictures => 'Pictures by code or name (several files)';
+
+  @override
+  String get fdcImport => 'Load a catalogue (zip)';
+
+  @override
+  String fdcImported(String added, String updated) {
+    return 'Catalogue loaded: $added new, $updated updated';
+  }
+
+  @override
+  String fdcPicturesDone(String count) {
+    return 'Pictures put on films: $count';
+  }
+
+  @override
+  String fdcPicturesMissed(String count, String names) {
+    return 'Put on: $count. No film for: $names';
+  }
+
+  @override
+  String get fdcEmpty =>
+      'No catalogues yet. Load a zip prepared from a supplier\'s catalogue, or send the supplier\'s PDF to have one made.';
+
+  @override
+  String get fdcSearch => 'Name or code';
+
+  @override
+  String get fdcHint =>
+      'A reference of the maker\'s decors, not the store. Tap a decor to take it in as a film; your films of the same name show its picture by themselves.';
+
+  @override
+  String fdcYouHave(String metres) {
+    return 'You have it · $metres m';
+  }
+
+  @override
+  String fdcThicknesses(String value) {
+    return 'Thicknesses: $value';
+  }
+
+  @override
+  String get fdcYourFilms => 'Your films of this decor';
+
+  @override
+  String fdcFilmLine(String label, String metres) {
+    return '$label · $metres m';
+  }
+
+  @override
+  String get fdcMakeHint =>
+      'Not in your catalogue yet. The name, collection, code and colour come from the supplier\'s catalogue; the prices go on the film\'s card.';
+
+  @override
+  String get fdcMake => 'Take in as a film';
+
+  @override
+  String fdcMade(String label) {
+    return 'Film added: $label';
+  }
+
+  @override
+  String get fdcPhoto => 'Sample photo';
+
+  @override
+  String get fdcPhotoClear => 'Back to the catalogue picture';
+
+  @override
+  String get fdcNoPicture => 'No picture yet';
 }
