@@ -967,6 +967,8 @@ def card(order: str) -> dict:
 		],
 		"ready_on": str(doc.korkem_ready_on) if doc.korkem_ready_on else None,
 		"handed_over_on": str(doc.korkem_handed_over_on) if doc.korkem_handed_over_on else None,
+		# «Кому написать» (owner, 18.11.2026): when the customer was told it is ready.
+		"told_on": str(doc.get("korkem_told_on")) if doc.get("korkem_told_on") else None,
 		"taken_by": doc.get("korkem_taken_by"),
 		"taken_phone": doc.get("korkem_taken_phone"),
 		"handed_over_by": _full_name(doc.get("korkem_handed_over_by")),

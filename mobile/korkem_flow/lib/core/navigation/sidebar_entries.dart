@@ -186,6 +186,13 @@ const sidebarSectionGroups = <SidebarGroup>[
         icon: AppIcons.payroll,
         labelOf: _debts,
       ),
+      // «Кому написать» (owner, 18.11.2026): ready orders and debts, with
+      // the WhatsApp words already written.
+      SidebarPage(
+        path: Routes.toWrite,
+        icon: AppIcons.whatsApp,
+        labelOf: _toWrite,
+      ),
       SidebarPage(
         path: Routes.mdfReport,
         icon: AppIcons.report,
@@ -260,6 +267,7 @@ String _paint(AppLocalizations l10n) => l10n.mdfPaintTitle;
 String _tv(AppLocalizations l10n) => l10n.mdfTvTitle;
 String _cash(AppLocalizations l10n) => l10n.mdfCashTitle;
 String _debts(AppLocalizations l10n) => l10n.mdfDebtsTitle;
+String _toWrite(AppLocalizations l10n) => l10n.navToWrite;
 String _report(AppLocalizations l10n) => l10n.mdfReportTitle;
 String _supplies(AppLocalizations l10n) => l10n.mdfGroupStock;
 String _references(AppLocalizations l10n) => l10n.mdfGroupSettings;

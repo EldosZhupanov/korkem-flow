@@ -600,6 +600,7 @@ class MdfOrder {
     this.phone,
     this.readyOn,
     this.handedOverOn,
+    this.toldOn,
     this.takenBy,
     this.takenPhone,
     this.handedOverBy,
@@ -651,6 +652,7 @@ class MdfOrder {
     },
     readyOn: _s(json['ready_on']),
     handedOverOn: _s(json['handed_over_on']),
+    toldOn: _s(json['told_on']),
     takenBy: _s(json['taken_by']),
     takenPhone: Phone.prettyOrNull(_s(json['taken_phone'])),
     handedOverBy: _s(json['handed_over_by']),
@@ -731,6 +733,9 @@ class MdfOrder {
   final Map<MdfStage, String?> stages;
   final String? readyOn;
   final String? handedOverOn;
+
+  /// When the customer was told it is ready (owner, 18.11.2026); null — not yet.
+  final String? toldOn;
 
   /// Who came for it, when not the customer — with a phone; and who gave it.
   final String? takenBy;

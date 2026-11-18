@@ -111,6 +111,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_glue_sale_fields
 
 	add_glue_sale_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_customer_message_fields
+
+	add_customer_message_fields.execute()
 	from korkem_manufacturing.patches.v0_0 import add_film_issued_by_field
 
 	add_film_issued_by_field.execute()

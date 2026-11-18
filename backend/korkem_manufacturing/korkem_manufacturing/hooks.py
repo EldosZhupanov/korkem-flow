@@ -198,6 +198,8 @@ scheduler_events = {
 		"korkem_manufacturing.services.stock_count.remind",
 		# «Привезли, а доставку не записали» — once per receipt, after a day.
 		"korkem_manufacturing.services.logistics.remind",
+		# «Итоги дня» — at the owner's hour, once a day, when he switched it on.
+		"korkem_manufacturing.services.daily_summary.run",
 	],
 	"all": ["korkem_manufacturing.services.outbox_workers.cron_dispatch_outbox"],
 }

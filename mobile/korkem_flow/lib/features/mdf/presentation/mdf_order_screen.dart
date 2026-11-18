@@ -18,6 +18,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/phone/phone.dart';
+import 'package:korkem_flow/features/client_card/presentation/tell_customer_button.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_order_sheet.dart';
 import 'package:korkem_flow/features/facade_prices/data/facade_price_repository.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
@@ -75,6 +76,10 @@ class MdfOrderScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(name!),
         actions: [
+          // «Сообщить клиенту» (owner, 18.11.2026): a ready order, its
+          // customer told on WhatsApp in the owner's words.
+          if (order.value case final o? when o.status == MdfStatus.ready)
+            TellCustomerButton(order: o.name, toldOn: o.toldOn),
           // «Узоры ЧПУ (β)» — only where the owner switched it on, for whom
           // they let see it (owner, 18.11.2026); it reads the order only.
           if (order.value?.cnc ?? false)

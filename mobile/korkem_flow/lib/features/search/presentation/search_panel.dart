@@ -25,7 +25,6 @@ import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_scre
 import 'package:korkem_flow/features/film_catalog/presentation/film_decors_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
-import 'package:korkem_flow/features/film_dept/presentation/film_customer_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_screen.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
@@ -808,8 +807,6 @@ class _Rows {
     }
   };
 
-  static SearchChoice _filmCustomer(FilmCustomer c) =>
-      _page(() => FilmCustomerPage(customer: c));
 
   // --- rows ---------------------------------------------------------------
 
@@ -853,7 +850,6 @@ class _Rows {
 
   _Item customer(SearchCustomer c) {
     final film = c.film;
-    final toOrders = allowed.facades && (c.orders > 0 || film == null);
     final recent = SearchRecent(
       kind: 'customer',
       id: c.customer,
@@ -878,11 +874,8 @@ class _Rows {
       trailing: c.debt > 0.5 ? l10n.gsrDebt(money.format(c.debt)) : null,
       trailingColor: status.danger,
       recent: recent,
-      choose: toOrders
-          ? _push(Routes.mdfOrdersOf(c.name))
-          : film != null
-          ? _filmCustomer(film)
-          : _push(Routes.mdfOrdersOf(c.name)),
+      // The customer's card (owner, 18.11.2026): everything of his on one page.
+      choose: _push(Routes.clientCard(c.customer)),
       extras: [
         if (allowed.facades) ...[
           (
@@ -1134,15 +1127,7 @@ class _Rows {
   _Item recent(SearchRecent r) {
     final data = r.data ?? const {};
     final choose = switch (r.kind) {
-      'customer' when data['orders'] == 0 && data['film'] == true =>
-        _filmCustomer(
-          FilmCustomer.fromJson({
-            'customer': r.id,
-            'name': r.title,
-            'phone': data['phone'],
-          }),
-        ),
-      'customer' => _push(Routes.mdfOrdersOf(r.title)),
+      'customer' => _push(Routes.clientCard(r.id)),
       'facadeOrder' => _push(Routes.mdfOrder(r.id)),
       'cncOrder' => _push(Routes.cncOrder(r.id)),
       'film' => _page(() => FilmPage(item: r.id)),

@@ -15,6 +15,8 @@ import 'package:korkem_flow/features/auth/presentation/register_screen.dart';
 import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
 import 'package:korkem_flow/features/bazis/presentation/bazis_import_screen.dart';
 import 'package:korkem_flow/features/channel_settings/presentation/channel_settings_screen.dart';
+import 'package:korkem_flow/features/client_card/presentation/client_card_screen.dart';
+import 'package:korkem_flow/features/client_card/presentation/to_write_screen.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_order_screen.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_prices_screen.dart';
@@ -199,6 +201,12 @@ abstract final class Routes {
   /// The plan for a TV on the shop's wall: today, tomorrow, later.
   static const mdfTv = '/mdf/tv';
   static const mdfCash = '/mdf/cash';
+
+  /// «Кому написать» and one customer's card (owner, 18.11.2026).
+  static const toWrite = '/to-write';
+  static const clientCardPattern = '/clients/:customer';
+  static String clientCard(String customer) =>
+      '/clients/${Uri.encodeComponent(customer)}';
   static const mdfReport = '/mdf/report';
   static const mdfVolume = '/mdf/volume';
   static const mdfPaint = '/mdf/paint';
@@ -450,6 +458,15 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.mdfDebts,
         builder: (context, state) => const MdfDebtsScreen(),
+      ),
+      GoRoute(
+        path: Routes.toWrite,
+        builder: (context, state) => const ToWriteScreen(),
+      ),
+      GoRoute(
+        path: Routes.clientCardPattern,
+        builder: (context, state) =>
+            ClientCardScreen(customer: state.pathParameters['customer'] ?? ''),
       ),
       GoRoute(
         path: Routes.mdfFilm,
