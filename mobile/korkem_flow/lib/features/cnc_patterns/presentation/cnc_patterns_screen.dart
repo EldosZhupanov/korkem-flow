@@ -509,15 +509,18 @@ class _MachineTabState extends ConsumerState<_MachineTab> {
             },
           ),
         );
-    Widget flag(String key, String label, bool value,
-            CncMachine Function(bool) set) =>
-        SwitchListTile(
-          key: ValueKey('cncMachine:$key'),
-          contentPadding: EdgeInsets.zero,
-          title: Text(label),
-          value: value,
-          onChanged: manage ? (v) => setState(() => _m = set(v)) : null,
-        );
+    Widget flag(
+      String key,
+      String label,
+      CncMachine Function({required bool on}) set, {
+      required bool value,
+    }) => SwitchListTile(
+      key: ValueKey('cncMachine:$key'),
+      contentPadding: EdgeInsets.zero,
+      title: Text(label),
+      value: value,
+      onChanged: manage ? (v) => setState(() => _m = set(on: v)) : null,
+    );
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -539,13 +542,30 @@ class _MachineTabState extends ConsumerState<_MachineTab> {
                     ? (v) => setState(() => _m = _with(ext: v))
                     : null,
               ),
-              flag('arcs', l10n.cncpArcs, _m.arcs, (v) => _with(arcs: v)),
-              flag('comments', l10n.cncpComments, _m.comments,
-                  (v) => _with(comments: v)),
-              flag('lines', l10n.cncpLineNumbers, _m.lineNumbers,
-                  (v) => _with(lineNumbers: v)),
-              flag('swap', l10n.cncpSwapXy, _m.swapXy,
-                  (v) => _with(swapXy: v)),
+              flag(
+                'arcs',
+                l10n.cncpArcs,
+                ({required on}) => _with(arcs: on),
+                value: _m.arcs,
+              ),
+              flag(
+                'comments',
+                l10n.cncpComments,
+                ({required on}) => _with(comments: on),
+                value: _m.comments,
+              ),
+              flag(
+                'lines',
+                l10n.cncpLineNumbers,
+                ({required on}) => _with(lineNumbers: on),
+                value: _m.lineNumbers,
+              ),
+              flag(
+                'swap',
+                l10n.cncpSwapXy,
+                ({required on}) => _with(swapXy: on),
+                value: _m.swapXy,
+              ),
               const SizedBox(height: AppSpacing.sm),
               number('safe', l10n.cncpSafeZ, _m.safeZ, (v) => _with(safeZ: v)),
               number('clear', l10n.cncpClearZ, _m.clearZ,

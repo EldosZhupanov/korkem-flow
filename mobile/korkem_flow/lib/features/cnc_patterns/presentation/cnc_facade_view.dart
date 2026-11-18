@@ -92,7 +92,7 @@ class _FacadePainter extends CustomPainter {
         Paint()
           ..color = cut
           ..style = PaintingStyle.stroke
-          ..strokeWidth = max(1.0, c.width * scale)
+          ..strokeWidth = max<double>(1, c.width * scale)
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round,
       );

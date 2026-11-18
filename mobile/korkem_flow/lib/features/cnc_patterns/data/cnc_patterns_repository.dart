@@ -133,7 +133,7 @@ class CncPatternsRepository {
   }
 }
 
-/// Writes programs into «Загрузки/KORKEM ЧПУ/<folder>» and opens it.
+/// Writes programs into `Загрузки/KORKEM ЧПУ/{folder}` and opens it.
 class CncFileSaver {
   const CncFileSaver();
 

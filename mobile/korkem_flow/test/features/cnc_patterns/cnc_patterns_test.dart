@@ -11,7 +11,7 @@ import '../../support/widget_harness.dart';
 
 /// «Узоры ЧПУ (β)» (owner, 18.11.2026): a sandbox the owner turns on; a
 /// pattern drawn before it is saved; an order's programs saved into a folder.
-const _on = {
+const Map<String, dynamic> _on = {
   'enabled': true,
   'visible': true,
   'can_manage': true,
@@ -54,7 +54,7 @@ const _on = {
   'millings': ['Классика', 'Модерн'],
 };
 
-const _preview = {
+const Map<String, dynamic> _preview = {
   'pattern': 'Классика',
   'example': true,
   'warnings': <String>[],
@@ -116,8 +116,8 @@ class _Repo implements CncPatternsRepository {
 
   @override
   Future<CncOrderPlan> forOrder(String order) async =>
-      CncOrderPlan.fromJson({
-        'order': order,
+      CncOrderPlan.fromJson(const {
+        'order': 'SO-1',
         'minutes': 5.2,
         'lines': [
           {

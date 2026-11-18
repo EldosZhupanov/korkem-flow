@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/features/cnc_patterns/data/cnc_patterns_repository.dart';
@@ -30,7 +31,7 @@ class CncPatternEditor extends ConsumerStatefulWidget {
   const CncPatternEditor({
     required this.status,
     this.pattern,
-    this.debounce = const Duration(milliseconds: 400),
+    this.debounce = AppDebounce.search,
     super.key,
   });
 
