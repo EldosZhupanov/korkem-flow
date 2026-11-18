@@ -20,7 +20,11 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// The list of MDF orders — OnayBaza's «Тапсырыстар», compact: who, when,
 /// what colour, how much, how much is owed, where it is.
 class MdfOrdersScreen extends ConsumerStatefulWidget {
-  const MdfOrdersScreen({super.key});
+  const MdfOrdersScreen({this.search, super.key});
+
+  /// What to look for at once — the general search opens one customer's
+  /// orders this way (owner, 18.11.2026).
+  final String? search;
 
   @override
   ConsumerState<MdfOrdersScreen> createState() => _MdfOrdersScreenState();
@@ -41,7 +45,7 @@ enum _Filter {
 }
 
 class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
-  String _search = '';
+  late String _search = widget.search ?? '';
   _Filter _filter = _Filter.all;
 
   MdfListQuery get _query => (
@@ -148,6 +152,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
             child: AppSearchField(
               key: const ValueKey('mdfSearch'),
               hintText: l10n.mdfOrderSearch,
+              initialValue: widget.search,
               onChanged: (v) => setState(() => _search = v),
             ),
           ),

@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/navigation/app_destinations.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/navigation/sidebar_entries.dart';
 import 'package:korkem_flow/features/assistant/application/threads_controller.dart';
+import 'package:korkem_flow/features/search/presentation/search_panel.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The app's navigation, as a panel rather than a bar.
@@ -85,6 +86,18 @@ class AppSidebar extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+
+          // «Найти… Ctrl+K» — one search over the whole company (owner,
+          // 18.11.2026, variant Б), above everything it can find.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.sm,
+              0,
+              AppSpacing.sm,
+              AppSpacing.sm,
+            ),
+            child: SearchLauncher(onOpened: onNavigate),
           ),
 
           Expanded(

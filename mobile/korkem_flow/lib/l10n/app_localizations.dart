@@ -17393,6 +17393,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No picture yet'**
   String get fdcNoPicture;
+
+  /// No description provided for @gsrFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Search…'**
+  String get gsrFind;
+
+  /// No description provided for @gsrHotkey.
+  ///
+  /// In en, this message translates to:
+  /// **'Ctrl+K'**
+  String get gsrHotkey;
+
+  /// No description provided for @gsrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer, phone, order no., film, section…'**
+  String get gsrHint;
+
+  /// No description provided for @gsrTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get gsrTabAll;
+
+  /// No description provided for @gsrTabCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get gsrTabCustomers;
+
+  /// No description provided for @gsrTabOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get gsrTabOrders;
+
+  /// No description provided for @gsrTabMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get gsrTabMoney;
+
+  /// No description provided for @gsrTabFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film'**
+  String get gsrTabFilm;
+
+  /// No description provided for @gsrTabStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get gsrTabStock;
+
+  /// No description provided for @gsrTabGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get gsrTabGo;
+
+  /// No description provided for @gsrGroupRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get gsrGroupRecent;
+
+  /// No description provided for @gsrGroupActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get gsrGroupActions;
+
+  /// No description provided for @gsrGroupSections.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get gsrGroupSections;
+
+  /// No description provided for @gsrGroupCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get gsrGroupCustomers;
+
+  /// No description provided for @gsrGroupFacadeOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Facade orders'**
+  String get gsrGroupFacadeOrders;
+
+  /// No description provided for @gsrGroupCncOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC orders'**
+  String get gsrGroupCncOrders;
+
+  /// No description provided for @gsrGroupPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get gsrGroupPayments;
+
+  /// No description provided for @gsrGroupFilms.
+  ///
+  /// In en, this message translates to:
+  /// **'Films in stock'**
+  String get gsrGroupFilms;
+
+  /// No description provided for @gsrGroupDecors.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier catalogues'**
+  String get gsrGroupDecors;
+
+  /// No description provided for @gsrGroupOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Other orders'**
+  String get gsrGroupOrders;
+
+  /// No description provided for @gsrGroupWorkOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Production'**
+  String get gsrGroupWorkOrders;
+
+  /// No description provided for @gsrGroupStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get gsrGroupStock;
+
+  /// No description provided for @gsrOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} order} other{{count} orders}}'**
+  String gsrOrders(int count);
+
+  /// No description provided for @gsrDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {amount}'**
+  String gsrDebt(String amount);
+
+  /// No description provided for @gsrFilmCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'buys film'**
+  String get gsrFilmCustomer;
+
+  /// No description provided for @gsrActOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get gsrActOrders;
+
+  /// No description provided for @gsrActNewOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get gsrActNewOrder;
+
+  /// No description provided for @gsrActSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get gsrActSell;
+
+  /// No description provided for @gsrActCopyPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy phone'**
+  String get gsrActCopyPhone;
+
+  /// No description provided for @gsrPhoneCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone copied'**
+  String get gsrPhoneCopied;
+
+  /// No description provided for @gsrDoNewFacadeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New facade order'**
+  String get gsrDoNewFacadeOrder;
+
+  /// No description provided for @gsrDoNewCncOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New CNC order'**
+  String get gsrDoNewCncOrder;
+
+  /// No description provided for @gsrDoSellFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell film'**
+  String get gsrDoSellFilm;
+
+  /// No description provided for @gsrDoSellGlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell glue'**
+  String get gsrDoSellGlue;
+
+  /// No description provided for @gsrDoReceiveFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive film'**
+  String get gsrDoReceiveFilm;
+
+  /// No description provided for @gsrDoReceiveGlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive glue'**
+  String get gsrDoReceiveGlue;
+
+  /// No description provided for @gsrStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start typing to find a customer, an order, a film or a section. A wrong keyboard layout or a typo is fine.'**
+  String get gsrStart;
+
+  /// No description provided for @gsrNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found for “{query}”'**
+  String gsrNothing(String query);
+
+  /// No description provided for @gsrByPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching by phone'**
+  String get gsrByPhone;
+
+  /// No description provided for @gsrByNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for order no. {number}'**
+  String gsrByNumber(String number);
+
+  /// No description provided for @gsrKeys.
+  ///
+  /// In en, this message translates to:
+  /// **'↑↓ choose · Enter open · Esc close'**
+  String get gsrKeys;
+
+  /// No description provided for @gsrPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'paid {amount}'**
+  String gsrPaid(String amount);
 }
 
 class _AppLocalizationsDelegate
