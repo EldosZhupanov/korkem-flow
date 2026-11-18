@@ -23,6 +23,7 @@ import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_order_sheet.d
 import 'package:korkem_flow/features/facade_prices/data/facade_price_repository.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
@@ -755,7 +756,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     if (coating == MdfCoating.pvc) {
       // A film comes from the catalogue: maker, collection, film (owner,
       // 11.11.2026 — the old colour list is no longer picked from).
-      film = await showFilmPicker(context);
+      film = await showFilmPicker(context, customer: _customer?.name);
       if (film == null || !mounted) return;
     } else if (kind != null) {
       film = await showMdfDictionary(
@@ -1292,6 +1293,10 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                         0,
                         (sum, p) => sum + p.amount,
                       ),
+                      customer: _customer?.name,
+                      toBuy: film == null
+                          ? null
+                          : widget.order?.filmToBuy[film],
                       onFilm: (to) => _renameFilm(group, to),
                       onType: (to) => _setType(group, to),
                       onRateChanged: _reprice,
@@ -1300,8 +1305,13 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       tags: [
                         if (_owns(group).paint) MdfOrderTag.clientPaint,
                         if (_owns(group).film) MdfOrderTag.clientFilm,
-                        if (_owns(group).mdf) MdfOrderTag.clientParts,
+                        if (mates.isNotEmpty && mates.every((l) => l.clientMdf))
+                          MdfOrderTag.clientParts,
                       ],
+                      ownMdf: (
+                        marked: mates.where((l) => l.clientMdf).length,
+                        of: mates.length,
+                      ),
                       onTag: (t, {required on}) => _setOwn(group, t, on: on),
                       gloss: _glossOf(group),
                       onGloss: (g) => _setGloss(group, g),
@@ -1322,6 +1332,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                             headThickness: _head.thicknessMm,
                             defaultEdge: _defaultEdge,
                             headMaterial: _head.material,
+                            // One position: the group's mark says it all.
+                            ownMdfChip: mates.length > 1,
                             groupRate: _rateOf(film).text.trim(),
                             isLast:
                                 g == _films.length - 1 && i == mates.length - 1,
@@ -1455,6 +1467,51 @@ MdfHead? _withoutTags(MdfHead? h) => h == null
 
 /// One film's positions: a coloured header with the film, its price per m²
 /// and its totals; the rows; «+ строка»; «Итого группы».
+/// «нет на складе · 3,1 м · у MC Group» beside a group's film.
+class _ToBuyChip extends StatelessWidget {
+  const _ToBuyChip({
+    required this.short,
+    required this.from,
+    required this.index,
+  });
+
+  final double short;
+  final String? from;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final warning = context.statusColors.warning;
+    final metres = filmMetres(short);
+    return Container(
+      key: ValueKey('mdfFilmToBuy:$index'),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: warning.withValues(alpha: AppTint.surface),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(AppIcons.moveIn, size: AppIconSize.inline, color: warning),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            from == null
+                ? l10n.mdfFilmToBuy(metres)
+                : l10n.mdfFilmToBuyFrom(metres, from!),
+            style: theme.textTheme.labelMedium?.copyWith(color: warning),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _FilmGroup extends StatelessWidget {
   const _FilmGroup({
     required this.index,
@@ -1476,6 +1533,9 @@ class _FilmGroup extends StatelessWidget {
     this.gloss,
     this.onGloss,
     this.paintGroups = const [],
+    this.toBuy,
+    this.ownMdf = (marked: 0, of: 0),
+    this.customer,
     super.key,
   });
 
@@ -1510,6 +1570,18 @@ class _FilmGroup extends StatelessWidget {
   /// A paint group's finish (owner, 15.11.2026) — for the paint shop.
   final MdfGloss? gloss;
   final ValueChanged<MdfGloss?>? onGloss;
+
+  /// The film is not on the shelf: so many metres short, and whom it
+  /// comes from (owner, 18.11.2026).
+  final ({double short, String? from})? toBuy;
+
+  /// How many of the group's positions are the customer's own board: the
+  /// group's mark is a shortcut over the positions' own ticks (owner,
+  /// 18.11.2026 — two «клиента» looked like two different things).
+  final ({int marked, int of}) ownMdf;
+
+  /// The order's customer: his films of late come first in the window.
+  final String? customer;
 
   /// Each colour system a heading that cannot be picked, its colours under
   /// it; a colour the order names that has left the list stays, last.
@@ -1627,7 +1699,44 @@ class _FilmGroup extends StatelessWidget {
                         visualDensity: VisualDensity.compact,
                       ),
                     ),
-                  if (coating != null && coating != MdfCoating.raw)
+                  // A film: the field opens the whole window — every film,
+                  // on the shelf or not, every maker's catalogue (owner,
+                  // 18.11.2026: no second button beside it).
+                  if (coating == MdfCoating.pvc)
+                    SizedBox(
+                      width: AppSpacing.xxxl * 6,
+                      child: InkWell(
+                        key: ValueKey('filmPick:$index'),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        onTap: () async {
+                          final picked = await showFilmPicker(
+                            context,
+                            current: film,
+                            customer: customer,
+                            allowNone: true,
+                          );
+                          if (picked != null) {
+                            onFilm(picked.isEmpty ? null : picked);
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: mdfCoatingLabel(coating!, l10n),
+                            isDense: true,
+                            suffixIcon: const Icon(AppIcons.search),
+                          ),
+                          child: Text(
+                            film ?? mdfCoatingNone(coating, l10n),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: color,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (coating != null && coating != MdfCoating.raw)
                     SizedBox(
                       width: AppSpacing.xxxl * 5,
                       child: DropdownButtonFormField<String?>(
@@ -1658,21 +1767,8 @@ class _FilmGroup extends StatelessWidget {
                         ),
                       ),
                     ),
-                  // A film from the catalogue: the maker, the type, then that
-                  // maker's film (owner, 10.11.2026).
-                  if (coating == MdfCoating.pvc)
-                    IconButton(
-                      key: ValueKey('filmPick:$index'),
-                      tooltip: l10n.filmCatalogTitle,
-                      icon: const Icon(AppIcons.search),
-                      onPressed: () async {
-                        final picked = await showFilmPicker(
-                          context,
-                          current: film,
-                        );
-                        if (picked != null) onFilm(picked);
-                      },
-                    ),
+                  if (toBuy case final b? when coating == MdfCoating.pvc)
+                    _ToBuyChip(short: b.short, from: b.from, index: index),
                   // The type's own list, right beside its drop like every
                   // other field's: add, rename, delete a film or a paint
                   // without leaving the order (09.11.2026; moved beside the
@@ -1722,7 +1818,13 @@ class _FilmGroup extends StatelessWidget {
                   ])
                     FilterChip(
                       key: ValueKey('mdfGroupTag:$index:${t.wire}'),
-                      label: Text(mdfOrderTagLabel(t, l10n)),
+                      label: Text(
+                        t == MdfOrderTag.clientParts &&
+                                ownMdf.marked > 0 &&
+                                ownMdf.marked < ownMdf.of
+                            ? l10n.mdfClientPartsSome(ownMdf.marked, ownMdf.of)
+                            : mdfOrderTagLabel(t, l10n),
+                      ),
                       selected: tags.contains(t),
                       onSelected: onTag == null
                           ? null
@@ -1821,10 +1923,14 @@ class _LineRow extends StatelessWidget {
     required this.onDelete,
     required this.onUp,
     required this.onDown,
+    this.ownMdfChip = true,
     this.variants = const {},
     super.key,
   });
 
+  /// The position's own «клиента» tick — not when it is the group's only
+  /// position, where the group's «ЛМДФ клиента» says the same.
+  final bool ownMdfChip;
   final int index;
   final _LineFields line;
   final MdfLine? priced;
@@ -2176,19 +2282,20 @@ class _LineRow extends StatelessWidget {
               ),
               // His own board, position by position (owner, 14.11.2026): a
               // tick beside the material, not a second list.
-              Tooltip(
-                message: l10n.mdfTagClientParts,
-                child: FilterChip(
-                  key: ValueKey('mdfLineClientMdf:$index'),
-                  label: Text(l10n.mdfClientShort),
-                  visualDensity: VisualDensity.compact,
-                  selected: line.clientMdf,
-                  onSelected: (on) {
-                    line.clientMdf = on;
-                    onChanged();
-                  },
+              if (ownMdfChip)
+                Tooltip(
+                  message: l10n.mdfTagClientParts,
+                  child: FilterChip(
+                    key: ValueKey('mdfLineClientMdf:$index'),
+                    label: Text(l10n.mdfClientShort),
+                    visualDensity: VisualDensity.compact,
+                    selected: line.clientMdf,
+                    onSelected: (on) {
+                      line.clientMdf = on;
+                      onChanged();
+                    },
+                  ),
                 ),
-              ),
               figure(
                 'mdfLineArea',
                 l10n.mdfArea,

@@ -270,6 +270,34 @@ class TestMdfOrders(IntegrationTestCase):
 		after = {r["order"] for r in self._as(MANAGER, film_shortage.shortage)["orders"]}
 		self.assertNotIn(card["name"], after)  # pressed: the film is on the facades
 
+	def test_a_film_from_a_makers_catalogue_saves_and_is_ordered_from_him(self):
+		"""Owner, 18.11.2026: «MC Group · сиена верде» picked in the catalogue,
+		not on our shelf — the order saves, says whom the film comes from, and
+		once accepted the film is on «К заказу» by itself."""
+		import uuid
+
+		from korkem_manufacturing.services import film_catalog, film_orders, material_stock
+
+		material_stock.add_option("Производитель", "Каталог Тест")
+		material_stock.add_supplier("Каталог Тест Поставщик")
+		supplier = frappe.db.get_value("Supplier", {"supplier_name": "Каталог Тест Поставщик"}, "name")
+		colour = f"Сиена {uuid.uuid4().hex[:6]}"
+		item = film_catalog.add("Каталог Тест", colour, supplier=supplier)["item"]
+		label = film_catalog.label("Каталог Тест", colour)
+
+		card = self._draft(decor_top=label)  # before: «нет в списке «Цвет плёнки»»
+		self.addCleanup(self._drop, card["name"])
+		lacking = card["film_to_buy"][label]
+		self.assertGreater(lacking["short"], 0)
+		self.assertEqual(lacking["from"], "Каталог Тест Поставщик")
+
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		lines = [line for g in self._as(MANAGER, film_orders.wanted)["suppliers"] for line in g["open"]]
+		mine = next(line for line in lines if line["item"] == item)
+		self.assertTrue(mine["auto"])
+		self.assertEqual((mine["supplier"], mine["for_orders"]), (supplier, 1))
+		self.assertGreater(mine["metres"], 0)
+
 	def test_debts_by_order_and_by_customer(self):
 		card = self._draft()
 		self.addCleanup(self._drop, card["name"])

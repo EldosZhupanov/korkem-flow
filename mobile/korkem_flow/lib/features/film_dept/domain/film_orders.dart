@@ -124,6 +124,7 @@ class FilmWant {
     this.by,
     this.free,
     this.priceM,
+    this.forOrders = 0,
   });
 
   factory FilmWant.fromJson(Map<String, dynamic> json) => FilmWant(
@@ -139,6 +140,7 @@ class FilmWant {
     by: _s(json['by']),
     free: _d(json['free']),
     priceM: _d(json['price_m']),
+    forOrders: (json['for_orders'] as num?)?.toInt() ?? 0,
   );
 
   /// Null: offered by itself — the film ran low — not on the list yet.
@@ -160,6 +162,9 @@ class FilmWant {
 
   /// The card's purchase price — a starting point when it comes.
   final double? priceM;
+
+  /// Put on the list by itself: accepted orders lack it (owner, 18.11.2026).
+  final int forOrders;
 }
 
 /// A film for a delivery window, with what the list wanted of it.

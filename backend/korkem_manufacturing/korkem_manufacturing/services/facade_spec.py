@@ -73,7 +73,7 @@ def read(raw: dict, label: str, company: str) -> dict:
 		value = _text(raw.get(key))
 		if value is None:
 			continue
-		if value not in _values(kind, company):
+		if value not in _values(kind, company) and not (kind == DECOR and value in _catalogue(company)):
 			frappe.throw(
 				f"{label}: {name} «{value}» нет в списке «{kind}». Добавьте его на складе материалов."
 			)
@@ -136,6 +136,15 @@ def set_color_group(lines: list[str] | str, group: str | None) -> dict:
 
 def _values(kind: str, company: str) -> set[str]:
 	return material_stock.enabled_values(kind, company)
+
+
+def _catalogue(company: str) -> set[str]:
+	"""A film picked in the catalogue — «MC Group · сиена верде» — is a decor
+	as good as the list's own, on the shelf or not (owner, 18.11.2026: the
+	order saves, and the film is ordered from its maker)."""
+	from korkem_manufacturing.services import film_catalog
+
+	return film_catalog.labels(company)
 
 
 def _text(value) -> str | None:

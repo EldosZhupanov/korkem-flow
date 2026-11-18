@@ -111,6 +111,21 @@ final filmDecorRepositoryProvider = Provider<FilmDecorRepository>(
   (ref) => FilmDecorRepository(ref.watch(frappeClientProvider)),
 );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmPickExtrasProvider = FutureProvider.autoDispose
+    .family<FilmPickExtras, String?>((ref, customer) async {
+      // Without them the window still has every film on the books: a
+      // catalogue that would not load is no reason not to pick.
+      try {
+        return await ref
+            .watch(filmDecorRepositoryProvider)
+            .pickExtras(customer);
+      } on Object {
+        return const FilmPickExtras();
+      }
+    });
+
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final filmDecorsProvider = FutureProvider.autoDispose<FilmDecors>(
@@ -207,6 +222,28 @@ class DecorMatch {
   }
 }
 
+/// What the order's film window shows besides the films on the books
+/// (owner, 18.11.2026): the makers' catalogue decors not taken in yet, and
+/// the customer's films of late.
+@immutable
+class FilmPickExtras {
+  const FilmPickExtras({this.decors = const [], this.recent = const []});
+
+  factory FilmPickExtras.fromJson(Map<String, dynamic> j) => FilmPickExtras(
+    decors: [
+      for (final d in j['decors'] is List ? j['decors'] as List : const [])
+        if (d is Map) FilmDecor.fromJson(Map<String, dynamic>.from(d)),
+    ],
+    recent: [
+      for (final r in j['recent'] is List ? j['recent'] as List : const [])
+        '$r',
+    ],
+  );
+
+  final List<FilmDecor> decors;
+  final List<String> recent;
+}
+
 /// How close a match is, in words a seller can say to a customer.
 enum DecorLikeness { close, near, far }
 
@@ -246,6 +283,29 @@ class FilmDecorRepository {
     for (final m in j[key] is List ? j[key] as List : const [])
       if (m is Map) DecorMatch.fromJson(Map<String, dynamic>.from(m)),
   ];
+
+  /// The film window's catalogue decors and the customer's films of late.
+  Future<FilmPickExtras> pickExtras(String? customer) async =>
+      FilmPickExtras.fromJson(
+        _map(
+          await _client.callMethod(
+            'korkem_manufacturing.api.film_picker.extras',
+            params: {'customer': ?customer},
+          ),
+        ),
+      );
+
+  /// A catalogue decor picked for an order: its film's name, taken in.
+  Future<String> takeDecor(String decor) async {
+    final j = _map(
+      await _client.callMethod(
+        'korkem_manufacturing.api.film_picker.take',
+        post: true,
+        params: {'decor': decor},
+      ),
+    );
+    return '${j['label']}';
+  }
 
   Future<FilmDecors> decors() async =>
       FilmDecors.fromJson(_map(await _client.callMethod('$_base.decors')));

@@ -3229,5 +3229,19 @@
   "offcutsPut": "Қою",
   "offcutsSuggestTitle": "Қиындылардан: {count} бөлшек",
   "offcutsSuggestLine": "{position}-орын: {part} — {offcut} қиындысынан, {cell}",
-  "offcutsTake": "Алу"
+  "offcutsTake": "Алу",
+  "mdfFilmToBuy": "қоймада жоқ · {metres} м тапсырыс беру",
+  "mdfFilmToBuyFrom": "қоймада жоқ · {from}: {metres} м",
+  "filmOrdersForOrders": "тапсырыстарға ({count}) · {metres} м",
+  "mdfClientPartsSome": "Клиенттің ЛМДФ: {total} ішінен {marked}",
+  "fpkTitle": "ПВХ үлдірі",
+  "fpkSearch": "Атауы, коды немесе өндіруші",
+  "fpkByPhoto": "Үлгі фотосы бойынша",
+  "fpkAll": "Барлығы",
+  "fpkOnShelf": "Қоймада",
+  "fpkRecent": "Осы клиенттің соңғылары",
+  "fpkFound": "Табылды {count} · алдымен қоймадағылар",
+  "fpkCatalogOnly": "тек каталогта",
+  "fpkNothing": "Ештеңе табылмады",
+  "fpkNone": "Үлдірсіз"
 }

@@ -73,6 +73,23 @@ def wanted() -> dict:
 												"creation": [">=", f"{nowdate()} 00:00:00"]}, pluck="item"))
 	listed = {r.item for r in rows}
 	lines = [_line(r, films, money) for r in rows]
+	# What accepted orders lack and the shelf cannot give: on the list by
+	# itself, for its maker (owner, 18.11.2026 — a film picked from MC
+	# Group's catalogue is not forgotten).
+	from korkem_manufacturing.services import film_shortage
+
+	for f in film_shortage.count(company)["by_film"]:
+		item = f["item"]
+		if not item or f["to_buy"] <= 0 or item in listed or item in dropped:
+			continue
+		card = films.get(item) or {}
+		lines.append({
+			"id": None, "item": item, "title": _title(card) if card else f["title"], "metres": f["to_buy"],
+			"supplier": _supplier_of(item), "customer": None, "customer_name": None,
+			"status": OPEN, "auto": True, "for_orders": f["orders"], "at": None, "by": None, "sent_at": None,
+			"free": round(flt(f["free"]), 2), "price_m": (card.get("reorder") or {}).get("price_m") if money else None,
+		})
+		listed.add(item)
 	for f in films.values():
 		order = f.get("reorder")
 		if order and f["item"] not in listed and f["item"] not in dropped:
@@ -112,7 +129,12 @@ def counts(films: list[dict]) -> tuple[int, int]:
 	dropped = set(frappe.get_all(_DOC, filters={"company": company, "status": DROPPED,
 												"creation": [">=", f"{nowdate()} 00:00:00"]}, pluck="item"))
 	listed = {r.item for r in rows}
-	offered = sum(1 for f in films if f.get("reorder") and f["item"] not in listed and f["item"] not in dropped)
+	from korkem_manufacturing.services import film_shortage
+
+	lacking = {f["item"] for f in film_shortage.count(company)["by_film"]
+			   if f["item"] and f["to_buy"] > 0} - listed - dropped
+	offered = len(lacking) + sum(1 for f in films if f.get("reorder") and f["item"] not in listed
+								 and f["item"] not in dropped and f["item"] not in lacking)
 	wanted = len({r.item for r in rows if r.status == OPEN}) + offered
 	return wanted, len({r.supplier for r in rows if r.status == SENT})
 
