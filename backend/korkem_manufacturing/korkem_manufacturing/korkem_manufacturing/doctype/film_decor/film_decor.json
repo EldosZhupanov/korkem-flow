@@ -13,7 +13,11 @@
   "thickness",
   "hex",
   "image",
-  "source"
+  "source",
+  "tone_l",
+  "tone_a",
+  "tone_b",
+  "texture"
  ],
  "fields": [
   {
@@ -69,12 +73,40 @@
    "fieldname": "source",
    "fieldtype": "Data",
    "label": "Откуда"
+  },
+  {
+   "fieldname": "tone_l",
+   "fieldtype": "Float",
+   "label": "Тон: L",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "tone_a",
+   "fieldtype": "Float",
+   "label": "Тон: a",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "tone_b",
+   "fieldtype": "Float",
+   "label": "Тон: b",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "texture",
+   "fieldtype": "Float",
+   "label": "Рисунок",
+   "read_only": 1,
+   "precision": "2"
   }
  ],
  "image_field": "image",
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-18 13:00:00.000000",
+ "modified": "2026-11-18 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Film Decor",

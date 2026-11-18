@@ -11,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_catalog/presentation/decor_match.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// «Каталоги поставщиков» (owner, 18.11.2026): each maker's decors with
@@ -108,6 +109,8 @@ class _FilmDecorsScreenState extends ConsumerState<FilmDecorsScreen> {
       appBar: AppBar(
         title: Text(l10n.fdcTitle),
         actions: [
+          // «Подобрать по фото» (owner, 18.11.2026).
+          const PhotoMatchButton(),
           if (canEdit) ...[
             IconButton(
               key: const ValueKey('fdcPictures'),
@@ -489,6 +492,14 @@ class _DecorDialogState extends ConsumerState<_DecorDialog> {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.actionClose),
+        ),
+        TextButton.icon(
+          key: const ValueKey('fdcAnalogues'),
+          onPressed: () => unawaited(
+            showAnalogues(context, ref, title: d.name, decor: d.decor),
+          ),
+          icon: const Icon(AppIcons.colour),
+          label: Text(l10n.fdcAnalogues),
         ),
         if (d.films.isEmpty && widget.canEdit)
           FilledButton.icon(

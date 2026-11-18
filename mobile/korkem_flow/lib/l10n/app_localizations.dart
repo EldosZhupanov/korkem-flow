@@ -17645,6 +17645,605 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'paid {amount}'**
   String gsrPaid(String amount);
+
+  /// No description provided for @navToWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Who to write to'**
+  String get navToWrite;
+
+  /// No description provided for @clcTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer card'**
+  String get clcTitle;
+
+  /// No description provided for @clcOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get clcOrders;
+
+  /// No description provided for @clcTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered for'**
+  String get clcTotal;
+
+  /// No description provided for @clcPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get clcPaid;
+
+  /// No description provided for @clcDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Owes'**
+  String get clcDebt;
+
+  /// No description provided for @clcAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average order'**
+  String get clcAverage;
+
+  /// No description provided for @clcLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last order'**
+  String get clcLast;
+
+  /// No description provided for @clcSince.
+  ///
+  /// In en, this message translates to:
+  /// **'customer since {date}'**
+  String clcSince(String date);
+
+  /// No description provided for @clcNewOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get clcNewOrder;
+
+  /// No description provided for @clcSellFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell film'**
+  String get clcSellFilm;
+
+  /// No description provided for @clcAllOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'All orders'**
+  String get clcAllOrders;
+
+  /// No description provided for @clcOrdersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get clcOrdersSection;
+
+  /// No description provided for @clcPaymentsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get clcPaymentsSection;
+
+  /// No description provided for @clcFilmSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Film'**
+  String get clcFilmSection;
+
+  /// No description provided for @clcFilmLine.
+  ///
+  /// In en, this message translates to:
+  /// **'bought {metres} m for {sum} · owes {debt}'**
+  String clcFilmLine(String metres, String sum, String debt);
+
+  /// No description provided for @clcFilmOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Film purchases'**
+  String get clcFilmOpen;
+
+  /// No description provided for @clcNoOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get clcNoOrders;
+
+  /// No description provided for @clcCnc.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC'**
+  String get clcCnc;
+
+  /// No description provided for @clcWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Write on WhatsApp'**
+  String get clcWhatsApp;
+
+  /// No description provided for @twReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready — tell the customer ({count})'**
+  String twReady(int count);
+
+  /// No description provided for @twDebts.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind of a debt ({count})'**
+  String twDebts(int count);
+
+  /// No description provided for @twFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film — debts ({count})'**
+  String twFilm(int count);
+
+  /// No description provided for @twEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody to write to today'**
+  String get twEmpty;
+
+  /// No description provided for @twEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready orders the customer has not been told about, and debts due a reminder, appear here.'**
+  String get twEmptyHint;
+
+  /// No description provided for @twReadyLine.
+  ///
+  /// In en, this message translates to:
+  /// **'ready {date}'**
+  String twReadyLine(String date);
+
+  /// No description provided for @twDebtLine.
+  ///
+  /// In en, this message translates to:
+  /// **'to pay {sum}'**
+  String twDebtLine(String sum);
+
+  /// No description provided for @twHandedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'handed over {date}'**
+  String twHandedLine(String date);
+
+  /// No description provided for @twRemindedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'reminded: {count}, last {date}'**
+  String twRemindedLine(int count, String date);
+
+  /// No description provided for @twFilmDays.
+  ///
+  /// In en, this message translates to:
+  /// **'owed for {days} days'**
+  String twFilmDays(int days);
+
+  /// No description provided for @twSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Write on WhatsApp'**
+  String get twSend;
+
+  /// No description provided for @twMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get twMark;
+
+  /// No description provided for @twMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked — won\'t ask again'**
+  String get twMarked;
+
+  /// No description provided for @twSentQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you send it?'**
+  String get twSentQ;
+
+  /// No description provided for @twNoPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer has no phone'**
+  String get twNoPhone;
+
+  /// No description provided for @twTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Message texts'**
+  String get twTemplates;
+
+  /// No description provided for @twTemplateReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Order ready'**
+  String get twTemplateReady;
+
+  /// No description provided for @twTemplateDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Order debt'**
+  String get twTemplateDebt;
+
+  /// No description provided for @twTemplateFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film debt'**
+  String get twTemplateFilm;
+
+  /// No description provided for @twTemplateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can insert:'**
+  String get twTemplateHint;
+
+  /// No description provided for @twTemplateReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the default'**
+  String get twTemplateReset;
+
+  /// No description provided for @twTemplateSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get twTemplateSave;
+
+  /// No description provided for @dsmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day summary'**
+  String get dsmTitle;
+
+  /// No description provided for @dsmSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to me every day at {hour}:00'**
+  String dsmSwitch(String hour);
+
+  /// No description provided for @dsmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives in Telegram or WhatsApp if connected in Settings → Channels.'**
+  String get dsmHint;
+
+  /// No description provided for @dsmCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get dsmCopy;
+
+  /// No description provided for @dsmCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary copied'**
+  String get dsmCopied;
+
+  /// No description provided for @dsmSendMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to my WhatsApp'**
+  String get dsmSendMe;
+
+  /// No description provided for @dsmHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Hour'**
+  String get dsmHour;
+
+  /// No description provided for @orderTell.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the customer'**
+  String get orderTell;
+
+  /// No description provided for @orderTold.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer told {date}'**
+  String orderTold(String date);
+
+  /// No description provided for @fdcMatchPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Match a sample photo'**
+  String get fdcMatchPhoto;
+
+  /// No description provided for @fdcMatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Like the sample'**
+  String get fdcMatchTitle;
+
+  /// No description provided for @fdcMatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Daylight, no shadow; the middle of the photo is read. A hint — check it against the sample by eye.'**
+  String get fdcMatchHint;
+
+  /// No description provided for @fdcAnalogues.
+  ///
+  /// In en, this message translates to:
+  /// **'Look-alikes'**
+  String get fdcAnalogues;
+
+  /// No description provided for @fdcAnaloguesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Look-alikes: {name}'**
+  String fdcAnaloguesTitle(String name);
+
+  /// No description provided for @fdcLikeClose.
+  ///
+  /// In en, this message translates to:
+  /// **'very close'**
+  String get fdcLikeClose;
+
+  /// No description provided for @fdcLikeNear.
+  ///
+  /// In en, this message translates to:
+  /// **'close'**
+  String get fdcLikeNear;
+
+  /// No description provided for @fdcLikeFar.
+  ///
+  /// In en, this message translates to:
+  /// **'distant'**
+  String get fdcLikeFar;
+
+  /// No description provided for @fdcOnShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m in stock'**
+  String fdcOnShelf(String metres);
+
+  /// No description provided for @fdcNotOnShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'not in stock'**
+  String get fdcNotOnShelf;
+
+  /// No description provided for @fdcNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing alike found'**
+  String get fdcNoMatches;
+
+  /// No description provided for @dsmMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'At 9:00 — what to order'**
+  String get dsmMorning;
+
+  /// No description provided for @dsmMorningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to order'**
+  String get dsmMorningTitle;
+
+  /// No description provided for @scanEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order number'**
+  String get scanEntryTitle;
+
+  /// No description provided for @scanEntryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'245 or a sticker\'s code'**
+  String get scanEntryHint;
+
+  /// No description provided for @scanEntryOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get scanEntryOpen;
+
+  /// No description provided for @scanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No. {number} · {customer}'**
+  String scanTitle(String number, String customer);
+
+  /// No description provided for @scanHandedOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Already handed over'**
+  String get scanHandedOver;
+
+  /// No description provided for @scanOnHold.
+  ///
+  /// In en, this message translates to:
+  /// **'On hold'**
+  String get scanOnHold;
+
+  /// No description provided for @scanDoneOn.
+  ///
+  /// In en, this message translates to:
+  /// **'done {date}'**
+  String scanDoneOn(String date);
+
+  /// No description provided for @scanYours.
+  ///
+  /// In en, this message translates to:
+  /// **'yours — can be done now'**
+  String get scanYours;
+
+  /// No description provided for @scanNotYours.
+  ///
+  /// In en, this message translates to:
+  /// **'not yours'**
+  String get scanNotYours;
+
+  /// No description provided for @scanOpenOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the order'**
+  String get scanOpenOrder;
+
+  /// No description provided for @mdfPrintSticker.
+  ///
+  /// In en, this message translates to:
+  /// **'Sticker'**
+  String get mdfPrintSticker;
+
+  /// No description provided for @navOffcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Offcuts'**
+  String get navOffcuts;
+
+  /// No description provided for @offcutsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MDF offcuts'**
+  String get offcutsTitle;
+
+  /// No description provided for @offcutsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pcs · {area} m²'**
+  String offcutsSummary(int count, String area);
+
+  /// No description provided for @offcutsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Put on the shelf'**
+  String get offcutsAdd;
+
+  /// No description provided for @offcutsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get offcutsAll;
+
+  /// No description provided for @offcutsMm.
+  ///
+  /// In en, this message translates to:
+  /// **'{mm} mm'**
+  String offcutsMm(int mm);
+
+  /// No description provided for @offcutsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No offcuts'**
+  String get offcutsEmptyTitle;
+
+  /// No description provided for @offcutsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'A piece left from a sheet goes on the shelf with its size — a new order\'s small parts are cut from it first.'**
+  String get offcutsEmpty;
+
+  /// No description provided for @offcutsCell.
+  ///
+  /// In en, this message translates to:
+  /// **'place {cell}'**
+  String offcutsCell(String cell);
+
+  /// No description provided for @offcutsFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'from No. {number}'**
+  String offcutsFrom(String number);
+
+  /// No description provided for @offcutsFor.
+  ///
+  /// In en, this message translates to:
+  /// **'for No. {number}'**
+  String offcutsFor(String number);
+
+  /// No description provided for @offcutsUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken into work'**
+  String get offcutsUse;
+
+  /// No description provided for @offcutsScrap.
+  ///
+  /// In en, this message translates to:
+  /// **'Throw away'**
+  String get offcutsScrap;
+
+  /// No description provided for @offcutsAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'An offcut on the shelf'**
+  String get offcutsAddTitle;
+
+  /// No description provided for @offcutsThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness'**
+  String get offcutsThickness;
+
+  /// No description provided for @offcutsLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Length, mm'**
+  String get offcutsLength;
+
+  /// No description provided for @offcutsWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Width, mm'**
+  String get offcutsWidth;
+
+  /// No description provided for @offcutsCellLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it lies'**
+  String get offcutsCellLabel;
+
+  /// No description provided for @offcutsCellHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A-3'**
+  String get offcutsCellHint;
+
+  /// No description provided for @offcutsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get offcutsNote;
+
+  /// No description provided for @offcutsPut.
+  ///
+  /// In en, this message translates to:
+  /// **'Put'**
+  String get offcutsPut;
+
+  /// No description provided for @offcutsSuggestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'From offcuts: {count, plural, =1{1 part} other{{count} parts}}'**
+  String offcutsSuggestTitle(int count);
+
+  /// No description provided for @offcutsSuggestLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Item {position}: {part} — from {offcut}, {cell}'**
+  String offcutsSuggestLine(
+    int position,
+    String part,
+    String offcut,
+    String cell,
+  );
+
+  /// No description provided for @offcutsTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take'**
+  String get offcutsTake;
 }
 
 class _AppLocalizationsDelegate

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -26,7 +27,21 @@ class MdfDebtsScreen extends ConsumerWidget {
     final money = mdfMoney(context);
     final debts = ref.watch(mdfDebtsProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.mdfDebtsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.mdfDebtsTitle),
+        actions: [
+          // «Кому написать»: the reminders, with the words written.
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: TextButton.icon(
+              key: const ValueKey('debts:toWrite'),
+              onPressed: () => context.push(Routes.toWrite),
+              icon: const Icon(AppIcons.whatsApp),
+              label: Text(l10n.navToWrite),
+            ),
+          ),
+        ],
+      ),
       body: debts.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorView(
@@ -66,6 +81,9 @@ class MdfDebtsScreen extends ConsumerWidget {
                             money.format(c.debt),
                             style: theme.textTheme.titleSmall,
                           ),
+                          // His card: every order, payment and debt.
+                          onTap: () =>
+                              context.push(Routes.clientCard(c.customer)),
                         ),
                       ),
                     const SizedBox(height: AppSpacing.lg),

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/domain/order_scan.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -505,7 +506,7 @@ Future<Uint8List> buildMdfOrderPdf(
                 height: 64,
                 child: pw.BarcodeWidget(
                   barcode: pw.Barcode.qrCode(),
-                  data: order.name,
+                  data: orderQrData(order.name),
                 ),
               ),
           ],
@@ -574,6 +575,78 @@ Future<Uint8List> buildMdfOrderPdf(
     ),
   );
   more?.call(doc);
+  return doc.save();
+}
+
+/// An order's sticker (owner, 18.11.2026): a 58×40 mm label for the
+/// thermal printer — the QR a worker scans to tick his stage, and the
+/// number, customer, due date and m² to read without one. [due] and [area]
+/// come already worded in the reader's language.
+Future<Uint8List> buildMdfStickerPdf(
+  MdfOrder order, {
+  required String due,
+  required String area,
+}) async {
+  final font = pw.Font.ttf(
+    await rootBundle.load('assets/fonts/Inter-Variable.ttf'),
+  );
+  final doc = pw.Document(
+    theme: pw.ThemeData.withFont(
+      base: font,
+      bold: font,
+      italic: font,
+      boldItalic: font,
+    ),
+  );
+  const mm = PdfPageFormat.mm;
+  final decor = order.head.decorTop;
+  doc.addPage(
+    pw.Page(
+      pageFormat: const PdfPageFormat(58 * mm, 40 * mm, marginAll: 2 * mm),
+      build: (_) => pw.Row(
+        children: [
+          pw.SizedBox(
+            width: 30 * mm,
+            height: 30 * mm,
+            child: pw.BarcodeWidget(
+              barcode: pw.Barcode.qrCode(),
+              data: orderQrData(order.name),
+            ),
+          ),
+          pw.SizedBox(width: 2 * mm),
+          pw.Expanded(
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text(
+                  '№ ${orderShortNumber(order.name)}',
+                  style: const pw.TextStyle(
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  order.customerName,
+                  maxLines: 2,
+                  style: const pw.TextStyle(fontSize: 8),
+                ),
+                pw.SizedBox(height: 1 * mm),
+                pw.Text(due, style: const pw.TextStyle(fontSize: 8)),
+                pw.Text(area, style: const pw.TextStyle(fontSize: 8)),
+                if (decor != null && decor.isNotEmpty)
+                  pw.Text(
+                    decor,
+                    maxLines: 2,
+                    style: const pw.TextStyle(fontSize: 7),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
   return doc.save();
 }
 

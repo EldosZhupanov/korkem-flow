@@ -893,6 +893,14 @@ def _is_owner() -> bool:
 	return "System Manager" in frappe.get_roles()
 
 
+def _offcut_parts(doc) -> int:
+	if doc.docstatus != 1 or doc.korkem_handed_over_on:
+		return 0
+	from korkem_manufacturing.services import offcut_stock
+
+	return len(offcut_stock.parts_for(doc.name, doc.company))
+
+
 def card(order: str) -> dict:
 	"""Everything the card shows, in one answer."""
 	facade_prices.ensure_editor()
@@ -967,6 +975,10 @@ def card(order: str) -> dict:
 		],
 		"ready_on": str(doc.korkem_ready_on) if doc.korkem_ready_on else None,
 		"handed_over_on": str(doc.korkem_handed_over_on) if doc.korkem_handed_over_on else None,
+		# «Кому написать» (owner, 18.11.2026): when the customer was told it is ready.
+		"told_on": str(doc.get("korkem_told_on")) if doc.get("korkem_told_on") else None,
+		# Small parts an offcut on the shelf holds (owner, 18.11.2026).
+		"offcut_parts": _offcut_parts(doc),
 		"taken_by": doc.get("korkem_taken_by"),
 		"taken_phone": doc.get("korkem_taken_phone"),
 		"handed_over_by": _full_name(doc.get("korkem_handed_over_by")),

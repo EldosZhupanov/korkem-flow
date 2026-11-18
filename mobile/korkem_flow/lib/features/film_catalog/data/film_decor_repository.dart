@@ -140,6 +140,76 @@ class FilmFilePicker {
   }
 }
 
+/// One decor close to a photo, or to another film (owner, 18.11.2026).
+@immutable
+class DecorMatch {
+  const DecorMatch({
+    required this.decor,
+    required this.maker,
+    required this.name,
+    required this.distance,
+    this.likeness = DecorLikeness.far,
+    this.collection,
+    this.code,
+    this.hex,
+    this.image,
+    this.films = const [],
+    this.onShelf = 0,
+  });
+
+  factory DecorMatch.fromJson(Map<String, dynamic> j) => DecorMatch(
+    decor: '${j['decor']}',
+    maker: '${j['maker'] ?? ''}',
+    name: '${j['name'] ?? ''}',
+    distance: j['distance'] is num ? (j['distance'] as num).toDouble() : 0,
+    likeness: switch (j['likeness']) {
+      'close' => DecorLikeness.close,
+      'near' => DecorLikeness.near,
+      _ => DecorLikeness.far,
+    },
+    collection: _s(j['collection']),
+    code: _s(j['code']),
+    hex: _s(j['hex']),
+    image: _s(j['image']),
+    films: [
+      for (final f in j['films'] is List ? j['films'] as List : const [])
+        if (f is Map)
+          (
+            item: '${f['item']}',
+            label: '${f['label'] ?? ''}',
+            free: f['free'] is num ? (f['free'] as num).toDouble() : 0.0,
+          ),
+    ],
+    onShelf: j['on_shelf'] is num ? (j['on_shelf'] as num).toDouble() : 0,
+  );
+
+  final String decor;
+  final String maker;
+  final String name;
+
+  /// ΔE with the texture's weight: under 6 the eye barely tells them apart.
+  final double distance;
+  final DecorLikeness likeness;
+  final String? collection;
+  final String? code;
+  final String? hex;
+  final String? image;
+
+  /// The shop's films of this decor, with the metres free.
+  final List<({String item, String label, double free})> films;
+  final double onShelf;
+
+  int? get argb {
+    final h = hex;
+    if (h == null || h.length != 7) return null;
+    final v = int.tryParse(h.substring(1), radix: 16);
+    return v == null ? null : 0xFF000000 | v;
+  }
+}
+
+/// How close a match is, in words a seller can say to a customer.
+enum DecorLikeness { close, near, far }
+
 /// `korkem_manufacturing.api.film_decors`.
 class FilmDecorRepository {
   const FilmDecorRepository(this._client);
@@ -147,6 +217,35 @@ class FilmDecorRepository {
   static const _base = 'korkem_manufacturing.api.film_decors';
 
   final FrappeClient _client;
+
+  /// The decors closest to a photo of a customer's sample.
+  Future<List<DecorMatch>> matchPhoto(Uint8List photo) async => _matches(
+    _map(
+      await _client.callMethod(
+        '$_base.match_photo',
+        post: true,
+        params: {'content_b64': base64Encode(photo)},
+      ),
+    ),
+    'matches',
+  );
+
+  /// A decor's or a film's look-alikes at the other makers.
+  Future<List<DecorMatch>> analogues({String? decor, String? item}) async =>
+      _matches(
+        _map(
+          await _client.callMethod(
+            '$_base.analogues',
+            params: {'decor': ?decor, 'item': ?item},
+          ),
+        ),
+        'analogues',
+      );
+
+  static List<DecorMatch> _matches(Map<String, dynamic> j, String key) => [
+    for (final m in j[key] is List ? j[key] as List : const [])
+      if (m is Map) DecorMatch.fromJson(Map<String, dynamic>.from(m)),
+  ];
 
   Future<FilmDecors> decors() async =>
       FilmDecors.fromJson(_map(await _client.callMethod('$_base.decors')));
