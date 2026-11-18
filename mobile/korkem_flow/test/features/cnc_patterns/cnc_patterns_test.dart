@@ -207,7 +207,9 @@ class _TdbPicker extends FilmFilePicker {
   Future<List<PickedFile>> pick({
     required List<String> extensions,
     bool many = false,
-  }) async => [(name: 'tools.tdb', bytes: Uint8List.fromList(const [1, 2]))];
+  }) async => [
+    (name: 'tools.tdb', bytes: Uint8List.fromList(const [1, 2])),
+  ];
 }
 
 class _Saver extends CncFileSaver {

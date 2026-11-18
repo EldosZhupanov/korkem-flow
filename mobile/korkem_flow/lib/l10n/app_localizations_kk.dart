@@ -9848,10 +9848,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get cncpEndsHint => '0 — шеттен шетке дейін';
 
   @override
-  String get cncpTryWidth => 'Енімен тексеру, мм';
+  String get cncpTryWidth => 'және енімен, мм';
 
   @override
-  String get cncpTryHeight => 'және биіктігімен, мм';
+  String get cncpTryHeight => 'Биіктігімен тексеру, мм';
 
   @override
   String get cncpPreviewFailed => 'Байланыс жоқ — өрнекті салу мүмкін емес.';
@@ -10606,4 +10606,28 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get offcutsTake => 'Алу';
+
+  @override
+  String get cncpArtcam => 'ArtCAM-нан';
+
+  @override
+  String get cncpArtcamTitle => 'ArtCAM фрезалары';
+
+  @override
+  String cncpArtcamHint(int all, int ready) {
+    return 'Файлда $all, қосуға болады $ready. Ағаш пен МДФ фрезалары белгіленген.';
+  }
+
+  @override
+  String cncpArtcamAdd(int count) {
+    return '$count қосу';
+  }
+
+  @override
+  String cncpArtcamAdded(int count) {
+    return 'Қосылған фрезалар: $count';
+  }
+
+  @override
+  String get cncpToolsSearch => 'Фрезаны табу: атауы, диаметрі, бұрышы';
 }
