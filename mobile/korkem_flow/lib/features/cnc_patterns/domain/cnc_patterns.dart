@@ -471,3 +471,54 @@ class CncOrderPlan {
   final List<CncOrderLine> lines;
   final double minutes;
 }
+
+/// One tool of an ArtCAM tool database (owner, 19.11.2026): what it would
+/// be here, or [why] it cannot be.
+@immutable
+class ArtcamTool {
+  const ArtcamTool({
+    required this.index,
+    required this.group,
+    required this.name,
+    this.kind,
+    this.diameter = 0,
+    this.angle,
+    this.feed = 0,
+    this.rpm = 0,
+    this.passDepth = 0,
+    this.ready = false,
+    this.why,
+  });
+
+  factory ArtcamTool.fromJson(Map<String, dynamic> j) => ArtcamTool(
+    index: (j['index'] as num?)?.toInt() ?? 0,
+    group: '${j['group'] ?? ''}',
+    name: '${j['name'] ?? ''}',
+    kind: j['kind'] == null ? null : CncToolKind.of(j['kind']),
+    diameter: _d(j['diameter']),
+    angle: j['angle'] == null ? null : _d(j['angle']),
+    feed: _d(j['feed']),
+    rpm: _d(j['rpm']),
+    passDepth: _d(j['pass_depth']),
+    ready: j['card'] != null,
+    why: j['why'] == null ? null : '${j['why']}',
+  );
+
+  final int index;
+
+  /// «Metric Tools / Wood or Plastic / V-Carving».
+  final String group;
+  final String name;
+
+  /// Null: a profile tool, not cut by our patterns yet.
+  final CncToolKind? kind;
+  final double diameter;
+  final double? angle;
+  final double feed;
+  final double rpm;
+  final double passDepth;
+
+  /// It can be added; else [why] not.
+  final bool ready;
+  final String? why;
+}

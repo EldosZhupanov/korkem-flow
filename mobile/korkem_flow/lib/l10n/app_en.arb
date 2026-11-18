@@ -10308,5 +10308,14 @@
   "@offcutsSuggestTitle": {"placeholders": {"count": {"type": "int"}}},
   "offcutsSuggestLine": "Item {position}: {part} — from {offcut}, {cell}",
   "@offcutsSuggestLine": {"placeholders": {"position": {"type": "int"}, "part": {"type": "String"}, "offcut": {"type": "String"}, "cell": {"type": "String"}}},
-  "offcutsTake": "Take"
+  "offcutsTake": "Take",
+  "cncpArtcam": "From ArtCAM",
+  "cncpArtcamTitle": "Cutters from ArtCAM",
+  "cncpArtcamHint": "{all} in the file, {ready} can be added. The wood and MDF ones are ticked.",
+  "@cncpArtcamHint": {"placeholders": {"all": {"type": "int"}, "ready": {"type": "int"}}},
+  "cncpArtcamAdd": "Add {count}",
+  "@cncpArtcamAdd": {"placeholders": {"count": {"type": "int"}}},
+  "cncpArtcamAdded": "Cutters added: {count}",
+  "@cncpArtcamAdded": {"placeholders": {"count": {"type": "int"}}},
+  "cncpToolsSearch": "Find a cutter: name, diameter, angle"
 }

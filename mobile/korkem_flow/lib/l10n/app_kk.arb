@@ -3229,5 +3229,11 @@
   "offcutsPut": "Қою",
   "offcutsSuggestTitle": "Қиындылардан: {count} бөлшек",
   "offcutsSuggestLine": "{position}-орын: {part} — {offcut} қиындысынан, {cell}",
-  "offcutsTake": "Алу"
+  "offcutsTake": "Алу",
+  "cncpArtcam": "ArtCAM-нан",
+  "cncpArtcamTitle": "ArtCAM фрезалары",
+  "cncpArtcamHint": "Файлда {all}, қосуға болады {ready}. Ағаш пен МДФ фрезалары белгіленген.",
+  "cncpArtcamAdd": "{count} қосу",
+  "cncpArtcamAdded": "Қосылған фрезалар: {count}",
+  "cncpToolsSearch": "Фрезаны табу: атауы, диаметрі, бұрышы"
 }

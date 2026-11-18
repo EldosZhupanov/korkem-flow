@@ -3229,5 +3229,11 @@
   "offcutsPut": "Положить",
   "offcutsSuggestTitle": "Из обрезков: {count, plural, one{{count} деталь} few{{count} детали} other{{count} деталей}}",
   "offcutsSuggestLine": "Поз. {position}: {part} — из {offcut}, {cell}",
-  "offcutsTake": "Взять"
+  "offcutsTake": "Взять",
+  "cncpArtcam": "Из ArtCAM",
+  "cncpArtcamTitle": "Фрезы из ArtCAM",
+  "cncpArtcamHint": "В файле {all}, завести можно {ready}. Отмечены фрезы для дерева и МДФ.",
+  "cncpArtcamAdd": "Добавить {count}",
+  "cncpArtcamAdded": "Добавлено фрез: {count}",
+  "cncpToolsSearch": "Найти фрезу: название, диаметр, угол"
 }
