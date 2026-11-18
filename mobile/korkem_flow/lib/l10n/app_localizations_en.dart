@@ -9713,4 +9713,401 @@ class AppLocalizationsEn extends AppLocalizations {
   String filmFigGlueDays(String days) {
     return 'lasts $days d.';
   }
+
+  @override
+  String get cncpTitle => 'CNC patterns (β)';
+
+  @override
+  String get cncpRowHint => 'A trial: a facade pattern to a G-code program';
+
+  @override
+  String get cncpOffTitle => 'CNC patterns — a trial (β)';
+
+  @override
+  String get cncpOffBody =>
+      'A pattern library (frames, arches, grooves) and the cutters; for any facade size it draws the cut and writes the G-code program for your router.\n\nWhile it is off it takes no part in the work. When on, it only reads an order\'s sizes: it changes no order, stock, money or stage, and sends nothing to the machine by itself — it saves a file for the operator to check on an offcut.';
+
+  @override
+  String get cncpEnable => 'Turn on in this base';
+
+  @override
+  String get cncpEnabledDone => 'CNC patterns are on in this base';
+
+  @override
+  String get cncpOwnerTurnsOn => 'The company owner turns it on.';
+
+  @override
+  String get cncpNotYours => 'It is on, but not opened for you. Ask the owner.';
+
+  @override
+  String get cncpBetaBanner =>
+      'A trial: cut every new program on an MDF offcut first. Nothing goes to the machine by itself.';
+
+  @override
+  String get cncpTabPatterns => 'Patterns';
+
+  @override
+  String get cncpTabTools => 'Cutters';
+
+  @override
+  String get cncpTabMachine => 'Machine';
+
+  @override
+  String get cncpTabAccess => 'Access';
+
+  @override
+  String get cncpPatternsHint =>
+      'A pattern is drawn once, measured from the facade\'s edges, and fits any size. Link it to a milling and an order\'s positions get their programs.';
+
+  @override
+  String get cncpPatternsEmpty => 'No patterns yet.';
+
+  @override
+  String get cncpPatternNew => 'New pattern';
+
+  @override
+  String get cncpExample => 'example';
+
+  @override
+  String get cncpExampleWarning =>
+      'An example pattern: check the sizes and cut it on an offcut before a facade.';
+
+  @override
+  String get cncpNoMilling => 'Not linked to a milling';
+
+  @override
+  String cncpForMilling(String milling) {
+    return 'Milling: $milling';
+  }
+
+  @override
+  String cncpMinSize(String w, String h) {
+    return 'From $w×$h mm';
+  }
+
+  @override
+  String cncpMinSizeFallback(String w, String h, String fallback) {
+    return 'From $w×$h mm; smaller — «$fallback»';
+  }
+
+  @override
+  String cncpLineFrame(String offset) {
+    return 'Frame $offset mm in';
+  }
+
+  @override
+  String cncpLineFrameRound(String offset, String radius) {
+    return 'Frame $offset mm in, round corners R$radius';
+  }
+
+  @override
+  String cncpLineFrameCove(String offset, String radius) {
+    return 'Frame $offset mm in, cove corners R$radius';
+  }
+
+  @override
+  String cncpLineArch(String offset, String rise) {
+    return 'Arch $offset mm in, rising $rise mm';
+  }
+
+  @override
+  String cncpLineGroovesV(String step) {
+    return 'Vertical grooves every $step mm';
+  }
+
+  @override
+  String cncpLineGroovesH(String step) {
+    return 'Horizontal grooves every $step mm';
+  }
+
+  @override
+  String cncpLineTool(String shape, String tool, String depth) {
+    return '$shape · $tool · $depth mm deep';
+  }
+
+  @override
+  String get cncpPatternName => 'Pattern name';
+
+  @override
+  String get cncpPatternMilling => 'Milling';
+
+  @override
+  String get cncpPatternMillingHint =>
+      'Positions with this milling are cut by this pattern';
+
+  @override
+  String get cncpPatternMinW => 'Smallest side, mm';
+
+  @override
+  String get cncpPatternMinH => 'Larger side, mm';
+
+  @override
+  String get cncpPatternFallback => 'For smaller facades';
+
+  @override
+  String get cncpPatternFallbackHint =>
+      'This pattern is cut when the facade is smaller than the sizes above';
+
+  @override
+  String get cncpNone => '—';
+
+  @override
+  String get cncpElements => 'Elements';
+
+  @override
+  String get cncpElementAdd => 'Add an element';
+
+  @override
+  String get cncpKindFrame => 'Frame';
+
+  @override
+  String get cncpKindArch => 'Arch';
+
+  @override
+  String get cncpKindGrooves => 'Grooves';
+
+  @override
+  String get cncpTool => 'Cutter';
+
+  @override
+  String get cncpDepth => 'Depth, mm';
+
+  @override
+  String get cncpOffset => 'In from the edge, mm';
+
+  @override
+  String get cncpOffsetHint => 'To the cutter\'s centre line';
+
+  @override
+  String get cncpCornerSquare => 'Square';
+
+  @override
+  String get cncpCornerRound => 'Round';
+
+  @override
+  String get cncpCornerCove => 'Cove';
+
+  @override
+  String get cncpRadius => 'Corner radius, mm';
+
+  @override
+  String get cncpRise => 'Arch rise, mm';
+
+  @override
+  String get cncpVertical => 'Vertical';
+
+  @override
+  String get cncpHorizontal => 'Horizontal';
+
+  @override
+  String get cncpStep => 'Step, mm';
+
+  @override
+  String get cncpSide => 'Keep off the sides, mm';
+
+  @override
+  String get cncpSideHint => '0 — across the whole facade';
+
+  @override
+  String get cncpEnds => 'Stop short of the ends, mm';
+
+  @override
+  String get cncpEndsHint => '0 — through, edge to edge';
+
+  @override
+  String get cncpTryWidth => 'Try on width, mm';
+
+  @override
+  String get cncpTryHeight => 'and height, mm';
+
+  @override
+  String get cncpPreviewFailed => 'No connection to draw the pattern.';
+
+  @override
+  String cncpPreviewStats(String minutes, String files) {
+    return '≈ $minutes min on the machine · programs: $files';
+  }
+
+  @override
+  String cncpFileLine(
+    String tool,
+    String metres,
+    String passes,
+    String minutes,
+  ) {
+    return '$tool: $metres m of cut, passes $passes, ≈ $minutes min';
+  }
+
+  @override
+  String get cncpDownload => 'Save G-code';
+
+  @override
+  String get cncpCheckOnOffcut =>
+      'Cut it on an offcut first; the zero is the facade\'s bottom-left corner, Z0 its face.';
+
+  @override
+  String get cncpTrialsFolder => 'Trials';
+
+  @override
+  String cncpSavedTo(String dir) {
+    return 'Saved: $dir';
+  }
+
+  @override
+  String cncpSavedFiles(String count, String dir) {
+    return 'Programs saved: $count — $dir';
+  }
+
+  @override
+  String get cncpOpenFolder => 'Open folder';
+
+  @override
+  String get cncpSave => 'Save';
+
+  @override
+  String get cncpDelete => 'Delete';
+
+  @override
+  String cncpPatternSaved(String name) {
+    return 'Pattern «$name» saved';
+  }
+
+  @override
+  String cncpPatternDeleteAsk(String name) {
+    return 'Delete the pattern «$name»?';
+  }
+
+  @override
+  String get cncpToolsHint =>
+      'The cutters and the speeds they cut MDF at. A pattern names its cutter; two cutters are two programs, run one after the other.';
+
+  @override
+  String get cncpToolNew => 'New cutter';
+
+  @override
+  String get cncpToolName => 'Name';
+
+  @override
+  String get cncpToolV => 'V-shaped';
+
+  @override
+  String get cncpToolBall => 'Round-nosed';
+
+  @override
+  String get cncpToolFlat => 'Straight';
+
+  @override
+  String cncpToolLine(
+    String kind,
+    String diameter,
+    String feed,
+    String rpm,
+    String pass,
+  ) {
+    return '$kind · ⌀$diameter mm · feed $feed mm/min · $rpm rpm · $pass mm a pass';
+  }
+
+  @override
+  String get cncpDiameter => 'Diameter, mm';
+
+  @override
+  String get cncpAngle => 'Angle, °';
+
+  @override
+  String get cncpFeed => 'Feed, mm/min';
+
+  @override
+  String get cncpPlunge => 'Plunge feed, mm/min';
+
+  @override
+  String get cncpRpm => 'Spindle, rpm';
+
+  @override
+  String get cncpPassDepth => 'Depth a pass, mm';
+
+  @override
+  String get cncpMachineHint =>
+      'How your router reads a program. NcStudio, DSP and Mach3 read plain G-code; if the controller refuses arcs or Cyrillic, turn arcs off — comments are always written in Latin.';
+
+  @override
+  String get cncpExt => 'File extension';
+
+  @override
+  String get cncpArcs => 'Arcs as G2/G3 (off — short lines)';
+
+  @override
+  String get cncpComments => 'Comments in the program';
+
+  @override
+  String get cncpLineNumbers => 'Line numbers N10, N20…';
+
+  @override
+  String get cncpSwapXy => 'Facade height along X';
+
+  @override
+  String get cncpSafeZ => 'Safe height, mm';
+
+  @override
+  String get cncpClearZ => 'Approach height, mm';
+
+  @override
+  String get cncpRapid => 'Rapid speed, mm/min (for the time)';
+
+  @override
+  String get cncpDwell => 'Spindle spin-up pause, s (0 — none)';
+
+  @override
+  String get cncpOriginNote =>
+      'The program\'s zero is the facade\'s bottom-left corner; Z0 is its face, cuts go below.';
+
+  @override
+  String get cncpMachineSaved => 'Machine settings saved';
+
+  @override
+  String get cncpAccessHint =>
+      'Besides you, who sees CNC patterns in this base.';
+
+  @override
+  String get cncpAccessSaved => 'Access saved';
+
+  @override
+  String get cncpDisable => 'Turn off';
+
+  @override
+  String get cncpDisabledDone => 'Turned off. The library is kept.';
+
+  @override
+  String get cncpOrderButton => 'CNC (β)';
+
+  @override
+  String get cncpOrderTitle => 'Router programs (β)';
+
+  @override
+  String cncpOrderMinutes(String minutes) {
+    return '≈ $minutes min of router time for the order';
+  }
+
+  @override
+  String cncpOrderLine(
+    String no,
+    String height,
+    String width,
+    String qty,
+    String milling,
+  ) {
+    return '№$no · $height×$width · $qty pcs · $milling';
+  }
+
+  @override
+  String get cncpOrderNoPattern => 'No pattern for this milling';
+
+  @override
+  String cncpOrderPattern(String pattern, String minutes) {
+    return '$pattern · ≈ $minutes min each';
+  }
+
+  @override
+  String cncpOrderSaveAll(String count) {
+    return 'Save programs ($count)';
+  }
 }

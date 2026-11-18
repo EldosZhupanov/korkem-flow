@@ -978,7 +978,21 @@ def card(order: str) -> dict:
 		"paint": _paint_plan(doc.name),
 		# Each PVC position's glue, by the glue in work (owner, 17.11.2026).
 		"glue": glue,
+		# «Узоры ЧПУ» is on here for this user — the order offers its
+		# programs (owner, 18.11.2026; a sandbox, off by default).
+		"cnc": _cnc_visible(doc.company),
 	}
+
+
+def _cnc_visible(company: str) -> bool:
+	from korkem_manufacturing.services import cnc_patterns
+
+	try:
+		return cnc_patterns.visible(company)
+	except Exception:
+		# The order card never fails for the sandbox's sake.
+		frappe.log_error(title="cnc_patterns.visible")
+		return False
 
 
 def _glue_plan(order: str) -> dict | None:

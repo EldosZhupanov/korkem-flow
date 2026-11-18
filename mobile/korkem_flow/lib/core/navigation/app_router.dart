@@ -18,6 +18,7 @@ import 'package:korkem_flow/features/channel_settings/presentation/channel_setti
 import 'package:korkem_flow/features/cnc/presentation/cnc_order_screen.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_prices_screen.dart';
+import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_patterns_screen.dart';
 import 'package:korkem_flow/features/company_details/presentation/company_details_screen.dart';
 import 'package:korkem_flow/features/customers/presentation/customer_detail_screen.dart';
 import 'package:korkem_flow/features/dashboard/presentation/dashboard_screen.dart';
@@ -179,6 +180,7 @@ abstract final class Routes {
   /// «Клей для ПВХ» (owner, 17.11.2026).
   static const glue = '/glue';
   static const glueMonth = '/glue/month';
+  static const cncPatterns = '/cnc-patterns';
 
   /// «Заказы МДФ»: the list, a new order, one order.
   static const mdfOrders = '/mdf/orders';
@@ -389,6 +391,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.glueMonth,
         builder: (context, state) => const GlueMonthScreen(),
+      ),
+      GoRoute(
+        path: Routes.cncPatterns,
+        builder: (context, state) => const CncPatternsScreen(),
       ),
       GoRoute(
         path: Routes.references,

@@ -613,6 +613,7 @@ class MdfOrder {
     this.clientPaint,
     this.paint = const [],
     this.glue,
+    this.cnc = false,
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -705,6 +706,7 @@ class MdfOrder {
     glue: json['glue'] is Map
         ? OrderGlue.fromJson(Map<String, dynamic>.from(json['glue'] as Map))
         : null,
+    cnc: json['cnc'] == true,
   );
 
   final String name;
@@ -765,6 +767,9 @@ class MdfOrder {
 
   /// Its PVC positions' glue, by the glue in work (owner, 17.11.2026).
   final OrderGlue? glue;
+
+  /// «Узоры ЧПУ (β)» is on for this user: the order offers its programs.
+  final bool cnc;
 
   List<MdfOrderTag> get tags => head.tags;
 

@@ -9681,4 +9681,402 @@ class AppLocalizationsKk extends AppLocalizations {
   String filmFigGlueDays(String days) {
     return '$days күнге жетеді';
   }
+
+  @override
+  String get cncpTitle => 'СББ өрнектері (β)';
+
+  @override
+  String get cncpRowHint => 'Сынақ: қасбет өрнегі → станок бағдарламасы';
+
+  @override
+  String get cncpOffTitle => 'СББ өрнектері — сынақ (β)';
+
+  @override
+  String get cncpOffBody =>
+      'Өрнектер (жақтау, арка, ойықтар) мен фрезалар кітапханасы: қасбеттің кез келген өлшеміне кесуді салып, станогыңызға G-код бағдарламасын жазады.\n\nӨшірулі кезде жұмысқа еш араласпайды. Қосулы кезде тапсырыстың өлшемдерін тек оқиды: тапсырысты, қойманы, ақшаны, кезеңдерді өзгертпейді және станокқа өздігінен ештеңе жібермейді — оператор кесіндіде тексеретін файл сақтайды.';
+
+  @override
+  String get cncpEnable => 'Осы базада қосу';
+
+  @override
+  String get cncpEnabledDone => 'СББ өрнектері осы базада қосылды';
+
+  @override
+  String get cncpOwnerTurnsOn => 'Компания иесі қосады.';
+
+  @override
+  String get cncpNotYours =>
+      'Модуль қосулы, бірақ сізге ашылмаған. Иесінен сұраңыз.';
+
+  @override
+  String get cncpBetaBanner =>
+      'Сынақ: әр жаңа бағдарламаны алдымен МДФ кесіндісінде кесіңіз. Станокқа өздігінен ештеңе кетпейді.';
+
+  @override
+  String get cncpTabPatterns => 'Өрнектер';
+
+  @override
+  String get cncpTabTools => 'Фрезалар';
+
+  @override
+  String get cncpTabMachine => 'Станок';
+
+  @override
+  String get cncpTabAccess => 'Қолжетімділік';
+
+  @override
+  String get cncpPatternsHint =>
+      'Өрнек бір рет, қасбет шетінен өлшеніп салынады және кез келген өлшемге келеді. Оны фрезерлеумен байланыстырыңыз — тапсырыс позициялары өз бағдарламаларын алады.';
+
+  @override
+  String get cncpPatternsEmpty => 'Әзірге өрнек жоқ.';
+
+  @override
+  String get cncpPatternNew => 'Жаңа өрнек';
+
+  @override
+  String get cncpExample => 'мысал';
+
+  @override
+  String get cncpExampleWarning =>
+      'Мысал өрнек: өлшемдерін тексеріп, қасбеттен бұрын кесіндіде кесіп көріңіз.';
+
+  @override
+  String get cncpNoMilling => 'Фрезерлеумен байланыспаған';
+
+  @override
+  String cncpForMilling(String milling) {
+    return 'Фрезерлеу: $milling';
+  }
+
+  @override
+  String cncpMinSize(String w, String h) {
+    return '$w×$h мм-ден';
+  }
+
+  @override
+  String cncpMinSizeFallback(String w, String h, String fallback) {
+    return '$w×$h мм-ден; кішісіне — «$fallback»';
+  }
+
+  @override
+  String cncpLineFrame(String offset) {
+    return 'Жақтау, шегініс $offset мм';
+  }
+
+  @override
+  String cncpLineFrameRound(String offset, String radius) {
+    return 'Жақтау, шегініс $offset мм, дөңгелек бұрыш R$radius';
+  }
+
+  @override
+  String cncpLineFrameCove(String offset, String radius) {
+    return 'Жақтау, шегініс $offset мм, ішке ойық бұрыш R$radius';
+  }
+
+  @override
+  String cncpLineArch(String offset, String rise) {
+    return 'Арка, шегініс $offset мм, көтерілу $rise мм';
+  }
+
+  @override
+  String cncpLineGroovesV(String step) {
+    return 'Тік ойықтар әр $step мм';
+  }
+
+  @override
+  String cncpLineGroovesH(String step) {
+    return 'Көлденең ойықтар әр $step мм';
+  }
+
+  @override
+  String cncpLineTool(String shape, String tool, String depth) {
+    return '$shape · $tool · тереңдігі $depth мм';
+  }
+
+  @override
+  String get cncpPatternName => 'Өрнек атауы';
+
+  @override
+  String get cncpPatternMilling => 'Фрезерлеу';
+
+  @override
+  String get cncpPatternMillingHint =>
+      'Осы фрезерлеуі бар позициялар осы өрнекпен кесіледі';
+
+  @override
+  String get cncpPatternMinW => 'Кіші жағы, мм';
+
+  @override
+  String get cncpPatternMinH => 'Үлкен жағы, мм';
+
+  @override
+  String get cncpPatternFallback => 'Кішірек қасбеттерге';
+
+  @override
+  String get cncpPatternFallbackHint =>
+      'Қасбет жоғарыдағы өлшемдерден кіші болса, осы өрнек кесіледі';
+
+  @override
+  String get cncpNone => '—';
+
+  @override
+  String get cncpElements => 'Элементтер';
+
+  @override
+  String get cncpElementAdd => 'Элемент қосу';
+
+  @override
+  String get cncpKindFrame => 'Жақтау';
+
+  @override
+  String get cncpKindArch => 'Арка';
+
+  @override
+  String get cncpKindGrooves => 'Ойықтар';
+
+  @override
+  String get cncpTool => 'Фреза';
+
+  @override
+  String get cncpDepth => 'Тереңдігі, мм';
+
+  @override
+  String get cncpOffset => 'Шеттен шегініс, мм';
+
+  @override
+  String get cncpOffsetHint => 'Кесудің ортасына дейін';
+
+  @override
+  String get cncpCornerSquare => 'Тік';
+
+  @override
+  String get cncpCornerRound => 'Дөңгелек';
+
+  @override
+  String get cncpCornerCove => 'Ойық';
+
+  @override
+  String get cncpRadius => 'Бұрыш радиусы, мм';
+
+  @override
+  String get cncpRise => 'Арка биіктігі, мм';
+
+  @override
+  String get cncpVertical => 'Тік';
+
+  @override
+  String get cncpHorizontal => 'Көлденең';
+
+  @override
+  String get cncpStep => 'Қадам, мм';
+
+  @override
+  String get cncpSide => 'Бүйірден шегініс, мм';
+
+  @override
+  String get cncpSideHint => '0 — бүкіл ені бойынша';
+
+  @override
+  String get cncpEnds => 'Шеттерге жетпеу, мм';
+
+  @override
+  String get cncpEndsHint => '0 — шеттен шетке дейін';
+
+  @override
+  String get cncpTryWidth => 'Енімен тексеру, мм';
+
+  @override
+  String get cncpTryHeight => 'және биіктігімен, мм';
+
+  @override
+  String get cncpPreviewFailed => 'Байланыс жоқ — өрнекті салу мүмкін емес.';
+
+  @override
+  String cncpPreviewStats(String minutes, String files) {
+    return '≈ $minutes мин станок · бағдарлама: $files';
+  }
+
+  @override
+  String cncpFileLine(
+    String tool,
+    String metres,
+    String passes,
+    String minutes,
+  ) {
+    return '$tool: кесу $metres м, өту $passes, ≈ $minutes мин';
+  }
+
+  @override
+  String get cncpDownload => 'G-кодты сақтау';
+
+  @override
+  String get cncpCheckOnOffcut =>
+      'Алдымен кесіндіде кесіңіз; нөл — қасбеттің сол жақ төменгі бұрышы, Z0 — беті.';
+
+  @override
+  String get cncpTrialsFolder => 'Сынақтар';
+
+  @override
+  String cncpSavedTo(String dir) {
+    return 'Сақталды: $dir';
+  }
+
+  @override
+  String cncpSavedFiles(String count, String dir) {
+    return 'Сақталған бағдарлама: $count — $dir';
+  }
+
+  @override
+  String get cncpOpenFolder => 'Буманы ашу';
+
+  @override
+  String get cncpSave => 'Сақтау';
+
+  @override
+  String get cncpDelete => 'Жою';
+
+  @override
+  String cncpPatternSaved(String name) {
+    return '«$name» өрнегі сақталды';
+  }
+
+  @override
+  String cncpPatternDeleteAsk(String name) {
+    return '«$name» өрнегін жою керек пе?';
+  }
+
+  @override
+  String get cncpToolsHint =>
+      'Фрезалар және олар МДФ кесетін режимдер. Өрнек өз фрезасын атайды; екі фреза — бірінен соң бірі орындалатын екі бағдарлама.';
+
+  @override
+  String get cncpToolNew => 'Жаңа фреза';
+
+  @override
+  String get cncpToolName => 'Атауы';
+
+  @override
+  String get cncpToolV => 'V-тәрізді';
+
+  @override
+  String get cncpToolBall => 'Радиусты';
+
+  @override
+  String get cncpToolFlat => 'Түзу';
+
+  @override
+  String cncpToolLine(
+    String kind,
+    String diameter,
+    String feed,
+    String rpm,
+    String pass,
+  ) {
+    return '$kind · ⌀$diameter мм · беру $feed мм/мин · $rpm айн/мин · бір өтуде $pass мм';
+  }
+
+  @override
+  String get cncpDiameter => 'Диаметрі, мм';
+
+  @override
+  String get cncpAngle => 'Бұрышы, °';
+
+  @override
+  String get cncpFeed => 'Беру, мм/мин';
+
+  @override
+  String get cncpPlunge => 'Ену жылдамдығы, мм/мин';
+
+  @override
+  String get cncpRpm => 'Шпиндель, айн/мин';
+
+  @override
+  String get cncpPassDepth => 'Бір өтудегі тереңдік, мм';
+
+  @override
+  String get cncpMachineHint =>
+      'Станогыңыз бағдарламаны қалай оқиды. NcStudio, DSP және Mach3 кәдімгі G-кодты оқиды; тірек доғаларды қабылдамаса — доғаларды өшіріңіз. Түсініктемелер әрқашан латынша жазылады.';
+
+  @override
+  String get cncpExt => 'Файл кеңейтімі';
+
+  @override
+  String get cncpArcs => 'Доғалар G2/G3 (өшірулі — қысқа кесінділер)';
+
+  @override
+  String get cncpComments => 'Бағдарламадағы түсініктемелер';
+
+  @override
+  String get cncpLineNumbers => 'Жол нөмірлері N10, N20…';
+
+  @override
+  String get cncpSwapXy => 'Қасбет биіктігі X осі бойымен';
+
+  @override
+  String get cncpSafeZ => 'Қауіпсіз биіктік, мм';
+
+  @override
+  String get cncpClearZ => 'Жақындау биіктігі, мм';
+
+  @override
+  String get cncpRapid => 'Бос жүріс жылдамдығы, мм/мин (уақыт есебі үшін)';
+
+  @override
+  String get cncpDwell => 'Шпиндельді үдетуге кідіріс, с (0 — жоқ)';
+
+  @override
+  String get cncpOriginNote =>
+      'Бағдарлама нөлі — қасбеттің сол жақ төменгі бұрышы; Z0 — беті, кесу төмен жүреді.';
+
+  @override
+  String get cncpMachineSaved => 'Станок баптаулары сақталды';
+
+  @override
+  String get cncpAccessHint =>
+      'Сізден басқа осы базада «СББ өрнектерін» кім көреді.';
+
+  @override
+  String get cncpAccessSaved => 'Қолжетімділік сақталды';
+
+  @override
+  String get cncpDisable => 'Өшіру';
+
+  @override
+  String get cncpDisabledDone => 'Өшірілді. Кітапхана сақталды.';
+
+  @override
+  String get cncpOrderButton => 'СББ (β)';
+
+  @override
+  String get cncpOrderTitle => 'Станок бағдарламалары (β)';
+
+  @override
+  String cncpOrderMinutes(String minutes) {
+    return 'Бүкіл тапсырысқа ≈ $minutes мин станок';
+  }
+
+  @override
+  String cncpOrderLine(
+    String no,
+    String height,
+    String width,
+    String qty,
+    String milling,
+  ) {
+    return '№$no · $height×$width · $qty дана · $milling';
+  }
+
+  @override
+  String get cncpOrderNoPattern => 'Бұл фрезерлеуге өрнек жоқ';
+
+  @override
+  String cncpOrderPattern(String pattern, String minutes) {
+    return '$pattern · бір данаға ≈ $minutes мин';
+  }
+
+  @override
+  String cncpOrderSaveAll(String count) {
+    return 'Бағдарламаларды сақтау ($count)';
+  }
 }
