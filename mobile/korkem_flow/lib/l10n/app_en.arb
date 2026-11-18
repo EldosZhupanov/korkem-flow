@@ -10308,5 +10308,13 @@
   "@offcutsSuggestTitle": {"placeholders": {"count": {"type": "int"}}},
   "offcutsSuggestLine": "Item {position}: {part} — from {offcut}, {cell}",
   "@offcutsSuggestLine": {"placeholders": {"position": {"type": "int"}, "part": {"type": "String"}, "offcut": {"type": "String"}, "cell": {"type": "String"}}},
-  "offcutsTake": "Take"
+  "offcutsTake": "Take",
+  "mdfFilmToBuy": "not in stock · {metres} m to order",
+  "@mdfFilmToBuy": {"placeholders": {"metres": {"type": "String"}}},
+  "mdfFilmToBuyFrom": "not in stock · {metres} m from {from}",
+  "@mdfFilmToBuyFrom": {"placeholders": {"metres": {"type": "String"}, "from": {"type": "String"}}},
+  "filmOrdersForOrders": "for orders ({count}) · {metres} m",
+  "@filmOrdersForOrders": {"placeholders": {"count": {"type": "int"}, "metres": {"type": "String"}}},
+  "mdfClientPartsSome": "Customer's LMDF: {marked} of {total}",
+  "@mdfClientPartsSome": {"placeholders": {"marked": {"type": "int"}, "total": {"type": "int"}}}
 }

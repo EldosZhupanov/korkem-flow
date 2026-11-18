@@ -3229,5 +3229,9 @@
   "offcutsPut": "Қою",
   "offcutsSuggestTitle": "Қиындылардан: {count} бөлшек",
   "offcutsSuggestLine": "{position}-орын: {part} — {offcut} қиындысынан, {cell}",
-  "offcutsTake": "Алу"
+  "offcutsTake": "Алу",
+  "mdfFilmToBuy": "қоймада жоқ · {metres} м тапсырыс беру",
+  "mdfFilmToBuyFrom": "қоймада жоқ · {from}: {metres} м",
+  "filmOrdersForOrders": "тапсырыстарға ({count}) · {metres} м",
+  "mdfClientPartsSome": "Клиенттің ЛМДФ: {total} ішінен {marked}"
 }

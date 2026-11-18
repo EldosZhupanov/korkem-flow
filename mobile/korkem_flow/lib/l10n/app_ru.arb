@@ -3229,5 +3229,9 @@
   "offcutsPut": "Положить",
   "offcutsSuggestTitle": "Из обрезков: {count, plural, one{{count} деталь} few{{count} детали} other{{count} деталей}}",
   "offcutsSuggestLine": "Поз. {position}: {part} — из {offcut}, {cell}",
-  "offcutsTake": "Взять"
+  "offcutsTake": "Взять",
+  "mdfFilmToBuy": "нет на складе · заказать {metres} м",
+  "mdfFilmToBuyFrom": "нет на складе · {metres} м у {from}",
+  "filmOrdersForOrders": "для заказов ({count}) · {metres} м",
+  "mdfClientPartsSome": "ЛМДФ клиента: {marked} из {total}"
 }
