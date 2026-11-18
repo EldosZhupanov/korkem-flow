@@ -35,6 +35,8 @@ class Film {
     this.holds = const [],
     this.dailyM,
     this.daysLeft,
+    this.image,
+    this.imageOwn = false,
   });
 
   factory Film.fromJson(Map<String, dynamic> json) => Film(
@@ -69,6 +71,8 @@ class Film {
     dailyM: (json['daily_m'] as num?)?.toDouble(),
     daysLeft: (json['days_left'] as num?)?.toInt(),
     url: _s(json['url']),
+    image: _s(json['image']),
+    imageOwn: json['image_own'] == true,
     coming: [
       for (final c in json['coming'] as List? ?? const [])
         if (c is Map<String, dynamic>)
@@ -102,6 +106,13 @@ class Film {
       _ => null,
     },
   );
+
+  /// The film's picture, a server path: its own photo, else its decor's
+  /// from the maker's catalogue (owner, 18.11.2026).
+  final String? image;
+
+  /// The picture is the film's own photo, not the catalogue's.
+  final bool imageOwn;
 
   final String item;
   final String title;

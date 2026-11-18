@@ -533,7 +533,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
             Row(
               children: [
                 if (line.film.argb != null) ...[
-                  FilmSample(argb: line.film.argb),
+                  FilmSample(argb: line.film.argb, image: line.film.image),
                   const SizedBox(width: AppSpacing.sm),
                 ],
                 Expanded(
@@ -1280,12 +1280,15 @@ class _GlueLine {
 /// now — the rest is the customer's debt. A metre's price comes from the
 /// customer's card (retail or trade, less the discount) and may be retyped.
 /// [repeat] — a sale's films and metres, to sell again (13.11.2026).
+/// [glue] — «Продать ▾ → Клей для ПВХ» (owner, 18.11.2026): the sale starts
+/// with a glue line and no film.
 Future<bool?> showFilmSale(
   BuildContext context,
   FilmCatalog stock, {
   Film? film,
   String? customer,
   List<FilmSaleLine>? repeat,
+  bool glue = false,
 }) => showDialog<bool>(
   context: context,
   builder: (_) => _SaleDialog(
@@ -1293,6 +1296,7 @@ Future<bool?> showFilmSale(
     film: film,
     customer: customer,
     repeat: repeat,
+    glue: glue,
   ),
 );
 
@@ -1302,12 +1306,14 @@ class _SaleDialog extends ConsumerStatefulWidget {
     this.film,
     this.customer,
     this.repeat,
+    this.glue = false,
   });
 
   final FilmCatalog stock;
   final Film? film;
   final String? customer;
   final List<FilmSaleLine>? repeat;
+  final bool glue;
 
   @override
   ConsumerState<_SaleDialog> createState() => _SaleDialogState();
@@ -1353,6 +1359,13 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
   void initState() {
     super.initState();
     if (widget.repeat case final again? when _again(again)) return;
+    if (widget.glue) {
+      // After the first frame: the glue's store is read, a snackbar may show.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_addGlue());
+      });
+      return;
+    }
     final first = widget.film ?? _films.firstOrNull;
     if (first != null) _add(first);
   }

@@ -1,0 +1,125 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-11-18 13:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "maker",
+  "decor_name",
+  "collection",
+  "code",
+  "thickness",
+  "hex",
+  "image",
+  "source"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Компания",
+   "options": "Company",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "maker",
+   "fieldtype": "Data",
+   "label": "Производитель",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "decor_name",
+   "fieldtype": "Data",
+   "label": "Название",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "collection",
+   "fieldtype": "Data",
+   "label": "Коллекция",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Код"
+  },
+  {
+   "fieldname": "thickness",
+   "fieldtype": "Data",
+   "label": "Толщины"
+  },
+  {
+   "fieldname": "hex",
+   "fieldtype": "Data",
+   "label": "Средний цвет"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Образец"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "label": "Откуда"
+  }
+ ],
+ "image_field": "image",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-18 13:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Film Decor",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Stock Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Stock User",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Sales User",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "read": 1,
+   "role": "Purchase Manager",
+   "write": 0
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "decor_name",
+ "track_changes": 1
+}

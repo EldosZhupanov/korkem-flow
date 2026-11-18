@@ -1465,6 +1465,8 @@ void main() {
     final repo = await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmDept:sell')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:sellFilm')));
+    await tester.pumpAndSettle();
     final save = find.byKey(const ValueKey('filmSaleSave'));
     expect(tester.widget<FilledButton>(save).onPressed, isNull);
     await tester.tap(find.byKey(const ValueKey('filmSaleCustomer:1')));
@@ -1531,6 +1533,8 @@ void main() {
     final repo = await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmDept:sell')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:sellFilm')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmSaleCustomer:1')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Мебель-ЮГ').last);
@@ -1569,10 +1573,24 @@ void main() {
     expect(repo.sellers.single, 'a@k.kz');
   });
 
+  testWidgets('«Продать ▾ → Клей» opens the sale with the glue and no film', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('filmDept:sell')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:sellGlue')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmSaleGlue:0')), findsOne);
+    expect(find.byKey(const ValueKey('filmSaleFilm:0')), findsNothing);
+  });
+
   testWidgets("glue is sold with the film: a bucket at the glue's price, "
       'a glue-only sale with no film line', (tester) async {
     final repo = await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('filmDept:sell')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:sellFilm')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmSaleCustomer:1')));
     await tester.pumpAndSettle();
