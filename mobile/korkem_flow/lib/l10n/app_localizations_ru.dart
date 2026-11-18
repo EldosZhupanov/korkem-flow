@@ -9707,4 +9707,402 @@ class AppLocalizationsRu extends AppLocalizations {
   String filmFigGlueDays(String days) {
     return 'хватит на $days дн.';
   }
+
+  @override
+  String get cncpTitle => 'Узоры ЧПУ (β)';
+
+  @override
+  String get cncpRowHint => 'Проба: узор фасада → программа для станка';
+
+  @override
+  String get cncpOffTitle => 'Узоры ЧПУ — проба (β)';
+
+  @override
+  String get cncpOffBody =>
+      'Библиотека узоров (рамки, арки, пазы) и фрез: под любой размер фасада рисует рез и пишет программу G-код для вашего станка.\n\nПока выключено — никак не участвует в работе. Включённое только читает размеры заказа: не меняет заказы, склад, деньги и этапы и ничего не отправляет на станок само — сохраняет файл, который оператор проверяет на обрезке.';
+
+  @override
+  String get cncpEnable => 'Включить на этой базе';
+
+  @override
+  String get cncpEnabledDone => 'Узоры ЧПУ включены на этой базе';
+
+  @override
+  String get cncpOwnerTurnsOn => 'Включает владелец компании.';
+
+  @override
+  String get cncpNotYours =>
+      'Модуль включён, но вам его не открыли. Попросите владельца.';
+
+  @override
+  String get cncpBetaBanner =>
+      'Проба: каждую новую программу сначала режьте на обрезке МДФ. На станок само ничего не уходит.';
+
+  @override
+  String get cncpTabPatterns => 'Узоры';
+
+  @override
+  String get cncpTabTools => 'Фрезы';
+
+  @override
+  String get cncpTabMachine => 'Станок';
+
+  @override
+  String get cncpTabAccess => 'Доступ';
+
+  @override
+  String get cncpPatternsHint =>
+      'Узор рисуется один раз, от краёв фасада, и подходит под любой размер. Свяжите его с фрезеровкой — и позиции заказа получат свои программы.';
+
+  @override
+  String get cncpPatternsEmpty => 'Узоров пока нет.';
+
+  @override
+  String get cncpPatternNew => 'Новый узор';
+
+  @override
+  String get cncpExample => 'пример';
+
+  @override
+  String get cncpExampleWarning =>
+      'Узор-пример: проверьте размеры и прорежьте на обрезке, прежде чем на фасаде.';
+
+  @override
+  String get cncpNoMilling => 'Не связан с фрезеровкой';
+
+  @override
+  String cncpForMilling(String milling) {
+    return 'Фрезеровка: $milling';
+  }
+
+  @override
+  String cncpMinSize(String w, String h) {
+    return 'От $w×$h мм';
+  }
+
+  @override
+  String cncpMinSizeFallback(String w, String h, String fallback) {
+    return 'От $w×$h мм; меньше — «$fallback»';
+  }
+
+  @override
+  String cncpLineFrame(String offset) {
+    return 'Рамка, отступ $offset мм';
+  }
+
+  @override
+  String cncpLineFrameRound(String offset, String radius) {
+    return 'Рамка, отступ $offset мм, скруглённые углы R$radius';
+  }
+
+  @override
+  String cncpLineFrameCove(String offset, String radius) {
+    return 'Рамка, отступ $offset мм, вогнутые углы R$radius';
+  }
+
+  @override
+  String cncpLineArch(String offset, String rise) {
+    return 'Арка, отступ $offset мм, подъём $rise мм';
+  }
+
+  @override
+  String cncpLineGroovesV(String step) {
+    return 'Вертикальные пазы через $step мм';
+  }
+
+  @override
+  String cncpLineGroovesH(String step) {
+    return 'Горизонтальные пазы через $step мм';
+  }
+
+  @override
+  String cncpLineTool(String shape, String tool, String depth) {
+    return '$shape · $tool · глубина $depth мм';
+  }
+
+  @override
+  String get cncpPatternName => 'Название узора';
+
+  @override
+  String get cncpPatternMilling => 'Фрезеровка';
+
+  @override
+  String get cncpPatternMillingHint =>
+      'Позиции с этой фрезеровкой режутся этим узором';
+
+  @override
+  String get cncpPatternMinW => 'Меньшая сторона от, мм';
+
+  @override
+  String get cncpPatternMinH => 'Большая сторона от, мм';
+
+  @override
+  String get cncpPatternFallback => 'Для фасадов меньше';
+
+  @override
+  String get cncpPatternFallbackHint =>
+      'Этот узор режется, когда фасад меньше размеров выше';
+
+  @override
+  String get cncpNone => '—';
+
+  @override
+  String get cncpElements => 'Элементы';
+
+  @override
+  String get cncpElementAdd => 'Добавить элемент';
+
+  @override
+  String get cncpKindFrame => 'Рамка';
+
+  @override
+  String get cncpKindArch => 'Арка';
+
+  @override
+  String get cncpKindGrooves => 'Пазы';
+
+  @override
+  String get cncpTool => 'Фреза';
+
+  @override
+  String get cncpDepth => 'Глубина, мм';
+
+  @override
+  String get cncpOffset => 'Отступ от края, мм';
+
+  @override
+  String get cncpOffsetHint => 'До середины реза';
+
+  @override
+  String get cncpCornerSquare => 'Прямой';
+
+  @override
+  String get cncpCornerRound => 'Скруглённый';
+
+  @override
+  String get cncpCornerCove => 'Вогнутый';
+
+  @override
+  String get cncpRadius => 'Радиус угла, мм';
+
+  @override
+  String get cncpRise => 'Подъём арки, мм';
+
+  @override
+  String get cncpVertical => 'Вертикальные';
+
+  @override
+  String get cncpHorizontal => 'Горизонтальные';
+
+  @override
+  String get cncpStep => 'Шаг, мм';
+
+  @override
+  String get cncpSide => 'Отступ по бокам, мм';
+
+  @override
+  String get cncpSideHint => '0 — по всей ширине';
+
+  @override
+  String get cncpEnds => 'Не доходить до торцов, мм';
+
+  @override
+  String get cncpEndsHint => '0 — насквозь, от края до края';
+
+  @override
+  String get cncpTryWidth => 'Проверить на ширине, мм';
+
+  @override
+  String get cncpTryHeight => 'и высоте, мм';
+
+  @override
+  String get cncpPreviewFailed => 'Нет связи — узор не нарисовать.';
+
+  @override
+  String cncpPreviewStats(String minutes, String files) {
+    return '≈ $minutes мин станка · программ: $files';
+  }
+
+  @override
+  String cncpFileLine(
+    String tool,
+    String metres,
+    String passes,
+    String minutes,
+  ) {
+    return '$tool: рез $metres м, проходов $passes, ≈ $minutes мин';
+  }
+
+  @override
+  String get cncpDownload => 'Сохранить G-код';
+
+  @override
+  String get cncpCheckOnOffcut =>
+      'Сначала прорежьте на обрезке; ноль — левый нижний угол фасада, Z0 — его поверхность.';
+
+  @override
+  String get cncpTrialsFolder => 'Пробы';
+
+  @override
+  String cncpSavedTo(String dir) {
+    return 'Сохранено: $dir';
+  }
+
+  @override
+  String cncpSavedFiles(String count, String dir) {
+    return 'Сохранено программ: $count — $dir';
+  }
+
+  @override
+  String get cncpOpenFolder => 'Открыть папку';
+
+  @override
+  String get cncpSave => 'Сохранить';
+
+  @override
+  String get cncpDelete => 'Удалить';
+
+  @override
+  String cncpPatternSaved(String name) {
+    return 'Узор «$name» сохранён';
+  }
+
+  @override
+  String cncpPatternDeleteAsk(String name) {
+    return 'Удалить узор «$name»?';
+  }
+
+  @override
+  String get cncpToolsHint =>
+      'Фрезы и режимы, на которых они режут МДФ. Узор называет свою фрезу; две фрезы — две программы, одна за другой.';
+
+  @override
+  String get cncpToolNew => 'Новая фреза';
+
+  @override
+  String get cncpToolName => 'Название';
+
+  @override
+  String get cncpToolV => 'V-образная';
+
+  @override
+  String get cncpToolBall => 'Радиусная';
+
+  @override
+  String get cncpToolFlat => 'Прямая';
+
+  @override
+  String cncpToolLine(
+    String kind,
+    String diameter,
+    String feed,
+    String rpm,
+    String pass,
+  ) {
+    return '$kind · ⌀$diameter мм · подача $feed мм/мин · $rpm об/мин · $pass мм за проход';
+  }
+
+  @override
+  String get cncpDiameter => 'Диаметр, мм';
+
+  @override
+  String get cncpAngle => 'Угол, °';
+
+  @override
+  String get cncpFeed => 'Подача, мм/мин';
+
+  @override
+  String get cncpPlunge => 'Подача врезания, мм/мин';
+
+  @override
+  String get cncpRpm => 'Шпиндель, об/мин';
+
+  @override
+  String get cncpPassDepth => 'Глубина за проход, мм';
+
+  @override
+  String get cncpMachineHint =>
+      'Как ваш станок читает программу. NcStudio, DSP и Mach3 читают обычный G-код; если стойка не принимает дуги — выключите дуги. Комментарии всегда пишутся латиницей.';
+
+  @override
+  String get cncpExt => 'Расширение файла';
+
+  @override
+  String get cncpArcs => 'Дуги командами G2/G3 (выкл. — короткими отрезками)';
+
+  @override
+  String get cncpComments => 'Комментарии в программе';
+
+  @override
+  String get cncpLineNumbers => 'Номера строк N10, N20…';
+
+  @override
+  String get cncpSwapXy => 'Высота фасада вдоль оси X';
+
+  @override
+  String get cncpSafeZ => 'Безопасная высота, мм';
+
+  @override
+  String get cncpClearZ => 'Высота подхода, мм';
+
+  @override
+  String get cncpRapid => 'Скорость холостых, мм/мин (для расчёта времени)';
+
+  @override
+  String get cncpDwell => 'Пауза на разгон шпинделя, с (0 — нет)';
+
+  @override
+  String get cncpOriginNote =>
+      'Ноль программы — левый нижний угол фасада; Z0 — его поверхность, рез идёт ниже.';
+
+  @override
+  String get cncpMachineSaved => 'Настройки станка сохранены';
+
+  @override
+  String get cncpAccessHint =>
+      'Кто, кроме вас, видит «Узоры ЧПУ» на этой базе.';
+
+  @override
+  String get cncpAccessSaved => 'Доступ сохранён';
+
+  @override
+  String get cncpDisable => 'Выключить';
+
+  @override
+  String get cncpDisabledDone => 'Выключено. Библиотека сохранена.';
+
+  @override
+  String get cncpOrderButton => 'ЧПУ (β)';
+
+  @override
+  String get cncpOrderTitle => 'Программы для станка (β)';
+
+  @override
+  String cncpOrderMinutes(String minutes) {
+    return '≈ $minutes мин станка на весь заказ';
+  }
+
+  @override
+  String cncpOrderLine(
+    String no,
+    String height,
+    String width,
+    String qty,
+    String milling,
+  ) {
+    return '№$no · $height×$width · $qty шт · $milling';
+  }
+
+  @override
+  String get cncpOrderNoPattern => 'Для этой фрезеровки нет узора';
+
+  @override
+  String cncpOrderPattern(String pattern, String minutes) {
+    return '$pattern · ≈ $minutes мин за штуку';
+  }
+
+  @override
+  String cncpOrderSaveAll(String count) {
+    return 'Сохранить программы ($count)';
+  }
 }

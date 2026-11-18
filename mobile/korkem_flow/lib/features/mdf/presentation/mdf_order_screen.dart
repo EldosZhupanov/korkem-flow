@@ -17,6 +17,7 @@ import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_order_sheet.dart';
 import 'package:korkem_flow/features/facade_prices/data/facade_price_repository.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
@@ -67,7 +68,23 @@ class MdfOrderScreen extends ConsumerWidget {
     }
     final order = ref.watch(mdfOrderProvider(name!));
     return Scaffold(
-      appBar: AppBar(title: Text(name!)),
+      appBar: AppBar(
+        title: Text(name!),
+        actions: [
+          // «Узоры ЧПУ (β)» — only where the owner switched it on, for whom
+          // they let see it (owner, 18.11.2026); it reads the order only.
+          if (order.value?.cnc ?? false)
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: TextButton.icon(
+                key: const ValueKey('mdfCncPrograms'),
+                onPressed: () => unawaited(showCncOrderSheet(context, name!)),
+                icon: const Icon(AppIcons.design),
+                label: Text(l10n.cncpOrderButton),
+              ),
+            ),
+        ],
+      ),
       body: order.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorView(
