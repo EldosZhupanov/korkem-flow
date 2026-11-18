@@ -218,7 +218,10 @@ class _BrandMarkState extends State<_BrandMark>
         AnimatedBuilder(
           animation: _shine,
           builder: (context, child) {
-            final t = Interval(_wait.clamp(0.0, 1.0), 1).transform(_shine.value);
+            final t = Interval(
+              _wait.clamp(0.0, 1.0),
+              1,
+            ).transform(_shine.value);
             if (t == 0 || t == 1) return const SizedBox.shrink();
             final at = -_band + t * (1 + _band * 2);
             return ShaderMask(
