@@ -1165,7 +1165,9 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
         .pick(extensions: const ['jpg', 'jpeg', 'png', 'webp']);
     if (files.isEmpty || !mounted) return;
     await _act(
-      () => ref.read(filmDecorRepositoryProvider).setFilmImage(f.item, files.first),
+      () => ref
+          .read(filmDecorRepositoryProvider)
+          .setFilmImage(f.item, files.first),
       close: false,
     );
   }

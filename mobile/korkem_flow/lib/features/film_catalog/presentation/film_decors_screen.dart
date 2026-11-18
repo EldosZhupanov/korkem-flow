@@ -213,7 +213,8 @@ class _FilmDecorsScreenState extends ConsumerState<FilmDecorsScreen> {
                   key: ValueKey('fdcCollection:$c'),
                   label: Text(c),
                   selected: c == collection,
-                  onSelected: (on) => setState(() => _collection = on ? c : null),
+                  onSelected: (on) =>
+                      setState(() => _collection = on ? c : null),
                 ),
               SizedBox(
                 width: AppSpacing.xxxl * 6,
@@ -360,9 +361,7 @@ class DecorPicture extends StatelessWidget {
           : Color(argb),
     );
     final path = decor.image;
-    return path == null
-        ? colour
-        : ServerImage(path: path, fallback: colour);
+    return path == null ? colour : ServerImage(path: path, fallback: colour);
   }
 }
 
@@ -443,8 +442,7 @@ class _DecorDialogState extends ConsumerState<_DecorDialog> {
                 [d.maker, ?d.collection, ?d.code].join(' · '),
                 style: theme.textTheme.bodyMedium,
               ),
-              if (d.thickness != null)
-                Text(l10n.fdcThicknesses(d.thickness!)),
+              if (d.thickness != null) Text(l10n.fdcThicknesses(d.thickness!)),
               const SizedBox(height: AppSpacing.sm),
               if (d.films.isNotEmpty) ...[
                 Text(l10n.fdcYourFilms, style: theme.textTheme.titleSmall),

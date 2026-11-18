@@ -10105,4 +10105,79 @@ class AppLocalizationsRu extends AppLocalizations {
   String cncpOrderSaveAll(String count) {
     return 'Сохранить программы ($count)';
   }
+
+  @override
+  String get fdcTitle => 'Каталоги поставщиков';
+
+  @override
+  String get fdcPictures =>
+      'Картинки по кодам или названиям (несколько файлов)';
+
+  @override
+  String get fdcImport => 'Загрузить каталог (zip)';
+
+  @override
+  String fdcImported(String added, String updated) {
+    return 'Каталог загружен: новых $added, обновлено $updated';
+  }
+
+  @override
+  String fdcPicturesDone(String count) {
+    return 'Картинок привязано к плёнкам: $count';
+  }
+
+  @override
+  String fdcPicturesMissed(String count, String names) {
+    return 'Привязано: $count. Не нашлась плёнка для: $names';
+  }
+
+  @override
+  String get fdcEmpty =>
+      'Каталогов пока нет. Загрузите zip, собранный из каталога поставщика, или пришлите PDF поставщика — его соберут.';
+
+  @override
+  String get fdcSearch => 'Название или код';
+
+  @override
+  String get fdcHint =>
+      'Справочник декоров производителя, не склад. Нажмите на декор — заведёте плёнку; ваши плёнки с тем же названием показывают картинку сами.';
+
+  @override
+  String fdcYouHave(String metres) {
+    return 'У вас есть · $metres м';
+  }
+
+  @override
+  String fdcThicknesses(String value) {
+    return 'Толщины: $value';
+  }
+
+  @override
+  String get fdcYourFilms => 'Ваши плёнки этого декора';
+
+  @override
+  String fdcFilmLine(String label, String metres) {
+    return '$label · $metres м';
+  }
+
+  @override
+  String get fdcMakeHint =>
+      'У вас такой плёнки ещё нет. Название, коллекция, код и цвет возьмутся из каталога поставщика; цены — в карточке плёнки.';
+
+  @override
+  String get fdcMake => 'Завести плёнку';
+
+  @override
+  String fdcMade(String label) {
+    return 'Плёнка заведена: $label';
+  }
+
+  @override
+  String get fdcPhoto => 'Фото образца';
+
+  @override
+  String get fdcPhotoClear => 'Вернуть картинку каталога';
+
+  @override
+  String get fdcNoPicture => 'Картинки пока нет';
 }

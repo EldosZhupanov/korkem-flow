@@ -111,7 +111,10 @@ class _Picker extends FilmFilePicker {
   ];
 }
 
-Future<_Decors> _pump(WidgetTester tester, {List<String> files = const []}) async {
+Future<_Decors> _pump(
+  WidgetTester tester, {
+  List<String> files = const [],
+}) async {
   tester.view
     ..physicalSize = const Size(1400, 1000)
     ..devicePixelRatio = 1;

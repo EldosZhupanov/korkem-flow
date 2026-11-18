@@ -86,7 +86,8 @@ class FilmDecors {
     ],
     makers: [
       for (final m in j['makers'] is List ? j['makers'] as List : const [])
-        if (m is Map) (maker: '${m['maker']}', count: (m['count'] as num).toInt()),
+        if (m is Map)
+          (maker: '${m['maker']}', count: (m['count'] as num).toInt()),
     ],
     canEdit: j['can_edit'] == true,
   );
