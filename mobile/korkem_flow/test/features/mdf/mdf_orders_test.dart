@@ -374,7 +374,7 @@ class _FilmToBuy extends _FakeRepository {
   @override
   Future<MdfOrder> card(String name) async => MdfOrder.fromJson({
     ..._twoFilms(),
-    'film_to_buy': {
+    'film_to_buy': const {
       'Белый Матовый': {'short': 3.1, 'from': 'MC Group'},
     },
   });
