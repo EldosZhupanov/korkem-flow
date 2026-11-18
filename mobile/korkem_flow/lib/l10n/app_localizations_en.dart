@@ -10651,6 +10651,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offcutsTake => 'Take';
 
   @override
+  String mdfFilmToBuy(String metres) {
+    return 'not in stock · $metres m to order';
+  }
+
+  @override
+  String mdfFilmToBuyFrom(String metres, String from) {
+    return 'not in stock · $metres m from $from';
+  }
+
+  @override
+  String filmOrdersForOrders(int count, String metres) {
+    return 'for orders ($count) · $metres m';
+  }
+
+  @override
+  String mdfClientPartsSome(int marked, int total) {
+    return 'Customer\'s LMDF: $marked of $total';
+  }
+
+  @override
+  String get fpkTitle => 'PVC film';
+
+  @override
+  String get fpkSearch => 'Name, code or maker';
+
+  @override
+  String get fpkByPhoto => 'By a sample\'s photo';
+
+  @override
+  String get fpkAll => 'All';
+
+  @override
+  String get fpkOnShelf => 'In stock';
+
+  @override
+  String get fpkRecent => 'This customer\'s of late';
+
+  @override
+  String fpkFound(int count) {
+    return 'Found $count · in stock first';
+  }
+
+  @override
+  String get fpkCatalogOnly => 'catalogue only';
+
+  @override
+  String get fpkNothing => 'Nothing found';
+
+  @override
+  String get fpkNone => 'No film';
   String get cncpArtcam => 'From ArtCAM';
 
   @override

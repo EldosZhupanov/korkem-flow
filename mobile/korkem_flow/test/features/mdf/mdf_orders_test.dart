@@ -369,7 +369,68 @@ class _TwoFilms extends _FakeRepository {
   Future<MdfOrder> card(String name) async => MdfOrder.fromJson(_twoFilms());
 }
 
+/// The first film is not on the shelf (owner, 18.11.2026).
+class _FilmToBuy extends _FakeRepository {
+  @override
+  Future<MdfOrder> card(String name) async => MdfOrder.fromJson({
+    ..._twoFilms(),
+    'film_to_buy': const {
+      'Белый Матовый': {'short': 3.1, 'from': 'MC Group'},
+    },
+  });
+}
+
 void main() {
+  testWidgets('a film not on the shelf says so, and whom it comes from', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(_FilmToBuy())],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfFilmToBuy:0')), findsOneWidget);
+    expect(find.textContaining('from MC Group'), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfFilmToBuy:1')), findsNothing);
+  });
+
+  testWidgets("one position's own board is the group's mark; of two, each", (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(_TwoFilms())],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final ticks = find.byWidgetPredicate(
+      (w) =>
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith('mdfLineClientMdf:'),
+    );
+    // The first film has one position: no second «клиента» beside it.
+    expect(ticks, findsNWidgets(2));
+    await tester.tap(ticks.first);
+    await tester.pumpAndSettle();
+    expect(find.text("Customer's LMDF: 1 of 2"), findsOneWidget);
+    await tester.tap(find.text("Customer's LMDF: 1 of 2"));
+    await tester.pumpAndSettle();
+    expect(find.text("Customer's LMDF: 1 of 2"), findsNothing);
+    final both = tester.widgetList<FilterChip>(ticks);
+    expect(both.every((c) => c.selected), isTrue);
+  });
+
   testWidgets("the customer's own film and LMDF are marked on their group", (
     tester,
   ) async {

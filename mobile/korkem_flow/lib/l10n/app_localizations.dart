@@ -18245,6 +18245,89 @@ abstract class AppLocalizations {
   /// **'Take'**
   String get offcutsTake;
 
+  /// No description provided for @mdfFilmToBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'not in stock · {metres} m to order'**
+  String mdfFilmToBuy(String metres);
+
+  /// No description provided for @mdfFilmToBuyFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'not in stock · {metres} m from {from}'**
+  String mdfFilmToBuyFrom(String metres, String from);
+
+  /// No description provided for @filmOrdersForOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'for orders ({count}) · {metres} m'**
+  String filmOrdersForOrders(int count, String metres);
+
+  /// No description provided for @mdfClientPartsSome.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer\'s LMDF: {marked} of {total}'**
+  String mdfClientPartsSome(int marked, int total);
+
+  /// No description provided for @fpkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC film'**
+  String get fpkTitle;
+
+  /// No description provided for @fpkSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, code or maker'**
+  String get fpkSearch;
+
+  /// No description provided for @fpkByPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'By a sample\'s photo'**
+  String get fpkByPhoto;
+
+  /// No description provided for @fpkAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get fpkAll;
+
+  /// No description provided for @fpkOnShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock'**
+  String get fpkOnShelf;
+
+  /// No description provided for @fpkRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'This customer\'s of late'**
+  String get fpkRecent;
+
+  /// No description provided for @fpkFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count} · in stock first'**
+  String fpkFound(int count);
+
+  /// No description provided for @fpkCatalogOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'catalogue only'**
+  String get fpkCatalogOnly;
+
+  /// No description provided for @fpkNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get fpkNothing;
+
+  /// No description provided for @fpkNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No film'**
+  String get fpkNone;
   /// No description provided for @cncpArtcam.
   ///
   /// In en, this message translates to:

@@ -28,7 +28,12 @@ from korkem_manufacturing.services.scope import current_company
 def shortage() -> dict:
 	"""By film: needed, held, free, to buy — and the orders behind each."""
 	facade_prices.ensure_editor()
-	company = current_company()
+	return count(current_company())
+
+
+def count(company: str) -> dict:
+	"""`shortage` for whoever has checked the reader: «К заказу» lists what
+	the orders lack (owner, 18.11.2026)."""
 	orders = frappe.get_all(
 		"Sales Order",
 		filters={

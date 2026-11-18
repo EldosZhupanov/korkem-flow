@@ -10608,6 +10608,56 @@ class AppLocalizationsKk extends AppLocalizations {
   String get offcutsTake => 'Алу';
 
   @override
+  String mdfFilmToBuy(String metres) {
+    return 'қоймада жоқ · $metres м тапсырыс беру';
+  }
+
+  @override
+  String mdfFilmToBuyFrom(String metres, String from) {
+    return 'қоймада жоқ · $from: $metres м';
+  }
+
+  @override
+  String filmOrdersForOrders(int count, String metres) {
+    return 'тапсырыстарға ($count) · $metres м';
+  }
+
+  @override
+  String mdfClientPartsSome(int marked, int total) {
+    return 'Клиенттің ЛМДФ: $total ішінен $marked';
+  }
+
+  @override
+  String get fpkTitle => 'ПВХ үлдірі';
+
+  @override
+  String get fpkSearch => 'Атауы, коды немесе өндіруші';
+
+  @override
+  String get fpkByPhoto => 'Үлгі фотосы бойынша';
+
+  @override
+  String get fpkAll => 'Барлығы';
+
+  @override
+  String get fpkOnShelf => 'Қоймада';
+
+  @override
+  String get fpkRecent => 'Осы клиенттің соңғылары';
+
+  @override
+  String fpkFound(int count) {
+    return 'Табылды $count · алдымен қоймадағылар';
+  }
+
+  @override
+  String get fpkCatalogOnly => 'тек каталогта';
+
+  @override
+  String get fpkNothing => 'Ештеңе табылмады';
+
+  @override
+  String get fpkNone => 'Үлдірсіз';
   String get cncpArtcam => 'ArtCAM-нан';
 
   @override
