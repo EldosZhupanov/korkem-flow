@@ -1822,28 +1822,29 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
       ];
       final groups = FilmCatalog.grouped(usable);
       double freeOf(List<Film> g) => g.fold<double>(0, (s, f) => s + f.free);
-      final films = [
-        for (final g in groups)
-          if ((_maker == null || g.first.maker == _maker) &&
-              (_type == null || g.first.type == _type) &&
-              (!_onShelf || freeOf(g) > 0) &&
-              _found([
-                g.first.maker,
-                g.first.colour,
-                g.first.code,
-                g.first.collection,
-                g.first.type,
-              ]))
-            g,
-      ]..sort((a, b) {
-          final fa = freeOf(a);
-          final fb = freeOf(b);
-          if ((fa > 0) != (fb > 0)) return fa > 0 ? -1 : 1;
-          if (fa > 0 && fa != fb) return fb.compareTo(fa);
-          return '${a.first.maker} ${a.first.colour}'.compareTo(
-            '${b.first.maker} ${b.first.colour}',
-          );
-        });
+      final films =
+          [
+            for (final g in groups)
+              if ((_maker == null || g.first.maker == _maker) &&
+                  (_type == null || g.first.type == _type) &&
+                  (!_onShelf || freeOf(g) > 0) &&
+                  _found([
+                    g.first.maker,
+                    g.first.colour,
+                    g.first.code,
+                    g.first.collection,
+                    g.first.type,
+                  ]))
+                g,
+          ]..sort((a, b) {
+            final fa = freeOf(a);
+            final fb = freeOf(b);
+            if ((fa > 0) != (fb > 0)) return fa > 0 ? -1 : 1;
+            if (fa > 0 && fa != fb) return fb.compareTo(fa);
+            return '${a.first.maker} ${a.first.colour}'.compareTo(
+              '${b.first.maker} ${b.first.colour}',
+            );
+          });
       final decors = _onShelf || _type != null
           ? const <FilmDecor>[]
           : [
@@ -1853,14 +1854,18 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
                   d,
             ];
       final plain =
-          _search.trim().isEmpty && _maker == null && _type == null && !_onShelf;
+          _search.trim().isEmpty &&
+          _maker == null &&
+          _type == null &&
+          !_onShelf;
       final recent = !plain
           ? const <List<Film>>[]
           : [
               for (final r in extras.recent)
                 ?groups
                     .where(
-                      (g) => g.any((f) => f.label == r) ||
+                      (g) =>
+                          g.any((f) => f.label == r) ||
                           '${g.first.maker} · ${g.first.colour}' == r,
                     )
                     .firstOrNull,

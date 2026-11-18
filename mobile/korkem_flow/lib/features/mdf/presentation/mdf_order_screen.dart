@@ -1305,8 +1305,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       tags: [
                         if (_owns(group).paint) MdfOrderTag.clientPaint,
                         if (_owns(group).film) MdfOrderTag.clientFilm,
-                        if (mates.isNotEmpty &&
-                            mates.every((l) => l.clientMdf))
+                        if (mates.isNotEmpty && mates.every((l) => l.clientMdf))
                           MdfOrderTag.clientParts,
                       ],
                       ownMdf: (
@@ -2284,19 +2283,19 @@ class _LineRow extends StatelessWidget {
               // His own board, position by position (owner, 14.11.2026): a
               // tick beside the material, not a second list.
               if (ownMdfChip)
-              Tooltip(
-                message: l10n.mdfTagClientParts,
-                child: FilterChip(
-                  key: ValueKey('mdfLineClientMdf:$index'),
-                  label: Text(l10n.mdfClientShort),
-                  visualDensity: VisualDensity.compact,
-                  selected: line.clientMdf,
-                  onSelected: (on) {
-                    line.clientMdf = on;
-                    onChanged();
-                  },
+                Tooltip(
+                  message: l10n.mdfTagClientParts,
+                  child: FilterChip(
+                    key: ValueKey('mdfLineClientMdf:$index'),
+                    label: Text(l10n.mdfClientShort),
+                    visualDensity: VisualDensity.compact,
+                    selected: line.clientMdf,
+                    onSelected: (on) {
+                      line.clientMdf = on;
+                      onChanged();
+                    },
+                  ),
                 ),
-              ),
               figure(
                 'mdfLineArea',
                 l10n.mdfArea,
