@@ -143,7 +143,7 @@ class _FakeDecors implements FilmDecorRepository {
   @override
   Future<FilmPickExtras> pickExtras(String? customer) async =>
       FilmPickExtras.fromJson({
-        'decors': [
+        'decors': const [
           {'decor': 'D-1', 'maker': 'MC Group', 'name': 'Сиена верде'},
         ],
         'recent': [if (customer != null) 'KIRA · Белый Матовый'],
