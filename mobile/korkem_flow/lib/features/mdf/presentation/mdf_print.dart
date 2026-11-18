@@ -604,7 +604,6 @@ Future<Uint8List> buildMdfStickerPdf(
     pw.Page(
       pageFormat: const PdfPageFormat(58 * mm, 40 * mm, marginAll: 2 * mm),
       build: (_) => pw.Row(
-        crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
           pw.SizedBox(
             width: 30 * mm,
@@ -614,7 +613,7 @@ Future<Uint8List> buildMdfStickerPdf(
               data: orderQrData(order.name),
             ),
           ),
-          pw.SizedBox(width: 2 * mm),
+          const pw.SizedBox(width: 2 * mm),
           pw.Expanded(
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,

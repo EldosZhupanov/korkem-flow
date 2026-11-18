@@ -66,8 +66,8 @@ class _Fake implements MyWorkRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-/// Types [text] as a scanner does: every key, Shift for capitals, [gap]
-/// between keys, Enter at the end.
+/// Types [text] as a scanner does: every key, Shift for capitals, a pause
+/// of `gapMs` between keys, Enter at the end.
 String? _burst(ScanBurst burst, String text, {int gapMs = 10}) {
   var at = Duration.zero;
   String? out;

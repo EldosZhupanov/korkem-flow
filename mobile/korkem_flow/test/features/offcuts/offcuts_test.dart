@@ -22,13 +22,13 @@ class _Fake implements OffcutRepository {
   final added = <(int, int, int, String?)>[];
   final taken = <String>[];
   final used = <String>[];
-  final shelf = [
+  final List<Map<String, Object?>> items = [
     _offcut('OFC-1', 16, 1300, 600),
     _offcut('OFC-2', 18, 900, 400),
   ];
 
   OffcutShelf _shelf() => OffcutShelf.fromJson({
-    'offcuts': shelf,
+    'offcuts': items,
     'thicknesses': const [16, 18],
     'area_m2': 1.14,
   });
@@ -45,14 +45,14 @@ class _Fake implements OffcutRepository {
     String? note,
   }) async {
     added.add((thicknessMm, lengthMm, widthMm, cell));
-    shelf.add(_offcut('OFC-3', thicknessMm, lengthMm, widthMm));
+    items.add(_offcut('OFC-3', thicknessMm, lengthMm, widthMm));
     return _shelf();
   }
 
   @override
   Future<OffcutShelf> use(String offcut) async {
     used.add(offcut);
-    shelf.removeWhere((o) => o['offcut'] == offcut);
+    items.removeWhere((o) => o['offcut'] == offcut);
     return _shelf();
   }
 
@@ -65,7 +65,7 @@ class _Fake implements OffcutRepository {
               'position': 2,
               'height_mm': 1000,
               'width_mm': 500,
-              'offcut': shelf.first,
+              'offcut': items.first,
             },
         ],
       });

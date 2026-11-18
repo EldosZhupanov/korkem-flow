@@ -51,7 +51,7 @@ class TestScanAndOffcuts(IntegrationTestCase):
 		super().setUpClass()
 		frappe.set_user("Administrator")
 		facade_prices.seed_company(COMPANY)
-		_user(MANAGER, "Sales Manager")
+		_user(MANAGER, "Sales User")
 		_user(CUTTER, "Manufacturing User")
 		for kind, value in (("Толщина МДФ", THICKNESS), ("Производитель", MAKER)):
 			material_stock.add_option(kind, value)

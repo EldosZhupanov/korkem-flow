@@ -170,7 +170,7 @@ class _OrderScanDialogState extends ConsumerState<_OrderScanDialog> {
               manager: scan.manager,
               busy: _busy == s.stage.name,
               onTick: _busy == null && !scan.handedOver
-                  ? ({bool undo = false}) => _tick(s, undo: undo)
+                  ? ({undo = false}) => _tick(s, undo: undo)
                   : null,
             ),
         ],
