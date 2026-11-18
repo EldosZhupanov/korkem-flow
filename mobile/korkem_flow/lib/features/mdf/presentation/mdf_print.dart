@@ -613,7 +613,7 @@ Future<Uint8List> buildMdfStickerPdf(
               data: orderQrData(order.name),
             ),
           ),
-          const pw.SizedBox(width: 2 * mm),
+          pw.SizedBox(width: 2 * mm),
           pw.Expanded(
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -621,7 +621,7 @@ Future<Uint8List> buildMdfStickerPdf(
               children: [
                 pw.Text(
                   '№ ${orderShortNumber(order.name)}',
-                  style: pw.TextStyle(
+                  style: const pw.TextStyle(
                     fontSize: 16,
                     fontWeight: pw.FontWeight.bold,
                   ),
