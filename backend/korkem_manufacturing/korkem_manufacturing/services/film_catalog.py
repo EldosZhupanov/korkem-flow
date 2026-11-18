@@ -79,7 +79,7 @@ PRICES = ("price_m", "retail_m", "wholesale_m")
 _FIELDS = [
 	"name", "item_name", "stock_uom", "disabled", "korkem_manufacturer", "korkem_color",
 	"korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured", "korkem_min_stock",
-	"korkem_film_archived",
+	"korkem_film_archived", "image",
 	*CARD.values(),
 ]
 
@@ -214,11 +214,14 @@ def catalog() -> dict:
 	held = material_stock._reserved([i.name for i in items], company)
 	since = _price_since([i.name for i in items], company)
 	counts = _counts(company)
+	from korkem_manufacturing.services import film_decors
+
+	pictures = film_decors.images_by_film(company)
 	films = [
 		{
 			**_film(
 				i, stock.get(i.name, (0.0, 0.0))[0], held.get(i.name, 0.0),
-				counts.get((i.korkem_manufacturer, i.korkem_color), 1) > 1,
+				counts.get((i.korkem_manufacturer, i.korkem_color), 1) > 1, pictures,
 			),
 			"price_since": since.get(i.name, {}),
 		}
@@ -731,12 +734,15 @@ def film(item: str) -> dict:
 	row = frappe.db.get_value("Item", item, _FIELDS, as_dict=True)
 	if not row:
 		frappe.throw("Такой плёнки нет.", frappe.DoesNotExistError)
+	from korkem_manufacturing.services import film_decors
+
 	return {
 		**_film(
 			row,
 			material_stock._stock([item], company).get(item, (0.0, 0.0))[0],
 			material_stock._reserved([item], company).get(item, 0.0),
 			len(siblings(item)) > 1,
+			film_decors.image_of(company, row.korkem_manufacturer, row.korkem_color),
 		),
 		"price_since": _price_since([item], company).get(item, {}),
 	}
@@ -807,10 +813,18 @@ def _number(text) -> float | None:
 		return None
 
 
-def _film(i, on_hand: float, held: float, many: bool = False) -> dict:
+def _film(i, on_hand: float, held: float, many: bool = False, pictures: dict | None = None) -> dict:
 	"""One Item — one thickness of a film. `many`: the film has more than
-	one, and an order names this one by its thickness."""
+	one, and an order names this one by its thickness. `pictures`: the
+	makers' catalogues (`film_decors`) — a film without a photo of its own
+	shows its decor's (owner, 18.11.2026)."""
+	from korkem_manufacturing.services import film_decors
+
+	own = i.get("image")
+	decor = (pictures or {}).get((film_decors._key(i.korkem_manufacturer), film_decors._key(i.korkem_color)))
 	return {
+		"image": own or decor,
+		"image_own": bool(own),
 		"item": i.name,
 		"title": i.item_name,
 		"maker": i.korkem_manufacturer or "",

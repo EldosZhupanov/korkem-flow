@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/api/server_image.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_collections.dart';
+import 'package:korkem_flow/features/film_catalog/presentation/film_decors_screen.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
@@ -59,6 +64,21 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
           child: Scaffold(
             appBar: AppBar(
               title: Text(l10n.filmCatalogTitle),
+              actions: [
+                // The makers' catalogues with pictures (owner, 18.11.2026).
+                TextButton.icon(
+                  key: const ValueKey('filmDecors'),
+                  onPressed: () => unawaited(
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const FilmDecorsScreen(),
+                      ),
+                    ),
+                  ),
+                  icon: const Icon(AppIcons.gallery),
+                  label: Text(l10n.fdcTitle),
+                ),
+              ],
               bottom: TabBar(
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
@@ -726,7 +746,9 @@ class FilmTile extends StatelessWidget {
       child: ListTile(
         key: ValueKey('film:${f.item}'),
         onTap: onTap,
-        leading: f.argb == null ? null : FilmSample(argb: f.argb),
+        leading: f.argb == null && f.image == null
+            ? null
+            : FilmSample(argb: f.argb, image: f.image),
         title: Text(
           [f.colour, ?f.code].join(' · '),
           style: const TextStyle(fontWeight: FontWeight.w600),
@@ -759,21 +781,42 @@ class FilmTile extends StatelessWidget {
 /// A film's sample square — shown only for a film that was given a colour
 /// (the makers publish RAL, not a colour code, so the card no longer asks).
 class FilmSample extends StatelessWidget {
-  const FilmSample({required this.argb, this.size = AppSpacing.xl, super.key});
+  const FilmSample({
+    required this.argb,
+    this.size = AppSpacing.xl,
+    this.image,
+    super.key,
+  });
 
   final int? argb;
   final double size;
 
+  /// The decor's picture (owner, 18.11.2026): the film «на глаз»; the
+  /// colour stands in while it loads or when it cannot.
+  final String? image;
+
   @override
-  Widget build(BuildContext context) => Container(
-    width: size,
-    height: size,
-    decoration: BoxDecoration(
-      color: argb == null ? null : Color(argb!),
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      border: Border.all(color: Theme.of(context).colorScheme.outline),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final colour = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: argb == null ? null : Color(argb!),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+      ),
+    );
+    final path = image;
+    if (path == null) return colour;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: ServerImage(path: path, fallback: colour),
+      ),
+    );
+  }
 }
 
 /// «2026-11-11» → «11.11».
@@ -1062,6 +1105,71 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
     );
   }
 
+  /// The film «на глаз» (owner, 18.11.2026): its own photo, else its
+  /// decor's from the maker's catalogue; a sample photo is put on here.
+  Widget _photo(BuildContext context, Film f) {
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Row(
+        children: [
+          FilmSample(
+            key: const ValueKey('filmCard:picture'),
+            argb: f.argb,
+            image: f.image,
+            size: AppSpacing.xxxl * 2,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
+              children: [
+                OutlinedButton.icon(
+                  key: const ValueKey('filmCard:photo'),
+                  onPressed: _busy ? null : () => unawaited(_pickPhoto(f)),
+                  icon: const Icon(AppIcons.camera),
+                  label: Text(l10n.fdcPhoto),
+                ),
+                if (f.imageOwn)
+                  TextButton(
+                    key: const ValueKey('filmCard:photoClear'),
+                    onPressed: _busy
+                        ? null
+                        : () => unawaited(
+                            _act(
+                              () => ref
+                                  .read(filmDecorRepositoryProvider)
+                                  .clearFilmImage(f.item),
+                              close: false,
+                            ),
+                          ),
+                    child: Text(l10n.fdcPhotoClear),
+                  ),
+                if (f.image == null)
+                  Text(
+                    l10n.fdcNoPicture,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickPhoto(Film f) async {
+    final files = await ref
+        .read(filmFilePickerProvider)
+        .pick(extensions: const ['jpg', 'jpeg', 'png', 'webp']);
+    if (files.isEmpty || !mounted) return;
+    await _act(
+      () => ref.read(filmDecorRepositoryProvider).setFilmImage(f.item, files.first),
+      close: false,
+    );
+  }
+
   /// «+ Толщина»: another roll of the same film, with its own prices.
   Future<void> _addVariant(Film first) async {
     final added = await showDialog<bool>(
@@ -1245,6 +1353,7 @@ class _FilmCardDialogState extends ConsumerState<_FilmCardDialog>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              _photo(context, films.first),
               Text(
                 !enabled
                     ? l10n.filmOff
