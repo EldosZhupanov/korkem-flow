@@ -18,7 +18,14 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// «Подобрать по фото» (owner, 18.11.2026): a photo of the customer's sample
 /// in, the closest decors of every catalogue out — what is on the shelf
 /// marked, so a match from stock is a sale today.
-Future<void> showPhotoMatch(BuildContext context, WidgetRef ref) async {
+///
+/// With [pick] (the order's film window) a tile is the answer: the decor
+/// chosen comes back instead of its page opening.
+Future<DecorMatch?> showPhotoMatch(
+  BuildContext context,
+  WidgetRef ref, {
+  bool pick = false,
+}) async {
   final l10n = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final List<PickedFile> files;
@@ -28,16 +35,17 @@ Future<void> showPhotoMatch(BuildContext context, WidgetRef ref) async {
         .pick(extensions: const ['jpg', 'jpeg', 'png', 'webp']);
   } on Object catch (e) {
     messenger.showFailure(e, l10n);
-    return;
+    return null;
   }
-  if (files.isEmpty || !context.mounted) return;
+  if (files.isEmpty || !context.mounted) return null;
   final repo = ref.read(filmDecorRepositoryProvider);
-  await showDialog<void>(
+  return showDialog<DecorMatch>(
     context: context,
     builder: (_) => _MatchesDialog(
       title: l10n.fdcMatchTitle,
       hint: l10n.fdcMatchHint,
       matches: repo.matchPhoto(files.first.bytes),
+      pick: pick,
     ),
   );
 }
@@ -63,9 +71,15 @@ Future<void> showAnalogues(
 }
 
 class _MatchesDialog extends StatelessWidget {
-  const _MatchesDialog({required this.title, required this.matches, this.hint});
+  const _MatchesDialog({
+    required this.title,
+    required this.matches,
+    this.hint,
+    this.pick = false,
+  });
 
   final String title;
+  final bool pick;
   final String? hint;
   final Future<List<DecorMatch>> matches;
 
@@ -110,7 +124,9 @@ class _MatchesDialog extends StatelessWidget {
                     mainAxisSpacing: AppSpacing.sm,
                     crossAxisSpacing: AppSpacing.sm,
                     childAspectRatio: 0.8,
-                    children: [for (final m in found) _MatchTile(match: m)],
+                    children: [
+                      for (final m in found) _MatchTile(match: m, pick: pick),
+                    ],
                   ),
                 ),
               ],
@@ -129,9 +145,10 @@ class _MatchesDialog extends StatelessWidget {
 }
 
 class _MatchTile extends StatelessWidget {
-  const _MatchTile({required this.match});
+  const _MatchTile({required this.match, this.pick = false});
 
   final DecorMatch match;
+  final bool pick;
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +172,10 @@ class _MatchTile extends StatelessWidget {
       child: InkWell(
         onTap: () {
           final navigator = Navigator.of(context);
+          if (pick) {
+            navigator.pop(m);
+            return;
+          }
           unawaited(
             navigator.push(
               MaterialPageRoute<void>(

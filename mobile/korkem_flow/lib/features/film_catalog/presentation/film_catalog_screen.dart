@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,10 +8,12 @@ import 'package:korkem_flow/core/api/server_image.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
+import 'package:korkem_flow/features/film_catalog/presentation/decor_match.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_collections.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_decors_screen.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
@@ -1702,19 +1705,39 @@ class _FilmChanges extends ConsumerWidget {
   }
 }
 
-/// A film for an order, in three steps (owner, 10.11.2026): the maker, the
-/// type, then that maker's film — with what is on hand beside it. Gives the
-/// film's name for the order, «KIRA · Белый Матовый».
-Future<String?> showFilmPicker(BuildContext context, {String? current}) =>
-    showDialog<String>(
-      context: context,
-      builder: (_) => _FilmPickerDialog(current: current),
-    );
+/// The order's film window (owner, 18.11.2026: «должен открываться весь
+/// список плёнки»): every film on the books — on the shelf first — and
+/// every maker's catalogue decor not taken in yet, found by one search
+/// across all makers, with [customer]'s films of late on top and a photo
+/// of a sample as another way in. Gives the film's name for the order,
+/// «KIRA · Белый Матовый»; with [allowNone], an empty name when the film
+/// is taken off.
+Future<String?> showFilmPicker(
+  BuildContext context, {
+  String? current,
+  String? customer,
+  bool allowNone = false,
+}) => showDialog<String>(
+  context: context,
+  builder: (_) => _FilmPickerDialog(
+    current: current,
+    customer: customer,
+    allowNone: allowNone,
+  ),
+);
 
 class _FilmPickerDialog extends ConsumerStatefulWidget {
-  const _FilmPickerDialog({this.current});
+  const _FilmPickerDialog({
+    this.current,
+    this.customer,
+    this.allowNone = false,
+  });
 
   final String? current;
+  final String? customer;
+
+  /// «Без плёнки» is offered: the group's film may be taken off.
+  final bool allowNone;
 
   @override
   ConsumerState<_FilmPickerDialog> createState() => _FilmPickerDialogState();
@@ -1723,156 +1746,254 @@ class _FilmPickerDialog extends ConsumerStatefulWidget {
 class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
   String? _maker;
   String? _type;
-  String? _collection;
+  bool _onShelf = false;
   String _search = '';
+  bool _busy = false;
+
+  static String _norm(String s) => s.toLowerCase().replaceAll('ё', 'е');
+
+  bool _found(List<String?> parts) {
+    final q = _norm(_search.trim());
+    if (q.isEmpty) return true;
+    final hay = _norm(parts.whereType<String>().join(' '));
+    return q.split(RegExp(r'\s+')).every(hay.contains);
+  }
+
+  Future<void> _pickFilm(List<Film> group) async {
+    // A film of several thicknesses: which one (owner, 11.11.2026).
+    final picked = group.length == 1
+        ? group.single
+        : await _pickThickness(context, group);
+    if (picked != null && mounted) Navigator.of(context).pop(picked.label);
+  }
+
+  Future<void> _pickDecor(String decor) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final label = await ref
+          .read(filmDecorRepositoryProvider)
+          .takeDecor(decor);
+      ref.invalidate(filmCatalogProvider);
+      if (mounted) Navigator.of(context).pop(label);
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _byPhoto() async {
+    final match = await showPhotoMatch(context, ref, pick: true);
+    if (match == null || !mounted) return;
+    final films = [
+      for (final f in match.films)
+        if (f.label.isNotEmpty) f,
+    ]..sort((a, b) => b.free.compareTo(a.free));
+    if (films.isNotEmpty) {
+      Navigator.of(context).pop(films.first.label);
+    } else {
+      await _pickDecor(match.decor);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final c = ref.watch(filmCatalogProvider).value;
-    final tabs = c?.tabs ?? const <String>[];
-    // The film the group has now opens its maker; else the first maker.
-    final maker =
-        _maker ??
-        c?.films
-            .where((f) => f.label != null && f.label == widget.current)
-            .map((f) => f.maker)
-            .firstOrNull ??
-        tabs.firstOrNull;
-    final collections = c == null || maker == null
-        ? const <String>[]
-        : c.collectionsOf(maker);
-    final films = c == null || maker == null
-        ? const <Film>[]
-        : [
-            for (final f in c.of(
-              maker,
-              type: _type,
-              collection: collections.contains(_collection)
-                  ? _collection
-                  : null,
-              search: _search,
-            ))
-              if (f.enabled && f.label != null) f,
-          ];
-    return AlertDialog(
-      title: Text(l10n.filmCatalogTitle),
-      content: SizedBox(
-        width: AppSpacing.xxxl * 11,
-        height: AppSpacing.xxxl * 10,
-        child: c == null
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.filmMaker,
-                    style: Theme.of(context).textTheme.labelMedium,
+    final extras =
+        ref.watch(filmPickExtrasProvider(widget.customer)).value ??
+        const FilmPickExtras();
+    final screen = MediaQuery.sizeOf(context);
+    final label = theme.textTheme.labelMedium;
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    Widget body;
+    if (c == null) {
+      body = const Center(child: CircularProgressIndicator());
+    } else {
+      final names = {for (final s in c.suppliers) s.id: s.name};
+      final usable = [
+        for (final f in c.films)
+          if (f.enabled && f.label != null) f,
+      ];
+      final groups = FilmCatalog.grouped(usable);
+      double freeOf(List<Film> g) => g.fold<double>(0, (s, f) => s + f.free);
+      final films =
+          [
+            for (final g in groups)
+              if ((_maker == null || g.first.maker == _maker) &&
+                  (_type == null || g.first.type == _type) &&
+                  (!_onShelf || freeOf(g) > 0) &&
+                  _found([
+                    g.first.maker,
+                    g.first.colour,
+                    g.first.code,
+                    g.first.collection,
+                    g.first.type,
+                  ]))
+                g,
+          ]..sort((a, b) {
+            final fa = freeOf(a);
+            final fb = freeOf(b);
+            if ((fa > 0) != (fb > 0)) return fa > 0 ? -1 : 1;
+            if (fa > 0 && fa != fb) return fb.compareTo(fa);
+            return '${a.first.maker} ${a.first.colour}'.compareTo(
+              '${b.first.maker} ${b.first.colour}',
+            );
+          });
+      final decors = _onShelf || _type != null
+          ? const <FilmDecor>[]
+          : [
+              for (final d in extras.decors)
+                if ((_maker == null || d.maker == _maker) &&
+                    _found([d.maker, d.name, d.code, d.collection]))
+                  d,
+            ];
+      final plain =
+          _search.trim().isEmpty &&
+          _maker == null &&
+          _type == null &&
+          !_onShelf;
+      final recent = !plain
+          ? const <List<Film>>[]
+          : [
+              for (final r in extras.recent)
+                ?groups
+                    .where(
+                      (g) =>
+                          g.any((f) => f.label == r) ||
+                          '${g.first.maker} · ${g.first.colour}' == r,
+                    )
+                    .firstOrNull,
+            ];
+      final makers = {
+        ...c.tabs,
+        for (final d in extras.decors) d.maker,
+      }.toList();
+      Widget tile(List<Film> g) => FilmTile(
+        film: g.first,
+        variants: g,
+        supplier: names[g.first.supplier] ?? g.first.supplier,
+        onTap: _busy ? null : () => _pickFilm(g),
+      );
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  key: const ValueKey('pickSearch'),
+                  autofocus: true,
+                  onChanged: (v) => setState(() => _search = v),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(AppIcons.search),
+                    hintText: l10n.fpkSearch,
+                    isDense: true,
                   ),
-                  Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.xs,
-                    children: [
-                      for (final m in tabs)
-                        ChoiceChip(
-                          key: ValueKey('pickMaker:$m'),
-                          label: Text(m),
-                          selected: maker == m,
-                          onSelected: (_) => setState(() {
-                            _maker = m;
-                            _collection = null;
-                          }),
-                        ),
-                    ],
-                  ),
-                  if (collections.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.filmCollection,
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                    Wrap(
-                      spacing: AppSpacing.sm,
-                      runSpacing: AppSpacing.xs,
-                      children: [
-                        ChoiceChip(
-                          key: const ValueKey('pickCollection:all'),
-                          label: Text(l10n.filmAllCollections),
-                          selected: !collections.contains(_collection),
-                          onSelected: (_) => setState(() => _collection = null),
-                        ),
-                        for (final name in collections)
-                          ChoiceChip(
-                            key: ValueKey('pickCollection:$name'),
-                            label: Text(name),
-                            selected: _collection == name,
-                            onSelected: (on) => setState(
-                              () => _collection = on ? name : null,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    l10n.filmType,
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                  Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.xs,
-                    children: [
-                      ChoiceChip(
-                        key: const ValueKey('pickType:all'),
-                        label: Text(l10n.filmAllTypes),
-                        selected: _type == null,
-                        onSelected: (_) => setState(() => _type = null),
-                      ),
-                      for (final t in c.types)
-                        ChoiceChip(
-                          key: ValueKey('pickType:$t'),
-                          label: Text(t),
-                          selected: _type == t,
-                          onSelected: (on) =>
-                              setState(() => _type = on ? t : null),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  TextField(
-                    key: const ValueKey('pickSearch'),
-                    onChanged: (v) => setState(() => _search = v),
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(AppIcons.search),
-                      labelText: l10n.filmSearchIn(maker ?? ''),
-                      isDense: true,
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        for (final g in FilmCatalog.grouped(films))
-                          FilmTile(
-                            film: g.first,
-                            variants: g,
-                            onTap: () async {
-                              // A film of several thicknesses: which one
-                              // (owner, 11.11.2026).
-                              final picked = g.length == 1
-                                  ? g.single
-                                  : await _pickThickness(context, g);
-                              if (picked != null && context.mounted) {
-                                Navigator.of(context).pop(picked.label);
-                              }
-                            },
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
+              const SizedBox(width: AppSpacing.sm),
+              OutlinedButton.icon(
+                key: const ValueKey('pickPhoto'),
+                onPressed: _busy ? null : _byPhoto,
+                icon: const Icon(AppIcons.camera),
+                label: Text(l10n.fpkByPhoto),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: [
+              ChoiceChip(
+                key: const ValueKey('pickMaker:all'),
+                label: Text(l10n.fpkAll),
+                selected: _maker == null,
+                onSelected: (_) => setState(() => _maker = null),
+              ),
+              FilterChip(
+                key: const ValueKey('pickOnShelf'),
+                label: Text(l10n.fpkOnShelf),
+                selected: _onShelf,
+                onSelected: (on) => setState(() => _onShelf = on),
+              ),
+              for (final m in makers)
+                ChoiceChip(
+                  key: ValueKey('pickMaker:$m'),
+                  label: Text(m),
+                  selected: _maker == m,
+                  onSelected: (on) => setState(() => _maker = on ? m : null),
+                ),
+              for (final t in c.types)
+                ChoiceChip(
+                  key: ValueKey('pickType:$t'),
+                  label: Text(t),
+                  selected: _type == t,
+                  onSelected: (on) => setState(() => _type = on ? t : null),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: films.isEmpty && decors.isEmpty
+                ? Center(child: Text(l10n.fpkNothing))
+                : ListView(
+                    children: [
+                      if (recent.isNotEmpty) ...[
+                        Text(l10n.fpkRecent, style: label),
+                        // The same film is in the list below too: its own key
+                        // under another one here.
+                        for (final g in recent)
+                          KeyedSubtree(
+                            key: ValueKey('pickRecent:${g.first.item}'),
+                            child: tile(g),
+                          ),
+                        const Divider(),
+                      ],
+                      Text(
+                        l10n.fpkFound(films.length + decors.length),
+                        style: label,
+                      ),
+                      for (final g in films) tile(g),
+                      for (final d in decors)
+                        ListTile(
+                          key: ValueKey('pickDecor:${d.decor}'),
+                          onTap: _busy ? null : () => _pickDecor(d.decor),
+                          leading: FilmSample(argb: d.argb, image: d.image),
+                          title: Text([d.name, ?d.code].join(' · ')),
+                          subtitle: Text(
+                            [d.maker, ?d.collection].join(' · '),
+                          ),
+                          trailing: Text(l10n.fpkCatalogOnly, style: muted),
+                        ),
+                    ],
+                  ),
+          ),
+        ],
+      );
+    }
+    return AlertDialog(
+      key: const ValueKey('filmPicker'),
+      title: Text(l10n.fpkTitle),
+      // As much of the window as it may take: hundreds of films.
+      content: SizedBox(
+        width: math.min(AppSpacing.xxxl * 15, screen.width * 0.8),
+        height: math.min(AppSpacing.xxxl * 14, screen.height * 0.65),
+        child: body,
       ),
       actions: [
+        if (widget.allowNone && (widget.current ?? '').isNotEmpty)
+          TextButton(
+            key: const ValueKey('pickNone'),
+            onPressed: () => Navigator.of(context).pop(''),
+            child: Text(l10n.fpkNone),
+          ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.mdfCancel),

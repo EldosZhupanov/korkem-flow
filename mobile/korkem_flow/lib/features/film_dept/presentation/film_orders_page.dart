@@ -424,7 +424,12 @@ class _FilmRow extends ConsumerWidget {
                         key: ValueKey('filmOrders:want:${l.id ?? l.item}'),
                         label: Text(
                           [
-                            if (l.auto)
+                            if (l.forOrders > 0)
+                              l10n.filmOrdersForOrders(
+                                l.forOrders,
+                                filmMetres(l.metres),
+                              )
+                            else if (l.auto)
                               l10n.filmOrdersRanOut(filmMetres(l.metres))
                             else if (l.customer == null)
                               l10n.filmOrdersForShelf(filmMetres(l.metres))

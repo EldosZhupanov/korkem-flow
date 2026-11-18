@@ -893,6 +893,30 @@ def _is_owner() -> bool:
 	return "System Manager" in frappe.get_roles()
 
 
+def _film_to_buy(doc) -> dict:
+	"""Each film of the order the shelf cannot give: metres short after what
+	is held and what is free, and the supplier it is ordered from — else its
+	maker."""
+	if doc.docstatus == 2 or doc.korkem_handed_over_on or doc.get(STAGES["vacuum"]):
+		return {}
+	from korkem_manufacturing.services import film_catalog, film_orders
+
+	out = {}
+	for m in facade_materials.need(doc.name)["materials"]:
+		if m["kind"] != material_stock.FILM or not m["item"] or m["needed"] is None:
+			continue
+		short = round(flt(m["needed"]) - flt(m["held"]) - flt(m["issued"]) - flt(m["free"]), 1)
+		if short <= 0:
+			continue
+		supplier = film_orders._supplier_of(m["item"])
+		name = frappe.db.get_value("Supplier", supplier, "supplier_name") if supplier else None
+		out[m["key"]] = {
+			"short": short, "unit": m["unit"], "free": round(flt(m["free"]), 1),
+			"from": name or supplier or (film_catalog.split(m["key"]) or (None,))[0],
+		}
+	return out
+
+
 def _offcut_parts(doc) -> int:
 	if doc.docstatus != 1 or doc.korkem_handed_over_on:
 		return 0
@@ -979,6 +1003,8 @@ def card(order: str) -> dict:
 		"told_on": str(doc.get("korkem_told_on")) if doc.get("korkem_told_on") else None,
 		# Small parts an offcut on the shelf holds (owner, 18.11.2026).
 		"offcut_parts": _offcut_parts(doc),
+		# A film not on the shelf, and whom it comes from (owner, 18.11.2026).
+		"film_to_buy": _film_to_buy(doc),
 		"taken_by": doc.get("korkem_taken_by"),
 		"taken_phone": doc.get("korkem_taken_phone"),
 		"handed_over_by": _full_name(doc.get("korkem_handed_over_by")),

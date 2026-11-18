@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
@@ -63,6 +64,28 @@ class CncPatternsRepository {
         'rpm': tool.rpm,
         'pass_depth': tool.passDepth,
         if (oldName != null && oldName.isNotEmpty) 'old_name': oldName,
+      });
+
+  /// An ArtCAM tool database read: each tool, ready or why not.
+  Future<List<ArtcamTool>> artcamPreview(Uint8List file) async {
+    final j = _map(
+      await _client.callMethod(
+        '$_base.artcam_preview',
+        post: true,
+        params: {'content_b64': base64Encode(file)},
+      ),
+    );
+    return [
+      for (final t in j['tools'] is List ? j['tools'] as List : const [])
+        if (t is Map) ArtcamTool.fromJson(Map<String, dynamic>.from(t)),
+    ];
+  }
+
+  /// The picked tools of the file into «Фрезы»; the server reads it again.
+  Future<CncStatus> artcamAdd(Uint8List file, List<int> picked) =>
+      _post('artcam_add', {
+        'content_b64': base64Encode(file),
+        'picked': jsonEncode(picked),
       });
 
   Future<CncStatus> deleteTool(String name) =>

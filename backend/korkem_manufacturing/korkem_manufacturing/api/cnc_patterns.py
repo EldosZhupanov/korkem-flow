@@ -85,3 +85,15 @@ def for_order(order: str) -> dict:
 def order_files(order: str, line: str | None = None) -> dict:
 	"""Программы для позиций заказа (или одной) — текстом, с именами файлов."""
 	return service.order_files(order, line)
+
+
+@frappe.whitelist(methods=["POST"])
+def artcam_preview(content_b64: str) -> dict:
+	"""База инструмента ArtCAM (.tdb): что в ней и что из этого можно завести."""
+	return service.artcam_preview(content_b64)
+
+
+@frappe.whitelist(methods=["POST"])
+def artcam_add(content_b64: str, picked: str | list) -> dict:
+	"""Выбранные фрезы из базы ArtCAM — в «Фрезы»."""
+	return service.artcam_add(content_b64, picked)

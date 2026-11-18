@@ -602,6 +602,7 @@ class MdfOrder {
     this.handedOverOn,
     this.toldOn,
     this.offcutParts = 0,
+    this.filmToBuy = const {},
     this.takenBy,
     this.takenPhone,
     this.handedOverBy,
@@ -655,6 +656,12 @@ class MdfOrder {
     handedOverOn: _s(json['handed_over_on']),
     toldOn: _s(json['told_on']),
     offcutParts: _i(json['offcut_parts']),
+    filmToBuy: {
+      if (json['film_to_buy'] case final Map<dynamic, dynamic> m)
+        for (final e in m.entries)
+          if (e.value case final Map<dynamic, dynamic> v)
+            '${e.key}': (short: _d(v['short']), from: _s(v['from'])),
+    },
     takenBy: _s(json['taken_by']),
     takenPhone: Phone.prettyOrNull(_s(json['taken_phone'])),
     handedOverBy: _s(json['handed_over_by']),
@@ -742,6 +749,10 @@ class MdfOrder {
 
   /// Small parts an offcut on the shelf holds (owner, 18.11.2026).
   final int offcutParts;
+
+  /// Each film the shelf cannot give: metres short, and whom it comes from
+  /// — its supplier, else its maker (owner, 18.11.2026).
+  final Map<String, ({double short, String? from})> filmToBuy;
 
   /// Who came for it, when not the customer — with a phone; and who gave it.
   final String? takenBy;

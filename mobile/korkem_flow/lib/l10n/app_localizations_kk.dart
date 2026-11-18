@@ -9884,10 +9884,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get cncpEndsHint => '0 — шеттен шетке дейін';
 
   @override
-  String get cncpTryWidth => 'Енімен тексеру, мм';
+  String get cncpTryWidth => 'және енімен, мм';
 
   @override
-  String get cncpTryHeight => 'және биіктігімен, мм';
+  String get cncpTryHeight => 'Биіктігімен тексеру, мм';
 
   @override
   String get cncpPreviewFailed => 'Байланыс жоқ — өрнекті салу мүмкін емес.';
@@ -10642,4 +10642,78 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get offcutsTake => 'Алу';
+
+  @override
+  String mdfFilmToBuy(String metres) {
+    return 'қоймада жоқ · $metres м тапсырыс беру';
+  }
+
+  @override
+  String mdfFilmToBuyFrom(String metres, String from) {
+    return 'қоймада жоқ · $from: $metres м';
+  }
+
+  @override
+  String filmOrdersForOrders(int count, String metres) {
+    return 'тапсырыстарға ($count) · $metres м';
+  }
+
+  @override
+  String mdfClientPartsSome(int marked, int total) {
+    return 'Клиенттің ЛМДФ: $total ішінен $marked';
+  }
+
+  @override
+  String get fpkTitle => 'ПВХ үлдірі';
+
+  @override
+  String get fpkSearch => 'Атауы, коды немесе өндіруші';
+
+  @override
+  String get fpkByPhoto => 'Үлгі фотосы бойынша';
+
+  @override
+  String get fpkAll => 'Барлығы';
+
+  @override
+  String get fpkOnShelf => 'Қоймада';
+
+  @override
+  String get fpkRecent => 'Осы клиенттің соңғылары';
+
+  @override
+  String fpkFound(int count) {
+    return 'Табылды $count · алдымен қоймадағылар';
+  }
+
+  @override
+  String get fpkCatalogOnly => 'тек каталогта';
+
+  @override
+  String get fpkNothing => 'Ештеңе табылмады';
+
+  @override
+  String get fpkNone => 'Үлдірсіз';
+  String get cncpArtcam => 'ArtCAM-нан';
+
+  @override
+  String get cncpArtcamTitle => 'ArtCAM фрезалары';
+
+  @override
+  String cncpArtcamHint(int all, int ready) {
+    return 'Файлда $all, қосуға болады $ready. Ағаш пен МДФ фрезалары белгіленген.';
+  }
+
+  @override
+  String cncpArtcamAdd(int count) {
+    return '$count қосу';
+  }
+
+  @override
+  String cncpArtcamAdded(int count) {
+    return 'Қосылған фрезалар: $count';
+  }
+
+  @override
+  String get cncpToolsSearch => 'Фрезаны табу: атауы, диаметрі, бұрышы';
 }

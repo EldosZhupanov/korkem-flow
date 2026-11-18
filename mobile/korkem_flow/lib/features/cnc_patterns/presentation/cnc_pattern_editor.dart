@@ -412,19 +412,7 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
         children: [
           Row(
             children: [
-              Expanded(
-                child: _NumField(
-                  keyName: 'cncTryW',
-                  label: l10n.cncpTryWidth,
-                  value: _w,
-                  onChanged: (v) {
-                    if (v < 50) return;
-                    setState(() => _w = v);
-                    _schedule();
-                  },
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
+              // Height first, as every size here is said (owner, 19.11.2026).
               Expanded(
                 child: _NumField(
                   keyName: 'cncTryH',
@@ -433,6 +421,19 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
                   onChanged: (v) {
                     if (v < 50) return;
                     setState(() => _h = v);
+                    _schedule();
+                  },
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: _NumField(
+                  keyName: 'cncTryW',
+                  label: l10n.cncpTryWidth,
+                  value: _w,
+                  onChanged: (v) {
+                    if (v < 50) return;
+                    setState(() => _w = v);
                     _schedule();
                   },
                 ),

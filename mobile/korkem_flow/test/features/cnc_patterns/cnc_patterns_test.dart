@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +6,7 @@ import 'package:korkem_flow/features/cnc_patterns/data/cnc_patterns_repository.d
 import 'package:korkem_flow/features/cnc_patterns/domain/cnc_patterns.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_order_sheet.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_patterns_screen.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 
 import '../../support/widget_harness.dart';
@@ -90,9 +92,48 @@ class _Repo implements CncPatternsRepository {
   final enabled = <bool>[];
   final previews = <(String, double, double)>[];
   final ordersAsked = <String>[];
+  final artcamAdded = <List<int>>[];
 
   @override
   Future<CncStatus> status() async => CncStatus.fromJson(json);
+
+  @override
+  Future<List<ArtcamTool>> artcamPreview(Uint8List file) async => [
+    for (final t in const [
+      {
+        'index': 0,
+        'group': 'Metric Tools / Wood or Plastic',
+        'name': 'End Mill 6 Один заход',
+        'kind': 'flat',
+        'diameter': 6,
+        'feed': 4560,
+        'rpm': 15000,
+        'pass_depth': 17,
+        'card': {'kind': 'flat'},
+      },
+      {
+        'index': 1,
+        'group': 'Metric Tools / Wood or Plastic',
+        'name': 'Ogee 6 mm',
+        'why': 'фасонная фреза — узоры её пока не режут',
+      },
+      {
+        'index': 2,
+        'group': 'Metric Tools / Steel',
+        'name': 'End Mill 3 mm',
+        'kind': 'flat',
+        'diameter': 3,
+        'card': {'kind': 'flat'},
+      },
+    ])
+      ArtcamTool.fromJson(t),
+  ];
+
+  @override
+  Future<CncStatus> artcamAdd(Uint8List file, List<int> picked) async {
+    artcamAdded.add(picked);
+    return CncStatus.fromJson(json);
+  }
 
   @override
   Future<CncStatus> setEnabled({
@@ -159,6 +200,18 @@ class _Repo implements CncPatternsRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _TdbPicker extends FilmFilePicker {
+  _TdbPicker();
+
+  @override
+  Future<List<PickedFile>> pick({
+    required List<String> extensions,
+    bool many = false,
+  }) async => [
+    (name: 'tools.tdb', bytes: Uint8List.fromList(const [1, 2])),
+  ];
+}
+
 class _Saver extends CncFileSaver {
   _Saver();
 
@@ -178,6 +231,7 @@ Future<(_Repo, _Saver)> _pump(
   WidgetTester tester,
   Map<String, dynamic> json, {
   Widget child = const CncPatternsScreen(),
+  FilmFilePicker? picker,
 }) async {
   tester.view
     ..physicalSize = const Size(1400, 1000)
@@ -191,6 +245,7 @@ Future<(_Repo, _Saver)> _pump(
       overrides: [
         cncPatternsRepositoryProvider.overrideWithValue(repo),
         cncFileSaverProvider.overrideWithValue(saver),
+        if (picker != null) filmFilePickerProvider.overrideWithValue(picker),
       ],
       child: harness(child),
     ),
@@ -236,6 +291,26 @@ void main() {
     expect(repo.enabled, [true]);
     expect(find.byKey(const ValueKey('cncBeta')), findsOne);
     expect(find.byKey(const ValueKey('cncPattern:Классика')), findsOne);
+  });
+
+  testWidgets("ArtCAM's tools: the wood ones ticked, a profile tool not", (
+    tester,
+  ) async {
+    final (repo, _) = await _pump(
+      tester,
+      _on,
+      picker: _TdbPicker(),
+    );
+    await tester.tap(find.text('Cutters'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('cncToolArtcam')));
+    await tester.pumpAndSettle();
+    expect(find.text('Ogee 6 mm'), findsOne);
+    await tester.tap(find.byKey(const ValueKey('cncArtcamAdd')));
+    await tester.pumpAndSettle();
+    expect(repo.artcamAdded, [
+      [0],
+    ]);
   });
 
   testWidgets('off, and not the owner: no switch to press', (tester) async {
