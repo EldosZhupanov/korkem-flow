@@ -119,9 +119,7 @@ class SearchRecent {
     id: '${j['id']}',
     title: '${j['title'] ?? ''}',
     subtitle: j['subtitle'] as String?,
-    data: j['data'] is Map
-        ? Map<String, dynamic>.from(j['data'] as Map)
-        : null,
+    data: j['data'] is Map ? Map<String, dynamic>.from(j['data'] as Map) : null,
   );
 
   /// Which kind of thing: `customer`, `facadeOrder`, `cncOrder`, `film`,
@@ -178,9 +176,9 @@ class SearchRecentsNotifier extends Notifier<List<SearchRecent>> {
     ].take(_limit).toList();
     state = next;
     unawaited(
-      ref
-          .read(sharedPreferencesProvider)
-          .setStringList(_key, [for (final r in next) jsonEncode(r.toJson())]),
+      ref.read(sharedPreferencesProvider).setStringList(_key, [
+        for (final r in next) jsonEncode(r.toJson()),
+      ]),
     );
   }
 

@@ -31,7 +31,11 @@ abstract final class SearchText {
     for (final ch in text.toLowerCase().split('')) {
       buffer.write(_kazakh[ch] ?? ch);
     }
-    return buffer.toString().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).join(' ');
+    return buffer
+        .toString()
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .join(' ');
   }
 
   static String _swap(String text, String from, String to) {
@@ -57,8 +61,9 @@ abstract final class SearchText {
     }.toList();
   }
 
-  static List<String> words(String text) =>
-      [for (final m in _word.allMatches(fold(text))) m.group(0)!];
+  static List<String> words(String text) => [
+    for (final m in _word.allMatches(fold(text))) m.group(0)!,
+  ];
 
   /// Whether every typed word starts one of [texts]' words — or nearly does.
   static bool matches(String query, Iterable<String> texts) {

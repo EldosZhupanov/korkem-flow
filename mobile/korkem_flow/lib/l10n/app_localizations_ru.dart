@@ -10180,4 +10180,149 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fdcNoPicture => 'Картинки пока нет';
+
+  @override
+  String get gsrFind => 'Найти…';
+
+  @override
+  String get gsrHotkey => 'Ctrl+K';
+
+  @override
+  String get gsrHint => 'Клиент, телефон, № заказа, плёнка, раздел…';
+
+  @override
+  String get gsrTabAll => 'Всё';
+
+  @override
+  String get gsrTabCustomers => 'Клиенты';
+
+  @override
+  String get gsrTabOrders => 'Заказы';
+
+  @override
+  String get gsrTabMoney => 'Деньги';
+
+  @override
+  String get gsrTabFilm => 'Плёнка';
+
+  @override
+  String get gsrTabStock => 'Склад';
+
+  @override
+  String get gsrTabGo => 'Разделы';
+
+  @override
+  String get gsrGroupRecent => 'Недавние';
+
+  @override
+  String get gsrGroupActions => 'Действия';
+
+  @override
+  String get gsrGroupSections => 'Разделы';
+
+  @override
+  String get gsrGroupCustomers => 'Клиенты';
+
+  @override
+  String get gsrGroupFacadeOrders => 'Заказы фасадов';
+
+  @override
+  String get gsrGroupCncOrders => 'Заказы ЧПУ';
+
+  @override
+  String get gsrGroupPayments => 'Оплаты';
+
+  @override
+  String get gsrGroupFilms => 'Плёнки на складе';
+
+  @override
+  String get gsrGroupDecors => 'Каталоги поставщиков';
+
+  @override
+  String get gsrGroupOrders => 'Прочие заказы';
+
+  @override
+  String get gsrGroupWorkOrders => 'Производство';
+
+  @override
+  String get gsrGroupStock => 'Склад';
+
+  @override
+  String gsrOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count заказа',
+      many: '$count заказов',
+      few: '$count заказа',
+      one: '$count заказ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String gsrDebt(String amount) {
+    return 'долг $amount';
+  }
+
+  @override
+  String get gsrFilmCustomer => 'покупает плёнку';
+
+  @override
+  String get gsrActOrders => 'Заказы';
+
+  @override
+  String get gsrActNewOrder => 'Новый заказ';
+
+  @override
+  String get gsrActSell => 'Продать';
+
+  @override
+  String get gsrActCopyPhone => 'Скопировать телефон';
+
+  @override
+  String get gsrPhoneCopied => 'Телефон скопирован';
+
+  @override
+  String get gsrDoNewFacadeOrder => 'Новый заказ фасадов';
+
+  @override
+  String get gsrDoNewCncOrder => 'Новый заказ ЧПУ';
+
+  @override
+  String get gsrDoSellFilm => 'Продать плёнку';
+
+  @override
+  String get gsrDoSellGlue => 'Продать клей';
+
+  @override
+  String get gsrDoReceiveFilm => 'Приход плёнки';
+
+  @override
+  String get gsrDoReceiveGlue => 'Приход клея';
+
+  @override
+  String get gsrStart =>
+      'Начните печатать — найду клиента, заказ, плёнку или раздел. Раскладку и опечатки прощаю.';
+
+  @override
+  String gsrNothing(String query) {
+    return 'По «$query» ничего не нашлось';
+  }
+
+  @override
+  String get gsrByPhone => 'Ищу по телефону';
+
+  @override
+  String gsrByNumber(String number) {
+    return 'Ищу заказ № $number';
+  }
+
+  @override
+  String get gsrKeys => '↑↓ выбрать · Enter открыть · Esc закрыть';
+
+  @override
+  String gsrPaid(String amount) {
+    return 'оплата $amount';
+  }
 }

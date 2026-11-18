@@ -329,7 +329,9 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final answer = _query.isEmpty ? null : ref.watch(smartSearchProvider(_query));
+    final answer = _query.isEmpty
+        ? null
+        : ref.watch(smartSearchProvider(_query));
     if (answer?.value case final value?) _last = value;
     final result = _query.isEmpty ? null : (answer?.value ?? _last);
     final allowed =
@@ -617,77 +619,130 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
     if (_query.isEmpty) {
       final recents = ref.watch(searchRecentsProvider);
       return [
-        _Group(l10n.gsrGroupRecent, const {_Tab.all}, [
-          for (final recent in recents) rows.recent(recent),
-        ]),
-        _Group(l10n.gsrGroupActions, const {_Tab.go}, [
-          for (final a in actions) rows.action(a),
-        ]),
+        _Group(
+          l10n.gsrGroupRecent,
+          const {_Tab.all},
+          [
+            for (final recent in recents) rows.recent(recent),
+          ],
+        ),
+        _Group(
+          l10n.gsrGroupActions,
+          const {_Tab.go},
+          [
+            for (final a in actions) rows.action(a),
+          ],
+        ),
       ];
     }
     final sections = rows.sections(_query);
     if (r == null) {
       return [
-        _Group(l10n.gsrGroupActions, const {_Tab.go}, [
-          for (final a in actions) rows.action(a),
-        ]),
+        _Group(
+          l10n.gsrGroupActions,
+          const {_Tab.go},
+          [
+            for (final a in actions) rows.action(a),
+          ],
+        ),
         _Group(l10n.gsrGroupSections, const {_Tab.go}, sections),
       ];
     }
     return [
-      _Group(l10n.gsrGroupActions, const {_Tab.go}, [
-        for (final a in actions) rows.action(a),
-      ]),
-      _Group(l10n.gsrGroupCustomers, const {_Tab.customers, _Tab.money}, [
-        for (final c in r.customers) rows.customer(c),
-      ]),
-      _Group(l10n.gsrGroupFacadeOrders, const {_Tab.orders}, [
-        for (final o in r.facadeOrders) rows.order(o),
-      ]),
-      _Group(l10n.gsrGroupCncOrders, const {_Tab.orders}, [
-        for (final o in r.cncOrders) rows.order(o),
-      ]),
-      _Group(l10n.gsrGroupPayments, const {_Tab.money}, [
-        for (final p in r.payments) rows.payment(p),
-      ]),
-      _Group(l10n.gsrGroupFilms, const {_Tab.film}, [
-        for (final f in r.films) rows.film(f),
-      ]),
-      _Group(l10n.gsrGroupDecors, const {_Tab.film}, [
-        for (final d in r.decors) rows.decor(d),
-      ]),
-      _Group(l10n.gsrGroupOrders, const {_Tab.orders}, [
-        for (final o in r.orders)
-          rows.plain(
-            kind: 'order',
-            id: o.name,
-            icon: AppIcons.deal,
-            title: '${o.name} · ${o.customer}',
-            route: Routes.order(o.name),
-          ),
-      ]),
-      _Group(l10n.gsrGroupWorkOrders, const {_Tab.orders}, [
-        for (final w in r.workOrders)
-          rows.plain(
-            kind: 'workOrder',
-            id: w.id,
-            icon: AppIcons.workOrder,
-            title: [w.id, ?w.itemName].join(' · '),
-            route: Routes.workOrder(w.id),
-          ),
-      ]),
-      _Group(l10n.gsrGroupStock, const {_Tab.stock}, [
-        for (final s in r.stock)
-          rows.plain(
-            kind: 'stock',
-            id: '${s.itemCode}@${s.warehouse}',
-            icon: AppIcons.item,
-            title: s.itemName ?? s.itemCode,
-            subtitle: '${s.warehouse} · ${_qty(s.actualQty)} ${s.stockUom ?? ''}'
-                .trim(),
-            route: Routes.stockItem(s.itemCode),
-          ),
-      ]),
+      _Group(
+        l10n.gsrGroupActions,
+        const {_Tab.go},
+        [
+          for (final a in actions) rows.action(a),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupCustomers,
+        const {_Tab.customers, _Tab.money},
+        [
+          for (final c in r.customers) rows.customer(c),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupFacadeOrders,
+        const {_Tab.orders},
+        [
+          for (final o in r.facadeOrders) rows.order(o),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupCncOrders,
+        const {_Tab.orders},
+        [
+          for (final o in r.cncOrders) rows.order(o),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupPayments,
+        const {_Tab.money},
+        [
+          for (final p in r.payments) rows.payment(p),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupFilms,
+        const {_Tab.film},
+        [
+          for (final f in r.films) rows.film(f),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupDecors,
+        const {_Tab.film},
+        [
+          for (final d in r.decors) rows.decor(d),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupOrders,
+        const {_Tab.orders},
+        [
+          for (final o in r.orders)
+            rows.plain(
+              kind: 'order',
+              id: o.name,
+              icon: AppIcons.deal,
+              title: '${o.name} · ${o.customer}',
+              route: Routes.order(o.name),
+            ),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupWorkOrders,
+        const {_Tab.orders},
+        [
+          for (final w in r.workOrders)
+            rows.plain(
+              kind: 'workOrder',
+              id: w.id,
+              icon: AppIcons.workOrder,
+              title: [w.id, ?w.itemName].join(' · '),
+              route: Routes.workOrder(w.id),
+            ),
+        ],
+      ),
+      _Group(
+        l10n.gsrGroupStock,
+        const {_Tab.stock},
+        [
+          for (final s in r.stock)
+            rows.plain(
+              kind: 'stock',
+              id: '${s.itemCode}@${s.warehouse}',
+              icon: AppIcons.item,
+              title: s.itemName ?? s.itemCode,
+              subtitle:
+                  '${s.warehouse} · ${_qty(s.actualQty)} ${s.stockUom ?? ''}'
+                      .trim(),
+              route: Routes.stockItem(s.itemCode),
+            ),
+        ],
+      ),
       _Group(l10n.gsrGroupSections, const {_Tab.go}, sections),
     ];
   }
@@ -726,7 +781,9 @@ class _Rows {
 
   static SearchChoice _page(Widget Function() page) =>
       (context, ref) async => unawaited(
-        Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page())),
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute<void>(builder: (_) => page())),
       );
 
   /// A sale or a receipt of the film department, from the shop's stock.
@@ -1022,7 +1079,10 @@ class _Rows {
               ),
               choose: target.$2 ? _go(target.$1) : _push(target.$1),
             ),
-      if (SearchText.matches(query, [l10n.glueTitle, ..._keywords[Routes.glue]!]))
+      if (SearchText.matches(query, [
+        l10n.glueTitle,
+        ..._keywords[Routes.glue]!,
+      ]))
         _Item(
           id: 'section:${Routes.glue}',
           icon: AppIcons.material,
@@ -1087,7 +1147,8 @@ class _Rows {
       'cncOrder' => _push(Routes.cncOrder(r.id)),
       'film' => _page(() => FilmPage(item: r.id)),
       'decor' => _page(
-        () => FilmDecorsScreen(maker: data['maker'] as String?, search: r.title),
+        () =>
+            FilmDecorsScreen(maker: data['maker'] as String?, search: r.title),
       ),
       'section' when data['go'] == true => _go(r.id),
       _ => _push(data['route'] as String? ?? r.id),

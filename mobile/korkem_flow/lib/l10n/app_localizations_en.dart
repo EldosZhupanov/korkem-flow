@@ -10148,4 +10148,147 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fdcNoPicture => 'No picture yet';
+
+  @override
+  String get gsrFind => 'Search…';
+
+  @override
+  String get gsrHotkey => 'Ctrl+K';
+
+  @override
+  String get gsrHint => 'Customer, phone, order no., film, section…';
+
+  @override
+  String get gsrTabAll => 'All';
+
+  @override
+  String get gsrTabCustomers => 'Customers';
+
+  @override
+  String get gsrTabOrders => 'Orders';
+
+  @override
+  String get gsrTabMoney => 'Money';
+
+  @override
+  String get gsrTabFilm => 'Film';
+
+  @override
+  String get gsrTabStock => 'Stock';
+
+  @override
+  String get gsrTabGo => 'Sections';
+
+  @override
+  String get gsrGroupRecent => 'Recent';
+
+  @override
+  String get gsrGroupActions => 'Actions';
+
+  @override
+  String get gsrGroupSections => 'Sections';
+
+  @override
+  String get gsrGroupCustomers => 'Customers';
+
+  @override
+  String get gsrGroupFacadeOrders => 'Facade orders';
+
+  @override
+  String get gsrGroupCncOrders => 'CNC orders';
+
+  @override
+  String get gsrGroupPayments => 'Payments';
+
+  @override
+  String get gsrGroupFilms => 'Films in stock';
+
+  @override
+  String get gsrGroupDecors => 'Supplier catalogues';
+
+  @override
+  String get gsrGroupOrders => 'Other orders';
+
+  @override
+  String get gsrGroupWorkOrders => 'Production';
+
+  @override
+  String get gsrGroupStock => 'Stock';
+
+  @override
+  String gsrOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '$count order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String gsrDebt(String amount) {
+    return 'owes $amount';
+  }
+
+  @override
+  String get gsrFilmCustomer => 'buys film';
+
+  @override
+  String get gsrActOrders => 'Orders';
+
+  @override
+  String get gsrActNewOrder => 'New order';
+
+  @override
+  String get gsrActSell => 'Sell';
+
+  @override
+  String get gsrActCopyPhone => 'Copy phone';
+
+  @override
+  String get gsrPhoneCopied => 'Phone copied';
+
+  @override
+  String get gsrDoNewFacadeOrder => 'New facade order';
+
+  @override
+  String get gsrDoNewCncOrder => 'New CNC order';
+
+  @override
+  String get gsrDoSellFilm => 'Sell film';
+
+  @override
+  String get gsrDoSellGlue => 'Sell glue';
+
+  @override
+  String get gsrDoReceiveFilm => 'Receive film';
+
+  @override
+  String get gsrDoReceiveGlue => 'Receive glue';
+
+  @override
+  String get gsrStart =>
+      'Start typing to find a customer, an order, a film or a section. A wrong keyboard layout or a typo is fine.';
+
+  @override
+  String gsrNothing(String query) {
+    return 'Nothing found for “$query”';
+  }
+
+  @override
+  String get gsrByPhone => 'Searching by phone';
+
+  @override
+  String gsrByNumber(String number) {
+    return 'Looking for order no. $number';
+  }
+
+  @override
+  String get gsrKeys => '↑↓ choose · Enter open · Esc close';
+
+  @override
+  String gsrPaid(String amount) {
+    return 'paid $amount';
+  }
 }
