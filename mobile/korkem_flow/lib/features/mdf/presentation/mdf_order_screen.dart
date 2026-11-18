@@ -756,7 +756,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     if (coating == MdfCoating.pvc) {
       // A film comes from the catalogue: maker, collection, film (owner,
       // 11.11.2026 — the old colour list is no longer picked from).
-      film = await showFilmPicker(context);
+      film = await showFilmPicker(context, customer: _customer?.name);
       if (film == null || !mounted) return;
     } else if (kind != null) {
       film = await showMdfDictionary(
@@ -1293,6 +1293,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                         0,
                         (sum, p) => sum + p.amount,
                       ),
+                      customer: _customer?.name,
                       toBuy: film == null
                           ? null
                           : widget.order?.filmToBuy[film],
@@ -1535,6 +1536,7 @@ class _FilmGroup extends StatelessWidget {
     this.paintGroups = const [],
     this.toBuy,
     this.ownMdf = (marked: 0, of: 0),
+    this.customer,
     super.key,
   });
 
@@ -1578,6 +1580,9 @@ class _FilmGroup extends StatelessWidget {
   /// group's mark is a shortcut over the positions' own ticks (owner,
   /// 18.11.2026 — two «клиента» looked like two different things).
   final ({int marked, int of}) ownMdf;
+
+  /// The order's customer: his films of late come first in the window.
+  final String? customer;
 
   /// Each colour system a heading that cannot be picked, its colours under
   /// it; a colour the order names that has left the list stays, last.
@@ -1695,7 +1700,44 @@ class _FilmGroup extends StatelessWidget {
                         visualDensity: VisualDensity.compact,
                       ),
                     ),
-                  if (coating != null && coating != MdfCoating.raw)
+                  // A film: the field opens the whole window — every film,
+                  // on the shelf or not, every maker's catalogue (owner,
+                  // 18.11.2026: no second button beside it).
+                  if (coating == MdfCoating.pvc)
+                    SizedBox(
+                      width: AppSpacing.xxxl * 6,
+                      child: InkWell(
+                        key: ValueKey('filmPick:$index'),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        onTap: () async {
+                          final picked = await showFilmPicker(
+                            context,
+                            current: film,
+                            customer: customer,
+                            allowNone: true,
+                          );
+                          if (picked != null) {
+                            onFilm(picked.isEmpty ? null : picked);
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: mdfCoatingLabel(coating!, l10n),
+                            isDense: true,
+                            suffixIcon: const Icon(AppIcons.search),
+                          ),
+                          child: Text(
+                            film ?? mdfCoatingNone(coating, l10n),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: color,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (coating != null && coating != MdfCoating.raw)
                     SizedBox(
                       width: AppSpacing.xxxl * 5,
                       child: DropdownButtonFormField<String?>(
@@ -1725,21 +1767,6 @@ class _FilmGroup extends StatelessWidget {
                           isDense: true,
                         ),
                       ),
-                    ),
-                  // A film from the catalogue: the maker, the type, then that
-                  // maker's film (owner, 10.11.2026).
-                  if (coating == MdfCoating.pvc)
-                    IconButton(
-                      key: ValueKey('filmPick:$index'),
-                      tooltip: l10n.filmCatalogTitle,
-                      icon: const Icon(AppIcons.search),
-                      onPressed: () async {
-                        final picked = await showFilmPicker(
-                          context,
-                          current: film,
-                        );
-                        if (picked != null) onFilm(picked);
-                      },
                     ),
                   if (toBuy case final b? when coating == MdfCoating.pvc)
                     _ToBuyChip(short: b.short, from: b.from, index: index),

@@ -10316,5 +10316,16 @@
   "filmOrdersForOrders": "for orders ({count}) · {metres} m",
   "@filmOrdersForOrders": {"placeholders": {"count": {"type": "int"}, "metres": {"type": "String"}}},
   "mdfClientPartsSome": "Customer's LMDF: {marked} of {total}",
-  "@mdfClientPartsSome": {"placeholders": {"marked": {"type": "int"}, "total": {"type": "int"}}}
+  "@mdfClientPartsSome": {"placeholders": {"marked": {"type": "int"}, "total": {"type": "int"}}},
+  "fpkTitle": "PVC film",
+  "fpkSearch": "Name, code or maker",
+  "fpkByPhoto": "By a sample's photo",
+  "fpkAll": "All",
+  "fpkOnShelf": "In stock",
+  "fpkRecent": "This customer's of late",
+  "fpkFound": "Found {count} · in stock first",
+  "@fpkFound": {"placeholders": {"count": {"type": "int"}}},
+  "fpkCatalogOnly": "catalogue only",
+  "fpkNothing": "Nothing found",
+  "fpkNone": "No film"
 }

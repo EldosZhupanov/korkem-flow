@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
 
@@ -133,6 +134,29 @@ class _Fake implements FilmCatalogRepository {
       (_json['films']! as List).first as Map<String, dynamic>,
     );
   }
+}
+
+/// The order's film window's extras (owner, 18.11.2026).
+class _FakeDecors implements FilmDecorRepository {
+  final taken = <String>[];
+
+  @override
+  Future<FilmPickExtras> pickExtras(String? customer) async =>
+      FilmPickExtras.fromJson({
+        'decors': [
+          {'decor': 'D-1', 'maker': 'MC Group', 'name': 'Сиена верде'},
+        ],
+        'recent': [if (customer != null) 'KIRA · Белый Матовый'],
+      });
+
+  @override
+  Future<String> takeDecor(String decor) async {
+    taken.add(decor);
+    return 'MC Group · Сиена верде';
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 void main() {
@@ -313,15 +337,59 @@ void main() {
     );
     await tester.tap(find.text('pick'));
     await tester.pumpAndSettle();
-    // JS Group opens first; its film has no name for an order, so none shows.
+    // Every maker's films at once (owner, 18.11.2026); only the ones still
+    // made and named.
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-4')), findsNothing);
+    // One search across makers.
+    await tester.enterText(find.byKey(const ValueKey('pickSearch')), 'бел мат');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsOneWidget);
+    await tester.enterText(find.byKey(const ValueKey('pickSearch')), 'палома');
+    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    await tester.enterText(find.byKey(const ValueKey('pickSearch')), '');
     await tester.tap(find.byKey(const ValueKey('pickMaker:KIRA')));
     await tester.pumpAndSettle();
-    // Only KIRA's films that are still made and named.
-    expect(find.byKey(const ValueKey('film:MAT-4')), findsNothing);
     await tester.tap(find.byKey(const ValueKey('film:MAT-1')));
     await tester.pumpAndSettle();
     expect(picked, 'KIRA · Белый Матовый');
+  });
+
+  testWidgets("the film window: the customer's of late, a maker's catalogue", (
+    tester,
+  ) async {
+    String? picked;
+    final decors = _FakeDecors();
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          filmCatalogRepositoryProvider.overrideWithValue(_Fake()),
+          filmDecorRepositoryProvider.overrideWithValue(decors),
+        ],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () async =>
+                  picked = await showFilmPicker(context, customer: 'C-1'),
+              child: const Text('pick'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('pick'));
+    await tester.pumpAndSettle();
+    expect(find.text("This customer's of late"), findsOneWidget);
+    expect(find.text('catalogue only'), findsOneWidget);
+    await tester.enterText(find.byKey(const ValueKey('pickSearch')), 'сиена');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('pickDecor:D-1')));
+    await tester.pumpAndSettle();
+    expect(decors.taken, ['D-1']);
+    expect(picked, 'MC Group · Сиена верде');
   });
 
   testWidgets('a maker has its own collections: filter, add into, keep', (

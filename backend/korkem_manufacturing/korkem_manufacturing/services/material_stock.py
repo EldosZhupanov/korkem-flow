@@ -63,7 +63,24 @@ MAX_QTY = Decimal("100000")
 
 
 def can_edit() -> bool:
-	return bool(EDITORS.intersection(frappe.get_roles()))
+	return bool(getattr(frappe.local, "korkem_material_grant", False)) or bool(
+		EDITORS.intersection(frappe.get_roles())
+	)
+
+
+class granted:
+	"""For one action whose caller has checked the reader itself: an order's
+	manager taking a maker's catalogue film in (`film_picker.take`) writes
+	the material as the stock's editors would. The audit still names him."""
+
+	def __enter__(self):
+		self._before = getattr(frappe.local, "korkem_material_grant", False)
+		frappe.local.korkem_material_grant = True
+		return self
+
+	def __exit__(self, *exc):
+		frappe.local.korkem_material_grant = self._before
+		return False
 
 
 def _ensure_editor() -> None:
