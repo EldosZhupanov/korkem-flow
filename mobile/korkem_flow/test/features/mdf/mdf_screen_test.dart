@@ -34,6 +34,7 @@ void main() {
     'dictionaries': Routes.mdfDictionaries,
     'glue': Routes.glue,
     'prices': Routes.facadePrices,
+    'cncPatterns': Routes.cncPatterns,
   };
 
   Future<GoRouter> pump(WidgetTester tester) async {

@@ -179,6 +179,15 @@ class MdfScreen extends StatelessWidget {
         l10n.mdfPricesHint,
         Routes.facadePrices,
       ),
+      // «Узоры ЧПУ (β)» (owner, 18.11.2026): a sandbox, off until the owner
+      // turns it on in this base.
+      _MdfRow(
+        'cncPatterns',
+        AppIcons.design,
+        l10n.cncpTitle,
+        l10n.cncpRowHint,
+        Routes.cncPatterns,
+      ),
     ];
     // In groups (owner, 12.11.2026): seventeen rows in one list were too
     // long to find anything in.
@@ -203,6 +212,7 @@ class MdfScreen extends StatelessWidget {
       'dictionaries': 3,
       'glue': 3,
       'prices': 3,
+      'cncPatterns': 3,
     };
     final titles = [
       l10n.mdfGroupSales,
@@ -311,7 +321,7 @@ enum MdfSection {
   supplies(['stock', 'film', 'glue', 'logistics']),
 
   /// Set once, used everywhere: the dictionaries and the m² prices.
-  references(['dictionaries', 'glue', 'prices']);
+  references(['dictionaries', 'glue', 'prices', 'cncPatterns']);
 
   const MdfSection(this.rows);
 
