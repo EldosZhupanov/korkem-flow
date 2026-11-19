@@ -858,8 +858,15 @@ String _day(String iso) {
   return p.length == 3 ? '${p[2]}.${p[1]}' : iso;
 }
 
-String _metres(double v) =>
-    v == v.roundToDouble() ? v.toStringAsFixed(0) : '$v'.replaceAll('.', ',');
+/// «1,7», not «1,6999999999999993» (owner, 19.11.2026): two places at most.
+String _metres(double v) {
+  final r = (v * 100).roundToDouble() / 100;
+  if (r == r.roundToDouble()) return r.toStringAsFixed(0);
+  return r
+      .toStringAsFixed(2)
+      .replaceFirst(RegExp(r'0+$'), '')
+      .replaceAll('.', ',');
+}
 
 class _Unassigned extends ConsumerWidget {
   const _Unassigned({required this.colours, required this.canEdit});
