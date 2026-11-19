@@ -263,30 +263,30 @@ void main() {
     final (order, colour, way, to) = repo.proposed.single;
     expect((order, colour, way), ('1142', 'RAL 6021 Бледно-зелёный', PaintSwapWay.replace));
     expect(to, 'RAL 6011 Резедово-зелёный');
-    // Asked already: the line says so, and the yes is taken by phone.
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [paintCatalogueRepositoryProvider.overrideWithValue(repo)],
-        child: harness(
-          Scaffold(
-            body: MdfPaintSwapView(
-              order: _order(
-                swaps: [
-                  {
-                    'key': 'ral6021',
-                    'from': 'RAL 6021 Бледно-зелёный',
-                    'how': 'replace',
-                    'to': 'RAL 6011 Резедово-зелёный',
-                    'status': 'asked',
-                  },
-                ],
-              ),
-            ),
+    expect(find.byKey(const ValueKey('pswDialog')), findsNothing);
+  });
+
+  testWidgets('asked already: the line says so, the yes taken by phone', (
+    tester,
+  ) async {
+    final repo = await _pump(
+      tester,
+      Scaffold(
+        body: MdfPaintSwapView(
+          order: _order(
+            swaps: [
+              {
+                'key': 'ral6021',
+                'from': 'RAL 6021 Бледно-зелёный',
+                'how': 'replace',
+                'to': 'RAL 6011 Резедово-зелёный',
+                'status': 'asked',
+              },
+            ],
           ),
         ),
       ),
     );
-    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('mdfSwap:ral6021')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('pswAsked')), findsOneWidget);

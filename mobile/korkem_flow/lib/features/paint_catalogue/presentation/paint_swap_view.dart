@@ -204,11 +204,15 @@ class _SwapDialogState extends ConsumerState<_SwapDialog> {
     }
   }
 
-  /// Asked of the customer: WhatsApp opens with the words typed.
-  Future<void> _ask() => _step(() async {
-    final asked = await ref
-        .read(paintCatalogueRepositoryProvider)
-        .proposeSwap(
+  /// Asked of the customer: the window closes, WhatsApp opens with the
+  /// words typed.
+  Future<void> _ask() async {
+    final phone = widget.order.phone;
+    PaintSwapAsked? asked;
+    await _step(() async {
+      asked = await ref
+          .read(paintCatalogueRepositoryProvider)
+          .proposeSwap(
           widget.order.name,
           widget.colour,
           _way,
@@ -219,11 +223,11 @@ class _SwapDialogState extends ConsumerState<_SwapDialog> {
                     '${_waitUntil!.month.toString().padLeft(2, '0')}-'
                     '${_waitUntil!.day.toString().padLeft(2, '0')}',
         );
-    await ContactActions.whatsAppMessage(
-      asked.phone ?? widget.order.phone,
-      asked.message,
-    );
-  });
+    });
+    if (asked case final a?) {
+      unawaited(ContactActions.whatsAppMessage(a.phone ?? phone, a.message));
+    }
+  }
 
   Future<void> _agree(String via) => _step(
     () => ref
