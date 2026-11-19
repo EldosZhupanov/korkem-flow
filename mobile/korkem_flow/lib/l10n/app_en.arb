@@ -10450,5 +10450,163 @@
         "type": "int"
       }
     }
-  }
+  },
+  "pcTitle": "Paint catalogue",
+  "pcByPhoto": "By a sample's photo",
+  "pcAdd": "Colour",
+  "pcNoSystem": "No system",
+  "pcSearch": "Code or name: 7016, graphite, ivory",
+  "pcShowAll": "All",
+  "pcShowPopular": "Ours, in use",
+  "pcShowTop": "Furniture top 20",
+  "pcShowTrend": "Trends",
+  "pcShowStock": "On the shelf",
+  "pcShowStarred": "Starred",
+  "pcShowHidden": "Hidden",
+  "pcOurs": "Ours, in use · {days} days",
+  "@pcOurs": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "pcTrends": "Trends · kitchens and wardrobes",
+  "pcAllOf": "All {system} · {count}",
+  "@pcAllOf": {
+    "placeholders": {
+      "system": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pcNothing": "Nothing found.",
+  "pcByPhotoTitle": "Nearest the sample",
+  "pcKg": "{kg} kg",
+  "@pcKg": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      }
+    }
+  },
+  "pcNone": "none",
+  "pcM2": "{m2} m²",
+  "@pcM2": {
+    "placeholders": {
+      "m2": {
+        "type": "String"
+      }
+    }
+  },
+  "pcTrend": "trend",
+  "pcLookSame": "hardly told apart",
+  "pcLookClose": "seen up close",
+  "pcLookOther": "another shade",
+  "pcNoneShelf": "none on the shelf",
+  "pcShelfEnough": "{kg} kg on the shelf — enough for ≈ {m2} m²",
+  "@pcShelfEnough": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "m2": {
+        "type": "String"
+      }
+    }
+  },
+  "pcPainted": "Orders: {orders} · {m2} m² over {days} days",
+  "@pcPainted": {
+    "placeholders": {
+      "orders": {
+        "type": "int"
+      },
+      "m2": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "pcOnList": "In use: on the paints list for orders",
+  "pcNotOnList": "Not in use yet — «Into use» to take it in orders",
+  "pcSimilar": "Similar",
+  "pcStar": "Star",
+  "pcEdit": "Edit",
+  "pcTake": "Into use",
+  "pcEditTitle": "The colour's card",
+  "pcAddTitle": "A new colour",
+  "pcSystem": "Colour system",
+  "pcCode": "Code",
+  "pcCodeHint": "RAL 210 50 15, NCS S 2005-Y40R — or empty for one of our own",
+  "pcName": "Name",
+  "pcHex": "Shade on screen",
+  "pcHexHint": "#8A9977 — roughly, to find and compare",
+  "pcHide": "Hide from the catalogue",
+  "pcSave": "Save",
+  "pcAddSave": "Add",
+  "pswWhich": "Which colour to swap?",
+  "pswStart": "No supplier has it — swap the colour",
+  "pswWayTint": "tinting",
+  "pswWayWait": "waiting for it",
+  "pswWaitUntil": "waiting for it until {day}",
+  "@pswWaitUntil": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "pswAsked": "waiting for the customer's yes",
+  "pswViaWhatsApp": "on WhatsApp",
+  "pswViaInPerson": "in person",
+  "pswViaPhone": "on the phone",
+  "pswAgreed": "agreed by {who} {day} {via}",
+  "@pswAgreed": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      },
+      "via": {
+        "type": "String"
+      }
+    }
+  },
+  "pswTitle": "Swapping a colour · order №{order}",
+  "@pswTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "pswAskedLine": "Offered: {target} — waiting for the customer",
+  "@pswAskedLine": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "pswHow": "What we do",
+  "pswReplace": "Replace",
+  "pswTint": "Tint",
+  "pswWait": "Wait for it",
+  "pswNearest": "Similar ones there are · nearest first",
+  "pswTintHint": "Mixed exactly from a base and pigments — at a supplier who tints, or ourselves.",
+  "pswWaitPick": "Expected when?",
+  "pswRule": "Until the customer agrees, the order is not painted. The order keeps both colours and who agreed.",
+  "pswCancel": "Drop it",
+  "pswAgreeWhatsApp": "Agreed on WhatsApp",
+  "pswAgreePhone": "Agreed on the phone",
+  "pswAsk": "Ask the customer",
+  "pswChosen": "The customer chose",
+  "pswOffered": "We offer"
 }

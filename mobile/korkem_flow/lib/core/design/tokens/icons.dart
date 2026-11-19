@@ -55,6 +55,9 @@ abstract final class AppIcons {
   static const IconData mounting = Symbols.handyman_rounded;
   static const IconData softClose = Symbols.motion_sensor_idle_rounded;
   static const IconData colour = Symbols.palette_rounded;
+
+  /// A colour the shop marked as its own favourite (owner, 19.11.2026).
+  static const IconData favourite = Symbols.star_rounded;
   static const IconData dimension = Symbols.straighten_rounded;
   static const IconData load = Symbols.weight_rounded;
 
