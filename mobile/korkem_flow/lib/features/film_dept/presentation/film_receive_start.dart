@@ -4,6 +4,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_catalog/presentation/film_catalog_screen.dart';
@@ -281,9 +282,10 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
                                       onPressed: () =>
                                           Navigator.of(context).pop(v),
                                       child: Text(
-                                        v.thicknessMm == null
-                                            ? l10n.filmThicknessUnknown
-                                            : '${filmMetres(v.thicknessMm!)} мм',
+                                        switch (v.thicknessMm) {
+                                          final t? => '${filmMetres(t)} мм',
+                                          null => l10n.filmThicknessUnknown,
+                                        },
                                       ),
                                     ),
                                 ],
