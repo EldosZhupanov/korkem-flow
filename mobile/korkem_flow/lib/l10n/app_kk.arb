@@ -3314,5 +3314,14 @@
   "filmReceiveCatalogues": "Фирмалардың каталогтары — ашу үшін басыңыз",
   "filmReceiveCatalogOf": "{maker} каталогы · әлі енгізілмеген: {count}",
   "filmReceiveCatalogFound": "Каталогтардан · {count}",
-  "filmReceiveCatalogMore": "Тағы {count} — іздеуді немесе коллекцияны нақтылаңыз"
+  "filmReceiveCatalogMore": "Тағы {count} — іздеуді немесе коллекцияны нақтылаңыз",
+  "filmMakerAddButton": "Фирма",
+  "filmMakerAddTitle": "Жаңа фирма",
+  "filmMakerAddName": "Фирма атауы",
+  "filmMakerAddNameHint": "Орамдағыдай: Kira Group, Adilet…",
+  "filmMakerAddWhere": "Қайдан аламыз",
+  "filmMakerAddNewSource": "Жаңа жеткізуші",
+  "filmMakerAddSourceName": "Жеткізуші (мысалы, Kira · Қостанай)",
+  "filmMakerAddCatalogueHint": "Фотосы бар каталогты кейін жүктеуге болады — жоғарыдағы 📎 белгісі.",
+  "filmMakerAddSave": "Қосу"
 }

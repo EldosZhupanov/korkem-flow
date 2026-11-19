@@ -11009,4 +11009,32 @@ class AppLocalizationsRu extends AppLocalizations {
   String filmReceiveCatalogMore(int count) {
     return 'Ещё $count — уточните поиск или коллекцию';
   }
+
+  @override
+  String get filmMakerAddButton => 'Фирма';
+
+  @override
+  String get filmMakerAddTitle => 'Новая фирма';
+
+  @override
+  String get filmMakerAddName => 'Название фирмы';
+
+  @override
+  String get filmMakerAddNameHint => 'Как на рулоне: Kira Group, Adilet…';
+
+  @override
+  String get filmMakerAddWhere => 'Где берём';
+
+  @override
+  String get filmMakerAddNewSource => 'Новый поставщик';
+
+  @override
+  String get filmMakerAddSourceName => 'Поставщик (например, Kira · Костанай)';
+
+  @override
+  String get filmMakerAddCatalogueHint =>
+      'Каталог с фото можно загрузить потом — значок 📎 вверху.';
+
+  @override
+  String get filmMakerAddSave => 'Добавить';
 }

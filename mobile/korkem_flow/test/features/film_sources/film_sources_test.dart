@@ -75,6 +75,19 @@ const _board = <String, dynamic>{
 };
 
 class _Fake implements FilmSourcesRepository {
+  final makersAdded = <(String, String?, List<String>, Map<String, String>?)>[];
+
+  @override
+  Future<FilmMaker> addMaker({
+    required String name,
+    String? site,
+    List<String> sources = const [],
+    Map<String, String>? newSource,
+  }) async {
+    makersAdded.add((name, site, sources, newSource));
+    return FilmMaker(name: name, site: site);
+  }
+
   final saved = <(String?, String, Map<String, String>, List<String>)>[];
 
   /// Each asking of the board: for all time, or this month.
@@ -241,6 +254,55 @@ void main() {
     await tester.tap(find.text('All time'));
     await tester.pumpAndSettle();
     expect(repo.boards, [false, true]);
+  });
+
+  testWidgets('a new maker comes in one window, with where it is bought', (
+    tester,
+  ) async {
+    String? made;
+    final repo = await _pump(
+      tester,
+      Builder(
+        builder: (context) => TextButton(
+          onPressed: () async => made = await showFilmMakerAdd(context),
+          child: const Text('open'),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('filmMakerAdd:save'));
+    // No name, no saving.
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const ValueKey('filmMakerAdd:name')),
+      'Kira Group',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('filmMakerAdd:site')),
+      'kira-group.kz',
+    );
+    // Bought at Almaty, and at a new supplier in Kostanay.
+    await tester.tap(find.byKey(const ValueKey('filmMakerAdd:src:SUP-2')));
+    await tester.tap(find.byKey(const ValueKey('filmMakerAdd:newSource')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('filmMakerAdd:srcName')),
+      'Kira · Костанай',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('filmMakerAdd:srcCity')),
+      'Костанай',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    final (name, site, sources, fresh) = repo.makersAdded.single;
+    expect((name, site), ('Kira Group', 'kira-group.kz'));
+    expect(sources, ['SUP-2']);
+    expect(fresh?['name'], 'Kira · Костанай');
+    expect(fresh?['city'], 'Костанай');
+    expect(made, 'Kira Group');
   });
 
   testWidgets('a new source is saved with its card and its makers', (

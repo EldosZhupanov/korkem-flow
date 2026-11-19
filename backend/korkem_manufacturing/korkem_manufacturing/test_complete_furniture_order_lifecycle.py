@@ -206,6 +206,11 @@ class TestCompleteFurnitureOrderLifecycle(IntegrationTestCase):
 				}
 			)
 			item.insert(ignore_permissions=True)
+		else:
+			# Another suite (test_chaos_lifecycle) makes the same item with no
+			# warranty: the claim at the end then finds no warranty begun, and
+			# the run fails or passes by which suite came first (CI, 19.11.2026).
+			frappe.db.set_value("Item", fg_code, "warranty_period", 365)
 
 		# 2. Сырьевые материалы и фурнитура
 		for m in self.demo_data["materials"]:
