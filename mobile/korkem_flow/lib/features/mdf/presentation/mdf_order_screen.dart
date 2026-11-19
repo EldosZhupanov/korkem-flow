@@ -42,6 +42,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_recipe_view.dart';
 import 'package:korkem_flow/features/offcuts/presentation/offcuts_screen.dart';
+import 'package:korkem_flow/features/paint_catalogue/presentation/paint_swap_view.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_layout_screen.dart';
@@ -2848,6 +2849,8 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         ),
         // The customer's own paint: what he brought, whether it is here.
         MdfClientPaintView(order: o),
+        // A colour no supplier has: what the customer agreed to instead.
+        MdfPaintSwapView(order: o),
         // What its paint takes and costs, by the shop's recipe.
         MdfOrderPaintView(order: o),
         // Its PVC positions' glue, by the glue in work (owner, 17.11.2026).

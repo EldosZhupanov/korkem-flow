@@ -3,6 +3,7 @@ import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/mdf/domain/glue_stock.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
+import 'package:korkem_flow/features/paint_catalogue/domain/paint_catalogue.dart';
 
 export 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 
@@ -618,6 +619,7 @@ class MdfOrder {
     this.paint = const [],
     this.glue,
     this.cnc = false,
+    this.paintSwaps = const [],
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -715,6 +717,10 @@ class MdfOrder {
       for (final p in json['paint'] as List? ?? const [])
         if (p is Map) PaintPlan.fromJson(Map<String, dynamic>.from(p)),
     ],
+    paintSwaps: [
+      for (final s in json['paint_swaps'] as List? ?? const [])
+        if (s is Map) PaintSwap.fromJson(Map<String, dynamic>.from(s)),
+    ],
     glue: json['glue'] is Map
         ? OrderGlue.fromJson(Map<String, dynamic>.from(json['glue'] as Map))
         : null,
@@ -787,6 +793,10 @@ class MdfOrder {
   /// What its paint takes by the shop's recipe, colour by colour, and what
   /// it costs (owner, 15.11.2026).
   final List<PaintPlan> paint;
+
+  /// Colours no supplier had, and what the customer agreed to instead
+  /// (owner, 19.11.2026: «Замена цвета»).
+  final List<PaintSwap> paintSwaps;
 
   /// Its PVC positions' glue, by the glue in work (owner, 17.11.2026).
   final OrderGlue? glue;

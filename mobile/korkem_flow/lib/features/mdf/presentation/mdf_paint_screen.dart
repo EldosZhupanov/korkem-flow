@@ -21,6 +21,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_client_paint.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_stock_view.dart';
+import 'package:korkem_flow/features/paint_catalogue/presentation/paint_catalogue_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 String _m2(double v) => '${v.toStringAsFixed(2)} м²';
@@ -41,6 +42,17 @@ class MdfPaintScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.mdfPaintTitle),
         actions: [
+          // «Каталог красок» (owner, 19.11.2026).
+          TextButton.icon(
+            key: const ValueKey('paintCatalogue'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const PaintCatalogueScreen(),
+              ),
+            ),
+            icon: const Icon(AppIcons.colour),
+            label: Text(l10n.pcTitle),
+          ),
           IconButton(
             key: const ValueKey('paintSettings'),
             tooltip: l10n.mdfPaintSettings,

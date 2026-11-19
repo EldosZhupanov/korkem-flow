@@ -14,6 +14,9 @@ FIELDS = (
 	# The customer's own paint (owner, 14.11.2026): what he brought, and whether it is here.
 	{"fieldname": "korkem_client_paint_note", "label": "Customer's paint", "fieldtype": "Data"},
 	{"fieldname": "korkem_client_paint_in", "label": "Customer's paint is here", "fieldtype": "Check"},
+	# A colour no supplier has, and what the customer agreed to (owner,
+	# 19.11.2026): `paint_swap`.
+	{"fieldname": "korkem_paint_swaps", "label": "Paint swaps", "fieldtype": "Small Text"},
 )
 
 
