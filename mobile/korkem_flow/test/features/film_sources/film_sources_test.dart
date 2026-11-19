@@ -75,8 +75,7 @@ const _board = <String, dynamic>{
 };
 
 class _Fake implements FilmSourcesRepository {
-  final makersAdded =
-      <(String, String?, List<String>, Map<String, String>?)>[];
+  final makersAdded = <(String, String?, List<String>, Map<String, String>?)>[];
 
   @override
   Future<FilmMaker> addMaker({
