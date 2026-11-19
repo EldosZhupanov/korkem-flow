@@ -149,11 +149,14 @@ String _day(String iso) {
 }
 
 /// The swap window for one colour of an order.
-Future<void> showPaintSwap(BuildContext context, MdfOrder order, String colour) =>
-    showDialog<void>(
-      context: context,
-      builder: (_) => _SwapDialog(order: order, colour: colour),
-    );
+Future<void> showPaintSwap(
+  BuildContext context,
+  MdfOrder order,
+  String colour,
+) => showDialog<void>(
+  context: context,
+  builder: (_) => _SwapDialog(order: order, colour: colour),
+);
 
 class _SwapDialog extends ConsumerStatefulWidget {
   const _SwapDialog({required this.order, required this.colour});
@@ -213,16 +216,16 @@ class _SwapDialogState extends ConsumerState<_SwapDialog> {
       asked = await ref
           .read(paintCatalogueRepositoryProvider)
           .proposeSwap(
-          widget.order.name,
-          widget.colour,
-          _way,
-          to: _to?.value,
-          waitUntil: _waitUntil == null
-              ? null
-              : '${_waitUntil!.year}-'
-                    '${_waitUntil!.month.toString().padLeft(2, '0')}-'
-                    '${_waitUntil!.day.toString().padLeft(2, '0')}',
-        );
+            widget.order.name,
+            widget.colour,
+            _way,
+            to: _to?.value,
+            waitUntil: _waitUntil == null
+                ? null
+                : '${_waitUntil!.year}-'
+                      '${_waitUntil!.month.toString().padLeft(2, '0')}-'
+                      '${_waitUntil!.day.toString().padLeft(2, '0')}',
+          );
     });
     if (asked case final a?) {
       unawaited(ContactActions.whatsAppMessage(a.phone ?? phone, a.message));
@@ -274,7 +277,10 @@ class _SwapDialogState extends ConsumerState<_SwapDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _Compare(from: from, to: _way == PaintSwapWay.replace ? _to : null),
+                  _Compare(
+                    from: from,
+                    to: _way == PaintSwapWay.replace ? _to : null,
+                  ),
                   if (asked != null) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Text(
@@ -306,15 +312,17 @@ class _SwapDialogState extends ConsumerState<_SwapDialog> {
                         ),
                       ],
                       selected: {_way},
-                      onSelectionChanged: (s) =>
-                          setState(() => _way = s.first),
+                      onSelectionChanged: (s) => setState(() => _way = s.first),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     switch (_way) {
                       PaintSwapWay.replace => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.pswNearest, style: theme.textTheme.labelLarge),
+                          Text(
+                            l10n.pswNearest,
+                            style: theme.textTheme.labelLarge,
+                          ),
                           SimilarList(
                             colours: options.similar,
                             selected: _to?.key,

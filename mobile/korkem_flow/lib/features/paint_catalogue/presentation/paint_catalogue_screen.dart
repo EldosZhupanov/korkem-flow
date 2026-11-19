@@ -639,7 +639,8 @@ class _ColourDialogState extends ConsumerState<_ColourDialog> {
   final _code = TextEditingController();
   late final _hex = TextEditingController(text: widget.colour?.hex ?? '');
   late final _note = TextEditingController(text: widget.colour?.note ?? '');
-  late String? _system = widget.colour?.system ??
+  late String? _system =
+      widget.colour?.system ??
       widget.catalogue.systems.map((s) => s.name).nonNulls.lastOrNull;
   late bool _hidden = widget.colour?.hidden ?? false;
   bool _busy = false;

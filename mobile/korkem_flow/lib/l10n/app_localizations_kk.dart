@@ -10931,4 +10931,238 @@ class AppLocalizationsKk extends AppLocalizations {
   String filmReceiveCatalogMore(int count) {
     return 'Тағы $count — іздеуді немесе коллекцияны нақтылаңыз';
   }
+
+  @override
+  String get pcTitle => 'Бояулар каталогы';
+
+  @override
+  String get pcByPhoto => 'Үлгі фотосы бойынша';
+
+  @override
+  String get pcAdd => 'Бояу';
+
+  @override
+  String get pcNoSystem => 'Жүйесіз';
+
+  @override
+  String get pcSearch => 'Код немесе атауы: 7016, графит, піл сүйегі';
+
+  @override
+  String get pcShowAll => 'Барлығы';
+
+  @override
+  String get pcShowPopular => 'Бізде жүретіндері';
+
+  @override
+  String get pcShowTop => 'Жиһаз топ-20';
+
+  @override
+  String get pcShowTrend => 'Трендтер';
+
+  @override
+  String get pcShowStock => 'Қоймада';
+
+  @override
+  String get pcShowStarred => 'Таңдаулылар';
+
+  @override
+  String get pcShowHidden => 'Жасырылғандар';
+
+  @override
+  String pcOurs(int days) {
+    return 'Бізде жүретіндері · $days күнде';
+  }
+
+  @override
+  String get pcTrends => 'Трендтер · ас үй мен шкафтар';
+
+  @override
+  String pcAllOf(String system, int count) {
+    return 'Барлық $system · $count';
+  }
+
+  @override
+  String get pcNothing => 'Ештеңе табылмады.';
+
+  @override
+  String get pcByPhotoTitle => 'Үлгіге ең жақыны';
+
+  @override
+  String pcKg(String kg) {
+    return '$kg кг';
+  }
+
+  @override
+  String get pcNone => 'жоқ';
+
+  @override
+  String pcM2(String m2) {
+    return '$m2 м²';
+  }
+
+  @override
+  String get pcTrend => 'тренд';
+
+  @override
+  String get pcLookSame => 'айыру қиын';
+
+  @override
+  String get pcLookClose => 'жақыннан байқалады';
+
+  @override
+  String get pcLookOther => 'басқа реңк';
+
+  @override
+  String get pcNoneShelf => 'қоймада жоқ';
+
+  @override
+  String pcShelfEnough(String kg, String m2) {
+    return 'Қоймада $kg кг — ≈ $m2 м²-ге жетеді';
+  }
+
+  @override
+  String pcPainted(int orders, String m2, int days) {
+    return 'Тапсырыс: $orders · $days күнде $m2 м²';
+  }
+
+  @override
+  String get pcOnList =>
+      'Жұмыста: тапсырыстарға арналған бояулар тізімінде бар';
+
+  @override
+  String get pcNotOnList => 'Әлі жұмыста емес — тапсырысқа алу үшін «Жұмысқа»';
+
+  @override
+  String get pcSimilar => 'Ұқсастары';
+
+  @override
+  String get pcStar => 'Таңдаулыларға';
+
+  @override
+  String get pcEdit => 'Өзгерту';
+
+  @override
+  String get pcTake => 'Жұмысқа';
+
+  @override
+  String get pcEditTitle => 'Түс карточкасы';
+
+  @override
+  String get pcAddTitle => 'Жаңа бояу';
+
+  @override
+  String get pcSystem => 'Түс жүйесі';
+
+  @override
+  String get pcCode => 'Код';
+
+  @override
+  String get pcCodeHint =>
+      'RAL 210 50 15, NCS S 2005-Y40R — немесе өз түсі үшін бос';
+
+  @override
+  String get pcName => 'Атауы';
+
+  @override
+  String get pcHex => 'Экрандағы реңк';
+
+  @override
+  String get pcHexHint => '#8A9977 — шамамен, іздеу мен салыстыру үшін';
+
+  @override
+  String get pcHide => 'Каталогтан жасыру';
+
+  @override
+  String get pcSave => 'Сақтау';
+
+  @override
+  String get pcAddSave => 'Қосу';
+
+  @override
+  String get pswWhich => 'Қай түсті ауыстыру керек?';
+
+  @override
+  String get pswStart => 'Жеткізушілерде жоқ — түсті ауыстыру';
+
+  @override
+  String get pswWayTint => 'колеровка';
+
+  @override
+  String get pswWayWait => 'өзін күтеміз';
+
+  @override
+  String pswWaitUntil(String day) {
+    return '$day дейін өзін күтеміз';
+  }
+
+  @override
+  String get pswAsked => 'клиенттің келісімін күтеміз';
+
+  @override
+  String get pswViaWhatsApp => 'WhatsApp-та';
+
+  @override
+  String get pswViaInPerson => 'өзі келіп';
+
+  @override
+  String get pswViaPhone => 'телефон арқылы';
+
+  @override
+  String pswAgreed(String who, String day, String via) {
+    return '$who $day $via келісті';
+  }
+
+  @override
+  String pswTitle(String order) {
+    return 'Түсті ауыстыру · №$order тапсырыс';
+  }
+
+  @override
+  String pswAskedLine(String target) {
+    return 'Ұсындық: $target — клиенттің жауабын күтеміз';
+  }
+
+  @override
+  String get pswHow => 'Не істейміз';
+
+  @override
+  String get pswReplace => 'Ауыстыру';
+
+  @override
+  String get pswTint => 'Колеровка';
+
+  @override
+  String get pswWait => 'Өзін күту';
+
+  @override
+  String get pswNearest => 'Барларының ұқсастары · жақыны жоғарыда';
+
+  @override
+  String get pswTintHint =>
+      'Түсті база мен пигменттен дәл жасаймыз — колеровкасы бар жеткізушіде немесе өзіміз.';
+
+  @override
+  String get pswWaitPick => 'Қашан күтеміз?';
+
+  @override
+  String get pswRule =>
+      'Клиент келіспейінше тапсырыс бояуға жіберілмейді. Тапсырыста екі түс те және кім келіскені қалады.';
+
+  @override
+  String get pswCancel => 'Сұрамау';
+
+  @override
+  String get pswAgreeWhatsApp => 'WhatsApp-та келісті';
+
+  @override
+  String get pswAgreePhone => 'Клиент телефонда келісті';
+
+  @override
+  String get pswAsk => 'Клиенттен сұрау';
+
+  @override
+  String get pswChosen => 'Клиент таңдады';
+
+  @override
+  String get pswOffered => 'Ұсынамыз';
 }

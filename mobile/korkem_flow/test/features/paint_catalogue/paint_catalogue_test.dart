@@ -240,7 +240,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('pcSave')));
     await tester.pumpAndSettle();
-    expect(repo.added.single, ('Оливка клиента', 'По образцу', null, '#7D765A'));
+    expect(repo.added.single, (
+      'Оливка клиента',
+      'По образцу',
+      null,
+      '#7D765A',
+    ));
   });
 
   testWidgets('a colour no supplier has: offered, then agreed by phone', (
@@ -261,7 +266,10 @@ void main() {
     await tester.tap(ask);
     await tester.pumpAndSettle();
     final (order, colour, way, to) = repo.proposed.single;
-    expect((order, colour, way), ('1142', 'RAL 6021 Бледно-зелёный', PaintSwapWay.replace));
+    expect(
+      (order, colour, way),
+      ('1142', 'RAL 6021 Бледно-зелёный', PaintSwapWay.replace),
+    );
     expect(to, 'RAL 6011 Резедово-зелёный');
     expect(find.byKey(const ValueKey('pswDialog')), findsNothing);
   });
