@@ -3306,5 +3306,9 @@
   "filmReceiveSearch": "Фирма, цвет или код",
   "filmReceiveDone": "Плёнка на складе.",
   "filmReceiveRestComing": "Остаток {metres} м остаётся в пути.",
-  "filmReceiveShort": "Недовезли {metres} м — останутся в «Ждём»."
+  "filmReceiveShort": "Недовезли {metres} м — останутся в «Ждём».",
+  "filmCatalogueTools": "Загрузка каталогов и картинок",
+  "filmOurs": "У нас · {count}",
+  "filmCatalogueOf": "Каталог {maker} · ещё {count}",
+  "filmCatalogueHint": "Нажмите на декор — завести плёнку или посмотреть."
 }

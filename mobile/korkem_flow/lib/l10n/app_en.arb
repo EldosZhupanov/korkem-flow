@@ -10416,5 +10416,11 @@
   "filmReceiveRestComing": "The remaining {metres} m stay on their way.",
   "@filmReceiveRestComing": {"placeholders": {"metres": {"type": "String"}}},
   "filmReceiveShort": "{metres} m short — they stay under «Waiting for».",
-  "@filmReceiveShort": {"placeholders": {"metres": {"type": "String"}}}
+  "@filmReceiveShort": {"placeholders": {"metres": {"type": "String"}}},
+  "filmCatalogueTools": "Load catalogues and pictures",
+  "filmOurs": "Ours · {count}",
+  "@filmOurs": {"placeholders": {"count": {"type": "String"}}},
+  "filmCatalogueOf": "{maker} catalogue · {count} more",
+  "@filmCatalogueOf": {"placeholders": {"maker": {"type": "String"}, "count": {"type": "String"}}},
+  "filmCatalogueHint": "Tap a decor to take it in or look at it."
 }

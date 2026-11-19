@@ -62,16 +62,26 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
         ),
       ),
       data: (c) {
-        final tabs = c.tabs;
+        final decors = ref.watch(filmCatalogueProvider).value;
+        // A maker known only by its catalogue has a tab too.
+        final tabs = [
+          ...c.tabs,
+          for (final m in decors?.makers ?? const <({String maker, int count})>[])
+            if (!c.tabs.contains(m.maker)) m.maker,
+        ];
         return DefaultTabController(
           length: tabs.length + 1,
           child: Scaffold(
             appBar: AppBar(
               title: Text(l10n.filmCatalogTitle),
               actions: [
-                // The makers' catalogues with pictures (owner, 18.11.2026).
-                TextButton.icon(
+                // Every maker's catalogue is on its tab now (owner,
+                // 19.11.2026: «один экран»); loading a catalogue and
+                // pictures by name stay a tap away.
+                const PhotoMatchButton(),
+                IconButton(
                   key: const ValueKey('filmDecors'),
+                  tooltip: l10n.filmCatalogueTools,
                   onPressed: () => unawaited(
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -79,8 +89,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
                       ),
                     ),
                   ),
-                  icon: const Icon(AppIcons.gallery),
-                  label: Text(l10n.fdcTitle),
+                  icon: const Icon(AppIcons.attachment),
                 ),
               ],
               bottom: TabBar(
@@ -90,7 +99,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
                   for (final m in tabs)
                     Tab(
                       key: ValueKey('filmMaker:$m'),
-                      text: '$m · ${FilmCatalog.grouped(c.of(m)).length}',
+                      text: m,
                     ),
                   Tab(
                     key: const ValueKey('filmMaker:none'),
@@ -101,7 +110,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
             ),
             body: TabBarView(
               children: [
-                for (final m in tabs) _makerTab(c, m, l10n),
+                for (final m in tabs) _makerTab(c, decors, m, l10n),
                 _Unassigned(colours: c.unassigned, canEdit: c.canEdit),
               ],
             ),
@@ -111,8 +120,16 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
     );
   }
 
-  Widget _makerTab(FilmCatalog c, String maker, AppLocalizations l10n) {
-    final collections = c.collectionsOf(maker);
+  Widget _makerTab(
+    FilmCatalog c,
+    FilmDecors? decors,
+    String maker,
+    AppLocalizations l10n,
+  ) {
+    final collections = {
+      ...c.collectionsOf(maker),
+      ...?decors?.collectionsOf(maker),
+    }.toList();
     // A collection renamed or removed meanwhile is no longer a filter.
     final collection = collections.contains(_collection[maker])
         ? _collection[maker]
@@ -136,9 +153,21 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
               if (g.any(unknown)) ...g,
           ]
         : all;
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      children: [
+    // Under the shop's own films, the rest of the maker's catalogue
+    // (owner, 19.11.2026): what is not taken in yet, by the same search
+    // and collection; a tap takes it in or orders it.
+    final catalogue = _type != null || archive || noThickness
+        ? const <FilmDecor>[]
+        : [
+            for (final x in decors?.decors ?? const <FilmDecor>[])
+              if (x.maker == maker &&
+                  x.films.isEmpty &&
+                  (collection == null || x.collection == collection) &&
+                  x.matches(_search))
+                x,
+          ];
+    final theme = Theme.of(context);
+    final head = <Widget>[
         // The maker's own collections (owner, 11.11.2026): ALDA, Solid
         // Color, Древесные… — and the button that keeps their list.
         Wrap(
@@ -251,6 +280,12 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
               ),
           ],
         ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          l10n.filmOurs('${FilmCatalog.grouped(films).length}'),
+          key: ValueKey('filmOurs:$maker'),
+          style: theme.textTheme.labelLarge,
+        ),
         if (films.isEmpty)
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
@@ -267,6 +302,61 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
                 .firstOrNull,
             onTap: c.canEdit ? () => showFilmCard(context, g.first, c) : null,
           ),
+        if (catalogue.isNotEmpty) ...[
+          const Divider(),
+          Text(
+            l10n.filmCatalogueOf(maker, '${catalogue.length}'),
+            key: ValueKey('filmCatalogue:$maker'),
+            style: theme.textTheme.labelLarge,
+          ),
+          Text(
+            l10n.filmCatalogueHint,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+    ];
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.sm,
+          ),
+          sliver: SliverList(delegate: SliverChildListDelegate(head)),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            0,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: AppSpacing.xxxl * 4,
+              mainAxisSpacing: AppSpacing.sm,
+              crossAxisSpacing: AppSpacing.sm,
+              childAspectRatio: 0.9,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, i) => DecorCard(
+                decor: catalogue[i],
+                onTap: () => unawaited(
+                  showFilmDecor(
+                    context,
+                    catalogue[i],
+                    canEdit: decors?.canEdit ?? false,
+                  ),
+                ),
+              ),
+              childCount: catalogue.length,
+            ),
+          ),
+        ),
       ],
     );
   }

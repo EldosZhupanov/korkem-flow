@@ -3306,5 +3306,9 @@
   "filmReceiveSearch": "Фирма, түс немесе код",
   "filmReceiveDone": "Үлдір қоймада.",
   "filmReceiveRestComing": "Қалған {metres} м жолда қалады.",
-  "filmReceiveShort": "{metres} м жеткізілмеді — «Күтеміз» ішінде қалады."
+  "filmReceiveShort": "{metres} м жеткізілмеді — «Күтеміз» ішінде қалады.",
+  "filmCatalogueTools": "Каталогтар мен суреттерді жүктеу",
+  "filmOurs": "Бізде · {count}",
+  "filmCatalogueOf": "{maker} каталогы · тағы {count}",
+  "filmCatalogueHint": "Декорды басыңыз — үлдір ашу немесе қарау."
 }

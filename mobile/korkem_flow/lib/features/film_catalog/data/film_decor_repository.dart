@@ -132,6 +132,20 @@ final filmDecorsProvider = FutureProvider.autoDispose<FilmDecors>(
   (ref) => ref.watch(filmDecorRepositoryProvider).decors(),
 );
 
+/// The makers' catalogues under the shop's own films (owner, 19.11.2026);
+/// null when they would not load — the films are shown all the same.
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final filmCatalogueProvider = FutureProvider.autoDispose<FilmDecors?>((
+  ref,
+) async {
+  try {
+    return await ref.watch(filmDecorRepositoryProvider).decors();
+  } on Object {
+    return null;
+  }
+});
+
 /// Picks files from the computer or the phone — a seam for the tests.
 final filmFilePickerProvider = Provider<FilmFilePicker>(
   (ref) => const FilmFilePicker(),
