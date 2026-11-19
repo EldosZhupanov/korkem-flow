@@ -56,6 +56,13 @@ def maker(name: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
+def add_maker(name: str, site: str | None = None, sources: str | list | None = None,
+			  new_source: str | dict | None = None) -> dict:
+	"""Новая фирма: название, сайт, где берём — свои поставщики и новый."""
+	return service.add_maker(name, site=site, sources=sources, new_source=new_source)
+
+
+@frappe.whitelist(methods=["POST"])
 def set_maker(name: str, site: str | None = None, note: str | None = None) -> dict:
 	"""Сайт и заметка производителя."""
 	return service.set_maker(name, site=site, note=note)

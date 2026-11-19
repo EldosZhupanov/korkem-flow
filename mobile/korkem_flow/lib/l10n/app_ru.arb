@@ -3384,5 +3384,14 @@
   "pswAgreePhone": "Клиент согласен по телефону",
   "pswAsk": "Спросить клиента",
   "pswChosen": "Выбрал клиент",
-  "pswOffered": "Предлагаем"
+  "pswOffered": "Предлагаем",
+  "filmMakerAddButton": "Фирма",
+  "filmMakerAddTitle": "Новая фирма",
+  "filmMakerAddName": "Название фирмы",
+  "filmMakerAddNameHint": "Как на рулоне: Kira Group, Adilet…",
+  "filmMakerAddWhere": "Где берём",
+  "filmMakerAddNewSource": "Новый поставщик",
+  "filmMakerAddSourceName": "Поставщик (например, Kira · Костанай)",
+  "filmMakerAddCatalogueHint": "Каталог с фото можно загрузить потом — значок 📎 вверху.",
+  "filmMakerAddSave": "Добавить"
 }
