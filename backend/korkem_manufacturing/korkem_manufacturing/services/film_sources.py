@@ -167,6 +167,45 @@ def set_maker(name: str, site: str | None = None, note: str | None = None) -> di
 	return maker(name)
 
 
+def add_maker(name: str, site: str | None = None, sources=None, new_source=None) -> dict:
+	"""A new maker, in one go (owner, 19.11.2026: «добавочный + — добавить
+	поставщика»): its name into «Производитель», its site, the sources it is
+	bought from — those there are, and one new with its card.
+
+	A maker of that name already there gets the site and the sources added,
+	nothing duplicated.
+	"""
+	material_stock._ensure_editor()
+	name = " ".join((name or "").split())[:140]
+	if len(name) < 2:
+		frappe.throw("Название фирмы слишком короткое.")
+	company = current_company()
+	same = next((m for m in _known_makers() if m.casefold() == name.casefold()), None)
+	if same:
+		name = same
+	else:
+		material_stock.put_option(MAKERS, name)
+	if site:
+		set_maker(name, site=site, note=_maker_row(name).note)
+	if isinstance(sources, str):
+		sources = frappe.parse_json(sources) if sources.strip().startswith("[") else [sources]
+	for supplier in sources or []:
+		row = frappe.db.get_value("Supplier", supplier, ["name", _MAKERS_FIELD], as_dict=True)
+		if not row:
+			frappe.throw("Такого поставщика нет.", frappe.DoesNotExistError)
+		makers = [m for m in (row.get(_MAKERS_FIELD) or "").split("\n") if m]
+		if name not in makers:
+			set_card(row.name, makers=[*makers, name])
+	if isinstance(new_source, str):
+		new_source = frappe.parse_json(new_source) if new_source.strip() else None
+	if new_source and (new_source.get("name") or "").strip():
+		card = {k: v for k, v in new_source.items() if k in CARD}
+		add(new_source["name"], **card, makers=[name])
+	audit.record_audit(action="film.maker_added", entity_type="Material Option", entity_id=name,
+					   diff={"site": site, "sources": sources, "new_source": bool(new_source), "company": company})
+	return maker(name)
+
+
 def maker_renamed(before: str, after: str) -> None:
 	"""A renamed maker keeps its sources (`mdf_dictionaries.rename`)."""
 	for r in frappe.get_all(

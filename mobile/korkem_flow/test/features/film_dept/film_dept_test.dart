@@ -621,7 +621,10 @@ class _Glue implements GlueStockRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-Future<_Fake> _pump(WidgetTester tester) async {
+Future<_Fake> _pump(
+  WidgetTester tester, {
+  FilmPickExtras extras = const FilmPickExtras(),
+}) async {
   tester.view
     ..physicalSize = const Size(1600, 2400)
     ..devicePixelRatio = 1;
@@ -642,7 +645,7 @@ Future<_Fake> _pump(WidgetTester tester) async {
           (ref) async => MdfDictionaries.empty,
         ),
         filmPickExtrasProvider.overrideWith(
-          (ref, customer) async => const FilmPickExtras(),
+          (ref, customer) async => extras,
         ),
       ],
       child: harness(const FilmDeptScreen()),
@@ -1084,6 +1087,67 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('rcvSearch')), 'kr-1');
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('film:MAT-1')), findsOneWidget);
+  });
+
+  testWidgets('«Приход» folds, and names the makers’ catalogues', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      extras: const FilmPickExtras(
+        decors: [
+          FilmDecor(
+            decor: 'D-1',
+            maker: 'Adilet',
+            name: 'Агератум',
+            collection: 'Soft',
+          ),
+          FilmDecor(
+            decor: 'D-2',
+            maker: 'Adilet',
+            name: 'Шабо',
+            collection: 'Wood',
+          ),
+        ],
+      ),
+    );
+    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
+    await tester.pumpAndSettle();
+    // «Ждём» folds and opens again.
+    expect(find.byKey(const ValueKey('rcvComing:STE-30')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('rcvWaitFold')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rcvComing:STE-30')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('rcvWaitFold')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rcvComing:STE-30')), findsOneWidget);
+    // Every maker by name — ours and one known by its catalogue alone.
+    for (final m in ['Adilet', 'JS Group', 'KIRA']) {
+      expect(find.byKey(ValueKey('rcvMaker:$m')), findsOneWidget);
+    }
+    // A maker opens its films, then its catalogue; «Ждём» makes room.
+    final js = find.byKey(const ValueKey('rcvMaker:JS Group'));
+    await tester.ensureVisible(js);
+    await tester.tap(js);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rcvComing:STE-30')), findsNothing);
+    expect(find.byKey(const ValueKey('film:MAT-2')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    final adilet = find.byKey(const ValueKey('rcvMaker:Adilet'));
+    await tester.ensureVisible(adilet);
+    await tester.tap(adilet);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rcvDecor:D-1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rcvDecor:D-2')), findsOneWidget);
+    // By its collection.
+    final wood = find.byKey(const ValueKey('rcvCollection:Wood'));
+    await tester.ensureVisible(wood);
+    await tester.tap(wood);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rcvDecor:D-1')), findsNothing);
+    expect(find.byKey(const ValueKey('rcvDecor:D-2')), findsOneWidget);
   });
 
   testWidgets('«Приход» shows first what is waited for: a roll on its way', (

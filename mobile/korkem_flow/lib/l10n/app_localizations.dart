@@ -18796,6 +18796,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap a decor to take it in or look at it.'**
   String get filmCatalogueHint;
+
+  /// No description provided for @filmReceiveCatalogues.
+  ///
+  /// In en, this message translates to:
+  /// **'Makers\' catalogues — tap to open'**
+  String get filmReceiveCatalogues;
+
+  /// No description provided for @filmReceiveCatalogOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{maker}\'s catalogue · not taken in yet: {count}'**
+  String filmReceiveCatalogOf(String maker, int count);
+
+  /// No description provided for @filmReceiveCatalogFound.
+  ///
+  /// In en, this message translates to:
+  /// **'From the catalogues · {count}'**
+  String filmReceiveCatalogFound(int count);
+
+  /// No description provided for @filmReceiveCatalogMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more — narrow the search or the collection'**
+  String filmReceiveCatalogMore(int count);
+
+  /// No description provided for @filmMakerAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Maker'**
+  String get filmMakerAddButton;
+
+  /// No description provided for @filmMakerAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A new maker'**
+  String get filmMakerAddTitle;
+
+  /// No description provided for @filmMakerAddName.
+  ///
+  /// In en, this message translates to:
+  /// **'The maker\'s name'**
+  String get filmMakerAddName;
+
+  /// No description provided for @filmMakerAddNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As on the roll: Kira Group, Adilet…'**
+  String get filmMakerAddNameHint;
+
+  /// No description provided for @filmMakerAddWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it is bought'**
+  String get filmMakerAddWhere;
+
+  /// No description provided for @filmMakerAddNewSource.
+  ///
+  /// In en, this message translates to:
+  /// **'A new supplier'**
+  String get filmMakerAddNewSource;
+
+  /// No description provided for @filmMakerAddSourceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier (e.g. Kira · Kostanay)'**
+  String get filmMakerAddSourceName;
+
+  /// No description provided for @filmMakerAddCatalogueHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The catalogue with pictures can be loaded later — the 📎 icon above.'**
+  String get filmMakerAddCatalogueHint;
+
+  /// No description provided for @filmMakerAddSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get filmMakerAddSave;
 }
 
 class _AppLocalizationsDelegate

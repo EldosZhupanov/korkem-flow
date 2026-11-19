@@ -615,3 +615,188 @@ class _SourcePickerDialog extends ConsumerWidget {
     );
   }
 }
+
+/// «+ Фирма» (owner, 19.11.2026: «добавочный + — добавить поставщика»): a
+/// new maker in one window — its name, its site, where it is bought: the
+/// sources there are, ticked, and a new one with its city and telephone.
+/// Gives the maker's name once saved.
+Future<String?> showFilmMakerAdd(BuildContext context) => showDialog<String>(
+  context: context,
+  builder: (_) => const _MakerAddDialog(),
+);
+
+class _MakerAddDialog extends ConsumerStatefulWidget {
+  const _MakerAddDialog();
+
+  @override
+  ConsumerState<_MakerAddDialog> createState() => _MakerAddDialogState();
+}
+
+class _MakerAddDialogState extends ConsumerState<_MakerAddDialog> {
+  final _name = TextEditingController();
+  final _site = TextEditingController();
+  final _source = TextEditingController();
+  final _city = TextEditingController();
+  final _phone = TextEditingController();
+  final _picked = <String>{};
+  bool _newSource = false;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    for (final c in [_name, _site, _source, _city, _phone]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final name = _name.text.trim();
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final made = await ref
+          .read(filmSourcesRepositoryProvider)
+          .addMaker(
+            name: name,
+            site: _site.text.trim().isEmpty ? null : _site.text.trim(),
+            sources: [..._picked],
+            newSource: _newSource && _source.text.trim().isNotEmpty
+                ? {
+                    'name': _source.text.trim(),
+                    'city': _city.text.trim(),
+                    'phone': _phone.text.trim(),
+                  }
+                : null,
+          );
+      ref
+        ..invalidate(filmCatalogProvider)
+        ..invalidate(filmSourcesProvider);
+      if (mounted) Navigator.of(context).pop(made.name);
+    } on Object catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = '$e';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final sources = ref.watch(filmSourcesProvider).value?.sources ?? const [];
+    final ready =
+        _name.text.trim().length >= 2 &&
+        (!_newSource || _source.text.trim().length >= 2);
+    return AlertDialog(
+      key: const ValueKey('filmMakerAdd:dialog'),
+      title: Text(l10n.filmMakerAddTitle),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 10,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                key: const ValueKey('filmMakerAdd:name'),
+                controller: _name,
+                autofocus: true,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  labelText: l10n.filmMakerAddName,
+                  helperText: l10n.filmMakerAddNameHint,
+                ),
+              ),
+              TextField(
+                key: const ValueKey('filmMakerAdd:site'),
+                controller: _site,
+                keyboardType: TextInputType.url,
+                decoration: InputDecoration(labelText: l10n.filmMakerSite),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(l10n.filmMakerAddWhere, style: theme.textTheme.titleSmall),
+              const SizedBox(height: AppSpacing.xs),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  for (final s in sources)
+                    FilterChip(
+                      key: ValueKey('filmMakerAdd:src:${s.id}'),
+                      label: Text(s.name),
+                      selected: _picked.contains(s.id),
+                      onSelected: (on) => setState(
+                        () => on ? _picked.add(s.id) : _picked.remove(s.id),
+                      ),
+                    ),
+                  FilterChip(
+                    key: const ValueKey('filmMakerAdd:newSource'),
+                    avatar: const Icon(AppIcons.add),
+                    label: Text(l10n.filmMakerAddNewSource),
+                    selected: _newSource,
+                    onSelected: (on) => setState(() => _newSource = on),
+                  ),
+                ],
+              ),
+              if (_newSource) ...[
+                TextField(
+                  key: const ValueKey('filmMakerAdd:srcName'),
+                  controller: _source,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    labelText: l10n.filmMakerAddSourceName,
+                  ),
+                ),
+                TextField(
+                  key: const ValueKey('filmMakerAdd:srcCity'),
+                  controller: _city,
+                  decoration: InputDecoration(labelText: l10n.filmSrcCity),
+                ),
+                TextField(
+                  key: const ValueKey('filmMakerAdd:srcPhone'),
+                  controller: _phone,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: const [PhoneMaskFormatter()],
+                  decoration: InputDecoration(labelText: l10n.filmSrcPhone),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                l10n.filmMakerAddCatalogueHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: Text(
+                    _error!,
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmMakerAdd:save'),
+          onPressed: _busy || !ready ? null : _save,
+          child: Text(l10n.filmMakerAddSave),
+        ),
+      ],
+    );
+  }
+}

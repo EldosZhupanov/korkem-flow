@@ -10990,4 +10990,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmCatalogueHint => 'Tap a decor to take it in or look at it.';
+
+  @override
+  String get filmReceiveCatalogues => 'Makers\' catalogues — tap to open';
+
+  @override
+  String filmReceiveCatalogOf(String maker, int count) {
+    return '$maker\'s catalogue · not taken in yet: $count';
+  }
+
+  @override
+  String filmReceiveCatalogFound(int count) {
+    return 'From the catalogues · $count';
+  }
+
+  @override
+  String filmReceiveCatalogMore(int count) {
+    return '$count more — narrow the search or the collection';
+  }
+
+  @override
+  String get filmMakerAddButton => 'Maker';
+
+  @override
+  String get filmMakerAddTitle => 'A new maker';
+
+  @override
+  String get filmMakerAddName => 'The maker\'s name';
+
+  @override
+  String get filmMakerAddNameHint => 'As on the roll: Kira Group, Adilet…';
+
+  @override
+  String get filmMakerAddWhere => 'Where it is bought';
+
+  @override
+  String get filmMakerAddNewSource => 'A new supplier';
+
+  @override
+  String get filmMakerAddSourceName => 'Supplier (e.g. Kira · Kostanay)';
+
+  @override
+  String get filmMakerAddCatalogueHint =>
+      'The catalogue with pictures can be loaded later — the 📎 icon above.';
+
+  @override
+  String get filmMakerAddSave => 'Add';
 }

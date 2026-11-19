@@ -10948,4 +10948,51 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmCatalogueHint => 'Декорды басыңыз — үлдір ашу немесе қарау.';
+
+  @override
+  String get filmReceiveCatalogues =>
+      'Фирмалардың каталогтары — ашу үшін басыңыз';
+
+  @override
+  String filmReceiveCatalogOf(String maker, int count) {
+    return '$maker каталогы · әлі енгізілмеген: $count';
+  }
+
+  @override
+  String filmReceiveCatalogFound(int count) {
+    return 'Каталогтардан · $count';
+  }
+
+  @override
+  String filmReceiveCatalogMore(int count) {
+    return 'Тағы $count — іздеуді немесе коллекцияны нақтылаңыз';
+  }
+
+  @override
+  String get filmMakerAddButton => 'Фирма';
+
+  @override
+  String get filmMakerAddTitle => 'Жаңа фирма';
+
+  @override
+  String get filmMakerAddName => 'Фирма атауы';
+
+  @override
+  String get filmMakerAddNameHint => 'Орамдағыдай: Kira Group, Adilet…';
+
+  @override
+  String get filmMakerAddWhere => 'Қайдан аламыз';
+
+  @override
+  String get filmMakerAddNewSource => 'Жаңа жеткізуші';
+
+  @override
+  String get filmMakerAddSourceName => 'Жеткізуші (мысалы, Kira · Қостанай)';
+
+  @override
+  String get filmMakerAddCatalogueHint =>
+      'Фотосы бар каталогты кейін жүктеуге болады — жоғарыдағы 📎 белгісі.';
+
+  @override
+  String get filmMakerAddSave => 'Қосу';
 }
