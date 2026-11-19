@@ -356,6 +356,42 @@ void main() {
     expect(picked, 'KIRA · Белый Матовый');
   });
 
+  testWidgets("the film window: a film's card beside the list", (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2400, 1600);
+    addTearDown(tester.view.resetPhysicalSize);
+    String? picked;
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          filmCatalogRepositoryProvider.overrideWithValue(_Fake()),
+          filmDecorRepositoryProvider.overrideWithValue(_FakeDecors()),
+        ],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () async => picked = await showFilmPicker(context),
+              child: const Text('pick'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('pick'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmInfo:MAT-1')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmSide:MAT-1')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmSideHistory')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmChange:0')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmSidePick')));
+    await tester.pumpAndSettle();
+    expect(picked, 'KIRA · Белый Матовый');
+  });
+
   testWidgets("the film window: the customer's of late, a maker's catalogue", (
     tester,
   ) async {

@@ -10737,6 +10737,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fpkNone => 'No film';
+
+  @override
   String get cncpArtcam => 'From ArtCAM';
 
   @override
@@ -10759,4 +10761,180 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cncpToolsSearch => 'Find a cutter: name, diameter, angle';
+
+  @override
+  String get fpkCard => 'Film card';
+
+  @override
+  String get fpkSideFilm => 'Film';
+
+  @override
+  String get fpkSideEdit => 'Edit';
+
+  @override
+  String get fpkSidePick => 'Pick';
+
+  @override
+  String get fpkSideNone => 'none on the shelf';
+
+  @override
+  String fpkSideHeld(String metres) {
+    return 'held for orders: $metres m';
+  }
+
+  @override
+  String fpkSideComing(String metres, String day) {
+    return 'on its way $metres m · $day';
+  }
+
+  @override
+  String fpkSideDaily(String metres, String days) {
+    return '~$metres m a day · lasts $days days';
+  }
+
+  @override
+  String fpkSideBuy(String price) {
+    return 'purchase $price/m';
+  }
+
+  @override
+  String fpkSideRetail(String price) {
+    return 'retail $price/m';
+  }
+
+  @override
+  String fpkSideWholesale(String price) {
+    return 'wholesale $price/m';
+  }
+
+  @override
+  String get fwTitle => 'No film — where to get it';
+
+  @override
+  String get fwWhere => 'where to get';
+
+  @override
+  String get fwNothingShort => 'There is enough of this film now.';
+
+  @override
+  String fwNeedBy(String day) {
+    return 'needed in the shop by $day';
+  }
+
+  @override
+  String get fwUrgent => 'urgent';
+
+  @override
+  String fwShort(String metres) {
+    return '$metres m short';
+  }
+
+  @override
+  String fwOrdered(String metres, String supplier) {
+    return 'Ordered $metres m · $supplier';
+  }
+
+  @override
+  String fwNowhere(String day) {
+    return 'Nowhere — rang everyone $day';
+  }
+
+  @override
+  String fwNoSources(String maker) {
+    return 'No sources for «$maker» — add them in «Where to buy».';
+  }
+
+  @override
+  String get fwAdvised => 'advised';
+
+  @override
+  String fwPrice(String price, String delivery, String landed) {
+    return '$price + delivery $delivery = $landed a metre';
+  }
+
+  @override
+  String fwPriceOnly(String price) {
+    return '$price a metre';
+  }
+
+  @override
+  String get fwCardPrice => 'card price';
+
+  @override
+  String fwTimes(String count) {
+    return 'bought $count times';
+  }
+
+  @override
+  String fwComes(String days, String day) {
+    return '$days days → comes $day';
+  }
+
+  @override
+  String get fwInTime => 'in time';
+
+  @override
+  String get fwLate => 'too late';
+
+  @override
+  String get fwLeadUnknown => 'lead time unknown';
+
+  @override
+  String get fwOrderButton => 'In stock — order';
+
+  @override
+  String get fwAcceptFirst => 'You can order once the order is accepted.';
+
+  @override
+  String get fwNowhereButton => 'Nowhere';
+
+  @override
+  String get fwLookalikes => 'Look-alikes from other makers';
+
+  @override
+  String fwOnShelf(String metres) {
+    return '$metres m on our shelf';
+  }
+
+  @override
+  String get fwOffer => 'Offer to the customer on WhatsApp';
+
+  @override
+  String fwOfferText(String film, String other) {
+    return 'Hello! «$film» is not available from the suppliers right now. There is a very similar one — «$other». Would it suit you?';
+  }
+
+  @override
+  String get fwReplace => 'Replace';
+
+  @override
+  String fwReplaceTitle(String film, String other) {
+    return 'Replace «$film» with «$other»?';
+  }
+
+  @override
+  String get fwReplaceReason => 'Why — e.g. «the customer agreed on WhatsApp»';
+
+  @override
+  String fwOrderTitle(String film, String supplier) {
+    return '$film — from $supplier';
+  }
+
+  @override
+  String get fwMetres => 'Metres';
+
+  @override
+  String get fwPriceField => 'Price a metre they named';
+
+  @override
+  String get fwSaidBy => 'Who confirmed (the supplier\'s manager)';
+
+  @override
+  String get fwComesOn => 'Arrives';
+
+  @override
+  String get fwOrderConfirm => 'To «To order»';
+
+  @override
+  String get fwOrderedDone => 'Added to «To order».';
 }
