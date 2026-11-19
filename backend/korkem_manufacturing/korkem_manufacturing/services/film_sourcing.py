@@ -29,7 +29,7 @@ import re
 from datetime import timedelta
 
 import frappe
-from frappe.utils import add_days, flt, getdate, nowdate
+from frappe.utils import add_days, flt, getdate, now_datetime, nowdate
 
 from korkem_manufacturing.services import (
 	audit,
@@ -204,7 +204,9 @@ def order(order: str, item: str, supplier: str, metres, price_m=None, comes_on: 
 								   f"привезут {getdate(when).strftime('%d.%m')}" if when else None) if x) or None
 	line = frappe.get_doc({
 		"doctype": film_orders._DOC, "company": doc.company, "item": item, "metres": qty, "sales_order": order,
-		"supplier": supplier, "status": film_orders.OPEN, "added_by": frappe.session.user, "note": note,
+		# Rung and ordered: sent, waited for — it shows in «Приход» under «Ждём».
+		"supplier": supplier, "status": film_orders.SENT, "sent_at": now_datetime(), "added_by": frappe.session.user,
+		"note": note,
 	}).insert(ignore_permissions=True)
 	if price_m not in (None, "") and flt(price_m) > 0:
 		number = search_text.number_in(order) or order

@@ -50,6 +50,7 @@ class _FilmDecorsScreenState extends ConsumerState<FilmDecorsScreen> {
           .importPack(files.first.bytes);
       ref
         ..invalidate(filmDecorsProvider)
+        ..invalidate(filmCatalogueProvider)
         ..invalidate(filmCatalogProvider);
       messenger.showDone(
         l10n.fdcImported('${got['added'] ?? 0}', '${got['updated'] ?? 0}'),
@@ -87,7 +88,8 @@ class _FilmDecorsScreenState extends ConsumerState<FilmDecorsScreen> {
       }
       ref
         ..invalidate(filmCatalogProvider)
-        ..invalidate(filmDecorsProvider);
+        ..invalidate(filmDecorsProvider)
+        ..invalidate(filmCatalogueProvider);
       messenger.showDone(
         missed.isEmpty
             ? l10n.fdcPicturesDone('$done')
@@ -262,7 +264,7 @@ class _FilmDecorsScreenState extends ConsumerState<FilmDecorsScreen> {
             childAspectRatio: 0.95,
             children: [
               for (final x in shown)
-                _DecorCard(
+                DecorCard(
                   decor: x,
                   onTap: () => unawaited(
                     showFilmDecor(context, x, canEdit: d.canEdit),
@@ -292,8 +294,10 @@ Film? filmByFileName(List<Film> films, String fileName) {
       films.where((f) => key('${f.maker}${f.colour}') == k).firstOrNull;
 }
 
-class _DecorCard extends StatelessWidget {
-  const _DecorCard({required this.decor, required this.onTap});
+/// A decor of a maker's catalogue: its swatch, name, collection — and
+/// what the shop has of it.
+class DecorCard extends StatelessWidget {
+  const DecorCard({required this.decor, required this.onTap, super.key});
 
   final FilmDecor decor;
   final VoidCallback onTap;
@@ -420,7 +424,8 @@ class _DecorDialogState extends ConsumerState<_DecorDialog> {
           );
       ref
         ..invalidate(filmCatalogProvider)
-        ..invalidate(filmDecorsProvider);
+        ..invalidate(filmDecorsProvider)
+        ..invalidate(filmCatalogueProvider);
       messenger.showDone(l10n.fdcMade(film.label ?? film.colour));
       navigator.pop();
     } on Object catch (e) {

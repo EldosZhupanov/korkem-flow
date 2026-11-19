@@ -237,9 +237,12 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertEqual(row()["coming"][0]["due"], str(add_days(nowdate(), 5)))
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, service.reschedule, got["receipt"], add_days(nowdate(), -1))
-		# It came, 28 m of the 30: on the shelf today.
-		self._as(MANAGER, service.arrived, got["receipt"], metres=28)
+		# It came, 28 m of the 30: on the shelf today; the 2 m short are still
+		# on their way (owner, 19.11.2026) — until they come or «не придёт».
+		came = self._as(MANAGER, service.arrived, got["receipt"], metres=28)
 		self.assertEqual(self._free(), 78)
+		self.assertEqual([(c["entry"], c["metres"]) for c in row()["coming"]], [(came["rest"], 2)])
+		self._as(MANAGER, service.drop_coming, came["rest"], "недовоз не привезут")
 		self.assertEqual(row()["coming"], [])
 		self.assertEqual(frappe.db.get_value("Stock Entry", got["receipt"], "posting_date"), getdate(nowdate()))
 		with self.assertRaises(frappe.DoesNotExistError):
@@ -254,6 +257,22 @@ class TestFilmDept(IntegrationTestCase):
 		self._as(MANAGER, service.drop_coming, other["receipt"], "поставщик отказал")
 		self.assertEqual(row()["coming"], [])
 		self.assertEqual(self._free(), 78)
+
+	def test_a_short_delivery_waits_on_and_the_manager_hears_it_came(self):
+		"""Owner, 19.11.2026: «заказали 50, привезли 30» — the rest is still
+		wanted; whoever asked for the film for a customer is told it came."""
+		line = self._as(MANAGER, film_orders.add, self.film, 20, customer=self.buyer)["id"]
+		self._as(MANAGER, film_orders.sent, self.supplier)
+		before = frappe.db.count("Notification Log", {"for_user": MANAGER})
+		film_orders.receive_many(self.supplier, [{"item": self.film, "metres": 15, "price_m": 3200,
+												  "orders": [line]}])
+		short = frappe.get_all("Film Order Line", filters={"item": self.film, "status": "Sent", "note": "недовезли"},
+							   fields=["metres", "customer"])
+		self.assertEqual([(s.metres, s.customer) for s in short], [(5, self.buyer)])
+		self.assertEqual(frappe.db.count("Notification Log", {"for_user": MANAGER}), before + 1)
+		subject = frappe.get_all("Notification Log", filters={"for_user": MANAGER}, pluck="subject",
+								 order_by="creation desc", limit=1)[0]
+		self.assertIn("Плёнка пришла", subject)
 
 	def test_the_film_cash_book_keeps_the_departments_own_money(self):
 		from korkem_manufacturing.services import film_cash

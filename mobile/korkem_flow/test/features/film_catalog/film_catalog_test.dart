@@ -156,6 +156,27 @@ class _FakeDecors implements FilmDecorRepository {
   }
 
   @override
+  Future<FilmDecors> decors() async => FilmDecors.fromJson(const {
+    'decors': [
+      {'decor': 'D-1', 'maker': 'MC Group', 'name': 'Сиена верде'},
+      {
+        'decor': 'D-2',
+        'maker': 'KIRA',
+        'name': 'Белый Матовый',
+        'films': [
+          {'item': 'MAT-1', 'label': 'KIRA · Белый Матовый', 'on_hand': 84},
+        ],
+      },
+      {'decor': 'D-3', 'maker': 'KIRA', 'name': 'Агава', 'collection': 'Soft'},
+    ],
+    'makers': [
+      {'maker': 'KIRA', 'count': 2},
+      {'maker': 'MC Group', 'count': 1},
+    ],
+    'can_edit': true,
+  });
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -180,6 +201,44 @@ void main() {
     expect(c.films.first.argb, 0xFFF4F3EE);
     expect(c.films.first.free, 84);
     expect(c.suppliers.single.name, 'МС-Груп');
+  });
+
+  testWidgets("one screen: a maker's films, then the rest of its catalogue", (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          filmCatalogRepositoryProvider.overrideWithValue(_Fake()),
+          filmDecorRepositoryProvider.overrideWithValue(_FakeDecors()),
+        ],
+        child: harness(const FilmCatalogScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // A maker known only by its catalogue has a tab too.
+    expect(find.byKey(const ValueKey('filmMaker:MC Group')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmMaker:KIRA')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmOurs:KIRA')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsOneWidget);
+    // The catalogue below: only what is not taken in yet.
+    expect(find.byKey(const ValueKey('filmCatalogue:KIRA')), findsOneWidget);
+    expect(find.byKey(const ValueKey('fdcDecor:Агава')), findsOneWidget);
+    expect(find.byKey(const ValueKey('fdcDecor:Белый Матовый')), findsNothing);
+    // One search for both.
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSearch')).last,
+      'агав',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('fdcDecor:Агава')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
   });
 
   testWidgets('a tab per maker; a film opens its card and saves it', (

@@ -402,6 +402,18 @@ def receive_many(supplier: str, lines, arrives_on: str | None = None, delivery=N
 		for order, metres in line["production"]:
 			ids.append(_ordered(company, line["item"], metres, supplier, sales_order=order,
 								note=f"в производство №{order}"))
+		# Fewer came than the list wanted: the shortfall waits on (owner,
+		# 19.11.2026), for whom the last of the lines was — the first are served
+		# first when the roll comes.
+		wanted_m = sum(flt(frappe.db.get_value(_DOC, o, "metres")) for o in line["orders"])
+		short = round(wanted_m - flt(line["metres"]), 2)
+		if line["orders"] and short > 0.005:
+			last = frappe.db.get_value(_DOC, line["orders"][-1], ["customer", "sales_order"], as_dict=True)
+			frappe.get_doc({
+				"doctype": _DOC, "company": company, "item": line["item"], "metres": short, "supplier": supplier,
+				"customer": last.customer, "sales_order": last.sales_order, "status": SENT, "sent_at": now_datetime(),
+				"added_by": frappe.session.user, "note": "недовезли",
+			}).insert(ignore_permissions=True)
 		for o in ids:
 			frappe.db.set_value(_DOC, o, {"status": ORDERED, "receipt": entry, "supplier": supplier})
 		if frappe.db.get_value("Stock Entry", entry, "docstatus") == 1:
@@ -467,7 +479,9 @@ def fulfil(entry: str) -> list[str]:
 	holds = []
 	item = frappe.db.get_value("Stock Entry Detail", {"parent": entry}, "item_code")
 	for r in frappe.get_all(_DOC, filters={"receipt": entry, "status": ORDERED},
-							fields=["name", "customer", "sales_order", "metres"], order_by="creation asc"):
+							fields=["name", "customer", "sales_order", "metres", "added_by"], order_by="creation asc"):
+		if r.sales_order or r.customer:
+			_tell(r, item)
 		if r.sales_order:
 			# Into production: the order holds what it still lacks.
 			from korkem_manufacturing.services import facade_materials
@@ -482,6 +496,32 @@ def fulfil(entry: str) -> list[str]:
 				holds.append(film_dept.hold(item, r.customer, metres, note="пришла под заказ")["hold"])
 		frappe.db.set_value(_DOC, r.name, "status", RECEIVED)
 	return holds
+
+
+def _tell(line, item: str) -> None:
+	"""Whoever asked for the film for an order or a customer hears it came
+	(owner, 19.11.2026: «можно звонить клиенту и запускать в цех»). The bell
+	of the app; never in the way of the receipt."""
+	who = line.added_by
+	if not who or who == frappe.session.user or not frappe.db.get_value("User", who, "enabled"):
+		return
+	title = frappe.db.get_value("Item", item, "item_name") or item
+	if line.sales_order:
+		from korkem_manufacturing.services import search_text
+
+		number = search_text.number_in(line.sales_order) or line.sales_order
+		subject = f"Плёнка пришла: {title}, {flt(line.metres):g} м — под заказ №{number}"
+		doctype, name = "Sales Order", line.sales_order
+	else:
+		buyer = frappe.db.get_value("Customer", line.customer, "customer_name") or line.customer
+		subject = f"Плёнка пришла: {title}, {flt(line.metres):g} м — для {buyer}"
+		doctype, name = "Customer", line.customer
+	try:
+		frappe.get_doc({"doctype": "Notification Log", "for_user": who, "from_user": frappe.session.user,
+						"type": "Alert", "subject": subject, "document_type": doctype,
+						"document_name": name}).insert(ignore_permissions=True)
+	except Exception:
+		frappe.log_error(title="film arrival notice")
 
 
 def arrived_batch(batch: str) -> dict:

@@ -13079,7 +13079,7 @@ abstract class AppLocalizations {
   /// No description provided for @filmReceiveShort.
   ///
   /// In en, this message translates to:
-  /// **'{metres} m short'**
+  /// **'{metres} m short — they stay under «Waiting for».'**
   String filmReceiveShort(String metres);
 
   /// No description provided for @filmReceiveShortToList.
@@ -18640,6 +18640,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added to «To order».'**
   String get fwOrderedDone;
+
+  /// No description provided for @filmReceiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Film arrival'**
+  String get filmReceiveTitle;
+
+  /// No description provided for @filmReceiveWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for — what was ordered'**
+  String get filmReceiveWaiting;
+
+  /// No description provided for @filmReceiveNothingWaited.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is on its way — find the film below.'**
+  String get filmReceiveNothingWaited;
+
+  /// No description provided for @filmReceiveOrderedFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered from {supplier}'**
+  String filmReceiveOrderedFrom(String supplier);
+
+  /// No description provided for @filmReceiveAllCame.
+  ///
+  /// In en, this message translates to:
+  /// **'All of it came'**
+  String get filmReceiveAllCame;
+
+  /// No description provided for @filmReceiveMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m'**
+  String filmReceiveMetres(String metres);
+
+  /// No description provided for @filmReceiveOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Or another film — from the catalogues too'**
+  String get filmReceiveOther;
+
+  /// No description provided for @filmReceiveSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Maker, colour or code'**
+  String get filmReceiveSearch;
+
+  /// No description provided for @filmReceiveDone.
+  ///
+  /// In en, this message translates to:
+  /// **'The film is on the shelf.'**
+  String get filmReceiveDone;
+
+  /// No description provided for @filmReceiveRestComing.
+  ///
+  /// In en, this message translates to:
+  /// **'The remaining {metres} m stay on their way.'**
+  String filmReceiveRestComing(String metres);
+
+  /// No description provided for @filmCatalogueTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Load catalogues and pictures'**
+  String get filmCatalogueTools;
+
+  /// No description provided for @filmOurs.
+  ///
+  /// In en, this message translates to:
+  /// **'Ours · {count}'**
+  String filmOurs(String count);
+
+  /// No description provided for @filmCatalogueOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{maker} catalogue · {count} more'**
+  String filmCatalogueOf(String maker, String count);
+
+  /// No description provided for @filmCatalogueHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a decor to take it in or look at it.'**
+  String get filmCatalogueHint;
 }
 
 class _AppLocalizationsDelegate
