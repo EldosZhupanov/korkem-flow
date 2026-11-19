@@ -10401,5 +10401,20 @@
   "fwSaidBy": "Who confirmed (the supplier's manager)",
   "fwComesOn": "Arrives",
   "fwOrderConfirm": "To «To order»",
-  "fwOrderedDone": "Added to «To order»."
+  "fwOrderedDone": "Added to «To order».",
+  "filmReceiveTitle": "Film arrival",
+  "filmReceiveWaiting": "Waiting for — what was ordered",
+  "filmReceiveNothingWaited": "Nothing is on its way — find the film below.",
+  "filmReceiveOrderedFrom": "Ordered from {supplier}",
+  "@filmReceiveOrderedFrom": {"placeholders": {"supplier": {"type": "String"}}},
+  "filmReceiveAllCame": "All of it came",
+  "filmReceiveMetres": "{metres} m",
+  "@filmReceiveMetres": {"placeholders": {"metres": {"type": "String"}}},
+  "filmReceiveOther": "Or another film — from the catalogues too",
+  "filmReceiveSearch": "Maker, colour or code",
+  "filmReceiveDone": "The film is on the shelf.",
+  "filmReceiveRestComing": "The remaining {metres} m stay on their way.",
+  "@filmReceiveRestComing": {"placeholders": {"metres": {"type": "String"}}},
+  "filmReceiveShort": "{metres} m short — they stay under «Waiting for».",
+  "@filmReceiveShort": {"placeholders": {"metres": {"type": "String"}}}
 }

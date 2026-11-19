@@ -24,8 +24,8 @@ import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_cash_tab.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_customer_page.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_dept_dialogs.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_receive_start.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
-import 'package:korkem_flow/features/film_dept/presentation/film_pick.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_sales_tab.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_team_tab.dart';
 import 'package:korkem_flow/features/film_sources/presentation/film_sources.dart';
@@ -400,13 +400,10 @@ class _StockTabState extends ConsumerState<_StockTab> {
   String _query = '';
 
   Future<void> _receive(FilmCatalog c, [Film? film]) async {
-    final l10n = AppLocalizations.of(context);
-    // With a search (owner, 12.11.2026).
-    final picked =
-        film ??
-        await showFilmChoice(context, c.films, title: l10n.filmReceivePick);
-    if (picked == null || !mounted) return;
-    final done = await showFilmReceive(context, picked, c);
+    // What is waited for first, then any film (owner, 19.11.2026).
+    final done = film == null
+        ? await showFilmReceiveStart(context)
+        : await showFilmReceive(context, film, c);
     if (done ?? false) _refresh(ref);
   }
 

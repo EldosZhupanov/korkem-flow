@@ -223,7 +223,7 @@ class _GroupCard extends ConsumerWidget {
               item: f.first.item,
               metres: f.fold<double>(0, (sum, l) => sum + l.metres),
               customer: null,
-              customerName: _forWhom(l10n, f),
+              customerName: filmForWhom(l10n, f),
               orders: [for (final l in f) ?l.id],
             ),
         ],
@@ -346,7 +346,9 @@ class _GroupCard extends ConsumerWidget {
 }
 
 /// «Мебель-ЮГ 20 м, на склад 30 м» — for whom a film's metres are.
-String? _forWhom(AppLocalizations l10n, List<FilmWant> lines) {
+/// For whom a film's lines are: «Айгерим — 20 м, на склад — 30 м»; null
+/// when all are the shelf's.
+String? filmForWhom(AppLocalizations l10n, List<FilmWant> lines) {
   if (lines.every((l) => l.customer == null)) return null;
   return [
     for (final l in lines)
