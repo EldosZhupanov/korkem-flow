@@ -3310,5 +3310,9 @@
   "filmCatalogueTools": "Каталогтар мен суреттерді жүктеу",
   "filmOurs": "Бізде · {count}",
   "filmCatalogueOf": "{maker} каталогы · тағы {count}",
-  "filmCatalogueHint": "Декорды басыңыз — үлдір ашу немесе қарау."
+  "filmCatalogueHint": "Декорды басыңыз — үлдір ашу немесе қарау.",
+  "filmReceiveCatalogues": "Фирмалардың каталогтары — ашу үшін басыңыз",
+  "filmReceiveCatalogOf": "{maker} каталогы · әлі енгізілмеген: {count}",
+  "filmReceiveCatalogFound": "Каталогтардан · {count}",
+  "filmReceiveCatalogMore": "Тағы {count} — іздеуді немесе коллекцияны нақтылаңыз"
 }

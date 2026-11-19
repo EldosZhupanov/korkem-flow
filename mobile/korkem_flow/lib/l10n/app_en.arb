@@ -10422,5 +10422,33 @@
   "@filmOurs": {"placeholders": {"count": {"type": "String"}}},
   "filmCatalogueOf": "{maker} catalogue · {count} more",
   "@filmCatalogueOf": {"placeholders": {"maker": {"type": "String"}, "count": {"type": "String"}}},
-  "filmCatalogueHint": "Tap a decor to take it in or look at it."
+  "filmCatalogueHint": "Tap a decor to take it in or look at it.",
+  "filmReceiveCatalogues": "Makers' catalogues — tap to open",
+  "filmReceiveCatalogOf": "{maker}'s catalogue · not taken in yet: {count}",
+  "@filmReceiveCatalogOf": {
+    "placeholders": {
+      "maker": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReceiveCatalogFound": "From the catalogues · {count}",
+  "@filmReceiveCatalogFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReceiveCatalogMore": "{count} more — narrow the search or the collection",
+  "@filmReceiveCatalogMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
