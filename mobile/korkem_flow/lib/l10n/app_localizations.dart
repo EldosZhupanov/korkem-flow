@@ -18749,6 +18749,426 @@ abstract class AppLocalizations {
   /// **'{count} more — narrow the search or the collection'**
   String filmReceiveCatalogMore(int count);
 
+  /// No description provided for @pcTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint catalogue'**
+  String get pcTitle;
+
+  /// No description provided for @pcByPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'By a sample\'s photo'**
+  String get pcByPhoto;
+
+  /// No description provided for @pcAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get pcAdd;
+
+  /// No description provided for @pcNoSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'No system'**
+  String get pcNoSystem;
+
+  /// No description provided for @pcSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Code or name: 7016, graphite, ivory'**
+  String get pcSearch;
+
+  /// No description provided for @pcShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get pcShowAll;
+
+  /// No description provided for @pcShowPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Ours, in use'**
+  String get pcShowPopular;
+
+  /// No description provided for @pcShowTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture top 20'**
+  String get pcShowTop;
+
+  /// No description provided for @pcShowTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Trends'**
+  String get pcShowTrend;
+
+  /// No description provided for @pcShowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'On the shelf'**
+  String get pcShowStock;
+
+  /// No description provided for @pcShowStarred.
+  ///
+  /// In en, this message translates to:
+  /// **'Starred'**
+  String get pcShowStarred;
+
+  /// No description provided for @pcShowHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get pcShowHidden;
+
+  /// No description provided for @pcOurs.
+  ///
+  /// In en, this message translates to:
+  /// **'Ours, in use · {days} days'**
+  String pcOurs(int days);
+
+  /// No description provided for @pcTrends.
+  ///
+  /// In en, this message translates to:
+  /// **'Trends · kitchens and wardrobes'**
+  String get pcTrends;
+
+  /// No description provided for @pcAllOf.
+  ///
+  /// In en, this message translates to:
+  /// **'All {system} · {count}'**
+  String pcAllOf(String system, int count);
+
+  /// No description provided for @pcNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found.'**
+  String get pcNothing;
+
+  /// No description provided for @pcByPhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest the sample'**
+  String get pcByPhotoTitle;
+
+  /// No description provided for @pcKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg'**
+  String pcKg(String kg);
+
+  /// No description provided for @pcNone.
+  ///
+  /// In en, this message translates to:
+  /// **'none'**
+  String get pcNone;
+
+  /// No description provided for @pcM2.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m²'**
+  String pcM2(String m2);
+
+  /// No description provided for @pcTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'trend'**
+  String get pcTrend;
+
+  /// No description provided for @pcLookSame.
+  ///
+  /// In en, this message translates to:
+  /// **'hardly told apart'**
+  String get pcLookSame;
+
+  /// No description provided for @pcLookClose.
+  ///
+  /// In en, this message translates to:
+  /// **'seen up close'**
+  String get pcLookClose;
+
+  /// No description provided for @pcLookOther.
+  ///
+  /// In en, this message translates to:
+  /// **'another shade'**
+  String get pcLookOther;
+
+  /// No description provided for @pcNoneShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'none on the shelf'**
+  String get pcNoneShelf;
+
+  /// No description provided for @pcShelfEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg on the shelf — enough for ≈ {m2} m²'**
+  String pcShelfEnough(String kg, String m2);
+
+  /// No description provided for @pcPainted.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders: {orders} · {m2} m² over {days} days'**
+  String pcPainted(int orders, String m2, int days);
+
+  /// No description provided for @pcOnList.
+  ///
+  /// In en, this message translates to:
+  /// **'In use: on the paints list for orders'**
+  String get pcOnList;
+
+  /// No description provided for @pcNotOnList.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in use yet — «Into use» to take it in orders'**
+  String get pcNotOnList;
+
+  /// No description provided for @pcSimilar.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar'**
+  String get pcSimilar;
+
+  /// No description provided for @pcStar.
+  ///
+  /// In en, this message translates to:
+  /// **'Star'**
+  String get pcStar;
+
+  /// No description provided for @pcEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get pcEdit;
+
+  /// No description provided for @pcTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Into use'**
+  String get pcTake;
+
+  /// No description provided for @pcEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The colour\'s card'**
+  String get pcEditTitle;
+
+  /// No description provided for @pcAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A new colour'**
+  String get pcAddTitle;
+
+  /// No description provided for @pcSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour system'**
+  String get pcSystem;
+
+  /// No description provided for @pcCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get pcCode;
+
+  /// No description provided for @pcCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'RAL 210 50 15, NCS S 2005-Y40R — or empty for one of our own'**
+  String get pcCodeHint;
+
+  /// No description provided for @pcName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get pcName;
+
+  /// No description provided for @pcHex.
+  ///
+  /// In en, this message translates to:
+  /// **'Shade on screen'**
+  String get pcHex;
+
+  /// No description provided for @pcHexHint.
+  ///
+  /// In en, this message translates to:
+  /// **'#8A9977 — roughly, to find and compare'**
+  String get pcHexHint;
+
+  /// No description provided for @pcHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide from the catalogue'**
+  String get pcHide;
+
+  /// No description provided for @pcSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get pcSave;
+
+  /// No description provided for @pcAddSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get pcAddSave;
+
+  /// No description provided for @pswWhich.
+  ///
+  /// In en, this message translates to:
+  /// **'Which colour to swap?'**
+  String get pswWhich;
+
+  /// No description provided for @pswStart.
+  ///
+  /// In en, this message translates to:
+  /// **'No supplier has it — swap the colour'**
+  String get pswStart;
+
+  /// No description provided for @pswWayTint.
+  ///
+  /// In en, this message translates to:
+  /// **'tinting'**
+  String get pswWayTint;
+
+  /// No description provided for @pswWayWait.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for it'**
+  String get pswWayWait;
+
+  /// No description provided for @pswWaitUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for it until {day}'**
+  String pswWaitUntil(String day);
+
+  /// No description provided for @pswAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for the customer\'s yes'**
+  String get pswAsked;
+
+  /// No description provided for @pswViaWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'on WhatsApp'**
+  String get pswViaWhatsApp;
+
+  /// No description provided for @pswViaInPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'in person'**
+  String get pswViaInPerson;
+
+  /// No description provided for @pswViaPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'on the phone'**
+  String get pswViaPhone;
+
+  /// No description provided for @pswAgreed.
+  ///
+  /// In en, this message translates to:
+  /// **'agreed by {who} {day} {via}'**
+  String pswAgreed(String who, String day, String via);
+
+  /// No description provided for @pswTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Swapping a colour · order №{order}'**
+  String pswTitle(String order);
+
+  /// No description provided for @pswAskedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Offered: {target} — waiting for the customer'**
+  String pswAskedLine(String target);
+
+  /// No description provided for @pswHow.
+  ///
+  /// In en, this message translates to:
+  /// **'What we do'**
+  String get pswHow;
+
+  /// No description provided for @pswReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get pswReplace;
+
+  /// No description provided for @pswTint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tint'**
+  String get pswTint;
+
+  /// No description provided for @pswWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for it'**
+  String get pswWait;
+
+  /// No description provided for @pswNearest.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar ones there are · nearest first'**
+  String get pswNearest;
+
+  /// No description provided for @pswTintHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed exactly from a base and pigments — at a supplier who tints, or ourselves.'**
+  String get pswTintHint;
+
+  /// No description provided for @pswWaitPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected when?'**
+  String get pswWaitPick;
+
+  /// No description provided for @pswRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Until the customer agrees, the order is not painted. The order keeps both colours and who agreed.'**
+  String get pswRule;
+
+  /// No description provided for @pswCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop it'**
+  String get pswCancel;
+
+  /// No description provided for @pswAgreeWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Agreed on WhatsApp'**
+  String get pswAgreeWhatsApp;
+
+  /// No description provided for @pswAgreePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Agreed on the phone'**
+  String get pswAgreePhone;
+
+  /// No description provided for @pswAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the customer'**
+  String get pswAsk;
+
+  /// No description provided for @pswChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer chose'**
+  String get pswChosen;
+
+  /// No description provided for @pswOffered.
+  ///
+  /// In en, this message translates to:
+  /// **'We offer'**
+  String get pswOffered;
+
   /// No description provided for @filmMakerAddButton.
   ///
   /// In en, this message translates to:

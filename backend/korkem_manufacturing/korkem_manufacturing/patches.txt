@@ -67,3 +67,4 @@ korkem_manufacturing.patches.v0_0.add_glue_fields
 korkem_manufacturing.patches.v0_0.add_glue_sale_fields
 korkem_manufacturing.patches.v0_0.canonical_phones
 korkem_manufacturing.patches.v0_0.add_customer_message_fields
+korkem_manufacturing.patches.v0_0.add_mdf_paint_fields #2026-11-19 paint swaps

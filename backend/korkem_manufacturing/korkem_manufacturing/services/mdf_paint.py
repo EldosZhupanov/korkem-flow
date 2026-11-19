@@ -65,6 +65,8 @@ def set_dry_hours(hours) -> dict:
 
 
 def board() -> dict:
+	from korkem_manufacturing.services import paint_swap
+
 	facade_prices.ensure_editor()
 	company = current_company()
 	hours = dry_hours(company)
@@ -79,7 +81,7 @@ def board() -> dict:
 		own = colours.get(r.name, {})
 		area = sum(own.values(), Decimal(0))
 		head = {"name": r.name, "customer_name": r.customer_name, "delivery_date": str(r.delivery_date),
-				**_marks(r, r.name in two_sided)}
+				**_marks(r, r.name in two_sided), "swaps": paint_swap.of(r)}
 		if r.get(DRYING):
 			since = get_datetime(r.get(DRYING))
 			dry_at = add_to_date(since, hours=hours)
@@ -124,6 +126,7 @@ def _painting(company: str) -> list:
 				 "korkem_hold_reason": ["is", "not set"]},
 		fields=["name", "customer_name", "delivery_date", "korkem_finish", "korkem_extra_stages",
 				"korkem_coatings", "korkem_tags", DRYING, "korkem_client_paint_note", "korkem_client_paint_in",
+				"korkem_paint_swaps",
 				*mdf_orders.STAGES.values()],
 		order_by="delivery_date asc, name asc",
 		limit_page_length=1000,
@@ -232,6 +235,9 @@ def start_drying(order: str) -> dict:
 		frappe.throw("У этого заказа нет покраски.")
 	if doc.get(mdf_orders.STAGES[PAINT]):
 		frappe.throw("Покраска уже отмечена.")
+	from korkem_manufacturing.services import paint_swap
+
+	paint_swap.ensure_agreed(doc)
 	doc.db_set(DRYING, now_datetime(), update_modified=True)
 	audit.record_audit(action="mdf.paint_drying", entity_type="Sales Order", entity_id=doc.name,
 					   diff={"drying": True})

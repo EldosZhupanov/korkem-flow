@@ -10974,6 +10974,239 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get pcTitle => 'Paint catalogue';
+
+  @override
+  String get pcByPhoto => 'By a sample\'s photo';
+
+  @override
+  String get pcAdd => 'Colour';
+
+  @override
+  String get pcNoSystem => 'No system';
+
+  @override
+  String get pcSearch => 'Code or name: 7016, graphite, ivory';
+
+  @override
+  String get pcShowAll => 'All';
+
+  @override
+  String get pcShowPopular => 'Ours, in use';
+
+  @override
+  String get pcShowTop => 'Furniture top 20';
+
+  @override
+  String get pcShowTrend => 'Trends';
+
+  @override
+  String get pcShowStock => 'On the shelf';
+
+  @override
+  String get pcShowStarred => 'Starred';
+
+  @override
+  String get pcShowHidden => 'Hidden';
+
+  @override
+  String pcOurs(int days) {
+    return 'Ours, in use · $days days';
+  }
+
+  @override
+  String get pcTrends => 'Trends · kitchens and wardrobes';
+
+  @override
+  String pcAllOf(String system, int count) {
+    return 'All $system · $count';
+  }
+
+  @override
+  String get pcNothing => 'Nothing found.';
+
+  @override
+  String get pcByPhotoTitle => 'Nearest the sample';
+
+  @override
+  String pcKg(String kg) {
+    return '$kg kg';
+  }
+
+  @override
+  String get pcNone => 'none';
+
+  @override
+  String pcM2(String m2) {
+    return '$m2 m²';
+  }
+
+  @override
+  String get pcTrend => 'trend';
+
+  @override
+  String get pcLookSame => 'hardly told apart';
+
+  @override
+  String get pcLookClose => 'seen up close';
+
+  @override
+  String get pcLookOther => 'another shade';
+
+  @override
+  String get pcNoneShelf => 'none on the shelf';
+
+  @override
+  String pcShelfEnough(String kg, String m2) {
+    return '$kg kg on the shelf — enough for ≈ $m2 m²';
+  }
+
+  @override
+  String pcPainted(int orders, String m2, int days) {
+    return 'Orders: $orders · $m2 m² over $days days';
+  }
+
+  @override
+  String get pcOnList => 'In use: on the paints list for orders';
+
+  @override
+  String get pcNotOnList => 'Not in use yet — «Into use» to take it in orders';
+
+  @override
+  String get pcSimilar => 'Similar';
+
+  @override
+  String get pcStar => 'Star';
+
+  @override
+  String get pcEdit => 'Edit';
+
+  @override
+  String get pcTake => 'Into use';
+
+  @override
+  String get pcEditTitle => 'The colour\'s card';
+
+  @override
+  String get pcAddTitle => 'A new colour';
+
+  @override
+  String get pcSystem => 'Colour system';
+
+  @override
+  String get pcCode => 'Code';
+
+  @override
+  String get pcCodeHint =>
+      'RAL 210 50 15, NCS S 2005-Y40R — or empty for one of our own';
+
+  @override
+  String get pcName => 'Name';
+
+  @override
+  String get pcHex => 'Shade on screen';
+
+  @override
+  String get pcHexHint => '#8A9977 — roughly, to find and compare';
+
+  @override
+  String get pcHide => 'Hide from the catalogue';
+
+  @override
+  String get pcSave => 'Save';
+
+  @override
+  String get pcAddSave => 'Add';
+
+  @override
+  String get pswWhich => 'Which colour to swap?';
+
+  @override
+  String get pswStart => 'No supplier has it — swap the colour';
+
+  @override
+  String get pswWayTint => 'tinting';
+
+  @override
+  String get pswWayWait => 'waiting for it';
+
+  @override
+  String pswWaitUntil(String day) {
+    return 'waiting for it until $day';
+  }
+
+  @override
+  String get pswAsked => 'waiting for the customer\'s yes';
+
+  @override
+  String get pswViaWhatsApp => 'on WhatsApp';
+
+  @override
+  String get pswViaInPerson => 'in person';
+
+  @override
+  String get pswViaPhone => 'on the phone';
+
+  @override
+  String pswAgreed(String who, String day, String via) {
+    return 'agreed by $who $day $via';
+  }
+
+  @override
+  String pswTitle(String order) {
+    return 'Swapping a colour · order №$order';
+  }
+
+  @override
+  String pswAskedLine(String target) {
+    return 'Offered: $target — waiting for the customer';
+  }
+
+  @override
+  String get pswHow => 'What we do';
+
+  @override
+  String get pswReplace => 'Replace';
+
+  @override
+  String get pswTint => 'Tint';
+
+  @override
+  String get pswWait => 'Wait for it';
+
+  @override
+  String get pswNearest => 'Similar ones there are · nearest first';
+
+  @override
+  String get pswTintHint =>
+      'Mixed exactly from a base and pigments — at a supplier who tints, or ourselves.';
+
+  @override
+  String get pswWaitPick => 'Expected when?';
+
+  @override
+  String get pswRule =>
+      'Until the customer agrees, the order is not painted. The order keeps both colours and who agreed.';
+
+  @override
+  String get pswCancel => 'Drop it';
+
+  @override
+  String get pswAgreeWhatsApp => 'Agreed on WhatsApp';
+
+  @override
+  String get pswAgreePhone => 'Agreed on the phone';
+
+  @override
+  String get pswAsk => 'Ask the customer';
+
+  @override
+  String get pswChosen => 'The customer chose';
+
+  @override
+  String get pswOffered => 'We offer';
+
+  @override
   String get filmMakerAddButton => 'Maker';
 
   @override
