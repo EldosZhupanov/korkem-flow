@@ -7574,7 +7574,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String filmReceiveShort(String metres) {
-    return '$metres m short';
+    return '$metres m short — they stay under «Waiting for».';
   }
 
   @override
@@ -10937,4 +10937,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fwOrderedDone => 'Added to «To order».';
+
+  @override
+  String get filmReceiveTitle => 'Film arrival';
+
+  @override
+  String get filmReceiveWaiting => 'Waiting for — what was ordered';
+
+  @override
+  String get filmReceiveNothingWaited =>
+      'Nothing is on its way — find the film below.';
+
+  @override
+  String filmReceiveOrderedFrom(String supplier) {
+    return 'Ordered from $supplier';
+  }
+
+  @override
+  String get filmReceiveAllCame => 'All of it came';
+
+  @override
+  String filmReceiveMetres(String metres) {
+    return '$metres m';
+  }
+
+  @override
+  String get filmReceiveOther => 'Or another film — from the catalogues too';
+
+  @override
+  String get filmReceiveSearch => 'Maker, colour or code';
+
+  @override
+  String get filmReceiveDone => 'The film is on the shelf.';
+
+  @override
+  String filmReceiveRestComing(String metres) {
+    return 'The remaining $metres m stay on their way.';
+  }
+
+  @override
+  String get filmCatalogueTools => 'Load catalogues and pictures';
+
+  @override
+  String filmOurs(String count) {
+    return 'Ours · $count';
+  }
+
+  @override
+  String filmCatalogueOf(String maker, String count) {
+    return '$maker catalogue · $count more';
+  }
+
+  @override
+  String get filmCatalogueHint => 'Tap a decor to take it in or look at it.';
 }

@@ -3307,5 +3307,20 @@
   "fwSaidBy": "Кім растады (жеткізуші менеджері)",
   "fwComesOn": "Әкеледі",
   "fwOrderConfirm": "«Тапсырысқа» қосу",
-  "fwOrderedDone": "«Тапсырысқа» қосылды."
+  "fwOrderedDone": "«Тапсырысқа» қосылды.",
+  "filmReceiveTitle": "Үлдір кірісі",
+  "filmReceiveWaiting": "Күтеміз — тапсырыс бергеніміз",
+  "filmReceiveNothingWaited": "Ештеңе күтпейміз — үлдірді төменнен табыңыз.",
+  "filmReceiveOrderedFrom": "{supplier} тапсырыс берілді",
+  "filmReceiveAllCame": "Бәрі келді",
+  "filmReceiveMetres": "{metres} м",
+  "filmReceiveOther": "Немесе басқа үлдір — каталогтардан да",
+  "filmReceiveSearch": "Фирма, түс немесе код",
+  "filmReceiveDone": "Үлдір қоймада.",
+  "filmReceiveRestComing": "Қалған {metres} м жолда қалады.",
+  "filmReceiveShort": "{metres} м жеткізілмеді — «Күтеміз» ішінде қалады.",
+  "filmCatalogueTools": "Каталогтар мен суреттерді жүктеу",
+  "filmOurs": "Бізде · {count}",
+  "filmCatalogueOf": "{maker} каталогы · тағы {count}",
+  "filmCatalogueHint": "Декорды басыңыз — үлдір ашу немесе қарау."
 }

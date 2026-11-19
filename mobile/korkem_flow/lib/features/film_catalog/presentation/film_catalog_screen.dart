@@ -62,16 +62,27 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
         ),
       ),
       data: (c) {
-        final tabs = c.tabs;
+        final decors = ref.watch(filmCatalogueProvider).value;
+        // A maker known only by its catalogue has a tab too.
+        final known = decors?.makers ?? const <({String maker, int count})>[];
+        final tabs = [
+          ...c.tabs,
+          for (final m in known)
+            if (!c.tabs.contains(m.maker)) m.maker,
+        ];
         return DefaultTabController(
           length: tabs.length + 1,
           child: Scaffold(
             appBar: AppBar(
               title: Text(l10n.filmCatalogTitle),
               actions: [
-                // The makers' catalogues with pictures (owner, 18.11.2026).
-                TextButton.icon(
+                // Every maker's catalogue is on its tab now (owner,
+                // 19.11.2026: «один экран»); loading a catalogue and
+                // pictures by name stay a tap away.
+                const PhotoMatchButton(),
+                IconButton(
                   key: const ValueKey('filmDecors'),
+                  tooltip: l10n.filmCatalogueTools,
                   onPressed: () => unawaited(
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -79,8 +90,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
                       ),
                     ),
                   ),
-                  icon: const Icon(AppIcons.gallery),
-                  label: Text(l10n.fdcTitle),
+                  icon: const Icon(AppIcons.attachment),
                 ),
               ],
               bottom: TabBar(
@@ -90,7 +100,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
                   for (final m in tabs)
                     Tab(
                       key: ValueKey('filmMaker:$m'),
-                      text: '$m · ${FilmCatalog.grouped(c.of(m)).length}',
+                      text: m,
                     ),
                   Tab(
                     key: const ValueKey('filmMaker:none'),
@@ -101,7 +111,7 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
             ),
             body: TabBarView(
               children: [
-                for (final m in tabs) _makerTab(c, m, l10n),
+                for (final m in tabs) _makerTab(c, decors, m, l10n),
                 _Unassigned(colours: c.unassigned, canEdit: c.canEdit),
               ],
             ),
@@ -111,8 +121,16 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
     );
   }
 
-  Widget _makerTab(FilmCatalog c, String maker, AppLocalizations l10n) {
-    final collections = c.collectionsOf(maker);
+  Widget _makerTab(
+    FilmCatalog c,
+    FilmDecors? decors,
+    String maker,
+    AppLocalizations l10n,
+  ) {
+    final collections = {
+      ...c.collectionsOf(maker),
+      ...?decors?.collectionsOf(maker),
+    }.toList();
     // A collection renamed or removed meanwhile is no longer a filter.
     final collection = collections.contains(_collection[maker])
         ? _collection[maker]
@@ -136,137 +154,210 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
               if (g.any(unknown)) ...g,
           ]
         : all;
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      children: [
-        // The maker's own collections (owner, 11.11.2026): ALDA, Solid
-        // Color, Древесные… — and the button that keeps their list.
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.xs,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
+    // Under the shop's own films, the rest of the maker's catalogue
+    // (owner, 19.11.2026): what is not taken in yet, by the same search
+    // and collection; a tap takes it in or orders it.
+    final catalogue = _type != null || archive || noThickness
+        ? const <FilmDecor>[]
+        : [
+            for (final x in decors?.decors ?? const <FilmDecor>[])
+              if (x.maker == maker &&
+                  x.films.isEmpty &&
+                  (collection == null || x.collection == collection) &&
+                  x.matches(_search))
+                x,
+          ];
+    final theme = Theme.of(context);
+    final head = <Widget>[
+      // The maker's own collections (owner, 11.11.2026): ALDA, Solid
+      // Color, Древесные… — and the button that keeps their list.
+      Wrap(
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          ChoiceChip(
+            key: ValueKey('filmCollectionAll:$maker'),
+            label: Text(l10n.filmAllCollections),
+            selected: collection == null,
+            onSelected: (_) => setState(() => _collection.remove(maker)),
+          ),
+          for (final name in collections)
             ChoiceChip(
-              key: ValueKey('filmCollectionAll:$maker'),
-              label: Text(l10n.filmAllCollections),
-              selected: collection == null,
-              onSelected: (_) => setState(() => _collection.remove(maker)),
+              key: ValueKey('filmCollectionChip:$maker:$name'),
+              label: Text(name),
+              selected: collection == name,
+              onSelected: (on) => setState(() {
+                if (on) {
+                  _collection[maker] = name;
+                } else {
+                  _collection.remove(maker);
+                }
+              }),
             ),
-            for (final name in collections)
-              ChoiceChip(
-                key: ValueKey('filmCollectionChip:$maker:$name'),
-                label: Text(name),
-                selected: collection == name,
-                onSelected: (on) => setState(() {
-                  if (on) {
-                    _collection[maker] = name;
-                  } else {
-                    _collection.remove(maker);
-                  }
-                }),
-              ),
-            if (c.canEdit)
-              ActionChip(
-                key: ValueKey('filmCollections:$maker'),
-                avatar: const Icon(AppIcons.edit),
-                label: Text(l10n.filmCollections),
-                onPressed: () async {
-                  // A collection tapped there is opened here.
-                  final name = await showFilmCollections(context, maker);
-                  if (name != null && mounted) {
-                    setState(() => _collection[maker] = name);
-                  }
-                },
-              ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.xs,
-          children: [
+          if (c.canEdit)
+            ActionChip(
+              key: ValueKey('filmCollections:$maker'),
+              avatar: const Icon(AppIcons.edit),
+              label: Text(l10n.filmCollections),
+              onPressed: () async {
+                // A collection tapped there is opened here.
+                final name = await showFilmCollections(context, maker);
+                if (name != null && mounted) {
+                  setState(() => _collection[maker] = name);
+                }
+              },
+            ),
+        ],
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      Wrap(
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.xs,
+        children: [
+          ChoiceChip(
+            key: const ValueKey('filmType:all'),
+            label: Text(l10n.filmAllTypes),
+            selected: _type == null,
+            onSelected: (_) => setState(() => _type = null),
+          ),
+          for (final t in c.types)
             ChoiceChip(
-              key: const ValueKey('filmType:all'),
-              label: Text(l10n.filmAllTypes),
-              selected: _type == null,
-              onSelected: (_) => setState(() => _type = null),
+              key: ValueKey('filmType:$t'),
+              label: Text(t),
+              selected: _type == t,
+              onSelected: (on) => setState(() => _type = on ? t : null),
             ),
-            for (final t in c.types)
-              ChoiceChip(
-                key: ValueKey('filmType:$t'),
-                label: Text(t),
-                selected: _type == t,
-                onSelected: (on) => setState(() => _type = on ? t : null),
-              ),
-          ],
+        ],
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      TextField(
+        key: const ValueKey('filmSearch'),
+        onChanged: (v) => setState(() => _search = v),
+        decoration: InputDecoration(
+          prefixIcon: const Icon(AppIcons.search),
+          labelText: l10n.filmSearchIn(maker),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        TextField(
-          key: const ValueKey('filmSearch'),
-          onChanged: (v) => setState(() => _search = v),
-          decoration: InputDecoration(
-            prefixIcon: const Icon(AppIcons.search),
-            labelText: l10n.filmSearchIn(maker),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        // A film is added here, at its maker (owner, 10.11.2026) — and its
-        // card opens at once to be filled in.
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.xs,
-          children: [
-            if (c.canEdit)
-              FilledButton.icon(
-                key: ValueKey('filmAdd:$maker'),
-                onPressed: () => _add(c, maker, collection),
-                icon: const Icon(AppIcons.add),
-                label: Text(l10n.filmAdd),
-              ),
-            // Where this maker's film is bought, and whom to ring (owner,
-            // 11.11.2026).
-            OutlinedButton.icon(
-              key: ValueKey('filmMakerCard:$maker'),
-              onPressed: () => showFilmMakerCard(context, maker),
-              icon: const Icon(AppIcons.call),
-              label: Text(l10n.filmMakerCard),
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      // A film is added here, at its maker (owner, 10.11.2026) — and its
+      // card opens at once to be filled in.
+      Wrap(
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.xs,
+        children: [
+          if (c.canEdit)
+            FilledButton.icon(
+              key: ValueKey('filmAdd:$maker'),
+              onPressed: () => _add(c, maker, collection),
+              icon: const Icon(AppIcons.add),
+              label: Text(l10n.filmAdd),
             ),
-            // Films taken off the list, each with its history (owner,
-            // 11.11.2026); shown in place of the films in use.
-            // Films whose thickness is not known yet, to be filled in
-            // (owner, 11.11.2026).
-            if (blank > 0)
-              FilterChip(
-                key: ValueKey('filmNoThickness:$maker'),
-                label: Text(l10n.filmNoThickness('$blank')),
-                selected: noThickness,
-                onSelected: (on) => setState(() => _noThickness = on),
-              ),
-            if (archived.isNotEmpty)
-              FilterChip(
-                key: ValueKey('filmArchive:$maker'),
-                label: Text(l10n.filmArchiveChip('${archived.length}')),
-                selected: archive,
-                onSelected: (on) => setState(() => _archive = on),
-              ),
-          ],
+          // Where this maker's film is bought, and whom to ring (owner,
+          // 11.11.2026).
+          OutlinedButton.icon(
+            key: ValueKey('filmMakerCard:$maker'),
+            onPressed: () => showFilmMakerCard(context, maker),
+            icon: const Icon(AppIcons.call),
+            label: Text(l10n.filmMakerCard),
+          ),
+          // Films taken off the list, each with its history (owner,
+          // 11.11.2026); shown in place of the films in use.
+          // Films whose thickness is not known yet, to be filled in
+          // (owner, 11.11.2026).
+          if (blank > 0)
+            FilterChip(
+              key: ValueKey('filmNoThickness:$maker'),
+              label: Text(l10n.filmNoThickness('$blank')),
+              selected: noThickness,
+              onSelected: (on) => setState(() => _noThickness = on),
+            ),
+          if (archived.isNotEmpty)
+            FilterChip(
+              key: ValueKey('filmArchive:$maker'),
+              label: Text(l10n.filmArchiveChip('${archived.length}')),
+              selected: archive,
+              onSelected: (on) => setState(() => _archive = on),
+            ),
+        ],
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      Text(
+        l10n.filmOurs('${FilmCatalog.grouped(films).length}'),
+        key: ValueKey('filmOurs:$maker'),
+        style: theme.textTheme.labelLarge,
+      ),
+      if (films.isEmpty)
+        Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Text(l10n.filmEmpty(maker)),
         ),
-        if (films.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Text(l10n.filmEmpty(maker)),
+      // One row a film, its thicknesses together (owner, 11.11.2026).
+      for (final g in FilmCatalog.grouped(films))
+        FilmTile(
+          film: g.first,
+          variants: g,
+          supplier: c.suppliers
+              .where((s) => s.id == g.first.supplier)
+              .map((s) => s.name)
+              .firstOrNull,
+          onTap: c.canEdit ? () => showFilmCard(context, g.first, c) : null,
+        ),
+      if (catalogue.isNotEmpty) ...[
+        const Divider(),
+        Text(
+          l10n.filmCatalogueOf(maker, '${catalogue.length}'),
+          key: ValueKey('filmCatalogue:$maker'),
+          style: theme.textTheme.labelLarge,
+        ),
+        Text(
+          l10n.filmCatalogueHint,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
           ),
-        // One row a film, its thicknesses together (owner, 11.11.2026).
-        for (final g in FilmCatalog.grouped(films))
-          FilmTile(
-            film: g.first,
-            variants: g,
-            supplier: c.suppliers
-                .where((s) => s.id == g.first.supplier)
-                .map((s) => s.name)
-                .firstOrNull,
-            onTap: c.canEdit ? () => showFilmCard(context, g.first, c) : null,
+        ),
+      ],
+    ];
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.sm,
           ),
+          sliver: SliverList(delegate: SliverChildListDelegate(head)),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            0,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: AppSpacing.xxxl * 4,
+              mainAxisSpacing: AppSpacing.sm,
+              crossAxisSpacing: AppSpacing.sm,
+              childAspectRatio: 0.9,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, i) => DecorCard(
+                decor: catalogue[i],
+                onTap: () => unawaited(
+                  showFilmDecor(
+                    context,
+                    catalogue[i],
+                    canEdit: decors?.canEdit ?? false,
+                  ),
+                ),
+              ),
+              childCount: catalogue.length,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -858,8 +949,15 @@ String _day(String iso) {
   return p.length == 3 ? '${p[2]}.${p[1]}' : iso;
 }
 
-String _metres(double v) =>
-    v == v.roundToDouble() ? v.toStringAsFixed(0) : '$v'.replaceAll('.', ',');
+/// «1,7», not «1,6999999999999993» (owner, 19.11.2026): two places at most.
+String _metres(double v) {
+  final r = (v * 100).roundToDouble() / 100;
+  if (r == r.roundToDouble()) return r.toStringAsFixed(0);
+  return r
+      .toStringAsFixed(2)
+      .replaceFirst(RegExp(r'0+$'), '')
+      .replaceAll('.', ',');
+}
 
 class _Unassigned extends ConsumerWidget {
   const _Unassigned({required this.colours, required this.canEdit});

@@ -7538,7 +7538,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String filmReceiveShort(String metres) {
-    return '$metres м жетпейді';
+    return '$metres м жеткізілмеді — «Күтеміз» ішінде қалады.';
   }
 
   @override
@@ -10895,4 +10895,57 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get fwOrderedDone => '«Тапсырысқа» қосылды.';
+
+  @override
+  String get filmReceiveTitle => 'Үлдір кірісі';
+
+  @override
+  String get filmReceiveWaiting => 'Күтеміз — тапсырыс бергеніміз';
+
+  @override
+  String get filmReceiveNothingWaited =>
+      'Ештеңе күтпейміз — үлдірді төменнен табыңыз.';
+
+  @override
+  String filmReceiveOrderedFrom(String supplier) {
+    return '$supplier тапсырыс берілді';
+  }
+
+  @override
+  String get filmReceiveAllCame => 'Бәрі келді';
+
+  @override
+  String filmReceiveMetres(String metres) {
+    return '$metres м';
+  }
+
+  @override
+  String get filmReceiveOther => 'Немесе басқа үлдір — каталогтардан да';
+
+  @override
+  String get filmReceiveSearch => 'Фирма, түс немесе код';
+
+  @override
+  String get filmReceiveDone => 'Үлдір қоймада.';
+
+  @override
+  String filmReceiveRestComing(String metres) {
+    return 'Қалған $metres м жолда қалады.';
+  }
+
+  @override
+  String get filmCatalogueTools => 'Каталогтар мен суреттерді жүктеу';
+
+  @override
+  String filmOurs(String count) {
+    return 'Бізде · $count';
+  }
+
+  @override
+  String filmCatalogueOf(String maker, String count) {
+    return '$maker каталогы · тағы $count';
+  }
+
+  @override
+  String get filmCatalogueHint => 'Декорды басыңыз — үлдір ашу немесе қарау.';
 }

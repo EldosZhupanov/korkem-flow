@@ -300,10 +300,15 @@ def arrived(entry: str, metres=None) -> dict:
 	fewer (or more) came than were ordered."""
 	doc = _coming(entry)
 	line = doc.items[0]
+	rest = None
 	if metres not in (None, ""):
 		qty = flt(metres)
 		if qty <= 0 or qty > material_stock.MAX_QTY:
 			frappe.throw("Метры должны быть больше нуля.")
+		if flt(line.qty) - qty > 0.005:
+			# Fewer came: the rest is still on its way (owner, 19.11.2026: «заказали
+			# 50, привезли 30 — 20 не забыть»), until it comes or «не придёт».
+			rest = _still_coming(doc, flt(line.qty) - qty)
 		line.qty = qty
 	today = nowdate()
 	doc.posting_date = today
@@ -317,7 +322,25 @@ def arrived(entry: str, metres=None) -> dict:
 	from korkem_manufacturing.services import film_orders
 
 	holds = film_orders.fulfil(entry)
-	return {"receipt": entry, "film": film_catalog.film(line.item_code), "holds": holds}
+	return {"receipt": entry, "film": film_catalog.film(line.item_code), "holds": holds, "rest": rest}
+
+
+def _still_coming(doc, metres: float) -> str:
+	"""What a delivery fell short by: a roll still on its way, of the same
+	film, supplier and price — due the same day, or tomorrow if that passed.
+	Its bringing was paid with the first."""
+	twin = frappe.copy_doc(doc)
+	twin.items[0].qty = metres
+	twin.korkem_delivery_cost = 0
+	today = getdate(nowdate())
+	if getdate(doc.korkem_film_due) <= today:
+		twin.korkem_film_due = str(add_days(today, 1))
+	twin.remarks = f"Недовезли {metres:g} м из поставки {doc.name}"
+	twin.flags.ignore_permissions = True
+	twin.insert()
+	audit.record_audit(action="film.short_delivery", entity_type="Stock Entry", entity_id=doc.name,
+					   diff={"item": doc.items[0].item_code, "rest": metres, "coming": twin.name})
+	return twin.name
 
 
 def reschedule(entry: str, arrives_on: str) -> dict:

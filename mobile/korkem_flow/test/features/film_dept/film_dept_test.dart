@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/data/film_orders_repository.dart';
@@ -640,12 +641,35 @@ Future<_Fake> _pump(WidgetTester tester) async {
         mdfDictionariesProvider.overrideWith(
           (ref) async => MdfDictionaries.empty,
         ),
+        filmPickExtrasProvider.overrideWith(
+          (ref, customer) async => const FilmPickExtras(),
+        ),
       ],
       child: harness(const FilmDeptScreen()),
     ),
   );
   await tester.pumpAndSettle();
   return repo;
+}
+
+/// «Приход ▾ → Плёнка»: the window of what is waited for; [search] finds
+/// the film, a tap on it opens the receipt.
+Future<void> _receiveFilm(
+  WidgetTester tester,
+  String item,
+  String search,
+) async {
+  await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byKey(const ValueKey('rcvSearch')), search);
+  await tester.pumpAndSettle();
+  final tile = find.byKey(ValueKey('film:$item'));
+  await tester.ensureVisible(tile);
+  await tester.pumpAndSettle();
+  await tester.tap(tile);
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -1052,23 +1076,17 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('filmPick:search')),
-      'граф',
-    );
+    await tester.enterText(find.byKey(const ValueKey('rcvSearch')), 'граф');
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('filmReceivePick:MAT-2')), findsOneWidget);
-    expect(find.byKey(const ValueKey('filmReceivePick:MAT-1')), findsNothing);
+    expect(find.byKey(const ValueKey('film:MAT-2')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
     // By its code too.
-    await tester.enterText(
-      find.byKey(const ValueKey('filmPick:search')),
-      'kr-1',
-    );
+    await tester.enterText(find.byKey(const ValueKey('rcvSearch')), 'kr-1');
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('filmReceivePick:MAT-1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsOneWidget);
   });
 
-  testWidgets('one delivery brings several films, one for a customer', (
+  testWidgets('«Приход» shows first what is waited for: a roll on its way', (
     tester,
   ) async {
     final repo = await _pump(tester);
@@ -1076,8 +1094,23 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-1')));
+    expect(find.byKey(const ValueKey('rcvComing:STE-30')), findsOneWidget);
+    // 20 of the 30 m came: the rest is said to stay on its way.
+    await tester.tap(find.byKey(const ValueKey('rcvArrived:STE-30')));
     await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('filmMetres')), '20');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('filmArrivedRest')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filmArrivedSave')));
+    await tester.pumpAndSettle();
+    expect(repo.came.single, ('STE-30', 20.0));
+  });
+
+  testWidgets('one delivery brings several films, one for a customer', (
+    tester,
+  ) async {
+    final repo = await _pump(tester);
+    await _receiveFilm(tester, 'MAT-1', 'kr-1');
     await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
     await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3500');
     // What ran low at this supplier comes in with it, as much as last time.
@@ -1114,12 +1147,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-2')));
-    await tester.pumpAndSettle();
+    await _receiveFilm(tester, 'MAT-2', 'граф');
     await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
     await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3410');
     await tester.pumpAndSettle();
@@ -1230,12 +1258,7 @@ void main() {
     tester,
   ) async {
     final repo = await _pump(tester);
-    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('filmReceivePick:MAT-1')));
-    await tester.pumpAndSettle();
+    await _receiveFilm(tester, 'MAT-1', 'kr-1');
     await tester.enterText(find.byKey(const ValueKey('filmMetres')), '10');
     await tester.enterText(find.byKey(const ValueKey('filmPrice')), '3500');
     await tester.pumpAndSettle();

@@ -3307,5 +3307,20 @@
   "fwSaidBy": "Кто подтвердил (менеджер поставщика)",
   "fwComesOn": "Привезут",
   "fwOrderConfirm": "В «К заказу»",
-  "fwOrderedDone": "Добавлено в «К заказу»."
+  "fwOrderedDone": "Добавлено в «К заказу».",
+  "filmReceiveTitle": "Приход плёнки",
+  "filmReceiveWaiting": "Ждём — то, что заказали",
+  "filmReceiveNothingWaited": "Ничего не ждём — найдите плёнку ниже.",
+  "filmReceiveOrderedFrom": "Заказано у {supplier}",
+  "filmReceiveAllCame": "Пришло всё",
+  "filmReceiveMetres": "{metres} м",
+  "filmReceiveOther": "Или другая плёнка — и из каталогов",
+  "filmReceiveSearch": "Фирма, цвет или код",
+  "filmReceiveDone": "Плёнка на складе.",
+  "filmReceiveRestComing": "Остаток {metres} м остаётся в пути.",
+  "filmReceiveShort": "Недовезли {metres} м — останутся в «Ждём».",
+  "filmCatalogueTools": "Загрузка каталогов и картинок",
+  "filmOurs": "У нас · {count}",
+  "filmCatalogueOf": "Каталог {maker} · ещё {count}",
+  "filmCatalogueHint": "Нажмите на декор — завести плёнку или посмотреть."
 }

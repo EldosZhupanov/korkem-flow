@@ -136,7 +136,8 @@ class _ReceiveLine {
       price = TextEditingController(text: film.priceM?.toStringAsFixed(0)),
       customer = want?.customer,
       customerName = want?.customerName,
-      orders = want?.orders ?? const [];
+      orders = want?.orders ?? const [],
+      wanted = want?.metres ?? 0;
 
   final Film film;
   final TextEditingController metres;
@@ -152,6 +153,9 @@ class _ReceiveLine {
 
   /// The lines of «К заказу» it answers.
   final List<String> orders;
+
+  /// The metres those lines wanted — fewer came, the rest waits on.
+  final double wanted;
 
   /// Where its metres go (owner, 13.11.2026): to customers who buy film,
   /// into MDF orders; what is left is the shelf's.
@@ -623,6 +627,19 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> with _Saving {
                   style: TextStyle(
                     color: moved > 0 ? status.warning : status.success,
                   ),
+                ),
+              ),
+            // Fewer came than was ordered (owner, 19.11.2026): the rest is
+            // still waited for — on «К заказу», under «Ждём».
+            if (line.orders.isNotEmpty &&
+                line.m > 0 &&
+                line.wanted - line.m > 0.005)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  l10n.filmReceiveShort(filmMetres(line.wanted - line.m)),
+                  key: ValueKey('filmReceiveShort$k'),
+                  style: TextStyle(color: status.warning),
                 ),
               ),
             if (line.p > 0 && line.p != card)
@@ -2876,10 +2893,24 @@ class _ArrivedDialogState extends State<_ArrivedDialog> {
       title: Text(l10n.filmComingArrived),
       content: SizedBox(
         width: AppSpacing.xxxl * 6,
-        child: _metresField(
-          _metres,
-          l10n.filmComingMetres,
-          () => setState(() {}),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _metresField(_metres, l10n.filmComingMetres, () => setState(() {})),
+            // Fewer came: the rest stays on its way (owner, 19.11.2026).
+            if (metres > 0 && widget.coming.metres - metres > 0.005)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  l10n.filmReceiveRestComing(
+                    filmMetres(widget.coming.metres - metres),
+                  ),
+                  key: const ValueKey('filmArrivedRest'),
+                  style: TextStyle(color: context.statusColors.warning),
+                ),
+              ),
+          ],
         ),
       ),
       actions: [

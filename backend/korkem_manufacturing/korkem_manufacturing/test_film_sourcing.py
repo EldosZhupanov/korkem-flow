@@ -97,7 +97,7 @@ class TestFilmSourcing(IntegrationTestCase):
 		self.assertEqual((ordered[0]["metres"], ordered[0]["supplier"]), (4, "Сорс Астана"))
 		self.assertIn("Айгерим", ordered[0]["note"])
 		line = frappe.get_doc(film_orders._DOC, ordered[0]["line"])
-		self.assertEqual((line.sales_order, line.supplier, line.status), (self.order, self.astana, film_orders.OPEN))
+		self.assertEqual((line.sales_order, line.supplier, line.status), (self.order, self.astana, film_orders.SENT))
 		self.assertEqual(flt(frappe.db.get_value("Item", self.item, film_catalog.CARD["price_m"])), 1500)
 
 		self.assertTrue(self._film(film_sourcing.nowhere(self.order, self.item))["nowhere"])

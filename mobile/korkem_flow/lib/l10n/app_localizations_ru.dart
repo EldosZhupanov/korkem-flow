@@ -7600,7 +7600,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String filmReceiveShort(String metres) {
-    return 'Не хватает $metres м';
+    return 'Недовезли $metres м — останутся в «Ждём».';
   }
 
   @override
@@ -10973,4 +10973,58 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fwOrderedDone => 'Добавлено в «К заказу».';
+
+  @override
+  String get filmReceiveTitle => 'Приход плёнки';
+
+  @override
+  String get filmReceiveWaiting => 'Ждём — то, что заказали';
+
+  @override
+  String get filmReceiveNothingWaited =>
+      'Ничего не ждём — найдите плёнку ниже.';
+
+  @override
+  String filmReceiveOrderedFrom(String supplier) {
+    return 'Заказано у $supplier';
+  }
+
+  @override
+  String get filmReceiveAllCame => 'Пришло всё';
+
+  @override
+  String filmReceiveMetres(String metres) {
+    return '$metres м';
+  }
+
+  @override
+  String get filmReceiveOther => 'Или другая плёнка — и из каталогов';
+
+  @override
+  String get filmReceiveSearch => 'Фирма, цвет или код';
+
+  @override
+  String get filmReceiveDone => 'Плёнка на складе.';
+
+  @override
+  String filmReceiveRestComing(String metres) {
+    return 'Остаток $metres м остаётся в пути.';
+  }
+
+  @override
+  String get filmCatalogueTools => 'Загрузка каталогов и картинок';
+
+  @override
+  String filmOurs(String count) {
+    return 'У нас · $count';
+  }
+
+  @override
+  String filmCatalogueOf(String maker, String count) {
+    return 'Каталог $maker · ещё $count';
+  }
+
+  @override
+  String get filmCatalogueHint =>
+      'Нажмите на декор — завести плёнку или посмотреть.';
 }
