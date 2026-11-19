@@ -157,7 +157,7 @@ void main() {
   ) async {
     final repo = _Fake();
     await pump(tester, repo);
-    expect(find.text('No film — where to get it'), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmWhere')), findsOneWidget);
     expect(find.text('4,2 m short'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('fwAdvised:FILM-1:S-ALA')),

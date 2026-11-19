@@ -411,7 +411,7 @@ class _SourceRow extends StatelessWidget {
               icon: const Icon(AppIcons.call),
               onPressed: () => ContactActions.call(s.phone),
             ),
-          if ((s.whatsapp ?? s.phone) case final wa?)
+          if (s.whatsapp ?? s.phone case final wa?)
             IconButton(
               tooltip: wa,
               icon: const Icon(AppIcons.whatsApp),
