@@ -115,9 +115,11 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
 
   /// A catalogue decor not on the books yet: taken in, then received.
   Future<void> _decor(FilmDecor d) => _run(() async {
-    final label = await ref.read(filmDecorRepositoryProvider).takeDecor(
-      d.decor,
-    );
+    final label = await ref
+        .read(filmDecorRepositoryProvider)
+        .takeDecor(
+          d.decor,
+        );
     ref.invalidate(filmStockProvider);
     final c = await ref.read(filmStockProvider.future);
     final film = c.films.where((f) => f.label == label).firstOrNull;
