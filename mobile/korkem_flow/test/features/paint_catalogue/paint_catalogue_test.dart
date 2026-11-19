@@ -11,7 +11,7 @@ import 'package:korkem_flow/features/paint_catalogue/presentation/paint_swap_vie
 
 import '../../support/widget_harness.dart';
 
-const _white = {
+const Map<String, Object?> _white = {
   'key': 'ral9010',
   'code': 'RAL 9010',
   'name': 'Чисто-белый',
@@ -26,7 +26,7 @@ const _white = {
   'orders': 18,
   'top': true,
 };
-const _sage = {
+const Map<String, Object?> _sage = {
   'key': 'ral6021',
   'code': 'RAL 6021',
   'name': 'Бледно-зелёный',
@@ -36,7 +36,7 @@ const _sage = {
   'family': 'Зелёные',
   'trend': true,
 };
-const _reseda = {
+const Map<String, Object?> _reseda = {
   'key': 'ral6011',
   'code': 'RAL 6011',
   'name': 'Резедово-зелёный',
@@ -48,7 +48,7 @@ const _reseda = {
   'delta': 4.2,
   'look': 'close',
 };
-const _own = {
+const Map<String, Object?> _own = {
   'key': 'шалфейклиента',
   'code': '',
   'name': 'Шалфей клиента',
@@ -161,8 +161,8 @@ MdfOrder _order({List<Map<String, Object?>> swaps = const []}) =>
       'phone': '+77015551234',
       'created_on': '2026-11-19',
       'delivery_date': '2026-11-26',
-      'head': <String, Object?>{},
-      'lines': [
+      'head': const <String, Object?>{},
+      'lines': const [
         {
           'height_mm': 700,
           'width_mm': 400,
@@ -179,8 +179,8 @@ MdfOrder _order({List<Map<String, Object?>> swaps = const []}) =>
       'total': 13440,
       'paid': 0,
       'debt': 13440,
-      'payments': <Object>[],
-      'stages': <Object>[],
+      'payments': const <Object>[],
+      'stages': const <Object>[],
       'paint_swaps': swaps,
     });
 
