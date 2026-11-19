@@ -10,10 +10,9 @@ final filmWhereRepositoryProvider = Provider<FilmWhereRepository>(
 
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
-final filmWhereProvider = FutureProvider.autoDispose
-    .family<FilmWhere, String>(
-      (ref, order) => ref.watch(filmWhereRepositoryProvider).where(order),
-    );
+final filmWhereProvider = FutureProvider.autoDispose.family<FilmWhere, String>(
+  (ref, order) => ref.watch(filmWhereRepositoryProvider).where(order),
+);
 
 /// Where to get a film the order lacks; `api/film_sourcing.py`.
 class FilmWhereRepository {

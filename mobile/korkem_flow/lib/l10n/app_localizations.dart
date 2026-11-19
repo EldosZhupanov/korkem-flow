@@ -18328,6 +18328,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No film'**
   String get fpkNone;
+
   /// No description provided for @cncpArtcam.
   ///
   /// In en, this message translates to:
@@ -18363,6 +18364,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Find a cutter: name, diameter, angle'**
   String get cncpToolsSearch;
+
+  /// No description provided for @fpkCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Film card'**
+  String get fpkCard;
+
+  /// No description provided for @fpkSideFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film'**
+  String get fpkSideFilm;
+
+  /// No description provided for @fpkSideEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get fpkSideEdit;
+
+  /// No description provided for @fpkSidePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick'**
+  String get fpkSidePick;
+
+  /// No description provided for @fpkSideNone.
+  ///
+  /// In en, this message translates to:
+  /// **'none on the shelf'**
+  String get fpkSideNone;
+
+  /// No description provided for @fpkSideHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'held for orders: {metres} m'**
+  String fpkSideHeld(String metres);
+
+  /// No description provided for @fpkSideComing.
+  ///
+  /// In en, this message translates to:
+  /// **'on its way {metres} m · {day}'**
+  String fpkSideComing(String metres, String day);
+
+  /// No description provided for @fpkSideDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'~{metres} m a day · lasts {days} days'**
+  String fpkSideDaily(String metres, String days);
+
+  /// No description provided for @fpkSideBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'purchase {price}/m'**
+  String fpkSideBuy(String price);
+
+  /// No description provided for @fpkSideRetail.
+  ///
+  /// In en, this message translates to:
+  /// **'retail {price}/m'**
+  String fpkSideRetail(String price);
+
+  /// No description provided for @fpkSideWholesale.
+  ///
+  /// In en, this message translates to:
+  /// **'wholesale {price}/m'**
+  String fpkSideWholesale(String price);
+
+  /// No description provided for @fwTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No film — where to get it'**
+  String get fwTitle;
+
+  /// No description provided for @fwWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'where to get'**
+  String get fwWhere;
+
+  /// No description provided for @fwNothingShort.
+  ///
+  /// In en, this message translates to:
+  /// **'There is enough of this film now.'**
+  String get fwNothingShort;
+
+  /// No description provided for @fwNeedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'needed in the shop by {day}'**
+  String fwNeedBy(String day);
+
+  /// No description provided for @fwUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'urgent'**
+  String get fwUrgent;
+
+  /// No description provided for @fwShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m short'**
+  String fwShort(String metres);
+
+  /// No description provided for @fwOrdered.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered {metres} m · {supplier}'**
+  String fwOrdered(String metres, String supplier);
+
+  /// No description provided for @fwNowhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Nowhere — rang everyone {day}'**
+  String fwNowhere(String day);
+
+  /// No description provided for @fwNoSources.
+  ///
+  /// In en, this message translates to:
+  /// **'No sources for «{maker}» — add them in «Where to buy».'**
+  String fwNoSources(String maker);
+
+  /// No description provided for @fwAdvised.
+  ///
+  /// In en, this message translates to:
+  /// **'advised'**
+  String get fwAdvised;
+
+  /// No description provided for @fwPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} + delivery {delivery} = {landed} a metre'**
+  String fwPrice(String price, String delivery, String landed);
+
+  /// No description provided for @fwPriceOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} a metre'**
+  String fwPriceOnly(String price);
+
+  /// No description provided for @fwCardPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'card price'**
+  String get fwCardPrice;
+
+  /// No description provided for @fwTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'bought {count} times'**
+  String fwTimes(String count);
+
+  /// No description provided for @fwComes.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days → comes {day}'**
+  String fwComes(String days, String day);
+
+  /// No description provided for @fwInTime.
+  ///
+  /// In en, this message translates to:
+  /// **'in time'**
+  String get fwInTime;
+
+  /// No description provided for @fwLate.
+  ///
+  /// In en, this message translates to:
+  /// **'too late'**
+  String get fwLate;
+
+  /// No description provided for @fwLeadUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'lead time unknown'**
+  String get fwLeadUnknown;
+
+  /// No description provided for @fwOrderButton.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock — order'**
+  String get fwOrderButton;
+
+  /// No description provided for @fwAcceptFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'You can order once the order is accepted.'**
+  String get fwAcceptFirst;
+
+  /// No description provided for @fwNowhereButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Nowhere'**
+  String get fwNowhereButton;
+
+  /// No description provided for @fwLookalikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Look-alikes from other makers'**
+  String get fwLookalikes;
+
+  /// No description provided for @fwOnShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m on our shelf'**
+  String fwOnShelf(String metres);
+
+  /// No description provided for @fwOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer to the customer on WhatsApp'**
+  String get fwOffer;
+
+  /// No description provided for @fwOfferText.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! «{film}» is not available from the suppliers right now. There is a very similar one — «{other}». Would it suit you?'**
+  String fwOfferText(String film, String other);
+
+  /// No description provided for @fwReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get fwReplace;
+
+  /// No description provided for @fwReplaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace «{film}» with «{other}»?'**
+  String fwReplaceTitle(String film, String other);
+
+  /// No description provided for @fwReplaceReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why — e.g. «the customer agreed on WhatsApp»'**
+  String get fwReplaceReason;
+
+  /// No description provided for @fwOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{film} — from {supplier}'**
+  String fwOrderTitle(String film, String supplier);
+
+  /// No description provided for @fwMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'Metres'**
+  String get fwMetres;
+
+  /// No description provided for @fwPriceField.
+  ///
+  /// In en, this message translates to:
+  /// **'Price a metre they named'**
+  String get fwPriceField;
+
+  /// No description provided for @fwSaidBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Who confirmed (the supplier\'s manager)'**
+  String get fwSaidBy;
+
+  /// No description provided for @fwComesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives'**
+  String get fwComesOn;
+
+  /// No description provided for @fwOrderConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'To «To order»'**
+  String get fwOrderConfirm;
+
+  /// No description provided for @fwOrderedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to «To order».'**
+  String get fwOrderedDone;
 }
 
 class _AppLocalizationsDelegate

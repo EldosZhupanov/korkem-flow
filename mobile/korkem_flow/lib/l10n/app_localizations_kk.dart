@@ -10658,6 +10658,8 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get fpkNone => 'Үлдірсіз';
+
+  @override
   String get cncpArtcam => 'ArtCAM-нан';
 
   @override
@@ -10680,4 +10682,181 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get cncpToolsSearch => 'Фрезаны табу: атауы, диаметрі, бұрышы';
+
+  @override
+  String get fpkCard => 'Үлдір карточкасы';
+
+  @override
+  String get fpkSideFilm => 'Үлдір';
+
+  @override
+  String get fpkSideEdit => 'Өзгерту';
+
+  @override
+  String get fpkSidePick => 'Таңдау';
+
+  @override
+  String get fpkSideNone => 'қоймада жоқ';
+
+  @override
+  String fpkSideHeld(String metres) {
+    return 'тапсырыстарға: $metres м';
+  }
+
+  @override
+  String fpkSideComing(String metres, String day) {
+    return 'келе жатыр $metres м · $day';
+  }
+
+  @override
+  String fpkSideDaily(String metres, String days) {
+    return 'күніне ~$metres м кетеді · $days күнге жетеді';
+  }
+
+  @override
+  String fpkSideBuy(String price) {
+    return 'сатып алу $price/м';
+  }
+
+  @override
+  String fpkSideRetail(String price) {
+    return 'бөлшек $price/м';
+  }
+
+  @override
+  String fpkSideWholesale(String price) {
+    return 'көтерме $price/м';
+  }
+
+  @override
+  String get fwTitle => 'Үлдір жоқ — қайдан алу';
+
+  @override
+  String get fwWhere => 'қайдан алу';
+
+  @override
+  String get fwNothingShort => 'Бұл үлдір жеткілікті.';
+
+  @override
+  String fwNeedBy(String day) {
+    return 'цехқа $day дейін керек';
+  }
+
+  @override
+  String get fwUrgent => 'шұғыл';
+
+  @override
+  String fwShort(String metres) {
+    return '$metres м жетпейді';
+  }
+
+  @override
+  String fwOrdered(String metres, String supplier) {
+    return 'Тапсырыс берілді $metres м · $supplier';
+  }
+
+  @override
+  String fwNowhere(String day) {
+    return 'Ешқайда жоқ — $day хабарластық';
+  }
+
+  @override
+  String fwNoSources(String maker) {
+    return '«$maker» жеткізушілері жоқ — «Қайдан алу» бөліміне қосыңыз.';
+  }
+
+  @override
+  String get fwAdvised => 'ұсынамын';
+
+  @override
+  String fwPrice(String price, String delivery, String landed) {
+    return '$price + жеткізу $delivery = $landed метріне';
+  }
+
+  @override
+  String fwPriceOnly(String price) {
+    return '$price метріне';
+  }
+
+  @override
+  String get fwCardPrice => 'карточкадағы баға';
+
+  @override
+  String fwTimes(String count) {
+    return '$count рет алдық';
+  }
+
+  @override
+  String fwComes(String days, String day) {
+    return '$days күн → $day келеді';
+  }
+
+  @override
+  String get fwInTime => 'үлгереді';
+
+  @override
+  String get fwLate => 'үлгермейді';
+
+  @override
+  String get fwLeadUnknown => 'мерзімі көрсетілмеген';
+
+  @override
+  String get fwOrderButton => 'Бар — тапсырыс беру';
+
+  @override
+  String get fwAcceptFirst => '«Қабылдау» кейін тапсырыс беруге болады.';
+
+  @override
+  String get fwNowhereButton => 'Ешқайда жоқ';
+
+  @override
+  String get fwLookalikes => 'Басқа фирмалардағы ұқсастар';
+
+  @override
+  String fwOnShelf(String metres) {
+    return 'бізде $metres м';
+  }
+
+  @override
+  String get fwOffer => 'Клиентке WhatsApp арқылы ұсыну';
+
+  @override
+  String fwOfferText(String film, String other) {
+    return 'Сәлеметсіз бе! «$film» үлдірі қазір жеткізушілерде жоқ. Өте ұқсасы бар — «$other». Сізге сай ма?';
+  }
+
+  @override
+  String get fwReplace => 'Ауыстыру';
+
+  @override
+  String fwReplaceTitle(String film, String other) {
+    return '«$film» орнына «$other» қою керек пе?';
+  }
+
+  @override
+  String get fwReplaceReason =>
+      'Себебі — мысалы, «клиент WhatsApp арқылы келісті»';
+
+  @override
+  String fwOrderTitle(String film, String supplier) {
+    return '$film — $supplier';
+  }
+
+  @override
+  String get fwMetres => 'Неше метр';
+
+  @override
+  String get fwPriceField => 'Айтылған метр бағасы';
+
+  @override
+  String get fwSaidBy => 'Кім растады (жеткізуші менеджері)';
+
+  @override
+  String get fwComesOn => 'Әкеледі';
+
+  @override
+  String get fwOrderConfirm => '«Тапсырысқа» қосу';
+
+  @override
+  String get fwOrderedDone => '«Тапсырысқа» қосылды.';
 }

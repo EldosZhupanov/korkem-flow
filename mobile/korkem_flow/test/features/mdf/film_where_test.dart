@@ -88,7 +88,11 @@ class _Fake implements FilmWhereRepository {
             'name': 'Деним синий',
             'on_shelf': 12.0,
             'films': [
-              {'item': 'FILM-2', 'label': 'Kira Group · Деним синий', 'free': 12},
+              {
+                'item': 'FILM-2',
+                'label': 'Kira Group · Деним синий',
+                'free': 12,
+              },
             ],
           },
         ],

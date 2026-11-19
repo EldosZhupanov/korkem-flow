@@ -2168,8 +2168,12 @@ class _FilmSideState extends ConsumerState<_FilmSide> {
                     style: theme.textTheme.titleSmall,
                   ),
                   Text(
-                    [f.maker, ?f.collection, ?f.type, ?widget.supplier]
-                        .join(' · '),
+                    [
+                      f.maker,
+                      ?f.collection,
+                      ?f.type,
+                      ?widget.supplier,
+                    ].join(' · '),
                     style: muted,
                   ),
                 ],

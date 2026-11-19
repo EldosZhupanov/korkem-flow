@@ -303,9 +303,7 @@ class _LackCardState extends ConsumerState<_LackCard> {
                     widget.phone,
                     l10n.fwOfferText(f.film, '${m.maker} · ${m.name}'),
                   ),
-                  onReplace: !accepted || _busy
-                      ? null
-                      : _replace,
+                  onReplace: !accepted || _busy ? null : _replace,
                 ),
             ],
           ],
