@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/server_image.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
@@ -710,6 +711,7 @@ class FilmTile extends StatelessWidget {
     this.variants = const [],
     this.supplier,
     this.onTap,
+    this.onInfo,
     super.key,
   });
 
@@ -723,6 +725,10 @@ class FilmTile extends StatelessWidget {
   /// collection and surface, so the card need not be opened to see them.
   final String? supplier;
   final VoidCallback? onTap;
+
+  /// The film's card beside the list (owner, 19.11.2026: «зайти в карточку
+  /// плёнки» from the order's film window) — an ⓘ after its stock.
+  final VoidCallback? onInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -753,7 +759,7 @@ class FilmTile extends StatelessWidget {
             ? null
             : FilmSample(argb: f.argb, image: f.image),
         title: Text(
-          [f.colour, ?f.code].join(' · '),
+          filmTitle(f.colour, f.code),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
@@ -767,18 +773,42 @@ class FilmTile extends StatelessWidget {
             if (widths.isNotEmpty) '${widths.join(' / ')} мм',
           ].join(' · '),
         ),
-        trailing: Text(
-          stock,
-          style: TextStyle(
-            color: f.enabled && free > 0
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outline,
-            fontWeight: FontWeight.w600,
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              stock,
+              style: TextStyle(
+                color: f.enabled && free > 0
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outline,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (onInfo != null)
+              IconButton(
+                key: ValueKey('filmInfo:${f.item}'),
+                tooltip: l10n.fpkCard,
+                icon: const Icon(AppIcons.info),
+                onPressed: onInfo,
+              ),
+          ],
         ),
       ),
     );
   }
+}
+
+/// A film's name with its code — once when they are the same (owner,
+/// 19.11.2026: GreenWood names its decors by their code, «AS 1890-SFT-W ·
+/// AS 1890-SFT-W»).
+String filmTitle(String name, String? code) {
+  final c = code?.trim();
+  if (c == null || c.isEmpty) return name;
+  final n = name.trim().toLowerCase();
+  return n == c.toLowerCase() || n.contains(c.toLowerCase())
+      ? name
+      : '$name · $c';
 }
 
 /// A film's sample square — shown only for a film that was given a colour
@@ -1750,6 +1780,9 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
   String _search = '';
   bool _busy = false;
 
+  /// The film whose card is open beside the list, all its thicknesses.
+  List<Film>? _card;
+
   static String _norm(String s) => s.toLowerCase().replaceAll('ё', 'е');
 
   bool _found(List<String?> parts) {
@@ -1879,6 +1912,7 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
         variants: g,
         supplier: names[g.first.supplier] ?? g.first.supplier,
         onTap: _busy ? null : () => _pickFilm(g),
+        onInfo: () => setState(() => _card = g),
       );
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1966,7 +2000,7 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
                           key: ValueKey('pickDecor:${d.decor}'),
                           onTap: _busy ? null : () => _pickDecor(d.decor),
                           leading: FilmSample(argb: d.argb, image: d.image),
-                          title: Text([d.name, ?d.code].join(' · ')),
+                          title: Text(filmTitle(d.name, d.code)),
                           subtitle: Text(
                             [d.maker, ?d.collection].join(' · '),
                           ),
@@ -1977,13 +2011,41 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
           ),
         ],
       );
+      // The card beside the list, the same film found again in a fresh
+      // catalogue once it was changed.
+      if (_card case final open?) {
+        final fresh = groups
+            .where((g) => g.any((f) => f.item == open.first.item))
+            .firstOrNull;
+        body = Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: body),
+            const VerticalDivider(),
+            SizedBox(
+              width: AppSpacing.xxxl * 8,
+              child: _FilmSide(
+                key: ValueKey('filmSide:${open.first.item}'),
+                group: fresh ?? open,
+                catalog: c,
+                supplier: names[open.first.supplier] ?? open.first.supplier,
+                onPick: _busy ? null : () => _pickFilm(fresh ?? open),
+                onClose: () => setState(() => _card = null),
+              ),
+            ),
+          ],
+        );
+      }
     }
     return AlertDialog(
       key: const ValueKey('filmPicker'),
       title: Text(l10n.fpkTitle),
       // As much of the window as it may take: hundreds of films.
       content: SizedBox(
-        width: math.min(AppSpacing.xxxl * 15, screen.width * 0.8),
+        width: math.min(
+          AppSpacing.xxxl * (_card == null ? 15 : 23),
+          screen.width * (_card == null ? 0.8 : 0.92),
+        ),
         height: math.min(AppSpacing.xxxl * 14, screen.height * 0.65),
         child: body,
       ),
@@ -1997,6 +2059,184 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.mdfCancel),
+        ),
+      ],
+    );
+  }
+}
+
+/// A film's card beside the order's film window (owner, 19.11.2026): what
+/// is on the shelf and on its way, what it costs, how fast it goes — and its
+/// history; «Изменить» opens the full card, which keeps that history.
+class _FilmSide extends ConsumerStatefulWidget {
+  const _FilmSide({
+    required this.group,
+    required this.catalog,
+    required this.onClose,
+    this.supplier,
+    this.onPick,
+    super.key,
+  });
+
+  /// The film in all its thicknesses.
+  final List<Film> group;
+  final FilmCatalog catalog;
+  final String? supplier;
+  final VoidCallback? onPick;
+  final VoidCallback onClose;
+
+  @override
+  ConsumerState<_FilmSide> createState() => _FilmSideState();
+}
+
+class _FilmSideState extends ConsumerState<_FilmSide> {
+  bool _history = false;
+
+  Future<void> _edit(Film film) async {
+    final gone = await showFilmCard(context, film, widget.catalog);
+    ref
+      ..invalidate(filmCatalogProvider)
+      ..invalidate(filmChangesProvider(film.item));
+    if ((gone ?? false) && mounted) widget.onClose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final f = widget.group.first;
+    String money(double v) => '${v.toStringAsFixed(0)} ₸';
+    Widget line(String text, {Color? color}) => Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Text(text, style: TextStyle(color: color)),
+    );
+    final status = context.statusColors;
+    final about = [
+      for (final v in widget.group) ...[
+        if (widget.group.length > 1)
+          Text(
+            v.thicknessMm == null
+                ? l10n.filmThicknessUnknown
+                : '${_metres(v.thicknessMm!)} мм',
+            style: theme.textTheme.labelMedium,
+          ),
+        line(
+          v.free > 0 ? l10n.filmHave(_metres(v.free)) : l10n.fpkSideNone,
+          color: v.free > 0 ? status.success : status.warning,
+        ),
+        if (v.held > 0 || v.holds.isNotEmpty)
+          line(
+            l10n.fpkSideHeld(
+              _metres(v.held + v.holds.fold<double>(0, (s, h) => s + h.metres)),
+            ),
+          ),
+        for (final c in v.coming)
+          line(
+            l10n.fpkSideComing(_metres(c.metres), c.due),
+            color: c.lateDays > 0 ? status.danger : null,
+          ),
+        if (v.dailyM case final d? when d > 0)
+          line(
+            l10n.fpkSideDaily(
+              _metres(d),
+              v.daysLeft == null ? '—' : '${v.daysLeft}',
+            ),
+          ),
+        if (v.priceM case final p?) line(l10n.fpkSideBuy(money(p))),
+        if (v.retailM case final p?) line(l10n.fpkSideRetail(money(p))),
+        if (v.wholesaleM case final p?) line(l10n.fpkSideWholesale(money(p))),
+        const SizedBox(height: AppSpacing.xs),
+      ],
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            if (f.argb != null || f.image != null)
+              FilmSample(argb: f.argb, image: f.image, size: AppSpacing.xxl),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    filmTitle(f.colour, f.code),
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  Text(
+                    [f.maker, ?f.collection, ?f.type, ?widget.supplier]
+                        .join(' · '),
+                    style: muted,
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              key: const ValueKey('filmSideClose'),
+              tooltip: l10n.mdfCancel,
+              icon: const Icon(AppIcons.close),
+              onPressed: widget.onClose,
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        SegmentedButton<bool>(
+          segments: [
+            ButtonSegment(value: false, label: Text(l10n.fpkSideFilm)),
+            ButtonSegment(
+              value: true,
+              label: Text(
+                l10n.filmHistory,
+                key: const ValueKey('filmSideHistory'),
+              ),
+            ),
+          ],
+          selected: {_history},
+          onSelectionChanged: (v) => setState(() => _history = v.first),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Expanded(
+          child: SingleChildScrollView(
+            child: _history
+                ? _FilmChanges(item: f.item)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: about,
+                  ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
+          children: [
+            FilledButton(
+              key: const ValueKey('filmSidePick'),
+              onPressed: widget.onPick,
+              child: Text(l10n.fpkSidePick),
+            ),
+            OutlinedButton(
+              key: const ValueKey('filmSideAnalogues'),
+              onPressed: () => showAnalogues(
+                context,
+                ref,
+                title: f.colour,
+                item: f.item,
+              ),
+              child: Text(l10n.fdcAnalogues),
+            ),
+            if (widget.catalog.canEdit)
+              OutlinedButton.icon(
+                key: const ValueKey('filmSideEdit'),
+                onPressed: () => _edit(f),
+                icon: const Icon(AppIcons.edit),
+                label: Text(l10n.fpkSideEdit),
+              ),
+          ],
         ),
       ],
     );

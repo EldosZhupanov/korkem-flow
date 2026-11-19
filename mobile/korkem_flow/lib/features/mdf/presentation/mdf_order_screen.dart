@@ -28,6 +28,7 @@ import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
+import 'package:korkem_flow/features/mdf/presentation/film_where_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_client_paint.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_coating.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
@@ -1297,6 +1298,14 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       toBuy: film == null
                           ? null
                           : widget.order?.filmToBuy[film],
+                      onWhere: widget.order == null || film == null
+                          ? null
+                          : () => showFilmWhere(
+                              context,
+                              order: widget.order!.name,
+                              film: film,
+                              phone: widget.order!.phone,
+                            ),
                       onFilm: (to) => _renameFilm(group, to),
                       onType: (to) => _setType(group, to),
                       onRateChanged: _reprice,
@@ -1473,11 +1482,15 @@ class _ToBuyChip extends StatelessWidget {
     required this.short,
     required this.from,
     required this.index,
+    this.onTap,
   });
 
   final double short;
   final String? from;
   final int index;
+
+  /// Where to get it (owner, 19.11.2026).
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1485,8 +1498,7 @@ class _ToBuyChip extends StatelessWidget {
     final theme = Theme.of(context);
     final warning = context.statusColors.warning;
     final metres = filmMetres(short);
-    return Container(
-      key: ValueKey('mdfFilmToBuy:$index'),
+    final chip = Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
         vertical: AppSpacing.xs,
@@ -1506,8 +1518,24 @@ class _ToBuyChip extends StatelessWidget {
                 : l10n.mdfFilmToBuyFrom(metres, from!),
             style: theme.textTheme.labelMedium?.copyWith(color: warning),
           ),
+          if (onTap != null) ...[
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              l10n.fwWhere,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: warning,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ],
         ],
       ),
+    );
+    return InkWell(
+      key: ValueKey('mdfFilmToBuy:$index'),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: chip,
     );
   }
 }
@@ -1534,6 +1562,7 @@ class _FilmGroup extends StatelessWidget {
     this.onGloss,
     this.paintGroups = const [],
     this.toBuy,
+    this.onWhere,
     this.ownMdf = (marked: 0, of: 0),
     this.customer,
     super.key,
@@ -1574,6 +1603,9 @@ class _FilmGroup extends StatelessWidget {
   /// The film is not on the shelf: so many metres short, and whom it
   /// comes from (owner, 18.11.2026).
   final ({double short, String? from})? toBuy;
+
+  /// Opens «где взять» for the film [toBuy] is about.
+  final VoidCallback? onWhere;
 
   /// How many of the group's positions are the customer's own board: the
   /// group's mark is a shortcut over the positions' own ticks (owner,
@@ -1768,7 +1800,12 @@ class _FilmGroup extends StatelessWidget {
                       ),
                     ),
                   if (toBuy case final b? when coating == MdfCoating.pvc)
-                    _ToBuyChip(short: b.short, from: b.from, index: index),
+                    _ToBuyChip(
+                      short: b.short,
+                      from: b.from,
+                      index: index,
+                      onTap: onWhere,
+                    ),
                   // The type's own list, right beside its drop like every
                   // other field's: add, rename, delete a film or a paint
                   // without leaving the order (09.11.2026; moved beside the
@@ -2828,6 +2865,13 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
         MdfMarginView(order: o.name),
         // Small parts an offcut on the shelf holds (owner, 18.11.2026).
         if (open && o.offcutParts > 0) OffcutSuggestionView(order: o.name),
+        // The film the shelf cannot give: where to get it (owner, 19.11.2026).
+        if (open && o.filmToBuy.isNotEmpty)
+          FilmWhereView(
+            order: o.name,
+            phone: o.phone,
+            onChanged: () => ref.invalidate(mdfOrderProvider(o.name)),
+          ),
         const SizedBox(height: AppSpacing.sm),
         Wrap(
           spacing: AppSpacing.sm,

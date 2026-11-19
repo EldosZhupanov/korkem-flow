@@ -911,7 +911,7 @@ def _film_to_buy(doc) -> dict:
 		supplier = film_orders._supplier_of(m["item"])
 		name = frappe.db.get_value("Supplier", supplier, "supplier_name") if supplier else None
 		out[m["key"]] = {
-			"short": short, "unit": m["unit"], "free": round(flt(m["free"]), 1),
+			"item": m["item"], "short": short, "unit": m["unit"], "free": round(flt(m["free"]), 1),
 			"from": name or supplier or (film_catalog.split(m["key"]) or (None,))[0],
 		}
 	return out
