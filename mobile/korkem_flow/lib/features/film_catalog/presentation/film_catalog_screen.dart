@@ -64,10 +64,10 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
       data: (c) {
         final decors = ref.watch(filmCatalogueProvider).value;
         // A maker known only by its catalogue has a tab too.
+        final known = decors?.makers ?? const <({String maker, int count})>[];
         final tabs = [
           ...c.tabs,
-          for (final m
-              in decors?.makers ?? const <({String maker, int count})>[])
+          for (final m in known)
             if (!c.tabs.contains(m.maker)) m.maker,
         ];
         return DefaultTabController(
