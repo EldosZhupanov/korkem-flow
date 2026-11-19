@@ -10450,5 +10450,14 @@
         "type": "int"
       }
     }
-  }
+  },
+  "filmMakerAddButton": "Maker",
+  "filmMakerAddTitle": "A new maker",
+  "filmMakerAddName": "The maker's name",
+  "filmMakerAddNameHint": "As on the roll: Kira Group, Adilet…",
+  "filmMakerAddWhere": "Where it is bought",
+  "filmMakerAddNewSource": "A new supplier",
+  "filmMakerAddSourceName": "Supplier (e.g. Kira · Kostanay)",
+  "filmMakerAddCatalogueHint": "The catalogue with pictures can be loaded later — the 📎 icon above.",
+  "filmMakerAddSave": "Add"
 }

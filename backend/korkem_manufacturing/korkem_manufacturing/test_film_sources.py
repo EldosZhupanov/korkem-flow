@@ -84,6 +84,30 @@ class TestFilmSources(IntegrationTestCase):
 		# The floor still reads who to ring.
 		self.assertIn(made["supplier"], {s["supplier"] for s in self._as(CUTTER, service.sources)["sources"]})
 
+	def test_a_new_maker_comes_in_one_go_with_its_site_and_sources(self):
+		name = f"Фирма-{frappe.generate_hash(length=5)}"
+		old = self._as(MANAGER, service.add, ASTANA, makers=[MAKER])
+		card = self._as(
+			MANAGER, service.add_maker, f"  {name} ", site="kira-group.kz", sources=[old["supplier"]],
+			new_source={"name": f"{name} · Костанай", "city": "Костанай", "phone": "+7 777 900 90 00"},
+		)
+		self.assertEqual((card["maker"], card["site"]), (name, "kira-group.kz"))
+		self.assertEqual({s["name"] for s in card["sources"]}, {ASTANA, f"{name} · Костанай"})
+		# The old source keeps its maker and gets the new one.
+		self.assertEqual(self._as(MANAGER, service.source, old["supplier"])["makers"], [MAKER, name])
+		new = next(s for s in card["sources"] if s["name"] != ASTANA)
+		self.assertEqual((new["city"], new["phone"]), ("Костанай", "+77779009000"))
+		# A tab of its own.
+		self.assertIn(name, self._as(MANAGER, film_catalog.catalog)["makers"])
+		# The same name again — whatever its case — adds nothing twice.
+		again = self._as(MANAGER, service.add_maker, name.upper(), sources=[old["supplier"]])
+		self.assertEqual(again["maker"], name)
+		self.assertEqual(self._as(MANAGER, service.source, old["supplier"])["makers"], [MAKER, name])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.add_maker, "К")
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, service.add_maker, f"{name}-цех")
+
 	def test_a_maker_has_a_site_and_a_note_and_keeps_its_sources_when_renamed(self):
 		made = self._as(MANAGER, service.add, ASTANA, makers=[MAKER])
 		card = self._as(MANAGER, service.set_maker, MAKER, site="adilet.net", note="завод в Ульяновске")

@@ -45,6 +45,9 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
   /// The collection open at each maker — every maker has its own.
   final _collection = <String, String>{};
 
+  /// A maker just added: its tab is opened.
+  String? _opening;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -70,8 +73,14 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
           for (final m in known)
             if (!c.tabs.contains(m.maker)) m.maker,
         ];
+        // «не указан» only while there are colours with no maker.
+        final loose = c.unassigned.isNotEmpty;
+        // A maker just added opens on its own tab.
+        final opening = _opening == null ? -1 : tabs.indexOf(_opening!);
         return DefaultTabController(
-          length: tabs.length + 1,
+          key: ValueKey('filmTabs:${tabs.length}:$loose:$_opening'),
+          length: tabs.length + (loose ? 1 : 0),
+          initialIndex: opening < 0 ? 0 : opening,
           child: Scaffold(
             appBar: AppBar(
               title: Text(l10n.filmCatalogTitle),
@@ -93,26 +102,58 @@ class _FilmCatalogScreenState extends ConsumerState<FilmCatalogScreen> {
                   icon: const Icon(AppIcons.attachment),
                 ),
               ],
-              bottom: TabBar(
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                tabs: [
-                  for (final m in tabs)
-                    Tab(
-                      key: ValueKey('filmMaker:$m'),
-                      text: m,
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(kTextTabBarHeight),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TabBar(
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        tabs: [
+                          for (final m in tabs)
+                            Tab(
+                              key: ValueKey('filmMaker:$m'),
+                              text: m,
+                            ),
+                          if (loose)
+                            Tab(
+                              key: const ValueKey('filmMaker:none'),
+                              text:
+                                  '${l10n.filmUnassigned} · '
+                                  '${c.unassigned.length}',
+                            ),
+                        ],
+                      ),
                     ),
-                  Tab(
-                    key: const ValueKey('filmMaker:none'),
-                    text: '${l10n.filmUnassigned} · ${c.unassigned.length}',
-                  ),
-                ],
+                    // «+ Фирма» (owner, 19.11.2026): a new maker, where it
+                    // is bought, in one window.
+                    if (c.canEdit)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                        ),
+                        child: TextButton.icon(
+                          key: const ValueKey('filmMakerAdd'),
+                          onPressed: () async {
+                            final made = await showFilmMakerAdd(context);
+                            if (made != null && mounted) {
+                              setState(() => _opening = made);
+                            }
+                          },
+                          icon: const Icon(AppIcons.add),
+                          label: Text(l10n.filmMakerAddButton),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
             body: TabBarView(
               children: [
                 for (final m in tabs) _makerTab(c, decors, m, l10n),
-                _Unassigned(colours: c.unassigned, canEdit: c.canEdit),
+                if (loose)
+                  _Unassigned(colours: c.unassigned, canEdit: c.canEdit),
               ],
             ),
           ),

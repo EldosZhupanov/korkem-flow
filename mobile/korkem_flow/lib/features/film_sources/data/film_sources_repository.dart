@@ -83,6 +83,28 @@ class FilmSourcesRepository {
     _map(await _client.callMethod('$_base.maker', params: {'name': name})),
   );
 
+  /// A new maker in one go: its name, its site, the sources it is bought
+  /// from — those there are ([sources]) and one new ([newSource], its card).
+  Future<FilmMaker> addMaker({
+    required String name,
+    String? site,
+    List<String> sources = const [],
+    Map<String, String>? newSource,
+  }) async => FilmMaker.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.add_maker',
+        post: true,
+        params: {
+          'name': name,
+          'site': ?site,
+          'sources': jsonEncode(sources),
+          if (newSource != null) 'new_source': jsonEncode(newSource),
+        },
+      ),
+    ),
+  );
+
   Future<void> setMaker(String name, {String? site, String? note}) =>
       _client.callMethod(
         '$_base.set_maker',
