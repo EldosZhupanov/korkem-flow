@@ -10736,6 +10736,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fpkNone => 'Без плёнки';
+
+  @override
   String get cncpArtcam => 'Из ArtCAM';
 
   @override
@@ -10758,4 +10760,181 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cncpToolsSearch => 'Найти фрезу: название, диаметр, угол';
+
+  @override
+  String get fpkCard => 'Карточка плёнки';
+
+  @override
+  String get fpkSideFilm => 'Плёнка';
+
+  @override
+  String get fpkSideEdit => 'Изменить';
+
+  @override
+  String get fpkSidePick => 'Выбрать';
+
+  @override
+  String get fpkSideNone => 'на складе нет';
+
+  @override
+  String fpkSideHeld(String metres) {
+    return 'под заказы: $metres м';
+  }
+
+  @override
+  String fpkSideComing(String metres, String day) {
+    return 'едет $metres м · $day';
+  }
+
+  @override
+  String fpkSideDaily(String metres, String days) {
+    return 'уходит ~$metres м в день · хватит на $days дн.';
+  }
+
+  @override
+  String fpkSideBuy(String price) {
+    return 'закуп $price/м';
+  }
+
+  @override
+  String fpkSideRetail(String price) {
+    return 'розница $price/м';
+  }
+
+  @override
+  String fpkSideWholesale(String price) {
+    return 'опт $price/м';
+  }
+
+  @override
+  String get fwTitle => 'Плёнки нет — где взять';
+
+  @override
+  String get fwWhere => 'где взять';
+
+  @override
+  String get fwNothingShort => 'Этой плёнки уже хватает.';
+
+  @override
+  String fwNeedBy(String day) {
+    return 'нужна в цеху к $day';
+  }
+
+  @override
+  String get fwUrgent => 'срочный';
+
+  @override
+  String fwShort(String metres) {
+    return 'не хватает $metres м';
+  }
+
+  @override
+  String fwOrdered(String metres, String supplier) {
+    return 'Заказано $metres м · $supplier';
+  }
+
+  @override
+  String fwNowhere(String day) {
+    return 'Нет нигде — обзвонили $day';
+  }
+
+  @override
+  String fwNoSources(String maker) {
+    return 'У «$maker» нет поставщиков — добавьте в «Где брать».';
+  }
+
+  @override
+  String get fwAdvised => 'советую';
+
+  @override
+  String fwPrice(String price, String delivery, String landed) {
+    return '$price + доставка $delivery = $landed за м';
+  }
+
+  @override
+  String fwPriceOnly(String price) {
+    return '$price за м';
+  }
+
+  @override
+  String get fwCardPrice => 'цена из карточки';
+
+  @override
+  String fwTimes(String count) {
+    return 'брали $count раз';
+  }
+
+  @override
+  String fwComes(String days, String day) {
+    return '$days дн. → придёт $day';
+  }
+
+  @override
+  String get fwInTime => 'успевает';
+
+  @override
+  String get fwLate => 'не успевает';
+
+  @override
+  String get fwLeadUnknown => 'срок не указан';
+
+  @override
+  String get fwOrderButton => 'Есть — заказать';
+
+  @override
+  String get fwAcceptFirst => 'Заказать можно после «Принять».';
+
+  @override
+  String get fwNowhereButton => 'Нет нигде';
+
+  @override
+  String get fwLookalikes => 'Похожие у других фирм';
+
+  @override
+  String fwOnShelf(String metres) {
+    return 'у нас $metres м';
+  }
+
+  @override
+  String get fwOffer => 'Предложить клиенту в WhatsApp';
+
+  @override
+  String fwOfferText(String film, String other) {
+    return 'Здравствуйте! Плёнки «$film» сейчас нет у поставщиков. Есть очень похожая — «$other». Подойдёт вам?';
+  }
+
+  @override
+  String get fwReplace => 'Заменить';
+
+  @override
+  String fwReplaceTitle(String film, String other) {
+    return 'Заменить «$film» на «$other»?';
+  }
+
+  @override
+  String get fwReplaceReason =>
+      'Почему — например, «клиент согласен по WhatsApp»';
+
+  @override
+  String fwOrderTitle(String film, String supplier) {
+    return '$film — у $supplier';
+  }
+
+  @override
+  String get fwMetres => 'Сколько метров';
+
+  @override
+  String get fwPriceField => 'Цена за метр, которую назвали';
+
+  @override
+  String get fwSaidBy => 'Кто подтвердил (менеджер поставщика)';
+
+  @override
+  String get fwComesOn => 'Привезут';
+
+  @override
+  String get fwOrderConfirm => 'В «К заказу»';
+
+  @override
+  String get fwOrderedDone => 'Добавлено в «К заказу».';
 }
