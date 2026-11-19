@@ -3323,5 +3323,6 @@
   "filmMakerAddNewSource": "Новый поставщик",
   "filmMakerAddSourceName": "Поставщик (например, Kira · Костанай)",
   "filmMakerAddCatalogueHint": "Каталог с фото можно загрузить потом — значок 📎 вверху.",
-  "filmMakerAddSave": "Добавить"
+  "filmMakerAddSave": "Добавить",
+  "fpkCatalogHint": "Нажмите на декор — плёнка заведётся и встанет в заказ, а потом в «К заказу»."
 }

@@ -1913,6 +1913,9 @@ class _FilmPickerDialog extends ConsumerStatefulWidget {
 }
 
 class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
+  /// How many catalogue decors are shown at once.
+  static const _decorsShown = 60;
+
   String? _maker;
   String? _type;
   bool _onShelf = false;
@@ -2017,14 +2020,23 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
               '${b.first.maker} ${b.first.colour}',
             );
           });
-      final decors = _onShelf || _type != null
+      // The maker's catalogue — decors not on the books yet — shown under
+      // its films whenever a maker is picked, «На складе» or not (owner,
+      // 19.11.2026: «а где тут полный список с плёнками каталоги?»).
+      final known = {
+        for (final f in c.films) _norm('${f.maker} ${f.colour}'),
+      };
+      final decors = _type != null || (_onShelf && _maker == null)
           ? const <FilmDecor>[]
           : [
               for (final d in extras.decors)
                 if ((_maker == null || d.maker == _maker) &&
+                    d.films.isEmpty &&
+                    !known.contains(_norm('${d.maker} ${d.name}')) &&
                     _found([d.maker, d.name, d.code, d.collection]))
                   d,
             ];
+      final shown = decors.take(_decorsShown).toList();
       final plain =
           _search.trim().isEmpty &&
           _maker == null &&
@@ -2130,21 +2142,58 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
                         const Divider(),
                       ],
                       Text(
-                        l10n.fpkFound(films.length + decors.length),
+                        _maker == null
+                            ? l10n.fpkFound(films.length + decors.length)
+                            : l10n.filmOurs('${films.length}'),
+                        key: const ValueKey('pickOurs'),
                         style: label,
                       ),
                       for (final g in films) tile(g),
-                      for (final d in decors)
-                        ListTile(
-                          key: ValueKey('pickDecor:${d.decor}'),
-                          onTap: _busy ? null : () => _pickDecor(d.decor),
-                          leading: FilmSample(argb: d.argb, image: d.image),
-                          title: Text(filmTitle(d.name, d.code)),
-                          subtitle: Text(
-                            [d.maker, ?d.collection].join(' · '),
-                          ),
-                          trailing: Text(l10n.fpkCatalogOnly, style: muted),
+                      if (shown.isNotEmpty) ...[
+                        const Divider(),
+                        Text(
+                          _maker == null
+                              ? l10n.filmReceiveCatalogFound(decors.length)
+                              : l10n.filmReceiveCatalogOf(
+                                  _maker!,
+                                  decors.length,
+                                ),
+                          key: const ValueKey('pickCatalogHead'),
+                          style: label,
                         ),
+                        Text(l10n.fpkCatalogHint, style: muted),
+                        const SizedBox(height: AppSpacing.xs),
+                        GridView.builder(
+                          key: const ValueKey('pickCatalog'),
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: AppSpacing.xxxl * 3,
+                                mainAxisSpacing: AppSpacing.xs,
+                                crossAxisSpacing: AppSpacing.xs,
+                                childAspectRatio: 0.85,
+                              ),
+                          itemCount: shown.length,
+                          itemBuilder: (context, i) => DecorCard(
+                            key: ValueKey('pickDecor:${shown[i].decor}'),
+                            decor: shown[i],
+                            onTap: _busy
+                                ? () {}
+                                : () => _pickDecor(shown[i].decor),
+                          ),
+                        ),
+                        if (decors.length > shown.length)
+                          Padding(
+                            padding: const EdgeInsets.all(AppSpacing.sm),
+                            child: Text(
+                              l10n.filmReceiveCatalogMore(
+                                decors.length - shown.length,
+                              ),
+                              style: muted,
+                            ),
+                          ),
+                      ],
                     ],
                   ),
           ),

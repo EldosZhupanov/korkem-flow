@@ -477,11 +477,26 @@ void main() {
     await tester.tap(find.text('pick'));
     await tester.pumpAndSettle();
     expect(find.text("This customer's of late"), findsOneWidget);
-    expect(find.text('catalogue only'), findsOneWidget);
+    // The catalogue under its own heading, as pictures.
+    expect(find.byKey(const ValueKey('pickCatalogHead')), findsOneWidget);
+    // A maker picked with «На складе» on: its films on the shelf, and its
+    // catalogue still under them.
+    final maker = find.byKey(const ValueKey('pickMaker:MC Group'));
+    await tester.ensureVisible(maker);
+    await tester.tap(maker);
+    await tester.tap(find.byKey(const ValueKey('pickOnShelf')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pickCatalogHead')), findsOneWidget);
+    expect(find.byKey(const ValueKey('pickDecor:D-1')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('pickOnShelf')));
+    await tester.tap(find.byKey(const ValueKey('pickMaker:all')));
     await tester.enterText(find.byKey(const ValueKey('pickSearch')), 'сиена');
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
-    await tester.tap(find.byKey(const ValueKey('pickDecor:D-1')));
+    final decor = find.byKey(const ValueKey('pickDecor:D-1'));
+    await tester.ensureVisible(decor);
+    await tester.pumpAndSettle();
+    await tester.tap(decor);
     await tester.pumpAndSettle();
     expect(decors.taken, ['D-1']);
     expect(picked, 'MC Group · Сиена верде');

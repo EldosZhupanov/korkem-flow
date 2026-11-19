@@ -3323,5 +3323,6 @@
   "filmMakerAddNewSource": "Жаңа жеткізуші",
   "filmMakerAddSourceName": "Жеткізуші (мысалы, Kira · Қостанай)",
   "filmMakerAddCatalogueHint": "Фотосы бар каталогты кейін жүктеуге болады — жоғарыдағы 📎 белгісі.",
-  "filmMakerAddSave": "Қосу"
+  "filmMakerAddSave": "Қосу",
+  "fpkCatalogHint": "Декорды басыңыз — пленка енгізіліп, тапсырысқа, кейін «Тапсырысқа» тізіміне түседі."
 }

@@ -10459,5 +10459,6 @@
   "filmMakerAddNewSource": "A new supplier",
   "filmMakerAddSourceName": "Supplier (e.g. Kira · Kostanay)",
   "filmMakerAddCatalogueHint": "The catalogue with pictures can be loaded later — the 📎 icon above.",
-  "filmMakerAddSave": "Add"
+  "filmMakerAddSave": "Add",
+  "fpkCatalogHint": "Tap a decor — the film is taken in, goes into the order, then onto «К заказу»."
 }
