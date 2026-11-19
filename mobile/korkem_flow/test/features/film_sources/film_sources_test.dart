@@ -299,7 +299,8 @@ void main() {
     await tester.tap(save);
     await tester.pumpAndSettle();
     final (name, site, sources, fresh) = repo.makersAdded.single;
-    expect((name, site, sources), ('Kira Group', 'kira-group.kz', ['SUP-2']));
+    expect((name, site), ('Kira Group', 'kira-group.kz'));
+    expect(sources, ['SUP-2']);
     expect(fresh?['name'], 'Kira · Костанай');
     expect(fresh?['city'], 'Костанай');
     expect(made, 'Kira Group');
