@@ -232,7 +232,10 @@ void main() {
     expect(find.byKey(const ValueKey('fdcDecor:Агава')), findsOneWidget);
     expect(find.byKey(const ValueKey('fdcDecor:Белый Матовый')), findsNothing);
     // One search for both.
-    await tester.enterText(find.byKey(const ValueKey('filmSearch')).last, 'агав');
+    await tester.enterText(
+      find.byKey(const ValueKey('filmSearch')).last,
+      'агав',
+    );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('fdcDecor:Агава')), findsOneWidget);
     expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
