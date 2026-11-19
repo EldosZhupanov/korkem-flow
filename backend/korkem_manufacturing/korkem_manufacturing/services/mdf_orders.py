@@ -731,6 +731,11 @@ def _tick(order: str, stage: str, done=True, worker: str | None = None) -> None:
 	needed = stages_of(doc)
 	if stage not in needed:
 		frappe.throw("У этого заказа такого этапа нет — добавьте его кнопкой «+ этап».")
+	if stage == "paint" and done:
+		# No painting before the customer agreed to a colour's swap.
+		from korkem_manufacturing.services import paint_swap
+
+		paint_swap.ensure_agreed(doc)
 	if stage == "ready" and done:
 		missing = [s for s in needed if s != "ready" and not doc.get(STAGES[s])]
 		if missing:
@@ -972,6 +977,7 @@ def card(order: str) -> dict:
 		"customer": doc.customer,
 		"customer_name": doc.customer_name,
 		"phone": frappe.db.get_value("Customer", doc.customer, "mobile_no"),
+		"paint_swaps": _swaps(doc),
 		"customer_tags": mdf_tags.parse(frappe.db.get_value("Customer", doc.customer, "korkem_tags")),
 		"tags": mdf_tags.parse(doc.get("korkem_tags")),
 		"created_on": str(doc.transaction_date),
@@ -1549,6 +1555,12 @@ def _full_name(user: str | None) -> str | None:
 	if not user:
 		return None
 	return frappe.db.get_value("User", user, "full_name") or user
+
+
+def _swaps(doc) -> list[dict]:
+	from korkem_manufacturing.services import paint_swap
+
+	return paint_swap.of(doc)
 
 
 def _order(name: str):
