@@ -10912,4 +10912,23 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmCatalogueHint => 'Декорды басыңыз — үлдір ашу немесе қарау.';
+
+  @override
+  String get filmReceiveCatalogues =>
+      'Фирмалардың каталогтары — ашу үшін басыңыз';
+
+  @override
+  String filmReceiveCatalogOf(String maker, int count) {
+    return '$maker каталогы · әлі енгізілмеген: $count';
+  }
+
+  @override
+  String filmReceiveCatalogFound(int count) {
+    return 'Каталогтардан · $count';
+  }
+
+  @override
+  String filmReceiveCatalogMore(int count) {
+    return 'Тағы $count — іздеуді немесе коллекцияны нақтылаңыз';
+  }
 }

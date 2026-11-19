@@ -10954,4 +10954,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmCatalogueHint => 'Tap a decor to take it in or look at it.';
+
+  @override
+  String get filmReceiveCatalogues => 'Makers\' catalogues — tap to open';
+
+  @override
+  String filmReceiveCatalogOf(String maker, int count) {
+    return '$maker\'s catalogue · not taken in yet: $count';
+  }
+
+  @override
+  String filmReceiveCatalogFound(int count) {
+    return 'From the catalogues · $count';
+  }
+
+  @override
+  String filmReceiveCatalogMore(int count) {
+    return '$count more — narrow the search or the collection';
+  }
 }

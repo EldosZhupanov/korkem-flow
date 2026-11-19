@@ -174,12 +174,13 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
       final typed = _search.trim();
       final maker = _maker;
       // The makers: ours and those known by their catalogue alone.
-      final makers = {
-        for (final f in c.films)
-          if (f.enabled) f.maker,
-        for (final d in decors) d.maker,
-      }.where((m) => m.isNotEmpty).toList()
-        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+      final makers =
+          {
+              for (final f in c.films)
+                if (f.enabled) f.maker,
+              for (final d in decors) d.maker,
+            }.where((m) => m.isNotEmpty).toList()
+            ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
       final looking = typed.isNotEmpty || maker != null;
       final films = !looking
           ? const <List<Film>>[]
@@ -216,7 +217,10 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
       final fromCatalog = catalogue.take(_decorsShown).toList();
       final waitCount =
           coming.length +
-          ordered.fold<int>(0, (n, g) => n + FilmWantGroup.byFilm(g.sent).length);
+          ordered.fold<int>(
+            0,
+            (n, g) => n + FilmWantGroup.byFilm(g.sent).length,
+          );
       body = ListView(
         children: [
           _Fold(
@@ -234,83 +238,84 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
               child: Text(l10n.filmReceiveNothingWaited, style: muted),
             ),
           if (_waitOpen)
-          for (final (f, w) in coming)
-            ListTile(
-              key: ValueKey('rcvComing:${w.entry}'),
-              contentPadding: EdgeInsets.zero,
-              leading: FilmSample(argb: f.argb, image: f.image),
-              title: Text('${f.maker} · ${filmTitle(f.colour, f.code)}'),
-              subtitle: Text(
-                [
-                  filmComingLine(w, l10n),
-                  ?w.supplier,
-                ].join(' · '),
-                style: TextStyle(
-                  color: w.lateDays > 0 ? status.danger : null,
-                ),
-              ),
-              trailing: FilledButton.tonal(
-                key: ValueKey('rcvArrived:${w.entry}'),
-                onPressed: _busy ? null : () => _arrived(w),
-                child: Text(l10n.filmComingArrived),
-              ),
-            ),
-          if (_waitOpen)
-          for (final g in ordered) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Row(
-              children: [
-                Expanded(
-                  child: _Fold(
-                    key: ValueKey('rcvGroupFold:${g.supplier ?? '-'}'),
-                    title:
-                        '${l10n.filmReceiveOrderedFrom(g.name)} · '
-                        '${FilmWantGroup.byFilm(g.sent).length}',
-                    style: theme.textTheme.titleSmall,
-                    open: !_folded.contains(g.supplier ?? '-'),
-                    onTap: () => setState(() {
-                      final k = g.supplier ?? '-';
-                      if (!_folded.remove(k)) _folded.add(k);
-                    }),
-                  ),
-                ),
-                if (FilmWantGroup.byFilm(g.sent).length > 1)
-                  TextButton(
-                    key: ValueKey('rcvSupplier:${g.supplier ?? '-'}'),
-                    onPressed: _busy
-                        ? null
-                        : () => _delivered(c, g, FilmWantGroup.byFilm(g.sent)),
-                    child: Text(l10n.filmReceiveAllCame),
-                  ),
-              ],
-            ),
-            if (!_folded.contains(g.supplier ?? '-'))
-            for (final lines in FilmWantGroup.byFilm(g.sent))
+            for (final (f, w) in coming)
               ListTile(
-                key: ValueKey('rcvOrdered:${lines.first.item}'),
+                key: ValueKey('rcvComing:${w.entry}'),
                 contentPadding: EdgeInsets.zero,
-                leading: switch (c.film(lines.first.item)) {
-                  final f? => FilmSample(argb: f.argb, image: f.image),
-                  null => const Icon(AppIcons.material),
-                },
-                title: Text(lines.first.title),
+                leading: FilmSample(argb: f.argb, image: f.image),
+                title: Text('${f.maker} · ${filmTitle(f.colour, f.code)}'),
                 subtitle: Text(
                   [
-                    l10n.filmReceiveMetres(
-                      filmMetres(
-                        lines.fold<double>(0, (s, l) => s + l.metres),
-                      ),
-                    ),
-                    ?filmForWhom(l10n, lines),
+                    filmComingLine(w, l10n),
+                    ?w.supplier,
                   ].join(' · '),
+                  style: TextStyle(
+                    color: w.lateDays > 0 ? status.danger : null,
+                  ),
                 ),
                 trailing: FilledButton.tonal(
-                  key: ValueKey('rcvCame:${lines.first.item}'),
-                  onPressed: _busy ? null : () => _delivered(c, g, [lines]),
+                  key: ValueKey('rcvArrived:${w.entry}'),
+                  onPressed: _busy ? null : () => _arrived(w),
                   child: Text(l10n.filmComingArrived),
                 ),
               ),
-          ],
+          if (_waitOpen)
+            for (final g in ordered) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Row(
+                children: [
+                  Expanded(
+                    child: _Fold(
+                      key: ValueKey('rcvGroupFold:${g.supplier ?? '-'}'),
+                      title:
+                          '${l10n.filmReceiveOrderedFrom(g.name)} · '
+                          '${FilmWantGroup.byFilm(g.sent).length}',
+                      style: theme.textTheme.titleSmall,
+                      open: !_folded.contains(g.supplier ?? '-'),
+                      onTap: () => setState(() {
+                        final k = g.supplier ?? '-';
+                        if (!_folded.remove(k)) _folded.add(k);
+                      }),
+                    ),
+                  ),
+                  if (FilmWantGroup.byFilm(g.sent).length > 1)
+                    TextButton(
+                      key: ValueKey('rcvSupplier:${g.supplier ?? '-'}'),
+                      onPressed: _busy
+                          ? null
+                          : () =>
+                                _delivered(c, g, FilmWantGroup.byFilm(g.sent)),
+                      child: Text(l10n.filmReceiveAllCame),
+                    ),
+                ],
+              ),
+              if (!_folded.contains(g.supplier ?? '-'))
+                for (final lines in FilmWantGroup.byFilm(g.sent))
+                  ListTile(
+                    key: ValueKey('rcvOrdered:${lines.first.item}'),
+                    contentPadding: EdgeInsets.zero,
+                    leading: switch (c.film(lines.first.item)) {
+                      final f? => FilmSample(argb: f.argb, image: f.image),
+                      null => const Icon(AppIcons.material),
+                    },
+                    title: Text(lines.first.title),
+                    subtitle: Text(
+                      [
+                        l10n.filmReceiveMetres(
+                          filmMetres(
+                            lines.fold<double>(0, (s, l) => s + l.metres),
+                          ),
+                        ),
+                        ?filmForWhom(l10n, lines),
+                      ].join(' · '),
+                    ),
+                    trailing: FilledButton.tonal(
+                      key: ValueKey('rcvCame:${lines.first.item}'),
+                      onPressed: _busy ? null : () => _delivered(c, g, [lines]),
+                      child: Text(l10n.filmComingArrived),
+                    ),
+                  ),
+            ],
           const Divider(),
           Text(l10n.filmReceiveOther, style: label),
           const SizedBox(height: AppSpacing.xs),
