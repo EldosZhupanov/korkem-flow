@@ -11205,4 +11205,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pswOffered => 'We offer';
+
+  @override
+  String get filmMakerAddButton => 'Maker';
+
+  @override
+  String get filmMakerAddTitle => 'A new maker';
+
+  @override
+  String get filmMakerAddName => 'The maker\'s name';
+
+  @override
+  String get filmMakerAddNameHint => 'As on the roll: Kira Group, Adilet…';
+
+  @override
+  String get filmMakerAddWhere => 'Where it is bought';
+
+  @override
+  String get filmMakerAddNewSource => 'A new supplier';
+
+  @override
+  String get filmMakerAddSourceName => 'Supplier (e.g. Kira · Kostanay)';
+
+  @override
+  String get filmMakerAddCatalogueHint =>
+      'The catalogue with pictures can be loaded later — the 📎 icon above.';
+
+  @override
+  String get filmMakerAddSave => 'Add';
 }
