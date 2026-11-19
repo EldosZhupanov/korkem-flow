@@ -18724,6 +18724,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap a decor to take it in or look at it.'**
   String get filmCatalogueHint;
+
+  /// No description provided for @filmReceiveCatalogues.
+  ///
+  /// In en, this message translates to:
+  /// **'Makers\' catalogues — tap to open'**
+  String get filmReceiveCatalogues;
+
+  /// No description provided for @filmReceiveCatalogOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{maker}\'s catalogue · not taken in yet: {count}'**
+  String filmReceiveCatalogOf(String maker, int count);
+
+  /// No description provided for @filmReceiveCatalogFound.
+  ///
+  /// In en, this message translates to:
+  /// **'From the catalogues · {count}'**
+  String filmReceiveCatalogFound(int count);
+
+  /// No description provided for @filmReceiveCatalogMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more — narrow the search or the collection'**
+  String filmReceiveCatalogMore(int count);
 }
 
 class _AppLocalizationsDelegate

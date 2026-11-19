@@ -10991,4 +10991,22 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get filmCatalogueHint =>
       'Нажмите на декор — завести плёнку или посмотреть.';
+
+  @override
+  String get filmReceiveCatalogues => 'Каталоги фирм — нажмите, чтобы открыть';
+
+  @override
+  String filmReceiveCatalogOf(String maker, int count) {
+    return 'Каталог $maker · ещё не заведено: $count';
+  }
+
+  @override
+  String filmReceiveCatalogFound(int count) {
+    return 'Из каталогов · $count';
+  }
+
+  @override
+  String filmReceiveCatalogMore(int count) {
+    return 'Ещё $count — уточните поиск или коллекцию';
+  }
 }
