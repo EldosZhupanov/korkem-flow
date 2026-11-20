@@ -8,6 +8,8 @@ import 'package:korkem_flow/features/mdf/data/paint_stock_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_stock_view.dart';
+import 'package:korkem_flow/features/paint_catalogue/data/paint_catalogue_repository.dart';
+import 'package:korkem_flow/features/paint_catalogue/domain/paint_catalogue.dart';
 
 import '../../support/widget_harness.dart';
 
@@ -51,6 +53,7 @@ final _stock = PaintStock.fromJson(const {
         'supplier': 'SUP-1',
         'supplier_name': 'Колор-Маркет',
         'city': 'Алматы',
+        'note': '4 × 5 кг',
       },
     },
   ],
@@ -125,8 +128,35 @@ class _Repo implements PaintStockRepository {
       'pay': supplierPay?.toJson(),
       'note': note,
     });
-    return _stock;
+    return PaintStock(
+      paints: _stock.paints,
+      queue: _stock.queue,
+      suppliers: _stock.suppliers,
+      recipe: _stock.recipe,
+      materials: _stock.materials,
+      receipt: 'STE-${received.length + 10}',
+    );
   }
+
+  final photos = <(String, String)>[];
+
+  @override
+  Future<void> attachPhoto(
+    String receipt,
+    String fileName,
+    List<int> bytes,
+  ) async => photos.add((receipt, fileName));
+
+  @override
+  Future<List<PaintReceipt>> history(String item) async => [
+    PaintReceipt.fromJson(const {
+      'receipt': 'STE-3',
+      'date': '2026-11-01',
+      'kg': 20,
+      'price_kg': 4000,
+      'supplier': 'Колор-Маркет',
+    }),
+  ];
 
   final counted = <(String, double)>[];
   final settled = <(String, String)>[];
@@ -202,6 +232,37 @@ class _Repo implements PaintStockRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// The colours' window, behind the receipt's colour tile.
+class _Colours implements PaintCatalogueRepository {
+  @override
+  Future<PaintCatalogue> catalogue({String? customer}) async =>
+      PaintCatalogue.fromJson({
+        'systems': const [
+          {'name': 'RAL Classic', 'count': 2},
+        ],
+        'families': const ['Белые и чёрные'],
+        'colours': [
+          for (final (code, name, hex) in const [
+            ('RAL 9016', 'Транспортный белый', '#F4F4ED'),
+            ('RAL 9010', 'Чисто-белый', '#F1ECE1'),
+          ])
+            {
+              'key': 'ral${code.substring(4)}',
+              'code': code,
+              'name': name,
+              'value': code,
+              'system': 'RAL Classic',
+              'hex': hex,
+              'family': 'Белые и чёрные',
+              'on_list': true,
+            },
+        ],
+      });
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 Future<_Repo> _pump(WidgetTester tester) async {
   tester.view
     ..physicalSize = const Size(1400, 2600)
@@ -212,6 +273,7 @@ Future<_Repo> _pump(WidgetTester tester) async {
     ProviderScope(
       overrides: [
         paintStockRepositoryProvider.overrideWithValue(repo),
+        paintCatalogueRepositoryProvider.overrideWithValue(_Colours()),
         mdfDictionariesProvider.overrideWith(
           (ref) async => const MdfDictionaries({
             MdfDictKind.bank: [MdfDictEntry(id: 'b1', value: 'Kaspi')],
@@ -258,11 +320,17 @@ void main() {
     final save = find.byKey(const ValueKey('paintReceiveSave'));
     expect(tester.widget<FilledButton>(save).onPressed, isNull);
 
-    // Four cans of five kilos at 4 400 a kilo — dearer than 4 000.
-    await tester.tap(find.byKey(const ValueKey('paintByCans')));
-    await tester.pumpAndSettle();
+    // Four cans of five kilos at 4 400 a kilo — dearer than 4 000. In cans
+    // as last time: the five kilos are there already (owner, 20.11.2026).
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('paintCanKg')))
+          .controller!
+          .text,
+      '5',
+    );
+    expect(find.byKey(const ValueKey('paintPriceHistory')), findsOne);
     await tester.enterText(find.byKey(const ValueKey('paintCans')), '4');
-    await tester.enterText(find.byKey(const ValueKey('paintCanKg')), '5');
     await tester.enterText(
       find.byKey(const ValueKey('paintPriceKgValue')),
       '4400',
@@ -439,6 +507,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.cards.single, (null, 'Ерлан краски', '5 кг'));
     // 5 kg of a batch for 4,2 kg of queue: the rest goes on the shelf.
+    await tester.tap(find.byKey(const ValueKey('paintByCans')));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('paintKgValue')), '5');
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('paintBatchLeft')), findsOne);
@@ -462,5 +532,92 @@ void main() {
     await tester.pumpAndSettle();
     final got = repo.received.single;
     expect((got['colour'], got['base'], got['kg']), ('', 'Грунт', 20.0));
+  });
+
+  testWidgets('a receipt in its order: what came, the colour from the '
+      "colours' window — what the queue waits for first — or a material's "
+      'kind', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('paintReceive')));
+    await tester.pumpAndSettle();
+    for (var n = 1; n <= 5; n++) {
+      expect(find.byKey(ValueKey('paintStep:$n')), findsOne);
+    }
+    // No colour yet: the tile opens the window, the queue's colours first.
+    await tester.tap(find.byKey(const ValueKey('paintColour:null')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('ppPinned:queue')), findsOne);
+    expect(find.textContaining('2,2 kg short'), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('ppColour:queue:ral9016')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintColour:RAL 9016')), findsOne);
+    // A colourless material: its kinds instead of a colour.
+    await tester.tap(find.byKey(const ValueKey('paintKind:Грунт')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintColour:RAL 9016')), findsNothing);
+    expect(find.byKey(const ValueKey('paintVariant:Грунт')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('paintVariantNew')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('paintBase')))
+          .controller!
+          .text,
+      'Грунт ',
+    );
+    await tester.tap(find.byKey(const ValueKey('paintKind:paint')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintColour:RAL 9016')), findsOne);
+  });
+
+  testWidgets('one receipt, several positions: the delivery shared by the '
+      "kilo, the invoice's photo on each", (tester) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('paintMaterialBuy:Грунт')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('paintKgValue')), '10');
+    await tester.enterText(
+      find.byKey(const ValueKey('paintPriceKgValue')),
+      '2000',
+    );
+    await tester.pumpAndSettle();
+    final more = find.byKey(const ValueKey('paintLineMore'));
+    await tester.ensureVisible(more);
+    await tester.tap(more);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintLine:0')), findsOne);
+    // The next: hardener, 30 kg.
+    await tester.tap(find.byKey(const ValueKey('paintKind:Отвердитель')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('paintKgValue')), '30');
+    await tester.enterText(
+      find.byKey(const ValueKey('paintPriceKgValue')),
+      '1000',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('filmDelivery:transport:Такси')),
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('filmDelivery:cost')),
+      '4000',
+    );
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('paintReceiveSave'));
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(
+      [for (final r in repo.received) (r['base'], r['kg'])],
+      [('Грунт', 10.0), ('Отвердитель', 30.0)],
+    );
+    // 4 000 of a taxi over 40 kg: 1 000 and 3 000.
+    expect(
+      [
+        for (final r in repo.received)
+          (r['delivery']! as Map<String, Object?>)['amount'],
+      ],
+      [1000.0, 3000.0],
+    );
   });
 }

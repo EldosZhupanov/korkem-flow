@@ -16,6 +16,19 @@ final paintStockProvider = FutureProvider.autoDispose<PaintStock>(
   (ref) => ref.watch(paintStockRepositoryProvider).stock(),
 );
 
+/// One paint's receipts, for what it cost before; none when they would not
+/// load — the receipt is made all the same.
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final paintHistoryProvider = FutureProvider.autoDispose
+    .family<List<PaintReceipt>, String>((ref, item) async {
+      try {
+        return await ref.watch(paintStockRepositoryProvider).history(item);
+      } on Object {
+        return const [];
+      }
+    });
+
 /// «Склад краски» — `korkem_manufacturing.api.paint_stock`.
 class PaintStockRepository {
   const PaintStockRepository(this._client);
@@ -67,6 +80,23 @@ class PaintStockRepository {
       },
     ),
   );
+
+  /// The invoice's photo onto a receipt (owner, 20.11.2026).
+  Future<void> attachPhoto(
+    String receipt,
+    String fileName,
+    List<int> bytes,
+  ) async {
+    await _client.callMethod(
+      '$_base.attach_photo',
+      post: true,
+      params: {
+        'receipt': receipt,
+        'file_name': fileName,
+        'content_b64': base64Encode(bytes),
+      },
+    );
+  }
 
   /// The shop's recipe: layers, grams a m², coats, what goes into each.
   Future<PaintStock> setRecipe(PaintRecipe recipe) async => _stock(

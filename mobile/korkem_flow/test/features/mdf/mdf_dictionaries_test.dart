@@ -83,6 +83,7 @@ class _FakeRepository implements MdfOrderRepository {
     String? phone,
     String? organization,
     List<String> tags = const [],
+    MdfCustomerTerms? terms,
   }) async {
     final c = FacadeCustomer(
       name: 'C-${customers.length + 1}',
@@ -90,6 +91,7 @@ class _FakeRepository implements MdfOrderRepository {
       phone: phone,
       organization: organization,
       tags: tags,
+      terms: terms ?? const MdfCustomerTerms(),
     );
     customers.add(c);
     return c;
@@ -102,6 +104,7 @@ class _FakeRepository implements MdfOrderRepository {
     String? phone,
     String? organization,
     List<String> tags = const [],
+    MdfCustomerTerms? terms,
   }) async {
     final i = customers.indexWhere((c) => c.name == customer);
     return customers[i] = FacadeCustomer(
@@ -110,6 +113,7 @@ class _FakeRepository implements MdfOrderRepository {
       phone: phone,
       organization: organization,
       tags: tags,
+      terms: terms ?? const MdfCustomerTerms(),
     );
   }
 
@@ -602,4 +606,49 @@ void main() {
       expect((chosen?.customer.name, chosen?.repeat), ('C-1', true));
     },
   );
+
+  testWidgets("a customer's own terms: his discount or prices, his limit, "
+      'where he came from', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1400, 1100)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showMdfCustomers(context),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('customerEdit:C-1')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('customerDiscount')),
+      '10',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('customerDebtLimit')),
+      '200 000',
+    );
+    await tester.tap(find.byKey(const ValueKey('customerSource:2gis')));
+    await tester.tap(find.byKey(const ValueKey('customerSave')));
+    await tester.pumpAndSettle();
+    final c = repo.customers.single;
+    expect(
+      (c.terms.discountPct, c.terms.debtLimit, c.terms.source),
+      (10.0, 200000.0, MdfCustomerSource.twoGis),
+    );
+    // The list says it: his discount, where he came from.
+    expect(find.byKey(const ValueKey('customerDiscount:C-1')), findsOne);
+    expect(find.byKey(const ValueKey('customerSource:C-1')), findsOne);
+  });
 }

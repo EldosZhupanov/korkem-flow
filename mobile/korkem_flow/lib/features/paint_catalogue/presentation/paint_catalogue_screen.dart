@@ -292,10 +292,22 @@ Future<bool?> showPaintColourAdd(BuildContext context, PaintCatalogue c) =>
 /// A colour's card: its shade, its code and name, what is on the shelf and
 /// how much of it was painted.
 class PaintCard extends StatelessWidget {
-  const PaintCard({required this.colour, this.onTap, this.onOpen, super.key});
+  const PaintCard({
+    required this.colour,
+    this.onTap,
+    this.onOpen,
+    this.note,
+    this.noteDanger = false,
+    super.key,
+  });
 
   final PaintColour colour;
   final VoidCallback? onTap;
+
+  /// A word of the window it is shown in — «нужно 4 кг» on the paint's
+  /// receipt (owner, 20.11.2026); red when it asks for action.
+  final String? note;
+  final bool noteDanger;
 
   /// The colour's own card — to look at and to change — where a press
   /// already means something else (owner, 20.11.2026: the order's window
@@ -399,6 +411,8 @@ class PaintCard extends StatelessWidget {
                           paintLookText(l10n, x.look),
                           paintLookTone(context, x.look),
                         ),
+                      if (note case final n?)
+                        badge(n, noteDanger ? status.danger : status.neutral),
                     ],
                   ),
                 ],

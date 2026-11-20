@@ -11499,6 +11499,68 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get paintStepWhat => 'What came';
+
+  @override
+  String get paintStepColour => 'Colour and kind';
+
+  @override
+  String get paintStepWhich => 'Which';
+
+  @override
+  String get paintStepAmount => 'How much and at what price';
+
+  @override
+  String get paintStepSupplier => 'Supplier and payment';
+
+  @override
+  String get paintStepDelivery => 'Delivery';
+
+  @override
+  String get paintKindPaint => 'Paint / enamel';
+
+  @override
+  String get paintColourPick => 'Pick the colour — press here';
+
+  @override
+  String get paintColourChange => 'change';
+
+  @override
+  String paintColourNeed(String need, String have) {
+    return 'orders wait for $need kg · $have kg on hand';
+  }
+
+  @override
+  String get paintPinnedQueue => 'Orders wait — to buy';
+
+  @override
+  String get paintPinnedShelf => 'On the shelf';
+
+  @override
+  String get paintBaseName => 'Name';
+
+  @override
+  String paintVariantOnHand(String kg) {
+    return '$kg kg on hand';
+  }
+
+  @override
+  String paintVariantNew(String material) {
+    return 'New: $material';
+  }
+
+  @override
+  String paintPriceHistory(String list) {
+    return 'before: $list';
+  }
+
+  @override
+  String get paintLineMore => '+ another position in this receipt';
+
+  @override
+  String get paintPhoto => 'The invoice\'s photo';
+
+  @override
   String get mdfCustomerSearchWide =>
       'Name, phone, organisation, object\'s address or order №';
 
@@ -11553,4 +11615,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfCustomerTakeHim => 'Choose him';
+
+  @override
+  String get mdfCustomerTerms => 'The customer\'s terms';
+
+  @override
+  String get mdfCustomerDiscount => 'Discount, %';
+
+  @override
+  String get mdfCustomerPricePvc => 'Own price PVC, ₸/m²';
+
+  @override
+  String get mdfCustomerPricePaint => 'Own price paint, ₸/m²';
+
+  @override
+  String get mdfCustomerDebtLimit => 'Debt limit, ₸';
+
+  @override
+  String get mdfCustomerDebtLimitHint => 'Empty — the shop\'s limit';
+
+  @override
+  String get mdfCustomerSource => 'Came from:';
+
+  @override
+  String get mdfCustomerSourceWord => 'Word of mouth';
+
+  @override
+  String get mdfCustomerSource2gis => '2GIS';
+
+  @override
+  String get mdfCustomerSourceRepeat => 'Repeat';
+
+  @override
+  String get mdfCustomerSourceOther => 'Other';
+
+  @override
+  String get mdfDebtLimitDefault => 'Default debt limit';
+
+  @override
+  String get mdfDebtLimitDefaultHint => '₸; 0 or empty — no limit';
+
+  @override
+  String mdfCustomerDiscountBadge(String pct) {
+    return 'discount $pct%';
+  }
+
+  @override
+  String get mdfCustomerOwnPrice => 'own price';
+
+  @override
+  String mdfDebtOverLimit(String after, String limit) {
+    return 'The customer\'s debt would be $after — over the limit $limit';
+  }
+
+  @override
+  String get mdfDebtOverLimitWho => 'Who allowed it and why';
 }

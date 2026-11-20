@@ -129,6 +129,10 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_mdf_paint_fields
 
 	add_mdf_paint_fields.execute()
+	# After the customer's organisation and tags: his own terms follow them.
+	from korkem_manufacturing.patches.v0_0 import add_customer_terms
+
+	add_customer_terms.execute()
 	from korkem_manufacturing.patches.v0_0 import grant_sales_manager_account_read
 
 	grant_sales_manager_account_read.execute()

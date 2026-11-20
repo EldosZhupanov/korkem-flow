@@ -58,6 +58,9 @@ SUPPLIER_DEPT = "korkem_supplier_dept"
 #: The card a paint supplier keeps: the company, its person, how to reach it,
 #: its smallest batch.
 SUPPLIER_CARD = ("city", "contact", "phone", "whatsapp", "min_order", "note")
+#: A photo of the supplier's invoice (owner, 20.11.2026: «фото накладной»).
+PHOTO_MAX = 10 * 1024 * 1024
+PHOTO_EXT = (".jpg", ".jpeg", ".png", ".webp", ".heic", ".pdf")
 MAX_BASE = 60
 #: Why paint left the store: painted an order, or a count found less.
 USE_ORDER, USE_COUNT = "order", "count"
@@ -296,7 +299,7 @@ def _last_receipts(items: list[str], company: str) -> dict[str, dict]:
 	out: dict[str, dict] = {}
 	for d in frappe.db.sql(
 		"""select sed.item_code, sed.qty, sed.basic_rate, se.name, se.posting_date, se.korkem_supplier,
-			se.korkem_delivery_city, se.korkem_delivery_transport, se.korkem_delivery_cost
+			se.korkem_delivery_city, se.korkem_delivery_transport, se.korkem_delivery_cost, se.remarks
 		from `tabStock Entry Detail` sed join `tabStock Entry` se on se.name = sed.parent
 		where se.company = %(company)s and se.docstatus = 1 and se.korkem_material_receipt = 1
 			and sed.item_code in %(items)s
@@ -318,7 +321,41 @@ def _last_row(d, allowed: bool) -> dict | None:
 		"supplier_name": frappe.db.get_value("Supplier", d.korkem_supplier, "supplier_name") or d.korkem_supplier,
 		"city": d.korkem_delivery_city, "transport": d.korkem_delivery_transport,
 		"delivery_cost": price_visibility.money(d.korkem_delivery_cost, allowed=allowed),
+		# «4 × 5 кг»: how it came last time, for this time's cans.
+		"note": d.remarks,
 	}
+
+
+def attach_photo(receipt: str, file_name: str, content: bytes) -> dict:
+	"""The invoice's photo onto a paint receipt — kept, not looked for on
+	paper later (owner, 20.11.2026)."""
+	material_stock._ensure_editor()
+	if (frappe.db.get_value("Stock Entry", receipt, ["company", "korkem_receipt_dept"])
+			!= (current_company(), DEPT)):
+		frappe.throw("Такого прихода краски нет.", frappe.DoesNotExistError)
+	if not content or len(content) > PHOTO_MAX:
+		frappe.throw(f"Фото — до {PHOTO_MAX // (1024 * 1024)} МБ.")
+	name = " ".join((file_name or "").split())[:120] or "invoice.jpg"
+	if not name.lower().endswith(PHOTO_EXT):
+		frappe.throw("Фото накладной — jpg, png, webp, heic или pdf.")
+	f = frappe.get_doc({
+		"doctype": "File", "file_name": name, "attached_to_doctype": "Stock Entry", "attached_to_name": receipt,
+		"is_private": 1, "content": content,
+	}).insert(ignore_permissions=True)
+	audit.record_audit(action="paint.receipt_photo", entity_type="Stock Entry", entity_id=receipt,
+					   diff={"file": f.name})
+	return {"receipt": receipt, "file": f.file_url}
+
+
+def _photos(receipts: list[str]) -> dict[str, str]:
+	if not receipts:
+		return {}
+	out: dict[str, str] = {}
+	for f in frappe.get_all("File", filters={"attached_to_doctype": "Stock Entry",
+											 "attached_to_name": ["in", receipts]},
+							fields=["attached_to_name", "file_url"], order_by="creation asc", limit_page_length=0):
+		out.setdefault(f.attached_to_name, f.file_url)
+	return out
 
 
 def history(item: str) -> dict:
@@ -343,9 +380,11 @@ def history(item: str) -> dict:
 		as_dict=True,
 	)
 	out = []
+	photos = _photos([r.name for r in rows])
 	for r in rows:
 		kg, price, cost = flt(r.qty), flt(r.basic_rate), flt(r.korkem_delivery_cost)
 		out.append({
+			"photo": photos.get(r.name),
 			"receipt": r.name, "date": str(r.posting_date), "cancelled": r.docstatus == 2, "kg": kg,
 			"price_kg": price_visibility.money(price, allowed=allowed),
 			"amount": price_visibility.money(round(kg * price, 2), allowed=allowed),

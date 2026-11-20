@@ -747,6 +747,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
               finish: head.finish,
               defaultRate: head.defaultRate,
               filmRates: head.filmRates,
+              // His own terms: a discount, or his price a m² (20.11.2026).
+              customer: _customer?.name,
             );
         if (mounted) setState(() => _pricing = pricing);
       } on Object {
@@ -1084,6 +1086,36 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     }
   }
 
+  /// Over the customer's debt limit (owner, 20.11.2026): why it is accepted
+  /// all the same, and who allowed it. Null — under the limit; '' — the
+  /// manager stopped, the order stays a draft.
+  Future<String?> _overLimitReason(MdfOrder saved) async {
+    final l10n = AppLocalizations.of(context);
+    final money = mdfMoney(context);
+    final MdfDebtCheck check;
+    try {
+      check = await ref
+          .read(mdfOrderRepositoryProvider)
+          .debtCheck(saved.customer, saved.total);
+    } on Object {
+      // The server checks again when accepting.
+      return null;
+    }
+    if (!check.over || !mounted) return null;
+    final reason = await showReasonDialog(
+      context,
+      title: l10n.mdfDebtOverLimit(
+        money.format(check.after),
+        money.format(check.limit),
+      ),
+      label: l10n.mdfDebtOverLimitWho,
+      confirm: l10n.mdfAccept,
+      cancel: l10n.mdfCancel,
+      fieldKey: const ValueKey('mdfOverLimitReason'),
+    );
+    return reason ?? '';
+  }
+
   /// «Только предоплата»: accepting without a payment asks first.
   Future<bool> _prepaidOrAsked() async {
     final customer = _customer;
@@ -1123,11 +1155,16 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     if (saved == null) return;
     var shown = saved;
     if (accept) {
-      try {
-        shown = await ref.read(mdfOrderRepositoryProvider).accept(saved.name);
-        messenger.showDone(l10n.mdfAccepted);
-      } on Object catch (error) {
-        messenger.showFailure(error, l10n);
+      final over = await _overLimitReason(saved);
+      if (over != '') {
+        try {
+          shown = await ref
+              .read(mdfOrderRepositoryProvider)
+              .accept(saved.name, overLimit: over);
+          messenger.showDone(l10n.mdfAccepted);
+        } on Object catch (error) {
+          messenger.showFailure(error, l10n);
+        }
       }
     }
     ref.invalidate(mdfOrderProvider(shown.name));
@@ -1292,7 +1329,10 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                         // A customer chosen from the list refills the field.
                         key: ValueKey('mdfCustomerOf:${_customer?.name}'),
                         initial: _customer,
-                        onPicked: (c) => setState(() => _customer = c),
+                        onPicked: (c) {
+                          setState(() => _customer = c);
+                          _reprice();
+                        },
                       ),
                     ),
                     IconButton(
@@ -1307,6 +1347,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                         );
                         if (picked == null || !mounted) return;
                         setState(() => _customer = picked.customer);
+                        _reprice();
                         final last = picked.customer.lastOrder;
                         if (picked.repeat && last != null) {
                           unawaited(_repeatFrom(last));

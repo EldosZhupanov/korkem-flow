@@ -216,6 +216,7 @@ class _FakeRepository implements MdfOrderRepository {
     String? finish,
     double? defaultRate,
     Map<String, double> filmRates = const {},
+    String? customer,
   }) async {
     pricedLines.add(lines);
     final priced = [
