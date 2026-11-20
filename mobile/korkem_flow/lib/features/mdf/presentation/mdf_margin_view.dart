@@ -47,39 +47,10 @@ class _MdfMarginViewState extends ConsumerState<MdfMarginView> {
   Future<void> _price(String item, String title) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final controller = TextEditingController();
     final price = await showDialog<double>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.mdfMarginPriceTitle(title)),
-        content: TextField(
-          key: const ValueKey('mdfMarginPriceField'),
-          controller: controller,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: l10n.mdfMarginPriceLabel,
-            helperText: l10n.mdfMarginPriceHint,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.mdfCancel),
-          ),
-          FilledButton(
-            key: const ValueKey('mdfMarginPriceSave'),
-            onPressed: () => Navigator.of(context).pop(
-              double.tryParse(
-                controller.text.trim().replaceAll(' ', '').replaceAll(',', '.'),
-              ),
-            ),
-            child: Text(l10n.pcSave),
-          ),
-        ],
-      ),
+      builder: (_) => _PriceDialog(title: title),
     );
-    controller.dispose();
     if (price == null || price <= 0 || !mounted) return;
     try {
       await ref
@@ -268,6 +239,60 @@ class _MdfMarginViewState extends ConsumerState<MdfMarginView> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// «Цена: …» — the dialog keeps its own field, so it lives as long as the
+/// dialog does, closing animation included.
+class _PriceDialog extends StatefulWidget {
+  const _PriceDialog({required this.title});
+
+  final String title;
+
+  @override
+  State<_PriceDialog> createState() => _PriceDialogState();
+}
+
+class _PriceDialogState extends State<_PriceDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l10n.mdfMarginPriceTitle(widget.title)),
+      content: TextField(
+        key: const ValueKey('mdfMarginPriceField'),
+        controller: _controller,
+        autofocus: true,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: l10n.mdfMarginPriceLabel,
+          helperText: l10n.mdfMarginPriceHint,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('mdfMarginPriceSave'),
+          onPressed: () => Navigator.of(context).pop(
+            double.tryParse(
+              _controller.text.trim().replaceAll(' ', '').replaceAll(',', '.'),
+            ),
+          ),
+          child: Text(l10n.pcSave),
+        ),
+      ],
     );
   }
 }
