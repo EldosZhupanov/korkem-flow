@@ -114,6 +114,14 @@ def margin(order: str) -> dict:
 	return mdf_margin.of_order(order)
 
 
+@frappe.whitelist(methods=["POST"])
+def set_material_price(order: str, item: str, price: float | str) -> dict:
+	"""«Указать цену» материалу без цены — из маржи заказа."""
+	from korkem_manufacturing.services import mdf_margin
+
+	return mdf_margin.set_price(order, item, price)
+
+
 @frappe.whitelist(methods=["GET"])
 def listing(search: str | None = None, status: str | None = None, overdue: bool | int | str = 0,
 			with_debt: bool | int | str = 0, start: int = 0, limit: int = 50, tag: str | None = None,

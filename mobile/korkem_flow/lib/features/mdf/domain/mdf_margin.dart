@@ -30,9 +30,12 @@ class MdfMargin {
       for (final r in _list(json['material_rows']))
         if (r is Map)
           (
+            item: r['item'] == null ? null : '${r['item']}',
             title: '${r['title'] ?? r['item'] ?? ''}',
             unit: '${r['unit'] ?? ''}',
             qty: _d(r['qty']),
+            price: _dn(r['price']),
+            source: r['source'] == null ? null : '${r['source']}',
             cost: _d(r['cost']),
           ),
     ],
@@ -52,7 +55,24 @@ class MdfMargin {
 
   /// Materials with no price at all — counted as nothing.
   final List<String> missing;
-  final List<({String title, String unit, double qty, double cost})> materials;
+
+  /// Each material: how much, at what price a unit — null when it has none
+  /// — and where the price comes from («stock», «last», «card»).
+  final List<
+    ({
+      String? item,
+      String title,
+      String unit,
+      double qty,
+      double? price,
+      String? source,
+      double cost,
+    })
+  >
+  materials;
+
+  /// A price is missing: the margin is higher than it really is.
+  bool get unsure => missing.isNotEmpty;
 }
 
 /// The orders handed over in a period, for «Итоги МДФ».

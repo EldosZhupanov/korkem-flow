@@ -478,6 +478,22 @@ class MdfOrderRepository {
     _map(await _client.callMethod('$_base.margin', params: {'order': order})),
   );
 
+  /// «Указать цену» for a material with none — on its card; the order's
+  /// margin read again.
+  Future<MdfMargin> setMaterialPrice(
+    String order,
+    String item,
+    double price,
+  ) async => MdfMargin.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.set_material_price',
+        post: true,
+        params: {'order': order, 'item': item, 'price': price},
+      ),
+    ),
+  );
+
   /// «Объём работ» for the stages ticked in [since, until].
   Future<MdfVolume> volume({
     required String since,

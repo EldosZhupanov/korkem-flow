@@ -284,6 +284,27 @@ class TestFacadeMaterials(IntegrationTestCase):
 		self.assertAlmostEqual(result["material"], 21_000 + 3.1 * 900, delta=0.02)
 		self.assertEqual(result["work"], 0)
 
+	def test_a_material_never_received_is_priced_from_its_card(self):
+		# A film ordered but never received has no valuation (owner,
+		# 20.11.2026: «Маржа 98%» with the film at 0 ₸): «Указать цену» puts
+		# one on its card, and the margin counts it from there.
+		group, uom = frappe.db.get_value("Item", self.film, ["item_group", "stock_uom"])
+		code = f"FM-NOPRICE-{frappe.generate_hash(length=6)}"
+		frappe.get_doc({"doctype": "Item", "item_code": code, "item_name": code, "item_group": group,
+						"stock_uom": uom, "is_stock_item": 1}).insert(ignore_permissions=True)
+		self.assertEqual(mdf_margin.price_of(code), (None, None))
+		order = self._order()["sales_order"]
+		with self.assertRaises(frappe.ValidationError):
+			self._as(SELLER, mdf_margin.set_price, order, code, 0)
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, mdf_margin.set_price, order, code, 1500)
+		result = self._as(SELLER, mdf_margin.set_price, order, code, 1500)
+		self.assertIn("margin", result)
+		self.assertEqual(mdf_margin.price_of(code), (1500, "card"))
+		# Stock valued after all: the shelf's price comes first.
+		self._stock(mdf=1, film=1)
+		self.assertEqual(mdf_margin.price_of(self.film)[1], "stock")
+
 	def test_the_floor_does_not_read_margins(self):
 		order = self._order()["sales_order"]
 		with self.assertRaises(frappe.PermissionError):

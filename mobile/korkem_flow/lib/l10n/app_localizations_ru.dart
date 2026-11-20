@@ -11271,4 +11271,71 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmMakerAddSave => 'Добавить';
+
+  @override
+  String get mdfAddWorker => 'Добавить человека';
+
+  @override
+  String get mdfAddWorkerHint =>
+      'В «Команду», на этот участок — потом выберите его здесь';
+
+  @override
+  String get mdfNoWorkers => 'В «Команде» пока никого нет';
+
+  @override
+  String mdfMarginUnsure(int count) {
+    return 'неточно: без цены — $count';
+  }
+
+  @override
+  String mdfMarginShares(String material, String work, String margin) {
+    return 'материал $material · работа $work · маржа $margin';
+  }
+
+  @override
+  String get mdfMarginMaterials => 'Материалы';
+
+  @override
+  String get mdfMarginQty => 'сколько';
+
+  @override
+  String get mdfMarginPrice => 'цена';
+
+  @override
+  String get mdfMarginSum => 'сумма';
+
+  @override
+  String get mdfMarginNoPrice => 'нет';
+
+  @override
+  String get mdfMarginSetPrice => 'Указать';
+
+  @override
+  String get mdfMarginRates => 'Тарифы';
+
+  @override
+  String get mdfMarginNoWork =>
+      'Работа не начислена: этапы не отмечены или нет тарифов';
+
+  @override
+  String get mdfMarginCost => 'Себестоимость';
+
+  @override
+  String get mdfMarginEstimateShort =>
+      'по сегодняшним ценам, материал ещё не списан';
+
+  @override
+  String get mdfMarginNotCountedShort => 'без электричества и доставки';
+
+  @override
+  String mdfMarginPriceTitle(String title) {
+    return 'Цена: $title';
+  }
+
+  @override
+  String get mdfMarginPriceLabel => 'Цена за единицу, ₸';
+
+  @override
+  String get mdfMarginPriceHint =>
+      'Плёнка — за метр. Запишется в карточку материала.';
 }
