@@ -3447,5 +3447,9 @@
   "ctoNote": "Экрандағы түс үлгіден сәл өзгеше болуы мүмкін",
   "ctoBare": "Жабынсыз МДФ",
   "ctoMore": "тағы {count} — іздеуді нақтылаңыз",
-  "ctoNoCatalogue": "Каталог жүктелмеді"
+  "ctoNoCatalogue": "Каталог жүктелмеді",
+  "mdfAddCoating": "Жабын қосу:",
+  "mdfQuickColours": "не бірден түс:",
+  "mdfGroupCopy": "Басқа түспен көшірме",
+  "mdfGroupCopyTo": "Көшірме → {coating}"
 }

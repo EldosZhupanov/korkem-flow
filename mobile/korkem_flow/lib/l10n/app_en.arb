@@ -10723,5 +10723,10 @@
   "ctoBare": "Bare MDF",
   "ctoMore": "and {count} more — narrow the search",
   "@ctoMore": {"placeholders": {"count": {"type": "int"}}},
-  "ctoNoCatalogue": "The catalogue did not load"
+  "ctoNoCatalogue": "The catalogue did not load",
+  "mdfAddCoating": "Add a coating:",
+  "mdfQuickColours": "or a colour at once:",
+  "mdfGroupCopy": "Copy in another colour",
+  "mdfGroupCopyTo": "Copy → {coating}",
+  "@mdfGroupCopyTo": {"placeholders": {"coating": {"type": "String"}}}
 }

@@ -3447,5 +3447,9 @@
   "ctoNote": "Цвет на экране может немного отличаться от образца",
   "ctoBare": "МДФ без покрытия",
   "ctoMore": "и ещё {count} — уточните поиск",
-  "ctoNoCatalogue": "Каталог не загрузился"
+  "ctoNoCatalogue": "Каталог не загрузился",
+  "mdfAddCoating": "Добавить покрытие:",
+  "mdfQuickColours": "или сразу цвет:",
+  "mdfGroupCopy": "Копия в другом цвете",
+  "mdfGroupCopyTo": "Копия → {coating}"
 }
