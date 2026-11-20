@@ -385,6 +385,7 @@ void main() {
     expect(find.byKey(const ValueKey('cncFacade')), findsOne);
     // The cutter's run, from the start: drawn as it goes, then whole.
     await tester.tap(find.byKey(const ValueKey('cncSimPlay')));
+    await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     expect(
       tester.widget<CncFacadeView>(find.byKey(const ValueKey('cncFacade')))
