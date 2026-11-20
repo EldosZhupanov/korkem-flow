@@ -11396,4 +11396,46 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ppChoose => 'Выбрать';
+
+  @override
+  String get cncpTryThickness => 'толщина, мм';
+
+  @override
+  String get cncpViewTop => 'Сверху';
+
+  @override
+  String get cncpView3d => '3D';
+
+  @override
+  String get cncp3dFront => 'Спереди';
+
+  @override
+  String get cncp3dSide => 'Сбоку';
+
+  @override
+  String get cncp3dTilt => 'Наклон';
+
+  @override
+  String get cncp3dHint => 'Крутите мышью или пальцем';
+
+  @override
+  String get cncpSection => 'Разрез от края к середине · 1:1';
+
+  @override
+  String cncpSectionStats(String from, String to, String deepest, String left) {
+    return 'узор $from–$to мм от края · глубже всего $deepest мм · остаётся $left мм';
+  }
+
+  @override
+  String get cncpSectionNone => 'На середине высоты фреза не проходит';
+
+  @override
+  String cncpThrough(String deepest, String thickness) {
+    return 'Насквозь: фреза уходит на $deepest мм при толщине $thickness мм';
+  }
+
+  @override
+  String cncpThin(String left) {
+    return 'Остаётся мало материала: $left мм';
+  }
 }

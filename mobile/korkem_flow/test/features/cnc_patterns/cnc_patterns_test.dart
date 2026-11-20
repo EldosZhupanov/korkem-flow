@@ -64,6 +64,7 @@ const Map<String, dynamic> _preview = {
     {
       'tool': 'V90',
       'width': 8,
+      'depth': 4,
       'closed': true,
       'points': [
         [60, 60],
@@ -340,6 +341,37 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('cncDownload')));
     await tester.pumpAndSettle();
     expect(saver.saved.values.single.keys, ['Классика-700x400.nc']);
+  });
+
+  testWidgets('the cut is seen in section and in 3D, and what is left', (
+    tester,
+  ) async {
+    await _pump(tester, _on);
+    await tester.tap(find.byKey(const ValueKey('cncPattern:Классика')));
+    await tester.pumpAndSettle();
+    // A V90 four deep on a 16 mm board: a wedge 8 wide, 12 left under it.
+    expect(find.byKey(const ValueKey('cncSection')), findsOne);
+    expect(find.textContaining('deepest 4 mm · 12 mm left'), findsOne);
+    await tester.tap(find.byKey(const ValueKey('cncView3d')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('cnc3d')), findsOne);
+    expect(find.byKey(const ValueKey('cncFacade')), findsNothing);
+    await tester.drag(
+      find.byKey(const ValueKey('cnc3dTurn')),
+      const Offset(80, -40),
+    );
+    await tester.tap(find.byKey(const ValueKey('cnc3dFront')));
+    await tester.pumpAndSettle();
+    // A thin board: warned; thinner than the cut: through.
+    await tester.enterText(find.byKey(const ValueKey('cncTryT')), '5');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('cncThin')), findsOne);
+    await tester.enterText(find.byKey(const ValueKey('cncTryT')), '3');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('cncThrough')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('cncViewTop')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('cncFacade')), findsOne);
   });
 
   testWidgets('an order: what fits is saved, what does not says why', (

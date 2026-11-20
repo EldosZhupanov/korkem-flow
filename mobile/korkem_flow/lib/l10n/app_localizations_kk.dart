@@ -11318,4 +11318,46 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get ppChoose => 'Таңдау';
+
+  @override
+  String get cncpTryThickness => 'қалыңдығы, мм';
+
+  @override
+  String get cncpViewTop => 'Үстінен';
+
+  @override
+  String get cncpView3d => '3D';
+
+  @override
+  String get cncp3dFront => 'Алдынан';
+
+  @override
+  String get cncp3dSide => 'Бүйірінен';
+
+  @override
+  String get cncp3dTilt => 'Еңкіш';
+
+  @override
+  String get cncp3dHint => 'Тышқанмен не саусақпен бұраңыз';
+
+  @override
+  String get cncpSection => 'Шетінен ортасына дейін қима · 1:1';
+
+  @override
+  String cncpSectionStats(String from, String to, String deepest, String left) {
+    return 'өрнек шетінен $from–$to мм · ең терең $deepest мм · қалады $left мм';
+  }
+
+  @override
+  String get cncpSectionNone => 'Биіктіктің ортасында фреза өтпейді';
+
+  @override
+  String cncpThrough(String deepest, String thickness) {
+    return 'Тесіп өтеді: фреза $deepest мм кетеді, қалыңдығы $thickness мм';
+  }
+
+  @override
+  String cncpThin(String left) {
+    return 'Материал аз қалады: $left мм';
+  }
 }

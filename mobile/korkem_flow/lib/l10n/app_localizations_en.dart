@@ -11357,4 +11357,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ppChoose => 'Choose';
+
+  @override
+  String get cncpTryThickness => 'thickness, mm';
+
+  @override
+  String get cncpViewTop => 'From above';
+
+  @override
+  String get cncpView3d => '3D';
+
+  @override
+  String get cncp3dFront => 'Front';
+
+  @override
+  String get cncp3dSide => 'Side';
+
+  @override
+  String get cncp3dTilt => 'Tilted';
+
+  @override
+  String get cncp3dHint => 'Turn it with the mouse or a finger';
+
+  @override
+  String get cncpSection => 'Section, edge to middle · 1:1';
+
+  @override
+  String cncpSectionStats(String from, String to, String deepest, String left) {
+    return 'pattern $from–$to mm from the edge · deepest $deepest mm · $left mm left';
+  }
+
+  @override
+  String get cncpSectionNone => 'No cut at mid-height';
+
+  @override
+  String cncpThrough(String deepest, String thickness) {
+    return 'Through: the cutter goes $deepest mm into $thickness mm';
+  }
+
+  @override
+  String cncpThin(String left) {
+    return 'Little material left: $left mm';
+  }
 }
