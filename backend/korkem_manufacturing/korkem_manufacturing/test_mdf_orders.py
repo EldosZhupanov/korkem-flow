@@ -1013,7 +1013,10 @@ class TestMdfOrders(IntegrationTestCase):
 		# How it came last time, for this time's cans; the invoice's photo
 		# kept with the receipt (owner, 20.11.2026).
 		self.assertEqual(next(p for p in got["paints"] if p["item"] == item)["last"]["note"], "2 × 5 кг")
-		photo = self._as(BUYER, paint_stock.attach_photo, got["receipt"], "накладная.jpg", b"\xff\xd8\xff jpeg")
+		import base64
+
+		png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==")
+		photo = self._as(BUYER, paint_stock.attach_photo, got["receipt"], "накладная.png", png)
 		self.assertEqual(self._as(BUYER, paint_stock.history, item)["receipts"][0]["photo"], photo["file"])
 		with self.assertRaises(frappe.ValidationError):
 			self._as(BUYER, paint_stock.attach_photo, got["receipt"], "накладная.exe", b"MZ")
