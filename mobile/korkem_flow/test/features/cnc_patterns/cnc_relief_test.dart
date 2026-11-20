@@ -34,7 +34,12 @@ void main() {
     width: 8,
     depth: 4,
     closed: true,
-    points: [Offset(60, 60), Offset(440, 60), Offset(440, 640), Offset(60, 640)],
+    points: [
+      Offset(60, 60),
+      Offset(440, 60),
+      Offset(440, 640),
+      Offset(60, 640),
+    ],
   );
 
   test('the section: the wedge at 60 from the edge, nothing past it', () {
@@ -50,8 +55,12 @@ void main() {
     expect(to, closeTo(64, 0.3));
     expect(s.depths[(100 / s.step).round()], 0);
     expect(
-      CncSection.of(width: 500, height: 700, cuts: const [], tools: const {})
-          .span,
+      CncSection.of(
+        width: 500,
+        height: 700,
+        cuts: const [],
+        tools: const {},
+      ).span,
       isNull,
     );
   });

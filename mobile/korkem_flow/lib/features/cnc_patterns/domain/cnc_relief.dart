@@ -129,7 +129,8 @@ class CncRelief {
   /// Below the face at grid point (i, j), row by row from the bottom edge.
   final Float32List depths;
 
-  double at(int i, int j) => depths[j.clamp(0, rows) * (cols + 1) + i.clamp(0, cols)];
+  double at(int i, int j) =>
+      depths[j.clamp(0, rows) * (cols + 1) + i.clamp(0, cols)];
 
   /// Where the grid point lies on the facade, mm (the far ones clamped to the
   /// edge rather than a step past it).
