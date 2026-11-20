@@ -72,6 +72,13 @@ def ensure_role() -> str:
 			"Custom DocPerm", {"parent": doctype, "role": ROLE, "permlevel": 0}
 		):
 			add_permission(doctype, ROLE, 0, "read")
+		# The rows are in the table; the permissions Frappe reads are its cached
+		# copy of them. A copy made while some other work held those rows in a
+		# transaction it then rolled back keeps the role out — a customer told
+		# he may not read his own order, though the table says he may (CI,
+		# korkem_ai.tools.test_customer_scope, again and again by November
+		# 2026). Read afresh from the table, every time.
+		frappe.clear_cache(doctype=doctype)
 	frappe.db.commit()
 	return ROLE
 
@@ -126,6 +133,8 @@ def link(user: str, customer: str) -> dict:
 		added["user_permission"] = True
 
 	frappe.db.commit()
+	# What he may read is cached per user too: read afresh from what was written.
+	frappe.clear_cache(user=user)
 	return {"user": user, "customer": customer, "added": added}
 
 
