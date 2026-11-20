@@ -139,7 +139,7 @@ void main() {
     expect(find.byKey(const ValueKey('ctoCompared:0')), findsOne);
   });
 
-  testWidgets("paints: his colours first, the gloss chosen, four at most", (
+  testWidgets('paints: his colours first, the gloss chosen, four at most', (
     tester,
   ) async {
     final paints = await pump(tester);

@@ -2711,7 +2711,7 @@
   "paintCount": "Пересчитать остаток",
   "paintCountTitle": "Сколько на самом деле: {title}?",
   "paintCountHint": "Взвесьте остаток. Разница с программой запишется как расход.",
-  "mdfGloss": "Вид",
+  "mdfGloss": "Блеск",
   "mdfGlossNone": "—",
   "mdfGlossMatt": "матовая",
   "mdfGlossSemi": "полуматовая",

@@ -177,7 +177,7 @@ Int32List cncShade(CncRelief r, Color colour, {double gloss = 0}) {
   final hz = lz / ll + 1;
   final hl = sqrt(hx * hx + hy * hy + hz * hz);
   final shine = 10 + 70 * gloss;
-  final double flatSpec = gloss <= 0 ? 0 : pow(hz / hl, shine).toDouble();
+  final flatSpec = gloss <= 0 ? 0.0 : pow(hz / hl, shine).toDouble();
   final out = Int32List((r.cols + 1) * (r.rows + 1));
   for (var j = 0; j <= r.rows; j++) {
     for (var i = 0; i <= r.cols; i++) {
@@ -292,7 +292,7 @@ class _ReliefPainter extends CustomPainter {
     final positions = Float32List(stride * (rows + 1) * 2);
     final tex = texture;
     final uv = tex == null ? null : Float32List(stride * (rows + 1) * 2);
-    final double pxPerMm = tex == null ? 0 : tex.width / _swatchMm;
+    final pxPerMm = tex == null ? 0.0 : tex.width / _swatchMm;
     for (var j = 0; j <= rows; j++) {
       for (var i = 0; i <= cols; i++) {
         final p = project(r.x(i), r.y(j), -r.at(i, j));

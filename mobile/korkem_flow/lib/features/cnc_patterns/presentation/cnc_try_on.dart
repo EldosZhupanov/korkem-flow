@@ -90,7 +90,7 @@ class _CncTryOnState extends ConsumerState<CncTryOn> {
   bool _across = false;
   final _textures = <String, ui.Image?>{};
   final _compared = <_Compared>[];
-  final _shot = GlobalKey();
+  final GlobalKey _shot = GlobalKey();
 
   @override
   void dispose() {
