@@ -55,6 +55,7 @@ class MdfMargin {
 
   /// Materials with no price at all — counted as nothing.
   final List<String> missing;
+
   /// Each material: how much, at what price a unit — null when it has none
   /// — and where the price comes from («stock», «last», «card»).
   final List<

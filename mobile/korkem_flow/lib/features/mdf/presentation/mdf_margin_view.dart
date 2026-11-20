@@ -78,8 +78,7 @@ class _MdfMarginViewState extends ConsumerState<MdfMarginView> {
     final small = theme.textTheme.bodySmall;
     final muted = small?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     final total = m.material + m.work + (m.margin > 0 ? m.margin : 0);
-    String pct(double v) =>
-        total <= 0 ? '0%' : '${(v / total * 100).round()}%';
+    String pct(double v) => total <= 0 ? '0%' : '${(v / total * 100).round()}%';
     Widget row(
       String title,
       String qty,
@@ -206,8 +205,7 @@ class _MdfMarginViewState extends ConsumerState<MdfMarginView> {
                       ),
                 style: theme.textTheme.labelMedium,
               ),
-              if (m.work <= 0)
-                Text(l10n.mdfMarginNoWork, style: muted),
+              if (m.work <= 0) Text(l10n.mdfMarginNoWork, style: muted),
               const Divider(height: AppSpacing.md),
               row(
                 l10n.mdfMarginCost,

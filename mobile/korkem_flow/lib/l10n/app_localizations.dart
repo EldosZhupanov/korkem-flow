@@ -19222,6 +19222,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get filmMakerAddSave;
+
+  /// No description provided for @mdfAddWorker.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a person'**
+  String get mdfAddWorker;
+
+  /// No description provided for @mdfAddWorkerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Into «Команда», on this post — then pick him here'**
+  String get mdfAddWorkerHint;
+
+  /// No description provided for @mdfNoWorkers.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody in «Команда» yet'**
+  String get mdfNoWorkers;
+
+  /// No description provided for @mdfMarginUnsure.
+  ///
+  /// In en, this message translates to:
+  /// **'not exact: unpriced — {count}'**
+  String mdfMarginUnsure(int count);
+
+  /// No description provided for @mdfMarginShares.
+  ///
+  /// In en, this message translates to:
+  /// **'material {material} · work {work} · margin {margin}'**
+  String mdfMarginShares(String material, String work, String margin);
+
+  /// No description provided for @mdfMarginMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get mdfMarginMaterials;
+
+  /// No description provided for @mdfMarginQty.
+  ///
+  /// In en, this message translates to:
+  /// **'how much'**
+  String get mdfMarginQty;
+
+  /// No description provided for @mdfMarginPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'price'**
+  String get mdfMarginPrice;
+
+  /// No description provided for @mdfMarginSum.
+  ///
+  /// In en, this message translates to:
+  /// **'sum'**
+  String get mdfMarginSum;
+
+  /// No description provided for @mdfMarginNoPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'none'**
+  String get mdfMarginNoPrice;
+
+  /// No description provided for @mdfMarginSetPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get mdfMarginSetPrice;
+
+  /// No description provided for @mdfMarginRates.
+  ///
+  /// In en, this message translates to:
+  /// **'Rates'**
+  String get mdfMarginRates;
+
+  /// No description provided for @mdfMarginNoWork.
+  ///
+  /// In en, this message translates to:
+  /// **'No work booked: stages not ticked or no rates'**
+  String get mdfMarginNoWork;
+
+  /// No description provided for @mdfMarginCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get mdfMarginCost;
+
+  /// No description provided for @mdfMarginEstimateShort.
+  ///
+  /// In en, this message translates to:
+  /// **'at today\'s prices, nothing written off yet'**
+  String get mdfMarginEstimateShort;
+
+  /// No description provided for @mdfMarginNotCountedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'power and delivery not counted'**
+  String get mdfMarginNotCountedShort;
+
+  /// No description provided for @mdfMarginPriceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: {title}'**
+  String mdfMarginPriceTitle(String title);
+
+  /// No description provided for @mdfMarginPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price a unit, ₸'**
+  String get mdfMarginPriceLabel;
+
+  /// No description provided for @mdfMarginPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Film — a metre. Written on the material\'s card.'**
+  String get mdfMarginPriceHint;
 }
 
 class _AppLocalizationsDelegate

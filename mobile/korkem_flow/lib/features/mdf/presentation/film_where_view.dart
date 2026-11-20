@@ -318,16 +318,16 @@ class _LackCardState extends ConsumerState<_LackCard> {
                 ),
               ),
               if (_lookOpen)
-              for (final m in f.lookalikes)
-                _LookalikeRow(
-                  item: f.item,
-                  match: m,
-                  onOffer: () => ContactActions.whatsAppMessage(
-                    widget.phone,
-                    l10n.fwOfferText(f.film, '${m.maker} · ${m.name}'),
+                for (final m in f.lookalikes)
+                  _LookalikeRow(
+                    item: f.item,
+                    match: m,
+                    onOffer: () => ContactActions.whatsAppMessage(
+                      widget.phone,
+                      l10n.fwOfferText(f.film, '${m.maker} · ${m.name}'),
+                    ),
+                    onReplace: !accepted || _busy ? null : _replace,
                   ),
-                  onReplace: !accepted || _busy ? null : _replace,
-                ),
             ],
           ],
         ),
