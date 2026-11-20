@@ -694,111 +694,114 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
         width: AppSpacing.xxxl * 8,
         child: SingleChildScrollView(
           child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              key: const ValueKey('customerName'),
-              controller: _name,
-              autofocus: true,
-              decoration: InputDecoration(labelText: l10n.mdfCustomerName),
-            ),
-            TextField(
-              key: const ValueKey('customerPhone'),
-              controller: _phone,
-              keyboardType: TextInputType.phone,
-              inputFormatters: const [PhoneMaskFormatter()],
-              decoration: InputDecoration(labelText: l10n.mdfCustomerPhone),
-            ),
-            TextField(
-              key: const ValueKey('customerOrg'),
-              controller: _org,
-              decoration: InputDecoration(labelText: l10n.mdfCustomerOrg),
-              onSubmitted: (_) => _save(),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.xs,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                key: const ValueKey('customerName'),
+                controller: _name,
+                autofocus: true,
+                decoration: InputDecoration(labelText: l10n.mdfCustomerName),
+              ),
+              TextField(
+                key: const ValueKey('customerPhone'),
+                controller: _phone,
+                keyboardType: TextInputType.phone,
+                inputFormatters: const [PhoneMaskFormatter()],
+                decoration: InputDecoration(labelText: l10n.mdfCustomerPhone),
+              ),
+              TextField(
+                key: const ValueKey('customerOrg'),
+                controller: _org,
+                decoration: InputDecoration(labelText: l10n.mdfCustomerOrg),
+                onSubmitted: (_) => _save(),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    for (final t in MdfCustomerTag.values)
+                      FilterChip(
+                        key: ValueKey('customerTag:${t.wire}'),
+                        label: Text(mdfCustomerTagLabel(t, l10n)),
+                        selected: _tags.contains(t),
+                        onSelected: (on) => setState(() {
+                          if (on) {
+                            _tags.add(t);
+                          } else {
+                            _tags.remove(t);
+                          }
+                        }),
+                      ),
+                  ],
+                ),
+              ),
+              // His own terms (owner, 20.11.2026: «по разному»).
+              const SizedBox(height: AppSpacing.md),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  l10n.mdfCustomerTerms,
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+              ),
+              Row(
                 children: [
-                  for (final t in MdfCustomerTag.values)
-                    FilterChip(
-                      key: ValueKey('customerTag:${t.wire}'),
-                      label: Text(mdfCustomerTagLabel(t, l10n)),
-                      selected: _tags.contains(t),
-                      onSelected: (on) => setState(() {
-                        if (on) {
-                          _tags.add(t);
-                        } else {
-                          _tags.remove(t);
-                        }
-                      }),
+                  Expanded(
+                    child: _numberField(
+                      'customerDiscount',
+                      _discount,
+                      l10n.mdfCustomerDiscount,
                     ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: _numberField(
+                      'customerPricePvc',
+                      _pvc,
+                      l10n.mdfCustomerPricePvc,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: _numberField(
+                      'customerPricePaint',
+                      _paint,
+                      l10n.mdfCustomerPricePaint,
+                    ),
+                  ),
                 ],
               ),
-            ),
-            // His own terms (owner, 20.11.2026: «по разному»).
-            const SizedBox(height: AppSpacing.md),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                l10n.mdfCustomerTerms,
-                style: Theme.of(context).textTheme.labelLarge,
+              _numberField(
+                'customerDebtLimit',
+                _limit,
+                l10n.mdfCustomerDebtLimit,
+                helper: l10n.mdfCustomerDebtLimitHint,
               ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: _numberField('customerDiscount', _discount,
-                      l10n.mdfCustomerDiscount),
+              const SizedBox(height: AppSpacing.sm),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(l10n.mdfCustomerSource),
+                    for (final src in MdfCustomerSource.values)
+                      ChoiceChip(
+                        key: ValueKey('customerSource:${src.wire}'),
+                        label: Text(mdfCustomerSourceLabel(src, l10n)),
+                        selected: _source == src,
+                        onSelected: (on) =>
+                            setState(() => _source = on ? src : null),
+                      ),
+                  ],
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: _numberField(
-                    'customerPricePvc',
-                    _pvc,
-                    l10n.mdfCustomerPricePvc,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: _numberField(
-                    'customerPricePaint',
-                    _paint,
-                    l10n.mdfCustomerPricePaint,
-                  ),
-                ),
-              ],
-            ),
-            _numberField(
-              'customerDebtLimit',
-              _limit,
-              l10n.mdfCustomerDebtLimit,
-              helper: l10n.mdfCustomerDebtLimitHint,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Wrap(
-                spacing: AppSpacing.xs,
-                runSpacing: AppSpacing.xs,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(l10n.mdfCustomerSource),
-                  for (final src in MdfCustomerSource.values)
-                    ChoiceChip(
-                      key: ValueKey('customerSource:${src.wire}'),
-                      label: Text(mdfCustomerSourceLabel(src, l10n)),
-                      selected: _source == src,
-                      onSelected: (on) =>
-                          setState(() => _source = on ? src : null),
-                    ),
-                ],
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
       actions: [

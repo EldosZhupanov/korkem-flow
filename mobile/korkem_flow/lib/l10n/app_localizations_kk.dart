@@ -11477,4 +11477,59 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfCustomerTakeHim => 'Соны таңдау';
+
+  @override
+  String get mdfCustomerTerms => 'Клиент шарттары';
+
+  @override
+  String get mdfCustomerDiscount => 'Жеңілдік, %';
+
+  @override
+  String get mdfCustomerPricePvc => 'Өз бағасы ПВХ, ₸/м²';
+
+  @override
+  String get mdfCustomerPricePaint => 'Өз бағасы бояу, ₸/м²';
+
+  @override
+  String get mdfCustomerDebtLimit => 'Қарыз лимиті, ₸';
+
+  @override
+  String get mdfCustomerDebtLimitHint => 'Бос — жалпы лимит';
+
+  @override
+  String get mdfCustomerSource => 'Қайдан келді:';
+
+  @override
+  String get mdfCustomerSourceWord => 'Ауызша';
+
+  @override
+  String get mdfCustomerSource2gis => '2ГИС';
+
+  @override
+  String get mdfCustomerSourceRepeat => 'Қайталап';
+
+  @override
+  String get mdfCustomerSourceOther => 'Басқа';
+
+  @override
+  String get mdfDebtLimitDefault => 'Әдепкі қарыз лимиті';
+
+  @override
+  String get mdfDebtLimitDefaultHint => '₸; 0 не бос — лимитсіз';
+
+  @override
+  String mdfCustomerDiscountBadge(String pct) {
+    return 'жеңілдік $pct%';
+  }
+
+  @override
+  String get mdfCustomerOwnPrice => 'өз бағасы';
+
+  @override
+  String mdfDebtOverLimit(String after, String limit) {
+    return 'Клиент қарызы $after болады — лимиттен $limit асады';
+  }
+
+  @override
+  String get mdfDebtOverLimitWho => 'Кім рұқсат етті және неге';
 }

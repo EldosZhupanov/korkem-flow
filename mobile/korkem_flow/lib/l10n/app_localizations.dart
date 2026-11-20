@@ -19702,6 +19702,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose him'**
   String get mdfCustomerTakeHim;
+
+  /// No description provided for @mdfCustomerTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s terms'**
+  String get mdfCustomerTerms;
+
+  /// No description provided for @mdfCustomerDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount, %'**
+  String get mdfCustomerDiscount;
+
+  /// No description provided for @mdfCustomerPricePvc.
+  ///
+  /// In en, this message translates to:
+  /// **'Own price PVC, ₸/m²'**
+  String get mdfCustomerPricePvc;
+
+  /// No description provided for @mdfCustomerPricePaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Own price paint, ₸/m²'**
+  String get mdfCustomerPricePaint;
+
+  /// No description provided for @mdfCustomerDebtLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt limit, ₸'**
+  String get mdfCustomerDebtLimit;
+
+  /// No description provided for @mdfCustomerDebtLimitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty — the shop\'s limit'**
+  String get mdfCustomerDebtLimitHint;
+
+  /// No description provided for @mdfCustomerSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Came from:'**
+  String get mdfCustomerSource;
+
+  /// No description provided for @mdfCustomerSourceWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Word of mouth'**
+  String get mdfCustomerSourceWord;
+
+  /// No description provided for @mdfCustomerSource2gis.
+  ///
+  /// In en, this message translates to:
+  /// **'2GIS'**
+  String get mdfCustomerSource2gis;
+
+  /// No description provided for @mdfCustomerSourceRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get mdfCustomerSourceRepeat;
+
+  /// No description provided for @mdfCustomerSourceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get mdfCustomerSourceOther;
+
+  /// No description provided for @mdfDebtLimitDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default debt limit'**
+  String get mdfDebtLimitDefault;
+
+  /// No description provided for @mdfDebtLimitDefaultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'₸; 0 or empty — no limit'**
+  String get mdfDebtLimitDefaultHint;
+
+  /// No description provided for @mdfCustomerDiscountBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'discount {pct}%'**
+  String mdfCustomerDiscountBadge(String pct);
+
+  /// No description provided for @mdfCustomerOwnPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'own price'**
+  String get mdfCustomerOwnPrice;
+
+  /// No description provided for @mdfDebtOverLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s debt would be {after} — over the limit {limit}'**
+  String mdfDebtOverLimit(String after, String limit);
+
+  /// No description provided for @mdfDebtOverLimitWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who allowed it and why'**
+  String get mdfDebtOverLimitWho;
 }
 
 class _AppLocalizationsDelegate

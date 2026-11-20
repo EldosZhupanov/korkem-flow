@@ -11517,4 +11517,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfCustomerTakeHim => 'Choose him';
+
+  @override
+  String get mdfCustomerTerms => 'The customer\'s terms';
+
+  @override
+  String get mdfCustomerDiscount => 'Discount, %';
+
+  @override
+  String get mdfCustomerPricePvc => 'Own price PVC, ₸/m²';
+
+  @override
+  String get mdfCustomerPricePaint => 'Own price paint, ₸/m²';
+
+  @override
+  String get mdfCustomerDebtLimit => 'Debt limit, ₸';
+
+  @override
+  String get mdfCustomerDebtLimitHint => 'Empty — the shop\'s limit';
+
+  @override
+  String get mdfCustomerSource => 'Came from:';
+
+  @override
+  String get mdfCustomerSourceWord => 'Word of mouth';
+
+  @override
+  String get mdfCustomerSource2gis => '2GIS';
+
+  @override
+  String get mdfCustomerSourceRepeat => 'Repeat';
+
+  @override
+  String get mdfCustomerSourceOther => 'Other';
+
+  @override
+  String get mdfDebtLimitDefault => 'Default debt limit';
+
+  @override
+  String get mdfDebtLimitDefaultHint => '₸; 0 or empty — no limit';
+
+  @override
+  String mdfCustomerDiscountBadge(String pct) {
+    return 'discount $pct%';
+  }
+
+  @override
+  String get mdfCustomerOwnPrice => 'own price';
+
+  @override
+  String mdfDebtOverLimit(String after, String limit) {
+    return 'The customer\'s debt would be $after — over the limit $limit';
+  }
+
+  @override
+  String get mdfDebtOverLimitWho => 'Who allowed it and why';
 }
