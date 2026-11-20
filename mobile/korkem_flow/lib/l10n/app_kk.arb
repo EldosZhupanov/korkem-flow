@@ -3396,5 +3396,21 @@
   "filmMakerAddSave": "Қосу",
   "mdfAddWorker": "Адам қосу",
   "mdfAddWorkerHint": "«Командаға», осы учаскеге — кейін оны осында таңдаңыз",
-  "mdfNoWorkers": "«Командада» әзірге ешкім жоқ"
+  "mdfNoWorkers": "«Командада» әзірге ешкім жоқ",
+  "mdfMarginUnsure": "дәл емес: бағасыз — {count}",
+  "mdfMarginShares": "материал {material} · жұмыс {work} · маржа {margin}",
+  "mdfMarginMaterials": "Материалдар",
+  "mdfMarginQty": "қанша",
+  "mdfMarginPrice": "баға",
+  "mdfMarginSum": "сома",
+  "mdfMarginNoPrice": "жоқ",
+  "mdfMarginSetPrice": "Көрсету",
+  "mdfMarginRates": "Тарифтер",
+  "mdfMarginNoWork": "Жұмыс есептелмеген: кезеңдер белгіленбеген не тариф жоқ",
+  "mdfMarginCost": "Өзіндік құны",
+  "mdfMarginEstimateShort": "бүгінгі бағамен, материал әлі есептен шығарылмаған",
+  "mdfMarginNotCountedShort": "электр мен жеткізусіз",
+  "mdfMarginPriceTitle": "Бағасы: {title}",
+  "mdfMarginPriceLabel": "Бірлік бағасы, ₸",
+  "mdfMarginPriceHint": "Пленка — метріне. Материал карточкасына жазылады."
 }

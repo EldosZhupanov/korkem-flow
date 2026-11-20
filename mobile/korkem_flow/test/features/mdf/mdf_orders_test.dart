@@ -65,6 +65,50 @@ Map<String, Object?> _card({
   ],
 };
 
+/// A film never received: no price, no work booked.
+class _Unpriced extends _FakeRepository {
+  final priced = <(String, String, double)>[];
+
+  @override
+  Future<MdfMargin> margin(String order) async => MdfMargin.fromJson(const {
+    'order': 'SAL-ORD-1129',
+    'revenue': 68000,
+    'material': 1398,
+    'work': 0,
+    'margin': 66602,
+    'share': 0.98,
+    'estimate': true,
+    'missing': ['Плёнка ПВХ AL-01 Агератум'],
+    'material_rows': [
+      {
+        'item': 'FILM-AL01',
+        'title': 'Плёнка ПВХ AL-01 Агератум',
+        'unit': 'м',
+        'qty': 6.2,
+        'cost': 0,
+      },
+      {
+        'item': 'GLUE-JS',
+        'title': 'JS group',
+        'unit': 'кг',
+        'qty': 0.46,
+        'price': 3040,
+        'cost': 1398,
+      },
+    ],
+  });
+
+  @override
+  Future<MdfMargin> setMaterialPrice(
+    String order,
+    String item,
+    double price,
+  ) async {
+    priced.add((order, item, price));
+    return margin(order);
+  }
+}
+
 class _FakeRepository implements MdfOrderRepository {
   final ticked = <(MdfStage, bool)>[];
   final added = <(MdfStage, bool)>[];
@@ -1277,6 +1321,31 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('mdfMarginNotCounted')), findsOneWidget);
     expect(find.textContaining('МДФ 16 мм'), findsOneWidget);
+  });
+
+  testWidgets('a material with no price: the margin is not exact, priced here', (
+    tester,
+  ) async {
+    final repo = _Unpriced();
+    await _pumpCard(tester, repo);
+    final value = find.byKey(const ValueKey('mdfMarginValue'));
+    expect(tester.widget<Text>(value).data, contains('≈'));
+    expect(find.byKey(const ValueKey('mdfMarginUnsure')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mdfMargin')));
+    await tester.pumpAndSettle();
+    // Work booked as nothing: the rates are one tap away.
+    expect(find.byKey(const ValueKey('mdfMarginRates')), findsOneWidget);
+    final set = find.byKey(const ValueKey('mdfMarginPrice:FILM-AL01'));
+    await tester.ensureVisible(set);
+    await tester.tap(set);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfMarginPriceField')),
+      '1 450',
+    );
+    await tester.tap(find.byKey(const ValueKey('mdfMarginPriceSave')));
+    await tester.pumpAndSettle();
+    expect(repo.priced, [('SAL-ORD-1129', 'FILM-AL01', 1450.0)]);
   });
 
   test('a finish goes to the server for a paint line only', () {
