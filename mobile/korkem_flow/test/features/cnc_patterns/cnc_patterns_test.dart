@@ -388,13 +388,15 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     expect(
-      tester.widget<CncFacadeView>(find.byKey(const ValueKey('cncFacade')))
+      tester
+          .widget<CncFacadeView>(find.byKey(const ValueKey('cncFacade')))
           .progress,
       inExclusiveRange(0, 1),
     );
     await tester.pumpAndSettle();
     expect(
-      tester.widget<CncFacadeView>(find.byKey(const ValueKey('cncFacade')))
+      tester
+          .widget<CncFacadeView>(find.byKey(const ValueKey('cncFacade')))
           .progress,
       1,
     );

@@ -98,7 +98,9 @@ class _FacadePainter extends CustomPainter {
         total += (c.points[i] - c.points[i - 1]).distance;
       }
     }
-    var left = progress >= 1 ? double.infinity : total * max<double>(0, progress);
+    var left = progress >= 1
+        ? double.infinity
+        : total * max<double>(0, progress);
     Offset? head;
     for (final c in cuts) {
       if (c.points.length < 2 || left <= 0) continue;

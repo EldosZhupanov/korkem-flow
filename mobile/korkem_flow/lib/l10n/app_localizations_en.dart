@@ -11419,4 +11419,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ctoNoCatalogue => 'The catalogue did not load';
+
+  @override
+  String get cncpKindPocket => 'Pocket';
+
+  @override
+  String cncpLinePocket(String offset) {
+    return 'Pocket, $offset mm in';
+  }
+
+  @override
+  String get cncpPocketHint =>
+      'Everything inside is cut to one depth — with a straight or ball-nose cutter';
+
+  @override
+  String cncpRidge(String height, String at) {
+    return 'A $height mm ridge $at mm from the edge — the passes do not meet: move one or take a wider cutter';
+  }
+
+  @override
+  String cncpWall(String width, String at) {
+    return 'A $width mm wall $at mm from the edge — it may break off';
+  }
+
+  @override
+  String get cncpSimulate => 'Simulation: the cutter\'s run';
 }
