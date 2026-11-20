@@ -11550,4 +11550,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String paintVariantNew(String material) {
     return 'Новый: $material';
   }
+
+  @override
+  String paintPriceHistory(String list) {
+    return 'раньше: $list';
+  }
+
+  @override
+  String get paintLineMore => '+ ещё позиция в этот приход';
+
+  @override
+  String get paintPhoto => 'Фото накладной';
 }

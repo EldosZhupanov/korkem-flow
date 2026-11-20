@@ -1318,15 +1318,18 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                   ),
                 ),
               // What it cost before, and from whom (owner, 20.11.2026).
-              if (past.where((r) => !r.cancelled && r.priceKg != null).isNotEmpty)
+              if (past
+                  .where((r) => !r.cancelled && r.priceKg != null)
+                  .isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.xxs),
                   child: Text(
                     l10n.paintPriceHistory(
                       [
-                        for (final r in past
-                            .where((r) => !r.cancelled && r.priceKg != null)
-                            .take(3))
+                        for (final r
+                            in past
+                                .where((r) => !r.cancelled && r.priceKg != null)
+                                .take(3))
                           [
                             money.format(r.priceKg),
                             mdfDay(r.date, year: false),

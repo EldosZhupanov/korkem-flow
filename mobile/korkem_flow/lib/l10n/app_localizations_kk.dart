@@ -11472,4 +11472,15 @@ class AppLocalizationsKk extends AppLocalizations {
   String paintVariantNew(String material) {
     return 'Жаңа: $material';
   }
+
+  @override
+  String paintPriceHistory(String list) {
+    return 'бұрын: $list';
+  }
+
+  @override
+  String get paintLineMore => '+ осы кіріске тағы бір позиция';
+
+  @override
+  String get paintPhoto => 'Жүкқұжат суреті';
 }

@@ -11512,4 +11512,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String paintVariantNew(String material) {
     return 'New: $material';
   }
+
+  @override
+  String paintPriceHistory(String list) {
+    return 'before: $list';
+  }
+
+  @override
+  String get paintLineMore => '+ another position in this receipt';
+
+  @override
+  String get paintPhoto => 'The invoice\'s photo';
 }

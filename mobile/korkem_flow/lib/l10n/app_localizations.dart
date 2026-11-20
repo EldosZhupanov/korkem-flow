@@ -19702,6 +19702,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New: {material}'**
   String paintVariantNew(String material);
+
+  /// No description provided for @paintPriceHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'before: {list}'**
+  String paintPriceHistory(String list);
+
+  /// No description provided for @paintLineMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+ another position in this receipt'**
+  String get paintLineMore;
+
+  /// No description provided for @paintPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'The invoice\'s photo'**
+  String get paintPhoto;
 }
 
 class _AppLocalizationsDelegate
