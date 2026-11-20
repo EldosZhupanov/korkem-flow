@@ -32,7 +32,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-KINDS = ("frame", "arch", "grooves")
+KINDS = ("frame", "arch", "grooves", "pocket")
 CORNERS = ("square", "round", "cove")
 TOOL_KINDS = ("v", "ball", "flat")
 DIRECTIONS = ("vertical", "horizontal")
@@ -41,6 +41,9 @@ DIRECTIONS = ("vertical", "horizontal")
 THROUGH_CLEAR = 2.0
 #: Arcs written as straight lines step at most this many degrees.
 ARC_STEP_DEG = 3.0
+#: A pocket's rings overlap: each this share of the cutter apart (ArtCAM's
+#: «2D-выборка» defaults to 40 %).
+POCKET_STEPOVER = 0.4
 
 TOOL_LIMITS = {"diameter": (1, 60), "angle": (10, 170), "feed": (100, 30000), "plunge": (50, 10000),
 			   "rpm": (1000, 30000), "pass_depth": (0.2, 20)}
@@ -220,6 +223,29 @@ def grooves(w: float, h: float, direction: str, step: float, side: float, ends: 
 	return paths
 
 
+def pocket(w: float, h: float, offset: float, tool_d: float) -> list[Path]:
+	"""A sunken panel («выборка филёнки», ArtCAM's «2D-выборка»): everything
+	`offset` in from the edges cut to one depth, ring after ring, each
+	`POCKET_STEPOVER` of the cutter apart — from the middle outwards, so the
+	cutter never leaves a thin wall to break. The corners keep the cutter's
+	radius, as any pocket does."""
+	r = tool_d / 2
+	x0, y0, x1, y1 = offset + r, offset + r, w - offset - r, h - offset - r
+	if offset <= 0 or x1 < x0 or y1 < y0:
+		raise PatternError(f"Выборка с отступом {offset:g} мм не помещается на {w:g}×{h:g} фрезой {tool_d:g} мм.")
+	step = max(0.5, tool_d * POCKET_STEPOVER)
+	n = int(min(x1 - x0, y1 - y0) / 2 // step) + 1
+	rings = []
+	for k in range(n):
+		a, b, c, d = x0 + k * step, y0 + k * step, x1 - k * step, y1 - k * step
+		if c - a < 0.01 or d - b < 0.01:
+			# The middle of a narrow pocket: one pass along it.
+			rings.append(Path(start=(a, b), moves=[("L", c, d)], closed=False))
+			continue
+		rings.append(Path(start=(a, b), moves=[("L", c, b), ("L", c, d), ("L", a, d), ("L", a, b)]))
+	return rings[::-1]
+
+
 def element_paths(element: dict, w: float, h: float, tools: dict[str, Tool]) -> list[Path]:
 	kind = element.get("kind")
 	tool = tools.get(element.get("tool") or "")
@@ -236,8 +262,12 @@ def element_paths(element: dict, w: float, h: float, tools: dict[str, Tool]) -> 
 	elif kind == "grooves":
 		paths = grooves(w, h, element.get("direction") or "vertical", _num(element, "step", 30),
 						_num(element, "side", 0), _num(element, "ends", 0), tool.diameter)
+	elif kind == "pocket":
+		if tool.kind == "v":
+			raise PatternError("Выборку режут прямой или радиусной фрезой, не V-образной.")
+		paths = pocket(w, h, _num(element, "offset", 80), tool.diameter)
 	else:
-		raise PatternError("Элемент узора — рамка, арка или пазы.")
+		raise PatternError("Элемент узора — рамка, арка, пазы или выборка.")
 	for p in paths:
 		p.depth, p.tool = depth, tool.name
 	return paths

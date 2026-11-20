@@ -181,6 +181,7 @@ String cncElementLine(AppLocalizations l10n, CncElement e) {
       ),
     },
     CncElementKind.arch => l10n.cncpLineArch(cncFmt(e.offset), cncFmt(e.rise)),
+    CncElementKind.pocket => l10n.cncpLinePocket(cncFmt(e.offset)),
     CncElementKind.grooves =>
       e.vertical
           ? l10n.cncpLineGroovesV(cncFmt(e.step))

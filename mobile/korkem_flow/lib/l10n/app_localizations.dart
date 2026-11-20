@@ -19546,6 +19546,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The catalogue did not load'**
   String get ctoNoCatalogue;
+
+  /// No description provided for @cncpKindPocket.
+  ///
+  /// In en, this message translates to:
+  /// **'Pocket'**
+  String get cncpKindPocket;
+
+  /// No description provided for @cncpLinePocket.
+  ///
+  /// In en, this message translates to:
+  /// **'Pocket, {offset} mm in'**
+  String cncpLinePocket(String offset);
+
+  /// No description provided for @cncpPocketHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything inside is cut to one depth — with a straight or ball-nose cutter'**
+  String get cncpPocketHint;
+
+  /// No description provided for @cncpRidge.
+  ///
+  /// In en, this message translates to:
+  /// **'A {height} mm ridge {at} mm from the edge — the passes do not meet: move one or take a wider cutter'**
+  String cncpRidge(String height, String at);
+
+  /// No description provided for @cncpWall.
+  ///
+  /// In en, this message translates to:
+  /// **'A {width} mm wall {at} mm from the edge — it may break off'**
+  String cncpWall(String width, String at);
+
+  /// No description provided for @cncpSimulate.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation: the cutter\'s run'**
+  String get cncpSimulate;
 }
 
 class _AppLocalizationsDelegate

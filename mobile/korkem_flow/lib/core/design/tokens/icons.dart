@@ -126,6 +126,9 @@ abstract final class AppIcons {
   static const IconData moveIn = Symbols.south_west_rounded;
   static const IconData moveOut = Symbols.north_east_rounded;
 
+  /// Run it: the cutter's simulation (owner, 20.11.2026).
+  static const IconData play = Symbols.play_arrow_rounded;
+
   /// Put by for a customer.
   static const IconData hold = Symbols.bookmark_rounded;
   static const IconData visible = Symbols.visibility_rounded;
