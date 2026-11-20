@@ -182,6 +182,22 @@ class CncFileSaver {
     return dir.path;
   }
 
+  /// One picture into [folder] — a facade shown to a customer; the folder.
+  Future<String> saveBytes(String folder, String name, List<int> bytes) async {
+    final base =
+        await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
+    final dir = Directory(
+      '${base.path}${Platform.pathSeparator}KORKEM ЧПУ'
+      '${Platform.pathSeparator}${_safe(folder)}',
+    );
+    await dir.create(recursive: true);
+    await File(
+      '${dir.path}${Platform.pathSeparator}${_safe(name)}',
+    ).writeAsBytes(bytes);
+    return dir.path;
+  }
+
   Future<void> open(String path) async {
     if (Platform.isWindows) {
       await Process.run('explorer', [path]);
