@@ -11379,4 +11379,18 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get ctoNoCatalogue => 'Каталог жүктелмеді';
+
+  @override
+  String get mdfAddCoating => 'Жабын қосу:';
+
+  @override
+  String get mdfQuickColours => 'не бірден түс:';
+
+  @override
+  String get mdfGroupCopy => 'Басқа түспен көшірме';
+
+  @override
+  String mdfGroupCopyTo(String coating) {
+    return 'Көшірме → $coating';
+  }
 }

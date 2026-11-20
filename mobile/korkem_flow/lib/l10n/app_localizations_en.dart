@@ -11419,4 +11419,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ctoNoCatalogue => 'The catalogue did not load';
+
+  @override
+  String get mdfAddCoating => 'Add a coating:';
+
+  @override
+  String get mdfQuickColours => 'or a colour at once:';
+
+  @override
+  String get mdfGroupCopy => 'Copy in another colour';
+
+  @override
+  String mdfGroupCopyTo(String coating) {
+    return 'Copy → $coating';
+  }
 }

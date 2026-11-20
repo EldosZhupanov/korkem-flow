@@ -11457,4 +11457,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ctoNoCatalogue => 'Каталог не загрузился';
+
+  @override
+  String get mdfAddCoating => 'Добавить покрытие:';
+
+  @override
+  String get mdfQuickColours => 'или сразу цвет:';
+
+  @override
+  String get mdfGroupCopy => 'Копия в другом цвете';
+
+  @override
+  String mdfGroupCopyTo(String coating) {
+    return 'Копия → $coating';
+  }
 }

@@ -59,9 +59,14 @@ class MdfQuickColours extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final films =
-        ref.watch(filmPickExtrasProvider(customer)).value?.recent.take(_quick) ??
+        ref
+            .watch(filmPickExtrasProvider(customer))
+            .value
+            ?.recent
+            .take(_quick) ??
         const <String>[];
-    final paints = ref.watch(mdfQuickPaintsProvider(customer)).value ?? const [];
+    final paints =
+        ref.watch(mdfQuickPaintsProvider(customer)).value ?? const [];
     if (films.isEmpty && paints.isEmpty) return const SizedBox.shrink();
     return Wrap(
       spacing: AppSpacing.xs,
