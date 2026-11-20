@@ -112,12 +112,73 @@ def plan(parts: list[Part], press: dict, rotate: bool) -> tuple[list[Load], list
 	return _plan_in_order(left, press, rotate)
 
 
+#: Raise when the search below changes: a layout kept from before would
+#: otherwise outlive the code that made it.
+_PLAN_VERSION = 1
+#: How long a layout is kept for parts nobody changes.
+_PLAN_KEEP_SEC = 30 * 24 * 3600
+
+
 def best_plan(parts: list[Part], press: dict, rotate: bool, effort: int = 1) -> tuple[list[Load], list[Part]]:
 	"""The plain layout, and then the parts in other orders — by size, by length,
 	by width, then shuffled — keeping the layout that takes the least film,
 	then the fewest loads (owner, 12.11.2026: «умный перебор»). The same parts
 	always give the same layout: the shuffles are seeded by the parts.
-	`effort` multiplies the tries — «Максимум» on the press panel."""
+	`effort` multiplies the tries — «Максимум» on the press panel.
+
+	So a layout is worked out once and kept, by what it was worked out from:
+	the parts, the press, turning, effort. «Отдел плёнки» opened in seven
+	seconds on the owner's base (20.11.2026: «почему долго загружает?») —
+	the film the open orders lack was the search run again for each of 30
+	orders on every open."""
+	key = _plan_key(parts, press, rotate, effort)
+	kept = _kept_plan(key)
+	if kept is not None:
+		return kept
+	made = _search(parts, press, rotate, effort)
+	_keep_plan(key, made)
+	return made
+
+
+def _plan_key(parts: list[Part], press: dict, rotate: bool, effort: int) -> str:
+	setup = {k: press.get(k) for k in DEFAULT_PRESS}
+	return "korkem:press_plan:" + _digest(
+		f"v{_PLAN_VERSION}|{';'.join(f'{p.pos}:{p.width}x{p.height}' for p in parts)}|{json.dumps(setup, sort_keys=True, default=str)}|{bool(rotate)}|{int(effort)}"
+	)
+
+
+def _kept_plan(key: str) -> tuple[list[Load], list[Part]] | None:
+	try:
+		raw = frappe.cache.get_value(key)
+	except Exception:
+		return None  # no cache to hand: the layout is worked out, as before
+	if not isinstance(raw, dict):
+		return None
+	try:
+		loads = [
+			Load(film_m=flt(load["film_m"]), length_mm=cint(load["length_mm"]),
+				 placed=[Placed(**p) for p in load["placed"]])
+			for load in raw["loads"]
+		]
+		return loads, [Part(**p) for p in raw["too_big"]]
+	except (KeyError, TypeError):
+		return None
+
+
+def _keep_plan(key: str, made: tuple[list[Load], list[Part]]) -> None:
+	loads, too_big = made
+	value = {
+		"loads": [{"film_m": load.film_m, "length_mm": load.length_mm, "placed": [vars(p) for p in load.placed]}
+				  for load in loads],
+		"too_big": [vars(p) for p in too_big],
+	}
+	try:
+		frappe.cache.set_value(key, value, expires_in_sec=_PLAN_KEEP_SEC)
+	except Exception:
+		return
+
+
+def _search(parts: list[Part], press: dict, rotate: bool, effort: int) -> tuple[list[Load], list[Part]]:
 	best, too_big = plan(parts, press, rotate)
 	fit = [p for p in parts if p not in too_big]
 	if len(fit) < 2:

@@ -74,7 +74,9 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
     ref
       ..invalidate(filmStockProvider)
       ..invalidate(filmWantedProvider)
-      ..invalidate(filmCatalogProvider);
+      ..invalidate(filmCatalogProvider)
+      // The catalogue cards say how much of each is on hand now.
+      ..invalidate(filmDecorsProvider);
   }
 
   Future<void> _run(Future<bool?> Function() step) async {
@@ -178,7 +180,9 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
               .read(filmDecorRepositoryProvider)
               .takeFilm(d.decor);
           _done = true;
-          ref.invalidate(filmDecorsProvider);
+          // The whole catalogue is not fetched again for a decor taken in:
+          // it is the heaviest answer the window has, and the card changes
+          // only once something is received (_refresh).
           film = took.film;
           if (film == null) {
             // An older server names the film alone: found in the stock.

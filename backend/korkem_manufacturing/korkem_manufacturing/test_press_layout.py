@@ -76,6 +76,26 @@ class TestThePacking(IntegrationTestCase):
 		self.assertFalse(any(p.rotated for load in best_plan(CACAO + AVORI, _press(), rotate=False)[0]
 							 for p in load.placed))
 
+	def test_a_layout_is_worked_out_once_and_kept_by_what_it_was_made_from(self):
+		# «Почему долго загружает?» (owner, 20.11.2026): the search ran again for
+		# every open order each time «Отдел плёнки» opened.
+		from unittest import mock
+
+		parts = [Part(41, 1990, 497), Part(42, 713, 397), Part(43, 497, 296)]
+		press = _press()
+		first = best_plan(parts, press, rotate=True)
+		with mock.patch.object(press_layout, "_search", side_effect=AssertionError("searched again")):
+			kept = best_plan(parts, press, rotate=True)
+		self.assertEqual([[vars(p) for p in load.placed] for load in kept[0]],
+						 [[vars(p) for p in load.placed] for load in first[0]])
+		self.assertEqual([load.film_m for load in kept[0]], [load.film_m for load in first[0]])
+		# Another press, or the parts changed: worked out afresh.
+		wider = {**press, "press_width_mm": press["press_width_mm"] + 7}
+		with mock.patch.object(press_layout, "_search", wraps=press_layout._search) as search:
+			best_plan(parts, wider, rotate=True)
+			best_plan([*parts, Part(44, 300, 300)], press, rotate=True)
+			self.assertEqual(search.call_count, 2)
+
 	def test_a_layout_made_by_hand_is_checked_before_it_is_kept(self):
 		press = _press()
 		parts = [Part(1, 500, 718)] * 2 + [Part(3, 498, 550)]
