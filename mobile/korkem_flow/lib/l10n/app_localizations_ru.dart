@@ -11356,7 +11356,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get ppPickHint => 'Выберите цвет — нажмите на карточку';
+  String get ppPickHint => 'Нажмите на цвет — он сразу выбран';
 
   @override
   String get ppChoose => 'Выбрать';
@@ -11457,4 +11457,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ctoNoCatalogue => 'Каталог не загрузился';
+
+  @override
+  String get pcOpenCard => 'Карточка краски — посмотреть и изменить';
 }

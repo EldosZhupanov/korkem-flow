@@ -19364,7 +19364,7 @@ abstract class AppLocalizations {
   /// No description provided for @ppPickHint.
   ///
   /// In en, this message translates to:
-  /// **'Pick a colour — tap its card'**
+  /// **'Tap a colour — it is chosen at once'**
   String get ppPickHint;
 
   /// No description provided for @ppChoose.
@@ -19546,6 +19546,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The catalogue did not load'**
   String get ctoNoCatalogue;
+
+  /// No description provided for @pcOpenCard.
+  ///
+  /// In en, this message translates to:
+  /// **'The colour\'s card — to look at and change'**
+  String get pcOpenCard;
 }
 
 class _AppLocalizationsDelegate

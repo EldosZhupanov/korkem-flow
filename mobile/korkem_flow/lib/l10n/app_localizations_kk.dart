@@ -11278,7 +11278,7 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
-  String get ppPickHint => 'Түсті таңдаңыз — карточканы басыңыз';
+  String get ppPickHint => 'Түсті басыңыз — ол бірден таңдалады';
 
   @override
   String get ppChoose => 'Таңдау';
@@ -11379,4 +11379,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get ctoNoCatalogue => 'Каталог жүктелмеді';
+
+  @override
+  String get pcOpenCard => 'Бояу карточкасы — қарау және өзгерту';
 }
