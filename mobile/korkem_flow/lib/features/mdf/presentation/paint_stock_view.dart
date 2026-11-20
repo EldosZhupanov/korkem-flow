@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,17 +10,18 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/phone/phone.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
-import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/data/paint_stock_repository.dart';
-import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
-import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_recipe_view.dart';
+import 'package:korkem_flow/features/paint_catalogue/data/paint_catalogue_repository.dart';
+import 'package:korkem_flow/features/paint_catalogue/presentation/paint_catalogue_screen.dart';
+import 'package:korkem_flow/features/paint_catalogue/presentation/paint_picker.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 String _kgText(double v) => filmMetres(v);
@@ -603,6 +606,17 @@ Future<bool?> showPaintReceive(
   builder: (_) => _ReceiveDialog(stock: stock, colour: colour, base: base),
 );
 
+/// One position of a receipt: a colour (none for a colourless material),
+/// what it is, how much at what price, how it came.
+typedef _ReceiptLine = ({
+  String colour,
+  String? base,
+  double kg,
+  double priceKg,
+  String? note,
+  String title,
+});
+
 class _ReceiveDialog extends ConsumerStatefulWidget {
   const _ReceiveDialog({required this.stock, this.colour, this.base});
 
@@ -620,6 +634,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
   late PaintStock _stock = widget.stock;
   late String? _colour = widget.colour;
   late final _base = TextEditingController(text: widget.base ?? '');
+  final _baseFocus = FocusNode();
   final _kgField = TextEditingController();
   final _cans = TextEditingController();
   final _canKg = TextEditingController();
@@ -630,10 +645,59 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
   bool _busy = false;
   String? _error;
 
+  /// The positions already put into this receipt — one supplier, one
+  /// delivery, several colours (owner, 20.11.2026).
+  final _more = <_ReceiptLine>[];
+
+  /// The supplier's invoice, photographed (owner, 20.11.2026).
+  PickedFile? _photo;
+
   @override
   void initState() {
     super.initState();
     _fromLast();
+  }
+
+  /// The position being typed, when it is whole.
+  _ReceiptLine? _current(AppLocalizations l10n) {
+    final colour = _component ? '' : _colour;
+    if (colour == null || _kg <= 0 || _priceKg <= 0) return null;
+    final base = _base.text.trim().isEmpty ? null : _base.text.trim();
+    return (
+      colour: colour,
+      base: base,
+      kg: double.parse(_kg.toStringAsFixed(3)),
+      priceKg: _priceKg,
+      note: _byCans ? _cansNote(l10n) : null,
+      title: [if (colour.isNotEmpty) colour, ?base].join(' · '),
+    );
+  }
+
+  /// Nothing typed of the position yet.
+  bool get _currentEmpty =>
+      _colour == null && _base.text.trim().isEmpty && _kg <= 0;
+
+  /// «+ ещё позиция»: this one into the receipt, the form clear for the
+  /// next colour.
+  void _addLine(AppLocalizations l10n) {
+    final line = _current(l10n);
+    if (line == null) return;
+    setState(() {
+      _more.add(line);
+      _colour = null;
+      _byCans = false;
+      for (final c in [_base, _kgField, _cans, _canKg, _price]) {
+        c.clear();
+      }
+    });
+  }
+
+  Future<void> _pickPhoto() async {
+    final files = await ref
+        .read(filmFilePickerProvider)
+        .pick(extensions: const ['jpg', 'jpeg', 'png', 'webp', 'heic', 'pdf']);
+    if (files.isEmpty || !mounted) return;
+    setState(() => _photo = files.first);
   }
 
   /// Primer, hardener, thinner, lacquer: kept by name, with no colour
@@ -660,6 +724,12 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
         last?.supplier ??
         _supplier ??
         _stock.suppliers.where((s) => s.paint).firstOrNull?.id;
+    // In cans as last time: «4 × 5 кг» — the five kilos already there.
+    final can = last?.canKg;
+    if (can != null && _canKg.text.trim().isEmpty && _kgField.text.isEmpty) {
+      _byCans = true;
+      _canKg.text = can;
+    }
     if (colour != null && _base.text.isEmpty) {
       final known = _stock.paints.where((p) => p.colour == colour);
       if (known.length == 1 && known.single.base != null) {
@@ -673,6 +743,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     for (final c in [_base, _kgField, _cans, _canKg, _price]) {
       c.dispose();
     }
+    _baseFocus.dispose();
     _terms.dispose();
     super.dispose();
   }
@@ -732,24 +803,45 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
     final opts = ref.read(filmDeliveryOptionsProvider).value;
+    final current = _current(l10n);
+    final lines = [..._more, ?current];
+    if (lines.isEmpty) return;
     setState(() {
       _busy = true;
       _error = null;
     });
+    final repo = ref.read(paintStockRepositoryProvider);
+    final delivery = _terms.delivery(opts, _supplier);
+    final amount = _terms.costAmount;
+    final totalKg = lines.fold<double>(0, (a, l) => a + l.kg);
+    var shared = 0.0;
     try {
-      await ref
-          .read(paintStockRepositoryProvider)
-          .receive(
-            colour: _component ? '' : _colour!,
-            kg: double.parse(_kg.toStringAsFixed(3)),
-            priceKg: _priceKg,
-            supplier: _supplier!,
-            base: _base.text.trim().isEmpty ? null : _base.text.trim(),
-            delivery: _terms.delivery(opts, _supplier),
-            receivedBy: _terms.takerOf(opts),
-            supplierPay: _terms.supplierPay,
-            note: _byCans ? _cansNote(l10n) : null,
-          );
+      for (final (i, line) in lines.indexed) {
+        // The bringing shared out by the kilo; the last takes the rest.
+        final share = i == lines.length - 1
+            ? double.parse((amount - shared).toStringAsFixed(2))
+            : double.parse(
+                (amount * line.kg / totalKg).toStringAsFixed(2),
+              );
+        shared += share;
+        final got = await repo.receive(
+          colour: line.colour,
+          kg: line.kg,
+          priceKg: line.priceKg,
+          supplier: _supplier!,
+          base: line.base,
+          delivery: delivery == null ? null : {...delivery, 'amount': share},
+          receivedBy: _terms.takerOf(opts),
+          supplierPay: _terms.supplierPay,
+          note: line.note,
+        );
+        final photo = _photo;
+        if (photo != null && got.receipt != null) {
+          await repo.attachPhoto(got.receipt!, photo.name, photo.bytes);
+        }
+        // Saved: not again, should a later one fail.
+        if (mounted) setState(() => _more.remove(line));
+      }
       if (mounted) Navigator.of(context).pop(true);
     } on Object catch (e) {
       if (mounted) {
@@ -761,42 +853,259 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     }
   }
 
-  /// Each colour system a heading, its colours under it.
-  List<DropdownMenuItem<String>> _colourItems(
-    MdfDictionaries dicts,
-    ThemeData theme,
-    AppLocalizations l10n,
-  ) {
-    final groups = dicts.paintGroups();
-    final listed = {
-      for (final g in groups)
-        for (final c in g.colours) c.value,
-    };
-    return [
-      for (final g in groups)
-        if (g.colours.isNotEmpty) ...[
-          DropdownMenuItem<String>(
-            enabled: false,
-            value: '\u0000${g.name}',
-            child: Text(
-              g.name.isEmpty ? l10n.mdfPaintNoSystem : g.name,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+  /// A step's heading: «2 · Цвет и вид».
+  Widget _step(int n, String title) => Padding(
+    padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.xs),
+    child: Text(
+      '$n · $title',
+      key: ValueKey('paintStep:$n'),
+      style: Theme.of(context).textTheme.labelLarge,
+    ),
+  );
+
+  /// The recipe's colourless material [base] is of — «Грунт изолирующий» is
+  /// a «Грунт»; null for an enamel.
+  String? _materialOf(String base) {
+    final b = base.trim().toLowerCase();
+    if (b.isEmpty) return null;
+    for (final m in _stock.recipe.materials) {
+      final name = m.toLowerCase();
+      if (b == name || b.startsWith('$name ')) return m;
+    }
+    return null;
+  }
+
+  /// «Что пришло»: an enamel with its colour, or a colourless material —
+  /// the one bought last of that kind, else the material's own name.
+  void _kind(String? material) => setState(() {
+    if (material == null) {
+      if (_component) _base.clear();
+    } else if (_materialOf(_base.text) != material) {
+      final known = [
+        for (final b in _stock.bases)
+          if (_materialOf(b) == material) b,
+      ];
+      _base.text = known.firstOrNull ?? material;
+    }
+    _fromLast();
+  });
+
+  /// What the queue waits for of [colour] and what is on hand of it.
+  ({double need, double onHand})? _colourNeed(String colour) {
+    final rows = _stock.queue.where(
+      (n) => n.colour == colour || n.colour.startsWith('$colour · '),
+    );
+    if (rows.isEmpty) return null;
+    return (
+      need: rows.fold<double>(0, (a, n) => a + n.needKg),
+      onHand: rows.first.onHandKg,
+    );
+  }
+
+  /// The colour as a tile: its shade, its name, what the queue waits for of
+  /// it; a press opens the colours' window (owner, 20.11.2026: «как на пвх
+  /// и краске»).
+  Widget _colourTile(AppLocalizations l10n, ThemeData theme) {
+    final status = context.statusColors;
+    final colour = _colour;
+    final catalogue = ref.watch(paintCatalogueForProvider(null)).value;
+    final shade = colour == null || catalogue == null
+        ? null
+        : paintColourOf(catalogue, colour);
+    final need = colour == null ? null : _colourNeed(colour);
+    return InkWell(
+      key: ValueKey('paintColour:$colour'),
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      onTap: () => unawaited(_pickColour(l10n)),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outline),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: AppSpacing.xxxl,
+              height: AppSpacing.xl,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.xs),
+                child: shade == null
+                    ? ColoredBox(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        child: const Icon(AppIcons.colour),
+                      )
+                    : PaintSwatch(colour: shade),
               ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    colour ?? l10n.paintColourPick,
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  if (need != null)
+                    Text(
+                      l10n.paintColourNeed(
+                        _kgText(need.need),
+                        _kgText(need.onHand),
+                      ),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: need.need > need.onHand ? status.danger : null,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Text(
+              colour == null ? '' : l10n.paintColourChange,
+              style: TextStyle(color: theme.colorScheme.primary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// The colours' window, what the queue waits for and what is on the
+  /// shelf first.
+  Future<void> _pickColour(AppLocalizations l10n) async {
+    final short = [
+      ..._stock.queue.where((n) => n.shortKg > 0),
+      ..._stock.queue.where((n) => n.shortKg <= 0),
+    ];
+    final picked = await showPaintPicker(
+      context,
+      current: _colour,
+      pinned: [
+        (
+          key: 'queue',
+          title: l10n.paintPinnedQueue,
+          colours: [
+            for (final n in short)
+              (
+                value: n.colour.split(' · ').first,
+                note: n.shortKg > 0
+                    ? l10n.paintShort(_kgText(n.shortKg))
+                    : l10n.paintEnough,
+                danger: n.shortKg > 0,
+              ),
+          ],
+        ),
+        (
+          key: 'shelf',
+          title: l10n.paintPinnedShelf,
+          colours: [
+            for (final p in _stock.paints)
+              if (p.colour.isNotEmpty && p.onHandKg > 0)
+                (
+                  value: p.colour,
+                  note: l10n.paintKgShort(_kgText(p.onHandKg)),
+                  danger: false,
+                ),
+          ],
+        ),
+      ],
+    );
+    if (picked == null || picked.isEmpty || !mounted) return;
+    setState(() {
+      _colour = picked;
+      _fromLast();
+    });
+  }
+
+  /// A colourless material's kinds the shop keeps — «Грунт», «Грунт
+  /// изолирующий» — each with what is on hand and what the queue needs;
+  /// «+ Новый» for one not kept yet.
+  Widget _variants(AppLocalizations l10n, ThemeData theme) {
+    final status = context.statusColors;
+    final material = _materialOf(_base.text);
+    if (material == null) return const SizedBox.shrink();
+    final names = {
+      material,
+      for (final b in _stock.bases)
+        if (_materialOf(b) == material) b,
+    };
+    final need = _stock.materials
+        .where((m) => m.name.toLowerCase() == material.toLowerCase())
+        .firstOrNull;
+    double onHand(String name) => _stock.paints
+        .where((p) => p.colour.isEmpty && (p.base ?? '') == name)
+        .fold<double>(0, (a, p) => a + p.onHandKg);
+    Widget card({
+      required Key key,
+      required Widget child,
+      required VoidCallback onTap,
+      bool on = false,
+    }) => InkWell(
+      key: key,
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Container(
+        width: AppSpacing.xxxl * 3,
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: on ? theme.colorScheme.primary : theme.colorScheme.outline,
+            width: on ? AppSpacing.xxs : 1,
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        child: child,
+      ),
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Wrap(
+        spacing: AppSpacing.xs,
+        runSpacing: AppSpacing.xs,
+        children: [
+          for (final name in names)
+            card(
+              key: ValueKey('paintVariant:$name'),
+              on: _base.text.trim() == name,
+              onTap: () => setState(() {
+                _base.text = name;
+                _fromLast();
+              }),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: theme.textTheme.titleSmall),
+                  Text(
+                    l10n.paintVariantOnHand(_kgText(onHand(name))),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  if (name == material && need != null && need.shortKg > 0)
+                    Text(
+                      l10n.paintShort(_kgText(need.shortKg)),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: status.danger,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          card(
+            key: const ValueKey('paintVariantNew'),
+            onTap: () => setState(() {
+              _base.text = '$material ';
+              _baseFocus.requestFocus();
+            }),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(AppIcons.add),
+                Flexible(child: Text(l10n.paintVariantNew(material))),
+              ],
             ),
           ),
-          for (final c in g.colours)
-            DropdownMenuItem<String>(
-              value: c.value,
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(start: AppSpacing.md),
-                child: Text(c.value),
-              ),
-            ),
         ],
-      if (_colour case final c? when !listed.contains(c))
-        DropdownMenuItem<String>(value: c, child: Text(c)),
-    ];
+      ),
+    );
   }
 
   @override
@@ -805,12 +1114,15 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     final theme = Theme.of(context);
     final status = context.statusColors;
     final money = mdfMoney(context);
-    final dicts =
-        ref.watch(mdfDictionariesProvider).value ?? MdfDictionaries.empty;
     final opts = ref.watch(filmDeliveryOptionsProvider).value;
-    final kg = _kg;
+    // The position being typed, for its own checks; the whole receipt —
+    // every position of it — for the sums.
+    final current = _current(l10n);
+    final lines = [..._more, ?current];
+    final lineKg = _kg;
     final price = _priceKg;
-    final total = kg * price;
+    final kg = lines.fold<double>(0, (a, l) => a + l.kg);
+    final total = lines.fold<double>(0, (a, l) => a + l.kg * l.priceKg);
     final cost = _terms.costAmount;
     final component = _component;
     final last = component
@@ -826,13 +1138,23 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     // The supplier's smallest batch is more than the queue takes: the rest
     // goes on the shelf, and the painter is told the norm (owner, 15.11.2026).
     final need = _queueNeed;
-    final left = need == null || need <= 0 ? 0.0 : kg - need;
+    final left = need == null || need <= 0 ? 0.0 : lineKg - need;
     final ready =
-        (component || _colour != null) &&
+        lines.isNotEmpty &&
+        (current != null || _currentEmpty) &&
         _supplier != null &&
-        kg > 0 &&
-        price > 0 &&
         !_terms.incomplete;
+    final item = _stock.paints
+        .where(
+          (p) =>
+              p.colour == (component ? '' : _colour ?? '\u0000') &&
+              (p.base ?? '') == _base.text.trim(),
+        )
+        .firstOrNull
+        ?.item;
+    final past = item == null
+        ? const <PaintReceipt>[]
+        : ref.watch(paintHistoryProvider(item)).value ?? const [];
     final suggestions = {
       ..._stock.bases,
       l10n.paintBaseEnamelMatt,
@@ -861,67 +1183,82 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // No colour for primer, hardener, thinner.
-              if (!component)
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        key: ValueKey('paintColour:$_colour'),
-                        initialValue: _colour,
-                        isExpanded: true,
-                        items: _colourItems(dicts, theme, l10n),
-                        onChanged: (v) => setState(() {
-                          _colour = v;
-                          _fromLast();
-                        }),
-                        decoration: InputDecoration(
-                          labelText: l10n.paintColour,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      key: const ValueKey('paintColourDict'),
-                      tooltip: l10n.mdfDictOpen,
-                      icon: const Icon(AppIcons.dictionary),
-                      onPressed: () async {
-                        final picked = await showMdfDictionary(
-                          context,
-                          MdfDictKind.paint,
-                          title: l10n.mdfDictPaint,
-                          current: _colour,
-                        );
-                        if (picked != null && mounted) {
-                          setState(() {
-                            _colour = picked;
-                            _fromLast();
-                          });
-                        }
-                      },
-                    ),
-                  ],
+              // In the order it is done (owner, 20.11.2026: «упорядочить»):
+              // what came, which, how much and for what, from whom, how.
+              // The positions already in this receipt.
+              for (final (i, l) in _more.indexed)
+                ListTile(
+                  key: ValueKey('paintLine:$i'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l.title),
+                  subtitle: Text(
+                    [
+                      l10n.paintKgShort(_kgText(l.kg)),
+                      money.format(l.kg * l.priceKg),
+                      ?l.note,
+                    ].join(' · '),
+                  ),
+                  trailing: IconButton(
+                    key: ValueKey('paintLineRemove:$i'),
+                    tooltip: l10n.mdfDictDelete,
+                    onPressed: () => setState(() => _more.removeAt(i)),
+                    icon: const Icon(AppIcons.close),
+                  ),
                 ),
-              TextField(
-                key: const ValueKey('paintBase'),
-                controller: _base,
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(labelText: l10n.paintBase),
-              ),
+              _step(1, l10n.paintStepWhat),
               Wrap(
                 spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
                 children: [
-                  for (final b in suggestions)
-                    ActionChip(
-                      key: ValueKey('paintBase:$b'),
-                      label: Text(b),
-                      onPressed: () => setState(() {
-                        _base.text = b;
-                        _fromLast();
-                      }),
+                  ChoiceChip(
+                    key: const ValueKey('paintKind:paint'),
+                    label: Text(l10n.paintKindPaint),
+                    selected: !component,
+                    onSelected: (_) => _kind(null),
+                  ),
+                  for (final m in _stock.recipe.materials)
+                    ChoiceChip(
+                      key: ValueKey('paintKind:$m'),
+                      label: Text(m),
+                      selected: _materialOf(_base.text) == m,
+                      onSelected: (_) => _kind(m),
                     ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              _step(2, component ? l10n.paintStepWhich : l10n.paintStepColour),
+              if (!component) ...[
+                _colourTile(l10n, theme),
+                const SizedBox(height: AppSpacing.xs),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  children: [
+                    for (final b in suggestions)
+                      if (_materialOf(b) == null)
+                        ChoiceChip(
+                          key: ValueKey('paintBase:$b'),
+                          label: Text(b),
+                          selected: _base.text.trim() == b,
+                          onSelected: (_) => setState(() {
+                            _base.text = b;
+                            _fromLast();
+                          }),
+                        ),
+                  ],
+                ),
+              ] else
+                _variants(l10n, theme),
+              TextField(
+                key: const ValueKey('paintBase'),
+                controller: _base,
+                focusNode: _baseFocus,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  labelText: component ? l10n.paintBaseName : l10n.paintBase,
+                  isDense: true,
+                ),
+              ),
+              _step(3, l10n.paintStepAmount),
               Wrap(
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,
@@ -980,7 +1317,40 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                     ),
                   ),
                 ),
-              const SizedBox(height: AppSpacing.sm),
+              // What it cost before, and from whom (owner, 20.11.2026).
+              if (past
+                  .where((r) => !r.cancelled && r.priceKg != null)
+                  .isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xxs),
+                  child: Text(
+                    l10n.paintPriceHistory(
+                      [
+                        for (final r
+                            in past
+                                .where((r) => !r.cancelled && r.priceKg != null)
+                                .take(3))
+                          [
+                            money.format(r.priceKg),
+                            mdfDay(r.date, year: false),
+                            ?r.supplier,
+                          ].join(' · '),
+                      ].join('; '),
+                    ),
+                    key: const ValueKey('paintPriceHistory'),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: const ValueKey('paintLineMore'),
+                  onPressed: current == null ? null : () => _addLine(l10n),
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.paintLineMore),
+                ),
+              ),
+              _step(4, l10n.paintStepSupplier),
               Row(
                 children: [
                   Expanded(
@@ -1043,8 +1413,29 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                 update: setState,
                 deptCash: false,
               ),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    key: const ValueKey('paintPhoto'),
+                    onPressed: () => unawaited(_pickPhoto()),
+                    icon: const Icon(AppIcons.camera),
+                    label: Text(l10n.paintPhoto),
+                  ),
+                  if (_photo case final p?) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(p.name, key: const ValueKey('paintPhotoName')),
+                    IconButton(
+                      key: const ValueKey('paintPhotoRemove'),
+                      tooltip: l10n.mdfDictDelete,
+                      onPressed: () => setState(() => _photo = null),
+                      icon: const Icon(AppIcons.close),
+                    ),
+                  ],
+                ],
+              ),
               if (opts != null) ...[
-                const SizedBox(height: AppSpacing.md),
+                _step(5, l10n.paintStepDelivery),
                 FilmDeliveryField(
                   terms: _terms,
                   opts: opts,
@@ -1091,7 +1482,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                         style: theme.textTheme.titleMedium,
                       ),
                       Text(
-                        l10n.paintLanded(money.format(price + cost / kg)),
+                        l10n.paintLanded(money.format((total + cost) / kg)),
                         key: const ValueKey('paintSum:landed'),
                         style: theme.textTheme.bodySmall,
                       ),

@@ -19613,6 +19613,114 @@ abstract class AppLocalizations {
   /// **'Copy → {coating}'**
   String mdfGroupCopyTo(String coating);
 
+  /// No description provided for @paintStepWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What came'**
+  String get paintStepWhat;
+
+  /// No description provided for @paintStepColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour and kind'**
+  String get paintStepColour;
+
+  /// No description provided for @paintStepWhich.
+  ///
+  /// In en, this message translates to:
+  /// **'Which'**
+  String get paintStepWhich;
+
+  /// No description provided for @paintStepAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'How much and at what price'**
+  String get paintStepAmount;
+
+  /// No description provided for @paintStepSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier and payment'**
+  String get paintStepSupplier;
+
+  /// No description provided for @paintStepDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get paintStepDelivery;
+
+  /// No description provided for @paintKindPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint / enamel'**
+  String get paintKindPaint;
+
+  /// No description provided for @paintColourPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the colour — press here'**
+  String get paintColourPick;
+
+  /// No description provided for @paintColourChange.
+  ///
+  /// In en, this message translates to:
+  /// **'change'**
+  String get paintColourChange;
+
+  /// No description provided for @paintColourNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'orders wait for {need} kg · {have} kg on hand'**
+  String paintColourNeed(String need, String have);
+
+  /// No description provided for @paintPinnedQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders wait — to buy'**
+  String get paintPinnedQueue;
+
+  /// No description provided for @paintPinnedShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'On the shelf'**
+  String get paintPinnedShelf;
+
+  /// No description provided for @paintBaseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get paintBaseName;
+
+  /// No description provided for @paintVariantOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg on hand'**
+  String paintVariantOnHand(String kg);
+
+  /// No description provided for @paintVariantNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New: {material}'**
+  String paintVariantNew(String material);
+
+  /// No description provided for @paintPriceHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'before: {list}'**
+  String paintPriceHistory(String list);
+
+  /// No description provided for @paintLineMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+ another position in this receipt'**
+  String get paintLineMore;
+
+  /// No description provided for @paintPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'The invoice\'s photo'**
+  String get paintPhoto;
+
   /// No description provided for @mdfCustomerSearchWide.
   ///
   /// In en, this message translates to:
@@ -19702,6 +19810,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose him'**
   String get mdfCustomerTakeHim;
+
+  /// No description provided for @mdfCustomerTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s terms'**
+  String get mdfCustomerTerms;
+
+  /// No description provided for @mdfCustomerDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount, %'**
+  String get mdfCustomerDiscount;
+
+  /// No description provided for @mdfCustomerPricePvc.
+  ///
+  /// In en, this message translates to:
+  /// **'Own price PVC, ₸/m²'**
+  String get mdfCustomerPricePvc;
+
+  /// No description provided for @mdfCustomerPricePaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Own price paint, ₸/m²'**
+  String get mdfCustomerPricePaint;
+
+  /// No description provided for @mdfCustomerDebtLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt limit, ₸'**
+  String get mdfCustomerDebtLimit;
+
+  /// No description provided for @mdfCustomerDebtLimitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty — the shop\'s limit'**
+  String get mdfCustomerDebtLimitHint;
+
+  /// No description provided for @mdfCustomerSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Came from:'**
+  String get mdfCustomerSource;
+
+  /// No description provided for @mdfCustomerSourceWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Word of mouth'**
+  String get mdfCustomerSourceWord;
+
+  /// No description provided for @mdfCustomerSource2gis.
+  ///
+  /// In en, this message translates to:
+  /// **'2GIS'**
+  String get mdfCustomerSource2gis;
+
+  /// No description provided for @mdfCustomerSourceRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get mdfCustomerSourceRepeat;
+
+  /// No description provided for @mdfCustomerSourceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get mdfCustomerSourceOther;
+
+  /// No description provided for @mdfDebtLimitDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default debt limit'**
+  String get mdfDebtLimitDefault;
+
+  /// No description provided for @mdfDebtLimitDefaultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'₸; 0 or empty — no limit'**
+  String get mdfDebtLimitDefaultHint;
+
+  /// No description provided for @mdfCustomerDiscountBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'discount {pct}%'**
+  String mdfCustomerDiscountBadge(String pct);
+
+  /// No description provided for @mdfCustomerOwnPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'own price'**
+  String get mdfCustomerOwnPrice;
+
+  /// No description provided for @mdfDebtOverLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s debt would be {after} — over the limit {limit}'**
+  String mdfDebtOverLimit(String after, String limit);
+
+  /// No description provided for @mdfDebtOverLimitWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who allowed it and why'**
+  String get mdfDebtOverLimitWho;
 }
 
 class _AppLocalizationsDelegate

@@ -151,6 +151,8 @@ class FacadeCustomer {
     this.lastMillings = const [],
     this.objects = const [],
     this.orderNames = const [],
+    this.terms = const MdfCustomerTerms(),
+    this.limit = 0,
   });
 
   factory FacadeCustomer.fromJson(Map<String, dynamic> json) {
@@ -180,6 +182,8 @@ class FacadeCustomer {
       lastMillings: strings(json['last_millings']),
       objects: strings(json['objects']),
       orderNames: strings(json['order_names']),
+      terms: MdfCustomerTerms.fromJson(json),
+      limit: (json['limit'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -218,6 +222,75 @@ class FacadeCustomer {
   /// What he is found by besides his name: his objects, his order numbers.
   final List<String> objects;
   final List<String> orderNames;
+
+  /// His own terms: prices, debt limit, where he came from.
+  final MdfCustomerTerms terms;
+
+  /// His debt limit — his own, else the shop's; 0 — none.
+  final double limit;
+}
+
+/// Where a customer came from (owner, 20.11.2026: «в основном сарафанное,
+/// инстаграм, 2гис»).
+enum MdfCustomerSource {
+  word('word'),
+  instagram('instagram'),
+  twoGis('2gis'),
+  repeat('repeat'),
+  other('other');
+
+  const MdfCustomerSource(this.wire);
+
+  final String wire;
+
+  static MdfCustomerSource? parse(Object? v) {
+    for (final s in values) {
+      if (s.wire == v) return s;
+    }
+    return null;
+  }
+}
+
+/// A customer's own terms (owner, 20.11.2026): a furniture maker pays «по
+/// разному» — a discount off the price list, or his own price a m² by
+/// coating; a debt limit of his own; where he came from. Zero is «none».
+@immutable
+class MdfCustomerTerms {
+  const MdfCustomerTerms({
+    this.discountPct = 0,
+    this.pricePvcM2 = 0,
+    this.pricePaintM2 = 0,
+    this.debtLimit = 0,
+    this.source,
+  });
+
+  factory MdfCustomerTerms.fromJson(Map<String, dynamic> j) {
+    double d(Object? v) => v is num ? v.toDouble() : 0;
+    return MdfCustomerTerms(
+      discountPct: d(j['discount_pct']),
+      pricePvcM2: d(j['price_pvc_m2']),
+      pricePaintM2: d(j['price_paint_m2']),
+      debtLimit: d(j['debt_limit']),
+      source: MdfCustomerSource.parse(j['source']),
+    );
+  }
+
+  final double discountPct;
+  final double pricePvcM2;
+  final double pricePaintM2;
+  final double debtLimit;
+  final MdfCustomerSource? source;
+
+  /// He pays otherwise than the price list.
+  bool get ownPrice => discountPct > 0 || pricePvcM2 > 0 || pricePaintM2 > 0;
+
+  Map<String, Object?> toJson() => {
+    'discount_pct': discountPct,
+    'price_pvc_m2': pricePvcM2,
+    'price_paint_m2': pricePaintM2,
+    'debt_limit': debtLimit,
+    'source': source?.wire,
+  };
 }
 
 /// The order the server created from a quote.

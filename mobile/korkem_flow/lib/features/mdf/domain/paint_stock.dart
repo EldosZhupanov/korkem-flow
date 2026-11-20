@@ -20,6 +20,7 @@ class PaintLast {
     this.supplierName,
     this.city,
     this.transport,
+    this.note,
   });
 
   factory PaintLast.fromJson(Map<String, dynamic> j) => PaintLast(
@@ -30,6 +31,7 @@ class PaintLast {
     supplierName: _s(j['supplier_name']),
     city: _s(j['city']),
     transport: _s(j['transport']),
+    note: _s(j['note']),
   );
 
   final String date;
@@ -39,6 +41,13 @@ class PaintLast {
   final String? supplierName;
   final String? city;
   final String? transport;
+
+  /// «4 × 5 кг» — how it came, for this time's cans.
+  final String? note;
+
+  /// The can's kilograms of a «4 × 5 кг» note; null for a weighed one.
+  String? get canKg =>
+      RegExp(r'^\s*\d+\s*×\s*([\d.,]+)').firstMatch(note ?? '')?.group(1);
 }
 
 /// One paint in the store: a colour and what it is — «эмаль ПУ матовая».
@@ -388,9 +397,11 @@ class PaintStock {
     this.deliveryOwed = const [],
     this.materials = const [],
     this.recipe = const PaintRecipe(),
+    this.receipt,
   });
 
   factory PaintStock.fromJson(Map<String, dynamic> j) => PaintStock(
+    receipt: _s(j['receipt']),
     paints: [for (final r in _rows(j['paints'])) PaintItem.fromJson(r)],
     queue: [for (final r in _rows(j['queue'])) PaintNeed.fromJson(r)],
     kgPerM2: _d(j['kg_per_m2']),
@@ -457,6 +468,9 @@ class PaintStock {
 
   /// Primer, hardener, thinner the queue needs, whatever its colours.
   final List<PaintMaterialNeed> materials;
+
+  /// The receipt just made, when this is a receipt's answer.
+  final String? receipt;
   final PaintRecipe recipe;
 
   /// The last receipt of a colour, of any kind of it — what to start from.
@@ -492,6 +506,7 @@ class PaintReceipt {
     this.receivedBy,
     this.owed = false,
     this.cancelled = false,
+    this.photo,
   });
 
   factory PaintReceipt.fromJson(Map<String, dynamic> j) => PaintReceipt(
@@ -507,6 +522,7 @@ class PaintReceipt {
     receivedBy: _s(j['received_by']),
     owed: j['owed'] == true,
     cancelled: j['cancelled'] == true,
+    photo: _s(j['photo']),
   );
 
   final String receipt;
@@ -521,4 +537,7 @@ class PaintReceipt {
   final String? receivedBy;
   final bool owed;
   final bool cancelled;
+
+  /// The invoice's photo, a server path.
+  final String? photo;
 }

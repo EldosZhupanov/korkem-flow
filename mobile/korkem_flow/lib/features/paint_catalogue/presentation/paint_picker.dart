@@ -36,6 +36,7 @@ Future<String?> showPaintPicker(
   double? needM2,
   MdfGloss? gloss,
   ValueChanged<MdfGloss?>? onGloss,
+  List<PaintPinned> pinned = const [],
 }) => showDialog<String>(
   context: context,
   builder: (_) => _PaintPicker(
@@ -45,8 +46,32 @@ Future<String?> showPaintPicker(
     needM2: needM2,
     gloss: gloss,
     onGloss: onGloss,
+    pinned: pinned,
   ),
 );
+
+/// A section the window shows first, above everything else — on a paint's
+/// receipt «Ждут заказы — докупить» and «На складе» (owner, 20.11.2026).
+/// Its colours as the shop writes them, each with its note.
+typedef PaintPinned = ({
+  String key,
+  String title,
+  List<({String value, String? note, bool danger})> colours,
+});
+
+/// The catalogue's colour a value names: «RAL 9016», «RAL 9016 Белый».
+PaintColour? paintColourOf(PaintCatalogue c, String value) {
+  final v = value.trim();
+  for (final x in c.colours) {
+    if (x.value == v || x.title == v) return x;
+  }
+  for (final x in c.colours) {
+    if (x.code.isNotEmpty && (v == x.code || v.startsWith('${x.code} '))) {
+      return x;
+    }
+  }
+  return null;
+}
 
 class _PaintPicker extends ConsumerStatefulWidget {
   const _PaintPicker({
@@ -56,8 +81,10 @@ class _PaintPicker extends ConsumerStatefulWidget {
     required this.needM2,
     required this.gloss,
     required this.onGloss,
+    this.pinned = const [],
   });
 
+  final List<PaintPinned> pinned;
   final String? current;
   final String? customer;
   final bool allowNone;
@@ -315,7 +342,11 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
         ))
           f,
     ];
-    Widget grid(List<PaintColour> list, String key) => GridView.builder(
+    Widget grid(
+      List<PaintColour> list,
+      String key, {
+      List<({String? note, bool danger})>? notes,
+    }) => GridView.builder(
       key: ValueKey(key),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -340,14 +371,42 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
         child: PaintCard(
           key: ValueKey('ppColour:$key:${list[i].key}'),
           colour: list[i],
+          note: notes?[i].note,
+          noteDanger: notes?[i].danger ?? false,
           onTap: () => unawaited(_choose(list[i])),
           onOpen: () => unawaited(_open(list[i], c)),
         ),
       ),
     );
     final shown = all.take(_shown).toList();
+    final pinned = [
+      if (plain)
+        for (final p in widget.pinned)
+          (
+            key: p.key,
+            title: p.title,
+            rows: [
+              for (final r in p.colours)
+                if (paintColourOf(c, r.value) case final x? when keep(x))
+                  (colour: x, note: r.note, danger: r.danger),
+            ],
+          ),
+    ];
     return ListView(
       children: [
+        for (final p in pinned)
+          if (p.rows.isNotEmpty) ...[
+            Text(p.title, key: ValueKey('ppPinned:${p.key}'), style: label),
+            const SizedBox(height: AppSpacing.xs),
+            grid(
+              [for (final r in p.rows) r.colour],
+              p.key,
+              notes: [
+                for (final r in p.rows) (note: r.note, danger: r.danger),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
         if (theirs.isNotEmpty) ...[
           Text(l10n.ppTheirs, style: label),
           const SizedBox(height: AppSpacing.xs),

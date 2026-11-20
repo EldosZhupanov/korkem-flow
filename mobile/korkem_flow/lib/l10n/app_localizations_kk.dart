@@ -11423,6 +11423,68 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String get paintStepWhat => 'Не келді';
+
+  @override
+  String get paintStepColour => 'Түсі мен түрі';
+
+  @override
+  String get paintStepWhich => 'Қайсы';
+
+  @override
+  String get paintStepAmount => 'Қанша және қаншадан';
+
+  @override
+  String get paintStepSupplier => 'Жеткізуші және төлем';
+
+  @override
+  String get paintStepDelivery => 'Жеткізу';
+
+  @override
+  String get paintKindPaint => 'Бояу / эмаль';
+
+  @override
+  String get paintColourPick => 'Түсті таңдаңыз — осы жерді басыңыз';
+
+  @override
+  String get paintColourChange => 'ауыстыру';
+
+  @override
+  String paintColourNeed(String need, String have) {
+    return 'тапсырыстар күтеді $need кг · бар $have кг';
+  }
+
+  @override
+  String get paintPinnedQueue => 'Тапсырыстар күтеді — сатып алу';
+
+  @override
+  String get paintPinnedShelf => 'Қоймада';
+
+  @override
+  String get paintBaseName => 'Атауы';
+
+  @override
+  String paintVariantOnHand(String kg) {
+    return 'бар $kg кг';
+  }
+
+  @override
+  String paintVariantNew(String material) {
+    return 'Жаңа: $material';
+  }
+
+  @override
+  String paintPriceHistory(String list) {
+    return 'бұрын: $list';
+  }
+
+  @override
+  String get paintLineMore => '+ осы кіріске тағы бір позиция';
+
+  @override
+  String get paintPhoto => 'Жүкқұжат суреті';
+
+  @override
   String get mdfCustomerSearchWide =>
       'Аты, телефоны, ұйымы, нысан мекенжайы не тапсырыс №';
 
@@ -11477,4 +11539,59 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfCustomerTakeHim => 'Соны таңдау';
+
+  @override
+  String get mdfCustomerTerms => 'Клиент шарттары';
+
+  @override
+  String get mdfCustomerDiscount => 'Жеңілдік, %';
+
+  @override
+  String get mdfCustomerPricePvc => 'Өз бағасы ПВХ, ₸/м²';
+
+  @override
+  String get mdfCustomerPricePaint => 'Өз бағасы бояу, ₸/м²';
+
+  @override
+  String get mdfCustomerDebtLimit => 'Қарыз лимиті, ₸';
+
+  @override
+  String get mdfCustomerDebtLimitHint => 'Бос — жалпы лимит';
+
+  @override
+  String get mdfCustomerSource => 'Қайдан келді:';
+
+  @override
+  String get mdfCustomerSourceWord => 'Ауызша';
+
+  @override
+  String get mdfCustomerSource2gis => '2ГИС';
+
+  @override
+  String get mdfCustomerSourceRepeat => 'Қайталап';
+
+  @override
+  String get mdfCustomerSourceOther => 'Басқа';
+
+  @override
+  String get mdfDebtLimitDefault => 'Әдепкі қарыз лимиті';
+
+  @override
+  String get mdfDebtLimitDefaultHint => '₸; 0 не бос — лимитсіз';
+
+  @override
+  String mdfCustomerDiscountBadge(String pct) {
+    return 'жеңілдік $pct%';
+  }
+
+  @override
+  String get mdfCustomerOwnPrice => 'өз бағасы';
+
+  @override
+  String mdfDebtOverLimit(String after, String limit) {
+    return 'Клиент қарызы $after болады — лимиттен $limit асады';
+  }
+
+  @override
+  String get mdfDebtOverLimitWho => 'Кім рұқсат етті және неге';
 }

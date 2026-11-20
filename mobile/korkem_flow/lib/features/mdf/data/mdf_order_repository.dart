@@ -60,6 +60,9 @@ final mdfPlanProvider = FutureProvider.autoDispose<MdfPlan>(
 /// The days a cash book or a report covers, both ends included (`yyyy-MM-dd`).
 typedef MdfPeriod = ({String since, String until});
 
+/// What a customer owes, his limit, and what an order would make it.
+typedef MdfDebtCheck = ({double debt, double limit, double after, bool over});
+
 // AutoDisposeFutureProviderFamily is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final mdfCashProvider = FutureProvider.autoDispose.family<MdfCash, MdfPeriod>(
@@ -190,6 +193,7 @@ class MdfOrderRepository {
     String? finish,
     double? defaultRate,
     Map<String, double> filmRates = const {},
+    String? customer,
   }) async => MdfPricing.fromJson(
     _map(
       await _client.callMethod(
@@ -200,6 +204,7 @@ class MdfOrderRepository {
           'finish': ?finish,
           'default_rate': ?defaultRate,
           if (filmRates.isNotEmpty) 'film_rates': jsonEncode(filmRates),
+          'customer': ?customer,
         },
       ),
     ),
@@ -221,7 +226,10 @@ class MdfOrderRepository {
     'notes': ?notes,
   });
 
-  Future<MdfOrder> accept(String order) => _post('accept', {'order': order});
+  /// [overLimit]: why an order over the customer's debt limit is accepted
+  /// all the same, and who allowed it.
+  Future<MdfOrder> accept(String order, {String? overLimit}) =>
+      _post('accept', {'order': order, 'over_limit': ?overLimit});
 
   /// «Изменить заказ» after it was accepted: the reason goes into its
   /// history; the payments stay.
@@ -355,6 +363,7 @@ class MdfOrderRepository {
     String? phone,
     String? organization,
     List<String> tags = const [],
+    MdfCustomerTerms? terms,
   }) async => FacadeCustomer.fromJson(
     _map(
       await _client.callMethod(
@@ -365,6 +374,7 @@ class MdfOrderRepository {
           'phone': ?phone,
           'organization': ?organization,
           'tags': jsonEncode(tags),
+          if (terms != null) 'terms': jsonEncode(terms.toJson()),
         },
       ),
     ),
@@ -376,6 +386,7 @@ class MdfOrderRepository {
     String? phone,
     String? organization,
     List<String> tags = const [],
+    MdfCustomerTerms? terms,
   }) async => FacadeCustomer.fromJson(
     _map(
       await _client.callMethod(
@@ -387,10 +398,42 @@ class MdfOrderRepository {
           'phone': ?phone,
           'organization': ?organization,
           'tags': jsonEncode(tags),
+          if (terms != null) 'terms': jsonEncode(terms.toJson()),
         },
       ),
     ),
   );
+
+  /// What he owes, his limit, whether [adding] takes him over it.
+  Future<MdfDebtCheck> debtCheck(String customer, double adding) async {
+    final j = _map(
+      await _client.callMethod(
+        '$_base.customer_debt_check',
+        params: {'customer': customer, 'adding': adding},
+      ),
+    );
+    double d(Object? v) => v is num ? v.toDouble() : 0;
+    return (
+      debt: d(j['debt']),
+      limit: d(j['limit']),
+      after: d(j['after']),
+      over: j['over'] == true,
+    );
+  }
+
+  /// The shop's debt limit for a customer without his own; 0 — none.
+  Future<double> debtLimitDefault() async {
+    final j = _map(await _client.callMethod('$_base.debt_limit_default'));
+    return j['debt_limit'] is num ? (j['debt_limit'] as num).toDouble() : 0;
+  }
+
+  Future<void> setDebtLimitDefault(double amount) async {
+    await _client.callMethod(
+      '$_base.set_debt_limit_default',
+      post: true,
+      params: {'amount': amount},
+    );
+  }
 
   /// Deleted when the customer has no orders; disabled otherwise.
   Future<void> customerRemove(String customer) async {
