@@ -10688,7 +10688,7 @@
       }
     }
   },
-  "ppPickHint": "Pick a colour — tap its card",
+  "ppPickHint": "Tap a colour — it is chosen at once",
   "ppChoose": "Choose",
   "cncpTryThickness": "thickness, mm",
   "cncpViewTop": "From above",
@@ -10723,5 +10723,6 @@
   "ctoBare": "Bare MDF",
   "ctoMore": "and {count} more — narrow the search",
   "@ctoMore": {"placeholders": {"count": {"type": "int"}}},
-  "ctoNoCatalogue": "The catalogue did not load"
+  "ctoNoCatalogue": "The catalogue did not load",
+  "pcOpenCard": "The colour's card — to look at and change"
 }

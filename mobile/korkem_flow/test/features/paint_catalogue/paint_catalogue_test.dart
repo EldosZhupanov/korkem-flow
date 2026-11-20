@@ -264,30 +264,83 @@ void main() {
     await tester.pumpAndSettle();
     // What this customer painted before, on top.
     expect(find.byKey(const ValueKey('ppColour:theirs:ral6021')), findsOne);
-    // On the shelf, but not enough for the order: it says so.
-    await tester.ensureVisible(
-      find.byKey(const ValueKey('ppColour:all:ral9010')),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('ppColour:all:ral9010')));
-    await tester.pumpAndSettle();
-    expect(
-      tester.widget<Text>(find.byKey(const ValueKey('ppPicked'))).data,
-      'RAL 9010 Чисто-белый',
-    );
-    expect(find.textContaining('not enough'), findsOneWidget);
+    // The sheen first; then one press on a colour chooses it — and a colour
+    // not in work yet is put there on the way (owner: «в один клик»).
     await tester.tap(find.byKey(const ValueKey('ppGloss:matt')));
-    // A colour not in work yet is put there on the way.
+    await tester.pumpAndSettle();
     await tester.ensureVisible(
       find.byKey(const ValueKey('ppColour:theirs:ral6021')),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ppColour:theirs:ral6021')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('ppChoose')));
-    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintPicker')), findsNothing);
     expect(repo.picked, ['RAL 6021 Бледно-зелёный']);
     expect((got, gloss), ('RAL 6021 Бледно-зелёный', MdfGloss.matt));
+  });
+
+  testWidgets("the group's colour already chosen says whether the shelf has "
+      'enough', (tester) async {
+    await _pump(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showPaintPicker(
+              context,
+              current: 'RAL 9010 Чисто-белый',
+              needM2: 100,
+            ),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('ppPicked'))).data,
+      'RAL 9010 Чисто-белый',
+    );
+    expect(find.textContaining('not enough'), findsOneWidget);
+    // On the shelf already: one press, no pick to make.
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('ppColour:all:ral9010')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ppColour:all:ral9010')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintPicker')), findsNothing);
+  });
+
+  testWidgets("the order's window opens a colour's card to change it", (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showPaintPicker(context),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    final info = find.descendant(
+      of: find.byKey(const ValueKey('ppColour:all:ral9010')),
+      matching: find.byKey(const ValueKey('pcOpen:ral9010')),
+    );
+    await tester.ensureVisible(info);
+    await tester.pumpAndSettle();
+    await tester.tap(info);
+    await tester.pumpAndSettle();
+    // The card, over the window: nothing chosen yet.
+    expect(find.byKey(const ValueKey('pcCard:ral9010')), findsOne);
+    expect(find.byKey(const ValueKey('pcEdit')), findsOne);
+    expect(find.byKey(const ValueKey('paintPicker')), findsOne);
   });
 
   testWidgets('a colour of our own is added with its shade', (tester) async {
