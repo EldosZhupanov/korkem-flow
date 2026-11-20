@@ -63,7 +63,7 @@ def invoice(sale: str, due_on: str | None = None) -> dict:
 	if due < made_on:
 		frappe.throw("Оплатить до — не раньше дня счёта.")
 	if not no:
-		no = str(_next_number(doc.company, made_on.year))
+		no = str(next_number(doc.company, made_on.year))
 	doc.db_set({"korkem_film_invoice_no": no, "korkem_film_invoice_on": str(made_on),
 				"korkem_film_invoice_due": str(getdate(due))}, update_modified=True)
 	audit.record_audit(action="film.invoice", entity_type="Stock Entry", entity_id=sale,
@@ -72,7 +72,20 @@ def invoice(sale: str, due_on: str | None = None) -> dict:
 			"buyer": _buyer(doc.korkem_film_customer), "sale": film_dept.movement(sale)}
 
 
-def _next_number(company: str, year: int) -> int:
+def next_number(company: str, year: int) -> int:
+	"""The company's next invoice number in [year] — one series for a film
+	sale's invoices and an MDF order's (`mdf_invoices`), kept as the last one
+	given so neither takes a number the other has."""
+	key = f"{_LAST}:{company}:{year}"
+	number = max(_film_last(company, year), int(frappe.db.get_default(key) or 0)) + 1
+	frappe.db.set_default(key, str(number))
+	return number
+
+
+_LAST = "korkem_invoice_last"
+
+
+def _film_last(company: str, year: int) -> int:
 	used = frappe.db.sql(
 		"""select korkem_film_invoice_no from `tabStock Entry`
 		where company = %s and korkem_film_invoice_no is not null and korkem_film_invoice_no != ''
@@ -80,7 +93,7 @@ def _next_number(company: str, year: int) -> int:
 		(company, year),
 	)
 	numbers = [int(n) for (n,) in used if str(n).isdigit()]
-	return max(numbers, default=0) + 1
+	return max(numbers, default=0)
 
 
 def _buyer(customer: str | None) -> dict:

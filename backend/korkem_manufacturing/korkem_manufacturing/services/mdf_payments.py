@@ -64,8 +64,12 @@ def fix(order, entry: str, *, reason: str, amount, method: str, bank: str | None
 		frappe.throw("Сумма оплаты больше нуля.")
 	paid_on = str(pe.posting_date)
 	_take_back(order, pe)
-	payments.record_payment(sales_order=order.name, amount=flt(amount), mode_of_payment=method,
-							bank=bank, paid_on=paid_on)
+	made = payments.record_payment(sales_order=order.name, amount=flt(amount), mode_of_payment=method,
+								   bank=bank, paid_on=paid_on)
+	# Paid by an invoice: the payment entered again still is.
+	from korkem_manufacturing.services import mdf_invoices
+
+	mdf_invoices.relink(order, entry, made.get("payment_entry"))
 	after = _words(flt(amount), method, bank)
 	order.add_comment("Comment", f"Оплата исправлена: было {before}, стало {after}. Причина: {reason}")
 	audit.record_audit(action="mdf.payment_fixed", entity_type="Sales Order", entity_id=order.name,

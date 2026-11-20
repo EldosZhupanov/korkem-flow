@@ -35,6 +35,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart'
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_hand_over.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_invoice_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_margin_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
@@ -2843,12 +2844,14 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
     // method and bank, and a wrong part is fixed on its own.
     await _run(() async {
       final repo = ref.read(mdfOrderRepositoryProvider);
-      for (final p in result.parts) {
+      for (final (i, p) in result.parts.indexed) {
         await repo.addPayment(
           o.name,
           amount: p.amount,
           method: p.method,
           bank: p.bank,
+          // The invoice goes with the first part — what it was paid by.
+          invoice: i == 0 ? result.invoice : null,
         );
       }
       return o;
@@ -2891,6 +2894,44 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
       () => ref
           .read(mdfOrderRepositoryProvider)
           .deletePayment(o.name, entry: p.entry!, reason: reason),
+    );
+  }
+
+  /// «Счёт на оплату» (owner, 20.11.2026): made, sent, on the card.
+  Future<void> _invoice() async {
+    final card = await showMdfInvoice(context, o);
+    if (card == null || !mounted) return;
+    ref.invalidate(mdfOrderProvider(o.name));
+  }
+
+  /// An invoice printed or sent again — the same paper as issued.
+  Future<void> _invoiceAgain(MdfInvoice i) async {
+    final l10n = AppLocalizations.of(context);
+    final send = ref.read(mdfInvoiceSendProvider);
+    await _run(() async {
+      final paper = await ref
+          .read(mdfOrderRepositoryProvider)
+          .printInvoice(o.name, i.no);
+      await send(o, paper, l10n);
+      return o;
+    });
+  }
+
+  Future<void> _invoiceCancel(MdfInvoice i) async {
+    final l10n = AppLocalizations.of(context);
+    final reason = await showReasonDialog(
+      context,
+      title: '${l10n.mdfInvoiceCancel} № ${i.no}',
+      label: l10n.mdfInvoiceCancelWhy,
+      confirm: l10n.mdfInvoiceCancel,
+      cancel: l10n.mdfCancel,
+      fieldKey: const ValueKey('mdfInvoiceCancelWhy'),
+    );
+    if (reason == null || !mounted) return;
+    await _run(
+      () => ref
+          .read(mdfOrderRepositoryProvider)
+          .cancelInvoice(o.name, no: i.no, reason: reason),
     );
   }
 
@@ -3328,15 +3369,78 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
                     ],
                   ),
           ),
-        if (open)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              key: const ValueKey('mdfAddPayment'),
-              onPressed: _busy ? null : _payment,
-              icon: const Icon(AppIcons.add),
-              label: Text(l10n.mdfAddPayment),
+        // The order's invoices (owner, 20.11.2026): what is waited for by
+        // which day, what came by each.
+        for (final inv in o.invoices)
+          ListTile(
+            key: ValueKey('mdfInvoice:${inv.no}'),
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(AppIcons.quote),
+            title: Text(
+              l10n.mdfInvoiceRow(
+                inv.no,
+                mdfDay(inv.on),
+                money.format(inv.amount),
+              ),
+              style: inv.state == MdfInvoiceState.cancelled
+                  ? TextStyle(
+                      decoration: TextDecoration.lineThrough,
+                      color: theme.colorScheme.outline,
+                    )
+                  : null,
             ),
+            subtitle: Text(
+              [
+                mdfInvoiceState(inv, l10n, money.format),
+                if (inv.payer.isNotEmpty) inv.payer,
+              ].join(' · '),
+              key: ValueKey('mdfInvoiceState:${inv.no}'),
+              style: inv.waited
+                  ? TextStyle(color: context.statusColors.warning)
+                  : null,
+            ),
+            trailing: inv.state == MdfInvoiceState.cancelled
+                ? null
+                : PopupMenuButton<bool>(
+                    key: ValueKey('mdfInvoiceMenu:${inv.no}'),
+                    icon: const Icon(AppIcons.more),
+                    enabled: !_busy,
+                    onSelected: (again) =>
+                        again ? _invoiceAgain(inv) : _invoiceCancel(inv),
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        key: ValueKey('mdfInvoiceAgain:${inv.no}'),
+                        value: true,
+                        child: Text(l10n.mdfInvoiceAgain),
+                      ),
+                      if (inv.state == MdfInvoiceState.open && open)
+                        PopupMenuItem(
+                          key: ValueKey('mdfInvoiceCancel:${inv.no}'),
+                          value: false,
+                          child: Text(l10n.mdfInvoiceCancel),
+                        ),
+                    ],
+                  ),
+          ),
+        if (open)
+          Wrap(
+            spacing: AppSpacing.sm,
+            children: [
+              TextButton.icon(
+                key: const ValueKey('mdfAddPayment'),
+                onPressed: _busy ? null : _payment,
+                icon: const Icon(AppIcons.add),
+                label: Text(l10n.mdfAddPayment),
+              ),
+              if (o.debt > 0.5)
+                TextButton.icon(
+                  key: const ValueKey('mdfInvoice'),
+                  onPressed: _busy ? null : _invoice,
+                  icon: const Icon(AppIcons.quote),
+                  label: Text(l10n.mdfInvoiceButton),
+                ),
+            ],
           ),
         const SizedBox(height: AppSpacing.xl),
         if (open)
@@ -3736,7 +3840,7 @@ typedef _Payment = ({double amount, String method, String? bank});
 
 /// What the payment dialog gives back: one part or several (cash and a
 /// transfer at once, owner 09.11.2026), and why, when a payment is fixed.
-typedef _Payments = ({List<_Payment> parts, String? reason});
+typedef _Payments = ({List<_Payment> parts, String? reason, String? invoice});
 
 /// One way of paying in the dialog: the method, its bank, the amount.
 class _Part {
@@ -3769,6 +3873,18 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
   final _parts = <_Part>[];
   String? _reasonChip;
   bool _overpayOk = false;
+
+  /// «По счёту № 7» (owner, 20.11.2026): the invoice this money came by.
+  String? _invoice;
+
+  void _byInvoice(MdfInvoice i, bool on) => setState(() {
+    _invoice = on ? i.no : null;
+    if (on) {
+      _parts.first
+        ..method = _transfer
+        ..amount.text = i.left.toStringAsFixed(0);
+    }
+  });
 
   @override
   void initState() {
@@ -3961,6 +4077,19 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
+              if (!fixing)
+                for (final inv in o.invoices.where((i) => i.waited)) ...[
+                  ChoiceChip(
+                    key: ValueKey('mdfPayInvoice:${inv.no}'),
+                    avatar: const Icon(AppIcons.quote),
+                    label: Text(
+                      l10n.mdfPayByInvoice(inv.no, money.format(inv.left)),
+                    ),
+                    selected: _invoice == inv.no,
+                    onSelected: (on) => _byInvoice(inv, on),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
               for (final (i, p) in _parts.indexed) part(i, p),
               if (!fixing)
                 TextButton.icon(
@@ -4031,6 +4160,7 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
                       ),
                   ],
                   reason: _why,
+                  invoice: _invoice,
                 )),
           child: Text(l10n.mdfConfirm),
         ),

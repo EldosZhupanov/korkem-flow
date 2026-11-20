@@ -420,6 +420,45 @@ typedef FilmInvoiceWords = ({
   /// «Оплатить до 20.11.2026».
   String Function(String day) payBy,
   String signed,
+
+  /// «В том числе НДС 16%: 31 655 ₸», and «Без НДС».
+  String Function(int rate, String sum) vatIn,
+  String noVat,
+
+  /// «Основание: заказ № SAL-ORD-2026-00031».
+  String Function(String what) basis,
+
+  /// The sum in words under the total, where the language has them.
+  String? Function(double sum) inWords,
+});
+
+/// One line of a «Счёт на оплату».
+typedef PayInvoiceLine = ({
+  String name,
+  double qty,
+  String unit,
+  double price,
+  double amount,
+});
+
+/// What a «Счёт на оплату» says, whatever it is for — a film sale, an MDF
+/// order.
+typedef PayInvoiceDoc = ({
+  String no,
+  String on,
+  String dueOn,
+  Map<String, String> requisites,
+  String buyer,
+  String buyerBin,
+  String buyerPhone,
+  List<PayInvoiceLine> lines,
+  double total,
+
+  /// VAT in the sum, %: 0 says «Без НДС»; null says nothing of it.
+  int? vat,
+
+  /// What it is paid for — the order; null where the lines say it.
+  String? basis,
 });
 
 /// A film sale's «Счёт на оплату» (owner, 14.11.2026) — what a furniture
@@ -429,6 +468,48 @@ typedef FilmInvoiceWords = ({
 Future<Uint8List> buildFilmInvoicePdf(
   FilmSale sale,
   FilmInvoice invoice,
+  FilmInvoiceWords words, {
+  String locale = 'ru',
+}) {
+  final total = sale.lines.fold<double>(0, (s, l) => s + l.lineAmount);
+  return buildPayInvoicePdf(
+    (
+      no: invoice.no,
+      on: invoice.on,
+      dueOn: invoice.dueOn,
+      requisites: invoice.requisites,
+      buyer: invoice.buyerName.isEmpty
+          ? (sale.customerName ?? '')
+          : invoice.buyerName,
+      buyerBin: invoice.buyerBin,
+      buyerPhone: invoice.buyerPhone,
+      lines: [
+        for (final l in sale.lines)
+          (
+            name: [
+              l.colour ?? l.title,
+              if (l.code case final code? when code.isNotEmpty) code,
+            ].join(' · '),
+            qty: l.qty,
+            unit: l.unit ?? words.metreUnit,
+            price: l.price ?? 0,
+            amount: l.lineAmount,
+          ),
+      ],
+      total: sale.amount ?? total,
+      vat: null,
+      basis: null,
+    ),
+    words,
+    locale: locale,
+  );
+}
+
+/// A «Счёт на оплату» on an A4 page: the bank block an accountant copies
+/// the transfer from, supplier and buyer, the lines, the sum — in words
+/// where the language has them — and the day to pay by.
+Future<Uint8List> buildPayInvoicePdf(
+  PayInvoiceDoc invoice,
   FilmInvoiceWords words, {
   String locale = 'ru',
 }) async {
@@ -481,11 +562,8 @@ Future<Uint8List> buildFilmInvoicePdf(
     if (address.isNotEmpty) address,
     if (phone.isNotEmpty) words.phone(phone),
   ].join(', ');
-  final total = sale.lines.fold<double>(
-    0,
-    (s, l) => s + l.lineAmount,
-  );
-  final sum = sale.amount ?? total;
+  final sum = invoice.total;
+  final inWords = words.inWords(sum);
   doc.addPage(
     pw.Page(
       pageFormat: PdfPageFormat.a4,
@@ -554,9 +632,7 @@ Future<Uint8List> buildFilmInvoicePdf(
               pw.Expanded(
                 child: pw.Text(
                   party(
-                    invoice.buyerName.isEmpty
-                        ? (sale.customerName ?? '')
-                        : invoice.buyerName,
+                    invoice.buyer,
                     invoice.buyerBin,
                     '',
                     invoice.buyerPhone,
@@ -566,6 +642,16 @@ Future<Uint8List> buildFilmInvoicePdf(
               ),
             ],
           ),
+          if (invoice.basis case final basis?) ...[
+            pw.SizedBox(height: 6),
+            pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.SizedBox(width: 80),
+                pw.Expanded(child: pw.Text(words.basis(basis))),
+              ],
+            ),
+          ],
           pw.SizedBox(height: 14),
           pw.Table(
             border: pw.TableBorder.all(color: PdfColors.grey600, width: 0.5),
@@ -589,20 +675,15 @@ Future<Uint8List> buildFilmInvoicePdf(
                   cell(words.amount, style: bold, right: true),
                 ],
               ),
-              for (final (i, l) in sale.lines.indexed)
+              for (final (i, l) in invoice.lines.indexed)
                 pw.TableRow(
                   children: [
                     cell('${i + 1}'),
-                    cell(
-                      [
-                        l.colour ?? l.title,
-                        if (l.code case final code? when code.isNotEmpty) code,
-                      ].join(' · '),
-                    ),
+                    cell(l.name),
                     cell(metres(l.qty), right: true),
-                    cell(l.unit ?? words.metreUnit),
-                    cell(money.format(l.price ?? 0), right: true),
-                    cell(money.format(l.lineAmount), right: true),
+                    cell(l.unit),
+                    cell(money.format(l.price), right: true),
+                    cell(money.format(l.amount), right: true),
                   ],
                 ),
             ],
@@ -618,8 +699,23 @@ Future<Uint8List> buildFilmInvoicePdf(
               ),
             ),
           ),
+          if (invoice.vat case final vat?)
+            pw.Align(
+              alignment: pw.Alignment.centerRight,
+              child: pw.Text(
+                vat > 0
+                    ? words.vatIn(
+                        vat,
+                        money.format(
+                          (sum * vat / (100 + vat) * 100).round() / 100,
+                        ),
+                      )
+                    : words.noVat,
+              ),
+            ),
           pw.SizedBox(height: 8),
-          pw.Text(words.summary(sale.lines.length, money.format(sum))),
+          pw.Text(words.summary(invoice.lines.length, money.format(sum))),
+          if (inWords != null) pw.Text(inWords, style: bold),
           pw.SizedBox(height: 4),
           pw.Text(words.payBy(mdfDay(invoice.dueOn)), style: bold),
           pw.Divider(thickness: 1.2),
