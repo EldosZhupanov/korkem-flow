@@ -6,6 +6,8 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_volume.dart';
+import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
+import 'package:korkem_flow/features/team/presentation/team_departments_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// «Кто сделал?» before a stage is ticked, or «Кому отдать?» when
@@ -34,6 +36,18 @@ Future<String?> pickMdfWorker(
     assigning: assigning,
   ),
 );
+
+/// The post a stage is done at, for a person added from the sheet — the
+/// server's `team.STAGE_POSTS`; sanding goes to the PVC sander, the dialog
+/// lets another be ticked.
+const mdfStagePost = {
+  MdfStage.cut: 'cut.cutter',
+  MdfStage.mill: 'cnc.operator',
+  MdfStage.sand: 'pvc.sander',
+  MdfStage.vacuum: 'pvc.vacuum',
+  MdfStage.paint: 'paint.painter',
+  MdfStage.ready: 'pack.packer',
+};
 
 class _WorkerSheet extends ConsumerWidget {
   const _WorkerSheet({
@@ -125,6 +139,35 @@ class _WorkerSheet extends ConsumerWidget {
                           ),
                       ],
                       for (final w in others) tile(w),
+                      if (list.isEmpty && post.isEmpty)
+                        ListTile(
+                          dense: true,
+                          title: Text(l10n.mdfNoWorkers),
+                        ),
+                      // «+ Человек» (owner, 20.11.2026: «должен быть
+                      // справочник, чтобы мы могли добавить людей») — into
+                      // «Команда», on this stage's post; he is then picked.
+                      ListTile(
+                        key: const ValueKey('workerAdd'),
+                        leading: const Icon(AppIcons.add),
+                        title: Text(l10n.mdfAddWorker),
+                        subtitle: Text(l10n.mdfAddWorkerHint),
+                        onTap: () async {
+                          final team = await ref.read(
+                            teamPeopleProvider.future,
+                          );
+                          if (!context.mounted) return;
+                          await showTeamPersonDialog(
+                            context,
+                            team,
+                            post: stage == null ? null : mdfStagePost[stage],
+                          );
+                          ref.invalidate(mdfWorkersProvider);
+                          if (key != null) {
+                            ref.invalidate(mdfStagePeopleProvider(key));
+                          }
+                        },
+                      ),
                     ],
                   );
                 },

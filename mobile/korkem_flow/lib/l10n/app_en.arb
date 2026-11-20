@@ -10617,5 +10617,8 @@
   "filmMakerAddNewSource": "A new supplier",
   "filmMakerAddSourceName": "Supplier (e.g. Kira · Kostanay)",
   "filmMakerAddCatalogueHint": "The catalogue with pictures can be loaded later — the 📎 icon above.",
-  "filmMakerAddSave": "Add"
+  "filmMakerAddSave": "Add",
+  "mdfAddWorker": "Add a person",
+  "mdfAddWorkerHint": "Into «Команда», on this post — then pick him here",
+  "mdfNoWorkers": "Nobody in «Команда» yet"
 }

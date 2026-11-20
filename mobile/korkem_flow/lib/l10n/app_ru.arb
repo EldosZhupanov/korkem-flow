@@ -3393,5 +3393,8 @@
   "filmMakerAddNewSource": "Новый поставщик",
   "filmMakerAddSourceName": "Поставщик (например, Kira · Костанай)",
   "filmMakerAddCatalogueHint": "Каталог с фото можно загрузить потом — значок 📎 вверху.",
-  "filmMakerAddSave": "Добавить"
+  "filmMakerAddSave": "Добавить",
+  "mdfAddWorker": "Добавить человека",
+  "mdfAddWorkerHint": "В «Команду», на этот участок — потом выберите его здесь",
+  "mdfNoWorkers": "В «Команде» пока никого нет"
 }

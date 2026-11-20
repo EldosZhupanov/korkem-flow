@@ -192,6 +192,10 @@ void main() {
     final repo = _Fake();
     var changed = 0;
     await pump(tester, repo, on: () => changed++);
+    // Folded while a source has the film itself; a tap opens it.
+    expect(find.byKey(const ValueKey('fwReplace:FILM-1:D-2')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('fwLookFold:FILM-1')));
+    await tester.pumpAndSettle();
     expect(find.text('12 m on our shelf'), findsNothing); // in the subtitle
     expect(find.textContaining('12 m on our shelf'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('fwReplace:FILM-1:D-2')));

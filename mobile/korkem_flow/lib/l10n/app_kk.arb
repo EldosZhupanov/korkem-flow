@@ -3393,5 +3393,8 @@
   "filmMakerAddNewSource": "Жаңа жеткізуші",
   "filmMakerAddSourceName": "Жеткізуші (мысалы, Kira · Қостанай)",
   "filmMakerAddCatalogueHint": "Фотосы бар каталогты кейін жүктеуге болады — жоғарыдағы 📎 белгісі.",
-  "filmMakerAddSave": "Қосу"
+  "filmMakerAddSave": "Қосу",
+  "mdfAddWorker": "Адам қосу",
+  "mdfAddWorkerHint": "«Командаға», осы учаскеге — кейін оны осында таңдаңыз",
+  "mdfNoWorkers": "«Командада» әзірге ешкім жоқ"
 }
