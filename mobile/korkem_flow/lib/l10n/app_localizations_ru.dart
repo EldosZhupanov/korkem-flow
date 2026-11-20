@@ -8858,7 +8858,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Взвесьте остаток. Разница с программой запишется как расход.';
 
   @override
-  String get mdfGloss => 'Вид';
+  String get mdfGloss => 'Блеск';
 
   @override
   String get mdfGlossNone => '—';
@@ -11438,4 +11438,59 @@ class AppLocalizationsRu extends AppLocalizations {
   String cncpThin(String left) {
     return 'Остаётся мало материала: $left мм';
   }
+
+  @override
+  String get cncpTryOn => 'Примерить плёнку или краску';
+
+  @override
+  String get ctoTitle => 'Примерка';
+
+  @override
+  String get ctoFilms => 'Плёнки ПВХ';
+
+  @override
+  String get ctoPaints => 'Краски';
+
+  @override
+  String get ctoSearch => 'Поиск: дуб, софт, 9010';
+
+  @override
+  String get ctoAllMakers => 'Все';
+
+  @override
+  String get ctoAcross => 'Рисунок поперёк';
+
+  @override
+  String get ctoCompare => 'В сравнение';
+
+  @override
+  String get ctoCompareClear => 'Убрать сравнение';
+
+  @override
+  String get ctoCompareFull => 'Сравнить можно до 4 вариантов';
+
+  @override
+  String get ctoSave => 'Картинка клиенту';
+
+  @override
+  String ctoSavedTo(String dir) {
+    return 'Картинка сохранена: $dir — перетащите её в WhatsApp';
+  }
+
+  @override
+  String get ctoFolder => 'Для клиента';
+
+  @override
+  String get ctoNote => 'Цвет на экране может немного отличаться от образца';
+
+  @override
+  String get ctoBare => 'МДФ без покрытия';
+
+  @override
+  String ctoMore(int count) {
+    return 'и ещё $count — уточните поиск';
+  }
+
+  @override
+  String get ctoNoCatalogue => 'Каталог не загрузился';
 }

@@ -15184,7 +15184,7 @@ abstract class AppLocalizations {
   /// No description provided for @mdfGloss.
   ///
   /// In en, this message translates to:
-  /// **'Finish'**
+  /// **'Sheen'**
   String get mdfGloss;
 
   /// No description provided for @mdfGlossNone.
@@ -19516,6 +19516,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Little material left: {left} mm'**
   String cncpThin(String left);
+
+  /// No description provided for @cncpTryOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Try on a film or a paint'**
+  String get cncpTryOn;
+
+  /// No description provided for @ctoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try-on'**
+  String get ctoTitle;
+
+  /// No description provided for @ctoFilms.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC films'**
+  String get ctoFilms;
+
+  /// No description provided for @ctoPaints.
+  ///
+  /// In en, this message translates to:
+  /// **'Paints'**
+  String get ctoPaints;
+
+  /// No description provided for @ctoSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search: oak, soft, 9010'**
+  String get ctoSearch;
+
+  /// No description provided for @ctoAllMakers.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get ctoAllMakers;
+
+  /// No description provided for @ctoAcross.
+  ///
+  /// In en, this message translates to:
+  /// **'Grain across'**
+  String get ctoAcross;
+
+  /// No description provided for @ctoCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get ctoCompare;
+
+  /// No description provided for @ctoCompareClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear comparison'**
+  String get ctoCompareClear;
+
+  /// No description provided for @ctoCompareFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to four looks side by side'**
+  String get ctoCompareFull;
+
+  /// No description provided for @ctoSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture for the customer'**
+  String get ctoSave;
+
+  /// No description provided for @ctoSavedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture saved: {dir} — drag it into WhatsApp'**
+  String ctoSavedTo(String dir);
+
+  /// No description provided for @ctoFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'For the customer'**
+  String get ctoFolder;
+
+  /// No description provided for @ctoNote.
+  ///
+  /// In en, this message translates to:
+  /// **'On screen the colour may differ a little from the sample'**
+  String get ctoNote;
+
+  /// No description provided for @ctoBare.
+  ///
+  /// In en, this message translates to:
+  /// **'Bare MDF'**
+  String get ctoBare;
+
+  /// No description provided for @ctoMore.
+  ///
+  /// In en, this message translates to:
+  /// **'and {count} more — narrow the search'**
+  String ctoMore(int count);
+
+  /// No description provided for @ctoNoCatalogue.
+  ///
+  /// In en, this message translates to:
+  /// **'The catalogue did not load'**
+  String get ctoNoCatalogue;
 }
 
 class _AppLocalizationsDelegate

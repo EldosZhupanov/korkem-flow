@@ -247,6 +247,9 @@ Future<(_Repo, _Saver)> _pump(
         cncPatternsRepositoryProvider.overrideWithValue(repo),
         cncFileSaverProvider.overrideWithValue(saver),
         if (picker != null) filmFilePickerProvider.overrideWithValue(picker),
+        filmDecorsProvider.overrideWith(
+          (ref) async => const FilmDecors(decors: [], makers: []),
+        ),
       ],
       child: harness(child),
     ),
@@ -369,6 +372,13 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('cncTryT')), '3');
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('cncThrough')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('cncView3d')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('cncTryOn')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('cncTryOnDialog')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('ctoClose')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('cncViewTop')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('cncFacade')), findsOne);
@@ -398,5 +408,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.ordersAsked, ['SO-1:*']);
     expect(saver.saved['SO-1']!.keys, ['SO-1-01-718x500-Классика.nc']);
+
+    // The position's facade, at its size, to dress with the customer.
+    await tester.tap(find.byKey(const ValueKey('cncLine3d:1')));
+    await tester.pumpAndSettle();
+    expect(repo.previews.last, ('Классика', 500.0, 718.0));
+    expect(find.byKey(const ValueKey('cncTryOnDialog')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('ctoClose')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('cncTryOnDialog')), findsNothing);
   });
 }
