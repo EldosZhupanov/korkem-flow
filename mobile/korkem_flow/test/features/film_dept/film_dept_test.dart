@@ -621,9 +621,52 @@ class _Glue implements GlueStockRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// The makers' catalogues: a decor taken in comes back as its film.
+class _Decors implements FilmDecorRepository {
+  final took = <String>[];
+
+  @override
+  Future<({String label, Film? film})> takeFilm(String decor) async {
+    took.add(decor);
+    return (
+      label: 'Adilet · Агератум',
+      film: Film.fromJson(const {
+        'item': 'MAT-9',
+        'maker': 'Adilet',
+        'colour': 'Агератум',
+        'label': 'Adilet · Агератум',
+        'on_hand': 0,
+        'held': 0,
+      }),
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+late _Decors _decors;
+
+const _catalogue = [
+  FilmDecor(
+    decor: 'D-1',
+    maker: 'Adilet',
+    name: 'Агератум',
+    collection: 'Soft',
+  ),
+  FilmDecor(decor: 'D-2', maker: 'Adilet', name: 'Шабо', collection: 'Wood'),
+  // The shop has it already: MAT-1.
+  FilmDecor(
+    decor: 'D-3',
+    maker: 'KIRA',
+    name: 'Белый Матовый',
+    films: [(item: 'MAT-1', label: 'KIRA · Белый Матовый', onHand: 84)],
+  ),
+];
+
 Future<_Fake> _pump(
   WidgetTester tester, {
-  FilmPickExtras extras = const FilmPickExtras(),
+  List<FilmDecor> catalogue = const [],
 }) async {
   tester.view
     ..physicalSize = const Size(1600, 2400)
@@ -645,8 +688,12 @@ Future<_Fake> _pump(
           (ref) async => MdfDictionaries.empty,
         ),
         filmPickExtrasProvider.overrideWith(
-          (ref, customer) async => extras,
+          (ref, customer) async => const FilmPickExtras(),
         ),
+        filmDecorsProvider.overrideWith(
+          (ref) async => FilmDecors(decors: catalogue, makers: const []),
+        ),
+        filmDecorRepositoryProvider.overrideWithValue(_decors = _Decors()),
       ],
       child: harness(const FilmDeptScreen()),
     ),
@@ -1094,22 +1141,7 @@ void main() {
   ) async {
     await _pump(
       tester,
-      extras: const FilmPickExtras(
-        decors: [
-          FilmDecor(
-            decor: 'D-1',
-            maker: 'Adilet',
-            name: 'Агератум',
-            collection: 'Soft',
-          ),
-          FilmDecor(
-            decor: 'D-2',
-            maker: 'Adilet',
-            name: 'Шабо',
-            collection: 'Wood',
-          ),
-        ],
-      ),
+      catalogue: _catalogue,
     );
     await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
     await tester.pumpAndSettle();
@@ -1148,6 +1180,48 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('rcvDecor:D-1')), findsNothing);
     expect(find.byKey(const ValueKey('rcvDecor:D-2')), findsOneWidget);
+  });
+
+  testWidgets('«Приход»: a catalogue decor opens its receipt and stays put', (
+    tester,
+  ) async {
+    await _pump(tester, catalogue: _catalogue);
+    await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
+    await tester.pumpAndSettle();
+    final adilet = find.byKey(const ValueKey('rcvMaker:Adilet'));
+    await tester.ensureVisible(adilet);
+    await tester.tap(adilet);
+    await tester.pumpAndSettle();
+    // Not on the books: taken in, and the receipt opens on the film the
+    // server sent back.
+    final d1 = find.byKey(const ValueKey('rcvDecor:D-1'));
+    await tester.ensureVisible(d1);
+    await tester.pumpAndSettle();
+    await tester.tap(d1);
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(_decors.took, ['D-1']);
+    expect(find.byKey(const ValueKey('filmReceiveSave')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rcvOpening:D-1')), findsNothing);
+    await tester.tap(find.text('Cancel').last);
+    await tester.pumpAndSettle();
+    // The card is where it was, not gone to «Наши» above.
+    expect(find.byKey(const ValueKey('rcvDecor:D-1')), findsOneWidget);
+    // A decor the shop has: its film straight away, nothing taken in.
+    final kira = find.byKey(const ValueKey('rcvMaker:KIRA'));
+    await tester.ensureVisible(kira);
+    await tester.tap(kira);
+    await tester.pumpAndSettle();
+    final d3 = find.byKey(const ValueKey('rcvDecor:D-3'));
+    await tester.ensureVisible(d3);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('fdcHave:Белый Матовый')), findsOneWidget);
+    await tester.tap(d3);
+    await tester.pumpAndSettle();
+    expect(_decors.took, ['D-1']);
+    expect(find.byKey(const ValueKey('filmReceiveSave')), findsOneWidget);
   });
 
   testWidgets('«Приход» shows first what is waited for: a roll on its way', (
