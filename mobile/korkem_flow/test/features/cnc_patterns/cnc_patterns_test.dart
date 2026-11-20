@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/cnc_patterns/data/cnc_patterns_repository.dart';
 import 'package:korkem_flow/features/cnc_patterns/domain/cnc_patterns.dart';
+import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_facade_view.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_order_sheet.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_patterns_screen.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
@@ -382,6 +383,20 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('cncViewTop')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('cncFacade')), findsOne);
+    // The cutter's run, from the start: drawn as it goes, then whole.
+    await tester.tap(find.byKey(const ValueKey('cncSimPlay')));
+    await tester.pump(const Duration(seconds: 2));
+    expect(
+      tester.widget<CncFacadeView>(find.byKey(const ValueKey('cncFacade')))
+          .progress,
+      inExclusiveRange(0, 1),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<CncFacadeView>(find.byKey(const ValueKey('cncFacade')))
+          .progress,
+      1,
+    );
   });
 
   testWidgets('an order: what fits is saved, what does not says why', (

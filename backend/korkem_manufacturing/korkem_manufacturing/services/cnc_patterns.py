@@ -64,6 +64,7 @@ ELEMENT_KEYS = {
 	"frame": ("offset", "corner", "radius"),
 	"arch": ("offset", "rise"),
 	"grooves": ("direction", "step", "side", "ends"),
+	"pocket": ("offset",),
 }
 ELEMENT_LIMITS = {"depth": (0.1, 30), "offset": (1, 1500), "radius": (0, 500), "rise": (1, 1500),
 				  "step": (1, 500), "side": (0, 1500), "ends": (0, 1500)}

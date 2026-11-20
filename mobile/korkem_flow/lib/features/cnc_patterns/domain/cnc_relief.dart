@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' show Offset;
 
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:korkem_flow/features/cnc_patterns/domain/cnc_patterns.dart';
 
 /// How deep [tool] cuts at [d] mm from the centre of its path when the path
@@ -140,6 +141,21 @@ class CncRelief {
   double get deepest => depths.isEmpty ? 0 : depths.reduce(max);
 }
 
+/// Something the section shows the router will leave badly.
+@immutable
+class CncFlaw {
+  const CncFlaw({required this.at, required this.size, required this.wall});
+
+  /// From the edge, mm.
+  final double at;
+
+  /// A wall's width, a ridge's height, mm.
+  final double size;
+
+  /// A wall of uncut board between two cuts, else a ridge inside a cut.
+  final bool wall;
+}
+
 /// The facade cut across, from its left edge towards the middle, at
 /// mid-height — the yellow profile of the milling world.
 class CncSection {
@@ -181,6 +197,61 @@ class CncSection {
   final Float32List depths;
 
   double get deepest => depths.isEmpty ? 0 : depths.reduce(max);
+
+  /// What the section shows the router will leave badly (owner, 20.11.2026:
+  /// «подсказки о проблемах»): a ridge standing between two passes that do
+  /// not quite meet, and a wall of board so thin between two cuts it may
+  /// break off. Ridges lower than [minRidge] mm and walls wider than
+  /// [maxWall] mm are left alone.
+  List<CncFlaw> flaws({double minRidge = 0.5, double maxWall = 3}) {
+    final out = <CncFlaw>[];
+    const cut = 0.05;
+    final n = depths.length;
+    var k = 0;
+    while (k < n) {
+      if (depths[k] <= cut) {
+        // An uncut stretch: a wall when cut on both sides and narrow.
+        final from = k;
+        while (k < n && depths[k] <= cut) {
+          k++;
+        }
+        final width = (k - from) * step;
+        if (from > 0 && k < n && width <= maxWall) {
+          out.add(
+            CncFlaw(at: (from + k - 1) / 2 * step, size: width, wall: true),
+          );
+        }
+        continue;
+      }
+      // A cut stretch: how far each point stands above the lower of the
+      // deepest points on either side of it — a ridge left between passes.
+      final from = k;
+      while (k < n && depths[k] > cut) {
+        k++;
+      }
+      final left = List<double>.filled(k - from, 0);
+      var top = 0.0;
+      for (var i = from; i < k; i++) {
+        top = max(top, depths[i]);
+        left[i - from] = top;
+      }
+      top = 0;
+      var worst = 0.0;
+      var at = from;
+      for (var i = k - 1; i >= from; i--) {
+        top = max(top, depths[i]);
+        final h = min(left[i - from], top) - depths[i];
+        if (h > worst) {
+          worst = h;
+          at = i;
+        }
+      }
+      if (worst >= minRidge) {
+        out.add(CncFlaw(at: at * step, size: worst, wall: false));
+      }
+    }
+    return out;
+  }
 
   /// From the edge to the first cut and to the last, mm; null with no cut.
   (double, double)? get span {

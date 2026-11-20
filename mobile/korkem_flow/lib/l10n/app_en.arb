@@ -10723,5 +10723,14 @@
   "ctoBare": "Bare MDF",
   "ctoMore": "and {count} more — narrow the search",
   "@ctoMore": {"placeholders": {"count": {"type": "int"}}},
-  "ctoNoCatalogue": "The catalogue did not load"
+  "ctoNoCatalogue": "The catalogue did not load",
+  "cncpKindPocket": "Pocket",
+  "cncpLinePocket": "Pocket, {offset} mm in",
+  "@cncpLinePocket": {"placeholders": {"offset": {"type": "String"}}},
+  "cncpPocketHint": "Everything inside is cut to one depth — with a straight or ball-nose cutter",
+  "cncpRidge": "A {height} mm ridge {at} mm from the edge — the passes do not meet: move one or take a wider cutter",
+  "@cncpRidge": {"placeholders": {"height": {"type": "String"}, "at": {"type": "String"}}},
+  "cncpWall": "A {width} mm wall {at} mm from the edge — it may break off",
+  "@cncpWall": {"placeholders": {"width": {"type": "String"}, "at": {"type": "String"}}},
+  "cncpSimulate": "Simulation: the cutter's run"
 }
