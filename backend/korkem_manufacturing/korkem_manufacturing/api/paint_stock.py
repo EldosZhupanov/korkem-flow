@@ -33,6 +33,18 @@ def receive(colour: str, kg: float | str, price_kg: float | str, supplier: str, 
 
 
 @frappe.whitelist(methods=["POST"])
+def attach_photo(receipt: str, file_name: str, content_b64: str) -> dict:
+	"""Фото накладной к приходу краски."""
+	import base64
+
+	try:
+		content = base64.b64decode(content_b64, validate=True)
+	except ValueError:
+		frappe.throw("Файл не прочитался.")
+	return service.attach_photo(receipt, file_name, content)
+
+
+@frappe.whitelist(methods=["POST"])
 def set_recipe(recipe: str | dict) -> dict:
 	"""Рецепт покраски: слои (грунт, эмаль, лак) — г/м², сколько слоёв, цена; в каждом —
 	отвердитель, разбавитель на 1 кг."""

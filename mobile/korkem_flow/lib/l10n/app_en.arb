@@ -10756,5 +10756,9 @@
   "paintVariantOnHand": "{kg} kg on hand",
   "@paintVariantOnHand": {"placeholders": {"kg": {"type": "String"}}},
   "paintVariantNew": "New: {material}",
-  "@paintVariantNew": {"placeholders": {"material": {"type": "String"}}}
+  "@paintVariantNew": {"placeholders": {"material": {"type": "String"}}},
+  "paintPriceHistory": "before: {list}",
+  "@paintPriceHistory": {"placeholders": {"list": {"type": "String"}}},
+  "paintLineMore": "+ another position in this receipt",
+  "paintPhoto": "The invoice's photo"
 }

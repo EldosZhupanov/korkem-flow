@@ -53,6 +53,7 @@ final _stock = PaintStock.fromJson(const {
         'supplier': 'SUP-1',
         'supplier_name': 'Колор-Маркет',
         'city': 'Алматы',
+        'note': '4 × 5 кг',
       },
     },
   ],
@@ -127,8 +128,35 @@ class _Repo implements PaintStockRepository {
       'pay': supplierPay?.toJson(),
       'note': note,
     });
-    return _stock;
+    return PaintStock(
+      paints: _stock.paints,
+      queue: _stock.queue,
+      suppliers: _stock.suppliers,
+      recipe: _stock.recipe,
+      materials: _stock.materials,
+      receipt: 'STE-${received.length + 10}',
+    );
   }
+
+  final photos = <(String, String)>[];
+
+  @override
+  Future<void> attachPhoto(
+    String receipt,
+    String fileName,
+    List<int> bytes,
+  ) async => photos.add((receipt, fileName));
+
+  @override
+  Future<List<PaintReceipt>> history(String item) async => [
+    PaintReceipt.fromJson(const {
+      'receipt': 'STE-3',
+      'date': '2026-11-01',
+      'kg': 20,
+      'price_kg': 4000,
+      'supplier': 'Колор-Маркет',
+    }),
+  ];
 
   final counted = <(String, double)>[];
   final settled = <(String, String)>[];
@@ -292,11 +320,17 @@ void main() {
     final save = find.byKey(const ValueKey('paintReceiveSave'));
     expect(tester.widget<FilledButton>(save).onPressed, isNull);
 
-    // Four cans of five kilos at 4 400 a kilo — dearer than 4 000.
-    await tester.tap(find.byKey(const ValueKey('paintByCans')));
-    await tester.pumpAndSettle();
+    // Four cans of five kilos at 4 400 a kilo — dearer than 4 000. In cans
+    // as last time: the five kilos are there already (owner, 20.11.2026).
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('paintCanKg')))
+          .controller!
+          .text,
+      '5',
+    );
+    expect(find.byKey(const ValueKey('paintPriceHistory')), findsOne);
     await tester.enterText(find.byKey(const ValueKey('paintCans')), '4');
-    await tester.enterText(find.byKey(const ValueKey('paintCanKg')), '5');
     await tester.enterText(
       find.byKey(const ValueKey('paintPriceKgValue')),
       '4400',
@@ -473,6 +507,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.cards.single, (null, 'Ерлан краски', '5 кг'));
     // 5 kg of a batch for 4,2 kg of queue: the rest goes on the shelf.
+    await tester.tap(find.byKey(const ValueKey('paintByCans')));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('paintKgValue')), '5');
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('paintBatchLeft')), findsOne);
@@ -532,5 +568,56 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('paintKind:paint')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('paintColour:RAL 9016')), findsOne);
+  });
+
+  testWidgets('one receipt, several positions: the delivery shared by the '
+      "kilo, the invoice's photo on each", (tester) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('paintMaterialBuy:Грунт')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('paintKgValue')), '10');
+    await tester.enterText(
+      find.byKey(const ValueKey('paintPriceKgValue')),
+      '2000',
+    );
+    await tester.pumpAndSettle();
+    final more = find.byKey(const ValueKey('paintLineMore'));
+    await tester.ensureVisible(more);
+    await tester.tap(more);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintLine:0')), findsOne);
+    // The next: hardener, 30 kg.
+    await tester.tap(find.byKey(const ValueKey('paintKind:Отвердитель')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('paintKgValue')), '30');
+    await tester.enterText(
+      find.byKey(const ValueKey('paintPriceKgValue')),
+      '1000',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('filmDelivery:transport:Такси')),
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('filmDelivery:cost')),
+      '4000',
+    );
+    await tester.pumpAndSettle();
+    final save = find.byKey(const ValueKey('paintReceiveSave'));
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(
+      [for (final r in repo.received) (r['base'], r['kg'])],
+      [('Грунт', 10.0), ('Отвердитель', 30.0)],
+    );
+    // 4 000 of a taxi over 40 kg: 1 000 and 3 000.
+    expect(
+      [
+        for (final r in repo.received)
+          (r['delivery']! as Map<String, Object?>)['amount'],
+      ],
+      [1000.0, 3000.0],
+    );
   });
 }

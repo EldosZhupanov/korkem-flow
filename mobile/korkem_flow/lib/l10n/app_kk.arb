@@ -3473,5 +3473,8 @@
   "paintPinnedShelf": "Қоймада",
   "paintBaseName": "Атауы",
   "paintVariantOnHand": "бар {kg} кг",
-  "paintVariantNew": "Жаңа: {material}"
+  "paintVariantNew": "Жаңа: {material}",
+  "paintPriceHistory": "бұрын: {list}",
+  "paintLineMore": "+ осы кіріске тағы бір позиция",
+  "paintPhoto": "Жүкқұжат суреті"
 }

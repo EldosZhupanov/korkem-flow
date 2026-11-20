@@ -10,6 +10,7 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/phone/phone.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_receipt_terms.dart';
@@ -605,6 +606,17 @@ Future<bool?> showPaintReceive(
   builder: (_) => _ReceiveDialog(stock: stock, colour: colour, base: base),
 );
 
+/// One position of a receipt: a colour (none for a colourless material),
+/// what it is, how much at what price, how it came.
+typedef _ReceiptLine = ({
+  String colour,
+  String? base,
+  double kg,
+  double priceKg,
+  String? note,
+  String title,
+});
+
 class _ReceiveDialog extends ConsumerStatefulWidget {
   const _ReceiveDialog({required this.stock, this.colour, this.base});
 
@@ -633,10 +645,59 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
   bool _busy = false;
   String? _error;
 
+  /// The positions already put into this receipt — one supplier, one
+  /// delivery, several colours (owner, 20.11.2026).
+  final _more = <_ReceiptLine>[];
+
+  /// The supplier's invoice, photographed (owner, 20.11.2026).
+  PickedFile? _photo;
+
   @override
   void initState() {
     super.initState();
     _fromLast();
+  }
+
+  /// The position being typed, when it is whole.
+  _ReceiptLine? _current(AppLocalizations l10n) {
+    final colour = _component ? '' : _colour;
+    if (colour == null || _kg <= 0 || _priceKg <= 0) return null;
+    final base = _base.text.trim().isEmpty ? null : _base.text.trim();
+    return (
+      colour: colour,
+      base: base,
+      kg: double.parse(_kg.toStringAsFixed(3)),
+      priceKg: _priceKg,
+      note: _byCans ? _cansNote(l10n) : null,
+      title: [if (colour.isNotEmpty) colour, ?base].join(' · '),
+    );
+  }
+
+  /// Nothing typed of the position yet.
+  bool get _currentEmpty =>
+      _colour == null && _base.text.trim().isEmpty && _kg <= 0;
+
+  /// «+ ещё позиция»: this one into the receipt, the form clear for the
+  /// next colour.
+  void _addLine(AppLocalizations l10n) {
+    final line = _current(l10n);
+    if (line == null) return;
+    setState(() {
+      _more.add(line);
+      _colour = null;
+      _byCans = false;
+      for (final c in [_base, _kgField, _cans, _canKg, _price]) {
+        c.clear();
+      }
+    });
+  }
+
+  Future<void> _pickPhoto() async {
+    final files = await ref
+        .read(filmFilePickerProvider)
+        .pick(extensions: const ['jpg', 'jpeg', 'png', 'webp', 'heic', 'pdf']);
+    if (files.isEmpty || !mounted) return;
+    setState(() => _photo = files.first);
   }
 
   /// Primer, hardener, thinner, lacquer: kept by name, with no colour
@@ -663,6 +724,12 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
         last?.supplier ??
         _supplier ??
         _stock.suppliers.where((s) => s.paint).firstOrNull?.id;
+    // In cans as last time: «4 × 5 кг» — the five kilos already there.
+    final can = last?.canKg;
+    if (can != null && _canKg.text.trim().isEmpty && _kgField.text.isEmpty) {
+      _byCans = true;
+      _canKg.text = can;
+    }
     if (colour != null && _base.text.isEmpty) {
       final known = _stock.paints.where((p) => p.colour == colour);
       if (known.length == 1 && known.single.base != null) {
@@ -736,24 +803,45 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
     final opts = ref.read(filmDeliveryOptionsProvider).value;
+    final current = _current(l10n);
+    final lines = [..._more, ?current];
+    if (lines.isEmpty) return;
     setState(() {
       _busy = true;
       _error = null;
     });
+    final repo = ref.read(paintStockRepositoryProvider);
+    final delivery = _terms.delivery(opts, _supplier);
+    final amount = _terms.costAmount;
+    final totalKg = lines.fold<double>(0, (a, l) => a + l.kg);
+    var shared = 0.0;
     try {
-      await ref
-          .read(paintStockRepositoryProvider)
-          .receive(
-            colour: _component ? '' : _colour!,
-            kg: double.parse(_kg.toStringAsFixed(3)),
-            priceKg: _priceKg,
-            supplier: _supplier!,
-            base: _base.text.trim().isEmpty ? null : _base.text.trim(),
-            delivery: _terms.delivery(opts, _supplier),
-            receivedBy: _terms.takerOf(opts),
-            supplierPay: _terms.supplierPay,
-            note: _byCans ? _cansNote(l10n) : null,
-          );
+      for (final (i, line) in lines.indexed) {
+        // The bringing shared out by the kilo; the last takes the rest.
+        final share = i == lines.length - 1
+            ? double.parse((amount - shared).toStringAsFixed(2))
+            : double.parse(
+                (amount * line.kg / totalKg).toStringAsFixed(2),
+              );
+        shared += share;
+        final got = await repo.receive(
+          colour: line.colour,
+          kg: line.kg,
+          priceKg: line.priceKg,
+          supplier: _supplier!,
+          base: line.base,
+          delivery: delivery == null ? null : {...delivery, 'amount': share},
+          receivedBy: _terms.takerOf(opts),
+          supplierPay: _terms.supplierPay,
+          note: line.note,
+        );
+        final photo = _photo;
+        if (photo != null && got.receipt != null) {
+          await repo.attachPhoto(got.receipt!, photo.name, photo.bytes);
+        }
+        // Saved: not again, should a later one fail.
+        if (mounted) setState(() => _more.remove(line));
+      }
       if (mounted) Navigator.of(context).pop(true);
     } on Object catch (e) {
       if (mounted) {
@@ -1027,9 +1115,14 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     final status = context.statusColors;
     final money = mdfMoney(context);
     final opts = ref.watch(filmDeliveryOptionsProvider).value;
-    final kg = _kg;
+    // The position being typed, for its own checks; the whole receipt —
+    // every position of it — for the sums.
+    final current = _current(l10n);
+    final lines = [..._more, ?current];
+    final lineKg = _kg;
     final price = _priceKg;
-    final total = kg * price;
+    final kg = lines.fold<double>(0, (a, l) => a + l.kg);
+    final total = lines.fold<double>(0, (a, l) => a + l.kg * l.priceKg);
     final cost = _terms.costAmount;
     final component = _component;
     final last = component
@@ -1045,13 +1138,23 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
     // The supplier's smallest batch is more than the queue takes: the rest
     // goes on the shelf, and the painter is told the norm (owner, 15.11.2026).
     final need = _queueNeed;
-    final left = need == null || need <= 0 ? 0.0 : kg - need;
+    final left = need == null || need <= 0 ? 0.0 : lineKg - need;
     final ready =
-        (component || _colour != null) &&
+        lines.isNotEmpty &&
+        (current != null || _currentEmpty) &&
         _supplier != null &&
-        kg > 0 &&
-        price > 0 &&
         !_terms.incomplete;
+    final item = _stock.paints
+        .where(
+          (p) =>
+              p.colour == (component ? '' : _colour ?? '\u0000') &&
+              (p.base ?? '') == _base.text.trim(),
+        )
+        .firstOrNull
+        ?.item;
+    final past = item == null
+        ? const <PaintReceipt>[]
+        : ref.watch(paintHistoryProvider(item)).value ?? const [];
     final suggestions = {
       ..._stock.bases,
       l10n.paintBaseEnamelMatt,
@@ -1082,6 +1185,27 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
             children: [
               // In the order it is done (owner, 20.11.2026: «упорядочить»):
               // what came, which, how much and for what, from whom, how.
+              // The positions already in this receipt.
+              for (final (i, l) in _more.indexed)
+                ListTile(
+                  key: ValueKey('paintLine:$i'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l.title),
+                  subtitle: Text(
+                    [
+                      l10n.paintKgShort(_kgText(l.kg)),
+                      money.format(l.kg * l.priceKg),
+                      ?l.note,
+                    ].join(' · '),
+                  ),
+                  trailing: IconButton(
+                    key: ValueKey('paintLineRemove:$i'),
+                    tooltip: l10n.mdfDictDelete,
+                    onPressed: () => setState(() => _more.removeAt(i)),
+                    icon: const Icon(AppIcons.close),
+                  ),
+                ),
               _step(1, l10n.paintStepWhat),
               Wrap(
                 spacing: AppSpacing.xs,
@@ -1193,6 +1317,36 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                     ),
                   ),
                 ),
+              // What it cost before, and from whom (owner, 20.11.2026).
+              if (past.where((r) => !r.cancelled && r.priceKg != null).isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xxs),
+                  child: Text(
+                    l10n.paintPriceHistory(
+                      [
+                        for (final r in past
+                            .where((r) => !r.cancelled && r.priceKg != null)
+                            .take(3))
+                          [
+                            money.format(r.priceKg),
+                            mdfDay(r.date, year: false),
+                            ?r.supplier,
+                          ].join(' · '),
+                      ].join('; '),
+                    ),
+                    key: const ValueKey('paintPriceHistory'),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: const ValueKey('paintLineMore'),
+                  onPressed: current == null ? null : () => _addLine(l10n),
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.paintLineMore),
+                ),
+              ),
               _step(4, l10n.paintStepSupplier),
               Row(
                 children: [
@@ -1256,6 +1410,27 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                 update: setState,
                 deptCash: false,
               ),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    key: const ValueKey('paintPhoto'),
+                    onPressed: () => unawaited(_pickPhoto()),
+                    icon: const Icon(AppIcons.camera),
+                    label: Text(l10n.paintPhoto),
+                  ),
+                  if (_photo case final p?) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(p.name, key: const ValueKey('paintPhotoName')),
+                    IconButton(
+                      key: const ValueKey('paintPhotoRemove'),
+                      tooltip: l10n.mdfDictDelete,
+                      onPressed: () => setState(() => _photo = null),
+                      icon: const Icon(AppIcons.close),
+                    ),
+                  ],
+                ],
+              ),
               if (opts != null) ...[
                 _step(5, l10n.paintStepDelivery),
                 FilmDeliveryField(
@@ -1304,7 +1479,7 @@ class _ReceiveDialogState extends ConsumerState<_ReceiveDialog> {
                         style: theme.textTheme.titleMedium,
                       ),
                       Text(
-                        l10n.paintLanded(money.format(price + cost / kg)),
+                        l10n.paintLanded(money.format((total + cost) / kg)),
                         key: const ValueKey('paintSum:landed'),
                         style: theme.textTheme.bodySmall,
                       ),

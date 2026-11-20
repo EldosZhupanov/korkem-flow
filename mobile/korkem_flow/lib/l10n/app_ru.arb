@@ -3473,5 +3473,8 @@
   "paintPinnedShelf": "На складе",
   "paintBaseName": "Название",
   "paintVariantOnHand": "есть {kg} кг",
-  "paintVariantNew": "Новый: {material}"
+  "paintVariantNew": "Новый: {material}",
+  "paintPriceHistory": "раньше: {list}",
+  "paintLineMore": "+ ещё позиция в этот приход",
+  "paintPhoto": "Фото накладной"
 }
