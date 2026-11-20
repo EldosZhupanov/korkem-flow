@@ -3424,5 +3424,11 @@
   "mdfMarginNotCountedShort": "без электричества и доставки",
   "mdfMarginPriceTitle": "Цена: {title}",
   "mdfMarginPriceLabel": "Цена за единицу, ₸",
-  "mdfMarginPriceHint": "Плёнка — за метр. Запишется в карточку материала."
+  "mdfMarginPriceHint": "Плёнка — за метр. Запишется в карточку материала.",
+  "ppOwn": "Свой цвет",
+  "ppTheirs": "Этот клиент красил раньше",
+  "ppEnough": "хватит на ≈ {enough} м² · в заказе {need} м²",
+  "ppShort": "не хватит: на складе на ≈ {enough} м², в заказе {need} м² — закажите краску или «Замена цвета»",
+  "ppPickHint": "Выберите цвет — нажмите на карточку",
+  "ppChoose": "Выбрать"
 }

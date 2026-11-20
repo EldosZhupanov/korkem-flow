@@ -10,9 +10,15 @@ from korkem_manufacturing.services import paint_catalogue as service
 
 
 @frappe.whitelist()
-def catalogue() -> dict:
-	"""Все цвета по системам: склад, ходовые, топ, тренды."""
-	return service.catalogue()
+def catalogue(customer: str | None = None) -> dict:
+	"""Все цвета по системам: склад, ходовые, топ, тренды; что красил клиент."""
+	return service.catalogue(customer)
+
+
+@frappe.whitelist(methods=["POST"])
+def pick(value: str, system: str | None = None) -> dict:
+	"""Цвет выбран в заказ — в работу, если ещё не там."""
+	return service.pick(value, system)
 
 
 @frappe.whitelist(methods=["POST"])

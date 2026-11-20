@@ -7,6 +7,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/paint_catalogue/data/paint_catalogue_repository.dart';
 import 'package:korkem_flow/features/paint_catalogue/domain/paint_catalogue.dart';
 import 'package:korkem_flow/features/paint_catalogue/presentation/paint_catalogue_screen.dart';
+import 'package:korkem_flow/features/paint_catalogue/presentation/paint_picker.dart';
 import 'package:korkem_flow/features/paint_catalogue/presentation/paint_swap_view.dart';
 
 import '../../support/widget_harness.dart';
@@ -64,16 +65,26 @@ class _Fake implements PaintCatalogueRepository {
   final proposed = <(String, String, PaintSwapWay, String?)>[];
   final agreed = <(String, String)>[];
 
+  final picked = <String>[];
+
   @override
-  Future<PaintCatalogue> catalogue() async => PaintCatalogue.fromJson(const {
-    'systems': [
-      {'name': 'RAL Classic', 'count': 3},
-      {'name': 'По образцу', 'count': 1},
-    ],
-    'families': ['Белые и чёрные', 'Зелёные'],
-    'colours': [_white, _sage, _reseda, _own],
-    'can_edit': true,
-  });
+  Future<String> pick(String value, {String? system}) async {
+    picked.add(value);
+    return value;
+  }
+
+  @override
+  Future<PaintCatalogue> catalogue({String? customer}) async =>
+      PaintCatalogue.fromJson(const {
+        'customer': ['ral6021'],
+        'systems': [
+          {'name': 'RAL Classic', 'count': 3},
+          {'name': 'По образцу', 'count': 1},
+        ],
+        'families': ['Белые и чёрные', 'Зелёные'],
+        'colours': [_white, _sage, _reseda, _own],
+        'can_edit': true,
+      });
 
   @override
   Future<String> take(String value, {String? system}) async {
@@ -226,6 +237,57 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('pcTake')));
     await tester.pumpAndSettle();
     expect(repo.taken, ['RAL 6021 Бледно-зелёный']);
+  });
+
+  testWidgets("the order's paint window: his colours first, picked as shades", (
+    tester,
+  ) async {
+    String? got;
+    MdfGloss? gloss;
+    final repo = await _pump(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () async => got = await showPaintPicker(
+              context,
+              customer: 'C-1',
+              needM2: 100,
+              onGloss: (g) => gloss = g,
+            ),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    // What this customer painted before, on top.
+    expect(find.byKey(const ValueKey('ppColour:theirs:ral6021')), findsOne);
+    // On the shelf, but not enough for the order: it says so.
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('ppColour:all:ral9010')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ppColour:all:ral9010')));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('ppPicked'))).data,
+      'RAL 9010 Чисто-белый',
+    );
+    expect(find.textContaining('not enough'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('ppGloss:matt')));
+    // A colour not in work yet is put there on the way.
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('ppColour:theirs:ral6021')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ppColour:theirs:ral6021')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ppChoose')));
+    await tester.pumpAndSettle();
+    expect(repo.picked, ['RAL 6021 Бледно-зелёный']);
+    expect((got, gloss), ('RAL 6021 Бледно-зелёный', MdfGloss.matt));
   });
 
   testWidgets('a colour of our own is added with its shade', (tester) async {
