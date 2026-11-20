@@ -437,7 +437,11 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('customerSearch')), '');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const ValueKey('customerDelete:C-1')));
+    // Delete is inside the edit, not beside the name (owner, 20.11.2026).
+    expect(find.byKey(const ValueKey('customerDelete:C-1')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('customerEdit:C-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('customerDelete')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('customerDeleteYes')));
     await tester.pumpAndSettle();
@@ -447,4 +451,155 @@ void main() {
     await tester.pumpAndSettle();
     expect(chosen?.name, 'C-2');
   });
+
+  testWidgets(
+    'the customer window: his last order, debt, filters, repeat, add typed',
+    (tester) async {
+      tester.view
+        ..physicalSize = const Size(1400, 1000)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final repo = _FakeRepository();
+      repo.customers
+        ..clear()
+        ..addAll(const [
+          FacadeCustomer(
+            name: 'C-1',
+            title: 'Елдос Жупанов',
+            phone: '+7 (777) 777-77-77',
+            tags: ['vip'],
+            orders: 14,
+            debt: 120000,
+            inWork: 2,
+            lastOrder: 'SO-9',
+            lastOn: '2026-11-12',
+            lastGroups: [(coating: 'pvc', film: 'Палома')],
+            lastMillings: ['Модерн'],
+            objects: ['Кухня, Абая 10'],
+            orderNames: ['SO-9', 'SO-3'],
+          ),
+          FacadeCustomer(
+            name: 'C-2',
+            title: 'Олжас',
+            phone: '+7 (778) 412-47-77',
+            orders: 1,
+            lastOrder: 'SO-1',
+            lastOn: '2025-12-01',
+          ),
+          FacadeCustomer(name: 'C-3', title: 'Айгерим'),
+        ]);
+      MdfCustomerChoice? chosen;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+          child: harness(
+            Builder(
+              builder: (context) => TextButton(
+                onPressed: () async => chosen = await showMdfCustomerChoice(
+                  context,
+                  repeat: true,
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      // The latest buyer first; what he had, what he owes, what is in work.
+      expect(
+        tester.getTopLeft(find.byKey(const ValueKey('customer:C-1'))).dy,
+        lessThan(
+          tester.getTopLeft(find.byKey(const ValueKey('customer:C-2'))).dy,
+        ),
+      );
+      expect(
+        find.textContaining('PVC Палома, Модерн · orders: 14'),
+        findsOne,
+      );
+      expect(find.byKey(const ValueKey('customerDebt:C-1')), findsOne);
+      expect(find.byKey(const ValueKey('customerWork:C-1')), findsOne);
+      expect(find.byKey(const ValueKey('customerRepeat:C-3')), findsNothing);
+      // The filters.
+      for (final (show, left) in [
+        ('debt', ['C-1']),
+        ('vip', ['C-1']),
+        ('work', ['C-1']),
+        ('idle', ['C-2']),
+      ]) {
+        await tester.tap(find.byKey(ValueKey('customerShow:$show')));
+        await tester.pumpAndSettle();
+        for (final c in ['C-1', 'C-2', 'C-3']) {
+          expect(
+            find.byKey(ValueKey('customer:$c')),
+            left.contains(c) ? findsOne : findsNothing,
+            reason: '$show: $c',
+          );
+        }
+      }
+      await tester.tap(find.byKey(const ValueKey('customerShow:recent')));
+      // Found by his object and by an order's number.
+      await tester.enterText(
+        find.byKey(const ValueKey('customerSearch')),
+        'абая',
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('customer:C-1')), findsOne);
+      expect(find.byKey(const ValueKey('customer:C-2')), findsNothing);
+      await tester.enterText(
+        find.byKey(const ValueKey('customerSearch')),
+        'SO-3',
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('customer:C-1')), findsOne);
+      // Nobody: added from what was typed, his phone already read.
+      await tester.enterText(
+        find.byKey(const ValueKey('customerSearch')),
+        'Айдос 701 555 12 34',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('customerAddTyped')));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const ValueKey('customerName')))
+            .controller!
+            .text,
+        'Айдос',
+      );
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const ValueKey('customerPhone')))
+            .controller!
+            .text,
+        contains('701'),
+      );
+      await tester.tap(find.byKey(const ValueKey('customerSave')));
+      await tester.pumpAndSettle();
+      expect(chosen?.customer.title, 'Айдос');
+      expect(chosen?.repeat, isFalse);
+      // Again: the same phone is the same person — he is offered instead.
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('customerAdd')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const ValueKey('customerName')), 'Е.');
+      await tester.enterText(
+        find.byKey(const ValueKey('customerPhone')),
+        '87777777777',
+      );
+      await tester.tap(find.byKey(const ValueKey('customerSave')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('customerSameTake')));
+      await tester.pumpAndSettle();
+      expect(chosen?.customer.name, 'C-1');
+      // «Повторить прошлый».
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('customerRepeat:C-1')));
+      await tester.pumpAndSettle();
+      expect((chosen?.customer.name, chosen?.repeat), ('C-1', true));
+    },
+  );
 }

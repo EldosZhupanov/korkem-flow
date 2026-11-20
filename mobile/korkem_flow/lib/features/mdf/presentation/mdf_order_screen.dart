@@ -482,6 +482,58 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     }
   }
 
+  /// «Повторить прошлый» (owner, 20.11.2026): the customer's last order's
+  /// coatings — each with its colour, milling, edge, board and finish — and
+  /// its object, one empty row a coating for the sizes. On a form already
+  /// holding sizes, its coatings are added beside them; nothing typed is
+  /// lost.
+  Future<void> _repeatFrom(String order) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final o = await ref.read(mdfOrderRepositoryProvider).card(order);
+      if (!mounted) return;
+      setState(() {
+        if (_lines.every((l) => l.input() == null)) {
+          for (final l in _lines) {
+            l.dispose();
+          }
+          _lines.clear();
+          _films.clear();
+        }
+        if (_extra.text.trim().isEmpty) _extra.text = o.head.extraName ?? '';
+        for (final l in o.lines) {
+          final g = (coating: l.coating ?? MdfCoating.pvc, film: l.film);
+          if (_films.contains(g)) continue;
+          _films.add(g);
+          _lines.add(
+            _LineFields(
+              milling: l.milling,
+              film: l.film,
+              coating: g.coating,
+              filmBack: l.filmBack,
+              material: l.material == _head.material ? null : l.material,
+              thicknessMm: l.thicknessMm == _head.thicknessMm
+                  ? null
+                  : l.thicknessMm,
+              edge: l.edge ?? o.head.edgeProfile ?? _defaultEdge,
+              patina: l.patina,
+              clientPaint: l.clientPaint,
+              clientFilm: l.clientFilm,
+              clientMdf: l.clientMdf,
+              gloss: l.gloss,
+            ),
+          );
+        }
+        if (_films.isEmpty) _films.add(_noGroup);
+        if (_lines.isEmpty) _lines.add(_blank(_films.first));
+      });
+      _reprice();
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    }
+  }
+
   Future<void> _paste() async {
     final l10n = AppLocalizations.of(context);
     final pasted = await showDialog<SizePaste>(
@@ -1248,12 +1300,16 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       tooltip: l10n.mdfCustomers,
                       icon: const Icon(AppIcons.dictionary),
                       onPressed: () async {
-                        final picked = await showMdfCustomers(
+                        final picked = await showMdfCustomerChoice(
                           context,
                           current: _customer?.name,
+                          repeat: widget.order == null,
                         );
-                        if (picked != null && mounted) {
-                          setState(() => _customer = picked);
+                        if (picked == null || !mounted) return;
+                        setState(() => _customer = picked.customer);
+                        final last = picked.customer.lastOrder;
+                        if (picked.repeat && last != null) {
+                          unawaited(_repeatFrom(last));
                         }
                       },
                     ),
