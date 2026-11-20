@@ -239,7 +239,7 @@ void main() {
     expect(repo.taken, ['RAL 6021 Бледно-зелёный']);
   });
 
-  testWidgets('the order\'s paint window: his colours first, picked as shades', (
+  testWidgets("the order's paint window: his colours first, picked as shades", (
     tester,
   ) async {
     String? got;
@@ -268,14 +268,20 @@ void main() {
     await tester.ensureVisible(
       find.byKey(const ValueKey('ppColour:all:ral9010')),
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ppColour:all:ral9010')));
     await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('ppPicked'))).data,
+      'RAL 9010 Чисто-белый',
+    );
     expect(find.textContaining('not enough'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('ppGloss:matt')));
     // A colour not in work yet is put there on the way.
     await tester.ensureVisible(
       find.byKey(const ValueKey('ppColour:theirs:ral6021')),
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ppColour:theirs:ral6021')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ppChoose')));
