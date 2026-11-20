@@ -127,7 +127,7 @@ int _argb(double r, double g, double b) =>
 /// [c] lit by [k]: below 1 towards the shadow, above 1 towards a highlight.
 int _lit(Color c, double k) {
   if (k <= 1) return _argb(c.r * k, c.g * k, c.b * k);
-  final t = min(1.0, (k - 1) * 1.5);
+  final t = min<double>(1, (k - 1) * 1.5);
   return _argb(c.r + (1 - c.r) * t, c.g + (1 - c.g) * t, c.b + (1 - c.b) * t);
 }
 
@@ -148,7 +148,7 @@ Int32List cncShade(CncRelief r, Color colour) {
       final gx = (r.at(i + 1, j) - r.at(i - 1, j)) / (2 * r.step);
       final gy = (r.at(i, j + 1) - r.at(i, j - 1)) / (2 * r.step);
       final nl = sqrt(gx * gx + gy * gy + 1);
-      final ndl = max(0.0, (gx * lx + gy * ly + lz) / (nl * ll));
+      final ndl = max<double>(0, (gx * lx + gy * ly + lz) / (nl * ll));
       var k = (ambient + (1 - ambient) * ndl) / flat;
       k *= 1 - min(0.15, 0.02 * r.at(i, j));
       out[j * (r.cols + 1) + i] = _lit(colour, k);

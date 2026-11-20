@@ -1,5 +1,3 @@
-import 'dart:ui' show Offset;
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/cnc_patterns/domain/cnc_patterns.dart';
 import 'package:korkem_flow/features/cnc_patterns/domain/cnc_relief.dart';

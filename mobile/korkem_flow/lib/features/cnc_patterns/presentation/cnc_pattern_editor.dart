@@ -67,7 +67,7 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
   double _t = 16;
 
   /// From above (the router's drawing) or in 3D (owner, 20.11.2026).
-  bool _3d = false;
+  bool _inThreeD = false;
   CncPreview? _preview;
   CncRelief? _relief;
   CncSection? _section;
@@ -484,20 +484,20 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
               ChoiceChip(
                 key: const ValueKey('cncViewTop'),
                 label: Text(l10n.cncpViewTop),
-                selected: !_3d,
-                onSelected: (_) => setState(() => _3d = false),
+                selected: !_inThreeD,
+                onSelected: (_) => setState(() => _inThreeD = false),
               ),
               ChoiceChip(
                 key: const ValueKey('cncView3d'),
                 label: Text(l10n.cncpView3d),
-                selected: _3d,
-                onSelected: (_) => setState(() => _3d = true),
+                selected: _inThreeD,
+                onSelected: (_) => setState(() => _inThreeD = true),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
           Expanded(
-            child: _3d && _relief != null
+            child: _inThreeD && _relief != null
                 ? CncFacade3d(
                     key: const ValueKey('cnc3d'),
                     relief: _relief!,

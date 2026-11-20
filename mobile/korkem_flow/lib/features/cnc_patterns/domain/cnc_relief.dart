@@ -18,9 +18,9 @@ double cncCutAt(CncTool? tool, double depth, double width, double d) {
   switch (tool?.kind) {
     case CncToolKind.v:
       final slope = tan(tool!.angle.clamp(10, 170) * pi / 360);
-      return max(0.0, depth - d / slope);
+      return max<double>(0, depth - d / slope);
     case CncToolKind.ball:
-      return max(0.0, depth - r + sqrt(r * r - d * d));
+      return max<double>(0, depth - r + sqrt(r * r - d * d));
     case CncToolKind.flat:
     case null:
       return depth;
@@ -90,8 +90,8 @@ class CncRelief {
     required Map<String, CncTool> tools,
     int nodes = 50000,
   }) {
-    final w = max(1.0, width);
-    final h = max(1.0, height);
+    final w = max<double>(1, width);
+    final h = max<double>(1, height);
     final step = max(0.8, sqrt(w * h / nodes));
     final cols = max(1, (w / step).ceil());
     final rows = max(1, (h / step).ceil());
