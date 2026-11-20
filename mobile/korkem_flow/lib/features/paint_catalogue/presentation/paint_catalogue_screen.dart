@@ -281,6 +281,14 @@ class _PaintCatalogueScreenState extends ConsumerState<PaintCatalogueScreen> {
   }
 }
 
+/// «+ Свой цвет» — the catalogue's own window, from anywhere: true when a
+/// colour was added.
+Future<bool?> showPaintColourAdd(BuildContext context, PaintCatalogue c) =>
+    showDialog<bool>(
+      context: context,
+      builder: (_) => _ColourDialog(catalogue: c),
+    );
+
 /// A colour's card: its shade, its code and name, what is on the shelf and
 /// how much of it was painted.
 class PaintCard extends StatelessWidget {

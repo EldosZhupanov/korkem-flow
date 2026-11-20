@@ -160,6 +160,12 @@ class TestPaintCatalogue(IntegrationTestCase):
 		tops = frappe.get_all("Sales Order Item", filters={"parent": name}, pluck="korkem_decor_top")
 		self.assertTrue(all(paint_catalogue.key(t) == paint_catalogue.key("RAL 6011") for t in tops))
 		self._as(MANAGER, mdf_paint.start_drying, name)
+		# The order's paint window: what this customer had painted before.
+		mine = self._as(SALES, paint_catalogue.catalogue, self.customer)["customer"]
+		self.assertEqual(mine[0], paint_catalogue.key("RAL 6011"))
+		# A colour picked for an order goes into work, for an order-taker too.
+		got = self._as(SALES, paint_catalogue.pick, "RAL 5014 Голубиный")
+		self.assertTrue(got["value"].startswith("RAL 5014"))
 		with self.assertRaises(frappe.ValidationError):  # agreed — cannot be taken back here
 			self._as(MANAGER, paint_swap.cancel, name, colour)
 

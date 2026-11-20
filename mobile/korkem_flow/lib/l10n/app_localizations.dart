@@ -19336,6 +19336,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Film — a metre. Written on the material\'s card.'**
   String get mdfMarginPriceHint;
+
+  /// No description provided for @ppOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'A colour of our own'**
+  String get ppOwn;
+
+  /// No description provided for @ppTheirs.
+  ///
+  /// In en, this message translates to:
+  /// **'This customer painted before'**
+  String get ppTheirs;
+
+  /// No description provided for @ppEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'enough for ≈ {enough} m² · the order needs {need} m²'**
+  String ppEnough(String enough, String need);
+
+  /// No description provided for @ppShort.
+  ///
+  /// In en, this message translates to:
+  /// **'not enough: the shelf paints ≈ {enough} m², the order needs {need} m² — order paint or «Замена цвета»'**
+  String ppShort(String enough, String need);
+
+  /// No description provided for @ppPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a colour — tap its card'**
+  String get ppPickHint;
+
+  /// No description provided for @ppChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get ppChoose;
 }
 
 class _AppLocalizationsDelegate

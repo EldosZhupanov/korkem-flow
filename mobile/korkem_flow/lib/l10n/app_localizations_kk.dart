@@ -11260,4 +11260,26 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get mdfMarginPriceHint =>
       'Пленка — метріне. Материал карточкасына жазылады.';
+
+  @override
+  String get ppOwn => 'Өз түсі';
+
+  @override
+  String get ppTheirs => 'Бұл клиент бұрын бояған';
+
+  @override
+  String ppEnough(String enough, String need) {
+    return '≈ $enough м²-ге жетеді · тапсырыста $need м²';
+  }
+
+  @override
+  String ppShort(String enough, String need) {
+    return 'жетпейді: қоймада ≈ $enough м²-ге, тапсырыста $need м² — бояу тапсырыңыз немесе «Түсті ауыстыру»';
+  }
+
+  @override
+  String get ppPickHint => 'Түсті таңдаңыз — карточканы басыңыз';
+
+  @override
+  String get ppChoose => 'Таңдау';
 }
