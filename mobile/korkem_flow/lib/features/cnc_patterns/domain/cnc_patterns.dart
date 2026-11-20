@@ -319,11 +319,13 @@ class CncCut {
     required this.width,
     required this.closed,
     required this.points,
+    this.depth = 0,
   });
 
   factory CncCut.fromJson(Map<String, dynamic> j) => CncCut(
     tool: '${j['tool'] ?? ''}',
     width: _d(j['width']),
+    depth: _d(j['depth']),
     closed: j['closed'] == true,
     points: [
       for (final p in j['points'] is List ? j['points'] as List : const [])
@@ -333,6 +335,9 @@ class CncCut {
 
   final String tool;
   final double width;
+
+  /// How deep below the face, mm; 0 when the server did not say.
+  final double depth;
   final bool closed;
   final List<Offset> points;
 }

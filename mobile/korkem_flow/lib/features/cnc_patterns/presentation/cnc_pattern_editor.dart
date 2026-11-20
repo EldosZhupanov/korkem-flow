@@ -10,7 +10,9 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/features/cnc_patterns/data/cnc_patterns_repository.dart';
 import 'package:korkem_flow/features/cnc_patterns/domain/cnc_patterns.dart';
+import 'package:korkem_flow/features/cnc_patterns/domain/cnc_relief.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_facade_view.dart';
+import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_relief_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Numbers typed with a comma or a dot.
@@ -59,7 +61,16 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
       );
   double _w = 500;
   double _h = 700;
+
+  /// The board the pattern is tried on, mm — what is left under the
+  /// deepest cut is read against it.
+  double _t = 16;
+
+  /// From above (the router's drawing) or in 3D (owner, 20.11.2026).
+  bool _3d = false;
   CncPreview? _preview;
+  CncRelief? _relief;
+  CncSection? _section;
   Object? _error;
   bool _loading = false;
   bool _busy = false;
@@ -133,8 +144,22 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
           .read(cncPatternsRepositoryProvider)
           .preview(_p, width: _w, height: _h);
       if (!mounted || asked != _asked) return;
+      final cuts = got.error == null ? got.cuts : const <CncCut>[];
+      final tools = {for (final t in widget.status.tools) t.name: t};
       setState(() {
         _preview = got;
+        _relief = CncRelief.of(
+          width: _w,
+          height: _h,
+          cuts: cuts,
+          tools: tools,
+        );
+        _section = CncSection.of(
+          width: _w,
+          height: _h,
+          cuts: cuts,
+          tools: tools,
+        );
         _error = null;
         _loading = false;
       });
@@ -438,18 +463,55 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
                   },
                 ),
               ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: _NumField(
+                  keyName: 'cncTryT',
+                  label: l10n.cncpTryThickness,
+                  value: _t,
+                  onChanged: (v) {
+                    if (v < 3 || v > 60) return;
+                    setState(() => _t = v);
+                  },
+                ),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.xs,
+            children: [
+              ChoiceChip(
+                key: const ValueKey('cncViewTop'),
+                label: Text(l10n.cncpViewTop),
+                selected: !_3d,
+                onSelected: (_) => setState(() => _3d = false),
+              ),
+              ChoiceChip(
+                key: const ValueKey('cncView3d'),
+                label: Text(l10n.cncpView3d),
+                selected: _3d,
+                onSelected: (_) => setState(() => _3d = true),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
           Expanded(
-            child: CncFacadeView(
-              key: const ValueKey('cncFacade'),
-              width: _w,
-              height: _h,
-              cuts: p?.error == null ? p?.cuts ?? const [] : const [],
-            ),
+            child: _3d && _relief != null
+                ? CncFacade3d(
+                    key: const ValueKey('cnc3d'),
+                    relief: _relief!,
+                    thickness: _t,
+                  )
+                : CncFacadeView(
+                    key: const ValueKey('cncFacade'),
+                    width: _w,
+                    height: _h,
+                    cuts: p?.error == null ? p?.cuts ?? const [] : const [],
+                  ),
           ),
           const SizedBox(height: AppSpacing.sm),
+          if (_section case final section?) ..._sectionPart(section, l10n),
           if (_loading) const LinearProgressIndicator(),
           if (_error != null)
             Text(
@@ -504,6 +566,55 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
     );
   }
 }
+
+extension on _CncPatternEditorState {
+  /// The yellow profile and what it says: where the pattern lies, how deep
+  /// it goes, what is left of the board — and a warning when too little.
+  List<Widget> _sectionPart(CncSection section, AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final status = context.statusColors;
+    final span = section.span;
+    final deepest = section.deepest;
+    final left = _t - deepest;
+    return [
+      Text(l10n.cncpSection, style: theme.textTheme.labelLarge),
+      const SizedBox(height: AppSpacing.xs),
+      CncSectionView(
+        key: const ValueKey('cncSection'),
+        section: section,
+        thickness: _t,
+      ),
+      const SizedBox(height: AppSpacing.xs),
+      Text(
+        span == null
+            ? l10n.cncpSectionNone
+            : l10n.cncpSectionStats(
+                cncFmt(_round(span.$1)),
+                cncFmt(_round(span.$2)),
+                cncFmt(_round(deepest)),
+                cncFmt(_round(left)),
+              ),
+        key: const ValueKey('cncSectionStats'),
+        style: theme.textTheme.bodySmall,
+      ),
+      if (left <= 0)
+        Text(
+          l10n.cncpThrough(cncFmt(_round(deepest)), cncFmt(_t)),
+          key: const ValueKey('cncThrough'),
+          style: TextStyle(color: status.danger),
+        )
+      else if (span != null && left < _t / 3)
+        Text(
+          l10n.cncpThin(cncFmt(_round(left))),
+          key: const ValueKey('cncThin'),
+          style: TextStyle(color: status.warning),
+        ),
+      const SizedBox(height: AppSpacing.sm),
+    ];
+  }
+}
+
+double _round(double v) => (v * 10).roundToDouble() / 10;
 
 class _NumField extends StatelessWidget {
   const _NumField({

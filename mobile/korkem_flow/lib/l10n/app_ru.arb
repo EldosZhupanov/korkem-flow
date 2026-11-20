@@ -3418,5 +3418,17 @@
   "ppEnough": "хватит на ≈ {enough} м² · в заказе {need} м²",
   "ppShort": "не хватит: на складе на ≈ {enough} м², в заказе {need} м² — закажите краску или «Замена цвета»",
   "ppPickHint": "Выберите цвет — нажмите на карточку",
-  "ppChoose": "Выбрать"
+  "ppChoose": "Выбрать",
+  "cncpTryThickness": "толщина, мм",
+  "cncpViewTop": "Сверху",
+  "cncpView3d": "3D",
+  "cncp3dFront": "Спереди",
+  "cncp3dSide": "Сбоку",
+  "cncp3dTilt": "Наклон",
+  "cncp3dHint": "Крутите мышью или пальцем",
+  "cncpSection": "Разрез от края к середине · 1:1",
+  "cncpSectionStats": "узор {from}–{to} мм от края · глубже всего {deepest} мм · остаётся {left} мм",
+  "cncpSectionNone": "На середине высоты фреза не проходит",
+  "cncpThrough": "Насквозь: фреза уходит на {deepest} мм при толщине {thickness} мм",
+  "cncpThin": "Остаётся мало материала: {left} мм"
 }
