@@ -38,10 +38,13 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_hand_over.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_margin_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_quick_colours.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_recipe_view.dart';
 import 'package:korkem_flow/features/offcuts/presentation/offcuts_screen.dart';
+import 'package:korkem_flow/features/paint_catalogue/data/paint_catalogue_repository.dart';
+import 'package:korkem_flow/features/paint_catalogue/domain/paint_catalogue.dart';
 import 'package:korkem_flow/features/paint_catalogue/presentation/paint_picker.dart';
 import 'package:korkem_flow/features/paint_catalogue/presentation/paint_swap_view.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
@@ -735,45 +738,40 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     _reprice();
   }
 
-  /// «+ Добавить покрытие»: the type first — ПВХ, краска, черновой — then a
-  /// colour from that type's own list, so they never mix (09.11.2026).
-  Future<void> _addFilm() async {
+  /// A colour from the type's own list, so they never mix (09.11.2026);
+  /// null when the window was closed. A raw facade has none.
+  Future<({String? film})?> _colourOf(MdfCoating coating) async {
     final l10n = AppLocalizations.of(context);
-    final coating = await showDialog<MdfCoating>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(l10n.mdfCoatingPick),
-        children: [
-          for (final c in MdfCoating.values)
-            SimpleDialogOption(
-              key: ValueKey('mdfCoating:${c.name}'),
-              onPressed: () => Navigator.of(context).pop(c),
-              child: Text(mdfCoatingLabel(c, l10n)),
-            ),
-        ],
-      ),
-    );
-    if (coating == null || !mounted) return;
     final kind = mdfCoatingList(coating);
     String? film;
     if (coating == MdfCoating.pvc) {
       // A film comes from the catalogue: maker, collection, film (owner,
       // 11.11.2026 — the old colour list is no longer picked from).
       film = await showFilmPicker(context, customer: _customer?.name);
-      if (film == null || !mounted) return;
+      if (film == null) return null;
     } else if (coating == MdfCoating.paint) {
       // A paint as its shade, like a film (owner, 20.11.2026).
       film = await showPaintPicker(context, customer: _customer?.name);
-      if (film == null || !mounted) return;
+      if (film == null) return null;
     } else if (kind != null) {
       film = await showMdfDictionary(
         context,
         kind,
         title: mdfCoatingLabel(coating, l10n),
       );
-      if (film == null || !mounted) return;
+      if (film == null) return null;
     }
-    final group = (coating: coating, film: film);
+    return (film: film);
+  }
+
+  /// «+ ПВХ», «+ Краска», «+ Черновой» (owner, 20.11.2026): the type in one
+  /// press, then its colour — or the colour already, from the quick ones.
+  /// The new group's first row takes milling, edge, thickness and board from
+  /// the row above it.
+  Future<void> _addFilm(MdfCoating coating, {String? film}) async {
+    final picked = film != null ? (film: film) : await _colourOf(coating);
+    if (picked == null || !mounted) return;
+    final group = (coating: coating, film: picked.film);
     if (_films.contains(group)) {
       _addLine(group: group);
       return;
@@ -789,11 +787,59 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
         for (final l in _lines) {
           l
             ..coating = coating
-            ..film = film;
+            ..film = picked.film;
         }
       } else {
         _films.add(group);
         _lines.add(_blank(group));
+      }
+    });
+    _reprice();
+  }
+
+  /// A quick paint: on the «Краска» list first when it is not yet there.
+  Future<void> _addQuickPaint(PaintColour p) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final value = p.onList
+          ? p.value
+          : await ref
+                .read(paintCatalogueRepositoryProvider)
+                .pick(p.value, system: p.system);
+      if (!mounted) return;
+      await _addFilm(MdfCoating.paint, film: value);
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    }
+  }
+
+  /// «Копия в другом цвете» (owner, 20.11.2026): the same positions — sizes,
+  /// counts, millings — under another coating, for a kitchen in two colours
+  /// or two looks to choose from. The price comes from the new coating's
+  /// list; the customer's-own marks, the finish and a back film stay behind.
+  Future<void> _copyGroup(_Group from, MdfCoating to) async {
+    final picked = await _colourOf(to);
+    if (picked == null || !mounted) return;
+    final group = (coating: to, film: picked.film);
+    if (group == from) return;
+    final source = [
+      for (final l in _lines)
+        if (l.group == from) l,
+    ];
+    setState(() {
+      if (!_films.contains(group)) _films.add(group);
+      for (final l in source) {
+        _lines.add(
+          l.copy()
+            ..coating = to
+            ..film = picked.film
+            ..clientPaint = false
+            ..clientFilm = false
+            ..gloss = null
+            ..drop(_Extra.back)
+            ..rate.clear(),
+        );
       }
     });
     _reprice();
@@ -1316,6 +1362,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       onType: (to) => _setType(group, to),
                       onRateChanged: _reprice,
                       onRemove: () => _removeFilm(group),
+                      onCopy: (to) => unawaited(_copyGroup(group, to)),
                       onAddLine: () => _addLine(group: group),
                       tags: [
                         if (_owns(group).paint) MdfOrderTag.clientPaint,
@@ -1365,14 +1412,26 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                       ],
                     );
                   }(),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton.icon(
-                    key: const ValueKey('mdfAddFilm'),
-                    onPressed: _addFilm,
-                    icon: const Icon(AppIcons.add),
-                    label: Text(l10n.mdfAddFilm),
-                  ),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.xs,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(l10n.mdfAddCoating),
+                    for (final c in MdfCoating.values)
+                      OutlinedButton.icon(
+                        key: ValueKey('mdfAdd:${c.name}'),
+                        onPressed: () => unawaited(_addFilm(c)),
+                        icon: const Icon(AppIcons.add),
+                        label: Text(mdfCoatingLabel(c, l10n)),
+                      ),
+                    MdfQuickColours(
+                      customer: _customer?.name,
+                      onFilm: (f) =>
+                          unawaited(_addFilm(MdfCoating.pvc, film: f)),
+                      onPaint: (p) => unawaited(_addQuickPaint(p)),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1562,6 +1621,7 @@ class _FilmGroup extends StatelessWidget {
     required this.onRemove,
     required this.onAddLine,
     required this.children,
+    this.onCopy,
     this.tags = const [],
     this.onTag,
     this.gloss,
@@ -1596,6 +1656,9 @@ class _FilmGroup extends StatelessWidget {
   final VoidCallback onRemove;
   final VoidCallback onAddLine;
   final List<Widget> children;
+
+  /// «Копия в другом цвете»: its positions under the coating picked.
+  final ValueChanged<MdfCoating>? onCopy;
 
   /// This group's marks: the customer's own paint (a paint group) or film
   /// (a PVC group), and his own LMDF (any group).
@@ -1932,6 +1995,35 @@ class _FilmGroup extends StatelessWidget {
                     key: ValueKey('mdfFilmTotals:$index'),
                     style: theme.textTheme.titleSmall?.copyWith(color: color),
                   ),
+                  if (onCopy != null)
+                    PopupMenuButton<MdfCoating>(
+                      key: ValueKey('mdfGroupCopy:$index'),
+                      tooltip: l10n.mdfGroupCopy,
+                      onSelected: onCopy,
+                      itemBuilder: (context) => [
+                        for (final c in MdfCoating.values)
+                          PopupMenuItem(
+                            key: ValueKey('mdfCopyTo:${c.name}'),
+                            value: c,
+                            child: Text(
+                              l10n.mdfGroupCopyTo(mdfCoatingLabel(c, l10n)),
+                            ),
+                          ),
+                      ],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(AppIcons.copy),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(l10n.mdfGroupCopy),
+                          ],
+                        ),
+                      ),
+                    ),
                   IconButton(
                     key: ValueKey('mdfFilmRemove:$index'),
                     tooltip: l10n.mdfFilmRemove,
