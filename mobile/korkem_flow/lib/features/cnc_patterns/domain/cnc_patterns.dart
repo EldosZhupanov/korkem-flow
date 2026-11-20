@@ -66,7 +66,10 @@ class CncTool {
 enum CncElementKind {
   frame('frame'),
   arch('arch'),
-  grooves('grooves');
+  grooves('grooves'),
+
+  /// A sunken panel, cleared to one depth (ArtCAM's «2D-выборка»).
+  pocket('pocket');
 
   const CncElementKind(this.wire);
 
@@ -171,6 +174,7 @@ class CncElement {
         'radius': corner == CncCorner.square ? 0 : radius,
       },
       CncElementKind.arch => {'offset': offset, 'rise': rise},
+      CncElementKind.pocket => {'offset': offset},
       CncElementKind.grooves => {
         'direction': vertical ? 'vertical' : 'horizontal',
         'step': step,

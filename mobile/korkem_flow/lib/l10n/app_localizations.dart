@@ -19547,29 +19547,41 @@ abstract class AppLocalizations {
   /// **'The catalogue did not load'**
   String get ctoNoCatalogue;
 
-  /// No description provided for @mdfAddCoating.
+  /// No description provided for @cncpKindPocket.
   ///
   /// In en, this message translates to:
-  /// **'Add a coating:'**
-  String get mdfAddCoating;
+  /// **'Pocket'**
+  String get cncpKindPocket;
 
-  /// No description provided for @mdfQuickColours.
+  /// No description provided for @cncpLinePocket.
   ///
   /// In en, this message translates to:
-  /// **'or a colour at once:'**
-  String get mdfQuickColours;
+  /// **'Pocket, {offset} mm in'**
+  String cncpLinePocket(String offset);
 
-  /// No description provided for @mdfGroupCopy.
+  /// No description provided for @cncpPocketHint.
   ///
   /// In en, this message translates to:
-  /// **'Copy in another colour'**
-  String get mdfGroupCopy;
+  /// **'Everything inside is cut to one depth — with a straight or ball-nose cutter'**
+  String get cncpPocketHint;
 
-  /// No description provided for @mdfGroupCopyTo.
+  /// No description provided for @cncpRidge.
   ///
   /// In en, this message translates to:
-  /// **'Copy → {coating}'**
-  String mdfGroupCopyTo(String coating);
+  /// **'A {height} mm ridge {at} mm from the edge — the passes do not meet: move one or take a wider cutter'**
+  String cncpRidge(String height, String at);
+
+  /// No description provided for @cncpWall.
+  ///
+  /// In en, this message translates to:
+  /// **'A {width} mm wall {at} mm from the edge — it may break off'**
+  String cncpWall(String width, String at);
+
+  /// No description provided for @cncpSimulate.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulation: the cutter\'s run'**
+  String get cncpSimulate;
 }
 
 class _AppLocalizationsDelegate

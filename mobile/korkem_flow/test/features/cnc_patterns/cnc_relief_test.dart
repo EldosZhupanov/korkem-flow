@@ -81,4 +81,34 @@ void main() {
     expect(r.at(i, j), greaterThan(2));
     expect(r.at((250 / r.step).round(), j), 0);
   });
+
+  CncCut line(double x) => CncCut(
+    tool: 'V90',
+    width: 8,
+    depth: 4,
+    closed: false,
+    points: [Offset(x, 0), Offset(x, 700)],
+  );
+
+  CncSection across(List<CncCut> cuts) => CncSection.of(
+    width: 500,
+    height: 700,
+    cuts: cuts,
+    tools: const {'V90': v90},
+  );
+
+  test('two passes that do not meet leave a ridge; too far, a thin wall', () {
+    // 6 apart with 8-wide wedges: they meet 3 below the face — a 3 mm ridge.
+    final ridge = across([line(60), line(66)]).flaws().single;
+    expect(ridge.wall, isFalse);
+    expect(ridge.size, closeTo(3, 0.1));
+    expect(ridge.at, closeTo(63, 0.3));
+    // 10 apart: 2 mm of board left standing between them.
+    final wall = across([line(60), line(70)]).flaws().single;
+    expect(wall.wall, isTrue);
+    expect(wall.size, closeTo(2, 0.3));
+    // Far apart, or one wedge alone: nothing to say.
+    expect(across([line(60), line(90)]).flaws(), isEmpty);
+    expect(across([line(60)]).flaws(), isEmpty);
+  });
 }

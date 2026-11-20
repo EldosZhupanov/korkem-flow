@@ -53,6 +53,11 @@ abstract final class AppDuration {
   /// The longest pause between two keys of a handheld scanner's burst: a
   /// person does not type an order's sticker this fast (owner, 18.11.2026).
   static const scanKeyGap = Duration(milliseconds: 60);
+
+  /// The cutter's whole run over a pattern in the simulation (owner,
+  /// 20.11.2026, ArtCAM's «Симуляция»): long enough to follow it pass by
+  /// pass, short enough to watch to the end.
+  static const cutterRun = Duration(seconds: 8);
 }
 
 /// How long the app waits on a person before acting.

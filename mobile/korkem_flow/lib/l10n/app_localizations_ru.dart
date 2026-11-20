@@ -11459,16 +11459,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ctoNoCatalogue => 'Каталог не загрузился';
 
   @override
-  String get mdfAddCoating => 'Добавить покрытие:';
+  String get cncpKindPocket => 'Выборка';
 
   @override
-  String get mdfQuickColours => 'или сразу цвет:';
-
-  @override
-  String get mdfGroupCopy => 'Копия в другом цвете';
-
-  @override
-  String mdfGroupCopyTo(String coating) {
-    return 'Копия → $coating';
+  String cncpLinePocket(String offset) {
+    return 'Выборка, отступ $offset мм';
   }
+
+  @override
+  String get cncpPocketHint =>
+      'Всё внутри режется на одну глубину — прямой или радиусной фрезой';
+
+  @override
+  String cncpRidge(String height, String at) {
+    return 'Гребень $height мм на $at мм от края — проходы не сходятся: сдвиньте один или возьмите фрезу шире';
+  }
+
+  @override
+  String cncpWall(String width, String at) {
+    return 'Тонкая стенка $width мм на $at мм от края — может отколоться';
+  }
+
+  @override
+  String get cncpSimulate => 'Симуляция: ход фрезы';
 }

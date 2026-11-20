@@ -11381,16 +11381,27 @@ class AppLocalizationsKk extends AppLocalizations {
   String get ctoNoCatalogue => 'Каталог жүктелмеді';
 
   @override
-  String get mdfAddCoating => 'Жабын қосу:';
+  String get cncpKindPocket => 'Ойма';
 
   @override
-  String get mdfQuickColours => 'не бірден түс:';
-
-  @override
-  String get mdfGroupCopy => 'Басқа түспен көшірме';
-
-  @override
-  String mdfGroupCopyTo(String coating) {
-    return 'Көшірме → $coating';
+  String cncpLinePocket(String offset) {
+    return 'Ойма, шегінісі $offset мм';
   }
+
+  @override
+  String get cncpPocketHint =>
+      'Ішіндегінің бәрі бір тереңдікке кесіледі — тік не радиусты фрезамен';
+
+  @override
+  String cncpRidge(String height, String at) {
+    return 'Шетінен $at мм жерде $height мм қырат — өтулер түйіспейді: бірін жылжытыңыз не кеңірек фреза алыңыз';
+  }
+
+  @override
+  String cncpWall(String width, String at) {
+    return 'Шетінен $at мм жерде $width мм жұқа қабырға — сынып кетуі мүмкін';
+  }
+
+  @override
+  String get cncpSimulate => 'Симуляция: фреза жүрісі';
 }
