@@ -19372,6 +19372,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose'**
   String get ppChoose;
+
+  /// No description provided for @cncpTryThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'thickness, mm'**
+  String get cncpTryThickness;
+
+  /// No description provided for @cncpViewTop.
+  ///
+  /// In en, this message translates to:
+  /// **'From above'**
+  String get cncpViewTop;
+
+  /// No description provided for @cncpView3d.
+  ///
+  /// In en, this message translates to:
+  /// **'3D'**
+  String get cncpView3d;
+
+  /// No description provided for @cncp3dFront.
+  ///
+  /// In en, this message translates to:
+  /// **'Front'**
+  String get cncp3dFront;
+
+  /// No description provided for @cncp3dSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Side'**
+  String get cncp3dSide;
+
+  /// No description provided for @cncp3dTilt.
+  ///
+  /// In en, this message translates to:
+  /// **'Tilted'**
+  String get cncp3dTilt;
+
+  /// No description provided for @cncp3dHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn it with the mouse or a finger'**
+  String get cncp3dHint;
+
+  /// No description provided for @cncpSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Section, edge to middle · 1:1'**
+  String get cncpSection;
+
+  /// No description provided for @cncpSectionStats.
+  ///
+  /// In en, this message translates to:
+  /// **'pattern {from}–{to} mm from the edge · deepest {deepest} mm · {left} mm left'**
+  String cncpSectionStats(String from, String to, String deepest, String left);
+
+  /// No description provided for @cncpSectionNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No cut at mid-height'**
+  String get cncpSectionNone;
+
+  /// No description provided for @cncpThrough.
+  ///
+  /// In en, this message translates to:
+  /// **'Through: the cutter goes {deepest} mm into {thickness} mm'**
+  String cncpThrough(String deepest, String thickness);
+
+  /// No description provided for @cncpThin.
+  ///
+  /// In en, this message translates to:
+  /// **'Little material left: {left} mm'**
+  String cncpThin(String left);
 }
 
 class _AppLocalizationsDelegate

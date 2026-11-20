@@ -3418,5 +3418,17 @@
   "ppEnough": "≈ {enough} м²-ге жетеді · тапсырыста {need} м²",
   "ppShort": "жетпейді: қоймада ≈ {enough} м²-ге, тапсырыста {need} м² — бояу тапсырыңыз немесе «Түсті ауыстыру»",
   "ppPickHint": "Түсті таңдаңыз — карточканы басыңыз",
-  "ppChoose": "Таңдау"
+  "ppChoose": "Таңдау",
+  "cncpTryThickness": "қалыңдығы, мм",
+  "cncpViewTop": "Үстінен",
+  "cncpView3d": "3D",
+  "cncp3dFront": "Алдынан",
+  "cncp3dSide": "Бүйірінен",
+  "cncp3dTilt": "Еңкіш",
+  "cncp3dHint": "Тышқанмен не саусақпен бұраңыз",
+  "cncpSection": "Шетінен ортасына дейін қима · 1:1",
+  "cncpSectionStats": "өрнек шетінен {from}–{to} мм · ең терең {deepest} мм · қалады {left} мм",
+  "cncpSectionNone": "Биіктіктің ортасында фреза өтпейді",
+  "cncpThrough": "Тесіп өтеді: фреза {deepest} мм кетеді, қалыңдығы {thickness} мм",
+  "cncpThin": "Материал аз қалады: {left} мм"
 }

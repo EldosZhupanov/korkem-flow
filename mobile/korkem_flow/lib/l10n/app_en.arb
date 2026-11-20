@@ -10689,5 +10689,20 @@
     }
   },
   "ppPickHint": "Pick a colour — tap its card",
-  "ppChoose": "Choose"
+  "ppChoose": "Choose",
+  "cncpTryThickness": "thickness, mm",
+  "cncpViewTop": "From above",
+  "cncpView3d": "3D",
+  "cncp3dFront": "Front",
+  "cncp3dSide": "Side",
+  "cncp3dTilt": "Tilted",
+  "cncp3dHint": "Turn it with the mouse or a finger",
+  "cncpSection": "Section, edge to middle · 1:1",
+  "cncpSectionStats": "pattern {from}–{to} mm from the edge · deepest {deepest} mm · {left} mm left",
+  "@cncpSectionStats": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "deepest": {"type": "String"}, "left": {"type": "String"}}},
+  "cncpSectionNone": "No cut at mid-height",
+  "cncpThrough": "Through: the cutter goes {deepest} mm into {thickness} mm",
+  "@cncpThrough": {"placeholders": {"deepest": {"type": "String"}, "thickness": {"type": "String"}}},
+  "cncpThin": "Little material left: {left} mm",
+  "@cncpThin": {"placeholders": {"left": {"type": "String"}}}
 }

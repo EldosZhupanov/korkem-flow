@@ -116,6 +116,18 @@ abstract final class AppColors {
 
   /// The colour of the [index]th film of an order; past eight, round again.
   static Color filmGroup(int index) => filmGroups[index % filmGroups.length];
+
+  // ── Milling ──────────────────────────────────────────────────────────────
+  // A pattern seen before the router runs (owner, 20.11.2026). These are
+  // the material's colours, not the interface's: the same in either theme.
+
+  /// A facade with no film or paint chosen yet: primed MDF, near white.
+  static const facadeBare = Color(0xFFEDEAE3);
+
+  /// The board in a pattern's section, and its outline — the yellow the
+  /// milling world draws its profiles in (Tez3D, ArtCAM).
+  static const sectionBoard = Color(0xFFFAC775);
+  static const sectionEdge = Color(0xFFBA7517);
 }
 
 /// Depth, as two shadows rather than one.
