@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
+import 'package:korkem_flow/core/api/loopback.dart';
 import 'package:korkem_flow/core/api/mutation_outbox.dart';
 import 'package:korkem_flow/core/api/mutation_outbox_store.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
@@ -65,13 +66,15 @@ final mutationOutboxSnapshotProvider = StreamProvider<OutboxSnapshot>(
 final dioProvider = Provider<Dio>((ref) {
   final session = ref.watch(sessionProvider).value;
   final baseUrl = session?.serverUrl ?? ref.watch(appConfigProvider).baseUrl;
+  // A bench on this computer: dialled by address, not by name (loopback.dart).
+  final endpoint = fastLoopback(baseUrl);
 
   final dio = Dio(
     BaseOptions(
-      baseUrl: baseUrl,
+      baseUrl: endpoint.url,
       connectTimeout: _connectTimeout,
       receiveTimeout: _receiveTimeout,
-      headers: const {'Accept': 'application/json'},
+      headers: {'Accept': 'application/json', ...?endpoint.headers},
     ),
   );
 
