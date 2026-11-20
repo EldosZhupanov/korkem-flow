@@ -142,18 +142,44 @@ class FacadeCustomer {
     this.phone,
     this.organization,
     this.tags = const [],
+    this.orders = 0,
+    this.debt = 0,
+    this.inWork = 0,
+    this.lastOrder,
+    this.lastOn,
+    this.lastGroups = const [],
+    this.lastMillings = const [],
+    this.objects = const [],
+    this.orderNames = const [],
   });
 
   factory FacadeCustomer.fromJson(Map<String, dynamic> json) {
     final name = '${json['name'] ?? ''}';
+    List<String> strings(Object? v) => [
+      for (final s in v is List ? v : const <Object>[]) '$s',
+    ];
     return FacadeCustomer(
       name: name,
       title: json['customer_name'] as String? ?? name,
       phone: Phone.prettyOrNull(json['phone'] as String?),
       organization: json['organization'] as String?,
-      tags: [
-        for (final t in json['tags'] as List? ?? const []) '$t',
+      tags: strings(json['tags']),
+      orders: (json['orders'] as num?)?.toInt() ?? 0,
+      debt: (json['debt'] as num?)?.toDouble() ?? 0,
+      inWork: (json['in_work'] as num?)?.toInt() ?? 0,
+      lastOrder: json['last_order'] as String?,
+      lastOn: json['last_on'] as String?,
+      lastGroups: [
+        for (final g in json['last_groups'] as List? ?? const [])
+          if (g is Map)
+            (
+              coating: g['coating'] as String?,
+              film: g['film'] as String?,
+            ),
       ],
+      lastMillings: strings(json['last_millings']),
+      objects: strings(json['objects']),
+      orderNames: strings(json['order_names']),
     );
   }
 
@@ -167,6 +193,31 @@ class FacadeCustomer {
   /// The customer's tag codes (vip, prepay_only …) — the MDF order's
   /// customer list sets them.
   final List<String> tags;
+
+  // What the order form's customer window says of him before he is chosen
+  // (owner, 20.11.2026); empty for a customer without facade orders.
+
+  /// His facade orders, all of them.
+  final int orders;
+
+  /// What he owes, ₸.
+  final double debt;
+
+  /// His orders not handed over yet.
+  final int inWork;
+
+  /// His latest order and its day (yyyy-mm-dd).
+  final String? lastOrder;
+  final String? lastOn;
+
+  /// What the latest order was: its coatings with their colours (the
+  /// coating as its wire — pvc, paint, raw) and its millings.
+  final List<({String? coating, String? film})> lastGroups;
+  final List<String> lastMillings;
+
+  /// What he is found by besides his name: his objects, his order numbers.
+  final List<String> objects;
+  final List<String> orderNames;
 }
 
 /// The order the server created from a quote.

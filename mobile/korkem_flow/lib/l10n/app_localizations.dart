@@ -19684,6 +19684,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copy → {coating}'**
   String mdfGroupCopyTo(String coating);
+
+  /// No description provided for @mdfCustomerSearchWide.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, phone, organisation, object\'s address or order №'**
+  String get mdfCustomerSearchWide;
+
+  /// No description provided for @mdfCustomerShowRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get mdfCustomerShowRecent;
+
+  /// No description provided for @mdfCustomerShowVip.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP'**
+  String get mdfCustomerShowVip;
+
+  /// No description provided for @mdfCustomerShowDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Owing'**
+  String get mdfCustomerShowDebt;
+
+  /// No description provided for @mdfCustomerShowWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Order in work'**
+  String get mdfCustomerShowWork;
+
+  /// No description provided for @mdfCustomerShowIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not ordered for long'**
+  String get mdfCustomerShowIdle;
+
+  /// No description provided for @mdfCustomerLast.
+  ///
+  /// In en, this message translates to:
+  /// **'last {day} · {what} · orders: {count}'**
+  String mdfCustomerLast(String day, String what, int count);
+
+  /// No description provided for @mdfCustomerDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {sum}'**
+  String mdfCustomerDebt(String sum);
+
+  /// No description provided for @mdfCustomerInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'in work: {count}'**
+  String mdfCustomerInWork(int count);
+
+  /// No description provided for @mdfCustomerRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat the last'**
+  String get mdfCustomerRepeat;
+
+  /// No description provided for @mdfCustomerWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Write on WhatsApp'**
+  String get mdfCustomerWhatsApp;
+
+  /// No description provided for @mdfCustomerCard.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s card'**
+  String get mdfCustomerCard;
+
+  /// No description provided for @mdfCustomerAddTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the customer «{name}» {phone}'**
+  String mdfCustomerAddTyped(String name, String phone);
+
+  /// No description provided for @mdfCustomerSamePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone is already «{name}»\'s. Choose him?'**
+  String mdfCustomerSamePhone(String name);
+
+  /// No description provided for @mdfCustomerTakeHim.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose him'**
+  String get mdfCustomerTakeHim;
 }
 
 class _AppLocalizationsDelegate

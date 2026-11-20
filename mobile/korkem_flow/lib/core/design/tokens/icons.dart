@@ -129,6 +129,9 @@ abstract final class AppIcons {
   /// Run it: the cutter's simulation (owner, 20.11.2026).
   static const IconData play = Symbols.play_arrow_rounded;
 
+  /// Do it again as last time: a customer's last order (owner, 20.11.2026).
+  static const IconData repeat = Symbols.repeat_rounded;
+
   /// Put by for a customer.
   static const IconData hold = Symbols.bookmark_rounded;
   static const IconData visible = Symbols.visibility_rounded;

@@ -3470,5 +3470,20 @@
   "mdfAddCoating": "Жабын қосу:",
   "mdfQuickColours": "не бірден түс:",
   "mdfGroupCopy": "Басқа түспен көшірме",
-  "mdfGroupCopyTo": "Көшірме → {coating}"
+  "mdfGroupCopyTo": "Көшірме → {coating}",
+  "mdfCustomerSearchWide": "Аты, телефоны, ұйымы, нысан мекенжайы не тапсырыс №",
+  "mdfCustomerShowRecent": "Соңғылар",
+  "mdfCustomerShowVip": "VIP",
+  "mdfCustomerShowDebt": "Қарызы бар",
+  "mdfCustomerShowWork": "Тапсырысы жұмыста",
+  "mdfCustomerShowIdle": "Көптен тапсырыс бермеген",
+  "mdfCustomerLast": "соңғысы {day} · {what} · тапсырыс: {count}",
+  "mdfCustomerDebt": "қарыз {sum}",
+  "mdfCustomerInWork": "жұмыста: {count}",
+  "mdfCustomerRepeat": "Өткенін қайталау",
+  "mdfCustomerWhatsApp": "WhatsApp-қа жазу",
+  "mdfCustomerCard": "Клиент карточкасы",
+  "mdfCustomerAddTyped": "«{name}» клиентін қосу {phone}",
+  "mdfCustomerSamePhone": "Бұл телефон «{name}» клиентінде бар. Соны таңдау керек пе?",
+  "mdfCustomerTakeHim": "Соны таңдау"
 }

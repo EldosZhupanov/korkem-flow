@@ -11457,4 +11457,60 @@ class AppLocalizationsKk extends AppLocalizations {
   String mdfGroupCopyTo(String coating) {
     return 'Көшірме → $coating';
   }
+
+  @override
+  String get mdfCustomerSearchWide =>
+      'Аты, телефоны, ұйымы, нысан мекенжайы не тапсырыс №';
+
+  @override
+  String get mdfCustomerShowRecent => 'Соңғылар';
+
+  @override
+  String get mdfCustomerShowVip => 'VIP';
+
+  @override
+  String get mdfCustomerShowDebt => 'Қарызы бар';
+
+  @override
+  String get mdfCustomerShowWork => 'Тапсырысы жұмыста';
+
+  @override
+  String get mdfCustomerShowIdle => 'Көптен тапсырыс бермеген';
+
+  @override
+  String mdfCustomerLast(String day, String what, int count) {
+    return 'соңғысы $day · $what · тапсырыс: $count';
+  }
+
+  @override
+  String mdfCustomerDebt(String sum) {
+    return 'қарыз $sum';
+  }
+
+  @override
+  String mdfCustomerInWork(int count) {
+    return 'жұмыста: $count';
+  }
+
+  @override
+  String get mdfCustomerRepeat => 'Өткенін қайталау';
+
+  @override
+  String get mdfCustomerWhatsApp => 'WhatsApp-қа жазу';
+
+  @override
+  String get mdfCustomerCard => 'Клиент карточкасы';
+
+  @override
+  String mdfCustomerAddTyped(String name, String phone) {
+    return '«$name» клиентін қосу $phone';
+  }
+
+  @override
+  String mdfCustomerSamePhone(String name) {
+    return 'Бұл телефон «$name» клиентінде бар. Соны таңдау керек пе?';
+  }
+
+  @override
+  String get mdfCustomerTakeHim => 'Соны таңдау';
 }

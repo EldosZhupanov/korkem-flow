@@ -3470,5 +3470,20 @@
   "mdfAddCoating": "Добавить покрытие:",
   "mdfQuickColours": "или сразу цвет:",
   "mdfGroupCopy": "Копия в другом цвете",
-  "mdfGroupCopyTo": "Копия → {coating}"
+  "mdfGroupCopyTo": "Копия → {coating}",
+  "mdfCustomerSearchWide": "Имя, телефон, организация, адрес объекта или № заказа",
+  "mdfCustomerShowRecent": "Недавние",
+  "mdfCustomerShowVip": "VIP",
+  "mdfCustomerShowDebt": "С долгом",
+  "mdfCustomerShowWork": "Заказ в работе",
+  "mdfCustomerShowIdle": "Давно не заказывал",
+  "mdfCustomerLast": "последний {day} · {what} · заказов: {count}",
+  "mdfCustomerDebt": "долг {sum}",
+  "mdfCustomerInWork": "в работе: {count}",
+  "mdfCustomerRepeat": "Повторить прошлый",
+  "mdfCustomerWhatsApp": "Написать в WhatsApp",
+  "mdfCustomerCard": "Карточка клиента",
+  "mdfCustomerAddTyped": "Добавить клиента «{name}» {phone}",
+  "mdfCustomerSamePhone": "Этот телефон уже у клиента «{name}». Выбрать его?",
+  "mdfCustomerTakeHim": "Выбрать его"
 }
