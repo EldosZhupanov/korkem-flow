@@ -3430,5 +3430,22 @@
   "cncpSectionStats": "өрнек шетінен {from}–{to} мм · ең терең {deepest} мм · қалады {left} мм",
   "cncpSectionNone": "Биіктіктің ортасында фреза өтпейді",
   "cncpThrough": "Тесіп өтеді: фреза {deepest} мм кетеді, қалыңдығы {thickness} мм",
-  "cncpThin": "Материал аз қалады: {left} мм"
+  "cncpThin": "Материал аз қалады: {left} мм",
+  "cncpTryOn": "Үлдір не бояу киіп көру",
+  "ctoTitle": "Киіп көру",
+  "ctoFilms": "ПВХ үлдірлері",
+  "ctoPaints": "Бояулар",
+  "ctoSearch": "Іздеу: емен, софт, 9010",
+  "ctoAllMakers": "Барлығы",
+  "ctoAcross": "Өрнек көлденең",
+  "ctoCompare": "Салыстыруға",
+  "ctoCompareClear": "Салыстыруды алып тастау",
+  "ctoCompareFull": "4 нұсқаға дейін салыстыруға болады",
+  "ctoSave": "Клиентке сурет",
+  "ctoSavedTo": "Сурет сақталды: {dir} — оны WhatsApp-қа сүйреңіз",
+  "ctoFolder": "Клиентке",
+  "ctoNote": "Экрандағы түс үлгіден сәл өзгеше болуы мүмкін",
+  "ctoBare": "Жабынсыз МДФ",
+  "ctoMore": "тағы {count} — іздеуді нақтылаңыз",
+  "ctoNoCatalogue": "Каталог жүктелмеді"
 }

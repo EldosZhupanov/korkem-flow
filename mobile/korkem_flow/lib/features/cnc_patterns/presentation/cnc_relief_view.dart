@@ -19,6 +19,10 @@ class CncFacade3d extends StatefulWidget {
     required this.relief,
     required this.thickness,
     this.colour = AppColors.facadeBare,
+    this.texture,
+    this.across = false,
+    this.gloss = 0,
+    this.interactive = true,
     super.key,
   });
 
@@ -27,8 +31,22 @@ class CncFacade3d extends StatefulWidget {
   /// The board, mm.
   final double thickness;
 
-  /// The film's or the paint's colour; primed MDF when none is chosen.
+  /// The film's or the paint's colour; primed MDF when none is chosen. Under
+  /// a [texture], the board's edges.
   final Color colour;
+
+  /// A film's decor laid over the face and down into the grooves
+  /// (owner, 20.11.2026: «надевали свои родные каталоги»).
+  final ui.Image? texture;
+
+  /// The decor's grain across the facade rather than along its height.
+  final bool across;
+
+  /// 0 matt … 1 high gloss: how sharp and bright the highlight is.
+  final double gloss;
+
+  /// False for a small picture beside others: no turning, no buttons.
+  final bool interactive;
 
   @override
   State<CncFacade3d> createState() => _CncFacade3dState();
@@ -46,16 +64,23 @@ class _CncFacade3dState extends State<CncFacade3d> {
   Int32List? _shade;
   CncRelief? _shadeOf;
   Color? _shadeIn;
+  double? _shadeGloss;
+
+  /// Under a texture the vertices carry the light alone, multiplied into
+  /// the decor; on a plain colour they carry the colour itself.
+  Color get _base => widget.texture == null ? widget.colour : Colors.white;
 
   Int32List _shading() {
     if (_shade != null &&
         identical(_shadeOf, widget.relief) &&
-        _shadeIn == widget.colour) {
+        _shadeIn == _base &&
+        _shadeGloss == widget.gloss) {
       return _shade!;
     }
     _shadeOf = widget.relief;
-    _shadeIn = widget.colour;
-    return _shade = cncShade(widget.relief, widget.colour);
+    _shadeIn = _base;
+    _shadeGloss = widget.gloss;
+    return _shade = cncShade(widget.relief, _base, gloss: widget.gloss);
   }
 
   void _turn(Offset delta) => setState(
@@ -69,6 +94,19 @@ class _CncFacade3dState extends State<CncFacade3d> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final painter = CustomPaint(
+      painter: _ReliefPainter(
+        relief: widget.relief,
+        thickness: widget.thickness,
+        shade: _shading(),
+        colour: widget.colour,
+        texture: widget.texture,
+        across: widget.across,
+        yaw: _look.yaw,
+        pitch: _look.pitch,
+      ),
+    );
+    if (!widget.interactive) return painter;
     Widget view(String key, String label, _Look look) => TextButton(
       key: ValueKey(key),
       onPressed: () => setState(() => _look = look),
@@ -80,16 +118,7 @@ class _CncFacade3dState extends State<CncFacade3d> {
           child: GestureDetector(
             key: const ValueKey('cnc3dTurn'),
             onPanUpdate: (d) => _turn(d.delta),
-            child: CustomPaint(
-              painter: _ReliefPainter(
-                relief: widget.relief,
-                thickness: widget.thickness,
-                shade: _shading(),
-                colour: widget.colour,
-                yaw: _look.yaw,
-                pitch: _look.pitch,
-              ),
-            ),
+            child: painter,
           ),
         ),
         Positioned(
@@ -133,14 +162,22 @@ int _lit(Color c, double k) {
 
 /// Every grid point's colour under a light from the upper left, the flat
 /// face exactly [colour]: walls turned to the light brighter, away darker,
-/// the bottom of a deep groove a little darker still.
-Int32List cncShade(CncRelief r, Color colour) {
+/// the bottom of a deep groove a little darker still. A [gloss] above 0
+/// adds the highlight a lacquered face throws back.
+Int32List cncShade(CncRelief r, Color colour, {double gloss = 0}) {
   const lx = -0.45;
   const ly = 0.55;
   const lz = 0.70;
   final ll = sqrt(lx * lx + ly * ly + lz * lz);
   const ambient = 0.35;
   final flat = ambient + (1 - ambient) * lz / ll;
+  // The half-way vector between the light and a viewer straight in front.
+  final hx = lx / ll;
+  final hy = ly / ll;
+  final hz = lz / ll + 1;
+  final hl = sqrt(hx * hx + hy * hy + hz * hz);
+  final shine = 10 + 70 * gloss;
+  final double flatSpec = gloss <= 0 ? 0 : pow(hz / hl, shine).toDouble();
   final out = Int32List((r.cols + 1) * (r.rows + 1));
   for (var j = 0; j <= r.rows; j++) {
     for (var i = 0; i <= r.cols; i++) {
@@ -151,6 +188,12 @@ Int32List cncShade(CncRelief r, Color colour) {
       final ndl = max<double>(0, (gx * lx + gy * ly + lz) / (nl * ll));
       var k = (ambient + (1 - ambient) * ndl) / flat;
       k *= 1 - min(0.15, 0.02 * r.at(i, j));
+      if (gloss > 0) {
+        final nh = max<double>(0, (gx * hx + gy * hy + hz) / (nl * hl));
+        // The face itself stays its colour; the walls catching the light
+        // flash.
+        k += 0.9 * gloss * max<double>(0, pow(nh, shine).toDouble() - flatSpec);
+      }
       out[j * (r.cols + 1) + i] = _lit(colour, k);
     }
   }
@@ -165,14 +208,22 @@ class _ReliefPainter extends CustomPainter {
     required this.colour,
     required this.yaw,
     required this.pitch,
+    this.texture,
+    this.across = false,
   });
 
   final CncRelief relief;
   final double thickness;
   final Int32List shade;
   final Color colour;
+  final ui.Image? texture;
+  final bool across;
   final double yaw;
   final double pitch;
+
+  /// How much of the facade one picture of the decor covers, mm — a
+  /// maker's swatch is a hand's breadth or so of film.
+  static const double _swatchMm = 300;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -239,12 +290,21 @@ class _ReliefPainter extends CustomPainter {
     final rows = r.rows;
     final stride = cols + 1;
     final positions = Float32List(stride * (rows + 1) * 2);
+    final tex = texture;
+    final uv = tex == null ? null : Float32List(stride * (rows + 1) * 2);
+    final double pxPerMm = tex == null ? 0 : tex.width / _swatchMm;
     for (var j = 0; j <= rows; j++) {
       for (var i = 0; i <= cols; i++) {
         final p = project(r.x(i), r.y(j), -r.at(i, j));
         final k = (j * stride + i) * 2;
         positions[k] = p.dx;
         positions[k + 1] = p.dy;
+        if (uv != null) {
+          // The grain runs up the facade unless turned across.
+          final along = h - r.y(j);
+          uv[k] = (across ? along : r.x(i)) * pxPerMm;
+          uv[k + 1] = (across ? r.x(i) : along) * pxPerMm;
+        }
       }
     }
     // Back to front: the far rows and the far columns first, so a groove's
@@ -274,11 +334,20 @@ class _ReliefPainter extends CustomPainter {
       ui.Vertices.raw(
         ui.VertexMode.triangles,
         positions,
+        textureCoordinates: uv,
         colors: shade,
         indices: indices,
       ),
-      BlendMode.dst,
-      Paint(),
+      tex == null ? BlendMode.dst : BlendMode.modulate,
+      tex == null
+          ? Paint()
+          : (Paint()
+              ..shader = ImageShader(
+                tex,
+                TileMode.mirror,
+                TileMode.mirror,
+                Matrix4.identity().storage,
+              )),
     );
   }
 
@@ -288,6 +357,8 @@ class _ReliefPainter extends CustomPainter {
       old.pitch != pitch ||
       !identical(old.relief, relief) ||
       !identical(old.shade, shade) ||
+      !identical(old.texture, texture) ||
+      old.across != across ||
       old.thickness != thickness ||
       old.colour != colour;
 }

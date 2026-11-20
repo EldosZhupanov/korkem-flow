@@ -13,6 +13,7 @@ import 'package:korkem_flow/features/cnc_patterns/domain/cnc_patterns.dart';
 import 'package:korkem_flow/features/cnc_patterns/domain/cnc_relief.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_facade_view.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_relief_view.dart';
+import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_try_on.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Numbers typed with a comma or a dot.
@@ -510,6 +511,18 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
                     cuts: p?.error == null ? p?.cuts ?? const [] : const [],
                   ),
           ),
+          if (_inThreeD && _relief != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                key: const ValueKey('cncTryOn'),
+                onPressed: () => unawaited(
+                  showCncTryOn(context, relief: _relief!, thickness: _t),
+                ),
+                icon: const Icon(AppIcons.colour),
+                label: Text(l10n.cncpTryOn),
+              ),
+            ),
           const SizedBox(height: AppSpacing.sm),
           if (_section case final section?) ..._sectionPart(section, l10n),
           if (_loading) const LinearProgressIndicator(),

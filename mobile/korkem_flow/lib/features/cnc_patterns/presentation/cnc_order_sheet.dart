@@ -9,7 +9,9 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/features/cnc_patterns/data/cnc_patterns_repository.dart';
 import 'package:korkem_flow/features/cnc_patterns/domain/cnc_patterns.dart';
+import 'package:korkem_flow/features/cnc_patterns/domain/cnc_relief.dart';
 import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_pattern_editor.dart';
+import 'package:korkem_flow/features/cnc_patterns/presentation/cnc_try_on.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// An order's positions for the router.
@@ -70,6 +72,37 @@ class _CncOrderSheetState extends ConsumerState<_CncOrderSheet> {
       if (mounted) setState(() => _busy = false);
     }
   }
+
+  /// The position's facade, at its own size, in 3D — to dress in a film or
+  /// a paint with the customer beside you (owner, 20.11.2026).
+  Future<void> _tryOn(CncOrderLine l) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final status = await ref.read(cncStatusProvider.future);
+      final pattern = status.patterns.firstWhere((p) => p.name == l.pattern);
+      final preview = await ref
+          .read(cncPatternsRepositoryProvider)
+          .preview(pattern, width: l.width, height: l.height);
+      final relief = CncRelief.of(
+        width: l.width,
+        height: l.height,
+        cuts: preview.error == null ? preview.cuts : const [],
+        tools: {for (final t in status.tools) t.name: t},
+      );
+      if (!mounted) return;
+      setState(() => _busy = false);
+      await showCncTryOn(context, relief: relief, thickness: _board);
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    } finally {
+      if (mounted && _busy) setState(() => _busy = false);
+    }
+  }
+
+  /// The board a facade is tried on: the usual sixteen.
+  static const double _board = 16;
 
   @override
   Widget build(BuildContext context) {
@@ -144,13 +177,27 @@ class _CncOrderSheetState extends ConsumerState<_CncOrderSheet> {
                                 : null,
                           ),
                           trailing: l.ready
-                              ? IconButton(
-                                  key: ValueKey('cncLineSave:${l.no}'),
-                                  tooltip: l10n.cncpDownload,
-                                  icon: const Icon(AppIcons.moveOut),
-                                  onPressed: _busy
-                                      ? null
-                                      : () => unawaited(_save(line: l.line)),
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      key: ValueKey('cncLine3d:${l.no}'),
+                                      tooltip: l10n.cncpTryOn,
+                                      icon: const Icon(AppIcons.colour),
+                                      onPressed: _busy
+                                          ? null
+                                          : () => unawaited(_tryOn(l)),
+                                    ),
+                                    IconButton(
+                                      key: ValueKey('cncLineSave:${l.no}'),
+                                      tooltip: l10n.cncpDownload,
+                                      icon: const Icon(AppIcons.moveOut),
+                                      onPressed: _busy
+                                          ? null
+                                          : () =>
+                                                unawaited(_save(line: l.line)),
+                                    ),
+                                  ],
                                 )
                               : null,
                         ),
