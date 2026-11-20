@@ -40,7 +40,7 @@ Future<String?> pickMdfWorker(
 /// The post a stage is done at, for a person added from the sheet — the
 /// server's `team.STAGE_POSTS`; sanding goes to the PVC sander, the dialog
 /// lets another be ticked.
-const mdfStagePost = {
+const Map<MdfStage, String> mdfStagePost = {
   MdfStage.cut: 'cut.cutter',
   MdfStage.mill: 'cnc.operator',
   MdfStage.sand: 'pvc.sander',

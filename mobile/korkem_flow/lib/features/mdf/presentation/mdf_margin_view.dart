@@ -211,7 +211,7 @@ class _MdfMarginViewState extends ConsumerState<MdfMarginView> {
                           l10n.mdfMarginNoPrice,
                           style: small?.copyWith(color: status.danger),
                         )
-                      : Text(money.format(r.price!), style: small),
+                      : Text(money.format(r.price ?? 0), style: small),
                   r.price == null && r.item != null
                       ? TextButton(
                           key: ValueKey('mdfMarginPrice:${r.item}'),
