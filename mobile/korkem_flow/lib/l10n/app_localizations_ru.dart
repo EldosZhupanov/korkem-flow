@@ -11499,4 +11499,60 @@ class AppLocalizationsRu extends AppLocalizations {
   String mdfGroupCopyTo(String coating) {
     return 'Копия → $coating';
   }
+
+  @override
+  String get mdfCustomerSearchWide =>
+      'Имя, телефон, организация, адрес объекта или № заказа';
+
+  @override
+  String get mdfCustomerShowRecent => 'Недавние';
+
+  @override
+  String get mdfCustomerShowVip => 'VIP';
+
+  @override
+  String get mdfCustomerShowDebt => 'С долгом';
+
+  @override
+  String get mdfCustomerShowWork => 'Заказ в работе';
+
+  @override
+  String get mdfCustomerShowIdle => 'Давно не заказывал';
+
+  @override
+  String mdfCustomerLast(String day, String what, int count) {
+    return 'последний $day · $what · заказов: $count';
+  }
+
+  @override
+  String mdfCustomerDebt(String sum) {
+    return 'долг $sum';
+  }
+
+  @override
+  String mdfCustomerInWork(int count) {
+    return 'в работе: $count';
+  }
+
+  @override
+  String get mdfCustomerRepeat => 'Повторить прошлый';
+
+  @override
+  String get mdfCustomerWhatsApp => 'Написать в WhatsApp';
+
+  @override
+  String get mdfCustomerCard => 'Карточка клиента';
+
+  @override
+  String mdfCustomerAddTyped(String name, String phone) {
+    return 'Добавить клиента «$name» $phone';
+  }
+
+  @override
+  String mdfCustomerSamePhone(String name) {
+    return 'Этот телефон уже у клиента «$name». Выбрать его?';
+  }
+
+  @override
+  String get mdfCustomerTakeHim => 'Выбрать его';
 }

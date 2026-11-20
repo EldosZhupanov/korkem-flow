@@ -11461,4 +11461,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String mdfGroupCopyTo(String coating) {
     return 'Copy → $coating';
   }
+
+  @override
+  String get mdfCustomerSearchWide =>
+      'Name, phone, organisation, object\'s address or order №';
+
+  @override
+  String get mdfCustomerShowRecent => 'Recent';
+
+  @override
+  String get mdfCustomerShowVip => 'VIP';
+
+  @override
+  String get mdfCustomerShowDebt => 'Owing';
+
+  @override
+  String get mdfCustomerShowWork => 'Order in work';
+
+  @override
+  String get mdfCustomerShowIdle => 'Not ordered for long';
+
+  @override
+  String mdfCustomerLast(String day, String what, int count) {
+    return 'last $day · $what · orders: $count';
+  }
+
+  @override
+  String mdfCustomerDebt(String sum) {
+    return 'owes $sum';
+  }
+
+  @override
+  String mdfCustomerInWork(int count) {
+    return 'in work: $count';
+  }
+
+  @override
+  String get mdfCustomerRepeat => 'Repeat the last';
+
+  @override
+  String get mdfCustomerWhatsApp => 'Write on WhatsApp';
+
+  @override
+  String get mdfCustomerCard => 'The customer\'s card';
+
+  @override
+  String mdfCustomerAddTyped(String name, String phone) {
+    return 'Add the customer «$name» $phone';
+  }
+
+  @override
+  String mdfCustomerSamePhone(String name) {
+    return 'This phone is already «$name»\'s. Choose him?';
+  }
+
+  @override
+  String get mdfCustomerTakeHim => 'Choose him';
 }

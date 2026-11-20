@@ -58,10 +58,11 @@ const int mdfIdleDays = 90;
   final phone = digits.length >= 10
       ? Phone.pretty('+7${digits.substring(digits.length - 10)}')
       : null;
-  final name = (phone == null ? text : text.replaceAll(RegExp(r'[\d+()\-]'), ''))
-      .split(RegExp(r'\s+'))
-      .where((w) => w.isNotEmpty)
-      .join(' ');
+  final name =
+      (phone == null ? text : text.replaceAll(RegExp(r'[\d+()\-]'), ''))
+          .split(RegExp(r'\s+'))
+          .where((w) => w.isNotEmpty)
+          .join(' ');
   return (name: name, phone: phone);
 }
 
@@ -272,7 +273,8 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
     bool matches(FacadeCustomer c) =>
         q.isEmpty ||
         c.title.toLowerCase().contains(q) ||
-        (qDigits.length >= 3 && Phone.digits(c.phone ?? '').contains(qDigits)) ||
+        (qDigits.length >= 3 &&
+            Phone.digits(c.phone ?? '').contains(qDigits)) ||
         (c.organization ?? '').toLowerCase().contains(q) ||
         c.objects.any((o) => o.toLowerCase().contains(q)) ||
         c.orderNames.any((o) => o.toLowerCase().contains(q));
@@ -351,13 +353,16 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
                 ),
                 data: (all) {
                   // The latest buyers first; the rest by name.
-                  final shown = [
-                    for (final c in all)
-                      if (_shows(c) && matches(c)) c,
-                  ]..sort((a, b) {
-                      final byDay = (b.lastOn ?? '').compareTo(a.lastOn ?? '');
-                      return byDay != 0 ? byDay : a.title.compareTo(b.title);
-                    });
+                  final shown =
+                      [
+                        for (final c in all)
+                          if (_shows(c) && matches(c)) c,
+                      ]..sort((a, b) {
+                        final byDay = (b.lastOn ?? '').compareTo(
+                          a.lastOn ?? '',
+                        );
+                        return byDay != 0 ? byDay : a.title.compareTo(b.title);
+                      });
                   final addTyped = typed.isNotEmpty && shown.isEmpty;
                   if (shown.isEmpty && !addTyped) {
                     return Center(
