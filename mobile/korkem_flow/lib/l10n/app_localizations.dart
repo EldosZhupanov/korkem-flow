@@ -19436,7 +19436,7 @@ abstract class AppLocalizations {
   /// No description provided for @ppPickHint.
   ///
   /// In en, this message translates to:
-  /// **'Pick a colour — tap its card'**
+  /// **'Tap a colour — it is chosen at once'**
   String get ppPickHint;
 
   /// No description provided for @ppChoose.
@@ -19619,6 +19619,12 @@ abstract class AppLocalizations {
   /// **'The catalogue did not load'**
   String get ctoNoCatalogue;
 
+  /// No description provided for @pcOpenCard.
+  ///
+  /// In en, this message translates to:
+  /// **'The colour\'s card — to look at and change'**
+  String get pcOpenCard;
+
   /// No description provided for @cncpKindPocket.
   ///
   /// In en, this message translates to:
@@ -19654,6 +19660,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Simulation: the cutter\'s run'**
   String get cncpSimulate;
+
+  /// No description provided for @mdfAddCoating.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a coating:'**
+  String get mdfAddCoating;
+
+  /// No description provided for @mdfQuickColours.
+  ///
+  /// In en, this message translates to:
+  /// **'or a colour at once:'**
+  String get mdfQuickColours;
+
+  /// No description provided for @mdfGroupCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy in another colour'**
+  String get mdfGroupCopy;
+
+  /// No description provided for @mdfGroupCopyTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy → {coating}'**
+  String mdfGroupCopyTo(String coating);
 }
 
 class _AppLocalizationsDelegate

@@ -11314,7 +11314,7 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
-  String get ppPickHint => 'Түсті таңдаңыз — карточканы басыңыз';
+  String get ppPickHint => 'Түсті басыңыз — ол бірден таңдалады';
 
   @override
   String get ppChoose => 'Таңдау';
@@ -11417,6 +11417,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get ctoNoCatalogue => 'Каталог жүктелмеді';
 
   @override
+  String get pcOpenCard => 'Бояу карточкасы — қарау және өзгерту';
+
+  @override
   String get cncpKindPocket => 'Ойма';
 
   @override
@@ -11440,4 +11443,18 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get cncpSimulate => 'Симуляция: фреза жүрісі';
+
+  @override
+  String get mdfAddCoating => 'Жабын қосу:';
+
+  @override
+  String get mdfQuickColours => 'не бірден түс:';
+
+  @override
+  String get mdfGroupCopy => 'Басқа түспен көшірме';
+
+  @override
+  String mdfGroupCopyTo(String coating) {
+    return 'Көшірме → $coating';
+  }
 }

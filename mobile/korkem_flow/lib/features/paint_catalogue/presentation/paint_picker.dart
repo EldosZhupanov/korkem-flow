@@ -81,9 +81,11 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
   /// How many of all the colours are drawn at once.
   static const _shown = 120;
 
-  Future<void> _choose() async {
-    final x = _picked;
-    if (x == null) return;
+  /// A card pressed is the colour chosen — one press, no «Выбрать» after it
+  /// (owner, 20.11.2026: «нам надо в один клик»). The sheen is set first.
+  Future<void> _choose(PaintColour x) async {
+    if (_busy) return;
+    _picked = x;
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = true);
@@ -99,6 +101,12 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
       messenger.showFailure(e, l10n);
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// The colour's card, to look at or change; the window shows the change.
+  Future<void> _open(PaintColour x, PaintCatalogue c) async {
+    await showPaintColour(context, x, c);
+    if (mounted) ref.invalidate(paintCatalogueForProvider(widget.customer));
   }
 
   Future<void> _byPhoto(PaintCatalogue c) async {
@@ -127,7 +135,7 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
         ),
       );
       if (hit != null && mounted) {
-        setState(() => _picked = c.byKey(hit.key) ?? hit);
+        await _choose(c.byKey(hit.key) ?? hit);
       }
     } on Object catch (e) {
       messenger.showFailure(e, l10n);
@@ -332,7 +340,8 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
         child: PaintCard(
           key: ValueKey('ppColour:$key:${list[i].key}'),
           colour: list[i],
-          onTap: () => setState(() => _picked = list[i]),
+          onTap: () => unawaited(_choose(list[i])),
+          onOpen: () => unawaited(_open(list[i], c)),
         ),
       ),
     );
@@ -403,6 +412,15 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
       runSpacing: AppSpacing.xs,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
+        // The sheen first, then a press on a colour chooses it.
+        if (widget.onGloss != null)
+          for (final g in [MdfGloss.matt, MdfGloss.semi, MdfGloss.gloss])
+            ChoiceChip(
+              key: ValueKey('ppGloss:${g.wire}'),
+              label: Text(mdfGlossLabel(g, l10n)),
+              selected: _gloss == g,
+              onSelected: (on) => setState(() => _gloss = on ? g : null),
+            ),
         if (x != null) ...[
           SizedBox(
             width: AppSpacing.xxxl,
@@ -417,14 +435,6 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
             key: const ValueKey('ppPicked'),
             style: theme.textTheme.titleSmall,
           ),
-          if (widget.onGloss != null)
-            for (final g in [MdfGloss.matt, MdfGloss.semi, MdfGloss.gloss])
-              ChoiceChip(
-                key: ValueKey('ppGloss:${g.wire}'),
-                label: Text(mdfGlossLabel(g, l10n)),
-                selected: _gloss == g,
-                onSelected: (on) => setState(() => _gloss = on ? g : null),
-              ),
           Text(
             x.kg <= 0
                 ? l10n.pcNoneShelf
@@ -438,22 +448,18 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
               color: x.kg <= 0 || !covered ? status.danger : status.success,
             ),
           ),
-        ] else
-          Text(l10n.ppPickHint, style: theme.textTheme.bodySmall),
+        ],
+        Text(l10n.ppPickHint, style: theme.textTheme.bodySmall),
         if (widget.allowNone)
           TextButton(
             key: const ValueKey('ppNone'),
             onPressed: () => Navigator.of(context).pop(''),
             child: Text(l10n.mdfPaintNone),
           ),
+        if (_busy) const CircularProgressIndicator(),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.mdfCancel),
-        ),
-        FilledButton(
-          key: const ValueKey('ppChoose'),
-          onPressed: x == null || _busy ? null : _choose,
-          child: Text(l10n.ppChoose),
         ),
       ],
     );

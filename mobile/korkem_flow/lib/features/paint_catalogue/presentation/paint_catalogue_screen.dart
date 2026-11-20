@@ -292,10 +292,15 @@ Future<bool?> showPaintColourAdd(BuildContext context, PaintCatalogue c) =>
 /// A colour's card: its shade, its code and name, what is on the shelf and
 /// how much of it was painted.
 class PaintCard extends StatelessWidget {
-  const PaintCard({required this.colour, this.onTap, super.key});
+  const PaintCard({required this.colour, this.onTap, this.onOpen, super.key});
 
   final PaintColour colour;
   final VoidCallback? onTap;
+
+  /// The colour's own card — to look at and to change — where a press
+  /// already means something else (owner, 20.11.2026: the order's window
+  /// chooses on a press, «ⓘ» or a long press opens the card).
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -321,10 +326,30 @@ class PaintCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onOpen,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(child: PaintSwatch(colour: x)),
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(child: PaintSwatch(colour: x)),
+                  if (onOpen != null)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: IconButton.filledTonal(
+                        key: ValueKey('pcOpen:${x.key}'),
+                        tooltip: l10n.pcOpenCard,
+                        visualDensity: VisualDensity.compact,
+                        iconSize: AppIconSize.small,
+                        onPressed: onOpen,
+                        icon: const Icon(AppIcons.info),
+                      ),
+                    ),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.xs),
               child: Column(

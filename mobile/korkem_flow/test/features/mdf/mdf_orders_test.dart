@@ -764,17 +764,44 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('mdfAddFilm')));
-    await tester.pumpAndSettle();
+    // The three types are buttons of their own — no window to answer first
+    // (owner, 20.11.2026).
     for (final c in MdfCoating.values) {
-      expect(find.byKey(ValueKey('mdfCoating:${c.name}')), findsOneWidget);
+      expect(find.byKey(ValueKey('mdfAdd:${c.name}')), findsOneWidget);
     }
     // A raw facade has no colour: no list to pick from, the group is made.
-    await tester.tap(find.byKey(const ValueKey('mdfCoating:raw')));
+    await tester.tap(find.byKey(const ValueKey('mdfAdd:raw')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('mdfGroupCoating:0:raw')), findsOneWidget);
     expect(find.byKey(const ValueKey('mdfFilmPick:0:0')), findsNothing);
     expect(find.byKey(const ValueKey('dict:group:0')), findsNothing);
+  });
+
+  testWidgets('a group copied into another coating: the same positions', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(_TwoFilms())],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfLineFilm:3')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('mdfGroupCopy:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfCopyTo:raw')));
+    await tester.pumpAndSettle();
+    // «Палома»'s two positions, now raw too, as a third group; the sizes
+    // and the counts came along, a back film did not.
+    expect(find.byKey(const ValueKey('mdfGroupCoating:2:raw')), findsOne);
+    expect(find.byKey(const ValueKey('mdfLineFilm:3')), findsOne);
+    expect(find.byKey(const ValueKey('mdfLineFilm:4')), findsOne);
+    expect(find.byKey(const ValueKey('mdfLineFilm:5')), findsNothing);
   });
 
   test('dates read day.month.year; a week ahead skips a Sunday', () {
