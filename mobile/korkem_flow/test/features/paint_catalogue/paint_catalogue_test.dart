@@ -76,15 +76,15 @@ class _Fake implements PaintCatalogueRepository {
   @override
   Future<PaintCatalogue> catalogue({String? customer}) async =>
       PaintCatalogue.fromJson(const {
-    'customer': ['ral6021'],
-    'systems': [
-      {'name': 'RAL Classic', 'count': 3},
-      {'name': 'По образцу', 'count': 1},
-    ],
-    'families': ['Белые и чёрные', 'Зелёные'],
-    'colours': [_white, _sage, _reseda, _own],
-    'can_edit': true,
-  });
+        'customer': ['ral6021'],
+        'systems': [
+          {'name': 'RAL Classic', 'count': 3},
+          {'name': 'По образцу', 'count': 1},
+        ],
+        'families': ['Белые и чёрные', 'Зелёные'],
+        'colours': [_white, _sage, _reseda, _own],
+        'can_edit': true,
+      });
 
   @override
   Future<String> take(String value, {String? system}) async {

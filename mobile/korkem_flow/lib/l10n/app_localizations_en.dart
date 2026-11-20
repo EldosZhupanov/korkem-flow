@@ -11299,4 +11299,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mdfMarginPriceHint =>
       'Film — a metre. Written on the material\'s card.';
+
+  @override
+  String get ppOwn => 'A colour of our own';
+
+  @override
+  String get ppTheirs => 'This customer painted before';
+
+  @override
+  String ppEnough(String enough, String need) {
+    return 'enough for ≈ $enough m² · the order needs $need m²';
+  }
+
+  @override
+  String ppShort(String enough, String need) {
+    return 'not enough: the shelf paints ≈ $enough m², the order needs $need m² — order paint or «Замена цвета»';
+  }
+
+  @override
+  String get ppPickHint => 'Pick a colour — tap its card';
+
+  @override
+  String get ppChoose => 'Choose';
 }

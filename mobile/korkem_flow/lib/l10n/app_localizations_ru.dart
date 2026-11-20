@@ -11338,4 +11338,26 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get mdfMarginPriceHint =>
       'Плёнка — за метр. Запишется в карточку материала.';
+
+  @override
+  String get ppOwn => 'Свой цвет';
+
+  @override
+  String get ppTheirs => 'Этот клиент красил раньше';
+
+  @override
+  String ppEnough(String enough, String need) {
+    return 'хватит на ≈ $enough м² · в заказе $need м²';
+  }
+
+  @override
+  String ppShort(String enough, String need) {
+    return 'не хватит: на складе на ≈ $enough м², в заказе $need м² — закажите краску или «Замена цвета»';
+  }
+
+  @override
+  String get ppPickHint => 'Выберите цвет — нажмите на карточку';
+
+  @override
+  String get ppChoose => 'Выбрать';
 }

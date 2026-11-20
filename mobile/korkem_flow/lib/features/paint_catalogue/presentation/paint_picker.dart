@@ -159,9 +159,7 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
           data: (c) {
             _picked ??= widget.current == null
                 ? null
-                : c.colours
-                      .where((x) => x.value == widget.current)
-                      .firstOrNull;
+                : c.colours.where((x) => x.value == widget.current).firstOrNull;
             return Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(
@@ -192,7 +190,10 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
         Row(
           children: [
             Expanded(
-              child: Text(l10n.mdfCoatingPaint, style: theme.textTheme.titleLarge),
+              child: Text(
+                l10n.mdfCoatingPaint,
+                style: theme.textTheme.titleLarge,
+              ),
             ),
             TextButton.icon(
               key: const ValueKey('ppPhoto'),
