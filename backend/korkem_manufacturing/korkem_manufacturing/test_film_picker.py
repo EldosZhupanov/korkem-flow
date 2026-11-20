@@ -65,7 +65,11 @@ class TestFilmPicker(IntegrationTestCase):
 		self.assertEqual(took["label"], label)
 		self.assertEqual(frappe.db.get_value("Item", took["item"], "korkem_color"), self.name)
 		self.assertNotIn(self.decor, {d["decor"] for d in self._as(MANAGER, film_picker.extras)["decors"]})
-		self.assertEqual(self._as(MANAGER, film_picker.take, self.decor)["item"], took["item"])  # once
+		# The film comes with it, to be received without the stock fetched again.
+		self.assertEqual(took["film"]["item"], took["item"])
+		again = self._as(MANAGER, film_picker.take, self.decor)
+		self.assertEqual(again["item"], took["item"])  # once
+		self.assertEqual(again["film"]["item"], took["item"])
 		self.assertIn(label, film_catalog.labels(COMPANY))
 
 	def test_a_shop_hand_sees_the_window_but_takes_nothing_in(self):
