@@ -11423,6 +11423,68 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String get paintStepWhat => 'Не келді';
+
+  @override
+  String get paintStepColour => 'Түсі мен түрі';
+
+  @override
+  String get paintStepWhich => 'Қайсы';
+
+  @override
+  String get paintStepAmount => 'Қанша және қаншадан';
+
+  @override
+  String get paintStepSupplier => 'Жеткізуші және төлем';
+
+  @override
+  String get paintStepDelivery => 'Жеткізу';
+
+  @override
+  String get paintKindPaint => 'Бояу / эмаль';
+
+  @override
+  String get paintColourPick => 'Түсті таңдаңыз — осы жерді басыңыз';
+
+  @override
+  String get paintColourChange => 'ауыстыру';
+
+  @override
+  String paintColourNeed(String need, String have) {
+    return 'тапсырыстар күтеді $need кг · бар $have кг';
+  }
+
+  @override
+  String get paintPinnedQueue => 'Тапсырыстар күтеді — сатып алу';
+
+  @override
+  String get paintPinnedShelf => 'Қоймада';
+
+  @override
+  String get paintBaseName => 'Атауы';
+
+  @override
+  String paintVariantOnHand(String kg) {
+    return 'бар $kg кг';
+  }
+
+  @override
+  String paintVariantNew(String material) {
+    return 'Жаңа: $material';
+  }
+
+  @override
+  String paintPriceHistory(String list) {
+    return 'бұрын: $list';
+  }
+
+  @override
+  String get paintLineMore => '+ осы кіріске тағы бір позиция';
+
+  @override
+  String get paintPhoto => 'Жүкқұжат суреті';
+
+  @override
   String get mdfCustomerSearchWide =>
       'Аты, телефоны, ұйымы, нысан мекенжайы не тапсырыс №';
 

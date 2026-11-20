@@ -11501,6 +11501,68 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get paintStepWhat => 'Что пришло';
+
+  @override
+  String get paintStepColour => 'Цвет и вид';
+
+  @override
+  String get paintStepWhich => 'Какой';
+
+  @override
+  String get paintStepAmount => 'Сколько и почём';
+
+  @override
+  String get paintStepSupplier => 'Поставщик и оплата';
+
+  @override
+  String get paintStepDelivery => 'Доставка';
+
+  @override
+  String get paintKindPaint => 'Краска / эмаль';
+
+  @override
+  String get paintColourPick => 'Выберите цвет — нажмите здесь';
+
+  @override
+  String get paintColourChange => 'сменить';
+
+  @override
+  String paintColourNeed(String need, String have) {
+    return 'ждут заказы $need кг · есть $have кг';
+  }
+
+  @override
+  String get paintPinnedQueue => 'Ждут заказы — докупить';
+
+  @override
+  String get paintPinnedShelf => 'На складе';
+
+  @override
+  String get paintBaseName => 'Название';
+
+  @override
+  String paintVariantOnHand(String kg) {
+    return 'есть $kg кг';
+  }
+
+  @override
+  String paintVariantNew(String material) {
+    return 'Новый: $material';
+  }
+
+  @override
+  String paintPriceHistory(String list) {
+    return 'раньше: $list';
+  }
+
+  @override
+  String get paintLineMore => '+ ещё позиция в этот приход';
+
+  @override
+  String get paintPhoto => 'Фото накладной';
+
+  @override
   String get mdfCustomerSearchWide =>
       'Имя, телефон, организация, адрес объекта или № заказа';
 
