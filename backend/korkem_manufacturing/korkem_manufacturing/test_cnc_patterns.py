@@ -108,6 +108,34 @@ class TestCncGeometry(IntegrationTestCase):
 			self.assertTrue(_moves(f["text"])[0].startswith("N10 "))
 			self.assertGreater(f["stats"]["minutes"], 0)
 
+	def test_a_pocket_is_cleared_ring_by_ring_from_the_middle_out(self):
+		"""«Выборка филёнки» (owner, 20.11.2026 — from ArtCAM's 2D-выборка)."""
+		f6 = Tool("F6", "flat", 6, 0, 2500, 800, 18000, 3)
+		tools = {**TOOLS, "F6": f6}
+		paths, _ = geo.build({"elements": [{"kind": "pocket", "tool": "F6", "depth": 3, "offset": 80}]}, 400, 600,
+							 tools)
+		# The outermost ring runs the cutter's radius inside the pocket's edge.
+		outer = paths[-1]
+		self.assertEqual(outer.start, (83, 83))
+		xs = [x for p in paths for x, _ in p.points()]
+		self.assertEqual((min(xs), max(xs)), (83, 317))
+		# Rings 2.4 mm apart (40 % of 6): nothing between them is left uncut.
+		self.assertAlmostEqual(paths[-2].start[0] - outer.start[0], 2.4)
+		inner = paths[0]
+		self.assertLess(inner.start[0], 200)
+		self.assertGreater(200 - inner.start[0], 0)
+		self.assertLessEqual(200 - inner.start[0], 2.4 + 3)
+		files = geo.gcode(paths, tools, {}, "t")
+		self.assertEqual([f["tool"] for f in files], ["F6"])
+		# A V-cutter cannot clear a floor; a pocket too big for the board says so.
+		for element, words in (
+			({"kind": "pocket", "tool": "V90", "depth": 3, "offset": 80}, "V-образной"),
+			({"kind": "pocket", "tool": "F6", "depth": 3, "offset": 199}, "не помещается"),
+		):
+			with self.assertRaises(PatternError) as e:
+				geo.build({"elements": [element]}, 400, 600, tools)
+			self.assertIn(words, str(e.exception))
+
 	def test_what_does_not_fit_is_said_in_words(self):
 		for pattern, w, h, words in (
 			({"elements": [{**CLASSIC["elements"][0], "offset": 260}]}, 500, 500, "не помещается"),

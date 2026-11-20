@@ -48,7 +48,8 @@ class CncPatternEditor extends ConsumerStatefulWidget {
   ConsumerState<CncPatternEditor> createState() => _CncPatternEditorState();
 }
 
-class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
+class _CncPatternEditorState extends ConsumerState<CncPatternEditor>
+    with SingleTickerProviderStateMixin {
   late CncPattern _p =
       widget.pattern ??
       CncPattern(
@@ -72,6 +73,13 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
   CncPreview? _preview;
   CncRelief? _relief;
   CncSection? _section;
+
+  /// The cutter's run from above, 0…1; at 1 the whole pattern is drawn.
+  late final AnimationController _run = AnimationController(
+    vsync: this,
+    duration: AppDuration.cutterRun,
+    value: 1,
+  );
   Object? _error;
   bool _loading = false;
   bool _busy = false;
@@ -89,6 +97,7 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
   @override
   void dispose() {
     _timer?.cancel();
+    _run.dispose();
     super.dispose();
   }
 
@@ -504,13 +513,42 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor> {
                     relief: _relief!,
                     thickness: _t,
                   )
-                : CncFacadeView(
-                    key: const ValueKey('cncFacade'),
-                    width: _w,
-                    height: _h,
-                    cuts: p?.error == null ? p?.cuts ?? const [] : const [],
+                : AnimatedBuilder(
+                    animation: _run,
+                    builder: (context, _) => CncFacadeView(
+                      key: const ValueKey('cncFacade'),
+                      width: _w,
+                      height: _h,
+                      cuts: p?.error == null ? p?.cuts ?? const [] : const [],
+                      progress: _run.value,
+                    ),
                   ),
           ),
+          if (!_inThreeD && (p?.cuts.isNotEmpty ?? false))
+            Row(
+              children: [
+                IconButton(
+                  key: const ValueKey('cncSimPlay'),
+                  tooltip: l10n.cncpSimulate,
+                  icon: const Icon(AppIcons.play),
+                  onPressed: () => unawaited(_run.forward(from: 0)),
+                ),
+                Expanded(
+                  child: AnimatedBuilder(
+                    animation: _run,
+                    builder: (context, _) => Slider(
+                      key: const ValueKey('cncSim'),
+                      value: _run.value,
+                      onChanged: (v) {
+                        _run
+                          ..stop()
+                          ..value = v;
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           if (_inThreeD && _relief != null)
             Align(
               alignment: Alignment.centerLeft,
@@ -622,6 +660,14 @@ extension on _CncPatternEditorState {
           key: const ValueKey('cncThin'),
           style: TextStyle(color: status.warning),
         ),
+      for (final (i, f) in section.flaws().indexed)
+        Text(
+          f.wall
+              ? l10n.cncpWall(cncFmt(_round(f.size)), cncFmt(_round(f.at)))
+              : l10n.cncpRidge(cncFmt(_round(f.size)), cncFmt(_round(f.at))),
+          key: ValueKey('cncFlaw:$i'),
+          style: TextStyle(color: status.warning),
+        ),
       const SizedBox(height: AppSpacing.sm),
     ];
   }
@@ -726,6 +772,10 @@ class _ElementCard extends StatelessWidget {
                         value: CncElementKind.grooves,
                         label: Text(l10n.cncpKindGrooves),
                       ),
+                      ButtonSegment(
+                        value: CncElementKind.pocket,
+                        label: Text(l10n.cncpKindPocket),
+                      ),
                     ],
                     selected: {e.kind},
                     onSelectionChanged: enabled
@@ -824,6 +874,15 @@ class _ElementCard extends StatelessWidget {
                     (v) => e.copyWith(radius: v),
                   ),
                 ],
+              ],
+              CncElementKind.pocket => [
+                field(
+                  'offset',
+                  l10n.cncpOffset,
+                  e.offset,
+                  (v) => e.copyWith(offset: v),
+                  helper: l10n.cncpPocketHint,
+                ),
               ],
               CncElementKind.arch => [
                 field(
