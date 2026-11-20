@@ -324,6 +324,23 @@ class FilmDecorRepository {
   Future<FilmDecors> decors() async =>
       FilmDecors.fromJson(_map(await _client.callMethod('$_base.decors')));
 
+  /// [takeDecor] with the film itself — a newer server sends it, so a
+  /// receipt opens on it without the whole stock fetched again.
+  Future<({String label, Film? film})> takeFilm(String decor) async {
+    final j = _map(
+      await _client.callMethod(
+        'korkem_manufacturing.api.film_picker.take',
+        post: true,
+        params: {'decor': decor},
+      ),
+    );
+    final f = j['film'];
+    return (
+      label: '${j['label']}',
+      film: f is Map ? Film.fromJson(Map<String, dynamic>.from(f)) : null,
+    );
+  }
+
   Future<Map<String, dynamic>> importPack(Uint8List zip) async => _map(
     await _client.callMethod(
       '$_base.import_pack',

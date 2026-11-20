@@ -11630,4 +11630,97 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfDebtOverLimitWho => 'Кім рұқсат етті және неге';
+
+  @override
+  String invoiceVatIn(String rate, String sum) {
+    return 'Оның ішінде ҚҚС $rate%: $sum';
+  }
+
+  @override
+  String get invoiceNoVat => 'ҚҚС-сыз';
+
+  @override
+  String invoiceBasis(String what) {
+    return 'Негіздеме: $what';
+  }
+
+  @override
+  String mdfInvoiceBasis(String no) {
+    return '№ $no тапсырыс';
+  }
+
+  @override
+  String get mdfInvoiceButton => 'Төлем шоты';
+
+  @override
+  String get mdfInvoiceSum => 'Сома';
+
+  @override
+  String get mdfInvoiceWhole => 'Бүкіл қалдық';
+
+  @override
+  String get mdfInvoiceHalf => 'Алдын ала төлем 50%';
+
+  @override
+  String get mdfInvoiceOwn => 'Өз сомасы';
+
+  @override
+  String get mdfInvoicePayer => 'Төлеуші (ЖШС, ЖК немесе клиенттің өзі)';
+
+  @override
+  String get mdfInvoiceBin => 'Төлеушінің БСН/ЖСН';
+
+  @override
+  String get mdfInvoiceBinBad => 'БСН/ЖСН — 12 сан';
+
+  @override
+  String get mdfInvoicePayerHint => 'Клиент картасында сақталады';
+
+  @override
+  String mdfInvoiceVat(String rate) {
+    return 'ҚҚС-пен $rate%';
+  }
+
+  @override
+  String get mdfInvoiceMake => 'Шотты жасап жіберу';
+
+  @override
+  String mdfInvoiceRow(String no, String day, String sum) {
+    return '№ $no шот, $day · $sum';
+  }
+
+  @override
+  String mdfInvoiceWaiting(String day) {
+    return '$day дейін төлемді күтеміз';
+  }
+
+  @override
+  String mdfInvoiceOverdue(String day) {
+    return 'төлем мерзімі өтті $day';
+  }
+
+  @override
+  String mdfInvoicePart(String paid, String sum) {
+    return '$sum ішінен $paid төленді';
+  }
+
+  @override
+  String get mdfInvoicePaid => 'төленді';
+
+  @override
+  String get mdfInvoiceCancelled => 'жойылды';
+
+  @override
+  String get mdfInvoiceAgain => 'Басып шығару / жіберу';
+
+  @override
+  String get mdfInvoiceCancel => 'Шотты жою';
+
+  @override
+  String get mdfInvoiceCancelWhy => 'Шот неге жойылады';
+
+  @override
+  String mdfPayByInvoice(String no, String sum) {
+    return '№ $no шот бойынша · $sum';
+  }
 }

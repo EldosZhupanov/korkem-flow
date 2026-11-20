@@ -313,14 +313,17 @@ def stages_for(finish: str | None = None) -> list[str]:
 
 @frappe.whitelist(methods=["POST"])
 def add_payment(order: str, amount: float | str, method: str = "Перевод", paid_on: str | None = None,
-				idempotency_key: str | None = None, bank: str | None = None) -> dict:
-	"""Оплата по заказу: сумма, способ (и банк перевода или карты), дата."""
-	from korkem_manufacturing.services import facade_prices, payments
+				idempotency_key: str | None = None, bank: str | None = None, invoice: str | None = None) -> dict:
+	"""Оплата по заказу: сумма, способ (и банк перевода или карты), дата;
+	по счёту на оплату — его номер, и оплата идёт в счёт."""
+	from korkem_manufacturing.services import facade_prices, mdf_invoices, payments
 
 	facade_prices.ensure_editor()
 	method, bank = _method_bank(method, bank)
 	doc = service._accepted(order)
-	payments.record_payment(
+	if invoice:
+		mdf_invoices.paid_by(doc, invoice, None)  # a cancelled or unknown one is refused first
+	paid = payments.record_payment(
 		sales_order=doc.name,
 		amount=amount,
 		payment_type="Deposit" if not service._debt(doc) or float(doc.advance_paid or 0) == 0 else "Final",
@@ -329,9 +332,43 @@ def add_payment(order: str, amount: float | str, method: str = "Перевод",
 		paid_on=paid_on,
 		idempotency_key=idempotency_key,
 	)
+	if invoice and paid.get("status") != "already_recorded":
+		mdf_invoices.paid_by(doc, invoice, paid.get("payment_entry"))
 	from korkem_manufacturing.services import mdf_payments
 
-	doc.add_comment("Comment", f"Оплата: {mdf_payments._words(float(amount), method, bank)}.")
+	by = f" по счёту № {invoice}" if invoice else ""
+	doc.add_comment("Comment", f"Оплата{by}: {mdf_payments._words(float(amount), method, bank)}.")
+	return service.card(doc.name)
+
+
+@frappe.whitelist(methods=["POST"])
+def invoice_issue(order: str, amount: float | str, payer: str | None = None, bin: str | None = None,
+				  due_on: str | None = None, vat: str | int | None = None) -> dict:
+	"""Счёт на оплату по заказу: сумма, плательщик и его БИН, оплатить до, с НДС или без.
+	Ответ — счёт с реквизитами для печати и карточка заказа."""
+	from korkem_manufacturing.services import mdf_invoices
+
+	doc = service._accepted(order)
+	made = mdf_invoices.issue(doc, amount=amount, payer_name=payer, bin=bin, due_on=due_on, vat=vat)
+	return {**mdf_invoices.printed(doc, made["no"]), "order": service.card(doc.name)}
+
+
+@frappe.whitelist(methods=["GET"])
+def invoice_print(order: str, no: str) -> dict:
+	"""Выставленный счёт, как был, с реквизитами — напечатать или отправить снова."""
+	from korkem_manufacturing.services import mdf_invoices
+
+	return mdf_invoices.printed(service._order(order), no)
+
+
+@frappe.whitelist(methods=["POST"])
+def invoice_cancel(order: str, no: str, reason: str) -> dict:
+	"""Счёт выставлен по ошибке: отменён, номер больше не используется."""
+	from korkem_manufacturing.services import mdf_invoices
+
+	reason = service._reason(reason, "Укажите, почему счёт отменяется.")
+	doc = service._accepted(order)
+	mdf_invoices.cancel(doc, no, reason)
 	return service.card(doc.name)
 
 

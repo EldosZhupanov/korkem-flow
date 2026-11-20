@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_invoice_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_print.dart';
+import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The owner's №1129, Kazakh names and all, on paper.
 const Map<String, Object?> _orderJson = {
@@ -203,5 +206,38 @@ void main() {
     expect(edges, ['R0', 'R1', 'R3', 'R10', 'Полукруг', 'Фаска 45°']);
     final materials = ['ХДФ', 'МДФ', 'ЛМДФ']..sort(mdfNaturalCompare);
     expect(materials, ['ЛМДФ', 'МДФ', 'ХДФ']);
+  });
+
+  test('an invoice to pay prints, VAT and the sum in words with it', () async {
+    final order = MdfOrder.fromJson(_orderJson);
+    final paper = (
+      invoice: MdfInvoice.fromJson(const {
+        'no': '7',
+        'on': '2026-11-20',
+        'due_on': '2026-11-25',
+        'amount': 58680,
+        'payer': 'ТОО «Мебель-Юг»',
+        'bin': '123456789012',
+        'vat': 16,
+        'lines': [
+          {
+            'name': 'Фасады МДФ 16 мм, плёнка ПВХ «Венге»',
+            'qty': 3.04,
+            'unit': 'м²',
+            'price': 19303,
+            'amount': 58680,
+          },
+        ],
+      }),
+      requisites: const {'name': 'ТОО «KORKEM»', 'bin': '123456789012'},
+    );
+    for (final locale in ['ru', 'kk', 'en']) {
+      final bytes = await buildMdfInvoicePdf(
+        order,
+        paper,
+        lookupAppLocalizations(Locale(locale)),
+      );
+      expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
+    }
   });
 }

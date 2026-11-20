@@ -86,7 +86,10 @@ def take(decor: str) -> dict:
 		pluck="name", order_by="name", limit_page_length=1,
 	)
 	if have:
-		return {"item": have[0], "label": film_catalog.label(d.maker, d.decor_name)}
+		return {"item": have[0], "label": film_catalog.label(d.maker, d.decor_name), "film": film_catalog.film(have[0])}
 	with material_stock.granted():
 		film = film_decors.from_decor(decor)
-	return {"item": film["item"], "label": film.get("label") or film_catalog.label(d.maker, d.decor_name)}
+	# The film itself too: the receipt opens on it without the whole stock
+	# fetched again (owner, 20.11.2026: «после долгих нажатий еле открывается»).
+	return {"item": film["item"], "label": film.get("label") or film_catalog.label(d.maker, d.decor_name),
+			"film": film}

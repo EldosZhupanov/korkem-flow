@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/mdf/domain/glue_stock.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_invoice.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 import 'package:korkem_flow/features/paint_catalogue/domain/paint_catalogue.dart';
 
+export 'package:korkem_flow/features/mdf/domain/mdf_invoice.dart';
 export 'package:korkem_flow/features/mdf/domain/mdf_tags.dart';
 
 /// Where an MDF order is (`korkem_manufacturing.services.mdf_orders`).
@@ -620,6 +622,10 @@ class MdfOrder {
     this.glue,
     this.cnc = false,
     this.paintSwaps = const [],
+    this.invoices = const [],
+    this.payerName = '',
+    this.payerBin = '',
+    this.invoiceVat = 0,
   });
 
   factory MdfOrder.fromJson(Map<String, dynamic> json) => MdfOrder(
@@ -725,6 +731,19 @@ class MdfOrder {
         ? OrderGlue.fromJson(Map<String, dynamic>.from(json['glue'] as Map))
         : null,
     cnc: json['cnc'] == true,
+    invoices: [
+      for (final i in json['invoices'] as List? ?? const [])
+        if (i is Map) MdfInvoice.fromJson(Map<String, dynamic>.from(i)),
+    ],
+    payerName: switch (json['payer']) {
+      final Map<dynamic, dynamic> p => '${p['name'] ?? ''}',
+      _ => '',
+    },
+    payerBin: switch (json['payer']) {
+      final Map<dynamic, dynamic> p => '${p['bin'] ?? ''}',
+      _ => '',
+    },
+    invoiceVat: _i(json['invoice_vat']),
   );
 
   final String name;
@@ -743,6 +762,13 @@ class MdfOrder {
   final double paid;
   final double debt;
   final List<MdfPayment> payments;
+
+  /// «Счёт на оплату» (owner, 20.11.2026): the order's invoices, oldest
+  /// first; who pays, as the last one said; VAT the shop charges, %.
+  final List<MdfInvoice> invoices;
+  final String payerName;
+  final String payerBin;
+  final int invoiceVat;
 
   /// The stages this order goes through, each with the day it was ticked.
   final Map<MdfStage, String?> stages;

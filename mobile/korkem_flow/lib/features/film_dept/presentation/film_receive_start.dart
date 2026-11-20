@@ -43,6 +43,10 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
   bool _busy = false;
   bool _done = false;
 
+  /// The catalogue decor being opened — its card spins until the receipt
+  /// shows (owner, 20.11.2026: «после долгих нажатий еле открывается»).
+  String? _opening;
+
   /// «Ждём» shown; folded once a film is looked for.
   bool _waitOpen = true;
 
@@ -131,19 +135,66 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
   Future<void> _film(FilmCatalog c, Film f) =>
       _run(() => showFilmReceive(context, f, c));
 
-  /// A catalogue decor not on the books yet: taken in, then received.
-  Future<void> _decor(FilmDecor d) => _run(() async {
-    final label = await ref
-        .read(filmDecorRepositoryProvider)
-        .takeDecor(
-          d.decor,
-        );
-    ref.invalidate(filmStockProvider);
-    final c = await ref.read(filmStockProvider.future);
-    final film = c.films.where((f) => f.label == label).firstOrNull;
-    if (film == null || !mounted) return true;
-    return showFilmReceive(context, film, c);
-  });
+  /// One of a film's thicknesses; the only one without asking.
+  Future<Film?> _thickness(List<Film> g) async {
+    if (g.length == 1) return g.single;
+    final l10n = AppLocalizations.of(context);
+    return showDialog<Film>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(l10n.filmThickness),
+        children: [
+          for (final v in g)
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(context).pop(v),
+              child: Text(
+                switch (v.thicknessMm) {
+                  final t? => '${filmMetres(t)} мм',
+                  null => l10n.filmThicknessUnknown,
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// A catalogue decor: the shop's film of it received, or — not on the
+  /// books yet — taken in first. The card stays where it was, now saying
+  /// how much is on hand, rather than leaving for «Наши» above (owner,
+  /// 20.11.2026: «выбранная плёнка пропадает… наверх»).
+  Future<void> _decor(FilmCatalog c, FilmDecor d) async {
+    if (_busy) return;
+    setState(() => _opening = d.decor);
+    try {
+      await _run(() async {
+        final own = [for (final x in d.films) ?c.film(x.item)];
+        var stock = c;
+        Film? film;
+        if (own.isNotEmpty) {
+          film = await _thickness(own);
+        } else {
+          final took = await ref
+              .read(filmDecorRepositoryProvider)
+              .takeFilm(d.decor);
+          _done = true;
+          ref.invalidate(filmDecorsProvider);
+          film = took.film;
+          if (film == null) {
+            // An older server names the film alone: found in the stock.
+            ref.invalidate(filmStockProvider);
+            stock = await ref.read(filmStockProvider.future);
+            film = stock.films.where((f) => f.label == took.label).firstOrNull;
+          }
+        }
+        if (film == null || !mounted) return false;
+        setState(() => _opening = null);
+        return showFilmReceive(context, film, stock);
+      });
+    } finally {
+      if (mounted) setState(() => _opening = null);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +208,10 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
     );
     final c = ref.watch(filmStockProvider).value;
     final wanted = ref.watch(filmWantedProvider).value;
+    // The whole catalogues, the decors the shop has among them: a decor
+    // taken in keeps its place and says how much is on hand.
     final decors =
-        ref.watch(filmPickExtrasProvider(null)).value?.decors ?? const [];
+        ref.watch(filmDecorsProvider).value?.decors ?? const <FilmDecor>[];
     Widget body;
     if (c == null) {
       body = const Center(child: CircularProgressIndicator());
@@ -197,7 +250,6 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
                 ]))
                   g,
             ];
-      final known = {for (final f in c.films) _norm('${f.maker} ${f.colour}')};
       final ofMaker = [
         for (final d in decors)
           if (d.maker == maker) d,
@@ -209,8 +261,7 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
           ? const <FilmDecor>[]
           : [
               for (final d in maker == null ? decors : ofMaker)
-                if (!known.contains(_norm('${d.maker} ${d.name}')) &&
-                    (_collection == null || d.collection == _collection) &&
+                if ((_collection == null || d.collection == _collection) &&
                     _found([d.maker, d.name, d.code, d.collection]))
                   d,
             ];
@@ -394,27 +445,7 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
               onTap: _busy
                   ? null
                   : () async {
-                      final f = g.length == 1
-                          ? g.single
-                          : await showDialog<Film>(
-                              context: context,
-                              builder: (context) => SimpleDialog(
-                                title: Text(l10n.filmThickness),
-                                children: [
-                                  for (final v in g)
-                                    SimpleDialogOption(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(v),
-                                      child: Text(
-                                        switch (v.thicknessMm) {
-                                          final t? => '${filmMetres(t)} мм',
-                                          null => l10n.filmThicknessUnknown,
-                                        },
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            );
+                      final f = await _thickness(g);
                       if (f != null) await _film(c, f);
                     },
             ),
@@ -439,11 +470,33 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
                 childAspectRatio: 0.85,
               ),
               itemCount: fromCatalog.length,
-              itemBuilder: (context, i) => DecorCard(
-                key: ValueKey('rcvDecor:${fromCatalog[i].decor}'),
-                decor: fromCatalog[i],
-                onTap: _busy ? () {} : () => _decor(fromCatalog[i]),
-              ),
+              itemBuilder: (context, i) {
+                final d = fromCatalog[i];
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    DecorCard(
+                      key: ValueKey('rcvDecor:${d.decor}'),
+                      decor: d,
+                      onTap: _busy ? () {} : () => _decor(c, d),
+                    ),
+                    if (_opening == d.decor)
+                      Center(
+                        key: ValueKey('rcvOpening:${d.decor}'),
+                        child: DecoratedBox(
+                          decoration: ShapeDecoration(
+                            shape: const CircleBorder(),
+                            color: theme.colorScheme.surface,
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(AppSpacing.sm),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
             if (catalogue.length > fromCatalog.length)
               Padding(
