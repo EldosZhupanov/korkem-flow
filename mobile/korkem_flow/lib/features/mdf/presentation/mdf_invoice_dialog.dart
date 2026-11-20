@@ -309,7 +309,8 @@ class _InvoiceDialogState extends ConsumerState<_InvoiceDialog> {
                   Text(
                     [
                       r['name'],
-                      if (r['bin']!.isNotEmpty) '${l10n.filmReqBin} ${r['bin']}',
+                      if (r['bin']!.isNotEmpty)
+                        '${l10n.filmReqBin} ${r['bin']}',
                       if (r['iik']!.isNotEmpty) r['iik'],
                     ].join(' · '),
                     style: theme.textTheme.bodySmall,

@@ -93,6 +93,9 @@ class MdfInvoice {
 }
 
 /// An invoice to print: as it was issued, with the factory's requisites.
-typedef MdfInvoicePrint = ({MdfInvoice invoice, Map<String, String> requisites});
+typedef MdfInvoicePrint = ({
+  MdfInvoice invoice,
+  Map<String, String> requisites,
+});
 
 double _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;

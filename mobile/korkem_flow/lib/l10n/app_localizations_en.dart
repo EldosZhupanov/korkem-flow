@@ -11634,4 +11634,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfDebtOverLimitWho => 'Who allowed it and why';
+
+  @override
+  String invoiceVatIn(String rate, String sum) {
+    return 'Incl. VAT $rate%: $sum';
+  }
+
+  @override
+  String get invoiceNoVat => 'No VAT';
+
+  @override
+  String invoiceBasis(String what) {
+    return 'For: $what';
+  }
+
+  @override
+  String mdfInvoiceBasis(String no) {
+    return 'order No. $no';
+  }
+
+  @override
+  String get mdfInvoiceButton => 'Invoice to pay';
+
+  @override
+  String get mdfInvoiceSum => 'Amount';
+
+  @override
+  String get mdfInvoiceWhole => 'All that is owed';
+
+  @override
+  String get mdfInvoiceHalf => 'Prepayment 50%';
+
+  @override
+  String get mdfInvoiceOwn => 'Own amount';
+
+  @override
+  String get mdfInvoicePayer => 'Payer (a company or the customer)';
+
+  @override
+  String get mdfInvoiceBin => 'Payer\'s BIN/IIN';
+
+  @override
+  String get mdfInvoiceBinBad => 'BIN/IIN is 12 digits';
+
+  @override
+  String get mdfInvoicePayerHint => 'Kept on the customer card';
+
+  @override
+  String mdfInvoiceVat(String rate) {
+    return 'With VAT $rate%';
+  }
+
+  @override
+  String get mdfInvoiceMake => 'Make and send';
+
+  @override
+  String mdfInvoiceRow(String no, String day, String sum) {
+    return 'Invoice No. $no of $day · $sum';
+  }
+
+  @override
+  String mdfInvoiceWaiting(String day) {
+    return 'awaiting payment by $day';
+  }
+
+  @override
+  String mdfInvoiceOverdue(String day) {
+    return 'overdue since $day';
+  }
+
+  @override
+  String mdfInvoicePart(String paid, String sum) {
+    return '$paid of $sum paid';
+  }
+
+  @override
+  String get mdfInvoicePaid => 'paid';
+
+  @override
+  String get mdfInvoiceCancelled => 'cancelled';
+
+  @override
+  String get mdfInvoiceAgain => 'Print / send';
+
+  @override
+  String get mdfInvoiceCancel => 'Cancel the invoice';
+
+  @override
+  String get mdfInvoiceCancelWhy => 'Why the invoice is cancelled';
+
+  @override
+  String mdfPayByInvoice(String no, String sum) {
+    return 'By invoice No. $no · $sum';
+  }
 }

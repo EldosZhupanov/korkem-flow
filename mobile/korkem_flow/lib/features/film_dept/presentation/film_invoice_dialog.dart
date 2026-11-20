@@ -205,7 +205,8 @@ FilmInvoiceWords filmInvoiceWords(AppLocalizations l10n) => (
   vatIn: (rate, sum) => l10n.invoiceVatIn('$rate', sum),
   noVat: l10n.invoiceNoVat,
   basis: l10n.invoiceBasis,
-  inWords: (sum) => l10n.localeName.startsWith('ru') ? tengeInWordsRu(sum) : null,
+  inWords: (sum) =>
+      l10n.localeName.startsWith('ru') ? tengeInWordsRu(sum) : null,
 );
 
 /// The factory's requisites, kept once for every invoice: what is saved,

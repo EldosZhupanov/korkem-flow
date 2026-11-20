@@ -251,7 +251,10 @@ class _FakeRepository implements MdfOrderRepository {
     };
     invoices = [inv];
     return (
-      print: (invoice: MdfInvoice.fromJson(inv), requisites: <String, String>{}),
+      print: (
+        invoice: MdfInvoice.fromJson(inv),
+        requisites: <String, String>{},
+      ),
       order: await card(order),
     );
   }
@@ -1415,9 +1418,7 @@ void main() {
     // On the card: waited for.
     expect(find.byKey(const ValueKey('mdfInvoice:7')), findsOneWidget);
     expect(
-      tester
-          .widget<Text>(find.byKey(const ValueKey('mdfInvoiceState:7')))
-          .data,
+      tester.widget<Text>(find.byKey(const ValueKey('mdfInvoiceState:7'))).data,
       startsWith('awaiting payment by'),
     );
     // Paid by it: the sum is the invoice's, the method a transfer.

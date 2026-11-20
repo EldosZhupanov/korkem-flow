@@ -19912,6 +19912,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Who allowed it and why'**
   String get mdfDebtOverLimitWho;
+
+  /// No description provided for @invoiceVatIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Incl. VAT {rate}%: {sum}'**
+  String invoiceVatIn(String rate, String sum);
+
+  /// No description provided for @invoiceNoVat.
+  ///
+  /// In en, this message translates to:
+  /// **'No VAT'**
+  String get invoiceNoVat;
+
+  /// No description provided for @invoiceBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'For: {what}'**
+  String invoiceBasis(String what);
+
+  /// No description provided for @mdfInvoiceBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'order No. {no}'**
+  String mdfInvoiceBasis(String no);
+
+  /// No description provided for @mdfInvoiceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice to pay'**
+  String get mdfInvoiceButton;
+
+  /// No description provided for @mdfInvoiceSum.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get mdfInvoiceSum;
+
+  /// No description provided for @mdfInvoiceWhole.
+  ///
+  /// In en, this message translates to:
+  /// **'All that is owed'**
+  String get mdfInvoiceWhole;
+
+  /// No description provided for @mdfInvoiceHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment 50%'**
+  String get mdfInvoiceHalf;
+
+  /// No description provided for @mdfInvoiceOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Own amount'**
+  String get mdfInvoiceOwn;
+
+  /// No description provided for @mdfInvoicePayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Payer (a company or the customer)'**
+  String get mdfInvoicePayer;
+
+  /// No description provided for @mdfInvoiceBin.
+  ///
+  /// In en, this message translates to:
+  /// **'Payer\'s BIN/IIN'**
+  String get mdfInvoiceBin;
+
+  /// No description provided for @mdfInvoiceBinBad.
+  ///
+  /// In en, this message translates to:
+  /// **'BIN/IIN is 12 digits'**
+  String get mdfInvoiceBinBad;
+
+  /// No description provided for @mdfInvoicePayerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept on the customer card'**
+  String get mdfInvoicePayerHint;
+
+  /// No description provided for @mdfInvoiceVat.
+  ///
+  /// In en, this message translates to:
+  /// **'With VAT {rate}%'**
+  String mdfInvoiceVat(String rate);
+
+  /// No description provided for @mdfInvoiceMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make and send'**
+  String get mdfInvoiceMake;
+
+  /// No description provided for @mdfInvoiceRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice No. {no} of {day} · {sum}'**
+  String mdfInvoiceRow(String no, String day, String sum);
+
+  /// No description provided for @mdfInvoiceWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'awaiting payment by {day}'**
+  String mdfInvoiceWaiting(String day);
+
+  /// No description provided for @mdfInvoiceOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'overdue since {day}'**
+  String mdfInvoiceOverdue(String day);
+
+  /// No description provided for @mdfInvoicePart.
+  ///
+  /// In en, this message translates to:
+  /// **'{paid} of {sum} paid'**
+  String mdfInvoicePart(String paid, String sum);
+
+  /// No description provided for @mdfInvoicePaid.
+  ///
+  /// In en, this message translates to:
+  /// **'paid'**
+  String get mdfInvoicePaid;
+
+  /// No description provided for @mdfInvoiceCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'cancelled'**
+  String get mdfInvoiceCancelled;
+
+  /// No description provided for @mdfInvoiceAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Print / send'**
+  String get mdfInvoiceAgain;
+
+  /// No description provided for @mdfInvoiceCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the invoice'**
+  String get mdfInvoiceCancel;
+
+  /// No description provided for @mdfInvoiceCancelWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why the invoice is cancelled'**
+  String get mdfInvoiceCancelWhy;
+
+  /// No description provided for @mdfPayByInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'By invoice No. {no} · {sum}'**
+  String mdfPayByInvoice(String no, String sum);
 }
 
 class _AppLocalizationsDelegate
