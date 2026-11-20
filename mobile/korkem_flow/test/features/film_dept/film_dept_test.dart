@@ -648,7 +648,12 @@ class _Decors implements FilmDecorRepository {
 late _Decors _decors;
 
 const _catalogue = [
-  FilmDecor(decor: 'D-1', maker: 'Adilet', name: 'Агератум', collection: 'Soft'),
+  FilmDecor(
+    decor: 'D-1',
+    maker: 'Adilet',
+    name: 'Агератум',
+    collection: 'Soft',
+  ),
   FilmDecor(decor: 'D-2', maker: 'Adilet', name: 'Шабо', collection: 'Wood'),
   // The shop has it already: MAT-1.
   FilmDecor(
