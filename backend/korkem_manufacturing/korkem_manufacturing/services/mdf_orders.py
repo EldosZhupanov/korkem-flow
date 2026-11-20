@@ -995,7 +995,7 @@ def card(order: str) -> dict:
 		for item in doc.items
 		if item.item_code == facade_order.FACADE_ITEM
 	]
-	from korkem_manufacturing.services import mdf_payments
+	from korkem_manufacturing.services import mdf_invoices, mdf_payments
 
 	paid_rows = mdf_payments.rows(doc.name)
 	return {
@@ -1021,6 +1021,11 @@ def card(order: str) -> dict:
 		"paid": flt(doc.advance_paid),
 		"debt": float(_debt(doc)),
 		"payments": paid_rows,
+		# «Счёт на оплату» (owner, 20.11.2026): the order's invoices, who
+		# pays as the last one said, and whether the shop charges VAT.
+		"invoices": mdf_invoices.rows(doc),
+		"payer": mdf_invoices.payer(doc.customer),
+		"invoice_vat": mdf_invoices.vat_default(doc.company),
 		"stages": [
 			{"stage": s, "done_on": _done_on(doc, s),
 			 "extra": s in _extra(doc.get("korkem_extra_stages")),

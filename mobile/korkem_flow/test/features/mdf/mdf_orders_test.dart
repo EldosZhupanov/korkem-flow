@@ -4,10 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/theme/app_theme.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_invoice_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -173,7 +176,7 @@ class _FakeRepository implements MdfOrderRepository {
 
   @override
   Future<MdfOrder> card(String name) async =>
-      MdfOrder.fromJson(_card(stages: stages));
+      MdfOrder.fromJson({..._card(stages: stages), 'invoices': invoices});
 
   @override
   Future<MdfOrder> setStage(
@@ -203,7 +206,55 @@ class _FakeRepository implements MdfOrderRepository {
     required double amount,
     required String method,
     String? bank,
-  }) async => paid.add((amount, method, bank));
+    String? invoice,
+  }) async {
+    paid.add((amount, method, bank));
+    paidBy.add(invoice);
+  }
+
+  /// The invoice each payment came by, if any.
+  final paidBy = <String?>[];
+
+  /// «Счёт на оплату»: what was asked for, and the order's invoices after.
+  final invoiced = <(double, String?, String?, bool)>[];
+  List<Map<String, Object?>> invoices = [];
+
+  @override
+  Future<({MdfInvoicePrint print, MdfOrder order})> issueInvoice(
+    String order, {
+    required double amount,
+    String? payer,
+    String? bin,
+    String? dueOn,
+    required bool vat,
+  }) async {
+    invoiced.add((amount, payer, bin, vat));
+    final inv = <String, Object?>{
+      'no': '7',
+      'on': '2026-11-20',
+      'due_on': '2099-01-01',
+      'amount': amount,
+      'payer': payer,
+      'bin': bin,
+      'vat': vat ? 16 : 0,
+      'lines': [
+        {
+          'name': 'Предоплата',
+          'qty': 1,
+          'unit': 'усл.',
+          'price': amount,
+          'amount': amount,
+        },
+      ],
+      'paid': 0,
+      'state': 'open',
+    };
+    invoices = [inv];
+    return (
+      print: (invoice: MdfInvoice.fromJson(inv), requisites: <String, String>{}),
+      order: await card(order),
+    );
+  }
 
   /// The server's arithmetic, in short: the area rounded, times the price
   /// typed or the film's.
@@ -1315,6 +1366,71 @@ void main() {
     ]);
   });
 
+  testWidgets('an invoice to pay: half before the work, then paid by it', (
+    tester,
+  ) async {
+    final repo = _FakeRepository();
+    final sent = <MdfInvoicePrint>[];
+    tester.view
+      ..physicalSize = const Size(2400, 4000)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfOrderRepositoryProvider.overrideWithValue(repo),
+          filmDeptRepositoryProvider.overrideWithValue(_Requisites()),
+          mdfInvoiceSendProvider.overrideWithValue(
+            (order, paper, l10n) async => sent.add(paper),
+          ),
+        ],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfInvoice')));
+    await tester.pumpAndSettle();
+    // Nothing paid yet: half of 34 165 before the work.
+    await tester.tap(find.byKey(const ValueKey('mdfInvoiceSum:half')));
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfInvoicePayer')),
+      'ТОО «Мебель-Юг»',
+    );
+    await tester.enterText(find.byKey(const ValueKey('mdfInvoiceBin')), '123');
+    await tester.pumpAndSettle();
+    final make = find.byKey(const ValueKey('mdfInvoiceMake'));
+    expect(tester.widget<FilledButton>(make).onPressed, isNull);
+    await tester.enterText(
+      find.byKey(const ValueKey('mdfInvoiceBin')),
+      '123456789012',
+    );
+    await tester.tap(find.byKey(const ValueKey('mdfInvoiceVat')));
+    await tester.pumpAndSettle();
+    await tester.tap(make);
+    await tester.pumpAndSettle();
+    expect(repo.invoiced, [
+      (17083.0, 'ТОО «Мебель-Юг»', '123456789012', true),
+    ]);
+    expect(sent.single.invoice.no, '7');
+    // On the card: waited for.
+    expect(find.byKey(const ValueKey('mdfInvoice:7')), findsOneWidget);
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('mdfInvoiceState:7')))
+          .data,
+      startsWith('awaiting payment by'),
+    );
+    // Paid by it: the sum is the invoice's, the method a transfer.
+    await tester.tap(find.byKey(const ValueKey('mdfAddPayment')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfPayInvoice:7')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentSave')));
+    await tester.pumpAndSettle();
+    expect(repo.paid, [(17083.0, 'Перевод', null)]);
+    expect(repo.paidBy, ['7']);
+  });
+
   testWidgets('more than is owed asks to be called an overpayment', (
     tester,
   ) async {
@@ -1397,4 +1513,14 @@ void main() {
     );
     expect(film.toJson().containsKey('gloss'), isFalse);
   });
+}
+
+/// The factory's requisites, filled in.
+class _Requisites implements FilmDeptRepository {
+  @override
+  Future<Map<String, String>> requisites() async =>
+      filmRequisitesOf(const {'name': 'ТОО «KORKEM»', 'bin': '123456789012'});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

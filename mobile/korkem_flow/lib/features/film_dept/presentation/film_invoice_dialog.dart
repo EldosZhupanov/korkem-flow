@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/format/money_words.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
@@ -66,29 +67,12 @@ class _InvoiceDialogState extends ConsumerState<_InvoiceDialog> {
       final invoice = await ref
           .read(filmDeptRepositoryProvider)
           .invoice(widget.sale.entry, dueOn: mdfIso(_due));
-      final bytes = await buildFilmInvoicePdf(widget.sale, invoice, (
-        title: l10n.filmInvoiceTitle,
-        beneficiary: l10n.filmInvoiceBeneficiary,
-        bank: l10n.filmReqBank,
-        bin: l10n.filmReqBin,
-        iik: l10n.filmReqIik,
-        bik: l10n.filmReqBik,
-        kbe: l10n.filmReqKbe,
-        supplier: l10n.filmInvoiceSupplier,
-        buyer: l10n.filmInvoiceBuyer,
-        phone: l10n.filmReceiptPhone,
-        number: l10n.filmInvoiceNumber,
-        item: l10n.filmInvoiceItem,
-        qty: l10n.filmInvoiceQty,
-        unit: l10n.filmInvoiceUnit,
-        metreUnit: l10n.filmInvoiceMetre,
-        price: l10n.filmReceiptPrice,
-        amount: l10n.filmReceiptAmount,
-        total: l10n.filmReceiptTotal,
-        summary: l10n.filmInvoiceSummary,
-        payBy: l10n.filmInvoicePayBy,
-        signed: l10n.filmInvoiceSigned,
-      ), locale: locale);
+      final bytes = await buildFilmInvoicePdf(
+        widget.sale,
+        invoice,
+        filmInvoiceWords(l10n),
+        locale: locale,
+      );
       await shareFilmInvoice(invoice, bytes);
       if (mounted) Navigator.of(context).pop();
     } on Object catch (e) {
@@ -192,6 +176,37 @@ class _InvoiceDialogState extends ConsumerState<_InvoiceDialog> {
     );
   }
 }
+
+/// A «Счёт на оплату»'s words in the reader's language — a film sale's
+/// and an MDF order's alike. The sum is written out in Russian, as an
+/// accountant in Kazakhstan reads an invoice; in another language, not.
+FilmInvoiceWords filmInvoiceWords(AppLocalizations l10n) => (
+  title: l10n.filmInvoiceTitle,
+  beneficiary: l10n.filmInvoiceBeneficiary,
+  bank: l10n.filmReqBank,
+  bin: l10n.filmReqBin,
+  iik: l10n.filmReqIik,
+  bik: l10n.filmReqBik,
+  kbe: l10n.filmReqKbe,
+  supplier: l10n.filmInvoiceSupplier,
+  buyer: l10n.filmInvoiceBuyer,
+  phone: l10n.filmReceiptPhone,
+  number: l10n.filmInvoiceNumber,
+  item: l10n.filmInvoiceItem,
+  qty: l10n.filmInvoiceQty,
+  unit: l10n.filmInvoiceUnit,
+  metreUnit: l10n.filmInvoiceMetre,
+  price: l10n.filmReceiptPrice,
+  amount: l10n.filmReceiptAmount,
+  total: l10n.filmReceiptTotal,
+  summary: l10n.filmInvoiceSummary,
+  payBy: l10n.filmInvoicePayBy,
+  signed: l10n.filmInvoiceSigned,
+  vatIn: (rate, sum) => l10n.invoiceVatIn('$rate', sum),
+  noVat: l10n.invoiceNoVat,
+  basis: l10n.invoiceBasis,
+  inWords: (sum) => l10n.localeName.startsWith('ru') ? tengeInWordsRu(sum) : null,
+);
 
 /// The factory's requisites, kept once for every invoice: what is saved,
 /// or null when left as it was.

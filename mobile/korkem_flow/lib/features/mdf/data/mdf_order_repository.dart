@@ -615,6 +615,7 @@ class MdfOrderRepository {
     required double amount,
     required String method,
     String? bank,
+    String? invoice,
   }) async {
     await _outbox.execute(
       _client,
@@ -624,9 +625,65 @@ class MdfOrderRepository {
         'amount': amount,
         'method': method,
         'bank': ?bank,
+        'invoice': ?invoice,
       },
     );
   }
+
+  /// «Счёт на оплату» (owner, 20.11.2026): a new invoice for [amount] of
+  /// what the order owes — the paper to print, and the card after it.
+  Future<({MdfInvoicePrint print, MdfOrder order})> issueInvoice(
+    String order, {
+    required double amount,
+    String? payer,
+    String? bin,
+    String? dueOn,
+    required bool vat,
+  }) async {
+    final j = _map(
+      await _client.callMethod(
+        '$_base.invoice_issue',
+        post: true,
+        params: {
+          'order': order,
+          'amount': amount,
+          'payer': ?payer,
+          'bin': ?bin,
+          'due_on': ?dueOn,
+          'vat': vat ? 1 : 0,
+        },
+      ),
+    );
+    return (
+      print: _invoicePrint(j),
+      order: MdfOrder.fromJson(_sub(j['order'])),
+    );
+  }
+
+  /// An invoice as it was issued, to print or send again.
+  Future<MdfInvoicePrint> printInvoice(String order, String no) async =>
+      _invoicePrint(
+        _map(
+          await _client.callMethod(
+            '$_base.invoice_print',
+            params: {'order': order, 'no': no},
+          ),
+        ),
+      );
+
+  Future<MdfOrder> cancelInvoice(
+    String order, {
+    required String no,
+    required String reason,
+  }) => _post('invoice_cancel', {'order': order, 'no': no, 'reason': reason});
+
+  MdfInvoicePrint _invoicePrint(Map<String, dynamic> j) => (
+    invoice: MdfInvoice.fromJson(_sub(j['invoice'])),
+    requisites: {
+      if (j['requisites'] case final Map<dynamic, dynamic> r)
+        for (final e in r.entries) '${e.key}': '${e.value ?? ''}'.trim(),
+    },
+  );
 
   Future<MdfOrder> _post(String method, Map<String, dynamic> params) async =>
       MdfOrder.fromJson(
@@ -638,6 +695,9 @@ class MdfOrderRepository {
           ),
         ),
       );
+
+  static Map<String, dynamic> _sub(Object? v) =>
+      v is Map ? Map<String, dynamic>.from(v) : <String, dynamic>{};
 
   Map<String, dynamic> _map(Map<String, dynamic> response) {
     final raw = response['message'] ?? response['data'];
