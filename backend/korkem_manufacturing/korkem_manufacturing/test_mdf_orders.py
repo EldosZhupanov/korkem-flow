@@ -1068,8 +1068,18 @@ class TestMdfOrders(IntegrationTestCase):
 		got = self._as(BUYER, paint_stock.set_recipe, recipe)
 		# 0,1 × 1,5 + 0,3 × 1,5 kg a m², every material together.
 		self.assertAlmostEqual(got["kg_per_m2"], 0.6, places=3)
-		got = self._as(BUYER, paint_stock.receive, colour, 10, 4000, supplier, base="Эмаль")
+		got = self._as(BUYER, paint_stock.receive, colour, 10, 4000, supplier, base="Эмаль", note="2 × 5 кг")
 		item = next(p["item"] for p in got["paints"] if p["colour"] == colour)
+		# How it came last time, for this time's cans; the invoice's photo
+		# kept with the receipt (owner, 20.11.2026).
+		self.assertEqual(next(p for p in got["paints"] if p["item"] == item)["last"]["note"], "2 × 5 кг")
+		import base64
+
+		png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==")
+		photo = self._as(BUYER, paint_stock.attach_photo, got["receipt"], "накладная.png", png)
+		self.assertEqual(self._as(BUYER, paint_stock.history, item)["receipts"][0]["photo"], photo["file"])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BUYER, paint_stock.attach_photo, got["receipt"], "накладная.exe", b"MZ")
 		# Primer and hardener come with no colour, whatever was picked.
 		got = self._as(BUYER, paint_stock.receive, colour, 5, 2000, supplier, base=primer)
 		primer_item = next(p["item"] for p in got["paints"] if p["base"] == primer)
