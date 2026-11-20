@@ -22,6 +22,10 @@ from korkem_manufacturing.services import audit, facade_prices, mdf_tags, phones
 from korkem_manufacturing.services.scope import current_company
 
 MAX = 2000
+#: Order numbers and objects a customer is found by, the latest first.
+FOUND_BY = 30
+#: «Давно не заказывал»: no order for this many days (owner, 20.11.2026).
+IDLE_DAYS = 90
 
 
 def _digits(phone: str | None) -> str:
@@ -64,15 +68,72 @@ def _row(doc) -> dict:
 
 
 def customers() -> list[dict]:
-	"""Every customer the company sells to, by name."""
+	"""Every customer the company sells to, by name — each with what the
+	order form needs to know before choosing him (owner, 20.11.2026): his
+	last order and what it was, how many, what he owes, what is in work, and
+	the order numbers and objects he is found by."""
 	facade_prices.ensure_editor()
+	company = current_company()
 	rows = frappe.get_all("Customer", filters={"disabled": 0},
 						  fields=["name", "customer_name", "mobile_no", "korkem_organization", "korkem_tags"],
 						  order_by="customer_name asc", limit_page_length=MAX)
-	allowed = _allowed([r.name for r in rows], current_company()) if rows else set()
+	allowed = _allowed([r.name for r in rows], company) if rows else set()
+	summary = _summaries(company)
 	return [{"name": r.name, "customer_name": r.customer_name, "phone": r.mobile_no,
-			 "organization": r.korkem_organization, "tags": mdf_tags.parse(r.korkem_tags)}
+			 "organization": r.korkem_organization, "tags": mdf_tags.parse(r.korkem_tags),
+			 **summary.get(r.name, {})}
 			for r in rows if r.name in allowed]
+
+
+def _summaries(company: str) -> dict[str, dict]:
+	"""Per customer, from his facade orders: one read of the orders, one of
+	the last orders' positions."""
+	from korkem_manufacturing.services import directions, mdf_orders
+
+	orders = frappe.get_all(
+		"Sales Order",
+		filters={"company": company, "korkem_direction": directions.FACADES, "docstatus": 1},
+		fields=["name", "customer", "transaction_date", "grand_total", "advance_paid", "docstatus", "korkem_tags",
+				"korkem_extra_name", "korkem_finish", "korkem_handed_over_on", "korkem_ready_on",
+				"korkem_hold_reason", *mdf_orders.STAGES.values()],
+		order_by="transaction_date desc, creation desc",
+		limit_page_length=0,
+	)
+	out: dict[str, dict] = {}
+	for o in orders:
+		s = out.setdefault(o.customer, {"orders": 0, "debt": 0.0, "in_work": 0, "last_order": o.name,
+										"last_on": str(o.transaction_date), "objects": [], "order_names": [],
+										"_finish": o.korkem_finish})
+		s["orders"] += 1
+		s["debt"] += float(mdf_orders._debt(o))
+		if mdf_orders.status_of(o) != "handed_over":
+			s["in_work"] += 1
+		if len(s["order_names"]) < FOUND_BY:
+			s["order_names"].append(o.name)
+		place = " ".join((o.korkem_extra_name or "").split())
+		if place and place not in s["objects"] and len(s["objects"]) < FOUND_BY:
+			s["objects"].append(place)
+	last = {s["last_order"]: s for s in out.values()}
+	for item in frappe.get_all(
+		"Sales Order Item",
+		filters={"parent": ["in", list(last)]} if last else {"name": ""},
+		fields=["parent", "korkem_line_coating", "korkem_decor_top", "korkem_milling", "korkem_finish"],
+		order_by="idx asc",
+		limit_page_length=0,
+	):
+		s = last[item.parent]
+		coating = item.korkem_line_coating or mdf_orders.coating_of(item.korkem_finish or s["_finish"])
+		group = {"coating": coating, "film": item.korkem_decor_top}
+		groups = s.setdefault("last_groups", [])
+		if group not in groups:
+			groups.append(group)
+		millings = s.setdefault("last_millings", [])
+		if item.korkem_milling and item.korkem_milling not in millings:
+			millings.append(item.korkem_milling)
+	for s in out.values():
+		s.pop("_finish", None)
+		s["debt"] = round(s["debt"], 2)
+	return out
 
 
 def add(name: str, phone: str | None = None, organization: str | None = None, tags=None) -> dict:

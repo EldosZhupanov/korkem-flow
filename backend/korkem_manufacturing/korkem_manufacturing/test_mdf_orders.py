@@ -794,6 +794,31 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertTrue(frappe.db.get_value("Customer", made["name"], "disabled"))
 		self.assertNotIn(made["name"], [c["name"] for c in self._as(MANAGER, mdf_customers.customers)])
 
+	def test_the_customer_list_says_his_last_order_debt_and_what_is_in_work(self):
+		"""The order form's customer window (owner, 20.11.2026): before he is
+		chosen, what he had last, what he owes, what is in work; found by an
+		order number or an object as well."""
+		from korkem_manufacturing.services import mdf_customers
+
+		made = self._as(MANAGER, mdf_customers.add, "МДФ Тест Сводка")
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=made["name"], delivery_date=add_days(nowdate(), 7),
+						head={"finish": PVC, "thickness_mm": 16, "extra_name": "Кухня, Абая 10"},
+						lines=ORDER_1129)
+		self.addCleanup(self._drop, card["name"])
+		card = self._as(MANAGER, mdf_orders.accept, card["name"])
+		row = next(c for c in self._as(MANAGER, mdf_customers.customers) if c["name"] == made["name"])
+		self.assertEqual((row["orders"], row["in_work"], row["last_order"]), (1, 1, card["name"]))
+		self.assertEqual(row["debt"], card["debt"])
+		self.assertEqual(row["objects"], ["Кухня, Абая 10"])
+		self.assertIn(card["name"], row["order_names"])
+		self.assertEqual(sorted(row["last_millings"]), sorted({FLAT, PATTERN}))
+		self.assertEqual([g["coating"] for g in row["last_groups"]], ["pvc"])
+		# A customer without orders carries no summary at all.
+		bare = self._as(MANAGER, mdf_customers.add, "МДФ Тест Без заказов")
+		self.addCleanup(lambda: frappe.delete_doc("Customer", bare["name"], force=True, ignore_permissions=True))
+		row = next(c for c in self._as(MANAGER, mdf_customers.customers) if c["name"] == bare["name"])
+		self.assertNotIn("orders", row)
+
 	def test_an_order_of_several_films_keeps_each_positions_film_back_and_material(self):
 		from korkem_manufacturing.services import mdf_dictionaries
 
