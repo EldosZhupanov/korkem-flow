@@ -174,7 +174,8 @@ def _finish_for(coating: str | None, company: str) -> str | None:
 # --- the arithmetic --------------------------------------------------------
 
 
-def price(lines, *, finish: str | None, default_rate=None, company: str | None = None, film_rates=None) -> dict:
+def price(lines, *, finish: str | None, default_rate=None, company: str | None = None, film_rates=None,
+		  customer: str | None = None) -> dict:
 	"""Price lines the owner's way. Pure arithmetic and price lookups; saves nothing.
 
 	Each line: `height_mm`, `width_mm`, `qty`, and optionally `milling`,
@@ -189,7 +190,13 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 	list or the default costs the factory's discount less — a price typed by
 	hand or set for the colour stands as it is. `client_mdf`: his own facades;
 	`client_film`: his own PVC film, priced by the group's price.
+
+	A `customer` with terms of his own (owner, 20.11.2026: «по разному»)
+	pays, instead of the price list, his own price a m² for the coating, or
+	the list less his discount — a price typed by hand or set for the film
+	stands as it is; the line says `customer_price`.
 	"""
+	from korkem_manufacturing.services import mdf_customers
 	if isinstance(lines, str):
 		lines = frappe.parse_json(lines)
 	if not isinstance(lines, list):
@@ -202,6 +209,8 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		film_rates = frappe.parse_json(film_rates) if film_rates.strip() else {}
 	by_film = {k: _money(v, f"Цена за м² плёнки «{k}»") for k, v in (film_rates or {}).items() if v not in (None, "")}
 	paint_discount = Decimal(str(client_paint_discount(company)))
+	terms = mdf_customers.price_terms(customer)
+	discount = Decimal(str(terms.get("discount_pct") or 0))
 
 	priced, pieces, area_total, total = [], 0, Decimal("0"), Decimal("0")
 	for index, raw in enumerate(lines, start=1):
@@ -232,6 +241,7 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		if gloss is not None and gloss not in GLOSSES:
 			frappe.throw(f"{label}: вид покрытия — один из: {', '.join(GLOSSES.values())}.")
 		manual = raw.get("rate") not in (None, "")
+		by_customer = False
 		if manual:
 			rate = _money(raw.get("rate"), f"{label}, цена")
 		elif film and film in by_film:
@@ -239,6 +249,12 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		else:
 			found = facade_prices.price_for(milling, line_finish or "", company) if milling and line_finish else None
 			rate = found if found is not None else fallback
+			own = Decimal(str(terms.get(coating) or 0)) if coating in ("pvc", "paint") else Decimal(0)
+			if own > 0:
+				rate, by_customer = own, True
+			elif rate is not None and discount > 0:
+				rate = (rate * (100 - discount) / 100).quantize(TENGE, rounding=ROUND_HALF_UP)
+				by_customer = True
 			if rate is not None and own_paint and paint_discount:
 				rate = max(Decimal(0), rate - paint_discount)
 		no_price = rate is None
@@ -262,6 +278,7 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 				"rate_m2": float(rate),
 				"amount": float(amount),
 				"manual_rate": manual,
+				"customer_price": by_customer,
 				"no_price": no_price,
 				"film": film,
 				"film_back": film_back,
@@ -485,7 +502,7 @@ def save_draft(*, customer: str, delivery_date: str, head=None, lines=None, orde
 	_put_standard_edges(head, lines, company)
 	values = _head(head, company)
 	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=company,
-				  film_rates=values["film_rates"])
+				  film_rates=values["film_rates"], customer=customer)
 	_coatings_into(values, quote["lines"])
 	if not quote["lines"]:
 		frappe.throw("Добавьте хотя бы одну позицию.")
@@ -526,12 +543,24 @@ def save_draft(*, customer: str, delivery_date: str, head=None, lines=None, orde
 	return card(doc.name)
 
 
-def accept(order: str) -> dict:
-	"""«Принять»: the prices are fixed, the material is held."""
+def accept(order: str, over_limit: str | None = None) -> dict:
+	"""«Принять»: the prices are fixed, the material is held. An order that
+	takes its customer over his debt limit is accepted only with a reason —
+	kept, with who gave it (owner, 20.11.2026)."""
+	from korkem_manufacturing.services import mdf_customers
+
 	facade_prices.ensure_editor()
 	doc = _order(order)
 	if doc.docstatus != 0:
 		frappe.throw("Заказ уже принят.")
+	check = mdf_customers.debt_check(doc.customer, flt(doc.grand_total))
+	reason = " ".join((over_limit or "").split())[:500]
+	if check["over"]:
+		if not reason:
+			frappe.throw(f"Долг клиента станет {check['after']:,.0f} ₸ — больше лимита {check['limit']:,.0f} ₸. "
+						 "Укажите, кто и почему разрешил.".replace(",", " "))
+		audit.record_audit(action="mdf.debt_limit_allowed", entity_type="Sales Order", entity_id=doc.name,
+						   diff={**check, "reason": reason})
 	doc.submit()
 	facade_materials.reserve(doc.name)
 	_give_out(doc)
@@ -604,7 +633,7 @@ def change_order(order: str, *, lines, reason: str, head=None, delivery_date: st
 	values = _head(head, doc.company) if head else {key: doc.get(field) for key, field in HEAD.items()}
 	wanted = _due(delivery_date) if delivery_date else getdate(doc.delivery_date)
 	quote = price(lines or [], finish=values["finish"], default_rate=values["default_rate"], company=doc.company,
-				  film_rates=values["film_rates"])
+				  film_rates=values["film_rates"], customer=doc.customer)
 	_coatings_into(values, quote["lines"])
 	if not quote["lines"]:
 		frappe.throw("В заказе должна остаться хотя бы одна позиция.")

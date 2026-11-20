@@ -17,6 +17,7 @@ is written for, so a customer added here is the customer the order names.
 from __future__ import annotations
 
 import frappe
+from frappe.utils import flt
 
 from korkem_manufacturing.services import audit, facade_prices, mdf_tags, phones
 from korkem_manufacturing.services.scope import current_company
@@ -26,6 +27,20 @@ MAX = 2000
 FOUND_BY = 30
 #: «Давно не заказывал»: no order for this many days (owner, 20.11.2026).
 IDLE_DAYS = 90
+
+#: Where a customer came from (owner, 20.11.2026: «в основном сарафанное,
+#: инстаграм, 2гис»).
+SOURCES = ("word", "instagram", "2gis", "repeat", "other")
+
+#: A customer's own terms, by what the window calls them.
+TERMS = {
+	"discount_pct": "korkem_price_discount_pct",
+	"price_pvc_m2": "korkem_price_pvc_m2",
+	"price_paint_m2": "korkem_price_paint_m2",
+	"debt_limit": "korkem_debt_limit",
+	"source": "korkem_source",
+}
+_LIMIT_DEFAULT = "korkem_debt_limit"
 
 
 def _digits(phone: str | None) -> str:
@@ -64,7 +79,101 @@ def _allowed(names: list[str], company: str) -> set[str]:
 
 def _row(doc) -> dict:
 	return {"name": doc.name, "customer_name": doc.customer_name, "phone": doc.mobile_no,
-			"organization": doc.get("korkem_organization"), "tags": mdf_tags.parse(doc.get("korkem_tags"))}
+			"organization": doc.get("korkem_organization"), "tags": mdf_tags.parse(doc.get("korkem_tags")),
+			**_terms_of(doc)}
+
+
+def _terms_of(row) -> dict:
+	"""His terms as the window reads them; a zero is «none»."""
+	out = {}
+	for key, field in TERMS.items():
+		value = row.get(field)
+		if key == "source":
+			if value:
+				out[key] = value
+		elif flt(value) > 0:
+			out[key] = flt(value)
+	return out
+
+
+def _clean_terms(terms) -> dict:
+	"""The fields of `terms` given, checked; None leaves a field as it is."""
+	if terms is None:
+		return {}
+	if isinstance(terms, str):
+		terms = frappe.parse_json(terms) if terms.strip() else {}
+	if not isinstance(terms, dict):
+		frappe.throw("Условия клиента — непонятный формат.")
+	out = {}
+	for key, field in TERMS.items():
+		if key not in terms:
+			continue
+		value = terms[key]
+		if key == "source":
+			if value not in (None, "") and value not in SOURCES:
+				frappe.throw("Откуда пришёл — сарафан, Instagram, 2ГИС, повторный или другое.")
+			out[field] = value or None
+			continue
+		number = flt(value) if value not in (None, "") else 0
+		if number < 0 or (key == "discount_pct" and number >= 100):
+			frappe.throw("Скидка — от 0 до 99 %; цены и лимит — не меньше нуля.")
+		out[field] = number
+	return out
+
+
+def default_debt_limit(company: str | None = None) -> float:
+	"""The shop's debt limit for a customer without his own; 0 — none."""
+	return max(0.0, flt(frappe.db.get_default(f"{_LIMIT_DEFAULT}:{company or current_company()}")))
+
+
+def set_default_debt_limit(amount) -> dict:
+	facade_prices.ensure_editor()
+	value = flt(amount) if amount not in (None, "") else 0
+	if value < 0:
+		frappe.throw("Лимит — не меньше нуля.")
+	frappe.db.set_default(f"{_LIMIT_DEFAULT}:{current_company()}", value)
+	audit.record_audit(action="mdf.debt_limit_default", entity_type="Company", entity_id=current_company(),
+					   diff={"limit": value})
+	return {"debt_limit": value}
+
+
+def debt_limit(customer: str, company: str | None = None) -> float:
+	own = flt(frappe.db.get_value("Customer", customer, TERMS["debt_limit"]))
+	return own if own > 0 else default_debt_limit(company)
+
+
+def debt_check(customer: str, adding=0) -> dict:
+	"""What he owes, his limit, and whether `adding` takes him over it —
+	asked before an order is accepted (owner, 20.11.2026: «лимит долга
+	должен настраиваться»)."""
+	facade_prices.ensure_editor()
+	from korkem_manufacturing.services import directions, mdf_orders
+
+	company = current_company()
+	owed = sum(
+		float(mdf_orders._debt(o)) for o in frappe.get_all(
+			"Sales Order",
+			filters={"company": company, "customer": customer, "korkem_direction": directions.FACADES,
+					 "docstatus": 1},
+			fields=["grand_total", "advance_paid", "docstatus", "korkem_tags"],
+			limit_page_length=0,
+		)
+	)
+	limit = debt_limit(customer, company)
+	after = owed + flt(adding)
+	return {"debt": round(owed, 2), "limit": limit, "after": round(after, 2),
+			"over": bool(limit > 0 and after > limit)}
+
+
+def price_terms(customer: str | None) -> dict:
+	"""His prices: a discount off the list, his own a m² by coating."""
+	if not customer:
+		return {}
+	row = frappe.db.get_value("Customer", customer, list(TERMS.values()), as_dict=True)
+	if not row:
+		return {}
+	return {"discount_pct": flt(row.korkem_price_discount_pct), "pvc": flt(row.korkem_price_pvc_m2),
+			"paint": flt(row.korkem_price_paint_m2)}
 
 
 def customers() -> list[dict]:
@@ -75,12 +184,15 @@ def customers() -> list[dict]:
 	facade_prices.ensure_editor()
 	company = current_company()
 	rows = frappe.get_all("Customer", filters={"disabled": 0},
-						  fields=["name", "customer_name", "mobile_no", "korkem_organization", "korkem_tags"],
+						  fields=["name", "customer_name", "mobile_no", "korkem_organization", "korkem_tags",
+								  *TERMS.values()],
 						  order_by="customer_name asc", limit_page_length=MAX)
 	allowed = _allowed([r.name for r in rows], company) if rows else set()
 	summary = _summaries(company)
+	shop_limit = default_debt_limit(company)
 	return [{"name": r.name, "customer_name": r.customer_name, "phone": r.mobile_no,
 			 "organization": r.korkem_organization, "tags": mdf_tags.parse(r.korkem_tags),
+			 **_terms_of(r), "limit": flt(r.korkem_debt_limit) or shop_limit,
 			 **summary.get(r.name, {})}
 			for r in rows if r.name in allowed]
 
@@ -136,21 +248,24 @@ def _summaries(company: str) -> dict[str, dict]:
 	return out
 
 
-def add(name: str, phone: str | None = None, organization: str | None = None, tags=None) -> dict:
+def add(name: str, phone: str | None = None, organization: str | None = None, tags=None, terms=None) -> dict:
 	facade_prices.ensure_editor()
 	name, phone, organization = _clean(name, phone, organization)
 	tags = mdf_tags.clean(tags, mdf_tags.CUSTOMER, "Клиент")
+	terms = _clean_terms(terms)
 	if other := _same_phone(phone):
 		frappe.throw(f"Этот телефон уже у клиента «{other}».")
 	doc = frappe.get_doc({"doctype": "Customer", "customer_name": name, "customer_type": "Individual",
-						  "mobile_no": phone, "korkem_organization": organization, "korkem_tags": tags}).insert()
+						  "mobile_no": phone, "korkem_organization": organization, "korkem_tags": tags,
+						  **terms}).insert()
 	audit.record_audit(action="mdf.customer_created", entity_type="Customer", entity_id=doc.name, diff={"name": name})
 	return _row(doc)
 
 
 def update(customer: str, name: str, phone: str | None = None, organization: str | None = None,
-		   tags=None) -> dict:
-	"""Change a customer; `tags` None keeps theirs, an empty list clears them."""
+		   tags=None, terms=None) -> dict:
+	"""Change a customer; `tags` None keeps theirs, an empty list clears them;
+	`terms` None keeps his terms, a key given changes that one."""
 	facade_prices.ensure_editor()
 	doc = _own(customer)
 	name, phone, organization = _clean(name, phone, organization)
@@ -162,6 +277,7 @@ def update(customer: str, name: str, phone: str | None = None, organization: str
 	doc.korkem_organization = organization
 	if tags is not None:
 		doc.korkem_tags = mdf_tags.clean(tags, mdf_tags.CUSTOMER, "Клиент")
+	doc.update(_clean_terms(terms))
 	doc.save()
 	audit.record_audit(action="mdf.customer_changed", entity_type="Customer", entity_id=doc.name,
 					   diff={"before": before, "after": _row(doc)})

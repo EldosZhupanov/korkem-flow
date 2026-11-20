@@ -18,12 +18,13 @@ LEGACY_METHODS = {"Kaspi": ("Перевод", "Kaspi")}
 
 @frappe.whitelist(methods=["POST"])
 def price(lines: str | list, finish: str | None = None, default_rate: float | str | None = None,
-		  film_rates: str | dict | None = None) -> dict:
+		  film_rates: str | dict | None = None, customer: str | None = None) -> dict:
 	"""Посчитать позиции, ничего не сохраняя — для мгновенного пересчёта на экране."""
 	from korkem_manufacturing.services import facade_prices
 
 	facade_prices.ensure_editor()
-	return service.price(lines, finish=finish, default_rate=default_rate, film_rates=film_rates)
+	return service.price(lines, finish=finish, default_rate=default_rate, film_rates=film_rates,
+						 customer=customer or None)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -35,8 +36,8 @@ def save_draft(customer: str, delivery_date: str, head: str | dict | None = None
 
 
 @frappe.whitelist(methods=["POST"])
-def accept(order: str) -> dict:
-	return service.accept(order)
+def accept(order: str, over_limit: str | None = None) -> dict:
+	return service.accept(order, over_limit=over_limit)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -254,18 +255,43 @@ def customer_list() -> list[dict]:
 
 @frappe.whitelist(methods=["POST"])
 def customer_add(name: str, phone: str | None = None, organization: str | None = None,
-				 tags: str | list | None = None) -> dict:
+				 tags: str | list | None = None, terms: str | dict | None = None) -> dict:
 	from korkem_manufacturing.services import mdf_customers
 
-	return mdf_customers.add(name, phone, organization, tags)
+	return mdf_customers.add(name, phone, organization, tags, terms)
 
 
 @frappe.whitelist(methods=["POST"])
 def customer_update(customer: str, name: str, phone: str | None = None, organization: str | None = None,
-					tags: str | list | None = None) -> dict:
+					tags: str | list | None = None, terms: str | dict | None = None) -> dict:
 	from korkem_manufacturing.services import mdf_customers
 
-	return mdf_customers.update(customer, name, phone, organization, tags)
+	return mdf_customers.update(customer, name, phone, organization, tags, terms)
+
+
+@frappe.whitelist(methods=["GET"])
+def customer_debt_check(customer: str, adding: float | str | None = None) -> dict:
+	"""Долг клиента, его лимит и превысит ли его новый заказ."""
+	from korkem_manufacturing.services import mdf_customers
+
+	return mdf_customers.debt_check(customer, adding or 0)
+
+
+@frappe.whitelist(methods=["GET"])
+def debt_limit_default() -> dict:
+	"""Лимит долга клиента по умолчанию."""
+	from korkem_manufacturing.services import facade_prices, mdf_customers
+
+	facade_prices.ensure_editor()
+	return {"debt_limit": mdf_customers.default_debt_limit()}
+
+
+@frappe.whitelist(methods=["POST"])
+def set_debt_limit_default(amount: float | str | None = None) -> dict:
+	"""Лимит долга клиента по умолчанию; пусто — без лимита."""
+	from korkem_manufacturing.services import mdf_customers
+
+	return mdf_customers.set_default_debt_limit(amount)
 
 
 @frappe.whitelist(methods=["POST"])

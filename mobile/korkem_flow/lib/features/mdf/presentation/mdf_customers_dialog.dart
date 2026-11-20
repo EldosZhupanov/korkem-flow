@@ -44,6 +44,15 @@ Future<MdfCustomerChoice?> showMdfCustomerChoice(
   builder: (_) => MdfCustomersDialog(current: current, repeat: repeat),
 );
 
+String mdfCustomerSourceLabel(MdfCustomerSource s, AppLocalizations l10n) =>
+    switch (s) {
+      MdfCustomerSource.word => l10n.mdfCustomerSourceWord,
+      MdfCustomerSource.instagram => 'Instagram',
+      MdfCustomerSource.twoGis => l10n.mdfCustomerSource2gis,
+      MdfCustomerSource.repeat => l10n.mdfCustomerSourceRepeat,
+      MdfCustomerSource.other => l10n.mdfCustomerSourceOther,
+    };
+
 /// Which customers the window shows (owner, 20.11.2026).
 enum MdfCustomerShow { recent, vip, debt, work, idle }
 
@@ -163,6 +172,7 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
         phone: input.phone,
         organization: input.organization,
         tags: input.tags,
+        terms: input.terms,
       ),
     );
     // Added from the order: he is the one chosen.
@@ -184,6 +194,7 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
         phone: input.phone,
         organization: input.organization,
         tags: input.tags,
+        terms: input.terms,
       ),
     );
   }
@@ -209,6 +220,51 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
     );
     if (sure != true) return;
     await _run((repo) => repo.customerRemove(c.name));
+  }
+
+  static String _pct(double v) =>
+      v == v.roundToDouble() ? v.toStringAsFixed(0) : '$v';
+
+  /// The shop's debt limit for whoever has none of his own.
+  Future<void> _limitDefault() async {
+    final l10n = AppLocalizations.of(context);
+    final repo = ref.read(mdfOrderRepositoryProvider);
+    final now = await _run((repo) => repo.debtLimitDefault());
+    if (now == null || !mounted) return;
+    final field = TextEditingController(
+      text: now > 0 ? now.toStringAsFixed(0) : '',
+    );
+    final amount = await showDialog<double>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.mdfDebtLimitDefault),
+        content: TextField(
+          key: const ValueKey('customerLimitDefaultValue'),
+          controller: field,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            helperText: l10n.mdfDebtLimitDefaultHint,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          ),
+          FilledButton(
+            key: const ValueKey('customerLimitDefaultSave'),
+            onPressed: () => Navigator.of(context).pop(
+              double.tryParse(field.text.trim().replaceAll(' ', '')) ?? 0,
+            ),
+            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+          ),
+        ],
+      ),
+    );
+    field.dispose();
+    if (amount == null) return;
+    await _run((_) => repo.setDebtLimitDefault(amount));
   }
 
   /// His card — orders, payments, colours — over the order's form.
@@ -295,6 +351,12 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
       title: Row(
         children: [
           Expanded(child: Text(l10n.mdfCustomers)),
+          IconButton(
+            key: const ValueKey('customerLimitDefault'),
+            tooltip: l10n.mdfDebtLimitDefault,
+            onPressed: _busy ? null : _limitDefault,
+            icon: const Icon(AppIcons.settings),
+          ),
           IconButton(
             key: const ValueKey('customerAdd'),
             tooltip: l10n.mdfDictAdd,
@@ -424,6 +486,26 @@ class _MdfCustomersDialogState extends ConsumerState<MdfCustomersDialog> {
                                       status.warning,
                                       'customerWork:${c.name}',
                                     ),
+                                  if (c.terms.discountPct > 0)
+                                    badge(
+                                      l10n.mdfCustomerDiscountBadge(
+                                        _pct(c.terms.discountPct),
+                                      ),
+                                      status.success,
+                                      'customerDiscount:${c.name}',
+                                    )
+                                  else if (c.terms.ownPrice)
+                                    badge(
+                                      l10n.mdfCustomerOwnPrice,
+                                      status.success,
+                                      'customerOwnPrice:${c.name}',
+                                    ),
+                                  if (c.terms.source case final src?)
+                                    badge(
+                                      mdfCustomerSourceLabel(src, l10n),
+                                      status.neutral,
+                                      'customerSource:${c.name}',
+                                    ),
                                 ],
                               ),
                             ],
@@ -506,6 +588,7 @@ typedef _CustomerInput = ({
   String? phone,
   String? organization,
   List<String> tags,
+  MdfCustomerTerms terms,
 
   /// «Удалить» pressed: the rest is not read.
   bool delete,
@@ -538,10 +621,25 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
   late final Set<MdfCustomerTag> _tags = {
     ...MdfCustomerTag.parse(widget.initial?.tags ?? const <String>[]),
   };
+  late final MdfCustomerTerms _was =
+      widget.initial?.terms ?? const MdfCustomerTerms();
+  late final _discount = _numberOf(_was.discountPct);
+  late final _pvc = _numberOf(_was.pricePvcM2);
+  late final _paint = _numberOf(_was.pricePaintM2);
+  late final _limit = _numberOf(_was.debtLimit);
+  late MdfCustomerSource? _source = _was.source;
+
+  static TextEditingController _numberOf(double v) => TextEditingController(
+    text: v > 0 ? (v == v.roundToDouble() ? v.toStringAsFixed(0) : '$v') : '',
+  );
+
+  static double _read(TextEditingController c) =>
+      double.tryParse(c.text.trim().replaceAll(' ', '').replaceAll(',', '.')) ??
+      0;
 
   @override
   void dispose() {
-    for (final c in [_name, _phone, _org]) {
+    for (final c in [_name, _phone, _org, _discount, _pvc, _paint, _limit]) {
       c.dispose();
     }
     super.dispose();
@@ -560,9 +658,32 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
         for (final t in MdfCustomerTag.values)
           if (_tags.contains(t)) t.wire,
       ],
+      terms: MdfCustomerTerms(
+        discountPct: _read(_discount).clamp(0.0, 99.0),
+        pricePvcM2: _read(_pvc),
+        pricePaintM2: _read(_paint),
+        debtLimit: _read(_limit),
+        source: _source,
+      ),
       delete: false,
     ));
   }
+
+  Widget _numberField(
+    String key,
+    TextEditingController c,
+    String label, {
+    String? helper,
+  }) => TextField(
+    key: ValueKey(key),
+    controller: c,
+    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+    decoration: InputDecoration(
+      labelText: label,
+      helperText: helper,
+      isDense: true,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -616,6 +737,65 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
                 ],
               ),
             ),
+            // His own terms (owner, 20.11.2026: «по разному»).
+            const SizedBox(height: AppSpacing.md),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                l10n.mdfCustomerTerms,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: _numberField('customerDiscount', _discount,
+                      l10n.mdfCustomerDiscount),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _numberField(
+                    'customerPricePvc',
+                    _pvc,
+                    l10n.mdfCustomerPricePvc,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _numberField(
+                    'customerPricePaint',
+                    _paint,
+                    l10n.mdfCustomerPricePaint,
+                  ),
+                ),
+              ],
+            ),
+            _numberField(
+              'customerDebtLimit',
+              _limit,
+              l10n.mdfCustomerDebtLimit,
+              helper: l10n.mdfCustomerDebtLimitHint,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(l10n.mdfCustomerSource),
+                  for (final src in MdfCustomerSource.values)
+                    ChoiceChip(
+                      key: ValueKey('customerSource:${src.wire}'),
+                      label: Text(mdfCustomerSourceLabel(src, l10n)),
+                      selected: _source == src,
+                      onSelected: (on) =>
+                          setState(() => _source = on ? src : null),
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -628,6 +808,7 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
               phone: null,
               organization: null,
               tags: const <String>[],
+              terms: const MdfCustomerTerms(),
               delete: true,
             )),
             child: Text(

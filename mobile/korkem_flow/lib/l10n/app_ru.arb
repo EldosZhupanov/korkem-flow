@@ -3473,5 +3473,22 @@
   "mdfCustomerCard": "Карточка клиента",
   "mdfCustomerAddTyped": "Добавить клиента «{name}» {phone}",
   "mdfCustomerSamePhone": "Этот телефон уже у клиента «{name}». Выбрать его?",
-  "mdfCustomerTakeHim": "Выбрать его"
+  "mdfCustomerTakeHim": "Выбрать его",
+  "mdfCustomerTerms": "Условия клиента",
+  "mdfCustomerDiscount": "Скидка, %",
+  "mdfCustomerPricePvc": "Своя цена ПВХ, ₸/м²",
+  "mdfCustomerPricePaint": "Своя цена краска, ₸/м²",
+  "mdfCustomerDebtLimit": "Лимит долга, ₸",
+  "mdfCustomerDebtLimitHint": "Пусто — общий лимит",
+  "mdfCustomerSource": "Откуда пришёл:",
+  "mdfCustomerSourceWord": "Сарафан",
+  "mdfCustomerSource2gis": "2ГИС",
+  "mdfCustomerSourceRepeat": "Повторный",
+  "mdfCustomerSourceOther": "Другое",
+  "mdfDebtLimitDefault": "Лимит долга по умолчанию",
+  "mdfDebtLimitDefaultHint": "₸; 0 или пусто — без лимита",
+  "mdfCustomerDiscountBadge": "скидка {pct}%",
+  "mdfCustomerOwnPrice": "своя цена",
+  "mdfDebtOverLimit": "Долг клиента станет {after} — больше лимита {limit}",
+  "mdfDebtOverLimitWho": "Кто разрешил и почему"
 }

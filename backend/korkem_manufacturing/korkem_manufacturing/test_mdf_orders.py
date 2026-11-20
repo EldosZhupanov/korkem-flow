@@ -794,6 +794,41 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertTrue(frappe.db.get_value("Customer", made["name"], "disabled"))
 		self.assertNotIn(made["name"], [c["name"] for c in self._as(MANAGER, mdf_customers.customers)])
 
+	def test_a_customer_s_own_terms_his_price_and_his_debt_limit(self):
+		"""«По разному» (owner, 20.11.2026): a discount off the list, or his
+		own price a m²; a debt limit of his own over the shop's, an order over
+		it accepted only with a reason."""
+		from korkem_manufacturing.services import mdf_customers
+
+		listed = self._as(MANAGER, mdf_orders.price, ORDER_1129[:1], finish=PVC)["lines"][0]["rate_m2"]
+		self.assertGreater(listed, 0)
+		maker = self._as(MANAGER, mdf_customers.add, "МДФ Тест Цех", terms={"discount_pct": 10, "source": "word"})
+		self.assertEqual((maker["discount_pct"], maker["source"]), (10, "word"))
+		line = self._as(MANAGER, mdf_orders.price, ORDER_1129[:1], finish=PVC, customer=maker["name"])["lines"][0]
+		self.assertEqual((line["rate_m2"], line["customer_price"]), (round(listed * 0.9), True))
+		# His own price a m² for PVC wins over the discount; a typed one over both.
+		self._as(MANAGER, mdf_customers.update, maker["name"], "МДФ Тест Цех", terms={"price_pvc_m2": 12_345})
+		line = self._as(MANAGER, mdf_orders.price, ORDER_1129[:1], finish=PVC, customer=maker["name"])["lines"][0]
+		self.assertEqual(line["rate_m2"], 12_345)
+		typed = [{**ORDER_1129[0], "rate": 15_000}]
+		line = self._as(MANAGER, mdf_orders.price, typed, finish=PVC, customer=maker["name"])["lines"][0]
+		self.assertEqual((line["rate_m2"], line["customer_price"]), (15_000, False))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_customers.update, maker["name"], "МДФ Тест Цех", terms={"discount_pct": 150})
+		# The debt limit: his own, over the shop's.
+		self._as(MANAGER, mdf_customers.set_default_debt_limit, 1_000_000)
+		self.addCleanup(lambda: frappe.db.set_default(f"korkem_debt_limit:{COMPANY}", 0))
+		self._as(MANAGER, mdf_customers.update, maker["name"], "МДФ Тест Цех", terms={"debt_limit": 100})
+		card = self._as(MANAGER, mdf_orders.save_draft, customer=maker["name"], delivery_date=add_days(nowdate(), 7),
+						head={"finish": PVC, "thickness_mm": 16}, lines=ORDER_1129)
+		self.addCleanup(self._drop, card["name"])
+		check = self._as(MANAGER, mdf_customers.debt_check, maker["name"], card["total"])
+		self.assertEqual((check["limit"], check["over"]), (100, True))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, mdf_orders.accept, card["name"])
+		card = self._as(MANAGER, mdf_orders.accept, card["name"], over_limit="Ерлан разрешил, свой цех")
+		self.assertEqual(card["status"], "accepted")
+
 	def test_the_customer_list_says_his_last_order_debt_and_what_is_in_work(self):
 		"""The order form's customer window (owner, 20.11.2026): before he is
 		chosen, what he had last, what he owes, what is in work; found by an
