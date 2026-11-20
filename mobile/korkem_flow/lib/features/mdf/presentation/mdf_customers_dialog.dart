@@ -623,10 +623,10 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
   };
   late final MdfCustomerTerms _was =
       widget.initial?.terms ?? const MdfCustomerTerms();
-  late final _discount = _numberOf(_was.discountPct);
-  late final _pvc = _numberOf(_was.pricePvcM2);
-  late final _paint = _numberOf(_was.pricePaintM2);
-  late final _limit = _numberOf(_was.debtLimit);
+  late final TextEditingController _discount = _numberOf(_was.discountPct);
+  late final TextEditingController _pvc = _numberOf(_was.pricePvcM2);
+  late final TextEditingController _paint = _numberOf(_was.pricePaintM2);
+  late final TextEditingController _limit = _numberOf(_was.debtLimit);
   late MdfCustomerSource? _source = _was.source;
 
   static TextEditingController _numberOf(double v) => TextEditingController(
@@ -692,7 +692,8 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
       title: Text(widget.title),
       content: SizedBox(
         width: AppSpacing.xxxl * 8,
-        child: Column(
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
@@ -797,6 +798,7 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
               ),
             ),
           ],
+        ),
         ),
       ),
       actions: [
