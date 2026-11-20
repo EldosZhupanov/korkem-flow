@@ -635,10 +635,10 @@ class MdfOrderRepository {
   Future<({MdfInvoicePrint print, MdfOrder order})> issueInvoice(
     String order, {
     required double amount,
+    required bool vat,
     String? payer,
     String? bin,
     String? dueOn,
-    required bool vat,
   }) async {
     final j = _map(
       await _client.callMethod(

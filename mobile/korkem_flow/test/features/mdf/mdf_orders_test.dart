@@ -223,10 +223,10 @@ class _FakeRepository implements MdfOrderRepository {
   Future<({MdfInvoicePrint print, MdfOrder order})> issueInvoice(
     String order, {
     required double amount,
+    required bool vat,
     String? payer,
     String? bin,
     String? dueOn,
-    required bool vat,
   }) async {
     invoiced.add((amount, payer, bin, vat));
     final inv = <String, Object?>{

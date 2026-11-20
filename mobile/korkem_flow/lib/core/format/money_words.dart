@@ -63,7 +63,7 @@ const _hundreds = [
 ];
 
 /// The scale words: one, two-to-four, five-and-on; and whether feminine.
-const _scales = [
+const List<({String one, String few, String many, bool feminine})> _scales = [
   (one: '', few: '', many: '', feminine: false),
   (one: 'тысяча', few: 'тысячи', many: 'тысяч', feminine: true),
   (one: 'миллион', few: 'миллиона', many: 'миллионов', feminine: false),
