@@ -11317,7 +11317,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get ppPickHint => 'Pick a colour — tap its card';
+  String get ppPickHint => 'Tap a colour — it is chosen at once';
 
   @override
   String get ppChoose => 'Choose';
@@ -11421,6 +11421,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ctoNoCatalogue => 'The catalogue did not load';
 
   @override
+  String get pcOpenCard => 'The colour\'s card — to look at and change';
+
+  @override
   String get cncpKindPocket => 'Pocket';
 
   @override
@@ -11444,4 +11447,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cncpSimulate => 'Simulation: the cutter\'s run';
+
+  @override
+  String get mdfAddCoating => 'Add a coating:';
+
+  @override
+  String get mdfQuickColours => 'or a colour at once:';
+
+  @override
+  String get mdfGroupCopy => 'Copy in another colour';
+
+  @override
+  String mdfGroupCopyTo(String coating) {
+    return 'Copy → $coating';
+  }
 }

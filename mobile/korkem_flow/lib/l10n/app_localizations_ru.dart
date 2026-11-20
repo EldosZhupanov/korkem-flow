@@ -11356,7 +11356,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get ppPickHint => 'Выберите цвет — нажмите на карточку';
+  String get ppPickHint => 'Нажмите на цвет — он сразу выбран';
 
   @override
   String get ppChoose => 'Выбрать';
@@ -11459,6 +11459,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ctoNoCatalogue => 'Каталог не загрузился';
 
   @override
+  String get pcOpenCard => 'Карточка краски — посмотреть и изменить';
+
+  @override
   String get cncpKindPocket => 'Выборка';
 
   @override
@@ -11482,4 +11485,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cncpSimulate => 'Симуляция: ход фрезы';
+
+  @override
+  String get mdfAddCoating => 'Добавить покрытие:';
+
+  @override
+  String get mdfQuickColours => 'или сразу цвет:';
+
+  @override
+  String get mdfGroupCopy => 'Копия в другом цвете';
+
+  @override
+  String mdfGroupCopyTo(String coating) {
+    return 'Копия → $coating';
+  }
 }
