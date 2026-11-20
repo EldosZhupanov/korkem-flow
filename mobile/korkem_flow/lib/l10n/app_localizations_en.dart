@@ -11461,4 +11461,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String mdfGroupCopyTo(String coating) {
     return 'Copy → $coating';
   }
+
+  @override
+  String get paintStepWhat => 'What came';
+
+  @override
+  String get paintStepColour => 'Colour and kind';
+
+  @override
+  String get paintStepWhich => 'Which';
+
+  @override
+  String get paintStepAmount => 'How much and at what price';
+
+  @override
+  String get paintStepSupplier => 'Supplier and payment';
+
+  @override
+  String get paintStepDelivery => 'Delivery';
+
+  @override
+  String get paintKindPaint => 'Paint / enamel';
+
+  @override
+  String get paintColourPick => 'Pick the colour — press here';
+
+  @override
+  String get paintColourChange => 'change';
+
+  @override
+  String paintColourNeed(String need, String have) {
+    return 'orders wait for $need kg · $have kg on hand';
+  }
+
+  @override
+  String get paintPinnedQueue => 'Orders wait — to buy';
+
+  @override
+  String get paintPinnedShelf => 'On the shelf';
+
+  @override
+  String get paintBaseName => 'Name';
+
+  @override
+  String paintVariantOnHand(String kg) {
+    return '$kg kg on hand';
+  }
+
+  @override
+  String paintVariantNew(String material) {
+    return 'New: $material';
+  }
 }
