@@ -16,6 +16,16 @@ final paintCatalogueProvider = FutureProvider.autoDispose<PaintCatalogue>(
   (ref) => ref.watch(paintCatalogueRepositoryProvider).catalogue(),
 );
 
+/// The catalogue for an order's paint window: with what its customer had
+/// painted before.
+// ignore: specify_nonobvious_property_types
+final paintCatalogueForProvider = FutureProvider.autoDispose
+    .family<PaintCatalogue, String?>(
+      (ref, customer) => ref
+          .watch(paintCatalogueRepositoryProvider)
+          .catalogue(customer: customer),
+    );
+
 /// The colours nearest one colour — «Похожие».
 // ignore: specify_nonobvious_property_types
 final paintSimilarProvider = FutureProvider.autoDispose
@@ -40,9 +50,28 @@ class PaintCatalogueRepository {
 
   final FrappeClient _client;
 
-  Future<PaintCatalogue> catalogue() async => PaintCatalogue.fromJson(
-    _map(await _client.callMethod('$_base.catalogue')),
-  );
+  Future<PaintCatalogue> catalogue({String? customer}) async =>
+      PaintCatalogue.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.catalogue',
+            params: {'customer': ?customer},
+          ),
+        ),
+      );
+
+  /// A colour picked for an order: into work on the way; the name the
+  /// «Краска» list keeps it under.
+  Future<String> pick(String value, {String? system}) async {
+    final m = _map(
+      await _client.callMethod(
+        '$_base.pick',
+        post: true,
+        params: {'value': value, 'system': ?system},
+      ),
+    );
+    return '${m['value']}';
+  }
 
   /// A catalogue colour into work: onto the «Краска» list.
   Future<String> take(String value, {String? system}) async {

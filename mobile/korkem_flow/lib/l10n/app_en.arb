@@ -10663,5 +10663,31 @@
     }
   },
   "mdfMarginPriceLabel": "Price a unit, ₸",
-  "mdfMarginPriceHint": "Film — a metre. Written on the material's card."
+  "mdfMarginPriceHint": "Film — a metre. Written on the material's card.",
+  "ppOwn": "A colour of our own",
+  "ppTheirs": "This customer painted before",
+  "ppEnough": "enough for ≈ {enough} m² · the order needs {need} m²",
+  "@ppEnough": {
+    "placeholders": {
+      "enough": {
+        "type": "String"
+      },
+      "need": {
+        "type": "String"
+      }
+    }
+  },
+  "ppShort": "not enough: the shelf paints ≈ {enough} m², the order needs {need} m² — order paint or «Замена цвета»",
+  "@ppShort": {
+    "placeholders": {
+      "enough": {
+        "type": "String"
+      },
+      "need": {
+        "type": "String"
+      }
+    }
+  },
+  "ppPickHint": "Pick a colour — tap its card",
+  "ppChoose": "Choose"
 }

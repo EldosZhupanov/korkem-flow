@@ -8,6 +8,7 @@ class PaintCatalogue {
     this.systems = const [],
     this.families = const [],
     this.colours = const [],
+    this.customer = const [],
     this.kgPerM2 = 0,
     this.usageDays = 90,
     this.canEdit = false,
@@ -24,6 +25,7 @@ class PaintCatalogue {
       for (final c in json['colours'] as List? ?? const [])
         if (c is Map<String, dynamic>) PaintColour.fromJson(c),
     ],
+    customer: [for (final k in json['customer'] as List? ?? const []) '$k'],
     kgPerM2: _d(json['kg_per_m2']) ?? 0,
     usageDays: (json['usage_days'] as num?)?.toInt() ?? 90,
     canEdit: json['can_edit'] == true,
@@ -34,6 +36,9 @@ class PaintCatalogue {
   final List<({String? name, int count})> systems;
   final List<String> families;
   final List<PaintColour> colours;
+
+  /// The colours an order's customer had painted, the latest first.
+  final List<String> customer;
 
   /// Kilograms of coloured paint one m² takes, by the shop's recipe.
   final double kgPerM2;

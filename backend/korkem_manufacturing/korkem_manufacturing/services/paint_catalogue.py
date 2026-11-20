@@ -207,8 +207,36 @@ def _colours(company: str) -> list[dict]:
 	return out
 
 
-def catalogue() -> dict:
-	"""Every colour by system, with what the shop knows of it."""
+#: How many of a customer's latest orders say what he painted.
+CUSTOMER_ORDERS = 20
+
+
+def _customer(company: str, customer: str | None) -> list[str]:
+	"""The colours a customer had painted, the latest first (owner,
+	20.11.2026: «этот клиент красил раньше» on the order's paint window)."""
+	if not customer:
+		return []
+	rows = frappe.db.sql(
+		"""select i.korkem_decor_top, i.korkem_decor_bottom, i.korkem_double_sided
+		from `tabSales Order Item` i join `tabSales Order` o on o.name = i.parent
+		where o.company = %s and o.customer = %s and o.docstatus < 2
+			and o.korkem_direction = %s and coalesce(i.korkem_line_coating, '') = %s
+		order by o.transaction_date desc, o.creation desc limit 400""",
+		(company, customer, directions.FACADES, mdf_paint.PAINT),
+		as_dict=True,
+	)
+	out: list[str] = []
+	for r in rows:
+		for colour in (r.korkem_decor_top, r.korkem_decor_bottom if r.korkem_double_sided else None):
+			k = key(colour) if colour else None
+			if k and k not in out:
+				out.append(k)
+	return out[:CUSTOMER_ORDERS]
+
+
+def catalogue(customer: str | None = None) -> dict:
+	"""Every colour by system, with what the shop knows of it — and, for an
+	order, what its customer had painted before."""
 	material_stock._ensure_staff()
 	company = current_company()
 	colours = _colours(company)
@@ -222,6 +250,7 @@ def catalogue() -> dict:
 		+ ([{"name": None, "count": counts[None]}] if counts.get(None) else []),
 		"families": list(ral_classic.FAMILIES.values()),
 		"colours": colours,
+		"customer": _customer(company, customer),
 		"kg_per_m2": round(_kg_m2_colour(company), 4),
 		"usage_days": USAGE_DAYS,
 		"can_edit": material_stock.can_edit(),
@@ -254,6 +283,15 @@ def _upsert(company: str, k: str, **values) -> None:
 def take(value: str, system: str | None = None) -> dict:
 	"""A catalogue colour into work: on the «Краска» list, for orders."""
 	material_stock._ensure_editor()
+	return listed(value, system)
+
+
+def pick(value: str, system: str | None = None) -> dict:
+	"""A colour picked for an order — any of the 216, say — put into work on
+	the way: whoever takes orders may (owner, 20.11.2026)."""
+	from korkem_manufacturing.services import facade_prices
+
+	facade_prices.ensure_editor()
 	return listed(value, system)
 
 

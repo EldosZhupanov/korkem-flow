@@ -42,6 +42,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_recipe_view.dart';
 import 'package:korkem_flow/features/offcuts/presentation/offcuts_screen.dart';
+import 'package:korkem_flow/features/paint_catalogue/presentation/paint_picker.dart';
 import 'package:korkem_flow/features/paint_catalogue/presentation/paint_swap_view.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
@@ -759,6 +760,10 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       // A film comes from the catalogue: maker, collection, film (owner,
       // 11.11.2026 — the old colour list is no longer picked from).
       film = await showFilmPicker(context, customer: _customer?.name);
+      if (film == null || !mounted) return;
+    } else if (coating == MdfCoating.paint) {
+      // A paint as its shade, like a film (owner, 20.11.2026).
+      film = await showPaintPicker(context, customer: _customer?.name);
       if (film == null || !mounted) return;
     } else if (kind != null) {
       film = await showMdfDictionary(
@@ -1769,6 +1774,46 @@ class _FilmGroup extends StatelessWidget {
                         ),
                       ),
                     )
+                  else if (coating == MdfCoating.paint)
+                    // A paint: the field opens the paint window — every
+                    // colour as its shade (owner, 20.11.2026: «список
+                    // открывался в стиле как плёнки»).
+                    SizedBox(
+                      width: AppSpacing.xxxl * 6,
+                      child: InkWell(
+                        key: ValueKey('paintPick:$index'),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        onTap: () async {
+                          final picked = await showPaintPicker(
+                            context,
+                            current: film,
+                            customer: customer,
+                            allowNone: true,
+                            needM2: areaM2,
+                            gloss: gloss,
+                            onGloss: onGloss,
+                          );
+                          if (picked != null) {
+                            onFilm(picked.isEmpty ? null : picked);
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: mdfCoatingLabel(coating!, l10n),
+                            isDense: true,
+                            suffixIcon: const Icon(AppIcons.colour),
+                          ),
+                          child: Text(
+                            film ?? mdfCoatingNone(coating, l10n),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: color,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
                   else if (coating != null && coating != MdfCoating.raw)
                     SizedBox(
                       width: AppSpacing.xxxl * 5,
@@ -2120,6 +2165,8 @@ class _LineRow extends StatelessWidget {
         final picked =
             kind == MdfDictKind.decor && line.coating == MdfCoating.pvc
             ? await showFilmPicker(context, current: current)
+            : line.coating == MdfCoating.paint
+            ? await showPaintPicker(context, current: current)
             : await showMdfDictionary(
                 context,
                 kind,

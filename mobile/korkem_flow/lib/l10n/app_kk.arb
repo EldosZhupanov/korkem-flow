@@ -3412,5 +3412,11 @@
   "mdfMarginNotCountedShort": "электр мен жеткізусіз",
   "mdfMarginPriceTitle": "Бағасы: {title}",
   "mdfMarginPriceLabel": "Бірлік бағасы, ₸",
-  "mdfMarginPriceHint": "Пленка — метріне. Материал карточкасына жазылады."
+  "mdfMarginPriceHint": "Пленка — метріне. Материал карточкасына жазылады.",
+  "ppOwn": "Өз түсі",
+  "ppTheirs": "Бұл клиент бұрын бояған",
+  "ppEnough": "≈ {enough} м²-ге жетеді · тапсырыста {need} м²",
+  "ppShort": "жетпейді: қоймада ≈ {enough} м²-ге, тапсырыста {need} м² — бояу тапсырыңыз немесе «Түсті ауыстыру»",
+  "ppPickHint": "Түсті таңдаңыз — карточканы басыңыз",
+  "ppChoose": "Таңдау"
 }
