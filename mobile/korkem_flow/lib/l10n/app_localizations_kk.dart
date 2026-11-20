@@ -8760,7 +8760,7 @@ class AppLocalizationsKk extends AppLocalizations {
       'Қалдықты өлшеңіз. Бағдарламамен айырмасы шығын болып жазылады.';
 
   @override
-  String get mdfGloss => 'Түрі';
+  String get mdfGloss => 'Жылтырлығы';
 
   @override
   String get mdfGlossNone => '—';
@@ -11324,4 +11324,59 @@ class AppLocalizationsKk extends AppLocalizations {
   String cncpThin(String left) {
     return 'Материал аз қалады: $left мм';
   }
+
+  @override
+  String get cncpTryOn => 'Үлдір не бояу киіп көру';
+
+  @override
+  String get ctoTitle => 'Киіп көру';
+
+  @override
+  String get ctoFilms => 'ПВХ үлдірлері';
+
+  @override
+  String get ctoPaints => 'Бояулар';
+
+  @override
+  String get ctoSearch => 'Іздеу: емен, софт, 9010';
+
+  @override
+  String get ctoAllMakers => 'Барлығы';
+
+  @override
+  String get ctoAcross => 'Өрнек көлденең';
+
+  @override
+  String get ctoCompare => 'Салыстыруға';
+
+  @override
+  String get ctoCompareClear => 'Салыстыруды алып тастау';
+
+  @override
+  String get ctoCompareFull => '4 нұсқаға дейін салыстыруға болады';
+
+  @override
+  String get ctoSave => 'Клиентке сурет';
+
+  @override
+  String ctoSavedTo(String dir) {
+    return 'Сурет сақталды: $dir — оны WhatsApp-қа сүйреңіз';
+  }
+
+  @override
+  String get ctoFolder => 'Клиентке';
+
+  @override
+  String get ctoNote => 'Экрандағы түс үлгіден сәл өзгеше болуы мүмкін';
+
+  @override
+  String get ctoBare => 'Жабынсыз МДФ';
+
+  @override
+  String ctoMore(int count) {
+    return 'тағы $count — іздеуді нақтылаңыз';
+  }
+
+  @override
+  String get ctoNoCatalogue => 'Каталог жүктелмеді';
 }

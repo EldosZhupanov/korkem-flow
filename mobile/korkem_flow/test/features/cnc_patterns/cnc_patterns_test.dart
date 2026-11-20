@@ -408,7 +408,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.ordersAsked, ['SO-1:*']);
     expect(saver.saved['SO-1']!.keys, ['SO-1-01-718x500-Классика.nc']);
- 
+
     // The position's facade, at its size, to dress with the customer.
     await tester.tap(find.byKey(const ValueKey('cncLine3d:1')));
     await tester.pumpAndSettle();

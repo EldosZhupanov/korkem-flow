@@ -336,7 +336,11 @@ class _CncTryOnState extends ConsumerState<CncTryOn> {
           runSpacing: AppSpacing.xs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            for (final g in const [MdfGloss.matt, MdfGloss.semi, MdfGloss.gloss])
+            for (final g in const [
+              MdfGloss.matt,
+              MdfGloss.semi,
+              MdfGloss.gloss,
+            ])
               ChoiceChip(
                 key: ValueKey('ctoGloss:${g.wire}'),
                 label: Text(mdfGlossLabel(g, l10n)),
@@ -409,25 +413,24 @@ class _CncTryOnState extends ConsumerState<CncTryOn> {
     ],
   );
 
-  Widget _grid(List<Widget> cards, int more, AppLocalizations l10n) =>
-      ListView(
-        children: [
-          GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: AppSpacing.xs,
-            crossAxisSpacing: AppSpacing.xs,
-            childAspectRatio: 0.8,
-            children: cards,
-          ),
-          if (more > 0)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: Text(l10n.ctoMore(more)),
-            ),
-        ],
-      );
+  Widget _grid(List<Widget> cards, int more, AppLocalizations l10n) => ListView(
+    children: [
+      GridView.count(
+        crossAxisCount: 3,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: AppSpacing.xs,
+        crossAxisSpacing: AppSpacing.xs,
+        childAspectRatio: 0.8,
+        children: cards,
+      ),
+      if (more > 0)
+        Padding(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: Text(l10n.ctoMore(more)),
+        ),
+    ],
+  );
 
   Widget _card({
     required Key key,
@@ -517,8 +520,9 @@ class _CncTryOnState extends ConsumerState<CncTryOn> {
                         key: ValueKey('ctoFilm:${d.decor}'),
                         swatch: DecorPicture(decor: d),
                         title: d.name,
-                        on: _finish?.image != null && _finish?.title ==
-                            '${d.maker} · ${d.name}',
+                        on:
+                            _finish?.image != null &&
+                            _finish?.title == '${d.maker} · ${d.name}',
                         onTap: () => unawaited(
                           _wear(
                             CncFinish(

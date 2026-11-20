@@ -8794,7 +8794,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Weigh what is left. The difference from the program counts as used.';
 
   @override
-  String get mdfGloss => 'Finish';
+  String get mdfGloss => 'Sheen';
 
   @override
   String get mdfGlossNone => '—';
@@ -11363,4 +11363,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String cncpThin(String left) {
     return 'Little material left: $left mm';
   }
+
+  @override
+  String get cncpTryOn => 'Try on a film or a paint';
+
+  @override
+  String get ctoTitle => 'Try-on';
+
+  @override
+  String get ctoFilms => 'PVC films';
+
+  @override
+  String get ctoPaints => 'Paints';
+
+  @override
+  String get ctoSearch => 'Search: oak, soft, 9010';
+
+  @override
+  String get ctoAllMakers => 'All';
+
+  @override
+  String get ctoAcross => 'Grain across';
+
+  @override
+  String get ctoCompare => 'Compare';
+
+  @override
+  String get ctoCompareClear => 'Clear comparison';
+
+  @override
+  String get ctoCompareFull => 'Up to four looks side by side';
+
+  @override
+  String get ctoSave => 'Picture for the customer';
+
+  @override
+  String ctoSavedTo(String dir) {
+    return 'Picture saved: $dir — drag it into WhatsApp';
+  }
+
+  @override
+  String get ctoFolder => 'For the customer';
+
+  @override
+  String get ctoNote =>
+      'On screen the colour may differ a little from the sample';
+
+  @override
+  String get ctoBare => 'Bare MDF';
+
+  @override
+  String ctoMore(int count) {
+    return 'and $count more — narrow the search';
+  }
+
+  @override
+  String get ctoNoCatalogue => 'The catalogue did not load';
 }

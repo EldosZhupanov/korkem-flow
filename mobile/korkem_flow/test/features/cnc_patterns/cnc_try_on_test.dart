@@ -61,7 +61,12 @@ final _films = FilmDecors.fromJson(const {
       'hex': '#C99A5E',
       'image': '/files/sonoma.jpg',
     },
-    {'decor': 'D-2', 'maker': 'Renolit', 'name': 'Белый софт', 'hex': '#F1EFE8'},
+    {
+      'decor': 'D-2',
+      'maker': 'Renolit',
+      'name': 'Белый софт',
+      'hex': '#F1EFE8',
+    },
   ],
   'makers': [
     {'maker': 'Kira', 'count': 1},
@@ -146,7 +151,9 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('ctoPaints')));
     await tester.pumpAndSettle();
     expect(paints.asked, ['C-1']);
-    final his = tester.getTopLeft(find.byKey(const ValueKey('ctoPaint:ral6021')));
+    final his = tester.getTopLeft(
+      find.byKey(const ValueKey('ctoPaint:ral6021')),
+    );
     final ours = tester.getTopLeft(
       find.byKey(const ValueKey('ctoPaint:ral9010')),
     );
