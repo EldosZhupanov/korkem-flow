@@ -3458,5 +3458,20 @@
   "mdfAddCoating": "Жабын қосу:",
   "mdfQuickColours": "не бірден түс:",
   "mdfGroupCopy": "Басқа түспен көшірме",
-  "mdfGroupCopyTo": "Көшірме → {coating}"
+  "mdfGroupCopyTo": "Көшірме → {coating}",
+  "paintStepWhat": "Не келді",
+  "paintStepColour": "Түсі мен түрі",
+  "paintStepWhich": "Қайсы",
+  "paintStepAmount": "Қанша және қаншадан",
+  "paintStepSupplier": "Жеткізуші және төлем",
+  "paintStepDelivery": "Жеткізу",
+  "paintKindPaint": "Бояу / эмаль",
+  "paintColourPick": "Түсті таңдаңыз — осы жерді басыңыз",
+  "paintColourChange": "ауыстыру",
+  "paintColourNeed": "тапсырыстар күтеді {need} кг · бар {have} кг",
+  "paintPinnedQueue": "Тапсырыстар күтеді — сатып алу",
+  "paintPinnedShelf": "Қоймада",
+  "paintBaseName": "Атауы",
+  "paintVariantOnHand": "бар {kg} кг",
+  "paintVariantNew": "Жаңа: {material}"
 }

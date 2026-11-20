@@ -3458,5 +3458,20 @@
   "mdfAddCoating": "Добавить покрытие:",
   "mdfQuickColours": "или сразу цвет:",
   "mdfGroupCopy": "Копия в другом цвете",
-  "mdfGroupCopyTo": "Копия → {coating}"
+  "mdfGroupCopyTo": "Копия → {coating}",
+  "paintStepWhat": "Что пришло",
+  "paintStepColour": "Цвет и вид",
+  "paintStepWhich": "Какой",
+  "paintStepAmount": "Сколько и почём",
+  "paintStepSupplier": "Поставщик и оплата",
+  "paintStepDelivery": "Доставка",
+  "paintKindPaint": "Краска / эмаль",
+  "paintColourPick": "Выберите цвет — нажмите здесь",
+  "paintColourChange": "сменить",
+  "paintColourNeed": "ждут заказы {need} кг · есть {have} кг",
+  "paintPinnedQueue": "Ждут заказы — докупить",
+  "paintPinnedShelf": "На складе",
+  "paintBaseName": "Название",
+  "paintVariantOnHand": "есть {kg} кг",
+  "paintVariantNew": "Новый: {material}"
 }

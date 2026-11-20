@@ -8,6 +8,8 @@ import 'package:korkem_flow/features/mdf/data/paint_stock_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/paint_stock.dart';
 import 'package:korkem_flow/features/mdf/presentation/paint_stock_view.dart';
+import 'package:korkem_flow/features/paint_catalogue/data/paint_catalogue_repository.dart';
+import 'package:korkem_flow/features/paint_catalogue/domain/paint_catalogue.dart';
 
 import '../../support/widget_harness.dart';
 
@@ -202,6 +204,37 @@ class _Repo implements PaintStockRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// The colours' window, behind the receipt's colour tile.
+class _Colours implements PaintCatalogueRepository {
+  @override
+  Future<PaintCatalogue> catalogue({String? customer}) async =>
+      PaintCatalogue.fromJson({
+        'systems': const [
+          {'name': 'RAL Classic', 'count': 2},
+        ],
+        'families': const ['Белые и чёрные'],
+        'colours': [
+          for (final (code, name, hex) in const [
+            ('RAL 9016', 'Транспортный белый', '#F4F4ED'),
+            ('RAL 9010', 'Чисто-белый', '#F1ECE1'),
+          ])
+            {
+              'key': 'ral${code.substring(4)}',
+              'code': code,
+              'name': name,
+              'value': code,
+              'system': 'RAL Classic',
+              'hex': hex,
+              'family': 'Белые и чёрные',
+              'on_list': true,
+            },
+        ],
+      });
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 Future<_Repo> _pump(WidgetTester tester) async {
   tester.view
     ..physicalSize = const Size(1400, 2600)
@@ -212,6 +245,7 @@ Future<_Repo> _pump(WidgetTester tester) async {
     ProviderScope(
       overrides: [
         paintStockRepositoryProvider.overrideWithValue(repo),
+        paintCatalogueRepositoryProvider.overrideWithValue(_Colours()),
         mdfDictionariesProvider.overrideWith(
           (ref) async => const MdfDictionaries({
             MdfDictKind.bank: [MdfDictEntry(id: 'b1', value: 'Kaspi')],
@@ -462,5 +496,41 @@ void main() {
     await tester.pumpAndSettle();
     final got = repo.received.single;
     expect((got['colour'], got['base'], got['kg']), ('', 'Грунт', 20.0));
+  });
+
+  testWidgets('a receipt in its order: what came, the colour from the '
+      "colours' window — what the queue waits for first — or a material's "
+      'kind', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('paintReceive')));
+    await tester.pumpAndSettle();
+    for (var n = 1; n <= 5; n++) {
+      expect(find.byKey(ValueKey('paintStep:$n')), findsOne);
+    }
+    // No colour yet: the tile opens the window, the queue's colours first.
+    await tester.tap(find.byKey(const ValueKey('paintColour:null')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('ppPinned:queue')), findsOne);
+    expect(find.textContaining('2,2 kg short'), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('ppColour:queue:ral9016')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintColour:RAL 9016')), findsOne);
+    // A colourless material: its kinds instead of a colour.
+    await tester.tap(find.byKey(const ValueKey('paintKind:Грунт')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintColour:RAL 9016')), findsNothing);
+    expect(find.byKey(const ValueKey('paintVariant:Грунт')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('paintVariantNew')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('paintBase')))
+          .controller!
+          .text,
+      'Грунт ',
+    );
+    await tester.tap(find.byKey(const ValueKey('paintKind:paint')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('paintColour:RAL 9016')), findsOne);
   });
 }
