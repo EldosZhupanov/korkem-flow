@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/api/loopback.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/config/app_config.dart';
 
@@ -33,10 +34,16 @@ class ServerImage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Image.network(
-    urlOf(ref.watch(serverBaseUrlProvider), path),
-    fit: fit,
-    gaplessPlayback: true,
-    errorBuilder: (_, _, _) => fallback,
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    // A bench on this computer: dialled by address (loopback.dart) — a grid
+    // of sixty swatches would otherwise wait on each new connection.
+    final endpoint = fastLoopback(ref.watch(serverBaseUrlProvider));
+    return Image.network(
+      urlOf(endpoint.url, path),
+      headers: endpoint.headers,
+      fit: fit,
+      gaplessPlayback: true,
+      errorBuilder: (_, _, _) => fallback,
+    );
+  }
 }

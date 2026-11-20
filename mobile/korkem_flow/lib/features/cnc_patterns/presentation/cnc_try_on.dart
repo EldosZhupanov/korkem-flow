@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:korkem_flow/core/api/loopback.dart';
 import 'package:korkem_flow/core/api/server_image.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
@@ -103,9 +104,13 @@ class _CncTryOnState extends ConsumerState<CncTryOn> {
   /// A decor's picture as the 3D view needs it; null offline or when the
   /// server has none — the decor's average colour stands in.
   Future<ui.Image?> _load(String path) {
-    final url = ServerImage.urlOf(ref.read(serverBaseUrlProvider), path);
+    final endpoint = fastLoopback(ref.read(serverBaseUrlProvider));
+    final url = ServerImage.urlOf(endpoint.url, path);
     final done = Completer<ui.Image?>();
-    final stream = NetworkImage(url).resolve(ImageConfiguration.empty);
+    final stream = NetworkImage(
+      url,
+      headers: endpoint.headers,
+    ).resolve(ImageConfiguration.empty);
     late final ImageStreamListener listener;
     listener = ImageStreamListener(
       (info, _) {
