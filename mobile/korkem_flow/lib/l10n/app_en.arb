@@ -10629,5 +10629,51 @@
   "filmMakerAddNewSource": "A new supplier",
   "filmMakerAddSourceName": "Supplier (e.g. Kira · Kostanay)",
   "filmMakerAddCatalogueHint": "The catalogue with pictures can be loaded later — the 📎 icon above.",
-  "filmMakerAddSave": "Add"
+  "filmMakerAddSave": "Add",
+  "mdfAddWorker": "Add a person",
+  "mdfAddWorkerHint": "Into «Команда», on this post — then pick him here",
+  "mdfNoWorkers": "Nobody in «Команда» yet",
+  "mdfMarginUnsure": "not exact: unpriced — {count}",
+  "@mdfMarginUnsure": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfMarginShares": "material {material} · work {work} · margin {margin}",
+  "@mdfMarginShares": {
+    "placeholders": {
+      "material": {
+        "type": "String"
+      },
+      "work": {
+        "type": "String"
+      },
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfMarginMaterials": "Materials",
+  "mdfMarginQty": "how much",
+  "mdfMarginPrice": "price",
+  "mdfMarginSum": "sum",
+  "mdfMarginNoPrice": "none",
+  "mdfMarginSetPrice": "Set",
+  "mdfMarginRates": "Rates",
+  "mdfMarginNoWork": "No work booked: stages not ticked or no rates",
+  "mdfMarginCost": "Cost",
+  "mdfMarginEstimateShort": "at today's prices, nothing written off yet",
+  "mdfMarginNotCountedShort": "power and delivery not counted",
+  "mdfMarginPriceTitle": "Price: {title}",
+  "@mdfMarginPriceTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfMarginPriceLabel": "Price a unit, ₸",
+  "mdfMarginPriceHint": "Film — a metre. Written on the material's card."
 }

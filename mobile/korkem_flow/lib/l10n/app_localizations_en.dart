@@ -11269,4 +11269,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmMakerAddSave => 'Add';
+
+  @override
+  String get mdfAddWorker => 'Add a person';
+
+  @override
+  String get mdfAddWorkerHint =>
+      'Into «Команда», on this post — then pick him here';
+
+  @override
+  String get mdfNoWorkers => 'Nobody in «Команда» yet';
+
+  @override
+  String mdfMarginUnsure(int count) {
+    return 'not exact: unpriced — $count';
+  }
+
+  @override
+  String mdfMarginShares(String material, String work, String margin) {
+    return 'material $material · work $work · margin $margin';
+  }
+
+  @override
+  String get mdfMarginMaterials => 'Materials';
+
+  @override
+  String get mdfMarginQty => 'how much';
+
+  @override
+  String get mdfMarginPrice => 'price';
+
+  @override
+  String get mdfMarginSum => 'sum';
+
+  @override
+  String get mdfMarginNoPrice => 'none';
+
+  @override
+  String get mdfMarginSetPrice => 'Set';
+
+  @override
+  String get mdfMarginRates => 'Rates';
+
+  @override
+  String get mdfMarginNoWork => 'No work booked: stages not ticked or no rates';
+
+  @override
+  String get mdfMarginCost => 'Cost';
+
+  @override
+  String get mdfMarginEstimateShort =>
+      'at today\'s prices, nothing written off yet';
+
+  @override
+  String get mdfMarginNotCountedShort => 'power and delivery not counted';
+
+  @override
+  String mdfMarginPriceTitle(String title) {
+    return 'Price: $title';
+  }
+
+  @override
+  String get mdfMarginPriceLabel => 'Price a unit, ₸';
+
+  @override
+  String get mdfMarginPriceHint =>
+      'Film — a metre. Written on the material\'s card.';
 }

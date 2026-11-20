@@ -119,11 +119,11 @@ def _estimated(order: str) -> tuple[list[dict], list[str]]:
 			continue
 		unit = (m["unit"] or "").strip().lower()
 		qty = m["area_m2"] / sheet_m2 if unit in facade_materials.SHEET_UNITS and sheet_m2 else m["needed"]
-		price = unit_cost(m["item"])
+		price, source = price_of(m["item"])
 		if price is None:
 			missing.append(m["title"] or m["item"])
 		rows.append({"item": m["item"], "title": m["title"], "unit": m["unit"], "qty": round(flt(qty), 3),
-					 "price": price, "cost": round(flt(qty) * flt(price), 2)})
+					 "price": price, "source": source, "cost": round(flt(qty) * flt(price), 2)})
 	return rows, missing
 
 
@@ -183,14 +183,23 @@ def _glue(order: str) -> tuple[list[dict], bool, list[str]]:
 	if not glue["kg"] or not glue["item"]:
 		return [], False, []
 	title = glue["title"] or glue["item"]
-	price = unit_cost(glue["item"])
+	price, source = price_of(glue["item"])
 	return ([{"item": glue["item"], "title": title, "unit": glue_stock.UNIT, "qty": glue["kg"], "price": price,
-			  "cost": round(glue["kg"] * flt(price), 2)}], True, [] if price is not None else [title])
+			  "source": source, "cost": round(glue["kg"] * flt(price), 2)}], True,
+			[] if price is not None else [title])
 
 
 def unit_cost(item: str) -> float | None:
 	"""What one unit of the material costs now: the stock's average valuation,
-	else the last movement's. None when it was never valued."""
+	else the last movement's, else the price on its card. None when it was
+	never valued and has none."""
+	return price_of(item)[0]
+
+
+def price_of(item: str) -> tuple[float | None, str | None]:
+	"""A unit's price and where it comes from: «stock» (what is on the shelf),
+	«last» (the last movement), «card» (the film's or the material's own card
+	— a film never received yet, owner, 20.11.2026), or none at all."""
 	held = frappe.db.sql(
 		"""select sum(actual_qty * valuation_rate), sum(actual_qty) from `tabBin`
 		where item_code = %s and actual_qty > 0""",
@@ -198,14 +207,42 @@ def unit_cost(item: str) -> float | None:
 	)
 	value, qty = held[0] if held else (None, None)
 	if flt(qty) > 0 and flt(value) > 0:
-		return round(flt(value) / flt(qty), 4)
+		return round(flt(value) / flt(qty), 4), "stock"
 	last = frappe.db.get_value(
 		"Stock Ledger Entry",
 		{"item_code": item, "is_cancelled": 0, "valuation_rate": [">", 0]},
 		"valuation_rate",
 		order_by="posting_date desc, posting_time desc, creation desc",
 	)
-	return round(flt(last), 4) if last else None
+	if last:
+		return round(flt(last), 4), "last"
+	card = frappe.db.get_value("Item", item, ["korkem_film_price_m", "valuation_rate"], as_dict=True) or {}
+	price = flt(card.get("korkem_film_price_m")) or flt(card.get("valuation_rate"))
+	return (round(price, 4), "card") if price > 0 else (None, None)
+
+
+def set_price(order: str, item: str, price) -> dict:
+	"""«Указать цену» from an order's margin: a material that has none gets
+	it on its card — a film its supplier's price a metre, anything else its
+	valuation — and the order's margin is read again."""
+	from korkem_manufacturing.services import audit, film_catalog, material_stock, price_visibility
+
+	facade_prices.ensure_editor()
+	if not price_visibility.can_see_prices():
+		frappe.throw("Цены материалов видит и ставит только тот, кому видны цены.", frappe.PermissionError)
+	ensure_company("Sales Order", order)
+	if not frappe.db.exists("Item", item):
+		frappe.throw("Такого материала нет.", frappe.DoesNotExistError)
+	price = flt(price)
+	if price <= 0:
+		frappe.throw("Цена — больше нуля.")
+	if frappe.db.get_value("Item", item, "korkem_material_kind") == material_stock.FILM:
+		film_catalog.set_card(item, via="маржа заказа", price_m=price)
+	else:
+		frappe.db.set_value("Item", item, "valuation_rate", price)
+	audit.record_audit(action="mdf.material_priced", entity_type="Item", entity_id=item,
+					   diff={"price": price, "order": order})
+	return of_order(order)
 
 
 # --------------------------------------------------------------------------

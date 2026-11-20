@@ -152,6 +152,10 @@ class _LackCard extends ConsumerStatefulWidget {
 class _LackCardState extends ConsumerState<_LackCard> {
   bool _busy = false;
 
+  /// «Похожие у других фирм» open — folded by a tap (owner, 20.11.2026),
+  /// and folded at first while a source has the film itself.
+  late bool _lookOpen = widget.lack.sources.isEmpty;
+
   String get _order => widget.where.order;
 
   Future<void> _run(Future<void> Function() action) async {
@@ -294,17 +298,36 @@ class _LackCardState extends ConsumerState<_LackCard> {
               ),
             if (f.lookalikes.isNotEmpty) ...[
               const Divider(),
-              Text(l10n.fwLookalikes, style: theme.textTheme.labelMedium),
-              for (final m in f.lookalikes)
-                _LookalikeRow(
-                  item: f.item,
-                  match: m,
-                  onOffer: () => ContactActions.whatsAppMessage(
-                    widget.phone,
-                    l10n.fwOfferText(f.film, '${m.maker} · ${m.name}'),
+              InkWell(
+                key: ValueKey('fwLookFold:${f.item}'),
+                onTap: () => setState(() => _lookOpen = !_lookOpen),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${l10n.fwLookalikes} · ${f.lookalikes.length}',
+                          style: theme.textTheme.labelMedium,
+                        ),
+                      ),
+                      Icon(_lookOpen ? AppIcons.collapse : AppIcons.expand),
+                    ],
                   ),
-                  onReplace: !accepted || _busy ? null : _replace,
                 ),
+              ),
+              if (_lookOpen)
+                for (final m in f.lookalikes)
+                  _LookalikeRow(
+                    item: f.item,
+                    match: m,
+                    onOffer: () => ContactActions.whatsAppMessage(
+                      widget.phone,
+                      l10n.fwOfferText(f.film, '${m.maker} · ${m.name}'),
+                    ),
+                    onReplace: !accepted || _busy ? null : _replace,
+                  ),
             ],
           ],
         ),
