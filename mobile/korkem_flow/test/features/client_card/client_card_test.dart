@@ -207,8 +207,11 @@ void main() {
   setUp(() => repo = _Fake());
 
   Future<void> pump(WidgetTester tester, Widget child) async {
-    tester.view.physicalSize = const Size(1200, 2400);
-    addTearDown(tester.view.resetPhysicalSize);
+    // Wide enough for the card's two columns.
+    tester.view
+      ..physicalSize = const Size(1400, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
         retry: (_, _) => null,
