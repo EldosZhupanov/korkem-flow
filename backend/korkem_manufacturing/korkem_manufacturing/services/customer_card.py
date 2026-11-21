@@ -361,7 +361,7 @@ def reconciliation(customer: str, since: str | None = None, until: str | None = 
 		"Sales Order",
 		filters={"company": company, "customer": c.name, "docstatus": 1,
 				 "korkem_direction": ["in", [directions.FACADES, directions.CNC]]},
-		fields=["name", "transaction_date", "grand_total", "korkem_direction"],
+		fields=["name", "transaction_date", "grand_total", "korkem_direction", "advance_paid", "modified"],
 		order_by="transaction_date asc, creation asc", limit_page_length=0,
 	)
 	paid = frappe.db.sql(
@@ -379,7 +379,7 @@ def reconciliation(customer: str, since: str | None = None, until: str | None = 
 		as_dict=True,
 	)
 	first = min([getdate(o.transaction_date) for o in orders if o.transaction_date]
-				+ [getdate(p.date) for p in paid], default=end)
+				+ [getdate(p.date) for p in paid] + [getdate(o.modified) for o in orders], default=end)
 	start = getdate(since) if since else first
 	if start > end:
 		frappe.throw("Начало периода — не позже конца.")
@@ -390,11 +390,21 @@ def reconciliation(customer: str, since: str | None = None, until: str | None = 
 		what = "ЧПУ" if o.korkem_direction == directions.CNC else "фасады МДФ"
 		rows.append({"date": getdate(o.transaction_date), "debit": flt(o.grand_total), "credit": 0.0,
 					 "text": f"Заказ № {search_text.number_in(o.name) or o.name} ({what})", "order": o.name})
+	documented: dict[str, float] = {}
 	for p in paid:
+		documented[p.order_name] = documented.get(p.order_name, 0.0) + flt(p.amount)
 		rows.append({"date": getdate(p.date), "debit": 0.0, "credit": flt(p.amount),
 					 "text": " · ".join(x for x in (f"Оплата по заказу № {search_text.number_in(p.order_name) or p.order_name}",
 												  p.method) if x),
 					 "order": p.order_name})
+	# What the order says was paid is what counts: a payment entered without
+	# its bank document (an old order, a test site) is still his money, dated
+	# the day the order last changed.
+	for o in orders:
+		rest = flt(o.advance_paid) - documented.get(o.name, 0.0)
+		if rest > 0.5:
+			rows.append({"date": getdate(o.modified), "debit": 0.0, "credit": rest,
+						 "text": f"Оплата по заказу № {search_text.number_in(o.name) or o.name}", "order": o.name})
 	rows.sort(key=lambda r: (r["date"], r["credit"] > 0))
 	opening = sum(r["debit"] - r["credit"] for r in rows if r["date"] < start)
 	shown = [r for r in rows if start <= r["date"] <= end]
