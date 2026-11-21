@@ -20362,6 +20362,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today'**
   String get clcToday;
+
+  /// No description provided for @actTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconciliation statement'**
+  String get actTitle;
+
+  /// No description provided for @actPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'for {since} to {until}'**
+  String actPeriod(String since, String until);
+
+  /// No description provided for @actBetween.
+  ///
+  /// In en, this message translates to:
+  /// **'between {ours} and {theirs}'**
+  String actBetween(String ours, String theirs);
+
+  /// No description provided for @actDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get actDate;
+
+  /// No description provided for @actDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get actDocument;
+
+  /// No description provided for @actDebit.
+  ///
+  /// In en, this message translates to:
+  /// **'Debit'**
+  String get actDebit;
+
+  /// No description provided for @actCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit'**
+  String get actCredit;
+
+  /// No description provided for @actOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get actOpening;
+
+  /// No description provided for @actTurnover.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnover'**
+  String get actTurnover;
+
+  /// No description provided for @actClosing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing balance'**
+  String get actClosing;
+
+  /// No description provided for @actNoDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'According to {company}, there is no debt on {date}.'**
+  String actNoDebt(String company, String date);
+
+  /// No description provided for @actTheyOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'According to {company}, on {date} {payer} owes {company} {sum}.'**
+  String actTheyOwe(String company, String date, String payer, String sum);
+
+  /// No description provided for @actWeOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'According to {company}, on {date} {company} owes {payer} {sum}.'**
+  String actWeOwe(String company, String date, String payer, String sum);
+
+  /// No description provided for @actStamp.
+  ///
+  /// In en, this message translates to:
+  /// **'signature, seal'**
+  String get actStamp;
+
+  /// No description provided for @actAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get actAllTime;
+
+  /// No description provided for @actThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get actThisMonth;
+
+  /// No description provided for @actLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get actLastMonth;
+
+  /// No description provided for @actThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get actThisYear;
+
+  /// No description provided for @actMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make and send'**
+  String get actMake;
 }
 
 class _AppLocalizationsDelegate

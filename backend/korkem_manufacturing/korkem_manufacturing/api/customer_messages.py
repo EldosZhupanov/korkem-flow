@@ -51,6 +51,12 @@ def add_note(customer: str, text: str) -> list[dict]:
 
 
 @frappe.whitelist(methods=["GET"])
+def reconciliation(customer: str, since: str | None = None, until: str | None = None) -> dict:
+	"""Акт сверки: продажи и оплаты клиента за период, сальдо на начало и конец."""
+	return customer_card.reconciliation(customer, since, until)
+
+
+@frappe.whitelist(methods=["GET"])
 def todo() -> dict:
 	"""Кому написать сегодня: готовые заказы без извещения, долги к напоминанию, должники плёнки."""
 	return customer_messages.todo()

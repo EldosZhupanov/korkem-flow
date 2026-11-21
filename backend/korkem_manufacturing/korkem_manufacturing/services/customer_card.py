@@ -341,3 +341,87 @@ def _kind(text: str, note: bool = False) -> str:
 
 def _money(value) -> str:
 	return f"{flt(value):,.0f} ₸".replace(",", " ")
+
+
+def reconciliation(customer: str, since: str | None = None, until: str | None = None) -> dict:
+	"""«Акт сверки» (owner, 21.11.2026): what he was sold and what he paid
+	between two days, the balance before and after — the paper a ТОО asks
+	for. Orders are the shop's sales (debit), payments his (credit); the
+	opening balance is everything before [since]. Facades and CNC; film has
+	its own book."""
+	facade_prices.ensure_editor()
+	from frappe.utils import getdate
+
+	from korkem_manufacturing.services import film_invoice, mdf_invoices
+
+	company = current_company()
+	c = _customer(customer, company)
+	end = getdate(until or nowdate())
+	orders = frappe.get_all(
+		"Sales Order",
+		filters={"company": company, "customer": c.name, "docstatus": 1,
+				 "korkem_direction": ["in", [directions.FACADES, directions.CNC]]},
+		fields=["name", "transaction_date", "grand_total", "korkem_direction", "advance_paid", "modified"],
+		order_by="transaction_date asc, creation asc", limit_page_length=0,
+	)
+	paid = frappe.db.sql(
+		"""
+		select pe.posting_date as date, pe.mode_of_payment as method, per.reference_name as order_name,
+			   per.allocated_amount as amount
+		from `tabPayment Entry Reference` per
+		join `tabPayment Entry` pe on pe.name = per.parent
+		join `tabSales Order` so on so.name = per.reference_name
+		where per.reference_doctype = 'Sales Order' and pe.docstatus = 1 and pe.company = %(company)s
+		  and so.customer = %(customer)s and so.docstatus = 1
+		order by pe.posting_date asc, pe.creation asc
+		""",
+		{"company": company, "customer": c.name},
+		as_dict=True,
+	)
+	first = min([getdate(o.transaction_date) for o in orders if o.transaction_date]
+				+ [getdate(p.date) for p in paid] + [getdate(o.modified) for o in orders], default=end)
+	start = getdate(since) if since else first
+	if start > end:
+		frappe.throw("Начало периода — не позже конца.")
+	rows = []
+	for o in orders:
+		if not o.transaction_date:
+			continue
+		what = "ЧПУ" if o.korkem_direction == directions.CNC else "фасады МДФ"
+		rows.append({"date": getdate(o.transaction_date), "debit": flt(o.grand_total), "credit": 0.0,
+					 "text": f"Заказ № {search_text.number_in(o.name) or o.name} ({what})", "order": o.name})
+	documented: dict[str, float] = {}
+	for p in paid:
+		documented[p.order_name] = documented.get(p.order_name, 0.0) + flt(p.amount)
+		rows.append({"date": getdate(p.date), "debit": 0.0, "credit": flt(p.amount),
+					 "text": " · ".join(x for x in (f"Оплата по заказу № {search_text.number_in(p.order_name) or p.order_name}",
+												  p.method) if x),
+					 "order": p.order_name})
+	# What the order says was paid is what counts: a payment entered without
+	# its bank document (an old order, a test site) is still his money, dated
+	# the day the order last changed.
+	for o in orders:
+		rest = flt(o.advance_paid) - documented.get(o.name, 0.0)
+		if rest > 0.5:
+			rows.append({"date": getdate(o.modified), "debit": 0.0, "credit": rest,
+						 "text": f"Оплата по заказу № {search_text.number_in(o.name) or o.name}", "order": o.name})
+	rows.sort(key=lambda r: (r["date"], r["credit"] > 0))
+	opening = sum(r["debit"] - r["credit"] for r in rows if r["date"] < start)
+	shown = [r for r in rows if start <= r["date"] <= end]
+	debit = sum(r["debit"] for r in shown)
+	credit = sum(r["credit"] for r in shown)
+	with material_stock.granted():
+		requisites = film_invoice.requisites(company)
+	return {
+		"since": str(start),
+		"until": str(end),
+		"company": requisites.get("name") or frappe.db.get_value("Company", company, "company_name") or company,
+		"requisites": requisites,
+		"payer": mdf_invoices.payer(c.name),
+		"customer_name": c.customer_name,
+		"opening": round(opening, 2),
+		"debit": round(debit, 2),
+		"credit": round(credit, 2),
+		"closing": round(opening + debit - credit, 2),
+		"rows": [{**r, "date": str(r["date"])} for r in shown],
+	}

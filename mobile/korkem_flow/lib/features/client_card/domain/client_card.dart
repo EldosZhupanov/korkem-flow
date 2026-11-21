@@ -255,6 +255,64 @@ class ClientCard {
   final double limit;
 }
 
+/// «Акт сверки» (owner, 21.11.2026): what he was sold and paid between two
+/// days, the balance before and after, and the two parties.
+@immutable
+class Reconciliation {
+  const Reconciliation({
+    required this.since,
+    required this.until,
+    required this.company,
+    required this.payer,
+    this.payerBin = '',
+    this.requisites = const {},
+    this.opening = 0,
+    this.debit = 0,
+    this.credit = 0,
+    this.closing = 0,
+    this.rows = const [],
+  });
+
+  factory Reconciliation.fromJson(Map<String, dynamic> j) => Reconciliation(
+    since: '${j['since'] ?? ''}',
+    until: '${j['until'] ?? ''}',
+    company: '${j['company'] ?? ''}',
+    payer: '${_m(j['payer'])['name'] ?? j['customer_name'] ?? ''}',
+    payerBin: '${_m(j['payer'])['bin'] ?? ''}',
+    requisites: {
+      for (final e in _m(j['requisites']).entries)
+        e.key: '${e.value ?? ''}'.trim(),
+    },
+    opening: _d(j['opening']),
+    debit: _d(j['debit']),
+    credit: _d(j['credit']),
+    closing: _d(j['closing']),
+    rows: [
+      for (final r in _l(j['rows']))
+        (
+          date: '${_m(r)['date'] ?? ''}',
+          text: '${_m(r)['text'] ?? ''}',
+          debit: _d(_m(r)['debit']),
+          credit: _d(_m(r)['credit']),
+        ),
+    ],
+  );
+
+  final String since;
+  final String until;
+  final String company;
+  final String payer;
+  final String payerBin;
+  final Map<String, String> requisites;
+
+  /// He owed before [since]; sold and paid in the period; owes after.
+  final double opening;
+  final double debit;
+  final double credit;
+  final double closing;
+  final List<({String date, String text, double debit, double credit})> rows;
+}
+
 /// Which message a row of «Кому написать» is.
 enum ToWriteKind {
   ready,
