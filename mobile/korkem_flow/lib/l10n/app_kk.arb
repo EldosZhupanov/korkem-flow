@@ -3533,5 +3533,6 @@
   "mdfInvoiceAgain": "Басып шығару / жіберу",
   "mdfInvoiceCancel": "Шотты жою",
   "mdfInvoiceCancelWhy": "Шот неге жойылады",
-  "mdfPayByInvoice": "№ {no} шот бойынша · {sum}"
+  "mdfPayByInvoice": "№ {no} шот бойынша · {sum}",
+  "filmReceiveCataloguesHead": "Фирма каталогтары"
 }

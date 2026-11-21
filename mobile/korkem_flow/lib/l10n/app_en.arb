@@ -10833,5 +10833,6 @@
   "mdfInvoiceCancel": "Cancel the invoice",
   "mdfInvoiceCancelWhy": "Why the invoice is cancelled",
   "mdfPayByInvoice": "By invoice No. {no} · {sum}",
-  "@mdfPayByInvoice": {"placeholders": {"no": {"type": "String"}, "sum": {"type": "String"}}}
+  "@mdfPayByInvoice": {"placeholders": {"no": {"type": "String"}, "sum": {"type": "String"}}},
+  "filmReceiveCataloguesHead": "Makers' catalogues"
 }

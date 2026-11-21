@@ -3533,5 +3533,6 @@
   "mdfInvoiceAgain": "Напечатать / отправить",
   "mdfInvoiceCancel": "Отменить счёт",
   "mdfInvoiceCancelWhy": "Почему счёт отменяется",
-  "mdfPayByInvoice": "По счёту № {no} · {sum}"
+  "mdfPayByInvoice": "По счёту № {no} · {sum}",
+  "filmReceiveCataloguesHead": "Каталоги фирм"
 }

@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/settings/folds.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
@@ -107,6 +108,22 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
 
   /// How many of all the colours are drawn at once.
   static const _shown = 120;
+
+  /// Sections opened or folded in this window (owner, 21.11.2026: «здесь
+  /// тоже надо… чтобы мы могли свернуть»); the rest as left last time.
+  final _open = <String, bool>{};
+
+  /// Whether the section [key] is open: as set in this window, else as left
+  /// last time — save one with a colour short, never found folded away.
+  bool _isOpen(String key, {bool urgent = false}) =>
+      _open[key] ??
+      (urgent || !ref.read(foldsProvider.notifier).shut('pp.$key'));
+
+  void _toggle(String key, {bool urgent = false}) => setState(() {
+    final open = !_isOpen(key, urgent: urgent);
+    _open[key] = open;
+    ref.read(foldsProvider.notifier).set('pp.$key', shut: !open);
+  });
 
   /// A card pressed is the colour chosen — one press, no «Выбрать» after it
   /// (owner, 20.11.2026: «нам надо в один клик»). The sheen is set first.
@@ -379,7 +396,10 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
       ),
     );
     final shown = all.take(_shown).toList();
-    final pinned = [
+    // A colour once: one already in a section above is not shown again in
+    // the next (owner, 21.11.2026 — the queue's five were the shelf's five).
+    final seen = <String>{};
+    final sections = [
       if (plain)
         for (final p in widget.pinned)
           (
@@ -387,38 +407,68 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
             title: p.title,
             rows: [
               for (final r in p.colours)
-                if (paintColourOf(c, r.value) case final x? when keep(x))
+                if (paintColourOf(c, r.value) case final x?
+                    when keep(x) && seen.add(x.key))
                   (colour: x, note: r.note, danger: r.danger),
             ],
           ),
+      (
+        key: 'theirs',
+        title: l10n.ppTheirs,
+        rows: [
+          for (final x in theirs)
+            if (seen.add(x.key)) (colour: x, note: null, danger: false),
+        ],
+      ),
+      (
+        key: 'ours',
+        title: l10n.pcShowPopular,
+        rows: [
+          for (final x in ours)
+            if (seen.add(x.key)) (colour: x, note: null, danger: false),
+        ].take(10).toList(),
+      ),
     ];
     return ListView(
       children: [
-        for (final p in pinned)
+        for (final p in sections)
           if (p.rows.isNotEmpty) ...[
-            Text(p.title, key: ValueKey('ppPinned:${p.key}'), style: label),
-            const SizedBox(height: AppSpacing.xs),
-            grid(
-              [for (final r in p.rows) r.colour],
-              p.key,
-              notes: [
-                for (final r in p.rows) (note: r.note, danger: r.danger),
-              ],
+            _SectionHead(
+              key: ValueKey('ppPinned:${p.key}'),
+              title: '${p.title} · ${p.rows.length}',
+              style: label,
+              open: _isOpen(p.key, urgent: p.rows.any((r) => r.danger)),
+              onTap: () =>
+                  _toggle(p.key, urgent: p.rows.any((r) => r.danger)),
             ),
+            const SizedBox(height: AppSpacing.xs),
+            if (_isOpen(p.key, urgent: p.rows.any((r) => r.danger)))
+              grid(
+                [for (final r in p.rows) r.colour],
+                p.key,
+                notes: [
+                  for (final r in p.rows) (note: r.note, danger: r.danger),
+                ],
+              )
+            else
+              // Folded: a strip of small swatches, still chosen in one press.
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: [
+                  for (final r in p.rows)
+                    _ColourChip(
+                      key: ValueKey('ppChip:${p.key}:${r.colour.key}'),
+                      colour: r.colour,
+                      danger: r.danger,
+                      tooltip: r.note,
+                      onTap: () => unawaited(_choose(r.colour)),
+                      onLongPress: () => unawaited(_open(r.colour, c)),
+                    ),
+                ],
+              ),
             const SizedBox(height: AppSpacing.sm),
           ],
-        if (theirs.isNotEmpty) ...[
-          Text(l10n.ppTheirs, style: label),
-          const SizedBox(height: AppSpacing.xs),
-          grid(theirs, 'theirs'),
-          const SizedBox(height: AppSpacing.sm),
-        ],
-        if (ours.isNotEmpty) ...[
-          Text(l10n.pcShowPopular, style: label),
-          const SizedBox(height: AppSpacing.xs),
-          grid(ours.take(10).toList(), 'ours'),
-          const SizedBox(height: AppSpacing.sm),
-        ],
         Text(
           l10n.pcAllOf(_system ?? '', all.length).replaceAll('  ', ' '),
           key: const ValueKey('ppAllHead'),
@@ -426,18 +476,25 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
         ),
         if (families.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
-            children: [
-              for (final f in families)
-                FilterChip(
-                  key: ValueKey('ppFamily:$f'),
-                  label: Text(f),
-                  selected: _family == f,
-                  onSelected: (on) => setState(() => _family = on ? f : null),
-                ),
-            ],
+          // The families on one line, scrolled sideways.
+          SingleChildScrollView(
+            key: const ValueKey('ppFamilies'),
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final (i, f) in families.indexed)
+                  Padding(
+                    padding: EdgeInsets.only(left: i == 0 ? 0 : AppSpacing.xs),
+                    child: FilterChip(
+                      key: ValueKey('ppFamily:$f'),
+                      label: Text(f),
+                      selected: _family == f,
+                      onSelected: (on) =>
+                          setState(() => _family = on ? f : null),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
         const SizedBox(height: AppSpacing.xs),
@@ -522,5 +579,101 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
         ),
       ],
     );
+  }
+}
+
+/// A section's heading that folds it: its name, how many, a chevron.
+class _SectionHead extends StatelessWidget {
+  const _SectionHead({
+    required this.title,
+    required this.open,
+    required this.onTap,
+    this.style,
+    super.key,
+  });
+
+  final String title;
+  final bool open;
+  final VoidCallback onTap;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(AppRadius.sm),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
+      child: Row(
+        children: [
+          Icon(open ? AppIcons.collapse : AppIcons.expand),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(child: Text(title, style: style)),
+        ],
+      ),
+    ),
+  );
+}
+
+/// A colour in a folded section: a small swatch and its code — one press
+/// chooses it, a long one opens its card; a colour short is ringed red.
+class _ColourChip extends StatelessWidget {
+  const _ColourChip({
+    required this.colour,
+    required this.onTap,
+    required this.onLongPress,
+    this.danger = false,
+    this.tooltip,
+    super.key,
+  });
+
+  final PaintColour colour;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final bool danger;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final chip = InkWell(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: Border.all(
+            color: danger
+                ? context.statusColors.danger
+                : theme.colorScheme.outlineVariant,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xs,
+            vertical: AppSpacing.xxs,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox.square(
+                dimension: AppSpacing.md,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.xs),
+                  child: PaintSwatch(colour: colour),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                colour.code.isEmpty ? colour.title : colour.code,
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    final note = tooltip;
+    return note == null ? chip : Tooltip(message: note, child: chip);
   }
 }
