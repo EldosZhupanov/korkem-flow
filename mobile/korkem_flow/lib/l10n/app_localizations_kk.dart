@@ -11828,4 +11828,71 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get clcToday => 'Бүгін';
+
+  @override
+  String get actTitle => 'Салыстыру актісі';
+
+  @override
+  String actPeriod(String since, String until) {
+    return '$since бастап $until дейінгі кезең';
+  }
+
+  @override
+  String actBetween(String ours, String theirs) {
+    return '$ours және $theirs арасында';
+  }
+
+  @override
+  String get actDate => 'Күні';
+
+  @override
+  String get actDocument => 'Құжат';
+
+  @override
+  String get actDebit => 'Дебет';
+
+  @override
+  String get actCredit => 'Кредит';
+
+  @override
+  String get actOpening => 'Бастапқы сальдо';
+
+  @override
+  String get actTurnover => 'Кезең айналымы';
+
+  @override
+  String get actClosing => 'Соңғы сальдо';
+
+  @override
+  String actNoDebt(String company, String date) {
+    return '$company деректері бойынша $date күнге қарыз жоқ.';
+  }
+
+  @override
+  String actTheyOwe(String company, String date, String payer, String sum) {
+    return '$company деректері бойынша $date күнге $payer қарызы $company алдында $sum.';
+  }
+
+  @override
+  String actWeOwe(String company, String date, String payer, String sum) {
+    return '$company деректері бойынша $date күнге $company қарызы $payer алдында $sum.';
+  }
+
+  @override
+  String get actStamp => 'қолы, М.О.';
+
+  @override
+  String get actAllTime => 'Барлық уақыт';
+
+  @override
+  String get actThisMonth => 'Осы ай';
+
+  @override
+  String get actLastMonth => 'Өткен ай';
+
+  @override
+  String get actThisYear => 'Осы жыл';
+
+  @override
+  String get actMake => 'Жасап жіберу';
 }

@@ -136,6 +136,20 @@ class ClientCardRepository {
       if (e is Map) ClientEvent.fromJson(Map<String, dynamic>.from(e)),
   ];
 
+  /// «Акт сверки» for [since]–[until]; without them, all his time.
+  Future<Reconciliation> reconciliation(
+    String customer, {
+    String? since,
+    String? until,
+  }) async => Reconciliation.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.reconciliation',
+        params: {'customer': customer, 'since': ?since, 'until': ?until},
+      ),
+    ),
+  );
+
   Future<ToWrite> todo() async =>
       ToWrite.fromJson(_map(await _client.callMethod('$_base.todo')));
 
