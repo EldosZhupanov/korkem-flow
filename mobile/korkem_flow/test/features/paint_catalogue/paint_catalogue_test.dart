@@ -279,6 +279,41 @@ void main() {
     expect((got, gloss), ('RAL 6021 Бледно-зелёный', MdfGloss.matt));
   });
 
+  testWidgets('a section folds to a strip of swatches, still one press, and '
+      'stays folded the next time', (tester) async {
+    String? got;
+    final repo = await _pump(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () async =>
+                got = await showPaintPicker(context, customer: 'C-1'),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    // Folded (owner, 21.11.2026: «чтобы мы могли свернуть»): the big card
+    // gives way to a small swatch with its code.
+    await tester.tap(find.byKey(const ValueKey('ppPinned:theirs')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('ppColour:theirs:ral6021')), findsNothing);
+    expect(find.byKey(const ValueKey('ppChip:theirs:ral6021')), findsOne);
+    // Closed and opened again: still folded.
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('ppChip:theirs:ral6021')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('ppChip:theirs:ral6021')));
+    await tester.pumpAndSettle();
+    expect(repo.picked, ['RAL 6021 Бледно-зелёный']);
+    expect(got, 'RAL 6021 Бледно-зелёный');
+  });
+
   testWidgets("the group's colour already chosen says whether the shelf has "
       'enough', (tester) async {
     await _pump(
