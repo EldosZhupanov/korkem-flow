@@ -1167,6 +1167,15 @@ void main() {
     expect(find.byKey(const ValueKey('rcvComing:STE-30')), findsNothing);
     expect(find.byKey(const ValueKey('film:MAT-2')), findsOneWidget);
     expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    // The catalogues fold by themselves once a maker is chosen, its name on
+    // the heading; a tap opens them for another.
+    expect(find.byKey(const ValueKey('rcvMaker:Adilet')), findsNothing);
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('rcvCatalogsChosen'))).data,
+      'JS Group · All collections',
+    );
+    await tester.tap(find.byKey(const ValueKey('rcvCatalogsFold')));
+    await tester.pumpAndSettle();
     final adilet = find.byKey(const ValueKey('rcvMaker:Adilet'));
     await tester.ensureVisible(adilet);
     await tester.tap(adilet);
@@ -1180,6 +1189,52 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('rcvDecor:D-1')), findsNothing);
     expect(find.byKey(const ValueKey('rcvDecor:D-2')), findsOneWidget);
+  });
+
+  testWidgets('«Приход»: «У нас» and the catalogues fold, and stay folded', (
+    tester,
+  ) async {
+    await _pump(tester, catalogue: _catalogue);
+    Future<void> open() async {
+      await tester.tap(find.byKey(const ValueKey('filmDept:receive')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('filmDept:receiveFilm')));
+      await tester.pumpAndSettle();
+    }
+
+    await open();
+    final kira = find.byKey(const ValueKey('rcvMaker:KIRA'));
+    await tester.ensureVisible(kira);
+    await tester.tap(kira);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsOneWidget);
+    final ours = find.byKey(const ValueKey('rcvOursFold'));
+    await tester.ensureVisible(ours);
+    await tester.tap(ours);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    // The catalogues folded by hand too.
+    await tester.tap(find.byKey(const ValueKey('rcvCatalogsFold')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('rcvCatalogsFold')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rcvMaker:KIRA')), findsNothing);
+    await tester.tap(find.text('Cancel').last);
+    await tester.pumpAndSettle();
+    // Opened again: as they were left.
+    await open();
+    expect(find.byKey(const ValueKey('rcvMaker:KIRA')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('rcvCatalogsFold')));
+    await tester.pumpAndSettle();
+    final kira2 = find.byKey(const ValueKey('rcvMaker:KIRA'));
+    await tester.ensureVisible(kira2);
+    await tester.tap(kira2);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    // Typed in the search: what is found is shown, folded or not.
+    await tester.enterText(find.byKey(const ValueKey('rcvSearch')), 'белый');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsOneWidget);
   });
 
   testWidgets('«Приход»: a catalogue decor opens its receipt and stays put', (
@@ -1210,6 +1265,8 @@ void main() {
     // The card is where it was, not gone to «Наши» above.
     expect(find.byKey(const ValueKey('rcvDecor:D-1')), findsOneWidget);
     // A decor the shop has: its film straight away, nothing taken in.
+    await tester.tap(find.byKey(const ValueKey('rcvCatalogsFold')));
+    await tester.pumpAndSettle();
     final kira = find.byKey(const ValueKey('rcvMaker:KIRA'));
     await tester.ensureVisible(kira);
     await tester.tap(kira);

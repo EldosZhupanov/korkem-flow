@@ -4,6 +4,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/core/settings/folds.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
 import 'package:korkem_flow/features/film_catalog/data/film_decor_repository.dart';
 import 'package:korkem_flow/features/film_catalog/domain/film.dart';
@@ -52,6 +53,17 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
 
   /// Suppliers whose «Заказано у …» is folded.
   final _folded = <String>{};
+
+  /// «Каталоги фирм» and «У нас» shown (owner, 21.11.2026: «я хочу где
+  /// Каталоги фирм мы могли свернуть а так же где У нас»); folded last time,
+  /// folded again. Choosing a maker folds the catalogues by itself, for its
+  /// decors to be seen at once, the maker named on the heading.
+  static const _catalogsKey = 'rcv.catalogs';
+  static const _oursKey = 'rcv.ours';
+  late bool _catalogsOpen = !ref
+      .read(foldsProvider.notifier)
+      .shut(_catalogsKey);
+  late bool _oursOpen = !ref.read(foldsProvider.notifier).shut(_oursKey);
 
   /// The maker whose films and catalogue are open, and its collection.
   String? _maker;
@@ -392,67 +404,103 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
           const SizedBox(height: AppSpacing.sm),
           // The makers' catalogues by name: one tap opens a maker's films
           // and the decors of its catalogue not on the books yet.
-          Text(l10n.filmReceiveCatalogues, style: muted),
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
-            children: [
-              for (final m in makers)
-                ChoiceChip(
-                  key: ValueKey('rcvMaker:$m'),
-                  label: Text(m),
-                  selected: m == maker,
-                  onSelected: (on) => setState(() {
-                    _maker = on ? m : null;
-                    _collection = null;
-                    if (on) _waitOpen = false;
-                  }),
-                ),
-            ],
+          _Fold(
+            key: const ValueKey('rcvCatalogsFold'),
+            title: l10n.filmReceiveCataloguesHead,
+            style: label,
+            open: _catalogsOpen,
+            onTap: () => setState(() {
+              _catalogsOpen = !_catalogsOpen;
+              ref
+                  .read(foldsProvider.notifier)
+                  .set(_catalogsKey, shut: !_catalogsOpen);
+            }),
+            trailing: _catalogsOpen || maker == null
+                ? null
+                : Text(
+                    '$maker · ${_collection ?? l10n.filmAllCollections}',
+                    key: const ValueKey('rcvCatalogsChosen'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
           ),
-          if (maker != null && collections.length > 1) ...[
-            const SizedBox(height: AppSpacing.xs),
+          if (_catalogsOpen)
             Wrap(
               spacing: AppSpacing.xs,
               runSpacing: AppSpacing.xs,
               children: [
-                ChoiceChip(
-                  key: const ValueKey('rcvCollection:-'),
-                  label: Text(l10n.filmAllCollections),
-                  selected: _collection == null,
-                  onSelected: (_) => setState(() => _collection = null),
-                ),
-                for (final col in collections)
+                for (final m in makers)
                   ChoiceChip(
-                    key: ValueKey('rcvCollection:$col'),
-                    label: Text(col),
-                    selected: _collection == col,
-                    onSelected: (on) =>
-                        setState(() => _collection = on ? col : null),
+                    key: ValueKey('rcvMaker:$m'),
+                    label: Text(m),
+                    selected: m == maker,
+                    onSelected: (on) => setState(() {
+                      _maker = on ? m : null;
+                      _collection = null;
+                      if (on) {
+                        _waitOpen = false;
+                        _catalogsOpen = false;
+                      }
+                    }),
                   ),
               ],
+            ),
+          // A maker's collections on one line, scrolled sideways rather than
+          // five rows of them.
+          if (maker != null && collections.length > 1) ...[
+            const SizedBox(height: AppSpacing.xs),
+            SingleChildScrollView(
+              key: const ValueKey('rcvCollections'),
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final (i, col) in [null, ...collections].indexed)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: i == 0 ? 0 : AppSpacing.xs,
+                      ),
+                      child: ChoiceChip(
+                        key: ValueKey('rcvCollection:${col ?? '-'}'),
+                        label: Text(col ?? l10n.filmAllCollections),
+                        selected: _collection == col,
+                        onSelected: (on) => setState(
+                          () => _collection = col == null || !on ? null : col,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
           if (films.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
-            Text(
-              l10n.filmOurs('${films.length}'),
-              key: const ValueKey('rcvOurs'),
+            _Fold(
+              key: const ValueKey('rcvOursFold'),
+              title: l10n.filmOurs('${films.length}'),
               style: label,
+              // Typed in the search: what is found is not folded away.
+              open: _oursOpen || typed.isNotEmpty,
+              onTap: () => setState(() {
+                _oursOpen = !(_oursOpen || typed.isNotEmpty);
+                ref
+                    .read(foldsProvider.notifier)
+                    .set(_oursKey, shut: !_oursOpen);
+              }),
             ),
           ],
-          for (final g in films)
-            FilmTile(
-              film: g.first,
-              variants: g,
-              onTap: _busy
-                  ? null
-                  : () async {
-                      final f = await _thickness(g);
-                      if (f != null) await _film(c, f);
-                    },
-            ),
+          if (_oursOpen || typed.isNotEmpty)
+            for (final g in films)
+              FilmTile(
+                film: g.first,
+                variants: g,
+                onTap: _busy
+                    ? null
+                    : () async {
+                        final f = await _thickness(g);
+                        if (f != null) await _film(c, f);
+                      },
+              ),
           if (fromCatalog.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
@@ -550,6 +598,7 @@ class _Fold extends StatelessWidget {
     required this.open,
     required this.onTap,
     this.style,
+    this.trailing,
     super.key,
   });
 
@@ -557,6 +606,9 @@ class _Fold extends StatelessWidget {
   final bool open;
   final VoidCallback onTap;
   final TextStyle? style;
+
+  /// What a folded section holds, said on its heading.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) => InkWell(
@@ -569,6 +621,7 @@ class _Fold extends StatelessWidget {
           Icon(open ? AppIcons.collapse : AppIcons.expand),
           const SizedBox(width: AppSpacing.xs),
           Expanded(child: Text(title, style: style)),
+          ?trailing,
         ],
       ),
     ),

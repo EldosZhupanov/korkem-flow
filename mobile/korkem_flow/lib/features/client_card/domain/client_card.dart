@@ -1,4 +1,5 @@
 import 'package:korkem_flow/core/phone/phone.dart';
+import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:meta/meta.dart';
 
@@ -17,6 +18,11 @@ class ClientOrder {
     this.paid = 0,
     this.debt = 0,
     this.toldOn,
+    this.readyOn,
+    this.handedOverOn,
+    this.area = 0,
+    this.stages = const [],
+    this.debtDays,
   });
 
   factory ClientOrder.fromJson(Map<String, dynamic> j) => ClientOrder(
@@ -31,6 +37,14 @@ class ClientOrder {
     paid: _d(j['paid']),
     debt: _d(j['debt']),
     toldOn: _s(j['told_on']),
+    readyOn: _s(j['ready_on']),
+    handedOverOn: _s(j['handed_over_on']),
+    area: _d(j['area']),
+    stages: [
+      for (final x in _l(j['stages']))
+        (key: '${_m(x)['key']}', done: _m(x)['done'] == true),
+    ],
+    debtDays: _i(j['debt_days']),
   );
 
   final String name;
@@ -46,6 +60,70 @@ class ClientOrder {
   final double paid;
   final double debt;
   final String? toldOn;
+  final String? readyOn;
+  final String? handedOverOn;
+
+  /// The facades' square metres.
+  final double area;
+
+  /// Where it is in the shop: its stages in order, each done or not
+  /// (owner, 21.11.2026 — «Принят» on every row said nothing).
+  final List<({String key, bool done})> stages;
+
+  /// How long its money has been owed, days; null when nothing is.
+  final int? debtDays;
+
+  bool get draft => status == 'draft';
+  bool get handedOver => status == 'handed_over';
+  bool get ready => status == 'ready';
+}
+
+/// One line of a customer's history (owner, 21.11.2026: «а истории заказа
+/// нету ли тут?»): what happened, when, by whom, and of which kind.
+enum ClientEventKind {
+  order,
+  money,
+  message,
+  note;
+
+  static ClientEventKind parse(Object? v) => switch (v) {
+    'money' => money,
+    'message' => message,
+    'note' => note,
+    _ => order,
+  };
+}
+
+@immutable
+class ClientEvent {
+  const ClientEvent({
+    required this.at,
+    required this.text,
+    this.kind = ClientEventKind.order,
+    this.by,
+    this.order,
+    this.number,
+  });
+
+  factory ClientEvent.fromJson(Map<String, dynamic> j) => ClientEvent(
+    at: '${j['at'] ?? ''}',
+    text: '${j['text'] ?? ''}',
+    kind: ClientEventKind.parse(j['kind']),
+    by: _s(j['by']),
+    order: _s(j['order']),
+    number: _i(j['number']),
+  );
+
+  /// `YYYY-MM-DD`, with ` HH:MM` when the moment is known.
+  final String at;
+  final String text;
+  final ClientEventKind kind;
+  final String? by;
+  final String? order;
+  final int? number;
+
+  String get day => at.length >= 10 ? at.substring(0, 10) : at;
+  String? get time => at.length >= 16 ? at.substring(11, 16) : null;
 }
 
 /// One payment on a customer's card.
@@ -122,6 +200,8 @@ class ClientCard {
     this.payments = const [],
     this.figures,
     this.film,
+    this.terms = const MdfCustomerTerms(),
+    this.limit = 0,
   });
 
   factory ClientCard.fromJson(Map<String, dynamic> j) {
@@ -147,6 +227,8 @@ class ClientCard {
           ? ClientFigures.fromJson(_m(j['figures']))
           : null,
       film: j['film'] is Map ? FilmCustomer.fromJson(_m(j['film'])) : null,
+      terms: MdfCustomerTerms.fromJson(_m(j['terms'])),
+      limit: _d(j['limit']),
     );
   }
 
@@ -166,6 +248,11 @@ class ClientCard {
 
   /// His card in the film department, when he buys film.
   final FilmCustomer? film;
+
+  /// His own prices and discount; the limit on what he may owe (his own,
+  /// else the shop's), 0 — none.
+  final MdfCustomerTerms terms;
+  final double limit;
 }
 
 /// Which message a row of «Кому написать» is.

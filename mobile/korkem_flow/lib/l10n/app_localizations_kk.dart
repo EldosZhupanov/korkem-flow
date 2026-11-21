@@ -11723,4 +11723,145 @@ class AppLocalizationsKk extends AppLocalizations {
   String mdfPayByInvoice(String no, String sum) {
     return '№ $no шот бойынша · $sum';
   }
+
+  @override
+  String get filmReceiveCataloguesHead => 'Фирма каталогтары';
+
+  @override
+  String clcRepeat(String no) {
+    return '№ $no қайталау';
+  }
+
+  @override
+  String get clcHistory => 'Тарих';
+
+  @override
+  String get clcShowAll => 'Барлығы';
+
+  @override
+  String get clcShowReady => 'Дайын';
+
+  @override
+  String get clcShowWork => 'Жұмыста';
+
+  @override
+  String get clcShowDebt => 'Қарызы бар';
+
+  @override
+  String get clcGroupReady => 'Беруге дайын';
+
+  @override
+  String get clcGroupWork => 'Жұмыста';
+
+  @override
+  String get clcGroupDraft => 'Жобалар';
+
+  @override
+  String get clcGroupHanded => 'Берілді';
+
+  @override
+  String clcDueBy(String date) {
+    return '$date дейін';
+  }
+
+  @override
+  String clcDebtDays(int days) {
+    return '$days күн';
+  }
+
+  @override
+  String clcOldDebt(int days, String sum) {
+    return '$days күннен ұзақ: $sum';
+  }
+
+  @override
+  String clcPaidSplit(int count) {
+    return 'Төлем тапсырыстарға бөлінді: $count';
+  }
+
+  @override
+  String get clcRemind => 'Еске салу';
+
+  @override
+  String get clcPayAll => 'Төлем';
+
+  @override
+  String clcLimitOver(String limit, String over) {
+    return 'лимит $limit · $over асып кетті';
+  }
+
+  @override
+  String clcLimit(String limit) {
+    return 'қарыз лимиті $limit';
+  }
+
+  @override
+  String get clcTerms => 'Шарттар';
+
+  @override
+  String clcTermDiscount(String pct) {
+    return 'жеңілдік $pct%';
+  }
+
+  @override
+  String clcTermPvc(String sum) {
+    return 'өз бағасы ПВХ $sum/м²';
+  }
+
+  @override
+  String clcTermPaint(String sum) {
+    return 'өз бағасы бояу $sum/м²';
+  }
+
+  @override
+  String get clcTermList => 'прайс бойынша';
+
+  @override
+  String get clcColours => 'Оның түстері';
+
+  @override
+  String clcPayOwes(String sum) {
+    return 'қарызы $sum';
+  }
+
+  @override
+  String clcPayOver(String sum) {
+    return 'қарыздан көп ($sum) — артық төлем тапсырысқа енгізіледі';
+  }
+
+  @override
+  String get clcPaySplit => 'Тапсырыстарға бөлінеді — алдымен ең ескілері:';
+
+  @override
+  String clcPayPart(String sum) {
+    return '($sum ішінен)';
+  }
+
+  @override
+  String get clcPaySave => 'Енгізу';
+
+  @override
+  String get clcNoteHint =>
+      'Клиент туралы жазба: 14:00-ден кейін қоңырау шалу…';
+
+  @override
+  String get clcNoteSave => 'Жазу';
+
+  @override
+  String get clcHistOrders => 'Тапсырыстар';
+
+  @override
+  String get clcHistMoney => 'Ақша';
+
+  @override
+  String get clcHistMessages => 'Хабарламалар';
+
+  @override
+  String get clcHistNotes => 'Жазбалар';
+
+  @override
+  String get clcHistEmpty => 'Әзірге ештеңе жоқ';
+
+  @override
+  String get clcToday => 'Бүгін';
 }

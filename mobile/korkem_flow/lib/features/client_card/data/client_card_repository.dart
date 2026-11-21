@@ -14,6 +14,14 @@ final clientCardProvider = FutureProvider.autoDispose
       (ref, customer) => ref.watch(clientCardRepositoryProvider).card(customer),
     );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final clientHistoryProvider = FutureProvider.autoDispose
+    .family<List<ClientEvent>, String>(
+      (ref, customer) =>
+          ref.watch(clientCardRepositoryProvider).history(customer),
+    );
+
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final toWriteProvider = FutureProvider.autoDispose<ToWrite>(
@@ -40,6 +48,93 @@ class ClientCardRepository {
       await _client.callMethod('$_base.card', params: {'customer': customer}),
     ),
   );
+
+  /// One payment for all he owes: the oldest orders closed first.
+  Future<
+    ({
+      List<({String order, int? number, double amount})> split,
+      ClientCard card,
+    })
+  >
+  pay(
+    String customer, {
+    required double amount,
+    required String method,
+    String? bank,
+  }) async {
+    final j = _map(
+      await _client.callMethod(
+        '$_base.pay',
+        post: true,
+        params: {
+          'customer': customer,
+          'amount': amount,
+          'method': method,
+          'bank': ?bank,
+        },
+      ),
+    );
+    return (
+      split: [
+        for (final x in j['split'] is List ? j['split'] as List : const [])
+          if (x is Map)
+            (
+              order: '${x['order']}',
+              number: x['number'] is num ? (x['number'] as num).toInt() : null,
+              amount: x['amount'] is num
+                  ? (x['amount'] as num).toDouble()
+                  : 0.0,
+            ),
+      ],
+      card: ClientCard.fromJson(
+        j['card'] is Map
+            ? Map<String, dynamic>.from(j['card'] as Map)
+            : const <String, dynamic>{},
+      ),
+    );
+  }
+
+  /// The reminder of all he owes: his phone and the words.
+  Future<({String? phone, String text})> debtText(String customer) async {
+    final j = _map(
+      await _client.callMethod(
+        '$_base.debt_text',
+        params: {'customer': customer},
+      ),
+    );
+    final phone = '${j['phone'] ?? ''}';
+    return (phone: phone.isEmpty ? null : phone, text: '${j['text'] ?? ''}');
+  }
+
+  /// The reminder was sent: the card after it.
+  Future<ClientCard> reminded(String customer) async => ClientCard.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.reminded',
+        post: true,
+        params: {'customer': customer},
+      ),
+    ),
+  );
+
+  Future<List<ClientEvent>> history(String customer) async => _events(
+    await _client.callMethod('$_base.history', params: {'customer': customer}),
+  );
+
+  Future<List<ClientEvent>> addNote(String customer, String text) async =>
+      _events(
+        await _client.callMethod(
+          '$_base.add_note',
+          post: true,
+          params: {'customer': customer, 'text': text},
+        ),
+      );
+
+  static List<ClientEvent> _events(Map<String, dynamic> response) => [
+    for (final e
+        in response['message'] is List ? response['message'] as List : const [])
+      if (e is Map) ClientEvent.fromJson(Map<String, dynamic>.from(e)),
+  ];
 
   Future<ToWrite> todo() async =>
       ToWrite.fromJson(_map(await _client.callMethod('$_base.todo')));

@@ -11763,4 +11763,144 @@ class AppLocalizationsEn extends AppLocalizations {
   String mdfPayByInvoice(String no, String sum) {
     return 'By invoice No. $no · $sum';
   }
+
+  @override
+  String get filmReceiveCataloguesHead => 'Makers\' catalogues';
+
+  @override
+  String clcRepeat(String no) {
+    return 'Repeat No. $no';
+  }
+
+  @override
+  String get clcHistory => 'History';
+
+  @override
+  String get clcShowAll => 'All';
+
+  @override
+  String get clcShowReady => 'Ready';
+
+  @override
+  String get clcShowWork => 'In work';
+
+  @override
+  String get clcShowDebt => 'Owing';
+
+  @override
+  String get clcGroupReady => 'Ready to hand over';
+
+  @override
+  String get clcGroupWork => 'In the shop';
+
+  @override
+  String get clcGroupDraft => 'Drafts';
+
+  @override
+  String get clcGroupHanded => 'Handed over';
+
+  @override
+  String clcDueBy(String date) {
+    return 'due $date';
+  }
+
+  @override
+  String clcDebtDays(int days) {
+    return '$days d';
+  }
+
+  @override
+  String clcOldDebt(int days, String sum) {
+    return 'over $days days: $sum';
+  }
+
+  @override
+  String clcPaidSplit(int count) {
+    return 'Payment spread over orders: $count';
+  }
+
+  @override
+  String get clcRemind => 'Remind';
+
+  @override
+  String get clcPayAll => 'Payment';
+
+  @override
+  String clcLimitOver(String limit, String over) {
+    return 'limit $limit · over by $over';
+  }
+
+  @override
+  String clcLimit(String limit) {
+    return 'debt limit $limit';
+  }
+
+  @override
+  String get clcTerms => 'Terms';
+
+  @override
+  String clcTermDiscount(String pct) {
+    return 'discount $pct%';
+  }
+
+  @override
+  String clcTermPvc(String sum) {
+    return 'own PVC price $sum/m²';
+  }
+
+  @override
+  String clcTermPaint(String sum) {
+    return 'own paint price $sum/m²';
+  }
+
+  @override
+  String get clcTermList => 'price list';
+
+  @override
+  String get clcColours => 'His colours';
+
+  @override
+  String clcPayOwes(String sum) {
+    return 'owes $sum';
+  }
+
+  @override
+  String clcPayOver(String sum) {
+    return 'more than owed ($sum) — an overpayment goes on its order';
+  }
+
+  @override
+  String get clcPaySplit => 'Spread over orders — the oldest first:';
+
+  @override
+  String clcPayPart(String sum) {
+    return '(of $sum)';
+  }
+
+  @override
+  String get clcPaySave => 'Enter';
+
+  @override
+  String get clcNoteHint => 'A note on him: call after 2 pm…';
+
+  @override
+  String get clcNoteSave => 'Save';
+
+  @override
+  String get clcHistOrders => 'Orders';
+
+  @override
+  String get clcHistMoney => 'Money';
+
+  @override
+  String get clcHistMessages => 'Messages';
+
+  @override
+  String get clcHistNotes => 'Notes';
+
+  @override
+  String get clcHistEmpty => 'Nothing yet';
+
+  @override
+  String get clcToday => 'Today';
 }
