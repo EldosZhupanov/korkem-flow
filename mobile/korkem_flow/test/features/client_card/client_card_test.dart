@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/client_card/data/client_card_repository.dart';
 import 'package:korkem_flow/features/client_card/domain/client_card.dart';
 import 'package:korkem_flow/features/client_card/presentation/client_card_screen.dart';
+import 'package:korkem_flow/features/client_card/presentation/reconciliation.dart';
 import 'package:korkem_flow/features/client_card/presentation/to_write_screen.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/l10n/app_localizations.dart';
 
 import '../../support/widget_harness.dart';
 
@@ -40,6 +45,17 @@ class _Fake implements ClientCardRepository {
   final paid = <(double, String)>[];
   final notes = <String>[];
   int reminders = 0;
+  final acts = <(String?, String?)>[];
+
+  @override
+  Future<Reconciliation> reconciliation(
+    String customer, {
+    String? since,
+    String? until,
+  }) async {
+    acts.add((since, until));
+    return _act;
+  }
   final marked = <(ToWriteKind, String?)>[];
   final saved = <(ToWriteKind, String)>[];
   bool toldReady = false;
@@ -205,6 +221,32 @@ class _Fake implements ClientCardRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
+
+final _act = Reconciliation.fromJson(const {
+  'since': '2026-11-01',
+  'until': '2026-11-21',
+  'company': 'ТОО «KORKEM»',
+  'requisites': {'bin': '123456789012', 'director': 'Жупанов Е.'},
+  'payer': {'name': 'ТОО «Мебель-Юг»', 'bin': '210987654321'},
+  'opening': 10000,
+  'debit': 108000,
+  'credit': 50000,
+  'closing': 68000,
+  'rows': [
+    {
+      'date': '2026-11-10',
+      'text': 'Заказ № 245 (фасады МДФ)',
+      'debit': 68000,
+      'credit': 0,
+    },
+    {
+      'date': '2026-11-14',
+      'text': 'Оплата по заказу № 245 · Перевод',
+      'debit': 0,
+      'credit': 50000,
+    },
+  ],
+});
 
 void main() {
   late _Fake repo;
@@ -375,5 +417,48 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.notes, ['Звонить после 14:00']);
     expect(find.text('Звонить после 14:00'), findsOneWidget);
+  });
+
+  testWidgets('«Акт сверки»: a period chosen, the paper sent', (tester) async {
+    final sent = <Reconciliation>[];
+    tester.view
+      ..physicalSize = const Size(1400, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          clientCardRepositoryProvider.overrideWithValue(repo),
+          actSendProvider.overrideWithValue((act, l10n) async => sent.add(act)),
+        ],
+        child: harness(const ClientCardScreen(customer: 'CUST-1')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('clc:act')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('clc:actMake')));
+    await tester.pumpAndSettle();
+    expect(repo.acts, [(null, null)]);
+    expect(sent.single.closing, 68000);
+    await tester.tap(find.byKey(const ValueKey('clc:act')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('clc:actPeriod:month')));
+    await tester.tap(find.byKey(const ValueKey('clc:actMake')));
+    await tester.pumpAndSettle();
+    final now = DateTime.now();
+    expect(repo.acts.last.$1, mdfIso(DateTime(now.year, now.month)));
+  });
+
+  test('the act prints in every language', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    for (final locale in ['ru', 'kk', 'en']) {
+      final bytes = await buildReconciliationPdf(
+        _act,
+        lookupAppLocalizations(Locale(locale)),
+      );
+      expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
+    }
   });
 }

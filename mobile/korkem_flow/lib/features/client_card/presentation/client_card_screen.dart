@@ -17,6 +17,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/client_card/data/client_card_repository.dart';
 import 'package:korkem_flow/features/client_card/domain/client_card.dart';
+import 'package:korkem_flow/features/client_card/presentation/reconciliation.dart';
 import 'package:korkem_flow/features/cnc/domain/cnc.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
@@ -760,6 +761,17 @@ class _Side extends ConsumerWidget {
                         label: Text(l10n.clcRemind),
                       ),
                     ],
+                  ),
+                ],
+                // «Акт сверки» — owing or not, a company asks for it.
+                if (figures.orders > 0) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  TextButton.icon(
+                    key: const ValueKey('clc:act'),
+                    onPressed: () =>
+                        unawaited(showReconciliation(context, card.customer)),
+                    icon: const Icon(AppIcons.quote),
+                    label: Text(l10n.actTitle),
                   ),
                 ],
               ],

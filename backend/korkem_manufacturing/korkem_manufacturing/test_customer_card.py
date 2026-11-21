@@ -126,3 +126,19 @@ class TestCustomerCard(IntegrationTestCase):
 			return self._as(user, fn, *args)
 		except frappe.PermissionError:
 			return None
+
+	def test_the_reconciliation_has_the_balance_before_the_sales_and_payments_after(self):
+		old, new = self.orders
+		self._as(MANAGER, customer_card.pay, self.customer, 12_000, "Перевод")
+		act = self._as(MANAGER, customer_card.reconciliation, self.customer)
+		self.assertEqual((act["opening"], act["debit"], act["credit"], act["closing"]), (0, 20_000, 12_000, 8_000))
+		self.assertEqual([r["order"] for r in act["rows"] if r["debit"]], [old, new])
+		self.assertEqual(sum(r["credit"] for r in act["rows"]), 12_000)
+		# A period after it all: what was owed comes as the opening balance.
+		later = add_days(nowdate(), 1)
+		act = self._as(MANAGER, customer_card.reconciliation, self.customer, later, later)
+		self.assertEqual((act["opening"], act["rows"], act["closing"]), (8_000, [], 8_000))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, customer_card.reconciliation, self.customer, later, nowdate())
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, customer_card.reconciliation, self.customer)
