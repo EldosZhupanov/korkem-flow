@@ -131,6 +131,7 @@ abstract final class AppIcons {
 
   /// Do it again as last time: a customer's last order (owner, 20.11.2026).
   static const IconData repeat = Symbols.repeat_rounded;
+  static const IconData history = Symbols.history_rounded;
 
   /// Put by for a customer.
   static const IconData hold = Symbols.bookmark_rounded;

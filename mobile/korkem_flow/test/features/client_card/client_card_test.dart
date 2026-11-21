@@ -37,6 +37,9 @@ const Map<String, Object> _debt = {
 };
 
 class _Fake implements ClientCardRepository {
+  final paid = <(double, String)>[];
+  final notes = <String>[];
+  var reminders = 0;
   final marked = <(ToWriteKind, String?)>[];
   final saved = <(ToWriteKind, String)>[];
   bool toldReady = false;
@@ -91,31 +94,104 @@ class _Fake implements ClientCardRepository {
   }
 
   @override
+  Future<({List<({String order, int? number, double amount})> split, ClientCard card})>
+  pay(
+    String customer, {
+    required double amount,
+    required String method,
+    String? bank,
+  }) async {
+    paid.add((amount, method));
+    return (
+      split: [(order: 'SAL-ORD-2026-00245', number: 245, amount: amount)],
+      card: await card(customer),
+    );
+  }
+
+  @override
+  Future<({String? phone, String text})> debtText(String customer) async => (
+    phone: '+77015551234',
+    text: 'Здравствуйте, Ерлан! Напоминаем об оплате по заказу № 245, 250.',
+  );
+
+  @override
+  Future<ClientCard> reminded(String customer) async {
+    reminders++;
+    return card(customer);
+  }
+
+  @override
+  Future<List<ClientEvent>> history(String customer) async => [
+    for (final n in notes.reversed)
+      ClientEvent(at: '2026-11-21 10:00', text: n, kind: ClientEventKind.note),
+    const ClientEvent(
+      at: '2026-11-20 12:00',
+      text: 'Оплата: 50 000 ₸, перевод.',
+      kind: ClientEventKind.money,
+      order: 'SAL-ORD-2026-00245',
+      number: 245,
+    ),
+    const ClientEvent(
+      at: '2026-11-10',
+      text: 'Заказ № 245 принят · Белый Матовый · 68 000 ₸',
+      order: 'SAL-ORD-2026-00245',
+      number: 245,
+    ),
+  ];
+
+  @override
+  Future<List<ClientEvent>> addNote(String customer, String text) async {
+    notes.add(text);
+    return history(customer);
+  }
+
+  @override
   Future<ClientCard> card(String customer) async => ClientCard.fromJson(const {
     'customer': 'CUST-1',
     'name': 'Ерлан Абенов',
     'phone': '+77015551234',
     'can': {'facades': true, 'film': false},
+    'limit': 50000,
+    'terms': {'discount_pct': 5},
     'orders': [
+      {
+        'name': 'SAL-ORD-2026-00250',
+        'number': 250,
+        'status': 'in_shop',
+        'created_on': '2026-11-18',
+        'decor': 'Белый Матовый',
+        'area': 2.6,
+        'stages': [
+          {'key': 'cut', 'done': true},
+          {'key': 'mill', 'done': false},
+          {'key': 'ready', 'done': false},
+        ],
+        'total': 40000,
+        'paid': 0,
+        'debt': 40000,
+        'debt_days': 3,
+      },
       {
         'name': 'SAL-ORD-2026-00245',
         'number': 245,
         'status': 'ready',
         'created_on': '2026-11-10',
+        'decor': 'Белый Матовый',
         'total': 68000,
         'paid': 50000,
         'debt': 18000,
+        'debt_days': 11,
       },
     ],
     'payments': [
       {'date': '2026-11-14', 'order': 'SAL-ORD-2026-00245', 'amount': 50000},
     ],
     'figures': {
-      'orders': 1,
-      'total': 68000,
+      'orders': 2,
+      'total': 108000,
       'paid': 50000,
-      'debt': 18000,
-      'average': 68000,
+      'debt': 58000,
+      'average': 54000,
       'first': '2026-11-10',
       'last': '2026-11-10',
     },
@@ -191,5 +267,96 @@ void main() {
     expect(find.byKey(const ValueKey('clc:newOrder')), findsOneWidget);
     expect(find.byKey(const ValueKey('clc:sellFilm')), findsNothing);
     expect(find.textContaining('+7 (701) 555-12-34'), findsOneWidget);
+  });
+
+  testWidgets('his orders by where they are, with stages and how long owed', (
+    tester,
+  ) async {
+    await pump(tester, const ClientCardScreen(customer: 'CUST-1'));
+    // Ready to hand over, then in the shop — not «Принят» on every row.
+    final ready = tester.getTopLeft(
+      find.byKey(const ValueKey('clc:order:SAL-ORD-2026-00245')),
+    );
+    final work = tester.getTopLeft(
+      find.byKey(const ValueKey('clc:order:SAL-ORD-2026-00250')),
+    );
+    expect(ready.dy < work.dy, isTrue);
+    expect(
+      find.byKey(const ValueKey('clc:stage:SAL-ORD-2026-00250:cut')),
+      findsOneWidget,
+    );
+    expect(find.text('Cut ✓'), findsOneWidget);
+    expect(find.byKey(const ValueKey('clc:debtDays:SAL-ORD-2026-00245')), findsOne);
+    // Over his limit, and what is owed longer than a week.
+    expect(find.byKey(const ValueKey('clc:limit')), findsOneWidget);
+    expect(find.byKey(const ValueKey('clc:oldDebt')), findsOneWidget);
+    expect(find.byKey(const ValueKey('clc:colour:Белый Матовый')), findsOne);
+    // Narrowed to what owes / what is ready.
+    await tester.tap(find.byKey(const ValueKey('clc:show:ready')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('clc:order:SAL-ORD-2026-00250')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('one payment for all he owes, the oldest order first', (
+    tester,
+  ) async {
+    await pump(tester, const ClientCardScreen(customer: 'CUST-1'));
+    final pay = find.byKey(const ValueKey('clc:pay'));
+    await tester.ensureVisible(pay);
+    await tester.tap(pay);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('clc:payAmount')), '30000');
+    await tester.pumpAndSettle();
+    // The older order closed first, the rest on the next.
+    expect(
+      find.byKey(const ValueKey('clc:paySplit:SAL-ORD-2026-00245')),
+      findsOne,
+    );
+    expect(
+      find.byKey(const ValueKey('clc:paySplit:SAL-ORD-2026-00250')),
+      findsOne,
+    );
+    await tester.tap(find.byKey(const ValueKey('clc:payMethod:Наличные')));
+    await tester.tap(find.byKey(const ValueKey('clc:paySave')));
+    await tester.pumpAndSettle();
+    expect(repo.paid, [(30000.0, 'Наличные')]);
+    // More than he owes is refused before it is sent.
+    await tester.tap(pay);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('clc:payAmount')), '90000');
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const ValueKey('clc:paySave')))
+          .onPressed,
+      isNull,
+    );
+  });
+
+  testWidgets('his history on one line, narrowed, and a note added', (
+    tester,
+  ) async {
+    await pump(tester, const ClientCardScreen(customer: 'CUST-1'));
+    final tab = find.text('History');
+    await tester.ensureVisible(tab);
+    await tester.tap(tab);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Заказ № 245 принят'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('clc:hist:money')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Заказ № 245 принят'), findsNothing);
+    expect(find.textContaining('Оплата: 50 000'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('clc:hist:all')));
+    await tester.enterText(
+      find.byKey(const ValueKey('clc:note')),
+      'Звонить после 14:00',
+    );
+    await tester.tap(find.byKey(const ValueKey('clc:noteSave')));
+    await tester.pumpAndSettle();
+    expect(repo.notes, ['Звонить после 14:00']);
+    expect(find.text('Звонить после 14:00'), findsOneWidget);
   });
 }

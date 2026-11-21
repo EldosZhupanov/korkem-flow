@@ -16,6 +16,40 @@ def card(customer: str) -> dict:
 	return customer_card.card(customer)
 
 
+@frappe.whitelist(methods=["POST"])
+def pay(customer: str, amount: float | str, method: str = "Перевод", bank: str | None = None,
+		idempotency_key: str | None = None) -> dict:
+	"""Одна оплата на весь долг клиента: закрывает самые старые заказы первыми."""
+	from korkem_manufacturing.api.mdf_orders import _method_bank
+
+	method, bank = _method_bank(method, bank)
+	return customer_card.pay(customer, amount, method, bank, idempotency_key)
+
+
+@frappe.whitelist(methods=["GET"])
+def debt_text(customer: str) -> dict:
+	"""Напоминание о всём долге клиента: текст и телефон."""
+	return customer_card.debt_text(customer)
+
+
+@frappe.whitelist(methods=["POST"])
+def reminded(customer: str) -> dict:
+	"""Напоминание о долге отправлено: запомнить день по каждому заказу с долгом."""
+	return customer_card.reminded(customer)
+
+
+@frappe.whitelist(methods=["GET"])
+def history(customer: str) -> list[dict]:
+	"""История клиента одной лентой: заказы, оплаты, счета, сообщения, заметки."""
+	return customer_card.history(customer)
+
+
+@frappe.whitelist(methods=["POST"])
+def add_note(customer: str, text: str) -> list[dict]:
+	"""Заметка о клиенте — в его историю."""
+	return customer_card.add_note(customer, text)
+
+
 @frappe.whitelist(methods=["GET"])
 def todo() -> dict:
 	"""Кому написать сегодня: готовые заказы без извещения, долги к напоминанию, должники плёнки."""
