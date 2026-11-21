@@ -111,17 +111,17 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
 
   /// Sections opened or folded in this window (owner, 21.11.2026: «здесь
   /// тоже надо… чтобы мы могли свернуть»); the rest as left last time.
-  final _open = <String, bool>{};
+  final _sectionOpen = <String, bool>{};
 
   /// Whether the section [key] is open: as set in this window, else as left
   /// last time — save one with a colour short, never found folded away.
   bool _isOpen(String key, {bool urgent = false}) =>
-      _open[key] ??
+      _sectionOpen[key] ??
       (urgent || !ref.read(foldsProvider.notifier).shut('pp.$key'));
 
   void _toggle(String key, {bool urgent = false}) => setState(() {
     final open = !_isOpen(key, urgent: urgent);
-    _open[key] = open;
+    _sectionOpen[key] = open;
     ref.read(foldsProvider.notifier).set('pp.$key', shut: !open);
   });
 
