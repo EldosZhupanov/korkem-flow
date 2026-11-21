@@ -50,7 +50,12 @@ class ClientCardRepository {
   );
 
   /// One payment for all he owes: the oldest orders closed first.
-  Future<({List<({String order, int? number, double amount})> split, ClientCard card})>
+  Future<
+    ({
+      List<({String order, int? number, double amount})> split,
+      ClientCard card,
+    })
+  >
   pay(
     String customer, {
     required double amount,
@@ -76,7 +81,9 @@ class ClientCardRepository {
             (
               order: '${x['order']}',
               number: x['number'] is num ? (x['number'] as num).toInt() : null,
-              amount: x['amount'] is num ? (x['amount'] as num).toDouble() : 0.0,
+              amount: x['amount'] is num
+                  ? (x['amount'] as num).toDouble()
+                  : 0.0,
             ),
       ],
       card: ClientCard.fromJson(
@@ -124,9 +131,8 @@ class ClientCardRepository {
       );
 
   static List<ClientEvent> _events(Map<String, dynamic> response) => [
-    for (final e in response['message'] is List
-        ? response['message'] as List
-        : const [])
+    for (final e
+        in response['message'] is List ? response['message'] as List : const [])
       if (e is Map) ClientEvent.fromJson(Map<String, dynamic>.from(e)),
   ];
 

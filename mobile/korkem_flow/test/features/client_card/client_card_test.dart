@@ -94,7 +94,12 @@ class _Fake implements ClientCardRepository {
   }
 
   @override
-  Future<({List<({String order, int? number, double amount})> split, ClientCard card})>
+  Future<
+    ({
+      List<({String order, int? number, double amount})> split,
+      ClientCard card,
+    })
+  >
   pay(
     String customer, {
     required double amount,
@@ -289,7 +294,10 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Cut ✓'), findsOneWidget);
-    expect(find.byKey(const ValueKey('clc:debtDays:SAL-ORD-2026-00245')), findsOne);
+    expect(
+      find.byKey(const ValueKey('clc:debtDays:SAL-ORD-2026-00245')),
+      findsOne,
+    );
     // Over his limit, and what is owed longer than a week.
     expect(find.byKey(const ValueKey('clc:limit')), findsOneWidget);
     expect(find.byKey(const ValueKey('clc:oldDebt')), findsOneWidget);
@@ -311,7 +319,10 @@ void main() {
     await tester.ensureVisible(pay);
     await tester.tap(pay);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const ValueKey('clc:payAmount')), '30000');
+    await tester.enterText(
+      find.byKey(const ValueKey('clc:payAmount')),
+      '30000',
+    );
     await tester.pumpAndSettle();
     // The older order closed first, the rest on the next.
     expect(
@@ -329,7 +340,10 @@ void main() {
     // More than he owes is refused before it is sent.
     await tester.tap(pay);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const ValueKey('clc:payAmount')), '90000');
+    await tester.enterText(
+      find.byKey(const ValueKey('clc:payAmount')),
+      '90000',
+    );
     await tester.pumpAndSettle();
     expect(
       tester

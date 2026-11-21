@@ -438,8 +438,7 @@ class _PaintPickerState extends ConsumerState<_PaintPicker> {
               title: '${p.title} · ${p.rows.length}',
               style: label,
               open: _isOpen(p.key, urgent: p.rows.any((r) => r.danger)),
-              onTap: () =>
-                  _toggle(p.key, urgent: p.rows.any((r) => r.danger)),
+              onTap: () => _toggle(p.key, urgent: p.rows.any((r) => r.danger)),
             ),
             const SizedBox(height: AppSpacing.xs),
             if (_isOpen(p.key, urgent: p.rows.any((r) => r.danger)))

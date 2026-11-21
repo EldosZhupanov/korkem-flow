@@ -88,7 +88,6 @@ class ClientCardScreen extends ConsumerWidget {
   }
 }
 
-
 enum _Tab { orders, history }
 
 enum _Show { all, ready, work, debt }
@@ -297,7 +296,12 @@ class _BodyState extends ConsumerState<_Body> {
           return ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
-              for (final w in [...head, side, const SizedBox(height: AppSpacing.md), ...main])
+              for (final w in [
+                ...head,
+                side,
+                const SizedBox(height: AppSpacing.md),
+                ...main,
+              ])
                 ReadableWidth(child: w),
             ],
           );
@@ -617,7 +621,10 @@ class _Side extends ConsumerWidget {
         context: context,
         builder: (context) => AlertDialog(
           title: Text(l10n.clcRemind),
-          content: SelectableText(said.text, key: const ValueKey('clc:remindText')),
+          content: SelectableText(
+            said.text,
+            key: const ValueKey('clc:remindText'),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -879,11 +886,10 @@ class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
   String? _error;
 
   /// His orders owing, the oldest first — how the server lays the money.
-  List<ClientOrder> get _owing =>
-      [
-        for (final o in widget.card.orders ?? const <ClientOrder>[])
-          if (o.debt > 0.5 && !o.draft) o,
-      ]..sort((a, b) => (a.createdOn ?? '').compareTo(b.createdOn ?? ''));
+  List<ClientOrder> get _owing => [
+    for (final o in widget.card.orders ?? const <ClientOrder>[])
+      if (o.debt > 0.5 && !o.draft) o,
+  ]..sort((a, b) => (a.createdOn ?? '').compareTo(b.createdOn ?? ''));
 
   double get _value =>
       double.tryParse(_amount.text.replaceAll(' ', '').replaceAll(',', '.')) ??

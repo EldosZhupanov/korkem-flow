@@ -60,7 +60,9 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
   /// decors to be seen at once, the maker named on the heading.
   static const _catalogsKey = 'rcv.catalogs';
   static const _oursKey = 'rcv.ours';
-  late bool _catalogsOpen = !ref.read(foldsProvider.notifier).shut(_catalogsKey);
+  late bool _catalogsOpen = !ref
+      .read(foldsProvider.notifier)
+      .shut(_catalogsKey);
   late bool _oursOpen = !ref.read(foldsProvider.notifier).shut(_oursKey);
 
   /// The maker whose films and catalogue are open, and its collection.
@@ -481,22 +483,24 @@ class _ReceiveStartState extends ConsumerState<_ReceiveStart> {
               open: _oursOpen || typed.isNotEmpty,
               onTap: () => setState(() {
                 _oursOpen = !(_oursOpen || typed.isNotEmpty);
-                ref.read(foldsProvider.notifier).set(_oursKey, shut: !_oursOpen);
+                ref
+                    .read(foldsProvider.notifier)
+                    .set(_oursKey, shut: !_oursOpen);
               }),
             ),
           ],
           if (_oursOpen || typed.isNotEmpty)
             for (final g in films)
-            FilmTile(
-              film: g.first,
-              variants: g,
-              onTap: _busy
-                  ? null
-                  : () async {
-                      final f = await _thickness(g);
-                      if (f != null) await _film(c, f);
-                    },
-            ),
+              FilmTile(
+                film: g.first,
+                variants: g,
+                onTap: _busy
+                    ? null
+                    : () async {
+                        final f = await _thickness(g);
+                        if (f != null) await _film(c, f);
+                      },
+              ),
           if (fromCatalog.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(

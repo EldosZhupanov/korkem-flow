@@ -20062,6 +20062,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'By invoice No. {no} · {sum}'**
   String mdfPayByInvoice(String no, String sum);
+
+  /// No description provided for @filmReceiveCataloguesHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Makers\' catalogues'**
+  String get filmReceiveCataloguesHead;
+
+  /// No description provided for @clcRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat No. {no}'**
+  String clcRepeat(String no);
+
+  /// No description provided for @clcHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get clcHistory;
+
+  /// No description provided for @clcShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get clcShowAll;
+
+  /// No description provided for @clcShowReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get clcShowReady;
+
+  /// No description provided for @clcShowWork.
+  ///
+  /// In en, this message translates to:
+  /// **'In work'**
+  String get clcShowWork;
+
+  /// No description provided for @clcShowDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Owing'**
+  String get clcShowDebt;
+
+  /// No description provided for @clcGroupReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to hand over'**
+  String get clcGroupReady;
+
+  /// No description provided for @clcGroupWork.
+  ///
+  /// In en, this message translates to:
+  /// **'In the shop'**
+  String get clcGroupWork;
+
+  /// No description provided for @clcGroupDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts'**
+  String get clcGroupDraft;
+
+  /// No description provided for @clcGroupHanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed over'**
+  String get clcGroupHanded;
+
+  /// No description provided for @clcDueBy.
+  ///
+  /// In en, this message translates to:
+  /// **'due {date}'**
+  String clcDueBy(String date);
+
+  /// No description provided for @clcDebtDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d'**
+  String clcDebtDays(int days);
+
+  /// No description provided for @clcOldDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'over {days} days: {sum}'**
+  String clcOldDebt(int days, String sum);
+
+  /// No description provided for @clcPaidSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment spread over orders: {count}'**
+  String clcPaidSplit(int count);
+
+  /// No description provided for @clcRemind.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind'**
+  String get clcRemind;
+
+  /// No description provided for @clcPayAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get clcPayAll;
+
+  /// No description provided for @clcLimitOver.
+  ///
+  /// In en, this message translates to:
+  /// **'limit {limit} · over by {over}'**
+  String clcLimitOver(String limit, String over);
+
+  /// No description provided for @clcLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'debt limit {limit}'**
+  String clcLimit(String limit);
+
+  /// No description provided for @clcTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms'**
+  String get clcTerms;
+
+  /// No description provided for @clcTermDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'discount {pct}%'**
+  String clcTermDiscount(String pct);
+
+  /// No description provided for @clcTermPvc.
+  ///
+  /// In en, this message translates to:
+  /// **'own PVC price {sum}/m²'**
+  String clcTermPvc(String sum);
+
+  /// No description provided for @clcTermPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'own paint price {sum}/m²'**
+  String clcTermPaint(String sum);
+
+  /// No description provided for @clcTermList.
+  ///
+  /// In en, this message translates to:
+  /// **'price list'**
+  String get clcTermList;
+
+  /// No description provided for @clcColours.
+  ///
+  /// In en, this message translates to:
+  /// **'His colours'**
+  String get clcColours;
+
+  /// No description provided for @clcPayOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {sum}'**
+  String clcPayOwes(String sum);
+
+  /// No description provided for @clcPayOver.
+  ///
+  /// In en, this message translates to:
+  /// **'more than owed ({sum}) — an overpayment goes on its order'**
+  String clcPayOver(String sum);
+
+  /// No description provided for @clcPaySplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Spread over orders — the oldest first:'**
+  String get clcPaySplit;
+
+  /// No description provided for @clcPayPart.
+  ///
+  /// In en, this message translates to:
+  /// **'(of {sum})'**
+  String clcPayPart(String sum);
+
+  /// No description provided for @clcPaySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get clcPaySave;
+
+  /// No description provided for @clcNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A note on him: call after 2 pm…'**
+  String get clcNoteHint;
+
+  /// No description provided for @clcNoteSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get clcNoteSave;
+
+  /// No description provided for @clcHistOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get clcHistOrders;
+
+  /// No description provided for @clcHistMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get clcHistMoney;
+
+  /// No description provided for @clcHistMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get clcHistMessages;
+
+  /// No description provided for @clcHistNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get clcHistNotes;
+
+  /// No description provided for @clcHistEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet'**
+  String get clcHistEmpty;
+
+  /// No description provided for @clcToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get clcToday;
 }
 
 class _AppLocalizationsDelegate

@@ -1171,9 +1171,7 @@ void main() {
     // the heading; a tap opens them for another.
     expect(find.byKey(const ValueKey('rcvMaker:Adilet')), findsNothing);
     expect(
-      tester
-          .widget<Text>(find.byKey(const ValueKey('rcvCatalogsChosen')))
-          .data,
+      tester.widget<Text>(find.byKey(const ValueKey('rcvCatalogsChosen'))).data,
       'JS Group · All collections',
     );
     await tester.tap(find.byKey(const ValueKey('rcvCatalogsFold')));
