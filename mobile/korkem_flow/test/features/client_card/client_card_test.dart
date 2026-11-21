@@ -39,7 +39,7 @@ const Map<String, Object> _debt = {
 class _Fake implements ClientCardRepository {
   final paid = <(double, String)>[];
   final notes = <String>[];
-  var reminders = 0;
+  int reminders = 0;
   final marked = <(ToWriteKind, String?)>[];
   final saved = <(ToWriteKind, String)>[];
   bool toldReady = false;

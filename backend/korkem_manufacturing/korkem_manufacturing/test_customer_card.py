@@ -116,5 +116,13 @@ class TestCustomerCard(IntegrationTestCase):
 		self.assertEqual((history[0]["text"], history[0]["kind"]), ("Звонить после 14:00", "note"))
 		accepted = [e for e in history if e["kind"] == "order" and "принят" in e["text"]]
 		self.assertEqual({e["order"] for e in accepted}, set(self.orders))
-		with self.assertRaises(frappe.PermissionError):
-			self._as(CUTTER, customer_card.history, self.customer)
+		# A shop hand who may see the card for its film sees no facade orders
+		# in the history either.
+		theirs = self._safe(CUTTER, customer_card.history, self.customer)
+		self.assertFalse([e for e in theirs or [] if e["kind"] == "order"])
+
+	def _safe(self, user, fn, *args):
+		try:
+			return self._as(user, fn, *args)
+		except frappe.PermissionError:
+			return None

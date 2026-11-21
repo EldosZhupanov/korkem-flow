@@ -976,8 +976,11 @@ class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
                 Text(l10n.clcPaySplit, style: theme.textTheme.labelLarge),
                 for (final (o, part) in split)
                   Text(
-                    '№ ${o.number ?? o.name} — ${money.format(part)}'
-                    '${part + 0.5 < o.debt ? ' ${l10n.clcPayPart(money.format(o.debt))}' : ''}',
+                    [
+                      '№ ${o.number ?? o.name} — ${money.format(part)}',
+                      if (part + 0.5 < o.debt)
+                        l10n.clcPayPart(money.format(o.debt)),
+                    ].join(' '),
                     key: ValueKey('clc:paySplit:${o.name}'),
                   ),
               ],
