@@ -129,7 +129,10 @@ class TestCustomerCard(IntegrationTestCase):
 
 	def test_the_reconciliation_has_the_balance_before_the_sales_and_payments_after(self):
 		old, new = self.orders
-		self._as(MANAGER, customer_card.pay, self.customer, 12_000, "Перевод")
+		made = self._as(MANAGER, customer_card.pay, self.customer, 12_000, "Перевод")
+		print("DBG split", made["split"], "payments", made["card"]["payments"])
+		print("DBG PER", frappe.db.sql("""select per.parent, per.reference_name, per.allocated_amount, pe.company, pe.docstatus, pe.posting_date from `tabPayment Entry Reference` per join `tabPayment Entry` pe on pe.name = per.parent where per.reference_name in %s""", (tuple(self.orders),), as_dict=True))
+		print("DBG company", frappe.db.get_value("Sales Order", old, ["company", "customer"]), self.customer)
 		act = self._as(MANAGER, customer_card.reconciliation, self.customer)
 		self.assertEqual((act["opening"], act["debit"], act["credit"], act["closing"]), (0, 20_000, 12_000, 8_000))
 		self.assertEqual([r["order"] for r in act["rows"] if r["debit"]], [old, new])
