@@ -11867,4 +11867,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clcToday => 'Today';
+
+  @override
+  String get actTitle => 'Reconciliation statement';
+
+  @override
+  String actPeriod(String since, String until) {
+    return 'for $since to $until';
+  }
+
+  @override
+  String actBetween(String ours, String theirs) {
+    return 'between $ours and $theirs';
+  }
+
+  @override
+  String get actDate => 'Date';
+
+  @override
+  String get actDocument => 'Document';
+
+  @override
+  String get actDebit => 'Debit';
+
+  @override
+  String get actCredit => 'Credit';
+
+  @override
+  String get actOpening => 'Opening balance';
+
+  @override
+  String get actTurnover => 'Turnover';
+
+  @override
+  String get actClosing => 'Closing balance';
+
+  @override
+  String actNoDebt(String company, String date) {
+    return 'According to $company, there is no debt on $date.';
+  }
+
+  @override
+  String actTheyOwe(String company, String date, String payer, String sum) {
+    return 'According to $company, on $date $payer owes $company $sum.';
+  }
+
+  @override
+  String actWeOwe(String company, String date, String payer, String sum) {
+    return 'According to $company, on $date $company owes $payer $sum.';
+  }
+
+  @override
+  String get actStamp => 'signature, seal';
+
+  @override
+  String get actAllTime => 'All time';
+
+  @override
+  String get actThisMonth => 'This month';
+
+  @override
+  String get actLastMonth => 'Last month';
+
+  @override
+  String get actThisYear => 'This year';
+
+  @override
+  String get actMake => 'Make and send';
 }

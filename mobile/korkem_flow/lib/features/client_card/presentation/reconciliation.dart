@@ -194,7 +194,8 @@ Future<Uint8List> buildReconciliationPdf(
 
 /// How an act leaves the app: the system's share sheet — WhatsApp, mail, a
 /// printer, a file. A test puts its own in.
-typedef ActSend = Future<void> Function(Reconciliation act, AppLocalizations l10n);
+typedef ActSend =
+    Future<void> Function(Reconciliation act, AppLocalizations l10n);
 
 final actSendProvider = Provider<ActSend>(
   (ref) => (act, l10n) async {

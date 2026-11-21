@@ -11905,4 +11905,71 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get clcToday => 'Сегодня';
+
+  @override
+  String get actTitle => 'Акт сверки';
+
+  @override
+  String actPeriod(String since, String until) {
+    return 'за период с $since по $until';
+  }
+
+  @override
+  String actBetween(String ours, String theirs) {
+    return 'между $ours и $theirs';
+  }
+
+  @override
+  String get actDate => 'Дата';
+
+  @override
+  String get actDocument => 'Документ';
+
+  @override
+  String get actDebit => 'Дебет';
+
+  @override
+  String get actCredit => 'Кредит';
+
+  @override
+  String get actOpening => 'Сальдо на начало';
+
+  @override
+  String get actTurnover => 'Обороты за период';
+
+  @override
+  String get actClosing => 'Сальдо на конец';
+
+  @override
+  String actNoDebt(String company, String date) {
+    return 'По данным $company на $date задолженность отсутствует.';
+  }
+
+  @override
+  String actTheyOwe(String company, String date, String payer, String sum) {
+    return 'По данным $company на $date задолженность $payer перед $company составляет $sum.';
+  }
+
+  @override
+  String actWeOwe(String company, String date, String payer, String sum) {
+    return 'По данным $company на $date задолженность $company перед $payer составляет $sum.';
+  }
+
+  @override
+  String get actStamp => 'подпись, М.П.';
+
+  @override
+  String get actAllTime => 'Всё время';
+
+  @override
+  String get actThisMonth => 'Этот месяц';
+
+  @override
+  String get actLastMonth => 'Прошлый месяц';
+
+  @override
+  String get actThisYear => 'Этот год';
+
+  @override
+  String get actMake => 'Сделать и отправить';
 }

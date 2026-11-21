@@ -56,6 +56,7 @@ class _Fake implements ClientCardRepository {
     acts.add((since, until));
     return _act;
   }
+
   final marked = <(ToWriteKind, String?)>[];
   final saved = <(ToWriteKind, String)>[];
   bool toldReady = false;
