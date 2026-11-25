@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -10,6 +11,7 @@ import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
@@ -559,6 +561,18 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
               onPressed: _busy ? null : _return,
               child: Text(l10n.teamPersonBack),
             ),
+        if (person?.employee case final employee?)
+          TextButton(
+            key: const ValueKey('teamPersonCard'),
+            onPressed: _busy
+                ? null
+                : () {
+                    final router = GoRouter.of(context);
+                    Navigator.of(context).pop();
+                    unawaited(router.push(Routes.person(employee)));
+                  },
+            child: Text(l10n.pplOpenCard),
+          ),
         TextButton(
           onPressed: _busy ? null : () => Navigator.of(context).pop(),
           child: Text(l10n.mdfCancel),

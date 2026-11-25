@@ -67,6 +67,13 @@ class _MyWorkScreenState extends ConsumerState<MyWorkScreen> {
       title: l10n.myWorkTitle,
       subtitle: work.value?.name,
       actions: [
+        // «Мой заработок»: what he did and earned, his advances and fines.
+        IconButton(
+          key: const ValueKey('myWorkEarnings'),
+          tooltip: l10n.pplMine,
+          icon: const Icon(AppIcons.payroll),
+          onPressed: () => context.push(Routes.person(null)),
+        ),
         // «Расходники»: a knife, stretch film — taken in one tap.
         IconButton(
           key: const ValueKey('myWorkConsumables'),

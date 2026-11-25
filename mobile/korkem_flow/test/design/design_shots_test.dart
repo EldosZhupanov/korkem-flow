@@ -18,9 +18,13 @@ import 'package:korkem_flow/features/client_card/presentation/rating_screen.dart
 import 'package:korkem_flow/features/costs/data/costs_repository.dart';
 import 'package:korkem_flow/features/costs/presentation/costs_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/team/data/people_report_repository.dart';
+import 'package:korkem_flow/features/team/presentation/people_screen.dart';
+import 'package:korkem_flow/features/team/presentation/person_card_screen.dart';
 
 import '../support/widget_harness.dart';
 import 'fake_costs.dart';
+import 'fake_people.dart';
 
 /// How a screen is looked at: its size, its theme, its language.
 typedef _Look = ({
@@ -82,6 +86,22 @@ final Map<String, (Widget, List<String>)> _screens = {
     CostsScreen(today: DateTime(2026, 11, 25)),
     const ['cst:tab:items'],
   ),
+  // «Сотрудники» and one person's card (25.11.2026).
+  'people': (PeopleScreen(today: DateTime(2026, 11, 25)), const []),
+  'person_card': (
+    PersonCardScreen(
+      employee: 'HR-EMP-00001',
+      today: DateTime(2026, 11, 25),
+    ),
+    const [],
+  ),
+  'person_card_no_login': (
+    PersonCardScreen(
+      employee: 'HR-EMP-00002',
+      today: DateTime(2026, 11, 25),
+    ),
+    const [],
+  ),
 };
 
 void main() {
@@ -99,6 +119,7 @@ void main() {
               clientCardRepositoryProvider.overrideWithValue(_Cards()),
               filmDeptRepositoryProvider.overrideWithValue(_Requisites()),
               costsRepositoryProvider.overrideWithValue(FakeCosts()),
+              peopleReportRepositoryProvider.overrideWithValue(FakePeople()),
             ],
             child: harness(
               screen,

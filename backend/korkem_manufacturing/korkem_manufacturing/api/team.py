@@ -39,3 +39,19 @@ def set_active(active: bool | int | str, employee: str | None = None, user: str 
 def link_user(employee: str, user: str | None = None) -> dict:
 	"""Привязать сотрудника к его входу — чтобы он видел свои заказы с телефона."""
 	return service.link_user(employee, user or None)
+
+
+@frappe.whitelist(methods=["GET"])
+def report(period: str = "month", day: str | None = None) -> dict:
+	"""Сотрудники за день, неделю или месяц: должности, объём, дни с работой, зарплата и остаток."""
+	from korkem_manufacturing.services import people_report
+
+	return people_report.overview(period, day)
+
+
+@frappe.whitelist(methods=["GET"])
+def person_card(employee: str | None = None, period: str = "month", day: str | None = None) -> dict:
+	"""Карточка сотрудника за период: по дням, каждый этап, авансы и выплаты. Без employee — своя."""
+	from korkem_manufacturing.services import people_report
+
+	return people_report.person(employee, period, day)

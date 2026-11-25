@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
@@ -38,6 +40,13 @@ class TeamScreen extends ConsumerWidget {
       title: l10n.teamTitle,
       subtitle: l10n.teamSubtitle,
       actions: [
+        // «Сотрудники»: who did what and earned what, for a day to a month.
+        IconButton(
+          key: const ValueKey('team:people'),
+          tooltip: l10n.pplTitle,
+          icon: const Icon(AppIcons.report),
+          onPressed: () => unawaited(context.push(Routes.people)),
+        ),
         if (canInvite)
           IconButton(
             tooltip: l10n.teamInviteButton,
