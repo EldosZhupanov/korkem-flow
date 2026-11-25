@@ -87,33 +87,43 @@ class FlowBars extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Row(
-            children: [
-              for (var i = 0; i < n; i++)
-                Expanded(
-                  // A month's bar is narrower than «26» on a phone: the
-                  // label may spill into its empty neighbours rather than
-                  // be cut to «2» (design review, 25.11.2026).
-                  child: OverflowBox(
-                    maxWidth: double.infinity,
-                    fit: OverflowBoxFit.deferToChild,
-                    child: Text(
-                      n <= _allLabels || i % _labelStep == 0 || i == n - 1
-                          ? bars[i].label
-                          : '',
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      softWrap: false,
-                      style: i == selected
-                          ? labelStyle?.copyWith(
-                              color: theme.colorScheme.onSurface,
-                              fontWeight: FontWeight.w600,
-                            )
-                          : labelStyle,
-                    ),
+          // A month's bar is narrower than «26» on a phone: each label is
+          // centred under its bar and may spill into its empty neighbours,
+          // rather than be cut to «2» (design review, 25.11.2026).
+          LayoutBuilder(
+            builder: (context, box) {
+              final slot = box.maxWidth / n;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // The line's height; the labels hang on it.
+                  SizedBox(
+                    width: double.infinity,
+                    child: Text(' ', style: labelStyle),
                   ),
-                ),
-            ],
+                  for (var i = 0; i < n; i++)
+                    if (n <= _allLabels || i % _labelStep == 0 || i == n - 1)
+                      Positioned(
+                        left: slot * i + slot / 2,
+                        top: 0,
+                        child: FractionalTranslation(
+                          translation: const Offset(-0.5, 0),
+                          child: Text(
+                            bars[i].label,
+                            maxLines: 1,
+                            softWrap: false,
+                            style: i == selected
+                                ? labelStyle?.copyWith(
+                                    color: theme.colorScheme.onSurface,
+                                    fontWeight: FontWeight.w600,
+                                  )
+                                : labelStyle,
+                          ),
+                        ),
+                      ),
+                ],
+              );
+            },
           ),
         ],
       ),
