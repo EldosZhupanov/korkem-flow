@@ -3596,5 +3596,21 @@
   "dinvWhole": "Барлық қарыз",
   "dinvOrders": "Шотқа тапсырыстар кіреді — алдымен ең ескілері:",
   "clcPayNoInvoice": "Шотсыз",
-  "clcPayByInvoice": "№ {no} шот бойынша · қалды {sum}"
+  "clcPayByInvoice": "№ {no} шот бойынша · қалды {sum}",
+  "rateTitle": "Клиенттер рейтингі",
+  "rateP3": "3 ай",
+  "rateP12": "12 ай",
+  "rateByMoney": "Ақша бойынша",
+  "rateByDebt": "Қарыз бойынша",
+  "rateBySlow": "Кім созады",
+  "rateFast": "тез төлейді",
+  "rateUsual": "әдеттегідей төлейді",
+  "rateSlow": "созады",
+  "ratePayDays": "орташа {days} күнде төлейді",
+  "rateNoPaid": "төленген тапсырыс әлі жоқ",
+  "rateOrders": "{count} тапс. · ақшаның {share}%",
+  "rateOwes": "қарыз {sum} · {days} күн",
+  "rateTotal": "Барлық тапсырыстар: {sum}",
+  "rateClassHint": "A — бірге ақшаның 80%-ын әкелетін аз ғана клиенттер; B — келесі 15%; C — қалғандары.",
+  "rateEmpty": "Бұл кезеңде тапсырыс жоқ"
 }

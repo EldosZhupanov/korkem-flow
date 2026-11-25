@@ -16,6 +16,7 @@ import 'package:korkem_flow/features/auth/presentation/splash_screen.dart';
 import 'package:korkem_flow/features/bazis/presentation/bazis_import_screen.dart';
 import 'package:korkem_flow/features/channel_settings/presentation/channel_settings_screen.dart';
 import 'package:korkem_flow/features/client_card/presentation/client_card_screen.dart';
+import 'package:korkem_flow/features/client_card/presentation/rating_screen.dart';
 import 'package:korkem_flow/features/client_card/presentation/to_write_screen.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_order_screen.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
@@ -205,6 +206,9 @@ abstract final class Routes {
 
   /// «Кому написать» and one customer's card (owner, 18.11.2026).
   static const toWrite = '/to-write';
+
+  /// «Рейтинг клиентов» (owner, 25.11.2026).
+  static const customerRating = '/rating';
   static const offcuts = '/offcuts';
   static const clientCardPattern = '/clients/:customer';
   static String clientCard(String customer) =>
@@ -464,6 +468,10 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.toWrite,
         builder: (context, state) => const ToWriteScreen(),
+      ),
+      GoRoute(
+        path: Routes.customerRating,
+        builder: (context, state) => const CustomerRatingScreen(),
       ),
       GoRoute(
         path: Routes.offcuts,

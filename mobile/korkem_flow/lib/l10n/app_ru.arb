@@ -3596,5 +3596,21 @@
   "dinvWhole": "Весь долг",
   "dinvOrders": "В счёт войдут заказы — сначала самые старые:",
   "clcPayNoInvoice": "Без счёта",
-  "clcPayByInvoice": "По счёту № {no} · осталось {sum}"
+  "clcPayByInvoice": "По счёту № {no} · осталось {sum}",
+  "rateTitle": "Рейтинг клиентов",
+  "rateP3": "3 месяца",
+  "rateP12": "12 месяцев",
+  "rateByMoney": "По деньгам",
+  "rateByDebt": "По долгу",
+  "rateBySlow": "Кто тянет",
+  "rateFast": "платит быстро",
+  "rateUsual": "платит обычно",
+  "rateSlow": "тянет",
+  "ratePayDays": "платит в среднем за {days} дн.",
+  "rateNoPaid": "оплаченных заказов ещё нет",
+  "rateOrders": "{count} зак. · {share}% денег",
+  "rateOwes": "долг {sum} · {days} дн.",
+  "rateTotal": "Все заказы: {sum}",
+  "rateClassHint": "A — те немногие, кто вместе приносит 80% денег; B — следующие 15%; C — остальные.",
+  "rateEmpty": "За этот период заказов нет"
 }

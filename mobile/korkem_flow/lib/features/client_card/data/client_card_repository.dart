@@ -23,6 +23,14 @@ final clientHistoryProvider = FutureProvider.autoDispose
           ref.watch(clientCardRepositoryProvider).history(customer),
     );
 
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final customerRatingProvider = FutureProvider.autoDispose
+    .family<CustomerRating, RatingPeriod>(
+      (ref, period) =>
+          ref.watch(clientCardRepositoryProvider).rating(period),
+    );
+
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final toWriteProvider = FutureProvider.autoDispose<ToWrite>(
@@ -216,6 +224,17 @@ class ClientCardRepository {
       ),
     ),
   );
+
+  /// «Рейтинг клиентов» for [period]: most money first.
+  Future<CustomerRating> rating(RatingPeriod period) async =>
+      CustomerRating.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.rating',
+            params: {'period': period.wire},
+          ),
+        ),
+      );
 
   Future<ToWrite> todo() async =>
       ToWrite.fromJson(_map(await _client.callMethod('$_base.todo')));

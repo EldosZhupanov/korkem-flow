@@ -7,6 +7,7 @@ import 'package:korkem_flow/features/client_card/data/client_card_repository.dar
 import 'package:korkem_flow/features/client_card/domain/client_card.dart';
 import 'package:korkem_flow/features/client_card/presentation/client_card_screen.dart';
 import 'package:korkem_flow/features/client_card/presentation/debt_invoice.dart';
+import 'package:korkem_flow/features/client_card/presentation/rating_screen.dart';
 import 'package:korkem_flow/features/client_card/presentation/reconciliation.dart';
 import 'package:korkem_flow/features/client_card/presentation/to_write_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
@@ -47,6 +48,42 @@ const Map<String, Object> _debt = {
 class _Fake implements ClientCardRepository {
   final paid = <(double, String)>[];
   final byInvoice = <String?>[];
+  final ratings = <RatingPeriod>[];
+
+  @override
+  Future<CustomerRating> rating(RatingPeriod period) async {
+    ratings.add(period);
+    return CustomerRating.fromJson(const {
+      'total': 300000,
+      'customers': [
+        {
+          'customer': 'CUST-1',
+          'name': 'Ерлан Абенов',
+          'orders': 6,
+          'total': 240000,
+          'paid': 240000,
+          'debt': 0,
+          'share': 80,
+          'class': 'A',
+          'pay_days': 1.5,
+          'paid_orders': 6,
+          'mark': 'fast',
+        },
+        {
+          'customer': 'CUST-2',
+          'name': 'Айгуль Сапарова',
+          'orders': 2,
+          'total': 60000,
+          'paid': 10000,
+          'debt': 50000,
+          'share': 20,
+          'class': 'B',
+          'oldest_debt_days': 40,
+          'mark': 'slow',
+        },
+      ],
+    });
+  }
   final issued = <(double?, String?, bool)>[];
   bool invoiced = false;
 
@@ -576,6 +613,28 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.paid.single.$1, 10000);
     expect(repo.byInvoice.single, '12');
+  });
+
+  testWidgets('the rating: most money first, then who drags it out', (
+    tester,
+  ) async {
+    await pump(tester, const CustomerRatingScreen());
+    expect(repo.ratings, [RatingPeriod.months12]);
+    final first = tester.getTopLeft(find.byKey(const ValueKey('rate:CUST-1')));
+    final second = tester.getTopLeft(
+      find.byKey(const ValueKey('rate:CUST-2')),
+    );
+    expect(first.dy < second.dy, isTrue);
+    expect(find.byKey(const ValueKey('rate:mark:CUST-1')), findsOne);
+    expect(find.byKey(const ValueKey('rate:debt:CUST-2')), findsOne);
+    expect(find.textContaining('1.5'), findsOne);
+    await tester.tap(find.byKey(const ValueKey('rate:sort:slow')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rate:CUST-1')), findsNothing);
+    expect(find.byKey(const ValueKey('rate:CUST-2')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('rate:period:all')));
+    await tester.pumpAndSettle();
+    expect(repo.ratings.last, RatingPeriod.all);
   });
 
   test('the debt invoice prints in every language', () async {

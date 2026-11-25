@@ -485,6 +485,109 @@ class DailySummary {
 /// A message's text: the owner's own and the default beside it.
 typedef MessageTemplate = ({String text, String byDefault});
 
+/// How a customer pays (owner, 25.11.2026): fast, as usual, drags it out —
+/// or nothing to go by yet.
+enum PayMark {
+  fast,
+  usual,
+  slow;
+
+  static PayMark? parse(Object? v) => switch ('$v') {
+    'fast' => fast,
+    'usual' => usual,
+    'slow' => slow,
+    _ => null,
+  };
+}
+
+/// The periods a rating is made for.
+enum RatingPeriod {
+  months3('3m'),
+  months12('12m'),
+  all('all');
+
+  const RatingPeriod(this.wire);
+
+  final String wire;
+}
+
+/// One customer in «Рейтинг клиентов»: what his orders came to and his
+/// part of it all, his class (A — the few who bring 80 %), how fast he
+/// pays and what he owes now.
+@immutable
+class RatedCustomer {
+  const RatedCustomer({
+    required this.customer,
+    required this.name,
+    this.orders = 0,
+    this.total = 0,
+    this.paid = 0,
+    this.debt = 0,
+    this.share = 0,
+    this.grade = 'C',
+    this.payDays,
+    this.paidOrders = 0,
+    this.oldestDebtDays,
+    this.mark,
+    this.lastOrder,
+  });
+
+  factory RatedCustomer.fromJson(Map<String, dynamic> j) => RatedCustomer(
+    customer: '${j['customer']}',
+    name: '${j['name'] ?? j['customer']}',
+    orders: _d(j['orders']).round(),
+    total: _d(j['total']),
+    paid: _d(j['paid']),
+    debt: _d(j['debt']),
+    share: _d(j['share']),
+    grade: '${j['class'] ?? 'C'}',
+    payDays: j['pay_days'] == null ? null : _d(j['pay_days']),
+    paidOrders: _d(j['paid_orders']).round(),
+    oldestDebtDays: j['oldest_debt_days'] == null
+        ? null
+        : _d(j['oldest_debt_days']).round(),
+    mark: PayMark.parse(j['mark']),
+    lastOrder: _s(j['last_order']),
+  );
+
+  final String customer;
+  final String name;
+  final int orders;
+  final double total;
+  final double paid;
+  final double debt;
+
+  /// His part of all the period's money, %.
+  final double share;
+
+  /// A, B or C.
+  final String grade;
+
+  /// Days from taking an order to paying it up, on average; null — none
+  /// paid up yet.
+  final double? payDays;
+  final int paidOrders;
+  final int? oldestDebtDays;
+  final PayMark? mark;
+  final String? lastOrder;
+}
+
+/// «Рейтинг клиентов»: everyone of the period, most money first.
+@immutable
+class CustomerRating {
+  const CustomerRating({this.total = 0, this.customers = const []});
+
+  factory CustomerRating.fromJson(Map<String, dynamic> j) => CustomerRating(
+    total: _d(j['total']),
+    customers: [
+      for (final c in _l(j['customers'])) RatedCustomer.fromJson(_m(c)),
+    ],
+  );
+
+  final double total;
+  final List<RatedCustomer> customers;
+}
+
 List<Object?> _l(Object? v) => v is List ? v : const [];
 
 Map<String, dynamic> _m(Object? v) =>

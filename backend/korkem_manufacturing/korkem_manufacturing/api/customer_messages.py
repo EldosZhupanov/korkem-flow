@@ -117,3 +117,12 @@ def summary_preview(day: str | None = None) -> dict:
 def summary_settings(enabled: str | None = None, hour: str | None = None, morning: str | None = None) -> dict:
 	"""Включить или выключить вечернюю сводку, выбрать час; утренний список «Пора заказать»."""
 	return daily_summary.set_settings(enabled, hour, morning)
+
+
+@frappe.whitelist(methods=["GET"])
+def rating(period: str | None = None) -> dict:
+	"""Рейтинг клиентов: кто приносит больше денег, кто платит быстро, кто тянет.
+	period — 3m, 12m (по умолчанию) или all."""
+	from korkem_manufacturing.services import customer_rating
+
+	return customer_rating.rating(period)
