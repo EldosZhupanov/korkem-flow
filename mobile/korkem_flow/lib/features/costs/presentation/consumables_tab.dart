@@ -277,9 +277,10 @@ class _NumberDialogState extends State<_NumberDialog> {
         ),
         FilledButton(
           key: const ValueKey('cst:numberOk'),
+          // Read at the tap: what is in the field now, not at the last build.
           onPressed: value == null
               ? null
-              : () => Navigator.of(context).pop(value),
+              : () => Navigator.of(context).pop(_number(_field.text) ?? value),
           child: Text(l10n.cstSave),
         ),
       ],

@@ -298,6 +298,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('cst:take:CI-STRETCH')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('cst:takeQty')), '2');
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('cst:numberOk')));
     await tester.pumpAndSettle();
     expect(repo.taken.single, ('CI-STRETCH', 2.0));
