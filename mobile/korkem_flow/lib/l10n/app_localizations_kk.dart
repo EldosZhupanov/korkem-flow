@@ -12155,12 +12155,6 @@ class AppLocalizationsKk extends AppLocalizations {
   String get cstBillAmount => 'Айлық сома';
 
   @override
-  String get cstMeterFrom => 'Есептегіш басында';
-
-  @override
-  String get cstMeterTo => 'Есептегіш соңында';
-
-  @override
   String cstMeterUsed(String used, String unit) {
     return 'Шығын: $used $unit';
   }
@@ -12274,4 +12268,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String cstMergeHint(String title) {
     return '«$title» тарихы таңдалған бапқа өтеді';
   }
+
+  @override
+  String get cstMeter => 'Есептегіш';
+
+  @override
+  String get cstMeterStart => 'басында';
+
+  @override
+  String get cstMeterEnd => 'соңында';
 }

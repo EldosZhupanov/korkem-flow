@@ -20837,18 +20837,6 @@ abstract class AppLocalizations {
   /// **'Amount for the month'**
   String get cstBillAmount;
 
-  /// No description provided for @cstMeterFrom.
-  ///
-  /// In en, this message translates to:
-  /// **'Meter at the start'**
-  String get cstMeterFrom;
-
-  /// No description provided for @cstMeterTo.
-  ///
-  /// In en, this message translates to:
-  /// **'Meter at the end'**
-  String get cstMeterTo;
-
   /// No description provided for @cstMeterUsed.
   ///
   /// In en, this message translates to:
@@ -21058,6 +21046,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'«{title}»\'s history goes to the item chosen'**
   String cstMergeHint(String title);
+
+  /// No description provided for @cstMeter.
+  ///
+  /// In en, this message translates to:
+  /// **'Meter'**
+  String get cstMeter;
+
+  /// No description provided for @cstMeterStart.
+  ///
+  /// In en, this message translates to:
+  /// **'at the start'**
+  String get cstMeterStart;
+
+  /// No description provided for @cstMeterEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'at the end'**
+  String get cstMeterEnd;
 }
 
 class _AppLocalizationsDelegate

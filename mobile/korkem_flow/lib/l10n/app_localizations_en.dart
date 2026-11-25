@@ -12195,12 +12195,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cstBillAmount => 'Amount for the month';
 
   @override
-  String get cstMeterFrom => 'Meter at the start';
-
-  @override
-  String get cstMeterTo => 'Meter at the end';
-
-  @override
   String cstMeterUsed(String used, String unit) {
     return 'Used: $used $unit';
   }
@@ -12314,4 +12308,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String cstMergeHint(String title) {
     return '«$title»\'s history goes to the item chosen';
   }
+
+  @override
+  String get cstMeter => 'Meter';
+
+  @override
+  String get cstMeterStart => 'at the start';
+
+  @override
+  String get cstMeterEnd => 'at the end';
 }

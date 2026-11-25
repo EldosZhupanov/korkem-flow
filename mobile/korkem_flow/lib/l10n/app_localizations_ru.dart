@@ -12232,12 +12232,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cstBillAmount => 'Сумма за месяц';
 
   @override
-  String get cstMeterFrom => 'Счётчик на начало';
-
-  @override
-  String get cstMeterTo => 'Счётчик на конец';
-
-  @override
   String cstMeterUsed(String used, String unit) {
     return 'Расход: $used $unit';
   }
@@ -12351,4 +12345,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String cstMergeHint(String title) {
     return 'История «$title» перейдёт в выбранную статью';
   }
+
+  @override
+  String get cstMeter => 'Счётчик';
+
+  @override
+  String get cstMeterStart => 'на начало';
+
+  @override
+  String get cstMeterEnd => 'на конец';
 }

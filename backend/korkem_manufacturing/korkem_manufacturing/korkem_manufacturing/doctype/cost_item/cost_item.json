@@ -15,7 +15,7 @@
   "monthly_limit",
   "item",
   "archived",
-  "is_new",
+  "from_floor",
   "merged_into"
  ],
  "fields": [
@@ -79,7 +79,7 @@
    "label": "Archived"
   },
   {
-   "fieldname": "is_new",
+   "fieldname": "from_floor",
    "fieldtype": "Check",
    "label": "Added from the floor, to review"
   },

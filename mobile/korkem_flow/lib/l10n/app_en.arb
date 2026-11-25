@@ -11001,8 +11001,6 @@
   "cstBillLast": "last month {sum}",
   "@cstBillLast": {"placeholders": {"sum": {"type": "String"}}},
   "cstBillAmount": "Amount for the month",
-  "cstMeterFrom": "Meter at the start",
-  "cstMeterTo": "Meter at the end",
   "cstMeterUsed": "Used: {used} {unit}",
   "@cstMeterUsed": {"placeholders": {"used": {"type": "String"}, "unit": {"type": "String"}}},
   "cstNote": "Note",
@@ -11042,5 +11040,8 @@
   "cstRestore": "Restore",
   "cstMerge": "Merge into…",
   "cstMergeHint": "«{title}»'s history goes to the item chosen",
-  "@cstMergeHint": {"placeholders": {"title": {"type": "String"}}}
+  "@cstMergeHint": {"placeholders": {"title": {"type": "String"}}},
+  "cstMeter": "Meter",
+  "cstMeterStart": "at the start",
+  "cstMeterEnd": "at the end"
 }

@@ -3663,8 +3663,6 @@
   "cstBillNotEntered": "енгізілмеген",
   "cstBillLast": "өткен айда {sum}",
   "cstBillAmount": "Айлық сома",
-  "cstMeterFrom": "Есептегіш басында",
-  "cstMeterTo": "Есептегіш соңында",
   "cstMeterUsed": "Шығын: {used} {unit}",
   "cstNote": "Ескертпе",
   "cstSave": "Сақтау",
@@ -3699,5 +3697,8 @@
   "cstArchive": "Мұрағатқа",
   "cstRestore": "Мұрағаттан қайтару",
   "cstMerge": "Біріктіру…",
-  "cstMergeHint": "«{title}» тарихы таңдалған бапқа өтеді"
+  "cstMergeHint": "«{title}» тарихы таңдалған бапқа өтеді",
+  "cstMeter": "Есептегіш",
+  "cstMeterStart": "басында",
+  "cstMeterEnd": "соңында"
 }

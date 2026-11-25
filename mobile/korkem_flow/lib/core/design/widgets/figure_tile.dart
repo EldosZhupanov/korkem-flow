@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 
@@ -87,11 +89,19 @@ class FigureRow extends StatelessWidget {
   /// Under this width four tiles in a line cannot hold their numbers.
   static const double _narrow = 520;
 
+  /// The least a tile needs for «4 200 000 ₸» whole (design review,
+  /// 25.11.2026: five tiles in 720 px cut every sum to «4 200 00…»).
+  static const double _tile = 200;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, box) {
-        final perLine = box.maxWidth < _narrow ? 2 : tiles.length;
+        final fit = math.max(
+          1,
+          math.min(tiles.length, (box.maxWidth / _tile).floor()),
+        );
+        final perLine = box.maxWidth < _narrow ? 2 : fit;
         final lines = <List<FigureTile>>[
           for (var i = 0; i < tiles.length; i += perLine)
             tiles.sublist(i, (i + perLine).clamp(0, tiles.length)),
