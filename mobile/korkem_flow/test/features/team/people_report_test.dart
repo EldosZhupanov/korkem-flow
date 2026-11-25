@@ -59,10 +59,10 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('ppl:prev')));
     await tester.pumpAndSettle();
-    expect(repo.reports.last, (span: PeopleSpan.month, day: '2026-10-25'));
+    expect(repo.reports.last, (span: PeopleSpan.month, day: '2026-10-01'));
     await tester.tap(find.text('Week'));
     await tester.pumpAndSettle();
-    expect(repo.reports.last, (span: PeopleSpan.week, day: '2026-10-25'));
+    expect(repo.reports.last, (span: PeopleSpan.week, day: '2026-10-01'));
   });
 
   testWidgets('a card: what he did, earned, took and was fined', (
