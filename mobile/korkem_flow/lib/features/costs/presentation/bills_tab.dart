@@ -206,7 +206,14 @@ class _BillDialogState extends ConsumerState<_BillDialog> {
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(labelText: l10n.cstBillAmount),
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.md),
+              // One caption, two short labels: «Счётчик на начало» did not
+              // fit a phone's half (design review, 25.11.2026).
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(l10n.cstMeter, style: theme.textTheme.labelLarge),
+              ),
+              const SizedBox(height: AppSpacing.xs),
               Row(
                 children: [
                   Expanded(
@@ -217,7 +224,7 @@ class _BillDialogState extends ConsumerState<_BillDialog> {
                       inputFormatters: numbers,
                       onChanged: (_) => setState(() {}),
                       decoration: InputDecoration(
-                        labelText: l10n.cstMeterFrom,
+                        labelText: l10n.cstMeterStart,
                         isDense: true,
                       ),
                     ),
@@ -231,7 +238,7 @@ class _BillDialogState extends ConsumerState<_BillDialog> {
                       inputFormatters: numbers,
                       onChanged: (_) => setState(() {}),
                       decoration: InputDecoration(
-                        labelText: l10n.cstMeterTo,
+                        labelText: l10n.cstMeterEnd,
                         isDense: true,
                       ),
                     ),

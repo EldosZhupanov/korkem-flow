@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
@@ -164,6 +165,11 @@ class _Row extends StatelessWidget {
       color: theme.colorScheme.onSurfaceVariant,
     );
     final days = c.payDays;
+    // «1,5», not «1.5», where the language writes a comma.
+    final decimal = NumberFormat(
+      '0.#',
+      Localizations.localeOf(context).toLanguageTag(),
+    );
     final mark = c.mark;
     return ListTile(
       key: ValueKey('rate:${c.customer}'),
@@ -186,34 +192,42 @@ class _Row extends StatelessWidget {
               color: theme.colorScheme.primary,
             ),
           ),
-          if (mark != null) ...[
-            const SizedBox(width: AppSpacing.xs),
-            StatusChip(
-              key: ValueKey('rate:mark:${c.customer}'),
-              compact: true,
-              label: switch (mark) {
-                PayMark.fast => l10n.rateFast,
-                PayMark.usual => l10n.rateUsual,
-                PayMark.slow => l10n.rateSlow,
-              },
-              intent: switch (mark) {
-                PayMark.fast => StatusIntent.success,
-                PayMark.usual => StatusIntent.neutral,
-                PayMark.slow => StatusIntent.danger,
-              },
-            ),
-          ],
         ],
       ),
-      subtitle: Text(
-        [
-          l10n.rateOrders(c.orders, c.share.toStringAsFixed(1)),
-          if (days != null)
-            l10n.ratePayDays(days.toStringAsFixed(days % 1 == 0 ? 0 : 1))
-          else
-            l10n.rateNoPaid,
-        ].join(' · '),
-        style: muted,
+      // The mark under the name, not beside it: on a phone the two did not
+      // fit, and the name lost (design review, 25.11.2026).
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (mark != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
+              child: StatusChip(
+                key: ValueKey('rate:mark:${c.customer}'),
+                compact: true,
+                label: switch (mark) {
+                  PayMark.fast => l10n.rateFast,
+                  PayMark.usual => l10n.rateUsual,
+                  PayMark.slow => l10n.rateSlow,
+                },
+                intent: switch (mark) {
+                  PayMark.fast => StatusIntent.success,
+                  PayMark.usual => StatusIntent.neutral,
+                  PayMark.slow => StatusIntent.danger,
+                },
+              ),
+            ),
+          Text(
+            [
+              l10n.rateOrders(c.orders, decimal.format(c.share)),
+              if (days != null)
+                l10n.ratePayDays(decimal.format(days))
+              else
+                l10n.rateNoPaid,
+            ].join(' · '),
+            style: muted,
+          ),
+        ],
       ),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,

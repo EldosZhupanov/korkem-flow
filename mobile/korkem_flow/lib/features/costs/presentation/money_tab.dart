@@ -159,6 +159,9 @@ class _Body extends StatelessWidget {
               height: AppSpacing.lg,
               child: Row(
                 key: const ValueKey('cst:bar'),
+                // Stretched: a ColoredBox with no child is as small as it
+                // may be, and the bar was there and invisible.
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (final (i, g) in f.groups.indexed)
                     if (g.amount > 0)
@@ -182,10 +185,15 @@ class _Body extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
               child: Row(
                 children: [
-                  Icon(
-                    AppIcons.colour,
-                    size: AppSpacing.md,
-                    color: palette[i % palette.length],
+                  // The group's colour in the bar above.
+                  SizedBox.square(
+                    dimension: AppSpacing.sm,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: palette[i % palette.length],
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(child: Text(g.group)),
@@ -217,7 +225,10 @@ class _Body extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 dense: true,
                 title: Text(a.area),
-                trailing: Text(money.format(a.amount)),
+                trailing: Text(
+                  money.format(a.amount),
+                  style: theme.textTheme.bodyMedium,
+                ),
               ),
             ),
         ],

@@ -3651,8 +3651,6 @@
   "cstBillNotEntered": "не внесено",
   "cstBillLast": "в прошлом месяце {sum}",
   "cstBillAmount": "Сумма за месяц",
-  "cstMeterFrom": "Счётчик на начало",
-  "cstMeterTo": "Счётчик на конец",
   "cstMeterUsed": "Расход: {used} {unit}",
   "cstNote": "Заметка",
   "cstSave": "Сохранить",
@@ -3687,5 +3685,8 @@
   "cstArchive": "В архив",
   "cstRestore": "Вернуть из архива",
   "cstMerge": "Слить с…",
-  "cstMergeHint": "История «{title}» перейдёт в выбранную статью"
+  "cstMergeHint": "История «{title}» перейдёт в выбранную статью",
+  "cstMeter": "Счётчик",
+  "cstMeterStart": "на начало",
+  "cstMeterEnd": "на конец"
 }
