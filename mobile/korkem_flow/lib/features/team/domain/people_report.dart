@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:korkem_flow/features/team/domain/team_moves.dart';
 
 double _d(Object? v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
 int _i(Object? v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
@@ -317,10 +318,18 @@ class PersonCard {
     this.adjustments = const [],
     this.payouts = const [],
     this.me = false,
+    this.postKeys = const [],
+    this.active = true,
+    this.canEdit = false,
+    this.history = const [],
   });
 
   factory PersonCard.fromJson(Map<String, dynamic> json) => PersonCard(
     row: PersonRow.fromJson(json),
+    postKeys: [for (final p in json['posts'] as List? ?? const []) '$p'],
+    active: json['active'] != false,
+    canEdit: json['can_edit'] == true,
+    history: _list(json['history'], TeamEvent.fromJson),
     days: _list(json['by_day'], PersonDay.fromJson),
     works: _list(json['works'], PersonWork.fromJson),
     entries: _list(json['entries'], PersonEntry.fromJson),
@@ -338,4 +347,14 @@ class PersonCard {
 
   /// The one looking is this person.
   final bool me;
+
+  /// His posts as keys (`cut.cutter`) — [row]'s are titles.
+  final List<String> postKeys;
+  final bool active;
+
+  /// The one looking may change his posts and let him go.
+  final bool canEdit;
+
+  /// Posts given and taken, hired and left — newest first.
+  final List<TeamEvent> history;
 }

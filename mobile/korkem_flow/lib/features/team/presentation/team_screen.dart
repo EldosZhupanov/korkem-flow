@@ -14,7 +14,7 @@ import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
-import 'package:korkem_flow/features/team/presentation/team_departments_view.dart';
+import 'package:korkem_flow/features/team/presentation/team_people_view.dart';
 import 'package:korkem_flow/features/team/presentation/trades_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -85,7 +85,7 @@ class TeamScreen extends ConsumerWidget {
                 // One list (owner, 17.11.2026: «команда и люди одно и то
                 // же»): the departments, their posts and the people on them;
                 // a login is a mark on a person, opened from his card.
-                TeamDepartmentsView(canManageLogins: canInvite),
+                TeamViews(canManageLogins: canInvite),
               ],
             ),
           ),

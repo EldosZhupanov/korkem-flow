@@ -16,6 +16,7 @@ import 'package:korkem_flow/features/team/data/people_report_repository.dart';
 import 'package:korkem_flow/features/team/domain/people_report.dart';
 import 'package:korkem_flow/features/team/presentation/people_period.dart';
 import 'package:korkem_flow/features/team/presentation/people_screen.dart';
+import 'package:korkem_flow/features/team/presentation/person_card_team.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// One person's card: what he did and when, what he earned, what he took
@@ -56,7 +57,6 @@ class _PersonCardScreenState extends ConsumerState<PersonCardScreen> {
     final row = card.value?.row;
     return AppScreen(
       title: row?.name ?? (widget.employee == null ? l10n.pplMine : ''),
-      subtitle: row == null || row.posts.isEmpty ? null : row.posts.join(', '),
       body: Column(
         children: [
           Padding(
@@ -128,6 +128,7 @@ class _CardBodyState extends State<_CardBody> {
         AppSpacing.xl,
       ),
       children: [
+        PersonCardPosts(card: c),
         FigureRow(
           tiles: [
             FigureTile(
@@ -313,6 +314,7 @@ class _CardBodyState extends State<_CardBody> {
               trailing: money.format(e.amount),
             ),
         ],
+        PersonCardHistory(card: c),
       ],
     );
   }

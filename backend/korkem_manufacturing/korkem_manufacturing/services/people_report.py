@@ -31,7 +31,7 @@ from datetime import date, timedelta
 import frappe
 from frappe.utils import flt, get_first_day, get_last_day, getdate, nowdate
 
-from korkem_manufacturing.services import mdf_orders, mdf_volume, payroll, search_text, team
+from korkem_manufacturing.services import mdf_orders, mdf_volume, payroll, search_text, team, team_people
 from korkem_manufacturing.services.scope import current_company
 
 PERIODS = ("day", "week", "month")
@@ -84,7 +84,7 @@ def person(employee: str | None, period: str | None = "month", day: str | None =
 		employee = frappe.db.get_value("Employee", {"user_id": frappe.session.user, "company": company}, "name")
 		if not employee:
 			frappe.throw("Вас нет в «Команде» — попросите менеджера добавить вас.", frappe.DoesNotExistError)
-	p = next((x for x in _people(company) if x["employee"] == employee), None)
+	p = next((x for x in _people(company, include_left=True) if x["employee"] == employee), None)
 	if not p:
 		frappe.throw("Такого сотрудника нет.", frappe.DoesNotExistError)
 	if not (_is_reader() or (p["user"] and p["user"] == frappe.session.user)):
@@ -114,6 +114,10 @@ def person(employee: str | None, period: str | None = "month", day: str | None =
 		"adjustments": _adjustments(company, start, end, p["user"]) if p["user"] else [],
 		"payouts": _payouts(company, start, end, p["user"]) if p["user"] else [],
 		"me": bool(p["user"] and p["user"] == frappe.session.user),
+		# What the card may change: his posts, «Уволен» — the team's editors.
+		"active": p["active"],
+		"can_edit": team.can_edit(),
+		"history": team_people.history(employee) if (team.can_edit() or _is_reader()) else [],
 	}
 
 
@@ -170,14 +174,18 @@ def _work(company: str, start: date, end: date, employee: str | None = None) -> 
 	return out
 
 
-def _people(company: str) -> list[dict]:
-	"""The company's active people with their posts and login."""
-	rows = frappe.get_all("Employee", filters={"company": company, "status": "Active"},
-						  fields=["name", "employee_name", "first_name", "last_name", "user_id", team.ROLES_FIELD],
+def _people(company: str, include_left: bool = False) -> list[dict]:
+	"""The company's people with their posts and login — the active ones,
+	unless the departed are asked for too (a card opened from «Ушли»)."""
+	filters = {"company": company} if include_left else {"company": company, "status": "Active"}
+	rows = frappe.get_all("Employee", filters=filters,
+						  fields=["name", "employee_name", "first_name", "last_name", "user_id", "status",
+								  team.ROLES_FIELD],
 						  order_by="employee_name asc", limit_page_length=0)
 	return [{"employee": r.name,
 			 "name": r.employee_name or " ".join(x for x in (r.first_name, r.last_name) if x) or r.name,
-			 "user": r.user_id, "posts": team.parse(r.get(team.ROLES_FIELD))} for r in rows]
+			 "user": r.user_id, "posts": team.parse(r.get(team.ROLES_FIELD)), "active": r.status == "Active"}
+			for r in rows]
 
 
 def _earned_by_day(company: str, start: date, end: date, user: str) -> dict:

@@ -55,3 +55,43 @@ def person_card(employee: str | None = None, period: str = "month", day: str | N
 	from korkem_manufacturing.services import people_report
 
 	return people_report.person(employee, period, day)
+
+
+@frappe.whitelist(methods=["POST"])
+def set_post(post: str, on: bool | int | str = 1, employee: str | None = None, user: str | None = None) -> dict:
+	"""Дать человеку одну должность или снять её."""
+	from korkem_manufacturing.services import team_people
+
+	return team_people.set_post(post, on, employee=employee or None, user=user or None)
+
+
+@frappe.whitelist(methods=["GET"])
+def open_work(employee: str, post: str | None = None) -> list[dict]:
+	"""Этапы заказов, отданные ему и ещё не сделанные — только этой должности, если сказано."""
+	from korkem_manufacturing.services import team_people
+
+	return team_people.open_work(employee, post or None)
+
+
+@frappe.whitelist(methods=["POST"])
+def hand_over(employee: str, to: str | None = None, post: str | None = None) -> dict:
+	"""Его незакрытые этапы — другому; без `to` — никому, менеджер раздаст снова."""
+	from korkem_manufacturing.services import team_people
+
+	return team_people.hand_over(employee, to or None, post or None)
+
+
+@frappe.whitelist(methods=["GET"])
+def dismissal(employee: str) -> dict:
+	"""Перед «Уволен»: его незакрытые этапы и несведённые деньги."""
+	from korkem_manufacturing.services import team_people
+
+	return team_people.dismissal(employee)
+
+
+@frappe.whitelist(methods=["GET"])
+def duplicates(name: str | None = None, phone: str | None = None) -> list[dict]:
+	"""Уже есть человек с таким именем или телефоном — и ушедшие тоже."""
+	from korkem_manufacturing.services import team_people
+
+	return team_people.duplicates(name, phone)

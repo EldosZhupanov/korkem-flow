@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
+import 'package:korkem_flow/features/team/domain/team_moves.dart';
 import 'package:korkem_flow/features/team/domain/team_structure.dart';
 
 final teamStructureRepositoryProvider = Provider<TeamStructureRepository>(
@@ -71,6 +72,75 @@ class TeamStructureRepository {
   /// His login, so he sees his own orders from his phone; null unlinks.
   Future<TeamPeople> linkUser(String employee, String? user) =>
       _post('link_user', {'employee': employee, 'user': user ?? ''});
+
+  /// One post given ([on]) or taken — against what the server holds now.
+  Future<TeamPeople> setPost(
+    TeamPerson person,
+    String post, {
+    required bool on,
+  }) => _post('set_post', {
+    'post': post,
+    'on': on ? 1 : 0,
+    'employee': ?person.employee,
+    if (person.employee == null) 'user': ?person.user,
+  });
+
+  /// Stages given to him and not yet done; of [post] only, if given.
+  Future<List<TeamOpenWork>> openWork(String employee, {String? post}) async =>
+      [
+        for (final w in _list(
+          await _client.callMethod(
+            '$_base.open_work',
+            params: {'employee': employee, 'post': ?post},
+          ),
+        ))
+          TeamOpenWork.fromJson(w),
+      ];
+
+  /// His open stages (of [post]) to [to] — or to nobody. How many moved.
+  Future<int> handOver(String employee, {String? to, String? post}) async {
+    final r = _map(
+      await _client.callMethod(
+        '$_base.hand_over',
+        post: true,
+        params: {'employee': employee, 'to': ?to, 'post': ?post},
+      ),
+    );
+    return r['moved'] is num ? (r['moved'] as num).toInt() : 0;
+  }
+
+  /// Before «Уволен»: what is open and what is owed.
+  Future<TeamDismissal> dismissal(String employee) async =>
+      TeamDismissal.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.dismissal',
+            params: {'employee': employee},
+          ),
+        ),
+      );
+
+  /// Already on the list with this name or phone — the departed too.
+  Future<List<TeamDuplicate>> duplicates(String name, String? phone) async => [
+    for (final d in _list(
+      await _client.callMethod(
+        '$_base.duplicates',
+        params: {'name': name, 'phone': ?phone},
+      ),
+    ))
+      TeamDuplicate.fromJson(d),
+  ];
+
+  List<Map<String, dynamic>> _list(Map<String, dynamic> response) {
+    final raw = response['message'] ?? response['data'];
+    if (raw is! List) {
+      throw const ServerFailure('Сервер не ответил по команде.');
+    }
+    return [
+      for (final r in raw)
+        if (r is Map) Map<String, dynamic>.from(r),
+    ];
+  }
 
   Future<TeamPeople> _post(String method, Map<String, dynamic> params) async =>
       TeamPeople.fromJson(

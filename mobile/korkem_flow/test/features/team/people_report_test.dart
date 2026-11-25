@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
+import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/people_report.dart';
 import 'package:korkem_flow/features/team/presentation/people_screen.dart';
 import 'package:korkem_flow/features/team/presentation/person_card_screen.dart';
@@ -21,7 +22,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         retry: (_, _) => null,
-        overrides: [peopleReportRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          peopleReportRepositoryProvider.overrideWithValue(repo),
+          teamPeopleProvider.overrideWith((ref) async => fakeTeam),
+        ],
         child: harness(screen),
       ),
     );
@@ -83,6 +87,10 @@ void main() {
     expect(find.textContaining('брак: скол'), findsOne);
     expect(find.byKey(const ValueKey('card:work:0')), findsOne);
     expect(find.byKey(const ValueKey('card:noLogin')), findsNothing);
+    // His posts and what happened to them; the team's editor may let him go.
+    expect(find.byKey(const ValueKey('card:post:cut.cutter')), findsOne);
+    expect(find.byKey(const ValueKey('card:event:2')), findsOne);
+    expect(find.byKey(const ValueKey('card:dismiss')), findsOne);
   });
 
   testWidgets('no login: the volume, and why there is no money', (

@@ -1,5 +1,6 @@
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
 import 'package:korkem_flow/features/team/domain/people_report.dart';
+import 'package:korkem_flow/features/team/domain/team_structure.dart';
 
 const Map<String, Object?> _erlan = {
   'employee': 'HR-EMP-00001',
@@ -119,6 +120,23 @@ class FakePeople implements PeopleReportRepository {
       ],
       'payouts': const <Map<String, Object>>[],
       'me': false,
+      'posts': const ['cut.cutter'],
+      'can_edit': true,
+      'history': const [
+        {
+          'on': '2026-11-20',
+          'kind': 'post_on',
+          'post': 'cut.cutter',
+          'by': 'Олжас',
+        },
+        {
+          'on': '2026-11-20',
+          'kind': 'post_off',
+          'post': 'cnc.operator',
+          'by': 'Олжас',
+        },
+        {'on': '2026-09-01', 'kind': 'added', 'by': 'Олжас'},
+      ],
     });
   }
 
@@ -169,3 +187,58 @@ const List<Map<String, Object?>> _more = [
     'money': {'earned': 0, 'advance': 30000, 'left': -30000},
   },
 ];
+
+/// The shop's departments and people as «Команда» gets them.
+const fakeTeam = TeamPeople(
+  canEdit: true,
+  departments: [
+    TeamDepartment(
+      key: 'cut',
+      title: 'Раскрой',
+      posts: [
+        TeamPost(key: 'cut.cutter', title: 'Раскройщик', stages: ['cut']),
+      ],
+    ),
+    TeamDepartment(
+      key: 'cnc',
+      title: 'ЧПУ',
+      posts: [
+        TeamPost(key: 'cnc.operator', title: 'ЧПУшник', stages: ['mill']),
+      ],
+    ),
+    TeamDepartment(
+      key: 'pvc',
+      title: 'ПВХ плёнка',
+      posts: [
+        TeamPost(key: 'pvc.sander', title: 'Шкурщик', stages: ['sand']),
+        TeamPost(key: 'pvc.vacuum', title: 'Вакуумщик', stages: ['vacuum']),
+      ],
+    ),
+  ],
+  people: [
+    TeamPerson(
+      employee: 'HR-EMP-00001',
+      name: 'Ерлан Сапаров',
+      user: 'erlan@korkem.kz',
+      posts: ['cut.cutter'],
+    ),
+    TeamPerson(
+      employee: 'HR-EMP-00003',
+      name: 'Нұрсұлтан Жақсыбеков',
+      user: 'nursultan@korkem.kz',
+      posts: ['cnc.operator', 'pvc.sander'],
+    ),
+    TeamPerson(
+      employee: 'HR-EMP-00006',
+      name: 'Владимир Изимов',
+      posts: ['cnc.operator'],
+    ),
+    TeamPerson(employee: 'HR-EMP-00007', name: 'Ералы Сапаров'),
+    TeamPerson(
+      employee: 'HR-EMP-00008',
+      name: 'Андрей Петров',
+      active: false,
+      posts: ['pvc.sander'],
+    ),
+  ],
+);
