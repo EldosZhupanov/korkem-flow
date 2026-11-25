@@ -216,12 +216,18 @@ def live(name: str, company: str) -> frappe._dict:
 
 
 def seed(company: str) -> None:
-	"""The first look at the list fills it with the usual items, once."""
-	if frappe.db.exists(DOCTYPE, {"company": company}):
+	"""The first look fills the list with the usual items, once per company —
+	an item the owner added first does not stop it, one he archived or
+	renamed is not brought back."""
+	key = f"korkem_cost_items_seeded:{company}"
+	if frappe.db.get_default(key):
 		return
 	for title, group, mode, behaviour, area, unit in SEED:
+		if _same(company, title):
+			continue
 		frappe.get_doc({"doctype": DOCTYPE, "company": company, "title": title, "cost_group": group, "mode": mode,
 						"behaviour": behaviour, "area": area, "unit": unit}).insert(ignore_permissions=True)
+	frappe.db.set_default(key, "1")
 
 
 def group_of_expense(cost_group: str | None, category: str | None) -> str:
