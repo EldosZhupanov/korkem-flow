@@ -19,8 +19,7 @@ NumberFormat costMoney(BuildContext context) => NumberFormat.currency(
 );
 
 /// A quantity or m²: no trailing zeros.
-String costQty(double v) =>
-    NumberFormat('0.##').format(v).replaceAll('.', ',');
+String costQty(double v) => NumberFormat('0.##').format(v).replaceAll('.', ',');
 
 /// `yyyy-MM-01` of [month].
 String costIso(DateTime month) =>

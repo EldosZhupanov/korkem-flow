@@ -124,9 +124,8 @@ class _DebtInvoiceDialogState extends ConsumerState<_DebtInvoiceDialog> {
 
   double get _debt => widget.card.figures?.debt ?? 0;
 
-  double get _amount => _whole
-      ? _debt
-      : double.tryParse(_own.text.replaceAll(' ', '')) ?? 0;
+  double get _amount =>
+      _whole ? _debt : double.tryParse(_own.text.replaceAll(' ', '')) ?? 0;
 
   bool get _binOk {
     final b = _bin.text.trim();
@@ -196,10 +195,12 @@ class _DebtInvoiceDialogState extends ConsumerState<_DebtInvoiceDialog> {
     final amount = _amount;
     final over = amount > _debt + 0.5;
     final ready = !_busy && amount > 0 && !over && _binOk;
-    final split = over ? const <(ClientOrder, double)>[] : splitOldestFirst(
-      widget.card,
-      amount,
-    );
+    final split = over
+        ? const <(ClientOrder, double)>[]
+        : splitOldestFirst(
+            widget.card,
+            amount,
+          );
     return AlertDialog(
       key: const ValueKey('dinvDialog'),
       title: Text(l10n.dinvButton),

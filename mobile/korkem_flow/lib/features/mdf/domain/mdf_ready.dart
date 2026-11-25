@@ -11,12 +11,11 @@ class MdfReadyEstimate {
     this.known = false,
   });
 
-  factory MdfReadyEstimate.fromJson(Map<String, dynamic> j) =>
-      MdfReadyEstimate(
-        readyOn: '${j['ready_on'] ?? ''}',
-        days: j['days'] is num ? (j['days'] as num).toInt() : 0,
-        known: j['known'] == true,
-      );
+  factory MdfReadyEstimate.fromJson(Map<String, dynamic> j) => MdfReadyEstimate(
+    readyOn: '${j['ready_on'] ?? ''}',
+    days: j['days'] is num ? (j['days'] as num).toInt() : 0,
+    known: j['known'] == true,
+  );
 
   /// `yyyy-MM-dd`.
   final String readyOn;

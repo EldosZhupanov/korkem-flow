@@ -84,6 +84,7 @@ class _Fake implements ClientCardRepository {
       ],
     });
   }
+
   final issued = <(double?, String?, bool)>[];
   bool invoiced = false;
 
@@ -270,55 +271,55 @@ const Map<String, Object> _invoice = {
 };
 
 const Map<String, Object> _card = {
-    'customer': 'CUST-1',
-    'name': 'Ерлан Абенов',
-    'phone': '+77015551234',
-    'can': {'facades': true, 'film': false},
-    'limit': 50000,
-    'terms': {'discount_pct': 5},
-    'orders': [
-      {
-        'name': 'SAL-ORD-2026-00250',
-        'number': 250,
-        'status': 'in_shop',
-        'created_on': '2026-11-18',
-        'decor': 'Белый Матовый',
-        'area': 2.6,
-        'stages': [
-          {'key': 'cut', 'done': true},
-          {'key': 'mill', 'done': false},
-          {'key': 'ready', 'done': false},
-        ],
-        'total': 40000,
-        'paid': 0,
-        'debt': 40000,
-        'debt_days': 3,
-      },
-      {
-        'name': 'SAL-ORD-2026-00245',
-        'number': 245,
-        'status': 'ready',
-        'created_on': '2026-11-10',
-        'decor': 'Белый Матовый',
-        'total': 68000,
-        'paid': 50000,
-        'debt': 18000,
-        'debt_days': 11,
-      },
-    ],
-    'payments': [
-      {'date': '2026-11-14', 'order': 'SAL-ORD-2026-00245', 'amount': 50000},
-    ],
-    'figures': {
-      'orders': 2,
-      'total': 108000,
-      'paid': 50000,
-      'debt': 58000,
-      'average': 54000,
-      'first': '2026-11-10',
-      'last': '2026-11-10',
+  'customer': 'CUST-1',
+  'name': 'Ерлан Абенов',
+  'phone': '+77015551234',
+  'can': {'facades': true, 'film': false},
+  'limit': 50000,
+  'terms': {'discount_pct': 5},
+  'orders': [
+    {
+      'name': 'SAL-ORD-2026-00250',
+      'number': 250,
+      'status': 'in_shop',
+      'created_on': '2026-11-18',
+      'decor': 'Белый Матовый',
+      'area': 2.6,
+      'stages': [
+        {'key': 'cut', 'done': true},
+        {'key': 'mill', 'done': false},
+        {'key': 'ready', 'done': false},
+      ],
+      'total': 40000,
+      'paid': 0,
+      'debt': 40000,
+      'debt_days': 3,
     },
-  };
+    {
+      'name': 'SAL-ORD-2026-00245',
+      'number': 245,
+      'status': 'ready',
+      'created_on': '2026-11-10',
+      'decor': 'Белый Матовый',
+      'total': 68000,
+      'paid': 50000,
+      'debt': 18000,
+      'debt_days': 11,
+    },
+  ],
+  'payments': [
+    {'date': '2026-11-14', 'order': 'SAL-ORD-2026-00245', 'amount': 50000},
+  ],
+  'figures': {
+    'orders': 2,
+    'total': 108000,
+    'paid': 50000,
+    'debt': 58000,
+    'average': 54000,
+    'first': '2026-11-10',
+    'last': '2026-11-10',
+  },
+};
 
 final _act = Reconciliation.fromJson(const {
   'since': '2026-11-01',

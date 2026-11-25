@@ -20,7 +20,12 @@ import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import '../support/widget_harness.dart';
 
 /// How a screen is looked at: its size, its theme, its language.
-typedef _Look = ({String name, Size size, Brightness brightness, Locale locale});
+typedef _Look = ({
+  String name,
+  Size size,
+  Brightness brightness,
+  Locale locale,
+});
 
 const List<_Look> _looks = [
   (
@@ -114,8 +119,7 @@ class _Requisites implements FilmDeptRepository {
 /// weeks, an invoice paid in part, notes; and a rating of five.
 class _Cards implements ClientCardRepository {
   @override
-  Future<ClientCard> card(String customer) async =>
-      ClientCard.fromJson(_card);
+  Future<ClientCard> card(String customer) async => ClientCard.fromJson(_card);
 
   @override
   Future<List<ClientEvent>> history(String customer) async => const [

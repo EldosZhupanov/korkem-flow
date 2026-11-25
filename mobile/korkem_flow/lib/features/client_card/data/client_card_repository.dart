@@ -27,8 +27,7 @@ final clientHistoryProvider = FutureProvider.autoDispose
 // ignore: specify_nonobvious_property_types
 final customerRatingProvider = FutureProvider.autoDispose
     .family<CustomerRating, RatingPeriod>(
-      (ref, period) =>
-          ref.watch(clientCardRepositoryProvider).rating(period),
+      (ref, period) => ref.watch(clientCardRepositoryProvider).rating(period),
     );
 
 // AutoDisposeFutureProvider is not exported as a public type.
@@ -130,7 +129,10 @@ class ClientCardRepository {
         },
       ),
     );
-    return (print: _invoicePrint(j), card: ClientCard.fromJson(_sub(j['card'])));
+    return (
+      print: _invoicePrint(j),
+      card: ClientCard.fromJson(_sub(j['card'])),
+    );
   }
 
   /// A debt invoice as it was issued, to print or send again.

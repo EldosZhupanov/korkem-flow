@@ -270,7 +270,10 @@ void main() {
       find.byKey(const ValueKey('cst:billAmount')),
     );
     expect(amount.controller!.text, '185000');
-    await tester.enterText(find.byKey(const ValueKey('cst:billAmount')), '190000');
+    await tester.enterText(
+      find.byKey(const ValueKey('cst:billAmount')),
+      '190000',
+    );
     await tester.enterText(find.byKey(const ValueKey('cst:meterTo')), '48600');
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('cst:meterUsed')), findsOne);

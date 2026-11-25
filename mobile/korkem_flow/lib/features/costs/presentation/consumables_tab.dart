@@ -277,7 +277,9 @@ class _NumberDialogState extends State<_NumberDialog> {
         ),
         FilledButton(
           key: const ValueKey('cst:numberOk'),
-          onPressed: value == null ? null : () => Navigator.of(context).pop(value),
+          onPressed: value == null
+              ? null
+              : () => Navigator.of(context).pop(value),
           child: Text(l10n.cstSave),
         ),
       ],

@@ -51,7 +51,9 @@ class BillsTab extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 for (final row in b.bills)
-                  ReadableWidth(child: _BillLine(month: month, row: row)),
+                  ReadableWidth(
+                    child: _BillLine(month: month, row: row),
+                  ),
               ],
             ),
           ),

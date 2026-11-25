@@ -10473,10 +10473,11 @@ class AppLocalizationsKk extends AppLocalizations {
   String get fdcNoMatches => 'Ұқсас ештеңе табылмады';
 
   @override
-  String get dsmMorning => 'Таңертең 9:00-де — нені тапсырыс беру керек';
+  String get dsmMorning =>
+      'Таңғы шолу 9:00-де — нені беру керек, не кешігіп жатыр, кім қарыз, не жетпейді';
 
   @override
-  String get dsmMorningTitle => 'Тапсырыс беру уақыты';
+  String get dsmMorningTitle => 'Таңғы шолу';
 
   @override
   String get scanEntryTitle => 'Тапсырыс нөмірі';
@@ -11895,4 +11896,346 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get actMake => 'Жасап жіберу';
+
+  @override
+  String get dinvButton => 'Барлық қарызға шот';
+
+  @override
+  String get dinvSection => 'Қарыз шоттары';
+
+  @override
+  String get dinvWhole => 'Барлық қарыз';
+
+  @override
+  String get dinvOrders => 'Шотқа тапсырыстар кіреді — алдымен ең ескілері:';
+
+  @override
+  String get clcPayNoInvoice => 'Шотсыз';
+
+  @override
+  String clcPayByInvoice(String no, String sum) {
+    return '№ $no шот бойынша · қалды $sum';
+  }
+
+  @override
+  String get rateTitle => 'Клиенттер рейтингі';
+
+  @override
+  String get rateP3 => '3 ай';
+
+  @override
+  String get rateP12 => '12 ай';
+
+  @override
+  String get rateByMoney => 'Ақша бойынша';
+
+  @override
+  String get rateByDebt => 'Қарыз бойынша';
+
+  @override
+  String get rateBySlow => 'Кім созады';
+
+  @override
+  String get rateFast => 'тез төлейді';
+
+  @override
+  String get rateUsual => 'әдеттегідей төлейді';
+
+  @override
+  String get rateSlow => 'созады';
+
+  @override
+  String ratePayDays(String days) {
+    return 'орташа $days күнде төлейді';
+  }
+
+  @override
+  String get rateNoPaid => 'төленген тапсырыс әлі жоқ';
+
+  @override
+  String rateOrders(int count, String share) {
+    return '$count тапс. · ақшаның $share%';
+  }
+
+  @override
+  String rateOwes(String sum, int days) {
+    return 'қарыз $sum · $days күн';
+  }
+
+  @override
+  String rateTotal(String sum) {
+    return 'Барлық тапсырыстар: $sum';
+  }
+
+  @override
+  String get rateClassHint =>
+      'A — бірге ақшаның 80%-ын әкелетін аз ғана клиенттер; B — келесі 15%; C — қалғандары.';
+
+  @override
+  String get rateEmpty => 'Бұл кезеңде тапсырыс жоқ';
+
+  @override
+  String mdfDueByShop(String day, int days) {
+    return 'Цех жүктемесі бойынша — $day ($days жұм. күн)';
+  }
+
+  @override
+  String get mdfDueRough => '— шамамен: цех әлі аз тапсырды, қарқыны белгісіз';
+
+  @override
+  String mdfDueTooSoon(String day) {
+    return 'Цех тек $day күні үлгереді';
+  }
+
+  @override
+  String get cstTitle => 'Цех шығындары';
+
+  @override
+  String get cstTabMoney => 'Ақша қайда кетеді';
+
+  @override
+  String get cstTabBills => 'Айлық шоттар';
+
+  @override
+  String get cstTabConsumables => 'Шығын материалдары';
+
+  @override
+  String get cstTabItems => 'Шығын баптары';
+
+  @override
+  String get cstPrevMonth => 'Өткен ай';
+
+  @override
+  String get cstNextMonth => 'Келесі ай';
+
+  @override
+  String get cstRevenue => 'Түсім';
+
+  @override
+  String get cstCosts => 'Шығындар';
+
+  @override
+  String get cstProfit => 'Пайда';
+
+  @override
+  String cstMade(int orders, String m2) {
+    return '$orders тапс. дайын · $m2 м²';
+  }
+
+  @override
+  String get cstCostPerM2 => '1 м² цехке тұрады';
+
+  @override
+  String cstOverheadPerM2(String sum) {
+    return 'үстеме $sum / м²';
+  }
+
+  @override
+  String get cstBreakEven => 'Нөлге шығамыз';
+
+  @override
+  String cstBreakEvenValue(String m2) {
+    return 'айына $m2 м²';
+  }
+
+  @override
+  String cstBreakEvenSpare(String m2, int pct) {
+    return '$m2 жасалды — қор $pct%';
+  }
+
+  @override
+  String cstBreakEvenShort(String m2, int pct) {
+    return '$m2 жасалды — $pct% жетпейді';
+  }
+
+  @override
+  String get cstBreakEvenUnknown => 'айда дайын тапсырыс жоқ';
+
+  @override
+  String cstOfRevenue(String pct) {
+    return 'түсімнің $pct%';
+  }
+
+  @override
+  String get cstWhere => 'Ақша қайда кетті';
+
+  @override
+  String get cstItems => 'Баптар бойынша';
+
+  @override
+  String get cstAreas => 'Учаскелер бойынша';
+
+  @override
+  String get cstAlerts => 'Назар аударыңыз';
+
+  @override
+  String cstAlertLimit(String title, String sum, String limit, int pct) {
+    return '$title: $sum — $limit лимитінен $pct% асты';
+  }
+
+  @override
+  String cstAlertJump(String title, String sum, String times) {
+    return '$title: $sum — әдеттегіден $times есе көп';
+  }
+
+  @override
+  String cstAlertUnfilled(String title) {
+    return '$title: айлық шот енгізілмеген';
+  }
+
+  @override
+  String cstUsual(String sum) {
+    return 'әдетте $sum';
+  }
+
+  @override
+  String cstLimitOf(String sum) {
+    return 'лимит $sum';
+  }
+
+  @override
+  String get cstFixed => 'тұрақты';
+
+  @override
+  String get cstVariable => 'айнымалы';
+
+  @override
+  String get cstEmptyMonth => 'Бұл айда әзірге ештеңе есептелмеген';
+
+  @override
+  String cstBillsTotal(int filled, int count, String sum) {
+    return '$count ішінен $filled енгізілді · $sum';
+  }
+
+  @override
+  String get cstBillNotEntered => 'енгізілмеген';
+
+  @override
+  String cstBillLast(String sum) {
+    return 'өткен айда $sum';
+  }
+
+  @override
+  String get cstBillAmount => 'Айлық сома';
+
+  @override
+  String get cstMeterFrom => 'Есептегіш басында';
+
+  @override
+  String get cstMeterTo => 'Есептегіш соңында';
+
+  @override
+  String cstMeterUsed(String used, String unit) {
+    return 'Шығын: $used $unit';
+  }
+
+  @override
+  String get cstNote => 'Ескертпе';
+
+  @override
+  String get cstSave => 'Сақтау';
+
+  @override
+  String get cstSaved => 'Сақталды';
+
+  @override
+  String cstOnHand(String qty, String unit) {
+    return 'қоймада $qty $unit';
+  }
+
+  @override
+  String cstMinimum(String qty) {
+    return 'ең азы $qty';
+  }
+
+  @override
+  String cstTaken30(String qty) {
+    return 'айда $qty алынды';
+  }
+
+  @override
+  String get cstLow => 'аз';
+
+  @override
+  String get cstNew => 'жаңа';
+
+  @override
+  String get cstTake => 'Алдым';
+
+  @override
+  String get cstTakeHow => 'Қанша';
+
+  @override
+  String get cstReceive => 'Сатып алдық';
+
+  @override
+  String get cstPrice => 'Бірлік бағасы';
+
+  @override
+  String get cstSupplier => 'Қайдан алынды (міндетті емес)';
+
+  @override
+  String get cstSetMinimum => 'Ең азы';
+
+  @override
+  String get cstQuickAdd => 'Тізімде жоқ';
+
+  @override
+  String get cstQuickAddTitle => 'Не алынды';
+
+  @override
+  String get cstUnit => 'Бірлік';
+
+  @override
+  String get cstAddItem => 'Бап қосу';
+
+  @override
+  String get cstEditItem => 'Шығын бабы';
+
+  @override
+  String get cstItemTitle => 'Атауы';
+
+  @override
+  String get cstGroup => 'Топ';
+
+  @override
+  String get cstArea => 'Учаске';
+
+  @override
+  String get cstMode => 'Қалай есептеу';
+
+  @override
+  String get cstModeBill => 'Айлық шот';
+
+  @override
+  String get cstModeStock => 'Қойма';
+
+  @override
+  String get cstModeOther => 'Нақты бойынша';
+
+  @override
+  String get cstFixedSwitch => 'Тұрақты — көлемге байланысты емес';
+
+  @override
+  String get cstLimit => 'Айлық лимит';
+
+  @override
+  String get cstSearch => 'Іздеу: пышақ, стрейч, жарық…';
+
+  @override
+  String get cstShowArchived => 'Мұрағат';
+
+  @override
+  String get cstArchive => 'Мұрағатқа';
+
+  @override
+  String get cstRestore => 'Мұрағаттан қайтару';
+
+  @override
+  String get cstMerge => 'Біріктіру…';
+
+  @override
+  String cstMergeHint(String title) {
+    return '«$title» тарихы таңдалған бапқа өтеді';
+  }
 }

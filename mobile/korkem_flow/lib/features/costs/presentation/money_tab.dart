@@ -163,7 +163,10 @@ class _Body extends StatelessWidget {
                   for (final (i, g) in f.groups.indexed)
                     if (g.amount > 0)
                       Expanded(
-                        flex: (g.amount / f.costs * 1000).round().clamp(1, 1000),
+                        flex: (g.amount / f.costs * 1000).round().clamp(
+                          1,
+                          1000,
+                        ),
                         child: ColoredBox(color: palette[i % palette.length]),
                       ),
                 ],
@@ -201,7 +204,9 @@ class _Body extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         ReadableWidth(child: SectionLabel(l10n.cstItems)),
         for (final x in f.items)
-          ReadableWidth(child: _ItemLine(item: x, total: f.costs)),
+          ReadableWidth(
+            child: _ItemLine(item: x, total: f.costs),
+          ),
         if (f.areas.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
           ReadableWidth(child: SectionLabel(l10n.cstAreas)),
