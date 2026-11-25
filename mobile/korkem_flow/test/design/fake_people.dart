@@ -117,7 +117,7 @@ class FakePeople implements PeopleReportRepository {
           'status': 'Approved',
         },
       ],
-      'payouts': <Map<String, Object>>[],
+      'payouts': const <Map<String, Object>>[],
       'me': false,
     });
   }
