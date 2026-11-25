@@ -590,7 +590,10 @@ void main() {
     expect(sent.single.invoice.no, '12');
     // On the card: paid in part.
     expect(find.byKey(const ValueKey('dinv:12')), findsOne);
-    expect(find.textContaining('20 000'), findsWidgets);
+    expect(find.byKey(const ValueKey('dinvState:12')), findsOne);
+    // Paid in part: not to be struck out, still to be sent again.
+    expect(find.byKey(const ValueKey('dinvCancel:12')), findsNothing);
+    expect(find.byKey(const ValueKey('dinvAgain:12')), findsOne);
     // A payment by it: the rest of it put in, the number sent.
     final pay = find.byKey(const ValueKey('clc:pay'));
     await tester.ensureVisible(pay);
