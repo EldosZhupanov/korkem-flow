@@ -19,8 +19,11 @@ import 'package:korkem_flow/features/costs/data/costs_repository.dart';
 import 'package:korkem_flow/features/costs/presentation/costs_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
+import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/presentation/people_screen.dart';
 import 'package:korkem_flow/features/team/presentation/person_card_screen.dart';
+import 'package:korkem_flow/features/team/presentation/team_departments_view.dart';
+import 'package:korkem_flow/features/team/presentation/team_people_view.dart';
 
 import '../support/widget_harness.dart';
 import 'fake_costs.dart';
@@ -95,6 +98,21 @@ final Map<String, (Widget, List<String>)> _screens = {
     ),
     const [],
   ),
+  // «Люди» and the picker under a post (26.11.2026).
+  'team_people': (
+    const SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: TeamPeopleView(),
+    ),
+    const [],
+  ),
+  'team_post_picker': (
+    const SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: TeamDepartmentsView(),
+    ),
+    const ['teamAddTo:pvc.vacuum'],
+  ),
   'person_card_no_login': (
     PersonCardScreen(
       employee: 'HR-EMP-00002',
@@ -120,6 +138,7 @@ void main() {
               filmDeptRepositoryProvider.overrideWithValue(_Requisites()),
               costsRepositoryProvider.overrideWithValue(FakeCosts()),
               peopleReportRepositoryProvider.overrideWithValue(FakePeople()),
+              teamPeopleProvider.overrideWith((ref) async => fakeTeam),
             ],
             child: harness(
               screen,

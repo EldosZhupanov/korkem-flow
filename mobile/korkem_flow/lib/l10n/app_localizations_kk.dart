@@ -12383,4 +12383,130 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pplOpenCard => 'Карточка';
+
+  @override
+  String get tmViewDepartments => 'Бөлімдер бойынша';
+
+  @override
+  String get tmViewPeople => 'Адамдар';
+
+  @override
+  String get tmSearch => 'Аты бойынша табу';
+
+  @override
+  String get tmFilterAll => 'Барлығы';
+
+  @override
+  String get tmFilterNoLogin => 'Кірусіз';
+
+  @override
+  String get tmFilterLeft => 'Кеткендер';
+
+  @override
+  String get tmAddPost => 'лауазым';
+
+  @override
+  String tmGiven(String name, String post) {
+    return '$name: «$post» берілді';
+  }
+
+  @override
+  String tmTaken(String name, String post) {
+    return '$name: «$post» алынды';
+  }
+
+  @override
+  String tmOpenTitle(int count) {
+    return 'Онда жабылмаған кезеңдер: $count';
+  }
+
+  @override
+  String get tmHandTo => 'Кімге беру';
+
+  @override
+  String get tmNobody => 'Ешкімге — кейін бөлемін';
+
+  @override
+  String get tmKeep => 'Оған қалдыру';
+
+  @override
+  String get tmHandOver => 'Беру';
+
+  @override
+  String tmMoved(int count) {
+    return 'Берілген кезеңдер: $count';
+  }
+
+  @override
+  String tmLeftToPay(String sum) {
+    return 'Оған төлеу қалды: $sum';
+  }
+
+  @override
+  String tmAdvanceOver(String sum) {
+    return 'Аванс табыстан $sum артық';
+  }
+
+  @override
+  String tmPending(String sum) {
+    return 'Растауды күтуде: $sum';
+  }
+
+  @override
+  String tmPickTitle(String post) {
+    return 'Кімді қою: $post';
+  }
+
+  @override
+  String get tmNewPerson => 'Жаңа адам';
+
+  @override
+  String get tmNoOne => 'Ешкім табылмады';
+
+  @override
+  String get tmDupTitle => 'Мұндай адам бар';
+
+  @override
+  String get tmDupHint =>
+      'Егер бұл сол болса — екіншісін ашпаңыз, оған лауазым беріңіз.';
+
+  @override
+  String get tmItsHim => 'Бұл сол';
+
+  @override
+  String get tmItsOther => 'Жоқ, басқа адам';
+
+  @override
+  String get tmLeftMark => 'кеткен';
+
+  @override
+  String get tmHistory => 'Тарих';
+
+  @override
+  String get tmEvAdded => 'Командаға қабылданды';
+
+  @override
+  String tmEvPostOn(String post) {
+    return '«$post» берілді';
+  }
+
+  @override
+  String tmEvPostOff(String post) {
+    return '«$post» алынды';
+  }
+
+  @override
+  String get tmEvLeft => 'Жұмыстан шықты';
+
+  @override
+  String get tmEvBack => 'Командаға қайтарылды';
+
+  @override
+  String get tmPosts => 'Лауазымдар';
+
+  @override
+  String get tmMenu => 'Тағы';
+
+  @override
+  String get tmEdit => 'Өзгерту';
 }
