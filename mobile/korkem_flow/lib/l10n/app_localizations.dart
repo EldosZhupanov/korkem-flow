@@ -21202,6 +21202,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Card'**
   String get pplOpenCard;
+
+  /// No description provided for @tmViewDepartments.
+  ///
+  /// In en, this message translates to:
+  /// **'By department'**
+  String get tmViewDepartments;
+
+  /// No description provided for @tmViewPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get tmViewPeople;
+
+  /// No description provided for @tmSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Find by name'**
+  String get tmSearch;
+
+  /// No description provided for @tmFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tmFilterAll;
+
+  /// No description provided for @tmFilterNoLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'No login'**
+  String get tmFilterNoLogin;
+
+  /// No description provided for @tmFilterLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get tmFilterLeft;
+
+  /// No description provided for @tmAddPost.
+  ///
+  /// In en, this message translates to:
+  /// **'post'**
+  String get tmAddPost;
+
+  /// No description provided for @tmGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} now holds «{post}»'**
+  String tmGiven(String name, String post);
+
+  /// No description provided for @tmTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'«{post}» taken from {name}'**
+  String tmTaken(String name, String post);
+
+  /// No description provided for @tmOpenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open stages still his: {count}'**
+  String tmOpenTitle(int count);
+
+  /// No description provided for @tmHandTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand over to'**
+  String get tmHandTo;
+
+  /// No description provided for @tmNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody — I\'ll give them out later'**
+  String get tmNobody;
+
+  /// No description provided for @tmKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave with him'**
+  String get tmKeep;
+
+  /// No description provided for @tmHandOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand over'**
+  String get tmHandOver;
+
+  /// No description provided for @tmMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages handed over: {count}'**
+  String tmMoved(int count);
+
+  /// No description provided for @tmLeftToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Still to pay him: {sum}'**
+  String tmLeftToPay(String sum);
+
+  /// No description provided for @tmAdvanceOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Advances exceed earnings by {sum}'**
+  String tmAdvanceOver(String sum);
+
+  /// No description provided for @tmPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting approval: {sum}'**
+  String tmPending(String sum);
+
+  /// No description provided for @tmPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who takes the post: {post}'**
+  String tmPickTitle(String post);
+
+  /// No description provided for @tmNewPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'New person'**
+  String get tmNewPerson;
+
+  /// No description provided for @tmNoOne.
+  ///
+  /// In en, this message translates to:
+  /// **'No one found'**
+  String get tmNoOne;
+
+  /// No description provided for @tmDupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This person is already here'**
+  String get tmDupTitle;
+
+  /// No description provided for @tmDupHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If it\'s him, don\'t add a second one — give him the post.'**
+  String get tmDupHint;
+
+  /// No description provided for @tmItsHim.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s him'**
+  String get tmItsHim;
+
+  /// No description provided for @tmItsOther.
+  ///
+  /// In en, this message translates to:
+  /// **'No, someone else'**
+  String get tmItsOther;
+
+  /// No description provided for @tmLeftMark.
+  ///
+  /// In en, this message translates to:
+  /// **'left'**
+  String get tmLeftMark;
+
+  /// No description provided for @tmHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get tmHistory;
+
+  /// No description provided for @tmEvAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined the team'**
+  String get tmEvAdded;
+
+  /// No description provided for @tmEvPostOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Given «{post}»'**
+  String tmEvPostOn(String post);
+
+  /// No description provided for @tmEvPostOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken off «{post}»'**
+  String tmEvPostOff(String post);
+
+  /// No description provided for @tmEvLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left the company'**
+  String get tmEvLeft;
+
+  /// No description provided for @tmEvBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back in the team'**
+  String get tmEvBack;
+
+  /// No description provided for @tmPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get tmPosts;
+
+  /// No description provided for @tmMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get tmMenu;
+
+  /// No description provided for @tmEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get tmEdit;
 }
 
 class _AppLocalizationsDelegate

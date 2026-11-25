@@ -7,7 +7,6 @@ import 'package:korkem_flow/core/auth/session_controller.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
-import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -16,7 +15,10 @@ import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
+import 'package:korkem_flow/features/team/domain/team_moves.dart';
 import 'package:korkem_flow/features/team/domain/team_structure.dart';
+import 'package:korkem_flow/features/team/presentation/team_actions.dart';
+import 'package:korkem_flow/features/team/presentation/team_people_view.dart';
 import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -201,10 +203,11 @@ class _DepartmentCard extends StatelessWidget {
                           ? l10n.teamPostEmptyAdd
                           : l10n.teamAddPersonShort,
                     ),
-                    onPressed: () => showTeamPersonDialog(
+                    // Someone already here first, a new person below them.
+                    onPressed: () => showTeamPostPicker(
                       context,
                       team,
-                      post: post.key,
+                      post.key,
                       canManageLogins: canManageLogins,
                     ),
                   ),
@@ -316,6 +319,34 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
     try {
       final person = widget.person;
       if (person == null) {
+        // One person, never two: the same name or phone is asked about.
+        final same = await repo.duplicates(name, _phone.text.trim());
+        if (same.isNotEmpty) {
+          if (!mounted) return;
+          final pick = await showDialog<_Same>(
+            context: context,
+            builder: (_) => _DuplicateDialog(same: same),
+          );
+          if (pick == null) {
+            if (mounted) setState(() => _busy = false);
+            return;
+          }
+          if (pick.existing case final d?) {
+            final him = TeamPerson(employee: d.employee, name: d.name);
+            if (!d.active) await repo.setActive(him, active: true);
+            for (final post in _ordered) {
+              if (!d.posts.contains(post)) {
+                await repo.setPost(him, post, on: true);
+              }
+            }
+            ref
+              ..invalidate(teamPeopleProvider)
+              ..invalidate(teamMembersProvider);
+            navigator.pop();
+            messenger.showDone(l10n.teamPersonSaved(d.name));
+            return;
+          }
+        }
         await repo.add(
           name: name,
           posts: _ordered,
@@ -400,31 +431,15 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
       ..invalidate(teamMembersProvider);
   }
 
+  /// «Уволен» — after his open stages and what is owed are shown.
   Future<void> _dismiss() async {
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
-    final person = widget.person!;
-    final sure = await showConfirmDialog(
-      context: context,
-      title: l10n.teamPersonLeftTitle(person.name),
-      message: l10n.teamPersonLeftMessage,
-      confirmLabel: l10n.teamPersonLeft,
-      isDestructive: true,
-    );
-    if (!sure || !mounted) return;
     setState(() => _busy = true);
-    try {
-      await ref
-          .read(teamStructureRepositoryProvider)
-          .setActive(person, active: false);
-      ref
-        ..invalidate(teamPeopleProvider)
-        ..invalidate(teamMembersProvider);
+    final gone = await teamDismiss(context, widget.team, widget.person!);
+    if (gone) {
       navigator.pop();
-    } on Object catch (error) {
-      messenger.showFailure(error, l10n);
-      if (mounted) setState(() => _busy = false);
+    } else if (mounted) {
+      setState(() => _busy = false);
     }
   }
 
@@ -688,6 +703,72 @@ class _LoginBlock extends StatelessWidget {
             ),
           ],
         ],
+      ],
+    );
+  }
+}
+
+/// The duplicate dialog's answer: an existing person, or none — a new one.
+typedef _Same = ({TeamDuplicate? existing});
+
+/// «Такой человек уже есть»: him (given the posts, brought back if he
+/// left), or someone else after all.
+class _DuplicateDialog extends StatelessWidget {
+  const _DuplicateDialog({required this.same});
+
+  final List<TeamDuplicate> same;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return AlertDialog(
+      title: Text(l10n.tmDupTitle),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 9,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.tmDupHint),
+            const SizedBox(height: AppSpacing.sm),
+            for (final d in same)
+              ListTile(
+                key: ValueKey('tm:dup:${d.employee}'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(d.name),
+                subtitle: Text(
+                  [
+                    if (!d.active) l10n.tmLeftMark,
+                    if (d.posts.isEmpty)
+                      l10n.teamUnplaced
+                    else
+                      [
+                        for (final p in d.posts) teamPostLabel(p, l10n),
+                      ].join(', '),
+                    ?d.phone,
+                  ].join(' · '),
+                  style: theme.textTheme.bodySmall,
+                ),
+                trailing: FilledButton.tonal(
+                  key: ValueKey('tm:itsHim:${d.employee}'),
+                  onPressed: () => Navigator.of(context).pop((existing: d)),
+                  child: Text(l10n.tmItsHim),
+                ),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        TextButton(
+          key: const ValueKey('tm:itsOther'),
+          onPressed: () => Navigator.of(context).pop((existing: null)),
+          child: Text(l10n.tmItsOther),
+        ),
       ],
     );
   }

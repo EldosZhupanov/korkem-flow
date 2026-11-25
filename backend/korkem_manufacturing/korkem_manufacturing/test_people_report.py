@@ -99,3 +99,48 @@ class TestPeopleReport(IntegrationTestCase):
 		self.assertEqual(people_report.span("day", "2026-11-25"), (getdate("2026-11-25"), getdate("2026-11-25")))
 		self.assertEqual(people_report.span("week", "2026-11-25"), (getdate("2026-11-23"), getdate("2026-11-29")))
 		self.assertEqual(people_report.span("month", "2026-11-25"), (getdate("2026-11-01"), getdate("2026-11-30")))
+
+	# --- one person at a time: posts, his open work, leaving (owner, 26.11.2026) ---
+
+	def test_a_post_taken_leaves_his_work_to_be_handed_over(self):
+		from korkem_manufacturing.services import team_people
+
+		a = self._person(f"Владимир Изимов {self.tag}", ["cut.cutter"])
+		b = self._person(f"Бекжан Резчиков {self.tag}", ["cut.cutter"])
+		order = self._order()
+		self._as(MANAGER, mdf_orders.assign, order, "cut", a)
+
+		with self.assertRaises(frappe.PermissionError):  # the floor does not move people
+			self._as(CUTTER, team_people.set_post, "cnc.operator", 1, a)
+		self._as(MANAGER, team_people.set_post, "cnc.operator", 1, a)
+		self._as(MANAGER, team_people.set_post, "cut.cutter", 0, a)
+		self.assertEqual(team.parse(frappe.db.get_value("Employee", a, team.ROLES_FIELD)), ["cnc.operator"])
+
+		# The post is gone; the stage given to him is not — it is shown.
+		work = self._as(MANAGER, team_people.open_work, a, "cut.cutter")
+		self.assertEqual([(w["order"], w["stage"]) for w in work], [(order, "cut")])
+		self.assertEqual(self._as(MANAGER, team_people.dismissal, a)["open"], work)
+		self.assertEqual(self._as(MANAGER, team_people.hand_over, a, b, "cut.cutter")["moved"], 1)
+		self.assertEqual(frappe.db.get_value("Sales Order", order, mdf_orders.STAGE_TO["cut"]), b)
+		self.assertEqual(self._as(MANAGER, team_people.open_work, a), [])
+
+		# His card says what happened, newest first.
+		kinds = [(h["kind"], h["post"]) for h in team_people.history(a)]
+		self.assertEqual(kinds[:2], [("post_off", "cut.cutter"), ("post_on", "cnc.operator")])
+		self.assertEqual(kinds[-2:], [("post_on", "cut.cutter"), ("added", None)])
+		card = self._as("Administrator", people_report.person, a)
+		self.assertTrue(card["can_edit"])
+		self.assertEqual(card["posts"], ["cnc.operator"])
+
+	def test_the_same_person_is_found_by_name_or_phone(self):
+		from korkem_manufacturing.services import team_people
+
+		a = self._person(f"Владимир Изимов{self.tag}", ["cut.cutter"])
+		frappe.db.set_value("Employee", a, "cell_number", "+77015557788")
+		by_name = self._as(MANAGER, team_people.duplicates, f"  изимов{self.tag}   владимир ")
+		self.assertEqual([d["employee"] for d in by_name], [a])
+		by_phone = self._as(MANAGER, team_people.duplicates, "Кто-то Другой", "8 701 555 77 88")
+		self.assertIn(a, [d["employee"] for d in by_phone])
+		self._as(MANAGER, team.set_active, a, 0)
+		gone = self._as(MANAGER, team_people.duplicates, f"Владимир Изимов{self.tag}")
+		self.assertEqual([(d["employee"], d["active"]) for d in gone], [(a, False)])  # «вернуть его?»

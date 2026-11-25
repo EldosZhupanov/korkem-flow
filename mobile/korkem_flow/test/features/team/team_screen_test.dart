@@ -12,6 +12,7 @@ import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
+import 'package:korkem_flow/features/team/domain/team_moves.dart';
 import 'package:korkem_flow/features/team/domain/team_structure.dart';
 import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -188,7 +189,19 @@ const _structure = TeamPeople(
 );
 
 class _FakeStructure implements TeamStructureRepository {
+  _FakeStructure({
+    this.same = const [],
+    this.open = const [],
+    this.owed = const TeamDismissal(),
+  });
+
+  final List<TeamDuplicate> same;
+  final List<TeamOpenWork> open;
+  final TeamDismissal owed;
   final added = <(String, List<String>)>[];
+  final posts = <(String?, String, bool)>[];
+  final handed = <(String, String?, String?)>[];
+  final actives = <(String?, bool)>[];
 
   @override
   Future<TeamPeople> add({
@@ -197,6 +210,42 @@ class _FakeStructure implements TeamStructureRepository {
     String? phone,
   }) async {
     added.add((name, posts));
+    return _structure;
+  }
+
+  @override
+  Future<List<TeamDuplicate>> duplicates(String name, String? phone) async =>
+      same;
+
+  @override
+  Future<TeamPeople> setPost(
+    TeamPerson person,
+    String post, {
+    required bool on,
+  }) async {
+    posts.add((person.employee, post, on));
+    return _structure;
+  }
+
+  @override
+  Future<List<TeamOpenWork>> openWork(String employee, {String? post}) async =>
+      open;
+
+  @override
+  Future<int> handOver(String employee, {String? to, String? post}) async {
+    handed.add((employee, to, post));
+    return open.length;
+  }
+
+  @override
+  Future<TeamDismissal> dismissal(String employee) async => owed;
+
+  @override
+  Future<TeamPeople> setActive(
+    TeamPerson person, {
+    required bool active,
+  }) async {
+    actives.add((person.employee, active));
     return _structure;
   }
 
@@ -1093,6 +1142,10 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')));
     await tester.pumpAndSettle();
+    // Someone already here comes first; a new person is asked for below.
+    expect(find.byKey(const ValueKey('tm:pickPerson:HR-EMP-1')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('tm:pickNew')));
+    await tester.pumpAndSettle();
     final vacuum = tester.widget<FilterChip>(
       find.byKey(const ValueKey('teamPost:pvc.vacuum')),
     );
@@ -1107,7 +1160,152 @@ void main() {
     expect(structure.added.single.$1, 'Бек Вакуумов');
     expect(structure.added.single.$2, ['pvc.vacuum']);
   });
+
+  // --- one person at a time (owner, 26.11.2026) ---
+
+  Future<_FakeStructure> people(
+    WidgetTester tester, {
+    List<TeamDuplicate> same = const [],
+    List<TeamOpenWork> open = const [],
+    TeamDismissal owed = const TeamDismissal(),
+  }) async {
+    final structure = _FakeStructure(same: same, open: open, owed: owed);
+    await tester.pumpWidget(
+      buildHarness(
+        tester,
+        repository: _FakeTeamRepository(fetchMembersHandler: () async => []),
+        people: _shop,
+        structure: structure,
+      ),
+    );
+    await tester.pumpAndSettle();
+    return structure;
+  }
+
+  testWidgets('under a post, someone already here is given it', (
+    tester,
+  ) async {
+    final structure = await people(tester);
+    await tester.tap(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tm:pickPerson:HR-EMP-1')));
+    await tester.pumpAndSettle();
+    expect(structure.posts, [('HR-EMP-1', 'pvc.vacuum', true)]);
+    expect(structure.added, isEmpty);
+  });
+
+  testWidgets('«Люди»: a post taken off, his open stage handed over', (
+    tester,
+  ) async {
+    final structure = await people(
+      tester,
+      open: const [
+        TeamOpenWork(order: 'SO-245', stage: 'cut', number: 245),
+      ],
+    );
+    await tester.tap(find.text('Люди'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('tm:line:HR-EMP-1')), findsOne);
+    final chip = find.byKey(const ValueKey('tm:post:HR-EMP-1:cut.cutter'));
+    tester.widget<InputChip>(chip).onDeleted!();
+    await tester.pumpAndSettle();
+    expect(structure.posts, [('HR-EMP-1', 'cut.cutter', false)]);
+    // Бекжан is the one other cutter: offered first.
+    await tester.tap(find.byKey(const ValueKey('tm:confirm')));
+    await tester.pumpAndSettle();
+    expect(structure.handed, [('HR-EMP-1', 'HR-EMP-3', 'cut.cutter')]);
+  });
+
+  testWidgets('the same name: it is him, given the post — not a second one', (
+    tester,
+  ) async {
+    final structure = await people(
+      tester,
+      same: const [
+        TeamDuplicate(
+          employee: 'HR-EMP-1',
+          name: 'Ерлан',
+          posts: ['cut.cutter'],
+        ),
+      ],
+    );
+    await tester.tap(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tm:pickNew')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('teamPersonName')),
+      'Ерлан',
+    );
+    await tester.tap(find.byKey(const ValueKey('teamPersonSave')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tm:itsHim:HR-EMP-1')));
+    await tester.pumpAndSettle();
+    expect(structure.added, isEmpty);
+    expect(structure.posts, [('HR-EMP-1', 'pvc.vacuum', true)]);
+  });
+
+  testWidgets('«Уволен» says what is owed and frees his stages', (
+    tester,
+  ) async {
+    final structure = await people(
+      tester,
+      open: const [TeamOpenWork(order: 'SO-245', stage: 'cut')],
+      owed: const TeamDismissal(
+        open: [TeamOpenWork(order: 'SO-245', stage: 'cut')],
+        left: 127500,
+      ),
+    );
+    await tester.tap(find.text('Люди'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tm:menu:HR-EMP-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tm:dismiss:HR-EMP-1')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('127'), findsOne);
+    // Nobody chosen: his stage is freed for the manager, not left on him.
+    await tester.tap(find.byKey(const ValueKey('tm:handTo')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Никому — раздам потом').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tm:confirm')));
+    await tester.pumpAndSettle();
+    expect(structure.handed, [('HR-EMP-1', null, null)]);
+    expect(structure.actives, [('HR-EMP-1', false)]);
+  });
 }
+
+/// A shop with stages on its posts, two cutters (26.11.2026).
+const _shop = TeamPeople(
+  canEdit: true,
+  departments: [
+    TeamDepartment(
+      key: 'cut',
+      title: 'Раскрой',
+      posts: [
+        TeamPost(key: 'cut.cutter', title: 'Раскройщик', stages: ['cut']),
+      ],
+    ),
+    TeamDepartment(
+      key: 'pvc',
+      title: 'ПВХ плёнка',
+      posts: [
+        TeamPost(key: 'pvc.sander', title: 'Шкурщик', stages: ['sand']),
+        TeamPost(key: 'pvc.vacuum', title: 'Вакуумщик', stages: ['vacuum']),
+      ],
+    ),
+  ],
+  people: [
+    TeamPerson(employee: 'HR-EMP-1', name: 'Ерлан', posts: ['cut.cutter']),
+    TeamPerson(
+      employee: 'HR-EMP-2',
+      name: 'Нурлан',
+      user: 'nurlan@korkem.kz',
+      posts: ['pvc.sander'],
+    ),
+    TeamPerson(employee: 'HR-EMP-3', name: 'Бекжан', posts: ['cut.cutter']),
+  ],
+);
 
 class _TestSessionController extends SessionController {
   _TestSessionController(this._initial);
