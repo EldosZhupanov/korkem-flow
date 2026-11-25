@@ -31,12 +31,11 @@ enum PeopleSpan { day, week, month }
 }
 
 /// The same span one step before or after.
-DateTime peopleShift(PeopleSpan span, DateTime day, int step) =>
-    switch (span) {
-      PeopleSpan.day => DateTime(day.year, day.month, day.day + step),
-      PeopleSpan.week => DateTime(day.year, day.month, day.day + 7 * step),
-      PeopleSpan.month => DateTime(day.year, day.month + step),
-    };
+DateTime peopleShift(PeopleSpan span, DateTime day, int step) => switch (span) {
+  PeopleSpan.day => DateTime(day.year, day.month, day.day + step),
+  PeopleSpan.week => DateTime(day.year, day.month, day.day + 7 * step),
+  PeopleSpan.month => DateTime(day.year, day.month + step),
+};
 
 String peopleIso(DateTime d) =>
     '${d.year}-${d.month.toString().padLeft(2, '0')}-'
@@ -82,9 +81,7 @@ class PersonMoney {
     piece: _d(json['piece']),
     pending: _d(json['pending']),
     bonus:
-        _d(json['bonus']) +
-        _d(json['daily_bonus']) +
-        _d(json['monthly_bonus']),
+        _d(json['bonus']) + _d(json['daily_bonus']) + _d(json['monthly_bonus']),
     fine: _d(json['fine']),
     advance: _d(json['advance']),
     toPay: _d(json['to_pay']),

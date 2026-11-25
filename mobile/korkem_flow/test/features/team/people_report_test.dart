@@ -52,7 +52,9 @@ void main() {
     expect(find.text('Ерлан Сапаров'), findsOne);
     // This month is not over: nothing after it to look at.
     expect(
-      tester.widget<IconButton>(find.byKey(const ValueKey('ppl:next'))).onPressed,
+      tester
+          .widget<IconButton>(find.byKey(const ValueKey('ppl:next')))
+          .onPressed,
       isNull,
     );
     await tester.tap(find.byKey(const ValueKey('ppl:prev')));

@@ -12241,4 +12241,110 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get cstMeterEnd => 'соңында';
+
+  @override
+  String get pplTitle => 'Қызметкерлер';
+
+  @override
+  String get pplSubtitle => 'Кім не істеді, қанша тапты, қанша алды';
+
+  @override
+  String get pplDay => 'Күн';
+
+  @override
+  String get pplWeek => 'Апта';
+
+  @override
+  String get pplMonth => 'Ай';
+
+  @override
+  String get pplPrev => 'Бұрын';
+
+  @override
+  String get pplNext => 'Кейін';
+
+  @override
+  String get pplM2 => 'Жасалды';
+
+  @override
+  String get pplStages => 'Кезеңдер';
+
+  @override
+  String get pplEarned => 'Есептелді';
+
+  @override
+  String get pplAdvance => 'Аванс';
+
+  @override
+  String get pplLeft => 'Төлеу қалды';
+
+  @override
+  String get pplDays => 'Жұмыс күндері';
+
+  @override
+  String get pplOrders => 'Тапсырыстар';
+
+  @override
+  String get pplEmpty => '«Командада» әзірге ешкім жоқ.';
+
+  @override
+  String get pplNoLogin =>
+      'Бағдарламаға кірусіз: кесімді ақы есептелмейді, тек көлем көрінеді.';
+
+  @override
+  String get pplMoney => 'Ақша';
+
+  @override
+  String get pplPiece => 'Кесімді ақы';
+
+  @override
+  String get pplPending => 'Растауды күтуде';
+
+  @override
+  String get pplBonus => 'Сыйақылар';
+
+  @override
+  String get pplFine => 'Айыппұлдар';
+
+  @override
+  String get pplFineOne => 'Айыппұл';
+
+  @override
+  String get pplBonusOne => 'Сыйақы';
+
+  @override
+  String get pplPaid => 'Төленді';
+
+  @override
+  String get pplByDay => 'Күндер бойынша';
+
+  @override
+  String get pplDayHint => 'Бағанды басыңыз — күнді көрсетеді';
+
+  @override
+  String get pplByStage => 'Кезеңдер бойынша';
+
+  @override
+  String get pplWorks => 'Жұмыстар';
+
+  @override
+  String get pplEntries => 'Кесімді жазбалар';
+
+  @override
+  String get pplAdjustments => 'Аванс, айыппұл, сыйақы';
+
+  @override
+  String get pplPayouts => 'Төлемдер';
+
+  @override
+  String get pplMine => 'Менің табысым';
+
+  @override
+  String get pplNothing => 'Бұл кезеңде ештеңе белгіленбеген.';
+
+  @override
+  String get pplNotApproved => 'расталмаған';
+
+  @override
+  String get pplOpenCard => 'Карточка';
 }

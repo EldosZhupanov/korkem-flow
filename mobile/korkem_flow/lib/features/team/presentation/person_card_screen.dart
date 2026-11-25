@@ -47,7 +47,11 @@ class _PersonCardScreenState extends ConsumerState<PersonCardScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final query = (employee: widget.employee, span: _span, day: peopleIso(_day));
+    final query = (
+      employee: widget.employee,
+      span: _span,
+      day: peopleIso(_day),
+    );
     final card = ref.watch(personCardProvider(query));
     final row = card.value?.row;
     return AppScreen(
@@ -181,7 +185,11 @@ class _CardBodyState extends State<_CardBody> {
             style: muted,
           ),
         ] else
-          Text(l10n.pplNoLogin, key: const ValueKey('card:noLogin'), style: muted),
+          Text(
+            l10n.pplNoLogin,
+            key: const ValueKey('card:noLogin'),
+            style: muted,
+          ),
         if (widget.span != PeopleSpan.day && c.days.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
           SectionLabel(l10n.pplByDay),
@@ -267,7 +275,11 @@ class _CardBodyState extends State<_CardBody> {
         const SizedBox(height: AppSpacing.lg),
         SectionLabel(l10n.pplWorks),
         if (c.works.isEmpty)
-          Text(l10n.pplNothing, key: const ValueKey('card:noWorks'), style: muted)
+          Text(
+            l10n.pplNothing,
+            key: const ValueKey('card:noWorks'),
+            style: muted,
+          )
         else
           for (final (i, w) in c.works.indexed)
             _Line(

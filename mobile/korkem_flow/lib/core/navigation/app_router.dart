@@ -641,8 +641,7 @@ GoRouter createRouter(Ref ref) {
           final q = state.uri.queryParameters;
           return PersonCardScreen(
             employee: employee == null || employee == 'me' ? null : employee,
-            span:
-                PeopleSpan.values.asNameMap()[q['span']] ?? PeopleSpan.month,
+            span: PeopleSpan.values.asNameMap()[q['span']] ?? PeopleSpan.month,
             day: DateTime.tryParse(q['day'] ?? ''),
           );
         },
