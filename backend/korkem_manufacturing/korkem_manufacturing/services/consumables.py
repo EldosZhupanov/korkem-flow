@@ -50,7 +50,7 @@ def listing() -> dict:
 		out.append({
 			"item": r.name, "stock_item": r.item, "title": r.title, "unit": r.stock_uom or r.unit,
 			"area": r.area, "on_hand": on_hand, "minimum": minimum, "low": minimum > 0 and on_hand < minimum,
-			"taken_30d": taken.get(r.item, 0.0), "new": bool(r.is_new),
+			"taken_30d": taken.get(r.item, 0.0), "new": bool(r.from_floor),
 			"price": price if owner else None,
 		})
 	out.sort(key=lambda x: (not x["low"], x["title"].lower()))
@@ -144,7 +144,7 @@ def _items(company: str, archived: bool = False) -> list:
 	if not archived:
 		filters["archived"] = 0
 	rows = frappe.get_all(cost_items.DOCTYPE, filters=filters,
-						  fields=["name", "title", "unit", "area", "item", "is_new"], limit_page_length=0)
+						  fields=["name", "title", "unit", "area", "item", "from_floor"], limit_page_length=0)
 	if not rows:
 		return []
 	meta = {i.name: i for i in frappe.get_all(

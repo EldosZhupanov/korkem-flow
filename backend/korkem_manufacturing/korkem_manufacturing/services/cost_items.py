@@ -70,7 +70,7 @@ SEED = (
 CATEGORY_GROUP = {"Материалы": CONSUMABLES, "Инструмент": REPAIR, "Транспорт": TRANSPORT, "Ремонт": REPAIR,
 				  "Другое": OTHER}
 _FIELDS = ["name", "title", "cost_group", "mode", "behaviour", "area", "unit", "monthly_limit", "item", "archived",
-		   "is_new", "merged_into"]
+		   "from_floor", "merged_into"]
 
 
 def is_owner() -> bool:
@@ -97,7 +97,7 @@ def listing(search: str | None = None, archived: bool | int | str = False) -> di
 	order = {g: i for i, g in enumerate(GROUPS)}
 	rows.sort(key=lambda r: (order.get(r.cost_group, len(GROUPS)), r.title.lower()))
 	return {"items": [_row(r) for r in rows], "groups": list(GROUPS), "areas": list(AREAS),
-			"new": sum(1 for r in rows if r.is_new)}
+			"new": sum(1 for r in rows if r.from_floor)}
 
 
 def add(title: str, group: str, mode: str = "other", behaviour: str = "variable", area: str | None = None,
@@ -127,7 +127,7 @@ def quick_add(title: str, unit: str | None = None) -> dict:
 	same = _same(company, values["title"])
 	if same:
 		return _row(frappe.get_doc(DOCTYPE, same))
-	doc = frappe.get_doc({"doctype": DOCTYPE, "company": company, "is_new": 1, **_doc_values(values)})
+	doc = frappe.get_doc({"doctype": DOCTYPE, "company": company, "from_floor": 1, **_doc_values(values)})
 	doc.insert(ignore_permissions=True)
 	_shelf_item(doc)
 	audit.record_audit(action="cost_item.quick_added", entity_type=DOCTYPE, entity_id=doc.name, diff=values,
@@ -150,7 +150,7 @@ def edit(name: str, **changes) -> dict:
 	if values["title"].lower() != doc.title.lower():
 		_unique(doc.company, values["title"])
 	doc.update(_doc_values(values))
-	doc.is_new = 0
+	doc.from_floor = 0
 	doc.save(ignore_permissions=True)
 	if doc.mode == "stock":
 		_shelf_item(doc)
@@ -197,7 +197,7 @@ def merge(source: str, target: str) -> dict:
 	frappe.db.sql("update `tabUrgent Expense` set cost_item = %s where cost_item = %s", (dst.name, src.name))
 	if src.item and not dst.item:
 		dst.db_set("item", src.item)
-	src.db_set({"archived": 1, "merged_into": dst.name, "is_new": 0})
+	src.db_set({"archived": 1, "merged_into": dst.name, "from_floor": 0})
 	audit.record_audit(action="cost_item.merged", entity_type=DOCTYPE, entity_id=src.name,
 					   diff={"from": src.title, "into": dst.title}, company=src.company)
 	return _row(dst)
@@ -216,12 +216,18 @@ def live(name: str, company: str) -> frappe._dict:
 
 
 def seed(company: str) -> None:
-	"""The first look at the list fills it with the usual items, once."""
-	if frappe.db.exists(DOCTYPE, {"company": company}):
+	"""The first look fills the list with the usual items, once per company —
+	an item the owner added first does not stop it, one he archived or
+	renamed is not brought back."""
+	key = f"korkem_cost_items_seeded:{company}"
+	if frappe.db.get_default(key):
 		return
 	for title, group, mode, behaviour, area, unit in SEED:
+		if _same(company, title):
+			continue
 		frappe.get_doc({"doctype": DOCTYPE, "company": company, "title": title, "cost_group": group, "mode": mode,
 						"behaviour": behaviour, "area": area, "unit": unit}).insert(ignore_permissions=True)
+	frappe.db.set_default(key, "1")
 
 
 def group_of_expense(cost_group: str | None, category: str | None) -> str:
@@ -303,5 +309,5 @@ def _own(name: str):
 def _row(r) -> dict:
 	return {"name": r.name, "title": r.title, "group": r.cost_group, "mode": r.mode, "behaviour": r.behaviour,
 			"area": r.area, "unit": r.unit, "monthly_limit": flt(r.monthly_limit), "item": r.item,
-			"archived": bool(r.archived), "new": bool(r.is_new)}
+			"archived": bool(r.archived), "new": bool(r.from_floor)}
 
