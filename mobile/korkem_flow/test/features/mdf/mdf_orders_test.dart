@@ -631,7 +631,7 @@ void main() {
     );
   });
 
-  testWidgets('the due date by the shop\'s load, and a sooner one warned', (
+  testWidgets("the due date by the shop's load, and a sooner one warned", (
     tester,
   ) async {
     final repo = _BusyShop();
