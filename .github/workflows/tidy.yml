@@ -1,0 +1,58 @@
+# The Flutter chores a feature branch needs before review, done here rather
+# than on a laptop (owner, 25.11.2026: «сделай всё сам»): the localisation
+# files regenerated and the code formatted — committed back to the branch —
+# then analyze, the whole suite, and the design-review shots
+# (`.claude/skills/korkem-design-review`) as an artefact.
+#
+# A push made with GITHUB_TOKEN starts no workflow, so the commit below does
+# not loop; `ci.yml` checks the result when the pull request is opened.
+name: Tidy — l10n, format, check
+on:
+  push:
+    branches: ['feat/**']
+permissions:
+  contents: write
+concurrency:
+  group: tidy-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  tidy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+      - name: Regenerate and format
+        working-directory: mobile/korkem_flow
+        run: |
+          flutter pub get
+          flutter gen-l10n
+          dart format lib test
+      - name: Commit what changed
+        run: |
+          if [ -n "$(git status --porcelain mobile/korkem_flow/lib mobile/korkem_flow/test)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A mobile/korkem_flow/lib mobile/korkem_flow/test
+            git commit -m "chore(l10n): regenerate; format"
+            git push
+          fi
+      - name: Analyze
+        working-directory: mobile/korkem_flow
+        run: flutter analyze
+      - name: Test
+        working-directory: mobile/korkem_flow
+        run: flutter test
+      - name: Design shots
+        if: always()
+        working-directory: mobile/korkem_flow
+        run: flutter test test/design --tags tools --run-skipped --update-goldens || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: design-shots
+          path: mobile/korkem_flow/test/design/shots/
+          retention-days: 7
+          if-no-files-found: ignore
