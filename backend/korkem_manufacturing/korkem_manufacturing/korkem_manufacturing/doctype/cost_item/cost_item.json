@@ -1,0 +1,122 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-11-25 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "title",
+  "cost_group",
+  "mode",
+  "behaviour",
+  "area",
+  "unit",
+  "monthly_limit",
+  "item",
+  "archived",
+  "is_new",
+  "merged_into"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cost_group",
+   "fieldtype": "Data",
+   "label": "Group",
+   "reqd": 1
+  },
+  {
+   "fieldname": "mode",
+   "fieldtype": "Select",
+   "label": "Mode",
+   "options": "bill\nstock\nother",
+   "default": "other"
+  },
+  {
+   "fieldname": "behaviour",
+   "fieldtype": "Select",
+   "label": "Behaviour",
+   "options": "fixed\nvariable",
+   "default": "variable"
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Data",
+   "label": "Area"
+  },
+  {
+   "fieldname": "unit",
+   "fieldtype": "Data",
+   "label": "Unit"
+  },
+  {
+   "fieldname": "monthly_limit",
+   "fieldtype": "Currency",
+   "label": "Monthly limit"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Stock item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "archived",
+   "fieldtype": "Check",
+   "label": "Archived"
+  },
+  {
+   "fieldname": "is_new",
+   "fieldtype": "Check",
+   "label": "Added from the floor, to review"
+  },
+  {
+   "fieldname": "merged_into",
+   "fieldtype": "Link",
+   "label": "Merged into",
+   "options": "Cost Item"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-25 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Korkem Manufacturing",
+ "name": "Cost Item",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "title_field": "title"
+}

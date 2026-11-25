@@ -79,10 +79,23 @@ def collect(company: str, day=None, *, staff: bool = True) -> dict:
 		"debtors": [{**d, "debt": float(d["debt"])} for d in debtors[:DEBTORS]],
 		"film": [],
 		"paint": [],
+		"consumables": [],
 		"reorder": None,
+		"costs": [],
 	}
 	if staff:
 		out.update(_stock(company))
+	# Plan against fact (owner, 25.11.2026): what went over its limit or
+	# jumped — the owner's and accounting's reading only.
+	from korkem_manufacturing.services import cost_items
+
+	if cost_items.is_owner():
+		try:
+			from korkem_manufacturing.services import money_flow
+
+			out["costs"] = money_flow.alerts(company)
+		except Exception:
+			frappe.log_error(title="morning_brief.costs", message=frappe.get_traceback(with_context=True))
 	return out
 
 
@@ -104,6 +117,13 @@ def _stock(company: str) -> dict:
 	except Exception:
 		frappe.log_error(title="morning_brief.paint", message=frappe.get_traceback(with_context=True))
 	try:
+		from korkem_manufacturing.services import consumables
+
+		out["consumables"] = [{"title": x["title"], "free": x["free"], "minimum": x["minimum"], "unit": x["unit"]}
+							  for x in consumables.low(company)]
+	except Exception:
+		frappe.log_error(title="morning_brief.consumables", message=frappe.get_traceback(with_context=True))
+	try:
 		out["reorder"] = reorder_watch.report()
 	except Exception:
 		frappe.log_error(title="morning_brief.reorder", message=frappe.get_traceback(with_context=True))
@@ -115,7 +135,10 @@ def text(b: dict, company: str) -> str | None:
 	from korkem_manufacturing.services import reorder_watch
 
 	order_lines = reorder_watch.lines(b["reorder"]) if b.get("reorder") else []
-	if not (b["ready"] or b["due_today"] or b["late"] or b["debtors"] or b["film"] or b["paint"] or order_lines):
+	used_up = b.get("consumables") or []
+	costs = b.get("costs") or []
+	if not (b["ready"] or b["due_today"] or b["late"] or b["debtors"] or b["film"] or b["paint"] or order_lines
+			or used_up or costs):
 		return None
 	name = frappe.db.get_value("Company", company, "company_name") or company
 	lines = [f"Доброе утро! Сводка на {getdate(b['day']).strftime('%d.%m')} — {name}"]
@@ -141,9 +164,21 @@ def text(b: dict, company: str) -> str | None:
 		lines += [f"  · плёнка {f['title']} — {_num(f['short'])} {f['unit']} ({f['orders']} зак.)"
 				  for f in b["film"][:SHOWN]]
 		lines += [f"  · краска {p['title']} — {_num(p['short'])} кг" for p in b["paint"][:SHOWN]]
-	if order_lines:
-		lines += ["", "Пора заказать:", *order_lines]
+	if order_lines or used_up:
+		lines += ["", "Пора заказать:"]
+		lines += [f"  · {c['title']} — осталось {_num(c['free'])} {c['unit']} (минимум {_num(c['minimum'])})"
+				  for c in used_up[:SHOWN]]
+		lines += order_lines
+	if costs:
+		lines += ["", "Расходы за месяц:"]
+		lines += [f"  · {_cost(c)}" for c in costs[:SHOWN]]
 	return "\n".join(lines)
+
+
+def _cost(c: dict) -> str:
+	if c["kind"] == "limit":
+		return f"{c['title']} — {_money(c['amount'])}, выше лимита {_money(c['limit'])} на {c['over']}%"
+	return f"{c['title']} — {_money(c['amount'])}, в {_num(c['times'])} раза больше обычного"
 
 
 def _no(x: dict) -> str:

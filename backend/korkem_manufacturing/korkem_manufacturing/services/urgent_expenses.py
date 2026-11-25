@@ -49,7 +49,8 @@ def _ensure_staff() -> None:
 		frappe.throw("Расходы записывают сотрудники.", frappe.PermissionError)
 
 
-def file(amount, purpose: str, category: str = "Другое", sales_order: str | None = None) -> dict:
+def file(amount, purpose: str, category: str = "Другое", sales_order: str | None = None,
+		 cost_item: str | None = None) -> dict:
 	_ensure_staff()
 	company = current_company()
 	try:
@@ -67,6 +68,11 @@ def file(amount, purpose: str, category: str = "Другое", sales_order: str 
 		frappe.throw(f"Категория — одна из: {', '.join(CATEGORIES)}.")
 	if sales_order:
 		ensure_company("Sales Order", sales_order)
+	if cost_item:
+		# What it was spent on, from the cost items (owner, 25.11.2026).
+		from korkem_manufacturing.services import cost_items
+
+		cost_items.live(cost_item, company)
 
 	doc = frappe.get_doc(
 		{
@@ -77,6 +83,7 @@ def file(amount, purpose: str, category: str = "Другое", sales_order: str 
 			"purpose": purpose[:140],
 			"category": category,
 			"sales_order": sales_order or None,
+			"cost_item": cost_item or None,
 			"status": PENDING,
 		}
 	)
@@ -112,7 +119,7 @@ def attach_receipt(expense: str, filename: str, content: bytes) -> dict:
 	return {"expense": doc.name, "file": stored.name, "status": "attached"}
 
 
-def decide(expense: str, approve: bool | int | str, note: str | None = None) -> dict:
+def decide(expense: str, approve: bool | int | str, note: str | None = None, cost_item: str | None = None) -> dict:
 	if not _is_decider():
 		frappe.throw("Решение по расходам принимает администратор или бухгалтерия.", frappe.PermissionError)
 	approve = bool(int(approve)) if isinstance(approve, str) else bool(approve)
@@ -124,6 +131,12 @@ def decide(expense: str, approve: bool | int | str, note: str | None = None) -> 
 	note = (note or "").strip()
 	if not approve and not note:
 		frappe.throw("Напишите причину отказа — сотрудник её увидит.")
+	if cost_item:
+		# The decider puts it on its cost item when the filer did not.
+		from korkem_manufacturing.services import cost_items
+
+		cost_items.live(cost_item, doc.company)
+		doc.cost_item = cost_item
 	doc.status = APPROVED if approve else REJECTED
 	doc.decided_by = frappe.session.user
 	doc.decided_at = now_datetime()
@@ -150,7 +163,7 @@ def listing(status: str | None = None, mine_only: bool | int | str = False, limi
 	rows = frappe.get_all(
 		DOCTYPE,
 		filters=filters,
-		fields=["name", "requested_by", "amount", "purpose", "category", "sales_order", "status",
+		fields=["name", "requested_by", "amount", "purpose", "category", "cost_item", "sales_order", "status",
 				"decided_by", "decided_at", "decision_note", "creation"],
 		order_by="creation desc",
 		limit_page_length=max(1, min(int(limit or 100), 500)),
@@ -187,6 +200,7 @@ def _row(r, full_name: str | None = None) -> dict:
 		"amount": flt(r.amount),
 		"purpose": r.purpose,
 		"category": r.category,
+		"cost_item": r.get("cost_item"),
 		"sales_order": r.sales_order,
 		"status": r.status,
 		"decided_by": r.decided_by,

@@ -10,6 +10,7 @@
   "amount",
   "purpose",
   "category",
+  "cost_item",
   "sales_order",
   "status",
   "decided_by",
@@ -54,6 +55,12 @@
    "default": "Другое"
   },
   {
+   "fieldname": "cost_item",
+   "fieldtype": "Link",
+   "label": "Cost item",
+   "options": "Cost Item"
+  },
+  {
    "fieldname": "sales_order",
    "fieldtype": "Link",
    "options": "Sales Order",
@@ -88,7 +95,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-26 00:00:00.000000",
+ "modified": "2026-11-25 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Urgent Expense",

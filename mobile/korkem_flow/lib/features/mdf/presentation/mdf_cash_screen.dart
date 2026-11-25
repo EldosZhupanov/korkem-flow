@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -53,7 +54,21 @@ class _MdfCashScreenState extends ConsumerState<MdfCashScreen> {
     final period = cashPeriodOf(_range, widget.today ?? DateTime.now());
     final cash = ref.watch(mdfCashProvider(period));
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.mdfCashTitle)),
+      appBar: AppBar(
+        title: Text(l10n.mdfCashTitle),
+        actions: [
+          // «Куда идут деньги» (owner, 25.11.2026): the month behind the day.
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: TextButton.icon(
+              key: const ValueKey('cash:costs'),
+              onPressed: () => context.push(Routes.costs),
+              icon: const Icon(AppIcons.report),
+              label: Text(l10n.cstTitle),
+            ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
