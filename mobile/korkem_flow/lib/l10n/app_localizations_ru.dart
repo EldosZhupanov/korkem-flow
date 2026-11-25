@@ -12318,4 +12318,110 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cstMeterEnd => 'на конец';
+
+  @override
+  String get pplTitle => 'Сотрудники';
+
+  @override
+  String get pplSubtitle => 'Кто что сделал, сколько заработал и получил';
+
+  @override
+  String get pplDay => 'День';
+
+  @override
+  String get pplWeek => 'Неделя';
+
+  @override
+  String get pplMonth => 'Месяц';
+
+  @override
+  String get pplPrev => 'Раньше';
+
+  @override
+  String get pplNext => 'Позже';
+
+  @override
+  String get pplM2 => 'Сделано';
+
+  @override
+  String get pplStages => 'Этапов';
+
+  @override
+  String get pplEarned => 'Начислено';
+
+  @override
+  String get pplAdvance => 'Аванс';
+
+  @override
+  String get pplLeft => 'Осталось выплатить';
+
+  @override
+  String get pplDays => 'Дней с работой';
+
+  @override
+  String get pplOrders => 'Заказов';
+
+  @override
+  String get pplEmpty => 'В «Команде» пока никого нет.';
+
+  @override
+  String get pplNoLogin =>
+      'Без входа в программу: сдельная не начисляется, виден только объём.';
+
+  @override
+  String get pplMoney => 'Деньги';
+
+  @override
+  String get pplPiece => 'Сдельная';
+
+  @override
+  String get pplPending => 'Ждёт подтверждения';
+
+  @override
+  String get pplBonus => 'Премии';
+
+  @override
+  String get pplFine => 'Штрафы';
+
+  @override
+  String get pplFineOne => 'Штраф';
+
+  @override
+  String get pplBonusOne => 'Премия';
+
+  @override
+  String get pplPaid => 'Выплачено';
+
+  @override
+  String get pplByDay => 'По дням';
+
+  @override
+  String get pplDayHint => 'Нажмите на столбик — покажет день';
+
+  @override
+  String get pplByStage => 'По этапам';
+
+  @override
+  String get pplWorks => 'Работы';
+
+  @override
+  String get pplEntries => 'Сдельные записи';
+
+  @override
+  String get pplAdjustments => 'Авансы, штрафы, премии';
+
+  @override
+  String get pplPayouts => 'Выплаты';
+
+  @override
+  String get pplMine => 'Мой заработок';
+
+  @override
+  String get pplNothing => 'За этот период ничего не отмечено.';
+
+  @override
+  String get pplNotApproved => 'не подтверждено';
+
+  @override
+  String get pplOpenCard => 'Карточка';
 }

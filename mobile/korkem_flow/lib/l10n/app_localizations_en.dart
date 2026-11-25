@@ -12281,4 +12281,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cstMeterEnd => 'at the end';
+
+  @override
+  String get pplTitle => 'Staff';
+
+  @override
+  String get pplSubtitle => 'Who did what, earned what, was paid what';
+
+  @override
+  String get pplDay => 'Day';
+
+  @override
+  String get pplWeek => 'Week';
+
+  @override
+  String get pplMonth => 'Month';
+
+  @override
+  String get pplPrev => 'Earlier';
+
+  @override
+  String get pplNext => 'Later';
+
+  @override
+  String get pplM2 => 'Done';
+
+  @override
+  String get pplStages => 'Stages';
+
+  @override
+  String get pplEarned => 'Earned';
+
+  @override
+  String get pplAdvance => 'Advance';
+
+  @override
+  String get pplLeft => 'Left to pay';
+
+  @override
+  String get pplDays => 'Days with work';
+
+  @override
+  String get pplOrders => 'Orders';
+
+  @override
+  String get pplEmpty => 'No one in «Team» yet.';
+
+  @override
+  String get pplNoLogin =>
+      'No login: no piece pay is booked, only the volume shows.';
+
+  @override
+  String get pplMoney => 'Money';
+
+  @override
+  String get pplPiece => 'Piece work';
+
+  @override
+  String get pplPending => 'Awaiting approval';
+
+  @override
+  String get pplBonus => 'Bonuses';
+
+  @override
+  String get pplFine => 'Fines';
+
+  @override
+  String get pplFineOne => 'Fine';
+
+  @override
+  String get pplBonusOne => 'Bonus';
+
+  @override
+  String get pplPaid => 'Paid';
+
+  @override
+  String get pplByDay => 'By day';
+
+  @override
+  String get pplDayHint => 'Tap a bar to see the day';
+
+  @override
+  String get pplByStage => 'By stage';
+
+  @override
+  String get pplWorks => 'Work done';
+
+  @override
+  String get pplEntries => 'Piece-work entries';
+
+  @override
+  String get pplAdjustments => 'Advances, fines, bonuses';
+
+  @override
+  String get pplPayouts => 'Payouts';
+
+  @override
+  String get pplMine => 'My earnings';
+
+  @override
+  String get pplNothing => 'Nothing recorded in this period.';
+
+  @override
+  String get pplNotApproved => 'not approved';
+
+  @override
+  String get pplOpenCard => 'Card';
 }

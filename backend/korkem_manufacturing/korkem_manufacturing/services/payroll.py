@@ -175,6 +175,23 @@ def statement(from_date: str | None = None, to_date: str | None = None) -> dict:
 	company = current_company()
 	start, end = _period(from_date, to_date)
 	rules = bonus_rules(company)
+	result = sheet_rows(company, start, end, rules)
+	return {
+		"from_date": str(start),
+		"to_date": str(end),
+		"rules": rules,
+		"rows": result,
+		"total_to_pay": round(sum(r["to_pay"] for r in result), 2),
+		"total_paid": round(sum(r["paid"] for r in result), 2),
+		"total_left": round(sum(r["left"] for r in result), 2),
+		"can_mark_paid": bool(PAYERS.intersection(frappe.get_roles())),
+	}
+
+
+def sheet_rows(company: str, start: date, end: date, rules: dict | None = None) -> list[dict]:
+	"""The statement's rows, unchecked — the caller has decided who may see
+	them (the statement: its readers; a worker's own card: himself)."""
+	rules = rules or bonus_rules(company)
 	rows: dict[str, dict] = {}
 
 	def row(employee: str, name: str | None = None) -> dict:
@@ -227,16 +244,7 @@ def statement(from_date: str | None = None, to_date: str | None = None) -> dict:
 		r["paid"] = round(paid.get(r["employee"], 0.0), 2)
 		r["left"] = round(r["to_pay"] - r["paid"], 2)
 		result.append(r)
-	return {
-		"from_date": str(start),
-		"to_date": str(end),
-		"rules": rules,
-		"rows": result,
-		"total_to_pay": round(sum(r["to_pay"] for r in result), 2),
-		"total_paid": round(sum(r["paid"] for r in result), 2),
-		"total_left": round(sum(r["left"] for r in result), 2),
-		"can_mark_paid": bool(PAYERS.intersection(frappe.get_roles())),
-	}
+	return result
 
 
 def statement_csv(from_date: str | None = None, to_date: str | None = None) -> str:

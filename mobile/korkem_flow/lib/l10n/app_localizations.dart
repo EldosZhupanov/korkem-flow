@@ -20992,6 +20992,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'at the end'**
   String get cstMeterEnd;
+
+  /// No description provided for @pplTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get pplTitle;
+
+  /// No description provided for @pplSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did what, earned what, was paid what'**
+  String get pplSubtitle;
+
+  /// No description provided for @pplDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get pplDay;
+
+  /// No description provided for @pplWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get pplWeek;
+
+  /// No description provided for @pplMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get pplMonth;
+
+  /// No description provided for @pplPrev.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get pplPrev;
+
+  /// No description provided for @pplNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get pplNext;
+
+  /// No description provided for @pplM2.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get pplM2;
+
+  /// No description provided for @pplStages.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages'**
+  String get pplStages;
+
+  /// No description provided for @pplEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get pplEarned;
+
+  /// No description provided for @pplAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance'**
+  String get pplAdvance;
+
+  /// No description provided for @pplLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay'**
+  String get pplLeft;
+
+  /// No description provided for @pplDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days with work'**
+  String get pplDays;
+
+  /// No description provided for @pplOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get pplOrders;
+
+  /// No description provided for @pplEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one in «Team» yet.'**
+  String get pplEmpty;
+
+  /// No description provided for @pplNoLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'No login: no piece pay is booked, only the volume shows.'**
+  String get pplNoLogin;
+
+  /// No description provided for @pplMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get pplMoney;
+
+  /// No description provided for @pplPiece.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece work'**
+  String get pplPiece;
+
+  /// No description provided for @pplPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting approval'**
+  String get pplPending;
+
+  /// No description provided for @pplBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonuses'**
+  String get pplBonus;
+
+  /// No description provided for @pplFine.
+  ///
+  /// In en, this message translates to:
+  /// **'Fines'**
+  String get pplFine;
+
+  /// No description provided for @pplFineOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine'**
+  String get pplFineOne;
+
+  /// No description provided for @pplBonusOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus'**
+  String get pplBonusOne;
+
+  /// No description provided for @pplPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get pplPaid;
+
+  /// No description provided for @pplByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'By day'**
+  String get pplByDay;
+
+  /// No description provided for @pplDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a bar to see the day'**
+  String get pplDayHint;
+
+  /// No description provided for @pplByStage.
+  ///
+  /// In en, this message translates to:
+  /// **'By stage'**
+  String get pplByStage;
+
+  /// No description provided for @pplWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'Work done'**
+  String get pplWorks;
+
+  /// No description provided for @pplEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece-work entries'**
+  String get pplEntries;
+
+  /// No description provided for @pplAdjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'Advances, fines, bonuses'**
+  String get pplAdjustments;
+
+  /// No description provided for @pplPayouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Payouts'**
+  String get pplPayouts;
+
+  /// No description provided for @pplMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My earnings'**
+  String get pplMine;
+
+  /// No description provided for @pplNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing recorded in this period.'**
+  String get pplNothing;
+
+  /// No description provided for @pplNotApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'not approved'**
+  String get pplNotApproved;
+
+  /// No description provided for @pplOpenCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get pplOpenCard;
 }
 
 class _AppLocalizationsDelegate
