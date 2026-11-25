@@ -24,8 +24,10 @@ customer's own paint costs the shop nothing.
 **Glue** (owner, 17.11.2026) the same way: what «Вакуум» took off the store,
 else its positions by the glue in work's norm (`glue_stock`).
 
-**Not counted**, and the screen says so: power, delivery — nobody records
-them per order. The margin is therefore an upper bound.
+**Overheads** (owner, 25.11.2026) — power, rent, consumables, nobody
+records per order — are carried as last month's overheads per m² times the
+order's m² (`money_flow.overhead_rate`): `net` is the margin after them.
+While no month is known, `net` is None and the margin is an upper bound.
 
 A rework or a warranty job has no price: its «margin» is what the mistake
 cost, which is the point of showing it.
@@ -56,7 +58,17 @@ def of_order(order: str) -> dict:
 	facade_prices.ensure_editor()
 	ensure_company("Sales Order", order)
 	doc = mdf_orders._order(order)
-	return _margin(doc.name, flt(doc.grand_total))
+	result = _margin(doc.name, flt(doc.grand_total))
+	# The overheads it carries (owner, 25.11.2026): last month's свет,
+	# аренда, расходники… per m², times its m² (`money_flow`). The margin
+	# above stays what it was; `net` is the honest one.
+	from korkem_manufacturing.services import money_flow
+
+	rate = money_flow.overhead_rate(doc.company)
+	overhead = round(rate * mdf_orders._area(doc.name), 2) if rate else None
+	result.update({"overhead_rate": rate, "overhead": overhead,
+				   "net": round(result["margin"] - (overhead or 0), 2) if overhead is not None else None})
+	return result
 
 
 def _margin(order: str, revenue: float) -> dict:

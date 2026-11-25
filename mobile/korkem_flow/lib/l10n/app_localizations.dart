@@ -18093,13 +18093,13 @@ abstract class AppLocalizations {
   /// No description provided for @dsmMorning.
   ///
   /// In en, this message translates to:
-  /// **'At 9:00 — what to order'**
+  /// **'Morning brief at 9:00 — what to hand over, what is late, who owes, what is short'**
   String get dsmMorning;
 
   /// No description provided for @dsmMorningTitle.
   ///
   /// In en, this message translates to:
-  /// **'Time to order'**
+  /// **'Morning brief'**
   String get dsmMorningTitle;
 
   /// No description provided for @scanEntryTitle.
@@ -20476,6 +20476,588 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Make and send'**
   String get actMake;
+
+  /// No description provided for @dinvButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice for the whole debt'**
+  String get dinvButton;
+
+  /// No description provided for @dinvSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt invoices'**
+  String get dinvSection;
+
+  /// No description provided for @dinvWhole.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole debt'**
+  String get dinvWhole;
+
+  /// No description provided for @dinvOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'The invoice covers these orders, oldest first:'**
+  String get dinvOrders;
+
+  /// No description provided for @clcPayNoInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'No invoice'**
+  String get clcPayNoInvoice;
+
+  /// No description provided for @clcPayByInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'By invoice No. {no} · {sum} left'**
+  String clcPayByInvoice(String no, String sum);
+
+  /// No description provided for @rateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer rating'**
+  String get rateTitle;
+
+  /// No description provided for @rateP3.
+  ///
+  /// In en, this message translates to:
+  /// **'3 months'**
+  String get rateP3;
+
+  /// No description provided for @rateP12.
+  ///
+  /// In en, this message translates to:
+  /// **'12 months'**
+  String get rateP12;
+
+  /// No description provided for @rateByMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'By money'**
+  String get rateByMoney;
+
+  /// No description provided for @rateByDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'By debt'**
+  String get rateByDebt;
+
+  /// No description provided for @rateBySlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Who drags it out'**
+  String get rateBySlow;
+
+  /// No description provided for @rateFast.
+  ///
+  /// In en, this message translates to:
+  /// **'pays fast'**
+  String get rateFast;
+
+  /// No description provided for @rateUsual.
+  ///
+  /// In en, this message translates to:
+  /// **'pays as usual'**
+  String get rateUsual;
+
+  /// No description provided for @rateSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'drags it out'**
+  String get rateSlow;
+
+  /// No description provided for @ratePayDays.
+  ///
+  /// In en, this message translates to:
+  /// **'pays in {days} days on average'**
+  String ratePayDays(String days);
+
+  /// No description provided for @rateNoPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'no order paid up yet'**
+  String get rateNoPaid;
+
+  /// No description provided for @rateOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} orders · {share}% of the money'**
+  String rateOrders(int count, String share);
+
+  /// No description provided for @rateOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {sum} · {days} days'**
+  String rateOwes(String sum, int days);
+
+  /// No description provided for @rateTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'All orders: {sum}'**
+  String rateTotal(String sum);
+
+  /// No description provided for @rateClassHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A — the few who together bring 80% of the money; B — the next 15%; C — the rest.'**
+  String get rateClassHint;
+
+  /// No description provided for @rateEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders in this period'**
+  String get rateEmpty;
+
+  /// No description provided for @mdfDueByShop.
+  ///
+  /// In en, this message translates to:
+  /// **'By the shop\'s load — {day} ({days} working days)'**
+  String mdfDueByShop(String day, int days);
+
+  /// No description provided for @mdfDueRough.
+  ///
+  /// In en, this message translates to:
+  /// **'— roughly: the shop has made too little to know its pace'**
+  String get mdfDueRough;
+
+  /// No description provided for @mdfDueTooSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop can only make it by {day}'**
+  String mdfDueTooSoon(String day);
+
+  /// No description provided for @cstTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop costs'**
+  String get cstTitle;
+
+  /// No description provided for @cstTabMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the money goes'**
+  String get cstTabMoney;
+
+  /// No description provided for @cstTabBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly bills'**
+  String get cstTabBills;
+
+  /// No description provided for @cstTabConsumables.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumables'**
+  String get cstTabConsumables;
+
+  /// No description provided for @cstTabItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost items'**
+  String get cstTabItems;
+
+  /// No description provided for @cstPrevMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get cstPrevMonth;
+
+  /// No description provided for @cstNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get cstNextMonth;
+
+  /// No description provided for @cstRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get cstRevenue;
+
+  /// No description provided for @cstCosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Costs'**
+  String get cstCosts;
+
+  /// No description provided for @cstProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get cstProfit;
+
+  /// No description provided for @cstMade.
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders ready · {m2} m²'**
+  String cstMade(int orders, String m2);
+
+  /// No description provided for @cstCostPerM2.
+  ///
+  /// In en, this message translates to:
+  /// **'1 m² costs the shop'**
+  String get cstCostPerM2;
+
+  /// No description provided for @cstOverheadPerM2.
+  ///
+  /// In en, this message translates to:
+  /// **'overheads {sum} per m²'**
+  String cstOverheadPerM2(String sum);
+
+  /// No description provided for @cstBreakEven.
+  ///
+  /// In en, this message translates to:
+  /// **'Break even at'**
+  String get cstBreakEven;
+
+  /// No description provided for @cstBreakEvenValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m² a month'**
+  String cstBreakEvenValue(String m2);
+
+  /// No description provided for @cstBreakEvenSpare.
+  ///
+  /// In en, this message translates to:
+  /// **'made {m2} — {pct}% to spare'**
+  String cstBreakEvenSpare(String m2, int pct);
+
+  /// No description provided for @cstBreakEvenShort.
+  ///
+  /// In en, this message translates to:
+  /// **'made {m2} — {pct}% short'**
+  String cstBreakEvenShort(String m2, int pct);
+
+  /// No description provided for @cstBreakEvenUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'no orders ready this month'**
+  String get cstBreakEvenUnknown;
+
+  /// No description provided for @cstOfRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% of revenue'**
+  String cstOfRevenue(String pct);
+
+  /// No description provided for @cstWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the money went'**
+  String get cstWhere;
+
+  /// No description provided for @cstItems.
+  ///
+  /// In en, this message translates to:
+  /// **'By cost item'**
+  String get cstItems;
+
+  /// No description provided for @cstAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'By area'**
+  String get cstAreas;
+
+  /// No description provided for @cstAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth a look'**
+  String get cstAlerts;
+
+  /// No description provided for @cstAlertLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {sum} — {pct}% over its limit of {limit}'**
+  String cstAlertLimit(String title, String sum, String limit, int pct);
+
+  /// No description provided for @cstAlertJump.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {sum} — {times} times its usual'**
+  String cstAlertJump(String title, String sum, String times);
+
+  /// No description provided for @cstAlertUnfilled.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: the month\'s bill is not entered'**
+  String cstAlertUnfilled(String title);
+
+  /// No description provided for @cstUsual.
+  ///
+  /// In en, this message translates to:
+  /// **'usually {sum}'**
+  String cstUsual(String sum);
+
+  /// No description provided for @cstLimitOf.
+  ///
+  /// In en, this message translates to:
+  /// **'limit {sum}'**
+  String cstLimitOf(String sum);
+
+  /// No description provided for @cstFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'fixed'**
+  String get cstFixed;
+
+  /// No description provided for @cstVariable.
+  ///
+  /// In en, this message translates to:
+  /// **'variable'**
+  String get cstVariable;
+
+  /// No description provided for @cstEmptyMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing counted for this month yet'**
+  String get cstEmptyMonth;
+
+  /// No description provided for @cstBillsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{filled} of {count} entered · {sum}'**
+  String cstBillsTotal(int filled, int count, String sum);
+
+  /// No description provided for @cstBillNotEntered.
+  ///
+  /// In en, this message translates to:
+  /// **'not entered'**
+  String get cstBillNotEntered;
+
+  /// No description provided for @cstBillLast.
+  ///
+  /// In en, this message translates to:
+  /// **'last month {sum}'**
+  String cstBillLast(String sum);
+
+  /// No description provided for @cstBillAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount for the month'**
+  String get cstBillAmount;
+
+  /// No description provided for @cstMeterFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Meter at the start'**
+  String get cstMeterFrom;
+
+  /// No description provided for @cstMeterTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Meter at the end'**
+  String get cstMeterTo;
+
+  /// No description provided for @cstMeterUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Used: {used} {unit}'**
+  String cstMeterUsed(String used, String unit);
+
+  /// No description provided for @cstNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get cstNote;
+
+  /// No description provided for @cstSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get cstSave;
+
+  /// No description provided for @cstSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get cstSaved;
+
+  /// No description provided for @cstOnHand.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} {unit} on the shelf'**
+  String cstOnHand(String qty, String unit);
+
+  /// No description provided for @cstMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'minimum {qty}'**
+  String cstMinimum(String qty);
+
+  /// No description provided for @cstTaken30.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} taken this month'**
+  String cstTaken30(String qty);
+
+  /// No description provided for @cstLow.
+  ///
+  /// In en, this message translates to:
+  /// **'low'**
+  String get cstLow;
+
+  /// No description provided for @cstNew.
+  ///
+  /// In en, this message translates to:
+  /// **'new'**
+  String get cstNew;
+
+  /// No description provided for @cstTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Took'**
+  String get cstTake;
+
+  /// No description provided for @cstTakeHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How many'**
+  String get cstTakeHow;
+
+  /// No description provided for @cstReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought'**
+  String get cstReceive;
+
+  /// No description provided for @cstPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per unit'**
+  String get cstPrice;
+
+  /// No description provided for @cstSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Where from (optional)'**
+  String get cstSupplier;
+
+  /// No description provided for @cstSetMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum'**
+  String get cstSetMinimum;
+
+  /// No description provided for @cstQuickAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the list'**
+  String get cstQuickAdd;
+
+  /// No description provided for @cstQuickAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What was taken'**
+  String get cstQuickAddTitle;
+
+  /// No description provided for @cstUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get cstUnit;
+
+  /// No description provided for @cstAddItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a cost item'**
+  String get cstAddItem;
+
+  /// No description provided for @cstEditItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost item'**
+  String get cstEditItem;
+
+  /// No description provided for @cstItemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get cstItemTitle;
+
+  /// No description provided for @cstGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get cstGroup;
+
+  /// No description provided for @cstArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get cstArea;
+
+  /// No description provided for @cstMode.
+  ///
+  /// In en, this message translates to:
+  /// **'How it is counted'**
+  String get cstMode;
+
+  /// No description provided for @cstModeBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly bill'**
+  String get cstModeBill;
+
+  /// No description provided for @cstModeStock.
+  ///
+  /// In en, this message translates to:
+  /// **'On the shelf'**
+  String get cstModeStock;
+
+  /// No description provided for @cstModeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'As spent'**
+  String get cstModeOther;
+
+  /// No description provided for @cstFixedSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed — does not grow with the volume'**
+  String get cstFixedSwitch;
+
+  /// No description provided for @cstLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit'**
+  String get cstLimit;
+
+  /// No description provided for @cstSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Find: knife, stretch film, power…'**
+  String get cstSearch;
+
+  /// No description provided for @cstShowArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get cstShowArchived;
+
+  /// No description provided for @cstArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get cstArchive;
+
+  /// No description provided for @cstRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get cstRestore;
+
+  /// No description provided for @cstMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge into…'**
+  String get cstMerge;
+
+  /// No description provided for @cstMergeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'«{title}»\'s history goes to the item chosen'**
+  String cstMergeHint(String title);
 }
 
 class _AppLocalizationsDelegate

@@ -142,3 +142,42 @@ class TestCustomerCard(IntegrationTestCase):
 			self._as(MANAGER, customer_card.reconciliation, self.customer, later, nowdate())
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, customer_card.reconciliation, self.customer)
+
+	def test_one_invoice_for_all_he_owes_paid_in_parts(self):
+		old, new = self.orders
+		made = self._as(MANAGER, customer_card.invoice_issue, self.customer, payer="ТОО «Мебель-Юг»",
+						bin="123456789012")
+		inv = made["invoice"]
+		self.assertEqual(inv["amount"], 20_000)
+		self.assertEqual([o["order"] for o in inv["orders"]], [old, new])
+		self.assertEqual(len(inv["lines"]), 2)
+		self.assertEqual(made["card"]["invoices"][0]["state"], "open")
+		self.assertIn("iik", made["requisites"])
+		# Paid in parts: the oldest order first, the invoice part paid.
+		card = self._as(MANAGER, customer_card.pay, self.customer, 12_000, "Перевод", invoice=inv["no"])["card"]
+		row = card["invoices"][0]
+		self.assertEqual((row["state"], row["paid"]), ("part", 12_000))
+		self.assertEqual(flt(frappe.db.get_value("Sales Order", old, "advance_paid")), 10_000)
+		with self.assertRaises(frappe.ValidationError):  # paid in part: not to be struck out
+			self._as(MANAGER, customer_card.invoice_cancel, self.customer, inv["no"], "Ошибка")
+		card = self._as(MANAGER, customer_card.pay, self.customer, 8_000, "Перевод", invoice=inv["no"])["card"]
+		self.assertEqual(card["invoices"][0]["state"], "paid")
+		with self.assertRaises(frappe.ValidationError):  # nothing left to pay by it
+			self._as(MANAGER, customer_card.pay, self.customer, 1, "Перевод", invoice=inv["no"])
+		history = self._as(MANAGER, customer_card.history, self.customer)
+		self.assertTrue(any(f"по счёту № {inv['no']}" in e["text"] for e in history))
+
+	def test_an_invoice_for_a_part_covers_the_oldest_orders_and_is_struck_out_with_a_reason(self):
+		old, _ = self.orders
+		inv = self._as(MANAGER, customer_card.invoice_issue, self.customer, 5_000)["invoice"]
+		self.assertEqual([(o["order"], o["amount"]) for o in inv["orders"]], [(old, 5_000)])
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, customer_card.invoice_issue, self.customer, 50_000)
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, customer_card.invoice_cancel, self.customer, inv["no"], " ")
+		card = self._as(MANAGER, customer_card.invoice_cancel, self.customer, inv["no"], "Не та сумма")
+		self.assertEqual(card["invoices"][0]["state"], "cancelled")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, customer_card.pay, self.customer, 1_000, "Перевод", invoice=inv["no"])
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, customer_card.invoice_issue, self.customer)

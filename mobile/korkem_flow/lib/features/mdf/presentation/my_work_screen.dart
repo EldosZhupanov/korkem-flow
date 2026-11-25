@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
@@ -8,6 +9,7 @@ import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/my_work_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/my_work.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
@@ -65,6 +67,13 @@ class _MyWorkScreenState extends ConsumerState<MyWorkScreen> {
       title: l10n.myWorkTitle,
       subtitle: work.value?.name,
       actions: [
+        // «Расходники»: a knife, stretch film — taken in one tap.
+        IconButton(
+          key: const ValueKey('myWorkConsumables'),
+          tooltip: l10n.cstTabConsumables,
+          icon: const Icon(AppIcons.material),
+          onPressed: () => context.push(Routes.costs),
+        ),
         // A sticker that will not read, or no scanner: its number.
         IconButton(
           key: const ValueKey('myWorkScanEntry'),

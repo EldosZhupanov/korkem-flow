@@ -169,6 +169,15 @@ def plan(days: int | str = 14) -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
+def ready_estimate(areas: str, order: str | None = None) -> dict:
+	"""Когда заказ будет готов, по загрузке цеха: areas — м² по покрытиям,
+	{"pvc": 2.4, "paint": 1.1}; order — сам заказ, чтобы не считать его в очереди."""
+	from korkem_manufacturing.services import ready_estimate as estimate
+
+	return estimate.estimate(areas, order)
+
+
+@frappe.whitelist(methods=["GET"])
 def cash(since: str | None = None, until: str | None = None) -> dict:
 	"""Касса: оплаты по дням и способам, одобренные расходы, остаток за период."""
 	from korkem_manufacturing.services import mdf_cash

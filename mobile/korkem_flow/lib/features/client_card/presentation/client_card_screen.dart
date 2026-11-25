@@ -17,6 +17,7 @@ import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/client_card/data/client_card_repository.dart';
 import 'package:korkem_flow/features/client_card/domain/client_card.dart';
+import 'package:korkem_flow/features/client_card/presentation/debt_invoice.dart';
 import 'package:korkem_flow/features/client_card/presentation/reconciliation.dart';
 import 'package:korkem_flow/features/cnc/domain/cnc.dart';
 import 'package:korkem_flow/features/cnc/presentation/cnc_orders_screen.dart';
@@ -611,6 +612,15 @@ class _Side extends ConsumerWidget {
     messenger.showDone(l10n.clcPaidSplit(done));
   }
 
+  /// «Счёт на весь долг» (owner, 25.11.2026): made, sent, on the card.
+  Future<void> _invoice(BuildContext context, WidgetRef ref) async {
+    final made = await showDebtInvoice(context, card);
+    if (made != true) return;
+    ref
+      ..invalidate(clientCardProvider(card.customer))
+      ..invalidate(clientHistoryProvider(card.customer));
+  }
+
   Future<void> _remind(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -760,8 +770,20 @@ class _Side extends ConsumerWidget {
                         icon: const Icon(AppIcons.whatsApp),
                         label: Text(l10n.clcRemind),
                       ),
+                      OutlinedButton.icon(
+                        key: const ValueKey('clc:invoice'),
+                        onPressed: () => unawaited(_invoice(context, ref)),
+                        icon: const Icon(AppIcons.quote),
+                        label: Text(l10n.dinvButton),
+                      ),
                     ],
                   ),
+                ],
+                // His debt invoices: waited for, then the last ones done.
+                if (card.invoices.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(l10n.dinvSection, style: muted),
+                  DebtInvoices(card: card),
                 ],
                 // «Акт сверки» — owing or not, a company asks for it.
                 if (figures.orders > 0) ...[
@@ -894,14 +916,18 @@ class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
     text: (widget.card.figures?.debt ?? 0).toStringAsFixed(0),
   );
   String _method = 'Перевод';
+
+  /// The debt invoice it is paid by; null — without one.
+  String? _invoice;
   bool _busy = false;
   String? _error;
 
-  /// His orders owing, the oldest first — how the server lays the money.
-  List<ClientOrder> get _owing => [
-    for (final o in widget.card.orders ?? const <ClientOrder>[])
-      if (o.debt > 0.5 && !o.draft) o,
-  ]..sort((a, b) => (a.createdOn ?? '').compareTo(b.createdOn ?? ''));
+  void _byInvoice(MdfInvoice? i) => setState(() {
+    _invoice = i?.no;
+    final debt = widget.card.figures?.debt ?? 0;
+    final sum = i == null ? debt : (i.left < debt ? i.left : debt);
+    _amount.text = sum.toStringAsFixed(0);
+  });
 
   double get _value =>
       double.tryParse(_amount.text.replaceAll(' ', '').replaceAll(',', '.')) ??
@@ -921,7 +947,12 @@ class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
     try {
       final made = await ref
           .read(clientCardRepositoryProvider)
-          .pay(widget.card.customer, amount: _value, method: _method);
+          .pay(
+            widget.card.customer,
+            amount: _value,
+            method: _method,
+            invoice: _invoice,
+          );
       if (mounted) Navigator.of(context).pop(made.split.length);
     } on Object catch (e) {
       if (mounted) {
@@ -941,14 +972,8 @@ class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
     final debt = widget.card.figures?.debt ?? 0;
     final value = _value;
     final over = value > debt + 0.5;
-    var left = value;
-    final split = <(ClientOrder, double)>[];
-    for (final o in _owing) {
-      if (left <= 0) break;
-      final part = left < o.debt ? left : o.debt;
-      split.add((o, part));
-      left -= part;
-    }
+    final split = splitOldestFirst(widget.card, value);
+    final invoices = widget.card.waitedInvoices;
     return AlertDialog(
       key: const ValueKey('clc:payDialog'),
       title: Text(l10n.clcPayAll),
@@ -959,6 +984,31 @@ class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // «По счёту № 12» — a part of it or the rest of it.
+              if (invoices.isNotEmpty) ...[
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    ChoiceChip(
+                      key: const ValueKey('clc:payBy:none'),
+                      label: Text(l10n.clcPayNoInvoice),
+                      selected: _invoice == null,
+                      onSelected: (_) => _byInvoice(null),
+                    ),
+                    for (final i in invoices)
+                      ChoiceChip(
+                        key: ValueKey('clc:payBy:${i.no}'),
+                        label: Text(
+                          l10n.clcPayByInvoice(i.no, money.format(i.left)),
+                        ),
+                        selected: _invoice == i.no,
+                        onSelected: (_) => _byInvoice(i),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
               TextField(
                 key: const ValueKey('clc:payAmount'),
                 controller: _amount,

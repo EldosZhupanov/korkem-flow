@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/api_providers.dart';
 import 'package:korkem_flow/core/api/frappe_client.dart';
 import 'package:korkem_flow/features/client_card/domain/client_card.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_invoice.dart';
 
 final clientCardRepositoryProvider = Provider<ClientCardRepository>(
   (ref) => ClientCardRepository(ref.watch(frappeClientProvider)),
@@ -20,6 +21,13 @@ final clientHistoryProvider = FutureProvider.autoDispose
     .family<List<ClientEvent>, String>(
       (ref, customer) =>
           ref.watch(clientCardRepositoryProvider).history(customer),
+    );
+
+// AutoDisposeFutureProviderFamily is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final customerRatingProvider = FutureProvider.autoDispose
+    .family<CustomerRating, RatingPeriod>(
+      (ref, period) => ref.watch(clientCardRepositoryProvider).rating(period),
     );
 
 // AutoDisposeFutureProvider is not exported as a public type.
@@ -49,7 +57,8 @@ class ClientCardRepository {
     ),
   );
 
-  /// One payment for all he owes: the oldest orders closed first.
+  /// One payment for all he owes: the oldest orders closed first; by an
+  /// [invoice] for his debt, it counts towards that invoice.
   Future<
     ({
       List<({String order, int? number, double amount})> split,
@@ -61,6 +70,7 @@ class ClientCardRepository {
     required double amount,
     required String method,
     String? bank,
+    String? invoice,
   }) async {
     final j = _map(
       await _client.callMethod(
@@ -71,6 +81,7 @@ class ClientCardRepository {
           'amount': amount,
           'method': method,
           'bank': ?bank,
+          'invoice': ?invoice,
         },
       ),
     );
@@ -93,6 +104,72 @@ class ClientCardRepository {
       ),
     );
   }
+
+  /// «Счёт на долг»: all he owes, or [amount] of it, the oldest orders
+  /// first. Gives the paper to print and the card after it.
+  Future<({MdfInvoicePrint print, ClientCard card})> issueInvoice(
+    String customer, {
+    required bool vat,
+    double? amount,
+    String? payer,
+    String? bin,
+    String? dueOn,
+  }) async {
+    final j = _map(
+      await _client.callMethod(
+        '$_base.invoice_issue',
+        post: true,
+        params: {
+          'customer': customer,
+          'amount': ?amount,
+          'payer': ?payer,
+          'bin': ?bin,
+          'due_on': ?dueOn,
+          'vat': vat ? 1 : 0,
+        },
+      ),
+    );
+    return (
+      print: _invoicePrint(j),
+      card: ClientCard.fromJson(_sub(j['card'])),
+    );
+  }
+
+  /// A debt invoice as it was issued, to print or send again.
+  Future<MdfInvoicePrint> printInvoice(String customer, String no) async =>
+      _invoicePrint(
+        _map(
+          await _client.callMethod(
+            '$_base.invoice_print',
+            params: {'customer': customer, 'no': no},
+          ),
+        ),
+      );
+
+  Future<ClientCard> cancelInvoice(
+    String customer, {
+    required String no,
+    required String reason,
+  }) async => ClientCard.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.invoice_cancel',
+        post: true,
+        params: {'customer': customer, 'no': no, 'reason': reason},
+      ),
+    ),
+  );
+
+  static MdfInvoicePrint _invoicePrint(Map<String, dynamic> j) => (
+    invoice: MdfInvoice.fromJson(_sub(j['invoice'])),
+    requisites: {
+      if (j['requisites'] case final Map<dynamic, dynamic> r)
+        for (final e in r.entries) '${e.key}': '${e.value ?? ''}'.trim(),
+    },
+  );
+
+  static Map<String, dynamic> _sub(Object? v) =>
+      v is Map ? Map<String, dynamic>.from(v) : <String, dynamic>{};
 
   /// The reminder of all he owes: his phone and the words.
   Future<({String? phone, String text})> debtText(String customer) async {
@@ -149,6 +226,17 @@ class ClientCardRepository {
       ),
     ),
   );
+
+  /// «Рейтинг клиентов» for [period]: most money first.
+  Future<CustomerRating> rating(RatingPeriod period) async =>
+      CustomerRating.fromJson(
+        _map(
+          await _client.callMethod(
+            '$_base.rating',
+            params: {'period': period.wire},
+          ),
+        ),
+      );
 
   Future<ToWrite> todo() async =>
       ToWrite.fromJson(_map(await _client.callMethod('$_base.todo')));

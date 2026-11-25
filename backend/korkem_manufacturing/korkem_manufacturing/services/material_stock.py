@@ -58,7 +58,9 @@ LISTS = ("Толщина МДФ", "Производитель", "Цвет плё
 		 # RAL Classic, NCS, «По образцу» — a paint's colour system (15.11.2026).
 		 "Система цвета")
 #: Units a material is counted in. Created in ERPNext if missing.
-UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False, "кг": False}
+UNITS = {"лист": True, "рулон": True, "шт": True, "м": False, "м²": False, "кг": False,
+		 # Consumables (owner, 25.11.2026): А4 by the pack, thinner by the litre.
+		 "пачка": True, "упак": True, "л": False}
 MAX_QTY = Decimal("100000")
 
 
