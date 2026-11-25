@@ -20,8 +20,12 @@ String peopleStagesLine(
   AppLocalizations l10n,
 ) => [
   for (final s in stages)
-    '${peopleStageLabel(s.stage, l10n)} ${s.orders} · '
-        '${peopleM2(context, s.m2)}',
+    [
+      peopleStageLabel(s.stage, l10n),
+      '${s.orders}',
+      '·',
+      peopleM2(context, s.m2),
+    ].join(' '),
 ].join('   ');
 
 /// «Раскрой» for `cut`; a stage this app does not know, as the server said it.

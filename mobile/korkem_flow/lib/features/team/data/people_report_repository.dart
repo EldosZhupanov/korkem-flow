@@ -7,7 +7,7 @@ import 'package:korkem_flow/features/team/domain/people_report.dart';
 /// A period: the span and a day in it (`yyyy-MM-dd`).
 typedef PeopleQuery = ({PeopleSpan span, String day});
 
-/// One person's card: [employee] null — the one asking, his own.
+/// One person's card: `employee` null — the one asking, his own.
 typedef PersonQuery = ({String? employee, PeopleSpan span, String day});
 
 final peopleReportRepositoryProvider = Provider<PeopleReportRepository>(
@@ -21,6 +21,7 @@ final peopleReportProvider = FutureProvider.autoDispose
       (ref, q) => ref.watch(peopleReportRepositoryProvider).report(q),
     );
 
+// The same: the family's type is not public.
 // ignore: specify_nonobvious_property_types
 final personCardProvider = FutureProvider.autoDispose
     .family<PersonCard, PersonQuery>(

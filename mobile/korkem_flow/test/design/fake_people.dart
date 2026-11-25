@@ -1,7 +1,7 @@
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
 import 'package:korkem_flow/features/team/domain/people_report.dart';
 
-const _erlan = {
+const Map<String, Object?> _erlan = {
   'employee': 'HR-EMP-00001',
   'name': 'Ерлан Сапаров',
   'user': 'erlan@korkem.kz',
@@ -28,7 +28,7 @@ const _erlan = {
   },
 };
 
-const _aset = {
+const Map<String, Object?> _aset = {
   'employee': 'HR-EMP-00002',
   'name': 'Асет Нурланов',
   'user': null,
@@ -67,7 +67,7 @@ class FakePeople implements PeopleReportRepository {
   Future<PersonCard> card(PersonQuery q) async {
     cards.add(q);
     if (q.employee == _aset['employee']) {
-      return PersonCard.fromJson(const {..._aset, 'by_day': []});
+      return PersonCard.fromJson(const {..._aset, 'by_day': <Map<String, Object>>[]});
     }
     return PersonCard.fromJson({
       ..._erlan,
@@ -79,7 +79,7 @@ class FakePeople implements PeopleReportRepository {
             'earned': d.isEven ? 15000 : 0,
           },
       ],
-      'works': [
+      'works': const [
         {
           'order': 'SAL-ORD-2026-00245',
           'number': 245,
@@ -89,7 +89,7 @@ class FakePeople implements PeopleReportRepository {
           'm2': 3.04,
         },
       ],
-      'entries': [
+      'entries': const [
         {
           'on': '2026-11-24',
           'operation': 'Раскрой',
@@ -99,7 +99,7 @@ class FakePeople implements PeopleReportRepository {
           'status': 'Approved',
         },
       ],
-      'adjustments': [
+      'adjustments': const [
         {
           'on': '2026-11-15',
           'kind': 'Аванс',
@@ -123,7 +123,7 @@ class FakePeople implements PeopleReportRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-const _more = [
+const List<Map<String, Object?>> _more = [
   {
     'employee': 'HR-EMP-00003',
     'name': 'Нұрсұлтан Жақсыбеков',

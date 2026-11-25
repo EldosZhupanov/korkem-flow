@@ -303,8 +303,10 @@ class _CardBodyState extends State<_CardBody> {
               key: ValueKey('card:entry:$i'),
               title: e.operation,
               subtitle: [
-                '${NumberFormat('0.##', locale).format(e.quantity)}'
-                    '${e.unit == null ? '' : ' ${e.unit}'}',
+                [
+                  NumberFormat('0.##', locale).format(e.quantity),
+                  ?e.unit,
+                ].join(' '),
                 mdfDay(e.on, year: false),
                 if (e.pending) l10n.pplNotApproved,
               ].join(' · '),
