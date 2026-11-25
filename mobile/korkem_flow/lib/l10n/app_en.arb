@@ -10908,5 +10908,12 @@
   "actThisMonth": "This month",
   "actLastMonth": "Last month",
   "actThisYear": "This year",
-  "actMake": "Make and send"
+  "actMake": "Make and send",
+  "dinvButton": "Invoice for the whole debt",
+  "dinvSection": "Debt invoices",
+  "dinvWhole": "Whole debt",
+  "dinvOrders": "The invoice covers these orders, oldest first:",
+  "clcPayNoInvoice": "No invoice",
+  "clcPayByInvoice": "By invoice No. {no} · {sum} left",
+  "@clcPayByInvoice": {"placeholders": {"no": {"type": "String"}, "sum": {"type": "String"}}}
 }

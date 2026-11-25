@@ -1,6 +1,7 @@
 import 'package:korkem_flow/core/phone/phone.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_invoice.dart';
 import 'package:meta/meta.dart';
 
 /// One order on a customer's card — a facade or a CNC one.
@@ -202,6 +203,10 @@ class ClientCard {
     this.film,
     this.terms = const MdfCustomerTerms(),
     this.limit = 0,
+    this.invoices = const [],
+    this.payerName = '',
+    this.payerBin = '',
+    this.vat = 0,
   });
 
   factory ClientCard.fromJson(Map<String, dynamic> j) {
@@ -229,6 +234,12 @@ class ClientCard {
       film: j['film'] is Map ? FilmCustomer.fromJson(_m(j['film'])) : null,
       terms: MdfCustomerTerms.fromJson(_m(j['terms'])),
       limit: _d(j['limit']),
+      invoices: [
+        for (final i in _l(j['invoices'])) MdfInvoice.fromJson(_m(i)),
+      ],
+      payerName: '${_m(j['payer'])['name'] ?? ''}',
+      payerBin: '${_m(j['payer'])['bin'] ?? ''}',
+      vat: _d(j['vat']).round(),
     );
   }
 
@@ -253,6 +264,22 @@ class ClientCard {
   /// else the shop's), 0 — none.
   final MdfCustomerTerms terms;
   final double limit;
+
+  /// «Счёт на долг» (owner, 25.11.2026): his invoices for what he owes,
+  /// the oldest first.
+  final List<MdfInvoice> invoices;
+
+  /// Who pays for him, as his last invoice said, and the БИН; VAT on the
+  /// shop's invoices, %.
+  final String payerName;
+  final String payerBin;
+  final int vat;
+
+  /// The invoices still waited for — open or paid in part.
+  List<MdfInvoice> get waitedInvoices => [
+    for (final i in invoices)
+      if (i.waited) i,
+  ];
 }
 
 /// «Акт сверки» (owner, 21.11.2026): what he was sold and paid between two

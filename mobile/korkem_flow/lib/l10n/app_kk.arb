@@ -3590,5 +3590,11 @@
   "actThisMonth": "Осы ай",
   "actLastMonth": "Өткен ай",
   "actThisYear": "Осы жыл",
-  "actMake": "Жасап жіберу"
+  "actMake": "Жасап жіберу",
+  "dinvButton": "Барлық қарызға шот",
+  "dinvSection": "Қарыз шоттары",
+  "dinvWhole": "Барлық қарыз",
+  "dinvOrders": "Шотқа тапсырыстар кіреді — алдымен ең ескілері:",
+  "clcPayNoInvoice": "Шотсыз",
+  "clcPayByInvoice": "№ {no} шот бойынша · қалды {sum}"
 }

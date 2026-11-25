@@ -137,6 +137,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_mdf_invoice_fields
 
 	add_mdf_invoice_fields.execute()
+	from korkem_manufacturing.patches.v0_0 import add_customer_invoices
+
+	add_customer_invoices.execute()
 	from korkem_manufacturing.patches.v0_0 import grant_sales_manager_account_read
 
 	grant_sales_manager_account_read.execute()

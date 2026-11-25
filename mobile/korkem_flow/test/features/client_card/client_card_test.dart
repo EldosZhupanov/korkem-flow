@@ -6,8 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/client_card/data/client_card_repository.dart';
 import 'package:korkem_flow/features/client_card/domain/client_card.dart';
 import 'package:korkem_flow/features/client_card/presentation/client_card_screen.dart';
+import 'package:korkem_flow/features/client_card/presentation/debt_invoice.dart';
 import 'package:korkem_flow/features/client_card/presentation/reconciliation.dart';
 import 'package:korkem_flow/features/client_card/presentation/to_write_screen.dart';
+import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_invoice.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -43,6 +46,30 @@ const Map<String, Object> _debt = {
 
 class _Fake implements ClientCardRepository {
   final paid = <(double, String)>[];
+  final byInvoice = <String?>[];
+  final issued = <(double?, String?, bool)>[];
+  bool invoiced = false;
+
+  @override
+  Future<({MdfInvoicePrint print, ClientCard card})> issueInvoice(
+    String customer, {
+    required bool vat,
+    double? amount,
+    String? payer,
+    String? bin,
+    String? dueOn,
+  }) async {
+    issued.add((amount, payer, vat));
+    invoiced = true;
+    return (
+      print: (
+        invoice: MdfInvoice.fromJson(_invoice),
+        requisites: const {'name': 'ТОО «KORKEM»'},
+      ),
+      card: await card(customer),
+    );
+  }
+
   final notes = <String>[];
   int reminders = 0;
   final acts = <(String?, String?)>[];
@@ -122,8 +149,10 @@ class _Fake implements ClientCardRepository {
     required double amount,
     required String method,
     String? bank,
+    String? invoice,
   }) async {
     paid.add((amount, method));
+    byInvoice.add(invoice);
     return (
       split: [(order: 'SAL-ORD-2026-00245', number: 245, amount: amount)],
       card: await card(customer),
@@ -168,7 +197,42 @@ class _Fake implements ClientCardRepository {
   }
 
   @override
-  Future<ClientCard> card(String customer) async => ClientCard.fromJson(const {
+  Future<ClientCard> card(String customer) async => ClientCard.fromJson({
+    ..._card,
+    if (invoiced) 'invoices': [_invoice],
+  });
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+const Map<String, Object> _invoice = {
+  'no': '12',
+  'on': '2026-11-25',
+  'due_on': '2026-11-30',
+  'amount': 58000,
+  'payer': 'ТОО «Мебель-Юг»',
+  'paid': 20000,
+  'state': 'part',
+  'lines': [
+    {
+      'name': 'Оплата по заказу № 245 от 10.11.2026',
+      'qty': 1,
+      'unit': 'усл.',
+      'price': 18000,
+      'amount': 18000,
+    },
+    {
+      'name': 'Оплата по заказу № 250 от 18.11.2026',
+      'qty': 1,
+      'unit': 'усл.',
+      'price': 40000,
+      'amount': 40000,
+    },
+  ],
+};
+
+const Map<String, Object> _card = {
     'customer': 'CUST-1',
     'name': 'Ерлан Абенов',
     'phone': '+77015551234',
@@ -217,11 +281,7 @@ class _Fake implements ClientCardRepository {
       'first': '2026-11-10',
       'last': '2026-11-10',
     },
-  });
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
+  };
 
 final _act = Reconciliation.fromJson(const {
   'since': '2026-11-01',
@@ -452,6 +512,84 @@ void main() {
     expect(repo.acts.last.$1, mdfIso(DateTime(now.year, now.month)));
   });
 
+  testWidgets('one invoice for all he owes, then paid by it in part', (
+    tester,
+  ) async {
+    final sent = <MdfInvoicePrint>[];
+    tester.view
+      ..physicalSize = const Size(1400, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          clientCardRepositoryProvider.overrideWithValue(repo),
+          filmDeptRepositoryProvider.overrideWithValue(_Requisites()),
+          debtInvoiceSendProvider.overrideWithValue(
+            (card, paper, l10n) async => sent.add(paper),
+          ),
+        ],
+        child: harness(const ClientCardScreen(customer: 'CUST-1')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final make = find.byKey(const ValueKey('clc:invoice'));
+    await tester.ensureVisible(make);
+    await tester.tap(make);
+    await tester.pumpAndSettle();
+    // The oldest order first, each on its own line.
+    expect(
+      find.byKey(const ValueKey('dinvLine:SAL-ORD-2026-00245')),
+      findsOne,
+    );
+    expect(
+      find.byKey(const ValueKey('dinvLine:SAL-ORD-2026-00250')),
+      findsOne,
+    );
+    await tester.tap(find.byKey(const ValueKey('dinvMake')));
+    await tester.pumpAndSettle();
+    expect(repo.issued.single.$1, isNull); // all he owes
+    expect(sent.single.invoice.no, '12');
+    // On the card: paid in part.
+    expect(find.byKey(const ValueKey('dinv:12')), findsOne);
+    expect(find.textContaining('20 000'), findsWidgets);
+    // A payment by it: the rest of it put in, the number sent.
+    final pay = find.byKey(const ValueKey('clc:pay'));
+    await tester.ensureVisible(pay);
+    await tester.tap(pay);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('clc:payBy:12')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const ValueKey('clc:payAmount')))
+          .controller!
+          .text,
+      '38000',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('clc:payAmount')),
+      '10000',
+    );
+    await tester.tap(find.byKey(const ValueKey('clc:paySave')));
+    await tester.pumpAndSettle();
+    expect(repo.paid.single.$1, 10000);
+    expect(repo.byInvoice.single, '12');
+  });
+
+  test('the debt invoice prints in every language', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final card = ClientCard.fromJson(_card);
+    for (final locale in ['ru', 'kk', 'en']) {
+      final bytes = await buildDebtInvoicePdf(card, (
+        invoice: MdfInvoice.fromJson(_invoice),
+        requisites: const {'name': 'ТОО «KORKEM»', 'bin': '123456789012'},
+      ), lookupAppLocalizations(Locale(locale)));
+      expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
+    }
+  });
+
   test('the act prints in every language', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     for (final locale in ['ru', 'kk', 'en']) {
@@ -462,4 +600,12 @@ void main() {
       expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
     }
   });
+}
+
+class _Requisites implements FilmDeptRepository {
+  @override
+  Future<Map<String, String>> requisites() async => const {'name': 'KORKEM'};
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

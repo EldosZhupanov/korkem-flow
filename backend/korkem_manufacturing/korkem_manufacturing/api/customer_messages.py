@@ -18,12 +18,33 @@ def card(customer: str) -> dict:
 
 @frappe.whitelist(methods=["POST"])
 def pay(customer: str, amount: float | str, method: str = "Перевод", bank: str | None = None,
-		idempotency_key: str | None = None) -> dict:
-	"""Одна оплата на весь долг клиента: закрывает самые старые заказы первыми."""
+		idempotency_key: str | None = None, invoice: str | None = None) -> dict:
+	"""Одна оплата на весь долг клиента: закрывает самые старые заказы первыми;
+	по счёту на долг — его номер, и оплата идёт в счёт."""
 	from korkem_manufacturing.api.mdf_orders import _method_bank
 
 	method, bank = _method_bank(method, bank)
-	return customer_card.pay(customer, amount, method, bank, idempotency_key)
+	return customer_card.pay(customer, amount, method, bank, idempotency_key, invoice)
+
+
+@frappe.whitelist(methods=["POST"])
+def invoice_issue(customer: str, amount: float | str | None = None, payer: str | None = None,
+				  bin: str | None = None, due_on: str | None = None, vat: str | int | None = None) -> dict:
+	"""Счёт на долг клиента: весь долг или своя сумма, по заказам — сначала самые старые.
+	Ответ — счёт с реквизитами для печати и карточка клиента."""
+	return customer_card.invoice_issue(customer, amount, payer, bin, due_on, vat)
+
+
+@frappe.whitelist(methods=["GET"])
+def invoice_print(customer: str, no: str) -> dict:
+	"""Выставленный счёт на долг, как был, с реквизитами."""
+	return customer_card.invoice_print(customer, no)
+
+
+@frappe.whitelist(methods=["POST"])
+def invoice_cancel(customer: str, no: str, reason: str) -> dict:
+	"""Счёт на долг выставлен по ошибке: отменён, номер больше не используется."""
+	return customer_card.invoice_cancel(customer, no, reason)
 
 
 @frappe.whitelist(methods=["GET"])

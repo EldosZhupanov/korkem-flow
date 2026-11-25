@@ -3590,5 +3590,11 @@
   "actThisMonth": "Этот месяц",
   "actLastMonth": "Прошлый месяц",
   "actThisYear": "Этот год",
-  "actMake": "Сделать и отправить"
+  "actMake": "Сделать и отправить",
+  "dinvButton": "Счёт на весь долг",
+  "dinvSection": "Счета на долг",
+  "dinvWhole": "Весь долг",
+  "dinvOrders": "В счёт войдут заказы — сначала самые старые:",
+  "clcPayNoInvoice": "Без счёта",
+  "clcPayByInvoice": "По счёту № {no} · осталось {sum}"
 }
