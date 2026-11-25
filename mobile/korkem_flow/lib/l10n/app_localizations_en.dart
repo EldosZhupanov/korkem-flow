@@ -10510,10 +10510,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fdcNoMatches => 'Nothing alike found';
 
   @override
-  String get dsmMorning => 'At 9:00 — what to order';
+  String get dsmMorning =>
+      'Morning brief at 9:00 — what to hand over, what is late, who owes, what is short';
 
   @override
-  String get dsmMorningTitle => 'Time to order';
+  String get dsmMorningTitle => 'Morning brief';
 
   @override
   String get scanEntryTitle => 'Order number';
@@ -11934,4 +11935,347 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actMake => 'Make and send';
+
+  @override
+  String get dinvButton => 'Invoice for the whole debt';
+
+  @override
+  String get dinvSection => 'Debt invoices';
+
+  @override
+  String get dinvWhole => 'Whole debt';
+
+  @override
+  String get dinvOrders => 'The invoice covers these orders, oldest first:';
+
+  @override
+  String get clcPayNoInvoice => 'No invoice';
+
+  @override
+  String clcPayByInvoice(String no, String sum) {
+    return 'By invoice No. $no · $sum left';
+  }
+
+  @override
+  String get rateTitle => 'Customer rating';
+
+  @override
+  String get rateP3 => '3 months';
+
+  @override
+  String get rateP12 => '12 months';
+
+  @override
+  String get rateByMoney => 'By money';
+
+  @override
+  String get rateByDebt => 'By debt';
+
+  @override
+  String get rateBySlow => 'Who drags it out';
+
+  @override
+  String get rateFast => 'pays fast';
+
+  @override
+  String get rateUsual => 'pays as usual';
+
+  @override
+  String get rateSlow => 'drags it out';
+
+  @override
+  String ratePayDays(String days) {
+    return 'pays in $days days on average';
+  }
+
+  @override
+  String get rateNoPaid => 'no order paid up yet';
+
+  @override
+  String rateOrders(int count, String share) {
+    return '$count orders · $share% of the money';
+  }
+
+  @override
+  String rateOwes(String sum, int days) {
+    return 'owes $sum · $days days';
+  }
+
+  @override
+  String rateTotal(String sum) {
+    return 'All orders: $sum';
+  }
+
+  @override
+  String get rateClassHint =>
+      'A — the few who together bring 80% of the money; B — the next 15%; C — the rest.';
+
+  @override
+  String get rateEmpty => 'No orders in this period';
+
+  @override
+  String mdfDueByShop(String day, int days) {
+    return 'By the shop\'s load — $day ($days working days)';
+  }
+
+  @override
+  String get mdfDueRough =>
+      '— roughly: the shop has made too little to know its pace';
+
+  @override
+  String mdfDueTooSoon(String day) {
+    return 'The shop can only make it by $day';
+  }
+
+  @override
+  String get cstTitle => 'Shop costs';
+
+  @override
+  String get cstTabMoney => 'Where the money goes';
+
+  @override
+  String get cstTabBills => 'Monthly bills';
+
+  @override
+  String get cstTabConsumables => 'Consumables';
+
+  @override
+  String get cstTabItems => 'Cost items';
+
+  @override
+  String get cstPrevMonth => 'Previous month';
+
+  @override
+  String get cstNextMonth => 'Next month';
+
+  @override
+  String get cstRevenue => 'Revenue';
+
+  @override
+  String get cstCosts => 'Costs';
+
+  @override
+  String get cstProfit => 'Profit';
+
+  @override
+  String cstMade(int orders, String m2) {
+    return '$orders orders ready · $m2 m²';
+  }
+
+  @override
+  String get cstCostPerM2 => '1 m² costs the shop';
+
+  @override
+  String cstOverheadPerM2(String sum) {
+    return 'overheads $sum per m²';
+  }
+
+  @override
+  String get cstBreakEven => 'Break even at';
+
+  @override
+  String cstBreakEvenValue(String m2) {
+    return '$m2 m² a month';
+  }
+
+  @override
+  String cstBreakEvenSpare(String m2, int pct) {
+    return 'made $m2 — $pct% to spare';
+  }
+
+  @override
+  String cstBreakEvenShort(String m2, int pct) {
+    return 'made $m2 — $pct% short';
+  }
+
+  @override
+  String get cstBreakEvenUnknown => 'no orders ready this month';
+
+  @override
+  String cstOfRevenue(String pct) {
+    return '$pct% of revenue';
+  }
+
+  @override
+  String get cstWhere => 'Where the money went';
+
+  @override
+  String get cstItems => 'By cost item';
+
+  @override
+  String get cstAreas => 'By area';
+
+  @override
+  String get cstAlerts => 'Worth a look';
+
+  @override
+  String cstAlertLimit(String title, String sum, String limit, int pct) {
+    return '$title: $sum — $pct% over its limit of $limit';
+  }
+
+  @override
+  String cstAlertJump(String title, String sum, String times) {
+    return '$title: $sum — $times times its usual';
+  }
+
+  @override
+  String cstAlertUnfilled(String title) {
+    return '$title: the month\'s bill is not entered';
+  }
+
+  @override
+  String cstUsual(String sum) {
+    return 'usually $sum';
+  }
+
+  @override
+  String cstLimitOf(String sum) {
+    return 'limit $sum';
+  }
+
+  @override
+  String get cstFixed => 'fixed';
+
+  @override
+  String get cstVariable => 'variable';
+
+  @override
+  String get cstEmptyMonth => 'Nothing counted for this month yet';
+
+  @override
+  String cstBillsTotal(int filled, int count, String sum) {
+    return '$filled of $count entered · $sum';
+  }
+
+  @override
+  String get cstBillNotEntered => 'not entered';
+
+  @override
+  String cstBillLast(String sum) {
+    return 'last month $sum';
+  }
+
+  @override
+  String get cstBillAmount => 'Amount for the month';
+
+  @override
+  String get cstMeterFrom => 'Meter at the start';
+
+  @override
+  String get cstMeterTo => 'Meter at the end';
+
+  @override
+  String cstMeterUsed(String used, String unit) {
+    return 'Used: $used $unit';
+  }
+
+  @override
+  String get cstNote => 'Note';
+
+  @override
+  String get cstSave => 'Save';
+
+  @override
+  String get cstSaved => 'Saved';
+
+  @override
+  String cstOnHand(String qty, String unit) {
+    return '$qty $unit on the shelf';
+  }
+
+  @override
+  String cstMinimum(String qty) {
+    return 'minimum $qty';
+  }
+
+  @override
+  String cstTaken30(String qty) {
+    return '$qty taken this month';
+  }
+
+  @override
+  String get cstLow => 'low';
+
+  @override
+  String get cstNew => 'new';
+
+  @override
+  String get cstTake => 'Took';
+
+  @override
+  String get cstTakeHow => 'How many';
+
+  @override
+  String get cstReceive => 'Bought';
+
+  @override
+  String get cstPrice => 'Price per unit';
+
+  @override
+  String get cstSupplier => 'Where from (optional)';
+
+  @override
+  String get cstSetMinimum => 'Minimum';
+
+  @override
+  String get cstQuickAdd => 'Not in the list';
+
+  @override
+  String get cstQuickAddTitle => 'What was taken';
+
+  @override
+  String get cstUnit => 'Unit';
+
+  @override
+  String get cstAddItem => 'Add a cost item';
+
+  @override
+  String get cstEditItem => 'Cost item';
+
+  @override
+  String get cstItemTitle => 'Name';
+
+  @override
+  String get cstGroup => 'Group';
+
+  @override
+  String get cstArea => 'Area';
+
+  @override
+  String get cstMode => 'How it is counted';
+
+  @override
+  String get cstModeBill => 'Monthly bill';
+
+  @override
+  String get cstModeStock => 'On the shelf';
+
+  @override
+  String get cstModeOther => 'As spent';
+
+  @override
+  String get cstFixedSwitch => 'Fixed — does not grow with the volume';
+
+  @override
+  String get cstLimit => 'Monthly limit';
+
+  @override
+  String get cstSearch => 'Find: knife, stretch film, power…';
+
+  @override
+  String get cstShowArchived => 'Archive';
+
+  @override
+  String get cstArchive => 'Archive';
+
+  @override
+  String get cstRestore => 'Restore';
+
+  @override
+  String get cstMerge => 'Merge into…';
+
+  @override
+  String cstMergeHint(String title) {
+    return '«$title»\'s history goes to the item chosen';
+  }
 }

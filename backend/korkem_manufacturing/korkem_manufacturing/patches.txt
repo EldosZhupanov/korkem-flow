@@ -70,3 +70,4 @@ korkem_manufacturing.patches.v0_0.add_customer_message_fields
 korkem_manufacturing.patches.v0_0.add_mdf_paint_fields #2026-11-19 paint swaps
 korkem_manufacturing.patches.v0_0.add_customer_terms
 korkem_manufacturing.patches.v0_0.add_mdf_invoice_fields
+korkem_manufacturing.patches.v0_0.add_customer_invoices

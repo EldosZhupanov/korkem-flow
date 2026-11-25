@@ -200,7 +200,7 @@ scheduler_events = {
 		"korkem_manufacturing.services.logistics.remind",
 		# «Итоги дня» — at the owner's hour, once a day, when he switched it on.
 		"korkem_manufacturing.services.daily_summary.run",
-		# «Пора заказать» — the morning list of films and glue to order.
+		# «Утренняя сводка» — what to hand over, late, owed, short and to order.
 		"korkem_manufacturing.services.reorder_watch.run",
 	],
 	"all": ["korkem_manufacturing.services.outbox_workers.cron_dispatch_outbox"],

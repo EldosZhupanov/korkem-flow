@@ -30,6 +30,13 @@ class MdfDebtsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.mdfDebtsTitle),
         actions: [
+          // «Рейтинг клиентов»: who pays fast and who drags it out.
+          TextButton.icon(
+            key: const ValueKey('debts:rating'),
+            onPressed: () => context.push(Routes.customerRating),
+            icon: const Icon(AppIcons.report),
+            label: Text(l10n.rateTitle),
+          ),
           // «Кому написать»: the reminders, with the words written.
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.sm),

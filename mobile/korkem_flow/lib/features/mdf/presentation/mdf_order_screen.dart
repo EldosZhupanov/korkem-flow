@@ -27,6 +27,7 @@ import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_ready.dart';
 import 'package:korkem_flow/features/mdf/domain/size_paste.dart';
 import 'package:korkem_flow/features/mdf/presentation/film_where_view.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_client_paint.dart';
@@ -315,6 +316,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   /// Each film group's price per m².
   final Map<String?, TextEditingController> _filmRates = {};
   MdfPricing _pricing = MdfPricing.empty;
+
+  /// When the shop would have it ready, as last asked (owner, 25.11.2026).
+  MdfReadyEstimate? _ready;
   Timer? _debounce;
   bool _busy = false;
 
@@ -1188,16 +1192,58 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     }
   }
 
-  /// «Срок»: +3, +7, +10, +14 days in one tap (a Sunday moves to Monday),
-  /// or the calendar.
+  /// The order's m² by coating — the shop's lanes it goes through.
+  Map<String, double> get _areasByCoating {
+    final index = _pricedIndex;
+    final out = <String, double>{};
+    for (final l in _ordered) {
+      final i = index[l];
+      if (i == null || i >= _pricing.lines.length) continue;
+      final lane = (l.coating ?? MdfCoating.pvc).name;
+      out[lane] = (out[lane] ?? 0) + _pricing.lines[i].areaM2;
+    }
+    return out;
+  }
+
+  /// When the shop would have it ready; null when it cannot say.
+  Future<MdfReadyEstimate?> _askReady() async {
+    final areas = _areasByCoating;
+    if (areas.isEmpty) return null;
+    try {
+      final got = await ref
+          .read(mdfOrderRepositoryProvider)
+          .readyEstimate(areas, order: widget.order?.name);
+      if (mounted) setState(() => _ready = got);
+      return got;
+    } on Object {
+      return null;
+    }
+  }
+
+  /// «Срок»: by the shop's load, +3, +7, +10, +14 days in one tap (a
+  /// Sunday moves to Monday), or the calendar.
   Future<void> _pickDue() async {
     final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
+    final ready = await _askReady();
+    final readyDay = ready?.day;
+    if (!mounted) return;
     final quick = await showDialog<DateTime?>(
       context: context,
       builder: (context) => SimpleDialog(
         title: Text(l10n.mdfDue),
         children: [
+          if (ready != null && readyDay != null)
+            SimpleDialogOption(
+              key: const ValueKey('mdfDueByShop'),
+              onPressed: () => Navigator.of(context).pop(readyDay),
+              child: Text(
+                [
+                  l10n.mdfDueByShop(mdfDayOf(readyDay), ready.days),
+                  if (!ready.known) l10n.mdfDueRough,
+                ].join(' '),
+              ),
+            ),
           for (final days in mdfDueQuickDays)
             SimpleDialogOption(
               key: ValueKey('mdfDueIn:$days'),
@@ -1377,6 +1423,18 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                             : '${l10n.mdfDue}: ${mdfDayOf(_due!)}',
                       ),
                     ),
+                    // Sooner than the shop can make it (owner, 25.11.2026).
+                    if ((_ready?.day, _due) case (
+                      final DateTime ready,
+                      final DateTime due,
+                    ) when due.isBefore(ready))
+                      Text(
+                        l10n.mdfDueTooSoon(mdfDayOf(ready)),
+                        key: const ValueKey('mdfDueTooSoon'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: context.statusColors.warning,
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),

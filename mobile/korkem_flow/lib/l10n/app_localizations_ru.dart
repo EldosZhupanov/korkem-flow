@@ -10544,10 +10544,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fdcNoMatches => 'Ничего похожего не нашлось';
 
   @override
-  String get dsmMorning => 'Утром в 9:00 — что пора заказать';
+  String get dsmMorning =>
+      'Утренняя сводка в 9:00 — что выдать, что опаздывает, кто должен, чего не хватает';
 
   @override
-  String get dsmMorningTitle => 'Пора заказать';
+  String get dsmMorningTitle => 'Утренняя сводка';
 
   @override
   String get scanEntryTitle => 'Номер заказа';
@@ -11972,4 +11973,346 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get actMake => 'Сделать и отправить';
+
+  @override
+  String get dinvButton => 'Счёт на весь долг';
+
+  @override
+  String get dinvSection => 'Счета на долг';
+
+  @override
+  String get dinvWhole => 'Весь долг';
+
+  @override
+  String get dinvOrders => 'В счёт войдут заказы — сначала самые старые:';
+
+  @override
+  String get clcPayNoInvoice => 'Без счёта';
+
+  @override
+  String clcPayByInvoice(String no, String sum) {
+    return 'По счёту № $no · осталось $sum';
+  }
+
+  @override
+  String get rateTitle => 'Рейтинг клиентов';
+
+  @override
+  String get rateP3 => '3 месяца';
+
+  @override
+  String get rateP12 => '12 месяцев';
+
+  @override
+  String get rateByMoney => 'По деньгам';
+
+  @override
+  String get rateByDebt => 'По долгу';
+
+  @override
+  String get rateBySlow => 'Кто тянет';
+
+  @override
+  String get rateFast => 'платит быстро';
+
+  @override
+  String get rateUsual => 'платит обычно';
+
+  @override
+  String get rateSlow => 'тянет';
+
+  @override
+  String ratePayDays(String days) {
+    return 'платит в среднем за $days дн.';
+  }
+
+  @override
+  String get rateNoPaid => 'оплаченных заказов ещё нет';
+
+  @override
+  String rateOrders(int count, String share) {
+    return '$count зак. · $share% денег';
+  }
+
+  @override
+  String rateOwes(String sum, int days) {
+    return 'долг $sum · $days дн.';
+  }
+
+  @override
+  String rateTotal(String sum) {
+    return 'Все заказы: $sum';
+  }
+
+  @override
+  String get rateClassHint =>
+      'A — те немногие, кто вместе приносит 80% денег; B — следующие 15%; C — остальные.';
+
+  @override
+  String get rateEmpty => 'За этот период заказов нет';
+
+  @override
+  String mdfDueByShop(String day, int days) {
+    return 'По загрузке цеха — $day ($days раб. дн.)';
+  }
+
+  @override
+  String get mdfDueRough => '— примерно: цех ещё мало сдал, темп неизвестен';
+
+  @override
+  String mdfDueTooSoon(String day) {
+    return 'Цех успеет только к $day';
+  }
+
+  @override
+  String get cstTitle => 'Расходы цеха';
+
+  @override
+  String get cstTabMoney => 'Куда идут деньги';
+
+  @override
+  String get cstTabBills => 'Счета за месяц';
+
+  @override
+  String get cstTabConsumables => 'Расходники';
+
+  @override
+  String get cstTabItems => 'Статьи затрат';
+
+  @override
+  String get cstPrevMonth => 'Прошлый месяц';
+
+  @override
+  String get cstNextMonth => 'Следующий месяц';
+
+  @override
+  String get cstRevenue => 'Выручка';
+
+  @override
+  String get cstCosts => 'Расходы';
+
+  @override
+  String get cstProfit => 'Прибыль';
+
+  @override
+  String cstMade(int orders, String m2) {
+    return '$orders зак. готово · $m2 м²';
+  }
+
+  @override
+  String get cstCostPerM2 => '1 м² стоит цеху';
+
+  @override
+  String cstOverheadPerM2(String sum) {
+    return 'накладные $sum на м²';
+  }
+
+  @override
+  String get cstBreakEven => 'В ноль выходим с';
+
+  @override
+  String cstBreakEvenValue(String m2) {
+    return '$m2 м² в месяц';
+  }
+
+  @override
+  String cstBreakEvenSpare(String m2, int pct) {
+    return 'сделали $m2 — запас $pct%';
+  }
+
+  @override
+  String cstBreakEvenShort(String m2, int pct) {
+    return 'сделали $m2 — не хватает $pct%';
+  }
+
+  @override
+  String get cstBreakEvenUnknown => 'нет готовых заказов за месяц';
+
+  @override
+  String cstOfRevenue(String pct) {
+    return '$pct% выручки';
+  }
+
+  @override
+  String get cstWhere => 'Куда ушли деньги';
+
+  @override
+  String get cstItems => 'По статьям';
+
+  @override
+  String get cstAreas => 'По участкам';
+
+  @override
+  String get cstAlerts => 'Обратить внимание';
+
+  @override
+  String cstAlertLimit(String title, String sum, String limit, int pct) {
+    return '$title: $sum — выше лимита $limit на $pct%';
+  }
+
+  @override
+  String cstAlertJump(String title, String sum, String times) {
+    return '$title: $sum — в $times раза больше обычного';
+  }
+
+  @override
+  String cstAlertUnfilled(String title) {
+    return '$title: счёт за месяц не внесён';
+  }
+
+  @override
+  String cstUsual(String sum) {
+    return 'обычно $sum';
+  }
+
+  @override
+  String cstLimitOf(String sum) {
+    return 'лимит $sum';
+  }
+
+  @override
+  String get cstFixed => 'постоянная';
+
+  @override
+  String get cstVariable => 'переменная';
+
+  @override
+  String get cstEmptyMonth => 'За этот месяц пока ничего не посчитано';
+
+  @override
+  String cstBillsTotal(int filled, int count, String sum) {
+    return 'Внесено $filled из $count · $sum';
+  }
+
+  @override
+  String get cstBillNotEntered => 'не внесено';
+
+  @override
+  String cstBillLast(String sum) {
+    return 'в прошлом месяце $sum';
+  }
+
+  @override
+  String get cstBillAmount => 'Сумма за месяц';
+
+  @override
+  String get cstMeterFrom => 'Счётчик на начало';
+
+  @override
+  String get cstMeterTo => 'Счётчик на конец';
+
+  @override
+  String cstMeterUsed(String used, String unit) {
+    return 'Расход: $used $unit';
+  }
+
+  @override
+  String get cstNote => 'Заметка';
+
+  @override
+  String get cstSave => 'Сохранить';
+
+  @override
+  String get cstSaved => 'Сохранено';
+
+  @override
+  String cstOnHand(String qty, String unit) {
+    return 'на складе $qty $unit';
+  }
+
+  @override
+  String cstMinimum(String qty) {
+    return 'минимум $qty';
+  }
+
+  @override
+  String cstTaken30(String qty) {
+    return 'за месяц взяли $qty';
+  }
+
+  @override
+  String get cstLow => 'мало';
+
+  @override
+  String get cstNew => 'новая';
+
+  @override
+  String get cstTake => 'Взял';
+
+  @override
+  String get cstTakeHow => 'Сколько';
+
+  @override
+  String get cstReceive => 'Купили';
+
+  @override
+  String get cstPrice => 'Цена за единицу';
+
+  @override
+  String get cstSupplier => 'Где купили (необязательно)';
+
+  @override
+  String get cstSetMinimum => 'Минимум';
+
+  @override
+  String get cstQuickAdd => 'Нет в списке';
+
+  @override
+  String get cstQuickAddTitle => 'Что взяли';
+
+  @override
+  String get cstUnit => 'Единица';
+
+  @override
+  String get cstAddItem => 'Добавить статью';
+
+  @override
+  String get cstEditItem => 'Статья затрат';
+
+  @override
+  String get cstItemTitle => 'Название';
+
+  @override
+  String get cstGroup => 'Группа';
+
+  @override
+  String get cstArea => 'Участок';
+
+  @override
+  String get cstMode => 'Как учитывать';
+
+  @override
+  String get cstModeBill => 'Счёт за месяц';
+
+  @override
+  String get cstModeStock => 'Склад';
+
+  @override
+  String get cstModeOther => 'По факту';
+
+  @override
+  String get cstFixedSwitch => 'Постоянная — не зависит от объёма';
+
+  @override
+  String get cstLimit => 'Лимит в месяц';
+
+  @override
+  String get cstSearch => 'Найти: нож, стрейч, свет…';
+
+  @override
+  String get cstShowArchived => 'Архив';
+
+  @override
+  String get cstArchive => 'В архив';
+
+  @override
+  String get cstRestore => 'Вернуть из архива';
+
+  @override
+  String get cstMerge => 'Слить с…';
+
+  @override
+  String cstMergeHint(String title) {
+    return 'История «$title» перейдёт в выбранную статью';
+  }
 }

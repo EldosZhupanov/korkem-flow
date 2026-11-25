@@ -10,9 +10,10 @@ from korkem_manufacturing.services import urgent_expenses as service
 
 
 @frappe.whitelist(methods=["POST"])
-def file(amount: float | str, purpose: str, category: str = "Другое", sales_order: str | None = None) -> dict:
-	"""Записать срочный расход на себя."""
-	return service.file(amount, purpose, category, sales_order)
+def file(amount: float | str, purpose: str, category: str = "Другое", sales_order: str | None = None,
+		 cost_item: str | None = None) -> dict:
+	"""Записать срочный расход на себя; cost_item — статья затрат, если известна."""
+	return service.file(amount, purpose, category, sales_order, cost_item)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -25,9 +26,9 @@ def attach_receipt(expense: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def decide(expense: str, approve: bool | int | str, note: str | None = None) -> dict:
-	"""Одобрить или отклонить (администратор, бухгалтерия; не свой)."""
-	return service.decide(expense, approve, note)
+def decide(expense: str, approve: bool | int | str, note: str | None = None, cost_item: str | None = None) -> dict:
+	"""Одобрить или отклонить (администратор, бухгалтерия; не свой); cost_item — на какую статью."""
+	return service.decide(expense, approve, note, cost_item)
 
 
 @frappe.whitelist(methods=["GET"])

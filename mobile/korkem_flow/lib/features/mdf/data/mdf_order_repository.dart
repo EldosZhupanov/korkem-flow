@@ -14,6 +14,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_ready.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_volume.dart';
 
@@ -283,6 +284,20 @@ class MdfOrderRepository {
   /// «Жоспар»: what waits at each stage, and the intake by day.
   Future<MdfPlan> plan() async =>
       MdfPlan.fromJson(_map(await _client.callMethod('$_base.plan')));
+
+  /// When an order of [areas] — m² by coating, `{'pvc': 2.4}` — would be
+  /// ready, from the shop's load; [order] is not counted ahead of itself.
+  Future<MdfReadyEstimate> readyEstimate(
+    Map<String, double> areas, {
+    String? order,
+  }) async => MdfReadyEstimate.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.ready_estimate',
+        params: {'areas': jsonEncode(areas), 'order': ?order},
+      ),
+    ),
+  );
 
   /// «Касса» for the days [since, until] (`yyyy-MM-dd`).
   Future<MdfCash> cash({required String since, required String until}) async =>

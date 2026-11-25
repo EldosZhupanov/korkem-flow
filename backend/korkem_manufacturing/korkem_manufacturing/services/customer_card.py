@@ -19,10 +19,12 @@ from frappe.utils import cint, date_diff, flt, nowdate
 from korkem_manufacturing.services import (
 	audit,
 	cnc_orders,
+	customer_invoices,
 	directions,
 	facade_prices,
 	material_stock,
 	mdf_customers,
+	mdf_invoices,
 	mdf_orders,
 	mdf_tags,
 	search_text,
@@ -66,6 +68,10 @@ def card(customer: str) -> dict:
 		terms_row = frappe.db.get_value("Customer", c.name, list(mdf_customers.TERMS.values()), as_dict=True) or {}
 		out["terms"] = mdf_customers._terms_of(terms_row)
 		out["limit"] = mdf_customers.debt_limit(c.name, company)
+		# «Счёт на долг» (owner, 25.11.2026): his invoices for what he owes.
+		out["invoices"] = customer_invoices.rows(c.name)
+		out["payer"] = mdf_invoices.payer(c.name)
+		out["vat"] = mdf_invoices.vat_default(company)
 	if film and c.get("korkem_film_customer"):
 		from korkem_manufacturing.services import film_dept
 
@@ -184,7 +190,8 @@ def _customer(customer: str, company: str):
 	return frappe.get_doc("Customer", customer)
 
 
-def pay(customer: str, amount, method: str, bank: str | None = None, idempotency_key: str | None = None) -> dict:
+def pay(customer: str, amount, method: str, bank: str | None = None, idempotency_key: str | None = None,
+		invoice: str | None = None) -> dict:
 	"""One payment for all he owes (owner, 21.11.2026: «Оплата на весь долг»):
 	the money closes the oldest orders first, a payment on each, so seven
 	orders are not paid one by one. More than he owes is refused — an
@@ -201,20 +208,27 @@ def pay(customer: str, amount, method: str, bank: str | None = None, idempotency
 		frappe.throw(f"Он должен {_money(total)} — больше не внести одной оплатой; переплату вносят в заказ.")
 	from korkem_manufacturing.services import mdf_payments, payments
 
-	left, split = value, []
+	if invoice:
+		customer_invoices.open_one(c.name, invoice)  # struck out or paid: refused before any money moves
+	left, split, entries = value, [], []
 	for row, debt in owing:
 		if left <= 0:
 			break
 		part = min(left, debt)
-		payments.record_payment(
+		made = payments.record_payment(
 			sales_order=row.name, amount=float(part), mode_of_payment=method, bank=bank,
 			idempotency_key=f"{idempotency_key}:{row.name}" if idempotency_key else None,
 		)
+		if made.get("payment_entry"):
+			entries.append(made["payment_entry"])
 		frappe.get_doc("Sales Order", row.name).add_comment(
 			"Comment", f"Оплата (общая по клиенту): {mdf_payments._words(float(part), method, bank)}.")
 		split.append({"order": row.name, "number": search_text.number_in(row.name), "amount": float(part)})
 		left -= part
-	c.add_comment("Comment", f"Оплата {_money(value)} разнесена по заказам: "
+	if invoice:
+		customer_invoices.paid_by(c.name, invoice, float(value), entries)
+	by = f" по счёту № {invoice}" if invoice else ""
+	c.add_comment("Comment", f"Оплата {_money(value)}{by} разнесена по заказам: "
 				  + ", ".join(f"№ {s['number'] or s['order']} — {_money(s['amount'])}" for s in split) + ".")
 	audit.record_audit(action="customer.pay", entity_type="Customer", entity_id=c.name,
 					   diff={"amount": float(value), "method": method, "split": split}, company=company)
@@ -425,3 +439,29 @@ def reconciliation(customer: str, since: str | None = None, until: str | None = 
 		"closing": round(opening + debit - credit, 2),
 		"rows": [{**r, "date": str(r["date"])} for r in shown],
 	}
+
+
+def invoice_issue(customer: str, amount=None, payer: str | None = None, bin: str | None = None,
+				  due_on: str | None = None, vat=None) -> dict:
+	"""«Счёт на долг»: one invoice for all he owes, or a part of it."""
+	facade_prices.ensure_editor()
+	company = current_company()
+	c = _customer(customer, company)
+	made = customer_invoices.issue(c.name, _owing(company, c.name), amount=amount, payer_name=payer, bin=bin,
+								   due_on=due_on, vat=vat, company=company)
+	return {**customer_invoices.printed(c.name, made["no"], company), "card": card(c.name)}
+
+
+def invoice_print(customer: str, no: str) -> dict:
+	company = current_company()
+	c = _customer(customer, company)
+	return customer_invoices.printed(c.name, no, company)
+
+
+def invoice_cancel(customer: str, no: str, reason: str) -> dict:
+	reason = " ".join(str(reason or "").split())
+	if not reason:
+		frappe.throw("Укажите, почему счёт отменяется.")
+	c = _customer(customer, current_company())
+	customer_invoices.cancel(c.name, no, reason)
+	return card(c.name)
