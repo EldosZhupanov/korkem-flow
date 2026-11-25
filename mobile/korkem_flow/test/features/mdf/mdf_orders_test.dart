@@ -9,6 +9,7 @@ import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_ready.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_invoice_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
@@ -468,6 +469,25 @@ class _TwoFilms extends _FakeRepository {
   Future<MdfOrder> card(String name) async => MdfOrder.fromJson(_twoFilms());
 }
 
+/// The shop is busy: ready only in nine working days (owner, 25.11.2026).
+class _BusyShop extends _TwoFilms {
+  final asked = <Map<String, double>>[];
+
+  @override
+  Future<MdfReadyEstimate> readyEstimate(
+    Map<String, double> areas, {
+    String? order,
+  }) async {
+    asked.add(areas);
+    final now = DateTime.now();
+    return MdfReadyEstimate(
+      readyOn: mdfIso(DateTime(now.year, now.month, now.day + 10)),
+      days: 9,
+      known: true,
+    );
+  }
+}
+
 /// The first film is not on the shelf (owner, 18.11.2026).
 class _FilmToBuy extends _FakeRepository {
   @override
@@ -609,6 +629,38 @@ void main() {
       tester.widget<Text>(find.byKey(const ValueKey('mdfFilmTotals:1'))).data,
       contains('1.49'),
     );
+  });
+
+  testWidgets('the due date by the shop\'s load, and a sooner one warned', (
+    tester,
+  ) async {
+    final repo = _BusyShop();
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfDue')));
+    await tester.pumpAndSettle();
+    expect(repo.asked.single, isNotEmpty);
+    expect(find.byKey(const ValueKey('mdfDueByShop')), findsOne);
+    // Three days is sooner than the shop can: said beside the date.
+    await tester.tap(find.byKey(const ValueKey('mdfDueIn:3')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfDueTooSoon')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('mdfDue')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfDueByShop')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfDueTooSoon')), findsNothing);
   });
 
   testWidgets('a row has its R, R3 by default, and its extras under it', (

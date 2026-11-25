@@ -64,23 +64,31 @@ def text(r: dict, company: str) -> str | None:
 	if not r["films"] and not r["glue"]:
 		return None
 	name = frappe.db.get_value("Company", company, "company_name") or company
-	lines = [f"Пора заказать — {name}", ""]
+	return "\n".join([f"Пора заказать — {name}", "", *lines(r)])
+
+
+def lines(r: dict) -> list[str]:
+	"""The list's lines — on their own, or the last part of the morning
+	brief (`morning_brief`)."""
+	if not r["films"] and not r["glue"]:
+		return []
+	out = []
 	for g in r["films"]:
 		items = ", ".join(f"{x['title']} {_kg(x['metres'])} м" for x in g["lines"])
-		lines.append(f"Плёнка, {g['supplier']}: {items}")
+		out.append(f"Плёнка, {g['supplier']}: {items}")
 	for g in r["glue"]:
 		parts = [f"на складе {_kg(g['on_hand_kg'])} кг"]
 		if g["days_left"] is not None:
 			parts.append(f"хватит на ~{g['days_left']} дн.")
 		if g["short_kg"]:
 			parts.append(f"для пресса не хватает {_kg(g['short_kg'])} кг")
-		lines.append(f"Клей {g['title']}: {', '.join(parts)}")
-	lines += ["", "Отправить поставщику — «Отдел плёнки → К заказу»."]
-	return "\n".join(lines)
+		out.append(f"Клей {g['title']}: {', '.join(parts)}")
+	out += ["", "Отправить поставщику — «Отдел плёнки → К заказу»."]
+	return out
 
 
 def run() -> dict:
-	"""Hourly: the morning list once a day, when switched on and not empty."""
+	"""Hourly: the morning brief once a day, when switched on and not empty."""
 	now = now_datetime()
 	today = str(getdate(now))
 	if now.hour < HOUR:
@@ -94,7 +102,11 @@ def run() -> dict:
 	if frappe.db.get_default(_SENT.format(company=company)) == today:
 		return {}
 	try:
-		body = text(report(), company)
+		# The morning brief (owner, 25.11.2026): what to hand over, who owes,
+		# what is late and short — with this list as its last part.
+		from korkem_manufacturing.services import morning_brief
+
+		body = morning_brief.text(morning_brief.collect(company), company)
 	except Exception:
 		frappe.log_error(title="reorder_watch", message=frappe.get_traceback(with_context=True))
 		return {}

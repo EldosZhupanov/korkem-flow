@@ -161,9 +161,9 @@ def preview(day: str | None = None) -> dict:
 	facade_prices.ensure_editor()
 	company = current_company()
 	figures = collect(company, day)
-	from korkem_manufacturing.services import material_stock, reorder_watch
+	from korkem_manufacturing.services import material_stock, morning_brief
 
-	morning = reorder_watch.text(reorder_watch.report(), company) if material_stock.is_staff() else None
+	morning = morning_brief.text(morning_brief.collect(company, staff=material_stock.is_staff()), company)
 	return {**figures, "text": text(figures, company), "settings": settings(company),
 			"sent_on": frappe.db.get_default(_SENT.format(company=company)), "morning_text": morning}
 

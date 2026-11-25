@@ -10263,8 +10263,8 @@
   "@fdcOnShelf": {"placeholders": {"metres": {"type": "String"}}},
   "fdcNotOnShelf": "not in stock",
   "fdcNoMatches": "Nothing alike found",
-  "dsmMorning": "At 9:00 — what to order",
-  "dsmMorningTitle": "Time to order",
+  "dsmMorning": "Morning brief at 9:00 — what to hand over, what is late, who owes, what is short",
+  "dsmMorningTitle": "Morning brief",
   "scanEntryTitle": "Order number",
   "scanEntryHint": "245 or a sticker's code",
   "scanEntryOpen": "Open",
@@ -10935,5 +10935,10 @@
   "rateTotal": "All orders: {sum}",
   "@rateTotal": {"placeholders": {"sum": {"type": "String"}}},
   "rateClassHint": "A — the few who together bring 80% of the money; B — the next 15%; C — the rest.",
-  "rateEmpty": "No orders in this period"
+  "rateEmpty": "No orders in this period",
+  "mdfDueByShop": "By the shop's load — {day} ({days} working days)",
+  "@mdfDueByShop": {"placeholders": {"day": {"type": "String"}, "days": {"type": "int"}}},
+  "mdfDueRough": "— roughly: the shop has made too little to know its pace",
+  "mdfDueTooSoon": "The shop can only make it by {day}",
+  "@mdfDueTooSoon": {"placeholders": {"day": {"type": "String"}}}
 }
