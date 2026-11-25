@@ -81,6 +81,9 @@ import 'package:korkem_flow/features/sales/presentation/sales_screen.dart';
 import 'package:korkem_flow/features/search/presentation/search_screen.dart';
 import 'package:korkem_flow/features/settings/presentation/settings_screen.dart';
 import 'package:korkem_flow/features/tasks/presentation/tasks_screen.dart';
+import 'package:korkem_flow/features/team/domain/people_report.dart';
+import 'package:korkem_flow/features/team/presentation/people_screen.dart';
+import 'package:korkem_flow/features/team/presentation/person_card_screen.dart';
 import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/features/today/presentation/today_screen.dart';
 import 'package:korkem_flow/features/warehouse/presentation/stock_detail_screen.dart';
@@ -213,6 +216,18 @@ abstract final class Routes {
 
   /// «Расходы цеха»: where the money goes, bills, consumables (25.11.2026).
   static const costs = '/costs';
+
+  /// «Сотрудники» and one person's card (owner, 25.11.2026); `me` — his own.
+  static const people = '/people';
+  static const personPattern = '/people/:employee';
+  static String person(
+    String? employee, {
+    PeopleSpan span = PeopleSpan.month,
+    String? day,
+  }) => Uri(
+    path: '/people/${Uri.encodeComponent(employee ?? 'me')}',
+    queryParameters: {'span': span.name, 'day': ?day},
+  ).toString();
   static const offcuts = '/offcuts';
   static const clientCardPattern = '/clients/:customer';
   static String clientCard(String customer) =>
@@ -614,6 +629,23 @@ GoRouter createRouter(Ref ref) {
       GoRoute(
         path: Routes.myWork,
         builder: (context, state) => const MyWorkScreen(),
+      ),
+      GoRoute(
+        path: Routes.people,
+        builder: (context, state) => const PeopleScreen(),
+      ),
+      GoRoute(
+        path: Routes.personPattern,
+        builder: (context, state) {
+          final employee = state.pathParameters['employee'];
+          final q = state.uri.queryParameters;
+          return PersonCardScreen(
+            employee: employee == null || employee == 'me' ? null : employee,
+            span:
+                PeopleSpan.values.asNameMap()[q['span']] ?? PeopleSpan.month,
+            day: DateTime.tryParse(q['day'] ?? ''),
+          );
+        },
       ),
       GoRoute(
         path: Routes.items,
