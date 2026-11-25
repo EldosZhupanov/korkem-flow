@@ -67,7 +67,10 @@ class FakePeople implements PeopleReportRepository {
   Future<PersonCard> card(PersonQuery q) async {
     cards.add(q);
     if (q.employee == _aset['employee']) {
-      return PersonCard.fromJson(const {..._aset, 'by_day': <Map<String, Object>>[]});
+      return PersonCard.fromJson(const {
+        ..._aset,
+        'by_day': <Map<String, Object>>[],
+      });
     }
     return PersonCard.fromJson({
       ..._erlan,
