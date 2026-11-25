@@ -18,7 +18,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > **Then load the skill for the task** from `.claude/skills/` — `korkem-architecture`
 > before designing, `korkem-domain-service` before adding a business action,
 > `korkem-flutter` before touching Dart, `korkem-bench` before running anything,
-> `korkem-docs` before writing markdown. `.claude/skills/README.md` lists all 23 (plus 2 Orca symlinks),
+> `korkem-docs` before writing markdown, `korkem-design-review` to score a screen's design.
+> `.claude/skills/README.md` lists all 24 (plus 2 Orca symlinks),
 > including what was rejected and why.
 >
 > `docs/archive/` is **history, not truth.** Do not build from it. It is kept for

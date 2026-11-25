@@ -49,3 +49,6 @@ android/key.properties
 *.jks
 *.keystore
 test/goldens/failures/
+
+# Screenshots for the design review (.claude/skills/korkem-design-review).
+test/design/shots/
