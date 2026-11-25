@@ -15,9 +15,12 @@ import 'package:korkem_flow/features/client_card/data/client_card_repository.dar
 import 'package:korkem_flow/features/client_card/domain/client_card.dart';
 import 'package:korkem_flow/features/client_card/presentation/client_card_screen.dart';
 import 'package:korkem_flow/features/client_card/presentation/rating_screen.dart';
+import 'package:korkem_flow/features/costs/data/costs_repository.dart';
+import 'package:korkem_flow/features/costs/presentation/costs_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 
 import '../support/widget_harness.dart';
+import 'fake_costs.dart';
 
 /// How a screen is looked at: its size, its theme, its language.
 typedef _Look = ({
@@ -61,6 +64,24 @@ final Map<String, (Widget, List<String>)> _screens = {
     const ['clc:invoice'],
   ),
   'customer_rating': (const CustomerRatingScreen(), const []),
+  // «Расходы цеха» (25.11.2026): each tab, and the floor's own view.
+  'costs_money': (CostsScreen(today: DateTime(2026, 11, 25)), const []),
+  'costs_bills': (
+    CostsScreen(today: DateTime(2026, 11, 25)),
+    const ['cst:tab:bills'],
+  ),
+  'costs_bill_dialog': (
+    CostsScreen(today: DateTime(2026, 11, 25)),
+    const ['cst:tab:bills', 'cst:bill:CI-POWER'],
+  ),
+  'costs_consumables': (
+    CostsScreen(today: DateTime(2026, 11, 25)),
+    const ['cst:tab:consumables'],
+  ),
+  'costs_items': (
+    CostsScreen(today: DateTime(2026, 11, 25)),
+    const ['cst:tab:items'],
+  ),
 };
 
 void main() {
@@ -77,6 +98,7 @@ void main() {
             overrides: [
               clientCardRepositoryProvider.overrideWithValue(_Cards()),
               filmDeptRepositoryProvider.overrideWithValue(_Requisites()),
+              costsRepositoryProvider.overrideWithValue(FakeCosts()),
             ],
             child: harness(
               screen,

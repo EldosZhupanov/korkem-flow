@@ -55,10 +55,19 @@ abstract final class AppTypography {
       );
     }
 
+    // Every slot is filled. One left out is not empty: Material fills it
+    // with its own geometry and the platform's family, so a dialog title
+    // (`headlineSmall`) was drawn in Segoe UI on Windows and as missing
+    // glyphs in tests (design review, 25.11.2026).
     return TextTheme(
+      displayLarge: style(48, 56, FontWeight.w600, numeric: true),
+      displayMedium: style(42, 50, FontWeight.w600, numeric: true),
       // Dashboard hero metric — always a number, always tabular.
       displaySmall: style(36, 44, FontWeight.w600, numeric: true),
+      headlineLarge: style(32, 40, FontWeight.w600, letterSpacing: -0.2),
       headlineMedium: style(28, 36, FontWeight.w600, letterSpacing: -0.2),
+      // Dialog titles, a card's big sum.
+      headlineSmall: style(24, 32, FontWeight.w600),
       titleLarge: style(22, 28, FontWeight.w600),
       // List item title.
       titleMedium: style(16, 24, FontWeight.w600),
