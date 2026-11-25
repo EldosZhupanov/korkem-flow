@@ -12424,4 +12424,130 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pplOpenCard => 'Карточка';
+
+  @override
+  String get tmViewDepartments => 'По отделам';
+
+  @override
+  String get tmViewPeople => 'Люди';
+
+  @override
+  String get tmSearch => 'Найти по имени';
+
+  @override
+  String get tmFilterAll => 'Все';
+
+  @override
+  String get tmFilterNoLogin => 'Без входа';
+
+  @override
+  String get tmFilterLeft => 'Ушли';
+
+  @override
+  String get tmAddPost => 'должность';
+
+  @override
+  String tmGiven(String name, String post) {
+    return '$name: дали «$post»';
+  }
+
+  @override
+  String tmTaken(String name, String post) {
+    return '$name: сняли «$post»';
+  }
+
+  @override
+  String tmOpenTitle(int count) {
+    return 'На нём незакрытых этапов: $count';
+  }
+
+  @override
+  String get tmHandTo => 'Кому передать';
+
+  @override
+  String get tmNobody => 'Никому — раздам потом';
+
+  @override
+  String get tmKeep => 'Оставить на нём';
+
+  @override
+  String get tmHandOver => 'Передать';
+
+  @override
+  String tmMoved(int count) {
+    return 'Передано этапов: $count';
+  }
+
+  @override
+  String tmLeftToPay(String sum) {
+    return 'Ему осталось выплатить $sum';
+  }
+
+  @override
+  String tmAdvanceOver(String sum) {
+    return 'Аванс больше заработка на $sum';
+  }
+
+  @override
+  String tmPending(String sum) {
+    return 'Ещё ждёт подтверждения: $sum';
+  }
+
+  @override
+  String tmPickTitle(String post) {
+    return 'Кого поставить: $post';
+  }
+
+  @override
+  String get tmNewPerson => 'Новый человек';
+
+  @override
+  String get tmNoOne => 'Никого не нашлось';
+
+  @override
+  String get tmDupTitle => 'Такой человек уже есть';
+
+  @override
+  String get tmDupHint =>
+      'Если это он — не создавайте второго, просто дайте ему должность.';
+
+  @override
+  String get tmItsHim => 'Это он';
+
+  @override
+  String get tmItsOther => 'Нет, другой человек';
+
+  @override
+  String get tmLeftMark => 'ушёл';
+
+  @override
+  String get tmHistory => 'История';
+
+  @override
+  String get tmEvAdded => 'Принят в команду';
+
+  @override
+  String tmEvPostOn(String post) {
+    return 'Дали «$post»';
+  }
+
+  @override
+  String tmEvPostOff(String post) {
+    return 'Сняли «$post»';
+  }
+
+  @override
+  String get tmEvLeft => 'Уволен';
+
+  @override
+  String get tmEvBack => 'Вернули в команду';
+
+  @override
+  String get tmPosts => 'Должности';
+
+  @override
+  String get tmMenu => 'Ещё';
+
+  @override
+  String get tmEdit => 'Изменить';
 }

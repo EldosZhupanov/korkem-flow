@@ -51,8 +51,7 @@ class TeamDismissal {
   final double? left;
   final double? pending;
 
-  bool get settled =>
-      open.isEmpty && (left ?? 0) == 0 && (pending ?? 0) == 0;
+  bool get settled => open.isEmpty && (left ?? 0) == 0 && (pending ?? 0) == 0;
 }
 
 /// Someone already on the list with this name or phone.

@@ -743,8 +743,9 @@ class _DuplicateDialog extends StatelessWidget {
                     if (d.posts.isEmpty)
                       l10n.teamUnplaced
                     else
-                      [for (final p in d.posts) teamPostLabel(p, l10n)]
-                          .join(', '),
+                      [
+                        for (final p in d.posts) teamPostLabel(p, l10n),
+                      ].join(', '),
                     ?d.phone,
                   ].join(' · '),
                   style: theme.textTheme.bodySmall,

@@ -313,18 +313,17 @@ class _PersonLine extends StatelessWidget {
     );
   }
 
-  Future<void> _act(BuildContext context, _LineAction a) =>
-      switch (a) {
-        _LineAction.card => context.push(Routes.person(person.employee)),
-        _LineAction.edit => showTeamPersonDialog(
-          context,
-          team,
-          person: person,
-          canManageLogins: canManageLogins,
-        ),
-        _LineAction.dismiss => teamDismiss(context, team, person),
-        _LineAction.back => teamBringBack(context, person),
-      };
+  Future<void> _act(BuildContext context, _LineAction a) => switch (a) {
+    _LineAction.card => context.push(Routes.person(person.employee)),
+    _LineAction.edit => showTeamPersonDialog(
+      context,
+      team,
+      person: person,
+      canManageLogins: canManageLogins,
+    ),
+    _LineAction.dismiss => teamDismiss(context, team, person),
+    _LineAction.back => teamBringBack(context, person),
+  };
 }
 
 /// «+ Добавить» under a post: someone already here first — a second

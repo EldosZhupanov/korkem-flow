@@ -12387,4 +12387,130 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pplOpenCard => 'Card';
+
+  @override
+  String get tmViewDepartments => 'By department';
+
+  @override
+  String get tmViewPeople => 'People';
+
+  @override
+  String get tmSearch => 'Find by name';
+
+  @override
+  String get tmFilterAll => 'All';
+
+  @override
+  String get tmFilterNoLogin => 'No login';
+
+  @override
+  String get tmFilterLeft => 'Left';
+
+  @override
+  String get tmAddPost => 'post';
+
+  @override
+  String tmGiven(String name, String post) {
+    return '$name now holds «$post»';
+  }
+
+  @override
+  String tmTaken(String name, String post) {
+    return '«$post» taken from $name';
+  }
+
+  @override
+  String tmOpenTitle(int count) {
+    return 'Open stages still his: $count';
+  }
+
+  @override
+  String get tmHandTo => 'Hand over to';
+
+  @override
+  String get tmNobody => 'Nobody — I\'ll give them out later';
+
+  @override
+  String get tmKeep => 'Leave with him';
+
+  @override
+  String get tmHandOver => 'Hand over';
+
+  @override
+  String tmMoved(int count) {
+    return 'Stages handed over: $count';
+  }
+
+  @override
+  String tmLeftToPay(String sum) {
+    return 'Still to pay him: $sum';
+  }
+
+  @override
+  String tmAdvanceOver(String sum) {
+    return 'Advances exceed earnings by $sum';
+  }
+
+  @override
+  String tmPending(String sum) {
+    return 'Awaiting approval: $sum';
+  }
+
+  @override
+  String tmPickTitle(String post) {
+    return 'Who takes the post: $post';
+  }
+
+  @override
+  String get tmNewPerson => 'New person';
+
+  @override
+  String get tmNoOne => 'No one found';
+
+  @override
+  String get tmDupTitle => 'This person is already here';
+
+  @override
+  String get tmDupHint =>
+      'If it\'s him, don\'t add a second one — give him the post.';
+
+  @override
+  String get tmItsHim => 'That\'s him';
+
+  @override
+  String get tmItsOther => 'No, someone else';
+
+  @override
+  String get tmLeftMark => 'left';
+
+  @override
+  String get tmHistory => 'History';
+
+  @override
+  String get tmEvAdded => 'Joined the team';
+
+  @override
+  String tmEvPostOn(String post) {
+    return 'Given «$post»';
+  }
+
+  @override
+  String tmEvPostOff(String post) {
+    return 'Taken off «$post»';
+  }
+
+  @override
+  String get tmEvLeft => 'Left the company';
+
+  @override
+  String get tmEvBack => 'Back in the team';
+
+  @override
+  String get tmPosts => 'Posts';
+
+  @override
+  String get tmMenu => 'More';
+
+  @override
+  String get tmEdit => 'Edit';
 }

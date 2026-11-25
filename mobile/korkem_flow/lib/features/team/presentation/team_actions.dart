@@ -352,8 +352,7 @@ class _HandOverDialogState extends State<_HandOverDialog> {
                     ].join(' — '),
                     style: muted,
                   ),
-                if (widget.work.length > shown.length)
-                  Text('…', style: muted),
+                if (widget.work.length > shown.length) Text('…', style: muted),
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<String?>(
                   key: const ValueKey('tm:handTo'),

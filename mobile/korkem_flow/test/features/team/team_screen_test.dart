@@ -241,7 +241,10 @@ class _FakeStructure implements TeamStructureRepository {
   Future<TeamDismissal> dismissal(String employee) async => owed;
 
   @override
-  Future<TeamPeople> setActive(TeamPerson person, {required bool active}) async {
+  Future<TeamPeople> setActive(
+    TeamPerson person, {
+    required bool active,
+  }) async {
     actives.add((person.employee, active));
     return _structure;
   }
@@ -1219,7 +1222,11 @@ void main() {
     final structure = await people(
       tester,
       same: const [
-        TeamDuplicate(employee: 'HR-EMP-1', name: 'Ерлан', posts: ['cut.cutter']),
+        TeamDuplicate(
+          employee: 'HR-EMP-1',
+          name: 'Ерлан',
+          posts: ['cut.cutter'],
+        ),
       ],
     );
     await tester.tap(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')));
