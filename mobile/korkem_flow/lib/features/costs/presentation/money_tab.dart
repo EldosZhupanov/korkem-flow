@@ -85,7 +85,10 @@ class _Body extends StatelessWidget {
                 id: 'cst:profit',
                 title: l10n.cstProfit,
                 value: money.format(f.profit),
-                note: f.profitShare == null ? null : '${f.profitShare}%',
+                note: switch (f.profitShare) {
+                  final p? => '${costQty(p)}%',
+                  _ => null,
+                },
                 colour: f.profit < 0 ? status.danger : status.success,
               ),
               if (f.costPerM2 case final perM2?)
@@ -186,7 +189,8 @@ class _Body extends StatelessWidget {
                   Text(
                     [
                       money.format(g.amount),
-                      if (g.share != null) l10n.cstOfRevenue('${g.share}'),
+                      if (g.share case final share?)
+                        l10n.cstOfRevenue(costQty(share)),
                     ].join(' · '),
                     style: theme.textTheme.bodyMedium,
                   ),
