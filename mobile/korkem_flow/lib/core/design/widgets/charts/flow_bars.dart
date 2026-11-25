@@ -91,19 +91,26 @@ class FlowBars extends StatelessWidget {
             children: [
               for (var i = 0; i < n; i++)
                 Expanded(
-                  child: Text(
-                    n <= _allLabels || i % _labelStep == 0 || i == n - 1
-                        ? bars[i].label
-                        : '',
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.clip,
-                    style: i == selected
-                        ? labelStyle?.copyWith(
-                            color: theme.colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
-                          )
-                        : labelStyle,
+                  // A month's bar is narrower than «26» on a phone: the
+                  // label may spill into its empty neighbours rather than
+                  // be cut to «2» (design review, 25.11.2026).
+                  child: OverflowBox(
+                    maxWidth: double.infinity,
+                    fit: OverflowBoxFit.deferToChild,
+                    child: Text(
+                      n <= _allLabels || i % _labelStep == 0 || i == n - 1
+                          ? bars[i].label
+                          : '',
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: i == selected
+                          ? labelStyle?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                            )
+                          : labelStyle,
+                    ),
                   ),
                 ),
             ],

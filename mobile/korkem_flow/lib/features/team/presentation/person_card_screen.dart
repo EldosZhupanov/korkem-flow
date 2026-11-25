@@ -200,7 +200,7 @@ class _CardBodyState extends State<_CardBody> {
                 FlowBar(
                   label: widget.span == PeopleSpan.week
                       ? DateFormat.E(locale).format(DateTime.parse(d.day))
-                      : d.day.substring(8),
+                      : '${DateTime.parse(d.day).day}',
                   up: d.m2,
                 ),
             ],
