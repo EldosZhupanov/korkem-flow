@@ -13298,4 +13298,48 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pressShortOpen => 'Открыть «К заказу»';
+
+  @override
+  String mdfStageTapDone(String stage) {
+    return '$stage: нажмите — готов';
+  }
+
+  @override
+  String mdfStageTapUndo(String stage) {
+    return '$stage готов ✓ — нажмите, чтобы снять';
+  }
+
+  @override
+  String mdfStageUndoAsk(String stage) {
+    return 'Снять отметку «$stage»?';
+  }
+
+  @override
+  String get mdfStageUndoYes => 'Снять';
+
+  @override
+  String mdfStageManyAsk(String stages) {
+    return 'Этапы не пропускают. Отметить $stages?';
+  }
+
+  @override
+  String get mdfStageManyYes => 'Отметить';
+
+  @override
+  String get mdfStageShortCut => 'Рас';
+
+  @override
+  String get mdfStageShortMill => 'ЧПУ';
+
+  @override
+  String get mdfStageShortSand => 'Шл';
+
+  @override
+  String get mdfStageShortVacuum => 'Вак';
+
+  @override
+  String get mdfStageShortPaint => 'Кр';
+
+  @override
+  String get mdfStageShortReady => 'Гот';
 }

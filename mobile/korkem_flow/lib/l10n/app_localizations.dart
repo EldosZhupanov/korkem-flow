@@ -22647,6 +22647,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open «To order»'**
   String get pressShortOpen;
+
+  /// No description provided for @mdfStageTapDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage}: tap — done'**
+  String mdfStageTapDone(String stage);
+
+  /// No description provided for @mdfStageTapUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage} done ✓ — tap to take it off'**
+  String mdfStageTapUndo(String stage);
+
+  /// No description provided for @mdfStageUndoAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the «{stage}» tick off?'**
+  String mdfStageUndoAsk(String stage);
+
+  /// No description provided for @mdfStageUndoYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Take off'**
+  String get mdfStageUndoYes;
+
+  /// No description provided for @mdfStageManyAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages are not skipped. Tick {stages}?'**
+  String mdfStageManyAsk(String stages);
+
+  /// No description provided for @mdfStageManyYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick'**
+  String get mdfStageManyYes;
+
+  /// No description provided for @mdfStageShortCut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get mdfStageShortCut;
+
+  /// No description provided for @mdfStageShortMill.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC'**
+  String get mdfStageShortMill;
+
+  /// No description provided for @mdfStageShortSand.
+  ///
+  /// In en, this message translates to:
+  /// **'Sand'**
+  String get mdfStageShortSand;
+
+  /// No description provided for @mdfStageShortVacuum.
+  ///
+  /// In en, this message translates to:
+  /// **'Vac'**
+  String get mdfStageShortVacuum;
+
+  /// No description provided for @mdfStageShortPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint'**
+  String get mdfStageShortPaint;
+
+  /// No description provided for @mdfStageShortReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get mdfStageShortReady;
 }
 
 class _AppLocalizationsDelegate

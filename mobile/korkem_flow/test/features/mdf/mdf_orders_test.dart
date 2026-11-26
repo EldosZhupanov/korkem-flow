@@ -1096,7 +1096,10 @@ void main() {
       tester.getCenter(find.byKey(const ValueKey('mdfRow:SAL-ORD-1129'))),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('mdfRowPay:SAL-ORD-1129')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mdfRowPay:SAL-ORD-1129')),
+      findsOneWidget,
+    );
     // The bar itself: a tap ticks the stage (owner, 26.11.2026, variant Б).
     await tester.tap(find.byKey(const ValueKey('mdfBar:SAL-ORD-1129:sand')));
     await tester.pumpAndSettle();

@@ -13222,4 +13222,48 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pressShortOpen => '«Тапсырысқа» ашу';
+
+  @override
+  String mdfStageTapDone(String stage) {
+    return '$stage: басыңыз — дайын';
+  }
+
+  @override
+  String mdfStageTapUndo(String stage) {
+    return '$stage дайын ✓ — алу үшін басыңыз';
+  }
+
+  @override
+  String mdfStageUndoAsk(String stage) {
+    return '«$stage» белгісін алу керек пе?';
+  }
+
+  @override
+  String get mdfStageUndoYes => 'Алу';
+
+  @override
+  String mdfStageManyAsk(String stages) {
+    return 'Кезеңдер өткізілмейді. $stages белгілеу керек пе?';
+  }
+
+  @override
+  String get mdfStageManyYes => 'Белгілеу';
+
+  @override
+  String get mdfStageShortCut => 'Піш';
+
+  @override
+  String get mdfStageShortMill => 'ЧПУ';
+
+  @override
+  String get mdfStageShortSand => 'Тег';
+
+  @override
+  String get mdfStageShortVacuum => 'Вак';
+
+  @override
+  String get mdfStageShortPaint => 'Боя';
+
+  @override
+  String get mdfStageShortReady => 'Дай';
 }

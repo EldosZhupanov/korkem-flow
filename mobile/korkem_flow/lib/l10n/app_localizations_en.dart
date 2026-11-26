@@ -13263,4 +13263,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pressShortOpen => 'Open «To order»';
+
+  @override
+  String mdfStageTapDone(String stage) {
+    return '$stage: tap — done';
+  }
+
+  @override
+  String mdfStageTapUndo(String stage) {
+    return '$stage done ✓ — tap to take it off';
+  }
+
+  @override
+  String mdfStageUndoAsk(String stage) {
+    return 'Take the «$stage» tick off?';
+  }
+
+  @override
+  String get mdfStageUndoYes => 'Take off';
+
+  @override
+  String mdfStageManyAsk(String stages) {
+    return 'Stages are not skipped. Tick $stages?';
+  }
+
+  @override
+  String get mdfStageManyYes => 'Tick';
+
+  @override
+  String get mdfStageShortCut => 'Cut';
+
+  @override
+  String get mdfStageShortMill => 'CNC';
+
+  @override
+  String get mdfStageShortSand => 'Sand';
+
+  @override
+  String get mdfStageShortVacuum => 'Vac';
+
+  @override
+  String get mdfStageShortPaint => 'Paint';
+
+  @override
+  String get mdfStageShortReady => 'Done';
 }
