@@ -495,11 +495,41 @@ class _BusyShop extends _TwoFilms {
     String? order,
   }) async {
     asked.add(areas);
+    return MdfReadyEstimate(readyOn: mdfIso(earliest), days: 9, known: true);
+  }
+
+  static DateTime get earliest {
     final now = DateTime.now();
-    return MdfReadyEstimate(
-      readyOn: mdfIso(DateTime(now.year, now.month, now.day + 10)),
-      days: 9,
+    return DateTime(now.year, now.month, now.day + 10);
+  }
+
+  static DateTime get safe => earliest.add(const Duration(days: 1));
+
+  final films = <Map<String, double>>[];
+
+  @override
+  Future<MdfDueOptions> dueOptions(
+    Map<String, double> areas, {
+    String? order,
+    Map<String, double> films = const {},
+  }) async {
+    this.films.add(films);
+    return MdfDueOptions(
+      earliest: earliest,
+      safe: safe,
       known: true,
+      capacityM2: 10,
+      films: [
+        (
+          decor: 'KZ13 Устюрт',
+          freeM: 0,
+          short: true,
+          comesOn: earliest.subtract(const Duration(days: 3)),
+          supplier: 'Kira',
+        ),
+      ],
+      // The earliest day is full already: picking it warns.
+      days: [(date: earliest, m2: 12, orders: 3)],
     );
   }
 }
@@ -713,16 +743,71 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('mdfDue')));
     await tester.pumpAndSettle();
     expect(repo.asked.single, isNotEmpty);
-    expect(find.byKey(const ValueKey('mdfDueByShop')), findsOne);
-    // Three days is sooner than the shop can: said beside the date.
-    await tester.tap(find.byKey(const ValueKey('mdfDueIn:3')));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('mdfDueTooSoon')), findsOne);
-    await tester.tap(find.byKey(const ValueKey('mdfDue')));
-    await tester.pumpAndSettle();
+    expect(repo.films.single, isNotEmpty);
+    // The film it waits for, and «надёжно» chosen: nothing to warn of.
+    expect(find.byKey(const ValueKey('mdfDueFilm:KZ13 Устюрт')), findsOne);
+    expect(find.textContaining('Kira'), findsOne);
+    expect(find.byKey(const ValueKey('mdfDueWarn')), findsNothing);
+    // «Впритык» lands on a full day: said, and still allowed.
     await tester.tap(find.byKey(const ValueKey('mdfDueByShop')));
     await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfDueWarn')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('mdfDueSafe')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfDueWarn')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('mdfDuePick')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfDueDialog')), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('mdfDue')),
+        matching: find.textContaining(mdfDayOf(_BusyShop.safe)),
+      ),
+      findsOne,
+    );
     expect(find.byKey(const ValueKey('mdfDueTooSoon')), findsNothing);
+    // A day sooner than the shop can: warned in the month, then beside
+    // the date.
+    await tester.tap(find.byKey(const ValueKey('mdfDue')));
+    await tester.pumpAndSettle();
+    final now = DateTime.now();
+    var soon = DateTime(now.year, now.month, now.day);
+    if (soon.weekday == DateTime.sunday) {
+      soon = soon.add(const Duration(days: 1));
+    }
+    final day = find.byKey(ValueKey('mdfDueDay:${mdfIso(soon)}'));
+    for (var i = 0; i < 2 && day.evaluate().isEmpty; i++) {
+      await tester.tap(find.byKey(const ValueKey('mdfDuePrev')));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(day);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfDueWarn')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('mdfDuePick')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfDueTooSoon')), findsOne);
+  });
+
+  testWidgets('the due date falls back to the calendar when the shop is '
+      'not answering', (tester) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(_TwoFilms())],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfDue')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfDueCalendar')));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOne);
   });
 
   testWidgets('a row has its R, R3 by default, and its extras under it', (

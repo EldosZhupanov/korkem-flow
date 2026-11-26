@@ -94,3 +94,26 @@ class TestReadyEstimate(IntegrationTestCase):
 		self.assertEqual(str(ready_estimate.working_days_from(saturday, 0)), "2026-11-28")
 		self.assertEqual(str(ready_estimate.working_days_from(getdate("2026-11-29"), 0)), "2026-11-30")
 		self.assertEqual(str(ready_estimate.working_days_from(getdate("2026-11-23"), 6)), "2026-11-30")
+
+	def test_the_due_window_gives_the_earliest_a_safe_day_and_the_days_load(self):
+		# «Срок» (owner, 27.11.2026): never earlier than the estimate, a day of
+		# reserve after it, each day's m² already due.
+		taken = self._order(10)  # 5 m², due in a week
+		got = self._as(MANAGER, ready_estimate.due_options, {"pvc": 1})
+		estimate = self._as(MANAGER, ready_estimate.estimate, {"pvc": 1})
+		self.assertEqual(got["earliest"], estimate["ready_on"])
+		self.assertEqual(got["safe"], str(ready_estimate.working_days_from(got["earliest"], 1)))
+		due = str(getdate(frappe.db.get_value("Sales Order", taken, "delivery_date")))
+		day = next(d for d in got["days"] if d["date"] == due)
+		self.assertGreaterEqual(day["m2"], 5)
+		self.assertGreaterEqual(day["orders"], 1)
+		# A film nobody keeps: said so, and no date made up for it.
+		odd = self._as(MANAGER, ready_estimate.due_options, {"pvc": 1}, films=["Нет такой плёнки"])
+		self.assertEqual(odd["films"], [{"decor": "Нет такой плёнки", "free_m": None, "short": False,
+										 "comes_on": None, "supplier": None}])
+		# Each film by its own m², as the form sends it.
+		by_film = self._as(MANAGER, ready_estimate.due_options, {"pvc": 1},
+						   films={"Нет такой плёнки": 0.5})
+		self.assertEqual(by_film["films"][0]["decor"], "Нет такой плёнки")
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, ready_estimate.due_options, {"pvc": 1})

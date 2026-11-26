@@ -4020,5 +4020,17 @@
   "shopTodayRecentAccepted": "принят · {amount}",
   "shopTodayRecentHandedOver": "выдан",
   "shopTodayRecentCancelled": "отменён",
-  "shopTodayRecentPaid": "оплата {amount}"
+  "shopTodayRecentPaid": "оплата {amount}",
+  "mdfDueNoLoad": "Не удалось узнать загрузку цеха — выберите день в обычном календаре.",
+  "mdfDueTitle": "Срок сдачи · {m2} м²",
+  "mdfDueSafe": "✓ НАДЁЖНО",
+  "mdfDueSafeNote": "+1 день на брак и переделку",
+  "mdfDueEarliest": "ВПРИТЫК",
+  "mdfDueEarliestNote": "если ничего не сломается",
+  "mdfDueFilmComes": "Плёнки {film} на складе мало — {supplier} привезёт {date}. Срок считаем от привоза.",
+  "mdfDueFilmUnknown": "Плёнки {film} на складе мало, когда привезут — неизвестно: срок под вопросом.",
+  "mdfDueOverloaded": "В этот день уже {due} м² при мощности {cap} м². С вашим заказом — {after} м²: перегруз.",
+  "mdfDueLegend": "Цвет дня — м² к сдаче против мощности цеха ({cap} м²/день). Серое — раньше не успеть.",
+  "mdfDueLegendNoPace": "Темп цеха ещё не известен — видно только, сколько м² к сдаче в день.",
+  "mdfDuePick": "Выбрать {date}"
 }

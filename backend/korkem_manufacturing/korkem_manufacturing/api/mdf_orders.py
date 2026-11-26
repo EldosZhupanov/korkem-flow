@@ -180,6 +180,14 @@ def ready_estimate(areas: str, order: str | None = None) -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
+def due_options(areas: str, order: str | None = None, films: str | None = None) -> dict:
+	"""«Срок» в бланке: раньше всего, надёжно, загрузка дней и плёнка, которой нет."""
+	from korkem_manufacturing.services import ready_estimate as estimate
+
+	return estimate.due_options(areas, order=order, films=films)
+
+
+@frappe.whitelist(methods=["GET"])
 def cash(since: str | None = None, until: str | None = None) -> dict:
 	"""Касса: оплаты по дням и способам, одобренные расходы, остаток за период."""
 	from korkem_manufacturing.services import mdf_cash

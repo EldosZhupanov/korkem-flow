@@ -356,6 +356,24 @@ class MdfOrderRepository {
 
   /// When an order of [areas] — m² by coating, `{'pvc': 2.4}` — would be
   /// ready, from the shop's load; [order] is not counted ahead of itself.
+  /// «Срок»: the earliest, a safe day, each day's load, the film awaited.
+  Future<MdfDueOptions> dueOptions(
+    Map<String, double> areas, {
+    String? order,
+    Map<String, double> films = const {},
+  }) async => MdfDueOptions.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.due_options',
+        params: {
+          'areas': jsonEncode(areas),
+          'order': ?order,
+          if (films.isNotEmpty) 'films': jsonEncode(films),
+        },
+      ),
+    ),
+  );
+
   Future<MdfReadyEstimate> readyEstimate(
     Map<String, double> areas, {
     String? order,

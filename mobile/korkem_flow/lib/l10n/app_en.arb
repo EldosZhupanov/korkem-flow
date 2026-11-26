@@ -11731,5 +11731,71 @@
         "type": "String"
       }
     }
+  },
+  "mdfDueNoLoad": "Couldn't get the shop's load — pick a day in the plain calendar.",
+  "mdfDueTitle": "Due date · {m2} m²",
+  "@mdfDueTitle": {
+    "placeholders": {
+      "m2": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueSafe": "✓ SAFE",
+  "mdfDueSafeNote": "+1 day for scrap and a redo",
+  "mdfDueEarliest": "TIGHT",
+  "mdfDueEarliestNote": "if nothing goes wrong",
+  "mdfDueFilmComes": "Little {film} film on the shelf — {supplier} brings it on {date}. The date counts from then.",
+  "@mdfDueFilmComes": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      },
+      "supplier": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueFilmUnknown": "Little {film} film on the shelf, no word when it comes: the date is uncertain.",
+  "@mdfDueFilmUnknown": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueOverloaded": "{due} m² are due that day against {cap} m² a day. With yours — {after} m²: overloaded.",
+  "@mdfDueOverloaded": {
+    "placeholders": {
+      "due": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueLegend": "A day's colour — m² due against the shop's pace ({cap} m²/day). Grey — too soon.",
+  "@mdfDueLegend": {
+    "placeholders": {
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueLegendNoPace": "The shop's pace isn't known yet — only each day's m² due is shown.",
+  "mdfDuePick": "Pick {date}",
+  "@mdfDuePick": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }

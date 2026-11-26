@@ -4020,5 +4020,17 @@
   "shopTodayRecentAccepted": "қабылданды · {amount}",
   "shopTodayRecentHandedOver": "берілді",
   "shopTodayRecentCancelled": "болдырылмады",
-  "shopTodayRecentPaid": "төлем {amount}"
+  "shopTodayRecentPaid": "төлем {amount}",
+  "mdfDueNoLoad": "Цех жүктемесін білу мүмкін болмады — әдеттегі күнтізбеден таңдаңыз.",
+  "mdfDueTitle": "Тапсыру мерзімі · {m2} м²",
+  "mdfDueSafe": "✓ СЕНІМДІ",
+  "mdfDueSafeNote": "ақау мен қайта жасауға +1 күн",
+  "mdfDueEarliest": "ТЫҒЫЗ",
+  "mdfDueEarliestNote": "ештеңе бұзылмаса",
+  "mdfDueFilmComes": "{film} пленкасы қоймада аз — {supplier} {date} әкеледі. Мерзімді әкелген күннен санаймыз.",
+  "mdfDueFilmUnknown": "{film} пленкасы қоймада аз, қашан әкелетіні белгісіз: мерзім күмәнді.",
+  "mdfDueOverloaded": "Бұл күні {due} м² бар, қуат {cap} м². Сіздің тапсырыспен — {after} м²: шамадан тыс.",
+  "mdfDueLegend": "Күн түсі — тапсырылатын м² цех қуатына қарсы ({cap} м²/күн). Сұр — ертерек үлгермейді.",
+  "mdfDueLegendNoPace": "Цех қарқыны әлі белгісіз — күнге қанша м² тапсырылатыны ғана көрінеді.",
+  "mdfDuePick": "{date} таңдау"
 }

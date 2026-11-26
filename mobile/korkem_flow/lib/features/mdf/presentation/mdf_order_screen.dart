@@ -35,6 +35,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_client_paint.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_coating.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_customers_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_due_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_hand_over.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_invoice_dialog.dart';
@@ -1263,6 +1264,22 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     return out;
   }
 
+  /// The order's m² by PVC film — the shop's own films, not his.
+  Map<String, double> get _areasByFilm {
+    final index = _pricedIndex;
+    final out = <String, double>{};
+    for (final l in _ordered) {
+      final i = index[l];
+      final film = l.film;
+      if (i == null || i >= _pricing.lines.length || film == null) continue;
+      if ((l.coating ?? MdfCoating.pvc) != MdfCoating.pvc || l.clientFilm) {
+        continue;
+      }
+      out[film] = (out[film] ?? 0) + _pricing.lines[i].areaM2;
+    }
+    return out;
+  }
+
   /// When the shop would have it ready; null when it cannot say.
   Future<MdfReadyEstimate?> _askReady() async {
     final areas = _areasByCoating;
@@ -1278,60 +1295,37 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     }
   }
 
-  /// «Срок»: by the shop's load, +3, +7, +10, +14 days in one tap (a
-  /// Sunday moves to Monday), or the calendar.
+  /// «Срок» (owner, 27.11.2026): the month by the shop's load, «надёжно»
+  /// and «впритык», the film the order waits for — or the plain calendar.
   Future<void> _pickDue() async {
-    final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
-    final ready = await _askReady();
-    final readyDay = ready?.day;
-    if (!mounted) return;
-    final quick = await showDialog<DateTime?>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(l10n.mdfDue),
-        children: [
-          if (ready != null && readyDay != null)
-            SimpleDialogOption(
-              key: const ValueKey('mdfDueByShop'),
-              onPressed: () => Navigator.of(context).pop(readyDay),
-              child: Text(
-                [
-                  l10n.mdfDueByShop(mdfDayOf(readyDay), ready.days),
-                  if (!ready.known) l10n.mdfDueRough,
-                ].join(' '),
-              ),
-            ),
-          for (final days in mdfDueQuickDays)
-            SimpleDialogOption(
-              key: ValueKey('mdfDueIn:$days'),
-              onPressed: () =>
-                  Navigator.of(context).pop(mdfDueIn(now, days: days)),
-              child: Text(
-                '${l10n.mdfDueInDays(days)} — '
-                '${mdfDayOf(mdfDueIn(now, days: days))}',
-              ),
-            ),
-          SimpleDialogOption(
-            key: const ValueKey('mdfDueCalendar'),
-            onPressed: () => Navigator.of(context).pop(DateTime(0)),
-            child: Text(l10n.mdfDueCalendar),
-          ),
-        ],
-      ),
-    );
-    if (quick == null || !mounted) return;
-    if (quick.year != 0) {
-      setState(() => _due = quick);
-      return;
+    final areas = _areasByCoating;
+    unawaited(_askReady());
+    DateTime? picked;
+    if (areas.isNotEmpty) {
+      final films = _areasByFilm;
+      final repo = ref.read(mdfOrderRepositoryProvider);
+      picked = await showMdfDuePicker(
+        context,
+        load: () =>
+            repo.dueOptions(areas, order: widget.order?.name, films: films),
+        areaM2: areas.values.fold<double>(0, (s, v) => s + v),
+        current: _due,
+      );
+      if (picked == null || !mounted) return;
+      if (picked.year != 0) {
+        setState(() => _due = picked);
+        return;
+      }
     }
-    final picked = await showDatePicker(
+    if (!mounted) return;
+    final plain = await showDatePicker(
       context: context,
       initialDate: _due ?? mdfDueIn(now),
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now.add(const Duration(days: 365)),
     );
-    if (picked != null) setState(() => _due = picked);
+    if (plain != null) setState(() => _due = plain);
   }
 
   @override
