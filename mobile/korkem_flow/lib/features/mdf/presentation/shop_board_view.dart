@@ -222,7 +222,7 @@ class _PlanDialogState extends State<_PlanDialog> {
       actions: [
         TextButton(
           key: const ValueKey('shop:targetClear'),
-          onPressed: () => Navigator.of(context).pop(0.0),
+          onPressed: () => Navigator.of(context).pop<double>(0),
           child: Text(l10n.shopClear),
         ),
         FilledButton(

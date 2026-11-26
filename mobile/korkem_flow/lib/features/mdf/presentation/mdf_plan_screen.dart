@@ -107,7 +107,8 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
         data: (p) => RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(shopBoardProvider);
-            await ref.refresh(mdfPlanProvider.future);
+            ref.invalidate(mdfPlanProvider);
+            await ref.read(mdfPlanProvider.future);
           },
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),

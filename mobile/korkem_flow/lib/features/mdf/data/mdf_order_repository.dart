@@ -61,6 +61,8 @@ final mdfPlanProvider = FutureProvider.autoDispose<MdfPlan>(
 
 /// «Цех» (owner, 26.11.2026): the month's plan and fact, each stage with
 /// its m² and people, the late orders.
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
 final shopBoardProvider = FutureProvider.autoDispose<ShopBoard>(
   (ref) => ref.watch(mdfOrderRepositoryProvider).board(),
 );
