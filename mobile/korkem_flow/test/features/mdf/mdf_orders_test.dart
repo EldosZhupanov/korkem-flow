@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -130,7 +131,20 @@ class _FakeRepository implements MdfOrderRepository {
 
   @override
   Future<MdfOverview> overview() async =>
-      (overdue: 1, dueSoon: 2, ready: 3, debt: 58680.0, debtors: 1);
+      (
+        overdue: 1,
+        dueSoon: 2,
+        ready: 3,
+        debt: 58680.0,
+        debtors: 1,
+        bottleneck: (
+          stage: MdfStage.sand,
+          late: 1,
+          lateTotal: 1,
+          queueOrders: 1,
+          queueM2: 1.77,
+        ),
+      );
 
   static final _rows = [
     MdfOrderRow.fromJson(const {
@@ -1048,6 +1062,54 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('mdfRecentClear')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('mdfSection:recent')), findsNothing);
+  });
+
+  testWidgets('the list names the bottleneck, jumps to a section, goes one '
+      'line an order, and acts on a row (26.11.2026)', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1600, 1200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrdersScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // The cause, not the rows: the late ones wait for sanding.
+    expect(find.byKey(const ValueKey('mdfBottleneck')), findsOneWidget);
+    expect(find.textContaining('1 of 1 late orders'), findsOneWidget);
+    // The sections as chips.
+    expect(find.byKey(const ValueKey('mdfJump:overdue')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mdfJump:ready')));
+    await tester.pumpAndSettle();
+    // Under the pointer: the row's own actions.
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(
+      tester.getCenter(find.byKey(const ValueKey('mdfRow:SAL-ORD-1129'))),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('mdfRowStage:SAL-ORD-1129')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('mdfRowPay:SAL-ORD-1129')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mdfRowStage:SAL-ORD-1129')));
+    await tester.pumpAndSettle();
+    expect(repo.ticked.last, (MdfStage.sand, true));
+    expect(find.byKey(const ValueKey('mdfStageDoneSnack')), findsOneWidget);
+    // One line an order.
+    await tester.tap(find.byKey(const ValueKey('mdfDense')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfRow:SAL-ORD-1129')), findsOneWidget);
+    // «Показать просроченные» narrows the list.
+    await tester.tap(find.byKey(const ValueKey('mdfBottleneckShow')));
+    await tester.pumpAndSettle();
+    expect(repo.queries.last.overdue, isTrue);
   });
 
   testWidgets('the list shows an overdue order and its debt', (tester) async {

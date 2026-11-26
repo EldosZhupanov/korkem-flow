@@ -3951,5 +3951,17 @@
   "mdfJustNow": "Жаңа ғана",
   "mdfJustNowClear": "«Жаңа ғана»-дан алу",
   "mdfJustSaved": "{name} тапсырысы сақталды",
-  "mdfJustOpen": "Ашу"
+  "mdfJustOpen": "Ашу",
+  "mdfViewCards": "Карточкалар",
+  "mdfViewRows": "Жолдар — экранда 15 тапсырыс",
+  "mdfSectionMore": "тағы {count}",
+  "mdfRowPay": "Төлем",
+  "mdfRowStageReady": "{stage} дайын",
+  "mdfRowCall": "Қоңырау",
+  "mdfRowStageDone": "{order}: {stage} дайын",
+  "mdfRowUndo": "Болдырмау",
+  "mdfBottleneck": "{total} кешіккеннің {late}-і «{stage}» күтуде",
+  "mdfBottleneckQueue": "«{stage}» кезегінде: {orders} тапсырыс · {m2} м²",
+  "mdfBottleneckShow": "Кешіккендерді көрсету",
+  "mdfBottleneckPlan": "Цех жоспары"
 }

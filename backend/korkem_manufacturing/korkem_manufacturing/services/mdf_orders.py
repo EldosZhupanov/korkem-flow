@@ -1451,7 +1451,8 @@ def overview() -> dict:
 		filters={"company": current_company(), "korkem_direction": directions.FACADES, "docstatus": 1,
 				 "korkem_handed_over_on": ["is", "not set"]},
 		fields=["name", "docstatus", "delivery_date", "korkem_ready_on", "korkem_handed_over_on",
-				"korkem_hold_reason", *STAGES.values()],
+				"korkem_hold_reason", "korkem_finish", "korkem_extra_stages", "korkem_coatings", "korkem_tags",
+				*STAGES.values()],
 		limit_page_length=0,
 	)
 	owed = debts()
@@ -1461,6 +1462,51 @@ def overview() -> dict:
 		"ready": sum(1 for r in rows if status_of(r) == "ready"),
 		"debt": owed["total"],
 		"debtors": len(owed["customers"]),
+		"bottleneck": bottleneck(rows),
+	}
+
+
+#: A stage is the bottleneck when this many late orders, at least, wait at it…
+BOTTLENECK_MIN = 3
+#: …and at least this share of all the late ones.
+BOTTLENECK_SHARE = 0.5
+
+
+def bottleneck(rows) -> dict | None:
+	"""Where the late orders stand (owner, 26.11.2026: 22 overdue, nearly all
+	«сейчас: Раскрой»): the stage most of them wait at, how many, and the
+	whole queue before it — orders and m² — counted over every open order,
+	not the page shown. None when lateness has no one cause."""
+	late_at: dict[str, int] = {}
+	queue: dict[str, list[str]] = {}
+	late = 0
+	for row in rows:
+		if row.docstatus != 1 or row.korkem_handed_over_on or status_of(row) in ("ready", "on_hold"):
+			continue
+		waiting = next((s for s in stages_of(row) if not row.get(STAGES[s])), None)
+		if not waiting or waiting == "ready":
+			continue
+		queue.setdefault(waiting, []).append(row.name)
+		if _overdue(row):
+			late += 1
+			late_at[waiting] = late_at.get(waiting, 0) + 1
+	if not late_at:
+		return None
+	stage, count = max(late_at.items(), key=lambda kv: kv[1])
+	if count < BOTTLENECK_MIN or count < late * BOTTLENECK_SHARE:
+		return None
+	names = queue.get(stage, [])
+	# One query for the whole queue, not one an order.
+	area = frappe.get_all(
+		"Sales Order Item", filters={"parent": ["in", names], "item_code": facade_order.FACADE_ITEM},
+		pluck="korkem_area_m2", limit_page_length=0,
+	) if names else []
+	return {
+		"stage": stage,
+		"late": count,
+		"late_total": late,
+		"queue_orders": len(names),
+		"queue_m2": flt(sum(flt(v) for v in area), 2),
 	}
 
 

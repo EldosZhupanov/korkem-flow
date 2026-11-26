@@ -11440,5 +11440,67 @@
       }
     }
   },
-  "mdfJustOpen": "Open"
+  "mdfJustOpen": "Open",
+  "mdfViewCards": "Cards",
+  "mdfViewRows": "Rows — 15 orders a screen",
+  "mdfSectionMore": "{count} more",
+  "@mdfSectionMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfRowPay": "Payment",
+  "mdfRowStageReady": "{stage} done",
+  "@mdfRowStageReady": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowCall": "Call",
+  "mdfRowStageDone": "{order}: {stage} done",
+  "@mdfRowStageDone": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfRowUndo": "Undo",
+  "mdfBottleneck": "{late} of {total} late orders wait for «{stage}»",
+  "@mdfBottleneck": {
+    "placeholders": {
+      "late": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfBottleneckQueue": "Queued for «{stage}»: {orders} orders · {m2} m²",
+  "@mdfBottleneckQueue": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "orders": {
+        "type": "int"
+      },
+      "m2": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfBottleneckShow": "Show the late ones",
+  "mdfBottleneckPlan": "Shop plan"
 }

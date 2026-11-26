@@ -190,6 +190,21 @@ class MdfOrderRepository {
       ready: n('ready').toInt(),
       debt: n('debt').toDouble(),
       debtors: n('debtors').toInt(),
+      bottleneck: _bottleneck(data['bottleneck']),
+    );
+  }
+
+  static MdfBottleneck? _bottleneck(Object? raw) {
+    if (raw is! Map) return null;
+    final stage = MdfStage.parse(raw['stage']);
+    if (stage == null) return null;
+    num n(String key) => raw[key] is num ? raw[key] as num : 0;
+    return (
+      stage: stage,
+      late: n('late').toInt(),
+      lateTotal: n('late_total').toInt(),
+      queueOrders: n('queue_orders').toInt(),
+      queueM2: n('queue_m2').toDouble(),
     );
   }
 
