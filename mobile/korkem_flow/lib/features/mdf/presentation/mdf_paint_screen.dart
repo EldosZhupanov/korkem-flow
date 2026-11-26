@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/charts/bar_rows.dart';
+import 'package:korkem_flow/core/design/widgets/figure_tile.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -15,6 +16,7 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_paint_repository.dart';
+import 'package:korkem_flow/features/mdf/data/paint_stock_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_paint.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_client_paint.dart';
@@ -136,6 +138,15 @@ class _BoardState extends ConsumerState<_Board> {
     );
   }
 
+  /// «Покрасили партию»: every order of the colour that is not waiting for
+  /// the customer's paint goes to dry at once (owner, 26.11.2026).
+  Future<void> _dryBatch(List<MdfPaintOrder> batch) => _run(() async {
+    final paint = ref.read(mdfPaintRepositoryProvider);
+    for (final o in batch) {
+      await paint.startDrying(o.name);
+    }
+  });
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -144,6 +155,7 @@ class _BoardState extends ConsumerState<_Board> {
     final b = widget.board;
     final paint = ref.read(mdfPaintRepositoryProvider);
     final orders = ref.read(mdfOrderRepositoryProvider);
+    final stock = ref.watch(paintStockProvider).value;
     final colours = {for (final g in b.byColour) g.colour: g};
     // The biggest batch is the one to mix next, unless another is picked.
     final picked =
@@ -161,6 +173,213 @@ class _BoardState extends ConsumerState<_Board> {
         ],
       );
     }
+    final today = DateUtils.dateOnly(DateTime.now());
+    final toPaint = b.byColour.fold<int>(0, (n, g) => n + g.orders.length);
+    final dry = b.drying.where((d) => d.dry).length;
+    final short = [
+      ...?stock?.queue.where((n) => n.shortKg > 0).map((n) => n.shortKg),
+      ...?stock?.materials.where((m) => m.shortKg > 0).map((m) => m.shortKg),
+    ];
+
+    // «Красить»: the batches by colour, the picked one's orders, its norm.
+    final painting = <Widget>[
+      if (b.byColour.isNotEmpty) ...[
+        SectionLabel(l10n.mdfPaintByColour),
+        Text(l10n.mdfPaintByColourHint, style: theme.textTheme.bodySmall),
+        const SizedBox(height: AppSpacing.sm),
+        BarRows(
+          key: const ValueKey('paintColours'),
+          rows: [
+            for (final g in b.byColour)
+              BarRow(
+                id: g.colour,
+                label: g.colour,
+                value: g.areaM2,
+                note: l10n.mdfPaintColourNote(
+                  _m2(g.areaM2),
+                  '${g.orders.length}',
+                ),
+              ),
+          ],
+          selected: picked?.colour,
+          onSelect: (id) => setState(() => _colour = id),
+        ),
+        // The norm for the colour, and a batch bigger than it.
+        if (picked?.norm case final norm? when norm.use.isNotEmpty)
+          Padding(
+            key: const ValueKey('paintNorm'),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.mdfPaintNorm(
+                    [
+                      for (final u in norm.use)
+                        '${u.name} ${l10n.paintKgShort(filmMetres(u.kg))}',
+                    ].join(' · '),
+                  ),
+                  style: theme.textTheme.bodyMedium,
+                ),
+                if (norm.leftKg > 0)
+                  Text(
+                    l10n.mdfPaintBatch(
+                      filmMetres(norm.onHandKg),
+                      filmMetres(norm.batchKg ?? norm.onHandKg),
+                      filmMetres(norm.enamelKg),
+                      filmMetres(norm.leftKg),
+                    ),
+                    key: const ValueKey('paintNormLeft'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: status.warning,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        // The whole colour painted: its orders go to dry together.
+        if (picked != null)
+          if ([
+            for (final o in picked.orders)
+              if (!o.marks.waitingPaint) o,
+          ] case final batch when batch.length > 1)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FilledButton.icon(
+                key: ValueKey('paintBatchDry:${picked.colour}'),
+                onPressed: _busy ? null : () => _dryBatch(batch),
+                icon: const Icon(AppIcons.schedule),
+                label: Text(l10n.mdfPaintBatchDry(batch.length)),
+              ),
+            ),
+        if (picked != null)
+          for (final o in picked.orders)
+            _OrderTile(
+              tileKey: ValueKey('paintOrder:${o.name}'),
+              name: o.name,
+              customer: o.customer,
+              detail:
+                  '${_m2(o.areaM2)} · '
+                  '${mdfDay(o.deliveryDate, year: false)}',
+              detailColor: o.overdue ? status.danger : null,
+              marks: o.marks,
+              action: o.marks.waitingPaint
+                  ? FilledButton(
+                      key: ValueKey('paintIn:${o.name}'),
+                      onPressed: _busy ? null : () => _paintIn(o.name),
+                      child: Text(l10n.mdfClientPaintBrought),
+                    )
+                  : OutlinedButton.icon(
+                      key: ValueKey('paintDry:${o.name}'),
+                      onPressed: _busy
+                          ? null
+                          : () => _run(() => paint.startDrying(o.name)),
+                      icon: const Icon(AppIcons.schedule),
+                      label: Text(l10n.mdfPaintStartDrying),
+                    ),
+            ),
+      ],
+    ];
+
+    // «Сохнет»: how long, a bar of it, and «краска» once dry.
+    final drying = <Widget>[
+      if (b.drying.isNotEmpty) ...[
+        SectionLabel(l10n.mdfPaintDrying(b.dryHours)),
+        for (final d in b.drying)
+          _OrderTile(
+            tileKey: ValueKey('paintDrying:${d.name}'),
+            name: d.name,
+            customer: d.customer,
+            detail: [
+              d.colours.join(', '),
+              _m2(d.areaM2),
+              if (d.dry)
+                l10n.mdfPaintDry
+              else
+                l10n.mdfPaintLeft(
+                  '${d.minutesLeft ~/ 60}',
+                  '${d.minutesLeft % 60}',
+                  mdfDay(d.dryAt.split(' ').first, year: false),
+                  d.dryAt.length >= 16 ? d.dryAt.substring(11, 16) : '',
+                ),
+            ].join(' · '),
+            detailColor: d.dry ? status.success : status.warning,
+            marks: d.marks,
+            // How far along the drying is (owner, 26.11.2026).
+            progress: d.dry || b.dryHours <= 0
+                ? 1.0
+                : (1 - d.minutesLeft / (b.dryHours * 60))
+                      .clamp(0, 1)
+                      .toDouble(),
+            progressColor: d.dry ? status.success : status.warning,
+            action: d.dry
+                ? FilledButton(
+                    key: ValueKey('paintDone:${d.name}'),
+                    onPressed: _busy
+                        ? null
+                        : () => _run(
+                            () => orders.setStage(
+                              d.name,
+                              MdfStage.paint,
+                              done: true,
+                            ),
+                          ),
+                    child: Text(l10n.mdfPaintMarkPainted),
+                  )
+                : TextButton(
+                    key: ValueKey('paintUndo:${d.name}'),
+                    onPressed: _busy
+                        ? null
+                        : () => _run(() => paint.stopDrying(d.name)),
+                    child: Text(l10n.mdfPaintUndo),
+                  ),
+          ),
+      ],
+    ];
+
+    // «Едет»: still in the shop before the paint — late in red, an order
+    // with no colour or size in yellow.
+    final coming = <Widget>[
+      if (b.coming.isNotEmpty) ...[
+        SectionLabel(l10n.mdfPaintComing),
+        for (final c in b.coming)
+          _OrderTile(
+            tileKey: ValueKey('paintComing:${c.name}'),
+            name: c.name,
+            customer: c.customer,
+            detail: [
+              if (c.colours.isNotEmpty) c.colours.join(', '),
+              _m2(c.areaM2),
+              mdfDay(c.deliveryDate, year: false),
+              if (_lateDays(c.deliveryDate, today) case final late? when late > 0)
+                l10n.mdfPaintLate(late),
+            ].join(' · '),
+            detailColor:
+                (_lateDays(c.deliveryDate, today) ?? 0) > 0 ? status.danger : null,
+            marks: c.marks,
+            check: c.colours.isEmpty || c.areaM2 <= 0
+                ? l10n.mdfPaintCheckOrder
+                : null,
+            action: c.marks.waitingPaint
+                ? TextButton(
+                    key: ValueKey('paintIn:${c.name}'),
+                    onPressed: _busy ? null : () => _paintIn(c.name),
+                    child: Text(l10n.mdfClientPaintBrought),
+                  )
+                : null,
+            stage: switch (MdfStage.parse(c.stage)) {
+              final stage? => l10n.mdfPaintNowAt(mdfStageLabel(stage, l10n)),
+              null => null,
+            },
+          ),
+      ],
+    ];
+
+    Widget column(List<Widget> children) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    );
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -169,191 +388,72 @@ class _BoardState extends ConsumerState<_Board> {
         AppSpacing.xl,
       ),
       children: [
-        ReadableWidth(
-          child: Text(
-            l10n.mdfPaintSummary(
-              _m2(b.waitingM2),
-              '${b.drying.length}',
-              _m2(b.comingM2),
+        // The paint shop at a glance (owner, 26.11.2026: figures, as on
+        // «Отдел плёнки», not one small line).
+        FigureRow(
+          key: const ValueKey('paintFigures'),
+          tiles: [
+            FigureTile(
+              id: 'paint:coming',
+              title: l10n.mdfPaintFigComing,
+              value: _m2(b.comingM2),
+              note: l10n.mdfPaintFigOrders(b.coming.length),
             ),
-            key: const ValueKey('paintSummary'),
-            style: theme.textTheme.titleMedium,
-          ),
+            FigureTile(
+              id: 'paint:toPaint',
+              title: l10n.mdfPaintFigToPaint,
+              value: _m2(b.waitingM2),
+              note: l10n.mdfPaintFigOrders(toPaint),
+            ),
+            FigureTile(
+              id: 'paint:drying',
+              title: l10n.mdfPaintFigDrying,
+              value: '${b.drying.length}',
+              note: dry > 0 ? l10n.mdfPaintFigDry(dry) : null,
+              colour: dry > 0 ? status.success : null,
+            ),
+            if (stock != null)
+              FigureTile(
+                id: 'paint:short',
+                title: l10n.mdfPaintFigShort,
+                value: '${short.length}',
+                note: short.isEmpty
+                    ? null
+                    : l10n.paintKgShort(
+                        filmMetres(short.fold<double>(0, (a, k) => a + k)),
+                      ),
+                colour: short.isEmpty ? status.success : status.danger,
+              ),
+          ],
         ),
-        if (b.byColour.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
-          ReadableWidth(child: SectionLabel(l10n.mdfPaintByColour)),
-          ReadableWidth(
-            child: Text(
-              l10n.mdfPaintByColourHint,
-              style: theme.textTheme.bodySmall,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          ReadableWidth(
-            child: BarRows(
-              key: const ValueKey('paintColours'),
-              rows: [
-                for (final g in b.byColour)
-                  BarRow(
-                    id: g.colour,
-                    label: g.colour,
-                    value: g.areaM2,
-                    note: l10n.mdfPaintColourNote(
-                      _m2(g.areaM2),
-                      '${g.orders.length}',
-                    ),
-                  ),
-              ],
-              selected: picked?.colour,
-              onSelect: (id) => setState(() => _colour = id),
-            ),
-          ),
-          // The norm for the colour, and a batch bigger than it.
-          if (picked?.norm case final norm? when norm.use.isNotEmpty)
-            ReadableWidth(
-              child: Padding(
-                key: const ValueKey('paintNorm'),
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                child: Column(
+        const SizedBox(height: AppSpacing.md),
+        // On a wide screen the road of a facade in three columns (owner,
+        // 26.11.2026): on its way → to paint → drying; else one under
+        // another, the paint first.
+        LayoutBuilder(
+          builder: (context, box) => box.maxWidth >= _boardWidth
+              ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.mdfPaintNorm(
-                        [
-                          for (final u in norm.use)
-                            '${u.name} ${l10n.paintKgShort(filmMetres(u.kg))}',
-                        ].join(' · '),
-                      ),
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    if (norm.leftKg > 0)
-                      Text(
-                        l10n.mdfPaintBatch(
-                          filmMetres(norm.onHandKg),
-                          filmMetres(norm.batchKg ?? norm.onHandKg),
-                          filmMetres(norm.enamelKg),
-                          filmMetres(norm.leftKg),
-                        ),
-                        key: const ValueKey('paintNormLeft'),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: status.warning,
-                        ),
-                      ),
+                    Expanded(child: column(coming)),
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(child: column(painting)),
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(child: column(drying)),
                   ],
+                )
+              : ReadableWidth(
+                  child: column([
+                    ...painting,
+                    if (drying.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                    ...drying,
+                    if (coming.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                    ...coming,
+                  ]),
                 ),
-              ),
-            ),
-          if (picked != null)
-            for (final o in picked.orders)
-              ReadableWidth(
-                child: _OrderTile(
-                  tileKey: ValueKey('paintOrder:${o.name}'),
-                  name: o.name,
-                  customer: o.customer,
-                  detail:
-                      '${_m2(o.areaM2)} · '
-                      '${mdfDay(o.deliveryDate, year: false)}',
-                  detailColor: o.overdue ? status.danger : null,
-                  marks: o.marks,
-                  action: o.marks.waitingPaint
-                      ? FilledButton(
-                          key: ValueKey('paintIn:${o.name}'),
-                          onPressed: _busy ? null : () => _paintIn(o.name),
-                          child: Text(l10n.mdfClientPaintBrought),
-                        )
-                      : OutlinedButton.icon(
-                          key: ValueKey('paintDry:${o.name}'),
-                          onPressed: _busy
-                              ? null
-                              : () => _run(() => paint.startDrying(o.name)),
-                          icon: const Icon(AppIcons.schedule),
-                          label: Text(l10n.mdfPaintStartDrying),
-                        ),
-                ),
-              ),
-        ],
+        ),
         // The store: what is short for the queue, what is here, «Приход».
         const PaintStockSection(),
-        if (b.drying.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
-          ReadableWidth(child: SectionLabel(l10n.mdfPaintDrying(b.dryHours))),
-          for (final d in b.drying)
-            ReadableWidth(
-              child: _OrderTile(
-                tileKey: ValueKey('paintDrying:${d.name}'),
-                name: d.name,
-                customer: d.customer,
-                detail: [
-                  d.colours.join(', '),
-                  _m2(d.areaM2),
-                  if (d.dry)
-                    l10n.mdfPaintDry
-                  else
-                    l10n.mdfPaintLeft(
-                      '${d.minutesLeft ~/ 60}',
-                      '${d.minutesLeft % 60}',
-                      mdfDay(d.dryAt.split(' ').first, year: false),
-                      d.dryAt.length >= 16 ? d.dryAt.substring(11, 16) : '',
-                    ),
-                ].join(' · '),
-                detailColor: d.dry ? status.success : status.warning,
-                marks: d.marks,
-                action: d.dry
-                    ? FilledButton(
-                        key: ValueKey('paintDone:${d.name}'),
-                        onPressed: _busy
-                            ? null
-                            : () => _run(
-                                () => orders.setStage(
-                                  d.name,
-                                  MdfStage.paint,
-                                  done: true,
-                                ),
-                              ),
-                        child: Text(l10n.mdfPaintMarkPainted),
-                      )
-                    : TextButton(
-                        key: ValueKey('paintUndo:${d.name}'),
-                        onPressed: _busy
-                            ? null
-                            : () => _run(() => paint.stopDrying(d.name)),
-                        child: Text(l10n.mdfPaintUndo),
-                      ),
-              ),
-            ),
-        ],
-        if (b.coming.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
-          ReadableWidth(child: SectionLabel(l10n.mdfPaintComing)),
-          for (final c in b.coming)
-            ReadableWidth(
-              child: _OrderTile(
-                tileKey: ValueKey('paintComing:${c.name}'),
-                name: c.name,
-                customer: c.customer,
-                detail: [
-                  c.colours.join(', '),
-                  _m2(c.areaM2),
-                  mdfDay(c.deliveryDate, year: false),
-                ].join(' · '),
-                marks: c.marks,
-                action: c.marks.waitingPaint
-                    ? TextButton(
-                        key: ValueKey('paintIn:${c.name}'),
-                        onPressed: _busy ? null : () => _paintIn(c.name),
-                        child: Text(l10n.mdfClientPaintBrought),
-                      )
-                    : null,
-                stage: switch (MdfStage.parse(c.stage)) {
-                  final stage? => l10n.mdfPaintNowAt(
-                    mdfStageLabel(stage, l10n),
-                  ),
-                  null => null,
-                },
-              ),
-            ),
-        ],
         if (b.popular.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
           ReadableWidth(child: SectionLabel(l10n.mdfPaintPopular)),
@@ -366,10 +466,14 @@ class _BoardState extends ConsumerState<_Board> {
                     id: 'popular:${p.colour}',
                     label: p.colour,
                     value: p.areaM2,
-                    note: l10n.mdfPaintColourNote(
-                      _m2(p.areaM2),
-                      '${p.orders}',
-                    ),
+                    note: [
+                      l10n.mdfPaintColourNote(_m2(p.areaM2), '${p.orders}'),
+                      // A month of it, in kilos by the recipe: what to keep.
+                      if (stock != null && stock.kgPerM2 > 0)
+                        l10n.mdfPaintMonthKg(
+                          filmMetres(p.areaM2 / 3 * stock.kgPerM2),
+                        ),
+                    ].join(' · '),
                     color: status.info,
                   ),
               ],
@@ -380,6 +484,15 @@ class _BoardState extends ConsumerState<_Board> {
     );
   }
 }
+
+/// Days past [due] (an ISO day) as of [today]; null when unknown.
+int? _lateDays(String due, DateTime today) {
+  final d = DateTime.tryParse(due);
+  return d == null ? null : today.difference(DateUtils.dateOnly(d)).inDays;
+}
+
+/// From this width the board stands in three columns.
+const double _boardWidth = 1100;
 
 /// One order on the board: who, how much, its marks, and what can be done.
 class _OrderTile extends StatelessWidget {
@@ -392,7 +505,17 @@ class _OrderTile extends StatelessWidget {
     this.detailColor,
     this.action,
     this.stage,
+    this.progress,
+    this.progressColor,
+    this.check,
   });
+
+  /// Drying: how far along, 0–1, as a bar under the line.
+  final double? progress;
+  final Color? progressColor;
+
+  /// Something wrong with the order itself — «нет цвета или размеров».
+  final String? check;
 
   final Key tileKey;
   final String name;
@@ -432,6 +555,8 @@ class _OrderTile extends StatelessWidget {
         ),
       if (marks.twoSided)
         StatusChip(label: l10n.mdfPaintTwoSided, intent: StatusIntent.info),
+      if (check != null)
+        StatusChip(label: check!, intent: StatusIntent.warning),
     ];
     return ListTile(
       key: tileKey,
@@ -445,6 +570,22 @@ class _OrderTile extends StatelessWidget {
             detail,
             style: detailColor == null ? null : TextStyle(color: detailColor),
           ),
+          if (progress case final p?)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                child: LinearProgressIndicator(
+                  key: ValueKey('paintProgress:$name'),
+                  value: p,
+                  minHeight: AppSpacing.xs,
+                  color: progressColor,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
+                ),
+              ),
+            ),
           if (chips.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),

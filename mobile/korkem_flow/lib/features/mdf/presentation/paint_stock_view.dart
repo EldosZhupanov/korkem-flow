@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
@@ -29,17 +30,35 @@ String _kgText(double v) => filmMetres(v);
 /// «Склад краски» on the paint board (owner, 15.11.2026): what is short for
 /// the queue, colour by colour; each paint with what is left and where it
 /// was last bought; what is owed for paint; «Приход краски».
-class PaintStockSection extends ConsumerWidget {
+class PaintStockSection extends ConsumerStatefulWidget {
   const PaintStockSection({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PaintStockSection> createState() => _PaintStockSectionState();
+}
+
+/// From this many short lines they fold into one: eight red «Докупить»
+/// read as noise (owner, 26.11.2026).
+const _foldShort = 3;
+
+class _PaintStockSectionState extends ConsumerState<PaintStockSection> {
+  bool _all = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final status = context.statusColors;
     final money = mdfMoney(context);
     final stock = ref.watch(paintStockProvider).value;
     if (stock == null) return const SizedBox.shrink();
+    final shorts = [
+      ...stock.queue.where((n) => n.shortKg > 0).map((n) => n.shortKg),
+      ...stock.materials.where((m) => m.shortKg > 0).map((m) => m.shortKg),
+    ];
+    final shortCount = shorts.length;
+    final shortKg = shorts.fold<double>(0, (a, k) => a + k);
+    final folded = !_all && shortCount >= _foldShort;
     Future<void> receive({String? colour, String? base}) async {
       final done = await showPaintReceive(
         context,
@@ -105,10 +124,51 @@ class PaintStockSection extends ConsumerWidget {
               ),
             ),
           ),
+        // Many short: one line and «Собрать закупку», the rows on demand.
+        if (folded)
+          ReadableWidth(
+            child: Card(
+              key: const ValueKey('paintShortFold'),
+              color: status.danger.withValues(alpha: AppTint.surface),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    Text(
+                      l10n.paintShortFold(
+                        shortCount,
+                        _kgText(shortKg),
+                      ),
+                      style: TextStyle(color: status.danger),
+                    ),
+                    Wrap(
+                      spacing: AppSpacing.xs,
+                      children: [
+                        FilledButton.tonal(
+                          key: const ValueKey('paintShortList'),
+                          onPressed: () => _shoppingList(context, stock),
+                          child: Text(l10n.paintShortList),
+                        ),
+                        TextButton(
+                          key: const ValueKey('paintShortAll'),
+                          onPressed: () => setState(() => _all = true),
+                          child: Text(l10n.paintShortShow),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         // Enough for the queue? The short ones first, in red, with a
         // receipt one tap away.
         for (final n in [
-          ...stock.queue.where((n) => n.shortKg > 0),
+          if (!folded) ...stock.queue.where((n) => n.shortKg > 0),
           ...stock.queue.where((n) => n.shortKg <= 0),
         ])
           ReadableWidth(
@@ -164,6 +224,7 @@ class PaintStockSection extends ConsumerWidget {
             ),
           ),
         for (final m in stock.materials)
+          if (!folded || m.shortKg <= 0)
           ReadableWidth(
             child: ListTile(
               key: ValueKey('paintMaterial:${m.name}'),
@@ -1669,4 +1730,65 @@ class _SupplierCardDialogState extends State<_SupplierCardDialog> {
       ],
     );
   }
+}
+
+/// «Собрать закупку» (owner, 26.11.2026): every colour and material the
+/// queue is short of, in kilograms — one list to read out or paste.
+Future<void> _shoppingList(BuildContext context, PaintStock stock) {
+  final l10n = AppLocalizations.of(context);
+  final lines = [
+    for (final n in stock.queue)
+      if (n.shortKg > 0) (n.colour, n.shortKg),
+    for (final m in stock.materials)
+      if (m.shortKg > 0) (m.name, m.shortKg),
+  ];
+  final text = [
+    for (final (name, kg) in lines) l10n.paintShortLine(name, _kgText(kg)),
+  ].join('\n');
+  return showDialog<void>(
+    context: context,
+    builder: (dialog) => AlertDialog(
+      title: Text(l10n.paintShortList),
+      content: SizedBox(
+        width: AppSpacing.xxxl * 8,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (name, kg) in lines)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.xxs,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(name)),
+                      Text(_kgText(kg)),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton.icon(
+          key: const ValueKey('paintShortCopy'),
+          icon: const Icon(AppIcons.copy),
+          label: Text(l10n.paintShortCopy),
+          onPressed: () async {
+            final messenger = ScaffoldMessenger.of(context);
+            await Clipboard.setData(ClipboardData(text: text));
+            if (dialog.mounted) Navigator.of(dialog).pop();
+            messenger.showDone(l10n.paintShortCopied);
+          },
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialog).pop(),
+          child: Text(l10n.actionCancel),
+        ),
+      ],
+    ),
+  );
 }

@@ -170,9 +170,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // The paint shop at a glance: figures, not one small line (owner,
+    // 26.11.2026) — the same three numbers as before.
+    String figure(String id) => tester
+        .widget<Text>(find.byKey(ValueKey('figure:paint:$id:value')))
+        .data!;
     expect(
-      tester.widget<Text>(find.byKey(const ValueKey('paintSummary'))).data,
-      'To paint 6.30 м² · drying 2 · on the way 4.00 м²',
+      [for (final id in ['toPaint', 'drying', 'coming']) figure(id)],
+      ['6.30 м²', '2', '4.00 м²'],
     );
     // The biggest batch is picked: its orders are listed, the other's not.
     expect(find.byKey(const ValueKey('paintOrder:SO-1')), findsOneWidget);

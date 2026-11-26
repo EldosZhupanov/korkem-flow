@@ -8745,23 +8745,32 @@
   },
   "mdfSumMarginLowest": "Earned least",
   "mdfPaintTitle": "Paint shop",
+  "mdfPaintBatchDry": "Batch painted — to dry ({n})",
+  "@mdfPaintBatchDry": {"placeholders": {"n": {"type": "int"}}},
+  "mdfPaintLate": "{days} d late",
+  "@mdfPaintLate": {"placeholders": {"days": {"type": "int"}}},
+  "mdfPaintCheckOrder": "no colour or size — check the order",
+  "mdfPaintFigComing": "On the way to paint",
+  "mdfPaintFigToPaint": "To paint now",
+  "mdfPaintFigDrying": "Drying",
+  "mdfPaintFigDry": "dry: {n}",
+  "@mdfPaintFigDry": {"placeholders": {"n": {"type": "int"}}},
+  "mdfPaintFigShort": "Paint short",
+  "mdfPaintFigOrders": "orders: {n}",
+  "@mdfPaintFigOrders": {"placeholders": {"n": {"type": "int"}}},
+  "mdfPaintMonthKg": "≈ {kg} kg a month",
+  "@mdfPaintMonthKg": {"placeholders": {"kg": {"type": "String"}}},
+  "paintShortFold": "Short for the queue: {count} items · ≈ {kg} kg",
+  "@paintShortFold": {"placeholders": {"count": {"type": "int"}, "kg": {"type": "String"}}},
+  "paintShortList": "Make a shopping list",
+  "paintShortShow": "Show all",
+  "paintShortLine": "{name} — {kg} kg",
+  "@paintShortLine": {"placeholders": {"name": {"type": "String"}, "kg": {"type": "String"}}},
+  "paintShortCopy": "Copy",
+  "paintShortCopied": "Shopping list copied — paste it into a message to the supplier",
   "mdfPaintHint": "What to paint by colour, what is drying",
   "mdfPaintDryHours": "Drying time, hours",
   "mdfPaintEmpty": "Nothing to paint",
-  "mdfPaintSummary": "To paint {waiting} · drying {drying} · on the way {coming}",
-  "@mdfPaintSummary": {
-    "placeholders": {
-      "waiting": {
-        "type": "String"
-      },
-      "drying": {
-        "type": "String"
-      },
-      "coming": {
-        "type": "String"
-      }
-    }
-  },
   "mdfPaintDrying": "Drying ({hours} h)",
   "@mdfPaintDrying": {
     "placeholders": {
