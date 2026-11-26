@@ -47,6 +47,9 @@ class TestUnpricedLine(IntegrationTestCase):
 										 head={"thickness_mm": 16},
 										 lines=[{"height_mm": 1000, "width_mm": 500, "qty": 4}])  # no milling, no price
 			self.assertEqual(card["total"], 0)
+			# Saved as a draft — but not accepted without its price.
+			with self.assertRaises(frappe.ValidationError):
+				mdf_orders.accept(card["name"])
 		finally:
 			frappe.set_user("Administrator")
 			if price:

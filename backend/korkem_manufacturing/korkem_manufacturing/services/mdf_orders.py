@@ -553,6 +553,12 @@ def accept(order: str, over_limit: str | None = None) -> dict:
 	doc = _order(order)
 	if doc.docstatus != 0:
 		frappe.throw("Заказ уже принят.")
+	# A draft may wait for its prices; an accepted order may not (owner,
+	# 26.11.2026: «на 1-й и 2-й позиции не было указано цифры»). A price
+	# typed as 0 by hand — a warranty, a gift — is a price.
+	unpriced = [str(i.idx) for i in doc.items if not flt(i.korkem_rate_m2) and not i.korkem_manual_rate]
+	if unpriced:
+		frappe.throw("Нет цены у позиций: " + ", ".join(unpriced) + ". Выберите покрытие или впишите цену за м².")
 	check = mdf_customers.debt_check(doc.customer, flt(doc.grand_total))
 	reason = " ".join((over_limit or "").split())[:500]
 	if check["over"]:
