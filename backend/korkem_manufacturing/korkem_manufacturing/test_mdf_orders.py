@@ -1405,6 +1405,27 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertEqual(self._as(MANAGER, mdf_orders.overview)["ready"], before["ready"] + 1)
 		self.assertEqual((row()["waiting"], row()["ready_days"]), (None, 0))
 
+	def test_today_says_what_burns_what_to_decide_and_what_was_just_done(self):
+		# «Сегодня» (owner, 27.11.2026): the list's figures, the shop's load,
+		# the things to decide, the last things done.
+		from korkem_manufacturing.services import today
+
+		card = self._draft()
+		self.addCleanup(self._drop, card["name"])
+		self._as(MANAGER, mdf_orders.accept, card["name"])
+		self._as(MANAGER, mdf_orders.set_stage, card["name"], "cut")
+		home = self._as(MANAGER, today.today)
+		overview = self._as(MANAGER, mdf_orders.overview)
+		self.assertEqual((home["figures"]["overdue"], home["figures"]["debt"]),
+						 (overview["overdue"], overview["debt"]))
+		self.assertEqual(set(home), {"day", "figures", "load", "decide", "recent"})
+		self.assertTrue(all("days" in s and "jam" in s for s in home["load"]))
+		done = [r for r in home["recent"] if r["order"] == card["name"]]
+		self.assertEqual([r["action"] for r in done][:2], ["mdf.stage", "mdf.order_accepted"])
+		self.assertEqual(done[0]["stage"], "cut")
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, today.today)
+
 	def test_the_overview_names_the_stage_the_late_orders_wait_at(self):
 		# Owner, 26.11.2026: 22 overdue, nearly all «сейчас: Раскрой» — say the
 		# cause, not 22 rows.

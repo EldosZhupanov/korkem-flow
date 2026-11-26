@@ -13344,4 +13344,181 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfReportNothing => 'Бұл кезеңде ештеңе жоқ';
+
+  @override
+  String get shopTodayTitle => 'Бүгін';
+
+  @override
+  String get shopTodayOverdue => 'Кешіккен';
+
+  @override
+  String shopTodayOverdueAt(String stage) {
+    return '«$stage» күтуде';
+  }
+
+  @override
+  String get shopTodayOpenList => 'тізімді ашу';
+
+  @override
+  String get shopTodayAtRisk => 'Мерзіміне үлгермейді';
+
+  @override
+  String get shopTodayAtRiskNote => 'әзірге көмектесуге болады';
+
+  @override
+  String get shopTodayReady => 'Бергенде түседі';
+
+  @override
+  String shopTodayReadyNote(int count) {
+    return '$count беруге дайын';
+  }
+
+  @override
+  String get shopTodayDebt => 'Клиенттер қарызы';
+
+  @override
+  String shopTodayDebtors(int count) {
+    return 'клиент: $count';
+  }
+
+  @override
+  String shopTodayDecideTitle(int count) {
+    return 'Шешу керек · $count';
+  }
+
+  @override
+  String get shopTodayAllCalm => 'Бәрі тыныш';
+
+  @override
+  String shopTodayDecideJam(String stage, String days, String m2) {
+    return '«$stage» — тар жер: $days күн кезек, $m2 м²';
+  }
+
+  @override
+  String shopTodayDecideAtRisk(int count) {
+    return 'Мерзіміне үлгермейді: $count — клиенттерге ескерту не ауысым қосу';
+  }
+
+  @override
+  String shopTodayDecideFilm(String films) {
+    return 'Пленка жетпейді: $films';
+  }
+
+  @override
+  String shopTodayDecidePostEmpty(String stage, int orders) {
+    return '«$stage»-да ешкім жоқ — $orders күтуде';
+  }
+
+  @override
+  String shopTodayDecideUnassigned(int count, String stages) {
+    return 'Кезеңдер ешкімге берілмеген: $count ($stages)';
+  }
+
+  @override
+  String shopTodayDecideNoPrepay(int count) {
+    return 'Алдын ала төлемсіз шұғыл: $count';
+  }
+
+  @override
+  String get shopTodayGoPlan => 'цех жоспары';
+
+  @override
+  String get shopTodayGoFilm => 'тапсырысқа';
+
+  @override
+  String get shopTodayGoTeam => 'команда';
+
+  @override
+  String get shopTodayGoList => 'тізім';
+
+  @override
+  String get shopTodayLoadTitle => 'Цех жүктемесі — кезектегі жұмыс күндері';
+
+  @override
+  String shopTodayLoadDays(String days, int m2) {
+    return '$days күн · $m2 м²';
+  }
+
+  @override
+  String get shopTodayLoadNobody => 'постта ешкім жоқ';
+
+  @override
+  String get shopTodayLoadNote =>
+      'Соңғы екі аптаның қарқыны бойынша. Қызыл — тар жер.';
+
+  @override
+  String shopTodayRecentStage(String stage) {
+    return '$stage дайын';
+  }
+
+  @override
+  String shopTodayRecentStageOff(String stage) {
+    return '$stage алынды';
+  }
+
+  @override
+  String shopTodayRecentAccepted(String amount) {
+    return 'қабылданды · $amount';
+  }
+
+  @override
+  String get shopTodayRecentHandedOver => 'берілді';
+
+  @override
+  String get shopTodayRecentCancelled => 'болдырылмады';
+
+  @override
+  String shopTodayRecentPaid(String amount) {
+    return 'төлем $amount';
+  }
+
+  @override
+  String get mdfDueNoLoad =>
+      'Цех жүктемесін білу мүмкін болмады — әдеттегі күнтізбеден таңдаңыз.';
+
+  @override
+  String mdfDueTitle(String m2) {
+    return 'Тапсыру мерзімі · $m2 м²';
+  }
+
+  @override
+  String get mdfDueSafe => '✓ СЕНІМДІ';
+
+  @override
+  String get mdfDueSafeNote => 'ақау мен қайта жасауға +1 күн';
+
+  @override
+  String get mdfDueEarliest => 'ТЫҒЫЗ';
+
+  @override
+  String get mdfDueEarliestNote => 'ештеңе бұзылмаса';
+
+  @override
+  String mdfDueFilmComes(String film, String supplier, String date) {
+    return '$film пленкасы қоймада аз — $supplier $date әкеледі. Мерзімді әкелген күннен санаймыз.';
+  }
+
+  @override
+  String mdfDueFilmUnknown(String film) {
+    return '$film пленкасы қоймада аз, қашан әкелетіні белгісіз: мерзім күмәнді.';
+  }
+
+  @override
+  String mdfDueOverloaded(String due, String cap, String after) {
+    return 'Бұл күні $due м² бар, қуат $cap м². Сіздің тапсырыспен — $after м²: шамадан тыс.';
+  }
+
+  @override
+  String mdfDueLegend(String cap) {
+    return 'Күн түсі — тапсырылатын м² цех қуатына қарсы ($cap м²/күн). Сұр — ертерек үлгермейді.';
+  }
+
+  @override
+  String get mdfDueLegendNoPace =>
+      'Цех қарқыны әлі белгісіз — күнге қанша м² тапсырылатыны ғана көрінеді.';
+
+  @override
+  String mdfDuePick(String date) {
+    return '$date таңдау';
+  }
 }

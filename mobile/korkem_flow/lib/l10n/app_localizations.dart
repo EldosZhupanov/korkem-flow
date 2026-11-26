@@ -22863,6 +22863,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing in this period'**
   String get mdfReportNothing;
+
+  /// No description provided for @shopTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get shopTodayTitle;
+
+  /// No description provided for @shopTodayOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get shopTodayOverdue;
+
+  /// No description provided for @shopTodayOverdueAt.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for «{stage}»'**
+  String shopTodayOverdueAt(String stage);
+
+  /// No description provided for @shopTodayOpenList.
+  ///
+  /// In en, this message translates to:
+  /// **'open the list'**
+  String get shopTodayOpenList;
+
+  /// No description provided for @shopTodayAtRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Will miss the date'**
+  String get shopTodayAtRisk;
+
+  /// No description provided for @shopTodayAtRiskNote.
+  ///
+  /// In en, this message translates to:
+  /// **'still time to help'**
+  String get shopTodayAtRiskNote;
+
+  /// No description provided for @shopTodayReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Comes in at hand-over'**
+  String get shopTodayReady;
+
+  /// No description provided for @shopTodayReadyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ready to hand over'**
+  String shopTodayReadyNote(int count);
+
+  /// No description provided for @shopTodayDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers owe'**
+  String get shopTodayDebt;
+
+  /// No description provided for @shopTodayDebtors.
+  ///
+  /// In en, this message translates to:
+  /// **'customers: {count}'**
+  String shopTodayDebtors(int count);
+
+  /// No description provided for @shopTodayDecideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To decide · {count}'**
+  String shopTodayDecideTitle(int count);
+
+  /// No description provided for @shopTodayAllCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'All calm'**
+  String get shopTodayAllCalm;
+
+  /// No description provided for @shopTodayDecideJam.
+  ///
+  /// In en, this message translates to:
+  /// **'«{stage}» is the bottleneck: {days} days queued, {m2} m²'**
+  String shopTodayDecideJam(String stage, String days, String m2);
+
+  /// No description provided for @shopTodayDecideAtRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Will miss the date: {count} — tell the customers or add a shift'**
+  String shopTodayDecideAtRisk(int count);
+
+  /// No description provided for @shopTodayDecideFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'Film short: {films}'**
+  String shopTodayDecideFilm(String films);
+
+  /// No description provided for @shopTodayDecidePostEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody on «{stage}» — {orders} waiting'**
+  String shopTodayDecidePostEmpty(String stage, int orders);
+
+  /// No description provided for @shopTodayDecideUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages given to nobody: {count} ({stages})'**
+  String shopTodayDecideUnassigned(int count, String stages);
+
+  /// No description provided for @shopTodayDecideNoPrepay.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent with no prepayment: {count}'**
+  String shopTodayDecideNoPrepay(int count);
+
+  /// No description provided for @shopTodayGoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'shop plan'**
+  String get shopTodayGoPlan;
+
+  /// No description provided for @shopTodayGoFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'to order'**
+  String get shopTodayGoFilm;
+
+  /// No description provided for @shopTodayGoTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'team'**
+  String get shopTodayGoTeam;
+
+  /// No description provided for @shopTodayGoList.
+  ///
+  /// In en, this message translates to:
+  /// **'list'**
+  String get shopTodayGoList;
+
+  /// No description provided for @shopTodayLoadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop load — days of work queued'**
+  String get shopTodayLoadTitle;
+
+  /// No description provided for @shopTodayLoadDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d · {m2} m²'**
+  String shopTodayLoadDays(String days, int m2);
+
+  /// No description provided for @shopTodayLoadNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'nobody on the post'**
+  String get shopTodayLoadNobody;
+
+  /// No description provided for @shopTodayLoadNote.
+  ///
+  /// In en, this message translates to:
+  /// **'At the pace of the last two weeks. Red is the bottleneck.'**
+  String get shopTodayLoadNote;
+
+  /// No description provided for @shopTodayRecentStage.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage} done'**
+  String shopTodayRecentStage(String stage);
+
+  /// No description provided for @shopTodayRecentStageOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage} taken off'**
+  String shopTodayRecentStageOff(String stage);
+
+  /// No description provided for @shopTodayRecentAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'accepted · {amount}'**
+  String shopTodayRecentAccepted(String amount);
+
+  /// No description provided for @shopTodayRecentHandedOver.
+  ///
+  /// In en, this message translates to:
+  /// **'handed over'**
+  String get shopTodayRecentHandedOver;
+
+  /// No description provided for @shopTodayRecentCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'cancelled'**
+  String get shopTodayRecentCancelled;
+
+  /// No description provided for @shopTodayRecentPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'payment {amount}'**
+  String shopTodayRecentPaid(String amount);
+
+  /// No description provided for @mdfDueNoLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get the shop\'s load — pick a day in the plain calendar.'**
+  String get mdfDueNoLoad;
+
+  /// No description provided for @mdfDueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date · {m2} m²'**
+  String mdfDueTitle(String m2);
+
+  /// No description provided for @mdfDueSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ SAFE'**
+  String get mdfDueSafe;
+
+  /// No description provided for @mdfDueSafeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'+1 day for scrap and a redo'**
+  String get mdfDueSafeNote;
+
+  /// No description provided for @mdfDueEarliest.
+  ///
+  /// In en, this message translates to:
+  /// **'TIGHT'**
+  String get mdfDueEarliest;
+
+  /// No description provided for @mdfDueEarliestNote.
+  ///
+  /// In en, this message translates to:
+  /// **'if nothing goes wrong'**
+  String get mdfDueEarliestNote;
+
+  /// No description provided for @mdfDueFilmComes.
+  ///
+  /// In en, this message translates to:
+  /// **'Little {film} film on the shelf — {supplier} brings it on {date}. The date counts from then.'**
+  String mdfDueFilmComes(String film, String supplier, String date);
+
+  /// No description provided for @mdfDueFilmUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Little {film} film on the shelf, no word when it comes: the date is uncertain.'**
+  String mdfDueFilmUnknown(String film);
+
+  /// No description provided for @mdfDueOverloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'{due} m² are due that day against {cap} m² a day. With yours — {after} m²: overloaded.'**
+  String mdfDueOverloaded(String due, String cap, String after);
+
+  /// No description provided for @mdfDueLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'A day\'s colour — m² due against the shop\'s pace ({cap} m²/day). Grey — too soon.'**
+  String mdfDueLegend(String cap);
+
+  /// No description provided for @mdfDueLegendNoPace.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop\'s pace isn\'t known yet — only each day\'s m² due is shown.'**
+  String get mdfDueLegendNoPace;
+
+  /// No description provided for @mdfDuePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick {date}'**
+  String mdfDuePick(String date);
 }
 
 class _AppLocalizationsDelegate

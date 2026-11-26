@@ -13420,4 +13420,181 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfReportNothing => 'За этот период ничего нет';
+
+  @override
+  String get shopTodayTitle => 'Сегодня';
+
+  @override
+  String get shopTodayOverdue => 'Просрочено';
+
+  @override
+  String shopTodayOverdueAt(String stage) {
+    return 'ждут «$stage»';
+  }
+
+  @override
+  String get shopTodayOpenList => 'открыть список';
+
+  @override
+  String get shopTodayAtRisk => 'Не успеют к сроку';
+
+  @override
+  String get shopTodayAtRiskNote => 'пока можно помочь';
+
+  @override
+  String get shopTodayReady => 'Придёт при выдаче';
+
+  @override
+  String shopTodayReadyNote(int count) {
+    return '$count готовы к выдаче';
+  }
+
+  @override
+  String get shopTodayDebt => 'Долг клиентов';
+
+  @override
+  String shopTodayDebtors(int count) {
+    return 'клиентов: $count';
+  }
+
+  @override
+  String shopTodayDecideTitle(int count) {
+    return 'Нужно решить · $count';
+  }
+
+  @override
+  String get shopTodayAllCalm => 'Всё спокойно';
+
+  @override
+  String shopTodayDecideJam(String stage, String days, String m2) {
+    return '«$stage» — узкое место: $days дн. очереди, $m2 м²';
+  }
+
+  @override
+  String shopTodayDecideAtRisk(int count) {
+    return 'Не успеют к сроку: $count — предупредить клиентов или добавить смену';
+  }
+
+  @override
+  String shopTodayDecideFilm(String films) {
+    return 'Не хватает плёнки: $films';
+  }
+
+  @override
+  String shopTodayDecidePostEmpty(String stage, int orders) {
+    return 'На «$stage» никого нет — ждут $orders';
+  }
+
+  @override
+  String shopTodayDecideUnassigned(int count, String stages) {
+    return 'Этапы никому не даны: $count ($stages)';
+  }
+
+  @override
+  String shopTodayDecideNoPrepay(int count) {
+    return 'Срочные без предоплаты: $count';
+  }
+
+  @override
+  String get shopTodayGoPlan => 'план цеха';
+
+  @override
+  String get shopTodayGoFilm => 'к заказу';
+
+  @override
+  String get shopTodayGoTeam => 'команда';
+
+  @override
+  String get shopTodayGoList => 'список';
+
+  @override
+  String get shopTodayLoadTitle => 'Загрузка цеха — дней работы в очереди';
+
+  @override
+  String shopTodayLoadDays(String days, int m2) {
+    return '$days дн · $m2 м²';
+  }
+
+  @override
+  String get shopTodayLoadNobody => 'никого на посту';
+
+  @override
+  String get shopTodayLoadNote =>
+      'По темпу последних двух недель. Красное — узкое место.';
+
+  @override
+  String shopTodayRecentStage(String stage) {
+    return '$stage готов';
+  }
+
+  @override
+  String shopTodayRecentStageOff(String stage) {
+    return '$stage снят';
+  }
+
+  @override
+  String shopTodayRecentAccepted(String amount) {
+    return 'принят · $amount';
+  }
+
+  @override
+  String get shopTodayRecentHandedOver => 'выдан';
+
+  @override
+  String get shopTodayRecentCancelled => 'отменён';
+
+  @override
+  String shopTodayRecentPaid(String amount) {
+    return 'оплата $amount';
+  }
+
+  @override
+  String get mdfDueNoLoad =>
+      'Не удалось узнать загрузку цеха — выберите день в обычном календаре.';
+
+  @override
+  String mdfDueTitle(String m2) {
+    return 'Срок сдачи · $m2 м²';
+  }
+
+  @override
+  String get mdfDueSafe => '✓ НАДЁЖНО';
+
+  @override
+  String get mdfDueSafeNote => '+1 день на брак и переделку';
+
+  @override
+  String get mdfDueEarliest => 'ВПРИТЫК';
+
+  @override
+  String get mdfDueEarliestNote => 'если ничего не сломается';
+
+  @override
+  String mdfDueFilmComes(String film, String supplier, String date) {
+    return 'Плёнки $film на складе мало — $supplier привезёт $date. Срок считаем от привоза.';
+  }
+
+  @override
+  String mdfDueFilmUnknown(String film) {
+    return 'Плёнки $film на складе мало, когда привезут — неизвестно: срок под вопросом.';
+  }
+
+  @override
+  String mdfDueOverloaded(String due, String cap, String after) {
+    return 'В этот день уже $due м² при мощности $cap м². С вашим заказом — $after м²: перегруз.';
+  }
+
+  @override
+  String mdfDueLegend(String cap) {
+    return 'Цвет дня — м² к сдаче против мощности цеха ($cap м²/день). Серое — раньше не успеть.';
+  }
+
+  @override
+  String get mdfDueLegendNoPace =>
+      'Темп цеха ещё не известен — видно только, сколько м² к сдаче в день.';
+
+  @override
+  String mdfDuePick(String date) {
+    return 'Выбрать $date';
+  }
 }
