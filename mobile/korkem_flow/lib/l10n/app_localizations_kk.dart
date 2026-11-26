@@ -13105,4 +13105,58 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPrepaySet => 'Алдын ала төлем пайызын орнату';
+
+  @override
+  String pressTableDimension(int length, String metres) {
+    return 'үстел $length мм · секция $metres м';
+  }
+
+  @override
+  String pressWidthDimension(int width) {
+    return '$width мм';
+  }
+
+  @override
+  String pressLoadsSame(String numbers, String metres) {
+    return '$numbers жүктемелер · секция $metres м';
+  }
+
+  @override
+  String pressLoadTimes(int count) {
+    return '×$count бірдей';
+  }
+
+  @override
+  String pressLoadCost(String cost, String waste) {
+    return '$cost · бос орын ≈ $waste';
+  }
+
+  @override
+  String pressHint(int gap, int now, String saves, String film) {
+    return '$saves м аз болады: аралық $now орнына $gap мм болса — $film м пленка.';
+  }
+
+  @override
+  String get pressHintTry => 'Көру';
+
+  @override
+  String get pressEditForce => 'Мәжбүрлеп (Shift)';
+
+  @override
+  String get pressEditForceHint =>
+      'Shift не осы батырмамен бөлшек жіберілген жерде қалады: аралықтан жақын, шегініс ішінде. Бір-бірінің үстіне және үстелден тыс — болмайды.';
+
+  @override
+  String get pressForceTitle => 'Бөлшектер аралықтан жақын';
+
+  @override
+  String pressForceBody(int gap) {
+    return 'Кейбір бөлшектер $gap мм-ден жақын не шегіністе жатыр. Неге?';
+  }
+
+  @override
+  String get pressForceUsual => 'әрқашан осылай саламыз';
+
+  @override
+  String get pressForceWhy => 'Себебі';
 }
