@@ -72,3 +72,4 @@ korkem_manufacturing.patches.v0_0.add_customer_terms
 korkem_manufacturing.patches.v0_0.add_mdf_invoice_fields
 korkem_manufacturing.patches.v0_0.add_customer_invoices
 korkem_manufacturing.patches.v0_0.drop_cost_item_is_new
+korkem_manufacturing.patches.v0_0.pay_by_person

@@ -4781,7 +4781,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfStageCut => 'Раскрой';
 
   @override
-  String get mdfStageMill => 'Фреза';
+  String get mdfStageMill => 'ЧПУ';
 
   @override
   String get mdfStageSand => 'Шлифовка';
@@ -9250,6 +9250,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teamDeptCnc => 'ЧПУ';
 
   @override
+  String get teamDeptSand => 'Шлифовка';
+
+  @override
   String get teamDeptPvc => 'ПВХ плёнка';
 
   @override
@@ -9275,6 +9278,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teamPostSander => 'Шкурщик';
+
+  @override
+  String get teamPostSanderPvc => 'Шкурщик ПВХ';
+
+  @override
+  String get teamPostSanderPaint => 'Шкурщик покраски';
 
   @override
   String get teamPostVacuum => 'Вакуумщик';
@@ -12401,10 +12410,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pplEmpty => 'В «Команде» пока никого нет.';
 
   @override
-  String get pplNoLogin =>
-      'Без входа в программу: сдельная не начисляется, виден только объём.';
-
-  @override
   String get pplMoney => 'Деньги';
 
   @override
@@ -12663,9 +12668,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pplCopied => 'Скопировано — вставьте в Excel';
-
-  @override
-  String get pplNoLoginMoney => 'без входа — зарплата не считается';
 
   @override
   String get pplMoneyTitle => 'Аванс, штраф или премия';

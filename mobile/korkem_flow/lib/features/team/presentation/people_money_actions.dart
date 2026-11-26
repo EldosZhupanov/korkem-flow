@@ -22,31 +22,26 @@ void _reload(ProviderContainer c) => c
 ProviderContainer _container(BuildContext context) =>
     ProviderScope.containerOf(context, listen: false);
 
-/// An advance, a fine or a bonus, for [people] (with a login); [user]
-/// chosen in advance from a card. True when written.
+/// An advance, a fine or a bonus, for one of [people] — with a login or
+/// without: the pay is the person's (owner, 26.11.2026). [employee] chosen
+/// in advance from a card. True when written.
 Future<bool> showPayEntryDialog(
   BuildContext context, {
   required List<PersonRow> people,
-  String? user,
+  String? employee,
   PersonAdjustmentKind kind = PersonAdjustmentKind.advance,
 }) async =>
     await showDialog<bool>(
       context: context,
-      builder: (_) => _PayEntryDialog(
-        people: [
-          for (final p in people)
-            if (p.user != null) p,
-        ],
-        user: user,
-        kind: kind,
-      ),
+      builder: (_) =>
+          _PayEntryDialog(people: people, employee: employee, kind: kind),
     ) ??
     false;
 
 /// «Отдать {name} {sum}?» — then the month is his paid.
 Future<void> giveMonthPay(
   BuildContext context, {
-  required String user,
+  required String employee,
   required String name,
   required double amount,
   required DateTime day,
@@ -75,7 +70,7 @@ Future<void> giveMonthPay(
   );
   if (sure != true) return;
   try {
-    await c.read(pieceWorkRepositoryProvider).markPaid(user, monthOf(day));
+    await c.read(pieceWorkRepositoryProvider).markPaid(employee, monthOf(day));
     _reload(c);
     messenger.showDone(l10n.pplGiveDone);
   } on Object catch (error) {
@@ -145,11 +140,11 @@ class _PayEntryDialog extends StatefulWidget {
   const _PayEntryDialog({
     required this.people,
     required this.kind,
-    this.user,
+    this.employee,
   });
 
   final List<PersonRow> people;
-  final String? user;
+  final String? employee;
   final PersonAdjustmentKind kind;
 
   @override
@@ -157,7 +152,7 @@ class _PayEntryDialog extends StatefulWidget {
 }
 
 class _PayEntryDialogState extends State<_PayEntryDialog> {
-  late String? _user = widget.user;
+  late String? _employee = widget.employee;
   late PersonAdjustmentKind _kind = widget.kind;
   final _amount = TextEditingController();
   final _reason = TextEditingController();
@@ -176,8 +171,8 @@ class _PayEntryDialogState extends State<_PayEntryDialog> {
     final amount = double.tryParse(
       _amount.text.replaceAll(' ', '').replaceAll(',', '.'),
     );
-    final user = _user;
-    if (user == null ||
+    final employee = _employee;
+    if (employee == null ||
         amount == null ||
         amount <= 0 ||
         _reason.text.trim().isEmpty) {
@@ -192,7 +187,7 @@ class _PayEntryDialogState extends State<_PayEntryDialog> {
       final saved = await c
           .read(pieceWorkRepositoryProvider)
           .addAdjustment(
-            employee: user,
+            employee: employee,
             kind: payKindName(_kind),
             amount: amount,
             reason: _reason.text.trim(),
@@ -244,15 +239,15 @@ class _PayEntryDialogState extends State<_PayEntryDialog> {
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<String>(
                 key: const ValueKey('ppl:entryWho'),
-                initialValue: _user,
+                initialValue: _employee,
                 isExpanded: true,
                 decoration: InputDecoration(labelText: l10n.pplWho),
                 items: [
                   for (final p in widget.people)
-                    DropdownMenuItem(value: p.user, child: Text(p.name)),
+                    DropdownMenuItem(value: p.employee, child: Text(p.name)),
                 ],
                 onChanged: (v) => setState(() {
-                  _user = v;
+                  _employee = v;
                   _error = null;
                 }),
               ),

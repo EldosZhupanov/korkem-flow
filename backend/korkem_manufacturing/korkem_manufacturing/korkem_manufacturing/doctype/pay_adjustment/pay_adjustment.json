@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "company",
+  "person",
   "employee",
   "employee_name",
   "kind",
@@ -29,12 +30,20 @@
    "in_standard_filter": 1
   },
   {
-   "fieldname": "employee",
+   "fieldname": "person",
    "fieldtype": "Link",
    "label": "Employee",
-   "options": "User",
-   "reqd": 1,
+   "options": "Employee",
    "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Login",
+   "options": "User",
+   "reqd": 0,
    "in_standard_filter": 1
   },
   {
@@ -115,7 +124,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-28 00:00:00.000000",
+ "modified": "2026-11-26 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Korkem Manufacturing",
  "name": "Pay Adjustment",
