@@ -10,6 +10,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/core/design/widgets/pay_helpers.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -1210,9 +1211,16 @@ class _PayDialog extends StatefulWidget {
 }
 
 class _PayDialogState extends State<_PayDialog> {
-  late final _amount = TextEditingController(
-    text: widget.debt > 0 ? widget.debt.toStringAsFixed(0) : '',
-  );
+  late final _amount =
+      TextEditingController(
+          text: widget.debt > 0 ? widget.debt.toStringAsFixed(0) : '',
+        )
+        ..selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: widget.debt > 0
+              ? widget.debt.toStringAsFixed(0).length
+              : 0,
+        );
   String _method = filmCash;
 
   @override
@@ -1225,6 +1233,7 @@ class _PayDialogState extends State<_PayDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final amount = filmNumber(_amount.text) ?? 0;
+    final money = mdfMoney(context);
     return AlertDialog(
       title: Text(l10n.cncPay),
       content: Column(
@@ -1239,6 +1248,21 @@ class _PayDialogState extends State<_PayDialog> {
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(labelText: l10n.cncAmount),
           ),
+          // One tap for the whole, the change for cash, what is owed after
+          // (owner, 26.11.2026) — beside the window's own fields.
+          const SizedBox(height: AppSpacing.xs),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: PayQuickAmounts(
+              options: [
+                (key: 'all', label: l10n.payQuickAll, amount: widget.debt),
+              ],
+              current: amount,
+              format: money.format,
+              onPick: (v) =>
+                  setState(() => _amount.text = v.toStringAsFixed(0)),
+            ),
+          ),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.xs,
@@ -1252,6 +1276,21 @@ class _PayDialogState extends State<_PayDialog> {
                 ),
             ],
           ),
+          if (_method == filmCash && amount > 0) ...[
+            const SizedBox(height: AppSpacing.sm),
+            PayCashChange(amount: amount, format: money.format),
+          ],
+          if (widget.debt > 0) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: PayAfter(
+                owed: widget.debt,
+                paying: amount,
+                format: money.format,
+              ),
+            ),
+          ],
         ],
       ),
       actions: [

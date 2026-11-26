@@ -117,6 +117,10 @@ abstract final class AppColors {
   /// The colour of the [index]th film of an order; past eight, round again.
   static Color filmGroup(int index) => filmGroups[index % filmGroups.length];
 
+  /// The [index]th person of a crew on one stage — the same mid tones: a
+  /// dot beside his name and his part of the bar (owner, 26.11.2026).
+  static Color crewMember(int index) => filmGroups[index % filmGroups.length];
+
   // ── Milling ──────────────────────────────────────────────────────────────
   // A pattern seen before the router runs (owner, 20.11.2026). These are
   // the material's colours, not the interface's: the same in either theme.

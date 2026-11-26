@@ -9205,6 +9205,56 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String mdfCrewPicked(int count) {
+    return 'Ticked · $count';
+  }
+
+  @override
+  String get mdfCrewByPosition => 'By position';
+
+  @override
+  String mdfCrewIdle(String name) {
+    return '$name made no position: give him one or untick him.';
+  }
+
+  @override
+  String get payQuickAll => 'All that is left';
+
+  @override
+  String get payQuickDebt => 'The whole debt';
+
+  @override
+  String payQuickPrepay(int percent) {
+    return 'Prepayment $percent%';
+  }
+
+  @override
+  String get payCashGiven => 'Customer gave, ₸';
+
+  @override
+  String payCashChange(String amount) {
+    return 'Change: $amount';
+  }
+
+  @override
+  String payCashShort(String amount) {
+    return 'Short by: $amount';
+  }
+
+  @override
+  String get payAll => 'Paid in full';
+
+  @override
+  String payDebtAfter(String amount) {
+    return 'Owed after this: $amount';
+  }
+
+  @override
+  String payOver(String amount) {
+    return '$amount more than is owed — check the sum';
+  }
+
+  @override
   String mdfStageGiven(String stage, String name) {
     return '$stage: $name';
   }

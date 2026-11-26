@@ -9234,6 +9234,56 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String mdfCrewPicked(int count) {
+    return 'Отмечены · $count';
+  }
+
+  @override
+  String get mdfCrewByPosition => 'По позициям';
+
+  @override
+  String mdfCrewIdle(String name) {
+    return '$name: ни одной позиции — дайте ему позицию или снимите галочку.';
+  }
+
+  @override
+  String get payQuickAll => 'Весь остаток';
+
+  @override
+  String get payQuickDebt => 'Весь долг';
+
+  @override
+  String payQuickPrepay(int percent) {
+    return 'Предоплата $percent%';
+  }
+
+  @override
+  String get payCashGiven => 'Клиент дал, ₸';
+
+  @override
+  String payCashChange(String amount) {
+    return 'Сдача: $amount';
+  }
+
+  @override
+  String payCashShort(String amount) {
+    return 'Не хватает: $amount';
+  }
+
+  @override
+  String get payAll => 'Оплачено полностью';
+
+  @override
+  String payDebtAfter(String amount) {
+    return 'Долг после оплаты: $amount';
+  }
+
+  @override
+  String payOver(String amount) {
+    return 'Больше долга на $amount — проверьте сумму';
+  }
+
+  @override
   String mdfStageGiven(String stage, String name) {
     return '$stage: $name';
   }

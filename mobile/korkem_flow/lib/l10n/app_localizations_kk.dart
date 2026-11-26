@@ -9172,6 +9172,56 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String mdfCrewPicked(int count) {
+    return 'Белгіленгендер · $count';
+  }
+
+  @override
+  String get mdfCrewByPosition => 'Позициялар бойынша';
+
+  @override
+  String mdfCrewIdle(String name) {
+    return '$name: бірде-бір позиция жоқ — позиция беріңіз не белгіні алыңыз.';
+  }
+
+  @override
+  String get payQuickAll => 'Барлық қалдық';
+
+  @override
+  String get payQuickDebt => 'Барлық қарыз';
+
+  @override
+  String payQuickPrepay(int percent) {
+    return 'Алдын ала төлем $percent%';
+  }
+
+  @override
+  String get payCashGiven => 'Клиент берді, ₸';
+
+  @override
+  String payCashChange(String amount) {
+    return 'Қайтарым: $amount';
+  }
+
+  @override
+  String payCashShort(String amount) {
+    return 'Жетпейді: $amount';
+  }
+
+  @override
+  String get payAll => 'Толық төленді';
+
+  @override
+  String payDebtAfter(String amount) {
+    return 'Төлемнен кейінгі қарыз: $amount';
+  }
+
+  @override
+  String payOver(String amount) {
+    return 'Қарыздан $amount артық — соманы тексеріңіз';
+  }
+
+  @override
   String mdfStageGiven(String stage, String name) {
     return '$stage: $name';
   }

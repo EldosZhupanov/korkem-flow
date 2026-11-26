@@ -1069,6 +1069,9 @@ def card(order: str) -> dict:
 		"total": flt(doc.grand_total),
 		"paid": flt(doc.advance_paid),
 		"debt": float(_debt(doc)),
+		# The company's prepayment rule (Facade Pricing Settings) — «Внести
+		# оплату» offers it as one tap (owner, 26.11.2026); none set, none offered.
+		"prepay_percent": _prepay_percent(doc.company),
 		"payments": paid_rows,
 		# «Счёт на оплату» (owner, 20.11.2026): the order's invoices, who
 		# pays as the last one said, and whether the shop charges VAT.
@@ -1643,6 +1646,12 @@ def _check_total(doc, expected: float) -> None:
 			f"ERPNext посчитал заказ на {flt(doc.grand_total):,.2f} ₸, а расчёт — на {expected:,.0f} ₸. "
 			"Вероятно, настроен налог или правило цены. Заказ не сохранён.".replace(",", " ")
 		)
+
+
+def _prepay_percent(company: str) -> float | None:
+	from korkem_manufacturing.services import facade_quote
+
+	return facade_quote.settings(company).get("prepayment_percent") or None
 
 
 def _full_name(user: str | None) -> str | None:

@@ -12,6 +12,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/tokens/motion.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/core/design/widgets/pay_helpers.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -2927,6 +2928,13 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
       order: o.name,
       stage: stage,
       areaM2: o.areaM2,
+      positions: [
+        for (final (i, l) in o.lines.indexed)
+          (
+            label: '${i + 1} · ${l.heightMm}×${l.widthMm} ×${l.qty}',
+            m2: l.areaM2,
+          ),
+      ],
       given: switch (o.stageGivenCrew[stage]) {
         final crew? => [for (final m in crew) m.employee],
         null => [?o.stageGiven[stage]?.employee],
@@ -4008,15 +4016,41 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
   void initState() {
     super.initState();
     final p = widget.fixing;
+    final left = widget.order.debt;
     _parts.add(
       p == null
-          ? _Part()
+          // The whole of what is left, chosen: typing replaces it (owner,
+          // 26.11.2026: «полноценная сумма по умолчанию, менеджер сам
+          // исправит»).
+          ? _Part(amount: left > 0 ? left.toStringAsFixed(0) : '')
           : _Part(
               method: _methods.contains(p.method) ? p.method! : _transfer,
               bank: p.bank,
               amount: p.amount.toStringAsFixed(0),
             ),
     );
+    final first = _parts.first.amount;
+    first.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: first.text.length,
+    );
+  }
+
+  /// «Весь остаток», and the prepayment the company asks for, if it is
+  /// not paid yet — one tap each.
+  List<PayOption> _quick(AppLocalizations l10n) {
+    final o = widget.order;
+    final pct = o.prepayPercent;
+    final prepay = pct == null ? 0.0 : o.total * pct / 100 - o.paid;
+    return [
+      (key: 'all', label: l10n.payQuickAll, amount: _left),
+      if (pct != null && prepay > 0.5 && prepay < _left - 0.5)
+        (
+          key: 'prepay',
+          label: l10n.payQuickPrepay(pct.round()),
+          amount: prepay.roundToDouble(),
+        ),
+    ];
   }
 
   @override
@@ -4113,6 +4147,17 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
                   ),
               ],
             ),
+            if (i == 0 && !fixing && _parts.length == 1) ...[
+              const SizedBox(height: AppSpacing.xs),
+              PayQuickAmounts(
+                options: _quick(l10n),
+                current: p.value,
+                format: money.format,
+                onPick: (v) => setState(() {
+                  p.amount.text = v.toStringAsFixed(0);
+                }),
+              ),
+            ],
             const SizedBox(height: AppSpacing.sm),
             Wrap(
               spacing: AppSpacing.sm,
@@ -4126,6 +4171,15 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
                   ),
               ],
             ),
+            // Cash: what the customer handed over, and the change.
+            if (p.method == _cash && p.value > 0) ...[
+              const SizedBox(height: AppSpacing.sm),
+              PayCashChange(
+                key: ValueKey('mdfPayCash$k'),
+                amount: p.value,
+                format: money.format,
+              ),
+            ],
             if (p.withBank) ...[
               const SizedBox(height: AppSpacing.sm),
               Row(

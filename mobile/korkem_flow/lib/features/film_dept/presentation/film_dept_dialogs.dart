@@ -10,6 +10,7 @@ import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/core/design/widgets/pay_helpers.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
@@ -2200,6 +2201,17 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                             ),
                         ],
                       ),
+                      // Cash: what the customer handed over, and the
+                      // change (owner, 26.11.2026).
+                      if (p.method == filmCash && p.value > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: AppSpacing.xs),
+                          child: PayCashChange(
+                            key: ValueKey('filmSaleCash:$i'),
+                            amount: p.value,
+                            format: money.format,
+                          ),
+                        ),
                       // The bank on a line of its own: beside the chips
                       // its name did not fit (owner, 12.11.2026).
                       if (p.method != filmCash)
