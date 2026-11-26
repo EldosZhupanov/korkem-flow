@@ -47,6 +47,25 @@ final mdfOrdersProvider = FutureProvider.autoDispose
       (ref, query) => ref.watch(mdfOrderRepositoryProvider).listing(query),
     );
 
+/// Orders accepted or saved in this session, newest first — «Только что»
+/// on top of the list (owner, 26.11.2026: a new order sank under 22
+/// overdue ones and looked lost).
+final mdfRecentOrdersProvider =
+    NotifierProvider<MdfRecentOrders, List<String>>(MdfRecentOrders.new);
+
+class MdfRecentOrders extends Notifier<List<String>> {
+  @override
+  List<String> build() => const [];
+
+  void add(String order) => state = [
+    order,
+    for (final o in state)
+      if (o != order) o,
+  ];
+
+  void clear() => state = const [];
+}
+
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final mdfOverviewProvider = FutureProvider.autoDispose<MdfOverview>(

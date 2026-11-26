@@ -3947,5 +3947,9 @@
   "pressForceTitle": "Бөлшектер аралықтан жақын",
   "pressForceBody": "Кейбір бөлшектер {gap} мм-ден жақын не шегіністе жатыр. Неге?",
   "pressForceUsual": "әрқашан осылай саламыз",
-  "pressForceWhy": "Себебі"
+  "pressForceWhy": "Себебі",
+  "mdfJustNow": "Жаңа ғана",
+  "mdfJustNowClear": "«Жаңа ғана»-дан алу",
+  "mdfJustSaved": "{name} тапсырысы сақталды",
+  "mdfJustOpen": "Ашу"
 }

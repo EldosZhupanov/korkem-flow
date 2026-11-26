@@ -1227,6 +1227,10 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       }
     }
     ref.invalidate(mdfOrderProvider(shown.name));
+    // A new order, or one just accepted: on top of the list for now.
+    if (widget.order == null || accept) {
+      ref.read(mdfRecentOrdersProvider.notifier).add(shown.name);
+    }
     if (widget.order == null) {
       unawaited(router.replace<void>(Routes.mdfOrder(shown.name)));
     }

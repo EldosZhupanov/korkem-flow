@@ -1020,6 +1020,36 @@ void main() {
     });
   });
 
+  testWidgets('a new or just accepted order stands on top: «Только что»', (
+    tester,
+  ) async {
+    // Owner, 26.11.2026: №00040 sank under 22 overdue ones and looked lost.
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfOrderRepositoryProvider.overrideWithValue(_FakeRepository()),
+        ],
+        child: harness(const MdfOrdersScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfSection:recent')), findsNothing);
+    ProviderScope.containerOf(
+      tester.element(find.byType(MdfOrdersScreen)),
+    ).read(mdfRecentOrdersProvider.notifier).add('SAL-ORD-1129');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfSection:recent')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mdfRecent:SAL-ORD-1129')),
+      findsOneWidget,
+    );
+    // Still in its own section below.
+    expect(find.byKey(const ValueKey('mdfRow:SAL-ORD-1129')), findsNWidgets(2));
+    await tester.tap(find.byKey(const ValueKey('mdfRecentClear')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfSection:recent')), findsNothing);
+  });
+
   testWidgets('the list shows an overdue order and its debt', (tester) async {
     await tester.pumpWidget(
       ProviderScope(

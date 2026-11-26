@@ -3947,5 +3947,9 @@
   "pressForceTitle": "Детали ближе зазора",
   "pressForceBody": "Некоторые детали лежат ближе {gap} мм или в отступе. Почему?",
   "pressForceUsual": "так кладём всегда",
-  "pressForceWhy": "Причина"
+  "pressForceWhy": "Причина",
+  "mdfJustNow": "Только что",
+  "mdfJustNowClear": "Убрать из «Только что»",
+  "mdfJustSaved": "Заказ {name} сохранён",
+  "mdfJustOpen": "Открыть"
 }

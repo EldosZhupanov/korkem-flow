@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_search_field.dart';
@@ -69,12 +72,28 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
   );
 
   Future<void> _open(String? name) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    final before = ref.read(mdfRecentOrdersProvider).firstOrNull;
     await context.push(
       name == null ? Routes.mdfOrderNew : Routes.mdfOrder(name),
     );
     ref
       ..invalidate(mdfOrdersProvider)
       ..invalidate(mdfOverviewProvider);
+    // Back from a new or just accepted order: say it is here (26.11.2026).
+    final now = ref.read(mdfRecentOrdersProvider).firstOrNull;
+    if (!mounted || now == null || now == before) return;
+    messenger.showSnackBar(
+      SnackBar(
+        key: const ValueKey('mdfJustSaved'),
+        content: Text(l10n.mdfJustSaved(now)),
+        action: SnackBarAction(
+          label: l10n.mdfJustOpen,
+          onPressed: () => unawaited(_open(now)),
+        ),
+      ),
+    );
   }
 
   /// A figure tapped narrows the list to it; tapped again, back to all.
@@ -90,6 +109,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     final status = context.statusColors;
     // Read top-down by what burns, when nothing narrows the list.
     final sectioned = _filter == _Filter.all && _search.trim().isEmpty;
+    final recent = ref.watch(mdfRecentOrdersProvider);
     String sectionTitle(MdfListSection section) => switch (section) {
       MdfListSection.overdue => l10n.mdfSectionOverdue,
       MdfListSection.soon => l10n.mdfSectionSoon,
@@ -252,6 +272,56 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
                       child: ListView(
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         children: [
+                          // «Только что»: what was accepted or saved now —
+                          // it stays in its own section below as well.
+                          if (sectioned)
+                            ...() {
+                              final mine = [
+                                for (final n in recent)
+                                  ?rows.where((r) => r.name == n).firstOrNull,
+                              ];
+                              return [
+                                if (mine.isNotEmpty)
+                                  Row(
+                                    key: const ValueKey('mdfSection:recent'),
+                                    children: [
+                                      Expanded(
+                                        child: SectionLabel(l10n.mdfJustNow),
+                                      ),
+                                      IconButton(
+                                        key: const ValueKey('mdfRecentClear'),
+                                        tooltip: l10n.mdfJustNowClear,
+                                        icon: const Icon(
+                                          AppIcons.close,
+                                          size: AppIconSize.dense,
+                                        ),
+                                        onPressed: () => ref
+                                            .read(
+                                              mdfRecentOrdersProvider.notifier,
+                                            )
+                                            .clear(),
+                                      ),
+                                    ],
+                                  ),
+                                for (final row in mine)
+                                  DecoratedBox(
+                                    key: ValueKey('mdfRecent:${row.name}'),
+                                    decoration: BoxDecoration(
+                                      color: status.success.withValues(
+                                        alpha: AppTint.surface,
+                                      ),
+                                      border: Border.all(color: status.success),
+                                      borderRadius: BorderRadius.circular(
+                                        AppRadius.sm,
+                                      ),
+                                    ),
+                                    child: _OrderRow(
+                                      row: row,
+                                      onTap: () => _open(row.name),
+                                    ),
+                                  ),
+                              ];
+                            }(),
                           for (final section in MdfListSection.values)
                             if (sectioned)
                               for (final (i, row)

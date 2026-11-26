@@ -11429,5 +11429,16 @@
     }
   },
   "pressForceUsual": "we always lay it so",
-  "pressForceWhy": "Reason"
+  "pressForceWhy": "Reason",
+  "mdfJustNow": "Just now",
+  "mdfJustNowClear": "Clear «Just now»",
+  "mdfJustSaved": "Order {name} saved",
+  "@mdfJustSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfJustOpen": "Open"
 }
