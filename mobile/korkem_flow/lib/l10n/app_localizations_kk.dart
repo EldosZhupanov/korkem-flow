@@ -5461,6 +5461,28 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfLeave => 'Шығу';
 
   @override
+  String get mdfLeaveSave => 'Жоба ретінде сақтау';
+
+  @override
+  String mdfAcceptedBanner(
+    String customer,
+    String pieces,
+    String m2,
+    String total,
+  ) {
+    return 'Тапсырыс қабылданды · $customer · $pieces дана · $m2 м² · $total';
+  }
+
+  @override
+  String get mdfAcceptedNext => 'Әрі қарай не істейміз?';
+
+  @override
+  String get mdfAcceptedPay => 'Алдын ала төлем енгізу';
+
+  @override
+  String get mdfAcceptedMore => 'Осы клиентке тағы тапсырыс';
+
+  @override
   String mdfChangeAdded(int n) {
     return '$n-позиция қосылды';
   }

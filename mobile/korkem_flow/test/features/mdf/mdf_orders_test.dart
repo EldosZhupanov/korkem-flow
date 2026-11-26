@@ -1197,7 +1197,9 @@ void main() {
     // «Изменить заказ» stands above the positions now.
     expect(
       tester.getTopLeft(find.byKey(const ValueKey('mdfChangeOrder'))).dy,
-      lessThan(tester.getTopLeft(find.byKey(const ValueKey('mdfAddPayment'))).dy),
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('mdfAddPayment'))).dy,
+      ),
     );
     await tester.tap(find.byKey(const ValueKey('mdfAcceptedPay')));
     await tester.pumpAndSettle();

@@ -136,8 +136,9 @@ enum _Leave { save, drop }
 
 /// Orders accepted a moment ago: their card says «Заказ принят» and offers
 /// what comes next until it is left (owner, 26.11.2026).
-final mdfJustAcceptedProvider =
-    NotifierProvider<MdfJustAccepted, Set<String>>(MdfJustAccepted.new);
+final mdfJustAcceptedProvider = NotifierProvider<MdfJustAccepted, Set<String>>(
+  MdfJustAccepted.new,
+);
 
 class MdfJustAccepted extends Notifier<Set<String>> {
   @override

@@ -5498,6 +5498,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfLeave => 'Leave';
 
   @override
+  String get mdfLeaveSave => 'Save as draft';
+
+  @override
+  String mdfAcceptedBanner(
+    String customer,
+    String pieces,
+    String m2,
+    String total,
+  ) {
+    return 'Order accepted · $customer · $pieces pcs · $m2 m² · $total';
+  }
+
+  @override
+  String get mdfAcceptedNext => 'What next?';
+
+  @override
+  String get mdfAcceptedPay => 'Take the prepayment';
+
+  @override
+  String get mdfAcceptedMore => 'Another order for this customer';
+
+  @override
   String mdfChangeAdded(int n) {
     return 'Position $n added';
   }
