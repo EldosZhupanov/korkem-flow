@@ -2952,9 +2952,14 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
 
   MdfOrder get o => widget.order;
 
-  late final MdfJustAccepted _justAccepted = ref.read(
-    mdfJustAcceptedProvider.notifier,
-  );
+  // Read now: `ref` is gone by dispose.
+  late final MdfJustAccepted _justAccepted;
+
+  @override
+  void initState() {
+    super.initState();
+    _justAccepted = ref.read(mdfJustAcceptedProvider.notifier);
+  }
 
   @override
   void dispose() {
