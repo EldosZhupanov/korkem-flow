@@ -93,6 +93,11 @@ abstract final class AppIcons {
   /// The way a textured film's pattern runs on a part.
   static const IconData direction = Symbols.north_rounded;
 
+  /// A textured film's pattern along a facade's height, or along its width
+  /// (26.11.2026).
+  static const IconData grainHeight = Symbols.swap_vert_rounded;
+  static const IconData grainWidth = Symbols.swap_horiz_rounded;
+
   /// The pay sheet: what each worker is owed for a period.
   static const IconData payroll = Symbols.payments_rounded;
 

@@ -5022,7 +5022,7 @@
   "@pressLayoutTitle": {
     "description": "Press layout"
   },
-  "pressTextured": "TEXTURED — DO NOT TURN",
+  "pressTextured": "TEXTURED — PATTERN ALONG THE TABLE →",
   "@pressTextured": {
     "description": "Press layout"
   },
@@ -5132,7 +5132,7 @@
   "@materialTextured": {
     "description": "Press layout"
   },
-  "materialTexturedHint": "Parts are not turned on the press; the map says «DO NOT TURN»",
+  "materialTexturedHint": "On the press, parts lie with the pattern along the table; in the order each position says «along height» or «along width»",
   "@materialTexturedHint": {
     "description": "Press layout"
   },
@@ -11309,5 +11309,45 @@
   "teamPostNobody": "nobody — orders will stop at this step",
   "teamInWork": "{count} in work",
   "teamNoLogin": "no login",
-  "@teamInWork": {"placeholders": {"count": {"type": "int"}}}
+  "@teamInWork": {"placeholders": {"count": {"type": "int"}}},
+  "mdfGrainHeight": "along height",
+  "mdfGrainWidth": "along width",
+  "mdfGrainHint": "Which way the textured film's pattern runs on the facade. Tap to switch.",
+  "mdfGrainWidthMark": "Pattern ↔ along width",
+  "mdfTexturedMark": "textured",
+  "pressFree": "free · {metres} m",
+  "@pressFree": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressOnLoad": "On this load",
+  "pressOnLoadRow": "Pos. {pos} · {size} · {count} pcs",
+  "@pressOnLoadRow": {
+    "placeholders": {
+      "pos": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressOnLoadTotal": "{count} pcs in all · {area} m²",
+  "@pressOnLoadTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfPrepaySet": "Set the prepayment %"
 }

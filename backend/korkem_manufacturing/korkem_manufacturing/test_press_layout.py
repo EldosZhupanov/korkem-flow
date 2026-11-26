@@ -123,6 +123,14 @@ class TestThePacking(IntegrationTestCase):
 		# A textured film is never turned.
 		with self.assertRaises(frappe.ValidationError):
 			check_layout(parts, [{"placed": [{"pos": 1, "x": 0, "y": 0, "rotated": True}]}], press, rotate=False)
+		# …from the way its pattern runs: along the table (owner, 26.11.2026).
+		# A part whose pattern runs along its height lies with its height along.
+		door = [Part(7, 396, 716, "height")]
+		laid = check_layout(door, [{"placed": [{"pos": 7, "x": 0, "y": 0, "rotated": True}]}], press, rotate=False)
+		self.assertEqual((laid[0].placed[0].width, laid[0].placed[0].height), (716, 396))
+		with self.assertRaises(frappe.ValidationError):
+			check_layout(door, [{"placed": [{"pos": 7, "x": 0, "y": 0, "rotated": False}]}], press, rotate=False)
+		self.assertNotEqual(parts_key(door), parts_key([Part(7, 396, 716, "width")]))
 		self.assertEqual(parts_key(parts), parts_key(list(reversed(parts))))
 		self.assertNotEqual(parts_key(parts), parts_key(parts[:2]))
 
@@ -219,8 +227,36 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 		self.orders.append(order)
 		return order
 
+	def test_a_textured_film_lies_with_its_pattern_along_the_table(self):
+		# Owner, 26.11.2026: the pattern runs along the roll, and the roll along
+		# the table — a part lies with the side its pattern runs along, along.
+		order = self._order()
+		films = {f["decor"]: f for f in self._as(CUTTER, press_layout.order_layout, order)["films"]}
+		placed = [p for load in films[TEXTURED]["loads"] for p in load["placed"]]
+		# By height, the usual: 598 wide, 148 and 283 high — the heights along.
+		self.assertTrue(all(p["rotated"] for p in placed))
+		self.assertEqual(sorted({p["width"] for p in placed}), [148, 283])
+		self.assertEqual(films[TEXTURED]["film_m"], 3.1)
+		# The panel lays it so whatever is asked.
+		across = self._as(MANAGER, press_layout.preview, order, TEXTURED, direction="across")
+		self.assertTrue(all(p["rotated"] for load in across["loads"] for p in load["placed"]))
+		# «По ширине» (a drawer front): the width along — as the shop laid №1110.
+		self._grain(order, "width")
+		films = {f["decor"]: f for f in self._as(CUTTER, press_layout.order_layout, order)["films"]}
+		self.assertFalse(any(p["rotated"] for load in films[TEXTURED]["loads"] for p in load["placed"]))
+		self.assertEqual(films[TEXTURED]["film_m"], 2.1)
+		# The plain film is as it was.
+		self.assertEqual(films[PLAIN]["film_m"], 3.1)
+
+	def _grain(self, order: str, grain: str) -> None:
+		for name in frappe.get_all("Sales Order Item", filters={"parent": order, "korkem_decor_top": TEXTURED},
+								   pluck="name"):
+			frappe.db.set_value("Sales Order Item", name, "korkem_grain", grain)
+
 	def test_the_order_s_films_are_laid_out_and_the_metres_set(self):
 		order = self._order()
+		# №1110's textured positions are drawer fronts, their pattern across.
+		self._grain(order, "width")
 		films = {f["decor"]: f for f in self._as(CUTTER, press_layout.order_layout, order)["films"]}
 		self.assertEqual((films[PLAIN]["film_m"], films[PLAIN]["textured"]), (3.1, False))
 		self.assertEqual((films[TEXTURED]["film_m"], films[TEXTURED]["textured"]), (2.1, True))
@@ -273,7 +309,8 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 		across = self._as(MANAGER, press_layout.preview, order, PLAIN, direction="across")
 		placed = [p for load in across["loads"] for p in load["placed"]]
 		self.assertTrue(all(p["width"] <= p["height"] and p["rotated"] for p in placed))
-		# A textured film is never turned, whatever is asked.
+		# A textured film lies its pattern's way, whatever is asked.
+		self._grain(order, "width")
 		textured = self._as(MANAGER, press_layout.preview, order, TEXTURED, direction="across")
 		self.assertFalse(any(p["rotated"] for load in textured["loads"] for p in load["placed"]))
 		# Nothing was kept: the order and the press are as they were.
