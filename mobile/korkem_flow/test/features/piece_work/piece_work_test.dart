@@ -259,5 +259,4 @@ void main() {
     expect(row.left, 3000);
     expect(PayrollRow.fromJson(const {'to_pay': 5000}).left, 5000);
   });
-
 }

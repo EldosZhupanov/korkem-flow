@@ -75,9 +75,7 @@ Future<void> giveMonthPay(
   );
   if (sure != true) return;
   try {
-    await c
-        .read(pieceWorkRepositoryProvider)
-        .markPaid(user, monthOf(day));
+    await c.read(pieceWorkRepositoryProvider).markPaid(user, monthOf(day));
     _reload(c);
     messenger.showDone(l10n.pplGiveDone);
   } on Object catch (error) {

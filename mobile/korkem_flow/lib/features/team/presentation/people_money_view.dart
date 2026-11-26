@@ -107,7 +107,11 @@ class PeopleMoneyView extends StatelessWidget {
         ],
         if (!monthOver) ...[
           const SizedBox(height: AppSpacing.sm),
-          Text(l10n.pplPayLater, key: const ValueKey('ppl:payLater'), style: muted),
+          Text(
+            l10n.pplPayLater,
+            key: const ValueKey('ppl:payLater'),
+            style: muted,
+          ),
         ],
         const SizedBox(height: AppSpacing.md),
         LayoutBuilder(
@@ -338,7 +342,10 @@ class _MoneyRow extends StatelessWidget {
                   Expanded(child: give),
                   SizedBox(
                     width: AppSpacing.xxxl * 2,
-                    child: Align(alignment: Alignment.centerRight, child: action),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: action,
+                    ),
                   ),
                 ],
               )
@@ -353,8 +360,7 @@ class _MoneyRow extends StatelessWidget {
                           [
                             '${l10n.pplColEarned} ${sum(m.earned)}',
                             '${l10n.pplColAdvance} ${sum(m.advance)}',
-                            if (m.fine > 0)
-                              '${l10n.pplColFine} ${sum(m.fine)}',
+                            if (m.fine > 0) '${l10n.pplColFine} ${sum(m.fine)}',
                           ].join(' · '),
                           style: muted,
                         ),

@@ -12270,13 +12270,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get pplStages => 'Кезеңдер';
 
   @override
-  String get pplEarned => 'Есептелді';
+  String get pplEarned => 'Тапты';
 
   @override
   String get pplAdvance => 'Аванс';
 
   @override
-  String get pplLeft => 'Төлеу қалды';
+  String get pplLeft => 'Беру қалды';
 
   @override
   String get pplDays => 'Жұмыс күндері';
@@ -12313,7 +12313,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get pplBonusOne => 'Сыйақы';
 
   @override
-  String get pplPaid => 'Төленді';
+  String get pplPaid => 'Берілді';
 
   @override
   String get pplByDay => 'Күндер бойынша';
@@ -12473,4 +12473,134 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get tmEdit => 'Өзгерту';
+
+  @override
+  String get pplWorkTab => 'Жұмыс';
+
+  @override
+  String get pplMoneyTab => 'Ақша';
+
+  @override
+  String get pplEarnedAll => 'Тапты';
+
+  @override
+  String get pplAdvanceAll => 'Аванс алды';
+
+  @override
+  String get pplLeftAll => 'Беру қалды';
+
+  @override
+  String get pplColWho => 'Кім';
+
+  @override
+  String get pplColEarned => 'Тапты';
+
+  @override
+  String get pplColAdvance => 'Аванс';
+
+  @override
+  String get pplColFine => 'Айыппұл';
+
+  @override
+  String get pplColGive => 'Беру';
+
+  @override
+  String get pplGive => 'Беру';
+
+  @override
+  String get pplGiven => 'Берілді';
+
+  @override
+  String get pplOwes => 'қарыз';
+
+  @override
+  String pplGiveConfirm(String name, String sum) {
+    return '$name — $sum беру ме? Оның айы жабылады.';
+  }
+
+  @override
+  String get pplGiveDone => 'Белгіленді: берілді';
+
+  @override
+  String get pplPayLater => 'Ай біткенде беруге болады. Қазір — тек аванс.';
+
+  @override
+  String get pplAddMoney => 'Аванс, айыппұл, сыйақы';
+
+  @override
+  String get pplWaiting => 'Сіздің «Иә» күтуде';
+
+  @override
+  String pplWaitingBy(String who) {
+    return 'енгізген: $who';
+  }
+
+  @override
+  String get pplYes => 'Иә';
+
+  @override
+  String get pplNo => 'Жоқ';
+
+  @override
+  String get pplWhyNo => 'Неге жоқ? Қызметкер көреді.';
+
+  @override
+  String get pplExcel => 'Excel үшін көшіру';
+
+  @override
+  String get pplCopied => 'Көшірілді — Excel-ге қойыңыз';
+
+  @override
+  String get pplNoLoginMoney => 'кірусіз — жалақы есептелмейді';
+
+  @override
+  String get pplMoneyTitle => 'Аванс, айыппұл не сыйақы';
+
+  @override
+  String get pplWho => 'Кімге';
+
+  @override
+  String get pplHowMuch => 'Қанша, ₸';
+
+  @override
+  String get pplWhy => 'Не үшін';
+
+  @override
+  String get pplRecord => 'Жазу';
+
+  @override
+  String get pplFillAll => 'Толтырыңыз: кімге, қанша, не үшін.';
+
+  @override
+  String get pplRecorded => 'Жазылды';
+
+  @override
+  String get pplRecordedWaiting => 'Жазылды — басшының «Иә» күтуде';
+
+  @override
+  String pplIntake(int count, String m2) {
+    return 'Қабылдаған тапсырыстар: $count · $m2';
+  }
+
+  @override
+  String pplSold(String metres, int count) {
+    return 'Сатты: $metres м · $count сату';
+  }
+
+  @override
+  String pplReceived(int count) {
+    return 'Қабылдаған жеткізілім: $count';
+  }
+
+  @override
+  String get pplSalesBonus => 'Сату бонусы';
+
+  @override
+  String get pplCancelEntry => 'Болдырмау';
+
+  @override
+  String get pplCancelWhy => 'Неге болдырмайсыз? Қызметкер көреді.';
+
+  @override
+  String get pplPeopleMoney => 'Қызметкерлер ақшасы';
 }

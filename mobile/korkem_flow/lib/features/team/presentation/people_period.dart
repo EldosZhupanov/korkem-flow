@@ -61,16 +61,19 @@ class PeoplePeriodBar extends StatelessWidget {
       children: [
         if (!monthOnly)
           SegmentedButton<PeopleSpan>(
-          key: const ValueKey('ppl:span'),
-          showSelectedIcon: false,
-          segments: [
-            ButtonSegment(value: PeopleSpan.day, label: Text(l10n.pplDay)),
-            ButtonSegment(value: PeopleSpan.week, label: Text(l10n.pplWeek)),
-            ButtonSegment(value: PeopleSpan.month, label: Text(l10n.pplMonth)),
-          ],
-          selected: {span},
-          onSelectionChanged: (s) => onChanged(s.first, day),
-        ),
+            key: const ValueKey('ppl:span'),
+            showSelectedIcon: false,
+            segments: [
+              ButtonSegment(value: PeopleSpan.day, label: Text(l10n.pplDay)),
+              ButtonSegment(value: PeopleSpan.week, label: Text(l10n.pplWeek)),
+              ButtonSegment(
+                value: PeopleSpan.month,
+                label: Text(l10n.pplMonth),
+              ),
+            ],
+            selected: {span},
+            onSelectionChanged: (s) => onChanged(s.first, day),
+          ),
         if (!monthOnly) const SizedBox(height: AppSpacing.xs),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
