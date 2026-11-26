@@ -268,6 +268,13 @@ class TestPayroll(IntegrationTestCase):
 		self.assertEqual(progress["today"]["left"], round(1_000_000 - progress["today"]["earned"], 2))
 		self.assertIsNone(progress["month"])
 
+	def test_the_owner_s_own_entry_counts_at_once(self):
+		# Owner, 26.11.2026: «вносите вы — сразу считается; мастер — ждёт вашего «Да»».
+		own = self._as("Administrator", payroll.add_adjustment, ANNA, payroll.ADVANCE, 2_000, "Аванс от хозяина")
+		self.assertEqual((own["status"], own["approved_by"]), ("Approved", "Administrator"))
+		chief = self._as(CHIEF, payroll.add_adjustment, ANNA, payroll.ADVANCE, 2_000, "Аванс от начальника")
+		self.assertEqual(chief["status"], "Pending Approval")
+
 	def test_the_sheet_exports_for_accounting(self):
 		self._accrue(ANNA, 1_000)
 		text = self._as(BOOKKEEPER, payroll.statement_csv)

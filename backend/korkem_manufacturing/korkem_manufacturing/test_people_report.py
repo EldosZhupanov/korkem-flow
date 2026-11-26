@@ -46,7 +46,7 @@ class TestPeopleReport(IntegrationTestCase):
 		frappe.set_user("Administrator")
 		facade_prices.set_price(FLAT, PVC, 10_000)
 		self.tag = uuid.uuid4().hex[:6]
-		frappe.db.sql("update `tabEmployee` set user_id = null where user_id = %s", CUTTER)
+		frappe.db.sql("update `tabEmployee` set user_id = null where user_id in %s", ((CUTTER, MANAGER),))
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -144,3 +144,29 @@ class TestPeopleReport(IntegrationTestCase):
 		self._as(MANAGER, team.set_active, a, 0)
 		gone = self._as(MANAGER, team_people.duplicates, f"Владимир Изимов{self.tag}")
 		self.assertEqual([(d["employee"], d["active"]) for d in gone], [(a, False)])  # «вернуть его?»
+
+	# --- the money tab and the other departments (owner, 26.11.2026) ---
+
+	def test_a_manager_sees_the_work_he_took_in_not_anyone_s_pay(self):
+		from korkem_manufacturing.services import film_team
+
+		manager = self._person(f"Айгерим Приёмова {self.tag}", ["intake.manager"])
+		cutter = self._person(f"Ерлан Раскроев {self.tag}", ["cut.cutter"])
+		self._as(MANAGER, team.link_user, manager, MANAGER)
+		self._order()  # accepted by the manager: his intake
+		day = self._as(MANAGER, people_report.overview, "day")
+		self.assertFalse(day["sees_pay"])
+		self.assertFalse(day["can_adjust"])
+		row = next(r for r in day["people"] if r["employee"] == manager)
+		self.assertIsNone(row["money"])
+		self.assertGreaterEqual(row["intake"]["orders"], 1)
+		self.assertGreaterEqual(row["intake"]["m2"], 2.0)
+		card = self._as(MANAGER, people_report.person, cutter, "month")
+		self.assertFalse(card["sees_pay"])
+		self.assertEqual((card["money"], card["adjustments"]), (None, []))
+		# The boss sees pay and may enter an advance; a finished period may be paid.
+		boss = self._as(BOSS, people_report.overview, "month", "2026-10-15")
+		self.assertTrue(boss["sees_pay"] and boss["can_adjust"] and boss["can_pay"])
+		# The sellers' pot is a calendar month's: a week has none.
+		self.assertEqual(film_team.bonuses(COMPANY, getdate("2026-11-02"), getdate("2026-11-08")), {})
+

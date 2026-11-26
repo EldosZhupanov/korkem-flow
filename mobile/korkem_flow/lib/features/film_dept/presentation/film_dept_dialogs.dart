@@ -1844,6 +1844,7 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                         key: 'filmSaleSeller',
                         label: l10n.filmSeller,
                         opts: sellers,
+                        sellersOnly: true,
                         value: _seller,
                         onChanged: (v) => setState(() => _seller = v),
                       ),

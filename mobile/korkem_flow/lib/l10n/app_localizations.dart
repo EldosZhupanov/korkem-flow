@@ -21134,7 +21134,7 @@ abstract class AppLocalizations {
   /// No description provided for @pplLeft.
   ///
   /// In en, this message translates to:
-  /// **'Left to pay'**
+  /// **'Still to give'**
   String get pplLeft;
 
   /// No description provided for @pplDays.
@@ -21206,7 +21206,7 @@ abstract class AppLocalizations {
   /// No description provided for @pplPaid.
   ///
   /// In en, this message translates to:
-  /// **'Paid'**
+  /// **'Given'**
   String get pplPaid;
 
   /// No description provided for @pplByDay.
@@ -21484,6 +21484,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get tmEdit;
+
+  /// No description provided for @pplWorkTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get pplWorkTab;
+
+  /// No description provided for @pplMoneyTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get pplMoneyTab;
+
+  /// No description provided for @pplEarnedAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get pplEarnedAll;
+
+  /// No description provided for @pplAdvanceAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken in advance'**
+  String get pplAdvanceAll;
+
+  /// No description provided for @pplLeftAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Still to give'**
+  String get pplLeftAll;
+
+  /// No description provided for @pplColWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who'**
+  String get pplColWho;
+
+  /// No description provided for @pplColEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get pplColEarned;
+
+  /// No description provided for @pplColAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance'**
+  String get pplColAdvance;
+
+  /// No description provided for @pplColFine.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine'**
+  String get pplColFine;
+
+  /// No description provided for @pplColGive.
+  ///
+  /// In en, this message translates to:
+  /// **'To give'**
+  String get pplColGive;
+
+  /// No description provided for @pplGive.
+  ///
+  /// In en, this message translates to:
+  /// **'Give'**
+  String get pplGive;
+
+  /// No description provided for @pplGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Given'**
+  String get pplGiven;
+
+  /// No description provided for @pplOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes'**
+  String get pplOwes;
+
+  /// No description provided for @pplGiveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Give {name} {sum}? His month will be closed.'**
+  String pplGiveConfirm(String name, String sum);
+
+  /// No description provided for @pplGiveDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as given'**
+  String get pplGiveDone;
+
+  /// No description provided for @pplPayLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay is given once the month is over. Until then — advances only.'**
+  String get pplPayLater;
+
+  /// No description provided for @pplAddMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance, fine, bonus'**
+  String get pplAddMoney;
+
+  /// No description provided for @pplWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your «Yes»'**
+  String get pplWaiting;
+
+  /// No description provided for @pplWaitingBy.
+  ///
+  /// In en, this message translates to:
+  /// **'entered by {who}'**
+  String pplWaitingBy(String who);
+
+  /// No description provided for @pplYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get pplYes;
+
+  /// No description provided for @pplNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get pplNo;
+
+  /// No description provided for @pplWhyNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Why not? He will see it.'**
+  String get pplWhyNo;
+
+  /// No description provided for @pplExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy for Excel'**
+  String get pplExcel;
+
+  /// No description provided for @pplCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied — paste it into Excel'**
+  String get pplCopied;
+
+  /// No description provided for @pplNoLoginMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'no login — pay is not counted'**
+  String get pplNoLoginMoney;
+
+  /// No description provided for @pplMoneyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance, fine or bonus'**
+  String get pplMoneyTitle;
+
+  /// No description provided for @pplWho.
+  ///
+  /// In en, this message translates to:
+  /// **'To whom'**
+  String get pplWho;
+
+  /// No description provided for @pplHowMuch.
+  ///
+  /// In en, this message translates to:
+  /// **'How much, ₸'**
+  String get pplHowMuch;
+
+  /// No description provided for @pplWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'What for'**
+  String get pplWhy;
+
+  /// No description provided for @pplRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get pplRecord;
+
+  /// No description provided for @pplFillAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in who, how much and what for.'**
+  String get pplFillAll;
+
+  /// No description provided for @pplRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get pplRecorded;
+
+  /// No description provided for @pplRecordedWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved — waiting for a manager\'s «Yes»'**
+  String get pplRecordedWaiting;
+
+  /// No description provided for @pplIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders taken in: {count} · {m2}'**
+  String pplIntake(int count, String m2);
+
+  /// No description provided for @pplSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold: {metres} m · {count} sales'**
+  String pplSold(String metres, int count);
+
+  /// No description provided for @pplReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries taken in: {count}'**
+  String pplReceived(int count);
+
+  /// No description provided for @pplSalesBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales bonus'**
+  String get pplSalesBonus;
+
+  /// No description provided for @pplCancelEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel it'**
+  String get pplCancelEntry;
+
+  /// No description provided for @pplCancelWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why cancel it? He will see it.'**
+  String get pplCancelWhy;
+
+  /// No description provided for @pplPeopleMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff money'**
+  String get pplPeopleMoney;
 }
 
 class _AppLocalizationsDelegate

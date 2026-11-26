@@ -17,7 +17,7 @@ import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
 import 'package:korkem_flow/features/piece_work/domain/piece_work.dart';
-import 'package:korkem_flow/features/piece_work/presentation/payroll_screen.dart';
+import 'package:korkem_flow/features/piece_work/presentation/bonus_progress_card.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// Piece-rate pay: my own work for everybody; approvals, rates and
@@ -47,7 +47,7 @@ class PieceWorkScreen extends ConsumerWidget {
         if (canEdit)
           IconButton(
             key: const ValueKey('openPayroll'),
-            tooltip: l10n.payrollTitle,
+            tooltip: l10n.pplPeopleMoney,
             icon: const Icon(AppIcons.payroll),
             onPressed: () => context.push(Routes.payroll),
           ),

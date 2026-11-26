@@ -12352,7 +12352,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pplAdvance => 'Advance';
 
   @override
-  String get pplLeft => 'Left to pay';
+  String get pplLeft => 'Still to give';
 
   @override
   String get pplDays => 'Days with work';
@@ -12389,7 +12389,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pplBonusOne => 'Bonus';
 
   @override
-  String get pplPaid => 'Paid';
+  String get pplPaid => 'Given';
 
   @override
   String get pplByDay => 'By day';
@@ -12549,4 +12549,135 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tmEdit => 'Edit';
+
+  @override
+  String get pplWorkTab => 'Work';
+
+  @override
+  String get pplMoneyTab => 'Money';
+
+  @override
+  String get pplEarnedAll => 'Earned';
+
+  @override
+  String get pplAdvanceAll => 'Taken in advance';
+
+  @override
+  String get pplLeftAll => 'Still to give';
+
+  @override
+  String get pplColWho => 'Who';
+
+  @override
+  String get pplColEarned => 'Earned';
+
+  @override
+  String get pplColAdvance => 'Advance';
+
+  @override
+  String get pplColFine => 'Fine';
+
+  @override
+  String get pplColGive => 'To give';
+
+  @override
+  String get pplGive => 'Give';
+
+  @override
+  String get pplGiven => 'Given';
+
+  @override
+  String get pplOwes => 'owes';
+
+  @override
+  String pplGiveConfirm(String name, String sum) {
+    return 'Give $name $sum? His month will be closed.';
+  }
+
+  @override
+  String get pplGiveDone => 'Marked as given';
+
+  @override
+  String get pplPayLater =>
+      'Pay is given once the month is over. Until then — advances only.';
+
+  @override
+  String get pplAddMoney => 'Advance, fine, bonus';
+
+  @override
+  String get pplWaiting => 'Waiting for your «Yes»';
+
+  @override
+  String pplWaitingBy(String who) {
+    return 'entered by $who';
+  }
+
+  @override
+  String get pplYes => 'Yes';
+
+  @override
+  String get pplNo => 'No';
+
+  @override
+  String get pplWhyNo => 'Why not? He will see it.';
+
+  @override
+  String get pplExcel => 'Copy for Excel';
+
+  @override
+  String get pplCopied => 'Copied — paste it into Excel';
+
+  @override
+  String get pplNoLoginMoney => 'no login — pay is not counted';
+
+  @override
+  String get pplMoneyTitle => 'Advance, fine or bonus';
+
+  @override
+  String get pplWho => 'To whom';
+
+  @override
+  String get pplHowMuch => 'How much, ₸';
+
+  @override
+  String get pplWhy => 'What for';
+
+  @override
+  String get pplRecord => 'Save';
+
+  @override
+  String get pplFillAll => 'Fill in who, how much and what for.';
+
+  @override
+  String get pplRecorded => 'Saved';
+
+  @override
+  String get pplRecordedWaiting => 'Saved — waiting for a manager\'s «Yes»';
+
+  @override
+  String pplIntake(int count, String m2) {
+    return 'Orders taken in: $count · $m2';
+  }
+
+  @override
+  String pplSold(String metres, int count) {
+    return 'Sold: $metres m · $count sales';
+  }
+
+  @override
+  String pplReceived(int count) {
+    return 'Deliveries taken in: $count';
+  }
+
+  @override
+  String get pplSalesBonus => 'Sales bonus';
+
+  @override
+  String get pplCancelEntry => 'Cancel it';
+
+  @override
+  String get pplCancelWhy => 'Why cancel it? He will see it.';
+
+  @override
+  String get pplPeopleMoney => 'Staff money';
 }

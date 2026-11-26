@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
+import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/figure_tile.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -10,6 +14,8 @@ import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
 import 'package:korkem_flow/features/team/domain/people_report.dart';
+import 'package:korkem_flow/features/team/presentation/people_money_actions.dart';
+import 'package:korkem_flow/features/team/presentation/people_money_view.dart';
 import 'package:korkem_flow/features/team/presentation/people_period.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -28,6 +34,26 @@ String peopleStagesLine(
     ].join(' '),
 ].join('   ');
 
+/// The work that is not a facade stage: orders taken in, film sold,
+/// deliveries received.
+List<String> peopleOtherWork(
+  BuildContext context,
+  PersonRow person,
+  AppLocalizations l10n,
+) {
+  final metres = NumberFormat(
+    '0.#',
+    Localizations.localeOf(context).toLanguageTag(),
+  );
+  return [
+    if (person.intake case final i?)
+      l10n.pplIntake(i.orders, peopleM2(context, i.m2)),
+    if (person.sales case final v?)
+      l10n.pplSold(metres.format(v.metres), v.sales),
+    if (person.received case final n?) l10n.pplReceived(n),
+  ];
+}
+
 /// «Раскрой» for `cut`; a stage this app does not know, as the server said it.
 String peopleStageLabel(String stage, AppLocalizations l10n) {
   final known = MdfStage.values.asNameMap()[stage];
@@ -37,9 +63,12 @@ String peopleStageLabel(String stage, AppLocalizations l10n) {
 /// «Сотрудники» (owner, 25.11.2026): everyone for a day, a week or a month —
 /// post, what he did, days with work, what he earned, took and is owed.
 class PeopleScreen extends ConsumerStatefulWidget {
-  const PeopleScreen({super.key, this.today});
+  const PeopleScreen({super.key, this.today, this.money = false});
 
   final DateTime? today;
+
+  /// Open on «Деньги» — where «Ведомость» used to lead.
+  final bool money;
 
   @override
   ConsumerState<PeopleScreen> createState() => _PeopleScreenState();
@@ -49,15 +78,31 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
   late final DateTime _today = widget.today ?? DateTime.now();
   PeopleSpan _span = PeopleSpan.month;
   late DateTime _day = _today;
+  late bool _money = widget.money;
+
+  /// Whether «Деньги» is offered: the last answer said this one sees pay.
+  bool _seesPay = false;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final query = (span: _span, day: peopleIso(_day));
+    // Money is the month's: the tab shows the month the day is in.
+    final span = _money ? PeopleSpan.month : _span;
+    final query = (span: span, day: peopleIso(_day));
     final report = ref.watch(peopleReportProvider(query));
+    if (report.value case final r?) _seesPay = r.seesPay;
     return AppScreen(
       title: l10n.pplTitle,
       subtitle: l10n.pplSubtitle,
+      actions: [
+        if (_money && _seesPay)
+          IconButton(
+            key: const ValueKey('ppl:excel'),
+            tooltip: l10n.pplExcel,
+            icon: const Icon(AppIcons.share),
+            onPressed: () => unawaited(copyMonthForExcel(context, _day)),
+          ),
+      ],
       body: Column(
         children: [
           Padding(
@@ -67,14 +112,32 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
               AppSpacing.lg,
               0,
             ),
-            child: PeoplePeriodBar(
-              span: _span,
-              day: _day,
-              today: _today,
-              onChanged: (span, day) => setState(() {
-                _span = span;
-                _day = day;
-              }),
+            child: Column(
+              children: [
+                if (_seesPay || _money) ...[
+                  SegmentedButton<bool>(
+                    key: const ValueKey('ppl:tab'),
+                    showSelectedIcon: false,
+                    segments: [
+                      ButtonSegment(value: false, label: Text(l10n.pplWorkTab)),
+                      ButtonSegment(value: true, label: Text(l10n.pplMoneyTab)),
+                    ],
+                    selected: {_money},
+                    onSelectionChanged: (s) => setState(() => _money = s.first),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+                PeoplePeriodBar(
+                  span: span,
+                  day: _day,
+                  today: _today,
+                  monthOnly: _money,
+                  onChanged: (span, day) => setState(() {
+                    _span = span;
+                    _day = day;
+                  }),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -89,7 +152,9 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
                   : RefreshIndicator(
                       onRefresh: () =>
                           ref.refresh(peopleReportProvider(query).future),
-                      child: _Body(report: r, query: query),
+                      child: _money
+                          ? PeopleMoneyView(report: r, day: _day, today: _today)
+                          : _Body(report: r, query: query),
                     ),
             ),
           ),
@@ -125,21 +190,23 @@ class _Body extends StatelessWidget {
               value: peopleM2(context, report.m2),
               note: '${l10n.pplStages}: ${report.stagesDone}',
             ),
-            FigureTile(
-              id: 'ppl:total:earned',
-              title: l10n.pplEarned,
-              value: money.format(report.earned),
-            ),
-            FigureTile(
-              id: 'ppl:total:advance',
-              title: l10n.pplAdvance,
-              value: money.format(report.advance),
-            ),
-            FigureTile(
-              id: 'ppl:total:left',
-              title: l10n.pplLeft,
-              value: money.format(report.left),
-            ),
+            if (report.seesPay) ...[
+              FigureTile(
+                id: 'ppl:total:earned',
+                title: l10n.pplEarned,
+                value: money.format(report.earned),
+              ),
+              FigureTile(
+                id: 'ppl:total:advance',
+                title: l10n.pplAdvance,
+                value: money.format(report.advance),
+              ),
+              FigureTile(
+                id: 'ppl:total:left',
+                title: l10n.pplLeft,
+                value: money.format(report.left),
+              ),
+            ],
           ],
         ),
         const SizedBox(height: AppSpacing.md),
@@ -163,10 +230,14 @@ class _PersonTile extends StatelessWidget {
       color: theme.colorScheme.onSurfaceVariant,
     );
     final money = person.money;
+    final other = peopleOtherWork(context, person, l10n);
     final work = person.stages.isEmpty
-        ? l10n.pplNothing
-        : '${peopleStagesLine(context, person.stages, l10n)}'
-              '   ·   ${l10n.pplDays}: ${person.days}';
+        ? (other.isEmpty ? l10n.pplNothing : other.join('   ·   '))
+        : [
+            peopleStagesLine(context, person.stages, l10n),
+            '${l10n.pplDays}: ${person.days}',
+            ...other,
+          ].join('   ·   ');
     return ListTile(
       key: ValueKey('ppl:person:${person.employee}'),
       contentPadding: EdgeInsets.zero,

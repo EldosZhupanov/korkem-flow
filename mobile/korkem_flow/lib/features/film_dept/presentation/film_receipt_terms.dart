@@ -278,8 +278,19 @@ Widget filmPersonField({
   required FilmDeliveryOptions? opts,
   required String? value,
   required ValueChanged<String?> onChanged,
+  bool sellersOnly = false,
 }) {
-  final staff = opts?.staff ?? const [];
+  final all = opts?.staff ?? const [];
+  final sellers = opts?.sellers ?? const [];
+  // A seller is one of «Команда»'s «Продажники» (owner, 26.11.2026) — and
+  // whoever is chosen already, so an older sale keeps its seller.
+  final staff = sellersOnly && sellers.isNotEmpty
+      ? [
+          ...sellers,
+          for (final p in all)
+            if (p.user == value && !sellers.any((s) => s.user == value)) p,
+        ]
+      : all;
   final chosen = value ?? opts?.me;
   return DropdownButtonFormField<String>(
     key: ValueKey('$key:${staff.length}'),

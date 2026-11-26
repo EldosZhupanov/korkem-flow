@@ -52,15 +52,30 @@ class FakePeople implements PeopleReportRepository {
   @override
   Future<PeopleReport> report(PeopleQuery q) async {
     reports.add(q);
-    return PeopleReport.fromJson(const {
-      'people': [_erlan, _aset, ..._more],
-      'total': {
+    return PeopleReport.fromJson({
+      'people': const [_erlan, _aset, ..._more],
+      'total': const {
         'm2': 69.5,
         'stages_done': 23,
-        'earned': 212500,
-        'advance': 80000,
-        'left': 127500,
+        'earned': 488500,
+        'advance': 210000,
+        'left': 273500,
       },
+      'sees_pay': true,
+      'can_adjust': true,
+      // «Отдать» once the month is over: November is not, in these tests.
+      'can_pay': q.day.compareTo('2026-11-01') < 0,
+      'pending': const [
+        {
+          'adjustment': 'PAY-ADJ-00007',
+          'employee_name': 'Ерлан Сапаров',
+          'kind': 'Аванс',
+          'amount': 20000,
+          'reason': 'на ремонт машины',
+          'created_by': 'Мастер Бауыржан',
+          'can_approve': true,
+        },
+      ],
     });
   }
 
@@ -70,6 +85,7 @@ class FakePeople implements PeopleReportRepository {
     if (q.employee == _aset['employee']) {
       return PersonCard.fromJson(const {
         ..._aset,
+        'sees_pay': true,
         'by_day': <Map<String, Object>>[],
       });
     }
@@ -120,6 +136,8 @@ class FakePeople implements PeopleReportRepository {
       ],
       'payouts': const <Map<String, Object>>[],
       'me': false,
+      'sees_pay': true,
+      'can_adjust': true,
       'posts': const ['cut.cutter'],
       'can_edit': true,
       'history': const [
@@ -184,6 +202,7 @@ const List<Map<String, Object?>> _more = [
     'm2': 0,
     'orders': 0,
     'days': 0,
+    'intake': {'orders': 23, 'm2': 61.4, 'amount': 2140000},
     'money': {'earned': 0, 'advance': 30000, 'left': -30000},
   },
 ];

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +16,8 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
 import 'package:korkem_flow/features/team/domain/people_report.dart';
+import 'package:korkem_flow/features/team/presentation/people_money_actions.dart';
+import 'package:korkem_flow/features/team/presentation/people_money_view.dart';
 import 'package:korkem_flow/features/team/presentation/people_period.dart';
 import 'package:korkem_flow/features/team/presentation/people_screen.dart';
 import 'package:korkem_flow/features/team/presentation/person_card_team.dart';
@@ -85,7 +89,7 @@ class _PersonCardScreenState extends ConsumerState<PersonCardScreen> {
               ),
               data: (c) => RefreshIndicator(
                 onRefresh: () => ref.refresh(personCardProvider(query).future),
-                child: _CardBody(card: c, span: _span),
+                child: _CardBody(card: c, span: _span, day: _day),
               ),
             ),
           ),
@@ -96,10 +100,17 @@ class _PersonCardScreenState extends ConsumerState<PersonCardScreen> {
 }
 
 class _CardBody extends StatefulWidget {
-  const _CardBody({required this.card, required this.span});
+  const _CardBody({
+    required this.card,
+    required this.span,
+    required this.day,
+  });
 
   final PersonCard card;
   final PeopleSpan span;
+
+  /// A day in the period shown — «Отдать» pays its month.
+  final DateTime day;
 
   @override
   State<_CardBody> createState() => _CardBodyState();
@@ -145,8 +156,15 @@ class _CardBodyState extends State<_CardBody> {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.lg),
-        SectionLabel(l10n.pplMoney),
+        for (final line in peopleOtherWork(context, row, l10n))
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
+            child: Text(line, style: muted),
+          ),
+        if (c.seesPay) ...[
+          const SizedBox(height: AppSpacing.lg),
+          SectionLabel(l10n.pplMoney),
+        ],
         if (row.money case final m?) ...[
           FigureRow(
             tiles: [
@@ -180,12 +198,53 @@ class _CardBodyState extends State<_CardBody> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '${l10n.pplPiece} ${money.format(m.piece)}   ·   '
-            '${l10n.pplBonus} ${money.format(m.bonus)}',
+            [
+              '${l10n.pplPiece} ${money.format(m.piece)}',
+              '${l10n.pplBonus} ${money.format(m.bonus)}',
+              if (m.salesBonus > 0)
+                '${l10n.pplSalesBonus} ${money.format(m.salesBonus)}',
+            ].join('   ·   '),
             key: const ValueKey('card:split'),
             style: muted,
           ),
-        ] else
+          if (c.canAdjust || (c.canPay && m.left > 0)) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
+              children: [
+                if (c.canAdjust)
+                  for (final kind in PersonAdjustmentKind.values)
+                    OutlinedButton(
+                      key: ValueKey('card:entry:${kind.name}'),
+                      onPressed: () => unawaited(
+                        showPayEntryDialog(
+                          context,
+                          people: [row],
+                          user: row.user,
+                          kind: kind,
+                        ),
+                      ),
+                      child: Text(payKindLabel(kind, l10n)),
+                    ),
+                if (c.canPay && m.left > 0)
+                  FilledButton(
+                    key: const ValueKey('card:give'),
+                    onPressed: () => unawaited(
+                      giveMonthPay(
+                        context,
+                        user: row.user!,
+                        name: row.name,
+                        amount: m.left,
+                        day: widget.day,
+                      ),
+                    ),
+                    child: Text(l10n.pplGive),
+                  ),
+              ],
+            ),
+          ],
+        ] else if (c.seesPay)
           Text(
             l10n.pplNoLogin,
             key: const ValueKey('card:noLogin'),
@@ -240,7 +299,7 @@ class _CardBodyState extends State<_CardBody> {
         if (c.adjustments.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
           SectionLabel(l10n.pplAdjustments),
-          for (final (i, a) in c.adjustments.indexed)
+          for (final (i, a) in c.adjustments.indexed) ...[
             _Line(
               key: ValueKey('card:adj:$i'),
               title: [
@@ -262,6 +321,32 @@ class _CardBodyState extends State<_CardBody> {
                 PersonAdjustmentKind.advance => null,
               },
             ),
+            if (a.adjustment case final id? when a.canApprove || a.canReverse)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Wrap(
+                  spacing: AppSpacing.xs,
+                  children: [
+                    if (a.canApprove)
+                      FilledButton.tonal(
+                        key: ValueKey('card:yes:$id'),
+                        onPressed: () => unawaited(approvePay(context, id)),
+                        child: Text(l10n.pplYes),
+                      ),
+                    if (a.canReverse)
+                      TextButton(
+                        key: ValueKey('card:cancel:$id'),
+                        onPressed: () => unawaited(
+                          cancelPay(context, id, waiting: !a.approved),
+                        ),
+                        child: Text(
+                          a.approved ? l10n.pplCancelEntry : l10n.pplNo,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
         ],
         if (c.payouts.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),

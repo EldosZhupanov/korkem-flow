@@ -30,13 +30,20 @@ jobs:
           flutter pub get
           flutter gen-l10n
           dart format lib test
+      # A change that moves what a golden draws (a sidebar entry) asks for
+      # them redrawn with «[goldens]» in its commit message; the new images
+      # are committed with the rest and read like any other change.
+      - name: Redraw goldens on request
+        if: contains(github.event.head_commit.message, '[goldens]')
+        working-directory: mobile/korkem_flow
+        run: flutter test test/goldens --update-goldens
       - name: Commit what changed
         run: |
           if [ -n "$(git status --porcelain mobile/korkem_flow/lib mobile/korkem_flow/test)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add -A mobile/korkem_flow/lib mobile/korkem_flow/test
-            git commit -m "chore(l10n): regenerate; format"
+            git commit -m "chore(l10n): regenerate; format; goldens if asked"
             git push
           fi
       - name: Analyze

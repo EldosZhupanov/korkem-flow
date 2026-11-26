@@ -12383,13 +12383,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pplStages => 'Этапов';
 
   @override
-  String get pplEarned => 'Начислено';
+  String get pplEarned => 'Заработал';
 
   @override
   String get pplAdvance => 'Аванс';
 
   @override
-  String get pplLeft => 'Осталось выплатить';
+  String get pplLeft => 'Осталось отдать';
 
   @override
   String get pplDays => 'Дней с работой';
@@ -12426,7 +12426,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pplBonusOne => 'Премия';
 
   @override
-  String get pplPaid => 'Выплачено';
+  String get pplPaid => 'Отдано';
 
   @override
   String get pplByDay => 'По дням';
@@ -12586,4 +12586,135 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tmEdit => 'Изменить';
+
+  @override
+  String get pplWorkTab => 'Работа';
+
+  @override
+  String get pplMoneyTab => 'Деньги';
+
+  @override
+  String get pplEarnedAll => 'Заработали';
+
+  @override
+  String get pplAdvanceAll => 'Взяли авансом';
+
+  @override
+  String get pplLeftAll => 'Осталось отдать';
+
+  @override
+  String get pplColWho => 'Кто';
+
+  @override
+  String get pplColEarned => 'Заработал';
+
+  @override
+  String get pplColAdvance => 'Аванс';
+
+  @override
+  String get pplColFine => 'Штраф';
+
+  @override
+  String get pplColGive => 'Отдать';
+
+  @override
+  String get pplGive => 'Отдать';
+
+  @override
+  String get pplGiven => 'Отдано';
+
+  @override
+  String get pplOwes => 'должен';
+
+  @override
+  String pplGiveConfirm(String name, String sum) {
+    return 'Отдать $name $sum? Месяц у него закроется.';
+  }
+
+  @override
+  String get pplGiveDone => 'Отмечено: отдано';
+
+  @override
+  String get pplPayLater =>
+      'Отдать можно, когда месяц закончится. Сейчас — только авансом.';
+
+  @override
+  String get pplAddMoney => 'Аванс, штраф, премия';
+
+  @override
+  String get pplWaiting => 'Ждёт вашего «Да»';
+
+  @override
+  String pplWaitingBy(String who) {
+    return 'внёс $who';
+  }
+
+  @override
+  String get pplYes => 'Да';
+
+  @override
+  String get pplNo => 'Нет';
+
+  @override
+  String get pplWhyNo => 'Почему нет? Работник увидит.';
+
+  @override
+  String get pplExcel => 'Скопировать для Excel';
+
+  @override
+  String get pplCopied => 'Скопировано — вставьте в Excel';
+
+  @override
+  String get pplNoLoginMoney => 'без входа — зарплата не считается';
+
+  @override
+  String get pplMoneyTitle => 'Аванс, штраф или премия';
+
+  @override
+  String get pplWho => 'Кому';
+
+  @override
+  String get pplHowMuch => 'Сколько, ₸';
+
+  @override
+  String get pplWhy => 'За что';
+
+  @override
+  String get pplRecord => 'Записать';
+
+  @override
+  String get pplFillAll => 'Заполните: кому, сколько и за что.';
+
+  @override
+  String get pplRecorded => 'Записано';
+
+  @override
+  String get pplRecordedWaiting => 'Записано — ждёт «Да» руководителя';
+
+  @override
+  String pplIntake(int count, String m2) {
+    return 'Принял заказов: $count · $m2';
+  }
+
+  @override
+  String pplSold(String metres, int count) {
+    return 'Продал: $metres м · $count продаж';
+  }
+
+  @override
+  String pplReceived(int count) {
+    return 'Принял поставок: $count';
+  }
+
+  @override
+  String get pplSalesBonus => 'Бонус продаж';
+
+  @override
+  String get pplCancelEntry => 'Отменить';
+
+  @override
+  String get pplCancelWhy => 'Почему отменяете? Работник увидит.';
+
+  @override
+  String get pplPeopleMoney => 'Деньги сотрудников';
 }
