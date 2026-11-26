@@ -22467,6 +22467,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set the prepayment %'**
   String get mdfPrepaySet;
+
+  /// No description provided for @pressTableDimension.
+  ///
+  /// In en, this message translates to:
+  /// **'table {length} mm · section {metres} m'**
+  String pressTableDimension(int length, String metres);
+
+  /// No description provided for @pressWidthDimension.
+  ///
+  /// In en, this message translates to:
+  /// **'{width} mm'**
+  String pressWidthDimension(int width);
 }
 
 class _AppLocalizationsDelegate

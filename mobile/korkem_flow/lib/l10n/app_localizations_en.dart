@@ -13146,4 +13146,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPrepaySet => 'Set the prepayment %';
+
+  @override
+  String pressTableDimension(int length, String metres) {
+    return 'table $length mm · section $metres m';
+  }
+
+  @override
+  String pressWidthDimension(int width) {
+    return '$width mm';
+  }
 }

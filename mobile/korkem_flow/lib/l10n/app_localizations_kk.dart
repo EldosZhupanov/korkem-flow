@@ -13105,4 +13105,14 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPrepaySet => 'Алдын ала төлем пайызын орнату';
+
+  @override
+  String pressTableDimension(int length, String metres) {
+    return 'үстел $length мм · секция $metres м';
+  }
+
+  @override
+  String pressWidthDimension(int width) {
+    return '$width мм';
+  }
 }

@@ -334,11 +334,27 @@ class _PressPainter extends CustomPainter {
     for (var mm = 0.0; mm <= lengthMm - _crowd; mm += _step) {
       final x = left + mm * scale;
       canvas.drawLine(Offset(x, top - AppSpacing.xs), Offset(x, top), tick);
-      _text(canvas, '${mm.round()}', rulerStyle, Offset(x, labelY), _step * scale);
+      _text(
+        canvas,
+        '${mm.round()}',
+        rulerStyle,
+        Offset(x, labelY),
+        _step * scale,
+      );
     }
     final right = left + lengthMm * scale;
-    canvas.drawLine(Offset(right, top - AppSpacing.sm), Offset(right, top), end);
-    _text(canvas, '${lengthMm.round()}', endStyle, Offset(right, labelY), _step * scale);
+    canvas.drawLine(
+      Offset(right, top - AppSpacing.sm),
+      Offset(right, top),
+      end,
+    );
+    _text(
+      canvas,
+      '${lengthMm.round()}',
+      endStyle,
+      Offset(right, labelY),
+      _step * scale,
+    );
     // Down the side: the same.
     for (var mm = _minor; mm < widthMm; mm += _minor) {
       final y = top + mm * scale;
@@ -377,9 +393,24 @@ class _PressPainter extends CustomPainter {
       )..layout(maxWidth: math.max(0, right - left));
       final mid = (left + right) / 2;
       final half = painter.width / 2 + AppSpacing.sm;
-      _dimension(canvas, Offset(left, y), Offset(mid - half, y), line, start: true);
-      _dimension(canvas, Offset(mid + half, y), Offset(right, y), line, finish: true);
-      painter.paint(canvas, Offset(mid - painter.width / 2, y - painter.height / 2));
+      _dimension(
+        canvas,
+        Offset(left, y),
+        Offset(mid - half, y),
+        line,
+        start: true,
+      );
+      _dimension(
+        canvas,
+        Offset(mid + half, y),
+        Offset(right, y),
+        line,
+        finish: true,
+      );
+      painter.paint(
+        canvas,
+        Offset(mid - painter.width / 2, y - painter.height / 2),
+      );
     }
     if (widthLabel case final label?) {
       final x = right + AppSpacing.md;
@@ -390,8 +421,20 @@ class _PressPainter extends CustomPainter {
       )..layout(maxWidth: math.max(0, bottom - top));
       final mid = (top + bottom) / 2;
       final half = painter.width / 2 + AppSpacing.sm;
-      _dimension(canvas, Offset(x, top), Offset(x, mid - half), line, start: true);
-      _dimension(canvas, Offset(x, mid + half), Offset(x, bottom), line, finish: true);
+      _dimension(
+        canvas,
+        Offset(x, top),
+        Offset(x, mid - half),
+        line,
+        start: true,
+      );
+      _dimension(
+        canvas,
+        Offset(x, mid + half),
+        Offset(x, bottom),
+        line,
+        finish: true,
+      );
       canvas
         ..save()
         ..translate(x, mid)

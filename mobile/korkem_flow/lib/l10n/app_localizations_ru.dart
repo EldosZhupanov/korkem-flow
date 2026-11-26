@@ -13181,4 +13181,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPrepaySet => 'Задать % предоплаты';
+
+  @override
+  String pressTableDimension(int length, String metres) {
+    return 'стол $length мм · секция $metres м';
+  }
+
+  @override
+  String pressWidthDimension(int width) {
+    return '$width мм';
+  }
 }
