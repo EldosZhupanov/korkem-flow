@@ -65,6 +65,9 @@ abstract final class AppIcons {
   static const IconData filter = Symbols.filter_list_rounded;
   static const IconData sort = Symbols.sort_rounded;
   static const IconData add = Symbols.add_rounded;
+
+  /// «−» beside a number «+» raises — a crew's share (26.11.2026).
+  static const IconData remove = Symbols.remove_rounded;
   static const IconData paste = Symbols.content_paste_rounded;
   static const IconData copy = Symbols.content_copy_rounded;
   static const IconData calculate = Symbols.calculate_rounded;

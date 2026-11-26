@@ -11,6 +11,7 @@ import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/figure_tile.dart';
+import 'package:korkem_flow/core/design/widgets/pay_helpers.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -914,7 +915,10 @@ class _PayAllDialog extends ConsumerStatefulWidget {
 class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
   late final TextEditingController _amount = TextEditingController(
     text: (widget.card.figures?.debt ?? 0).toStringAsFixed(0),
-  );
+  )..selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: (widget.card.figures?.debt ?? 0).toStringAsFixed(0).length,
+    );
   String _method = 'Перевод';
 
   /// The debt invoice it is paid by; null — without one.
@@ -1022,6 +1026,19 @@ class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
                   errorText: over ? l10n.clcPayOver(money.format(debt)) : null,
                 ),
               ),
+              // One tap for the whole debt (owner, 26.11.2026).
+              if (_invoice == null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                PayQuickAmounts(
+                  options: [
+                    (key: 'all', label: l10n.payQuickDebt, amount: debt),
+                  ],
+                  current: value,
+                  format: money.format,
+                  onPick: (v) =>
+                      setState(() => _amount.text = v.toStringAsFixed(0)),
+                ),
+              ],
               const SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: AppSpacing.xs,
@@ -1039,6 +1056,14 @@ class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
                     ),
                 ],
               ),
+              if (_method == 'Наличные' && value > 0) ...[
+                const SizedBox(height: AppSpacing.sm),
+                PayCashChange(amount: value, format: money.format),
+              ],
+              if (!over && debt > 0) ...[
+                const SizedBox(height: AppSpacing.sm),
+                PayAfter(owed: debt, paying: value, format: money.format),
+              ],
               const SizedBox(height: AppSpacing.sm),
               if (split.isNotEmpty && !over) ...[
                 Text(l10n.clcPaySplit, style: theme.textTheme.labelLarge),

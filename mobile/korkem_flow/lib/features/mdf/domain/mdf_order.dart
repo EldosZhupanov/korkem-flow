@@ -597,6 +597,7 @@ class MdfOrder {
     required this.total,
     required this.paid,
     required this.debt,
+    this.prepayPercent,
     required this.payments,
     required this.stages,
     this.overdue = false,
@@ -652,6 +653,9 @@ class MdfOrder {
     total: _d(json['total']),
     paid: _d(json['paid']),
     debt: _d(json['debt']),
+    prepayPercent: json['prepay_percent'] is num
+        ? (json['prepay_percent'] as num).toDouble()
+        : null,
     payments: [
       for (final p in json['payments'] as List? ?? const [])
         if (p is Map) MdfPayment.fromJson(Map<String, dynamic>.from(p)),
@@ -775,6 +779,10 @@ class MdfOrder {
   final double total;
   final double paid;
   final double debt;
+
+  /// The company's prepayment rule in %, offered as one tap in «Внести
+  /// оплату»; null — none set.
+  final double? prepayPercent;
   final List<MdfPayment> payments;
 
   /// «Счёт на оплату» (owner, 20.11.2026): the order's invoices, oldest

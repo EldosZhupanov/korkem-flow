@@ -1504,6 +1504,37 @@ void main() {
     expect(repo.paidBy, ['7']);
   });
 
+  testWidgets('a payment starts at what is left; cash shows the change', (
+    tester,
+  ) async {
+    // Owner, 26.11.2026: «полноценная сумма по умолчанию, при
+    // необходимости менеджер сам исправит».
+    final repo = _FakeRepository();
+    await _pumpCard(tester, repo);
+    await tester.tap(find.byKey(const ValueKey('mdfAddPayment')));
+    await tester.pumpAndSettle();
+    final amount = find.byKey(const ValueKey('mdfPaymentAmount'));
+    expect(tester.widget<TextField>(amount).controller!.text, '34165');
+    expect(find.byKey(const ValueKey('payQuick:all')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentMethod:Наличные')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('payCashGiven')),
+      '40000',
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('payCashChange')))
+          .data!
+          .replaceAll(RegExp('[^0-9]'), ''),
+      '5835',
+    );
+    await tester.tap(find.byKey(const ValueKey('mdfPaymentSave')));
+    await tester.pumpAndSettle();
+    expect(repo.paid, [(34165.0, 'Наличные', null)]);
+  });
+
   testWidgets('more than is owed asks to be called an overpayment', (
     tester,
   ) async {
