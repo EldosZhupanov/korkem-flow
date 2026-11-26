@@ -15841,6 +15841,78 @@ abstract class AppLocalizations {
   /// **'{count} people · {m2} m² each'**
   String mdfCrewEach(int count, String m2);
 
+  /// No description provided for @mdfCrewPicked.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticked · {count}'**
+  String mdfCrewPicked(int count);
+
+  /// No description provided for @mdfCrewByPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'By position'**
+  String get mdfCrewByPosition;
+
+  /// No description provided for @mdfCrewIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} made no position: give him one or untick him.'**
+  String mdfCrewIdle(String name);
+
+  /// No description provided for @payQuickAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All that is left'**
+  String get payQuickAll;
+
+  /// No description provided for @payQuickDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole debt'**
+  String get payQuickDebt;
+
+  /// No description provided for @payQuickPrepay.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepayment {percent}%'**
+  String payQuickPrepay(int percent);
+
+  /// No description provided for @payCashGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer gave, ₸'**
+  String get payCashGiven;
+
+  /// No description provided for @payCashChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change: {amount}'**
+  String payCashChange(String amount);
+
+  /// No description provided for @payCashShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short by: {amount}'**
+  String payCashShort(String amount);
+
+  /// No description provided for @payAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid in full'**
+  String get payAll;
+
+  /// No description provided for @payDebtAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed after this: {amount}'**
+  String payDebtAfter(String amount);
+
+  /// No description provided for @payOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} more than is owed — check the sum'**
+  String payOver(String amount);
+
   /// No description provided for @mdfStageGiven.
   ///
   /// In en, this message translates to:

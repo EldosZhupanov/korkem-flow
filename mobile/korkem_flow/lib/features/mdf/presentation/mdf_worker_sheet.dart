@@ -147,8 +147,7 @@ class _WorkerSheetState extends ConsumerState<_WorkerSheet> {
       _whole -
       _picked.take(_picked.length - 1).fold<double>(0, (s, e) => s + _value(e));
 
-  bool get _zero =>
-      _picked.take(_picked.length - 1).any((e) => _value(e) <= 0);
+  bool get _zero => _picked.take(_picked.length - 1).any((e) => _value(e) <= 0);
 
   String _maker(int i) {
     final who = _madeBy[i];
@@ -286,8 +285,7 @@ class _WorkerSheetState extends ConsumerState<_WorkerSheet> {
               ListTile(
                 key: const ValueKey('workerNobody'),
                 title: Text(nobody),
-                onTap: () =>
-                    Navigator.of(context).pop(const MdfCrewPick([])),
+                onTap: () => Navigator.of(context).pop(const MdfCrewPick([])),
               ),
             const Divider(height: 1),
             Flexible(

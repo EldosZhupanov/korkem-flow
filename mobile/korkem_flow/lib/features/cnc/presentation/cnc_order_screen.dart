@@ -1211,12 +1211,16 @@ class _PayDialog extends StatefulWidget {
 }
 
 class _PayDialogState extends State<_PayDialog> {
-  late final _amount = TextEditingController(
-    text: widget.debt > 0 ? widget.debt.toStringAsFixed(0) : '',
-  )..selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: widget.debt > 0 ? widget.debt.toStringAsFixed(0).length : 0,
-    );
+  late final _amount =
+      TextEditingController(
+          text: widget.debt > 0 ? widget.debt.toStringAsFixed(0) : '',
+        )
+        ..selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: widget.debt > 0
+              ? widget.debt.toStringAsFixed(0).length
+              : 0,
+        );
   String _method = filmCash;
 
   @override

@@ -913,12 +913,16 @@ class _PayAllDialog extends ConsumerStatefulWidget {
 }
 
 class _PayAllDialogState extends ConsumerState<_PayAllDialog> {
-  late final TextEditingController _amount = TextEditingController(
-    text: (widget.card.figures?.debt ?? 0).toStringAsFixed(0),
-  )..selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: (widget.card.figures?.debt ?? 0).toStringAsFixed(0).length,
-    );
+  late final TextEditingController _amount =
+      TextEditingController(
+          text: (widget.card.figures?.debt ?? 0).toStringAsFixed(0),
+        )
+        ..selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: (widget.card.figures?.debt ?? 0)
+              .toStringAsFixed(0)
+              .length,
+        );
   String _method = 'Перевод';
 
   /// The debt invoice it is paid by; null — without one.
