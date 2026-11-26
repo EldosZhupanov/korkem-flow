@@ -13561,4 +13561,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String mdfDuePick(String date) {
     return 'Выбрать $date';
   }
+
+  @override
+  String get mdfDueNoSizes => 'примерно: размеров ещё нет';
 }

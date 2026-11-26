@@ -23055,6 +23055,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick {date}'**
   String mdfDuePick(String date);
+
+  /// No description provided for @mdfDueNoSizes.
+  ///
+  /// In en, this message translates to:
+  /// **'roughly: no sizes yet'**
+  String get mdfDueNoSizes;
 }
 
 class _AppLocalizationsDelegate
