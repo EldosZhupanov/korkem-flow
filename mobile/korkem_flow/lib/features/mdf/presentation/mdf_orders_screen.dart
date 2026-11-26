@@ -57,7 +57,9 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
   _Filter _filter = _Filter.all;
 
   /// Each section's head — a chip on top jumps to it (owner, 26.11.2026).
-  final _heads = {for (final s in MdfListSection.values) s: GlobalKey()};
+  final Map<MdfListSection, GlobalKey> _heads = {
+    for (final s in MdfListSection.values) s: GlobalKey(),
+  };
 
   /// The big sections opened in full; the rest show their first few.
   final _opened = <MdfListSection>{};
@@ -332,6 +334,22 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
                 ],
               ),
             ),
+          // «Узкое место» (owner, 26.11.2026): the stage most late orders
+          // wait at — the cause, not 22 rows.
+          if (overview?.bottleneck case final b?)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                0,
+              ),
+              child: _Bottleneck(
+                b: b,
+                onShow: () => setState(() => _filter = _Filter.overdue),
+                onPlan: () => unawaited(context.push(Routes.mdfPlan)),
+              ),
+            ),
           SizedBox(
             height: AppSpacing.xxxl,
             child: ListView(
@@ -339,22 +357,6 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               children: [
                 for (final f in _Filter.values)
-                  // «Узкое место» (owner, 26.11.2026): the stage most late orders
-                  // wait at — the cause, not 22 rows.
-                  if (overview?.bottleneck case final b?)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.lg,
-                        AppSpacing.sm,
-                        AppSpacing.lg,
-                        0,
-                      ),
-                      child: _Bottleneck(
-                        b: b,
-                        onShow: () => setState(() => _filter = _Filter.overdue),
-                        onPlan: () => unawaited(context.push(Routes.mdfPlan)),
-                      ),
-                    ),
                 Padding(
                   padding: const EdgeInsets.only(right: AppSpacing.sm),
                   child: ChoiceChip(
@@ -444,8 +446,10 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
                                     ActionChip(
                                       key: ValueKey('mdfJump:${section.name}'),
                                       label: Text(
-                                        '${sectionTitle(section)} · '
-                                        '${rows.where((r) => r.section == section).length}',
+                                        '${sectionTitle(section)} · ${[
+                                          for (final r in rows)
+                                            if (r.section == section) r,
+                                        ].length}',
                                       ),
                                       onPressed: () => _jump(section),
                                     ),
