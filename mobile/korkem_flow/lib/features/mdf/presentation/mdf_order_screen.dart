@@ -2345,12 +2345,25 @@ class _LineRow extends StatelessWidget {
       bool highlight = false,
       bool required = false,
       Set<String> indented = const {},
+      (MdfDictKind, String)? list,
     }) => SizedBox(
       width: width,
       child: DropdownButtonFormField<String?>(
-        key: ValueKey('$key:$index:${choices.length}'),
+        // With its list at the bottom, the field is rebuilt for its value:
+        // «Изменить список…» is never left standing as the choice.
+        key: ValueKey(
+          '$key:$index:${choices.length}${list == null ? '' : ':$value'}',
+        ),
         initialValue: value,
         isExpanded: true,
+        selectedItemBuilder: list == null
+            ? null
+            : (_) => [
+                if (!required) Text(none ?? l10n.mdfNone),
+                for (final _ in mdfChoices(choices, value))
+                  Text(value ?? '', overflow: TextOverflow.ellipsis),
+                Text(value ?? '', overflow: TextOverflow.ellipsis),
+              ],
         items: [
           if (!required) DropdownMenuItem(child: Text(none ?? l10n.mdfNone)),
           for (final m in mdfChoices(choices, value))
@@ -2371,8 +2384,48 @@ class _LineRow extends StatelessWidget {
                       ),
                     ),
             ),
+          // The list itself, last in the drop-down (owner, 26.11.2026:
+          // «почему тут не добавляются материалы и размеры?») — add, rename,
+          // delete, then choose, without leaving the order.
+          if (list != null)
+            DropdownMenuItem(
+              key: ValueKey('$key:$index:editList'),
+              value: _editList,
+              child: Row(
+                children: [
+                  Icon(
+                    AppIcons.dictionary,
+                    size: AppIconSize.inline,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Flexible(
+                    child: Text(
+                      l10n.mdfDictEdit,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: theme.colorScheme.primary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
         onChanged: (v) {
+          if (v == _editList && list != null) {
+            unawaited(() async {
+              final picked = await showMdfDictionary(
+                context,
+                list.$1,
+                title: list.$2,
+                current: value,
+              );
+              if (!context.mounted) return;
+              // Nothing chosen: the field goes back to the value it had.
+              if (picked != null) set(picked);
+              onChanged();
+            }());
+            return;
+          }
           set(v);
           onChanged();
         },
@@ -2556,6 +2609,7 @@ class _LineRow extends StatelessWidget {
                 (v) => line.edge = v,
                 required: true,
                 highlight: edge != defaultEdge,
+                list: (MdfDictKind.edge, l10n.mdfColEdge),
               ),
               SizedBox(
                 width: 140,
@@ -2602,6 +2656,7 @@ class _LineRow extends StatelessWidget {
                   line.thicknessMm = mm == headThickness ? null : mm;
                 },
                 required: true,
+                list: (MdfDictKind.thickness, l10n.mdfThicknessShort),
               ),
               drop(
                 'mdfLineMaterial',
@@ -2612,6 +2667,7 @@ class _LineRow extends StatelessWidget {
                 (v) => line.material = v == headMaterial ? null : v,
                 required: true,
                 highlight: line.clientMdf,
+                list: (MdfDictKind.material, l10n.mdfMaterial),
               ),
               // His own board, position by position (owner, 14.11.2026): a
               // tick beside the material, not a second list.
@@ -4538,3 +4594,6 @@ String mdfGlossLabel(MdfGloss g, AppLocalizations l10n) => switch (g) {
   MdfGloss.metallic => l10n.mdfGlossMetallic,
   MdfGloss.pearl => l10n.mdfGlossPearl,
 };
+
+/// The drop-down's last item: «Изменить список…», not a value.
+const _editList = '\u0001list';

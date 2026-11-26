@@ -11,6 +11,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_ready.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dictionary_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_invoice_dialog.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
@@ -723,6 +724,24 @@ void main() {
           .selected,
       isTrue,
     );
+    // The edge list is edited from its own drop-down (owner, 26.11.2026:
+    // «почему тут не добавляются материалы и размеры?»); closing it leaves
+    // the position's edge as it was.
+    await tester.tap(
+      find.byWidgetPredicate(
+        (w) =>
+            w is DropdownButtonFormField<String?> &&
+            '${w.key}'.contains('mdfLineEdge:0:'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfLineEdge:0:editList')).last);
+    await tester.pumpAndSettle();
+    expect(find.byType(MdfDictionaryDialog), findsOneWidget);
+    Navigator.of(tester.element(find.byType(MdfDictionaryDialog))).pop();
+    await tester.pumpAndSettle();
+    expect(edgeOf(0), 'R3');
+    expect(find.text('R3'), findsWidgets);
   });
 
   test('tags, a radius and a patina come and go as the server has them', () {
