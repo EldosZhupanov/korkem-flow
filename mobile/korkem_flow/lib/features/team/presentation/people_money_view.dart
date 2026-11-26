@@ -15,6 +15,9 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// Below this width a person's money is two lines, not six columns.
 const double _tableWidth = 560;
 
+/// «Отдать» on one line, in Kazakh too («Беру»).
+const double _actionWidth = AppSpacing.xxxl * 2 + AppSpacing.lg;
+
 String payKindLabel(PersonAdjustmentKind kind, AppLocalizations l10n) =>
     switch (kind) {
       PersonAdjustmentKind.advance => l10n.pplAdvance,
@@ -245,7 +248,7 @@ class _Head extends StatelessWidget {
           cell(l10n.pplColAdvance),
           cell(l10n.pplColFine),
           cell(l10n.pplColGive),
-          const SizedBox(width: AppSpacing.xxxl * 2),
+          const SizedBox(width: _actionWidth),
         ],
       ),
     );
@@ -287,6 +290,9 @@ class _MoneyRow extends StatelessWidget {
     if (canPay && m.left > 0) {
       action = OutlinedButton(
         key: ValueKey('ppl:pay:${person.employee}'),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+        ),
         onPressed: () => unawaited(
           giveMonthPay(
             context,
@@ -341,7 +347,7 @@ class _MoneyRow extends StatelessWidget {
                   cell(m.fine),
                   Expanded(child: give),
                   SizedBox(
-                    width: AppSpacing.xxxl * 2,
+                    width: _actionWidth,
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: action,
