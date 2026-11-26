@@ -429,8 +429,29 @@ class TestMdfOrders(IntegrationTestCase):
 		venge = next(d for d in report["by_decor"] if d["decor"] == self.decor)
 		self.assertGreaterEqual(venge["orders"], 1)
 		self.assertIn("accepted", [s["status"] for s in report["by_status"]])
+		# Cut by milling, coating and manager; with the period before to compare.
+		self.assertTrue(any(m["orders"] >= 1 for m in report["by_milling"]))
+		self.assertIn("pvc", [c["key"] for c in report["by_coating"]])
+		self.assertTrue(report["by_manager"])
+		self.assertLess(report["previous"]["until"], nowdate())
+		self.assertIn("total", report["previous"])
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, mdf_report.report)
+
+	def test_the_report_compares_with_the_period_before(self):
+		from datetime import date
+
+		from korkem_manufacturing.services.mdf_report import _previous
+
+		# The month so far: the same days of the month before.
+		self.assertEqual(_previous(date(2026, 11, 1), date(2026, 11, 26)), (date(2026, 10, 1), date(2026, 10, 26)))
+		# A whole month: the whole month before, however long.
+		self.assertEqual(_previous(date(2026, 3, 1), date(2026, 3, 31)), (date(2026, 2, 1), date(2026, 2, 28)))
+		self.assertEqual(_previous(date(2026, 3, 1), date(2026, 3, 30)), (date(2026, 2, 1), date(2026, 2, 28)))
+		# The year so far: the same days of the year before.
+		self.assertEqual(_previous(date(2026, 1, 1), date(2026, 11, 26)), (date(2025, 1, 1), date(2025, 11, 26)))
+		# Anything else: as many days just before.
+		self.assertEqual(_previous(date(2026, 11, 10), date(2026, 11, 16)), (date(2026, 11, 3), date(2026, 11, 9)))
 
 	def test_the_summary_compares_says_who_ordered_and_who_fell_asleep(self):
 		from korkem_manufacturing.services import mdf_summary

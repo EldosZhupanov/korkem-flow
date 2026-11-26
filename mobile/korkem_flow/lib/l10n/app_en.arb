@@ -11543,5 +11543,41 @@
   "mdfStageShortSand": "Sand",
   "mdfStageShortVacuum": "Vac",
   "mdfStageShortPaint": "Paint",
-  "mdfStageShortReady": "Done"
+  "mdfStageShortReady": "Done",
+  "mdfReportChange": "{change} vs before",
+  "@mdfReportChange": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfReportAverage": "Average order",
+  "mdfReportPerM2": "Average per m²",
+  "mdfReportDebtShare": "{share}% of the total",
+  "@mdfReportDebtShare": {
+    "placeholders": {
+      "share": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfReportComparedWith": "Compared with {since} – {until}",
+  "@mdfReportComparedWith": {
+    "placeholders": {
+      "since": {
+        "type": "String"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfReportByMilling": "Milling",
+  "mdfReportByCoating": "Coating",
+  "mdfReportByManager": "Managers",
+  "mdfReportNoFilm": "No film (paint, raw)",
+  "mdfReportNoMilling": "No milling",
+  "mdfReportUnknown": "Not said",
+  "mdfReportNothing": "Nothing in this period"
 }

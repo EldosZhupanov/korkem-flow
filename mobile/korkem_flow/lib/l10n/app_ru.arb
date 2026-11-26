@@ -3976,5 +3976,17 @@
   "mdfStageShortSand": "Шл",
   "mdfStageShortVacuum": "Вак",
   "mdfStageShortPaint": "Кр",
-  "mdfStageShortReady": "Гот"
+  "mdfStageShortReady": "Гот",
+  "mdfReportChange": "{change} к прошлому",
+  "mdfReportAverage": "Средний чек",
+  "mdfReportPerM2": "Цена м² средняя",
+  "mdfReportDebtShare": "{share}% суммы",
+  "mdfReportComparedWith": "Сравнение с {since} – {until}",
+  "mdfReportByMilling": "Фрезеровка",
+  "mdfReportByCoating": "Покрытие",
+  "mdfReportByManager": "Менеджеры",
+  "mdfReportNoFilm": "Без плёнки (краска, черновой)",
+  "mdfReportNoMilling": "Без фрезеровки",
+  "mdfReportUnknown": "Не указано",
+  "mdfReportNothing": "За этот период ничего нет"
 }

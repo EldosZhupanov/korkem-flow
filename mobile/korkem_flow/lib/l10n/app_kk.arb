@@ -3976,5 +3976,17 @@
   "mdfStageShortSand": "Тег",
   "mdfStageShortVacuum": "Вак",
   "mdfStageShortPaint": "Боя",
-  "mdfStageShortReady": "Дай"
+  "mdfStageShortReady": "Дай",
+  "mdfReportChange": "өткенге {change}",
+  "mdfReportAverage": "Орташа чек",
+  "mdfReportPerM2": "м² орташа бағасы",
+  "mdfReportDebtShare": "соманың {share}%",
+  "mdfReportComparedWith": "{since} – {until} кезеңімен салыстыру",
+  "mdfReportByMilling": "Фрезерлеу",
+  "mdfReportByCoating": "Жабын",
+  "mdfReportByManager": "Менеджерлер",
+  "mdfReportNoFilm": "Пленкасыз (бояу, қара)",
+  "mdfReportNoMilling": "Фрезерлеусіз",
+  "mdfReportUnknown": "Көрсетілмеген",
+  "mdfReportNothing": "Бұл кезеңде ештеңе жоқ"
 }

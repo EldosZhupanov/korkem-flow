@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
-import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
+import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -88,24 +93,61 @@ class _MdfReportScreenState extends ConsumerState<MdfReportScreen> {
   }
 }
 
-class _ReportBody extends StatelessWidget {
+/// The report's cuts, one at a time (owner, 26.11.2026).
+enum _Cut { decor, customers, milling, coating, managers }
+
+class _ReportBody extends StatefulWidget {
   const _ReportBody({required this.report});
 
   final MdfReport report;
 
   @override
+  State<_ReportBody> createState() => _ReportBodyState();
+}
+
+class _ReportBodyState extends State<_ReportBody> {
+  _Cut _cut = _Cut.decor;
+
+  /// «+12%» against the period before; null — nothing to compare with.
+  static double? _change(double now, double? before) =>
+      before == null || before <= 0 ? null : (now - before) / before * 100;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final status = context.statusColors;
     final money = mdfMoney(context);
-    final r = report;
-    String line(ReportGroup g) => l10n.mdfReportLine(
-      '${g.orders}',
-      g.areaM2.toStringAsFixed(2),
-      money.format(g.total),
-    );
-    Widget figure(String key, String label, String value, {Color? color}) =>
-        Expanded(
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final m2 = NumberFormat('#,##0.00', locale);
+    final r = widget.report;
+    final all = r.all;
+    final prev = r.previous;
+    double avg(ReportGroup? g) =>
+        g == null || g.orders == 0 ? 0 : g.total / g.orders;
+    double perM2(ReportGroup? g) =>
+        g == null || g.areaM2 <= 0 ? 0 : g.total / g.areaM2;
+    Widget figure(
+      String key,
+      String label,
+      String value, {
+      double? change,
+      String? note,
+      Color? color,
+      bool lessIsBetter = false,
+    }) {
+      final up = change != null && change >= 0.5;
+      final down = change != null && change <= -0.5;
+      final good = lessIsBetter ? down : up;
+      final bad = lessIsBetter ? up : down;
+      return Expanded(
+        child: Container(
+          margin: const EdgeInsets.all(AppSpacing.xxs),
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -115,9 +157,59 @@ class _ReportBody extends StatelessWidget {
                 key: ValueKey(key),
                 style: theme.textTheme.titleMedium?.copyWith(color: color),
               ),
+              if (change != null)
+                Text(
+                  l10n.mdfReportChange(
+                    '${change >= 0 ? '+' : '−'}${change.abs().round()}%',
+                  ),
+                  key: ValueKey('$key:change'),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: good
+                        ? status.success
+                        : bad
+                        ? status.danger
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                )
+              else if (note != null)
+                Text(
+                  note,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: color ?? theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
             ],
           ),
-        );
+        ),
+      );
+    }
+
+    final debtShare = all.total > 0 ? all.debt / all.total * 100 : 0.0;
+    final (rows, rowKey) = switch (_cut) {
+      _Cut.decor => (r.byDecor, 'reportDecor'),
+      _Cut.customers => (r.topCustomers, 'reportCustomer'),
+      _Cut.milling => (r.byMilling, 'reportMilling'),
+      _Cut.coating => (r.byCoating, 'reportCoating'),
+      _Cut.managers => (r.byManager, 'reportManager'),
+    };
+    String name(ReportGroup g) {
+      final label = g.label?.trim() ?? '';
+      if (label.isNotEmpty && label != '—') return label;
+      if (g.key.isNotEmpty && g.key != '—') return g.key;
+      return switch (_cut) {
+        _Cut.decor => l10n.mdfReportNoFilm,
+        _Cut.milling => l10n.mdfReportNoMilling,
+        _ => l10n.mdfReportUnknown,
+      };
+    }
+
+    // A film or a customer: its orders a tap away.
+    String? search(ReportGroup g) => switch (_cut) {
+      _Cut.decor when g.key.isNotEmpty && g.key != '—' => g.key,
+      _Cut.customers => g.label ?? g.key,
+      _ => null,
+    };
+    final widest = rows.fold<double>(0, (m, g) => g.total > m ? g.total : m);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -127,100 +219,221 @@ class _ReportBody extends StatelessWidget {
       ),
       children: [
         ReadableWidth(
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              figure('reportOrders', l10n.mdfReportOrders, '${r.all.orders}'),
-              figure(
-                'reportArea',
-                l10n.mdfReportArea,
-                '${r.all.areaM2.toStringAsFixed(2)} м²',
+              Row(
+                children: [
+                  figure(
+                    'reportOrders',
+                    l10n.mdfReportOrders,
+                    '${all.orders}',
+                    change: _change(all.orders.toDouble(), prev?.orders.toDouble()),
+                  ),
+                  figure(
+                    'reportArea',
+                    l10n.mdfReportArea,
+                    '${m2.format(all.areaM2)} м²',
+                    change: _change(all.areaM2, prev?.areaM2),
+                  ),
+                  figure(
+                    'reportTotal',
+                    l10n.mdfReportTotal,
+                    money.format(all.total),
+                    change: _change(all.total, prev?.total),
+                  ),
+                  figure(
+                    'reportAverage',
+                    l10n.mdfReportAverage,
+                    money.format(avg(all)),
+                    change: _change(avg(all), prev == null ? null : avg(prev)),
+                  ),
+                ],
               ),
-              figure(
-                'reportTotal',
-                l10n.mdfReportTotal,
-                money.format(r.all.total),
+              Row(
+                children: [
+                  figure(
+                    'reportPaid',
+                    l10n.mdfReportPaid,
+                    money.format(all.paid),
+                  ),
+                  figure(
+                    'reportDebt',
+                    l10n.mdfReportDebt,
+                    money.format(all.debt),
+                    color: all.debt > 0 ? theme.colorScheme.error : null,
+                    note: all.total > 0
+                        ? l10n.mdfReportDebtShare(debtShare.round())
+                        : null,
+                  ),
+                  figure(
+                    'reportPerM2',
+                    l10n.mdfReportPerM2,
+                    money.format(perM2(all)),
+                    change: _change(
+                      perM2(all),
+                      prev == null ? null : perM2(prev),
+                    ),
+                  ),
+                  figure(
+                    'reportCancelled',
+                    l10n.mdfReportCancelled,
+                    '${r.cancelled}',
+                  ),
+                ],
               ),
+              if (prev != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  child: Text(
+                    l10n.mdfReportComparedWith(
+                      mdfDay(r.previousSince),
+                      mdfDay(r.previousUntil),
+                    ),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              if (r.byStatus.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    for (final g in r.byStatus)
+                      () {
+                        final (label, intent) = mdfStatusChip(
+                          MdfStatus.parse(g.key),
+                          l10n,
+                        );
+                        return StatusChip(
+                          key: ValueKey('reportStatus:${g.key}'),
+                          label: '$label: ${g.orders}',
+                          intent: intent,
+                        );
+                      }(),
+                  ],
+                ),
+              ],
+              const SizedBox(height: AppSpacing.lg),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SegmentedButton<_Cut>(
+                  showSelectedIcon: false,
+                  segments: [
+                    for (final (c, label) in [
+                      (_Cut.decor, l10n.mdfReportByDecor),
+                      (_Cut.customers, l10n.mdfReportTopCustomers),
+                      (_Cut.milling, l10n.mdfReportByMilling),
+                      (_Cut.coating, l10n.mdfReportByCoating),
+                      (_Cut.managers, l10n.mdfReportByManager),
+                    ])
+                      ButtonSegment(
+                        value: c,
+                        label: Text(label, key: ValueKey('reportTab:${c.name}')),
+                      ),
+                  ],
+                  selected: {_cut},
+                  onSelectionChanged: (s) => setState(() => _cut = s.first),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              for (final g in rows)
+                InkWell(
+                  key: ValueKey('$rowKey:${g.key}'),
+                  onTap: switch (search(g)) {
+                    final text? => () => unawaited(
+                      context.push(Routes.mdfOrdersOf(text)),
+                    ),
+                    null => null,
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            name(g),
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: FractionallySizedBox(
+                                  widthFactor: widest <= 0
+                                      ? 0
+                                      : (g.total / widest).clamp(0.02, 1.0),
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: Container(
+                                    height: AppSpacing.sm,
+                                    decoration: BoxDecoration(
+                                      color: status.success,
+                                      borderRadius: BorderRadius.circular(
+                                        AppRadius.xs,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              Text(
+                                all.total <= 0
+                                    ? ''
+                                    : '${(g.total / all.total * 100).round()}%',
+                                style: theme.textTheme.labelSmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                l10n.mdfReportLine(
+                                  '${g.orders}',
+                                  m2.format(g.areaM2),
+                                  money.format(g.total),
+                                ),
+                                textAlign: TextAlign.end,
+                                style: theme.textTheme.bodySmall,
+                              ),
+                              if (_cut == _Cut.customers && g.debt > 0)
+                                Text(
+                                  l10n.mdfReportOwes(money.format(g.debt)),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.error,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (rows.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Text(
+                    l10n.mdfReportNothing,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        ReadableWidth(
-          child: Row(
-            children: [
-              figure(
-                'reportPaid',
-                l10n.mdfReportPaid,
-                money.format(r.all.paid),
-              ),
-              figure(
-                'reportDebt',
-                l10n.mdfReportDebt,
-                money.format(r.all.debt),
-                color: r.all.debt > 0 ? theme.colorScheme.error : null,
-              ),
-              figure(
-                'reportCancelled',
-                l10n.mdfReportCancelled,
-                '${r.cancelled}',
-              ),
-            ],
-          ),
-        ),
-        if (r.byStatus.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.lg),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              for (final g in r.byStatus)
-                () {
-                  final (label, intent) = mdfStatusChip(
-                    MdfStatus.parse(g.key),
-                    l10n,
-                  );
-                  return StatusChip(
-                    key: ValueKey('reportStatus:${g.key}'),
-                    label: '$label: ${g.orders}',
-                    intent: intent,
-                  );
-                }(),
-            ],
-          ),
-        ],
-        if (r.byDecor.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.lg),
-          ReadableWidth(child: SectionLabel(l10n.mdfReportByDecor)),
-          for (final g in r.byDecor)
-            ReadableWidth(
-              child: ListTile(
-                key: ValueKey('reportDecor:${g.key}'),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                title: Text(g.key),
-                subtitle: Text(line(g)),
-              ),
-            ),
-        ],
-        if (r.topCustomers.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.lg),
-          ReadableWidth(child: SectionLabel(l10n.mdfReportTopCustomers)),
-          for (final g in r.topCustomers)
-            ReadableWidth(
-              child: ListTile(
-                key: ValueKey('reportCustomer:${g.key}'),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                title: Text(g.label ?? g.key),
-                subtitle: Text(line(g)),
-                trailing: g.debt > 0
-                    ? Text(
-                        l10n.mdfReportOwes(money.format(g.debt)),
-                        style: TextStyle(color: theme.colorScheme.error),
-                      )
-                    : null,
-              ),
-            ),
-        ],
       ],
     );
   }

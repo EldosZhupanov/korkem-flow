@@ -50,6 +50,12 @@ class MdfReport {
     required this.byStatus,
     required this.byDecor,
     required this.topCustomers,
+    this.byMilling = const [],
+    this.byCoating = const [],
+    this.byManager = const [],
+    this.previous,
+    this.previousSince = '',
+    this.previousUntil = '',
   });
 
   factory MdfReport.fromJson(Map<String, dynamic> json) {
@@ -70,6 +76,16 @@ class MdfReport {
       byStatus: groups('by_status', 'status'),
       byDecor: groups('by_decor', 'decor'),
       topCustomers: groups('top_customers', 'customer', 'customer_name'),
+      byMilling: groups('by_milling', 'key', 'label'),
+      byCoating: groups('by_coating', 'key', 'label'),
+      byManager: groups('by_manager', 'manager', 'manager_name'),
+      previous: json['previous'] is Map
+          ? ReportGroup.fromJson(
+              Map<String, dynamic>.from(json['previous'] as Map),
+            )
+          : null,
+      previousSince: '${(json['previous'] as Map?)?['since'] ?? ''}',
+      previousUntil: '${(json['previous'] as Map?)?['until'] ?? ''}',
     );
   }
 
@@ -80,4 +96,15 @@ class MdfReport {
   final List<ReportGroup> byStatus;
   final List<ReportGroup> byDecor;
   final List<ReportGroup> topCustomers;
+
+  /// Cut by a position's milling and coating, and by who took the order
+  /// (owner, 26.11.2026).
+  final List<ReportGroup> byMilling;
+  final List<ReportGroup> byCoating;
+  final List<ReportGroup> byManager;
+
+  /// The period before, to say better or worse; null — not sent.
+  final ReportGroup? previous;
+  final String previousSince;
+  final String previousUntil;
 }
