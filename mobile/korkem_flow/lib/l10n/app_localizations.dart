@@ -11384,6 +11384,30 @@ abstract class AppLocalizations {
   /// **'Order film'**
   String get filmReorderTitle;
 
+  /// No description provided for @filmReorderByPace.
+  ///
+  /// In en, this message translates to:
+  /// **'by 3 weeks of sales ≈ {metres} m'**
+  String filmReorderByPace(String metres);
+
+  /// No description provided for @filmReorderCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the order'**
+  String get filmReorderCopy;
+
+  /// No description provided for @filmReorderCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Order copied — paste it into a message to the supplier'**
+  String get filmReorderCopied;
+
+  /// No description provided for @filmReorderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'— {film}: {metres} m'**
+  String filmReorderLine(String film, String metres);
+
   /// No description provided for @filmReorderLeft.
   ///
   /// In en, this message translates to:
@@ -13003,6 +13027,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Out of stock · {n}'**
   String filmFilterNone(int n);
+
+  /// No description provided for @filmFilterOnDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'On order only · {n}'**
+  String filmFilterOnDemand(int n);
+
+  /// No description provided for @filmFilterIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not moving · {n}'**
+  String filmFilterIdle(int n);
+
+  /// No description provided for @filmFigIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not moving 60+ days'**
+  String get filmFigIdle;
+
+  /// No description provided for @filmOnDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'on order only'**
+  String get filmOnDemand;
+
+  /// No description provided for @filmHoldRanOut.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m held for {customer} ran out on {day}'**
+  String filmHoldRanOut(String metres, String customer, String day);
+
+  /// No description provided for @filmHoldExtend.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend'**
+  String get filmHoldExtend;
+
+  /// No description provided for @filmLateCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get filmLateCall;
+
+  /// No description provided for @filmLateRemind.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get filmLateRemind;
+
+  /// No description provided for @filmLateReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! The film {film}, {metres} m, was due on {day}. When will you send it?'**
+  String filmLateReminder(String film, String metres, String day);
+
+  /// No description provided for @filmLateCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder copied — paste it into a message to the supplier'**
+  String get filmLateCopied;
+
+  /// No description provided for @filmGluePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {kg} kg a day'**
+  String filmGluePerDay(String kg);
 
   /// No description provided for @filmStockSearch.
   ///

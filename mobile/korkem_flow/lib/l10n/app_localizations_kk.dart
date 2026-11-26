@@ -6386,6 +6386,23 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmReorderTitle => 'Пленкаға тапсырыс';
 
   @override
+  String filmReorderByPace(String metres) {
+    return '3 апталық сатылым бойынша ≈ $metres м';
+  }
+
+  @override
+  String get filmReorderCopy => 'Тапсырысты көшіру';
+
+  @override
+  String get filmReorderCopied =>
+      'Тапсырыс көшірілді — жеткізушіге хабарламаға қойыңыз';
+
+  @override
+  String filmReorderLine(String film, String metres) {
+    return '— $film: $metres м';
+  }
+
+  @override
   String filmReorderLeft(String metres) {
     return '$metres м қалды';
   }
@@ -6480,7 +6497,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmHold => 'Бөліп қою';
 
   @override
-  String get filmHoldRelease => 'Алып тастау';
+  String get filmHoldRelease => 'Брондауды алу';
 
   @override
   String get filmHoldUntil => 'Қай күнге дейін';
@@ -7448,6 +7465,50 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String filmFilterNone(int n) {
     return 'Қоймада жоқ · $n';
+  }
+
+  @override
+  String filmFilterOnDemand(int n) {
+    return 'Тапсырыспен · $n';
+  }
+
+  @override
+  String filmFilterIdle(int n) {
+    return 'Қозғалыссыз · $n';
+  }
+
+  @override
+  String get filmFigIdle => '60+ күн қозғалыссыз';
+
+  @override
+  String get filmOnDemand => 'тапсырыспен';
+
+  @override
+  String filmHoldRanOut(String metres, String customer, String day) {
+    return '$customer үшін $metres м брондау $day аяқталды';
+  }
+
+  @override
+  String get filmHoldExtend => 'Ұзарту';
+
+  @override
+  String get filmLateCall => 'Қоңырау шалу';
+
+  @override
+  String get filmLateRemind => 'Еске салу';
+
+  @override
+  String filmLateReminder(String film, String metres, String day) {
+    return 'Сәлеметсіз бе! $film үлдірі, $metres м, $day келуі керек еді. Қашан жібересіз?';
+  }
+
+  @override
+  String get filmLateCopied =>
+      'Еске салу көшірілді — жеткізушіге хабарламаға қойыңыз';
+
+  @override
+  String filmGluePerDay(String kg) {
+    return 'күніне ≈ $kg кг кетеді';
   }
 
   @override

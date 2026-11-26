@@ -6447,6 +6447,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmReorderTitle => 'Заказать плёнку';
 
   @override
+  String filmReorderByPace(String metres) {
+    return 'по продажам на 3 недели ≈ $metres м';
+  }
+
+  @override
+  String get filmReorderCopy => 'Скопировать заказ';
+
+  @override
+  String get filmReorderCopied =>
+      'Заказ скопирован — вставьте его в сообщение поставщику';
+
+  @override
+  String filmReorderLine(String film, String metres) {
+    return '— $film: $metres м';
+  }
+
+  @override
   String filmReorderLeft(String metres) {
     return 'осталось $metres м';
   }
@@ -6541,7 +6558,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmHold => 'Отложить';
 
   @override
-  String get filmHoldRelease => 'Снять';
+  String get filmHoldRelease => 'Снять бронь';
 
   @override
   String get filmHoldUntil => 'До какого дня';
@@ -7510,6 +7527,50 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String filmFilterNone(int n) {
     return 'Нет на складе · $n';
+  }
+
+  @override
+  String filmFilterOnDemand(int n) {
+    return 'Под заказ · $n';
+  }
+
+  @override
+  String filmFilterIdle(int n) {
+    return 'Без движения · $n';
+  }
+
+  @override
+  String get filmFigIdle => 'Без движения 60+ дн.';
+
+  @override
+  String get filmOnDemand => 'под заказ';
+
+  @override
+  String filmHoldRanOut(String metres, String customer, String day) {
+    return 'бронь $metres м за $customer истекла $day';
+  }
+
+  @override
+  String get filmHoldExtend => 'Продлить';
+
+  @override
+  String get filmLateCall => 'Позвонить';
+
+  @override
+  String get filmLateRemind => 'Напоминание';
+
+  @override
+  String filmLateReminder(String film, String metres, String day) {
+    return 'Здравствуйте! Плёнка $film, $metres м, должна была прийти $day. Подскажите, когда отправите?';
+  }
+
+  @override
+  String get filmLateCopied =>
+      'Напоминание скопировано — вставьте его в сообщение поставщику';
+
+  @override
+  String filmGluePerDay(String kg) {
+    return 'уходит ≈ $kg кг в день';
   }
 
   @override

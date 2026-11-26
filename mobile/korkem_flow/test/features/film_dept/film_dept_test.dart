@@ -199,8 +199,7 @@ class _Fake implements FilmDeptRepository {
   final released = <String>[];
 
   @override
-  Future<void> extendHold(String hold, {int? days}) async =>
-      extended.add(hold);
+  Future<void> extendHold(String hold, {int? days}) async => extended.add(hold);
 
   @override
   Future<void> releaseHold(String hold) async => released.add(hold);

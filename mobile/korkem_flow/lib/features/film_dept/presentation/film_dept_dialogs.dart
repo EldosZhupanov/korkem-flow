@@ -2989,11 +2989,15 @@ class _ReorderDialog extends ConsumerStatefulWidget {
 class _ReorderDialogState extends ConsumerState<_ReorderDialog> with _Saving {
   // One supplier's films together (owner, 26.11.2026: «собрать заказ
   // поставщикам») — one call, one message each.
-  late final List<_ReorderLine> _lines = [
-    for (final f in widget.stock.films)
-      if (f.reorder != null) _ReorderLine(f),
-  ]..sort((a, b) => (a.film.reorder!.supplierName ?? '')
-      .compareTo(b.film.reorder!.supplierName ?? ''));
+  late final List<_ReorderLine> _lines =
+      [
+        for (final f in widget.stock.films)
+          if (f.reorder != null) _ReorderLine(f),
+      ]..sort(
+        (a, b) => (a.film.reorder!.supplierName ?? '').compareTo(
+          b.film.reorder!.supplierName ?? '',
+        ),
+      );
 
   /// The order as text, supplier by supplier — to paste into a message.
   String _text(AppLocalizations l10n) {

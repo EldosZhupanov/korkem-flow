@@ -370,11 +370,7 @@ bool _runsOut(Film f) =>
 /// — or one that ran low with not enough coming.
 bool _toOrder(Film f) =>
     f.reorder != null ||
-    (f.enabled &&
-        f.kept &&
-        f.free <= 0 &&
-        f.coming.isEmpty &&
-        f.holds.isEmpty);
+    (f.enabled && f.kept && f.free <= 0 && f.coming.isEmpty && f.holds.isEmpty);
 
 /// «Под заказ»: not kept on the shelf, none of it here or coming.
 bool _onDemand(Film f) =>
@@ -723,28 +719,29 @@ class _StockTabState extends ConsumerState<_StockTab> {
                   // only while there is some.
                   if (f != _StockFilter.toOrder &&
                       (f != _StockFilter.idle || idle.isNotEmpty))
-                  ChoiceChip(
-                    key: ValueKey(
-                      f == _StockFilter.low
-                          ? 'filmDept:low'
-                          : 'filmDept:filter:${f.name}',
+                    ChoiceChip(
+                      key: ValueKey(
+                        f == _StockFilter.low
+                            ? 'filmDept:low'
+                            : 'filmDept:filter:${f.name}',
+                      ),
+                      label: Text(label(f)),
+                      // «Мало» lights up while something runs low.
+                      backgroundColor: f == _StockFilter.low && lowCount > 0
+                          ? status.danger.withValues(alpha: AppTint.surface)
+                          : null,
+                      side: f == _StockFilter.low && lowCount > 0
+                          ? BorderSide(color: status.danger)
+                          : null,
+                      labelStyle: f == _StockFilter.low && lowCount > 0
+                          ? TextStyle(color: status.danger)
+                          : null,
+                      selected: _filter == f,
+                      onSelected: (on) => setState(
+                        () =>
+                            _filter = on && _filter != f ? f : _StockFilter.all,
+                      ),
                     ),
-                    label: Text(label(f)),
-                    // «Мало» lights up while something runs low.
-                    backgroundColor: f == _StockFilter.low && lowCount > 0
-                        ? status.danger.withValues(alpha: AppTint.surface)
-                        : null,
-                    side: f == _StockFilter.low && lowCount > 0
-                        ? BorderSide(color: status.danger)
-                        : null,
-                    labelStyle: f == _StockFilter.low && lowCount > 0
-                        ? TextStyle(color: status.danger)
-                        : null,
-                    selected: _filter == f,
-                    onSelected: (on) => setState(
-                      () => _filter = on && _filter != f ? f : _StockFilter.all,
-                    ),
-                  ),
               ],
             ),
             // Time to order (owner, 11.11.2026): what ran low, as last time.
@@ -975,7 +972,8 @@ class _StockTile extends StatelessWidget {
             if (canEdit && c.supplierPhone != null)
               TextButton.icon(
                 key: ValueKey('filmStock:call:${c.entry}'),
-                onPressed: () => unawaited(ContactActions.call(c.supplierPhone)),
+                onPressed: () =>
+                    unawaited(ContactActions.call(c.supplierPhone)),
                 icon: const Icon(AppIcons.call),
                 label: Text(l10n.filmLateCall),
               ),
