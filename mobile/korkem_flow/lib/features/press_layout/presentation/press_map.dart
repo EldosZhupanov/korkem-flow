@@ -330,7 +330,7 @@ class _PressPainter extends CustomPainter {
       final x = left + mm * scale;
       canvas.drawLine(Offset(x, top - AppSpacing.xxs), Offset(x, top), tick);
     }
-    final labelY = top - AppSpacing.sm - AppSpacing.xxs;
+    const labelY = top - AppSpacing.sm - AppSpacing.xxs;
     for (var mm = 0.0; mm <= lengthMm - _crowd; mm += _step) {
       final x = left + mm * scale;
       canvas.drawLine(Offset(x, top - AppSpacing.xs), Offset(x, top), tick);
@@ -395,7 +395,7 @@ class _PressPainter extends CustomPainter {
       final half = painter.width / 2 + AppSpacing.sm;
       _dimension(
         canvas,
-        Offset(left, y),
+        const Offset(left, y),
         Offset(mid - half, y),
         line,
         start: true,

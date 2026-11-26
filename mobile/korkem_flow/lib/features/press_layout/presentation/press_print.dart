@@ -232,7 +232,10 @@ pw.Widget _block(
       // As on a drawing: the table and the film's section (26.11.2026).
       pw.Center(
         child: pw.Text(
-          '← ${words.dimension(math.max(press.lengthMm, load.lengthMm).round(), number.format(load.filmM))} →',
+          '← ${words.dimension(
+            math.max(press.lengthMm, load.lengthMm).round(),
+            number.format(load.filmM),
+          )} →',
           style: const pw.TextStyle(fontSize: 8),
         ),
       ),
