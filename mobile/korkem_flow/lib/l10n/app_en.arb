@@ -6861,6 +6861,12 @@
   },
   "filmReorderOpen": "Order",
   "filmReorderTitle": "Order film",
+  "filmReorderByPace": "by 3 weeks of sales ≈ {metres} m",
+  "@filmReorderByPace": {"placeholders": {"metres": {"type": "String"}}},
+  "filmReorderCopy": "Copy the order",
+  "filmReorderCopied": "Order copied — paste it into a message to the supplier",
+  "filmReorderLine": "— {film}: {metres} m",
+  "@filmReorderLine": {"placeholders": {"film": {"type": "String"}, "metres": {"type": "String"}}},
   "filmReorderLeft": "{metres} m left",
   "@filmReorderLeft": {
     "placeholders": {
@@ -8143,6 +8149,23 @@
     }
   },
   "filmFilterNone": "Out of stock · {n}",
+  "filmFilterOnDemand": "On order only · {n}",
+  "@filmFilterOnDemand": {"placeholders": {"n": {"type": "int"}}},
+  "filmFilterIdle": "Not moving · {n}",
+  "@filmFilterIdle": {"placeholders": {"n": {"type": "int"}}},
+  "filmFigIdle": "Not moving 60+ days",
+  "filmOnDemand": "on order only",
+  "filmHoldRanOut": "{metres} m held for {customer} ran out on {day}",
+  "@filmHoldRanOut": {"placeholders": {"metres": {"type": "String"}, "customer": {"type": "String"}, "day": {"type": "String"}}},
+  "filmHoldExtend": "Extend",
+  "filmHoldRelease": "Release",
+  "filmLateCall": "Call",
+  "filmLateRemind": "Reminder",
+  "filmLateReminder": "Hello! The film {film}, {metres} m, was due on {day}. When will you send it?",
+  "@filmLateReminder": {"placeholders": {"film": {"type": "String"}, "metres": {"type": "String"}, "day": {"type": "String"}}},
+  "filmLateCopied": "Reminder copied — paste it into a message to the supplier",
+  "filmGluePerDay": "≈ {kg} kg a day",
+  "@filmGluePerDay": {"placeholders": {"kg": {"type": "String"}}},
   "@filmFilterNone": {
     "placeholders": {
       "n": {
@@ -8734,23 +8757,32 @@
   },
   "mdfSumMarginLowest": "Earned least",
   "mdfPaintTitle": "Paint shop",
+  "mdfPaintBatchDry": "Batch painted — to dry ({n})",
+  "@mdfPaintBatchDry": {"placeholders": {"n": {"type": "int"}}},
+  "mdfPaintLate": "{days} d late",
+  "@mdfPaintLate": {"placeholders": {"days": {"type": "int"}}},
+  "mdfPaintCheckOrder": "no colour or size — check the order",
+  "mdfPaintFigComing": "On the way to paint",
+  "mdfPaintFigToPaint": "To paint now",
+  "mdfPaintFigDrying": "Drying",
+  "mdfPaintFigDry": "dry: {n}",
+  "@mdfPaintFigDry": {"placeholders": {"n": {"type": "int"}}},
+  "mdfPaintFigShort": "Paint short",
+  "mdfPaintFigOrders": "orders: {n}",
+  "@mdfPaintFigOrders": {"placeholders": {"n": {"type": "int"}}},
+  "mdfPaintMonthKg": "≈ {kg} kg a month",
+  "@mdfPaintMonthKg": {"placeholders": {"kg": {"type": "String"}}},
+  "paintShortFold": "Short for the queue: {count} items · ≈ {kg} kg",
+  "@paintShortFold": {"placeholders": {"count": {"type": "int"}, "kg": {"type": "String"}}},
+  "paintShortList": "Make a shopping list",
+  "paintShortShow": "Show all",
+  "paintShortLine": "{name} — {kg} kg",
+  "@paintShortLine": {"placeholders": {"name": {"type": "String"}, "kg": {"type": "String"}}},
+  "paintShortCopy": "Copy",
+  "paintShortCopied": "Shopping list copied — paste it into a message to the supplier",
   "mdfPaintHint": "What to paint by colour, what is drying",
   "mdfPaintDryHours": "Drying time, hours",
   "mdfPaintEmpty": "Nothing to paint",
-  "mdfPaintSummary": "To paint {waiting} · drying {drying} · on the way {coming}",
-  "@mdfPaintSummary": {
-    "placeholders": {
-      "waiting": {
-        "type": "String"
-      },
-      "drying": {
-        "type": "String"
-      },
-      "coming": {
-        "type": "String"
-      }
-    }
-  },
   "mdfPaintDrying": "Drying ({hours} h)",
   "@mdfPaintDrying": {
     "placeholders": {
@@ -9768,6 +9800,25 @@
   "mdfCrewZero": "Everyone needs a part above zero.",
   "mdfCrewDone": "Done",
   "mdfCrewEach": "{count} people · {m2} m² each",
+  "mdfCrewPicked": "Ticked · {count}",
+  "@mdfCrewPicked": {"placeholders": {"count": {"type": "int"}}},
+  "mdfCrewByPosition": "By position",
+  "mdfCrewIdle": "{name} made no position: give him one or untick him.",
+  "payQuickAll": "All that is left",
+  "payQuickDebt": "The whole debt",
+  "payQuickPrepay": "Prepayment {percent}%",
+  "@payQuickPrepay": {"placeholders": {"percent": {"type": "int"}}},
+  "payCashGiven": "Customer gave, ₸",
+  "payCashChange": "Change: {amount}",
+  "@payCashChange": {"placeholders": {"amount": {"type": "String"}}},
+  "payCashShort": "Short by: {amount}",
+  "@payCashShort": {"placeholders": {"amount": {"type": "String"}}},
+  "payAll": "Paid in full",
+  "payDebtAfter": "Owed after this: {amount}",
+  "@payDebtAfter": {"placeholders": {"amount": {"type": "String"}}},
+  "payOver": "{amount} more than is owed — check the sum",
+  "@payOver": {"placeholders": {"amount": {"type": "String"}}},
+  "@mdfCrewIdle": {"placeholders": {"name": {"type": "String"}}},
   "@mdfCrewEach": {"placeholders": {"count": {"type": "int"}, "m2": {"type": "String"}}},
   "mdfStageGiven": "{stage}: {name}",
   "@mdfStageGiven": {

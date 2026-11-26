@@ -6483,6 +6483,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmReorderTitle => 'Заказать плёнку';
 
   @override
+  String filmReorderByPace(String metres) {
+    return 'по продажам на 3 недели ≈ $metres м';
+  }
+
+  @override
+  String get filmReorderCopy => 'Скопировать заказ';
+
+  @override
+  String get filmReorderCopied =>
+      'Заказ скопирован — вставьте его в сообщение поставщику';
+
+  @override
+  String filmReorderLine(String film, String metres) {
+    return '— $film: $metres м';
+  }
+
+  @override
   String filmReorderLeft(String metres) {
     return 'осталось $metres м';
   }
@@ -6577,7 +6594,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmHold => 'Отложить';
 
   @override
-  String get filmHoldRelease => 'Снять';
+  String get filmHoldRelease => 'Снять бронь';
 
   @override
   String get filmHoldUntil => 'До какого дня';
@@ -7549,6 +7566,50 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String filmFilterOnDemand(int n) {
+    return 'Под заказ · $n';
+  }
+
+  @override
+  String filmFilterIdle(int n) {
+    return 'Без движения · $n';
+  }
+
+  @override
+  String get filmFigIdle => 'Без движения 60+ дн.';
+
+  @override
+  String get filmOnDemand => 'под заказ';
+
+  @override
+  String filmHoldRanOut(String metres, String customer, String day) {
+    return 'бронь $metres м за $customer истекла $day';
+  }
+
+  @override
+  String get filmHoldExtend => 'Продлить';
+
+  @override
+  String get filmLateCall => 'Позвонить';
+
+  @override
+  String get filmLateRemind => 'Напоминание';
+
+  @override
+  String filmLateReminder(String film, String metres, String day) {
+    return 'Здравствуйте! Плёнка $film, $metres м, должна была прийти $day. Подскажите, когда отправите?';
+  }
+
+  @override
+  String get filmLateCopied =>
+      'Напоминание скопировано — вставьте его в сообщение поставщику';
+
+  @override
+  String filmGluePerDay(String kg) {
+    return 'уходит ≈ $kg кг в день';
+  }
+
+  @override
   String get filmStockSearch => 'Найти плёнку';
 
   @override
@@ -8069,6 +8130,69 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfPaintTitle => 'Отдел краски';
 
   @override
+  String mdfPaintBatchDry(int n) {
+    return 'Покрасили партию — на сушку ($n)';
+  }
+
+  @override
+  String mdfPaintLate(int days) {
+    return 'просрочен $days дн.';
+  }
+
+  @override
+  String get mdfPaintCheckOrder => 'нет цвета или размеров — проверьте заказ';
+
+  @override
+  String get mdfPaintFigComing => 'Едет в покраску';
+
+  @override
+  String get mdfPaintFigToPaint => 'Красить сейчас';
+
+  @override
+  String get mdfPaintFigDrying => 'Сохнет';
+
+  @override
+  String mdfPaintFigDry(int n) {
+    return 'высохли: $n';
+  }
+
+  @override
+  String get mdfPaintFigShort => 'Не хватит краски';
+
+  @override
+  String mdfPaintFigOrders(int n) {
+    return 'заказов: $n';
+  }
+
+  @override
+  String mdfPaintMonthKg(String kg) {
+    return '≈ $kg кг в месяц';
+  }
+
+  @override
+  String paintShortFold(int count, String kg) {
+    return 'Не хватает для очереди: $count поз. · ≈ $kg кг';
+  }
+
+  @override
+  String get paintShortList => 'Собрать закупку';
+
+  @override
+  String get paintShortShow => 'Показать все';
+
+  @override
+  String paintShortLine(String name, String kg) {
+    return '$name — $kg кг';
+  }
+
+  @override
+  String get paintShortCopy => 'Скопировать';
+
+  @override
+  String get paintShortCopied =>
+      'Закупка скопирована — вставьте её в сообщение поставщику';
+
+  @override
   String get mdfPaintHint => 'Что красить по цветам, что сохнет';
 
   @override
@@ -8076,11 +8200,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPaintEmpty => 'Красить нечего';
-
-  @override
-  String mdfPaintSummary(String waiting, String drying, String coming) {
-    return 'Красить $waiting · сохнет $drying · едет $coming';
-  }
 
   @override
   String mdfPaintDrying(int hours) {
@@ -9267,6 +9386,56 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String mdfCrewEach(int count, String m2) {
     return '$count чел. · по $m2 м² каждому';
+  }
+
+  @override
+  String mdfCrewPicked(int count) {
+    return 'Отмечены · $count';
+  }
+
+  @override
+  String get mdfCrewByPosition => 'По позициям';
+
+  @override
+  String mdfCrewIdle(String name) {
+    return '$name: ни одной позиции — дайте ему позицию или снимите галочку.';
+  }
+
+  @override
+  String get payQuickAll => 'Весь остаток';
+
+  @override
+  String get payQuickDebt => 'Весь долг';
+
+  @override
+  String payQuickPrepay(int percent) {
+    return 'Предоплата $percent%';
+  }
+
+  @override
+  String get payCashGiven => 'Клиент дал, ₸';
+
+  @override
+  String payCashChange(String amount) {
+    return 'Сдача: $amount';
+  }
+
+  @override
+  String payCashShort(String amount) {
+    return 'Не хватает: $amount';
+  }
+
+  @override
+  String get payAll => 'Оплачено полностью';
+
+  @override
+  String payDebtAfter(String amount) {
+    return 'Долг после оплаты: $amount';
+  }
+
+  @override
+  String payOver(String amount) {
+    return 'Больше долга на $amount — проверьте сумму';
   }
 
   @override

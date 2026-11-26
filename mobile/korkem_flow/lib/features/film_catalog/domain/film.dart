@@ -35,6 +35,8 @@ class Film {
     this.holds = const [],
     this.dailyM,
     this.daysLeft,
+    this.kept = false,
+    this.idleDays,
     this.image,
     this.imageOwn = false,
   });
@@ -70,6 +72,8 @@ class Film {
     low: json['low'] == true,
     dailyM: (json['daily_m'] as num?)?.toDouble(),
     daysLeft: (json['days_left'] as num?)?.toInt(),
+    kept: json['kept'] == true,
+    idleDays: (json['idle_days'] as num?)?.toInt(),
     url: _s(json['url']),
     image: _s(json['image']),
     imageOwn: json['image_own'] == true,
@@ -82,6 +86,7 @@ class Film {
             due: '${c['due'] ?? ''}',
             lateDays: (c['late_days'] as num?)?.toInt() ?? 0,
             supplier: _s(c['supplier']),
+            supplierPhone: _s(c['supplier_phone']),
           ),
     ],
     holds: [
@@ -102,6 +107,7 @@ class Film {
         supplier: _s(r['supplier']),
         supplierName: _s(r['supplier_name']),
         priceM: _d(r['price_m']),
+        byPace: _d(r['by_pace']),
       ),
       _ => null,
     },
@@ -167,6 +173,14 @@ class Film {
   /// days the free metres last at that pace (owner, 13.11.2026).
   final double? dailyM;
   final int? daysLeft;
+
+  /// «Держим на складе» (owner, 26.11.2026): a minimum, or it sells; the
+  /// rest is «под заказ» — none of it is no reason to order.
+  final bool kept;
+
+  /// Days since a metre last left the shelf (never sold — since it came);
+  /// null with none on hand. «Без движения» from 60.
+  final int? idleDays;
   final String? url;
 
   /// What is free: on hand, not promised, not put by for a customer.
@@ -407,6 +421,7 @@ typedef FilmComing = ({
   String due,
   int lateDays,
   String? supplier,
+  String? supplierPhone,
 });
 
 /// What to order of a film that ran low.
@@ -415,6 +430,7 @@ typedef FilmReorder = ({
   String? supplier,
   String? supplierName,
   double? priceM,
+  double? byPace,
 });
 
 /// Metres of a film put by for a customer, until a day.

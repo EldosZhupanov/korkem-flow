@@ -10,6 +10,7 @@ import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
+import 'package:korkem_flow/core/design/widgets/pay_helpers.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/facade_prices/domain/facade_quote.dart';
@@ -2200,6 +2201,17 @@ class _SaleDialogState extends ConsumerState<_SaleDialog> with _Saving {
                             ),
                         ],
                       ),
+                      // Cash: what the customer handed over, and the
+                      // change (owner, 26.11.2026).
+                      if (p.method == filmCash && p.value > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: AppSpacing.xs),
+                          child: PayCashChange(
+                            key: ValueKey('filmSaleCash:$i'),
+                            amount: p.value,
+                            format: money.format,
+                          ),
+                        ),
                       // The bank on a line of its own: beside the chips
                       // its name did not fit (owner, 12.11.2026).
                       if (p.method != filmCash)
@@ -2975,10 +2987,35 @@ class _ReorderDialog extends ConsumerStatefulWidget {
 }
 
 class _ReorderDialogState extends ConsumerState<_ReorderDialog> with _Saving {
-  late final List<_ReorderLine> _lines = [
-    for (final f in widget.stock.films)
-      if (f.reorder != null) _ReorderLine(f),
-  ];
+  // One supplier's films together (owner, 26.11.2026: «собрать заказ
+  // поставщикам») — one call, one message each.
+  late final List<_ReorderLine> _lines =
+      [
+        for (final f in widget.stock.films)
+          if (f.reorder != null) _ReorderLine(f),
+      ]..sort(
+        (a, b) => (a.film.reorder!.supplierName ?? '').compareTo(
+          b.film.reorder!.supplierName ?? '',
+        ),
+      );
+
+  /// The order as text, supplier by supplier — to paste into a message.
+  String _text(AppLocalizations l10n) {
+    final by = <String, List<_ReorderLine>>{};
+    for (final l in _lines) {
+      if (l.on && l.m > 0) {
+        by.putIfAbsent(l.film.reorder!.supplierName ?? '—', () => []).add(l);
+      }
+    }
+    return [
+      for (final e in by.entries)
+        [
+          e.key,
+          for (final l in e.value)
+            l10n.filmReorderLine(filmName(l.film), filmMetres(l.m)),
+        ].join('\n'),
+    ].join('\n\n');
+  }
 
   @override
   void dispose() {
@@ -3007,7 +3044,21 @@ class _ReorderDialogState extends ConsumerState<_ReorderDialog> with _Saving {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final (i, l) in _lines.indexed)
+              for (final (i, l) in _lines.indexed) ...[
+                if (i == 0 ||
+                    _lines[i - 1].film.reorder!.supplierName !=
+                        l.film.reorder!.supplierName)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: AppSpacing.sm,
+                      bottom: AppSpacing.xs,
+                    ),
+                    child: Text(
+                      l.film.reorder!.supplierName ?? '—',
+                      key: ValueKey('filmReorder:supplier:$i'),
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
                 Padding(
                   key: ValueKey('filmReorder:$i'),
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -3025,12 +3076,27 @@ class _ReorderDialogState extends ConsumerState<_ReorderDialog> with _Saving {
                           children: [
                             Text(filmName(l.film)),
                             Text(
-                              [
-                                l10n.filmReorderLeft(filmMetres(l.film.free)),
-                                ?l.film.reorder!.supplierName,
-                              ].join(' · '),
+                              l10n.filmReorderLeft(filmMetres(l.film.free)),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
+                            // What three weeks of sales would need — the
+                            // offer stays «as last time» (26.11.2026).
+                            if (l.film.reorder!.byPace case final need?)
+                              InkWell(
+                                key: ValueKey('filmReorder:byPace:$i'),
+                                onTap: () => setState(
+                                  () => l.metres.text = filmMetres(need),
+                                ),
+                                child: Text(
+                                  l10n.filmReorderByPace(filmMetres(need)),
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -3073,6 +3139,7 @@ class _ReorderDialogState extends ConsumerState<_ReorderDialog> with _Saving {
                     ],
                   ),
                 ),
+              ],
               Text(
                 l10n.filmReorderTotal(
                   money.format(total),
@@ -3086,6 +3153,18 @@ class _ReorderDialogState extends ConsumerState<_ReorderDialog> with _Saving {
         ),
       ),
       actions: [
+        TextButton.icon(
+          key: const ValueKey('filmReorder:copy'),
+          icon: const Icon(AppIcons.copy),
+          label: Text(l10n.filmReorderCopy),
+          onPressed: chosen.isEmpty
+              ? null
+              : () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  await Clipboard.setData(ClipboardData(text: _text(l10n)));
+                  messenger.showDone(l10n.filmReorderCopied);
+                },
+        ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.mdfCancel),

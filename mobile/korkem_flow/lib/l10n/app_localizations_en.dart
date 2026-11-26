@@ -6459,6 +6459,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmReorderTitle => 'Order film';
 
   @override
+  String filmReorderByPace(String metres) {
+    return 'by 3 weeks of sales ≈ $metres m';
+  }
+
+  @override
+  String get filmReorderCopy => 'Copy the order';
+
+  @override
+  String get filmReorderCopied =>
+      'Order copied — paste it into a message to the supplier';
+
+  @override
+  String filmReorderLine(String film, String metres) {
+    return '— $film: $metres m';
+  }
+
+  @override
   String filmReorderLeft(String metres) {
     return '$metres m left';
   }
@@ -7523,6 +7540,50 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String filmFilterOnDemand(int n) {
+    return 'On order only · $n';
+  }
+
+  @override
+  String filmFilterIdle(int n) {
+    return 'Not moving · $n';
+  }
+
+  @override
+  String get filmFigIdle => 'Not moving 60+ days';
+
+  @override
+  String get filmOnDemand => 'on order only';
+
+  @override
+  String filmHoldRanOut(String metres, String customer, String day) {
+    return '$metres m held for $customer ran out on $day';
+  }
+
+  @override
+  String get filmHoldExtend => 'Extend';
+
+  @override
+  String get filmLateCall => 'Call';
+
+  @override
+  String get filmLateRemind => 'Reminder';
+
+  @override
+  String filmLateReminder(String film, String metres, String day) {
+    return 'Hello! The film $film, $metres m, was due on $day. When will you send it?';
+  }
+
+  @override
+  String get filmLateCopied =>
+      'Reminder copied — paste it into a message to the supplier';
+
+  @override
+  String filmGluePerDay(String kg) {
+    return '≈ $kg kg a day';
+  }
+
+  @override
   String get filmStockSearch => 'Find a film';
 
   @override
@@ -8043,6 +8104,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfPaintTitle => 'Paint shop';
 
   @override
+  String mdfPaintBatchDry(int n) {
+    return 'Batch painted — to dry ($n)';
+  }
+
+  @override
+  String mdfPaintLate(int days) {
+    return '$days d late';
+  }
+
+  @override
+  String get mdfPaintCheckOrder => 'no colour or size — check the order';
+
+  @override
+  String get mdfPaintFigComing => 'On the way to paint';
+
+  @override
+  String get mdfPaintFigToPaint => 'To paint now';
+
+  @override
+  String get mdfPaintFigDrying => 'Drying';
+
+  @override
+  String mdfPaintFigDry(int n) {
+    return 'dry: $n';
+  }
+
+  @override
+  String get mdfPaintFigShort => 'Paint short';
+
+  @override
+  String mdfPaintFigOrders(int n) {
+    return 'orders: $n';
+  }
+
+  @override
+  String mdfPaintMonthKg(String kg) {
+    return '≈ $kg kg a month';
+  }
+
+  @override
+  String paintShortFold(int count, String kg) {
+    return 'Short for the queue: $count items · ≈ $kg kg';
+  }
+
+  @override
+  String get paintShortList => 'Make a shopping list';
+
+  @override
+  String get paintShortShow => 'Show all';
+
+  @override
+  String paintShortLine(String name, String kg) {
+    return '$name — $kg kg';
+  }
+
+  @override
+  String get paintShortCopy => 'Copy';
+
+  @override
+  String get paintShortCopied =>
+      'Shopping list copied — paste it into a message to the supplier';
+
+  @override
   String get mdfPaintHint => 'What to paint by colour, what is drying';
 
   @override
@@ -8050,11 +8174,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPaintEmpty => 'Nothing to paint';
-
-  @override
-  String mdfPaintSummary(String waiting, String drying, String coming) {
-    return 'To paint $waiting · drying $drying · on the way $coming';
-  }
 
   @override
   String mdfPaintDrying(int hours) {
@@ -9238,6 +9357,56 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String mdfCrewEach(int count, String m2) {
     return '$count people · $m2 m² each';
+  }
+
+  @override
+  String mdfCrewPicked(int count) {
+    return 'Ticked · $count';
+  }
+
+  @override
+  String get mdfCrewByPosition => 'By position';
+
+  @override
+  String mdfCrewIdle(String name) {
+    return '$name made no position: give him one or untick him.';
+  }
+
+  @override
+  String get payQuickAll => 'All that is left';
+
+  @override
+  String get payQuickDebt => 'The whole debt';
+
+  @override
+  String payQuickPrepay(int percent) {
+    return 'Prepayment $percent%';
+  }
+
+  @override
+  String get payCashGiven => 'Customer gave, ₸';
+
+  @override
+  String payCashChange(String amount) {
+    return 'Change: $amount';
+  }
+
+  @override
+  String payCashShort(String amount) {
+    return 'Short by: $amount';
+  }
+
+  @override
+  String get payAll => 'Paid in full';
+
+  @override
+  String payDebtAfter(String amount) {
+    return 'Owed after this: $amount';
+  }
+
+  @override
+  String payOver(String amount) {
+    return '$amount more than is owed — check the sum';
   }
 
   @override

@@ -6422,6 +6422,23 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmReorderTitle => 'Пленкаға тапсырыс';
 
   @override
+  String filmReorderByPace(String metres) {
+    return '3 апталық сатылым бойынша ≈ $metres м';
+  }
+
+  @override
+  String get filmReorderCopy => 'Тапсырысты көшіру';
+
+  @override
+  String get filmReorderCopied =>
+      'Тапсырыс көшірілді — жеткізушіге хабарламаға қойыңыз';
+
+  @override
+  String filmReorderLine(String film, String metres) {
+    return '— $film: $metres м';
+  }
+
+  @override
   String filmReorderLeft(String metres) {
     return '$metres м қалды';
   }
@@ -6516,7 +6533,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmHold => 'Бөліп қою';
 
   @override
-  String get filmHoldRelease => 'Алып тастау';
+  String get filmHoldRelease => 'Брондауды алу';
 
   @override
   String get filmHoldUntil => 'Қай күнге дейін';
@@ -7487,6 +7504,50 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String filmFilterOnDemand(int n) {
+    return 'Тапсырыспен · $n';
+  }
+
+  @override
+  String filmFilterIdle(int n) {
+    return 'Қозғалыссыз · $n';
+  }
+
+  @override
+  String get filmFigIdle => '60+ күн қозғалыссыз';
+
+  @override
+  String get filmOnDemand => 'тапсырыспен';
+
+  @override
+  String filmHoldRanOut(String metres, String customer, String day) {
+    return '$customer үшін $metres м брондау $day аяқталды';
+  }
+
+  @override
+  String get filmHoldExtend => 'Ұзарту';
+
+  @override
+  String get filmLateCall => 'Қоңырау шалу';
+
+  @override
+  String get filmLateRemind => 'Еске салу';
+
+  @override
+  String filmLateReminder(String film, String metres, String day) {
+    return 'Сәлеметсіз бе! $film үлдірі, $metres м, $day келуі керек еді. Қашан жібересіз?';
+  }
+
+  @override
+  String get filmLateCopied =>
+      'Еске салу көшірілді — жеткізушіге хабарламаға қойыңыз';
+
+  @override
+  String filmGluePerDay(String kg) {
+    return 'күніне ≈ $kg кг кетеді';
+  }
+
+  @override
   String get filmStockSearch => 'Пленканы табу';
 
   @override
@@ -8007,6 +8068,69 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfPaintTitle => 'Бояу бөлімі';
 
   @override
+  String mdfPaintBatchDry(int n) {
+    return 'Партия боялды — кептіруге ($n)';
+  }
+
+  @override
+  String mdfPaintLate(int days) {
+    return '$days күн кешікті';
+  }
+
+  @override
+  String get mdfPaintCheckOrder => 'түсі не өлшемі жоқ — тапсырысты тексеріңіз';
+
+  @override
+  String get mdfPaintFigComing => 'Бояуға келе жатыр';
+
+  @override
+  String get mdfPaintFigToPaint => 'Қазір бояу';
+
+  @override
+  String get mdfPaintFigDrying => 'Кебуде';
+
+  @override
+  String mdfPaintFigDry(int n) {
+    return 'кепті: $n';
+  }
+
+  @override
+  String get mdfPaintFigShort => 'Бояу жетпейді';
+
+  @override
+  String mdfPaintFigOrders(int n) {
+    return 'тапсырыс: $n';
+  }
+
+  @override
+  String mdfPaintMonthKg(String kg) {
+    return 'айына ≈ $kg кг';
+  }
+
+  @override
+  String paintShortFold(int count, String kg) {
+    return 'Кезекке жетпейді: $count поз. · ≈ $kg кг';
+  }
+
+  @override
+  String get paintShortList => 'Сатып алуды жинау';
+
+  @override
+  String get paintShortShow => 'Барлығын көрсету';
+
+  @override
+  String paintShortLine(String name, String kg) {
+    return '$name — $kg кг';
+  }
+
+  @override
+  String get paintShortCopy => 'Көшіру';
+
+  @override
+  String get paintShortCopied =>
+      'Сатып алу көшірілді — жеткізушіге хабарламаға қойыңыз';
+
+  @override
   String get mdfPaintHint => 'Түс бойынша не бояу керек, не кебуде';
 
   @override
@@ -8014,11 +8138,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPaintEmpty => 'Бояйтын ештеңе жоқ';
-
-  @override
-  String mdfPaintSummary(String waiting, String drying, String coming) {
-    return 'Бояу $waiting · кебуде $drying · келе жатыр $coming';
-  }
 
   @override
   String mdfPaintDrying(int hours) {
@@ -9205,6 +9324,56 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String mdfCrewEach(int count, String m2) {
     return '$count адам · әрқайсысына $m2 м²';
+  }
+
+  @override
+  String mdfCrewPicked(int count) {
+    return 'Белгіленгендер · $count';
+  }
+
+  @override
+  String get mdfCrewByPosition => 'Позициялар бойынша';
+
+  @override
+  String mdfCrewIdle(String name) {
+    return '$name: бірде-бір позиция жоқ — позиция беріңіз не белгіні алыңыз.';
+  }
+
+  @override
+  String get payQuickAll => 'Барлық қалдық';
+
+  @override
+  String get payQuickDebt => 'Барлық қарыз';
+
+  @override
+  String payQuickPrepay(int percent) {
+    return 'Алдын ала төлем $percent%';
+  }
+
+  @override
+  String get payCashGiven => 'Клиент берді, ₸';
+
+  @override
+  String payCashChange(String amount) {
+    return 'Қайтарым: $amount';
+  }
+
+  @override
+  String payCashShort(String amount) {
+    return 'Жетпейді: $amount';
+  }
+
+  @override
+  String get payAll => 'Толық төленді';
+
+  @override
+  String payDebtAfter(String amount) {
+    return 'Төлемнен кейінгі қарыз: $amount';
+  }
+
+  @override
+  String payOver(String amount) {
+    return 'Қарыздан $amount артық — соманы тексеріңіз';
   }
 
   @override

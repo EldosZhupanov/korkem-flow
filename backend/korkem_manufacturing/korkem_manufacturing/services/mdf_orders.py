@@ -553,6 +553,12 @@ def accept(order: str, over_limit: str | None = None) -> dict:
 	doc = _order(order)
 	if doc.docstatus != 0:
 		frappe.throw("Заказ уже принят.")
+	# A draft may wait for its prices; an accepted order may not (owner,
+	# 26.11.2026: «на 1-й и 2-й позиции не было указано цифры»). A price
+	# typed as 0 by hand — a warranty, a gift — is a price.
+	unpriced = [str(i.idx) for i in doc.items if not flt(i.korkem_rate_m2) and not i.korkem_manual_rate]
+	if unpriced:
+		frappe.throw("Нет цены у позиций: " + ", ".join(unpriced) + ". Выберите покрытие или впишите цену за м².")
 	check = mdf_customers.debt_check(doc.customer, flt(doc.grand_total))
 	reason = " ".join((over_limit or "").split())[:500]
 	if check["over"]:
@@ -1063,6 +1069,9 @@ def card(order: str) -> dict:
 		"total": flt(doc.grand_total),
 		"paid": flt(doc.advance_paid),
 		"debt": float(_debt(doc)),
+		# The company's prepayment rule (Facade Pricing Settings) — «Внести
+		# оплату» offers it as one tap (owner, 26.11.2026); none set, none offered.
+		"prepay_percent": _prepay_percent(doc.company),
 		"payments": paid_rows,
 		# «Счёт на оплату» (owner, 20.11.2026): the order's invoices, who
 		# pays as the last one said, and whether the shop charges VAT.
@@ -1581,6 +1590,7 @@ def _item(line: dict, head: dict, wanted) -> dict:
 	amount = Decimal(str(line["amount"]))
 	milling = line["milling"] or head["milling"]
 	title = f"{milling or 'Фасад'} {line['height_mm']}×{line['width_mm']}"[:140]
+	rate = float((amount / qty).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP))
 	return {
 		"item_code": facade_order.FACADE_ITEM,
 		"item_name": title,
@@ -1589,7 +1599,14 @@ def _item(line: dict, head: dict, wanted) -> dict:
 		"uom": "Nos",
 		# The amount is the owner's; ERPNext's qty × rate, rounded to two
 		# decimals, lands back on it (the rate keeps six — add_mdf_order_fields).
-		"rate": float((amount / qty).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)),
+		"rate": rate,
+		# The list price is ours too. Left empty, ERPNext fills it from an
+		# Item Price — one it wrote itself from an earlier order — and then
+		# puts it in place of a rate of 0: a position with no price yet
+		# became 7 020 ₸ a piece, and the order would not save (owner,
+		# 26.11.2026: «ERPNext посчитал заказ на 53 670 ₸, а расчёт — на
+		# 11 550 ₸»).
+		"price_list_rate": rate,
 		"delivery_date": str(wanted),
 		"korkem_height_mm": line["height_mm"],
 		"korkem_width_mm": line["width_mm"],
@@ -1629,6 +1646,12 @@ def _check_total(doc, expected: float) -> None:
 			f"ERPNext посчитал заказ на {flt(doc.grand_total):,.2f} ₸, а расчёт — на {expected:,.0f} ₸. "
 			"Вероятно, настроен налог или правило цены. Заказ не сохранён.".replace(",", " ")
 		)
+
+
+def _prepay_percent(company: str) -> float | None:
+	from korkem_manufacturing.services import facade_quote
+
+	return facade_quote.settings(company).get("prepayment_percent") or None
 
 
 def _full_name(user: str | None) -> str | None:

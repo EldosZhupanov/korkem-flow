@@ -151,4 +151,91 @@ void main() {
       ('E3', 20.0),
     ]);
   });
+
+  testWidgets('by position: who made which, his m² are theirs; «−/+» by '
+      'hand', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1200, 2000)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    MdfCrewPick? picked;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfWorkersProvider.overrideWith(
+            (ref) async => const [
+              MdfWorker(employee: 'E1', name: 'Андрей'),
+              MdfWorker(employee: 'E2', name: 'Шамиль'),
+            ],
+          ),
+          mdfStagePeopleProvider.overrideWith(
+            (ref, key) async => const <MdfWorker>[],
+          ),
+        ],
+        child: harness(
+          Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () async => picked = await pickMdfCrew(
+                  context,
+                  'SO-1 · Шлифовка',
+                  order: 'SO-1',
+                  stage: MdfStage.sand,
+                  areaM2: 3,
+                  positions: const [
+                    (label: '1 · 2000×500 ×2', m2: 2),
+                    (label: '2 · 500×500 ×4', m2: 1),
+                  ],
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('worker:E1')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('worker:E2')));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('crewBar')), findsOneWidget);
+    // By hand: «+» adds 0.1 m² to Андрей, Шамиль's rest shrinks.
+    await tester.tap(find.text('By hand'));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('crewMore:E1')));
+    await tester.pump();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('crewRest'))).data,
+      '1.4 м²',
+    );
+    // By position: the first is Андрей's, the second Шамиль's.
+    await tester.tap(find.text('By position'));
+    await tester.pump();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('crewGot:E1'))).data,
+      'Андрей: 2 м² · 67%',
+    );
+    // Both positions Андрей's: Шамиль made none — not saved like that.
+    await tester.tap(find.byKey(const ValueKey('crewPos:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Андрей').last);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('crewError')), findsOneWidget);
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const ValueKey('crewDone')))
+          .onPressed,
+      isNull,
+    );
+    await tester.tap(find.byKey(const ValueKey('crewPos:1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Шамиль').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('crewDone')));
+    await tester.pumpAndSettle();
+    final shares = [for (final m in picked!.crew!) m.share!.round()];
+    expect(shares, [67, 33]);
+  });
 }
