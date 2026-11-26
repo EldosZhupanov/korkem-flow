@@ -572,7 +572,11 @@ class _FilmCard extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(AppIcons.idea, color: warning, size: AppIconSize.small),
+                    Icon(
+                      AppIcons.idea,
+                      color: warning,
+                      size: AppIconSize.small,
+                    ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: Text(
@@ -608,8 +612,7 @@ class _FilmCard extends ConsumerWidget {
                     color: context.statusColors.danger,
                   ),
                 ),
-            ]
-            else if (film.corrected)
+            ] else if (film.corrected)
               Text(
                 l10n.pressCorrected(
                   film.reason ?? '',
@@ -820,7 +823,10 @@ class _LoadsViewState extends State<_LoadsView> {
                       l10n.pressLoadCost(
                         money.format(load.filmM * price * numbers.length),
                         money.format(
-                          load.filmM * price * numbers.length * (1 - fill.share),
+                          load.filmM *
+                              price *
+                              numbers.length *
+                              (1 - fill.share),
                         ),
                       ),
                       key: ValueKey('pressCost:${film.decor}:$i'),

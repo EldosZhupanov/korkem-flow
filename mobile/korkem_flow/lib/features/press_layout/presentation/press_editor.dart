@@ -196,7 +196,8 @@ class _PressEditorState extends ConsumerState<PressEditor> {
               ActionChip(
                 key: const ValueKey('pressForce:usual'),
                 label: Text(l10n.pressForceUsual),
-                onPressed: () => setState(() => why.text = l10n.pressForceUsual),
+                onPressed: () =>
+                    setState(() => why.text = l10n.pressForceUsual),
               ),
               const SizedBox(height: AppSpacing.sm),
               TextField(

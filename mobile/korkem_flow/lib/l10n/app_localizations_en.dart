@@ -13156,4 +13156,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String pressWidthDimension(int width) {
     return '$width mm';
   }
+
+  @override
+  String pressLoadsSame(String numbers, String metres) {
+    return 'Loads $numbers · section $metres m';
+  }
+
+  @override
+  String pressLoadTimes(int count) {
+    return '×$count the same';
+  }
+
+  @override
+  String pressLoadCost(String cost, String waste) {
+    return '$cost · empty space ≈ $waste';
+  }
+
+  @override
+  String pressHint(int gap, int now, String saves, String film) {
+    return '$saves m less: with a $gap mm gap instead of $now — $film m of film.';
+  }
+
+  @override
+  String get pressHintTry => 'Try it';
+
+  @override
+  String get pressEditForce => 'Force (Shift)';
+
+  @override
+  String get pressEditForceHint =>
+      'With Shift or this button a part stays where it is let go: nearer than the gap, in the margin. Never on another part or off the table.';
+
+  @override
+  String get pressForceTitle => 'Parts nearer than the gap';
+
+  @override
+  String pressForceBody(int gap) {
+    return 'Some parts lie nearer than $gap mm or in the margin. Why?';
+  }
+
+  @override
+  String get pressForceUsual => 'we always lay it so';
+
+  @override
+  String get pressForceWhy => 'Reason';
 }

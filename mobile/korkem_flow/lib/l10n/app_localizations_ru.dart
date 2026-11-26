@@ -13191,4 +13191,48 @@ class AppLocalizationsRu extends AppLocalizations {
   String pressWidthDimension(int width) {
     return '$width мм';
   }
+
+  @override
+  String pressLoadsSame(String numbers, String metres) {
+    return 'Загрузки $numbers · секция $metres м';
+  }
+
+  @override
+  String pressLoadTimes(int count) {
+    return '×$count одинаковые';
+  }
+
+  @override
+  String pressLoadCost(String cost, String waste) {
+    return '$cost · пустое место ≈ $waste';
+  }
+
+  @override
+  String pressHint(int gap, int now, String saves, String film) {
+    return 'Можно на $saves м меньше: при зазоре $gap мм вместо $now — $film м плёнки.';
+  }
+
+  @override
+  String get pressHintTry => 'Посмотреть';
+
+  @override
+  String get pressEditForce => 'Насильно (Shift)';
+
+  @override
+  String get pressEditForceHint =>
+      'С Shift или с этой кнопкой деталь остаётся там, где её отпустили: ближе зазора, в отступе. Друг на друга и за край стола — нельзя.';
+
+  @override
+  String get pressForceTitle => 'Детали ближе зазора';
+
+  @override
+  String pressForceBody(int gap) {
+    return 'Некоторые детали лежат ближе $gap мм или в отступе. Почему?';
+  }
+
+  @override
+  String get pressForceUsual => 'так кладём всегда';
+
+  @override
+  String get pressForceWhy => 'Причина';
 }

@@ -477,7 +477,10 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const ValueKey('pressMap:KZ13 Устюрт:1')), findsNothing);
-    expect(find.byKey(const ValueKey('pressMap:KZ13 Устюрт:2')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('pressMap:KZ13 Устюрт:2')),
+      findsOneWidget,
+    );
     // What it costs: 2 × 3.1 m × 3 000 ₸.
     expect(
       tester

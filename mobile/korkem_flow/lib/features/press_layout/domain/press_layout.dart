@@ -104,8 +104,7 @@ class FilmLayout {
         ? (
             gapMm: ((json['hint'] as Map)['gap_mm'] as num?)?.toDouble() ?? 0,
             filmM: ((json['hint'] as Map)['film_m'] as num?)?.toDouble() ?? 0,
-            savesM:
-                ((json['hint'] as Map)['saves_m'] as num?)?.toDouble() ?? 0,
+            savesM: ((json['hint'] as Map)['saves_m'] as num?)?.toDouble() ?? 0,
           )
         : null,
   );
