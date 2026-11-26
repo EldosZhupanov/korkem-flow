@@ -11,7 +11,9 @@ class MdfWorker {
 
   factory MdfWorker.fromJson(Map<String, dynamic> json) => MdfWorker(
     employee: '${json['employee']}',
-    name: '${json['employee_name'] ?? json['employee']}',
+    // The workers' list says `employee_name`; a stage's post people
+    // (`team.holders`) say `name` — the id was shown instead (26.11.2026).
+    name: '${json['employee_name'] ?? json['name'] ?? json['employee']}',
     role: json['designation'] as String?,
   );
 
