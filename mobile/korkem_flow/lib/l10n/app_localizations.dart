@@ -22719,6 +22719,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get mdfStageShortReady;
+
+  /// No description provided for @mdfReportChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} vs before'**
+  String mdfReportChange(String change);
+
+  /// No description provided for @mdfReportAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average order'**
+  String get mdfReportAverage;
+
+  /// No description provided for @mdfReportPerM2.
+  ///
+  /// In en, this message translates to:
+  /// **'Average per m²'**
+  String get mdfReportPerM2;
+
+  /// No description provided for @mdfReportDebtShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{share}% of the total'**
+  String mdfReportDebtShare(int share);
+
+  /// No description provided for @mdfReportComparedWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared with {since} – {until}'**
+  String mdfReportComparedWith(String since, String until);
+
+  /// No description provided for @mdfReportByMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Milling'**
+  String get mdfReportByMilling;
+
+  /// No description provided for @mdfReportByCoating.
+  ///
+  /// In en, this message translates to:
+  /// **'Coating'**
+  String get mdfReportByCoating;
+
+  /// No description provided for @mdfReportByManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Managers'**
+  String get mdfReportByManager;
+
+  /// No description provided for @mdfReportNoFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'No film (paint, raw)'**
+  String get mdfReportNoFilm;
+
+  /// No description provided for @mdfReportNoMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'No milling'**
+  String get mdfReportNoMilling;
+
+  /// No description provided for @mdfReportUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not said'**
+  String get mdfReportUnknown;
+
+  /// No description provided for @mdfReportNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period'**
+  String get mdfReportNothing;
 }
 
 class _AppLocalizationsDelegate

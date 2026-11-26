@@ -228,7 +228,10 @@ class _ReportBodyState extends State<_ReportBody> {
                     'reportOrders',
                     l10n.mdfReportOrders,
                     '${all.orders}',
-                    change: _change(all.orders.toDouble(), prev?.orders.toDouble()),
+                    change: _change(
+                      all.orders.toDouble(),
+                      prev?.orders.toDouble(),
+                    ),
                   ),
                   figure(
                     'reportArea',
@@ -331,7 +334,10 @@ class _ReportBodyState extends State<_ReportBody> {
                     ])
                       ButtonSegment(
                         value: c,
-                        label: Text(label, key: ValueKey('reportTab:${c.name}')),
+                        label: Text(
+                          label,
+                          key: ValueKey('reportTab:${c.name}'),
+                        ),
                       ),
                   ],
                   selected: {_cut},

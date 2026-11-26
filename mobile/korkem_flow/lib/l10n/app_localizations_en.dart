@@ -13307,4 +13307,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfStageShortReady => 'Done';
+
+  @override
+  String mdfReportChange(String change) {
+    return '$change vs before';
+  }
+
+  @override
+  String get mdfReportAverage => 'Average order';
+
+  @override
+  String get mdfReportPerM2 => 'Average per m²';
+
+  @override
+  String mdfReportDebtShare(int share) {
+    return '$share% of the total';
+  }
+
+  @override
+  String mdfReportComparedWith(String since, String until) {
+    return 'Compared with $since – $until';
+  }
+
+  @override
+  String get mdfReportByMilling => 'Milling';
+
+  @override
+  String get mdfReportByCoating => 'Coating';
+
+  @override
+  String get mdfReportByManager => 'Managers';
+
+  @override
+  String get mdfReportNoFilm => 'No film (paint, raw)';
+
+  @override
+  String get mdfReportNoMilling => 'No milling';
+
+  @override
+  String get mdfReportUnknown => 'Not said';
+
+  @override
+  String get mdfReportNothing => 'Nothing in this period';
 }

@@ -13266,4 +13266,46 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfStageShortReady => 'Дай';
+
+  @override
+  String mdfReportChange(String change) {
+    return 'өткенге $change';
+  }
+
+  @override
+  String get mdfReportAverage => 'Орташа чек';
+
+  @override
+  String get mdfReportPerM2 => 'м² орташа бағасы';
+
+  @override
+  String mdfReportDebtShare(int share) {
+    return 'соманың $share%';
+  }
+
+  @override
+  String mdfReportComparedWith(String since, String until) {
+    return '$since – $until кезеңімен салыстыру';
+  }
+
+  @override
+  String get mdfReportByMilling => 'Фрезерлеу';
+
+  @override
+  String get mdfReportByCoating => 'Жабын';
+
+  @override
+  String get mdfReportByManager => 'Менеджерлер';
+
+  @override
+  String get mdfReportNoFilm => 'Пленкасыз (бояу, қара)';
+
+  @override
+  String get mdfReportNoMilling => 'Фрезерлеусіз';
+
+  @override
+  String get mdfReportUnknown => 'Көрсетілмеген';
+
+  @override
+  String get mdfReportNothing => 'Бұл кезеңде ештеңе жоқ';
 }
