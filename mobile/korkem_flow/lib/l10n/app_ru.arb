@@ -3964,5 +3964,17 @@
   "mdfBottleneckQueue": "В очереди на «{stage}»: {orders} заказов · {m2} м²",
   "mdfBottleneckShow": "Показать просроченные",
   "mdfBottleneckPlan": "План цеха",
-  "pressShortOpen": "Открыть «К заказу»"
+  "pressShortOpen": "Открыть «К заказу»",
+  "mdfStageTapDone": "{stage}: нажмите — готов",
+  "mdfStageTapUndo": "{stage} готов ✓ — нажмите, чтобы снять",
+  "mdfStageUndoAsk": "Снять отметку «{stage}»?",
+  "mdfStageUndoYes": "Снять",
+  "mdfStageManyAsk": "Этапы не пропускают. Отметить {stages}?",
+  "mdfStageManyYes": "Отметить",
+  "mdfStageShortCut": "Рас",
+  "mdfStageShortMill": "ЧПУ",
+  "mdfStageShortSand": "Шл",
+  "mdfStageShortVacuum": "Вак",
+  "mdfStageShortPaint": "Кр",
+  "mdfStageShortReady": "Гот"
 }

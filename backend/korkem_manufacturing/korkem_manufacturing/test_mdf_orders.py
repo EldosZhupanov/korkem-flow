@@ -1366,6 +1366,8 @@ class TestMdfOrders(IntegrationTestCase):
 		r = row()
 		self.assertEqual([(s["stage"], s["done"]) for s in r["stages"]],
 						 [("cut", True), ("mill", False), ("sand", False), ("vacuum", False), ("ready", False)])
+		# Whom each stage is given to: the row's bar asks who did one given to nobody.
+		self.assertTrue(all("given" in s for s in r["stages"]))
 		self.assertEqual((r["waiting"], r["days_left"], r["ready_days"]), ("mill", 7, None))
 		# Its debt is in the overview; made late, it is counted as late, and found by «сдать скоро» no more.
 		after = self._as(MANAGER, mdf_orders.overview)

@@ -23,6 +23,7 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_summary_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// The list of MDF orders — OnayBaza's «Тапсырыстар», compact: who, when,
@@ -88,42 +89,124 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     }
   }
 
-  /// «Раскрой готов» on the row — with «Отменить» for a tap by mistake.
-  Future<void> _stageDone(MdfOrderRow row) async {
-    final stage = row.waiting;
-    if (stage == null) return;
+  /// A stage on the row's bar tapped (owner, 26.11.2026, variant Б): not
+  /// done — ticked, and the ones before it with it if asked; done — the
+  /// tick taken off, asked first. Given to nobody — who did it is asked.
+  Future<void> _tapStage(
+    MdfOrderRow row,
+    MdfStage stage, {
+    required bool done,
+  }) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);
     final repo = ref.read(mdfOrderRepositoryProvider);
-    try {
-      await repo.setStage(row.name, stage, done: true);
-    } on Object catch (error) {
-      messenger.showFailure(error, l10n);
-      return;
-    }
-    ref
+    final label = mdfStageLabel(stage, l10n);
+    void refresh() => ref
       ..invalidate(mdfOrdersProvider)
       ..invalidate(mdfOverviewProvider)
       ..invalidate(mdfOrderProvider(row.name));
+    if (done) {
+      final sure = await _confirm(
+        l10n.mdfStageUndoAsk(label),
+        l10n.mdfStageUndoYes,
+        key: 'mdfStageUndoYes',
+      );
+      if (!sure) return;
+      try {
+        await repo.setStage(row.name, stage, done: false);
+      } on Object catch (error) {
+        messenger.showFailure(error, l10n);
+        return;
+      }
+      refresh();
+      return;
+    }
+    // A stage is not skipped: those before it, not done, go with it.
+    final at = row.stages.indexWhere((s) => s.stage == stage);
+    final ticks = [
+      for (final s in row.stages.take(at + 1))
+        if (!s.done) s,
+    ];
+    if (ticks.length > 1) {
+      final sure = await _confirm(
+        l10n.mdfStageManyAsk(
+          [for (final s in ticks) mdfStageLabel(s.stage, l10n)].join(', '),
+        ),
+        l10n.mdfStageManyYes,
+        key: 'mdfStageManyYes',
+      );
+      if (!sure) return;
+    }
+    final ticked = <MdfStage>[];
+    try {
+      for (final s in ticks) {
+        MdfCrewPick? pick;
+        if (!s.given) {
+          if (!mounted) return;
+          pick = await pickMdfCrew(
+            context,
+            '${row.name} · ${mdfStageLabel(s.stage, l10n)}',
+            order: row.name,
+            stage: s.stage,
+            areaM2: row.areaM2,
+          );
+          if (pick == null) break;
+        }
+        await repo.setStage(
+          row.name,
+          s.stage,
+          done: true,
+          worker: pick?.single,
+          crew: pick?.crew,
+        );
+        ticked.add(s.stage);
+      }
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    }
+    refresh();
+    if (ticked.isEmpty) return;
     messenger.showSnackBar(
       SnackBar(
         key: const ValueKey('mdfStageDoneSnack'),
         content: Text(
-          l10n.mdfRowStageDone(row.name, mdfStageLabel(stage, l10n)),
+          l10n.mdfRowStageDone(
+            row.name,
+            [for (final t in ticked) mdfStageLabel(t, l10n)].join(', '),
+          ),
         ),
         action: SnackBarAction(
           label: l10n.mdfRowUndo,
           onPressed: () async {
-            await repo.setStage(row.name, stage, done: false);
-            ref
-              ..invalidate(mdfOrdersProvider)
-              ..invalidate(mdfOverviewProvider)
-              ..invalidate(mdfOrderProvider(row.name));
+            for (final t in ticked.reversed) {
+              await repo.setStage(row.name, t, done: false);
+            }
+            refresh();
           },
         ),
       ),
     );
   }
+
+  Future<bool> _confirm(String text, String yes, {required String key}) async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Text(text),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+            ),
+            FilledButton(
+              key: ValueKey(key),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(yes),
+            ),
+          ],
+        ),
+      ) ??
+      false;
 
   Widget _row(MdfOrderRow row, {required bool dense}) => _OrderRow(
     row: row,
@@ -132,9 +215,10 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     onPay: row.debt > 0 && row.status != MdfStatus.draft
         ? () => _pay(row)
         : null,
-    onStageDone: row.waiting != null && row.status != MdfStatus.onHold
-        ? () => _stageDone(row)
-        : null,
+    onStage: row.status == MdfStatus.draft || row.status == MdfStatus.onHold
+        ? null
+        : (MdfStage stage, {required bool done}) =>
+              unawaited(_tapStage(row, stage, done: done)),
     onCall: row.phone == null
         ? null
         : () => unawaited(ContactActions.call(row.phone)),
@@ -626,35 +710,76 @@ class _Kpi extends StatelessWidget {
 }
 
 /// The order's stages as a bar: done, the one it waits at, what is ahead.
+/// The row's stages, each a piece of the bar with its name under it; a
+/// tap ticks it or takes the tick off (owner, 26.11.2026, variant Б).
 class _StageBar extends StatelessWidget {
-  const _StageBar({required this.row});
+  const _StageBar({required this.row, this.onStage, this.short = false});
 
   final MdfOrderRow row;
+  final void Function(MdfStage stage, {required bool done})? onStage;
+
+  /// One line an order: the bar alone, the names in the tooltips.
+  final bool short;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final status = context.statusColors;
+    final tap = row.status == MdfStatus.onHold ? null : onStage;
+    Color colour(({MdfStage stage, bool done, bool given}) s) => s.done
+        ? status.success
+        : s.stage == row.waiting
+        ? status.info
+        : theme.colorScheme.surfaceContainerHighest;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             for (final (i, s) in row.stages.indexed) ...[
               if (i > 0) const SizedBox(width: AppSpacing.xxs),
               Expanded(
                 child: Tooltip(
-                  message: mdfStageLabel(s.stage, l10n),
-                  child: Container(
-                    height: AppSpacing.sm,
-                    decoration: BoxDecoration(
-                      color: s.done
-                          ? status.success
-                          : s.stage == row.waiting
-                          ? status.info
-                          : theme.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                  message: s.done
+                      ? l10n.mdfStageTapUndo(mdfStageLabel(s.stage, l10n))
+                      : l10n.mdfStageTapDone(mdfStageLabel(s.stage, l10n)),
+                  child: InkWell(
+                    key: ValueKey('mdfBar:${row.name}:${s.stage.name}'),
+                    borderRadius: BorderRadius.circular(AppRadius.xs),
+                    onTap: tap == null
+                        ? null
+                        : () => tap(s.stage, done: s.done),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.xxs,
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: AppSpacing.sm,
+                            decoration: BoxDecoration(
+                              color: colour(s),
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.xs,
+                              ),
+                            ),
+                          ),
+                          if (!short)
+                            Text(
+                              '${s.done ? '✓' : ''}'
+                              '${mdfStageShort(s.stage, l10n)}',
+                              maxLines: 1,
+                              overflow: TextOverflow.clip,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: s.done || s.stage == row.waiting
+                                    ? colour(s)
+                                    : theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -662,24 +787,36 @@ class _StageBar extends StatelessWidget {
             ],
           ],
         ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          switch (row.status) {
-            MdfStatus.ready => l10n.mdfSectionReady,
-            MdfStatus.onHold => l10n.mdfStatusOnHold,
-            _ when row.waiting != null => l10n.mdfRowNowAt(
-              mdfStageLabel(row.waiting!, l10n),
-            ),
-            _ => mdfStatusChip(row.status, l10n).$1,
-          },
-          key: ValueKey('mdfNowAt:${row.name}'),
-          style: theme.textTheme.bodySmall,
-          overflow: TextOverflow.ellipsis,
-        ),
+        if (!short) ...[
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            switch (row.status) {
+              MdfStatus.ready => l10n.mdfSectionReady,
+              MdfStatus.onHold => l10n.mdfStatusOnHold,
+              _ when row.waiting != null => l10n.mdfRowNowAt(
+                mdfStageLabel(row.waiting!, l10n),
+              ),
+              _ => mdfStatusChip(row.status, l10n).$1,
+            },
+            key: ValueKey('mdfNowAt:${row.name}'),
+            style: theme.textTheme.bodySmall,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ],
     );
   }
 }
+
+/// A stage's name short enough for the bar: Рас · ЧПУ · Шл · Вак · Гот.
+String mdfStageShort(MdfStage stage, AppLocalizations l10n) => switch (stage) {
+  MdfStage.cut => l10n.mdfStageShortCut,
+  MdfStage.mill => l10n.mdfStageShortMill,
+  MdfStage.sand => l10n.mdfStageShortSand,
+  MdfStage.vacuum => l10n.mdfStageShortVacuum,
+  MdfStage.paint => l10n.mdfStageShortPaint,
+  MdfStage.ready => l10n.mdfStageShortReady,
+};
 
 class _OrderRow extends StatefulWidget {
   const _OrderRow({
@@ -687,7 +824,7 @@ class _OrderRow extends StatefulWidget {
     required this.onTap,
     this.dense = false,
     this.onPay,
-    this.onStageDone,
+    this.onStage,
     this.onCall,
   });
 
@@ -699,8 +836,11 @@ class _OrderRow extends StatefulWidget {
 
   /// The row's own actions — no need to open the card for one tick.
   final VoidCallback? onPay;
-  final VoidCallback? onStageDone;
   final VoidCallback? onCall;
+
+  /// A stage on the bar tapped — ticked, or the tick taken off (owner,
+  /// 26.11.2026: «одним кликом, не заходя в заказ»).
+  final void Function(MdfStage stage, {required bool done})? onStage;
 
   @override
   State<_OrderRow> createState() => _OrderRowState();
@@ -721,13 +861,6 @@ class _OrderRowState extends State<_OrderRow> {
             AppIcons.payment,
             l10n.mdfRowPay,
             pay,
-          ),
-        if (widget.onStageDone case final done? when row.waiting != null)
-          (
-            ValueKey('mdfRowStage:${row.name}'),
-            AppIcons.check,
-            l10n.mdfRowStageReady(mdfStageLabel(row.waiting!, l10n)),
-            done,
           ),
         if (widget.onCall case final call?)
           (
@@ -773,37 +906,40 @@ class _OrderRowState extends State<_OrderRow> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
-      child: Stack(
+      child: body,
+    );
+  }
+
+  /// Payment and a call under the row, at its right (owner, 26.11.2026):
+  /// they no longer cover the stages. The room is kept, so the row does not
+  /// jump when the pointer comes.
+  Widget _buttons(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final actions = _actions(l10n);
+    final wideScreen =
+        MediaQuery.sizeOf(context).width >= AppBreakpoints.compact;
+    if (actions.isEmpty || !wideScreen) return const SizedBox.shrink();
+    return Visibility(
+      key: ValueKey('mdfRowActions:${row.name}'),
+      visible: _hover,
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          body,
-          if (_hover)
-            PositionedDirectional(
-              end: AppSpacing.xxxl * 2,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: Material(
-                  key: ValueKey('mdfRowActions:${row.name}'),
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xxs),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (final a in actions)
-                          TextButton.icon(
-                            key: a.$1,
-                            onPressed: a.$4,
-                            icon: Icon(a.$2, size: AppIconSize.dense),
-                            label: Text(a.$3),
-                          ),
-                      ],
-                    ),
-                  ),
+          for (final a in actions)
+            TextButton.icon(
+              key: a.$1,
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
                 ),
               ),
+              onPressed: _hover ? a.$4 : null,
+              icon: Icon(a.$2, size: AppIconSize.dense),
+              label: Text(a.$3),
             ),
         ],
       ),
@@ -864,8 +1000,13 @@ class _OrderRowState extends State<_OrderRow> {
             if (row.stages.isNotEmpty)
               SizedBox(
                 width: AppSpacing.xxxl * 3,
-                child: _StageBar(row: row),
+                child: _StageBar(
+                  row: row,
+                  onStage: widget.onStage,
+                  short: true,
+                ),
               ),
+            _buttons(context),
             const SizedBox(width: AppSpacing.md),
             SizedBox(
               width: AppSpacing.xxxl * 2.5,
@@ -997,7 +1138,7 @@ class _OrderRowState extends State<_OrderRow> {
                 width: AppSpacing.xxxl * 4,
                 child: Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.xs),
-                  child: _StageBar(row: row),
+                  child: _StageBar(row: row, onStage: widget.onStage),
                 ),
               ),
             ],
@@ -1020,6 +1161,8 @@ class _OrderRowState extends State<_OrderRow> {
                   )
                 else if (row.status != MdfStatus.draft && row.total > 0)
                   Text(l10n.mdfRowPaid, style: theme.textTheme.bodySmall),
+                // Payment and a call: at the row's right, under its figures.
+                _buttons(context),
               ],
             ),
           ],

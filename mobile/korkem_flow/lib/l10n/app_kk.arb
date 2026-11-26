@@ -3964,5 +3964,17 @@
   "mdfBottleneckQueue": "«{stage}» кезегінде: {orders} тапсырыс · {m2} м²",
   "mdfBottleneckShow": "Кешіккендерді көрсету",
   "mdfBottleneckPlan": "Цех жоспары",
-  "pressShortOpen": "«Тапсырысқа» ашу"
+  "pressShortOpen": "«Тапсырысқа» ашу",
+  "mdfStageTapDone": "{stage}: басыңыз — дайын",
+  "mdfStageTapUndo": "{stage} дайын ✓ — алу үшін басыңыз",
+  "mdfStageUndoAsk": "«{stage}» белгісін алу керек пе?",
+  "mdfStageUndoYes": "Алу",
+  "mdfStageManyAsk": "Кезеңдер өткізілмейді. {stages} белгілеу керек пе?",
+  "mdfStageManyYes": "Белгілеу",
+  "mdfStageShortCut": "Піш",
+  "mdfStageShortMill": "ЧПУ",
+  "mdfStageShortSand": "Тег",
+  "mdfStageShortVacuum": "Вак",
+  "mdfStageShortPaint": "Боя",
+  "mdfStageShortReady": "Дай"
 }

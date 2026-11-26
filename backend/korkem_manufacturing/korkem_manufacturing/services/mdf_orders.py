@@ -1544,7 +1544,7 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 	fields = ["name", "docstatus", "transaction_date", "delivery_date", "customer", "customer_name",
 			  "grand_total", "advance_paid", "korkem_finish", "korkem_decor_top", "korkem_milling",
 			  "korkem_edge_profile", "korkem_ready_on", "korkem_handed_over_on", "korkem_hold_reason",
-			  "korkem_tags", "korkem_extra_stages", "korkem_coatings", *STAGES.values()]
+			  "korkem_tags", "korkem_extra_stages", "korkem_coatings", *STAGES.values(), *STAGE_TO.values()]
 	if tag and tag not in mdf_tags.ORDER + mdf_tags.CUSTOMER:
 		frappe.throw(f"Метки «{tag}» нет.")
 	if tag in mdf_tags.ORDER:
@@ -1561,6 +1561,11 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 		for c in frappe.get_all("Customer", filters={"name": ["in", list({r.customer for r in rows}) or [""]]},
 								fields=["name", "korkem_tags"], limit_page_length=0)
 	}
+	from korkem_manufacturing.services import stage_crew
+
+	# Whom each stage is given to — a tick on the row's bar asks who did a
+	# stage given to nobody (owner, 26.11.2026). One query for the page.
+	crews_to = stage_crew.of_orders([r.name for r in rows], "to")
 	out = []
 	for row in rows:
 		row_status = status_of(row)
@@ -1595,7 +1600,8 @@ def listing(search: str | None = None, status: str | None = None, overdue=False,
 				"paid": flt(row.advance_paid),
 				"debt": float(debt),
 				"stage": done[-1] if done else None,
-				"stages": [{"stage": s, "done": bool(row.get(STAGES[s]))} for s in needed],
+				"stages": [{"stage": s, "done": bool(row.get(STAGES[s])),
+							"given": bool(row.get(STAGE_TO[s]) or crews_to.get((row.name, s)))} for s in needed],
 				"waiting": next((s for s in needed if not row.get(STAGES[s])), None) if open_ else None,
 				"days_left": (getdate(row.delivery_date) - getdate(nowdate())).days if open_ else None,
 				"ready_days": (getdate(nowdate()) - getdate(row.korkem_ready_on)).days
