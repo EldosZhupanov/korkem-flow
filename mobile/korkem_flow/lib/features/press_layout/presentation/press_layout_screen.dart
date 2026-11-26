@@ -1027,6 +1027,7 @@ class _Approval extends ConsumerWidget {
     required bool approved,
   }) async {
     final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
     final l10n = AppLocalizations.of(context);
     final number = NumberFormat(
       '0.##',
@@ -1038,7 +1039,6 @@ class _Approval extends ConsumerWidget {
           .approve(salesOrder, approved: approved);
       ref.invalidate(orderPressLayoutProvider(salesOrder));
       if (result.short.isNotEmpty) {
-        final navigator = Navigator.of(context);
         // Where it went, one tap away (owner, 26.11.2026: «куда он уходит?
         // надо как ссылку»).
         messenger.showSnackBar(
