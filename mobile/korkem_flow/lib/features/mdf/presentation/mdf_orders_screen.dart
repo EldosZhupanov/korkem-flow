@@ -357,15 +357,15 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               children: [
                 for (final f in _Filter.values)
-                Padding(
-                  padding: const EdgeInsets.only(right: AppSpacing.sm),
-                  child: ChoiceChip(
-                    key: ValueKey('mdfFilter:${f.name}'),
-                    label: Text(label(f)),
-                    selected: _filter == f,
-                    onSelected: (_) => setState(() => _filter = f),
+                  Padding(
+                    padding: const EdgeInsets.only(right: AppSpacing.sm),
+                    child: ChoiceChip(
+                      key: ValueKey('mdfFilter:${f.name}'),
+                      label: Text(label(f)),
+                      selected: _filter == f,
+                      onSelected: (_) => setState(() => _filter = f),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
