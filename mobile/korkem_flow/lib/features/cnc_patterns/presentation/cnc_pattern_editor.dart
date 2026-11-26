@@ -251,6 +251,9 @@ class _CncPatternEditorState extends ConsumerState<CncPatternEditor>
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.cncpSavedTo(dir)),
+          // A bar with a button stays until pressed unless told
+          // otherwise (Flutter 3.32+): it is told — it goes.
+          persist: false,
           action: SnackBarAction(
             label: l10n.cncpOpenFolder,
             onPressed: () => unawaited(saver.open(dir)),
