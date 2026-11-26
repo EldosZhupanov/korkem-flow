@@ -91,9 +91,16 @@ class _DueDialogState extends State<_DueDialog> {
     final theme = Theme.of(context);
     final status = context.statusColors;
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final picked = _picked ?? _day(widget.current ?? o.safe);
-    final month = _month ?? DateTime(picked.year, picked.month);
     final earliest = _day(o.earliest);
+    // «Надёжно» chosen first — unless the date set already is one the shop
+    // can make.
+    final current = widget.current == null ? null : _day(widget.current!);
+    final picked =
+        _picked ??
+        (current != null && !current.isBefore(earliest)
+            ? current
+            : _day(o.safe));
+    final month = _month ?? DateTime(picked.year, picked.month);
     String m2(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
     Color? colour(DateTime d) {
       if (d.weekday == DateTime.sunday) return null;
