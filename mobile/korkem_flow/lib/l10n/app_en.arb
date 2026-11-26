@@ -11579,5 +11579,223 @@
   "mdfReportNoFilm": "No film (paint, raw)",
   "mdfReportNoMilling": "No milling",
   "mdfReportUnknown": "Not said",
-  "mdfReportNothing": "Nothing in this period"
+  "mdfReportNothing": "Nothing in this period",
+  "shopTodayTitle": "Today",
+  "shopTodayOverdue": "Overdue",
+  "shopTodayOverdueAt": "waiting for «{stage}»",
+  "@shopTodayOverdueAt": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "shopTodayOpenList": "open the list",
+  "shopTodayAtRisk": "Will miss the date",
+  "shopTodayAtRiskNote": "still time to help",
+  "shopTodayReady": "Comes in at hand-over",
+  "shopTodayReadyNote": "{count} ready to hand over",
+  "@shopTodayReadyNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTodayDebt": "Customers owe",
+  "shopTodayDebtors": "customers: {count}",
+  "@shopTodayDebtors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTodayDecideTitle": "To decide · {count}",
+  "@shopTodayDecideTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTodayAllCalm": "All calm",
+  "shopTodayDecideJam": "«{stage}» is the bottleneck: {days} days queued, {m2} m²",
+  "@shopTodayDecideJam": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      },
+      "m2": {
+        "type": "String"
+      }
+    }
+  },
+  "shopTodayDecideAtRisk": "Will miss the date: {count} — tell the customers or add a shift",
+  "@shopTodayDecideAtRisk": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTodayDecideFilm": "Film short: {films}",
+  "@shopTodayDecideFilm": {
+    "placeholders": {
+      "films": {
+        "type": "String"
+      }
+    }
+  },
+  "shopTodayDecidePostEmpty": "Nobody on «{stage}» — {orders} waiting",
+  "@shopTodayDecidePostEmpty": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "orders": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTodayDecideUnassigned": "Stages given to nobody: {count} ({stages})",
+  "@shopTodayDecideUnassigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "stages": {
+        "type": "String"
+      }
+    }
+  },
+  "shopTodayDecideNoPrepay": "Urgent with no prepayment: {count}",
+  "@shopTodayDecideNoPrepay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTodayGoPlan": "shop plan",
+  "shopTodayGoFilm": "to order",
+  "shopTodayGoTeam": "team",
+  "shopTodayGoList": "list",
+  "shopTodayLoadTitle": "Shop load — days of work queued",
+  "shopTodayLoadDays": "{days} d · {m2} m²",
+  "@shopTodayLoadDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "m2": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTodayLoadNobody": "nobody on the post",
+  "shopTodayLoadNote": "At the pace of the last two weeks. Red is the bottleneck.",
+  "shopTodayRecentStage": "{stage} done",
+  "@shopTodayRecentStage": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "shopTodayRecentStageOff": "{stage} taken off",
+  "@shopTodayRecentStageOff": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "shopTodayRecentAccepted": "accepted · {amount}",
+  "@shopTodayRecentAccepted": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "shopTodayRecentHandedOver": "handed over",
+  "shopTodayRecentCancelled": "cancelled",
+  "shopTodayRecentPaid": "payment {amount}",
+  "@shopTodayRecentPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueNoLoad": "Couldn't get the shop's load — pick a day in the plain calendar.",
+  "mdfDueTitle": "Due date · {m2} m²",
+  "@mdfDueTitle": {
+    "placeholders": {
+      "m2": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueSafe": "✓ SAFE",
+  "mdfDueSafeNote": "+1 day for scrap and a redo",
+  "mdfDueEarliest": "TIGHT",
+  "mdfDueEarliestNote": "if nothing goes wrong",
+  "mdfDueFilmComes": "Little {film} film on the shelf — {supplier} brings it on {date}. The date counts from then.",
+  "@mdfDueFilmComes": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      },
+      "supplier": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueFilmUnknown": "Little {film} film on the shelf, no word when it comes: the date is uncertain.",
+  "@mdfDueFilmUnknown": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueOverloaded": "{due} m² are due that day against {cap} m² a day. With yours — {after} m²: overloaded.",
+  "@mdfDueOverloaded": {
+    "placeholders": {
+      "due": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueLegend": "A day's colour — m² due against the shop's pace ({cap} m²/day). Grey — too soon.",
+  "@mdfDueLegend": {
+    "placeholders": {
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfDueLegendNoPace": "The shop's pace isn't known yet — only each day's m² due is shown.",
+  "mdfDuePick": "Pick {date}",
+  "@mdfDuePick": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

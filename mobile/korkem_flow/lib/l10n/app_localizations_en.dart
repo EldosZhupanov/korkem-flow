@@ -13349,4 +13349,181 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfReportNothing => 'Nothing in this period';
+
+  @override
+  String get shopTodayTitle => 'Today';
+
+  @override
+  String get shopTodayOverdue => 'Overdue';
+
+  @override
+  String shopTodayOverdueAt(String stage) {
+    return 'waiting for «$stage»';
+  }
+
+  @override
+  String get shopTodayOpenList => 'open the list';
+
+  @override
+  String get shopTodayAtRisk => 'Will miss the date';
+
+  @override
+  String get shopTodayAtRiskNote => 'still time to help';
+
+  @override
+  String get shopTodayReady => 'Comes in at hand-over';
+
+  @override
+  String shopTodayReadyNote(int count) {
+    return '$count ready to hand over';
+  }
+
+  @override
+  String get shopTodayDebt => 'Customers owe';
+
+  @override
+  String shopTodayDebtors(int count) {
+    return 'customers: $count';
+  }
+
+  @override
+  String shopTodayDecideTitle(int count) {
+    return 'To decide · $count';
+  }
+
+  @override
+  String get shopTodayAllCalm => 'All calm';
+
+  @override
+  String shopTodayDecideJam(String stage, String days, String m2) {
+    return '«$stage» is the bottleneck: $days days queued, $m2 m²';
+  }
+
+  @override
+  String shopTodayDecideAtRisk(int count) {
+    return 'Will miss the date: $count — tell the customers or add a shift';
+  }
+
+  @override
+  String shopTodayDecideFilm(String films) {
+    return 'Film short: $films';
+  }
+
+  @override
+  String shopTodayDecidePostEmpty(String stage, int orders) {
+    return 'Nobody on «$stage» — $orders waiting';
+  }
+
+  @override
+  String shopTodayDecideUnassigned(int count, String stages) {
+    return 'Stages given to nobody: $count ($stages)';
+  }
+
+  @override
+  String shopTodayDecideNoPrepay(int count) {
+    return 'Urgent with no prepayment: $count';
+  }
+
+  @override
+  String get shopTodayGoPlan => 'shop plan';
+
+  @override
+  String get shopTodayGoFilm => 'to order';
+
+  @override
+  String get shopTodayGoTeam => 'team';
+
+  @override
+  String get shopTodayGoList => 'list';
+
+  @override
+  String get shopTodayLoadTitle => 'Shop load — days of work queued';
+
+  @override
+  String shopTodayLoadDays(String days, int m2) {
+    return '$days d · $m2 m²';
+  }
+
+  @override
+  String get shopTodayLoadNobody => 'nobody on the post';
+
+  @override
+  String get shopTodayLoadNote =>
+      'At the pace of the last two weeks. Red is the bottleneck.';
+
+  @override
+  String shopTodayRecentStage(String stage) {
+    return '$stage done';
+  }
+
+  @override
+  String shopTodayRecentStageOff(String stage) {
+    return '$stage taken off';
+  }
+
+  @override
+  String shopTodayRecentAccepted(String amount) {
+    return 'accepted · $amount';
+  }
+
+  @override
+  String get shopTodayRecentHandedOver => 'handed over';
+
+  @override
+  String get shopTodayRecentCancelled => 'cancelled';
+
+  @override
+  String shopTodayRecentPaid(String amount) {
+    return 'payment $amount';
+  }
+
+  @override
+  String get mdfDueNoLoad =>
+      'Couldn\'t get the shop\'s load — pick a day in the plain calendar.';
+
+  @override
+  String mdfDueTitle(String m2) {
+    return 'Due date · $m2 m²';
+  }
+
+  @override
+  String get mdfDueSafe => '✓ SAFE';
+
+  @override
+  String get mdfDueSafeNote => '+1 day for scrap and a redo';
+
+  @override
+  String get mdfDueEarliest => 'TIGHT';
+
+  @override
+  String get mdfDueEarliestNote => 'if nothing goes wrong';
+
+  @override
+  String mdfDueFilmComes(String film, String supplier, String date) {
+    return 'Little $film film on the shelf — $supplier brings it on $date. The date counts from then.';
+  }
+
+  @override
+  String mdfDueFilmUnknown(String film) {
+    return 'Little $film film on the shelf, no word when it comes: the date is uncertain.';
+  }
+
+  @override
+  String mdfDueOverloaded(String due, String cap, String after) {
+    return '$due m² are due that day against $cap m² a day. With yours — $after m²: overloaded.';
+  }
+
+  @override
+  String mdfDueLegend(String cap) {
+    return 'A day\'s colour — m² due against the shop\'s pace ($cap m²/day). Grey — too soon.';
+  }
+
+  @override
+  String get mdfDueLegendNoPace =>
+      'The shop\'s pace isn\'t known yet — only each day\'s m² due is shown.';
+
+  @override
+  String mdfDuePick(String date) {
+    return 'Pick $date';
+  }
 }

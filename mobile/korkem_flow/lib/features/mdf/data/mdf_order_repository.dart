@@ -16,6 +16,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_ready.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_today.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_volume.dart';
 import 'package:korkem_flow/features/mdf/domain/shop_board.dart';
 
@@ -66,6 +67,16 @@ class MdfRecentOrders extends Notifier<List<String>> {
 
   void clear() => state = const [];
 }
+
+/// «Сегодня» — the shop's home (owner, 27.11.2026).
+// AutoDisposeFutureProvider is not exported as a public type.
+// ignore: specify_nonobvious_property_types
+final mdfTodayProvider = FutureProvider.autoDispose<MdfToday>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).today(),
+  // Not retried: a person who may not see the shop's figures gets the home
+  // as before at once, not a spinner that tries again.
+  retry: (_, _) => null,
+);
 
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
@@ -208,6 +219,9 @@ class MdfOrderRepository {
     );
   }
 
+  Future<MdfToday> today() async =>
+      MdfToday.fromJson(_map(await _client.callMethod('$_base.today')));
+
   Future<List<MdfOrderRow>> listing(MdfListQuery query) async {
     final data = _map(
       await _client.callMethod(
@@ -342,6 +356,24 @@ class MdfOrderRepository {
 
   /// When an order of [areas] — m² by coating, `{'pvc': 2.4}` — would be
   /// ready, from the shop's load; [order] is not counted ahead of itself.
+  /// «Срок»: the earliest, a safe day, each day's load, the film awaited.
+  Future<MdfDueOptions> dueOptions(
+    Map<String, double> areas, {
+    String? order,
+    Map<String, double> films = const {},
+  }) async => MdfDueOptions.fromJson(
+    _map(
+      await _client.callMethod(
+        '$_base.due_options',
+        params: {
+          'areas': jsonEncode(areas),
+          'order': ?order,
+          if (films.isNotEmpty) 'films': jsonEncode(films),
+        },
+      ),
+    ),
+  );
+
   Future<MdfReadyEstimate> readyEstimate(
     Map<String, double> areas, {
     String? order,

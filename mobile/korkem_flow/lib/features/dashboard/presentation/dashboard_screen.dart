@@ -19,6 +19,7 @@ import 'package:korkem_flow/features/dashboard/domain/dashboard_summary.dart';
 import 'package:korkem_flow/features/dashboard/presentation/attention_hero.dart';
 import 'package:korkem_flow/features/dashboard/presentation/company_setup_progress_widget.dart';
 import 'package:korkem_flow/features/dashboard/presentation/workload_bar.dart';
+import 'package:korkem_flow/features/mdf/presentation/today_section.dart';
 import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -91,6 +92,9 @@ class _Body extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
+        // «Сегодня» — the facade shop first (owner, 27.11.2026): what burns
+        // and what to decide; the deals and tasks below as before.
+        const TodaySection(),
         if (!isLoading)
           CompanySetupProgressWidget(
             hasOrders: totalOrders > 0,
