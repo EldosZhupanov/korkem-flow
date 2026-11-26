@@ -145,6 +145,7 @@ class _BoardState extends ConsumerState<_Board> {
     for (final o in batch) {
       await paint.startDrying(o.name);
     }
+    return null;
   });
 
   @override
