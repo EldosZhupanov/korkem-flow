@@ -22983,6 +22983,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'payment {amount}'**
   String shopTodayRecentPaid(String amount);
+
+  /// No description provided for @mdfDueNoLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get the shop\'s load — pick a day in the plain calendar.'**
+  String get mdfDueNoLoad;
+
+  /// No description provided for @mdfDueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date · {m2} m²'**
+  String mdfDueTitle(String m2);
+
+  /// No description provided for @mdfDueSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ SAFE'**
+  String get mdfDueSafe;
+
+  /// No description provided for @mdfDueSafeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'+1 day for scrap and a redo'**
+  String get mdfDueSafeNote;
+
+  /// No description provided for @mdfDueEarliest.
+  ///
+  /// In en, this message translates to:
+  /// **'TIGHT'**
+  String get mdfDueEarliest;
+
+  /// No description provided for @mdfDueEarliestNote.
+  ///
+  /// In en, this message translates to:
+  /// **'if nothing goes wrong'**
+  String get mdfDueEarliestNote;
+
+  /// No description provided for @mdfDueFilmComes.
+  ///
+  /// In en, this message translates to:
+  /// **'Little {film} film on the shelf — {supplier} brings it on {date}. The date counts from then.'**
+  String mdfDueFilmComes(String film, String supplier, String date);
+
+  /// No description provided for @mdfDueFilmUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Little {film} film on the shelf, no word when it comes: the date is uncertain.'**
+  String mdfDueFilmUnknown(String film);
+
+  /// No description provided for @mdfDueOverloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'{due} m² are due that day against {cap} m² a day. With yours — {after} m²: overloaded.'**
+  String mdfDueOverloaded(String due, String cap, String after);
+
+  /// No description provided for @mdfDueLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'A day\'s colour — m² due against the shop\'s pace ({cap} m²/day). Grey — too soon.'**
+  String mdfDueLegend(String cap);
+
+  /// No description provided for @mdfDueLegendNoPace.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop\'s pace isn\'t known yet — only each day\'s m² due is shown.'**
+  String get mdfDueLegendNoPace;
+
+  /// No description provided for @mdfDuePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick {date}'**
+  String mdfDuePick(String date);
 }
 
 class _AppLocalizationsDelegate

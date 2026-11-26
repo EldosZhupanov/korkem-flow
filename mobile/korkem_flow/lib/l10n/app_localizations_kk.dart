@@ -13435,4 +13435,54 @@ class AppLocalizationsKk extends AppLocalizations {
   String shopTodayRecentPaid(String amount) {
     return 'төлем $amount';
   }
+
+  @override
+  String get mdfDueNoLoad =>
+      'Цех жүктемесін білу мүмкін болмады — әдеттегі күнтізбеден таңдаңыз.';
+
+  @override
+  String mdfDueTitle(String m2) {
+    return 'Тапсыру мерзімі · $m2 м²';
+  }
+
+  @override
+  String get mdfDueSafe => '✓ СЕНІМДІ';
+
+  @override
+  String get mdfDueSafeNote => 'ақау мен қайта жасауға +1 күн';
+
+  @override
+  String get mdfDueEarliest => 'ТЫҒЫЗ';
+
+  @override
+  String get mdfDueEarliestNote => 'ештеңе бұзылмаса';
+
+  @override
+  String mdfDueFilmComes(String film, String supplier, String date) {
+    return '$film пленкасы қоймада аз — $supplier $date әкеледі. Мерзімді әкелген күннен санаймыз.';
+  }
+
+  @override
+  String mdfDueFilmUnknown(String film) {
+    return '$film пленкасы қоймада аз, қашан әкелетіні белгісіз: мерзім күмәнді.';
+  }
+
+  @override
+  String mdfDueOverloaded(String due, String cap, String after) {
+    return 'Бұл күні $due м² бар, қуат $cap м². Сіздің тапсырыспен — $after м²: шамадан тыс.';
+  }
+
+  @override
+  String mdfDueLegend(String cap) {
+    return 'Күн түсі — тапсырылатын м² цех қуатына қарсы ($cap м²/күн). Сұр — ертерек үлгермейді.';
+  }
+
+  @override
+  String get mdfDueLegendNoPace =>
+      'Цех қарқыны әлі белгісіз — күнге қанша м² тапсырылатыны ғана көрінеді.';
+
+  @override
+  String mdfDuePick(String date) {
+    return '$date таңдау';
+  }
 }

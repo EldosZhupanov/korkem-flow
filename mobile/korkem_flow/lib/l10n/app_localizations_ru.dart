@@ -13511,4 +13511,54 @@ class AppLocalizationsRu extends AppLocalizations {
   String shopTodayRecentPaid(String amount) {
     return 'оплата $amount';
   }
+
+  @override
+  String get mdfDueNoLoad =>
+      'Не удалось узнать загрузку цеха — выберите день в обычном календаре.';
+
+  @override
+  String mdfDueTitle(String m2) {
+    return 'Срок сдачи · $m2 м²';
+  }
+
+  @override
+  String get mdfDueSafe => '✓ НАДЁЖНО';
+
+  @override
+  String get mdfDueSafeNote => '+1 день на брак и переделку';
+
+  @override
+  String get mdfDueEarliest => 'ВПРИТЫК';
+
+  @override
+  String get mdfDueEarliestNote => 'если ничего не сломается';
+
+  @override
+  String mdfDueFilmComes(String film, String supplier, String date) {
+    return 'Плёнки $film на складе мало — $supplier привезёт $date. Срок считаем от привоза.';
+  }
+
+  @override
+  String mdfDueFilmUnknown(String film) {
+    return 'Плёнки $film на складе мало, когда привезут — неизвестно: срок под вопросом.';
+  }
+
+  @override
+  String mdfDueOverloaded(String due, String cap, String after) {
+    return 'В этот день уже $due м² при мощности $cap м². С вашим заказом — $after м²: перегруз.';
+  }
+
+  @override
+  String mdfDueLegend(String cap) {
+    return 'Цвет дня — м² к сдаче против мощности цеха ($cap м²/день). Серое — раньше не успеть.';
+  }
+
+  @override
+  String get mdfDueLegendNoPace =>
+      'Темп цеха ещё не известен — видно только, сколько м² к сдаче в день.';
+
+  @override
+  String mdfDuePick(String date) {
+    return 'Выбрать $date';
+  }
 }

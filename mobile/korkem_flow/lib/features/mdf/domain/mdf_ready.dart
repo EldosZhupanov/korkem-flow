@@ -64,7 +64,9 @@ class MdfDueOptions {
           if (f is Map)
             (
               decor: '${f['decor']}',
-              freeM: f['free_m'] is num ? (f['free_m'] as num).toDouble() : null,
+              freeM: f['free_m'] is num
+                  ? (f['free_m'] as num).toDouble()
+                  : null,
               short: f['short'] == true,
               comesOn: DateTime.tryParse('${f['comes_on'] ?? ''}'),
               supplier: f['supplier'] == null ? null : '${f['supplier']}',

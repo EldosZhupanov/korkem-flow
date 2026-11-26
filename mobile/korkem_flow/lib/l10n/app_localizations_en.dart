@@ -13476,4 +13476,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String shopTodayRecentPaid(String amount) {
     return 'payment $amount';
   }
+
+  @override
+  String get mdfDueNoLoad =>
+      'Couldn\'t get the shop\'s load — pick a day in the plain calendar.';
+
+  @override
+  String mdfDueTitle(String m2) {
+    return 'Due date · $m2 m²';
+  }
+
+  @override
+  String get mdfDueSafe => '✓ SAFE';
+
+  @override
+  String get mdfDueSafeNote => '+1 day for scrap and a redo';
+
+  @override
+  String get mdfDueEarliest => 'TIGHT';
+
+  @override
+  String get mdfDueEarliestNote => 'if nothing goes wrong';
+
+  @override
+  String mdfDueFilmComes(String film, String supplier, String date) {
+    return 'Little $film film on the shelf — $supplier brings it on $date. The date counts from then.';
+  }
+
+  @override
+  String mdfDueFilmUnknown(String film) {
+    return 'Little $film film on the shelf, no word when it comes: the date is uncertain.';
+  }
+
+  @override
+  String mdfDueOverloaded(String due, String cap, String after) {
+    return '$due m² are due that day against $cap m² a day. With yours — $after m²: overloaded.';
+  }
+
+  @override
+  String mdfDueLegend(String cap) {
+    return 'A day\'s colour — m² due against the shop\'s pace ($cap m²/day). Grey — too soon.';
+  }
+
+  @override
+  String get mdfDueLegendNoPace =>
+      'The shop\'s pace isn\'t known yet — only each day\'s m² due is shown.';
+
+  @override
+  String mdfDuePick(String date) {
+    return 'Pick $date';
+  }
 }

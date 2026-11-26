@@ -18,8 +18,7 @@ Future<DateTime?> showMdfDuePicker(
   DateTime? current,
 }) => showDialog<DateTime>(
   context: context,
-  builder: (_) =>
-      _DueDialog(
+  builder: (_) => _DueDialog(
     load: Future.sync(load),
     areaM2: areaM2,
     current: current,
@@ -61,7 +60,9 @@ class _DueDialogState extends State<_DueDialog> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                child: Text(
+                  MaterialLocalizations.of(context).cancelButtonLabel,
+                ),
               ),
               FilledButton(
                 key: const ValueKey('mdfDueCalendar'),
@@ -96,9 +97,11 @@ class _DueDialogState extends State<_DueDialog> {
     String m2(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
     Color? colour(DateTime d) {
       if (d.weekday == DateTime.sunday) return null;
-      if (d.isBefore(earliest)) return theme.colorScheme.surfaceContainerHighest;
+      if (d.isBefore(earliest))
+        return theme.colorScheme.surfaceContainerHighest;
       final cap = o.capacityM2;
-      if (cap == null || cap <= 0) return status.success.withValues(alpha: AppTint.surface);
+      if (cap == null || cap <= 0)
+        return status.success.withValues(alpha: AppTint.surface);
       final share = o.dueOn(d) / cap;
       return (share >= _over
               ? status.danger
@@ -119,7 +122,13 @@ class _DueDialogState extends State<_DueDialog> {
     final first = DateTime(month.year, month.month);
     final lead = first.weekday - 1;
     final count = DateTime(month.year, month.month + 1, 0).day;
-    Widget choice(String key, String label, DateTime day, Color colour, String note) {
+    Widget choice(
+      String key,
+      String label,
+      DateTime day,
+      Color colour,
+      String note,
+    ) {
       final on = _day(day) == picked;
       return Expanded(
         child: InkWell(
@@ -141,7 +150,10 @@ class _DueDialogState extends State<_DueDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: theme.textTheme.labelSmall?.copyWith(color: colour)),
+                Text(
+                  label,
+                  style: theme.textTheme.labelSmall?.copyWith(color: colour),
+                ),
                 Text(
                   DateFormat('EE, d MMMM', locale).format(day),
                   style: theme.textTheme.titleMedium,
@@ -246,7 +258,9 @@ class _DueDialogState extends State<_DueDialog> {
                       final on = d == picked;
                       return InkWell(
                         key: ValueKey('mdfDueDay:${mdfIso(d)}'),
-                        onTap: sunday ? null : () => setState(() => _picked = d),
+                        onTap: sunday
+                            ? null
+                            : () => setState(() => _picked = d),
                         borderRadius: BorderRadius.circular(AppRadius.xs),
                         child: Container(
                           decoration: BoxDecoration(
@@ -267,30 +281,32 @@ class _DueDialogState extends State<_DueDialog> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '$n',
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: sunday
-                                      ? theme.colorScheme.onSurfaceVariant
-                                      : null,
-                                ),
-                              ),
-                              if (load > 0 && !sunday)
+                              children: [
                                 Text(
-                                  '${m2(load)} ${l10n.unitSquareMetres}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.clip,
-                                  style: theme.textTheme.labelSmall,
-                                ),
-                              for (final f in o.films)
-                                if (f.short && f.comesOn != null && _day(f.comesOn!) == d)
-                                  Icon(
-                                    AppIcons.delivery,
-                                    size: AppIconSize.dense,
-                                    color: status.info,
+                                  '$n',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: sunday
+                                        ? theme.colorScheme.onSurfaceVariant
+                                        : null,
                                   ),
-                            ],
+                                ),
+                                if (load > 0 && !sunday)
+                                  Text(
+                                    '${m2(load)} ${l10n.unitSquareMetres}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.clip,
+                                    style: theme.textTheme.labelSmall,
+                                  ),
+                                for (final f in o.films)
+                                  if (f.short &&
+                                      f.comesOn != null &&
+                                      _day(f.comesOn!) == d)
+                                    Icon(
+                                      AppIcons.delivery,
+                                      size: AppIconSize.dense,
+                                      color: status.info,
+                                    ),
+                              ],
                             ),
                           ),
                         ),
