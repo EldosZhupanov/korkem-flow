@@ -202,6 +202,18 @@ class _FakeStructure implements TeamStructureRepository {
   final posts = <(String?, String, bool)>[];
   final handed = <(String, String?, String?)>[];
   final actives = <(String?, bool)>[];
+  final changed = <(String?, List<String>)>[];
+
+  @override
+  Future<TeamPeople> change(
+    TeamPerson person, {
+    String? name,
+    List<String>? posts,
+    String? phone,
+  }) async {
+    changed.add((person.employee, posts ?? const []));
+    return _structure;
+  }
 
   @override
   Future<TeamPeople> add({
@@ -362,7 +374,9 @@ void main() {
     await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
 
-    expect(find.text('Команда'), findsOneWidget);
+    // «Команда» is the «Отделы» tab of «Сотрудники» now (26.11.2026).
+    expect(find.text('Сотрудники'), findsOneWidget);
+    expect(find.text('Отделы'), findsOneWidget);
     expect(find.text('Aidos Owner'), findsOneWidget);
     expect(find.text('Dana Manager'), findsOneWidget);
     expect(find.text('Berik Worker'), findsOneWidget);
@@ -1194,7 +1208,7 @@ void main() {
     expect(structure.added, isEmpty);
   });
 
-  testWidgets('«Люди»: a post taken off, his open stage handed over', (
+  testWidgets('a post taken off in his window: his open stage handed over', (
     tester,
   ) async {
     final structure = await people(
@@ -1203,13 +1217,14 @@ void main() {
         TeamOpenWork(order: 'SO-245', stage: 'cut', number: 245),
       ],
     );
-    await tester.tap(find.text('Люди'));
+    await tester.tap(find.byKey(const ValueKey('teamPerson:HR-EMP-1')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('tm:line:HR-EMP-1')), findsOne);
-    final chip = find.byKey(const ValueKey('tm:post:HR-EMP-1:cut.cutter'));
-    tester.widget<InputChip>(chip).onDeleted!();
+    await tester.tap(find.byKey(const ValueKey('teamPost:cut.cutter')));
     await tester.pumpAndSettle();
-    expect(structure.posts, [('HR-EMP-1', 'cut.cutter', false)]);
+    await tester.tap(find.byKey(const ValueKey('teamPersonSave')));
+    await tester.pumpAndSettle();
+    expect(structure.changed.single.$1, 'HR-EMP-1');
+    expect(structure.changed.single.$2, isEmpty);
     // Бекжан is the one other cutter: offered first.
     await tester.tap(find.byKey(const ValueKey('tm:confirm')));
     await tester.pumpAndSettle();
@@ -1256,11 +1271,9 @@ void main() {
         left: 127500,
       ),
     );
-    await tester.tap(find.text('Люди'));
+    await tester.tap(find.byKey(const ValueKey('teamPerson:HR-EMP-1')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('tm:menu:HR-EMP-1')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('tm:dismiss:HR-EMP-1')));
+    await tester.tap(find.byKey(const ValueKey('teamPersonLeft')));
     await tester.pumpAndSettle();
     expect(find.textContaining('127'), findsOne);
     // Nobody chosen: his stage is freed for the manager, not left on him.

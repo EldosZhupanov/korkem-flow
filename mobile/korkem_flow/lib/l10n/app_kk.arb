@@ -3798,5 +3798,7 @@
   "pplSalesBonus": "Сату бонусы",
   "pplCancelEntry": "Болдырмау",
   "pplCancelWhy": "Неге болдырмайсыз? Қызметкер көреді.",
-  "pplPeopleMoney": "Қызметкерлер ақшасы"
+  "pplPeopleMoney": "Қызметкерлер ақшасы",
+  "pplDepartmentsTab": "Бөлімдер",
+  "pplMoneyHidden": "Ақшаны басшылар мен бухгалтерия көреді."
 }

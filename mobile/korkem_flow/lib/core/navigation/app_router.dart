@@ -394,7 +394,7 @@ GoRouter createRouter(Ref ref) {
       // the old address still leads there.
       GoRoute(
         path: Routes.payroll,
-        builder: (context, state) => const PeopleScreen(money: true),
+        builder: (context, state) => const PeopleScreen(tab: PeopleTab.money),
       ),
       GoRoute(
         path: Routes.oneC,

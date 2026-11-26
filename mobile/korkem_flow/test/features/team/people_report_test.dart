@@ -88,7 +88,10 @@ void main() {
   testWidgets('everyone for the month; the period moves and changes', (
     tester,
   ) async {
-    await pump(tester, PeopleScreen(today: DateTime(2026, 11, 25)));
+    await pump(
+      tester,
+      PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.work),
+    );
     expect(repo.reports.single, (span: PeopleSpan.month, day: '2026-11-25'));
     expect(find.byKey(const ValueKey('figure:ppl:total:left')), findsOne);
     expect(find.byKey(const ValueKey('ppl:person:HR-EMP-00001')), findsOne);
@@ -153,7 +156,7 @@ void main() {
   testWidgets("everyone's month; «Да» to what waits", (tester) async {
     await pump(
       tester,
-      PeopleScreen(today: DateTime(2026, 11, 25), money: true),
+      PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.money),
     );
     expect(repo.reports.single, (span: PeopleSpan.month, day: '2026-11-25'));
     expect(find.byKey(const ValueKey('ppl:money:HR-EMP-00001')), findsOne);
@@ -173,7 +176,7 @@ void main() {
   ) async {
     await pump(
       tester,
-      PeopleScreen(today: DateTime(2026, 11, 25), money: true),
+      PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.money),
     );
     await tester.tap(find.byKey(const ValueKey('ppl:prev')));
     await tester.pumpAndSettle();
@@ -187,7 +190,7 @@ void main() {
   testWidgets('an advance needs who, how much and what for', (tester) async {
     await pump(
       tester,
-      PeopleScreen(today: DateTime(2026, 11, 25), money: true),
+      PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.money),
     );
     await tester.tap(find.byKey(const ValueKey('ppl:addMoney')));
     await tester.pumpAndSettle();
@@ -222,7 +225,10 @@ void main() {
   });
 
   testWidgets('the work tab shows what is not a facade stage', (tester) async {
-    await pump(tester, PeopleScreen(today: DateTime(2026, 11, 25)));
+    await pump(
+      tester,
+      PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.work),
+    );
     expect(find.textContaining('Orders taken in: 23'), findsOne);
   });
 }

@@ -2,92 +2,95 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/api/frappe_exception.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
-import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
-import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/team_repository.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/domain/team_models.dart';
-import 'package:korkem_flow/features/team/presentation/team_people_view.dart';
+import 'package:korkem_flow/features/team/presentation/people_screen.dart';
+import 'package:korkem_flow/features/team/presentation/team_departments_view.dart';
 import 'package:korkem_flow/features/team/presentation/trades_dialog.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
-/// «Команда»: everyone at the company in one list — by department and post,
-/// with or without a login — and, from a person, his login: invitation,
-/// access, closing and reopening.
-///
-/// Only the factory owner has permission to invite employees and manage
-/// positions. Positions are selected strictly from pre-mapped ERPNext
-/// role sets.
-class TeamScreen extends ConsumerWidget {
+/// «Команда» — now the «Отделы» tab of «Сотрудники» (owner, 26.11.2026):
+/// the departments, their posts and the people on them, with or without a
+/// login; and, from a person, his login — invitation, access, closing and
+/// reopening. Only the factory owner may invite and change positions.
+class TeamScreen extends StatelessWidget {
   const TeamScreen({super.key});
 
   @override
+  Widget build(BuildContext context) => const PeopleScreen();
+}
+
+/// «+» (invite) and «refresh» on the «Отделы» tab.
+List<Widget> teamActions(BuildContext context, WidgetRef ref) {
+  final l10n = AppLocalizations.of(context);
+  final canInvite = ref.watch(canInviteProvider).value ?? false;
+  return [
+    if (canInvite)
+      IconButton(
+        tooltip: l10n.teamInviteButton,
+        icon: const Icon(AppIcons.add),
+        onPressed: () => unawaited(showTeamInviteDialog(context)),
+      ),
+    IconButton(
+      tooltip: l10n.adminStatsRetry,
+      icon: const Icon(AppIcons.refresh),
+      onPressed: () => ref
+        ..invalidate(teamMembersProvider)
+        ..invalidate(teamPeopleProvider),
+    ),
+  ];
+}
+
+/// The «Отделы» tab: the departments and the people on them; [header] (the
+/// tabs) scrolls with them.
+class TeamDepartmentsTab extends ConsumerWidget {
+  const TeamDepartmentsTab({super.key, this.header});
+
+  final Widget? header;
+
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final canInviteAsync = ref.watch(canInviteProvider);
     final canInvite = canInviteAsync.value ?? false;
     // The logins' access and trades, read when a person's login is opened.
     ref.watch(teamMembersProvider);
-
-    return AppScreen(
-      title: l10n.teamTitle,
-      subtitle: l10n.teamSubtitle,
-      actions: [
-        // «Сотрудники»: who did what and earned what, for a day to a month.
-        IconButton(
-          key: const ValueKey('team:people'),
-          tooltip: l10n.pplTitle,
-          icon: const Icon(AppIcons.report),
-          onPressed: () => unawaited(context.push(Routes.people)),
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref
+          ..invalidate(teamMembersProvider)
+          ..invalidate(teamPeopleProvider);
+        await ref.read(teamPeopleProvider.future);
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
         ),
-        if (canInvite)
-          IconButton(
-            tooltip: l10n.teamInviteButton,
-            icon: const Icon(AppIcons.add),
-            onPressed: () => unawaited(showTeamInviteDialog(context)),
-          ),
-        IconButton(
-          tooltip: l10n.adminStatsRetry,
-          icon: const Icon(AppIcons.refresh),
-          onPressed: () => ref
-            ..invalidate(teamMembersProvider)
-            ..invalidate(teamPeopleProvider),
-        ),
-      ],
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref
-            ..invalidate(teamMembersProvider)
-            ..invalidate(teamPeopleProvider);
-          await ref.read(teamPeopleProvider.future);
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          child: ReadableWidth(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!canInvite && canInviteAsync.hasValue) ...[
-                  _ForbiddenNoticeBanner(),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-                // One list (owner, 17.11.2026: «команда и люди одно и то
-                // же»): the departments, their posts and the people on them;
-                // a login is a mark on a person, opened from his card.
-                TeamViews(canManageLogins: canInvite),
+        child: ReadableWidth(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (header case final h?) ...[
+                Center(child: h),
+                const SizedBox(height: AppSpacing.md),
               ],
-            ),
+              if (!canInvite && canInviteAsync.hasValue) ...[
+                _ForbiddenNoticeBanner(),
+                const SizedBox(height: AppSpacing.lg),
+              ],
+              // One list (owner, 17.11.2026: «команда и люди одно и то
+              // же»): the departments, their posts and the people on them;
+              // a login is a mark on a person, opened from his card.
+              TeamDepartmentsView(canManageLogins: canInvite),
+            ],
           ),
         ),
       ),

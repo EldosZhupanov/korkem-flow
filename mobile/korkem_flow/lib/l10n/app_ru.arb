@@ -3798,5 +3798,7 @@
   "pplSalesBonus": "Бонус продаж",
   "pplCancelEntry": "Отменить",
   "pplCancelWhy": "Почему отменяете? Работник увидит.",
-  "pplPeopleMoney": "Деньги сотрудников"
+  "pplPeopleMoney": "Деньги сотрудников",
+  "pplDepartmentsTab": "Отделы",
+  "pplMoneyHidden": "Деньги видят руководители и бухгалтерия."
 }

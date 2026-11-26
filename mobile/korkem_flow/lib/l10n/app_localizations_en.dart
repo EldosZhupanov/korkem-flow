@@ -12644,4 +12644,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pplPeopleMoney => 'Staff money';
+
+  @override
+  String get pplDepartmentsTab => 'Departments';
+
+  @override
+  String get pplMoneyHidden => 'Pay is seen by managers and accounting.';
 }

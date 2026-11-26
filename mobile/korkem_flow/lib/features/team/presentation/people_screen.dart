@@ -17,6 +17,7 @@ import 'package:korkem_flow/features/team/domain/people_report.dart';
 import 'package:korkem_flow/features/team/presentation/people_money_actions.dart';
 import 'package:korkem_flow/features/team/presentation/people_money_view.dart';
 import 'package:korkem_flow/features/team/presentation/people_period.dart';
+import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 /// «раскрой 3 · 4,25 м²» for each stage a person did.
@@ -60,15 +61,22 @@ String peopleStageLabel(String stage, AppLocalizations l10n) {
   return known == null ? stage : mdfStageLabel(known, l10n);
 }
 
-/// «Сотрудники» (owner, 25.11.2026): everyone for a day, a week or a month —
-/// post, what he did, days with work, what he earned, took and is owed.
+/// The three tabs of «Сотрудники».
+enum PeopleTab { departments, work, money }
+
+/// «Сотрудники» (owner, 26.11.2026: «зачем нам 2 вкладки?»): one screen
+/// for people. «Отделы» — who is on which post (what «Команда» was);
+/// «Работа» — who did what, for a day, a week or a month; «Деньги» — who
+/// earned, took and is owed what, for the month. Any person opens his card.
 class PeopleScreen extends ConsumerStatefulWidget {
-  const PeopleScreen({super.key, this.today, this.money = false});
+  const PeopleScreen({
+    super.key,
+    this.today,
+    this.tab = PeopleTab.departments,
+  });
 
   final DateTime? today;
-
-  /// Open on «Деньги» — where «Ведомость» used to lead.
-  final bool money;
+  final PeopleTab tab;
 
   @override
   ConsumerState<PeopleScreen> createState() => _PeopleScreenState();
@@ -78,24 +86,44 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
   late final DateTime _today = widget.today ?? DateTime.now();
   PeopleSpan _span = PeopleSpan.month;
   late DateTime _day = _today;
-  late bool _money = widget.money;
-
-  /// Whether «Деньги» is offered: the last answer said this one sees pay.
-  bool _seesPay = false;
+  late PeopleTab _tab = widget.tab;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final tabs = SegmentedButton<PeopleTab>(
+      key: const ValueKey('ppl:tab'),
+      showSelectedIcon: false,
+      segments: [
+        ButtonSegment(
+          value: PeopleTab.departments,
+          label: Text(l10n.pplDepartmentsTab),
+        ),
+        ButtonSegment(value: PeopleTab.work, label: Text(l10n.pplWorkTab)),
+        ButtonSegment(value: PeopleTab.money, label: Text(l10n.pplMoneyTab)),
+      ],
+      selected: {_tab},
+      onSelectionChanged: (s) => setState(() => _tab = s.first),
+    );
+    if (_tab == PeopleTab.departments) {
+      return AppScreen(
+        title: l10n.pplTitle,
+        subtitle: l10n.teamSubtitle,
+        actions: teamActions(context, ref),
+        body: TeamDepartmentsTab(header: tabs),
+      );
+    }
+    final money = _tab == PeopleTab.money;
     // Money is the month's: the tab shows the month the day is in.
-    final span = _money ? PeopleSpan.month : _span;
+    final span = money ? PeopleSpan.month : _span;
     final query = (span: span, day: peopleIso(_day));
     final report = ref.watch(peopleReportProvider(query));
-    if (report.value case final r?) _seesPay = r.seesPay;
+    final seesPay = report.value?.seesPay ?? false;
     return AppScreen(
       title: l10n.pplTitle,
       subtitle: l10n.pplSubtitle,
       actions: [
-        if (_money && _seesPay)
+        if (money && seesPay)
           IconButton(
             key: const ValueKey('ppl:excel'),
             tooltip: l10n.pplExcel,
@@ -114,24 +142,13 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
             ),
             child: Column(
               children: [
-                if (_seesPay || _money) ...[
-                  SegmentedButton<bool>(
-                    key: const ValueKey('ppl:tab'),
-                    showSelectedIcon: false,
-                    segments: [
-                      ButtonSegment(value: false, label: Text(l10n.pplWorkTab)),
-                      ButtonSegment(value: true, label: Text(l10n.pplMoneyTab)),
-                    ],
-                    selected: {_money},
-                    onSelectionChanged: (s) => setState(() => _money = s.first),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                ],
+                tabs,
+                const SizedBox(height: AppSpacing.sm),
                 PeoplePeriodBar(
                   span: span,
                   day: _day,
                   today: _today,
-                  monthOnly: _money,
+                  monthOnly: money,
                   onChanged: (span, day) => setState(() {
                     _span = span;
                     _day = day;
@@ -147,15 +164,20 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
                 error: error,
                 onRetry: () => ref.invalidate(peopleReportProvider(query)),
               ),
-              data: (r) => r.people.isEmpty
-                  ? EmptyView(message: l10n.pplEmpty)
-                  : RefreshIndicator(
-                      onRefresh: () =>
-                          ref.refresh(peopleReportProvider(query).future),
-                      child: _money
-                          ? PeopleMoneyView(report: r, day: _day, today: _today)
-                          : _Body(report: r, query: query),
-                    ),
+              data: (r) => switch ((money, r.people.isEmpty)) {
+                (_, true) => EmptyView(message: l10n.pplEmpty),
+                // Pay is for those who see pay; the rest are told so.
+                (true, false) when !r.seesPay => EmptyView(
+                  message: l10n.pplMoneyHidden,
+                ),
+                _ => RefreshIndicator(
+                  onRefresh: () =>
+                      ref.refresh(peopleReportProvider(query).future),
+                  child: money
+                      ? PeopleMoneyView(report: r, day: _day, today: _today)
+                      : _Body(report: r, query: query),
+                ),
+              },
             ),
           ),
         ],
