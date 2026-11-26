@@ -229,9 +229,8 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
             tooltip: dense ? l10n.mdfViewCards : l10n.mdfViewRows,
             isSelected: dense,
             icon: Icon(dense ? AppIcons.viewCards : AppIcons.viewRows),
-            onPressed: () => ref
-                .read(foldsProvider.notifier)
-                .set(_denseKey, shut: !dense),
+            onPressed: () =>
+                ref.read(foldsProvider.notifier).set(_denseKey, shut: !dense),
           ),
           // «Итоги МДФ» (owner, 12.11.2026).
           Padding(
@@ -341,30 +340,30 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
               children: [
                 for (final f in _Filter.values)
                   // «Узкое место» (owner, 26.11.2026): the stage most late orders
-          // wait at — the cause, not 22 rows.
-          if (overview?.bottleneck case final b?)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.sm,
-                AppSpacing.lg,
-                0,
-              ),
-              child: _Bottleneck(
-                b: b,
-                onShow: () => setState(() => _filter = _Filter.overdue),
-                onPlan: () => unawaited(context.push(Routes.mdfPlan)),
-              ),
-            ),
-          Padding(
-                    padding: const EdgeInsets.only(right: AppSpacing.sm),
-                    child: ChoiceChip(
-                      key: ValueKey('mdfFilter:${f.name}'),
-                      label: Text(label(f)),
-                      selected: _filter == f,
-                      onSelected: (_) => setState(() => _filter = f),
+                  // wait at — the cause, not 22 rows.
+                  if (overview?.bottleneck case final b?)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        AppSpacing.sm,
+                        AppSpacing.lg,
+                        0,
+                      ),
+                      child: _Bottleneck(
+                        b: b,
+                        onShow: () => setState(() => _filter = _Filter.overdue),
+                        onPlan: () => unawaited(context.push(Routes.mdfPlan)),
+                      ),
                     ),
+                Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.sm),
+                  child: ChoiceChip(
+                    key: ValueKey('mdfFilter:${f.name}'),
+                    label: Text(label(f)),
+                    selected: _filter == f,
+                    onSelected: (_) => setState(() => _filter = f),
                   ),
+                ),
               ],
             ),
           ),
@@ -713,7 +712,12 @@ class _OrderRowState extends State<_OrderRow> {
   List<(Key, IconData, String, VoidCallback)> _actions(AppLocalizations l10n) =>
       [
         if (widget.onPay case final pay?)
-          (ValueKey('mdfRowPay:${row.name}'), AppIcons.payment, l10n.mdfRowPay, pay),
+          (
+            ValueKey('mdfRowPay:${row.name}'),
+            AppIcons.payment,
+            l10n.mdfRowPay,
+            pay,
+          ),
         if (widget.onStageDone case final done? when row.waiting != null)
           (
             ValueKey('mdfRowStage:${row.name}'),
@@ -722,7 +726,12 @@ class _OrderRowState extends State<_OrderRow> {
             done,
           ),
         if (widget.onCall case final call?)
-          (ValueKey('mdfRowCall:${row.name}'), AppIcons.call, l10n.mdfRowCall, call),
+          (
+            ValueKey('mdfRowCall:${row.name}'),
+            AppIcons.call,
+            l10n.mdfRowCall,
+            call,
+          ),
       ];
 
   @override
@@ -849,7 +858,10 @@ class _OrderRowState extends State<_OrderRow> {
                   : const SizedBox.shrink(),
             ),
             if (row.stages.isNotEmpty)
-              SizedBox(width: AppSpacing.xxxl * 3, child: _StageBar(row: row)),
+              SizedBox(
+                width: AppSpacing.xxxl * 3,
+                child: _StageBar(row: row),
+              ),
             const SizedBox(width: AppSpacing.md),
             SizedBox(
               width: AppSpacing.xxxl * 2.5,

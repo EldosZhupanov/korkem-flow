@@ -130,21 +130,20 @@ class _FakeRepository implements MdfOrderRepository {
   }
 
   @override
-  Future<MdfOverview> overview() async =>
-      (
-        overdue: 1,
-        dueSoon: 2,
-        ready: 3,
-        debt: 58680.0,
-        debtors: 1,
-        bottleneck: (
-          stage: MdfStage.sand,
-          late: 1,
-          lateTotal: 1,
-          queueOrders: 1,
-          queueM2: 1.77,
-        ),
-      );
+  Future<MdfOverview> overview() async => (
+    overdue: 1,
+    dueSoon: 2,
+    ready: 3,
+    debt: 58680.0,
+    debtors: 1,
+    bottleneck: (
+      stage: MdfStage.sand,
+      late: 1,
+      lateTotal: 1,
+      queueOrders: 1,
+      queueM2: 1.77,
+    ),
+  );
 
   static final _rows = [
     MdfOrderRow.fromJson(const {
@@ -1097,7 +1096,10 @@ void main() {
       find.byKey(const ValueKey('mdfRowStage:SAL-ORD-1129')),
       findsOneWidget,
     );
-    expect(find.byKey(const ValueKey('mdfRowPay:SAL-ORD-1129')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mdfRowPay:SAL-ORD-1129')),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const ValueKey('mdfRowStage:SAL-ORD-1129')));
     await tester.pumpAndSettle();
     expect(repo.ticked.last, (MdfStage.sand, true));
