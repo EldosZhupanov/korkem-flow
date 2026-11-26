@@ -1581,6 +1581,7 @@ def _item(line: dict, head: dict, wanted) -> dict:
 	amount = Decimal(str(line["amount"]))
 	milling = line["milling"] or head["milling"]
 	title = f"{milling or 'Фасад'} {line['height_mm']}×{line['width_mm']}"[:140]
+	rate = float((amount / qty).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP))
 	return {
 		"item_code": facade_order.FACADE_ITEM,
 		"item_name": title,
@@ -1589,7 +1590,14 @@ def _item(line: dict, head: dict, wanted) -> dict:
 		"uom": "Nos",
 		# The amount is the owner's; ERPNext's qty × rate, rounded to two
 		# decimals, lands back on it (the rate keeps six — add_mdf_order_fields).
-		"rate": float((amount / qty).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)),
+		"rate": rate,
+		# The list price is ours too. Left empty, ERPNext fills it from an
+		# Item Price — one it wrote itself from an earlier order — and then
+		# puts it in place of a rate of 0: a position with no price yet
+		# became 7 020 ₸ a piece, and the order would not save (owner,
+		# 26.11.2026: «ERPNext посчитал заказ на 53 670 ₸, а расчёт — на
+		# 11 550 ₸»).
+		"price_list_rate": rate,
 		"delivery_date": str(wanted),
 		"korkem_height_mm": line["height_mm"],
 		"korkem_width_mm": line["width_mm"],
