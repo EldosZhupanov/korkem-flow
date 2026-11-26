@@ -13200,4 +13200,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pressForceWhy => 'Reason';
+
+  @override
+  String get mdfJustNow => 'Just now';
+
+  @override
+  String get mdfJustNowClear => 'Clear «Just now»';
+
+  @override
+  String mdfJustSaved(String name) {
+    return 'Order $name saved';
+  }
+
+  @override
+  String get mdfJustOpen => 'Open';
 }

@@ -13235,4 +13235,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pressForceWhy => 'Причина';
+
+  @override
+  String get mdfJustNow => 'Только что';
+
+  @override
+  String get mdfJustNowClear => 'Убрать из «Только что»';
+
+  @override
+  String mdfJustSaved(String name) {
+    return 'Заказ $name сохранён';
+  }
+
+  @override
+  String get mdfJustOpen => 'Открыть';
 }

@@ -13159,4 +13159,18 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pressForceWhy => 'Себебі';
+
+  @override
+  String get mdfJustNow => 'Жаңа ғана';
+
+  @override
+  String get mdfJustNowClear => '«Жаңа ғана»-дан алу';
+
+  @override
+  String mdfJustSaved(String name) {
+    return '$name тапсырысы сақталды';
+  }
+
+  @override
+  String get mdfJustOpen => 'Ашу';
 }

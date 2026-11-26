@@ -50,8 +50,9 @@ final mdfOrdersProvider = FutureProvider.autoDispose
 /// Orders accepted or saved in this session, newest first — «Только что»
 /// on top of the list (owner, 26.11.2026: a new order sank under 22
 /// overdue ones and looked lost).
-final mdfRecentOrdersProvider =
-    NotifierProvider<MdfRecentOrders, List<String>>(MdfRecentOrders.new);
+final mdfRecentOrdersProvider = NotifierProvider<MdfRecentOrders, List<String>>(
+  MdfRecentOrders.new,
+);
 
 class MdfRecentOrders extends Notifier<List<String>> {
   @override

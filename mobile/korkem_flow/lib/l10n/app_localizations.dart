@@ -22545,6 +22545,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reason'**
   String get pressForceWhy;
+
+  /// No description provided for @mdfJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get mdfJustNow;
+
+  /// No description provided for @mdfJustNowClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear «Just now»'**
+  String get mdfJustNowClear;
+
+  /// No description provided for @mdfJustSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {name} saved'**
+  String mdfJustSaved(String name);
+
+  /// No description provided for @mdfJustOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get mdfJustOpen;
 }
 
 class _AppLocalizationsDelegate
