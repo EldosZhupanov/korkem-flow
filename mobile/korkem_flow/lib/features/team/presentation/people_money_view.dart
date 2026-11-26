@@ -81,7 +81,8 @@ class PeopleMoneyView extends StatelessWidget {
                   context,
                   people: report.people,
                   atOnce: report.adjustsAtOnce,
-                  showBalance: day.year == today.year && day.month == today.month,
+                  showBalance:
+                      day.year == today.year && day.month == today.month,
                 ),
               ),
             ),

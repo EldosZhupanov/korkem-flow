@@ -238,7 +238,9 @@ class _PayEntryDialogState extends State<_PayEntryDialog> {
     final employee = _employee;
     final amount = _value;
     final reason = _reason.text.trim();
-    if (employee == null || amount == null || (_needsReason && reason.isEmpty)) {
+    if (employee == null ||
+        amount == null ||
+        (_needsReason && reason.isEmpty)) {
       setState(() => _tried = true);
       return;
     }
@@ -282,7 +284,9 @@ class _PayEntryDialogState extends State<_PayEntryDialog> {
     final balance = widget.showBalance ? person?.money?.left : null;
     final value = _value;
     return AlertDialog(
-      title: Text(_fixed ? person?.name ?? l10n.pplMoneyTitle : l10n.pplMoneyTitle),
+      title: Text(
+        _fixed ? person?.name ?? l10n.pplMoneyTitle : l10n.pplMoneyTitle,
+      ),
       content: SizedBox(
         width: AppSpacing.xxxl * 9,
         child: SingleChildScrollView(
@@ -367,7 +371,8 @@ class _PayEntryDialogState extends State<_PayEntryDialog> {
                 controller: _reason,
                 decoration: InputDecoration(
                   labelText: _needsReason ? l10n.pplWhy : l10n.pplWhyOptional,
-                  errorText: _tried && _needsReason && _reason.text.trim().isEmpty
+                  errorText:
+                      _tried && _needsReason && _reason.text.trim().isEmpty
                       ? l10n.pplWhyMissing
                       : null,
                 ),

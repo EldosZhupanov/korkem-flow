@@ -21599,11 +21599,131 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get pplRecord;
 
-  /// No description provided for @pplFillAll.
+  /// No description provided for @pplKindAdvanceHint.
   ///
   /// In en, this message translates to:
-  /// **'Fill in who, how much and what for.'**
-  String get pplFillAll;
+  /// **'Money already handed over. Comes off the pay.'**
+  String get pplKindAdvanceHint;
+
+  /// No description provided for @pplKindFineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept back for a fault. Comes off the pay.'**
+  String get pplKindFineHint;
+
+  /// No description provided for @pplKindBonusHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on top of the earnings. Added to the pay.'**
+  String get pplKindBonusHint;
+
+  /// No description provided for @pplWhyOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'What for (optional)'**
+  String get pplWhyOptional;
+
+  /// No description provided for @pplWhoMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who'**
+  String get pplWhoMissing;
+
+  /// No description provided for @pplAmountMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount above zero'**
+  String get pplAmountMissing;
+
+  /// No description provided for @pplWhyMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Say what for: the person will read it'**
+  String get pplWhyMissing;
+
+  /// No description provided for @pplBalanceNow.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay now'**
+  String get pplBalanceNow;
+
+  /// No description provided for @pplBalanceAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After this'**
+  String get pplBalanceAfter;
+
+  /// No description provided for @pplAtOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the owner: it counts at once, no second «Yes».'**
+  String get pplAtOnce;
+
+  /// No description provided for @pplNeedsYes.
+  ///
+  /// In en, this message translates to:
+  /// **'It is recorded and waits for another person\'s «Yes».'**
+  String get pplNeedsYes;
+
+  /// No description provided for @pplReasonAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'asked for it'**
+  String get pplReasonAsked;
+
+  /// No description provided for @pplReasonTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'for travel'**
+  String get pplReasonTravel;
+
+  /// No description provided for @pplReasonTillPay.
+  ///
+  /// In en, this message translates to:
+  /// **'till payday'**
+  String get pplReasonTillPay;
+
+  /// No description provided for @pplReasonDefect.
+  ///
+  /// In en, this message translates to:
+  /// **'defect'**
+  String get pplReasonDefect;
+
+  /// No description provided for @pplReasonLate.
+  ///
+  /// In en, this message translates to:
+  /// **'late'**
+  String get pplReasonLate;
+
+  /// No description provided for @pplReasonAbsent.
+  ///
+  /// In en, this message translates to:
+  /// **'absent'**
+  String get pplReasonAbsent;
+
+  /// No description provided for @pplReasonMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'spoiled material'**
+  String get pplReasonMaterial;
+
+  /// No description provided for @pplReasonPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'for the plan'**
+  String get pplReasonPlan;
+
+  /// No description provided for @pplReasonRush.
+  ///
+  /// In en, this message translates to:
+  /// **'for a rush order'**
+  String get pplReasonRush;
+
+  /// No description provided for @pplReasonWeekend.
+  ///
+  /// In en, this message translates to:
+  /// **'for a day off worked'**
+  String get pplReasonWeekend;
 
   /// No description provided for @pplRecorded.
   ///

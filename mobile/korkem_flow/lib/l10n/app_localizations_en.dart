@@ -12612,7 +12612,71 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pplRecord => 'Save';
 
   @override
-  String get pplFillAll => 'Fill in who, how much and what for.';
+  String get pplKindAdvanceHint =>
+      'Money already handed over. Comes off the pay.';
+
+  @override
+  String get pplKindFineHint => 'Kept back for a fault. Comes off the pay.';
+
+  @override
+  String get pplKindBonusHint =>
+      'Paid on top of the earnings. Added to the pay.';
+
+  @override
+  String get pplWhyOptional => 'What for (optional)';
+
+  @override
+  String get pplWhoMissing => 'Choose who';
+
+  @override
+  String get pplAmountMissing => 'Enter an amount above zero';
+
+  @override
+  String get pplWhyMissing => 'Say what for: the person will read it';
+
+  @override
+  String get pplBalanceNow => 'To pay now';
+
+  @override
+  String get pplBalanceAfter => 'After this';
+
+  @override
+  String get pplAtOnce =>
+      'You are the owner: it counts at once, no second «Yes».';
+
+  @override
+  String get pplNeedsYes =>
+      'It is recorded and waits for another person\'s «Yes».';
+
+  @override
+  String get pplReasonAsked => 'asked for it';
+
+  @override
+  String get pplReasonTravel => 'for travel';
+
+  @override
+  String get pplReasonTillPay => 'till payday';
+
+  @override
+  String get pplReasonDefect => 'defect';
+
+  @override
+  String get pplReasonLate => 'late';
+
+  @override
+  String get pplReasonAbsent => 'absent';
+
+  @override
+  String get pplReasonMaterial => 'spoiled material';
+
+  @override
+  String get pplReasonPlan => 'for the plan';
+
+  @override
+  String get pplReasonRush => 'for a rush order';
+
+  @override
+  String get pplReasonWeekend => 'for a day off worked';
 
   @override
   String get pplRecorded => 'Saved';

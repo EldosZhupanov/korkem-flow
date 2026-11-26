@@ -12571,7 +12571,71 @@ class AppLocalizationsKk extends AppLocalizations {
   String get pplRecord => 'Жазу';
 
   @override
-  String get pplFillAll => 'Толтырыңыз: кімге, қанша, не үшін.';
+  String get pplKindAdvanceHint =>
+      'Адамның қолына берілген ақша. Жалақыдан шегеріледі.';
+
+  @override
+  String get pplKindFineHint =>
+      'Тәртіп бұзғаны үшін ұстап қалу. Жалақыдан шегеріледі.';
+
+  @override
+  String get pplKindBonusHint =>
+      'Жалақыдан тыс қосымша ақы. Жалақыға қосылады.';
+
+  @override
+  String get pplWhyOptional => 'Не үшін (жазбауға болады)';
+
+  @override
+  String get pplWhoMissing => 'Кімге екенін таңдаңыз';
+
+  @override
+  String get pplAmountMissing => 'Нөлден көп соманы жазыңыз';
+
+  @override
+  String get pplWhyMissing => 'Не үшін екенін жазыңыз: адам оны көреді';
+
+  @override
+  String get pplBalanceNow => 'Қазір төлеуге';
+
+  @override
+  String get pplBalanceAfter => 'Болады';
+
+  @override
+  String get pplAtOnce =>
+      'Сіз иесісіз: бірден жазылады, екінші «Иә» керек емес.';
+
+  @override
+  String get pplNeedsYes => 'Жазылады да, басқа адамның «Иә» деуін күтеді.';
+
+  @override
+  String get pplReasonAsked => 'өтініші бойынша';
+
+  @override
+  String get pplReasonTravel => 'жол ақысына';
+
+  @override
+  String get pplReasonTillPay => 'жалақыға дейін';
+
+  @override
+  String get pplReasonDefect => 'ақау';
+
+  @override
+  String get pplReasonLate => 'кешігу';
+
+  @override
+  String get pplReasonAbsent => 'себепсіз келмеу';
+
+  @override
+  String get pplReasonMaterial => 'материалды бүлдіру';
+
+  @override
+  String get pplReasonPlan => 'жоспар үшін';
+
+  @override
+  String get pplReasonRush => 'шұғыл тапсырыс үшін';
+
+  @override
+  String get pplReasonWeekend => 'демалыс күні үшін';
 
   @override
   String get pplRecorded => 'Жазылды';

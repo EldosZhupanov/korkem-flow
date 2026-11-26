@@ -12649,7 +12649,69 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pplRecord => 'Записать';
 
   @override
-  String get pplFillAll => 'Заполните: кому, сколько и за что.';
+  String get pplKindAdvanceHint =>
+      'Деньги, которые человек уже получил на руки. Вычтутся из зарплаты.';
+
+  @override
+  String get pplKindFineHint => 'Удержание за проступок. Вычтется из зарплаты.';
+
+  @override
+  String get pplKindBonusHint =>
+      'Доплата сверх заработка. Добавится к зарплате.';
+
+  @override
+  String get pplWhyOptional => 'За что (можно не писать)';
+
+  @override
+  String get pplWhoMissing => 'Выберите, кому';
+
+  @override
+  String get pplAmountMissing => 'Впишите сумму больше нуля';
+
+  @override
+  String get pplWhyMissing => 'Напишите, за что: человек это увидит';
+
+  @override
+  String get pplBalanceNow => 'К выплате сейчас';
+
+  @override
+  String get pplBalanceAfter => 'Станет';
+
+  @override
+  String get pplAtOnce => 'Вы владелец: запишется сразу, без второго «Да».';
+
+  @override
+  String get pplNeedsYes => 'Запишется и будет ждать «Да» другого человека.';
+
+  @override
+  String get pplReasonAsked => 'по просьбе';
+
+  @override
+  String get pplReasonTravel => 'на дорогу';
+
+  @override
+  String get pplReasonTillPay => 'до зарплаты';
+
+  @override
+  String get pplReasonDefect => 'брак';
+
+  @override
+  String get pplReasonLate => 'опоздание';
+
+  @override
+  String get pplReasonAbsent => 'прогул';
+
+  @override
+  String get pplReasonMaterial => 'порча материала';
+
+  @override
+  String get pplReasonPlan => 'за план';
+
+  @override
+  String get pplReasonRush => 'за срочный заказ';
+
+  @override
+  String get pplReasonWeekend => 'за выходной';
 
   @override
   String get pplRecorded => 'Записано';
