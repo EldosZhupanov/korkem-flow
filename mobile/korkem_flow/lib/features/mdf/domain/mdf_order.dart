@@ -933,8 +933,5 @@ class MdfCrewMember {
   /// In %; null — equal with the others.
   final double? share;
 
-  Map<String, Object> toJson() => {
-    'employee': employee,
-    if (share case final s?) 'share': s,
-  };
+  Map<String, Object> toJson() => {'employee': employee, 'share': ?share};
 }

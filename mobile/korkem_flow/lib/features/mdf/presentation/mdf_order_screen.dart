@@ -2927,11 +2927,10 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
       order: o.name,
       stage: stage,
       areaM2: o.areaM2,
-      given: [
-        ...?o.stageGivenCrew[stage]?.map((m) => m.employee),
-        if (o.stageGivenCrew[stage] == null)
-          if (o.stageGiven[stage]?.employee case final e?) e,
-      ],
+      given: switch (o.stageGivenCrew[stage]) {
+        final crew? => [for (final m in crew) m.employee],
+        null => [?o.stageGiven[stage]?.employee],
+      },
       assigning: true,
     );
     if (pick == null || !mounted) return;
