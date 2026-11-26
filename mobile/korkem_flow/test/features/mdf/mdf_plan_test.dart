@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
+import 'package:korkem_flow/features/mdf/domain/shop_board.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_plan_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tv_screen.dart';
 
@@ -59,7 +60,117 @@ final _plan = MdfPlan.fromJson(const {
   'in_work_m2': 12.64,
 });
 
+/// «Цех» (26.11.2026): the month, the stages with their people, the late.
+final _board = ShopBoard.fromJson(const {
+  'month': {
+    'plan_m2': 400,
+    'plan_from': 'due',
+    'done_m2': 260,
+    'expected_m2': 333,
+    'forecast_m2': 312,
+    'in_shop_m2': 85,
+    'in_shop_orders': 31,
+    'taken_m2': 350,
+    'taken_orders': 112,
+  },
+  'stages': [
+    {
+      'stage': 'cut',
+      'waiting_m2': 4.24,
+      'waiting_orders': 2,
+      'today_m2': 9,
+      'month_m2': 305,
+      'per_day_m2': 10,
+      'days': 0.4,
+      'posts': [
+        {
+          'post': 'cut.cutter',
+          'title': 'Раскройщик',
+          'people': [
+            {'employee': 'HR-1', 'name': 'Владимир', 'today_m2': 9, 'in_work': 3},
+          ],
+        },
+      ],
+    },
+    {
+      'stage': 'mill',
+      'waiting_m2': 24,
+      'today_m2': 6,
+      'days': 3.0,
+      'jam': true,
+      'posts': [
+        {'post': 'cnc.operator', 'title': 'ЧПУшник', 'people': <Object>[]},
+      ],
+      'nobody': true,
+    },
+    {'stage': 'sand', 'waiting_m2': 0},
+    {'stage': 'vacuum', 'waiting_m2': 9.6, 'waiting_orders': 1},
+    {'stage': 'paint', 'waiting_m2': 0},
+    {'stage': 'ready', 'waiting_m2': 11},
+  ],
+  'late': [
+    {
+      'order': 'SAL-ORD-1129',
+      'number': 1129,
+      'customer': 'Арман',
+      'stage': 'cut',
+      'delivery_date': '2026-11-10',
+      'area_m2': 3.04,
+      'overdue': true,
+    },
+  ],
+  'side': [
+    {
+      'department': 'film_sales',
+      'title': 'Продажа плёнки',
+      'sales_today': 4,
+      'metres_today': 120,
+      'posts': [
+        {'post': 'film_sales.seller', 'title': 'Продажник', 'people': <Object>[]},
+      ],
+    },
+  ],
+});
+
 void main() {
+  testWidgets('«Цех»: the month, the stages, the late; a stage shows its '
+      'orders', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfPlanProvider.overrideWith((ref) async => _plan),
+          shopBoardProvider.overrideWith((ref) async => _board),
+        ],
+        child: harness(MdfPlanScreen(today: DateTime(2026, 11, 26))),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('shop:month')), findsOne);
+    expect(find.byKey(const ValueKey('shop:flow')), findsOne);
+    expect(find.byKey(const ValueKey('stage:mill:days')), findsOne);
+    // A post with nobody on it says so.
+    expect(
+      find.byKey(const ValueKey('stage:mill:nobody:cnc.operator')),
+      findsOne,
+    );
+    expect(find.byKey(const ValueKey('shop:late:SAL-ORD-1129')), findsOne);
+    expect(find.byKey(const ValueKey('shop:side:film_sales')), findsOne);
+    // No stage tapped: no orders list yet. Tap one — its orders alone.
+    expect(find.byKey(const ValueKey('plan:cut:SAL-ORD-1129')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('stage:vacuum')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('plan:vacuum:SAL-ORD-36')), findsOne);
+    expect(find.byKey(const ValueKey('plan:cut:SAL-ORD-1129')), findsNothing);
+    expect(find.byKey(const ValueKey('shop:late')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('stage:vacuum')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('shop:late')), findsOne);
+  });
+
   testWidgets('each stage shows its orders; an empty stage is not shown', (
     tester,
   ) async {
@@ -67,9 +178,16 @@ void main() {
       ..physicalSize = const Size(1600, 2400)
       ..devicePixelRatio = 1;
     addTearDown(tester.view.reset);
+    // Until the board answers (here: never), «Жоспар» as it was.
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [mdfPlanProvider.overrideWith((ref) async => _plan)],
+        retry: (_, _) => null,
+        overrides: [
+          mdfPlanProvider.overrideWith((ref) async => _plan),
+          shopBoardProvider.overrideWith(
+            (ref) => Future<ShopBoard>.error(StateError('no board')),
+          ),
+        ],
         child: harness(const MdfPlanScreen()),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:korkem_flow/core/auth/session_controller.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_card.dart';
@@ -192,8 +193,21 @@ class _DepartmentCard extends StatelessWidget {
                     person: p,
                     canManageLogins: canManageLogins,
                   ),
-                if (team.on(post.key).isEmpty && !team.canEdit)
-                  Text(l10n.teamPostEmpty, style: theme.textTheme.bodySmall),
+                // Nobody on a post: its stage of every order stops there
+                // (owner, 26.11.2026: «пустая должность горит»).
+                if (team.on(post.key).isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
+                    child: Text(
+                      l10n.teamPostNobody,
+                      key: ValueKey('teamNobody:${post.key}'),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: context.statusColors.danger,
+                      ),
+                    ),
+                  ),
                 if (team.canEdit)
                   ActionChip(
                     key: ValueKey('teamAddTo:${post.key}'),
@@ -232,11 +246,21 @@ class _PersonChip extends StatelessWidget {
   final bool canManageLogins;
 
   @override
-  Widget build(BuildContext context) => InputChip(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return InputChip(
     key: ValueKey('teamPerson:${person.id}'),
     // A phone icon: he ticks his own stages; none: the manager ticks for him.
     avatar: Icon(person.user == null ? AppIcons.profile : AppIcons.call),
-    label: Text(person.name),
+    // Said in words, not only by the icon (owner, 26.11.2026): no login —
+    // the manager ticks for him; and how much is given to him now.
+    label: Text(
+      [
+        person.name,
+        if (person.inWork > 0) l10n.teamInWork(person.inWork),
+        if (person.user == null) l10n.teamNoLogin,
+      ].join(' · '),
+    ),
     onPressed: team.canEdit || canManageLogins
         ? () => showTeamPersonDialog(
             context,
@@ -246,6 +270,7 @@ class _PersonChip extends StatelessWidget {
           )
         : null,
   );
+  }
 }
 
 /// A person: new ([person] null, on [post] if given) or changed.

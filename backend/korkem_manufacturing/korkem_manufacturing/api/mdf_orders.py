@@ -431,3 +431,19 @@ def _ensure_mode(method: str) -> None:
 		{"doctype": "Mode of Payment", "mode_of_payment": method, "type": "Cash" if method == "Наличные" else "Bank",
 		 "enabled": 1}
 	).insert(ignore_permissions=True)
+
+
+@frappe.whitelist(methods=["GET"])
+def board(day: str | None = None) -> dict:
+	"""«Цех»: план и факт месяца, шаги по ходу заказа с м² и людьми, опаздывающие заказы."""
+	from korkem_manufacturing.services import shop_board
+
+	return shop_board.board(day)
+
+
+@frappe.whitelist(methods=["POST"])
+def set_shop_target(m2: float | str | None = None) -> dict:
+	"""План цеха на месяц в м² сделанного; пусто — заказы со сроком в этом месяце."""
+	from korkem_manufacturing.services import shop_board
+
+	return shop_board.set_target(m2)

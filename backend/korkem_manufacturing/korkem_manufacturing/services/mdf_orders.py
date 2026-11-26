@@ -755,8 +755,16 @@ def _tick(order: str, stage: str, done=True, worker: str | None = None) -> None:
 		if frappe.db.get_value("Employee", worker, "company") != doc.company:
 			frappe.throw("Такого сотрудника в компании нет.")
 	elif done:
-		# Not said who: the one it was given to did it.
+		# Not said who: the one it was given to did it — or, given to nobody,
+		# the one person on its post (owner, 26.11.2026: a tick with no name
+		# counts for the stage and for nobody, so «Цех» and a worker's month
+		# would disagree). Several on the post: still nobody — not a guess.
 		worker = doc.get(STAGE_TO[stage]) or None
+		if not worker:
+			from korkem_manufacturing.services import team
+
+			people = team.holders(team.posts_for_stage(stage, doc.get("korkem_coatings")), doc.company)
+			worker = people[0]["employee"] if len(people) == 1 else None
 	needed = stages_of(doc)
 	if stage not in needed:
 		frappe.throw("У этого заказа такого этапа нет — добавьте его кнопкой «+ этап».")

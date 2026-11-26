@@ -17,6 +17,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_plan.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_ready.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_report.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_volume.dart';
+import 'package:korkem_flow/features/mdf/domain/shop_board.dart';
 
 final mdfOrderRepositoryProvider = Provider<MdfOrderRepository>(
   (ref) => MdfOrderRepository(
@@ -56,6 +57,12 @@ final mdfOverviewProvider = FutureProvider.autoDispose<MdfOverview>(
 // ignore: specify_nonobvious_property_types
 final mdfPlanProvider = FutureProvider.autoDispose<MdfPlan>(
   (ref) => ref.watch(mdfOrderRepositoryProvider).plan(),
+);
+
+/// «Цех» (owner, 26.11.2026): the month's plan and fact, each stage with
+/// its m² and people, the late orders.
+final shopBoardProvider = FutureProvider.autoDispose<ShopBoard>(
+  (ref) => ref.watch(mdfOrderRepositoryProvider).board(),
 );
 
 /// The days a cash book or a report covers, both ends included (`yyyy-MM-dd`).
@@ -284,6 +291,17 @@ class MdfOrderRepository {
   /// «Жоспар»: what waits at each stage, and the intake by day.
   Future<MdfPlan> plan() async =>
       MdfPlan.fromJson(_map(await _client.callMethod('$_base.plan')));
+
+  /// «Цех»: the month, the stages, the late orders.
+  Future<ShopBoard> board() async =>
+      ShopBoard.fromJson(_map(await _client.callMethod('$_base.board')));
+
+  /// The shop's month goal in m² made; null — the orders due this month.
+  Future<void> setShopTarget(double? m2) => _client.callMethod(
+    '$_base.set_shop_target',
+    post: true,
+    params: {'m2': m2 ?? ''},
+  );
 
   /// When an order of [areas] — m² by coating, `{'pvc': 2.4}` — would be
   /// ready, from the shop's load; [order] is not counted ahead of itself.

@@ -131,7 +131,8 @@ def people(include_left: bool = False) -> dict:
 		# Someone who may not read the logins still sees the people.
 		frappe.clear_last_message()
 		logins = {}
-	out = [_person(r, logins.get(r.user_id)) for r in rows]
+	busy = in_work(company)
+	out = [{**_person(r, logins.get(r.user_id)), "in_work": busy.get(r.name, 0)} for r in rows]
 	linked = set(frappe.get_all("Employee", filters={"user_id": ["is", "set"]}, pluck="user_id"))
 	for email, member in logins.items():
 		if email not in linked and (include_left or member["enabled"]):
@@ -142,6 +143,22 @@ def people(include_left: bool = False) -> dict:
 		"can_edit": can_edit(),
 		**structure(),
 	}
+
+
+def in_work(company: str) -> dict[str, int]:
+	"""How many open order stages are given to each person — «в работе N»
+	beside his name (owner, 26.11.2026)."""
+	from korkem_manufacturing.services import directions, mdf_orders
+
+	counts: dict[str, int] = {}
+	for stage, field in mdf_orders.STAGES.items():
+		to = mdf_orders.STAGE_TO[stage]
+		for person in frappe.get_all("Sales Order", filters={
+				"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
+				to: ["is", "set"], field: ["is", "not set"], "korkem_handed_over_on": ["is", "not set"]},
+				pluck=to, limit_page_length=0):
+			counts[person] = counts.get(person, 0) + 1
+	return counts
 
 
 def _login(member: dict | None) -> dict | None:

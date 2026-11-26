@@ -18,6 +18,8 @@ import 'package:korkem_flow/features/client_card/presentation/rating_screen.dart
 import 'package:korkem_flow/features/costs/data/costs_repository.dart';
 import 'package:korkem_flow/features/costs/presentation/costs_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_plan_screen.dart';
 import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
@@ -28,6 +30,7 @@ import 'package:korkem_flow/features/team/presentation/team_departments_view.dar
 import '../support/widget_harness.dart';
 import 'fake_costs.dart';
 import 'fake_people.dart';
+import 'fake_shop.dart';
 
 /// How a screen is looked at: its size, its theme, its language.
 typedef _Look = ({
@@ -96,6 +99,8 @@ final Map<String, (Widget, List<String>)> _screens = {
   ),
   // «Отделы» — what «Команда» was, the first tab of «Сотрудники».
   'people_departments': (PeopleScreen(today: DateTime(2026, 11, 25)), const []),
+  // «Цех» — the board that grew out of «Жоспар» (26.11.2026).
+  'shop': (MdfPlanScreen(today: DateTime(2026, 11, 26)), const []),
   // «Деньги» — the list that replaced «Ведомость» (26.11.2026); October
   // is over, so «Отдать» shows; the entry dialog too.
   'people_money': (
@@ -147,6 +152,8 @@ void main() {
               costsRepositoryProvider.overrideWithValue(FakeCosts()),
               peopleReportRepositoryProvider.overrideWithValue(FakePeople()),
               teamPeopleProvider.overrideWith((ref) async => fakeTeam),
+              mdfPlanProvider.overrideWith((ref) async => fakePlan),
+              shopBoardProvider.overrideWith((ref) async => fakeBoard),
               canInviteProvider.overrideWith((ref) async => true),
               teamMembersProvider.overrideWith((ref) async => const []),
             ],
