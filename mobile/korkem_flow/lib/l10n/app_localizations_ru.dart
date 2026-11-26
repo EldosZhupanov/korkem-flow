@@ -8094,6 +8094,69 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfPaintTitle => 'Отдел краски';
 
   @override
+  String mdfPaintBatchDry(int n) {
+    return 'Покрасили партию — на сушку ($n)';
+  }
+
+  @override
+  String mdfPaintLate(int days) {
+    return 'просрочен $days дн.';
+  }
+
+  @override
+  String get mdfPaintCheckOrder => 'нет цвета или размеров — проверьте заказ';
+
+  @override
+  String get mdfPaintFigComing => 'Едет в покраску';
+
+  @override
+  String get mdfPaintFigToPaint => 'Красить сейчас';
+
+  @override
+  String get mdfPaintFigDrying => 'Сохнет';
+
+  @override
+  String mdfPaintFigDry(int n) {
+    return 'высохли: $n';
+  }
+
+  @override
+  String get mdfPaintFigShort => 'Не хватит краски';
+
+  @override
+  String mdfPaintFigOrders(int n) {
+    return 'заказов: $n';
+  }
+
+  @override
+  String mdfPaintMonthKg(String kg) {
+    return '≈ $kg кг в месяц';
+  }
+
+  @override
+  String paintShortFold(int count, String kg) {
+    return 'Не хватает для очереди: $count поз. · ≈ $kg кг';
+  }
+
+  @override
+  String get paintShortList => 'Собрать закупку';
+
+  @override
+  String get paintShortShow => 'Показать все';
+
+  @override
+  String paintShortLine(String name, String kg) {
+    return '$name — $kg кг';
+  }
+
+  @override
+  String get paintShortCopy => 'Скопировать';
+
+  @override
+  String get paintShortCopied =>
+      'Закупка скопирована — вставьте её в сообщение поставщику';
+
+  @override
   String get mdfPaintHint => 'Что красить по цветам, что сохнет';
 
   @override
@@ -8101,11 +8164,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfPaintEmpty => 'Красить нечего';
-
-  @override
-  String mdfPaintSummary(String waiting, String drying, String coming) {
-    return 'Красить $waiting · сохнет $drying · едет $coming';
-  }
 
   @override
   String mdfPaintDrying(int hours) {

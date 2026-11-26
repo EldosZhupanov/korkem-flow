@@ -8032,6 +8032,69 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfPaintTitle => 'Бояу бөлімі';
 
   @override
+  String mdfPaintBatchDry(int n) {
+    return 'Партия боялды — кептіруге ($n)';
+  }
+
+  @override
+  String mdfPaintLate(int days) {
+    return '$days күн кешікті';
+  }
+
+  @override
+  String get mdfPaintCheckOrder => 'түсі не өлшемі жоқ — тапсырысты тексеріңіз';
+
+  @override
+  String get mdfPaintFigComing => 'Бояуға келе жатыр';
+
+  @override
+  String get mdfPaintFigToPaint => 'Қазір бояу';
+
+  @override
+  String get mdfPaintFigDrying => 'Кебуде';
+
+  @override
+  String mdfPaintFigDry(int n) {
+    return 'кепті: $n';
+  }
+
+  @override
+  String get mdfPaintFigShort => 'Бояу жетпейді';
+
+  @override
+  String mdfPaintFigOrders(int n) {
+    return 'тапсырыс: $n';
+  }
+
+  @override
+  String mdfPaintMonthKg(String kg) {
+    return 'айына ≈ $kg кг';
+  }
+
+  @override
+  String paintShortFold(int count, String kg) {
+    return 'Кезекке жетпейді: $count поз. · ≈ $kg кг';
+  }
+
+  @override
+  String get paintShortList => 'Сатып алуды жинау';
+
+  @override
+  String get paintShortShow => 'Барлығын көрсету';
+
+  @override
+  String paintShortLine(String name, String kg) {
+    return '$name — $kg кг';
+  }
+
+  @override
+  String get paintShortCopy => 'Көшіру';
+
+  @override
+  String get paintShortCopied =>
+      'Сатып алу көшірілді — жеткізушіге хабарламаға қойыңыз';
+
+  @override
   String get mdfPaintHint => 'Түс бойынша не бояу керек, не кебуде';
 
   @override
@@ -8039,11 +8102,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPaintEmpty => 'Бояйтын ештеңе жоқ';
-
-  @override
-  String mdfPaintSummary(String waiting, String drying, String coming) {
-    return 'Бояу $waiting · кебуде $drying · келе жатыр $coming';
-  }
 
   @override
   String mdfPaintDrying(int hours) {

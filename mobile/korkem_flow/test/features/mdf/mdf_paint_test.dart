@@ -176,7 +176,9 @@ void main() {
         .widget<Text>(find.byKey(ValueKey('figure:paint:$id:value')))
         .data!;
     expect(
-      [for (final id in ['toPaint', 'drying', 'coming']) figure(id)],
+      [
+        for (final id in ['toPaint', 'drying', 'coming']) figure(id),
+      ],
       ['6.30 м²', '2', '4.00 м²'],
     );
     // The biggest batch is picked: its orders are listed, the other's not.

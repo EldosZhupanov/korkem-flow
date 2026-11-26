@@ -225,37 +225,37 @@ class _PaintStockSectionState extends ConsumerState<PaintStockSection> {
           ),
         for (final m in stock.materials)
           if (!folded || m.shortKg <= 0)
-          ReadableWidth(
-            child: ListTile(
-              key: ValueKey('paintMaterial:${m.name}'),
-              dense: true,
-              leading: Icon(
-                m.shortKg > 0 ? AppIcons.warning : AppIcons.success,
-                color: m.shortKg > 0 ? status.danger : status.success,
+            ReadableWidth(
+              child: ListTile(
+                key: ValueKey('paintMaterial:${m.name}'),
+                dense: true,
+                leading: Icon(
+                  m.shortKg > 0 ? AppIcons.warning : AppIcons.success,
+                  color: m.shortKg > 0 ? status.danger : status.success,
+                ),
+                title: Text(m.name),
+                subtitle: Text(
+                  [
+                    l10n.paintMaterialNeed(
+                      _kgText(m.needKg),
+                      _kgText(m.onHandKg),
+                    ),
+                    if (m.shortKg > 0)
+                      l10n.paintShort(_kgText(m.shortKg))
+                    else
+                      l10n.paintEnough,
+                  ].join(' · '),
+                  style: TextStyle(color: m.shortKg > 0 ? status.danger : null),
+                ),
+                trailing: m.shortKg > 0
+                    ? TextButton(
+                        key: ValueKey('paintMaterialBuy:${m.name}'),
+                        onPressed: () => receive(base: m.name),
+                        child: Text(l10n.paintReceiveShort),
+                      )
+                    : null,
               ),
-              title: Text(m.name),
-              subtitle: Text(
-                [
-                  l10n.paintMaterialNeed(
-                    _kgText(m.needKg),
-                    _kgText(m.onHandKg),
-                  ),
-                  if (m.shortKg > 0)
-                    l10n.paintShort(_kgText(m.shortKg))
-                  else
-                    l10n.paintEnough,
-                ].join(' · '),
-                style: TextStyle(color: m.shortKg > 0 ? status.danger : null),
-              ),
-              trailing: m.shortKg > 0
-                  ? TextButton(
-                      key: ValueKey('paintMaterialBuy:${m.name}'),
-                      onPressed: () => receive(base: m.name),
-                      child: Text(l10n.paintReceiveShort),
-                    )
-                  : null,
             ),
-          ),
         if (stock.paints.isEmpty)
           ReadableWidth(
             child: Padding(

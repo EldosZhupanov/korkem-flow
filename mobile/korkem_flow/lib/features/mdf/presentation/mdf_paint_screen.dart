@@ -240,9 +240,10 @@ class _BoardState extends ConsumerState<_Board> {
         // The whole colour painted: its orders go to dry together.
         if (picked != null)
           if ([
-            for (final o in picked.orders)
-              if (!o.marks.waitingPaint) o,
-          ] case final batch when batch.length > 1)
+                for (final o in picked.orders)
+                  if (!o.marks.waitingPaint) o,
+              ]
+              case final batch when batch.length > 1)
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: FilledButton.icon(
@@ -351,11 +352,13 @@ class _BoardState extends ConsumerState<_Board> {
               if (c.colours.isNotEmpty) c.colours.join(', '),
               _m2(c.areaM2),
               mdfDay(c.deliveryDate, year: false),
-              if (_lateDays(c.deliveryDate, today) case final late? when late > 0)
+              if (_lateDays(c.deliveryDate, today) case final late?
+                  when late > 0)
                 l10n.mdfPaintLate(late),
             ].join(' · '),
-            detailColor:
-                (_lateDays(c.deliveryDate, today) ?? 0) > 0 ? status.danger : null,
+            detailColor: (_lateDays(c.deliveryDate, today) ?? 0) > 0
+                ? status.danger
+                : null,
             marks: c.marks,
             check: c.colours.isEmpty || c.areaM2 <= 0
                 ? l10n.mdfPaintCheckOrder
@@ -445,9 +448,11 @@ class _BoardState extends ConsumerState<_Board> {
               : ReadableWidth(
                   child: column([
                     ...painting,
-                    if (drying.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                    if (drying.isNotEmpty)
+                      const SizedBox(height: AppSpacing.md),
                     ...drying,
-                    if (coming.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                    if (coming.isNotEmpty)
+                      const SizedBox(height: AppSpacing.md),
                     ...coming,
                   ]),
                 ),

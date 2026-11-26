@@ -13903,6 +13903,102 @@ abstract class AppLocalizations {
   /// **'Paint shop'**
   String get mdfPaintTitle;
 
+  /// No description provided for @mdfPaintBatchDry.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch painted — to dry ({n})'**
+  String mdfPaintBatchDry(int n);
+
+  /// No description provided for @mdfPaintLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d late'**
+  String mdfPaintLate(int days);
+
+  /// No description provided for @mdfPaintCheckOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'no colour or size — check the order'**
+  String get mdfPaintCheckOrder;
+
+  /// No description provided for @mdfPaintFigComing.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way to paint'**
+  String get mdfPaintFigComing;
+
+  /// No description provided for @mdfPaintFigToPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'To paint now'**
+  String get mdfPaintFigToPaint;
+
+  /// No description provided for @mdfPaintFigDrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Drying'**
+  String get mdfPaintFigDrying;
+
+  /// No description provided for @mdfPaintFigDry.
+  ///
+  /// In en, this message translates to:
+  /// **'dry: {n}'**
+  String mdfPaintFigDry(int n);
+
+  /// No description provided for @mdfPaintFigShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint short'**
+  String get mdfPaintFigShort;
+
+  /// No description provided for @mdfPaintFigOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'orders: {n}'**
+  String mdfPaintFigOrders(int n);
+
+  /// No description provided for @mdfPaintMonthKg.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {kg} kg a month'**
+  String mdfPaintMonthKg(String kg);
+
+  /// No description provided for @paintShortFold.
+  ///
+  /// In en, this message translates to:
+  /// **'Short for the queue: {count} items · ≈ {kg} kg'**
+  String paintShortFold(int count, String kg);
+
+  /// No description provided for @paintShortList.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a shopping list'**
+  String get paintShortList;
+
+  /// No description provided for @paintShortShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get paintShortShow;
+
+  /// No description provided for @paintShortLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — {kg} kg'**
+  String paintShortLine(String name, String kg);
+
+  /// No description provided for @paintShortCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get paintShortCopy;
+
+  /// No description provided for @paintShortCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping list copied — paste it into a message to the supplier'**
+  String get paintShortCopied;
+
   /// No description provided for @mdfPaintHint.
   ///
   /// In en, this message translates to:
@@ -13920,12 +14016,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing to paint'**
   String get mdfPaintEmpty;
-
-  /// No description provided for @mdfPaintSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'To paint {waiting} · drying {drying} · on the way {coming}'**
-  String mdfPaintSummary(String waiting, String drying, String coming);
 
   /// No description provided for @mdfPaintDrying.
   ///

@@ -8068,6 +8068,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfPaintTitle => 'Paint shop';
 
   @override
+  String mdfPaintBatchDry(int n) {
+    return 'Batch painted — to dry ($n)';
+  }
+
+  @override
+  String mdfPaintLate(int days) {
+    return '$days d late';
+  }
+
+  @override
+  String get mdfPaintCheckOrder => 'no colour or size — check the order';
+
+  @override
+  String get mdfPaintFigComing => 'On the way to paint';
+
+  @override
+  String get mdfPaintFigToPaint => 'To paint now';
+
+  @override
+  String get mdfPaintFigDrying => 'Drying';
+
+  @override
+  String mdfPaintFigDry(int n) {
+    return 'dry: $n';
+  }
+
+  @override
+  String get mdfPaintFigShort => 'Paint short';
+
+  @override
+  String mdfPaintFigOrders(int n) {
+    return 'orders: $n';
+  }
+
+  @override
+  String mdfPaintMonthKg(String kg) {
+    return '≈ $kg kg a month';
+  }
+
+  @override
+  String paintShortFold(int count, String kg) {
+    return 'Short for the queue: $count items · ≈ $kg kg';
+  }
+
+  @override
+  String get paintShortList => 'Make a shopping list';
+
+  @override
+  String get paintShortShow => 'Show all';
+
+  @override
+  String paintShortLine(String name, String kg) {
+    return '$name — $kg kg';
+  }
+
+  @override
+  String get paintShortCopy => 'Copy';
+
+  @override
+  String get paintShortCopied =>
+      'Shopping list copied — paste it into a message to the supplier';
+
+  @override
   String get mdfPaintHint => 'What to paint by colour, what is drying';
 
   @override
@@ -8075,11 +8138,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPaintEmpty => 'Nothing to paint';
-
-  @override
-  String mdfPaintSummary(String waiting, String drying, String coming) {
-    return 'To paint $waiting · drying $drying · on the way $coming';
-  }
 
   @override
   String mdfPaintDrying(int hours) {
