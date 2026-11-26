@@ -7,6 +7,7 @@ import 'package:korkem_flow/core/navigation/app_router.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
 import 'package:korkem_flow/features/film_dept/domain/film_dept.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_dictionaries.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_margin.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_ready.dart';
@@ -502,6 +503,53 @@ class _FilmToBuy extends _FakeRepository {
 }
 
 void main() {
+  testWidgets('a textured film asks which way its pattern runs (26.11.2026)', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _TwoFilms();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfOrderRepositoryProvider.overrideWithValue(repo),
+          mdfDictionariesProvider.overrideWith(
+            (ref) async =>
+                const MdfDictionaries({}, texturedFilms: {'Палома'}),
+          ),
+        ],
+        child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // Палома is textured: its positions ask; Белый Матовый does not.
+    expect(find.byKey(const ValueKey('mdfGrain:0')), findsNothing);
+    expect(find.byKey(const ValueKey('mdfGrain:1')), findsOneWidget);
+    expect(find.text('along height'), findsNWidgets(2));
+    await tester.tap(find.byKey(const ValueKey('mdfGrain:1')));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(find.text('along width'), findsOneWidget);
+    final sent = repo.pricedLines.last;
+    expect(sent[1].toJson()['grain'], 'width');
+    expect(sent[2].toJson().containsKey('grain'), isFalse);
+    // The server's answer reads back.
+    expect(
+      MdfLine.fromJson(const {
+        'height_mm': 140,
+        'width_mm': 596,
+        'qty': 2,
+        'area_m2': 0.17,
+        'rate_m2': 0,
+        'amount': 0,
+        'grain': 'width',
+      }).grainWidth,
+      isTrue,
+    );
+  });
+
   testWidgets('a film not on the shelf says so, and whom it comes from', (
     tester,
   ) async {

@@ -13,8 +13,11 @@ cutting2 until now.
 double-sided one) are placed on the table's working area — less a margin at
 the edge, with a gap between parts, all in the company's settings. A **plain
 film** may be turned 90°; a **textured** one may not («Текстурная» on the
-film's card): its parts keep the order's orientation — width along the table,
-height across — so the texture runs the same way on every facade.
+film's card): its pattern runs along the roll, and so along the table, and
+every part lies with its pattern that way — its height along the table, or
+its width when the order says the pattern runs «по ширине» (owner,
+26.11.2026: a drawer front). Such a part is shown turned from the order's
+way, which is what it is.
 
 **The section.** Each load takes the shortest section that holds what is left.
 What does not fit even the whole table goes on another load. A facade larger
@@ -73,6 +76,9 @@ class Part:
 	pos: int
 	width: int
 	height: int
+	#: A textured film's part: which of its sides the pattern runs along —
+	#: "height" or "width"; "" for a plain film, which may turn either way.
+	grain: str = ""
 
 
 @dataclass
@@ -426,10 +432,12 @@ def order_layout(sales_order: str) -> dict:
 	films = []
 	for decor, parts in groups.items():
 		textured = is_textured(decor, order.company)
-		loads, too_big = best_plan(parts, press, rotate=not textured)
+		laid, turned = _laid(parts)
+		loads, too_big = best_plan(laid, press, rotate=not textured)
+		loads = _marked(loads, turned)
 		layout_m = round(sum(load.film_m for load in loads), 2)
 		# What the plain layout would take — the smart one's saving is shown.
-		plain_m = round(sum(load.film_m for load in plan(parts, press, rotate=not textured)[0]), 2)
+		plain_m = round(sum(load.film_m for load in plan(laid, press, rotate=not textured)[0]), 2)
 		fix = corrections.get(decor)
 		# A layout a person made (owner, 12.11.2026) holds while the parts are
 		# the ones it was made for; the order changed — it is the press's again.
@@ -480,7 +488,36 @@ _APPROVED = "korkem_press_approved"
 
 def parts_key(parts: list[Part]) -> str:
 	"""What the parts are — a layout made for them holds only while it is so."""
-	return _digest(";".join(sorted(f"{p.pos}:{p.width}x{p.height}" for p in parts)))
+	return _digest(";".join(sorted(f"{p.pos}:{p.width}x{p.height}{_grain_mark(p)}" for p in parts)))
+
+
+def _grain_mark(p: Part) -> str:
+	# A plain film's key is as it always was, so its checked layouts stand.
+	return f"/{p.grain}" if p.grain else ""
+
+
+def _laid(parts: list[Part]) -> tuple[list[Part], set[int]]:
+	"""A textured film's parts as they lie: the side the pattern runs along
+	goes along the table. The positions turned from the order's way."""
+	laid, turned = [], set()
+	for p in parts:
+		if p.grain == "height":
+			laid.append(Part(p.pos, p.height, p.width, p.grain))
+			turned.add(p.pos)
+		else:
+			laid.append(p)
+	return laid, turned
+
+
+def _marked(loads: list[Load], turned: set[int]) -> list[Load]:
+	"""The loads with each part said turned from the order's way when it was."""
+	if not turned:
+		return loads
+	return [
+		Load(film_m=load.film_m, length_mm=load.length_mm,
+			 placed=[Placed(p.pos, p.x, p.y, p.width, p.height, p.rotated != (p.pos in turned)) for p in load.placed])
+		for load in loads
+	]
 
 
 def _order_key(groups: dict[str, list[Part]]) -> str:
@@ -527,8 +564,8 @@ def check_layout(parts: list[Part], loads, press: dict, rotate: bool) -> list[Lo
 				frappe.throw(f"Загрузка {n}: позиции {pos} в заказе нет или она уже разложена.")
 			part = left[pos].pop()
 			rotated = bool(item.get("rotated"))
-			if rotated and not rotate:
-				frappe.throw(f"Загрузка {n}: текстурную плёнку не поворачивают (позиция {pos}).")
+			if not rotate and rotated != (part.grain == "height"):
+				frappe.throw(f"Загрузка {n}: текстурную плёнку кладут рисунком вдоль стола (позиция {pos}).")
 			w, h = (part.height, part.width) if rotated else (part.width, part.height)
 			x, y = cint(item.get("x")), cint(item.get("y"))
 			if x < margin or y < margin or y + h > width - margin:
@@ -646,6 +683,8 @@ def preview(sales_order: str, decor: str, press=None, level: str = "smart", dire
 	tuned = tuned_press(press_settings(company), press)
 	textured = is_textured(decor, company)
 	turn = not textured and str(rotate).lower() not in ("0", "false", "")
+	# A textured film lies with its pattern along the table, whatever is asked.
+	parts, turned = _laid(parts)
 	# Laid one way: each part turned so its long side runs as asked, and
 	# then not turned again. A textured film keeps the order's way always.
 	swapped: set[int] = set()
@@ -668,6 +707,7 @@ def preview(sales_order: str, decor: str, press=None, level: str = "smart", dire
 			if p.pos in swapped:
 				# Turned against the order's way, as the map and the check read it.
 				p.rotated = not p.rotated
+	loads = _marked(loads, turned)
 	now = next((f for f in order_layout(sales_order)["films"] if f["decor"] == decor), None)
 	return {
 		"decor": decor,
@@ -770,6 +810,19 @@ def set_film_metres(sales_order: str, decor: str, film_m=None, reason: str | Non
 	return order_layout(sales_order)
 
 
+def textured_decors(company: str) -> list[str]:
+	"""The film colours marked «Текстурная», for the order form to ask which
+	way the pattern runs."""
+	return sorted({
+		r.korkem_color for r in frappe.get_all(
+			"Item",
+			filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
+					 "korkem_film_textured": 1, "disabled": 0},
+			fields=["korkem_color"], limit_page_length=0,
+		) if r.korkem_color
+	})
+
+
 def is_textured(decor: str, company: str) -> bool:
 	"""A film of this decor marked «Текстурная» on its card: its parts never turn."""
 	return bool(
@@ -783,11 +836,13 @@ def is_textured(decor: str, company: str) -> bool:
 
 def _parts_by_decor(sales_order: str) -> dict[str, list[Part]]:
 	groups: dict[str, list[Part]] = {}
+	company = frappe.db.get_value("Sales Order", sales_order, "company")
+	textured = set(textured_decors(company)) if company else set()
 	for line in frappe.get_all(
 		"Sales Order Item",
 		filters={"parent": sales_order, "parenttype": "Sales Order", "korkem_width_mm": [">", 0]},
 		fields=["idx", "qty", "korkem_width_mm", "korkem_height_mm", "korkem_finish", "korkem_double_sided",
-				"korkem_customer_material", "korkem_decor_top", "korkem_decor_bottom"],
+				"korkem_customer_material", "korkem_decor_top", "korkem_decor_bottom", "korkem_grain"],
 		order_by="idx",
 	):
 		film = facade_prices.is_film(line.korkem_finish) or (not line.korkem_finish and line.korkem_decor_top)
@@ -799,7 +854,9 @@ def _parts_by_decor(sales_order: str) -> dict[str, list[Part]]:
 		for decor in faces:
 			if not decor:
 				continue
+			grain = ("width" if line.korkem_grain == "width" else "height") if decor in textured else ""
 			groups.setdefault(decor, []).extend(
-				Part(cint(line.idx), cint(line.korkem_width_mm), cint(line.korkem_height_mm)) for _ in range(cint(line.qty))
+				Part(cint(line.idx), cint(line.korkem_width_mm), cint(line.korkem_height_mm), grain)
+				for _ in range(cint(line.qty))
 			)
 	return groups

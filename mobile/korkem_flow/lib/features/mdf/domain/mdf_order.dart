@@ -297,6 +297,7 @@ class MdfLineInput {
     this.clientFilm = false,
     this.clientMdf = false,
     this.gloss,
+    this.grainWidth = false,
   });
 
   final int heightMm;
@@ -304,6 +305,10 @@ class MdfLineInput {
   final int qty;
   final String? milling;
   final String? note;
+
+  /// A textured film's pattern runs along its width, not its height (owner,
+  /// 26.11.2026: a drawer front) — the press lays it so.
+  final bool grainWidth;
 
   /// Its paint group's finish — matt, gloss… (owner, 15.11.2026): the paint
   /// shop's mark, not a price.
@@ -356,6 +361,7 @@ class MdfLineInput {
     if (clientFilm) 'client_film': 1,
     if (clientMdf) 'client_mdf': 1,
     if (coating == MdfCoating.paint) 'gloss': ?gloss?.wire,
+    if (grainWidth) 'grain': 'width',
   };
 }
 
@@ -385,6 +391,7 @@ class MdfLine {
     this.clientMdf = false,
     this.gloss,
     this.glueKg,
+    this.grainWidth = false,
   });
 
   factory MdfLine.fromJson(Map<String, dynamic> json) => MdfLine(
@@ -410,6 +417,7 @@ class MdfLine {
     clientMdf: json['client_mdf'] == true,
     gloss: MdfGloss.parse(json['gloss']),
     glueKg: json['glue_kg'] == null ? null : _d(json['glue_kg']),
+    grainWidth: json['grain'] == 'width',
   );
 
   final int heightMm;
@@ -438,6 +446,9 @@ class MdfLine {
 
   /// The PVC glue this position takes, by the glue in work (17.11.2026).
   final double? glueKg;
+
+  /// A textured film's pattern runs along its width (26.11.2026).
+  final bool grainWidth;
 }
 
 /// A paint group's finish (owner, 15.11.2026: «вид покрытия»).
@@ -873,6 +884,7 @@ class MdfFilmPress {
     this.tooBig = 0,
     this.manual = false,
     this.approvedBy,
+    this.textured = false,
   });
 
   factory MdfFilmPress.fromJson(Map<String, dynamic> json) => MdfFilmPress(
@@ -886,7 +898,11 @@ class MdfFilmPress {
     approvedBy: json['approved'] is Map
         ? (json['approved'] as Map)['by']?.toString()
         : null,
+    textured: json['textured'] == true,
   );
+
+  /// A textured film: its group says so, the press lays it pattern along.
+  final bool textured;
 
   final double filmM;
   final double layoutM;

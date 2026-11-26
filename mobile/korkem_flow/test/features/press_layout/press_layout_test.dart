@@ -261,6 +261,11 @@ void main() {
       find.byKey(const ValueKey('pressMap:AS 1804-SFT Какао нубук:0')),
     );
     expect(map.highlight, 4);
+    // Beside each map, what goes on that load (owner, 26.11.2026).
+    expect(
+      find.byKey(const ValueKey('pressOnLoad:AS 1804-SFT Какао нубук:0')),
+      findsOneWidget,
+    );
     expect(
       pressPositions(
         OrderPressLayout.fromJson(_layout()).films.last,

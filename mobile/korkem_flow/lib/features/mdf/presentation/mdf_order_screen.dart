@@ -175,6 +175,7 @@ class _LineFields {
     this.clientFilm = false,
     this.clientMdf = false,
     this.gloss,
+    this.grainWidth = false,
     Set<_Extra>? extras,
   }) : height = TextEditingController(text: h),
        width = TextEditingController(text: w),
@@ -210,6 +211,9 @@ class _LineFields {
 
   /// Its paint group's finish — matt, gloss… (owner, 15.11.2026).
   MdfGloss? gloss;
+
+  /// A textured film's pattern runs along its width (owner, 26.11.2026).
+  bool grainWidth;
 
   /// Its back film; null — one-sided.
   String? filmBack;
@@ -265,6 +269,8 @@ class _LineFields {
       clientFilm: clientFilm && coating == MdfCoating.pvc,
       clientMdf: clientMdf,
       gloss: coating == MdfCoating.paint ? gloss : null,
+      grainWidth:
+          grainWidth && coating != MdfCoating.paint && coating != MdfCoating.raw,
     );
   }
 
@@ -286,6 +292,7 @@ class _LineFields {
     clientFilm: clientFilm,
     clientMdf: clientMdf,
     gloss: gloss,
+    grainWidth: grainWidth,
     extras: {...extras},
   );
 
@@ -394,6 +401,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
             clientFilm: l.clientFilm,
             clientMdf: l.clientMdf,
             gloss: l.gloss,
+            grainWidth: l.grainWidth,
           ),
         );
       }
@@ -565,6 +573,7 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
               clientFilm: l.clientFilm,
               clientMdf: l.clientMdf,
               gloss: l.gloss,
+              grainWidth: l.grainWidth,
             ),
           );
         }
@@ -1604,6 +1613,11 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
                             headMaterial: _head.material,
                             // One position: the group's mark says it all.
                             ownMdfChip: mates.length > 1,
+                            textured:
+                                film != null &&
+                                dicts.texturedFilms.contains(film) &&
+                                group.coating != MdfCoating.paint &&
+                                group.coating != MdfCoating.raw,
                             groupRate: _rateOf(film).text.trim(),
                             isLast:
                                 g == _films.length - 1 && i == mates.length - 1,
@@ -2308,8 +2322,12 @@ class _LineRow extends StatelessWidget {
     required this.onDown,
     this.ownMdfChip = true,
     this.variants = const {},
+    this.textured = false,
     super.key,
   });
+
+  /// Its film is textured: the row asks which way the pattern runs.
+  final bool textured;
 
   /// The position's own «клиента» tick — not when it is the group's only
   /// position, where the group's «ЛМДФ клиента» says the same.
@@ -2625,6 +2643,31 @@ class _LineRow extends StatelessWidget {
               ),
               cell('mdfW', l10n.mdfWidth, line.width, 80),
               cell('mdfQ', l10n.mdfQty, line.qty, 56),
+              // Which way a textured film's pattern runs (owner,
+              // 26.11.2026): by height, the usual; a tap — by width.
+              if (textured)
+                Tooltip(
+                  message: l10n.mdfGrainHint,
+                  child: OutlinedButton.icon(
+                    key: ValueKey('mdfGrain:$index'),
+                    style: OutlinedButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      foregroundColor: line.grainWidth ? warn : null,
+                      side: line.grainWidth ? BorderSide(color: warn) : null,
+                    ),
+                    onPressed: () {
+                      line.grainWidth = !line.grainWidth;
+                      onChanged();
+                    },
+                    icon: Icon(
+                      line.grainWidth ? AppIcons.grainWidth : AppIcons.grainHeight,
+                      size: AppIconSize.small,
+                    ),
+                    label: Text(
+                      line.grainWidth ? l10n.mdfGrainWidth : l10n.mdfGrainHeight,
+                    ),
+                  ),
+                ),
               drop(
                 'mdfLineMilling',
                 l10n.mdfMilling,
@@ -3814,6 +3857,7 @@ Widget _linesTable(
                       line,
                       back: l10n.mdfBackSideShort,
                       patina: l10n.mdfPatina,
+                      grainWidth: l10n.mdfGrainWidthMark,
                     ))
                       Text(x, style: theme.textTheme.bodySmall),
                     // Its glue, by the glue in work (owner, 17.11.2026).
@@ -3937,6 +3981,21 @@ class _GroupHead extends StatelessWidget {
           softWrap: false,
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
+        // Textured: the floor must see it at once (owner, 26.11.2026).
+        if (p != null && p.textured) ...[
+          const SizedBox(width: AppSpacing.sm),
+          Icon(
+            AppIcons.textured,
+            key: ValueKey('mdfGroupTextured:$index'),
+            size: AppIconSize.small,
+            color: status.warning,
+          ),
+          const SizedBox(width: AppSpacing.xxs),
+          Text(
+            l10n.mdfTexturedMark,
+            style: theme.textTheme.bodySmall?.copyWith(color: status.warning),
+          ),
+        ],
         if (state != null) ...[
           const SizedBox(width: AppSpacing.md),
           Flexible(
@@ -4439,6 +4498,7 @@ MdfPrintWords mdfPrintWords(AppLocalizations l10n) => (
   decorTop: l10n.mdfDecorTop,
   decorBottom: l10n.mdfDecorBottom,
   patina: l10n.mdfPatina,
+  grainWidth: l10n.mdfGrainWidthMark,
   milling: l10n.mdfMilling,
   edge: l10n.mdfEdgeDefault,
   radius: l10n.mdfColEdge,
