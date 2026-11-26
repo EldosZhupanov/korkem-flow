@@ -9200,6 +9200,40 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfAllWorkers => 'Все сотрудники';
 
   @override
+  String get mdfCrewHint => 'Можно отметить нескольких';
+
+  @override
+  String mdfCrewSplit(String m2) {
+    return 'Как поделить $m2 м²';
+  }
+
+  @override
+  String get mdfCrewEqual => 'Поровну';
+
+  @override
+  String get mdfCrewManual => 'Вручную';
+
+  @override
+  String get mdfCrewRest => 'остаток';
+
+  @override
+  String get mdfCrewTotal => 'Всего';
+
+  @override
+  String get mdfCrewOver => 'Раздали больше, чем есть: уменьшите у кого-то.';
+
+  @override
+  String get mdfCrewZero => 'У каждого должна быть часть больше нуля.';
+
+  @override
+  String get mdfCrewDone => 'Готово';
+
+  @override
+  String mdfCrewEach(int count, String m2) {
+    return '$count чел. · по $m2 м² каждому';
+  }
+
+  @override
   String mdfStageGiven(String stage, String name) {
     return '$stage: $name';
   }

@@ -129,8 +129,7 @@ class _WorkerSheetState extends ConsumerState<_WorkerSheet> {
       _whole -
       _picked.take(_picked.length - 1).fold<double>(0, (s, e) => s + _value(e));
 
-  bool get _zero =>
-      _picked.take(_picked.length - 1).any((e) => _value(e) <= 0);
+  bool get _zero => _picked.take(_picked.length - 1).any((e) => _value(e) <= 0);
 
   bool get _valid =>
       _picked.isNotEmpty &&
@@ -216,8 +215,7 @@ class _WorkerSheetState extends ConsumerState<_WorkerSheet> {
               ListTile(
                 key: const ValueKey('workerNobody'),
                 title: Text(nobody),
-                onTap: () =>
-                    Navigator.of(context).pop(const MdfCrewPick([])),
+                onTap: () => Navigator.of(context).pop(const MdfCrewPick([])),
               ),
             const Divider(height: 1),
             Flexible(
@@ -333,7 +331,9 @@ class _WorkerSheetState extends ConsumerState<_WorkerSheet> {
             runSpacing: AppSpacing.xs,
             children: [
               Text(
-                _inM2 ? l10n.mdfCrewSplit(_num(_area)) : l10n.mdfCrewSplit('100%'),
+                _inM2
+                    ? l10n.mdfCrewSplit(_num(_area))
+                    : l10n.mdfCrewSplit('100%'),
                 style: theme.textTheme.titleSmall,
               ),
               SegmentedButton<bool>(

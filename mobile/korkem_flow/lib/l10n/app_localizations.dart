@@ -15781,6 +15781,66 @@ abstract class AppLocalizations {
   /// **'Everyone'**
   String get mdfAllWorkers;
 
+  /// No description provided for @mdfCrewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can tick several'**
+  String get mdfCrewHint;
+
+  /// No description provided for @mdfCrewSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'How to split {m2} m²'**
+  String mdfCrewSplit(String m2);
+
+  /// No description provided for @mdfCrewEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'Equally'**
+  String get mdfCrewEqual;
+
+  /// No description provided for @mdfCrewManual.
+  ///
+  /// In en, this message translates to:
+  /// **'By hand'**
+  String get mdfCrewManual;
+
+  /// No description provided for @mdfCrewRest.
+  ///
+  /// In en, this message translates to:
+  /// **'the rest'**
+  String get mdfCrewRest;
+
+  /// No description provided for @mdfCrewTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get mdfCrewTotal;
+
+  /// No description provided for @mdfCrewOver.
+  ///
+  /// In en, this message translates to:
+  /// **'More than there is: take some off someone.'**
+  String get mdfCrewOver;
+
+  /// No description provided for @mdfCrewZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone needs a part above zero.'**
+  String get mdfCrewZero;
+
+  /// No description provided for @mdfCrewDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get mdfCrewDone;
+
+  /// No description provided for @mdfCrewEach.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} people · {m2} m² each'**
+  String mdfCrewEach(int count, String m2);
+
   /// No description provided for @mdfStageGiven.
   ///
   /// In en, this message translates to:

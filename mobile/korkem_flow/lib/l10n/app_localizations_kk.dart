@@ -9138,6 +9138,40 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfAllWorkers => 'Барлық қызметкерлер';
 
   @override
+  String get mdfCrewHint => 'Бірнешеуін белгілеуге болады';
+
+  @override
+  String mdfCrewSplit(String m2) {
+    return '$m2 м² қалай бөлеміз';
+  }
+
+  @override
+  String get mdfCrewEqual => 'Тең';
+
+  @override
+  String get mdfCrewManual => 'Қолмен';
+
+  @override
+  String get mdfCrewRest => 'қалғаны';
+
+  @override
+  String get mdfCrewTotal => 'Барлығы';
+
+  @override
+  String get mdfCrewOver => 'Барынан көп бөлінді: біреудікін азайтыңыз.';
+
+  @override
+  String get mdfCrewZero => 'Әркімнің үлесі нөлден көп болуы керек.';
+
+  @override
+  String get mdfCrewDone => 'Дайын';
+
+  @override
+  String mdfCrewEach(int count, String m2) {
+    return '$count адам · әрқайсысына $m2 м²';
+  }
+
+  @override
   String mdfStageGiven(String stage, String name) {
     return '$stage: $name';
   }

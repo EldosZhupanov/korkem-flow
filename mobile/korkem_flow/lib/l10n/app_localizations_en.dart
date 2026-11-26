@@ -9171,6 +9171,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfAllWorkers => 'Everyone';
 
   @override
+  String get mdfCrewHint => 'You can tick several';
+
+  @override
+  String mdfCrewSplit(String m2) {
+    return 'How to split $m2 m²';
+  }
+
+  @override
+  String get mdfCrewEqual => 'Equally';
+
+  @override
+  String get mdfCrewManual => 'By hand';
+
+  @override
+  String get mdfCrewRest => 'the rest';
+
+  @override
+  String get mdfCrewTotal => 'Total';
+
+  @override
+  String get mdfCrewOver => 'More than there is: take some off someone.';
+
+  @override
+  String get mdfCrewZero => 'Everyone needs a part above zero.';
+
+  @override
+  String get mdfCrewDone => 'Done';
+
+  @override
+  String mdfCrewEach(int count, String m2) {
+    return '$count people · $m2 m² each';
+  }
+
+  @override
   String mdfStageGiven(String stage, String name) {
     return '$stage: $name';
   }
