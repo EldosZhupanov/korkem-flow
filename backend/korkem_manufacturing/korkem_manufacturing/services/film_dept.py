@@ -97,6 +97,9 @@ def delivery_options() -> dict:
 		"last": last,
 		"supplier_cities": cities,
 		"staff": staff(),
+		# Who sells: the «Продажники» of «Команда» with a login (owner,
+		# 26.11.2026); none set yet — the client offers everyone, as before.
+		"sellers": sellers(company),
 		"me": frappe.session.user,
 		"drivers": drivers(company),
 	}
@@ -123,6 +126,10 @@ def drivers(company: str | None = None) -> list[dict]:
 	return out[:50]
 
 
+#: The post whose people sell film (`team.DEPARTMENTS`).
+SELLER_POST = "film_sales.seller"
+
+
 def _first(order: tuple):
 	return lambda v: (order.index(v) if v in order else len(order), v.casefold())
 
@@ -136,6 +143,17 @@ def staff() -> list[dict]:
 			fields=["name", "full_name"], order_by="full_name asc", limit_page_length=500,
 		)
 	]
+
+
+def sellers(company: str | None = None) -> list[dict]:
+	"""The film sellers of «Команда» who can sign in."""
+	from korkem_manufacturing.services import team
+
+	people = team.holders([SELLER_POST], company)
+	users = dict(frappe.get_all("Employee", filters={"name": ["in", [p["employee"] for p in people] or [""]],
+													  "user_id": ["is", "set"]},
+								fields=["name", "user_id"], as_list=True))
+	return [{"user": users[p["employee"]], "name": p["name"]} for p in people if p["employee"] in users]
 
 
 def _person(user: str | None) -> str | None:

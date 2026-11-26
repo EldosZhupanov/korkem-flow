@@ -435,6 +435,7 @@ class FilmDeliveryOptions {
     this.last = const {},
     this.supplierCities = const {},
     this.staff = const [],
+    this.sellers = const [],
     this.me,
     this.drivers = const [],
   });
@@ -461,6 +462,11 @@ class FilmDeliveryOptions {
             if (p is Map<String, dynamic>)
               (user: '${p['user']}', name: '${p['name'] ?? p['user']}'),
         ],
+        sellers: [
+          for (final p in json['sellers'] as List? ?? [])
+            if (p is Map<String, dynamic>)
+              (user: '${p['user']}', name: '${p['name'] ?? p['user']}'),
+        ],
         me: _s(json['me']),
         drivers: [
           for (final d in json['drivers'] as List? ?? [])
@@ -482,6 +488,10 @@ class FilmDeliveryOptions {
   /// Supplier → its city, from its card.
   final Map<String, String> supplierCities;
   final List<({String user, String name})> staff;
+
+  /// The «Продажники» of «Команда» with a login; empty — none set yet,
+  /// and everyone may be chosen as before.
+  final List<({String user, String name})> sellers;
   final String? me;
 
   /// Drivers who brought film before, newest first (owner, 12.11.2026).

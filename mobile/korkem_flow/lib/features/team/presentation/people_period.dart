@@ -40,6 +40,7 @@ class PeoplePeriodBar extends StatelessWidget {
     required this.day,
     required this.today,
     required this.onChanged,
+    this.monthOnly = false,
     super.key,
   });
 
@@ -48,6 +49,9 @@ class PeoplePeriodBar extends StatelessWidget {
   final DateTime today;
   final void Function(PeopleSpan span, DateTime day) onChanged;
 
+  /// Money is counted by the month: no day or week to choose.
+  final bool monthOnly;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -55,7 +59,8 @@ class PeoplePeriodBar extends StatelessWidget {
     final now = DateTime(today.year, today.month, today.day);
     return Column(
       children: [
-        SegmentedButton<PeopleSpan>(
+        if (!monthOnly)
+          SegmentedButton<PeopleSpan>(
           key: const ValueKey('ppl:span'),
           showSelectedIcon: false,
           segments: [
@@ -66,7 +71,7 @@ class PeoplePeriodBar extends StatelessWidget {
           selected: {span},
           onSelectionChanged: (s) => onChanged(s.first, day),
         ),
-        const SizedBox(height: AppSpacing.xs),
+        if (!monthOnly) const SizedBox(height: AppSpacing.xs),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
