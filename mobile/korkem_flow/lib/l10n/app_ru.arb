@@ -3933,5 +3933,6 @@
   "pressFree": "не занято · {metres} м",
   "pressOnLoad": "На этой загрузке",
   "pressOnLoadRow": "Поз. {pos} · {size} · {count} шт",
-  "pressOnLoadTotal": "Всего {count} шт · {area} м²"
+  "pressOnLoadTotal": "Всего {count} шт · {area} м²",
+  "mdfPrepaySet": "Задать % предоплаты"
 }

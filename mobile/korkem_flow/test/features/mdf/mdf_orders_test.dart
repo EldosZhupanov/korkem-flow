@@ -1252,6 +1252,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('mdfAcceptedPay')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('mdfPaymentAmount')), findsOneWidget);
+    // No prepayment rule set: the window says where to set it.
+    expect(find.byKey(const ValueKey('mdfPrepaySet')), findsOneWidget);
     Navigator.of(
       tester.element(find.byKey(const ValueKey('mdfPaymentAmount'))),
     ).pop();

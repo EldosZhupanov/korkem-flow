@@ -4302,6 +4302,22 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
                   p.amount.text = v.toStringAsFixed(0);
                 }),
               ),
+              // No prepayment rule yet: one tap to where it is set (owner,
+              // 26.11.2026: «где тут предоплата?»).
+              if (widget.order.prepayPercent == null)
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    key: const ValueKey('mdfPrepaySet'),
+                    icon: const Icon(AppIcons.settings, size: AppIconSize.small),
+                    label: Text(l10n.mdfPrepaySet),
+                    onPressed: () {
+                      final router = GoRouter.of(context);
+                      Navigator.of(context).pop();
+                      unawaited(router.push(Routes.facadePrices));
+                    },
+                  ),
+                ),
             ],
             const SizedBox(height: AppSpacing.sm),
             Wrap(
