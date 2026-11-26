@@ -88,7 +88,8 @@ class TestPayroll(IntegrationTestCase):
 
 	def _row(self, worker: str, **period) -> dict:
 		rows = self._as(CHIEF, payroll.statement, **period)["rows"]
-		return next((r for r in rows if r["employee"] == worker), None)
+		# A row is the person's; a login with no person is its own row.
+		return next((r for r in rows if worker in (r["employee"], r.get("user"))), None)
 
 	def _facade_line(self) -> tuple[str, str]:
 		order = self._as(

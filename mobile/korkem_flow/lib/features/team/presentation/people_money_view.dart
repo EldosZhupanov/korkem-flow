@@ -50,14 +50,12 @@ class PeopleMoneyView extends StatelessWidget {
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    // Everyone, with a login or without: the pay is the person's
+    // (owner, 26.11.2026).
     final paid = [
       for (final p in report.people)
         if (p.money != null) p,
     ]..sort((a, b) => b.money!.left.compareTo(a.money!.left));
-    final noLogin = [
-      for (final p in report.people)
-        if (p.money == null) p,
-    ];
     final monthOver = DateTime(
       day.year,
       day.month + 1,
@@ -130,17 +128,6 @@ class PeopleMoneyView extends StatelessWidget {
                     wide: wide,
                     canPay: report.canPay,
                     day: day,
-                  ),
-                for (final p in noLogin)
-                  Padding(
-                    key: ValueKey('ppl:money:none:${p.employee}'),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.sm,
-                    ),
-                    child: Text(
-                      '${p.name} — ${l10n.pplNoLoginMoney}',
-                      style: muted,
-                    ),
                   ),
               ],
             );
@@ -296,7 +283,7 @@ class _MoneyRow extends StatelessWidget {
         onPressed: () => unawaited(
           giveMonthPay(
             context,
-            user: person.user!,
+            employee: person.employee,
             name: person.name,
             amount: m.left,
             day: day,

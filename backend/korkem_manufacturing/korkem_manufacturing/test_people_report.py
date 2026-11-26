@@ -11,7 +11,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, getdate, nowdate
 
-from korkem_manufacturing.services import facade_prices, mdf_orders, people_report, team
+from korkem_manufacturing.services import facade_prices, mdf_orders, payroll, people_report, team
 
 COMPANY = "KORKEM"
 MANAGER = "people.manager@example.com"
@@ -80,7 +80,9 @@ class TestPeopleReport(IntegrationTestCase):
 		self.assertEqual((row["stages_done"], row["m2"], row["orders"], row["days"]), (1, 2.0, 1, 1))
 		self.assertEqual(row["stages"][0]["stage"], "cut")
 		self.assertEqual(row["post_titles"], [team.POSTS["cut.cutter"]])
-		self.assertIsNone(row["money"])  # no login: no piece pay booked to him
+		# No login: no piece pay booked to him, but his pay is there — zeros, not
+		# «нельзя» (owner, 26.11.2026: «можно начислять»).
+		self.assertEqual(row["money"]["to_pay"], 0)
 		week = self._as(BOSS, people_report.overview, "week")
 		self.assertEqual((getdate(week["to_date"]) - getdate(week["from_date"])).days, 6)
 		# The floor sees no one's figures but his own.
@@ -170,3 +172,24 @@ class TestPeopleReport(IntegrationTestCase):
 		# The sellers' pot is a calendar month's: a week has none.
 		self.assertEqual(film_team.bonuses(COMPANY, getdate("2026-11-02"), getdate("2026-11-08")), {})
 
+	def test_a_person_without_a_login_is_paid_all_the_same(self):
+		# Owner, 26.11.2026: «бывают люди возраста 50 лет, они же не умеют
+		# пользоваться» — the pay is the person's; the login is optional.
+		worker = self._person(f"Владимир Изимов {self.tag}", ["cnc.operator"])
+		self.assertFalse(frappe.db.get_value("Employee", worker, "user_id"))
+		bonus = self._as(BOSS, payroll.add_adjustment, worker, payroll.BONUS, 20_000, "за октябрь", "2026-10-10")
+		advance = self._as(BOSS, payroll.add_adjustment, worker, payroll.ADVANCE, 5_000, "аванс", "2026-10-12")
+		self.assertEqual((bonus["person"], bonus["employee"]), (worker, None))
+		for a in (bonus, advance):  # another person says «Да»
+			payroll.approve_adjustment(a["adjustment"])
+		card = self._as(BOSS, people_report.person, worker, "month", "2026-10-15")
+		self.assertTrue(card["can_adjust"] and card["can_pay"])
+		self.assertEqual((card["money"]["advance"], card["money"]["to_pay"]), (5_000, 15_000))
+		self.assertEqual(len(card["adjustments"]), 2)
+		paid = self._as(BOSS, payroll.mark_paid, worker, "2026-10-01", "2026-10-31")
+		self.assertEqual((paid["person"], paid["amount"]), (worker, 15_000))
+		card = self._as(BOSS, people_report.person, worker, "month", "2026-10-15")
+		self.assertEqual([p["amount"] for p in card["payouts"]], [15_000])
+		# A paid month is closed for him as for anyone.
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BOSS, payroll.add_adjustment, worker, payroll.FINE, 1_000, "брак", "2026-10-20")

@@ -36,18 +36,35 @@ from korkem_manufacturing.services.scope import current_company
 
 ROLES_FIELD = "korkem_team_roles"
 
-#: Department → its posts. A post's key is «department.post».
+#: Department → its posts, in the shop's order. A post's key is
+#: «department.post» — or written out whole where the post sits elsewhere.
+#: «Шлифовка» stands after ЧПУ, as the order goes (owner, 26.11.2026: «где у
+#: нас тут шлифовка?»): its two sanders keep the keys they were given under
+#: ПВХ and Покраска, so nobody's post changes and the coating still says
+#: which of the two sands an order (`for_stage`).
 DEPARTMENTS: dict[str, dict] = {
 	"intake": {"title": "Приём заказов", "posts": {"manager": "Менеджер по приёму"}},
 	"cut": {"title": "Раскрой", "posts": {"cutter": "Раскройщик"}},
 	"cnc": {"title": "ЧПУ", "posts": {"operator": "ЧПУшник"}},
-	"pvc": {"title": "ПВХ плёнка", "posts": {"sander": "Шкурщик", "vacuum": "Вакуумщик"}},
-	"paint": {"title": "Покраска", "posts": {"sander": "Шкурщик", "painter": "Маляр"}},
+	"sand": {"title": "Шлифовка", "posts": {"pvc.sander": "Шкурщик ПВХ", "paint.sander": "Шкурщик покраски"}},
+	"pvc": {"title": "ПВХ плёнка", "posts": {"vacuum": "Вакуумщик"}},
+	"paint": {"title": "Покраска", "posts": {"painter": "Маляр"}},
 	"pack": {"title": "Упаковка и выдача", "posts": {"packer": "Упаковщик"}},
 	"film_sales": {"title": "Продажа плёнки", "posts": {"seller": "Продажник", "loader": "Грузчик"}},
 	"warehouse": {"title": "Склад и доставка", "posts": {"storekeeper": "Кладовщик", "driver": "Водитель"}},
 }
-POSTS = {f"{d}.{p}": title for d, dept in DEPARTMENTS.items() for p, title in dept["posts"].items()}
+
+
+def post_key(department: str, post: str) -> str:
+	return post if "." in post else f"{department}.{post}"
+
+
+def department_of(post: str) -> str | None:
+	"""The department a post is listed under — «pvc.sander» is in «Шлифовка»."""
+	return next((d for d, dept in DEPARTMENTS.items() for p in dept["posts"] if post_key(d, p) == post), None)
+
+
+POSTS = {post_key(d, p): title for d, dept in DEPARTMENTS.items() for p, title in dept["posts"].items()}
 MANAGER = "intake.manager"
 
 #: An order's stage → the posts that do it. Sanding is the PVC sander's on a
@@ -77,7 +94,7 @@ def structure() -> dict:
 	return {
 		"departments": [
 			{"key": d, "title": dept["title"],
-			 "posts": [{"key": f"{d}.{p}", "title": title, "stages": _stages_of_post(f"{d}.{p}")}
+			 "posts": [{"key": post_key(d, p), "title": title, "stages": _stages_of_post(post_key(d, p))}
 					   for p, title in dept["posts"].items()]}
 			for d, dept in DEPARTMENTS.items()
 		],

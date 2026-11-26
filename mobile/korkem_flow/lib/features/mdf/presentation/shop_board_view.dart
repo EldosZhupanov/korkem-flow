@@ -16,6 +16,7 @@ import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/domain/shop_board.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
+import 'package:korkem_flow/features/team/presentation/team_departments_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 // «Цех» (owner, 26.11.2026): the month's plan against what is made, each
@@ -399,7 +400,7 @@ class _StageBox extends StatelessWidget {
               for (final post in s.posts) ...[
                 const SizedBox(height: AppSpacing.xs),
                 if (s.posts.length > 1)
-                  Text(post.department ?? post.title, style: muted),
+                  Text(teamPostLabel(post.post, l10n, post.title), style: muted),
                 if (post.people.isEmpty)
                   Text(
                     l10n.shopNobody,

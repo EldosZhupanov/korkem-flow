@@ -163,8 +163,7 @@ def _stage(company: str, stage: str, plan: dict, done: dict, by_person: dict, pa
 				   "in_work": open_by.get(p["employee"], 0)}
 				  for p in team.holders([post], company)]
 		posts.append({"post": post, "title": team.POSTS.get(post, post), "people": people,
-					  # Two posts are «Шкурщик»: the department tells them apart.
-					  "department": team.DEPARTMENTS.get(post.partition(".")[0], {}).get("title")})
+					  "department": team.DEPARTMENTS.get(team.department_of(post) or "", {}).get("title")})
 	return {
 		"stage": stage,
 		"title": mdf_orders.STAGE_NAMES.get(stage, stage),

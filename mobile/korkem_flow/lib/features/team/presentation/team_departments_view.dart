@@ -30,6 +30,7 @@ String teamDepartmentLabel(TeamDepartment d, AppLocalizations l10n) =>
       'intake' => l10n.teamDeptIntake,
       'cut' => l10n.teamDeptCut,
       'cnc' => l10n.teamDeptCnc,
+      'sand' => l10n.teamDeptSand,
       'pvc' => l10n.teamDeptPvc,
       'paint' => l10n.teamDeptPaint,
       'pack' => l10n.teamDeptPack,
@@ -38,8 +39,16 @@ String teamDepartmentLabel(TeamDepartment d, AppLocalizations l10n) =>
       _ => d.title,
     };
 
-/// A post's name: «Шкурщик» is one word in two departments.
+/// A post's name. The two sanders of «Шлифовка» are told apart by what
+/// they sand: film or paint.
 String teamPostLabel(String key, AppLocalizations l10n, [String? fallback]) =>
+    switch (key) {
+      'pvc.sander' => l10n.teamPostSanderPvc,
+      'paint.sander' => l10n.teamPostSanderPaint,
+      _ => _teamPostWord(key, l10n, fallback),
+    };
+
+String _teamPostWord(String key, AppLocalizations l10n, String? fallback) =>
     switch (key.split('.').last) {
       'manager' => l10n.teamPostManager,
       'cutter' => l10n.teamPostCutter,

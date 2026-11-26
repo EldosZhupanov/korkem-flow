@@ -836,7 +836,7 @@ def _glue_used(order: str, done: bool) -> None:
 		frappe.db.release_savepoint(savepoint)
 
 
-STAGE_NAMES = {"cut": "раскрой", "mill": "фреза", "sand": "шлифовка", "paint": "краска", "vacuum": "вакуум",
+STAGE_NAMES = {"cut": "раскрой", "mill": "ЧПУ", "sand": "шлифовка", "paint": "краска", "vacuum": "вакуум",
 			   "ready": "готово"}
 
 
