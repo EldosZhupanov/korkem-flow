@@ -48,6 +48,7 @@ void main() {
     count: (int n) => 'Кол-во деталей: $n',
     perimeter: (String m) => 'Периметр деталей: $m м',
     gap: (String g, String m) => 'Зазор: $g мм · отступ: $m мм',
+    dimension: (int l, String m) => 'стол $l мм · секция $m м',
     details: 'Детали',
     tooBig: (String p) => 'Больше стола пресса: позиции $p',
     page: (int n) => 'Стр. $n',

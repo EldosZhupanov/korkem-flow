@@ -93,6 +93,17 @@ abstract final class AppIcons {
   /// The way a textured film's pattern runs on a part.
   static const IconData direction = Symbols.north_rounded;
 
+  /// A part laid by hand where the rules would not put it — Shift
+  /// (26.11.2026).
+  static const IconData force = Symbols.pan_tool_rounded;
+
+  /// The list of orders as cards, or one line an order (26.11.2026).
+  static const IconData viewCards = Symbols.view_agenda_rounded;
+  static const IconData viewRows = Symbols.view_list_rounded;
+
+  /// A hint that saves something — «чуть-чуть не влезло» (26.11.2026).
+  static const IconData idea = Symbols.lightbulb_rounded;
+
   /// A textured film's pattern along a facade's height, or along its width
   /// (26.11.2026).
   static const IconData grainHeight = Symbols.swap_vert_rounded;

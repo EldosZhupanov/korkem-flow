@@ -88,13 +88,16 @@ class _FakeRepository implements PressLayoutRepository {
     String decor,
     List<PressLoad>? loads, {
     Map<String, Object>? press,
+    String? forced,
   }) async {
     layouts.add((decor, loads));
+    forcedWith.add(forced);
     pressFor.add(press);
     return layout(salesOrder);
   }
 
   final pressFor = <Map<String, Object>?>[];
+  final forcedWith = <String?>[];
   final tried = <PressTune>[];
 
   @override
@@ -137,7 +140,10 @@ class _FakeRepository implements PressLayoutRepository {
 
   @override
   Future<OrderPressLayout> layout(String salesOrder) async =>
-      OrderPressLayout.fromJson(_layout(corrected: corrected));
+      OrderPressLayout.fromJson(custom ?? _layout(corrected: corrected));
+
+  /// Another order's answer, when a test needs one.
+  Map<String, dynamic>? custom;
 
   @override
   Future<OrderPressLayout> setFilmMetres(
@@ -176,8 +182,12 @@ class _FakeRepository implements PressLayoutRepository {
 }
 
 void main() {
-  Future<_FakeRepository> pump(WidgetTester tester, Widget screen) async {
-    final repo = _FakeRepository();
+  Future<_FakeRepository> pump(
+    WidgetTester tester,
+    Widget screen, {
+    Map<String, dynamic>? layout,
+  }) async {
+    final repo = _FakeRepository()..custom = layout;
     await tester.pumpWidget(
       ProviderScope(
         overrides: [pressLayoutRepositoryProvider.overrideWithValue(repo)],
@@ -187,6 +197,27 @@ void main() {
     await tester.pumpAndSettle();
     return repo;
   }
+
+  test("Shift: nearer than the gap is the worker's call, on another part "
+      'never (26.11.2026)', () {
+    final press = PressSettings.fromJson(_press);
+    const a = PlacedPart(pos: 1, x: 50, y: 50, width: 500, height: 300);
+    const near = PlacedPart(pos: 2, x: 580, y: 50, width: 500, height: 300);
+    const on = PlacedPart(pos: 2, x: 400, y: 50, width: 500, height: 300);
+    expect(pressClashes([a, near], press), {0, 1});
+    expect(pressOverlaps([a, near], press), isEmpty);
+    expect(pressOverlaps([a, on], press), {0, 1});
+    expect(
+      pressOverlaps([
+        const PlacedPart(pos: 1, x: -5, y: 0, width: 100, height: 100),
+      ], press),
+      {0},
+    );
+    expect(
+      PlacedPart.fromJson(const {'pos': 1, 'forced': true}).forced,
+      isTrue,
+    );
+  });
 
   test('reads the server layout', () {
     final layout = OrderPressLayout.fromJson(_layout());
@@ -261,6 +292,12 @@ void main() {
       find.byKey(const ValueKey('pressMap:AS 1804-SFT Какао нубук:0')),
     );
     expect(map.highlight, 4);
+    // As on a drawing: the table and the load's section over the map.
+    expect(
+      map.lengthLabel,
+      matches(RegExp(r'^table \d+ mm · section [\d.]+ m$')),
+    );
+    expect(map.widthLabel, endsWith(' mm'));
     // Beside each map, what goes on that load (owner, 26.11.2026).
     expect(
       find.byKey(const ValueKey('pressOnLoad:AS 1804-SFT Какао нубук:0')),
@@ -386,6 +423,76 @@ void main() {
     expect((part.width, part.height, part.rotated), (298, 598, true));
     expect(loads.single.lengthMm, 850);
     expect(find.byKey(const ValueKey('pressEdit:save')), findsNothing);
+  });
+
+  testWidgets('order №38: the same loads once ×2, what a load costs, and '
+      'the narrower gap that saves the third (26.11.2026)', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    Map<String, Object> load(double m, int length, List<List<int>> parts) => {
+      'film_m': m,
+      'length_mm': length,
+      'placed': [
+        for (final p in parts)
+          {'pos': p[0], 'x': p[1], 'y': p[2], 'width': p[3], 'height': p[4]},
+      ],
+    };
+    final same = [
+      [1, 0, 0, 2000, 598],
+      [2, 2060, 0, 498, 498],
+      [2, 2060, 558, 498, 498],
+    ];
+    final repo = await pump(
+      tester,
+      const PressLayoutScreen(salesOrder: 'SO-38'),
+      layout: {
+        'sales_order': 'SO-38',
+        'press': {..._press, 'press_length_mm': 2750, 'press_margin_mm': 0},
+        'can_correct': true,
+        'films': [
+          {
+            'decor': 'KZ13 Устюрт',
+            'title': '№38 KZ13 Устюрт',
+            'layout_m': 7.3,
+            'film_m': 7.3,
+            'price_m': 3000,
+            'hint': {'gap_mm': 54, 'film_m': 6.2, 'saves_m': 1.1},
+            'loads': [
+              load(3.1, 2750, same),
+              load(3.1, 2750, same),
+              load(1.1, 850, [
+                [2, 0, 0, 498, 498],
+                [2, 0, 558, 498, 498],
+              ]),
+            ],
+          },
+        ],
+      },
+    );
+    // Loads 1 and 2 are one map, «×2».
+    expect(
+      find.byKey(const ValueKey('pressLoadTimes:KZ13 Устюрт:0')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('pressMap:KZ13 Устюрт:1')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('pressMap:KZ13 Устюрт:2')),
+      findsOneWidget,
+    );
+    // What it costs: 2 × 3.1 m × 3 000 ₸.
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('pressCost:KZ13 Устюрт:0')))
+          .data,
+      contains('18,600'),
+    );
+    // «Чуть-чуть не влезло»: tried on the panel at once.
+    await tester.tap(find.byKey(const ValueKey('pressHintTry:KZ13 Устюрт')));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(repo.tried.last.gapMm, 54);
   });
 
   testWidgets('the manager marks the layout checked', (tester) async {

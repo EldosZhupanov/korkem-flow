@@ -22539,6 +22539,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set the prepayment %'**
   String get mdfPrepaySet;
+
+  /// No description provided for @pressTableDimension.
+  ///
+  /// In en, this message translates to:
+  /// **'table {length} mm · section {metres} m'**
+  String pressTableDimension(int length, String metres);
+
+  /// No description provided for @pressWidthDimension.
+  ///
+  /// In en, this message translates to:
+  /// **'{width} mm'**
+  String pressWidthDimension(int width);
+
+  /// No description provided for @pressLoadsSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Loads {numbers} · section {metres} m'**
+  String pressLoadsSame(String numbers, String metres);
+
+  /// No description provided for @pressLoadTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'×{count} the same'**
+  String pressLoadTimes(int count);
+
+  /// No description provided for @pressLoadCost.
+  ///
+  /// In en, this message translates to:
+  /// **'{cost} · empty space ≈ {waste}'**
+  String pressLoadCost(String cost, String waste);
+
+  /// No description provided for @pressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{saves} m less: with a {gap} mm gap instead of {now} — {film} m of film.'**
+  String pressHint(int gap, int now, String saves, String film);
+
+  /// No description provided for @pressHintTry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try it'**
+  String get pressHintTry;
+
+  /// No description provided for @pressEditForce.
+  ///
+  /// In en, this message translates to:
+  /// **'Force (Shift)'**
+  String get pressEditForce;
+
+  /// No description provided for @pressEditForceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'With Shift or this button a part stays where it is let go: nearer than the gap, in the margin. Never on another part or off the table.'**
+  String get pressEditForceHint;
+
+  /// No description provided for @pressForceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts nearer than the gap'**
+  String get pressForceTitle;
+
+  /// No description provided for @pressForceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Some parts lie nearer than {gap} mm or in the margin. Why?'**
+  String pressForceBody(int gap);
+
+  /// No description provided for @pressForceUsual.
+  ///
+  /// In en, this message translates to:
+  /// **'we always lay it so'**
+  String get pressForceUsual;
+
+  /// No description provided for @pressForceWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get pressForceWhy;
+
+  /// No description provided for @mdfJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get mdfJustNow;
+
+  /// No description provided for @mdfJustNowClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear «Just now»'**
+  String get mdfJustNowClear;
+
+  /// No description provided for @mdfJustSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {name} saved'**
+  String mdfJustSaved(String name);
+
+  /// No description provided for @mdfJustOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get mdfJustOpen;
+
+  /// No description provided for @mdfViewCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get mdfViewCards;
+
+  /// No description provided for @mdfViewRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows — 15 orders a screen'**
+  String get mdfViewRows;
+
+  /// No description provided for @mdfSectionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more'**
+  String mdfSectionMore(int count);
+
+  /// No description provided for @mdfRowPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get mdfRowPay;
+
+  /// No description provided for @mdfRowStageReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage} done'**
+  String mdfRowStageReady(String stage);
+
+  /// No description provided for @mdfRowCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get mdfRowCall;
+
+  /// No description provided for @mdfRowStageDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: {stage} done'**
+  String mdfRowStageDone(String order, String stage);
+
+  /// No description provided for @mdfRowUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get mdfRowUndo;
+
+  /// No description provided for @mdfBottleneck.
+  ///
+  /// In en, this message translates to:
+  /// **'{late} of {total} late orders wait for «{stage}»'**
+  String mdfBottleneck(int late, int total, String stage);
+
+  /// No description provided for @mdfBottleneckQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued for «{stage}»: {orders} orders · {m2} m²'**
+  String mdfBottleneckQueue(String stage, int orders, String m2);
+
+  /// No description provided for @mdfBottleneckShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the late ones'**
+  String get mdfBottleneckShow;
+
+  /// No description provided for @mdfBottleneckPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop plan'**
+  String get mdfBottleneckPlan;
 }
 
 class _AppLocalizationsDelegate

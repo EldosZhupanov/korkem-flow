@@ -1227,6 +1227,10 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
       }
     }
     ref.invalidate(mdfOrderProvider(shown.name));
+    // A new order, or one just accepted: on top of the list for now.
+    if (widget.order == null || accept) {
+      ref.read(mdfRecentOrdersProvider.notifier).add(shown.name);
+    }
     if (widget.order == null) {
       unawaited(router.replace<void>(Routes.mdfOrder(shown.name)));
     }
@@ -4130,6 +4134,42 @@ class _Part {
 
   bool get withBank => method != _cash;
   double get value => double.tryParse(amount.text.trim()) ?? 0;
+}
+
+/// «Оплата» from the list's row (owner, 26.11.2026): the order's own
+/// payment window, without opening its card. True when something was paid.
+Future<bool> showMdfPaymentFor(
+  BuildContext context,
+  WidgetRef ref,
+  String name,
+) async {
+  final messenger = ScaffoldMessenger.of(context);
+  final l10n = AppLocalizations.of(context);
+  final repo = ref.read(mdfOrderRepositoryProvider);
+  try {
+    final order = await repo.card(name);
+    if (!context.mounted) return false;
+    final result = await showDialog<_Payments>(
+      context: context,
+      builder: (_) => _PaymentDialog(order: order),
+    );
+    if (result == null) return false;
+    for (final (i, p) in result.parts.indexed) {
+      await repo.addPayment(
+        name,
+        amount: p.amount,
+        method: p.method,
+        bank: p.bank,
+        invoice: i == 0 ? result.invoice : null,
+      );
+    }
+    ref.invalidate(mdfOrderProvider(name));
+    messenger.showDone(l10n.mdfSaved);
+    return true;
+  } on Object catch (error) {
+    messenger.showFailure(error, l10n);
+    return false;
+  }
 }
 
 class _PaymentDialog extends ConsumerStatefulWidget {

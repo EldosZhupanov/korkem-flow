@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,6 +54,7 @@ PressPrintWords pressPrintWordsOf(AppLocalizations l10n) => (
   details: l10n.pressPrintDetails,
   tooBig: l10n.pressTooBig,
   page: l10n.pressPrintPage,
+  dimension: l10n.pressTableDimension,
 );
 
 Future<void> _print(
@@ -147,6 +149,14 @@ class _PressLayoutScreenState extends ConsumerState<PressLayoutScreen> {
     } finally {
       if (mounted && round == _round) setState(() => _trying = false);
     }
+  }
+
+  /// «Чуть-чуть не влезло — посмотреть»: the panel's gap set to the hint's;
+  /// the films laid out with it, nothing kept until the manager says.
+  void _tryGap(OrderPressLayout data, double gap) {
+    final tune = (_tune ?? PressTune.of(data.press)).copyWith(gapMm: gap);
+    setState(() => _resets++);
+    _change(data, tune);
   }
 
   void _reset() {
@@ -302,6 +312,9 @@ class _PressLayoutScreenState extends ConsumerState<PressLayoutScreen> {
                   press: shownPress,
                   salesOrder: _order,
                   canCorrect: data.canCorrect && tried.isEmpty,
+                  onTryGap: data.canCorrect && tried.isEmpty
+                      ? (gap) => _tryGap(data, gap)
+                      : null,
                 ),
               ),
           ];
@@ -403,12 +416,16 @@ class _FilmCard extends ConsumerWidget {
     required this.press,
     required this.salesOrder,
     required this.canCorrect,
+    this.onTryGap,
   });
 
   final FilmLayout film;
   final PressSettings press;
   final String salesOrder;
   final bool canCorrect;
+
+  /// Lay the films out with this gap on the panel; null — not offered.
+  final ValueChanged<double>? onTryGap;
 
   Future<void> _correct(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -542,13 +559,60 @@ class _FilmCard extends ConsumerWidget {
                   color: context.statusColors.success,
                 ),
               ),
-            if (film.manual)
+            // «Чуть-чуть не влезло» (owner, 26.11.2026): a gap a little
+            // narrower saves a load — tried on the panel, kept by hand.
+            if (film.hint case final hint? when onTryGap != null)
+              Container(
+                key: ValueKey('pressHint:${film.decor}'),
+                margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: warning.withValues(alpha: AppTint.surface),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      AppIcons.idea,
+                      color: warning,
+                      size: AppIconSize.small,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        l10n.pressHint(
+                          hint.gapMm.round(),
+                          press.gapMm.round(),
+                          _metres(context, hint.savesM),
+                          _metres(context, hint.filmM),
+                        ),
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                    TextButton(
+                      key: ValueKey('pressHintTry:${film.decor}'),
+                      onPressed: () => onTryGap!(hint.gapMm),
+                      child: Text(l10n.pressHintTry),
+                    ),
+                  ],
+                ),
+              ),
+            if (film.manual) ...[
               Text(
                 l10n.pressManual,
                 key: ValueKey('pressManual:${film.decor}'),
                 style: theme.textTheme.bodySmall?.copyWith(color: warning),
-              )
-            else if (film.corrected)
+              ),
+              // Laid nearer than the gap on purpose: who said why.
+              if (film.loads.any((l) => l.placed.any((p) => p.forced)))
+                Text(
+                  film.reason ?? '',
+                  key: ValueKey('pressForced:${film.decor}'),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: context.statusColors.danger,
+                  ),
+                ),
+            ] else if (film.corrected)
               Text(
                 l10n.pressCorrected(
                   film.reason ?? '',
@@ -643,6 +707,28 @@ class _LoadsViewState extends State<_LoadsView> {
   int? _pinned;
   int? _hover;
 
+  /// The loads, the same placement once: its first index, the load, and
+  /// the numbers of every load laid so.
+  static List<(int, PressLoad, List<int>)> _grouped(List<PressLoad> loads) {
+    final out = <(int, PressLoad, List<int>)>[];
+    final seen = <String, int>{};
+    for (final (i, load) in loads.indexed) {
+      final key = [
+        load.lengthMm,
+        for (final p in load.placed)
+          '${p.pos}:${p.x}:${p.y}:${p.width}:${p.height}',
+      ].join('|');
+      final at = seen[key];
+      if (at == null) {
+        seen[key] = out.length;
+        out.add((i, load, [i + 1]));
+      } else {
+        out[at].$3.add(i + 1);
+      }
+    }
+    return out;
+  }
+
   void _pin(int? pos) =>
       setState(() => _pinned = pos == null || pos == _pinned ? null : pos);
 
@@ -653,13 +739,20 @@ class _LoadsViewState extends State<_LoadsView> {
     final status = context.statusColors;
     final film = widget.film;
     final positions = pressPositions(film);
+    final money = NumberFormat.currency(
+      locale: Localizations.localeOf(context).toLanguageTag(),
+      symbol: '₸',
+      decimalDigits: 0,
+    );
     final lit = _hover ?? _pinned;
     final shown = positions.where((p) => p.pos == lit).firstOrNull;
     String size(PressPosition p) => '${p.width.round()}×${p.height.round()}';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final (i, load) in film.loads.indexed) ...[
+        // The same placement laid more than once: one map, «×2» (owner,
+        // 26.11.2026) — the vacuum worker lays it so twice.
+        for (final (i, load, numbers) in _grouped(film.loads)) ...[
           const SizedBox(height: AppSpacing.md),
           Builder(
             builder: (context) {
@@ -675,9 +768,33 @@ class _LoadsViewState extends State<_LoadsView> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
-                    l10n.pressLoad(i + 1, _metres(context, load.filmM)),
+                    numbers.length > 1
+                        ? l10n.pressLoadsSame(
+                            numbers.join(', '),
+                            _metres(context, load.filmM),
+                          )
+                        : l10n.pressLoad(i + 1, _metres(context, load.filmM)),
+                    key: ValueKey('pressLoadHead:${film.decor}:$i'),
                     style: theme.textTheme.titleSmall,
                   ),
+                  if (numbers.length > 1)
+                    Container(
+                      key: ValueKey('pressLoadTimes:${film.decor}:$i'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xxs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Text(
+                        l10n.pressLoadTimes(numbers.length),
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
                   SizedBox(
                     width: AppSpacing.xxxl * 2,
                     child: ClipRRect(
@@ -699,6 +816,24 @@ class _LoadsViewState extends State<_LoadsView> {
                     key: ValueKey('pressFill:${film.decor}:$i'),
                     style: theme.textTheme.bodySmall?.copyWith(color: colour),
                   ),
+                  // What the load costs, and its empty place — the
+                  // managers' figures; the floor is not sent the price.
+                  if (film.priceM case final price?)
+                    Text(
+                      l10n.pressLoadCost(
+                        money.format(load.filmM * price * numbers.length),
+                        money.format(
+                          load.filmM *
+                              price *
+                              numbers.length *
+                              (1 - fill.share),
+                        ),
+                      ),
+                      key: ValueKey('pressCost:${film.decor}:$i'),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                 ],
               );
             },
@@ -713,6 +848,14 @@ class _LoadsViewState extends State<_LoadsView> {
                 // One scale for every load (owner, 26.11.2026).
                 tableMm: widget.press.lengthMm,
                 marginMm: widget.press.marginMm,
+                // As on a drawing (owner, 26.11.2026, variant В).
+                lengthLabel: l10n.pressTableDimension(
+                  math.max(widget.press.lengthMm, load.lengthMm).round(),
+                  _metres(context, load.filmM),
+                ),
+                widthLabel: l10n.pressWidthDimension(
+                  widget.press.widthMm.round(),
+                ),
                 textured: film.textured,
                 highlight: lit,
                 onHover: (pos) => setState(() => _hover = pos),

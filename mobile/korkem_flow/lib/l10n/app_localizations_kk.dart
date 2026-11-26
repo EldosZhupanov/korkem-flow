@@ -13141,4 +13141,118 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfPrepaySet => 'Алдын ала төлем пайызын орнату';
+
+  @override
+  String pressTableDimension(int length, String metres) {
+    return 'үстел $length мм · секция $metres м';
+  }
+
+  @override
+  String pressWidthDimension(int width) {
+    return '$width мм';
+  }
+
+  @override
+  String pressLoadsSame(String numbers, String metres) {
+    return '$numbers жүктемелер · секция $metres м';
+  }
+
+  @override
+  String pressLoadTimes(int count) {
+    return '×$count бірдей';
+  }
+
+  @override
+  String pressLoadCost(String cost, String waste) {
+    return '$cost · бос орын ≈ $waste';
+  }
+
+  @override
+  String pressHint(int gap, int now, String saves, String film) {
+    return '$saves м аз болады: аралық $now орнына $gap мм болса — $film м пленка.';
+  }
+
+  @override
+  String get pressHintTry => 'Көру';
+
+  @override
+  String get pressEditForce => 'Мәжбүрлеп (Shift)';
+
+  @override
+  String get pressEditForceHint =>
+      'Shift не осы батырмамен бөлшек жіберілген жерде қалады: аралықтан жақын, шегініс ішінде. Бір-бірінің үстіне және үстелден тыс — болмайды.';
+
+  @override
+  String get pressForceTitle => 'Бөлшектер аралықтан жақын';
+
+  @override
+  String pressForceBody(int gap) {
+    return 'Кейбір бөлшектер $gap мм-ден жақын не шегіністе жатыр. Неге?';
+  }
+
+  @override
+  String get pressForceUsual => 'әрқашан осылай саламыз';
+
+  @override
+  String get pressForceWhy => 'Себебі';
+
+  @override
+  String get mdfJustNow => 'Жаңа ғана';
+
+  @override
+  String get mdfJustNowClear => '«Жаңа ғана»-дан алу';
+
+  @override
+  String mdfJustSaved(String name) {
+    return '$name тапсырысы сақталды';
+  }
+
+  @override
+  String get mdfJustOpen => 'Ашу';
+
+  @override
+  String get mdfViewCards => 'Карточкалар';
+
+  @override
+  String get mdfViewRows => 'Жолдар — экранда 15 тапсырыс';
+
+  @override
+  String mdfSectionMore(int count) {
+    return 'тағы $count';
+  }
+
+  @override
+  String get mdfRowPay => 'Төлем';
+
+  @override
+  String mdfRowStageReady(String stage) {
+    return '$stage дайын';
+  }
+
+  @override
+  String get mdfRowCall => 'Қоңырау';
+
+  @override
+  String mdfRowStageDone(String order, String stage) {
+    return '$order: $stage дайын';
+  }
+
+  @override
+  String get mdfRowUndo => 'Болдырмау';
+
+  @override
+  String mdfBottleneck(int late, int total, String stage) {
+    return '$total кешіккеннің $late-і «$stage» күтуде';
+  }
+
+  @override
+  String mdfBottleneckQueue(String stage, int orders, String m2) {
+    return '«$stage» кезегінде: $orders тапсырыс · $m2 м²';
+  }
+
+  @override
+  String get mdfBottleneckShow => 'Кешіккендерді көрсету';
+
+  @override
+  String get mdfBottleneckPlan => 'Цех жоспары';
 }

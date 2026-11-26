@@ -13182,4 +13182,118 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfPrepaySet => 'Set the prepayment %';
+
+  @override
+  String pressTableDimension(int length, String metres) {
+    return 'table $length mm · section $metres m';
+  }
+
+  @override
+  String pressWidthDimension(int width) {
+    return '$width mm';
+  }
+
+  @override
+  String pressLoadsSame(String numbers, String metres) {
+    return 'Loads $numbers · section $metres m';
+  }
+
+  @override
+  String pressLoadTimes(int count) {
+    return '×$count the same';
+  }
+
+  @override
+  String pressLoadCost(String cost, String waste) {
+    return '$cost · empty space ≈ $waste';
+  }
+
+  @override
+  String pressHint(int gap, int now, String saves, String film) {
+    return '$saves m less: with a $gap mm gap instead of $now — $film m of film.';
+  }
+
+  @override
+  String get pressHintTry => 'Try it';
+
+  @override
+  String get pressEditForce => 'Force (Shift)';
+
+  @override
+  String get pressEditForceHint =>
+      'With Shift or this button a part stays where it is let go: nearer than the gap, in the margin. Never on another part or off the table.';
+
+  @override
+  String get pressForceTitle => 'Parts nearer than the gap';
+
+  @override
+  String pressForceBody(int gap) {
+    return 'Some parts lie nearer than $gap mm or in the margin. Why?';
+  }
+
+  @override
+  String get pressForceUsual => 'we always lay it so';
+
+  @override
+  String get pressForceWhy => 'Reason';
+
+  @override
+  String get mdfJustNow => 'Just now';
+
+  @override
+  String get mdfJustNowClear => 'Clear «Just now»';
+
+  @override
+  String mdfJustSaved(String name) {
+    return 'Order $name saved';
+  }
+
+  @override
+  String get mdfJustOpen => 'Open';
+
+  @override
+  String get mdfViewCards => 'Cards';
+
+  @override
+  String get mdfViewRows => 'Rows — 15 orders a screen';
+
+  @override
+  String mdfSectionMore(int count) {
+    return '$count more';
+  }
+
+  @override
+  String get mdfRowPay => 'Payment';
+
+  @override
+  String mdfRowStageReady(String stage) {
+    return '$stage done';
+  }
+
+  @override
+  String get mdfRowCall => 'Call';
+
+  @override
+  String mdfRowStageDone(String order, String stage) {
+    return '$order: $stage done';
+  }
+
+  @override
+  String get mdfRowUndo => 'Undo';
+
+  @override
+  String mdfBottleneck(int late, int total, String stage) {
+    return '$late of $total late orders wait for «$stage»';
+  }
+
+  @override
+  String mdfBottleneckQueue(String stage, int orders, String m2) {
+    return 'Queued for «$stage»: $orders orders · $m2 m²';
+  }
+
+  @override
+  String get mdfBottleneckShow => 'Show the late ones';
+
+  @override
+  String get mdfBottleneckPlan => 'Shop plan';
 }

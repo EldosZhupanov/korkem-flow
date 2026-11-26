@@ -418,8 +418,14 @@ def _sections(raw) -> list[dict] | None:
 # --------------------------------------------------------------------------
 
 
-def order_layout(sales_order: str) -> dict:
-	"""Per film decor: the loads on the press, the metres, and the correction if any."""
+def order_layout(sales_order: str, hints: bool = False) -> dict:
+	"""Per film decor: the loads on the press, the metres, and the correction if any.
+
+	For the people who keep the norms (owner, 26.11.2026): the film's price a
+	metre, so a load says what it costs — the floor is not sent it; and, with
+	`hints`, the gap a little narrower that saves a load («чуть-чуть не
+	влезло»)."""
+	money = material_stock.can_edit()
 	ensure_company("Sales Order", sales_order)
 	order = frappe.db.get_value("Sales Order", sales_order, ["company", "customer_name", "customer"], as_dict=True)
 	press = press_settings(order.company)
@@ -448,10 +454,16 @@ def order_layout(sales_order: str) -> dict:
 				fix = None
 			else:
 				loads = manual
+		# Parts put nearer than the gap on purpose (Shift) are drawn red.
+		forced = manual is not None and fix and FORCED in (fix.reason or "")
+		tight = _tight_all(loads, press) if forced else set()
 		films.append(
 			{
 				"decor": decor,
 				"title": f"№{sales_order} {order.customer_name or order.customer} {decor}",
+				**({"price_m": _film_price(decor, order.company)} if money else {}),
+				**({"hint": _hint(laid, press, not textured, layout_m)}
+				   if money and hints and manual is None and not fix and not too_big else {}),
 				"textured": textured,
 				"layout_m": layout_m,
 				"plain_m": plain_m,
@@ -463,9 +475,10 @@ def order_layout(sales_order: str) -> dict:
 					{
 						"film_m": load.film_m,
 						"length_mm": load.length_mm,
-						"placed": [vars(p) for p in load.placed],
+						"placed": [{**vars(p), **({"forced": True} if (n, k) in tight else {})}
+								   for k, p in enumerate(load.placed)],
 					}
-					for load in loads
+					for n, load in enumerate(loads)
 				],
 				"too_big": [p.pos for p in too_big],
 			}
@@ -541,17 +554,24 @@ def _stored_loads(raw: str) -> list[Load] | None:
 		return None
 
 
-def check_layout(parts: list[Part], loads, press: dict, rotate: bool) -> list[Load]:
+def check_layout(parts: list[Part], loads, press: dict, rotate: bool, force: bool = False) -> list[Load]:
 	"""A layout a person made, checked: every part once, each on the table of
 	its load's section, none nearer another than the gap, none turned when
 	the film is textured. The section of a load is the shortest that holds it
-	unless a longer one is named."""
+	unless a longer one is named.
+
+	`force` (owner, 26.11.2026: «Shift — насильно разместить»): the vacuum
+	worker knows things the press does not; a part may then lie nearer than
+	the gap and into the margin. Never on another part, off the table, or a
+	textured one across its pattern — those spoil facades."""
 	if isinstance(loads, str):
 		loads = json.loads(loads)
 	if not isinstance(loads, list) or not loads:
 		frappe.throw("Раскладка пустая.")
 	sections = sorted(press["press_sections"], key=lambda s: flt(s["length_mm"]))
 	margin, gap, width = cint(press["press_margin_mm"]), cint(press["press_gap_mm"]), cint(press["press_width_mm"])
+	if force:
+		margin, gap = 0, 0
 	left: dict[int, list[Part]] = {}
 	for p in parts:
 		left.setdefault(p.pos, []).append(p)
@@ -574,7 +594,8 @@ def check_layout(parts: list[Part], loads, press: dict, rotate: bool) -> list[Lo
 				apart_x = x >= o.x + o.width + gap or o.x >= x + w + gap
 				apart_y = y >= o.y + o.height + gap or o.y >= y + h + gap
 				if not (apart_x or apart_y):
-					frappe.throw(f"Загрузка {n}: позиции {pos} и {o.pos} ближе {gap} мм друг к другу.")
+					frappe.throw(f"Загрузка {n}: позиции {pos} и {o.pos} лежат друг на друге."
+								 if force else f"Загрузка {n}: позиции {pos} и {o.pos} ближе {gap} мм друг к другу.")
 			placed.append(Placed(pos, x, y, w, h, rotated))
 		if not placed:
 			continue
@@ -592,7 +613,7 @@ def check_layout(parts: list[Part], loads, press: dict, rotate: bool) -> list[Lo
 	return result
 
 
-def save_layout(sales_order: str, decor: str, loads=None, press=None) -> dict:
+def save_layout(sales_order: str, decor: str, loads=None, press=None, forced: str | None = None) -> dict:
 	"""Keep a layout a person made for one film of an order — its metres are
 	the order's from now on; empty — back to the press's own layout. `press`
 	— the press panel's own figures for this order alone (a wider gap for
@@ -612,19 +633,21 @@ def save_layout(sales_order: str, decor: str, loads=None, press=None) -> dict:
 						   diff={"decor": decor})
 		return order_layout(sales_order)
 	company = frappe.db.get_value("Sales Order", sales_order, "company")
+	forced = (forced or "").strip()[:140] or None
 	checked = check_layout(parts, loads, tuned_press(press_settings(company), press),
-						   rotate=not is_textured(decor, company))
+						   rotate=not is_textured(decor, company), force=bool(forced))
 	metres = round(sum(load.film_m for load in checked), 2)
 	doc = frappe.get_doc(OVERRIDE, existing) if existing else frappe.new_doc(OVERRIDE)
 	doc.update({
-		"sales_order": sales_order, "decor": decor, "film_m": metres, "reason": "своя раскладка",
+		"sales_order": sales_order, "decor": decor, "film_m": metres,
+		"reason": f"своя раскладка · {FORCED}: {forced}" if forced else "своя раскладка",
 		"parts_key": parts_key(parts),
 		"layout_json": json.dumps([{"film_m": load.film_m, "length_mm": load.length_mm,
 									"placed": [vars(p) for p in load.placed]} for load in checked]),
 	})
 	doc.save(ignore_permissions=True)
 	audit.record_audit(action="stock.press_layout_saved", entity_type="Sales Order", entity_id=sales_order,
-					   diff={"decor": decor, "film_m": metres, "loads": len(checked)})
+					   diff={"decor": decor, "film_m": metres, "loads": len(checked), "forced": forced})
 	return order_layout(sales_order)
 
 
@@ -808,6 +831,61 @@ def set_film_metres(sales_order: str, decor: str, film_m=None, reason: str | Non
 		diff={"decor": decor, "film_m": metres, "reason": reason},
 	)
 	return order_layout(sales_order)
+
+
+def _film_price(decor: str, company: str) -> float | None:
+	"""A metre of this film, as the order's margin counts it."""
+	from korkem_manufacturing.services import mdf_margin
+
+	item = frappe.db.get_value(
+		"Item", {"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
+				 "korkem_color": decor, "disabled": 0}, "name")
+	return mdf_margin.unit_cost(item) if item else None
+
+
+#: A hand-made layout's reason when a part was put nearer than the gap.
+FORCED = "насильно"
+#: How much narrower than the press's gap the hint may try, mm, and its step.
+HINT_GAP_MM = (2, 4, 6, 8, 10)
+
+
+def _hint(parts: list[Part], press: dict, rotate: bool, film_m: float) -> dict | None:
+	"""«Чуть-чуть не влезло»: the widest gap a little narrower than the
+	press's that saves film — the manager tries it on the panel and keeps it
+	for the order, or not. Nothing changes by itself."""
+	gap = cint(press["press_gap_mm"])
+	for less in HINT_GAP_MM:
+		if gap - less < 0:
+			break
+		tried = {**press, "press_gap_mm": gap - less}
+		loads, too_big = best_plan(parts, tried, rotate=rotate)
+		if too_big:
+			continue
+		metres = round(sum(load.film_m for load in loads), 2)
+		if metres < film_m - 0.01:
+			return {"gap_mm": gap - less, "film_m": metres, "saves_m": round(film_m - metres, 2),
+					"loads": len(loads)}
+	return None
+
+
+def _tight_all(loads: list[Load], press: dict) -> set[tuple[int, int]]:
+	"""The parts of a hand-made layout laid nearer than the gap or into the
+	margin — put there on purpose (Shift), and so drawn red."""
+	margin, gap, width = cint(press["press_margin_mm"]), cint(press["press_gap_mm"]), cint(press["press_width_mm"])
+	out: set[tuple[int, int]] = set()
+	for n, load in enumerate(loads):
+		for k, p in enumerate(load.placed):
+			if p.x < margin or p.y < margin or p.y + p.height > width - margin \
+					or p.x + p.width > load.length_mm - margin:
+				out.add((n, k))
+			for j, o in enumerate(load.placed):
+				if j == k:
+					continue
+				apart = (p.x >= o.x + o.width + gap or o.x >= p.x + p.width + gap
+						 or p.y >= o.y + o.height + gap or o.y >= p.y + p.height + gap)
+				if not apart:
+					out.add((n, k))
+	return out
 
 
 def textured_decors(company: str) -> list[str]:
