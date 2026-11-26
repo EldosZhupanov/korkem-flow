@@ -46,6 +46,9 @@ extension AppFeedback on ScaffoldMessengerState {
     SnackBar(
       content: Text(message),
       duration: AppDebounce.undo,
+      // A bar with a button stays until pressed unless told
+      // otherwise (Flutter 3.32+): it is told — it goes.
+      persist: false,
       action: SnackBarAction(label: undoLabel, onPressed: onUndo),
     ),
   );
