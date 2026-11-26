@@ -83,15 +83,22 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(
-      tester.widget<Text>(find.byKey(const ValueKey('today:overdue:value'))).data,
+      tester
+          .widget<Text>(find.byKey(const ValueKey('today:overdue:value')))
+          .data,
       '22',
     );
     expect(
-      tester.widget<Text>(find.byKey(const ValueKey('today:atRisk:value'))).data,
+      tester
+          .widget<Text>(find.byKey(const ValueKey('today:atRisk:value')))
+          .data,
       '5',
     );
     // The jam first, then the dates at risk, then the film.
-    expect(find.textContaining('1. «раскрой» is the bottleneck'), findsOneWidget);
+    expect(
+      find.textContaining('1. «раскрой» is the bottleneck'),
+      findsOneWidget,
+    );
     expect(find.textContaining('2. Will miss the date: 5'), findsOneWidget);
     expect(find.textContaining('KZ13 Устюрт 6,2 м'), findsOneWidget);
     expect(find.byKey(const ValueKey('today:load:cut')), findsOneWidget);

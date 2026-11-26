@@ -13308,4 +13308,131 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfReportNothing => 'Бұл кезеңде ештеңе жоқ';
+
+  @override
+  String get shopTodayTitle => 'Бүгін';
+
+  @override
+  String get shopTodayOverdue => 'Кешіккен';
+
+  @override
+  String shopTodayOverdueAt(String stage) {
+    return '«$stage» күтуде';
+  }
+
+  @override
+  String get shopTodayOpenList => 'тізімді ашу';
+
+  @override
+  String get shopTodayAtRisk => 'Мерзіміне үлгермейді';
+
+  @override
+  String get shopTodayAtRiskNote => 'әзірге көмектесуге болады';
+
+  @override
+  String get shopTodayReady => 'Бергенде түседі';
+
+  @override
+  String shopTodayReadyNote(int count) {
+    return '$count беруге дайын';
+  }
+
+  @override
+  String get shopTodayDebt => 'Клиенттер қарызы';
+
+  @override
+  String shopTodayDebtors(int count) {
+    return 'клиент: $count';
+  }
+
+  @override
+  String shopTodayDecideTitle(int count) {
+    return 'Шешу керек · $count';
+  }
+
+  @override
+  String get shopTodayAllCalm => 'Бәрі тыныш';
+
+  @override
+  String shopTodayDecideJam(String stage, String days, String m2) {
+    return '«$stage» — тар жер: $days күн кезек, $m2 м²';
+  }
+
+  @override
+  String shopTodayDecideAtRisk(int count) {
+    return 'Мерзіміне үлгермейді: $count — клиенттерге ескерту не ауысым қосу';
+  }
+
+  @override
+  String shopTodayDecideFilm(String films) {
+    return 'Пленка жетпейді: $films';
+  }
+
+  @override
+  String shopTodayDecidePostEmpty(String stage, int orders) {
+    return '«$stage»-да ешкім жоқ — $orders күтуде';
+  }
+
+  @override
+  String shopTodayDecideUnassigned(int count, String stages) {
+    return 'Кезеңдер ешкімге берілмеген: $count ($stages)';
+  }
+
+  @override
+  String shopTodayDecideNoPrepay(int count) {
+    return 'Алдын ала төлемсіз шұғыл: $count';
+  }
+
+  @override
+  String get shopTodayGoPlan => 'цех жоспары';
+
+  @override
+  String get shopTodayGoFilm => 'тапсырысқа';
+
+  @override
+  String get shopTodayGoTeam => 'команда';
+
+  @override
+  String get shopTodayGoList => 'тізім';
+
+  @override
+  String get shopTodayLoadTitle => 'Цех жүктемесі — кезектегі жұмыс күндері';
+
+  @override
+  String shopTodayLoadDays(String days, int m2) {
+    return '$days күн · $m2 м²';
+  }
+
+  @override
+  String get shopTodayLoadNobody => 'постта ешкім жоқ';
+
+  @override
+  String get shopTodayLoadNote =>
+      'Соңғы екі аптаның қарқыны бойынша. Қызыл — тар жер.';
+
+  @override
+  String shopTodayRecentStage(String stage) {
+    return '$stage дайын';
+  }
+
+  @override
+  String shopTodayRecentStageOff(String stage) {
+    return '$stage алынды';
+  }
+
+  @override
+  String shopTodayRecentAccepted(String amount) {
+    return 'қабылданды · $amount';
+  }
+
+  @override
+  String get shopTodayRecentHandedOver => 'берілді';
+
+  @override
+  String get shopTodayRecentCancelled => 'болдырылмады';
+
+  @override
+  String shopTodayRecentPaid(String amount) {
+    return 'төлем $amount';
+  }
 }

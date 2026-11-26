@@ -424,7 +424,9 @@ class _Recent extends StatelessWidget {
         r.done
             ? l10n.shopTodayRecentStage(mdfStageLabel(r.stage!, l10n))
             : l10n.shopTodayRecentStageOff(mdfStageLabel(r.stage!, l10n)),
-      'mdf.order_accepted' => l10n.shopTodayRecentAccepted(money.format(r.amount)),
+      'mdf.order_accepted' => l10n.shopTodayRecentAccepted(
+        money.format(r.amount),
+      ),
       'mdf.handed_over' => l10n.shopTodayRecentHandedOver,
       'mdf.order_cancelled' => l10n.shopTodayRecentCancelled,
       _ => l10n.shopTodayRecentPaid(money.format(r.amount)),
