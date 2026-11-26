@@ -3936,5 +3936,16 @@
   "pressOnLoadTotal": "Барлығы {count} дана · {area} м²",
   "mdfPrepaySet": "Алдын ала төлем пайызын орнату",
   "pressTableDimension": "үстел {length} мм · секция {metres} м",
-  "pressWidthDimension": "{width} мм"
+  "pressWidthDimension": "{width} мм",
+  "pressLoadsSame": "{numbers} жүктемелер · секция {metres} м",
+  "pressLoadTimes": "×{count} бірдей",
+  "pressLoadCost": "{cost} · бос орын ≈ {waste}",
+  "pressHint": "{saves} м аз болады: аралық {now} орнына {gap} мм болса — {film} м пленка.",
+  "pressHintTry": "Көру",
+  "pressEditForce": "Мәжбүрлеп (Shift)",
+  "pressEditForceHint": "Shift не осы батырмамен бөлшек жіберілген жерде қалады: аралықтан жақын, шегініс ішінде. Бір-бірінің үстіне және үстелден тыс — болмайды.",
+  "pressForceTitle": "Бөлшектер аралықтан жақын",
+  "pressForceBody": "Кейбір бөлшектер {gap} мм-ден жақын не шегіністе жатыр. Неге?",
+  "pressForceUsual": "әрқашан осылай саламыз",
+  "pressForceWhy": "Себебі"
 }

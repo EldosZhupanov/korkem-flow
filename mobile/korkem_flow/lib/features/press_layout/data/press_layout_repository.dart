@@ -102,6 +102,7 @@ class PressLayoutRepository {
     String decor,
     List<PressLoad>? loads, {
     Map<String, Object>? press,
+    String? forced,
   }) async => OrderPressLayout.fromJson(
     _map(
       await _client.callMethod(
@@ -111,6 +112,7 @@ class PressLayoutRepository {
           'sales_order': salesOrder,
           'decor': decor,
           if (press != null) 'press': jsonEncode(press),
+          'forced': ?forced,
           if (loads != null)
             'loads': jsonEncode([
               for (final l in loads)

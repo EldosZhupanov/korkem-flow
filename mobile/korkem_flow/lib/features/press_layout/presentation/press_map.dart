@@ -268,6 +268,8 @@ class _PressPainter extends CustomPainter {
                 ? AppStroke.focus * 1.5
                 : AppStroke.focus,
         );
+      // Put nearer than the gap on purpose (Shift): a red dashed ring.
+      if (p.forced) _dashed(canvas, rect.inflate(AppSpacing.xxs), margin);
       final side = math.min(rect.width, rect.height);
       final fontSize = (side * 0.42).clamp(10.0, 40.0);
       _text(

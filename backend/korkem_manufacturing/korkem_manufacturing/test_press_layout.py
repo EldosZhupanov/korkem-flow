@@ -134,6 +134,39 @@ class TestThePacking(IntegrationTestCase):
 		self.assertEqual(parts_key(parts), parts_key(list(reversed(parts))))
 		self.assertNotEqual(parts_key(parts), parts_key(parts[:2]))
 
+	def test_a_little_narrower_gap_that_saves_a_load_is_hinted(self):
+		# Order №38 (owner, 26.11.2026): 2 × 2000×598 and 6 × 498×498 take
+		# 3.1 + 3.1 + 1.1 m; under the long part 492 mm stay free, the square
+		# is 498. A gap of 54 mm puts it there — one load less.
+		parts = [Part(1, 598, 2000)] * 2 + [Part(2, 498, 498)] * 6
+		loads, _ = best_plan(parts, _press(), rotate=True)
+		self.assertEqual([load.film_m for load in loads], [3.1, 3.1, 1.1])
+		hint = press_layout._hint(parts, _press(), True, 7.3)
+		self.assertEqual((hint["gap_mm"], hint["film_m"], hint["saves_m"]), (54, 6.2, 1.1))
+		# Nothing to save: no hint.
+		self.assertIsNone(press_layout._hint(AVORI, _press(), True, 3.1))
+
+	def test_shift_lays_a_part_nearer_than_the_gap_but_never_on_another(self):
+		# «Shift — насильно разместить» (owner, 26.11.2026).
+		press = _press()
+		parts = [Part(1, 500, 718), Part(2, 500, 718)]
+
+		def lay(x2, force):
+			return check_layout(parts, [{"placed": [{"pos": 1, "x": 0, "y": 0}, {"pos": 2, "x": x2, "y": 0}]}],
+								press, rotate=True, force=force)
+
+		with self.assertRaises(frappe.ValidationError):
+			lay(530, force=False)  # 30 mm apart, the gap is 60
+		self.assertEqual(len(lay(530, force=True)[0].placed), 2)
+		for bad in (400, -10):  # on the other part; off the table
+			with self.assertRaises(frappe.ValidationError):
+				lay(bad, force=True)
+		# A textured part across its pattern — not even with Shift.
+		door = [Part(7, 396, 716, "height")]
+		with self.assertRaises(frappe.ValidationError):
+			check_layout(door, [{"placed": [{"pos": 7, "x": 0, "y": 0, "rotated": False}]}], press,
+						 rotate=False, force=True)
+
 	def test_every_part_is_placed_once_inside_the_working_area_with_its_gap(self):
 		press = _press()
 		parts = [Part(i % 4 + 1, 500 + 37 * (i % 5), 300 + 41 * (i % 3)) for i in range(30)]
@@ -343,6 +376,10 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 	def test_the_floor_sees_the_map_but_does_not_change_the_metres_or_the_press(self):
 		order = self._order()
 		self.assertTrue(self._as(CUTTER, press_layout.order_layout, order)["films"])
+		# The film's price is the managers' (owner, 26.11.2026): never sent to the floor.
+		self.assertFalse(any("price_m" in f or "hint" in f
+							 for f in self._as(CUTTER, press_layout.order_layout, order, hints=True)["films"]))
+		self.assertTrue(all("price_m" in f for f in self._as(MANAGER, press_layout.order_layout, order)["films"]))
 		with self.assertRaises(frappe.PermissionError):
 			self._as(CUTTER, press_layout.set_film_metres, order, PLAIN, 2.1, "так")
 		with self.assertRaises(frappe.PermissionError):

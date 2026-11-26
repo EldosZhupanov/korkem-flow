@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -57,15 +59,27 @@ class _PressEditorState extends ConsumerState<PressEditor> {
   bool _dragging = false;
   bool _busy = false;
 
+  /// «Насильно» (owner, 26.11.2026): a part let go stays where it is —
+  /// nearer than the gap, into the margin. On while Shift is held, or by
+  /// the button on a touch screen.
+  bool _force = false;
+
+  bool get _forcing => _force || HardwareKeyboard.instance.isShiftPressed;
+
   PressSettings get _press => widget.press;
 
   PlacedPart? get _part =>
       _picked == null ? null : _loads[_picked!.load][_picked!.part];
 
+  /// Some part lies nearer than the gap or in the margin — kept only with
+  /// a reason.
+  bool get _tight => _loads.any((l) => pressClashes(l, _press).isNotEmpty);
+
   bool get _valid {
     for (final (i, load) in _loads.indexed) {
       if (load.isEmpty) continue;
-      if (pressClashes(load, _press).isNotEmpty) return false;
+      if (pressOverlaps(load, _press).isNotEmpty) return false;
+      if (!_force && pressClashes(load, _press).isNotEmpty) return false;
       if (pressSection(load, _press, asked: _asked[i]) == null) return false;
     }
     return _loads.any((l) => l.isNotEmpty);
@@ -120,6 +134,14 @@ class _PressEditorState extends ConsumerState<PressEditor> {
   }
 
   void _drop(int load, int part) {
+    if (_forcing) {
+      // Where it was let go: the person knows why.
+      setState(() {
+        _dragging = false;
+        _force = true;
+      });
+      return;
+    }
     setState(() {
       _dragging = false;
       final others = [
@@ -134,16 +156,76 @@ class _PressEditorState extends ConsumerState<PressEditor> {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final l10n = AppLocalizations.of(context);
+    String? forced;
+    if (loads != null && _tight) {
+      forced = await _askWhy(context);
+      if (forced == null) return;
+    }
     setState(() => _busy = true);
     try {
       await ref
           .read(pressLayoutRepositoryProvider)
-          .saveLayout(widget.salesOrder, widget.film.decor, loads);
+          .saveLayout(
+            widget.salesOrder,
+            widget.film.decor,
+            loads,
+            forced: forced,
+          );
       navigator.pop(true);
     } on Object catch (error) {
       if (mounted) setState(() => _busy = false);
       messenger.showFailure(error, l10n);
     }
+  }
+
+  /// Why the parts lie nearer than the gap — the journal keeps it.
+  Future<String?> _askWhy(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final why = TextEditingController();
+    final said = await showDialog<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(l10n.pressForceTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.pressForceBody(_press.gapMm.round())),
+              const SizedBox(height: AppSpacing.sm),
+              ActionChip(
+                key: const ValueKey('pressForce:usual'),
+                label: Text(l10n.pressForceUsual),
+                onPressed: () => setState(() => why.text = l10n.pressForceUsual),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextField(
+                key: const ValueKey('pressForce:why'),
+                controller: why,
+                autofocus: true,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(labelText: l10n.pressForceWhy),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+            ),
+            FilledButton(
+              key: const ValueKey('pressForce:keep'),
+              onPressed: why.text.trim().isEmpty
+                  ? null
+                  : () => Navigator.of(context).pop(why.text.trim()),
+              child: Text(l10n.pressEditSave),
+            ),
+          ],
+        ),
+      ),
+    );
+    why.dispose();
+    return said;
   }
 
   List<PressLoad> _result() => [
@@ -207,6 +289,20 @@ class _PressEditorState extends ConsumerState<PressEditor> {
                 color: theme.colorScheme.error,
               ),
             ),
+          // Shift, or this on a touch screen: a part stays where it is let
+          // go — nearer than the gap, into the margin. Never on another
+          // part or off the table.
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FilterChip(
+              key: const ValueKey('pressEdit:force'),
+              avatar: const Icon(AppIcons.force, size: AppIconSize.dense),
+              label: Text(l10n.pressEditForce),
+              tooltip: l10n.pressEditForceHint,
+              selected: _force,
+              onSelected: (on) => setState(() => _force = on),
+            ),
+          ),
           const SizedBox(height: AppSpacing.sm),
           if (part == null)
             Text(
@@ -310,7 +406,9 @@ class _PressEditorState extends ConsumerState<PressEditor> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final longest = pressLongest(_press);
-    final clashes = pressClashes(load, _press);
+    final clashes = pressOverlaps(load, _press);
+    final tight = pressClashes(load, _press).difference(clashes);
+    final amber = context.statusColors.warning;
     final section = pressSection(load, _press, asked: _asked[i]);
     return LayoutBuilder(
       builder: (context, box) {
@@ -368,6 +466,8 @@ class _PressEditorState extends ConsumerState<PressEditor> {
                         border: Border.all(
                           color: clashes.contains(k)
                               ? scheme.error
+                              : tight.contains(k)
+                              ? (_force ? amber : scheme.error)
                               : PressMap.colourOf(p.pos),
                           width: _picked == (load: i, part: k)
                               ? AppStroke.focus * 2

@@ -3936,5 +3936,16 @@
   "pressOnLoadTotal": "Всего {count} шт · {area} м²",
   "mdfPrepaySet": "Задать % предоплаты",
   "pressTableDimension": "стол {length} мм · секция {metres} м",
-  "pressWidthDimension": "{width} мм"
+  "pressWidthDimension": "{width} мм",
+  "pressLoadsSame": "Загрузки {numbers} · секция {metres} м",
+  "pressLoadTimes": "×{count} одинаковые",
+  "pressLoadCost": "{cost} · пустое место ≈ {waste}",
+  "pressHint": "Можно на {saves} м меньше: при зазоре {gap} мм вместо {now} — {film} м плёнки.",
+  "pressHintTry": "Посмотреть",
+  "pressEditForce": "Насильно (Shift)",
+  "pressEditForceHint": "С Shift или с этой кнопкой деталь остаётся там, где её отпустили: ближе зазора, в отступе. Друг на друга и за край стола — нельзя.",
+  "pressForceTitle": "Детали ближе зазора",
+  "pressForceBody": "Некоторые детали лежат ближе {gap} мм или в отступе. Почему?",
+  "pressForceUsual": "так кладём всегда",
+  "pressForceWhy": "Причина"
 }

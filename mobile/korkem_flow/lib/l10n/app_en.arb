@@ -11368,5 +11368,66 @@
         "type": "int"
       }
     }
-  }
+  },
+  "pressLoadsSame": "Loads {numbers} · section {metres} m",
+  "@pressLoadsSame": {
+    "placeholders": {
+      "numbers": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "pressLoadTimes": "×{count} the same",
+  "@pressLoadTimes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressLoadCost": "{cost} · empty space ≈ {waste}",
+  "@pressLoadCost": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "waste": {
+        "type": "String"
+      }
+    }
+  },
+  "pressHint": "{saves} m less: with a {gap} mm gap instead of {now} — {film} m of film.",
+  "@pressHint": {
+    "placeholders": {
+      "gap": {
+        "type": "int"
+      },
+      "now": {
+        "type": "int"
+      },
+      "saves": {
+        "type": "String"
+      },
+      "film": {
+        "type": "String"
+      }
+    }
+  },
+  "pressHintTry": "Try it",
+  "pressEditForce": "Force (Shift)",
+  "pressEditForceHint": "With Shift or this button a part stays where it is let go: nearer than the gap, in the margin. Never on another part or off the table.",
+  "pressForceTitle": "Parts nearer than the gap",
+  "pressForceBody": "Some parts lie nearer than {gap} mm or in the margin. Why?",
+  "@pressForceBody": {
+    "placeholders": {
+      "gap": {
+        "type": "int"
+      }
+    }
+  },
+  "pressForceUsual": "we always lay it so",
+  "pressForceWhy": "Reason"
 }

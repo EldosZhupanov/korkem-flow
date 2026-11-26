@@ -11,6 +11,7 @@ class PlacedPart {
     required this.width,
     required this.height,
     this.rotated = false,
+    this.forced = false,
   });
 
   factory PlacedPart.fromJson(Map<String, dynamic> json) => PlacedPart(
@@ -20,6 +21,7 @@ class PlacedPart {
     width: (json['width'] as num?)?.toDouble() ?? 0,
     height: (json['height'] as num?)?.toDouble() ?? 0,
     rotated: json['rotated'] == true,
+    forced: json['forced'] == true,
   );
 
   /// The order line the facade belongs to — its number on the map.
@@ -31,6 +33,10 @@ class PlacedPart {
 
   /// Turned 90° from the order's orientation; never for a textured film.
   final bool rotated;
+
+  /// Put nearer than the gap, or into the margin, on purpose — with Shift
+  /// (owner, 26.11.2026). Drawn red.
+  final bool forced;
 }
 
 /// One load of the press: the section of film it takes and what lies on it.
@@ -71,6 +77,8 @@ class FilmLayout {
     this.tooBig = const [],
     this.plainM,
     this.manual = false,
+    this.priceM,
+    this.hint,
   });
 
   factory FilmLayout.fromJson(Map<String, dynamic> json) => FilmLayout(
@@ -91,6 +99,15 @@ class FilmLayout {
       for (final p in json['too_big'] as List? ?? const [])
         if (p is num) p.toInt(),
     ],
+    priceM: (json['price_m'] as num?)?.toDouble(),
+    hint: json['hint'] is Map
+        ? (
+            gapMm: ((json['hint'] as Map)['gap_mm'] as num?)?.toDouble() ?? 0,
+            filmM: ((json['hint'] as Map)['film_m'] as num?)?.toDouble() ?? 0,
+            savesM:
+                ((json['hint'] as Map)['saves_m'] as num?)?.toDouble() ?? 0,
+          )
+        : null,
   );
 
   final String decor;
@@ -119,7 +136,16 @@ class FilmLayout {
 
   /// Order lines larger than the press table.
   final List<int> tooBig;
+
+  /// A metre of the film — sent only to the managers (owner, 26.11.2026).
+  final double? priceM;
+
+  /// «Чуть-чуть не влезло»: a gap this narrow takes this much film.
+  final PressHint? hint;
 }
+
+/// A gap a little narrower than the press's, and the film it would take.
+typedef PressHint = ({double gapMm, double filmM, double savesM});
 
 /// The press: its working area, the margin, the gap, and its sections.
 @immutable

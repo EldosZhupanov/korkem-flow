@@ -35,8 +35,9 @@ def save_settings(
 
 @frappe.whitelist(methods=["GET"])
 def order_layout(sales_order: str) -> dict:
-	"""Раскладка заказа по плёнкам: загрузки пресса, метраж, поправки."""
-	return service.order_layout(sales_order)
+	"""Раскладка заказа по плёнкам: загрузки пресса, метраж, поправки —
+	и подсказка экономии для менеджера."""
+	return service.order_layout(sales_order, hints=True)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -47,10 +48,11 @@ def set_film_metres(sales_order: str, decor: str, film_m: float | str | None = N
 
 @frappe.whitelist(methods=["POST"])
 def save_layout(sales_order: str, decor: str, loads: str | list | None = None,
-				press: str | dict | None = None) -> dict:
+				press: str | dict | None = None, forced: str | None = None) -> dict:
 	"""Сохранить раскладку, сделанную вручную; пусто — вернуть раскладку пресса.
-	`press` — свои цифры пресса только для этого заказа."""
-	return service.save_layout(sales_order, decor, loads, press=press)
+	`press` — свои цифры пресса только для этого заказа; `forced` — причина,
+	если детали положены ближе зазора или в отступ (Shift)."""
+	return service.save_layout(sales_order, decor, loads, press=press, forced=forced)
 
 
 @frappe.whitelist(methods=["POST"])

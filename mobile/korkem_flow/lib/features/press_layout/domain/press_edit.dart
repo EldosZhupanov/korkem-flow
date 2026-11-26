@@ -66,6 +66,30 @@ Set<int> pressClashes(List<PlacedPart> placed, PressSettings press) {
   return bad;
 }
 
+/// Which parts no one may lay so, not even with Shift (owner, 26.11.2026):
+/// off the table itself, or on another part. Nearer than the gap or into the
+/// margin is the vacuum worker's call — those are [pressClashes] alone.
+Set<int> pressOverlaps(List<PlacedPart> placed, PressSettings press) {
+  final bad = <int>{};
+  for (var i = 0; i < placed.length; i++) {
+    final p = placed[i];
+    if (p.x < 0 ||
+        p.y < 0 ||
+        p.y + p.height > press.widthMm ||
+        p.x + p.width > pressLongest(press)) {
+      bad.add(i);
+    }
+    for (var j = i + 1; j < placed.length; j++) {
+      if (!_apart(p, placed[j], 0)) {
+        bad
+          ..add(i)
+          ..add(j);
+      }
+    }
+  }
+  return bad;
+}
+
 /// The section of film a load takes: the shortest that holds its parts —
 /// or a longer one, when [asked]. Null when no section is long enough.
 ({double filmM, double lengthMm})? pressSection(
