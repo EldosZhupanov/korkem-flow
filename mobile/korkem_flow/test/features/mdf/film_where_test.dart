@@ -177,8 +177,9 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('fwSaid')), 'Айгерим');
     await tester.tap(find.byKey(const ValueKey('fwOrderConfirm')));
     await tester.pumpAndSettle();
-    expect(repo.orders.single, ('S-ALA', 5.0, 1350.0, 'Айгерим'));
-    expect(find.textContaining('Ordered 5 m'), findsOneWidget);
+    // What it lacks, not rounded up to a whole metre (owner, 26.11.2026).
+    expect(repo.orders.single, ('S-ALA', 4.2, 1350.0, 'Айгерим'));
+    expect(find.textContaining('Ordered 4,2 m'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('fwNowhere:FILM-1')));
     await tester.pumpAndSettle();

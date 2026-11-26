@@ -529,9 +529,16 @@ class _OrderDialog extends StatefulWidget {
 }
 
 class _OrderDialogState extends State<_OrderDialog> {
+  // What the order lacks, as it is: film is pressed by the section — 6,2 m
+  // is two 3,1 m loads — so a whole metre more is 0,8 m bought for nothing
+  // (owner, 26.11.2026: «надо 6,2 — почему 7?»). Up to a tenth, no more.
   late final _metres = TextEditingController(
-    text: widget.lack.short.ceil().toString(),
+    text: _metresText((widget.lack.short * 10).ceil() / 10),
   );
+
+  static String _metresText(double v) => v == v.roundToDouble()
+      ? '${v.toInt()}'
+      : v.toStringAsFixed(1).replaceAll('.', ',');
   late final _price = TextEditingController(
     text: widget.source.priceM?.toStringAsFixed(0) ?? '',
   );
