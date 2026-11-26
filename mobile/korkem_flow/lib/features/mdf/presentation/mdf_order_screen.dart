@@ -131,6 +131,26 @@ const _Group _noGroup = (coating: null, film: null);
 /// What «+ доп.» adds under a row; each shows as a chip with ✕.
 enum _Extra { back, patina, note }
 
+/// «Назад» with something typed: keep it as a draft, or let it go.
+enum _Leave { save, drop }
+
+/// Orders accepted a moment ago: their card says «Заказ принят» and offers
+/// what comes next until it is left (owner, 26.11.2026).
+final mdfJustAcceptedProvider =
+    NotifierProvider<MdfJustAccepted, Set<String>>(MdfJustAccepted.new);
+
+class MdfJustAccepted extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => const {};
+
+  void add(String order) => state = {...state, order};
+
+  void remove(String order) => state = {
+    for (final o in state)
+      if (o != order) o,
+  };
+}
+
 class _LineFields {
   _LineFields({
     String? h,
@@ -398,6 +418,18 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   });
 
   bool get _dirty => _snapshot() != _initial;
+
+  /// Typed and not saved — «назад» asks first (owner, 26.11.2026: «из
+  /// формы не должно случайно всё пропасть»). A new order: once a size is
+  /// typed (a copy: once changed); a draft or a change: once changed.
+  bool get _unsaved =>
+      !_leaving &&
+      (widget.order == null
+          ? _inputs.isNotEmpty && (widget.template == null || _dirty)
+          : _dirty);
+
+  /// Asked and answered: the way out is open.
+  bool _leaving = false;
 
   /// What changed, in words, for the reason dialog — sizes and the rest by
   /// position number, the head's fields by name.
@@ -1159,6 +1191,8 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
     if (accept && !await _prepaidOrAsked()) return;
     final saved = await _save();
     if (saved == null) return;
+    // Saved: leaving asks nothing any more.
+    _initial = _snapshot();
     var shown = saved;
     if (accept) {
       final over = await _overLimitReason(saved);
@@ -1167,6 +1201,9 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
           shown = await ref
               .read(mdfOrderRepositoryProvider)
               .accept(saved.name, overLimit: over);
+          // The card says «Заказ принят» and what comes next (owner,
+          // 26.11.2026), until it is left.
+          ref.read(mdfJustAcceptedProvider.notifier).add(shown.name);
           messenger.showDone(l10n.mdfAccepted);
         } on Object catch (error) {
           messenger.showFailure(error, l10n);
@@ -1331,34 +1368,43 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
 
     // Changes not saved: «назад» asks before they are lost (09.11.2026).
     return PopScope(
-      canPop: !widget.changing || !_dirty,
+      canPop: !_unsaved,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final navigator = Navigator.of(context);
-        final leave = await showDialog<bool>(
+        // A change of an accepted order is saved with its reason, not as a
+        // draft: leave or stay. A new order or a draft may be kept.
+        final draft = !widget.changing;
+        final choice = await showDialog<_Leave>(
           context: context,
           builder: (context) => AlertDialog(
             content: Text(AppLocalizations.of(context).mdfLeaveUnsaved),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
+                onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   MaterialLocalizations.of(context).cancelButtonLabel,
                 ),
               ),
+              if (draft)
+                OutlinedButton(
+                  key: const ValueKey('mdfLeaveSave'),
+                  onPressed: () => Navigator.of(context).pop(_Leave.save),
+                  child: Text(AppLocalizations.of(context).mdfLeaveSave),
+                ),
               FilledButton(
                 key: const ValueKey('mdfLeaveYes'),
-                onPressed: () => Navigator.of(context).pop(true),
+                onPressed: () => Navigator.of(context).pop(_Leave.drop),
                 child: Text(AppLocalizations.of(context).mdfLeave),
               ),
             ],
           ),
         );
-        if (leave ?? false) {
-          _initial = _snapshot();
-          setState(() {});
-          navigator.pop();
-        }
+        if (choice == null) return;
+        if (choice == _Leave.save && await _save() == null) return;
+        _initial = _snapshot();
+        if (mounted) setState(() => _leaving = true);
+        navigator.pop();
       },
       child: Column(
         children: [
@@ -2905,6 +2951,19 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
 
   MdfOrder get o => widget.order;
 
+  late final MdfJustAccepted _justAccepted = ref.read(
+    mdfJustAcceptedProvider.notifier,
+  );
+
+  @override
+  void dispose() {
+    // Left the card: next time it is an ordinary one.
+    final name = o.name;
+    final just = _justAccepted;
+    unawaited(Future.microtask(() => just.remove(name)));
+    super.dispose();
+  }
+
   Future<void> _run(Future<MdfOrder> Function() action) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -3194,9 +3253,27 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
       h.extraName,
     ].whereType<String>().join(' · ');
 
+    final fresh = ref.watch(mdfJustAcceptedProvider).contains(o.name);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
+        // «Заказ принят — что дальше?» (owner, 26.11.2026): the form is
+        // done; the next step is one tap, not «назад» into it again.
+        if (fresh) ...[
+          _AcceptedBanner(
+            order: o,
+            money: money,
+            onPay: _busy || o.debt <= 0 ? null : _payment,
+            onNext: () => unawaited(
+              context.push(
+                Routes.mdfOrderNew,
+                extra: FacadeCustomer(name: o.customer, title: o.customerName),
+              ),
+            ),
+            onClose: () => _justAccepted.remove(o.name),
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.xs,
@@ -3207,6 +3284,15 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             if (o.overdue)
               StatusChip(label: l10n.mdfOverdue, intent: StatusIntent.danger),
             MdfTagBadges(orderTags: o.tags, customerTags: o.customerTags),
+            // At the top, where one looks for it (owner, 26.11.2026): a
+            // change goes into this order, with its reason in the history.
+            if (open)
+              TextButton.icon(
+                key: const ValueKey('mdfChangeOrder'),
+                onPressed: _busy ? null : () => setState(() => _editing = true),
+                icon: const Icon(AppIcons.edit),
+                label: Text(l10n.mdfChangeOrder),
+              ),
           ],
         ),
         Text(
@@ -3420,16 +3506,6 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
             ),
           ),
         ),
-        if (open)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              key: const ValueKey('mdfChangeOrder'),
-              onPressed: _busy ? null : () => setState(() => _editing = true),
-              icon: const Icon(AppIcons.edit),
-              label: Text(l10n.mdfChangeOrder),
-            ),
-          ),
         if (o.history.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
           SectionLabel(l10n.mdfHistorySection),
@@ -4655,3 +4731,87 @@ String mdfGlossLabel(MdfGloss g, AppLocalizations l10n) => switch (g) {
 
 /// The drop-down's last item: «Изменить список…», not a value.
 const _editList = '\u0001list';
+
+/// «Заказ принят»: what was accepted, and the next step in one tap — the
+/// prepayment, or another order for the same customer.
+class _AcceptedBanner extends StatelessWidget {
+  const _AcceptedBanner({
+    required this.order,
+    required this.money,
+    required this.onPay,
+    required this.onNext,
+    required this.onClose,
+  });
+
+  final MdfOrder order;
+  final NumberFormat money;
+  final VoidCallback? onPay;
+  final VoidCallback onNext;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final status = context.statusColors;
+    final o = order;
+    return Card(
+      key: const ValueKey('mdfAcceptedBanner'),
+      color: status.success.withValues(alpha: AppTint.surface),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(AppIcons.success, color: status.success),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.mdfAcceptedBanner(
+                      o.customerName,
+                      '${o.pieces}',
+                      o.areaM2.toStringAsFixed(2),
+                      money.format(o.total),
+                    ),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: status.success,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  key: const ValueKey('mdfAcceptedClose'),
+                  tooltip: MaterialLocalizations.of(context).closeButtonLabel,
+                  icon: const Icon(AppIcons.close),
+                  onPressed: onClose,
+                ),
+              ],
+            ),
+            Text(l10n.mdfAcceptedNext, style: theme.textTheme.bodySmall),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
+              children: [
+                if (onPay != null)
+                  FilledButton.icon(
+                    key: const ValueKey('mdfAcceptedPay'),
+                    onPressed: onPay,
+                    icon: const Icon(AppIcons.payment),
+                    label: Text(l10n.mdfAcceptedPay),
+                  ),
+                OutlinedButton.icon(
+                  key: const ValueKey('mdfAcceptedNext'),
+                  onPressed: onNext,
+                  icon: const Icon(AppIcons.add),
+                  label: Text(l10n.mdfAcceptedMore),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

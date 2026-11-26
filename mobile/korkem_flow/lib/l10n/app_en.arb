@@ -6105,6 +6105,12 @@
   "mdfReasonPrice": "Price changed",
   "mdfLeaveUnsaved": "Leave without saving? The changes will be lost.",
   "mdfLeave": "Leave",
+  "mdfLeaveSave": "Save as draft",
+  "mdfAcceptedBanner": "Order accepted · {customer} · {pieces} pcs · {m2} m² · {total}",
+  "@mdfAcceptedBanner": {"placeholders": {"customer": {"type": "String"}, "pieces": {"type": "String"}, "m2": {"type": "String"}, "total": {"type": "String"}}},
+  "mdfAcceptedNext": "What next?",
+  "mdfAcceptedPay": "Take the prepayment",
+  "mdfAcceptedMore": "Another order for this customer",
   "mdfChangeAdded": "Position {n} added",
   "mdfChangeRemoved": "Position {n} removed",
   "@mdfChangeAdded": {

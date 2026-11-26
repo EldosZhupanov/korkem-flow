@@ -1180,6 +1180,81 @@ void main() {
     expect(tester.widget<FilledButton>(yes).onPressed, isNotNull);
   });
 
+  testWidgets('just accepted: «Заказ принят», the prepayment in one tap, '
+      '«Изменить заказ» on top', (tester) async {
+    // Owner, 26.11.2026: «назад» from an accepted order is the list; the
+    // card offers what comes next instead.
+    final repo = _FakeRepository();
+    await _pumpCard(tester, repo);
+    expect(find.byKey(const ValueKey('mdfAcceptedBanner')), findsNothing);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MdfOrderScreen)),
+    );
+    container.read(mdfJustAcceptedProvider.notifier).add('SAL-ORD-1129');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfAcceptedBanner')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mdfAcceptedNext')), findsOneWidget);
+    // «Изменить заказ» stands above the positions now.
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('mdfChangeOrder'))).dy,
+      lessThan(tester.getTopLeft(find.byKey(const ValueKey('mdfAddPayment'))).dy),
+    );
+    await tester.tap(find.byKey(const ValueKey('mdfAcceptedPay')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfPaymentAmount')), findsOneWidget);
+    Navigator.of(
+      tester.element(find.byKey(const ValueKey('mdfPaymentAmount'))),
+    ).pop();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfAcceptedClose')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfAcceptedBanner')), findsNothing);
+  });
+
+  testWidgets('leaving a new order with sizes typed asks first', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mdfOrderRepositoryProvider.overrideWithValue(_FakeRepository()),
+        ],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const MdfOrderScreen()),
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    // Nothing typed: «назад» simply goes back.
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text('open'), findsOneWidget);
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('mdfH:0')), '700');
+    await tester.enterText(find.byKey(const ValueKey('mdfW:0')), '400');
+    await tester.enterText(find.byKey(const ValueKey('mdfQ:0')), '2');
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfLeaveSave')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mdfLeaveYes')));
+    await tester.pumpAndSettle();
+    expect(find.text('open'), findsOneWidget);
+  });
+
   testWidgets('the manager ticks a stage on the card', (tester) async {
     final repo = _FakeRepository();
     await tester.pumpWidget(
