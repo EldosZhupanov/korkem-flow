@@ -12510,6 +12510,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tmNoOne => 'Никого не нашлось';
 
   @override
+  String get tmPickDone => 'Готово';
+
+  @override
+  String tmPickAdded(int count) {
+    return 'Добавлено: $count';
+  }
+
+  @override
+  String get tmOnPost => 'уже на должности';
+
+  @override
+  String get tmPickHint =>
+      'Нажмите на человека — он встанет на должность. Нажмите ещё раз — снимется.';
+
+  @override
   String get tmDupTitle => 'Такой человек уже есть';
 
   @override

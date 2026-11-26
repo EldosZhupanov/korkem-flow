@@ -21341,6 +21341,30 @@ abstract class AppLocalizations {
   /// **'No one found'**
   String get tmNoOne;
 
+  /// No description provided for @tmPickDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get tmPickDone;
+
+  /// No description provided for @tmPickAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added: {count}'**
+  String tmPickAdded(int count);
+
+  /// No description provided for @tmOnPost.
+  ///
+  /// In en, this message translates to:
+  /// **'already on the post'**
+  String get tmOnPost;
+
+  /// No description provided for @tmPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a person to put him on the post; tap again to take him off.'**
+  String get tmPickHint;
+
   /// No description provided for @tmDupTitle.
   ///
   /// In en, this message translates to:

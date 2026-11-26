@@ -12433,6 +12433,21 @@ class AppLocalizationsKk extends AppLocalizations {
   String get tmNoOne => 'Ешкім табылмады';
 
   @override
+  String get tmPickDone => 'Дайын';
+
+  @override
+  String tmPickAdded(int count) {
+    return 'Қосылды: $count';
+  }
+
+  @override
+  String get tmOnPost => 'лауазымда тұр';
+
+  @override
+  String get tmPickHint =>
+      'Адамды басыңыз — лауазымға тұрады. Тағы басыңыз — алынады.';
+
+  @override
   String get tmDupTitle => 'Мұндай адам бар';
 
   @override

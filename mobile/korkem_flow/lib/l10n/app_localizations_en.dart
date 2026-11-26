@@ -12473,6 +12473,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tmNoOne => 'No one found';
 
   @override
+  String get tmPickDone => 'Done';
+
+  @override
+  String tmPickAdded(int count) {
+    return 'Added: $count';
+  }
+
+  @override
+  String get tmOnPost => 'already on the post';
+
+  @override
+  String get tmPickHint =>
+      'Tap a person to put him on the post; tap again to take him off.';
+
+  @override
   String get tmDupTitle => 'This person is already here';
 
   @override

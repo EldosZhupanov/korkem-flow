@@ -76,15 +76,17 @@ class _PostPickerState extends State<_PostPicker> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final query = _key(_search.text.trim());
-    final people = [
-      for (final p in widget.team.people)
-        if (p.active && (query.isEmpty || _key(p.name).contains(query))) p,
-    ]..sort((a, b) {
-        // Who is on the post before anyone else, then the rest by name.
-        final on = (b.posts.contains(widget.post) ? 1 : 0) -
-            (a.posts.contains(widget.post) ? 1 : 0);
-        return on != 0 ? on : a.name.compareTo(b.name);
-      });
+    final people =
+        [
+          for (final p in widget.team.people)
+            if (p.active && (query.isEmpty || _key(p.name).contains(query))) p,
+        ]..sort((a, b) {
+          // Who is on the post before anyone else, then the rest by name.
+          final on =
+              (b.posts.contains(widget.post) ? 1 : 0) -
+              (a.posts.contains(widget.post) ? 1 : 0);
+          return on != 0 ? on : a.name.compareTo(b.name);
+        });
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
@@ -109,7 +111,9 @@ class _PostPickerState extends State<_PostPicker> {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              _added.isEmpty ? l10n.tmPickHint : l10n.tmPickAdded(_added.length),
+              _added.isEmpty
+                  ? l10n.tmPickHint
+                  : l10n.tmPickAdded(_added.length),
               key: const ValueKey('tm:pickCount'),
               style: muted,
             ),
@@ -119,8 +123,7 @@ class _PostPickerState extends State<_PostPicker> {
                   ? Center(child: Text(l10n.tmNoOne))
                   : ListView(
                       children: [
-                        for (final p in people)
-                          _row(context, p, muted),
+                        for (final p in people) _row(context, p, muted),
                       ],
                     ),
             ),
