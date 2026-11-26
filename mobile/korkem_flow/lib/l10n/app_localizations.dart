@@ -9327,6 +9327,12 @@ abstract class AppLocalizations {
   /// **'List'**
   String get mdfDictOpen;
 
+  /// No description provided for @mdfDictEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the list…'**
+  String get mdfDictEdit;
+
   /// No description provided for @mdfDictDecor.
   ///
   /// In en, this message translates to:

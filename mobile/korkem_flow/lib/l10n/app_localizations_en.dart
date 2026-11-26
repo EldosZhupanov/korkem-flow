@@ -5250,6 +5250,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfDictOpen => 'List';
 
   @override
+  String get mdfDictEdit => 'Edit the list…';
+
+  @override
   String get mdfDictDecor => 'Film colour';
 
   @override

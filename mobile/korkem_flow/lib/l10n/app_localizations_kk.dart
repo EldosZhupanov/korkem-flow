@@ -5214,6 +5214,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfDictOpen => 'Анықтамалық';
 
   @override
+  String get mdfDictEdit => 'Тізімді өзгерту…';
+
+  @override
   String get mdfDictDecor => 'Үлдір түсі';
 
   @override

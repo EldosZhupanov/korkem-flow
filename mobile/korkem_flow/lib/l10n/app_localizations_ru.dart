@@ -5275,6 +5275,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfDictOpen => 'Справочник';
 
   @override
+  String get mdfDictEdit => 'Изменить список…';
+
+  @override
   String get mdfDictDecor => 'Цвет плёнки';
 
   @override
