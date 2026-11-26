@@ -5155,7 +5155,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfHistorySection => 'История';
 
   @override
-  String get mdfPlanTitle => 'План цеха';
+  String get mdfPlanTitle => 'Цех — план и факт';
 
   @override
   String get mdfPlanHint => 'Что ждёт на каждом этапе и сколько м²';
@@ -12723,4 +12723,154 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pplMoneyHidden => 'Деньги видят руководители и бухгалтерия.';
+
+  @override
+  String get shopTitle => 'Цех';
+
+  @override
+  String shopMonthLine(String month, String plan, String done) {
+    return '$month: план $plan м² · сделано $done м²';
+  }
+
+  @override
+  String get shopPlanDue => 'План — заказы со сроком в этом месяце';
+
+  @override
+  String get shopPlanTarget => 'План — ваша цель цеха на месяц';
+
+  @override
+  String get shopSetPlan => 'Изменить план';
+
+  @override
+  String get shopPlanDialog => 'План цеха на месяц, м²';
+
+  @override
+  String get shopPlanHint => 'Пусто — заказы со сроком в этом месяце';
+
+  @override
+  String get shopSave => 'Сохранить';
+
+  @override
+  String get shopClear => 'Без цели';
+
+  @override
+  String shopExpected(String m2) {
+    return 'к сегодня должно быть $m2 м²';
+  }
+
+  @override
+  String shopBehind(String m2) {
+    return 'отстаём на $m2 м²';
+  }
+
+  @override
+  String shopAhead(String m2) {
+    return 'опережаем на $m2 м²';
+  }
+
+  @override
+  String get shopForecast => 'Прогноз к концу месяца';
+
+  @override
+  String shopShort(String m2) {
+    return 'не успеваем $m2 м²';
+  }
+
+  @override
+  String get shopEnough => 'успеваем';
+
+  @override
+  String get shopInShop => 'В цехе сейчас';
+
+  @override
+  String shopOrders(int count) {
+    return '$count заказов';
+  }
+
+  @override
+  String get shopTaken => 'Принято за месяц';
+
+  @override
+  String shopOfSales(String m2) {
+    return 'цель продаж $m2 м²';
+  }
+
+  @override
+  String get shopWaiting => 'ждёт';
+
+  @override
+  String get shopToGive => 'к выдаче';
+
+  @override
+  String get shopToday => 'сегодня';
+
+  @override
+  String get shopMonthM2 => 'за месяц';
+
+  @override
+  String shopDays(String days) {
+    return '≈ $days дн. работы';
+  }
+
+  @override
+  String get shopJam => 'затор';
+
+  @override
+  String get shopNobody => 'никого';
+
+  @override
+  String shopInWork(int count) {
+    return '$count в работе';
+  }
+
+  @override
+  String get shopLate => 'Опаздывают';
+
+  @override
+  String get shopNoLate => 'Опаздывающих нет';
+
+  @override
+  String shopLateLine(String m2, String stage) {
+    return '$m2 м² · стоит на шаге «$stage»';
+  }
+
+  @override
+  String get shopOverdue => 'просрочен';
+
+  @override
+  String shopDue(String date) {
+    return 'срок $date';
+  }
+
+  @override
+  String get shopSide => 'Отдельно — не по ходу заказа';
+
+  @override
+  String shopSales(int count, String metres) {
+    return 'сегодня $count продаж · $metres м';
+  }
+
+  @override
+  String shopSalesMonth(String metres) {
+    return 'за месяц $metres м';
+  }
+
+  @override
+  String shopReceived(int count) {
+    return 'поставок принято сегодня: $count';
+  }
+
+  @override
+  String get shopTapStage => 'Нажмите на шаг — покажет его заказы';
+
+  @override
+  String get teamPostNobody => 'никого — этап заказов здесь встанет';
+
+  @override
+  String teamInWork(int count) {
+    return '$count в работе';
+  }
+
+  @override
+  String get teamNoLogin => 'без входа';
 }

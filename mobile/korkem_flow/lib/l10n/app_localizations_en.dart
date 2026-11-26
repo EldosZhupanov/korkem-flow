@@ -5131,7 +5131,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfHistorySection => 'History';
 
   @override
-  String get mdfPlanTitle => 'Shop plan';
+  String get mdfPlanTitle => 'Shop — plan and fact';
 
   @override
   String get mdfPlanHint => 'What waits at each stage, in m²';
@@ -12686,4 +12686,154 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pplMoneyHidden => 'Pay is seen by managers and accounting.';
+
+  @override
+  String get shopTitle => 'Shop';
+
+  @override
+  String shopMonthLine(String month, String plan, String done) {
+    return '$month: plan $plan m² · made $done m²';
+  }
+
+  @override
+  String get shopPlanDue => 'Plan — the orders due this month';
+
+  @override
+  String get shopPlanTarget => 'Plan — your shop goal for the month';
+
+  @override
+  String get shopSetPlan => 'Change the plan';
+
+  @override
+  String get shopPlanDialog => 'Shop plan for the month, m²';
+
+  @override
+  String get shopPlanHint => 'Empty — the orders due this month';
+
+  @override
+  String get shopSave => 'Save';
+
+  @override
+  String get shopClear => 'No goal';
+
+  @override
+  String shopExpected(String m2) {
+    return '$m2 m² should be made by today';
+  }
+
+  @override
+  String shopBehind(String m2) {
+    return '$m2 m² behind';
+  }
+
+  @override
+  String shopAhead(String m2) {
+    return '$m2 m² ahead';
+  }
+
+  @override
+  String get shopForecast => 'Forecast to month end';
+
+  @override
+  String shopShort(String m2) {
+    return '$m2 m² short';
+  }
+
+  @override
+  String get shopEnough => 'on track';
+
+  @override
+  String get shopInShop => 'In the shop now';
+
+  @override
+  String shopOrders(int count) {
+    return '$count orders';
+  }
+
+  @override
+  String get shopTaken => 'Taken in this month';
+
+  @override
+  String shopOfSales(String m2) {
+    return 'sales goal $m2 m²';
+  }
+
+  @override
+  String get shopWaiting => 'waiting';
+
+  @override
+  String get shopToGive => 'to give out';
+
+  @override
+  String get shopToday => 'today';
+
+  @override
+  String get shopMonthM2 => 'this month';
+
+  @override
+  String shopDays(String days) {
+    return '≈ $days days of work';
+  }
+
+  @override
+  String get shopJam => 'bottleneck';
+
+  @override
+  String get shopNobody => 'nobody';
+
+  @override
+  String shopInWork(int count) {
+    return '$count in work';
+  }
+
+  @override
+  String get shopLate => 'Running late';
+
+  @override
+  String get shopNoLate => 'Nothing is late';
+
+  @override
+  String shopLateLine(String m2, String stage) {
+    return '$m2 m² · at «$stage»';
+  }
+
+  @override
+  String get shopOverdue => 'overdue';
+
+  @override
+  String shopDue(String date) {
+    return 'due $date';
+  }
+
+  @override
+  String get shopSide => 'Apart — off the order\'s road';
+
+  @override
+  String shopSales(int count, String metres) {
+    return 'today $count sales · $metres m';
+  }
+
+  @override
+  String shopSalesMonth(String metres) {
+    return 'this month $metres m';
+  }
+
+  @override
+  String shopReceived(int count) {
+    return 'deliveries taken in today: $count';
+  }
+
+  @override
+  String get shopTapStage => 'Tap a stage to see its orders';
+
+  @override
+  String get teamPostNobody => 'nobody — orders will stop at this step';
+
+  @override
+  String teamInWork(int count) {
+    return '$count in work';
+  }
+
+  @override
+  String get teamNoLogin => 'no login';
 }

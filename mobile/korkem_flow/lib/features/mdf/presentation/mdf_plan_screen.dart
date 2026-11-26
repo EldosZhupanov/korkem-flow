@@ -17,16 +17,23 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_deadline.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_orders_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_worker_sheet.dart';
+import 'package:korkem_flow/features/mdf/presentation/shop_board_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 String _m2(double v) => v.toStringAsFixed(2);
 
-/// «Жоспар» — the shop's plan: each stage with the orders waiting for it and
-/// their m², urgent then earliest due first, each with its traffic light
-/// (today / tomorrow / later) and «не успевает»; a tick moves an order on.
-/// The manager does the ticking (owner, 01.11.2026).
+/// «Цех» — what «Жоспар» was, grown into the shop's board (owner,
+/// 26.11.2026): on top the month's plan against what is made, then the
+/// stages in the order an order goes, each with what waits, what was made
+/// today and this month, the days of work it holds and its people; the late
+/// orders; the departments off the road. Below, as «Жоспар» always had it:
+/// each stage with the orders waiting for it, urgent then earliest due
+/// first, each with its traffic light and «не успевает»; a tick moves an
+/// order on. The manager does the ticking (owner, 01.11.2026).
 class MdfPlanScreen extends ConsumerStatefulWidget {
-  const MdfPlanScreen({super.key});
+  const MdfPlanScreen({super.key, this.today});
+
+  final DateTime? today;
 
   @override
   ConsumerState<MdfPlanScreen> createState() => _MdfPlanScreenState();
@@ -34,6 +41,7 @@ class MdfPlanScreen extends ConsumerStatefulWidget {
 
 class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
   String? _busy;
+  late final DateTime _today = widget.today ?? DateTime.now();
 
   /// The stage tapped on the chart: its orders alone below (owner,
   /// 14.11.2026).
@@ -62,7 +70,9 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
       messenger.showDone(
         l10n.mdfPlanTicked(order.name, mdfStageLabel(stage.stage, l10n)),
       );
-      ref.invalidate(mdfPlanProvider);
+      ref
+        ..invalidate(mdfPlanProvider)
+        ..invalidate(shopBoardProvider);
     } on Object catch (error) {
       messenger.showFailure(error, l10n);
     } finally {
@@ -75,9 +85,10 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final plan = ref.watch(mdfPlanProvider);
+    final board = ref.watch(shopBoardProvider).value;
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.mdfPlanTitle),
+        title: Text(l10n.shopTitle),
         actions: [
           IconButton(
             key: const ValueKey('planTv'),
@@ -94,40 +105,78 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
           onRetry: () => ref.invalidate(mdfPlanProvider),
         ),
         data: (p) => RefreshIndicator(
-          onRefresh: () => ref.refresh(mdfPlanProvider.future),
+          onRefresh: () async {
+            ref
+              ..invalidate(shopBoardProvider)
+              ..invalidate(mdfPlanProvider);
+            await ref.read(mdfPlanProvider.future);
+          },
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
-              ReadableWidth(
-                child: Text(
-                  l10n.mdfPlanInWork(_m2(p.inWorkM2)),
-                  key: const ValueKey('planInWork'),
-                  style: theme.textTheme.titleMedium,
+              if (board != null) ...[
+                _Wide(
+                  child: ShopMonthStrip(month: board.month, day: _today),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              // Where the shop's work waits, stage by stage, by m²: the
-              // longest bar is where it jams. Tap one for its orders alone.
-              ReadableWidth(
-                child: BarRows(
-                  key: const ValueKey('planStages'),
-                  rows: [
-                    for (final s in p.stages)
-                      if (s.orders.isNotEmpty)
-                        BarRow(
-                          id: s.stage.name,
-                          label: mdfStageLabel(s.stage, l10n),
-                          value: s.areaM2,
-                          note: '${s.orders.length} · ${_m2(s.areaM2)} м²',
-                        ),
-                  ],
-                  selected: _stage,
-                  onSelect: (id) => setState(() => _stage = id),
+                const SizedBox(height: AppSpacing.lg),
+                _Wide(
+                  child: ShopFlow(
+                    stages: board.stages,
+                    selected: _stage,
+                    onSelect: (id) => setState(() => _stage = id),
+                  ),
                 ),
-              ),
+                const SizedBox(height: AppSpacing.xs),
+                _Wide(
+                  child: Text(
+                    l10n.shopTapStage,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                if (_stage == null) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  _Wide(child: ShopLateList(late: board.late)),
+                  const SizedBox(height: AppSpacing.lg),
+                  _Wide(child: ShopSideBlocks(side: board.side)),
+                ],
+              ] else ...[
+                ReadableWidth(
+                  child: Text(
+                    l10n.mdfPlanInWork(_m2(p.inWorkM2)),
+                    key: const ValueKey('planInWork'),
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                // Until the board answers: where the shop's work waits, stage
+                // by stage, by m². Tap one for its orders alone.
+                ReadableWidth(
+                  child: BarRows(
+                    key: const ValueKey('planStages'),
+                    rows: [
+                      for (final s in p.stages)
+                        if (s.orders.isNotEmpty)
+                          BarRow(
+                            id: s.stage.name,
+                            label: mdfStageLabel(s.stage, l10n),
+                            value: s.areaM2,
+                            note: '${s.orders.length} · ${_m2(s.areaM2)} м²',
+                          ),
+                    ],
+                    selected: _stage,
+                    onSelect: (id) => setState(() => _stage = id),
+                  ),
+                ),
+              ],
+              // With the board: a stage's orders once it is tapped; without
+              // it, every stage's, as «Жоспар» had them.
               for (final s in p.stages)
                 if (s.orders.isNotEmpty &&
-                    (_stage == null || s.stage.name == _stage)) ...[
+                    (_stage == null
+                        ? board == null
+                        : s.stage.name == _stage)) ...[
                   const SizedBox(height: AppSpacing.lg),
                   ReadableWidth(
                     child: SectionLabel(
@@ -222,4 +271,19 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
       ),
     );
   }
+}
+
+/// The board is wider than a text column: six stages in a row need it.
+class _Wide extends StatelessWidget {
+  const _Wide({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: AppBreakpoints.medium),
+      child: child,
+    ),
+  );
 }

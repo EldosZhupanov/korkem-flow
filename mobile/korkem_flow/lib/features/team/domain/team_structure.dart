@@ -83,6 +83,7 @@ class TeamPerson {
     this.login,
     this.active = true,
     this.posts = const [],
+    this.inWork = 0,
   });
 
   factory TeamPerson.fromJson(Map<String, dynamic> json) => TeamPerson(
@@ -101,6 +102,7 @@ class TeamPerson {
         : null,
     active: json['active'] != false,
     posts: [for (final p in json['posts'] as List? ?? const []) '$p'],
+    inWork: json['in_work'] is num ? (json['in_work'] as num).toInt() : 0,
   );
 
   final String? employee;
@@ -110,6 +112,9 @@ class TeamPerson {
   final TeamLogin? login;
   final bool active;
   final List<String> posts;
+
+  /// Open order stages given to him.
+  final int inWork;
 
   /// One key per person, with or without an employee record.
   String get id => employee ?? 'user:$user';
