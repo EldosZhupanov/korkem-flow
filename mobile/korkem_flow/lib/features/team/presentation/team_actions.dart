@@ -15,7 +15,7 @@ import 'package:korkem_flow/features/team/presentation/team_departments_view.dar
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
 // One person at a time (owner, 26.11.2026): a post given or taken, his open
-// stages passed on, «Уволен» with what is still owed. Shared by «Люди», the
+// stages passed on, «Уволен» with what is still owed. Shared by the
 // departments, the person's dialog and his card.
 
 // Each takes what it needs from [context] before its first await: the line

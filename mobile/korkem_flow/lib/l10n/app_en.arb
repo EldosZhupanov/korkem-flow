@@ -11168,5 +11168,7 @@
   "pplSalesBonus": "Sales bonus",
   "pplCancelEntry": "Cancel it",
   "pplCancelWhy": "Why cancel it? He will see it.",
-  "pplPeopleMoney": "Staff money"
+  "pplPeopleMoney": "Staff money",
+  "pplDepartmentsTab": "Departments",
+  "pplMoneyHidden": "Pay is seen by managers and accounting."
 }

@@ -12639,4 +12639,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pplPeopleMoney => 'Қызметкерлер ақшасы';
+
+  @override
+  String get pplDepartmentsTab => 'Бөлімдер';
+
+  @override
+  String get pplMoneyHidden => 'Ақшаны басшылар мен бухгалтерия көреді.';
 }

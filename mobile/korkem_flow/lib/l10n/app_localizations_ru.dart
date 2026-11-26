@@ -12717,4 +12717,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pplPeopleMoney => 'Деньги сотрудников';
+
+  @override
+  String get pplDepartmentsTab => 'Отделы';
+
+  @override
+  String get pplMoneyHidden => 'Деньги видят руководители и бухгалтерия.';
 }

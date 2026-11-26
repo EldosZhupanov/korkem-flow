@@ -21724,6 +21724,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Staff money'**
   String get pplPeopleMoney;
+
+  /// No description provided for @pplDepartmentsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Departments'**
+  String get pplDepartmentsTab;
+
+  /// No description provided for @pplMoneyHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay is seen by managers and accounting.'**
+  String get pplMoneyHidden;
 }
 
 class _AppLocalizationsDelegate
