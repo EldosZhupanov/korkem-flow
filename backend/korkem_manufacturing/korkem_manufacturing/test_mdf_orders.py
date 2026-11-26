@@ -1382,6 +1382,27 @@ class TestMdfOrders(IntegrationTestCase):
 		self.assertEqual(self._as(MANAGER, mdf_orders.overview)["ready"], before["ready"] + 1)
 		self.assertEqual((row()["waiting"], row()["ready_days"]), (None, 0))
 
+	def test_the_overview_names_the_stage_the_late_orders_wait_at(self):
+		# Owner, 26.11.2026: 22 overdue, nearly all «сейчас: Раскрой» — say the
+		# cause, not 22 rows.
+		def order(name, days, done=()):
+			return frappe._dict(
+				name=name, docstatus=1, delivery_date=add_days(nowdate(), days), korkem_ready_on=None,
+				korkem_handed_over_on=None, korkem_hold_reason=None, korkem_finish=PVC, korkem_extra_stages=None,
+				korkem_coatings=None, korkem_tags=None,
+				**{field: (nowdate() if stage in done else None) for stage, field in mdf_orders.STAGES.items()},
+			)
+
+		rows = [order(f"BN-{i}", -3) for i in range(4)] + [order("BN-mill", -1, done=("cut",)),
+														   order("BN-new", 5)]
+		found = mdf_orders.bottleneck(rows)
+		self.assertEqual((found["stage"], found["late"], found["late_total"], found["queue_orders"]), ("cut", 4, 5, 5))
+		# Lateness spread over the stages has no one cause.
+		spread = [order("BN-a", -2), order("BN-b", -2, done=("cut",)), order("BN-c", -2, done=("cut", "mill")),
+				  order("BN-d", -2, done=("cut", "mill", "sand"))]
+		self.assertIsNone(mdf_orders.bottleneck(spread))
+		self.assertIn("bottleneck", self._as(MANAGER, mdf_orders.overview))
+
 	def test_the_customer_s_own_paint_and_facades(self):
 		from korkem_manufacturing.services import facade_materials, mdf_dictionaries, mdf_paint
 

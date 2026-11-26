@@ -3947,5 +3947,21 @@
   "pressForceTitle": "Детали ближе зазора",
   "pressForceBody": "Некоторые детали лежат ближе {gap} мм или в отступе. Почему?",
   "pressForceUsual": "так кладём всегда",
-  "pressForceWhy": "Причина"
+  "pressForceWhy": "Причина",
+  "mdfJustNow": "Только что",
+  "mdfJustNowClear": "Убрать из «Только что»",
+  "mdfJustSaved": "Заказ {name} сохранён",
+  "mdfJustOpen": "Открыть",
+  "mdfViewCards": "Карточки",
+  "mdfViewRows": "Строки — 15 заказов на экран",
+  "mdfSectionMore": "ещё {count}",
+  "mdfRowPay": "Оплата",
+  "mdfRowStageReady": "{stage} готов",
+  "mdfRowCall": "Позвонить",
+  "mdfRowStageDone": "{order}: {stage} готов",
+  "mdfRowUndo": "Отменить",
+  "mdfBottleneck": "{late} из {total} просроченных ждут «{stage}»",
+  "mdfBottleneckQueue": "В очереди на «{stage}»: {orders} заказов · {m2} м²",
+  "mdfBottleneckShow": "Показать просроченные",
+  "mdfBottleneckPlan": "План цеха"
 }

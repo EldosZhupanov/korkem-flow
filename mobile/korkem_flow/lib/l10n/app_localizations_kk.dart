@@ -13159,4 +13159,64 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pressForceWhy => 'Себебі';
+
+  @override
+  String get mdfJustNow => 'Жаңа ғана';
+
+  @override
+  String get mdfJustNowClear => '«Жаңа ғана»-дан алу';
+
+  @override
+  String mdfJustSaved(String name) {
+    return '$name тапсырысы сақталды';
+  }
+
+  @override
+  String get mdfJustOpen => 'Ашу';
+
+  @override
+  String get mdfViewCards => 'Карточкалар';
+
+  @override
+  String get mdfViewRows => 'Жолдар — экранда 15 тапсырыс';
+
+  @override
+  String mdfSectionMore(int count) {
+    return 'тағы $count';
+  }
+
+  @override
+  String get mdfRowPay => 'Төлем';
+
+  @override
+  String mdfRowStageReady(String stage) {
+    return '$stage дайын';
+  }
+
+  @override
+  String get mdfRowCall => 'Қоңырау';
+
+  @override
+  String mdfRowStageDone(String order, String stage) {
+    return '$order: $stage дайын';
+  }
+
+  @override
+  String get mdfRowUndo => 'Болдырмау';
+
+  @override
+  String mdfBottleneck(int late, int total, String stage) {
+    return '$total кешіккеннің $late-і «$stage» күтуде';
+  }
+
+  @override
+  String mdfBottleneckQueue(String stage, int orders, String m2) {
+    return '«$stage» кезегінде: $orders тапсырыс · $m2 м²';
+  }
+
+  @override
+  String get mdfBottleneckShow => 'Кешіккендерді көрсету';
+
+  @override
+  String get mdfBottleneckPlan => 'Цех жоспары';
 }

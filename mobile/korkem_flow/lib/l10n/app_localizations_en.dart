@@ -13200,4 +13200,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pressForceWhy => 'Reason';
+
+  @override
+  String get mdfJustNow => 'Just now';
+
+  @override
+  String get mdfJustNowClear => 'Clear «Just now»';
+
+  @override
+  String mdfJustSaved(String name) {
+    return 'Order $name saved';
+  }
+
+  @override
+  String get mdfJustOpen => 'Open';
+
+  @override
+  String get mdfViewCards => 'Cards';
+
+  @override
+  String get mdfViewRows => 'Rows — 15 orders a screen';
+
+  @override
+  String mdfSectionMore(int count) {
+    return '$count more';
+  }
+
+  @override
+  String get mdfRowPay => 'Payment';
+
+  @override
+  String mdfRowStageReady(String stage) {
+    return '$stage done';
+  }
+
+  @override
+  String get mdfRowCall => 'Call';
+
+  @override
+  String mdfRowStageDone(String order, String stage) {
+    return '$order: $stage done';
+  }
+
+  @override
+  String get mdfRowUndo => 'Undo';
+
+  @override
+  String mdfBottleneck(int late, int total, String stage) {
+    return '$late of $total late orders wait for «$stage»';
+  }
+
+  @override
+  String mdfBottleneckQueue(String stage, int orders, String m2) {
+    return 'Queued for «$stage»: $orders orders · $m2 m²';
+  }
+
+  @override
+  String get mdfBottleneckShow => 'Show the late ones';
+
+  @override
+  String get mdfBottleneckPlan => 'Shop plan';
 }

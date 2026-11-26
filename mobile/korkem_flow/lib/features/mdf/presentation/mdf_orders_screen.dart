@@ -1,18 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:korkem_flow/core/contact/contact_actions.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/tokens/motion.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_search_field.dart';
 import 'package:korkem_flow/core/design/widgets/section_label.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
 import 'package:korkem_flow/core/design/widgets/status_chip.dart';
 import 'package:korkem_flow/core/navigation/app_router.dart';
+import 'package:korkem_flow/core/settings/folds.dart';
 import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
 import 'package:korkem_flow/features/mdf/domain/mdf_order.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
+import 'package:korkem_flow/features/mdf/presentation/mdf_order_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_summary_screen.dart';
 import 'package:korkem_flow/features/mdf/presentation/mdf_tags_view.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -48,6 +56,90 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
   late String _search = widget.search ?? '';
   _Filter _filter = _Filter.all;
 
+  /// Each section's head — a chip on top jumps to it (owner, 26.11.2026).
+  final Map<MdfListSection, GlobalKey> _heads = {
+    for (final s in MdfListSection.values) s: GlobalKey(),
+  };
+
+  /// The big sections opened in full; the rest show their first few.
+  final _opened = <MdfListSection>{};
+
+  /// A section longer than this shows [_folded] rows and «ещё N».
+  static const _foldOver = 10;
+  static const _folded = 5;
+
+  /// «Строки»: one line an order, kept between openings.
+  static const _denseKey = 'mdf.list.dense';
+
+  void _jump(MdfListSection section) {
+    final at = _heads[section]?.currentContext;
+    if (at != null) {
+      unawaited(Scrollable.ensureVisible(at, duration: AppDuration.standard));
+    }
+  }
+
+  /// «Оплата» on the row: the order's own payment window.
+  Future<void> _pay(MdfOrderRow row) async {
+    final paid = await showMdfPaymentFor(context, ref, row.name);
+    if (paid) {
+      ref
+        ..invalidate(mdfOrdersProvider)
+        ..invalidate(mdfOverviewProvider);
+    }
+  }
+
+  /// «Раскрой готов» on the row — with «Отменить» for a tap by mistake.
+  Future<void> _stageDone(MdfOrderRow row) async {
+    final stage = row.waiting;
+    if (stage == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    final repo = ref.read(mdfOrderRepositoryProvider);
+    try {
+      await repo.setStage(row.name, stage, done: true);
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+      return;
+    }
+    ref
+      ..invalidate(mdfOrdersProvider)
+      ..invalidate(mdfOverviewProvider)
+      ..invalidate(mdfOrderProvider(row.name));
+    messenger.showSnackBar(
+      SnackBar(
+        key: const ValueKey('mdfStageDoneSnack'),
+        content: Text(
+          l10n.mdfRowStageDone(row.name, mdfStageLabel(stage, l10n)),
+        ),
+        action: SnackBarAction(
+          label: l10n.mdfRowUndo,
+          onPressed: () async {
+            await repo.setStage(row.name, stage, done: false);
+            ref
+              ..invalidate(mdfOrdersProvider)
+              ..invalidate(mdfOverviewProvider)
+              ..invalidate(mdfOrderProvider(row.name));
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _row(MdfOrderRow row, {required bool dense}) => _OrderRow(
+    row: row,
+    dense: dense,
+    onTap: () => _open(row.name),
+    onPay: row.debt > 0 && row.status != MdfStatus.draft
+        ? () => _pay(row)
+        : null,
+    onStageDone: row.waiting != null && row.status != MdfStatus.onHold
+        ? () => _stageDone(row)
+        : null,
+    onCall: row.phone == null
+        ? null
+        : () => unawaited(ContactActions.call(row.phone)),
+  );
+
   MdfListQuery get _query => (
     search: _search,
     status: switch (_filter) {
@@ -69,12 +161,28 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
   );
 
   Future<void> _open(String? name) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    final before = ref.read(mdfRecentOrdersProvider).firstOrNull;
     await context.push(
       name == null ? Routes.mdfOrderNew : Routes.mdfOrder(name),
     );
     ref
       ..invalidate(mdfOrdersProvider)
       ..invalidate(mdfOverviewProvider);
+    // Back from a new or just accepted order: say it is here (26.11.2026).
+    final now = ref.read(mdfRecentOrdersProvider).firstOrNull;
+    if (!mounted || now == null || now == before) return;
+    messenger.showSnackBar(
+      SnackBar(
+        key: const ValueKey('mdfJustSaved'),
+        content: Text(l10n.mdfJustSaved(now)),
+        action: SnackBarAction(
+          label: l10n.mdfJustOpen,
+          onPressed: () => unawaited(_open(now)),
+        ),
+      ),
+    );
   }
 
   /// A figure tapped narrows the list to it; tapped again, back to all.
@@ -90,6 +198,8 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     final status = context.statusColors;
     // Read top-down by what burns, when nothing narrows the list.
     final sectioned = _filter == _Filter.all && _search.trim().isEmpty;
+    final recent = ref.watch(mdfRecentOrdersProvider);
+    final dense = ref.watch(foldsProvider).contains(_denseKey);
     String sectionTitle(MdfListSection section) => switch (section) {
       MdfListSection.overdue => l10n.mdfSectionOverdue,
       MdfListSection.soon => l10n.mdfSectionSoon,
@@ -115,6 +225,15 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
       appBar: AppBar(
         title: Text(l10n.mdfOrdersTitle),
         actions: [
+          // «Карточки / Строки» (owner, 26.11.2026): 15 orders a screen.
+          IconButton(
+            key: const ValueKey('mdfDense'),
+            tooltip: dense ? l10n.mdfViewCards : l10n.mdfViewRows,
+            isSelected: dense,
+            icon: Icon(dense ? AppIcons.viewCards : AppIcons.viewRows),
+            onPressed: () =>
+                ref.read(foldsProvider.notifier).set(_denseKey, shut: !dense),
+          ),
           // «Итоги МДФ» (owner, 12.11.2026).
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.sm),
@@ -215,6 +334,22 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
                 ],
               ),
             ),
+          // «Узкое место» (owner, 26.11.2026): the stage most late orders
+          // wait at — the cause, not 22 rows.
+          if (overview?.bottleneck case final b?)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                0,
+              ),
+              child: _Bottleneck(
+                b: b,
+                onShow: () => setState(() => _filter = _Filter.overdue),
+                onPlan: () => unawaited(context.push(Routes.mdfPlan)),
+              ),
+            ),
           SizedBox(
             height: AppSpacing.xxxl,
             child: ListView(
@@ -252,37 +387,139 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
                       child: ListView(
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         children: [
+                          // «Только что»: what was accepted or saved now —
+                          // it stays in its own section below as well.
+                          if (sectioned)
+                            ...() {
+                              final mine = [
+                                for (final n in recent)
+                                  ?rows.where((r) => r.name == n).firstOrNull,
+                              ];
+                              return [
+                                if (mine.isNotEmpty)
+                                  Row(
+                                    key: const ValueKey('mdfSection:recent'),
+                                    children: [
+                                      Expanded(
+                                        child: SectionLabel(l10n.mdfJustNow),
+                                      ),
+                                      IconButton(
+                                        key: const ValueKey('mdfRecentClear'),
+                                        tooltip: l10n.mdfJustNowClear,
+                                        icon: const Icon(
+                                          AppIcons.close,
+                                          size: AppIconSize.dense,
+                                        ),
+                                        onPressed: () => ref
+                                            .read(
+                                              mdfRecentOrdersProvider.notifier,
+                                            )
+                                            .clear(),
+                                      ),
+                                    ],
+                                  ),
+                                for (final row in mine)
+                                  DecoratedBox(
+                                    key: ValueKey('mdfRecent:${row.name}'),
+                                    decoration: BoxDecoration(
+                                      color: status.success.withValues(
+                                        alpha: AppTint.surface,
+                                      ),
+                                      border: Border.all(color: status.success),
+                                      borderRadius: BorderRadius.circular(
+                                        AppRadius.sm,
+                                      ),
+                                    ),
+                                    child: _row(row, dense: dense),
+                                  ),
+                              ];
+                            }(),
+                          // The sections as chips: a tap jumps there.
+                          if (sectioned)
+                            Wrap(
+                              key: const ValueKey('mdfJumps'),
+                              spacing: AppSpacing.xs,
+                              runSpacing: AppSpacing.xs,
+                              children: [
+                                for (final section in MdfListSection.values)
+                                  if (rows.any((r) => r.section == section))
+                                    ActionChip(
+                                      key: ValueKey('mdfJump:${section.name}'),
+                                      label: Text(
+                                        '${sectionTitle(section)} · ${[
+                                          for (final r in rows)
+                                            if (r.section == section) r,
+                                        ].length}',
+                                      ),
+                                      onPressed: () => _jump(section),
+                                    ),
+                              ],
+                            ),
                           for (final section in MdfListSection.values)
                             if (sectioned)
-                              for (final (i, row)
-                                  in rows
-                                      .where((r) => r.section == section)
-                                      .indexed) ...[
-                                if (i == 0)
-                                  Padding(
-                                    key: ValueKey(
-                                      'mdfSection:${section.name}',
+                              ...() {
+                                final all = [
+                                  for (final r in rows)
+                                    if (r.section == section) r,
+                                ];
+                                final folded =
+                                    all.length > _foldOver &&
+                                    !_opened.contains(section);
+                                final shown = folded
+                                    ? all.take(_folded).toList()
+                                    : all;
+                                return [
+                                  for (final (i, row) in shown.indexed) ...[
+                                    if (i == 0)
+                                      KeyedSubtree(
+                                        key: _heads[section],
+                                        child: Padding(
+                                          key: ValueKey(
+                                            'mdfSection:${section.name}',
+                                          ),
+                                          padding: const EdgeInsets.only(
+                                            top: AppSpacing.md,
+                                          ),
+                                          child: SectionLabel(
+                                            '${sectionTitle(section)} · '
+                                            '${all.length}',
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      Divider(
+                                        height: dense
+                                            ? AppStroke.hairline / 2
+                                            : AppStroke.hairline,
+                                      ),
+                                    _row(row, dense: dense),
+                                  ],
+                                  if (folded)
+                                    Align(
+                                      alignment:
+                                          AlignmentDirectional.centerStart,
+                                      child: TextButton.icon(
+                                        key: ValueKey(
+                                          'mdfMore:${section.name}',
+                                        ),
+                                        icon: const Icon(AppIcons.expand),
+                                        label: Text(
+                                          l10n.mdfSectionMore(
+                                            all.length - _folded,
+                                          ),
+                                        ),
+                                        onPressed: () => setState(
+                                          () => _opened.add(section),
+                                        ),
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.only(
-                                      top: AppSpacing.md,
-                                    ),
-                                    child: SectionLabel(sectionTitle(section)),
-                                  )
-                                else
-                                  const Divider(height: AppStroke.hairline),
-                                _OrderRow(
-                                  row: row,
-                                  onTap: () => _open(row.name),
-                                ),
-                              ],
+                                ];
+                              }(),
                           if (!sectioned)
                             for (final (i, row) in rows.indexed) ...[
                               if (i > 0)
                                 const Divider(height: AppStroke.hairline),
-                              _OrderRow(
-                                row: row,
-                                onTap: () => _open(row.name),
-                              ),
+                              _row(row, dense: dense),
                             ],
                         ],
                       ),
@@ -444,14 +681,213 @@ class _StageBar extends StatelessWidget {
   }
 }
 
-class _OrderRow extends StatelessWidget {
-  const _OrderRow({required this.row, required this.onTap});
+class _OrderRow extends StatefulWidget {
+  const _OrderRow({
+    required this.row,
+    required this.onTap,
+    this.dense = false,
+    this.onPay,
+    this.onStageDone,
+    this.onCall,
+  });
 
   final MdfOrderRow row;
   final VoidCallback onTap;
 
+  /// «Строки»: one line (owner, 26.11.2026).
+  final bool dense;
+
+  /// The row's own actions — no need to open the card for one tick.
+  final VoidCallback? onPay;
+  final VoidCallback? onStageDone;
+  final VoidCallback? onCall;
+
+  @override
+  State<_OrderRow> createState() => _OrderRowState();
+}
+
+class _OrderRowState extends State<_OrderRow> {
+  bool _hover = false;
+
+  MdfOrderRow get row => widget.row;
+
+  /// Oplata, the stage done, a call: under the pointer on a wide screen,
+  /// behind «⋮» on a phone.
+  List<(Key, IconData, String, VoidCallback)> _actions(AppLocalizations l10n) =>
+      [
+        if (widget.onPay case final pay?)
+          (
+            ValueKey('mdfRowPay:${row.name}'),
+            AppIcons.payment,
+            l10n.mdfRowPay,
+            pay,
+          ),
+        if (widget.onStageDone case final done? when row.waiting != null)
+          (
+            ValueKey('mdfRowStage:${row.name}'),
+            AppIcons.check,
+            l10n.mdfRowStageReady(mdfStageLabel(row.waiting!, l10n)),
+            done,
+          ),
+        if (widget.onCall case final call?)
+          (
+            ValueKey('mdfRowCall:${row.name}'),
+            AppIcons.call,
+            l10n.mdfRowCall,
+            call,
+          ),
+      ];
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final actions = _actions(l10n);
+    final wideScreen =
+        MediaQuery.sizeOf(context).width >= AppBreakpoints.compact;
+    final body = widget.dense ? _dense(context) : _full(context);
+    if (actions.isEmpty) return body;
+    if (!wideScreen) {
+      return Row(
+        children: [
+          Expanded(child: body),
+          PopupMenuButton<int>(
+            key: ValueKey('mdfRowMenu:${row.name}'),
+            icon: const Icon(AppIcons.more),
+            onSelected: (i) => actions[i].$4(),
+            itemBuilder: (_) => [
+              for (final (i, a) in actions.indexed)
+                PopupMenuItem(
+                  key: a.$1,
+                  value: i,
+                  child: ListTile(
+                    leading: Icon(a.$2),
+                    title: Text(a.$3),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      );
+    }
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: Stack(
+        children: [
+          body,
+          if (_hover)
+            PositionedDirectional(
+              end: AppSpacing.xxxl * 2,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Material(
+                  key: ValueKey('mdfRowActions:${row.name}'),
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xxs),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final a in actions)
+                          TextButton.icon(
+                            key: a.$1,
+                            onPressed: a.$4,
+                            icon: Icon(a.$2, size: AppIconSize.dense),
+                            label: Text(a.$3),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// One line an order: who, when, what, where it is, what it costs.
+  Widget _dense(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final money = mdfMoney(context);
+    final left = row.daysLeft;
+    final small = theme.textTheme.bodySmall;
+    return InkWell(
+      key: ValueKey('mdfRow:${row.name}'),
+      onTap: widget.onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Text(
+                '${row.name.split('-').last} · ${row.customerName}',
+                style: theme.textTheme.titleSmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                '${mdfDay(row.createdOn)} → ${mdfDay(row.deliveryDate)}',
+                style: small,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Text(
+                [
+                  ?row.decorTop,
+                  if (row.areaM2 > 0) '${row.areaM2.toStringAsFixed(2)} м²',
+                ].join(' · '),
+                style: small,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            SizedBox(
+              width: AppSpacing.xxxl * 2,
+              child: row.overdue && left != null && left < 0
+                  ? Text(
+                      l10n.mdfRowLate('${-left}'),
+                      key: ValueKey('mdfOverdue:${row.name}'),
+                      style: small?.copyWith(color: theme.colorScheme.error),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            if (row.stages.isNotEmpty)
+              SizedBox(
+                width: AppSpacing.xxxl * 3,
+                child: _StageBar(row: row),
+              ),
+            const SizedBox(width: AppSpacing.md),
+            SizedBox(
+              width: AppSpacing.xxxl * 2.5,
+              child: Text(
+                row.debt > 0
+                    ? l10n.mdfDebt(money.format(row.debt))
+                    : money.format(row.total),
+                key: row.debt > 0 ? ValueKey('mdfDebt:${row.name}') : null,
+                textAlign: TextAlign.end,
+                style: small?.copyWith(
+                  color: row.debt > 0 ? theme.colorScheme.error : null,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _full(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final money = mdfMoney(context);
@@ -468,7 +904,7 @@ class _OrderRow extends StatelessWidget {
         row.stages.isNotEmpty;
     return InkWell(
       key: ValueKey('mdfRow:${row.name}'),
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Row(
@@ -595,3 +1031,67 @@ class _OrderRow extends StatelessWidget {
 
 bool _inWork(MdfStatus s) =>
     s == MdfStatus.accepted || s == MdfStatus.inShop || s == MdfStatus.ready;
+
+/// «Узкое место» (owner, 26.11.2026): most late orders wait at one stage —
+/// say so, with the whole queue before it.
+class _Bottleneck extends StatelessWidget {
+  const _Bottleneck({
+    required this.b,
+    required this.onShow,
+    required this.onPlan,
+  });
+
+  final MdfBottleneck b;
+  final VoidCallback onShow;
+  final VoidCallback onPlan;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final danger = context.statusColors.danger;
+    final stage = mdfStageLabel(b.stage, l10n);
+    return Container(
+      key: const ValueKey('mdfBottleneck'),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: danger.withValues(alpha: AppTint.surface),
+        border: Border.all(color: danger),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Wrap(
+        spacing: AppSpacing.md,
+        runSpacing: AppSpacing.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Icon(AppIcons.danger, color: danger, size: AppIconSize.small),
+          Text(
+            l10n.mdfBottleneck(b.late, b.lateTotal, stage),
+            style: theme.textTheme.titleSmall?.copyWith(color: danger),
+          ),
+          Text(
+            l10n.mdfBottleneckQueue(
+              stage,
+              b.queueOrders,
+              b.queueM2.toStringAsFixed(1).replaceAll('.', ','),
+            ),
+            style: theme.textTheme.bodySmall,
+          ),
+          TextButton(
+            key: const ValueKey('mdfBottleneckShow'),
+            onPressed: onShow,
+            child: Text(l10n.mdfBottleneckShow),
+          ),
+          TextButton(
+            key: const ValueKey('mdfBottleneckPlan'),
+            onPressed: onPlan,
+            child: Text(l10n.mdfBottleneckPlan),
+          ),
+        ],
+      ),
+    );
+  }
+}

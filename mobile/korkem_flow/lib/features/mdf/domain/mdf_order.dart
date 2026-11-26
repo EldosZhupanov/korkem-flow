@@ -94,6 +94,17 @@ typedef MdfOverview = ({
   int ready,
   double debt,
   int debtors,
+  MdfBottleneck? bottleneck,
+});
+
+/// «Узкое место» (owner, 26.11.2026): the stage most late orders wait at,
+/// and the whole queue before it.
+typedef MdfBottleneck = ({
+  MdfStage stage,
+  int late,
+  int lateTotal,
+  int queueOrders,
+  double queueM2,
 });
 
 /// One row of the list.

@@ -22545,6 +22545,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reason'**
   String get pressForceWhy;
+
+  /// No description provided for @mdfJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get mdfJustNow;
+
+  /// No description provided for @mdfJustNowClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear «Just now»'**
+  String get mdfJustNowClear;
+
+  /// No description provided for @mdfJustSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {name} saved'**
+  String mdfJustSaved(String name);
+
+  /// No description provided for @mdfJustOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get mdfJustOpen;
+
+  /// No description provided for @mdfViewCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get mdfViewCards;
+
+  /// No description provided for @mdfViewRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows — 15 orders a screen'**
+  String get mdfViewRows;
+
+  /// No description provided for @mdfSectionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more'**
+  String mdfSectionMore(int count);
+
+  /// No description provided for @mdfRowPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get mdfRowPay;
+
+  /// No description provided for @mdfRowStageReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage} done'**
+  String mdfRowStageReady(String stage);
+
+  /// No description provided for @mdfRowCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get mdfRowCall;
+
+  /// No description provided for @mdfRowStageDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{order}: {stage} done'**
+  String mdfRowStageDone(String order, String stage);
+
+  /// No description provided for @mdfRowUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get mdfRowUndo;
+
+  /// No description provided for @mdfBottleneck.
+  ///
+  /// In en, this message translates to:
+  /// **'{late} of {total} late orders wait for «{stage}»'**
+  String mdfBottleneck(int late, int total, String stage);
+
+  /// No description provided for @mdfBottleneckQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued for «{stage}»: {orders} orders · {m2} m²'**
+  String mdfBottleneckQueue(String stage, int orders, String m2);
+
+  /// No description provided for @mdfBottleneckShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the late ones'**
+  String get mdfBottleneckShow;
+
+  /// No description provided for @mdfBottleneckPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop plan'**
+  String get mdfBottleneckPlan;
 }
 
 class _AppLocalizationsDelegate

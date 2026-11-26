@@ -47,6 +47,26 @@ final mdfOrdersProvider = FutureProvider.autoDispose
       (ref, query) => ref.watch(mdfOrderRepositoryProvider).listing(query),
     );
 
+/// Orders accepted or saved in this session, newest first — «Только что»
+/// on top of the list (owner, 26.11.2026: a new order sank under 22
+/// overdue ones and looked lost).
+final mdfRecentOrdersProvider = NotifierProvider<MdfRecentOrders, List<String>>(
+  MdfRecentOrders.new,
+);
+
+class MdfRecentOrders extends Notifier<List<String>> {
+  @override
+  List<String> build() => const [];
+
+  void add(String order) => state = [
+    order,
+    for (final o in state)
+      if (o != order) o,
+  ];
+
+  void clear() => state = const [];
+}
+
 // AutoDisposeFutureProvider is not exported as a public type.
 // ignore: specify_nonobvious_property_types
 final mdfOverviewProvider = FutureProvider.autoDispose<MdfOverview>(
@@ -170,6 +190,21 @@ class MdfOrderRepository {
       ready: n('ready').toInt(),
       debt: n('debt').toDouble(),
       debtors: n('debtors').toInt(),
+      bottleneck: _bottleneck(data['bottleneck']),
+    );
+  }
+
+  static MdfBottleneck? _bottleneck(Object? raw) {
+    if (raw is! Map) return null;
+    final stage = MdfStage.parse(raw['stage']);
+    if (stage == null) return null;
+    num n(String key) => raw[key] is num ? raw[key] as num : 0;
+    return (
+      stage: stage,
+      late: n('late').toInt(),
+      lateTotal: n('late_total').toInt(),
+      queueOrders: n('queue_orders').toInt(),
+      queueM2: n('queue_m2').toDouble(),
     );
   }
 
