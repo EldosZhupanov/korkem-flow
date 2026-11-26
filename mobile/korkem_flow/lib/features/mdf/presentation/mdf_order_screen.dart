@@ -270,7 +270,9 @@ class _LineFields {
       clientMdf: clientMdf,
       gloss: coating == MdfCoating.paint ? gloss : null,
       grainWidth:
-          grainWidth && coating != MdfCoating.paint && coating != MdfCoating.raw,
+          grainWidth &&
+          coating != MdfCoating.paint &&
+          coating != MdfCoating.raw,
     );
   }
 
@@ -2660,11 +2662,15 @@ class _LineRow extends StatelessWidget {
                       onChanged();
                     },
                     icon: Icon(
-                      line.grainWidth ? AppIcons.grainWidth : AppIcons.grainHeight,
+                      line.grainWidth
+                          ? AppIcons.grainWidth
+                          : AppIcons.grainHeight,
                       size: AppIconSize.small,
                     ),
                     label: Text(
-                      line.grainWidth ? l10n.mdfGrainWidth : l10n.mdfGrainHeight,
+                      line.grainWidth
+                          ? l10n.mdfGrainWidth
+                          : l10n.mdfGrainHeight,
                     ),
                   ),
                 ),
@@ -4309,7 +4315,10 @@ class _PaymentDialogState extends ConsumerState<_PaymentDialog> {
                   alignment: AlignmentDirectional.centerStart,
                   child: TextButton.icon(
                     key: const ValueKey('mdfPrepaySet'),
-                    icon: const Icon(AppIcons.settings, size: AppIconSize.small),
+                    icon: const Icon(
+                      AppIcons.settings,
+                      size: AppIconSize.small,
+                    ),
                     label: Text(l10n.mdfPrepaySet),
                     onPressed: () {
                       final router = GoRouter.of(context);

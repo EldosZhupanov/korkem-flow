@@ -60,8 +60,7 @@ class PressMap extends StatelessWidget {
   /// The colour of a position, the same on every load and in the legend.
   static Color colourOf(int pos) => AppColors.filmGroup(pos - 1);
 
-  double get _length =>
-      math.max(tableMm ?? 0, load.lengthMm).toDouble();
+  double get _length => math.max(tableMm ?? 0, load.lengthMm).toDouble();
 
   int? _at(Offset at, double scale) {
     if (scale <= 0) return null;
@@ -258,7 +257,13 @@ class _PressPainter extends CustomPainter {
           ..save()
           ..translate(rect.right - AppSpacing.sm, rect.center.dy)
           ..rotate(-math.pi / 2);
-        _text(canvas, '${p.height.round()}', sizeStyle, Offset.zero, rect.height);
+        _text(
+          canvas,
+          '${p.height.round()}',
+          sizeStyle,
+          Offset.zero,
+          rect.height,
+        );
         canvas.restore();
       }
       // A plain film's part turned a quarter from the order's way.
@@ -342,7 +347,8 @@ class _PressPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
     final y = rect.top + math.min(rect.height * 0.2, AppSpacing.md);
     final from = rect.left + math.min(rect.width * 0.1, AppSpacing.md);
-    final to = rect.left + math.min(rect.width * 0.6, rect.width - AppSpacing.md);
+    final to =
+        rect.left + math.min(rect.width * 0.6, rect.width - AppSpacing.md);
     if (to <= from) return;
     final head = math.min(rect.width, rect.height) * 0.1;
     canvas

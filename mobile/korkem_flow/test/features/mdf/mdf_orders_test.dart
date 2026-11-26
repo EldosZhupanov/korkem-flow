@@ -516,8 +516,7 @@ void main() {
         overrides: [
           mdfOrderRepositoryProvider.overrideWithValue(repo),
           mdfDictionariesProvider.overrideWith(
-            (ref) async =>
-                const MdfDictionaries({}, texturedFilms: {'Палома'}),
+            (ref) async => const MdfDictionaries({}, texturedFilms: {'Палома'}),
           ),
         ],
         child: harness(const MdfOrderScreen(name: 'SAL-ORD-1129')),

@@ -4296,7 +4296,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pressLayoutTitle => 'Раскладка на пресс';
 
   @override
-  String get pressTextured => 'ТЕКСТУРА — НЕ ВРАЩАТЬ';
+  String get pressTextured => 'ТЕКСТУРА — РИСУНОК ВДОЛЬ СТОЛА →';
 
   @override
   String get pressPlain => 'Однотонная — можно вращать';
@@ -4368,7 +4368,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get materialTexturedHint =>
-      'Детали не вращаются на прессе, на раскладке — «НЕ ВРАЩАТЬ»';
+      'На прессе детали лежат рисунком вдоль стола; в заказе у позиции — «по высоте» или «по ширине»';
 
   @override
   String get pressPrint => 'Печать раскладки';
@@ -13144,4 +13144,41 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teamNoLogin => 'без входа';
+
+  @override
+  String get mdfGrainHeight => 'по высоте';
+
+  @override
+  String get mdfGrainWidth => 'по ширине';
+
+  @override
+  String get mdfGrainHint =>
+      'Куда идёт рисунок текстурной плёнки на фасаде. Нажмите — сменить.';
+
+  @override
+  String get mdfGrainWidthMark => 'Рисунок ↔ по ширине';
+
+  @override
+  String get mdfTexturedMark => 'текстура';
+
+  @override
+  String pressFree(String metres) {
+    return 'не занято · $metres м';
+  }
+
+  @override
+  String get pressOnLoad => 'На этой загрузке';
+
+  @override
+  String pressOnLoadRow(int pos, String size, int count) {
+    return 'Поз. $pos · $size · $count шт';
+  }
+
+  @override
+  String pressOnLoadTotal(int count, String area) {
+    return 'Всего $count шт · $area м²';
+  }
+
+  @override
+  String get mdfPrepaySet => 'Задать % предоплаты';
 }

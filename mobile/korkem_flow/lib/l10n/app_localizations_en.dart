@@ -4272,7 +4272,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pressLayoutTitle => 'Press layout';
 
   @override
-  String get pressTextured => 'TEXTURED — DO NOT TURN';
+  String get pressTextured => 'TEXTURED — PATTERN ALONG THE TABLE →';
 
   @override
   String get pressPlain => 'Plain — may be turned';
@@ -4344,7 +4344,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get materialTexturedHint =>
-      'Parts are not turned on the press; the map says «DO NOT TURN»';
+      'On the press, parts lie with the pattern along the table; in the order each position says «along height» or «along width»';
 
   @override
   String get pressPrint => 'Print the layout';
@@ -13109,4 +13109,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teamNoLogin => 'no login';
+
+  @override
+  String get mdfGrainHeight => 'along height';
+
+  @override
+  String get mdfGrainWidth => 'along width';
+
+  @override
+  String get mdfGrainHint =>
+      'Which way the textured film\'s pattern runs on the facade. Tap to switch.';
+
+  @override
+  String get mdfGrainWidthMark => 'Pattern ↔ along width';
+
+  @override
+  String get mdfTexturedMark => 'textured';
+
+  @override
+  String pressFree(String metres) {
+    return 'free · $metres m';
+  }
+
+  @override
+  String get pressOnLoad => 'On this load';
+
+  @override
+  String pressOnLoadRow(int pos, String size, int count) {
+    return 'Pos. $pos · $size · $count pcs';
+  }
+
+  @override
+  String pressOnLoadTotal(int count, String area) {
+    return '$count pcs in all · $area m²';
+  }
+
+  @override
+  String get mdfPrepaySet => 'Set the prepayment %';
 }
