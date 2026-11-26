@@ -146,6 +146,14 @@ Future<void> copyMonthForExcel(BuildContext context, DateTime day) async {
   }
 }
 
+/// «Аванс», «Штраф», «Премия» in the reader's language.
+String payKindLabel(PersonAdjustmentKind kind, AppLocalizations l10n) =>
+    switch (kind) {
+      PersonAdjustmentKind.advance => l10n.pplAdvance,
+      PersonAdjustmentKind.fine => l10n.pplFineOne,
+      PersonAdjustmentKind.bonus => l10n.pplBonusOne,
+    };
+
 /// Amounts a manager types most — one tap each.
 const _quickAmounts = [10000, 20000, 50000, 100000];
 
