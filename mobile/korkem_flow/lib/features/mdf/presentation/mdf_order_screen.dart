@@ -146,10 +146,14 @@ class MdfJustAccepted extends Notifier<Set<String>> {
 
   void add(String order) => state = {...state, order};
 
-  void remove(String order) => state = {
-    for (final o in state)
-      if (o != order) o,
-  };
+  void remove(String order) {
+    // Called a moment after a card closes — the app may be gone by then.
+    if (!ref.mounted) return;
+    state = {
+      for (final o in state)
+        if (o != order) o,
+    };
+  }
 }
 
 class _LineFields {
