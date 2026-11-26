@@ -5522,6 +5522,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfLeave => 'Выйти';
 
   @override
+  String get mdfLeaveSave => 'Сохранить черновик';
+
+  @override
+  String mdfAcceptedBanner(
+    String customer,
+    String pieces,
+    String m2,
+    String total,
+  ) {
+    return 'Заказ принят · $customer · $pieces шт · $m2 м² · $total';
+  }
+
+  @override
+  String get mdfAcceptedNext => 'Что дальше?';
+
+  @override
+  String get mdfAcceptedPay => 'Внести предоплату';
+
+  @override
+  String get mdfAcceptedMore => 'Ещё заказ этому клиенту';
+
+  @override
   String mdfChangeAdded(int n) {
     return 'Добавлена позиция $n';
   }
