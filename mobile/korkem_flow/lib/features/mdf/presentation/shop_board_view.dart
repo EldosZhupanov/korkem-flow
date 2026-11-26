@@ -400,7 +400,10 @@ class _StageBox extends StatelessWidget {
               for (final post in s.posts) ...[
                 const SizedBox(height: AppSpacing.xs),
                 if (s.posts.length > 1)
-                  Text(teamPostLabel(post.post, l10n, post.title), style: muted),
+                  Text(
+                    teamPostLabel(post.post, l10n, post.title),
+                    style: muted,
+                  ),
                 if (post.people.isEmpty)
                   Text(
                     l10n.shopNobody,

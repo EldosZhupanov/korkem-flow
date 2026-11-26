@@ -4721,7 +4721,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mdfStageCut => 'Cut';
 
   @override
-  String get mdfStageMill => 'Milling';
+  String get mdfStageMill => 'CNC';
 
   @override
   String get mdfStageSand => 'Sanding';
@@ -9185,6 +9185,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamDeptCnc => 'CNC';
 
   @override
+  String get teamDeptSand => 'Sanding';
+
+  @override
   String get teamDeptPvc => 'PVC film';
 
   @override
@@ -9210,6 +9213,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teamPostSander => 'Sander';
+
+  @override
+  String get teamPostSanderPvc => 'PVC sander';
+
+  @override
+  String get teamPostSanderPaint => 'Paint sander';
 
   @override
   String get teamPostVacuum => 'Vacuum press operator';
@@ -12328,10 +12337,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pplEmpty => 'No one in «Team» yet.';
 
   @override
-  String get pplNoLogin =>
-      'No login: no piece pay is booked, only the volume shows.';
-
-  @override
   String get pplMoney => 'Money';
 
   @override
@@ -12590,9 +12595,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pplCopied => 'Copied — paste it into Excel';
-
-  @override
-  String get pplNoLoginMoney => 'no login — pay is not counted';
 
   @override
   String get pplMoneyTitle => 'Advance, fine or bonus';

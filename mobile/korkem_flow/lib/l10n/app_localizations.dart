@@ -8376,7 +8376,7 @@ abstract class AppLocalizations {
   /// No description provided for @mdfStageMill.
   ///
   /// In en, this message translates to:
-  /// **'Milling'**
+  /// **'CNC'**
   String get mdfStageMill;
 
   /// No description provided for @mdfStageSand.
@@ -15805,6 +15805,12 @@ abstract class AppLocalizations {
   /// **'CNC'**
   String get teamDeptCnc;
 
+  /// No description provided for @teamDeptSand.
+  ///
+  /// In en, this message translates to:
+  /// **'Sanding'**
+  String get teamDeptSand;
+
   /// No description provided for @teamDeptPvc.
   ///
   /// In en, this message translates to:
@@ -15858,6 +15864,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sander'**
   String get teamPostSander;
+
+  /// No description provided for @teamPostSanderPvc.
+  ///
+  /// In en, this message translates to:
+  /// **'PVC sander'**
+  String get teamPostSanderPvc;
+
+  /// No description provided for @teamPostSanderPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint sander'**
+  String get teamPostSanderPaint;
 
   /// No description provided for @teamPostVacuum.
   ///
@@ -21083,12 +21101,6 @@ abstract class AppLocalizations {
   /// **'No one in «Team» yet.'**
   String get pplEmpty;
 
-  /// No description provided for @pplNoLogin.
-  ///
-  /// In en, this message translates to:
-  /// **'No login: no piece pay is booked, only the volume shows.'**
-  String get pplNoLogin;
-
   /// No description provided for @pplMoney.
   ///
   /// In en, this message translates to:
@@ -21556,12 +21568,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copied — paste it into Excel'**
   String get pplCopied;
-
-  /// No description provided for @pplNoLoginMoney.
-  ///
-  /// In en, this message translates to:
-  /// **'no login — pay is not counted'**
-  String get pplNoLoginMoney;
 
   /// No description provided for @pplMoneyTitle.
   ///
