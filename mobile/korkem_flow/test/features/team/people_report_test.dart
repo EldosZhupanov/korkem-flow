@@ -150,7 +150,7 @@ void main() {
 
   // --- «Деньги» (owner, 26.11.2026): one list instead of «Ведомость» ---
 
-  testWidgets('everyone\'s month; «Да» to what waits', (tester) async {
+  testWidgets("everyone's month; «Да» to what waits", (tester) async {
     await pump(
       tester,
       PeopleScreen(today: DateTime(2026, 11, 25), money: true),
