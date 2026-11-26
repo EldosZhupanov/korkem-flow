@@ -11384,6 +11384,30 @@ abstract class AppLocalizations {
   /// **'Order film'**
   String get filmReorderTitle;
 
+  /// No description provided for @filmReorderByPace.
+  ///
+  /// In en, this message translates to:
+  /// **'by 3 weeks of sales ≈ {metres} m'**
+  String filmReorderByPace(String metres);
+
+  /// No description provided for @filmReorderCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the order'**
+  String get filmReorderCopy;
+
+  /// No description provided for @filmReorderCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Order copied — paste it into a message to the supplier'**
+  String get filmReorderCopied;
+
+  /// No description provided for @filmReorderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'— {film}: {metres} m'**
+  String filmReorderLine(String film, String metres);
+
   /// No description provided for @filmReorderLeft.
   ///
   /// In en, this message translates to:
@@ -13004,6 +13028,72 @@ abstract class AppLocalizations {
   /// **'Out of stock · {n}'**
   String filmFilterNone(int n);
 
+  /// No description provided for @filmFilterOnDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'On order only · {n}'**
+  String filmFilterOnDemand(int n);
+
+  /// No description provided for @filmFilterIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not moving · {n}'**
+  String filmFilterIdle(int n);
+
+  /// No description provided for @filmFigIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not moving 60+ days'**
+  String get filmFigIdle;
+
+  /// No description provided for @filmOnDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'on order only'**
+  String get filmOnDemand;
+
+  /// No description provided for @filmHoldRanOut.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m held for {customer} ran out on {day}'**
+  String filmHoldRanOut(String metres, String customer, String day);
+
+  /// No description provided for @filmHoldExtend.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend'**
+  String get filmHoldExtend;
+
+  /// No description provided for @filmLateCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get filmLateCall;
+
+  /// No description provided for @filmLateRemind.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get filmLateRemind;
+
+  /// No description provided for @filmLateReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello! The film {film}, {metres} m, was due on {day}. When will you send it?'**
+  String filmLateReminder(String film, String metres, String day);
+
+  /// No description provided for @filmLateCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder copied — paste it into a message to the supplier'**
+  String get filmLateCopied;
+
+  /// No description provided for @filmGluePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {kg} kg a day'**
+  String filmGluePerDay(String kg);
+
   /// No description provided for @filmStockSearch.
   ///
   /// In en, this message translates to:
@@ -13813,6 +13903,102 @@ abstract class AppLocalizations {
   /// **'Paint shop'**
   String get mdfPaintTitle;
 
+  /// No description provided for @mdfPaintBatchDry.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch painted — to dry ({n})'**
+  String mdfPaintBatchDry(int n);
+
+  /// No description provided for @mdfPaintLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d late'**
+  String mdfPaintLate(int days);
+
+  /// No description provided for @mdfPaintCheckOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'no colour or size — check the order'**
+  String get mdfPaintCheckOrder;
+
+  /// No description provided for @mdfPaintFigComing.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way to paint'**
+  String get mdfPaintFigComing;
+
+  /// No description provided for @mdfPaintFigToPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'To paint now'**
+  String get mdfPaintFigToPaint;
+
+  /// No description provided for @mdfPaintFigDrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Drying'**
+  String get mdfPaintFigDrying;
+
+  /// No description provided for @mdfPaintFigDry.
+  ///
+  /// In en, this message translates to:
+  /// **'dry: {n}'**
+  String mdfPaintFigDry(int n);
+
+  /// No description provided for @mdfPaintFigShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint short'**
+  String get mdfPaintFigShort;
+
+  /// No description provided for @mdfPaintFigOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'orders: {n}'**
+  String mdfPaintFigOrders(int n);
+
+  /// No description provided for @mdfPaintMonthKg.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {kg} kg a month'**
+  String mdfPaintMonthKg(String kg);
+
+  /// No description provided for @paintShortFold.
+  ///
+  /// In en, this message translates to:
+  /// **'Short for the queue: {count} items · ≈ {kg} kg'**
+  String paintShortFold(int count, String kg);
+
+  /// No description provided for @paintShortList.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a shopping list'**
+  String get paintShortList;
+
+  /// No description provided for @paintShortShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get paintShortShow;
+
+  /// No description provided for @paintShortLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — {kg} kg'**
+  String paintShortLine(String name, String kg);
+
+  /// No description provided for @paintShortCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get paintShortCopy;
+
+  /// No description provided for @paintShortCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping list copied — paste it into a message to the supplier'**
+  String get paintShortCopied;
+
   /// No description provided for @mdfPaintHint.
   ///
   /// In en, this message translates to:
@@ -13830,12 +14016,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing to paint'**
   String get mdfPaintEmpty;
-
-  /// No description provided for @mdfPaintSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'To paint {waiting} · drying {drying} · on the way {coming}'**
-  String mdfPaintSummary(String waiting, String drying, String coming);
 
   /// No description provided for @mdfPaintDrying.
   ///

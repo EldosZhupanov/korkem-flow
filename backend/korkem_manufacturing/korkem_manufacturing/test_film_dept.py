@@ -197,6 +197,34 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertEqual(row()["daily_m"], 0.5)
 		self.assertEqual(row()["days_left"], 70)
 
+	def test_kept_or_on_order_and_how_long_it_lay(self):
+		# Owner, 26.11.2026: «Пора заказать: 46» was every film of the
+		# catalogue with none; only what is kept — a minimum, or it sells.
+		def row() -> dict:
+			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)
+
+		self.assertFalse(row()["kept"])
+		self.assertEqual(row()["idle_days"], 0)  # came today, nothing left the shelf since
+		material_stock.set_min_stock(self.film, 30)
+		self.assertTrue(row()["kept"])
+		self._as(MANAGER, service.sell, self.buyer, [{"item": self.film, "metres": 5}], paid=0)
+		self.assertEqual(row()["idle_days"], 0)
+		# Over a month without a sale or the shop taking any.
+		frappe.db.sql("""update `tabStock Entry` e join `tabStock Entry Detail` d on d.parent = e.name
+			set e.posting_date = %s where d.item_code = %s""", (add_days(nowdate(), -70), self.film))
+		self.assertEqual(row()["idle_days"], 70)
+
+	def test_a_hold_that_ran_out_is_extended(self):
+		got = self._as(MANAGER, service.hold, self.film, self.buyer, 10, until=add_days(nowdate(), 1))
+		frappe.db.set_value("Film Hold", got["hold"], "until", add_days(nowdate(), -9))
+		late = next(h for h in self._as(MANAGER, service._holds, [self.film])[self.film] if h["hold"] == got["hold"])
+		self.assertTrue(late["late"])
+		# From today, not from the day it ran out.
+		self.assertEqual(self._as(MANAGER, service.extend_hold, got["hold"])["until"],
+						 str(getdate(add_days(nowdate(), service.HOLD_DAYS))))
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, service.extend_hold, got["hold"], 0)
+
 	def test_a_film_that_ran_low_says_what_to_order(self):
 		def row() -> dict:
 			return next(f for f in self._as(MANAGER, service.stock)["films"] if f["item"] == self.film)

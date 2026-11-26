@@ -155,6 +155,13 @@ class FilmDeptRepository {
     params: {'hold': hold},
   );
 
+  /// «Продлить» a hold [days] more from today (three unless said).
+  Future<void> extendHold(String hold, {int? days}) => _client.callMethod(
+    '$_base.extend_hold',
+    post: true,
+    params: {'hold': hold, 'days': ?days},
+  );
+
   /// The roll on its way came: on the shelf today; [metres] if not as many.
   Future<void> arrived(String entry, {double? metres}) => _client.callMethod(
     '$_base.arrived',
