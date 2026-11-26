@@ -1149,8 +1149,11 @@ void main() {
 
     expect(find.text('Раскрой'), findsOneWidget);
     expect(find.text('ПВХ плёнка'), findsOneWidget);
-    expect(find.text('Ерлан'), findsOneWidget);
+    // No login is said in words on the person (26.11.2026).
+    expect(find.text('Ерлан · без входа'), findsOneWidget);
     expect(find.text('Нурлан'), findsOneWidget);
+    // An empty post says so: its stage of every order stops there.
+    expect(find.byKey(const ValueKey('teamNobody:pvc.vacuum')), findsOne);
     // Nobody presses yet: the post offers to add someone.
     expect(find.byKey(const ValueKey('teamAddTo:pvc.vacuum')), findsOneWidget);
 
