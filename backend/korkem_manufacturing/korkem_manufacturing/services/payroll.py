@@ -65,6 +65,12 @@ OWNER_ROLE = "System Manager"
 COUNTED = ("Approved", "Paid")
 
 
+def counts_at_once() -> bool:
+	"""Whether what the one asking enters counts without a second «Да» — the
+	owner's does (`add_adjustment`); the screen says so before he saves."""
+	return OWNER_ROLE in frappe.get_roles()
+
+
 def _ensure(roles: frozenset, message: str) -> None:
 	if not roles.intersection(frappe.get_roles()):
 		frappe.throw(message, frappe.PermissionError)
@@ -87,6 +93,10 @@ def add_adjustment(
 	company = current_company()
 	if kind not in KINDS:
 		frappe.throw(f"Вид — один из: {', '.join(KINDS)}.")
+	# An advance is money already handed over: «попросил» is the whole story
+	# (owner, 26.11.2026). A fine and a bonus say why — the worker reads it.
+	if kind == ADVANCE and not (reason or "").strip():
+		reason = ADVANCE
 	person, login = _who(employee, company)
 	if login and login == frappe.session.user:
 		frappe.throw("Себе удержание или премию вносит другой человек.", frappe.PermissionError)
@@ -124,7 +134,7 @@ def add_adjustment(
 	# The owner's own entry counts at once (owner, 26.11.2026: «вносите вы —
 	# сразу»); a manager's or accounting's waits for somebody else's «Да».
 	# Either way it is his name on it, in the audit row and on the record.
-	owner = OWNER_ROLE in frappe.get_roles()
+	owner = counts_at_once()
 	if owner:
 		doc.update({"status": "Approved", "approved_by": frappe.session.user, "approved_at": now_datetime()})
 	doc.insert(ignore_permissions=True)

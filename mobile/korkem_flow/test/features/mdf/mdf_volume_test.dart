@@ -41,6 +41,21 @@ final _volume = MdfVolume.fromJson(const {
 });
 
 void main() {
+  test("a stage's post people are named, not shown by their id", () {
+    // Owner, 26.11.2026: «почему там выходят HR-EMP-00003?»
+    final post = MdfWorker.fromJson(const {
+      'employee': 'HR-EMP-00003',
+      'name': 'Ералы',
+      'posts': ['pvc.vacuum'],
+    });
+    expect(post.name, 'Ералы');
+    final any = MdfWorker.fromJson(const {
+      'employee': 'HR-EMP-00005',
+      'employee_name': 'Тима',
+    });
+    expect(any.name, 'Тима');
+  });
+
   testWidgets('each worker with their m², and what nobody was named on', (
     tester,
   ) async {

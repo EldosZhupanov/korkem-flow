@@ -247,6 +247,7 @@ class PeopleReport {
     this.left = 0,
     this.seesPay = false,
     this.canAdjust = false,
+    this.adjustsAtOnce = false,
     this.canPay = false,
     this.pending = const [],
   });
@@ -264,6 +265,7 @@ class PeopleReport {
       left: _d(total['left']),
       seesPay: json['sees_pay'] == true,
       canAdjust: json['can_adjust'] == true,
+      adjustsAtOnce: json['adjusts_at_once'] == true,
       canPay: json['can_pay'] == true,
       pending: _list(json['pending'], PayWaiting.fromJson),
     );
@@ -281,6 +283,10 @@ class PeopleReport {
 
   /// He may enter an advance, a fine or a bonus.
   final bool canAdjust;
+
+  /// What the one asking enters counts at once (the owner's) or waits for
+  /// another person's «Да».
+  final bool adjustsAtOnce;
 
   /// He may mark pay given — the period is over.
   final bool canPay;
@@ -431,6 +437,7 @@ class PersonCard {
     this.history = const [],
     this.seesPay = false,
     this.canAdjust = false,
+    this.adjustsAtOnce = false,
     this.canPay = false,
   });
 
@@ -442,6 +449,7 @@ class PersonCard {
     history: _list(json['history'], TeamEvent.fromJson),
     seesPay: json['sees_pay'] == true,
     canAdjust: json['can_adjust'] == true,
+    adjustsAtOnce: json['adjusts_at_once'] == true,
     canPay: json['can_pay'] == true,
     days: _list(json['by_day'], PersonDay.fromJson),
     works: _list(json['works'], PersonWork.fromJson),
@@ -476,6 +484,10 @@ class PersonCard {
 
   /// He may enter an advance, a fine or a bonus for him.
   final bool canAdjust;
+
+  /// What the one asking enters counts at once (the owner's) or waits for
+  /// another person's «Да».
+  final bool adjustsAtOnce;
 
   /// He may mark the period's pay given.
   final bool canPay;

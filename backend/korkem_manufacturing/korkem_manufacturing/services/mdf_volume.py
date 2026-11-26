@@ -65,6 +65,25 @@ def _ticked(company: str, since_d, until_d) -> list[tuple[str, str, str | None, 
 	return done
 
 
+def _ticked_people(company: str, since_d, until_d) -> list[tuple[str, str, str | None, str, Decimal]]:
+	"""(order, stage, worker, day, share) — every ticked stage once per person
+	who did it, with his part of it (owner, 26.11.2026: «2 или 3 вакуумщика
+	делают вместе, и система делит»). One person: share 1. A stage's own
+	total is `_ticked`'s, counted once."""
+	from korkem_manufacturing.services import stage_crew
+
+	ticks = _ticked(company, since_d, until_d)
+	crews = stage_crew.of_orders({t[0] for t in ticks}, "by")
+	out = []
+	for order, stage, worker, day in ticks:
+		crew = crews.get((order, stage))
+		if crew:
+			out.extend((order, stage, who, day, Decimal(str(share)) / 100) for who, share in crew)
+		else:
+			out.append((order, stage, worker, day, Decimal(1)))
+	return out
+
+
 def _areas(names) -> dict[str, Decimal]:
 	areas: dict[str, Decimal] = {}
 	if names:
@@ -81,20 +100,21 @@ def volume(since: str | None = None, until: str | None = None) -> dict:
 	company = current_company()
 	since_d, until_d = _period(since, until)
 	ticked = _ticked(company, since_d, until_d)
-	done = [(order, stage, worker) for order, stage, worker, _ in ticked]
+	# Each person his part of a stage done by several; the stage once.
+	done = [(order, stage, worker, share) for order, stage, worker, _, share in _ticked_people(company, since_d, until_d)]
 
-	names = sorted({order for order, _, _ in done})
+	names = sorted({order for order, *_ in ticked})
 	areas = _areas(names)
 	people = {}
-	ids = sorted({w for _, _, w in done if w})
+	ids = sorted({w for _, _, w, _ in done if w})
 	if ids:
 		people = dict(frappe.get_all("Employee", filters={"name": ["in", ids]}, fields=["name", "employee_name"],
 									 as_list=True))
 
 	by_worker: dict[str, dict] = {}
 	by_stage = {s: {"stage": s, "orders": 0, "area_m2": Decimal(0)} for s in mdf_orders.STAGES}
-	for order, stage, worker in done:
-		area = areas.get(order, Decimal(0))
+	for order, stage, worker, share in done:
+		area = areas.get(order, Decimal(0)) * share
 		key = worker or ""
 		w = by_worker.setdefault(key, {"worker": worker, "worker_name": people.get(worker) if worker else None,
 									   "orders": 0, "area_m2": Decimal(0),
@@ -102,8 +122,9 @@ def volume(since: str | None = None, until: str | None = None) -> dict:
 		w["orders"] += 1
 		w["area_m2"] += area
 		w["stages"][stage] += area
+	for order, stage, _, _ in ticked:
 		by_stage[stage]["orders"] += 1
-		by_stage[stage]["area_m2"] += area
+		by_stage[stage]["area_m2"] += areas.get(order, Decimal(0))
 
 	rows = sorted(by_worker.values(), key=lambda w: (w["worker"] is None, -w["area_m2"]))
 	return {

@@ -9327,6 +9327,12 @@ abstract class AppLocalizations {
   /// **'List'**
   String get mdfDictOpen;
 
+  /// No description provided for @mdfDictEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the list…'**
+  String get mdfDictEdit;
+
   /// No description provided for @mdfDictDecor.
   ///
   /// In en, this message translates to:
@@ -15775,6 +15781,66 @@ abstract class AppLocalizations {
   /// **'Everyone'**
   String get mdfAllWorkers;
 
+  /// No description provided for @mdfCrewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can tick several'**
+  String get mdfCrewHint;
+
+  /// No description provided for @mdfCrewSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'How to split {m2} m²'**
+  String mdfCrewSplit(String m2);
+
+  /// No description provided for @mdfCrewEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'Equally'**
+  String get mdfCrewEqual;
+
+  /// No description provided for @mdfCrewManual.
+  ///
+  /// In en, this message translates to:
+  /// **'By hand'**
+  String get mdfCrewManual;
+
+  /// No description provided for @mdfCrewRest.
+  ///
+  /// In en, this message translates to:
+  /// **'the rest'**
+  String get mdfCrewRest;
+
+  /// No description provided for @mdfCrewTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get mdfCrewTotal;
+
+  /// No description provided for @mdfCrewOver.
+  ///
+  /// In en, this message translates to:
+  /// **'More than there is: take some off someone.'**
+  String get mdfCrewOver;
+
+  /// No description provided for @mdfCrewZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone needs a part above zero.'**
+  String get mdfCrewZero;
+
+  /// No description provided for @mdfCrewDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get mdfCrewDone;
+
+  /// No description provided for @mdfCrewEach.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} people · {m2} m² each'**
+  String mdfCrewEach(int count, String m2);
+
   /// No description provided for @mdfStageGiven.
   ///
   /// In en, this message translates to:
@@ -21341,6 +21407,30 @@ abstract class AppLocalizations {
   /// **'No one found'**
   String get tmNoOne;
 
+  /// No description provided for @tmPickDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get tmPickDone;
+
+  /// No description provided for @tmPickAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added: {count}'**
+  String tmPickAdded(int count);
+
+  /// No description provided for @tmOnPost.
+  ///
+  /// In en, this message translates to:
+  /// **'already on the post'**
+  String get tmOnPost;
+
+  /// No description provided for @tmPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a person to put him on the post; tap again to take him off.'**
+  String get tmPickHint;
+
   /// No description provided for @tmDupTitle.
   ///
   /// In en, this message translates to:
@@ -21599,11 +21689,131 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get pplRecord;
 
-  /// No description provided for @pplFillAll.
+  /// No description provided for @pplKindAdvanceHint.
   ///
   /// In en, this message translates to:
-  /// **'Fill in who, how much and what for.'**
-  String get pplFillAll;
+  /// **'Money already handed over. Comes off the pay.'**
+  String get pplKindAdvanceHint;
+
+  /// No description provided for @pplKindFineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept back for a fault. Comes off the pay.'**
+  String get pplKindFineHint;
+
+  /// No description provided for @pplKindBonusHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on top of the earnings. Added to the pay.'**
+  String get pplKindBonusHint;
+
+  /// No description provided for @pplWhyOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'What for (optional)'**
+  String get pplWhyOptional;
+
+  /// No description provided for @pplWhoMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who'**
+  String get pplWhoMissing;
+
+  /// No description provided for @pplAmountMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount above zero'**
+  String get pplAmountMissing;
+
+  /// No description provided for @pplWhyMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Say what for: the person will read it'**
+  String get pplWhyMissing;
+
+  /// No description provided for @pplBalanceNow.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay now'**
+  String get pplBalanceNow;
+
+  /// No description provided for @pplBalanceAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After this'**
+  String get pplBalanceAfter;
+
+  /// No description provided for @pplAtOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the owner: it counts at once, no second «Yes».'**
+  String get pplAtOnce;
+
+  /// No description provided for @pplNeedsYes.
+  ///
+  /// In en, this message translates to:
+  /// **'It is recorded and waits for another person\'s «Yes».'**
+  String get pplNeedsYes;
+
+  /// No description provided for @pplReasonAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'asked for it'**
+  String get pplReasonAsked;
+
+  /// No description provided for @pplReasonTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'for travel'**
+  String get pplReasonTravel;
+
+  /// No description provided for @pplReasonTillPay.
+  ///
+  /// In en, this message translates to:
+  /// **'till payday'**
+  String get pplReasonTillPay;
+
+  /// No description provided for @pplReasonDefect.
+  ///
+  /// In en, this message translates to:
+  /// **'defect'**
+  String get pplReasonDefect;
+
+  /// No description provided for @pplReasonLate.
+  ///
+  /// In en, this message translates to:
+  /// **'late'**
+  String get pplReasonLate;
+
+  /// No description provided for @pplReasonAbsent.
+  ///
+  /// In en, this message translates to:
+  /// **'absent'**
+  String get pplReasonAbsent;
+
+  /// No description provided for @pplReasonMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'spoiled material'**
+  String get pplReasonMaterial;
+
+  /// No description provided for @pplReasonPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'for the plan'**
+  String get pplReasonPlan;
+
+  /// No description provided for @pplReasonRush.
+  ///
+  /// In en, this message translates to:
+  /// **'for a rush order'**
+  String get pplReasonRush;
+
+  /// No description provided for @pplReasonWeekend.
+  ///
+  /// In en, this message translates to:
+  /// **'for a day off worked'**
+  String get pplReasonWeekend;
 
   /// No description provided for @pplRecorded.
   ///

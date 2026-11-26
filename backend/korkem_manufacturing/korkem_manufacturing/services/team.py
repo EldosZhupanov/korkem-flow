@@ -165,16 +165,20 @@ def people(include_left: bool = False) -> dict:
 def in_work(company: str) -> dict[str, int]:
 	"""How many open order stages are given to each person — «в работе N»
 	beside his name (owner, 26.11.2026)."""
-	from korkem_manufacturing.services import directions, mdf_orders
+	from korkem_manufacturing.services import directions, mdf_orders, stage_crew
 
 	counts: dict[str, int] = {}
 	for stage, field in mdf_orders.STAGES.items():
 		to = mdf_orders.STAGE_TO[stage]
-		for person in frappe.get_all("Sales Order", filters={
+		rows = frappe.get_all("Sales Order", filters={
 				"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
 				to: ["is", "set"], field: ["is", "not set"], "korkem_handed_over_on": ["is", "not set"]},
-				pluck=to, limit_page_length=0):
-			counts[person] = counts.get(person, 0) + 1
+				fields=["name", to + " as person"], limit_page_length=0)
+		# Given to a crew: in work for each of them (26.11.2026).
+		crews = stage_crew.of_orders([r.name for r in rows], "to")
+		for r in rows:
+			for person in [e for e, _ in crews.get((r.name, stage), [])] or [r.person]:
+				counts[person] = counts.get(person, 0) + 1
 	return counts
 
 

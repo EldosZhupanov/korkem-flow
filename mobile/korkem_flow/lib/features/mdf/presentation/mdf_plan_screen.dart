@@ -50,13 +50,14 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
   Future<void> _tick(PlanStage stage, PlanOrder order) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final worker = await pickMdfWorker(
+    final pick = await pickMdfCrew(
       context,
       '${order.name} · ${mdfStageLabel(stage.stage, l10n)}',
       order: order.name,
       stage: stage.stage,
+      areaM2: order.areaM2,
     );
-    if (worker == null || !mounted) return;
+    if (pick == null || !mounted) return;
     setState(() => _busy = order.name);
     try {
       await ref
@@ -65,7 +66,8 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
             order.name,
             stage.stage,
             done: true,
-            worker: worker.isEmpty ? null : worker,
+            worker: pick.single,
+            crew: pick.crew,
           );
       messenger.showDone(
         l10n.mdfPlanTicked(order.name, mdfStageLabel(stage.stage, l10n)),

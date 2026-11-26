@@ -18,13 +18,6 @@ const double _tableWidth = 560;
 /// «Отдать» on one line, in Kazakh too («Беру»).
 const double _actionWidth = AppSpacing.xxxl * 2 + AppSpacing.lg;
 
-String payKindLabel(PersonAdjustmentKind kind, AppLocalizations l10n) =>
-    switch (kind) {
-      PersonAdjustmentKind.advance => l10n.pplAdvance,
-      PersonAdjustmentKind.fine => l10n.pplFineOne,
-      PersonAdjustmentKind.bonus => l10n.pplBonusOne,
-    };
-
 /// «Деньги» (owner, 26.11.2026): everyone's month in one list — earned,
 /// taken in advance, fined, still to give — with «Отдать» once the month is
 /// over and «Да» / «Нет» for what waits. Replaces the separate «Ведомость».
@@ -77,7 +70,13 @@ class PeopleMoneyView extends StatelessWidget {
               icon: const Icon(AppIcons.add),
               label: Text(l10n.pplAddMoney),
               onPressed: () => unawaited(
-                showPayEntryDialog(context, people: report.people),
+                showPayEntryDialog(
+                  context,
+                  people: report.people,
+                  atOnce: report.adjustsAtOnce,
+                  showBalance:
+                      day.year == today.year && day.month == today.month,
+                ),
               ),
             ),
           ),

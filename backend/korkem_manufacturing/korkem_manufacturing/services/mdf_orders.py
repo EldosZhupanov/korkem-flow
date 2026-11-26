@@ -585,17 +585,29 @@ def _give_out(doc) -> None:
 		doc.db_set(values, update_modified=False)
 
 
-def assign(order: str, stage: str, worker: str | None = None) -> dict:
-	"""Give a stage to a person, or take it back (`worker` empty)."""
+def assign(order: str, stage: str, worker: str | None = None, crew=None) -> dict:
+	"""Give a stage to a person, to several (`crew`, each with a share — owner,
+	26.11.2026: «2 или 3 вакуумщика делают вместе»), or take it back (both
+	empty). The order names the first; `stage_crew` keeps them all."""
+	from korkem_manufacturing.services import stage_crew
+
 	facade_prices.ensure_editor()
 	doc = _accepted(order)
 	if stage not in STAGES or stage not in stages_of(doc):
 		frappe.throw("У этого заказа такого этапа нет.")
-	if worker and frappe.db.get_value("Employee", worker, "company") != doc.company:
-		frappe.throw("Такого сотрудника в компании нет.")
-	doc.db_set(STAGE_TO[stage], worker or None, update_modified=True)
+	if crew:
+		members = stage_crew.parse(crew, doc.company)
+	elif worker:
+		if frappe.db.get_value("Employee", worker, "company") != doc.company:
+			frappe.throw("Такого сотрудника в компании нет.")
+		members = [(worker, 100.0)]
+	else:
+		members = []
+	doc.db_set(STAGE_TO[stage], members[0][0] if members else None, update_modified=True)
+	stage_crew.put(doc.company, doc.name, stage, "to", members)
 	audit.record_audit(action="mdf.stage_given", entity_type="Sales Order", entity_id=doc.name,
-					   diff={"stage": stage, "worker": worker})
+					   diff={"stage": stage, "worker": members[0][0] if members else None,
+							 "crew": members if len(members) > 1 else None})
 	return card(doc.name)
 
 
@@ -731,18 +743,19 @@ def cancel(order: str, reason: str) -> dict:
 	return card(doc.name)
 
 
-def set_stage(order: str, stage: str, done=True, worker: str | None = None) -> dict:
+def set_stage(order: str, stage: str, done=True, worker: str | None = None, crew=None) -> dict:
 	"""Tick or untick one stage. The date is today's; the last tick makes the order ready.
 
 	`worker` — the Employee who did it, for the shop's work volume; optional,
 	since the manager ticks and may not know. Unticking forgets them.
+	`crew` — several who did it together, each with a share (`stage_crew`).
 	"""
 	facade_prices.ensure_editor()
-	_tick(order, stage, done, worker)
+	_tick(order, stage, done, worker, crew)
 	return card(order)
 
 
-def _tick(order: str, stage: str, done=True, worker: str | None = None) -> None:
+def _tick(order: str, stage: str, done=True, worker: str | None = None, crew=None) -> None:
 	"""The tick itself — whoever may make it has been asked already: the
 	manager (`set_stage`) or the worker, for his own stage (`my_work`)."""
 	doc = _accepted(order)
@@ -750,10 +763,23 @@ def _tick(order: str, stage: str, done=True, worker: str | None = None) -> None:
 		frappe.throw(f"Этап «{stage}» не знаю.")
 	if doc.korkem_handed_over_on:
 		frappe.throw("Заказ уже выдан.")
+	from korkem_manufacturing.services import stage_crew
+
 	done = directions.flag(done)
-	if worker:
+	given = stage_crew.get(doc.name, stage, "to")
+	members: list[tuple[str, float]] = []
+	if crew and done:
+		members = stage_crew.parse(crew, doc.company)
+		worker = members[0][0]
+	elif worker:
 		if frappe.db.get_value("Employee", worker, "company") != doc.company:
 			frappe.throw("Такого сотрудника в компании нет.")
+		# One of the crew it was given to ticks it: the crew did it.
+		members = given if worker in {e for e, _ in given} else [(worker, 100.0)]
+	elif done and given:
+		# Given to a crew and not said who: the crew did it.
+		members = given
+		worker = given[0][0]
 	elif done:
 		# Not said who: the one it was given to did it — or, given to nobody,
 		# the one person on its post (owner, 26.11.2026: a tick with no name
@@ -765,6 +791,7 @@ def _tick(order: str, stage: str, done=True, worker: str | None = None) -> None:
 
 			people = team.holders(team.posts_for_stage(stage, doc.get("korkem_coatings")), doc.company)
 			worker = people[0]["employee"] if len(people) == 1 else None
+		members = [(worker, 100.0)] if worker else []
 	needed = stages_of(doc)
 	if stage not in needed:
 		frappe.throw("У этого заказа такого этапа нет — добавьте его кнопкой «+ этап».")
@@ -779,12 +806,14 @@ def _tick(order: str, stage: str, done=True, worker: str | None = None) -> None:
 			frappe.throw("«Готово» — после всех этапов. Не отмечено: " + ", ".join(STAGE_NAMES[s] for s in missing) + ".")
 	doc.db_set({STAGES[stage]: nowdate() if done else None, STAGE_BY[stage]: (worker or None) if done else None},
 			   update_modified=True)
+	stage_crew.put(doc.company, doc.name, stage, "by", members if done else [])
 	doc.reload()
 	# Ready is «готово» ticked — checked and packed, not the last machine stage.
 	ready = all(doc.get(STAGES[s]) for s in needed)
 	doc.db_set("korkem_ready_on", (doc.korkem_ready_on or nowdate()) if ready else None, update_modified=False)
 	audit.record_audit(action="mdf.stage", entity_type="Sales Order", entity_id=doc.name,
-					   diff={"stage": stage, "done": done, "ready": ready, "worker": worker if done else None})
+					   diff={"stage": stage, "done": done, "ready": ready, "worker": worker if done else None,
+							 "crew": members if done and len(members) > 1 else None})
 	if stage == "paint":
 		_paint_used(doc.name, done)
 	if stage == "vacuum":
@@ -923,6 +952,9 @@ def return_to_work(order: str, reason: str) -> dict:
 	doc.db_set({"korkem_handed_over_on": None, "korkem_taken_by": None, "korkem_taken_phone": None,
 				"korkem_handed_over_by": None, STAGES["ready"]: None, STAGE_BY["ready"]: None,
 				"korkem_ready_on": None}, update_modified=True)
+	from korkem_manufacturing.services import stage_crew
+
+	stage_crew.put(doc.company, doc.name, "ready", "by", [])
 	doc.add_comment("Comment", f"Возвращён в работу: {reason}")
 	audit.record_audit(action="mdf.returned_to_work", entity_type="Sales Order", entity_id=doc.name,
 					   diff={"reason": reason})
@@ -969,9 +1001,12 @@ def _offcut_parts(doc) -> int:
 
 def card(order: str) -> dict:
 	"""Everything the card shows, in one answer."""
+	from korkem_manufacturing.services import stage_crew
+
 	facade_prices.ensure_editor()
 	doc = _order(order)
 	needed = stages_of(doc)
+	crews_by, crews_to = stage_crew.of_orders([doc.name], "by"), stage_crew.of_orders([doc.name], "to")
 	glue = _glue_plan(doc.name)
 	lines = [
 		{
@@ -1036,6 +1071,9 @@ def card(order: str) -> dict:
 		"invoice_vat": mdf_invoices.vat_default(doc.company),
 		"stages": [
 			{"stage": s, "done_on": _done_on(doc, s),
+			 # Several on one stage (owner, 26.11.2026): each with his share.
+			 "crew": stage_crew.describe(crews_by.get((doc.name, s), [])),
+			 "given_crew": stage_crew.describe(crews_to.get((doc.name, s), [])),
 			 "extra": s in _extra(doc.get("korkem_extra_stages")),
 			 "worker": doc.get(STAGE_BY[s]),
 			 "worker_name": frappe.db.get_value("Employee", doc.get(STAGE_BY[s]), "employee_name")
