@@ -28,6 +28,14 @@ tablet can say «до дневной премии осталось 4 200 ₸».
 
 Money is people's pay: the statement is for the production manager, the
 administrator and accounting; a worker sees only their own figures.
+
+**Pay is a person's, not a login's** (owner, 26.11.2026: «бывают люди
+возраста 50 лет, они же не умеют пользоваться»). An advance, a fine, a bonus
+and a payout name the person (`Employee`, field `person`); the login stays on
+the row when he has one, because piece pay is booked by whoever marks the
+work and his own entry is the one thing he may not approve. The statement is
+keyed by the person — the login's person for piece pay — and falls back to
+the login for a row written before (`_key`), so nothing written is lost.
 """
 
 from __future__ import annotations
@@ -79,9 +87,10 @@ def add_adjustment(
 	company = current_company()
 	if kind not in KINDS:
 		frappe.throw(f"Вид — один из: {', '.join(KINDS)}.")
-	if employee == frappe.session.user:
+	person, login = _who(employee, company)
+	if login and login == frappe.session.user:
 		frappe.throw("Себе удержание или премию вносит другой человек.", frappe.PermissionError)
-	_ensure_worker(employee, company)
+	_ensure_worker(person, login, company)
 	try:
 		value = flt(amount)
 	except (TypeError, ValueError):
@@ -91,7 +100,7 @@ def add_adjustment(
 	day = getdate(on_date) if on_date else getdate(nowdate())
 	if day > getdate(nowdate()):
 		frappe.throw("Дата не может быть в будущем.")
-	_ensure_open(employee, day, company)
+	_ensure_open(person, login, day, company)
 	if sales_order:
 		from korkem_manufacturing.services.scope import ensure_company
 
@@ -100,8 +109,9 @@ def add_adjustment(
 		{
 			"doctype": DOCTYPE,
 			"company": company,
-			"employee": employee,
-			"employee_name": frappe.db.get_value("User", employee, "full_name") or employee,
+			"person": person,
+			"employee": login,
+			"employee_name": _name(person, login),
 			"kind": kind,
 			"amount": value,
 			"on_date": str(day),
@@ -122,7 +132,8 @@ def add_adjustment(
 		action="payroll.adjustment_added",
 		entity_type=DOCTYPE,
 		entity_id=doc.name,
-		diff={"employee": employee, "kind": kind, "amount": value, "on_date": str(day), "approved": owner},
+		diff={"person": person, "employee": login, "kind": kind, "amount": value, "on_date": str(day),
+			  "approved": owner},
 	)
 	return _adjustment(doc)
 
@@ -134,7 +145,7 @@ def approve_adjustment(adjustment: str) -> dict:
 		frappe.throw(f"Уже в статусе «{doc.status}».")
 	if frappe.session.user in (doc.employee, doc.created_by):
 		frappe.throw("Утверждает другой человек — не тот, кого это касается, и не тот, кто вносил.", frappe.PermissionError)
-	_ensure_open(doc.employee, getdate(doc.on_date), doc.company)
+	_ensure_open(doc.get("person"), doc.employee, getdate(doc.on_date), doc.company)
 	doc.db_set({"status": "Approved", "approved_by": frappe.session.user, "approved_at": now_datetime()})
 	audit.record_audit(action="payroll.adjustment_approved", entity_type=DOCTYPE, entity_id=doc.name)
 	return _adjustment(doc)
@@ -148,7 +159,7 @@ def reverse_adjustment(adjustment: str, reason: str) -> dict:
 		frappe.throw("Укажите причину — работник увидит её.")
 	if doc.status == "Reversed":
 		return _adjustment(doc)
-	_ensure_open(doc.employee, getdate(doc.on_date), doc.company)
+	_ensure_open(doc.get("person"), doc.employee, getdate(doc.on_date), doc.company)
 	doc.db_set({"status": "Reversed", "reversal_reason": reason[:500]})
 	audit.record_audit(
 		action="payroll.adjustment_reversed", entity_type=DOCTYPE, entity_id=doc.name, diff={"reason": reason}
@@ -164,7 +175,7 @@ def adjustments(from_date: str | None = None, to_date: str | None = None) -> lis
 		for r in frappe.get_all(
 			DOCTYPE,
 			filters={"company": current_company(), "on_date": ["between", [start, end]]},
-			fields=["name", "employee", "employee_name", "kind", "amount", "on_date", "reason", "status",
+			fields=["name", "person", "employee", "employee_name", "kind", "amount", "on_date", "reason", "status",
 					"sales_order", "created_by", "approved_by", "reversal_reason"],
 			order_by="on_date desc, creation desc",
 			limit_page_length=1000,
@@ -201,12 +212,22 @@ def sheet_rows(company: str, start: date, end: date, rules: dict | None = None) 
 	them (the statement: its readers; a worker's own card: himself)."""
 	rules = rules or bonus_rules(company)
 	rows: dict[str, dict] = {}
+	people = _people(company)
+	logins = {p.user_id: p.name for p in people.values() if p.user_id}
+
+	def key(person: str | None = None, login: str | None = None) -> str:
+		return _key(person, login, logins)
 
 	def row(employee: str, name: str | None = None) -> dict:
 		if employee not in rows:
+			p = people.get(employee)
 			rows[employee] = {
+				# The person — or, for a login with none, the login.
 				"employee": employee,
-				"employee_name": name or frappe.db.get_value("User", employee, "full_name") or employee,
+				"person": p.name if p else None,
+				"user": (p.user_id or None) if p else employee,
+				"employee_name": (p.employee_name if p else None) or name
+				or frappe.db.get_value("User", employee, "full_name") or employee,
 				"piece": 0.0,
 				"pending": 0.0,
 				"daily_bonus": 0.0,
@@ -221,14 +242,14 @@ def sheet_rows(company: str, start: date, end: date, rules: dict | None = None) 
 		return rows[employee]
 
 	for r in _piece_entries(company, start, end):
-		target = row(r.employee, r.employee_name)
+		target = row(key(login=r.employee), r.employee_name)
 		if r.status in COUNTED:
 			target["piece"] += flt(r.amount)
 		elif r.status == "Pending Approval":
 			target["pending"] += flt(r.amount)
 
-	for employee, (days, months) in _bonuses(company, start, end, rules).items():
-		target = row(employee)
+	for login, (days, months) in _bonuses(company, start, end, rules).items():
+		target = row(key(login=login))
 		target["bonus_days"], target["bonus_months"] = len(days), len(months)
 		target["daily_bonus"] = len(days) * rules["daily_bonus"]
 		target["monthly_bonus"] = len(months) * rules["monthly_bonus"]
@@ -236,10 +257,10 @@ def sheet_rows(company: str, start: date, end: date, rules: dict | None = None) 
 	for a in frappe.get_all(
 		DOCTYPE,
 		filters={"company": company, "status": "Approved", "on_date": ["between", [start, end]]},
-		fields=["employee", "employee_name", "kind", "amount"],
+		fields=["person", "employee", "employee_name", "kind", "amount"],
 	):
-		key = {ADVANCE: "advance", FINE: "fine", BONUS: "bonus"}[a.kind]
-		row(a.employee, a.employee_name)[key] += flt(a.amount)
+		field = {ADVANCE: "advance", FINE: "fine", BONUS: "bonus"}[a.kind]
+		row(key(a.person, a.employee), a.employee_name)[field] += flt(a.amount)
 
 	# The film sellers' part of their team pot (owner, 26.11.2026: «бонус
 	# продажников сам попадёт в зарплату») — a calendar month's, as the pot is.
@@ -247,16 +268,16 @@ def sheet_rows(company: str, start: date, end: date, rules: dict | None = None) 
 
 	for seller, amount in film_team.bonuses(company, start, end).items():
 		if frappe.db.exists("User", {"name": seller, "enabled": 1}):
-			row(seller)["sales_bonus"] += amount
+			row(key(login=seller))["sales_bonus"] += amount
 
-	paid = _paid_within(company, start, end)
+	paid = _paid_within(company, start, end, logins)
 	for employee in paid:
 		row(employee)
 
 	result = []
 	for r in sorted(rows.values(), key=lambda x: x["employee_name"]):
-		for key in ("piece", "pending", "daily_bonus", "monthly_bonus", "bonus", "sales_bonus", "fine", "advance"):
-			r[key] = round(r[key], 2)
+		for field in ("piece", "pending", "daily_bonus", "monthly_bonus", "bonus", "sales_bonus", "fine", "advance"):
+			r[field] = round(r[field], 2)
 		r["to_pay"] = round(r["piece"] + r["daily_bonus"] + r["monthly_bonus"] + r["bonus"] + r["sales_bonus"]
 							- r["fine"] - r["advance"], 2)
 		r["paid"] = round(paid.get(r["employee"], 0.0), 2)
@@ -310,46 +331,48 @@ def mark_paid(employee: str, from_date: str, to_date: str, note: str | None = No
 	start, end = _period(from_date, to_date)
 	if end > getdate(nowdate()):
 		frappe.throw("Период ещё не закончился — за текущие дни платят авансом.")
-	if employee == frappe.session.user:
+	person, login = _who(employee, company)
+	if login and login == frappe.session.user:
 		frappe.throw("Свою выплату отмечает другой человек.", frappe.PermissionError)
-	_ensure_worker(employee, company)
+	_ensure_worker(person, login, company)
 	# Two people marking the same sheet at once: the second waits here and
 	# then sees the first one's payout.
-	frappe.db.sql("SELECT name FROM `tabUser` WHERE name = %s FOR UPDATE", employee)
+	if person:
+		frappe.db.sql("SELECT name FROM `tabEmployee` WHERE name = %s FOR UPDATE", person)
+	else:
+		frappe.db.sql("SELECT name FROM `tabUser` WHERE name = %s FOR UPDATE", login)
 
 	same = 0.0
-	for p in frappe.get_all(
-		PAYOUT,
-		filters={"company": company, "employee": employee, "from_date": ["<=", end], "to_date": [">=", start]},
-		fields=["name", "from_date", "to_date", "amount"],
-	):
+	for p in _theirs(PAYOUT, company, person, login, {"from_date": ["<=", end], "to_date": [">=", start]},
+					 ["name", "from_date", "to_date", "amount"]):
 		if getdate(p.from_date) != start or getdate(p.to_date) != end:
 			frappe.throw(f"Пересекается с выплатой {p.name} за {p.from_date} – {p.to_date}.")
 		same += flt(p.amount)
 
-	waiting_work = len(_piece_entries(company, start, end, employee=employee, statuses=["Pending Approval"]))
-	waiting_adj = frappe.db.count(
-		DOCTYPE,
-		{"company": company, "employee": employee, "status": "Pending Approval", "on_date": ["between", [start, end]]},
-	)
+	# Piece pay is booked under the login of whoever did the work; with no
+	# login there is none, only advances, fines and bonuses.
+	waiting_work = len(_piece_entries(company, start, end, employee=login, statuses=["Pending Approval"])) if login else 0
+	waiting_adj = len(_theirs(DOCTYPE, company, person, login,
+							  {"status": "Pending Approval", "on_date": ["between", [start, end]]}))
 	if waiting_work or waiting_adj:
 		frappe.throw(
 			f"Сначала утвердите или отклоните то, что ждёт решения: начислений — {waiting_work}, "
 			f"авансов, штрафов и премий — {waiting_adj}."
 		)
 
-	row = next((r for r in statement(str(start), str(end))["rows"] if r["employee"] == employee), None)
+	mine = person or login
+	row = next((r for r in statement(str(start), str(end))["rows"] if r["employee"] == mine), None)
 	approved = frappe.get_all(
 		"Piece Work Entry",
 		filters={
 			"company": company,
-			"employee": employee,
+			"employee": login,
 			"status": "Approved",
 			"reversed_entry": ["is", "not set"],
 			"creation": ["between", [f"{start} 00:00:00", f"{end} 23:59:59.999999"]],
 		},
 		pluck="name",
-	)
+	) if login else []
 	left = round(flt(row["to_pay"]) - same, 2) if row else 0.0
 	if left < 0:
 		frappe.throw(
@@ -366,8 +389,9 @@ def mark_paid(employee: str, from_date: str, to_date: str, note: str | None = No
 		{
 			"doctype": PAYOUT,
 			"company": company,
-			"employee": employee,
-			"employee_name": frappe.db.get_value("User", employee, "full_name") or employee,
+			"person": person,
+			"employee": login,
+			"employee_name": _name(person, login),
 			"from_date": str(start),
 			"to_date": str(end),
 			"amount": left,
@@ -386,7 +410,8 @@ def mark_paid(employee: str, from_date: str, to_date: str, note: str | None = No
 		action="payroll.paid_out",
 		entity_type=PAYOUT,
 		entity_id=doc.name,
-		diff={"employee": employee, "from_date": str(start), "to_date": str(end), "amount": left, "entries": len(approved)},
+		diff={"person": person, "employee": login, "from_date": str(start), "to_date": str(end), "amount": left,
+			  "entries": len(approved)},
 	)
 	return _payout(doc)
 
@@ -400,35 +425,32 @@ def payouts(from_date: str | None = None, to_date: str | None = None) -> list[di
 		for r in frappe.get_all(
 			PAYOUT,
 			filters={"company": current_company(), "from_date": ["<=", end], "to_date": [">=", start]},
-			fields=["name", "employee", "employee_name", "from_date", "to_date", "amount", "entries", "paid_by",
-					"paid_at", "note"],
+			fields=["name", "person", "employee", "employee_name", "from_date", "to_date", "amount", "entries",
+					"paid_by", "paid_at", "note"],
 			order_by="paid_at desc",
 			limit_page_length=1000,
 		)
 	]
 
 
-def _paid_within(company: str, start: date, end: date) -> dict[str, float]:
-	"""Per worker, what was paid out for periods inside [start, end]."""
+def _paid_within(company: str, start: date, end: date, logins: dict[str, str]) -> dict[str, float]:
+	"""Per worker (`_key`), what was paid out for periods inside [start, end]."""
 	paid: dict[str, float] = {}
 	for p in frappe.get_all(
 		PAYOUT,
 		filters={"company": company, "from_date": [">=", start], "to_date": ["<=", end]},
-		fields=["employee", "amount"],
+		fields=["person", "employee", "amount"],
 	):
-		paid[p.employee] = paid.get(p.employee, 0.0) + flt(p.amount)
+		k = _key(p.person, p.employee, logins)
+		paid[k] = paid.get(k, 0.0) + flt(p.amount)
 	return paid
 
 
-def _ensure_open(employee: str, day: date, company: str) -> None:
+def _ensure_open(person: str | None, login: str | None, day: date, company: str) -> None:
 	"""An advance, fine or bonus dated in a paid-out period would change a sum
 	already handed over: it goes into the next period instead."""
-	paid = frappe.db.get_value(
-		PAYOUT,
-		{"company": company, "employee": employee, "from_date": ["<=", day], "to_date": [">=", day]},
-		["name", "from_date", "to_date"],
-		as_dict=True,
-	)
+	paid = next(iter(_theirs(PAYOUT, company, person, login, {"from_date": ["<=", day], "to_date": [">=", day]},
+							 ["name", "from_date", "to_date"])), None)
 	if paid:
 		frappe.throw(
 			f"Период {paid.from_date} – {paid.to_date} уже выплачен ({paid.name}). Внесите в следующий период."
@@ -438,6 +460,7 @@ def _ensure_open(employee: str, day: date, company: str) -> None:
 def _payout(r) -> dict:
 	return {
 		"payout": r.name,
+		"person": r.get("person"),
 		"employee": r.employee,
 		"employee_name": r.employee_name or r.employee,
 		"from_date": str(r.from_date),
@@ -601,13 +624,57 @@ def _period(from_date, to_date) -> tuple[date, date]:
 	return start, end
 
 
-def _ensure_worker(employee: str, company: str) -> None:
+def _ensure_worker(person: str | None, login: str | None, company: str) -> None:
+	"""A person of the company — with a login or without — or, for a login
+	that has no person yet, a member of the company's staff."""
+	if person:
+		return  # `_who` found him in this company
 	if (
-		not frappe.db.exists("User", {"name": employee, "enabled": 1})
-		or not is_staff(employee)
-		or employee not in _members(company)
+		not login
+		or not frappe.db.exists("User", {"name": login, "enabled": 1})
+		or not is_staff(login)
+		or login not in _members(company)
 	):
 		frappe.throw("Такого сотрудника нет.", frappe.DoesNotExistError)
+
+
+def _who(value: str, company: str) -> tuple[str | None, str | None]:
+	"""(person, login) for whom the money is: a person (`Employee`) of the
+	company, with his login if he has one — or a login, with its person."""
+	if not value:
+		frappe.throw("Укажите сотрудника.")
+	row = frappe.db.get_value("Employee", {"name": value, "company": company}, ["name", "user_id"], as_dict=True)
+	if row:
+		return row.name, row.user_id or None
+	if frappe.db.exists("User", value):
+		return frappe.db.get_value("Employee", {"user_id": value, "company": company}, "name"), value
+	frappe.throw("Такого сотрудника нет.", frappe.DoesNotExistError)
+
+
+def _people(company: str) -> dict:
+	"""The company's people, the ones who left too: their pay is still theirs."""
+	return {r.name: r for r in frappe.get_all("Employee", filters={"company": company},
+											  fields=["name", "employee_name", "user_id"], limit_page_length=0)}
+
+
+def _key(person: str | None, login: str | None, logins: dict[str, str]) -> str | None:
+	"""Whose row a record falls in: its person, else its login's person, else
+	the login itself (written before pay was a person's)."""
+	return person or logins.get(login) or login
+
+
+def _name(person: str | None, login: str | None) -> str:
+	return ((frappe.db.get_value("Employee", person, "employee_name") if person else None)
+			or (frappe.db.get_value("User", login, "full_name") if login else None) or person or login)
+
+
+def _theirs(doctype: str, company: str, person: str | None, login: str | None, filters: dict,
+			fields: list[str] | None = None) -> list:
+	"""One worker's adjustments or payouts: by the person, and by the login
+	for rows written before the person was on them."""
+	ors = ([[doctype, "person", "=", person]] if person else []) + ([[doctype, "employee", "=", login]] if login else [])
+	return frappe.get_all(doctype, filters={"company": company, **filters}, or_filters=ors,
+						  fields=fields or ["name"], limit_page_length=0)
 
 
 def _members(company: str) -> set[str]:
@@ -630,6 +697,7 @@ def _own(name: str):
 def _adjustment(r) -> dict:
 	return {
 		"adjustment": r.name,
+		"person": r.get("person"),
 		"employee": r.employee,
 		"employee_name": r.employee_name or r.employee,
 		"kind": r.kind,

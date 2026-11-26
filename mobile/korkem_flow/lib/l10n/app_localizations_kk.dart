@@ -4684,7 +4684,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get mdfStageCut => 'Кесу';
 
   @override
-  String get mdfStageMill => 'Фреза';
+  String get mdfStageMill => 'ЧПУ';
 
   @override
   String get mdfStageSand => 'Жону';
@@ -9152,6 +9152,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get teamDeptCnc => 'ЧПУ';
 
   @override
+  String get teamDeptSand => 'Жону';
+
+  @override
   String get teamDeptPvc => 'ПВХ үлдірі';
 
   @override
@@ -9177,6 +9180,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get teamPostSander => 'Тегістеуші';
+
+  @override
+  String get teamPostSanderPvc => 'ПВХ тегістеушісі';
+
+  @override
+  String get teamPostSanderPaint => 'Бояу тегістеушісі';
 
   @override
   String get teamPostVacuum => 'Вакуумшы';
@@ -12288,10 +12297,6 @@ class AppLocalizationsKk extends AppLocalizations {
   String get pplEmpty => '«Командада» әзірге ешкім жоқ.';
 
   @override
-  String get pplNoLogin =>
-      'Бағдарламаға кірусіз: кесімді ақы есептелмейді, тек көлем көрінеді.';
-
-  @override
   String get pplMoney => 'Ақша';
 
   @override
@@ -12549,9 +12554,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pplCopied => 'Көшірілді — Excel-ге қойыңыз';
-
-  @override
-  String get pplNoLoginMoney => 'кірусіз — жалақы есептелмейді';
 
   @override
   String get pplMoneyTitle => 'Аванс, айыппұл не сыйақы';

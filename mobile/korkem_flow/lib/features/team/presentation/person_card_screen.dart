@@ -221,7 +221,7 @@ class _CardBodyState extends State<_CardBody> {
                         showPayEntryDialog(
                           context,
                           people: [row],
-                          user: row.user,
+                          employee: row.employee,
                           kind: kind,
                         ),
                       ),
@@ -233,7 +233,7 @@ class _CardBodyState extends State<_CardBody> {
                     onPressed: () => unawaited(
                       giveMonthPay(
                         context,
-                        user: row.user!,
+                        employee: row.employee,
                         name: row.name,
                         amount: m.left,
                         day: widget.day,
@@ -244,12 +244,7 @@ class _CardBodyState extends State<_CardBody> {
               ],
             ),
           ],
-        ] else if (c.seesPay)
-          Text(
-            l10n.pplNoLogin,
-            key: const ValueKey('card:noLogin'),
-            style: muted,
-          ),
+        ],
         if (widget.span != PeopleSpan.day && c.days.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
           SectionLabel(l10n.pplByDay),

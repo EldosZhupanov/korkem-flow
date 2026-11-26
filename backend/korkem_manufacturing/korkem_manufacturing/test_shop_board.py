@@ -59,6 +59,18 @@ class TestShopBoard(IntegrationTestCase):
 		self.assertEqual(shop_board.workdays(getdate("2026-11-01"), getdate("2026-11-30")), 25)
 		self.assertFalse(shop_board.workday(getdate("2026-11-29")))  # a Sunday
 
+	def test_sanding_is_a_department_after_cnc_and_keeps_its_posts(self):
+		# Owner, 26.11.2026: «где у нас тут шлифовка?» — after ЧПУ, as the order goes.
+		order = [d["key"] for d in team.structure()["departments"]]
+		self.assertEqual(order[order.index("cnc") + 1], "sand")
+		sand = next(d for d in team.structure()["departments"] if d["key"] == "sand")
+		self.assertEqual([p["key"] for p in sand["posts"]], ["pvc.sander", "paint.sander"])
+		self.assertEqual(team.department_of("pvc.sander"), "sand")
+		self.assertEqual(team.department_of("pvc.vacuum"), "pvc")
+		# The keys people already hold are the same: nobody loses a post.
+		self.assertEqual(team.parse("pvc.sander\npaint.sander"), ["pvc.sander", "paint.sander"])
+		self.assertEqual(mdf_orders.STAGE_NAMES["mill"], "ЧПУ")
+
 	def test_the_board_counts_today_by_stage_and_by_person(self):
 		self._as(MANAGER, team.add_person, f"Ерлан Цехов {self.tag}", ["cut.cutter"])
 		cutter = frappe.db.get_value("Employee", {"employee_name": f"Ерлан Цехов {self.tag}"}, "name")

@@ -203,7 +203,7 @@ void main() {
 
     // On its way: which order, where it is now, its marks.
     expect(find.byKey(const ValueKey('paintComing:SO-6')), findsOneWidget);
-    expect(find.text('now: Milling'), findsOneWidget);
+    expect(find.text('now: CNC'), findsOneWidget);
     expect(find.text("Customer's LMDF"), findsOneWidget);
     expect(find.text('2 sides'), findsOneWidget);
 

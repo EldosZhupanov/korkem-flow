@@ -13,8 +13,10 @@ keep —
   login, whose stages the manager ticks, has his volume too; and the days
   on which he did any;
 - **the money** (`payroll.sheet_rows`): piece pay, bonuses, fines,
-  advances, what was paid out and what is left — for a person with a login,
-  since piece pay is booked to a login.
+  advances, what was paid out and what is left — for every person, with a
+  login or without (owner, 26.11.2026: «можно начислять»). Piece pay is
+  booked to whoever marks the work, so a person with no login has none of
+  it; his advances, fines, bonuses and payouts are his all the same.
 
 Days «with work» are the days a stage of his was ticked — not hours: the
 shop does not clock in, and this does not pretend it does.
@@ -115,10 +117,12 @@ def person(employee: str | None, period: str | None = "month", day: str | None =
 	start, end = span(period, day)
 	work = _work(company, start, end, employee)
 	other = _other_work(company, start, end, p["user"])
-	money = {r["employee"]: r for r in payroll.sheet_rows(company, start, end)} if p["user"] and sees_pay else {}
+	money = {r["employee"]: r for r in payroll.sheet_rows(company, start, end)} if sees_pay else {}
 	row = _row(p, work, money, other, sees_pay)
 	days = []
 	current = start
+	# Piece pay is booked under a login; a person with none has only his
+	# advances, fines and bonuses — paid all the same (26.11.2026).
 	earned = _earned_by_day(company, start, end, p["user"]) if p["user"] and sees_pay else {}
 	while current <= end:
 		key = str(current)
@@ -134,13 +138,12 @@ def person(employee: str | None, period: str | None = "month", day: str | None =
 		"by_day": days,  # not «days»: that is the row's count of days with work
 		"works": sorted(work["works"].get(employee, []), key=lambda w: (w["on"], w["number"] or 0), reverse=True),
 		"entries": _entries(company, start, end, p["user"]) if p["user"] and sees_pay else [],
-		"adjustments": _adjustments(company, start, end, p["user"]) if p["user"] and sees_pay else [],
-		"payouts": _payouts(company, start, end, p["user"]) if p["user"] and sees_pay else [],
+		"adjustments": _adjustments(company, start, end, employee, p["user"]) if sees_pay else [],
+		"payouts": _payouts(company, start, end, employee, p["user"]) if sees_pay else [],
 		"me": me,
 		"sees_pay": sees_pay,
-		"can_adjust": bool(payroll.EDITORS & set(frappe.get_roles())) and not me and bool(p["user"]),
-		"can_pay": bool(payroll.PAYERS & set(frappe.get_roles())) and not me and bool(p["user"])
-				   and end < getdate(nowdate()),
+		"can_adjust": bool(payroll.EDITORS & set(frappe.get_roles())) and not me,
+		"can_pay": bool(payroll.PAYERS & set(frappe.get_roles())) and not me and end < getdate(nowdate()),
 		# What the card may change: his posts, «Уволен» — the team's editors.
 		"active": p["active"],
 		"can_edit": team.can_edit(),
@@ -152,8 +155,9 @@ def _row(p: dict, work: dict, money: dict, other: dict | None = None, sees_pay: 
 	emp = p["employee"]
 	stages = [{"stage": s, "title": mdf_orders.STAGE_NAMES.get(s, s), "orders": n, "m2": round(work["m2"].get((emp, s), 0.0), 2)}
 			  for s, n in sorted(work["orders"].get(emp, {}).items(), key=lambda kv: list(mdf_orders.STAGES).index(kv[0]))]
-	# A login with nothing booked this period earned nothing — zeros, not «—».
-	m = (money.get(p["user"]) or {}) if p["user"] and sees_pay else None
+	# Nothing booked this period is nothing earned — zeros, not «—»; with a
+	# login or without, the pay is the person's (26.11.2026).
+	m = (money.get(emp) or {}) if sees_pay else None
 	extra = (other or {}).get(p["user"]) or {} if p["user"] else {}
 	return {
 		"employee": emp,
@@ -231,8 +235,8 @@ def _waiting(company: str, start: date, end: date) -> list[dict]:
 			for r in frappe.get_all(
 				payroll.DOCTYPE,
 				filters={"company": company, "status": "Pending Approval", "on_date": ["between", [start, end]]},
-				fields=["name", "employee", "employee_name", "kind", "amount", "on_date", "reason", "status",
-						"sales_order", "created_by", "approved_by", "reversal_reason"],
+				fields=["name", "person", "employee", "employee_name", "kind", "amount", "on_date", "reason",
+						"status", "sales_order", "created_by", "approved_by", "reversal_reason"],
 				order_by="on_date asc", limit_page_length=100)]
 
 
@@ -290,7 +294,7 @@ def _entries(company: str, start: date, end: date, user: str) -> list[dict]:
 				order_by="creation desc", limit_page_length=500)]
 
 
-def _adjustments(company: str, start: date, end: date, user: str) -> list[dict]:
+def _adjustments(company: str, start: date, end: date, employee: str, user: str | None) -> list[dict]:
 	"""His advances, fines and bonuses, each with what the one looking may
 	do to it: «Да» to one waiting (not his own entry), «Отменить» to any."""
 	editor = bool(payroll.EDITORS & set(frappe.get_roles()))
@@ -299,20 +303,20 @@ def _adjustments(company: str, start: date, end: date, user: str) -> list[dict]:
 			 "status": r.status,
 			 "can_approve": editor and r.status == "Pending Approval" and me not in (r.employee, r.created_by),
 			 "can_reverse": editor and r.status in ("Pending Approval", "Approved") and me != r.employee}
-			for r in frappe.get_all(
-				payroll.DOCTYPE,
-				filters={"company": company, "employee": user, "on_date": ["between", [start, end]]},
-				fields=["name", "on_date", "kind", "amount", "reason", "status", "employee", "created_by"],
-				order_by="on_date desc", limit_page_length=200)]
+			for r in sorted(payroll._theirs(payroll.DOCTYPE, company, employee, user,
+											{"on_date": ["between", [start, end]]},
+											["name", "on_date", "kind", "amount", "reason", "status", "employee",
+											 "created_by", "creation"]),
+							key=lambda r: (r.on_date, r.creation), reverse=True)[:200]]
 
 
-def _payouts(company: str, start: date, end: date, user: str) -> list[dict]:
+def _payouts(company: str, start: date, end: date, employee: str, user: str | None) -> list[dict]:
 	return [{"from_date": str(r.from_date), "to_date": str(r.to_date), "amount": flt(r.amount),
 			 "on": str(getdate(r.paid_at or r.creation))}
-			for r in frappe.get_all(
-				payroll.PAYOUT,
-				filters={"company": company, "employee": user, "from_date": ["<=", end], "to_date": [">=", start]},
-				fields=["from_date", "to_date", "amount", "paid_at", "creation"], order_by="creation desc", limit_page_length=50)]
+			for r in sorted(payroll._theirs(payroll.PAYOUT, company, employee, user,
+											{"from_date": ["<=", end], "to_date": [">=", start]},
+											["from_date", "to_date", "amount", "paid_at", "creation"]),
+							key=lambda r: r.creation, reverse=True)[:50]]
 
 
 def _sees_pay() -> bool:

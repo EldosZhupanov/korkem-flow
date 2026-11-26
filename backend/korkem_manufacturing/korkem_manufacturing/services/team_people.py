@@ -98,12 +98,11 @@ def dismissal(employee: str) -> dict:
 	pay, the money not settled over the last three months."""
 	team._ensure_editor()
 	team._employee(employee)
-	user = frappe.db.get_value("Employee", employee, "user_id")
 	money = None
-	if user and payroll.READERS.intersection(frappe.get_roles()):
+	if payroll.READERS.intersection(frappe.get_roles()):
 		end = getdate(nowdate())
 		row = next((r for r in payroll.sheet_rows(current_company(), end - timedelta(days=_PAY_DAYS), end)
-					if r["employee"] == user), None)
+					if r["employee"] == employee), None)
 		if row:
 			money = {"left": row["left"], "pending": row["pending"]}
 	return {"open": open_work(employee), "money": money}

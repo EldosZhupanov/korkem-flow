@@ -109,13 +109,13 @@ final fakeBoard = ShopBoard.fromJson(const {
       'posts': [
         {
           'post': 'pvc.sander',
-          'title': 'Шкурщик',
+          'title': 'Шкурщик ПВХ',
           'department': 'ПВХ плёнка',
           'people': <Object>[],
         },
         {
           'post': 'paint.sander',
-          'title': 'Шкурщик',
+          'title': 'Шкурщик покраски',
           'department': 'Покраска',
           'people': <Object>[],
         },

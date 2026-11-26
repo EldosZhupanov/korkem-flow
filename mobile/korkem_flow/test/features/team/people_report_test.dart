@@ -136,9 +136,10 @@ void main() {
     expect(find.byKey(const ValueKey('card:dismiss')), findsOne);
   });
 
-  testWidgets('no login: the volume, and why there is no money', (
+  testWidgets('no login: the volume and the money all the same', (
     tester,
   ) async {
+    // Owner, 26.11.2026: «можно начислять» — the pay is the person's.
     await pump(
       tester,
       PersonCardScreen(
@@ -146,9 +147,9 @@ void main() {
         today: DateTime(2026, 11, 25),
       ),
     );
-    expect(find.byKey(const ValueKey('card:noLogin')), findsOne);
-    expect(find.byKey(const ValueKey('figure:card:earned')), findsNothing);
+    expect(find.byKey(const ValueKey('figure:card:earned')), findsOne);
     expect(find.byKey(const ValueKey('figure:card:m2')), findsOne);
+    expect(find.byKey(const ValueKey('card:entry:advance')), findsOne);
   });
 
   // --- «Деньги» (owner, 26.11.2026): one list instead of «Ведомость» ---
@@ -161,8 +162,8 @@ void main() {
     expect(repo.reports.single, (span: PeopleSpan.month, day: '2026-11-25'));
     expect(find.byKey(const ValueKey('ppl:money:HR-EMP-00001')), findsOne);
     expect(find.byKey(const ValueKey('figure:ppl:money:left')), findsOne);
-    // A login-less worker is listed, and says why he has no money here.
-    expect(find.byKey(const ValueKey('ppl:money:none:HR-EMP-00002')), findsOne);
+    // A login-less worker has his money like anyone (26.11.2026).
+    expect(find.byKey(const ValueKey('ppl:money:HR-EMP-00002')), findsOne);
     // November is not over: no «Отдать», and the screen says so.
     expect(find.byKey(const ValueKey('ppl:payLater')), findsOne);
     expect(find.byKey(const ValueKey('ppl:pay:HR-EMP-00001')), findsNothing);
@@ -184,7 +185,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ppl:giveConfirm')));
     await tester.pumpAndSettle();
-    expect(pay.paidOut, [('erlan@korkem.kz', monthOf(DateTime(2026, 10)))]);
+    // The person is paid, not his login.
+    expect(pay.paidOut, [('HR-EMP-00001', monthOf(DateTime(2026, 10)))]);
   });
 
   testWidgets('an advance needs who, how much and what for', (tester) async {
@@ -220,8 +222,29 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('ppl:entrySave')));
     await tester.pumpAndSettle();
     expect(pay.added, [
-      ('erlan@korkem.kz', 'Штраф', 3000.0, 'Скол на фасаде'),
+      ('HR-EMP-00001', 'Штраф', 3000.0, 'Скол на фасаде'),
     ]);
+  });
+
+  testWidgets('an advance for a person with no login', (tester) async {
+    await pump(
+      tester,
+      PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.money),
+    );
+    await tester.tap(find.byKey(const ValueKey('ppl:addMoney')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ppl:entryWho')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Асет Нурланов').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('ppl:entryAmount')),
+      '20000',
+    );
+    await tester.enterText(find.byKey(const ValueKey('ppl:entryWhy')), 'Аванс');
+    await tester.tap(find.byKey(const ValueKey('ppl:entrySave')));
+    await tester.pumpAndSettle();
+    expect(pay.added, [('HR-EMP-00002', 'Аванс', 20000.0, 'Аванс')]);
   });
 
   testWidgets('the work tab shows what is not a facade stage', (tester) async {

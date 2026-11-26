@@ -41,7 +41,21 @@ const Map<String, Object?> _aset = {
   'm2': 27.0,
   'orders': 9,
   'days': 12,
-  'money': null,
+  // No login, paid all the same (owner, 26.11.2026): no piece pay booked to
+  // him, but his bonus and his advance.
+  'money': {
+    'earned': 25000,
+    'piece': 0,
+    'pending': 0,
+    'daily_bonus': 0,
+    'monthly_bonus': 0,
+    'bonus': 25000,
+    'fine': 0,
+    'advance': 20000,
+    'to_pay': 5000,
+    'paid': 0,
+    'left': 5000,
+  },
 };
 
 /// A shop's people for a month — for the widget tests and the design shots.
@@ -86,6 +100,7 @@ class FakePeople implements PeopleReportRepository {
       return PersonCard.fromJson(const {
         ..._aset,
         'sees_pay': true,
+        'can_adjust': true,
         'by_day': <Map<String, Object>>[],
       });
     }
@@ -226,10 +241,21 @@ const fakeTeam = TeamPeople(
       ],
     ),
     TeamDepartment(
+      key: 'sand',
+      title: 'Шлифовка',
+      posts: [
+        TeamPost(key: 'pvc.sander', title: 'Шкурщик ПВХ', stages: ['sand']),
+        TeamPost(
+          key: 'paint.sander',
+          title: 'Шкурщик покраски',
+          stages: ['sand'],
+        ),
+      ],
+    ),
+    TeamDepartment(
       key: 'pvc',
       title: 'ПВХ плёнка',
       posts: [
-        TeamPost(key: 'pvc.sander', title: 'Шкурщик', stages: ['sand']),
         TeamPost(key: 'pvc.vacuum', title: 'Вакуумщик', stages: ['vacuum']),
       ],
     ),
