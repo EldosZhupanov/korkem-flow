@@ -9048,7 +9048,7 @@ abstract class AppLocalizations {
   /// No description provided for @mdfPlanTitle.
   ///
   /// In en, this message translates to:
-  /// **'Shop plan'**
+  /// **'Shop — plan and fact'**
   String get mdfPlanTitle;
 
   /// No description provided for @mdfPlanHint.
@@ -21664,6 +21664,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pay is seen by managers and accounting.'**
   String get pplMoneyHidden;
+
+  /// No description provided for @shopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get shopTitle;
+
+  /// No description provided for @shopMonthLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}: plan {plan} m² · made {done} m²'**
+  String shopMonthLine(String month, String plan, String done);
+
+  /// No description provided for @shopPlanDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan — the orders due this month'**
+  String get shopPlanDue;
+
+  /// No description provided for @shopPlanTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan — your shop goal for the month'**
+  String get shopPlanTarget;
+
+  /// No description provided for @shopSetPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the plan'**
+  String get shopSetPlan;
+
+  /// No description provided for @shopPlanDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop plan for the month, m²'**
+  String get shopPlanDialog;
+
+  /// No description provided for @shopPlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty — the orders due this month'**
+  String get shopPlanHint;
+
+  /// No description provided for @shopSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get shopSave;
+
+  /// No description provided for @shopClear.
+  ///
+  /// In en, this message translates to:
+  /// **'No goal'**
+  String get shopClear;
+
+  /// No description provided for @shopExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m² should be made by today'**
+  String shopExpected(String m2);
+
+  /// No description provided for @shopBehind.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m² behind'**
+  String shopBehind(String m2);
+
+  /// No description provided for @shopAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m² ahead'**
+  String shopAhead(String m2);
+
+  /// No description provided for @shopForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Forecast to month end'**
+  String get shopForecast;
+
+  /// No description provided for @shopShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m² short'**
+  String shopShort(String m2);
+
+  /// No description provided for @shopEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'on track'**
+  String get shopEnough;
+
+  /// No description provided for @shopInShop.
+  ///
+  /// In en, this message translates to:
+  /// **'In the shop now'**
+  String get shopInShop;
+
+  /// No description provided for @shopOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} orders'**
+  String shopOrders(int count);
+
+  /// No description provided for @shopTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken in this month'**
+  String get shopTaken;
+
+  /// No description provided for @shopOfSales.
+  ///
+  /// In en, this message translates to:
+  /// **'sales goal {m2} m²'**
+  String shopOfSales(String m2);
+
+  /// No description provided for @shopWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting'**
+  String get shopWaiting;
+
+  /// No description provided for @shopToGive.
+  ///
+  /// In en, this message translates to:
+  /// **'to give out'**
+  String get shopToGive;
+
+  /// No description provided for @shopToday.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get shopToday;
+
+  /// No description provided for @shopMonthM2.
+  ///
+  /// In en, this message translates to:
+  /// **'this month'**
+  String get shopMonthM2;
+
+  /// No description provided for @shopDays.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {days} days of work'**
+  String shopDays(String days);
+
+  /// No description provided for @shopJam.
+  ///
+  /// In en, this message translates to:
+  /// **'bottleneck'**
+  String get shopJam;
+
+  /// No description provided for @shopNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'nobody'**
+  String get shopNobody;
+
+  /// No description provided for @shopInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in work'**
+  String shopInWork(int count);
+
+  /// No description provided for @shopLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Running late'**
+  String get shopLate;
+
+  /// No description provided for @shopNoLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is late'**
+  String get shopNoLate;
+
+  /// No description provided for @shopLateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{m2} m² · at «{stage}»'**
+  String shopLateLine(String m2, String stage);
+
+  /// No description provided for @shopOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'overdue'**
+  String get shopOverdue;
+
+  /// No description provided for @shopDue.
+  ///
+  /// In en, this message translates to:
+  /// **'due {date}'**
+  String shopDue(String date);
+
+  /// No description provided for @shopSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Apart — off the order\'s road'**
+  String get shopSide;
+
+  /// No description provided for @shopSales.
+  ///
+  /// In en, this message translates to:
+  /// **'today {count} sales · {metres} m'**
+  String shopSales(int count, String metres);
+
+  /// No description provided for @shopSalesMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'this month {metres} m'**
+  String shopSalesMonth(String metres);
+
+  /// No description provided for @shopReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'deliveries taken in today: {count}'**
+  String shopReceived(int count);
+
+  /// No description provided for @shopTapStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a stage to see its orders'**
+  String get shopTapStage;
+
+  /// No description provided for @teamPostNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'nobody — orders will stop at this step'**
+  String get teamPostNobody;
+
+  /// No description provided for @teamInWork.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in work'**
+  String teamInWork(int count);
+
+  /// No description provided for @teamNoLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'no login'**
+  String get teamNoLogin;
 }
 
 class _AppLocalizationsDelegate
