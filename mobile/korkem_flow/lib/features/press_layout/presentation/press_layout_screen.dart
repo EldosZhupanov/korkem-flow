@@ -1044,6 +1044,9 @@ class _Approval extends ConsumerWidget {
         messenger.showSnackBar(
           SnackBar(
             key: const ValueKey('pressShortAdded'),
+        // With an action a snack bar stays until closed (Flutter 3.38+):
+        // it would follow the person to every screen (owner, 27.11.2026).
+        persist: false,
             duration: AppDuration.notice,
             action: SnackBarAction(
               key: const ValueKey('pressShortOpen'),

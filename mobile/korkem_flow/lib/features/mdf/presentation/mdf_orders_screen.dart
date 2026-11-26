@@ -169,6 +169,9 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     messenger.showSnackBar(
       SnackBar(
         key: const ValueKey('mdfStageDoneSnack'),
+        // With an action a snack bar stays until closed (Flutter 3.38+):
+        // it would follow the person to every screen (owner, 27.11.2026).
+        persist: false,
         content: Text(
           l10n.mdfRowStageDone(
             row.name,
@@ -260,6 +263,9 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
     messenger.showSnackBar(
       SnackBar(
         key: const ValueKey('mdfJustSaved'),
+        // With an action a snack bar stays until closed (Flutter 3.38+):
+        // it would follow the person to every screen (owner, 27.11.2026).
+        persist: false,
         content: Text(l10n.mdfJustSaved(now)),
         action: SnackBarAction(
           label: l10n.mdfJustOpen,
