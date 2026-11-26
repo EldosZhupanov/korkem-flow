@@ -228,6 +228,14 @@ def workers() -> list[dict]:
 
 
 @frappe.whitelist(methods=["GET"])
+def today() -> dict:
+	"""«Сегодня»: четыре цифры, загрузка цеха по этапам, что решить, что только что сделано."""
+	from korkem_manufacturing.services import today as service
+
+	return service.today()
+
+
+@frappe.whitelist(methods=["GET"])
 def dictionaries() -> dict:
 	"""Справочники бланка: толщина, покрытие, цвет плёнки, патина, фрезеровка, кромка."""
 	from korkem_manufacturing.services import mdf_dictionaries
