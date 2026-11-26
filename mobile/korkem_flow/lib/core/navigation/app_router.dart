@@ -68,7 +68,6 @@ import 'package:korkem_flow/features/operations/presentation/work_instructions_s
 import 'package:korkem_flow/features/orders/presentation/order_detail_screen.dart';
 import 'package:korkem_flow/features/orders/presentation/orders_screen.dart';
 import 'package:korkem_flow/features/outbox/presentation/outbox_screen.dart';
-import 'package:korkem_flow/features/piece_work/presentation/payroll_screen.dart';
 import 'package:korkem_flow/features/piece_work/presentation/piece_work_screen.dart';
 import 'package:korkem_flow/features/pin_login/presentation/pin_admin_screen.dart';
 import 'package:korkem_flow/features/pin_login/presentation/pin_login_screen.dart';
@@ -391,9 +390,11 @@ GoRouter createRouter(Ref ref) {
         path: Routes.pieceWork,
         builder: (context, state) => const PieceWorkScreen(),
       ),
+      // «Ведомость» is now «Сотрудники» → «Деньги» (owner, 26.11.2026);
+      // the old address still leads there.
       GoRoute(
         path: Routes.payroll,
-        builder: (context, state) => const PayrollScreen(),
+        builder: (context, state) => const PeopleScreen(money: true),
       ),
       GoRoute(
         path: Routes.oneC,

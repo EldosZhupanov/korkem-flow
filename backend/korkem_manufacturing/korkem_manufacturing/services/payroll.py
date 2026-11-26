@@ -52,6 +52,8 @@ READERS = EDITORS | {"Accounts Manager", "Accounts User"}
 #: Who may mark pay as paid out: the people who hand it over.
 PAYERS = EDITORS | {"Accounts Manager"}
 MAX_DAYS = 93
+#: Whose advances, fines and bonuses need no second «Да»: the owner's.
+OWNER_ROLE = "System Manager"
 COUNTED = ("Approved", "Paid")
 
 
@@ -109,12 +111,18 @@ def add_adjustment(
 			"created_by": frappe.session.user,
 		}
 	)
+	# The owner's own entry counts at once (owner, 26.11.2026: «вносите вы —
+	# сразу»); a manager's or accounting's waits for somebody else's «Да».
+	# Either way it is his name on it, in the audit row and on the record.
+	owner = OWNER_ROLE in frappe.get_roles()
+	if owner:
+		doc.update({"status": "Approved", "approved_by": frappe.session.user, "approved_at": now_datetime()})
 	doc.insert(ignore_permissions=True)
 	audit.record_audit(
 		action="payroll.adjustment_added",
 		entity_type=DOCTYPE,
 		entity_id=doc.name,
-		diff={"employee": employee, "kind": kind, "amount": value, "on_date": str(day)},
+		diff={"employee": employee, "kind": kind, "amount": value, "on_date": str(day), "approved": owner},
 	)
 	return _adjustment(doc)
 
@@ -208,6 +216,7 @@ def sheet_rows(company: str, start: date, end: date, rules: dict | None = None) 
 				"advance": 0.0,
 				"bonus_days": 0,
 				"bonus_months": 0,
+				"sales_bonus": 0.0,
 			}
 		return rows[employee]
 
@@ -232,15 +241,24 @@ def sheet_rows(company: str, start: date, end: date, rules: dict | None = None) 
 		key = {ADVANCE: "advance", FINE: "fine", BONUS: "bonus"}[a.kind]
 		row(a.employee, a.employee_name)[key] += flt(a.amount)
 
+	# The film sellers' part of their team pot (owner, 26.11.2026: «бонус
+	# продажников сам попадёт в зарплату») — a calendar month's, as the pot is.
+	from korkem_manufacturing.services import film_team
+
+	for seller, amount in film_team.bonuses(company, start, end).items():
+		if frappe.db.exists("User", {"name": seller, "enabled": 1}):
+			row(seller)["sales_bonus"] += amount
+
 	paid = _paid_within(company, start, end)
 	for employee in paid:
 		row(employee)
 
 	result = []
 	for r in sorted(rows.values(), key=lambda x: x["employee_name"]):
-		for key in ("piece", "pending", "daily_bonus", "monthly_bonus", "bonus", "fine", "advance"):
+		for key in ("piece", "pending", "daily_bonus", "monthly_bonus", "bonus", "sales_bonus", "fine", "advance"):
 			r[key] = round(r[key], 2)
-		r["to_pay"] = round(r["piece"] + r["daily_bonus"] + r["monthly_bonus"] + r["bonus"] - r["fine"] - r["advance"], 2)
+		r["to_pay"] = round(r["piece"] + r["daily_bonus"] + r["monthly_bonus"] + r["bonus"] + r["sales_bonus"]
+							- r["fine"] - r["advance"], 2)
 		r["paid"] = round(paid.get(r["employee"], 0.0), 2)
 		r["left"] = round(r["to_pay"] - r["paid"], 2)
 		result.append(r)
@@ -253,15 +271,16 @@ def statement_csv(from_date: str | None = None, to_date: str | None = None) -> s
 	buffer = io.StringIO()
 	writer = csv.writer(buffer, delimiter=";")
 	writer.writerow(
-		["Сотрудник", "Сдельно", "Премия дня", "Премия месяца", "Премия", "Штраф", "Аванс", "К выплате", "Выплачено",
-		 "Остаток", "Не утверждено"]
+		["Сотрудник", "Сдельно", "Премия дня", "Премия месяца", "Премия", "Бонус продаж", "Штраф", "Аванс",
+		 "К выплате", "Выплачено", "Остаток", "Не утверждено"]
 	)
 	for r in data["rows"]:
 		writer.writerow(
-			[r["employee_name"], r["piece"], r["daily_bonus"], r["monthly_bonus"], r["bonus"], r["fine"],
-			 r["advance"], r["to_pay"], r["paid"], r["left"], r["pending"]]
+			[r["employee_name"], r["piece"], r["daily_bonus"], r["monthly_bonus"], r["bonus"], r["sales_bonus"],
+			 r["fine"], r["advance"], r["to_pay"], r["paid"], r["left"], r["pending"]]
 		)
-	writer.writerow(["Итого", "", "", "", "", "", "", data["total_to_pay"], data["total_paid"], data["total_left"], ""])
+	writer.writerow(["Итого", "", "", "", "", "", "", "", data["total_to_pay"], data["total_paid"], data["total_left"],
+					 ""])
 	audit.record_audit(
 		action="payroll.statement_exported",
 		entity_type="Company",

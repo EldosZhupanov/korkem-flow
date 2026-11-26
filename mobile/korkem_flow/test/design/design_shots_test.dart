@@ -91,6 +91,16 @@ final Map<String, (Widget, List<String>)> _screens = {
   ),
   // «Сотрудники» and one person's card (25.11.2026).
   'people': (PeopleScreen(today: DateTime(2026, 11, 25)), const []),
+  // «Деньги» — the list that replaced «Ведомость» (26.11.2026); October
+  // is over, so «Отдать» shows; the entry dialog too.
+  'people_money': (
+    PeopleScreen(today: DateTime(2026, 11, 25), money: true),
+    const ['ppl:prev'],
+  ),
+  'people_money_entry': (
+    PeopleScreen(today: DateTime(2026, 11, 25), money: true),
+    const ['ppl:addMoney'],
+  ),
   'person_card': (
     PersonCardScreen(
       employee: 'HR-EMP-00001',

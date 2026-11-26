@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:korkem_flow/features/piece_work/data/piece_work_repository.dart';
 import 'package:korkem_flow/features/piece_work/domain/piece_work.dart';
-import 'package:korkem_flow/features/piece_work/presentation/payroll_screen.dart';
 import 'package:korkem_flow/features/piece_work/presentation/piece_work_screen.dart';
 
 import '../../support/widget_harness.dart';
@@ -251,58 +250,6 @@ void main() {
     expect(find.textContaining('to go'), findsOneWidget);
   });
 
-  testWidgets('the pay sheet shows what each worker is owed', (tester) async {
-    final repo = _FakeRepository(canEdit: true);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [pieceWorkRepositoryProvider.overrideWithValue(repo)],
-        child: harness(const PayrollScreen()),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(
-      find.byKey(const ValueKey('payrollRow:aidos@example.com')),
-      findsOneWidget,
-    );
-    expect(find.textContaining('Not yet approved'), findsOneWidget);
-
-    await tester.tap(find.byKey(const ValueKey('adjustment:PAY-ADJ-00001')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('adjustmentApprove')));
-    await tester.pumpAndSettle();
-    expect(repo.approvedAdjustments, ['PAY-ADJ-00001']);
-  });
-
-  testWidgets('a past month is marked paid, worker by worker', (tester) async {
-    final repo = _FakeRepository(canEdit: true);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [pieceWorkRepositoryProvider.overrideWithValue(repo)],
-        child: harness(const PayrollScreen()),
-      ),
-    );
-    await tester.pumpAndSettle();
-    // The current month has not ended: nothing to mark yet.
-    expect(
-      find.byKey(const ValueKey('payrollPay:aidos@example.com')),
-      findsNothing,
-    );
-
-    await tester.tap(find.byKey(const ValueKey('payrollPrev')));
-    await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(const ValueKey('payrollPay:aidos@example.com')),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('payrollPayConfirm')));
-    await tester.pumpAndSettle();
-
-    final now = DateTime.now();
-    expect(repo.paidOut, [
-      ('aidos@example.com', monthOf(DateTime(now.year, now.month - 1))),
-    ]);
-  });
-
   test('a row says what is left after a payout', () {
     final row = PayrollRow.fromJson(const {
       'employee': 'aidos@example.com',
@@ -311,40 +258,5 @@ void main() {
     });
     expect(row.left, 3000);
     expect(PayrollRow.fromJson(const {'to_pay': 5000}).left, 5000);
-  });
-
-  testWidgets('a fine needs a person, an amount and a reason', (tester) async {
-    final repo = _FakeRepository(canEdit: true);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [pieceWorkRepositoryProvider.overrideWithValue(repo)],
-        child: harness(const PayrollScreen()),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('payrollAddAdjustment')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('adjustmentSave')));
-    await tester.pumpAndSettle();
-    expect(repo.added, isEmpty);
-
-    await tester.tap(find.byKey(const ValueKey('adjustmentEmployee')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Айдос').last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Штраф'));
-    await tester.enterText(
-      find.byKey(const ValueKey('adjustmentAmount')),
-      '3000',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('adjustmentReason')),
-      'Скол на фасаде',
-    );
-    await tester.tap(find.byKey(const ValueKey('adjustmentSave')));
-    await tester.pumpAndSettle();
-    expect(repo.added, [
-      ('aidos@example.com', 'Штраф', 3000.0, 'Скол на фасаде'),
-    ]);
   });
 }

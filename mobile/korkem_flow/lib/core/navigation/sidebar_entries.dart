@@ -227,6 +227,13 @@ const sidebarSectionGroups = <SidebarGroup>[
       ),
       // Команда — ежедневная работа владельца, а не настройка.
       SidebarPage(path: Routes.team, icon: AppIcons.team, labelOf: _team),
+      // «Сотрудники» (owner, 26.11.2026): who did what, and the money —
+      // the place «Ведомость» used to be.
+      SidebarPage(
+        path: Routes.people,
+        icon: AppIcons.payroll,
+        labelOf: _people,
+      ),
       SidebarPage(
         path: Routes.references,
         icon: AppIcons.dictionary,
@@ -286,6 +293,7 @@ String _myWork(AppLocalizations l10n) => l10n.myWorkTitle;
 String _tasks(AppLocalizations l10n) => l10n.navTasks;
 String _production(AppLocalizations l10n) => l10n.navOperations;
 String _team(AppLocalizations l10n) => l10n.teamTitle;
+String _people(AppLocalizations l10n) => l10n.pplTitle;
 String _enquiryFlow(AppLocalizations l10n) => l10n.enquiryFlowTitle;
 String _profile(AppLocalizations l10n) => l10n.navProfile;
 String _items(AppLocalizations l10n) => l10n.navItems;

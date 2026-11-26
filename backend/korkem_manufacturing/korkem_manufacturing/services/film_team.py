@@ -80,7 +80,43 @@ def team(month: str | None = None) -> dict:
 	"""The month by seller: metres sold, sales, what was paid, the margin
 	paid in — and the pot and each one's part."""
 	material_stock._ensure_editor()
-	company = current_company()
+	board = _board(current_company(), month)
+	if not board["can_set"]:
+		board["rows"] = [r for r in board["rows"] if r["seller"] == frappe.session.user]
+	return board
+
+
+def sold(company: str, start: date, end: date) -> dict[str, dict]:
+	"""Each seller's sales in [start, end]: how many, metres, the sum — for
+	«Сотрудники» (owner, 26.11.2026). Unchecked: the caller decides who sees."""
+	out: dict[str, dict] = {}
+	for s in frappe.get_all(
+		"Stock Entry",
+		filters={"company": company, "docstatus": 1, "korkem_film_kind": SALE,
+				 "posting_date": ["between", [start, end]]},
+		fields=["name", "korkem_film_amount", "korkem_film_seller", "owner"],
+		limit_page_length=0,
+	):
+		r = out.setdefault(s.korkem_film_seller or s.owner, {"sales": 0, "metres": 0.0, "amount": 0.0})
+		r["sales"] += 1
+		r["amount"] += flt(s.korkem_film_amount)
+		r["metres"] += sum(flt(l.qty) for l in frappe.get_all(
+			"Stock Entry Detail", filters={"parent": s.name}, fields=["qty", "korkem_sale_unit"])
+			if not l.korkem_sale_unit)
+	return {k: {**v, "metres": round(v["metres"], 2), "amount": round(v["amount"], 2)} for k, v in out.items()}
+
+
+def bonuses(company: str, start: date, end: date) -> dict[str, float]:
+	"""Each seller's part of the team pot — for a whole calendar month only,
+	the pot's own period; any other span has none. Unchecked."""
+	first, last, key = _month(start.strftime("%Y-%m"))
+	if (start, end) != (first, last):
+		return {}
+	return {r["seller"]: flt(r["bonus"]) for r in _board(company, key)["rows"] if flt(r["bonus"])}
+
+
+def _board(company: str, month: str | None) -> dict:
+	"""`team` for everyone, unchecked."""
 	start, end, key = _month(month)
 	sales = frappe.get_all(
 		"Stock Entry",
@@ -145,11 +181,10 @@ def team(month: str | None = None) -> dict:
 	today = getdate(nowdate())
 	days_left = (end - today).days + 1 if start <= today <= end else None
 	left_m = conf["plan_m"] - metres
-	me = frappe.session.user
 	owner = _owner()
 	return {
 		"month": key,
-		"rows": out if owner else [r for r in out if r["seller"] == me],
+		"rows": out,
 		"team": {
 			"metres": round(metres, 2), "sales": sum(r["sales"] for r in rows.values()),
 			"paid": round(sum(r["paid"] for r in rows.values()), 2), "margin": round(margin, 2),
