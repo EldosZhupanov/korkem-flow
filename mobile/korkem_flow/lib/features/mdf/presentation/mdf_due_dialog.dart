@@ -97,11 +97,13 @@ class _DueDialogState extends State<_DueDialog> {
     String m2(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
     Color? colour(DateTime d) {
       if (d.weekday == DateTime.sunday) return null;
-      if (d.isBefore(earliest))
+      if (d.isBefore(earliest)) {
         return theme.colorScheme.surfaceContainerHighest;
+      }
       final cap = o.capacityM2;
-      if (cap == null || cap <= 0)
+      if (cap == null || cap <= 0) {
         return status.success.withValues(alpha: AppTint.surface);
+      }
       final share = o.dueOn(d) / cap;
       return (share >= _over
               ? status.danger
@@ -114,7 +116,7 @@ class _DueDialogState extends State<_DueDialog> {
     // The selected day said in words: too soon, too full, or fine.
     final due = o.dueOn(picked);
     final cap = o.capacityM2;
-    final String? warn = picked.isBefore(earliest)
+    final warn = picked.isBefore(earliest)
         ? l10n.mdfDueTooSoon(mdfDayOf(earliest))
         : cap != null && due + widget.areaM2 > cap * _over
         ? l10n.mdfDueOverloaded(m2(due), m2(cap), m2(due + widget.areaM2))
