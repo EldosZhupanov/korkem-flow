@@ -6849,6 +6849,12 @@
   },
   "filmReorderOpen": "Order",
   "filmReorderTitle": "Order film",
+  "filmReorderByPace": "by 3 weeks of sales ≈ {metres} m",
+  "@filmReorderByPace": {"placeholders": {"metres": {"type": "String"}}},
+  "filmReorderCopy": "Copy the order",
+  "filmReorderCopied": "Order copied — paste it into a message to the supplier",
+  "filmReorderLine": "— {film}: {metres} m",
+  "@filmReorderLine": {"placeholders": {"film": {"type": "String"}, "metres": {"type": "String"}}},
   "filmReorderLeft": "{metres} m left",
   "@filmReorderLeft": {
     "placeholders": {
@@ -8131,6 +8137,23 @@
     }
   },
   "filmFilterNone": "Out of stock · {n}",
+  "filmFilterOnDemand": "On order only · {n}",
+  "@filmFilterOnDemand": {"placeholders": {"n": {"type": "int"}}},
+  "filmFilterIdle": "Not moving · {n}",
+  "@filmFilterIdle": {"placeholders": {"n": {"type": "int"}}},
+  "filmFigIdle": "Not moving 60+ days",
+  "filmOnDemand": "on order only",
+  "filmHoldRanOut": "{metres} m held for {customer} ran out on {day}",
+  "@filmHoldRanOut": {"placeholders": {"metres": {"type": "String"}, "customer": {"type": "String"}, "day": {"type": "String"}}},
+  "filmHoldExtend": "Extend",
+  "filmHoldRelease": "Release",
+  "filmLateCall": "Call",
+  "filmLateRemind": "Reminder",
+  "filmLateReminder": "Hello! The film {film}, {metres} m, was due on {day}. When will you send it?",
+  "@filmLateReminder": {"placeholders": {"film": {"type": "String"}, "metres": {"type": "String"}, "day": {"type": "String"}}},
+  "filmLateCopied": "Reminder copied — paste it into a message to the supplier",
+  "filmGluePerDay": "≈ {kg} kg a day",
+  "@filmGluePerDay": {"placeholders": {"kg": {"type": "String"}}},
   "@filmFilterNone": {
     "placeholders": {
       "n": {

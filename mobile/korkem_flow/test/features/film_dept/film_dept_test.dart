@@ -192,6 +192,19 @@ class _Orders implements FilmOrdersRepository {
 late _Orders _orders;
 
 class _Fake implements FilmDeptRepository {
+  _Fake([this.stockJson = _stock]);
+
+  final Map<String, dynamic> stockJson;
+  final extended = <String>[];
+  final released = <String>[];
+
+  @override
+  Future<void> extendHold(String hold, {int? days}) async =>
+      extended.add(hold);
+
+  @override
+  Future<void> releaseHold(String hold) async => released.add(hold);
+
   final writeOffs = <(String, double, String)>[];
   final sold =
       <(String, List<({String item, double metres, double priceM})>, double)>[];
@@ -449,7 +462,7 @@ class _Fake implements FilmDeptRepository {
   }
 
   @override
-  Future<FilmCatalog> stock() async => FilmCatalog.fromJson(_stock);
+  Future<FilmCatalog> stock() async => FilmCatalog.fromJson(stockJson);
 
   @override
   Future<List<FilmMove>> history(String item) async => const [
@@ -667,12 +680,13 @@ const _catalogue = [
 Future<_Fake> _pump(
   WidgetTester tester, {
   List<FilmDecor> catalogue = const [],
+  Map<String, dynamic> stock = _stock,
 }) async {
   tester.view
     ..physicalSize = const Size(1600, 2400)
     ..devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final repo = _Fake();
+  final repo = _Fake(stock);
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -1048,6 +1062,77 @@ void main() {
     final pay = repo.supplierPays.single!.toJson();
     expect((pay['mode'], pay['invoice_no']), ('invoice', '123'));
     expect(pay['due_on'], isNotNull);
+  });
+
+  testWidgets('kept or on order only; a hold that ran out; a late roll', (
+    tester,
+  ) async {
+    // Owner, 26.11.2026: «Пора заказать: 46» was the whole catalogue.
+    final repo = await _pump(
+      tester,
+      stock: {
+        ..._stock,
+        'films': [
+          ...(_stock['films'] as List),
+          {
+            'item': 'MAT-3',
+            'maker': 'Adilet',
+            'colour': 'Сапфир',
+            'label': 'Adilet · Сапфир',
+            'on_hand': 0,
+            'held': 0,
+          },
+          {
+            'item': 'MAT-4',
+            'maker': 'Kira',
+            'colour': 'Агератум',
+            'label': 'Kira · Агератум',
+            'on_hand': 6.9,
+            'held': 0,
+            'kept': true,
+            'idle_days': 75,
+            'holds': [
+              {
+                'hold': 'FH-1',
+                'customer': 'CUST-1',
+                'customer_name': 'Елдос',
+                'metres': 5,
+                'until': '2026-11-17',
+                'late': true,
+              },
+            ],
+            'coming': [
+              {
+                'entry': 'STE-40',
+                'metres': 50,
+                'due': '2026-11-14',
+                'late_days': 12,
+                'supplier': 'JS Group',
+                'supplier_phone': '+77015550000',
+              },
+            ],
+          },
+        ],
+      },
+    );
+    String figure(String id) => tester
+        .widget<Text>(find.byKey(ValueKey('figure:filmStock:$id:value')))
+        .data!;
+    // Сапфир is not kept: none of it is how it should be.
+    expect(figure('toOrder'), '1');
+    expect(find.text('on order only'), findsOneWidget);
+    // Two months and more without a metre leaving the shelf.
+    expect(figure('idle'), '1');
+    // The hold ran out: run on, or let go — right in the row.
+    await tester.tap(find.byKey(const ValueKey('filmStock:holdExtend:FH-1')));
+    await tester.pumpAndSettle();
+    expect(repo.extended, ['FH-1']);
+    await tester.tap(find.byKey(const ValueKey('filmStock:holdRelease:FH-1')));
+    await tester.pumpAndSettle();
+    expect(repo.released, ['FH-1']);
+    // The late roll: a call, and the reminder ready to paste.
+    expect(find.byKey(const ValueKey('filmStock:call:STE-40')), findsOne);
+    expect(find.byKey(const ValueKey('filmStock:remind:STE-40')), findsOne);
   });
 
   testWidgets('what ran low is ordered as last time, on its way', (

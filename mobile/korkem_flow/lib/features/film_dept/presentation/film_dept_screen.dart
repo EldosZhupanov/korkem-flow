@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +11,7 @@ import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
+import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/figure_tile.dart';
 import 'package:korkem_flow/core/design/widgets/reason_dialog.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
@@ -351,7 +353,10 @@ class _StockTab extends ConsumerStatefulWidget {
 }
 
 /// Which films the stock shows (owner, 13.11.2026).
-enum _StockFilter { all, have, low, onWay, none }
+enum _StockFilter { all, have, low, onWay, none, onDemand, idle, toOrder }
+
+/// No metre has left the shelf for this many days: «без движения».
+const _idleDays = 60;
 
 /// Fewer days of film left than this is «кончается».
 const _fewDays = 7;
@@ -360,11 +365,23 @@ const _fewDays = 7;
 bool _runsOut(Film f) =>
     f.low || (f.free > 0 && f.daysLeft != null && f.daysLeft! < _fewDays);
 
-/// «Заказать»: none free, none put by, none on its way — or it ran low
-/// with not enough coming.
+/// «Заказать»: a film we keep (owner, 26.11.2026: «Пора заказать: 46»
+/// was the whole catalogue) with none free, none put by, none on its way
+/// — or one that ran low with not enough coming.
 bool _toOrder(Film f) =>
     f.reorder != null ||
-    (f.enabled && f.free <= 0 && f.coming.isEmpty && f.holds.isEmpty);
+    (f.enabled &&
+        f.kept &&
+        f.free <= 0 &&
+        f.coming.isEmpty &&
+        f.holds.isEmpty);
+
+/// «Под заказ»: not kept on the shelf, none of it here or coming.
+bool _onDemand(Film f) =>
+    !f.kept && f.free <= 0 && f.coming.isEmpty && f.holds.isEmpty;
+
+/// «Без движения»: on the shelf, and nothing of it left for two months.
+bool _idle(Film f) => f.onHand > 0 && (f.idleDays ?? 0) >= _idleDays;
 
 /// What burns first (owner, 14.11.2026): a film that sells and has none
 /// left, then by the days it lasts; a film nobody buys goes last.
@@ -380,6 +397,9 @@ bool _shows(Film f, _StockFilter filter) => switch (filter) {
   _StockFilter.low => _runsOut(f),
   _StockFilter.onWay => f.coming.isNotEmpty,
   _StockFilter.none => f.free <= 0,
+  _StockFilter.onDemand => _onDemand(f),
+  _StockFilter.idle => _idle(f),
+  _StockFilter.toOrder => _toOrder(f),
 };
 
 bool _found(Film f, String query) {
@@ -415,16 +435,7 @@ class _StockTabState extends ConsumerState<_StockTab> {
   /// «Клей ПВХ»: what is on the store, in buckets, and how long it lasts
   /// at the last month's pace; a tap opens the glue screen.
   FigureTile _glueTile(AppLocalizations l10n, GlueStock glue) {
-    final kg = glue.glues.fold<double>(0, (s, g) => s + g.onHandKg);
-    final used = glue.glues.fold<double>(
-      0,
-      (s, g) =>
-          s + (g.fact?.kgByNorm ?? 0.0) + max(g.fact?.kgCounted ?? 0.0, 0.0),
-    );
-    final bucket = (glue.working ?? glue.glues.firstOrNull)?.bucketKg;
-    final days = used > 0
-        ? (kg / (used / max(glue.usageDays, 1))).floor()
-        : null;
+    final (:kg, perDay: _, :bucket, :days) = _glueFigures(glue);
     return FigureTile(
       id: 'filmStock:glue',
       title: l10n.filmFigGlue,
@@ -441,6 +452,17 @@ class _StockTabState extends ConsumerState<_StockTab> {
             },
       onTap: () => unawaited(context.push(Routes.glue)),
     );
+  }
+
+  Future<void> _holdAct(Future<void> Function() act) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    try {
+      await act();
+      _refresh(ref);
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    }
   }
 
   Future<void> _want(Film film) async {
@@ -485,6 +507,11 @@ class _StockTabState extends ConsumerState<_StockTab> {
           (m, f) => f.coming.fold(m, (x, r) => x + r.metres),
         );
         final toOrder = c.films.where(_toOrder).toList();
+        final idle = c.films.where(_idle).toList();
+        final idleWorth = idle.fold<double>(
+          0,
+          (m, f) => m + f.onHand * (f.priceM ?? 0),
+        );
         final toOrderM = toOrder.fold<double>(
           0,
           (m, f) => m + (f.reorder?.metres ?? 0),
@@ -513,6 +540,9 @@ class _StockTabState extends ConsumerState<_StockTab> {
           _StockFilter.low => l10n.filmLowCount(count(f)),
           _StockFilter.onWay => l10n.filmFilterOnWay(count(f)),
           _StockFilter.none => l10n.filmFilterNone(count(f)),
+          _StockFilter.onDemand => l10n.filmFilterOnDemand(count(f)),
+          _StockFilter.idle => l10n.filmFilterIdle(count(f)),
+          _StockFilter.toOrder => l10n.filmFigToOrder,
         };
         void narrow(_StockFilter f) => setState(
           () => _filter = _filter == f ? _StockFilter.all : f,
@@ -558,9 +588,20 @@ class _StockTabState extends ConsumerState<_StockTab> {
                       ? l10n.filmFigToOrderNote(filmMetres(toOrderM))
                       : null,
                   colour: toOrder.isNotEmpty ? status.danger : null,
-                  selected: _filter == _StockFilter.none,
-                  onTap: () => narrow(_StockFilter.none),
+                  selected: _filter == _StockFilter.toOrder,
+                  onTap: () => narrow(_StockFilter.toOrder),
                 ),
+                // Money lying on the shelf (owner, 26.11.2026).
+                if (idle.isNotEmpty)
+                  FigureTile(
+                    id: 'filmStock:idle',
+                    title: l10n.filmFigIdle,
+                    value: '${idle.length}',
+                    note: idleWorth > 0 ? money.format(idleWorth) : null,
+                    colour: status.warning,
+                    selected: _filter == _StockFilter.idle,
+                    onTap: () => narrow(_StockFilter.idle),
+                  ),
                 if (glue != null) _glueTile(l10n, glue),
               ],
             ),
@@ -678,6 +719,10 @@ class _StockTabState extends ConsumerState<_StockTab> {
               runSpacing: AppSpacing.xs,
               children: [
                 for (final f in _StockFilter.values)
+                  // «Пора заказать» is the figure's own; «без движения»
+                  // only while there is some.
+                  if (f != _StockFilter.toOrder &&
+                      (f != _StockFilter.idle || idle.isNotEmpty))
                   ChoiceChip(
                     key: ValueKey(
                       f == _StockFilter.low
@@ -730,6 +775,19 @@ class _StockTabState extends ConsumerState<_StockTab> {
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Text(l10n.filmStockEmpty),
               ),
+            // The glue is goods like the film (owner, 26.11.2026): a row of
+            // its own, how long it lasts, and its buttons.
+            if (glue != null &&
+                glue.glues.isNotEmpty &&
+                _filter == _StockFilter.all &&
+                _query.isEmpty)
+              _GlueRow(
+                glue: glue,
+                canEdit: c.canEdit,
+                onReceive: () => unawaited(openGlueReceipt(context, ref)),
+                onSell: () => unawaited(_sell(c, glue: true)),
+                onTap: () => unawaited(context.push(Routes.glue)),
+              ),
             for (final f in films)
               _StockTile(
                 film: f,
@@ -738,6 +796,12 @@ class _StockTabState extends ConsumerState<_StockTab> {
                 onSell: () => _sell(c, film: f),
                 onReceive: () => _receive(c, f),
                 onWant: () => _want(f),
+                onExtendHold: (h) => _holdAct(
+                  () => ref.read(filmDeptRepositoryProvider).extendHold(h),
+                ),
+                onReleaseHold: (h) => _holdAct(
+                  () => ref.read(filmDeptRepositoryProvider).releaseHold(h),
+                ),
                 onTap: () async {
                   await Navigator.of(context).push(
                     MaterialPageRoute<void>(
@@ -766,9 +830,15 @@ class _StockTile extends StatelessWidget {
     required this.onSell,
     required this.onReceive,
     required this.onWant,
+    required this.onExtendHold,
+    required this.onReleaseHold,
   });
 
   final Film film;
+
+  /// A hold that ran out: run it on, or let the metres go (26.11.2026).
+  final ValueChanged<String> onExtendHold;
+  final ValueChanged<String> onReleaseHold;
 
   /// The metres that fill the bar.
   final double full;
@@ -792,6 +862,9 @@ class _StockTile extends StatelessWidget {
         ? (l10n.filmHeldShort(filmMetres(held)), theme.colorScheme.tertiary)
         : f.free <= 0 && onWay > 0
         ? (l10n.filmOnWayShort(filmMetres(onWay)), theme.colorScheme.primary)
+        : f.free <= 0 && !f.kept
+        // Not kept on the shelf: none is how it should be (26.11.2026).
+        ? (l10n.filmOnDemand, theme.colorScheme.onSurfaceVariant)
         : f.free <= 0
         ? (l10n.filmToOrder, theme.colorScheme.error)
         : f.low
@@ -833,14 +906,46 @@ class _StockTile extends StatelessWidget {
           style: TextStyle(color: theme.colorScheme.error),
         ),
       for (final h in f.holds)
-        Text(
-          l10n.filmHeldFor(
-            filmMetres(h.metres),
-            h.customerName,
-            mdfDay(h.until, year: false),
+        if (h.late && canEdit)
+          // Ran out (owner, 26.11.2026: «отложено до 17.11» nine days on):
+          // red, and what to do with it right here.
+          Wrap(
+            key: ValueKey('filmStock:holdLate:${h.hold}'),
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: AppSpacing.xs,
+            children: [
+              Text(
+                l10n.filmHoldRanOut(
+                  filmMetres(h.metres),
+                  h.customerName,
+                  mdfDay(h.until, year: false),
+                ),
+                style: TextStyle(
+                  color: theme.colorScheme.error,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              TextButton(
+                key: ValueKey('filmStock:holdExtend:${h.hold}'),
+                onPressed: () => onExtendHold(h.hold),
+                child: Text(l10n.filmHoldExtend),
+              ),
+              TextButton(
+                key: ValueKey('filmStock:holdRelease:${h.hold}'),
+                onPressed: () => onReleaseHold(h.hold),
+                child: Text(l10n.filmHoldRelease),
+              ),
+            ],
+          )
+        else
+          Text(
+            l10n.filmHeldFor(
+              filmMetres(h.metres),
+              h.customerName,
+              mdfDay(h.until, year: false),
+            ),
+            style: TextStyle(color: theme.colorScheme.tertiary),
           ),
-          style: TextStyle(color: theme.colorScheme.tertiary),
-        ),
       if (onTime.length > 1)
         Text(
           l10n.filmComingRolls(
@@ -857,9 +962,43 @@ class _StockTile extends StatelessWidget {
             style: TextStyle(color: theme.colorScheme.primary),
           ),
       for (final c in late)
-        Text(
-          filmComingLine(c, l10n),
-          style: TextStyle(color: theme.colorScheme.error),
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpacing.xs,
+          children: [
+            Text(
+              filmComingLine(c, l10n),
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
+            // A late roll is chased (owner, 26.11.2026): a call, or the
+            // reminder ready to paste.
+            if (canEdit && c.supplierPhone != null)
+              TextButton.icon(
+                key: ValueKey('filmStock:call:${c.entry}'),
+                onPressed: () => unawaited(ContactActions.call(c.supplierPhone)),
+                icon: const Icon(AppIcons.call),
+                label: Text(l10n.filmLateCall),
+              ),
+            if (canEdit)
+              TextButton.icon(
+                key: ValueKey('filmStock:remind:${c.entry}'),
+                onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  await Clipboard.setData(
+                    ClipboardData(
+                      text: l10n.filmLateReminder(
+                        filmName(f),
+                        filmMetres(c.metres),
+                        mdfDay(c.due, year: false),
+                      ),
+                    ),
+                  );
+                  messenger.showDone(l10n.filmLateCopied);
+                },
+                icon: const Icon(AppIcons.copy),
+                label: Text(l10n.filmLateRemind),
+              ),
+          ],
         ),
     ];
     // In the row too: goods in green and first, a sale blue, «заказать»
@@ -1945,6 +2084,118 @@ class _CustomerTile extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The glue on the store: kilograms, a day's use at the last weeks' pace,
+/// the bucket, how many days it lasts.
+({double kg, double? perDay, double? bucket, int? days}) _glueFigures(
+  GlueStock glue,
+) {
+  final kg = glue.glues.fold<double>(0, (s, g) => s + g.onHandKg);
+  final used = glue.glues.fold<double>(
+    0,
+    (s, g) =>
+        s + (g.fact?.kgByNorm ?? 0.0) + max(g.fact?.kgCounted ?? 0.0, 0.0),
+  );
+  final perDay = used > 0 ? used / max(glue.usageDays, 1) : null;
+  return (
+    kg: kg,
+    perDay: perDay,
+    bucket: (glue.working ?? glue.glues.firstOrNull)?.bucketKg,
+    days: perDay == null ? null : (kg / perDay).floor(),
+  );
+}
+
+/// «Клей для ПВХ» as a row of the stock list (owner, 26.11.2026: the glue
+/// is goods like the film) — what is left, its pace, its buttons.
+class _GlueRow extends StatelessWidget {
+  const _GlueRow({
+    required this.glue,
+    required this.canEdit,
+    required this.onReceive,
+    required this.onSell,
+    required this.onTap,
+  });
+
+  final GlueStock glue;
+  final bool canEdit;
+  final VoidCallback onReceive;
+  final VoidCallback onSell;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final status = context.statusColors;
+    final (:kg, :perDay, :bucket, :days) = _glueFigures(glue);
+    ButtonStyle tint(Color c) => OutlinedButton.styleFrom(
+      foregroundColor: c,
+      side: BorderSide(color: c),
+    );
+    return InkWell(
+      key: const ValueKey('filmStock:glueRow'),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        child: Row(
+          children: [
+            const SizedBox(
+              width: AppSpacing.xl,
+              child: Icon(AppIcons.textured),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.filmReceiveGlue,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    [
+                      l10n.filmFigGlueKg(filmMetres(kg)),
+                      if (bucket != null && bucket > 0)
+                        l10n.filmFigGlueBuckets(filmMetres(kg / bucket)),
+                      if (perDay != null)
+                        l10n.filmGluePerDay(filmMetres(perDay)),
+                      if (days != null) l10n.filmFigGlueDays('$days'),
+                    ].join(' · '),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: days != null && days < _fewDays
+                          ? status.warning
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (canEdit)
+              Wrap(
+                spacing: AppSpacing.xs,
+                children: [
+                  OutlinedButton(
+                    key: const ValueKey('filmStock:glueReceive'),
+                    style: tint(status.success),
+                    onPressed: onReceive,
+                    child: Text(l10n.filmReceive),
+                  ),
+                  OutlinedButton(
+                    key: const ValueKey('filmStock:glueSell'),
+                    style: tint(status.info),
+                    onPressed: onSell,
+                    child: Text(l10n.filmSell),
+                  ),
+                ],
+              ),
+          ],
         ),
       ),
     );

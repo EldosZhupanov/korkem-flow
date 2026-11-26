@@ -153,3 +153,9 @@ def hold(item: str, customer: str, metres: float | str, until: str | None = None
 def release_hold(hold: str) -> dict:
 	"""Снять бронь: метры снова свободны."""
 	return service.release_hold(hold)
+
+
+@frappe.whitelist(methods=["POST"])
+def extend_hold(hold: str, days: int | str | None = None) -> dict:
+	"""Продлить бронь на N дней (по умолчанию три)."""
+	return service.extend_hold(hold, days)

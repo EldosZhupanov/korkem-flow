@@ -413,12 +413,16 @@ def coming(company: str | None = None) -> dict[str, list[dict]]:
 		if not line:
 			continue
 		late = date_diff(today, e.korkem_film_due)
+		sup = frappe.db.get_value("Supplier", e.korkem_supplier, ["supplier_name", "korkem_src_phone"],
+								  as_dict=True) if e.korkem_supplier else None
 		out.setdefault(line.item_code, []).append({
 			"entry": e.name,
 			"metres": flt(line.qty),
 			"due": str(e.korkem_film_due),
 			"late_days": max(late, 0),
-			"supplier": frappe.db.get_value("Supplier", e.korkem_supplier, "supplier_name") or e.korkem_supplier,
+			"supplier": (sup.supplier_name if sup else None) or e.korkem_supplier,
+			# A late roll is chased by a call (owner, 26.11.2026).
+			"supplier_phone": (sup.korkem_src_phone if sup else None) or None,
 			# The delivery it came in with others (owner, 12.11.2026).
 			"batch": e.korkem_film_batch or None,
 		})
@@ -486,6 +490,30 @@ def release_hold(hold_name: str) -> dict:
 	frappe.db.set_value("Film Hold", hold_name, "status", "Released")
 	audit.record_audit(action="film.hold_released", entity_type="Film Hold", entity_id=hold_name)
 	return {"hold": hold_name, "status": "Released"}
+
+
+def extend_hold(hold_name: str, days: int | str | None = None) -> dict:
+	"""«Продлить»: the hold runs [days] more (HOLD_DAYS unless said) from
+	today, or from its own day if that is later — a hold that ran out is
+	shown red on the shelf until it is either this or released (owner,
+	26.11.2026)."""
+	material_stock._ensure_editor()
+	row = frappe.db.get_value("Film Hold", hold_name, ["company", "status", "until"], as_dict=True)
+	if not row or row.company != current_company() or row.status != "Active":
+		frappe.throw("Такой брони нет.", frappe.DoesNotExistError)
+	try:
+		n = int(days) if days not in (None, "") else HOLD_DAYS
+	except (TypeError, ValueError):
+		n = 0
+	if not 1 <= n <= 60:
+		frappe.throw("Продлить можно на 1–60 дней.")
+	today = getdate(nowdate())
+	start = max(today, getdate(row.until)) if row.until else today
+	until = getdate(add_days(start, n))
+	frappe.db.set_value("Film Hold", hold_name, "until", until)
+	audit.record_audit(action="film.hold_extended", entity_type="Film Hold", entity_id=hold_name,
+					   diff={"until": str(until), "was": str(row.until) if row.until else None})
+	return {"hold": hold_name, "until": str(until)}
 
 
 def _use_holds(item: str, customer: str, metres: float, company: str) -> None:
@@ -918,6 +946,8 @@ def stock() -> dict:
 	holds = _holds([f["item"] for f in catalog["films"]])
 	films = [f for f in catalog["films"] if f["enabled"] or f["on_hand"] > 0 or f["item"] in on_way]
 	pace = _pace([f["item"] for f in films])
+	last_out = _last_out([f["item"] for f in films])
+	today = getdate(nowdate())
 	for f in films:
 		# On its way, owner 11.11.2026: shown, not counted as free.
 		f["coming"] = on_way.get(f["item"], [])
@@ -930,6 +960,14 @@ def stock() -> dict:
 		# weeks — sold and given to the shop.
 		f["daily_m"] = round(pace.get(f["item"], 0.0), 2)
 		f["days_left"] = int(free // f["daily_m"]) if f["daily_m"] > 0 and free > 0 else None
+		# «Держим на складе» (owner, 26.11.2026): a film with a minimum, or
+		# one that sells — the rest of the catalogue is «под заказ», and
+		# having none of it is not a reason to order.
+		f["kept"] = bool(flt(f["min_stock"])) or f["daily_m"] > 0
+		# «Без движения»: days since a metre of it last left the shelf (or,
+		# never sold, since it came) — money lying on the shelf.
+		moved = last_out.get(f["item"])
+		f["idle_days"] = date_diff(today, moved) if moved and flt(f["on_hand"]) > 0 else None
 		# Time to order (owner, 11.11.2026): low, and not enough on its way.
 		f["reorder"] = _reorder(f) if f["enabled"] else None
 	films.sort(key=lambda f: (not f["low"], f["maker"].casefold(), f["colour"].casefold()))
@@ -971,6 +1009,28 @@ def _pace(items: list[str]) -> dict[str, float]:
 	}
 
 
+def _last_out(items: list[str]) -> dict:
+	"""Film → the day a metre last left the shelf; never — the day it came."""
+	if not items:
+		return {}
+	rows = frappe.db.sql(
+		"""select d.item_code,
+			max(case when e.korkem_film_kind in %s then e.posting_date end) as went,
+			max(case when e.korkem_material_receipt = 1 then e.posting_date end) as came
+		from `tabStock Entry Detail` d join `tabStock Entry` e on e.name = d.parent
+		where e.company = %s and e.docstatus = 1 and d.item_code in %s
+		group by d.item_code""",
+		((SALE, SHOP), current_company(), tuple(items)), as_dict=True,
+	)
+	return {r.item_code: r.went or r.came for r in rows if r.went or r.came}
+
+
+#: «Собрать заказ»: weeks of sales a reorder covers, besides the bringing.
+REORDER_WEEKS = 3
+#: Days a roll is on its way, unless the supplier's own are known.
+BRING_DAYS = 2
+
+
 def _reorder(f: dict) -> dict | None:
 	"""What to order of a film that ran low: as many metres as were bought
 	last time (else twice the minimum, less what is left — or, with no
@@ -1001,8 +1061,13 @@ def _reorder(f: dict) -> dict | None:
 	else:
 		metres = math.ceil(pace * PACE_DAYS / 10) * 10  # a month of it, in whole tens
 	supplier = (last.korkem_supplier if last else None) or f.get("supplier")
+	# Beside «as last time»: what three weeks of sales and the days it is on
+	# its way would need, minimum kept — a hint for the one ordering, not a
+	# change of what is offered (owner, 26.11.2026).
+	need = pace * (REORDER_WEEKS * 7 + BRING_DAYS) + minimum - f["free"] - on_way if pace > 0 else 0
 	return {
 		"metres": round(metres, 2),
+		"by_pace": max(math.ceil(need / 10) * 10, 10) if pace > 0 else None,
 		"supplier": supplier,
 		"supplier_name": frappe.db.get_value("Supplier", supplier, "supplier_name") if supplier else None,
 		"price_m": flt(f.get("price_m")) or (flt(last.basic_rate) if last else None) or None,
