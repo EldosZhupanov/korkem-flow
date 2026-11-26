@@ -11502,5 +11502,6 @@
     }
   },
   "mdfBottleneckShow": "Show the late ones",
-  "mdfBottleneckPlan": "Shop plan"
+  "mdfBottleneckPlan": "Shop plan",
+  "pressShortOpen": "Open «To order»"
 }

@@ -3963,5 +3963,6 @@
   "mdfBottleneck": "{late} из {total} просроченных ждут «{stage}»",
   "mdfBottleneckQueue": "В очереди на «{stage}»: {orders} заказов · {m2} м²",
   "mdfBottleneckShow": "Показать просроченные",
-  "mdfBottleneckPlan": "План цеха"
+  "mdfBottleneckPlan": "План цеха",
+  "pressShortOpen": "Открыть «К заказу»"
 }

@@ -58,6 +58,10 @@ abstract final class AppDuration {
   /// 20.11.2026, ArtCAM's «Симуляция»): long enough to follow it pass by
   /// pass, short enough to watch to the end.
   static const cutterRun = Duration(seconds: 8);
+
+  /// A message that says where something went and offers to go there — long
+  /// enough to read a film's name and reach the button (26.11.2026).
+  static const notice = Duration(seconds: 10);
 }
 
 /// How long the app waits on a person before acting.

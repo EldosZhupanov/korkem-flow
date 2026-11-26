@@ -3963,5 +3963,6 @@
   "mdfBottleneck": "{total} кешіккеннің {late}-і «{stage}» күтуде",
   "mdfBottleneckQueue": "«{stage}» кезегінде: {orders} тапсырыс · {m2} м²",
   "mdfBottleneckShow": "Кешіккендерді көрсету",
-  "mdfBottleneckPlan": "Цех жоспары"
+  "mdfBottleneckPlan": "Цех жоспары",
+  "pressShortOpen": "«Тапсырысқа» ашу"
 }

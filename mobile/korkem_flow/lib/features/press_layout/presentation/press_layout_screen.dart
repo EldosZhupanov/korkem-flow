@@ -14,6 +14,7 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
 import 'package:korkem_flow/features/press_layout/presentation/press_editor.dart';
@@ -1037,8 +1038,24 @@ class _Approval extends ConsumerWidget {
           .approve(salesOrder, approved: approved);
       ref.invalidate(orderPressLayoutProvider(salesOrder));
       if (result.short.isNotEmpty) {
+        final navigator = Navigator.of(context);
+        // Where it went, one tap away (owner, 26.11.2026: «куда он уходит?
+        // надо как ссылку»).
         messenger.showSnackBar(
           SnackBar(
+            key: const ValueKey('pressShortAdded'),
+            duration: AppDuration.notice,
+            action: SnackBarAction(
+              key: const ValueKey('pressShortOpen'),
+              label: l10n.pressShortOpen,
+              onPressed: () => unawaited(
+                navigator.push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const FilmOrdersPage(),
+                  ),
+                ),
+              ),
+            ),
             content: Text(
               l10n.pressShortAdded(
                 [
