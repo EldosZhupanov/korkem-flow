@@ -18,7 +18,7 @@ import 'package:korkem_flow/features/team/domain/team_models.dart';
 import 'package:korkem_flow/features/team/domain/team_moves.dart';
 import 'package:korkem_flow/features/team/domain/team_structure.dart';
 import 'package:korkem_flow/features/team/presentation/team_actions.dart';
-import 'package:korkem_flow/features/team/presentation/team_people_view.dart';
+import 'package:korkem_flow/features/team/presentation/team_post_picker.dart';
 import 'package:korkem_flow/features/team/presentation/team_screen.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
 
@@ -369,6 +369,26 @@ class _PersonDialogState extends ConsumerState<_PersonDialog> {
                 .firstOrNull;
         if (_user != person.user && employee != null) {
           await repo.linkUser(employee, _user);
+        }
+        // A post taken off here leaves the stages of it given to him open:
+        // shown, to pass on — as from his card.
+        final taken = [
+          for (final p in person.posts)
+            if (!_ordered.contains(p)) p,
+        ];
+        if (person.employee case final id? when taken.isNotEmpty) {
+          final host = navigator.context;
+          final team = widget.team;
+          ref.invalidate(teamPeopleProvider);
+          navigator.pop();
+          messenger.showDone(l10n.teamPersonSaved(name));
+          for (final post in taken) {
+            final work = await repo.openWork(id, post: post);
+            if (work.isNotEmpty && host.mounted) {
+              await showTeamHandOver(host, team, person, work, post: post);
+            }
+          }
+          return;
         }
       }
       ref.invalidate(teamPeopleProvider);

@@ -18,12 +18,12 @@ import 'package:korkem_flow/features/client_card/presentation/rating_screen.dart
 import 'package:korkem_flow/features/costs/data/costs_repository.dart';
 import 'package:korkem_flow/features/costs/presentation/costs_screen.dart';
 import 'package:korkem_flow/features/film_dept/data/film_dept_repository.dart';
+import 'package:korkem_flow/features/team/application/team_controller.dart';
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
 import 'package:korkem_flow/features/team/data/team_structure_repository.dart';
 import 'package:korkem_flow/features/team/presentation/people_screen.dart';
 import 'package:korkem_flow/features/team/presentation/person_card_screen.dart';
 import 'package:korkem_flow/features/team/presentation/team_departments_view.dart';
-import 'package:korkem_flow/features/team/presentation/team_people_view.dart';
 
 import '../support/widget_harness.dart';
 import 'fake_costs.dart';
@@ -90,15 +90,20 @@ final Map<String, (Widget, List<String>)> _screens = {
     const ['cst:tab:items'],
   ),
   // «Сотрудники» and one person's card (25.11.2026).
-  'people': (PeopleScreen(today: DateTime(2026, 11, 25)), const []),
+  'people': (
+    PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.work),
+    const [],
+  ),
+  // «Отделы» — what «Команда» was, the first tab of «Сотрудники».
+  'people_departments': (PeopleScreen(today: DateTime(2026, 11, 25)), const []),
   // «Деньги» — the list that replaced «Ведомость» (26.11.2026); October
   // is over, so «Отдать» shows; the entry dialog too.
   'people_money': (
-    PeopleScreen(today: DateTime(2026, 11, 25), money: true),
+    PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.money),
     const ['ppl:prev'],
   ),
   'people_money_entry': (
-    PeopleScreen(today: DateTime(2026, 11, 25), money: true),
+    PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.money),
     const ['ppl:addMoney'],
   ),
   'person_card': (
@@ -108,14 +113,7 @@ final Map<String, (Widget, List<String>)> _screens = {
     ),
     const [],
   ),
-  // «Люди» and the picker under a post (26.11.2026).
-  'team_people': (
-    const SingleChildScrollView(
-      padding: EdgeInsets.all(16),
-      child: TeamPeopleView(),
-    ),
-    const [],
-  ),
+  // The picker under a post (26.11.2026).
   'team_post_picker': (
     const SingleChildScrollView(
       padding: EdgeInsets.all(16),
@@ -149,6 +147,8 @@ void main() {
               costsRepositoryProvider.overrideWithValue(FakeCosts()),
               peopleReportRepositoryProvider.overrideWithValue(FakePeople()),
               teamPeopleProvider.overrideWith((ref) async => fakeTeam),
+              canInviteProvider.overrideWith((ref) async => true),
+              teamMembersProvider.overrideWith((ref) async => const []),
             ],
             child: harness(
               screen,
