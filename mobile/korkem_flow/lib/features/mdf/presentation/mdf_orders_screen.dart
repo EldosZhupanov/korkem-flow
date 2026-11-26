@@ -217,7 +217,7 @@ class _MdfOrdersScreenState extends ConsumerState<MdfOrdersScreen> {
         : null,
     onStage: row.status == MdfStatus.draft || row.status == MdfStatus.onHold
         ? null
-        : (MdfStage stage, {required bool done}) =>
+        : (stage, {required done}) =>
               unawaited(_tapStage(row, stage, done: done)),
     onCall: row.phone == null
         ? null
