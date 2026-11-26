@@ -180,12 +180,20 @@ class TestPeopleReport(IntegrationTestCase):
 		bonus = self._as(BOSS, payroll.add_adjustment, worker, payroll.BONUS, 20_000, "за октябрь", "2026-10-10")
 		advance = self._as(BOSS, payroll.add_adjustment, worker, payroll.ADVANCE, 5_000, "аванс", "2026-10-12")
 		self.assertEqual((bonus["person"], bonus["employee"]), (worker, None))
+		self.assertEqual(advance["reason"], "аванс")
+		# An advance needs no reason (26.11.2026); a fine still does.
+		quiet = self._as(BOSS, payroll.add_adjustment, worker, payroll.ADVANCE, 1_000, "", "2026-10-13")
+		self.assertEqual(quiet["reason"], payroll.ADVANCE)
+		payroll.reverse_adjustment(quiet["adjustment"], "проверка")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(BOSS, payroll.add_adjustment, worker, payroll.FINE, 1_000, " ", "2026-10-13")
 		for a in (bonus, advance):  # another person says «Да»
 			payroll.approve_adjustment(a["adjustment"])
 		card = self._as(BOSS, people_report.person, worker, "month", "2026-10-15")
 		self.assertTrue(card["can_adjust"] and card["can_pay"])
+		self.assertFalse(card["adjusts_at_once"])  # a manager's entry waits for a «Да»
 		self.assertEqual((card["money"]["advance"], card["money"]["to_pay"]), (5_000, 15_000))
-		self.assertEqual(len(card["adjustments"]), 2)
+		self.assertEqual(len(card["adjustments"]), 3)  # the reversed one is listed too
 		paid = self._as(BOSS, payroll.mark_paid, worker, "2026-10-01", "2026-10-31")
 		self.assertEqual((paid["person"], paid["amount"]), (worker, 15_000))
 		card = self._as(BOSS, people_report.person, worker, "month", "2026-10-15")

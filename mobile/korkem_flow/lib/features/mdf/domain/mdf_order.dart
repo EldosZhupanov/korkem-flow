@@ -614,6 +614,7 @@ class MdfOrder {
     this.history = const [],
     this.stageWorkers = const {},
     this.stageGiven = const {},
+    this.stageGivenCrew = const {},
     this.customerTags = const [],
     this.extraStages = const {},
     this.press = const {},
@@ -684,7 +685,10 @@ class MdfOrder {
         if (s is Map &&
             MdfStage.parse(s['stage']) != null &&
             _s(s['worker_name']) != null)
-          MdfStage.parse(s['stage'])!: _s(s['worker_name'])!,
+          MdfStage.parse(s['stage'])!: switch (MdfCrewMember.list(s['crew'])) {
+            final crew when crew.length > 1 => MdfCrewMember.names(crew),
+            _ => _s(s['worker_name'])!,
+          },
     },
     stageGiven: {
       for (final s in json['stages'] as List? ?? const [])
@@ -693,8 +697,18 @@ class MdfOrder {
             _s(s['given_to']) != null)
           MdfStage.parse(s['stage'])!: (
             employee: _s(s['given_to'])!,
-            name: _s(s['given_to_name']) ?? _s(s['given_to'])!,
+            name: switch (MdfCrewMember.list(s['given_crew'])) {
+              final crew when crew.length > 1 => MdfCrewMember.names(crew),
+              _ => _s(s['given_to_name']) ?? _s(s['given_to'])!,
+            },
           ),
+    },
+    stageGivenCrew: {
+      for (final s in json['stages'] as List? ?? const [])
+        if (s is Map &&
+            MdfStage.parse(s['stage']) != null &&
+            MdfCrewMember.list(s['given_crew']).length > 1)
+          MdfStage.parse(s['stage'])!: MdfCrewMember.list(s['given_crew']),
     },
     customerTags: MdfCustomerTag.parse(json['customer_tags']),
     extraStages: {
@@ -803,6 +817,9 @@ class MdfOrder {
   /// люди») — set when the order is accepted, changed by the manager.
   final Map<MdfStage, ({String employee, String name})> stageGiven;
 
+  /// A stage given to several (owner, 26.11.2026), each with his share.
+  final Map<MdfStage, List<MdfCrewMember>> stageGivenCrew;
+
   /// The customer's tags (VIP, prepay only …), from the customer list.
   final List<MdfCustomerTag> customerTags;
 
@@ -888,3 +905,33 @@ bool mdfLineIsClients(
 }) =>
     (coating == MdfCoating.paint && paint) ||
     (coating == MdfCoating.pvc && film);
+
+/// One of several on a stage (owner, 26.11.2026: «2 или 3 вакуумщика делают
+/// вместе, и система делит»): who, and his share of it in %.
+@immutable
+class MdfCrewMember {
+  const MdfCrewMember({required this.employee, required this.name, this.share});
+
+  factory MdfCrewMember.fromJson(Map<String, dynamic> json) => MdfCrewMember(
+    employee: '${json['employee']}',
+    name: '${json['name'] ?? json['employee']}',
+    share: json['share'] is num ? (json['share'] as num).toDouble() : null,
+  );
+
+  static List<MdfCrewMember> list(Object? raw) => [
+    for (final m in raw is List ? raw : const <Object>[])
+      if (m is Map) MdfCrewMember.fromJson(Map<String, dynamic>.from(m)),
+  ];
+
+  /// «Ералы, Тима» — the crew as the card's chip says it.
+  static String names(List<MdfCrewMember> crew) =>
+      crew.map((m) => m.name).join(', ');
+
+  final String employee;
+  final String name;
+
+  /// In %; null — equal with the others.
+  final double? share;
+
+  Map<String, Object> toJson() => {'employee': employee, 'share': ?share};
+}

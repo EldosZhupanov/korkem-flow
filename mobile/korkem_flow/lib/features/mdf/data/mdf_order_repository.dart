@@ -496,17 +496,21 @@ class MdfOrderRepository {
   Future<MdfOrder> cancel(String order, String reason) =>
       _post('cancel', {'order': order, 'reason': reason});
 
-  /// [worker] — the Employee who did it, for the work volume.
+  /// [worker] — the Employee who did it, for the work volume; [crew] —
+  /// several who did it together, each with a share (26.11.2026).
   Future<MdfOrder> setStage(
     String order,
     MdfStage stage, {
     required bool done,
     String? worker,
+    List<MdfCrewMember>? crew,
   }) => _post('set_stage', {
     'order': order,
     'stage': stage.name,
     'done': done ? 1 : 0,
     'worker': ?worker,
+    if (crew != null && crew.length > 1)
+      'crew': jsonEncode([for (final m in crew) m.toJson()]),
   });
 
   /// «+ этап»: paint or vacuum for a rework, or taken off again.
@@ -520,13 +524,20 @@ class MdfOrderRepository {
     'on': on ? 1 : 0,
   });
 
-  /// Give a stage to a person; [worker] null takes it back.
-  Future<MdfOrder> assign(String order, MdfStage stage, String? worker) =>
-      _post('assign', {
-        'order': order,
-        'stage': stage.name,
-        'worker': worker ?? '',
-      });
+  /// Give a stage to a person, or to several ([crew], each with a share);
+  /// [worker] null and no crew takes it back.
+  Future<MdfOrder> assign(
+    String order,
+    MdfStage stage,
+    String? worker, {
+    List<MdfCrewMember>? crew,
+  }) => _post('assign', {
+    'order': order,
+    'stage': stage.name,
+    'worker': worker ?? '',
+    if (crew != null && crew.length > 1)
+      'crew': jsonEncode([for (final m in crew) m.toJson()]),
+  });
 
   /// Who may be given this stage of this order: its post's people.
   Future<List<MdfWorker>> stagePeople(String order, MdfStage stage) async {

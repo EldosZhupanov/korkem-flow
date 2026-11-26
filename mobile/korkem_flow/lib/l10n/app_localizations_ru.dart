@@ -5311,6 +5311,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfDictOpen => 'Справочник';
 
   @override
+  String get mdfDictEdit => 'Изменить список…';
+
+  @override
   String get mdfDictDecor => 'Цвет плёнки';
 
   @override
@@ -9233,6 +9236,40 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mdfAllWorkers => 'Все сотрудники';
 
   @override
+  String get mdfCrewHint => 'Можно отметить нескольких';
+
+  @override
+  String mdfCrewSplit(String m2) {
+    return 'Как поделить $m2 м²';
+  }
+
+  @override
+  String get mdfCrewEqual => 'Поровну';
+
+  @override
+  String get mdfCrewManual => 'Вручную';
+
+  @override
+  String get mdfCrewRest => 'остаток';
+
+  @override
+  String get mdfCrewTotal => 'Всего';
+
+  @override
+  String get mdfCrewOver => 'Раздали больше, чем есть: уменьшите у кого-то.';
+
+  @override
+  String get mdfCrewZero => 'У каждого должна быть часть больше нуля.';
+
+  @override
+  String get mdfCrewDone => 'Готово';
+
+  @override
+  String mdfCrewEach(int count, String m2) {
+    return '$count чел. · по $m2 м² каждому';
+  }
+
+  @override
   String mdfStageGiven(String stage, String name) {
     return '$stage: $name';
   }
@@ -12546,6 +12583,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tmNoOne => 'Никого не нашлось';
 
   @override
+  String get tmPickDone => 'Готово';
+
+  @override
+  String tmPickAdded(int count) {
+    return 'Добавлено: $count';
+  }
+
+  @override
+  String get tmOnPost => 'уже на должности';
+
+  @override
+  String get tmPickHint =>
+      'Нажмите на человека — он встанет на должность. Нажмите ещё раз — снимется.';
+
+  @override
   String get tmDupTitle => 'Такой человек уже есть';
 
   @override
@@ -12685,7 +12737,69 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pplRecord => 'Записать';
 
   @override
-  String get pplFillAll => 'Заполните: кому, сколько и за что.';
+  String get pplKindAdvanceHint =>
+      'Деньги, которые человек уже получил на руки. Вычтутся из зарплаты.';
+
+  @override
+  String get pplKindFineHint => 'Удержание за проступок. Вычтется из зарплаты.';
+
+  @override
+  String get pplKindBonusHint =>
+      'Доплата сверх заработка. Добавится к зарплате.';
+
+  @override
+  String get pplWhyOptional => 'За что (можно не писать)';
+
+  @override
+  String get pplWhoMissing => 'Выберите, кому';
+
+  @override
+  String get pplAmountMissing => 'Впишите сумму больше нуля';
+
+  @override
+  String get pplWhyMissing => 'Напишите, за что: человек это увидит';
+
+  @override
+  String get pplBalanceNow => 'К выплате сейчас';
+
+  @override
+  String get pplBalanceAfter => 'Станет';
+
+  @override
+  String get pplAtOnce => 'Вы владелец: запишется сразу, без второго «Да».';
+
+  @override
+  String get pplNeedsYes => 'Запишется и будет ждать «Да» другого человека.';
+
+  @override
+  String get pplReasonAsked => 'по просьбе';
+
+  @override
+  String get pplReasonTravel => 'на дорогу';
+
+  @override
+  String get pplReasonTillPay => 'до зарплаты';
+
+  @override
+  String get pplReasonDefect => 'брак';
+
+  @override
+  String get pplReasonLate => 'опоздание';
+
+  @override
+  String get pplReasonAbsent => 'прогул';
+
+  @override
+  String get pplReasonMaterial => 'порча материала';
+
+  @override
+  String get pplReasonPlan => 'за план';
+
+  @override
+  String get pplReasonRush => 'за срочный заказ';
+
+  @override
+  String get pplReasonWeekend => 'за выходной';
 
   @override
   String get pplRecorded => 'Записано';

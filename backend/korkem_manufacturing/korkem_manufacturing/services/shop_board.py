@@ -37,6 +37,7 @@ from korkem_manufacturing.services import (
 	mdf_summary,
 	mdf_volume,
 	search_text,
+	stage_crew,
 	team,
 )
 from korkem_manufacturing.services.scope import current_company
@@ -75,17 +76,19 @@ def board(day: str | None = None) -> dict:
 	areas = mdf_volume._areas({t[0] for t in ticks})
 	done = defaultdict(lambda: {"today": 0.0, "month": 0.0, "pace": 0.0})
 	by_person = defaultdict(float)
-	for order, stage, who, on in ticks:
+	for order, stage, _, on in ticks:
 		on = getdate(on)
 		m2 = flt(areas.get(order))
 		if on == today:
 			done[stage]["today"] += m2
-			if who:
-				by_person[(stage, who)] += m2
 		if first <= on <= today:
 			done[stage]["month"] += m2
 		if pace_from <= on < today:
 			done[stage]["pace"] += m2
+	# Today's m² of each person: his part of a stage done by several.
+	for order, stage, who, _, share in mdf_volume._ticked_people(company, today, today):
+		if who:
+			by_person[(stage, who)] += flt(areas.get(order)) * float(share)
 	pace_days = max(workdays(pace_from, add_days(today, -1)), 1)
 	return {
 		"day": str(today),
@@ -214,12 +217,15 @@ def _side(company: str, today: date, first: date) -> list[dict]:
 def _open_by(company: str, stage: str) -> dict[str, int]:
 	"""How many open stages of this kind are given to each person."""
 	counts: dict[str, int] = defaultdict(int)
-	for r in frappe.get_all("Sales Order", filters={
+	rows = frappe.get_all("Sales Order", filters={
 			"company": company, "korkem_direction": directions.FACADES, "docstatus": 1,
 			mdf_orders.STAGE_TO[stage]: ["is", "set"], mdf_orders.STAGES[stage]: ["is", "not set"],
 			"korkem_handed_over_on": ["is", "not set"]},
-			fields=[mdf_orders.STAGE_TO[stage] + " as person"], limit_page_length=0):
-		counts[r.person] += 1
+			fields=["name", mdf_orders.STAGE_TO[stage] + " as person"], limit_page_length=0)
+	crews = stage_crew.of_orders([r.name for r in rows], "to")
+	for r in rows:
+		for person in [e for e, _ in crews.get((r.name, stage), [])] or [r.person]:
+			counts[person] += 1
 	return counts
 
 

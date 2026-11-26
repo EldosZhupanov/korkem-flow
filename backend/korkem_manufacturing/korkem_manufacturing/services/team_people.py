@@ -58,16 +58,26 @@ def set_post(post: str, on=True, employee: str | None = None, user: str | None =
 def open_work(employee: str, post: str | None = None) -> list[dict]:
 	"""Stages given to him and not yet done, on orders not handed over —
 	those of [post] only, when it is said."""
+	from korkem_manufacturing.services import stage_crew
+
 	team._ensure_editor()
 	team._employee(employee)
+	company = current_company()
 	stages = team._stages_of_post(post) if post else list(mdf_orders.STAGES)
+	# A stage given to a crew he is in is his too (26.11.2026).
+	in_crew: dict[str, set[str]] = {}
+	for order, stage in stage_crew.given_to(company, employee):
+		in_crew.setdefault(stage, set()).add(order)
 	out = []
 	for stage in stages:
+		ors = [["Sales Order", mdf_orders.STAGE_TO[stage], "=", employee]]
+		if in_crew.get(stage):
+			ors.append(["Sales Order", "name", "in", sorted(in_crew[stage])])
 		for r in frappe.get_all(
 			"Sales Order",
-			filters={"company": current_company(), "docstatus": 1, "korkem_direction": directions.FACADES,
-					 mdf_orders.STAGE_TO[stage]: employee, mdf_orders.STAGES[stage]: ["is", "not set"],
-					 "korkem_handed_over_on": ["is", "not set"]},
+			filters={"company": company, "docstatus": 1, "korkem_direction": directions.FACADES,
+					 mdf_orders.STAGES[stage]: ["is", "not set"], "korkem_handed_over_on": ["is", "not set"]},
+			or_filters=ors,
 			fields=["name", "customer_name"],
 			order_by="name asc",
 			limit_page_length=0,
@@ -88,8 +98,26 @@ def hand_over(employee: str, to: str | None = None, post: str | None = None) -> 
 		row = frappe.db.get_value("Employee", to, ["company", "status"], as_dict=True)
 		if not row or row.company != current_company() or row.status != "Active":
 			frappe.throw("Такого сотрудника в команде нет.")
+	from korkem_manufacturing.services import stage_crew
+
 	for w in work:
-		mdf_orders.assign(w["order"], w["stage"], to or None)
+		crew = stage_crew.get(w["order"], w["stage"], "to")
+		if len(crew) > 1:
+			# One of a crew: his place — and his share — goes to [to]; with
+			# nobody named, the others keep the stage in their own proportion.
+			kept: dict[str, float] = {}
+			for e, share in crew:
+				who = (to or None) if e == employee else e
+				if who:
+					kept[who] = kept.get(who, 0.0) + share
+			total = sum(kept.values()) or 1.0
+			members = [{"employee": e, "share": round(share * 100 / total, 4)} for e, share in kept.items()]
+			if len(members) > 1:
+				mdf_orders.assign(w["order"], w["stage"], crew=members)
+			else:
+				mdf_orders.assign(w["order"], w["stage"], members[0]["employee"] if members else None)
+		else:
+			mdf_orders.assign(w["order"], w["stage"], to or None)
 	return {"moved": len(work), "to": to}
 
 

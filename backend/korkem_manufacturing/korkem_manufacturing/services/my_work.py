@@ -21,7 +21,7 @@ from decimal import Decimal
 import frappe
 from frappe.utils import flt, getdate, nowdate
 
-from korkem_manufacturing.services import directions, facade_prices, mdf_orders, mdf_volume, search_text, team
+from korkem_manufacturing.services import directions, facade_prices, mdf_orders, mdf_volume, search_text, stage_crew, team
 from korkem_manufacturing.services.scope import current_company
 
 
@@ -53,6 +53,7 @@ def work() -> dict:
 		limit_page_length=1000,
 	)
 	areas = mdf_volume._areas([r.name for r in rows])
+	crews = stage_crew.of_orders([r.name for r in rows], "to")
 	ready, coming = [], []
 	for r in rows:
 		needed = mdf_orders.stages_of(r)
@@ -60,8 +61,11 @@ def work() -> dict:
 			if r.get(mdf_orders.STAGES[stage]) or not _mine(stage, r.korkem_coatings, person["posts"]):
 				continue
 			given = r.get(mdf_orders.STAGE_TO[stage])
-			if given and given != person["employee"]:
+			crew = {e for e, _ in crews.get((r.name, stage), [])}
+			# Given to someone else — unless to a crew he is in (26.11.2026).
+			if given and given != person["employee"] and person["employee"] not in crew:
 				continue
+			given = person["employee"] if person["employee"] in crew else given
 			row = {"order": r.name, "customer": r.customer_name, "delivery_date": str(r.delivery_date),
 				   "stage": stage, "area_m2": flt(areas.get(r.name, Decimal(0)), 2), "given_to_me": given == person[
 					   "employee"], "overdue": getdate(r.delivery_date) < getdate(nowdate())}
@@ -73,11 +77,12 @@ def work() -> dict:
 def _month(employee: str, company: str) -> dict:
 	today = getdate(nowdate())
 	since = today.replace(day=1)
-	ticked = [t for t in mdf_volume._ticked(company, since, today) if t[2] == employee]
+	# His part of a stage done with others (26.11.2026), the whole of his own.
+	ticked = [t for t in mdf_volume._ticked_people(company, since, today) if t[2] == employee]
 	areas = mdf_volume._areas({order for order, *_ in ticked})
 	by_stage: dict[str, Decimal] = {}
-	for order, stage, _, _ in ticked:
-		by_stage[stage] = by_stage.get(stage, Decimal(0)) + areas.get(order, Decimal(0))
+	for order, stage, _, _, share in ticked:
+		by_stage[stage] = by_stage.get(stage, Decimal(0)) + areas.get(order, Decimal(0)) * share
 	return {
 		"since": str(since),
 		"area_m2": flt(sum(by_stage.values(), Decimal(0)), 2),
@@ -96,11 +101,13 @@ def done(order: str, stage: str, undo=False) -> dict:
 	if stage not in mdf_orders.STAGES or not _mine(stage, doc.get("korkem_coatings"), person["posts"]):
 		frappe.throw("Этот этап — не ваш.", frappe.PermissionError)
 	given = doc.get(mdf_orders.STAGE_TO[stage])
-	if given and given != person["employee"]:
+	me = person["employee"]
+	if given and given != me and me not in {e for e, _ in stage_crew.get(order, stage, "to")}:
 		name = frappe.db.get_value("Employee", given, "employee_name")
 		frappe.throw(f"Этот этап отдан сотруднику «{name}».", frappe.PermissionError)
 	if str(undo).lower() in ("1", "true", "yes"):
-		if doc.get(mdf_orders.STAGE_BY[stage]) != person["employee"]:
+		mine = doc.get(mdf_orders.STAGE_BY[stage]) == me or me in {e for e, _ in stage_crew.get(order, stage, "by")}
+		if not mine:
 			frappe.throw("Снять можно только свою отметку.", frappe.PermissionError)
 		if str(doc.get(mdf_orders.STAGES[stage])) != nowdate():
 			frappe.throw("Отметку прошлых дней снимает менеджер.", frappe.PermissionError)
@@ -146,17 +153,21 @@ def scan(code: str) -> dict:
 	order = _order_by_code(code, company)
 	doc = frappe.get_doc("Sales Order", order)
 	needed = mdf_orders.stages_of(doc)
+	me = person["employee"] if person else None
+	to_crews, by_crews = stage_crew.of_orders([order], "to"), stage_crew.of_orders([order], "by")
 	stages = []
 	for i, stage in enumerate(needed):
 		done_on = doc.get(mdf_orders.STAGES[stage])
 		given = doc.get(mdf_orders.STAGE_TO[stage])
+		in_crew = me in {e for e, _ in to_crews.get((order, stage), [])}
 		mine = manager or bool(person and _mine(stage, doc.get("korkem_coatings"), person["posts"])
-							   and (not given or given == person["employee"]))
+							   and (not given or given == me or in_crew))
 		waiting = [s for s in needed[:i] if not doc.get(mdf_orders.STAGES[s])]
 		stages.append({
 			"stage": stage, "name": mdf_orders.STAGE_NAMES.get(stage, stage),
 			"done_on": str(done_on) if done_on else None, "mine": mine, "waiting_for": waiting,
-			"by_me": bool(person and doc.get(mdf_orders.STAGE_BY[stage]) == person["employee"]),
+			"by_me": bool(person and (doc.get(mdf_orders.STAGE_BY[stage]) == me
+									  or me in {e for e, _ in by_crews.get((order, stage), [])})),
 		})
 	areas = mdf_volume._areas([order])
 	return {
