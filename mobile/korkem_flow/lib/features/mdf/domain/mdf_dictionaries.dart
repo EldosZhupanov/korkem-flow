@@ -80,25 +80,34 @@ typedef MdfPaintGroup = ({
 
 @immutable
 class MdfDictionaries {
-  const MdfDictionaries(this._lists);
+  const MdfDictionaries(this._lists, {this.texturedFilms = const {}});
 
   factory MdfDictionaries.fromJson(Map<String, dynamic> json) =>
-      MdfDictionaries({
-        for (final kind in MdfDictKind.values)
-          kind: [
-            for (final e in json[kind.wire] as List? ?? const [])
-              if (e is Map)
-                MdfDictEntry(
-                  id: '${e['id']}',
-                  value: '${e['value']}',
-                  group: e['group'] == null ? null : '${e['group']}',
-                ),
-          ]..sort((a, b) => mdfNaturalCompare(a.value, b.value)),
-      });
+      MdfDictionaries(
+        {
+          for (final kind in MdfDictKind.values)
+            kind: [
+              for (final e in json[kind.wire] as List? ?? const [])
+                if (e is Map)
+                  MdfDictEntry(
+                    id: '${e['id']}',
+                    value: '${e['value']}',
+                    group: e['group'] == null ? null : '${e['group']}',
+                  ),
+            ]..sort((a, b) => mdfNaturalCompare(a.value, b.value)),
+        },
+        texturedFilms: {
+          for (final f in json['textured_films'] as List? ?? const []) '$f',
+        },
+      );
 
   static const empty = MdfDictionaries({});
 
   final Map<MdfDictKind, List<MdfDictEntry>> _lists;
+
+  /// The film colours marked «Текстурная»: their positions say which way
+  /// the pattern runs (owner, 26.11.2026).
+  final Set<String> texturedFilms;
 
   /// In order (owner, 09.11.2026): numbers by size — 8 мм before 10 мм,
   /// R0 before R3, RAL 9010 before RAL 9016 — words by alphabet.

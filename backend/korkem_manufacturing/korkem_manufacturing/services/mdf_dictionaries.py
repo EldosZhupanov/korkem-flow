@@ -134,7 +134,12 @@ def dictionaries() -> dict:
 		elif r.kind == mdf_paints.PAINT_LIST:
 			entry["group"] = mdf_paints.system_of(r.note)
 		by_kind[r.kind].append(entry)
-	return {key: by_kind[kind] for key, kind in KINDS.items()}
+	from korkem_manufacturing.services import press_layout
+
+	# Which film colours are textured: the form asks those positions which
+	# way the pattern runs (owner, 26.11.2026).
+	return {**{key: by_kind[kind] for key, kind in KINDS.items()},
+			"textured_films": press_layout.textured_decors(company)}
 
 
 def add(key: str, value: str, group: str | None = None) -> dict:

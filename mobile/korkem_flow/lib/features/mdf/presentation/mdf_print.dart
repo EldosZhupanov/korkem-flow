@@ -37,6 +37,7 @@ typedef MdfPrintWords = ({
   String material,
   String film,
   String back,
+  String grainWidth,
   String subtotal,
 
   /// The R column: a position's edge radius (R0 — a sharp corner, in bold).
@@ -252,6 +253,7 @@ Future<Uint8List> buildMdfOrderPdf(
               l,
               back: words.back,
               patina: words.patina,
+              grainWidth: words.grainWidth,
             ))
               pw.Text(x, style: small),
           ],
@@ -721,9 +723,12 @@ List<String> mdfCoatingExtras(
   MdfLine l, {
   required String back,
   required String patina,
+  String? grainWidth,
 }) => [
   if (l.filmBack != null) '${_capital(back)}: ${l.filmBack}',
   if (l.patina != null) '${_capital(patina)}: ${l.patina}',
+  // A textured film's pattern across the facade (owner, 26.11.2026).
+  if (l.grainWidth && grainWidth != null) grainWidth,
 ];
 
 /// A position's note, or null when it has none.

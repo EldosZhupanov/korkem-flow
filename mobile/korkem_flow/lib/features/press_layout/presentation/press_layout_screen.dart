@@ -704,14 +704,44 @@ class _LoadsViewState extends State<_LoadsView> {
             },
           ),
           const SizedBox(height: AppSpacing.xs),
-          PressMap(
-            key: ValueKey('pressMap:${film.decor}:$i'),
-            load: load,
-            widthMm: widget.press.widthMm,
-            textured: film.textured,
-            highlight: lit,
-            onHover: (pos) => setState(() => _hover = pos),
-            onTap: _pin,
+          LayoutBuilder(
+            builder: (context, box) {
+              final map = PressMap(
+                key: ValueKey('pressMap:${film.decor}:$i'),
+                load: load,
+                widthMm: widget.press.widthMm,
+                // One scale for every load (owner, 26.11.2026).
+                tableMm: widget.press.lengthMm,
+                marginMm: widget.press.marginMm,
+                textured: film.textured,
+                highlight: lit,
+                onHover: (pos) => setState(() => _hover = pos),
+                onTap: _pin,
+              );
+              final list = _OnLoad(
+                key: ValueKey('pressOnLoad:${film.decor}:$i'),
+                load: load,
+                onTap: _pin,
+              );
+              // What goes on this load, beside its map — under it on a phone.
+              return box.maxWidth >= AppBreakpoints.compact
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: map),
+                        const SizedBox(width: AppSpacing.md),
+                        SizedBox(width: _OnLoad.width, child: list),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        map,
+                        const SizedBox(height: AppSpacing.xs),
+                        list,
+                      ],
+                    );
+            },
           ),
         ],
         const SizedBox(height: AppSpacing.sm),
@@ -758,6 +788,81 @@ class _LoadsViewState extends State<_LoadsView> {
                 onSelected: (_) => _pin(p.pos),
               ),
           ],
+        ),
+      ],
+    );
+  }
+}
+
+/// What goes on one load, position by position, as it lies — the vacuum
+/// worker counts the pieces against it (owner, 26.11.2026).
+class _OnLoad extends StatelessWidget {
+  const _OnLoad({required this.load, required this.onTap, super.key});
+
+  final PressLoad load;
+  final ValueChanged<int?> onTap;
+
+  static const double width = AppSpacing.xxxl * 4;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final rows = <int, ({String size, int count})>{};
+    for (final p in load.placed) {
+      final seen = rows[p.pos];
+      rows[p.pos] = (
+        size: '${p.width.round()}×${p.height.round()}',
+        count: (seen?.count ?? 0) + 1,
+      );
+    }
+    final area = load.placed.fold<double>(
+      0,
+      (sum, p) => sum + p.width * p.height / 1e6,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.pressOnLoad,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        for (final MapEntry(key: pos, value: row) in rows.entries)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              onTap: () => onTap(pos),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: PressMap.colourOf(
+                    pos,
+                  ).withValues(alpha: AppTint.surface),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Text(
+                  l10n.pressOnLoadRow(pos, row.size, row.count),
+                  key: ValueKey('pressOnLoadRow:$pos'),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+            ),
+          ),
+        Text(
+          l10n.pressOnLoadTotal(
+            load.placed.length,
+            area.toStringAsFixed(2).replaceAll('.', ','),
+          ),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );

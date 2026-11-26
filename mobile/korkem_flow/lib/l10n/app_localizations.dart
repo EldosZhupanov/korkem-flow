@@ -7620,7 +7620,7 @@ abstract class AppLocalizations {
   /// Press layout
   ///
   /// In en, this message translates to:
-  /// **'TEXTURED — DO NOT TURN'**
+  /// **'TEXTURED — PATTERN ALONG THE TABLE →'**
   String get pressTextured;
 
   /// Press layout
@@ -7746,7 +7746,7 @@ abstract class AppLocalizations {
   /// Press layout
   ///
   /// In en, this message translates to:
-  /// **'Parts are not turned on the press; the map says «DO NOT TURN»'**
+  /// **'On the press, parts lie with the pattern along the table; in the order each position says «along height» or «along width»'**
   String get materialTexturedHint;
 
   /// Press layout print
@@ -22479,6 +22479,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'no login'**
   String get teamNoLogin;
+
+  /// No description provided for @mdfGrainHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'along height'**
+  String get mdfGrainHeight;
+
+  /// No description provided for @mdfGrainWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'along width'**
+  String get mdfGrainWidth;
+
+  /// No description provided for @mdfGrainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Which way the textured film\'s pattern runs on the facade. Tap to switch.'**
+  String get mdfGrainHint;
+
+  /// No description provided for @mdfGrainWidthMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern ↔ along width'**
+  String get mdfGrainWidthMark;
+
+  /// No description provided for @mdfTexturedMark.
+  ///
+  /// In en, this message translates to:
+  /// **'textured'**
+  String get mdfTexturedMark;
+
+  /// No description provided for @pressFree.
+  ///
+  /// In en, this message translates to:
+  /// **'free · {metres} m'**
+  String pressFree(String metres);
+
+  /// No description provided for @pressOnLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'On this load'**
+  String get pressOnLoad;
+
+  /// No description provided for @pressOnLoadRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pos. {pos} · {size} · {count} pcs'**
+  String pressOnLoadRow(int pos, String size, int count);
+
+  /// No description provided for @pressOnLoadTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pcs in all · {area} m²'**
+  String pressOnLoadTotal(int count, String area);
+
+  /// No description provided for @mdfPrepaySet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the prepayment %'**
+  String get mdfPrepaySet;
 }
 
 class _AppLocalizationsDelegate

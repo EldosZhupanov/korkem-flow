@@ -81,6 +81,7 @@ final MdfPrintWords _words = (
   material: 'Материал',
   film: 'Пленка',
   back: 'асты',
+  grainWidth: 'Сурет ↔ ені бойынша',
   subtotal: 'Барлығы',
   coating: (c) => c.name,
   materialColumn: 'Матер.',

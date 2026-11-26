@@ -237,6 +237,12 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 		own_paint = coating == "paint" and directions.flag(raw.get("client_paint"))
 		own_mdf = directions.flag(raw.get("client_mdf"))
 		own_film = coating == "pvc" and directions.flag(raw.get("client_film"))
+		# Which way a textured film's pattern runs on the facade (owner,
+		# 26.11.2026): along its height unless said «по ширине».
+		grain = raw.get("grain") or None
+		if grain not in (None, "height", "width"):
+			frappe.throw(f"{label}: рисунок — по высоте или по ширине.")
+		grain = "width" if coating in (None, "pvc") and grain == "width" else None
 		gloss = (raw.get("gloss") or None) if coating == "paint" else None
 		if gloss is not None and gloss not in GLOSSES:
 			frappe.throw(f"{label}: вид покрытия — один из: {', '.join(GLOSSES.values())}.")
@@ -292,6 +298,7 @@ def price(lines, *, finish: str | None, default_rate=None, company: str | None =
 				"client_film": own_film,
 				"client_mdf": own_mdf,
 				"gloss": gloss,
+				"grain": grain,
 			}
 		)
 	return {
@@ -1038,6 +1045,7 @@ def card(order: str) -> dict:
 			"client_mdf": bool(item.get("korkem_client_mdf")),
 			"client_film": bool(item.get("korkem_client_film")),
 			"gloss": item.get("korkem_paint_gloss"),
+			"grain": item.get("korkem_grain"),
 			# The PVC glue this position takes (owner, 17.11.2026).
 			"glue_kg": glue["lines"].get(item.name) if glue else None,
 		}
@@ -1173,6 +1181,7 @@ def _press(order: str) -> dict:
 			"loads": [load["film_m"] for load in f["loads"]],
 			"corrected": f["corrected"],
 			"too_big": len(f["too_big"]),
+			"textured": f.get("textured", False),
 		}
 		for f in films
 	}
@@ -1615,6 +1624,7 @@ def _item(line: dict, head: dict, wanted) -> dict:
 		"korkem_finish": line.get("finish") or head["finish"],
 		"korkem_line_coating": line.get("coating"),
 		"korkem_paint_gloss": line.get("gloss"),
+		"korkem_grain": line.get("grain"),
 		"korkem_client_paint": 1 if line.get("client_paint") else 0,
 		"korkem_client_mdf": 1 if line.get("client_mdf") else 0,
 		"korkem_client_film": 1 if line.get("client_film") else 0,

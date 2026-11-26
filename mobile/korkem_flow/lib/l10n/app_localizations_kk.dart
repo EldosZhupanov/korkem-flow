@@ -4234,7 +4234,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get pressLayoutTitle => 'Пресске орналастыру';
 
   @override
-  String get pressTextured => 'ТЕКСТУРА — АЙНАЛДЫРМАҢЫЗ';
+  String get pressTextured => 'ТЕКСТУРА — СУРЕТ ҮСТЕЛ БОЙЫМЕН →';
 
   @override
   String get pressPlain => 'Біртүсті — айналдыруға болады';
@@ -4306,7 +4306,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get materialTexturedHint =>
-      'Бөлшектер прессте айналдырылмайды, орналастыруда — «АЙНАЛДЫРМАҢЫЗ»';
+      'Престе бөлшектер суреті үстел бойымен жатады; тапсырыста орынға — «биіктігі бойынша» не «ені бойынша»';
 
   @override
   String get pressPrint => 'Орналастыруды басып шығару';
@@ -13104,4 +13104,41 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get teamNoLogin => 'кірусіз';
+
+  @override
+  String get mdfGrainHeight => 'биіктігі бойынша';
+
+  @override
+  String get mdfGrainWidth => 'ені бойынша';
+
+  @override
+  String get mdfGrainHint =>
+      'Текстуралы пленка суреті қасбетте қай бағытта. Ауыстыру үшін басыңыз.';
+
+  @override
+  String get mdfGrainWidthMark => 'Сурет ↔ ені бойынша';
+
+  @override
+  String get mdfTexturedMark => 'текстура';
+
+  @override
+  String pressFree(String metres) {
+    return 'бос · $metres м';
+  }
+
+  @override
+  String get pressOnLoad => 'Осы жүктемеде';
+
+  @override
+  String pressOnLoadRow(int pos, String size, int count) {
+    return '$pos-орын · $size · $count дана';
+  }
+
+  @override
+  String pressOnLoadTotal(int count, String area) {
+    return 'Барлығы $count дана · $area м²';
+  }
+
+  @override
+  String get mdfPrepaySet => 'Алдын ала төлем пайызын орнату';
 }

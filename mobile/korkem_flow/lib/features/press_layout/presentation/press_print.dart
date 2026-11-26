@@ -180,8 +180,9 @@ pw.Widget _block(
       sheetArea > 0 ? (part / sheetArea * 100).toStringAsFixed(1) : '0';
   final counts = <int, ({String size, int count})>{};
   for (final p in load.placed) {
-    final w = (p.rotated ? p.height : p.width).round();
-    final h = (p.rotated ? p.width : p.height).round();
+    // As it lies, as the map writes it: along the table × across.
+    final w = p.width.round();
+    final h = p.height.round();
     final seen = counts[p.pos];
     counts[p.pos] = (size: '$w×$h', count: (seen?.count ?? 0) + 1);
   }
@@ -236,6 +237,7 @@ pw.Widget _block(
                 builder: (context, constraints) => _map(
                   load,
                   press.widthMm,
+                  tableMm: press.lengthMm,
                   textured: textured,
                   maxWidth: constraints?.maxWidth ?? 0,
                   maxHeight: constraints?.maxHeight ?? 0,
@@ -276,16 +278,21 @@ pw.Widget _block(
 pw.Widget _map(
   PressLoad load,
   double widthMm, {
+  required double tableMm,
   required bool textured,
   required double maxWidth,
   required double maxHeight,
 }) {
-  if (load.lengthMm <= 0 || widthMm <= 0 || maxWidth <= 0 || maxHeight <= 0) {
+  // Every load on the whole table, at one scale (owner, 26.11.2026); the
+  // table past the load's section grey.
+  final length = math.max(tableMm, load.lengthMm);
+  if (length <= 0 || widthMm <= 0 || maxWidth <= 0 || maxHeight <= 0) {
     return pw.SizedBox();
   }
-  final scale = math.min(maxWidth / load.lengthMm, maxHeight / widthMm);
-  final width = load.lengthMm * scale;
+  final scale = math.min(maxWidth / length, maxHeight / widthMm);
+  final width = length * scale;
   final height = widthMm * scale;
+  final used = load.lengthMm * scale;
   return pw.SizedBox(
     width: width,
     height: height,
@@ -299,6 +306,16 @@ pw.Widget _map(
             border: pw.Border.all(width: 1.2),
           ),
         ),
+        if (used > 0 && used < width - 1)
+          pw.Positioned(
+            left: used,
+            top: 0,
+            child: pw.Container(
+              width: width - used,
+              height: height,
+              color: PdfColors.grey500,
+            ),
+          ),
         for (final p in load.placed)
           pw.Positioned(
             left: p.x * scale,
@@ -328,30 +345,42 @@ pw.Widget _part(PlacedPart p, double scale, {required bool textured}) {
           '${p.pos}',
           style: pw.TextStyle(fontSize: (side * 0.45).clamp(6, 32)),
         ),
+        // Its sizes as it lies: the length along the bottom, the width up
+        // the side (owner, 26.11.2026).
         if (side > 18) ...[
           pw.Positioned(
-            right: 2,
-            top: 1,
-            child: pw.Text(
-              '${(p.rotated ? p.height : p.width).round()}',
-              style: const pw.TextStyle(fontSize: 6),
+            bottom: 1,
+            left: 0,
+            right: 0,
+            child: pw.Center(
+              child: pw.Text(
+                '${p.width.round()}',
+                style: const pw.TextStyle(fontSize: 6),
+              ),
             ),
           ),
           pw.Positioned(
-            left: 2,
-            bottom: 1,
-            child: pw.Text(
-              '${(p.rotated ? p.width : p.height).round()}',
-              style: const pw.TextStyle(fontSize: 6),
+            right: 1,
+            top: 0,
+            bottom: 0,
+            child: pw.Center(
+              child: pw.Transform.rotateBox(
+                angle: math.pi / 2,
+                child: pw.Text(
+                  '${p.height.round()}',
+                  style: const pw.TextStyle(fontSize: 6),
+                ),
+              ),
             ),
           ),
         ],
+        // Along the table: the way the roll, and the pattern, runs.
         if (textured)
           pw.Positioned(
             left: 3,
-            top: 2,
+            top: 1,
             child: pw.Text(
-              '↑',
+              '→',
               style: pw.TextStyle(fontSize: (side * 0.3).clamp(6, 20)),
             ),
           ),
