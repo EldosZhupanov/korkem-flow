@@ -17,7 +17,6 @@ import 'package:korkem_flow/features/mdf/presentation/mdf_dates.dart';
 import 'package:korkem_flow/features/team/data/people_report_repository.dart';
 import 'package:korkem_flow/features/team/domain/people_report.dart';
 import 'package:korkem_flow/features/team/presentation/people_money_actions.dart';
-import 'package:korkem_flow/features/team/presentation/people_money_view.dart';
 import 'package:korkem_flow/features/team/presentation/people_period.dart';
 import 'package:korkem_flow/features/team/presentation/people_screen.dart';
 import 'package:korkem_flow/features/team/presentation/person_card_team.dart';
