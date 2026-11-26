@@ -40,6 +40,9 @@ class TellCustomerButton extends ConsumerWidget {
     messenger.showSnackBar(
       SnackBar(
         content: Text(l10n.twSentQ),
+        // A bar with a button stays until pressed unless told
+        // otherwise (Flutter 3.32+): it is told — it goes.
+        persist: false,
         action: SnackBarAction(
           label: l10n.twMark,
           onPressed: () async {

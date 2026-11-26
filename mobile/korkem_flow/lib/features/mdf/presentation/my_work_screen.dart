@@ -46,6 +46,9 @@ class _MyWorkScreenState extends ConsumerState<MyWorkScreen> {
         ..showSnackBar(
           SnackBar(
             content: Text(l10n.myWorkDone(row.order, stage)),
+            // A bar with a button stays until pressed unless told
+            // otherwise (Flutter 3.32+): it is told — it goes.
+            persist: false,
             action: SnackBarAction(
               label: l10n.myWorkUndo,
               onPressed: () => _done(row, undo: true),
