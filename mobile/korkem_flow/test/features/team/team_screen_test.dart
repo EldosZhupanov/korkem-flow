@@ -374,7 +374,9 @@ void main() {
     await tester.pumpWidget(buildHarness(tester, repository: repo));
     await tester.pumpAndSettle();
 
-    expect(find.text('Команда'), findsOneWidget);
+    // «Команда» is the «Отделы» tab of «Сотрудники» now (26.11.2026).
+    expect(find.text('Сотрудники'), findsOneWidget);
+    expect(find.text('Отделы'), findsOneWidget);
     expect(find.text('Aidos Owner'), findsOneWidget);
     expect(find.text('Dana Manager'), findsOneWidget);
     expect(find.text('Berik Worker'), findsOneWidget);
@@ -1221,7 +1223,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('teamPersonSave')));
     await tester.pumpAndSettle();
-    expect(structure.changed, [('HR-EMP-1', <String>[])]);
+    expect(structure.changed.single.$1, 'HR-EMP-1');
+    expect(structure.changed.single.$2, isEmpty);
     // Бекжан is the one other cutter: offered first.
     await tester.tap(find.byKey(const ValueKey('tm:confirm')));
     await tester.pumpAndSettle();
