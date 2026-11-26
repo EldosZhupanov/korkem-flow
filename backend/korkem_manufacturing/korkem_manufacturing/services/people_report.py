@@ -245,7 +245,8 @@ def _waiting(company: str, start: date, end: date) -> list[dict]:
 def _work(company: str, start: date, end: date, employee: str | None = None) -> dict:
 	"""Each stage ticked in [start, end] with a person, with the order's m² —
 	counted as «Объём работ» counts it (`mdf_volume`), so the two agree."""
-	ticks = [t for t in mdf_volume._ticked(company, start, end) if t[2] and (not employee or t[2] == employee)]
+	# A stage done by several: each his part of its m² (26.11.2026).
+	ticks = [t for t in mdf_volume._ticked_people(company, start, end) if t[2] and (not employee or t[2] == employee)]
 	names = sorted({order for order, *_ in ticks})
 	areas = mdf_volume._areas(names)
 	customers = dict(frappe.get_all("Sales Order", filters={"name": ["in", names]}, fields=["name", "customer_name"],
@@ -253,8 +254,8 @@ def _work(company: str, start: date, end: date, employee: str | None = None) -> 
 	out = {"orders": defaultdict(dict), "m2": defaultdict(float), "order_set": defaultdict(set),
 		   "days": defaultdict(set), "by_day": defaultdict(float), "count_by_day": defaultdict(int),
 		   "works": defaultdict(list)}
-	for order, stage, who, day in ticks:
-		area = flt(areas.get(order, 0))
+	for order, stage, who, day, share in ticks:
+		area = flt(areas.get(order, 0)) * float(share)
 		out["orders"][who][stage] = out["orders"][who].get(stage, 0) + 1
 		out["m2"][(who, stage)] += area
 		out["order_set"][who].add(order)

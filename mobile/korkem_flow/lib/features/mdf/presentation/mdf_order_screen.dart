@@ -2921,19 +2921,24 @@ class _AcceptedViewState extends ConsumerState<_AcceptedView> {
   /// «Кто делает»: give a stage to a person of its post, or take it back.
   Future<void> _give(MdfStage stage) async {
     final l10n = AppLocalizations.of(context);
-    final worker = await pickMdfWorker(
+    final pick = await pickMdfCrew(
       context,
       '${o.name} · ${mdfStageLabel(stage, l10n)}',
       order: o.name,
       stage: stage,
-      given: o.stageGiven[stage]?.employee,
+      areaM2: o.areaM2,
+      given: [
+        ...?o.stageGivenCrew[stage]?.map((m) => m.employee),
+        if (o.stageGivenCrew[stage] == null)
+          if (o.stageGiven[stage]?.employee case final e?) e,
+      ],
       assigning: true,
     );
-    if (worker == null || !mounted) return;
+    if (pick == null || !mounted) return;
     await _run(
       () => ref
           .read(mdfOrderRepositoryProvider)
-          .assign(o.name, stage, worker.isEmpty ? null : worker),
+          .assign(o.name, stage, pick.single, crew: pick.crew),
     );
   }
 

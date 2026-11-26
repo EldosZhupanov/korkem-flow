@@ -9745,6 +9745,18 @@
   "mdfStageTakeBack": "Take it back — nobody",
   "mdfStagePostPeople": "On this post",
   "mdfAllWorkers": "Everyone",
+  "mdfCrewHint": "You can tick several",
+  "mdfCrewSplit": "How to split {m2} m²",
+  "@mdfCrewSplit": {"placeholders": {"m2": {"type": "String"}}},
+  "mdfCrewEqual": "Equally",
+  "mdfCrewManual": "By hand",
+  "mdfCrewRest": "the rest",
+  "mdfCrewTotal": "Total",
+  "mdfCrewOver": "More than there is: take some off someone.",
+  "mdfCrewZero": "Everyone needs a part above zero.",
+  "mdfCrewDone": "Done",
+  "mdfCrewEach": "{count} people · {m2} m² each",
+  "@mdfCrewEach": {"placeholders": {"count": {"type": "int"}, "m2": {"type": "String"}}},
   "mdfStageGiven": "{stage}: {name}",
   "@mdfStageGiven": {
     "placeholders": {

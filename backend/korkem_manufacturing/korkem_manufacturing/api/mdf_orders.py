@@ -58,14 +58,16 @@ def cancel(order: str, reason: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def set_stage(order: str, stage: str, done: bool | int | str = 1, worker: str | None = None) -> dict:
-	return service.set_stage(order, stage, done, worker=worker)
+def set_stage(order: str, stage: str, done: bool | int | str = 1, worker: str | None = None,
+			  crew: str | list | None = None) -> dict:
+	"""Отметить этап; `crew` — несколько человек с долями (JSON)."""
+	return service.set_stage(order, stage, done, worker=worker, crew=crew or None)
 
 
 @frappe.whitelist(methods=["POST"])
-def assign(order: str, stage: str, worker: str | None = None) -> dict:
-	"""Отдать этап заказа сотруднику (пусто — снять)."""
-	return service.assign(order, stage, worker or None)
+def assign(order: str, stage: str, worker: str | None = None, crew: str | list | None = None) -> dict:
+	"""Отдать этап заказа сотруднику или нескольким (`crew`, JSON с долями); пусто — снять."""
+	return service.assign(order, stage, worker or None, crew=crew or None)
 
 
 @frappe.whitelist(methods=["GET"])
