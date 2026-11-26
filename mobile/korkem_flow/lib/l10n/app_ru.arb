@@ -3934,5 +3934,7 @@
   "pressOnLoad": "На этой загрузке",
   "pressOnLoadRow": "Поз. {pos} · {size} · {count} шт",
   "pressOnLoadTotal": "Всего {count} шт · {area} м²",
-  "mdfPrepaySet": "Задать % предоплаты"
+  "mdfPrepaySet": "Задать % предоплаты",
+  "pressTableDimension": "стол {length} мм · секция {metres} м",
+  "pressWidthDimension": "{width} мм"
 }

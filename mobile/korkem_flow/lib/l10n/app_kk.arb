@@ -3934,5 +3934,7 @@
   "pressOnLoad": "Осы жүктемеде",
   "pressOnLoadRow": "{pos}-орын · {size} · {count} дана",
   "pressOnLoadTotal": "Барлығы {count} дана · {area} м²",
-  "mdfPrepaySet": "Алдын ала төлем пайызын орнату"
+  "mdfPrepaySet": "Алдын ала төлем пайызын орнату",
+  "pressTableDimension": "үстел {length} мм · секция {metres} м",
+  "pressWidthDimension": "{width} мм"
 }

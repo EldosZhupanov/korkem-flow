@@ -16,7 +16,10 @@ import 'package:korkem_flow/l10n/app_localizations.dart';
 /// - every load is drawn on the whole table, at one scale — a short section
 ///   no longer swells to the width of the screen; the table past it is
 ///   dashed, with how much of it is free;
-/// - a ruler along the top and the side, 0–500–1000 mm;
+/// - a ruler along the top and the side as on a tape: a mark every 100 mm,
+///   a figure every 500, the table's own end in bold — 2750, 1150 — and,
+///   as on a drawing, a dimension line over it: «стол 2750 мм · секция
+///   3,1 м», and «1150 мм» down the side (owner, 26.11.2026, variant В);
 /// - each part's sizes as it lies: its length along the bottom edge, its
 ///   width up the side edge;
 /// - the margin, when the press keeps one, as a red dashed line;
@@ -29,6 +32,8 @@ class PressMap extends StatelessWidget {
     required this.textured,
     this.tableMm,
     this.marginMm = 0,
+    this.lengthLabel,
+    this.widthLabel,
     this.highlight,
     this.onHover,
     this.onTap,
@@ -46,6 +51,11 @@ class PressMap extends StatelessWidget {
   /// The press's margin at the edge; 0 — none drawn.
   final double marginMm;
 
+  /// The dimension lines' words — the table and its section over the top,
+  /// its width down the side; null — no line.
+  final String? lengthLabel;
+  final String? widthLabel;
+
   /// The position lit up; null — all alike.
   final int? highlight;
 
@@ -54,8 +64,9 @@ class PressMap extends StatelessWidget {
   final ValueChanged<int?>? onTap;
 
   /// Room for the ruler: its figures above the table and left of it.
-  static const double rulerTop = AppSpacing.lg;
+  static const double rulerTop = AppSpacing.xxl + AppSpacing.md;
   static const double rulerLeft = AppSpacing.xxl;
+  static const double rulerRight = AppSpacing.xl;
 
   /// The colour of a position, the same on every load and in the legend.
   static Color colourOf(int pos) => AppColors.filmGroup(pos - 1);
@@ -81,7 +92,9 @@ class PressMap extends StatelessWidget {
     final length = _length;
     return LayoutBuilder(
       builder: (context, box) {
-        final inner = math.max(0, box.maxWidth - rulerLeft).toDouble();
+        final inner = math
+            .max(0, box.maxWidth - rulerLeft - rulerRight)
+            .toDouble();
         final scale = length > 0 && widthMm > 0 ? inner / length : 0.0;
         final height = rulerTop + (scale > 0 ? widthMm * scale : inner / 2.5);
         return MouseRegion(
@@ -118,6 +131,14 @@ class PressMap extends StatelessWidget {
                 rulerStyle: (theme.textTheme.labelSmall ?? const TextStyle())
                     .copyWith(color: scheme.onSurfaceVariant),
                 freeLabel: (m) => AppLocalizations.of(context).pressFree(m),
+                lengthLabel: lengthLabel,
+                widthLabel: widthLabel,
+                dimension: context.statusColors.warning,
+                endStyle: (theme.textTheme.labelSmall ?? const TextStyle())
+                    .copyWith(
+                      color: scheme.onSurface,
+                      fontWeight: FontWeight.w800,
+                    ),
               ),
             ),
           ),
@@ -144,6 +165,10 @@ class _PressPainter extends CustomPainter {
     required this.sizeStyle,
     required this.rulerStyle,
     required this.freeLabel,
+    required this.lengthLabel,
+    required this.widthLabel,
+    required this.dimension,
+    required this.endStyle,
   });
 
   final PressLoad load;
@@ -161,6 +186,17 @@ class _PressPainter extends CustomPainter {
   final TextStyle sizeStyle;
   final TextStyle rulerStyle;
   final String Function(String metres) freeLabel;
+  final String? lengthLabel;
+  final String? widthLabel;
+  final Color dimension;
+  final TextStyle endStyle;
+
+  /// A figure nearer the end than this is left out: it would run into the
+  /// end's own (1000 beside 1150).
+  static const double _crowd = 150;
+
+  /// A small mark every this many millimetres, as on a tape.
+  static const double _minor = 100;
 
   /// One ruler mark every this many millimetres.
   static const double _step = 500;
@@ -170,7 +206,7 @@ class _PressPainter extends CustomPainter {
     if (lengthMm <= 0 || widthMm <= 0) return;
     const left = PressMap.rulerLeft;
     const top = PressMap.rulerTop;
-    final scale = (size.width - left) / lengthMm;
+    final scale = (size.width - left - PressMap.rulerRight) / lengthMm;
     final w = lengthMm * scale;
     final h = widthMm * scale;
     final tableRect = Rect.fromLTWH(left, top, w, h);
@@ -286,32 +322,108 @@ class _PressPainter extends CustomPainter {
     final tick = Paint()
       ..color = muted
       ..strokeWidth = AppStroke.hairline;
-    for (var mm = 0.0; mm <= lengthMm + 0.5; mm += _step) {
+    final end = Paint()
+      ..color = ink
+      ..strokeWidth = AppStroke.focus;
+    // Along the top: small marks, figures every 500, the end in bold.
+    for (var mm = _minor; mm < lengthMm; mm += _minor) {
+      final x = left + mm * scale;
+      canvas.drawLine(Offset(x, top - AppSpacing.xxs), Offset(x, top), tick);
+    }
+    final labelY = top - AppSpacing.sm - AppSpacing.xxs;
+    for (var mm = 0.0; mm <= lengthMm - _crowd; mm += _step) {
       final x = left + mm * scale;
       canvas.drawLine(Offset(x, top - AppSpacing.xs), Offset(x, top), tick);
-      _text(
-        canvas,
-        '${mm.round()}',
-        rulerStyle,
-        Offset(x, top - AppSpacing.sm - AppSpacing.xxs),
-        _step * scale,
-      );
+      _text(canvas, '${mm.round()}', rulerStyle, Offset(x, labelY), _step * scale);
     }
-    for (var mm = 0.0; mm <= widthMm + 0.5; mm += _step) {
+    final right = left + lengthMm * scale;
+    canvas.drawLine(Offset(right, top - AppSpacing.sm), Offset(right, top), end);
+    _text(canvas, '${lengthMm.round()}', endStyle, Offset(right, labelY), _step * scale);
+    // Down the side: the same.
+    for (var mm = _minor; mm < widthMm; mm += _minor) {
       final y = top + mm * scale;
-      canvas.drawLine(Offset(left - AppSpacing.xs, y), Offset(left, y), tick);
+      canvas.drawLine(Offset(left - AppSpacing.xxs, y), Offset(left, y), tick);
+    }
+    void side(double mm, TextStyle style, Paint paint, double length) {
+      final y = top + mm * scale;
+      canvas.drawLine(Offset(left - length, y), Offset(left, y), paint);
       final painter = TextPainter(
-        text: TextSpan(text: '${mm.round()}', style: rulerStyle),
+        text: TextSpan(text: '${mm.round()}', style: style),
         textDirection: TextDirection.ltr,
         maxLines: 1,
       )..layout();
       painter.paint(
         canvas,
-        Offset(
-          left - AppSpacing.sm - painter.width,
-          y - painter.height / 2,
-        ),
+        Offset(left - AppSpacing.sm - painter.width, y - painter.height / 2),
       );
+    }
+
+    for (var mm = 0.0; mm <= widthMm - _crowd; mm += _step) {
+      side(mm, rulerStyle, tick, AppSpacing.xs);
+    }
+    side(widthMm, endStyle, end, AppSpacing.sm);
+    // The dimension lines, as on a drawing.
+    final bottom = top + widthMm * scale;
+    final line = Paint()
+      ..color = dimension
+      ..strokeWidth = AppStroke.hairline;
+    final words = rulerStyle.copyWith(color: dimension);
+    if (lengthLabel case final label?) {
+      const y = AppSpacing.sm;
+      final painter = TextPainter(
+        text: TextSpan(text: label, style: words),
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+      )..layout(maxWidth: math.max(0, right - left));
+      final mid = (left + right) / 2;
+      final half = painter.width / 2 + AppSpacing.sm;
+      _dimension(canvas, Offset(left, y), Offset(mid - half, y), line, start: true);
+      _dimension(canvas, Offset(mid + half, y), Offset(right, y), line, finish: true);
+      painter.paint(canvas, Offset(mid - painter.width / 2, y - painter.height / 2));
+    }
+    if (widthLabel case final label?) {
+      final x = right + AppSpacing.md;
+      final painter = TextPainter(
+        text: TextSpan(text: label, style: words),
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+      )..layout(maxWidth: math.max(0, bottom - top));
+      final mid = (top + bottom) / 2;
+      final half = painter.width / 2 + AppSpacing.sm;
+      _dimension(canvas, Offset(x, top), Offset(x, mid - half), line, start: true);
+      _dimension(canvas, Offset(x, mid + half), Offset(x, bottom), line, finish: true);
+      canvas
+        ..save()
+        ..translate(x, mid)
+        ..rotate(-math.pi / 2);
+      painter.paint(canvas, Offset(-painter.width / 2, -painter.height / 2));
+      canvas.restore();
+    }
+  }
+
+  /// A dimension line's piece, with an arrowhead at its outer end.
+  void _dimension(
+    Canvas canvas,
+    Offset a,
+    Offset b,
+    Paint paint, {
+    bool start = false,
+    bool finish = false,
+  }) {
+    if ((b - a).distance <= 0) return;
+    canvas.drawLine(a, b, paint);
+    final dir = (b - a) / (b - a).distance;
+    final normal = Offset(-dir.dy, dir.dx);
+    const head = AppSpacing.xs;
+    if (start) {
+      canvas
+        ..drawLine(a, a + dir * head + normal * head, paint)
+        ..drawLine(a, a + dir * head - normal * head, paint);
+    }
+    if (finish) {
+      canvas
+        ..drawLine(b, b - dir * head + normal * head, paint)
+        ..drawLine(b, b - dir * head - normal * head, paint);
     }
   }
 
@@ -380,6 +492,7 @@ class _PressPainter extends CustomPainter {
       old.load != load ||
       old.lengthMm != lengthMm ||
       old.marginMm != marginMm ||
+      old.lengthLabel != lengthLabel ||
       old.textured != textured ||
       old.highlight != highlight ||
       old.ink != ink;

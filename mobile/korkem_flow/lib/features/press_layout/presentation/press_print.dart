@@ -25,6 +25,7 @@ typedef PressPrintWords = ({
   String details,
   String Function(String positions) tooBig,
   String Function(int count) page,
+  String Function(int length, String metres) dimension,
 });
 
 /// Loads that are the same placement, printed once with a copy count — as
@@ -228,6 +229,14 @@ pw.Widget _block(
         ],
       ),
       pw.SizedBox(height: 4),
+      // As on a drawing: the table and the film's section (26.11.2026).
+      pw.Center(
+        child: pw.Text(
+          '← ${words.dimension(math.max(press.lengthMm, load.lengthMm).round(), number.format(load.filmM))} →',
+          style: const pw.TextStyle(fontSize: 8),
+        ),
+      ),
+      pw.SizedBox(height: 2),
       pw.Expanded(
         child: pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,

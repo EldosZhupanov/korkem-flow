@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,6 +54,7 @@ PressPrintWords pressPrintWordsOf(AppLocalizations l10n) => (
   details: l10n.pressPrintDetails,
   tooBig: l10n.pressTooBig,
   page: l10n.pressPrintPage,
+  dimension: l10n.pressTableDimension,
 );
 
 Future<void> _print(
@@ -713,6 +715,14 @@ class _LoadsViewState extends State<_LoadsView> {
                 // One scale for every load (owner, 26.11.2026).
                 tableMm: widget.press.lengthMm,
                 marginMm: widget.press.marginMm,
+                // As on a drawing (owner, 26.11.2026, variant В).
+                lengthLabel: l10n.pressTableDimension(
+                  math.max(widget.press.lengthMm, load.lengthMm).round(),
+                  _metres(context, load.filmM),
+                ),
+                widthLabel: l10n.pressWidthDimension(
+                  widget.press.widthMm.round(),
+                ),
                 textured: film.textured,
                 highlight: lit,
                 onHover: (pos) => setState(() => _hover = pos),
