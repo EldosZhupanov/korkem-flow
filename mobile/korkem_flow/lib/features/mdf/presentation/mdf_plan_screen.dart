@@ -113,7 +113,9 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
               if (board != null) ...[
-                _Wide(child: ShopMonthStrip(month: board.month, day: _today)),
+                _Wide(
+                  child: ShopMonthStrip(month: board.month, day: _today),
+                ),
                 const SizedBox(height: AppSpacing.lg),
                 _Wide(
                   child: ShopFlow(
@@ -138,39 +140,41 @@ class _MdfPlanScreenState extends ConsumerState<MdfPlanScreen> {
                   _Wide(child: ShopSideBlocks(side: board.side)),
                 ],
               ] else ...[
-              ReadableWidth(
-                child: Text(
-                  l10n.mdfPlanInWork(_m2(p.inWorkM2)),
-                  key: const ValueKey('planInWork'),
-                  style: theme.textTheme.titleMedium,
+                ReadableWidth(
+                  child: Text(
+                    l10n.mdfPlanInWork(_m2(p.inWorkM2)),
+                    key: const ValueKey('planInWork'),
+                    style: theme.textTheme.titleMedium,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              // Until the board answers: where the shop's work waits, stage
-              // by stage, by m². Tap one for its orders alone.
-              ReadableWidth(
-                child: BarRows(
-                  key: const ValueKey('planStages'),
-                  rows: [
-                    for (final s in p.stages)
-                      if (s.orders.isNotEmpty)
-                        BarRow(
-                          id: s.stage.name,
-                          label: mdfStageLabel(s.stage, l10n),
-                          value: s.areaM2,
-                          note: '${s.orders.length} · ${_m2(s.areaM2)} м²',
-                        ),
-                  ],
-                  selected: _stage,
-                  onSelect: (id) => setState(() => _stage = id),
+                const SizedBox(height: AppSpacing.sm),
+                // Until the board answers: where the shop's work waits, stage
+                // by stage, by m². Tap one for its orders alone.
+                ReadableWidth(
+                  child: BarRows(
+                    key: const ValueKey('planStages'),
+                    rows: [
+                      for (final s in p.stages)
+                        if (s.orders.isNotEmpty)
+                          BarRow(
+                            id: s.stage.name,
+                            label: mdfStageLabel(s.stage, l10n),
+                            value: s.areaM2,
+                            note: '${s.orders.length} · ${_m2(s.areaM2)} м²',
+                          ),
+                    ],
+                    selected: _stage,
+                    onSelect: (id) => setState(() => _stage = id),
+                  ),
                 ),
-              ),
               ],
               // With the board: a stage's orders once it is tapped; without
               // it, every stage's, as «Жоспар» had them.
               for (final s in p.stages)
                 if (s.orders.isNotEmpty &&
-                    (_stage == null ? board == null : s.stage.name == _stage)) ...[
+                    (_stage == null
+                        ? board == null
+                        : s.stage.name == _stage)) ...[
                   const SizedBox(height: AppSpacing.lg),
                   ReadableWidth(
                     child: SectionLabel(

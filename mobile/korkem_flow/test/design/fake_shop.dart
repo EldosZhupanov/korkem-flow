@@ -80,7 +80,12 @@ final fakeBoard = ShopBoard.fromJson(const {
           'post': 'cut.cutter',
           'title': 'Раскройщик',
           'people': [
-            {'employee': 'HR-1', 'name': 'Владимир', 'today_m2': 9, 'in_work': 3},
+            {
+              'employee': 'HR-1',
+              'name': 'Владимир',
+              'today_m2': 9,
+              'in_work': 3,
+            },
           ],
         },
       ],
@@ -171,9 +176,12 @@ final fakeBoard = ShopBoard.fromJson(const {
       'sales_today': 4,
       'metres_today': 120,
       'posts': [
-        {'post': 'film_sales.seller', 'title': 'Продажник', 'people': <Object>[]},
+        {
+          'post': 'film_sales.seller',
+          'title': 'Продажник',
+          'people': <Object>[],
+        },
       ],
     },
   ],
 });
-

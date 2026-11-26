@@ -249,27 +249,27 @@ class _PersonChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return InputChip(
-    key: ValueKey('teamPerson:${person.id}'),
-    // A phone icon: he ticks his own stages; none: the manager ticks for him.
-    avatar: Icon(person.user == null ? AppIcons.profile : AppIcons.call),
-    // Said in words, not only by the icon (owner, 26.11.2026): no login —
-    // the manager ticks for him; and how much is given to him now.
-    label: Text(
-      [
-        person.name,
-        if (person.inWork > 0) l10n.teamInWork(person.inWork),
-        if (person.user == null) l10n.teamNoLogin,
-      ].join(' · '),
-    ),
-    onPressed: team.canEdit || canManageLogins
-        ? () => showTeamPersonDialog(
-            context,
-            team,
-            person: person,
-            canManageLogins: canManageLogins,
-          )
-        : null,
-  );
+      key: ValueKey('teamPerson:${person.id}'),
+      // A phone icon: he ticks his own stages; none: the manager ticks for him.
+      avatar: Icon(person.user == null ? AppIcons.profile : AppIcons.call),
+      // Said in words, not only by the icon (owner, 26.11.2026): no login —
+      // the manager ticks for him; and how much is given to him now.
+      label: Text(
+        [
+          person.name,
+          if (person.inWork > 0) l10n.teamInWork(person.inWork),
+          if (person.user == null) l10n.teamNoLogin,
+        ].join(' · '),
+      ),
+      onPressed: team.canEdit || canManageLogins
+          ? () => showTeamPersonDialog(
+              context,
+              team,
+              person: person,
+              canManageLogins: canManageLogins,
+            )
+          : null,
+    );
   }
 }
 

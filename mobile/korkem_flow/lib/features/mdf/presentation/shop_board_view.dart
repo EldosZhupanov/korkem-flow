@@ -58,7 +58,9 @@ class ShopMonthStrip extends ConsumerWidget {
             Expanded(
               child: Text(
                 l10n.shopMonthLine(
-                  name.isEmpty ? name : name[0].toUpperCase() + name.substring(1),
+                  name.isEmpty
+                      ? name
+                      : name[0].toUpperCase() + name.substring(1),
                   _m2(context, m.planM2),
                   _m2(context, m.doneM2),
                 ),
@@ -226,7 +228,9 @@ class _PlanDialogState extends State<_PlanDialog> {
         FilledButton(
           key: const ValueKey('shop:targetSave'),
           onPressed: () => Navigator.of(context).pop(
-            double.tryParse(_value.text.replaceAll(' ', '').replaceAll(',', '.')) ??
+            double.tryParse(
+                  _value.text.replaceAll(' ', '').replaceAll(',', '.'),
+                ) ??
                 0.0,
           ),
           child: Text(l10n.shopSave),
@@ -253,8 +257,7 @@ class ShopFlow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ShopStage? of(MdfStage s) =>
-        stages.where((x) => x.stage == s).firstOrNull;
+    ShopStage? of(MdfStage s) => stages.where((x) => x.stage == s).firstOrNull;
     Widget box(MdfStage s) => switch (of(s)) {
       final x? => _StageBox(
         stage: x,
@@ -526,7 +529,10 @@ class ShopSideBlocks extends StatelessWidget {
                             style: muted,
                           ),
                         ] else
-                          Text(l10n.shopReceived(d.receivedToday), style: muted),
+                          Text(
+                            l10n.shopReceived(d.receivedToday),
+                            style: muted,
+                          ),
                         for (final post in d.posts)
                           Text(
                             _who(post, l10n),
