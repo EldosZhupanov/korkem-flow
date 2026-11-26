@@ -162,6 +162,8 @@ class _Today extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           _Recent(t: t),
         ],
+        // Its own room below: hidden, it takes none (the home as before).
+        const SizedBox(height: AppSpacing.lg),
       ],
     );
   }

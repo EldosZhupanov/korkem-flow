@@ -95,7 +95,6 @@ class _Body extends StatelessWidget {
         // «Сегодня» — the facade shop first (owner, 27.11.2026): what burns
         // and what to decide; the deals and tasks below as before.
         const TodaySection(),
-        const SizedBox(height: AppSpacing.lg),
         if (!isLoading)
           CompanySetupProgressWidget(
             hasOrders: totalOrders > 0,
