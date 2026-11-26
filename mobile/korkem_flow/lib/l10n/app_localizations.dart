@@ -22641,6 +22641,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shop plan'**
   String get mdfBottleneckPlan;
+
+  /// No description provided for @pressShortOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open «To order»'**
+  String get pressShortOpen;
 }
 
 class _AppLocalizationsDelegate

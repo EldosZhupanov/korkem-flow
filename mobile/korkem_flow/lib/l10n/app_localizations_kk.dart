@@ -13219,4 +13219,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfBottleneckPlan => 'Цех жоспары';
+
+  @override
+  String get pressShortOpen => '«Тапсырысқа» ашу';
 }

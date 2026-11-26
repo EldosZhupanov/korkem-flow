@@ -13295,4 +13295,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get mdfBottleneckPlan => 'План цеха';
+
+  @override
+  String get pressShortOpen => 'Открыть «К заказу»';
 }

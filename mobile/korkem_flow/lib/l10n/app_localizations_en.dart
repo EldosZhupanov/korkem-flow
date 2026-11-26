@@ -13260,4 +13260,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfBottleneckPlan => 'Shop plan';
+
+  @override
+  String get pressShortOpen => 'Open «To order»';
 }
