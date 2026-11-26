@@ -1037,6 +1037,10 @@ void main() {
     tester,
   ) async {
     // Owner, 26.11.2026: №00040 sank under 22 overdue ones and looked lost.
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
