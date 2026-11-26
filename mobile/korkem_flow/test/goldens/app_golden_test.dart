@@ -28,6 +28,8 @@ import 'package:korkem_flow/features/facade_prices/application/facade_price_cont
 import 'package:korkem_flow/features/facade_prices/domain/facade_price_table.dart';
 import 'package:korkem_flow/features/logistics/data/logistics_repository.dart';
 import 'package:korkem_flow/features/logistics/domain/logistics.dart';
+import 'package:korkem_flow/features/mdf/data/mdf_order_repository.dart';
+import 'package:korkem_flow/features/mdf/domain/mdf_today.dart';
 import 'package:korkem_flow/features/notifications/application/notifications_controller.dart';
 import 'package:korkem_flow/features/notifications/domain/app_notification.dart';
 import 'package:korkem_flow/features/one_c/data/one_c_repository.dart';
@@ -341,6 +343,11 @@ Future<void> _pumpApp(
           StatusCatalogRepository.dealStatusDoctype,
         ).overrideWith((ref) => Future<StatusCatalog>.value(_dealStatuses)),
         dashboardControllerProvider.overrideWith(_StubDashboard.new),
+        // Not the facade shop's figures: «Сегодня» draws nothing, as for
+        // whoever may not see them, and the dashboard golden is unchanged.
+        mdfTodayProvider.overrideWith(
+          (ref) => Future<MdfToday>.error(StateError('not the shop')),
+        ),
         // Not an administrator: the price switch draws nothing, so the
         // settings golden is unchanged by its arrival.
         priceVisibilityControllerProvider.overrideWith(

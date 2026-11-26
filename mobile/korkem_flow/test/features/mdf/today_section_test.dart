@@ -105,9 +105,7 @@ void main() {
     expect(find.textContaining('00041'), findsOneWidget);
   });
 
-  testWidgets('nothing to decide says so; no access — the home as before', (
-    tester,
-  ) async {
+  testWidgets('nothing to decide says so', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -125,11 +123,14 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('All calm'), findsOneWidget);
+  });
+
+  testWidgets('no access to the shop: the home as before', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           mdfTodayProvider.overrideWith(
-            (ref) async => throw StateError('no access'),
+            (ref) => Future<MdfToday>.error(StateError('no access')),
           ),
         ],
         child: harness(
@@ -139,5 +140,6 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('today')), findsNothing);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 }
