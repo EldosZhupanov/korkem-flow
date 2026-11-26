@@ -503,6 +503,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('pressApprove')));
     await tester.pumpAndSettle();
     expect(repo.checks, [true]);
+    // Where the missing film went — one tap away (owner, 26.11.2026).
+    expect(find.byKey(const ValueKey('pressShortOpen')), findsOneWidget);
     expect(find.textContaining('ZB 852-2 Авори — 3.1'), findsOneWidget);
   });
 

@@ -13255,4 +13255,93 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfBottleneckPlan => 'Цех жоспары';
+
+  @override
+  String get pressShortOpen => '«Тапсырысқа» ашу';
+
+  @override
+  String mdfStageTapDone(String stage) {
+    return '$stage: басыңыз — дайын';
+  }
+
+  @override
+  String mdfStageTapUndo(String stage) {
+    return '$stage дайын ✓ — алу үшін басыңыз';
+  }
+
+  @override
+  String mdfStageUndoAsk(String stage) {
+    return '«$stage» белгісін алу керек пе?';
+  }
+
+  @override
+  String get mdfStageUndoYes => 'Алу';
+
+  @override
+  String mdfStageManyAsk(String stages) {
+    return 'Кезеңдер өткізілмейді. $stages белгілеу керек пе?';
+  }
+
+  @override
+  String get mdfStageManyYes => 'Белгілеу';
+
+  @override
+  String get mdfStageShortCut => 'Піш';
+
+  @override
+  String get mdfStageShortMill => 'ЧПУ';
+
+  @override
+  String get mdfStageShortSand => 'Тег';
+
+  @override
+  String get mdfStageShortVacuum => 'Вак';
+
+  @override
+  String get mdfStageShortPaint => 'Боя';
+
+  @override
+  String get mdfStageShortReady => 'Дай';
+
+  @override
+  String mdfReportChange(String change) {
+    return 'өткенге $change';
+  }
+
+  @override
+  String get mdfReportAverage => 'Орташа чек';
+
+  @override
+  String get mdfReportPerM2 => 'м² орташа бағасы';
+
+  @override
+  String mdfReportDebtShare(int share) {
+    return 'соманың $share%';
+  }
+
+  @override
+  String mdfReportComparedWith(String since, String until) {
+    return '$since – $until кезеңімен салыстыру';
+  }
+
+  @override
+  String get mdfReportByMilling => 'Фрезерлеу';
+
+  @override
+  String get mdfReportByCoating => 'Жабын';
+
+  @override
+  String get mdfReportByManager => 'Менеджерлер';
+
+  @override
+  String get mdfReportNoFilm => 'Пленкасыз (бояу, қара)';
+
+  @override
+  String get mdfReportNoMilling => 'Фрезерлеусіз';
+
+  @override
+  String get mdfReportUnknown => 'Көрсетілмеген';
+
+  @override
+  String get mdfReportNothing => 'Бұл кезеңде ештеңе жоқ';
 }

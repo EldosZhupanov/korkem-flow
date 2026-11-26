@@ -22,7 +22,18 @@ final _report = MdfReport.fromJson(const {
   ],
   'by_decor': [
     {'decor': 'Венге', 'orders': 2, 'area_m2': 12.64, 'total': 243480},
+    {'decor': '—', 'orders': 1, 'area_m2': 1.2, 'total': 20000},
   ],
+  'by_milling': [
+    {'key': 'Квадро', 'orders': 2, 'area_m2': 12.64, 'total': 243480},
+  ],
+  'previous': {
+    'since': '2026-10-01',
+    'until': '2026-10-07',
+    'orders': 1,
+    'area_m2': 6,
+    'total': 120000,
+  },
   'top_customers': [
     {
       'customer': 'C-1',
@@ -66,7 +77,21 @@ void main() {
     expect(find.byKey(const ValueKey('reportOrders')), findsOneWidget);
     expect(find.byKey(const ValueKey('reportStatus:in_shop')), findsOneWidget);
     expect(find.byKey(const ValueKey('reportDecor:Венге')), findsOneWidget);
+    // Against the period before (owner, 26.11.2026): 2 orders against 1.
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('reportOrders:change')))
+          .data,
+      '+100% vs before',
+    );
+    expect(find.text('No film (paint, raw)'), findsOneWidget);
+    // The cuts, one at a time: who brought the money and still owes.
+    await tester.tap(find.byKey(const ValueKey('reportTab:customers')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('reportCustomer:C-1')), findsOneWidget);
     expect(find.textContaining('owes'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('reportTab:milling')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('reportMilling:Квадро')), findsOneWidget);
   });
 }
