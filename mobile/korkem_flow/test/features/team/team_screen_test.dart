@@ -1211,6 +1211,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(structure.posts, [('HR-EMP-1', 'pvc.vacuum', true)]);
     expect(structure.added, isEmpty);
+    // The window stays open for the next one (owner, 26.11.2026); a second
+    // tap takes him off again, «Готово» closes.
+    expect(find.byKey(const ValueKey('tm:pickDone')), findsOne);
+    await tester.tap(find.byKey(const ValueKey('tm:pickPerson:HR-EMP-3')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('tm:pickPerson:HR-EMP-1')));
+    await tester.pumpAndSettle();
+    expect(structure.posts, [
+      ('HR-EMP-1', 'pvc.vacuum', true),
+      ('HR-EMP-3', 'pvc.vacuum', true),
+      ('HR-EMP-1', 'pvc.vacuum', false),
+    ]);
+    await tester.tap(find.byKey(const ValueKey('tm:pickDone')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('tm:pickDone')), findsNothing);
   });
 
   testWidgets('a post taken off in his window: his open stage handed over', (

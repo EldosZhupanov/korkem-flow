@@ -49,6 +49,28 @@ Future<void> teamGivePost(
   }
 }
 
+/// Put [person] on [post] or take him off, without a snackbar: for a
+/// window that stays open and shows the result itself (the post picker,
+/// owner, 26.11.2026: «из окошка не должен выходить»). True when done.
+Future<bool> teamSetPostInPlace(
+  BuildContext context,
+  TeamPerson person,
+  String post, {
+  required bool on,
+}) async {
+  final l10n = AppLocalizations.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  final c = _container(context);
+  try {
+    await c.read(teamStructureRepositoryProvider).setPost(person, post, on: on);
+    _reload(c);
+    return true;
+  } on Object catch (error) {
+    messenger.showFailure(error, l10n);
+    return false;
+  }
+}
+
 /// Take [post] off [person]. The stages of it already given to him are
 /// shown, to pass on; a mistake is undone from the snackbar.
 Future<void> teamTakePost(
