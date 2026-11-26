@@ -9873,6 +9873,41 @@ abstract class AppLocalizations {
   /// **'Leave'**
   String get mdfLeave;
 
+  /// No description provided for @mdfLeaveSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as draft'**
+  String get mdfLeaveSave;
+
+  /// No description provided for @mdfAcceptedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Order accepted · {customer} · {pieces} pcs · {m2} m² · {total}'**
+  String mdfAcceptedBanner(
+    String customer,
+    String pieces,
+    String m2,
+    String total,
+  );
+
+  /// No description provided for @mdfAcceptedNext.
+  ///
+  /// In en, this message translates to:
+  /// **'What next?'**
+  String get mdfAcceptedNext;
+
+  /// No description provided for @mdfAcceptedPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the prepayment'**
+  String get mdfAcceptedPay;
+
+  /// No description provided for @mdfAcceptedMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Another order for this customer'**
+  String get mdfAcceptedMore;
+
   /// No description provided for @mdfChangeAdded.
   ///
   /// In en, this message translates to:
