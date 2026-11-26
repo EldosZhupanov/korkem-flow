@@ -167,10 +167,19 @@ def due_options(areas: dict | str | None, order: str | None = None, films=None) 
 	safe day after it, each day's m² already due against the shop's pace —
 	and, for a film not on the shelf, when it can come and the days counted
 	from then."""
-	base = estimate(areas, order)
 	company = current_company()
 	today = getdate(nowdate())
 	wanted = _areas(areas)
+	if wanted:
+		base = estimate(areas, order)
+	else:
+		# No sizes yet (owner, 27.11.2026): the month's load is still worth
+		# seeing; the date is the lanes' least days, said to be rough.
+		facade_prices.ensure_editor()
+		raw = frappe.parse_json(areas) if isinstance(areas, str) else (areas or {})
+		lanes = [lane for lane in (raw if isinstance(raw, dict) else {}) if lane in LANES] or ["pvc"]
+		days = max(LEAST_DAYS[lane] for lane in lanes)
+		base = {"ready_on": str(working_days_from(today, days)), "known": False}
 	films = frappe.parse_json(films) if isinstance(films, str) else (films or [])
 	# {decor: m²} — each film's own area; a bare list takes the PVC total.
 	if not isinstance(films, dict):
