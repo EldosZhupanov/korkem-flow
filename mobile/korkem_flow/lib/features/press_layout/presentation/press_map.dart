@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
 import 'package:korkem_flow/l10n/app_localizations.dart';
@@ -60,7 +60,7 @@ class PressMap extends StatelessWidget {
   /// The colour of a position, the same on every load and in the legend.
   static Color colourOf(int pos) => AppColors.filmGroup(pos - 1);
 
-  double get _length => math.max(tableMm ?? 0, load.lengthMm).toDouble();
+  double get _length => math.max(tableMm ?? 0, load.lengthMm);
 
   int? _at(Offset at, double scale) {
     if (scale <= 0) return null;
