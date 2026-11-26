@@ -77,7 +77,12 @@ class PeopleMoneyView extends StatelessWidget {
               icon: const Icon(AppIcons.add),
               label: Text(l10n.pplAddMoney),
               onPressed: () => unawaited(
-                showPayEntryDialog(context, people: report.people),
+                showPayEntryDialog(
+                  context,
+                  people: report.people,
+                  atOnce: report.adjustsAtOnce,
+                  showBalance: day.year == today.year && day.month == today.month,
+                ),
               ),
             ),
           ),

@@ -89,7 +89,12 @@ class _PersonCardScreenState extends ConsumerState<PersonCardScreen> {
               ),
               data: (c) => RefreshIndicator(
                 onRefresh: () => ref.refresh(personCardProvider(query).future),
-                child: _CardBody(card: c, span: _span, day: _day),
+                child: _CardBody(
+                  card: c,
+                  span: _span,
+                  day: _day,
+                  today: _today,
+                ),
               ),
             ),
           ),
@@ -104,10 +109,12 @@ class _CardBody extends StatefulWidget {
     required this.card,
     required this.span,
     required this.day,
+    required this.today,
   });
 
   final PersonCard card;
   final PeopleSpan span;
+  final DateTime today;
 
   /// A day in the period shown — «Отдать» pays its month.
   final DateTime day;
@@ -223,6 +230,12 @@ class _CardBodyState extends State<_CardBody> {
                           people: [row],
                           employee: row.employee,
                           kind: kind,
+                          atOnce: c.adjustsAtOnce,
+                          // «Станет» is true of this month's money only.
+                          showBalance:
+                              widget.span == PeopleSpan.month &&
+                              widget.day.year == widget.today.year &&
+                              widget.day.month == widget.today.month,
                         ),
                       ),
                       child: Text(payKindLabel(kind, l10n)),

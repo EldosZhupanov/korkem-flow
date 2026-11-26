@@ -83,6 +83,7 @@ def overview(period: str | None = "month", day: str | None = None) -> dict:
 		# What the money tab offers: «+ Аванс, штраф, премия» and «Отдать»
 		# (after the period is over — during it, it is an advance).
 		"can_adjust": bool(payroll.EDITORS & roles),
+		"adjusts_at_once": payroll.counts_at_once(),
 		"can_pay": bool(payroll.PAYERS & roles) and end < getdate(nowdate()),
 		"pending": _waiting(company, start, end) if sees_pay else [],
 		"total": {
@@ -143,6 +144,7 @@ def person(employee: str | None, period: str | None = "month", day: str | None =
 		"me": me,
 		"sees_pay": sees_pay,
 		"can_adjust": bool(payroll.EDITORS & set(frappe.get_roles())) and not me,
+		"adjusts_at_once": payroll.counts_at_once(),
 		"can_pay": bool(payroll.PAYERS & set(frappe.get_roles())) and not me and end < getdate(nowdate()),
 		# What the card may change: his posts, «Уволен» — the team's editors.
 		"active": p["active"],

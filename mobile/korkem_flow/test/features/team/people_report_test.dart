@@ -198,7 +198,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ppl:entrySave')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('ppl:entryError')), findsOne);
+    // Each missing thing is said at its own field (26.11.2026).
+    expect(find.text('Choose who'), findsOne);
+    expect(find.text('Enter an amount above zero'), findsOne);
     expect(pay.added, isEmpty);
 
     await tester.tap(find.byKey(const ValueKey('ppl:entryWho')));
@@ -224,6 +226,53 @@ void main() {
     expect(pay.added, [
       ('HR-EMP-00001', 'Штраф', 3000.0, 'Скол на фасаде'),
     ]);
+  });
+
+  testWidgets('the kind says which way the money goes, and what is left', (
+    tester,
+  ) async {
+    // Owner, 26.11.2026: «при разных нажатиях ценник стоит один и тот же».
+    await pump(
+      tester,
+      PeopleScreen(today: DateTime(2026, 11, 25), tab: PeopleTab.money),
+    );
+    await tester.tap(find.byKey(const ValueKey('ppl:addMoney')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ppl:entryWho')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ерлан Сапаров').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ppl:quick:50000')));
+    await tester.pumpAndSettle();
+    String after() => tester
+        .widget<Text>(find.byKey(const ValueKey('ppl:entryAfter')))
+        .data!
+        .replaceAll(RegExp('[^0-9-]'), '');
+    expect(after(), '77500'); // an advance: 127 500 − 50 000
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('ppl:entryKind')),
+        matching: find.text('Bonus'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(after(), '177500'); // a bonus: + 50 000
+    expect(find.text('Say what for: the person will read it'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('ppl:entrySave')));
+    await tester.pumpAndSettle();
+    expect(find.text('Say what for: the person will read it'), findsOne);
+    expect(pay.added, isEmpty);
+    // An advance needs no reason.
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('ppl:entryKind')),
+        matching: find.text('Advance'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ppl:entrySave')));
+    await tester.pumpAndSettle();
+    expect(pay.added, [('HR-EMP-00001', 'Аванс', 50000.0, '')]);
   });
 
   testWidgets('an advance for a person with no login', (tester) async {
