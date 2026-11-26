@@ -156,7 +156,11 @@ class MdfOrderRow {
       for (final s in json['stages'] as List? ?? const [])
         if (s is Map)
           if (MdfStage.parse(s['stage']) case final stage?)
-            (stage: stage, done: s['done'] == true),
+            (
+              stage: stage,
+              done: s['done'] == true,
+              given: s['given'] == true,
+            ),
     ],
     waiting: MdfStage.parse(json['waiting']),
     daysLeft: json['days_left'] is num
@@ -174,8 +178,9 @@ class MdfOrderRow {
   final bool overdue;
   final bool dueSoon;
 
-  /// Its stages in the shop's order, with what is done — the row's bar.
-  final List<({MdfStage stage, bool done})> stages;
+  /// Its stages in the shop's order, with what is done — the row's bar —
+  /// and whether each is given to someone (a tick asks who, if not).
+  final List<({MdfStage stage, bool done, bool given})> stages;
 
   /// The stage it waits at now; null when not in the shop.
   final MdfStage? waiting;

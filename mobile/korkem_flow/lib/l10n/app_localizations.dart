@@ -22641,6 +22641,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shop plan'**
   String get mdfBottleneckPlan;
+
+  /// No description provided for @pressShortOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open «To order»'**
+  String get pressShortOpen;
+
+  /// No description provided for @mdfStageTapDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage}: tap — done'**
+  String mdfStageTapDone(String stage);
+
+  /// No description provided for @mdfStageTapUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'{stage} done ✓ — tap to take it off'**
+  String mdfStageTapUndo(String stage);
+
+  /// No description provided for @mdfStageUndoAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the «{stage}» tick off?'**
+  String mdfStageUndoAsk(String stage);
+
+  /// No description provided for @mdfStageUndoYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Take off'**
+  String get mdfStageUndoYes;
+
+  /// No description provided for @mdfStageManyAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Stages are not skipped. Tick {stages}?'**
+  String mdfStageManyAsk(String stages);
+
+  /// No description provided for @mdfStageManyYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick'**
+  String get mdfStageManyYes;
+
+  /// No description provided for @mdfStageShortCut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get mdfStageShortCut;
+
+  /// No description provided for @mdfStageShortMill.
+  ///
+  /// In en, this message translates to:
+  /// **'CNC'**
+  String get mdfStageShortMill;
+
+  /// No description provided for @mdfStageShortSand.
+  ///
+  /// In en, this message translates to:
+  /// **'Sand'**
+  String get mdfStageShortSand;
+
+  /// No description provided for @mdfStageShortVacuum.
+  ///
+  /// In en, this message translates to:
+  /// **'Vac'**
+  String get mdfStageShortVacuum;
+
+  /// No description provided for @mdfStageShortPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint'**
+  String get mdfStageShortPaint;
+
+  /// No description provided for @mdfStageShortReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get mdfStageShortReady;
+
+  /// No description provided for @mdfReportChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} vs before'**
+  String mdfReportChange(String change);
+
+  /// No description provided for @mdfReportAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average order'**
+  String get mdfReportAverage;
+
+  /// No description provided for @mdfReportPerM2.
+  ///
+  /// In en, this message translates to:
+  /// **'Average per m²'**
+  String get mdfReportPerM2;
+
+  /// No description provided for @mdfReportDebtShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{share}% of the total'**
+  String mdfReportDebtShare(int share);
+
+  /// No description provided for @mdfReportComparedWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared with {since} – {until}'**
+  String mdfReportComparedWith(String since, String until);
+
+  /// No description provided for @mdfReportByMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Milling'**
+  String get mdfReportByMilling;
+
+  /// No description provided for @mdfReportByCoating.
+  ///
+  /// In en, this message translates to:
+  /// **'Coating'**
+  String get mdfReportByCoating;
+
+  /// No description provided for @mdfReportByManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Managers'**
+  String get mdfReportByManager;
+
+  /// No description provided for @mdfReportNoFilm.
+  ///
+  /// In en, this message translates to:
+  /// **'No film (paint, raw)'**
+  String get mdfReportNoFilm;
+
+  /// No description provided for @mdfReportNoMilling.
+  ///
+  /// In en, this message translates to:
+  /// **'No milling'**
+  String get mdfReportNoMilling;
+
+  /// No description provided for @mdfReportUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not said'**
+  String get mdfReportUnknown;
+
+  /// No description provided for @mdfReportNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period'**
+  String get mdfReportNothing;
 }
 
 class _AppLocalizationsDelegate

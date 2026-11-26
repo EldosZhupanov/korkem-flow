@@ -13260,4 +13260,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mdfBottleneckPlan => 'Shop plan';
+
+  @override
+  String get pressShortOpen => 'Open «To order»';
+
+  @override
+  String mdfStageTapDone(String stage) {
+    return '$stage: tap — done';
+  }
+
+  @override
+  String mdfStageTapUndo(String stage) {
+    return '$stage done ✓ — tap to take it off';
+  }
+
+  @override
+  String mdfStageUndoAsk(String stage) {
+    return 'Take the «$stage» tick off?';
+  }
+
+  @override
+  String get mdfStageUndoYes => 'Take off';
+
+  @override
+  String mdfStageManyAsk(String stages) {
+    return 'Stages are not skipped. Tick $stages?';
+  }
+
+  @override
+  String get mdfStageManyYes => 'Tick';
+
+  @override
+  String get mdfStageShortCut => 'Cut';
+
+  @override
+  String get mdfStageShortMill => 'CNC';
+
+  @override
+  String get mdfStageShortSand => 'Sand';
+
+  @override
+  String get mdfStageShortVacuum => 'Vac';
+
+  @override
+  String get mdfStageShortPaint => 'Paint';
+
+  @override
+  String get mdfStageShortReady => 'Done';
+
+  @override
+  String mdfReportChange(String change) {
+    return '$change vs before';
+  }
+
+  @override
+  String get mdfReportAverage => 'Average order';
+
+  @override
+  String get mdfReportPerM2 => 'Average per m²';
+
+  @override
+  String mdfReportDebtShare(int share) {
+    return '$share% of the total';
+  }
+
+  @override
+  String mdfReportComparedWith(String since, String until) {
+    return 'Compared with $since – $until';
+  }
+
+  @override
+  String get mdfReportByMilling => 'Milling';
+
+  @override
+  String get mdfReportByCoating => 'Coating';
+
+  @override
+  String get mdfReportByManager => 'Managers';
+
+  @override
+  String get mdfReportNoFilm => 'No film (paint, raw)';
+
+  @override
+  String get mdfReportNoMilling => 'No milling';
+
+  @override
+  String get mdfReportUnknown => 'Not said';
+
+  @override
+  String get mdfReportNothing => 'Nothing in this period';
 }

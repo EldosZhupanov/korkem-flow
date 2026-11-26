@@ -179,9 +179,9 @@ class _FakeRepository implements MdfOrderRepository {
       'stages': [
         {'stage': 'cut', 'done': true},
         {'stage': 'mill', 'done': true},
-        {'stage': 'sand', 'done': false},
-        {'stage': 'vacuum', 'done': false},
-        {'stage': 'ready', 'done': false},
+        {'stage': 'sand', 'done': false, 'given': true},
+        {'stage': 'vacuum', 'done': false, 'given': true},
+        {'stage': 'ready', 'done': false, 'given': true},
       ],
       'waiting': 'sand',
       'days_left': -3,
@@ -1097,17 +1097,30 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(
-      find.byKey(const ValueKey('mdfRowStage:SAL-ORD-1129')),
-      findsOneWidget,
-    );
-    expect(
       find.byKey(const ValueKey('mdfRowPay:SAL-ORD-1129')),
       findsOneWidget,
     );
-    await tester.tap(find.byKey(const ValueKey('mdfRowStage:SAL-ORD-1129')));
+    // The bar itself: a tap ticks the stage (owner, 26.11.2026, variant Б).
+    await tester.tap(find.byKey(const ValueKey('mdfBar:SAL-ORD-1129:sand')));
     await tester.pumpAndSettle();
     expect(repo.ticked.last, (MdfStage.sand, true));
     expect(find.byKey(const ValueKey('mdfStageDoneSnack')), findsOneWidget);
+    // A later one asks to tick those before it — stages are not skipped.
+    await tester.tap(find.byKey(const ValueKey('mdfBar:SAL-ORD-1129:ready')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfStageManyYes')));
+    await tester.pumpAndSettle();
+    expect(repo.ticked.skip(1).toList(), [
+      (MdfStage.sand, true),
+      (MdfStage.vacuum, true),
+      (MdfStage.ready, true),
+    ]);
+    // A done one asks before the tick comes off.
+    await tester.tap(find.byKey(const ValueKey('mdfBar:SAL-ORD-1129:cut')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfStageUndoYes')));
+    await tester.pumpAndSettle();
+    expect(repo.ticked.last, (MdfStage.cut, false));
     // One line an order.
     await tester.tap(find.byKey(const ValueKey('mdfDense')));
     await tester.pumpAndSettle();

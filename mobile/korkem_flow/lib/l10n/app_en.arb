@@ -11502,5 +11502,82 @@
     }
   },
   "mdfBottleneckShow": "Show the late ones",
-  "mdfBottleneckPlan": "Shop plan"
+  "mdfBottleneckPlan": "Shop plan",
+  "pressShortOpen": "Open «To order»",
+  "mdfStageTapDone": "{stage}: tap — done",
+  "@mdfStageTapDone": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfStageTapUndo": "{stage} done ✓ — tap to take it off",
+  "@mdfStageTapUndo": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfStageUndoAsk": "Take the «{stage}» tick off?",
+  "@mdfStageUndoAsk": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfStageUndoYes": "Take off",
+  "mdfStageManyAsk": "Stages are not skipped. Tick {stages}?",
+  "@mdfStageManyAsk": {
+    "placeholders": {
+      "stages": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfStageManyYes": "Tick",
+  "mdfStageShortCut": "Cut",
+  "mdfStageShortMill": "CNC",
+  "mdfStageShortSand": "Sand",
+  "mdfStageShortVacuum": "Vac",
+  "mdfStageShortPaint": "Paint",
+  "mdfStageShortReady": "Done",
+  "mdfReportChange": "{change} vs before",
+  "@mdfReportChange": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfReportAverage": "Average order",
+  "mdfReportPerM2": "Average per m²",
+  "mdfReportDebtShare": "{share}% of the total",
+  "@mdfReportDebtShare": {
+    "placeholders": {
+      "share": {
+        "type": "int"
+      }
+    }
+  },
+  "mdfReportComparedWith": "Compared with {since} – {until}",
+  "@mdfReportComparedWith": {
+    "placeholders": {
+      "since": {
+        "type": "String"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "mdfReportByMilling": "Milling",
+  "mdfReportByCoating": "Coating",
+  "mdfReportByManager": "Managers",
+  "mdfReportNoFilm": "No film (paint, raw)",
+  "mdfReportNoMilling": "No milling",
+  "mdfReportUnknown": "Not said",
+  "mdfReportNothing": "Nothing in this period"
 }
