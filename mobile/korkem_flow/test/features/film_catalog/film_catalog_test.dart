@@ -471,8 +471,10 @@ void main() {
   testWidgets("the film window: a film's pattern seen, filtered and said", (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(2400, 1600);
-    addTearDown(tester.view.resetPhysicalSize);
+    tester.view
+      ..physicalSize = const Size(2400, 1600)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final films = [
       for (final f in _json['films']! as List)
         {
