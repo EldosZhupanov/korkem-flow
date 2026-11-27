@@ -74,7 +74,7 @@ class FilmSupplierAlerts extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colour.withValues(alpha: AppTint.surface),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: colour, width: AppStroke.hairline),
+        border: Border.all(color: colour),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -152,7 +152,8 @@ class FilmSupplierAlerts extends ConsumerWidget {
                 line(
                   'filmSup:toOrder:${r.id}',
                   '${r.name}: ${[
-                    for (final o in r.reorder) '${o.title} ${l10n.filmSupM(filmMetres(o.metres))}',
+                    for (final o in r.reorder) '${o.title} '
+                        '${l10n.filmSupM(filmMetres(o.metres))}',
                   ].join(' · ')}',
                   [
                     if (canOrder)
@@ -317,7 +318,13 @@ class FilmSupplierSummary extends StatelessWidget {
 const double _tableWidth = AppSpacing.xxxl * 15;
 
 /// The columns' shares of the row, after the source's name.
-const _flex = (name: 14, sold: 13, onTime: 8, lead: 11, price: 6);
+const ({int name, int sold, int onTime, int lead, int price}) _flex = (
+  name: 14,
+  sold: 13,
+  onTime: 8,
+  lead: 11,
+  price: 6,
+);
 
 /// The table's head: what each column is (owner, 27.11.2026).
 class FilmSupplierHeader extends StatelessWidget {
