@@ -57,7 +57,6 @@ class _FilmSourcesTabState extends ConsumerState<FilmSourcesTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final sources = ref.watch(filmSourcesProvider);
     final board = ref.watch(filmSupplierBoardProvider(_allTime));
     void retry() => ref
@@ -113,17 +112,20 @@ class _FilmSourcesTabState extends ConsumerState<FilmSourcesTab> {
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
+              // What to do first, then the figures, then the table
+              // (owner, 27.11.2026).
+              FilmSupplierAlerts(board: b, canOrder: s.canEdit),
               FilmSupplierSummary(board: b),
               const SizedBox(height: AppSpacing.sm),
+              if (rows.isNotEmpty) const FilmSupplierHeader(),
               if (rows.isEmpty)
                 Padding(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Text(l10n.filmSourcesEmpty),
                 ),
-              for (final (i, r) in rows.indexed)
+              for (final r in rows)
                 FilmSupplierTile(
                   row: r,
-                  place: r.soldM > 0 ? i : null,
                   topM: b.topM,
                   source: cards[r.id],
                   onTap: s.canEdit && cards[r.id] != null
@@ -133,14 +135,6 @@ class _FilmSourcesTabState extends ConsumerState<FilmSourcesTab> {
                           makers: s.makers,
                         )
                       : null,
-                ),
-              if (rows.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: Text(
-                    l10n.filmSupLegend,
-                    style: theme.textTheme.bodySmall,
-                  ),
                 ),
             ],
           );

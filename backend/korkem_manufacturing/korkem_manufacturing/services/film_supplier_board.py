@@ -24,7 +24,7 @@ from __future__ import annotations
 import json
 
 import frappe
-from frappe.utils import date_diff, flt, getdate, nowdate
+from frappe.utils import add_days, date_diff, flt, getdate, nowdate
 
 from korkem_manufacturing.services import film_cash, film_dept, material_stock, price_visibility
 from korkem_manufacturing.services.film_team import IDLE_DAYS
@@ -32,6 +32,11 @@ from korkem_manufacturing.services.scope import current_company
 
 #: How many of a source's last rolls say how long it takes.
 LEAD_ROLLS = 10
+#: One source selling this share of the film or more is a risk said out loud
+#: (owner, 27.11.2026): if it fails a delivery, the press stops.
+DEPENDENCE_SHARE = 50
+#: The days a day's use of film is taken over, for «хватит на».
+USE_DAYS = 30
 
 
 def board(period: str | None = None) -> dict:
@@ -114,6 +119,9 @@ def board(period: str | None = None) -> dict:
 			})
 
 	sold_m = sum(r["metres"] for r in sold.values())
+	# A day's use, over the last month whatever the period shown.
+	recent = _sold(company, known, add_days(nowdate(), -USE_DAYS))
+	per_day = sum(r["metres"] for r in recent.values()) / USE_DAYS
 	result = list(rows.values())
 	for r in result:
 		r["share"] = round(100 * r["sold_m"] / sold_m, 1) if sold_m else 0.0
@@ -122,14 +130,22 @@ def board(period: str | None = None) -> dict:
 		r["amount"] = round(r["amount"], 2) if money else None
 		r["reorder"].sort(key=lambda o: o["title"].casefold())
 	result.sort(key=lambda r: (-r["sold_m"], -r["on_hand_m"], r["name"].casefold()))
+	on_hand = round(sum(flt(f.get("on_hand")) for f in films.values()), 2)
+	top = result[0] if result and result[0]["share"] >= DEPENDENCE_SHARE else None
 	return {
 		"period": "all" if all_time else "month",
 		"since": str(since) if since else None,
 		"sold_m": round(sold_m, 2),
 		"amount": round(sum(r["amount"] for r in sold.values()), 2) if money else None,
-		"on_hand_m": round(sum(flt(f.get("on_hand")) for f in films.values()), 2),
+		"on_hand_m": on_hand,
+		# «Хватит на ~10 дн.» at the last month's pace; null — nothing went.
+		"days_left": int(on_hand // per_day) if per_day > 0 else None,
 		"coming_m": round(sum(c["metres"] for c in coming.values()), 2),
 		"coming_count": sum(c["count"] for c in coming.values()),
+		# What is past its day (owner, 27.11.2026): the top of the screen.
+		"late_m": round(sum(c["late_m"] for c in coming.values()), 2),
+		"late_count": sum(c["late_count"] for c in coming.values()),
+		"dependence": {"supplier": top["supplier"], "name": top["name"], "share": top["share"]} if top else None,
 		"reorder_films": sum(len(r["reorder"]) for r in result),
 		"reorder_suppliers": sum(1 for r in result if r["reorder"]),
 		"owed": round(sum(o["amount"] for o in owed.values()), 2) if money else None,
@@ -187,10 +203,16 @@ def _coming(company: str) -> dict[str, dict]:
 	):
 		metres = flt(frappe.db.get_value("Stock Entry Detail", {"parent": e.name}, "qty"))
 		row = out.setdefault(e.korkem_supplier, {"metres": 0.0, "count": 0, "due": str(e.korkem_film_due),
-												  "late_days": 0})
+												  "late_days": 0, "late_m": 0.0, "late_count": 0,
+												  "late_due": None})
 		row["metres"] += metres
 		row["count"] += 1
-		row["late_days"] = max(row["late_days"], date_diff(today, e.korkem_film_due), 0)
+		late = date_diff(today, e.korkem_film_due)
+		row["late_days"] = max(row["late_days"], late, 0)
+		if late > 0:
+			row["late_m"] = round(row["late_m"] + metres, 2)
+			row["late_count"] += 1
+			row["late_due"] = row["late_due"] or str(e.korkem_film_due)
 	return out
 
 

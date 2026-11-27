@@ -4058,5 +4058,21 @@
   "pressGrainAskHint": "Жауап бермеуге болады — бұрылмай жайылған. Жауап барлық тапсырысқа сақталады.",
   "pressGrainTextured": "Өрнек бар",
   "pressGrainPlain": "Жоқ, біртүсті",
-  "pressGrainUncheckedPrint": "Өрнегі тексерілмеген — бұрылмай жайылған"
+  "pressGrainUncheckedPrint": "Өрнегі тексерілмеген — бұрылмай жайылған",
+  "filmSupLateTitle": "Кешігіп жатқан жеткізулер: {count} · {metres} м",
+  "filmSupLateRow": "{name} — {metres} м, {day} күтілді · {days} күн кешігу",
+  "filmSupToOrderTitle": "Тапсырыс беру уақыты — пленкалар: {count}",
+  "filmSupWant": "«Тапсырысқа» қосу",
+  "filmSupWanted": "«Тапсырыс» тізімінде: {count}",
+  "filmSupDaysLeft": "~{days} күнге жетеді",
+  "filmSupLateNote": "{metres} м кешігуде",
+  "filmSupOwedNone": "ешкімге",
+  "filmSupDependence": "Пленканың {share}% — {name} жеткізеді. Жеткізу бұзылса — цех тоқтайды.",
+  "filmSupColSupplier": "Жеткізуші",
+  "filmSupColSold": "Сатылды",
+  "filmSupColOnTime": "Уақытында",
+  "filmSupColLead": "Мерзім: уәде → іс жүзінде",
+  "filmSupColPrice": "Баға",
+  "filmSupLeadCell": "{promised} → {actual} күн",
+  "filmSupNoSales": "кезеңде алынбады"
 }

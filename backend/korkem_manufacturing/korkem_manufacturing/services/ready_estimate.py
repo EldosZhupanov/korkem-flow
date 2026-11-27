@@ -216,9 +216,11 @@ def _film(decor: str, company: str, area: float) -> dict:
 	"""On the shelf, enough for the order — or when it can come."""
 	from korkem_manufacturing.services import film_sourcing, film_sources, material_stock
 
+	from korkem_manufacturing.services import film_catalog
+
 	item = frappe.db.get_value(
 		"Item", {"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
-				 "korkem_color": decor, "disabled": 0}, ["name", "korkem_manufacturer"], as_dict=True)
+				 **film_catalog.named(decor), "disabled": 0}, ["name", "korkem_manufacturer"], as_dict=True)
 	if not item:
 		return {"decor": decor, "free_m": None, "short": False, "comes_on": None, "supplier": None}
 	on_hand = material_stock._stock([item.name], company).get(item.name, (0.0, 0.0))[0]
@@ -226,9 +228,16 @@ def _film(decor: str, company: str, area: float) -> dict:
 	short = free < area * FILM_M_PER_M2
 	comes_on, supplier = None, None
 	if short:
+		from korkem_manufacturing.services import film_supplier_board
+
+		# What a source took of late, not what it promises (owner, 27.11.2026).
+		took = film_supplier_board._lead(company)
 		for source in film_sources.by_maker().get(item.korkem_manufacturer, []):
 			card = film_sourcing._source_card(source)
 			days = film_sourcing._days(card.get("lead"))
+			actual = (took.get(source) or {}).get("lead_days")
+			if actual is not None:
+				days = max(days or 0, actual)
 			if days is None:
 				continue
 			when = add_days(nowdate(), days)

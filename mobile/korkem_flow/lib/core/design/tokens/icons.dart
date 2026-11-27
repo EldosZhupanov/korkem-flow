@@ -168,6 +168,9 @@ abstract final class AppIcons {
   static const IconData success = Symbols.check_circle_rounded;
   static const IconData warning = Symbols.schedule_rounded;
   static const IconData danger = Symbols.error_rounded;
+
+  /// Film to order from a source (27.11.2026).
+  static const IconData toOrder = Symbols.shopping_cart_rounded;
   static const IconData info = Symbols.info_rounded;
   static const IconData neutral = Symbols.inventory_2_rounded;
   static const IconData offline = Symbols.wifi_off_rounded;

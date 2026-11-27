@@ -339,7 +339,7 @@ void main() {
             ),
           )
           .data,
-      'Position 4 · 598×283 · 1 in all · on loads 1',
+      'Position 4 · 283×598 · 1 in all · on loads 1',
     );
     final map = tester.widget<PressMap>(
       find.byKey(const ValueKey('pressMap:AS 1804-SFT Какао нубук:0')),

@@ -832,7 +832,9 @@ class _LoadsViewState extends State<_LoadsView> {
     );
     final lit = _hover ?? _pinned;
     final shown = positions.where((p) => p.pos == lit).firstOrNull;
-    String size(PressPosition p) => '${p.width.round()}×${p.height.round()}';
+    // As the order has it — height × width, its own columns (owner,
+    // 27.11.2026: the chips said 598×323 for a 323 high, 598 wide part).
+    String size(PressPosition p) => '${p.height.round()}×${p.width.round()}';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

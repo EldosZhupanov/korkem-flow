@@ -23211,6 +23211,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pattern not checked — laid unturned'**
   String get pressGrainUncheckedPrint;
+
+  /// No description provided for @filmSupLateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Late deliveries: {count} · {metres} m'**
+  String filmSupLateTitle(int count, String metres);
+
+  /// No description provided for @filmSupLateRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — {metres} m, due {day} · {days} d late'**
+  String filmSupLateRow(String name, String metres, String day, int days);
+
+  /// No description provided for @filmSupToOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to order — films: {count}'**
+  String filmSupToOrderTitle(int count);
+
+  /// No description provided for @filmSupWant.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to «To order»'**
+  String get filmSupWant;
+
+  /// No description provided for @filmSupWanted.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to «To order»: {count}'**
+  String filmSupWanted(int count);
+
+  /// No description provided for @filmSupDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'lasts ~{days} d'**
+  String filmSupDaysLeft(int days);
+
+  /// No description provided for @filmSupLateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m late'**
+  String filmSupLateNote(String metres);
+
+  /// No description provided for @filmSupOwedNone.
+  ///
+  /// In en, this message translates to:
+  /// **'nobody'**
+  String get filmSupOwedNone;
+
+  /// No description provided for @filmSupDependence.
+  ///
+  /// In en, this message translates to:
+  /// **'{share}% of the film comes from {name}. A missed delivery stops the shop.'**
+  String filmSupDependence(String name, int share);
+
+  /// No description provided for @filmSupColSupplier.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get filmSupColSupplier;
+
+  /// No description provided for @filmSupColSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get filmSupColSold;
+
+  /// No description provided for @filmSupColOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get filmSupColOnTime;
+
+  /// No description provided for @filmSupColLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Lead: promised → actual'**
+  String get filmSupColLead;
+
+  /// No description provided for @filmSupColPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get filmSupColPrice;
+
+  /// No description provided for @filmSupLeadCell.
+  ///
+  /// In en, this message translates to:
+  /// **'{promised} → {actual} d'**
+  String filmSupLeadCell(int promised, int actual);
+
+  /// No description provided for @filmSupNoSales.
+  ///
+  /// In en, this message translates to:
+  /// **'nothing bought in the period'**
+  String get filmSupNoSales;
 }
 
 class _AppLocalizationsDelegate
