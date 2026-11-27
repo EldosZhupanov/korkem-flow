@@ -13578,4 +13578,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pressGrainUncheckedPrint => 'Pattern not checked — laid unturned';
+
+  @override
+  String filmSupLateTitle(int count, String metres) {
+    return 'Late deliveries: $count · $metres m';
+  }
+
+  @override
+  String filmSupLateRow(String name, String metres, String day, int days) {
+    return '$name — $metres m, due $day · $days d late';
+  }
+
+  @override
+  String filmSupToOrderTitle(int count) {
+    return 'Time to order — films: $count';
+  }
+
+  @override
+  String get filmSupWant => 'Add to «To order»';
+
+  @override
+  String filmSupWanted(int count) {
+    return 'Added to «To order»: $count';
+  }
+
+  @override
+  String filmSupDaysLeft(int days) {
+    return 'lasts ~$days d';
+  }
+
+  @override
+  String filmSupLateNote(String metres) {
+    return '$metres m late';
+  }
+
+  @override
+  String get filmSupOwedNone => 'nobody';
+
+  @override
+  String filmSupDependence(String name, int share) {
+    return '$share% of the film comes from $name. A missed delivery stops the shop.';
+  }
+
+  @override
+  String get filmSupColSupplier => 'Supplier';
+
+  @override
+  String get filmSupColSold => 'Sold';
+
+  @override
+  String get filmSupColOnTime => 'On time';
+
+  @override
+  String get filmSupColLead => 'Lead: promised → actual';
+
+  @override
+  String get filmSupColPrice => 'Price';
+
+  @override
+  String filmSupLeadCell(int promised, int actual) {
+    return '$promised → $actual d';
+  }
+
+  @override
+  String get filmSupNoSales => 'nothing bought in the period';
 }

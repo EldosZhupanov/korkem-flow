@@ -4046,5 +4046,21 @@
   "pressGrainAskHint": "Можно не отвечать — уже разложено без поворота. Ответ запомнится для всех заказов.",
   "pressGrainTextured": "Есть рисунок",
   "pressGrainPlain": "Нет, однотон",
-  "pressGrainUncheckedPrint": "Рисунок не проверен — разложено без поворота"
+  "pressGrainUncheckedPrint": "Рисунок не проверен — разложено без поворота",
+  "filmSupLateTitle": "Опаздывают поставки: {count} · {metres} м",
+  "filmSupLateRow": "{name} — {metres} м, ждали {day} · опоздание {days} дн.",
+  "filmSupToOrderTitle": "Пора заказать — плёнок: {count}",
+  "filmSupWant": "В «К заказу»",
+  "filmSupWanted": "В списке «К заказу»: {count}",
+  "filmSupDaysLeft": "хватит на ~{days} дн.",
+  "filmSupLateNote": "опаздывает {metres} м",
+  "filmSupOwedNone": "никому",
+  "filmSupDependence": "{share}% плёнки — от {name}. Сорвёт поставку — встанет цех.",
+  "filmSupColSupplier": "Поставщик",
+  "filmSupColSold": "Продано",
+  "filmSupColOnTime": "Вовремя",
+  "filmSupColLead": "Срок: обещал → по факту",
+  "filmSupColPrice": "Цена",
+  "filmSupLeadCell": "{promised} → {actual} дн.",
+  "filmSupNoSales": "за период не брали"
 }

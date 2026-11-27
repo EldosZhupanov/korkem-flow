@@ -17,6 +17,10 @@ class FilmSupplierBoard {
     this.owed,
     this.owedSuppliers = 0,
     this.rows = const [],
+    this.daysLeft,
+    this.lateM = 0,
+    this.lateCount = 0,
+    this.dependence,
   });
 
   factory FilmSupplierBoard.fromJson(Map<String, dynamic> json) =>
@@ -30,6 +34,16 @@ class FilmSupplierBoard {
         reorderFilms: (json['reorder_films'] as num?)?.toInt() ?? 0,
         owed: _d(json['owed']),
         owedSuppliers: (json['owed_suppliers'] as num?)?.toInt() ?? 0,
+        daysLeft: (json['days_left'] as num?)?.toInt(),
+        lateM: _d(json['late_m']) ?? 0,
+        lateCount: (json['late_count'] as num?)?.toInt() ?? 0,
+        dependence: switch (json['dependence']) {
+          final Map<String, dynamic> d => (
+            name: '${d['name'] ?? d['supplier']}',
+            share: _d(d['share']) ?? 0,
+          ),
+          _ => null,
+        },
         rows: [
           for (final r in json['suppliers'] as List? ?? const [])
             if (r is Map<String, dynamic>) FilmSupplierRow.fromJson(r),
@@ -55,6 +69,28 @@ class FilmSupplierBoard {
   final double? owed;
   final int owedSuppliers;
   final List<FilmSupplierRow> rows;
+
+  /// «Хватит на ~10 дн.» at the last month's pace; null — nothing went.
+  final int? daysLeft;
+
+  /// Rolls past their day, and their metres (owner, 27.11.2026).
+  final double lateM;
+  final int lateCount;
+
+  /// One source selling half the film or more: a risk said out loud.
+  final ({String name, double share})? dependence;
+
+  /// The sources with rolls past their day, the latest first.
+  List<FilmSupplierRow> get late => [
+    for (final r in rows)
+      if ((r.coming?.lateM ?? 0) > 0) r,
+  ]..sort((a, b) => b.coming!.lateDays.compareTo(a.coming!.lateDays));
+
+  /// The sources with films that ran low.
+  List<FilmSupplierRow> get toOrder => [
+    for (final r in rows)
+      if (r.reorder.isNotEmpty) r,
+  ];
 
   /// The best seller's metres: the length of a full bar.
   double get topM => rows.fold(0, (m, r) => r.soldM > m ? r.soldM : m);
@@ -185,6 +221,9 @@ class FilmSupplierComing {
     this.count = 1,
     this.due,
     this.lateDays = 0,
+    this.lateM = 0,
+    this.lateCount = 0,
+    this.lateDue,
   });
 
   factory FilmSupplierComing.fromJson(Map<String, dynamic> json) =>
@@ -193,6 +232,9 @@ class FilmSupplierComing {
         count: (json['count'] as num?)?.toInt() ?? 1,
         due: _s(json['due']),
         lateDays: (json['late_days'] as num?)?.toInt() ?? 0,
+        lateM: _d(json['late_m']) ?? 0,
+        lateCount: (json['late_count'] as num?)?.toInt() ?? 0,
+        lateDue: _s(json['late_due']),
       );
 
   final double metres;
@@ -201,6 +243,11 @@ class FilmSupplierComing {
   /// The nearest day a roll is due.
   final String? due;
   final int lateDays;
+
+  /// The rolls past their day, their metres, and the first such day.
+  final double lateM;
+  final int lateCount;
+  final String? lateDue;
 }
 
 /// A film that ran low, to be ordered from the source.

@@ -13537,4 +13537,68 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get pressGrainUncheckedPrint =>
       'Өрнегі тексерілмеген — бұрылмай жайылған';
+
+  @override
+  String filmSupLateTitle(int count, String metres) {
+    return 'Кешігіп жатқан жеткізулер: $count · $metres м';
+  }
+
+  @override
+  String filmSupLateRow(String name, String metres, String day, int days) {
+    return '$name — $metres м, $day күтілді · $days күн кешігу';
+  }
+
+  @override
+  String filmSupToOrderTitle(int count) {
+    return 'Тапсырыс беру уақыты — пленкалар: $count';
+  }
+
+  @override
+  String get filmSupWant => '«Тапсырысқа» қосу';
+
+  @override
+  String filmSupWanted(int count) {
+    return '«Тапсырыс» тізімінде: $count';
+  }
+
+  @override
+  String filmSupDaysLeft(int days) {
+    return '~$days күнге жетеді';
+  }
+
+  @override
+  String filmSupLateNote(String metres) {
+    return '$metres м кешігуде';
+  }
+
+  @override
+  String get filmSupOwedNone => 'ешкімге';
+
+  @override
+  String filmSupDependence(String name, int share) {
+    return 'Пленканың $share% — $name жеткізеді. Жеткізу бұзылса — цех тоқтайды.';
+  }
+
+  @override
+  String get filmSupColSupplier => 'Жеткізуші';
+
+  @override
+  String get filmSupColSold => 'Сатылды';
+
+  @override
+  String get filmSupColOnTime => 'Уақытында';
+
+  @override
+  String get filmSupColLead => 'Мерзім: уәде → іс жүзінде';
+
+  @override
+  String get filmSupColPrice => 'Баға';
+
+  @override
+  String filmSupLeadCell(int promised, int actual) {
+    return '$promised → $actual күн';
+  }
+
+  @override
+  String get filmSupNoSales => 'кезеңде алынбады';
 }

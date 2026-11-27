@@ -118,6 +118,22 @@ def thickness_in(name: str | None) -> str | None:
 	return parts[2] if len(parts) == 3 and parts[2] else None
 
 
+def named(name: str | None) -> dict:
+	"""The Item filters for a film as an order names it (owner, 27.11.2026):
+	«Adilet · Белое дерево» is that maker's colour, «… · 0,25» that one
+	thickness of it, a plain «Белое дерево» the colour of any maker. A
+	lookup by the colour alone missed every film named with its maker."""
+	name = (name or "").strip()
+	pair = split(name)
+	if not pair:
+		return {"korkem_color": name}
+	out = {"korkem_manufacturer": pair[0], "korkem_color": pair[1]}
+	thickness = thickness_in(name)
+	if thickness and thickness != UNKNOWN:
+		out["korkem_film_thickness_mm"] = thickness
+	return out
+
+
 #: How an order names the thickness of a film not known yet.
 UNKNOWN = "?"
 
