@@ -216,9 +216,11 @@ def _film(decor: str, company: str, area: float) -> dict:
 	"""On the shelf, enough for the order — or when it can come."""
 	from korkem_manufacturing.services import film_sourcing, film_sources, material_stock
 
+	from korkem_manufacturing.services import film_catalog
+
 	item = frappe.db.get_value(
 		"Item", {"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
-				 "korkem_color": decor, "disabled": 0}, ["name", "korkem_manufacturer"], as_dict=True)
+				 **film_catalog.named(decor), "disabled": 0}, ["name", "korkem_manufacturer"], as_dict=True)
 	if not item:
 		return {"decor": decor, "free_m": None, "short": False, "comes_on": None, "supplier": None}
 	on_hand = material_stock._stock([item.name], company).get(item.name, (0.0, 0.0))[0]

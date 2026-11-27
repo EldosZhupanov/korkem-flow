@@ -897,26 +897,38 @@ def _tight_all(loads: list[Load], press: dict) -> set[tuple[int, int]]:
 
 
 def textured_decors(company: str) -> list[str]:
-	"""The film colours marked «Текстурная», for the order form to ask which
-	way the pattern runs."""
-	return sorted({
-		r.korkem_color for r in frappe.get_all(
-			"Item",
-			filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
-					 "korkem_film_textured": 1, "disabled": 0},
-			fields=["korkem_color"], limit_page_length=0,
-		) if r.korkem_color
-	})
+	"""The films marked «Текстурная», as an order may name them — «Adilet ·
+	Белое дерево», with a thickness, or the colour alone — for the order form
+	to ask which way the pattern runs."""
+	from korkem_manufacturing.services import film_catalog
+
+	out = set()
+	for r in frappe.get_all(
+		"Item",
+		filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
+				 "korkem_film_textured": 1, "disabled": 0},
+		fields=["korkem_color", "korkem_manufacturer", "korkem_film_thickness_mm"], limit_page_length=0,
+	):
+		if not r.korkem_color:
+			continue
+		out.add(r.korkem_color)
+		if r.korkem_manufacturer:
+			out.add(film_catalog.label(r.korkem_manufacturer, r.korkem_color))
+			out.add(film_catalog.label(r.korkem_manufacturer, r.korkem_color,
+									   r.korkem_film_thickness_mm or film_catalog.UNKNOWN))
+	return sorted(out)
 
 
 def film_grain(decor: str, company: str) -> str:
 	"""The decor's pattern, by its films' cards: «textured» if any is, «» if
 	one nobody has looked at, «plain» otherwise — and «plain» for a decor
 	with no film card, as before (owner, 27.11.2026)."""
+	from korkem_manufacturing.services import film_catalog
+
 	rows = frappe.get_all(
 		"Item",
 		filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
-				 "korkem_color": decor, "disabled": 0},
+				 **film_catalog.named(decor), "disabled": 0},
 		fields=["korkem_film_textured", "korkem_film_grain_checked"], limit_page_length=0,
 	)
 	grains = {material_stock.film_grain(r) for r in rows}
@@ -928,13 +940,7 @@ def film_grain(decor: str, company: str) -> str:
 
 def is_textured(decor: str, company: str) -> bool:
 	"""A film of this decor marked «Текстурная» on its card: its parts never turn."""
-	return bool(
-		frappe.db.exists(
-			"Item",
-			{"korkem_material_company": company, "korkem_material_kind": material_stock.FILM, "korkem_color": decor,
-			 "korkem_film_textured": 1, "disabled": 0},
-		)
-	)
+	return film_grain(decor, company) == material_stock.TEXTURED
 
 
 def _parts_by_decor(sales_order: str) -> dict[str, list[Part]]:

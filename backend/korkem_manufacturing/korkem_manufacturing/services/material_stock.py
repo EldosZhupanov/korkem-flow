@@ -427,10 +427,12 @@ def set_film_grain(grain: str, item: str | None = None, decor: str | None = None
 	elif decor:
 		# At the press: anyone of the shop who sees the roll; only films
 		# nobody has looked at, so an editor's word is never undone here.
+		from korkem_manufacturing.services import film_catalog
+
 		_ensure_staff()
 		names = frappe.get_all("Item", filters={
 			"korkem_material_company": company, "korkem_material_kind": FILM,
-			"korkem_color": str(decor).strip(), "korkem_film_textured": 0, "korkem_film_grain_checked": 0,
+			**film_catalog.named(decor), "korkem_film_textured": 0, "korkem_film_grain_checked": 0,
 		}, pluck="name", limit_page_length=0)
 	else:
 		frappe.throw("Какую плёнку?")

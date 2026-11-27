@@ -466,6 +466,20 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, material_stock.set_film_grain, "maybe", item=item)
 
+	def test_a_film_named_with_its_maker_is_found_by_its_card(self):
+		# An order names a film «Maker · Colour» (owner, 27.11.2026): the
+		# press missed every such film and laid it as plain.
+		from korkem_manufacturing.services import film_catalog
+
+		self.assertEqual(press_layout.film_grain(film_catalog.label(MAKER, TEXTURED), COMPANY), "textured")
+		self.assertEqual(press_layout.film_grain(film_catalog.label(MAKER, TEXTURED, "0,35"), COMPANY), "textured")
+		self.assertEqual(press_layout.film_grain(film_catalog.label(MAKER, PLAIN), COMPANY), "plain")
+		self.assertIn(film_catalog.label(MAKER, TEXTURED), press_layout.textured_decors(COMPANY))
+		self.assertEqual(film_catalog.named("Adilet · Белое дерево · 0,25"),
+						 {"korkem_manufacturer": "Adilet", "korkem_color": "Белое дерево",
+						  "korkem_film_thickness_mm": "0,25"})
+		self.assertEqual(film_catalog.named("Белое дерево"), {"korkem_color": "Белое дерево"})
+
 	def test_a_whole_collection_is_marked_at_once(self):
 		collection = f"{MAKER} · Wood"
 		one, two = self._unseen(UNSEEN, collection), self._unseen(UNSEEN_TOO, collection)
