@@ -39,6 +39,10 @@ const _board = <String, dynamic>{
   'reorder_films': 1,
   'owed': 180000,
   'owed_suppliers': 1,
+  'days_left': 12,
+  'late_m': 50,
+  'late_count': 1,
+  'dependence': {'supplier': 'SUP-1', 'name': 'Adilet · Астана', 'share': 75},
   'suppliers': [
     {
       'supplier': 'SUP-1',
@@ -56,6 +60,16 @@ const _board = <String, dynamic>{
       'on_time': 6,
       'rolls': 10,
       'price_change': 4.2,
+      // A roll eleven days past its day (owner, 27.11.2026).
+      'coming': {
+        'metres': 50,
+        'count': 1,
+        'due': '2026-11-16',
+        'late_days': 11,
+        'late_m': 50,
+        'late_count': 1,
+        'late_due': '2026-11-16',
+      },
       'reorder': [
         {'item': 'F-1', 'title': 'Adilet · Белый', 'metres': 150, 'free': 20},
       ],
@@ -217,37 +231,46 @@ void main() {
     expect(FilmSupplierBoard.fromJson(const {'sold_m': 5}).amount, isNull);
   });
 
-  testWidgets('the board ranks the sources and says what to do', (
+  testWidgets('the board puts what is late and what to order first', (
     tester,
   ) async {
     final repo = await _pump(tester, const FilmSourcesTab());
     String text(String key) =>
         tester.widget<Text>(find.byKey(ValueKey(key))).data!;
+    // First: the roll past its day, whom to ring; the films to order.
+    expect(find.text('Late deliveries: 1 · 50 m'), findsOneWidget);
+    expect(
+      find.text('Adilet · Астана — 50 m, due 16.11 · 11 d late'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('filmSup:lateCall:SUP-1')), findsOne);
+    expect(find.text('Time to order — films: 1'), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmSup:want:SUP-1')), findsOne);
+    // The figures: how long the shelf lasts, how much is late.
     expect(text('filmSup:sold'), '40 m');
     expect(text('filmSup:coming'), '20 m');
-    expect(text('filmSup:reorder'), 'films: 1');
-    // The best seller first, with a medal.
+    expect(find.text('lasts ~12 d'), findsOneWidget);
+    expect(find.text('50 m late'), findsOneWidget);
+    expect(text('filmSup:owed'), contains('180'));
+    // One source too many relied on.
+    expect(text('filmSup:dependence'), contains('75%'));
+    // The table: the best seller first, no medals.
     expect(
       tester.getTopLeft(find.byKey(const ValueKey('filmSource:SUP-1'))).dy,
       lessThan(
         tester.getTopLeft(find.byKey(const ValueKey('filmSource:SUP-2'))).dy,
       ),
     );
-    expect(find.text('🥇'), findsOneWidget);
+    expect(find.text('🥇'), findsNothing);
     expect(text('filmSup:sold:SUP-1'), '30 m');
     expect(find.text('75% of sales'), findsOneWidget);
-    // Astana: a film ran low and it comes late — nothing says «all is well».
-    expect(find.text('To order: 1'), findsOneWidget);
-    expect(find.text('Late by 4 d on average'), findsOneWidget);
-    expect(find.textContaining('brings in 6 d (promised 2)'), findsOneWidget);
-    expect(find.byKey(const ValueKey('filmSup:ok:SUP-1')), findsNothing);
-    // The money side: what we owe it, how it keeps its word, its price.
-    expect(text('filmSup:owed'), contains('180'));
+    // Promised two days, took six: said in red, not as a sentence.
+    expect(text('filmSup:lead:SUP-1'), '2 → 6 d');
+    expect(text('filmSup:onTime:SUP-1'), 'on time 6 of 10');
+    expect(text('filmSup:price:SUP-1'), 'price ▲ 4%');
     expect(find.byKey(const ValueKey('filmSup:owed:SUP-1')), findsOneWidget);
-    expect(find.text('on time 6 of 10'), findsOneWidget);
-    expect(find.text('price ▲ 4%'), findsOneWidget);
     expect(find.byKey(const ValueKey('filmSup:owed:SUP-2')), findsNothing);
-    // Almaty: a roll on its way, and film lying idle.
+    // Almaty: a roll on its way on time, and film lying idle.
     expect(find.text('20 m on its way · 14.11'), findsOneWidget);
     expect(find.text('Lying idle: 2 · 48 m'), findsOneWidget);
     // All time is asked for apart.

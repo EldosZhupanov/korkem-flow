@@ -691,6 +691,13 @@ class TestFilmDept(IntegrationTestCase):
 		frappe.db.set_value("Stock Entry", got["receipt"], {
 			"creation": f"{add_days(nowdate(), -6)} 10:00:00", "korkem_film_due": add_days(nowdate(), -4),
 		}, update_modified=False)
+		# Past its day: the top of the screen says it (owner, 27.11.2026).
+		late, rows_late = board()
+		self.assertEqual((rows_late[second]["coming"]["late_m"], rows_late[second]["coming"]["late_count"],
+						  rows_late[second]["coming"]["late_due"]), (20, 1, str(add_days(nowdate(), -4))))
+		self.assertGreaterEqual(late["late_m"], 20)
+		self.assertGreaterEqual(late["late_count"], 1)
+		self.assertIn("days_left", late)
 		self._as(MANAGER, service.reschedule, got["receipt"], add_days(nowdate(), 1))
 		self._as(MANAGER, service.arrived, got["receipt"])
 		row = board()[1][second]

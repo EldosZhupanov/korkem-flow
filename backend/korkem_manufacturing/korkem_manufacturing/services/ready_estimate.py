@@ -226,9 +226,16 @@ def _film(decor: str, company: str, area: float) -> dict:
 	short = free < area * FILM_M_PER_M2
 	comes_on, supplier = None, None
 	if short:
+		from korkem_manufacturing.services import film_supplier_board
+
+		# What a source took of late, not what it promises (owner, 27.11.2026).
+		took = film_supplier_board._lead(company)
 		for source in film_sources.by_maker().get(item.korkem_manufacturer, []):
 			card = film_sourcing._source_card(source)
 			days = film_sourcing._days(card.get("lead"))
+			actual = (took.get(source) or {}).get("lead_days")
+			if actual is not None:
+				days = max(days or 0, actual)
 			if days is None:
 				continue
 			when = add_days(nowdate(), days)

@@ -11842,5 +11842,95 @@
   "pressGrainAskHint": "No need to answer — already laid unturned. The answer is kept for every order.",
   "pressGrainTextured": "Has a pattern",
   "pressGrainPlain": "No, plain",
-  "pressGrainUncheckedPrint": "Pattern not checked — laid unturned"
+  "pressGrainUncheckedPrint": "Pattern not checked — laid unturned",
+  "filmSupLateTitle": "Late deliveries: {count} · {metres} m",
+  "@filmSupLateTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupLateRow": "{name} — {metres} m, due {day} · {days} d late",
+  "@filmSupLateRow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupToOrderTitle": "Time to order — films: {count}",
+  "@filmSupToOrderTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupWant": "Add to «To order»",
+  "filmSupWanted": "Added to «To order»: {count}",
+  "@filmSupWanted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupDaysLeft": "lasts ~{days} d",
+  "@filmSupDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupLateNote": "{metres} m late",
+  "@filmSupLateNote": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmSupOwedNone": "nobody",
+  "filmSupDependence": "{share}% of the film comes from {name}. A missed delivery stops the shop.",
+  "@filmSupDependence": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "share": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupColSupplier": "Supplier",
+  "filmSupColSold": "Sold",
+  "filmSupColOnTime": "On time",
+  "filmSupColLead": "Lead: promised → actual",
+  "filmSupColPrice": "Price",
+  "filmSupLeadCell": "{promised} → {actual} d",
+  "@filmSupLeadCell": {
+    "placeholders": {
+      "promised": {
+        "type": "int"
+      },
+      "actual": {
+        "type": "int"
+      }
+    }
+  },
+  "filmSupNoSales": "nothing bought in the period"
 }
