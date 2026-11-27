@@ -6168,7 +6168,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String filmTeamPot(String pct, String pot) {
-    return 'Pot: $pct% of margin = $pot';
+    return 'Bonus pool: $pct% of margin = $pot';
   }
 
   @override
@@ -6190,10 +6190,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTeamPlanM => 'Plan for the month, m';
 
   @override
-  String get filmTeamPct => 'Pot when the plan is met, %';
+  String get filmTeamPct => 'Bonus pool when the plan is met, % of margin';
 
   @override
-  String get filmTeamPctBelow => 'Pot when the plan is missed, %';
+  String get filmTeamPctBelow =>
+      'Bonus pool when the plan is missed, % of margin';
 
   @override
   String get filmTeamSave => 'Save';
@@ -6698,7 +6699,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTeamMargin => 'Margin';
 
   @override
-  String get filmTeamPotLabel => 'Pot';
+  String get filmTeamPotLabel => 'Bonus pool';
 
   @override
   String filmTeamPotNote(String pct) {
@@ -13711,5 +13712,48 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String pressEditTray(int count) {
     return 'Tray — not laid: $count. Drag onto a table or «Lay the rest».';
+  }
+
+  @override
+  String filmTeamUnpaid(String amount) {
+    return 'unpaid $amount';
+  }
+
+  @override
+  String get filmTeamPotUnset => '% not set → «Plan and bonus»';
+
+  @override
+  String filmTeamForecast(String pace, String metres, String percent) {
+    return 'at this pace ($pace m/day) — ~$metres m by the month\'s end, $percent%';
+  }
+
+  @override
+  String filmTeamTarget(String metres) {
+    return 'the plan wants $metres m by today';
+  }
+
+  @override
+  String filmTeamFarBehind(int times) {
+    return 'That is $times times the present pace — better to adjust next month\'s plan.';
+  }
+
+  @override
+  String filmTeamAvgSale(String amount) {
+    return 'average sale $amount';
+  }
+
+  @override
+  String filmTeamBonusMore(String amount) {
+    return '+100 m → +$amount';
+  }
+
+  @override
+  String filmTeamOwedSales(String amount, int count) {
+    return 'his customers owe $amount · sales: $count';
+  }
+
+  @override
+  String filmReportThin(String film, String margin, String limit) {
+    return '«$film» sells at $margin/m margin — under $limit. Check its retail price.';
   }
 }
