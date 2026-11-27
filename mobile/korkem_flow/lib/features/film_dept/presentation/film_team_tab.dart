@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
@@ -75,7 +76,8 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                   icon: const Icon(AppIcons.previous),
                 ),
                 Text(
-                  t.month,
+                  // «Ноябрь 2026», not «2026-11» (owner, 27.11.2026).
+                  _monthName(context, t.month),
                   key: const ValueKey('filmTeam:month'),
                   style: theme.textTheme.titleMedium,
                 ),
@@ -94,8 +96,8 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                   ),
               ],
             ),
-            // At a glance (owner, 12.11.2026): four figures, the plan in
-            // colour, sellers with medals and their share.
+            // At a glance (owner, 12.11.2026, 27.11.2026): four figures,
+            // the plan and where its pace leads, sellers and their share.
             Wrap(
               key: const ValueKey('filmTeam:totals'),
               spacing: AppSpacing.sm,
@@ -114,20 +116,35 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                       ? status.success
                       : status.danger,
                 ),
-                _Metric(label: l10n.filmTeamPaid, value: money.format(t.paid)),
+                _Metric(
+                  label: l10n.filmTeamPaid,
+                  value: money.format(t.paid),
+                  // Sold, not yet paid: the bonus waits for it.
+                  note: t.owed > 0.5
+                      ? l10n.filmTeamUnpaid(money.format(t.owed))
+                      : null,
+                  noteColor: status.danger,
+                ),
                 _Metric(
                   label: l10n.filmTeamMargin,
                   value: money.format(t.margin),
                   valueColor: t.margin >= 0 ? status.success : status.danger,
-                  note: t.paid > 0
-                      ? l10n.filmTeamMarginShare(_n(t.margin / t.paid * 100))
-                      : null,
+                  note: [
+                    if (t.paid > 0)
+                      l10n.filmTeamMarginShare(_n(t.margin / t.paid * 100)),
+                    if (t.metres > 0)
+                      l10n.filmTeamMarginM(money.format(t.margin / t.metres)),
+                  ].join(' · '),
                 ),
                 _Metric(
                   key: const ValueKey('filmTeam:pot'),
                   label: l10n.filmTeamPotLabel,
                   value: money.format(t.pot),
-                  note: l10n.filmTeamPotNote(_n(t.pct)),
+                  // 0 % is a share nobody set: said where it is set.
+                  note: t.pctSet
+                      ? l10n.filmTeamPotNote(_n(t.pct))
+                      : l10n.filmTeamPotUnset,
+                  noteColor: t.pctSet ? null : status.warning,
                   valueColor: status.warning,
                 ),
               ],
@@ -157,6 +174,37 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                       : status.danger,
                 ),
               ),
+              // Where its own pace leads, and where the plan wants it today
+              // (owner, 27.11.2026).
+              if (t.forecastM != null && t.paceMDay != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  [
+                    l10n.filmTeamForecast(
+                      _n(t.paceMDay!),
+                      _n(t.forecastM!),
+                      _n(t.forecastM! / t.planM * 100),
+                    ),
+                    if (t.targetM != null) l10n.filmTeamTarget(_n(t.targetM!)),
+                  ].join(' · '),
+                  key: const ValueKey('filmTeam:forecast'),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: t.forecastM! >= t.planM
+                        ? status.success
+                        : status.danger,
+                  ),
+                ),
+                if (t.needPerDay != null &&
+                    t.paceMDay! > 0 &&
+                    t.needPerDay! > t.paceMDay! * 2)
+                  Text(
+                    l10n.filmTeamFarBehind(
+                      (t.needPerDay! / t.paceMDay!).round(),
+                    ),
+                    key: const ValueKey('filmTeam:behind'),
+                    style: theme.textTheme.bodySmall,
+                  ),
+              ],
             ] else if (t.canSet)
               // No plan, no bonus worth the name: say so where it is set.
               Card(
@@ -183,7 +231,7 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
               ),
             if (t.rows.isNotEmpty)
               Text(l10n.filmTeamSellers, style: theme.textTheme.titleMedium),
-            for (final (i, r) in t.rows.indexed)
+            for (final r in t.rows)
               Card(
                 key: ValueKey('filmTeam:row:${r.seller}'),
                 child: Padding(
@@ -192,25 +240,52 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            i < _medals.length ? _medals[i] : '${i + 1}.',
-                            style: theme.textTheme.titleMedium,
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
                           Expanded(
-                            child: Text(
-                              l10n.filmTeamSellerLine(
-                                r.name,
-                                '${r.sales}',
-                                _n(r.metres),
-                              ),
-                              style: theme.textTheme.titleSmall,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.filmTeamSellerLine(
+                                    r.name,
+                                    '${r.sales}',
+                                    _n(r.metres),
+                                  ),
+                                  style: theme.textTheme.titleSmall,
+                                ),
+                                if (r.sales > 0 && r.amount > 0)
+                                  Text(
+                                    l10n.filmTeamAvgSale(
+                                      money.format(r.amount / r.sales),
+                                    ),
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                              ],
                             ),
                           ),
-                          Text(
-                            l10n.filmTeamBonus(money.format(r.bonus)),
-                            style: theme.textTheme.titleSmall,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                l10n.filmTeamBonus(money.format(r.bonus)),
+                                style: theme.textTheme.titleSmall,
+                              ),
+                              // What a hundred metres more would bring him,
+                              // at his margin and this month's share.
+                              if (t.pct > 0 && r.metres > 0 && r.margin > 0)
+                                Text(
+                                  l10n.filmTeamBonusMore(
+                                    money.format(
+                                      100 * r.margin / r.metres * t.pct / 100,
+                                    ),
+                                  ),
+                                  key: ValueKey('filmTeam:more:${r.seller}'),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: status.success,
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),
@@ -220,11 +295,7 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                         child: LinearProgressIndicator(
                           minHeight: AppSpacing.xs,
                           value: (r.share / 100).clamp(0, 1).toDouble(),
-                          color: i == 0
-                              ? status.success
-                              : i == 1
-                              ? status.info
-                              : status.neutral,
+                          color: status.success,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
@@ -245,7 +316,12 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
                       // Sold on credit is his to collect (owner, 14.11.2026).
                       if (r.owed > 0.5)
                         Text(
-                          l10n.filmTeamOwed(money.format(r.owed)),
+                          r.owedSales > 0
+                              ? l10n.filmTeamOwedSales(
+                                  money.format(r.owed),
+                                  r.owedSales,
+                                )
+                              : l10n.filmTeamOwed(money.format(r.owed)),
                           key: ValueKey('filmTeam:owed:${r.seller}'),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: status.danger,
@@ -264,7 +340,16 @@ class _FilmTeamTabState extends ConsumerState<FilmTeamTab> {
   }
 }
 
-const _medals = ['🥇', '🥈', '🥉'];
+/// «2026-11» as a month and year in words.
+String _monthName(BuildContext context, String month) {
+  final day = DateTime.tryParse('$month-01');
+  if (day == null) return month;
+  final text = DateFormat(
+    'LLLL y',
+    Localizations.localeOf(context).toLanguageTag(),
+  ).format(day);
+  return text.isEmpty ? month : text[0].toUpperCase() + text.substring(1);
+}
 
 /// One figure of the month on a card of its own.
 class _Metric extends StatelessWidget {
@@ -346,15 +431,8 @@ class _ReportSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: AppSpacing.lg),
+        // Its totals are the figures at the top: not said twice.
         Text(l10n.filmReportTop, style: theme.textTheme.titleMedium),
-        Text(
-          l10n.filmReportTotals(
-            _n(report.metres),
-            money.format(report.amount),
-            money.format(report.margin),
-          ),
-          style: theme.textTheme.bodySmall,
-        ),
         if (report.top.isEmpty) Text(l10n.filmTeamEmpty),
         for (final (i, r) in report.top.indexed)
           Padding(
@@ -398,6 +476,37 @@ class _ReportSection extends ConsumerWidget {
           ),
         if (report.top.isNotEmpty)
           Text(l10n.filmReportMarginLegend, style: theme.textTheme.bodySmall),
+        // A film sold for too little over its cost (owner, 27.11.2026).
+        for (final r in report.top)
+          if (r.marginM != null &&
+              r.marginM! >= 0 &&
+              r.marginM! < filmThinMarginM)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Row(
+                key: ValueKey('filmReport:thin:${r.item}'),
+                children: [
+                  Icon(
+                    AppIcons.danger,
+                    size: AppIconSize.small,
+                    color: status.warning,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      l10n.filmReportThin(
+                        r.title,
+                        money.format(r.marginM),
+                        money.format(filmThinMarginM),
+                      ),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: status.warning,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         if (report.idle.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
           Text(

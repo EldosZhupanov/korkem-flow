@@ -514,6 +514,11 @@ class FilmTeam {
     this.needPerDay,
     this.pct = 0,
     this.pot = 0,
+    this.paceMDay,
+    this.forecastM,
+    this.targetM,
+    this.owed = 0,
+    this.pctSet = true,
     this.settings,
     this.canSet = false,
   });
@@ -536,6 +541,8 @@ class FilmTeam {
               share: _d(r['share']) ?? 0,
               bonus: _d(r['bonus']) ?? 0,
               owed: _d(r['owed']) ?? 0,
+              owedSales: (r['owed_sales'] as num?)?.toInt() ?? 0,
+              amount: _d(r['amount']) ?? 0,
             ),
       ],
       metres: _d(team['metres']) ?? 0,
@@ -548,6 +555,11 @@ class FilmTeam {
       needPerDay: _d(json['need_m_day']),
       pct: _d(json['pct']) ?? 0,
       pot: _d(json['pot']) ?? 0,
+      paceMDay: _d(json['pace_m_day']),
+      forecastM: _d(json['forecast_m']),
+      targetM: _d(json['target_m']),
+      owed: _d(json['owed']) ?? 0,
+      pctSet: json['pct_set'] != false,
       settings: conf is Map<String, dynamic>
           ? (
               planM: _d(conf['plan_m']) ?? 0,
@@ -579,6 +591,18 @@ class FilmTeam {
   final double pct;
   final double pot;
 
+  /// The month under way at its own pace (owner, 27.11.2026): metres a
+  /// day, where it ends so, where the plan wants it today. Null otherwise.
+  final double? paceMDay;
+  final double? forecastM;
+  final double? targetM;
+
+  /// What customers owe for sales on credit — a seller sees his own.
+  final double owed;
+
+  /// A share of the margin is set for the pot: 0 % means nobody set one.
+  final bool pctSet;
+
   /// The owner's own: the plan and the two shares.
   final ({double planM, double pct, double pctBelow})? settings;
   final bool canSet;
@@ -594,8 +618,13 @@ typedef FilmTeamRow = ({
   double share,
   double bonus,
 
-  /// What his customers still owe for sales on credit.
+  /// What his customers still owe for sales on credit, and on how many
+  /// sales.
   double owed,
+  int owedSales,
+
+  /// What he sold for this month, paid or not: his average sale.
+  double amount,
 });
 
 /// A film in a sale: so many metres at so much a metre.
