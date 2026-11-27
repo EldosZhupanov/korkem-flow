@@ -477,9 +477,16 @@ void main() {
       for (final f in _json['films']! as List)
         {
           ...f as Map<String, dynamic>,
-          if (f['item'] == 'MAT-3') 'grain': 'textured',
+          // The order's window offers a film by its label.
+          if (f['item'] == 'MAT-3') ...{
+            'grain': 'textured',
+            'label': 'KIRA · Шалфей',
+          },
           if (f['item'] == 'MAT-1') ...{'grain': '', 'collection': 'Wood'},
-          if (f['item'] == 'MAT-2') 'grain': 'plain',
+          if (f['item'] == 'MAT-2') ...{
+            'grain': 'plain',
+            'label': 'JS Group · Белый Матовый',
+          },
         },
     ];
     final repo = _Fake({..._json, 'films': films});
