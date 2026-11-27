@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
+import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_edit.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
@@ -181,6 +183,20 @@ class _FakeRepository implements PressLayoutRepository {
   }
 }
 
+/// The film's card, as the press screen says what the roll is.
+class _Films implements FilmCatalogRepository {
+  final said = <(String, FilmGrain)>[];
+
+  @override
+  Future<List<String>> setGrainAtPress(String decor, FilmGrain grain) async {
+    said.add((decor, grain));
+    return ['F-1'];
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   Future<_FakeRepository> pump(
     WidgetTester tester,
@@ -255,6 +271,43 @@ void main() {
     );
     expect(find.text('Film: 3.1 m'), findsOneWidget);
     expect(find.byType(PressMap), findsNWidgets(2));
+  });
+
+  testWidgets('a film nobody has looked at: asked once at the press', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final films = _Films();
+    final layout = _layout();
+    ((layout['films']! as List).first as Map)['grain'] = '';
+    final repo = _FakeRepository()..custom = layout;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          pressLayoutRepositoryProvider.overrideWithValue(repo),
+          filmCatalogRepositoryProvider.overrideWithValue(films),
+        ],
+        child: harness(const PressLayoutScreen(salesOrder: 'SO-1110')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('pressGrainAsk:ZB 852-2 Авори')),
+      findsOneWidget,
+    );
+    // The textured one is known: nothing asked of it.
+    expect(
+      find.byKey(const ValueKey('pressGrainAsk:AS 1804-SFT Какао нубук')),
+      findsNothing,
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('pressGrainPlain:ZB 852-2 Авори')),
+    );
+    await tester.pumpAndSettle();
+    expect(films.said, [('ZB 852-2 Авори', FilmGrain.plain)]);
   });
 
   testWidgets('a position lights up on every load, the loads say how full', (

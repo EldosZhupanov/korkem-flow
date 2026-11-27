@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:korkem_flow/core/api/server_image.dart';
 import 'package:korkem_flow/core/design/theme/status_colors.dart';
+import 'package:korkem_flow/core/design/tokens/colors.dart';
 import 'package:korkem_flow/core/design/tokens/dimensions.dart';
 import 'package:korkem_flow/core/design/tokens/icons.dart';
 import 'package:korkem_flow/core/design/widgets/app_dialog.dart';
@@ -890,9 +891,32 @@ class FilmTile extends StatelessWidget {
         leading: f.argb == null && f.image == null
             ? null
             : FilmSample(argb: f.argb, image: f.image),
-        title: Text(
-          filmTitle(f.colour, f.code),
-          style: const TextStyle(fontWeight: FontWeight.w600),
+        title: Row(
+          children: [
+            Flexible(
+              child: Text(
+                filmTitle(f.colour, f.code),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+            // Its pattern at a glance (owner, 27.11.2026): textured loud,
+            // not looked at quiet, plain nothing.
+            if (all.any((v) => v.grain == FilmGrain.textured))
+              FilmGrainBadge(key: ValueKey('filmGrain:${f.item}'))
+            else if (all.every((v) => v.grain == FilmGrain.unchecked))
+              Padding(
+                padding: const EdgeInsets.only(left: AppSpacing.xs),
+                child: Tooltip(
+                  message: l10n.filmGrainUnchecked,
+                  child: Icon(
+                    AppIcons.grainUnknown,
+                    key: ValueKey('filmGrainUnknown:${f.item}'),
+                    size: AppIconSize.dense,
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
+              ),
+          ],
         ),
         subtitle: Text(
           [
@@ -926,6 +950,40 @@ class FilmTile extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// «текстура» beside a textured film's name (owner, 27.11.2026).
+class FilmGrainBadge extends StatelessWidget {
+  const FilmGrainBadge({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final colour = theme.colorScheme.tertiary;
+    return Container(
+      margin: const EdgeInsets.only(left: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs,
+        vertical: AppSpacing.xxs,
+      ),
+      decoration: BoxDecoration(
+        color: colour.withValues(alpha: AppTint.surface),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(AppIcons.textured, size: AppIconSize.dense, color: colour),
+          const SizedBox(width: AppSpacing.xxs),
+          Text(
+            l10n.mdfTexturedMark,
+            style: theme.textTheme.labelSmall?.copyWith(color: colour),
+          ),
+        ],
       ),
     );
   }
@@ -1916,6 +1974,9 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
   String? _maker;
   String? _type;
   bool _onShelf = false;
+
+  /// Only textured films (owner, 27.11.2026).
+  bool _textured = false;
   String _search = '';
   bool _busy = false;
 
@@ -2000,6 +2061,7 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
               if ((_maker == null || g.first.maker == _maker) &&
                   (_type == null || g.first.type == _type) &&
                   (!_onShelf || freeOf(g) > 0) &&
+                  (!_textured || g.any((f) => f.grain == FilmGrain.textured)) &&
                   _found([
                     g.first.maker,
                     g.first.colour,
@@ -2017,7 +2079,7 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
               '${b.first.maker} ${b.first.colour}',
             );
           });
-      final decors = _onShelf || _type != null
+      final decors = _onShelf || _type != null || _textured
           ? const <FilmDecor>[]
           : [
               for (final d in extras.decors)
@@ -2029,7 +2091,8 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
           _search.trim().isEmpty &&
           _maker == null &&
           _type == null &&
-          !_onShelf;
+          !_onShelf &&
+          !_textured;
       final recent = !plain
           ? const <List<Film>>[]
           : [
@@ -2095,6 +2158,13 @@ class _FilmPickerDialogState extends ConsumerState<_FilmPickerDialog> {
                 label: Text(l10n.fpkOnShelf),
                 selected: _onShelf,
                 onSelected: (on) => setState(() => _onShelf = on),
+              ),
+              FilterChip(
+                key: const ValueKey('pickTextured'),
+                avatar: const Icon(AppIcons.textured),
+                label: Text(l10n.fpkTextured),
+                selected: _textured,
+                onSelected: (on) => setState(() => _textured = on),
               ),
               for (final m in makers)
                 ChoiceChip(
@@ -2239,6 +2309,39 @@ class _FilmSideState extends ConsumerState<_FilmSide> {
     if ((gone ?? false) && mounted) widget.onClose();
   }
 
+  /// Says the pattern — this film, or its whole collection at once.
+  Future<void> _setGrain(Film f, FilmGrain now) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final mates = f.collection == null
+        ? 0
+        : widget.catalog.films
+              .where((o) => o.maker == f.maker && o.collection == f.collection)
+              .length;
+    final said = await showDialog<(FilmGrain, bool)>(
+      context: context,
+      builder: (_) => _GrainDialog(
+        film: f,
+        now: now,
+        collectionSize: mates,
+      ),
+    );
+    if (said == null) return;
+    try {
+      final changed = await ref
+          .read(filmCatalogRepositoryProvider)
+          .setGrain(
+            f.item,
+            said.$1,
+            collection: said.$2,
+          );
+      ref.invalidate(filmCatalogProvider);
+      messenger.showDone(l10n.filmGrainSaved(changed.length));
+    } on Object catch (e) {
+      messenger.showFailure(e, l10n);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -2253,7 +2356,44 @@ class _FilmSideState extends ConsumerState<_FilmSide> {
       child: Text(text, style: TextStyle(color: color)),
     );
     final status = context.statusColors;
+    final grain = widget.group.any((v) => v.grain == FilmGrain.textured)
+        ? FilmGrain.textured
+        : widget.group.any((v) => v.grain == FilmGrain.unchecked)
+        ? FilmGrain.unchecked
+        : FilmGrain.plain;
     final about = [
+      // Its pattern, and who may say it (owner, 27.11.2026).
+      Row(
+        children: [
+          Icon(
+            grain == FilmGrain.unchecked
+                ? AppIcons.grainUnknown
+                : AppIcons.textured,
+            size: AppIconSize.small,
+            color: grain == FilmGrain.textured
+                ? theme.colorScheme.tertiary
+                : theme.colorScheme.outline,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              switch (grain) {
+                FilmGrain.textured => l10n.filmGrainTextured,
+                FilmGrain.plain => l10n.filmGrainPlain,
+                FilmGrain.unchecked => l10n.filmGrainUnchecked,
+              },
+              key: const ValueKey('filmSideGrain'),
+            ),
+          ),
+          if (widget.catalog.canEdit)
+            TextButton(
+              key: const ValueKey('filmSideGrainEdit'),
+              onPressed: () => _setGrain(f, grain),
+              child: Text(l10n.filmGrainChange),
+            ),
+        ],
+      ),
+      const SizedBox(height: AppSpacing.xs),
       for (final v in widget.group) ...[
         if (widget.group.length > 1)
           Text(
@@ -2416,3 +2556,93 @@ Future<Film?> _pickThickness(BuildContext context, List<Film> variants) =>
         );
       },
     );
+
+/// «Рисунок плёнки»: textured or plain — this film, or its collection.
+class _GrainDialog extends StatefulWidget {
+  const _GrainDialog({
+    required this.film,
+    required this.now,
+    required this.collectionSize,
+  });
+
+  final Film film;
+  final FilmGrain now;
+
+  /// The films of its collection, itself included; 0 — it has none.
+  final int collectionSize;
+
+  @override
+  State<_GrainDialog> createState() => _GrainDialogState();
+}
+
+class _GrainDialogState extends State<_GrainDialog> {
+  late FilmGrain? _grain = widget.now == FilmGrain.unchecked
+      ? null
+      : widget.now;
+  bool _collection = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final grain = _grain;
+    return AlertDialog(
+      key: const ValueKey('filmGrainDialog'),
+      title: Text(l10n.filmGrainTitle(widget.film.colour)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: AppSpacing.sm,
+            children: [
+              ChoiceChip(
+                key: const ValueKey('filmGrain:textured'),
+                avatar: const Icon(AppIcons.textured),
+                label: Text(l10n.pressGrainTextured),
+                selected: grain == FilmGrain.textured,
+                onSelected: (_) => setState(() => _grain = FilmGrain.textured),
+              ),
+              ChoiceChip(
+                key: const ValueKey('filmGrain:plain'),
+                label: Text(l10n.pressGrainPlain),
+                selected: grain == FilmGrain.plain,
+                onSelected: (_) => setState(() => _grain = FilmGrain.plain),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l10n.materialTexturedHint,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          if (widget.collectionSize > 1)
+            CheckboxListTile(
+              key: const ValueKey('filmGrainCollection'),
+              contentPadding: EdgeInsets.zero,
+              value: _collection,
+              onChanged: (v) => setState(() => _collection = v ?? false),
+              title: Text(
+                l10n.filmGrainCollection(
+                  widget.film.collection ?? '',
+                  widget.collectionSize,
+                ),
+              ),
+            ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.mdfCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('filmGrainSave'),
+          onPressed: grain == null
+              ? null
+              : () => Navigator.of(context).pop((grain, _collection)),
+          child: Text(l10n.facadePricesSave),
+        ),
+      ],
+    );
+  }
+}

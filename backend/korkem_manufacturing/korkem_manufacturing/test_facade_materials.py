@@ -74,6 +74,8 @@ class TestFacadeMaterials(IntegrationTestCase):
 		cls.film = material_stock.define_material(
 			material_stock.FILM, "м", color=DECOR, width="1400", film_thickness="0,30", manufacturer=MAKER
 		)["item"]
+		# A plain film, said so: one nobody has looked at lies unturned.
+		material_stock.set_film_textured(cls.film, 0)
 		frappe.db.commit()
 
 	def setUp(self):

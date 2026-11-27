@@ -11809,5 +11809,50 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mdfDueNoSizes": "roughly: no sizes yet",
+  "filmGrainUnchecked": "Pattern not checked — laid unturned on the press",
+  "filmGrainTextured": "Textured: pattern along the table",
+  "filmGrainPlain": "Plain: parts may be turned",
+  "filmGrainChange": "change",
+  "filmGrainSaved": "Films marked: {count}",
+  "@filmGrainSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmGrainTitle": "Pattern of «{film}»",
+  "@filmGrainTitle": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      }
+    }
+  },
+  "filmGrainCollection": "The whole «{collection}» collection — {count} films",
+  "@filmGrainCollection": {
+    "placeholders": {
+      "collection": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fpkTextured": "Textured",
+  "pressGrainAsk": "{film}: look at the roll — does the pattern have a direction?",
+  "@pressGrainAsk": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      }
+    }
+  },
+  "pressGrainAskHint": "No need to answer — already laid unturned. The answer is kept for every order.",
+  "pressGrainTextured": "Has a pattern",
+  "pressGrainPlain": "No, plain",
+  "pressGrainUncheckedPrint": "Pattern not checked — laid unturned"
 }

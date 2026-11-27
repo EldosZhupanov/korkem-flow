@@ -72,6 +72,7 @@ class FilmLayout {
     required this.layoutM,
     required this.filmM,
     this.textured = false,
+    this.unchecked = false,
     this.corrected = false,
     this.reason,
     this.tooBig = const [],
@@ -85,6 +86,7 @@ class FilmLayout {
     decor: '${json['decor'] ?? ''}',
     title: '${json['title'] ?? ''}',
     textured: json['textured'] == true,
+    unchecked: json['grain'] == '',
     layoutM: (json['layout_m'] as num?)?.toDouble() ?? 0,
     plainM: (json['plain_m'] as num?)?.toDouble(),
     filmM: (json['film_m'] as num?)?.toDouble() ?? 0,
@@ -108,6 +110,10 @@ class FilmLayout {
           )
         : null,
   );
+
+  /// Nobody has looked at the roll yet: laid unturned, as a textured film,
+  /// and the press screen asks (owner, 27.11.2026).
+  final bool unchecked;
 
   final String decor;
 

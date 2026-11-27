@@ -23127,6 +23127,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick {date}'**
   String mdfDuePick(String date);
+
+  /// No description provided for @mdfDueNoSizes.
+  ///
+  /// In en, this message translates to:
+  /// **'roughly: no sizes yet'**
+  String get mdfDueNoSizes;
+
+  /// No description provided for @filmGrainUnchecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern not checked — laid unturned on the press'**
+  String get filmGrainUnchecked;
+
+  /// No description provided for @filmGrainTextured.
+  ///
+  /// In en, this message translates to:
+  /// **'Textured: pattern along the table'**
+  String get filmGrainTextured;
+
+  /// No description provided for @filmGrainPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain: parts may be turned'**
+  String get filmGrainPlain;
+
+  /// No description provided for @filmGrainChange.
+  ///
+  /// In en, this message translates to:
+  /// **'change'**
+  String get filmGrainChange;
+
+  /// No description provided for @filmGrainSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Films marked: {count}'**
+  String filmGrainSaved(int count);
+
+  /// No description provided for @filmGrainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern of «{film}»'**
+  String filmGrainTitle(String film);
+
+  /// No description provided for @filmGrainCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole «{collection}» collection — {count} films'**
+  String filmGrainCollection(String collection, int count);
+
+  /// No description provided for @fpkTextured.
+  ///
+  /// In en, this message translates to:
+  /// **'Textured'**
+  String get fpkTextured;
+
+  /// No description provided for @pressGrainAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'{film}: look at the roll — does the pattern have a direction?'**
+  String pressGrainAsk(String film);
+
+  /// No description provided for @pressGrainAskHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No need to answer — already laid unturned. The answer is kept for every order.'**
+  String get pressGrainAskHint;
+
+  /// No description provided for @pressGrainTextured.
+  ///
+  /// In en, this message translates to:
+  /// **'Has a pattern'**
+  String get pressGrainTextured;
+
+  /// No description provided for @pressGrainPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'No, plain'**
+  String get pressGrainPlain;
+
+  /// No description provided for @pressGrainUncheckedPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern not checked — laid unturned'**
+  String get pressGrainUncheckedPrint;
 }
 
 class _AppLocalizationsDelegate

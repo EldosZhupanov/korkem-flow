@@ -31,6 +31,39 @@ class FilmCatalogRepository {
   Future<FilmCatalog> catalog() async =>
       FilmCatalog.fromJson(_map(await _client.callMethod('$_base.catalog')));
 
+  /// Says a film's pattern — from its card, the film alone or its whole
+  /// collection (owner, 27.11.2026); the films it changed.
+  Future<List<String>> setGrain(
+    String item,
+    FilmGrain grain, {
+    bool collection = false,
+  }) async => _films(
+    await _client.callMethod(
+      'korkem_manufacturing.api.material_stock.set_film_grain',
+      post: true,
+      params: {
+        'grain': grain.wire,
+        'item': item,
+        if (collection) 'collection': 1,
+      },
+    ),
+  );
+
+  /// At the press, whoever holds the roll says it — for every film of the
+  /// decor nobody has looked at yet.
+  Future<List<String>> setGrainAtPress(String decor, FilmGrain grain) async =>
+      _films(
+        await _client.callMethod(
+          'korkem_manufacturing.api.material_stock.set_film_grain',
+          post: true,
+          params: {'grain': grain.wire, 'decor': decor},
+        ),
+      );
+
+  static List<String> _films(Map<String, dynamic> raw) => [
+    for (final f in _map(raw)['films'] as List? ?? const []) '$f',
+  ];
+
   /// A new film of this maker; a roll is 1400 mm wide unless said.
   Future<Film> add({
     required String maker,

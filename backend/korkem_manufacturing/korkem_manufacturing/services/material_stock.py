@@ -381,9 +381,65 @@ def set_film_textured(item: str, textured: bool | int | str) -> dict:
 	if frappe.db.get_value("Item", item, "korkem_material_kind") != FILM:
 		frappe.throw("Текстурной бывает только плёнка.")
 	textured = bool(int(textured)) if isinstance(textured, str) else bool(textured)
-	frappe.db.set_value("Item", item, "korkem_film_textured", 1 if textured else 0)
+	# Said either way, it has been looked at (owner, 27.11.2026).
+	frappe.db.set_value("Item", item, {"korkem_film_textured": 1 if textured else 0, "korkem_film_grain_checked": 1})
 	audit.record_audit(action="stock.film_textured", entity_type="Item", entity_id=item, diff={"textured": textured})
 	return material(item)
+
+
+#: A film's pattern: has a direction, has none — or nobody has looked yet.
+TEXTURED, PLAIN, UNCHECKED = "textured", "plain", ""
+
+
+def film_grain(row) -> str:
+	"""«textured», «plain» or «» — not looked at: laid as textured until it is."""
+	if row.get("korkem_film_textured"):
+		return TEXTURED
+	return PLAIN if row.get("korkem_film_grain_checked") else UNCHECKED
+
+
+def set_film_grain(grain: str, item: str | None = None, decor: str | None = None,
+				   collection: bool | int | str = False) -> dict:
+	"""Says what a film's pattern is (owner, 27.11.2026): from its card — one
+	film, or its whole collection, by the stock's editors — or at the press,
+	by whoever holds the roll, for every film of that decor not yet looked at.
+	Returns the films it changed."""
+	if grain not in (TEXTURED, PLAIN):
+		frappe.throw("Рисунок плёнки — текстура или однотон.")
+	company = current_company()
+	whole = str(collection).lower() in ("1", "true") if isinstance(collection, str) else bool(collection)
+	if item:
+		_ensure_editor()
+		_own_item(item)
+		row = frappe.db.get_value("Item", item, ["korkem_material_kind", "korkem_manufacturer",
+												 "korkem_film_collection"], as_dict=True)
+		if row.korkem_material_kind != FILM:
+			frappe.throw("Рисунок бывает только у плёнки.")
+		names = [item]
+		if whole:
+			if not row.korkem_film_collection:
+				frappe.throw("У плёнки не указана коллекция.")
+			names = frappe.get_all("Item", filters={
+				"korkem_material_company": company, "korkem_material_kind": FILM,
+				"korkem_manufacturer": row.korkem_manufacturer,
+				"korkem_film_collection": row.korkem_film_collection,
+			}, pluck="name", limit_page_length=0)
+	elif decor:
+		# At the press: anyone of the shop who sees the roll; only films
+		# nobody has looked at, so an editor's word is never undone here.
+		_ensure_staff()
+		names = frappe.get_all("Item", filters={
+			"korkem_material_company": company, "korkem_material_kind": FILM,
+			"korkem_color": str(decor).strip(), "korkem_film_textured": 0, "korkem_film_grain_checked": 0,
+		}, pluck="name", limit_page_length=0)
+	else:
+		frappe.throw("Какую плёнку?")
+	for name in names:
+		frappe.db.set_value("Item", name, {"korkem_film_textured": 1 if grain == TEXTURED else 0,
+										   "korkem_film_grain_checked": 1})
+	audit.record_audit(action="stock.film_grain", entity_type="Item", entity_id=item or str(decor),
+					   diff={"grain": grain, "films": len(names), "collection": whole, "at_press": not item})
+	return {"grain": grain, "films": names}
 
 
 def set_min_stock(item: str, minimum) -> dict:
@@ -454,7 +510,7 @@ def materials(kind: str | None = None, include_disabled: bool = False) -> dict:
 		filters=filters,
 		fields=[
 			"name", "item_name", "stock_uom", "disabled", "korkem_material_kind", "korkem_thickness_mm",
-			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured",
+			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured", "korkem_film_grain_checked",
 			"korkem_min_stock",
 		],
 		order_by="item_name asc",
@@ -479,7 +535,7 @@ def material(item: str) -> dict:
 		item,
 		[
 			"name", "item_name", "stock_uom", "disabled", "korkem_material_kind", "korkem_thickness_mm",
-			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured",
+			"korkem_manufacturer", "korkem_color", "korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured", "korkem_film_grain_checked",
 			"korkem_min_stock",
 		],
 		as_dict=True,
@@ -539,6 +595,7 @@ def _material_row(i, stock: tuple[float, float], allowed: bool, reserved: float 
 		"film_thickness": i.korkem_film_thickness_mm,
 		# A textured film's parts never turn on the press (services/press_layout.py).
 		"textured": bool(i.get("korkem_film_textured")),
+		"grain": film_grain(i),
 		"on_hand": stock[0],
 		# One ledger: on hand is ERPNext's; reserved only narrows what is free.
 		"reserved": reserved,

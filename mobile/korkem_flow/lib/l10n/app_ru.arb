@@ -4044,5 +4044,19 @@
   "mdfDueOverloaded": "В этот день уже {due} м² при мощности {cap} м². С вашим заказом — {after} м²: перегруз.",
   "mdfDueLegend": "Цвет дня — м² к сдаче против мощности цеха ({cap} м²/день). Серое — раньше не успеть.",
   "mdfDueLegendNoPace": "Темп цеха ещё не известен — видно только, сколько м² к сдаче в день.",
-  "mdfDuePick": "Выбрать {date}"
+  "mdfDuePick": "Выбрать {date}",
+  "mdfDueNoSizes": "примерно: размеров ещё нет",
+  "filmGrainUnchecked": "Рисунок не проверен — на прессе без поворота",
+  "filmGrainTextured": "Текстура: рисунок вдоль стола",
+  "filmGrainPlain": "Однотон: детали можно поворачивать",
+  "filmGrainChange": "изменить",
+  "filmGrainSaved": "Отмечено плёнок: {count}",
+  "filmGrainTitle": "Рисунок плёнки «{film}»",
+  "filmGrainCollection": "Всю коллекцию «{collection}» — {count} плёнок",
+  "fpkTextured": "Текстурные",
+  "pressGrainAsk": "{film}: посмотрите на рулон — есть у рисунка направление?",
+  "pressGrainAskHint": "Можно не отвечать — уже разложено без поворота. Ответ запомнится для всех заказов.",
+  "pressGrainTextured": "Есть рисунок",
+  "pressGrainPlain": "Нет, однотон",
+  "pressGrainUncheckedPrint": "Рисунок не проверен — разложено без поворота"
 }

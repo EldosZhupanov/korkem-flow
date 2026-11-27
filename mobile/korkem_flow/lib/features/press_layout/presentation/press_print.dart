@@ -11,6 +11,7 @@ import 'package:printing/printing.dart';
 typedef PressPrintWords = ({
   String textured,
   String plain,
+  String unchecked,
   String Function(String metres) total,
   String Function(int count) sheet,
   String Function(int count) copies,
@@ -156,7 +157,11 @@ pw.Widget _kind(FilmLayout film, PressPrintWords words) => film.textured
           style: const pw.TextStyle(fontSize: 16, color: PdfColors.white),
         ),
       )
-    : pw.Text(words.plain, style: const pw.TextStyle(fontSize: 10));
+    // Nobody has looked at the roll: said on the sheet too (27.11.2026).
+    : pw.Text(
+        film.unchecked ? words.unchecked : words.plain,
+        style: const pw.TextStyle(fontSize: 10),
+      );
 
 pw.Widget _block(
   PressLoad load,

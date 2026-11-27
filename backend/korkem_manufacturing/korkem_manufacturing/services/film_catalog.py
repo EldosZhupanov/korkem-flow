@@ -78,7 +78,8 @@ PRICES = ("price_m", "retail_m", "wholesale_m")
 
 _FIELDS = [
 	"name", "item_name", "stock_uom", "disabled", "korkem_manufacturer", "korkem_color",
-	"korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured", "korkem_min_stock",
+	"korkem_film_width_mm", "korkem_film_thickness_mm", "korkem_film_textured", "korkem_film_grain_checked",
+	"korkem_min_stock",
 	"korkem_film_archived", "image",
 	*CARD.values(),
 ]
@@ -836,6 +837,8 @@ def _film(i, on_hand: float, held: float, many: bool = False, pictures: dict | N
 		"width_mm": _number(i.korkem_film_width_mm),
 		"thickness_mm": _number(i.korkem_film_thickness_mm),
 		"textured": bool(i.korkem_film_textured),
+		# «textured», «plain» or «» — nobody has looked (owner, 27.11.2026).
+		"grain": material_stock.film_grain(i),
 		# A film in the archive is off the lists and the order's pick; one
 		# switched off the old way (`disabled`) is in the archive too.
 		"enabled": not i.disabled and not i.get("korkem_film_archived"),

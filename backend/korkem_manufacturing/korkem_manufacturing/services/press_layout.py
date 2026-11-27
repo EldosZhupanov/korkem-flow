@@ -437,13 +437,17 @@ def order_layout(sales_order: str, hints: bool = False) -> dict:
 	}
 	films = []
 	for decor, parts in groups.items():
-		textured = is_textured(decor, order.company)
+		grain = film_grain(decor, order.company)
+		textured = grain == material_stock.TEXTURED
+		# Nobody has looked at the roll: laid unturned, as a textured film —
+		# film is cheaper than facades (owner, 27.11.2026).
+		careful = grain != material_stock.PLAIN
 		laid, turned = _laid(parts)
-		loads, too_big = best_plan(laid, press, rotate=not textured)
+		loads, too_big = best_plan(laid, press, rotate=not careful)
 		loads = _marked(loads, turned)
 		layout_m = round(sum(load.film_m for load in loads), 2)
 		# What the plain layout would take — the smart one's saving is shown.
-		plain_m = round(sum(load.film_m for load in plan(laid, press, rotate=not textured)[0]), 2)
+		plain_m = round(sum(load.film_m for load in plan(laid, press, rotate=not careful)[0]), 2)
 		fix = corrections.get(decor)
 		# A layout a person made (owner, 12.11.2026) holds while the parts are
 		# the ones it was made for; the order changed — it is the press's again.
@@ -462,9 +466,13 @@ def order_layout(sales_order: str, hints: bool = False) -> dict:
 				"decor": decor,
 				"title": f"№{sales_order} {order.customer_name or order.customer} {decor}",
 				**({"price_m": _film_price(decor, order.company)} if money else {}),
-				**({"hint": _hint(laid, press, not textured, layout_m)}
+				**({"hint": _hint(laid, press, not careful, layout_m)}
 				   if money and hints and manual is None and not fix and not too_big else {}),
 				"textured": textured,
+				# «» — nobody has looked at the roll: the press screen asks.
+				# Found textured later, a hand-made layout no longer holds —
+				# its parts' key carries the pattern (`parts_key`).
+				"grain": grain,
 				"layout_m": layout_m,
 				"plain_m": plain_m,
 				"film_m": flt(fix.film_m) if fix else layout_m,
@@ -899,6 +907,23 @@ def textured_decors(company: str) -> list[str]:
 			fields=["korkem_color"], limit_page_length=0,
 		) if r.korkem_color
 	})
+
+
+def film_grain(decor: str, company: str) -> str:
+	"""The decor's pattern, by its films' cards: «textured» if any is, «» if
+	one nobody has looked at, «plain» otherwise — and «plain» for a decor
+	with no film card, as before (owner, 27.11.2026)."""
+	rows = frappe.get_all(
+		"Item",
+		filters={"korkem_material_company": company, "korkem_material_kind": material_stock.FILM,
+				 "korkem_color": decor, "disabled": 0},
+		fields=["korkem_film_textured", "korkem_film_grain_checked"], limit_page_length=0,
+	)
+	grains = {material_stock.film_grain(r) for r in rows}
+	for grain in (material_stock.TEXTURED, material_stock.UNCHECKED):
+		if grain in grains:
+			return grain
+	return material_stock.PLAIN
 
 
 def is_textured(decor: str, company: str) -> bool:
