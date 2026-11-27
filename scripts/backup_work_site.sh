@@ -50,3 +50,44 @@ chmod -R go-rwx "$DEST/$prefix" 2>/dev/null || true
 ls -1dt "$DEST"/*/ 2>/dev/null | tail -n +"$((KEEP + 1))" | xargs -r rm -rf
 
 echo "$(stamp) backup $prefix → $DEST/$prefix ($(du -sh "$DEST/$prefix" | cut -f1))"
+
+# A second copy, for off the laptop (owner, 27.11.2026: «Google Drive»).
+# D: is the same laptop: it survives a broken Windows or Ubuntu, not a theft,
+# a fire or a flood. The set is packed into one file, encrypted with the
+# owner's passphrase (AES-256, gpg), proved by decrypting it again, and put in
+# a folder of its own that Google Drive for desktop uploads — so Google holds
+# a file it cannot read, and nothing here talks to Google. Configured in
+# ~/.config/korkem/backup.env:
+#   KORKEM_CLOUD_DIR=/mnt/d/KORKEM-backups-cloud   the folder Drive syncs
+#   KORKEM_CLOUD_KEEP=7                            copies kept there
+# and the passphrase in ~/.config/korkem/backup.pass (mode 600). Without
+# both it does nothing: the local copy above is still made.
+CONF="${KORKEM_BACKUP_CONF:-$HOME/.config/korkem/backup.env}"
+[ -f "$CONF" ] && . "$CONF"
+CLOUD="${KORKEM_CLOUD_DIR:-}"
+CLOUD_KEEP="${KORKEM_CLOUD_KEEP:-7}"
+PASS="${KORKEM_BACKUP_PASS:-$HOME/.config/korkem/backup.pass}"
+if [ -n "$CLOUD" ]; then
+  if [ ! -s "$PASS" ]; then
+    echo "$(stamp) cloud copy skipped: no passphrase at $PASS"
+    exit 1
+  fi
+  mkdir -p "$CLOUD"
+  out="$CLOUD/$prefix.tar.gpg"
+  tar -C "$DEST" -cf - "$prefix" \
+    | gpg --batch --yes --quiet --pinentry-mode loopback --passphrase-file "$PASS" \
+        --symmetric --cipher-algo AES256 -o "$out.part"
+  # Proved before it counts: decrypted again (gpg checks its integrity) and
+  # its files listed, the same number as the set on D:.
+  want=$(ls -1 "$DEST/$prefix" | wc -l)
+  got=$(gpg --batch --quiet --pinentry-mode loopback --passphrase-file "$PASS" -d "$out.part" 2>/dev/null \
+    | tar -tf - 2>/dev/null | grep -vc '/$' || true)
+  if [ "$got" != "$want" ]; then
+    rm -f "$out.part"
+    echo "$(stamp) cloud copy FAILED: $got of $want files came back"
+    exit 1
+  fi
+  mv "$out.part" "$out"
+  ls -1t "$CLOUD"/*.tar.gpg 2>/dev/null | tail -n +"$((CLOUD_KEEP + 1))" | xargs -r rm -f
+  echo "$(stamp) cloud copy $prefix.tar.gpg → $CLOUD ($(du -h "$out" | cut -f1), proved)"
+fi

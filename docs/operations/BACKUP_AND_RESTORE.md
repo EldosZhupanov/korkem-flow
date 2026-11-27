@@ -1,6 +1,6 @@
 # Backup and restore
 
-**Last restore rehearsal:** 2026-08-31.
+**Last restore rehearsal:** 2026-11-27 — the owner's working base, from the copy on D: (below). Before that, 2026-08-31 on the clean stand.
 
 The pilot runs on one machine. There is no replica and no failover, so
 **restore is the disaster plan**. A database-and-files backup was restored into
@@ -64,6 +64,54 @@ same laptop: it survives a corrupted virtual disk, not a stolen or burnt
 machine. A second destination — a NAS, an external drive, object storage — is
 the next step, and the script takes any path, so it is a second invocation
 rather than new code.
+
+---
+
+## The owner's laptop: `work.localhost`
+
+**Nightly copy.** Windows task «KORKEM ночная копия» runs at 23:30 (only while
+the owner is signed in): `wsl.exe … bash scripts/backup_work_site.sh`, log in
+`D:\KORKEM-backups\backup.log`. It writes a Frappe backup with files to
+`D:\KORKEM-backups\<set>` and keeps 14 sets. If the bench is not running it
+does nothing. On 2026-11-27 there were 14 sets, the newest from the night
+before, 64 MB each (almost all of it film pictures).
+
+**Restore rehearsal, 2026-11-27** (`step441_restore_check.sh`, LIVE VERIFIED):
+a fresh set was taken, copied **from D:** into the container — the copy that
+would actually be used — and restored into a scratch site
+`restore-check.localhost`, which was then dropped.
+
+| | |
+|---|---|
+| scratch site / restore / migrate | 40 s / 28 s / 31 s |
+| User, Customer, Supplier, Item | 3, 3, 4, 56 — equal |
+| Sales Order, Stock Entry, Payment Entry | 43, 40, 22 — equal |
+| Film Order Line, Film Decor, File | 16, 1359, 1356 — equal |
+| Domain Audit Event | 711 — equal |
+| files on disk (public) | 1345 and 1345 |
+| newest Sales Order | SAL-ORD-2026-00043, same customer, total and `modified` |
+
+**Off the laptop (owner's choice, 2026-11-27: Google Drive).** D: is a second
+disk of the same laptop; it does not survive theft, fire or water. With
+`~/.config/korkem/backup.env` (`KORKEM_CLOUD_DIR`, `KORKEM_CLOUD_KEEP`) and a
+passphrase in `~/.config/korkem/backup.pass` (mode 600), the same script also
+packs each set into one file, encrypts it with gpg (AES-256, the owner's
+passphrase), decrypts it again to prove it, and leaves it in that folder;
+Google Drive for desktop uploads the folder. Google holds a file it cannot
+read; nothing in the script talks to Google. **Without the passphrase the
+cloud copy is unrecoverable** — the owner keeps it on paper.
+
+To restore from a cloud copy, on any machine with gpg:
+
+```sh
+gpg -d 20261127_214753-work_localhost.tar.gpg | tar -xf -   # asks the passphrase
+```
+
+then restore the four files as in «Restoring into a scratch site» below.
+
+Limitations: the task runs only while the owner is signed in to Windows and
+the bench is up — a night with the laptop off has no copy (19→25.11 had
+none). The app does not yet show when the last copy was made.
 
 ---
 
