@@ -10948,7 +10948,7 @@ abstract class AppLocalizations {
   /// No description provided for @filmTeamPot.
   ///
   /// In en, this message translates to:
-  /// **'Pot: {pct}% of margin = {pot}'**
+  /// **'Bonus pool: {pct}% of margin = {pot}'**
   String filmTeamPot(String pct, String pot);
 
   /// No description provided for @filmTeamShare.
@@ -10984,13 +10984,13 @@ abstract class AppLocalizations {
   /// No description provided for @filmTeamPct.
   ///
   /// In en, this message translates to:
-  /// **'Pot when the plan is met, %'**
+  /// **'Bonus pool when the plan is met, % of margin'**
   String get filmTeamPct;
 
   /// No description provided for @filmTeamPctBelow.
   ///
   /// In en, this message translates to:
-  /// **'Pot when the plan is missed, %'**
+  /// **'Bonus pool when the plan is missed, % of margin'**
   String get filmTeamPctBelow;
 
   /// No description provided for @filmTeamSave.
@@ -11818,7 +11818,7 @@ abstract class AppLocalizations {
   /// No description provided for @filmTeamPotLabel.
   ///
   /// In en, this message translates to:
-  /// **'Pot'**
+  /// **'Bonus pool'**
   String get filmTeamPotLabel;
 
   /// No description provided for @filmTeamPotNote.
@@ -23355,6 +23355,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tray — not laid: {count}. Drag onto a table or «Lay the rest».'**
   String pressEditTray(int count);
+
+  /// No description provided for @filmTeamUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'unpaid {amount}'**
+  String filmTeamUnpaid(String amount);
+
+  /// No description provided for @filmTeamPotUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'% not set → «Plan and bonus»'**
+  String get filmTeamPotUnset;
+
+  /// No description provided for @filmTeamForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'at this pace ({pace} m/day) — ~{metres} m by the month\'s end, {percent}%'**
+  String filmTeamForecast(String pace, String metres, String percent);
+
+  /// No description provided for @filmTeamTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'the plan wants {metres} m by today'**
+  String filmTeamTarget(String metres);
+
+  /// No description provided for @filmTeamFarBehind.
+  ///
+  /// In en, this message translates to:
+  /// **'That is {times} times the present pace — better to adjust next month\'s plan.'**
+  String filmTeamFarBehind(int times);
+
+  /// No description provided for @filmTeamAvgSale.
+  ///
+  /// In en, this message translates to:
+  /// **'average sale {amount}'**
+  String filmTeamAvgSale(String amount);
+
+  /// No description provided for @filmTeamBonusMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+100 m → +{amount}'**
+  String filmTeamBonusMore(String amount);
+
+  /// No description provided for @filmTeamOwedSales.
+  ///
+  /// In en, this message translates to:
+  /// **'his customers owe {amount} · sales: {count}'**
+  String filmTeamOwedSales(String amount, int count);
+
+  /// No description provided for @filmReportThin.
+  ///
+  /// In en, this message translates to:
+  /// **'«{film}» sells at {margin}/m margin — under {limit}. Check its retail price.'**
+  String filmReportThin(String film, String margin, String limit);
 }
 
 class _AppLocalizationsDelegate

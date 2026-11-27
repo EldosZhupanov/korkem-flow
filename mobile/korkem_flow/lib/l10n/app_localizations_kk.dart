@@ -6131,7 +6131,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String filmTeamPot(String pct, String pot) {
-    return 'Қазан: маржаның $pct% = $pot';
+    return 'Бонус қоры: маржаның $pct% = $pot';
   }
 
   @override
@@ -6153,10 +6153,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmTeamPlanM => 'Айлық жоспар, м';
 
   @override
-  String get filmTeamPct => 'Жоспар орындалса қазан, %';
+  String get filmTeamPct => 'Жоспар орындалса бонус қоры, маржаның %';
 
   @override
-  String get filmTeamPctBelow => 'Жоспар орындалмаса қазан, %';
+  String get filmTeamPctBelow => 'Жоспар орындалмаса бонус қоры, маржаның %';
 
   @override
   String get filmTeamSave => 'Сақтау';
@@ -6661,7 +6661,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get filmTeamMargin => 'Маржа';
 
   @override
-  String get filmTeamPotLabel => 'Қазан';
+  String get filmTeamPotLabel => 'Бонус қоры';
 
   @override
   String filmTeamPotNote(String pct) {
@@ -13670,5 +13670,48 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String pressEditTray(int count) {
     return 'Науа — салынбаған: $count. Үстелге сүйреңіз немесе «Қалғанын өзі салу».';
+  }
+
+  @override
+  String filmTeamUnpaid(String amount) {
+    return 'төленбеген $amount';
+  }
+
+  @override
+  String get filmTeamPotUnset => '% берілмеген → «Жоспар мен бонус»';
+
+  @override
+  String filmTeamForecast(String pace, String metres, String percent) {
+    return 'қазіргі қарқынмен ($pace м/күн) — ай соңына ~$metres м, $percent%';
+  }
+
+  @override
+  String filmTeamTarget(String metres) {
+    return 'жоспар бойынша бүгін $metres м болуы керек';
+  }
+
+  @override
+  String filmTeamFarBehind(int times) {
+    return 'Бұл қазіргі қарқыннан $times есе көп — келесі айдың жоспарын түзеткен дұрыс.';
+  }
+
+  @override
+  String filmTeamAvgSale(String amount) {
+    return 'орташа чек $amount';
+  }
+
+  @override
+  String filmTeamBonusMore(String amount) {
+    return '+100 м → +$amount';
+  }
+
+  @override
+  String filmTeamOwedSales(String amount, int count) {
+    return 'клиенттерінің қарызы $amount · сатылым: $count';
+  }
+
+  @override
+  String filmReportThin(String film, String margin, String limit) {
+    return '«$film» $margin/м үстемемен сатылады — $limit төмен. Бөлшек бағасын тексеріңіз.';
   }
 }

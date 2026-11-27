@@ -83,6 +83,8 @@ def team(month: str | None = None) -> dict:
 	board = _board(current_company(), month)
 	if not board["can_set"]:
 		board["rows"] = [r for r in board["rows"] if r["seller"] == frappe.session.user]
+		# Whose customers owe what is the owner's to see; a seller, his own.
+		board["owed"] = round(sum(r["owed"] for r in board["rows"]), 2)
 	return board
 
 
@@ -128,11 +130,13 @@ def _board(company: str, month: str | None) -> dict:
 	rows: dict[str, dict] = {}
 
 	def row(user: str) -> dict:
-		return rows.setdefault(user, {"seller": user, "metres": 0.0, "sales": 0, "paid": 0.0, "margin": 0.0})
+		return rows.setdefault(user, {"seller": user, "metres": 0.0, "sales": 0, "paid": 0.0, "margin": 0.0,
+									  "amount": 0.0})
 
 	# What his customers still owe, whenever sold (owner, 14.11.2026): a
 	# sale on credit is the seller's to collect.
 	owed: dict[str, float] = {}
+	owed_sales: dict[str, int] = {}
 
 	for s in sales:
 		seller = s.korkem_film_seller or s.owner
@@ -144,12 +148,15 @@ def _board(company: str, month: str | None) -> dict:
 		debt = amount - flt(s.korkem_film_paid)
 		if debt > 0.5:
 			owed[seller] = owed.get(seller, 0.0) + debt
+			owed_sales[seller] = owed_sales.get(seller, 0) + 1
 		margin = sum((flt(l.korkem_film_price_m) - flt(l.basic_rate)) * flt(l.qty) for l in lines)
 		if start <= getdate(s.posting_date) <= end:
 			r = row(seller)
 			# Glue sold with the film counts in the margin, not the metres.
 			r["metres"] += sum(flt(l.qty) for l in lines if not l.korkem_sale_unit)
 			r["sales"] += 1
+			# What he sold for, paid or not: his average sale (27.11.2026).
+			r["amount"] += amount
 		# What was paid this month, and the margin it carries.
 		paid = 0.0
 		for p in _payments(s):
@@ -175,12 +182,18 @@ def _board(company: str, month: str | None) -> dict:
 			"share": round(share * 100, 1),
 			"bonus": round(pot * share),
 			"owed": round(owed.get(r["seller"], 0.0), 2),
+			"owed_sales": owed_sales.get(r["seller"], 0),
 		})
 	# How the plan stands today: the days left in the month, and the metres
 	# a day it still takes. None for a month that is over or not begun.
 	today = getdate(nowdate())
 	days_left = (end - today).days + 1 if start <= today <= end else None
 	left_m = conf["plan_m"] - metres
+	# Where the month is heading at its own pace, and where the plan wants
+	# it today (owner, 27.11.2026). Only for the month under way.
+	days = (end - start).days + 1
+	gone = (today - start).days + 1 if start <= today <= end else None
+	pace = metres / gone if gone else None
 	owner = _owner()
 	return {
 		"month": key,
@@ -193,6 +206,13 @@ def _board(company: str, month: str | None) -> dict:
 		"done": round(metres / conf["plan_m"] * 100) if conf["plan_m"] else None,
 		"days_left": days_left,
 		"need_m_day": round(left_m / days_left, 1) if days_left and conf["plan_m"] and left_m > 0 else None,
+		"pace_m_day": round(pace, 1) if pace is not None else None,
+		"forecast_m": round(pace * days, 1) if pace is not None else None,
+		"target_m": round(conf["plan_m"] * gone / days, 1) if gone and conf["plan_m"] else None,
+		# What his customers owe, all sellers together.
+		"owed": round(sum(owed.values()), 2),
+		# A pot of 0 % is a pot nobody set, not one nobody earned.
+		"pct_set": bool(conf["pct"] or conf["pct_below"]),
 		"pct": pct,
 		"pot": pot,
 		"settings": conf if owner else None,
