@@ -90,6 +90,9 @@ abstract final class AppIcons {
   /// A textured film: its parts are never turned on the press.
   static const IconData textured = Symbols.texture_rounded;
 
+  /// A film's pattern nobody has looked at yet (27.11.2026).
+  static const IconData grainUnknown = Symbols.help_rounded;
+
   /// The way a textured film's pattern runs on a part.
   static const IconData direction = Symbols.north_rounded;
 

@@ -13488,4 +13488,53 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get mdfDueNoSizes => 'шамамен: өлшемдер әлі жоқ';
+
+  @override
+  String get filmGrainUnchecked => 'Өрнегі тексерілмеген — престе бұрылмайды';
+
+  @override
+  String get filmGrainTextured => 'Текстура: өрнек үстел бойымен';
+
+  @override
+  String get filmGrainPlain => 'Біртүсті: бөлшектерді бұруға болады';
+
+  @override
+  String get filmGrainChange => 'өзгерту';
+
+  @override
+  String filmGrainSaved(int count) {
+    return 'Белгіленген пленкалар: $count';
+  }
+
+  @override
+  String filmGrainTitle(String film) {
+    return '«$film» пленкасының өрнегі';
+  }
+
+  @override
+  String filmGrainCollection(String collection, int count) {
+    return '«$collection» коллекциясын түгел — $count пленка';
+  }
+
+  @override
+  String get fpkTextured => 'Текстуралы';
+
+  @override
+  String pressGrainAsk(String film) {
+    return '$film: орамға қараңыз — өрнектің бағыты бар ма?';
+  }
+
+  @override
+  String get pressGrainAskHint =>
+      'Жауап бермеуге болады — бұрылмай жайылған. Жауап барлық тапсырысқа сақталады.';
+
+  @override
+  String get pressGrainTextured => 'Өрнек бар';
+
+  @override
+  String get pressGrainPlain => 'Жоқ, біртүсті';
+
+  @override
+  String get pressGrainUncheckedPrint =>
+      'Өрнегі тексерілмеген — бұрылмай жайылған';
 }

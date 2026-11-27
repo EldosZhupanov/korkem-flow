@@ -70,6 +70,14 @@ def set_film_textured(item: str, textured: bool | int | str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
+def set_film_grain(grain: str, item: str | None = None, decor: str | None = None,
+				   collection: bool | int | str = False) -> dict:
+	"""Рисунок плёнки — «textured» или «plain»: с карточки (одна плёнка или вся
+	её коллекция) или у пресса — по декору, для ещё не проверенных."""
+	return service.set_film_grain(grain, item=item, decor=decor, collection=collection)
+
+
+@frappe.whitelist(methods=["POST"])
 def set_min_stock(item: str, minimum: float | str) -> dict:
 	"""«Минимум на складе»: ниже него — предупреждение владельцу. 0 — без него."""
 	return service.set_min_stock(item, minimum)
