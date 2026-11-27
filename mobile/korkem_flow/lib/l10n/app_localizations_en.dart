@@ -13642,4 +13642,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmSupNoSales => 'nothing bought in the period';
+
+  @override
+  String get pressEditUndo => 'Undo (Ctrl+Z)';
+
+  @override
+  String get pressEditRedo => 'Redo (Ctrl+Y)';
+
+  @override
+  String get pressEditZoomOut => 'Zoom out (Ctrl −)';
+
+  @override
+  String get pressEditZoomIn => 'Zoom in (Ctrl +)';
+
+  @override
+  String get pressEditZoomFit => 'Fit to screen (Ctrl 0)';
+
+  @override
+  String get pressEditAddEmpty => 'Empty load';
+
+  @override
+  String get pressEditLayRest => 'Lay the rest';
+
+  @override
+  String get pressEditLayRestSave => 'Lay the rest and keep';
+
+  @override
+  String pressEditTrayLeft(int count) {
+    return 'Parts in the tray: $count';
+  }
+
+  @override
+  String get pressEditTrayLeftBody =>
+      'Without them the layout is short — the press would forget them. The app lays them in free places or a new load.';
+
+  @override
+  String get pressEditFromEdge => 'from the edge, mm';
+
+  @override
+  String get pressEditFromTop => 'from the top, mm';
+
+  @override
+  String get pressEditCentre => 'Centre';
+
+  @override
+  String get pressEditToTray => 'To the tray (Delete)';
+
+  @override
+  String pressEditEmptyLoad(int count) {
+    return 'Load $count · empty';
+  }
+
+  @override
+  String get pressEditEmptyHint => 'drag parts here';
+
+  @override
+  String pressEditFill(int percent) {
+    return '$percent% full';
+  }
+
+  @override
+  String get pressEditDropEmpty => 'Remove the empty load';
+
+  @override
+  String get pressEditTrayEmpty =>
+      'The tray is empty — put a part here (or Delete) to make room';
+
+  @override
+  String pressEditTray(int count) {
+    return 'Tray — not laid: $count. Drag onto a table or «Lay the rest».';
+  }
 }

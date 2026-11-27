@@ -449,6 +449,86 @@ void main() {
     expect(pressLongest(press), 2850);
   });
 
+  test('the editor says the millimetres around a part, how full a load '
+      'is, and where a part put aside goes by itself', () {
+    final press = PressSettings.fromJson(_press);
+    const a = PlacedPart(pos: 1, x: 50, y: 50, width: 598, height: 298);
+    const b = PlacedPart(pos: 2, x: 708, y: 100, width: 598, height: 298);
+    final g = pressGaps(b, [a], press);
+    // Beside a: the gap; above and below: the table's edges.
+    expect((g.left, g.top), (60.0, 100.0));
+    expect((g.right, g.bottom), (2850.0 - 1306, 1210.0 - 398));
+    expect(pressLoadFill([a], 850, press), 17);
+    // A full load has no room: the next one has.
+    const big = PlacedPart(pos: 3, x: 50, y: 50, width: 2700, height: 1100);
+    expect(
+      pressPlaceAnywhere(a, [
+        [big],
+      ], press),
+      isNull,
+    );
+    final spot = pressPlaceAnywhere(a, [
+      [big],
+      [],
+    ], press);
+    expect((spot?.load, spot?.part.x, spot?.part.y), (1, 50.0, 50.0));
+  });
+
+  testWidgets('the editor: a typed place, the tray, undo, an empty load, '
+      'the scale — and the tray laid before it is kept', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1600, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = await pump(
+      tester,
+      const PressLayoutScreen(salesOrder: 'SO-1110'),
+    );
+    await tester.tap(find.byKey(const ValueKey('pressEdit:ZB 852-2 Авори')));
+    await tester.pumpAndSettle();
+    String zoom() =>
+        tester.widget<Text>(find.byKey(const ValueKey('pressEdit:zoom'))).data!;
+    expect(zoom(), '100%');
+    await tester.tap(find.byKey(const ValueKey('pressEdit:zoomIn')));
+    await tester.pump();
+    expect(zoom(), '125%');
+    await tester.tap(find.byKey(const ValueKey('pressEdit:zoomFit')));
+    await tester.pump();
+    expect(zoom(), '100%');
+    // Picked, its place typed in millimetres.
+    await tester.tap(find.byKey(const ValueKey('pressEdit:part:0:0')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('pressEdit:x')), '120');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pressEdit:x:120')), findsOneWidget);
+    // Put aside into the tray; «Отменить» brings it back, «Вернуть» not.
+    await tester.tap(find.byKey(const ValueKey('pressEdit:toTray')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pressEdit:tray:0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('pressEdit:part:0:0')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('pressEdit:undo')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pressEdit:tray:0')), findsNothing);
+    expect(find.byKey(const ValueKey('pressEdit:part:0:0')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('pressEdit:redo')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pressEdit:tray:0')), findsOneWidget);
+    // A clean table besides; an empty one may be taken away.
+    await tester.tap(find.byKey(const ValueKey('pressEdit:addEmpty')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pressEdit:dropEmpty:1')), findsOne);
+    // Kept with a part in the tray: asked, laid, and kept whole.
+    await tester.tap(find.byKey(const ValueKey('pressEdit:save')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('pressEdit:trayAsk')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('pressEdit:trayFill')));
+    await tester.pumpAndSettle();
+    final (_, loads) = repo.layouts.single;
+    final part = loads!.single.placed.single;
+    expect((part.pos, part.x, part.y), (1, 50.0, 50.0));
+  });
+
   testWidgets('a part is turned by hand and the layout is kept', (
     tester,
   ) async {
