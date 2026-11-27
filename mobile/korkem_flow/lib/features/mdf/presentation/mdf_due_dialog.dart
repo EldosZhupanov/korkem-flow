@@ -179,7 +179,13 @@ class _DueDialogState extends State<_DueDialog> {
       key: const ValueKey('mdfDueDialog'),
       title: Row(
         children: [
-          Expanded(child: Text(l10n.mdfDueTitle(m2(widget.areaM2)))),
+          Expanded(
+            child: Text(
+              widget.areaM2 > 0
+                  ? l10n.mdfDueTitle(m2(widget.areaM2))
+                  : l10n.mdfDue,
+            ),
+          ),
           IconButton(
             key: const ValueKey('mdfDuePrev'),
             icon: const Icon(AppIcons.previous),
@@ -238,7 +244,11 @@ class _DueDialogState extends State<_DueDialog> {
                     l10n.mdfDueEarliest,
                     o.earliest,
                     status.warning,
-                    o.known ? l10n.mdfDueEarliestNote : l10n.mdfDueRough,
+                    widget.areaM2 <= 0
+                        ? l10n.mdfDueNoSizes
+                        : o.known
+                        ? l10n.mdfDueEarliestNote
+                        : l10n.mdfDueRough,
                   ),
                 ],
               ),

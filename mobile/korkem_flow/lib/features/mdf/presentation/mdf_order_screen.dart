@@ -1299,26 +1299,27 @@ class _DraftFormState extends ConsumerState<_DraftForm> {
   /// and «впритык», the film the order waits for — or the plain calendar.
   Future<void> _pickDue() async {
     final now = DateTime.now();
-    final areas = _areasByCoating;
+    final sized = _areasByCoating;
+    // No sizes yet (owner, 27.11.2026): the month's load is still shown —
+    // the lanes the order goes through, at no m².
+    final areas = sized.isNotEmpty
+        ? sized
+        : {for (final l in _ordered) (l.coating ?? MdfCoating.pvc).name: 0.0};
     unawaited(_askReady());
-    DateTime? picked;
-    if (areas.isNotEmpty) {
-      final films = _areasByFilm;
-      final repo = ref.read(mdfOrderRepositoryProvider);
-      picked = await showMdfDuePicker(
-        context,
-        load: () =>
-            repo.dueOptions(areas, order: widget.order?.name, films: films),
-        areaM2: areas.values.fold<double>(0, (s, v) => s + v),
-        current: _due,
-      );
-      if (picked == null || !mounted) return;
-      if (picked.year != 0) {
-        setState(() => _due = picked);
-        return;
-      }
+    final films = _areasByFilm;
+    final repo = ref.read(mdfOrderRepositoryProvider);
+    final picked = await showMdfDuePicker(
+      context,
+      load: () =>
+          repo.dueOptions(areas, order: widget.order?.name, films: films),
+      areaM2: sized.values.fold<double>(0, (s, v) => s + v),
+      current: _due,
+    );
+    if (picked == null || !mounted) return;
+    if (picked.year != 0) {
+      setState(() => _due = picked);
+      return;
     }
-    if (!mounted) return;
     final plain = await showDatePicker(
       context: context,
       initialDate: _due ?? mdfDueIn(now),

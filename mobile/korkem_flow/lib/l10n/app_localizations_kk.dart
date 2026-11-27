@@ -13485,4 +13485,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String mdfDuePick(String date) {
     return '$date таңдау';
   }
+
+  @override
+  String get mdfDueNoSizes => 'шамамен: өлшемдер әлі жоқ';
 }

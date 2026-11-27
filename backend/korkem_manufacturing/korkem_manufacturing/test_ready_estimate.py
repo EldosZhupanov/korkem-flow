@@ -111,6 +111,12 @@ class TestReadyEstimate(IntegrationTestCase):
 		odd = self._as(MANAGER, ready_estimate.due_options, {"pvc": 1}, films=["Нет такой плёнки"])
 		self.assertEqual(odd["films"], [{"decor": "Нет такой плёнки", "free_m": None, "short": False,
 										 "comes_on": None, "supplier": None}])
+		# No sizes yet: the month is still shown, the date rough.
+		empty = self._as(MANAGER, ready_estimate.due_options, {})
+		self.assertFalse(empty["known"])
+		self.assertEqual(empty["earliest"], str(ready_estimate.working_days_from(
+			getdate(), ready_estimate.LEAST_DAYS["pvc"])))
+		self.assertIn("days", empty)
 		# Each film by its own m², as the form sends it.
 		by_film = self._as(MANAGER, ready_estimate.due_options, {"pvc": 1},
 						   films={"Нет такой плёнки": 0.5})

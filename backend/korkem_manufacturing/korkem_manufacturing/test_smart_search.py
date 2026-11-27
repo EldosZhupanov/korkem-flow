@@ -86,7 +86,14 @@ class TestSmartSearch(IntegrationTestCase):
 		frappe.set_user("Administrator")
 		facade_prices.set_price(FLAT, facade_prices.PVC, 17_000)
 		tail = uuid.uuid4().int % 10_000_000
-		self.surname = "Тестсерчев" + "абвгдежзик"[tail % 10]
+		# A surname of its own, not one letter off the last run's: those
+		# stay in the database, and a typo one letter off matched five of
+		# them before this one (CI, 26.11.2026).
+		rnd = uuid.uuid4().int
+		syllables = [
+			"бвгдзклмнпрстфх"[(rnd >> (8 * i)) % 15] + "аеиоу"[(rnd >> (8 * i + 4)) % 5] for i in range(4)
+		]
+		self.surname = "Тест" + "".join(syllables) + "ов"
 		self.phone = f"8 701 {tail:07d}"
 		self.customer = self._as(MANAGER, mdf_customers.add, f"Ерлан {self.surname}", self.phone)["name"]
 		card = self._as(

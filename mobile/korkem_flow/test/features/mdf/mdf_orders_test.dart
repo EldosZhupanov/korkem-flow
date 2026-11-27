@@ -506,6 +506,7 @@ class _BusyShop extends _TwoFilms {
   static DateTime get safe => earliest.add(const Duration(days: 1));
 
   final films = <Map<String, double>>[];
+  final due = <Map<String, double>>[];
 
   @override
   Future<MdfDueOptions> dueOptions(
@@ -514,6 +515,7 @@ class _BusyShop extends _TwoFilms {
     Map<String, double> films = const {},
   }) async {
     this.films.add(films);
+    due.add(areas);
     return MdfDueOptions(
       earliest: earliest,
       safe: safe,
@@ -786,6 +788,29 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('mdfDuePick')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('mdfDueTooSoon')), findsOne);
+  });
+
+  testWidgets('a new order with no sizes still sees the month by load', (
+    tester,
+  ) async {
+    final repo = _BusyShop();
+    tester.view
+      ..physicalSize = const Size(2400, 3200)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [mdfOrderRepositoryProvider.overrideWithValue(repo)],
+        child: harness(const MdfOrderScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('mdfDue')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mdfDueDialog')), findsOne);
+    expect(find.byType(DatePickerDialog), findsNothing);
+    expect(repo.due.single.values.every((v) => v == 0), isTrue);
+    expect(find.text('roughly: no sizes yet'), findsOne);
   });
 
   testWidgets('the due date falls back to the calendar when the shop is '
