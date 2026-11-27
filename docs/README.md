@@ -22,6 +22,7 @@
 | `ai_workspace_architecture.md` | рабочее пространство ассистента |
 | `design_system.md` | токены, типографика, компоненты |
 | `mobile_architecture.md` | слои Flutter-клиента |
+| `mfs_one_study.md` | разбор MFS ONE (облачный раскрой и ЧПУ, 27.11.2026): модули, модель данных, G-код, что взять. Образцы — `mfs_one_samples/` |
 
 ## `operations/` — как это эксплуатировать
 
