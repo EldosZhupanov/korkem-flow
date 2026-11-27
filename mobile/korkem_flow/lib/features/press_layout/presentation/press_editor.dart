@@ -303,8 +303,7 @@ class _PressEditorState extends ConsumerState<PressEditor> {
   /// for it, a new load when none has.
   void _layRest() {
     if (_waiting.isEmpty) return;
-    final turn =
-        _turnable && !widget.film.unchecked && !widget.film.textured;
+    final turn = _turnable && !widget.film.unchecked && !widget.film.textured;
     _change(() {
       for (final p in [..._waiting]) {
         final spot = pressPlaceAnywhere(p, _loads, _press, turn: turn);
@@ -990,8 +989,14 @@ class _PressEditorState extends ConsumerState<PressEditor> {
     if (picked != null && picked.load == i && picked.part < load.length) {
       final p = load[picked.part];
       final g = pressGaps(p, _othersOf(i, picked.part), _press);
-      Widget line(double left, double top, double w, double h, double mm,
-          {required bool across}) => Positioned(
+      Widget line(
+        double left,
+        double top,
+        double w,
+        double h,
+        double mm, {
+        required bool across,
+      }) => Positioned(
         left: left * scale,
         top: top * scale,
         width: math.max(w * scale, AppStroke.hairline),
@@ -1082,7 +1087,9 @@ class _PressEditorState extends ConsumerState<PressEditor> {
                     p,
                     picked: picked == (load: i, part: k),
                     clash: clashes.contains(k),
-                    tight: tight.contains(k) ? (_force ? amber : scheme.error) : null,
+                    tight: tight.contains(k)
+                        ? (_force ? amber : scheme.error)
+                        : null,
                   ),
                 ),
               ),

@@ -505,7 +505,9 @@ class _FilmCard extends ConsumerWidget {
               Text(
                 // Nobody has looked at the roll: not «можно вращать»
                 // (owner, 27.11.2026).
-                film.unchecked ? l10n.pressGrainUncheckedPrint : l10n.pressPlain,
+                film.unchecked
+                    ? l10n.pressGrainUncheckedPrint
+                    : l10n.pressPlain,
                 key: ValueKey('pressGrainLine:${film.decor}'),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,

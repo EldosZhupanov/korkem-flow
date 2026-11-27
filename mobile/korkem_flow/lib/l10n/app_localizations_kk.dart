@@ -13601,4 +13601,74 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get filmSupNoSales => 'кезеңде алынбады';
+
+  @override
+  String get pressEditUndo => 'Болдырмау (Ctrl+Z)';
+
+  @override
+  String get pressEditRedo => 'Қайтару (Ctrl+Y)';
+
+  @override
+  String get pressEditZoomOut => 'Кішірейту (Ctrl −)';
+
+  @override
+  String get pressEditZoomIn => 'Үлкейту (Ctrl +)';
+
+  @override
+  String get pressEditZoomFit => 'Экранға сыйғызу (Ctrl 0)';
+
+  @override
+  String get pressEditAddEmpty => 'Бос жүктеме';
+
+  @override
+  String get pressEditLayRest => 'Қалғанын өзі салу';
+
+  @override
+  String get pressEditLayRestSave => 'Қалғанын салып, сақтау';
+
+  @override
+  String pressEditTrayLeft(int count) {
+    return 'Науада бөлшектер: $count';
+  }
+
+  @override
+  String get pressEditTrayLeftBody =>
+      'Оларсыз жайма толық емес — пресс оларды ұмытады. Бағдарлама оларды бос орынға немесе жаңа жүктемеге өзі салады.';
+
+  @override
+  String get pressEditFromEdge => 'шетінен, мм';
+
+  @override
+  String get pressEditFromTop => 'жоғарыдан, мм';
+
+  @override
+  String get pressEditCentre => 'Ортаға';
+
+  @override
+  String get pressEditToTray => 'Науаға (Delete)';
+
+  @override
+  String pressEditEmptyLoad(int count) {
+    return '$count-жүктеме · бос';
+  }
+
+  @override
+  String get pressEditEmptyHint => 'бөлшектерді осында сүйреңіз';
+
+  @override
+  String pressEditFill(int percent) {
+    return 'толтырылды $percent%';
+  }
+
+  @override
+  String get pressEditDropEmpty => 'Бос жүктемені алып тастау';
+
+  @override
+  String get pressEditTrayEmpty =>
+      'Науа бос — орын босату үшін бөлшекті осында салыңыз (немесе Delete)';
+
+  @override
+  String pressEditTray(int count) {
+    return 'Науа — салынбаған: $count. Үстелге сүйреңіз немесе «Қалғанын өзі салу».';
+  }
 }

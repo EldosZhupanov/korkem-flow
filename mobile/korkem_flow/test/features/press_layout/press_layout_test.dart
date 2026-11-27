@@ -461,9 +461,12 @@ void main() {
     expect(pressFill([a], 850, press), 17);
     // A full load has no room: the next one has.
     const big = PlacedPart(pos: 3, x: 50, y: 50, width: 2700, height: 1100);
-    expect(pressPlaceAnywhere(a, [
-      [big],
-    ], press), isNull);
+    expect(
+      pressPlaceAnywhere(a, [
+        [big],
+      ], press),
+      isNull,
+    );
     final spot = pressPlaceAnywhere(a, [
       [big],
       [],
