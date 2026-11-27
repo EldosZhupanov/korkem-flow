@@ -211,7 +211,7 @@ PlacedPart pressFreeSpot(
 }
 
 /// How full a load's section of film is, 0–100.
-int pressFill(List<PlacedPart> load, double lengthMm, PressSettings press) {
+int pressLoadFill(List<PlacedPart> load, double lengthMm, PressSettings press) {
   final area = lengthMm * press.widthMm;
   if (area <= 0) return 0;
   final parts = load.fold<double>(0, (s, p) => s + p.width * p.height);

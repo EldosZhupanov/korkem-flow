@@ -638,7 +638,6 @@ class _PressEditorState extends ConsumerState<PressEditor> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final number = NumberFormat(
       '0.##',
       Localizations.localeOf(context).toLanguageTag(),
@@ -925,7 +924,7 @@ class _PressEditorState extends ConsumerState<PressEditor> {
               else if (section != null)
                 Text(
                   l10n.pressEditFill(
-                    pressFill(load, section.lengthMm, _press),
+                    pressLoadFill(load, section.lengthMm, _press),
                   ),
                   key: ValueKey('pressEdit:fill:$i'),
                   style: muted,
@@ -1042,8 +1041,8 @@ class _PressEditorState extends ConsumerState<PressEditor> {
       key: _tableKey(i),
       width: width,
       height: height,
+      // Clipped: a part carried off it is drawn as a shadow instead.
       child: Stack(
-        clipBehavior: Clip.hardEdge,
         children: [
           Positioned.fill(
             child: DecoratedBox(

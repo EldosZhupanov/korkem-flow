@@ -458,7 +458,7 @@ void main() {
     // Beside a: the gap; above and below: the table's edges.
     expect((g.left, g.top), (60.0, 100.0));
     expect((g.right, g.bottom), (2850.0 - 1306, 1210.0 - 398));
-    expect(pressFill([a], 850, press), 17);
+    expect(pressLoadFill([a], 850, press), 17);
     // A full load has no room: the next one has.
     const big = PlacedPart(pos: 3, x: 50, y: 50, width: 2700, height: 1100);
     expect(
