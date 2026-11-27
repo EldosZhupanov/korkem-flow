@@ -26,6 +26,8 @@ MANAGER = "pl.manager@example.com"
 CUTTER = "pl.cutter@example.com"
 SELLER = "pl.seller@example.com"
 THICKNESS, MAKER, PLAIN, TEXTURED = "16", "PL-Test", "PL Авори", "PL Какао нубук"
+#: A film nobody has looked at yet (owner, 27.11.2026).
+UNSEEN, UNSEEN_TOO = "PL Новинка AX-417", "PL Новинка AX-418"
 
 
 def _user(email: str, role: str) -> None:
@@ -226,6 +228,8 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 			material_stock.FILM, "м", color=TEXTURED, width="1400", film_thickness="0,35", manufacturer=MAKER
 		)["item"]
 		material_stock.set_film_textured(cls.textured, 1)
+		# Plain said out loud: a film nobody has looked at is laid unturned.
+		material_stock.set_film_textured(cls.plain, 0)
 		frappe.db.commit()
 
 	def setUp(self):
@@ -424,6 +428,52 @@ class TestAnOrderOnThePress(IntegrationTestCase):
 			self._as(MANAGER, press_layout.save_press_settings, press_sections=[{"film_m": 3.5, "length_mm": 4000}])
 		with self.assertRaises(frappe.ValidationError):
 			self._as(MANAGER, press_layout.save_press_settings, press_sections="ерунда")
+
+	def _unseen(self, decor: str, collection: str | None = None) -> str:
+		material_stock.add_option("Цвет плёнки", decor)
+		item = material_stock.define_material(
+			material_stock.FILM, "м", color=decor, width="1400", film_thickness="0,35", manufacturer=MAKER
+		)["item"]
+		frappe.db.set_value("Item", item, {"korkem_film_textured": 0, "korkem_film_grain_checked": 0,
+										   "korkem_film_collection": collection})
+		return item
+
+	def test_a_film_nobody_has_looked_at_is_laid_unturned_and_asked_at_the_press(self):
+		item = self._unseen(UNSEEN)
+		order = self._as(
+			SELLER, facade_order.create_order,
+			customer=frappe.db.get_value("Customer", {"disabled": 0}, "name"),
+			delivery_date=add_days(nowdate(), 10),
+			lines=[{"width_mm": 598, "height_mm": 298, "qty": 7, "milling": "Квадро",
+					"finish": facade_prices.PVC, "thickness_mm": int(THICKNESS), "decor_top": UNSEEN}],
+		)["sales_order"]
+		self.orders.append(order)
+		films = {f["decor"]: f for f in self._as(CUTTER, press_layout.order_layout, order)["films"]}
+		self.assertEqual((films[UNSEEN]["grain"], films[UNSEEN]["textured"]), ("", False))
+		self.assertFalse(any(p["rotated"] for load in films[UNSEEN]["loads"] for p in load["placed"]))
+		# Only an editor changes a card; at the press, anyone who holds the roll.
+		with self.assertRaises(frappe.PermissionError):
+			self._as(CUTTER, material_stock.set_film_grain, "plain", item=item)
+		said = self._as(CUTTER, material_stock.set_film_grain, "plain", decor=UNSEEN)
+		self.assertEqual(said["films"], [item])
+		films = {f["decor"]: f for f in self._as(CUTTER, press_layout.order_layout, order)["films"]}
+		self.assertEqual(films[UNSEEN]["grain"], "plain")
+		# Once said, the press does not undo it; the card's editor may.
+		self.assertEqual(self._as(CUTTER, material_stock.set_film_grain, "textured", decor=UNSEEN)["films"], [])
+		self._as(MANAGER, material_stock.set_film_grain, "textured", item=item)
+		self.assertEqual(material_stock.film_grain(frappe.db.get_value(
+			"Item", item, ["korkem_film_textured", "korkem_film_grain_checked"], as_dict=True)), "textured")
+		with self.assertRaises(frappe.ValidationError):
+			self._as(MANAGER, material_stock.set_film_grain, "maybe", item=item)
+
+	def test_a_whole_collection_is_marked_at_once(self):
+		collection = f"{MAKER} · Wood"
+		one, two = self._unseen(UNSEEN, collection), self._unseen(UNSEEN_TOO, collection)
+		said = self._as(MANAGER, material_stock.set_film_grain, "textured", item=one, collection=1)
+		self.assertEqual(sorted(said["films"]), sorted([one, two]))
+		self.assertTrue(frappe.db.get_value("Item", two, "korkem_film_textured"))
+		for name in (one, two):
+			frappe.db.set_value("Item", name, "korkem_film_collection", None)
 
 	def test_only_film_can_be_textured(self):
 		mdf_kind = frappe.get_all("Item", filters={"korkem_material_kind": material_stock.MDF}, pluck="name", limit=1)

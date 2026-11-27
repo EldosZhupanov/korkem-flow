@@ -127,6 +127,22 @@ class _Fake implements FilmCatalogRepository {
     return Film(item: 'MAT-9', maker: maker, colour: colour);
   }
 
+  final grains = <(String, FilmGrain, bool)>[];
+
+  @override
+  Future<List<String>> setGrain(
+    String item,
+    FilmGrain grain, {
+    bool collection = false,
+  }) async {
+    grains.add((item, grain, collection));
+    return collection ? ['MAT-1', 'MAT-3'] : [item];
+  }
+
+  @override
+  Future<List<String>> setGrainAtPress(String decor, FilmGrain grain) async =>
+      [decor];
+
   @override
   Future<Film> setCard(String item, Map<String, Object?> card) async {
     cards.add((item, card));
@@ -449,6 +465,68 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('filmSidePick')));
     await tester.pumpAndSettle();
     expect(picked, 'KIRA · Белый Матовый');
+  });
+
+  testWidgets("the film window: a film's pattern seen, filtered and said", (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2400, 1600);
+    addTearDown(tester.view.resetPhysicalSize);
+    final films = [
+      for (final f in _json['films']! as List)
+        {
+          ...f as Map<String, dynamic>,
+          if (f['item'] == 'MAT-3') 'grain': 'textured',
+          if (f['item'] == 'MAT-1') ...{'grain': '', 'collection': 'Wood'},
+          if (f['item'] == 'MAT-2') 'grain': 'plain',
+        },
+    ];
+    final repo = _Fake({..._json, 'films': films});
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          filmCatalogRepositoryProvider.overrideWithValue(repo),
+          filmDecorRepositoryProvider.overrideWithValue(_FakeDecors()),
+        ],
+        child: harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showFilmPicker(context),
+              child: const Text('pick'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('pick'));
+    await tester.pumpAndSettle();
+    // Textured loud, not looked at quiet, plain nothing.
+    expect(find.byKey(const ValueKey('filmGrain:MAT-3')), findsOneWidget);
+    expect(find.byKey(const ValueKey('filmGrainUnknown:MAT-1')), findsOne);
+    expect(find.byKey(const ValueKey('filmGrainUnknown:MAT-2')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('pickTextured')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('film:MAT-3')), findsOneWidget);
+    expect(find.byKey(const ValueKey('film:MAT-1')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('pickTextured')));
+    await tester.pumpAndSettle();
+    // Its card says it, and an editor marks the whole collection.
+    await tester.tap(find.byKey(const ValueKey('filmInfo:MAT-1')));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('filmSideGrain'))).data,
+      'Pattern not checked — laid unturned on the press',
+    );
+    await tester.tap(find.byKey(const ValueKey('filmSideGrainEdit')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmGrain:textured')));
+    await tester.tap(find.byKey(const ValueKey('filmGrainCollection')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filmGrainSave')));
+    await tester.pumpAndSettle();
+    expect(repo.grains, [('MAT-1', FilmGrain.textured, true)]);
+    expect(find.text('Films marked: 2'), findsOneWidget);
   });
 
   testWidgets("the film window: the customer's of late, a maker's catalogue", (

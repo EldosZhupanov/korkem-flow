@@ -96,6 +96,9 @@ def after_install():
 	from korkem_manufacturing.patches.v0_0 import add_grain_field
 
 	add_grain_field.execute()
+	from korkem_manufacturing.patches.v0_0 import add_film_grain_checked
+
+	add_film_grain_checked.execute()
 	from korkem_manufacturing.patches.v0_0 import add_cnc_order_fields
 
 	add_cnc_order_fields.execute()

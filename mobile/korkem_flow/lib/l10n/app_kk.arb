@@ -4033,5 +4033,18 @@
   "mdfDueLegend": "Күн түсі — тапсырылатын м² цех қуатына қарсы ({cap} м²/күн). Сұр — ертерек үлгермейді.",
   "mdfDueLegendNoPace": "Цех қарқыны әлі белгісіз — күнге қанша м² тапсырылатыны ғана көрінеді.",
   "mdfDuePick": "{date} таңдау",
-  "mdfDueNoSizes": "шамамен: өлшемдер әлі жоқ"
+  "mdfDueNoSizes": "шамамен: өлшемдер әлі жоқ",
+  "filmGrainUnchecked": "Өрнегі тексерілмеген — престе бұрылмайды",
+  "filmGrainTextured": "Текстура: өрнек үстел бойымен",
+  "filmGrainPlain": "Біртүсті: бөлшектерді бұруға болады",
+  "filmGrainChange": "өзгерту",
+  "filmGrainSaved": "Белгіленген пленкалар: {count}",
+  "filmGrainTitle": "«{film}» пленкасының өрнегі",
+  "filmGrainCollection": "«{collection}» коллекциясын түгел — {count} пленка",
+  "fpkTextured": "Текстуралы",
+  "pressGrainAsk": "{film}: орамға қараңыз — өрнектің бағыты бар ма?",
+  "pressGrainAskHint": "Жауап бермеуге болады — бұрылмай жайылған. Жауап барлық тапсырысқа сақталады.",
+  "pressGrainTextured": "Өрнек бар",
+  "pressGrainPlain": "Жоқ, біртүсті",
+  "pressGrainUncheckedPrint": "Өрнегі тексерілмеген — бұрылмай жайылған"
 }

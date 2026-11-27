@@ -14,6 +14,8 @@ import 'package:korkem_flow/core/design/widgets/app_feedback.dart';
 import 'package:korkem_flow/core/design/widgets/app_screen.dart';
 import 'package:korkem_flow/core/design/widgets/readable_width.dart';
 import 'package:korkem_flow/core/design/widgets/state_views.dart';
+import 'package:korkem_flow/features/film_catalog/data/film_catalog_repository.dart';
+import 'package:korkem_flow/features/film_catalog/domain/film.dart';
 import 'package:korkem_flow/features/film_dept/presentation/film_orders_page.dart';
 import 'package:korkem_flow/features/press_layout/data/press_layout_repository.dart';
 import 'package:korkem_flow/features/press_layout/domain/press_layout.dart';
@@ -41,6 +43,7 @@ String pressPrintFooter(AppLocalizations l10n, OrderPressLayout layout) => [
 PressPrintWords pressPrintWordsOf(AppLocalizations l10n) => (
   textured: l10n.pressTextured,
   plain: l10n.pressPlain,
+  unchecked: l10n.pressGrainUncheckedPrint,
   total: l10n.pressFilmTotal,
   sheet: l10n.pressPrintSheet,
   copies: l10n.pressPrintCopies,
@@ -560,6 +563,10 @@ class _FilmCard extends ConsumerWidget {
                   color: context.statusColors.success,
                 ),
               ),
+            // Nobody has looked at the roll (owner, 27.11.2026): laid
+            // unturned already; whoever holds it says once, for every order.
+            if (film.unchecked)
+              _GrainAsk(film: film, salesOrder: salesOrder),
             // «Чуть-чуть не влезло» (owner, 26.11.2026): a gap a little
             // narrower saves a load — tried on the panel, kept by hand.
             if (film.hint case final hint? when onTryGap != null)
@@ -631,6 +638,85 @@ class _FilmCard extends ConsumerWidget {
             _LoadsView(film: film, press: press),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// «Посмотрите на рулон»: a film nobody has looked at — the answer goes on
+/// its card, for every order after this one.
+class _GrainAsk extends ConsumerStatefulWidget {
+  const _GrainAsk({required this.film, required this.salesOrder});
+
+  final FilmLayout film;
+  final String salesOrder;
+
+  @override
+  ConsumerState<_GrainAsk> createState() => _GrainAskState();
+}
+
+class _GrainAskState extends ConsumerState<_GrainAsk> {
+  bool _busy = false;
+
+  Future<void> _say(FilmGrain grain) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    setState(() => _busy = true);
+    try {
+      await ref
+          .read(filmCatalogRepositoryProvider)
+          .setGrainAtPress(widget.film.decor, grain);
+      ref
+        ..invalidate(orderPressLayoutProvider(widget.salesOrder))
+        ..invalidate(filmCatalogProvider);
+    } on Object catch (error) {
+      messenger.showFailure(error, l10n);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final warning = context.statusColors.warning;
+    final decor = widget.film.decor;
+    return Container(
+      key: ValueKey('pressGrainAsk:$decor'),
+      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: warning.withValues(alpha: AppTint.surface),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.pressGrainAsk(decor),
+            style: theme.textTheme.titleSmall,
+          ),
+          Text(l10n.pressGrainAskHint, style: theme.textTheme.bodySmall),
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
+            children: [
+              OutlinedButton.icon(
+                key: ValueKey('pressGrainTextured:$decor'),
+                onPressed: _busy ? null : () => _say(FilmGrain.textured),
+                icon: const Icon(AppIcons.textured),
+                label: Text(l10n.pressGrainTextured),
+              ),
+              OutlinedButton(
+                key: ValueKey('pressGrainPlain:$decor'),
+                onPressed: _busy ? null : () => _say(FilmGrain.plain),
+                child: Text(l10n.pressGrainPlain),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

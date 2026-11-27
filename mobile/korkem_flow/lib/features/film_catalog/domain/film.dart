@@ -39,6 +39,7 @@ class Film {
     this.idleDays,
     this.image,
     this.imageOwn = false,
+    this.grain = FilmGrain.unchecked,
   });
 
   factory Film.fromJson(Map<String, dynamic> json) => Film(
@@ -57,6 +58,7 @@ class Film {
     code: _s(json['code']),
     type: _s(json['type']),
     collection: _s(json['collection']),
+    grain: FilmGrain.of(json['grain']),
     hex: _s(json['hex']),
     ral: _s(json['ral']),
     supplier: _s(json['supplier']),
@@ -119,6 +121,10 @@ class Film {
 
   /// The picture is the film's own photo, not the catalogue's.
   final bool imageOwn;
+
+  /// Its pattern: textured, plain — or nobody has looked yet, and the press
+  /// lays it unturned until somebody does (owner, 27.11.2026).
+  final FilmGrain grain;
 
   final String item;
   final String title;
@@ -442,3 +448,21 @@ typedef FilmHold = ({
   String? until,
   bool late,
 });
+
+/// A film's pattern (owner, 27.11.2026).
+enum FilmGrain {
+  textured('textured'),
+  plain('plain'),
+  unchecked('');
+
+  const FilmGrain(this.wire);
+
+  final String wire;
+
+  static FilmGrain of(Object? v) => switch (v) {
+    'textured' => textured,
+    'plain' => plain,
+    true => textured,
+    _ => unchecked,
+  };
+}

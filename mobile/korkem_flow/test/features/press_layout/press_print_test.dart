@@ -37,6 +37,7 @@ void main() {
   final words = (
     textured: 'ТЕКСТУРА — НЕ ВРАЩАТЬ',
     plain: 'Однотонная — можно вращать',
+    unchecked: 'Рисунок не проверен — разложено без поворота',
     total: (String m) => 'Плёнка: $m м',
     sheet: (int n) => 'Лист № $n',
     copies: (int n) => 'Кол-во копий: $n',
