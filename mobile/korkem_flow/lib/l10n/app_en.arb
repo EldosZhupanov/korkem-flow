@@ -6624,7 +6624,7 @@
     }
   },
   "filmTeamNoPlan": "No plan set for the month",
-  "filmTeamPot": "Pot: {pct}% of margin = {pot}",
+  "filmTeamPot": "Bonus pool: {pct}% of margin = {pot}",
   "@filmTeamPot": {
     "placeholders": {
       "pct": {
@@ -6650,8 +6650,8 @@
   "filmTeamHint": "The bonus is counted on margin — only money paid, in the month it was paid.",
   "filmTeamSettings": "Plan and bonus",
   "filmTeamPlanM": "Plan for the month, m",
-  "filmTeamPct": "Pot when the plan is met, %",
-  "filmTeamPctBelow": "Pot when the plan is missed, %",
+  "filmTeamPct": "Bonus pool when the plan is met, % of margin",
+  "filmTeamPctBelow": "Bonus pool when the plan is missed, % of margin",
   "filmTeamSave": "Save",
   "filmArrival": "When it arrives",
   "filmArrivalHere": "Already in stock",
@@ -7124,7 +7124,7 @@
   "filmTeamSold": "Sold",
   "filmTeamPaid": "Paid",
   "filmTeamMargin": "Margin",
-  "filmTeamPotLabel": "Pot",
+  "filmTeamPotLabel": "Bonus pool",
   "filmTeamPotNote": "{pct}% of margin",
   "@filmTeamPotNote": {
     "placeholders": {
@@ -11944,5 +11944,133 @@
       }
     }
   },
-  "filmSupNoSales": "nothing bought in the period"
+  "filmSupNoSales": "nothing bought in the period",
+  "pressEditUndo": "Undo (Ctrl+Z)",
+  "pressEditRedo": "Redo (Ctrl+Y)",
+  "pressEditZoomOut": "Zoom out (Ctrl −)",
+  "pressEditZoomIn": "Zoom in (Ctrl +)",
+  "pressEditZoomFit": "Fit to screen (Ctrl 0)",
+  "pressEditAddEmpty": "Empty load",
+  "pressEditLayRest": "Lay the rest",
+  "pressEditLayRestSave": "Lay the rest and keep",
+  "pressEditTrayLeft": "Parts in the tray: {count}",
+  "@pressEditTrayLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressEditTrayLeftBody": "Without them the layout is short — the press would forget them. The app lays them in free places or a new load.",
+  "pressEditFromEdge": "from the edge, mm",
+  "pressEditFromTop": "from the top, mm",
+  "pressEditCentre": "Centre",
+  "pressEditToTray": "To the tray (Delete)",
+  "pressEditEmptyLoad": "Load {count} · empty",
+  "@pressEditEmptyLoad": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pressEditEmptyHint": "drag parts here",
+  "pressEditFill": "{percent}% full",
+  "@pressEditFill": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "pressEditDropEmpty": "Remove the empty load",
+  "pressEditTrayEmpty": "The tray is empty — put a part here (or Delete) to make room",
+  "pressEditTray": "Tray — not laid: {count}. Drag onto a table or «Lay the rest».",
+  "@pressEditTray": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmTeamUnpaid": "unpaid {amount}",
+  "@filmTeamUnpaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamPotUnset": "% not set → «Plan and bonus»",
+  "filmTeamForecast": "at this pace ({pace} m/day) — ~{metres} m by the month's end, {percent}%",
+  "@filmTeamForecast": {
+    "placeholders": {
+      "pace": {
+        "type": "String"
+      },
+      "metres": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamTarget": "the plan wants {metres} m by today",
+  "@filmTeamTarget": {
+    "placeholders": {
+      "metres": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamFarBehind": "That is {times} times the present pace — better to adjust next month's plan.",
+  "@filmTeamFarBehind": {
+    "placeholders": {
+      "times": {
+        "type": "int"
+      }
+    }
+  },
+  "filmTeamAvgSale": "average sale {amount}",
+  "@filmTeamAvgSale": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamBonusMore": "+100 m → +{amount}",
+  "@filmTeamBonusMore": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "filmTeamOwedSales": "his customers owe {amount} · sales: {count}",
+  "@filmTeamOwedSales": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filmReportThin": "«{film}» sells at {margin}/m margin — under {limit}. Check its retail price.",
+  "@filmReportThin": {
+    "placeholders": {
+      "film": {
+        "type": "String"
+      },
+      "margin": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  }
 }

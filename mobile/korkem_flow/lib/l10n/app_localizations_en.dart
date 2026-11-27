@@ -6204,7 +6204,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String filmTeamPot(String pct, String pot) {
-    return 'Pot: $pct% of margin = $pot';
+    return 'Bonus pool: $pct% of margin = $pot';
   }
 
   @override
@@ -6226,10 +6226,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTeamPlanM => 'Plan for the month, m';
 
   @override
-  String get filmTeamPct => 'Pot when the plan is met, %';
+  String get filmTeamPct => 'Bonus pool when the plan is met, % of margin';
 
   @override
-  String get filmTeamPctBelow => 'Pot when the plan is missed, %';
+  String get filmTeamPctBelow =>
+      'Bonus pool when the plan is missed, % of margin';
 
   @override
   String get filmTeamSave => 'Save';
@@ -6734,7 +6735,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filmTeamMargin => 'Margin';
 
   @override
-  String get filmTeamPotLabel => 'Pot';
+  String get filmTeamPotLabel => 'Bonus pool';
 
   @override
   String filmTeamPotNote(String pct) {
@@ -13678,4 +13679,117 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filmSupNoSales => 'nothing bought in the period';
+
+  @override
+  String get pressEditUndo => 'Undo (Ctrl+Z)';
+
+  @override
+  String get pressEditRedo => 'Redo (Ctrl+Y)';
+
+  @override
+  String get pressEditZoomOut => 'Zoom out (Ctrl −)';
+
+  @override
+  String get pressEditZoomIn => 'Zoom in (Ctrl +)';
+
+  @override
+  String get pressEditZoomFit => 'Fit to screen (Ctrl 0)';
+
+  @override
+  String get pressEditAddEmpty => 'Empty load';
+
+  @override
+  String get pressEditLayRest => 'Lay the rest';
+
+  @override
+  String get pressEditLayRestSave => 'Lay the rest and keep';
+
+  @override
+  String pressEditTrayLeft(int count) {
+    return 'Parts in the tray: $count';
+  }
+
+  @override
+  String get pressEditTrayLeftBody =>
+      'Without them the layout is short — the press would forget them. The app lays them in free places or a new load.';
+
+  @override
+  String get pressEditFromEdge => 'from the edge, mm';
+
+  @override
+  String get pressEditFromTop => 'from the top, mm';
+
+  @override
+  String get pressEditCentre => 'Centre';
+
+  @override
+  String get pressEditToTray => 'To the tray (Delete)';
+
+  @override
+  String pressEditEmptyLoad(int count) {
+    return 'Load $count · empty';
+  }
+
+  @override
+  String get pressEditEmptyHint => 'drag parts here';
+
+  @override
+  String pressEditFill(int percent) {
+    return '$percent% full';
+  }
+
+  @override
+  String get pressEditDropEmpty => 'Remove the empty load';
+
+  @override
+  String get pressEditTrayEmpty =>
+      'The tray is empty — put a part here (or Delete) to make room';
+
+  @override
+  String pressEditTray(int count) {
+    return 'Tray — not laid: $count. Drag onto a table or «Lay the rest».';
+  }
+
+  @override
+  String filmTeamUnpaid(String amount) {
+    return 'unpaid $amount';
+  }
+
+  @override
+  String get filmTeamPotUnset => '% not set → «Plan and bonus»';
+
+  @override
+  String filmTeamForecast(String pace, String metres, String percent) {
+    return 'at this pace ($pace m/day) — ~$metres m by the month\'s end, $percent%';
+  }
+
+  @override
+  String filmTeamTarget(String metres) {
+    return 'the plan wants $metres m by today';
+  }
+
+  @override
+  String filmTeamFarBehind(int times) {
+    return 'That is $times times the present pace — better to adjust next month\'s plan.';
+  }
+
+  @override
+  String filmTeamAvgSale(String amount) {
+    return 'average sale $amount';
+  }
+
+  @override
+  String filmTeamBonusMore(String amount) {
+    return '+100 m → +$amount';
+  }
+
+  @override
+  String filmTeamOwedSales(String amount, int count) {
+    return 'his customers owe $amount · sales: $count';
+  }
+
+  @override
+  String filmReportThin(String film, String margin, String limit) {
+    return '«$film» sells at $margin/m margin — under $limit. Check its retail price.';
+  }
 }

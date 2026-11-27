@@ -585,9 +585,17 @@ class TestFilmDept(IntegrationTestCase):
 		self.assertAlmostEqual(mine["owed"] - before["owed"], 21000, delta=1)
 		self.assertGreater(month["days_left"], 0)
 		self.assertGreaterEqual(month["pot"], 500)
+		# Its pace and where it heads (owner, 27.11.2026); the debt in all.
+		self.assertGreater(month["pace_m_day"], 0)
+		self.assertGreaterEqual(month["forecast_m"], month["team"]["metres"])
+		self.assertGreaterEqual(month["owed"], mine["owed"])
+		self.assertTrue(month["pct_set"])
+		self.assertGreaterEqual(mine["owed_sales"], 1)
+		self.assertGreaterEqual(mine["amount"], 42000)
 		# A manager sees only his own row; the floor sees nothing.
 		seen = self._as(MANAGER, film_team.team)
 		self.assertTrue(all(r["seller"] == MANAGER for r in seen["rows"]))
+		self.assertEqual(seen["owed"], seen["rows"][0]["owed"])
 		self.assertIsNone(seen["settings"])
 		with self.assertRaises(frappe.PermissionError):
 			self._as(MANAGER, film_team.set_settings, pct=20)

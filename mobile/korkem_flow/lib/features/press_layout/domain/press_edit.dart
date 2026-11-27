@@ -180,3 +180,60 @@ PlacedPart pressFreeSpot(
   }
   return pressMoved(p, press.marginMm, press.marginMm);
 }
+
+/// How far a part stands from what is nearest on each side — the table's
+/// edge or another part across its way (owner, 27.11.2026: the red lines
+/// with millimetres while a part is moved).
+({double left, double top, double right, double bottom}) pressGaps(
+  PlacedPart p,
+  List<PlacedPart> others,
+  PressSettings press,
+) {
+  bool acrossY(PlacedPart o) => o.y < p.y + p.height && p.y < o.y + o.height;
+  bool acrossX(PlacedPart o) => o.x < p.x + p.width && p.x < o.x + o.width;
+  var left = p.x;
+  var right = pressLongest(press) - (p.x + p.width);
+  var top = p.y;
+  var bottom = press.widthMm - (p.y + p.height);
+  for (final o in others) {
+    if (acrossY(o)) {
+      if (o.x + o.width <= p.x) left = math.min(left, p.x - (o.x + o.width));
+      if (o.x >= p.x + p.width) right = math.min(right, o.x - (p.x + p.width));
+    }
+    if (acrossX(o)) {
+      if (o.y + o.height <= p.y) top = math.min(top, p.y - (o.y + o.height));
+      if (o.y >= p.y + p.height) {
+        bottom = math.min(bottom, o.y - (p.y + p.height));
+      }
+    }
+  }
+  return (left: left, top: top, right: right, bottom: bottom);
+}
+
+/// How full a load's section of film is, 0–100.
+int pressLoadFill(List<PlacedPart> load, double lengthMm, PressSettings press) {
+  final area = lengthMm * press.widthMm;
+  if (area <= 0) return 0;
+  final parts = load.fold<double>(0, (s, p) => s + p.width * p.height);
+  return (parts / area * 100).round().clamp(0, 100);
+}
+
+/// Where a part waiting in the tray goes by itself (owner, 27.11.2026,
+/// «Доуложить сам»): the first load with room for it, as it lies — or
+/// turned, when [turn] — and a gap from every other. Null: none has room.
+({int load, PlacedPart part})? pressPlaceAnywhere(
+  PlacedPart p,
+  List<List<PlacedPart>> loads,
+  PressSettings press, {
+  bool turn = false,
+}) {
+  for (final shape in [p, if (turn) pressTurned(p)]) {
+    for (final (i, load) in loads.indexed) {
+      final at = pressFreeSpot(shape, load, press);
+      if (!pressClashes([...load, at], press).contains(load.length)) {
+        return (load: i, part: at);
+      }
+    }
+  }
+  return null;
+}

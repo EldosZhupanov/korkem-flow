@@ -11020,7 +11020,7 @@ abstract class AppLocalizations {
   /// No description provided for @filmTeamPot.
   ///
   /// In en, this message translates to:
-  /// **'Pot: {pct}% of margin = {pot}'**
+  /// **'Bonus pool: {pct}% of margin = {pot}'**
   String filmTeamPot(String pct, String pot);
 
   /// No description provided for @filmTeamShare.
@@ -11056,13 +11056,13 @@ abstract class AppLocalizations {
   /// No description provided for @filmTeamPct.
   ///
   /// In en, this message translates to:
-  /// **'Pot when the plan is met, %'**
+  /// **'Bonus pool when the plan is met, % of margin'**
   String get filmTeamPct;
 
   /// No description provided for @filmTeamPctBelow.
   ///
   /// In en, this message translates to:
-  /// **'Pot when the plan is missed, %'**
+  /// **'Bonus pool when the plan is missed, % of margin'**
   String get filmTeamPctBelow;
 
   /// No description provided for @filmTeamSave.
@@ -11890,7 +11890,7 @@ abstract class AppLocalizations {
   /// No description provided for @filmTeamPotLabel.
   ///
   /// In en, this message translates to:
-  /// **'Pot'**
+  /// **'Bonus pool'**
   String get filmTeamPotLabel;
 
   /// No description provided for @filmTeamPotNote.
@@ -23307,6 +23307,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'nothing bought in the period'**
   String get filmSupNoSales;
+
+  /// No description provided for @pressEditUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo (Ctrl+Z)'**
+  String get pressEditUndo;
+
+  /// No description provided for @pressEditRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo (Ctrl+Y)'**
+  String get pressEditRedo;
+
+  /// No description provided for @pressEditZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out (Ctrl −)'**
+  String get pressEditZoomOut;
+
+  /// No description provided for @pressEditZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in (Ctrl +)'**
+  String get pressEditZoomIn;
+
+  /// No description provided for @pressEditZoomFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to screen (Ctrl 0)'**
+  String get pressEditZoomFit;
+
+  /// No description provided for @pressEditAddEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty load'**
+  String get pressEditAddEmpty;
+
+  /// No description provided for @pressEditLayRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Lay the rest'**
+  String get pressEditLayRest;
+
+  /// No description provided for @pressEditLayRestSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Lay the rest and keep'**
+  String get pressEditLayRestSave;
+
+  /// No description provided for @pressEditTrayLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts in the tray: {count}'**
+  String pressEditTrayLeft(int count);
+
+  /// No description provided for @pressEditTrayLeftBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Without them the layout is short — the press would forget them. The app lays them in free places or a new load.'**
+  String get pressEditTrayLeftBody;
+
+  /// No description provided for @pressEditFromEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'from the edge, mm'**
+  String get pressEditFromEdge;
+
+  /// No description provided for @pressEditFromTop.
+  ///
+  /// In en, this message translates to:
+  /// **'from the top, mm'**
+  String get pressEditFromTop;
+
+  /// No description provided for @pressEditCentre.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre'**
+  String get pressEditCentre;
+
+  /// No description provided for @pressEditToTray.
+  ///
+  /// In en, this message translates to:
+  /// **'To the tray (Delete)'**
+  String get pressEditToTray;
+
+  /// No description provided for @pressEditEmptyLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load {count} · empty'**
+  String pressEditEmptyLoad(int count);
+
+  /// No description provided for @pressEditEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'drag parts here'**
+  String get pressEditEmptyHint;
+
+  /// No description provided for @pressEditFill.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% full'**
+  String pressEditFill(int percent);
+
+  /// No description provided for @pressEditDropEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the empty load'**
+  String get pressEditDropEmpty;
+
+  /// No description provided for @pressEditTrayEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The tray is empty — put a part here (or Delete) to make room'**
+  String get pressEditTrayEmpty;
+
+  /// No description provided for @pressEditTray.
+  ///
+  /// In en, this message translates to:
+  /// **'Tray — not laid: {count}. Drag onto a table or «Lay the rest».'**
+  String pressEditTray(int count);
+
+  /// No description provided for @filmTeamUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'unpaid {amount}'**
+  String filmTeamUnpaid(String amount);
+
+  /// No description provided for @filmTeamPotUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'% not set → «Plan and bonus»'**
+  String get filmTeamPotUnset;
+
+  /// No description provided for @filmTeamForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'at this pace ({pace} m/day) — ~{metres} m by the month\'s end, {percent}%'**
+  String filmTeamForecast(String pace, String metres, String percent);
+
+  /// No description provided for @filmTeamTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'the plan wants {metres} m by today'**
+  String filmTeamTarget(String metres);
+
+  /// No description provided for @filmTeamFarBehind.
+  ///
+  /// In en, this message translates to:
+  /// **'That is {times} times the present pace — better to adjust next month\'s plan.'**
+  String filmTeamFarBehind(int times);
+
+  /// No description provided for @filmTeamAvgSale.
+  ///
+  /// In en, this message translates to:
+  /// **'average sale {amount}'**
+  String filmTeamAvgSale(String amount);
+
+  /// No description provided for @filmTeamBonusMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+100 m → +{amount}'**
+  String filmTeamBonusMore(String amount);
+
+  /// No description provided for @filmTeamOwedSales.
+  ///
+  /// In en, this message translates to:
+  /// **'his customers owe {amount} · sales: {count}'**
+  String filmTeamOwedSales(String amount, int count);
+
+  /// No description provided for @filmReportThin.
+  ///
+  /// In en, this message translates to:
+  /// **'«{film}» sells at {margin}/m margin — under {limit}. Check its retail price.'**
+  String filmReportThin(String film, String margin, String limit);
 }
 
 class _AppLocalizationsDelegate

@@ -6228,7 +6228,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String filmTeamPot(String pct, String pot) {
-    return 'Котёл: $pct% маржи = $pot';
+    return 'Бонусный фонд: $pct% маржи = $pot';
   }
 
   @override
@@ -6250,10 +6250,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmTeamPlanM => 'План на месяц, м';
 
   @override
-  String get filmTeamPct => 'Котёл при выполнении плана, %';
+  String get filmTeamPct => 'Бонусный фонд при выполнении плана, % маржи';
 
   @override
-  String get filmTeamPctBelow => 'Котёл, если план не выполнен, %';
+  String get filmTeamPctBelow =>
+      'Бонусный фонд, если план не выполнен, % маржи';
 
   @override
   String get filmTeamSave => 'Сохранить';
@@ -6758,7 +6759,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filmTeamMargin => 'Маржа';
 
   @override
-  String get filmTeamPotLabel => 'Котёл';
+  String get filmTeamPotLabel => 'Бонусный фонд';
 
   @override
   String filmTeamPotNote(String pct) {
@@ -13714,4 +13715,117 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get filmSupNoSales => 'за период не брали';
+
+  @override
+  String get pressEditUndo => 'Отменить (Ctrl+Z)';
+
+  @override
+  String get pressEditRedo => 'Вернуть (Ctrl+Y)';
+
+  @override
+  String get pressEditZoomOut => 'Мельче (Ctrl −)';
+
+  @override
+  String get pressEditZoomIn => 'Крупнее (Ctrl +)';
+
+  @override
+  String get pressEditZoomFit => 'Вписать в экран (Ctrl 0)';
+
+  @override
+  String get pressEditAddEmpty => 'Пустая загрузка';
+
+  @override
+  String get pressEditLayRest => 'Доуложить сам';
+
+  @override
+  String get pressEditLayRestSave => 'Доуложить и сохранить';
+
+  @override
+  String pressEditTrayLeft(int count) {
+    return 'В лотке деталей: $count';
+  }
+
+  @override
+  String get pressEditTrayLeftBody =>
+      'Без них раскладка неполная — пресс о них забудет. Программа уложит их сама в свободные места или в новую загрузку.';
+
+  @override
+  String get pressEditFromEdge => 'от края, мм';
+
+  @override
+  String get pressEditFromTop => 'сверху, мм';
+
+  @override
+  String get pressEditCentre => 'По центру';
+
+  @override
+  String get pressEditToTray => 'В лоток (Delete)';
+
+  @override
+  String pressEditEmptyLoad(int count) {
+    return 'Загрузка $count · пустая';
+  }
+
+  @override
+  String get pressEditEmptyHint => 'перетащите сюда детали';
+
+  @override
+  String pressEditFill(int percent) {
+    return 'заполнено $percent%';
+  }
+
+  @override
+  String get pressEditDropEmpty => 'Убрать пустую загрузку';
+
+  @override
+  String get pressEditTrayEmpty =>
+      'Лоток пуст — положите сюда деталь (или Delete), чтобы освободить место';
+
+  @override
+  String pressEditTray(int count) {
+    return 'Лоток — не уложено: $count. Перетащите на стол или «Доуложить сам».';
+  }
+
+  @override
+  String filmTeamUnpaid(String amount) {
+    return 'не оплачено $amount';
+  }
+
+  @override
+  String get filmTeamPotUnset => '% не задан → «План и бонус»';
+
+  @override
+  String filmTeamForecast(String pace, String metres, String percent) {
+    return 'по нынешнему темпу ($pace м/день) — к концу месяца ~$metres м, $percent%';
+  }
+
+  @override
+  String filmTeamTarget(String metres) {
+    return 'по плану сегодня надо быть на $metres м';
+  }
+
+  @override
+  String filmTeamFarBehind(int times) {
+    return 'Это в $times раз больше нынешнего темпа — реальнее поправить план следующего месяца.';
+  }
+
+  @override
+  String filmTeamAvgSale(String amount) {
+    return 'средний чек $amount';
+  }
+
+  @override
+  String filmTeamBonusMore(String amount) {
+    return '+100 м → +$amount';
+  }
+
+  @override
+  String filmTeamOwedSales(String amount, int count) {
+    return 'долги его клиентов $amount · продаж: $count';
+  }
+
+  @override
+  String filmReportThin(String film, String margin, String limit) {
+    return '«$film» продаётся с маржой $margin/м — ниже $limit. Проверьте розничную цену.';
+  }
 }
