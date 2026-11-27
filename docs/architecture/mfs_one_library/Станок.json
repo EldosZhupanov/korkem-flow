@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Фрезер NCStudio — не настроен",
+    "controller": "ncstudio",
+    "controller_version": "",
+    "post_profile_id": "ncstudio-simple",
+    "tool_set_id": "4ce1f4e7-5269-4e05-a04c-7abfe4cc09eb",
+    "tool_change": "manual",
+    "atc_slots": null,
+    "origin_corner": "bottom_left",
+    "z_zero": "material_top",
+    "safe_z": 20.0,
+    "home_x": 0.0,
+    "home_y": 0.0,
+    "home_z": 50.0,
+    "travel_x": 2100.0,
+    "travel_y": 2800.0,
+    "travel_z": 200.0,
+    "max_rpm": 24000,
+    "max_feed": 20000.0,
+    "status": "not_verified",
+    "notes": "Проверьте Z0 (верх материала или стол), ход, точку «дом» и смену инструмента по своему станку."
+  }
+]

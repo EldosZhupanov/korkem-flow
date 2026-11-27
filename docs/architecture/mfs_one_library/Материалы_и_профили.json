@@ -1,0 +1,71 @@
+{
+  "materials": [
+    {
+      "id": "mdf-white",
+      "name": "МДФ • Белый матовый",
+      "kind": "МДФ",
+      "thickness": 18.0,
+      "article": "DEMO-WHITE-18",
+      "decor": "",
+      "texture": "none",
+      "stock_width": 2070.0,
+      "stock_height": 2800.0,
+      "stock_quantity": 20,
+      "main": false
+    },
+    {
+      "id": "mdf-oak",
+      "name": "МДФ • Дуб натуральный",
+      "kind": "МДФ",
+      "thickness": 18.0,
+      "article": "DEMO-OAK-18",
+      "decor": "",
+      "texture": "height",
+      "stock_width": 2070.0,
+      "stock_height": 2800.0,
+      "stock_quantity": 20,
+      "main": false
+    },
+    {
+      "id": "ldsp-grey",
+      "name": "ЛДСП • Серый камень",
+      "kind": "ЛДСП",
+      "thickness": 16.0,
+      "article": "DEMO-GREY-16",
+      "decor": "",
+      "texture": "none",
+      "stock_width": 1830.0,
+      "stock_height": 2750.0,
+      "stock_quantity": 20,
+      "main": false
+    }
+  ],
+  "profiles": [
+    {
+      "id": "demo-router",
+      "name": "Демонстрационный ЧПУ",
+      "version": 1,
+      "verified_demo": true,
+      "mode": "router",
+      "gap": 6.0,
+      "tool_diameter": 6.0,
+      "kerf": null,
+      "safety_clearance": 0.0,
+      "margin": 10.0,
+      "allow_rotation": true
+    },
+    {
+      "id": "pending-saw",
+      "name": "Пила • требует проверки",
+      "version": 1,
+      "verified_demo": false,
+      "mode": "saw",
+      "gap": 4.0,
+      "tool_diameter": null,
+      "kerf": null,
+      "safety_clearance": 0.0,
+      "margin": 10.0,
+      "allow_rotation": true
+    }
+  ]
+}
