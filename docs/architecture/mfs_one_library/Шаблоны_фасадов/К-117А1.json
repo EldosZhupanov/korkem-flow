@@ -1,0 +1,219 @@
+{
+  "style": "slab",
+  "width": 400.0,
+  "height": 600.0,
+  "thickness": 16.0,
+  "offsets": [
+    {
+      "offset_x": 60.0,
+      "offset_y": 60.0,
+      "depth": 2.0,
+      "layer": "Layer1"
+    },
+    {
+      "offset_x": 63.0,
+      "offset_y": 63.0,
+      "depth": 2.0,
+      "layer": "Layer2"
+    },
+    {
+      "offset_x": 70.0,
+      "offset_y": 70.0,
+      "depth": 2.0,
+      "layer": "Layer3"
+    },
+    {
+      "offset_x": 83.0,
+      "offset_y": 83.0,
+      "depth": 2.0,
+      "layer": "Layer4"
+    },
+    {
+      "offset_x": 92.0,
+      "offset_y": 92.0,
+      "depth": 2.0,
+      "layer": "Layer5"
+    },
+    {
+      "offset_x": 100.0,
+      "offset_y": 100.0,
+      "depth": 2.0,
+      "layer": "Layer6"
+    }
+  ],
+  "reeding": null,
+  "wave": null,
+  "name": "К-117А1",
+  "operations": [
+    {
+      "id": "op1",
+      "type": "vcarve",
+      "contours": [
+        1
+      ],
+      "label": "",
+      "tool": {
+        "type": "vbit",
+        "diameter": 38.0,
+        "angle": 90.0,
+        "tip_diameter": 3.0,
+        "form_profile": null,
+        "name": "V-фреза 90° 38 мм, кон 3",
+        "tool_id": null
+      },
+      "depth": 3.0,
+      "passes": 1,
+      "comp": -4.5,
+      "position": "inside",
+      "strategy": "spiral",
+      "raster_dir": "h",
+      "direction": "climb",
+      "ring_inner": null,
+      "corner_clean": null,
+      "swept_profile": null,
+      "swept_width": null
+    },
+    {
+      "id": "op2",
+      "type": "vcarve",
+      "contours": [
+        2
+      ],
+      "label": "",
+      "tool": {
+        "type": "vbit",
+        "diameter": 38.0,
+        "angle": 90.0,
+        "tip_diameter": 3.0,
+        "form_profile": null,
+        "name": "V-фреза 90° 38 мм, кон 3",
+        "tool_id": null
+      },
+      "depth": 9.0,
+      "passes": 1,
+      "comp": -10.5,
+      "position": "inside",
+      "strategy": "spiral",
+      "raster_dir": "h",
+      "direction": "climb",
+      "ring_inner": null,
+      "corner_clean": null,
+      "swept_profile": null,
+      "swept_width": null
+    },
+    {
+      "id": "op3",
+      "type": "profile",
+      "contours": [
+        3
+      ],
+      "label": "",
+      "tool": {
+        "type": "endmill",
+        "diameter": 12.0,
+        "angle": null,
+        "tip_diameter": 0.0,
+        "form_profile": null,
+        "name": "Концевая 12 мм",
+        "tool_id": null
+      },
+      "depth": 9.0,
+      "passes": 1,
+      "comp": -8.0,
+      "position": "inside",
+      "strategy": "spiral",
+      "raster_dir": "h",
+      "direction": "climb",
+      "ring_inner": null,
+      "corner_clean": null,
+      "swept_profile": null,
+      "swept_width": null
+    },
+    {
+      "id": "op4",
+      "type": "vcarve",
+      "contours": [
+        4
+      ],
+      "label": "",
+      "tool": {
+        "type": "vbit",
+        "diameter": 38.0,
+        "angle": 120.0,
+        "tip_diameter": 6.0,
+        "form_profile": null,
+        "name": "V-фреза 120° 38 мм, кон 6",
+        "tool_id": null
+      },
+      "depth": 9.0,
+      "passes": 1,
+      "comp": 0.0,
+      "position": "on",
+      "strategy": "spiral",
+      "raster_dir": "h",
+      "direction": "climb",
+      "ring_inner": null,
+      "corner_clean": null,
+      "swept_profile": null,
+      "swept_width": null
+    },
+    {
+      "id": "op5",
+      "type": "vcarve",
+      "contours": [
+        5
+      ],
+      "label": "",
+      "tool": {
+        "type": "vbit",
+        "diameter": 38.0,
+        "angle": 120.0,
+        "tip_diameter": 6.0,
+        "form_profile": null,
+        "name": "V-фреза 120° 38 мм, кон 6",
+        "tool_id": null
+      },
+      "depth": 6.0,
+      "passes": 1,
+      "comp": 0.0,
+      "position": "on",
+      "strategy": "spiral",
+      "raster_dir": "h",
+      "direction": "climb",
+      "ring_inner": null,
+      "corner_clean": null,
+      "swept_profile": null,
+      "swept_width": null
+    },
+    {
+      "id": "op6",
+      "type": "profile",
+      "contours": [
+        6
+      ],
+      "label": "",
+      "tool": {
+        "type": "ballnose",
+        "diameter": 25.0,
+        "angle": null,
+        "tip_diameter": 0.0,
+        "form_profile": null,
+        "name": "Шаровая 25 мм",
+        "tool_id": null
+      },
+      "depth": 4.0,
+      "passes": 1,
+      "comp": 0.0,
+      "position": "on",
+      "strategy": "spiral",
+      "raster_dir": "h",
+      "direction": "climb",
+      "ring_inner": null,
+      "corner_clean": null,
+      "swept_profile": null,
+      "swept_width": null
+    }
+  ],
+  "notes": "Общий шаблон первого MFS Nesting",
+  "origin": "mfs_common"
+}

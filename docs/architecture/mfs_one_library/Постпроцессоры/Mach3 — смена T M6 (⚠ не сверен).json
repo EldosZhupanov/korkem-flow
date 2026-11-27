@@ -1,0 +1,37 @@
+{
+  "name": "Mach3 — смена T M6 (⚠ не сверен)",
+  "controller": "mach3",
+  "units": "mm",
+  "file_extension": "tap",
+  "line_ending": "crlf",
+  "line_numbers": false,
+  "line_number_start": 10,
+  "line_number_step": 10,
+  "decimals_xyz": 3,
+  "decimals_feed": 0,
+  "arcs": true,
+  "arc_center": "incremental",
+  "spindle_wait_ms": 0,
+  "comments": "parentheses",
+  "header": [
+    "G21",
+    "G90",
+    "G17",
+    "G00 Z{SAFE_Z}",
+    "T{T} M6",
+    "M03 S{S}"
+  ],
+  "tool_change": [
+    "G00 Z{SAFE_Z}",
+    "M05",
+    "T{T} M6",
+    "M03 S{S}"
+  ],
+  "footer": [
+    "G00 Z{HOME_Z}",
+    "G00 X{HOME_X} Y{HOME_Y}",
+    "M05",
+    "M30"
+  ],
+  "notes": "Mach3: что делает M6, решают макросы станка (M6Start / M6End). Если в настройках Mach3 включено «Ignore Tool Change», станок не остановится для смены. Не сверен с работающей программой: перед резкой — прогон без материала или профиль «По образцу станка…»."
+}

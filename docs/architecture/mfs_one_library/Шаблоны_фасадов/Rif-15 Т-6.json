@@ -1,0 +1,64 @@
+{
+  "style": "reeding",
+  "width": 400.0,
+  "height": 600.0,
+  "thickness": 16.0,
+  "offsets": [],
+  "reeding": {
+    "gap_x": 18.0,
+    "gap_y": -1.0,
+    "stripe_gap": 21.0,
+    "depth": 2.0
+  },
+  "wave": null,
+  "name": "Rif-15 Т-6",
+  "operations": [
+    {
+      "id": "op1",
+      "type": "profile",
+      "contours": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "label": "Reeding (18 линий)",
+      "tool": {
+        "type": "endmill",
+        "diameter": 6.0,
+        "angle": null,
+        "tip_diameter": 0.0,
+        "form_profile": null,
+        "name": "Концевая 6 мм",
+        "tool_id": null
+      },
+      "depth": 3.0,
+      "passes": 1,
+      "comp": 0.0,
+      "position": "on",
+      "strategy": "spiral",
+      "raster_dir": "h",
+      "direction": "climb",
+      "ring_inner": null,
+      "corner_clean": null,
+      "swept_profile": null,
+      "swept_width": null
+    }
+  ],
+  "notes": "Общий шаблон первого MFS Nesting",
+  "origin": "mfs_common"
+}

@@ -1,0 +1,89 @@
+{
+  "style": "square",
+  "width": 400.0,
+  "height": 600.0,
+  "thickness": 16.0,
+  "offsets": [
+    {
+      "offset_x": 40.0,
+      "offset_y": 40.0,
+      "depth": 2.0,
+      "layer": "Layer1"
+    },
+    {
+      "offset_x": 60.0,
+      "offset_y": 60.0,
+      "depth": 2.0,
+      "layer": "Layer2"
+    },
+    {
+      "offset_x": 80.0,
+      "offset_y": 80.0,
+      "depth": 2.0,
+      "layer": "Layer3"
+    }
+  ],
+  "reeding": null,
+  "wave": null,
+  "name": "111111",
+  "operations": [
+    {
+      "id": "op1",
+      "type": "pocket",
+      "contours": [
+        0
+      ],
+      "label": "",
+      "tool": {
+        "type": "endmill",
+        "diameter": 12.0,
+        "angle": null,
+        "tip_diameter": 0.0,
+        "form_profile": null,
+        "name": "Концевая 12 мм",
+        "tool_id": null
+      },
+      "depth": 3.0,
+      "passes": 1,
+      "comp": 0.0,
+      "position": "inside",
+      "strategy": "raster",
+      "raster_dir": "v",
+      "direction": "climb",
+      "ring_inner": 1,
+      "corner_clean": null,
+      "swept_profile": null,
+      "swept_width": null
+    },
+    {
+      "id": "op2",
+      "type": "swept",
+      "contours": [
+        1
+      ],
+      "label": "",
+      "tool": {
+        "type": "endmill",
+        "diameter": 4.0,
+        "angle": null,
+        "tip_diameter": 0.0,
+        "form_profile": null,
+        "name": "Концевая 4 мм",
+        "tool_id": null
+      },
+      "depth": 9.0,
+      "passes": 1,
+      "comp": -2.0,
+      "position": "inside",
+      "strategy": "raster",
+      "raster_dir": "v",
+      "direction": "climb",
+      "ring_inner": null,
+      "corner_clean": null,
+      "swept_profile": "custom_31b12800",
+      "swept_width": 50.0
+    }
+  ],
+  "notes": "Общий шаблон первого MFS Nesting",
+  "origin": "mfs_common"
+}

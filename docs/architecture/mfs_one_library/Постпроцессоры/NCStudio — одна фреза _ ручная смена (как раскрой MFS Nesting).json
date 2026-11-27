@@ -1,0 +1,37 @@
+{
+  "name": "NCStudio — одна фреза / ручная смена (как раскрой MFS Nesting)",
+  "controller": "ncstudio",
+  "units": "mm",
+  "file_extension": "nc",
+  "line_ending": "lf",
+  "line_numbers": false,
+  "line_number_start": 10,
+  "line_number_step": 10,
+  "decimals_xyz": 3,
+  "decimals_feed": 0,
+  "arcs": true,
+  "arc_center": "incremental",
+  "spindle_wait_ms": 0,
+  "comments": "semicolon",
+  "header": [
+    "G21",
+    "G90",
+    "G17",
+    "M6 T{T}",
+    "G00 Z{SAFE_Z}",
+    "M03 S{S}"
+  ],
+  "tool_change": [
+    "G00 Z{SAFE_Z}",
+    "M05",
+    "M6 T{T}",
+    "M03 S{S}"
+  ],
+  "footer": [
+    "G00 Z{HOME_Z}",
+    "G00 X{HOME_X} Y{HOME_Y}",
+    "M05",
+    "M30"
+  ],
+  "notes": "Как программа раскроя первого MFS Nesting (M6 T1, M03 S18000, подачи F в мм/мин). Разные фрезы — отдельными файлами."
+}
